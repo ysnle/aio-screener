@@ -1,6 +1,6 @@
 ---
-verified_by: agent
-last_verified: 2026-06-20
+verified_by: agent (Sonnet 5, git/grep 실측 — Fable 5 v51.90 진단 Phase 0 A6b 후속)
+last_verified: 2026-07-02
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -30,43 +30,43 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `GATE-BASELINE-2026-06-04.md` | v50.4 evidence deployment gate + unit-test 실측 기준선 (env-dependent vs code-internal 분리) | 게이트/테스트 재측정, 운영 baseline 추가 시 |
 | `CHAT-DATA-AUDIT-2026-06-04.md` | v50.8 AI 채팅 데이터 출처 전수 감사 baseline (fetch 파이프라인·시장맥락 주입·재사용·dead code 실측) | 채팅 데이터 경로/컨텍스트 변경 시 |
 | `FRONTEND-UX-AUDIT-2026-06-05.md` | v50.12 21페이지 라이브 프론트엔드/UX audit (클러터·중복 / 초보자 직관성·위계). 측정+audit 근거, P0/P1/P2 백로그 | UI/UX 시정·페이지 구조 변경 시 |
-| `OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md` | v50.23 구조 전수 감사 (백엔드/프론트/데이터/UX/자동운영 실측) + Opus 작업 백로그 WO-1~14. cron 미발화·ATH 레짐 버그(aio-data.js:12303)·stale 내러티브 구조 등 P0 5건 | WO 항목 완료/구조 변경 시 |
+| `OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md` | v50.23 구조 전수 감사 (백엔드/프론트/데이터/UX/자동운영 실측) + Opus 작업 백로그 WO-1~14. cron 미발화·ATH 레짐 버그(aio-data.js:12303)·stale 내러티브 구조 등 P0 5건 (전부 해소됨, FABLE-SYSTEM-DIAGNOSIS §2 참조) | WO 항목 완료/구조 변경 시 |
+| `PAGE-UX-AUDIT-2026-06-13.md` | 페이지별 UX 감사. 일부 "빈 껍데기/고장" 항목은 이후 라이브 검증에서 거짓양성 판정됨(`DEFERRED-BLOCKS.md` §3 참조) | UI/UX 재점검 시 |
+| `DEFERRED-BLOCKS.md` | 미뤄둔 작업 / 진짜 블록 현황 — 데이터 없음(B1-3)·시간 필요(B4/B6)·운영자 결정(B5)으로 구분, "별도 세션 필요"의 실체 정리 | 블록 해제/작업 착수 시 |
+| `FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` | v51.90 시스템 뼈대 진단 (아키텍처/자동화·최신화/알고리즘). P0: 로컬 git 병듦(OneDrive, 2026-07-02 해소됨)·_context/CLAUDE.md 인코딩 파손(해소됨). RSI 서버↔클라 공식 상이, 백테스트≠라이브 모델, CI 헤드리스 갭 등 + Sonnet 5 로드맵 Phase 0~3 | 로드맵 항목 완료/구조 변경 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 14개 `_context/*.md` 활성. 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다.
+> 20개 Git-tracked + `FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md`(디스크상 존재, 커밋 전) = 21개 `_context/*.md` 활성(2026-07-02 실측). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 
-- **GitHub baseline (source of truth)**: `origin/main` at `638de8f` (`v50.4`, 2026-06-03)
-- **Claude worktree**: `claude/hungry-euler-8d3b20` — origin/main(v50.4) 머지 동기 완료(2026-06-04). v48.13 → v50.4.
-- **Codex integration source**: `.codex/worktrees/540d/AIO` (v48.13→v50.4 evidence-first 작업 원본)
+- **GitHub baseline (source of truth)**: `origin/main` at `d6902a1` (`v51.90`, 2026-07-02) — `git log --oneline -1` 실측. 이전 기재값(`638de8f`/v50.4/2026-06-03)은 47버전 stale이었음(정정).
+- **로컬 워크트리**: `git worktree list` 실측 결과 **별도 워크트리 없음** — 작업 디렉터리 자체가 `main` 브랜치(clean, origin/main과 동기). 이전 기재된 `claude/hungry-euler-8d3b20`, `.codex/worktrees/540d/AIO`는 더 이상 존재하지 않음(디렉터리 없음 확인) — 삭제.
 - **Live site**: `https://ysnle.github.io/aio-screener/`
-- **게이트 실측 baseline**: `GATE-BASELINE-2026-06-04.md` 참조. 헤드리스 측정 결과 단위테스트 673/692 pass(19 fail), 배포 게이트 `fail`(deployable=false, evidence 1737 pass / 1992 warn / 201 block, unclassified·needs_evidence 0). block 다수는 환경 의존(라이브 데이터 부재); 코드 내재 신호는 text-surface block 45 + trading logic proxy. **운영(키+네트워크) baseline 재측정은 미완**.
-- **Primary source of truth**: GitHub `origin/main` plus live asset parity, not stale local worktrees.
+- **게이트 실측 baseline**: `GATE-BASELINE-2026-06-04.md`는 v50.4 시점 1회성 헤드리스 측정(673/692 pass)이며 **v51.90 기준 재측정 없음**. `_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` §4 B5가 지적하듯, 900+ 브라우저 테스트(`js/aio-tests.js`)는 CI에서 실행되지 않고(`ci.yml`은 구문 검사 + 정적 계약 검사만) 브라우저 콘솔 수동 실행 전용 — **헤드리스 재측정 상설화가 로드맵 Phase 2 항목**.
+- **저장소 상태(2026-07-02)**: 로컬 `.git`이 OneDrive 동기화 폴더 안에서 loose object 2.4GiB+gc 실패 잔해로 병들어 있던 상태를 `git gc --aggressive --prune=now`로 복구(→ 12.21MiB, `git fsck --full` clean). OneDrive 재발 방지책(경로 이전 또는 동기화 제외)은 운영자 결정 대기 — `DEFERRED-BLOCKS.md` 또는 `FABLE-SYSTEM-DIAGNOSIS` §7 Phase 0 참조.
+- **Primary source of truth**: GitHub `origin/main` plus live asset parity.
 
 ## Current File Structure
 
 ```text
 AIO/
-├── index.html
-├── version.json
-├── manifest.json
-├── sw.js
+├── index.html · version.json · manifest.json · sw.js
 ├── js/
-│   ├── aio-core.js
-│   ├── aio-data.js
-│   ├── aio-ui.js
-│   ├── aio-chat.js
-│   ├── aio-tests.js
-│   └── aio-glossary.js
-├── CHANGELOG.md
-├── CLAUDE.md
-├── api_setup_guide.html
-├── cloudflare-worker-proxy.js
-├── _context/
-└── .claude/
-    └── skills/
+│   ├── aio-core.js · aio-data.js · aio-ui.js · aio-chat.js · aio-tests.js · aio-glossary.js
+├── scripts/              ← fetch-data.mjs · fetch-telegram-digest.mjs · ci-*.mjs(9종) · bump-version.mjs
+├── .github/workflows/    ← ci.yml · refresh-data.yml · data-watchdog.yml
+├── public-data/          ← data.json · history.json · screener.json · telegram-digest.json · operator-note.json
+├── CHANGELOG.md · CLAUDE.md · api_setup_guide.html · cloudflare-worker-proxy.js
+├── _context/             ← Git-tracked 위키 (위 표 참조, 21개)
+└── .claude/               ← 전부 Git-tracked (2026-05-18~)
+    ├── agents/            ← 4개 서브에이전트 (accessibility-auditor · code-reviewer · performance-analyzer · qa-auditor)
+    ├── commands/           ← 9개 wrapper
+    ├── hooks/              ← 6개 (PreToolUse/PostToolUse/Stop)
+    └── skills/             ← 7개: _shared · autoresearch · bug-fix · data-refresh · integrate · knowledge-lint · post-edit-qa
 ```
+
+> 상세 hooks/commands 매핑은 `_context/CLAUDE.md` 참조(2026-07-02 인코딩 파손 복구 + 실측 재작성됨).
 
 ## Backlink Map
 

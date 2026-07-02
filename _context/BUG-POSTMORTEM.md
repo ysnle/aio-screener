@@ -1,12 +1,16 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-06-30
+last_verified: 2026-07-02
 confidence: high
-latest_version: v51.76
-latest_P_number: P551
-total_entries: 550
-next_P_number: P552
+latest_version: v51.90
+latest_P_number: P583
+total_entries: 366
+next_P_number: P584
 ---
+
+> 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
+> corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
+> newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
 
 ## P551 - v51.76 - Public share readiness existed only as console audit, not visible product contract
 
@@ -4974,7 +4978,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P572 · v51.84 · [skip ci] data commits stopped reaching the live site after the deploy became CI-gated
 
-- **symptom**: A full-infrastructure diagnosis (2026-07-02) found the live site's `public-data/data.json` frozen at `generatedAt 2026-07-01T10:14Z` while the repo's main branch held a `23:43Z` refresh — 13+ hours of drift and growing. Every 2-hourly `refresh-data.yml` commit since the v51.83 push had landed in the repo but never deployed. Meanwhile the Data freshness watchdog kept reporting success.
+- **symptom**: A full-infrastructure diagnosis (2026-07-02) found the live site's `public-data/data.json` frozen at `generatedAt 2026-07-01T10:14Z` while the repo's main branch held a `23:43Z` refresh — 13+ hours of drift and growing. Every 30-minute `refresh-data.yml` commit since the v51.83 push had landed in the repo but never deployed. Meanwhile the Data freshness watchdog kept reporting success. (2026-07-02 correction: originally said "2-hourly" — cadence has been 30-minute since v50.23; see `_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md`.)
 - **root_cause**: Two independent decisions composed into a failure. (1) `refresh-data.yml` committed with `[skip ci]` — harmless under the original legacy branch-deploy, which republished main on every push regardless of CI. (2) v51.82 (P557/R248) switched GitHub Pages to a workflow deploy job gated on CI validate — correct in itself, but now `[skip ci]` skipped the **entire** CI workflow including the deploy job, so data commits could no longer publish. Neither change was wrong alone; nobody audited existing commit producers against the new deploy path. The watchdog missed it because it only read committed repo files ("It does not fetch network data" was in its own header comment), so the repo looked fresh while the deployed surface went stale.
 - **fix**: (1) Removed `[skip ci]` from the refresh-data commit message — data commits now run CI validate + deploy every cycle (≈1min per run, well within free-tier minutes; validate gating data commits is a safety gain, not a cost). (2) Added a "Check LIVE site freshness" step to `data-watchdog.yml` that fetches `https://ysnle.github.io/aio-screener/public-data/data.json` and fails when `meta.generatedAt` exceeds 360min — catching any future deploy-path breakage within hours instead of never.
 - **violated_rule**: R263 (created from this incident).
@@ -5051,5 +5055,23 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **fix**: Mirrored `qualityRaw`'s clamp-and-normalize pattern: each inverse multiple is clamped to a typical range and divided by that range before averaging — `1/PE→[0,0.20]/0.20`, `1/PB→[0,2.0]/2.0`, `1/EV-EBITDA→[0,0.20]/0.20`. Verified by extraction: post-fix correlation with `1/PB` and `1/PE` are 0.542 and 0.529 respectively — genuinely balanced.
 - **violated_rule**: R268 (created from this incident).
 - **prevention**: See R268.
+
+## P582 · v51.90 · Local `.git` corrupted by OneDrive sync conflict — 20,503 loose objects (2.4GiB) + 370 failed-gc tmp_obj remnants
+
+- **symptom**: A structural diagnosis (Fable 5, 2026-07-02) found the local git repository unhealthy: `git count-objects -vH` reported 20,503 loose objects at 2.40GiB (a healthy repo keeps loose objects in the low hundreds), plus 370 `tmp_obj_*` garbage files (103.63MiB) under `.git/objects/` — direct evidence of `git gc`/`repack` repeatedly failing partway through. `du .git` itself hit a 2-minute timeout.
+- **root_cause**: The repo lived inside a OneDrive-synced folder (`OneDrive\문서\Claude\Projects\AIO`) while `refresh-data.yml` pulls a data commit into it every 30 minutes (40% of the last 500 commits were `data:` commits; `public-data/telegram-digest.json` alone changed in 10 of the last 20). Each pull writes a burst of new git objects; OneDrive's background sync opens/locks the same `.git/objects/` files to upload them to the cloud. When a `git gc` ran while OneDrive held a lock, the repack aborted mid-write, leaving `tmp_obj_*` debris and never reclaiming the loose objects — repeating every cycle with no self-healing mechanism.
+- **fix**: `git gc --aggressive --prune=now` reclaimed everything in one pass (0 loose objects, 0 garbage, 1 pack at 12.21MiB; `git fsck --full` clean). Root cause addressed by relocating the entire project out of OneDrive to `C:\Projects\AIO` (robocopy `/E /COPY:DAT`, verified via matching file count (666=666) and `HEAD` SHA before deleting the OneDrive copy) — this was an explicit operator decision among three options (relocate / exclude `.git` from sync / defer), not a default action.
+- **violated_rule**: none named yet — first occurrence of this failure class in this project.
+- **prevention**: Do not place a git repository with a high-frequency automated commit cadence inside a cloud-sync folder (OneDrive/Dropbox/Google Drive) without excluding `.git` from sync. If `git count-objects -vH` ever shows `garbage > 0` or loose objects in the thousands, suspect a sync-tool lock conflict before assuming disk corruption.
+- **verification**: `git count-objects -vH` (0 loose / 0 garbage / 1 pack); `git fsck --full` (no output = clean); `git log --oneline -3` and `git status --short` identical before/after at both paths.
+
+## P583 · v51.90 · `_context/CLAUDE.md` disk-corrupted by double-encoding round-trip; `_context/CODE-MAP.md` stale by 60 versions
+
+- **symptom**: `_context/CLAUDE.md` — the hub document every session's mandatory preflight (`WORKFLOW-GOVERNANCE.md`) requires reading first — was unreadable mojibake on disk (`file` reported valid UTF-8 with BOM, but content was garbled: Korean text round-tripped through a non-UTF-8 codepage and re-saved, with irreversible bytes replaced by literal `?`). Separately, `_context/CODE-MAP.md` was pinned at `target_version: v50.60` (2026-06-16) while the app was at v51.90 — 60 versions and a full CSS/DOM restructure later (e.g. `page-home` moved from line 4044 to 5227; CSS grew 3693→4888 lines), violating the project's own "리팩토링 ±500줄 → 재스캔" rule. Three files (`CLAUDE.md`, `BUG-POSTMORTEM.md`, `RULES.md`) also stated the data-refresh cadence as "2시간마다"/"2-hourly" — `refresh-data.yml`'s cron has been 30-minute (`*/30` then `17,47 * * * *`) since it was introduced at v50.23 and was never 2-hourly at any point in git history.
+- **root_cause**: The mojibake is consistent with an editor or tool opening the UTF-8 file with the wrong system codepage (e.g. CP949) and saving back — lossy and not mechanically reversible once the `?` replacement characters are written. The CODE-MAP staleness is a governance-loop failure: the "±500 line reindeer scan" rule has no CI enforcement (no gate checks `target_version` against `version.json`), so it silently drifted for 60 versions with no error signal. The "2시간마다" wording appears to be a one-time authoring slip (typed once, then copy-referenced by 2 more files) that was never caught because no gate cross-checks prose cadence claims against `refresh-data.yml`'s actual cron expression.
+- **fix**: `_context/CLAUDE.md` rewritten from scratch in clean UTF-8, reconstructed from root `CLAUDE.md` + `_context/INDEX.md` plus fresh `git ls-files` verification — this also caught that the old content's claim "`.claude/hooks`/`.claude/commands` are not GitHub-tracked" had been **false since 2026-05-18** (commit `09d2200`; both are tracked, along with `.claude/agents/` which no doc previously mentioned). `_context/CODE-MAP.md` fully re-derived via `grep -n` against the live v51.90 source for every function/constant it documents (not copied from the stale version). `_context/INDEX.md` baseline updated (`638de8f`/v50.4 → `d6902a1`/v51.90), two undocumented tracked files added to its table (`DEFERRED-BLOCKS.md`, `PAGE-UX-AUDIT-2026-06-13.md`), and two dead worktree references removed after `git worktree list` confirmed neither exists. "2시간마다"/"2-hourly" corrected to "30분마다"/"30-minute" in all 3 files.
+- **violated_rule**: none named yet for the encoding corruption (first occurrence); the CODE-MAP staleness is a repeated instance of the project's own re-scan rule going unenforced (no R-number currently covers "staleness rule must have a CI gate, not just a written instruction").
+- **prevention**: Treat any `_context/*.md` that fails a plain-UTF-8 read (garbled Korean, stray `?` glyphs) as corrupted, not as content to interpret — reconstruct from the root `CLAUDE.md`/related docs rather than guess at the mojibake. Before trusting a `_context` doc's file-tracking or line-number claims, spot-check with `git ls-files` / `grep -n` rather than citing the doc as ground truth. Consider promoting "CODE-MAP `target_version` must match `version.json` within N versions" to an actual CI check rather than a prose-only rule, given it silently drifted 60 versions with zero signal.
+- **verification**: `file _context/CLAUDE.md` (UTF-8 with BOM, no garbled bytes); `git ls-files .claude/hooks/ .claude/commands/ .claude/agents/` (all tracked); `grep -n "2시간마다\|2-hourly" CLAUDE.md _context/*.md` (zero matches after fix, excluding this entry's own historical note); `git log --follow -p -- .github/workflows/refresh-data.yml | grep cron:` (30-minute cadence since v50.23, never 2-hourly).
 
 

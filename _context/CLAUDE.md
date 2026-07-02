@@ -1,90 +1,102 @@
-﻿# AIO Screener ??_context/ ?꾨줈?앺듃 而⑦뀓?ㅽ듃
+﻿# AIO Screener — _context/ 프로젝트 컨텍스트
 
-> 猷⑦듃 `CLAUDE.md` = ?덈? 洹쒖튃 + ?묒뾽 洹쒖튃. ???뚯씪 = ?뚯씪 援ъ“ + Hook + Skills + 蹂듬━ 猷⑦봽.
+> 루트 `CLAUDE.md` = 얇은 절대 규칙 + 작업 규칙. 이 문서 = 파일 구조 + Hook + Skills 매핑 + 복리 루프.
+> 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
+> `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **?꾩옱 踰꾩쟾**: v51.90
-- **?꾩껜 踰꾩쟾 ?대젰 ??`CHANGELOG.md`** (?곸꽭 蹂寃??대젰???⑥씪 異쒖쿂). ???뚯씪? 援ъ“쨌Hook쨌Skills쨌蹂듬━ 猷⑦봽留??좎??섎ŉ, 踰꾩쟾蹂?蹂寃??명듃?????댁긽 以묐났 蹂닿??섏? ?딅뒗??(WO-12 臾몄꽌 ?ㅼ씠?댄듃 ???댁쟾 `## vXX note` ?꾩쟻遺꾩? CHANGELOG.md?????곸꽭??蹂댁〈??.
+- **현재 버전**: v51.90
+- **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 臾몄꽌 (17媛?Git-tracked ?쒖꽦)
+## _context/ 문서 (20개 Git-tracked 활성, 2026-07-02 `git ls-files` 실측)
 
-| 臾몄꽌 | ??븷 | 媛깆떊 ?몃━嫄?|
+| 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
-| CLAUDE.md | ???뚯씪: 援ъ“, hooks, skills, 蹂듬━ 猷⑦봽 | 援ъ“ ?먮뒗 ?뚰겕?뚮줈 蹂寃???|
-| WORKFLOW-GOVERNANCE.md | Agent preflight, postmortem-to-gate, skill/self-operation closure contract | Workflow, skill, or CI gate change |
-| RULES.md | 留덉뒪??猷?R1~R217 | ??洹쒖튃/?⑦꽩 諛쒓껄 ??|
-| BUG-POSTMORTEM.md | 踰꾧렇 ?ы썑 遺꾩꽍 P1~P509 (R25 ??갭議? | 踰꾧렇 ?섏젙 ??|
-| QA-CHECKLIST.md | QA 14?곗뼱 泥댄겕由ъ뒪??v3.7 | /qa 諛쒓껄 ??|
-| KNOWLEDGE-BASE.md | 湲곗닠 ?몄궗?댄듃 異뺤쟻 (R26) | ?몄궗?댄듃 諛쒓껄 ??|
-| CODE-MAP.md | index.html + js 紐⑤뱢 line 踰붿쐞 留?| 由ы뙥?좊쭅 짹500以?|
-| INDEX.md | 吏??踰좎씠???몃뜳??+ 諛깅쭅??(R24) | /knowledge-lint L6 |
-| WORKTREE-AUDIT.md | GitHub/live/worktree ?쇱슦??+ 誘몃같???묒뾽 ?몃깽?좊━ | ?뚰겕?몃━ 蹂묓빀/諛고룷/媛먯궗 |
-| DEEP-QA-2026-05-05.md | UI/API/?섏씠吏 濡쒖쭅 ?ъ링 QA 寃곌낵 | ?ъ링 QA ?먮뒗 live/local parity 蹂寃?|
-| OPERATIONS-AUDIT-2026-05-06.md | ?댁쁺 吏?띿꽦/?먯껜 吏꾨떒/罹먯떆 ?뚯쟾 ?먭? | ?고????먮뒗 諛고룷 ?댁쁺??蹂寃?|
-| DATA-PIPELINE-AUDIT-2026-05-06.md | API/?뚯뒪遺???뚮뜑 sink源뚯? ?곗씠???뚯씠?꾨씪???덉씠??留?| API/遺꾩꽍/?뚮뜑 ?뚯씠?꾨씪??蹂寃?|
-| ARCHITECTURE-AUDIT-2026-05-10.md | v49.3 ?꾩닔媛먯궗 蹂닿퀬??湲곕컲 ?꾪궎?띿쿂 蹂닿컯 ?붿빟 | ?곗씠???⑥닔/由ъ뒪???덉씠??蹂寃?|
-| DATA-FRESHNESS-AUDIT-2026-05-10.md | v49.4 ?곗씠??理쒖떊???먮룞 媛깆떊 蹂닿컯 ?붿빟 | freshness policy/source/stale 湲곗? 蹂寃?|
-| GATE-BASELINE-2026-06-04.md | v50.4 evidence 寃뚯씠???⑥쐞?뚯뒪???ㅼ륫 湲곗???| 寃뚯씠???뚯뒪???ъ륫????|
-| CHAT-DATA-AUDIT-2026-06-04.md | v50.8 AI 梨꾪똿 ?곗씠??異쒖쿂 ?꾩닔 媛먯궗 baseline | 梨꾪똿 ?곗씠??寃쎈줈/而⑦뀓?ㅽ듃 蹂寃???|
-| FRONTEND-UX-AUDIT-2026-06-05.md | v50.12 21?섏씠吏 ?쇱씠釉??꾨줎?몄뿏??UX audit (?대윭?걔룹쨷蹂?吏곴??굿룹쐞怨? + P0/P1/P2 諛깅줈洹?| UI/UX ?쒖젙쨌?섏씠吏 援ъ“ 蹂寃???|
-| OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md | v50.23 援ъ“ ?꾩닔 媛먯궗 ?ㅼ륫 + Opus ?묒뾽 諛깅줈洹?WO-1~14 (cron 誘몃컻?붋텮TH ?덉쭚 踰꾧렇쨌stale ?대윭?곕툕 援ъ“ ??P0 5嫄? | WO ??ぉ ?꾨즺/援ъ“ 蹂寃???|
-| DEFERRED-BLOCKS.md | 誘몃쨪???묒뾽 / 吏꾩쭨 釉붾줉 ?꾪솴 (?곗씠?걔룹떆媛꽷룹슫?곸옄 寃곗젙) + ?ㅼ쓬 ?몄뀡 ?묒뾽 紐⑸줉 | 釉붾줉 ?댁젣/?묒뾽 李⑹닔 ??|
+| CLAUDE.md | 이 파일: 구조, hooks, skills, 복리 루프 | 구조 또는 워크플로 변경 시 |
+| WORKFLOW-GOVERNANCE.md | Agent preflight, postmortem-to-gate, skill/self-operation closure contract | Workflow/skill/CI 게이트 변경 시 |
+| RULES.md | 마스터 룰 R1~R268 | 새 규칙/패턴 발견 시 |
+| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P581 (R25 재발 추적) | 버그 수정 시 |
+| QA-CHECKLIST.md | QA 14단계 체크리스트 | /qa 발견 시 |
+| KNOWLEDGE-BASE.md | 기술 인사이트 축적 (R26) | 인사이트 발견 시 |
+| CODE-MAP.md | index.html + js 모듈 line 범위 맵 | 리팩토링 ±500줄 |
+| INDEX.md | 지식 베이스 인덱스 + 배포 baseline (R24) | /knowledge-lint L6, _context 문서 추가/제거 시 |
+| WORKTREE-AUDIT.md | GitHub/live/worktree 라우팅 + 미배포 작업 인벤토리 | 워크트리 병합/배포/감사 시 |
+| DEEP-QA-2026-05-05.md | UI/API/페이지 로직 심층 QA 결과 | 심층 QA 또는 live/local parity 변경 시 |
+| OPERATIONS-AUDIT-2026-05-06.md | 운영 지속성/자체 진단/캐시 SW 감사 | 운영/배포 하드닝 변경 시 |
+| DATA-PIPELINE-AUDIT-2026-05-06.md | API/전송/저장/분석/렌더 sink까지 데이터 파이프라인 맵 | API/분석/렌더 파이프라인 변경 시 |
+| ARCHITECTURE-AUDIT-2026-05-10.md | v49.3 아키텍처 보강 요약 | 데이터 함수/리스크 레이어 변경 시 |
+| DATA-FRESHNESS-AUDIT-2026-05-10.md | v49.4 데이터 최신화 자동 갱신 보강 요약 | freshness policy/source/stale 기준 변경 시 |
+| GATE-BASELINE-2026-06-04.md | v50.4 evidence 게이트 단위테스트 실측 기준선 | 게이트/테스트 재측정 시 |
+| CHAT-DATA-AUDIT-2026-06-04.md | v50.8 AI 채팅 데이터 출처 전수 감사 baseline | 채팅 데이터 경로/컨텍스트 변경 시 |
+| FRONTEND-UX-AUDIT-2026-06-05.md | v50.12 21페이지 라이브 프론트엔드/UX audit + P0/P1/P2 백로그 | UI/UX 시정·페이지 구조 변경 시 |
+| OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md | v50.23 구조 전수 감사 + Opus 작업 백로그 WO-1~14 (P0 5건 전부 해소됨) | WO 항목 완료/구조 변경 시 |
+| PAGE-UX-AUDIT-2026-06-13.md | 페이지별 UX 감사 (일부 항목은 이후 라이브 검증에서 거짓양성 판정 — DEFERRED-BLOCKS §3 참조) | UI/UX 재점검 시 |
+| DEFERRED-BLOCKS.md | 미뤄둔 작업 / 진짜 블록 현황 (데이터·시간·운영자 결정 구분) | 블록 해제/작업 착수 시 |
+| FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md | v51.90 시스템 뼈대 진단(아키텍처/자동화/알고리즘) + Sonnet 5 작업 로드맵 Phase 0~3 | 로드맵 항목 완료/구조 변경 시 |
 
-## ?뚯씪 援ъ“
+> 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.
+> `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore`로 로컬 전용(레거시, RULES/QA로 대체됨).
+
+## 파일 구조
 
 ```
 AIO/
-?쒋?? index.html 쨌 version.json 쨌 manifest.json 쨌 sw.js
-?쒋?? js/
-??  ?쒋?? aio-core.js 쨌 aio-data.js 쨌 aio-ui.js 쨌 aio-chat.js 쨌 aio-tests.js 쨌 aio-glossary.js
-?쒋?? CHANGELOG.md 쨌 CLAUDE.md 쨌 api_setup_guide.html 쨌 cloudflare-worker-proxy.js
-?쒋?? _context/           ??Git-tracked ?꾪궎 (??臾몄꽌 ??李몄“)
-?쒋?? .claude/
-??  ?붴?? skills/         ??Git-tracked 3媛? bug-fix 쨌 data-refresh 쨌 integrate
+├── index.html · version.json · manifest.json · sw.js
+├── js/
+│   ├── aio-core.js · aio-data.js · aio-ui.js · aio-chat.js · aio-tests.js · aio-glossary.js
+├── scripts/            ← fetch-data.mjs · fetch-telegram-digest.mjs · ci-*.mjs 9종 · bump-version.mjs
+├── CHANGELOG.md · CLAUDE.md · cloudflare-worker-proxy.js
+├── _context/           ← Git-tracked 위키 (위 표 참조)
+├── .github/workflows/  ← ci.yml · refresh-data.yml · data-watchdog.yml
+└── .claude/             ← 전부 Git-tracked (2026-05-18~, 09d2200 이후)
+    ├── agents/          ← 4개: accessibility-auditor · code-reviewer · performance-analyzer · qa-auditor
+    ├── commands/         ← 9개 wrapper (아래 표)
+    ├── hooks/            ← 6개 (아래 표), settings.local.json에 배선
+    ├── skills/           ← 7개: _shared · autoresearch · bug-fix · data-refresh · integrate · knowledge-lint · post-edit-qa
+    └── settings.local.json ← hooks 배선 + 권한 설정 (Git-tracked)
 ```
 
-> 李멸퀬: ?쇰? Claude 濡쒖뺄 ?뚰겕?몃━??`.claude/commands`, `.claude/hooks`, 異붽? skills/agents瑜?蹂꾨룄 ?댁쁺 ?뚯씪濡?蹂댁쑀?????덈떎. GitHub 諛고룷 湲곗? ?먭?? Git-tracked ?뚯씪???곗꽑?쒕떎.
+> 이전 버전 문서(및 `_context/CODE-MAP.md` 하단 메모)의 "`.claude/commands`와 `.claude/hooks`는
+> GitHub-tracked checkout에 없다"는 서술은 **2026-05-18(커밋 09d2200) 이후로는 사실이 아니다** — 실측 정정.
+> `.agents/`(리포 루트, 빈 플레이스홀더)와 `.claude/agents/`(4개 서브에이전트 정의)는 별개 경로다.
 
-## Commands ??Skills (R27: ???ㅽ궗 ??wrapper ?숈떆 ?앹꽦)
+## Commands ↔ Skills (R27: 새 스킬 시 wrapper 동시 생성)
 
 | `/command` | skill | eval |
 |------------|-------|------|
-| `/deploy` | ?몃씪??| ??|
+| `/deploy` | 인라인 | — |
 | `/qa` | post-edit-qa | T1~T14, Q1~Q7 |
 | `/bug-fix` | bug-fix | B1~B6 |
 | `/integrate` | integrate | E1~E9 |
 | `/data-refresh` | data-refresh | D1~D8 |
-| `/session-save` | ?몃씪??| S1~S6 |
+| `/session-save` | 인라인 | S1~S6 |
 | `/knowledge-lint` | knowledge-lint | L1~L7 |
-| `/version-up` | ?몃씪??| ??|
-| `/autoresearch` | autoresearch | ??|
+| `/version-up` | 인라인 | — |
+| `/autoresearch` | autoresearch | — |
 
-## Hook ?쒖뒪??
-GitHub-tracked v49.1 ?듯빀蹂몄뿉??hooks媛 ?ы븿?섏뼱 ?덉? ?딅떎. Claude 濡쒖뺄 ?댁쁺 ?뚰겕?몃━??hooks媛 ?덉쓣 ?뚮쭔 ?꾨옒 ?덉씠?대? ?곸슜?쒕떎.
+## Hook 시스템 (`.claude/hooks/`, Git-tracked, `settings.local.json`에 배선됨)
 
-| Hook | ??대컢 | ??븷 |
+| Hook | 트리거 | 역할 |
 |------|--------|------|
-| `protect-files.sh` | PreToolUse | 諛깆뾽/?꾩뭅?대툕 ??뼱?곌린 李⑤떒 |
-| `block-dangerous.sh` | PreToolUse | rm -rf, force push 李⑤떒 |
-| `validate-edit.sh` | PostToolUse | div ?대┝/?ロ옒 洹좏삎 寃利?|
-| `check-antipatterns.sh` | PostToolUse | alert()/confirm(), d.pct\|\|0, 洹뱀냼 ?고듃 媛먯? |
-| `check-version-sync.sh` | PostToolUse | R1 踰꾩쟾 6怨??숆린???먮룞 寃利?(index.html쨌APP_VERSION쨌version.json쨌CLAUDE.md) |
-| `auto-commit-on-stop.sh` | Stop | ?몄뀡 醫낅즺 ??誘몄빱諛?蹂寃쎌궗??WIP ?먮룞 ???|
+| `protect-files.sh` | PreToolUse | 백업/아카이브 덮어쓰기 차단 |
+| `block-dangerous.sh` | PreToolUse | rm -rf, force push 차단 |
+| `validate-edit.sh` | PostToolUse | div 닫힘/괄호 균형 검증 |
+| `check-antipatterns.sh` | PostToolUse | alert()/confirm(), `d.pct\|\|0`, 금지 핫코드 감지 |
+| `check-version-sync.sh` | PostToolUse | R1 버전 6곳 동기화 자동 검증(index.html·APP_VERSION·version.json·CLAUDE.md) |
+| `auto-commit-on-stop.sh` | Stop | 세션 종료 시 미푸시 변경사항 WIP 자동 커밋 |
 
-## 蹂듬━ 猷⑦봽 (Karpathy Second Brain)
+## 복리 루프 (Karpathy Second Brain)
 
 ```
-?먮낯 ?ъ엯 ???묒뾽 ???곗텧臾???_context/ ?섎쪟 ???ㅼ쓬 ?묒뾽 ?뺥솗?꾟넁
+작업 수행 → 산출물 → _context/ 환류 → 실행 게이트/CI 연결 → 다음 작업이 더 정확
 ```
 
-| ?묒뾽 | ?섎쪟 ???|
+| 작업 | 환류 대상 |
 |------|----------|
-| 踰꾧렇 ?섏젙 | POSTMORTEM ??3??諛섎났 ??RULES ?밴꺽 |
-| /integrate | CHAT_CONTEXTS + SCREENER_DB + KW + KNOWLEDGE-BASE(E9) |
-| /qa | QA-CHECKLIST ??ぉ 異붽? |
-| /data-refresh | DATA_SNAPSHOT + ?띿뒪???뺥빀??|
-| ?몄궗?댄듃 | KNOWLEDGE-BASE (R26) |
-| /knowledge-lint | INDEX.md + violated_rule 鍮덈룄 |
+| 버그 수정 | BUG-POSTMORTEM → 3회 반복 시 RULES 승격 |
+| /integrate | CHAT_CONTEXTS + SCREENER_DB + TECH_KW/MACRO_KW + KNOWLEDGE-BASE |
+| /qa | QA-CHECKLIST 항목 추가 |
+| /data-refresh | DATA_SNAPSHOT + 텍스트 정합성 + staleness table |
+| 인사이트 | KNOWLEDGE-BASE (R26) |
+| /knowledge-lint | INDEX.md + violated_rule 빈도 |
 
-**?먮윭 蹂듬━ 諛⑹?**: 異붿륫 ?먮떒 湲덉?(P68) + /knowledge-lint 二?1?? + verified_by agent/human 援щ텇
-
-
+**에러 복리 방지**: 추측 판단 금지(코드 확인 없이 단정 금지) + `/knowledge-lint` 주 1회+ 실행 + `verified_by: agent/human` 구분 표기.
