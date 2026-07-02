@@ -15932,13 +15932,25 @@ function _aioComputeFactorRanks() {
     return denom > 0 ? parts.reduce(function(s,p){return s+p.v*p.w;},0)/denom : null;
   };
   var lowvolRaw = function(r){ return typeof r.vol==='number' ? -r.vol : null; };     // 낮을수록 우수 → 음수화
-  var sizeRaw = function(r){ return (typeof r.mcap==='number' && r.mcap>0) ? Math.log(r.mcap) : null; };
-  // 밸류: 1/PE + 1/PB + 1/EV-EBITDA 각각 수익률로 변환 평균 (낮은 배수 = 높은 수익률 = 우수)
+  // v51.89 P580/R265: size 팩터 부호 반전 — Fama-French SMB(소형주 프리미엄)는 "작을수록 우수"인데
+  //   기존 Math.log(mcap)(음수화 없음)은 "클수록 우수"로 정반대였다. 이 앱 AI 채팅 자체가
+  //   "수익률 = 시장베타 + 사이즈 + 밸류 + 모멘텀 + 퀄리티 + 잔차"(js/aio-chat.js:851)로
+  //   사이즈를 표준 팩터-어트리뷰션 리스크 프리미엄으로 사용자에게 가르치면서, 랭킹 로직은
+  //   반대 방향이었던 내부 모순. 다른 5개 팩터(momentum/trend/lowvol/value/quality)는 전부
+  //   학술 정의와 부호가 일치하므로 size 만 lowvol 과 동일한 음수화 패턴으로 맞춘다.
+  //   스크리너의 본질(이미 알려진 "크다"가 아니라 차별화된 신호를 찾는 것)에도 부합.
+  var sizeRaw = function(r){ return (typeof r.mcap==='number' && r.mcap>0) ? -Math.log(r.mcap) : null; };
+  // v51.89 P581/R265: 밸류 팩터 정규화 — 세 배수(PE/PB/EV-EBITDA)를 역수 취한 뒤 raw 평균하면
+  //   자연 스케일이 가장 큰 1/PB(대략 0.1~2)가 1/PE·1/EV-EBITDA(대략 0.01~0.2)를 압도해
+  //   "3배수 블렌드"라는 의도와 달리 사실상 P/B 단일 팩터가 된다. 퀄리티 팩터(바로 아래)가
+  //   이미 쓰는 clamp+정규화 패턴을 동일 적용 — 각 수익률을 전형적 범위로 클램핑 후 그 범위로
+  //   나눠 [0,1] 근사 동일 스케일로 맞춘 뒤 평균한다.
   var valueRaw = function(r) {
     var p = [];
-    if (typeof r.pe === 'number' && r.pe > 0 && r.pe < 200) p.push(1/r.pe);  // PE<200 극단 필터
-    if (typeof r.pb === 'number' && r.pb > 0 && r.pb < 50)  p.push(1/r.pb);  // PB<50 극단 필터
-    if (typeof r.evEbitda === 'number' && r.evEbitda > 0 && r.evEbitda < 100) p.push(1/r.evEbitda);
+    var clampV = function(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); };
+    if (typeof r.pe === 'number' && r.pe > 0 && r.pe < 200) p.push(clampV(1/r.pe, 0, 0.20) / 0.20);        // E/P: PE 5~∞ → [0,1]
+    if (typeof r.pb === 'number' && r.pb > 0 && r.pb < 50)  p.push(clampV(1/r.pb, 0, 2.0) / 2.0);          // B/P: PB 0.5~∞ → [0,1]
+    if (typeof r.evEbitda === 'number' && r.evEbitda > 0 && r.evEbitda < 100) p.push(clampV(1/r.evEbitda, 0, 0.20) / 0.20); // EBITDA/EV: EV/EBITDA 5~∞ → [0,1]
     return p.length ? avg(p) : null;
   };
   // 퀄리티: ROE/마진/매출성장을 개별 클램핑 후 평균 — 스케일 차이(ROE%·마진%·성장%)로 인한 편향 방지

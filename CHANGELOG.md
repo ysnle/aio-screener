@@ -3,6 +3,13 @@
 - **Watchdog live-surface check**: `data-watchdog.yml` gained a "Check LIVE site freshness" step that fetches the deployed `public-data/data.json` and fails when `meta.generatedAt` exceeds 360min — the repo-only check had a structural blind spot for deploy-path breakage. P572/R263.
 - R1 7곳 v51.84.
 
+## v51.89 (2026-07-02)
+- **Factor ranking design decisions resolved per the screener's core purpose (surfacing differentiated signal, not restating known information)**:
+- **(1) Size factor sign flip (P580/R265)**: `sizeRaw` scored large-caps higher (`Math.log(mcap)`), the opposite of the academic SMB size premium. Confirmed as an internal contradiction, not a style choice: the app's own AI-chat institutional framework (js/aio-chat.js:851) already teaches users "수익률 = 시장베타 + 사이즈 + 밸류 + 모멘텀 + 퀄리티 + 잔차", presenting size as the standard risk-premium factor, while the ranking code implemented it backwards. Every other factor (lowvol/value/quality/momentum/kalman) was already correctly signed. Fixed to `-Math.log(mcap)`, mirroring `lowvolRaw`'s existing negation pattern; weights unchanged (5-8%). Verified: small-cap raw score now exceeds large-cap's (-21.4 vs -26.9).
+- **(2) Value factor scale normalization (P581/R268 new rule)**: `valueRaw` averaged raw `1/PE`+`1/PB`+`1/EV-EBITDA` intending a balanced 3-multiple blend, but a synthetic-universe check found the composite correlated 0.982 with `1/PB` alone vs only 0.187 with `1/PE` — effectively a single P/B factor, because `1/PB`'s natural scale dwarfs the others. Fixed by mirroring the adjacent `qualityRaw`'s clamp-and-normalize pattern (each yield clamped to a typical range and divided by it before averaging). Verified: post-fix correlations balanced at 0.542/0.529.
+- Server-side backtest (`scripts/fetch-data.mjs`) doesn't include size/value factors — no corresponding change needed there.
+- R1 7곳 v51.89
+
 ## v51.88 (2026-07-02)
 - **Systematic algorithm/logic audit — 4 fixes** (trading score, technical indicators, factor ranking, backtest reviewed end-to-end; backtest confirmed free of look-ahead bias — factors from `c.slice(0,p+1)`, forward returns strictly after; Spearman/winsorize/sector-blend/weight-renormalization all verified sound):
 - **(1) Credit-stress input inversion (P576/R266)**: `computeTradingScore()` preferred the duration-contaminated `(100-HYG)×15bp` heuristic over the real FRED HY OAS the app already fetches — because `fetchHYSpread()` stored the measurement only in DOM/chart. A 100bp rate rise alone faked +45bp of "spread widening". Now `fetchHYSpread` stores `window._hySpreadBp` + syncs `DATA_SNAPSHOT.hySpread`, and the score prefers live measurement → snapshot → heuristic-last.

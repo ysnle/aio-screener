@@ -6,6 +6,13 @@ target_version: v51.80
 
 ---
 
+## R268. Combining sub-signals of different natural scale into one factor requires normalizing each first (v51.89)
+
+- Never average (or otherwise linearly combine) raw quantities that can have different natural numeric ranges and call the result a balanced blend — whichever component has the largest magnitude/variance will silently dominate, regardless of the intended weighting. This applies even when every component is conceptually "the same kind of thing" (e.g. three different inverse valuation multiples): natural scale, not conceptual similarity, determines dominance in a raw average.
+- Clamp each sub-component to a representative range and divide by that range (→ roughly `[0,1]`) before averaging, so each contributes comparably. `qualityRaw`'s ROE/margin/revGrowth handling was the original correct pattern in this codebase; `valueRaw`'s fixed PE/PB/EV-EBITDA handling now mirrors it.
+- Verify by measuring each sub-component's correlation with the combined output on a realistic synthetic universe — if one correlates far higher than the others, the blend is not actually balanced no matter what the code comment claims.
+- See P581/BUG-POSTMORTEM.md for the incident (a claimed "3-multiple value blend" was empirically ~98% a single P/B factor).
+
 ## R267. "Current"-labeled rolling aggregations must anchor windows to the newest observation (v51.88)
 
 - Any windowed/chunked aggregation whose output describes the present state (weekly bars, rolling regimes, "최근 N일" summaries) must build windows anchored to the most recent bar, pushing any partial remainder to the *oldest* end. Front-anchored chunking silently drops the newest `len % window` observations — the exact data a "current" readout must include.

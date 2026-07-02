@@ -5036,4 +5036,20 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **violated_rule**: none (latent-defect hardening).
 - **prevention**: Prefer `Number.isFinite` (no coercion) over global `isFinite` when the value can be null/undefined.
 
+## P580 · v51.89 · size 팩터의 부호가 학술적 SMB 정의와 정반대
+
+- **symptom**: Following the systematic algorithm audit, the user asked for a decision on two flagged design observations, framed around "the screener's core purpose." `_aioComputeFactorRanks()`'s `sizeRaw` (js/aio-data.js) scored large-cap stocks *higher* (`Math.log(mcap)`, no negation), the opposite of the academic size premium (Fama-French SMB: small caps carry a return premium, so a "size factor" should score smaller caps higher). Every other factor in the same 6-factor model was already correctly signed toward its academic namesake's outperformance direction: `lowvolRaw = -vol` (low vol wins), `valueRaw` uses inverse multiples (cheap wins), `qualityRaw` rewards high ROE/margin/growth, `momRaw`/`kalmanRaw` reward positive trend. `sizeRaw` was the lone exception, with no comment explaining a deliberate reversal.
+- **root_cause**: A confirmed internal contradiction, not just a stylistic gap: the app's own AI-chat institutional-framework content (js/aio-chat.js:851) teaches users "수익률 = 시장베타 + 사이즈 + 밸류 + 모멘텀 + 퀄리티 + 잔차" (returns = market beta + size + value + momentum + quality + residual) — presenting "사이즈" as the standard Fama-French risk-premium factor. The ranking code implemented the opposite direction of that exact factor, contradicting the app's own stated framework. Additionally, a screener's core purpose is surfacing differentiated signal, not re-stating market cap (a quantity already known to any user without screening) as if it were alpha.
+- **fix**: `sizeRaw` changed to `-Math.log(mcap)`, mirroring `lowvolRaw`'s existing negation pattern. Weight magnitudes (5–8% across regimes/profiles) unchanged — only the direction of "better" flipped. Verified by extraction: small-cap ($2B) raw score now exceeds large-cap ($500B) raw score (-21.4 vs -26.9).
+- **violated_rule**: R265.
+- **prevention**: Covered by R265 — a factor's sign convention is part of its named-methodology definition, not a free styling choice. When one factor in a family is signed oppositely to its siblings with no explanatory comment, treat that asymmetry as a suspected bug, not an intentional design choice, and check whether any in-app content already commits to the standard definition.
+
+## P581 · v51.89 · value 팩터가 서로 다른 자연 스케일의 세 배수를 정규화 없이 평균해 사실상 단일 팩터로 붕괴
+
+- **symptom**: `valueRaw` averaged raw `1/PE`, `1/PB`, `1/EV-EBITDA` with the stated intent of a 3-multiple blended value signal ("각각 수익률로 변환 평균"). A synthetic-universe check (200 stocks, realistic PE/PB/EV-EBITDA ranges) found the resulting composite correlated 0.982 with `1/PB` alone but only 0.187 with `1/PE` — the "blend" was in practice ~98% a P/B factor, because `1/PB`'s natural magnitude (~0.1–2 for typical PB 0.5–15) dwarfs `1/PE` and `1/EV-EBITDA`'s (~0.01–0.2), so it dominated the unweighted average by scale accident rather than by design.
+- **root_cause**: Averaging raw quantities of different natural scale silently weights the average toward whichever quantity has the largest numeric range — a general antipattern distinct from (but adjacent to) R265. The immediately adjacent `qualityRaw` function already avoids exactly this failure mode by clamping each sub-metric (ROE/margin/revGrowth) to a fixed range and dividing by that range before averaging; `valueRaw` simply didn't apply the same care.
+- **fix**: Mirrored `qualityRaw`'s clamp-and-normalize pattern: each inverse multiple is clamped to a typical range and divided by that range before averaging — `1/PE→[0,0.20]/0.20`, `1/PB→[0,2.0]/2.0`, `1/EV-EBITDA→[0,0.20]/0.20`. Verified by extraction: post-fix correlation with `1/PB` and `1/PE` are 0.542 and 0.529 respectively — genuinely balanced.
+- **violated_rule**: R268 (created from this incident).
+- **prevention**: See R268.
+
 
