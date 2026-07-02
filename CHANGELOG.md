@@ -1,3 +1,8 @@
+## v51.84 (2026-07-02)
+- **Live-site data staleness fix (critical infra)**: v51.82's CI-gated Pages deploy (P557/R248) composed with `refresh-data.yml`'s `[skip ci]` commit marker into a total deploy blocker — every 2-hourly data refresh landed in the repo but never reached the live site (live `data.json` confirmed 13h+ stale while the watchdog reported success). Removed `[skip ci]` so data commits run CI validate + deploy each cycle. P572/R263.
+- **Watchdog live-surface check**: `data-watchdog.yml` gained a "Check LIVE site freshness" step that fetches the deployed `public-data/data.json` and fails when `meta.generatedAt` exceeds 360min — the repo-only check had a structural blind spot for deploy-path breakage. P572/R263.
+- R1 7곳 v51.84.
+
 ## v51.83 (2026-07-01)
 - **Systematic full-site audit**: 4 parallel agents covering all 22 live pages, backend logic/race-condition patterns, the data pipeline (fetch-data.mjs/fetch-telegram-digest.mjs/workflows), and security (XSS/credential handling). Found and fixed 14 concrete issues (P558-P571/R249-R262), 8 critical + 6 medium.
 - **XSS fix (critical)**: `_aioProcessTelegramItem()`/`_aioRenderTelegramFeedHtml()` inserted raw external Telegram-channel text into innerHTML across 9 pages with no escaping. Now escaped at the pipeline entry point. P558/R249.

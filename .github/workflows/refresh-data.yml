@@ -88,7 +88,13 @@ jobs:
             exit 0
           fi
           ts=$(date -u +"%Y-%m-%dT%H:%MZ")
-          git commit -m "data: refresh market and news data ${ts} [skip ci]"
+          # P572/R263: this commit message used to carry "[skip ci]". After P557/R248 moved
+          # GitHub Pages from legacy branch-deploy to the CI-gated deploy job, [skip ci]
+          # skipped that entire workflow — deploy included — so every 2-hourly data refresh
+          # landed in the repo but never reached the live site (confirmed live: data.json
+          # 13h+ stale while watchdog reported success). Data commits MUST run CI so the
+          # deploy job publishes them; validate gating them is a feature, not a cost.
+          git commit -m "data: refresh market and news data ${ts}"
           attempt=1
           max_attempts=5
           until git push; do

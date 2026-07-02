@@ -1,7 +1,10 @@
 name: Data freshness watchdog
 
-# Independent watchdog for committed public-data artifacts. It does not fetch
-# network data; it fails loudly when scheduled refresh commits stop arriving.
+# Independent watchdog for public-data artifacts. Checks BOTH the committed repo
+# files (refresh commits stopped arriving?) AND the deployed live site (deploys
+# stopped publishing them?). P572/R263: the repo-only check had a blind spot —
+# when [skip ci] data commits stopped triggering the CI-gated Pages deploy, the
+# repo stayed fresh, this watchdog stayed green, and the live site went stale.
 
 on:
   schedule:
@@ -89,4 +92,39 @@ jobs:
           } catch(e) { console.warn('⚠️  screener.json 읽기 실패:', e.message); }
 
           console.log('public-data freshness OK');
+          NODE
+
+      # P572/R263: repo freshness alone proved insufficient — also verify the LIVE site
+      # is actually serving fresh data. Live lag budget = refresh cadence (30min) +
+      # CI validate + Pages deploy + CDN cache (~10min), so a generous 360min max
+      # still catches a broken deploy pipeline within hours instead of never.
+      - name: Check LIVE site freshness
+        env:
+          LIVE_MAX_AGE_MIN: '360'
+        run: |
+          node - <<'NODE'
+          const max = parseInt(process.env.LIVE_MAX_AGE_MIN || '360', 10);
+          const url = 'https://ysnle.github.io/aio-screener/public-data/data.json';
+          fetch(url, { headers: { 'cache-control': 'no-cache' } })
+            .then(r => {
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              return r.json();
+            })
+            .then(d => {
+              const ts = d && d.meta && d.meta.generatedAt;
+              if (!ts) throw new Error('live data.json meta.generatedAt missing');
+              const ageMin = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
+              console.log(`LIVE data.json generatedAt=${ts} / age=${ageMin}min / max=${max}min`);
+              if (!Number.isFinite(ageMin) || ageMin > max) {
+                console.error(`LIVE site data.json is stale (${ageMin}min > ${max}min). ` +
+                  'Repo is fresh but deploys are not publishing — check that data commits ' +
+                  'trigger the CI deploy job (no [skip ci]) and that CI validate passes.');
+                process.exit(1);
+              }
+              console.log('live site freshness OK');
+            })
+            .catch(e => {
+              console.error(`LIVE site check failed: ${e.message}`);
+              process.exit(1);
+            });
           NODE

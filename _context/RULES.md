@@ -6,6 +6,12 @@ target_version: v51.80
 
 ---
 
+## R263. Every producer of deployable artifacts must actually trigger the deploy path, and the watchdog must verify the DEPLOYED surface, not just the repo (v51.84)
+
+- When the deploy mechanism changes (e.g. legacy branch-deploy → CI-gated workflow deploy, P557/R248), audit **every** commit producer for compatibility in the same change: a `[skip ci]` marker that was harmless under branch-deploy (deploys anyway) becomes a total deploy blocker under workflow deploy (skips the deploy job too). `refresh-data.yml`'s 2-hourly data commits are the concrete precedent — they silently stopped reaching the live site the moment P557 merged.
+- Freshness watchdogs must check the surface users actually consume (the live URL), not only the internal artifact (committed repo files). A repo-only check reported success for 13+ hours while the live site served stale data. `data-watchdog.yml`'s "Check LIVE site freshness" step is the concrete precedent.
+- See P572/BUG-POSTMORTEM.md for the incident.
+
 ## R262. Scheduled scrapers/fetchers hitting external feeds must self-throttle with a persisted cursor, not stateless full re-scans (v51.83)
 
 - Any scheduled fetch script that walks a paginated external feed (especially an unofficial one, like Telegram's public web mirror) must persist a cursor (last-seen id/timestamp) between runs and use it to stop early once caught up, rather than re-walking the entire window from scratch every cycle.
