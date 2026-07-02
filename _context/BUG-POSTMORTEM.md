@@ -5004,4 +5004,36 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **violated_rule**: none new (timezone-display class). See prevention.
 - **prevention**: Never `toISOString()` a Date that was built from local calendar components (`new Date(y, m, d)`) when you want a local calendar date string — the round-trip through UTC shifts the day for non-UTC timezones. Format local Dates with `getFullYear`/`getMonth`/`getDate`, and reserve `toISOString()` for genuine UTC/epoch instants. Test date logic under at least one UTC+ timezone (`TZ=Asia/Seoul`), not only the developer's local zone.
 
+## P576 · v51.88 · 매매 점수의 신용 스트레스 입력이 실측 FRED OAS 대신 듀레이션 오염 HYG 근사를 우선 사용
+
+- **symptom**: A systematic algorithm audit (2026-07-02) traced `computeTradingScore()`'s credit-stress input (`hyBp`, penalties at >350/>400/>500bp). It computed `(100 - HYG price) × 15bp` **first**, and only fell back to reading a DOM element if that approximation returned 0 — even though the app fetches the real FRED HY OAS (BAMLH0A0HYM2) every 6h via `fetchHYSpread()`.
+- **root_cause**: `fetchHYSpread()` wrote the measured OAS only to DOM (`#hy-live-val`) and a chart — never to a consumable global or `DATA_SNAPSHOT.hySpread`. So the score function had no measured value to prefer. The HYG-price heuristic is contaminated by rate duration (~3.8y): a 100bp rate rise alone drops HYG ~$3 → fake +45bp of "spread widening" and possible score penalties with zero actual credit stress.
+- **fix**: `fetchHYSpread` now stores `window._hySpreadBp`/`window._hySpreadDate` and syncs `DATA_SNAPSHOT.hySpread`. `computeTradingScore` prefers (1) `window._hySpreadBp` live measurement → (2) `DATA_SNAPSHOT.hySpread` seed/server → (3) the HYG approximation only as last resort. Priority logic verified by extraction (live wins over approx; snapshot wins when live absent; approx fires only when neither exists).
+- **violated_rule**: R266 (created from this incident).
+- **prevention**: When both a measured value and a proxy heuristic for the same quantity exist in the app, the consumer must prefer the measurement; a fetcher that displays a measurement must also store it where downstream logic can consume it.
+
+## P577 · v51.88 · 주봉 컨텍스트가 최신 1~4일을 누락 (앞-앵커 청킹)
+
+- **symptom**: `_calcWeeklyContext()` (js/aio-core.js, v51.69 주봉 패널의 데이터원) chunked daily bars into 5-bar "weeks" with a front-anchored loop (`i = 4, 9, 14, …`). Whenever `bars.length` was not a multiple of 5, the **most recent 1–4 daily bars were silently dropped** (measured: with 63 bars, bars 60/61/62 — the three newest days — were excluded), so the weekly close/RSI/SMA/trend shown to the user lagged reality by up to 4 trading days.
+- **root_cause**: Chunk anchoring from the array start guarantees full 5-bar chunks but leaves the remainder at the *end* — exactly the newest data. For a "current weekly context" the invariant must be the opposite: the last chunk must contain the newest bar; any partial chunk belongs at the *oldest* end.
+- **fix**: Loop now anchors from the end (`for (end = bars.length; end > 0; end -= 5)`), so the latest week always includes the newest bar; only the oldest chunk can be partial and is dropped when ≥4 full weeks exist. Verified by extraction: 63-bar input → last week ends at bar 62 with all kept weeks full; 65-bar input → 13 full weeks ending at bar 64.
+- **violated_rule**: R267 (created from this incident).
+- **prevention**: Any rolling/windowed aggregation whose output is described as "current" must anchor windows to the most recent observation and push remainder truncation to the oldest end. Test with a length that is NOT a multiple of the window size.
+
+## P578 · v51.88 · Bollinger Band 표준편차 분모가 표준(모집단)에서 이탈
+
+- **symptom**: `_calcBB()` divided the squared deviations by `period - 1` (sample variance) since v51.47's "표본 분산 교정".
+- **root_cause**: John Bollinger's own definition — and every mainstream implementation (TA-Lib `ddof=0`, TradingView) — uses **population** variance (`/period`). The v51.47 change applied a statistics-textbook instinct to a named methodology, widening the bands by `sqrt(20/19) ≈ +2.6%` at period 20 and subtly shifting %B and band-touch signals versus what users would see on any charting platform. Same class as P574 (R265): a named methodology must match its source's exact definition.
+- **fix**: Denominator restored to `period` with an R265 citation in the comment. Verified by extraction against a hand-computed population SD (upper band = mid + 2·popSD to 1e-9).
+- **violated_rule**: R265.
+- **prevention**: Covered by R265 — "looks statistically more correct" is not a reason to deviate from a named indicator's canonical formula.
+
+## P579 · v51.88 · MACD histogram 배열 앞 8개 값이 isFinite(null) 함정으로 오염
+
+- **symptom**: `_calcMACD()`'s `histogram` array built entries with `isFinite(s) ? v - s : null`, intending to skip the signal line's warm-up nulls. But `isFinite(null) === true` in JS (null coerces to 0), so the first `signal-1` (=8) entries became `v - null = v` — raw MACD values instead of being filtered out.
+- **root_cause**: JS type-coercion trap: `isFinite` (global, non-`Number.isFinite`) coerces its argument, so `null` passes. Both current consumers read only `histogram[length-1]` (the newest value), so no user-visible damage today — fixed as hardening before any future consumer iterates the whole array.
+- **fix**: Guard changed to `(s !== null && isFinite(s))`.
+- **violated_rule**: none (latent-defect hardening).
+- **prevention**: Prefer `Number.isFinite` (no coercion) over global `isFinite` when the value can be null/undefined.
+
 

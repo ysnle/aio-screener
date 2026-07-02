@@ -17019,6 +17019,14 @@ async function fetchHYSpread() {
     const spreadBp = Math.round(spread * 100); // FRED stores as %, convert to bps
     hyLastFetch = Date.now();
 
+    // v51.88 P576/R266: 실측 OAS를 소비 가능한 전역 + DATA_SNAPSHOT 에 저장.
+    //   이전에는 DOM/차트에만 써서 computeTradingScore 가 이 실측값을 못 보고
+    //   듀레이션 오염된 (100-HYG)*15bp 근사를 우선 사용했다 (금리 상승만으로
+    //   가짜 신용 스트레스 감점 발생). 측정값이 있으면 근사보다 항상 우선한다.
+    window._hySpreadBp = spreadBp;
+    window._hySpreadDate = date;
+    try { if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.hySpread = spreadBp; } catch(_) {}
+
     // Update display
     const hyVal = document.getElementById('hy-live-val');
     const hyDate = document.getElementById('hy-live-date');

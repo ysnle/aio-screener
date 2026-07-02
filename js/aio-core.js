@@ -16629,7 +16629,9 @@ function _calcMACD(closes, fast, slow, signal) {
     signalLine: signalClean.filter(function(v) { return v !== null; }),
     histogram: cleanMacd.map(function(v, idx) {
       var s = signalClean[idx - (cleanMacd.length - signalClean.length)];
-      return isFinite(s) ? v - s : null;
+      // v51.88 P579: isFinite(null)===true (null→0 강제변환) 라서 시그널 워밍업 구간(앞 signal-1개)의
+      // null 이 필터를 뚫고 v-null(=v) 로 들어가던 것 차단 — null 명시 검사 추가.
+      return (s !== null && isFinite(s)) ? v - s : null;
     }).filter(function(v) { return v !== null; })
   };
 }
@@ -16640,7 +16642,11 @@ function _calcBB(closes, period, mult) {
   if (nums.length < period) return null;
   var slice = nums.slice(-period);
   var mid = _calcSMA(nums, period);
-  var variance = slice.reduce(function(s, v) { return s + Math.pow(v - mid, 2); }, 0) / (period - 1);
+  // v51.88 P578/R265: 분모 period(모집단 분산) — John Bollinger 원 정의이자 TA-Lib(ddof=0)·
+  //   TradingView 가 쓰는 표준. v51.47 이 "표본 분산 교정"으로 (period-1)로 바꿨지만, 명명된
+  //   방법론("Bollinger Bands")은 그 출처 정의를 따라야 한다(R265). n-1 은 밴드를 sqrt(20/19)
+  //   ≈ +2.6% 넓혀 %B·터치 신호를 표준 대비 미세하게 어긋나게 했다.
+  var variance = slice.reduce(function(s, v) { return s + Math.pow(v - mid, 2); }, 0) / period;
   var sd = Math.sqrt(variance);
   var upper = mid + mult * sd;
   var lower = mid - mult * sd;
@@ -16941,15 +16947,21 @@ function _calcVolProfile(bars) {
 function _calcWeeklyContext(bars) {
   if (!bars || bars.length < 10) return null;
   var WEEK = 5;
+  // v51.88 P577/R267: 주봉 청킹을 배열 "끝"(최신 봉)에 앵커한다.
+  //   기존 앞-앵커 루프(i=4,9,...)는 bars.length 가 5의 배수가 아니면 가장 최근 1~4일을
+  //   통째로 누락시켰다 (예: 63봉 → 60/61/62번 최신 3일 탈락 → 주봉 종가/RSI/추세가 최대
+  //   4일 stale). 끝에서부터 5봉씩 묶으면 마지막 주봉이 항상 최신 봉을 포함한다.
+  //   가장 오래된 청크만 부분(<5봉)일 수 있고, 4주 이상 확보 시 그 부분 청크는 버린다.
   var weekBars = [];
-  for (var i = WEEK - 1; i < bars.length; i += WEEK) {
-    var slice = bars.slice(Math.max(0, i - WEEK + 1), i + 1);
+  for (var end = bars.length; end > 0; end -= WEEK) {
+    var slice = bars.slice(Math.max(0, end - WEEK), end);
     if (!slice.length) continue;
     var wHigh = slice.reduce(function(m, b) { return b.high > m ? b.high : m; }, 0);
     var wLow  = slice.reduce(function(m, b) { return b.low < m ? b.low : m; }, Infinity);
     var wVol  = slice.reduce(function(s, b) { return s + b.volume; }, 0);
-    weekBars.push({ time: slice[slice.length - 1].time, open: slice[0].open, high: wHigh, low: wLow === Infinity ? slice[slice.length - 1].close : wLow, close: slice[slice.length - 1].close, volume: wVol });
+    weekBars.unshift({ time: slice[slice.length - 1].time, open: slice[0].open, high: wHigh, low: wLow === Infinity ? slice[slice.length - 1].close : wLow, close: slice[slice.length - 1].close, volume: wVol, _n: slice.length });
   }
+  if (weekBars.length > 4 && weekBars[0]._n < WEEK) weekBars.shift(); // 부분 최고(最古) 청크 제거
   if (weekBars.length < 4) return null;
   var wCloses = weekBars.map(function(b) { return b.close; });
   var wSma20 = _calcSMA(wCloses, Math.min(20, wCloses.length));
@@ -17655,7 +17667,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.87';
+const APP_VERSION = 'v51.88';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

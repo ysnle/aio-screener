@@ -6,6 +6,18 @@ target_version: v51.80
 
 ---
 
+## R267. "Current"-labeled rolling aggregations must anchor windows to the newest observation (v51.88)
+
+- Any windowed/chunked aggregation whose output describes the present state (weekly bars, rolling regimes, "최근 N일" summaries) must build windows anchored to the most recent bar, pushing any partial remainder to the *oldest* end. Front-anchored chunking silently drops the newest `len % window` observations — the exact data a "current" readout must include.
+- `_calcWeeklyContext`'s end-anchored loop is the corrected precedent. Always test with an input length that is NOT a multiple of the window size.
+- See P577/BUG-POSTMORTEM.md for the incident.
+
+## R266. When a measured value and a proxy heuristic coexist, consumers must prefer the measurement — and fetchers must store measurements consumably (v51.88)
+
+- If the app fetches a real measurement of a quantity (e.g. FRED HY OAS) anywhere, no scoring/decision path may prefer a proxy heuristic for that same quantity (e.g. `(100-HYG)×15bp`). Heuristics are last-resort fallbacks only.
+- Corollary: a fetcher that renders a measurement to DOM/chart must ALSO store it in a consumable global or `DATA_SNAPSHOT` — display-only storage is how P576's inversion arose (the score function literally could not see the measurement).
+- See P576/BUG-POSTMORTEM.md for the incident.
+
 ## R265. Code that claims parity with a named external tool/methodology must match that source's exact definition, verified by recomputation (v51.86)
 
 - When a feature is described (in UI, CLAUDE.md, or comments) as "X-style" or matching a named source — Portfolio Visualizer, a specific academic formula, an index provider's methodology — the implementation must reproduce that source's exact definition, not a plausible-looking variant. Financial ratios in particular have several plausible denominators (e.g. Sortino downside deviation over N vs over the downside count); pick the one the claimed source actually uses.
