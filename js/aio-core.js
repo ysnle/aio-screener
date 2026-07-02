@@ -17655,7 +17655,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.85';
+const APP_VERSION = 'v51.86';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -23508,8 +23508,14 @@ function _aioBtSortino(returns, rfAnnual) {
   var rfMonthly = ((typeof rfAnnual === 'number') ? rfAnnual : 0.043) / 12;
   var excess = clean.map(function(r) { return r - rfMonthly; });
   var downside = excess.filter(function(r) { return r < 0; });
-  if (downside.length < 2) return null;
-  var dd = Math.sqrt(downside.reduce(function(s, r) { return s + r * r; }, 0) / (downside.length - 1));
+  if (downside.length < 2) return null;  // 하방 관측이 최소 2개는 있어야 의미
+  // v51.86 P574/R265: downside deviation 의 분모를 "하방 관측 수(n_neg-1)" 가 아니라
+  //   "전체 관측 수(N)" 로 사용한다 — Sortino & Price(1994) 및 Portfolio Visualizer 표준.
+  //   기존 분모(n_neg-1)는 하방편차를 과대평가해 Sortino 를 표준 대비 ~46% 과소평가시켰다
+  //   (실측: 동일 24개월 시계열에서 0.83 vs 표준 1.54). 이 백테스트는 CLAUDE.md 에서
+  //   "Portfolio Visualizer 식" 이라 표방하므로 그 정의와 일치해야 한다. 분자는 하방 관측만
+  //   제곱합(=Σ min(0, excess)^2)으로 이미 동일하고, 분모만 excess.length(=N)로 정정.
+  var dd = Math.sqrt(downside.reduce(function(s, r) { return s + r * r; }, 0) / excess.length);
   if (dd < 1e-10) return null;
   return (_statMean(excess) / dd) * Math.sqrt(12);
 }

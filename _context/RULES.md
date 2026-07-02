@@ -6,6 +6,12 @@ target_version: v51.80
 
 ---
 
+## R265. Code that claims parity with a named external tool/methodology must match that source's exact definition, verified by recomputation (v51.86)
+
+- When a feature is described (in UI, CLAUDE.md, or comments) as "X-style" or matching a named source — Portfolio Visualizer, a specific academic formula, an index provider's methodology — the implementation must reproduce that source's exact definition, not a plausible-looking variant. Financial ratios in particular have several plausible denominators (e.g. Sortino downside deviation over N vs over the downside count); pick the one the claimed source actually uses.
+- Verify by recomputing a known case from scratch and comparing, not by eyeballing that the formula "looks right." `_aioBtSortino` divided squared downside excess by the negative-observation count instead of the full N, understating Sortino ~46% versus the Portfolio-Visualizer parity it claimed.
+- See P574/BUG-POSTMORTEM.md for the incident.
+
 ## R264. An API key in a URL must never be routed through a third-party proxy; a "sensitive URL" guard must block the egress, not just caching (v51.85)
 
 - Any URL containing a credential (`api_key`/`apikey`/`token`/`access_token`/`client_secret`) must only be sent to (a) the credential's own owning service directly, or (b) a proxy the operator controls (e.g. the project's own CF Worker). It must never be sent through a shared third-party CORS proxy (`corsproxy.io`, `allorigins.win`, `codetabs.com`, etc.) — the proxy operator can log the key.
