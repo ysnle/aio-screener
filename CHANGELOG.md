@@ -1,3 +1,10 @@
+## v51.94 (2026-07-03)
+- **Sonnet 5 Phase 2 [B6] (Fable 5 structural-diagnosis roadmap) — 유니버스 데이터 승격**: 서버측 `getScreenerSymbols()`가 `js/aio-data.js`의 `SCREENER_DB` 소스 텍스트를 `"\n];"` 문자열 탐색으로 잘라내던 취약한 방식을 제거. 신규 `scripts/sync-screener-universe.mjs`가 괄호 depth 추적(문자열/이스케이프 인식) + `new Function()` 실평가로 `SCREENER_DB`/`SCREENER_DB_META`를 정확히 추출해 `public-data/screener-universe.json`(873건)을 생성하고, `fetch-data.mjs`는 이제 이 JSON을 직접 읽는다.
+  - `ci-data-pipeline-contract-check.mjs`가 `sync-screener-universe.mjs --check`를 실행해 drift(SCREENER_DB 수정 후 재동기화 누락)를 CI에서 자동 검출. R271, P590.
+  - **스코프 결정**: Fable 원안의 "클라는 부팅 시 로드"(클라이언트 비동기 fetch 전환)는 하지 않음 — `SCREENER_DB`가 6개 파일 144개 지점에서 참조되고 앱에 기존 비동기 부팅 게이트가 없어, 안전하게 하려면 Fable이 Phase 3 [A2]로 이미 분리해둔 "defer 전환 + 참조 시점 전수 감사"와 동일한 작업량이 필요함을 확인. 라이브 금융 사이트에서 첫 페인트 시 `SCREENER_DB` undefined 경합 리스크를 감수할 이유가 없어 서버측 절반만 이번에 배포. P590에 상세 기록.
+  - `js/aio-data.js` 런타임 동작은 완전히 불변(파일 자체는 이번 커밋에서 변경 없음) — 순수 서버·CI 측 개선.
+  - R1 7곳 v51.94.
+
 ## v51.93 (2026-07-03)
 - **Sonnet 5 Phase 2 [B1] (Fable 5 structural-diagnosis roadmap) — server quote 2차 폴백**: Yahoo가 (호스트 폴백 + verify-retry까지) 전부 실패한 심볼에 대해 Twelve Data를 2차 폴백으로 추가. `TWELVE_DATA_API_KEY` GitHub Secret 미등록 시 완전 무동작(FRED/FMP와 동일한 optional-key 패턴).
   - **스코프를 신용·핵심 ETF 20종**(HYG/LQD/TLT/SPY/QQQ/IWM/RSP/DIA/SMH + 섹터 XL* 11종)**으로 한정**: Yahoo·Twelve Data 둘 다 평문 티커라 표기가 확실히 동일한 자산군만 채택. 지수(`^GSPC`)·선물(`CL=F`)·FX(`KRW=X`)·한국주식은 두 공급자의 심볼 표기가 다르고 무료(demo) 키로는 실측 검증이 불가해(AAPL 외 전부 401) 스코프 제외 — 잘못된 심볼 매핑으로 틀린 가격이 라이브에 들어가는 리스크 회피. R270 신설.

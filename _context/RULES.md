@@ -6,6 +6,12 @@ target_version: v51.80
 
 ---
 
+## R271. After editing `SCREENER_DB` (js/aio-data.js), always re-run `scripts/sync-screener-universe.mjs` before committing (v51.94)
+
+- `public-data/screener-universe.json` is a generated mirror of `SCREENER_DB`, consumed by `scripts/fetch-data.mjs`'s `getScreenerSymbols()` (the server's universe symbol list for factor enrichment). It is not auto-regenerated on every fetch — it's a committed artifact, synced by hand-running the script after edits.
+- `ci-data-pipeline-contract-check.mjs` runs `sync-screener-universe.mjs --check` and fails the build if the JSON drifts from `SCREENER_DB` — so a forgotten sync is caught in CI, not silently shipped. But catching it in CI still costs a red build; just run the sync script as part of any `SCREENER_DB` edit (e.g. `/data-refresh`, `/integrate` memo updates) instead of waiting for CI to complain.
+- See P590/BUG-POSTMORTEM.md (Phase 2 [B6]): this replaced a fragile server-side regex scrape of `js/aio-data.js`'s source text (a `"\n];"` string search for the array's end — breakable by any coincidental occurrence of that byte sequence) with a real JSON artifact read.
+
 ## R270. A third-party data source's availability and symbol convention must be live-verified, never assumed from a report or general knowledge — and an integration must be scoped down to only the asset classes actually confirmed (v51.92)
 
 - Before wiring a new external data source into the pipeline (fallback or primary), make a real, read-only request against it first. A prior diagnosis/report recommending a source (e.g. "Stooq is free and keyless") can be stale or wrong — Stooq had added a JS proof-of-work bot-challenge by the time this was acted on, making it silently non-functional for any server-side `fetch()`.

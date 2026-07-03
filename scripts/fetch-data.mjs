@@ -632,18 +632,19 @@ async function updateHistory(data) {
 //     무료 대규모 소스 없음 → 가격 파생 4팩터부터(정직). 심볼은 SCREENER_DB에서 런타임 추출(단일 출처).
 const SCREENER_OUT = `${__dir}/../public-data/screener.json`;
 
+// v51.94/Phase 2 [B6]: 심볼 목록을 js/aio-data.js 소스 텍스트 정규식 스크래핑 대신
+// public-data/screener-universe.json(scripts/sync-screener-universe.mjs가 SCREENER_DB에서
+// 생성하는 JSON 아티팩트)에서 직접 읽는다. 이전 방식은 "\n];" 문자열 탐색으로 배열 끝을
+// 찾아 취약했다(배열 안 어딘가에 그 정확한 바이트열이 나타나면 조기 종료) — JSON은 그런
+// 경계 추측이 필요 없다. screener-universe.json이 오래됐거나 없으면(sync 누락) CI의
+// ci-data-pipeline-contract-check.mjs가 drift를 잡아낸다.
 async function getScreenerSymbols() {
   try {
-    const src = await readFile(`${__dir}/../js/aio-data.js`, 'utf8');
-    const a = src.indexOf('var SCREENER_DB');
-    if (a < 0) return [];
-    const end = src.indexOf('\n];', a);                 // SCREENER_DB 배열 종료
-    const block = src.slice(a, end > a ? end : a + 200000);
-    const syms = [];
-    const re = /\bsym:\s*'([A-Z0-9.\-]+)'/g;
-    let m; while ((m = re.exec(block)) !== null) syms.push(m[1]);
+    const raw = await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8');
+    const j = JSON.parse(raw);
+    const syms = (j.universe || []).map(r => r && r.sym).filter(Boolean);
     return [...new Set(syms)];
-  } catch (e) { console.warn('[fetch-data] screener 심볼 추출 실패:', e && e.message); return []; }
+  } catch (e) { console.warn('[fetch-data] screener-universe.json 읽기 실패:', e && e.message); return []; }
 }
 // Yahoo 심볼 정규화: 클래스주 BRK.B→BRK-B. KR(.KS/.KQ)·일반은 보존.
 const _yhSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2');
