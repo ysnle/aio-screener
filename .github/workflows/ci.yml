@@ -81,6 +81,38 @@ jobs:
           fi
           echo "✅ stray 파일 없음"
 
+  # Phase 2 [B5] (FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §4): the 900+ in-browser unit tests in
+  # js/aio-tests.js (AIO.runTests()) previously only ran via manual browser console — runtime
+  # regressions (render/state/contract breaks, distinct from the syntax-only checks above) sailed
+  # through `validate` and were found live. This job serves the app headlessly with Playwright and
+  # runs the real suite. Deliberately NOT a step inside `validate` and NOT in deploy's `needs:` —
+  # 27 known pre-existing failures (market-data/calendar/version drift + a few latent UX/a11y
+  # findings, see _context/GATE-BASELINE-2026-07-03.md) are still open, so this is report-only
+  # until they're triaged. `continue-on-error` here is intentional; do not remove it without first
+  # clearing _context/gate-baseline-skip-list.json down to zero.
+  headless-tests:
+    name: Headless unit tests (AIO.runTests(), report-only)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Run AIO.runTests() headlessly
+        run: node scripts/ci-headless-tests.mjs
+
   # P557/R248: GitHub Pages was on "legacy" branch-deploy, which republishes whatever is on
   # main the instant it's pushed — completely independent of whether `validate` above passed
   # or failed (confirmed live: 33% of recent CI runs failed, some of those pushes went live

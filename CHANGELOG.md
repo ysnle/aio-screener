@@ -1,3 +1,9 @@
+## v51.92 (2026-07-03)
+- **Sonnet 5 Phase 2 [B5] (Fable 5 structural-diagnosis roadmap) — headless CI test job**: 900+ 브라우저 콘솔 전용 단위 테스트(`js/aio-tests.js`, `AIO.runTests()`)가 CI에서 한 번도 실행되지 않던 갭(FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §4 B5)을 메움. `scripts/ci-headless-tests.mjs`(Playwright chromium, 외부 fetch 전부 route-abort로 결정론적 offline/seed-fallback 측정) 신설 + `.github/workflows/ci.yml`에 `headless-tests` job 추가(`validate`/`deploy`와 별도 job, `continue-on-error: true` — report-only, flaky 안정화 전까지 배포 게이트 미편입).
+  - 실측(v51.91 기준): 921개 중 894 pass, 27 fail — `GATE-BASELINE-2026-07-03.md`에 원인별 분류(market-data/seed/calendar/version drift 13건 vs 코드/UX 회귀 후보 14건) 및 `_context/gate-baseline-skip-list.json`에 근거 기록. R269(스킵리스트는 실측+분류 필수, 무근거 누적 금지) 신설, P588.
+  - 부수 발견: `scripts/bump-version.mjs`의 CHANGELOG 삽입 로직이 파일이 개행 없이 `## `로 시작하는 경우(현재 파일 구조) 최상단이 아니라 두 번째 섹션 앞에 잘못 삽입하는 버그 — 이번 버전 범프 중 실측 발견, 같은 커밋에서 수정.
+  - R1 7곳 v51.92.
+
 ## v51.91 (2026-07-02)
 - **Sonnet 5 Phase 1 (Fable 5 structural-diagnosis roadmap) — algorithm correctness fixes (P584-P587)**: 4개 항목, 전부 실측 검증(합성 데이터 실행 비교, 실 Yahoo API 응답 확인) 후 적용.
   - **P584/R265/C1 RSI 공식 통일**: 서버 `_rsi14`(scripts/fetch-data.mjs)가 Cutler식(최근 14봉 단순평균, 매회 재계산)이었고 클라이언트 `_calcRSILast`(js/aio-core.js)는 Wilder식(초기평균+전체이력 재귀 스무딩)이었음 — 같은 "RSI(14)" 라벨로 다른 값. 서버를 Wilder식으로 교체(클라와 동일 알고리즘). 실측: 동일 합성 300봉 입력에서 구 20.3 vs 신 43.9 — 23.6점 차이. `ci-data-pipeline-contract-check.mjs`에 두 구현을 실제 실행해 비교하는 수치 파리티 테스트 추가(허용오차 0.5).

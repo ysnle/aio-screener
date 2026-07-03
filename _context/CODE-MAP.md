@@ -262,7 +262,7 @@ target_lines: index.html 32065 + js modules 60777
 | 포트폴리오 DOM | `index.html:9476~9931` |
 | 옵션 분석 DOM(폐기 shell) | `index.html:10333~10343` |
 | 한국 페이지 DOM | `index.html:10526~11699` |
-| browser unit tests (CI 미실행 — 콘솔 수동) | `js/aio-tests.js`, 로더는 `js/aio-core.js` 내(`AIO.loadTests()`) |
+| browser unit tests (CI 헤드리스 상설화됨, Phase 2 B5 — `.github/workflows/ci.yml` `headless-tests` job, report-only) | `js/aio-tests.js`, 로더는 `js/aio-core.js` 내(`AIO.loadTests()`), CI 러너는 `scripts/ci-headless-tests.mjs` |
 | glossary | `js/aio-glossary.js`, `index.html:28557` |
 | 데이터 파이프라인(서버) | `scripts/fetch-data.mjs` — Yahoo 단일 의존(진단 B1), `getScreenerSymbols()`가 aio-data.js 정규식 파싱(진단 B6) |
 

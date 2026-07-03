@@ -224,9 +224,13 @@ try {
   if (cl.includes(existingHeader)) {
     console.log(`   ℹ CHANGELOG.md에 이미 ${newVer} 섹션 있음 — 건너뜀`);
   } else {
-    // 가장 상단(첫 번째 ## 줄 앞)에 삽입
-    const firstSection = cl.indexOf('\n## ');
-    const insertPos = firstSection === -1 ? 0 : firstSection + 1;
+    // 가장 상단(첫 번째 ## 줄 앞)에 삽입.
+    // 주의: 파일이 개행 없이 곧바로 '## '로 시작하면(현재 CHANGELOG.md 구조)
+    // '\n## ' 탐색은 그 첫 헤더를 건너뛰고 *두 번째* 헤더 앞에 삽입해버린다
+    // (v51.92 범프 때 실제로 발생 — 신규 섹션이 v51.91 섹션 뒤에 끼어들어감).
+    // 정규식으로 파일 시작(index 0) 케이스까지 포함해 첫 헤더를 정확히 찾는다.
+    const firstSectionMatch = cl.match(/^## /m);
+    const insertPos = firstSectionMatch ? firstSectionMatch.index : 0;
     const newSection = `## ${newVer} (${todayDate})\n- <!-- 변경 내용을 이곳에 기록하세요 -->\n- R1 7곳 ${newVer}\n\n`;
     cl = cl.slice(0, insertPos) + newSection + cl.slice(insertPos);
     write('CHANGELOG.md', cl);

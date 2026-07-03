@@ -6,6 +6,13 @@ target_version: v51.80
 
 ---
 
+## R269. A CI job that whitelists known-failing tests must classify each entry by cause, and adding to the whitelist is only valid right after a fresh, real measurement (v51.91)
+
+- A skip-list/known-failures file for a test-gate CI job must record *why* each entry is there (e.g. live-market-data drift, calendar/date drift, hardcoded-version-literal drift, vs. an actual latent code/UX regression), not just the bare list of currently-failing test IDs. An unclassified skip-list inevitably grows into a silent junk drawer — every future failure gets appended without anyone asking whether it's actually expected, and the gate's signal decays to zero.
+- Never hand-write or guess skip-list entries from an old report. Only add an entry immediately after actually running the suite in the target CI-like environment and reading the real failure detail — the "expected" reasoning must be verified against what the assertion actually checked (e.g. T825 in GATE-BASELINE-2026-07-03.md looked like a logic bug from its label alone; reading the assertion showed it depends on live screener ranking, i.e. market-data drift, not code).
+- Entries classified as a real code/UX finding (not environment/time drift) must still be surfaced — either as a `BUG-POSTMORTEM.md` entry or an explicit "다음 우선순위" list in the baseline doc — rather than silently parked in the skip-list forever with no path back to a fix.
+- See P588/BUG-POSTMORTEM.md (Phase 2 [B5] headless CI test job) for the motivating incident: 27 failures found on first real measurement, split into 13 drift-only vs 14 flagged-for-follow-up rather than either blocking CI on all of them or blindly skip-listing all of them without a paper trail.
+
 ## R268. Combining sub-signals of different natural scale into one factor requires normalizing each first (v51.89)
 
 - Never average (or otherwise linearly combine) raw quantities that can have different natural numeric ranges and call the result a balanced blend — whichever component has the largest magnitude/variance will silently dominate, regardless of the intended weighting. This applies even when every component is conceptually "the same kind of thing" (e.g. three different inverse valuation multiples): natural scale, not conceptual similarity, determines dominance in a raw average.

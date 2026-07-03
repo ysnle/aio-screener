@@ -1,0 +1,8 @@
+{
+  "name": "aio-screener-ci",
+  "private": true,
+  "description": "CI-only tooling (no app runtime dependency — index.html is a dependency-free static SPA).",
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}
