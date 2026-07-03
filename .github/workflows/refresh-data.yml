@@ -33,6 +33,7 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
         run: node scripts/fetch-data.mjs
 
       - name: Fetch Telegram digest
@@ -54,6 +55,7 @@ jobs:
               '|------|------|-----|',
               `| Generated (KST) | OK | ${ts} |`,
               `| Quotes | ${m.symbolsOk >= 70 ? 'OK' : 'WARN'} | ${m.symbolsOk || 0}/${totalSymbols} failed: ${(m.failedSymbols || []).join(',') || 'none'} |`,
+              `| Twelve Data fallback | ${m.tdHasKey ? 'OK' : 'SKIP'} | hasKey=${m.tdHasKey} eligible=${m.tdFallbackEligible || 0} recovered=${m.tdFallbackRecovered || 0} |`,
               `| Fear&Greed | ${m.fearGreedOk ? 'OK' : 'WARN'} | ${d.fearGreed && d.fearGreed.score != null ? d.fearGreed.score : 'n/a'} |`,
               `| FRED Secret | ${m.fredHasKey ? (m.fredFailedSeries && m.fredFailedSeries.length ? 'WARN' : 'OK') : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'}${m.fredFailedSeries && m.fredFailedSeries.length ? ' · failed: ' + m.fredFailedSeries.join(',') : ''} |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,

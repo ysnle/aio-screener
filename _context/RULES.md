@@ -6,6 +6,13 @@ target_version: v51.80
 
 ---
 
+## R270. A third-party data source's availability and symbol convention must be live-verified, never assumed from a report or general knowledge — and an integration must be scoped down to only the asset classes actually confirmed (v51.92)
+
+- Before wiring a new external data source into the pipeline (fallback or primary), make a real, read-only request against it first. A prior diagnosis/report recommending a source (e.g. "Stooq is free and keyless") can be stale or wrong — Stooq had added a JS proof-of-work bot-challenge by the time this was acted on, making it silently non-functional for any server-side `fetch()`.
+- Symbol/ticker conventions differ across providers even for the "same" instrument (Yahoo `^GSPC` vs. a plain `SPX` elsewhere; `CL=F` futures notation; `KRW=X` FX notation). Never hand-write a cross-provider symbol mapping table from memory or documentation alone — verify each symbol class actually resolves with a real request. If a provider's free/demo tier can't authenticate enough symbols to confirm this (e.g. Twelve Data's `demo` key only unlocks one showcase ticker), scope the integration to only the asset class(es) where the *ticker string itself* is provably identical across both providers (e.g. plain-ticker US ETFs/equities), and leave the rest out rather than guessing.
+- This is not optional caution — an unverified wrong mapping doesn't fail loudly, it silently writes a plausible-looking wrong price for a different instrument into a live finance site.
+- See P589/BUG-POSTMORTEM.md: Phase 2 [B1]'s Twelve Data fallback shipped for a 20-ticker ETF subset only, with indices/futures/FX/KR stocks explicitly deferred until a real (non-demo) key allows live verification of those symbol conventions.
+
 ## R269. A CI job that whitelists known-failing tests must classify each entry by cause, and adding to the whitelist is only valid right after a fresh, real measurement (v51.91)
 
 - A skip-list/known-failures file for a test-gate CI job must record *why* each entry is there (e.g. live-market-data drift, calendar/date drift, hardcoded-version-literal drift, vs. an actual latent code/UX regression), not just the bare list of currently-failing test IDs. An unclassified skip-list inevitably grows into a silent junk drawer — every future failure gets appended without anyone asking whether it's actually expected, and the gate's signal decays to zero.

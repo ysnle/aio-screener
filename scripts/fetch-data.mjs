@@ -154,6 +154,37 @@ function _quoteOk(q) {
   return true;
 }
 
+// v51.92/Phase 2 [B1]: Yahoo가 두 호스트 모두 실패할 때의 2차 공급자 폴백.
+// 왜 ETF만: Twelve Data는 US 상장 ETF/주식은 Yahoo와 동일한 평문 티커(SPY, QQQ ...)를
+// 쓰지만, 지수(^GSPC)·선물(CL=F)·FX(KRW=X)·한국주식은 표기 체계가 다르다. 무료(demo) 키로는
+// AAPL 외 심볼이 401이라 실측 검증이 불가능했다 — 틀린 심볼 매핑으로 잘못된 가격이 라이브에
+// 들어가는 위험을 피하기 위해, Yahoo·Twelve Data 표기가 1:1로 확실히 같은 이 서브셋(신용·핵심
+// ETF, SYMBOLS 배열의 "breadth/리스크 입력" 블록과 동일)으로만 스코프를 한정한다.
+// 지수/선물/FX/KR 확장은 실제 유효 키로 심볼 표기를 실측 검증한 뒤 별도로 진행할 것.
+const TWELVE_DATA_ETF_FALLBACK_SYMBOLS = new Set([
+  'HYG','LQD','TLT','SPY','QQQ','IWM','RSP','DIA','SMH',
+  'XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLU','XLRE','XLB','XLC',
+]);
+
+async function fetchQuoteTwelveData(symbol, apiKey) {
+  const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbol)}&apikey=${apiKey}`;
+  const j = await fetchJSON(url, {}, 2);
+  if (j && (j.status === 'error' || j.code)) throw new Error(`twelvedata: ${j.message || j.code}`);
+  const price = parseFloat(j && j.close);
+  const prev = parseFloat(j && j.previous_close);
+  if (!isFinite(price) || price <= 0) throw new Error('twelvedata: no close price');
+  const pct = (isFinite(prev) && prev > 0) ? ((price - prev) / prev) * 100 : null;
+  return {
+    symbol,
+    regularMarketPrice: price,
+    regularMarketChangePercent: pct,
+    regularMarketPreviousClose: isFinite(prev) ? prev : null,
+    chartPreviousClose: isFinite(prev) ? prev : null,
+    _pctSource: 'twelvedata-quote',
+    _source: 'live:twelvedata-fallback',
+  };
+}
+
 // 동시성 제한 배치 실행
 async function mapLimit(items, limit, fn) {
   const out = [];
@@ -1180,8 +1211,23 @@ async function main() {
     pass2 = retried.filter(q => _quoteOk(q));
     console.log(`[fetch-data] verify-result: ${pass2.length}/${toRetry.length} 복구`);
   }
-  const quotes = [...pass1, ...pass2];
-  const failed = toRetry.filter(s => !pass2.find(q => q && q.symbol === s));
+  // v51.92/Phase 2 [B1]: Yahoo가 (호스트 폴백 + verify-retry까지) 전부 실패한 핵심 ETF에
+  // 한해 Twelve Data로 2차 폴백. TWELVE_DATA_API_KEY 미등록 시 완전 무동작(FRED/FMP와 동일 패턴).
+  const yahooFailed = toRetry.filter(s => !pass2.find(q => q && q.symbol === s));
+  const tdApiKey = process.env.TWELVE_DATA_API_KEY;
+  const tdEligible = yahooFailed.filter(s => TWELVE_DATA_ETF_FALLBACK_SYMBOLS.has(s));
+  let pass3 = [];
+  if (tdApiKey && tdEligible.length) {
+    console.log(`[fetch-data] twelvedata-fallback: ${tdEligible.length}개 시도 (Yahoo 전부 실패한 핵심 ETF): ${tdEligible.join(',')}`);
+    const tdResults = await mapLimit(tdEligible, 3, sym => fetchQuoteTwelveData(sym, tdApiKey).catch(e => ({ __error: true, item: sym, msg: String(e && e.message || e) })));
+    pass3 = tdResults.filter(q => _quoteOk(q));
+    console.log(`[fetch-data] twelvedata-result: ${pass3.length}/${tdEligible.length} 복구`);
+  } else if (!tdApiKey && yahooFailed.length) {
+    console.warn('[fetch-data] 경고: TWELVE_DATA_API_KEY GitHub Secret 미등록 — 핵심 ETF Yahoo 실패 시 2차 폴백 비활성.');
+  }
+
+  const quotes = [...pass1, ...pass2, ...pass3];
+  const failed = yahooFailed.filter(s => !pass3.find(q => q && q.symbol === s));
 
   // v50.24/WO-1: F&G·FRED 실패를 meta에 노출(이전엔 조용히 통과). 사이트 나이 배지/감사가 surfacing.
   // v50.78: fredHasKey(Secret 등록 여부) / fredFetchOk(실제 데이터 수신 여부) 세분화.
@@ -1204,6 +1250,9 @@ async function main() {
       symbolsFail: failed.length,
       failedSymbols: failed,
       verifyStats: { pass1: pass1.length, retried: toRetry.length, recovered: pass2.length, failed: failed.length },
+      tdHasKey: !!tdApiKey,
+      tdFallbackEligible: tdEligible.length,
+      tdFallbackRecovered: pass3.length,
       fearGreedOk,
       fredHasKey,
       fredFetchOk,

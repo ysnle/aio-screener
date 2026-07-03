@@ -4,7 +4,7 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v51.92
+- **현재 버전**: v51.93
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
 ## _context/ 문서 (20개 Git-tracked 활성, 2026-07-02 `git ls-files` 실측)
@@ -32,7 +32,7 @@
 | OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md | v50.23 구조 전수 감사 + Opus 작업 백로그 WO-1~14 (P0 5건 전부 해소됨) | WO 항목 완료/구조 변경 시 |
 | PAGE-UX-AUDIT-2026-06-13.md | 페이지별 UX 감사 (일부 항목은 이후 라이브 검증에서 거짓양성 판정 — DEFERRED-BLOCKS §3 참조) | UI/UX 재점검 시 |
 | DEFERRED-BLOCKS.md | 미뤄둔 작업 / 진짜 블록 현황 (데이터·시간·운영자 결정 구분) | 블록 해제/작업 착수 시 |
-| FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md | v51.92 시스템 뼈대 진단(아키텍처/자동화/알고리즘) + Sonnet 5 작업 로드맵 Phase 0~3 | 로드맵 항목 완료/구조 변경 시 |
+| FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md | v51.93 시스템 뼈대 진단(아키텍처/자동화/알고리즘) + Sonnet 5 작업 로드맵 Phase 0~3 | 로드맵 항목 완료/구조 변경 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.
 > `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore`로 로컬 전용(레거시, RULES/QA로 대체됨).

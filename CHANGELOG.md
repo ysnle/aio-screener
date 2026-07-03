@@ -1,3 +1,11 @@
+## v51.93 (2026-07-03)
+- **Sonnet 5 Phase 2 [B1] (Fable 5 structural-diagnosis roadmap) — server quote 2차 폴백**: Yahoo가 (호스트 폴백 + verify-retry까지) 전부 실패한 심볼에 대해 Twelve Data를 2차 폴백으로 추가. `TWELVE_DATA_API_KEY` GitHub Secret 미등록 시 완전 무동작(FRED/FMP와 동일한 optional-key 패턴).
+  - **스코프를 신용·핵심 ETF 20종**(HYG/LQD/TLT/SPY/QQQ/IWM/RSP/DIA/SMH + 섹터 XL* 11종)**으로 한정**: Yahoo·Twelve Data 둘 다 평문 티커라 표기가 확실히 동일한 자산군만 채택. 지수(`^GSPC`)·선물(`CL=F`)·FX(`KRW=X`)·한국주식은 두 공급자의 심볼 표기가 다르고 무료(demo) 키로는 실측 검증이 불가해(AAPL 외 전부 401) 스코프 제외 — 잘못된 심볼 매핑으로 틀린 가격이 라이브에 들어가는 리스크 회피. R270 신설.
+  - **Fable 원안의 "Stooq(무키)" 폴백은 채택하지 않음**: 실측 결과 Stooq가 SHA-256 proof-of-work JS 챌린지(`/__verify`)로 모든 요청을 게이트하고 있어, 서버측 plain fetch로는 원천적으로 데이터를 받을 수 없음을 확인(진단 당시 미검증 추정이었던 것으로 보임). P589.
+  - `data-watchdog.yml`용 텔레그램 알림(B4)은 봇 토큰/챗ID 인프라가 전혀 없어 이번 세션에서 보류(사용자 결정).
+  - `.github/workflows/refresh-data.yml`에 `TWELVE_DATA_API_KEY` secret 배선 + Pipeline status summary에 Twelve Data 폴백 상태 행 추가.
+  - R1 7곳 v51.93.
+
 ## v51.92 (2026-07-03)
 - **Sonnet 5 Phase 2 [B5] (Fable 5 structural-diagnosis roadmap) — headless CI test job**: 900+ 브라우저 콘솔 전용 단위 테스트(`js/aio-tests.js`, `AIO.runTests()`)가 CI에서 한 번도 실행되지 않던 갭(FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §4 B5)을 메움. `scripts/ci-headless-tests.mjs`(Playwright chromium, 외부 fetch 전부 route-abort로 결정론적 offline/seed-fallback 측정) 신설 + `.github/workflows/ci.yml`에 `headless-tests` job 추가(`validate`/`deploy`와 별도 job, `continue-on-error: true` — report-only, flaky 안정화 전까지 배포 게이트 미편입).
   - 실측(v51.91 기준): 921개 중 894 pass, 27 fail — `GATE-BASELINE-2026-07-03.md`에 원인별 분류(market-data/seed/calendar/version drift 13건 vs 코드/UX 회귀 후보 14건) 및 `_context/gate-baseline-skip-list.json`에 근거 기록. R269(스킵리스트는 실측+분류 필수, 무근거 누적 금지) 신설, P588.
