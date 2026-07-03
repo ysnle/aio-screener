@@ -7,12 +7,27 @@ name: CI
 # (데이터 신선도는 refresh-data.yml + data-watchdog.yml 담당. 여기서 fetch를 실행하면 Yahoo에
 #  push마다 74요청이 추가돼 IP 차단을 악화시키므로 구문 검사만 한다.)
 # v50.25/WO-8
+# v51.95/R272: `on.workflow_run` 추가 — refresh-data.yml의 GITHUB_TOKEN 커밋이 이 워크플로의
+# `push` 트리거를 못 울려 validate/deploy가 통째로 건너뛰어지던 문제(아래 `on:` 블록 주석 참조)를
+# PAT 없이 해소.
 
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch: {}
+  # P590-followup/R272: GitHub does not let a push made with the default GITHUB_TOKEN trigger
+  # further `on: push` workflow runs (anti-recursion safeguard, documented GitHub Actions
+  # behavior — not something [skip ci] removal fixes). refresh-data.yml's every-30-minute
+  # commits use exactly that token, so this workflow's `push` trigger above silently never
+  # fired for them — validate/deploy never ran, and the live site quietly went stale for
+  # ~19h until the next human-initiated push happened to redeploy it (found live 2026-07-03,
+  # data.json 2026-07-02T06:10 vs a 2026-07-03T01:04 watchdog check). `workflow_run` is exempt
+  # from that restriction — it fires on completion of the named workflow regardless of what
+  # authored the commits inside it — so this closes the gap without a PAT/new secret.
+  workflow_run:
+    workflows: ['Refresh market data']
+    types: [completed]
 
 permissions:
   contents: read
@@ -20,12 +35,17 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    # Skip entirely if a workflow_run trigger's source run itself failed — nothing new/valid
+    # to validate or deploy in that case (refresh-data.yml may not have even committed).
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       # ↓↓↓ P557/R248: validate must fully pass before the deploy job below is allowed to
       # run — this is the whole point of this change. Do not add `continue-on-error` to any
       # step here without also revisiting deploy's `needs: validate` gate.
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -94,11 +114,14 @@ jobs:
     name: Headless unit tests (AIO.runTests(), report-only)
     runs-on: ubuntu-latest
     continue-on-error: true
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     permissions:
       contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -121,7 +144,12 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages (gated on validate)
     needs: validate
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Deploy on a direct human/session push to main, OR on a successful refresh-data.yml run
+    # completing on main (the workflow_run path this comment block's `on:` note added — see
+    # above). workflow_dispatch and pull_request never deploy.
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -133,6 +161,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       # Legacy branch-deploy ran the repo root through Jekyll, which by default silently
       # excludes any dotfile/dot-directory and any underscore-prefixed file/directory

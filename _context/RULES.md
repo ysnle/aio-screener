@@ -6,6 +6,13 @@ target_version: v51.80
 
 ---
 
+## R272. A bot/Action-authored push using the default `GITHUB_TOKEN` never triggers other `on: push` workflows — chain via `workflow_run` instead, not `[skip ci]` removal alone (v51.95)
+
+- GitHub Actions will not let a push made with the repository's default `GITHUB_TOKEN` fire another workflow's `push`/`pull_request` triggers, as an anti-recursion safeguard. This is independent of the `[skip ci]` commit-message convention — removing `[skip ci]` (as R263/P572 did) is necessary to make the *commit itself* eligible to trigger CI, but it does nothing about the token-identity restriction, which blocks the trigger from firing at all regardless of the commit message.
+- Symptom in practice: a scheduled data-refresh/bot workflow commits successfully and the repo looks fresh, but a downstream `push`-triggered workflow (CI validate/deploy) silently never runs for those commits — only for commits pushed by an authenticated human or PAT-bearing session. Verify with `gh api repos/OWNER/REPO/actions/runs?head_sha=<bot commit sha>` — if it returns `total_count: 0` for the workflow you expected to fire, this is the cause.
+- Fix: add `on: workflow_run: { workflows: ['<source workflow name>'], types: [completed] }` to the downstream workflow. `workflow_run` fires on completion of the named workflow regardless of what authored the commits inside it, so it is exempt from the restriction — no PAT or new secret required. Guard the triggered jobs with `if: github.event.workflow_run.conclusion == 'success'` (skip on a failed source run) and checkout `github.event.workflow_run.head_sha` (not the default ref) so the right commit is validated/deployed.
+- See P591/BUG-POSTMORTEM.md: this was the actual root cause of a ~19-hour live-site staleness window that `data-watchdog.yml` correctly detected but couldn't diagnose — the repo was fresh, only the deploy trigger was silently dead.
+
 ## R271. After editing `SCREENER_DB` (js/aio-data.js), always re-run `scripts/sync-screener-universe.mjs` before committing (v51.94)
 
 - `public-data/screener-universe.json` is a generated mirror of `SCREENER_DB`, consumed by `scripts/fetch-data.mjs`'s `getScreenerSymbols()` (the server's universe symbol list for factor enrichment). It is not auto-regenerated on every fetch — it's a committed artifact, synced by hand-running the script after edits.

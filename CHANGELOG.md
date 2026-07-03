@@ -1,3 +1,10 @@
+## v51.95 (2026-07-03)
+- **긴급: CI 트리거 인프라 수정 — 라이브 사이트 19h stale 근본 원인 해소**: `refresh-data.yml`(30분마다 데이터 갱신)의 커밋이 기본 `GITHUB_TOKEN`으로 이뤄져 `ci.yml`의 `push` 트리거를 전혀 못 울리고 있었음(GitHub Actions 표준 anti-recursion 정책 — `[skip ci]` 제거(P572/R263)와는 별개 원인). 결과: 저장소는 계속 최신인데 validate/deploy는 한 번도 안 돌아 라이브 사이트가 `2026-07-02T06:10` 시점에 멈춰있었음(실측 19시간 stale, watchdog는 감지했지만 원인 미진단).
+  - `ci.yml`에 `on.workflow_run`(`workflows: ['Refresh market data']`) 추가 — PAT/새 secret 불필요(GitHub 공식 우회 경로). `validate`/`headless-tests`/`deploy` 3개 job 모두 트리거 소스가 workflow_run일 때 `github.event.workflow_run.head_sha`를 체크아웃하도록 수정, 소스 워크플로 실패 시 스킵.
+  - 발견 직후 CI 재실행으로 라이브 사이트 즉시 재배포 확인(v51.94 → 정상 서빙). `workflow_run` 경로 자체는 다음 30분 cron에서 실측 확인 예정.
+  - P591, R272 신설. `DEFERRED-BLOCKS.md` B6("cron 발화 신뢰성") 해소로 갱신 — cron 자체는 문제없었고 다운스트림 트리거가 원인이었음을 명시.
+  - R1 7곳 v51.95.
+
 ## v51.94 (2026-07-03)
 - **Sonnet 5 Phase 2 [B6] (Fable 5 structural-diagnosis roadmap) — 유니버스 데이터 승격**: 서버측 `getScreenerSymbols()`가 `js/aio-data.js`의 `SCREENER_DB` 소스 텍스트를 `"\n];"` 문자열 탐색으로 잘라내던 취약한 방식을 제거. 신규 `scripts/sync-screener-universe.mjs`가 괄호 depth 추적(문자열/이스케이프 인식) + `new Function()` 실평가로 `SCREENER_DB`/`SCREENER_DB_META`를 정확히 추출해 `public-data/screener-universe.json`(873건)을 생성하고, `fetch-data.mjs`는 이제 이 JSON을 직접 읽는다.
   - `ci-data-pipeline-contract-check.mjs`가 `sync-screener-universe.mjs --check`를 실행해 drift(SCREENER_DB 수정 후 재동기화 누락)를 CI에서 자동 검출. R271, P590.
