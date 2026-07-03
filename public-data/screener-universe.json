@@ -1,11 +1,11 @@
 {
  "meta": {
   "schemaVersion": "v49.31",
-  "lastBulkUpdate": "2026-06-28",
+  "lastBulkUpdate": "2026-07-03",
   "staleAfterDays": 7,
   "replaceAfterDays": 14,
-  "source": "JPM/Citi/TDCowen/Mizuho 04/21~04/29 게시",
-  "note": "v50.62 Telegram/data refresh (2026-06-16 KST): scraped public mirrors for @aetherjapanresearch, @insidertracking, @bornlupin. 796 posts integrated as weekly themes, screener memo overlays, macro/tech keyword expansion, and chat context. Main clusters: US-Iran/Hormuz risk-on, BOJ 1% + JGB taper/Nikkei 70k, Anthropic Fable/Mythos export control, NVDA optical supply lock, CPO/NPO, 800V HVDC/SOFC power, MU/SK Hynix HBM4E, MLCC/silicon capacitor, WF6 supply shock."
+  "source": "JPM/Citi/TDCowen/Mizuho/BofA/Morgan Stanley 04/21~07/02 게시 + 텔레그램 다이제스트 07/03",
+  "note": "v51.96 /data-refresh (2026-07-03 KST): 텔레그램 다이제스트 414건 반영(2026-06-19~07-03 window) — 6월 고용 쇼크(NFP+57K), Meta Compute/네오클라우드 논쟁(BofA 반박), 삼성전기 MLCC 대형계약, QCOM 데이터센터 진출, GOOGL PT 상향 등 4종목 메모 갱신(GOOGL/QCOM/META/009150.KS). 이전: v50.62 Telegram/data refresh (2026-06-16 KST) 796 posts."
  },
  "universe": [
   {
@@ -33,7 +33,7 @@
    "name": "Alphabet",
    "sector": "Technology",
    "signal": "HOLD",
-   "memo": "[2026-06-23 ⚠️] DeepMind 핵심 인재 연이은 이탈·Anthropic 이동 → 투자심리 악화. GOOG -7%(13개월 최대 낙폭). A24 AI 협력 $7,500만 투자. SpaceX 지분가치 하락 부담. [JPM 04/29] PT$460 OW유지 · 검색+19%(사상최고 쿼리) Cloud$20B(+63%) · Cloud 백로그$4,620억(전분기 거의 2배) · GenAI 매출+800%YoY · CY26 CapEx $1,800-1,900억 · CY27 대폭증가 · Gemini 분당160억토큰(QoQ+60%) · Fabric 유료고객35,000(+60%YoY) · [TDCowen PT$375↑] CAGR13.6%·Waymo 2030 49시장 · FCF-P/E 28.3x · Interactions API GA",
+   "memo": "[모건스탠리 06/29] PT$375→$415 상향(OW 유지) — TPU 매출 반영한 28년 컴퓨팅 능력 재평가, 6/29 종가 $353.65 기준 +20% 상승여력 제시. [2026-06-23 ⚠️] DeepMind 핵심 인재 연이은 이탈·Anthropic 이동 → 투자심리 악화. GOOG -7%(13개월 최대 낙폭). A24 AI 협력 $7,500만 투자. SpaceX 지분가치 하락 부담. [JPM 04/29] PT$460 OW유지 · 검색+19%(사상최고 쿼리) Cloud$20B(+63%) · Cloud 백로그$4,620억(전분기 거의 2배) · GenAI 매출+800%YoY · CY26 CapEx $1,800-1,900억 · CY27 대폭증가 · Gemini 분당160억토큰(QoQ+60%) · Fabric 유료고객35,000(+60%YoY) · [TDCowen PT$375↑] CAGR13.6%·Waymo 2030 49시장 · FCF-P/E 28.3x · Interactions API GA",
    "mcap": 3641,
    "rsi": 52,
    "index": "SP500"
@@ -63,7 +63,7 @@
    "name": "Meta Platforms",
    "sector": "Technology",
    "signal": "HOLD",
-   "memo": "[하드웨어 로드맵 05/30] AI 펜던트 2027 테스트 시작 + AI 안경 라인업 대폭 확대 + \"업무용 웨어러블(Wearables for Work)\" 서비스 신설(The Information 내부문건). 하드웨어 적자 만회용 수익화 전략 구체화. [JPM 04/29] 하향 OW→N PT$725(기존$825↓) · 광고+33% 강하나 CapEx $1,250-1,450억↑ · FCF 2026E -$40억/2027E -$240억 전환 · [번스타인 PT$900] Muse Spark 첫 진전·메타AI 세션 두자릿수 증가 · 릴스+10%YoY · CoreWeave $350억(2032)",
+   "memo": "[Meta Compute/네오클라우드 논란 07/01~02] 블룸버그·Citi 보도로 잉여 AI 컴퓨팅을 외부 임대하는 클라우드 사업 진출 가능성 부각(5월 주총 \"definitely on the table\" 발언 연장선) — 코어위브·네비우스 주가 급락 유발. 이후 BofA는 \"메타 메모리 주문 감산설은 사실무근\"이라 반박, capex 불확실성 논쟁 양방향 전환. [하드웨어 로드맵 05/30] AI 펜던트 2027 테스트 시작 + AI 안경 라인업 대폭 확대 + \"업무용 웨어러블(Wearables for Work)\" 서비스 신설(The Information 내부문건). 하드웨어 적자 만회용 수익화 전략 구체화. [JPM 04/29] 하향 OW→N PT$725(기존$825↓) · 광고+33% 강하나 CapEx $1,250-1,450억↑ · FCF 2026E -$40억/2027E -$240억 전환 · [번스타인 PT$900] Muse Spark 첫 진전·메타AI 세션 두자릿수 증가 · 릴스+10%YoY · CoreWeave $350억(2032)",
    "mcap": 1502,
    "rsi": 48,
    "index": "SP500"
@@ -463,7 +463,7 @@
    "name": "Qualcomm",
    "sector": "Technology",
    "signal": "BUY",
-   "memo": "[NVDA PC 진출 영향 06/01] NVDA ARM기반 Windows PC = QCOM 스냅드래곤 X Elite와 유사 비x86 아키텍처 → 경쟁 격화 우려. 그러나 비x86 생태계 확장 선례 강화·시장 자체 확대 효과도 있음. 6월 Investor Day에서 QCOM 대응 전략 공개 예정. [Q2 FY2026 어닝 04/29] 매출$10.6B EPS$2.65(+상회) 주가+16% · 자동차$1.326B(+38%YoY 역대최고) · DC ASIC 대형하이퍼스케일러 12월출하 · 중국 FQ3 저점 반등 · Citi/JPM/WF PT$160↑",
+   "memo": "[신규 사업 진출 07/02] 데이터센터 칩 시장 공식 진출 발표 — 2029년까지 $150억 매출 목표, 시간외 +12.9% 급등. 스마트폰 중심 사업구조에서 데이터센터로 공격적 확장 선언, 시장 큰 관심. [NVDA PC 진출 영향 06/01] NVDA ARM기반 Windows PC = QCOM 스냅드래곤 X Elite와 유사 비x86 아키텍처 → 경쟁 격화 우려. 그러나 비x86 생태계 확장 선례 강화·시장 자체 확대 효과도 있음. 6월 Investor Day에서 QCOM 대응 전략 공개 예정. [Q2 FY2026 어닝 04/29] 매출$10.6B EPS$2.65(+상회) 주가+16% · 자동차$1.326B(+38%YoY 역대최고) · DC ASIC 대형하이퍼스케일러 12월출하 · 중국 FQ3 저점 반등 · Citi/JPM/WF PT$160↑",
    "mcap": 139,
    "rsi": 52,
    "index": "SP500"
@@ -7443,7 +7443,7 @@
    "name": "삼성전기",
    "sector": "Technology",
    "signal": "BUY",
-   "memo": "[MLCC 가격 급등 05/30] 중국 Guangdong XMAWEI MLCC 가격 급등으로 유통업체에 공식 가격인상 통보(메리츠증권). 현지 유통 전반 가격 인상 움직임 확인. AI 서버 고용량 MLCC 수요+전장 비중 확대+중국발 가격 인상 = 삼성전기 수혜 복합 요인. AI 서버용 고용량 MLCC 전환·LTCC·카메라모듈 · 전장 비중 확대",
+   "memo": "[대형 CSP 공급계약 07/02] 북미 빅테크向 서버용 MLCC 4,500억원 규모 공급계약 체결(내년 1~12월). 초소형·고용량·고신뢰성 특성, AI 서버 랙 1개당 MLCC 약 60만개 탑재. 장덕현 사장 \"AI 핵심 부품 기술력 인정\" 발언. [MLCC 가격 급등 05/30] 중국 Guangdong XMAWEI MLCC 가격 급등으로 유통업체에 공식 가격인상 통보(메리츠증권). 현지 유통 전반 가격 인상 움직임 확인. AI 서버 고용량 MLCC 수요+전장 비중 확대+중국발 가격 인상 = 삼성전기 수혜 복합 요인. AI 서버용 고용량 MLCC 전환·LTCC·카메라모듈 · 전장 비중 확대",
    "mcap": 10,
    "rsi": 48,
    "index": "KOSPI"

@@ -9,11 +9,11 @@
 // v49.31 H1/R75: SCREENER_DB 메타 — 메모 게시일 4월 중순~말. Q2 실적 시즌 진행 중. /data-refresh 정기 갱신 필요.
 var SCREENER_DB_META = {
   schemaVersion: 'v49.31',
-  lastBulkUpdate: '2026-06-28',  // 동적으로 screener.json asOf로 자동 갱신됨 (_aioApplyServerScreener)
+  lastBulkUpdate: '2026-07-03',  // 동적으로 screener.json asOf로 자동 갱신됨 (_aioApplyServerScreener)
   staleAfterDays: 7,             // 7일 경과 시 stale 경고 (screener.json Actions 일 1회 자동 갱신)
   replaceAfterDays: 14,          // 14일 경과 시 replace due (Actions 장기 실패 시 데이터 비표시)
-  source: 'JPM/Citi/TDCowen/Mizuho 04/21~04/29 게시',
-  note: 'v50.62 Telegram/data refresh (2026-06-16 KST): scraped public mirrors for @aetherjapanresearch, @insidertracking, @bornlupin. 796 posts integrated as weekly themes, screener memo overlays, macro/tech keyword expansion, and chat context. Main clusters: US-Iran/Hormuz risk-on, BOJ 1% + JGB taper/Nikkei 70k, Anthropic Fable/Mythos export control, NVDA optical supply lock, CPO/NPO, 800V HVDC/SOFC power, MU/SK Hynix HBM4E, MLCC/silicon capacitor, WF6 supply shock.'
+  source: 'JPM/Citi/TDCowen/Mizuho/BofA/Morgan Stanley 04/21~07/02 게시 + 텔레그램 다이제스트 07/03',
+  note: 'v51.96 /data-refresh (2026-07-03 KST): 텔레그램 다이제스트 414건 반영(2026-06-19~07-03 window) — 6월 고용 쇼크(NFP+57K), Meta Compute/네오클라우드 논쟁(BofA 반박), 삼성전기 MLCC 대형계약, QCOM 데이터센터 진출, GOOGL PT 상향 등 4종목 메모 갱신(GOOGL/QCOM/META/009150.KS). 이전: v50.62 Telegram/data refresh (2026-06-16 KST) 796 posts.'
 };
 try { window.SCREENER_DB_META = SCREENER_DB_META; } catch(_) {}
 var SCREENER_DB = [
@@ -23,10 +23,10 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', signal:'BUY', memo:'[Computex GTC 타이페이 06/01~] 젠슨 황 기조연설+Windows PC 진출(MS 서피스·DELL 협력) · 폭스콘 Vera Rubin 2H26 출하 낙관 · 젠슨 황 2026 매출 성장률 ~100%·2027년도 동등 규모 · 린스에쿼티 단기 $250 근접 · [Q1 FY27 어닝 05/20] EPS $1.87(컨센 $1.76, +6.25%beat) Next 8/26 · [Citi+JPM 04/21] CX9 NIC 일부 2027 이월(CX8 대체불가) · Vera CPU 2H 마진·CPO 순풍·Rubin Ultra 회복 · AVGO/MRVL ASIC 경쟁 리스크 · Alpamayo 오픈소스 AV', mcap:4197, rsi:48, index:'SP500' },
   { sym:'AAPL', name:'Apple', sector:'Technology', signal:'HOLD', memo:'[Q2 FY26 어닝 04/30] 매출 $111.2B (+17% YoY, beat) · EPS $2.01 (+22% YoY, beat) · GM 49.3% (guidance 상회) · Next 7/30. [JPM 04/21] CEO 전환 Tim Cook→John Ternus(50세) 2026-09-01 · 하드웨어 중심 리더십(아이폰/맥/에어팟/비전프로 총괄, M시리즈 전환 주역) · 팀쿡 Executive Chairman 잔류(정책·관세) · Johny Srouji CHO 승격(A4 설계자) · Arthur Levinson lead independent director · 긍정 평가(스마트폰 이후 폼팩터+AI 매개체 대비) · 투자자 관심: (1)팀쿡급 실행력 지속 (2)서비스 우선순위 (3)AI 전략·개인화 Siri WWDC 주목', mcap:3645, rsi:52, index:'SP500' },
-  { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'HOLD', memo:'[2026-06-23 ⚠️] DeepMind 핵심 인재 연이은 이탈·Anthropic 이동 → 투자심리 악화. GOOG -7%(13개월 최대 낙폭). A24 AI 협력 $7,500만 투자. SpaceX 지분가치 하락 부담. [JPM 04/29] PT$460 OW유지 · 검색+19%(사상최고 쿼리) Cloud$20B(+63%) · Cloud 백로그$4,620억(전분기 거의 2배) · GenAI 매출+800%YoY · CY26 CapEx $1,800-1,900억 · CY27 대폭증가 · Gemini 분당160억토큰(QoQ+60%) · Fabric 유료고객35,000(+60%YoY) · [TDCowen PT$375↑] CAGR13.6%·Waymo 2030 49시장 · FCF-P/E 28.3x · Interactions API GA', mcap:3641, rsi:52, index:'SP500' },
+  { sym:'GOOGL', name:'Alphabet', sector:'Technology', signal:'HOLD', memo:'[모건스탠리 06/29] PT$375→$415 상향(OW 유지) — TPU 매출 반영한 28년 컴퓨팅 능력 재평가, 6/29 종가 $353.65 기준 +20% 상승여력 제시. [2026-06-23 ⚠️] DeepMind 핵심 인재 연이은 이탈·Anthropic 이동 → 투자심리 악화. GOOG -7%(13개월 최대 낙폭). A24 AI 협력 $7,500만 투자. SpaceX 지분가치 하락 부담. [JPM 04/29] PT$460 OW유지 · 검색+19%(사상최고 쿼리) Cloud$20B(+63%) · Cloud 백로그$4,620억(전분기 거의 2배) · GenAI 매출+800%YoY · CY26 CapEx $1,800-1,900억 · CY27 대폭증가 · Gemini 분당160억토큰(QoQ+60%) · Fabric 유료고객35,000(+60%YoY) · [TDCowen PT$375↑] CAGR13.6%·Waymo 2030 49시장 · FCF-P/E 28.3x · Interactions API GA', mcap:3641, rsi:52, index:'SP500' },
   { sym:'MSFT', name:'Microsoft', sector:'Technology', signal:'BUY', memo:'[Computex 06/02] 서피스 브랜드로 NVDA ARM칩 기반 Windows PC 공식 출시 협력 · 로컬 AI 에이전트 강화(클라우드 비용 절감·온디바이스 AI) · [JPM 04/29] PT$550 Azure+39%CC · F4Q 가이던스 39-40%CC · Copilot 2,000만석(FQ2→FQ3 +33%) · AI ARR $37B(+123%YoY) · CY26 CapEx $1,900억(메모리가격상승 $250억 포함) · [Citi] PT$620↑ · E7 $99/월(Copilot+Entra+Agent) · 삼성→MS LTA 선지급 $100억+(메모리 공급 확보)', mcap:2838, rsi:50, index:'SP500' },
   { sym:'AMZN', name:'Amazon', sector:'Technology', signal:'BUY', memo:'[JPM 04/29] PT$330 OW유지 · AWS+28%(15분기 최고) 런레이트$1,500억 · 백로그$3,640억(전분기 거의 2배·Anthropic $100B 미포함) · Trainium $2,250억 약정 · Bedrock+170% QoQ · 칩 런레이트$20B+ · 2026 Capex $2,000억 · [Citi PT$285/Jefferies $300/WF $305] · Globalstar 인수', mcap:2205, rsi:48, index:'SP500' },
-  { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'HOLD', memo:'[하드웨어 로드맵 05/30] AI 펜던트 2027 테스트 시작 + AI 안경 라인업 대폭 확대 + "업무용 웨어러블(Wearables for Work)" 서비스 신설(The Information 내부문건). 하드웨어 적자 만회용 수익화 전략 구체화. [JPM 04/29] 하향 OW→N PT$725(기존$825↓) · 광고+33% 강하나 CapEx $1,250-1,450억↑ · FCF 2026E -$40억/2027E -$240억 전환 · [번스타인 PT$900] Muse Spark 첫 진전·메타AI 세션 두자릿수 증가 · 릴스+10%YoY · CoreWeave $350억(2032)', mcap:1502, rsi:48, index:'SP500' },
+  { sym:'META', name:'Meta Platforms', sector:'Technology', signal:'HOLD', memo:'[Meta Compute/네오클라우드 논란 07/01~02] 블룸버그·Citi 보도로 잉여 AI 컴퓨팅을 외부 임대하는 클라우드 사업 진출 가능성 부각(5월 주총 "definitely on the table" 발언 연장선) — 코어위브·네비우스 주가 급락 유발. 이후 BofA는 "메타 메모리 주문 감산설은 사실무근"이라 반박, capex 불확실성 논쟁 양방향 전환. [하드웨어 로드맵 05/30] AI 펜던트 2027 테스트 시작 + AI 안경 라인업 대폭 확대 + "업무용 웨어러블(Wearables for Work)" 서비스 신설(The Information 내부문건). 하드웨어 적자 만회용 수익화 전략 구체화. [JPM 04/29] 하향 OW→N PT$725(기존$825↓) · 광고+33% 강하나 CapEx $1,250-1,450억↑ · FCF 2026E -$40억/2027E -$240억 전환 · [번스타인 PT$900] Muse Spark 첫 진전·메타AI 세션 두자릿수 증가 · 릴스+10%YoY · CoreWeave $350억(2032)', mcap:1502, rsi:48, index:'SP500' },
   { sym:'TSM', name:'TSMC', sector:'Technology', signal:'BUY', memo:'[Citi PT NT$2875 JPM PT NT$2500] 1Q26 매출 NT$1,134B(+35%YoY, +8%QoQ), GM 66.2%, OPM 58.1%, EPS NT$22.08(컨센 전면상회) · 2Q26 가이던스 +10%QoQ · 2026 매출 가이던스 "30%→30%+" 상향(JPM 35%+, 바이사이드 36% 예상) · 2026-2028 3년 Capex $190~200B(역대급, 2023-2025 대비 2배) · 선단공정 캐파 2027까지 타이트, N5이하 CAGR 25% · N3 2027H1 타이난 램프, AZ P2 27H2, JP P2 28 · N2 4Q25 양산진입(수율 양호), 2028 150k wfpm · 2027 가격 +4-5% like-for-like 인상 논의(2Q26 콘콜) · C.C.Wei "차세대 LPU 고객과 긴밀 협력"=삼성 Groq 수주 위협 · 44% 점유율, 파운드리 독점 모트', mcap:1708, rsi:52, index:'SP500' },
   { sym:'AVGO', name:'Broadcom', sector:'Technology', signal:'BUY', memo:'[실적 06/03 장후 ★핵심 촉매] AI 반도체 섹터 방향타 — XPU/ASIC 매출 가이던스·구글 TPU 계약 업데이트 주목. [Citi 04/25] TPU 8t(학습)+TPU 8i(추론) 모두 AVGO 주요 실리콘 파트너 확인 · 추론 아키텍처 복잡성↑=구조적 수혜 · GOOG와 다년간 LTA · F27 컨빅션: 구글/앤스로픽 800억+OpenAI 150억+네트워킹 450억 · 27년 TPU 600-700만 AVGO · XPU 플랫폼·CPO 양산 유일 · META 1GW · Tomahawk 6 · AI 매출 2027 $130B+ 컨빅션', mcap:1472, rsi:45, index:'SP500' },
   { sym:'TSLA', name:'Tesla', sector:'Consumer', signal:'WATCH', memo:'[2026.04 공시] HW4+ 칩셋: 64GB(HW4 32GB 2배)·대역폭 +10%·2027 양산(HW4/HW4.5/HW4+ 3버전) · $2B AI 하드웨어 기업 인수 합의(10-Q 주석14): 보장분 $2억+마일스톤 $18억·익명 대상·주식 지급 · 2026 Capex $250억+ · AI5 칩 테이프아웃·Terafab·xAI $20억 투자 · [기존 04/21] FSD v14·로보택시 오스틴 2025.12~·GS $375 중립·HSBC $119 vs Bull $600', mcap:1381, rsi:42, index:'SP500' },
@@ -66,7 +66,7 @@ var SCREENER_DB = [
   { sym:'INTC', name:'Intel', sector:'Technology', signal:'BUY', memo:'[NVDA PC 위협 06/01] NVDA ARM기반 Windows PC 진출 = x86 독점 침식 위협. 단, 에이전틱 AI에서 CPU 수요 구조적 증가(Dell 어닝콜: AI가 CPU 하네스 필수 확인)로 서버 DCAI 실질 수혜는 유지. [Citi BUY $95/Keybanc OW $110 04/25] 에이전틱 AI 주도 서버 CPU: GPU:CPU 1:8→1:4→대등 방향 · 1Q26 DCAI +22%YoY EPS $0.29 컨센 대폭 상회 · 18A 수율 내부 예상 초과 · 2H26 14A 수주 발표 예상 · 파운드리 2027말 손익분기점', mcap:100, rsi:55, index:'DOW30' },
   { sym:'LMT', name:'Lockheed Martin', sector:'Industrials', signal:'BUY', memo:'[2026-06-23] 트럼프 방산 CEO 회동(6/25) + 국방부 $52.9B 예산 요청(패트리엇·THAAD·토마호크 생산 확대) · 중동 전후 탄약재고 보충 수요 부각 · [기존] 트럼프 FY2027 $1.5T 국방예산(WWII후 최대증액) · F-35 조달 · Golden Dome $185B · 인도태평양 억제력 강화', mcap:145, rsi:61, index:'SP500' },
   { sym:'ARM', name:'ARM Holdings', sector:'Technology', signal:'BUY', memo:'[JPM OW PT$240 / UBS PT$245 (v48.87 05/07)] AGI CPU 파이프라인 6주 만에 $1B→$2B+ 급증 — 공급이 수요 제약(TSMC/ASE 병목). FY27 DC 로열티 2x YoY 전망. ARM ISA 점유율 15%→40-45%(2030) 목표. Neoverse V3 에이전틱 오케스트레이션 최적. CPU:GPU 비율 재편 핵심 수혜자. AI CPU1→CPU2→CPU3 자체 설계 마진 성장 여정 지속. AVGO ASIC+MRVL NVLink Fusion 파트너십 상승여지. 리스크: 고객(Arm IP사용자)과 직접 경쟁·IP 침해 우려 · TSMC 3nm 공급 제약 2026 → 2027H2 완화 기대. [기존 JPM 04/21] Masa "NVDA 신뢰할 2위 부재→ARM" · GW당 $12-13B 콘텐츠', mcap:141, rsi:48, index:'SP500' },
-  { sym:'QCOM', name:'Qualcomm', sector:'Technology', signal:'BUY', memo:'[NVDA PC 진출 영향 06/01] NVDA ARM기반 Windows PC = QCOM 스냅드래곤 X Elite와 유사 비x86 아키텍처 → 경쟁 격화 우려. 그러나 비x86 생태계 확장 선례 강화·시장 자체 확대 효과도 있음. 6월 Investor Day에서 QCOM 대응 전략 공개 예정. [Q2 FY2026 어닝 04/29] 매출$10.6B EPS$2.65(+상회) 주가+16% · 자동차$1.326B(+38%YoY 역대최고) · DC ASIC 대형하이퍼스케일러 12월출하 · 중국 FQ3 저점 반등 · Citi/JPM/WF PT$160↑', mcap:139, rsi:52, index:'SP500' },
+  { sym:'QCOM', name:'Qualcomm', sector:'Technology', signal:'BUY', memo:'[신규 사업 진출 07/02] 데이터센터 칩 시장 공식 진출 발표 — 2029년까지 $150억 매출 목표, 시간외 +12.9% 급등. 스마트폰 중심 사업구조에서 데이터센터로 공격적 확장 선언, 시장 큰 관심. [NVDA PC 진출 영향 06/01] NVDA ARM기반 Windows PC = QCOM 스냅드래곤 X Elite와 유사 비x86 아키텍처 → 경쟁 격화 우려. 그러나 비x86 생태계 확장 선례 강화·시장 자체 확대 효과도 있음. 6월 Investor Day에서 QCOM 대응 전략 공개 예정. [Q2 FY2026 어닝 04/29] 매출$10.6B EPS$2.65(+상회) 주가+16% · 자동차$1.326B(+38%YoY 역대최고) · DC ASIC 대형하이퍼스케일러 12월출하 · 중국 FQ3 저점 반등 · Citi/JPM/WF PT$160↑', mcap:139, rsi:52, index:'SP500' },
   { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', signal:'BUY', memo:'[실적 06/02 장후] 플랫폼화 진행도·ARR 가이던스 주목. [Citi AI서밋 04/21] Glasswing 창립파트너(CRWD와 공동 유일 순수사이버) · AI 기반 공격 규모·속도·정교함 대응 수혜 · 런타임 제어 전환=인라인 제어포인트 보유자 우위 · 섀도AI 확산 보안예산 확대 · Citi 2등급 선호(CRWD 다음) · Cortex XSIAM 플랫폼 통합', mcap:133, rsi:52, index:'SP500' },
   { sym:'NOW', name:'ServiceNow', sector:'Technology', signal:'WATCH', memo:'[UBS 04/09] Neutral 하향 — AI 예산이 비AI SW 크라우딩아웃 · PT $100(from $170, 13x 2027E EV/FCF) · 1Q 가이던스 부진 리스크 · SW→Semi 로테이션 역풍 · 장기 CRPO 성장 16%→추정치 하향', mcap:116, rsi:48, index:'SP500' },
   { sym:'CRWD', name:'CrowdStrike', sector:'Technology', signal:'BUY', memo:'[실적 06/03 장후] ARR·NRR·플랫폼 채택률 주목. [Citi+WF AI서밋 04/21] **양쪽 독점 파트너**: Anthropic Glasswing(CRWD+PANW 유일 순수사이버) + OpenAI TAC 14파트너(GPT-5.4-Cyber 조기접근 유일 순수사이버) · Mythos 오픈소스 6-9개월 도달 예상 · 탐지→런타임 통제 전환 수혜 · CTEM 지출 확장 · LLM 익스플로잇 한계비용 0 수렴 → 예산 촉매 · CAISI/AISI 정부 표준화', mcap:104, rsi:52, index:'SP500' },
@@ -804,7 +804,7 @@ var SCREENER_DB = [
 
   //  반도체 (semi) — 소재·장비 포함
   { sym:'042700.KQ', name:'한미반도체', sector:'Technology', signal:'BUY', memo:'HBM TC 본더 독점 · AI 반도체 후공정 수혜', mcap:8, rsi:55, index:'KOSDAQ' },
-  { sym:'009150.KS', name:'삼성전기', sector:'Technology', signal:'BUY', memo:'[MLCC 가격 급등 05/30] 중국 Guangdong XMAWEI MLCC 가격 급등으로 유통업체에 공식 가격인상 통보(메리츠증권). 현지 유통 전반 가격 인상 움직임 확인. AI 서버 고용량 MLCC 수요+전장 비중 확대+중국발 가격 인상 = 삼성전기 수혜 복합 요인. AI 서버용 고용량 MLCC 전환·LTCC·카메라모듈 · 전장 비중 확대', mcap:10, rsi:48, index:'KOSPI' },
+  { sym:'009150.KS', name:'삼성전기', sector:'Technology', signal:'BUY', memo:'[대형 CSP 공급계약 07/02] 북미 빅테크向 서버용 MLCC 4,500억원 규모 공급계약 체결(내년 1~12월). 초소형·고용량·고신뢰성 특성, AI 서버 랙 1개당 MLCC 약 60만개 탑재. 장덕현 사장 "AI 핵심 부품 기술력 인정" 발언. [MLCC 가격 급등 05/30] 중국 Guangdong XMAWEI MLCC 가격 급등으로 유통업체에 공식 가격인상 통보(메리츠증권). 현지 유통 전반 가격 인상 움직임 확인. AI 서버 고용량 MLCC 수요+전장 비중 확대+중국발 가격 인상 = 삼성전기 수혜 복합 요인. AI 서버용 고용량 MLCC 전환·LTCC·카메라모듈 · 전장 비중 확대', mcap:10, rsi:48, index:'KOSPI' },
   { sym:'402340.KS', name:'SK스퀘어', sector:'Technology', signal:'HOLD', memo:'SK하이닉스 지분 보유 · AI 투자 밸류체인', mcap:10, rsi:50, index:'KOSPI' },
   { sym:'039030.KQ', name:'이오테크닉스', sector:'Technology', signal:'BUY', memo:'레이저 장비 · 반도체 후공정 · HBM 수혜', mcap:4, rsi:52, index:'KOSDAQ' },
   { sym:'403870.KQ', name:'HPSP', sector:'Technology', signal:'BUY', memo:'고압 수소 어닐링 · 삼성 파운드리 필수 장비', mcap:3, rsi:50, index:'KOSDAQ' },
@@ -977,57 +977,57 @@ var SCREENER_DB = [
 // mcap 티어 + 섹터 변동성 보정으로 ADR% 추정
 // ADR%(Average Daily Range) = 하루 평균 변동폭 비율. 높을수록 변동성 큼.
 var AIO_TELEGRAM_WEEKLY_DIGEST = {
-  asOf: '2026-06-26T03:00:00+09:00',
-  window: '2026-06-19~2026-06-26 KST',
-  marketDataAsOf: '2026-06-26T03:00:00+09:00',
+  asOf: '2026-07-03T10:55:06+09:00',
+  window: '2026-06-19~2026-07-03 KST',
+  marketDataAsOf: '2026-07-03T10:55:06+09:00',
   sources: ['https://t.me/s/aetherjapanresearch', 'https://t.me/s/insidertracking', 'https://t.me/s/bornlupin'],
-  counts: { total: 809, aetherjapanresearch: 187, insidertracking: 527, bornlupin: 95 },
-  pipelineNote: 'Public Telegram mirror scrape. topItems=45(score>=65), broadItems=309(score>=50, ch-max 120, total 400, datetime-sorted news feed). KOSPI -5% sidecar, MLCC surge, Korea mega-project 6/29, Fed on-hold, OpenAI IPO delay.',
-  topicCounts: { geo:266, 'market-note':329, macro:208, equity:217, semi:219, power:64, optical:18, 'ai-policy':26, crypto:22, 'kr-market':12 },
-  tickerCounts: { MU:137, '000660.KS':57, NVDA:56, '005930.KS':36, AMZN:19, META:24, AMD:19, TSM:14, ORCL:6, RKLB:5, MRVL:11, ADBE:2, LITE:2, AAOI:2, '009150.KS':7, SMCI:3, ALAB:4, BE:8, COHR:1, AAPL:2 },
+  counts: { total: 414, aetherjapanresearch: 138, insidertracking: 145, bornlupin: 131 },
+  pipelineNote: 'Public Telegram mirror scrape. topItems=45(score>=65), broadItems=360(score>=50, datetime-sorted news feed). June NFP miss+cyclical rotation, Meta Compute/Neocloud capex noise (BofA debunked order-cut rumor), Samsung Electro-Mech KRW450B MLCC deal, Anthropic export restriction lifted.',
+  topicCounts: { geo:164, 'market-note':34, macro:116, equity:223, semi:251, power:85, optical:19, 'ai-policy':54, crypto:22, 'kr-market':25 },
+  tickerCounts: { MU:124, AAPL:61, NVDA:47, META:44, '005930.KS':41, '000660.KS':38, MSFT:33, AMZN:30, GOOG:28, SNDK:16, AVGO:15, AMD:15, '009150.KS':14, '6600.T':13, MRVL:11, '6981.T':11, BE:10, RKLB:9, TSM:9, ORCL:5 },
   themes: [
-    'Memory supercycle confirmed: MU blockbuster earnings signal 2027–2030 upcycle. Apple forced product price hikes due to DRAM shortage. DRAM spot +20% over 5 weeks. SK Hynix HBM4E sampling pulled forward, LTA coverage expanding across hyperscalers.',
-    'KOSPI -5% circuit breaker (2026-06-26): Sell sidecar triggered. Apple AAPL -6% (memory cost pass-through fear) spilled into Korean memory names. Kiwoom analyst Han Ji-young: demand destruction fears overdone; underlying cause is crowding/profit-take after 8.9% 2-day rally. Hold strategy maintained.',
-    'MLCC gold rush: AI-server MLCC spot prices +50~60% (from Feb). Huaqiangbei price updates every 30 min. AMD MI450 MLCC count +632% per board; NVDA Vera Rubin +56%. Murata/Taiyo Yuden/Samsung Electro-Mech utilization >90%, lead times 20w+. Roundhill filed SEC registration for US MLCC+PCB ETF — Samsung Electro-Mech (009150) key beneficiary.',
-    'Korea AI mega-project (6/29 announcement): Presidential policy chief Kim Yong-beom warned "numbers will feel unfamiliar" at the 大躍進 3-sector mega-project briefing. Gigawatt-scale AI/semiconductor/physical-AI+robotics investment. Samsung & SK Hynix described as voluntary investors, not coerced. Target: Korea to join top-3 nations by market cap in 2–3 years.',
-    'Macro/rates: Fed Williams/Goolsbee confirm current policy appropriate; labor market stable. US 10Y in 3.9–4.6% wedge, false break above 4.62% in May. S&P 500 Q3 correction view (high 7,621; support 7,200/7,025/6,850; margin debt +54% YoY). EUR/USD H&S top; DXY H2 strength. Brent crude $65–85 stabilization box.',
-    'AI policy: OpenAI IPO likely delayed to 2027; GPT-5.6 rolling out in stages with US government AI model review. Geo: Israel refuses Lebanon withdrawal; Hezbollah-IDF clashes resuming. Hormuz uncertainty re-elevated. Tokyo CPI 1.7% — BOJ rate hike path intact.'
+    'June jobs shock reshuffles the rate-cut trade: NFP +57K (vs. consensus, May revised down to 43K) while unemployment held at 4.2%. Market read: labor cooling without a hard landing → Fed cut odds rise, sparking a rotation out of AI megacaps (profit-taking after semis led a strong run) into cyclicals, small-caps, and rate-sensitive sectors mid-week. Q2 2026 closed as one of the strongest quarters in years: S&P500 +15%, Nasdaq +21%, with breadth expanding beyond tech into financials/industrials/healthcare late in the quarter.',
+    'Meta Compute/Neocloud capex scare, then partial debunk: Bloomberg/Citi reports that Meta may resell excess AI compute capacity (Zuckerberg called cloud entry "definitely on the table" at May\'s shareholder meeting) hit CoreWeave/Nebius shares on fear of a new hyperscaler competitor and Meta capex cuts. BofA\'s follow-up memory-market note called the "Meta cutting memory orders" rumor unfounded — NAND controller/substrate suppliers report no order pullback. Net: AI-infra capex uncertainty is now a two-sided debate (Reddit retail sentiment split on DC over-build vs. continued need; JPM circulated an "AI Rotation" strategy memo), not a one-way bear case.',
+    'Memory/MLCC supercycle intact with new specifics: DRAM named the single most important AI hardware bottleneck (ahead of lasers/capacitors/power semis/NAND/HDD) in a widely-shared All-In Podcast synthesis. Samsung Electro-Mechanics (009150.KS) landed a KRW 450B (~$320M) server-MLCC supply deal with a major North American CSP, 12-month contract — CEO Jang Duk-hyun cited as validation of AI-component tech leadership; each AI server rack reportedly uses ~600K MLCC units. Apple\'s attempt to diversify memory sourcing to China\'s CXMT/YMTC is running into US Dept. of Defense 1260H "Chinese military company" list friction and FAR-committee scrutiny — a live US-China supply-chain flashpoint distinct from the pure demand story.',
+    'AI infrastructure diversifying beyond GPUs: Qualcomm announced a push into data-center chips with a $15B revenue target by 2029, stock +12.9% after-hours on the news — smartphone-to-datacenter pivot getting real investor attention. MediaTek\'s TPU v8t ("Zebrafish") ASIC ramp is on track for 4Q26 volume production (this year\'s ASIC revenue target ~$2B), with 2027 guidance of $7-12B as hyperscaler ASIC demand broadens past Nvidia/Broadcom. Citi\'s "전력망 교착 극복 2.0" grid-bottleneck report reiterates that AI datacenter buildout + energy-security policy is outrunning grid capacity — equipment supply and permitting remain the binding constraints, not demand.',
+    'Policy/macro backdrop: US formally lifted export restrictions on Anthropic\'s Claude Fable 5/Mythos 5 models, restoring international access after a security review — Anthropic now coordinating with the US government on a review framework for future high-capability model releases, alongside AWS/Google Cloud/Microsoft distribution. Morgan Stanley raised Alphabet\'s PT to $415 (from $375, Overweight maintained) on TPU revenue traction, ~20% upside from late-June close. Trump administration: Iran-Qatar talks show progress but no deal (nuclear timeline extension into August under discussion), USMCA renewal explicitly rejected in favor of fresh Canada/Mexico negotiations, and a Micron "Trump Account" investment-program announcement was cited approvingly by the administration.',
+    'Retail positioning stayed aggressively levered to the semis narrative both ways: 서학개미 (Korean retail overseas-stock) weekly TOP-50 buy lists were dominated by SNDK, leveraged 2-3x semiconductor bull AND bear ETFs (Direxion/Tradr/Roundhill DRAM funds) simultaneously — a two-sided bet on volatility around the memory-supercycle-vs-AI-capex-peak debate, not a directional consensus.'
   ],
   catalysts: [
-    { key:'MU', text:'Blockbuster Q3 FY26 earnings; supercycle thesis extends to 2027/2030; SOCAMM/HBM ramp, LTA expansion, Apple demand-side pressure now a positive for memory ASP.' },
-    { key:'NVDA', text:'Vera Rubin MLCC demand +56% per board; 800V Power Rack as optional Rubin config; Rubin Ultra GW-level power rack expected 2028.' },
-    { key:'AMD', text:'MI450 MLCC demand +632% per board structural catalyst for 009150.KS/6981.T; optical supply-chain late-buyer risk vs NVDA.' },
-    { key:'009150.KS', text:'MLCC 50~60% price surge + lead times 20w+; Roundhill US MLCC+PCB ETF filing; Hyundai Motor Securities PT raised to KRW 2.8M; embedded PCB/glass-core substrate tech lead.' },
-    { key:'000660.KS', text:'SK Hynix HBM4E sampling pulled forward; DRAM LTA expanding; KOSPI sidecar sell-off overdone per analyst consensus.' },
-    { key:'005930.KS', text:'Samsung Electronics named in AI mega-project gigawatt initiative; voluntary capex scale described as "unfamiliar numbers".' },
-    { key:'AAPL', text:'Memory cost pass-through to products triggered AAPL -6% and KOSPI sidecar. Micron exec suggests Apple price aggression contributed to supply underinvestment in 2023.' },
-    { key:'6981.T', text:'Murata utilization >90%, lead times stretched; direct beneficiary of MLCC AI-server demand surge.' }
+    { key:'MU', text:'Still the most-mentioned ticker in the window (124 hits); DRAM named the #1 AI hardware bottleneck (All-In Podcast synthesis); supercycle thesis intact despite the mid-week AI-megacap profit-taking rotation.' },
+    { key:'009150.KS', text:'KRW 450B (~$320M) 12-month server-MLCC supply deal with a major North American CSP — each AI server rack uses ~600K MLCC units; CEO Jang Duk-hyun framed as AI-component tech-leadership validation.' },
+    { key:'AAPL', text:'CXMT/YMTC China memory-sourcing negotiation running into US DoD 1260H "Chinese military company" list friction and FAR-committee scrutiny — live US-China supply-chain flashpoint, outcome unresolved.' },
+    { key:'META', text:'Bloomberg/Citi Neocloud-reseller reports triggered CoreWeave/Nebius selloffs on capex-cut fear; BofA follow-up called the "Meta cutting memory orders" rumor unfounded — narrative now genuinely two-sided, not resolved.' },
+    { key:'GOOG', text:'Morgan Stanley PT raised $375→$415 (Overweight) on TPU revenue traction, ~20% upside from late-June close ($353.65).' },
+    { key:'QCOM', text:'New data-center chip market entry announced, $15B revenue target by 2029; stock +12.9% after-hours — smartphone-to-datacenter pivot.' },
+    { key:'000660.KS', text:'SK Hynix remains #2 most-mentioned ticker (38 hits) on HBM4E/DRAM supercycle exposure alongside 005930.KS.' },
+    { key:'005930.KS', text:'Named alongside SK Hynix in continuing AI mega-project and memory-supercycle coverage; also indirectly exposed via Samsung Electro-Mechanics MLCC contract win.' }
   ],
   categories: [
-    { id:'macro-geo', label:'Macro/Geopolitics', topics:['macro','geo','market-note'], focus:'Fed on hold (Williams/Goolsbee), S&P Q3 correction risk, EUR/USD H&S, Brent $65-85, Hormuz/Lebanon flare-up.' },
-    { id:'korea-market', label:'Korea Market Events', topics:['kr-market','semi','macro'], focus:'KOSPI -5% sidecar 6/26, memory sell-off fear vs. hold thesis, AI mega-project 6/29 announcement.' },
-    { id:'mlcc-surge', label:'MLCC Price Surge', topics:['semi','equity'], focus:'AI-server MLCC +50~60%, AMD MI450 +632%, Roundhill US ETF filing, 009150.KS/6981.T catalysts.' },
-    { id:'memory-supercycle', label:'Memory Supercycle', topics:['semi','macro'], focus:'MU earnings, DRAM spot +20%, HBM4E pull-forward, LTA expansion, Apple supply-chain friction.' },
-    { id:'ai-policy', label:'AI Policy/IPO', topics:['ai-policy','macro'], focus:'OpenAI IPO delay, GPT-5.6 staged rollout, US government AI model review process.' },
-    { id:'japan-boj', label:'Japan BOJ/Rates', topics:['macro','market-note'], focus:'Tokyo CPI 1.7%, BOJ additional rate hike path intact; yen/rate sensitivity.' },
-    { id:'power-grid', label:'AI Power/Grid', topics:['power','semi'], focus:'NVDA 800V Power Rack, Rubin Ultra 660kW rack demand, transformer/switchgear lead times, PJM bottleneck.' },
-    { id:'equity-analyst', label:'Equity/Analyst Flow', topics:['equity','semi'], focus:'PT revisions: 009150.KS KRW 2.8M, Kiwoom hold thesis, BofA memory supercycle upgrade.' },
-    { id:'space-leo', label:'Space/LEO', topics:['space','equity'], focus:'RKLB/SpaceX-linked momentum.' },
-    { id:'crypto-risk', label:'Crypto/Risk Appetite', topics:['crypto','market-note'], focus:'BTC/ETH liquidity beta and risk-on confirmation/divergence.' }
+    { id:'macro-geo', label:'Macro/Geopolitics', topics:['macro','geo','market-note'], focus:'June NFP miss (+57K, May revised to 43K) + steady 4.2% unemployment → Fed cut odds up, cyclical rotation. Q2 close: S&P +15%/Nasdaq +21%. Iran-Qatar talks ongoing no-deal, USMCA renewal rejected.' },
+    { id:'korea-market', label:'Korea Market Events', topics:['kr-market','semi','macro'], focus:'Samsung Electro-Mechanics KRW450B server-MLCC CSP deal; SK Hynix/Samsung Electronics continuing HBM/memory-supercycle exposure.' },
+    { id:'ai-capex-debate', label:'AI Capex/Neocloud Debate', topics:['ai-policy','equity','market-note'], focus:'Meta Compute/Neocloud reseller reports (CoreWeave/Nebius selloff) vs. BofA debunk of the memory-order-cut rumor; JPM "AI Rotation" memo; Reddit retail split on DC over-build vs. continued need.' },
+    { id:'mlcc-surge', label:'MLCC Price Surge', topics:['semi','equity'], focus:'Samsung Electro-Mech 450B won server-MLCC CSP deal (~600K MLCC/AI rack); Apple CXMT/YMTC memory sourcing hits US DoD 1260H friction.' },
+    { id:'memory-supercycle', label:'Memory Supercycle', topics:['semi','macro'], focus:'DRAM named #1 AI hardware bottleneck (All-In Podcast synthesis); MU remains the most-mentioned ticker in the window (124 hits); supercycle thesis intact despite mid-week AI-megacap profit-taking.' },
+    { id:'ai-policy', label:'AI Policy/Export Controls', topics:['ai-policy','macro'], focus:'US lifts Anthropic Claude Fable 5/Mythos 5 export restrictions; Anthropic coordinating US gov review framework with AWS/Google Cloud/Microsoft distribution.' },
+    { id:'power-grid', label:'AI Power/Grid', topics:['power','semi'], focus:'Citi grid-bottleneck report: AI datacenter buildout + energy-security policy outrunning grid capacity; equipment supply/permitting are the binding constraint.' },
+    { id:'equity-analyst', label:'Equity/Analyst Flow', topics:['equity','semi'], focus:'GOOG PT $375→$415 (Morgan Stanley, TPU-driven); QCOM new data-center chip entry (+12.9% AH, $15B/2029 target); MediaTek TPU v8t ASIC ramp ($7-12B 2027 guidance).' },
+    { id:'space-leo', label:'Space/LEO', topics:['space','equity'], focus:'RKLB-linked momentum continues in the window (9 mentions).' },
+    { id:'crypto-risk', label:'Crypto/Risk Appetite', topics:['crypto','market-note'], focus:'BTC/ETH liquidity beta and risk-on confirmation/divergence amid the mid-week cyclical rotation.' }
   ],
   pageMap: {
-    home: ['korea-market','memory-supercycle','mlcc-surge','macro-geo','ai-policy'],
-    macro: ['macro-geo','japan-boj','ai-policy'],
-    fxbond: ['macro-geo','japan-boj'],
-    technical: ['mlcc-surge','memory-supercycle','power-grid'],
-    themes: ['mlcc-surge','power-grid','memory-supercycle','space-leo','crypto-risk','korea-market'],
+    home: ['korea-market','mlcc-surge','memory-supercycle','ai-capex-debate','macro-geo','ai-policy'],
+    macro: ['macro-geo','ai-policy'],
+    fxbond: ['macro-geo'],
+    technical: ['mlcc-surge','memory-supercycle','power-grid','ai-capex-debate'],
+    themes: ['mlcc-surge','memory-supercycle','power-grid','ai-capex-debate','space-leo','crypto-risk','korea-market'],
     sentiment: ['macro-geo','korea-market','crypto-risk','equity-analyst'],
-    signal: ['korea-market','memory-supercycle','mlcc-surge','macro-geo'],
-    fundamental: ['equity-analyst','memory-supercycle','mlcc-surge','power-grid','ai-policy'],
-    breadth: ['macro-geo','korea-market','equity-analyst','memory-supercycle'],
-    screener: ['equity-analyst','mlcc-surge','power-grid','memory-supercycle','space-leo','korea-market'],
-    briefing: ['korea-market','macro-geo','japan-boj','ai-policy','mlcc-surge','memory-supercycle'],
-    'market-news': ['korea-market','macro-geo','japan-boj','ai-policy','mlcc-surge','memory-supercycle','equity-analyst','space-leo','crypto-risk','power-grid']
+    signal: ['korea-market','mlcc-surge','memory-supercycle','ai-capex-debate','macro-geo'],
+    fundamental: ['equity-analyst','mlcc-surge','memory-supercycle','power-grid','ai-policy','ai-capex-debate'],
+    breadth: ['macro-geo','korea-market','equity-analyst','mlcc-surge','memory-supercycle'],
+    screener: ['equity-analyst','mlcc-surge','memory-supercycle','power-grid','space-leo','korea-market'],
+    briefing: ['korea-market','macro-geo','ai-policy','mlcc-surge','memory-supercycle','ai-capex-debate'],
+    'market-news': ['korea-market','macro-geo','ai-policy','mlcc-surge','memory-supercycle','ai-capex-debate','equity-analyst','space-leo','crypto-risk','power-grid']
   }
 };
 try { window.AIO_TELEGRAM_WEEKLY_DIGEST = AIO_TELEGRAM_WEEKLY_DIGEST; } catch(_) {}
@@ -5734,7 +5734,7 @@ function _aioCheckManualFieldStaleness() {
       var pill = document.createElement('span');
       pill.className = 'stale-manual-pill';
       pill.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;cursor:default;';
-      pill.title = r.label + ' — 마지막 업데이트 ' + r.date + ' (' + r.days + '일 경과). aio-core.js DATA_SNAPSHOT._fieldTs.' + r.key + ' 갱신 필요.';
+      pill.title = r.label + ' — 마지막 업데이트 ' + r.date + ' (' + r.days + '일 경과). 정책 발표/공식 소스 확인 후 갱신됩니다.';
       pill.textContent = '⏰ ' + r.label + ' ' + r.days + '일 경과';
       bar.appendChild(pill);
     });
@@ -6119,7 +6119,7 @@ function _aioRenderPublicReadiness() {
         '<div class="aio-public-readiness-label">' + _aioPublicReadinessEsc(m.label) + '</div>' +
         '<span>투자 판단 전 데이터 기준 시각과 source 상태를 확인하세요.</span>' +
       '</div>' +
-      '<div class="aio-public-readiness-card"><b>버전</b><span>' + _aioPublicReadinessEsc(m.version) + '</span></div>' +
+      '<div class="aio-public-readiness-card"><b>버전</b><span id="aio-public-readiness-version">' + _aioPublicReadinessEsc(m.version) + '</span></div>' +
       '<div class="aio-public-readiness-card"><b>데이터</b><span>' + _aioPublicReadinessEsc(m.dataLabel) + '<br>' + _aioPublicReadinessEsc(m.dataStatus) + '</span></div>' +
       '<div class="aio-public-readiness-card"><b>현재성</b><span>' + _aioPublicReadinessEsc(m.pageStatus) + '<br>' + _aioPublicReadinessEsc(m.pipelineStatus) + '</span></div>' +
       sourceHtml +
@@ -10814,11 +10814,11 @@ function renderFeed(items) {
 // v51.90 /data-refresh (2026-07-02): 6/24 이후 8일치 stale 뉴스 교체. 이전 v50.41(6/13)/v51.31(6/24) 2개 배열이 var 재대입으로 중복 정의되어
 // 첫 배열(6/13)은 완전 도달불가 dead code였음 — 이번에 단일 배열로 정리(재발 방지: 향후 갱신 시 var 재선언 대신 기존 배열 내용만 교체).
 var HOME_WEEKLY_NEWS = [
-  { title: '한국 증시 반도체 급락 지속 — KOSPI 7,811(-5.93%)·KOSDAQ 871(-6.25%) — 6/23 서킷브레이커 이후에도 매도 압력이 이어지며 삼성전자·SK하이닉스 중심 반도체주 약세 지속. 미국 증시(NASDAQ -0.66%·SPX -0.22%·다우 -0.03%)는 상대적으로 안정적이라 미국-한국 시장 디커플링이 뚜렷합니다. 원화도 1,552원까지 추가 약세.', source: 'public-data 2026-07-02', date: '2026-07-02', sentiment: 'bear', topic: 'kr' },
-  { title: 'F&G 32(공포)로 완화 + AAII 강세 전환 — CNN Fear & Greed가 25(극단공포)에서 32(공포)로 개선됐고, AAII 개인투자자 설문은 Bullish 44.9%(+8.4%p, 6주 만에 평균 상회)·Bearish 36.1%(-3.2%p)로 낙관 반등. VIX도 16.59(-9.9%)로 진정 — 한국 증시 급락과 달리 미국 심리지표는 공포 완화 국면입니다.', source: 'CNN/AAII 2026-07-02', date: '2026-07-02', sentiment: 'bull', topic: 'macro' },
-  { title: '6월 ISM 제조업 53.3%(6개월 연속 확장) — 미국 ISM 제조업 PMI가 6월 53.3%(5월 54%에서 소폭 둔화, 6개월 연속 확장·경기 20개월 연속 확장)를 기록했습니다. Prices 지수는 82.1→73.0으로 크게 낮아져 원가 압력 완화 신호. 한국 제조업 PMI는 반대로 52.1(5월 54.8에서 둔화, 4개월래 최약 확장 — 수출주문 2개월 연속 감소).', source: 'ISM/S&P Global 2026-07-01', date: '2026-07-01', sentiment: 'neutral', topic: 'macro' },
-  { title: '한국 6월 반도체 수출 여전히 강세(+188.4%) — 시장 급락과 별개로 한국 6/1~20일 수출은 전년比 +60.4%(620억$ 역대 최대), 반도체 수출은 +188.4%(255억$, 비중 41.2%)로 실물 펀더멘털은 견조. 주가 급락은 밸류에이션·레버리지 조정 성격이 크고 수출 실적과는 괴리.', source: '관세청 2026-06-22', date: '2026-06-22', sentiment: 'neutral', topic: 'kr' },
-  { title: '유가 추가 하락 + 미국 소비 지표 개선 — WTI $67.92(-0.96%)로 하락 지속. 5월 소매판매 +0.9% MoM($763.7B) 견조, 6월 Conference Board 소비자신뢰도 91.2(+0.6pt, 유가 하락이 인플레 우려 완화에 기여)로 개선. 다만 "일자리 구하기 어렵다" 응답이 22.5%로 5.5년래 최고 — 노동시장 둔화 신호는 잔존.', source: 'EIA/Census/Conference Board 2026-06-30', date: '2026-06-30', sentiment: 'neutral', topic: 'macro' },
+  { title: '6월 미국 고용 쇼크 — NFP +5.7만 명(예상·전월 대폭 하회) — 6월 비농업부문 고용이 5만7천 명 증가에 그쳐 시장 예상과 5월 실적(172→43K로 하향조정된 수치 기준)을 크게 밑돌았습니다. 실업률은 4.2%로 오히려 예상보다 낮아 "냉각이지만 급랭은 아니다"는 해석. 연내 Fed 금리인하 기대가 재부각되며 AI 대형주 차익실현 → 경기민감주·중소형주로 순환매가 나타났습니다.', source: 'FRED/공식 발표 2026-07-03', date: '2026-07-03', sentiment: 'neutral', topic: 'macro' },
+  { title: '코스피 급락 후 반등(+1.12%) — 코스닥은 반도체 약세로 추가 하락 — KOSPI가 7,733(+1.12%)으로 전일 급락 이후 반등에 성공한 반면, KOSDAQ은 843(-2.77%)으로 반도체 중심 약세가 이어졌습니다. 삼성전기의 대규모 서버용 MLCC 공급계약(북미 빅테크向 4,500억원 규모, 12개월)이 반등의 한 요인으로 거론됩니다. 원화는 1,540원으로 강세 전환.', source: 'public-data 2026-07-03', date: '2026-07-03', sentiment: 'bull', topic: 'kr' },
+  { title: '금값 급등(+3.05%) — 금리인하 기대 + 안전자산 수요 — 국제 금 가격이 온스당 $4,192로 급등(+3.05%)했습니다. 고용지표 부진에 따른 Fed 금리인하 기대 재부각과 AI 대형주 조정에 따른 안전자산 선호가 겹친 것으로 풀이됩니다. 은(Silver)도 $62.67(+4.3%)로 동반 급등.', source: 'public-data 2026-07-03', date: '2026-07-03', sentiment: 'neutral', topic: 'macro' },
+  { title: 'Meta Compute/네오클라우드 루머 — BofA "메모리 주문 감산설은 사실무근" — 블룸버그·Citi 보도로 메타(Meta)가 잉여 AI 컴퓨팅을 외부에 임대하는 네오클라우드 사업에 나설 수 있다는 관측이 확산되며 코어위브·네비우스 주가가 급락했습니다. 다만 BofA 후속 노트는 "메타가 메모리 주문을 줄인다"는 우려는 근거가 없다고 반박 — AI 인프라 capex 불확실성이 양방향 논쟁으로 전환되는 모습입니다.', source: 'Bloomberg/Citi/BofA(텔레그램 다이제스트) 2026-07-02', date: '2026-07-02', sentiment: 'neutral', topic: 'us' },
+  { title: 'F&G 31(공포) — 2분기는 S&P +15%·나스닥 +21%로 강한 마감 — CNN Fear & Greed는 31(공포, 전일 32에서 소폭 완화)을 유지 중입니다. VIX도 16.15(-2.65%)로 추가 진정. 2026년 2분기는 AI 투자 열풍에 힘입어 S&P500 +15%·나스닥 +21%로 수년 만의 최고 분기 성과를 기록했으며, 최근에는 금융·산업재·헬스케어 등 경기민감 업종으로 상승세가 확산되는 모습도 나타났습니다.', source: 'CNN/공식 집계 2026-07-03', date: '2026-07-03', sentiment: 'bull', topic: 'macro' },
 ];
 window.HOME_WEEKLY_NEWS = HOME_WEEKLY_NEWS;
 

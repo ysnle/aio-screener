@@ -6,6 +6,13 @@ target_version: v51.80
 
 ---
 
+## R273. A value that's supposed to mirror or track another value must be verified equal by evaluating both, not by eyeballing the diff — and duplicate/mirror fields must be named to be found (v51.96)
+
+- Any time a codebase keeps two copies of "the same" number for different consumers (a primary field + a `_fallback` mirror; a `vvix` + a separately-named `vvix_live` that some call sites prefer), a normal edit pass that updates one and not the other will look completely fine in a diff — there's no syntax error, no obviously-wrong value, nothing a human reviewer skimming the change would catch. The only reliable check is programmatic: evaluate both fields and assert equality (exactly what `T686`/R184 already does for the `_fallback` mirror — the gap was that its failures were being skip-listed as "known drift" instead of fixed, and it had no equivalent for `vvix_live`).
+- When adding a new "secondary" copy of an existing field (a cache, a differently-scoped fallback, a variant some call sites need), name it so a search for the primary field's name finds it too (`vvix_live` failed this — nothing about editing `vvix` would surface it) — or better, derive it from the primary at read time instead of storing a second copy at all, if the call sites can tolerate that.
+- Before editing a hand-formatted data literal, treat any inline comment that looks like it might be running unusually long, or any field that seems to have "quietly stopped getting updated" for no clear reason, as a signal worth a raw byte-level check (`JSON.stringify` a `split('\n')` line, looking for stray `\r` or other invisible characters) rather than assuming visual layout matches actual parse structure.
+- See P592/BUG-POSTMORTEM.md: a `_fallback.fg`/`breadth*` mirror drift, a same-session-introduced-and-caught `AIO_TELEGRAM_WEEKLY_DIGEST.categories` count regression, and a stray mid-line `\r` that had been silently truncating a `//` comment (and hiding the `fg` field from casual view) for at least one prior `/data-refresh` cycle.
+
 ## R272. A bot/Action-authored push using the default `GITHUB_TOKEN` never triggers other `on: push` workflows — chain via `workflow_run` instead, not `[skip ci]` removal alone (v51.95)
 
 - GitHub Actions will not let a push made with the repository's default `GITHUB_TOKEN` fire another workflow's `push`/`pull_request` triggers, as an anti-recursion safeguard. This is independent of the `[skip ci]` commit-message convention — removing `[skip ci]` (as R263/P572 did) is necessary to make the *commit itself* eligible to trigger CI, but it does nothing about the token-identity restriction, which blocks the trigger from firing at all regardless of the commit message.

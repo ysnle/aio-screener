@@ -1,3 +1,16 @@
+## v51.96 (2026-07-03)
+- **전체 데이터 최신화(/data-refresh)**: 라이브 파이프라인을 GitHub Actions로 재트리거(`gh workflow run refresh-data.yml`, 로컬에서 `fetch-data.mjs` 직접 실행 금지 원칙 준수)해 시세 77/77·F&G 31(fear)·FRED 14키·뉴스 40건을 실측 갱신, 이 실측을 그대로 아래 정적 폴백에 반영.
+  - **`DATA_SNAPSHOT`(js/aio-core.js) 전면 재동기화**: 미국/한국 지수·원자재·환율·금리(TNX 4.485%)를 07-03 실측치로, 6월 미국 고용 쇼크(NFP +5.7만, 5월분도 172→43K 하향, 실업률 4.2%) 반영, `_fallback` 미러(breadth5/20/50sma, vix, dxy, tnx, hyg, vvix)를 본체와 재정합.
+  - **AIO_TELEGRAM_WEEKLY_DIGEST(js/aio-data.js) 전면 재작성**: 텔레그램 다이제스트 414건(2026-06-19~07-03) 원문을 직접 읽어 6개 신규 테마(6월 고용쇼크·Meta Compute/네오클라우드 논쟁·메모리·AI 인프라 다변화·정책·리테일 포지셔닝)로 재synthesis, 카테고리 10종·촉매 8종 갱신.
+  - **SCREENER_DB 메모 4종목 갱신**(GOOGL·QCOM·META·009150.KS — 이번 주 실제 촉매 반영) + `SCREENER_DB_META.lastBulkUpdate` 갱신 + `scripts/sync-screener-universe.mjs` 재실행(R271).
+  - **HOME_WEEKLY_NEWS 5건 전량 교체**(오늘 실제 헤드라인: 고용쇼크/코스피 반등/금값 급등/Meta Compute 논쟁/2분기 마감).
+  - **부수 발견 3건, 같은 세션에서 실제 수정** (상세: P592/R273):
+    1. `DATA_SNAPSHOT._fallback`의 breadth 필드가 본체와 실제로 어긋나 있던 것(T686) 재동기화 — 과정에서 `fg` 필드가 **줄 중간에 낀 stray CR(`\r`) 문자**에 가려 그동안 계속 누락되고 있었음을 발견·정리(6개 JS 모듈 전수 스캔, 추가 발견 없음 확인).
+    2. 가시 텍스트/tooltip 3곳의 개발자 마커 누출(T776) 실제 수정: `aio-core.js DATA_SNAPSHOT._fieldTs.xxx` 노출 tooltip, 매크로 페이지 "DATA_SNAPSHOT 값 표시" 배너, 버전 표시 span에 audit exclusion id 부여.
+    3. 텔레그램 다이제스트 재작성 중 카테고리를 10→9개로 실수로 줄여 `AIO_TELEGRAM_CATEGORY_REGISTRY.length >= 10` 계약(T831)을 깬 것을 같은 세션 헤드리스 재실행으로 자체 발견·10개로 복원(회귀가 실제로 배포되기 전에 캐치 — 시스템이 의도대로 작동한 사례).
+  - 헤드리스 테스트 894/921→**896/921 pass**, skip-list 27→**25건**(T776/T686 제거). `_context/GATE-BASELINE-2026-07-03.md`/`gate-baseline-skip-list.json` 갱신.
+  - R1 7곳 v51.96.
+
 ## v51.95 (2026-07-03)
 - **긴급: CI 트리거 인프라 수정 — 라이브 사이트 19h stale 근본 원인 해소**: `refresh-data.yml`(30분마다 데이터 갱신)의 커밋이 기본 `GITHUB_TOKEN`으로 이뤄져 `ci.yml`의 `push` 트리거를 전혀 못 울리고 있었음(GitHub Actions 표준 anti-recursion 정책 — `[skip ci]` 제거(P572/R263)와는 별개 원인). 결과: 저장소는 계속 최신인데 validate/deploy는 한 번도 안 돌아 라이브 사이트가 `2026-07-02T06:10` 시점에 멈춰있었음(실측 19시간 stale, watchdog는 감지했지만 원인 미진단).
   - `ci.yml`에 `on.workflow_run`(`workflows: ['Refresh market data']`) 추가 — PAT/새 secret 불필요(GitHub 공식 우회 경로). `validate`/`headless-tests`/`deploy` 3개 job 모두 트리거 소스가 workflow_run일 때 `github.event.workflow_run.head_sha`를 체크아웃하도록 수정, 소스 워크플로 실패 시 스킵.
