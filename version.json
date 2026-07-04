@@ -1,1 +1,1 @@
-{"version":"v52.2","built":"2026-07-04T17:50:00+09:00","note":"v52.2 — Phase 3 [C3]: computeTradingScore 검증 하네스 신설(scripts/backtest-trading-score.mjs). 현재 표본 극히 작음(fg 24/201일, corr5d n=19/corr21d n=3, statisticallyMeaningful:false) — 재튜닝 근거 아님, 시간 경과에 따라 자동 누적되는 인프라만 구축. Phase 3 [C3] 완료."}
+{"version":"v52.3","built":"2026-07-04T19:00:00+09:00","note":"v52.3 — Phase 3 [A4]: marketState 구독 모델(v50.42) 성숙도 검토, 신규 코드 강제 RULES 추가(R276). 기존 window.* 참조(~4,688건) 마이그레이션은 비범위(장기전, Fable §A4). Phase 3 전체 완료(A1/B3·A2·A3·C3·A4)."}
