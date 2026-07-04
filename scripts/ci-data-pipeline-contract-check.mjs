@@ -73,7 +73,8 @@ check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(r
 check('refresh workflow has write permission and no cancel-in-progress', /contents:\s*write/.test(refresh) && /cancel-in-progress:\s*false/.test(refresh));
 check('refresh workflow fetches market data with required optional secrets', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && /FMP_API_KEY/.test(refresh) && /ANTHROPIC_API_KEY/.test(refresh));
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
-check('refresh workflow commits all public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/screener\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh) && /public-data\/backtest-history\.json/.test(refresh));
+check('refresh workflow commits all public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/screener\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh) && /public-data\/backtest-history\.json/.test(refresh) && /public-data\/score-backtest-history\.json/.test(refresh));
+check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(read('scripts/fetch-data.mjs')) && exists('scripts/backtest-trading-score.mjs'));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 

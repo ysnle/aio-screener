@@ -271,6 +271,7 @@ target_lines: index.html 32065 + js modules 60777
 | glossary | `js/aio-glossary.js`, `index.html:28287` |
 | 데이터 파이프라인(서버) | `scripts/fetch-data.mjs` — Yahoo 1차 + 핵심 ETF 20종 한정 Twelve Data 2차 폴백(Phase 2 B1, `TWELVE_DATA_API_KEY` 필요, 지수/선물/FX/KR 확장은 미검증 스코프 제외), `getScreenerSymbols()`는 이제 `public-data/screener-universe.json`을 직접 읽음(Phase 2 B6, `scripts/sync-screener-universe.mjs`가 `js/aio-data.js`의 `SCREENER_DB`에서 생성·CI가 drift 검증 — 정규식 파싱 제거 완료. 클라 비동기 부팅 로드는 Phase 3 A2로 보류) |
 | FRED_SERIES(서버) | `scripts/fetch-data.mjs:44` — Phase 2 B2(v51.97)로 `housingStarts`(HOUST)/`retailSales`(RSAFS)/`usWageGrowth`(CES0500000003) 추가, `fetchFred()`에 `scale`(단위 변환)·`mom_pct`(전월비%) kind 신설. `consConf`(Conf. Board)는 의도적 제외 — FRED 무료 시리즈 없음, UMCSENT(미시간대)와 혼동 금지(R274/P593). 한국 CPI(FRED 릴레이)는 보류(신선도 미검증 + KOSIS 직접경로 우위) |
+| 매매점수 검증 하네스(Phase 3 C3, v52.2) | `scripts/backtest-trading-score.mjs`(신규) — `computeTradingScore`(`js/aio-core.js:20068`) 5개 서브스코어 계단함수를 순수 함수로 재구현, `public-data/history.json`으로 매일 재구성 점수 vs forward 5/21일 SPX 수익률 계산, `public-data/score-backtest-history.json`에 날짜별 upsert 누적(`updateBacktestHistory` P586과 동일 패턴). `fetch-data.mjs` `main()`의 `updateHistory()` 직후에서 호출. **현재 표본 극히 작음**(fg 데이터 24/201일뿐이라 5일forward n=19·21일forward n=3, `statisticallyMeaningful: false`) — 재튜닝 근거 아님, 인프라만(P599 참조). |
 
 ---
 

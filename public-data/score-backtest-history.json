@@ -1,0 +1,565 @@
+{
+ "generatedAt": "2026-07-04T08:42:12.270Z",
+ "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. breadth/pcr/aaiiBear/hyg/뉴스감성은 history.json에 없어 라이브 코드의 실시간-미수신 폴백 상수(또는 완전 생략)를 사용 — 근사가 아니라 이미 존재하는 코드 경로 재현. 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 \"검증 결과\"가 아니라 \"누적 진행 상황\"으로 취급할 것.",
+ "summary": {
+  "n5d": 19,
+  "corr5d": -0.758,
+  "n21d": 3,
+  "corr21d": -1,
+  "statisticallyMeaningful": false
+ },
+ "records": [
+  {
+   "date": "2026-06-10",
+   "reconstructedScore": 43,
+   "subScores": {
+    "vol": 42,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 45
+   },
+   "fwd5dReturn": 2.263247919702659,
+   "fwd21dReturn": 2.9756474138536007,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-11",
+   "reconstructedScore": 54,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 2.163693655924155,
+   "fwd21dReturn": 1.2028183871360318,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-12",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.15286363648596202,
+   "fwd21dReturn": 0.6967675261657836,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-13",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.9300998727033435,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-14",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.9300998727033435,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-15",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.9300998727033435,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-16",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.710986737337328,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-17",
+   "reconstructedScore": 54,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.7100982466543523,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-18",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.8014606870402006,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-19",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.8979865557063542,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-20",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.907719136386788,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-21",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.953982225374564,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-22",
+   "reconstructedScore": 57,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 45
+   },
+   "fwd5dReturn": -1.5893662206485064,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-23",
+   "reconstructedScore": 54,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.1553195591313998,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-24",
+   "reconstructedScore": 54,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.1172539010793376,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-25",
+   "reconstructedScore": 54,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.9282391141544182,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-26",
+   "reconstructedScore": 54,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.756998213222144,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-27",
+   "reconstructedScore": 54,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.7571341932711544,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-28",
+   "reconstructedScore": 54,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.7571341932711544,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-29",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-06-30",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-07-01",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-07-02",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-07-03",
+   "reconstructedScore": 58,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 55
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  }
+ ]
+}
