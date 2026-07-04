@@ -157,7 +157,7 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -188,3 +188,28 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      # P600-followup: `actions/deploy-pages` intermittently fails with "Deployment failed,
+      # try again later." (a GitHub-side Pages deploy API issue — validate/tests pass every
+      # time this happens, and it's not correlated with an overlapping deploy on this repo).
+      # Measured 2026-07-04: 4 of the last 16 workflow_run-triggered deploys (25%) hit this.
+      # Each unretried failure leaves the live site behind the latest data commit until the
+      # next refresh-data.yml cycle (up to ~30min, longer if that cycle's deploy also fails),
+      # which data-watchdog.yml's live-freshness check then separately flags as its own
+      # failed run. A single retry absorbs most of these in place instead of waiting for the
+      # next cycle (or the next few) to self-heal.
+      - name: Wait before deploy retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+
+      - name: Deploy to GitHub Pages (retry)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+
+      - name: Fail if both deploy attempts failed
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome != 'success'
+        run: |
+          echo "::error::GitHub Pages deploy failed twice in a row (initial attempt + retry)."
+          exit 1

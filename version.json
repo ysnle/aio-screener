@@ -1,1 +1,1 @@
-{"version":"v52.3","built":"2026-07-04T19:00:00+09:00","note":"v52.3 — Phase 3 [A4]: marketState 구독 모델(v50.42) 성숙도 검토, 신규 코드 강제 RULES 추가(R276). 기존 window.* 참조(~4,688건) 마이그레이션은 비범위(장기전, Fable §A4). Phase 3 전체 완료(A1/B3·A2·A3·C3·A4)."}
+{"version":"v52.4","built":"2026-07-04T19:47:00+09:00","note":"v52.4 — CI 배포 재시도(R277/P601): GitHub Pages deploy-pages 액션이 최근 33시간 workflow_run 16회 중 4회(25%) 'Deployment failed, try again later'로 간헐 실패 실측 — 30초 대기 후 1회 재시도 추가. data-watchdog.yml의 라이브 신선도 실패가 이 배포 실패의 결과물임을 확인(사용자 문의로 조사)."}
