@@ -1,3 +1,10 @@
+## v52.0 (2026-07-04)
+- **Phase 3 [A2] 2단계: 5개 스크립트 defer 전환 완료(FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §7, P597)**: 1단계(v51.99, P595/R275)에서 인라인 블록의 최상위 모듈 심볼 참조 22곳을 전부 방어한 뒤, `js/aio-core.js`/`aio-data.js`/`aio-ui.js`/`aio-chat.js`/`aio-glossary.js` 5개 `<script src>` 태그에 `defer` 적용(로드맵 원문의 "5개 스크립트"). defer는 문서 순서를 보장하므로 core→data→ui→chat 상대 순서는 유지, 8개 인라인 블록보다 나중에 실행되는 타이밍만 변경.
+  - **검증**: 22페이지 순회 헤드리스 크롤러로 A2 작업 시작 전 원본 베이스라인과 최종 defer 적용 상태를 직접 비교 — `CHAT_CONTEXTS` 20개 키·`_aioPageBus` 61개 등록 완전 동일. 헤드리스 테스트 2회 반복 896/921(회귀 0). 로컬 validate 전체 통과.
+  - **실측 성능**: Playwright 타이밍 하네스(5회 재로드, 워밍업 1회 제외)로 A2 이전 커밋을 별도 git worktree에 격리해 비교. DOMContentLoaded는 거의 무변화(~351ms→~344ms — `<head>` preload가 이미 다운로드를 병렬화해서 예상대로 미미함), **load 이벤트는 ~14.4초→~8.5초로 약 41% 단축** — 세션 초반 "preload가 있어 이득이 작을 것"이라던 예상보다 훨씬 큰 개선(로컬 정적 서버 상대 비교치, 프로덕션 절대치 아님).
+  - **버전 넘버링 참고**: `v51.99` 다음은 `v51.100`이 아니라 `v52.0`으로 롤오버 — `scripts/ci-version-check.mjs`가 마이너 버전을 최대 2자리(`\d{1,2}`)로 강제하는 것을 이 세션에서 실측 확인(`v51.100` 시도 시 게이트 실패).
+  - R1 7곳 v52.0. **Phase 3 [A2] 완료**. 남은 Phase 3 항목: A1/B3(페이로드 다이어트) → C3(매매점수 검증 하네스) → A4(상태 단일화) — 각각 별도 계획 필요.
+
 ## v51.99 (2026-07-04)
 - **Phase 3 [A2] 1단계: defer 전환 선행 방어 보강(FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §7, P595/R275)**: Explore 에이전트 2개로 index.html 8개 인라인 블록 전수 감사 — `js/aio-core.js`/`aio-data.js`/`aio-ui.js`/`aio-chat.js` 4개 모듈을 `defer`로 바꾸면 이 모듈들이 8개 인라인 블록 전부보다 **나중에** 실행되게 된다(defer는 외부 스크립트 전용, 인라인은 항상 즉시 실행). 발견: (1) `_aioPageBus.register(...)` 무방비 호출 21건 + `_aioRegisterTimer(...)` 무방비 호출 1건 — defer 시 최상위에서 `ReferenceError`, 게다가 클래식 `<script>` 블록은 잡히지 않은 예외 발생 시 그 블록의 **나머지 전체가 미실행**되어 파급 범위가 컸음(가장 심각한 경우: 가격알림·접근성 인디케이터·McClellan 오실레이터·BOK 회의일 표시 초기화 전체가 등록 자체가 안 됨). (2) `js/aio-chat.js:1417`의 `window.CHAT_CONTEXTS = CHAT_CONTEXTS`가 `window.AIO`와 달리 **병합이 아닌 단순 덮어쓰기**였던 구조적 결함 — 오늘은 로드 순서가 우연히 맞았을 뿐, defer 시 인라인 블록이 만든 컨텍스트를 통째로 버리는 문제였음.
   - **수정**: 22곳을 P556/R247 템플릿(`document.addEventListener('DOMContentLoaded', ...)`)으로 래핑, `CHAT_CONTEXTS` 병합 패턴으로 전환(R275 신설 — `window.AIO` 병합 원칙을 다른 공유 전역에도 일반화). 이번 커밋은 **defer는 아직 추가하지 않음** — 동기 로딩 유지 상태에서도 그 자체로 안전한 방어 강화(가드가 항상 참이 되는 무해한 변경).

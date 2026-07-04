@@ -38,22 +38,27 @@ target_lines: index.html 32065 + js modules 60777
 | 39 ~ 4888 | 메인 CSS (`<style>`~`</style>`) |
 | 4890 ~ 12461 | body shell + 22개 route page DOM 시작 |
 | 8998 ~ 9001 | 페이지 내 보조 `<style>` 블록(1건, screener 근방) |
-| 12461 ~ 12463 | `aio-core/data/ui` 로드 (`?v=51.97`, 동기 — defer 없음) |
-| 12465 ~ 12807 | inline 블록 1 |
-| 12809 ~ 15939 | inline 블록 2 |
-| 15941 | `js/aio-chat.js` 로드 (`?v=51.97`, 동기) |
-| 15943 ~ 18384 | inline 블록 3 |
-| 18386 ~ 22722 | inline 블록 4 |
-| 22724 ~ 28081 | inline 블록 5 — **v51.98: computeTradingScore 등 핵심 매매 알고리즘이 여기 있었으나 Phase 3 A3로 `js/aio-core.js`(§3)로 이관됨. 이 블록은 이제 그 알고리즘을 소비만 함(호출부·UI 렌더)** |
-| 28083 ~ 28285 | inline 블록 6 |
-| 28287 | `js/aio-glossary.js` 로드 (`?v=51.97`, 동기) |
-| 28290 ~ 31087 | inline 블록 7 (SW 등록 대역 포함) |
-| 31088 ~ 31117 | 보조 `<style>` 블록(2건째) |
-| 31122 ~ 31795 | inline 블록 8 + closing HTML |
+| 12461 ~ 12468 | `aio-core/data/ui` 로드 (`?v=52.0`, **v52.0/Phase3[A2] 2단계: defer 적용됨** — 이제 8개 인라인 블록 전부보다 나중에 실행) |
+| 12470 ~ 12812 | inline 블록 1 |
+| 12814 ~ 15954 | inline 블록 2 |
+| 15955 | `js/aio-chat.js` 로드 (`?v=52.0`, **defer 적용됨**) |
+| 15957 ~ 18401 | inline 블록 3 |
+| 18403 ~ 22742 | inline 블록 4 |
+| 22744 ~ 28119 | inline 블록 5 — **v51.98: computeTradingScore 등 핵심 매매 알고리즘이 여기 있었으나 Phase 3 A3로 `js/aio-core.js`(§3)로 이관됨. 이 블록은 이제 그 알고리즘을 소비만 함(호출부·UI 렌더)** |
+| 28121 ~ 28327 | inline 블록 6 |
+| 28330 | `js/aio-glossary.js` 로드 (`?v=52.0`, **defer 적용됨**) |
+| 28333 ~ 31141 | inline 블록 7 (SW 등록 대역 포함) |
+| 31143 ~ 31172 | 보조 `<style>` 블록(2건째) |
+| 31177 ~ 31853 | inline 블록 8 + closing HTML |
 
 > **v50.60 대비 변화**: 구 CODE-MAP은 inline runtime을 "블록 1/블록 2" 2개로 단순화했으나 실측하면 **8개 분리 블록**이다
 > (스크립트 태그 사이사이 재개). CSS도 3693→4888줄(+1195)로 성장했었고, v51.98에서 블록 5가 -273줄(A3 이관)로
-> 축소됐다. 정확한 재탐색은 `grep -n "<script"` 우선 실행 권장.
+> 축소됐다. **v52.0/Phase3[A2] 완료**: 5개 스크립트(core/data/ui/chat/glossary) 전부 `defer` 적용 —
+> §4 진단(FABLE A2)의 "동기 로딩이 HTML 파서를 막는다" 문제 해소. 인라인 블록의 최상위 모듈 심볼
+> 참조 22곳은 A2 1단계(P595/R275)에서 DOMContentLoaded 래핑/CHAT_CONTEXTS 병합으로 이미 방어됨.
+> 실측: DOMContentLoaded 체감차 거의 없음(이미 `<head>` preload로 다운로드 병렬화돼 있었음, ~350ms
+> 동일) vs `load` 이벤트 평균 41% 단축(워밍업 제외 4회 평균 ~14.4s→~8.5s, 로컬 오프라인 측정).
+> 정확한 재탐색은 `grep -n "<script"` 우선 실행 권장.
 
 ### 22개 route 페이지 DOM 시작점
 
