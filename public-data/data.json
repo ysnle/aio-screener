@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-03T23:43:29.646Z",
+  "generatedAt": "2026-07-04T01:18:23.462Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -29,15 +29,12 @@
   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST",
   "newsNextRefresh": "2026-07-04T23:00:00.000Z",
   "serverNewsScored": true,
-  "newsScoreMin": 23,
+  "newsScoreMin": 20,
   "newsScoreMax": 56,
-  "elapsedMs": 2456,
+  "elapsedMs": 2512,
   "schema": 1,
   "marketAnalysisOk": true,
-  "fmpHasKey": true,
-  "fmpOk": false,
-  "fmpCount": 0,
-  "fmpPlanError": true
+  "fmpHasKey": true
  },
  "quotes": [
   {
@@ -97,27 +94,27 @@
   {
    "symbol": "^FTSE",
    "regularMarketPrice": 10679.03,
-   "regularMarketChangePercent": 1.9156752436373634,
-   "regularMarketPreviousClose": 10478.2998046875,
-   "chartPreviousClose": 10478.2998046875,
+   "regularMarketChangePercent": 0.24528164553191362,
+   "regularMarketPreviousClose": 10652.900390625,
+   "chartPreviousClose": 10652.900390625,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^N225",
    "regularMarketPrice": 69744.07,
-   "regularMarketChangePercent": -1.037093072173784,
-   "regularMarketPreviousClose": 70474.9609375,
-   "chartPreviousClose": 70474.9609375,
+   "regularMarketChangePercent": 1.4707918747811355,
+   "regularMarketPreviousClose": 68733.1484375,
+   "chartPreviousClose": 68733.1484375,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^HSI",
    "regularMarketPrice": 23350.03,
-   "regularMarketChangePercent": 2.049779591811644,
-   "regularMarketPreviousClose": 22881.01953125,
-   "chartPreviousClose": 22881.01953125,
+   "regularMarketChangePercent": 1.279550328591362,
+   "regularMarketPreviousClose": 23055.029296875,
+   "chartPreviousClose": 23055.029296875,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
@@ -439,25 +436,25 @@
   {
    "symbol": "^KS11",
    "regularMarketPrice": 8088.34,
-   "regularMarketChangePercent": -2.59014251016031,
-   "regularMarketPreviousClose": 8303.41015625,
-   "chartPreviousClose": 8303.41015625,
+   "regularMarketChangePercent": 5.756341325014264,
+   "regularMarketPreviousClose": 7648.08984375,
+   "chartPreviousClose": 7648.08984375,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^KQ11",
    "regularMarketPrice": 868.41,
-   "regularMarketChangePercent": -6.557268756317128,
-   "regularMarketPreviousClose": 929.3499755859375,
-   "chartPreviousClose": 929.3499755859375,
+   "regularMarketChangePercent": 0.19499138753015405,
+   "regularMarketPreviousClose": 866.719970703125,
+   "chartPreviousClose": 866.719970703125,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 62623.97,
-   "regularMarketChangePercent": 1.8519372992922551,
+   "regularMarketPrice": 62499.98,
+   "regularMarketChangePercent": 1.650279344586748,
    "regularMarketPreviousClose": 61485.30078125,
    "chartPreviousClose": 61485.30078125,
    "_pctSource": "ohlcv-daily",
@@ -465,8 +462,8 @@
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1758.62,
-   "regularMarketChangePercent": 3.5597488219017945,
+   "regularMarketPrice": 1748.83,
+   "regularMarketChangePercent": 2.9832456882137808,
    "regularMarketPreviousClose": 1698.16943359375,
    "chartPreviousClose": 1698.16943359375,
    "_pctSource": "ohlcv-daily",
@@ -785,22 +782,6 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
-   "title": "JPMorgan Precious Metals Outlook: ETFs Regain Pricing Power, Gold Enters a \"Patient Waiting\" Period - PANews",
-   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTFA0aW81bjFVRlYxOGlDMFNzZ0twWmhOY1pFV0NfTEM4Ty1LSVI1OGFlWVZwU1pObl9NbTVod1M3dVVYMzZEdFc5a0V4NDZGUmFEUndvVzJRcnZCSVFrZTVrSFlyZ2FXNEZBVVJ4ZWI3M2x5cHZDb2pEb0tyY090WG8?oc=5",
-   "source": "PANews",
-   "pubDate": "Fri, 03 Jul 2026 20:11:14 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 52,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
    "title": "US Stock market: Fed's Daly says AI, inflation uncertainty clouds interest rate outlook - The Economic Times",
    "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxOMDhKS19GVnZpTDRKNFdBY2JncTctX1dIRnNQc1BDVjdMR3dnTEtUZGI2NkplcWVKc2FLSWtVZDZVZWZtZ2Y5S09NaF9pOFlmWjBabTJTSFRWWlBJZmFfQWIyM0I4b05oa1ZhYUZMV1FCX2FZdEFVM2JtZnVFck1mcFZ4VlBDNlJ2eWhHQ2F6OGpnRDlGZXZfU2xER1FmZFU0Y3A4b2dvUFNUZVd6d3IyaFpucFpZVGdncjl2STBkX0ZRdVhUVTVEWk5Nd3Q4NlhieGdWZ0R3WHhsSzA0Y1pMS2ZkbEliN2tRUlRtYmdOakR3U0RLX05LS9IB-AFBVV95cUxOMDhKS19GVnZpTDRKNFdBY2JncTctX1dIRnNQc1BDVjdMR3dnTEtUZGI2NkplcWVKc2FLSWtVZDZVZWZtZ2Y5S09NaF9pOFlmWjBabTJTSFRWWlBJZmFfQWIyM0I4b05oa1ZhYUZMV1FCX2FZdEFVM2JtZnVFck1mcFZ4VlBDNlJ2eWhHQ2F6OGpnRDlGZXZfU2xER1FmZFU0Y3A4b2dvUFNUZVd6d3IyaFpucFpZVGdncjl2STBkX0ZRdVhUVTVEWk5Nd3Q4NlhieGdWZ0R3WHhsSzA0Y1pMS2ZkbEliN2tRUlRtYmdOakR3U0RLX05LSw?oc=5",
    "source": "The Economic Times",
@@ -843,6 +824,22 @@
    "score": 50,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
    "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
+   "title": "Exclusive-Iran exploring oil sales to Japan, buyers seek longer sanctions waiver, sources - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPUEV6YVZkbTN6SE1TbXNydFJXaVZTN1Z3bmJCemVLcWtFVHlTRFEwYktmVUlVVTBqeE1pS1R1WUt6Ujh1YXJzQjl2OGpNNTJMdmVHam1QaEhtRU5KUWh6a3VKQ0RFekhnby05em9kZ1hpTlhlNlNtMk50MC1yQ1kwM0ZxWHFadHJDZlNDRm93LTA1cnAwUVE?oc=5",
+   "source": "Yahoo Finance",
+   "pubDate": "Fri, 03 Jul 2026 12:09:38 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 2,
+   "score": 49,
+   "selectionReason": "base+20 | source-tier2+9 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-02T23:00:00.000Z",
    "newsCycleEnd": "2026-07-03T23:00:00.000Z",
@@ -961,10 +958,10 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
-   "title": "Exclusive-Iran exploring oil sales to Japan, buyers seek longer sanctions waiver, sources - SRN News",
-   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPTnB4OE9PZFlMRVNJZmRTVDRTMDhwQ2Y1YlpQTnB2YkQ4Qk5STW8yQzczaFJVbEdlczEwTUlkQ1VuNVBqMl9CLXFmUk1nV3dIU0hQUzlzME1kb25uN1dRWXA2dFhkcXc3SEQwZVN1STNSOVRoRVh1ZktGQmdUZ0ViWDZZazRlSDNBNDA3VHBDLTBab0ZNT3d2UGFyZzZDNllIdmEwOUkyQjFXd0ZJ?oc=5",
-   "source": "SRN News",
-   "pubDate": "Fri, 03 Jul 2026 13:08:17 GMT",
+   "title": "Iran opens oil sales talks with Japan after U.S. sanctions easing - AnewZ",
+   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPRnpvN1JRUVVvd3p3UFBwOU9fRWJ4TW5fbTJOMmdkOFlkbGlhejFYRDdXY2g5ZXRkbHN1ZVd3TWpzVzBSSmpvR21hTDA1a255ZHhqMEMwcnZic3JFN3dYSC1PblFOLWFLT1Q3dGl4MmlLZklNZElsRnE0UEVxbVczMGtTUld4bjB4cUJLc3FxRm9JdTdEME1udGpIQjI0Rlk?oc=5",
+   "source": "AnewZ",
+   "pubDate": "Fri, 03 Jul 2026 13:17:00 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 3,
@@ -986,22 +983,6 @@
    "tier": 3,
    "score": 42,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
-   "title": "US oil companies see big profit jump, gird for clash over pump prices with Trump - Reuters",
-   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPYkJORzdZX3BXLVNLSE5DWEFMNkUybVc5U3B1TU1XclIxbEd1YXA4bnNLTkZHQ0c4OUZmOFVSUGtXcHdtMTNSYmkwT3VLZ2VlNWdKM0Q2R0Z2Q1RxZGcxRV82NnpRTzhoR1plNFFNZXhlOGdEVHRKX09vM2FJZ3ZYbFYtYU5iNTE3S3pQV3ZqNThuTFZSdHhjMlFhbkhra2Z5aVI1WU1jYXIxdmZGbUIxUk5oV21uX2NjQWVjSG5GRmNlUUxLUWc?oc=5",
-   "source": "Reuters",
-   "pubDate": "Fri, 03 Jul 2026 11:12:39 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 1,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier1+16 | recency+6",
    "feedSource": "Google News - Geopolitics/Energy",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-02T23:00:00.000Z",
@@ -1265,22 +1246,6 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
-   "title": "Justice Department calls on states to join investigation into oil companies - Politico",
-   "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNT2Fac2pIUVRyRVNrblkwUm9RT09ad0FOajA1TENJMTVpWGJZd2ozN0tvaXBTMVh1dTlpWnRzWEprNTJacXdyVkFza1A1TXowTmcya3dvRjA1RzlwUDVGWGZ3Ym1DY2VDRmE4NmU3dFdUWm5kdnZHZUVLUG5uX29UMWIwVHR1TFJpenFzTm5JWFBpRzhxWmlPQ0dxMFg?oc=5",
-   "source": "Politico",
-   "pubDate": "Fri, 03 Jul 2026 14:32:00 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 28,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
    "title": "Dow Drops 507, Nasdaq Sinks 355, S&P 500 Loses 91 - TV News Check",
    "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPTmxBaGVCc1hvdTRLd2Rua09FVzVZV01iTktGZ2ZSRnA1bW5vbnBBbmI4dlFrMW5JZVVITndPNTlkWFU5NGh1ZUV5X0JCRm9ieDltVncwbHNsQ2F5ckJFWU5OdFFpNVNLVXR0MnRfcWx6RlB6SDFaMU14ZThoYl9pUFp3N0dGQ2dvTU5aQ1A0QmZjUQ?oc=5",
    "source": "TV News Check",
@@ -1407,12 +1372,44 @@
    "newsCycleStart": "2026-07-02T23:00:00.000Z",
    "newsCycleEnd": "2026-07-03T23:00:00.000Z",
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
+   "title": "INTC Stock Soars Past Its 2000’s Record Closing Price After Q2 Earnings Guidance Roars Past Wall Street Estimates - Stocktwits",
+   "link": "https://news.google.com/rss/articles/CBMiiAJBVV95cUxOci03VUZxUGNtaGEyVjNFNlFWWjN1c1FBcU10RVNnNHFJRW0ydjdoZnpLN0E4NjB6clpFMWthMG1nb3VvaEcwamdKakF1T3pYX3VlVmRhU0F1c09wM3JCM3c1Q0Y4UG9kZThySVJXWEZySmdfYTB3N09GMTdfblJlSDFOZ3pndjZwT0Q5VVUtMVBlb1ZXM2RFTGxpaHNSTWlqWG1SR2xQdkxpOHM0VGR6X1lFdEhyMzg1UFFEWEpSMUFvcmwtVk9GVnJkVWJ0MkNrekU4UjFVWFRncjJJZVdhMEFXVWdIUmNjbDBDVEFPSm5ROExJX2JCQjl6WXdDeVJFTmRnczZiM1A?oc=5",
+   "source": "Stocktwits",
+   "pubDate": "Fri, 03 Jul 2026 08:25:14 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 4,
+   "score": 20,
+   "selectionReason": "base+20 | source-tier4-8 | recency+6 | earnings-guidance+10 | low-quality-source-8",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
+   "title": "KPIT Technologies shares: Price targets and earnings expectations post weak Q1 guidance - MSN",
+   "link": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxNRlNWeDc5VUpKbDVnM0lEYlZoY1JwTUc2dlVZZG9aMjVrTnd2RkhndjRHeENRbndWNnBSZ3FEeUp1YWlHZnljV19tcURHcks2Qy1VV0tQZUI4Ykk5RlFvUnAxdGhFQjBaeHFaeHQ1RnVtc1Y4Z3hiWnRzQVhIdkREc1JhV2JnUXpIV0pXS29vVS1NUU9ERWg2VHNkZmE0S0U3dHh6S0FrQXg1V0dDb3NYcXdnR2d5V1Y0YUVuTlpDcWtkZnE0alJaNmtKeWU3anFQSGFZTXcyUDNZMFBzUDFnUXlHb2I3cDFadGFsT0hLb2VlNU9GU2hPWUQxVQ?oc=5",
+   "source": "MSN",
+   "pubDate": "Fri, 03 Jul 2026 04:49:28 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 4,
+   "score": 20,
+   "selectionReason": "base+20 | source-tier4-8 | recency+6 | earnings-guidance+10 | low-quality-source-8",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   }
  ],
  "marketAnalysis": {
-  "full": "## 현재 시장 분석\n\n**미·이란 외교 협상 진전 속 에너지 시장 변동성이 확대되며 전반적으로 불확실성이 높은 장세가 지속되고 있다.**\n\n① **변동성/심리** — 공포탐욕지수(F&G)가 32로 '공포' 구간에 위치해 있어 투자 심리가 위축된 상태이며, 시장 참여자들의 리스크 회피 성향이 뚜렷하게 나타나고 있다.\n\n② **거시/금리** — CPI 4.2%로 물가가 여전히 높은 수준을 유지하는 가운데, Fed 금리는 3.63%이며 NFP 57만큼의 고용 둔화 신호가 감지되면서 금리 인상 기대가 완화되고 국채 금리가 하락, 금 가격의 반등 요인으로 작용하고 있다. Fed의 Daly 위원은 AI 발전과 인플레이션 불확실성이 금리 경로 판단을 어렵게 하고 있다고 언급했다.\n\n③ **주도 뉴스/리스크** — 이란發 충격이 1979년 혁명 이후 최대 규모의 일일 원유 공급 충격으로 평가되는 한편, 미·이란 평화 협상 진행으로 유가는 방향성을 잡지 못하고 있으며 호르무즈 해협 리스크가 에너지 시장의 핵심 변수로 부상해 있다. 금",
+  "full": "## 현재 시장 분석\n\n**[한 줄 요약]** 공포·탐욕 지수 32(공포 구간)가 시사하듯 시장 심리가 위축된 가운데, 이란 리스크·Fed 불확실성·고물가가 동시에 맞물리며 방향성 탐색이 지속되고 있다.\n\n① **변동성/심리** — F&G 지수 32로 투자 심리는 '공포' 영역에 위치해 있으며, 뚜렷한 매수·매도 주도세력 없이 관망 분위기가 우세한 상황이다.\n\n② **거시/금리** — CPI 4.2%로 물가가 여전히 높은 수준이나, NFP 57(고용 둔화 신호)을 배경으로 금리 인상 기대가 완화되며 국채 금리 하락·금 가격 반등 흐름이 나타나고 있다. Fed의 Daly 위원은 AI 확산과 인플레이션 불확실성을 이유로 금리 경로 전망이 불투명하다고 언급했다.\n\n③ **주도 뉴스/리스크** — 이란 관련 뉴스가 시장의 핵심 변수로, 호르무즈 해협 공급 차질 우려가 1979년 혁명 이후 최대 일일 공급 충격으로 언급되는 반면, 미·이란 평화 협상 진행으로 유가는 제한된 변동폭을 보이고 있어 지정학적 불확실성이 단기",
   "oneLine": "## 현재 시장 분석",
-  "generatedAt": "2026-07-03T23:43:39.692Z",
+  "generatedAt": "2026-07-04T01:18:34.695Z",
   "model": "claude-sonnet-4-6"
  }
 }
