@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-04T05:28:54.267Z",
+  "generatedAt": "2026-07-04T08:14:24.313Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -31,10 +31,13 @@
   "serverNewsScored": true,
   "newsScoreMin": 10,
   "newsScoreMax": 55,
-  "elapsedMs": 2365,
+  "elapsedMs": 2310,
   "schema": 1,
   "marketAnalysisOk": true,
-  "fmpHasKey": true
+  "fmpHasKey": true,
+  "fmpOk": false,
+  "fmpCount": 0,
+  "fmpPlanError": true
  },
  "quotes": [
   {
@@ -453,8 +456,8 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 62442.92,
-   "regularMarketChangePercent": 1.557476675859452,
+   "regularMarketPrice": 62477.79,
+   "regularMarketChangePercent": 1.6141894178594658,
    "regularMarketPreviousClose": 61485.30078125,
    "chartPreviousClose": 61485.30078125,
    "_pctSource": "ohlcv-daily",
@@ -462,8 +465,8 @@
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1752.92,
-   "regularMarketChangePercent": 3.224093269090601,
+   "regularMarketPrice": 1757.61,
+   "regularMarketChangePercent": 3.500273013421213,
    "regularMarketPreviousClose": 1698.16943359375,
    "chartPreviousClose": 1698.16943359375,
    "_pctSource": "ohlcv-daily",
@@ -942,10 +945,10 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
-   "title": "Iran opens oil sales talks with Japan after U.S. sanctions easing - AnewZ",
-   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPRnpvN1JRUVVvd3p3UFBwOU9fRWJ4TW5fbTJOMmdkOFlkbGlhejFYRDdXY2g5ZXRkbHN1ZVd3TWpzVzBSSmpvR21hTDA1a255ZHhqMEMwcnZic3JFN3dYSC1PblFOLWFLT1Q3dGl4MmlLZklNZElsRnE0UEVxbVczMGtTUld4bjB4cUJLc3FxRm9JdTdEME1udGpIQjI0Rlk?oc=5",
-   "source": "AnewZ",
-   "pubDate": "Fri, 03 Jul 2026 13:17:00 GMT",
+   "title": "Citi Oil Could Sink to $60 as Hormuz Traffic Normalizes - Crude Oil Prices Today | OilPrice.com",
+   "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPZEE5QThibEo3UVVEa1JadU5jcW54Y0xhcmx2bW9hc1FEaWd2U3A5cWJFVVk3aEZOVl8yVy1ZbmVhcWZaeUR4ZGtqd3RfOEZfYTRsMXJKM0tvWGktbXM4RzdhT3NscWFKa3k0d05ybU15LVR2R1dMYl9RRlNpYUZzRzFkSWpZMU9oUmpES3hUcHF1MVU5Mk5ZWFRta2daVWcwV2R1dkxDN1BBQkFyRGpB0gG0AUFVX3lxTFBPOXI4X3VISEZfczNsWHBsWmlTWEhYUUVYcng3X1BkR3IxY1QyTHFkS1V6S2ZkWkhKUEVkQ0RIVDY0MVVuNGtDWDhVRVFid0RJbFVQdVlhUlRfMHlLMGlJNnVpcXdXbGZNU1llT3RBc3JEQnJwb1RpX3M1NzljWlFES1RuQ01iejV2WERMbGR3cTlnU283Tkh3TXpCVjhQT2ZkaVJUVkhaSlhNcTNuQXZwYTNwQQ?oc=5",
+   "source": "Crude Oil Prices Today | OilPrice.com",
+   "pubDate": "Fri, 03 Jul 2026 12:00:00 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 3,
@@ -958,16 +961,32 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
-   "title": "Citi Oil Could Sink to $60 as Hormuz Traffic Normalizes - Crude Oil Prices Today | OilPrice.com",
-   "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPZEE5QThibEo3UVVEa1JadU5jcW54Y0xhcmx2bW9hc1FEaWd2U3A5cWJFVVk3aEZOVl8yVy1ZbmVhcWZaeUR4ZGtqd3RfOEZfYTRsMXJKM0tvWGktbXM4RzdhT3NscWFKa3k0d05ybU15LVR2R1dMYl9RRlNpYUZzRzFkSWpZMU9oUmpES3hUcHF1MVU5Mk5ZWFRta2daVWcwV2R1dkxDN1BBQkFyRGpB0gG0AUFVX3lxTFBPOXI4X3VISEZfczNsWHBsWmlTWEhYUUVYcng3X1BkR3IxY1QyTHFkS1V6S2ZkWkhKUEVkQ0RIVDY0MVVuNGtDWDhVRVFid0RJbFVQdVlhUlRfMHlLMGlJNnVpcXdXbGZNU1llT3RBc3JEQnJwb1RpX3M1NzljWlFES1RuQ01iejV2WERMbGR3cTlnU283Tkh3TXpCVjhQT2ZkaVJUVkhaSlhNcTNuQXZwYTNwQQ?oc=5",
-   "source": "Crude Oil Prices Today | OilPrice.com",
-   "pubDate": "Fri, 03 Jul 2026 12:00:00 GMT",
+   "title": "US oil companies see big profit jump, gird for clash over pump prices with Trump - Reuters",
+   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPYkJORzdZX3BXLVNLSE5DWEFMNkUybVc5U3B1TU1XclIxbEd1YXA4bnNLTkZHQ0c4OUZmOFVSUGtXcHdtMTNSYmkwT3VLZ2VlNWdKM0Q2R0Z2Q1RxZGcxRV82NnpRTzhoR1plNFFNZXhlOGdEVHRKX09vM2FJZ3ZYbFYtYU5iNTE3S3pQV3ZqNThuTFZSdHhjMlFhbkhra2Z5aVI1WU1jYXIxdmZGbUIxUk5oV21uX2NjQWVjSG5GRmNlUUxLUWc?oc=5",
+   "source": "Reuters",
+   "pubDate": "Fri, 03 Jul 2026 11:12:39 GMT",
    "topic": "geo",
    "country": "global",
+   "tier": 1,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier1+16 | recency+6",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
+   "title": "Cooling Job Market Eases Rate Hike Worries, Lifts U.S. Equities - Devdiscourse",
+   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOeGQ0Qks5ZzNtY09KcHRqR01HNVpXNnlJRGpUSWtYbW02ZXhEOEhmR2JzWFVlT29POUV2bzZVcmkxWjNBMFV1R1pvcjFWV3pTOS1Ybm12Q0dzekp1eEt2bVVURlV6TWdfRDVjaU9EVTlEX2F1TkpBSTY2cFptYm1wdGxkSmY5VTRYQUdqSE9XbVNEbE9JajkwenhJcUR6V3F5eFZ2WTA1YXNCdjdkTDctSEM4YXFfMHd1VHfSAboBQVVfeXFMTnhkNEJLOWczbWNPSnB0akdNRzVaVzZ5SURqVElrWG1tNmV4RDhIZkdic1hVZU9vTzlFdm82VXJpMVozQTBVdUdab3IxVld6UzktWG5tdkNHc3pKdXhLdm1VVEZVek1nX0Q1Y2lPRFU5RF9hdU5KQUk2NnBabWJtcHRsZEpmOVU0WEFHakhPV21TRGxPSWo5MHp4SXFEeldxeXhWdlkwNWFzQnY3ZEw3LUhDOGFxXzB3dVR3?oc=5",
+   "source": "Devdiscourse",
+   "pubDate": "Fri, 03 Jul 2026 11:00:47 GMT",
+   "topic": "macro",
+   "country": "us",
    "tier": 3,
    "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14",
+   "feedSource": "Google News - US markets",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-02T23:00:00.000Z",
    "newsCycleEnd": "2026-07-03T23:00:00.000Z",
@@ -1038,10 +1057,26 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
-   "title": "Rivian Raises 2026 Delivery Guidance After Strong Quarter - The Globe and Mail",
-   "link": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxPNzhvQ244NFpoMHl4OWNCdVVxV3I2MkotdGcwbl96SGljdVhLbDZURkI1VjhlbHRyRlFTMnpuRktaTDdfSkY1TnZIUnd5Sjk4TU5HQVlWQ3ByNjViMndmVGFadHhTamc1cnZfQXU0dXV5aV9DRUc5bUNtcjhwNnFzb3BfNHIzeThsQkZYQXZWOHRsWGtQY25EVkJ4TnZkYklZaUxHOTBHNlNxRnRnRnNrSTVjV0tJZmsyRFRERHBjVWN3SE9PV0JUa3JMNm9ERW1MZ1BFZkJ2ZkhKRUl2?oc=5",
-   "source": "The Globe and Mail",
-   "pubDate": "Fri, 03 Jul 2026 12:59:41 GMT",
+   "title": "Price Prediction: Coca-Cola's Fourth Consecutive Earnings Beat Sets Up a Run Toward a New High - 24/7 Wall St.",
+   "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxQUnlTTVg2SmJmVXA1Y3Jfc19ISkpNNGh3eTA2c0tPUFVJWlhzWEh4YWgweFNjZjJkNUxSU09zWkNyNkUtbnViOUNaMV9mdlhhVEFSMG82eWw2MlNfck9wNGd2YWNGOENNNkRRRTNTam90azNXY0xPZmFfYUlUUVFoS2lPc19PY3VlYzRvZTJCLVZlNTFiZy02WndfWG9EaGF6WkU2TEM0c29RZnFOMzlLQ19tTVRzUGpMdlBLbDU2bEZoLWtuSTZ1VG1YaUt0QXRSbGc?oc=5",
+   "source": "24/7 Wall St.",
+   "pubDate": "Fri, 03 Jul 2026 16:43:58 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 38,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
+   "title": "AeroVironment Stock Jumps 19% After Record Earnings and Massive Army Counter-Drone Contract - TIKR.com",
+   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPZmtYYm1ORWJTYUp4dEloLWluZ3QyOVR1enBDQjRSMmtzcm1Ha3FMNWRHZGJEUmtJVWVyYnIyX1ZmeXR0VUVEQVJIWnpESDVjaGpORkU2NEV1dEFvUEppbXloY3FQSHNya21Ybl9IUHl3UnlKc2NUMHRHdTBvSGxnT25xa1g2XzFBMXZxaGhGWmRvU1ljblo3a1p6Z1Fic21uVmszUjdKRFdmMzREQmcxRlFfdjZpVUZtT3p5LUlleXRYaDdnOE5r?oc=5",
+   "source": "TIKR.com",
+   "pubDate": "Fri, 03 Jul 2026 13:54:57 GMT",
    "topic": "analyst",
    "country": "us",
    "tier": 3,
@@ -1128,22 +1163,6 @@
    "score": 36,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
    "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
-   "title": "Justice Department calls on states to investigate gas prices - upi.com",
-   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5jemU4c3pVWU8xTkRDMVdVdTgxZHBGVWJ0WXpRUVg1MWpWdVFTaDVMSGlNVTdXRUhpODFINzdWVFJiMFBwNmp0cHo5aVcxY2NUTFFPSnB6MkRVOGZ4Q1Znam0tUk5wZWlqQXdLdXZoeVZ3T01OMXJfVUNMOELSAYIBQVVfeXFMTjNhc01MWllxd2RnblF3YzVPNGN5el9OTHBnOG9XRWZaMVB5VW0zOU1rQS1TX1FBZHh3azRDbm5EQ1gwS0hXY2RNbnNIbTVuTTlVWFQyaW5aMlk1ZnFOUGpDRWt4aFNncWpRSDJwR01yU2daZGY5bWJZZi1tNlc0WVlaZw?oc=5",
-   "source": "upi.com",
-   "pubDate": "Fri, 03 Jul 2026 20:52:23 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 34,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12",
-   "feedSource": "Google News - Geopolitics/Energy",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-02T23:00:00.000Z",
    "newsCycleEnd": "2026-07-03T23:00:00.000Z",
@@ -1358,26 +1377,10 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
-   "title": "INTC Stock Soars Past Its 2000’s Record Closing Price After Q2 Earnings Guidance Roars Past Wall Street Estimates - Stocktwits",
-   "link": "https://news.google.com/rss/articles/CBMiiAJBVV95cUxOci03VUZxUGNtaGEyVjNFNlFWWjN1c1FBcU10RVNnNHFJRW0ydjdoZnpLN0E4NjB6clpFMWthMG1nb3VvaEcwamdKakF1T3pYX3VlVmRhU0F1c09wM3JCM3c1Q0Y4UG9kZThySVJXWEZySmdfYTB3N09GMTdfblJlSDFOZ3pndjZwT0Q5VVUtMVBlb1ZXM2RFTGxpaHNSTWlqWG1SR2xQdkxpOHM0VGR6X1lFdEhyMzg1UFFEWEpSMUFvcmwtVk9GVnJkVWJ0MkNrekU4UjFVWFRncjJJZVdhMEFXVWdIUmNjbDBDVEFPSm5ROExJX2JCQjl6WXdDeVJFTmRnczZiM1A?oc=5",
-   "source": "Stocktwits",
-   "pubDate": "Fri, 03 Jul 2026 08:25:14 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 4,
-   "score": 20,
-   "selectionReason": "base+20 | source-tier4-8 | recency+6 | earnings-guidance+10 | low-quality-source-8",
-   "feedSource": "Google News - Analyst/Earnings",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
    "title": "KPIT Technologies shares: Price targets and earnings expectations post weak Q1 guidance - MSN",
-   "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxQVWI2czFBLWtyb3dELUZFSl9HbWpvVXRsYkEzRmdoRHdRNGV2SjFqdkF4Y2FsUTNSekRmdnc2WFNNdlFkd2Y5cjFrQWltMVhnNFFrM21TTlJjdlhQWmxwbDlBaUw5NDBQT3Z2bXQ3bERHcnBrdk51NWtJNmRGR0VjRlNuYzVIajJIYXZWTmhtUVB0MGtQVlNGWXBpellJRkQxSkNKX2FvLThoNEFoRzFieUc4RGNZMnpHWTdtS3lfbjhRYkRnT1BwV3paYjA5UEpJRE1uaDctV3M?oc=5",
+   "link": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxNRlNWeDc5VUpKbDVnM0lEYlZoY1JwTUc2dlVZZG9aMjVrTnd2RkhndjRHeENRbndWNnBSZ3FEeUp1YWlHZnljV19tcURHcks2Qy1VV0tQZUI4Ykk5RlFvUnAxdGhFQjBaeHFaeHQ1RnVtc1Y4Z3hiWnRzQVhIdkREc1JhV2JnUXpIV0pXS29vVS1NUU9ERWg2VHNkZmE0S0U3dHh6S0FrQXg1V0dDb3NYcXdnR2d5V1Y0YUVuTlpDcWtkZnE0alJaNmtKeWU3anFQSGFZTXcyUDNZMFBzUDFnUXlHb2I3cDFadGFsT0hLb2VlNU9GU2hPWUQxVQ?oc=5",
    "source": "MSN",
-   "pubDate": "Fri, 03 Jul 2026 05:15:26 GMT",
+   "pubDate": "Fri, 03 Jul 2026 04:49:28 GMT",
    "topic": "analyst",
    "country": "us",
    "tier": 4,
@@ -1407,9 +1410,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**한 줄 요약:** VIX 32로 변동성이 높아진 가운데 금리 부담 완화와 금값 강세가 상충하는 시장 구도입니다.\n\n①**변동성/심리** - VIX가 32로 상승하며 시장 불안심리가 확대되고 있습니다.\n\n②**거시/금리** - CPI 4.2%, 연방기금금리 3.63%로 인플레이션 완화 신호가 나타나면서 금리 인상 기대가 식어 채권 수익률이 하락 중입니다.\n\n③**주도 뉴스/리스크** - 미-이란 평화협상 진행과 이란의 일본 석유 수출 모색으로 유가는 안정적이나, 호르무즈 해협 지정학적 리스크가 시장의 변동성을 증폭시키고 있습니다.",
+  "full": "# 현재 시장 분석\n\n**한 줄 요약:** VIX 32의 높은 변동성 속 금리 약화(10Y 하락)와 금값 반등이 진행되는 가운데, 중동 지정학적 긴장과 이란 석유 공급 협상이 유가를 지탱하고 있습니다.\n\n① **변동성/심리:** VIX 32는 시장 불안심리가 상당히 높은 수준으로, 투자자들의 방어 심리가 강화된 상태입니다.\n\n② **거시/금리:** 연준 기준금리 3.63%, CPI 4.2% 상황에서 10Y 수익률 하락으로 실질금리 약화가 진행 중이며, 약한 고용지표(NFP 57)가 금리 인상 기대를 제어하고 있습니다.\n\n③ **주도 뉴스/리스크:** 미국-이란 평화 협상, 이란의 일본 석유 판매 탐색 등 중동 공급 불확실성과 호르무즈 해협 지정학적 위험이 유가 지탱 요인이며, 금값은 약화된 실질금리와 중앙은행 보유 수요에 지지받는 상황입니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-07-04T05:28:58.245Z",
+  "generatedAt": "2026-07-04T08:14:28.822Z",
   "model": "claude-haiku-4-5"
  }
 }
