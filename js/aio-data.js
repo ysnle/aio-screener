@@ -3207,7 +3207,7 @@ const FRED_SERIES = {
   'UNRATE':       { name: 'Unemployment Rate', el: null, unit: '%' },      // 실업률
   'HOUST':        { name: 'Housing Starts', el: null, unit: 'K units' },   // housing
   'RSAFS':        { name: 'Retail Sales', el: null, unit: 'M USD' },       // retail-sales
-  'UMCSENT':      { name: 'Michigan Sentiment', el: null, unit: '' },      // cons-conf
+  'UMCSENT':      { name: 'Michigan Sentiment', el: null, unit: '' },      // v51.97/P593: NOT cons-conf (Conf. Board, different survey) — fetched but currently unrendered, see applyFredToUI
   'CES0500000003':{ name: 'Avg Hourly Earnings', el: null, unit: 'USD' },  // wage-growth
   'PAYEMS':       { name: 'Non-farm Payrolls', el: null, unit: 'K' },      // 고용 (NFP)
   // v50.5: C계층 매크로 실데이터 연결 — 연준 선호 지표(PCE) + 근원(Core) YoY
@@ -3449,9 +3449,15 @@ function applyFredToUI(data) {
       _updSnap('retail-sales', function(){ return (mom >= 0 ? '+' : '') + mom.toFixed(2) + '% MoM'; });
     }
   }
-  if (data['UMCSENT']) {
-    _updSnap('cons-conf', function(){ return data['UMCSENT'].value.toFixed(1); });
-  }
+  // v51.97/Phase 2 [B2] fix (P593, resolves P456 미해소 잔존): 'cons-conf' DOM sink is labeled
+  // and scaled as Conference Board Consumer Confidence (index.html data-snap="cons-conf", "Conf.
+  // Board" sub-label, 100=optimistic/80=recession-fear thresholds) — a proprietary Conference
+  // Board survey with no free FRED series. UMCSENT is University of Michigan Consumer Sentiment,
+  // a different survey/methodology/scale (has run in the 50s in prior sessions' narratives) that
+  // must NOT be silently substituted under the same label. Previously this block wrote UMCSENT
+  // into the Conference-Board-labeled sink whenever a user had a personal FRED key configured.
+  // UMCSENT itself is still fetched (data['UMCSENT'] available in window._fredData) for any
+  // future dedicated Michigan Sentiment surface; it is intentionally left unrendered here.
   if (data['CES0500000003']) {
     const wg = data['CES0500000003'];
     if (wg.prevValue && wg.prevValue > 0) {
@@ -5374,7 +5380,10 @@ async function _aioLoadServerData() {
     // 2) 매크로 → DATA_SNAPSHOT (FRED 서버값, 채팅/macro 페이지가 소비)
     var _serverMacroApplied = 0;
     if (d.macro && window.DATA_SNAPSHOT) {
-      ['cpi','coreCpi','pce','corePce','fedRate','unemployment','nfp'].forEach(function(k){
+      // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 서버 FRED 자동화 편입.
+      // consConf(Conf. Board)는 제외 유지 — FRED엔 해당 시리즈가 없고, UMCSENT(미시간대)는
+      // 별개 지표라 혼입 금지(P593).
+      ['cpi','coreCpi','pce','corePce','fedRate','unemployment','nfp','housingStarts','retailSales','usWageGrowth'].forEach(function(k){
         if (typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
           window.DATA_SNAPSHOT[k] = d.macro[k];
           window.DATA_SNAPSHOT['_' + k + '_src'] = 'fred-gh';

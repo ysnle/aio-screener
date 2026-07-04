@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.96 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.97 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5234,7 +5234,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.96</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.97</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12458,9 +12458,9 @@ button[data-filter-active="true"] {
   }); // DOMContentLoaded (P556/R247)
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.96"></script>
-  <script src="./js/aio-data.js?v=51.96"></script>
-  <script src="./js/aio-ui.js?v=51.96"></script>
+  <script src="./js/aio-core.js?v=51.97"></script>
+  <script src="./js/aio-data.js?v=51.97"></script>
+  <script src="./js/aio-ui.js?v=51.97"></script>
 
   <script>
 
@@ -14593,7 +14593,10 @@ function _liveSnap() {
     fedRate: (fredD.FEDFUNDS && fredD.FEDFUNDS.value != null) ? _fmt(fredD.FEDFUNDS.value, 2) + '%' : '—',
     unemployment: (fredD.UNRATE && fredD.UNRATE.value != null) ? _fmt(fredD.UNRATE.value, 1) + '%' : '—',
     housing: (fredD.HOUST && fredD.HOUST.value != null) ? Math.round(fredD.HOUST.value) + 'K' : '—',
-    consConf: (fredD.UMCSENT && fredD.UMCSENT.value != null) ? _fmt(fredD.UMCSENT.value, 1) : '—',
+    // v51.97/P593: consConf = Conference Board(index.html data-snap="cons-conf" 라벨·임계값 기준).
+    // FRED엔 Conference Board 무료 시리즈가 없어 라이브 소스 없음 — UMCSENT(미시간대, 별개 지표)를
+    // 대신 넣던 기존 로직 제거하고 DATA_SNAPSHOT 폴백만 사용 (cpiYoY 등 형제 필드와 동일 패턴).
+    consConf: (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.consConf != null) ? _fmt(window.DATA_SNAPSHOT.consConf, 1) + ' [스냅샷]' : '—',
     retailSalesMoM: (fredD.RSAFS && fredD.RSAFS.value != null && fredD.RSAFS.prevValue) ? _fmt((fredD.RSAFS.value - fredD.RSAFS.prevValue) / fredD.RSAFS.prevValue * 100, 2) + '% MoM' : '—',
     wageGrowth: (fredD.CES0500000003 && fredD.CES0500000003.value != null) ? '$' + _fmt(fredD.CES0500000003.value, 2) : '—',
     t10y2y: (fredD.T10Y2Y && fredD.T10Y2Y.value != null) ? _fmt(fredD.T10Y2Y.value, 2) + '%' : '—',
@@ -15935,7 +15938,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.96"></script>
+<script src="./js/aio-chat.js?v=51.97"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28554,7 +28557,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.96"></script>
+<script src="./js/aio-glossary.js?v=51.97"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

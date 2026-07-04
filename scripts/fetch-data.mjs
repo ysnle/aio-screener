@@ -41,6 +41,14 @@ const SYMBOLS = [
 ];
 
 // FRED 시리즈 (YoY 또는 레벨). PAYEMS는 MoM 차이(천명) = NFP.
+// v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 추가 — 세 시리즈 ID(HOUST/RSAFS/
+// CES0500000003) 모두 클라이언트 자체 FRED_SERIES 테이블(aio-data.js:3195~3216, 개인 FRED 키
+// 보유 사용자용 브릿지)에서 이미 실사용 중이던 것을 서버(레포 공용 키)로 승격 — 전 사용자 자동 적용.
+// consConf(Conf. Board)는 의도적으로 제외: FRED엔 Conference Board 소비자신뢰 시리즈가 없음(비영리
+// 민간기관 유료 라이선스, UMCSENT=미시간대와는 발행기관·척도가 다른 별개 지표 — P456/P593 참조).
+// 한국 CPI(FRED KORCPIALLMINMEI 등 OECD 릴레이)는 이번에 보류: 신선도 검증 불가(로컬 네트워크 제약)
+// + 이미 더 권위있는 직접 소스(KOSIS API 브릿지 aio-data.js fetchAllKosisData, /data-refresh 통계청
+// 수동 확인)가 있어 릴레이로 교체 시 오히려 신선도 퇴보 위험 — 확장 후보로 문서에만 남김.
 const FRED_SERIES = {
   cpi:        { id: 'CPIAUCSL', kind: 'yoy' },
   coreCpi:    { id: 'CPILFESL', kind: 'yoy' },
@@ -49,6 +57,9 @@ const FRED_SERIES = {
   fedRate:    { id: 'FEDFUNDS', kind: 'level' },
   unemployment:{ id: 'UNRATE',  kind: 'level' },
   nfp:        { id: 'PAYEMS',   kind: 'mom_diff' }, // 천명 단위 (e.g. 172)
+  housingStarts: { id: 'HOUST',          kind: 'level', scale: 0.001 }, // 천 단위→백만 단위 (DATA_SNAPSHOT.housingStarts는 1.47M 형태)
+  retailSales:   { id: 'RSAFS',          kind: 'mom_pct' },             // 소매판매 MoM% (레벨 $ 시리즈에서 파생)
+  usWageGrowth:  { id: 'CES0500000003',  kind: 'yoy' },                 // 시간당 평균임금 YoY%
 };
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; AIO-Screener-bot/1.0)' };
@@ -216,9 +227,15 @@ async function fetchFred(key) {
       const obs = (j.observations || []).filter(o => o.value !== '.').map(o => ({ d: o.date, v: parseFloat(o.value) }));
       if (!obs.length) continue;
       if (spec.kind === 'level') {
-        out[field] = round(obs[0].v, 3);
+        // v51.97/Phase 2 [B2]: scale — 시리즈 원 단위(예: HOUST=천 단위)를 소비처 단위(백만)로
+        // 변환. 미지정 시 1(기존 fedRate/unemployment 등 동작 불변).
+        const scale = spec.scale || 1;
+        out[field] = round(obs[0].v * scale, 3);
         // MoM delta: 이번 달 레벨 - 지난 달 레벨
-        if (obs.length >= 2) out[field + 'Delta'] = round(obs[0].v - obs[1].v, 3);
+        if (obs.length >= 2) out[field + 'Delta'] = round((obs[0].v - obs[1].v) * scale, 3);
+      } else if (spec.kind === 'mom_pct') {
+        // v51.97/Phase 2 [B2]: 레벨(예: RSAFS 소매판매 $) 시리즈의 전월 대비 변화율(%).
+        if (obs.length >= 2 && obs[1].v) out[field] = round((obs[0].v / obs[1].v - 1) * 100, 1);
       } else if (spec.kind === 'yoy') {
         const cur = obs[0];
         const yoy = obs.find(o => monthsBetween(o.d, cur.d) >= 12) || obs[obs.length - 1];

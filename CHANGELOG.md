@@ -1,3 +1,14 @@
+## v51.97 (2026-07-04)
+- **Phase 2 [B2] FRED 시리즈 확장(FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §7)**: 클라이언트 개인 FRED 키 브릿지(`js/aio-data.js` FRED_SERIES 테이블, v48.59부터 존재)에서 이미 검증돼 쓰이던 시리즈 3종을 서버 공용 `FRED_SERIES`(`scripts/fetch-data.mjs`)로 승격 — 전 방문자에게 자동 적용(개인 키 불필요):
+  - `housingStarts` (FRED `HOUST`) — 신규 `scale` 옵션(천 단위→백만 단위 변환)을 `fetchFred()` `level` kind에 추가.
+  - `retailSales` (FRED `RSAFS`) — 신규 `mom_pct` kind 추가(레벨 시리즈의 전월 대비 %).
+  - `usWageGrowth` (FRED `CES0500000003`) — 기존 `yoy` kind 그대로 사용.
+  - 클라이언트(`js/aio-data.js` `_aioLoadServerData()`) 소비 키 목록에 3필드 추가, `DATA_SNAPSHOT`(`js/aio-core.js`) 폴백 코멘트를 "FRED 자동화 편입"으로 갱신.
+- **P593/R274: consConf/UMCSENT 라벨-소스 불일치 버그 수정 (B2 조사 중 자체 발견, P456(v49.95)에서 지적됐으나 미해소였던 건)**: `consConf` 필드는 UI 라벨·임계값·폴백값 전부 Conference Board 소비자신뢰 기준(index.html "Conf. Board", 100↑낙관/80↓침체)인데, 개인 FRED 키 보유 사용자에 한해 라이브 경로 2곳(`applyFredToUI()`의 DOM sink 갱신, AI 채팅 매크로 주입 `macroBlock`)이 실제로는 University of Michigan Consumer Sentiment(UMCSENT — 다른 기관·다른 척도, 과거 세션 내러티브에서 50대까지 하락한 적 있는 별개 지표)를 주입하고 있었음. FRED엔 Conference Board 무료 시리즈가 없어 자동화 불가 확정 → `consConf`는 Conference Board 정체성 유지(수동 `/data-refresh` 지속), 두 라이브 경로의 오작동 주입만 제거(UMCSENT 자체는 계속 fetch되나 미사용 — 신규 UI 카드는 이번엔 추가하지 않음, 후속 과제로 명시). R274 신설: "라벨 있는 필드에 라이브 소스를 연결할 때는 반드시 그 라벨이 가리키는 동일 지표여야 하며, 같은 주제의 다른 기관 지표로 대체하면 안 된다."
+- **조사 후 보류(구현 안 함, 이유 명시)**: 한국 CPI(Fable 제안 FRED `KORCPIALLMINMEI` 등) — 이번 세션 로컬 네트워크가 `fred.stlouisfed.org`에 도달 못해(DNS가 비정상 IP로 해석되며 TLS 재협상 반복 후 타임아웃) 신선도 검증 불가 + OECD 릴레이 시리즈는 통계청 직접 발표 대비 지연 위험이 구조적으로 있어, 이미 존재하는 더 권위있는 경로(`fetchAllKosisData` KOSIS 클라이언트 브릿지, `/data-refresh` 통계청 수동 확인)를 릴레이로 대체하지 않음.
+- **검증**: `new Function()` 격리 유닛테스트로 신규 `fetchFred()` 로직(level+scale, mom_pct) 검증 — mock 관측치로 hand-computed 기대값과 일치 확인, `fedRate` 컨트롤 케이스로 기존 `level` kind 무회귀 확인(실제 `main()`/라이브 API 호출 없음). 로컬 validate 전체(`node --check` 전 js/mjs·9종 CI 스크립트·stray 파일 스캔) 통과. `node scripts/ci-headless-tests.mjs`: 896/921 pass, 25 fail 전부 기존 skip-list(신규 회귀 0) — T685(`consConf` 85~100 범위)는 91.2로 계속 통과, 수정이 여전히 수동인 Conf. Board 값을 건드리지 않았음을 재확인.
+- R1 7곳 v51.97.
+
 ## v51.96 (2026-07-03)
 - **전체 데이터 최신화(/data-refresh)**: 라이브 파이프라인을 GitHub Actions로 재트리거(`gh workflow run refresh-data.yml`, 로컬에서 `fetch-data.mjs` 직접 실행 금지 원칙 준수)해 시세 77/77·F&G 31(fear)·FRED 14키·뉴스 40건을 실측 갱신, 이 실측을 그대로 아래 정적 폴백에 반영.
   - **`DATA_SNAPSHOT`(js/aio-core.js) 전면 재동기화**: 미국/한국 지수·원자재·환율·금리(TNX 4.485%)를 07-03 실측치로, 6월 미국 고용 쇼크(NFP +5.7만, 5월분도 172→43K 하향, 실업률 4.2%) 반영, `_fallback` 미러(breadth5/20/50sma, vix, dxy, tnx, hyg, vvix)를 본체와 재정합.

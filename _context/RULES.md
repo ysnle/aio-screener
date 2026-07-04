@@ -6,6 +6,13 @@ target_version: v51.80
 
 ---
 
+## R274. A live-fetch binding introduced for an existing labeled/thresholded field must fetch the exact same named indicator the label represents — not a same-topic substitute (v51.97)
+
+- When wiring live data into a field that already has a UI label, threshold, or manually-sourced history (e.g. "Conf. Board", "100↑=낙관/80↓=침체"), the fetched series must be THAT exact named index — not a different organization's same-topic survey chosen just because it happens to be the one a free API offers. "Consumer sentiment" is not one indicator: University of Michigan Consumer Sentiment and The Conference Board Consumer Confidence Index are different surveys, different base years, different scales, and diverge meaningfully in level.
+- This is the source-selection-layer counterpart to R265 (formula/computation parity for a single implementation claiming to match a named methodology) — the failure mode here is picking the wrong *source* to answer an existing named question, not computing the right source's formula wrong.
+- Before wiring any new provider series into an existing field, check what the field's existing label/threshold/historical manual values actually assume (sub-index names, scale, base year) and confirm the new series matches — not just "same general topic."
+- See P456 (first flagged, v49.95) / P593 (actually fixed, v51.97): `consConf` was labeled/thresholded/manually-sourced as Conference Board, but two live-fetch code paths fed University of Michigan Sentiment (UMCSENT) into it whenever a user had a personal FRED key — silently swapping the underlying indicator under a stable-looking label for roughly 90 versions before being resolved.
+
 ## R273. A value that's supposed to mirror or track another value must be verified equal by evaluating both, not by eyeballing the diff — and duplicate/mirror fields must be named to be found (v51.96)
 
 - Any time a codebase keeps two copies of "the same" number for different consumers (a primary field + a `_fallback` mirror; a `vvix` + a separately-named `vvix_live` that some call sites prefer), a normal edit pass that updates one and not the other will look completely fine in a diff — there's no syntax error, no obviously-wrong value, nothing a human reviewer skimming the change would catch. The only reliable check is programmatic: evaluate both fields and assert equality (exactly what `T686`/R184 already does for the `_fallback` mirror — the gap was that its failures were being skip-listed as "known drift" instead of fixed, and it had no equivalent for `vvix_live`).

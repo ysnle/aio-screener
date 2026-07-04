@@ -265,6 +265,7 @@ target_lines: index.html 32065 + js modules 60777
 | browser unit tests (CI 헤드리스 상설화됨, Phase 2 B5 — `.github/workflows/ci.yml` `headless-tests` job, report-only) | `js/aio-tests.js`, 로더는 `js/aio-core.js` 내(`AIO.loadTests()`), CI 러너는 `scripts/ci-headless-tests.mjs` |
 | glossary | `js/aio-glossary.js`, `index.html:28557` |
 | 데이터 파이프라인(서버) | `scripts/fetch-data.mjs` — Yahoo 1차 + 핵심 ETF 20종 한정 Twelve Data 2차 폴백(Phase 2 B1, `TWELVE_DATA_API_KEY` 필요, 지수/선물/FX/KR 확장은 미검증 스코프 제외), `getScreenerSymbols()`는 이제 `public-data/screener-universe.json`을 직접 읽음(Phase 2 B6, `scripts/sync-screener-universe.mjs`가 `js/aio-data.js`의 `SCREENER_DB`에서 생성·CI가 drift 검증 — 정규식 파싱 제거 완료. 클라 비동기 부팅 로드는 Phase 3 A2로 보류) |
+| FRED_SERIES(서버) | `scripts/fetch-data.mjs:44` — Phase 2 B2(v51.97)로 `housingStarts`(HOUST)/`retailSales`(RSAFS)/`usWageGrowth`(CES0500000003) 추가, `fetchFred()`에 `scale`(단위 변환)·`mom_pct`(전월비%) kind 신설. `consConf`(Conf. Board)는 의도적 제외 — FRED 무료 시리즈 없음, UMCSENT(미시간대)와 혼동 금지(R274/P593). 한국 CPI(FRED 릴레이)는 보류(신선도 미검증 + KOSIS 직접경로 우위) |
 
 ---
 

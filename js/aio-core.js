@@ -17667,7 +17667,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.96';
+const APP_VERSION = 'v51.97';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -18729,10 +18729,10 @@ const DATA_SNAPSHOT = {
   ismSvc:      53.6,                              // v49.95: 4월 실측값 유지 — 6월 서비스 PMI는 7/3(내일) 발표 예정, 미발표 상태(BLOCKED, 추측 금지)
   usUnemploy:   4.20,  // v51.96: 6월 실업률 4.2% (FRED UNRATE asOf 2026-06-01, 예상보다 낮음 — 5월 4.3%에서 소폭 개선에도 NFP 부진과 동시 발생해 "냉각이지만 급랭 아님" 해석)
   usNfp:        57,                                // v51.96: 6월 NFP +57K (FRED PAYEMS, 예상·전월 대폭 하회 — 5월분도 172→43K 하향조정). 4개월래 최약 고용, 7월 FOMC 인하 기대 재부각
-  usWageGrowth: 3.6,                              // v49.95: 4월 시간당 평균 임금 +3.6% YoY 실측 ($37.41, MoM +0.2%, BLS 5/8 — 단 실질임금 -0.3% 인플레 잠식). 다음 6/5 5월분
-  retailSales:  0.9,                              // v51.90: 5월 소매판매 +0.9% MoM 실측 ($763.7B, +1.0% 소매무역 기준, YoY +6.9~7.5%, 3개월 누적 +5.3% YoY — Census 6월 발표). 다음 6월분
-  consConf:     91.2,                              // v51.90: 6월 Conference Board 소비자신뢰 91.2 실측 (1985=100, 5월 수정 90.6→6월 91.2 +0.6pt, 유가 하락이 인플레 우려 완화 — Present 116.4/-3.0pt, Expectations 74.4/+3.0pt, '구하기 어려움' 22.5%로 5.5년래 최고. 6/30 발표)
-  housingStarts:1.47,                             // v49.95: 4월 주택착공 1.465M SAAR 실측 (Census 5/21 — 3월 수정 1.507M 대비 -2.8%, 전년比 +4.6%. 단독 930K). 기존 1.42 stale
+  usWageGrowth: 3.6,                              // v49.95: 4월 시간당 평균 임금 +3.6% YoY 실측 ($37.41, MoM +0.2%, BLS 5/8 — 단 실질임금 -0.3% 인플레 잠식). v51.97/Phase2[B2]: FRED CES0500000003 서버 자동화 편입 — 이 값은 이제 라이브 fetch 100% 불가 시에만 쓰는 폴백(적용 시 window.DATA_SNAPSHOT.usWageGrowth 자동 덮어씀, _fieldTs.macro_fred 갱신)
+  retailSales:  0.9,                              // v51.90: 5월 소매판매 +0.9% MoM 실측 ($763.7B, +1.0% 소매무역 기준, YoY +6.9~7.5%, 3개월 누적 +5.3% YoY — Census 6월 발표). v51.97/Phase2[B2]: FRED RSAFS 서버 자동화 편입 — 폴백 전용으로 격하(위 usWageGrowth와 동일 메커니즘)
+  consConf:     91.2,                              // v51.90: 6월 Conference Board 소비자신뢰 91.2 실측 (1985=100, 5월 수정 90.6→6월 91.2 +0.6pt, 유가 하락이 인플레 우려 완화 — Present 116.4/-3.0pt, Expectations 74.4/+3.0pt, '구하기 어려움' 22.5%로 5.5년래 최고. 6/30 발표). v51.97/P593: FRED엔 Conference Board 무료 시리즈가 없어 자동화 대상에서 제외 — 계속 /data-refresh 수동 WebSearch 유지. UMCSENT(미시간대 소비자심리)와는 별개 지표이니 혼동 금지
+  housingStarts:1.47,                             // v49.95: 4월 주택착공 1.465M SAAR 실측 (Census 5/21 — 3월 수정 1.507M 대비 -2.8%, 전년比 +4.6%. 단독 930K). 기존 1.42 stale. v51.97/Phase2[B2]: FRED HOUST 서버 자동화 편입(천 단위→백만 단위 스케일 변환) — 폴백 전용으로 격하
   krUnemploy:   3.4,
   // v34.6: 한국 거시 지표 강화
   krCpi:        3.1,                              // v51.90: 한국 5월 CPI YoY 3.1%(3.14%) 실측 (통계청 — 4월 2.6→5월 3.1 재가속, 2024.3 이후 최고, 시장예상 3.0% 상회). 6월분 미확인(BLOCKED)
