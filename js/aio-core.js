@@ -17667,7 +17667,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v51.97';
+const APP_VERSION = 'v51.98';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -20054,6 +20054,292 @@ function _ldSafe(sym, prop, hardFallback) {
   }
   return hardFallback !== undefined ? hardFallback : null;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// v51.98/Phase 3 [A3]: 매매 알고리즘 핵심 — index.html 인라인에서 이관
+// (FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §7 A3, _context/BUG-POSTMORTEM.md P594).
+// 왜: 이 앱의 중심 알고리즘이 모듈이 아닌 index.html 인라인에 있어 aio-core.js/aio-data.js/
+//     aio-ui.js 5곳이 `typeof computeTradingScore === 'function'` 방어 호출로 역참조하는
+//     구조적 역전이 있었다(_ldSafe 등 이 코드가 의존하는 헬퍼는 이미 이 파일에 있었음).
+//     순수 재배치 — 로직/가중치 변경 없음. 유일한 예외: computeTradingScore의 4순위(죽은)
+//     DOM 텍스트 파싱 폴백 제거(아래 주석 참조, A5 발견사항).
+// ═══════════════════════════════════════════════════════════════════
+// ── Trading Score Computation ─────────────────────────────────────
+function computeTradingScore(mode) {
+  // v37.1: 데이터 소스 이원화
+  // - 주가(SPX, SPY, RSP): 종가 기준 → 장중 등락으로 점수 흔들림 방지
+  // - 시장 환경(VIX, DXY, TNX, HYG, 유가): 실시간 → 현재 시장 상태 즉각 반영
+  // v46.4: 폴백값을 DATA_SNAPSHOT._fallback에서 읽음 (단일 진실 원천)
+  // P553/R244: 호출부 16곳(헤더 텍스트·게이지·카드 등)이 각자 다른 이벤트(aio:liveQuotes vs
+  // aio:marketStateUpdated)에서 독립적으로 이 함수를 재호출하면, 그 사이 실시간 입력값
+  // (breadth200/putCallRatio/뉴스감성 등)이 바뀌어 같은 화면에 서로 다른 점수가 동시에 노출되는
+  // 문제가 있었다(52 vs 64). 짧은 TTL 캐시로 "동시에 보이는 모든 표시가 항상 같은 값"을 보장하면서,
+  // 실제 라이브 갱신 주기(30~60s)보다 훨씬 짧아 신선도 손실은 없다.
+  var _cacheKey = mode || 'default';
+  window._aioScoreCache = window._aioScoreCache || {};
+  var _cached = window._aioScoreCache[_cacheKey];
+  if (_cached && (Date.now() - _cached.ts) < 20000) return _cached.result;
+  var _fb = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
+  var _clamp = function(v, lo, hi) { return Math.max(lo, Math.min(hi, isFinite(v) ? v : lo)); };
+  const vix   = _clamp(_ldSafe('^VIX','price') || _fb.vix || 20, 5, 150);
+  const vvix  = _clamp(_ldSafe('^VVIX','price') || _fb.vvix || 100, 50, 250);
+  const dxy   = _clamp(_ldSafe('DX-Y.NYB','price') || _fb.dxy || 104, 80, 130);
+  const hyg   = _clamp(_ldSafe('HYG','price') || _fb.hyg || 78, 50, 100);
+  const tnx   = _clamp(_ldSafe('^TNX','price') || _fb.tnx || 4.3, 0, 8);
+  const oilPrice = _clamp(_ldSafe('CL=F','price') || 0, 0, 300);
+  const fg    = _clamp(window._lastFG || _fb.fg || 35, 0, 100);
+  const rsp   = _closingVal('RSP');
+  const spy   = _closingVal('SPY');
+
+  // 1. Volatility Score (25%) — lower VIX is better for trading
+  let volScore;
+  if (vix < 15)       volScore = 90;
+  else if (vix < 18)  volScore = 78;
+  else if (vix < 22)  volScore = 62;
+  else if (vix < 27)  volScore = 42;
+  else if (vix < 35)  volScore = 22;
+  else                volScore = 8;
+
+  // Day trading: elevated volatility is slightly better
+  if (mode === 'day') {
+    if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
+  }
+
+  // 2. Momentum Score (25%) — Fear&Greed as proxy (v46.9: CNN 표준 25/45/55/75 통일)
+  let momScore;
+  // v50.19: F&G 모멘텀 곡선 역U자화 — 극단 탐욕(≥75)은 과매수/모멘텀 소진 위험으로 fade(이전 85=최대치는 home 역발상 "차익실현"과 정면 모순).
+  // 건강한 탐욕(55~75)이 피크. 극단 공포(<25)는 역발상 반등 여지로 바닥값 소폭 상향(15→25). signal=추세추종 / home=극단 역발상이 같은 방향으로 수렴.
+  if (fg >= 75)      momScore = 66;  // Extreme Greed — 과매수, 추격 위험 (피크 아님)
+  else if (fg >= 55) momScore = 74;  // Greed — 건강한 모멘텀 피크
+  else if (fg >= 45) momScore = 52;  // Neutral
+  else if (fg >= 25) momScore = 34;  // Fear
+  else               momScore = 25;  // Extreme Fear — 역발상 반등 여지
+
+  // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
+  const spx200ma = (window._spxMA && window._spxMA[200]) || _fb.spx200ma || null;
+  const spx50ma  = (window._spxMA && window._spxMA[50])  || _fb.spx50ma || null;
+  const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');
+  let trendScore;
+  if (!spxPrice || !spx50ma || !spx200ma) trendScore = 50;
+  else if (spxPrice > spx50ma * 1.02)     trendScore = 82;
+  else if (spxPrice > spx50ma)       trendScore = 68;
+  else if (spxPrice > spx200ma)      trendScore = 50;
+  else if (spxPrice > spx200ma*0.97) trendScore = 32;
+  else                               trendScore = 15;
+
+  // 4. Breadth Score (20%) — % above 20 SMA (변수명 _breadth200은 레거시, 실제 20SMA above %)
+  // window._breadth200 is updated by initSentimentCharts() → bpSPX20[last] 캐싱;
+  // fallback to _fb.breadth200 if not yet available.
+  // v50.19: _breadth200(레거시 20SMA명) 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백으로 시정
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                     (typeof window._breadth20 === 'number') ? window._breadth20 :
+                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                     (_fb.breadth200 != null ? _fb.breadth200 : 57));
+  let breadthScore;
+  if (breadth200 > 70)      breadthScore = 88;
+  else if (breadth200 > 55) breadthScore = 72;
+  else if (breadth200 > 40) breadthScore = 52;
+  else if (breadth200 > 25) breadthScore = 28;
+  else                      breadthScore = 12;
+
+  // 5. Macro Score (10%) — 기저 55, 누진 감점 (DXY>110이면 -12-8=-20 의도적 누진)
+  let macroScore = 55;
+  if (dxy > 107) macroScore -= 12;  // DXY 강세 1단계
+  if (dxy > 110) macroScore -= 8;   // DXY 극단 강세 2단계 (누진)
+  if (tnx > 4.5) macroScore -= 10;
+  if (hyg < 76)  macroScore -= 12;
+  if (fg < 20)   macroScore -= 5;
+  if (vvix > 110) macroScore -= 8;
+  macroScore = Math.max(10, Math.min(90, macroScore));
+
+  // v20+: Put/Call ratio 보정
+  const pcr = window._putCallRatio || _fb.pcr || 0.95;
+  if (pcr > 1.3) { momScore = Math.max(5, momScore - 8); }
+  else if (pcr > 1.1) { momScore = Math.max(5, momScore - 4); }
+
+  // v20+: AAII extreme bearish = contrarian positive (but NOT timing indicator)
+  const aaiiBear = window._aaiiBearish || _fb.aaiiBear || 50;
+  if (aaiiBear > 55) { breadthScore = Math.max(breadthScore, 20); }
+
+  // v39.2: 교차변수 보정 — 복합 리스크 시 추가 감점
+  var crossRiskCount = 0;
+  if (vix > 25) crossRiskCount++;
+  if (dxy > 107) crossRiskCount++;
+  if (tnx > 4.5) crossRiskCount++;
+  if (oilPrice > 100) crossRiskCount++;
+  if (crossRiskCount >= 3) macroScore = Math.max(10, macroScore - 10); // 3개 이상 동시 악화 = 퍼펙트스톰 패널티
+
+  // v39.2: 추세-시장폭 다이버전스 보너스/패널티
+  if (trendScore > 65 && breadthScore < 30) {
+    // 지수는 올라가는데 시장폭은 악화 = 위험한 상승 (소수 주도)
+    trendScore = Math.max(10, trendScore - 10);
+  } else if (trendScore < 35 && breadthScore > 55) {
+    // 지수는 눌려있지만 시장폭 회복 중 = 바닥 다지기 신호
+    breadthScore = Math.min(90, breadthScore + 8);
+  }
+
+  // v20: Credit Stress 보정 (HY Spread 기반)
+  let compositeScore = Math.round(
+    volScore * 0.25 +
+    momScore * 0.25 +
+    trendScore * 0.20 +
+    breadthScore * 0.20 +
+    macroScore * 0.10
+  );
+
+  // v51.88 P576/R266: 신용 스트레스 입력 우선순위 — 측정값 > 근사.
+  //   1순위 window._hySpreadBp (fetchHYSpread 가 FRED BAMLH0A0HYM2 실측 OAS 저장, 6h 갱신)
+  //   2순위 DATA_SNAPSHOT.hySpread (서버/시드 실측값)
+  //   3순위 (100-HYG)*15bp 근사 — HYG 가격은 금리 듀레이션(~3.8y)에 오염돼 금리 100bp 상승만으로
+  //          가짜 +45bp "스프레드 확대"를 만든다. 실측이 전혀 없을 때만 최후 폴백.
+  var hyBp = 0;
+  if (typeof window._hySpreadBp === 'number' && isFinite(window._hySpreadBp) && window._hySpreadBp > 0) {
+    hyBp = window._hySpreadBp;
+  } else if (typeof DATA_SNAPSHOT !== 'undefined' && typeof DATA_SNAPSHOT.hySpread === 'number' && DATA_SNAPSHOT.hySpread > 0) {
+    hyBp = DATA_SNAPSHOT.hySpread;
+  } else {
+    var _hyg = _ldSafe('HYG','price') || _fb.hyg || 78;
+    if (_hyg > 0 && _hyg < 90) hyBp = Math.round((100 - _hyg) * 15); // HYG→OAS 근사 (최후 폴백)
+    // v51.98/Phase3[A3]: 예전 4순위 'hy-spread-val' DOM textContent 파싱 폴백(A5 발견) 제거 —
+    // 2순위(DATA_SNAPSHOT.hySpread)가 고정 시드값(275) 또는 fetchHYSpread 실측값만 대입받고
+    // 어디서도 지워지지 않아 항상 truthy이므로 이 분기 자체가 죽은 코드였음(R266 원칙 재적용).
+  }
+  if (hyBp > 500) compositeScore -= 15; // Distressed credit
+  else if (hyBp > 400) compositeScore -= 8;
+  else if (hyBp > 350) compositeScore -= 3;
+
+  // v20: 지정학 위험 보정 (v37.1: 유가 실시간 — 선물 24시간 거래)
+  if (oilPrice > 100) compositeScore -= 10; // 유가 $100+ = 스태그플레이션 위험
+  else if (oilPrice > 90) compositeScore -= 5;
+
+  // ── v20: 뉴스 감성 보정 ──────────────────────────────────────
+  try {
+    const newsSent = computeNewsSentimentScore();
+    if (newsSent.score < 30) compositeScore -= 8;       // 뉴스 전반적 비관
+    else if (newsSent.score > 70) compositeScore += 5;  // 뉴스 전반적 낙관
+
+    // 뉴스 리스크 시그널 반영
+    const newsRisks = computeNewsRiskSignals();
+    newsRisks.forEach(r => { compositeScore += r.impact; });
+  } catch(e) { _aioLog('warn', 'render', 'News sentiment integration error: ' + (e && e.message || e)); }
+
+  // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
+  const total = Math.max(5, Math.min(100, compositeScore));
+
+  var evidenceAudit = (window.AIO && window.AIO.getTradingDecisionInputEvidence) ? window.AIO.getTradingDecisionInputEvidence() : null;
+  var _result = { total, score: total, volScore, momScore, trendScore, breadthScore, macroScore, evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit };
+  window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now() };
+  return _result;
+}
+
+// ── Score Advice: Convert Score to Action Guidance ────────────────
+function getScoreAdvice(score) {
+  if (score >= 75) return {text:'매수 우호 구간 — 시장 환경이 매우 우호적입니다. 관심 종목은 분할 진입과 명확한 무효화 가격을 함께 검토하세요.', color:'var(--data-green)', action:'매수 우호'};
+  if (score >= 60) return {text:'선별 매수 구간 — 시장 환경은 양호하지만 포지션 크기는 평소의 60-80%로 조절하세요.', color:'#4ade80', action:'선별 매수'};
+  if (score >= 45) return {text:'중립 구간 — 시장 방향이 혼재되어 있습니다. 신규 진입보다 기존 포지션 관리와 후보 관찰을 우선하세요.', color:'var(--data-amber)', action:'관망/보유'};
+  if (score >= 30) return {text:'주의 구간 — 시장 환경이 불리합니다. 신규 매수는 줄이고 손절선과 헤지 조건을 점검하세요.', color:'var(--data-amber)', action:'매수 자제'};
+  return {text:' 위험 구간 — 시장이 매우 불안합니다. 현금 비중을 늘리고 방어적으로 대응하세요. 패닉 매도는 금물!', color:'#ef4444', action:'현금 확보'};
+}
+
+// ── Execution Window Score (v20+) ────────────────────────────────
+function computeExecutionWindow() {
+  let ld = window._liveData || {};
+  var _fb2 = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
+  const vix = _ldSafe('^VIX','price') || _fb2.vix || 20;
+  const fg = window._lastFG || _fb2.fg || 35;
+  // v50.19: 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                     (typeof window._breadth20 === 'number') ? window._breadth20 :
+                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                     (_fb2.breadth200 != null ? _fb2.breadth200 : 57));
+
+  // v46.9: 기저값 상향 — 중립 시 MOD(65) 판정되도록 (이전 46.25→WEAK)
+  // Breakout holding: are breakouts sustaining?
+  let breakoutHold = 65;
+  if (breadth200 < 30) breakoutHold -= 25;
+  if (vix > 25) breakoutHold -= 15;
+  if (breadth200 > 60 && vix < 20) breakoutHold += 10;
+  breakoutHold = Math.max(0, Math.min(100, breakoutHold));
+
+  // Pullback buying: are dips getting bought quickly?
+  let pullbackBuy = 60;
+  if (fg < 20) pullbackBuy -= 20;
+  if (vix > 30) pullbackBuy -= 15;
+  if (fg > 45 && vix < 20) pullbackBuy += 10;
+  pullbackBuy = Math.max(0, Math.min(100, pullbackBuy));
+
+  // Follow-through: multi-day continuation
+  let followThru = 55;
+  if (breadth200 < 35) followThru -= 20;
+  if (vix > 22) followThru -= 10;
+  if (breadth200 > 55 && vix < 22) followThru += 10;
+  followThru = Math.max(0, Math.min(100, followThru));
+
+  // Leader retention: are leading stocks holding gains?
+  let leaderHold = 65;
+  if (breadth200 < 40) leaderHold -= 15;
+  const pcr = window._putCallRatio || _fb2.pcr || 0.95;
+  if (pcr > 1.2) leaderHold -= 10;
+  leaderHold = Math.max(0, Math.min(100, leaderHold));
+
+  const total = Math.round((breakoutHold + pullbackBuy + followThru + leaderHold) / 4);
+
+  // Update UI
+  const labels = { 0: 'NONE', 30: 'LOW', 50: 'WEAK', 65: 'MOD', 80: 'HIGH' };
+  function getLabel(v) { return v >= 80 ? 'HIGH' : v >= 65 ? 'MOD' : v >= 50 ? 'WEAK' : v >= 30 ? 'LOW' : 'NONE'; }
+  function getColor(v) { return v >= 65 ? 'var(--data-green)' : v >= 50 ? 'var(--data-amber)' : 'var(--data-red)'; }
+
+  const ids = [
+    ['ew-breakout', breakoutHold],
+    ['ew-pullback', pullbackBuy],
+    ['ew-followthru', followThru],
+    ['ew-leaders', leaderHold]
+  ];
+  ids.forEach(function([id, val]) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = getLabel(val); el.style.color = getColor(val); }
+  });
+
+  return { total, breakoutHold, pullbackBuy, followThru, leaderHold };
+}
+
+// ── Market Regime Classification (v20+) ──────────────────────────
+function classifyMarketRegime() {
+  // v37.1: SPX=종가(레짐 판단 안정성), VIX=실시간(급변 즉시 감지)
+  const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');
+  const spx200ma = (window._spxMA && window._spxMA[200]) || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx200ma : null);
+  const spx50ma  = (window._spxMA && window._spxMA[50])  || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx50ma  : null);
+  const vix = _ldSafe('^VIX','price') || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.vix : 20);
+  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                     (typeof window._breadth20 === 'number') ? window._breadth20 :
+                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
+                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.breadth200 != null) ? DATA_SNAPSHOT._fallback.breadth200 : 57));
+
+  let regime = 'CHOP';
+  let label = '횡보·혼조';
+  let color = 'var(--data-amber)';
+  let sub = '방향성 불분명';
+
+  if (!spxPrice || !spx50ma || !spx200ma) {
+    regime = 'DATA_CHECK'; label = 'Data check'; color = 'var(--data-amber)'; sub = 'SPX MA evidence required';
+  } else if (spxPrice > spx50ma && breadth200 > 55) {
+    regime = 'UPTREND'; label = '상승 추세'; color = 'var(--data-green)'; sub = '50MA 위 + 시장폭 양호';
+  } else if (spxPrice < spx200ma && breadth200 < 30) {
+    regime = 'DOWNTREND'; label = '하락 추세'; color = 'var(--data-red)'; sub = '200MA 하회 + 시장폭 붕괴';
+  } else if (spxPrice < spx50ma && spxPrice > spx200ma) {
+    regime = 'CORRECTION'; label = '세속 상승장 내 순환적 조정'; color = 'var(--data-amber)'; sub = 'Secular Bull → Cyclical Correction';
+  }
+
+  const badge = document.getElementById('regime-badge');
+  const lbl = document.getElementById('regime-label');
+  const subEl = document.getElementById('regime-sub');
+  if (badge) { badge.textContent = regime; badge.style.color = color; badge.style.borderColor = color.replace(')', ',0.3)').replace('#', 'rgba('); badge.style.background = color.replace(')', ',0.15)').replace('#', 'rgba('); }
+  if (lbl) { lbl.textContent = label; }
+  if (subEl) { subEl.textContent = sub; }
+
+  return { regime, label, color };
+}
+
 
 function _aioClampScore(v) {
   v = Number(v);

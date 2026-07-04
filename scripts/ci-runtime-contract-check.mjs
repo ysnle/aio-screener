@@ -73,10 +73,19 @@ check('data-action accessibility normalizer is installed', /_aioNormalizeDataAct
 // (computeTradingScore now builds it into a variable first so it can be cached), so this only
 // requires the `{ total, score: total` alias shape to exist somewhere in the function, not that
 // it is the literal return expression.
-check('computeTradingScore returns both total and score aliases for legacy consumers', /function\s+computeTradingScore/.test(html) && /\{\s*total\s*,\s*score\s*:\s*total/.test(html));
-check('classifyMarketRegime does not use optimistic breadth default 75', /function\s+classifyMarketRegime/.test(html) && !/breadth200[\s\S]{0,220}:\s*75\)/.test(html));
-check('score advice no longer labels 75+ as aggressive buy', /function\s+getScoreAdvice/.test(html) && !/function\s+getScoreAdvice[\s\S]{0,500}적극\s*매수/.test(html));
-check('trading guidance avoids aggressive-buy wording on score 75+', !/75\+\s*(?:적극\s*매수|적극매수)/.test(html + '\n' + chat + '\n' + data + '\n' + ui));
+// v51.98/Phase 3 [A3]: computeTradingScore/classifyMarketRegime/getScoreAdvice moved from index.html
+// inline to js/aio-core.js (P594) — these three checks now search `core`, not `html`.
+check('computeTradingScore returns both total and score aliases for legacy consumers', /function\s+computeTradingScore/.test(core) && /\{\s*total\s*,\s*score\s*:\s*total/.test(core));
+// v51.98/Phase 3 [A3]: this used to search the whole `html`, where "breadth200...: 75)" only ever
+// appeared (if at all) inside classifyMarketRegime itself. `core` is a much bigger file with
+// unrelated breadth200 code elsewhere (e.g. a coincidental "...: 75)" ~150 chars after an
+// unrelated breadth200 reference around line 2746), so the negative check must be scoped to
+// classifyMarketRegime's own body, not a free-floating search across the whole module.
+const classifyMarketRegimeIdx = core.search(/function\s+classifyMarketRegime/);
+const classifyMarketRegimeBody = classifyMarketRegimeIdx >= 0 ? core.slice(classifyMarketRegimeIdx, classifyMarketRegimeIdx + 1500) : '';
+check('classifyMarketRegime does not use optimistic breadth default 75', classifyMarketRegimeIdx >= 0 && !/breadth200[\s\S]{0,220}:\s*75\)/.test(classifyMarketRegimeBody));
+check('score advice no longer labels 75+ as aggressive buy', /function\s+getScoreAdvice/.test(core) && !/function\s+getScoreAdvice[\s\S]{0,500}적극\s*매수/.test(core));
+check('trading guidance avoids aggressive-buy wording on score 75+', !/75\+\s*(?:적극\s*매수|적극매수)/.test(html + '\n' + core + '\n' + chat + '\n' + data + '\n' + ui));
 check('ticker deep analysis gates entry verdict with market score', /function\s+analyzeTickerDeep/.test(html) && /computeTradingScore\('swing'\)/.test(html) && /marketAllowsEntry/.test(html) && /marketCaution/.test(html));
 check('ticker deep analysis includes institutional Minervini engine', /function\s+_buildMinerviniTechnicalEngine/.test(html) && /_calcMinerviniMAStack/.test(html) && /_buildHorizontalVolumeZones/.test(html) && /_calcVcpQuality/.test(html) && /_calcFibonacciConfluence/.test(html));
 check('ticker deep analysis covers 5/10/20 short and 50/100/200 long MA stacks', /단기 정배열 5>10>20/.test(html) && /장기 정배열 50>100>200/.test(html) && /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat));

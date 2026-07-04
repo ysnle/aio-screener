@@ -1,3 +1,10 @@
+## v51.98 (2026-07-04)
+- **Phase 3 [A3] 인라인 핵심 매매 알고리즘을 `js/aio-core.js`로 이관(FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §7, P594)**: `computeTradingScore`/`getScoreAdvice`/`computeExecutionWindow`/`classifyMarketRegime`(이 앱의 중심 알고리즘)이 모듈이 아닌 `index.html` 인라인에 있어 `js/*.js` 5곳이 `typeof computeTradingScore === 'function'` 방어 호출로 역참조하던 구조적 역전을 해소. `_ldSafe`(이미 이 파일에 있던 주 의존성) 바로 뒤로 273줄 이관 — 순수 재배치, 로직/가중치 무변경. 호출부(`index.html`/`js/aio-data.js`/`js/aio-ui.js`) 전부 무변경(전역 함수명이라 정의 위치 무관, aio-core.js가 제일 먼저 로드되므로 방어 가드가 오히려 더 일찍 true가 됨).
+  - **부수: 확정 죽은 코드 1건 삭제**(A5 발견) — `computeTradingScore`의 HY스프레드 4순위 DOM 텍스트 파싱 폴백(`document.getElementById('hy-spread-val')`) 제거. 2순위(`DATA_SNAPSHOT.hySpread`)가 항상 truthy라 도달 불가능했음(R266 원칙 재적용).
+  - **검증**: 이관 전/후 4개 함수(다양한 mode 인자)의 실제 반환값을 헤드리스 브라우저로 스냅샷 diff — 타임스탬프 필드 제외 완전 동일 확인. 로컬 validate 전체 + 헤드리스 테스트 896/921(회귀 0). `_context/CODE-MAP.md` 전면 재동기화(이번 이관으로 aio-core.js 이후 모든 줄번호 참조가 +287 밀림 — evidence-first 레이어 표, 빠른 작업 참조 표, inline 블록 지도까지 전수 확인·수정).
+  - **세션 중 자체 발견·즉시 수정**: 첫 스플라이스 시도가 브레이스 탐지 로직 결함으로 `_ldSafe` 함수 본문 중간에 잘못 삽입됨 — 실제 파일 내용 검사로 즉시 포착, `git checkout`으로 되돌린 후 브레이스 깊이 카운터 기반으로 재작업(커밋 전에 발견·수정, 배포에 영향 없음).
+  - R1 7곳 v51.98.
+
 ## v51.97 (2026-07-04)
 - **Phase 2 [B2] FRED 시리즈 확장(FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §7)**: 클라이언트 개인 FRED 키 브릿지(`js/aio-data.js` FRED_SERIES 테이블, v48.59부터 존재)에서 이미 검증돼 쓰이던 시리즈 3종을 서버 공용 `FRED_SERIES`(`scripts/fetch-data.mjs`)로 승격 — 전 방문자에게 자동 적용(개인 키 불필요):
   - `housingStarts` (FRED `HOUST`) — 신규 `scale` 옵션(천 단위→백만 단위 변환)을 `fetchFred()` `level` kind에 추가.

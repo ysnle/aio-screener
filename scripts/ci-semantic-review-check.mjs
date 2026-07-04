@@ -48,8 +48,14 @@ check('runtime contract gate references semantic review', /ci-semantic-review-ch
 // P553: aligned with the same relaxation in ci-runtime-contract-check.mjs — the object literal
 // no longer has to be the literal return expression (computeTradingScore builds it into a
 // variable first so the result can be cached), only the `{ total, score: total` shape must exist.
-check('trading score semantic gate is present', /computeTradingScore returns both total and score/.test(runtimeGate) && /\{\s*total\s*,\s*score\s*:\s*total/.test(html));
-check('breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && !/breadth200[\s\S]{0,220}:\s*75\)/.test(html));
+// v51.98/Phase 3 [A3]: computeTradingScore/classifyMarketRegime moved from index.html inline to
+// js/aio-core.js (P594) — these now search `core`, not `html`. The breadth200 check is additionally
+// scoped to classifyMarketRegime's own body (not a free-floating search across all of `core`,
+// which is large enough to contain an unrelated coincidental "breadth200...: 75)" match elsewhere).
+check('trading score semantic gate is present', /computeTradingScore returns both total and score/.test(runtimeGate) && /\{\s*total\s*,\s*score\s*:\s*total/.test(core));
+const _semanticRegimeIdx = core.search(/function\s+classifyMarketRegime/);
+const _semanticRegimeBody = _semanticRegimeIdx >= 0 ? core.slice(_semanticRegimeIdx, _semanticRegimeIdx + 1500) : '';
+check('breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && _semanticRegimeIdx >= 0 && !/breadth200[\s\S]{0,220}:\s*75\)/.test(_semanticRegimeBody));
 check('ticker entry verdict semantic gate is present', /ticker deep analysis gates entry verdict/.test(runtimeGate) && /computeTradingScore\('swing'\)/.test(html) && /marketAllowsEntry/.test(html));
 check('current event-risk semantic gate is present', /event risk context is refreshed/.test(runtimeGate) && /asOf:\s*'2026-06-19'/.test(core));
 

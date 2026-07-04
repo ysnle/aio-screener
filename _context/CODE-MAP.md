@@ -20,8 +20,8 @@ target_lines: index.html 32065 + js modules 60777
 
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
-| `index.html` | 32,065 | HTML shell, CSS, 22개 route page DOM, inline runtime(8블록), 외부 모듈 로드 |
-| `js/aio-core.js` | 23,830 | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터. `AIO_PAGE_CONTRACTS`는 22개 route 계약 |
+| `index.html` | 31,795 | HTML shell, CSS, 22개 route page DOM, inline runtime(8블록), 외부 모듈 로드. v51.98: 매매 알고리즘 4함수 aio-core.js로 이관(-273줄, Phase 3 A3) |
+| `js/aio-core.js` | 24,117 | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, **매매 알고리즘 핵심(v51.98 이관, §3)**. `AIO_PAGE_CONTRACTS`는 22개 route 계약 |
 | `js/aio-data.js` | 17,535 | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, 스크리너 |
 | `js/aio-ui.js` | 5,239 | 차트/렌더러, sentiment/breadth init, LLM quota UI, 기업분석 렌더러 |
 | `js/aio-chat.js` | 6,877 | CHAT_CONTEXTS, 데이터 preflight/evidence, Claude/Perplexity, 추천 분산 후보, 의도별 답변 정책, AIO 통합 답변 파이프라인 |
@@ -38,21 +38,22 @@ target_lines: index.html 32065 + js modules 60777
 | 39 ~ 4888 | 메인 CSS (`<style>`~`</style>`) |
 | 4890 ~ 12461 | body shell + 22개 route page DOM 시작 |
 | 8998 ~ 9001 | 페이지 내 보조 `<style>` 블록(1건, screener 근방) |
-| 12461 ~ 12463 | `aio-core/data/ui` 로드 (`?v=51.90`, 동기 — defer 없음) |
+| 12461 ~ 12463 | `aio-core/data/ui` 로드 (`?v=51.97`, 동기 — defer 없음) |
 | 12465 ~ 12807 | inline 블록 1 |
-| 12809 ~ 15937 | inline 블록 2 |
-| 15938 | `js/aio-chat.js` 로드 (`?v=51.90`, 동기) |
-| 15940 ~ 18381 | inline 블록 3 |
-| 18383 ~ 22720 | inline 블록 4 |
-| 22721 ~ 28310 | inline 블록 5 — **computeTradingScore 등 핵심 매매 알고리즘 위치**(§3) |
-| 28353 ~ 28548 | inline 블록 6 |
-| 28557 | `js/aio-glossary.js` 로드 (`?v=51.90`, 동기) |
-| 28560 ~ 31321 | inline 블록 7 (SW 등록 31273~31292 포함) |
-| 31358 ~ 31387 | 보조 `<style>` 블록(2건째) |
-| 31392 ~ 32059 | inline 블록 8 + closing HTML |
+| 12809 ~ 15939 | inline 블록 2 |
+| 15941 | `js/aio-chat.js` 로드 (`?v=51.97`, 동기) |
+| 15943 ~ 18384 | inline 블록 3 |
+| 18386 ~ 22722 | inline 블록 4 |
+| 22724 ~ 28081 | inline 블록 5 — **v51.98: computeTradingScore 등 핵심 매매 알고리즘이 여기 있었으나 Phase 3 A3로 `js/aio-core.js`(§3)로 이관됨. 이 블록은 이제 그 알고리즘을 소비만 함(호출부·UI 렌더)** |
+| 28083 ~ 28285 | inline 블록 6 |
+| 28287 | `js/aio-glossary.js` 로드 (`?v=51.97`, 동기) |
+| 28290 ~ 31087 | inline 블록 7 (SW 등록 대역 포함) |
+| 31088 ~ 31117 | 보조 `<style>` 블록(2건째) |
+| 31122 ~ 31795 | inline 블록 8 + closing HTML |
 
 > **v50.60 대비 변화**: 구 CODE-MAP은 inline runtime을 "블록 1/블록 2" 2개로 단순화했으나 실측하면 **8개 분리 블록**이다
-> (스크립트 태그 사이사이 재개). CSS도 3693→4888줄(+1195)로 성장. 정확한 재탐색은 `grep -n "<script"` 우선 실행 권장.
+> (스크립트 태그 사이사이 재개). CSS도 3693→4888줄(+1195)로 성장했었고, v51.98에서 블록 5가 -273줄(A3 이관)로
+> 축소됐다. 정확한 재탐색은 `grep -n "<script"` 우선 실행 권장.
 
 ### 22개 route 페이지 DOM 시작점
 
@@ -85,24 +86,23 @@ target_lines: index.html 32065 + js modules 60777
 
 ## 3. 핵심 상수/함수 위치
 
-### `index.html` 인라인 — 매매 알고리즘 핵심 (모듈 아님, R1 대상 아니지만 탐색 필수)
+### `js/aio-core.js` — 매매 알고리즘 핵심 (v51.98 Phase 3 A3로 index.html 인라인에서 이관됨)
 
-> **구조적 주의(2026-07-02 진단 A3)**: 이 앱의 중심 알고리즘이 모듈이 아닌 **index.html 인라인**에 있고,
-> `js/*.js` 쪽은 `typeof computeTradingScore === 'function'` 방어 호출로 역참조한다(예: aio-core.js:3786,
-> aio-data.js:5583/15669/16252, aio-ui.js:3630). 스크립트 로딩 순서를 바꾸면(WO-9 defer 적용 시) 조용히
-> 폴백 경로로 빠지는 함정 — `_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` §7 Phase 3 A3 참조.
-
-| 항목 | line | 비고 |
-|------|-----:|------|
-| `computeTradingScore` | 22771 | 매매점수(5서브스코어+7보정, 캐시 TTL 20s). 검증 하네스 없음(진단 C3) |
-| `getScoreAdvice` | 22937 | 점수→행동 문구 매핑 |
-| `computeExecutionWindow` | 22946 | 실행 타이밍 점수(breakout/pullback/followthru/leader) |
-| `classifyMarketRegime` | 23008 | 시장 레짐 분류(UPTREND/DOWNTREND/CHOP) |
-
-### `js/aio-core.js`
+> **2026-07-02 진단 A3 해소(v51.98)**: 이 앱의 중심 알고리즘이 모듈이 아닌 index.html 인라인에 있어
+> `js/*.js` 쪽 5곳이 `typeof computeTradingScore === 'function'` 방어 호출로 역참조하던 구조적 역전을
+> 정리 — 4개 함수를 `_ldSafe`(이미 이 파일에 있던 주 의존성) 바로 뒤로 이관했다. 기존 `typeof` 방어
+> 호출(aio-core.js/aio-data.js/aio-ui.js)은 전역 함수명이라 그대로 유효(오히려 aio-core.js가 제일
+> 먼저 로드되므로 더 일찍 true가 됨). 순수 재배치 + 확정 죽은 코드 1건 삭제(computeTradingScore의
+> HY스프레드 4순위 DOM 텍스트 파싱 폴백, A5 발견) — 알고리즘 로직/가중치 자체는 무변경. 이관 전/후
+> 스냅샷 diff(다양한 mode 인자)로 동작 불변성 실측 확인. `_context/BUG-POSTMORTEM.md` P594,
+> `_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` §7 Phase 3 A3 참조.
 
 | 항목 | line | 비고 |
 |------|-----:|------|
+| `computeTradingScore` | 20068 | 매매점수(5서브스코어+7보정, 캐시 TTL 20s). 검증 하네스 없음(진단 C3, Phase 3 미착수) |
+| `getScoreAdvice` | 20236 | 점수→행동 문구 매핑 |
+| `computeExecutionWindow` | 20245 | 실행 타이밍 점수(breakout/pullback/followthru/leader) |
+| `classifyMarketRegime` | 20307 | 시장 레짐 분류(UPTREND/DOWNTREND/CHOP) |
 | `_aioMarkChartCanvases` | 313 | LightweightCharts 내부 canvas `aria-hidden` 처리 |
 | `_aioRegisterTimer` | 449 | 타이머 레지스트리, 중복 등록 정리 |
 | `_aioPageBus` | 481 | 페이지 이벤트 라우팅 허브 |
@@ -125,33 +125,33 @@ target_lines: index.html 32065 + js modules 60777
 | `getOperationalHealth` | 18440 | 운영/SW/API/cache/freshness/pipeline 자체 진단 |
 | **DATA_SNAPSHOT** | 18620 ~ 18898 | 시장 데이터 SSOT 리터럴. `/data-refresh` 수동 카테고리(ISM·AAII·KR 지표 등)의 저장소이기도 함 |
 | `applyDataSnapshot` | 19600 | snapshot → DOM, 키별 오류 격리 |
-| `_ldSafe` | 20046 | liveData + snapshot fallback |
+| `_ldSafe` | 20047 | liveData + snapshot fallback |
 | `getLiveCoverage` | 18108 | core live quote coverage |
-| `destroyPageCharts` | 22554 | 페이지 이탈 차트 정리 |
-| `showPage` | 23026 | SPA 페이지 전환 |
-| `_calcPortfolioVaR` | 23417 | 보수적 historical VaR |
+| `destroyPageCharts` | 22841 | 페이지 이탈 차트 정리 |
+| `showPage` | 23313 | SPA 페이지 전환 |
+| `_calcPortfolioVaR` | 23704 | 보수적 historical VaR |
 
-#### evidence-first 레이어 (`js/aio-core.js`, 21100~22400대 밀집)
+#### evidence-first 레이어 (`js/aio-core.js`, 21387~22687대 밀집)
 
 | 항목 | line | 비고 |
 |------|-----:|------|
-| `recordCrossSourceQuote` | 20248 | source-family별 시세 기록(R196) |
-| `getCrossSourceQuoteValidation` | 20286 | 교차 소스 불일치 검증 |
-| `getDataTruthAudit` | 20511 | DataTruthGate 감사(R195) |
-| `getMarketSituationReferenceSnapshot` | 20877 | 현재 시장 레짐 기준 스냅샷 |
-| `collectCritical10MarketContentInventory` | 20902 | critical-10 가시 콘텐츠 전수 인벤토리 |
-| ~~`getCritical10ContentEvidenceMatrix`~~ | 21111 | **`_deadV49112_getCritical10ContentEvidenceMatrix`로 개명 — v50.44 폐기, `getAllPageContentEvidenceMatrix`가 후속** |
-| `_buildContracts` | 21343 | 22페이지 계약 빌더 |
-| `AIO_PAGE_CONTRACTS` | 21365 | window 노출(빌더 결과 캐시) |
-| `applyPageContractCompatibility` | 21378 | 계약→호환 맵 파생 |
-| `AIO_SOURCE_ADAPTER_REGISTRY` | 21491 | 소스 어댑터 레지스트리 |
-| `AIO_TEXT_SURFACE_CONTRACTS` | 21558 | 텍스트 표면 계약(R204) |
-| `applyTextSurfaceHygiene` / `getTextSurfaceAudit` | 21695 / 21725 | 텍스트 표면 위생 적용/감사 |
-| `buildEvidenceStore` | 21846 | evidenceId 분류 스토어 |
-| `getAllPageContentEvidenceMatrix` | 22065 | 22페이지 전체 증거 매트릭스(현행 단일 소스) |
-| `getTradingDecisionInputEvidence` | 22165 | 트레이딩 결정 증거 게이트(R201) |
-| `getTradingDecisionLogicAudit` | 22187 | 트레이딩 로직 감사 |
-| `runEvidenceDeploymentGate` | 22322 | **배포 게이트 — 계약 기대값 기반 strict/warn 산출** |
+| `recordCrossSourceQuote` | 20535 | source-family별 시세 기록(R196) |
+| `getCrossSourceQuoteValidation` | 20573 | 교차 소스 불일치 검증 |
+| `getDataTruthAudit` | 20798 | DataTruthGate 감사(R195) |
+| `getMarketSituationReferenceSnapshot` | 21164 | 현재 시장 레짐 기준 스냅샷 |
+| `collectCritical10MarketContentInventory` | 21189 | critical-10 가시 콘텐츠 전수 인벤토리 |
+| ~~`getCritical10ContentEvidenceMatrix`~~ | 21398 | **`_deadV49112_getCritical10ContentEvidenceMatrix`로 개명 — v50.44 폐기, `getAllPageContentEvidenceMatrix`가 후속** |
+| `_buildContracts` | 21630 | 22페이지 계약 빌더 |
+| `AIO_PAGE_CONTRACTS` | 21652 | window 노출(빌더 결과 캐시) |
+| `applyPageContractCompatibility` | 21665 | 계약→호환 맵 파생 |
+| `AIO_SOURCE_ADAPTER_REGISTRY` | 21778 | 소스 어댑터 레지스트리 |
+| `AIO_TEXT_SURFACE_CONTRACTS` | 21845 | 텍스트 표면 계약(R204) |
+| `applyTextSurfaceHygiene` / `getTextSurfaceAudit` | 21982 / 22012 | 텍스트 표면 위생 적용/감사 |
+| `buildEvidenceStore` | 22133 | evidenceId 분류 스토어 |
+| `getAllPageContentEvidenceMatrix` | 22352 | 22페이지 전체 증거 매트릭스(현행 단일 소스) |
+| `getTradingDecisionInputEvidence` | 22452 | 트레이딩 결정 증거 게이트(R201) |
+| `getTradingDecisionLogicAudit` | 22474 | 트레이딩 로직 감사 |
+| `runEvidenceDeploymentGate` | 22609 | **배포 게이트 — 계약 기대값 기반 strict/warn 산출** |
 
 > news surface 계약(`AIO_NEWS_SURFACE_CONTRACTS` / `buildNewsSurfaceModel` / `getNewsSurfaceAudit`)은 `js/aio-data.js`에 위치(아래 표).
 
@@ -181,7 +181,7 @@ target_lines: index.html 32065 + js modules 60777
 | `buildNewsSurfaceModel` / `getNewsSurfaceAudit` | 10376 / 10475 | 뉴스 표면 모델/감사 |
 | `_aioGetCurrentHomeWeeklyNews` | 10825 | HOME 고정 뉴스 freshness filter |
 | `renderHomeFeed` | 10837 | 홈 뉴스 렌더 |
-| `computeNewsSentimentScore` / `computeNewsRiskSignals` | 11702 / 11736 | 뉴스 감성/리스크 — index.html의 computeTradingScore가 소비 |
+| `computeNewsSentimentScore` / `computeNewsRiskSignals` | 11702 / 11736 | 뉴스 감성/리스크 — js/aio-core.js의 computeTradingScore가 소비(v51.98 Phase 3 A3로 이관, §3) |
 | `fetchOneFeed` | 11859 | 단일 피드 fetch |
 | `fetchAllNews` | 12191 | 뉴스 전체 수집 |
 | `fetchLiveQuotes` | 13212 | live quote pipeline + core coverage guard + cross-source 기록 |
@@ -237,7 +237,7 @@ target_lines: index.html 32065 + js modules 60777
 | `chatSend` | 5160 | 컨텍스트별 AI 전송 |
 | `fundamentalSearch` | 6559 | 기업 분석 수집/렌더 |
 | `_aioBuildDiversifiedRecommendationRows` / `_aioRunScreenerQuery` / `_formatScreenerResultPrompt` | 1890~1892 (alias) | **실제 정의는 aio-data.js**(17286/17352/17486) — 로드순서 의존 alias |
-| `_fmtNum` | 6443 (alias) | **실제 정의는 aio-core.js:23815** |
+| `_fmtNum` | 6443 (alias) | **실제 정의는 aio-core.js:24102** |
 | `_renderFundHeader`/`_renderFundFinancials`/`_renderFundEarnings`/`_renderFundNews` | 6866~6874 (alias) | **실제 정의는 aio-ui.js**(§ 위 표) — 4개 모두 로드순서 의존 alias |
 
 ---
@@ -246,15 +246,15 @@ target_lines: index.html 32065 + js modules 60777
 
 | 작업 | 우선 파일/범위 |
 |------|----------------|
-| R1 버전 동기화 | `index.html:10`(title), `index.html:5237`(badge), `js/aio-core.js:17670`(APP_VERSION), `version.json`, `sw.js:8`(SW_VERSION), `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md` + `index.html:12461~12463`·`15938`·`28557` 캐시버스터 `?v=` (반드시 `node scripts/bump-version.mjs <버전>`) |
-| 매매 알고리즘 수정 | `index.html:22771~23100`(computeTradingScore/getScoreAdvice/computeExecutionWindow/classifyMarketRegime) — **인라인, 모듈 아님**(§3 경고 참조) |
-| 배포 게이트/evidence 감사 | `js/aio-core.js:20240~22400`(contracts→evidence→trading→deployment gate) |
-| 데이터 진실성/교차소스 | `js/aio-core.js:20248~20520` |
+| R1 버전 동기화 | `index.html:10`(title), `index.html:5237`(badge), `js/aio-core.js:17670`(APP_VERSION), `version.json`, `sw.js:8`(SW_VERSION), `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md` + `index.html:12461~12463`·`15941`·`28287` 캐시버스터 `?v=` (반드시 `node scripts/bump-version.mjs <버전>`) |
+| 매매 알고리즘 수정 | `js/aio-core.js:20068~20335`(computeTradingScore/getScoreAdvice/computeExecutionWindow/classifyMarketRegime) — **v51.98 Phase 3 A3로 모듈화됨**(§3 참조), `_ldSafe` 바로 뒤 |
+| 배포 게이트/evidence 감사 | `js/aio-core.js:20527~22687`(contracts→evidence→trading→deployment gate) |
+| 데이터 진실성/교차소스 | `js/aio-core.js:20535~20807` |
 | DATA_SNAPSHOT 갱신 | `js/aio-core.js:18620~18898`, freshness/pipeline audit 18108~18440 |
 | 뉴스 선별/렌더 | `js/aio-data.js:8404~10900` |
 | RSI/기술지표 (서버·클라 이중 구현 — 진단 C1) | 서버 `scripts/fetch-data.mjs:625`(Cutler) vs 클라 `js/aio-core.js:16586`(Wilder) |
 | 팩터 랭킹/백테스트 (라이브·서버 모델 불일치 — 진단 C2) | 라이브 `js/aio-data.js` `_aioComputeFactorRanks`(재확인 필요) vs 서버 `scripts/fetch-data.mjs:703` `backtestFactors` |
-| 페이지 전환/init 가드 | `js/aio-core.js:22554~23026`(destroyPageCharts/showPage), 각 page init 함수 |
+| 페이지 전환/init 가드 | `js/aio-core.js:22841~23313`(destroyPageCharts/showPage), 각 page init 함수 |
 | sentiment/breadth 차트 | `js/aio-ui.js:14~900` |
 | LLM 모델/쿼터 | `js/aio-ui.js:1551~1780` |
 | Claude 채팅/웹검색/preflight | `js/aio-chat.js:2320~5160` |
@@ -263,7 +263,7 @@ target_lines: index.html 32065 + js modules 60777
 | 옵션 분석 DOM(폐기 shell) | `index.html:10333~10343` |
 | 한국 페이지 DOM | `index.html:10526~11699` |
 | browser unit tests (CI 헤드리스 상설화됨, Phase 2 B5 — `.github/workflows/ci.yml` `headless-tests` job, report-only) | `js/aio-tests.js`, 로더는 `js/aio-core.js` 내(`AIO.loadTests()`), CI 러너는 `scripts/ci-headless-tests.mjs` |
-| glossary | `js/aio-glossary.js`, `index.html:28557` |
+| glossary | `js/aio-glossary.js`, `index.html:28287` |
 | 데이터 파이프라인(서버) | `scripts/fetch-data.mjs` — Yahoo 1차 + 핵심 ETF 20종 한정 Twelve Data 2차 폴백(Phase 2 B1, `TWELVE_DATA_API_KEY` 필요, 지수/선물/FX/KR 확장은 미검증 스코프 제외), `getScreenerSymbols()`는 이제 `public-data/screener-universe.json`을 직접 읽음(Phase 2 B6, `scripts/sync-screener-universe.mjs`가 `js/aio-data.js`의 `SCREENER_DB`에서 생성·CI가 drift 검증 — 정규식 파싱 제거 완료. 클라 비동기 부팅 로드는 Phase 3 A2로 보류) |
 | FRED_SERIES(서버) | `scripts/fetch-data.mjs:44` — Phase 2 B2(v51.97)로 `housingStarts`(HOUST)/`retailSales`(RSAFS)/`usWageGrowth`(CES0500000003) 추가, `fetchFred()`에 `scale`(단위 변환)·`mom_pct`(전월비%) kind 신설. `consConf`(Conf. Board)는 의도적 제외 — FRED 무료 시리즈 없음, UMCSENT(미시간대)와 혼동 금지(R274/P593). 한국 CPI(FRED 릴레이)는 보류(신선도 미검증 + KOSIS 직접경로 우위) |
 
