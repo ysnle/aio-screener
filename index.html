@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v51.98 — 올인원 투자 터미널</title>
+  <title>AIO Screener v51.99 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5234,7 +5234,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.98</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v51.99</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12458,9 +12458,9 @@ button[data-filter-active="true"] {
   }); // DOMContentLoaded (P556/R247)
   </script>
   <!-- Script blocks -->
-  <script src="./js/aio-core.js?v=51.98"></script>
-  <script src="./js/aio-data.js?v=51.98"></script>
-  <script src="./js/aio-ui.js?v=51.98"></script>
+  <script src="./js/aio-core.js?v=51.99"></script>
+  <script src="./js/aio-data.js?v=51.99"></script>
+  <script src="./js/aio-ui.js?v=51.99"></script>
 
   <script>
 
@@ -14243,6 +14243,10 @@ function renderWatchlistContent() {
 
 // 포트폴리오 페이지 진입 시 워치리스트도 렌더
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: wrapped in DOMContentLoaded (P556/R247 template) — _aioPageBus.register is a
+// bare top-level call, which would throw before js/aio-core.js has defined it once that script is
+// `defer`red. DOMContentLoaded always fires after all deferred scripts have run.
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-portfolio-watchlist-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'portfolio') {
     try { refreshWatchlistUI(); } catch(err) { _aioLog('warn', 'init', 'Watchlist init error: ' + (err && err.message || err)); }
@@ -14254,6 +14258,7 @@ _aioPageBus.register('html-portfolio-watchlist-live', 'aio:liveQuotes', function
   if (pfPage && pfPage.classList.contains('active')) {
     try { renderWatchlistContent(); } catch(err) {}
   }
+});
 });
 
 // Build portfolio context string for AI
@@ -14315,6 +14320,8 @@ function getWatchlistContextForAI() {
 
 // Hook: refresh portfolio on live data update
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿) — 아래 참조.
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-portfolio-render-live', 'aio:liveQuotes', function() {
   const pfPage = document.getElementById('page-portfolio');
   if (pfPage && pfPage.classList.contains('active')) { renderPortfolio(); }
@@ -14334,6 +14341,7 @@ _aioPageBus.register('html-portfolio-render-shown', 'aio:pageShown', function(e)
       } catch(_pfe) {}
     }, 500);
   }
+});
 });
 
 // ── v29.1: Default suggestion chips — 심도 높은 전문 질문 ──────────────
@@ -15938,7 +15946,7 @@ function _getV48IntegratedContext(pageFocus) {
 }
 
   </script>
-<script src="./js/aio-chat.js?v=51.98"></script>
+<script src="./js/aio-chat.js?v=51.99"></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17677,6 +17685,8 @@ function updateWtiBrentSpread() {
 
 // Technical page init
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿) — 이 블록 끝(html-tech-macro-live)까지.
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-technical-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'technical') {
     setTimeout(function() {
@@ -17728,6 +17738,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
   if (breadthPage && breadthPage.classList.contains('active')) {
     updateWSAnalysis();
   }
+});
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -18909,6 +18920,8 @@ function initKoreaHome() {
 }
 
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-kr-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'kr-home') initKoreaHome();
   if (e.detail === 'kr-supply') initKoreaSupply();
@@ -18925,6 +18938,7 @@ _aioPageBus.register('html-kr-live', 'aio:liveQuotes', function() {
   if (pid === 'kr-themes') initKoreaThemes();
   if (pid === 'kr-macro') initKoreaMacro();
   if (pid === 'kr-technical') initKoreaTechnical();
+});
 });
 
 var _krSupplyRetry = 0;
@@ -23599,12 +23613,15 @@ function updateEntryChecklist() {
 
 // aio:liveQuotes 이벤트에서 체크리스트 + 브레드쓰 바 업데이트
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-signal-checklist-live', 'aio:liveQuotes', function() {
   if (document.getElementById('page-signal') && document.getElementById('page-signal').classList.contains('active')) {
     updateEntryChecklist();
     // v42.7: signal 페이지의 시장 폭 바(bb-5sma-bar 등) 갱신 — breadth 페이지 미방문 시에도 최신값 표시
     if (typeof updateBreadthBars === 'function') try { updateBreadthBars(); } catch(e) {}
   }
+});
 });
 
 function initSignalDashboard() {
@@ -23913,6 +23930,8 @@ function _updateAllConclusionBars() {
 
 // Signal page live update hook
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
   var sigPage = document.getElementById('page-signal');
   if (sigPage && sigPage.classList.contains('active')) {
@@ -23924,6 +23943,7 @@ _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
   }
   // v42.1: 어떤 페이지에서든 마켓 펄스 업데이트
   try { updateMarketPulse(); } catch(e) {}
+});
 });
 
 
@@ -24124,11 +24144,14 @@ function updateFxBondPage() {
 
 // FX/Bond page live update hook
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-fxbond-live', 'aio:liveQuotes', function() {
   var fxPage = document.getElementById('page-fxbond');
   if (fxPage && fxPage.classList.contains('active')) {
     updateFxBondPage();
   }
+});
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -24916,12 +24939,15 @@ async function loadRiskRadar() {
 
 // 리스크 레이더 페이지 진입 시 자동 로드 (v48.57: briefing 제거 — DOM 미존재 불필요 실행)
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-fundamental-risk-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'fundamental') {
     setTimeout(function() {
       if (typeof loadRiskRadar === 'function') loadRiskRadar();
     }, 200);
   }
+});
 });
 
 async function _fetchEarningsCalendarFMP(body, fmpKey) {
@@ -24988,6 +25014,8 @@ async function _fetchEarningsCalendarFMP(body, fmpKey) {
 var _fundInitDone = false;
 // v41.5: fundamental 페이지 첫 방문 시 초기화
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-fundamental-init-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'fundamental' && !_fundInitDone) {
     _fundInitDone = true;
@@ -24998,6 +25026,7 @@ _aioPageBus.register('html-fundamental-init-shown', 'aio:pageShown', function(e)
       try { updateFxBondPage(); updateFxDynamicComments(); } catch(e) {}
     }, 200);
   }
+});
 });
 
 // Also init on page load if fundamental is active
@@ -27954,6 +27983,8 @@ function renderSubThemesGrid() {
 //  THEMES PAGE INIT & EVENT WIRING
 // ═══════════════════════════════════════════════════════════════
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿) — 아래 html-themes-live까지.
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'themes') {
     setTimeout(function() {
@@ -27990,6 +28021,7 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
       showSubThemeDetail(sp.dataset.currentSubTheme);
     }
   }
+});
 });
 
 // themes 기본 칩만 업데이트 (메인 CHAT_CONTEXTS['themes']는 동적 함수 유지)
@@ -28262,6 +28294,8 @@ function initOptionsPage() {
 
 // Options 페이지 이벤트 리스너
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-options-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'options') {
     try { initOptionsPage(); } catch(err) { _aioLog('warn', 'init', 'Options pageShown error: ' + (err && err.message || err)); }
@@ -28272,6 +28306,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   if (optPage && optPage.classList.contains('active')) {
     try { initOptionsPage(); } catch(err) {}
   }
+});
 });
 // ═══════════════ END OPTIONS ═══════════════
 
@@ -28284,7 +28319,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
   <button data-action="_aioHideParent" data-pass-el="1" style="background:none;border:none;color:var(--data-purple);cursor:pointer;font-size:14px;padding:0 8px;">&times;</button>
 </div>
 
-<script src="./js/aio-glossary.js?v=51.98"></script>
+<script src="./js/aio-glossary.js?v=51.99"></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -28562,7 +28597,11 @@ function updateGmoFreshness() {
 
 // Initialize GMO on page load + live data events
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: register() 호출만 DOMContentLoaded 래핑(P556/R247 템플릿) — 아래
+// setTimeout(renderGmoTable, 2000)는 2초 지연이라 defer 완료 후에만 실행되므로 원래도 안전.
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-gmo-live', 'aio:liveQuotes', renderGmoTable);
+});
 setTimeout(renderGmoTable, 2000);
 
 // v50.5: 꼬리위험 지표(SKEW/MOVE) live→data-snap 브릿지.
@@ -28591,7 +28630,11 @@ function _aioBridgeVolIndicesLive() {
     _bridge('^VVIX', 'vvix', 'vvix', 2);
   } catch (e) { if (window._aioLog) window._aioLog('warn', 'render', 'vol-indices bridge: ' + (e && e.message)); }
 }
+// v51.99/Phase3[A2]: register() 호출만 DOMContentLoaded 래핑(P556/R247 템플릿) — 아래
+// setTimeout(_aioBridgeVolIndicesLive, 2200)은 2.2초 지연이라 defer 완료 후에만 실행되므로 원래도 안전.
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-vol-indices-live', 'aio:liveQuotes', _aioBridgeVolIndicesLive);
+});
 setTimeout(_aioBridgeVolIndicesLive, 2200);
 window._aioBridgeVolIndicesLive = _aioBridgeVolIndicesLive;
 
@@ -31033,14 +31076,18 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 }
 
 // ── 주기적 업데이트 훅 ── v48.91: 타이머 레지스트리 등록
-window._globalUpdateInterval = _aioRegisterTimer('globalUpdate', function() {
-  checkPriceAlerts();
-  applyA11yIndicators();
-}, 30000); // 30초마다 가격 알림 체크 + 접근성 아이콘 갱신
+// v51.99/Phase3[A2]: _aioRegisterTimer(js/aio-core.js) 호출을 아래 기존 DOMContentLoaded 블록
+// 안으로 이동(P556/R247 템플릿) — 이전엔 최상위 무방비 호출이라, defer 적용 시 예외가 나면 바로
+// 다음 줄의 beforeunload 리스너 등록과 이 스크립트 블록의 나머지 전부가 등록되지 않는 가장 심각한
+// 연쇄 실패 지점이었다(가격알림·접근성 인디케이터·McClellan 오실레이터·BOK 회의일 표시 전부 영향).
 window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); // v48.91: 언로드 시 전체 정리
 
 // ── 초기화 ──
 document.addEventListener('DOMContentLoaded', function() {
+  window._globalUpdateInterval = _aioRegisterTimer('globalUpdate', function() {
+    checkPriceAlerts();
+    applyA11yIndicators();
+  }, 30000); // 30초마다 가격 알림 체크 + 접근성 아이콘 갱신
   renderPriceAlerts();
   applyA11yIndicators();
   updateMcClellanUI();
@@ -31783,8 +31830,11 @@ function aiChipClick(el) {
 
 // showPage 연결: 페이지 전환 시 AI 맥락 자동 업데이트
 // v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-ai-panel-shown', 'aio:pageShown', function(e) {
   if (e && e.detail) updateAIPanelContext(e.detail);
+});
 });
 </script>
 

@@ -1414,7 +1414,16 @@ const CHAT_CONTEXTS = {
 };
 
 if (typeof window !== 'undefined') {
-  window.CHAT_CONTEXTS = CHAT_CONTEXTS;
+  // v51.99/Phase3[A2]: was a plain overwrite, unlike every `window.AIO = window.AIO || {}` merge
+  // elsewhere in this codebase. index.html inline blocks add page-specific contexts (home/
+  // market-news/options exist ONLY there, plus enhanced technical/macro/themes/... overrides) via
+  // `window.CHAT_CONTEXTS = window.CHAT_CONTEXTS || {}` + per-key assignment — that pattern is
+  // already order-independent. This was the one order-DEPENDENT half: today aio-chat.js loads
+  // before those inline blocks so the accident-of-ordering worked, but it would silently discard
+  // everything index.html built if aio-chat.js ever loaded after them (e.g. under `defer`).
+  // Merging makes this correct regardless of load order — whatever's already in
+  // window.CHAT_CONTEXTS (index.html's page-specific entries) wins over this file's generic base.
+  window.CHAT_CONTEXTS = Object.assign({}, CHAT_CONTEXTS, window.CHAT_CONTEXTS || {});
   window._chatMultiTurnStats = window._chatMultiTurnStats || {
     trimEvents: 0,
     summaryInsertions: 0,

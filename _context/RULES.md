@@ -6,6 +6,12 @@ target_version: v51.80
 
 ---
 
+## R275. A shared global object populated by multiple files must always be merged, never plainly overwritten — even if today's load order happens to make it safe (v51.99)
+
+- When more than one script file writes to the same `window.X` global (a shared registry/context object that different modules extend with their own keys), every writer must merge (`window.X = window.X || {}` then add/overwrite specific keys, or `Object.assign`) — never `window.X = freshObjectLiteral`. A plain overwrite silently discards whatever any other file already put there, and whether that data loss actually happens depends entirely on script load order — which can change for reasons that have nothing to do with the object itself (a `defer` conversion, a bundler reordering imports, a new script inserted between two existing ones).
+- `window.AIO` already gets this right everywhere (~25 writer sites across all modules, always `window.AIO = window.AIO || {}`). Audit any other shared global the same way before assuming "current order happens to work" is good enough.
+- See P595/BUG-POSTMORTEM.md: `js/aio-chat.js`'s `window.CHAT_CONTEXTS = CHAT_CONTEXTS` was a plain overwrite that only worked because aio-chat.js happened to load before the index.html inline blocks that extend `CHAT_CONTEXTS` with page-specific entries — found while auditing for Phase 3 [A2] script-defer readiness, where that assumption would have broken.
+
 ## R274. A live-fetch binding introduced for an existing labeled/thresholded field must fetch the exact same named indicator the label represents — not a same-topic substitute (v51.97)
 
 - When wiring live data into a field that already has a UI label, threshold, or manually-sourced history (e.g. "Conf. Board", "100↑=낙관/80↓=침체"), the fetched series must be THAT exact named index — not a different organization's same-topic survey chosen just because it happens to be the one a free API offers. "Consumer sentiment" is not one indicator: University of Michigan Consumer Sentiment and The Conference Board Consumer Confidence Index are different surveys, different base years, different scales, and diverge meaningfully in level.

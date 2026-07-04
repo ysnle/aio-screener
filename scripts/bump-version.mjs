@@ -201,16 +201,30 @@ try {
 }
 
 // ── 6. _context/CLAUDE.md ────────────────────────────────────────────────────
+// P596: this used to be a blanket replaceAll(prevVer, newVer) across the WHOLE file — which also
+// silently rewrote any historical reference to the old version elsewhere in the doc (e.g. a table
+// row like "GATE-BASELINE-2026-07-03.md | v51.91→v51.96 ...") into a false "→v51.98"-style claim
+// on every single bump. Scope this to the "현재 버전" line specifically, exactly like the root
+// CLAUDE.md patch above — fall back to a whole-file replace only if that precise line isn't found
+// (and warn loudly, since that fallback is exactly what silently corrupted history before).
 console.log('6. _context/CLAUDE.md 패치...');
 try {
   let ctxMd = read('_context/CLAUDE.md');
-  const ctxOccurrences = (ctxMd.match(new RegExp(escRe(prevVer), 'g')) || []).length;
-  if (ctxOccurrences === 0) {
-    errors.push('_context/CLAUDE.md: 버전 문자열 미발견');
-  } else {
-    ctxMd = replaceAll(ctxMd, prevVer, newVer);
+  const ctxPattern = new RegExp(`(\\*\\*현재 버전\\*\\*:\\s*)${escRe(prevVer)}\\b`);
+  if (ctxPattern.test(ctxMd)) {
+    ctxMd = ctxMd.replace(ctxPattern, `$1${newVer}`);
     write('_context/CLAUDE.md', ctxMd);
-    console.log(`   ✓ _context/CLAUDE.md (${ctxOccurrences}개 치환)`);
+    console.log('   ✓ _context/CLAUDE.md (현재 버전 줄만 치환)');
+  } else {
+    const ctxOccurrences = (ctxMd.match(new RegExp(escRe(prevVer), 'g')) || []).length;
+    if (ctxOccurrences === 0) {
+      errors.push('_context/CLAUDE.md: 버전 문자열 미발견');
+    } else {
+      console.log(`   ⚠ "현재 버전" 줄 패턴 미발견. ${ctxOccurrences}개 전체 치환 시도 중 (히스토리 텍스트 오염 위험 — 결과 수동 확인 권장)...`);
+      ctxMd = replaceAll(ctxMd, prevVer, newVer);
+      write('_context/CLAUDE.md', ctxMd);
+      console.log(`   ✓ _context/CLAUDE.md (전체 ${ctxOccurrences}개 치환 — 수동 검토 필요)`);
+    }
   }
 } catch (e) {
   errors.push(`_context/CLAUDE.md: ${e.message}`);
