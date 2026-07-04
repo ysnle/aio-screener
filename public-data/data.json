@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-04T21:13:52.362Z",
+  "generatedAt": "2026-07-04T22:13:03.686Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -31,10 +31,13 @@
   "serverNewsScored": true,
   "newsScoreMin": 36,
   "newsScoreMax": 56,
-  "elapsedMs": 2494,
+  "elapsedMs": 2402,
   "schema": 1,
   "marketAnalysisOk": true,
-  "fmpHasKey": true
+  "fmpHasKey": true,
+  "fmpOk": false,
+  "fmpCount": 0,
+  "fmpPlanError": true
  },
  "quotes": [
   {
@@ -121,36 +124,36 @@
   {
    "symbol": "^TNX",
    "regularMarketPrice": 4.4849997,
-   "regularMarketChangePercent": 0,
-   "regularMarketPreviousClose": 4.4849997,
-   "chartPreviousClose": 4.4849997,
+   "regularMarketChangePercent": 2.584622598353168,
+   "regularMarketPreviousClose": 4.372,
+   "chartPreviousClose": 4.372,
    "_pctSource": "chart-meta-fallback",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^TYX",
    "regularMarketPrice": 4.9849997,
-   "regularMarketChangePercent": 0,
-   "regularMarketPreviousClose": 4.9849997,
-   "chartPreviousClose": 4.9849997,
+   "regularMarketChangePercent": 2.487658305921063,
+   "regularMarketPreviousClose": 4.864,
+   "chartPreviousClose": 4.864,
    "_pctSource": "chart-meta-fallback",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^FVX",
    "regularMarketPrice": 4.23,
-   "regularMarketChangePercent": 0,
-   "regularMarketPreviousClose": 4.23,
-   "chartPreviousClose": 4.23,
+   "regularMarketChangePercent": 2.421307506053282,
+   "regularMarketPreviousClose": 4.13,
+   "chartPreviousClose": 4.13,
    "_pctSource": "chart-meta-fallback",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^IRX",
    "regularMarketPrice": 3.668,
-   "regularMarketChangePercent": 0,
-   "regularMarketPreviousClose": 3.668,
-   "chartPreviousClose": 3.668,
+   "regularMarketChangePercent": 0.13650013650014572,
+   "regularMarketPreviousClose": 3.663,
+   "chartPreviousClose": 3.663,
    "_pctSource": "chart-meta-fallback",
    "_source": "live:yahoo-gh"
   },
@@ -453,8 +456,8 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 63307.52,
-   "regularMarketChangePercent": 1.2204501629004187,
+   "regularMarketPrice": 63180.03,
+   "regularMarketChangePercent": 1.0166103158922282,
    "regularMarketPreviousClose": 62544.19921875,
    "chartPreviousClose": 62544.19921875,
    "_pctSource": "ohlcv-daily",
@@ -462,8 +465,8 @@
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1789.19,
-   "regularMarketChangePercent": 1.8600043184563448,
+   "regularMarketPrice": 1784.6,
+   "regularMarketChangePercent": 1.598691981688461,
    "regularMarketPreviousClose": 1756.5186767578125,
    "chartPreviousClose": 1756.5186767578125,
    "_pctSource": "ohlcv-daily",
@@ -934,6 +937,22 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
+   "title": "Northern Star Meets FY26 Gold Guidance and Advances KCGM Expansion - The Globe and Mail",
+   "link": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxNY0ZLZTN1MlM1d0VpT1hSSWJCTlpxTEFmTVh6MV8zaWZkWXc1VTBUczMwR1V3TXRRQllTeWJfc1luckRjQWdkc0QxeGJGQnlXQ0liN1JjMHRhNUN4NnZ0LWJSWkVjTkZxSWNaOUNZSDlyTXNJS0Q4aGo1SjZLbmNvZ09TOWJtRml0VmkyclVzT29ySmYwU1hfZ0s1d2xHaEVJMTFBMEdEWnNoWlRhdy0ySFdQNXZZTkdHUTVBR05HeVNVNTN1S0ZDVk1reHQ1WV9GaEp2Sk1BVUotTXZfVE03Zg?oc=5",
+   "source": "The Globe and Mail",
+   "pubDate": "Thu, 02 Jul 2026 23:14:52 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 46,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | fx-bonds-commodities+8",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
    "title": "OR Royalties Affirms Guidance After Barnat Pit Wall Movement at Canadian Malartic - The Globe and Mail",
    "link": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxPWnNVdm96cnk5WDF6WDVuT0J1dXVjTFBFS0x5RXdSZDhjaGxEazNLS0t6MFRvbnFJWDRLQlNFekpzamE4VFVzTjljak13ZFJicFB0bjR4b1ZzMkhrc3AxUmFrNGN4cWlmNU13Uk93cGxYZHBNUWVqMTlIYTU1YmFQOG1oVVBOenQwUnNubUVGNlFWZnhrSV9GU3JVQzM5Y09scFBnUmJERTNJbHdvZGt6UDE1dldDNmV1LS1xdW1hWTE5T0N2eGMyZkJ1YVhTTm4xamVuY2VBdnRfUGliNElfU0NJZHZTQlZ6dlQ4Z3VoZ3lZSGFk?oc=5",
    "source": "The Globe and Mail",
@@ -1030,6 +1049,22 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
+   "title": "Oil prices stable as US-Iran peace efforts hold - whbl.com",
+   "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNLUd5NWpYZTN0VHlMYk5tVENkR2I5TUdiSk9femZQaS1OSXhZWlZ6cUlIcElPeFVWX1dEWXV2THUyeUVXZXpPOW1pTFdocUdpVVRwUXBZQzNJcE1Kd3l3M2JTX2tYcnRyXzNvUlZ1RUZ6ZGxReE5JMTBkcTFuOUJ3SkFhM3R4X05Ec21jTWFqcDFpeHhhVS1QT0FpdnpRblNiMFB3?oc=5",
+   "source": "whbl.com",
+   "pubDate": "Fri, 03 Jul 2026 13:27:26 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
    "title": "Iran opens oil sales talks with Japan after U.S. sanctions easing - AnewZ",
    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPRnpvN1JRUVVvd3p3UFBwOU9fRWJ4TW5fbTJOMmdkOFlkbGlhejFYRDdXY2g5ZXRkbHN1ZVd3TWpzVzBSSmpvR21hTDA1a255ZHhqMEMwcnZic3JFN3dYSC1PblFOLWFLT1Q3dGl4MmlLZklNZElsRnE0UEVxbVczMGtTUld4bjB4cUJLc3FxRm9JdTdEME1udGpIQjI0Rlk?oc=5",
    "source": "AnewZ",
@@ -1088,22 +1123,6 @@
    "score": 42,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14",
    "feedSource": "Google News - US markets",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
-   "title": "Unemployment rate fell, but participation rate hit a five-year low, market reprices Fed rate cut bets - odaily.news",
-   "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5nT1lqclBUdWowdGdZTGZWT1Iwc2dTM1ZHZjhPWU5hWjZ5Z1h2cG9uYzl4VjVzbXFhVzluMGdDazNETW96aENmaWZwVWRlenpt?oc=5",
-   "source": "odaily.news",
-   "pubDate": "Fri, 03 Jul 2026 04:43:14 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14",
-   "feedSource": "Google News - FX/Bonds",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-02T23:00:00.000Z",
    "newsCycleEnd": "2026-07-03T23:00:00.000Z",
@@ -1190,6 +1209,22 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
+   "title": "S&P 500 Slips as Chip Sell-Off Tests AI Rally - VT Markets",
+   "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPMmpkX3ZaM0tRMTVtWVV2cVFYczFlN2x0eElJcnFPei1SMXQzbWtnRWZrOXF6cnJNQ1NyUXRoSTZFdHdScnl5TVpxSXVfX1ZSWmpFdWJsb0FrMzROcEZaTWtKOFRST2VaUUdVampmT1pkZlJEci1tSFV4b2x4ZkhSbHFsdE9SVldWX1F1emxFNHJTRFpMZkE?oc=5",
+   "source": "VT Markets",
+   "pubDate": "Fri, 03 Jul 2026 10:46:17 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 41,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
    "title": "AMD Stock Soars On Q1 Data Center Revenue Surge, Upbeat Q2 Guidance - Stocktwits",
    "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNSVhSSEpsbGhFNmUtQ3dPbUJrWkNOVXkzbUNWWHJwNXpQaUFZaEZEZ25fRGwyb0JZeDZHVWRjd1JBb3piZWV1UEtaQ1ZyZjdpcXRMcDRJZUNRSmsyV2NiSGgtV1ktX3pybnA4R2NEY3MzU2FOdF8taVlYMlplZFVLbEQ0Vk8yR1ZTd2dXcEw5S0J0NUdMdTJWbERzUWQxd0lIblpZdU5jVUg3RFF1RTlFN3c3TXQzTHd0aG93Um9oeXFfSEF5bVE?oc=5",
    "source": "Stocktwits",
@@ -1210,22 +1245,6 @@
    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPWGN1aEdJTUszeGdTTVBmeFFhZ01zdXZEdFRkTDRDUW5CTkF3TUo0dTNXX0lzLXVwcVlZbUR4UlhjQVBIcGdndlhsZ0tfVEFMcFo1azlLRTVsTTZsWE82THQ4SXo5NjNCOE9qRjBVeFd3VkxSbi1DOHI3dVdUQklvdFNaYVYwZ2otcnpDZ2laSGFDd1BYMmZqSFBB?oc=5",
    "source": "The Arkansas Democrat-Gazette",
    "pubDate": "Fri, 03 Jul 2026 06:48:00 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 3,
-   "score": 41,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13",
-   "feedSource": "Google News - US markets",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
-   "title": "S&P 500 Slips as Chip Sell-Off Tests AI Rally - VT Markets",
-   "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxQTHFoeEFfN3Z1TlZ6bWIwQnlvc1hma3BiTHdpU21NaW96YjYtal8tS1hJa3A1OTVOem9JVHJpTllVQ2g4NENHb05MWkRlYmNZaF9WenpLd2R4YjVVc2lhcmhRcnZTX0RKZDBKYm1aV1paOFhCSTBMYkYyYVJCZWRWNTRvOUpobmNJb3c?oc=5",
-   "source": "VT Markets",
-   "pubDate": "Fri, 03 Jul 2026 03:33:45 GMT",
    "topic": "macro",
    "country": "us",
    "tier": 3,
@@ -1280,6 +1299,22 @@
    "score": 38,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
    "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
+   "title": "HDL Q4 2025 Earnings: EPS of $0.10 Reported Amid Limited Disclosure - Profit Growth Outlook - dars.gov.et",
+   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOR0swZUlNTjFxWFo2cUlqekJPZFZPZDBvbmNieE9sTkVzSkd3bUpGaTA2aFZpbHVGVlpTUlY0bHZXNmtFbXBSMkdmZTFNR2xYNFVwS2Jza21vZXlyVWZFR3pHTmd1S2VfYmx5Nzc5d251QlNGOFJBQTU2LTNEZFlvOGJMbnFUaWQ0ZjYxU3lRbEd2TGJMZmYyZVdWZ1BlTE91MUU3MmtBcW8zWFNF?oc=5",
+   "source": "dars.gov.et",
+   "pubDate": "Fri, 03 Jul 2026 15:35:38 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 38,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-02T23:00:00.000Z",
    "newsCycleEnd": "2026-07-03T23:00:00.000Z",
@@ -1350,6 +1385,22 @@
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   },
   {
+   "title": "Gold on track for first weekly gain in five weeks - Sharecast.com",
+   "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNemNnZ0s1SUR6eVNuS2Q0YkxJR0xrRVJXOFBhakV3R29MOV9LcTk1Y1FDNmRRalBmMFQ0cU9MVWVvTG1lUE9OdF8yZ2U2OGo1R01tTEJEQV9TbUlFVnM4RGh3SURkUGF2Y2Mta0tuUExYM09pZG9vdGY5dl9SOXk2UC16MUtFTS1sekFNYklObF90TEZDOWo3b2xZWFR6VFVIelVIYUc2M2ZodWI5M21LMA?oc=5",
+   "source": "Sharecast.com",
+   "pubDate": "Fri, 03 Jul 2026 11:42:28 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-02T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
+  },
+  {
    "title": "State Street’s baseline scenario sees gold price as high as $5,500/oz by Q1 2027 - KITCO",
    "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOVGJQT1VCdklKWXR1ZkpSTlJOSzVIVUgxNFdpR3NpZ3d2MkVCSFZ4enFCclZBWWUybXE0bXVXTGJ5RkFEX2lRakROZnNZQUZseUN1OGYtbVAxOWVlT2J2TDMwVzljYnhMeEIxYW9lOFU4UVRMRGNmdmh0QVhJNV9rdzVZNjY2b2VmZEFlU2Vsb3kyT05JME54RWxWenlDVW50bVZDbUVpMTg2LWc3bnliWEc3TQ?oc=5",
    "source": "KITCO",
@@ -1364,60 +1415,12 @@
    "newsCycleStart": "2026-07-02T23:00:00.000Z",
    "newsCycleEnd": "2026-07-03T23:00:00.000Z",
    "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
-   "title": "Gold: Softer US data boosts safe-haven demand – ING - TMGM",
-   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNZElvNzZwaHJ6QWEzOW1UbWZFSzZqdnlodWNweDUwSGgtdlBOaGstZE9nT21zM2pYcEV4MUpKU1NzRE42M1lYaFV1bjRqNjBYaWJQcFFaZ3RiSzRXZmZkNUFYTnRyeE1OZl81WEpNWkNlNVBXS2xieTNlRTV0ZkM0d2dwYXpaeEZsdnoyUDRmM1dNUWhFSGI5cE1INDF3dldyRzctRmJUc3dOQ3Vab0JlcGtxYnBndzcy?oc=5",
-   "source": "TMGM",
-   "pubDate": "Fri, 03 Jul 2026 08:49:50 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 36,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
-   "title": "Gold and Silver ETFs Rise After NFP as Metals ETFs Regain Focus - EBC Financial Group",
-   "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE9UTDBfOUlxUEx6WUlMT2hqS1E5Vkw1b1V1REhsZS1rTFE5RjUwQnQxVGtIdlFRTnZvUzBPRGNKbllqN2lYcDFCdWtLYW1pc0JvcXNMaTVOckx4MDE5UGlXM3RFUWt0Vzc0MVNJZmdfcEJRZw?oc=5",
-   "source": "EBC Financial Group",
-   "pubDate": "Fri, 03 Jul 2026 04:13:43 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 36,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
-  },
-  {
-   "title": "Gold Price Forecast: US Non-Farm Payrolls Miss Expectations, Gold Surges Over $100, Can the Bull Run Continue? - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxONFA2aG5zQTl5NzU5M2lKcFJLN1ZlS2ZIUVA0ZnN1YVZFYTJEMHJ1WDI1ZmdnbzRScFZQdEY5dmNmMXF4SS1yM3pVb3FGR2FIYVVpRG5CNloyM1BmZXB6YUJpWTA3RDRpWGhWN3pEUTRzM3Z0cDFqXzhnenI3RmJnZFczcWl2Z1haMFdWbXN1bU5WV0ZpRHZOR3dVeTRPVi1oZERLTEpUSXVwMm1vd2x3NW5IWExjUWcwak9MRS1YbDNIUmZlbVpiemZvalBwNGMyeTY2bmN3SXBuS1FDdWphQ1FHb0tpOUtkRzhLSy1BR3dqRzA0dlZHNQ?oc=5",
-   "source": "TradingKey",
-   "pubDate": "Fri, 03 Jul 2026 03:22:12 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 36,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-02T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-03T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-03 08:00 KST ~ 2026-07-04 08:00 KST"
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**한 줄 요약:** 미국 고용 둔화와 인플레이션 불확실성 속에서 금리 인상 기대가 완화되며 채권과 금값이 반등하는 중입니다.\n\n①**변동성/심리** - VIX 32(Fear & Greed)로 공포심리가 우위이며, 금리 인상 연기 가능성에 투자자 심리가 신중하게 전환되고 있습니다.\n\n②**거시/금리** - NFP 57만 명, 연방기금율 3.63%, 10년물 수익률 하락세로 고용 둔화와 금리 인상 기대 냉각이 확인되는 중입니다.\n\n③**주도 뉴스/리스크** - Fed 관계자의 AI·인플레이션 불확실성 언급과 이란-미국 평화 협상 진행이 시장을 주도하는 한편, 유가 안정성과 기술주 실적(ASML 7월 15일 실적)이 향후 변수로 작용하고 있습니다.",
+  "full": "# 현재 시장 분석\n\n**한 줄 요약:** 미국 고용 둔화(NFP 57K)로 금리 인상 기대가 식으면서 금리(10Y 3.63%)와 달러(DXY)가 약세를 보이고 있으며, 유가는 미-이란 협상 진행 중 소강 상태를 유지 중입니다.\n\n① **변동성/심계** — 공포지수(VIX 32)가 상승하며 시장 불안감이 고조되었고, Fed 관계자의 AI·인플레이션 불확실성 발언이 심리를 압박하는 상황입니다.\n\n② **거시/금리** — NFP 약세에 따른 경기둔화 우려로 금 가격이 반등했으며, 금리 인상 기대 냉각으로 채권 수익률이 하락세를 나타냈습니다.\n\n③ **주도 뉴스/리스크** — 기술주(ASML 상승 중)와 데이터센터 관련주의 실적 성장이 긍정 신호로 작용하는 반면, 미-이란 협상과 호르무즈 해협 변수가 유가 불확실성을 가중시키고 있습니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-07-04T21:13:56.403Z",
+  "generatedAt": "2026-07-04T22:13:08.306Z",
   "model": "claude-haiku-4-5"
  }
 }
