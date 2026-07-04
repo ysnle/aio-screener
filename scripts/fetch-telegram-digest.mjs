@@ -306,7 +306,18 @@ const digest = {
     }
     return out;
   })(),
-  items,
+  // Phase 3 [A1/B3] P598: `items` (the full merged/deduped set, ~1.04MB / 46% of this file's
+  // pre-fix size) used to be included here too, even though the "previousMergePool" logic just
+  // above (P571/R262) already documents "the digest we write never persists the full raw item
+  // list (only capped topItems/broadItems)" — that was the design intent, but this literal never
+  // actually matched it. Confirmed via full-codebase grep that no runtime consumer reads `items`/
+  // `rawItems` from the served JSON in the normal path (only a since-removed items.slice(0,80)
+  // fallback in js/aio-data.js that only ever triggered if BOTH topItems and broadItems were
+  // empty — mathematically near-impossible, since broadItems' score>=50/120-per-channel/400-total
+  // filter is strictly looser than topItems' score>=65/20-per-channel/45-total one, so anything
+  // that qualifies for topItems always also qualifies for broadItems). `items` stays as a local
+  // variable above (still needed to compute topItems/broadItems/topicCounts/tickerCounts) — it's
+  // just not re-serialized into the output file anymore.
 };
 
 const json = JSON.stringify(digest, null, 2);

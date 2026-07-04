@@ -1098,10 +1098,12 @@ function _aioCleanTelegramMemoText(text) {
 
 function _aioBuildTelegramMemoOverlay(raw, merged) {
   var items = [];
-  // broadItems 우선 (더 많은 티커 커버), 없으면 topItems 폴백
+  // broadItems 우선 (더 많은 티커 커버), 없으면 topItems 폴백. v51.98/Phase3[A1,B3] P598: 이전엔
+  // 여기 raw.items(서버가 보내던 미압축 전체 배열, ~1.04MB) 폴백이 3번째로 있었으나, 서버가 더 이상
+  // items를 보내지 않음(topItems/broadItems만 전송, 페이로드 46% 절감) — topItems/broadItems가 둘 다
+  // 비어야만 타던 경로라 실질적으로 거의 트리거되지 않았고, 이제 그 데이터 자체가 없다.
   if (raw && Array.isArray(raw.broadItems) && raw.broadItems.length) items = raw.broadItems;
   else if (raw && Array.isArray(raw.topItems) && raw.topItems.length) items = raw.topItems;
-  else if (raw && Array.isArray(raw.items)) items = raw.items.slice(0, 80);
   var date = _aioTelegramDigestMemoDate(raw, merged);
   var byTicker = {};
   items.forEach(function(item) {
