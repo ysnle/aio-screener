@@ -1,3 +1,19 @@
+## v52.6 (2026-07-04)
+- **뉴스 번역 파이프라인 사망(P1) 원인 규명·수정 — R245 패턴이 8개 페이지 스트립 + 브리핑 2곳에 미적용 상태였음 (FABLE-LIVE-AUDIT-2026-07-04.md P1, P603)**: 감사 문서의 "쿼터 미소진인데 번역 전멸" 추론을 코드로 재확인한 결과 그 쿼터 UI(`consumeLLMQuery`/`getQuota`)는 AI 채팅 전용 로컬 카운터로 뉴스 번역과 무관함을 확인(근거 아님). 실제 방문자 대다수가 타는 무료 경로(`_gtBatchTranslate` → `translate.googleapis.com`)를 직접 호출해 정상 작동(200, 유효 한국어 번역, `Access-Control-Allow-Origin: *`) 확인 — Google Translate 자체 장애 아님.
+  - **실제 원인**: `js/aio-core.js`의 `_aioRenderPageNewsStrip(pageId)` — `macro/fxbond/technical/themes/sentiment/signal/fundamental/breadth` 8개 페이지가 공유하는 단일 함수(감사가 지목한 페이지 목록과 정확히 일치)가 페이지별 상위 4건을 뽑아 렌더링하면서 그 선택 항목에 대한 번역 요청이 없었음. 초기 6건 배치 번역에도, `data-news-idx` 지연로딩 옵저버에도 걸리지 않아 영구 미번역 상태로 고정. 브리핑 페이지도 `renderBriefingFeed`(자체 40건 선별)·`_aioRenderBriefingDigest`(Top3) 두 곳에 동일 결함. **R245/P554(홈 "핵심 뉴스"에서 이미 고친 것과 동일한 버그 유형)가 이 9개 표면에는 적용되지 않았던 것** — 인프라 장애가 아니라 코드 누락.
+  - **수정**: `_aioRenderPageNewsStrip`·`_aioRenderBriefingDigest`·`renderBriefingFeed` 3곳에 R245와 동일한 "선택된 항목이 캐시에 없으면 즉시 `autoTranslateNews` 요청" 패턴 추가 + `autoTranslateNews` 완료 시점 3곳에 `_aioRenderActivePageNewsStrip()`/`_aioRenderBriefingDigest()` 재호출 연결(번역 완료 후 실제 화면 반영).
+  - **범위 밖(사용자 확인 후 보류)**: 원문 헤드라인 폴백(이중 결함 B), `_gtBatchTranslate`의 `_PROXY_REGISTRY` 페일오버 연결 — 둘 다 주범 수정과 별개로 보류.
+  - **검증**: 로컬 validate 8개 게이트 통과, 헤드리스 1회 896/921(회귀 0). 실제 라이브 번역 성공 여부는 다음 배포 후 각 페이지에서 육안 확인 필요(QA-CHECKLIST 항목 추가).
+  - R1 7곳 v52.6.
+
+## v52.5 (2026-07-04)
+- **CI workflow_run 체크아웃 ref 근본 수정 — 매 배포가 "한 사이클 전" 데이터였던 원인 해소 (FABLE-LIVE-AUDIT-2026-07-04.md P0, P602/R278)**: Fable 5 라이브 감사가 실측 체인으로 확인 — refresh-data run이 11:56:57Z 새 데이터 커밋(`1df0078`)을 push했는데, 11:57:21Z 발화한 workflow_run CI의 deploy job은 `ref: 34646a82…`(그 run이 **출발한 시점**의 커밋)를 체크아웃 — 라이브 data.json은 새 배포 타임스탬프인데 내용은 이전 사이클 것이었음.
+  - **원인**: `ci.yml`의 validate/headless-tests/deploy 3개 job이 공통으로 `ref: ${{ github.event.workflow_run.head_sha || github.sha }}` 사용. `workflow_run.head_sha`는 GitHub 공식 동작상 트리거 워크플로가 "시작될 때"의 브랜치 헤드로 고정 — 그 워크플로가 실행 도중 push한 커밋을 가리키지 않음.
+  - **수정**: 3개 job의 `ref:`를 `github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha`로 변경 — workflow_run 이벤트에서는 브랜치(main)의 현재 헤드(=방금 push된 커밋)를 체크아웃, push/PR/workflow_dispatch 경로는 무변경.
+  - **검증 한계**: workflow_run 페이로드는 실제 GitHub Actions 실행에서만 존재해 로컬 재현 불가 — PyYAML 구문 검증 + 로컬 validate 전체(8개 게이트) + 헤드리스 1회(896/921, 회귀 0)까지만 로컬 확인. 실제 효과는 다음 라이브 refresh-data→CI 사이클에서 `gh run view --log | grep "HEAD is now"`로 확인 필요(다음 세션/모니터링 과제로 플래그).
+  - 신규 R278.
+- R1 7곳 v52.5
+
 ## v52.4 (2026-07-04)
 - **CI 배포 재시도 추가 — "Run failed" 메일 원인 조사 (P601/R277)**: 사용자가 자주 받는 GitHub Actions "Run failed" 메일이 앞서(v52.3 A4 보고 중 부수 발견) 언급한 GitHub Pages 배포 간헐 실패와 연관 있는지 조사 요청. `workflow_run` 트리거 도입(P591, 2026-07-03) 이후 약 33시간 이력 전수 확인 결과 **16회 중 4회(25%)**가 `actions/deploy-pages` 단계에서만 `Deployment failed, try again later.`로 실패(validate/헤드리스는 항상 통과 — 리포 콘텐츠 문제 아님, 동시배포 충돌·시간대 패턴도 배제). 실제 인과관계 실측 확인: 2026-07-04T09:32Z에 `data-watchdog.yml`의 라이브 신선도 체크가 라이브 사이트 `data.json`을 **589분(9.8시간) 지연**으로 잡았는데, 그 원인이 바로 이 배포 실패였음 — 즉 **`ci.yml` 배포 실패와 `data-watchdog.yml` 신선도 실패는 같은 근본 원인의 두 증상**(각각 별도 메일 발생).
   - **수정**: `.github/workflows/ci.yml` deploy job — `actions/deploy-pages` 1차 시도를 `continue-on-error: true`로 실행, 실패 시(`.outcome`, `continue-on-error`가 덮어쓰는 `.conclusion` 아님) 30초 대기 후 1회 재시도, 둘 다 실패해야 job 최종 실패. `environment.url`도 성공한 쪽 출력을 잡도록 폴백 처리.

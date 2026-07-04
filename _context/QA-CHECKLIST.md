@@ -1,13 +1,24 @@
 ---
 verified_by: agent
-last_verified: 2026-07-01
+last_verified: 2026-07-04
 confidence: high
 version: v3.7
-checklist_version: v51.83
-total_items: 467
+checklist_version: v52.6
+total_items: 472
 stages: 22
-latest_P_covered: P571
+latest_P_covered: P603
 ---
+
+## v52.6 - 뉴스 번역 파이프라인 사망(9개 표면) 수정: 페이지 스트립·브리핑이 자체 선택 항목의 번역을 요청 (P603/R245)
+
+- [ ] macro/fxbond/technical/themes/sentiment/signal/fundamental/breadth 8개 페이지: "📰 관련 뉴스" 스트립(`_aioRenderPageNewsStrip`)의 항목이 영문일 때 몇 초 내로 한국어 제목으로 바뀜 — `[번역 대기] ...` 상태로 영구 고정되지 않음.
+- [ ] 브리핑 페이지: "핵심 5선"/카테고리별 뉴스 목록(`renderBriefingFeed`)과 상단 다이제스트 "핵심 뉴스" 3건(`_aioRenderBriefingDigest`) 모두 동일하게 번역 결과가 반영됨(둘 다 영구 "[번역 대기]" 없음).
+- [ ] 위 항목들이 번역되는 동안 `autoTranslateNews` 완료 후 화면이 자동으로 갱신됨(수동 새로고침 없이) — `_aioRenderActivePageNewsStrip`/`_aioRenderBriefingDigest` 재호출 배선 확인.
+
+## v52.5 - workflow_run 체크아웃 ref 근본 수정: CI가 실제 트리거 커밋을 검증·배포 (P602/R278)
+
+- [ ] 다음 `workflow_run` 트리거 CI 실행: `gh run view <run-id> --log | grep "HEAD is now"`가 그 사이클의 데이터 커밋 SHA(방금 refresh-data.yml이 push한 커밋)를 가리킴 — 이전 사이클 커밋 아님. 같은 시점 라이브 `data.json`의 `meta.generatedAt`도 같은 사이클로 갱신됨(한 사이클 지연 없음).
+- [ ] `.github/workflows/ci.yml`의 3개 `Checkout` 스텝(validate/headless-tests/deploy) 모두 `ref:`가 `workflow_run` 이벤트에서 `github.event.workflow_run.head_branch`로 해석되고, push/PR/workflow_dispatch에서는 `github.sha`로 해석됨 — 단순 `head_sha` 폴백이 되돌아와 있지 않음.
 
 ## v51.83 - Systematic full-site audit: XSS, fundamentals data, score parity, data pipeline, medium hardening (R249-R262)
 

@@ -6,6 +6,13 @@ target_version: v51.80
 
 ---
 
+## R278. A `workflow_run`-triggered job that needs the commit its trigger produced must checkout `head_branch`, not `head_sha` (v52.5)
+
+- `github.event.workflow_run.head_sha` is fixed to the head of the triggering workflow's branch **at the moment that workflow started** — not any commit it committed/pushed during its own run. A downstream job that does `actions/checkout@v4` with `ref: ${{ github.event.workflow_run.head_sha }}` in order to validate or deploy "what the triggering run just produced" will instead always get the commit that existed *before* that run's own work — one full cycle behind, indefinitely, on every single firing.
+- If the triggering workflow's own job is a commit-and-push job (a bot/data-refresh workflow) and a downstream `workflow_run` job needs that pushed commit, checkout `ref: ${{ github.event.workflow_run.head_branch }}` instead (the branch name, e.g. `main`) — this resolves to the actual current head of that branch at checkout time, which by the time the `workflow_run` event has fired already includes the push. Guard it so `push`/`pull_request`/`workflow_dispatch` paths (which have no `workflow_run` payload) keep their existing behavior: `${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}`.
+- A validate/deploy job silently running on the wrong tree is worse than it failing loudly: the run goes green, any redeployed artifact's `Last-Modified` timestamp updates, and nothing in the job's own log looks wrong unless someone specifically diffs the checked-out SHA against the commit the triggering run actually pushed.
+- See P602/BUG-POSTMORTEM.md and `_context/FABLE-LIVE-AUDIT-2026-07-04.md` P0: this exact pattern in `ci.yml`'s three jobs (validate/headless-tests/deploy) meant every bot data-refresh cycle had its CI validate and its live deploy carry the *previous* cycle's tree — live `data.json` got a fresh deploy timestamp with stale content on every cycle since R272/P591 wired up the `workflow_run` chain.
+
 ## R277. An external deploy/publish action known to fail transiently must retry once in the same job, not rely on the next scheduled cycle to self-heal (v52.4)
 
 - If a CI step calls a third-party deploy/publish action (e.g. `actions/deploy-pages`) and has been observed to fail intermittently for reasons unrelated to this repo's own content (validate/tests pass, no concurrent conflicting run, no time-of-day pattern — i.e. the provider's own API/infrastructure), add exactly one retry in the same job run: run the first attempt with `continue-on-error: true` and a step `id`, then a conditional retry step gated on `steps.<id>.outcome == 'failure'` (a short `sleep` before it if the failure message suggests "try again shortly" is the actual fix), then a final step that fails the job only if both attempts failed. Check `.outcome` (the true pass/fail result), not `.conclusion` (which `continue-on-error` overrides to let the job proceed regardless).
@@ -226,6 +233,7 @@ target_version: v51.80
 - Any such surface must check whether its selected items already carry the required enrichment and, if not, trigger it directly for exactly those items rather than relying on a generic/lazy mechanism that may never reach them.
 - `renderHomeFeed()`'s "핵심 뉴스" catch-up translation call (js/aio-data.js, guarded by `_tcHas`/`_translationInProgress`) is the concrete precedent.
 - See P554/BUG-POSTMORTEM.md for the incident (home page's boosted Tier-1/geopolitical headlines were exactly the ones permanently stuck on "[번역 대기]").
+- v52.6/P603 update: this rule was only ever applied to `renderHomeFeed` — nine other independently-selected news surfaces built afterward (`_aioRenderPageNewsStrip`, shared by 8 pages' topic-filtered strips; `renderBriefingFeed`'s own score/window selection; `_aioRenderBriefingDigest`'s Top3) each had the exact same gap and sat permanently on "[번역 대기]" until fixed. When adding or reviewing ANY surface that independently selects/filters/sorts a subset of `newsCache` for display (not just "boosted" ones — topic-tag filters count too), check it against this rule, not just against whatever the most recent fixed example was.
 
 ## R244. A live-state value shown in multiple UI surfaces must not be computed independently per surface (v51.82)
 

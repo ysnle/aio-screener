@@ -9640,6 +9640,8 @@ async function autoTranslateNews(items) {
     renderFeed(newsCache);
     renderHomeFeed(newsCache);
     renderBriefingFeed(newsCache);
+    if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
+    if (typeof _aioRenderBriefingDigest === 'function') _aioRenderBriefingDigest();
     return;
   }
 
@@ -9743,6 +9745,8 @@ ${prompt}`
       if (statusEl) statusEl.textContent = `번역·해석 중... (${translated}/${needTranslation.length})`;
       renderFeed(newsCache);
       renderHomeFeed(newsCache);
+      if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
+      if (typeof _aioRenderBriefingDigest === 'function') _aioRenderBriefingDigest();
     }
   }
 
@@ -9757,6 +9761,8 @@ ${prompt}`
   renderFeed(newsCache);
   renderHomeFeed(newsCache);
   renderBriefingFeed(newsCache);
+  if (typeof _aioRenderActivePageNewsStrip === 'function') _aioRenderActivePageNewsStrip();
+  if (typeof _aioRenderBriefingDigest === 'function') _aioRenderBriefingDigest();
 }
 
 /* ── Phase C: 뉴스 lazy 번역 — 뷰포트 진입 시 배치 번역 (v48.62) ── */
@@ -11176,6 +11182,17 @@ function renderBriefingFeed(items) {
       return;
     }
   }
+
+  // P602-followup/R245 계열: 브리핑의 자체 score/시간창 선별(filtered)은 초기 6건 배치 번역에도,
+  // data-news-idx 지연로딩 옵저버에도 걸리지 않아 [번역 대기]가 영구 고정되는 구조적 문제가
+  // 있었다(홈 "핵심 뉴스"의 동일 패턴 — R245/P554). 실제로 렌더될 항목이 아직 캐시에 없으면
+  // 즉시 우선 번역을 요청한다(완료 시 renderBriefingFeed가 이미 재호출되어 반영됨).
+  try {
+    var _briefUntranslated = filtered.filter(function(i) { return i && i.title && !_tcHas(i.title); });
+    if (_briefUntranslated.length && typeof autoTranslateNews === 'function' && !_translationInProgress) {
+      autoTranslateNews(_briefUntranslated).catch(function(){});
+    }
+  } catch(_) {}
 
   // 카테고리별 그룹핑
   var groups = {};

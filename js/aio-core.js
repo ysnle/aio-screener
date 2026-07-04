@@ -2569,6 +2569,12 @@ if (typeof document !== 'undefined') {
           items = (model && model.items || []).slice(0, 3);
         }
         if (items.length) {
+          // P602-followup/R245 계열: 이 Top3 선택도 초기 6건 배치 번역/지연로딩 옵저버 대상이 아니라
+          // [번역 대기]가 영구 고정될 수 있었다 — 아직 캐시에 없으면 즉시 우선 번역을 요청한다.
+          try {
+            var _digestUntranslated = items.filter(function(n) { return n && n.title && !(typeof _tcHas === 'function' && _tcHas(n.title)); });
+            if (_digestUntranslated.length && typeof autoTranslateNews === 'function') autoTranslateNews(_digestUntranslated).catch(function(){});
+          } catch(_) {}
           var newsHtml = items.map(function(n){
             var t = (typeof getDisplayTitle === 'function' ? getDisplayTitle(n) : n.title) || n.title || '';
             return '· ' + String(t).slice(0, 70) + ' <span style="color:var(--text-muted);">(' + (n.source || '') + ')</span>';
@@ -2917,6 +2923,14 @@ if (typeof document !== 'undefined') {
       var hostId = 'aio-page-news-' + pageId;
       var host = document.getElementById(hostId);
       if (!rows.length) { if (host) host.style.display = 'none'; return; }
+      // P602-followup/R245 계열: 페이지별 토픽 필터 스트립은 초기 6건 배치 번역에도, data-news-idx
+      // 지연로딩 옵저버에도 걸리지 않아 [번역 대기]가 영구 고정되는 구조적 문제가 있었다(홈 "핵심
+      // 뉴스"의 동일 패턴 — R245/P554). 실제로 보여줄 상위 4건이 아직 캐시에 없으면 즉시 우선
+      // 번역을 요청한다(완료 시 autoTranslateNews가 _aioRenderActivePageNewsStrip을 재호출).
+      try {
+        var _stripUntranslated = rows.slice(0, 4).filter(function(n) { return n && n.title && !(typeof _tcHas === 'function' && _tcHas(n.title)); });
+        if (_stripUntranslated.length && typeof autoTranslateNews === 'function') autoTranslateNews(_stripUntranslated).catch(function(){});
+      } catch(_) {}
       if (!host) {
         host = document.createElement('div');
         host.id = hostId;
@@ -17667,7 +17681,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.4';
+const APP_VERSION = 'v52.6';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

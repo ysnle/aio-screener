@@ -42,10 +42,15 @@ jobs:
       # ↓↓↓ P557/R248: validate must fully pass before the deploy job below is allowed to
       # run — this is the whole point of this change. Do not add `continue-on-error` to any
       # step here without also revisiting deploy's `needs: validate` gate.
+      # P602/R278: workflow_run.head_sha is fixed to the commit the triggering run *started*
+      # from, not any commit it pushed during its own run (GitHub's documented behavior) — so
+      # every bot data-commit cycle had CI validate/deploy the *previous* cycle's tree instead
+      # of its own (FABLE-LIVE-AUDIT-2026-07-04.md P0). head_branch (= main) checks out the
+      # branch's actual current head at checkout time, i.e. the commit this run is really about.
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -121,7 +126,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -162,7 +167,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       # Legacy branch-deploy ran the repo root through Jekyll, which by default silently
       # excludes any dotfile/dot-directory and any underscore-prefixed file/directory

@@ -28,8 +28,9 @@ purpose: "별도 세션 필요"라고 넘긴 작업의 진짜 정체를 한 곳�
 | B4 | WO-7 차트 history 재배선 (IV Rank·F&G 추이·VIX 퍼센타일 실데이터 전환) | `public-data/history.json` 20~60일 누적 필요 (물리적 시간) | 시간 경과 → 코드가 자동 전환 (`_aioHistorySeries`/`_aioVixPercentile` 준비됨) | 생산자(fetch-data.mjs append)·소비자 레이어 완료. 누적만 대기 |
 | B5 | WO-10 Claude 키 서버화 (Cloudflare Worker Anthropic 프록시) | 운영자 결정 + Worker secret 배포 필요 | 운영자가 기존 데이터 Worker에 Anthropic 프록시 확장 | `cloudflare-worker-proxy.js` 소스 복원됨(v50.27). 데이터 Worker는 이미 동작 中 |
 | B6 | ~~cron 발화 신뢰성 최종 검증~~ **해소됨(2026-07-03, v51.95, P591/R272)** | (과거) GitHub Actions 로그를 시간에 걸쳐 관찰해야 확인 | — | 실측 결과 cron 자체는 신뢰성 문제 없었음(30분마다 정확히 발화·커밋). 진짜 원인은 별개: `refresh-data.yml`의 `GITHUB_TOKEN` push가 `ci.yml`의 `push` 트리거를 절대 못 울려 validate/deploy가 전혀 안 돌고 있었음(라이브 사이트 19h stale 실측). `workflow_run` 트리거 추가로 해소 — PAT 불필요. |
+| B7 | kr-technical TradingView KRX 위젯 하드 브레이크 (FABLE-LIVE-AUDIT-2026-07-04.md P3) | TradingView 무료 embed가 `KRX:005930`(+`KRX_DLY:` 지연 변형)에 "TradingView 에서만 제공되는 심볼입니다" 오류를 반환 — 라이브 재현 확인(실제 앱 iframe + 위젯 URL 직접 접속 둘 다), 이 문자열은 우리 코드베이스 어디에도 없음(전체 grep 0건, TradingView 자체 콘텐츠). `BUG-POSTMORTEM.md`에 과거 기록 전무 → 최근 TradingView 측 변경/장애로 추정, 되돌아올 수도 있음(외부 서비스라 예측 불가) | TradingView 정책이 되돌아오는지 관찰 **또는** 운영자가 대체 방안 확정(아래 비고) | `OTC:SSNLF`(삼성 미국 OTC 티커)는 오류 모달은 안 뜨지만 직접 URL 테스트 방식의 한계로 실제 렌더 여부 미확인(대조군 `NASDAQ:AAPL`도 같은 테스트에서 빈 차트 — 임베드 없이 직접 접속하면 정상 심볼도 데이터가 안 뜸). kr-technical엔 US technical 페이지에 있는 숫자 OHLC 폴백 스트립(`tv-tech-ohlc`)도 아직 없음. 검토한 3가지 대안(OTC 티커 교체/Naver siseJson+Chart.js 자체 캔버스/OHLC 폴백 스트립 추가)은 규모가 각기 다름 — 2026-07-04 사용자가 코드 변경 없이 보류 결정, 다음 우선순위(P5)로 이동 |
 
-> 핵심: B1·B2·B3 = **데이터 없음**, B4·B6 = **시간 필요**, B5 = **운영자 결정**. 코드로 해결되는 게 아니다.
+> 핵심: B1·B2·B3 = **데이터 없음**, B4·B6 = **시간 필요**, B5 = **운영자 결정**, B7 = **외부 서비스(TradingView) 상태 불확실**. 코드로 해결되는 게 아니다.
 
 ---
 
