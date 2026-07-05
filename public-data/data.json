@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-05T17:47:34.857Z",
+  "generatedAt": "2026-07-05T19:42:20.158Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -21,7 +21,7 @@
   "macroKeyCount": 19,
   "fredFailedSeries": [],
   "newsOk": true,
-  "newsCount": 40,
+  "newsCount": 38,
   "newsSourceCount": 7,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-07-03T23:00:00.000Z",
@@ -31,10 +31,13 @@
   "serverNewsScored": true,
   "newsScoreMin": 10,
   "newsScoreMax": 57,
-  "elapsedMs": 2496,
+  "elapsedMs": 2451,
   "schema": 1,
   "marketAnalysisOk": true,
-  "fmpHasKey": true
+  "fmpHasKey": true,
+  "fmpOk": false,
+  "fmpCount": 0,
+  "fmpPlanError": true
  },
  "quotes": [
   {
@@ -210,8 +213,8 @@
   },
   {
    "symbol": "EURUSD=X",
-   "regularMarketPrice": 1.144,
-   "regularMarketChangePercent": 0.15148688402024127,
+   "regularMarketPrice": 1.1434,
+   "regularMarketChangePercent": 0.09895988040974693,
    "regularMarketPreviousClose": 1.1422696113586426,
    "chartPreviousClose": 1.1422696113586426,
    "_pctSource": "ohlcv-daily",
@@ -237,8 +240,8 @@
   },
   {
    "symbol": "CNY=X",
-   "regularMarketPrice": 6.7702,
-   "regularMarketChangePercent": -0.27104215955269495,
+   "regularMarketPrice": 6.7792,
+   "regularMarketChangePercent": -0.13846695932758202,
    "regularMarketPreviousClose": 6.788599967956543,
    "chartPreviousClose": 6.788599967956543,
    "_pctSource": "ohlcv-daily",
@@ -246,8 +249,8 @@
   },
   {
    "symbol": "AUDUSD=X",
-   "regularMarketPrice": 0.6943,
-   "regularMarketChangePercent": 0.39036953317580514,
+   "regularMarketPrice": 0.6947,
+   "regularMarketChangePercent": 0.448206416098556,
    "regularMarketPreviousClose": 0.6916002035140991,
    "chartPreviousClose": 0.6916002035140991,
    "_pctSource": "ohlcv-daily",
@@ -453,8 +456,8 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 62588.67,
-   "regularMarketChangePercent": -0.7919608713134383,
+   "regularMarketPrice": 62727.28,
+   "regularMarketChangePercent": -0.572252954471184,
    "regularMarketPreviousClose": 63088.3046875,
    "chartPreviousClose": 63088.3046875,
    "_pctSource": "ohlcv-daily",
@@ -462,8 +465,8 @@
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1777.9,
-   "regularMarketChangePercent": -0.06368397947060517,
+   "regularMarketPrice": 1779.87,
+   "regularMarketChangePercent": 0.047050337735324806,
    "regularMarketPreviousClose": 1779.032958984375,
    "chartPreviousClose": 1779.032958984375,
    "_pctSource": "ohlcv-daily",
@@ -806,6 +809,22 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
+   "title": "Broadcom Q2 earnings miss drags Nasdaq futures lower - qz.com",
+   "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9nVUZBejRlWVBQRzhGSXR2R3pFNC10R0I3RzBXRHJKMlBiRVRrUnNacl9rY2hOTHRqNzF4RkVLdVUtbVhLWDRBUXBuMUx4NEVvTGNYdU02QmtCbERYMDRYYkR0ZUpfcWRySE96M05ibGtpUUswaEh0Nw?oc=5",
+   "source": "qz.com",
+   "pubDate": "Sat, 04 Jul 2026 17:28:29 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 52,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10 | mega-cap+8",
+   "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
    "title": "Gold Price Resilience: Real Yields, Fed Risk & Central Bank Reserves - equiti.com",
    "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNRVl5bGZycHIzTlhsOHdVc1ZCRG5wVFRva0o0dU5odkE4MDBMWEZRYy16UmRpbXNyVlF6b085R242SUx3cjBjQkhWelUwNlZRb1ROYUtxRHR2UDljTWtkOFpYTFJpVGg3b2NfQllMS3piSVRTRHo4QndMVndUN3ZITkhLTUpOZDVSLVVZaDZWd3dBSDZIMmxPc0NTXzBLVGh5YU1XcW5ibVpMQXMyeWtKYjBZN3R1QQ?oc=5",
    "source": "equiti.com",
@@ -832,22 +851,6 @@
    "score": 50,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
    "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
-   "title": "NVDA Stock Quote Price and Forecast - CNN",
-   "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5oakpQaVAtWVg3Rjh6M2FFaExEa1JVeThKN1FIX1p2OG1lWmVaVnhlU3Zsek42ZlRyd055aXc2dGNHa0NxV2RfU1I1dUoweXNi?oc=5",
-   "source": "CNN",
-   "pubDate": "Sat, 04 Jul 2026 12:51:06 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 49,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13 | mega-cap+8",
-   "feedSource": "Google News - AI/Semis",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-03T23:00:00.000Z",
    "newsCycleEnd": "2026-07-04T23:00:00.000Z",
@@ -918,22 +921,6 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
-   "title": "Palantir Grew Revenue 85% and Raised Full-Year Guidance by 10 Points — So Why Is PLTR Down 26% YTD? - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxQNmM2SURNRGVLR0RMNmJYbUJidUVteEZBTkRuejNZX2JTMHo4SG5jVnhlbFBrd0FsUFpSTmg3ZGp6RlpzalpSNTlNVElFRGVJRVdQWjJQb2N4WndtWXpHNFZMQVNlLUJrNEpRMDd1X3kyUHk3cWtIeFBLNGpOOEF1MVc0cXBkUlZHcVhjenM2MDhmQ1NRbGk5TFVPV0xTbGNxRHQ2YlRMcnNINVhrOG9aUUZWQl9wa3BWRTItVmpMcHhVNUNoZXZuLTN4dUJ0Nm5HLWp4MTEtUFo0eFQ0RWYxa1VvVkZZR1JPdVh4XzhMdFBmNGY5MUY5a3NMVmxLSjBTWjlFOHBXb01mSkk?oc=5",
-   "source": "TradingKey",
-   "pubDate": "Sat, 04 Jul 2026 21:50:39 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 44,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
-   "feedSource": "Google News - Analyst/Earnings",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
    "title": "Why Do Stocks Drop Even After Beating Earnings - Kavout | AI",
    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNamRKd3VacWlCUUVUbWp3LTgwaDl5LUhjRXN4Rm95dTZmaFdlS2Rpby1jb3R2OHNlYmt6ZEsyUUNueU5oYVo5UW1SeFhmSzJYektra1RET1hHVlY5RnVsVHExR3YxNVhHdGxEQlpRTmtxaTFCTW15TzZPc0NCaDk4YnVweXZRUFZ2?oc=5",
    "source": "Kavout | AI",
@@ -959,22 +946,6 @@
    "tier": 1,
    "score": 42,
    "selectionReason": "base+20 | source-tier1+16 | recency+6",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
-   "title": "Iran exploring oil sales to Japan, with buyers seeking longer sanctions waiver - The Japan Times",
-   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQN0hzZDVRYzJwa2pKclcwQ2hMbU80TTdzQVREWDhmLTVYYi1TRFNOdG1RcUhuWjh6LVpxempNalVrbm5Eb1Ntd3YtUG5KTGZZTVRFUGdzSWs2cmR2Yy1MUHdiLXM2NjNuVlgzWDREYXdyZmlfc1F6S183WnBVVDg5dk5JcGc?oc=5",
-   "source": "The Japan Times",
-   "pubDate": "Sat, 04 Jul 2026 01:00:00 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
    "feedSource": "Google News - Geopolitics/Energy",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-03T23:00:00.000Z",
@@ -1130,6 +1101,22 @@
    "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOOWFXb3Bjank2UDBLWm9sWVZsWFp6S0VwamdTRG5JUW9jOFJzVmE4TTRodDMyS0R0dmtQS2hGOVg2OUltajlUYmZ6MHhZMVN1TGpjbW5uOVBLclp1NHhYZTZjMkRnU2FLdkVwUHJ4NHA3WUE5ci14cW1ibV9LN0pfWllJWDEwWks4SHZld1dCblF5Qm5pMFhfd3p3LV96cmZFVC1ncDdOMjZtMjV3ZG1pX05xVWNSSHd6ZGFvdFlEUjXSAcYBQVVfeXFMTXdZdm5SanNheFBsMmo1YnUtNm4yRWNNXy1jQkp6cG5vMGVNZHdoOHhZd1ljd21nbHRsWHAtTlprbVRxR1VTTVlZSXZZVjI4ejdZRWZoWTg2M2k2TllDWmRMU19Qa29nYUdQT2JVM1RaUFViX19NcF9EVXhMbDVPR3N0UnVqZ3F5bVgzRzFWZkRTc09hMEtDY2xoblFzclo4YTVjZ0ZJSzdyMnRsUHk2UmRfNVFjUG4yWVktdWxENFZMQWoxRkd3?oc=5",
    "source": "The Economic Times",
    "pubDate": "Sat, 04 Jul 2026 08:05:57 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
+   "title": "Poland returns to dollar bond market with three-tranche offering - Investing.com",
+   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOdGhSODZqVkM4UFdDV1VLVDhfNzB2WmppUE1kUm5HOU52Q09LU1R0RTdJcUVGV2cxVWpDTXduSms5cUJqWUFPWHdiLU5aR2lrY3JuYlhFajVJdjRyNlJpQ19MWmNlUUZKR2N4VFhocWdLaHJvcGZyVjFUYS1GTDlMUFFnaVY2YXppRldVSTlwa3hCVWhpY0x4aEFEWHpFdERzUzVBcWpiVGJaSGY2VGhsS0hjQjFBNVkwNmRHdg?oc=5",
+   "source": "Investing.com",
+   "pubDate": "Sat, 04 Jul 2026 07:00:00 GMT",
    "topic": "fxbond",
    "country": "global",
    "tier": 3,
@@ -1318,22 +1305,6 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
-   "title": "Buckle up! The Federal Reserve's May inflation forecast points to fireworks on Wall Street. - MSN",
-   "link": "https://news.google.com/rss/articles/CBMitgNBVV95cUxNMU15VjE3Qy11QTdycWpxZ3NXbzgzTjg0SGZidjRkWWw3eWg5aEQyb0dpWE9fVlNsRkVQVENpNjlJMzdMSjNtZjBia01pYkJBbk53MlRyemhXdEVGeXBxaDBoUXNfMUctckhYb2cwZzRZVUZIX251UVYyeV9HSC1nRUJWMjg5aFJDVlRfRjQ0V2NyQWhqM09VSWhkSW9aMmpPRDJIWFpmLUJmSGhUZmxaR2JjUnhualljOWxic3ZGZmQ2azBEVFhmOTU4TTFEeTZLRWdtXzdzWmdsOUZ0c0hycW9SejRtV2p0R2RWTFNBZnU3LWlER1BWSEFtQXhvQktQOXVocnY3OG1Lek43em52a1l2NVJvbU5rak5JeGxuMnVHMjYyNlZ4OW1taTNKM1cxdE1maDFHdkZ4cnV2SXJBWlNaZjFJMHEtdnNYR3VWMEFKcWhxeUxCQnRzNnREUWZxallybHd6MUdBbnozSUpfR1B2YXZVc2NNX0V4aE5yb2VIWTBNblZ4QURoZm5mY3FxRnRGWXE3N29DRWdjWWh1dVl1dmxnbkhuY1NHU0M5dm1nZFJ0OGc?oc=5",
-   "source": "MSN",
-   "pubDate": "Sat, 04 Jul 2026 09:57:54 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 4,
-   "score": 24,
-   "selectionReason": "base+20 | source-tier4-8 | recency+6 | macro-rates+14 | low-quality-source-8",
-   "feedSource": "Google News - US markets",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
    "title": "Does Micron's new and improved price make sense after earnings? - MSN",
    "link": "https://news.google.com/rss/articles/CBMiywJBVV95cUxPMHFoblNVWkE0d1dYQk5YUTE5RVVmNl9tREpPTkNxYk0wZnJHdHZEWllqbGpkUjdfLW5HSUFWckpIODFpdVBoYXRhYW1EMDM4QkVLS09SdjgzZnFNdGxfUnZ6Y0tLRjdwamdxQ0dRMEZWdHFTOXg2d2tEakNhcHJfM0xIcXZxaE9SMEpWc2Nhc3dOb1QwNTdSbW8xdm9YTTVQTVdQUEhWNnlnTU5lWlZFUEM5bGJMOUxMTS1adEZ2Sk41ZUpjanpBWWo5UGliY3FCYmtOTzY3UFY2MUFJRy15aHcyLWxMQndIb3k3a0VLbVN4T3hianhSb0xiMnpWems3VkJsTExJVnFDYTFGX0VDTWxQcHFvdjNVeERVYzlPaUhZS0xFNjVPdUExVjN6T19EeTVWV05sS3lTSldIQzI3MEFORDlmVXRJNEFN?oc=5",
    "source": "MSN",
@@ -1415,9 +1386,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**한 줄 요약:** CPI 4.2%, Fed Rate 3.63% 수준에서 NFP 57k의 약화된 고용 지표가 나타나며, 반도체(AMAT, NVDA 실적) 주도 기술주 관심과 유가 공급 이슈가 교차하고 있습니다.\n\n① **변동성/심리:** VIX 32로 상승세를 보이며 시장 불안심리가 고조된 상태이며, 금 가격이 청산 압박으로 약세를 보이고 있습니다.\n\n② **거시/금리:** NFP 57k 부진으로 연방준비제도의 금리 인상 여력이 제한적이라는 평가가 나오고 있으며, 3.63% Fed Rate에서 실질금리 압박이 계속되고 있습니다.\n\n③ **주도 뉴스/리스크:** NVDA·AMAT 실적 발표로 AI 칩 수요와 자본지출 추이가 초점이며, Strait of Hormuz 유가 공급 차질과 개별주(Insulet) 가이던스 우려가 리스크 요인입니다.",
+  "full": "# 현재 시장 분석\n\n**AI 칩 수요와 금리 시그널이 엇갈리면서 기술주 중심의 변동성이 확대되고 있습니다.**\n\n①**변동성/심리**: VIX 32로 상승하며 시장 불안감이 고조된 상태. Broadcom 실적 부진으로 나스닥 선물 약세, Nvidia·AMAT 실적 공개 임박으로 기술주 방향성 결정 대기 중.\n\n②**거시/금리**: 연준 기준금리 3.63%, CPI 4.2%로 인플레 위험 지속. NFP 57만 건의 약세 고용지표가 연준의 추가 인상 여지를 축소시키고 있어 금리 경로에 대한 불확실성 상존.\n\n③**주도 뉴스/리스크**: AI 칩 수요 전망(AMAT, NVDA 실적)과 자본지출 트렌드가 단기 방향성 결정. 호르무즈 해협 유가 공급 차질 vs 금리 약화로 인한 금 매도 압력이 상충 중.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-07-05T17:47:39.746Z",
+  "generatedAt": "2026-07-05T19:42:24.535Z",
   "model": "claude-haiku-4-5"
  }
 }
