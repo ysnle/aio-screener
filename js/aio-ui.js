@@ -3726,7 +3726,12 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     var sma200 = (window._spxMA && window._spxMA[200]) ? window._spxMA[200] / 10 : price * 0.89;
     var ath = snap.spxATH ? snap.spxATH / 10 : price * 1.03;
     if (ath < price) ath = price * 1.01;
-    return { sym: 'SPY', price: price, sma50: sma50, sma200: sma200, ath: ath, ret3m: snap.spy3m || 0, rsi: snap.spyRsi || 50 };
+    // v52.16 P5l/P619: snap.spy3m/spyRsi는 어디서도 대입되지 않는 phantom field라 항상 0/50 기본값이었음 —
+    // updateTechIndicators()(index.html)이 실계산해 저장하는 window._spyPositionStats로 전환.
+    var posStats = window._spyPositionStats;
+    var ret3m = (posStats && posStats.ret3m != null) ? posStats.ret3m : (snap.spy3m || 0);
+    var rsi = (posStats && posStats.rsi != null) ? posStats.rsi : (snap.spyRsi || 50);
+    return { sym: 'SPY', price: price, sma50: sma50, sma200: sma200, ath: ath, ret3m: ret3m, rsi: rsi };
   }
 
   function _buildYield() {

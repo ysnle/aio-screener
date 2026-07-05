@@ -1,3 +1,26 @@
+## v52.18 (2026-07-05)
+- **FABLE 감사 P5 잔여 4건 일괄 수정 (P5i/j/l/m, P622-P625)**: 남은 시간 관계로 4건을 한 버전에 묶어 처리(각 항목 근본원인은 개별 조사·수정, 커밋/배포 속도 우선).
+  - **P5i(P622) theme-detail 브레드크럼 "—" + NVDA "Self" 라벨**: 상단 공용 `#breadcrumb`가 `breadcrumbMap['theme-detail']=['AIO','테마','—']` 정적 placeholder에 고정된 채 방치 — `renderPageThemeDetail()`이 실제 테마명을 아는 시점에 `setBreadcrumb()` 재호출로 정정. "주요 AI ETF" 표의 NVDA "Self" 라벨은 동적 재렌더(`renderPageThemeDetail`)가 이미 "대장주"로 정상 교체하므로, 그 전 정적 placeholder만 "—"로 일관되게 정정.
+  - **P5j(P623) screener 가격 컬럼 공백**: 라이브 시세는 ~85종목만 커버해 나머지 788종목이 영구 "—"였으나, `screener.json` 서버 데이터엔 이미 851/870종목 종가가 포함돼 있고 `SCREENER_DB`에도 이미 병합돼 있었음(`_aioApplyServerScreener`) — 렌더 코드만 이 필드를 안 읽고 있어서 발생한 문제. RSI/시총 등 다른 팩터 셀과 동일하게 `r.price` 우선 표시하도록 수정(라이브 데이터 있는 종목은 계속 실시간 갱신).
+  - **P5l(P624) SPY 포지셔닝 카드 "3M 수익 0.0%·RSI 50.0"**: `DATA_SNAPSHOT.spy3m`/`spyRsi`가 코드베이스 어디서도 대입되지 않는 phantom field라 항상 기본값. 실제 RSI를 이미 계산 중인 `updateTechIndicators()`가 결과를 `window._spyPositionStats`에 저장하도록 하고, 카드가 이를 읽도록 배선. 3개월 수익률은 서버 스크립트의 `_retPct(closes,63)`와 동일 공식(`_aioRetPct`)을 클라이언트에 신규 추가해 `calcTechnicalSnapshot`에 편입.
+  - **P5m(P625) HY 스프레드 "Live: 289bp" vs DATA_SNAPSHOT 275bp**: 조사 결과 감사의 "측정 시점 차이일 수 있음(낮은 확신)" 추정과 달리 **실제 단일 소스 배선 누락 버그로 확인** — `applyDataSnapshot()`에 `'hy-spread'` 매핑이 없어 두 하드코딩 시드가 버전마다 독립적으로 표류. 매핑 추가 + HTML 정적값도 275bp로 통일.
+  - **범위 밖(문서만, 코드 변경 없음)**: P5k(휴장일 S&P "+0.00%" vs NASDAQ 실변동 동시표시) — 조사 결과 사이트 전역 `data-live-chg` 제네릭 동기화는 홀리데이 인지가 전혀 없고, 이를 추가하면 "휴장 중에도 마지막 실거래일 등락률 유지"가 바람직한 다른 모든 티커/페이지에 회귀 위험 — `^GSPC` 한정 원인(데이터 소스 단에서 왜 정확히 0인지)은 이번 세션에서 결론 못 냄. `isUsTradingDay()`(js/aio-core.js) 기존 함수는 확인함, 다음 세션 심층조사 대상으로 보류.
+  - **검증**: 로컬 validate 8게이트 + 헤드리스 899/922(회귀 0, P620-P625 공통 실행).
+  - R1 7곳 v52.18.
+
+## v52.17 (2026-07-05)
+- **market-news 크로스채널 뉴스 중복 수정 (FABLE-LIVE-AUDIT-2026-07-04.md P5h, P621)**: 동일 실화가 채널만 다르게(Aether-JP/Insider-US) 연속 노출되던 문제 — 3개 dedup 레이어 모두 title 첫 60~72자 prefix 매칭뿐이라 포맷 접두어 차이로 갈리면 안 걸림.
+  - **수정**: `js/aio-data.js`의 `buildNewsSurfaceModel` dedup 루프에 이미 `fetchAllNews()`에서 검증된 "핵심단어 정렬-결합" 2차 키(`_aioNewsWordBagKey`, 기존 `seenShort` 패턴 재사용)를 추가 — 신규 인프라 없이 기존 검증된 패턴만 확장.
+  - **검증**: 헤드리스 899/922(P620-P625 공통 실행, 회귀 0).
+  - R1 7곳 v52.17.
+
+## v52.16 (2026-07-05)
+- **ticker cockpit 포트폴리오 데모 데이터 누출 수정 (FABLE-LIVE-AUDIT-2026-07-04.md P5f, P620)**: 포트폴리오 미등록 신규 방문자에게도 NVDA/AAPL/MSFT/TSLA 검색 시 "Your P&L: +₩13.7M" 등 가짜 평가손익이 표시되던 문제(portfolio 페이지는 정상적으로 전부 "—" 빈 상태와 모순).
+  - **원인**: `js/aio-core.js`의 `tickerData` 하드코딩 테이블에서 이 4종목만 실제 포트폴리오와 무관한 가짜 `value`(₩13.7M 등)가 남아있고 나머지 16종목은 이미 `'—'`로 정상(불완전 정리). 별도로 렌더 코드가 `pnlEl.textContent = ...`로 자식 span(`#ticker-hero-value`)을 통째로 파괴해 바로 다음 줄의 "내 포트폴리오 외 종목" fallback 메시지가 영구 무력화되는 버그도 발견.
+  - **수정**: 4종목 value를 `'—'`로 정정 + span을 파괴하지 않도록 렌더 순서 변경(span 텍스트만 갱신) + 정적 HTML placeholder("+$6,633 +46.4%")도 중립 기본값으로 교체.
+  - **검증**: 헤드리스 899/922(P620-P625 공통 실행, 회귀 0).
+  - R1 7곳 v52.16.
+
 ## v52.15 (2026-07-05)
 - **홈 경고 pill 11개 연속 노출 → 1줄 요약+펼치기 전환 (FABLE-LIVE-AUDIT-2026-07-04.md P6, P616, 사용자 확정 방식)**: FMP 오류 + 수동 매크로 8종 경과 + SMA pill이 한 번에 나열돼 "고장난 시스템" 인상을 주던 문제. 사용자에게 1줄 요약+펼치기 / 운영자 모드 게이트 / 현행유지 3안을 제시해 1안 확정.
   - `#aio-pipeline-status-bar`를 감싸는 `<details class="aio-page-advanced-toggle">` 래퍼 추가 — 사이트 전역에 이미 7곳 이상 쓰이는 순수 CSS 펼치기/접기 패턴 재사용(신규 JS 토글 로직 없음, `[open] > summary:after`가 "펼치기"/"접기" 라벨 자동 전환).

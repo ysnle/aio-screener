@@ -17015,6 +17015,14 @@ function _calcWeeklyContext(bars) {
   };
 }
 
+// v52.16 P5l/P619: scripts/fetch-data.mjs의 _retPct(closes,n)와 동일 공식 — n봉 전 대비 수익률(%).
+// 클라이언트에 이 계산이 없어 SPY 3개월 수익률(63거래일)이 어디서도 산출되지 않고 있었음.
+function _aioRetPct(closes, n) {
+  if (!Array.isArray(closes) || closes.length <= n) return null;
+  var a = closes[closes.length - 1 - n], b = closes[closes.length - 1];
+  return (a > 0) ? Math.round((b / a - 1) * 100 * 100) / 100 : null;
+}
+
 function calcTechnicalSnapshot(ohlcv) {
   var bars = _aioCleanOHLCV(ohlcv);
   if (bars.length < 20) return { ok: false, reason: 'insufficient_ohlcv', bars: bars.length };
@@ -17062,7 +17070,7 @@ function calcTechnicalSnapshot(ohlcv) {
   return {
     ok: true, bars: bars.length, time: last.time, price: last.close, prevClose: prev.close, dayGainPct: dayGainPct,
     closePosition: closePosition, upperWickPct: candle.upperWickPct, lowerWickPct: candle.lowerWickPct, bodyPct: candle.bodyPct, gapUpPct: candle.gapUpPct,
-    atr14: atr14, adr20Pct: adr20Pct, rsi14: rsi14, macd: macd, bb20: bb20, rvol20: rvol20, failedRetest: failedRetest,
+    atr14: atr14, adr20Pct: adr20Pct, rsi14: rsi14, ret3m: _aioRetPct(closes, 63), macd: macd, bb20: bb20, rvol20: rvol20, failedRetest: failedRetest,
     sma5: sma5, sma10: sma10, sma20: sma20, sma50: sma50, sma100: sma100, sma200: sma200, ema10: ema10, ema21: ema21,
     dist10Atr: dist10Atr, dist20Atr: dist20Atr, dist21Atr: dist21Atr, dist50Atr: dist50Atr,
     dist10ATR: dist10Atr, dist20ATR: dist20Atr, dist21ATR: dist21Atr, dist50ATR: dist50Atr,
@@ -17698,7 +17706,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.15';
+const APP_VERSION = 'v52.18';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -19673,6 +19681,9 @@ function applyDataSnapshot() {
       'skew':          _snap.fixed(S.skew, 2),
       'skew-pct':      _snap.pct(S.skewChg || 0),
       'pcr':           _snap.fixed(S.putCallRatio || S.pcr, 2),
+      // v52.16 P5m/P618: HY 스프레드 HTML 하드코딩(289bp)이 DATA_SNAPSHOT.hySpread(275bp)와
+      // applyDataSnapshot()에 배선이 없어 서로 다른 값으로 독립 표류하던 문제 — 매핑 추가.
+      'hy-spread':     _snap.fixed(S.hySpread, 0) + ' bps',
       // v49.58 P278: VKOSPI 라벨 자동 부착 (정상<20 / 경계 20~25 / 공포 25~35 / 극단공포 35+)
       'vkospi':        _snap.fixed(S.vkospi, 2) + ' (' + (S.vkospi >= 35 ? '극단공포' : S.vkospi >= 25 ? '공포' : S.vkospi >= 20 ? '경계' : '정상') + ')',
       // 금리 (폴백값용 — data-live-price 실시간이 우선)
@@ -23472,11 +23483,14 @@ function showTheme(themeId) {
   bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span data-action="showPage" data-arg="themes" style="cursor:pointer;">테마</span><span class="sep">/</span><span class="current">${escHtml(t.name)}</span>`;
 }
 
+// v52.16 P5f/P620: NVDA/AAPL/MSFT/TSLA만 value가 가짜 평가금액(₩13.7M 등)으로 남아있어 실제 포트폴리오
+// 미등록 신규 방문자에게도 "보유 중"인 것처럼 표시되던 문제 — 나머지 16종목과 동일하게 '—'로 정정
+// (이 테이블은 애초에 실제 사용자 포트폴리오와 연동되지 않음 — portfolio 페이지의 정상 빈 상태와 대조됨).
 const tickerData = {
-  NVDA:{name:'NVIDIA Corporation', value:'₩13.7M', action:'watch'},
-  AAPL:{name:'Apple Inc.', value:'₩10.3M', action:'hold'},
-  MSFT:{name:'Microsoft Corp.', value:'₩5.1M', action:'buy'},
-  TSLA:{name:'Tesla Inc.', value:'₩5.1M', action:'cut'},
+  NVDA:{name:'NVIDIA Corporation', value:'—', action:'watch'},
+  AAPL:{name:'Apple Inc.', value:'—', action:'hold'},
+  MSFT:{name:'Microsoft Corp.', value:'—', action:'buy'},
+  TSLA:{name:'Tesla Inc.', value:'—', action:'cut'},
   AMD:{name:'Advanced Micro Devices', value:'—', action:'hold'},
   AVGO:{name:'Broadcom Inc.', value:'—', action:'buy'},
   TSM:{name:'TSMC', value:'—', action:'hold'},
@@ -23532,10 +23546,14 @@ function showTicker(tkr) {
   if (_thp) _thp.textContent = livePrice;
   var chgEl = document.getElementById('ticker-hero-chg');
   if (chgEl) { chgEl.textContent = chgStr; chgEl.className = 'ticker-chg-big ' + chgCls; }
+  // v52.16 P5f/P620: pnlEl.textContent 대입이 자식 span(#ticker-hero-value)을 통째로 파괴해
+  // 바로 다음 줄의 _thv 갱신이 이후 영구 무력화(getElementById가 null)되던 버그 — span은
+  // 건드리지 않고 그 안의 텍스트만 갱신하도록 순서 변경.
   var pnlEl = document.getElementById('ticker-hero-pnl');
-  if (pnlEl) { pnlEl.textContent = d.value !== '—' ? d.value : ''; pnlEl.className = 'pnl'; }
   var _thv = document.getElementById('ticker-hero-value');
-  if (_thv) _thv.textContent = d.value !== '—' ? '평가금액: '+d.value : '내 포트폴리오 외 종목';
+  var hasPosition = d.value !== '—';
+  if (_thv) _thv.textContent = hasPosition ? d.value : '내 포트폴리오 외 종목';
+  if (pnlEl) pnlEl.className = 'pnl' + (hasPosition ? ' pos' : '');
   var ab = document.getElementById('ticker-action-btn');
   if (ab) { ab.textContent = actionLabels[d.action] || d.action; ab.className = 'action-btn ' + (actionClasses[d.action]||'neutral'); }
   const backBtn = document.getElementById('ticker-back-btn-main');

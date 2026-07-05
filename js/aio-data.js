@@ -1959,7 +1959,10 @@ function renderScreenerResults() {
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
-      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">—</td>' +
+      // v52.16 P5j/P622: 라이브 시세는 ~85종목만 커버해 나머지 788종목은 이 셀이 영구 "—"였음 — 다른
+      // 팩터 셀(RSI/시총 등)과 동일하게 SCREENER_DB 자체 필드(r.price, screener.json 서버 종가로 이미
+      // 채워짐 — _aioApplyServerScreener) 우선 표시. data-live-price는 유지해 ~85종목은 계속 실시간 갱신.
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">' + (typeof r.price === 'number' ? r.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—') + '</td>' +
       '<td style="text-align:center;padding:4px 8px;border-left:1px solid var(--border);">' + entryHtml + '</td>' +
       '<td style="text-align:center;padding:6px 8px;border-left:1px solid var(--border);"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
       '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (r.newsMemo ? escHtml(r.newsMemo) : '') + '">' + (r.newsMemo ? escHtml(r.newsMemo.slice(0, 70)) : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
@@ -10311,6 +10314,16 @@ function _aioNewsDedupeKey(item) {
     .replace(/[^a-z0-9가-힣]+/g, '')
     .slice(0, 72);
 }
+// v52.16 P5h/P617: 크로스채널(동일 실화가 채널만 다르게, 예: Aether-JP/Insider-US) 중복이
+// 위 title 첫 72자 prefix 매칭만으론 안 걸림(포맷 접두어 차이로 앞부분이 갈릴 수 있음) — 이미
+// fetchAllNews()(위 12569행대)에서 검증된 "핵심단어 정렬-결합" 2차 키를 동일 패턴으로 재사용.
+function _aioNewsWordBagKey(item) {
+  var title = '';
+  try { title = typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''); } catch(_) { title = item && item.title || ''; }
+  var words = String(title || '').toLowerCase().replace(/[^a-z0-9가-힣\s]/g, '').split(/\s+/).filter(function(w) { return w.length > 2; });
+  var shortKey = words.sort().join('').slice(0, 40);
+  return shortKey.length > 15 ? shortKey : '';
+}
 
 function _aioNewsIsBlacklisted(item) {
   if (!item || item._blacklisted) return true;
@@ -10462,11 +10475,14 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
 
   var duplicateRemoved = 0;
   var seen = {};
+  var seenWordBag = {};
   var deduped = [];
   scored.forEach(function(row) {
     var key = _aioNewsDedupeKey(row) || row.newsId;
-    if (seen[key]) { duplicateRemoved++; return; }
+    var wbKey = _aioNewsWordBagKey(row);
+    if (seen[key] || (wbKey && seenWordBag[wbKey])) { duplicateRemoved++; return; }
     seen[key] = true;
+    if (wbKey) seenWordBag[wbKey] = true;
     deduped.push(row);
   });
 

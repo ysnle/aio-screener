@@ -3,11 +3,28 @@ verified_by: agent
 last_verified: 2026-07-05
 confidence: high
 version: v3.7
-checklist_version: v52.15
-total_items: 493
+checklist_version: v52.18
+total_items: 501
 stages: 22
-latest_P_covered: P616
+latest_P_covered: P625
 ---
+
+## v52.18 - FABLE 감사 P5 잔여 4건 (P622-625) — 전부 실브라우저 미확인
+
+- [ ] **(미확인)** theme-detail 방문 시 상단 브레드크럼이 "AIO/테마/—"가 아니라 실제 테마명 표시.
+- [ ] **(미확인)** "주요 AI ETF" 표의 NVDA 행이 "Self"가 아니라 "—"(정적) 또는 "대장주"(동적 재렌더 후).
+- [ ] **(미확인)** 스크리너 모멘텀 정렬 시 라이브 시세 없는 종목도 가격 컬럼에 실제 숫자 표시(빈 "—" 아님).
+- [ ] **(미확인)** technical 페이지 SPY 포지셔닝 카드가 "3M 수익 0.0%·RSI 50.0" 고정이 아니라 실제 계산값(페이지 진입 몇 초 후) 표시.
+- [ ] **(미확인)** sentiment HY 스프레드 "Live" 값과 다른 페이지 표시값이 서로 다르지 않고 일치(275bp 기준).
+
+## v52.17 - market-news 크로스채널 중복 수정 (P621) — 실브라우저 미확인
+
+- [ ] **(미확인)** 동일 실화가 채널 라벨만 다르게 연속 노출되지 않음(word-bag 키로 2차 필터링).
+
+## v52.16 - ticker cockpit 포트폴리오 데모 데이터 누출 수정 (P620) — 실브라우저 미확인
+
+- [ ] **(미확인)** NVDA/AAPL/MSFT/TSLA 검색 시 "Your P&L: 내 포트폴리오 외 종목" 표시(가짜 평가손익 아님), 다른 16종목도 동일.
+- [ ] **(미확인)** 위 메시지가 정상적으로 span 안에 표시되고(파괴되지 않고) "pnl pos" 초록 강조가 실제 보유 종목에만 적용됨.
 
 ## v52.15 - 홈 경고 pill 1줄 요약+펼치기 전환 (P616) — 실브라우저 미확인
 

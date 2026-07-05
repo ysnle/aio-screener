@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.15 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.18 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5241,7 +5241,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.15</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.18</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6713,7 +6713,7 @@ button[data-filter-active="true"] {
         <div style="position:relative;height:160px;"><canvas id="hy-chart" role="img" aria-label="하이일드 스프레드 차트"></canvas></div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;">
           <div style="display:flex;justify-content:space-between;">
-            <span>Live: <span id="hy-live-val" data-snap="hy-spread" style="color:var(--green);font-weight:700;">289 bps</span></span>
+            <span>Live: <span id="hy-live-val" data-snap="hy-spread" style="color:var(--green);font-weight:700;">275 bps</span></span>
             <span style="color:var(--text-muted);" id="hy-live-date">—</span>
           </div>
           <div style="margin-top:4px;"><span id="hy-live-badge" style="font-size:11px;color:var(--data-amber);font-weight:700;">● Tight → Complacent</span> <span id="hy-signal-badge" style="font-size:11px;color:var(--data-amber);font-weight:700;">Risk-On 과열</span></div>
@@ -9422,7 +9422,10 @@ button[data-filter-active="true"] {
             <td style="text-align:center;padding:8px;" data-live-price="NVDA">—</td>
             <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="NVDA">—</td>
             <td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="NVDA">—</td>
-            <td style="text-align:center;padding:8px;">Self</td>
+            <!-- v52.16 P5i/P621: 개별주(NVDA)에 "Self"(자기자신 보유)는 ETF Holdings 개념과 안 맞음 —
+                 renderPageThemeDetail()의 동적 재렌더가 이미 "대장주" 라벨로 정상 교체하지만(index.html:26364),
+                 그 전 정적 placeholder도 일관되게 정정(주변 셀과 동일한 "—" 로딩 표기). -->
+            <td style="text-align:center;padding:8px;">—</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);">
             <td style="padding:8px;"><b>XLC</b></td>
@@ -9965,7 +9968,10 @@ button[data-filter-active="true"] {
           <div id="ticker-hero-price" style="font-size:24px;font-weight:800;font-family:var(--font-mono);">—</div>
           <div id="ticker-hero-chg" class="ticker-chg-big up" style="font-size:12px;color:var(--text-muted);">—</div>
           <div id="ticker-hero-ext" style="display:none;font-size:11px;margin-top:2px;"></div>
-          <div id="ticker-hero-pnl" class="pnl pos" style="font-size:10px;color:var(--green);margin-top:4px;">Your P&L: <span id="ticker-hero-value">+$6,633 (+46.4%)</span></div>
+          <!-- v52.16 P5f/P620: 정적 placeholder가 가짜 평가손익("+$6,633 +46.4%")으로 고정돼 있어
+               포트폴리오 미등록 신규 방문자에게도 보유 중인 것처럼 보이던 문제 — 중립 기본값으로 정정
+               (showTicker()가 실제 보유 여부에 따라 즉시 갱신). -->
+          <div id="ticker-hero-pnl" class="pnl" style="font-size:10px;color:var(--text-muted);margin-top:4px;">Your P&L: <span id="ticker-hero-value">—</span></div>
         </div>
       </div>
     </div>
@@ -12487,9 +12493,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.15" defer></script>
-  <script src="./js/aio-data.js?v=52.15" defer></script>
-  <script src="./js/aio-ui.js?v=52.15" defer></script>
+  <script src="./js/aio-core.js?v=52.18" defer></script>
+  <script src="./js/aio-data.js?v=52.18" defer></script>
+  <script src="./js/aio-ui.js?v=52.18" defer></script>
 
   <script>
 
@@ -15976,7 +15982,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.15" defer></script>
+<script src="./js/aio-chat.js?v=52.18" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -16158,6 +16164,11 @@ async function updateTechIndicators() {
     }
   } catch(e) {
     if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'updateTechIndicators OHLCV failed: ' + (e && e.message || e));
+  }
+  // v52.16 P5l/P619: "SPY 포지셔닝" 카드(_buildPrice, js/aio-ui.js)가 읽던 DATA_SNAPSHOT.spy3m/spyRsi가
+  // 어디서도 대입되지 않아 항상 0.0%/50.0 기본값만 뜨던 문제 — 여기서 실계산한 값을 공유 전역에 저장.
+  if (snapshot && snapshot.ok) {
+    window._spyPositionStats = { ret3m: snapshot.ret3m, rsi: snapshot.rsi14, ts: Date.now() };
   }
 
   var rsi14 = snapshot && snapshot.ok && snapshot.rsi14 !== null ? snapshot.rsi14 : Math.max(10, Math.min(90, 50 + (chg * 5)));
@@ -26341,6 +26352,10 @@ function renderPageThemeDetail(themeId) {
   if (iconEl) iconEl.textContent = theme.emoji || '';
   if (nameEl) nameEl.textContent = theme.nameKr;
   if (breadcrumbEl) breadcrumbEl.textContent = 'Themes > ' + theme.nameKr;
+  // v52.16 P5i/P621: 상단 공용 #breadcrumb는 showPage()의 정적 breadcrumbMap['theme-detail']
+  // (['AIO','테마','—'] — 테마명이 페이지별 고정 맵이라 애초에 알 수 없음)로 세팅된 채 방치돼
+  // "AIO/테마/—"로 고정 노출되던 문제. 실제 테마명을 아는 이 시점에 재설정해 정정.
+  if (typeof setBreadcrumb === 'function') setBreadcrumb(['AIO', '테마', theme.nameKr]);
   if (modeDescEl) modeDescEl.textContent = theme.nameKr + ' 주요 ETF 및 대장주';
 
   // ETF 뷰 테이블 업데이트
@@ -28362,7 +28377,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.15" defer></script>
+<script src="./js/aio-glossary.js?v=52.18" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
