@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-05T04:32:07.803Z",
+  "generatedAt": "2026-07-05T07:49:12.619Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -30,14 +30,11 @@
   "newsNextRefresh": "2026-07-05T23:00:00.000Z",
   "serverNewsScored": true,
   "newsScoreMin": 10,
-  "newsScoreMax": 50,
-  "elapsedMs": 2424,
+  "newsScoreMax": 55,
+  "elapsedMs": 2228,
   "schema": 1,
   "marketAnalysisOk": true,
-  "fmpHasKey": true,
-  "fmpOk": false,
-  "fmpCount": 0,
-  "fmpPlanError": true
+  "fmpHasKey": true
  },
  "quotes": [
   {
@@ -124,37 +121,37 @@
   {
    "symbol": "^TNX",
    "regularMarketPrice": 4.4849997,
-   "regularMarketChangePercent": 0,
-   "regularMarketPreviousClose": 4.4849997,
-   "chartPreviousClose": 4.4849997,
-   "_pctSource": "chart-meta-fallback",
+   "regularMarketChangePercent": 0.22345911911819508,
+   "regularMarketPreviousClose": 4.474999904632568,
+   "chartPreviousClose": 4.474999904632568,
+   "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^TYX",
    "regularMarketPrice": 4.9849997,
-   "regularMarketChangePercent": 0,
-   "regularMarketPreviousClose": 4.9849997,
-   "chartPreviousClose": 4.9849997,
-   "_pctSource": "chart-meta-fallback",
+   "regularMarketChangePercent": 0.38259403110887846,
+   "regularMarketPreviousClose": 4.966000080108643,
+   "chartPreviousClose": 4.966000080108643,
+   "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^FVX",
    "regularMarketPrice": 4.23,
-   "regularMarketChangePercent": 0,
-   "regularMarketPreviousClose": 4.23,
-   "chartPreviousClose": 4.23,
-   "_pctSource": "chart-meta-fallback",
+   "regularMarketChangePercent": -0.0472560060131861,
+   "regularMarketPreviousClose": 4.23199987411499,
+   "chartPreviousClose": 4.23199987411499,
+   "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "^IRX",
    "regularMarketPrice": 3.668,
-   "regularMarketChangePercent": 0,
-   "regularMarketPreviousClose": 3.668,
-   "chartPreviousClose": 3.668,
-   "_pctSource": "chart-meta-fallback",
+   "regularMarketChangePercent": -0.8648661424679827,
+   "regularMarketPreviousClose": 3.700000047683716,
+   "chartPreviousClose": 3.700000047683716,
+   "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
@@ -456,8 +453,8 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 62835.07,
-   "regularMarketChangePercent": 0.4650643622962881,
+   "regularMarketPrice": 62862.79,
+   "regularMarketChangePercent": 0.5093850192816781,
    "regularMarketPreviousClose": 62544.19921875,
    "chartPreviousClose": 62544.19921875,
    "_pctSource": "ohlcv-daily",
@@ -465,8 +462,8 @@
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1767.36,
-   "regularMarketChangePercent": 0.6172051220200144,
+   "regularMarketPrice": 1765.06,
+   "regularMarketChangePercent": 0.48626429967445867,
    "regularMarketPreviousClose": 1756.5186767578125,
    "chartPreviousClose": 1756.5186767578125,
    "_pctSource": "ohlcv-daily",
@@ -777,6 +774,22 @@
  },
  "news": [
   {
+   "title": "Nvidia Reports After the Bell Today — Five Things That Will Move NVDA After the Close - TradingKey",
+   "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxOZkVmQ2FKc01fYmN0bXZ0M1J0eFM1STRQTzlsREJ4VXI3UzVOMm5DbVczRkp1WUJhWHBCS2M4dFNnSk1BVjgyUWsyZnAweV9xbFd5NTZ2LU1JamJKR0RzeTZQbTY2UjRqaW0wMkJTVE9rT2VwX25hR3N6N1VBNjFDNnFGT1NLdEpLb0xYeEhwNUpuUWNDcnk2Qkttckw0SEhDem5xamt4QTd6OHUtN2Q2WEFMMzVDbExIaVVKcGd1V1RoQUFwVFR4MEhnMnItd0pJS0RRY21sRWRkWEluX0luNlhnejJVNnZheTlvV0lnY0hXZ0tCSE1OZA?oc=5",
+   "source": "TradingKey",
+   "pubDate": "Sat, 04 Jul 2026 18:54:13 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 55,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | ai-semis+13 | mega-cap+8",
+   "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
    "title": "Gold Price Resilience: Real Yields, Fed Risk & Central Bank Reserves - equiti.com",
    "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNRVl5bGZycHIzTlhsOHdVc1ZCRG5wVFRva0o0dU5odkE4MDBMWEZRYy16UmRpbXNyVlF6b085R242SUx3cjBjQkhWelUwNlZRb1ROYUtxRHR2UDljTWtkOFpYTFJpVGg3b2NfQllMS3piSVRTRHo4QndMVndUN3ZITkhLTUpOZDVSLVVZaDZWd3dBSDZIMmxPc0NTXzBLVGh5YU1XcW5ibVpMQXMyeWtKYjBZN3R1QQ?oc=5",
    "source": "equiti.com",
@@ -937,38 +950,6 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
-   "title": "Maine Gas Prices Ease Ahead of July Fourth but Remain Far Above Pre-Iran War Levels - The Maine Wire",
-   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxOd1psVjNzZlVLS3JmZVhoNkM5WjdrLVZrSmdKY2hUZFZaYnBUR2NJaThQS3BpdmU3Rk9fYlBFZW1Rd1E3SzRaVHMzRnR6TWdodXdYY0g0V2FqbW1aZ1BGT09ITmdMX1Ayb1ZIZEpET3J4TmRiNGpJdndGemNocXVsMEJ4ZnJPZWhmOGozYW1sZE52eU53RF9FQ2prZmhZS0x4M29FNmdIWGpza2lNZlEwcXR1Y3gwZnhUeTB3Zkx3?oc=5",
-   "source": "The Maine Wire",
-   "pubDate": "Sat, 04 Jul 2026 11:01:38 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
-   "title": "Oil prices hold steady as Strait of Hormuz shipping recovery erases war premium - thenationalnews.com",
-   "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOc2V3QWRsMjI5ZnI2VlZyQkE2U193VFloUTFfaDFfcVhROC1fRVVXM1lwZTh6OEU0R1BQWnRGZVFRTldoX2dhT1g4eHo0cWtyem9kX1piQzBUQm5CbDQtaWs1YVd6S282Uk1wQUg2S2xieTROMHN2MGxvRWNQQXdCSUZVQlJSbTdiMFBhUTExVEhXcHV2bzZndWo1a05adnc4QjJlV2hyOGdKZkFUQlA2U25NZWZhNXNrZkZ3dmFtWEhtbDVLc2FYRDNJYlYtLXgzc0p1enlkRk9DR2xaWjMtaDZNQQ?oc=5",
-   "source": "thenationalnews.com",
-   "pubDate": "Sat, 04 Jul 2026 09:41:33 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
    "title": "Iran exploring oil sales to Japan, with buyers seeking longer sanctions waiver - The Japan Times",
    "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQN0hzZDVRYzJwa2pKclcwQ2hMbU80TTdzQVREWDhmLTVYYi1TRFNOdG1RcUhuWjh6LVpxempNalVrbm5Eb1Ntd3YtUG5KTGZZTVRFUGdzSWs2cmR2Yy1MUHdiLXM2NjNuVlgzWDREYXdyZmlfc1F6S183WnBVVDg5dk5JcGc?oc=5",
    "source": "The Japan Times",
@@ -1097,38 +1078,6 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
-   "title": "SOHOB Q2 2025 Earnings: Preferred Stock Delivers Solid EPS Amid Limited Disclosures - EPS Miss Report - dars.gov.et",
-   "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxON19oWjI1ZG5HMTltVWs3WkotX0dYZmxKeV9xNjdtUDFYN3dGT25JVG1HS2Y2ZVc1QWx0OTBQdldVU0d3V0hGUjNYV1NMcXEySk82WUtIRnl2V3htSVFrTVVNZkNfcUxhTlk3RTRFU2NzNE9XYjJpU3FacjViNkNMZkhvd0tPZjRZYUVRcFpNTGVoT1A5MFUtakh3Q0huaFRqaVZWMmlXWHJ3VkVWUXVtTk9udzI3ZEk2WTdDbW91M2ppbHM?oc=5",
-   "source": "dars.gov.et",
-   "pubDate": "Sat, 04 Jul 2026 05:44:24 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 38,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
-   "feedSource": "Google News - Analyst/Earnings",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
-   "title": "Concentrix (CNXC) Faces A Valuation Reset Following Earnings Miss And Lowered Guidance - simplywall.st",
-   "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxOS1lDLTd4UnhyVGN0N2djeWNCeG5xQVJQR0JCYUhoZWJuR0NuS1didFBJSzFPQkxqTjZ4WUZYVC1kM1h6bGtFTzlCRVF2cVQxb0VEMkdtbHhUNTR1clpRN0lIUkw0a3p5RlJsOHN1b3Z6eHlhWkxnQU9oMGpTV1hBa3RsX25QUGxEWDgwSjg4MnFaRVk1VnFRTDNMUHRXM29xTWFhOU5TdEZZeGtKcElmNGlUQjBreDNIR3lMZXBER2tCejJGclcwcS1fcE1CeG9XR2x1bF9LSdIB3AFBVV95cUxORmxRb05QQmV0QzhlUTMxWDFUQWlqU2JoNUJCcjhWUzJVTmhNQjNfR0JrX19qdWtpbGJJT1d2bGdndktpMlJKN3Z1eWpDbUJKNkxsSHJjNlFhX2d6T0Q3MlJQV3RYRUlRMzlNS1VxMm9fWE9NRktxUEVjc2luUlladDZFNFJYRm9oTDdKT3FEZkduOFlmLUlJeHVxN2hXUWMzWFpxSzhYRVNRV29FYmwwcTJTNHU3TWdQN2wwbGIzWUlsbE9YcVpReWZHajIyN01SbDlHNk1tZzBqclJ4?oc=5",
-   "source": "simplywall.st",
-   "pubDate": "Fri, 03 Jul 2026 23:31:13 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 38,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
    "title": "LSI Forecast — Price Target — Prediction for 2027 - TradingView",
    "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1uU0ZoUEpSb19rSmZSaWd6QXc0RE9nSmNnNVlfeGtEQkZWTkV3ZzBNWmhjS1psV29OZ1ktN3J3Z1MzN005QnNPQmJlWTJubmwta1hNdE1xaWMyaHUxbTlYcTgxUUlWX3ZIUURhNmJoSHlaRkJ5?oc=5",
    "source": "TradingView",
@@ -1209,6 +1158,38 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
+   "title": "MaxLinear’s AI Optical Business Surged 136% and the Stock Jumped 84% Overnight - Is MXL a Buy at $63? - TradingKey",
+   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQeFlEN2NmME5aZXpXZk8yTWFJejh6UlhBVXpCS3BGWTNiQ29pMkw5a2xFTjdsUGs4b1N6UHRieUhXa2tSbHRIaVBZbjIzNnhwdkt4ZkotdklibE1sU1JibGVteWgyRF9VMFVJdXpnSHpJdXAwVlBwMmpaNFEzRnRaZEw0R3dXNnc5Q2tFTkx5Q1lsTGVJTDc4UU4yX2VTLUR6VmM2UG0tbHozUTN3dEprc1BDTFZ6ZmJFbnBKRg?oc=5",
+   "source": "TradingKey",
+   "pubDate": "Sat, 04 Jul 2026 18:29:00 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 34,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
+   "title": "Bitcoin’s Liquidity Edge Over Money Supply Growth Shows Signs of Fading - CryptoRank",
+   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE42eTFMUnBCU3N4a1VhbDFmRTcxTlBwRnJsUWxISHppVkpUZ0JWVVJTeEFuamxOdkxJaWlZRWduaU5iZEd6WFNzMl8yQlNJN25sTGJPZ0U0aGY4UXBLT3NDRWx6SUs1S2M1Rnc3dVdXVEptZXZXbGc?oc=5",
+   "source": "CryptoRank",
+   "pubDate": "Sat, 04 Jul 2026 17:40:45 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 34,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
    "title": "Market Watch — July 3, 2026 - rdnewsnow.com",
    "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBDQldEWGRDT0NSNm5sSVV4eUpGQnl2cVlYTXMzWl85dERlWjdfWDBMQlpNOU4xVTBFazZmY2FTaXByT1h5OFNmY1J6VG1ZNlF1ZnVXdGhnQkFQNzByNXNDUEVUMEtwa2w1ZHc?oc=5",
    "source": "rdnewsnow.com",
@@ -1257,6 +1238,22 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
+   "title": "US SPX 500 - Cash Ideas — CMCMARKETS:SPX500 - TradingView",
+   "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1VS2VGVVBPZWZaNkhyS25Fb3RaeUhYVkFLZ0xMaWpGUTFqNEVxaEJ5RkdQRzAxVjBMbGYtM3NRVk11QU1rTE9kZmNHTjk4QWVqV21UV05WSXlINHdDRV9zRzNTdzJuVVRTMTZwX3NJWEZRWGp0TDVJ?oc=5",
+   "source": "TradingView",
+   "pubDate": "Sat, 04 Jul 2026 04:25:07 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 28,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
    "title": "Walsh’s Speech and Non-Farm Data Jointly Ignite This Week’s Gold Market! Latest Kitco Survey: Wall Street Strongly Bullish on Gold Price Outlook Next Week - Bitget",
    "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE5ZQkxWUEtnV1VZaDlhOGxhRWhsdjZCeGdjZXRubVVFTFBFaGNBcHg1eloxUUZtN1VIdGhqeU00MG5PWWh2YTk3ajJVTjNRSWRyamdPc2gybmFZUEhoTUh4Um5WVdIBY0FVX3lxTE5ZQkxWUEtnV1VZaDlhOGxhRWhsdjZCeGdjZXRubVVFTFBFaGNBcHg1eloxUUZtN1VIdGhqeU00MG5PWWh2YTk3ajJVTjNRSWRyamdPc2gybmFZUEhoTUh4Um5WVQ?oc=5",
    "source": "Bitget",
@@ -1283,6 +1280,22 @@
    "score": 28,
    "selectionReason": "base+20 | source-tier3+2 | recency+6",
    "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
+   "title": "SNDK, WDC Stocks Topple As Blowout Memory Earnings Don’t Surprise Enough — Retail Pounces On The Dip - Stocktwits",
+   "link": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxQU3U3NWh3Y2l6OEVIRzhJTlhjNVBPZ2p5NE5VQndaZWs1MW56VnlTTVRLR3VQS1VBVWJZdFhXTlZ5X294b0h5Y0J3NmUyRWhGb0ZwRkg5Umh4RnpKUk1tS0J1dkUzbTB6cDdfTG1LY3JlY2V4YjBfR2xhRHpkbjJ6QW5NTVpnSFBkd1d2OGJiRV8tX3JIX0ZJRmVpUTBXeXlsV2o4cmRzOE1tRWdxLVlrMHZnMGNLRV9ZdTVlSkF2SEd2bUE1TFNwUFBBblFPRERyUHRVV0ZZbVRhNkpaT1Q2WWt5RUlUSm9jS1BTQzV0U3dmMFE?oc=5",
+   "source": "Stocktwits",
+   "pubDate": "Sat, 04 Jul 2026 19:48:43 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 4,
+   "score": 26,
+   "selectionReason": "base+20 | source-tier4-8 | recency+12 | earnings-guidance+10 | low-quality-source-8",
+   "feedSource": "Google News - AI/Semis",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-03T23:00:00.000Z",
    "newsCycleEnd": "2026-07-04T23:00:00.000Z",
@@ -1331,22 +1344,6 @@
    "score": 20,
    "selectionReason": "base+20 | source-tier4-8 | recency+6 | earnings-guidance+10 | low-quality-source-8",
    "feedSource": "Google News - AI/Semis",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
-   "title": "KPIT Technologies shares: Price targets and earnings expectations post weak Q1 guidance - MSN",
-   "link": "https://news.google.com/rss/articles/CBMisANBVV95cUxQNTVlSzEzRHRYQ1ZOSW1jdE1MQ2NLanVDd01renlGSnNyeW9COXdvd0lEZWowQjFyeExKdG1HenJCUHlHdEZyWHdZWGtEbDhYUGRLZGdtWm5TTWZydkQ5MkNhZXVPY3NQbEVuVVgwRVQ2dHVLX1gzUUhFUzB0RTU2M0lGWjhPcnM0aHhQRU9yYm1YQjE3ZzRGb0JDa0lkdV8xa0QtOWx3WVF1Y0F1SEpIMzFMWm1ncUthQmNUTmxmVUJscnc3ZVd6Mm0xUWRWSC1oNkRxS0xXU2RYbnh6UFpBMlhLdkRGTmdoMGVHNjRQQVJYd3VJbWMxN25hZzZmaFc0X1A4RGVZUzBjeHhKYWppZEJZTGE3aUViRldkRWM1U0pKaHF6M1NYMzhSMGtSWGJBUV9ScURZU0l1SjQyV1l2MERYTW1WUThjNUpFQmdlYl9lOVZRck1xQi1SVmtIQ2JqRXA4emY5WFpTMzVBMmtxZElKams2Y21INXNXZXF1RF9sbXpTdkk3V3E4UU9NdEo3R1NySGN0dC1Db3ppWnZnZFFLYUo0VThiMmF1WVYzcTY?oc=5",
-   "source": "MSN",
-   "pubDate": "Sat, 04 Jul 2026 01:22:13 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 4,
-   "score": 20,
-   "selectionReason": "base+20 | source-tier4-8 | recency+6 | earnings-guidance+10 | low-quality-source-8",
-   "feedSource": "Google News - Analyst/Earnings",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-03T23:00:00.000Z",
    "newsCycleEnd": "2026-07-04T23:00:00.000Z",
@@ -1402,9 +1399,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**글로벌 금융시장은 연준의 금리 인하 가능성과 약한 고용지표(NFP 57k) 사이의 기대감 속 혼조장세를 보이고 있습니다.**\n\n①**변동성·심리**: VIX 32(상승)로 변동성이 확대되었으며, 금 가격의 강한 회복력(금리 인하 기대)과 동시에 주식 매도 압박(실적 부진)이 공존하는 양극화 구도입니다.\n\n②**거시·금리**: 연방기금선물 금리 3.63%, CPI 4.2% 상황에서 냉각된 고용(NFP 57k)이 연준의 정책 회유 여지를 제공하고 있습니다.\n\n③**주도 뉴스·리스크**: 호르무즈 해협 석유 공급 차질과 기업 실적 부진(Dell AI 서버 가이던스, Insulet 가격 목표 인하)이 단기 심리를 압박하는 반면, 약한 고용 지표는 경기 둔화 신호로 작용 중입니다.",
+  "full": "# 현재 시장 분석\n\n**한 줄 요약:** CPI 4.2%, 연방기금율 3.63%, NFP 57만 개 등 약세 경제지표 속에서 금리 인하 기대감이 형성되고 있으며, NVIDIA 실적발표와 중동 유가 공급 차질이 주요 변수로 작용 중입니다.\n\n① **변동성/심리:** VIX 32(Fear & Greed)로 시장 불안감이 상당하며, 약한 고용지표(NFP 57만)로 연착륙 기대감이 부각되고 있습니다.\n\n② **거시/금리:** CPI 4.2%와 연방기금율 3.63% 수준에서 금리 인하 여건이 논의되는 상황이며, 금값 강세는 실질금리 하락 압박 가능성을 시사합니다.\n\n③ **주도 뉴스/리스크:** NVIDIA 실적발표(당일 마감 후)와 AI 서버 가이던스, 중동 호르무즈 해협 유가 공급 차질이 단기 시장 방향성을 주도할 전망입니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-07-05T04:32:12.666Z",
+  "generatedAt": "2026-07-05T07:49:17.036Z",
   "model": "claude-haiku-4-5"
  }
 }
