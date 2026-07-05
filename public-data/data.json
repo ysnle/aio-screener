@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-05T19:42:20.158Z",
+  "generatedAt": "2026-07-05T20:40:38.918Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -21,7 +21,7 @@
   "macroKeyCount": 19,
   "fredFailedSeries": [],
   "newsOk": true,
-  "newsCount": 38,
+  "newsCount": 40,
   "newsSourceCount": 7,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-07-03T23:00:00.000Z",
@@ -29,15 +29,12 @@
   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST",
   "newsNextRefresh": "2026-07-05T23:00:00.000Z",
   "serverNewsScored": true,
-  "newsScoreMin": 10,
-  "newsScoreMax": 57,
-  "elapsedMs": 2451,
+  "newsScoreMin": 18,
+  "newsScoreMax": 55,
+  "elapsedMs": 2604,
   "schema": 1,
   "marketAnalysisOk": true,
-  "fmpHasKey": true,
-  "fmpOk": false,
-  "fmpCount": 0,
-  "fmpPlanError": true
+  "fmpHasKey": true
  },
  "quotes": [
   {
@@ -204,8 +201,8 @@
   },
   {
    "symbol": "KRW=X",
-   "regularMarketPrice": 1529.16,
-   "regularMarketChangePercent": -0.8410448432846631,
+   "regularMarketPrice": 1528.99,
+   "regularMarketChangePercent": -0.8520685572038402,
    "regularMarketPreviousClose": 1542.1300048828125,
    "chartPreviousClose": 1542.1300048828125,
    "_pctSource": "ohlcv-daily",
@@ -222,8 +219,8 @@
   },
   {
    "symbol": "JPY=X",
-   "regularMarketPrice": 161.337,
-   "regularMarketChangePercent": -0.06937492545405421,
+   "regularMarketPrice": 161.269,
+   "regularMarketChangePercent": -0.11149348787350846,
    "regularMarketPreviousClose": 161.44900512695312,
    "chartPreviousClose": 161.44900512695312,
    "_pctSource": "ohlcv-daily",
@@ -249,8 +246,8 @@
   },
   {
    "symbol": "AUDUSD=X",
-   "regularMarketPrice": 0.6947,
-   "regularMarketChangePercent": 0.448206416098556,
+   "regularMarketPrice": 0.6939,
+   "regularMarketChangePercent": 0.3325326502530383,
    "regularMarketPreviousClose": 0.6916002035140991,
    "chartPreviousClose": 0.6916002035140991,
    "_pctSource": "ohlcv-daily",
@@ -456,8 +453,8 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 62727.28,
-   "regularMarketChangePercent": -0.572252954471184,
+   "regularMarketPrice": 62683.51,
+   "regularMarketChangePercent": -0.6416318991374037,
    "regularMarketPreviousClose": 63088.3046875,
    "chartPreviousClose": 63088.3046875,
    "_pctSource": "ohlcv-daily",
@@ -465,8 +462,8 @@
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1779.87,
-   "regularMarketChangePercent": 0.047050337735324806,
+   "regularMarketPrice": 1775.5,
+   "regularMarketChangePercent": -0.19858873139663005,
    "regularMarketPreviousClose": 1779.032958984375,
    "chartPreviousClose": 1779.032958984375,
    "_pctSource": "ohlcv-daily",
@@ -777,22 +774,6 @@
  },
  "news": [
   {
-   "title": "Applied Materials (AMAT) Earnings Preview: AI Chip Demand, Capital Expenditure Trends, & Trade Setups - In Progress - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxOcHQ4N2xNRi1FZEFSUnBVM3V1U0tGM1FjMmRCcWR5cFdYLUNhQ29QT2JQcE4wMDBBRUdoSzJ4LWpmTjJJVzFpb3NydHJIRXFsSEFlbHhrNElVX0pJQUkteFJreTdGQ3lvYWVTQUdjZFM5UDMySnY4U21xTTBhVjZXUXZHNUN6SDFxemxwVWJDTTdfei1DWlJVeHVFVjFDemM4V0JIUlhHM3I5alBCWW9zYV9OZGdlQjAzZS1WUGpUOHVNSFgwZ2tvRmdmcHlVcXlCb0Z2NjB6NnQ2VjQ0SE5UYlFEZ0F6SU5PZk1KQQ?oc=5",
-   "source": "TradingKey",
-   "pubDate": "Sat, 04 Jul 2026 20:16:49 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 57,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | ai-semis+13 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
    "title": "Nvidia Reports After the Bell Today — Five Things That Will Move NVDA After the Close - TradingKey",
    "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxOZkVmQ2FKc01fYmN0bXZ0M1J0eFM1STRQTzlsREJ4VXI3UzVOMm5DbVczRkp1WUJhWHBCS2M4dFNnSk1BVjgyUWsyZnAweV9xbFd5NTZ2LU1JamJKR0RzeTZQbTY2UjRqaW0wMkJTVE9rT2VwX25hR3N6N1VBNjFDNnFGT1NLdEpLb0xYeEhwNUpuUWNDcnk2Qkttckw0SEhDem5xamt4QTd6OHUtN2Q2WEFMMzVDbExIaVVKcGd1V1RoQUFwVFR4MEhnMnItd0pJS0RRY21sRWRkWEluX0luNlhnejJVNnZheTlvV0lnY0hXZ0tCSE1OZA?oc=5",
    "source": "TradingKey",
@@ -953,6 +934,22 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
+   "title": "Iran exploring oil sales to Japan, with buyers seeking longer sanctions waiver - The Japan Times",
+   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQN0hzZDVRYzJwa2pKclcwQ2hMbU80TTdzQVREWDhmLTVYYi1TRFNOdG1RcUhuWjh6LVpxempNalVrbm5Eb1Ntd3YtUG5KTGZZTVRFUGdzSWs2cmR2Yy1MUHdiLXM2NjNuVlgzWDREYXdyZmlfc1F6S183WnBVVDg5dk5JcGc?oc=5",
+   "source": "The Japan Times",
+   "pubDate": "Sat, 04 Jul 2026 01:00:00 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
    "title": "June Jobs Report 2026: Weak Hiring Shifts Fed Rate Cut Expectations - Intellectia AI",
    "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBmMjdpYno1enhmdGxYdnkxSndZV0hPM0xLSDNINmJlVGxHcm1MMXRaV1pUMjlTSzJFTExNcjRoMzJ6bC1VeldaeUpHNnI3Q1AwQzhTRFEtd0sxWEtTY0sxZ0UxTWo4cXRPSHZvZGVaYzVDSVV6WVNMa2dVWHlPZw?oc=5",
    "source": "Intellectia AI",
@@ -1097,6 +1094,22 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
+   "title": "Broadcom and OpenAI Unveil Jalapeño: An Early Step to Massive AI Growth Potential - The Globe and Mail",
+   "link": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxNbWRJZm9wRjQtWC0yOVNWNnQ1UlFZLWtSazZqbjN2SDFZV0dQTlN6NW9VX3FCajQ0a05ZVDV1WWxPdG4tN2dWdXJ6alNFMUY3T1M4Qi1fZHRPdVo4UlVfVUM4RmhsZkZVSER3TWVDejhXTTB4WTVoaG9rX0cwMUdrcnVEaWgwbE1PcGxkQ00tUE15RDR2U3dwOF9KU2Q4aW9hZThCbnF6eF9hZF83R3VXYlBXVlJkTy13S2pqbURzdldLeFhTZElYRzBtYkxicGdkRDVWN3JfeTMycXdjQmdRY0lUdGxzdEZoSXY1TkhWQVVqelhITFQyX1lhWQ?oc=5",
+   "source": "The Globe and Mail",
+   "pubDate": "Sat, 04 Jul 2026 12:05:00 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | mega-cap+8",
+   "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
    "title": "Gold’s sharp correction: What lies ahead for prices? - The Economic Times",
    "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOOWFXb3Bjank2UDBLWm9sWVZsWFp6S0VwamdTRG5JUW9jOFJzVmE4TTRodDMyS0R0dmtQS2hGOVg2OUltajlUYmZ6MHhZMVN1TGpjbW5uOVBLclp1NHhYZTZjMkRnU2FLdkVwUHJ4NHA3WUE5ci14cW1ibV9LN0pfWllJWDEwWks4SHZld1dCblF5Qm5pMFhfd3p3LV96cmZFVC1ncDdOMjZtMjV3ZG1pX05xVWNSSHd6ZGFvdFlEUjXSAcYBQVVfeXFMTXdZdm5SanNheFBsMmo1YnUtNm4yRWNNXy1jQkp6cG5vMGVNZHdoOHhZd1ljd21nbHRsWHAtTlprbVRxR1VTTVlZSXZZVjI4ejdZRWZoWTg2M2k2TllDWmRMU19Qa29nYUdQT2JVM1RaUFViX19NcF9EVXhMbDVPR3N0UnVqZ3F5bVgzRzFWZkRTc09hMEtDY2xoblFzclo4YTVjZ0ZJSzdyMnRsUHk2UmRfNVFjUG4yWVktdWxENFZMQWoxRkd3?oc=5",
    "source": "The Economic Times",
@@ -1113,10 +1126,10 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
-   "title": "Poland returns to dollar bond market with three-tranche offering - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOdGhSODZqVkM4UFdDV1VLVDhfNzB2WmppUE1kUm5HOU52Q09LU1R0RTdJcUVGV2cxVWpDTXduSms5cUJqWUFPWHdiLU5aR2lrY3JuYlhFajVJdjRyNlJpQ19MWmNlUUZKR2N4VFhocWdLaHJvcGZyVjFUYS1GTDlMUFFnaVY2YXppRldVSTlwa3hCVWhpY0x4aEFEWHpFdERzUzVBcWpiVGJaSGY2VGhsS0hjQjFBNVkwNmRHdg?oc=5",
-   "source": "Investing.com",
-   "pubDate": "Sat, 04 Jul 2026 07:00:00 GMT",
+   "title": "Gold Jumps on Weak US Jobs Data as Dollar Slumps, But Central Bank Buying and ETF Outflows Tell a Ta - AD HOC NEWS",
+   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOaHU0Tm05cEs4YXg3R3ZWZnpjTXJqMU9pczFvN2xKSmZ4a1lmbTlQeWRQVGx3eW5YOHc4b181TENNelFQbmxNTTlwcWx5SWk5UjMwOHE4a0hMT3h0cHJUT2dxdTBhcXJ5Xy1NOE9ZZ3lnakp3X2Jwbm9rYTRqLVd4azA3LWctdHI2US02RVhvTTZtTlNMSmxOQWVkU3lLaDhtVnNzd2F3TXNHSkNISlJXeGVHRE9HOTBIZFE3WG53U0xNZ29JaHBhUGZhbw?oc=5",
+   "source": "AD HOC NEWS",
+   "pubDate": "Sat, 04 Jul 2026 03:36:16 GMT",
    "topic": "fxbond",
    "country": "global",
    "tier": 3,
@@ -1139,6 +1152,22 @@
    "score": 36,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
    "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
+   "title": "999 Forecast — Price Target — Prediction for 2027 - TradingView",
+   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1lNmI0Q0ZXQ05RQXliTTRCcUhqSXQyQTFGLTItWjhZLTRESWNzQjlvM3pqUFJLMEpfNEZnbHE3NGxwQTdMNjI4eEIyVXVFUEpPTkhyaVlJQkx3V3dzak1tS1pZeTd3cFBpYTFjMmJUNk1lLVZfQlE?oc=5",
+   "source": "TradingView",
+   "pubDate": "Fri, 03 Jul 2026 23:41:51 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | analyst-action+8",
+   "feedSource": "Google News - Analyst/Earnings",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-03T23:00:00.000Z",
    "newsCycleEnd": "2026-07-04T23:00:00.000Z",
@@ -1193,22 +1222,6 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
-   "title": "Bitcoin’s Liquidity Edge Over Money Supply Growth Shows Signs of Fading - CryptoRank",
-   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE42eTFMUnBCU3N4a1VhbDFmRTcxTlBwRnJsUWxISHppVkpUZ0JWVVJTeEFuamxOdkxJaWlZRWduaU5iZEd6WFNzMl8yQlNJN25sTGJPZ0U0aGY4UXBLT3NDRWx6SUs1S2M1Rnc3dVdXVEptZXZXbGc?oc=5",
-   "source": "CryptoRank",
-   "pubDate": "Sat, 04 Jul 2026 17:40:45 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 3,
-   "score": 34,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12",
-   "feedSource": "Google News - US markets",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
    "title": "3 Under-the-Radar AI Energy Stocks to Buy Right Now - AOL.com",
    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5Rbk50c0JGTTkxazB2Zk1mczFURUVKd0FkQThLOFBBVTJWb1h4UTF0MlVicUdwYUE3SXY1NjZHdVJZUkdKdGJKeFRxaWE4NDJIUndlNEgtNXMxTm5mV0M3NzVGSGlKRnJ3dS1YRUxUSFdScWNwYWc?oc=5",
    "source": "AOL.com",
@@ -1241,6 +1254,22 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
+   "title": "AI is Driving Utilities to Spend a Record $240 Billion in 2026. Buy These Stocks to Capitalize on the Power Surge. - AOL.com",
+   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxORXZVS2ZsMnNJYVV6b0FLTC1VbXdFN3owT1Q4bWE2Z1I0NHVMTjZmWVg5cGVhSGNkNXZZUFBDRnloNVJuZU9tNlhzdTVUWWl1U1ZuVEY3bnV6UENkY2FTeWNwU3g3M2lNSGlhejFaczBLR0NMbkhPVmRZZzNGUzVvYkx3UQ?oc=5",
+   "source": "AOL.com",
+   "pubDate": "Sat, 04 Jul 2026 16:41:15 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 28,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6",
+   "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
    "title": "The AI Boom Has a Power Problem. These Industrial Stocks Are Cashing In. - The Motley Fool",
    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQRml1S3RaN1BPT2lsSXhEVGZSUEdFY0ViQ3ZFazhlSjFwRDFXSnVXWW5rMmROc0pfWG45VTAzekIzOXg4RW04WTFGUURTWDVkV2VER01kZ1cxcDh4RGNlMXBrYTIzdkZIT2EzVF82cDFTdXhGaHNfSzFBa2tqV2NldEVadmV6X0xTaDlPQlIwd2t1TklrYjhNXw?oc=5",
    "source": "The Motley Fool",
@@ -1257,6 +1286,22 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
+   "title": "What Sparked Corsair Gaming's Recent Surge - Kavout | AI",
+   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQOTZCSGs4TVRCTFV1QXg2VUJ6VFR6aE9VQnlWTFFaYUJzZ19Ec2JiRGZhSjVId2JRZzZQcUFNLW5xdEpKc00zX3dCaVMtSUtHdkt6N1NaOFlNX1h2b3h1a3ZWdmQyOFl3YTBsNldCNUg4Xy1XckFQa0N3UGJRdGgtcEZUUQ?oc=5",
+   "source": "Kavout | AI",
+   "pubDate": "Sat, 04 Jul 2026 08:18:43 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 28,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
    "title": "US SPX 500 - Cash Ideas — CMCMARKETS:SPX500 - TradingView",
    "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1VS2VGVVBPZWZaNkhyS25Fb3RaeUhYVkFLZ0xMaWpGUTFqNEVxaEJ5RkdQRzAxVjBMbGYtM3NRVk11QU1rTE9kZmNHTjk4QWVqV21UV05WSXlINHdDRV9zRzNTdzJuVVRTMTZwX3NJWEZRWGp0TDVJ?oc=5",
    "source": "TradingView",
@@ -1267,6 +1312,22 @@
    "score": 28,
    "selectionReason": "base+20 | source-tier3+2 | recency+6",
    "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-03T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
+  },
+  {
+   "title": "Hyperliquid 交易量部分时段超以太坊，机构资金转向 - CryptoRank",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1KY01DWms1QkI5YzFsWFpjWVBKNnJRREZ5MDNUcVNLUDZvR0FER0hUS3JWQ1l4eWpkZ05NZUpHeXRnbmZZclRiYjNMckJJcy1YelFZRU5EeXA?oc=5",
+   "source": "CryptoRank",
+   "pubDate": "Sat, 04 Jul 2026 03:56:02 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 28,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6",
+   "feedSource": "Google News - FX/Bonds",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-03T23:00:00.000Z",
    "newsCycleEnd": "2026-07-04T23:00:00.000Z",
@@ -1305,16 +1366,16 @@
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   },
   {
-   "title": "Does Micron's new and improved price make sense after earnings? - MSN",
-   "link": "https://news.google.com/rss/articles/CBMiywJBVV95cUxPMHFoblNVWkE0d1dYQk5YUTE5RVVmNl9tREpPTkNxYk0wZnJHdHZEWllqbGpkUjdfLW5HSUFWckpIODFpdVBoYXRhYW1EMDM4QkVLS09SdjgzZnFNdGxfUnZ6Y0tLRjdwamdxQ0dRMEZWdHFTOXg2d2tEakNhcHJfM0xIcXZxaE9SMEpWc2Nhc3dOb1QwNTdSbW8xdm9YTTVQTVdQUEhWNnlnTU5lWlZFUEM5bGJMOUxMTS1adEZ2Sk41ZUpjanpBWWo5UGliY3FCYmtOTzY3UFY2MUFJRy15aHcyLWxMQndIb3k3a0VLbVN4T3hianhSb0xiMnpWems3VkJsTExJVnFDYTFGX0VDTWxQcHFvdjNVeERVYzlPaUhZS0xFNjVPdUExVjN6T19EeTVWV05sS3lTSldIQzI3MEFORDlmVXRJNEFN?oc=5",
+   "title": "Buckle up! The Federal Reserve's May inflation forecast points to fireworks on Wall Street. - MSN",
+   "link": "https://news.google.com/rss/articles/CBMitgNBVV95cUxNMU15VjE3Qy11QTdycWpxZ3NXbzgzTjg0SGZidjRkWWw3eWg5aEQyb0dpWE9fVlNsRkVQVENpNjlJMzdMSjNtZjBia01pYkJBbk53MlRyemhXdEVGeXBxaDBoUXNfMUctckhYb2cwZzRZVUZIX251UVYyeV9HSC1nRUJWMjg5aFJDVlRfRjQ0V2NyQWhqM09VSWhkSW9aMmpPRDJIWFpmLUJmSGhUZmxaR2JjUnhualljOWxic3ZGZmQ2azBEVFhmOTU4TTFEeTZLRWdtXzdzWmdsOUZ0c0hycW9SejRtV2p0R2RWTFNBZnU3LWlER1BWSEFtQXhvQktQOXVocnY3OG1Lek43em52a1l2NVJvbU5rak5JeGxuMnVHMjYyNlZ4OW1taTNKM1cxdE1maDFHdkZ4cnV2SXJBWlNaZjFJMHEtdnNYR3VWMEFKcWhxeUxCQnRzNnREUWZxallybHd6MUdBbnozSUpfR1B2YXZVc2NNX0V4aE5yb2VIWTBNblZ4QURoZm5mY3FxRnRGWXE3N29DRWdjWWh1dVl1dmxnbkhuY1NHU0M5dm1nZFJ0OGc?oc=5",
    "source": "MSN",
-   "pubDate": "Sat, 04 Jul 2026 01:52:11 GMT",
-   "topic": "semi",
+   "pubDate": "Sat, 04 Jul 2026 09:57:54 GMT",
+   "topic": "macro",
    "country": "us",
    "tier": 4,
-   "score": 20,
-   "selectionReason": "base+20 | source-tier4-8 | recency+6 | earnings-guidance+10 | low-quality-source-8",
-   "feedSource": "Google News - AI/Semis",
+   "score": 24,
+   "selectionReason": "base+20 | source-tier4-8 | recency+6 | macro-rates+14 | low-quality-source-8",
+   "feedSource": "Google News - US markets",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-03T23:00:00.000Z",
    "newsCycleEnd": "2026-07-04T23:00:00.000Z",
@@ -1351,44 +1412,12 @@
    "newsCycleStart": "2026-07-03T23:00:00.000Z",
    "newsCycleEnd": "2026-07-04T23:00:00.000Z",
    "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
-   "title": "Gold faces short-term pressure, but remains attractive in the long term? HSBC: Three major positives support a rebound by year-end, with Chinese demand as a key driver - Bitget",
-   "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE1VT0R1a1pBOHhUWGxOeUs0SG94d0xNLUZTTW41QVE5ZUZNUjNpS0lQZmxqT0F6T1dBak13eURjLTIyMVZvc2lMdVNHR1dZSFpjcWRYUkxkZTlWd3o0MlBNcmRhONIBY0FVX3lxTE1VT0R1a1pBOHhUWGxOeUs0SG94d0xNLUZTTW41QVE5ZUZNUjNpS0lQZmxqT0F6T1dBak13eURjLTIyMVZvc2lMdVNHR1dZSFpjcWRYUkxkZTlWd3o0MlBNcmRhOA?oc=5",
-   "source": "Bitget",
-   "pubDate": "Sat, 04 Jul 2026 02:42:05 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 4,
-   "score": 18,
-   "selectionReason": "base+20 | source-tier4-8 | recency+6 | fx-bonds-commodities+8 | low-quality-source-8",
-   "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
-  },
-  {
-   "title": "The Federal Reserve to Fire the Second Shot - Bitget",
-   "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE5DeFNxN2NjSV85TVlqZFR2aTlVZnlndlBZRmV3SE9TamxCRXhoTU1fRl9BUlc2THJ6VFBYVjhsdGRWQXI5S3FFSXB0VlFpYml5Tlhub0tQNUUzU3Zsb2VWSWd5c9IBY0FVX3lxTE5DeFNxN2NjSV85TVlqZFR2aTlVZnlndlBZRmV3SE9TamxCRXhoTU1fRl9BUlc2THJ6VFBYVjhsdGRWQXI5S3FFSXB0VlFpYml5Tlhub0tQNUUzU3Zsb2VWSWd5cw?oc=5",
-   "source": "Bitget",
-   "pubDate": "Sat, 04 Jul 2026 01:36:43 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 4,
-   "score": 10,
-   "selectionReason": "base+20 | source-tier4-8 | recency+6 | low-quality-source-8",
-   "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-03T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-04T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-04 08:00 KST ~ 2026-07-05 08:00 KST"
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**AI 칩 수요와 금리 시그널이 엇갈리면서 기술주 중심의 변동성이 확대되고 있습니다.**\n\n①**변동성/심리**: VIX 32로 상승하며 시장 불안감이 고조된 상태. Broadcom 실적 부진으로 나스닥 선물 약세, Nvidia·AMAT 실적 공개 임박으로 기술주 방향성 결정 대기 중.\n\n②**거시/금리**: 연준 기준금리 3.63%, CPI 4.2%로 인플레 위험 지속. NFP 57만 건의 약세 고용지표가 연준의 추가 인상 여지를 축소시키고 있어 금리 경로에 대한 불확실성 상존.\n\n③**주도 뉴스/리스크**: AI 칩 수요 전망(AMAT, NVDA 실적)과 자본지출 트렌드가 단기 방향성 결정. 호르무즈 해협 유가 공급 차질 vs 금리 약화로 인한 금 매도 압력이 상충 중.",
+  "full": "# 현재 시장 분석\n\n**한 줄 요약:** VIX 32로 변동성 확대 속 기술주 부진(Broadcom 실적 부진, Nvidia 실적 발표 임박)이 시장 심리를 압박하고 있는 가운데, 약한 NFP(57K) 데이터가 금리 인하 기대를 부분 지지하는 상황입니다.\n\n① **변동성/심리** — VIX 32 수준으로 변동성이 고조되어 있으며, Broadcom 실적 부진이 나스닥 선물을 끌어내리고 Nvidia 실적 발표가 임박하면서 기술주 중심의 불확실성이 심화 중입니다.\n\n② **거시/금리** — 연방기금금리 3.63%, 10년물 금리와 연동하여 움직이는 가운데, NFP 57K의 약한 고용 데이터가 Fed의 추가 금리 인상 여력을 제한하는 요인으로 작용하고 있습니다.\n\n③ **주도 뉴스/리스크** — 기술주 실적 부진(Broadcom, Insulet 약세 지도)과 Nvidia 실적 발표가 주요 변수이며, 호르무즈 해협 유가 공급 차질 및 금값 변동성 확대(Fed 정책 기대 vs 주식 손실 청산)가 추가 리스크 요인입니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-07-05T19:42:24.535Z",
+  "generatedAt": "2026-07-05T20:40:43.872Z",
   "model": "claude-haiku-4-5"
  }
 }
