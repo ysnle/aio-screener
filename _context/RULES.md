@@ -2890,6 +2890,8 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 1. **속성 텍스트도 사용자 노출 표면** — textContent만 스캔하면 tooltip/aria-label의 dev마커(`DATA_SNAPSHOT`/`RNN`/`vNN.NN`)를 놓침. 표 a11y normalizer(`_aioApplyTableAccessibility`)가 버전배지 포함 heading을 aria-label로 읽어 'v50.14'를 누출한 케이스 — heading clone에서 버전배지 제거 후 추출로 시정. audit은 반드시 속성까지 커버.
 2. **정적 HTML이 JS로 런타임 덮어써지는 동적 누출** — `generateMacroStoryline` 등 페이지 진입 시 렌더되는 텍스트는 페이지에 **실제 진입해야** DOM에 나타남. 정적 스캔만으론 부족하므로 **21페이지를 하나씩 진입(showPage)해 동적 렌더 후 재스캔** 필요. + **서비스워커가 동일 SW_VERSION 캐시를 유지하면 편집한 JS가 가려짐** — 검증 시 SW unregister + `caches.delete` 후 hard reload, 또는 서버에서 직접 fetch해 디스크 내용 대조.
 
+**추가 사례 (P611/v52.14)**: 홈 PUBLIC STATUS 카드가 `getDeploymentGateAudit()`의 영문 내부 감사 로그("full surface audit fail: N issue(s)")와 `pageId:UNAVAILABLE` 형태의 raw enum 나열을 요약 없이 그대로 표시 — `getVisibleDevMarkerAudit()`가 스캔하는 정적/속성 텍스트가 아니라 **런타임에 동적으로 조립되는 문자열**이라 기존 게이트가 놓친 표면. 건수만 뽑은 한국어 요약으로 교체. R206 정신은 이미 이 케이스를 포괄하나, 게이트가 "런타임 조립 문자열"까지 스캔하도록 확장하는 건 별도 과제로 남김(이번엔 발견된 표면만 수동 수정).
+
 ## R207. 접근성 WCAG AA 유지 — 접근 이름·최소 폰트·tap target (v50.14 added)
 
 **Rule**: 인터랙티브 요소(button/[role=button]/[data-action]/select)는 **접근 가능한 이름**(텍스트·aria-label·title)을 가져야 하고, **모든 가시 텍스트 폰트는 ≥11px**(v50.14 사용자 결정 — 9px/8px/9.5px 3차 microcopy 포함 전부 ≥11px 상향). tap target은 WCAG 2.5.8 AA **24×24px** 최소 — 단 인라인 칩/링크는 인라인 예외. 대비(getColorContrastAudit)·테이블(getTableAccessibilityAudit)은 기존 통과 유지. 44×44(AAA)는 밀집 터미널 특성상 트레이드오프로 목표 외.

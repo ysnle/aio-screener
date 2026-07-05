@@ -1,3 +1,22 @@
+## v52.14 (2026-07-05)
+- **P6 UX 정리 5건 일괄 수정 (FABLE-LIVE-AUDIT-2026-07-04.md P6, P611-P615)**: 병렬 탐색 에이전트로 정확한 위치를 확보한 뒤 기계적/저위험 항목만 일괄 반영. 홈 경고 pill 접기·PUBLIC STATUS 표시 방식 자체·Telegram 페이지간 중복 등 설계 판단이 필요한 2건은 사용자 확인 후 별도 진행.
+  - **PUBLIC STATUS 내부 로그 노출 (P611)**: `_aioBuildPublicShareReadiness()`가 `shareAudit.blockers`(예: "full surface audit fail: 22 issue(s)")와 `weakPages`(예: "ticker:UNAVAILABLE")를 영문 원문 그대로 일반 방문자에게 노출 — T776(dev 마커 누출) 계열인데 이 표면은 게이트 미포착. 두 곳 모두 건수만 뽑은 한국어 요약으로 교체(R206 취지).
+  - **키보드 포커스 링이 마우스 사용자에게도 노출 (P612)**: 원인은 `:focus` 선택자 오사용이 아니라 `showPage()`가 페이지 전환마다 `.page-title`에 `tabindex=-1` + `.focus()`를 걸어 스크린리더를 돕는 정상 동작인데, 이 스크립트 트리거 focus가 `:focus-visible`로도 매칭됨. `tabindex=-1`이라 실제 Tab으로는 도달 불가능한 요소라 `.page-title:focus{outline:none}` 추가로 시각 링만 제거해도 키보드 접근성 손실 없음.
+  - **AI 채팅 패널 초기 공백 + 프롬프트 잔류 (P613)**: 페이지 공용 `#ai-panel-msgs`에 `.acp-messages`(홈/theme-detail 미니챗)에 이미 있던 `:empty::before` 안내 문구 패턴을 동일 적용. 별개로 fundamental 등에서 자동채움된 프롬프트가 다른 페이지 이동 후에도 공유 입력창에 남아있던 문제 — `updateAIPanelContext()`가 컨텍스트가 실제로 바뀔 때만(같은 페이지 재호출 시엔 사용자 입력 보존) 입력값을 초기화하도록 수정.
+  - **운영자 노트 경과일 미표시 (P614)**: 홈 최상단 고정 노트가 며칠 전 갱신인지 안 보이던 문제 — 기존 `_aioStaleDaysLabel()`(jensen-interview-stale-days 등과 동일 헬퍼) 재사용해 경과일 배지 추가.
+  - **모바일(390px) 상단바 버튼 텍스트 잘림 (P615)**: 우측 버튼 클러스터(LIVE·시각·VIX·AI·새로고침)가 줄바꿈 없이 넘쳐 마지막 새로고침→"완료" 전환 텍스트가 잘리던 문제 — `.topbar-actions-right` 클래스 부여 후 480px 이하에서 `flex-wrap:wrap` 적용(`.market-pulse-bar`의 overflow-x 대신 wrap 선택 — 헤더에 가로 스크롤은 부자연스러워 두 줄 배치가 더 안정적).
+  - **검증**: 로컬 validate 8개 게이트 green, 전 11개 인라인 스크립트 블록 구문 검증 통과. 헤드리스 899/922(회귀 0).
+  - R1 7곳 v52.14.
+
+## v52.13 (2026-07-05)
+- **kr-technical TradingView KRX 위젯 하드 브레이크(P3) 해소 — Naver 일봉 시세 + Chart.js 자체 캔들 차트로 완전 대체 (FABLE-LIVE-AUDIT-2026-07-04.md P3, DEFERRED-BLOCKS.md B7, P610)**: TradingView 무료 embed가 KRX 심볼에 "TradingView 에서만 제공되는 심볼입니다" 오류 모달을 반환해 22페이지 중 유일하게 방문자 전원이 하드 브레이크를 겪던 문제. 2026-07-04 검토한 3안(① OTC 티커 교체 ② Naver siseJson+Chart.js 자체 캔버스 ③ OHLC 폴백 스트립) 중 가장 큰 규모인 ②로 진행(사용자 확정, 코드 변경 없이 보류했던 B7 재개).
+  - **신규**: `js/aio-data.js`의 `fetchKrDailyCandles(code, count)` — `fchart.stock.naver.com/siseJson.nhn` 일봉 OHLCV를 직접 fetch. 파싱 정규식은 같은 파일의 기존 `fetchKrNaverQuotes()` siseJson 폴백 파서와 동일 패턴 재사용(이미 검증된 방식, eval 없이 안전 추출). 실제 라이브 응답으로 재현 검증: 120건 요청 시 120건 파싱, OHLC 내부 정합성(고≥저, 고≥시/종, 저≤시/종) 위반 0건.
+  - **신규**: `index.html`의 `loadKrCandleChart(code)` — Chart.js core(플러그인 无추가) floating-bar 2계열(고저 심지 + 시-종 몸통, 상승/하락 색상)로 캔들 근사 + MA20 라인 + 별도 거래량 서브플롯. 실패 시 기존 `_showChartFallback()` 오버레이 재사용(새 UI 패턴 도입 안 함).
+  - **교체**: `#tv-widget-kr`(구 TradingView iframe 컨테이너)를 캔들+거래량 캔버스 2개로 전환. `loadTVChart('kr')` 분기만 `loadKrCandleChart()` 위임으로 변경 — US technical/fundamental 페이지의 TradingView 임베드(정상 작동 중)는 완전 무변경. `initKoreaTechnical()`의 최초 자동로드 가드도 `iframe` 존재 검사에서 `krTechCharts['krCandle']` 존재 검사로 전환(재방문 시 중복 재로드 방지 의미 보존).
+  - **범위**: RSI/MACD 서브플롯, 인터랙티브 그리기 도구, 날짜범위 피커, 이미지 저장 등 TradingView 위젯의 전체 기능은 재현하지 않음 — "깨진 위젯 대신 동작하는 자체 가격+거래량+MA20 차트"로 의도적으로 스코프. 페이지 자체의 RSI/MACD/볼린저밴드 텍스트/지표는 이 위젯과 무관한 별도 계산이라 영향 없음.
+  - **검증**: 로컬 validate 8개 게이트 green. `node -e`로 전 11개 인라인 `<script>` 블록 구문 검증(0 오류). 헤드리스 899/922(회귀 0 — 오프라인 결정론적 환경이라 폴백 경로만 실행됨, 성공 경로는 실 네이버 응답 replay로 별도 검증: 파싱 120/120건, SMA20 수동 계산과 정확히 일치). **Chrome 확장 미연결로 실제 브라우저 렌더링(캔버스 시각적 결과)은 이번 세션에서 미확인** — 다음 세션에서 실브라우저 방문 확인 권장(QA-CHECKLIST 등록).
+  - R1 7곳 v52.13.
+
 ## v52.12 (2026-07-05)
 - **"30분마다" 서버 데이터 갱신 서술 정정 — 정의 vs 실발화 구분 (FABLE-LIVE-AUDIT-2026-07-04.md P2)**: 감사가 실측(최근 48h)한 결과 `refresh-data.yml` cron **정의**는 `17,47 * * * *`(30분 주기) 그대로이나, GitHub 무료 러너 스케줄러 자체 스로틀링으로 **실발화** 간격은 1.0~4.2시간(중앙값 ~1.8h) — 코드로 해결 불가(GitHub 인프라 특성).
   - **수정**: `index.html`의 topbar "서버 데이터" 배지 tooltip(사용자 가시 텍스트, `#server-data-age`)이 "30분마다 자동 갱신"이라 단정적으로 표시하던 것을 "cron 정의는 30분 주기이나 실제 발화는 환경상 1~4시간 소요될 수 있음"으로 정정. `_context/DEFERRED-BLOCKS.md` B6(2026-07-03 P591에서 "30분마다 정확히 발화"로 기록됐던 과거 관측)에 이번 48h 재관측 결과를 정정 각주로 추가(과거 기록 삭제 대신 정정 병기 — "발화 자체는 안정적"이라는 B6의 핵심 결론은 유효, 간격 서술만 정정).

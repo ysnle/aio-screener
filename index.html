@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.12 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.14 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -882,6 +882,11 @@ body {
   outline-offset: 2px;
   border-radius: inherit;
 }
+/* v52.14 P6/P612: showPage()가 페이지 전환마다 .page-title에 tabindex=-1 + focus()를 걸어
+   스크린리더 포커스 이동을 돕는데(정상 동작), 이 스크립트 트리거 focus가 :focus-visible로 매칭돼
+   마우스 사용자에게도 파란 테두리가 보임 — tabindex=-1이라 실제 Tab 키로는 도달 불가능한 요소이므로
+   시각적 링만 제거해도 키보드 접근성 손실 없음(스크린리더 공지는 focus() 자체로 계속 동작). */
+.page-title:focus { outline: none; }
 
 /* ─── v48.43 Phase 15: Avatar / Profile chip (Figma reference 반영) ─────── */
 .aio-avatar {
@@ -3934,6 +3939,8 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   .content { padding: 8px !important; }
   .topbar { padding: 6px 10px !important; gap: 6px !important; }
   .topbar .topbar-title { font-size: 12px !important; }
+  /* v52.14 P6/P615: 우측 버튼 클러스터가 줄바꿈 없이 넘쳐 마지막 버튼 텍스트("완료")가 잘리던 문제 */
+  .topbar-actions-right { flex-wrap: wrap !important; justify-content: flex-end !important; row-gap: 4px !important; }
   /* 그리드 1열로 축소 */
   .snap-grid, .kr-index-grid, .tac-score-grid { grid-template-columns: 1fr !important; }
   .snap-card, .metric-card { padding: 8px !important; }
@@ -5180,7 +5187,7 @@ button[data-filter-active="true"] {
           <button data-action="toggleSidebar" class="btn-icon" style="display:none;" id="sidebar-toggle-btn" title="사이드바 열기/닫기">☰</button>
           <div id="breadcrumb"></div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <div class="topbar-actions-right" style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
           <!-- v48.43: LIVE 펄스 배지 (aio-badge + dot glow) -->
           <span class="aio-badge is-green" style="padding:3px 9px;font-size:var(--fs-xs);letter-spacing:var(--ls-wider);">
             <span class="aio-badge-dot" style="background:var(--data-green);box-shadow:0 0 8px var(--data-green);animation:pulse 2s infinite;"></span>
@@ -5234,7 +5241,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.12</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.14</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -11486,17 +11493,25 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div>
-  <!-- v34.9: TradingView 한국장 차트 -->
+  <!-- v34.9: TradingView 한국장 차트 / v52.13 P610/B7: TradingView KRX 임베드 하드 브레이크(P3) 대체 —
+       Naver 일봉 시세 + Chart.js 자체 렌더(외부 위젯 의존 제거) -->
   <div id="tv-chart-kr" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:12px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">TradingView 한국 종목 차트</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">한국 종목 일봉 차트 <span style="font-weight:400;color:var(--text-muted);">(Naver 시세 · 자체 렌더)</span></div>
       <div style="display:flex;gap:6px;">
         <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" data-on-enter="loadTVChart:kr" />
         <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table" style="font-size:11px;">차트 로드</button>
         <button onclick="(function(){var c=document.getElementById('tv-kr-sym').value.trim();if(c)showTicker(typeof krTickerToYahoo==='function'?krTickerToYahoo(c):c);})()" class="aio-btn-table" style="font-size:11px;">Ticker 분석 →</button>
       </div>
     </div>
-    <div id="tv-widget-kr" style="height:400px;border-radius:4px;overflow:hidden;background:#131722;"></div>
+    <div id="tv-widget-kr" style="border-radius:4px;overflow:hidden;background:#131722;padding:8px;box-sizing:border-box;">
+      <canvas id="kr-candle-chart" height="320" style="width:100%;height:320px;max-height:340px;display:block;" role="img" aria-label="한국 종목 일봉 캔들 차트"></canvas>
+      <canvas id="kr-candle-volume" height="70" style="width:100%;height:70px;max-height:80px;display:block;margin-top:2px;" role="img" aria-label="거래량"></canvas>
+    </div>
+    <div id="kr-candle-meta" style="font-size:11px;color:var(--text-muted);margin-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+      <span data-role="kr-candle-asof">데이터 수신 대기...</span>
+      <span>출처: Naver Finance 일봉 종가 · MA20 포함 · TradingView 위젯 아님</span>
+    </div>
   </div>
 
     <!-- v35.6: 한국 시장 건강 점수 (미국 Market Health Score 동일 수준) -->
@@ -12463,9 +12478,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.12" defer></script>
-  <script src="./js/aio-data.js?v=52.12" defer></script>
-  <script src="./js/aio-ui.js?v=52.12" defer></script>
+  <script src="./js/aio-core.js?v=52.14" defer></script>
+  <script src="./js/aio-data.js?v=52.14" defer></script>
+  <script src="./js/aio-ui.js?v=52.14" defer></script>
 
   <script>
 
@@ -15952,7 +15967,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.12" defer></script>
+<script src="./js/aio-chat.js?v=52.14" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28338,7 +28353,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.12" defer></script>
+<script src="./js/aio-glossary.js?v=52.14" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -30333,9 +30348,9 @@ function updateKrBreadth() {
 
 // v33.0: Korean Technical Page init — KOSPI/KOSDAQ 자동 분석
 function initKoreaTechnical() {
-  // v40.4: TradingView 차트 자동 로드 (삼성전자 기본)
+  // v40.4: 차트 자동 로드 (삼성전자 기본) / v52.13 P610: iframe→Chart.js 캔들 전환에 맞춰 가드 조건 변경
   var tvKrContainer = document.getElementById('tv-widget-kr');
-  if (tvKrContainer && !tvKrContainer.querySelector('iframe')) {
+  if (tvKrContainer && !krTechCharts['krCandle']) {
     try { loadTVChart('kr'); } catch(e) {}
   }
   // v35.6: 신규 위젯 초기화
@@ -30649,6 +30664,108 @@ function calculateRR() {
 // v34.9: Phase 2-4 신규 기능 모음
 // ══════════════════════════════════════════════════════════════════
 
+// v52.13 P610/B7: TradingView KRX 임베드 하드 브레이크(FABLE-LIVE-AUDIT-2026-07-04.md P3) 대체.
+// TradingView 무료 embed가 KRX 심볼에 "TradingView 에서만 제공되는 심볼입니다" 오류 모달을 반환하는
+// 문제를 Naver 일봉 시세(fetchKrDailyCandles, js/aio-data.js) + Chart.js 자체 캔들/거래량 렌더로
+// 완전 대체 — 외부 위젯 의존 제거. US technical/fundamental 페이지의 TradingView 임베드는 정상 작동 중이라 무변경.
+function _krSma(closes, period) {
+  var out = [];
+  for (var i = 0; i < closes.length; i++) {
+    if (i < period - 1) { out.push(null); continue; }
+    var sum = 0;
+    for (var j = i - period + 1; j <= i; j++) sum += closes[j];
+    out.push(sum / period);
+  }
+  return out;
+}
+
+async function loadKrCandleChart(code) {
+  code = String(code || '005930').replace(/\.(KS|KQ)$/i, '').trim();
+  var priceCvs = document.getElementById('kr-candle-chart');
+  var volCvs = document.getElementById('kr-candle-volume');
+  var metaEl = document.querySelector('#kr-candle-meta [data-role="kr-candle-asof"]');
+  if (!priceCvs || !volCvs) return;
+
+  var existingFallback = priceCvs.parentElement && priceCvs.parentElement.querySelector('.aio-chart-fallback');
+  if (existingFallback) existingFallback.remove();
+  priceCvs.style.display = 'block'; volCvs.style.display = 'block';
+  if (metaEl) metaEl.textContent = code + ' 일봉 데이터 수신 중...';
+
+  var candles = null;
+  try {
+    candles = typeof fetchKrDailyCandles === 'function' ? await fetchKrDailyCandles(code, 120) : null;
+  } catch (e) { candles = null; }
+
+  if (!candles || candles.length < 5) {
+    if (typeof _showChartFallback === 'function') {
+      _showChartFallback(priceCvs, 'KR 일봉 차트(' + code + ')', 'Naver 시세 수신 실패 — 잠시 후 다시 시도하거나 종목코드를 확인하세요');
+    }
+    volCvs.style.display = 'none';
+    if (metaEl) metaEl.textContent = code + ' 데이터 수신 실패';
+    return;
+  }
+
+  var labels = candles.map(function(c) { return c.date.slice(5); });
+  var closes = candles.map(function(c) { return c.close; });
+  var sma20 = _krSma(closes, 20);
+  var colors = candles.map(function(c) { return c.close >= c.open ? 'rgba(0,229,160,0.9)' : 'rgba(255,91,80,0.9)'; });
+  var volColors = candles.map(function(c) { return c.close >= c.open ? 'rgba(0,229,160,0.5)' : 'rgba(255,91,80,0.5)'; });
+  var tickColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#888';
+  var gridColor = 'var(--surface-3)';
+
+  if (krTechCharts['krCandle'] && typeof krTechCharts['krCandle'].destroy === 'function') krTechCharts['krCandle'].destroy();
+  if (krTechCharts['krCandleVol'] && typeof krTechCharts['krCandleVol'].destroy === 'function') krTechCharts['krCandleVol'].destroy();
+
+  krTechCharts['krCandle'] = new Chart(priceCvs, {
+    data: {
+      labels: labels,
+      datasets: [
+        { type: 'bar', label: '고저', data: candles.map(function(c){ return [c.low, c.high]; }), backgroundColor: colors, barPercentage: 0.22, categoryPercentage: 0.9, borderWidth: 0 },
+        { type: 'bar', label: '시-종', data: candles.map(function(c){ return [Math.min(c.open, c.close), Math.max(c.open, c.close)]; }), backgroundColor: colors, barPercentage: 0.7, categoryPercentage: 0.9, borderWidth: 0 },
+        { type: 'line', label: 'MA20', data: sma20, borderColor: 'var(--data-cyan)', borderWidth: 1.3, pointRadius: 0, spanGaps: true }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { ticks: { color: tickColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }, grid: { display: false } },
+        y: { ticks: { color: tickColor, callback: function(v){ return Number(v).toLocaleString(); } }, grid: { color: gridColor } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: function(items) { return candles[items[0].dataIndex].date; },
+            label: function(item) {
+              if (item.datasetIndex === 2) return 'MA20 ' + (item.raw != null ? Math.round(item.raw).toLocaleString() : '—');
+              var c = candles[item.dataIndex];
+              return ['시 ' + c.open.toLocaleString(), '고 ' + c.high.toLocaleString(), '저 ' + c.low.toLocaleString(), '종 ' + c.close.toLocaleString()];
+            }
+          }
+        }
+      }
+    }
+  });
+
+  krTechCharts['krCandleVol'] = new Chart(volCvs, {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ data: candles.map(function(c){ return c.volume; }), backgroundColor: volColors, barPercentage: 0.8, categoryPercentage: 0.9, borderWidth: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { display: false },
+        y: { ticks: { color: tickColor, maxTicksLimit: 3, callback: function(v){ return (v >= 1e6) ? (v/1e6).toFixed(1)+'M' : (v/1e3).toFixed(0)+'K'; } }, grid: { color: gridColor } }
+      },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } }
+    }
+  });
+
+  var last = candles[candles.length - 1];
+  if (metaEl) metaEl.textContent = code + ' 종가 ' + last.close.toLocaleString() + '원 (' + last.date + ' 기준) · Naver 일봉 ' + candles.length + '개';
+}
+window.loadKrCandleChart = loadKrCandleChart;
+
 // ── Phase 2-1: TradingView 위젯 로드 ──
 function loadTVChart(page) {
   var sym, containerId, ohlcSym;
@@ -30663,10 +30780,10 @@ function loadTVChart(page) {
     if (wrap) wrap.style.display = 'block';
     ohlcSym = sym;
   } else if (page === 'kr') {
-    var code = (document.getElementById('tv-kr-sym') || {}).value || '005930';
-    sym = 'KRX:' + code.replace(/\.(KS|KQ)$/i, '');
-    containerId = 'tv-widget-kr';
-    ohlcSym = code + '.KS';
+    var krCode = (document.getElementById('tv-kr-sym') || {}).value || '005930';
+    krCode = krCode.replace(/\.(KS|KQ)$/i, '').trim();
+    if (typeof loadKrCandleChart === 'function') loadKrCandleChart(krCode);
+    return;
   }
   var container = document.getElementById(containerId);
   if (!container) return;
@@ -31160,6 +31277,8 @@ document.addEventListener('DOMContentLoaded', function() {
 .ai-ph-close{margin-left:auto;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 8px;}
 .ai-ph-close:hover{color:var(--text-primary);}
 #ai-panel-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.7;}
+/* v52.14 P6/P613: 초기/이력없는 상태가 완전 공백이던 문제 — .acp-messages:empty::before와 동일 패턴 */
+#ai-panel-msgs:empty::before{content:'이 페이지 데이터를 기반으로 질문해보세요';display:block;text-align:center;font-size:12px;color:var(--text-muted);padding:32px 20px;line-height:1.6;}
 .ai-msg{display:flex;gap:8px;max-width:95%;}
 .ai-msg.user{align-self:flex-end;flex-direction:row-reverse;}
 .ai-msg.ai{align-self:flex-start;}
@@ -31298,10 +31417,14 @@ function updateAIPanelContext(pageId) {
   var chatContexts = window.CHAT_CONTEXTS || {};
   var aiInp = document.getElementById('ai-panel-inp');
   var aiBtn = document.getElementById('ai-panel-btn');
+  // v52.14 P6/P613: 페이지 전환으로 채팅 컨텍스트가 실제로 바뀔 때만 공유 입력창을 비움 — 이전 페이지의
+  // 자동채움 프롬프트(예: fundamental "NVDA 종합 기업 분석해줘...")가 다른 페이지까지 따라다니던 문제 수정.
+  // 같은 페이지 내 재호출(_ctxChanged=false)에서는 사용자가 입력 중인 값을 건드리지 않음.
+  var _ctxChanged = (_aiCurrentCtx !== ctxId);
   if (!ctxId || !chatContexts[ctxId]) {
     // AI 미지원 페이지 전환 시
     _aiCurrentCtx = null;
-    if (aiInp) aiInp.disabled = true;
+    if (aiInp) { aiInp.disabled = true; if (_ctxChanged) aiInp.value = ''; }
     if (aiBtn) aiBtn.disabled = true;
     var msgsEl = document.getElementById('ai-panel-msgs');
     if (msgsEl) {
@@ -31313,7 +31436,7 @@ function updateAIPanelContext(pageId) {
     if (chipsEl) chipsEl.innerHTML = '';
     return;
   }
-  if (aiInp) aiInp.disabled = false;
+  if (aiInp) { aiInp.disabled = false; if (_ctxChanged) aiInp.value = ''; }
   if (aiBtn) aiBtn.disabled = false;
   _aiCurrentCtx = ctxId;
   var titleEl = document.getElementById('ai-panel-title');

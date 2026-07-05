@@ -5809,11 +5809,19 @@ function _aioRenderOperatorNote() {
   var restText = normalizedBody.slice(leadText.length).trim();
   if (!restText && bodyText.length > leadText.length) restText = bodyText.slice(leadText.length).trim();
   var bodyHtml = _esc(restText || bodyText).replace(/\n/g, '<br>');
+  // v52.14 P6/P614: 홈 최상단 고정 노트가 며칠 경과했는지 안 보이던 문제 — 기존 _aioStaleDaysLabel
+  // 헬퍼(jensen-interview-stale-days 등과 동일 계산 로직) 재사용해 경과일 배지 추가.
+  var staleInfo = (typeof window._aioStaleDaysLabel === 'function')
+    ? window._aioStaleDaysLabel(note.updated, { warnDays: 3, staleDays: 7 })
+    : { text: '', color: 'var(--text-muted)' };
+  var staleHtml = staleInfo.text
+    ? ' <span class="aio-operator-note-stale-days" id="home-operator-note-stale-days" style="color:' + staleInfo.color + ';font-weight:600;">' + _esc(staleInfo.text) + '</span>'
+    : '';
   el.innerHTML =
     '<div class="aio-operator-note-card aio-operator-note-priority">' +
       '<div class="aio-operator-note-meta">' +
         '<span class="aio-operator-note-kicker">운영자 노트</span>' +
-        '<span class="aio-operator-note-date">' + _esc(note.updated || '') + '</span>' +
+        '<span class="aio-operator-note-date">' + _esc(note.updated || '') + '</span>' + staleHtml +
       '</div>' +
       '<div class="aio-operator-note-title">' + _esc(note.title || '') + '</div>' +
       (leadText ? '<div class="aio-operator-note-lead">' + _esc(leadText) + '</div>' : '') +
@@ -6042,8 +6050,10 @@ function _aioBuildPublicShareReadiness() {
   else if (pageAudit.status !== 'pass') warnings.push('페이지 현재성 주의: ' + (pageAudit.missingCaveat || []).slice(0, 3).join(', '));
   if (!pipelineAudit) warnings.push('데이터 파이프라인 감사 미수신');
   else if (pipelineAudit.status !== 'ok') warnings.push('데이터 파이프라인 주의: ' + (pipelineAudit.issues || []).slice(0, 2).join(' / '));
+  // v52.14 P6/P611/R206: shareAudit.blockers는 "full surface audit fail: N issue(s)" 같은 영문 내부
+  // 감사 로그 원문 — 일반 방문자에게 노출하면 무의미+불안만 유발(R206 dev-marker 금지 취지). 건수만 한국어로 요약.
   if (shareAudit && shareAudit.blockers && shareAudit.blockers.length) {
-    blockers = blockers.concat(shareAudit.blockers.slice(0, 3));
+    blockers.push('배포 전 점검 항목 ' + shareAudit.blockers.length + '건 확인 필요');
   } else if (shareAudit && shareAudit.warnings && shareAudit.warnings.length) {
     warnings.push('공유 readiness 경고 ' + shareAudit.warnings.length + '건');
   }
@@ -6073,7 +6083,8 @@ function _aioBuildPublicShareReadiness() {
   var weakPages = pageEvidenceRows.filter(function(r) {
     return r.sourceKind === 'UNAVAILABLE' || r.sourceKind === 'REFERENCE' || (r.blockers && r.blockers.length);
   }).map(function(r) { return r.pageId + ':' + r.sourceKind; });
-  if (weakPages.length) warnings.push('weak page evidence ' + weakPages.slice(0, 4).join(', '));
+  // v52.14 P6/P611/R206: 원문 "weak page evidence pageId:UNAVAILABLE, ..." 영문 enum 나열 대신 건수만 한국어 요약.
+  if (weakPages.length) warnings.push('일부 페이지 데이터 근거 보강 필요 (' + weakPages.length + '건)');
 
   var status = blockers.length ? 'block' : (warnings.length ? 'warn' : 'ok');
   return {
@@ -13233,6 +13244,39 @@ async function fetchKrNaverQuotes() {
   console.log('[KR-Naver] 네이버 파이낸스 완료:', results.length + '개 (' + elapsed + 'ms)');
   return results;
 }
+
+// v52.13 P610/B7: TradingView KRX 위젯 하드 브레이크(FABLE-LIVE-AUDIT-2026-07-04.md P3) 대체용 —
+// Naver fchart 일봉 OHLCV 시리즈 직접 fetch(자체 캔들 차트 렌더용). 파싱 정규식은 위 fetchKrNaverQuotes()의
+// siseJson 폴백 파서와 동일 패턴 재사용(이미 이 코드베이스에서 검증된 방식 — eval/Function 없이 안전 추출).
+async function fetchKrDailyCandles(code, count) {
+  code = String(code || '').replace(/\.(KS|KQ)$/i, '').trim();
+  count = count || 120;
+  if (!/^[0-9]{6}$/.test(code)) return null;
+  var url = 'https://fchart.stock.naver.com/siseJson.nhn?symbol=' + code + '&timeframe=day&count=' + count + '&requestType=0';
+  try {
+    var r;
+    try { r = await fetchWithTimeout(url, {}, 6000); } catch (e) { r = await fetchViaProxy(url, 8000); }
+    if (!r || !r.ok) return null;
+    var text = typeof r.text === 'function' ? await r.text() : '';
+    if (typeof r.json === 'function' && !text) { var j = await r.json(); text = JSON.stringify(j); }
+    var rows = [];
+    var rx = /\["(\d{8})",\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\]/g;
+    var m;
+    while ((m = rx.exec(text)) !== null) {
+      var d = m[1];
+      rows.push({
+        date: d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8),
+        open: +m[2], high: +m[3], low: +m[4], close: +m[5], volume: +m[6]
+      });
+    }
+    rows = rows.filter(function(row) { return row.close > 0 && row.open > 0 && isFinite(row.close); });
+    return rows.length ? rows : null; // Naver 응답은 이미 날짜 오름차순
+  } catch (e) {
+    _aioLog('warn', 'fetch', 'KR 일봉 캔들 fetch 실패(' + code + '): ' + e.message);
+    return null;
+  }
+}
+window.fetchKrDailyCandles = fetchKrDailyCandles;
 
 // v51.08: krDynamic 스케줄러가 참조하는 통합 KR 동적 데이터 갱신 함수
 // v52.7 P605/R280: 이 선언이 index.html 인라인 스크립트의 동명 함수(VKOSPI 포함 6종 fetch)를
