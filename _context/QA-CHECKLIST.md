@@ -3,11 +3,17 @@ verified_by: agent
 last_verified: 2026-07-05
 confidence: high
 version: v3.7
-checklist_version: v52.14
-total_items: 491
+checklist_version: v52.15
+total_items: 493
 stages: 22
-latest_P_covered: P615
+latest_P_covered: P616
 ---
+
+## v52.15 - 홈 경고 pill 1줄 요약+펼치기 전환 (P616) — 실브라우저 미확인
+
+- [ ] **(미확인)** 홈 방문 시(현재 FMP 키 오류 상태라 최소 1개 pill 존재) 경고 pill들이 바로 안 보이고 "⚠ 주의 항목 N건 ▾" 1줄 요약만 보임.
+- [ ] **(미확인)** 요약 줄 클릭 시 펼쳐지며 기존 11개 pill(FMP/AI/FRED + 8개 매크로 경과 + SMA)이 정상 표시되고, 라벨이 "펼치기"→"접기"로 바뀜.
+- [ ] **(미확인)** 주의 항목이 하나도 없는 상태(전부 정상)에서는 이 섹션 자체가 완전히 숨겨짐.
 
 ## v52.14 - P6 UX 정리 5건 일괄 수정 (P611-P615) — 전부 실브라우저 미확인, 아래 전 항목 다음 세션 확인 필요
 

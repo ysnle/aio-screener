@@ -1,3 +1,10 @@
+## v52.15 (2026-07-05)
+- **홈 경고 pill 11개 연속 노출 → 1줄 요약+펼치기 전환 (FABLE-LIVE-AUDIT-2026-07-04.md P6, P616, 사용자 확정 방식)**: FMP 오류 + 수동 매크로 8종 경과 + SMA pill이 한 번에 나열돼 "고장난 시스템" 인상을 주던 문제. 사용자에게 1줄 요약+펼치기 / 운영자 모드 게이트 / 현행유지 3안을 제시해 1안 확정.
+  - `#aio-pipeline-status-bar`를 감싸는 `<details class="aio-page-advanced-toggle">` 래퍼 추가 — 사이트 전역에 이미 7곳 이상 쓰이는 순수 CSS 펼치기/접기 패턴 재사용(신규 JS 토글 로직 없음, `[open] > summary:after`가 "펼치기"/"접기" 라벨 자동 전환).
+  - 기존 pill 채우기 로직(`_aioRenderPipelineStatus`/`_aioCheckManualFieldStaleness`, js/aio-data.js)은 **완전 무변경** — 신규 `_aioUpdatePipelineStatusToggle()`이 두 함수 호출 **이후에** 실행되어 `#aio-pipeline-status-bar`의 실제 자식 개수만 세어 summary 텍스트("⚠ 주의 항목 N건")를 갱신하고 wrapper 표시 여부를 결정. 개수가 0이면 wrapper 자체를 숨김(R234 "신규 UI 블록 기본 hidden" 정신 유지).
+  - **검증**: 로컬 validate 8개 게이트 green, 인라인 스크립트 11블록 구문 검증 통과. 헤드리스 899/922(회귀 0). **Chrome 확장 미연결로 실제 펼치기/접기 인터랙션은 미확인** — QA-CHECKLIST 등록.
+  - R1 7곳 v52.15.
+
 ## v52.14 (2026-07-05)
 - **P6 UX 정리 5건 일괄 수정 (FABLE-LIVE-AUDIT-2026-07-04.md P6, P611-P615)**: 병렬 탐색 에이전트로 정확한 위치를 확보한 뒤 기계적/저위험 항목만 일괄 반영. 홈 경고 pill 접기·PUBLIC STATUS 표시 방식 자체·Telegram 페이지간 중복 등 설계 판단이 필요한 2건은 사용자 확인 후 별도 진행.
   - **PUBLIC STATUS 내부 로그 노출 (P611)**: `_aioBuildPublicShareReadiness()`가 `shareAudit.blockers`(예: "full surface audit fail: 22 issue(s)")와 `weakPages`(예: "ticker:UNAVAILABLE")를 영문 원문 그대로 일반 방문자에게 노출 — T776(dev 마커 누출) 계열인데 이 표면은 게이트 미포착. 두 곳 모두 건수만 뽑은 한국어 요약으로 교체(R206 취지).

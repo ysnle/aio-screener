@@ -5510,6 +5510,7 @@ async function _aioLoadServerData() {
     try { if (typeof _aioRenderPipelineStatus === 'function') _aioRenderPipelineStatus(); } catch(_) {} // v51.65: 파이프라인 상태 배너
     try { _aioRenderDataFreshness(); } catch(_) {} // v51.66: 신선도 타임스탬프 UI
     try { _aioCheckManualFieldStaleness(); } catch(_) {} // v51.66: 수동 필드 staleness 경고
+    try { _aioUpdatePipelineStatusToggle(); } catch(_) {} // v52.15 P616: pill 개수 집계 → 1줄 요약+펼치기
     try { _aioRenderDeltas(); } catch(_) {} // v51.67: 변화율 표시 (FRED MoM + F&G 전일 + 스코어)
     // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
     try { if (window.AIO && typeof window.AIO.refreshActivePageNarratives === 'function') window.AIO.refreshActivePageNarratives(); } catch(_) {}
@@ -5754,6 +5755,25 @@ function _aioCheckManualFieldStaleness() {
   return staleResults;
 }
 window._aioCheckManualFieldStaleness = _aioCheckManualFieldStaleness;
+
+// v52.15 P6/P616: 홈 경고 pill 11개 연속 노출("고장난 시스템" 인상) 완화 — _aioRenderPipelineStatus/
+// _aioCheckManualFieldStaleness는 무변경으로 두고, 이 함수가 둘이 채운 pill 개수만 집계해
+// #aio-pipeline-status-toggle(<details>, 사이트 전역 .aio-page-advanced-toggle 패턴)의 1줄 요약을 갱신.
+// 반드시 위 두 함수 호출 이후에 실행되어야 함(마지막에 실제 개수를 읽어야 하므로).
+function _aioUpdatePipelineStatusToggle() {
+  try {
+    var bar = document.getElementById('aio-pipeline-status-bar');
+    var toggle = document.getElementById('aio-pipeline-status-toggle');
+    var summary = document.getElementById('aio-pipeline-status-summary');
+    if (!bar || !toggle || !summary) return;
+    var count = bar.children.length;
+    if (count === 0) { toggle.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    toggle.style.display = 'block';
+    summary.textContent = '⚠ 주의 항목 ' + count + '건';
+  } catch (_e) {}
+}
+window._aioUpdatePipelineStatusToggle = _aioUpdatePipelineStatusToggle;
 
 // v51.18: 운영자 노트 — public-data/operator-note.json 로드 + 홈 카드 렌더
 function _aioIsOperatorNotePlaceholder(note) {
