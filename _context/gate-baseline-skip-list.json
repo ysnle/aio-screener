@@ -1,11 +1,10 @@
 {
   "_comment": "Phase 2 [B5] 헤드리스 CI 테스트(scripts/ci-headless-tests.mjs)의 실패 허용 목록. id는 AIO.runTests() 라벨의 T번호. 분류·상세는 _context/GATE-BASELINE-2026-07-03.md 참조. 신규 실패(여기 없는 id)는 CI를 non-blocking으로 실패시켜야 함 — 여기 추가는 실측 후에만, 사유 명시 필수.",
-  "measured_at": "2026-07-03",
-  "measured_version": "v51.96",
+  "measured_at": "2026-07-05",
+  "measured_version": "v52.8",
   "_2026-07-03_update": "/data-refresh 전체 갱신 세션에서 T776(dev-marker 누출 3건 실제 수정)과 T686(breadth mirror drift + fg 불일치 실제 동기화)이 진짜로 해소되어 제거됨(896/921 pass, skip-list 밖 실패 0건 재확인). T324/T325는 자체 하드코딩 기대값(=61)이 여전히 stale해 잔존(별개 원인, seed-data-drift 유지).",
+  "_2026-07-05_update": "FABLE-LIVE-AUDIT-2026-07-04.md P5b(P605/R280) 수정 세션에서 T278/T422(VKOSPI market-data-drift)가 근본원인(fetchKrDynamicData 중복 정의로 실시간 fetch 사장) 수정 + 시드 재조정(27.00→16.00)으로 실제 통과 확인되어 제거(899/922 pass, skip-list 밖 실패 0건 재확인, 전후 25→23건 diff로 이 2건만 빠졌음을 직접 확인).",
   "knownFailures": [
-    { "id": "T278", "category": "market-data-drift", "reason": "KOSPI VKOSPI 실측값이 시드/공포임계 문구와 매일 달라짐" },
-    { "id": "T422", "category": "market-data-drift", "reason": "VKOSPI 라벨 임계값 테스트, T278과 동일 원인" },
     { "id": "T684", "category": "market-data-drift", "reason": "한국 매크로 보조지표(CPI/PMI/PPI/신용) 실측 레벨이 시장 변동에 따라 매일 달라짐" },
     { "id": "T685", "category": "market-data-drift", "reason": "미국 매크로 보조지표(ISM/소비심리/MOVE/RUT/wage/상해지수) 실측 레벨 드리프트, T684와 동일 원인" },
     { "id": "T825", "category": "market-data-drift", "reason": "recentSuppressed>=1을 기대하지만 현재 스크리너 상위 후보에 테스트 고정 티커(CEG/AVGO)가 실제로 없으면 억제될 게 없음 — 라이브 순위 의존" },

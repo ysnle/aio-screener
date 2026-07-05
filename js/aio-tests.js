@@ -6852,6 +6852,21 @@
       t845detail = JSON.stringify({ ok:model845 && model845.ok, months:model845 && model845.monthlyRows && model845.monthlyRows.length, years:model845 && model845.annualRows && model845.annualRows.length, components:model845 && model845.components && model845.components.length });
     } catch(e) { t845detail = 'ERR:' + e.message; }
     _assert('T845 v5179_portfolio_backtest_lab: monthly returns, annual table, drawdown table, active risk, and attribution are produced', t845ok, t845detail);
+
+    // v52.7 P604/R279: MACRO_CALENDAR 요일-고정 발표(monthly-first-friday)는 기계적 advance 후에도
+    // 실제 그 요일이어야 함 — 특정 날짜 리터럴이 아니라 구조적 요일 검증(달력 드리프트에 안전, T759와 별개).
+    var mcaWd = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
+    var t859ok = false, t859detail = '';
+    try {
+      var wdEntries = mcaWd ? Object.keys(mcaWd).filter(function(k){ return mcaWd[k].frequency === 'monthly-first-friday'; }) : [];
+      var wdBad = wdEntries.filter(function(k) {
+        var dow = new Date(mcaWd[k].nextRelease + 'T00:00:00Z').getUTCDay();
+        return dow !== 5; // 5 = Friday
+      });
+      t859ok = wdEntries.length > 0 && wdBad.length === 0;
+      t859detail = wdEntries.map(function(k){ return k + '=' + mcaWd[k].nextRelease + '(dow=' + new Date(mcaWd[k].nextRelease + 'T00:00:00Z').getUTCDay() + ')'; }).join(', ');
+    } catch(e) { t859detail = 'ERR:' + e.message; }
+    _assert('T859 v527_macro_calendar_weekday_anchor: monthly-first-friday 주기 nextRelease는 항상 금요일(요일 구조 검증)', t859ok, t859detail);
   }
 
   window.AIO = window.AIO || {};

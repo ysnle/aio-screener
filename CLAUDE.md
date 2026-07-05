@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v52.6**
+- 현재 버전: **v52.12**
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다.
 - **v52.6 뉴스 번역 파이프라인 사망 원인 규명·수정(FABLE-LIVE-AUDIT-2026-07-04.md P1, P603)**: 감사가 근거로 든 "쿼터 미소진" 사이드바 UI는 AI 채팅 전용 로컬 카운터로 뉴스 번역과 무관함을 확인(추론 근거 아님). Google Translate 무료 경로는 직접 호출로 정상 작동 확인(200·유효 번역·CORS 허용) — 인프라 장애 아님. **실제 원인**: `_aioRenderPageNewsStrip`(macro/fxbond/technical/themes/sentiment/signal/fundamental/breadth 8개 페이지 공유 함수, 감사 지목 페이지 목록과 정확히 일치)이 페이지별 상위 4건을 뽑아 렌더링하면서 그 선택 항목에 번역을 요청하지 않음 — 초기 6건 배치에도 `data-news-idx` 지연로딩 옵저버에도 안 걸려 영구 미번역. 브리핑도 `renderBriefingFeed`/`_aioRenderBriefingDigest` 두 곳 동일 결함. **R245/P554(홈 "핵심 뉴스"에서 이미 고친 동일 버그 유형)가 이 9개 표면엔 미적용 상태였던 것**. 수정: 3곳에 R245와 동일한 "선택 항목 미캐시 시 즉시 번역 요청" 패턴 추가 + `autoTranslateNews` 완료 시 해당 위젯 재렌더 연결. 원문 헤드라인 폴백·프록시 페일오버 하드닝은 범위 밖으로 보류(사용자 확인).
 - **v52.5 CI workflow_run 체크아웃 ref 근본 수정(FABLE-LIVE-AUDIT-2026-07-04.md P0, P602/R278)**: `ci.yml`의 validate/headless-tests/deploy 3개 job이 공통으로 쓰던 `ref: ${{ github.event.workflow_run.head_sha || github.sha }}`가 원인 — `head_sha`는 트리거 run이 **시작된 시점**의 커밋으로 고정되어, refresh-data가 새 데이터를 push해도 CI는 항상 그 직전 커밋을 검증·배포함(실측: 11:56:57Z push된 `1df0078` vs deploy job이 실제 체크아웃한 `34646a82…` — 라이브는 새 배포 타임스탬프인데 내용은 구버전). `ref`를 `github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha`로 변경(3곳) — workflow_run 이벤트는 브랜치 현재 헤드(=방금 push된 커밋), push/PR 경로는 무변경. 신규 R278. **로컬 검증 한계**: workflow_run 페이로드는 실제 Actions 실행에만 존재 — PyYAML 구문검증 + 로컬 validate 전체 + 헤드리스 1회(896/921, 회귀 0)까지 확인, 실효과는 다음 라이브 사이클에서 확인 필요.

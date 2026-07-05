@@ -1,3 +1,51 @@
+## v52.12 (2026-07-05)
+- **"30분마다" 서버 데이터 갱신 서술 정정 — 정의 vs 실발화 구분 (FABLE-LIVE-AUDIT-2026-07-04.md P2)**: 감사가 실측(최근 48h)한 결과 `refresh-data.yml` cron **정의**는 `17,47 * * * *`(30분 주기) 그대로이나, GitHub 무료 러너 스케줄러 자체 스로틀링으로 **실발화** 간격은 1.0~4.2시간(중앙값 ~1.8h) — 코드로 해결 불가(GitHub 인프라 특성).
+  - **수정**: `index.html`의 topbar "서버 데이터" 배지 tooltip(사용자 가시 텍스트, `#server-data-age`)이 "30분마다 자동 갱신"이라 단정적으로 표시하던 것을 "cron 정의는 30분 주기이나 실제 발화는 환경상 1~4시간 소요될 수 있음"으로 정정. `_context/DEFERRED-BLOCKS.md` B6(2026-07-03 P591에서 "30분마다 정확히 발화"로 기록됐던 과거 관측)에 이번 48h 재관측 결과를 정정 각주로 추가(과거 기록 삭제 대신 정정 병기 — "발화 자체는 안정적"이라는 B6의 핵심 결론은 유효, 간격 서술만 정정).
+  - **범위 밖**: `js/aio-data.js:6148`의 "30분마다 재로드" 주석은 별개 개념(브라우저 탭이 열려있을 때 클라이언트가 이미 배포된 data.json을 재조회하는 주기 — 이건 순수 JS 타이머로 이 리포 안에서 완전히 통제되는 값, `30 * 60 * 1000` 리터럴로 실측 확인) — 정정 대상 아님.
+  - **검증**: 로컬 validate 8개 게이트 green. 텍스트/문서 변경만 — 헤드리스 스위트 회귀 영향 없음(재실행 생략, 런타임 로직 무변경).
+  - R1 7곳 v52.12.
+
+## v52.11 (2026-07-05)
+- **briefing 헤더 문장이 말줄임표 없이 단어 중간에서 잘리던 문제 수정 (FABLE-LIVE-AUDIT-2026-07-04.md P5e, P608)**: "…7월 FOMC 공식 일"에서 뚝 끊기는 현상("일정"의 "정"이 잘림, "…" 없음).
+  - **원인**: `js/aio-core.js`의 `_aioDefaultDecision()`(briefing 분기, line 3857)과 3개 형제 지점(FOMC/이란 사유 line 3813/3816, 푸터 노트 line 4486)이 전부 고정 길이 `.slice(0, N)`을 쓰면서 길이 체크도 말줄임표 추가도 없었음 — 소스 문장(`js/aio-core.js:3605` `nextCheckpoint`)은 완전한 문장인데 렌더링 단계에서만 깨져 보임. CSS 클램프(`text-overflow`/`line-clamp`)는 관여하지 않음 — 순수 JS 문자열 절단 버그.
+  - **수정**: `_aioTruncateAtWord(str, maxLen)` 헬퍼 신설(`js/aio-core.js`, `_aioDecisionNum` 옆) — 길이 초과 시에만 단어 경계까지 되돌려 자르고 '…' 추가. 4개 호출부(line 3813/3816/3857/4486) 전부 전환.
+  - **검증**: 헤드리스 899/922(P604-P608 공통 실행, 회귀 0).
+  - R1 7곳 v52.11.
+
+## v52.10 (2026-07-05)
+- **briefing·signal 페이지 F&G가 항상 "—"였던 phantom global 수정 (FABLE-LIVE-AUDIT-2026-07-04.md P5d, P607/R261 사례 추가)**: 같은 시각 홈·sentiment는 F&G 32를 표시하는데 briefing 스코어 스트립은 "—"만 표시되던 문제.
+  - **원인**: `js/aio-core.js:23234`(briefing)와 `index.html:23750`(signal `signal-mv-strip`)이 각각 `window._fearGreedValue`를 읽는데, 이 전역은 코드베이스 어디에서도 대입되는 곳이 없는 phantom global — 항상 `undefined`. 실제 값은 `window._lastFG`(P59로 `applyDataSnapshot()` 직후 `DATA_SNAPSHOT.fg || 18`로 항상 초기화됨, home/sentiment가 이미 사용 중인 정본 소스)에 있었음. 두 곳 모두 같은 오타성 변수명이 복붙되어 있던 동일 버그.
+  - **수정**: 두 위치 모두 `window._lastFG != null ? window._lastFG : DATA_SNAPSHOT.fg`로 전환 — home/sentiment와 동일 패턴.
+  - **분류**: 신규 규칙 아님 — 기존 R261("한 지표의 모든 DOM sink가 등록되어야 함 — 잊힌 sink는 영구 placeholder") 사례를 하나 더 추가.
+  - **검증**: 헤드리스 899/922(P604-P608 공통 실행, 회귀 0). 라이브 육안 확인은 QA-CHECKLIST에 등록(다음 배포 후).
+  - R1 7곳 v52.10.
+
+## v52.9 (2026-07-05)
+- **themes 페이지 상단 사이클 칩이 본문 동적 판정과 모순되던 문제 수정 — 독립 집계 대신 단일 소스 구독 (FABLE-LIVE-AUDIT-2026-07-04.md P5c, P606/R276 사례 추가)**: 우상단 "Late Cycle · 방어 주도" 칩과 본문 "동적 사이클 판정: Mid Cycle (Expansion)"이 같은 화면에서 동시에 표시되는 모순.
+  - **원인**: 칩(`index.html:26128` `generateSectorAnalysis()`)은 상위 5개 리더/래거드 섹터 중 방어/경기민감 개수(`defCount`/`cycCount`)만 세는 독립 휴리스틱, 본문(`_aioRenderThemesCycle`, `js/aio-core.js:2101`)은 `marketState.cycleFull`(신선 시) 또는 `getCycleFromMacro()`(VIX/breadth50/2s10s/SPX추세 가중모델) — 서로 무관한 두 계산이 우연히 어긋난 것.
+  - **수정**: 칩을 본문과 동일한 소스(`marketState.cycleFull` → `getCycleFromMacro({})`)로 전환해 `cycle.phase` 문자열을 그대로 표시(+ 방어/성장 주도 접미사만 추가) — 두 표면이 항상 같은 문구를 보여줘 구조적으로 재모순 불가능. `defCount`/`cycCount` 변수 자체는 같은 함수 내 다른 서술 텍스트(line 26017/26021/26038)에서 계속 쓰여 그대로 유지.
+  - **분류**: 신규 규칙 아님 — 기존 R276(신규 코드는 marketState 구독) 사례를 하나 더 추가, R276 본문에 이 사례 인용 추가.
+  - **검증**: 헤드리스 899/922(P604-P608 공통 실행, 회귀 0).
+  - R1 7곳 v52.9.
+
+## v52.8 (2026-07-05)
+- **VKOSPI 실시간 fetch가 영구 미실행이었던 중복 함수 정의 수정 — 27.00 정적 폴백이 항상 표시되던 근본원인 (FABLE-LIVE-AUDIT-2026-07-04.md P5b, P605/R280)**: kr-technical·kr-home에 VKOSPI 27.00("공포")이 표시되는데 실제 정상 구간(~15-17)과 어긋난다는 감사 항목. 단순 시드 갱신이면 될 줄 알았으나 조사 결과 라이브 fetch 자체가 죽어 있었음(P453에서 이미 한 번 "시드만 재조정" 했다가 다시 stale해진 이력 확인).
+  - **원인**: `async function fetchKrDynamicData()`가 index.html 인라인 스크립트(VKOSPI 포함 6종 fetch 실행)와 `js/aio-data.js`(BOK/KOSIS/네이버 시세 3종만 실행, P524/v51.08 추가)에 각각 독립적으로 선언되어 있었음. `aio-data.js`는 `<script defer>`로 로드되어 index.html의 인라인 스크립트보다 항상 나중에 실행 — 같은 전역 스코프의 동명 함수 선언이 뒤에 실행된 쪽으로 완전히 덮어써짐. 스케줄러(`REFRESH_SCHEDULE.krDynamic.fn`)와 페이지 진입 가드(`initKoreaHome`/`initKoreaSupply`) 모두 페이지 로드 완료 후(모든 스크립트 실행 후) 호출되므로 실제로는 항상 aio-data.js 버전만 실행 — `fetchVkospiDynamic()`을 포함한 index.html의 6개 fetch가 전부 도달 불가능한 죽은 코드였음. 실행 순서 가설을 실제 코드(IIFE 래핑 여부, 두 선언의 정확한 내용)로 직접 확인해 검증.
+  - **수정(최소 범위)**: `js/aio-data.js`의 (실제로 이기는) `fetchKrDynamicData`에 `fetchVkospiDynamic()` 호출만 추가 복구. `DATA_SNAPSHOT.vkospi` 시드를 27.00 → 16.00(FABLE 감사 실측 ~15-17 중간값 추정, js/aio-core.js)으로 갱신 — 라이브 fetch가 실패하는 첫 페인트 순간에도 공포감을 유발하는 오도된 값이 뜨지 않도록.
+  - **범위 밖(의도적으로 남김)**: index.html의 동일 함수가 함께 호출하던 나머지 5종(`fetchKrTradingVolume`/`fetchKrInvestorTop10`/`fetchKrWeeklySupply`/`fetchKrShortSelling`/`fetchKrBreadthData`)은 정확성이 검증되지 않은 채 오래 죽어있던 코드라 이번엔 재활성화하지 않음 — 별도 조사/스모크테스트 필요한 더 큰 스코프로 남겨둠(BUG-POSTMORTEM P605 스코프 노트 참조).
+  - **부수 효과**: 스킵리스트의 T278/T422(VKOSPI 관련 market-data-drift)가 시드 재조정으로 재통과 확인되어 스킵리스트에서 제거(T686 선례와 동일 패턴).
+  - **신규 규칙**: R280(동일 이름의 전역 함수가 서로 다른 파일에 중복 선언되면 나중에 로드되는 파일이 항상 조용히 이김).
+  - **검증**: 헤드리스 899/922(스킵리스트 밖 실패 0, T278/T422가 실제로 통과 목록에서 빠짐 — 스킵리스트 제거를 실측으로 뒷받침). `node --check` 2개 파일.
+  - R1 7곳 v52.8.
+
+## v52.7 (2026-07-05)
+- **매크로 캘린더 auto-advance가 요일-고정 발표일을 불가능한 요일로 밀어내던 버그 수정 (FABLE-LIVE-AUDIT-2026-07-04.md P5a, P604/R279)**: macro 헤더·briefing 일정에 "BLS NFP 2026-07-05"(일요일)가 표시되던 문제. `AIO_MACRO_OFFICIAL_SCHEDULES['us-nfp']`가 2026-07-02까지만 공식 날짜를 보유해 그 이후엔 `_aioRecomputeMacroCalendar`의 기계적 advance(+1개월, 같은 일자 유지)로 폴백하는데, 'monthly-first-friday' 주기임에도 요일을 재계산하지 않아 6/5(금)+1개월=7/5(일)로 드리프트.
+  - **수정**: `_firstWeekdayOfMonth(year, month, weekday)` 헬퍼 추가, 'monthly-first-friday' 분기를 generic 'monthly' 분기보다 먼저 검사해 다음 달의 실제 첫 금요일로 스냅(js/aio-core.js `_aioRecomputeMacroCalendar`). 기존 while-guard 루프가 그대로 "미래가 될 때까지 반복"을 처리해 여러 사이클 밀린 경우도 정상 처리(수동 트레이스로 확인: 6/5 → 7/3 → 8/7, 전부 금요일).
+  - **신규 회귀 가드**: T859 — 특정 날짜 리터럴이 아니라 "monthly-first-friday 주기의 nextRelease는 항상 금요일"이라는 구조를 검증(T759처럼 달력 경과로 자연 만료되지 않음).
+  - **범위 밖**: `AIO_MACRO_OFFICIAL_SCHEDULES`에 8월 이후 실제 BLS 날짜 추가는 별개의 /data-refresh 성격 작업(코드 버그 아님) — 하지 않음.
+  - **검증**: 로컬 validate 8개 게이트 + 헤드리스 1회 899/922(스킵리스트 밖 실패 0, T759는 이제 "2026-08-07" 산출 — 유효한 금요일). T278/T422는 P605(다음 항목)에서 함께 해소.
+  - R1 7곳 v52.7.
+
 ## v52.6 (2026-07-04)
 - **뉴스 번역 파이프라인 사망(P1) 원인 규명·수정 — R245 패턴이 8개 페이지 스트립 + 브리핑 2곳에 미적용 상태였음 (FABLE-LIVE-AUDIT-2026-07-04.md P1, P603)**: 감사 문서의 "쿼터 미소진인데 번역 전멸" 추론을 코드로 재확인한 결과 그 쿼터 UI(`consumeLLMQuery`/`getQuota`)는 AI 채팅 전용 로컬 카운터로 뉴스 번역과 무관함을 확인(근거 아님). 실제 방문자 대다수가 타는 무료 경로(`_gtBatchTranslate` → `translate.googleapis.com`)를 직접 호출해 정상 작동(200, 유효 한국어 번역, `Access-Control-Allow-Origin: *`) 확인 — Google Translate 자체 장애 아님.
   - **실제 원인**: `js/aio-core.js`의 `_aioRenderPageNewsStrip(pageId)` — `macro/fxbond/technical/themes/sentiment/signal/fundamental/breadth` 8개 페이지가 공유하는 단일 함수(감사가 지목한 페이지 목록과 정확히 일치)가 페이지별 상위 4건을 뽑아 렌더링하면서 그 선택 항목에 대한 번역 요청이 없었음. 초기 6건 배치 번역에도, `data-news-idx` 지연로딩 옵저버에도 걸리지 않아 영구 미번역 상태로 고정. 브리핑 페이지도 `renderBriefingFeed`(자체 40건 선별)·`_aioRenderBriefingDigest`(Top3) 두 곳에 동일 결함. **R245/P554(홈 "핵심 뉴스"에서 이미 고친 것과 동일한 버그 유형)가 이 9개 표면에는 적용되지 않았던 것** — 인프라 장애가 아니라 코드 누락.

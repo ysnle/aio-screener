@@ -3635,6 +3635,14 @@ function _aioDecisionNum(v, digits) {
   return n.toFixed(digits == null ? 1 : digits);
 }
 
+// v52.7 P608: 고정 길이 slice(0,N)가 단어 중간을 말줄임표 없이 잘라 문장이 깨져 보이던 문제 —
+// 실제로 넘칠 때만 단어 경계까지 되돌려 자르고 '…'를 붙인다.
+function _aioTruncateAtWord(str, maxLen) {
+  str = String(str == null ? '' : str);
+  if (str.length <= maxLen) return str;
+  return str.slice(0, maxLen).replace(/\s+\S*$/, '') + '…';
+}
+
 function _aioDecisionMetric(sym, field, snapKey) {
   field = field || 'price';
   var ld = window._liveData || {};
@@ -3810,10 +3818,10 @@ function _aioDefaultDecision(pageId) {
   var _fomcReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
   var _iranReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).iranHormuzOil || {};
   var _fomcReason = _fomcReg.result
-    ? 'FOMC ' + (_fomcReg.eventDate || '') + ': ' + _fomcReg.result.slice(0, 50)
+    ? 'FOMC ' + (_fomcReg.eventDate || '') + ': ' + _aioTruncateAtWord(_fomcReg.result, 50)
     : '금리·달러 반응으로 FOMC 정책 경로 확인';
   var _iranReason = _iranReg.result
-    ? (_iranReg.label || '이란/유가') + ': ' + _iranReg.result.slice(0, 40) + ' · ' + wtiTxt
+    ? (_iranReg.label || '이란/유가') + ': ' + _aioTruncateAtWord(_iranReg.result, 40) + ' · ' + wtiTxt
     : '이란/호르무즈 리스크 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인';
 
   var commonReasons = [
@@ -3854,7 +3862,7 @@ function _aioDefaultDecision(pageId) {
     },
     briefing: {
       title: '시장 요약',
-      decision: _band.label + ' — ' + (_fomcReg.nextCheckpoint ? _fomcReg.nextCheckpoint.slice(0, 30) : '주요 이벤트 확인'),
+      decision: _band.label + ' — ' + (_fomcReg.nextCheckpoint ? _aioTruncateAtWord(_fomcReg.nextCheckpoint, 30) : '주요 이벤트 확인'),
       reasons: ['시장 요약 → 운용 포인트 → 핵심 뉴스 순서로 확인', _fomcReason, _iranReason],
       action: '뉴스는 Top 3~5개만 선별하고, 보유 종목 관련 뉴스는 AI 분석으로 넘긴다.'
     },
@@ -4483,7 +4491,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   var _fomcFooterPages = { home:1, macro:1, fxbond:1, signal:1, briefing:1, 'kr-macro':1 };
   var _fomcFoot = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
   var _fomcFootNote = (_fomcFooterPages[pageId] && _fomcFoot.result)
-    ? _fomcFoot.result.slice(0, 70) : '';
+    ? _aioTruncateAtWord(_fomcFoot.result, 70) : '';
   var sourceLabelMap = {
     LIVE: '데이터: 실시간',
     DELAYED: '데이터: 지연',
@@ -10905,6 +10913,14 @@ window.AIO._aioRecomputeMacroCalendar = function(opts) {
     if (m) { var d=new Date(+m[1], +m[2]-1+ (String(freq).indexOf('quarterly')>=0?3:1), 1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
     return md;
   }
+  // v52.7 P604/R279: 'monthly-first-friday' 등 요일 고정 주기는 +1개월 기계적 연장만으로는
+  // 같은 일자가 다른 요일로 밀릴 수 있음(예: 6/5 금 +1개월 → 7/5는 일요일) — 목표 요일로 스냅.
+  function _firstWeekdayOfMonth(year, monthIndex0, weekday) {
+    var d = new Date(Date.UTC(year, monthIndex0, 1));
+    var dow = d.getUTCDay();
+    d.setUTCDate(1 + ((weekday - dow + 7) % 7));
+    return d;
+  }
   // 단일 registry advance — 여러 cycle stale도 미래가 될 때까지 반복 (KR은 수개월 stale 가능)
   function _advanceReg(reg) {
     if (!reg || !reg.releases) return;
@@ -10943,6 +10959,7 @@ window.AIO._aioRecomputeMacroCalendar = function(opts) {
         if (oldMonth) newMonth = _advMonthData(newMonth, freq);
         var step = new Date(newNext);
         if (freq.indexOf('quarterly') >= 0) step.setMonth(step.getMonth() + 3);
+        else if (freq === 'monthly-first-friday') step = _firstWeekdayOfMonth(step.getFullYear(), step.getMonth() + 1, 5);
         else if (freq.indexOf('monthly') >= 0) step.setMonth(step.getMonth() + 1);
         else if (freq.indexOf('every-6-7-weeks') >= 0 || freq.indexOf('fomc-decision') >= 0) step.setDate(step.getDate() + 45);
         else if (freq.indexOf('weekly') >= 0) step.setDate(step.getDate() + 7);
@@ -17681,7 +17698,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.6';
+const APP_VERSION = 'v52.12';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -18721,8 +18738,9 @@ const DATA_SNAPSHOT = {
   bokGdpFcst:   2.6,    bokCpiFcst: 2.7,             // v49.85: 한은 2026 성장률 2.6% / 물가 2.7% 상향 조정 (5/28 SEP)
   krBond3y:     3.20,   krBond10y: 4.27,             // v49.93: 국고채 10Y 4.27% (BOK snapshot 5월 중순, 2023.11 이후 최고 — 한은 인상 기대 급등, 기존 3.72 stale). 3Y 인상기대 반영 추정 (기준 2.50 동결 vs 시장금리 급등 = 가파른 커브)
   krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      27.00,                             // v51.63: 추정치 — KOSPI -5.81% 주간 공포 반영 (기존 28.5 과추정 시정). 라이브(fetchVkospiDynamic Naver) 우선
-  vkospiPct:  +48.4,                              // v51.63: 추정 변동률 (18.2→27.0 +48.4%) — data-snap="vkospi-chg" 시드
+  vkospi:      16.00,                             // v52.7 P605: 27.00 stale 시정 — FABLE 감사 실측(~15-17, 2026-07-04) 중간값 추정, 정밀 재계측은 /data-refresh. 라이브(fetchVkospiDynamic Naver, aio-data.js fetchKrDynamicData 배선 복구) 우선
+  vkospiPct:  -40.7,                              // v52.7: 재보정폭(27.0→16.0) — 실제 주간 변동률 아님, 시드 재조정값
+
   hySpread:    275,                                // v49.84: HY 스프레드 (위험선호 지속, 신고가 환경 — 5/27 SPX 신고가)
   tnx2y:       4.49,                               // v51.96: 10Y TNX 4.485% (public-data Yahoo ^TNX 2026-07-03). 필드명 tnx2y이나 실제 저장값은 10Y 금리 자체(스프레드 아님 — 기존 명명 혼선, 리네이밍은 소비처 영향 커서 별도 작업 필요). 라이브 ^FVX/^IRX 우선
 
@@ -23231,7 +23249,9 @@ function _initBriefingPage() {
       bsv.style.color = bsCol;
     }
     var bfg = document.getElementById('briefing-fg-val');
-    var fg = window._fearGreedValue;
+    // v52.7 P607/R261: window._fearGreedValue는 어디서도 대입되지 않는 phantom global — 항상 "—".
+    // home/sentiment와 동일한 window._lastFG(P59로 항상 초기화됨) 소스로 전환.
+    var fg = window._lastFG != null ? window._lastFG : (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.fg : null);
     if (bfg && fg != null) {
       var fgCol = fg >= 60 ? 'var(--data-green)' : fg >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
       bfg.textContent = fg;

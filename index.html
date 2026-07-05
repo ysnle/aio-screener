@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.6 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.12 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5234,14 +5234,14 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.6</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.12</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <span id="home-risk-regime-badge" class="status-pill sp-neutral">시장 국면 분석중</span>
       <span id="live-source-static-badge" class="freshness-badge fb-static">시세 source 확인</span>
       <span id="live-quote-ts-topbar" class="freshness-badge fb-static" style="font-size:11px;" title="외부 API 연결 필요 — CORS 프록시 사용">시세 연결 중...</span>
-      <span id="server-data-age" class="freshness-badge fb-static" style="font-size:11px;display:none;" title="서버(GitHub Actions)가 받아둔 데이터의 나이 — 30분마다 자동 갱신">서버 데이터 확인 중...</span>
+      <span id="server-data-age" class="freshness-badge fb-static" style="font-size:11px;display:none;" title="서버(GitHub Actions)가 받아둔 데이터의 나이 — cron 정의는 30분 주기이나 실제 발화는 환경상 1~4시간 소요될 수 있음">서버 데이터 확인 중...</span>
       <span id="llm-header-badge" data-action="toggleLLM"
         tabindex="0"
         role="button" aria-pressed="true" aria-label="AI 기능 켜기/끄기" style="background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-mono);" title="AI ON/OFF 전환">AI ON</span>
@@ -12463,9 +12463,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.6" defer></script>
-  <script src="./js/aio-data.js?v=52.6" defer></script>
-  <script src="./js/aio-ui.js?v=52.6" defer></script>
+  <script src="./js/aio-core.js?v=52.12" defer></script>
+  <script src="./js/aio-data.js?v=52.12" defer></script>
+  <script src="./js/aio-ui.js?v=52.12" defer></script>
 
   <script>
 
@@ -15952,7 +15952,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.6" defer></script>
+<script src="./js/aio-chat.js?v=52.12" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23747,7 +23747,8 @@ function refreshSignalDashboard() {
     if (mvStrip) {
       var ld77 = window._liveData || {};
       var vixVal = (ld77['^VIX'] && ld77['^VIX'].price) ? ld77['^VIX'].price : 20;
-      var fg77 = window._fearGreedValue;
+      // v52.7 P607/R261: window._fearGreedValue phantom global 시정 — window._lastFG로 전환 (aio-core.js:23234 동일 수정)
+      var fg77 = window._lastFG != null ? window._lastFG : (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.fg : null);
       var ts77 = total;
       var vixCol77 = vixVal < 20 ? 'var(--data-green)' : vixVal < 25 ? 'var(--data-amber)' : 'var(--data-red)';
       var fgCol77 = fg77 != null ? (fg77 >= 60 ? 'var(--data-green)' : fg77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
@@ -26125,17 +26126,27 @@ function generateSectorAnalysis(sectors) {
   if (breadthGood > 6) text += '<br><span style="font-size:11px;color:var(--data-green);">시장 브레드스 양호 — 다수 섹터 양봉 우세</span>';
   else if (breadthBad > 6) text += '<br><span style="font-size:11px;color:var(--data-red);">시장 브레드스 악화 — 다수 섹터 음봉 우세</span>';
 
+  // v52.7 P606/R276: 섹터 리더십(defCount/cycCount) 독립 집계 대신 _aioRenderThemesCycle과 동일한
+  // 단일 사이클 소스(marketState.cycleFull → getCycleFromMacro)를 읽어 본문 "동적 사이클 판정"과의
+  // 모순(예: 칩 "Late Cycle" vs 본문 "Mid Cycle")을 구조적으로 제거.
   var pill = document.getElementById('theme-cycle-pill');
   if (pill) {
-    if (defCount >= 3) {
+    var _cycPill = null;
+    try {
+      var _msPill = window.AIO && window.AIO.marketState;
+      if (_msPill && _msPill.cycleFull && (Date.now() - (_msPill.ts || 0) < 15 * 60 * 1000)) _cycPill = _msPill.cycleFull;
+      else if (window.AIO && window.AIO.getCycleFromMacro) _cycPill = window.AIO.getCycleFromMacro({});
+    } catch (_ePill) { _cycPill = null; }
+    var _phasePill = _cycPill && _cycPill.phase;
+    if (_phasePill === 'Late Cycle (Peak)' || _phasePill === 'Recession Risk' || _phasePill === 'Bear Market') {
       pill.className = 'status-pill sp-risk-off';
-      pill.textContent = ' Late Cycle · 방어 주도';
-    } else if (cycCount >= 3) {
+      pill.textContent = ' ' + _phasePill + ' · 방어 주도';
+    } else if (_phasePill === 'Mid Cycle (Expansion)' || _phasePill === 'Early Cycle (Recovery)') {
       pill.className = 'status-pill sp-risk-on';
-      pill.textContent = ' Early/Mid · 성장 주도';
+      pill.textContent = ' ' + _phasePill + ' · 성장 주도';
     } else {
       pill.className = 'status-pill sp-neutral';
-      pill.textContent = ' Transition';
+      pill.textContent = _phasePill ? ' ' + _phasePill : ' Transition';
     }
   }
 
@@ -28327,7 +28338,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.6" defer></script>
+<script src="./js/aio-glossary.js?v=52.12" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

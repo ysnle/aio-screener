@@ -1,13 +1,41 @@
 ---
 verified_by: agent
-last_verified: 2026-07-04
+last_verified: 2026-07-05
 confidence: high
 version: v3.7
-checklist_version: v52.6
-total_items: 472
+checklist_version: v52.12
+total_items: 482
 stages: 22
-latest_P_covered: P603
+latest_P_covered: P609
 ---
+
+## v52.12 - "30분마다" 서버 데이터 배지 tooltip 정정 — 정의(30분) vs 실발화(1~4h) 구분 (P609)
+
+- [ ] topbar 서버 데이터 배지에 마우스 오버 시 tooltip이 "30분마다 자동 갱신"이라 단정하지 않고 정의/실발화를 구분해 서술.
+
+## v52.11 - briefing 헤더 단어 중간 잘림 수정 — 말줄임 없는 고정 slice 4곳을 단어경계+'…'로 전환 (P608)
+
+- [ ] briefing 페이지 헤더 결론 문장이 어디서 잘리든 항상 완전한 단어 뒤에서 끝나고 잘렸으면 '…'가 붙어있음 — 단어 중간에서 뚝 끊기면 회귀.
+
+## v52.10 - briefing·signal F&G phantom global 수정 — window._lastFG로 전환 (P607/R261)
+
+- [ ] briefing 페이지 스코어 스트립의 F&G 값이 "—"가 아니라 홈/sentiment와 동일한 숫자를 표시.
+- [ ] signal 페이지 `signal-mv-strip`의 F&G 필도 동일하게 실제 값 표시(둘 다 "—"로 고정되면 회귀).
+
+## v52.9 - themes 사이클 칩·본문 모순 해소: 칩이 marketState/getCycleFromMacro 단일 소스 구독 (P606/R276)
+
+- [ ] themes 페이지 방문 시 우상단 사이클 칩(예: "Mid Cycle (Expansion) · 성장 주도")과 본문 "동적 사이클 판정" 섹션이 항상 같은 phase 문구를 표시 — 서로 다른 사이클 이름이 동시에 보이면 회귀.
+
+## v52.8 - VKOSPI 실시간 fetch 사장 근본원인 수정 + 시드 재조정 (P605/R280)
+
+- [ ] kr-technical/kr-home의 VKOSPI 값이 27.00에 고정되어 있지 않고 페이지 로드 후 실시간 값(Naver)으로 갱신됨 — 콘솔에 `[KR] VKOSPI 동적 업데이트:` 로그 확인.
+- [ ] `kr-health-vkospi` 라벨이 실측값 기준 임계값(20/25/35)과 일치 — 항상 "공포"로 고정되어 있지 않음.
+- [ ] `AIO.runTests()` 결과에서 T278/T422 PASS 확인(스킵리스트에서 제거됨 — 재실패 시 회귀).
+
+## v52.7 - 매크로 캘린더 요일-고정 발표일 auto-advance 수정: NFP가 불가능한 요일로 밀리지 않음 (P604/R279)
+
+- [ ] macro 페이지 헤더 + briefing 일정의 "다음 BLS NFP" 날짜가 항상 금요일 — 일/토요일이 표시되면 회귀.
+- [ ] `AIO.runTests()` 결과에서 T859("monthly-first-friday 주기 nextRelease는 항상 금요일") PASS 확인.
 
 ## v52.6 - 뉴스 번역 파이프라인 사망(9개 표면) 수정: 페이지 스트립·브리핑이 자체 선택 항목의 번역을 요청 (P603/R245)
 

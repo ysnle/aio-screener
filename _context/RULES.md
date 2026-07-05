@@ -6,6 +6,22 @@ target_version: v51.80
 
 ---
 
+## R280. A global function declared in more than one non-module `<script>` (inline or external) silently loses all but the last-loaded definition — with no error, no warning (v52.8)
+
+- Classic (non-module) `<script>` tags share one global scope. If the same function name is declared with `function`/`async function` syntax in two different `<script>` blocks — inline, external, or a mix — the *last one to execute* wins completely; every earlier declaration (and everything only it called) becomes silently unreachable. No console error, no lint signal from either file read in isolation.
+- `<script defer>` external files always execute after all inline `<script>` blocks that precede them in document order — so a duplicate between an inline block and a deferred external file always resolves to the external file's version, regardless of which looks more "current."
+- Before adding a new top-level `function name(){}` to any non-IIFE-wrapped `js/*.js` file or an inline `<script>` block in index.html, grep the *entire* codebase for that exact name first. If a match exists, rename one, make one explicitly call the other, or delete the obsolete one — never let two same-named declarations coexist unremarked.
+- Complements R260 (same file/scope duplicate — single-file check) and R275 (shared global *objects* must merge, not overwrite) — R280 covers the same last-write-wins hazard applied to *functions* declared across *separate files*.
+- See P605/BUG-POSTMORTEM.md.
+
+## R279. A frequency string embedding a required weekday (e.g. `monthly-first-friday`) must snap to that weekday after every mechanical date-advance, not just shift by a calendar month/day count (v52.7)
+
+- A mechanical "advance this stale date to the next cycle" loop that steps by `+1 month` (or any fixed day/month delta) preserves the *day-of-month*, not the *day-of-week*. For any indicator whose real-world release is anchored to a specific weekday (e.g. US BLS Non-Farm Payrolls: always the first Friday of the month), this can silently produce a date the underlying event can never actually fall on.
+- Check for a weekday-anchor pattern in the frequency string *before* falling into a generic "contains 'monthly'" branch — a specific check must run ahead of a broader substring check that would also match it. Compute the actual target weekday's date in the resulting month (e.g. via a `Date.UTC`-based "first Friday of month" helper) rather than reusing the previous cycle's day-of-month.
+- A regression test for this class of bug must assert the structural property (day-of-week) generically across whatever the current value is — not a specific date literal, which will itself go stale and either need constant upkeep or get skip-listed as "calendar drift" and stop actually checking anything.
+- Narrower sibling of R267 ("current"-labeled rolling aggregations must anchor windows to the newest observation) — both are about mechanical date/window math silently producing a plausible-looking but wrong result when a hidden anchoring requirement isn't carried through.
+- See P604/BUG-POSTMORTEM.md.
+
 ## R278. A `workflow_run`-triggered job that needs the commit its trigger produced must checkout `head_branch`, not `head_sha` (v52.5)
 
 - `github.event.workflow_run.head_sha` is fixed to the head of the triggering workflow's branch **at the moment that workflow started** — not any commit it committed/pushed during its own run. A downstream job that does `actions/checkout@v4` with `ref: ${{ github.event.workflow_run.head_sha }}` in order to validate or deploy "what the triggering run just produced" will instead always get the commit that existed *before* that run's own work — one full cycle behind, indefinitely, on every single firing.
@@ -31,6 +47,7 @@ target_version: v51.80
 - Out of scope: purely local/one-off UI state unrelated to shared market conditions (e.g. a dropdown's open/closed flag) is not what this rule targets.
 - Complements R244 (an already-displayed value must not be independently recomputed per surface — a display-consistency rule): R276 is the more general source-discipline rule — don't create a new independent computation path in the first place, regardless of whether the value is already displayed elsewhere.
 - See P600/BUG-POSTMORTEM.md.
+- **Additional precedent (P606/v52.9)**: themes page's top-right cycle chip computed its own independent `defCount`/`cycCount` sector-leadership heuristic while the same page's body (`_aioRenderThemesCycle`) already read the correct source (`marketState.cycleFull`/`getCycleFromMacro`) — the two silently disagreed on-screen. Fixed by pointing the chip at the same source instead of a parallel heuristic. Pre-dated this rule's own introduction (v52.3), which is exactly the kind of older UI code this rule exists to catch when next touched.
 
 ## R275. A shared global object populated by multiple files must always be merged, never plainly overwritten — even if today's load order happens to make it safe (v51.99)
 
@@ -129,6 +146,7 @@ target_version: v51.80
 - When a function is documented as the single canonical place that updates all DOM sinks for a metric, any new sibling element added later to display that same metric must be added to that function's sink list in the same change. A forgotten sink silently freezes at its static HTML placeholder forever while the rest of the metric's displays update live.
 - `_applyFearGreedScore()`'s sink list (`big`, `val`, `homeFG`, `rat` — js/aio-data.js) is the concrete precedent.
 - See P570/BUG-POSTMORTEM.md for the incident (two different F&G numbers on the same sentiment-page card).
+- **Additional precedent (P607/v52.10)**: briefing's and signal's own F&G pills didn't even read the wrong-but-existing sink — they read `window._fearGreedValue`, a global never assigned anywhere in the codebase (permanently `undefined`, copy-pasted into two separate pages), instead of the real live-maintained `window._lastFG`. A variant of "forgotten sink": here the sink element existed and was wired to *a* variable, just not the correct one — same failure mode (frozen at placeholder forever) via a different mistake (wrong identifier instead of no call at all).
 
 ## R259. Re-registerable event listeners must guard against duplicate registration consistently across sibling elements (v51.83)
 

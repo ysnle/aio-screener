@@ -13235,11 +13235,15 @@ async function fetchKrNaverQuotes() {
 }
 
 // v51.08: krDynamic 스케줄러가 참조하는 통합 KR 동적 데이터 갱신 함수
+// v52.7 P605/R280: 이 선언이 index.html 인라인 스크립트의 동명 함수(VKOSPI 포함 6종 fetch)를
+// defer 로드 순서상 항상 덮어써 왔음 — VKOSPI 실시간 fetch가 영구 미실행이었던 근본원인.
+// fetchVkospiDynamic만 최소 복구(다른 5종은 정확성 미검증 상태로 범위 밖에 남김 — BUG-POSTMORTEM P605 참조).
 async function fetchKrDynamicData() {
   const results = await Promise.allSettled([
     typeof fetchAllBokData === 'function' ? fetchAllBokData() : Promise.resolve(null),
     typeof fetchAllKosisData === 'function' ? fetchAllKosisData() : Promise.resolve(null),
-    typeof fetchKrNaverQuotes === 'function' ? fetchKrNaverQuotes() : Promise.resolve(null)
+    typeof fetchKrNaverQuotes === 'function' ? fetchKrNaverQuotes() : Promise.resolve(null),
+    typeof fetchVkospiDynamic === 'function' ? fetchVkospiDynamic() : Promise.resolve(null)
   ]);
   return results;
 }
