@@ -182,9 +182,9 @@ purpose: Sonnet 5 작업 세션 인수인계 — 2026-07-06 전수 아키텍처 
 
 ### Phase 2 — 게이트 승격 (품질)
 
-6. **[E-1] skip-list 23건 triage**: GATE-BASELINE-2026-07-03 분류법 재사용, 이번 런 출력 기준 3계층으로 — ① 시드 drift류(T324/T325/T684/T685/T759/T829/T830)는 `/data-refresh`로 해소 가능 여부 확인, ② 잠재 실결함(T491/T512/T557 로딩 문구·T608·T781 font<10px 9건·T834 등)은 개별 수정(각각 P번호), ③ stale 테스트 의심(T762 v50.5 포맷 기대 등)은 테스트 자체를 현행 계약으로 갱신. 각 처리 후 skip-list에서 제거, GATE-BASELINE 문서 갱신.
-7. **[E-1b] 게이트 편입**: skip-list가 "전 항목 사유 명시" 상태가 되면 ci.yml `headless-tests`의 `continue-on-error` 제거 + deploy `needs: [validate, headless-tests]` 편입. ci.yml:109-117 주석의 자체 조건 준수. flaky 관찰 1주 후 확정.
-8. **[E-2] 시각 스모크**: ci-headless-tests.mjs 인프라 재사용 — 22 route 각각 `showPage()` 후 스크린샷을 CI 아티팩트로 업로드(report-only, 비교 없이 육안 확인용부터 시작). "실브라우저 시각 확인 잔여" 반복 항목의 구조적 해소 1보.
+6. ✅ **[E-1] skip-list 23건 triage — 완료(2026-07-06, P627-P630)**: 전 항목 개별 조사·해소, 899/922 → **922/922 all pass**, skip-list `[]`(빈 배열). 예상보다 큰 수확: 시드 drift류로 짐작했던 항목 다수가 실제로는 T324/T325/T684/T685/T759/T829/T830 **8건 전부 R279 동일 클래스**(시점 관측값을 영구 리터럴로 고정)로 확인돼 R279 앰프 형태로 일반화(RULES.md). 그리고 "잠재 실결함" 분류가 실제로 맞아떨어진 **진짜 프로덕션 버그 2건**도 확정: `_aioReorderCoreSections()` parentElement 불일치로 signal lockout 재배치가 v50.33부터 영구 no-op(P628), `_aioBuildDiversifiedRecommendationRows()`의 `recentSuppressed`가 이미 필터링된 배열에서 계산돼 항상 0(P629). 상세는 BUG-POSTMORTEM.md P627~P630, `_context/gate-baseline-skip-list.json`(`knownFailures: []`).
+7. **[E-1b] 게이트 편입 — 이제 착수 가능**: skip-list가 완전히 비었으므로 ci.yml `headless-tests`의 `continue-on-error` 제거 + deploy `needs: [validate, headless-tests]` 편입이 ci.yml:109-117 자체 주석이 명시한 조건을 충족했다. **다음 세션 권장 착수 항목**. flaky 관찰(며칠간 반복 실행으로 새로운 환경의존 실패가 없는지) 후 확정 권장 — 이번 세션에서도 6회+ 재실행 전부 922/922로 안정적이었으나, 실제 CI 환경(GitHub Actions 러너)에서의 안정성은 별도 확인 필요.
+8. **[E-2] 시각 스모크**: ci-headless-tests.mjs 인프라 재사용 — 22 route 각각 `showPage()` 후 스크린샷을 CI 아티팩트로 업로드(report-only, 비교 없이 육안 확인용부터 시작). "실브라우저 시각 확인 잔여" 반복 항목의 구조적 해소 1보. **P628/P629/T781(SVG 폰트 41곳)의 실브라우저 확인이 특히 시급**해짐 — QA-CHECKLIST v52.20 참조.
 
 ### Phase 3 — 알고리즘 정직성
 

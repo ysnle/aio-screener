@@ -1,3 +1,15 @@
+## v52.20 (2026-07-06)
+- **헤드리스 테스트 스킵리스트 23건 전수 해소 (FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 2, P627-P630)**: 899/922 → **922/922 all pass**, skip-list 0건.
+  - **진짜 프로덕션 버그 2건 확정 수정**: (P628) `_aioReorderCoreSections()`(js/aio-core.js)가 signal 페이지 lockout/exitTriggers를 `entry-checklist-card`와 `parentElement` 비교로 재배치하려 했으나, 그 카드가 `.aio-section` 래퍼 안에 중첩돼 있어 비교가 항상 false — 재배치가 영구 no-op이었음(lockout이 티커 바보다도 앞에 남음). `_directChildOf` 정규화로 수정. (P629) `_aioBuildDiversifiedRecommendationRows()`(js/aio-data.js)가 `recentSuppressed`(반복 추천 억제 카운트)를 이미 `_nonRepeat`로 필터링된 `eligible` 배열에서 세고 있어 — 억제된 종목은 그 시점에 이미 배열에서 빠진 뒤라 항상 0. 필터링 전 원본 배열 기준으로 카운트 순서 수정.
+  - **R280 게이트 커버리지 완성 (T143)**: index.html 잔존 인라인 `onclick` 15곳(정적 7 + 동적 생성 8) 전부를 기존 `data-action`/`data-arg`/`data-stop` 위임 패턴으로 전환. 입력값을 읽어야 하는 2곳은 이름 붙은 전역 함수(`tickerDirectSearchFromInput`/`krTvSymSearchFromInput`, js/aio-core.js)로 추출. `ci-structural-check.mjs`의 R280 중복선언 게이트와 함께 이 클래스의 잔존 표면을 닫음.
+  - **R68 준수 회복 + 대규모 죽은 코드 발견 (T239)**: 매크로 스토리라인이 "출처"/"예상 시간"을 표시해야 하는 R68 요건이 실제로는 충족되지 않고 있었음 — `generateMacroStoryline()`(index.html) 중간의 `return;` 때문에 그 요건을 포함한 옛 내러티브 빌드 코드(~230줄)가 완전히 도달 불가능해져 있었음(신형 "4-카드 요약" 버전으로 대체되며 미삭제). 실행되는 경로에 출처/예상시간 푸터 이식, 죽은 블록은 향후 정리 대상으로 주석 표기.
+  - **데이터/버전/캘린더 리터럴 → 구조적 검사 전환 8건**: T324/T325(breadth SMA 시드 정확값 → 0-100 범위), T684/T685(KR/US 보조지표 특정 관측값 하한 → 실제 경제적 임계값), T759(6월 캘린더 정확 날짜 → 유효성+미래날짜+NFP 금요일 구조검증, R279 계열 프리시던트), T762(v50.5 정확 포맷 → 범용 v{major}.{patch} 패턴), T829/T830(텔레그램 다이제스트 특정 주(週) 콘텐츠/날짜 → 형태·상호 일관성 검증). 전부 "특정 시점 관측값을 영구 불변식으로 고정한" 동일 클래스(R279 확장 사례).
+  - **리팩터 후 stale 참조 수정 5건**: T608(에러 가이드에 `AIO.diagnose()` 안내 문구 추가), T706/T834(소스텍스트 grep → 실제 함수 호출/정확한 소유 함수로 전환), T838(사라진 옛 페르소나 문구 "AIO 종목 cockpit" → 현재 문구 "종목 심층 분석 전문가"), T303(홈 칩 개수 하한 7→1, 별도 UX 정리로 의도적 축소된 것 확인).
+  - **접근성**: T781 — SVG 미니차트(`js/aio-ui.js`) 헬퍼 41개 호출부의 font-size(7~9.5px) 전부 10px로 상향(WCAG AA), 홈페이지 실측 fontUnder10pxCount 20→0.
+  - **기타**: T491/T512/T557(placeholder "로딩 중"/"계산 중" → 실값 형식 em-dash), T858(스크리너 랭크 데이터 미준비 시 정상 null 반환을 정당 outcome으로 인정).
+  - **검증**: 전 항목 로컬 8게이트 green + 헤드리스 922/922(각 배치마다 회귀 0 재확인, 최소 6회 재실행). Chrome 확장 미연결로 실브라우저 시각 확인은 QA-CHECKLIST 잔여.
+- R1 7곳 v52.20
+
 ## v52.19 (2026-07-06)
 - **FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 0 (P626/R280 후속)**: R280이 지목한 유일한 P1급 잔존 위험(`fetchKrDynamicData` 그림자 선언)을 기계 게이트화 + 실제 정리.
   - **R280 기계 게이트**: `scripts/ci-structural-check.mjs`에 index.html↔js 5모듈 간 컬럼0 top-level 함수 동명 선언을 전수 대조해 실패시키는 검사 신설. 고의 중복 주입 테스트로 정상 작동 확인 후 원복.
