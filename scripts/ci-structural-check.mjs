@@ -12,6 +12,8 @@ const check = (label, condition) => {
 const core = read('js/aio-core.js');
 const ui = read('js/aio-ui.js');
 const data = read('js/aio-data.js');
+const chat = read('js/aio-chat.js');
+const glossary = read('js/aio-glossary.js');
 const tests = read('js/aio-tests.js');
 const html = read('index.html');
 
@@ -55,6 +57,54 @@ check('KRW-denominated equity prices must use a KR-specific sanity range', /if \
 check('reference-only unavailable values must warn rather than block deployment', /truth-blocked-reference-only[\s\S]*status: row\.operationalUse === 'reference-only' \? 'warn' : 'block'/.test(core));
 check('text audit must distinguish ratios and MA periods from calendar dates', /var slashFormula =/.test(core) && /!slashFormula &&/.test(core));
 check('long news refresh must switch to an honest background status', /백그라운드 갱신/.test(data) && /Date\.now\(\) - _fetchStartTime > 12000/.test(data));
+
+// R280 (P605): index.html and the js/*.js modules are all classic (non-module) <script>s sharing
+// one global scope. A top-level `function name(){}`/`async function name(){}` declared in more
+// than one of these files silently loses all but the last-to-execute definition — no error, no
+// warning, and (per <script defer> spec ordering) the external module always wins over an inline
+// index.html block, regardless of which copy looks more current in the source. P605 found exactly
+// this for `fetchKrDynamicData` (index.html's 6-fetcher version silently overridden by
+// js/aio-data.js's unrelated 3-fetcher version, since ~v51.08) and it went undetected for dozens of
+// versions. This check makes that whole hazard class mechanically unrepeatable instead of relying on
+// a human to grep before adding a new top-level function.
+const RUNTIME_SCRIPT_FILES = {
+  'index.html': html,
+  'js/aio-core.js': core,
+  'js/aio-data.js': data,
+  'js/aio-ui.js': ui,
+  'js/aio-chat.js': chat,
+  'js/aio-glossary.js': glossary,
+};
+// Column-0-anchored on purpose: only true top-level declarations share the global scope this way.
+// Functions nested inside an IIFE/closure (indented, not column 0) are scoped to that closure and
+// cannot collide with another file's global, so they must not trip this check.
+const TOP_LEVEL_FN_RE = /^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
+// P605 follow-up (v52.19) removed index.html's dead `fetchKrDynamicData` copy and judged the 5
+// orphaned KR fetchers it alone called — zero cross-file shadows remain as of that cleanup.
+// Add future confirmed-intentional exceptions here only after they're actually verified (the
+// second check below fails loudly if an entry here turns out not to be shadowed at all).
+const KNOWN_SHADOW_ALLOWLIST = new Set([]);
+
+const fnOwners = new Map();
+for (const [file, src] of Object.entries(RUNTIME_SCRIPT_FILES)) {
+  const namesInFile = new Set();
+  for (const m of src.matchAll(TOP_LEVEL_FN_RE)) namesInFile.add(m[1]);
+  for (const name of namesInFile) {
+    if (!fnOwners.has(name)) fnOwners.set(name, []);
+    fnOwners.get(name).push(file);
+  }
+}
+const shadowed = [...fnOwners.entries()].filter(([name, files]) => files.length > 1 && !KNOWN_SHADOW_ALLOWLIST.has(name));
+
+check(
+  'no top-level function name may be declared in more than one runtime <script> file (R280)'
+    + (shadowed.length ? ': ' + shadowed.map(([name, files]) => `${name} in [${files.join(', ')}]`).join('; ') : ''),
+  shadowed.length === 0
+);
+check(
+  'R280 allowlist must only contain names that are actually still shadowed',
+  [...KNOWN_SHADOW_ALLOWLIST].every((name) => (fnOwners.get(name) || []).length > 1)
+);
 
 if (failures.length) {
   console.error('Structural regression check failed:');

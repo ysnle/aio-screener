@@ -1,13 +1,19 @@
 ---
 verified_by: agent
-last_verified: 2026-07-05
+last_verified: 2026-07-06
 confidence: high
 version: v3.7
-checklist_version: v52.18
-total_items: 501
+checklist_version: v52.19
+total_items: 502
 stages: 22
-latest_P_covered: P625
+latest_P_covered: P626
 ---
+
+## v52.19 - R280 기계 게이트 + fetchKrDynamicData 그림자/orphan 정리 (P626) — 실브라우저 미확인
+
+- [ ] **(미확인)** 한국 수급(`kr-supply`) 페이지 방문 시 "외국인 순매수 TOP 10"/"기관 순매수 TOP 10"/"외국인 보유비중 TOP 10" 3개 표가 "수신 대기"에서 실제 데이터로 채워짐(P605 이후 처음으로 실행 경로가 생긴 기능 복구).
+- [ ] **(미확인)** 위 표가 채워지지 않을 경우(엔드포인트 실패) "네이버 수급 데이터 수신 실패" 폴백 문구가 정상 표시됨(빈 "로딩 중" 무한 대기 아님).
+- [ ] **(미확인)** kr-dash-kospi-volume/kr-dash-kosdaq-volume/kr-breadth-adl/kr-breadth-52w/kr-breadth-20ma/kr-breadth-volume/kr-short-* 요소들은 삭제된 4개 함수의 대상이었으므로 이번 변경으로 동작이 바뀌지 않음(기존 정적 표시값 그대로) — 회귀 아님을 확인.
 
 ## v52.18 - FABLE 감사 P5 잔여 4건 (P622-625) — 전부 실브라우저 미확인
 

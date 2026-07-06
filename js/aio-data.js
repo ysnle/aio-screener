@@ -13318,12 +13318,18 @@ window.fetchKrDailyCandles = fetchKrDailyCandles;
 // v52.7 P605/R280: 이 선언이 index.html 인라인 스크립트의 동명 함수(VKOSPI 포함 6종 fetch)를
 // defer 로드 순서상 항상 덮어써 왔음 — VKOSPI 실시간 fetch가 영구 미실행이었던 근본원인.
 // fetchVkospiDynamic만 최소 복구(다른 5종은 정확성 미검증 상태로 범위 밖에 남김 — BUG-POSTMORTEM P605 참조).
+// v52.19 P605 후속: 나머지 5종을 개별 실엔드포인트 검증 — fetchKrTradingVolume/fetchKrShortSelling/
+// fetchKrBreadthData는 실제 KOSPI/KOSDAQ `basic` 응답에 파싱 대상 필드(accumulatedTradingValue/
+// advanceCount/shortSellingRatio 등) 자체가 없음을 실측 확인, fetchKrWeeklySupply는 호출 엔드포인트가
+// HTML 에러 페이지를 반환(소멸)함을 확인 — 4종은 index.html의 죽은 정의째로 삭제. fetchKrInvestorTop10만
+// 실엔드포인트(stock/{code}/trend) 응답 필드가 정확히 일치함을 확인해 여기 복구.
 async function fetchKrDynamicData() {
   const results = await Promise.allSettled([
     typeof fetchAllBokData === 'function' ? fetchAllBokData() : Promise.resolve(null),
     typeof fetchAllKosisData === 'function' ? fetchAllKosisData() : Promise.resolve(null),
     typeof fetchKrNaverQuotes === 'function' ? fetchKrNaverQuotes() : Promise.resolve(null),
-    typeof fetchVkospiDynamic === 'function' ? fetchVkospiDynamic() : Promise.resolve(null)
+    typeof fetchVkospiDynamic === 'function' ? fetchVkospiDynamic() : Promise.resolve(null),
+    typeof fetchKrInvestorTop10 === 'function' ? fetchKrInvestorTop10() : Promise.resolve(null)
   ]);
   return results;
 }

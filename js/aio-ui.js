@@ -3219,19 +3219,19 @@ window._aioDiagram = (function () {
     var cx = 390, cy = 100, r = 46;
     out += _o(cx, cy, r, _alphaRgb(C.bgSolid, 0.6), col, 2.5);
     out += _t(cx, cy - 3, _n(total), col, 26, 900, 'middle');
-    out += _t(cx, cy + 14, '/ 100', C.muted, 9, 400, 'middle');
+    out += _t(cx, cy + 14, '/ 100', C.muted, 10, 400, 'middle');
     var band = total >= 75 ? 'SEPA Zone' : total >= 60 ? 'Buy Ready' : total >= 45 ? 'Neutral' : total >= 30 ? '주의' : 'Avoid';
     out += _r(cx - 32, cy + 22, 64, 15, _alphaRgb(col, 0.14), 4, col, 1);
-    out += _t(cx, cy + 33, band, col, 8, 700, 'middle');
+    out += _t(cx, cy + 33, band, col, 10, 700, 'middle');
     var y0 = 34;
     comps.forEach(function (c, i) {
       var y = y0 + i * 30;
       var pct = _cl(c.value / (c.max || 20), 0, 1);
       var cc = _scoreCol(pct * 100);
-      out += _t(14, y + 11, c.label, C.muted, 8.5);
+      out += _t(14, y + 11, c.label, C.muted, 10);
       out += _r(90, y + 3, 190, 10, 'rgba(255,255,255,0.05)', 3);
       out += _r(90, y + 3, Math.round(190 * pct), 10, _alphaRgb(cc, 0.65), 3);
-      out += _t(286, y + 12, _n(c.value, 0) + '/' + c.max, cc, 8.5, 700);
+      out += _t(286, y + 12, _n(c.value, 0) + '/' + c.max, cc, 10, 700);
       if (i === 2) out += _l(310, y + 8, 352, cy, 'rgba(255,255,255,0.1)');
     });
     out += _l(310, 44, 348, cy, 'rgba(255,255,255,0.06)');
@@ -3256,12 +3256,12 @@ window._aioDiagram = (function () {
     out += _r(qx + qw / 2, qy + qh / 2, qw / 2, qh / 2, _alphaRgb(C.cyan, 0.07), 0, C.border, 0.5);
     out += _l(qx + qw / 2, qy, qx + qw / 2, qy + qh, 'rgba(255,255,255,0.10)');
     out += _l(qx, qy + qh / 2, qx + qw, qy + qh / 2, 'rgba(255,255,255,0.10)');
-    out += _t(qx + qw / 2, qy - 5, '위험선호', C.muted, 7.5, 600, 'middle');
-    out += _t(qx + qw / 2, qy + qh + 12, '위험회피', C.muted, 7.5, 600, 'middle');
-    out += _t(qx + qw / 4, qy + 11, 'Bear Rally', C.red, 7.5, 600, 'middle');
-    out += _t(qx + qw * 3 / 4, qy + 11, 'Bull Trend', C.green, 7.5, 600, 'middle');
-    out += _t(qx + qw / 4, qy + qh - 6, '방어 포지션', C.amber, 7.5, 600, 'middle');
-    out += _t(qx + qw * 3 / 4, qy + qh - 6, '회복 추세', C.cyan, 7.5, 600, 'middle');
+    out += _t(qx + qw / 2, qy - 5, '위험선호', C.muted, 10, 600, 'middle');
+    out += _t(qx + qw / 2, qy + qh + 12, '위험회피', C.muted, 10, 600, 'middle');
+    out += _t(qx + qw / 4, qy + 11, 'Bear Rally', C.red, 10, 600, 'middle');
+    out += _t(qx + qw * 3 / 4, qy + 11, 'Bull Trend', C.green, 10, 600, 'middle');
+    out += _t(qx + qw / 4, qy + qh - 6, '방어 포지션', C.amber, 10, 600, 'middle');
+    out += _t(qx + qw * 3 / 4, qy + qh - 6, '회복 추세', C.cyan, 10, 600, 'middle');
     var dotX = qx + _cl((spyPct / 100) * qw, 8, qw - 8);
     var dotY = qy + _cl(((100 - vixPct) / 100) * qh, 8, qh - 8);
     var col = _scoreCol(score);
@@ -3269,10 +3269,10 @@ window._aioDiagram = (function () {
     out += _o(dotX, dotY, 3.5, col);
     var rx = 332, ry = 56;
     out += _r(rx, ry, 94, 68, _alphaRgb(col, 0.10), 6, col, 1);
-    out += _t(rx + 47, ry + 16, regime, col, 9, 700, 'middle');
-    out += _t(rx + 47, ry + 31, '점수 ' + _n(score), C.muted, 8, 600, 'middle');
+    out += _t(rx + 47, ry + 16, regime, col, 10, 700, 'middle');
+    out += _t(rx + 47, ry + 31, '점수 ' + _n(score), C.muted, 10, 600, 'middle');
     out += _t(rx + 47, ry + 47, 'VIX ' + _n(vix, 1), vix >= 25 ? C.red : vix >= 18 ? C.amber : C.green, 10, 700, 'middle');
-    out += _t(rx + 47, ry + 61, vix >= 25 ? '고변동 경계' : vix >= 18 ? '주의 구간' : '저변동 안정', C.muted, 7.5, 400, 'middle');
+    out += _t(rx + 47, ry + 61, vix >= 25 ? '고변동 경계' : vix >= 18 ? '주의 구간' : '저변동 안정', C.muted, 10, 400, 'middle');
     return _svg(W, H, out);
   }
 
@@ -3304,7 +3304,7 @@ window._aioDiagram = (function () {
       var ex = cx + R * Math.cos(a), ey = cy + R * Math.sin(a);
       out += _l(cx, cy, ex.toFixed(1), ey.toFixed(1), 'rgba(255,255,255,0.07)');
       var lx = cx + (R + 16) * Math.cos(a), ly = cy + (R + 16) * Math.sin(a);
-      out += _t(lx.toFixed(1), (ly + 3).toFixed(1), ax.label, C.muted, 8, 600, 'middle');
+      out += _t(lx.toFixed(1), (ly + 3).toFixed(1), ax.label, C.muted, 10, 600, 'middle');
     });
     var pts = axes.map(function (ax, i) {
       var a = (i / n) * Math.PI * 2 - Math.PI / 2;
@@ -3320,7 +3320,7 @@ window._aioDiagram = (function () {
     if (d.rank != null) {
       var rc = _scoreCol(d.rank);
       out += _r(W - 66, H - 28, 58, 20, _alphaRgb(rc, 0.14), 4, rc, 1);
-      out += _t(W - 37, H - 14, '랭크 ' + d.rank, rc, 8.5, 700, 'middle');
+      out += _t(W - 37, H - 14, '랭크 ' + d.rank, rc, 10, 700, 'middle');
     }
     return _svg(W, H, out);
   }
@@ -3341,13 +3341,13 @@ window._aioDiagram = (function () {
     out += _t(14, 19, '데이터 파이프라인 현황', C.text, 10, 700);
     var ageMin = meta.ageMin;
     var ageCol = ageMin == null ? C.muted : ageMin < 60 ? C.green : ageMin < 180 ? C.amber : C.red;
-    out += _t(W - 14, 19, ageMin != null ? ageMin + '분 전' : '—', ageCol, 8.5, 600, 'end');
+    out += _t(W - 14, 19, ageMin != null ? ageMin + '분 전' : '—', ageCol, 10, 600, 'end');
     items.forEach(function (it, i) {
       var col2 = i % 2, row = Math.floor(i / 2);
       var x = 14 + col2 * 204, y = 34 + row * 42;
       out += _r(x, y, 196, 34, 'rgba(255,255,255,0.025)', 5, it.ok ? _alphaRgb(C.green, 0.22) : _alphaRgb(C.red, 0.18), 1);
-      out += _t(x + 10, y + 13, it.label, C.muted, 8.5, 600);
-      out += _t(x + 10, y + 27, it.val, it.ok ? C.green : C.red, 9, 700);
+      out += _t(x + 10, y + 13, it.label, C.muted, 10, 600);
+      out += _t(x + 10, y + 27, it.val, it.ok ? C.green : C.red, 10, 700);
       out += _t(x + 186, y + 13, it.ok ? '✓' : '✗', it.ok ? C.green : C.red, 11, 900, 'end');
     });
     return _svg(W, H, out);
@@ -3381,10 +3381,10 @@ window._aioDiagram = (function () {
         ' stroke="' + (active ? col : 'rgba(255,255,255,0.08)') + '" stroke-width="' + (active ? 2 : 0.5) + '"/>';
       var lam = (a0 + a1) / 2;
       var lx = cx + R * 0.66 * Math.cos(lam), ly = cy + R * 0.66 * Math.sin(lam);
-      out += _t(lx.toFixed(1), (ly + 3).toFixed(1), stageNames[i], active ? col : C.muted, 7.5, active ? 700 : 400, 'middle');
+      out += _t(lx.toFixed(1), (ly + 3).toFixed(1), stageNames[i], active ? col : C.muted, 10, active ? 700 : 400, 'middle');
     }
     out += _o(cx, cy, inner, _alphaRgb(C.bgSolid, 0.8));
-    out += _t(cx, cy + 4, stage, stageCols[stageMap[stage] || 0], 8.5, 900, 'middle');
+    out += _t(cx, cy + 4, stage, stageCols[stageMap[stage] || 0], 10, 900, 'middle');
     var indicators = [
       ['CPI',  _n(d.cpi || 3.0, 1) + '%',  (d.cpi || 3) > 3.5 ? C.red : (d.cpi || 3) > 2 ? C.amber : C.green],
       ['금리', _n(d.fedRate || 4.5, 2) + '%', (d.fedRate || 4.5) > 4.5 ? C.red : C.amber],
@@ -3393,7 +3393,7 @@ window._aioDiagram = (function () {
     indicators.forEach(function (row, i) {
       var ry = 30 + i * 54;
       out += _r(225, ry, 146, 46, 'rgba(255,255,255,0.03)', 5, _alphaRgb(row[2], 0.2), 1);
-      out += _t(233, ry + 15, row[0], C.muted, 8, 600);
+      out += _t(233, ry + 15, row[0], C.muted, 10, 600);
       out += _t(233, ry + 34, row[1], row[2], 14, 900);
     });
     return _svg(W, H, out);
@@ -3418,13 +3418,13 @@ window._aioDiagram = (function () {
     [[sma200, '200MA', C.amber], [sma50, '50MA', C.cyan], [ath, 'ATH', C.green]].forEach(function (m) {
       var mx = tx(m[0]);
       out += _l(mx, slY - 2, mx, slY + 10, m[2], 1.5);
-      out += _t(mx, slY + 21, m[1], m[2], 7.5, 600, 'middle');
-      out += _t(mx, slY + 31, '$' + _n(m[0]), m[2], 7, 400, 'middle');
+      out += _t(mx, slY + 21, m[1], m[2], 10, 600, 'middle');
+      out += _t(mx, slY + 31, '$' + _n(m[0]), m[2], 10, 400, 'middle');
     });
     var prx = tx(price);
     out += _r(prx - 7, slY - 6, 14, 20, _alphaRgb(C.cyan, 0.18), 3, C.cyan, 1.5);
-    out += _t(prx, slY + 5, '$' + _n(price), C.text, 7.5, 900, 'middle');
-    out += _t(prx, slY - 10, sym, C.text, 7.5, 700, 'middle');
+    out += _t(prx, slY + 5, '$' + _n(price), C.text, 10, 900, 'middle');
+    out += _t(prx, slY - 10, sym, C.text, 10, 700, 'middle');
     var stats = [
       ['3M 수익', _n(ret3m, 1) + '%', _pctCol(ret3m)],
       ['RSI', _n(rsi, 1), rsi >= 70 ? C.red : rsi <= 30 ? C.green : C.cyan],
@@ -3434,7 +3434,7 @@ window._aioDiagram = (function () {
     stats.forEach(function (s, i) {
       var x = 14 + i * 100;
       out += _r(x, H - 50, 92, 40, 'rgba(255,255,255,0.025)', 4, C.border, 1);
-      out += _t(x + 6, H - 34, s[0], C.muted, 8);
+      out += _t(x + 6, H - 34, s[0], C.muted, 10);
       out += _t(x + 6, H - 16, s[1], s[2], 11, 700);
     });
     return _svg(W, H, out);
@@ -3453,8 +3453,8 @@ window._aioDiagram = (function () {
       var col = (s.perf || 0) > 1 ? C.green : (s.perf || 0) < -1 ? C.red : C.amber;
       var cy2 = H / 2 + (i % 2 === 0 ? -10 : 10);
       out += _o((x + r).toFixed(0), cy2.toFixed(0), r.toFixed(0), _alphaRgb(col, 0.12), col, 1.5);
-      out += _t((x + r).toFixed(0), (cy2 - 4).toFixed(0), s.name || '?', C.text, 7.5, 700, 'middle');
-      out += _t((x + r).toFixed(0), (cy2 + 8).toFixed(0), Math.round(s.weight || 0) + '%', col, 8, 700, 'middle');
+      out += _t((x + r).toFixed(0), (cy2 - 4).toFixed(0), s.name || '?', C.text, 10, 700, 'middle');
+      out += _t((x + r).toFixed(0), (cy2 + 8).toFixed(0), Math.round(s.weight || 0) + '%', col, 10, 700, 'middle');
       x += r * 2 + 6;
     });
     return _svg(W, H, out);
@@ -3478,7 +3478,7 @@ window._aioDiagram = (function () {
     [0, 0.5, 1].forEach(function (t) {
       var y = (cY + cH - t * cH).toFixed(0);
       out += _l(cX, y, cX + cW, y, 'rgba(255,255,255,0.06)');
-      out += _t(cX - 4, (+y + 3).toFixed(0), (minR + t * (maxR - minR)).toFixed(1) + '%', C.muted, 7.5, 400, 'end');
+      out += _t(cX - 4, (+y + 3).toFixed(0), (minR + t * (maxR - minR)).toFixed(1) + '%', C.muted, 10, 400, 'end');
     });
     var mapped = pts.map(function (p, i) {
       var x = (cX + i * (cW / (pts.length - 1))).toFixed(1);
@@ -3494,14 +3494,14 @@ window._aioDiagram = (function () {
     out += '<path d="' + lineD + '" fill="none" stroke="' + C.cyan + '" stroke-width="2"/>';
     mapped.forEach(function (p) {
       out += _o(p.x, p.y, 3.5, C.cyan);
-      out += _t(p.x, (+p.y - 7).toFixed(0), p.term, C.muted, 7.5, 600, 'middle');
-      out += _t(p.x, (+p.y + 14).toFixed(0), p.rate.toFixed(2), C.cyan, 7.5, 700, 'middle');
+      out += _t(p.x, (+p.y - 7).toFixed(0), p.term, C.muted, 10, 600, 'middle');
+      out += _t(p.x, (+p.y + 14).toFixed(0), p.rate.toFixed(2), C.cyan, 10, 700, 'middle');
     });
     var inverted = d.twoY && d.tnx && d.twoY > d.tnx;
     var shape = inverted ? '역전 Inverted' : '정상 Normal';
     var shapeCol = inverted ? C.red : C.green;
     out += _r(W - 104, H - 24, 96, 18, _alphaRgb(shapeCol, 0.12), 4, shapeCol, 1);
-    out += _t(W - 56, H - 11, shape, shapeCol, 8, 700, 'middle');
+    out += _t(W - 56, H - 11, shape, shapeCol, 10, 700, 'middle');
     return _svg(W, H, out);
   }
 
@@ -3521,16 +3521,16 @@ window._aioDiagram = (function () {
       var norm = (g.v - g.min) / (g.max - g.min);
       if (g.inv) norm = 1 - norm;
       var col = norm >= 0.66 ? C.green : norm >= 0.33 ? C.amber : C.red;
-      out += _t(14, y + 13, g.label, C.muted, 8.5, 600);
+      out += _t(14, y + 13, g.label, C.muted, 10, 600);
       out += _r(120, y + 2, 224, 10, 'rgba(255,255,255,0.05)', 3);
       out += _r(120, y + 2, Math.round(224 * 0.40), 10, _alphaRgb(C.green, 0.28), 3);
       out += _r(120 + Math.round(224 * 0.40), y + 2, Math.round(224 * 0.33), 10, _alphaRgb(C.amber, 0.28));
       out += _r(120 + Math.round(224 * 0.73), y + 2, Math.round(224 * 0.27), 10, _alphaRgb(C.red, 0.28));
       var nx = 120 + Math.round(224 * _cl(norm, 0, 1));
       out += _r(nx - 1, y - 1, 3, 14, col, 1);
-      out += _t(350, y + 13, _n(g.v, g.unit === '%' ? 1 : 1) + g.unit, col, 9, 700);
-      out += _t(120, y + 25, g.lo, C.muted, 7.5);
-      out += _t(344, y + 25, g.hi, C.muted, 7.5, 400, 'end');
+      out += _t(350, y + 13, _n(g.v, g.unit === '%' ? 1 : 1) + g.unit, col, 10, 700);
+      out += _t(120, y + 25, g.lo, C.muted, 10);
+      out += _t(344, y + 25, g.hi, C.muted, 10, 400, 'end');
     });
     return _svg(W, H, out);
   }
@@ -3549,14 +3549,14 @@ window._aioDiagram = (function () {
     var W = 400, H = 192, out = '';
     out += _r(0, 0, W, H, C.bg, 8, C.border);
     out += _t(14, 18, '팩터 IC 백테스트', C.text, 10, 700);
-    out += _t(W - 14, 18, 'n=' + n, C.muted, 8.5, 400, 'end');
+    out += _t(W - 14, 18, 'n=' + n, C.muted, 10, 400, 'end');
     factors.forEach(function (f, i) {
       var v = ic[f.key] || 0;
       var y = 28 + i * 36;
       var col = v > 0.05 ? C.green : v > 0 ? C.cyan : v > -0.05 ? C.amber : C.red;
       var barW = Math.round(Math.abs(v) * 700);
       var midX = 182;
-      out += _t(14, y + 13, f.label, C.muted, 8.5, 600);
+      out += _t(14, y + 13, f.label, C.muted, 10, 600);
       out += _r(70, y + 3, 224, 12, 'rgba(255,255,255,0.04)', 2);
       out += _l(midX, y, midX, y + 18, 'rgba(255,255,255,0.14)');
       if (v >= 0) {
@@ -3564,13 +3564,13 @@ window._aioDiagram = (function () {
       } else {
         out += _r(Math.max(midX - Math.min(barW, 112), 70), y + 3, Math.min(barW, 112), 12, _alphaRgb(col, 0.55), 2);
       }
-      out += _t(300, y + 13, 'IC ' + _n(v, 3), col, 8.5, 700);
+      out += _t(300, y + 13, 'IC ' + _n(v, 3), col, 10, 700);
     });
     out += _r(14, H - 46, 180, 36, 'rgba(255,255,255,0.025)', 4, C.border, 1);
-    out += _t(20, H - 29, '분위 스프레드', C.muted, 8);
+    out += _t(20, H - 29, '분위 스프레드', C.muted, 10);
     out += _t(20, H - 13, _n(spread, 2) + '%', spread > 2 ? C.green : spread > 0 ? C.amber : C.red, 12, 700);
     out += _r(204, H - 46, 180, 36, 'rgba(255,255,255,0.025)', 4, C.border, 1);
-    out += _t(210, H - 29, '방향 적중률', C.muted, 8);
+    out += _t(210, H - 29, '방향 적중률', C.muted, 10);
     out += _t(210, H - 13, _n(hit, 1) + '%', hit > 55 ? C.green : hit > 45 ? C.amber : C.red, 12, 700);
     return _svg(W, H, out);
   }

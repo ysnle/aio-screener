@@ -6195,7 +6195,7 @@ async function chatSend(ctxId) {
         _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>인터넷 연결을 확인하세요.</li><li>잠시 후 다시 시도하세요.</li><li>계속 실패하면 데이터 연결 상태를 새로고침하세요.</li></ul>';
       } else {
         _errCat = '알 수 없는 오류'; _errIcon = '❓';
-        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>페이지를 새로고침한 뒤 다시 질문하세요.</li><li>다른 모델을 선택해 재시도하세요.</li><li>같은 문제가 반복되면 API 키와 네트워크 상태를 확인하세요.</li></ul>';
+        _errGuide = '<ul style="margin:6px 0 0 16px;padding:0;line-height:1.6;"><li>페이지를 새로고침한 뒤 다시 질문하세요.</li><li>다른 모델을 선택해 재시도하세요.</li><li>같은 문제가 반복되면 API 키와 네트워크 상태를 확인하세요.</li><li>브라우저 개발자 콘솔에서 <code style="background:rgba(0,0,0,0.25);padding:1px 4px;border-radius:2px;">AIO.diagnose()</code>를 실행하면 시세/채팅/데이터 상태를 한 번에 자가진단할 수 있습니다.</li></ul>';
       }
       var _errBox = '<div style="padding:10px 12px;background:rgba(248,113,113,0.08);border:1px solid #f87171;border-radius:3px;color:var(--text-primary);font-size:12px;line-height:1.5;">' +
         '<div style="font-size:13px;font-weight:700;color:#ff5b50;margin-bottom:4px;">' + _errIcon + ' ' + _errCat + ' — 답변 생성 실패</div>' +

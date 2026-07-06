@@ -104,7 +104,7 @@ target_lines: index.html 32065 + js modules 60777
 
 | 항목 | line | 비고 |
 |------|-----:|------|
-| `computeTradingScore` | 20068 | 매매점수(5서브스코어+7보정, 캐시 TTL 20s). 검증 하네스 없음(진단 C3, Phase 3 미착수) |
+| `computeTradingScore` | 20068 | 매매점수(5서브스코어+7보정, 캐시 TTL 20s). 검증 하네스는 `scripts/backtest-trading-score.mjs`(v52.2)로 존재하나 표본 극히 작음(`statisticallyMeaningful: false`) — 재튜닝 근거 아님, §4 표 참조 |
 | `getScoreAdvice` | 20236 | 점수→행동 문구 매핑 |
 | `computeExecutionWindow` | 20245 | 실행 타이밍 점수(breakout/pullback/followthru/leader) |
 | `classifyMarketRegime` | 20307 | 시장 레짐 분류(UPTREND/DOWNTREND/CHOP) |
@@ -121,7 +121,7 @@ target_lines: index.html 32065 + js modules 60777
 | `chartDataGate` | 13789 | 차트 NaN/null 방어 |
 | `safeLS` / `safeLSGet` / `safeLSGetSync` | 14224 / 14237 / 14250 | 암호화 localStorage |
 | `calcTechnicalSnapshot` | 16987 | OHLCV 스냅샷 엔진 |
-| `_calcRSILast`(Wilder) / `_calcRSISeries` / `_calcRSIDivergence` | 16586 / 16798 / 16822 | **Wilder식 RSI** — 서버 `_rsi14`(Cutler식, fetch-data.mjs:625)와 공식 상이(진단 C1, 미해결) |
+| `_calcRSILast`(Wilder) / `_calcRSISeries` / `_calcRSIDivergence` | 16586 / 16798 / 16822 | **Wilder식 RSI** — v51.91(P584/R265)에서 서버 `_rsi14`(fetch-data.mjs:695)도 Cutler식→Wilder식으로 단일화 완료(진단 C1 해소, 2026-07-06 재확인) |
 | `_calcVCP` | 16716 | 클라이언트 VCP — 서버 `_calcVCPServer`(fetch-data.mjs:847)와 병렬 구현 |
 | `AIO_EVENT_RISK_CONTEXT` / `calcBlowoffTopChecklist` | 17193 / 17350 | event risk + blow-off top checklist |
 | `calcSellPressure` / `calcDataQuality` / `calcAIInfraHeat` / `calcPositionTechnicalRisk` | 17387 / 17513 / 17566 / 17596 | 매도압력·데이터품질·AI인프라열·포지션리스크 |
@@ -257,7 +257,7 @@ target_lines: index.html 32065 + js modules 60777
 | 데이터 진실성/교차소스 | `js/aio-core.js:20535~20807` |
 | DATA_SNAPSHOT 갱신 | `js/aio-core.js:18620~18898`, freshness/pipeline audit 18108~18440 |
 | 뉴스 선별/렌더 | `js/aio-data.js:8404~10900` |
-| RSI/기술지표 (서버·클라 이중 구현 — 진단 C1) | 서버 `scripts/fetch-data.mjs:625`(Cutler) vs 클라 `js/aio-core.js:16586`(Wilder) |
+| RSI/기술지표 (서버·클라 이중 구현, 공식은 v51.91에 단일화됨 — 진단 C1 해소) | 서버 `scripts/fetch-data.mjs:695`(Wilder) = 클라 `js/aio-core.js:16586`(Wilder) — 파라미터 드리프트만 잔여 감시 대상 |
 | 팩터 랭킹/백테스트 (라이브·서버 모델 불일치 — 진단 C2) | 라이브 `js/aio-data.js` `_aioComputeFactorRanks`(재확인 필요) vs 서버 `scripts/fetch-data.mjs:703` `backtestFactors` |
 | 페이지 전환/init 가드 | `js/aio-core.js:22841~23313`(destroyPageCharts/showPage), 각 page init 함수 |
 | sentiment/breadth 차트 | `js/aio-ui.js:14~900` |
@@ -280,6 +280,7 @@ target_lines: index.html 32065 + js modules 60777
 - **v51.90 재스캔 (2026-07-02, Sonnet 5 — Fable 5 진단 Phase 0 A6b)**: v50.60(2026-06-16) 이후 **60버전 미재스캔** 상태였음(자체 규칙 "±500줄 리팩토링 시 재스캔" 위반 확정 — 진단 A6b). 전체 grep 재실측. 22페이지 시작점 전부 이동(page-home 4044→5227, CSS 3693→4888줄 +1195). `getCritical10ContentEvidenceMatrix`가 `_deadV49112_`로 개명된 사실 반영. inline runtime을 8블록으로 정정(구 CODE-MAP은 2블록으로 과단순화).
 - **v50.4 핵심 축(과거 이력, 유지)**: v49.108(DataTruthGate)→109(cross-source)→110~112(critical-10 surface/situation/matrix)→50.0(EvidenceStore+21페이지 계약)→50.1(trading gate)→50.2(news surface)→50.3(text surface)→50.4(정적 캘린더 분리). 배포 게이트는 `AIO.runEvidenceDeploymentGate({strict})` 단일 진입점.
 - **알려진 데이터 획득 갭(미해결)**: B계층 breadth %aboveMA(`fetchBreadthData` MMFI/MMTW/MMFD 선언만·실 fetch 미구현). C계층 CPI/PCE/NFP/AAII/NAAIM/SKEW/MOVE는 fetch 함수 0건·`/data-refresh` 스킬(WebSearch) 수동 갱신 — `_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` §4 B2 참조.
-- **구조적 이슈(2026-07-02 진단 신규 반영)**: (1) index.html 인라인 알고리즘↔모듈 역참조(§3 경고, 진단 A3). (2) 서버·클라 RSI 공식 상이(§3 RSI 항목, 진단 C1). (3) 백테스트(4팩터)≠라이브 랭킹(7팩터+레짐 가중)(진단 C2). (4) js/aio-tests.js 900+ 테스트가 CI 미실행(진단 B5). 상세는 `_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` 전문 참조.
+- **구조적 이슈 현황(2026-07-06 FABLE-ARCH-DIAGNOSIS 재확인, 진단 문서 자체가 스캔 시점 스냅샷임에 주의)**: (1) index.html 인라인 알고리즘↔모듈 역참조 — ✅ 해소(v51.98 Phase 3 A3, computeTradingScore 등 aio-core.js로 이관, §3 참조). (2) 서버·클라 RSI 공식 상이 — ✅ 해소(v51.91, 위 표 참조). (3) 백테스트(4팩터)≠라이브 랭킹(7팩터+레짐 가중) — ⬜ 미해소(진단 C2, 잔존). (4) js/aio-tests.js 900+ 테스트가 CI 미실행 — ⚠️ 부분 해소(`ci.yml`의 `headless-tests` job이 매 push 실행하나 `continue-on-error: true`로 report-only, deploy 게이트 미편입 — 진단 B5/E-1). 상세는 `_context/FABLE-ARCH-DIAGNOSIS-2026-07-06.md`(현행) 및 `_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md`(이전) 참조.
 - `.claude/commands`와 `.claude/hooks`는 **2026-05-18(커밋 09d2200) 이후로 GitHub-tracked** — 구버전 CODE-MAP의 "GitHub-tracked checkout에는 없다" 서술은 stale였음(정정 — `_context/CLAUDE.md` 2026-07-02 재작성판 참조).
 - 큰 구조 변경 뒤에는 이 파일의 line 번호를 반드시 재스캔한다. **다음 재스캔 트리거**: index.html 또는 js 모듈 어느 한 파일이라도 ±500줄 변경 시, 또는 3개월 경과 시(자동 staleness 방지).
+- **2026-07-06 targeted correction (P626, `_context/FABLE-ARCH-DIAGNOSIS-2026-07-06.md` Phase 0-4)**: 이 파일 자체가 v51.90 스캔 기준으로 "미해결"이라 적어둔 진단 C1(RSI)이 실제로는 v51.91에 이미 해소됐음을 실측 확인(§3 표 2곳 + §5 구조적 이슈 목록 정정) — 진단 문서의 "미해결" 표기는 스캔 시점 스냅샷이며, 해소 커밋이 그 표기를 갱신하지 않으면 이렇게 낡는다는 실사례. **주의**: 이번 정정은 C1/C3 문구 3곳 + `fetchKrDynamicData`/orphan 5함수 삭제(index.html -296줄, §2/§3의 관련 line 번호는 미재확인) 타깃 수정만이며, 전체 재스캔이 아니다. 헤더의 `target_version: v51.90`은 실제 v52.19 대비 29버전 stale — ±500줄 트리거는 이번 삭제(-296줄) 단독으론 미충족하나 다음 대규모 변경 전 전체 재스캔 권장.

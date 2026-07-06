@@ -151,7 +151,7 @@ purpose: Sonnet 5 작업 세션 인수인계 — 2026-07-06 전수 아키텍처 
 |---|---|---|---|---|
 | A-1 | `fetchKrDynamicData` 그림자 선언 + orphan 5함수 사문 + R280 기계 게이트 부재 | 아키텍처 | **P1** | index.html:20374 vs aio-data.js:13321, P605 |
 | E-1 | skip-list 23건 미해소(시드 drift·잠재 결함·stale 테스트 혼재) — 헤드리스 게이트 승격 차단 요인 | 품질 | P2 | 이번 실측 899/922 재현 |
-| B-1 | telegram-digest 431KB gzip 부팅 로드 | 성능 | P2 | aio-data.js:1199 |
+| B-1 | telegram-digest 431KB gzip 부팅 로드 | 성능 | P3(하향 — 조사 완료, §6 Phase 1 참조) | aio-data.js:1199 — 2026-07-06: 85%가 실사용 다이제스트 브리핑 데이터로 확인, 순수 정리로 해결 불가 |
 | E-2 | 시각 회귀 테스트 0건 — "실브라우저 확인 잔여" 반복 | 품질 | P2 | CLAUDE.md 반복 기록 |
 | D-1 | C2 백테스트≠라이브 랭킹 모델 | 알고리즘 | P2 | fetch-data.mjs backtestFactors vs _aioComputeFactorRanks |
 | G-1 | CODE-MAP "C1 미해결" 표기 등 지도 drift | 거버넌스 | P2(수정 쉬움) | CODE-MAP:124·260 |
@@ -178,7 +178,7 @@ purpose: Sonnet 5 작업 세션 인수인계 — 2026-07-06 전수 아키텍처 
 
 ### Phase 1 — 전달 성능
 
-5. **[B-1] telegram-digest 분리**: `fetch-telegram-digest.mjs`가 요약본(예: 최근 3일/채널별 상위 N, 목표 ≤100KB raw) `telegram-digest-lite.json`을 추가 산출 → 부팅 로더(aio-data.js:1199)는 lite, 텔레그램 뷰 진입 시 full lazy. **주의 3곳**: refresh-data.yml:87의 `git add` 경로에 lite 추가 · data-watchdog.yml:71-77의 full digest 검사 유지 · sw.js DATA_URL_PATTERNS 영향 없음 확인. 수용 기준: 헤드리스 route 로그에서 부팅 시 full digest 미요청 + 텔레그램 페이지 정상 + 워치독 green.
+5. ~~**[B-1] telegram-digest 분리**~~ — **2026-07-06 조사 결과 원안 기각(전제 오류로 실행 안 함)**. 원안은 "부팅은 요약본, 별도 '텔레그램 뷰' 방문 시 전체 lazy load"를 가정했으나, 실제 소비 구조를 전수 추적한 결과 그런 lazy-load 가능한 별도 뷰 자체가 없다 — `_aioLoadServerTelegramDigest()`는 부팅 시 1회 실행되고, 그 결과가 (a) `_aioInjectAllTelegramFeeds()`로 홈 포함 다수 페이지의 피드 슬롯에 **즉시** 렌더, (b) `_aioApplyTelegramDigestToScreenerDb()`로 SCREENER_DB 메모에 즉시 병합, (c) `js/aio-chat.js:3850~`에서 LLM 채팅 컨텍스트로 즉시 주입된다 — 전부 부팅 직후 필요. 더 결정적으로: `broadItems`(400건 cap, 파일의 실질 대용량 부분)의 **56%(202/360건)가 `_aioGetTgDigestPosts()`(aio-data.js:9351)가 명시적으로 찾는 "digest-like" 포스트(`━━━━` 구분자 포함 OR 800자 초과)이며, 이 202건이 broadItems 텍스트 총량의 85%(360KB/422KB, 실측)를 차지**한다 — `_aioRenderTgDigestBrief()`가 이 포스트들의 **전체 텍스트**에서 이모지 섹션헤더+불릿을 파싱해 "주간 다이제스트 브리핑" UI를 만드므로, 이 텍스트를 자르면 그 기능이 조용히 깨진다(카드 피드용 헤드라인 120자/본문 100자 추출과는 별개의, 전체 텍스트가 필요한 소비처). 자르기 안전한 "일반"(non-digest-like) 포스트만 남기고 실측해보면 전체 158건/61.9KB뿐이라, 이마저 300자로 강제 절삭해도 절감분은 ~22.5KB(파일 전체 1.3MB의 ~1.7%)에 그친다 — 복잡도·회귀위험 대비 무의미. **결론: 이 파일의 부피는 대부분 wasteful bloat가 아니라 이미 출시된 기능(다이제스트 브리핑)의 실사용 데이터다.** 향후 이 항목을 다시 열 경우 "무엇을 줄일까"가 아니라 "다이제스트 브리핑 기능 자체의 스코프(400건 cap, 채널당 120건 cap 등)를 줄일지"부터 제품 결정으로 물어야 한다(코드 정리가 아닌 기능 축소 결정이므로 사용자 승인 필요) — 순수 엔지니어링 정리로 해결되는 항목이 아님이 확인됨.
 
 ### Phase 2 — 게이트 승격 (품질)
 

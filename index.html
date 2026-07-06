@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.18 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.19 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5241,7 +5241,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.18</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.19</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7526,7 +7526,8 @@ button[data-filter-active="true"] {
           <div style="padding:8px 10px;background:rgba(0,212,255,0.04);border-radius:3px;border:1px dashed rgba(0,212,255,0.3);">
             <strong style="color:var(--accent);">매크로 결론 준비 중</strong>
             <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.6;">
-              핵심 수치와 뉴스 맥락을 연결해 오늘의 금리·유가·달러·위험심리 결론을 표시합니다.
+              핵심 수치와 뉴스 맥락을 연결해 오늘의 금리·유가·달러·위험심리 결론을 표시합니다.<br>
+              <b>출처</b>: 실시간 시세·매크로 데이터 · <b>예상 시간</b>: 1~2초 내 표시(차단/오프라인 시 정적 스냅샷 즉시 폴백)
             </div>
           </div>
         </div>
@@ -9987,13 +9988,13 @@ button[data-filter-active="true"] {
         style="flex:1;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);text-transform:uppercase;"
         data-on-enter="showTicker:__value_upper"
         oninput="this.value=this.value.toUpperCase()"/>
-      <button class="btn-accent --blue" onclick="(function(){var v=document.getElementById('ticker-direct-search').value.trim().toUpperCase();if(v)showTicker(v);})()" style="white-space:nowrap;">분석 →</button>
+      <button class="btn-accent --blue" data-action="tickerDirectSearchFromInput" style="white-space:nowrap;">분석 →</button>
       <div style="display:flex;gap:4px;flex-wrap:wrap;">
-        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('NVDA')">NVDA</span>
-        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('AAPL')">AAPL</span>
-        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('TSLA')">TSLA</span>
-        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('MSFT')">MSFT</span>
-        <span class="q-chip" style="font-size:10px;cursor:pointer;" onclick="showTicker('AMZN')">AMZN</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" data-action="showTicker" data-arg="NVDA">NVDA</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" data-action="showTicker" data-arg="AAPL">AAPL</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" data-action="showTicker" data-arg="TSLA">TSLA</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" data-action="showTicker" data-arg="MSFT">MSFT</span>
+        <span class="q-chip" style="font-size:10px;cursor:pointer;" data-action="showTicker" data-arg="AMZN">AMZN</span>
       </div>
     </div>
 
@@ -11516,7 +11517,7 @@ button[data-filter-active="true"] {
       <div style="display:flex;gap:6px;">
         <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" data-on-enter="loadTVChart:kr" />
         <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table" style="font-size:11px;">차트 로드</button>
-        <button onclick="(function(){var c=document.getElementById('tv-kr-sym').value.trim();if(c)showTicker(typeof krTickerToYahoo==='function'?krTickerToYahoo(c):c);})()" class="aio-btn-table" style="font-size:11px;">Ticker 분석 →</button>
+        <button data-action="krTvSymSearchFromInput" class="aio-btn-table" style="font-size:11px;">Ticker 분석 →</button>
       </div>
     </div>
     <div id="tv-widget-kr" style="border-radius:4px;overflow:hidden;background:#131722;padding:8px;box-sizing:border-box;">
@@ -12493,9 +12494,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.18" defer></script>
-  <script src="./js/aio-data.js?v=52.18" defer></script>
-  <script src="./js/aio-ui.js?v=52.18" defer></script>
+  <script src="./js/aio-core.js?v=52.19" defer></script>
+  <script src="./js/aio-data.js?v=52.19" defer></script>
+  <script src="./js/aio-ui.js?v=52.19" defer></script>
 
   <script>
 
@@ -15982,7 +15983,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.18" defer></script>
+<script src="./js/aio-chat.js?v=52.19" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -19208,7 +19209,7 @@ function renderKrThemeCardsFromMap() {
       }
       var priceStr = d && d.price ? d.price.toLocaleString() : '';
       var barC = d && d.pct != null ? (d.pct >= 0 ? 'rgba(0,229,160,0.12)' : 'rgba(255,91,80,0.10)') : 'transparent';
-      pillsHtml += '<span class="kr-ticker-pill" data-live-symbol="' + sym + '" style="--bar-w:' + s.w + '%;--bar-c:' + barC + ';cursor:pointer;" onclick="event.stopPropagation();showTicker(\'' + sym + '\')" title="' + (info.name||s.code) + ' ↗">' +
+      pillsHtml += '<span class="kr-ticker-pill" data-live-symbol="' + sym + '" style="--bar-w:' + s.w + '%;--bar-c:' + barC + ';cursor:pointer;" data-action="showTicker" data-arg="' + sym + '" data-stop="1" title="' + (info.name||s.code) + ' ↗">' +
         '<span class="pill-code">' + s.code + '</span> ' +
         '<span class="pill-name">' + name + '</span> ' +
         '<span class="pill-wt">' + s.w + '%</span> ' +
@@ -19297,7 +19298,7 @@ function showKrThemeDetail(themeId) {
     var pcs=pct!==null?((pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
     var lt=d?'<span style="color:var(--data-green);font-size:11px;">● 수신</span>':'<span style="color:var(--text-muted);font-size:11px;">○</span>';
     var rankIcon=idx===0?' ':idx===1?' ':idx===2?' ':'';
-    rows+='<tr style="background:'+(idx%2===0?'rgba(255,255,255,0.015)':'transparent')+';border-bottom:1px solid var(--surface-2);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;" onclick="showTicker(\''+sym+'\')" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span style="color:var(--accent);">'+(info.name||t.code)+'</span> <span style="font-size:9px;opacity:0.6;">↗</span><div style="font-size:11px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+t.w+'%</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
+    rows+='<tr style="background:'+(idx%2===0?'rgba(255,255,255,0.015)':'transparent')+';border-bottom:1px solid var(--surface-2);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span style="color:var(--accent);">'+(info.name||t.code)+'</span> <span style="font-size:9px;opacity:0.6;">↗</span><div style="font-size:11px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+t.w+'%</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
   });
 
   var tn=(CN[themeId]||themeId).replace(/[^가-힣a-zA-Z0-9\/\s]/g,'').trim();
@@ -19810,35 +19811,6 @@ async function fetchVkospiDynamic() {
   } catch(e) { _aioLog('warn', 'fetch', 'KR VKOSPI fetch 실패: ' + e.message); }
 }
 
-// ── 2. KOSPI/KOSDAQ 거래대금 ──
-async function fetchKrTradingVolume() {
-  try {
-    var indices = [
-      { code: 'KOSPI', elId: 'kr-dash-kospi-volume' },
-      { code: 'KOSDAQ', elId: 'kr-dash-kosdaq-volume' }
-    ];
-    for (var i = 0; i < indices.length; i++) {
-      var idx = indices[i];
-      var url = 'https://m.stock.naver.com/api/index/' + idx.code + '/basic';
-      try {
-        var r = await fetchViaProxy(url, 8000);
-        if (!r || !r.ok) continue;
-        var d = await r.json();
-        // accumulatedTradingValue (누적 거래대금, 원 단위)
-        var tv = parseFloat(d.accumulatedTradingValue || d.tradingValue || 0);
-        if (tv <= 0) continue;
-        var el = document.getElementById(idx.elId);
-        if (el) {
-          if (tv >= 1e12) el.textContent = (tv / 1e12).toFixed(1) + '조원';
-          else if (tv >= 1e8) el.textContent = Math.round(tv / 1e8).toLocaleString() + '억원';
-          else el.textContent = Math.round(tv / 1e4).toLocaleString() + '만원';
-        }
-        console.log('[KR] ' + idx.code + ' 거래대금:', (tv / 1e12).toFixed(1) + '조');
-      } catch(e2) { _aioLog('warn', 'fetch', 'KR ' + idx.code + ' 거래대금 실패: ' + e2.message); }
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'KR 거래대금 fetch 실패: ' + e.message); }
-}
-
 // ── 3. 외국인/기관 순매수 TOP 10 (종목별 trend API 기반) ──
 // v41.9: 죽은 investorBuyRanking 엔드포인트 → 개별 종목 trend 배치 fetch로 교체
 var _krInvestorCache = { data: null, ts: 0 };
@@ -20098,88 +20070,6 @@ window.AIO.getKrSupplyRuntimeAudit = function() {
   };
 };
 
-// ── 4. 주간 수급 트렌드 (최근 5거래일) ──
-async function fetchKrWeeklySupply() {
-  try {
-    var url = 'https://m.stock.naver.com/api/index/KOSPI/investorTrend';
-    var r = await fetchViaProxy(url, 8000);
-    if (!r || !r.ok) {
-      _renderKrWeeklySupplyFallback('KOSPI investorTrend HTTP unavailable');
-      return;
-    }
-    var d = await r.json();
-    var trends = d.investorTrends || [];
-    if (trends.length < 2) {
-      _renderKrWeeklySupplyFallback('KOSPI investorTrend empty');
-      return;
-    }
-
-    var tbl = document.getElementById('kr-weekly-supply-table');
-    if (!tbl) return;
-
-    var rows = '<tr><th>날짜</th><th>외국인</th><th>기관</th><th>개인</th><th>프로그램</th><th>KOSPI</th></tr>';
-    var totalF = 0, totalI = 0, totalP = 0;
-    var dayCount = Math.min(trends.length, 5);
-
-    for (var i = 0; i < dayCount; i++) {
-      var t = trends[i];
-      var fNet = (t.foreignBuy || 0) - (t.foreignSell || 0);
-      var iNet = (t.institutionBuy || 0) - (t.institutionSell || 0);
-      var pNet = (t.individualBuy || 0) - (t.individualSell || 0);
-      totalF += fNet; totalI += iNet; totalP += pNet;
-
-      var dateStr = t.date || t.tradeDate || '';
-      if (dateStr.length >= 10) dateStr = dateStr.substring(5).replace('-', '/');
-
-      function _fmtW(v) {
-        var abs = Math.abs(v);
-        var s = abs >= 1e12 ? (v/1e12).toFixed(2) + '조' : abs >= 1e8 ? Math.round(v/1e8).toLocaleString() + '억' : '—';
-        return '<td style="color:' + (v >= 0 ? 'var(--green)' : 'var(--red)') + '">' + (v >= 0 ? '+' : '') + s + '</td>';
-      }
-
-      var highlight = i === 0 ? ' style="background:rgba(255,91,80,0.08);"' : '';
-      var bold = i === 0 ? '<b>' : '', boldEnd = i === 0 ? '</b>' : '';
-      rows += '<tr' + highlight + '><td>' + bold + dateStr + boldEnd + '</td>' + _fmtW(fNet) + _fmtW(iNet) + _fmtW(pNet) + '<td style="color:var(--text-muted)">—</td><td style="color:var(--text-muted)">—</td></tr>';
-    }
-
-    // 합계행
-    function _fmtTotal(v) {
-      var abs = Math.abs(v);
-      var s = abs >= 1e12 ? (v/1e12).toFixed(2) + '조' : abs >= 1e8 ? Math.round(v/1e8).toLocaleString() + '억' : '—';
-      return '<td style="color:' + (v >= 0 ? 'var(--green)' : 'var(--red)') + ';font-weight:700">' + (v >= 0 ? '+' : '') + s + '</td>';
-    }
-    rows += '<tr style="border-top:1px solid var(--border);font-weight:700;"><td>' + dayCount + '일 합계</td>' + _fmtTotal(totalF) + _fmtTotal(totalI) + _fmtTotal(totalP) + '<td>—</td><td>—</td></tr>';
-
-    tbl.innerHTML = rows;
-
-    // v35.8: 주간 수급 하단 코멘트 동적 생성
-    var weeklyComment = document.getElementById('kr-weekly-supply-comment');
-    if (weeklyComment) {
-      var commentParts = [];
-      // 외국인 연속 매매일수 계산
-      var streakDir = totalF < 0 ? '순매도' : '순매수';
-      var streak = 0;
-      for (var sc = 0; sc < trends.length; sc++) {
-        var scF = (trends[sc].foreignBuy || 0) - (trends[sc].foreignSell || 0);
-        if ((totalF < 0 && scF < 0) || (totalF > 0 && scF > 0)) streak++;
-        else break;
-      }
-      if (streak > 1) commentParts.push('외국인 ' + streak + '거래일 연속 ' + streakDir);
-      var totalFStr = Math.abs(totalF) >= 1e12 ? (totalF/1e12).toFixed(1) + '조' : Math.round(totalF/1e8).toLocaleString() + '억';
-      commentParts.push(dayCount + '일 합계 ' + (totalF >= 0 ? '+' : '') + totalFStr);
-      if (totalP > 0 && totalF < 0) commentParts.push('개인 홀로 시장 방어');
-      weeklyComment.textContent = '' + commentParts.join(' · ');
-      weeklyComment.style.color = totalF < 0 ? 'var(--red)' : 'var(--green)';
-      weeklyComment.style.background = totalF < 0 ? 'rgba(255,91,80,0.08)' : 'rgba(0,229,160,0.08)';
-    }
-
-    console.log('[KR] 주간 수급 트렌드 동적 업데이트 완료 (' + dayCount + '거래일)');
-  } catch(e) {
-    _aioLog('warn', 'fetch', 'KR 주간 수급 fetch 실패: ' + e.message);
-    _renderKrWeeklySupplyFallback(e && e.message || 'KR weekly supply failed');
-  }
-}
-
 // ── 5. 시가총액 동적 추출 (fetchKrNaverQuotes 결과에서 확장) ──
 // fetchKrNaverQuotes의 개별 종목 응답에서 marketCap 필드를 추출하여 KR_STOCK_DB에 반영
 function _enrichMarketCap(code, data) {
@@ -20198,191 +20088,6 @@ function _enrichMarketCap(code, data) {
       }
     }
   }
-}
-
-// ── 6. 공매도 데이터 동적 추출 ──
-async function fetchKrShortSelling() {
-  try {
-    // v35.8: 네이버 KOSPI/KOSDAQ 지수 상세에서 공매도 관련 데이터 추출
-    var results = await Promise.allSettled([
-      fetchViaProxy('https://m.stock.naver.com/api/index/KOSPI/basic', 8000),
-      fetchViaProxy('https://m.stock.naver.com/api/index/KOSDAQ/basic', 8000)
-    ]);
-    var kospiBasic = null, kosdaqBasic = null;
-    if (results[0].status === 'fulfilled' && results[0].value && results[0].value.ok) {
-      var d1 = await results[0].value.json();
-      try { if (d1.contents) d1 = JSON.parse(d1.contents); } catch(e){}
-      kospiBasic = d1;
-    }
-    if (results[1].status === 'fulfilled' && results[1].value && results[1].value.ok) {
-      var d2 = await results[1].value.json();
-      try { if (d2.contents) d2 = JSON.parse(d2.contents); } catch(e){}
-      kosdaqBasic = d2;
-    }
-
-    // ── 거래대금 업데이트 ──
-    if (kospiBasic) {
-      var kVol = parseFloat(kospiBasic.accumulatedTradingValue || kospiBasic.tradingValue || 0);
-      if (kVol > 0) {
-        var volStr = (kVol / 1e12).toFixed(1) + '조';
-        var el = document.getElementById('kr-breadth-volume');
-        if (el) el.textContent = volStr;
-      }
-    }
-
-    // ── v35.8: 공매도 비중 5개 ID 동적 업데이트 ──
-    // KRX만 정확한 공매도 비중 제공 — 네이버 basic에서 shortSellingRatio 필드 확인, 없으면 "N/A" 표시
-    var _updateShort = function(elId, val, suffix) {
-      var el = document.getElementById(elId);
-      if (!el) return;
-      if (val !== null && val !== undefined && !isNaN(val)) {
-        el.textContent = parseFloat(val).toFixed(2) + (suffix || '%');
-      } else {
-        el.textContent = 'N/A';
-        el.style.color = 'var(--text-muted)';
-      }
-    };
-
-    // KOSPI 공매도 비중
-    var kospiShortRatio = null, kosdaqShortRatio = null;
-    if (kospiBasic) {
-      kospiShortRatio = kospiBasic.shortSellingRatio || kospiBasic.shortRatio || null;
-      _updateShort('kr-short-kospi-ratio', kospiShortRatio, '%');
-      // 변화폭: shortSellingRatioChange 필드 사용, 없으면 표시 불가
-      var kospiShortChg = kospiBasic.shortSellingRatioChange || kospiBasic.shortRatioChange || null;
-      var chgEl1 = document.getElementById('kr-short-kospi-chg');
-      if (chgEl1) {
-        if (kospiShortChg !== null && kospiShortChg !== undefined && !isNaN(kospiShortChg)) {
-          var cv = parseFloat(kospiShortChg);
-          chgEl1.textContent = (cv >= 0 ? '▲ ' : '▼ ') + Math.abs(cv).toFixed(2) + '%p';
-          chgEl1.style.color = cv >= 0 ? 'var(--red)' : 'var(--green)';
-        } else {
-          chgEl1.textContent = 'KRX 전용 데이터';
-          chgEl1.style.color = 'var(--text-muted)';
-          chgEl1.style.fontSize = '11px';
-        }
-      }
-    } else {
-      _updateShort('kr-short-kospi-ratio', null);
-      var chgFb1 = document.getElementById('kr-short-kospi-chg');
-      if (chgFb1) { chgFb1.textContent = '데이터 없음'; chgFb1.style.color = 'var(--text-muted)'; }
-    }
-
-    // KOSDAQ 공매도 비중
-    if (kosdaqBasic) {
-      kosdaqShortRatio = kosdaqBasic.shortSellingRatio || kosdaqBasic.shortRatio || null;
-      _updateShort('kr-short-kosdaq-ratio', kosdaqShortRatio, '%');
-      var kosdaqShortChg = kosdaqBasic.shortSellingRatioChange || kosdaqBasic.shortRatioChange || null;
-      var chgEl2 = document.getElementById('kr-short-kosdaq-chg');
-      if (chgEl2) {
-        if (kosdaqShortChg !== null && kosdaqShortChg !== undefined && !isNaN(kosdaqShortChg)) {
-          var cv2 = parseFloat(kosdaqShortChg);
-          chgEl2.textContent = (cv2 >= 0 ? '▲ ' : '▼ ') + Math.abs(cv2).toFixed(2) + '%p';
-          chgEl2.style.color = cv2 >= 0 ? 'var(--red)' : 'var(--green)';
-        } else {
-          chgEl2.textContent = 'KRX 전용 데이터';
-          chgEl2.style.color = 'var(--text-muted)';
-          chgEl2.style.fontSize = '11px';
-        }
-      }
-    } else {
-      _updateShort('kr-short-kosdaq-ratio', null);
-      var chgFb2 = document.getElementById('kr-short-kosdaq-chg');
-      if (chgFb2) { chgFb2.textContent = '데이터 없음'; chgFb2.style.color = 'var(--text-muted)'; }
-    }
-
-    // 공매도 잔고: KRX만 제공, 네이버에서 shortBalance 필드 확인
-    var shortBal = null;
-    if (kospiBasic) shortBal = kospiBasic.shortBalance || kospiBasic.shortSellingBalance || null;
-    var balEl = document.getElementById('kr-short-balance');
-    var balSub = document.getElementById('kr-short-balance-sub');
-    if (balEl) {
-      if (shortBal !== null && shortBal !== undefined && !isNaN(shortBal)) {
-        balEl.textContent = (parseFloat(shortBal) / 1e12).toFixed(1) + '조';
-      } else {
-        balEl.textContent = 'N/A';
-        balEl.style.color = 'var(--text-muted)';
-      }
-    }
-    if (balSub) {
-      balSub.textContent = 'KRX 공매도 잔고 API 연동 예정';
-    }
-
-    // ── 대시보드 공매도 서브라인 업데이트 ──
-    var shortNote = document.getElementById('kr-dash-shortsell-sub');
-    if (shortNote) {
-      if (kospiShortRatio !== null) {
-        shortNote.textContent = 'KOSPI ' + parseFloat(kospiShortRatio).toFixed(2) + '% · 네이버 데이터';
-        shortNote.style.fontSize = '11px';
-        window._krShortUpdated = true;
-      } else {
-        shortNote.textContent = 'KRX API 미연동 · 잔고/비중 제한적';
-        shortNote.style.fontSize = '11px';
-      }
-    }
-
-    console.log('[KR] 공매도/거래대금 데이터 업데이트 완료');
-  } catch(e) { _aioLog('warn', 'fetch', 'KR fetchKrShortSelling 실패: ' + e.message); }
-}
-
-// ── 7. 한국 시장 폭(Breadth) 동적 계산 ──
-async function fetchKrBreadthData() {
-  try {
-    // KOSPI 지수 기본 데이터에서 시장 폭 관련 지표 추출
-    var r = await fetchViaProxy('https://m.stock.naver.com/api/index/KOSPI/basic', 8000);
-    if (!r || !r.ok) return;
-    var data = await r.json();
-
-    // ADL (Advance/Decline) — 상승/하락 종목 수에서 계산
-    var advCount = parseInt(data.advanceCount || data.riseCount || 0);
-    var decCount = parseInt(data.declineCount || data.fallCount || 0);
-    var unchCount = parseInt(data.flatCount || data.unchangedCount || 0);
-    var totalCount = advCount + decCount + unchCount;
-
-    if (totalCount > 0) {
-      // ADL ratio
-      var adlRatio = (advCount - decCount) / totalCount;
-      var adlEl = document.getElementById('kr-breadth-adl');
-      if (adlEl) {
-        adlEl.textContent = adlRatio.toFixed(2);
-        adlEl.style.color = adlRatio >= 0 ? 'var(--green)' : 'var(--red)';
-      }
-
-      // 20MA 위 종목 비율 추정 (상승 종목 비율로 근사)
-      var abovePct = Math.round((advCount / totalCount) * 100);
-      var maEl = document.getElementById('kr-breadth-20ma');
-      if (maEl) {
-        maEl.textContent = abovePct + '%';
-        maEl.style.color = abovePct >= 50 ? 'var(--green)' : abovePct >= 30 ? 'var(--data-amber)' : 'var(--red)';
-      }
-
-      // 52주 신고가/신저가
-      var highCount = parseInt(data.newHighCount || data.upperLimitCount || 0);
-      var lowCount = parseInt(data.newLowCount || data.lowerLimitCount || 0);
-      var hwEl = document.getElementById('kr-breadth-52w');
-      if (hwEl) {
-        var hwText = (highCount || advCount) + '/' + (lowCount || decCount);
-        hwEl.textContent = hwText;
-      }
-    }
-
-    console.log('[KR] 시장 폭 데이터 업데이트 (상승:' + advCount + ' 하락:' + decCount + ')');
-  } catch(e) { _aioLog('warn', 'fetch', 'KR fetchKrBreadthData 실패: ' + e.message); }
-}
-
-// ── 8. 전체 한국 동적 데이터 통합 호출 ──
-async function fetchKrDynamicData() {
-  console.log('[KR] 한국 동적 데이터 일괄 fetch 시작...');
-  await Promise.allSettled([
-    fetchVkospiDynamic(),
-    fetchKrTradingVolume(),
-    fetchKrInvestorTop10(),
-    fetchKrWeeklySupply(),
-    fetchKrShortSelling(),
-    fetchKrBreadthData()
-  ]);
-  _ensureKrSupplyAnalysisResolved('KR 수급 API 일부가 지연되어 수신 가능한 데이터와 폴백 상태를 함께 표시합니다.');
-  console.log('[KR] 한국 동적 데이터 일괄 fetch 완료');
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -26236,7 +25941,7 @@ function renderThemeHeatmap() {
         '<span style="font-size:10px;color:' + qColor + ';font-weight:700;">● ' + qLabel + '</span>' +
       '</div>' +
       '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
-        theme.leaderHighlight.slice(0,4).map(function(t){return '<span onclick="event.stopPropagation();showTicker(\''+t+'\')" style="cursor:pointer;color:var(--accent);font-family:var(--font-mono);font-weight:700;" title="'+t+' 분석 →">'+t+'</span>';}).join('<span style="color:var(--surface-5);"> · </span>') +
+        theme.leaderHighlight.slice(0,4).map(function(t){return '<span data-action="showTicker" data-arg="'+t+'" data-stop="1" style="cursor:pointer;color:var(--accent);font-family:var(--font-mono);font-weight:700;" title="'+t+' 분석 →">'+t+'</span>';}).join('<span style="color:var(--surface-5);"> · </span>') +
       '</div>' +
     '</div>';
   });
@@ -26288,7 +25993,7 @@ function showThemeDetail(themeId) {
     var tPrice = hasData ? d.price : null;
     var tColor = tChg === null ? 'var(--text-muted)' : (tChg >= 0 ? 'var(--data-green)' : 'var(--data-red)');
     var pctStr = tChg === null ? '—' : ((tChg >= 0 ? '+' : '') + tChg.toFixed(2) + '%');
-    html += '<div style="background:var(--surface-2);border:1px solid var(--surface-5);border-radius:3px;padding:6px 8px;min-width:70px;cursor:pointer;" onclick="showTicker(\'' + t + '\')" title="' + t + ' 상세 분석 →">' +
+    html += '<div style="background:var(--surface-2);border:1px solid var(--surface-5);border-radius:3px;padding:6px 8px;min-width:70px;cursor:pointer;" data-action="showTicker" data-arg="' + t + '" title="' + t + ' 상세 분석 →">' +
       '<div style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--accent);">' + t + ' <span style="font-size:9px;opacity:0.6;">↗</span></div>' +
       '<div style="font-size:12px;font-family:var(--font-mono);color:' + tColor + ';">' +
         (tPrice != null ? '$' + tPrice.toFixed(2) : '—') +
@@ -26317,7 +26022,7 @@ function showThemeDetail(themeId) {
         var tc = hasD ? d.pct : null;
         var tcol = tc === null ? 'var(--text-muted)' : (tc >= 0 ? 'var(--data-green)' : 'var(--data-red)');
         var tcStr = tc === null ? '—' : ((tc>=0?'+':'') + tc.toFixed(1) + '%');
-        html += '<span style="font-size:11px;font-family:var(--font-mono);color:' + tcol + ';background:var(--surface-1);padding:2px 6px;border-radius:3px;cursor:pointer;" onclick="showTicker(\'' + t + '\')" title="' + t + ' 분석">' + t + ' ' + tcStr + '</span>';
+        html += '<span style="font-size:11px;font-family:var(--font-mono);color:' + tcol + ';background:var(--surface-1);padding:2px 6px;border-radius:3px;cursor:pointer;" data-action="showTicker" data-arg="' + t + '" title="' + t + ' 분석">' + t + ' ' + tcStr + '</span>';
       });
       html += '</div></div>';
     });
@@ -26370,7 +26075,7 @@ function renderPageThemeDetail(themeId) {
       var d = ld[item.sym];
       var price = d && d.price != null ? '$' + d.price.toFixed(2) : '—';
       return '<tr style="border-bottom:1px solid var(--border);">' +
-        '<td style="padding:8px;cursor:pointer;" onclick="showTicker(\'' + item.sym + '\')" title="' + item.sym + ' 분석 →"><b style="color:var(--accent);">' + item.sym + '</b> <span style="font-size:9px;opacity:0.6;">↗</span><span style="font-size:10px;color:var(--text-muted);margin-left:4px;">' + item.label + '</span></td>' +
+        '<td style="padding:8px;cursor:pointer;" data-action="showTicker" data-arg="' + item.sym + '" title="' + item.sym + ' 분석 →"><b style="color:var(--accent);">' + item.sym + '</b> <span style="font-size:9px;opacity:0.6;">↗</span><span style="font-size:10px;color:var(--text-muted);margin-left:4px;">' + item.label + '</span></td>' +
         '<td style="text-align:center;padding:8px;" data-live-price="' + item.sym + '">' + price + '</td>' +
         '<td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-ytd="' + item.sym + '">수신 대기</td>' +
         '<td style="text-align:center;padding:8px;color:var(--text-muted);" data-perf-1y="' + item.sym + '">수신 대기</td>' +
@@ -28009,7 +27714,7 @@ function renderSubThemesGrid() {
       var tc = hasData ? d.pct : null;
       var tcol = tc === null ? 'var(--text-muted)' : (tc >= 0 ? 'var(--data-green)' : 'var(--data-red)');
       var tcStr = tc === null ? '—' : ((tc >= 0 ? '+' : '') + tc.toFixed(1) + '%');
-      leadersHtml += '<div onclick="event.stopPropagation();showTicker(\''+t+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--surface-2);cursor:pointer;" title="'+t+' 분석 →">' +
+      leadersHtml += '<div data-action="showTicker" data-arg="'+t+'" data-stop="1" style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--surface-2);cursor:pointer;" title="'+t+' 분석 →">' +
         '<span style="font-size:11px;font-weight:800;font-family:var(--font-mono);color:var(--accent);">' + t + ' <span style="font-size:9px;opacity:0.5;">↗</span></span>' +
         '<span style="font-size:10px;font-weight:700;font-family:var(--font-mono);color:' + tcol + ';">' + tcStr + '</span></div>';
     });
@@ -28377,7 +28082,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.18" defer></script>
+<script src="./js/aio-glossary.js?v=52.19" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -30591,7 +30296,7 @@ async function analyzeKrTickerDeep(ticker) {
     '</div>' +
   '</div>';
   html += '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">' +
-    '<button onclick="showTicker(\'' + escHtml(ticker) + '\')" style="padding:6px 14px;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--data-cyan);font-size:11px;border-radius:3px;cursor:pointer;font-weight:700;">Ticker 상세 분석 → ↗</button>' +
+    '<button data-action="showTicker" data-arg="' + escHtml(ticker) + '" style="padding:6px 14px;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--data-cyan);font-size:11px;border-radius:3px;cursor:pointer;font-weight:700;">Ticker 상세 분석 → ↗</button>' +
   '</div>';
 
   resultEl.innerHTML = html;

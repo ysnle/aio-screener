@@ -4089,15 +4089,22 @@
     _assert('T302 live_quote_topbar_dom: DOM 존재 (갱신 hook은 fetchLiveQuotes 통합)',
       !!topBar, topBar ? 'found' : 'missing');
 
-    // T303: 빠른 이동 chips — v49.x 확장으로 7+ chips. 페이지 ID 정합이 핵심 (chips 개수는 가변)
+    // T303: 빠른 이동 chips — 페이지 ID 정합이 핵심 (chips 개수는 가변).
+    // P626-followup: the ">=7" floor came from a v49.x expansion and this test's own comment
+    // already said "chips 개수는 가변" (count is variable) — but a later, deliberate declutter
+    // pass (CHANGELOG: 홈 페이지 aio-legend + 빠른이동 pill-chip 행 제거) removed a separate
+    // general-nav chip row, leaving only the asset-ticker quick-chips (DXY/10Y/Gold/WTI/KOSPI/BTC,
+    // 6 today) as the remaining data-action="showPage" pill-chips on home. That was an intentional
+    // UX decision, not a regression, so the specific number "7" was never going to hold going
+    // forward — the actual invariant this test exists to protect is "no dead link," not a count.
     var chips = document.querySelectorAll('#page-home .pill-chip[data-action=\"showPage\"]');
     var allPagesExist = true;
     chips.forEach(function(c) {
       var pid = c.getAttribute('data-arg');
       if (pid && !document.getElementById('page-' + pid)) allPagesExist = false;
     });
-    _assert('T303 home_chips_pages: 7+ chips 모두 페이지 존재',
-      chips.length >= 7 && allPagesExist,
+    _assert('T303 home_chips_pages: quick-nav chips all resolve to a real page (count is intentionally variable)',
+      chips.length >= 1 && allPagesExist,
       'chips=' + chips.length + ' allExist=' + allPagesExist);
 
     // T304: home subSections id 매핑 정확성 (DOM 존재 확인)
@@ -5227,8 +5234,14 @@
       'length=' + homeWeeklyV504.length + ' sample=' + (homeWeeklyV504[0] ? homeWeeklyV504[0].title.slice(0, 40) : 'n/a'));
 
     var runtimeVersionV504 = (typeof APP_VERSION === 'string') ? APP_VERSION : (window.AIO && window.AIO.version);
-    _assert('T762 v504_app_version_semver_two_digit_policy: runtime version uses v50.5 format',
-      /^v50\.\d{1,2}$/.test(runtimeVersionV504) && /^v\d+\.\d{1,2}$/.test(runtimeVersionV504),
+    // P626-followup: this originally hardcoded `/^v50\.\d{1,2}$/` — a literal snapshot of the
+    // major version at the time this test was written, not the actual policy (R2: "v{major}.{patch}
+    // 숫자 단조 증가", major increments over time by design). That made this test guaranteed to fail
+    // forever once the major version passed v50, exactly the "asserted a point-in-time value as a
+    // permanent invariant" class R279 warns about for dates. Kept only the structural (any major,
+    // any patch) check, which is the actual policy this test's name describes.
+    _assert('T762 v504_app_version_semver_two_digit_policy: runtime version uses v{major}.{patch} format',
+      /^v\d+\.\d{1,2}$/.test(runtimeVersionV504),
       String(runtimeVersionV504));
 
     // v50.15: 개별 기업 뉴스 캐시 연결 — KR 코드→한글명 해석 + 2글자 영문 오탐 차단 회귀 가드
@@ -6602,12 +6615,20 @@
     try {
       var banner834 = document.getElementById('api-key-onboarding');
       var risk834 = document.getElementById('risk-banner');
+      // P626-followup: this originally read a single window.chatSendUnified source for both
+      // checks below, but the two compact messages actually live in two different functions —
+      // "AI 분석은 주요 분석 페이지에서..." is in toggleAIPanel (index.html), while "AI 답변을
+      // 쓰려면 Claude 키를 저장하세요." is in chatSendUnified (index.html:31243) itself. A prior
+      // refactor must have moved the first message out without this test noticing (chatSendUnified
+      // alone no longer contains it, so compactAi834 failed forever afterward). Check each against
+      // its actual owner instead of assuming they share one source.
+      var toggleSrc834 = typeof window.toggleAIPanel === 'function' ? String(window.toggleAIPanel) : '';
       var unifiedSrc834 = typeof window.chatSendUnified === 'function' ? String(window.chatSendUnified) : '';
       var bodyText834 = document.body ? document.body.textContent : '';
       var noForcedOnboard834 = !banner834 && bodyText834.indexOf('실시간 시세·기업 분석·경제지표를 사용하려면') < 0;
       var compactRisk834 = !!(risk834 && String(risk834.getAttribute('style') || '').indexOf('position:static') >= 0 && risk834.textContent.length < 80);
-      var compactAi834 = unifiedSrc834.indexOf('AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.') >= 0 &&
-        unifiedSrc834.indexOf('매매 시그널, 차트 분석, 매크로, 기업 분석') < 0;
+      var compactAi834 = toggleSrc834.indexOf('AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.') >= 0 &&
+        toggleSrc834.indexOf('매매 시그널, 차트 분석, 매크로, 기업 분석') < 0;
       var compactKeyMsg834 = unifiedSrc834.indexOf('AI 답변을 쓰려면 Claude 키를 저장하세요.') >= 0;
       t834ok = !!(noForcedOnboard834 && compactRisk834 && compactAi834 && compactKeyMsg834);
       t834detail = JSON.stringify({

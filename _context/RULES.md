@@ -6,13 +6,14 @@ target_version: v51.80
 
 ---
 
-## R280. A global function declared in more than one non-module `<script>` (inline or external) silently loses all but the last-loaded definition — with no error, no warning (v52.8)
+## R280. A global function declared in more than one non-module `<script>` (inline or external) silently loses all but the last-loaded definition — with no error, no warning (v52.8, mechanically gated v52.19)
 
 - Classic (non-module) `<script>` tags share one global scope. If the same function name is declared with `function`/`async function` syntax in two different `<script>` blocks — inline, external, or a mix — the *last one to execute* wins completely; every earlier declaration (and everything only it called) becomes silently unreachable. No console error, no lint signal from either file read in isolation.
 - `<script defer>` external files always execute after all inline `<script>` blocks that precede them in document order — so a duplicate between an inline block and a deferred external file always resolves to the external file's version, regardless of which looks more "current."
 - Before adding a new top-level `function name(){}` to any non-IIFE-wrapped `js/*.js` file or an inline `<script>` block in index.html, grep the *entire* codebase for that exact name first. If a match exists, rename one, make one explicitly call the other, or delete the obsolete one — never let two same-named declarations coexist unremarked.
+- **v52.19: this is no longer a human-grep-only rule.** `scripts/ci-structural-check.mjs` extracts every column-0 (true top-level) `function`/`async function` declaration from index.html and all 5 runtime `js/*.js` modules and fails the build if any name appears in more than one file (a small allowlist exists only for a confirmed-tracked, not-yet-resolved shadow — currently empty). A future accidental reintroduction of this class is now caught at CI time, not discovered live.
 - Complements R260 (same file/scope duplicate — single-file check) and R275 (shared global *objects* must merge, not overwrite) — R280 covers the same last-write-wins hazard applied to *functions* declared across *separate files*.
-- See P605/BUG-POSTMORTEM.md.
+- See P605/P626, BUG-POSTMORTEM.md.
 
 ## R279. A frequency string embedding a required weekday (e.g. `monthly-first-friday`) must snap to that weekday after every mechanical date-advance, not just shift by a calendar month/day count (v52.7)
 

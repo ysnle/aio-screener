@@ -1,3 +1,10 @@
+## v52.19 (2026-07-06)
+- **FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 0 (P626/R280 후속)**: R280이 지목한 유일한 P1급 잔존 위험(`fetchKrDynamicData` 그림자 선언)을 기계 게이트화 + 실제 정리.
+  - **R280 기계 게이트**: `scripts/ci-structural-check.mjs`에 index.html↔js 5모듈 간 컬럼0 top-level 함수 동명 선언을 전수 대조해 실패시키는 검사 신설. 고의 중복 주입 테스트로 정상 작동 확인 후 원복.
+  - **그림자 선언 정리**: index.html의 죽은 `fetchKrDynamicData()` 사본(P605 이후 도달 불능 확정) 삭제. 이 사본에서만 호출되던 orphan 5함수를 각각 실엔드포인트 응답으로 검증 — `fetchKrTradingVolume`/`fetchKrShortSelling`/`fetchKrBreadthData`는 파싱 대상 필드가 실제 Naver `basic` 응답에 없음을 실측 확인(삭제), `fetchKrWeeklySupply`는 호출 엔드포인트가 HTML 에러 페이지로 소멸(삭제), `fetchKrInvestorTop10`만 엔드포인트·필드가 정확히 일치해 aio-data.js 승자 사본에 복구(P605와 동일한 `typeof` 방어 패턴).
+  - **검증**: 로컬 8게이트 green + 헤드리스 899/922(수정 전후 동일 skip-list 23건, 회귀 0).
+- R1 7곳 v52.19
+
 ## v52.18 (2026-07-05)
 - **FABLE 감사 P5 잔여 4건 일괄 수정 (P5i/j/l/m, P622-P625)**: 남은 시간 관계로 4건을 한 버전에 묶어 처리(각 항목 근본원인은 개별 조사·수정, 커밋/배포 속도 우선).
   - **P5i(P622) theme-detail 브레드크럼 "—" + NVDA "Self" 라벨**: 상단 공용 `#breadcrumb`가 `breadcrumbMap['theme-detail']=['AIO','테마','—']` 정적 placeholder에 고정된 채 방치 — `renderPageThemeDetail()`이 실제 테마명을 아는 시점에 `setBreadcrumb()` 재호출로 정정. "주요 AI ETF" 표의 NVDA "Self" 라벨은 동적 재렌더(`renderPageThemeDetail`)가 이미 "대장주"로 정상 교체하므로, 그 전 정적 placeholder만 "—"로 일관되게 정정.

@@ -17706,7 +17706,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.18';
+const APP_VERSION = 'v52.19';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -23510,6 +23510,20 @@ const tickerData = {
 };
 const actionLabels = {watch:'WATCH', hold:'HOLD', buy:'ADD', cut:'CUT'};
 const actionClasses = {watch:'watch', hold:'neutral', buy:'buy', cut:'sell'};
+
+// P626-followup/T143: last two inline onclick="(function(){...})()" holdouts — an input's live
+// value at click time, which the generic data-action dispatcher (§ above, "복잡한 인라인 JS...수동
+// 이식 필요") can't express as a static data-arg. Named so data-action="..." can reach them.
+function tickerDirectSearchFromInput() {
+  var el = document.getElementById('ticker-direct-search');
+  var v = el ? el.value.trim().toUpperCase() : '';
+  if (v) showTicker(v);
+}
+function krTvSymSearchFromInput() {
+  var el = document.getElementById('tv-kr-sym');
+  var c = el ? el.value.trim() : '';
+  if (c) showTicker(typeof krTickerToYahoo === 'function' ? krTickerToYahoo(c) : c);
+}
 
 function showTicker(tkr) {
   _currentTickerSym = tkr; // v27.1: chart에서 사용할 현재 티커 저장
