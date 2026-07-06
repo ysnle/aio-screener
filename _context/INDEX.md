@@ -35,13 +35,15 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `PAGE-UX-AUDIT-2026-06-13.md` | 페이지별 UX 감사. 일부 "빈 껍데기/고장" 항목은 이후 라이브 검증에서 거짓양성 판정됨(`DEFERRED-BLOCKS.md` §3 참조) | UI/UX 재점검 시 |
 | `DEFERRED-BLOCKS.md` | 미뤄둔 작업 / 진짜 블록 현황 — 데이터 없음(B1-3)·시간 필요(B4/B6)·운영자 결정(B5)으로 구분, "별도 세션 필요"의 실체 정리 | 블록 해제/작업 착수 시 |
 | `FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` | v51.90 시스템 뼈대 진단 (아키텍처/자동화·최신화/알고리즘). P0: 로컬 git 병듦(OneDrive, 2026-07-02 해소됨)·_context/CLAUDE.md 인코딩 파손(해소됨). RSI 서버↔클라 공식 상이, 백테스트≠라이브 모델, CI 헤드리스 갭 등 + Sonnet 5 로드맵 Phase 0~3 | 로드맵 항목 완료/구조 변경 시 |
+| `FABLE-LIVE-AUDIT-2026-07-04.md` | v52.4 라이브 전수 감사 P0~P6 백로그 — P0/P1은 v52.5/52.6, P2~P6은 v52.7~v52.18에서 전체 완료(CHANGELOG 참조) | 재감사/항목 완료 시 |
+| `FABLE-ARCH-DIAGNOSIS-2026-07-06.md` | v52.18 전수 아키텍처 진단(7축 스코어카드, 커버리지 정직표, 07-02 진단 해소 8건 코드 대조) + Sonnet 5 인수인계 로드맵 Phase 0~4. P1: `fetchKrDynamicData` 그림자 선언 + R280 기계 게이트 부재. 헤드리스 899/922 재현 실측 | 로드맵 항목 완료/구조 변경 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 20개 Git-tracked + `FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md`(디스크상 존재, 커밋 전) = 21개 `_context/*.md` 활성(2026-07-02 실측). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 23개 Git-tracked + `FABLE-ARCH-DIAGNOSIS-2026-07-06.md`(디스크상 존재, 커밋 전) = 24개 `_context/*.md` 활성(2026-07-06 `git ls-files` 실측). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 
-- **GitHub baseline (source of truth)**: `origin/main` at `d6902a1` (`v51.90`, 2026-07-02) — `git log --oneline -1` 실측. 이전 기재값(`638de8f`/v50.4/2026-06-03)은 47버전 stale이었음(정정).
+- **GitHub baseline (source of truth)**: `origin/main` at `5d54f39` (`v52.18`, 2026-07-05) — `git log --oneline -1` 실측(2026-07-06). 이전 기재값(`d6902a1`/v51.90/2026-07-02)은 28버전 stale이었음(정정 — 이 항목은 버전업마다 낡으므로 절대 신뢰 금지, 항상 `git log` 재실측).
 - **로컬 워크트리**: `git worktree list` 실측 결과 **별도 워크트리 없음** — 작업 디렉터리 자체가 `main` 브랜치(clean, origin/main과 동기). 이전 기재된 `claude/hungry-euler-8d3b20`, `.codex/worktrees/540d/AIO`는 더 이상 존재하지 않음(디렉터리 없음 확인) — 삭제.
 - **Live site**: `https://ysnle.github.io/aio-screener/`
 - **게이트 실측 baseline**: `GATE-BASELINE-2026-06-04.md`(v50.4, 673/692 pass, 1회성 수동측정)는 이제 `GATE-BASELINE-2026-07-03.md`(v51.96, 896/921 pass)로 후속됨 — Phase 2 [B5] 완료로 `.github/workflows/ci.yml`의 `headless-tests` job이 매 push/PR마다 `scripts/ci-headless-tests.mjs`(Playwright)를 자동 실행해 **상설화됨**(report-only, `continue-on-error: true`, 아직 deploy 게이트 미편입 — `_context/gate-baseline-skip-list.json` 25건 소진 후 검토).
@@ -52,7 +54,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 
 ```text
 AIO/
-├── index.html · version.json · manifest.json · sw.js
+├── index.html · version.json · sw.js (manifest.json은 P310/v49.43에서 삭제됨 — 실존 안 함)
 ├── js/
 │   ├── aio-core.js · aio-data.js · aio-ui.js · aio-chat.js · aio-tests.js · aio-glossary.js
 ├── scripts/              ← fetch-data.mjs · fetch-telegram-digest.mjs · ci-*.mjs(9종) · bump-version.mjs

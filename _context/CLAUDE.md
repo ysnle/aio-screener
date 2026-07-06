@@ -7,7 +7,7 @@
 - **현재 버전**: v52.18
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (20개 Git-tracked 활성, 2026-07-02 `git ls-files` 실측)
+## _context/ 문서 (23개 Git-tracked + 신규 1 = 24개 활성, 2026-07-06 `git ls-files` 실측)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -33,6 +33,8 @@
 | PAGE-UX-AUDIT-2026-06-13.md | 페이지별 UX 감사 (일부 항목은 이후 라이브 검증에서 거짓양성 판정 — DEFERRED-BLOCKS §3 참조) | UI/UX 재점검 시 |
 | DEFERRED-BLOCKS.md | 미뤄둔 작업 / 진짜 블록 현황 (데이터·시간·운영자 결정 구분) | 블록 해제/작업 착수 시 |
 | FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md | v52.2 시스템 뼈대 진단(아키텍처/자동화/알고리즘) + Sonnet 5 작업 로드맵 Phase 0~3 | 로드맵 항목 완료/구조 변경 시 |
+| FABLE-LIVE-AUDIT-2026-07-04.md | v52.4 라이브 전수 감사 P0~P6 백로그 (v52.5~v52.18 전체 완료) | 재감사/항목 완료 시 |
+| FABLE-ARCH-DIAGNOSIS-2026-07-06.md | v52.18 전수 아키텍처 진단(7축) + Sonnet 5 인수인계 로드맵 Phase 0~4 — **현행 작업 진입점** | 로드맵 항목 완료/구조 변경 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.
 > `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore`로 로컬 전용(레거시, RULES/QA로 대체됨).
@@ -41,7 +43,7 @@
 
 ```
 AIO/
-├── index.html · version.json · manifest.json · sw.js
+├── index.html · version.json · sw.js (manifest.json은 P310에서 삭제됨)
 ├── js/
 │   ├── aio-core.js · aio-data.js · aio-ui.js · aio-chat.js · aio-tests.js · aio-glossary.js
 ├── scripts/            ← fetch-data.mjs · fetch-telegram-digest.mjs · ci-*.mjs 9종 · bump-version.mjs
