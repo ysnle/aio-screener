@@ -151,6 +151,48 @@ const rsiParityOk = (() => {
   }
 })();
 check('server _rsi14 and client _calcRSILast are numerically equivalent (P584/R265 parity)', rsiParityOk, rsiParityDetail);
+
+// FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 3 [D-VCP]: server `_calcVCPServer` (fetch-data.mjs) and
+// client `_calcVCP` (aio-core.js) are two independently-maintained implementations of the same
+// pattern-recognition logic (parallel to the RSI case above) — currently in parameter parity, but
+// nothing previously caught it if one side's swing-detection window, base-length lookback, or
+// contraction-depth band drifted from the other. Text-contract check (not full behavioral parity
+// like RSI above — VCP's differing input shapes, {ok,vcpScore,vcpStage,...} vs separate
+// closes/highs/lows/volumes arrays, make a synthetic-data equivalence test disproportionate to what
+// this is guarding): confirm the same core numeric literals appear in both extracted function bodies.
+let vcpParityDetail = '';
+const vcpParityOk = (() => {
+  try {
+    const serverSrc = extractFunctionSource(fetchData, '_calcVCPServer');
+    const clientSrc = extractFunctionSource(core, '_calcVCP');
+    if (!serverSrc) { vcpParityDetail = 'could not extract _calcVCPServer from fetch-data.mjs'; return false; }
+    if (!clientSrc) { vcpParityDetail = 'could not extract _calcVCP from aio-core.js'; return false; }
+    // Anchored to the actual declaration/expression, not a bare number — a nearby Korean comment
+    // documenting the same parameter (e.g. "좌우 N=4봉 기준") would otherwise satisfy a loose
+    // `N\s*=\s*4` match on whichever side's comment happens to still say the old value, hiding a
+    // real drift in the code itself. Verified by deliberately mutating just the code declaration
+    // (not the comment) and confirming a loose pattern missed it before tightening to these.
+    const params = [
+      { label: 'minimum bar count (60)', re: /\bn\s*<\s*60\b/ },
+      { label: 'base window length (min(65, n-10))', re: /Math\.min\(65,\s*n\s*-\s*10\)/ },
+      { label: 'swing pivot half-window (N=4 declaration)', re: /\bN\s*=\s*4\s*[;,]\s*(?:const\s+)?sw[HL]\s*=\s*\[\]/ },
+      { label: '52-week lookback cap (min(252, n))', re: /Math\.min\(252,\s*n\)/ },
+      { label: 'stage-2 52w-off-high floor (-30)', re: /pct52\s*>=\s*-30/ },
+      { label: 'contraction depth floor (>= 1)', re: /(?:d|dep)\s*>=\s*1\s*&&/ },
+      { label: 'contraction depth ceiling (<= 45)', re: /<=\s*45\)\s*ctrs\.push/ },
+    ];
+    const mismatches = params.filter((p) => p.re.test(serverSrc) !== p.re.test(clientSrc));
+    if (mismatches.length) {
+      vcpParityDetail = mismatches.map((p) => `${p.label}: server=${p.re.test(serverSrc)} client=${p.re.test(clientSrc)}`).join('; ');
+      return false;
+    }
+    return true;
+  } catch (e) {
+    vcpParityDetail = e.message;
+    return false;
+  }
+})();
+check('server _calcVCPServer and client _calcVCP share the same core parameters (Phase 3 D-VCP parity)', vcpParityOk, vcpParityDetail);
 check('telegram digest script extracts topics, tickers, topItems', /topicCounts/.test(fetchTelegram) && /tickerCounts/.test(fetchTelegram) && /topItems/.test(fetchTelegram) && /telegram-public-mirror/.test(fetchTelegram));
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));

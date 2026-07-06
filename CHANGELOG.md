@@ -1,3 +1,10 @@
+## v52.21 (2026-07-06)
+- **FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 3 (P631)**: 알고리즘 정직성 로드맵 2건 처리.
+  - **[D-1/C2] 기록 정정**: "백테스트-라이브 정직 라벨" 항목을 착수하려 코드를 재확인한 결과, **이미 v51.91/P586에서 완전히 해소돼 있었음**을 확인 — 이 로드맵 항목 자체가 07-02 진단을 재검증 없이 그대로 옮긴 stale 기재였음(진단자의 자기 정정, CODE-MAP 사례와 동일 클래스). 코드 변경 없음, 로드맵 문서만 정정.
+  - **[D-VCP] 파리티 게이트 신설**: `ci-data-pipeline-contract-check.mjs`에 서버(`_calcVCPServer`)/클라(`_calcVCP`) VCP 핵심 파라미터 7종(스윙 N=4·베이스윈도우·52주 캡·Stage2 하한·수축깊이 범위) 텍스트 계약 추가(RSI parity 체크와 동일 패턴). 최초 구현의 느슨한 정규식이 코드 인접 주석과 실제 선언을 못 구분해 뮤테이션 테스트에서 실패 발견 → 선언 앵커 패턴으로 재작성 후 재검증.
+  - **검증**: 로컬 8게이트 green(신규 VCP 게이트 포함). 실행 코드 변경 없어 헤드리스 재실행은 기존 922/922 상태 유지로 충분.
+- R1 7곳 v52.21
+
 ## v52.20 (2026-07-06)
 - **헤드리스 테스트 스킵리스트 23건 전수 해소 (FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 2, P627-P630)**: 899/922 → **922/922 all pass**, skip-list 0건.
   - **진짜 프로덕션 버그 2건 확정 수정**: (P628) `_aioReorderCoreSections()`(js/aio-core.js)가 signal 페이지 lockout/exitTriggers를 `entry-checklist-card`와 `parentElement` 비교로 재배치하려 했으나, 그 카드가 `.aio-section` 래퍼 안에 중첩돼 있어 비교가 항상 false — 재배치가 영구 no-op이었음(lockout이 티커 바보다도 앞에 남음). `_directChildOf` 정규화로 수정. (P629) `_aioBuildDiversifiedRecommendationRows()`(js/aio-data.js)가 `recentSuppressed`(반복 추천 억제 카운트)를 이미 `_nonRepeat`로 필터링된 `eligible` 배열에서 세고 있어 — 억제된 종목은 그 시점에 이미 배열에서 빠진 뒤라 항상 0. 필터링 전 원본 배열 기준으로 카운트 순서 수정.
