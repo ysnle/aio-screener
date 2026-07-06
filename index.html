@@ -5654,7 +5654,7 @@ button[data-filter-active="true"] {
   <!-- v50.77: Minervini-style 메트릭 필 + 매수 국면 레이블 -->
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
     <div id="signal-mv-strip" class="mv-metric-strip" style="flex:1;min-width:0;">
-      <span style="font-size:10px;color:var(--text-muted);">시장 메트릭 로딩 중…</span>
+      <span style="font-size:10px;color:var(--text-muted);">VIX — · F&amp;G — · SPY —</span>
     </div>
     <div id="signal-phase-label" style="flex-shrink:0;"></div>
   </div>
@@ -8162,7 +8162,7 @@ button[data-filter-active="true"] {
         <span style="font-size:12px;font-weight:700;color:var(--data-amber);">엔캐리 언와인드 위험도</span>
         <span style="font-size:10px;color:var(--text-muted);margin-left:8px;">USD/JPY · VIX · 미일 금리차 · HYG 복합 스코어</span>
       </div>
-      <span id="carry-risk-level" style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:4px;background:rgba(245,158,11,0.12);color:var(--data-amber);">계산 중</span>
+      <span id="carry-risk-level" style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:4px;background:rgba(245,158,11,0.12);color:var(--data-amber);">—</span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
       <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;">
@@ -17027,12 +17027,32 @@ function generateMacroStoryline() {
   summary = (ratePressureNow ? 'FOMC 이후 금리 경계' : '금리 부담 완화') + ' · ' +
     (oilReliefNow ? '이란/유가 리스크 완화' : '유가 리스크 확인') + ' · ' +
     spyToneNow + ' 대응';
+  // P626-followup/T239/R68: this "4-card now" path was added ahead of the older narrative build
+  // below (which the unconditional `return` a few lines down makes permanently unreachable — see
+  // dead-code note there) and became the only code that actually ever renders into #macro-storyline,
+  // but the source/expected-time footer R68 requires was only ever written into that now-dead
+  // narrative version, so it silently stopped being shown. Carry the same footer into the path that
+  // actually runs.
+  var macroSourceParts = ['SPY','^VIX','DX-Y.NYB','CL=F','BZ=F','GC=F','HYG','^TNX'].map(function(sym) {
+    var row = ld[sym];
+    var source = row && (row.source || row._sourceLabel || row.provider);
+    return sym + ':' + (source || 'snapshot/fallback');
+  });
+  story += '<div style="margin-top:8px;padding:7px 9px;background:rgba(123,133,153,0.08);border-left:3px solid var(--border);border-radius:3px;font-size:10px;color:var(--text-muted);line-height:1.6;">'
+    + '<b>출처</b>: ' + macroSourceParts.join(' · ')
+    + '<br><b>예상 시간</b>: 라이브 수집 1~2초, 차단/오프라인 시 정적 스냅샷 즉시 폴백'
+    + '</div>';
   var macroContainerNow = document.getElementById('macro-storyline');
   if (macroContainerNow) macroContainerNow.innerHTML = story;
   var macroSummaryNow = document.getElementById('macro-summary-line');
   if (macroSummaryNow) macroSummaryNow.innerHTML = '오늘 대응: ' + summary + ' - ' + macroActionNow;
   return;
 
+  // P626-followup: everything below this `return` is unreachable — confirmed dead code (~230
+  // lines) from an older narrative-style build of this function, superseded by the "4-card now"
+  // version above whenever this "now" section was added ahead of it. Left in place rather than
+  // deleted in this pass (out of scope for the T239/R68 fix that motivated finding it) — flagged
+  // in BUG-POSTMORTEM/KNOWLEDGE-BASE as a confirmed-safe-to-delete cleanup candidate.
   // ═ 오프닝: 가장 큰 움직임 파악 ═
   var _vixPct = ld['^VIX'] ? (ld['^VIX'].pct != null ? ld['^VIX'].pct : 0) : 0;
   var _oilPct = ld['CL=F'] ? (ld['CL=F'].pct != null ? ld['CL=F'].pct : 0) : 0;

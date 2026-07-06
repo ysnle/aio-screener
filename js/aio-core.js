@@ -2462,13 +2462,19 @@ if (typeof document !== 'undefined') {
       // v50.33: Signal 핵심 결정 흐름 정렬 — 진입 체크리스트 직후로 [Exit Triggers → Lockout] 순서 고정.
       //   Exit(청산/헷지=핵심 리스크)는 기존 맨 끝에 묻혀 있었음. insertAdjacentElement는 "이동"이라
       //   현재 위치와 무관하게 순서를 강제(결과 멱등). 부모 같을 때만, 자기 자신 제외.
-      var anchorL = document.getElementById('entry-checklist-card') || document.getElementById('sig-ticker-bar');
-      if (anchorL && anchorL.parentElement) {
-        var par = anchorL.parentElement, cursor = anchorL;
-        var exitT = document.getElementById('signal-exit-triggers');
-        if (exitT && exitT.parentElement === par && exitT !== cursor) { cursor.insertAdjacentElement('afterend', exitT); cursor = exitT; }
-        var lock = document.getElementById('signal-lockout-control');
-        if (lock && lock.parentElement === par && lock !== cursor) { cursor.insertAdjacentElement('afterend', lock); cursor = lock; }
+      // P626-followup/T800: `entry-checklist-card`는 `.aio-section` 래퍼 안에 중첩돼 있어
+      // `signal-lockout-control`/`signal-exit-triggers`(page-signal 직계 자식)와 parentElement가
+      // 달랐다 — `lock.parentElement === par` 비교가 항상 false라 이 블록이 조용히 no-op이었음
+      // (실측: lockout이 페이지 최상단 그대로 남아 티커 바보다도 앞섬). sentiment/breadth 블록처럼
+      // `_directChildOf`로 셋 다 page-signal 직계 자식 레벨로 정규화한 뒤 이동.
+      var pSig = document.getElementById('page-signal');
+      var anchorL = pSig ? (_directChildOf(pSig, '#entry-checklist-card') || _directChildOf(pSig, '#sig-ticker-bar')) : null;
+      if (anchorL) {
+        var cursor = anchorL;
+        var exitT = _directChildOf(pSig, '#signal-exit-triggers');
+        if (exitT && exitT !== cursor) { cursor.insertAdjacentElement('afterend', exitT); cursor = exitT; }
+        var lock = _directChildOf(pSig, '#signal-lockout-control');
+        if (lock && lock !== cursor) { cursor.insertAdjacentElement('afterend', lock); cursor = lock; }
       }
       // v50.34: 홈 결론 흐름 그룹화 — 결론바 직후로 [매매 판단 그리드(점수·근거) → Action Items(액션)] 묶음.
       //   기존엔 결론바와 그 근거/액션 사이에 '오늘의 시장' 배너+경고+내비가 끼어 결론→근거→액션이 분절됐음.
