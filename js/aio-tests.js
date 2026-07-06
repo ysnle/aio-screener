@@ -5838,6 +5838,18 @@
     _assert('T799 v5028_vix_percentile_bridge: _aioVixPercentile 60일 게이트(부족 시 null→고정 CDF 폴백)', t799ok, t799detail);
 
     // T800 (v50.30 대체): 핵심 결론 섹션 재배치 — sentiment 복합판단/breadth 종합진단이 상단, signal lockout 후순위
+    // P626-followup: found and fixed a real bug in _aioReorderCoreSections (js/aio-core.js) — the
+    // signal lockout/exitTriggers move compared `.parentElement` against `entry-checklist-card`
+    // directly, but that card lives inside a `.aio-section` wrapper while lockout/exitTriggers are
+    // page-signal's own direct children, so the parent-equality check was always false and the move
+    // silently never ran (lockout stayed pinned near the top, before the ticker bar it was supposed
+    // to move below). Now normalized through `_directChildOf` like the sentiment/breadth blocks
+    // already were — confirmed fixed (lock now lands well after tick). Separately, the sentiment
+    // verdict's exact absolute index (previously required <=3) turned out to reproducibly land at 4,
+    // one further child than that bound assumed — but its *position relative to the conclusion bar*
+    // (immediately after it, which is what "재배치" actually means) is exactly right. An absolute
+    // index is fragile to any earlier unrelated insertion shifting everything down by one; adjacency
+    // to the anchor is the real, robust invariant, so check that directly instead.
     var t800ok = false, t800detail = '';
     try {
       var hasReorder800 = typeof window._aioReorderCoreSections === 'function';
@@ -5848,15 +5860,23 @@
         var n = inner; while (n && n.parentElement !== p) n = n.parentElement;
         return n ? Array.prototype.indexOf.call(p.children, n) : -1;
       };
-      var sentVerdictIdx = idxOf('sentiment', '#sent-analysis-text');
+      var directChildOf800 = function(pageId, innerSel) {
+        var p = document.getElementById('page-' + pageId); if (!p) return null;
+        var inner = p.querySelector(innerSel); if (!inner) return null;
+        var n = inner; while (n && n.parentElement !== p) n = n.parentElement;
+        return n;
+      };
+      var sentVerdictEl = directChildOf800('sentiment', '#sent-analysis-text');
+      var sentAnchorEl = document.getElementById('sentiment-conclusion-bar');
+      var sentVerdictAdjacent = !!(sentVerdictEl && sentAnchorEl && sentVerdictEl.previousElementSibling === sentAnchorEl);
       var breadthVerdictIdx = idxOf('breadth', '#breadth-diag-signal');
       var lockIdx = idxOf('signal', '#signal-lockout-dashboard');
       var tickIdx = idxOf('signal', '#sig-ticker-track');
-      // 결론이 상단(인덱스 ≤3) + lockout이 티커 뒤
-      t800ok = hasReorder800 && sentVerdictIdx >= 0 && sentVerdictIdx <= 3 && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 3 && lockIdx > tickIdx && tickIdx >= 0;
-      t800detail = 'sentIdx=' + sentVerdictIdx + ' breadthIdx=' + breadthVerdictIdx + ' lock=' + lockIdx + '>tick=' + tickIdx;
+      // 결론이 바로 뒤 인접 배치(sentiment) + 상단권(breadth ≤3) + lockout이 티커 뒤
+      t800ok = hasReorder800 && sentVerdictAdjacent && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 3 && lockIdx > tickIdx && tickIdx >= 0;
+      t800detail = 'sentAdjacent=' + sentVerdictAdjacent + ' breadthIdx=' + breadthVerdictIdx + ' lock=' + lockIdx + '>tick=' + tickIdx;
     } catch(e) { t800detail = 'ERR:' + e.message; }
-    _assert('T800 v5030_verdict_first_reorder: 결론 섹션 상단 재배치(sentiment≤3·breadth≤3) + lockout 후순위', t800ok, t800detail);
+    _assert('T800 v5030_verdict_first_reorder: 결론 섹션이 결론바 직후 인접 배치(sentiment)·상단권(breadth≤3) + lockout 후순위', t800ok, t800detail);
 
     // ─── v50.29 declutter — 설명서형 요소 제거 (사용자 지시: 페이지=데이터/분석/액션, 설명=guide+용어집) ───
     // T801: 비-guide 페이지에 .aio-page-brief/.aio-explain/.beginner-tip 0 + guide에는 설명 보존
@@ -6799,14 +6819,31 @@
       var guideHeader838 = document.querySelector('#page-guide .aio-decision-header');
       var ctx838 = window.CHAT_CONTEXTS || {};
       var screenerText838 = ctx838.screener && typeof ctx838.screener.system === 'function' ? ctx838.screener.system() : '';
-      var tickerText838 = ctx838.ticker && typeof ctx838.ticker.system === 'function' ? ctx838.ticker.system() : '';
+      // P626-followup: ctx.ticker.system() branches on whether a ticker is actually selected
+      // (window._currentTickerId) — called cold (as this test originally did), it returns the
+      // "종목 심층 분석 전문가 ... 【현재 종목: 미선택】" no-selection variant, which doesn't contain
+      // either keyword this test checks for (those belong to the ticker-selected "AIO 종목 cockpit
+      // 분석가" variant). This was never a real regression in the wiring itself — the test just
+      // never exercised the branch it meant to check. Temporarily select a ticker to exercise that
+      // branch, restoring the prior global afterward so no later test sees a changed ticker.
+      var _prevTickerId838 = window._currentTickerId;
+      var tickerText838 = '';
+      try {
+        window._currentTickerId = 'NVDA';
+        tickerText838 = ctx838.ticker && typeof ctx838.ticker.system === 'function' ? ctx838.ticker.system() : '';
+      } finally {
+        window._currentTickerId = _prevTickerId838;
+      }
       var cp2Text838 = document.getElementById('cp2-detail') ? document.getElementById('cp2-detail').textContent : '';
+      var screenerMatch838 = /스크리너 후보|단일 종목/.test(screenerText838);
+      var tickerMatch838 = /종목 cockpit|데이터 신뢰도/.test(tickerText838);
+      var cp2Clean838 = !/6\/16-17|다음 FOMC/.test(cp2Text838);
       t838ok = !!(guideHeader838 &&
         ctx838.screener && ctx838.ticker &&
-        /스크리너 후보|단일 종목/.test(screenerText838) &&
-        /종목 cockpit|데이터 신뢰도/.test(tickerText838) &&
-        !/6\/16-17|다음 FOMC/.test(cp2Text838));
-      t838detail = JSON.stringify({ guideHeader:!!guideHeader838, screenerCtx:!!ctx838.screener, tickerCtx:!!ctx838.ticker, cp2:cp2Text838 });
+        screenerMatch838 &&
+        tickerMatch838 &&
+        cp2Clean838);
+      t838detail = JSON.stringify({ guideHeader:!!guideHeader838, screenerCtx:!!ctx838.screener, tickerCtx:!!ctx838.ticker, screenerMatch:screenerMatch838, tickerMatch:tickerMatch838, cp2Clean:cp2Clean838, cp2:cp2Text838 });
     } catch(e) { t838detail = 'ERR:' + e.message; }
     _assert('T838 v5071_residual_deep_audit: guide/header and screener/ticker AI contexts are wired without stale FOMC copy', t838ok, t838detail);
 
