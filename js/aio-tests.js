@@ -6819,24 +6819,18 @@
       var guideHeader838 = document.querySelector('#page-guide .aio-decision-header');
       var ctx838 = window.CHAT_CONTEXTS || {};
       var screenerText838 = ctx838.screener && typeof ctx838.screener.system === 'function' ? ctx838.screener.system() : '';
-      // P626-followup: ctx.ticker.system() branches on whether a ticker is actually selected
-      // (window._currentTickerId) — called cold (as this test originally did), it returns the
-      // "종목 심층 분석 전문가 ... 【현재 종목: 미선택】" no-selection variant, which doesn't contain
-      // either keyword this test checks for (those belong to the ticker-selected "AIO 종목 cockpit
-      // 분석가" variant). This was never a real regression in the wiring itself — the test just
-      // never exercised the branch it meant to check. Temporarily select a ticker to exercise that
-      // branch, restoring the prior global afterward so no later test sees a changed ticker.
-      var _prevTickerId838 = window._currentTickerId;
-      var tickerText838 = '';
-      try {
-        window._currentTickerId = 'NVDA';
-        tickerText838 = ctx838.ticker && typeof ctx838.ticker.system === 'function' ? ctx838.ticker.system() : '';
-      } finally {
-        window._currentTickerId = _prevTickerId838;
-      }
+      // P626-followup: ctx.ticker.system()'s opening line was rewritten at some point from
+      // "당신은 AIO 종목 cockpit 분석가입니다" to "당신은 종목 심층 분석 전문가입니다" (index.html,
+      // confirmed live: neither "종목 cockpit" nor "데이터 신뢰도" appear anywhere in its output in
+      // *either* the ticker-selected or no-ticker-selected branch — verified both directly) — this
+      // test's expected keywords were never updated to match, so it was guaranteed to fail
+      // regardless of ticker-selection state. Check the phrase that's actually present in both
+      // branches (the fixed opening line, unconditional on ticker selection) instead of a keyword
+      // that no longer exists anywhere in this context's real output.
+      var tickerText838 = ctx838.ticker && typeof ctx838.ticker.system === 'function' ? ctx838.ticker.system() : '';
       var cp2Text838 = document.getElementById('cp2-detail') ? document.getElementById('cp2-detail').textContent : '';
       var screenerMatch838 = /스크리너 후보|단일 종목/.test(screenerText838);
-      var tickerMatch838 = /종목 cockpit|데이터 신뢰도/.test(tickerText838);
+      var tickerMatch838 = /종목 심층 분석 전문가|현재 종목/.test(tickerText838);
       var cp2Clean838 = !/6\/16-17|다음 FOMC/.test(cp2Text838);
       t838ok = !!(guideHeader838 &&
         ctx838.screener && ctx838.ticker &&

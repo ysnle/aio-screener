@@ -17447,6 +17447,14 @@ function _aioBuildDiversifiedRecommendationRows(db, live, opts) {
     };
   }).sort(function(a, b) { return b.diversityScore - a.diversityScore; });
 
+  // P626-followup/T825: recentSuppressed used to be counted from `eligible` *after* the
+  // `_nonRepeat` reassignment below — but that reassignment (which fires almost every real call,
+  // since a universe this size almost always has >=20 non-penalized candidates) replaces
+  // `eligible` with exactly the subset that has zero repeat-penalized rows. Counting "how many
+  // were suppressed" from an array that, by construction, can no longer contain any suppressed
+  // row always returned 0 regardless of what `opts.recentTickers` actually penalized. Count from
+  // the full pre-filter set instead, before it gets narrowed.
+  var recentSuppressed = eligible.filter(function(r) { return r.repeatPenalty > 0; }).length;
   var _nonRepeat = eligible.filter(function(r) { return r.repeatPenalty === 0; });
   if (_nonRepeat.length >= 20) { eligible = _nonRepeat; }
 
@@ -17467,7 +17475,6 @@ function _aioBuildDiversifiedRecommendationRows(db, live, opts) {
   var first = pickRows(2, { US: 7, KR: 5, Japan: 2, Taiwan: 2, 'Hong Kong': 2, ADR: 2, _default: 3 }, 16);
   if (first.rows.length < 12) first = pickRows(3, { US: 10, KR: 7, Japan: 3, Taiwan: 3, 'Hong Kong': 3, ADR: 3, _default: 4 }, 16);
   var sectors = {}, markets = {}, capBuckets = {};
-  var recentSuppressed = eligible.filter(function(r) { return r.repeatPenalty > 0; }).length;
   first.rows.forEach(function(r) {
     sectors[r.sector || 'Unknown'] = true;
     markets[r.market || 'US'] = true;
