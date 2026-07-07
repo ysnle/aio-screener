@@ -39,9 +39,10 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md` | v51.90 시스템 뼈대 진단 (아키텍처/자동화·최신화/알고리즘). P0: 로컬 git 병듦(OneDrive, 2026-07-02 해소됨)·_context/CLAUDE.md 인코딩 파손(해소됨). RSI 서버↔클라 공식 상이, 백테스트≠라이브 모델, CI 헤드리스 갭 등 + Sonnet 5 로드맵 Phase 0~3 | 로드맵 항목 완료/구조 변경 시 |
 | `FABLE-LIVE-AUDIT-2026-07-04.md` | v52.4 라이브 전수 감사 P0~P6 백로그 — P0/P1은 v52.5/52.6, P2~P6은 v52.7~v52.18에서 전체 완료(CHANGELOG 참조) | 재감사/항목 완료 시 |
 | `FABLE-ARCH-DIAGNOSIS-2026-07-06.md` | v52.18 전수 아키텍처 진단(7축 스코어카드, 커버리지 정직표, 07-02 진단 해소 8건 코드 대조) + Sonnet 5 인수인계 로드맵 Phase 0~4. P1: `fetchKrDynamicData` 그림자 선언 + R280 기계 게이트 부재. 헤드리스 899/922 재현 실측 | 로드맵 항목 완료/구조 변경 시 |
+| `FABLE-LIVE-AUDIT-2026-07-07.md` | KOSPI -8% 실폭락일 라이브(v52.21) 실브라우저+외부 실측 감사 — 발견 전수 대장(C1~C7·L1~L10·F1~F8·U1~U10·X1~X3) + 근본원인 6뿌리 + 구조 개선 Phase L0~L5 + ARCH 로드맵 통합 우선순위. **현행 작업 진입점** | 로드맵 항목 완료/재감사 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 23개 Git-tracked + `FABLE-ARCH-DIAGNOSIS-2026-07-06.md`(디스크상 존재, 커밋 전) = 24개 `_context/*.md` 활성(2026-07-06 `git ls-files` 실측). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 23개 Git-tracked + `FABLE-ARCH-DIAGNOSIS-2026-07-06.md` + `FABLE-LIVE-AUDIT-2026-07-07.md`(디스크상 존재, 커밋 전) = 25개 `_context/*.md` 활성(2026-07-07 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 
