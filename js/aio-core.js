@@ -17720,7 +17720,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.24';
+const APP_VERSION = 'v52.25';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -23641,9 +23641,15 @@ function showTicker(tkr) {
     }
 
     // 3. 시장 환경
+    // FABLE-LIVE-AUDIT-2026-07-07 L4/L3-2: 이 항목은 (의도적으로) 매매 시그널 페이지의 종합 거래
+    // 점수가 아니라 SPY/QQQ/VIX/M7 기반 "시장 건강도"(기술·분석 페이지와 동일 지표, computeMarketHealth())를
+    // 참조한다 — 개별 종목의 진입 타이밍 필터로는 타당한 설계다. 다만 라벨이 그냥 "시장: NN점"이면
+    // 상단 공용 스트립의 "시그널 NN" 종합 점수와 같은 지표로 오인돼 "같은 화면에서 서로 다른 시장
+    // 판단이 동시에 뜬다"는 모순으로 보인다(실측). 로직/임계값은 그대로 두고, 상단 스트립의 종합
+    // 점수와 다른 지표임을 라벨에서 바로 구분되도록 기존 페이지에서 이미 쓰는 명칭("시장 건강도")으로 통일.
     if (health) {
       var envOk = health.score >= 55;
-      checks.push({ label: '시장: ' + health.score + '점', ok: envOk, note: envOk ? health.regime : '약세 환경' });
+      checks.push({ label: '시장 건강도: ' + health.score + '점', ok: envOk, note: envOk ? health.regime : '약세 환경' });
       if (envOk) pass++;
     }
 

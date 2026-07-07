@@ -184,7 +184,7 @@ R-F. 자가진단-운영 루프 단절 (알지만 고치지 않는 시스템)   
 
 | 발견 | 처리 | 코드 위치 | P번호 |
 |------|------|----------|-------|
-| C1 | 근본원인 확정(배포 워커가 리포보다 구버전, `/anthropic` 라우트 자체가 없음) — **코드 정상, 배포는 운영자 조치 필요**. `DEFERRED-BLOCKS.md` B5와 동일 항목이었음(신규 버그 아님) | `cloudflare-worker-proxy.js:173-245` (리포 코드는 정상) | P638 |
+| C1 | **완전 해소(같은 날)** — 근본원인 확정(배포 워커가 리포보다 구버전) 후 운영자가 즉시 Worker 재배포 + `ANTHROPIC_API_KEY` 시크릿 추가. curl(405→200)+라이브 브리핑 실콘텐츠 렌더로 확인. 잔여 관찰: 신규 키 특유 간헐적 403(Anthropic 측 rate/concurrency 추정, 코드 이슈 아님) | `cloudflare-worker-proxy.js:173-245` (리포 코드는 원래 정상) | P638 |
 | C2 | 수정 완료 — Claude 실패 시 `freeTranslateNews`(Google Translate) 중간 폴백 경유로 실제 헤드라인 확보 | `js/aio-data.js` `autoTranslateNews()` catch/else 분기 (~9801, ~9811) | P637 |
 | C3 | 수정 완료 — v9d/v3m live 여부 게이트 추가, 비live 시 전 방향 판정(정상 포함) 억제 | `js/aio-core.js` `_aioRenderVixTermRegime()` (~1926) | P634 |
 | C4 | 수정 완료 — 폴백 시드 라벨에 "폴백·" 명시. **잔여 한계**: live-갱신값도 다음 스냅샷 주기에 "폴백" 오표기될 수 있는 provenance 미추적 문제는 의도적으로 범위 밖(L1 후속) | `js/aio-core.js` `applyDataSnapshot()` vkospi 매핑 (~19695) | P635 |
@@ -192,7 +192,13 @@ R-F. 자가진단-운영 루프 단절 (알지만 고치지 않는 시스템)   
 | C6 | **분석 결과 코드 수정 불필요** — `AIO_DATA_TRUTH_GATE.evaluateQuote()` 정독 결과, "blocked" 판정은 magnitude만으론 안 걸리고(index/etf maxPctMove 25%, KOSPI -8%는 통과) cross-source 불일치·non-operational-source·stale이 실제 트리거. VIX9D 등 fallback 소스 차단은 `sourceAllowed()`가 이미 올바르게 처리 중(C3 수정과 원칙 일치). ^KS11의 cross-source 불일치는 C5 버그가 원인이었으므로 C5 수정이 곧 이것도 완화 | `js/aio-core.js` `AIO_DATA_TRUTH_GATE.evaluateQuote()` (20771) | 신규 P 없음(분석만) |
 | L3-1/L2-3 | **이미 v52.19(P626)에서 완료 확인** — R280 기계 게이트 존재+작동 중, KR 5개 고아 함수는 개별 실엔드포인트 검증 후 3개 삭제/1개 복구/게이트 신설까지 끝나 있었음 | `scripts/ci-structural-check.mjs:61-107` | 기존 P626 |
 | L0-3(SW) | **코드 수정 불필요로 결론** — skipWaiting/clients.claim 표준 패턴 정상 구현 확인 + 이미 가시적 배지(`SW {v}≠{v}` 빨간 텍스트)와 `showDataError` 경고 토스트가 존재. 라이브에서 본 v52.4는 브라우저/프로파일 타이밍 아티팩트로 결론 | `sw.js` 전체, `js/aio-data.js:5140-5153` | 해당 없음 |
+| L3-2(티커/시그널 모순) | 수정 완료 — `computeMarketHealth()`(기술·분석 페이지와 동일 지표) 자체를 개별종목 진입 타이밍 필터로 쓰는 것은 타당한 설계였음. 라벨 "시장: NN점"만 "시장 건강도: NN점"으로 명확화해 상단 종합 "시그널 NN"과 다른 지표임을 구분되게 함 | `js/aio-core.js` 티커 진입 적합성 렌더 (~23646) | P639 |
+| F3(TradingView 잔여 문구) | 수정 완료 — P610에서 캔들 차트로 교체됐으나 설명 문구만 "위 TradingView 차트"로 잔존하던 것을 "위 캔들 차트"로 정정 | `index.html:11683` | P640 |
 
-**검증**: 전 수정 후 `node --check`(변경 파일 전체) + 로컬 8게이트 green + `node scripts/ci-headless-tests.mjs` 922/922(T278 포맷을 새 정직화 라벨에 맞춰 갱신, 그 갱신 전엔 921/922로 정확히 회귀를 잡아냄을 확인) + 버전 v52.24 범프(R1 7곳) + BUG-POSTMORTEM P634-P638 + QA-CHECKLIST P634-P638 + RULES R282 신설.
+**검증**: 전 수정 후 `node --check`(변경 파일 전체)/구조 게이트(HTML) + 로컬 8게이트 green + `node scripts/ci-headless-tests.mjs` 922/922(T278 포맷을 새 정직화 라벨에 맞춰 갱신, 그 갱신 전엔 921/922로 정확히 회귀를 잡아냄을 확인) + 버전 v52.24→v52.25 범프(R1 7곳) + BUG-POSTMORTEM P634-P640 + QA-CHECKLIST P634-P640 + RULES R282 신설 + DEFERRED-BLOCKS B5 해소 처리.
 
-**다음 세션 시작점**: L3-2(점수 SSOT — 티커 진입적합성 vs 시그널 종합점수 병렬 모순, L4 findings) → L4(자가진단→운영 루프) → L5(운영자 협의 필요 항목들). L0-1(워커 재배포)은 운영자가 별도로 처리해야 하며, 완료 후 P637의 Google-Translate 임시 폴백을 Claude 경로로 되돌릴지는 유지가 무해하므로 판단에 맡김(cascade이므로 자동으로 우선순위는 Claude가 먼저 시도됨).
+**L0-1 최종 확인(같은 날 운영자 조치 완료)**: 운영자가 Worker 재배포 + `ANTHROPIC_API_KEY` 시크릿 추가. curl 재현(GET→405 "POST required", POST→200 실응답) + 라이브 브리핑 페이지 hard-reload 재확인(405/브리핑실패 로그 0건, 실제 AI 콘텐츠 렌더)으로 C1 완전 해소 확정. 신규 관찰: 간헐적 403(Anthropic 계정 rate/concurrency 추정 — 코드 이슈 아니므로 미조치, console.anthropic.com에서 키 limits 확인 권장).
+
+**L4 부분 완료 + 의도적 유보**: 소규모 안전한 항목(P639 라벨, P640 문구)은 처리. **"사망 차트 킬스위치"(공용 메커니즘)는 미착수** — VKOSPI 미니차트를 추적한 결과 리포 내 유일한 시드는 7포인트인데 라이브 렌더는 20포인트·최종라벨 "6/5"로 나와, 여러 참조차트가 공유하는 것으로 추정되는 시드-확장 헬퍼의 위치를 이번 세션에서 특정하지 못함. 이 상태로 급하게 건드리면 미검증 광역 회귀 위험이 커서, 원 설계대로("Phase L4 — 1세션+상시") 별도 세션으로 유보 — **다음 세션은 이 헬퍼 위치 특정부터** 시작.
+
+**다음 세션 시작점**: L4 나머지(사망 차트 킬스위치 — 시드확장 헬퍼 위치 특정 우선, 자가진단→운영 루프 연결, readiness 스캔 성능) → L5(운영자 협의 필요 항목들 — 아시아 세션 리스크 입력 등).
