@@ -9801,18 +9801,17 @@ ${prompt}`
       } else {
         const errText = await resp.text().catch(() => '');
         _aioLog('warn', 'translate', '번역 API 응답 에러: ' + resp.status + ' ' + errText.slice(0, 200));
-        // API 실패시 로컬 enrichment로 폴백
-        batch.forEach(orig => {
-          if (!_translationCache.has(_tcKey(orig.title))) {
-            localEnrichSingle(orig);
-          }
-        });
+        // FABLE-LIVE-AUDIT-2026-07-07 C2/L0-2: Claude(서버키) 경로 실패 시 바로 localEnrichSingle로
+        // 가면 원문이 영문일 때 헤드라인 없는 일반 분류 템플릿만 남는다(B5: CF Worker /anthropic
+        // 미배포 상태에선 이게 상시 발생). 무료 Google Translate로 실제 한국어 제목을 먼저 시도하고,
+        // 그마저 실패한 항목만 localEnrichSingle의 최종 폴백(내부에서 이미 처리)으로 남긴다.
+        var _failedBatch = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
+        if (_failedBatch.length) { try { await freeTranslateNews(_failedBatch); } catch(_gtErr) { _failedBatch.forEach(orig => { if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig); }); } }
       }
     } catch(e) {
       _aioLog('warn', 'translate', '번역 API 호출 에러: ' + (e && e.message || e));
-      batch.forEach(orig => {
-        if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig);
-      });
+      var _failedBatch2 = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
+      if (_failedBatch2.length) { try { await freeTranslateNews(_failedBatch2); } catch(_gtErr2) { _failedBatch2.forEach(orig => { if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig); }); } }
     }
 
     // 배치 간 딜레이 + 중간 렌더링
@@ -13119,11 +13118,17 @@ async function fetchKrNaverQuotes() {
       var chgVal = parseFloat(String(data.compareToPreviousClosePrice || data.cv || '0').replace(/,/g, ''));
 
       if (price > 0) {
+        // FABLE-LIVE-AUDIT-2026-07-07 C5/L2-2: Naver의 compareToPreviousClosePrice(부호 포함, 원 단위)로
+        // 전일종가를 직접 역산해 첨부. Yahoo ^KS11/^KQ11의 chartPreviousClose는 미국 휴장일 인접 주간에
+        // 한 세션 어긋난 값을 돌려주는 경우가 실측됐음(예: 7/3 종가를 7/6 전일종가로 반환) — KR 지수는
+        // KRX 소스(Naver)가 항상 정확하므로 이 값을 우선 사용해야 함(아래 병합부에서 sticky 처리).
+        var _prevClose = isFinite(chgVal) ? (price - chgVal) : null;
         results.push({
           symbol: idx.yahoo,
           regularMarketPrice: price,
           regularMarketChangePercent: chgPct,
           regularMarketChange: chgVal,
+          regularMarketPreviousClose: (_prevClose > 0 ? _prevClose : undefined),
           _source: 'live:naver'
         });
       }
@@ -15248,8 +15253,27 @@ function applyLiveQuotes(quotes) {
       if (_lsm[1] && hasPct) window.DATA_SNAPSHOT[_lsm[1]] = parseFloat(pct.toFixed(2));
       if (q.symbol === 'KRW=X') window.DATA_SNAPSHOT.krwRound = Math.round(price);
       if (q.symbol === 'GC=F' && hasPct) window.DATA_SNAPSHOT.goldWeeklyPct = parseFloat(pct.toFixed(2));
-      if (q.symbol === '^KS11') { var _ksPrev = q.regularMarketPreviousClose || q.chartPreviousClose; if (_ksPrev > 0) window.DATA_SNAPSHOT.kospiPrev = _ksPrev; }
-      if (q.symbol === '^KQ11') { var _kqPrev = q.regularMarketPreviousClose || q.chartPreviousClose; if (_kqPrev > 0) window.DATA_SNAPSHOT.kosdaqPrev = _kqPrev; }
+      // FABLE-LIVE-AUDIT-2026-07-07 C5/L2-2: 이 forEach는 Yahoo/Naver 등 여러 소스의 동일 심볼 quote를
+      // 순서 구분 없이 훑으며 "나중에 처리되는 쪽이 승리"하는 구조였다. Yahoo의 ^KS11/^KQ11
+      // chartPreviousClose는 미국 휴장일 인접 주간에 한 세션 어긋난 값을 반환하는 경우가 실측되어,
+      // KRX 원천인 Naver(_source==='live:naver')가 한 번이라도 전일종가를 확정하면 그 값을
+      // sticky하게 유지하고 이후 Yahoo 값이 이를 덮어쓰지 못하게 한다(전일종가는 하루 1회만 변함).
+      if (q.symbol === '^KS11') {
+        var _ksPrev = q.regularMarketPreviousClose || q.chartPreviousClose;
+        var _ksIsNaver = (q._source === 'live:naver');
+        if (_ksPrev > 0 && (_ksIsNaver || !window.DATA_SNAPSHOT._kospiPrevFromNaver)) {
+          window.DATA_SNAPSHOT.kospiPrev = _ksPrev;
+          if (_ksIsNaver) window.DATA_SNAPSHOT._kospiPrevFromNaver = true;
+        }
+      }
+      if (q.symbol === '^KQ11') {
+        var _kqPrev = q.regularMarketPreviousClose || q.chartPreviousClose;
+        var _kqIsNaver = (q._source === 'live:naver');
+        if (_kqPrev > 0 && (_kqIsNaver || !window.DATA_SNAPSHOT._kosdaqPrevFromNaver)) {
+          window.DATA_SNAPSHOT.kosdaqPrev = _kqPrev;
+          if (_kqIsNaver) window.DATA_SNAPSHOT._kosdaqPrevFromNaver = true;
+        }
+      }
     }
     window._previousPrices[q.symbol] = price;
     // v36.6: 프리/애프터마켓 시세 저장 (미국장 마감 후 방향성 추적)

@@ -1925,14 +1925,21 @@ window._aioRenderVixTermRegime = function() {
   });
   var available = [v9d, v30, v3m, v6m].filter(function(v){ return v != null; });
   if (available.length < 2) { el.textContent = '기간구조 산정 불가 (부족한 만기)'; return; }
+  // FABLE-LIVE-AUDIT-2026-07-07 C3/Phase L1 (Verdict Gate): v30(^VIX)은 거의 항상 live인 반면
+  // v9d/v3m은 truth-block/미fetch 시 DATA_SNAPSHOT 시드로 폴백된다(예: vix9d 시드 18.80, v50.39 시대값).
+  // 시드는 갱신되지 않으므로 "live v30 vs 시드 v9d" 비교는 시장이 아니라 시드-노후화의 함수가 되어
+  // 실제로는 콘탱고인데도 백워데이션(패닉)으로 오판정하는 사례가 실측됨. live 소스일 때만 방향성 판정.
+  var v9dLive = !!(ld['^VIX9D'] && ld['^VIX9D'].price != null);
+  var v3mLive = !!(ld['^VIX3M'] && ld['^VIX3M'].price != null);
   // 정상(콘탱고): 단기<장기. 역전(백워데이션): 단기>장기.
   var diff30_3m = (v3m != null) ? (v3m - v30) : 0;
   var diff9d_30 = (v9d != null && v30 != null) ? (v30 - v9d) : 0;
   var regime, color;
-  if (v9d != null && v9d > v30 * 1.02) { regime = '백워데이션 (패닉 신호) — VIX9D > VIX, 즉각적 공포 우세. 역사적으로 1~2주 내 바닥 반등 가능.'; color = 'var(--data-red)'; }
-  else if (diff30_3m < -1) { regime = '백워데이션 (조정 경보) — VIX > VIX3M. 중기 우려 누적, 포지션 방어 고려.'; color = 'var(--data-amber)'; }
-  else if (diff30_3m < 1 && diff30_3m > -1) { regime = '평탄화 — 콘탱고 붕괴 직전. 변동성 확대 가능, 헤지 강화 시점.'; color = 'var(--data-amber)'; }
-  else { regime = '정상 콘탱고 — 단기&lt;장기, 시장 안정 국면. 위험자산 비중 유지 가능.'; color = 'var(--data-green)'; }
+  if (v9dLive && v9d > v30 * 1.02) { regime = '백워데이션 (패닉 신호) — VIX9D > VIX, 즉각적 공포 우세. 역사적으로 1~2주 내 바닥 반등 가능.'; color = 'var(--data-red)'; }
+  else if (v3mLive && diff30_3m < -1) { regime = '백워데이션 (조정 경보) — VIX > VIX3M. 중기 우려 누적, 포지션 방어 고려.'; color = 'var(--data-amber)'; }
+  else if (v3mLive && diff30_3m < 1 && diff30_3m > -1) { regime = '평탄화 — 콘탱고 붕괴 직전. 변동성 확대 가능, 헤지 강화 시점.'; color = 'var(--data-amber)'; }
+  else if (v9dLive || v3mLive) { regime = '정상 콘탱고 — 단기&lt;장기, 시장 안정 국면. 위험자산 비중 유지 가능.'; color = 'var(--data-green)'; }
+  else { regime = '9D/3M 기간구조 라이브 미수신 — 시드값만으로는 방향 판정 보류(참고: 30D VIX ' + v30.toFixed(2) + ')'; color = 'var(--text-muted)'; }
   el.innerHTML = regime;
   // 색상 업데이트
   var wrap = el.parentElement;
@@ -17713,7 +17720,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.23';
+const APP_VERSION = 'v52.24';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -19692,7 +19699,11 @@ function applyDataSnapshot() {
       // applyDataSnapshot()에 배선이 없어 서로 다른 값으로 독립 표류하던 문제 — 매핑 추가.
       'hy-spread':     _snap.fixed(S.hySpread, 0) + ' bps',
       // v49.58 P278: VKOSPI 라벨 자동 부착 (정상<20 / 경계 20~25 / 공포 25~35 / 극단공포 35+)
-      'vkospi':        _snap.fixed(S.vkospi, 2) + ' (' + (S.vkospi >= 35 ? '극단공포' : S.vkospi >= 25 ? '공포' : S.vkospi >= 20 ? '경계' : '정상') + ')',
+      // FABLE-LIVE-AUDIT-2026-07-07 C4/Phase L1: 이 함수(applyDataSnapshot)는 refreshAllCriticalPages 등
+      // 주기적 새로고침마다 재실행되며, S.vkospi는 P605 이후에도 갱신 안 되는 고정 추정 시드(18756행)다.
+      // "정상/공포" 같은 단정 라벨을 시드값에 그대로 붙이면 실제 라이브 급변(fetchVkospiDynamic 성공) 이전에도
+      // 확정적으로 읽혀 위기 상황에서 오정보가 된다 — 폴백 경로임을 라벨에 명시.
+      'vkospi':        _snap.fixed(S.vkospi, 2) + ' (폴백·' + (S.vkospi >= 35 ? '극단공포' : S.vkospi >= 25 ? '공포' : S.vkospi >= 20 ? '경계' : '정상') + ' 추정)',
       // 금리 (폴백값용 — data-live-price 실시간이 우선)
       'tnx':           _snap.fixed(S.tnx || 4.31, 2) + '%',
       'tnx-2y':        _snap.fixed(S.tnx2y || 3.88, 2) + '%',

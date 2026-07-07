@@ -1,11 +1,14 @@
 ---
-verified_by: agent (Fable 5 — 실브라우저(Chrome 확장) 22페이지 순회 + 외부 실측 교차검증)
+verified_by: agent (Fable 5 감사 + Sonnet 5 실행, 같은 세션 내 연속 진행)
 last_verified: 2026-07-07
-confidence: high (발견 자체) / medium (로컬 v52.23 반영 여부 — 전 항목 착수 전 재검증 필수)
-purpose: Sonnet 5 인수인계 — 2026-07-07 라이브(v52.21) 전수 실측 감사 발견 전체 + 근본/구조 개선 설계 Phase L0~L5. 이 문서만으로 cold start 가능.
+confidence: high
+target_version: v52.24
+purpose: Sonnet 5 인수인계 — 2026-07-07 라이브(v52.21) 전수 실측 감사 발견 전체 + 근본/구조 개선 설계 Phase L0~L5. Phase L0/L1/L2 핵심 항목은 같은 세션에서 실행 완료(v52.24, P634-P638) — §6 실행 로그 참조.
 ---
 
 # FABLE-LIVE-AUDIT-2026-07-07 — 폭락일 실측 감사 + 구조 개선 설계
+
+> **2026-07-07 실행 갱신**: 본 문서 작성 직후 같은 세션에서 §4 실행 순서대로 착수 — C2/C3/C4/C5는 코드 수정 완료(v52.24, P634-P637), C1은 근본원인 확정 후 운영자 조치 필요 항목으로 확정(P638, 코드 변경 없음), C6은 분석 결과 신규 코드 불필요로 결론, L3-1/L2-3은 **v52.19(P626)에서 이미 완료돼 있었음을 발견**(아래 §5는 그 발견 이전에 작성된 낡은 우선순위 — §6 참조). 상세는 §6.
 
 > `FABLE-ARCH-DIAGNOSIS-2026-07-06.md`(정적 진단)의 **동적 보완재**. 그 문서가 코드/구조를 진단했다면,
 > 이 문서는 **실제 위기일(KOSPI -8.03% 폭락, 2026-07-07)에 라이브 배포본이 어떻게 행동했는지**를 실측했다.
@@ -164,12 +167,32 @@ R-F. 자가진단-운영 루프 단절 (알지만 고치지 않는 시스템)   
 
 ## §5 기존 로드맵과의 통합 우선순위
 
-| 순위 | 항목 | 출처 |
-|------|------|------|
-| 1 | L0 (워커 405·번역 폴백·SW) | 본 문서 — 신규, 최우선 (사용자 가시 피해 최대) |
-| 2 | L3-1 = ARCH Phase 0-1 (R280 기계 게이트) + L2-3 = ARCH Phase 0-2 (KR orphan) | **두 로드맵 동일 항목 — 통합 실행** |
-| 3 | L1 (Verdict Gate) + L2 (TruthGate 예외·KR 캘린더) | 본 문서 — 구조 핵심 |
-| 4 | L3-2/3, L4 | 본 문서 |
-| 5 | ARCH Phase 1(전달 성능)·Phase 2 잔여·L5 | 병행 가능 |
+| 순위 | 항목 | 출처 | 상태 (2026-07-07 세션 종료 기준) |
+|------|------|------|------|
+| 1 | L0 (워커 405·번역 폴백·SW) | 본 문서 — 신규, 최우선 (사용자 가시 피해 최대) | L0-1 운영자 조치 대기(P638) · L0-2 완료(P637) · L0-3 코드 정상 확인(수정 불요) |
+| 2 | L3-1 = ARCH Phase 0-1 (R280 기계 게이트) + L2-3 = ARCH Phase 0-2 (KR orphan) | **두 로드맵 동일 항목 — 통합 실행** | **✅ 이미 v52.19(P626)에서 완료 확인** — 이 표 작성 시점엔 몰랐던 사실. 착수 불필요, `scripts/ci-structural-check.mjs`의 R280 검사로 상시 게이트됨 |
+| 3 | L1 (Verdict Gate) + L2 (TruthGate 예외·KR 캘린더) | 본 문서 — 구조 핵심 | L1 핵심 2사이트(C3/C4) 완료(P634/P635, R282 신설) · L2-2(KOSPI/KOSDAQ 기준일) 완료(P636) · L2-1(TruthGate 예외)은 코드 분석 결과 **신설 불필요로 결론**(C6 참조 — cross-source 로직은 이미 타당, 오탐 원인은 C5였음) |
+| 4 | L3-2/3, L4 | 본 문서 | 미착수 |
+| 5 | ARCH Phase 1(전달 성능)·Phase 2 잔여·L5 | 병행 가능 | 미착수 |
 
 > ARCH Phase 3(알고리즘 정직성)·Phase 4(만성 클래스)는 순위 불변. 본 감사의 L5·L9·F8이 Phase 3 착수 시 입력 자료가 된다.
+> **교훈**: 이 표는 ARCH-DIAGNOSIS-2026-07-06 문서의 권고를 재검증 없이 그대로 옮겨 순위 2번에 "미착수"로 기재했으나, 실제로는 그 문서 작성 시점보다도 먼저(v52.19) 완료돼 있었다 — 인수인계 문서를 작성할 때도 "이미 됐을 수 있다"는 재검증이 항상 선행돼야 한다는 사례로 §6에도 기록.
+
+## §6 실행 로그 (2026-07-07, 같은 세션 내 Sonnet 5 실행분)
+
+감사 작성 직후 같은 세션에서 사용자 요청으로 §4 순서대로 즉시 착수. 아래는 그 결과 — 향후 세션은 이 로그를 신뢰하고 재조사하지 말 것(각 항목 코드 위치·검증 커맨드 포함이므로 의심되면 grep으로 재확인만 할 것).
+
+| 발견 | 처리 | 코드 위치 | P번호 |
+|------|------|----------|-------|
+| C1 | 근본원인 확정(배포 워커가 리포보다 구버전, `/anthropic` 라우트 자체가 없음) — **코드 정상, 배포는 운영자 조치 필요**. `DEFERRED-BLOCKS.md` B5와 동일 항목이었음(신규 버그 아님) | `cloudflare-worker-proxy.js:173-245` (리포 코드는 정상) | P638 |
+| C2 | 수정 완료 — Claude 실패 시 `freeTranslateNews`(Google Translate) 중간 폴백 경유로 실제 헤드라인 확보 | `js/aio-data.js` `autoTranslateNews()` catch/else 분기 (~9801, ~9811) | P637 |
+| C3 | 수정 완료 — v9d/v3m live 여부 게이트 추가, 비live 시 전 방향 판정(정상 포함) 억제 | `js/aio-core.js` `_aioRenderVixTermRegime()` (~1926) | P634 |
+| C4 | 수정 완료 — 폴백 시드 라벨에 "폴백·" 명시. **잔여 한계**: live-갱신값도 다음 스냅샷 주기에 "폴백" 오표기될 수 있는 provenance 미추적 문제는 의도적으로 범위 밖(L1 후속) | `js/aio-core.js` `applyDataSnapshot()` vkospi 매핑 (~19695) | P635 |
+| C5 | 수정 완료 — Naver `compareToPreviousClosePrice` 기반 전일종가 파생 + Naver 소스 sticky 우선 병합. Yahoo 휴장주간 오프셋 버그 근본 해결 | `js/aio-data.js` `fetchKrNaverQuotes()` (~13120), 병합 루프 (~15250) | P636 |
+| C6 | **분석 결과 코드 수정 불필요** — `AIO_DATA_TRUTH_GATE.evaluateQuote()` 정독 결과, "blocked" 판정은 magnitude만으론 안 걸리고(index/etf maxPctMove 25%, KOSPI -8%는 통과) cross-source 불일치·non-operational-source·stale이 실제 트리거. VIX9D 등 fallback 소스 차단은 `sourceAllowed()`가 이미 올바르게 처리 중(C3 수정과 원칙 일치). ^KS11의 cross-source 불일치는 C5 버그가 원인이었으므로 C5 수정이 곧 이것도 완화 | `js/aio-core.js` `AIO_DATA_TRUTH_GATE.evaluateQuote()` (20771) | 신규 P 없음(분석만) |
+| L3-1/L2-3 | **이미 v52.19(P626)에서 완료 확인** — R280 기계 게이트 존재+작동 중, KR 5개 고아 함수는 개별 실엔드포인트 검증 후 3개 삭제/1개 복구/게이트 신설까지 끝나 있었음 | `scripts/ci-structural-check.mjs:61-107` | 기존 P626 |
+| L0-3(SW) | **코드 수정 불필요로 결론** — skipWaiting/clients.claim 표준 패턴 정상 구현 확인 + 이미 가시적 배지(`SW {v}≠{v}` 빨간 텍스트)와 `showDataError` 경고 토스트가 존재. 라이브에서 본 v52.4는 브라우저/프로파일 타이밍 아티팩트로 결론 | `sw.js` 전체, `js/aio-data.js:5140-5153` | 해당 없음 |
+
+**검증**: 전 수정 후 `node --check`(변경 파일 전체) + 로컬 8게이트 green + `node scripts/ci-headless-tests.mjs` 922/922(T278 포맷을 새 정직화 라벨에 맞춰 갱신, 그 갱신 전엔 921/922로 정확히 회귀를 잡아냄을 확인) + 버전 v52.24 범프(R1 7곳) + BUG-POSTMORTEM P634-P638 + QA-CHECKLIST P634-P638 + RULES R282 신설.
+
+**다음 세션 시작점**: L3-2(점수 SSOT — 티커 진입적합성 vs 시그널 종합점수 병렬 모순, L4 findings) → L4(자가진단→운영 루프) → L5(운영자 협의 필요 항목들). L0-1(워커 재배포)은 운영자가 별도로 처리해야 하며, 완료 후 P637의 Google-Translate 임시 폴백을 Claude 경로로 되돌릴지는 유지가 무해하므로 판단에 맡김(cascade이므로 자동으로 우선순위는 Claude가 먼저 시도됨).

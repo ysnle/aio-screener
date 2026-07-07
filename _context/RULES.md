@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-06-27
+last_verified: 2026-07-07
 confidence: high
-target_version: v51.80
+target_version: v52.24
 
 ---
 
@@ -3081,3 +3081,18 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Add a CI/static contract for any visible class of issue found during the browser pass.
 
 **Validation**: `ci-runtime-contract-check.mjs` covers raw placeholder/source-label leakage; `ci-ux-default-path-check.mjs` covers mobile overflow guardrails; real-browser QA must record route x viewport coverage in CHANGELOG/QA.
+
+## R282. Assertive market-verdict/interpretation text must gate on live-sourced inputs — fallback/snapshot/blocked data may show numbers, but must not assert a directional or confidence-implying verdict (v52.24, P634/P635 root)
+
+**Rule**: A render function that produces interpretive text ("백워데이션 (패닉 신호)", "(정상)", "Risk-On", etc.) rather than a bare number is making a claim stronger than the data underneath it. If any input to that verdict is sourced from `DATA_SNAPSHOT`/seed fallback rather than `window._liveData`/a live fetch — because the live source is absent, `AIO_DATA_TRUTH_GATE`-blocked, or simply not yet fetched — the function must not render its normal assertive verdict, including a reassuring one ("정상 콘탱고" is just as unearned as "패닉" when neither is backed by live data). A live number compared against a stale seed number is not a live comparison; whichever side is stale determines the answer, not the market.
+
+**Why this matters**: found via real-browser audit during an actual market event (`_context/FABLE-LIVE-AUDIT-2026-07-07.md`) — VIX term-structure regime asserted "패닉 백워데이션" while the real market was in ordinary contango (P634), and VKOSPI's fallback-seed value carried the same confident "(정상)" label a genuine live reading would (P635). Both were technically "just a threshold on a number" — the bug was treating a fallback number as verdict-worthy at all.
+
+**Required**:
+- Before computing a directional/regime/quality verdict, check whether every input used in that specific verdict came from a live source (e.g., `window._liveData[sym]` present) as opposed to a `DATA_SNAPSHOT`/seed/manual fallback.
+- If a required input is not live, render a neutral "라이브 미수신 — 판단 보류"-style state instead of any directional verdict (not even the "everything is fine" branch).
+- Do not compare a live value against a non-live value to derive a verdict; either both sides must be live, or no verdict should be asserted.
+- When only a display *number* (not an interpretive verdict) is shown from fallback data, an existing "정적/폴백" badge is sufficient — this rule is specifically about attaching confident interpretive words, not about numbers alone.
+- New assertive-verdict render functions should be written with this gate from the start rather than retrofitted; existing ones found violating it during any future audit should be fixed the same way (gate, don't delete the fallback number).
+
+**Validation**: No dedicated mechanical gate yet (each site is currently fixed individually, e.g. `js/aio-tests.js` T278 asserts VKOSPI's fallback label format). A future recurrence (3rd instance) should promote this to a `ci-*-contract-check.mjs` static check per R3's postmortem-to-gate convention.

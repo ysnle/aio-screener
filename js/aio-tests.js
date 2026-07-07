@@ -4337,10 +4337,13 @@
       vkEl ? 'text=' + vkEl.textContent : 'missing');
 
     // T278: kr-health-vkospi (kr-technical) DATA_SNAPSHOT 정합
+    // FABLE-LIVE-AUDIT-2026-07-07 C4/L1: applyDataSnapshot()의 vkospi 라벨이 폴백 시드값에
+    // 단정적 "(정상)"을 붙이던 문제를 "(폴백·정상 추정)"으로 정직화(aio-core.js). 임계값 매핑 자체
+    // (17.80→정상 tier)는 그대로이므로 새 포맷으로 갱신해 검증.
     var hvkEl = document.getElementById('kr-health-vkospi');
     var hvkActual = hvkEl ? Number((hvkEl.textContent.match(/[\d.]+/) || [])[0]) : NaN;
-    _assert('T278 kr_health_vkospi: 45.0 극단공포 → 17.80 정상',
-      hvkEl && isFinite(vkExpected) && Math.abs(hvkActual - vkExpected) < 0.011 && /\(정상\)/.test(hvkEl.textContent || ''),
+    _assert('T278 kr_health_vkospi: 45.0 극단공포 → 17.80 폴백·정상 추정',
+      hvkEl && isFinite(vkExpected) && Math.abs(hvkActual - vkExpected) < 0.011 && /\(폴백·정상 추정\)/.test(hvkEl.textContent || ''),
       hvkEl ? 'text=' + hvkEl.textContent : 'missing');
   }
 

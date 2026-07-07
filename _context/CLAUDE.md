@@ -4,7 +4,7 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v52.23
+- **현재 버전**: v52.24
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
 ## _context/ 문서 (23개 Git-tracked + 신규 2 = 25개 활성, 2026-07-07 갱신)
@@ -35,7 +35,7 @@
 | FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md | v52.2 시스템 뼈대 진단(아키텍처/자동화/알고리즘) + Sonnet 5 작업 로드맵 Phase 0~3 | 로드맵 항목 완료/구조 변경 시 |
 | FABLE-LIVE-AUDIT-2026-07-04.md | v52.4 라이브 전수 감사 P0~P6 백로그 (v52.5~v52.18 전체 완료) | 재감사/항목 완료 시 |
 | FABLE-ARCH-DIAGNOSIS-2026-07-06.md | v52.18 전수 아키텍처 진단(7축) + Sonnet 5 인수인계 로드맵 Phase 0~4 | 로드맵 항목 완료/구조 변경 시 |
-| FABLE-LIVE-AUDIT-2026-07-07.md | KOSPI -8% 폭락일 라이브 실측 감사(C/L/F/U/X 발견 대장) + 구조 개선 Phase L0~L5 + ARCH 통합 우선순위 — **현행 작업 진입점** | 로드맵 항목 완료/재감사 시 |
+| FABLE-LIVE-AUDIT-2026-07-07.md | KOSPI -8% 폭락일 라이브 실측 감사(C/L/F/U/X 발견 대장) + 구조 개선 Phase L0~L5. L0/L1/L2 핵심(P634-P638, v52.24) 같은 세션 실행 완료(§6) — **현행 작업 진입점은 §6 이후 L3-2/L4/L5** | 로드맵 항목 완료/재감사 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.
 > `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore`로 로컬 전용(레거시, RULES/QA로 대체됨).
