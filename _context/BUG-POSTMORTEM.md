@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-07-07
 confidence: high
-latest_version: v52.24
-latest_P_number: P640
-total_entries: 420
-next_P_number: P641
+latest_version: v52.26
+latest_P_number: P641
+total_entries: 421
+next_P_number: P642
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
@@ -5615,5 +5615,14 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **prevention**: None added — a one-line stale-reference fix; the general "fix must include reference-doc/copy sweep" lesson is already captured in ARCH-DIAGNOSIS §6.
 - **verification**: `node scripts/ci-structural-check.mjs` (HTML isn't `node --check`-able). All 8 non-headless gates green. `node scripts/ci-headless-tests.mjs` → 922/922.
 
-- **note (L4 scope, this session)**: The audit's broader Phase L4-2 ("사망 차트 킬스위치" — a generic mechanism to auto-detect and neutrally overlay any chart whose last real datapoint has aged past a per-metric threshold) was investigated but **not implemented this session**. Traced the VKOSPI mini-chart (`kr-vkospi-chart`) specifically: its only in-repo seed is a 7-point array (`js/aio-core.js:658`), yet the live-rendered chart shows 20 points with last label "6/5" — meaning some shared seed-to-series expansion helper (not yet located/scoped) pads/extends it, and that helper is very likely shared across multiple other small reference charts app-wide. Modifying it under this session's remaining time/context budget would risk an under-tested, broad-blast-radius change — deferred to its own focused session per the audit doc's original Phase L4 estimate ("1세션 + 상시"), rather than shipping a rushed partial version. Next session should start by locating that shared expansion helper before attempting the kill-switch design.
+- **correction (same session, continued)**: The paragraph above (written mid-session) guessed a "shared seed-to-series expansion helper" was responsible for the VKOSPI chart's 20-point rendering and deferred touching it as too broad/risky. Continued investigation immediately after found the real, simpler cause — see P641.
+
+## P641 · v52.26 · VKOSPI mini-chart was a hardcoded month-old 20-point array with no path to ever update, unlike its sibling history-driven charts
+
+- **motivation**: `_context/FABLE-LIVE-AUDIT-2026-07-07.md` (F3/L4) — live audit found `kr-vkospi-chart` frozen at a last label of "6/5" (a month old at time of audit) and, per the correction above, initially misattributed to a nonexistent shared "expansion helper."
+- **root_cause**: The earlier guess was wrong — there is no shared helper. `initKrVkospiChart()` (`index.html` ~29826) contains a **literal hardcoded 20-point array** (`vkLabels`/`vkData`, dates 5/8~6/5, written in v50.15) with no code path that ever updates it. This differs from every *other* history-backed chart in the app (spx/vix/kospi/etc.), which all consume `_aioHistorySeries(field, minPoints)` (`js/aio-data.js:6260`) reading from the server-accumulated `public-data/history.json` — but that file's daily record schema (`scripts/fetch-data.mjs` `updateHistory()`, ~line 619) has **no `vkospi` field at all** (confirmed by reading the live-merged `public-data/history.json` directly: fields are date/spx/nasdaq/dow/rut/vix/vvix/tnx/dxy/wti/gold/kospi/kosdaq/btc/fg — vkospi absent), because VKOSPI has no Yahoo ticker and the server fetch script (`fetch-data.mjs`) never calls Naver. So unlike its siblings, this chart had no accumulation path at all, seeded or otherwise — it was permanently frozen at whatever date v50.15 happened to hardcode.
+- **fix**: Rather than adding a new Naver fetch call to the unattended production cron script (`fetch-data.mjs`/`refresh-data.yml`) — assessed as too risky to add and validate against Naver's real behavior from GitHub-runner IPs within this session — added client-side accumulation instead, reusing the exact upsert-by-date/cap/sort idiom already proven server-side in `updateHistory()`: two new functions in `index.html`, `_aioAppendVkospiHistory(val)` (called from the already-working `fetchVkospiDynamic()` on every successful live fetch; upserts today's value into a capped-60-entry `localStorage` array) and `_aioGetVkospiHistorySeries(minPoints)` (returns `{labels, data}` built from that array, or `null` if fewer than `minPoints` days exist). `initKrVkospiChart()` now tries the real series first (`minPoints: 3`, matching the chart's existing `chartDataGate` threshold) and only falls back to the original hardcoded array when insufficient real data has accumulated yet (i.e., unchanged behavior for anyone who hasn't visited across 3+ days).
+- **violated_rule**: None new.
+- **prevention**: None added — this is a single-chart, additive, backward-compatible change (empty/insufficient localStorage always degrades to prior behavior).
+- **verification**: Unit-tested the pure append/read logic in isolation under Node with a mocked `localStorage` (upsert-same-day, sort, 60-entry cap, corrupt-JSON recovery — all correct). Ran the live code in a real browser against a local static server (`python3 -m http.server`, since this needed to be verified pre-deploy): confirmed (a) empty history correctly falls back to the original 20-point seed (no regression), (b) seeding 3 real days and reloading correctly switches the live chart to the 3-point real series on a **fresh tab's cold load** (not just after a manual re-render call), (c) `Chart.js`'s own internal object (`krTechCharts['vkospi'].data`) reflected the correct real data, and (d) directly read back the canvas's pixel buffer via `getImageData()` (45.9% non-transparent, 352 distinct colors) to confirm real visual rendering after repeated OS-level screenshot attempts failed due to the test tab being backgrounded/throttled in a multi-window Chrome session — the screenshot failures were a test-harness artifact, not a rendering bug, confirmed by this independent pixel-level check. All 8 non-headless gates green; `node scripts/ci-headless-tests.mjs` → 922/922.
 
