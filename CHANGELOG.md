@@ -1,3 +1,18 @@
+## v52.23 (2026-07-06)
+- **라이브/실브라우저 2차 QA 후 구조 보강 (P633)**: 라이브 v52.21에서 확인된 사용자 표면 문제를 v52.23 로컬 코드에 반영했다. 뉴스 제목의 `[번역 대기]` 노출을 제거하고, Put/Call 출처 배지를 `SNAPSHOT · reference`가 아닌 `스냅샷 · 참고`/`실시간 · CBOE`로 현지화했다.
+- **모바일 페이지별 오버플로 보강**: 390px에서 확인된 `sentiment` VIX 카드, `fxbond` 글로벌 금리표, `portfolio` AI 운용 노트, `ticker` 빠른 티커 칩 줄을 각각 줄바꿈/1열/grid/table-layout 기준으로 보강했다. 스크리너처럼 의도된 가로 스크롤 테이블은 실제 페이지 넘침과 분리해 QA했다.
+- **미점검 페이지 보강**: 라이브에서 timeout으로 끝난 `screener`를 로컬 실브라우저에서 desktop/mobile 모두 재점검했고, `options`는 얇은 폐기 스텁에서 VIX/PCR/SKEW 대체 지표와 운영 기준을 보여주는 실제 페이지로 보강했다.
+- **퇴행 방지 게이트**: `ci-runtime-contract-check.mjs`에 뉴스 번역 대기 placeholder/raw PutCall enum 금지 검사를 추가했고, `ci-ux-default-path-check.mjs`에 sentiment/fxbond/portfolio/ticker 모바일 overflow 방어 계약을 추가했다.
+- **실브라우저 QA**: 임시 Playwright QA로 DOM 기준 22개 페이지 전체를 desktop 1440px + mobile390 390px, 총 44개 조합 확인 — 44/44 PASS(overflow 0, bad text 0, visible zero canvas 0, broken image 0, nameless control 0). 라이브 사이트는 아직 v52.21이라 이번 v52.23 변경은 배포 전 로컬 검증 상태.
+- R1 7곳 v52.23
+
+## v52.22 (2026-07-06)
+- **1차 전수 리뷰 후 구조 보강 (P632)**: 922/922로 완전히 통과하는 headless suite가 여전히 report-only로 남아 배포를 막지 못하던 CI 구성을 수정했다. `.github/workflows/ci.yml`에서 `headless-tests`의 `continue-on-error`를 제거하고, GitHub Pages `deploy`가 `validate`와 `headless-tests`를 모두 `needs`로 기다리게 했다.
+- **운영 감사 기준 정합화**: v50.29 declutter 이후 `_aioRenderPageBrief()`는 설명 박스 제거 전용인데 `getFullSurfaceAudit()`만 아직 `.aio-page-brief` 미렌더를 실패로 간주하던 오래된 조건을 제거했다. 이제 설명 박스가 다시 렌더되는 경우를 `pageBriefNotDecluttered`로 잡고, `getDeploymentGateAudit()`가 stale audit 기준 때문에 실패하지 않게 했다.
+- **PUBLIC STATUS/모바일 UX 보강**: 공개 상태 카드의 페이지/source matrix가 `ticker UNAVAILABLE`, `REFERENCE`, `asOf pending` 같은 내부 enum을 그대로 노출하지 않고 한국어 페이지명/상태 라벨을 렌더하도록 변경했다. 390px 모바일 상단바는 오른쪽 액션 클러스터가 줄바꿈/축소되도록 CSS를 보강했다.
+- **퇴행 방지 게이트**: `ci-runtime-contract-check.mjs`에 공개 상태 raw enum 금지와 full-surface declutter 정책 검사를 추가했고, `ci-ux-default-path-check.mjs`에 모바일 topbar wrap/ellipsis 정적 검사를 추가했다.
+- R1 7곳 v52.22
+
 ## v52.21 (2026-07-06)
 - **FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 3 (P631)**: 알고리즘 정직성 로드맵 2건 처리.
   - **[D-1/C2] 기록 정정**: "백테스트-라이브 정직 라벨" 항목을 착수하려 코드를 재확인한 결과, **이미 v51.91/P586에서 완전히 해소돼 있었음**을 확인 — 이 로드맵 항목 자체가 07-02 진단을 재검증 없이 그대로 옮긴 stale 기재였음(진단자의 자기 정정, CODE-MAP 사례와 동일 클래스). 코드 변경 없음, 로드맵 문서만 정정.

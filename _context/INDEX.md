@@ -6,6 +6,8 @@ auto_refresh: true
 target_version: version.json
 ---
 
+> **Current correction (2026-07-06 v52.22/P632)**: headless CI is no longer report-only. After P630 cleared the skip-list to `[]` and measured `922/922 PASS`, P632 removed `continue-on-error` from `.github/workflows/ci.yml`'s `headless-tests` job and made `deploy` depend on both `validate` and `headless-tests`. Older `899/922`, non-empty skip-list, report-only, or deploy-not-gated lines in this index and `GATE-BASELINE-2026-07-03.md` are historical/superseded.
+
 # _context Index
 
 This folder is the active project knowledge base for AIO. It should describe the current GitHub-deployed structure first, then local Claude worktree exceptions only when they affect routing.

@@ -49,6 +49,20 @@ check('home operator note must be before the home header/status flow', operatorN
 check('home operator note must use prominent first-screen styling', /aio-operator-note-title[\s\S]*font-size:18px/.test(html) && /aio-operator-note-body[\s\S]*font-size:14px/.test(html));
 check('operator note renderer must filter sample tags', /_isPlaceholderTag/.test(data) && /aio-operator-note-tag/.test(data));
 check('visual hierarchy refresh must move away from one-note terminal styling', /v51\.43: visual hierarchy refresh/.test(html) && /--data-amber:[\s\S]*--data-red:[\s\S]*--data-purple:/.test(html));
+check(
+  'mobile topbar actions must be allowed to shrink and wrap within 390px viewports',
+  /@media \(max-width: 480px\)[\s\S]*\.topbar-actions-right\s*\{[\s\S]*flex:\s*1 1 100% !important[\s\S]*max-width:\s*100% !important[\s\S]*min-width:\s*0 !important[\s\S]*justify-content:\s*flex-start !important/.test(html) &&
+    /#live-quote-ts\s*\{[\s\S]*text-overflow:\s*ellipsis/.test(html) &&
+    /#topbar-ai-btn,\s*#topbar-refresh-btn\s*\{[\s\S]*max-width:\s*96px !important[\s\S]*text-overflow:\s*ellipsis/.test(html)
+);
+check(
+  'mobile page-specific overflow fixes must cover sentiment, fxbond, portfolio, and ticker',
+  /#page-sentiment \.aio-section,[\s\S]*#page-sentiment \.aio-widget,[\s\S]*min-width:\s*0/.test(html) &&
+    /#page-fxbond table[\s\S]*table-layout:\s*fixed/.test(html) &&
+    /#pf-ai-workbench > div[\s\S]*grid-template-columns:\s*1fr !important/.test(html) &&
+    /#page-ticker #ticker-direct-search[\s\S]*flex:\s*1 1 180px !important/.test(html) &&
+    /#page-ticker \.q-chip[\s\S]*overflow-wrap:\s*anywhere/.test(html)
+);
 check('operator note must expose a short first-screen lead with expandable full memo', /aio-operator-note-lead/.test(html) && /leadText/.test(data) && /전체 메모 보기/.test(data));
 check('KR technical default path must hide legacy intro above decision flow', /#page-kr-technical > \.insight-box:first-child[\s\S]*display:\s*none !important/.test(html));
 check('fundamental example card grid must be intrinsic and overflow-safe', /#fund-cards-grid[\s\S]*repeat\(auto-fit,\s*minmax\(170px,\s*1fr\)\)/.test(html) && /#fund-cards-grid > \*[\s\S]*overflow-wrap:\s*anywhere/.test(html));

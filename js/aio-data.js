@@ -6049,6 +6049,48 @@ function _aioKstShortFromIso(iso) {
     String(d.getUTCMinutes()).padStart(2, '0') + ' KST';
 }
 
+function _aioPublicReadinessSourceText(kind, label) {
+  var normalized = String(kind || label || '').toUpperCase();
+  var map = {
+    LIVE: '실시간',
+    DELAYED: '지연 수신',
+    SNAPSHOT: '스냅샷',
+    REFERENCE: '참고 자료',
+    UNAVAILABLE: '미수신'
+  };
+  return map[normalized] || '상태 확인 중';
+}
+
+function _aioPublicReadinessPageText(pageId) {
+  var map = {
+    home: '대시보드',
+    signal: '매매 시그널',
+    breadth: '시장 폭',
+    sentiment: '투자 심리',
+    briefing: '오늘의 브리핑',
+    technical: '차트/기술',
+    macro: '거시경제',
+    fxbond: '환율/채권',
+    fundamental: '기업 분석',
+    themes: '테마/트렌드',
+    'theme-detail': '테마 상세',
+    ticker: '종목 분석',
+    portfolio: '포트폴리오',
+    'market-news': '시장 뉴스',
+    screener: '퀀트 스크리너',
+    options: '옵션',
+    guide: '사용 설명서',
+    glossary: '용어 사전',
+    mindset: '투자 마인드',
+    'kr-home': '한국장 홈',
+    'kr-supply': '수급 분석',
+    'kr-themes': '국내 테마',
+    'kr-macro': '한국 매크로',
+    'kr-technical': '한국 기술 분석'
+  };
+  return map[pageId] || '페이지';
+}
+
 function _aioBuildPublicShareReadiness() {
   var version = (typeof APP_VERSION === 'string' ? APP_VERSION : (window.AIO && window.AIO.version) || '');
   var meta = window._serverDataMeta || null;
@@ -6150,9 +6192,9 @@ function _aioRenderPublicReadiness() {
       '<div class="aio-public-readiness-pages" aria-label="Page source and asOf matrix">' +
         rows.map(function(r) {
           return '<span class="aio-public-page-source is-' + _aioPublicReadinessEsc(String(r.sourceKind || '').toLowerCase()) + '">' +
-            '<b>' + _aioPublicReadinessEsc(r.pageId) + '</b>' +
-            '<em>' + _aioPublicReadinessEsc(r.sourceLabel || r.sourceKind) + '</em>' +
-            '<small>' + _aioPublicReadinessEsc(r.asOf || 'asOf pending') + '</small>' +
+            '<b>' + _aioPublicReadinessEsc(_aioPublicReadinessPageText(r.pageId)) + '</b>' +
+            '<em>' + _aioPublicReadinessEsc(_aioPublicReadinessSourceText(r.sourceKind, r.sourceLabel)) + '</em>' +
+            '<small>' + _aioPublicReadinessEsc(r.asOf || '시각 확인 중') + '</small>' +
           '</span>';
         }).join('') +
       '</div>'
@@ -9862,7 +9904,7 @@ function _aioBuildNewsVisibleFallbackTitle(item, cached) {
   var tickers = [];
   try { tickers = typeof getDisplayTickers === 'function' ? getDisplayTickers(item) : []; } catch(_) {}
   var tickerText = Array.isArray(tickers) && tickers.length ? ' · ' + tickers.slice(0, 3).join(', ') : '';
-  return '[번역 대기] ' + topic + ' · ' + source + ' 기사' + score + tickerText;
+  return topic + ' · ' + source + ' 기사' + score + tickerText;
 }
 
 function getDisplayTitle(item) {
@@ -17040,7 +17082,7 @@ function _aioUpdatePutCallDom(payload) {
 
   var badge = document.getElementById('pc-live-badge');
   if (badge) {
-    badge.textContent = metric.allowedUse ? (sourceKind === 'delayed' ? 'DELAYED · CBOE' : 'LIVE · CBOE') : 'SNAPSHOT · reference';
+    badge.textContent = metric.allowedUse ? (sourceKind === 'delayed' ? '지연 시세 · CBOE' : '실시간 · CBOE') : '스냅샷 · 참고';
     badge.style.color = metric.allowedUse ? '#00e5a0' : '#7b8599';
     badge.setAttribute('data-source-kind', sourceKind);
     badge.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');

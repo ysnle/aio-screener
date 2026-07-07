@@ -228,6 +228,7 @@ target_version: v51.80
 ## R248. Deployment must be wired to the CI gate, not merely run alongside it (v51.82)
 
 - If a CI workflow exists specifically to catch bad states before they reach users, the deployment mechanism must actually depend on it (e.g. a `deploy` job with `needs: validate`), not run through an independent, unaware path (e.g. legacy branch-based GitHub Pages, which deploys on push regardless of workflow outcome).
+- If a report-only test job becomes fully green and its skip-list is emptied, promote it to a real deploy gate in the same release: remove `continue-on-error` and add it to `deploy.needs`. Leaving a 922/922 suite as report-only is the same failure mode as an unwired gate, just one step less obvious.
 - Verify this after any deployment/CI config change: push a commit, confirm the deploy job only runs after validate succeeds, and confirm `gh api repos/{owner}/{repo}/pages` reports `build_type: "workflow"` (not `"legacy"`).
 - When migrating from legacy branch-deploy to an Actions-based `deploy-pages` job, the artifact staging step must reproduce whatever exclusions the legacy path silently applied (Jekyll's default dot/underscore exclusion here) — `actions/upload-pages-artifact` performs no such filtering itself, so a naive `path: '.'` would newly publish previously-hidden internal directories.
 - See P557/BUG-POSTMORTEM.md for the incident (Pages deployed live regardless of the 33%-failing CI gate).
@@ -3067,3 +3068,16 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - CI must assert source-tier scoring, low-quality penalties, current market-mover query coverage, and the home freshness contract.
 
 **Validation**: `scripts/ci-data-pipeline-contract-check.mjs` checks source-tier scoring, low-quality source penalties, Korea AI/semi market-mover query coverage, server `newsCycle*` metadata, and the shared completed 08:00 KST 24h news surface contract.
+
+## R281. Live/browser QA must cover rendered route surfaces, not only prior static findings (v52.23, P633 root)
+
+**Rule**: When the request asks for live/browser review, do not stop at confirming the issues already found by code review or CI. The check must exercise representative rendered routes across desktop and mobile, including any route that timed out or was previously skipped, and it must inspect user-visible text, overflow, interactive names, images/canvases, and degraded-data states.
+
+**Required**:
+- Include the routes named in the user request, the routes touched by the fix, and any route that was unverified in the previous pass.
+- Treat raw internal status strings (`SNAPSHOT · reference`, pageId/sourceKind pairs, `[번역 대기]`, `undefined/null/NaN`) as user-facing failures unless they are inside developer-only output.
+- Distinguish intended scroll containers (large screener tables) from actual viewport/page overflow, but do not hide real component overflow with body-level clipping alone.
+- If a route is deprecated but still reachable, it must render a meaningful reference-only state or be intentionally removed from navigation and route maps.
+- Add a CI/static contract for any visible class of issue found during the browser pass.
+
+**Validation**: `ci-runtime-contract-check.mjs` covers raw placeholder/source-label leakage; `ci-ux-default-path-check.mjs` covers mobile overflow guardrails; real-browser QA must record route x viewport coverage in CHANGELOG/QA.

@@ -5007,7 +5007,8 @@ window.AIO.getFullSurfaceAudit = function(opts) {
 
     if (!reg) riskFlags.push('missingSequentialRegistry');
     if (!briefs[id]) riskFlags.push('missingBriefRegistry');
-    if (!hasBrief) riskFlags.push('briefNotRendered');
+    // v50.29 declutter made _aioRenderPageBrief removal-only; rendered briefs are now leakage.
+    if (hasBrief) riskFlags.push('pageBriefNotDecluttered');
     if (loading) riskFlags.push('visibleLoadingText');
     if (textChars > 800 && dataSinks === 0 && tables === 0 && charts === 0 && controls === 0) riskFlags.push('textOnlySurface');
     if (tables && emptyTables === tables) riskFlags.push('emptyTablesOnly');
@@ -17712,7 +17713,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.21';
+const APP_VERSION = 'v52.23';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

@@ -6,8 +6,16 @@ version: v3.7
 checklist_version: v52.20
 total_items: 512
 stages: 22
-latest_P_covered: P630
+latest_P_covered: P632
 ---
+
+## v52.22 - 1차 전수 리뷰 구조 보강 (P632)
+
+- [ ] GitHub Actions에서 `headless-tests`가 더 이상 `continue-on-error`가 아니며, `deploy` job이 `validate`와 `headless-tests`를 모두 통과한 뒤에만 실행됨.
+- [ ] `AIO.getDeploymentGateAudit({ strict:false })`가 full-surface stale `briefNotRendered` 조건 때문에 실패하지 않고, `AIO.getFullSurfaceAudit()`가 `.aio-page-brief` 재노출을 `pageBriefNotDecluttered`로 잡음.
+- [ ] 홈 PUBLIC STATUS 카드의 page evidence matrix가 `ticker`, `UNAVAILABLE`, `REFERENCE`, `SNAPSHOT`, `asOf pending` 같은 내부 enum/raw fallback을 일반 방문자 텍스트로 노출하지 않고 한국어 페이지명/상태/대기 문구를 표시함.
+- [ ] 390px 모바일 폭에서 topbar 오른쪽 액션 묶음이 viewport 밖으로 넘치지 않고 줄바꿈/ellipsis 처리됨.
+- [ ] `ci-runtime-contract-check.mjs`와 `ci-ux-default-path-check.mjs`가 위 네 항목의 정적 퇴행을 잡음.
 
 ## v52.20 - 헤드리스 스킵리스트 23건 전수 해소, 진짜 버그 2건 포함 (P627-P630) — 실브라우저 미확인
 
@@ -2489,3 +2497,12 @@ P514-Q2: Before adding a new workflow rule or skill section, identify whether an
 P514-Q3: Treat any `SKILL.md` over 300 lines or 15KB as a compaction candidate; move details into `references/` or scripts instead of appending.
 P514-Q4: Treat `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, and `_context/QA-CHECKLIST.md` as archives plus active gates; do not require full-file rereads for ordinary tasks.
 P514-Q5: Keep `CLAUDE.md` as a routing guide to current contracts, not a duplicate of every historical lesson.
+
+--- v52.23 live/browser surface checks (2026-07-06) ---
+P633-Q1: After live/browser QA, verify at least one desktop and one 390px mobile viewport for every route called out by the audit, plus any route that timed out or was previously unverified.
+P633-Q2: News surfaces (`home`, `briefing`, `market-news`) must not visibly render `[번역 대기]`, `undefined`, `null`, `NaN`, or `[object Object]`.
+P633-Q3: User-facing source badges must use localized labels (`스냅샷`, `참고`, `실시간`, `지연`) and must not expose raw `SNAPSHOT · reference` style enum text.
+P633-Q4: Mobile checks must distinguish intentional internal table scrolling from actual viewport overflow, then verify component-specific fixes for `sentiment`, `fxbond`, `portfolio`, `ticker`, and `screener`.
+P633-Q5: Deprecated/reduced routes that remain reachable, such as `options`, must still render a meaningful reference-only page rather than a thin placeholder.
+P633-Q6: Run `node scripts/ci-runtime-contract-check.mjs`, `node scripts/ci-ux-default-path-check.mjs`, and a real-browser route matrix before claiming live/browser QA coverage.
+P633-Q7: When a browser matrix finds nameless visible controls, add explicit labels/`aria-label`s even if a nearby visual label exists, then rerun the same desktop/mobile matrix to green.

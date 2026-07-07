@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.21 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.23 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3862,6 +3862,17 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   max-width: 100% !important;
   overflow: hidden !important;
 }
+#page-sentiment .aio-section,
+#page-sentiment .aio-widget,
+#page-sentiment .data-widget {
+  min-width: 0;
+}
+#page-sentiment iframe,
+#page-sentiment [class*="tradingview"],
+#page-sentiment [id*="tradingview"] {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
 #news-sentiment-chart {
   display: block;
   width: 100% !important;
@@ -3878,6 +3889,15 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   display: block;
   width: 100% !important;
   max-width: 100% !important;
+  box-sizing: border-box;
+}
+#pf-ai-workbench,
+#pf-ai-workbench > div,
+#pf-ai-workbench textarea,
+#pf-ai-workbench select,
+#pf-ai-workbench button {
+  max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 }
 #fund-cards-grid {
@@ -3940,7 +3960,19 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   .topbar { padding: 6px 10px !important; gap: 6px !important; }
   .topbar .topbar-title { font-size: 12px !important; }
   /* v52.14 P6/P615: 우측 버튼 클러스터가 줄바꿈 없이 넘쳐 마지막 버튼 텍스트("완료")가 잘리던 문제 */
-  .topbar-actions-right { flex-wrap: wrap !important; justify-content: flex-end !important; row-gap: 4px !important; }
+  .topbar-actions-right {
+    flex: 1 1 100% !important;
+    flex-shrink: 1 !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    row-gap: 4px !important;
+  }
+  .topbar-actions-right > * { min-width: 0 !important; }
+  #live-quote-ts { max-width: 190px !important; overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
+  #topbar-ai-btn, #topbar-refresh-btn { flex: 0 1 auto !important; max-width: 96px !important; overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
   /* 그리드 1열로 축소 */
   .snap-grid, .kr-index-grid, .tac-score-grid { grid-template-columns: 1fr !important; }
   .snap-card, .metric-card { padding: 8px !important; }
@@ -3968,6 +4000,94 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   .page-title { font-size: 14px !important; }
   /* 테이블 스크롤 */
   .tac-tracking-table, .kr-flow-table, .demand-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #page-fxbond table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed;
+  }
+  #page-fxbond th,
+  #page-fxbond td {
+    white-space: normal !important;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+  #pf-ai-workbench > div {
+    grid-template-columns: 1fr !important;
+  }
+  #pf-ai-workbench [style*="display:flex"],
+  #pf-ai-workbench [style*="display: flex"] {
+    min-width: 0 !important;
+  }
+  #pf-ai-workbench [style*="display:flex"] > *,
+  #pf-ai-workbench [style*="display: flex"] > * {
+    min-width: 0 !important;
+  }
+  #page-ticker .aio-section > div[style*="display:flex"],
+  #page-ticker .aio-section > div[style*="display: flex"] {
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+  }
+  #page-ticker #ticker-direct-search {
+    flex: 1 1 180px !important;
+    min-width: 0 !important;
+  }
+  #page-ticker .q-chip {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+  #page-sentiment .term-tooltip,
+  #page-sentiment .aio-tooltip {
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+  #page-sentiment [style*="justify-content:space-between"],
+  #page-sentiment [style*="justify-content: space-between"] {
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+    gap: 4px !important;
+  }
+  #page-sentiment [style*="justify-content:space-between"] > *,
+  #page-sentiment [style*="justify-content: space-between"] > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  #page-sentiment .aio-widget > div[style*="justify-content:space-between"],
+  #page-sentiment .aio-widget > div[style*="justify-content: space-between"],
+  #page-sentiment .data-widget > div[style*="justify-content:space-between"],
+  #page-sentiment .data-widget > div[style*="justify-content: space-between"] {
+    display: block !important;
+  }
+  #page-sentiment .aio-src-dot {
+    width: 4px !important;
+    height: 4px !important;
+    margin-left: 2px !important;
+  }
+  #page-sentiment #vix-live-label,
+  #page-sentiment #vix-live-val {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  #page-sentiment .aio-widget[style*="flex:1"],
+  #page-sentiment .data-widget[style*="flex:1"] {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+  #page-sentiment [style*="grid-template-columns:1fr 1fr"],
+  #page-sentiment [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  #page-sentiment [style*="grid-template-columns:minmax(280px,360px)"],
+  #page-sentiment [style*="grid-template-columns: minmax(280px, 360px)"] {
+    grid-template-columns: 1fr !important;
+  }
   /* v30.11: 포트폴리오 서머리 카드 2열 → 1열 */
   [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
   /* v34.5: 5열 그리드 → 2열 (홈 시세카드, 옵션 메트릭스 등) */
@@ -5241,7 +5361,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.21</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.23</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7249,7 +7369,7 @@ button[data-filter-active="true"] {
       <span style="font-size:10px;color:var(--text-muted);">Weinstein/RSI/진입등급 간이 분석 · 심층 분석은 <b style="color:var(--data-cyan);">티커 페이지</b>에서</span>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <input id="ticker-analysis-input" type="text" placeholder="종목 입력 (AAPL, NVDA 등)"
+      <input id="ticker-analysis-input" type="text" placeholder="종목 입력 (AAPL, NVDA 등)" aria-label="미국 종목 간이 분석 티커 입력"
              style="flex:1;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;"
              data-on-enter="analyzeTickerDeep:__value_upper"/>
       <button data-action="_aioTickerSubmit" class="aio-hover-cyan"
@@ -10162,17 +10282,17 @@ button[data-filter-active="true"] {
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
         <div>
           <label for="eq-price" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">현재가</label>
-          <input id="eq-price" type="number" placeholder="450.00" step="0.01"
+          <input id="eq-price" type="number" placeholder="450.00" step="0.01" aria-label="진입품질 현재가"
                  style="width:100%;padding:6px 8px;background:var(--surface-4);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
         </div>
         <div>
           <label for="eq-ema20" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">20일 EMA</label>
-          <input id="eq-ema20" type="number" placeholder="445.00" step="0.01"
+          <input id="eq-ema20" type="number" placeholder="445.00" step="0.01" aria-label="진입품질 20일 EMA"
                  style="width:100%;padding:6px 8px;background:var(--surface-4);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
         </div>
         <div>
           <label for="eq-rsi" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">RSI (14)</label>
-          <input id="eq-rsi" type="number" placeholder="55" min="0" max="100"
+          <input id="eq-rsi" type="number" placeholder="55" min="0" max="100" aria-label="진입품질 14일 RSI"
                  style="width:100%;padding:6px 8px;background:var(--surface-4);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;"/>
         </div>
       </div>
@@ -10356,10 +10476,38 @@ button[data-filter-active="true"] {
 <div class="page" id="page-options">
   <!-- v50.35: 옵션 페이지 콘텐츠 폐기 (사용자 요청). 실제 옵션체인 피드 미연결 — 스큐·옵션흐름·Greeks가 정적 스냅샷이었음.
        페이지 셸은 21페이지 아키텍처 정합 위해 유지하되 내부는 최소 스텁(내비에서도 제거됨). VIX/VVIX는 투자심리 페이지에서 확인. -->
-  <div class="insight-box box-collapsed"><strong>옵션 분석은 통합/정리되었습니다 — VIX·변동성은 투자 심리 페이지에서 확인하세요.</strong></div>
-  <div style="padding:24px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.8;">
-    이 페이지는 실시간 옵션체인 데이터 연결이 없어 폐기되었습니다.<br>
-    변동성(VIX·VVIX)과 시장 심리는 <button data-action="showPage" data-arg="sentiment" class="aio-btn-table" style="font-size:11px;">투자 심리 →</button> 에서 확인하세요.
+  <div class="page-title">옵션 분석</div>
+  <div class="insight-box box-collapsed"><strong>옵션체인 원자료 미연결 상태입니다. 현재 화면은 변동성·풋콜·스큐 대체 지표만 참고용으로 제공합니다.</strong></div>
+  <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">옵션 대체 지표 현황</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
+      <div class="aio-widget" style="padding:14px 16px;">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">변동성 레벨</div>
+        <div style="font-size:22px;font-weight:800;font-family:var(--font-mono);" data-live-price="^VIX">—</div>
+        <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-top:6px;">VIX 기준. 기간구조와 함께 보며, 단독 매매 신호로 쓰지 않습니다.</div>
+      </div>
+      <div class="aio-widget" style="padding:14px 16px;">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">풋콜 비율</div>
+        <div id="opt-pcr-val-secondary" style="font-size:22px;font-weight:800;font-family:var(--font-mono);" data-live-price="PCR">—</div>
+        <div id="opt-pcr-desc-secondary" style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-top:6px;">CBOE 수신 실패 시 스냅샷 참고값으로 낮춰 표시합니다.</div>
+      </div>
+      <div class="aio-widget" style="padding:14px 16px;">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">꼬리위험 스큐</div>
+        <div style="font-size:22px;font-weight:800;font-family:var(--font-mono);" data-snap="skew">—</div>
+        <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-top:6px;">SKEW는 참고 스냅샷입니다. 최신 옵션체인 확인 전 포지션 판단에는 쓰지 않습니다.</div>
+      </div>
+    </div>
+  </div>
+  <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">운영 기준</span></div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;font-size:12px;color:var(--text-secondary);line-height:1.75;">
+      <b style="color:var(--text-primary);">실시간 옵션체인·Greeks·옵션플로우는 아직 연결하지 않습니다.</b><br>
+      프리미엄·미결제약정·만기별 감마 노출이 검증되지 않은 상태에서 정적 숫자를 매매판단처럼 보이면 오판 위험이 커집니다. 그래서 이 페이지는 VIX, 풋콜, SKEW처럼 앱 안에서 출처/폴백 정책을 추적할 수 있는 보조 지표만 노출합니다.
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+        <button data-action="showPage" data-arg="sentiment" class="aio-btn-table primary" style="font-size:11px;">투자 심리 보기</button>
+        <button data-action="showPage" data-arg="signal" class="aio-btn-table" style="font-size:11px;">매매 신호 보기</button>
+      </div>
+    </div>
   </div>
 </div>
   <!-- ═══════════════ PAGE: SCREENER (퀀트 스크리너) — v51.39 ═══════════════ -->
@@ -10462,7 +10610,7 @@ button[data-filter-active="true"] {
       <select id="scr-sector" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 섹터</option></select>
       <select id="scr-signal" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시그널</option><option value="BUY">BUY</option><option value="HOLD">HOLD</option><option value="WATCH">WATCH</option><option value="SELL">SELL</option></select>
       <select id="scr-cap" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시총</option><option value="MEGA">메가캡 (≥$1T... )</option><option value="LARGE">대형 ($10B~1T)</option><option value="MID">중형 ($2~10B)</option><option value="SMALL">소형 (&lt;$2B)</option></select>
-      <input id="scr-text-search" type="text" placeholder="티커·이름·메모 검색" class="aio-btn-table" style="font-size:11px;padding:4px 8px;min-width:160px;">
+      <input id="scr-text-search" type="text" placeholder="티커·이름·메모 검색" aria-label="스크리너 티커 이름 메모 검색" class="aio-btn-table" style="font-size:11px;padding:4px 8px;min-width:160px;">
       <span style="font-size:11px;color:var(--text-muted);margin-left:auto;"><span id="screener-result-count">0</span>종목</span>
     </div>
     <!-- v51.39: 고급 필터 (⚙ 버튼으로 토글) -->
@@ -10503,7 +10651,7 @@ button[data-filter-active="true"] {
       <div id="ps-result" style="margin-top:8px;font-size:11px;line-height:1.8;color:var(--text-muted);">종목 행을 클릭하면 자동 설정 · 직접 입력 후 계산 버튼 누르세요.</div>
     </div>
     <!-- 결과 테이블 -->
-    <div style="overflow-x:auto;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);">
+    <div class="aio-table-scroll" style="overflow-x:auto;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);">
       <table class="aio-table is-mono is-compact" style="width:100%;min-width:820px;">
         <thead>
           <tr style="border-bottom:1px solid var(--border);">
@@ -11673,7 +11821,7 @@ button[data-filter-active="true"] {
     <div class="aio-section-hd"><span class="aio-section-label">한국 종목 심화 분석</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
       <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 입력 (005930, 000660, 035720 등)"
+        <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 입력 (005930, 000660, 035720 등)" aria-label="한국 종목 심화 분석 종목코드 입력"
                style="flex:1;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;"
                data-on-enter="analyzeKrTickerDeep:__value_kr"/>
         <button data-action="_aioKrTickerSubmit"
@@ -12494,9 +12642,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.21" defer></script>
-  <script src="./js/aio-data.js?v=52.21" defer></script>
-  <script src="./js/aio-ui.js?v=52.21" defer></script>
+  <script src="./js/aio-core.js?v=52.23" defer></script>
+  <script src="./js/aio-data.js?v=52.23" defer></script>
+  <script src="./js/aio-ui.js?v=52.23" defer></script>
 
   <script>
 
@@ -15983,7 +16131,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.21" defer></script>
+<script src="./js/aio-chat.js?v=52.23" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28102,7 +28250,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.21" defer></script>
+<script src="./js/aio-glossary.js?v=52.23" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
