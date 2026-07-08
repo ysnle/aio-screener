@@ -1645,11 +1645,17 @@ function _aioClaudeTarget(apiKey) {
 }
 window._aioClaudeTarget = _aioClaudeTarget;
 
+function _aioHasClaudeRoute(apiKey) {
+  var target = _aioClaudeTarget(apiKey);
+  return !!(apiKey || (target && target.serverKey));
+}
+window._aioHasClaudeRoute = _aioHasClaudeRoute;
+
 async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var apiKey = getApiKey();
   var _claudeTarget = _aioClaudeTarget(apiKey);   // v50.52 B5: 서버 키 모드면 개인 키 불요
   if (!apiKey && !_claudeTarget.serverKey) {
-    onError('AI 답변을 쓰려면 Claude 키를 저장하세요.');
+    onError('AI 답변을 쓰려면 Claude 키를 저장하세요. 브리핑/번역은 운영자 서버키 가능, 채팅은 개인키 또는 Worker 서버키 모드 필요.');
     return;
   }
   opts = opts || {};
@@ -5228,10 +5234,13 @@ async function chatSend(ctxId) {
 
   // v29: API 키 확인 먼저 (횟수 차감 전에 체크)
   // v49.59 P329 R109: 키 미입력 시 사이드바 input 강조 + inline alert 강화
-  if (!getApiKey()) {
+  var _chatApiKey = getApiKey();
+  var _chatHasClaudeRoute = typeof _aioHasClaudeRoute === 'function' ? _aioHasClaudeRoute(_chatApiKey) : !!_chatApiKey;
+  if (!_chatHasClaudeRoute) {
     chatAppendMsg(ctxId, 'ai', '<div style="color:#f87171;padding:8px 12px;background:rgba(248,113,113,0.1);border-left:3px solid #f87171;border-radius:4px;">' +
-      '<b>⚠ Claude API 키 입력 필요</b><br>' +
-      '사이드바 → "Claude API 키" 입력란에 <code>sk-ant-...</code> 형식 키 입력 후 저장.<br>' +
+      '<b>⚠ AI 채팅 키 필요</b><br>' +
+      'AI 답변을 쓰려면 Claude 키를 저장하세요. 브리핑/번역은 운영자 서버키 가능, 채팅은 개인키 또는 Worker 서버키 모드 필요.<br>' +
+      '사이드바 → "Claude API 키" 입력란에 <code>sk-ant-...</code> 형식 키 입력 후 저장하세요.<br>' +
       '<a href="https://console.anthropic.com" target="_blank" style="color:#00d4ff;">→ console.anthropic.com에서 무료 발급 ($5 크레딧)</a>' +
       '</div>');
     // 사이드바 input 강조 (1회 pulse)

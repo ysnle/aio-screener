@@ -206,6 +206,34 @@ window._aioSafeFixed = function(v, decimals, fallback) {
   return Number.isFinite(n) ? n.toFixed(d) : (fallback == null ? '—' : fallback);
 };
 
+// v52.28 P645: Four-state value slot renderer.
+// state: value | pending | failed | na. Keeps visible text and source state aligned.
+window._aioRenderValueSlot = function(el, state, value, meta) {
+  if (!el) return null;
+  meta = meta || {};
+  state = state || (value != null ? 'value' : 'pending');
+  var text = value == null ? '' : String(value);
+  var color = meta.color || '';
+  if (state === 'pending') {
+    text = meta.text || '수신 대기';
+    color = color || 'var(--text-muted)';
+  } else if (state === 'failed') {
+    text = meta.text || '수신 실패';
+    color = color || 'var(--data-amber)';
+  } else if (state === 'na') {
+    text = meta.text || '해당 없음';
+    color = color || 'var(--text-muted)';
+  } else {
+    state = 'value';
+    text = text || '—';
+  }
+  el.textContent = text;
+  if (color) el.style.color = color;
+  el.setAttribute('data-value-state', state);
+  if (meta.reason) el.setAttribute('title', meta.reason);
+  return { state: state, text: text };
+};
+
 // ═══ v48.97: _aioRedactPII — IndexedDB 저장 전 PII 제거 (P1-7) ═════════════
 // 용도: 뉴스 기사에 유입된 이메일·전화번호·카드번호를 저장 전 마스킹
 // 사용: os.put(_aioRedactPII(Object.assign({}, item, { _idbKey: key, ts: ts })))
@@ -283,12 +311,29 @@ window._aioChartRegistry = {
     }
   },
   get: function(id) { return this._charts[id] || null; },
-  resizeAll: function() {
+  _isVisibleChart: function(chart) {
+    var el = chart && (chart.canvas || chart.ctx && chart.ctx.canvas || chart.renderTo || chart.container);
+    if (!el && chart && chart._lwc && chart._lwc.container) el = chart._lwc.container;
+    if (!el || !el.getBoundingClientRect) return true;
+    var cur = el;
+    while (cur && cur.nodeType === 1) {
+      var cs = window.getComputedStyle ? getComputedStyle(cur) : null;
+      if (cs && (cs.display === 'none' || cs.visibility === 'hidden')) return false;
+      cur = cur.parentElement;
+    }
+    var r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  },
+  resizeAllVisible: function() {
     var keys = Object.keys(this._charts);
     for (var i = 0; i < keys.length; i++) {
       var c = this._charts[keys[i]];
+      if (!this._isVisibleChart(c)) continue;
       if (c && typeof c.resize === 'function') { try { c.resize(); } catch(e) {} }
     }
+  },
+  resizeAll: function() {
+    return this.resizeAllVisible();
   }
 };
 
@@ -912,6 +957,12 @@ window._aioLRU = function(name, cap) {
     try { fn.apply(null, args); }
     catch (err) {
       if (window._aioLog) window._aioLog('error', 'delegate', 'dispatch failed: ' + action, { err: String(err && err.message || err) });
+      if (action === 'showThemeDetail' && !window._aioThemeDetailErrorToastShown) {
+        window._aioThemeDetailErrorToastShown = true;
+        try {
+          if (typeof window.showToast === 'function') window.showToast('테마 상세를 여는 중 오류가 발생했습니다. 새로고침 후 다시 시도하세요.');
+        } catch(_) {}
+      }
     }
   }
   document.addEventListener('click', dispatch);
@@ -1918,13 +1969,13 @@ window._aioRenderVixTermRegime = function() {
   var v30 = ld['^VIX'] ? ld['^VIX'].price : (_snap.vix != null ? _snap.vix : null);
   var v3m = ld['^VIX3M'] ? ld['^VIX3M'].price : (_snap.vix3m != null ? _snap.vix3m : null);
   var v6m = ld['^VIX6M'] ? ld['^VIX6M'].price : (_snap.vix6m != null ? _snap.vix6m : null);
-  if (!v30) { el.textContent = 'VIX 데이터 수신 대기 중'; return; }
+  if (!v30) { window._aioRenderValueSlot(el, 'pending', null, { text: 'VIX 데이터 수신 대기', reason: '30D VIX live/snapshot 모두 미수신' }); return; }
   // v50.15: VIX9D/3M/6M 카드(data-live-price 싱크)가 live 부재로 '—'이면 시드값 표시 (regime과 일관)
   [['^VIX9D', v9d], ['^VIX3M', v3m], ['^VIX6M', v6m]].forEach(function(p) {
-    try { var c = document.querySelector('#page-sentiment [data-live-price="' + p[0] + '"]'); if (c && p[1] != null) { var t = (c.textContent || '').trim(); if (t === '—' || t === '' || t === '-') c.textContent = Number(p[1]).toFixed(2); } } catch (_vc) {}
+      try { var c = document.querySelector('#page-sentiment [data-live-price="' + p[0] + '"]'); if (c && p[1] != null) { var t = (c.textContent || '').trim(); if (t === '—' || t === '' || t === '-') window._aioRenderValueSlot(c, 'value', Number(p[1]).toFixed(2), { color: c.style.color }); } } catch (_vc) {}
   });
   var available = [v9d, v30, v3m, v6m].filter(function(v){ return v != null; });
-  if (available.length < 2) { el.textContent = '기간구조 산정 불가 (부족한 만기)'; return; }
+  if (available.length < 2) { window._aioRenderValueSlot(el, 'failed', null, { text: '기간구조 산정 불가 — 수신 만기 부족', reason: 'VIX 만기 데이터 2개 미만' }); return; }
   // FABLE-LIVE-AUDIT-2026-07-07 C3/Phase L1 (Verdict Gate): v30(^VIX)은 거의 항상 live인 반면
   // v9d/v3m은 truth-block/미fetch 시 DATA_SNAPSHOT 시드로 폴백된다(예: vix9d 시드 18.80, v50.39 시대값).
   // 시드는 갱신되지 않으므로 "live v30 vs 시드 v9d" 비교는 시장이 아니라 시드-노후화의 함수가 되어
@@ -1940,7 +1991,7 @@ window._aioRenderVixTermRegime = function() {
   else if (v3mLive && diff30_3m < 1 && diff30_3m > -1) { regime = '평탄화 — 콘탱고 붕괴 직전. 변동성 확대 가능, 헤지 강화 시점.'; color = 'var(--data-amber)'; }
   else if (v9dLive || v3mLive) { regime = '정상 콘탱고 — 단기&lt;장기, 시장 안정 국면. 위험자산 비중 유지 가능.'; color = 'var(--data-green)'; }
   else { regime = '9D/3M 기간구조 라이브 미수신 — 시드값만으로는 방향 판정 보류(참고: 30D VIX ' + v30.toFixed(2) + ')'; color = 'var(--text-muted)'; }
-  el.innerHTML = regime;
+  window._aioRenderValueSlot(el, (v9dLive || v3mLive) ? 'value' : 'na', regime.replace(/&lt;/g, '<'), { color: color, reason: (v9dLive || v3mLive) ? 'live term input available' : 'live term input unavailable; verdict withheld' });
   // 색상 업데이트
   var wrap = el.parentElement;
   if (wrap) wrap.style.borderLeftColor = color;
@@ -17720,7 +17771,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.26';
+const APP_VERSION = 'v52.32';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -19837,7 +19888,7 @@ function applyDataSnapshot() {
           var bar = document.getElementById('breadth-' + period + '-bar');
           var label = document.getElementById('breadth-' + period + '-label');
           var big = document.getElementById('breadth-' + period + '-big');
-          if (bar) { bar.style.width = val + '%'; }
+          if (bar) { bar.style.width = val + '%'; if (reg && reg.color) bar.style.background = reg.color; }
           if (big && reg && reg.color) { big.style.color = reg.color; }
           if (label && reg) {
             label.textContent = reg.label;
@@ -23145,7 +23196,16 @@ window.PAGES = {
   'macro':          { label: '거시경제',         init: function() { _safePageInitGlobal('macro', _initMacroPage); }, chatCtx: 'macro' },
   'fxbond':         { label: '환율·채권',        init: function() { if (typeof updateFxBondPage === 'function') _safePageInitGlobal('fxbond', updateFxBondPage); /* v50.16: fxbond 자체 yield curve init — 이전엔 macro에서만 호출돼 koreaCurveChart "수집 대기" 멈춤 */ setTimeout(function(){ if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart('koreaCurveChart'); } catch(e) {} } }, 200); }, chatCtx: 'fxbond' },
   'fundamental':    { label: '기업 분석',        init: function() { _safePageInitGlobal('fundamental', _initFundamentalPage); }, chatCtx: 'fundamental' },
-  'themes':         { label: '테마/섹터',        init: function() { _initThemePerfTable('themes'); }, chatCtx: 'themes' },
+  'themes':         { label: '테마/섹터',        init: function() {
+                       _initThemePerfTable('themes');
+                       if (window._aioOpenThemeDetailOnThemes) {
+                         var themeId = window._aioOpenThemeDetailOnThemes;
+                         window._aioOpenThemeDetailOnThemes = null;
+                         setTimeout(function() {
+                           try { if (typeof window.showThemeDetail === 'function') window.showThemeDetail(themeId); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'theme-detail redirect: ' + (e && e.message || e)); }
+                         }, 350);
+                       }
+                     }, chatCtx: 'themes' },
   'theme-detail':   { label: '테마 상세',        init: function() { _initThemePerfTable('theme-detail'); }, chatCtx: 'theme-detail' },
   'portfolio':      { label: '포트폴리오',       init: null, chatCtx: 'portfolio' },
   'ticker':         { label: '티커 상세',        init: function() {
@@ -23377,6 +23437,14 @@ function showPage(id, navEl) {
   // v34.5: 해시 별칭 매핑 — 잘못된 해시로 진입 시 올바른 페이지로 리다이렉트
   var _hashAlias = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'kr-home', 'kr-theme': 'kr-themes' };
   if (_hashAlias[id]) id = _hashAlias[id];
+  // v52.27 P642: theme-detail is an inline panel on #themes, not a separate user route.
+  if (id === 'theme-detail') {
+    try {
+      var fallbackTheme = window._currentThemeId || (window.THEME_MAP && window.THEME_MAP[0] && window.THEME_MAP[0].id) || null;
+      if (fallbackTheme) window._aioOpenThemeDetailOnThemes = fallbackTheme;
+    } catch(_) {}
+    id = 'themes';
+  }
   // v49.58 R106: 페이지 진입 시 ticker-related 마커 자동 sync — ticker/fundamental/options/portfolio 등
   // CHAT_CONTEXTS가 활성 종목 자동 인지하여 환각 차단
   try {

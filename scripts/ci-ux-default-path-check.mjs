@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 const core = readFileSync(join(root, 'js/aio-core.js'), 'utf8');
+const ui = readFileSync(join(root, 'js/aio-ui.js'), 'utf8');
 const data = readFileSync(join(root, 'js/aio-data.js'), 'utf8');
 const ci = readFileSync(join(root, '.github/workflows/ci.yml'), 'utf8');
 const qa = readFileSync(join(root, '_context/QA-CHECKLIST.md'), 'utf8');
@@ -66,6 +67,20 @@ check(
 check('operator note must expose a short first-screen lead with expandable full memo', /aio-operator-note-lead/.test(html) && /leadText/.test(data) && /전체 메모 보기/.test(data));
 check('KR technical default path must hide legacy intro above decision flow', /#page-kr-technical > \.insight-box:first-child[\s\S]*display:\s*none !important/.test(html));
 check('fundamental example card grid must be intrinsic and overflow-safe', /#fund-cards-grid[\s\S]*repeat\(auto-fit,\s*minmax\(170px,\s*1fr\)\)/.test(html) && /#fund-cards-grid > \*[\s\S]*overflow-wrap:\s*anywhere/.test(html));
+
+const ariaLiveCount = (html.match(/aria-live=/gi) || []).length;
+check('aria-live regions must stay intentionally scarce', ariaLiveCount <= 10, `aria-live=${ariaLiveCount}`);
+
+const canvasTags = [...html.matchAll(/<canvas\b[^>]*>/gi)].map((m) => m[0]);
+const unlabeledCanvas = canvasTags.filter((tag) => !/\b(aria-label|aria-labelledby)\s*=/.test(tag) || !/\brole\s*=\s*["']img["']/.test(tag) && !/\baria-hidden\s*=\s*["']true["']/.test(tag));
+check('visible canvas elements must have accessible names or be explicitly hidden', canvasTags.length > 0 && unlabeledCanvas.length === 0, `unlabeled=${unlabeledCanvas.slice(0, 3).join(' | ')}`);
+
+check('chart registry resize must skip hidden charts to avoid viewport resize storms',
+  /resizeAllVisible/.test(core) && /_isVisibleChart/.test(core) && /offsetParent !== null/.test(ui),
+  'resizeAllVisible/_isVisibleChart contract missing');
+check('quote count labels must distinguish client live quotes from server snapshot quotes',
+  /클라 시세/.test(data) && /서버 스냅샷 시세/.test(data),
+  'UX-10 label split missing');
 check('home decision header must render below operator note when present', /operatorNote[\s\S]{0,240}insertAdjacentHTML\('afterend', html\)/.test(core));
 check('guide must preserve compact methodology reference', /id="guide-methodology"/.test(html));
 check('methodology reference must preserve core decision concepts', /SIGNAL 점수 산식/.test(html) && /시장폭·랠리 품질/.test(html) && /종목 발굴\/검증 루프/.test(html));

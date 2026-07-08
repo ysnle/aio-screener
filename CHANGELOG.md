@@ -1,3 +1,49 @@
+## v52.32 (2026-07-08)
+- **V3 뷰포트 매트릭스 실측 범위 확장 (P647/R288)**: `scripts/ci-viewport-matrix-check.mjs`가 22 routes × 4 viewports에서 기존 overflow/중복/깨진 이미지/무라벨 컨트롤뿐 아니라 topbar 우측 클러스터 클리핑과 SVG text geometry를 직접 검사하게 했다.
+- **P615/P632 390px 보강**: `.topbar-actions-right`, `#live-quote-ts`, `#topbar-ai-btn`, `#topbar-refresh-btn`가 viewport 밖으로 밀리는지 `getBoundingClientRect()`로 계산해 실패 처리한다.
+- **T781/SVG 전수 보강**: 활성 route 안의 SVG `text`를 `getBBox()`로 비교해 텍스트 겹침을 실패 처리하고, SVG text font-size가 10px 미만이면 실패 처리한다.
+- **퇴행 방지**: `ci-runtime-contract-check.mjs`가 viewport matrix에 `topbarClipCount`, `svgTextOverlapCount`, `svgTinyTextCount` 필드가 유지되는지 정적 검사한다.
+
+## v52.31 (2026-07-08)
+- **시장폭 색상/라벨 정본화 (P646/R287)**: signal 페이지 `bb-*` 시장폭 카드가 독자 `_bbColor()` 기준으로 30~39%를 amber로 표시하던 경로를 제거하고, `NARRATIVE_ENGINE.getBreadthRegime()` 정본을 우선 사용하게 했다. 40% 미만은 breadth 상세 카드와 동일하게 빨간 `공포 영역`으로 렌더된다.
+- **breadth 상세 게이지 막대 색 갱신**: `applyDataSnapshot()`의 breadth 상세 카드 동적 갱신이 숫자/라벨/큰 값 색만 바꾸고 막대 배경은 정적 HTML 색을 유지하던 문제를 보강했다. 이제 `breadth-5sma/20sma/50sma-bar`도 같은 레짐 색을 적용한다.
+- **0 델타 표시 정직화**: `_aioFormatDelta()`의 zero branch를 `±0pp`에서 중립 `0pp` + `is-flat`로 바꿔 상승/하락 양방향 의미를 암시하지 않게 했다.
+- **AI 키 안내 compact 계약 유지**: v52.30의 서버키/개인키 경계 안내를 더 짧은 문장으로 압축해 T834 first-run compact UX 계약과 T865 서버키 경계 계약을 동시에 만족시켰다.
+- **퇴행 방지**: T866과 `ci-runtime-contract-check.mjs` 계약을 추가해 32% breadth가 빨간 공포 레짐으로 렌더되고, zero delta가 `0pp`/`is-flat`로 남는지 검증한다.
+
+## v52.30 (2026-07-08)
+- **AI 채팅 백엔드 정책 경계 정직화 (P645/R286)**: 운영자 비용 정책이 필요한 "채팅도 서버키로 완전 통일"을 임의로 강행하지 않고, 현행 구조의 안전한 차선인 서버키 경로 인식 + 개인키 필요 안내 정직화로 닫았다.
+- **서버키 경로 인식**: `js/aio-chat.js`에 `_aioHasClaudeRoute()`를 추가해 개인 Claude 키가 없어도 `_aioClaudeTarget()`이 Worker 서버키 경로를 제공하면 채팅 차단을 우회하도록 했다. 일반 `chatSend()`와 통합 `chatSendUnified()` 모두 `getApiKey()` 단독 체크 대신 이 경로를 사용한다.
+- **사용자 안내 정직화**: 서버키도 개인키도 없을 때의 메시지를 "브리핑/번역은 운영자 서버키로 동작할 수 있지만, 채팅은 개인 Claude 키 또는 운영자 Worker 서버키 모드가 필요"로 바꿔 UX-04의 기능별 키 요구 불일치를 명시했다.
+- **퇴행 방지**: T865와 `ci-runtime-contract-check.mjs` 계약을 추가해 채팅 키 게이트가 다시 개인키 단독 조건으로 돌아가지 않게 했다.
+- **라이브 잔여 재캡처**: GitHub Pages live는 아직 `v52.26`임을 확인. Playwright로 P609/P625 재캡처 완료 — `#server-data-age` tooltip은 "cron 정의 30분/실제 1~4시간"으로 정정되어 있고, HY 주 표시값은 `#hy-live-val = 275 bps`로 정합. 같은 라이브에서 P626 KR 수급은 여전히 `수신 대기`, VKOSPI는 localStorage 누적 없음/20포인트/마지막 `6/5`라 로컬 v52.28+ 배포 후 재확인 필요.
+- R1 7곳 v52.30
+
+## v52.29 (2026-07-08)
+- **FABLE 잔여 자동화 보강 (P644/R285)**: v52.28 이후 남은 항목 중 운영자 결정/사람 검수 없이 코드로 닫을 수 있는 V1-2, UX-10, V3-3을 추가 처리했다.
+- **프록시 성공률 기반 정렬**: `_PROXY_REGISTRY`가 `okCount/failCount/lastFail`을 누적하고 `getScore()`로 active proxy를 정렬한다. HTTP 200/최근 성공 1회만 보던 상태에서 성공률·recency·연속 실패 페널티·tier bias를 함께 반영한다.
+- **시세 카운트 라벨 분리**: 상단 실시간 배지는 `클라 시세`, PUBLIC STATUS 계열은 `서버 스냅샷 시세`로 구분해 같은 화면의 "시세 N개"가 서로 다른 모집단이라는 점을 명시했다.
+- **중복 뉴스/브리핑 카드 게이트**: `ci-viewport-matrix-check.mjs`가 `market-news`/`briefing` 활성 DOM의 카드 텍스트를 word-bag 키로 정규화해 중복 렌더를 실패로 보고한다. `ci-runtime-contract-check.mjs`/`ci-ux-default-path-check.mjs`에도 정적 계약을 추가했다.
+- **테스트 계약 정정**: 헤드리스 재검증 중 T841이 현재 결정 엔진의 실제 60~74점 밴드(`선별 매수`)를 허용하지 않는 오래된 기대값을 사용하던 것을 정정했다.
+- **검증**: `node --check` 4건 green, version/runtime/UX/structural green, `ci-viewport-matrix-check` 22 routes x 4 viewports = 88/88 PASS(worstOverflow 0px), `ci-headless-tests` **927/927 PASS**.
+- R1 7곳 v52.29
+
+## v52.28 (2026-07-08)
+- **FABLE-UIUX-DEEP-AUDIT-2026-07-08.md 잔여 Phase 착수분 (P643/R284)**: V1/V2/V3/V4 중 운영자 재배포·사람 검수 없이 닫을 수 있는 구조 보강을 진행했다.
+- **V1 프록시 계층 보강**: `fetchViaProxy()`가 JSON 기대 URL에서 HTML/차단 페이지를 성공으로 캐시하지 않도록 응답 검증을 추가했고, KR 수급/VKOSPI Naver 응답도 HTML block page를 명시 실패로 분류한다. KR 수급 실패 시 `수신 대기`가 남지 않도록 실패 상태 카드·기준일 `수신 실패`·투자자 TOP10 폴백 렌더를 연결했다. Worker는 Naver 요청에 browser-like headers를 붙이고 JSON endpoint가 HTML을 돌려주면 502로 정직하게 실패시킨다.
+- **V2 표시 상태 시스템 1차 적용**: 공용 `_aioRenderValueSlot()`을 추가해 `value/pending/failed/na` 4상태를 DOM의 `data-value-state`로 남기고, VIX 기간구조와 상단 market-pulse의 `—/대기` 표면을 상태 슬롯으로 전환했다.
+- **V3/V4 검증 인프라**: `scripts/ci-viewport-matrix-check.mjs`를 추가해 22개 route × 390/768/1024/1440 뷰포트에서 overflow, raw placeholder, nameless controls, zero canvas, broken image를 점검한다. CI에는 report-only job으로 연결했다. `ci-ux-default-path-check.mjs`에는 `aria-live <= 10`, canvas accessible name 100%, hidden chart resize 회피 계약을 추가했고 `_aioChartRegistry.resizeAll()`은 visible chart만 리사이즈하도록 바꿨다.
+- **검증**: `node --check` 8건 green, `ci-version-check`, `ci-runtime-contract-check`, `ci-ux-default-path-check`, `ci-structural-check` green, `ci-viewport-matrix-check` 22 routes x 4 viewports = 88/88 PASS(worstOverflow 0px), `ci-headless-tests` **927/927 PASS**.
+- R1 7곳 v52.28
+
+## v52.27 (2026-07-08)
+- **FABLE-UIUX-DEEP-AUDIT-2026-07-08.md Phase V0 착수 완료 (P642/R283)**: UX-01/02/05/06을 우선 처리했다. 테마 상세는 등락률 누산을 `-Infinity/+Infinity` + finite filter + safe formatter로 바꿔 all-negative/all-positive 테마에서도 `toFixed` 크래시가 나지 않게 했고, dispatch 실패 시 사용자에게 1회성 토스트를 띄우도록 했다.
+- **테마 상세 표면 단일화**: `theme-detail` 독립 라우트는 `themes` 인라인 상세 패널로 리다이렉트하고, `showThemeDetail()`은 현재 테마를 기억한 뒤 패널 렌더 후 스크롤한다. 새 T860/T861로 전체 `THEME_MAP` 클릭 무크래시와 라우트 리다이렉트를 고정했다.
+- **동일 화면 데이터 소스 정합화**: 브리핑 시장 요약의 Fear & Greed는 상단 스트립과 동일하게 `window._lastFG`를 우선 읽고 snapshot은 폴백으로만 사용한다. `kr-technical`은 페이지 진입 시 Naver 캔들 차트를 자동 로드하고, OHLC 범위 기반 y축 padding을 적용해 0-baseline 압축을 막았다.
+- **퇴행 방지 게이트**: `ci-runtime-contract-check.mjs`에 테마 상세 finite formatting, `theme-detail` 라우트 단일화, 브리핑 F&G live-first 소스, KR 캔들 cold-load/y축, T860/T861 존재 검사를 추가했다.
+- **검증**: `node --check` 4건, version/runtime/UX/structural/workflow/semantic 게이트 green, `node scripts/ci-headless-tests.mjs` → **924/924 PASS**.
+- R1 7곳 v52.27
+
 ## v52.26 (2026-07-07)
 - **FABLE-LIVE-AUDIT Phase L4-2 완결 (P641) — VKOSPI 사망 차트 근본 수정**: v52.25에서 "공유 시드-확장 헬퍼 추정, 위치 미특정으로 유보"라고 적었던 판단이 틀렸음을 정정 — 계속 추적한 결과 공유 헬퍼는 없고, `initKrVkospiChart()`에 v50.15부터 그대로 굳어있던 **하드코딩 20포인트 배열**(5/8~6/5, 영구 미갱신)이 원인이었다. `public-data/history.json`엔 다른 지표(spx/vix/kospi 등)와 달리 애초에 `vkospi` 필드가 없어 서버 축적 전환도 불가능했던 구조. 서버 크론(`fetch-data.mjs`)에 신규 Naver 호출을 추가하는 건 무인 프로덕션에 새 실패지점을 만드는 리스크로 판단해 배제하고, 대신 이미 정상 동작 중인 `fetchVkospiDynamic()`의 성공 시점마다 클라이언트 `localStorage`에 날짜별 upsert 누적(서버 `updateHistory()`와 동일 패턴, 60일 상한)하도록 배선 — 3일 이상 실데이터가 쌓이면 차트가 자동으로 실데이터 우선, 없으면 기존 시드로 안전 폴백.
   - **사전 검증**: 로컬 정적 서버(`python3 -m http.server`)로 라이브 배포 전 실브라우저 재현. 빈 스토리지→시드 폴백(무회귀) 확인, localStorage에 3일치 시뮬레이션 주입→신규 탭 콜드로드에서 자동으로 실데이터 전환 확인, Chart.js 내부 객체 데이터 일치 확인, OS 스크린샷이 반복 실패(다중 창 세션의 백그라운드 탭 컴포지팅 문제로 확인, `document.hidden:true`)해 대신 캔버스 `getImageData()` 직접 판독으로 실렌더 확인(45.9% 픽셀 페인트, 352가지 색상 — 정상 그라데이션 라인차트 패턴과 일치).

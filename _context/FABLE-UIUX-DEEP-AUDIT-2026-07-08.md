@@ -36,7 +36,7 @@ purpose: UI/UX 프론트엔드 심층 감사 — QA-CHECKLIST 실브라우저 �
 | P606 themes 칩·본문 일치 | ✅ | "Mid Cycle (Expansion) · 성장 주도" 칩·본문 동일 |
 | P607 briefing/signal F&G | ✅ | briefing "F&G 45" = sentiment 45 = _lastFG 45. signal 스트립도 지연 후 45 표시(초기 수 분 "—" — §2 UX-07) |
 | P608 briefing 헤더 단어경계 | ✅ | 헤더 2건 모두 완결 문장, 중간 잘림 0 |
-| P609 서버 배지 tooltip | ⏭ | 추출 스크립트가 보안 필터에 차단된 회차에 포함, 재실행 누락 |
+| P609 서버 배지 tooltip | ✅(재캡처) | 2026-07-08 v52.26 라이브 Playwright 재스캔: `#server-data-age` title = "cron 정의는 30분 주기이나 실제 발화는 환경상 1~4시간 소요될 수 있음"; `30분마다 자동 갱신` 과장 문구 잔존 0 |
 | P610 kr-technical 캔들 | ⚠ | 오류 모달 없음 ✓, `loadKrCandleChart()` 트리거 시 120pts·마지막 07-07 폭락봉([286000,310000]) 정상 렌더 ✓. **단 진입 시 자동 로드 없음**(U4 잔존, §2 UX-06) |
 | P611 PUBLIC STATUS 한국어 | ✅ | raw enum(UNAVAILABLE 등) 0건, 한국어 상태·건수 요약 확인 |
 | P613 AI 패널 안내 | ⚠ | 채팅 패널이 빈 화면 아닌 안내 메시지 표시 확인(키 안내). 이력 없는 페이지별 문구는 미개별 확인 |
@@ -48,7 +48,7 @@ purpose: UI/UX 프론트엔드 심층 감사 — QA-CHECKLIST 실브라우저 �
 | P622 테마 브레드크럼/NVDA | ✅✅ | "Themes > AI AI·반도체" 실테마명 · NVDA행 "—"(Self 0건) |
 | P623 모멘텀 정렬 가격 | ✅ | 정렬 후 상위 6종 전부 실가격(BE 295.05 등) |
 | P624 SPY 포지셔닝 | ✅ | "200MA $695 · 50MA $740 · ATH $759" 실계산값(0.0%/RSI50 고정 아님) |
-| P625 HY 스프레드 정합 | ⏭ | 요소 추출 실패(셀렉터), 시간 제약으로 미재시도 |
+| P625 HY 스프레드 정합 | ✅(재캡처) | 2026-07-08 v52.26 라이브 Playwright 재스캔: `#hy-live-val` = `275 bps`, title `hy-spread · snapshot · reference-only`; 원래 "Live 289bp vs 275bp" 불일치 해소. 별도 `#hy-spread-est`는 `추정 ~4.2%`로 라벨이 다른 보조 추정값 |
 | P626 kr-supply TOP10 | ❌ | 3표 전부 "데이터 수신 대기..." 영구 + 폴백 문구도 미표시(QA 기대 둘 다 미충족). 원인: 프록시가 Naver에 HTML 차단 페이지 반환(§2 UX-03). 콘솔은 "폴백 데이터 사용 중"이라는데 UI는 미반영 — 이중 불일치 |
 | P627~P630 중 P628 | ✅(부분) | Exit Triggers(y2005) > 진입 체크리스트(y1695) 순서 확인. lockout은 display:none 유지(v51.40 의도) |
 | P629 채팅 분산 카운트 | ⛔ | 채팅이 클라 키 요구로 실문답 불가(§0-4, §2 UX-04). 헤드리스 게이트가 커버 |
@@ -88,7 +88,7 @@ purpose: UI/UX 프론트엔드 심층 감사 — QA-CHECKLIST 실브라우저 �
 
 ## §3 잔존 확인 (기지 발견 — 재확인만)
 
-U9 breadth 델타 ±0pp×3 잔존(게이지 색-라벨은 픽셀 미확인) · U3 국기 이모지 DOM 존재(🇺🇸 Americas — 렌더 확인 불가, twemoji 폴리필 없음 → 잔존 추정) · L10 부팅 `DATA_SNAPSHOT before initialization` 경고 잔존 · F4 stale 9종 그대로(Fed 20d·BOJ 21d·BOK 40d·BOE 68d·PBOC 56d·국고채 53d·한국거시 68d·미거시 67d·SMA 11d) · F5 public-data 07-03 스냅샷 지속(KR 칩 4개) · F6 '오늘 시장 핵심' 콘텐츠 캡처 불충분(빈 상태 의심 — L4-4 백로그 유지) · U2 FAB 겹침 미재현(FAB rect 0 — 조건부 노출, L5-2 유지).
+U9 breadth 델타/게이지 색-라벨은 v52.31/P646에서 로컬 코드 계약으로 보강(32%→red `공포 영역`, zero delta `0pp`/`is-flat`; 배포 후 픽셀 재캡처 필요) · U3 국기 이모지 DOM 존재(🇺🇸 Americas — 렌더 확인 불가, twemoji 폴리필 없음 → 잔존 추정) · L10 부팅 `DATA_SNAPSHOT before initialization` 경고 잔존 · F4 stale 9종 그대로(Fed 20d·BOJ 21d·BOK 40d·BOE 68d·PBOC 56d·국고채 53d·한국거시 68d·미거시 67d·SMA 11d) · F5 public-data 07-03 스냅샷 지속(KR 칩 4개) · F6 '오늘 시장 핵심' 콘텐츠 캡처 불충분(빈 상태 의심 — L4-4 백로그 유지) · U2 FAB 겹침 미재현(FAB rect 0 — 조건부 노출, L5-2 유지).
 
 ## §4 정상 확인 (회귀 방지 기준선 추가분)
 
@@ -144,4 +144,16 @@ P606·P607·P608·P611·P614·P616·P620·P622·P623·P624·P628·P634~P640 라�
 3. **V3-1 뷰포트 매트릭스**(report-only로 즉시 가치) → V2 → V4 → V3 게이트 승격.
 4. L-로드맵 잔여(L4 잔여·L5)와 병행 가능 — 충돌 없음, V1이 L5-3을 흡수·승격.
 
-미완(다음 재감사로): 픽셀 색상 판정(U9 게이지) · P609/P625 재캡처 · P615/P632 390px(V3-1이 흡수) · U2 FAB 재현 조건 · 41곳 SVG 전수(V3-1이 흡수) · 스크린리더 실사(V4-1, 사람 항목).
+**진행 기록(2026-07-08, v52.27/P642)**: Phase V0 중 UX-01/02/05/06은 코드 수정·R1 버전업·R3 사후분석·R283·QA 항목·runtime contract gate/T860/T861까지 반영 완료.
+
+**진행 기록(2026-07-08, v52.28/P643)**: V1 중 재배포 없이 가능한 프록시 HTML 검증·KR 실패 UI 계약·Worker Naver 헤더/HTML guard 코드 반영 완료(Worker live 반영은 운영자 재배포 필요). V2는 공용 value slot + VIX term/market-pulse 1차 적용. V3-1은 `ci-viewport-matrix-check.mjs` + report-only CI job으로 상설화. V4 중 기계화 가능한 `aria-live`/canvas label/hidden chart resize 게이트 반영. 남은 항목: AI 채팅 백엔드 정책 결정, 픽셀 색상 판정, 스크린리더 실사, V3 report-only 결과 기반 CSS 후속.
+
+**진행 기록(2026-07-08, v52.29/P644)**: V1-2 프록시 성공률 기반 정렬(`okCount/failCount/getScore`) 추가. UX-10 시세 카운트 라벨은 `클라 시세`와 `서버 스냅샷 시세`로 분리. V3-3은 `ci-viewport-matrix-check.mjs`가 `market-news`/`briefing` 렌더 카드 중복을 word-bag 기준으로 실패 처리하도록 상설화. v52.28 매트릭스 실측 결과 88/88 PASS(worstOverflow 0px)였으므로 V3 report-only 결과 기반 CSS 후속은 현재 코드 기준 추가 수정 없음.
+
+**진행 기록(2026-07-08, v52.30/P645)**: 운영자 결정 카드 ②(AI 채팅 백엔드)는 비용/남용 정책이 걸려 서버키 완전 통일을 임의 강행하지 않음. 대신 안전한 차선인 `_aioHasClaudeRoute()`를 추가해 chat preflight가 개인키 단독 조건이 아니라 Worker 서버키 경로까지 인식하게 했고, `chatSend()`/`chatSendUnified()` 안내문은 "브리핑/번역은 운영자 서버키로 동작 가능, 채팅은 개인키 또는 Worker 서버키 모드 필요"로 정직화. T865 + runtime contract로 회귀 방지. 라이브 v52.26 Playwright 재캡처로 P609/P625는 확인 완료, P626 KR 수급과 VKOSPI 누적은 아직 라이브에서 미해소(로컬 v52.28+ 미배포 상태).
+
+**진행 기록(2026-07-08, v52.31/P646)**: U9 시장폭 색상/라벨/델타를 코드 경로까지 추적. signal `bb-*` 카드가 독자 threshold로 30~39%를 amber 처리하던 구조를 `NARRATIVE_ENGINE.getBreadthRegime()` 정본 우선으로 통합했고, breadth 상세 게이지 막대도 동일 `reg.color`를 적용하게 했다. zero delta는 `±0pp` 대신 `0pp`/`is-flat`로 정직화. T866 + runtime contract로 회귀 방지.
+
+**진행 기록(2026-07-08, v52.32/P647)**: P615/P632 390px topbar와 T781/SVG 전수 항목을 V3 matrix의 실제 실패 조건으로 승격. `ci-viewport-matrix-check.mjs`가 topbar 우측 클러스터의 `getBoundingClientRect()` 클리핑, 활성 route SVG `text`의 `getBBox()` 겹침, SVG text <10px를 실패 처리한다. 따라서 해당 항목은 "수동 실브라우저 미확인"이 아니라 로컬 CI 기하 게이트로 구조 종결.
+
+미완(다음 재감사로): U2 FAB 재현 조건(로컬 `#ai-fab`/glossary floating button은 display:none이라 현재 재현 불가) · 스크린리더 실사(V4-1, 사람 항목) · 로컬 v52.27~v52.32 커밋/배포 후 P626/VKOSPI 및 U9 픽셀 라이브 재확인.

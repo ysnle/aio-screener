@@ -21,6 +21,7 @@ const data = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
+const worker = exists('cloudflare-worker-proxy.js') ? read('cloudflare-worker-proxy.js') : '';
 const runtimeBundle = [core, data, ui, chat].join('\n');
 
 const staticBusters = [...html.matchAll(/<script\s+src="\.\/js\/aio-[^"]+\?v=([\d.]+)"/g)].map((m) => m[1]);
@@ -171,6 +172,30 @@ check('ticker live price renderer does not call live.price.toFixed directly', !/
 check('scenario sum renderers guard missing sum before toFixed', !/sumCheck\.sum\.toFixed\(/.test(core) && !/sigSum\.sum\.toFixed\(/.test(core));
 check('Chart tooltip callbacks guard missing parsed.y before toFixed', !/ctx\.parsed\.y\.toFixed\(/.test(core));
 check('home dashboard VIX default path guards missing live price before toFixed', !/vix\.price\?\.toFixed\(/.test(data) && !/vp\.toFixed\(2\)/.test(data));
+check('theme detail deep analysis filters finite pct values before toFixed', /topV\s*=\s*-Infinity/.test(html) && /botV\s*=\s*Infinity/.test(html) && /pctVal\s*=\s*d\s*&&\s*_themeFinitePct\(d\.pct\)/.test(html) && /_themeSafeFixed\(topV,\s*2/.test(html));
+check('theme-detail route resolves to themes inline detail surface', /id === 'theme-detail'/.test(core) && /_aioOpenThemeDetailOnThemes/.test(core) && /showThemeDetail\(themeId\)/.test(core));
+check('briefing summary F&G reads _lastFG before snapshot fallback', /var fgLive = Number\(window\._lastFG\)/.test(data) && /Number\.isFinite\(fgLive\)\s*\?\s*fgLive/.test(data));
+check('KR candle chart auto-loads from canvas and avoids zero-baseline compression', /krCandleCanvas/.test(html) && /loadKrCandleChart\(krCode \|\| '005930'\)/.test(html) && /beginAtZero:\s*false/.test(html) && /suggestedMin:\s*ySuggestedMin/.test(html) && /suggestedMax:\s*ySuggestedMax/.test(html));
+check('headless tests cover all-theme detail and route redirect regressions', /T860 theme_detail_all_themes_no_throw_v5227/.test(tests) && /T861 theme_detail_route_redirect_v5227/.test(tests));
+check('proxy layer rejects HTML block pages for JSON endpoints before caching success', /_aioProxyUrlExpectsJson/.test(data) && /_aioValidateProxyResponse/.test(data) && /aioProxyBlockedHtml/.test(data) && /proxy returned HTML for JSON endpoint/.test(data));
+check('KR supply failure state clears waiting UI instead of leaving 수신 대기', /function _showKrSupplyFailureState/.test(html) && /kr-investor-top10-date/.test(html) && /\/로딩 중\|수신 대기\//.test(html) && /T863 kr_supply_failure_state_clears_waiting_v5228/.test(tests));
+check('Cloudflare worker handles Naver JSON endpoints with browser-like headers and HTML block guard', /targetExpectsJson/.test(worker) && /m\.stock\.naver\.com/.test(worker) && /Upstream returned HTML block page for JSON endpoint/.test(worker) && /Referer = 'https:\/\/m\.stock\.naver\.com\/'/.test(worker));
+check('viewport matrix CI script covers 22 routes, four viewport widths, topbar clipping, and SVG text geometry', /ci-viewport-matrix-check\.mjs/.test(read('.github/workflows/ci.yml')) && /const ROUTES = \[/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /mobile390/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
+check('proxy registry ranks active proxies by success-rate score, not only static order', /okCount/.test(data) && /failCount/.test(data) && /getScore:\s*function/.test(data) && /self\.getScore\(b\)\s*-\s*self\.getScore\(a\)/.test(data));
+check('quote count labels distinguish client live quotes from server snapshot quotes', /클라 시세/.test(data) && /서버 스냅샷 시세/.test(data));
+check('viewport matrix detects duplicate news and briefing cards by word-bag key', /wordBagKey/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /duplicateCardCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /market-news\|briefing/.test(read('scripts/ci-viewport-matrix-check.mjs')));
+check('value slot renderer encodes value/pending/failed/na states and touched market-pulse/VIX term surfaces', /_aioRenderValueSlot/.test(core) && /data-value-state/.test(core) && /state === 'failed'/.test(core) && /state === 'na'/.test(core) && /_aioRenderValueSlot\(elM/.test(html) && /_aioRenderValueSlot\(el,\s*\(v9dLive \|\| v3mLive\)/.test(core));
+check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_chatApiKey\)/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(html) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
+check(
+  'breadth surfaces share canonical regime color and zero delta renders neutral',
+  /function\s+_bbRegime/.test(ui)
+    && /NARRATIVE_ENGINE\.getBreadthRegime/.test(ui)
+    && /bar\.style\.background\s*=\s*reg\.color/.test(core)
+    && /text:\s*'0'\s*\+\s*suffix/.test(data)
+    && !/text:\s*'±0'\s*\+\s*suffix/.test(data)
+    && /T866 breadth_regime_color_and_zero_delta_v5231/.test(tests),
+  'signal and breadth pages must not split breadth color semantics or show plus/minus zero deltas'
+);
 check(
   'technical snapshot weekly context exposes canonical and legacy aliases',
   /lastWeekClose\s*:\s*lastW\.close/.test(core) && /wClose\s*:\s*lastW\.close/.test(core) && /wRsi\s*:\s*wRsi/.test(core) && /wRsi14\s*:\s*wRsi/.test(core),

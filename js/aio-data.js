@@ -2580,23 +2580,25 @@ const _PROXY_REGISTRY = {
     var cf = _cfWorkerUrl();
     this.list = [];
     // Tier 0: 자체 CF Worker (최우선)
-    if (cf) this.list.push({ id:'cf-worker', label:'CF Worker', mkUrl: function(u){ return cf+'?url='+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
+    if (cf) this.list.push({ id:'cf-worker', label:'CF Worker', tier:0, mkUrl: function(u){ return cf+'?url='+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
     // Tier 1: 검증된 공개 프록시
-    this.list.push({ id:'corsproxy', label:'corsproxy.io', mkUrl: function(u){ return 'https://corsproxy.io/?'+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
+    this.list.push({ id:'corsproxy', label:'corsproxy.io', tier:1, mkUrl: function(u){ return 'https://corsproxy.io/?'+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
     // Tier 2: 보조 프록시
-    this.list.push({ id:'allorigins-raw', label:'allorigins/raw', mkUrl: function(u){ return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
-    this.list.push({ id:'allorigins-get', label:'allorigins/get', mkUrl: function(u){ return 'https://api.allorigins.win/get?url='+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
-    this.list.push({ id:'codetabs', label:'codetabs.com', mkUrl: function(u){ return 'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u); }, fails:0, lastOk:0, disabled:false });
+    this.list.push({ id:'allorigins-raw', label:'allorigins/raw', tier:2, mkUrl: function(u){ return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
+    this.list.push({ id:'allorigins-get', label:'allorigins/get', tier:2, mkUrl: function(u){ return 'https://api.allorigins.win/get?url='+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
+    this.list.push({ id:'codetabs', label:'codetabs.com', tier:2, mkUrl: function(u){ return 'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
   },
   markOk: function(id) {
     var p = this.list.find(function(x){ return x.id === id; });
-    if (p) { p.fails = 0; p.lastOk = Date.now(); p.disabled = false; p.cooldownLevel = 0; } // v48.14: backoff 리셋
+    if (p) { p.fails = 0; p.okCount = (p.okCount || 0) + 1; p.lastOk = Date.now(); p.disabled = false; p.cooldownLevel = 0; } // v48.14: backoff 리셋
     if (typeof _reportApiOk === 'function') _reportApiOk('proxy-primary', id + ' 성공');
   },
   markFail: function(id) {
     var p = this.list.find(function(x){ return x.id === id; });
     if (p) {
       p.fails++;
+      p.failCount = (p.failCount || 0) + 1;
+      p.lastFail = Date.now();
       if (p.fails >= 5) {
         p.disabled = true;
         // v48.14 (W13): exponential backoff + jitter — 60s → 120s → 240s → 480s → max 1800s
@@ -2615,8 +2617,25 @@ const _PROXY_REGISTRY = {
       }
     }
   },
+  getScore: function(p) {
+    if (!p) return 0;
+    var ok = p.okCount || 0;
+    var fail = p.failCount || 0;
+    var attempts = ok + fail;
+    var rate = attempts ? ok / attempts : 0.5;
+    var recency = p.lastOk ? Math.max(0, 1 - ((Date.now() - p.lastOk) / Math.max(1, T.COOLDOWN * 5))) : 0;
+    var tierBias = Math.max(0, 3 - (p.tier || 3)) * 0.08;
+    return (rate * 10) + recency + tierBias - ((p.fails || 0) * 0.35);
+  },
   getActive: function() {
-    return this.list.filter(function(p){ return !p.disabled; }).sort(function(a,b){ return (b.lastOk||0) - (a.lastOk||0); });
+    var self = this;
+    return this.list.filter(function(p){ return !p.disabled; }).sort(function(a,b){
+      var scoreDiff = self.getScore(b) - self.getScore(a);
+      if (Math.abs(scoreDiff) > 0.001) return scoreDiff;
+      var tierDiff = (a.tier || 9) - (b.tier || 9);
+      if (tierDiff) return tierDiff;
+      return (b.lastOk || 0) - (a.lastOk || 0);
+    });
   },
   // 하위 호환: mkUrl 함수 배열 반환 (기존 PROXY_LIST 형태)
   getMkUrls: function() { return this.getActive().map(function(p){ return p.mkUrl; }); },
@@ -2635,6 +2654,49 @@ _PROXY_REGISTRY.init();
 // 하위 호환: 기존 코드에서 PROXY_LIST 참조하는 곳 대응
 const PROXY_LIST = _PROXY_REGISTRY.getMkUrls();
 
+function _aioProxyUrlExpectsJson(url) {
+  url = String(url || '');
+  return /\/api\/|\/v\d+\/finance\/chart|finance\/chart|query[12]\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com|production\.dataviz\.cnn\.io|api\.fear-and-greed\.com|api\.alternative\.me|api\.stlouisfed\.org|financialmodelingprep\.com|finnhub\.io|alphavantage\.co|twelvedata\.com/i.test(url);
+}
+
+function _aioProxyResponseLooksHtml(txt) {
+  txt = String(txt || '').trimStart();
+  return /^<!doctype\s+html/i.test(txt) || /^<html[\s>]/i.test(txt) || /<title>.*(captcha|access denied|forbidden|blocked|error).*<\/title>/i.test(txt.slice(0, 800));
+}
+
+function _aioProxyUnwrapJsonText(txt) {
+  var obj = JSON.parse(txt);
+  if (obj && typeof obj.contents === 'string') {
+    var nested = obj.contents.trim();
+    if (_aioProxyResponseLooksHtml(nested)) {
+      var err = new Error('proxy returned HTML inside JSON wrapper');
+      err.aioProxyBlockedHtml = true;
+      throw err;
+    }
+    try { return JSON.parse(nested); } catch(_) { return obj; }
+  }
+  return obj;
+}
+
+async function _aioValidateProxyResponse(url, response, opts) {
+  opts = opts || {};
+  var expectJson = !!opts.expectJson || !!opts.parseJson || _aioProxyUrlExpectsJson(url);
+  if (!expectJson) return { jsonReady: false, json: null };
+  var txt = await response.clone().text();
+  var probe = txt;
+  try {
+    var wrapped = JSON.parse(txt);
+    if (wrapped && typeof wrapped.contents === 'string') probe = wrapped.contents;
+  } catch(_) {}
+  if (_aioProxyResponseLooksHtml(probe)) {
+    var e = new Error('proxy returned HTML for JSON endpoint');
+    e.aioProxyBlockedHtml = true;
+    throw e;
+  }
+  if (opts.parseJson) return { jsonReady: true, json: _aioProxyUnwrapJsonText(txt) };
+  return { jsonReady: false, json: null };
+}
+
 async function fetchViaProxy(url, timeout) {
   var opts = (timeout && typeof timeout === 'object') ? timeout : {};
   timeout = (opts.timeout || opts.ms || (typeof timeout === 'number' ? timeout : 8000));
@@ -2649,6 +2711,7 @@ async function fetchViaProxy(url, timeout) {
     try {
       var r = await fetchWithTimeout(proxy.mkUrl(url), {}, timeout);
       if (r.ok) {
+        var validated = await _aioValidateProxyResponse(url, r, opts);
         _PROXY_REGISTRY.markOk(proxy.id);
         // 성공 응답 캐시 (stale 폴백용) — 민감 URL은 저장 안 함
         if (cacheKey) {
@@ -2659,12 +2722,15 @@ async function fetchViaProxy(url, timeout) {
             }).catch(function() {});
           } catch(e) {}
         }
-        if (opts.parseJson) return await r.json();
+        if (opts.parseJson) return validated.jsonReady ? validated.json : await r.json();
         if (opts.parseText) return await r.text();
         return r;
       }
-      _PROXY_REGISTRY.markFail(proxy.id);
-    } catch(e) { _PROXY_REGISTRY.markFail(proxy.id); }
+      _PROXY_REGISTRY.markFail(proxy.id, r.status);
+    } catch(e) {
+      _PROXY_REGISTRY.markFail(proxy.id, e && e.aioProxyBlockedHtml ? 'html' : null);
+      if (typeof _aioLog === 'function' && e && e.aioProxyBlockedHtml) _aioLog('warn', 'proxy', proxy.id + ' HTML 차단 응답 — 다음 프록시 시도', { url: String(url).slice(0, 120) });
+    }
   }
   if (typeof _reportApiError === 'function') _reportApiError('proxy-primary', '전체 프록시 실패');
   // v48.14: stale-cache 폴백 — 전체 프록시 실패 시 localStorage last-good 응답 반환 (민감 URL 제외)
@@ -5562,13 +5628,13 @@ var _AIO_DELTA_POLARITY = {
   vix: -1,
 };
 
-// delta 포맷: "+3.1pp" / "-0.5" / "±0" 형태로 반환. 표시 여부와 색상 클래스 포함
+// delta 포맷: "+3.1pp" / "-0.5" / "0" 형태로 반환. 표시 여부와 색상 클래스 포함
 function _aioFormatDelta(delta, polarity, opts) {
   if (delta == null || !isFinite(delta)) return null;
   var dec = (opts && opts.decimals != null) ? opts.decimals : 1;
   var suffix = (opts && opts.suffix) ? opts.suffix : '';
   var abs = Math.abs(delta);
-  if (abs < 0.005) return { text: '±0' + suffix, cls: 'is-flat' };
+  if (abs < 0.005) return { text: '0' + suffix, cls: 'is-flat' };
   var sign = delta > 0 ? '+' : '';
   var text = sign + delta.toFixed(dec) + suffix;
   var cls = 'is-flat';
@@ -6157,7 +6223,7 @@ function _aioBuildPublicShareReadiness() {
     label: status === 'ok' ? '베타 공유 가능' : (status === 'warn' ? '주의 후 공유' : '공개 전 차단'),
     version: version || 'unknown',
     dataLabel: meta && meta.generatedAt ? _aioKstShortFromIso(meta.generatedAt) + (ageMin != null ? ' · ' + ageMin + '분 전' : '') : 'public-data 미수신',
-    dataStatus: meta && meta.newsOk === false ? '뉴스 백스톱 주의' : (meta && meta.symbolsOk ? '시세 ' + meta.symbolsOk + '개 수신' : '수신 상태 확인 중'),
+    dataStatus: meta && meta.newsOk === false ? '뉴스 백스톱 주의' : (meta && meta.symbolsOk ? '서버 스냅샷 시세 ' + meta.symbolsOk + '개 수신' : '수신 상태 확인 중'),
     pageStatus: pageAudit ? (pageAudit.status === 'pass' ? pageAudit.pageCount + '개 페이지 현재성 통과' : '현재성 주의 ' + ((pageAudit.missingCaveat || []).length + (pageAudit.liveOverstatement || []).length) + '건') : '페이지 감사 대기',
     pipelineStatus: pipelineAudit ? (pipelineAudit.status === 'ok' ? '파이프라인 OK' : '파이프라인 WARN') : '파이프라인 감사 대기',
     pageEvidenceRows: pageEvidenceRows,
@@ -14231,7 +14297,7 @@ async function fetchLiveQuotes(requestedSymbols) {
     if (lqTs) lqTs.textContent = '시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' 갱신 (' + allQuotes.length + '개)';
     // v49.37 P282: live-quote-ts-topbar 동시 갱신 (영구 placeholder 잔존 차단)
     const lqTsTop = document.getElementById('live-quote-ts-topbar');
-    if (lqTsTop) { lqTsTop.textContent = '● 시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (' + allQuotes.length + '개)'; lqTsTop.className = 'freshness-badge fb-live'; }
+    if (lqTsTop) { lqTsTop.textContent = '● 클라 시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (' + allQuotes.length + '개)'; lqTsTop.className = 'freshness-badge fb-live'; }
     try { if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') window.AIO.applyMarketCurrentnessGuard({ reason: 'live-quotes' }); } catch(_mcg) {}
   } else {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
@@ -15777,8 +15843,10 @@ function generateDynamicBriefing() {
   else if (tnxPrice >= 4.0) yieldStatus = '10Y ' + tnxPrice.toFixed(2) + '% — 금리 안정화 구간';
   else yieldStatus = '10Y ' + tnxPrice.toFixed(2) + '% — 금리 하향, 성장주 우호적';
 
-  // F&G
-  var fgVal = snap.fg != null ? snap.fg : null;
+  // F&G — v52.27 P642: same-page summary must use the same live source as the briefing strip.
+  var fgLive = Number(window._lastFG);
+  var fgSnap = Number(snap.fg);
+  var fgVal = Number.isFinite(fgLive) ? fgLive : (Number.isFinite(fgSnap) ? fgSnap : null);
   var fgLabel = fgVal != null ? (fgVal <= 25 ? '극단공포' : fgVal <= 45 ? '공포' : fgVal <= 55 ? '중립' : fgVal <= 75 ? '탐욕' : '극단탐욕') : '—';
   var fgColor = fgVal != null ? (fgVal <= 25 ? '#ff5b50' : fgVal <= 45 ? '#ffa31a' : fgVal <= 55 ? 'var(--text-secondary)' : fgVal <= 75 ? '#00e5a0' : '#10b981') : 'var(--text-muted)';
 

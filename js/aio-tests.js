@@ -1757,6 +1757,16 @@
       typeof _renderKrWeeklySupplyFallback === 'function' && window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit === 'function',
       'weeklyFallback=' + typeof _renderKrWeeklySupplyFallback);
 
+    var fetchProxySrc383 = (typeof fetchViaProxy === 'function') ? fetchViaProxy.toString() : '';
+    _assert('T862 proxy_json_html_block_detection_v5228',
+      typeof _aioProxyUrlExpectsJson === 'function' && typeof _aioProxyResponseLooksHtml === 'function' && /_aioValidateProxyResponse/.test(fetchProxySrc383) && /aioProxyBlockedHtml/.test(fetchProxySrc383),
+      'fetchViaProxy=' + !!fetchProxySrc383);
+
+    var invFbSrc383 = (typeof _renderInvestorFallback === 'function') ? _renderInvestorFallback.toString() : '';
+    _assert('T863 kr_supply_failure_state_clears_waiting_v5228',
+      typeof _showKrSupplyFailureState === 'function' && /수신 대기/.test(invFbSrc383) && /kr-investor-top10-date/.test(_showKrSupplyFailureState.toString()),
+      'failureState=' + typeof _showKrSupplyFailureState);
+
     var ops = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
     _assert('T384_autoops_contract_and_kr_runtime_axes',
       ops && ops.operationalDataContract && ops.krSupplyRuntime && ops.commands && ops.commands.operationalDataContract && ops.commands.krSupplyRuntime,
@@ -3310,6 +3320,118 @@
     _assert('T642 subtheme_detail_no_live_no_throw_v4979: no-live subtheme detail opens with LIVE REQUIRED',
       subOk,
       'subOk=' + subOk);
+    var allThemeDetailOk = true;
+    var allThemeVisibleOk = false;
+    var themeDetailRouteOk = false;
+    var allThemeErr = '';
+    try {
+      var syntheticLive = {};
+      (window.THEME_MAP || []).forEach(function(t) {
+        [].concat(t.leaders || [], t.leaderHighlight || [], t.tickers || [], t.etf || [], t.compositeBase || []).forEach(function(sym) {
+          if (sym) syntheticLive[sym] = { price: 100, pct: -1 };
+        });
+      });
+      window._liveData = syntheticLive;
+      if (typeof window.showPage === 'function') window.showPage('themes');
+      if (typeof window.showThemeDetail === 'function' && window.THEME_MAP && window.THEME_MAP.length) {
+        window.THEME_MAP.forEach(function(t) {
+          try { window.showThemeDetail(t.id); }
+          catch(e) { allThemeDetailOk = false; allThemeErr = (t && t.id ? t.id : '?') + ': ' + (e && e.message || e); }
+        });
+        var allThemePanel = document.getElementById('theme-detail-panel');
+        allThemeVisibleOk = !!(allThemePanel && allThemePanel.style.display !== 'none' && allThemePanel.dataset.currentTheme);
+      }
+      if (typeof window.showPage === 'function') {
+        window.showPage('theme-detail');
+        var activeThemePage = document.querySelector('.page.active');
+        themeDetailRouteOk = !!(activeThemePage && activeThemePage.id === 'page-themes');
+      }
+    } catch(eAllTheme) {
+      allThemeDetailOk = false;
+      allThemeErr = eAllTheme && eAllTheme.message || String(eAllTheme);
+    } finally {
+      window._liveData = prevLive;
+    }
+    _assert('T860 theme_detail_all_themes_no_throw_v5227: all theme tiles open inline without dispatch crash',
+      allThemeDetailOk && allThemeVisibleOk,
+      'allThemeDetailOk=' + allThemeDetailOk + ' visible=' + allThemeVisibleOk + ' err=' + allThemeErr);
+    _assert('T861 theme_detail_route_redirect_v5227: orphan route redirects to themes inline surface',
+      themeDetailRouteOk,
+      'themeDetailRouteOk=' + themeDetailRouteOk);
+    var valueSlotEl = document.createElement('span');
+    var valueSlotOk = false;
+    try {
+      if (typeof window._aioRenderValueSlot === 'function') {
+        window._aioRenderValueSlot(valueSlotEl, 'failed', null, { text: '수신 실패', reason: 'test failure state' });
+        valueSlotOk = valueSlotEl.getAttribute('data-value-state') === 'failed'
+          && valueSlotEl.textContent === '수신 실패'
+          && /test failure state/.test(valueSlotEl.getAttribute('title') || '');
+      }
+    } catch(_) {}
+    _assert('T864 value_slot_four_state_renderer_v5228: failed state is encoded in DOM',
+      valueSlotOk,
+      'state=' + valueSlotEl.getAttribute('data-value-state') + ' text=' + valueSlotEl.textContent);
+    var chatSrc865 = typeof chatSend === 'function' ? chatSend.toString() : '';
+    var unifiedSrc865 = typeof chatSendUnified === 'function' ? chatSendUnified.toString() : '';
+    _assert('T865 claude_chat_route_server_key_awareness_v5230: chat key gate accepts server-key route and explains personal-key boundary',
+      typeof window._aioHasClaudeRoute === 'function'
+        && /_aioHasClaudeRoute/.test(chatSrc865)
+        && /_aioHasClaudeRoute/.test(unifiedSrc865)
+        && /브리핑\/번역은 운영자 서버키/.test(chatSrc865 + unifiedSrc865),
+      'hasRoute=' + typeof window._aioHasClaudeRoute + ' chatGate=' + /_aioHasClaudeRoute/.test(chatSrc865) + ' unifiedGate=' + /_aioHasClaudeRoute/.test(unifiedSrc865));
+    var t866ok = false, t866detail = '';
+    try {
+      var fixture866 = document.createElement('div');
+      fixture866.innerHTML = '<span id="t866-delta"></span>';
+      document.body.appendChild(fixture866);
+      var prev5_866 = window._breadth5;
+      var prev20_866 = window._breadth20;
+      var prev200_866 = window._breadth200;
+      var prev50_866 = window._breadth50;
+      var b5Bar866 = document.getElementById('bb-5sma-bar');
+      var b5Val866 = document.getElementById('bb-5sma-val');
+      var b5Badge866 = document.getElementById('bb-5sma-badge');
+      var b5PrevStyle866 = b5Bar866 ? b5Bar866.getAttribute('style') : null;
+      var b5ValPrevText866 = b5Val866 ? b5Val866.textContent : null;
+      var b5ValPrevStyle866 = b5Val866 ? b5Val866.getAttribute('style') : null;
+      var b5BadgePrevText866 = b5Badge866 ? b5Badge866.textContent : null;
+      var b5BadgePrevStyle866 = b5Badge866 ? b5Badge866.getAttribute('style') : null;
+      window._breadth5 = 32;
+      window._breadth20 = 38;
+      window._breadth200 = null;
+      window._breadth50 = 48;
+      if (typeof _aioSetDeltaEl === 'function') _aioSetDeltaEl('t866-delta', 0, 1, { suffix:'pp', decimals:0 });
+      if (typeof updateBreadthBars === 'function') updateBreadthBars();
+      var delta866 = document.getElementById('t866-delta');
+      var b5Bg866 = b5Bar866 && b5Bar866.style.background || '';
+      t866ok = !!(delta866 && delta866.textContent === '0pp' && /is-flat/.test(delta866.className || '') &&
+        !/±/.test(delta866.textContent || '') &&
+        /(?:255,\s*91,\s*80|#ff5b50)/i.test(b5Bg866) &&
+        /공포/.test(b5Badge866 && b5Badge866.textContent || ''));
+      t866detail = JSON.stringify({
+        delta: delta866 && delta866.textContent,
+        deltaClass: delta866 && delta866.className,
+        b5Bg: b5Bg866,
+        b5Badge: b5Badge866 && b5Badge866.textContent
+      });
+      window._breadth5 = prev5_866;
+      window._breadth20 = prev20_866;
+      window._breadth200 = prev200_866;
+      window._breadth50 = prev50_866;
+      if (b5Bar866) b5PrevStyle866 == null ? b5Bar866.removeAttribute('style') : b5Bar866.setAttribute('style', b5PrevStyle866);
+      if (b5Val866) {
+        b5Val866.textContent = b5ValPrevText866;
+        b5ValPrevStyle866 == null ? b5Val866.removeAttribute('style') : b5Val866.setAttribute('style', b5ValPrevStyle866);
+      }
+      if (b5Badge866) {
+        b5Badge866.textContent = b5BadgePrevText866;
+        b5BadgePrevStyle866 == null ? b5Badge866.removeAttribute('style') : b5Badge866.setAttribute('style', b5BadgePrevStyle866);
+      }
+      fixture866.remove();
+    } catch(e) { t866detail = 'ERR:' + e.message; }
+    _assert('T866 breadth_regime_color_and_zero_delta_v5231: 32% breadth renders fearful red and zero delta is neutral 0pp',
+      t866ok,
+      t866detail);
     var compositionAudit = window.AIO && typeof window.AIO.getThemeCompositionLogicAudit === 'function' && window.AIO.getThemeCompositionLogicAudit();
     _assert('T643 theme_composition_logic_audit_defined_v4979: theme composition logic audit exists',
       compositionAudit && compositionAudit.counts && compositionAudit.counts.themes >= 100,
@@ -6876,7 +6998,7 @@
     // T841: v50.74 structural fix — decision engine reads live score, FOMC uses registry, footer is conditional.
     var t841ok = false, t841detail = '';
     try {
-      var validBands841 = { '적극 매수':1, '매수 우호':1, '중립 · 관망':1, '주의 · 축소':1, '위험 · 방어':1 };
+      var validBands841 = { '매수 우호':1, '선별 매수':1, '중립 · 관망':1, '주의 · 축소':1, '위험 · 방어':1 };
       var homeDecision841 = typeof window._aioBuildPageDecision === 'function' ? window._aioBuildPageDecision('home') : null;
       // decision 문구가 5밴드 중 하나를 포함해야 함 (정적 고정 문구 제거 검증)
       var bandInDecision841 = homeDecision841 && Object.keys(validBands841).some(function(b) {

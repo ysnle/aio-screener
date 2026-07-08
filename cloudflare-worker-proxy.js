@@ -111,6 +111,16 @@ function isPrivateHost(hostname) {
   return false;
 }
 
+function targetExpectsJson(parsedUrl) {
+  const s = `${parsedUrl.hostname}${parsedUrl.pathname}`.toLowerCase();
+  return /\/api\/|finance\/chart|query1\.finance\.yahoo\.com|query2\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com|production\.dataviz\.cnn\.io|api\.fear-and-greed\.com|api\.alternative\.me/.test(s);
+}
+
+function looksLikeHtml(text) {
+  const t = String(text || '').trimStart();
+  return /^<!doctype\s+html/i.test(t) || /^<html[\s>]/i.test(t) || /<title>.*(captcha|access denied|forbidden|blocked|error).*<\/title>/i.test(t.slice(0, 800));
+}
+
 // ── Rate Limiter ─────────────────────────────────────────────────
 // NOTE: Worker isolate 간 Map 공유 불가. 단일 isolate 내 best-effort 방어.
 // 완전한 레이트 리밋은 Cloudflare Rate Limiting Rules 또는 Durable Objects 필요.
@@ -298,9 +308,20 @@ export default {
       const _isFred = /stlouisfed|fred/i.test(_host);
       const _cacheTtl = _isNews ? 1800 : _isFred ? 3600 : 120;
 
+      const _expectsJson = targetExpectsJson(parsedUrl);
+      const _isNaver = /(^|\.)naver\.com$/i.test(parsedUrl.hostname);
+      const upstreamHeaders = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36 AIO-Screener/1.0',
+        'Accept': _expectsJson ? 'application/json,text/plain,*/*' : '*/*',
+      };
+      if (_isNaver) {
+        upstreamHeaders.Referer = 'https://m.stock.naver.com/';
+        upstreamHeaders.Origin = 'https://m.stock.naver.com';
+      }
+
       const response = await fetch(targetUrl, {
         method: 'GET',
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible)' },
+        headers: upstreamHeaders,
         signal: controller.signal,
         cf: { cacheTtl: _cacheTtl },
       });
@@ -315,6 +336,9 @@ export default {
 
       const data = await response.text();
       const contentType = response.headers.get('content-type') || 'application/json';
+      if (_expectsJson && looksLikeHtml(data)) {
+        return errorResponse('Upstream returned HTML block page for JSON endpoint', 502, requestOrigin);
+      }
 
       return new Response(data, {
         status: response.status,

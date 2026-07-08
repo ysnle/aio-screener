@@ -141,6 +141,32 @@ jobs:
       - name: Run AIO.runTests() headlessly
         run: node scripts/ci-headless-tests.mjs
 
+  viewport-matrix:
+    name: Viewport route matrix (report-only)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Run route x viewport surface matrix
+        run: node scripts/ci-viewport-matrix-check.mjs
+
   # P557/R248: GitHub Pages was on "legacy" branch-deploy, which republishes whatever is on
   # main the instant it's pushed — completely independent of whether `validate` above passed
   # or failed (confirmed live: 33% of recent CI runs failed, some of those pushes went live

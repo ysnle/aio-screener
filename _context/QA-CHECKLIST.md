@@ -22,7 +22,7 @@ latest_P_covered: P641
 ## v52.20 - 헤드리스 스킵리스트 23건 전수 해소, 진짜 버그 2건 포함 (P627-P630) — 실브라우저 미확인
 
 - [x] **(확인됨)** signal 페이지: Lockout/OPEX 컨트롤과 Exit Triggers가 이제 실제로 진입 체크리스트/티커 바 아래로 재배치되어 보임(v50.33 도입 이후 처음으로 실제 작동, P628). ✅ 2026-07-08 라이브 — Exit(y2005) > 진입 체크리스트(y1695) 순서 확인, lockout은 의도적 display:none 유지(v51.40).
-- [ ] **(검증 불가)** AI 채팅에서 "종목 추천해줘"를 연속 2회 질문 시, 두 번째 응답의 분산 설계 안내문("최근 대화 반복 티커는 점수 감점: N개")이 0이 아닌 실제 억제 개수를 표시(P629). ⛔ 2026-07-08 채팅이 클라이언트 키 필수 경로라 라이브 실문답 불가(UX-04 — 브리핑·번역은 워커 서버키로 작동하는데 채팅만 개인 키 요구, 운영자 결정 카드 ②). 헤드리스 게이트가 로직 커버.
+- [ ] **(라이브 실문답 미검증)** AI 채팅에서 "종목 추천해줘"를 연속 2회 질문 시, 두 번째 응답의 분산 설계 안내문("최근 대화 반복 티커는 점수 감점: N개")이 0이 아닌 실제 억제 개수를 표시(P629). ⛔ 2026-07-08 라이브 v52.26은 아직 채팅 개인키 경로라 실문답 불가. v52.30 로컬에서 preflight는 `_aioHasClaudeRoute()`로 보강되어 Worker 서버키 모드를 인식하고, 안내문은 "브리핑/번역과 달리 채팅은 개인키 또는 Worker 서버키 모드 필요"로 정직화됨. 배포 후 서버키 모드/개인키 중 하나로 실문답 재검증 필요.
 - [ ] **(부분 확인)** index.html의 종목 티커 클릭 동작(홈 빠른 검색 5개 칩, kr-themes pill, 스크리너/무버스 테이블 행, 테마 리더 하이라이트 등 15곳) 전부 기존과 동일하게 종목 상세로 이동(onclick→data-action 전환, T143). ⚠ 2026-07-08 showTicker/정렬/탭 delegation 샘플 정상 — 15곳 전수는 아님(V3 헤드리스 클릭 전수로 이관).
 - [x] **(확인됨)** 매크로 페이지 스토리라인 카드 하단에 "출처"/"예상 시간" 안내 문구가 표시됨(T239, R68). ✅ 2026-07-08 라이브.
 - [x] **(확인됨)** signal 페이지 상단 마켓펄스 스트립과 fxbond의 캐리 리스크 배지가 "로딩 중"/"계산 중" 없이 표시됨(T491/T512/T557). ✅ 2026-07-08 — 단 mv-strip은 진입 후 수 분간 "—" 표시 후 채워짐(UX-07 첫 페인트 클래스, V2 대상).
@@ -40,7 +40,7 @@ latest_P_covered: P641
 - [x] **(확인됨)** "주요 AI ETF" 표의 NVDA 행이 "Self"가 아니라 "—"(정적) 또는 "대장주"(동적 재렌더 후). ✅ 2026-07-08 NVDA행 "—", Self 셀 0건.
 - [x] **(확인됨)** 스크리너 모멘텀 정렬 시 라이브 시세 없는 종목도 가격 컬럼에 실제 숫자 표시(빈 "—" 아님). ✅ 2026-07-08 정렬 후 상위 6종 전부 실가격(BE 295.05 등).
 - [x] **(확인됨)** technical 페이지 SPY 포지셔닝 카드가 "3M 수익 0.0%·RSI 50.0" 고정이 아니라 실제 계산값(페이지 진입 몇 초 후) 표시. ✅ 2026-07-08 "200MA $695 · 50MA $740 · ATH $759" 실계산값.
-- [ ] **(미확인)** sentiment HY 스프레드 "Live" 값과 다른 페이지 표시값이 서로 다르지 않고 일치(275bp 기준).
+- [x] **(라이브 재캡처 완료)** sentiment/fxbond HY 스프레드 주 표시값 정합: 2026-07-08 live v52.26 Playwright 확인 — `#hy-live-val` = `275 bps`, title `hy-spread · snapshot · reference-only`. 별도 `#hy-spread-est` = `추정 ~4.2%`는 라벨이 다른 보조 추정값으로 원래 P625의 "Live 289bp vs 275bp" 불일치와 별개.
 
 ## v52.17 - market-news 크로스채널 중복 수정 (P621) — 실브라우저 미확인
 
@@ -2528,3 +2528,42 @@ P641-Q1: Before assuming a stale chart shares some "generic expansion helper" wi
 P641-Q2: For any metric shown only client-side with no server accumulation path (check `scripts/fetch-data.mjs`'s daily-record field list and the live `public-data/history.json` directly), verify whether adding it to the unattended production cron is actually safe (reachability from GitHub Actions runners, error handling) before doing so — a client-side `localStorage` upsert-accumulation (mirroring the existing server-side upsert-by-date/cap idiom) is a lower-risk alternative when the source itself works from the browser already.
 P641-Q3: When OS-level browser screenshots time out or show unexpectedly blank canvases in a multi-tab/multi-window automation session, check `document.hidden`/`document.visibilityState` first — a backgrounded tab can suppress compositor painting independent of whether the underlying Chart.js/canvas state is actually correct. Confirm real rendering via `canvas.getContext('2d').getImageData(...)` pixel inspection (non-transparent pixel count + distinct color count) rather than concluding "broken" from a single failed/blank screenshot.
 P641-Q4: Any local-file code change intended to fix a *live-site* finding should be verified against a local static server (e.g., `python3 -m http.server`) before being declared fixed — testing against the still-old live deployment will just reconfirm the original bug.
+
+--- v52.27 FABLE UI/UX Phase V0 checks (2026-07-08) ---
+P642-Q1: Theme heatmap/detail: every `THEME_MAP` entry must open the inline detail panel without console dispatch failure, and the panel must become the visible canonical surface after click.
+P642-Q2: `theme-detail` route/hash must resolve to the `themes` inline detail surface; do not maintain a separate orphan detail page with divergent content.
+P642-Q3: Briefing market summary and the same-screen Fear & Greed strip must read the same live-first source (`window._lastFG`) before falling back to snapshot data.
+P642-Q4: `kr-technical` cold entry must instantiate the Naver candle chart without manual symbol search, and the y-axis must be data-range padded rather than zero-baseline compressed.
+P642-Q5: After touching theme detail, route canonicalization, briefing summary metrics, or KR candle chart boot, run T860/T861, `node scripts/ci-runtime-contract-check.mjs`, and the headless/browser route checks before claiming closure.
+
+--- v52.28 FABLE UI/UX remaining phase checks (2026-07-08) ---
+P643-Q1: For every JSON-expected proxy endpoint, HTTP 200 must still be rejected if the body is HTML/CAPTCHA/block text; do not mark that proxy ok or cache it as a successful body.
+P643-Q2: KR supply failure must visibly leave `수신 대기`: investor TOP10 date becomes `수신 실패`, three TOP10 tables render a failure/fallback card, and analysis/banner text explains proxy/Naver failure.
+P643-Q3: New or touched visible metric slots must expose `data-value-state=value|pending|failed|na`; bare `—` is acceptable only inside an explicit state or non-decision reference text.
+P643-Q4: Run `node scripts/ci-viewport-matrix-check.mjs` for route x viewport surface QA; if it fails, record failing route/viewport before changing CSS.
+P643-Q5: Keep `aria-live` regions intentionally scarce, canvas elements named or hidden, and chart resize limited to visible charts. `node scripts/ci-ux-default-path-check.mjs` must enforce these.
+
+--- v52.29 FABLE remaining automation checks (2026-07-08) ---
+P644-Q1: Proxy ordering must use accumulated success/failure evidence (`okCount`, `failCount`, and score-based active ordering), not only static order or the latest successful timestamp.
+P644-Q2: Client live quote counts and server snapshot quote counts must be visibly labelled as different populations (`클라 시세` vs `서버 스냅샷 시세` or equivalent).
+P644-Q3: `market-news` and `briefing` rendered card duplicates must be checked in the route x viewport browser matrix with a normalized text/word-bag key.
+P644-Q4: Runtime/UX contract gates must assert the proxy score, quote label split, and duplicate-card matrix wiring.
+
+--- v52.30 AI chat key-route honesty checks (2026-07-08) ---
+P645-Q1: `chatSend()` and `chatSendUnified()` must not gate on `getApiKey()` alone; they must check the effective Claude route helper (`_aioHasClaudeRoute` or equivalent).
+P645-Q2: If no personal key and no Worker server-key route exists, the user-facing message must distinguish chat from briefing/translation: briefing/translation may use operator server key, chat needs personal key or enabled Worker server-key mode.
+P645-Q3: `callClaude()` preflight and chat UI preflight must use the same route resolver path so the UI cannot block a call that would succeed through Worker server-key mode.
+P645-Q4: T865 and `ci-runtime-contract-check.mjs` must fail if the chat key gate regresses to personal-key-only logic.
+
+--- v52.31 breadth regime color + zero-delta checks (2026-07-08) ---
+P646-Q1: Signal-page market breadth cards (`bb-5sma/20sma/50sma`) must use `NARRATIVE_ENGINE.getBreadthRegime()` or an equivalent canonical helper for non-overheat labels/colors.
+P646-Q2: A 32% breadth value must render as red `공포 영역`, not green/amber, on both the signal card and breadth detail gauge.
+P646-Q3: Breadth detail bars (`breadth-5sma-bar`, `breadth-20sma-bar`, `breadth-50sma-bar`) must update their background color together with the big value and label.
+P646-Q4: Zero metric deltas must render neutral `0pp` with `is-flat`, not `±0pp`, `+0pp`, or `-0pp`.
+P646-Q5: T866 and `ci-runtime-contract-check.mjs` must fail if the breadth color contract or zero-delta contract regresses.
+
+--- v52.32 viewport matrix geometry checks (2026-07-08) ---
+P647-Q1: `scripts/ci-viewport-matrix-check.mjs` must check topbar action clipping at 390/768/1024/1440, not only document overflow.
+P647-Q2: The matrix must fail on SVG text overlap using rendered geometry (`getBBox()`), not string/DOM presence alone.
+P647-Q3: SVG text below 10px must fail unless the SVG/text is not visible in the active route.
+P647-Q4: `ci-runtime-contract-check.mjs` must assert the `topbarClipCount`, `svgTextOverlapCount`, and `svgTinyTextCount` fields remain wired.

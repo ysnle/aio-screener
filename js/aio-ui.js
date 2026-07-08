@@ -780,9 +780,24 @@ function updateRallyQualityVerdict() {
 // v42.4: 브레드쓰 바 동적 갱신 — signal 페이지 + breadth 페이지 NDX 카드
 // v49.64 Codex P332: 20-SMA 70%+ amber override (과열 신호 — v49.63 index.html 정적 변경의 동적 보강)
 function updateBreadthBars() {
-  function _bbColor(v) { return v >= 50 ? '#00e5a0' : v >= 30 ? '#ffa31a' : '#ff5b50'; }
-  function _bbBg(v)    { return v >= 50 ? 'var(--data-green-mid)' : v >= 30 ? 'var(--data-amber-mid)' : 'var(--data-red-mid)'; }
-  function _bbLbl(v)   { return v >= 60 ? '강세' : v >= 50 ? '중립↑' : v >= 35 ? '중립↓' : '약세'; }
+  function _bbRegime(v) {
+    if (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime) {
+      var reg = NARRATIVE_ENGINE.getBreadthRegime(v);
+      if (reg && reg.color && reg.label) return reg;
+    }
+    return v >= 70 ? { level:'broad', label:'광폭 랠리', color:'#00e5a0' } :
+           v >= 55 ? { level:'healthy', label:'건강', color:'#ffa31a' } :
+           v >= 40 ? { level:'narrow', label:'좁은 랠리', color:'#ffa31a' } :
+                     { level:'fearful', label:'공포 영역', color:'#ff5b50' };
+  }
+  function _bbToneBg(color) {
+    if (color === '#00e5a0') return 'var(--data-green-mid)';
+    if (color === '#ff5b50') return 'var(--data-red-mid)';
+    return 'var(--data-amber-mid)';
+  }
+  function _bbColor(v) { return _bbRegime(v).color; }
+  function _bbBg(v)    { return _bbToneBg(_bbRegime(v).color); }
+  function _bbLbl(v)   { return _bbRegime(v).label; }
   // v49.64 Codex P332: 20-SMA 전용 라벨 — 70%+ "과열" amber override (강세/과열 구분)
   function _bb20smaLbl(v) {
     if (v >= 70) return '과열';
@@ -2674,17 +2689,17 @@ window._aioFundTabSwitch = function(tab) {
   });
   // 4. 현재 탭 기억 (페이지 재진입 시 복원용)
   window._aioFundActiveTab = tab;
-  // 5. v48.96 P1-6: 숨김 상태에서 초기화된 차트 width=0 → resize 보정
-  //    Chart.js: _aioChartRegistry.resizeAll(), lightweight-charts: applyOptions({width})
+  // 5. v48.96 P1-6 + v52.28 P644: 현재 보이는 탭 차트만 resize.
+  //    Hidden page/tab charts are resized lazily on their own page entry to avoid resize storms.
   setTimeout(function() {
-    if (window._aioChartRegistry) { window._aioChartRegistry.resizeAll(); }
+    if (window._aioChartRegistry) { window._aioChartRegistry.resizeAllVisible(); }
     // lightweight-charts 인스턴스 재조정 (fund 섹션 내 lw-chart 컨테이너)
     var lwContainers = document.querySelectorAll('[data-fund-tab="' + tab + '"] [id$="-lw-chart"]');
     lwContainers.forEach(function(container) {
       var chart = container._lwChart;
       if (chart && typeof chart.applyOptions === 'function') {
         var w = container.clientWidth;
-        if (w > 0) { try { chart.applyOptions({ width: w }); } catch(e) {} }
+        if (w > 0 && container.offsetParent !== null) { try { chart.applyOptions({ width: w }); } catch(e) {} }
       }
     });
   }, 50);

@@ -3096,3 +3096,78 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - New assertive-verdict render functions should be written with this gate from the start rather than retrofitted; existing ones found violating it during any future audit should be fixed the same way (gate, don't delete the fallback number).
 
 **Validation**: No dedicated mechanical gate yet (each site is currently fixed individually, e.g. `js/aio-tests.js` T278 asserts VKOSPI's fallback label format). A future recurrence (3rd instance) should promote this to a `ci-*-contract-check.mjs` static check per R3's postmortem-to-gate convention.
+
+## R283. Interactive detail surfaces must be canonical, all registry entries must render, and same-screen metrics must share the same source (v52.27, P642 root)
+
+**Rule**: A user-facing detail view is not complete until every configured entity can open without throwing, there is one canonical route/surface for the detail state, numeric accumulators are finite-safe before formatting, and duplicate same-screen metrics consume the same current source.
+
+**Required**:
+- If a detail view exists both as an inline panel and as a route, choose one canonical surface. Route aliases must redirect/open that canonical surface instead of maintaining a stale orphan DOM.
+- Any `data-action`/registry-driven detail renderer must have a regression test that iterates all configured registry IDs with synthetic finite data and asserts no throw plus visible output.
+- Numeric leader/laggard accumulators must filter finite values before `.toFixed()` and use `Infinity`/`-Infinity` or `null` with a safe formatter, not magic sentinels plus direct formatting.
+- Same-screen duplicate labels/summaries for metrics such as Fear & Greed must read from the same live-first source and only use snapshots as fallback.
+- Chart axes for narrow OHLC/range data must not begin at zero unless zero is domain-meaningful; derive min/max padding from actual data.
+
+**Validation**: `AIO.runTests()` T860/T861 and `scripts/ci-runtime-contract-check.mjs` cover the v52.27 theme-detail, route, F&G, and KR candle contracts.
+
+## R284. Proxy responses, visible value slots, and browser QA matrices must be typed and executable (v52.28, P643 root)
+
+**Rule**: A transport/UI surface is not healthy just because a request returned HTTP 200 or a DOM node contains some placeholder text. JSON endpoints must prove the body is JSON before they are cached as success; visible data slots must expose one of the explicit states `value|pending|failed|na`; and live/browser QA coverage must exist as an executable route x viewport check, not only as a one-off manual claim.
+
+**Required**:
+- CORS/proxy helpers must reject HTML/CAPTCHA/block pages for endpoints that expect JSON before marking the proxy successful or caching the body.
+- If a page logs fallback/failure, its visible table/card/date/status nodes must leave `수신 대기` and render a `failed` or `reference-only fallback` state with a reason.
+- User-visible value slots should use a shared state renderer or equivalent `data-value-state` contract so `—`, `대기`, `실패`, and `해당 없음` are distinguishable by code and audits.
+- Browser/live QA claims must be backed by a scriptable route x viewport matrix that checks overflow, raw placeholder leakage, nameless controls, broken images, and zero-size canvases.
+- Accessibility/performance baselines must be gated: scarce `aria-live`, labeled canvases, no positive tabindex drift, and no bulk resizing of hidden charts.
+
+**Validation**: T862/T863/T864, `scripts/ci-runtime-contract-check.mjs`, `scripts/ci-ux-default-path-check.mjs`, and `scripts/ci-viewport-matrix-check.mjs`.
+
+## R285. Operational health labels and feed quality gates must distinguish sources and use accumulated evidence (v52.29, P644 root)
+
+**Rule**: A live data surface must not imply that two different source populations are the same, and a transport/feed subsystem must not be ranked or trusted from a single latest event when accumulated evidence is available.
+
+**Required**:
+- Proxy registries must maintain success and failure counters and rank active proxies by an explicit score that includes success rate and failure penalty, not only static order or one recent success timestamp.
+- UI labels that display counts from different populations must name the population. In particular, client-applied live quote counts and server snapshot quote counts must not both render as plain "시세 N개".
+- News/briefing renderer changes must have an executable duplicate-card gate. Exact URL dedup is not enough; rendered-card text should be normalized into a stable word-bag or equivalent semantic key.
+- A route x viewport audit that claims browser/live surface coverage must fail on duplicate news/briefing cards, not just overflow and broken controls.
+
+**Validation**: `scripts/ci-runtime-contract-check.mjs`, `scripts/ci-ux-default-path-check.mjs`, and `scripts/ci-viewport-matrix-check.mjs` cover the v52.29 proxy score, quote-label split, and duplicate-card contract.
+
+## R286. AI chat key gates must test the effective Claude route, not only the personal-key field (v52.30, P645 root)
+
+**Rule**: A chat surface must not block solely because the personal Claude key field is empty if a configured Worker/server-key route is available. Conversely, if chat remains personal-key-only by operator policy, the UI must say that clearly and distinguish it from briefing/translation surfaces that may use the operator server key.
+
+**Required**:
+- Before consuming quota or appending a hard "key required" message, chat entry points must check an effective Claude route helper such as `_aioHasClaudeRoute(apiKey)`.
+- The helper must use the same route resolver as actual Claude calls (`_aioClaudeTarget`) so preflight and network execution cannot disagree.
+- General page chat and unified AI panel chat must share the same key-gate policy.
+- Missing-key copy must explicitly explain the boundary: briefing/translation may work via operator server key, but chat needs either a personal Claude key or an enabled Worker server-key mode.
+
+**Validation**: `AIO.runTests()` T865 and `scripts/ci-runtime-contract-check.mjs` cover `_aioHasClaudeRoute`, `chatSend`, and `chatSendUnified`.
+
+## R287. Market breadth color, label, and gauge bars must share the canonical breadth regime (v52.31, P646 root)
+
+**Rule**: Any visible market breadth surface that renders a regime label, value color, badge color, or gauge/bar color for the same breadth percentage must use the canonical breadth regime helper (`NARRATIVE_ENGINE.getBreadthRegime()` or a byte-equivalent fallback), not a local threshold helper with different cutoffs.
+
+**Why this matters**: U9 found a same-metric contradiction: a 32% breadth value lived in the app's `공포 영역` regime but the signal card could still paint the gauge as non-red because it used an independent color threshold. Users read color faster than text, so split semantics make the screen lie even when the number is correct.
+
+**Required**:
+- For normal breadth regime rendering, read `{label, color}` from `NARRATIVE_ENGINE.getBreadthRegime(value)`.
+- If a specific metric intentionally has an override, such as 20SMA `70%+` overheat amber, document that override locally and fall back to the canonical helper below the override threshold.
+- Zero deltas must render as neutral `0`/`0pp` with `is-flat`, never `+0`, `-0`, or `±0`.
+
+**Validation**: `AIO.runTests()` T866 and `scripts/ci-runtime-contract-check.mjs` cover the 32% red/fearful rendering path and neutral zero-delta formatting.
+
+## R288. Route x viewport audits must include topbar clipping and SVG text geometry, not only page overflow (v52.32, P647 root)
+
+**Rule**: Any audit that claims to close mobile/topbar or SVG visual backlog must mechanically check the actual rendered geometry. Page-level `scrollWidth` alone is not enough.
+
+**Required**:
+- The route x viewport matrix must include the supported widths 390, 768, 1024, and 1440 across all app routes.
+- Topbar action controls must be checked with `getBoundingClientRect()` against the viewport, including the quote timestamp, AI button, and refresh button.
+- SVG `text` nodes in the active route must be checked with `getBBox()` for overlap, and SVG text below 10px must fail unless explicitly hidden/non-visible.
+- The matrix may still emit screenshot artifacts for human review, but the pass/fail gate must be geometry-based.
+
+**Validation**: `scripts/ci-viewport-matrix-check.mjs` emits/fails on `topbarClipCount`, `svgTextOverlapCount`, and `svgTinyTextCount`; `scripts/ci-runtime-contract-check.mjs` asserts those fields remain wired.
