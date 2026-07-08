@@ -3,10 +3,10 @@ verified_by: agent
 last_verified: 2026-07-08
 confidence: high
 version: v3.8
-checklist_version: v52.26
+checklist_version: v52.33
 total_items: 512
 stages: 22
-latest_P_covered: P641
+latest_P_covered: P648
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2567,3 +2567,7 @@ P647-Q1: `scripts/ci-viewport-matrix-check.mjs` must check topbar action clippin
 P647-Q2: The matrix must fail on SVG text overlap using rendered geometry (`getBBox()`), not string/DOM presence alone.
 P647-Q3: SVG text below 10px must fail unless the SVG/text is not visible in the active route.
 P647-Q4: `ci-runtime-contract-check.mjs` must assert the `topbarClipCount`, `svgTextOverlapCount`, and `svgTinyTextCount` fields remain wired.
+
+--- v52.33 live quote fallback mirror checks (2026-07-08) ---
+P648-Q1: `applyLiveQuotes()` must synchronize `_fallback[key]` when `_LIVE_SNAP_MAP` updates a `DATA_SNAPSHOT` key that already exists in `_fallback`.
+P648-Q2: T686 must remain green after server/public-data quotes update VIX or other mirrored fields.

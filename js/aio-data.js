@@ -15316,6 +15316,10 @@ function applyLiveQuotes(quotes) {
     if (window.DATA_SNAPSHOT && _LIVE_SNAP_MAP[q.symbol]) {
       var _lsm = _LIVE_SNAP_MAP[q.symbol];
       window.DATA_SNAPSHOT[_lsm[0]] = price;
+      window.DATA_SNAPSHOT._fallback = window.DATA_SNAPSHOT._fallback || {};
+      if (Object.prototype.hasOwnProperty.call(window.DATA_SNAPSHOT._fallback, _lsm[0])) {
+        window.DATA_SNAPSHOT._fallback[_lsm[0]] = price;
+      }
       if (_lsm[1] && hasPct) window.DATA_SNAPSHOT[_lsm[1]] = parseFloat(pct.toFixed(2));
       if (q.symbol === 'KRW=X') window.DATA_SNAPSHOT.krwRound = Math.round(price);
       if (q.symbol === 'GC=F' && hasPct) window.DATA_SNAPSHOT.goldWeeklyPct = parseFloat(pct.toFixed(2));

@@ -1,3 +1,9 @@
+## v52.33 (2026-07-08)
+- **라이브 시세 `_fallback` 미러 동기화 (P648/R289)**: 최신 public-data quote가 `DATA_SNAPSHOT.vix`를 갱신한 뒤 `_fallback.vix`가 정적 seed에 머물러 T686/headless deploy gate를 막던 구조를 수정했다.
+- **공통 quote bridge 보강**: `applyLiveQuotes()`가 `_LIVE_SNAP_MAP`으로 `DATA_SNAPSHOT[key]`를 갱신할 때 `_fallback[key]`가 이미 존재하면 같은 값으로 함께 갱신한다. VIX뿐 아니라 향후 동일 미러 필드도 per-symbol 패치 없이 동기화된다.
+- **배포 게이트 복구 대상**: v52.32 push 후 GitHub Actions headless에서 재현된 `snapshot_fallback_mirror_consistency_v4996` drift를 로컬 최신 데이터 기준으로 검증한다.
+- R1 7곳 v52.33
+
 ## v52.32 (2026-07-08)
 - **V3 뷰포트 매트릭스 실측 범위 확장 (P647/R288)**: `scripts/ci-viewport-matrix-check.mjs`가 22 routes × 4 viewports에서 기존 overflow/중복/깨진 이미지/무라벨 컨트롤뿐 아니라 topbar 우측 클러스터 클리핑과 SVG text geometry를 직접 검사하게 했다.
 - **P615/P632 390px 보강**: `.topbar-actions-right`, `#live-quote-ts`, `#topbar-ai-btn`, `#topbar-refresh-btn`가 viewport 밖으로 밀리는지 `getBoundingClientRect()`로 계산해 실패 처리한다.

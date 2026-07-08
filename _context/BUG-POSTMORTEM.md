@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-07-07
 confidence: high
-latest_version: v52.26
-latest_P_number: P641
+latest_version: v52.33
+latest_P_number: P648
 total_entries: 421
-next_P_number: P642
+next_P_number: P649
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
@@ -5679,4 +5679,13 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **violated_rule**: New — see R288.
 - **prevention**: `ci-viewport-matrix-check.mjs` now fails on the exact geometry classes that P615/P632/T781 needed, and `ci-runtime-contract-check.mjs` prevents the fields from being silently removed.
 - **verification**: `node --check scripts/ci-viewport-matrix-check.mjs`; `node --check scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-version-check.mjs`; `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-viewport-matrix-check.mjs` → 22 routes × 4 viewports, **88/88 PASS**, worstOverflow 0px; `node scripts/ci-ux-default-path-check.mjs`; `node scripts/ci-structural-check.mjs`; `node scripts/ci-workflow-compaction-check.mjs`; `node scripts/ci-semantic-review-check.mjs`; `node scripts/ci-headless-tests.mjs` → **929/929 PASS**.
+
+## P648 · v52.33 · Latest public-data quote updated `DATA_SNAPSHOT.vix` but left `_fallback.vix` stale, blocking deploy on T686
+
+- **motivation**: After pushing v52.32, GitHub Actions failed blocking Headless unit tests and skipped deployment. Re-running headless locally after rebasing onto latest data commits reproduced T686, with `DATA_SNAPSHOT.vix=18.85` and `_fallback.vix=16.15`.
+- **root_cause**: `applyLiveQuotes()` bridges live/server quotes into `DATA_SNAPSHOT` through `_LIVE_SNAP_MAP`, but only a `^VVIX` block updated `_fallback`. Any mirrored field updated through the generic map could drift if `_fallback` still held static seed.
+- **fix**: In `_LIVE_SNAP_MAP` write path, initialize `_fallback` and update `_fallback[key]` whenever that key already exists. Keeps VIX and future mirrored quote fields synchronized without per-symbol patches.
+- **violated_rule**: New — see R289.
+- **prevention**: T686 already detects this class; R289 documents required bridge behavior.
+- **verification**: `node --check js/aio-data.js`; `node scripts/ci-version-check.mjs`; `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-ux-default-path-check.mjs`; `node scripts/ci-structural-check.mjs`; `node scripts/ci-data-pipeline-contract-check.mjs`; `node scripts/ci-semantic-review-check.mjs`; `node scripts/ci-workflow-compaction-check.mjs`; `node scripts/ci-headless-tests.mjs` → **929/929 PASS**.
 

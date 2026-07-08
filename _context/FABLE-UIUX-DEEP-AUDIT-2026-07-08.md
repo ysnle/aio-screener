@@ -156,4 +156,6 @@ P606·P607·P608·P611·P614·P616·P620·P622·P623·P624·P628·P634~P640 라�
 
 **진행 기록(2026-07-08, v52.32/P647)**: P615/P632 390px topbar와 T781/SVG 전수 항목을 V3 matrix의 실제 실패 조건으로 승격. `ci-viewport-matrix-check.mjs`가 topbar 우측 클러스터의 `getBoundingClientRect()` 클리핑, 활성 route SVG `text`의 `getBBox()` 겹침, SVG text <10px를 실패 처리한다. 따라서 해당 항목은 "수동 실브라우저 미확인"이 아니라 로컬 CI 기하 게이트로 구조 종결.
 
+**진행 기록(2026-07-08, v52.33/P648)**: v52.32 push 후 최신 public-data와 결합된 GitHub Actions headless에서 T686이 `DATA_SNAPSHOT.vix`↔`_fallback.vix` drift를 잡아 배포가 스킵됨. `applyLiveQuotes()`의 공통 `_LIVE_SNAP_MAP` write path가 `_fallback[key]`도 함께 동기화하도록 보강해 deploy-gating 데이터 mirror drift를 구조적으로 닫음.
+
 미완(다음 재감사로): U2 FAB 재현 조건(로컬 `#ai-fab`/glossary floating button은 display:none이라 현재 재현 불가) · 스크린리더 실사(V4-1, 사람 항목) · 로컬 v52.27~v52.32 커밋/배포 후 P626/VKOSPI 및 U9 픽셀 라이브 재확인.

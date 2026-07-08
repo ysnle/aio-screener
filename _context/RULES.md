@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-07-07
 confidence: high
-target_version: v52.24
+target_version: v52.33
 
 ---
 
@@ -3171,3 +3171,15 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - The matrix may still emit screenshot artifacts for human review, but the pass/fail gate must be geometry-based.
 
 **Validation**: `scripts/ci-viewport-matrix-check.mjs` emits/fails on `topbarClipCount`, `svgTextOverlapCount`, and `svgTinyTextCount`; `scripts/ci-runtime-contract-check.mjs` asserts those fields remain wired.
+
+## R289. Live quote bridges must keep DATA_SNAPSHOT and `_fallback` mirrors synchronized (v52.33, P648 root)
+
+**Rule**: When a live/server quote updates a `DATA_SNAPSHOT` field that also exists in `DATA_SNAPSHOT._fallback`, the mirror value must be updated in the same write path.
+
+**Why this matters**: T686 caught `DATA_SNAPSHOT.vix=18.85` from the latest server quote while `_fallback.vix` stayed at the static 16.15 seed. Runtime score/regime code can read `_fallback`, so the app can silently compute from a stale mirror after displaying a fresh value.
+
+**Required**:
+- Shared quote bridge maps such as `_LIVE_SNAP_MAP` must update `_fallback[key]` whenever that key already exists.
+- Do not add one-off fixes for each symbol unless the field has intentionally different semantics.
+
+**Validation**: `AIO.runTests()` T686 covers snapshot↔`_fallback` mirror drift.
