@@ -23,4 +23,5 @@ Use this reference when writing the final QA report.
 | QA4 | Were security and escaping surfaces considered for UI text changes? |
 | QA5 | Were blocked checks separated from passing checks? |
 | QA6 | Was the relevant executable gate run or named as unavailable? |
+| QA7 | For UI/UX-visible changes, does the report state whether Tier 13 (live browser) ran, and if not, why? |
 

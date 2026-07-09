@@ -1,0 +1,28 @@
+name: Knowledge base lint
+
+# R290/P653: weekly forcing function for _context/ drift. Runs the deterministic subset of
+# /knowledge-lint (scripts/ci-knowledge-lint-check.mjs) that never needs judgment: does every
+# git-tracked _context/*.md file appear in INDEX.md's table, do INDEX.md and _context/CLAUDE.md
+# agree on the same document set, and is anything that opted into `auto_refresh: true`
+# frontmatter past its staleness threshold. Failures here mean run the full /knowledge-lint
+# skill (contradiction detection and ambiguous ownership still need a session's judgment; this
+# workflow does not attempt those). Schedule is offset from :00 to reduce best-effort cron
+# drops during peak GitHub Actions load, matching refresh-data.yml/data-watchdog.yml.
+
+on:
+  schedule:
+    - cron: '13 4 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run deterministic knowledge lint
+        run: node scripts/ci-knowledge-lint-check.mjs

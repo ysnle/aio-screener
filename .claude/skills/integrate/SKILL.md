@@ -39,3 +39,4 @@ Convert user-provided material into durable AIO framework changes without copyin
 | IN4 | Were transient claims excluded or routed to data-refresh? |
 | IN5 | Did R1 7-surface sync run when behavior changed? |
 | IN6 | Did the matching command wrapper remain synced? |
+| IN7 | Were credential-shaped strings masked or dropped before writing to any git-tracked doc (Sensitive Data Guard)? |

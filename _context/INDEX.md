@@ -61,8 +61,8 @@ AIO/
 ├── index.html · version.json · sw.js (manifest.json은 P310/v49.43에서 삭제됨 — 실존 안 함)
 ├── js/
 │   ├── aio-core.js · aio-data.js · aio-ui.js · aio-chat.js · aio-tests.js · aio-glossary.js
-├── scripts/              ← fetch-data.mjs · fetch-telegram-digest.mjs · ci-*.mjs(9종) · bump-version.mjs
-├── .github/workflows/    ← ci.yml · refresh-data.yml · data-watchdog.yml
+├── scripts/              ← fetch-data.mjs · fetch-telegram-digest.mjs · ci-*.mjs(12종, R290 신규 2종 포함) · bump-version.mjs
+├── .github/workflows/    ← ci.yml · refresh-data.yml · data-watchdog.yml · knowledge-lint.yml(R290 신규)
 ├── public-data/          ← data.json · history.json · screener.json · telegram-digest.json · operator-note.json
 ├── CHANGELOG.md · CLAUDE.md · api_setup_guide.html · cloudflare-worker-proxy.js
 ├── _context/             ← Git-tracked 위키 (위 표 참조, 21개)

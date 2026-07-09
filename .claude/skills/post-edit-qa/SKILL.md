@@ -39,3 +39,4 @@ Run the minimum sufficient QA depth after edits, while preserving the option for
 | QA4 | Were security/accessibility/performance risks considered when relevant? |
 | QA5 | Are blocked checks separate from passing checks? |
 | QA6 | Did the matching command wrapper remain synced? |
+| QA7 | For UI/UX-visible changes, did the report state whether Tier 13 (live browser, `references/tiers.md`) ran or was explicitly skipped? |

@@ -15,7 +15,7 @@ Detect and repair contradictions between `_context`, skills, commands, rules, po
 
 ## Reference Loading Map
 
-- Read `references/workflow.md` for the seven lint passes, report contract, and closeout.
+- Read `references/workflow.md` for the eight lint passes, report contract, and closeout.
 - Read `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `_context/QA-CHECKLIST.md`, and `_context/INDEX.md` for full lint runs.
 - Read only affected docs for a targeted lint.
 
@@ -38,3 +38,4 @@ Detect and repair contradictions between `_context`, skills, commands, rules, po
 | KL4 | Are duplicate or contradictory rules resolved or flagged? |
 | KL5 | Were executable gates run for doc/skill changes? |
 | KL6 | Did the matching command wrapper remain synced? |
+| KL7 | Was Pass 8 (prescriptive drift: reasoning-echo requests, instruction-without-eval) run over `.claude/skills` and `.claude/commands`? |

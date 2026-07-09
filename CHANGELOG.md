@@ -1,3 +1,13 @@
+## v52.38 (2026-07-09)
+- **외부 에이전트 운영 패턴 6건 구조 통합 (P653/R290)**: 사용자 제공 자료(Fable 5 에이전트 운영 가이드, Claude Code 공식 loops 문서, Managed Agents multi-agent API 문서, Karpathy LLM wiki 패턴 gist, 옵시디언 세컨드브레인 구축기 2건, n8n)를 전문 검토해 이 리포의 기존 관용구와 대조하고, 실제로 비어있던 구조적 격차 5곳을 구현했다. Managed Agents API(세션형 에이전트 오케스트레이션 제품)와 n8n(상시 구동 서버형 워크플로 엔진)은 정적 GitHub Pages 배포 구조에 해당사항이 없어 KNOWLEDGE-BASE 레퍼런스로만 기록하고 과잉설계를 배제했다.
+- **라이브 standing invariant (신규 R290)**: `scripts/ci-live-invariant-check.mjs`가 배포된 사이트를 직접 fetch해 캐시버스터/버전 정합성과 R280 그림자선언 부재를 재검사한다. `data-watchdog.yml`의 기존 시간당 스케줄에 연결했다 — 소스 게이트가 구조적으로 잡을 수 없는 "커밋 없이 라이브만 어긋나는" 회귀(P638/C1의 stale Worker route, P572/R263의 조용한 배포 중단 계열)를 새 커밋과 무관하게 매시간 재확인한다.
+- **QA 실브라우저 티어 공식화**: `post-edit-qa`에 Tier 13(라이브 배포 검증)을 추가해 Chrome MCP 연결 시 실제 인터랙션 검증을, 미연결 시 명시적 unverified 기록(QA7)을 강제한다 — 다수 postmortem에 "Chrome 미연결로 확인 못함"이 산문으로만 반복 기록되고 다음 세션에 이어지지 않던 패턴을 구조화했다.
+- **knowledge-lint 무인 강제화**: `scripts/ci-knowledge-lint-check.mjs`(`_context/INDEX.md` 파일목록 정합성 양방향, `INDEX.md`/`_context/CLAUDE.md` 문서표 정합성, `auto_refresh: true` 문서 staleness)를 신규 작성해 `.github/workflows/knowledge-lint.yml`(주간 스케줄)에 연결했다. `/knowledge-lint`에 Pass 8(스킬/커맨드 지시문의 reasoning-echo 요구·eval-없는-지시 드리프트 감사)을 추가해 8개 패스 체계로 확장했다.
+- **integrate 민감정보 가드**: `/integrate`가 공개 배포되는 git-tracked 문서에 사용자 제공 자료를 반영하기 전 API 키/계정번호 등 자격증명 형태 문자열을 마스킹하거나 제외하도록 워크플로에 명시했다(IN7/I6).
+- **문서 환류**: `_context/KNOWLEDGE-BASE.md` TM-VI(루프 4분류 + standing-invariant 패턴), `_context/RULES.md` R290, `_context/WORKFLOW-GOVERNANCE.md`(Standing Invariant Rule + Loop Vocabulary 섹션 신규), `_context/BUG-POSTMORTEM.md` P653, `_context/QA-CHECKLIST.md` P653-Q1~Q5, `INDEX.md`/`_context/CLAUDE.md` 구조 트리를 함께 갱신했다.
+- **검증**: `node scripts/ci-live-invariant-check.mjs` → 네트워크 실호출로 라이브 사이트(v52.34) 대상 PASS(캐시버스터 정합, R280 그림자선언 0건). `node scripts/ci-knowledge-lint-check.mjs` → PASS(26개 `_context/*.md`, 0 warning). `ci-version-check`/`ci-structural-check`/`ci-runtime-contract-check`/`ci-skill-contract-check`(6 skill/6 command wrapper)/`ci-workflow-compaction-check`/`ci-semantic-review-check` 전부 PASS. `git diff --check` clean. index.html/js 런타임 로직은 R1 버전 동기화 외 무변경이라 헤드리스 스위트는 재실행하지 않음(다음 push의 CI가 자동 재확인).
+- R1 7곳 v52.38
+
 ## v52.37 (2026-07-09)
 - **market-note 라우팅 누락 보강**: `telegram-digest.json`에서 실제 생성되는 `market-note` 토픽을 `briefing`/`market-news` Telegram 페이지 피드에 연결해 시장 테이프·포지셔닝·리스크온/오프 메모가 수집 후 버려지지 않게 했다.
 - **credit/funding 1급 뉴스 토픽화**: `credit`을 `TOPIC_KEYWORDS`, 토픽 배지, 토픽 그룹, 보조 라벨/요약, ticker suppression 경로에 연결하고 `macro`/`fxbond`/`themes`/`sentiment`/`signal`/`fundamental`/`breadth` 뉴스 표면 계약에 편입했다.

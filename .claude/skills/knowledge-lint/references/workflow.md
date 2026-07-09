@@ -2,7 +2,7 @@
 
 Use this reference when checking `_context/`, rules, postmortems, QA, commands, and skills for consistency.
 
-## Seven Lint Passes
+## Eight Lint Passes
 
 1. Postmortem-to-rule mapping: every repeated P-pattern should map to a rule or explicit reason.
 2. Rule-to-QA mapping: every executable rule should have a QA or CI gate when practical.
@@ -11,6 +11,13 @@ Use this reference when checking `_context/`, rules, postmortems, QA, commands, 
 5. Duplicate or contradictory rules: identify the active single source of truth.
 6. Index coverage: `_context/INDEX.md` should list active context docs and maintenance triggers.
 7. Violation frequency: high-frequency violated rules should be promoted to stronger gates.
+8. Prescriptive drift (R290/P653): scan `.claude/skills/*/SKILL.md`, `.claude/skills/*/references/*.md`, and `.claude/commands/*.md` for instructions that have accumulated past what the system still needs. Flag:
+   - Any instruction asking the model to echo, narrate, or explain its internal reasoning in response text — this is a known refusal trigger on some models and never belongs in a skill prompt regardless of model.
+   - An instruction with no corresponding binary self-eval item (the "instructions grew, but did not force the next agent" pattern this document's own Karpathy Loop anti-patterns already name).
+   - Step-by-step micromanagement that duplicates what a binary eval or executable gate could check instead — prefer the eval.
+   - When in doubt whether an instruction still earns its place, the test is: does removing it change measured pass rate on the skill's own evals? If no eval exists to answer that, that is itself a Pass 8 finding.
+
+`node scripts/ci-knowledge-lint-check.mjs` mechanically covers Pass 6 in full (both directions: tracked files missing from `INDEX.md`, and the reverse; plus `INDEX.md` vs `_context/CLAUDE.md` table parity) and a staleness proxy for Pass 4, scoped to docs that opt in with `auto_refresh: true` frontmatter. `.github/workflows/knowledge-lint.yml` runs it weekly as a forcing function so this subset does not depend on a session remembering to run the full lint. Passes 1, 2, 3, 5, 7, and all of Pass 8 (it reads skill/command prose, not file lists) still need a session's judgment.
 
 ## Report Contract
 

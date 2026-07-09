@@ -53,3 +53,11 @@ Check hardcoded dynamic narratives, `CHAT_CONTEXTS` keys, chatSend context refer
 
 Run any gate named by the changed rule, postmortem, or CI script.
 
+## Tier 13: Live Deployment Verification (R290/P653)
+
+For UI/UX-visible changes, run this tier before claiming the change works, not just that its source compiles or its unit tests pass — static checks and headless DOM assertions verify structure, not what a user actually sees render.
+
+- If Chrome MCP browser tools are connected: navigate to the local dev server (or the live site when checking deployed behavior), interact with the changed control the way a user would, screenshot before/after, and read the console for new errors/warnings.
+- If Chrome MCP is not connected: do not claim this tier passed. State explicitly in the report that live-browser verification was not run and why, and record it as a QA-CHECKLIST unverified item rather than letting it disappear into prose that the next session has to rediscover.
+- This tier is distinct from Tier 4 (chart/layout static checks) and `scripts/ci-viewport-matrix-check.mjs` (headless geometry matrix): both of those catch structural regressions without a real browser paint. Use this tier when the question is "does this actually look/work right," not "is the DOM well-formed."
+

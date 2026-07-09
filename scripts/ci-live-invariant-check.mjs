@@ -1,0 +1,95 @@
+// R290: standing invariants re-verified against the LIVE deployed site on a schedule
+// independent of new commits. Source gates (ci-structural-check.mjs, ci-runtime-contract-check.mjs)
+// prove correctness of the repository at commit time; they cannot prove GitHub Pages/CDN is still
+// *serving* that same correct state days later with zero new commits in between. P638/C1 (stale
+// deployed Cloudflare Worker route) and P572/R263 (data commits landing while deploy silently
+// stopped publishing) both had a fully correct repository while the live site diverged — no local
+// gate could have caught either, because nothing in the files those gates read had changed.
+//
+// Keep this list small and grow it only for root causes a local gate structurally cannot see
+// (deploy/CDN/cache/operator-config drift). Do not duplicate checks ci-runtime-contract-check.mjs
+// or ci-structural-check.mjs already enforce at commit time — that would double-maintain the same
+// fact against two independently-drifting lists. See _context/RULES.md R290.
+
+const BASE = 'https://ysnle.github.io/aio-screener';
+const errors = [];
+const check = (label, condition, detail = '') => {
+  if (!condition) errors.push(label + (detail ? ': ' + detail : ''));
+};
+
+async function fetchText(path) {
+  const r = await fetch(`${BASE}/${path}`, { headers: { 'cache-control': 'no-cache' } });
+  if (!r.ok) throw new Error(`${path} HTTP ${r.status}`);
+  return r.text();
+}
+
+async function main() {
+  let html, core, data, ui, chat, glossary, versionJson;
+  try {
+    [html, core, data, ui, chat, glossary] = await Promise.all([
+      fetchText('index.html'),
+      fetchText('js/aio-core.js'),
+      fetchText('js/aio-data.js'),
+      fetchText('js/aio-ui.js'),
+      fetchText('js/aio-chat.js'),
+      fetchText('js/aio-glossary.js'),
+    ]);
+    versionJson = JSON.parse(await fetchText('version.json'));
+  } catch (e) {
+    console.error(`live-invariant-check: could not fetch deployed site — ${e.message}`);
+    process.exit(1);
+    return;
+  }
+
+  // Predicate 1 (P572/R263 class): live index.html script cachebusters must match live
+  // version.json. Catches a deploy that published some assets but not others, or a CDN edge
+  // still serving an old index.html/js mix after a newer commit landed.
+  const version = versionJson.version;
+  const versionNum = String(version).replace(/^v/, '');
+  const staticBusters = [...html.matchAll(/<script\s+src="\.\/js\/aio-[^"]+\?v=([\d.]+)"/g)].map((m) => m[1]);
+  check(
+    'live index.html script cachebusters match live version.json',
+    staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum),
+    `version.json=${version}, found busters=${staticBusters.join(',') || 'none'}`
+  );
+
+  // Predicate 2 (P605/R280 class): re-run the exact same cross-file top-level function
+  // shadow-declaration scan that ci-structural-check.mjs runs locally, against the LIVE
+  // served bytes instead. A source-correct repo could still ship a stale/mixed bundle.
+  // Mirrors ci-structural-check.mjs's RUNTIME_SCRIPT_FILES set and TOP_LEVEL_FN_RE exactly;
+  // if that file's KNOWN_SHADOW_ALLOWLIST ever becomes non-empty, mirror it here too.
+  const RUNTIME_SCRIPT_FILES = {
+    'index.html': html,
+    'js/aio-core.js': core,
+    'js/aio-data.js': data,
+    'js/aio-ui.js': ui,
+    'js/aio-chat.js': chat,
+    'js/aio-glossary.js': glossary,
+  };
+  const TOP_LEVEL_FN_RE = /^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
+  const fnOwners = new Map();
+  for (const [file, src] of Object.entries(RUNTIME_SCRIPT_FILES)) {
+    const namesInFile = new Set();
+    for (const m of src.matchAll(TOP_LEVEL_FN_RE)) namesInFile.add(m[1]);
+    for (const name of namesInFile) {
+      if (!fnOwners.has(name)) fnOwners.set(name, []);
+      fnOwners.get(name).push(file);
+    }
+  }
+  const shadowed = [...fnOwners.entries()].filter(([, files]) => files.length > 1);
+  check(
+    'no top-level function name is declared in more than one LIVE runtime script file (R280, live re-check)',
+    shadowed.length === 0,
+    shadowed.length ? shadowed.map(([name, files]) => `${name} in [${files.join(', ')}]`).join('; ') : ''
+  );
+
+  if (errors.length) {
+    console.error('Live invariant check failed:');
+    for (const e of errors) console.error(`  - ${e}`);
+    process.exit(1);
+    return;
+  }
+  console.log(`Live invariant check OK (${BASE}, version=${version}).`);
+}
+
+main();

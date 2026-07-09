@@ -62,6 +62,13 @@ node scripts/ci-runtime-contract-check.mjs
 git diff --check
 ```
 
+Two additional gates are not part of the local-only set above because they check state outside the working tree; run them when the task touches what they cover:
+
+```bash
+node scripts/ci-knowledge-lint-check.mjs    # offline; _context/INDEX.md and doc-table drift, staleness
+node scripts/ci-live-invariant-check.mjs    # network-dependent; fetches the LIVE deployed site
+```
+
 For local server validation, check the actual served asset, not only the file on disk:
 
 ```powershell
@@ -82,6 +89,17 @@ Every recurring failure must end in at least one enforceable mechanism:
 - a rule in `_context/RULES.md`
 
 Notes alone do not count as prevention.
+
+## Standing Invariant Rule
+
+The postmortem-to-gate mechanisms above (`ci-*-contract-check.mjs`, `js/aio-tests.js`) all read the local working tree. They prove the *repository* is correct at commit time. They cannot prove the *deployed* site is still serving that same correct state a week later with zero commits in between — GitHub Pages/CDN caching, a partial deploy, or operator-side config (e.g. a Cloudflare Worker revision) can all drift independently of source. P638/C1 (deployed Worker route older than the repo's) and P572/R263 (data commits landing while `[skip ci]` silently stopped the Pages deploy from ever publishing them) are both cases where every source gate was green while the live site was wrong — nothing in the files those gates read had changed, so nothing could have failed.
+
+When a postmortem's root cause is only reproducible against the live/deployed site — not by re-running local gates against the checked-out source — close it two ways:
+
+1. The normal source-level contract in `ci-runtime-contract-check.mjs`/`ci-structural-check.mjs`, as usual.
+2. A predicate in `scripts/ci-live-invariant-check.mjs`, run by `.github/workflows/data-watchdog.yml` on its existing schedule (independent of the next commit/PR).
+
+Keep list 2 small. Add to it only when a local gate structurally cannot see the failure class (deploy/CDN/cache/operator-config drift, not a source bug). Do not duplicate a check that already exists in list 1 — two lists asserting the same fact will drift apart from each other, which is the exact failure mode this rule exists to prevent.
 
 ## Skill Improvement Rule
 
@@ -119,6 +137,19 @@ Minimum self-eval for any skill change:
 | SG4 | Final answer must distinguish verified, blocked, and unverified surfaces |
 | SG5 | `_context/INDEX.md` is updated when context docs change |
 | SG6 | Command wrapper and shared contract links still point to the active skill |
+
+## Loop Vocabulary
+
+When new recurring or long-running work comes up, name which primitive it needs before building anything. Reaching for the wrong one is how a five-minute fix grows into unnecessary infrastructure.
+
+| Type | Triggered by | Stops when | AIO example |
+|---|---|---|---|
+| Turn-based | A prompt in this session | The agent judges the task done or blocked | Most `/bug-fix`, `/integrate`, `/qa` work |
+| Goal-based | A prompt with an explicit done-condition | The condition passes or a turn cap is hit | "fix headless tests until `ci-headless-tests.mjs` is 0 fail, stop after 5 tries" |
+| Time-based | A schedule | Cancelled, or the work itself completes | `refresh-data.yml` (`'17,47 * * * *'`), `data-watchdog.yml` (`'23 * * * *'`) |
+| Proactive | An event/schedule with no human watching in real time | Each run's goal is met; the schedule itself runs until turned off | `ci.yml` on push/PR gating `deploy`; the R290 live-invariant job |
+
+Pick time-based/proactive only for work that must happen without a human present — this repo already pays for that with three GitHub Actions workflows, so a new recurring need should extend one of those (add a step/predicate) before inventing a new schedule. Reserve turn-based/goal-based for work that benefits from a human or agent actively reasoning about the specific instance. Verification should be encoded as a skill (`post-edit-qa`, `references/tiers.md`) so a turn-based check can approach self-verifying instead of relying on the operator's manual read.
 
 ## Karpathy Loop For AIO
 

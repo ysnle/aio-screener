@@ -4,7 +4,7 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v52.37
+- **현재 버전**: v52.38
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
 ## _context/ 문서 (26개 활성, 2026-07-08 갱신)
@@ -48,10 +48,10 @@ AIO/
 ├── index.html · version.json · sw.js (manifest.json은 P310에서 삭제됨)
 ├── js/
 │   ├── aio-core.js · aio-data.js · aio-ui.js · aio-chat.js · aio-tests.js · aio-glossary.js
-├── scripts/            ← fetch-data.mjs · fetch-telegram-digest.mjs · ci-*.mjs 9종 · bump-version.mjs
+├── scripts/            ← fetch-data.mjs · fetch-telegram-digest.mjs · ci-*.mjs 12종(R290 신규 2종 포함) · bump-version.mjs
 ├── CHANGELOG.md · CLAUDE.md · cloudflare-worker-proxy.js
 ├── _context/           ← Git-tracked 위키 (위 표 참조)
-├── .github/workflows/  ← ci.yml · refresh-data.yml · data-watchdog.yml
+├── .github/workflows/  ← ci.yml · refresh-data.yml · data-watchdog.yml · knowledge-lint.yml(R290 신규)
 └── .claude/             ← 전부 Git-tracked (2026-05-18~, 09d2200 이후)
     ├── agents/          ← 4개: accessibility-auditor · code-reviewer · performance-analyzer · qa-auditor
     ├── commands/         ← 9개 wrapper (아래 표)

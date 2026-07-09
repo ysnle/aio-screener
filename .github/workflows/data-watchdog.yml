@@ -5,6 +5,11 @@ name: Data freshness watchdog
 # stopped publishing them?). P572/R263: the repo-only check had a blind spot ??
 # when [skip ci] data commits stopped triggering the CI-gated Pages deploy, the
 # repo stayed fresh, this watchdog stayed green, and the live site went stale.
+#
+# R290: also runs scripts/ci-live-invariant-check.mjs here, not in ci.yml — that
+# script re-checks standing invariants (cachebuster/version coherency, R280 shadow
+# scan) against what GitHub Pages is actually serving, on this schedule, independent
+# of whether a new commit triggered ci.yml at all. See _context/RULES.md R290.
 
 on:
   schedule:
@@ -140,3 +145,11 @@ jobs:
             fail(`LIVE site check failed: ${e.message}`);
           });
           NODE
+
+      # R290: standing invariants re-verified against the live deployed bundle, not just
+      # public-data JSON freshness. Runs on this same hourly schedule so a deploy that
+      # silently regressed a fixed contract (cachebuster/version mismatch, a cross-file
+      # function shadow re-introduced only in what's served, not in the repo) surfaces
+      # without waiting for the next commit/PR to trigger ci.yml.
+      - name: Check LIVE standing invariants (R290)
+        run: node scripts/ci-live-invariant-check.mjs

@@ -832,3 +832,26 @@ INTC DCAI 2026E +22% YoY, 서버 두 자릿수 성장 2027 지속 전망.
 
 **6. Photonics / Meta cloud note**
 - 광학·photonics 이미지는 AI 인프라의 병목과 테마 지속성을 확인하는 보조 자료다. Meta/cloud 뉴스 이미지는 "수요 약화" 단독 결론보다 고객·공급망·다이버전스와 반례(AWS leakage, 서버 부족, AI asset scarcity)를 함께 검토해야 한다는 프레임으로 사용한다.
+
+### TM-VI. Agentic Loop 분류 + Standing-Invariant 운영 패턴 [2026-07-09]
+> 출처: 사용자 제공 외부 자료 6건(Fable 5 에이전트 운영 가이드, Claude Code 공식 loops 문서, Managed Agents multi-agent API 문서, Karpathy LLM wiki 패턴 gist, 옵시디언 세컨드브레인 구축기 2건, n8n) 검토. 구현: `_context/WORKFLOW-GOVERNANCE.md`(Loop Vocabulary·Standing Invariant Rule), `_context/RULES.md` R290, `scripts/ci-live-invariant-check.mjs`, `scripts/ci-knowledge-lint-check.mjs`, `.github/workflows/knowledge-lint.yml`. P653 참조.
+
+**1. 루프 4분류 (turn/goal/time/proactive)**
+- turn-based: 프롬프트 1회, 모델이 완료/막힘을 스스로 판단 — 이 리포의 `/bug-fix`·`/integrate`·`/qa` 대부분.
+- goal-based: 명시적 종료조건 + 턴 상한 — Claude Code `/goal` 기능. 예: "헤드리스 테스트 0 fail까지, 5회 제한".
+- time-based: 스케줄 트리거, 취소되거나 작업 자체가 끝나야 정지 — `refresh-data.yml`(30분), `data-watchdog.yml`(1시간), 신규 `knowledge-lint.yml`(주간).
+- proactive: 사람이 실시간으로 보지 않는 이벤트/스케줄, 개별 실행마다 목표 달성 시 종료하되 스케줄 자체는 계속 — `ci.yml`(push/PR 게이트), R290 라이브 불변식 잡.
+- 적용: 새 반복 작업이 필요할 때 무엇을 만들지 정하기 전에 이 표로 먼저 분류한다. time/proactive는 사람이 없어도 돌아가야 하는 일에만 쓰고, 가능하면 기존 3개 GitHub Actions 워크플로 중 하나를 확장하는 쪽을 새 스케줄 발명보다 우선한다(Claude Code 자체의 `/schedule` 클라우드 루틴 같은 새 인프라 계열을 들여오기 전에, 이미 있는 무료·버전관리되는 cron 계열을 먼저 검토).
+
+**2. Standing Invariant (source-gate와의 구분)**
+- 소스 게이트(`ci-runtime-contract-check.mjs`, `ci-structural-check.mjs`)는 로컬 체크아웃 파일만 읽어 커밋 시점 정확성을 증명한다. 배포된 사이트가 그 상태를 계속 서빙 중인지는 별개 질문이며, 커밋이 없으면 소스 게이트는 애초에 실행되지 않는다.
+- P638/C1(배포된 Worker가 리포보다 구버전)과 P572/R263(데이터 커밋은 쌓이는데 배포가 조용히 멈춤)는 둘 다 리포는 정상, 라이브만 어긋난 사례 — "한 번 통과한 목표는 타임스탬프 붙은 가정일 뿐"이라는 원칙이 실제로 이 리포에서 발생한 실패 계열.
+- 판별 기준: 어떤 postmortem의 근본원인이 로컬 게이트 재실행으로는 재현되지 않고 라이브 사이트에서만 재현된다면, 그 회귀는 `scripts/ci-live-invariant-check.mjs`(R290) 후보다. 로컬에서 이미 잡히는 것은 여기 중복 추가하지 않는다 — 두 목록이 같은 사실을 각자 관리하면 서로 어긋나기 시작한다.
+
+**3. 드리프트는 1순위 실패 요인**
+- Karpathy LLM wiki 패턴 댓글 사례(약 4천 페이지 규모 운영)가 지목한 위키 유지보수의 #1 실패 요인은 정기 lint 없는 페이지 부실화. 이 리포의 `_context/`도 동일 구조의 위키이며, `/knowledge-lint`가 "주 1회+"라는 산문 권고만 있고 강제 스케줄이 없던 것이 동일한 취약점이었다.
+- `scripts/ci-knowledge-lint-check.mjs` + `knowledge-lint.yml`(주간)이 결정적 하위집합(INDEX.md 파일목록 정합성, INDEX.md/`_context/CLAUDE.md` 표 정합성, `auto_refresh: true` 문서의 staleness)을 강제한다. 의미론적 판단(모순 탐지, 소유권 애매성)은 여전히 세션이 `/knowledge-lint` 전체를 수동 실행해야 한다.
+
+**4. 스킬 지시문 누적은 그 자체로 감사 대상**
+- Fable 5 공식 문서: "구모델용으로 쓰인 지시는 신모델 출력을 저하시킬 수 있다 — 기본 성능이 지시 없이 더 낫다면 지시를 삭제하라." 이 리포의 `WORKFLOW-GOVERNANCE.md`가 이미 갖고 있던 "Karpathy Loop For AIO" 안티패턴 목록(지시만 추가하고 eval 없음, 한 번에 열 개 지시 추가)과 같은 계열이지만, 신규 지시를 추가할 때만 점검했지 이미 쌓인 지시문 자체를 재점검하는 패스는 없었다.
+- `/knowledge-lint` Pass 8(신규)이 이 재점검을 담당한다: reasoning-echo 요구 문구, eval 없이 누적된 지시, 이진 eval로 대체 가능한 과잉 절차.

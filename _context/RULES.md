@@ -3184,3 +3184,16 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Do not add one-off fixes for each symbol unless the field has intentionally different semantics.
 
 **Validation**: `AIO.runTests()` T686 covers snapshot↔`_fallback` mirror drift.
+
+## R290. Live-deployed invariants must be re-verified on a schedule independent of new commits (v52.38, P653 root)
+
+**Rule**: A postmortem whose root cause was only reproducible against the deployed site — not by re-running local source gates against the checked-out repository — must add a standing predicate to `scripts/ci-live-invariant-check.mjs` in addition to any source-level contract in `ci-runtime-contract-check.mjs`/`ci-structural-check.mjs`. Source gates prove correctness at commit time; they cannot prove the live site is still serving that same correct state days or weeks later with no new commit in between to trigger them.
+
+**Why this matters**: P638/C1 (a deployed Cloudflare Worker route older than the repo's `/anthropic` route) and P572/R263 (data commits landing while `[skip ci]` silently stopped the Pages deploy from publishing them) both had a fully correct repository while the live site diverged. No source gate could have caught either — nothing in the files those gates read had changed. `ci-structural-check.mjs`'s R280 shadow-declaration scan is a proven example of a check that only protects the repository, not what GitHub Pages/CDN actually serves.
+
+**Required**:
+- `scripts/ci-live-invariant-check.mjs` fetches the deployed site (`https://ysnle.github.io/aio-screener/`) and checks a small set of standing invariants against the live bytes: cachebuster/version coherency across all live script tags, and a live re-run of the R280 cross-file function-shadow scan.
+- `.github/workflows/data-watchdog.yml` runs this script on its existing hourly schedule so a live-only regression surfaces without waiting for the next commit.
+- Grow the predicate list only for root causes a local gate structurally cannot see (deploy/CDN/cache/operator-config drift). Do not duplicate a check `ci-runtime-contract-check.mjs`/`ci-structural-check.mjs` already enforces at commit time — two lists asserting the same fact will drift apart from each other.
+
+**Validation**: `node scripts/ci-live-invariant-check.mjs` (network-dependent; also runs in `data-watchdog.yml`).

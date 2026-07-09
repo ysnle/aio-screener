@@ -2,15 +2,24 @@
 verified_by: agent
 last_verified: 2026-07-09
 confidence: high
-latest_version: v52.37
-latest_P_number: P652
-total_entries: 424
-next_P_number: P653
+latest_version: v52.38
+latest_P_number: P653
+total_entries: 425
+next_P_number: P654
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P653 - v52.38 - 외부 에이전트 운영 패턴 6건 검토 후 구조적 격차 5건 발견: 라이브 전용 회귀 재검증 부재·QA 실브라우저 티어 비공식·knowledge-lint 무강제·스킬 과잉지시 미감사·integrate 민감정보 가드 부재
+
+- **발생**: 사용자가 제공한 외부 자료 6건(Fable 5 에이전트 운영 가이드, Claude Code 공식 loops 분류 문서, Managed Agents multi-agent API 문서, Karpathy LLM wiki 패턴 gist, 옵시디언 세컨드브레인 구축기 2건, n8n)을 전문 검토한 뒤 "구조 자체를 반영하라"는 명시적 요청에 따라 이 리포의 기존 관용구(scripts/ci-*.mjs, GitHub Actions cron, P-postmortem 승격, _context 위키)와 대조했다. Managed Agents API(세션형 에이전트 오케스트레이션 제품)와 n8n(상시 구동 서버형 워크플로 엔진)은 정적 GitHub Pages 배포 구조에 해당 사항이 없어 KNOWLEDGE-BASE 레퍼런스로만 기록하고(과잉설계 배제), 나머지 4개 자료 중 이 리포가 이미 부분 구현 중인 패턴(_context 위키=Karpathy wiki 3계층, R1~R289+postmortem→gate 승격=trust/goal 개념, WORKFLOW-GOVERNANCE의 기존 "Karpathy Loop For AIO")을 제외하고 실제로 비어있는 구조적 틈 5곳을 분리했다.
+- **원인**: (1) `ci-runtime-contract-check.mjs`/`ci-structural-check.mjs`류 소스 게이트는 전부 로컬 체크아웃 파일만 읽어 커밋 시점 정확성만 증명하고, 배포된 사이트가 그 상태를 계속 서빙 중인지는 아무것도 재확인하지 않는다(P638/C1의 stale Worker route, P572/R263의 배포 미발행이 실제 사례). (2) 다수 postmortem(P624/P630/P634/P638 등)이 "Chrome 확장 미연결로 실브라우저 확인은 QA-CHECKLIST 잔여"를 반복 기록했지만 `post-edit-qa`의 QA 티어 목록에는 이를 명시하는 항목이 없어 매번 산문으로만 남고 다음 세션에 이어지지 않았다. (3) `/knowledge-lint`는 "주 1회+"라는 산문 권고만 있고 이를 강제하는 스케줄/게이트가 없어 Karpathy 세컨드브레인 사례가 "#1 실패 요인"으로 지목한 페이지 드리프트를 이 리포도 구조적으로 방치하고 있었다. (4) WORKFLOW-GOVERNANCE의 "Karpathy Loop For AIO" 안티패턴 목록("adding ten new instructions at once" 등)은 신규 지시 추가 시 점검 기준을 제공하지만, 이미 누적된 스킬/커맨드 지시문 자체를 그 기준으로 재점검하는 린트 패스는 없었다(Fable 5 공식 문서의 "구모델용 과잉 지시는 신모델 출력을 저하시킨다" 경고와 동일 계열). (5) `/integrate`는 공개 GitHub Pages로 배포되는 git-tracked 문서(`_context/KNOWLEDGE-BASE.md` 등)에 사용자 제공 자료를 직접 반영하지만, 민감정보(API 키·계정번호 등) 마스킹을 명시한 단계가 워크플로에 없었다.
+- **수정**: `scripts/ci-live-invariant-check.mjs` 신규 작성(라이브 사이트 캐시버스터/버전 정합성 + R280 그림자선언 라이브 재검사) 후 `data-watchdog.yml`의 기존 시간당 스케줄에 연결(신규 R290). `post-edit-qa/references/tiers.md`에 실브라우저 검증을 공식 티어로 승격해 "Chrome 미연결" 케이스가 명시적 unverified 기록으로 남게 했다. `scripts/ci-knowledge-lint-check.mjs` 신규 작성(INDEX.md/`_context` 파일 목록 정합성, root/`_context` CLAUDE.md 문서표 정합성, `verified_by`/`last_verified` staleness 검사) 후 신규 주간 스케줄 `.github/workflows/knowledge-lint.yml`에 연결. `knowledge-lint` 워크플로에 Pass 8(과잉지시 드리프트 감사)을 추가. `integrate` 워크플로에 git-tracked 문서 반영 전 민감정보 마스킹 단계를 추가. `_context/KNOWLEDGE-BASE.md`에 루프 분류(turn/goal/time/proactive)와 standing-invariant 패턴을 이 리포 관용구로 정리한 TM-VI를 추가.
+- **violated_rule**: 신규 — R290 참조.
+- **prevention**: `scripts/ci-live-invariant-check.mjs`(네트워크 의존, `data-watchdog.yml` 시간당 실행)와 `scripts/ci-knowledge-lint-check.mjs`(오프라인, `knowledge-lint.yml` 주간 실행)가 각각의 격차를 기계적으로 재검증한다. QA-CHECKLIST P653-Q1~Q5가 다섯 격차 각각의 계약을 기록한다.
+- **verification**: `node scripts/ci-live-invariant-check.mjs` → 라이브 사이트(v52.34) 대상 실행, 캐시버스터 정합·R280 그림자선언 0건 PASS(네트워크 실호출). `node scripts/ci-knowledge-lint-check.mjs` → PASS(26개 `_context/*.md`, 0 warning). `node scripts/ci-version-check.mjs` → PASS(v52.38, 캐시버스터 5개). `node scripts/ci-structural-check.mjs`, `node scripts/ci-runtime-contract-check.mjs`, `node scripts/ci-skill-contract-check.mjs`(6 skill/6 command wrapper), `node scripts/ci-workflow-compaction-check.mjs`, `node scripts/ci-semantic-review-check.mjs` 전부 PASS. `git diff --check` clean(CRLF 경고만, 실제 whitespace 오류 없음). index.html/js 런타임 파일은 R1 버전 동기화(`bump-version.mjs`)로만 변경됐고 직접 내용 편집은 없었음 — 헤드리스 Playwright 스위트는 런타임 로직 무변경이라 이번 세션에서 재실행하지 않음(다음 정기 CI push에서 자동 재확인).
 
 ## P652 - v52.37 - Telegram market-note와 credit/funding 신호가 생성/수집 후 일부 페이지 표면에서 누락됨
 
