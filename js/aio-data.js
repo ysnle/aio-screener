@@ -1221,40 +1221,46 @@ try {
 
 // ── v51.37: 텔레그램 분석·가공 카드 피드 렌더러 ──────────────────────
 var _TG_PAGE_TAGS = {
-  'home':        ['kr-market','macro','semi','ai-policy','equity','geo'],
-  'signal':      ['kr-market','equity','semi','macro'],
-  'breadth':     ['macro','equity','kr-market','geo'],
-  'sentiment':   ['macro','kr-market','equity','geo','crypto'],
-  'briefing':    ['macro','geo','semi','equity','kr-market','ai-policy','power','optical'],
+  'home':        ['kr-market','macro','credit','semi','ai-policy','equity','geo'],
+  'signal':      ['kr-market','equity','semi','macro','geo','credit'],
+  'breadth':     ['macro','credit','equity','kr-market','geo','semi','power'],
+  'sentiment':   ['macro','credit','kr-market','equity','geo','crypto'],
+  'briefing':    ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','power','optical'],
   'technical':   ['semi','equity','power','optical'],
-  'macro':       ['macro','geo','ai-policy'],
-  'fxbond':      ['macro','geo'],
-  'market-news': ['macro','geo','semi','equity','kr-market','ai-policy','optical','power','crypto'],
-  // v51.53: 한국 시장 페이지 텔레그램 피드 추가 (kr-home/kr-supply/kr-macro)
-  'kr-home':     ['kr-market','semi','equity','macro'],
-  'kr-supply':   ['kr-market','equity','geo'],
-  'kr-macro':    ['kr-market','macro','semi','ai-policy'],
-};
-// [0]=표시라벨 [1]=최대건수 [2]=본문표시 [3]=정렬(score|date) [4]=compact
+  'macro':       ['macro','credit','geo','ai-policy'],
+  'fxbond':      ['macro','credit','geo','power'],
+  'fundamental': ['equity','semi','credit','power','optical','ai-policy','kr-market'],
+  'themes':      ['semi','power','optical','ai-policy','equity','kr-market','macro','credit'],
+  'theme-detail':['semi','power','optical','ai-policy','equity','kr-market','macro','credit'],
+  'market-news': ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','optical','power','crypto'],
+  'kr-home':     ['kr-market','semi','equity','macro','credit'],
+  'kr-supply':   ['kr-market','equity','geo','semi','power','optical','credit'],
+  'kr-macro':    ['kr-market','macro','credit','semi','ai-policy','geo'],
+  'kr-technical':['kr-market','semi','equity','macro','geo'],
+};// [0]=표시라벨 [1]=최대건수 [2]=본문표시 [3]=정렬(score|date) [4]=compact
 var _TG_PAGE_CFG = {
-  'home':       ['오늘 시장 핵심',       3,  false, 'score', true ],
-  'signal':     ['방향성 시그널',         4,  false, 'score', true ],
-  'breadth':    ['시장 폭 동향',           3,  false, 'score', true ],
-  'sentiment':  ['시장 심리 동향',         4,  false, 'score', false],
-  'briefing':   ['채널 인사이트',           8,  true,  'date',  false],
-  'technical':  ['기술적 이슈',             3,  false, 'score', true ],
-  'macro':      ['거시·금리 동향',           5,  true,  'score', false],
-  'fxbond':     ['환율·채권 동향',           4,  false, 'score', false],
-  'market-news':['텔레그램 전체 피드',     12, true,  'date',  false],
-  'kr-home':    ['한국장 최신 소식',        4,  false, 'date',  true ],
-  'kr-supply':  ['수급·외국인 동향',        3,  false, 'score', true ],
-  'kr-macro':   ['한국 매크로 소식',        4,  true,  'score', false],
+  'home':        ['오늘 시장 핵심',             3,  false, 'score', true ],
+  'signal':      ['방향성 시그널',              4,  false, 'score', true ],
+  'breadth':     ['시장 내부 동향',             4,  false, 'score', true ],
+  'sentiment':   ['시장 심리 동향',             4,  false, 'score', false],
+  'briefing':    ['채널 인사이트',              8,  true,  'date',  false],
+  'technical':   ['기술적 이슈',                3,  false, 'score', true ],
+  'macro':       ['거시·금리 동향',             5,  true,  'score', false],
+  'fxbond':      ['환율·채권·크레딧 동향',      5,  true,  'score', false],
+  'fundamental': ['기업·AI 밸류체인 피드',      4,  false, 'score', false],
+  'themes':      ['테마·CAPEX 피드',            4,  false, 'score', true ],
+  'theme-detail':['테마 상세 피드',             4,  false, 'score', true ],
+  'market-news': ['텔레그램 전체 피드',         12, true,  'date',  false],
+  'kr-home':     ['한국장 최신 소식',            4,  false, 'date',  true ],
+  'kr-supply':   ['수급·외국인·공급망 동향',    4,  false, 'score', true ],
+  'kr-macro':    ['한국 매크로 소식',            4,  true,  'score', false],
+  'kr-technical':['한국 차트 소식',              3,  false, 'score', true ],
 };
-
 // 카테고리 → 한국어 라벨 + CSS 클래스
 var _TG_CAT_MAP = {
   'kr-market':  { label:'한국장',     cls:'tg-cat-kr'     },
   'semi':       { label:'반도체',     cls:'tg-cat-semi'   },
+  'credit':     { label:'자금조달',   cls:'tg-cat-macro'  },
   'macro':      { label:'매크로',     cls:'tg-cat-macro'  },
   'geo':        { label:'지정학',     cls:'tg-cat-geo'    },
   'ai-policy':  { label:'AI정책',     cls:'tg-cat-ai'     },
@@ -1353,11 +1359,12 @@ function _aioRenderTelegramFeedHtml(pageId) {
       return (it.tags || []).some(function(t) { return tags.indexOf(t) >= 0; });
     });
 
-    // v51.56: 다이제스트형 포스트 제외 — 주간요약/전체브리핑 포스트는 개별 카드로 부적합
+    // Filter out digest separators on all pages; keep long bank/research posts on analysis pages.
     filtered = filtered.filter(function(it) {
       var txt = it.text || '';
-      if (txt.includes('━━━━')) return false;  // 섹션 구분선 = 전체 요약 포스트
-      if (txt.length > 600) return false;       // 600자 초과 = 롱폼 다이제스트
+      var allowLongReport = ['market-news','briefing','macro','fxbond','fundamental','themes','theme-detail','kr-macro'].indexOf(pageId) >= 0;
+      if (txt.includes('━━━━')) return false;
+      if (txt.length > 600 && !allowLongReport) return false;
       return true;
     });
 
@@ -1448,11 +1455,12 @@ try {
 
 try {
   var _tgMemoOverlay = {
-    NVDA: '[TG 06/16] $25B bond issue + EML/CW laser capacity lock; Rubin Ultra/HBM4E and sovereign-AI export-control themes raise both upside and policy risk.',
+    NVDA: '[User research 07/09] Burry AI-chain debate frames NVDA risk as customer concentration, prepaid/custom supply commitments, and AI capex funding sensitivity rather than a simple AI-demand denial. [TG 06/16] $25B bond issue + EML/CW laser capacity lock; Rubin Ultra/HBM4E and sovereign-AI export-control themes raise both upside and policy risk.',
     AMD: '[TG 06/16] Citi/Meta MI450 gigawatt thesis and Venice CPU leverage; watch late optical-capacity constraints versus NVDA supply lock.',
     AMZN: '[TG 06/16] AWS/Trainium remains AI infra anchor; SK Group US AI DC testbed and optical-capacity scarcity add supply-chain relevance.',
     ORCL: '[TG 06/16] OCI/AI infra backlog narrative reinforced; Bloom Energy 2.8GW SOFC time-to-power linkage remains key power catalyst.',
-    MU: '[TG 06/15] TD Cowen PT $1,500; SOCAMM de-spec still lifts DRAM per GW, pricing strength could run through 2H27; memory sentiment crowded.',
+    MSFT: '[User research 07/09] AI monetization-layer test case: Azure/OpenAI/Copilot and contracted revenue can validate AI commercialization, but the thesis still depends on capex ROI and funding costs.',
+    MU: '[User research 07/09] Burry memory-cycle debate: MU risk is memory cyclicality, FCF/ROIC discipline, and HBM-vs-legacy-DRAM cycle durability. [TG 06/15] TD Cowen PT $1,500; SOCAMM de-spec still lifts DRAM per GW, pricing strength could run through 2H27; memory sentiment crowded.',
     MRVL: '[TG 06/16] Celestial/CPO/NVLink Fusion and CW-laser scarcity keep optical interconnect as main upside/risk vector.',
     BE: '[TG 06/16] SOFC onsite power framed as AI DC grid-bypass solution; Oracle 2.8GW master contract + 90-120d deployment thesis reinforced.',
     '000660.KS': '[TG 06/15-16] HBM4E samples pulled forward to Jun-Jul; SK US AI DC testbed and Ulsan AWS-linked AIDC target 100MW by 2029.',
@@ -6608,6 +6616,10 @@ const MACRO_KW = [
   'short-cover rally','short-covering rally','low volume rally','volume-backed rally',
   'failed breakdown','failed breakdown reclaim','support reclaim','volume profile support',
   'AI Capex','IT budget','CIO survey','seat-based SaaS','AI cannibalization',
+  'AI capex funding','AI infrastructure funding','capital funding pulse','LQD YTM','LQD yield',
+  'investment grade OAS','IG OAS','ICE BofA OAS','corporate OAS','HY OAS','credit downgrade',
+  'MAGS ETF','Hartnett','recession recognition','sticky inflation','inflation persistence',
+
   'CPI','PCE','GDP','GDPNow','inflation','deflation','recession','stagflation',
   'tariff','trade war','sanction','export ban','supply chain',
   // ── v37.5: 관세/무역전쟁 키워드 보강 (2025-2026 핵심 이슈)
@@ -7026,6 +7038,12 @@ const TECH_KW = [
   'MU earnings','AI memory','data center memory',
   'SMH leadership','SMH rotation','IGV SMH rotation','software to semi rotation',
   'semiconductor rebalancing','QQQ support check','semi relative strength',
+  '20EMA reclaim','50EMA reset','100SMA inflection','200SMA reset','SMH breadth washout',
+  'XSD breadth washout','semiconductor breadth washout','semi mean reversion',
+  'above 20EMA zero','Higher High Higher Low','Low Volume Node','High Volume Node',
+  'overhead supply','Burry AI short','AI infrastructure seller','AI monetization layer',
+  'customer concentration risk','prepaid supply commitment','custom supply chain risk',
+  'HBM cycle debate','memory cycle top','AI capex funding risk',
   '반도체','파운드리','HBM','AI 가속기','메모리','D램','낸드',
   // ── v31.8: AI/반도체 밸류체인 심화
   'GPU','TPU','NPU','AI accelerator','inference chip','training chip',
@@ -8294,6 +8312,15 @@ const TOPIC_KEYWORDS = {
               'corporate bond','sovereign bond','municipal bond','TIPS','TLT','HYG','LQD',
               'duration','convexity','coupon','maturity','issuance','auction',
               '채권','국채','회사채','하이일드','크레딧','스프레드','듀레이션','국고채','금리'],
+  credit:   ['credit spread','credit spreads','corporate bond','corporate bonds','investment grade',
+              'high yield','junk bond','IG OAS','HY OAS','ICE BofA OAS','OAS','LQD','HYG','CDS',
+              'credit default swap','funding cost','funding costs','capex funding','AI capex funding',
+              'data center financing','project finance','debt financing','debt issuance','bond issuance',
+              'rating downgrade','rating downgrades','credit rating downgrade','private credit',
+              'credit stress','default risk','loan spread','bank lending standards',
+              'credit crunch','financing conditions','capital markets access',
+              'company debt','hyperscaler debt','AI infrastructure financing',
+              'company bond','credit downgrade','funding pressure','financing pressure'],
   fx:       ['forex','FX','currency','exchange rate','dollar index','DXY',
               'USD/JPY','EUR/USD','GBP/USD','USD/KRW','USD/CNY',
               'carry trade','intervention','capital flow','hot money',
@@ -9007,6 +9034,7 @@ function getTopicBadge(topic) {
     analyst:  { cls:'nit-neut', icon:'', label:'분석' },
     equity:   { cls:'nit-bull', icon:'', label:'주식' },
     bond:     { cls:'nit-warn', icon:'', label:'채권' },
+    credit:   { cls:'nit-warn', icon:'', label:'크레딧' },
     fx:       { cls:'nit-warn', icon:'', label:'외환' },
     defense:  { cls:'nit-bear', icon:'', label:'방산' },
     healthcare:{ cls:'nit-bull', icon:'', label:'바이오' },
@@ -9245,7 +9273,7 @@ function _isKoreanTranslationValid(text) {
 function _aioNewsTopicKo(topic) {
   var t = String(topic || 'general').toLowerCase();
   var map = {
-    macro: '매크로', fed: '연준/금리', rates: '금리', bond: '채권', fx: '환율',
+    macro: '매크로', fed: '연준/금리', rates: '금리', bond: '채권', credit: '크레딧', fx: '환율',
     geo: '지정학', geopolitics: '지정학', energy: '에너지', oil: '에너지',
     semi: '반도체/AI 인프라', ai: 'AI', 'ai-policy': 'AI 정책',
     earnings: '실적', equity: '주식', analyst: '애널리스트', policy: '정책',
@@ -9540,6 +9568,7 @@ function _aioBuildNewsLocalKoreanInsight(item, preferredTitle) {
     fed: '정책금리 기대, 장단기 금리, 달러와 성장주 할인율에 미치는 영향을 같이 보세요.',
     rates: '채권금리 변화가 성장주/배당주/금융주 상대강도에 반영되는지 확인하세요.',
     bond: '채권금리와 신용스프레드 변화가 위험자산 선호를 바꾸는지 확인하세요.',
+    credit: '회사채, LQD/HYG, OAS, 등급하향, CAPEX 자금조달 비용이 AI 인프라 투자 여력을 훼손하는지 확인하세요.',
     fx: '달러와 환율 변화가 원자재, 해외 매출주, 외국인 수급에 미치는 영향을 보세요.',
     geo: '지정학 리스크는 유가, 방산, 운송, 안전자산 선호로 전이되는지 확인하세요.',
     geopolitics: '지정학 리스크는 유가, 방산, 운송, 안전자산 선호로 전이되는지 확인하세요.',
@@ -10277,6 +10306,7 @@ var _TOPIC_GROUP_ORDER = [
   { key:'earnings',  label:'실적·기업',         icon:'' },
   { key:'energy',    label:'원자재·에너지',     icon:'' },
   { key:'bond',      label:'채권·금리',         icon:'' },
+  { key:'credit',    label:'크레딧·자금조달',   icon:'' },
   { key:'fx',        label:'외환·통화',         icon:'' },
   { key:'crypto',    label:'암호화폐',          icon:'' },
   { key:'defense',   label:'방산·우주',         icon:'' },
@@ -10327,14 +10357,14 @@ var AIO_NEWS_SURFACE_CONTRACTS = {
   },
   // v50.41 선순환 연결 계층: 분석 페이지를 같은 뉴스캐시에 토픽 필터로 연결 (사일로 해소 — 단일 인텔 소스 → 다수 surface).
   //   topics = classifyTopic 실존 키(macro/geo/semi/earnings/energy)만 사용. role='analysis-page-topic-strip'.
-  macro:       { surfaceId: 'macro',       role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','ai-policy','power','energy'], sortMode: 'score' },
-  fxbond:      { surfaceId: 'fxbond',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','bond','fx'],                 sortMode: 'score' },
+  macro:       { surfaceId: 'macro',       role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','credit','ai-policy','power','energy'], sortMode: 'score' },
+  fxbond:      { surfaceId: 'fxbond',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','credit','bond','fx','fxbond'],        sortMode: 'score' },
   technical:   { surfaceId: 'technical',   role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['semi','optical','power','memory','materials','market-note'], sortMode: 'score' },
-  themes:      { surfaceId: 'themes',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 8, minScore: 35, topics: ['semi','optical','power','memory','materials','ai-policy','energy','space','crypto','equity'], sortMode: 'score' },
-  sentiment:   { surfaceId: 'sentiment',   role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','crypto','equity','ai-policy'], sortMode: 'score' },
-  signal:      { surfaceId: 'signal',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','semi','optical','power','memory'], sortMode: 'score' },
-  fundamental: { surfaceId: 'fundamental', role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 8, minScore: 35, topics: ['earnings','equity','analyst','semi','optical','power','memory','materials','ai-policy'], sortMode: 'score' },
-  breadth:     { surfaceId: 'breadth',     role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['semi','macro','market-note','equity','crypto','memory'], sortMode: 'score' }
+  themes:      { surfaceId: 'themes',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 8, minScore: 35, topics: ['semi','optical','power','memory','materials','ai-policy','credit','energy','space','crypto','equity'], sortMode: 'score' },
+  sentiment:   { surfaceId: 'sentiment',   role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','credit','crypto','equity','ai-policy'], sortMode: 'score' },
+  signal:      { surfaceId: 'signal',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','credit','semi','optical','power','memory'], sortMode: 'score' },
+  fundamental: { surfaceId: 'fundamental', role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 8, minScore: 35, topics: ['earnings','equity','analyst','semi','optical','power','memory','materials','ai-policy','credit'], sortMode: 'score' },
+  breadth:     { surfaceId: 'breadth',     role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['semi','macro','market-note','credit','equity','crypto','memory'], sortMode: 'score' }
 };
 window.AIO_NEWS_SURFACE_CONTRACTS = AIO_NEWS_SURFACE_CONTRACTS;
 
@@ -10735,7 +10765,7 @@ function _renderTopicSection(icon, label, items) {
     var displaySummary = typeof getDisplaySummary === 'function' ? getDisplaySummary(item) : '';
     var sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
     var dotColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
-    var _macroT = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
+    var _macroT = ['macro','geo','energy','bond','credit','fx','fxbond'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
     var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
     // v48.55: 뉴스 티커 배지 → ticker 페이지 이동 액션 추가 (뉴스 → 기업 3-hop 네비게이션)
     var tickerStr = tickers.length > 0 ? tickers.map(function(t) { var _sym = t.replace('$',''); return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(_sym) + '" role="button" tabindex="0" style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:2px;cursor:pointer;" title="' + escHtml(_sym) + ' 종목 분석">' + escHtml(t) + '</span>'; }).join('') : '';
@@ -10930,7 +10960,7 @@ function renderFeed(items) {
     const timeDisplay = absTime ? absTime : timeAgo;
 
     // v39.0e: 티커는 매크로/지정학/정책 뉴스에서 숨김 — 기업/실적/섹터 뉴스에만 표시
-    const _MACRO_TOPICS = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
+    const _MACRO_TOPICS = ['macro','geo','energy','bond','credit','fx','fxbond'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
     const _showTicker = !_MACRO_TOPICS.includes(item.topic);
     const tickers = _showTicker ? getDisplayTickers(item) : [];
     const tickerHtml = tickers.length > 0
@@ -11149,7 +11179,7 @@ function renderHomeFeed(items) {
     // v39.0e: 티커는 매크로/지정학/정책 뉴스에서 숨김
     const displaySummary = escHtml(getDisplaySummary(item));
     const summaryLine = displaySummary ? `<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">${displaySummary}</div>` : '';
-    const _hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade'];
+    const _hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','bond','credit','fx','fxbond'];
     const tickers = !_hMacroTopics.includes(item.topic) ? getDisplayTickers(item) : [];
     // v48.55: 홈 피드 티커 클릭 → ticker 페이지 이동
     const tickerStr = tickers.length > 0
@@ -11727,14 +11757,14 @@ function _renderBriefingTopStories(items, maxN) {
   var TOPIC_COLORS = {
     macro:'var(--data-amber)', geo:'var(--data-red)', semi:'var(--data-blue)',
     'ai-policy':'var(--data-purple)', earnings:'var(--data-green)', energy:'var(--data-amber)',
-    equity:'var(--data-cyan)', bond:'var(--data-blue)', fx:'var(--data-cyan)',
+    equity:'var(--data-cyan)', bond:'var(--data-blue)', credit:'var(--data-blue)', fx:'var(--data-cyan)',
     analyst:'var(--data-green)', defense:'var(--data-red)', memory:'var(--data-blue)',
     power:'var(--data-cyan)', 'market-note':'var(--text-secondary)', optical:'var(--data-blue)',
     crypto:'var(--data-purple)', healthcare:'var(--data-green)', space:'var(--data-purple)'
   };
   var TOPIC_LABEL = {
     macro:'매크로', geo:'지정학', semi:'반도체·AI', 'ai-policy':'AI정책',
-    earnings:'실적', energy:'에너지', equity:'주식', bond:'채권',
+    earnings:'실적', energy:'에너지', equity:'주식', bond:'채권', credit:'크레딧',
     fx:'외환', analyst:'애널리스트', defense:'방산', memory:'메모리',
     power:'전력', 'market-note':'시장노트', crypto:'암호화폐',
     optical:'광통신', healthcare:'헬스케어', space:'우주·위성'
@@ -11813,7 +11843,7 @@ function _renderBriefingBullet(item) {
   var displayTitle = escHtml(typeof getDisplayTitle === 'function' ? getDisplayTitle(item) : (item.title || ''));
   var displayDesc = typeof getDisplayDesc === 'function' ? getDisplayDesc(item) : (item.desc || '');
   var displaySummary = typeof getDisplaySummary === 'function' ? getDisplaySummary(item) : '';
-  var _macroT = ['macro','geo','energy','bond','fx'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
+  var _macroT = ['macro','geo','energy','bond','credit','fx','fxbond'] // v46.9: TOPIC_KEYWORDS 실존 키만 유지 (geopolitics/policy/fed/rates/trade는 classifyTopic 미반환);
   var tickers = !_macroT.includes(item.topic) ? getDisplayTickers(item) : [];
   // v48.55: 브리핑 피드 티커 클릭 → ticker 페이지 이동
   var tickerStr = tickers.length > 0 ? tickers.map(function(t) { var _s = t.replace('$',''); return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(_s) + '" role="button" tabindex="0" style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:2px;cursor:pointer;" title="' + escHtml(_s) + ' 분석">' + escHtml(t) + '</span>'; }).join('') : '';
@@ -17812,4 +17842,3 @@ window.AIO.ScreenerQuery = {
   formatPrompt:   _formatScreenerResultPrompt,
   detectSector:   _detectSectorQuery,
 };
-

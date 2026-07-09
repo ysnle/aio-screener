@@ -803,3 +803,32 @@ INTC DCAI 2026E +22% YoY, 서버 두 자릿수 성장 2027 지속 전망.
 - `_aioBuildPageDecision()`: signal/technical/ticker/themes/market-news overlays.
 - `CHAT_CONTEXTS`: `_aioTacticalTraderFrameworkContext()`로 AI 답변에 주입.
 - `MACRO_KW`/`TECH_KW`: failed breakdown, support reclaim, volume-backed rally, software-to-semi rotation 감지.
+
+### TM-V. AI Capex Funding Pulse + Semi Breadth Washout [2026-07-09]
+> 출처: 사용자 제공 매크로/반도체/차트 프레임워크 1~6 및 이미지 1~7. 구현: `CHAT_CONTEXTS` macro/fundamental/technical/signal/breadth, `MACRO_KW`, `TECH_KW`, `SCREENER_DB` memo overlay. `sourceKind=REFERENCE`; 이미지 속 수치와 가격 레벨은 당시 예시이며 현재 레벨로 사용 금지.
+
+**1. 경기침체 인식 5축**
+- 시장이 침체를 반영하는 경로는 하나가 아니다. ① GDP/성장률 둔화 ② 인플레·유가·메모리 가격 압력으로 인하 기대 후퇴 또는 인상 사이클 위험 ③ 호르무즈·전쟁 등 지정학 리스크 ④ ECB/BOJ 등 글로벌 중앙은행 긴축 ⑤ Hartnett/MAGS ETF 같은 포지셔닝 리스크오프 신호로 분해한다.
+- 적용: macro/signal 답변은 "침체인가 아닌가"보다 어떤 축이 시장 가격에 들어오고 있는지를 먼저 분해한다.
+
+**2. AI CAPEX 자금조달 맥박**
+- AI 인프라 투자는 수요만으로 지속되지 않고 자본조달 가능성에 의해 속도가 결정된다. 핵심 관찰 지표: 10Y+ 장기금리, LQD YTM, ICE BofA US Corporate OAS/IG OAS, HY OAS, 빅테크 신용등급 변화, WTI/Brent 유가 충격, 달러 유동성.
+- 해석: CAPEX가 꺾이는 진짜 위험은 "AI 수요 소멸"보다 금리/스프레드/신용등급 변화로 ROI와 조달비용이 동시에 악화되는 경우다. 유가·sticky inflation·Fed 인상 사이클 위험은 이 맥박을 빠르게 악화시킨다.
+
+**3. AI 밸류체인 long/short 구분**
+- Burry-style debate는 AI 전체 부정으로 읽지 않는다. 인프라 판매자(NVDA/MU 등)는 고객 집중도, 선구매·맞춤 공급망 약정, 메모리 사이클, capex funding risk를 따지는 short-thesis 대상이 될 수 있고, 수익화·통행료 레이어(MSFT/Azure/Copilot/OpenAI exposure 등)는 ARR/계약잔고/가격결정력으로 AI 상용화를 증명하는 long-thesis 대상이 될 수 있다.
+- 반례: MSFT식 상용화가 실제라면 GPU/HBM/네트워킹 인프라 수요를 다시 강화할 수 있다. 따라서 "인프라 붕괴 vs 플랫폼 번창" 단선 구조가 아니라 자금조달 비용과 ROI가 양쪽을 어떻게 연결하는지 본다.
+
+**4. 20EMA / 50EMA / 100SMA / 200SMA 단계 지도**
+- 20EMA: 상승 지속 기대, 단기 추세 탄력 확인.
+- 50EMA: 과열 해소와 조정 마무리 후보, reversal-test zone.
+- 100SMA: 조정의 최종선, 중기 추세 변곡점.
+- 200SMA: 장기 추세 리셋, thesis re-underwriting line.
+
+**5. SMH/XSD 반도체 breadth washout**
+- 이미지 5/6은 SMH/XSD의 above-20EMA 0, above-50EMA 32, above-200EMA 84 예시를 보여준다. 이는 sourceKind=REFERENCE 예시이며 라이브 수치가 아니다.
+- 알고리즘: above-20EMA가 0 근처까지 씻겼지만 above-200EMA가 높게 남으면 구조 붕괴가 아니라 tactical mean-reversion 후보로 본다. 단, 50EMA breadth가 40% 아래이면 중기 breadth 손상이며, 200EMA breadth까지 꺾이면 구조적 리스크오프로 승격한다.
+- 실행: intraday Higher High/Higher Low, daily bullish close, 거래량 확인 전 선진입 금지. Low Volume Node를 지나 High Volume Node/overhead supply로 접근하면 짧은 바운스 플레이 중심으로 관리한다.
+
+**6. Photonics / Meta cloud note**
+- 광학·photonics 이미지는 AI 인프라의 병목과 테마 지속성을 확인하는 보조 자료다. Meta/cloud 뉴스 이미지는 "수요 약화" 단독 결론보다 고객·공급망·다이버전스와 반례(AWS leakage, 서버 부족, AI asset scarcity)를 함께 검토해야 한다는 프레임으로 사용한다.

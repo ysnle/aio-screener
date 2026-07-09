@@ -145,6 +145,9 @@ const CHAT_CONTEXTS = {
         'Regimes to name when relevant: LOCKOUT_CONTINUATION, LATE_STAGE_GAMMA_CHASE, OPEX_PIN_OR_DECAY, BREADTH_BROADENING, FAILED_ROTATION, DISTRIBUTION_REVERSAL. Do not predict tops; give conditional position management: no chasing, hold core when demand persists, trim trading lots when supply appears, hedge/exit tactical exposure only on confirmation.\n' +
         'Rules: 20MA +3ATR warning, +4~6ATR extreme/trim zone; close position >=0.8 bullish, 0.4~0.6 caution, <0.4 risk; upper wick >=35% warning, >=45% risk; RVOL >=2.5 climax context. MOMENTUM_THRUST supports core hold; GAP_UP_EXHAUSTION or SHOOTING_STAR_RISK raises trim risk; BEARISH_CONFIRMATION can force TRIM_50. Close below 10EMA trims trading lot, below 21EMA reduces swing lot, below 50SMA damages swing thesis.\n' +
         'For semiconductor leaders, compare SMH/SOXX against QQQ/SPY and call out SEMI_HEATED or SEMI_MANIA when relative strength, ATR extension, RSI, and RVOL line up. Also account for IWM/RSP/KRE/XBI breadth rotation, AI_INFRA_HEATED/AI_INFRA_MANIA, portfolio technical risk, news impact vectors, and data-quality labels before sounding confident. Provide professional interpretation plus beginner translation.\n' +
+        '\n[20EMA / 50EMA / 100SMA / 200SMA Stage Map v52.35]\n' +
+        'Use this stage map for semiconductor, AI infrastructure, and KR leader charts: 20EMA = trend-continuation pulse; 50EMA = pullback digestion and reversal-test zone; 100SMA = last intermediate-trend inflection line; 200SMA = long-term trend reset and thesis re-underwriting line.\n' +
+        'For SMH/XSD style semiconductor breadth, a near-zero above-20EMA washout while above-200EMA breadth remains high is a tactical mean-reversion setup, not automatic structural death. Require intraday Higher High/Higher Low plus a daily bullish close before bounce entries; if price is crossing a Low Volume Node into overhead High Volume Node supply, keep the trade short-duration and define invalidation first.\n' +
         '\n[Blow-off Top / Event Exhaustion / H2 Liquidity Context v49.10]\n' +
         'For CPI/PCE data, use live snapshot values where available; do not treat any previously hardcoded figures as current.\n' +
         'Use the blow-off checklist when markets or semiconductor leaders are extended: index price/20MA ratio in upper extension band, single-name 20MA distance in extreme extension band (these are RATIO/DISTANCE thresholds, NEVER absolute prices — do NOT cite numbers like 117-120 or 147-150 as stock prices), 20MA/50SMA ATR extension, RVOL climax, weak close position, Bollinger re-entry, OPEX gamma decay, and event exhaustion after summit/OPEX/NVDA/Korea semi catalysts. For exact thresholds refer to AIO_NUMERIC_GUIDELINE_SAFELIST (R84) — they are calibration constants, not price quotes.\n' +
@@ -257,6 +260,10 @@ const CHAT_CONTEXTS = {
         '• 상수/변수 분리: 이미 반영된 뉴스(상수)와 미반영 불확실성(변수) 구분.\n' +
         '• 에스컬레이션 래더: 유가·금리·달러 각각의 단계별 임팩트.\n' +
         '• 비유+정량 병행: 비유로 흐름을 잡고, 즉시 정량적 인과 분석으로 연결.\n\n' +
+        '【AI CAPEX 자금조달 맥박 프레임 v52.35】\n' +
+        'AI 인프라 사이클은 수요만 보지 말고 자금조달 가능성까지 함께 판단한다. 핵심 관찰축: 10Y+ 장기금리, LQD YTM(투자등급 회사채 조달비용), ICE BofA US Corporate OAS/IG OAS, HY OAS, 빅테크 신용등급 변화, WTI/Brent 유가 충격, 달러 유동성.\n' +
+        '경기침체 인식은 5축으로 분해한다: ① GDP/성장률 둔화 ② 인플레·유가·메모리 가격 압력으로 인하 기대 후퇴 또는 인상 사이클 위험 ③ 호르무즈·전쟁 등 지정학 리스크 ④ ECB/BOJ 등 글로벌 중앙은행 긴축 ⑤ Hartnett/MAGS ETF 같은 포지셔닝 리스크오프 신호.\n' +
+        '답변 원칙: AI CAPEX가 꺾이는지 묻는 질문에는 "수요가 사라졌나"보다 먼저 "자본조달 라인이 아직 열려 있나"를 판정하고, 금리 상승이 일시적 repricing인지 인상 사이클로 번지는지 구분한다.\n\n' +
         '【응답 프레임워크】\n' +
         '1. 현재 매크로 레짐 한줄 진단: "지금은 {확장후기/수축초기/...} 국면이다."\n' +
         '2. 교차변수 조합 판독: 금리/달러/유가/VIX 4변수 동시 해석.\n' +
@@ -557,6 +564,10 @@ const CHAT_CONTEXTS = {
       prompt += '• 내부자 매매 × 밸류에이션: 저PE+내부자 순매수 = 강한 매수 시그널(경영진이 저평가 인지). 고PE+내부자 순매도 = 경고(경영진이 고점 인지).\n';
       prompt += '• 실적 서프라이즈 패턴: 4분기 연속 beat = 보수적 가이던스 경영진(긍정적). beat폭 분기별 축소 = 모멘텀 둔화 선행지표. miss 후 주가 상승 = 악재 이미 선반영.\n';
       prompt += '→ 단일 지표 해석 금지. 반드시 2개 이상 교차 검증 후 판단.\n\n';
+
+      prompt += '【AI 밸류체인 포지션 구분 v52.35】\n';
+      prompt += 'AI를 한 덩어리로 보지 말고 인프라 판매자(NVDA/MU 등)와 수익화·통행료 레이어(MSFT/Azure/Copilot/OpenAI exposure 등)를 분리한다. Burry-style debate는 "AI 수요가 가짜"라는 단정이 아니라 고객 집중도, 선구매·맞춤 공급망 약정, 메모리 사이클, capex funding risk를 따지는 short-thesis로 해석한다.\n';
+      prompt += '반대편 검증도 필수: MSFT 같은 monetization layer가 실제 ARR/계약잔고/서비스 가격결정력을 보이면 AI 상용화는 유효하다는 증거이고, 그 수익화가 결국 GPU·HBM·네트워킹 인프라 수요를 재강화하는지 확인한다. 결론은 "인프라 붕괴 vs 플랫폼 번창" 같은 단선이 아니라, 자금조달 비용과 ROI가 양쪽을 동시에 연결하는지로 판단한다.\n\n';
 
       // ── v40.4: 섹터별 적정 밸류에이션 레인지 ──
       prompt += '【섹터별 적정 밸류에이션 레인지 가이드】\n';
@@ -1056,6 +1067,8 @@ const CHAT_CONTEXTS = {
         '【미너비니 바닥 프로세스 3단계 (§46)】\n' +
         '바닥 형성을 3단계로 판별: ① 과매도→랠리(광범위한가? 5SMA Above 40%+ 돌파 = 건강) → ② 리테스트(직전 저점 테스트 — 성공=매도압력↓, 실패=추세 지속) → ③ Breadth Thrust(10거래일 내 10%→50%+ = 역사적 강세 확인).\n' +
         '"랠리 없는 약세"보다 "리테스트 성공 후 Breadth Thrust" 대기가 안전. 1단계에서 풀 롱 진입은 불트랩 위험.\n\n' +
+        '【AI CAPEX / 반도체 리스크오프 트리거 v52.35】\n' +
+        '반도체 급락 해석은 가격만 보지 말고 ① 10Y+ 장기금리와 LQD YTM/IG OAS 확대 ② 유가·메모리 가격발 sticky inflation ③ Fed 동결/인상 사이클 확률 ④ SMH/XSD breadth washout ⑤ 하이퍼스케일러 ROI/계약잔고를 함께 본다. Above-20EMA breadth가 0 근처까지 씻기고 200EMA breadth가 살아 있으면 구조 붕괴보다 과매도 평균회귀 후보이나, HH/HL·양봉 종가·거래량 확인 전 선진입 금지.\n\n' +
         '【진입 체크리스트 5항목】\n' +
         '✓ VIX <30 (패닉 아닌 환경) ✓ 50MA 이격률 4x ATR 미만 (과매수 아님) ✓ 일중 저점 ATR 60% 미만 (스프링 해방 전) ✓ 연준 이벤트 48h 외 ✓ 직전 3일 대비 거래량 증가 (RVOL)\n\n' +
         '【응답 원칙】\n' +
@@ -1131,6 +1144,9 @@ const CHAT_CONTEXTS = {
         '50SMA Above 70%+ = 건강한 상승장. 50%~70% = 중립. 50%↓ = 약세 경고. 5SMA가 50SMA보다 빠르게 회복 = 단기 반등, 느리게 = 추세 전환 의심.\n' +
         '브레드쓰 확인(Breadth Thrust) = 10거래일 내 10%→50%+ 급등 시 역사적 강세 신호.\n' +
         '브레드쓰-지수 괴리: 지수 상승 + 브레드쓰 하락 = 불트랩(Bull Trap) 경고.\n\n' +
+        '【SMH/XSD 반도체 브레드쓰 워시아웃 프레임 v52.35】\n' +
+        '섹터 breadth는 20EMA/50EMA/200EMA를 층별로 읽는다. 20EMA 위 종목 비율 급락 = 단기 모멘텀 전종목 훼손, 50EMA 위 비율 40% 하회 = 중기 breadth 손상, 200EMA 위 비율 고수준 유지 = 장기 상승 구조 잔존. 20EMA washout + 200EMA high 구조에서는 "평균회귀 바운스"만 우선 검토하고, 200EMA breadth마저 꺾이면 구조적 리스크오프로 승격한다.\n' +
+        '이미지/외부 차트의 수치(예: SMH/XSD above-20EMA 0, above-50EMA 32, above-200EMA 84)는 sourceKind=REFERENCE 예시일 뿐 현재값으로 쓰지 않는다. 현재값은 앱의 live/snapshot breadth 블록 또는 사용자가 제공한 최신 차트로만 인용한다.\n\n' +
         '매매시그널(환경 점수)·차트 분석(기술 타이밍) 페이지 연결.' +
         _buildMarketLeadersSnapshot() +
         _getV48IntegratedContext('breadth') +

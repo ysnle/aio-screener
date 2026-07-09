@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.34 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.37 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5361,7 +5361,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.34</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.37</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8973,6 +8973,11 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 기업분석헤더 -->
 
     <div class="aio-section">
+      <div class="aio-section-hd"><span class="aio-section-label">기업·AI 밸류체인 최신 소식</span></div>
+      <div id="tg-feed-fundamental"></div>
+    </div>
+
+    <div class="aio-section">
 
     <!-- v50.82: 시각화 패널 (factor-radar) — 티커 검색 후 동적 렌더 -->
     <div id="vis-fundamental" class="aio-vis-panel is-single" style="display:none;">
@@ -9271,6 +9276,11 @@ button[data-filter-active="true"] {
       </div>
     </div>
 
+    <div class="aio-section">
+      <div class="aio-section-hd"><span class="aio-section-label">테마·AI 인프라 최신 소식</span></div>
+      <div id="tg-feed-themes"></div>
+    </div>
+
     <div class="aio-guide-group-header">섹터 로테이션 분석</div>
 
     <!-- ══ SECTION 1: RRG 4분면 Canvas 차트 ══════════════════════ -->
@@ -9514,6 +9524,11 @@ button[data-filter-active="true"] {
     </div>
 
     </div><!-- /aio-section 테마헤더 -->
+
+    <div class="aio-section">
+      <div class="aio-section-hd"><span class="aio-section-label">선택 테마 최신 소식</span></div>
+      <div id="tg-feed-theme-detail"></div>
+    </div>
 
     <!-- Mode Toggle: ETF vs Subtheme -->
     <div class="aio-section">
@@ -11678,6 +11693,11 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
+  <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">한국 차트·반도체 최신 소식</span></div>
+    <div id="tg-feed-kr-technical"></div>
+  </div>
+
     <!-- v35.6: 한국 시장 건강 점수 (미국 Market Health Score 동일 수준) -->
     <div class="aio-section-rule" style="margin-bottom:8px;"><span>② 종합 점수 — 위 차트·추세·RSI·MACD에서 도출</span></div>
     <div class="aio-why" style="margin-bottom:8px;">위 캔들 차트와 아래 RSI·MACD 지표를 종합해 계산합니다. 개별 지표를 먼저 확인 후 이 점수를 해석하세요.</div>
@@ -12642,9 +12662,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.34" defer></script>
-  <script src="./js/aio-data.js?v=52.34" defer></script>
-  <script src="./js/aio-ui.js?v=52.34" defer></script>
+  <script src="./js/aio-core.js?v=52.37" defer></script>
+  <script src="./js/aio-data.js?v=52.37" defer></script>
+  <script src="./js/aio-ui.js?v=52.37" defer></script>
 
   <script>
 
@@ -16131,7 +16151,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.34" defer></script>
+<script src="./js/aio-chat.js?v=52.37" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28342,7 +28362,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.34" defer></script>
+<script src="./js/aio-glossary.js?v=52.37" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

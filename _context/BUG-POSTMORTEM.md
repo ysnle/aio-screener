@@ -2,15 +2,24 @@
 verified_by: agent
 last_verified: 2026-07-09
 confidence: high
-latest_version: v52.34
-latest_P_number: P649
-total_entries: 422
-next_P_number: P650
+latest_version: v52.37
+latest_P_number: P652
+total_entries: 424
+next_P_number: P653
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P652 - v52.37 - Telegram market-note와 credit/funding 신호가 생성/수집 후 일부 페이지 표면에서 누락됨
+
+- **발생**: v52.36에서 Telegram 3채널 수집과 페이지별 feed host는 보강됐지만, 실제 `public-data/telegram-digest.json`의 `topicCounts`를 기준으로 보니 `market-note`가 18건 생성되고도 `_TG_PAGE_TAGS` 어느 페이지에도 구독되지 않았다. 또한 크레딧·자금조달 신호는 Telegram classifier에는 추가됐지만 런타임 `TOPIC_KEYWORDS`, 토픽 배지/그룹, analysis-page `AIO_NEWS_SURFACE_CONTRACTS`, 서버 `fetch-data` backstop에서는 여전히 채권/매크로 하위 신호로 남아 있어 `macro`/`fxbond`/`fundamental`/`themes`/`breadth`가 AI CAPEX 자금줄 뉴스를 안정적으로 받는 계약이 부족했다.
+- **원인**: P651은 “라이브 Telegram freshness + 페이지 feed host”를 주로 닫았고, 생성된 topic inventory와 소비 map의 차집합을 기계적으로 검사하지 않았다. `credit`도 Telegram digest 태그와 일반 RSS/server news classifier가 별개로 진화하면서 한쪽의 신규 토픽이 다른 쪽 수집/표시/표면 계약으로 승격되지 않았다.
+- **수정**: `market-note`를 `briefing`/`market-news` Telegram feed tag map에 추가했다. `credit`을 `TOPIC_KEYWORDS`, `getTopicBadge`, `_TOPIC_GROUP_ORDER`, 보조 topic label/advice/color, ticker suppression 목록에 연결하고 `macro`/`fxbond`/`themes`/`sentiment`/`signal`/`fundamental`/`breadth` news surface topics에 편입했다. 서버 뉴스 백스톱에는 `Google News - Credit/Funding` 쿼리와 `credit-funding` 점수 규칙을 추가했다.
+- **violated_rule**: R216/R217/R230. 특히 “수집 freshness”와 “소비 coverage”를 분리한다는 R216의 적용이 topic inventory 수준까지 내려가지 못했다.
+- **prevention**: `ci-data-pipeline-contract-check.mjs`가 credit/funding 서버 백스톱을 검사하고, `ci-runtime-contract-check.mjs`가 `market-note` 페이지 소비, first-class `credit` 토픽, analysis surface credit 구독을 검사한다. `_context/QA-CHECKLIST.md` P652-Q1~Q5에 topic inventory 차집합과 credit/funding 표면 계약 확인을 추가했다.
+- **verification**: `public-data/telegram-digest.json`의 `topicCounts`와 `_TG_PAGE_TAGS`를 대조해 `market-note` 누락을 확인한 뒤 구조 보강. 로컬 검증은 v52.37 게이트에서 수행 예정.
 
 ## P649 - v52.34 - FABLE V0/V1 "완료" 표시 이후에도 남아있던 브리핑 F&G 세 번째 소스 + VKOSPI 실패 UI 부재
 
@@ -20,6 +29,15 @@ next_P_number: P650
 - **violated_rule**: R283, R284 (신규 규칙이 아니라 기존 두 규칙의 적용 범위 누락 — 완전한 재발 사례).
 - **prevention**: T867(F&G 세 번째 소스)/T868(VKOSPI 실패 상태 + calcKrHealthScore 가드) 신규 + `ci-runtime-contract-check.mjs`에 두 계약 각각 정적 검사 추가. R283/R284 Validation 라인에 반영해 향후 유사 "부분 완료" 재발 시 사후분석에서 바로 근거를 찾을 수 있게 했다.
 - **verification**: `node scripts/ci-runtime-contract-check.mjs`(green); 로컬 8게이트 전체 green; `node scripts/ci-headless-tests.mjs` → **931/931 PASS**(929 기존 + T867/T868 신규); `node scripts/ci-viewport-matrix-check.mjs` → 88/88 PASS, worstOverflow 0px(회귀 없음; F&G/VKOSPI 자체는 이 매트릭스의 직접 커버 대상 아님). 배포/라이브 재확인은 미실행 — 로컬 커밋까지만 진행(사용자 명시 "배포해줘" 대기).
+
+## P651 - v52.36 - Telegram 최신 뉴스는 수집됐지만 페이지별 시장 본질/라이브 감시로 충분히 연결되지 않음
+
+- **발생**: 2026-07-09 KST에 `insidertracking`, `aetherjapanresearch`, `bornlupin` 공개 미러와 라이브 `public-data/telegram-digest.json`을 대조한 결과, 라이브 digest는 3채널을 수집하고 있었지만 `insidertracking`/`aetherjapanresearch` 최신 post id가 공개 미러보다 뒤처져 있었고, 배포 감시는 `data.json`만 확인해 `telegram-digest.json`의 라이브 지연을 잡지 못했다. 또한 `fundamental`, `themes`, `theme-detail`, `kr-technical`에는 전용 Telegram feed host가 없어 AI CAPEX/반도체/한국 차트 뉴스가 해당 페이지 본문에서 직접 소비되지 않았고, LQD/OAS/회사채/등급하향/CAPEX funding류 뉴스는 `macro`로만 뭉뚱그려져 fxbond·breadth·fundamental의 자금줄 해석에 약했다. 장문 리서치 포스트는 600자 필터 때문에 핵심 분석 페이지에서 사라질 수 있었다.
+- **원인**: v51.37 Telegram 카드 라우팅은 초기 페이지 집합 중심으로 설계됐고, 이후 추가된 AI 밸류체인/테마/한국 기술 페이지와 v52.35 자금조달 프레임워크가 같은 routing contract에 편입되지 않았다. 운영 감시도 repo artifact freshness와 live `data.json` 중심이라, “뉴스 digest가 실제 라이브 사이트에서 최신인지”와 “각 페이지가 자기 주제에 맞는 태그를 소비하는지”를 분리해 실패시키지 못했다.
+- **수정**: Telegram classifier에 `credit` 태그와 score 가중치를 추가해 LQD/OAS, 회사채, 투자등급, 크레딧 스프레드, 등급하향, 프로젝트 파이낸스, funding cost, CAPEX funding을 별도 신호로 분류했다. `_TG_PAGE_TAGS`/`_TG_PAGE_CFG`를 페이지별로 재정렬하고 `fundamental`, `themes`, `theme-detail`, `kr-technical` 전용 feed host를 추가했다. 분석 페이지는 장문 리포트 필터 예외를 적용해 Citi/JPM/Hartnett류 글이 시장 구조 해석에 남도록 했다. `data-watchdog.yml`은 라이브 `telegram-digest.json` freshness, channel coverage, `lastPostId`, channel error를 같이 검사하게 바꿨고 CI 계약을 추가했다.
+- **violated_rule**: R216/R217(수집 freshness와 소비 coverage 분리), R219(페이지 의미 검토), R230(뉴스 visible freshness), R281 계열(텔레그램 digest 최신성/품질 계약).
+- **prevention**: `ci-data-pipeline-contract-check.mjs`가 live telegram digest watchdog과 `credit` classifier를 검사하고, `ci-runtime-contract-check.mjs`가 page feed hosts, tag routing, long-report allowance를 검사한다. `_context/QA-CHECKLIST.md` P651-Q1~Q5에 3채널 공개 미러 대조와 page-routing QA를 추가했다.
+- **verification**: 공개 Telegram 미러 3개와 라이브 digest를 비교해 stale gap을 확인한 뒤 구조 보강. 로컬 검증은 v52.36 게이트에서 수행 예정.
 
 ## P551 - v51.76 - Public share readiness existed only as console audit, not visible product contract
 

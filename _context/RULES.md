@@ -2992,9 +2992,10 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - DATA_SNAPSHOT must distinguish _marketDataUpdated/_marketDataDate from _telegramDigestUpdated/_telegramDigestDate when the two layers are refreshed by different pipelines.
 - Stale/freshness banners must not imply current numeric market data when only narrative/news context was refreshed, and must not warn generically when numeric fallback is current but live coverage is incomplete.
 - New digest topics must be mapped through a category registry and page integration map, then reflected in AIO_NEWS_SURFACE_CONTRACTS and chat integrated context.
+- Produced digest topic keys must be compared against the page consumption map; a topic with nonzero live count is incomplete if no page subscribes to it.
 - Regression tests must cover at least one broad page map, one analysis-page topic strip, and the freshness metadata split.
 
-**Validation**: T830 checks Telegram categories, page maps, widened news contracts, DATA_SNAPSHOT market/digest dates, updateSnapshotStaleBanner, and chat category/page-map injection.
+**Validation**: T830 checks Telegram categories, page maps, widened news contracts, DATA_SNAPSHOT market/digest dates, updateSnapshotStaleBanner, and chat category/page-map injection. `scripts/ci-runtime-contract-check.mjs` must also guard produced topic consumption for broad tags such as `market-note`.
 
 ## R217. Scheduled data sources must close the collect -> artifact -> consume -> audit loop (v50.63 added, P509 root)
 
@@ -3067,7 +3068,7 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Home, briefing, market-news, and analysis-page news strips should use the same completed 08:00 KST to 08:00 KST 24h decision cycle unless the item is explicitly marked as a reference/static fallback.
 - CI must assert source-tier scoring, low-quality penalties, current market-mover query coverage, and the home freshness contract.
 
-**Validation**: `scripts/ci-data-pipeline-contract-check.mjs` checks source-tier scoring, low-quality source penalties, Korea AI/semi market-mover query coverage, server `newsCycle*` metadata, and the shared completed 08:00 KST 24h news surface contract.
+**Validation**: `scripts/ci-data-pipeline-contract-check.mjs` checks source-tier scoring, low-quality source penalties, Korea AI/semi market-mover query coverage, dedicated credit/funding news backstop coverage, server `newsCycle*` metadata, and the shared completed 08:00 KST 24h news surface contract.
 
 ## R281. Live/browser QA must cover rendered route surfaces, not only prior static findings (v52.23, P633 root)
 

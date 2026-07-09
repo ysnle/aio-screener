@@ -1,3 +1,26 @@
+## v52.37 (2026-07-09)
+- **market-note 라우팅 누락 보강**: `telegram-digest.json`에서 실제 생성되는 `market-note` 토픽을 `briefing`/`market-news` Telegram 페이지 피드에 연결해 시장 테이프·포지셔닝·리스크온/오프 메모가 수집 후 버려지지 않게 했다.
+- **credit/funding 1급 뉴스 토픽화**: `credit`을 `TOPIC_KEYWORDS`, 토픽 배지, 토픽 그룹, 보조 라벨/요약, ticker suppression 경로에 연결하고 `macro`/`fxbond`/`themes`/`sentiment`/`signal`/`fundamental`/`breadth` 뉴스 표면 계약에 편입했다.
+- **서버 뉴스 백스톱 확장**: `scripts/fetch-data.mjs`에 `Google News - Credit/Funding` 쿼리와 `credit-funding` 점수 규칙을 추가해 LQD/HYG/OAS, 회사채, 등급하향, AI CAPEX funding, data center financing 신호가 FX/Bonds 내부에서 묻히지 않게 했다.
+- **회귀 게이트 강화**: `ci-data-pipeline-contract-check.mjs`와 `ci-runtime-contract-check.mjs`가 credit/funding 수집, market-note 소비, analysis surface credit 구독을 실패 조건으로 검사한다.
+- R1 7곳 v52.37
+
+## v52.36 (2026-07-09)
+- **Telegram 시장 뉴스 라우팅 구조 보강**: `insidertracking`/`aetherjapanresearch`/`bornlupin` 최신 공개 포스트와 라이브 `telegram-digest.json`을 대조해, 금리·유가·지정학·반도체·AI CAPEX·자금조달 뉴스가 페이지별 의미에 맞게 소비되지 않던 구멍을 보강했다.
+- **Credit/funding risk 별도 태그화**: 회사채, LQD/OAS, 크레딧 스프레드, 등급하향, 프로젝트 파이낸스, CAPEX funding 키워드를 `credit` 태그로 분류·가중해 `macro`/`fxbond`/`breadth`/`fundamental`/`themes`가 단순 반도체 헤드라인이 아니라 자금줄 리스크를 같이 읽게 했다.
+- **페이지별 텔레그램 피드 확장**: `fundamental`, `themes`, `theme-detail`, `kr-technical`에 전용 피드 호스트를 추가하고, 각 페이지 tag map을 `semi/credit/power/optical/ai-policy/kr-market/geo` 조합으로 재정렬했다.
+- **장문 리포트 손실 방지**: Citi/JPM/Hartnett류 긴 분석글이 600자 필터에 잘려 핵심 페이지에서 사라지지 않도록 `macro/fxbond/fundamental/themes/theme-detail/kr-macro/briefing/market-news`는 장문을 허용했다.
+- **운영 감시 강화**: `data-watchdog.yml`이 라이브 `data.json`뿐 아니라 라이브 `telegram-digest.json`의 freshness, 채널 3개 커버리지, `lastPostId`, 채널 error까지 검사한다. `ci-data-pipeline-contract-check`와 `ci-runtime-contract-check`에 회귀 계약을 추가했다.
+- **데이터 최신화**: `public-data/telegram-digest.json`을 2026-07-09 17:17 KST 기준으로 재생성했다. 최신 post id는 aetherjapanresearch 23406, insidertracking 57818, bornlupin 18983.
+- R1 7곳 v52.36
+
+## v52.35 (2026-07-09)
+- **User research integration - AI CAPEX funding pulse**: 사용자 제공 매크로·반도체 자료와 이미지 1~7을 `sourceKind=REFERENCE` 프레임워크로 통합했다. AI CAPEX 리스크를 수요 헤드라인만이 아니라 10Y+, LQD YTM, IG/HY OAS, 신용등급, sticky inflation, capex ROI로 판단하도록 보강했다.
+- **Semi breadth washout + MA stage map**: 20EMA/50EMA/100SMA/200SMA 단계 지도와 SMH/XSD breadth washout 해석을 AI chat/키워드/스크리너 맥락에 추가했다. 이미지 수치는 live 값이 아니라 reference 예시로만 취급한다.
+- **AI value-chain positioning**: NVDA/MU 같은 인프라 판매자와 MSFT 같은 수익화 플랫폼을 구분하고, Burry-style short thesis를 고객 집중도, 선구매·맞춤 공급망, 메모리 사이클, funding cost 관점으로 해석하게 했다.
+- **Data/KB feedback loop**: `MACRO_KW`/`TECH_KW`, 주요 종목 memo overlay, `_context/KNOWLEDGE-BASE.md`, `_context/QA-CHECKLIST.md` P650, `ci-runtime-contract-check.mjs` 회귀 계약을 보강했다.
+- R1 7곳 v52.35
+
 ## v52.34 (2026-07-09)
 - **FABLE V0/V1 잔여 완결 (P649/R283·R284 재적용)**: Codex 세션이 v52.27~v52.33에서 완료로 표시한 Phase V0(F&G 단일 소스)/V1(실패 UI 계약)을 재검증한 결과 두 항목이 부분적으로만 닫혀 있어 마저 닫았다.
 - **브리핑 세 번째 F&G 소스 수정**: "시장 상황 요약(6축)" 카드(`_buildBriefingDecisionSummary`)가 존재하지 않는/미할당 필드를 읽어 F&G가 항상 공백이었던 것을, 상단 스트립·요약 텍스트와 동일한 `window._lastFG` 우선 소스로 정합했다.

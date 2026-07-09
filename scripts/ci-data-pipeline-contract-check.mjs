@@ -79,6 +79,7 @@ check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(re
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
 check('watchdog checks data and telegram freshness', /data\.json meta\.generatedAt/.test(watchdog) && /telegram-digest\.json generatedAt/.test(watchdog));
+check('watchdog checks live telegram digest freshness and channel coverage', /aio-screener\/public-data/.test(watchdog) && /checkAge\('telegram-digest\.json'/.test(watchdog) && /LIVE telegram digest too thin/i.test(watchdog) && /lastPostId/.test(watchdog));
 check('watchdog freshness threshold tolerates transient Actions lag', /default:\s*'240'/.test(watchdog) && /MAX_AGE_MIN:\s*\$\{\{ github\.event\.inputs\.max_age_minutes \|\| '240' \}\}/.test(watchdog));
 check('watchdog has core quality floors for public data', /symbolsOk[\s\S]{0,200}<\s*70/.test(watchdog) && /newsCount[\s\S]{0,200}<\s*10/.test(watchdog) && /telegramCount[\s\S]{0,240}<\s*100/.test(watchdog));
 check('watchdog reports optional degraded services', /FRED_API_KEY/.test(watchdog) && /fredFetchOk/.test(watchdog) && /marketAnalysisOk/.test(watchdog));
@@ -90,7 +91,9 @@ check('fetch-data collects quotes, F&G, FRED, news, LLM analysis', /fetchQuote/.
 check('fetch-data separates FRED configured vs fetched', /fredHasKey/.test(fetchData) && /fredFetchOk/.test(fetchData) && /macroKeyCount/.test(fetchData));
 check('fetch-data exposes marketAnalysisOk', /marketAnalysisOk/.test(fetchData));
 check('fetch-data ranks backstop news by market-impact score', /scoreServerNewsItem/.test(fetchData) && /SERVER_NEWS_PRIORITY_RULES/.test(fetchData) && /selectionReason/.test(fetchData) && /serverNewsScored/.test(fetchData) && /newsScoreMax/.test(fetchData));
+check('fetch-data has first-class credit/funding news backstop', /Google News - Credit\/Funding/.test(fetchData) && /topic:\s*'credit'/.test(fetchData) && /credit-funding/.test(fetchData) && /capex funding/.test(fetchData) && /data center financing/.test(fetchData));
 check('fetch-data ranks news by actual article source tier, not Google feed tier', /getServerNewsSourceTier/.test(fetchData) && /SERVER_NEWS_LOW_QUALITY_SOURCE_RE/.test(fetchData) && /source-tier/.test(fetchData) && /low-quality-source-8/.test(fetchData) && /feedTier/.test(fetchData));
+check('telegram classifier routes credit and capex funding risk', /add\('credit'\)/.test(fetchTelegram) && /lqd|LQD/.test(fetchTelegram) && /project finance|프로젝트/.test(fetchTelegram) && /capex funding|자금조달/.test(fetchTelegram));
 check('fetch-data queries current Korea AI/semi market movers', /KOSPI Samsung Electronics SK Hynix AI semiconductor selloff rebound Micron/.test(fetchData));
 check('fetch-data enforces KST 08:00 completed 24h news cycle', /NEWS_CYCLE_POLICY\s*=\s*'kst-0800-completed-24h'/.test(fetchData) && /getKst0800NewsCycle/.test(fetchData) && /newsCycleStart/.test(fetchData) && /newsCycleEnd/.test(fetchData) && /newsCycleLabel/.test(fetchData));
 check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\)/.test(fetchData) && /Math\.expm1\(s1\)\s*\*\s*100/.test(fetchData) && /scale:\s*'log_pct_day'/.test(fetchData) && /kalmanScale/.test(fetchData) && /kalmanScale:\s*'log_pct_day'/.test(fetchData));

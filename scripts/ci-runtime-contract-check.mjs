@@ -23,6 +23,19 @@ const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
 const worker = exists('cloudflare-worker-proxy.js') ? read('cloudflare-worker-proxy.js') : '';
 const runtimeBundle = [core, data, ui, chat].join('\n');
+const extractTelegramPageTags = () => {
+  const match = data.match(/var _TG_PAGE_TAGS = \{([\s\S]*?)\n\};/);
+  const pageTags = {};
+  if (!match) return pageTags;
+  const re = /'([^']+)':\s*\[([^\]]*)\]/g;
+  let m;
+  while ((m = re.exec(match[1]))) {
+    pageTags[m[1]] = [...m[2].matchAll(/'([^']+)'/g)].map((x) => x[1]);
+  }
+  return pageTags;
+};
+const telegramPageTags = extractTelegramPageTags();
+const telegramConsumedTags = new Set(Object.values(telegramPageTags).flat());
 
 const staticBusters = [...html.matchAll(/<script\s+src="\.\/js\/aio-[^"]+\?v=([\d.]+)"/g)].map((m) => m[1]);
 check('all static aio script cachebusters match version.json', staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum), `found ${staticBusters.join(',')}, expected ${versionNum}`);
@@ -58,6 +71,22 @@ check('tests cover runtime/share gate', /T844 v5079_runtime_contract_share_gate/
 check('Telegram digest applies latest items into SCREENER_DB memo', /function\s+_aioApplyTelegramDigestToScreenerDb/.test(data) && /_aioApplyTelegramDigestToScreenerDb\(raw,\s*merged\)/.test(data));
 check('Telegram memo overlay is exposed through audit', /_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(data));
 check('tests cover Telegram digest memo injection', /T831[\s\S]{0,2200}SCREENER_DB memo/.test(tests) && /_telegramMemoOverlay/.test(tests));
+check('Telegram page feeds cover fundamental/themes/KR technical pages', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && /id="tg-feed-theme-detail"/.test(html) && /id="tg-feed-kr-technical"/.test(html));
+check('Telegram page routing includes credit and AI infrastructure tags by page', /'fundamental':\s*\[[^\]]*'semi'[^\]]*'credit'/.test(data) && /'themes':\s*\[[^\]]*'power'[^\]]*'credit'/.test(data) && /'fxbond':\s*\[[^\]]*'credit'/.test(data) && /'kr-technical':\s*\[[^\]]*'semi'/.test(data) && /'credit':\s*\{\s*label:/.test(data));
+check('Telegram market-note digest tag is consumed by briefing and market-news pages', /'briefing':\s*\[[^\]]*'market-note'/.test(data) && /'market-news':\s*\[[^\]]*'market-note'/.test(data));
+if (exists('public-data/telegram-digest.json')) {
+  try {
+    const digest = JSON.parse(read('public-data/telegram-digest.json'));
+    const produced = Object.entries(digest.topicCounts || {}).filter(([, count]) => Number(count) > 0).map(([topic]) => topic);
+    const missing = produced.filter((topic) => !telegramConsumedTags.has(topic));
+    check('produced Telegram digest topics are consumed by at least one page', missing.length === 0, missing.join(', '));
+  } catch (error) {
+    check('public Telegram digest topic inventory parses for routing coverage', false, error.message);
+  }
+}
+check('runtime promotes credit to a first-class news topic', /credit:\s*\[[^\]]*credit spread/.test(data) && /credit:\s*\{\s*cls:\s*'nit-warn'/.test(data) && /key:\s*'credit'[\s\S]{0,80}크레딧/.test(data));
+check('analysis news surfaces subscribe to credit/funding risk', /macro:\s*\{[\s\S]{0,360}topics:\s*\[[^\]]*'credit'/.test(data) && /fxbond:\s*\{[\s\S]{0,380}topics:\s*\[[^\]]*'credit'[^\]]*'fxbond'/.test(data) && /fundamental:\s*\{[\s\S]{0,420}topics:\s*\[[^\]]*'credit'/.test(data) && /themes:\s*\{[\s\S]{0,420}topics:\s*\[[^\]]*'credit'/.test(data) && /breadth:\s*\{[\s\S]{0,360}topics:\s*\[[^\]]*'credit'/.test(data));
+check('Telegram long-form reports survive on analysis pages', /allowLongReport/.test(data) && /'fundamental','themes','theme-detail','kr-macro'/.test(data));
 check('data pipeline contract gate exists', exists('scripts/ci-data-pipeline-contract-check.mjs'));
 check('data pipeline contract gate is wired into CI', /ci-data-pipeline-contract-check\.mjs/.test(read('.github/workflows/ci.yml')));
 check('semantic review gate script exists', exists('scripts/ci-semantic-review-check.mjs'));
@@ -159,6 +188,37 @@ check(
     && /volume-backed buying vs low-volume short-cover rally/.test(chat)
     && /failed breakdown/.test(data)
     && /software to semi rotation/.test(data)
+);
+const knowledgeBase = read('_context/KNOWLEDGE-BASE.md');
+check(
+  'v52.35 AI capex funding pulse framework feeds AI chat, keywords, and knowledge base',
+  /AI CAPEX 자금조달 맥박/.test(chat)
+    && /LQD YTM/.test(chat)
+    && /IG OAS/.test(chat)
+    && /AI capex funding/.test(data)
+    && /capital funding pulse/.test(data)
+    && /AI Capex Funding Pulse/.test(knowledgeBase),
+  'macro/signal answers must evaluate AI capex through funding cost and credit evidence, not demand headlines only'
+);
+check(
+  'v52.35 semiconductor breadth washout framework feeds AI chat, keywords, and knowledge base',
+  /20EMA \/ 50EMA \/ 100SMA \/ 200SMA Stage Map/.test(chat)
+    && /SMH\/XSD 반도체 브레드쓰 워시아웃/.test(chat)
+    && /sourceKind=REFERENCE/.test(chat)
+    && /SMH breadth washout/.test(data)
+    && /XSD breadth washout/.test(data)
+    && /Semi Breadth Washout/.test(knowledgeBase),
+  'semi breadth image levels must stay reference-only and MA layers must remain distinct'
+);
+check(
+  'v52.35 AI value-chain long-short framework feeds fundamental chat and screener overlays',
+  /AI 밸류체인 포지션 구분/.test(chat)
+    && /인프라 판매자/.test(chat)
+    && /monetization layer|수익화/.test(chat)
+    && /Burry AI-chain debate/.test(data)
+    && /AI monetization-layer test case/.test(data)
+    && /Burry memory-cycle debate/.test(data),
+  'fundamental AI answers must distinguish infra seller risk from monetization platform evidence'
 );
 for (const pageId of ['home','signal','market-news','technical','screener','ticker','portfolio','macro','fxbond','fundamental','kr-home','kr-supply','kr-themes','kr-macro','kr-technical']) {
   check(`page redesign config exists for ${pageId}`, new RegExp(`${pageId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`).test(core) || core.includes(`'${pageId}':`));

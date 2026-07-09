@@ -3,10 +3,10 @@ verified_by: agent
 last_verified: 2026-07-09
 confidence: high
 version: v3.8
-checklist_version: v52.34
-total_items: 516
+checklist_version: v52.37
+total_items: 521
 stages: 22
-latest_P_covered: P649
+latest_P_covered: P652
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2577,3 +2577,24 @@ P649-Q1: `_buildBriefingDecisionSummary()`'s F&G value must read `window._lastFG
 P649-Q2: `fetchVkospiDynamic()` must surface an explicit `failed` value-slot state on `kr-vkospi-val`/`kr-health-vkospi` after 3 consecutive failures (proxy error, bad parse, or exception), and self-heal (reset the fail counter) on the next success.
 P649-Q3: `calcKrHealthScore()` must not overwrite the VKOSPI failed state with a stale `snap.vkospi` value when it re-runs on kr-technical page re-view.
 P649-Q4: T867/T868 and `ci-runtime-contract-check.mjs` must fail if either contract regresses.
+
+--- v52.35 user research integration checks (2026-07-09) ---
+P650-Q1: AI CAPEX risk answers must mention funding pulse evidence, not only chip demand: 10Y+, LQD YTM, IG OAS/corporate OAS, HY OAS, rating/downshift, oil/inflation shocks, and capex ROI.
+P650-Q2: Semiconductor technical answers must map 20EMA/50EMA/100SMA/200SMA as separate regime layers and must treat SMH/XSD above-20EMA washout as tactical mean-reversion only when 200EMA breadth is still intact.
+P650-Q3: User-provided image/chart levels such as SMH/XSD above-20EMA 0 / above-50EMA 32 / above-200EMA 84 must remain `sourceKind=REFERENCE`; never quote them as live/current values unless a fresh data block or user-updated chart supplies them.
+P650-Q4: AI value-chain answers must distinguish infrastructure sellers (NVDA/MU style risks) from monetization/toll-collector platforms (MSFT style evidence) and then reconnect both through capex funding cost and ROI.
+P650-Q5: `ci-runtime-contract-check.mjs` must fail if the v52.35 chat/data/knowledge-base integration strings disappear.
+
+--- v52.36 Telegram live-news routing checks (2026-07-09) ---
+P651-Q1: Compare the live/public Telegram mirror posts from `insidertracking`, `aetherjapanresearch`, and `bornlupin` against deployed `public-data/telegram-digest.json`; record channel `lastPostId` gaps before claiming the site reflects current market news.
+P651-Q2: Market-moving credit/funding posts must classify as `credit` when they mention LQD/OAS, corporate bonds, investment grade, credit spreads, rating downgrades, project finance, funding cost, or CAPEX funding.
+P651-Q3: `macro`, `fxbond`, `breadth`, `fundamental`, `themes`, `theme-detail`, `kr-home`, `kr-supply`, and `kr-technical` must each subscribe to page-appropriate Telegram tags rather than sharing one generic feed.
+P651-Q4: Long-form bank/research posts must not be globally filtered out by compact-card length limits; analysis pages must preserve them while compact pages can still suppress them.
+P651-Q5: `data-watchdog.yml`, `ci-data-pipeline-contract-check.mjs`, and `ci-runtime-contract-check.mjs` must fail if live Telegram digest freshness/channel coverage, credit classification, or page feed hosts regress.
+
+--- v52.37 topic coverage and credit/funding surface checks (2026-07-09) ---
+P652-Q1: Compare `public-data/telegram-digest.json.topicCounts` keys against `_TG_PAGE_TAGS`; any produced non-internal topic such as `market-note` must be consumed by at least one suitable page.
+P652-Q2: `credit` must remain a first-class runtime topic: `TOPIC_KEYWORDS`, `getTopicBadge`, `_TOPIC_GROUP_ORDER`, topic label/advice/color, and macro ticker-suppression paths must all recognize it.
+P652-Q3: `macro`, `fxbond`, `themes`, `sentiment`, `signal`, `fundamental`, and `breadth` news surface contracts must include `credit`; `fxbond` must also accept legacy server topic `fxbond`.
+P652-Q4: `scripts/fetch-data.mjs` must keep a dedicated `Google News - Credit/Funding` query and `credit-funding` scoring rule for LQD/HYG/OAS, corporate bonds, rating downgrades, AI CAPEX funding, and data center financing.
+P652-Q5: `ci-data-pipeline-contract-check.mjs` and `ci-runtime-contract-check.mjs` must fail if P652-Q1~Q4 regress.

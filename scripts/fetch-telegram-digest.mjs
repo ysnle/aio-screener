@@ -22,8 +22,8 @@ const outPath = argValue('out');
 const now = new Date(argValue('now', new Date().toISOString()));
 const since = sinceArg ? new Date(sinceArg) : new Date(now.getTime() - days * 86400000);
 
-// P571/R262: this used to re-walk the full PAGE_LIMIT×3-channel×14-day window from scratch on
-// every run (every 30 min via refresh-data.yml — 48x/day), with no cursor/state persisted
+// P571/R262: this used to re-walk the full PAGE_LIMIT횞3-channel횞14-day window from scratch on
+// every run (every 30 min via refresh-data.yml ??48x/day), with no cursor/state persisted
 // between runs, unlike enrichScreener's 6h self-throttle. The digest we write only keeps a
 // per-channel summary (count/pages), not the full item list, so we persist a lightweight
 // `lastPostId` cursor per channel and use it to stop pagination as soon as a page's newest
@@ -69,92 +69,69 @@ function decodeEntities(s) {
 }
 
 function classify(text) {
-  const t = String(text || '').toLowerCase();
+  const raw = String(text || '');
   const tags = [];
   const add = v => { if (!tags.includes(v)) tags.push(v); };
-  // 매크로: Fed 발언·금리·환율·이란·관세 + 한국 정책
-  if (/boj|bank of japan|일본은행|엔화|닛케이|국채|금리|환율|fomc|fed|연준|cpi|ppi|pce|이란|호르무즈|g7|관세|수출통제|기준금리|통화정책|메가프로젝트|대도약|국민보고회/.test(t)) add('macro');
-  // 지정학: 분쟁·제재·핵·지역 갈등
-  if (/이란|호르무즈|전쟁|휴전|핵|파키스탄|중동|제재|헤즈볼라|이스라엘|레바논|하마스|가자|베네수엘라|우크라이나|reconstruction|jcpoa/.test(t)) add('geo');
-  // 반도체: 메모리·AI 칩·장비·소재·LTA
-  if (/nvidia|엔비디아|amd|tsmc|hbm|dram|nand|mlcc|cpos|cowos|반도체|메모리|gpu|cpu|mi450|패키징|lta|장기계약|hbm4|hbm4e|socamm|wf6|etchant/.test(t)) add('semi');
-  // 광통신: CPO/NPO·레이저·광인터커넥트
-  if (/cpo|광통신|optical|laser|레이저|eml|cw laser|coherent|lumentum|aaoi|mtsi|sive|marvell|celestial/.test(t)) add('optical');
-  // 전력·인프라: 데이터센터 전력·그리드·800V
-  if (/전력|data center power|sofc|bloom|oracle|transformer|grid|gw|800v|fuel cell|변압기|송전|hvdc/.test(t)) add('power');
-  // AI 정책: 모델 출시·수출통제·LLM 거버넌스·OpenAI
-  if (/anthropic|mythos|fable|sovereign ai|소버린 ai|export control|ai 모델|탈옥|jailbreak|openai|gpt-4|gpt-5|gpt-6|chatgpt|gemini|llama|claude|ipo.*ai|ai.*ipo/.test(t)) add('ai-policy');
-  // 한국 시장: KOSPI·KOSDAQ·사이드카·서학개미·외국인수급
-  if (/코스피|코스닥|kospi|kosdaq|사이드카|서킷브레이커|서학개미|외국인.*순매수|한국예탁결제원|키움|미래에셋|한국장/.test(t)) add('kr-market');
-  // 주식·애널리스트: 목표주가·상향·IPO·시총
-  if (/spacex|prime day|amazon|adobe|smci|meta|murata|삼성전기|기업|상장|ipo|시가총액|목표주가|buy|upgrade|상향|mlcc.*etf|etf.*mlcc/.test(t)) add('equity');
-  // 크립토
-  if (/crypto|bitcoin|코인|암호화폐/.test(t)) add('crypto');
+  if (/corporate bond|company bond|investment grade|ig credit|\boas\b|lqd|hyg|credit spread|project finance|rating downgrade|rating downshift|downgrade.*rating|funding cost|debt financing|capex funding|bond market|company debt|회사채|투자등급|크레딧|신용스프레드|스프레드|프로젝트\s*파이낸스|자금조달|조달비용|등급\s*하향|신용등급|신용공여/i.test(raw)) add('credit');
+  if (/boj|bank of japan|fomc|fed|federal reserve|cpi|ppi|pce|gdp|gdpnow|treasury|10y|yield|rate cut|rate hike|inflation|deflation|recession|stagflation|tariff|oil|crude|spr|ecb|employment|unemployment|payrolls|달러|금리|물가|인플레|경기침체|유가|중앙은행|관세|연준|고용|실업|국채|입찰/i.test(raw)) add('macro');
+  if (/iran|israel|hormuz|middle east|war|sanction|reconstruction|jcpoa|geopolitic|conflict|strait|호르무즈|이란|이스라엘|중동|전쟁|제재|지정학/i.test(raw)) add('geo');
+  if (/nvidia|nvda|amd|tsmc|hbm|dram|nand|micron|broadcom|avgo|marvell|mrvl|gpu|cpu|asic|cowos|socamm|hbm4|hbm4e|semiconductor|memory|sk hynix|samsung electronics|반도체|메모리|하이닉스|삼성전자|엔비디아|마이크론/i.test(raw)) add('semi');
+  if (/cpo|npo|optical|laser|eml|cw laser|coherent|lumentum|aaoi|mtsi|sive|photonics/i.test(raw)) add('optical');
+  if (/power|data center power|sofc|bloom energy|oracle|transformer|grid|gw|800v|fuel cell|electricity|hvdc|전력|데이터센터|변압기|송전|전력망|연료전지/i.test(raw)) add('power');
+  if (/anthropic|openai|gpt-|chatgpt|gemini|llama|claude|sovereign ai|export control|ai policy|ai model|소버린|수출통제|AI\s*모델/i.test(raw)) add('ai-policy');
+  if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|기관|코스피|코스닥|국장|한국장|선물|환율/i.test(raw)) add('kr-market');
+  if (/spacex|prime day|amazon|adobe|smci|meta|murata|ipo|buy|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
+  if (/crypto|bitcoin|ethereum|coinbase/i.test(raw)) add('crypto');
   return tags.length ? tags : ['market-note'];
 }
 
 function extractTickers(text) {
   const raw = String(text || '');
   const map = [
-    // 글로벌 빅캡
-    ['NVDA', /nvidia|엔비디아/i], ['AMD', /\bAMD\b|Advanced Micro|MI450/i],
-    ['AAPL', /\bApple\b|애플|AAPL/i], ['MSFT', /\bMicrosoft\b|마이크로소프트|MSFT/i],
-    ['GOOG', /\bGoogle\b|구글|Google Finance/i], ['META', /\bMeta\b|메타/i],
-    ['AVGO', /\bBroadcom\b|브로드컴|AVGO/i], ['AMZN', /Amazon|아마존|Prime Day/i],
-    // 메모리·반도체
-    ['MU', /\bMicron\b|마이크론|DRAM|HBM/i], ['TSM', /TSMC|대만반도체/i],
-    ['SNDK', /\bSNDK\b|SanDisk|샌디스크/i], ['MRVL', /Marvell|마벨/i],
-    ['ALAB', /\bALAB\b|Astera/i],
-    // 광통신
-    ['LITE', /Lumentum|루멘텀/i], ['COHR', /Coherent|코히런트/i],
-    ['AAOI', /\bAAOI\b|Applied Optoelectronics|어플라이드 옵토/i], ['MTSI', /\bMTSI\b|MACOM/i],
-    // 인프라·전력
-    ['ORCL', /Oracle|오라클/i], ['BE', /Bloom Energy|블룸에너지|SOFC/i],
-    ['ADBE', /Adobe|어도비/i], ['SMCI', /\bSMCI\b|Super Micro/i], ['RKLB', /\bRKLB\b|Rocket Lab/i],
-    // 일본
-    ['6600.T', /Kioxia|키옥시아/i], ['6981.T', /Murata|무라타/i],
-    // 한국
-    ['005930.KS', /삼성전자/i], ['009150.KS', /삼성전기/i], ['000660.KS', /SK하이닉스|SK Hynix/i],
+    ['NVDA', /\bNVDA\b|nvidia/i], ['AMD', /\bAMD\b|Advanced Micro|MI450/i],
+    ['AAPL', /\bAAPL\b|\bApple\b/i], ['MSFT', /\bMSFT\b|\bMicrosoft\b|Azure|Copilot/i],
+    ['GOOG', /\bGOOG\b|\bGOOGL\b|Google|Alphabet|Gemini/i], ['META', /\bMETA\b|Meta Platforms/i],
+    ['AVGO', /\bAVGO\b|Broadcom|TPU/i], ['AMZN', /\bAMZN\b|Amazon|AWS|Trainium/i],
+    ['MU', /\bMU\b|Micron/i], ['TSM', /\bTSM\b|TSMC|Taiwan Semiconductor/i],
+    ['MRVL', /\bMRVL\b|Marvell/i], ['ALAB', /\bALAB\b|Astera/i],
+    ['LITE', /\bLITE\b|Lumentum/i], ['COHR', /\bCOHR\b|Coherent/i],
+    ['AAOI', /\bAAOI\b|Applied Optoelectronics/i], ['MTSI', /\bMTSI\b|MACOM/i],
+    ['ORCL', /\bORCL\b|Oracle/i], ['BE', /\bBE\b|Bloom Energy|SOFC/i],
+    ['ADBE', /\bADBE\b|Adobe/i], ['SMCI', /\bSMCI\b|Super Micro/i], ['RKLB', /\bRKLB\b|Rocket Lab/i],
+    ['6600.T', /Kioxia/i], ['6981.T', /Murata/i],
+    ['005930.KS', /Samsung Electronics/i], ['009150.KS', /Samsung Electro/i], ['000660.KS', /SK\s*Hynix/i],
   ];
   const out = [];
   for (const [ticker, re] of map) if (re.test(raw) && !out.includes(ticker)) out.push(ticker);
   return out;
 }
 
-// 채널 공지/일정/단순 안내 여부 감지 (저점수 패널티용)
+// 梨꾨꼸 怨듭?/?쇱젙/?⑥닚 ?덈궡 ?щ? 媛먯? (??먯닔 ?⑤꼸?곗슜)
 function isLowSignalPost(text) {
   const t = String(text || '').toLowerCase();
-  // 트럼프 일정, 채널 공지, 구호작전 등 시장 무관 행정 포스트
-  if (/대통령.*일정|executive time|트럼프.*오후.*한국시간|인타운\s*풀|오벌\s*오피스/.test(t)) return true;
-  if (/글로벌 뉴스 브리핑\s*컨텐츠도 시작|구독자 이탈 방지|메세지 보내는거 최소화/.test(t)) return true;
-  if (/구호 작전|지진.*피해.*구호|humanitarian/.test(t) && !/주식|반도체|금리/.test(t)) return true;
+  if (/executive time|event schedule|holiday notice|webinar only/.test(t)) return true;
+  if (/humanitarian/.test(t) && !/market|oil|rate|risk|supply|shipping/.test(t)) return true;
   return false;
 }
 
 function scoreItem(text, tags, tickers) {
-  if (isLowSignalPost(text)) return 20; // 낮은 점수로 고정
-  let score = 35; // base 낮춤 (기존 40 → 35)
-  // 티커 수: 최대 +20
+  if (isLowSignalPost(text)) return 20;
+  let score = 35;
   score += Math.min(20, tickers.length * 4);
-  // 태그 보너스 (중복 가능, 최대 합산)
   if (tags.includes('macro')) score += 12;
+  if (tags.includes('credit')) score += 12;
   if (tags.includes('geo')) score += 10;
   if (tags.includes('semi')) score += 12;
   if (tags.includes('ai-policy')) score += 10;
   if (tags.includes('power') || tags.includes('optical')) score += 8;
   if (tags.includes('kr-market')) score += 8;
-  // 애널리스트 리포트 / 목표주가 상향
-  if (/citi|ubs|jpm|goldman|bofa|morgan stanley|메리츠|키움|미래에셋|대신|한투|목표주가|상향|하향|upgrade|downgrade/i.test(text)) score += 10;
-  // 정량 데이터 (구체적 수치 포함)
-  if (/\b\d+(\.\d+)?\s*(gw|억|조|bp|bps|%|\$|엔|달러|위안)/i.test(text)) score += 5;
-  // 한국 AI 메가프로젝트 / 정책 이벤트
-  if (/메가프로젝트|대도약|국민보고회|초대형\s*투자/.test(text)) score += 8;
-  // 서킷브레이커·사이드카 = 시장 사건
-  if (/사이드카|서킷\s*브레이커|circuit\s*breaker/.test(text)) score += 8;
-  // 긴 분석 포스트 보너스 (500자+)
+  if (/citi|ubs|jpm|goldman|bofa|morgan stanley|price target|upgrade|downgrade/i.test(text)) score += 10;
+  if (/lqd|oas|credit spread|project finance|rating downgrade|funding cost|capex funding|corporate bond|investment grade|회사채|투자등급|크레딧|프로젝트\s*파이낸스|자금조달|등급\s*하향|신용공여/i.test(text)) score += 10;
+  if (/\b\d+(\.\d+)?\s*(gw|bp|bps|%|\$|bn|billion|trillion)/i.test(text)) score += 5;
+  if (/mega project|capex|data center|large investment/i.test(text)) score += 8;
+  if (/circuit\s*breaker|selloff|risk off/i.test(text)) score += 8;
   if (text.length > 500) score += 5;
-  // 단순 일정/안내 유사 단어 페널티 (isLowSignalPost에서 걸리지 않은 경우)
-  if (/대통령.*일정|trump.*schedule|행사.*계획/.test(text)) score -= 10;
+  if (/executive time|event schedule/i.test(text)) score -= 10;
   return Math.max(0, Math.min(100, score));
 }
 
@@ -230,7 +207,7 @@ async function scrapeChannel(channel) {
       break;
     }
     // P571/R262: once every post on this page is already <= what the previous run last saw,
-    // every earlier page (further back in time) is guaranteed to be already-known too —
+    // every earlier page (further back in time) is guaranteed to be already-known too ??
     // stop here instead of continuing to walk the full window every single cycle.
     if (Number.isFinite(cursor) && Math.max(...nums) <= cursor) {
       reachedKnown = true;
@@ -278,7 +255,7 @@ const digest = {
   count: items.length,
   topicCounts,
   tickerCounts,
-  // topItems: score>=65, 채널당 최대 20개, 전체 최대 45개, score 내림차순
+  // topItems: score>=65, 梨꾨꼸??理쒕? 20媛? ?꾩껜 理쒕? 45媛? score ?대┝李⑥닚
   topItems: (function() {
     const candidates = items.filter(x => x.score >= 65).sort((a, b) => b.score - a.score);
     const perChannel = {};
@@ -292,7 +269,7 @@ const digest = {
     }
     return out;
   })(),
-  // broadItems: score>=50, 채널당 최대 120개, 전체 최대 400개, datetime 내림차순 (뉴스피드)
+  // broadItems: score>=50, 梨꾨꼸??理쒕? 120媛? ?꾩껜 理쒕? 400媛? datetime ?대┝李⑥닚 (?댁뒪?쇰뱶)
   broadItems: (function() {
     const candidates = items.filter(x => x.score >= 50).sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
     const perChannel = {};
@@ -309,14 +286,14 @@ const digest = {
   // Phase 3 [A1/B3] P598: `items` (the full merged/deduped set, ~1.04MB / 46% of this file's
   // pre-fix size) used to be included here too, even though the "previousMergePool" logic just
   // above (P571/R262) already documents "the digest we write never persists the full raw item
-  // list (only capped topItems/broadItems)" — that was the design intent, but this literal never
+  // list (only capped topItems/broadItems)" ??that was the design intent, but this literal never
   // actually matched it. Confirmed via full-codebase grep that no runtime consumer reads `items`/
   // `rawItems` from the served JSON in the normal path (only a since-removed items.slice(0,80)
   // fallback in js/aio-data.js that only ever triggered if BOTH topItems and broadItems were
-  // empty — mathematically near-impossible, since broadItems' score>=50/120-per-channel/400-total
+  // empty ??mathematically near-impossible, since broadItems' score>=50/120-per-channel/400-total
   // filter is strictly looser than topItems' score>=65/20-per-channel/45-total one, so anything
   // that qualifies for topItems always also qualifies for broadItems). `items` stays as a local
-  // variable above (still needed to compute topItems/broadItems/topicCounts/tickerCounts) — it's
+  // variable above (still needed to compute topItems/broadItems/topicCounts/tickerCounts) ??it's
   // just not re-serialized into the output file anymore.
 };
 

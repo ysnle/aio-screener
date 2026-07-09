@@ -2,7 +2,7 @@ name: Data freshness watchdog
 
 # Independent watchdog for public-data artifacts. Checks BOTH the committed repo
 # files (refresh commits stopped arriving?) AND the deployed live site (deploys
-# stopped publishing them?). P572/R263: the repo-only check had a blind spot —
+# stopped publishing them?). P572/R263: the repo-only check had a blind spot ??
 # when [skip ci] data commits stopped triggering the CI-gated Pages deploy, the
 # repo stayed fresh, this watchdog stayed green, and the live site went stale.
 
@@ -76,25 +76,25 @@ jobs:
             process.exit(1);
           }
 
-          // v50.78: F&G, FRED, screener.json 상태 경보 (실패 아닌 경고 — 사이트는 폴백 동작)
-          if (!data.meta.fearGreedOk) console.warn('⚠️  fearGreedOk=false — CNN F&G fetch 실패. 정적 폴백 사용 중.');
-          if (!data.meta.fredHasKey) console.warn('⚠️  FRED_API_KEY Secret 미등록 — 매크로 서버 갱신 비활성. 클라이언트 aio_fred_key 브릿지로 보완 가능.');
-          else if (!data.meta.fredFetchOk) console.warn('⚠️  FRED 키 있으나 fetchOk=false — 키 유효성/레이트리밋 확인 필요.');
-          if (!data.meta.marketAnalysisOk) console.warn('⚠️  marketAnalysisOk=false — ANTHROPIC_API_KEY Secret 미등록 또는 LLM 분석 생성 실패. 정적/클라이언트 분석으로 보완 중.');
+          // v50.78: F&G, FRED, screener.json ?곹깭 寃쎈낫 (?ㅽ뙣 ?꾨땶 寃쎄퀬 ???ъ씠?몃뒗 ?대갚 ?숈옉)
+          if (!data.meta.fearGreedOk) console.warn('?좑툘  fearGreedOk=false ??CNN F&G fetch ?ㅽ뙣. ?뺤쟻 ?대갚 ?ъ슜 以?');
+          if (!data.meta.fredHasKey) console.warn('?좑툘  FRED_API_KEY Secret 誘몃벑濡???留ㅽ겕濡??쒕쾭 媛깆떊 鍮꾪솢?? ?대씪?댁뼵??aio_fred_key 釉뚮┸吏濡?蹂댁셿 媛??');
+          else if (!data.meta.fredFetchOk) console.warn('?좑툘  FRED ???덉쑝??fetchOk=false ?????좏슚???덉씠?몃━諛??뺤씤 ?꾩슂.');
+          if (!data.meta.marketAnalysisOk) console.warn('?좑툘  marketAnalysisOk=false ??ANTHROPIC_API_KEY Secret 誘몃벑濡??먮뒗 LLM 遺꾩꽍 ?앹꽦 ?ㅽ뙣. ?뺤쟻/?대씪?댁뼵??遺꾩꽍?쇰줈 蹂댁셿 以?');
 
           try {
             const scr = readJson('public-data/screener.json');
             const scrAge = scr && scr.asOf ? Math.round((Date.now() - new Date(scr.asOf).getTime()) / 3600000) : null;
-            if (scrAge === null) console.warn('⚠️  screener.json asOf 없음 — enrichment 미실행 가능성.');
-            else if (scrAge > 48) { console.error(`❌ screener.json ${scrAge}h 경과 — 48h 초과 CI 실패. (ok=${scr.ok}/${scr.universe})`); process.exit(1); }
-            else if (scrAge > 24) console.warn(`⚠️  screener.json ${scrAge}h 경과 — enrichment 지연 가능. (ok=${scr.ok}/${scr.universe})`);
+            if (scrAge === null) console.warn('?좑툘  screener.json asOf ?놁쓬 ??enrichment 誘몄떎??媛?μ꽦.');
+            else if (scrAge > 48) { console.error(`??screener.json ${scrAge}h 寃쎄낵 ??48h 珥덇낵 CI ?ㅽ뙣. (ok=${scr.ok}/${scr.universe})`); process.exit(1); }
+            else if (scrAge > 24) console.warn(`?좑툘  screener.json ${scrAge}h 寃쎄낵 ??enrichment 吏??媛?? (ok=${scr.ok}/${scr.universe})`);
             else console.log(`screener.json asOf=${scr.asOf} age=${scrAge}h ok=${scr.ok}/${scr.universe}`);
-          } catch(e) { console.warn('⚠️  screener.json 읽기 실패:', e.message); }
+          } catch(e) { console.warn('?좑툘  screener.json ?쎄린 ?ㅽ뙣:', e.message); }
 
           console.log('public-data freshness OK');
           NODE
 
-      # P572/R263: repo freshness alone proved insufficient — also verify the LIVE site
+      # P572/R263: repo freshness alone proved insufficient ??also verify the LIVE site
       # is actually serving fresh data. Live lag budget = refresh cadence (30min) +
       # CI validate + Pages deploy + CDN cache (~10min), so a generous 360min max
       # still catches a broken deploy pipeline within hours instead of never.
@@ -104,27 +104,39 @@ jobs:
         run: |
           node - <<'NODE'
           const max = parseInt(process.env.LIVE_MAX_AGE_MIN || '360', 10);
-          const url = 'https://ysnle.github.io/aio-screener/public-data/data.json';
-          fetch(url, { headers: { 'cache-control': 'no-cache' } })
-            .then(r => {
-              if (!r.ok) throw new Error(`HTTP ${r.status}`);
-              return r.json();
-            })
-            .then(d => {
-              const ts = d && d.meta && d.meta.generatedAt;
-              if (!ts) throw new Error('live data.json meta.generatedAt missing');
-              const ageMin = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
-              console.log(`LIVE data.json generatedAt=${ts} / age=${ageMin}min / max=${max}min`);
-              if (!Number.isFinite(ageMin) || ageMin > max) {
-                console.error(`LIVE site data.json is stale (${ageMin}min > ${max}min). ` +
-                  'Repo is fresh but deploys are not publishing — check that data commits ' +
-                  'trigger the CI deploy job (no [skip ci]) and that CI validate passes.');
-                process.exit(1);
-              }
-              console.log('live site freshness OK');
-            })
-            .catch(e => {
-              console.error(`LIVE site check failed: ${e.message}`);
-              process.exit(1);
-            });
+          const base = 'https://ysnle.github.io/aio-screener/public-data';
+          const fail = (message) => {
+            console.error(message);
+            process.exit(1);
+          };
+          const fetchJson = async (name) => {
+            const r = await fetch(`${base}/${name}`, { headers: { 'cache-control': 'no-cache' } });
+            if (!r.ok) throw new Error(`${name} HTTP ${r.status}`);
+            return r.json();
+          };
+          const checkAge = (label, ts) => {
+            if (!ts) fail(`LIVE ${label} generatedAt missing`);
+            const ageMin = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
+            console.log(`LIVE ${label} generatedAt=${ts} / age=${ageMin}min / max=${max}min`);
+            if (!Number.isFinite(ageMin) || ageMin > max) {
+              fail(`LIVE ${label} is stale (${ageMin}min > ${max}min). Repo is fresh but deploys may not be publishing; check CI deploy and Pages cache.`);
+            }
+          };
+          (async () => {
+            const data = await fetchJson('data.json');
+            checkAge('data.json', data && data.meta && data.meta.generatedAt);
+
+            const telegram = await fetchJson('telegram-digest.json');
+            checkAge('telegram-digest.json', telegram && telegram.generatedAt);
+            const count = Number(telegram && telegram.count);
+            if (!Number.isFinite(count) || count < 100) fail(`LIVE telegram digest too thin: count=${count}`);
+            const channels = Array.isArray(telegram && telegram.channels) ? telegram.channels : [];
+            if (channels.length < 3) fail(`LIVE telegram digest channel coverage too thin: channels=${channels.length}`);
+            const badChannels = channels.filter(ch => !Number.isFinite(Number(ch.lastPostId)) || ch.error);
+            if (badChannels.length) fail(`LIVE telegram digest channel errors: ${badChannels.map(ch => `${ch.channel}:${ch.error || ch.lastPostId}`).join(', ')}`);
+            console.log(`LIVE telegram channels=${channels.map(ch => `${ch.channel}:${ch.lastPostId}`).join(', ')}`);
+            console.log('live site freshness OK');
+          })().catch(e => {
+            fail(`LIVE site check failed: ${e.message}`);
+          });
           NODE
