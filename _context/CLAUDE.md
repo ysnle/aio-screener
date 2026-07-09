@@ -7,7 +7,7 @@
 - **현재 버전**: v52.38
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (26개 활성, 2026-07-08 갱신)
+## _context/ 문서 (27개 활성, 2026-07-09 갱신)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -36,7 +36,8 @@
 | FABLE-LIVE-AUDIT-2026-07-04.md | v52.4 라이브 전수 감사 P0~P6 백로그 (v52.5~v52.18 전체 완료) | 재감사/항목 완료 시 |
 | FABLE-ARCH-DIAGNOSIS-2026-07-06.md | v52.18 전수 아키텍처 진단(7축) + Sonnet 5 인수인계 로드맵 Phase 0~4 | 로드맵 항목 완료/구조 변경 시 |
 | FABLE-LIVE-AUDIT-2026-07-07.md | KOSPI -8% 폭락일 라이브 실측 감사(C/L/F/U/X 발견 대장) + 구조 개선 Phase L0~L5. L0~L4 전체(P634-P641, v52.24~26) 같은 세션 실행 완료(§6, L0-1은 운영자 조치까지 완료) | 로드맵 항목 완료/재감사 시 |
-| FABLE-UIUX-DEEP-AUDIT-2026-07-08.md | UI/UX 심층 라이브(v52.26) 감사 — QA 미확인 백로그+P634~P641 검증 원장 + 신규 발견 UX-01~13(showThemeDetail P0 크래시·프록시 SPOF·AI 백엔드 이원화 등) + 구조 개선 Phase V0~V4·운영자 결정 카드 — **현행 작업 진입점(§5~6)** | 로드맵 항목 완료/재감사 시 |
+| FABLE-UIUX-DEEP-AUDIT-2026-07-08.md | UI/UX 심층 라이브(v52.26) 감사 — QA 미확인 백로그+P634~P641 검증 원장 + 신규 발견 UX-01~13(showThemeDetail P0 크래시·프록시 SPOF·AI 백엔드 이원화 등) + 구조 개선 Phase V0~V4·운영자 결정 카드 | 로드맵 항목 완료/재감사 시 |
+| FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md | 22페이지 교육 레이어 전수 감사(E1~E5 매트릭스) + `AIO_PAGE_FUNDAMENTALS` 컴포넌트 설계 + 페이지별 콘텐츠 원고 + 게이트 계획(P654/R291 예정) — **차기 구현 진입점(§6, Sonnet 5 체크리스트)** | 구현 완료/재감사 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.
 > `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore`로 로컬 전용(레거시, RULES/QA로 대체됨).

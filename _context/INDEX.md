@@ -40,10 +40,11 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `FABLE-LIVE-AUDIT-2026-07-04.md` | v52.4 라이브 전수 감사 P0~P6 백로그 — P0/P1은 v52.5/52.6, P2~P6은 v52.7~v52.18에서 전체 완료(CHANGELOG 참조) | 재감사/항목 완료 시 |
 | `FABLE-ARCH-DIAGNOSIS-2026-07-06.md` | v52.18 전수 아키텍처 진단(7축 스코어카드, 커버리지 정직표, 07-02 진단 해소 8건 코드 대조) + Sonnet 5 인수인계 로드맵 Phase 0~4. P1: `fetchKrDynamicData` 그림자 선언 + R280 기계 게이트 부재. 헤드리스 899/922 재현 실측 | 로드맵 항목 완료/구조 변경 시 |
 | `FABLE-LIVE-AUDIT-2026-07-07.md` | KOSPI -8% 실폭락일 라이브(v52.21) 실브라우저+외부 실측 감사 — 발견 전수 대장(C1~C7·L1~L10·F1~F9·U1~U11·X1~X3) + 근본원인 6뿌리 + 구조 개선 Phase L0~L5 + ARCH 로드맵 통합 우선순위 (L0~L4 실행 완료) | 로드맵 항목 완료/재감사 시 |
-| `FABLE-UIUX-DEEP-AUDIT-2026-07-08.md` | UI/UX 심층 라이브(v52.26) 감사 — QA 미확인 백로그+P634~P641 일괄 검증 원장(§1), 신규 발견 UX-01~13(showThemeDetail P0 크래시·theme-detail 고아 라우트·프록시 SPOF·AI 백엔드 이원화·aria-live 132 등), 구조 개선 Phase V0~V4 + 운영자 결정 카드. **현행 작업 진입점(§5~6)** | 로드맵 항목 완료/재감사 시 |
+| `FABLE-UIUX-DEEP-AUDIT-2026-07-08.md` | UI/UX 심층 라이브(v52.26) 감사 — QA 미확인 백로그+P634~P641 일괄 검증 원장(§1), 신규 발견 UX-01~13(showThemeDetail P0 크래시·theme-detail 고아 라우트·프록시 SPOF·AI 백엔드 이원화·aria-live 132 등), 구조 개선 Phase V0~V4 + 운영자 결정 카드 | 로드맵 항목 완료/재감사 시 |
+| `FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md` | 22페이지 교육 레이어(개념·원리·시장연결·실전) 전수 감사 매트릭스 + `AIO_PAGE_FUNDAMENTALS` 컴포넌트 설계 + 페이지별 콘텐츠 원고 + 게이트 계획(P654/R291 예정). **차기 구현 진입점(§6, Sonnet 5 체크리스트)** | 구현 완료/재감사 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 25개 + `FABLE-UIUX-DEEP-AUDIT-2026-07-08.md` = 26개 `_context/*.md` 활성(2026-07-08 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 26개 + `FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md` = 27개 `_context/*.md` 활성(2026-07-09 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 
