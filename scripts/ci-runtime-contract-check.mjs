@@ -399,6 +399,27 @@ check('headless tests cover the page fundamentals registry+render contract', /T8
 // they navigate away and back. Guard this so the catch-up call cannot be silently deleted later.
 check('page fundamentals renderer catches up on the page already active at script-load time (initFromHash ordering)', /querySelector\('\.page\.active'\)[\s\S]{0,200}_aioRenderPageFundamentals\(/.test(ui));
 
+// v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) structural gates
+check('EF-13: FOMC decision-header footnote prefixes the registry eventDate on every consuming page (previously date-less outside macro calendar table)', /_fomcFoot\.eventDate\s*\?\s*_fomcFoot\.eventDate\s*\+/.test(core) && /_fomcAsOfAge/.test(core));
+check('EF-13: FOMC footnote auto-badges past 21 days and collapses past 30 days instead of asserting a dateless "today" frame forever', /_fomcAsOfAge\s*>\s*21/.test(core) && /_fomcTooStale/.test(core));
+check('EF-04: briefing date-line is a named, mockable-`now` renderer instead of an unconditional new Date() write', /window\._aioRenderBriefingDateLine\s*=\s*function\(nowOverride\)/.test(html) && /isPreCutoff/.test(html));
+check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called from both the Chart.js-independent snapshot path and updateBreadthBars, not duplicated', (core.match(/_aioSyncBreadth50Readout\s*=\s*function/g) || []).length === 1 && /window\._aioSyncBreadth50Readout\(\)/.test(core) && /window\._aioSyncBreadth50Readout\(\)/.test(ui));
+check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', /_aioRenderBreadthConsensus\s*=\s*function/.test(core) && /breadth-header-badge/.test(core) && /breadth-diag-signal/.test(core));
+check('EF-02b: home market-pulse breadth strip uses NARRATIVE_ENGINE.getBreadthRegime instead of an independent 60/30 threshold', /NARRATIVE_ENGINE\.getBreadthRegime\(bVal\)/.test(html));
+check('EF-02c: NYSE new-high/new-low/hl-ratio cards render an explicit na state instead of a perpetual unstated dash', /breadth-new-highs.*breadth-new-lows.*breadth-hl-ratio|breadth-new-highs['"]\s*,\s*['"]breadth-new-lows/.test(ui.replace(/\s+/g, ' ')));
+check('EF-01: macro "now/live" mini-card reads window._liveData first and falls back to the snapshot with an explicit fallback title, instead of an always-snapshot data-snap binding', /function _aioSyncMacroLiveSpxMini/.test(html) && /id="macro-now-spx"/.test(html) && !/id="macro-now-spx"\s+data-snap="spx"/.test(html));
+check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV5240Batch1Efficacy/.test(tests) && /T870/.test(tests) && /T871/.test(tests) && /T872/.test(tests) && /T873/.test(tests));
+
+// v52.41 (P656): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2 (EF-08/10/11/12/19) structural gates
+check('EF-08: carry-unwind-risk render function has an independent aio:pageShown/aio:liveQuotes trigger, not only the showPage-monkeypatch setTimeout path that live-audit proved unreliable on cold load', /data-carry-unwind-shown/.test(data) && /data-carry-unwind-live/.test(data) && /_aioPageBus\.register\('data-carry-unwind-shown'/.test(data));
+check('EF-08: carry-unwind rate-diff label discloses the BOJ side is a fixed constant, not a live feed', /BOJ 정책금리 고정값 기준/.test(data));
+check('EF-10: ticker page Key Metrics + Quarterly Results dead slots render an honest na state pointing to the fundamental page instead of a silent permanent dash', /_tickerGapIds/.test(core) && /ticker-m-mcap/.test(core) && /ticker-f-ni/.test(core) && /펀더멘탈.*이동 후/.test(core));
+check('EF-11: risk-monitor VXX-term-structure and RSP/SPY-ratio status slots fall back to an explicit pending state when live inputs are missing', /VXX 또는 VIX 라이브 시세 미수신/.test(html) && /RSP 또는 SPY 라이브 시세 미수신/.test(html));
+check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(html) && /html-tv-ohlc-fallback-shown/.test(html) && /html-tv-ohlc-fallback-live/.test(html));
+check('EF-19: kr-technical KOSPI/KOSDAQ refresh buttons call analyzeKrIndex with the correct target ids, and the analyzeKrTickerDeep mis-wiring is gone', /data-action="analyzeKrIndex"\s+data-arg="\^KS11"\s+data-arg2="kr-kospi-tech-result"/.test(html) && /data-action="analyzeKrIndex"\s+data-arg="\^KQ11"\s+data-arg2="kr-kosdaq-tech-result"/.test(html) && !/data-action="analyzeKrTickerDeep"\s+data-arg="\^K[SQ]11"/.test(html));
+check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (live network audit showed corsproxy.io/allorigins alone failing repeatedly for KR tickers)', /api\.codetabs\.com\/v1\/proxy/.test(html));
+check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19)', /_testV5241Batch2Efficacy/.test(tests) && /T874/.test(tests) && /T875/.test(tests) && /T876/.test(tests) && /T877/.test(tests) && /T878/.test(tests));
+
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));

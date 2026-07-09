@@ -17487,7 +17487,9 @@ function _aioRenderCarryUnwindRisk() {
   e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = jpyRisk;
   e = document.getElementById('carry-vix-risk');   if (e) e.textContent = vixRisk;
   e = document.getElementById('carry-rate-diff');  if (e) e.textContent = rateDiff.toFixed(1) + '%p';
-  e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk;
+  // v52.41 (P656/EF-08): 금리차의 절반(BOJ 쪽)은 실시간 시세가 아니라 위 bojRate 고정값이라
+  // "라이브 4축 복합 스코어"처럼 보이는 라벨이 과장이었다 — 정직하게 고정값 기준임을 병기(R282 정신).
+  e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk + ' (BOJ 정책금리 고정값 기준)';
   e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = hygRisk;
   e = document.getElementById('carry-score-bar');  if (e) e.style.width = score + '%';
   e = document.getElementById('carry-score-text'); if (e) e.textContent = score;
@@ -17495,6 +17497,24 @@ function _aioRenderCarryUnwindRisk() {
   e = document.getElementById('carry-risk-level'); if (e) { e.textContent = riskLevel; e.style.color = riskColor; }
 }
 window._aioRenderCarryUnwindRisk = _aioRenderCarryUnwindRisk;
+// v52.41 (P656/EF-08): 라이브 실측(Chrome MCP, v52.34)으로 확인한 진짜 원인 — 이 함수 자체는
+// 콘솔에서 수동 호출 시 즉시 정상 렌더(점수 58, rate-diff 4.0%p 등)되므로 계산 로직 문제가 아니라
+// P605(VKOSPI)와 동일한 "오펀 함수" 패턴: window.showPage 몽키패치의 setTimeout(600ms) 트리거가
+// 콜드 로드(#fxbond 직접 진입) 경로에서 신뢰할 수 없었다. 이 파일의 다른 페이지들이 이미 쓰는
+// 검증된 _aioPageBus('aio:pageShown') 패턴을 보조 트리거로 추가 — 기존 showPage 훅은 그대로 둔 채
+// 더 신뢰할 수 있는 경로를 하나 더 확보(둘 중 하나만 발화해도 게이지가 채워짐).
+try {
+  if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
+    _aioPageBus.register('data-carry-unwind-shown', 'aio:pageShown', function(e) {
+      if (e.detail !== 'fxbond') return;
+      setTimeout(function() { try { _aioRenderCarryUnwindRisk(); } catch(_) {} }, 300);
+    });
+    _aioPageBus.register('data-carry-unwind-live', 'aio:liveQuotes', function() {
+      var p = document.getElementById('page-fxbond');
+      if (p && p.classList.contains('active')) { try { _aioRenderCarryUnwindRisk(); } catch(_) {} }
+    });
+  }
+} catch(_registerCarryErr) {}
 
 // ── 스크리너 질의 엔진 — aio-chat.js에서 이동 (v51.17) ─────────────────────────────
 const _SECTOR_KEYWORDS = {

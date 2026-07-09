@@ -2148,6 +2148,24 @@ if (typeof document !== 'undefined') {
           return d.key + '=' + (d.value != null ? d.value : d.signal);
         }).join(' · ');
       }
+      // v52.40 (P655/EF-02b): breadth 페이지 자체의 header-badge/diag-signal은 이 함수가 존재하기 전부터
+      // "약세 신호"/"약세" 정적 시드가 영구 잔존했다(어떤 JS도 갱신 안 함) — 새 계산 경로를 만들지 않고
+      // 이미 있는 canonical consensus 객체를 두 sink에 더 뿌리기만 한다(같은 0.1/-0.1 임계값, verdictEl과 동일).
+      var hdrBadgeEl = document.getElementById('breadth-header-badge');
+      var diagSignalEl = document.getElementById('breadth-diag-signal');
+      if ((hdrBadgeEl || diagSignalEl) && consensus && consensus.verdict && consensus.verdict !== '—') {
+        var cNum = Number(consensus.consensus);
+        var cTone = cNum > 0.1 ? 'on' : cNum < -0.1 ? 'off' : 'neutral';
+        if (hdrBadgeEl) {
+          hdrBadgeEl.textContent = consensus.verdict;
+          hdrBadgeEl.className = 'status-pill sp-risk-' + (cTone === 'neutral' ? 'off' : cTone);
+          if (cTone === 'neutral') hdrBadgeEl.className = 'status-pill sp-neutral';
+        }
+        if (diagSignalEl) {
+          diagSignalEl.textContent = cTone === 'on' ? '강세' : cTone === 'off' ? '약세' : '혼조';
+          diagSignalEl.style.color = cTone === 'on' ? 'var(--data-green)' : cTone === 'off' ? 'var(--data-red)' : 'var(--data-amber)';
+        }
+      }
     } catch(_e) { /* breadth 페이지 합의 실패 — 정적 진단으로 폴백 */ }
   };
   _aioPageBus.register('core-breadth-consensus', 'aio:pageShown', function(e){
@@ -4554,8 +4572,19 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   // FOMC 안내는 관련 페이지에만 표시, 텍스트는 레지스트리에서 읽음
   var _fomcFooterPages = { home:1, macro:1, fxbond:1, signal:1, briefing:1, 'kr-macro':1 };
   var _fomcFoot = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
-  var _fomcFootNote = (_fomcFooterPages[pageId] && _fomcFoot.result)
-    ? _aioTruncateAtWord(_fomcFoot.result, 70) : '';
+  // v52.40 (P655/EF-13): 이 서브텍스트는 홈/시그널/브리핑 등 6개 페이지에서 asOf 없이 노출돼
+  // "데이터: 실시간" 칩 옆에서 오늘 판단처럼 읽혔다 — macro 페이지의 캘린더 표만 날짜를 달고 있었음.
+  // 모든 소비 페이지에 asOf 병기 + 21일 초과 시 경과 배지 + 30일 초과 시 자체 숨김(캐비어트로 폴백)을 통일 적용.
+  var _fomcAsOfAge = null;
+  if (_fomcFoot.eventDate) {
+    var _fomcAgeMs = Date.now() - new Date(_fomcFoot.eventDate + 'T00:00:00+09:00').getTime();
+    if (isFinite(_fomcAgeMs)) _fomcAsOfAge = Math.floor(_fomcAgeMs / 86400000);
+  }
+  var _fomcTooStale = (_fomcAsOfAge != null && _fomcAsOfAge > 30);
+  var _fomcFootNote = (_fomcFooterPages[pageId] && _fomcFoot.result && !_fomcTooStale)
+    ? (_fomcFoot.eventDate ? _fomcFoot.eventDate + ': ' : '') + _aioTruncateAtWord(_fomcFoot.result, 70) +
+      ((_fomcAsOfAge != null && _fomcAsOfAge > 21) ? ' (오래된 컨텍스트 · ' + _fomcAsOfAge + '일 경과)' : '')
+    : '';
   var sourceLabelMap = {
     LIVE: '데이터: 실시간',
     DELAYED: '데이터: 지연',
@@ -17771,7 +17800,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.39';
+const APP_VERSION = 'v52.41';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -19703,6 +19732,24 @@ window._dateEngineInterval = _aioRegisterTimer('dateEngine', function() { try { 
 // data-snap="키" 속성이 있는 모든 요소에 값을 주입합니다.
 //  모든 값 접근에 방어적 코딩 적용 — undefined/NaN 시 fallback 사용
 // ═══════════════════════════════════════════════════════════════════
+// v52.40 (P655/EF-02d): 50SMA readout 문장 + 막대 폭의 단일 소스 — 이전엔 이 로직이 js/aio-ui.js의
+// updateBreadthBars() 안에만 있었고, 그 함수는 initBreadthPage()에서 `if (typeof Chart === 'undefined') return;`
+// 뒤에서만 호출돼 Chart.js 로드가 늦거나 실패하면 카드 큰 숫자(48%, data-snap 경유라 항상 갱신됨)와
+// readout 문장("50일선 52%", 정적 HTML 시드 그대로 잔존)이 같은 카드에서 서로 다른 값으로 보였다.
+// applyDataSnapshot()(Chart.js 무관하게 항상 실행)에서도 이 함수를 호출해 그 간극을 없앤다.
+window._aioSyncBreadth50Readout = function() {
+  var S = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : {};
+  var b50r = (S.breadth50sma != null) ? S.breadth50sma : ((typeof window._breadth50 === 'number') ? window._breadth50 : null);
+  if (b50r == null || isNaN(b50r)) return;
+  var b50Bar = document.getElementById('breadth-50sma-bar');
+  if (b50Bar) b50Bar.style.width = b50r + '%';
+  var b50Read = document.getElementById('breadth-50sma-readout');
+  if (b50Read) {
+    var strength = b50r >= 60 ? '건강한 상승 구간' : (b50r >= 50 ? '50% 상회(약)' : '50% 미탈환');
+    b50Read.textContent = '50일선 ' + Math.round(b50r) + '% — ' + strength + '. 60% 돌파 시 건강한 상승장 확인. 미너비니 바닥 2단계(리테스트) 관찰 구간.';
+  }
+};
+
 function applyDataSnapshot() {
   try {
     const S = DATA_SNAPSHOT;
@@ -19829,6 +19876,25 @@ function applyDataSnapshot() {
       }
     });
     if (_snapFailed > 0 && typeof _aioLog === 'function') _aioLog('warn', 'snap', 'applyDataSnapshot: ' + _snapFailed + ' key(s) failed / ' + _snapApplied + ' applied');
+
+    // v52.40 (P655/EF-02d): 50SMA readout/bar 동기화를 Chart.js 로드 여부와 무관하게 여기서도 실행.
+    // breadth-50sma-big(위 map의 'breadth-50sma' 키)은 이 loop에서 이미 갱신됐지만, 같은 카드의
+    // readout 문장·막대 폭은 기존엔 updateBreadthBars()(js/aio-ui.js, Chart.js 미로드 시 조기 return)
+    // 안에서만 갱신돼 큰 숫자와 문장이 서로 다른 값으로 잠시(또는 Chart.js 로드 실패 시 영구) 어긋날 수 있었음.
+    if (typeof window._aioSyncBreadth50Readout === 'function') { try { window._aioSyncBreadth50Readout(); } catch(_bfSyncErr) {} }
+    // v52.40 (P655/EF-02a): SMA 3카드 공유 기준일 배지 — breadth_sma는 5/20/50이 하나의 수동 추정 필드를 공유.
+    try {
+      var _bfTs = S && S._fieldTs ? S._fieldTs.breadth_sma : null;
+      if (_bfTs) {
+        var _bfDays = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(_bfTs) : Math.floor((Date.now() - new Date(_bfTs).getTime()) / 86400000);
+        var _bfText = '기준: ' + _bfTs.slice(5).replace('-', '/') + ' (' + _bfDays + '일 전)';
+        var _bfColor = _bfDays > 7 ? 'var(--data-amber)' : 'var(--text-muted)';
+        ['breadth-5sma-freshness', 'breadth-20sma-freshness', 'breadth-50sma-freshness'].forEach(function(_bfId) {
+          var _bfEl = document.getElementById(_bfId);
+          if (_bfEl) { _bfEl.textContent = _bfText; _bfEl.style.color = _bfColor; }
+        });
+      }
+    } catch(_bfBadgeErr) {}
 
     // v48.14: 레짐 기반 설명 텍스트 자동 갱신 (NARRATIVE_ENGINE 활용 — Agent P1-16 대응)
     // VVIX/SKEW/Breadth 등 수치에 따라 설명문·색상 자동 분류
@@ -23656,6 +23722,19 @@ function showTicker(tkr) {
   if (pnlEl) pnlEl.className = 'pnl' + (hasPosition ? ' pos' : '');
   var ab = document.getElementById('ticker-action-btn');
   if (ab) { ab.textContent = actionLabels[d.action] || d.action; ab.className = 'action-btn ' + (actionClasses[d.action]||'neutral'); }
+  // v52.41 (P656/EF-10): ticker 페이지 Overview 탭의 Key Metrics(mcap/pe/pb/roe/div)와
+  // Financials 탭의 Quarterly Results(rev/gp/op/ni) 8개 슬롯은 전수 확인 결과 어떤 fetch 시도도 없이
+  // 정적 "—" 시드만 영구 잔존했다("FMP 실패로 숨김"이 아니라 애초에 이 뷰용 fetch가 없었음 — 실측
+  // offsetParent 확인). fundamental 페이지가 이미 이 종목의 SEC XBRL/Finnhub 기반 재무를 제공하므로
+  // 같은 계산을 중복 구현하는 대신 P643 정직한 상태 + 포인터로 렌더(R276: 새 병렬 계산 경로 금지).
+  if (typeof window._aioRenderValueSlot === 'function') {
+    var _tickerGapIds = ['ticker-m-mcap','ticker-m-pe','ticker-m-pb','ticker-m-roe','ticker-m-div',
+      'ticker-f-rev','ticker-f-gp','ticker-f-op','ticker-f-ni'];
+    _tickerGapIds.forEach(function(_gid) {
+      var _gEl = document.getElementById(_gid);
+      if (_gEl) window._aioRenderValueSlot(_gEl, 'na', null, { text: '기업분석 참조', reason: '이 위젯은 아직 데이터 소스 미연결 — 상단 "펀더멘탈" 이동 후 ' + tkr + ' 재검색 시 SEC/Finnhub 기반 재무 확인 가능' });
+    });
+  }
   const backBtn = document.getElementById('ticker-back-btn-main');
   const parentEl = document.getElementById('ticker-breadcrumb-main');
   function setTickerNavTarget(targetPage) {

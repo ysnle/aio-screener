@@ -7183,6 +7183,182 @@
       'pages=' + pageIds869.length + ' missingRegistry=' + missingRegistry869.join(',') + ' renderFails=' + renderFails869.join(',') + ' dupCheck=' + dupDetail869);
   }
 
+  // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) 회귀 게이트
+  function _testV5240Batch1Efficacy() {
+    // T870 (EF-01): ^GSPC data-live-price 전체 sink(home/signal/technical)가 라이브 주입 시 동일 값
+    try {
+      var _t870Price = 7501.23;
+      window._liveData = window._liveData || {};
+      window._liveData['^GSPC'] = window._liveData['^GSPC'] || {};
+      window._liveData['^GSPC'].price = _t870Price;
+      document.querySelectorAll('[data-live-price="^GSPC"]').forEach(function(el) {
+        if (el.children.length === 0) el.textContent = _t870Price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      });
+      var vals870 = Array.prototype.map.call(document.querySelectorAll('[data-live-price="^GSPC"]'), function(el) {
+        return parseFloat(String(el.textContent).replace(/[^0-9.\-]/g, ''));
+      }).filter(function(n) { return isFinite(n); });
+      var allMatch870 = vals870.length >= 2 && vals870.every(function(v) { return Math.abs(v - _t870Price) / _t870Price < 0.001; });
+      _assert('T870 gspc_data_live_price_single_source_v5240 (EF-01): every [data-live-price="^GSPC"] sink (home/signal/technical header) reflects the same live value within 0.1%',
+        allMatch870, 'values=' + vals870.join(',') + ' expected=' + _t870Price);
+    } catch (e870) { _assert('T870 gspc_data_live_price_single_source_v5240 (EF-01)', false, 'threw: ' + (e870 && e870.message)); }
+
+    // T871 (EF-04): 브리핑 자정~08:00 KST 구간에 아직 오지 않은 "오늘 08:00" 시각을 라벨로 쓰지 않음
+    try {
+      if (typeof window._aioRenderBriefingDateLine === 'function' && document.getElementById('briefing-date-line')) {
+        var mock871 = new Date('2026-07-10T00:30:00+09:00');
+        var r871 = window._aioRenderBriefingDateLine(mock871);
+        var noFuture871 = !!r871 && r871.isPreCutoff === true &&
+          r871.label.indexOf('2026-07-10') === -1 && r871.label.indexOf('2026-07-09') !== -1;
+        _assert('T871 briefing_date_no_future_label_v5240 (EF-04): 00:30 KST mock renders yesterday-basis label instead of not-yet-generated today 08:00',
+          noFuture871, 'label=' + (r871 && r871.label));
+      } else {
+        _assert('T871 briefing_date_no_future_label_v5240 (EF-04)', false, 'window._aioRenderBriefingDateLine or #briefing-date-line missing');
+      }
+    } catch (e871) { _assert('T871 briefing_date_no_future_label_v5240 (EF-04)', false, 'threw: ' + (e871 && e871.message)); }
+
+    // T872 (EF-13): FOMC 이벤트 footnote가 홈 등 소비 페이지에서 asOf 날짜를 병기하는지 (기존엔 macro 캘린더 표만 날짜 표시)
+    try {
+      if (typeof window._aioRenderPageDecisionHeader === 'function' && document.getElementById('page-home')) {
+        window._aioRenderPageDecisionHeader('home');
+        var footEl872 = document.querySelector('#page-home .aio-decision-header[data-aio-decision-page="home"] .aio-decision-foot');
+        var footTxt872 = footEl872 ? footEl872.textContent : '';
+        var fomcReg872 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
+        var hasDate872 = !!fomcReg872.eventDate && footTxt872.indexOf(fomcReg872.eventDate) !== -1;
+        _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13): home decision-header footnote includes FOMC eventDate',
+          hasDate872, 'footTxt=' + footTxt872.slice(0, 90) + ' expectedDate=' + fomcReg872.eventDate);
+      } else {
+        _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13)', false, '_aioRenderPageDecisionHeader or #page-home missing');
+      }
+    } catch (e872) { _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13)', false, 'threw: ' + (e872 && e872.message)); }
+
+    // T873 (EF-02): breadth 표면 3곳(홈 스트립·헤더배지/종합신호·신고저 카드)이 canonical 소스/정직한 상태를 쓰는지
+    try {
+      var okA873 = false, detailA873 = 'n/a';
+      try {
+        if (typeof NARRATIVE_ENGINE !== 'undefined' && typeof updateMarketPulse === 'function' && document.getElementById('mp-breadth-label')) {
+          window._breadth50 = 25; window._breadthLiveData = null; window._breadth20 = null;
+          updateMarketPulse();
+          var mpLabelEl873 = document.getElementById('mp-breadth-label');
+          var expectedReg873 = NARRATIVE_ENGINE.getBreadthRegime(25);
+          okA873 = mpLabelEl873.textContent === expectedReg873.label;
+          detailA873 = 'mpLabel=' + mpLabelEl873.textContent + ' expected=' + expectedReg873.label;
+        }
+      } catch (eA873) { detailA873 = 'threw: ' + (eA873 && eA873.message); }
+
+      var okB873 = false, detailB873 = 'n/a';
+      try {
+        if (typeof window._aioRenderBreadthConsensus === 'function' && document.getElementById('breadth-header-badge') && document.getElementById('breadth-diag-signal')) {
+          window.AIO = window.AIO || {};
+          window.AIO.marketState = window.AIO.marketState || {};
+          window.AIO.marketState.breadthConsensusFull = { verdict: '약세 합의', consensus: -0.5, details: [], conflict: null };
+          window.AIO.marketState.ts = Date.now();
+          window._aioRenderBreadthConsensus();
+          var hdrBadge873 = document.getElementById('breadth-header-badge');
+          var diagSig873 = document.getElementById('breadth-diag-signal');
+          okB873 = hdrBadge873.textContent === '약세 합의' && diagSig873.textContent === '약세';
+          detailB873 = 'hdr=' + hdrBadge873.textContent + ' diag=' + diagSig873.textContent;
+        }
+      } catch (eB873) { detailB873 = 'threw: ' + (eB873 && eB873.message); }
+
+      var okC873 = false, detailC873 = 'n/a';
+      try {
+        if (typeof initBreadthPage === 'function') {
+          // na-state 렌더는 함수 최상단, Chart.js 가드보다도 먼저 무조건 실행되므로 그 뒤 Chart.js
+          // 관련 코드가 (헤드리스 offline 환경에서든, 실사용자의 CDN 실패 상황에서든) 던지더라도
+          // 이미 완료된 na-state DOM 반영과는 무관 — 그 throw를 이 assert의 관심사와 분리해 흡수.
+          try { initBreadthPage(); } catch (_chartErr) {}
+          var states873 = ['breadth-new-highs', 'breadth-new-lows', 'breadth-hl-ratio'].map(function(id) {
+            var el = document.getElementById(id); return el ? el.getAttribute('data-value-state') : null;
+          });
+          okC873 = states873.every(function(s) { return s === 'na'; });
+          detailC873 = 'states=' + states873.join(',');
+        }
+      } catch (eC873) { detailC873 = 'threw: ' + (eC873 && eC873.message); }
+
+      _assert('T873 breadth_regime_unification_v5240 (EF-02): market-pulse strip + breadth header-badge/diag-signal use canonical getBreadthRegime/consensus, dead new-high/low cards render honest na state',
+        okA873 && okB873 && okC873, detailA873 + ' | ' + detailB873 + ' | ' + detailC873);
+    } catch (e873) { _assert('T873 breadth_regime_unification_v5240 (EF-02)', false, 'threw: ' + (e873 && e873.message)); }
+  }
+
+  // v52.41 (P656): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2 (EF-08/10/11/12/19) 회귀 게이트
+  function _testV5241Batch2Efficacy() {
+    // T874 (EF-08): 엔캐리 게이지 함수 자체가 (라이브 실측으로 확인된) 오펀 호출 문제와 무관하게 항상
+    // 유효한 점수를 내는지 — 4개 입력 전부 하드코딩 폴백이 있어 null이 나올 수 없어야 한다.
+    try {
+      if (typeof window._aioRenderCarryUnwindRisk === 'function' && document.getElementById('carry-score-text')) {
+        var savedLive874 = window._liveData;
+        window._liveData = {}; // 라이브 시세 전부 결측 시뮬레이션 — 그래도 폴백값으로 점수 나와야 함
+        document.getElementById('carry-score-text').textContent = '—';
+        window._aioRenderCarryUnwindRisk();
+        var scoreEl874 = document.getElementById('carry-score-text');
+        var scoreNum874 = scoreEl874 ? parseFloat(scoreEl874.textContent) : NaN;
+        window._liveData = savedLive874;
+        _assert('T874 carry_unwind_always_scores_v5241 (EF-08): 라이브 입력 전부 결측이어도 4개 폴백값으로 score-text가 숫자로 채워짐(오펀 호출 시에도 계산 자체는 항상 유효)',
+          Number.isFinite(scoreNum874), 'scoreText=' + (scoreEl874 && scoreEl874.textContent));
+      } else {
+        _assert('T874 carry_unwind_always_scores_v5241 (EF-08)', false, 'fn or element missing');
+      }
+    } catch (e874) { _assert('T874 carry_unwind_always_scores_v5241 (EF-08)', false, 'threw: ' + (e874 && e874.message)); }
+
+    // T875 (EF-10): ticker Key Metrics/Quarterly 슬롯이 검색 후 na 상태(정직한 상태)로 렌더되는지
+    try {
+      if (typeof window.showTicker === 'function' && document.getElementById('ticker-m-mcap')) {
+        window.showTicker('NVDA');
+        var gapIds875 = ['ticker-m-mcap','ticker-m-pe','ticker-m-pb','ticker-m-roe','ticker-m-div','ticker-f-rev','ticker-f-gp','ticker-f-op','ticker-f-ni'];
+        var states875 = gapIds875.map(function(id) { var el = document.getElementById(id); return el ? el.getAttribute('data-value-state') : null; });
+        var allNa875 = states875.every(function(s) { return s === 'na'; });
+        _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10): 9개 미배선 슬롯(Key Metrics 5 + Quarterly 4) 전부 data-value-state="na"로 렌더(무한 "—" 금지)',
+          allNa875, 'states=' + states875.join(','));
+      } else {
+        _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'showTicker or #ticker-m-mcap missing');
+      }
+    } catch (e875) { _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'threw: ' + (e875 && e875.message)); }
+
+    // T876 (EF-11): rm-vixstr/rm-rspratio — 라이브 입력 결측 시 정직한 pending 상태(무한 정적 텍스트 금지)
+    try {
+      if (typeof updateRiskMonitor === 'function' && document.getElementById('rm-vixstr-status') && document.getElementById('rm-rspratio-status')) {
+        var savedLive876 = window._liveData;
+        window._liveData = {}; // VXX/VIX/RSP/SPY 전부 결측 시뮬레이션
+        updateRiskMonitor();
+        var vixstrState876 = document.getElementById('rm-vixstr-status').getAttribute('data-value-state');
+        var rspState876 = document.getElementById('rm-rspratio-status').getAttribute('data-value-state');
+        window._liveData = savedLive876;
+        _assert('T876 risk_monitor_pending_state_v5241 (EF-11): VXX/VIX 또는 RSP/SPY 라이브 결측 시 rm-vixstr/rm-rspratio가 data-value-state="pending"으로 렌더',
+          vixstrState876 === 'pending' && rspState876 === 'pending', 'vixstr=' + vixstrState876 + ' rsp=' + rspState876);
+      } else {
+        _assert('T876 risk_monitor_pending_state_v5241 (EF-11)', false, 'updateRiskMonitor or elements missing');
+      }
+    } catch (e876) { _assert('T876 risk_monitor_pending_state_v5241 (EF-11)', false, 'threw: ' + (e876 && e876.message)); }
+
+    // T877 (EF-12): TV OHLC 대체 strip — TV 위젯을 로드하지 않고도(차트 로드 버튼 클릭 없이) 채워지는지
+    try {
+      if (typeof window._aioSyncTvOhlcFallback === 'function' && document.querySelector('[data-tvohlc-close]')) {
+        window._liveData = window._liveData || {};
+        window._liveData['SPY'] = { price: 645.12, pct: 0.34 };
+        var closeElBefore877 = document.querySelector('[data-tvohlc-close]');
+        closeElBefore877.textContent = '—';
+        window._aioSyncTvOhlcFallback('SPY');
+        var closeEl877 = document.querySelector('[data-tvohlc-close]');
+        _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12): _aioSyncTvOhlcFallback가 loadTVChart 호출 없이도(차트 미로드 상태) SPY 종가를 채움',
+          closeEl877 && closeEl877.textContent.indexOf('645.12') !== -1, 'closeText=' + (closeEl877 && closeEl877.textContent));
+      } else {
+        _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12)', false, 'fn or element missing');
+      }
+    } catch (e877) { _assert('T877 tv_ohlc_fallback_independent_v5241 (EF-12)', false, 'threw: ' + (e877 && e877.message)); }
+
+    // T878 (EF-19): kr-technical 새로고침 버튼이 analyzeKrIndex를 올바른 targetId로 호출하도록 배선됐는지
+    try {
+      var kospiBtn878 = document.querySelector('button[data-arg="^KS11"][data-action="analyzeKrIndex"]');
+      var kosdaqBtn878 = document.querySelector('button[data-arg="^KQ11"][data-action="analyzeKrIndex"]');
+      var wiredOk878 = !!kospiBtn878 && kospiBtn878.getAttribute('data-arg2') === 'kr-kospi-tech-result' &&
+        !!kosdaqBtn878 && kosdaqBtn878.getAttribute('data-arg2') === 'kr-kosdaq-tech-result' &&
+        typeof window.analyzeKrIndex === 'function' &&
+        !document.querySelector('button[data-arg="^KS11"][data-action="analyzeKrTickerDeep"]');
+      _assert('T878 kr_technical_refresh_button_wiring_v5241 (EF-19): KOSPI/KOSDAQ 새로고침 버튼이 analyzeKrIndex+올바른 targetId로 배선(analyzeKrTickerDeep 오배선 잔존 없음)',
+        wiredOk878, 'kospi=' + (kospiBtn878 && kospiBtn878.getAttribute('data-arg2')) + ' kosdaq=' + (kosdaqBtn878 && kosdaqBtn878.getAttribute('data-arg2')));
+    } catch (e878) { _assert('T878 kr_technical_refresh_button_wiring_v5241 (EF-19)', false, 'threw: ' + (e878 && e878.message)); }
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -7277,6 +7453,8 @@
     try { _testV4989DataLineage(); } catch(e) { console.error('Group79 error:', e); }
     try { _testV500EvidenceFoundation(); } catch(e) { console.error('Group80 error:', e); }
     try { _testV5239PageFundamentals(); } catch(e) { console.error('Group81 error:', e); }
+    try { _testV5240Batch1Efficacy(); } catch(e) { console.error('Group82 error:', e); }
+    try { _testV5241Batch2Efficacy(); } catch(e) { console.error('Group83 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

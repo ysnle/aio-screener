@@ -836,30 +836,25 @@ function updateBreadthBars() {
       var el = document.getElementById(p[0]);
       if (el && p[1] != null) { el.textContent = p[1] + '%'; el.style.color = _bbColor(p[1]); }
     });
-  // v50.17: breadth 페이지 50SMA 막대(width) + 해석 readout 동적 갱신
-  // (큰 숫자 breadth-50sma-big은 data-snap으로 갱신되나 막대 width·readout 텍스트는 정적 46% 잔존 → 카드 52%와 모순 시정)
-  // P562/R253: this used to prefer window._breadth50 (derived from a hardcoded simulated
-  // SPY/QQQ closing-price array in initBreadthPage, defaulting to 52 before real data loads)
-  // over DATA_SNAPSHOT.breadth50sma — the opposite priority from the big-number display
-  // (breadth-50sma-big via _snap, which reads DATA_SNAPSHOT.breadth50sma first). When the
-  // snapshot value was corrected to 48 (v51.63) without also regenerating the simulated
-  // array, the bar/readout kept showing the stale 52 while the big number correctly showed
-  // 48 — same field, same page, two numbers. Now both read DATA_SNAPSHOT.breadth50sma first.
-  var b50r = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth50sma != null) ? DATA_SNAPSHOT.breadth50sma :
-             ((typeof window._breadth50 === 'number') ? window._breadth50 : null);
-  if (b50r != null && !isNaN(b50r)) {
-    var b50Bar = document.getElementById('breadth-50sma-bar');
-    if (b50Bar) b50Bar.style.width = b50r + '%';
-    var b50Read = document.getElementById('breadth-50sma-readout');
-    if (b50Read) {
-      var over50 = b50r >= 50;
-      var strength = b50r >= 60 ? '건강한 상승 구간' : (over50 ? '50% 상회(약)' : '50% 미탈환');
-      b50Read.textContent = '50일선 ' + Math.round(b50r) + '% — ' + strength + '. 60% 돌파 시 건강한 상승장 확인. 미너비니 바닥 2단계(리테스트) 관찰 구간.';
-    }
-  }
+  // v50.17→v52.40: breadth 페이지 50SMA 막대(width) + 해석 readout 동적 갱신.
+  // P562/R253이 큰 숫자·막대·readout을 DATA_SNAPSHOT.breadth50sma 단일 소스로 통일했던 로직을
+  // v52.40(P655/EF-02d)에서 window._aioSyncBreadth50Readout()(js/aio-core.js)로 추출 — applyDataSnapshot()도
+  // 같은 함수를 호출해 Chart.js 로드 여부와 무관하게 항상 동기화되게 함(중복 정의 방지, R276 정신).
+  if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
 }
 
 function initBreadthPage(forceReinit) {
+  // v52.40 (P655/EF-02c, R284): NYSE 52주 신고가/신저가 카드는 무료 실시간 소스가 없어 이 코드베이스
+  // 어디에도 값을 채우는 함수가 존재한 적이 없다(전수 grep 확인) — Chart.js 가드보다 먼저 실행해
+  // Chart 로드 여부와 무관하게 항상 정직한 'na' 상태로 렌더(무한 '—' 금지, R284 4상태 계약).
+  if (typeof window._aioRenderValueSlot === 'function') {
+    ['breadth-new-highs', 'breadth-new-lows', 'breadth-hl-ratio'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.getAttribute('data-value-state') !== 'na') {
+        window._aioRenderValueSlot(el, 'na', null, { text: '해당 없음', reason: 'NYSE 신고가/신저가 무료 실시간 소스 없음 — 자동 수집 미구현' });
+      }
+    });
+  }
   if (typeof Chart === 'undefined') return;
   // v40.4: 날만 데이터 경고
   renderStaleWarning('page-breadth');

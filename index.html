@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.39 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.41 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#0a0e14">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5369,7 +5369,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.39</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.41</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6411,7 +6411,9 @@ button[data-filter-active="true"] {
       <div id="breadth-advance-ratio" style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
     </div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;text-align:center;">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">시장 폭 시그널</div>
+      <!-- v52.40 (P655/EF-02b): RSP/SPY 상대강도 파생값 — SMA%-기반 canonical breadth regime과 다른 지표이므로
+           출처를 라벨에 명시해 "왜 다른 카드와 다른 판정이지?" 오독을 막는다(R287: 다르면 다르다고 표시). -->
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">시장 폭 시그널 <span style="font-weight:400;opacity:0.75;">(RSP/SPY)</span></div>
       <div id="breadth-signal-val" style="font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
     </div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;text-align:center;">
@@ -6433,7 +6435,11 @@ button[data-filter-active="true"] {
           <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:2px;">5일선 이상 비율</div>
           <div style="font-size:11px;color:var(--text-muted);">5SMA (단순이동평균)</div>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">$SPXA5R</div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">$SPXA5R</div>
+          <!-- v52.40 (P655/EF-02a): breadth_sma _fieldTs 기준일 배지 — 3개 카드가 동일 수동 추정 필드를 공유 -->
+          <div id="breadth-5sma-freshness" class="aio-freshness-mini" style="font-size:10px;margin-top:2px;"></div>
+        </div>
       </div>
       <div style="margin-bottom:10px;">
         <div id="breadth-5sma-big" data-snap="breadth-5sma" style="font-size:36px;font-weight:900;color:var(--data-green);font-family:var(--font-mono);letter-spacing:-1px;">68%</div>
@@ -6458,7 +6464,10 @@ button[data-filter-active="true"] {
           <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:2px;">20일선 이상 비율</div>
           <div style="font-size:11px;color:var(--text-muted);">20SMA (단순이동평균)</div>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">$SPXA20R</div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">$SPXA20R</div>
+          <div id="breadth-20sma-freshness" class="aio-freshness-mini" style="font-size:10px;margin-top:2px;"></div>
+        </div>
       </div>
       <div style="margin-bottom:10px;">
         <div id="breadth-20sma-big" data-snap="breadth-20sma" data-threshold-key="BREADTH" title="20일선 위 종목 70% 초과 → 과열 구간(주의)" style="font-size:36px;font-weight:900;color:var(--data-amber);font-family:var(--font-mono);letter-spacing:-1px;">75%</div>
@@ -6483,7 +6492,10 @@ button[data-filter-active="true"] {
           <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:2px;">50일선 이상 비율</div>
           <div style="font-size:11px;color:var(--text-muted);">50SMA (단순이동평균)</div>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">$SPXA50R</div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">$SPXA50R</div>
+          <div id="breadth-50sma-freshness" class="aio-freshness-mini" style="font-size:10px;margin-top:2px;"></div>
+        </div>
       </div>
       <div style="margin-bottom:10px;">
         <div id="breadth-50sma-big" data-snap="breadth-50sma" style="font-size:36px;font-weight:900;color:var(--data-amber);font-family:var(--font-mono);letter-spacing:-1px;">46%</div>
@@ -6929,15 +6941,24 @@ button[data-filter-active="true"] {
           <div class="page-title">오늘의 브리핑</div>
           <div class="page-subtitle" id="briefing-date-line"></div>
           <script>
-          (function(){
-            const d = new Date();
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const el = document.getElementById('briefing-date-line');
-            if (el) {
-              el.textContent = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') +
-                ' (' + days[d.getDay()] + ') · 08:00 KST 24h briefing';
-            }
-          })();
+          // v52.40 (P655/EF-04): 자정~08:00 KST 구간은 "오늘 08:00 브리핑"이 아직 생성되지 않은
+          // 미래 시각이다 — 가장 최근 실제 생성분(어제 08:00 기준)으로 라벨링해 미래 시각 표기를 금지한다.
+          // nowOverride 인자로 테스트에서 임의 시각 주입 가능(T-테스트: 00:30 KST 시뮬레이션).
+          window._aioRenderBriefingDateLine = function(nowOverride) {
+            var el = document.getElementById('briefing-date-line');
+            if (!el) return null;
+            var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            var base = (nowOverride instanceof Date) ? nowOverride : new Date();
+            var kst = new Date(base.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+            var isPreCutoff = kst.getHours() < 8;
+            var basis = new Date(kst);
+            if (isPreCutoff) basis.setDate(basis.getDate() - 1);
+            var label = basis.getFullYear() + '-' + String(basis.getMonth() + 1).padStart(2, '0') + '-' + String(basis.getDate()).padStart(2, '0') +
+              ' (' + days[basis.getDay()] + ') · 08:00 KST 24h briefing' + (isPreCutoff ? ' · 어제 생성분' : '');
+            el.textContent = label;
+            return { label: label, isPreCutoff: isPreCutoff, basisDate: basis };
+          };
+          window._aioRenderBriefingDateLine();
           </script>
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
@@ -7816,7 +7837,9 @@ button[data-filter-active="true"] {
         <div style="background:linear-gradient(135deg,rgba(100,200,100,0.2),rgba(100,200,100,0.08));border:2px solid var(--data-green);border-radius:3px;padding:8px 6px;margin-bottom:4px;animation:pulse 2s infinite;">
           <div style="font-size:11px;color:var(--data-green);font-weight:700;"> 지금</div>
           <div style="font-size:10px;font-weight:800;color:var(--data-green);"> 라이브</div>
-          <div style="font-size:11px;color:var(--data-green);margin-top:2px;line-height:1.3;">S&P: <span data-snap="spx">—</span><br>Fed: <span data-snap="fed-rate">3.5%</span><br>VIX: <span data-snap="vix">—</span></div>
+          <!-- v52.40 (P655/EF-01): "지금·라이브" 카드는 원래 data-snap="spx"(스냅샷 전용)라 "라이브" 라벨과
+               모순됐다 — 전용 id로 분리해 _aioSyncMacroLiveSpxMini()가 window._liveData['^GSPC'] 우선으로 채움. -->
+          <div style="font-size:11px;color:var(--data-green);margin-top:2px;line-height:1.3;">S&P: <span id="macro-now-spx">—</span><br>Fed: <span data-snap="fed-rate">3.5%</span><br>VIX: <span data-snap="vix">—</span></div>
         </div>
       </div>
     </div>
@@ -11830,7 +11853,10 @@ button[data-filter-active="true"] {
         <div id="kr-kospi-tech-result" style="min-height:60px;">
           <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
         </div>
-        <button data-action="analyzeKrTickerDeep" data-arg="^KS11" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSPI 분석 새로고침 </button>
+        <!-- v52.41 (P656/EF-19): data-action이 analyzeKrTickerDeep(개별종목용)로 오배선돼 결과를
+             하단 #kr-ticker-analysis-result에 써서 이 카드 자신은 절대 갱신되지 않았다 — 최초 렌더와
+             동일한 analyzeKrIndex(ticker, targetId, label)로 교체(index.html 30393 참조 패턴 재사용). -->
+        <button data-action="analyzeKrIndex" data-arg="^KS11" data-arg2="kr-kospi-tech-result" data-arg3="KOSPI" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSPI 분석 새로고침 </button>
       </div>
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -11840,7 +11866,7 @@ button[data-filter-active="true"] {
         <div id="kr-kosdaq-tech-result" style="min-height:60px;">
           <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
         </div>
-        <button data-action="analyzeKrTickerDeep" data-arg="^KQ11" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSDAQ 분석 새로고침 </button>
+        <button data-action="analyzeKrIndex" data-arg="^KQ11" data-arg2="kr-kosdaq-tech-result" data-arg3="KOSDAQ" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSDAQ 분석 새로고침 </button>
       </div>
     </div>
 
@@ -12661,6 +12687,12 @@ button[data-filter-active="true"] {
       } catch(_) {}
     };
     window.Chart.__aioFallback = true;
+    // v52.40 (P655, found while testing EF-02c): app code sets Chart.defaults.font.family
+    // (e.g. js/aio-ui.js initBreadthPage/initSentimentPage) unconditionally on every page init —
+    // this offline fallback stub never had a `.defaults` shape, so a real user whose Chart.js CDN
+    // genuinely fails to load would hit this exact "Cannot read properties of undefined (reading
+    // 'font')" crash the first time they visited any Chart.js-backed page. Minimal shape only.
+    window.Chart.defaults = { font: { family: '', size: 11 } };
   })();
   }); // DOMContentLoaded (P556/R247)
   </script>
@@ -12670,9 +12702,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.39" defer></script>
-  <script src="./js/aio-data.js?v=52.39" defer></script>
-  <script src="./js/aio-ui.js?v=52.39" defer></script>
+  <script src="./js/aio-core.js?v=52.41" defer></script>
+  <script src="./js/aio-data.js?v=52.41" defer></script>
+  <script src="./js/aio-ui.js?v=52.41" defer></script>
 
   <script>
 
@@ -16159,7 +16191,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.39" defer></script>
+<script src="./js/aio-chat.js?v=52.41" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17938,6 +17970,21 @@ _aioPageBus.register('html-technical-shown', 'aio:pageShown', function(e) {
   }
 });
 
+// v52.40 (P655/EF-01): macro 페이지 "지금·라이브" Fed 정책 사이클 카드의 S&P — window._liveData['^GSPC']
+// 우선, 없을 때만 DATA_SNAPSHOT.spx 폴백(+ title로 폴백임을 명시). 홈/시그널/technical과 같은 live-first 우선순위.
+function _aioSyncMacroLiveSpxMini() {
+  var el = document.getElementById('macro-now-spx');
+  if (!el) return;
+  var live = window._liveData && window._liveData['^GSPC'];
+  if (live && typeof live.price === 'number' && isFinite(live.price)) {
+    el.textContent = live.price.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    el.title = '';
+  } else if (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.spx) {
+    el.textContent = DATA_SNAPSHOT.spx.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    el.title = '라이브 미수신 — 스냅샷 폴백';
+  }
+}
+
 // Macro page init
 _aioPageBus.register('html-macro-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'macro') {
@@ -17948,6 +17995,7 @@ _aioPageBus.register('html-macro-shown', 'aio:pageShown', function(e) {
       renderYieldCurve();
       computeEconomicTemperature();
       updateDynamicScenarios();
+      _aioSyncMacroLiveSpxMini();
     }, 300);
   }
 });
@@ -17971,6 +18019,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
     renderYieldCurve();
     computeEconomicTemperature();
     updateDynamicScenarios();
+    _aioSyncMacroLiveSpxMini();
   }
   var breadthPage = document.getElementById('page-breadth');
   if (breadthPage && breadthPage.classList.contains('active')) {
@@ -23149,6 +23198,10 @@ function updateRiskMonitor() {
     if (rmVixstrVal) { rmVixstrVal.textContent = strVal; rmVixstrVal.style.color = strColor; }
     if (rmVixstrStatus) { rmVixstrStatus.textContent = strLabel; rmVixstrStatus.style.color = strColor; rmVixstrStatus.style.background = strColor.replace(')',',0.1)').replace('rgb','rgba'); }
     if (rmVixstrBar) { rmVixstrBar.style.width = (isBackward ? '85' : isContango ? '30' : '50') + '%'; rmVixstrBar.style.background = strColor; }
+  } else if (rmVixstrStatus && typeof window._aioRenderValueSlot === 'function' && rmVixstrStatus.getAttribute('data-value-state') !== 'pending') {
+    // v52.41 (P656/EF-11): VIX/VXX 라이브 미수신 시 정적 "수집 대기" 시드가 무기한 잔존하던 것을
+    // R284 4상태 계약으로 정직화(무한 대기 금지 — 최소한 pending 상태·사유는 노출).
+    window._aioRenderValueSlot(rmVixstrStatus, 'pending', null, { text: '수집 대기', reason: 'VXX 또는 VIX 라이브 시세 미수신' });
   }
 
   // v36.6: 옵션 페이지 VIX 기간구조 테이블 동적 업데이트
@@ -23258,6 +23311,9 @@ function updateRiskMonitor() {
     if (bbRspVal) { bbRspVal.textContent = ratioStr; bbRspVal.style.color = rspColor; }
     if (bbRspBadge) { bbRspBadge.textContent = rspLabel; bbRspBadge.style.color = rspColor; }
     if (bbRspBar) { bbRspBar.style.width = Math.min(100, ratio * 300) + '%'; bbRspBar.style.background = rspColor; }
+  } else if (rmRspStatus && typeof window._aioRenderValueSlot === 'function' && rmRspStatus.getAttribute('data-value-state') !== 'pending') {
+    // v52.41 (P656/EF-11): RSP/SPY 라이브 미수신 시 정적 "수신 대기" 시드가 무기한 잔존하던 것을 정직화.
+    window._aioRenderValueSlot(rmRspStatus, 'pending', null, { text: '수신 대기', reason: 'RSP 또는 SPY 라이브 시세 미수신' });
   }
 
   // Risk Composite (v14: VIX 50% + HYG 25% + TNX 25% 복합 가중치)
@@ -23832,8 +23888,11 @@ function updateMarketPulse() {
     var el2 = document.getElementById('mp-breadth-val');
     var el2b = document.getElementById('mp-breadth-label');
     if (bVal !== null && !isNaN(bVal)) {
-      var bColor = bVal >= 60 ? 'var(--data-green)' : bVal >= 30 ? 'var(--data-amber)' : 'var(--data-red)';
-      var bLabel = bVal >= 60 ? '건강' : bVal >= 30 ? '주의' : '약세';
+      // v52.40 (P655/EF-02b, R287): 독자 60/30 임계값 대신 breadth 페이지·signal bb-* 카드와 동일한
+      // canonical NARRATIVE_ENGINE.getBreadthRegime()로 통일 — 같은 %가 표면마다 다른 색/라벨을 갖지 않게.
+      var bReg = (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime) ? NARRATIVE_ENGINE.getBreadthRegime(bVal) : null;
+      var bColor = bReg ? bReg.color : (bVal >= 60 ? 'var(--data-green)' : bVal >= 30 ? 'var(--data-amber)' : 'var(--data-red)');
+      var bLabel = bReg ? bReg.label : (bVal >= 60 ? '건강' : bVal >= 30 ? '주의' : '약세');
       if (el2) window._aioRenderValueSlot(el2, 'value', bVal + '%', { color: bColor });
       if (el2b) window._aioRenderValueSlot(el2b, 'value', bLabel, { color: bColor });
     } else {
@@ -24675,7 +24734,9 @@ async function _fetchEarningsSurprisesFMP(body, fmpKey) {
     // 서프라이즈 크기순 정렬
     results.sort(function(a, b) { return Math.abs(parseFloat(b.surprise)) - Math.abs(parseFloat(a.surprise)); });
     if (results.length === 0) {
-      body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">실적 데이터 수신 실패 · 잠시 후 재시도</div>';
+      // v52.41 (P656/EF-09c): FMP earnings-surprises 엔드포인트는 실측상 상시 403(플랜 제한 추정)이라
+      // "잠시 후 재시도"는 곧 해결될 것처럼 오도한다 — Finnhub 대체 경로가 없는 구조적 한계임을 정직하게 표기.
+      body.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;line-height:1.6;">실적 서프라이즈 데이터 미수신(FMP 플랜 제한 추정 — 구조적, 재시도로 해결 안 될 수 있음)<br>개별 종목의 다음 어닝 일정·컨센서스는 위 검색창에서 티커 검색 시 확인 가능</div>';
       return;
     }
     var sHtml = '';
@@ -28370,7 +28431,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.39" defer></script>
+<script src="./js/aio-glossary.js?v=52.41" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -29557,6 +29618,10 @@ async function _fetchYahooChartData(ticker, range) {
   var proxies = cfWorker ? [cfWorker + '?url=' + encodeURIComponent(baseUrl)] : [];
   proxies.push('https://corsproxy.io/?' + encodeURIComponent(baseUrl));
   proxies.push('https://api.allorigins.win/get?url=' + encodeURIComponent(baseUrl));
+  // v52.41 (P656/EF-19 부가): 라이브 네트워크 실측(kr-technical, KS11/KQ11/005930.KS 전부)에서
+  // corsproxy.io·allorigins.win이 반복 503을 낸 반면 codetabs.com은 성공하는 것을 확인 — 이 함수가
+  // 쓰는 3-proxy 체인에 없던 후보를 추가(다른 호출부의 dynamicTickerLookup은 이미 codetabs 포함).
+  proxies.push('https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(baseUrl));
 
   for (var i = 0; i < proxies.length; i++) {
     try {
@@ -30828,26 +30893,47 @@ function loadTVChart(page) {
     '&withdateranges=1&showpopupbutton=1&locale=kr" style="width:100%;height:100%;border:none;" allowtransparency="true"></iframe>';
   container.appendChild(widget.firstChild);
 
-  // v48.52: TradingView 하단 OHLC fallback strip 동기화 (_liveData 기반)
-  try {
-    let ld = window._liveData || {};
-    var live = ld[ohlcSym] || ld[sym] || {};
-    var strip = document.querySelector('#tv-tech-ohlc, .tv-ohlc-strip');
-    if (strip && page === 'technical') {
-      var symEl = strip.querySelector('[data-tvohlc-sym]');
-      var closeEl = strip.querySelector('[data-tvohlc-close]');
-      var chgEl = strip.querySelector('[data-tvohlc-chg]');
-      if (symEl) symEl.textContent = ohlcSym;
-      if (closeEl) closeEl.textContent = (live.price != null) ? ('$' + live.price.toFixed(2)) : '—';
-      if (chgEl) {
-        if (live.pct != null) {
-          chgEl.textContent = (live.pct >= 0 ? '+' : '') + live.pct.toFixed(2) + '%';
-          chgEl.style.color = live.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-        } else chgEl.textContent = '—';
-      }
-    }
-  } catch(_e){}
+  // v48.52→v52.41 (P656/EF-12): TradingView 하단 OHLC fallback strip 동기화
+  if (page === 'technical') { try { _aioSyncTvOhlcFallback(ohlcSym); } catch(_e){} }
 }
+
+// v52.41 (P656/EF-12): 라이브 실측(Chrome MCP, v52.34) 결과 이 strip은 항상 "—"였다 — 원인은
+// "차트가 안 보일 때 표시되는 대체 정보"라는 취지와 반대로, 이 sync 로직이 loadTVChart()(= "차트 로드"
+// 버튼을 눌러 TradingView iframe을 실제로 로드할 때)의 부수효과로만 실행됐기 때문. 즉 대체 정보가
+// 필요한 바로 그 상황(차트를 안 띄운 상태)에서는 절대 채워지지 않는 구조였다. 로직을 분리해
+// technical 페이지 진입/라이브 시세 갱신 시에도 독립적으로 채우도록 함(차트 로드 여부와 무관).
+function _aioSyncTvOhlcFallback(symOverride) {
+  try {
+    var sym = symOverride || (document.getElementById('tv-tech-sym') || {}).value || 'SPY';
+    var ld = window._liveData || {};
+    var live = ld[sym] || {};
+    var strip = document.querySelector('#tv-tech-ohlc, .tv-ohlc-strip');
+    if (!strip) return;
+    var symEl = strip.querySelector('[data-tvohlc-sym]');
+    var closeEl = strip.querySelector('[data-tvohlc-close]');
+    var chgEl = strip.querySelector('[data-tvohlc-chg]');
+    if (symEl) symEl.textContent = sym;
+    if (closeEl) closeEl.textContent = (live.price != null) ? ('$' + live.price.toFixed(2)) : '—';
+    if (chgEl) {
+      if (live.pct != null) {
+        chgEl.textContent = (live.pct >= 0 ? '+' : '') + live.pct.toFixed(2) + '%';
+        chgEl.style.color = live.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+      } else chgEl.textContent = '—';
+    }
+  } catch(_e) {}
+}
+try {
+  if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
+    _aioPageBus.register('html-tv-ohlc-fallback-shown', 'aio:pageShown', function(e) {
+      if (e.detail !== 'technical') return;
+      setTimeout(function() { _aioSyncTvOhlcFallback(); }, 200);
+    });
+    _aioPageBus.register('html-tv-ohlc-fallback-live', 'aio:liveQuotes', function() {
+      var p = document.getElementById('page-technical');
+      if (p && p.classList.contains('active')) _aioSyncTvOhlcFallback();
+    });
+  }
+} catch(_registerTvOhlcErr) {}
 
 // ── Phase 2-2: McClellan Oscillator 계산 ──
 var _mcData = { advEma19: null, advEma39: null, decEma19: null, decEma39: null, summation: 0, history: [] };
