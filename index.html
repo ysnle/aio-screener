@@ -20017,26 +20017,47 @@ function _aioGetVkospiHistorySeries(minPoints) {
   } catch(_) { return null; }
 }
 
+// v52.34 P649: VKOSPI 실패 상태 추적 (FABLE-UIUX-DEEP-AUDIT-2026-07-08 §5 V1 Failure UI contract).
+// N회 연속 실패 시 정지된 시드/직전값을 "정상"처럼 계속 보여주는 대신 수신 실패를 명시한다.
+var AIO_VKOSPI_FAIL_THRESHOLD = 3;
+var _vkospiFailCount = 0;
+var _vkospiLastOkTs = null;
+function _vkospiIsFailedState() { return _vkospiFailCount >= AIO_VKOSPI_FAIL_THRESHOLD; }
+function _showVkospiFailureState(reason) {
+  var lastOkText = _vkospiLastOkTs ? ('마지막 성공 ' + new Date(_vkospiLastOkTs).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })) : '성공 이력 없음';
+  var fullReason = (reason || '프록시/데이터 실패') + ' · ' + lastOkText;
+  var vEl = document.getElementById('kr-vkospi-val');
+  var hEl = document.getElementById('kr-health-vkospi');
+  if (vEl) window._aioRenderValueSlot(vEl, 'failed', null, { reason: fullReason });
+  if (hEl) window._aioRenderValueSlot(hEl, 'failed', null, { reason: fullReason });
+}
+
 // ── 1. VKOSPI 실시간 값 + 차트 데이터 ──
 async function fetchVkospiDynamic() {
   try {
     var url = 'https://m.stock.naver.com/api/index/VKOSPI/basic';
     var r = await fetchViaProxy(url, 8000);
-    if (!r || !r.ok) return;
+    if (!r || !r.ok) { _vkospiFailCount++; if (_vkospiIsFailedState()) _showVkospiFailureState('프록시 응답 실패'); return; }
     var d = await _aioReadKrJsonResponse(r, 'VKOSPI basic');
     var val = parseFloat(d.closePrice || d.now || d.indexValue);
-    if (!val || isNaN(val)) return;
+    if (!val || isNaN(val)) { _vkospiFailCount++; if (_vkospiIsFailedState()) _showVkospiFailureState('응답 값 파싱 실패'); return; }
+    _vkospiFailCount = 0;
+    _vkospiLastOkTs = Date.now();
     // DOM 업데이트 — VKOSPI 값 표시 요소들
     var vEl = document.getElementById('kr-vkospi-val');
-    if (vEl) { vEl.textContent = val.toFixed(2); vEl.style.color = val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-amber)' : val >= 15 ? 'var(--data-amber)' : 'var(--green)'; }
+    if (vEl) window._aioRenderValueSlot(vEl, 'value', val.toFixed(2), { color: val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-amber)' : val >= 15 ? 'var(--data-amber)' : 'var(--green)' });
     var hEl = document.getElementById('kr-health-vkospi');
     // v49.58 P278: 임계값 표준화 (정상<20 / 경계 20~25 / 공포 25~35 / 극단공포 35+) — calcKrHealth 정합
-    if (hEl) { var label = val >= 35 ? '극단공포' : val >= 25 ? '공포' : val >= 20 ? '경계' : '정상'; hEl.textContent = val.toFixed(2) + ' (' + label + ')'; hEl.style.color = val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-red)' : val >= 20 ? 'var(--data-amber)' : 'var(--green)'; }
+    if (hEl) { var label = val >= 35 ? '극단공포' : val >= 25 ? '공포' : val >= 20 ? '경계' : '정상'; window._aioRenderValueSlot(hEl, 'value', val.toFixed(2) + ' (' + label + ')', { color: val >= 35 ? 'var(--red)' : val >= 25 ? 'var(--data-red)' : val >= 20 ? 'var(--data-amber)' : 'var(--green)' }); }
     // DATA_SNAPSHOT 동기화
     if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.vkospi = val;
     _aioAppendVkospiHistory(val);
     console.log('[KR] VKOSPI 동적 업데이트:', val);
-  } catch(e) { _aioLog('warn', 'fetch', 'KR VKOSPI fetch 실패: ' + e.message); }
+  } catch(e) {
+    _vkospiFailCount++;
+    if (_vkospiIsFailedState()) _showVkospiFailureState('fetch 예외: ' + e.message);
+    _aioLog('warn', 'fetch', 'KR VKOSPI fetch 실패: ' + e.message);
+  }
 }
 
 // ── 3. 외국인/기관 순매수 TOP 10 (종목별 trend API 기반) ──
@@ -30272,7 +30293,9 @@ function calcKrHealthScore() {
   // v49.58 P278 보정: 임계값 표준화 — 정상(<20) / 경계(20~25) / 공포(25~35) / 극단공포(35+)
   // CHANGELOG L748 "VKOSPI 17.80 정상" 의도 반영 (이전 15 임계값 → 20)
   var vkEl = document.getElementById('kr-health-vkospi');
-  if (vkEl) {
+  // v52.34 P649: fetchVkospiDynamic()이 실패 상태를 렌더링한 뒤 kr-technical 페이지를 재방문하면
+  // 이 함수가 정지된 snap.vkospi로 "정상"처럼 덮어쓰던 회귀 — 실패 상태 중엔 건너뛴다.
+  if (vkEl && !(typeof _vkospiIsFailedState === 'function' && _vkospiIsFailedState())) {
     var vkLabel = vkospi >= 35 ? '극단공포' : vkospi >= 25 ? '공포' : vkospi >= 20 ? '경계' : '정상';
     vkEl.textContent = vkospi.toFixed(2) + ' (' + vkLabel + ')';
     vkEl.style.color = vkospi >= 25 ? 'var(--red)' : vkospi >= 20 ? 'var(--yellow)' : 'var(--green)';
