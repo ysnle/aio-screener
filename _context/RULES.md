@@ -3108,7 +3108,7 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Same-screen duplicate labels/summaries for metrics such as Fear & Greed must read from the same live-first source and only use snapshots as fallback.
 - Chart axes for narrow OHLC/range data must not begin at zero unless zero is domain-meaningful; derive min/max padding from actual data.
 
-**Validation**: `AIO.runTests()` T860/T861 and `scripts/ci-runtime-contract-check.mjs` cover the v52.27 theme-detail, route, F&G, and KR candle contracts.
+**Validation**: `AIO.runTests()` T860/T861 and `scripts/ci-runtime-contract-check.mjs` cover the v52.27 theme-detail, route, F&G, and KR candle contracts. T867 (v52.34/P649) extends the same-source F&G requirement to a third same-page read site (`_buildBriefingDecisionSummary`) that the original sweep missed — it was reading dead/unassigned fields and always rendering blank.
 
 ## R284. Proxy responses, visible value slots, and browser QA matrices must be typed and executable (v52.28, P643 root)
 
@@ -3121,7 +3121,7 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Browser/live QA claims must be backed by a scriptable route x viewport matrix that checks overflow, raw placeholder leakage, nameless controls, broken images, and zero-size canvases.
 - Accessibility/performance baselines must be gated: scarce `aria-live`, labeled canvases, no positive tabindex drift, and no bulk resizing of hidden charts.
 
-**Validation**: T862/T863/T864, `scripts/ci-runtime-contract-check.mjs`, `scripts/ci-ux-default-path-check.mjs`, and `scripts/ci-viewport-matrix-check.mjs`.
+**Validation**: T862/T863/T864, `scripts/ci-runtime-contract-check.mjs`, `scripts/ci-ux-default-path-check.mjs`, and `scripts/ci-viewport-matrix-check.mjs`. T868 (v52.34/P649) extends the failed-state requirement to VKOSPI (`fetchVkospiDynamic`/`_showVkospiFailureState`) and additionally guards against a second writer (`calcKrHealthScore`) silently overwriting that failed state with a stale snapshot value on page re-view.
 
 ## R285. Operational health labels and feed quality gates must distinguish sources and use accumulated evidence (v52.29, P644 root)
 

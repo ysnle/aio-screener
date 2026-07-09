@@ -11225,8 +11225,8 @@ function _buildBriefingDecisionSummary(items, totalCount, bw) {
   var usdJpy = live('JPY=X', 'price', 145);
   var nvdaPct = live('NVDA', 'pct', 0);
   var snap = window.DATA_SNAPSHOT || {};
-  // v52.34 P649: 브리핑 페이지 세 번째 F&G 소스 — snap.fg.value(undefined)/snap.fearGreed(미할당)라
-  // 항상 null이었다. P642가 고친 상단 스트립/요약 텍스트와 동일하게 live-first로 정합.
+  // v52.34 P649: 브리핑 페이지 세 번째 F&G 소스 — 이전엔 존재하지 않는/미할당 필드를 읽어 항상 null이었다.
+  // P642가 고친 상단 스트립/요약 텍스트와 동일하게 live-first로 정합.
   var fgLive = Number(window._lastFG);
   var fgSnap = Number(snap.fg);
   var fg = Number.isFinite(fgLive) ? fgLive : (Number.isFinite(fgSnap) ? fgSnap : null);

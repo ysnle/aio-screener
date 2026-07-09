@@ -1,12 +1,12 @@
 ---
 verified_by: agent
-last_verified: 2026-07-08
+last_verified: 2026-07-09
 confidence: high
 version: v3.8
-checklist_version: v52.33
-total_items: 512
+checklist_version: v52.34
+total_items: 516
 stages: 22
-latest_P_covered: P648
+latest_P_covered: P649
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2571,3 +2571,9 @@ P647-Q4: `ci-runtime-contract-check.mjs` must assert the `topbarClipCount`, `svg
 --- v52.33 live quote fallback mirror checks (2026-07-08) ---
 P648-Q1: `applyLiveQuotes()` must synchronize `_fallback[key]` when `_LIVE_SNAP_MAP` updates a `DATA_SNAPSHOT` key that already exists in `_fallback`.
 P648-Q2: T686 must remain green after server/public-data quotes update VIX or other mirrored fields.
+
+--- v52.34 FABLE V0/V1 completion-gap checks (2026-07-09) ---
+P649-Q1: `_buildBriefingDecisionSummary()`'s F&G value must read `window._lastFG` first and `snap.fg` as fallback only — not the dead `snap.fg.value`/`snap.fearGreed` fields (a third, previously-unaudited same-page F&G read site beyond P642's two).
+P649-Q2: `fetchVkospiDynamic()` must surface an explicit `failed` value-slot state on `kr-vkospi-val`/`kr-health-vkospi` after 3 consecutive failures (proxy error, bad parse, or exception), and self-heal (reset the fail counter) on the next success.
+P649-Q3: `calcKrHealthScore()` must not overwrite the VKOSPI failed state with a stale `snap.vkospi` value when it re-runs on kr-technical page re-view.
+P649-Q4: T867/T868 and `ci-runtime-contract-check.mjs` must fail if either contract regresses.

@@ -1,3 +1,11 @@
+## v52.34 (2026-07-09)
+- **FABLE V0/V1 잔여 완결 (P649/R283·R284 재적용)**: Codex 세션이 v52.27~v52.33에서 완료로 표시한 Phase V0(F&G 단일 소스)/V1(실패 UI 계약)을 재검증한 결과 두 항목이 부분적으로만 닫혀 있어 마저 닫았다.
+- **브리핑 세 번째 F&G 소스 수정**: "시장 상황 요약(6축)" 카드(`_buildBriefingDecisionSummary`)가 존재하지 않는/미할당 필드를 읽어 F&G가 항상 공백이었던 것을, 상단 스트립·요약 텍스트와 동일한 `window._lastFG` 우선 소스로 정합했다.
+- **VKOSPI 실패 UI 계약 확장**: `fetchVkospiDynamic()`에 연속 실패 카운터를 추가해 3회 연속 실패 시 `kr-vkospi-val`/`kr-health-vkospi`에 "수신 실패"+마지막 성공 시각을 노출하고(4상태 값 슬롯 재사용), 성공 시 자동 self-heal한다. `calcKrHealthScore()`가 페이지 재방문 시 이 실패 상태를 정지된 스냅샷 값으로 덮어쓰던 2차 회귀 경로도 가드했다.
+- **퇴행 방지**: T867(F&G 세 번째 소스)/T868(VKOSPI 실패 상태 + 덮어쓰기 가드) 신규 + `ci-runtime-contract-check.mjs`에 두 계약 각각 정적 검사 추가. R283/R284 Validation에 반영.
+- **검증**: 로컬 8게이트 green, `ci-runtime-contract-check` green, `ci-headless-tests` **931/931 PASS**(신규 T867/T868 포함), `ci-viewport-matrix-check` 88/88 PASS(worstOverflow 0px). 배포는 미실행 — 로컬 커밋까지만(사용자 "배포해줘" 대기).
+- R1 7곳 v52.34
+
 ## v52.33 (2026-07-08)
 - **라이브 시세 `_fallback` 미러 동기화 (P648/R289)**: 최신 public-data quote가 `DATA_SNAPSHOT.vix`를 갱신한 뒤 `_fallback.vix`가 정적 seed에 머물러 T686/headless deploy gate를 막던 구조를 수정했다.
 - **공통 quote bridge 보강**: `applyLiveQuotes()`가 `_LIVE_SNAP_MAP`으로 `DATA_SNAPSHOT[key]`를 갱신할 때 `_fallback[key]`가 이미 존재하면 같은 값으로 함께 갱신한다. VIX뿐 아니라 향후 동일 미러 필드도 per-symbol 패치 없이 동기화된다.

@@ -3432,6 +3432,14 @@
     _assert('T866 breadth_regime_color_and_zero_delta_v5231: 32% breadth renders fearful red and zero delta is neutral 0pp',
       t866ok,
       t866detail);
+    var briefSummarySrc867 = typeof _buildBriefingDecisionSummary === 'function' ? _buildBriefingDecisionSummary.toString() : '';
+    _assert('T867 briefing_decision_summary_fg_live_first_v5234: 6축 요약 카드 F&G가 live _lastFG 우선 소스를 쓰고 dead snap.fg.value/snap.fearGreed 필드를 참조하지 않음',
+      /fgLive\s*=\s*Number\(window\._lastFG\)/.test(briefSummarySrc867) && !/snap\.fg\.value/.test(briefSummarySrc867) && !/snap\.fearGreed/.test(briefSummarySrc867),
+      'hasLiveFirst=' + /fgLive/.test(briefSummarySrc867) + ' hasDeadFields=' + /snap\.fg\.value|snap\.fearGreed/.test(briefSummarySrc867));
+    var calcKrHealthSrc868 = typeof calcKrHealthScore === 'function' ? calcKrHealthScore.toString() : '';
+    _assert('T868 vkospi_failure_state_contract_v5234: VKOSPI 연속 실패 시 실패 상태를 노출하고 calcKrHealthScore가 그 상태를 스냅샷 값으로 덮어쓰지 않음',
+      typeof _showVkospiFailureState === 'function' && typeof _vkospiIsFailedState === 'function' && /_vkospiIsFailedState\(\)/.test(calcKrHealthSrc868),
+      'showFn=' + typeof _showVkospiFailureState + ' isFailedFn=' + typeof _vkospiIsFailedState + ' guarded=' + /_vkospiIsFailedState\(\)/.test(calcKrHealthSrc868));
     var compositionAudit = window.AIO && typeof window.AIO.getThemeCompositionLogicAudit === 'function' && window.AIO.getThemeCompositionLogicAudit();
     _assert('T643 theme_composition_logic_audit_defined_v4979: theme composition logic audit exists',
       compositionAudit && compositionAudit.counts && compositionAudit.counts.themes >= 100,

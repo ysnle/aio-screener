@@ -1,16 +1,25 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-07-07
+last_verified: 2026-07-09
 confidence: high
-latest_version: v52.33
-latest_P_number: P648
-total_entries: 421
-next_P_number: P649
+latest_version: v52.34
+latest_P_number: P649
+total_entries: 422
+next_P_number: P650
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P649 - v52.34 - FABLE V0/V1 "완료" 표시 이후에도 남아있던 브리핑 F&G 세 번째 소스 + VKOSPI 실패 UI 부재
+
+- **발생**: 다른 세션(Codex)이 FABLE-UIUX-DEEP-AUDIT-2026-07-08.md Phase V0(P642)/V1(P643)을 "완료"로 표시하고 v52.27~v52.33을 로컬 커밋(미푸시)한 뒤 이어서 작업을 요청받아 재검증한 결과, 두 항목이 부분적으로만 닫혀 있었다. (1) 브리핑 "시장 상황 요약(6축)" 카드가 `_buildBriefingDecisionSummary()`에서 `snap.fg.value`(항상 undefined)와 `snap.fearGreed`(어디서도 할당되지 않는 필드)를 읽어 F&G가 항상 공백으로 렌더됐다 — P642가 고친 상단 스트립/요약 텍스트와 별개인, 미발견 세 번째 소스였다. (2) `fetchVkospiDynamic()`은 반복 실패해도 경고 로그만 남기고 화면(`kr-vkospi-val`/`kr-health-vkospi`)엔 계속 정지된 시드/직전값이 "정상"처럼 남았다 — kr-supply/투자자 TOP10에만 적용된 P643 실패 UI 계약이 VKOSPI엔 이식되지 않았다. 게다가 `calcKrHealthScore()`가 kr-technical 페이지 재방문마다 같은 DOM에 `snap.vkospi`(정지된 값)를 무조건 재기록해, 실패 상태를 추가해도 페이지 재진입 시 원상복구되는 2차 회귀 소지가 있었다.
+- **원인**: (1)은 P642의 F&G 스윕이 상단 스트립과 요약 텍스트 두 곳만 발견하고 세 번째 카드 렌더러를 놓쳤다(grep 범위 불완전). (2)는 P643의 실패 UI 계약 구현이 kr-supply 계열에만 적용되고 VKOSPI로 확장되지 않았고, 같은 DOM 요소에 두 개의 독립된 writer(`fetchVkospiDynamic`, `calcKrHealthScore`)가 존재한다는 사실이 처음 구현 시 고려되지 않았다.
+- **수정**: `_buildBriefingDecisionSummary()`의 F&G를 `window._lastFG` 우선 + `snap.fg` 폴백으로 정합(R283 패턴 재적용). `fetchVkospiDynamic()`에 연속 실패 카운터(`_vkospiFailCount`/`AIO_VKOSPI_FAIL_THRESHOLD=3`)와 `_showVkospiFailureState()`(`_aioRenderValueSlot`의 4상태 계약 재사용)를 추가해 3회 연속 실패 시 "수신 실패"+마지막 성공 시각을 노출하고, 성공 시 카운터를 리셋해 자동 self-heal하게 했다. `calcKrHealthScore()`의 VKOSPI 서브 표시 블록에 `_vkospiIsFailedState()` 가드를 추가해 실패 상태를 스냅샷 값으로 덮어쓰지 않게 했다.
+- **violated_rule**: R283, R284 (신규 규칙이 아니라 기존 두 규칙의 적용 범위 누락 — 완전한 재발 사례).
+- **prevention**: T867(F&G 세 번째 소스)/T868(VKOSPI 실패 상태 + calcKrHealthScore 가드) 신규 + `ci-runtime-contract-check.mjs`에 두 계약 각각 정적 검사 추가. R283/R284 Validation 라인에 반영해 향후 유사 "부분 완료" 재발 시 사후분석에서 바로 근거를 찾을 수 있게 했다.
+- **verification**: `node scripts/ci-runtime-contract-check.mjs`(green); 로컬 8게이트 전체 green; `node scripts/ci-headless-tests.mjs` → **931/931 PASS**(929 기존 + T867/T868 신규); `node scripts/ci-viewport-matrix-check.mjs` → 88/88 PASS, worstOverflow 0px(회귀 없음; F&G/VKOSPI 자체는 이 매트릭스의 직접 커버 대상 아님). 배포/라이브 재확인은 미실행 — 로컬 커밋까지만 진행(사용자 명시 "배포해줘" 대기).
 
 ## P551 - v51.76 - Public share readiness existed only as console audit, not visible product contract
 
