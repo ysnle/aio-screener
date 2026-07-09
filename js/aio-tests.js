@@ -7146,6 +7146,43 @@
     _assert('T859 v527_macro_calendar_weekday_anchor: monthly-first-friday 주기 nextRelease는 항상 금요일(요일 구조 검증)', t859ok, t859detail);
   }
 
+  // v52.39 P654/R291: 페이지 기초 가이드 레이어 — 20개 route 페이지(theme-detail/guide 제외) 전수 스모크
+  function _testV5239PageFundamentals() {
+    var pageIds869 = (window.AIO_ALL_ROUTE_PAGE_IDS || []).filter(function(id) {
+      return id !== 'theme-detail' && id !== 'guide';
+    });
+    var reg869 = window.AIO_PAGE_FUNDAMENTALS || {};
+    var missingRegistry869 = pageIds869.filter(function(id) { return !reg869[id]; });
+    var renderFails869 = [];
+    pageIds869.forEach(function(id) {
+      try {
+        if (typeof window.showPage === 'function') window.showPage(id);
+        if (typeof window._aioRenderPageFundamentals === 'function') window._aioRenderPageFundamentals(id);
+        var pageEl = document.getElementById('page-' + id);
+        var funds = pageEl ? pageEl.querySelectorAll('.aio-fund') : [];
+        var ok = funds.length === 1 && !funds[0].hasAttribute('open') &&
+          funds[0].querySelectorAll('.aio-fund-sec').length === 4;
+        if (!ok) renderFails869.push(id + '(count=' + funds.length + ')');
+      } catch(e869) {
+        renderFails869.push(id + ':ERR:' + (e869 && e869.message));
+      }
+    });
+    // idempotency: re-entering the first page must not inject a second .aio-fund block (data-aio-fund-done guard)
+    var dupDetail869 = 'n/a';
+    if (pageIds869.length && typeof window.showPage === 'function' && typeof window._aioRenderPageFundamentals === 'function') {
+      try {
+        window.showPage(pageIds869[0]);
+        window._aioRenderPageFundamentals(pageIds869[0]);
+        var dupCount869 = document.getElementById('page-' + pageIds869[0]).querySelectorAll('.aio-fund').length;
+        dupDetail869 = pageIds869[0] + '=' + dupCount869;
+        if (dupCount869 !== 1) renderFails869.push('DUP:' + dupDetail869);
+      } catch(eDup869) { renderFails869.push('DUP:ERR:' + (eDup869 && eDup869.message)); }
+    }
+    _assert('T869 page_fundamentals_registry_and_render_v5239: AIO_PAGE_FUNDAMENTALS covers all 20 non-excluded route pages and each renders exactly one collapsed .aio-fund block with 4 sections, idempotently on revisit',
+      pageIds869.length >= 20 && missingRegistry869.length === 0 && renderFails869.length === 0,
+      'pages=' + pageIds869.length + ' missingRegistry=' + missingRegistry869.join(',') + ' renderFails=' + renderFails869.join(',') + ' dupCheck=' + dupDetail869);
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -7239,6 +7276,7 @@
     try { _testV4988BootLoader(); } catch(e) { console.error('Group78 error:', e); }
     try { _testV4989DataLineage(); } catch(e) { console.error('Group79 error:', e); }
     try { _testV500EvidenceFoundation(); } catch(e) { console.error('Group80 error:', e); }
+    try { _testV5239PageFundamentals(); } catch(e) { console.error('Group81 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

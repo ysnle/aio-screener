@@ -1,16 +1,25 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-07-09
+last_verified: 2026-07-10
 confidence: high
-latest_version: v52.38
-latest_P_number: P653
-total_entries: 425
-next_P_number: P654
+latest_version: v52.39
+latest_P_number: P654
+total_entries: 426
+next_P_number: P655
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P654 - v52.39 - 22페이지 교육 레이어 전수 감사 결과 E1(핵심 개념)·E2(근본 원리)·E5(실전 적용)이 20개 페이지에서 공통 부재
+
+- **발생**: 사용자 요구(2026-07-09)로 22개 route 페이지 전부에 5요소(핵심 개념·근본 원리·현재 시장 상황·중요 지표/차트·실전 적용)가 있는지 스크립트 기반 전수 감사(`_context/FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md` §1)를 실행한 결과, E3(시장상황)·E4(지표/차트)는 이미 대부분 페이지에 있었지만 E1(개념)·E2(원리)·E5(실전 적용)이 guide/theme-detail을 제외한 20개 페이지 공통으로 비어 있었다. technical(이평선/캔들/거래량/매물대 원리 전무)·macro(왜 유가·금리인가 없음)·fxbond(달러·원화·엔화·채권금리 원리 전무)·kr-supply(수급 주체별 특성 없음)가 사용자가 명시적으로 예시를 든 "핵심 갭" 4곳이었다.
+- **원인**: 이 리포는 라이브 표면(decision overlay, narrative, live 카드)과 지표/차트 렌더링에는 지속적으로 투자해 왔지만, "왜 이걸 봐야 하는가"를 설명하는 정적 교육 콘텐츠는 페이지 신설 시점부터 계획적으로 포함된 적이 없었다 — guide 페이지 하나가 앱 사용법+용어사전 역할을 겸했을 뿐, 개별 페이지 맥락에서의 원리 설명은 어떤 페이지에도 없었다.
+- **수정**: `js/aio-ui.js` 말미에 `AIO_PAGE_FUNDAMENTALS` 레지스트리(20페이지 × concept/why/how/action/terms)와 `_aioRenderPageFundamentals()` 렌더러를 신규 작성해 `aio:pageShown` 이벤트에 전역 1회 배선했다(`core-visible-canvas-fallbacks` 선례와 동일하게 페이지별 unregister 없는 상시 리스너 키 사용). 각 페이지 헤더(`.page-title` 포함, `#page-*`의 직계 자식 블록) 바로 다음에 `.aio-page-advanced-toggle aio-fund` 기본 접힘 `<details>`를 멱등 삽입한다(`data-aio-fund-done` 마커). 앵커 탐색은 설계 문서가 technical 1개 페이지에서만 검증했던 `div[style*="border-bottom"]` 하드코딩 대신 `.page-title`에서 `sec`의 직계 자식까지 걸어 올라가는 방식으로 일반화했다 — briefing/fundamental/market-news/kr-home/kr-supply/kr-themes/kr-macro/portfolio/screener/ticker/options 등 다수 페이지가 헤더를 `.aio-section`으로 한 겹 더 감싸거나 border-bottom 스타일이 없어, 설계 문서의 원안 그대로였다면 이들 페이지 다수가 "헤더 바로 다음" 대신 "페이지 최상단 prepend" 폴백으로 빠졌을 것이었다(구현 중 22페이지 헤더 DOM 실측 대조로 발견). CSS는 설계 초안의 `--text-tertiary`(미정의 토큰)를 실제 정의된 `--text-muted`로 교체했다(`--bg-secondary`는 실존 토큰이라 그대로 유지). 콘텐츠 원문에서 `10Y<2Y`(innerHTML 파싱 시 태그로 오인 위험)와 `**강조**`(마크다운 잔재, HTML로는 렌더 안 됨) 2종을 발견해 각각 `&lt;`와 `<strong>`으로 정정했다. options 페이지는 v50.35에 nav에서 완전히 제거된 죽은 페이지이지만(사용자 확인) 설계 문서대로 20페이지 범위에 포함했다(route 계약 유지 목적). **실브라우저 확인(Chrome MCP, T869/게이트 통과 이후 추가 실행) 중 3번째 문제를 발견**: `js/aio-ui.js` 앞쪽(~2156줄)의 기존 `initFromHash()`가 첫 `aio:pageShown`을 이 신규 훅 등록(~5721줄, 같은 파일 뒤쪽)보다 먼저 발화시킨다 — 해시로 바로 진입하는 페이지는 그 유일한 `showPage()` 호출이 훅 등록 전에 지나가 버리고, 해시가 없는 기본 랜딩(`home`)은 정적 HTML의 `class="page active"`로만 활성화돼 `showPage()` 자체가 전혀 호출되지 않는다 — 두 경우 모두 방문자가 처음 보는 페이지에서 교육 블록이 영구 누락되는(페이지를 벗어났다 돌아와야만 나타나는) 결과였다. `document.querySelector('.page.active')`를 훅 등록 직후 1회 조회해 그 페이지를 즉시 렌더링하는 catch-up 호출을 추가해 해소하고, home/technical/fxbond/kr-supply 4개 페이지를 로컬 정적 서버(python http.server) + Chrome MCP로 재확인해(콜드 로드 각각 재현) 정상 렌더링을 스크린샷으로 확인했다.
+- **violated_rule**: 신규 — R291 참조(R282의 정적 콘텐츠 확장).
+- **prevention**: T869(`js/aio-tests.js`)가 20페이지 전체 순회 렌더+멱등성을 스모크하고, `ci-runtime-contract-check.mjs`가 레지스트리 크기(≥20)·렌더러/훅 배선·`.aio-page-brief` 부재·`aria-live` 부재·catch-up 렌더 패턴 존재를 정적 검사한다(8건). QA-CHECKLIST P654-Q1~Q5가 문안 R291 준수(레벨/날짜/판정 0건)를 기계 검사 가능한 패턴으로 기록한다. T869는 `showPage()`를 훅 등록 이후에만 호출하므로 이 3번째 버그(스크립트 로드 중 훅 등록 이전에 이벤트가 발화하는 순서 문제)는 헤드리스 스위트로는 재현되지 않았다 — 실브라우저 콜드 로드 확인이 유일한 발견 경로였다는 점을 기록해 둔다.
+- **verification**: `node --check` 전 js/*.js·scripts/*.mjs green. 로컬 게이트 9종(`ci-version-check`/`ci-structural-check`/`ci-ux-default-path-check`/`ci-runtime-contract-check`(신규 [G] 8건 포함)/`ci-data-pipeline-contract-check`/`ci-semantic-review-check`/`ci-workflow-compaction-check`/`ci-skill-contract-check`/`ci-knowledge-lint-check`) 전부 PASS. `ci-viewport-matrix-check.mjs` → 88/88 PASS, worstOverflow 0px(회귀 없음). `ci-headless-tests.mjs` → **932/932 PASS**(931 기존 + T869 신규), skip-list 밖 실패 없음. 레지스트리 콘텐츠 스크립트 검사: 20개 키 전부 concept/why/how/action 비어있지 않음, R291 위반 패턴(연도/날짜/현재-단정문) 0건, 의도한 2곳(`&lt;`/`<strong>`) 외 raw `<` 0건. 실브라우저(Chrome MCP, 로컬 python http.server 8910): home/technical/fxbond/kr-supply 4개 페이지 콜드 로드 각각 확인 — `.aio-fund` 1개·기본 접힘·펼침 시 4섹션+용어 라인 정상 렌더링(스크린샷 확인), 이 과정에서 initFromHash 순서 버그를 발견해 즉시 수정 후 재확인. 배포는 미실행 — 로컬 커밋까지만(사용자 "배포해줘" 대기).
 
 ## P653 - v52.38 - 외부 에이전트 운영 패턴 6건 검토 후 구조적 격차 5건 발견: 라이브 전용 회귀 재검증 부재·QA 실브라우저 티어 비공식·knowledge-lint 무강제·스킬 과잉지시 미감사·integrate 민감정보 가드 부재
 

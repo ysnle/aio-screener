@@ -3197,3 +3197,17 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Grow the predicate list only for root causes a local gate structurally cannot see (deploy/CDN/cache/operator-config drift). Do not duplicate a check `ci-runtime-contract-check.mjs`/`ci-structural-check.mjs` already enforces at commit time — two lists asserting the same fact will drift apart from each other.
 
 **Validation**: `node scripts/ci-live-invariant-check.mjs` (network-dependent; also runs in `data-watchdog.yml`).
+
+## R291. Static page-education content must state invariant mechanisms only, never a current level/date/verdict, and must inherit the existing declutter/accessibility gates (v52.39, P654 root)
+
+**Rule**: A page-level "fundamentals"/education surface (e.g. `AIO_PAGE_FUNDAMENTALS`) is static prose written once and shipped to every visitor regardless of when they load the page — it is not a live render function, so it cannot re-check freshness on each view the way R282's live-verdict functions can. It must therefore never contain a claim that is only true on the day it was written: no current price/level, no current date, no directional/regime verdict. Only invariant mechanisms and relationships ("금리가 오르면 밸류에이션이 눌린다" style) are allowed — the fact side of R282's live/fallback distinction, applied unconditionally, since this content has no live/fallback state to check at all; it is always "unsourced" by construction and must read that way forever.
+
+**Why this matters**: found during the v52.39 22-page education-layer audit (`_context/FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md` §1) — E1 (concept)/E2 (mechanism)/E5 (action guidance) were missing on 20 of 22 route pages, and the obvious failure mode when filling that gap is exactly R282's stale-narrative pattern (a hardcoded "지금 DXY 98은 위험 구간" sentence that reads as current fact forever). R282 gates *render functions* that can check a live/fallback flag at render time; this content has no such flag to check, so the constraint has to be enforced at content-authoring time instead.
+
+**Required**:
+- Content arrays for this component class may state relationships/thresholds/mechanisms but never a specific current price, index level, or date, and never a present-tense market verdict. This is not a ban on the words "지금"/"현재" themselves — a sentence that only frames an invariant question (e.g. "지금 얼마나 공격적이어도 되나") or quotes an actual UI section's literal label (e.g. a "경기 사이클 — 지금 어디?" card name) stays allowed; the boundary is asserting a specific market state as current fact, not the presence of either word.
+- The DOM wrapper must reuse the existing `.aio-page-advanced-toggle` default-collapsed contract (no `open` attribute) rather than inventing a new always-expanded block, and must not use the `.aio-page-brief` class the v50.29 declutter contract already flags via `pageBriefNotDecluttered`.
+- The component must not add new `aria-live` regions — static reference content does not need one, and `ci-ux-default-path-check.mjs` caps the whole document at 10.
+- Interactive affordances stay out of scope for this content class; term cross-references are plain-text pointers ("사용 설명서 → 용어사전에서 X 검색"), not new `data-action`/onclick surfaces.
+
+**Validation**: `js/aio-tests.js` T869 (registry completeness + render/idempotency smoke across all covered pages) and `scripts/ci-runtime-contract-check.mjs` (registry size, renderer/hook wiring, `.aio-page-brief` absence, `aria-live` absence within the component's own code block).

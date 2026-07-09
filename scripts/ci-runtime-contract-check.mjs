@@ -377,6 +377,28 @@ if (hiddenImportantCount > HIDDEN_BLOCK_THRESHOLD) {
   warnings.push(`display:none !important count is ${hiddenImportantCount} (threshold ${HIDDEN_BLOCK_THRESHOLD}) — review for dead UI blocks`);
 }
 
+// [G] v52.39 P654/R291: page fundamentals education layer (AIO_PAGE_FUNDAMENTALS) contract.
+// §1 audit found E1(concept)/E2(why)/E5(action) missing across 20 of 22 route pages; this
+// component is the single registry+renderer that closes that gap. theme-detail/guide are
+// intentionally excluded (orphan redirect surface / already-complete hub page, see design doc §4).
+const pageFundStart = ui.indexOf('var AIO_PAGE_FUNDAMENTALS = {');
+const pageFundEnd = ui.indexOf("_aioPageBus.register('ui-page-fundamentals'");
+const pageFundBlock = pageFundStart >= 0 && pageFundEnd >= 0 ? ui.slice(pageFundStart, pageFundEnd) : '';
+const pageFundKeys = [...pageFundBlock.matchAll(/^\s*'([a-z-]+)':\s*\{$/gm)].map((m) => m[1]);
+check('AIO_PAGE_FUNDAMENTALS registry exists with at least 20 page entries', pageFundKeys.length >= 20, `found ${pageFundKeys.length} keys`);
+check('AIO_PAGE_FUNDAMENTALS excludes theme-detail/guide (orphan redirect / already-complete hub)', !pageFundKeys.includes('theme-detail') && !pageFundKeys.includes('guide'));
+check('_aioRenderPageFundamentals renderer is defined and wired to aio:pageShown', /function\s+_aioRenderPageFundamentals\(pageId\)/.test(ui) && /_aioPageBus\.register\('ui-page-fundamentals',\s*'aio:pageShown'/.test(ui));
+check('page fundamentals renderer is idempotent across repeated page visits', /data-aio-fund-done/.test(ui));
+check('page fundamentals component must not reuse the declutter-flagged .aio-page-brief class (R291/v50.29)', !/aio-page-brief/.test(pageFundBlock));
+check('page fundamentals component does not add new aria-live regions (R291 scarcity gate)', !/aria-live/.test(pageFundBlock));
+check('headless tests cover the page fundamentals registry+render contract', /T869 page_fundamentals_registry_and_render_v5239/.test(tests));
+// P654 follow-up: initFromHash() (aio-ui.js, fires the first aio:pageShown for a hash-loaded page,
+// and 'home' never calls showPage() at all on a bare load) runs earlier in this same file than the
+// 'ui-page-fundamentals' registration above — without a one-time catch-up render for whatever page
+// is already .active by then, the very first page a visitor lands on never gets the block until
+// they navigate away and back. Guard this so the catch-up call cannot be silently deleted later.
+check('page fundamentals renderer catches up on the page already active at script-load time (initFromHash ordering)', /querySelector\('\.page\.active'\)[\s\S]{0,200}_aioRenderPageFundamentals\(/.test(ui));
+
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));

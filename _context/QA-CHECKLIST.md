@@ -1,12 +1,12 @@
 ---
 verified_by: agent
-last_verified: 2026-07-09
+last_verified: 2026-07-10
 confidence: high
 version: v3.8
-checklist_version: v52.37
+checklist_version: v52.39
 total_items: 521
 stages: 22
-latest_P_covered: P652
+latest_P_covered: P654
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2605,3 +2605,10 @@ P653-Q2: `.claude/skills/post-edit-qa/references/tiers.md` must name an explicit
 P653-Q3: `scripts/ci-knowledge-lint-check.mjs` must fail if `_context/INDEX.md`'s document table disagrees with the actual git-tracked `_context/*.md` file set in either direction, if `_context/INDEX.md` and `_context/CLAUDE.md` document tables disagree, or if any doc that opts in with `auto_refresh: true` frontmatter is missing a parseable `last_verified` date or is stale beyond the script's threshold (docs without `auto_refresh: true` are intentionally frozen snapshots and must not be flagged). `.github/workflows/knowledge-lint.yml` must run it weekly.
 P653-Q4: `.claude/skills/knowledge-lint/references/workflow.md` must include a Pass 8 that audits accumulated skill/command instructions for reasoning-echo requests and instruction-without-eval drift, and `.claude/skills/knowledge-lint/SKILL.md`'s self-eval table must reference it (KL7).
 P653-Q5: `.claude/skills/integrate/references/workflow.md` must include an explicit step to scan for and mask credential-shaped strings (API key prefixes, private key blocks, account numbers) before persisting extracted material into any git-tracked doc, since this repo deploys publicly via GitHub Pages.
+
+--- v52.39 page-education-layer render/content checks (2026-07-10) ---
+P654-Q1: Every non-excluded route page (all 22 route pages except `theme-detail` and `guide`, 20 total) must render exactly one `.aio-fund` `<details>` block after `showPage`, and it must not carry the `open` attribute (default-collapsed).
+P654-Q2: Every `AIO_PAGE_FUNDAMENTALS` entry's `concept`/`why`/`how`/`action` arrays must be non-empty.
+P654-Q3: Registry copy must not violate R291. Mechanically checkable subset: zero year/date patterns (`20\d\d년?`, `\d+월 \d+일`) and zero present-tense market-state assertion patterns ("현재/지금 ~이다·입니다" as a market-state claim) inside the registry block. The words "지금"/"현재" alone are not violations — an invariant framing question ("지금 얼마나 공격적이어도 되나") or a literal quoted UI section label ("경기 사이클 — 지금 어디?") are both allowed; the ban is on asserting a specific market level/regime as current fact. Combine the mechanical scan with a manual diff read.
+P654-Q4: The component must not use the `.aio-page-brief` class anywhere in its own code block, and must not add any `aria-live` attribute.
+P654-Q5: T869 and `ci-runtime-contract-check.mjs`'s page-fundamentals contract checks must fail if any of P654-Q1~Q4 regress.

@@ -20,12 +20,12 @@ target_lines: index.html 32065 + js modules 60777
 
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
-| `index.html` | 31,795 | HTML shell, CSS, 22개 route page DOM, inline runtime(8블록), 외부 모듈 로드. v51.98: 매매 알고리즘 4함수 aio-core.js로 이관(-273줄, Phase 3 A3) |
+| `index.html` | 32,025(v52.39 실측) | HTML shell, CSS, 22개 route page DOM, inline runtime(8블록), 외부 모듈 로드. v51.98: 매매 알고리즘 4함수 aio-core.js로 이관(-273줄, Phase 3 A3). v52.39: `.aio-fund` CSS 9줄 추가(P654) |
 | `js/aio-core.js` | 24,117 | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, **매매 알고리즘 핵심(v51.98 이관, §3)**. `AIO_PAGE_CONTRACTS`는 22개 route 계약 |
 | `js/aio-data.js` | 17,535 | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, 스크리너 |
-| `js/aio-ui.js` | 5,239 | 차트/렌더러, sentiment/breadth init, LLM quota UI, 기업분석 렌더러 |
+| `js/aio-ui.js` | 5,733(v52.39 실측) | 차트/렌더러, sentiment/breadth init, LLM quota UI, 기업분석 렌더러, **페이지 기초 교육 레이어(v52.39 P654, §3 아래)** |
 | `js/aio-chat.js` | 6,877 | CHAT_CONTEXTS, 데이터 preflight/evidence, Claude/Perplexity, 추천 분산 후보, 의도별 답변 정책, AIO 통합 답변 파이프라인 |
-| `js/aio-tests.js` | 6,982 | 브라우저 회귀 테스트 T1~T845+, `AIO.runTests()` / `AIO.getTestResults()`. **CI 미실행 — 브라우저 콘솔 수동 전용**(§5 참고) |
+| `js/aio-tests.js` | 7,312(v52.39 실측) | 브라우저 회귀 테스트 T1~T869, `AIO.runTests()` / `AIO.getTestResults()`. CI 헤드리스 상설화됨(§5 참고) — 이 줄의 "CI 미실행" 구서술은 stale(실제로는 `.github/workflows/ci.yml`의 `headless-tests` job이 `scripts/ci-headless-tests.mjs`로 실행) |
 | `js/aio-glossary.js` | 314 | 용어사전 검색/렌더 |
 
 ---
@@ -225,6 +225,10 @@ target_lines: index.html 32065 + js modules 60777
 | `_renderFundFinancials` | 4077 | 재무/애널리스트/SEC Frames |
 | `_renderFundEarnings` | 4745 | 어닝 일정/서프라이즈 |
 | `_renderFundNews` | 4801 | Finnhub 기업 뉴스 |
+| `AIO_PAGE_FUNDAMENTALS` | 5264 | v52.39 P654: 페이지별 기초 교육 레이어 콘텐츠(20페이지 × concept/why/how/action/terms) |
+| `_aioRenderPageFundamentals` | 5688 | v52.39 P654: 위 레지스트리 렌더러, `aio:pageShown`에 전역 배선(`ui-page-fundamentals` 키) |
+
+> v52.39: 이 파일이 5,259→5,723줄로 성장(P654, +464줄) — 다음 ±500줄 트리거 근접. 대규모 신규 추가 전 재스캔 검토.
 
 ### `js/aio-chat.js`
 
