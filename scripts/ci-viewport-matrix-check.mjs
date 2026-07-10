@@ -190,7 +190,13 @@ async function main() {
   // per-page listeners and attribute each error to whichever route was active when it fired
   // (best-effort — a small settle delay after showPage() in FULL_INIT mode narrows the window
   // where an error could be misattributed to the next route instead of the one that caused it).
-  const ERR_ALLOWLIST = /net::ERR_FAILED|Failed to load resource/; // expected: all external fetches are aborted by design below
+  // 실측(2026-07-10, WO-4): 이 필터 없이 첫 FULL_INIT 실행 시 8개 콤보가 실패했으나, 전부
+  // `[AIO:api] {source}: warn → error {errCount: 3}` 형태 — js/aio-core.js의 `_reportApiError()`가
+  // 외부 API가 3회 연속 실패하면 자체 헬스 상태를 warn→error로 전이시키며 남기는, 의도된 로그다
+  // (아래 route.abort()가 모든 외부 요청을 차단하는 이 하네스 자체의 설계상 당연히 발생). 실제
+  // 버그가 아니라 "네트워크를 일부러 차단한 테스트 환경에서 앱이 정확히 장애를 감지해 보고했다"는
+  // 신호이므로, net::ERR_FAILED와 동일한 근거로 허용 목록에 추가한다.
+  const ERR_ALLOWLIST = /net::ERR_FAILED|Failed to load resource|\[AIO:api\][^:]*:\s*warn\s*→\s*error/; // expected: all external fetches are aborted by design below
   const jsErrors = [];
 
   try {
