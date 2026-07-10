@@ -435,6 +435,12 @@ check('EF-17 (user-approved scope addition): home GLOBAL MARKETS table includes 
 check('EF-18: kr-supply fetch uses the confirmed-live /api/index/{market}/trend path (curl-verified 200) instead of the confirmed-404 /investorTrend path, with a response-shape adapter preserving net-flow semantics', /_aioAdaptKrTrendResponse/.test(html) && /api\/index\/KOSPI\/trend'/.test(html) && /api\/index\/KOSDAQ\/trend'/.test(html));
 check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Batch4Efficacy/.test(tests) && /T884/.test(tests) && /T885/.test(tests) && /T886/.test(tests));
 
+// v52.44 (P659): B8 Cloudflare Worker anycast 403(forbidden) auto-retry mitigation
+check('B8: shared _aioFetchClaudeWithRetry helper exists with a server-key gate, a 403 status check, and Anthropic-native forbidden-shape detection before retrying', /async function _aioFetchClaudeWithRetry\(url, fetchOpts, serverKey, maxRetries\)/.test(chat) && /serverKey\s*&&\s*res\.status\s*===\s*403/.test(chat) && /_peek\.error\.type\s*===\s*'forbidden'/.test(chat));
+check('B8: callClaude routes both its initial request and its 400-beta-header fallback retry through the shared helper instead of a bare fetch to the Worker/Anthropic endpoint', (chat.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length === 2);
+check('B8: both aio-data.js Claude call sites (news translation batch + AI briefing generation) route through the shared retry helper with a defensive typeof fallback to bare fetch', (data.match(/_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/g) || []).length === 2);
+check('headless tests cover the B8 Worker-retry mitigation', /_testV5244WorkerAnycastRetry/.test(tests) && /T887/.test(tests) && /T888/.test(tests) && /T889/.test(tests) && /T890/.test(tests));
+
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));

@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-07-07
+last_verified: 2026-07-10
 confidence: high
-target_version: v52.33
+target_version: v52.44
 
 ---
 
@@ -3211,3 +3211,17 @@ R187~R199는 더 이상 개별 패치 목록으로만 운영하지 않는다. �
 - Interactive affordances stay out of scope for this content class; term cross-references are plain-text pointers ("사용 설명서 → 용어사전에서 X 검색"), not new `data-action`/onclick surfaces.
 
 **Validation**: `js/aio-tests.js` T869 (registry completeness + render/idempotency smoke across all covered pages) and `scripts/ci-runtime-contract-check.mjs` (registry size, renderer/hook wiring, `.aio-page-brief` absence, `aria-live` absence within the component's own code block).
+
+## R292. A client-side call routed through a region-unpinned shared edge proxy must auto-retry on the provider's own regional-block error signature, not just report it (v52.44, B8/P659 root)
+
+**Rule**: When a browser-side fetch goes through a free-tier/shared edge proxy that cannot pin its execution region (e.g. Cloudflare Workers' free plan, which anycast-routes each inbound request independently), a request that happens to land on a datacenter the upstream provider blocks by policy fails with the upstream's own error body — not the proxy's own error shape. That failure is transient in the sense that a *new* request is independently re-routed and has a good chance of landing on a working datacenter; it is not transient in the sense that retrying the *same* connection or simply waiting would help. The retry must therefore: (a) issue a genuinely new request rather than reuse/retry the same connection, (b) gate on the caller actually being routed through the shared proxy — a direct call to the provider's own API from the user's own network never hits this failure mode, and (c) distinguish the provider's own error signature from the proxy's own unrelated error shapes at the same status code — retrying a proxy-side auth/quota/timeout failure wastes an attempt and can mask a real, non-transient problem.
+
+**Why this matters**: found on B8 (`_context/DEFERRED-BLOCKS.md`) — curl reproduced the exact mechanism 3 times: identical requests through Cloudflare's free-plan Worker landed on `CF-RAY:...-NRT` (Tokyo, 200 OK) or `CF-RAY:...-HKG` (Hong Kong, 403) depending on which edge anycast happened to select, and the 403 body was Anthropic's own `{error:{type:'forbidden',message:'Request not allowed'}}` — not the Worker's own `errorResponse()` shape (`{error,status}`) — proving Anthropic itself, not the repo's Worker code, rejected the Hong-Kong-routed request by regional policy. The repo, secrets, and deploy were all otherwise correct; there was nothing to fix upstream, only a client-side mitigation to add. A prior, unrelated 403 investigation on the same route (B5) had guessed "Anthropic rate/concurrency limiting" — that guess was wrong (corrected once this mechanism was actually reproduced), which is itself a caution against assuming a cause for a recurring status code without reproducing the actual error body.
+
+**Required**:
+- Detect the specific upstream error shape (not just the HTTP status code) before retrying — a matching status code from the proxy's own error path is a different, non-retriable problem.
+- Gate the retry on the call actually being server-key/proxy-routed; a direct-to-provider call under the user's own key/network never exercises this failure mode and must not retry on it.
+- Cap retries low (1-2) and retry immediately with a fresh request — this is a routing-luck problem, not a load/backoff problem, so exponential backoff or added delay only costs latency without helping.
+- Apply the same helper to every call site that shares the affected route, not only the one surface where the symptom was first noticed — a shared root cause left half-patched (e.g. chat fixed but briefing/translation left on raw `fetch`) reproduces the same user-visible failure on the unpatched surfaces.
+
+**Validation**: `js/aio-tests.js` T887 (helper structure: status gate, server-key gate, provider-error-shape check, retry-fetch presence) + T888-T890 (all call sites wired, not just the first one found) and `scripts/ci-runtime-contract-check.mjs`'s matching B8 checks.

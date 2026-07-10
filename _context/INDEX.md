@@ -1,12 +1,14 @@
 ---
-verified_by: agent (Sonnet 5, git/grep 실측 — Fable 5 v51.90 진단 Phase 0 A6b 후속)
-last_verified: 2026-07-02
+verified_by: Codex (repository/gates/Chrome live/GitHub Actions 실측)
+last_verified: 2026-07-10
 confidence: high
 auto_refresh: true
 target_version: version.json
 ---
 
 > **Current correction (2026-07-06 v52.22/P632)**: headless CI is no longer report-only. After P630 cleared the skip-list to `[]` and measured `922/922 PASS`, P632 removed `continue-on-error` from `.github/workflows/ci.yml`'s `headless-tests` job and made `deploy` depend on both `validate` and `headless-tests`. Older `899/922`, non-empty skip-list, report-only, or deploy-not-gated lines in this index and `GATE-BASELINE-2026-07-03.md` are historical/superseded.
+
+> **Current correction (2026-07-10 v52.43)**: local headless is `948/948 PASS`, viewport matrix is `88/88 PASS`, and direct live invariant passes. However `.github/workflows/data-watchdog.yml` currently contains five U+0080 control characters and GitHub run `29059996134` fails before creating jobs. The watchdog and its R290 live check are therefore not operational. See `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md`.
 
 # _context Index
 
@@ -43,17 +45,18 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `FABLE-UIUX-DEEP-AUDIT-2026-07-08.md` | UI/UX 심층 라이브(v52.26) 감사 — QA 미확인 백로그+P634~P641 일괄 검증 원장(§1), 신규 발견 UX-01~13(showThemeDetail P0 크래시·theme-detail 고아 라우트·프록시 SPOF·AI 백엔드 이원화·aria-live 132 등), 구조 개선 Phase V0~V4 + 운영자 결정 카드 | 로드맵 항목 완료/재감사 시 |
 | `FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md` | 22페이지 교육 레이어(개념·원리·시장연결·실전) 전수 감사 매트릭스 + `AIO_PAGE_FUNDAMENTALS` 컴포넌트 설계 + 페이지별 콘텐츠 원고 + 게이트 계획 — **v52.39에서 구현 완료**(P654/R291/T869, 로컬 미배포) | 구현 완료(2026-07-10)/재감사 시 |
 | `FABLE-EFFICACY-AUDIT-2026-07-10.md` | 라이브(v52.34) 페이지별 시장데이터 완비·사용성·실효성 실측 진단(17.5/22페이지, §1 매트릭스) + 발견 대장 EF-01~18(technical S&P 0.5% stale·breadth 4중 모순·매크로 지표 1~2개월 stale·엔캐리 게이지 상시 사망·ticker 재무 침묵 숨김·어닝 캘린더 빈 화면 등) + 보강 설계 Batch 1~4. **차기 구현 진입점(§5, Sonnet 5 체크리스트)** · 미점검 잔여는 §4 명시 | 구현 완료/재감사 시 |
+| `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` | v52.43 저장소·이력·라이브 브라우저·GitHub/Pages/Actions·보안·데이터·시스템 레이어·Trading Score/Factor를 함께 본 종합 진단과 후속 에이전트 작업 패킷 WO-0~8. P0: 무효 watchdog YAML, 포트폴리오 암호화 표기 불일치, Anthropic 공유 프록시 비용 경계 | 각 WO 완료/전수 재감사 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 27개 + `FABLE-EFFICACY-AUDIT-2026-07-10.md` = 28개 `_context/*.md` 활성(2026-07-10 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 29개 `_context/*.md` 활성(2026-07-10 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 
-- **GitHub baseline (source of truth)**: `origin/main` at `5d54f39` (`v52.18`, 2026-07-05) — `git log --oneline -1` 실측(2026-07-06). 이전 기재값(`d6902a1`/v51.90/2026-07-02)은 28버전 stale이었음(정정 — 이 항목은 버전업마다 낡으므로 절대 신뢰 금지, 항상 `git log` 재실측).
-- **로컬 워크트리**: `git worktree list` 실측 결과 **별도 워크트리 없음** — 작업 디렉터리 자체가 `main` 브랜치(clean, origin/main과 동기). 이전 기재된 `claude/hungry-euler-8d3b20`, `.codex/worktrees/540d/AIO`는 더 이상 존재하지 않음(디렉터리 없음 확인) — 삭제.
+- **GitHub baseline (source of truth)**: 감사 시 `origin/main` at `9353df7` (`v52.43`). 이 항목은 버전업마다 낡으므로 항상 `git log`와 live asset parity를 재실측한다.
+- **로컬 워크트리**: 별도 worktree 없음. 감사 시작 시 `main` `40a922b`, origin 대비 문서 전용 WIP commit 1개 ahead였고 애플리케이션 코드는 clean이었다. 이번 감사의 미커밋 변경은 종합 진단 문서와 이 INDEX뿐이다.
 - **Live site**: `https://ysnle.github.io/aio-screener/`
-- **게이트 실측 baseline**: `GATE-BASELINE-2026-06-04.md`(v50.4, 673/692 pass, 1회성 수동측정)는 `GATE-BASELINE-2026-07-03.md`(v51.96, 896/921 pass)로 후속됨 — Phase 2 [B5] 완료로 `.github/workflows/ci.yml`의 `headless-tests` job이 매 push/PR마다 `scripts/ci-headless-tests.mjs`(Playwright)를 자동 실행해 **상설화됨**(report-only, `continue-on-error: true`, 아직 deploy 게이트 미편입). **2026-07-06 재실측(v52.19)**: 899/922 pass, `_context/gate-baseline-skip-list.json` 23건(문서 기재 25건에서 두 건 추가 해소 — 단 이 skip-list JSON 자체가 이제 GATE-BASELINE-2026-07-03.md 서술보다 최신임. 문서 갱신은 새 GATE-BASELINE 파일 작성 없이 skip-list JSON만 직접 수정된 상태 — `_context/FABLE-ARCH-DIAGNOSIS-2026-07-06.md` Phase 2-6이 이 23건 자체의 triage를 다룸).
-- **저장소 상태(2026-07-06 갱신)**: 2026-07-02에 로컬 `.git`이 OneDrive 동기화 폴더 안에서 loose object 2.4GiB+gc 실패 잔해로 병들어 있던 상태를 `git gc --aggressive --prune=now`로 복구(→ 12.21MiB) 후 리포를 OneDrive 밖(`C:\Projects\AIO`)으로 이전 완료(운영자 결정 완료, 재발 구조적으로 차단됨). **2026-07-06 재실측**: 정상 운영 중 자연 누적된 loose object 663개/78.5MB를 `git gc`로 재정리(→ pack 12.61MiB, `git fsck --full` clean) — OneDrive 문제가 아니라 30분 주기 데이터 커밋의 정상적 누적이었음, 주기적 gc가 유지보수 항목으로 남음.
+- **게이트 실측 baseline (2026-07-10 v52.43)**: 9개 정적 게이트 PASS, headless `948/948 PASS`, viewport `22×4=88/88 PASS`와 overflow 0px, direct live invariant PASS. 단 headless는 외부 네트워크 abort, viewport 기본은 `FULL_INIT=false`이며 watchdog workflow 자체는 YAML parse FAIL이다.
+- **저장소 상태(2026-07-10 갱신)**: `C:\Projects\AIO`에서 운영. loose object 2,134개/154.02MiB, pack 12.61MiB, garbage 0. 최근 자동 데이터/WIP 커밋 밀도가 높아 주기적 gc와 변경 단위 통제가 남아 있다.
 - **Primary source of truth**: GitHub `origin/main` plus live asset parity.
 
 ## Current File Structure

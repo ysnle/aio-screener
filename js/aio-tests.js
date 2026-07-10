@@ -7475,6 +7475,57 @@
     } catch (e886) { _assert('T886 kr_supply_trend_endpoint_v5243 (EF-18)', false, 'threw: ' + (e886 && e886.message)); }
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  // Group86: v52.44 B8 — Cloudflare Worker anycast 403(forbidden) 자동 재시도 (T887~T890)
+  //   실제 fetch mocking 행동 테스트는 시도하지 않음: runTests()는 동기 실행되므로 async
+  //   테스트를 fire-and-forget으로 걸면 결과가 요약 집계 이후 도착해 리포트에서 누락될 위험이
+  //   있다(P657 T882 선례와 동일한 이유) — 대신 소스 텍스트 정적 계약으로 검증.
+  // ══════════════════════════════════════════════════════════════════════
+  function _testV5244WorkerAnycastRetry() {
+    // T887: _aioFetchClaudeWithRetry가 서버키 게이트·403 감지·forbidden 포맷 판별·maxRetries 한도·재시도 fetch를 모두 갖췄는지
+    if (typeof window._aioFetchClaudeWithRetry === 'function') {
+      var fnSrc887 = window._aioFetchClaudeWithRetry.toString();
+      var hasStatusGate887 = /res\.status\s*===\s*403/.test(fnSrc887);
+      var hasServerKeyGate887 = /serverKey\s*&&\s*res\.status/.test(fnSrc887);
+      var hasForbiddenCheck887 = /_peek\.error\.type\s*===\s*'forbidden'/.test(fnSrc887);
+      var hasMaxRetries887 = /maxRetries/.test(fnSrc887) && /attempt\s*<\s*maxRetries/.test(fnSrc887);
+      var hasRetryFetch887 = (fnSrc887.match(/fetch\(url,\s*fetchOpts\)/g) || []).length >= 2;
+      _assert('T887 claude_worker_403_retry_helper (B8): _aioFetchClaudeWithRetry가 서버키 게이트·403 감지·forbidden 포맷 판별·maxRetries 한도·재시도 fetch를 모두 갖춤',
+        hasStatusGate887 && hasServerKeyGate887 && hasForbiddenCheck887 && hasMaxRetries887 && hasRetryFetch887,
+        'status=' + hasStatusGate887 + ' serverKeyGate=' + hasServerKeyGate887 + ' forbidden=' + hasForbiddenCheck887 + ' maxRetries=' + hasMaxRetries887 + ' retryFetch=' + hasRetryFetch887);
+    } else {
+      _assert('T887 claude_worker_403_retry_helper (B8): _aioFetchClaudeWithRetry 미존재', false);
+    }
+
+    // T888: callClaude(스트리밍 채팅) — 최초 요청 + 400-beta 폴백 재요청 2곳 모두 재시도 헬퍼 경유(원시 fetch 아님)
+    if (typeof callClaude === 'function') {
+      var fnSrc888 = callClaude.toString();
+      var callCount888 = (fnSrc888.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length;
+      _assert('T888 claude_chat_uses_retry_helper (B8): callClaude의 최초 요청 + 400-beta 폴백 재요청 2곳 모두 _aioFetchClaudeWithRetry 경유',
+        callCount888 === 2, 'callCount=' + callCount888);
+    } else {
+      _assert('T888 claude_chat_uses_retry_helper (B8): callClaude 미존재', false);
+    }
+
+    // T889: autoTranslateNews(뉴스 번역)가 재시도 헬퍼를 경유(미존재 시 원시 fetch로 안전 폴백)
+    if (typeof autoTranslateNews === 'function') {
+      var fnSrc889 = autoTranslateNews.toString();
+      _assert('T889 claude_translate_uses_retry_helper (B8): autoTranslateNews가 _aioFetchClaudeWithRetry를 경유(typeof 가드 + fetch 폴백)',
+        /_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/.test(fnSrc889) && /\}, _ct\.serverKey\)/.test(fnSrc889));
+    } else {
+      _assert('T889 claude_translate_uses_retry_helper (B8): autoTranslateNews 미존재', false);
+    }
+
+    // T890: _generateAIBriefing(AI 브리핑)이 재시도 헬퍼를 경유(미존재 시 원시 fetch로 안전 폴백)
+    if (typeof _generateAIBriefing === 'function') {
+      var fnSrc890 = _generateAIBriefing.toString();
+      _assert('T890 claude_briefing_uses_retry_helper (B8): _generateAIBriefing이 _aioFetchClaudeWithRetry를 경유(typeof 가드 + fetch 폴백)',
+        /_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/.test(fnSrc890) && /\}, _ct\.serverKey\)/.test(fnSrc890));
+    } else {
+      _assert('T890 claude_briefing_uses_retry_helper (B8): _generateAIBriefing 미존재', false);
+    }
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -7573,6 +7624,7 @@
     try { _testV5241Batch2Efficacy(); } catch(e) { console.error('Group83 error:', e); }
     try { _testV5242Batch3Efficacy(); } catch(e) { console.error('Group84 error:', e); }
     try { _testV5243Batch4Efficacy(); } catch(e) { console.error('Group85 error:', e); }
+    try { _testV5244WorkerAnycastRetry(); } catch(e) { console.error('Group86 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

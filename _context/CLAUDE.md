@@ -4,10 +4,10 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v52.43
+- **현재 버전**: v52.44
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (28개 활성, 2026-07-10 갱신)
+## _context/ 문서 (29개 활성, 2026-07-10 갱신)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -39,6 +39,7 @@
 | FABLE-UIUX-DEEP-AUDIT-2026-07-08.md | UI/UX 심층 라이브(v52.26) 감사 — QA 미확인 백로그+P634~P641 검증 원장 + 신규 발견 UX-01~13(showThemeDetail P0 크래시·프록시 SPOF·AI 백엔드 이원화 등) + 구조 개선 Phase V0~V4·운영자 결정 카드 | 로드맵 항목 완료/재감사 시 |
 | FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md | 22페이지 교육 레이어 전수 감사(E1~E5 매트릭스) + `AIO_PAGE_FUNDAMENTALS` 컴포넌트 설계 + 페이지별 콘텐츠 원고 + 게이트 계획 — **v52.39에서 구현 완료**(P654/R291/T869, 로컬 미배포) | 재감사 시 |
 | FABLE-EFFICACY-AUDIT-2026-07-10.md | 라이브(v52.34) 페이지별 시장데이터 완비·사용성·실효성 실측 진단(§1 매트릭스, 17.5/22페이지) + 발견 EF-01~18 + 보강 설계 Batch 1~4 — **차기 구현 진입점(§5, Sonnet 5 체크리스트)**, 미점검 잔여 §4 명시 | 구현 완료/재감사 시 |
+| CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md | v52.43 저장소·라이브·GitHub/Pages/Actions·보안·데이터·아키텍처·알고리즘 종합 진단 + 후속 에이전트 작업 패킷 WO-0~8 | 각 WO 완료/전수 재감사 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.
 > `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore`로 로컬 전용(레거시, RULES/QA로 대체됨).

@@ -9843,7 +9843,7 @@ async function autoTranslateNews(items) {
     }).join('\n\n');
 
     try {
-      const resp = await fetch(_ct.url, {
+      const resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
         method: 'POST',
         headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? {} : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
         body: JSON.stringify({
@@ -9872,7 +9872,7 @@ JSON 배열로만 반환 (다른 텍스트 없이):
 ${prompt}`
           }]
         })
-      });
+      }, _ct.serverKey);
 
       if (resp.ok) {
         const data = await resp.json();
@@ -11629,7 +11629,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '- 단순 사실 나열 금지 — E→M→I→A 없는 문단은 쓰지 마라';
 
   try {
-    var resp = await fetch(_ct.url, {
+    var resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
       method: 'POST',
       headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? {} : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
       body: JSON.stringify({
@@ -11637,7 +11637,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
         max_tokens: 4000,
         messages: [{ role: 'user', content: prompt }]
       })
-    });
+    }, _ct.serverKey);
     if (!resp.ok) throw new Error('API ' + resp.status);
     var data = await resp.json();
     var aiText = data.content && data.content[0] ? data.content[0].text : '';

@@ -1667,6 +1667,33 @@ function _aioHasClaudeRoute(apiKey) {
 }
 window._aioHasClaudeRoute = _aioHasClaudeRoute;
 
+// v52.44 B8: Cloudflare Workers 무료 플랜은 리전 고정이 불가해 anycast 라우팅이 요청마다 다른 엣지
+// 데이터센터를 탈 수 있다 — 그중 홍콩(HKG) 경유 요청을 Anthropic이 정책상 403(forbidden)으로 거부하는
+// 사례를 curl로 3회 재현 확인(도쿄 NRT 경유는 200, 홍콩 HKG 경유는 403, 응답 포맷이 Worker 자체
+// errorResponse()의 {error,status}가 아니라 Anthropic이 직접 반환하는 {error:{type,message}} 형태임을
+// 확인해 확정). 레포·시크릿·배포는 전부 정상이라 코드로 완전히 없앨 수는 없지만, 새 인바운드 요청은
+// 매번 새로 anycast 라우팅되므로 즉시 재시도하면 다른(정상) 데이터센터로 갈 가능성이 높다.
+// 서버 키 모드(Worker 경유)일 때만, 그리고 Anthropic 자체 403 forbidden 포맷일 때만 재시도 —
+// 키 만료 등 다른 원인의 실패는 재시도해도 무의미하므로 그대로 통과시켜 기존 에러 처리로 넘긴다.
+async function _aioFetchClaudeWithRetry(url, fetchOpts, serverKey, maxRetries) {
+  maxRetries = (typeof maxRetries === 'number') ? maxRetries : 2;
+  var res = await fetch(url, fetchOpts);
+  var attempt = 0;
+  while (serverKey && res.status === 403 && attempt < maxRetries) {
+    var isRegionBlock = false;
+    try {
+      var _peek = await res.clone().json();
+      isRegionBlock = !!(_peek && _peek.error && _peek.error.type === 'forbidden');
+    } catch(_) {}
+    if (!isRegionBlock) break;
+    attempt++;
+    if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'Worker anycast 403(forbidden) 감지 — 재시도 ' + attempt + '/' + maxRetries + ' (다른 엣지 데이터센터 기대)');
+    res = await fetch(url, fetchOpts);
+  }
+  return res;
+}
+window._aioFetchClaudeWithRetry = _aioFetchClaudeWithRetry;
+
 async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var apiKey = getApiKey();
   var _claudeTarget = _aioClaudeTarget(apiKey);   // v50.52 B5: 서버 키 모드면 개인 키 불요
@@ -1756,21 +1783,21 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     _claudeHeaders['anthropic-beta'] = 'prompt-caching-2024-07-31';
   }
   try {
-    var res = await fetch(_claudeTarget.url, {
+    var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
       method: 'POST',
       signal: ctrl.signal,
       headers: _claudeHeaders,
       body: JSON.stringify(reqBody)
-    });
+    }, _claudeTarget.serverKey);
     // v48.8: beta 헤더 400 에러 자동 폴백 (서버가 beta를 정식 기능으로 대체한 경우)
     if (res.status === 400 && _claudeHeaders['anthropic-beta']) {
       var _errTxt = await res.text();
       if (/beta|cache.*control|invalid.*header/i.test(_errTxt)) {
         _aioLog('warn', 'fetch', 'anthropic-beta 헤더 호환성 오류 — beta 제거 후 재시도');
         delete _claudeHeaders['anthropic-beta'];
-        res = await fetch(_claudeTarget.url, {
+        res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
           method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
-        });
+        }, _claudeTarget.serverKey);
       } else {
         // beta 관련 아닌 400 — 원래 에러 흐름 유지
         onError('API 오류 (400): ' + _errTxt.slice(0, 200));

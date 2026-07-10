@@ -2,15 +2,25 @@
 verified_by: agent
 last_verified: 2026-07-10
 confidence: high
-latest_version: v52.43
-latest_P_number: P658
-total_entries: 430
-next_P_number: P659
+latest_version: v52.44
+latest_P_number: P659
+total_entries: 431
+next_P_number: P660
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P659 - v52.44 - DEFERRED-BLOCKS B8 완화책 구현: Worker `/anthropic` anycast 403(forbidden) 자동 재시도 — 채팅뿐 아니라 번역·브리핑도 동일 근본원인이라 3개 함수 4개 호출부 전체 적용
+
+- **발생**: 이전 세션에서 B8(`_context/DEFERRED-BLOCKS.md`)로 근본원인만 기록해두고 "사용자가 명시하면 착수"로 미뤄둔 완화책을 사용자가 이번 세션에 "구현해줘"로 명시 요청. B8 자체는 curl 3회 재현(동일 요청이 `CF-RAY:...-NRT` 도쿄 경유 시 200, `CF-RAY:...-HKG` 홍콩 경유 시 403이고 응답 본문이 Worker 자체 `errorResponse()`의 `{error,status}` 형태가 아니라 Anthropic이 직접 반환하는 `{error:{type:'forbidden',message:'Request not allowed'}}` 형태)으로 근본원인이 이미 확정돼 있었다 — Cloudflare Workers 무료 플랜은 리전 고정이 불가해 anycast 라우팅이 요청마다 다른 엣지를 타고, 그중 홍콩 경유분을 Anthropic이 리전 정책상 거부하는 것.
+- **구현**: `js/aio-chat.js`에 공유 헬퍼 `_aioFetchClaudeWithRetry(url, fetchOpts, serverKey, maxRetries=2)` 신설 — 서버 키 모드(Worker 경유)이고 응답이 403이며 파싱한 본문이 Anthropic 고유의 `{error:{type:'forbidden'}}` 형태일 때만 즉시 새 fetch로 재시도(최대 2회, 기본값). 새 인바운드 요청은 매번 새로 anycast 라우팅되므로 재시도가 다른(정상) 데이터센터로 갈 가능성이 높다는 B8의 가설을 그대로 코드화했다. Worker 자체 에러(예: 429 일일 캡, 503 시크릿 미설정)나 직접 호출(개인 키, serverKey=false)은 애초에 이 실패 모드에 노출되지 않으므로 재시도 대상에서 제외.
+- **범위 확대(문서 원문 대비)**: B8 문서 원문은 `js/aio-chat.js`(채팅)만 명시했으나, 같은 세션 EF-20의 실측 기록("AI 채팅·브리핑·번역 동시 실패")을 재확인한 결과 번역(`autoTranslateNews`)과 브리핑(`_generateAIBriefing`, 둘 다 `js/aio-data.js`)도 채팅과 완전히 동일한 `_aioClaudeTarget()` 판정 + Worker `/anthropic` 경로를 공유해 같은 근본원인에 동일하게 노출돼 있음을 코드 추적으로 확인했다 — 이 둘을 빼면 "구조 개선"이 절반만 완료되는 셈이라 3개 함수·4개 호출부(callClaude 최초요청 + 400-beta-헤더 폴백 재요청, autoTranslateNews, _generateAIBriefing) 전체에 동일 헬퍼를 적용했다. `aio-data.js`가 `aio-chat.js`보다 먼저 로드되므로(defer 순서: core→data→ui→chat) 기존 `_aioClaudeTarget` 참조와 동일한 `typeof` 방어 가드 + 원시 `fetch` 폴백 패턴을 그대로 재사용해 로드순서 안전성을 확보했다.
+- **범위 밖으로 남긴 것**: Cloudflare 측 anycast 라우팅 자체(무료 플랜은 리전 고정/제외가 불가)는 코드로 제거할 수 없다 — 이 변경은 완화책이며 `DEFERRED-BLOCKS.md` B8의 근본원인 기술 자체는 유효한 채로 두고 "구현 상태"만 갱신했다. Worker의 일일 사용량 카운터(KV, `AIO_QUOTA`)는 재시도 여부와 무관하게 forwarding 시도마다 증가하므로, 403이 재시도로 회복되는 경우 실패한 첫 시도분만큼 카운터를 추가 소모하는 부작용이 있음 — 일일 캡 기본값(300) 대비 미미하고 애초에 실패했을 시도라 판단해 별도 처리하지 않았다.
+- **violated_rule**: 신규 룰은 아니고, R277(외부 배포 액션의 known-transient 실패는 같은 잡에서 1회 재시도)의 클라이언트 측 대응 사례로 R292 신설 — 상태 코드만으로 재시도 여부를 판단하지 말고 공급자 고유 에러 포맷까지 확인해야 한다는 일반 원칙.
+- **prevention**: `js/aio-tests.js` T887~T890(`_testV5244WorkerAnycastRetry`) 신규 — 헬퍼의 4대 구조(서버키 게이트·403 감지·forbidden 포맷 판별·재시도 fetch 존재)와 4개 호출부 배선을 소스 텍스트 정적 계약(`.toString()` 검사)으로 검증. 실제 fetch mocking 행동 테스트는 `runTests()`가 동기 실행되는 구조상 async 테스트를 fire-and-forget으로 걸면 결과가 요약 집계 이후 도착해 리포트에서 누락될 위험이 있어(P657 T882와 동일 판단) 시도하지 않았다. `ci-runtime-contract-check.mjs` 4건 추가.
+- **verification**: `node --check` js/aio-chat.js·aio-data.js·aio-tests.js green. 로컬 게이트 9종 중 8종 PASS — `ci-knowledge-lint-check`만 실패했으나 원인(`_context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md`가 `_context/INDEX.md`엔 이미 참조돼 있지만 아직 git-tracked 아님)은 이번 세션 시작 이전부터 있던 미커밋 상태로 이 작업과 무관 — 범위 밖으로 두고 그대로 보고. `ci-headless-tests.mjs` → **952/952 PASS**(948 기존 + T887~890 신규). 배포는 미실행 — 로컬 커밋까지도 사용자 명시 대기(구현만 요청받음).
 
 ## P658 - v52.43 - FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4: kr-supply의 진짜 원인은 프록시 차단이 아니라 404(존재하지 않는 엔드포인트), BOK 다음 금통위 날짜 자체가 틀려 있었음 (EF-03/05/17/18)
 
