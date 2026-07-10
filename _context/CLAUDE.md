@@ -41,6 +41,7 @@
 | FABLE-EFFICACY-AUDIT-2026-07-10.md | 라이브(v52.34) 페이지별 시장데이터 완비·사용성·실효성 실측 진단(§1 매트릭스, 17.5/22페이지) + 발견 EF-01~18 + 보강 설계 Batch 1~4 — **차기 구현 진입점(§5, Sonnet 5 체크리스트)**, 미점검 잔여 §4 명시 | 구현 완료/재감사 시 |
 | CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md | v52.43 저장소·라이브·GitHub/Pages/Actions·보안·데이터·아키텍처·알고리즘 종합 진단 + 후속 에이전트 작업 패킷 WO-0~8 | 각 WO 완료/전수 재감사 시 |
 | CODEX-SECOND-PASS-HANDOFF-2026-07-10.md | 1차 종합 진단과 22페이지 프론트엔드 추가 진단을 통합한 2차 실행 원장. 기존 WO local/live 재분류, H2-00~16 설계, 외부 공개 BETA/PUBLIC/CLAIMS 게이트, Luna용 작업 계약 | H2 항목 완료·라이브 parity·Tier 13 재감사 시 |
+| WO7-GLOBAL-INVENTORY-2026-07-10.md | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7 Packet 1 — 전역 read/write baseline 실측 + timer/chart/page-lifecycle 어댑터 기존재 확인 + 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.
 > `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore`로 로컬 전용(레거시, RULES/QA로 대체됨).
