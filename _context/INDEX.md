@@ -10,6 +10,8 @@ target_version: version.json
 
 > **Current correction (2026-07-10 v52.43)**: local headless is `948/948 PASS`, viewport matrix is `88/88 PASS`, and direct live invariant passes. However `.github/workflows/data-watchdog.yml` currently contains five U+0080 control characters and GitHub run `29059996134` fails before creating jobs. The watchdog and its R290 live check are therefore not operational. See `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md`.
 
+> **Current correction (2026-07-10 v52.48 local, second pass)**: WO-0/WO-1A/WO-1B/WO-5 are implemented locally and headless is `958/958 PASS`, but they are not all live-verified; the inspected live site remained v52.43 and the Worker requires a separate operator deployment. A `FULL_INIT=true` viewport run found four failing `technical` route/viewports from `_pricePosition()` SVG label overlap. The default viewport job remains report-only and has `theme-detail`/zero-canvas/async-settle blind spots. Use `CODEX-SECOND-PASS-HANDOFF-2026-07-10.md` as the current external-readiness execution entrypoint.
+
 # _context Index
 
 This folder is the active project knowledge base for AIO. It should describe the current GitHub-deployed structure first, then local Claude worktree exceptions only when they affect routing.
@@ -46,9 +48,10 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md` | 22페이지 교육 레이어(개념·원리·시장연결·실전) 전수 감사 매트릭스 + `AIO_PAGE_FUNDAMENTALS` 컴포넌트 설계 + 페이지별 콘텐츠 원고 + 게이트 계획 — **v52.39에서 구현 완료**(P654/R291/T869, 로컬 미배포) | 구현 완료(2026-07-10)/재감사 시 |
 | `FABLE-EFFICACY-AUDIT-2026-07-10.md` | 라이브(v52.34) 페이지별 시장데이터 완비·사용성·실효성 실측 진단(17.5/22페이지, §1 매트릭스) + 발견 대장 EF-01~18(technical S&P 0.5% stale·breadth 4중 모순·매크로 지표 1~2개월 stale·엔캐리 게이지 상시 사망·ticker 재무 침묵 숨김·어닝 캘린더 빈 화면 등) + 보강 설계 Batch 1~4. **차기 구현 진입점(§5, Sonnet 5 체크리스트)** · 미점검 잔여는 §4 명시 | 구현 완료/재감사 시 |
 | `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` | v52.43 저장소·이력·라이브 브라우저·GitHub/Pages/Actions·보안·데이터·시스템 레이어·Trading Score/Factor를 함께 본 종합 진단과 후속 에이전트 작업 패킷 WO-0~8. P0: 무효 watchdog YAML, 포트폴리오 암호화 표기 불일치, Anthropic 공유 프록시 비용 경계 | 각 WO 완료/전수 재감사 시 |
+| `CODEX-SECOND-PASS-HANDOFF-2026-07-10.md` | 1차 종합 진단과 22페이지 프론트엔드 추가 진단을 통합한 2차 실행 원장. 기존 WO local/live 상태 재분류, H2-00~16 개선·보강 설계, 외부 공개 BETA/PUBLIC/CLAIMS 게이트, Luna/후속 모델 실행 계약 | H2 항목 완료·라이브 parity·Tier 13 재감사 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 29개 `_context/*.md` 활성(2026-07-10 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 30개 `_context/*.md` 활성(2026-07-10 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 
