@@ -13251,35 +13251,96 @@ function openApiKeyConfig() {
 // Portfolio Management — localStorage CRUD + PIN Lock + Real-time Sync
 // ══════════════════════════════════════════════════════════════════════
 const PF_STORAGE_KEY = 'aio_portfolio_data';
-const PF_PIN_KEY = 'aio_portfolio_pin';
+const PF_PIN_KEY = 'aio_portfolio_pin'; // v52.46: 레거시 평문 PIN — 공유 Vault로 마이그레이션 후 제거 대상
+const PF_VAULT_OPTOUT_KEY = 'aio_portfolio_vault_optout';
 
+// v52.46 WO-1A/P661/R294: 포트폴리오를 API 키와 동일한 _AioVault(AES-GCM-256+PBKDF2)로 보호.
+// UI가 "PIN 설정 후 저장 시 AES-256 암호화"라고 명시해왔으나 실제로는 완전히 별개의 평문
+// localStorage 경로였다(Codex P0-2, PIN도 평문 비교). 이제 _AIO_SENSITIVE_KEYS에 편입해
+// safeLS 계약을 그대로 따른다 — PIN을 설정하지 않은 사용자는 기존과 동일하게 평문(계약 변경 없음).
+// 동기 읽기가 필요한 기존 호출부 수십 곳을 async로 바꾸지 않기 위해 API 키가 이미 쓰는
+// _AioVault._keyRuntime 동기 캐시 패턴을 그대로 재사용한다.
+function _pfVaultOptedOut() {
+  try { return localStorage.getItem(PF_VAULT_OPTOUT_KEY) === '1'; } catch(e) { return false; }
+}
 function getPortfolioData() {
   try {
+    if (!_pfVaultOptedOut() && typeof _AioVault !== 'undefined' && _AioVault._keyRuntime && _AioVault._keyRuntime[PF_STORAGE_KEY] !== undefined) {
+      return JSON.parse(_AioVault._keyRuntime[PF_STORAGE_KEY] || '[]');
+    }
     const raw = localStorage.getItem(PF_STORAGE_KEY);
     if (!raw) return [];
+    if (raw.indexOf('aio_enc::') === 0) return []; // 암호화된 상태 + 이번 세션 미해제 — 평문 노출 금지
     return JSON.parse(raw);
   } catch(e) { return []; }
 }
 function savePortfolioData(positions) {
-  try { localStorage.setItem(PF_STORAGE_KEY, JSON.stringify(positions)); } catch(e) {}
+  var json = JSON.stringify(positions);
+  try {
+    if (typeof _AioVault !== 'undefined') {
+      if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
+      _AioVault._keyRuntime[PF_STORAGE_KEY] = json; // 동기 read가 항상 최신값을 보게 즉시 갱신
+    }
+  } catch(e) {}
+  if (_pfVaultOptedOut() || typeof safeLS !== 'function') {
+    try { localStorage.setItem(PF_STORAGE_KEY, json); } catch(e) {}
+  } else {
+    safeLS(PF_STORAGE_KEY, json); // fire-and-forget — unlock 상태면 암호화, 아니면 평문(safeLS 기존 계약)
+  }
 }
 
-// PIN Lock
-function checkPortfolioPin() {
-  const pin = localStorage.getItem(PF_PIN_KEY);
-  if (!pin) { showPortfolioMain(); return; }
-  document.getElementById('pf-lock-screen').style.display = 'block';
-  document.getElementById('pf-main').style.display = 'none';
+// PIN Lock — v52.46: 독자 PIN 저장을 폐기하고 공유 _AioVault 상태를 단일 진실 원천으로 사용
+function isPortfolioLocked() {
+  if (_pfVaultOptedOut()) return false;
+  try {
+    var hasProtection = !!localStorage.getItem('aio_vault_salt') || !!localStorage.getItem(PF_PIN_KEY);
+    if (!hasProtection) return false;
+    return !(typeof _AioVault !== 'undefined' && _AioVault.isUnlocked());
+  } catch(e) { return false; }
 }
-function unlockPortfolio() {
-  const pin = localStorage.getItem(PF_PIN_KEY);
+async function unlockPortfolio() {
   const input = document.getElementById('pf-pin-input');
-  if (!pin || !input) { showPortfolioMain(); return; }
-  if (input.value === pin) { showPortfolioMain(); input.value = ''; }
-  else { input.style.borderColor = 'var(--data-red)'; setTimeout(() => input.style.borderColor = '', T.UI_FEEDBACK); }
+  if (!input) return;
+  const pin = input.value.trim();
+  if (!/^\d{4,}$/.test(pin)) {
+    input.style.borderColor = 'var(--data-red)';
+    setTimeout(() => input.style.borderColor = '', T.UI_FEEDBACK);
+    return;
+  }
+  if (typeof _AioVault === 'undefined') { showPortfolioMain(); return; }
+  const hadVault = !!localStorage.getItem('aio_vault_salt');
+  await _AioVault.unlock(pin);
+  if (hadVault) {
+    // 기존 Vault 존재 — 저장된 암호문 복호화로 PIN 정확성 검증(틀린 PIN이면 AES-GCM 인증 실패로 null)
+    const raw = localStorage.getItem(PF_STORAGE_KEY);
+    if (raw && raw.indexOf('aio_enc::') === 0) {
+      const dec = await _AioVault.decrypt(raw);
+      if (dec === null) {
+        _AioVault.lock();
+        input.style.borderColor = 'var(--data-red)';
+        setTimeout(() => input.style.borderColor = '', T.UI_FEEDBACK);
+        showToast('PIN이 올바르지 않습니다.');
+        return;
+      }
+      if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
+      _AioVault._keyRuntime[PF_STORAGE_KEY] = dec;
+    }
+    if (typeof _restoreDecryptedKeys === 'function') { try { await _restoreDecryptedKeys(); } catch(_e){} }
+  } else {
+    // Vault 최초 생성 — 기존 평문 데이터(있다면)를 그대로 암호화로 승격
+    const raw = localStorage.getItem(PF_STORAGE_KEY);
+    if (raw && raw.indexOf('aio_enc::') !== 0) {
+      await safeLS(PF_STORAGE_KEY, raw);
+      if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
+      _AioVault._keyRuntime[PF_STORAGE_KEY] = raw;
+    }
+    if (typeof _migrateToEncrypted === 'function') { try { await _migrateToEncrypted(); } catch(_e){} }
+  }
+  try { localStorage.removeItem(PF_PIN_KEY); } catch(e) {} // 레거시 평문 PIN은 이제 무의미
+  input.value = '';
+  showPortfolioMain();
 }
 function setupPortfolioPin() {
-  // v46.10: prompt() → PIN 입력 UI (R6 준수)
   var pinInput = document.getElementById('pf-pin-input');
   if (!pinInput) return;
   var lockScreen = document.getElementById('pf-lock-screen');
@@ -13287,28 +13348,28 @@ function setupPortfolioPin() {
   if (lockScreen) lockScreen.style.display = 'block';
   if (mainEl) mainEl.style.display = 'none';
   pinInput.value = '';
-  pinInput.placeholder = '새 PIN';
+  // v52.46: 별도 keydown 핸들러 제거 — input의 data-on-enter="unlockPortfolio"가 이미 동일 로직 처리
+  // (신규 Vault 생성/기존 Vault 잠금해제 모두 unlockPortfolio() 한 경로로 통합)
+  pinInput.placeholder = localStorage.getItem('aio_vault_salt') ? '기존 PIN 입력' : '새 PIN(4자리+)';
   pinInput.focus();
-  if (pinInput._pfPinKeyHandler) pinInput.removeEventListener('keydown', pinInput._pfPinKeyHandler);
-  pinInput._pfPinKeyHandler = function(e) {
-    if (e.key === 'Enter') {
-      var newPin = pinInput.value.trim();
-      if (/^\d{4}$/.test(newPin)) {
-        try { localStorage.setItem(PF_PIN_KEY, newPin); } catch(ex) {}
-        showToast('PIN이 설정되었습니다.');
-        pinInput.placeholder = '••••';
-        pinInput.removeEventListener('keydown', pinInput._pfPinKeyHandler);
-        pinInput._pfPinKeyHandler = function(ev) { if (ev.key === 'Enter') unlockPortfolio(); };
-        pinInput.addEventListener('keydown', pinInput._pfPinKeyHandler);
-        showPortfolioMain();
-      } else { showToast('4자리 숫자만 입력하세요.'); pinInput.value = ''; }
-    }
-  };
-  pinInput.addEventListener('keydown', pinInput._pfPinKeyHandler);
 }
 function resetPortfolioPin() {
-  showConfirmModal('PIN 초기화', 'PIN을 초기화하시겠습니까? 포트폴리오 데이터는 유지됩니다.', function() {
-    localStorage.removeItem(PF_PIN_KEY);
+  var hasProtection = !!localStorage.getItem('aio_vault_salt') || !!localStorage.getItem(PF_PIN_KEY);
+  if (!hasProtection) { showToast('설정된 PIN이 없습니다.'); return; }
+  var isUnlocked = typeof _AioVault !== 'undefined' && _AioVault.isUnlocked();
+  var warnMsg = isUnlocked
+    ? '포트폴리오를 다시 평문으로 저장하고 PIN 보호를 해제합니다. (사이드바의 API 키 Vault 자체는 영향받지 않습니다.) 계속하시겠습니까?'
+    : 'PIN을 모르는 상태에서 초기화하면 암호화된 기존 포트폴리오 데이터는 복구할 수 없습니다(실제 암호화이므로 복호화 없이 초기화 시 데이터 자체가 사라집니다). 계속하시겠습니까?';
+  showConfirmModal('PIN 보호 해제', warnMsg, function() {
+    if (isUnlocked && _AioVault._keyRuntime && _AioVault._keyRuntime[PF_STORAGE_KEY] !== undefined) {
+      try { localStorage.setItem(PF_STORAGE_KEY, _AioVault._keyRuntime[PF_STORAGE_KEY]); } catch(e) {}
+    } else if (!isUnlocked) {
+      try { localStorage.removeItem(PF_STORAGE_KEY); } catch(e) {} // 복호화 불가 — 암호문 자체 제거(빈 포트폴리오로 재시작)
+    }
+    try { localStorage.setItem(PF_VAULT_OPTOUT_KEY, '1'); } catch(e) {}
+    try { localStorage.removeItem(PF_PIN_KEY); } catch(e) {}
+    if (typeof _AioVault !== 'undefined') _AioVault.lock();
+    showToast('포트폴리오 PIN 보호를 해제했습니다.');
     showPortfolioMain();
   }, '');
 }
@@ -13478,6 +13539,15 @@ function clearAllPositions() {
 
 // Render Portfolio
 function renderPortfolio() {
+  // v52.46 WO-1A: 실제 잠금 게이트 — 이전엔 이 자리를 지키던 checkPortfolioPin()이
+  // 어디서도 호출되지 않는 고아 함수라 PIN이 설정돼도 진입 시 잠금화면이 뜬 적이 없었다(R294).
+  if (typeof isPortfolioLocked === 'function' && isPortfolioLocked()) {
+    var lock = document.getElementById('pf-lock-screen');
+    var main = document.getElementById('pf-main');
+    if (lock) lock.style.display = 'block';
+    if (main) main.style.display = 'none';
+    return;
+  }
   const positions = getPortfolioData();
   let ld = window._liveData || {};
   const tbody = document.getElementById('pf-positions-tbody');

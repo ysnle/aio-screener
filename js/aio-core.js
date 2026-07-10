@@ -14358,10 +14358,14 @@ const _AioVault = {
 };
 
 // 암호화 대상 키 목록
+// v52.46 WO-1A/P661/R294: 'aio_portfolio_data' 추가 — UI가 "PIN 설정 후 AES-256 암호화"라고
+// 명시했으나 실제로는 이 Set과 무관한 별도 평문 경로였다(Codex P0-2). Vault가 unlock 상태일 때만
+// 암호화되는 기존 safeLS 계약을 그대로 적용 — PIN을 설정하지 않은 사용자는 기존과 동일하게 평문.
 const _AIO_SENSITIVE_KEYS = new Set([
   'aio_claude_api_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fmp_key',
   'aio_perplexity_key', 'aio_google_cse_key', 'aio_google_cse_cx',
-  'aio_fred_key', 'aio_td_key', 'aio_newsdata_key', 'aio_rss2json_key', 'aio_cf_worker_url'
+  'aio_fred_key', 'aio_td_key', 'aio_newsdata_key', 'aio_rss2json_key', 'aio_cf_worker_url',
+  'aio_portfolio_data'
 ]);
 
 // 비동기 저장 (암호화)
