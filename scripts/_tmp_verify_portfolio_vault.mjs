@@ -118,9 +118,10 @@ async function main() {
     const saltBeforeG = await page.evaluate(() => localStorage.getItem('aio_vault_salt'));
     await page.evaluate(() => {
       // resetPortfolioPin() shows a confirm modal (showConfirmModal) — call its callback path directly for a deterministic test
-      window.localStorage.setItem('aio_portfolio_data', window._AioVault._keyRuntime['aio_portfolio_data']);
-      window.localStorage.setItem('aio_portfolio_vault_optout', '1');
-      window._AioVault.lock();
+      // _AioVault is a top-level const, not attached to window — reference it bare (same as the app's own code does)
+      localStorage.setItem('aio_portfolio_data', _AioVault._keyRuntime['aio_portfolio_data']);
+      localStorage.setItem('aio_portfolio_vault_optout', '1');
+      _AioVault.lock();
     });
     const rawG = await page.evaluate(() => localStorage.getItem('aio_portfolio_data'));
     const lockedG = await page.evaluate(() => window.isPortfolioLocked());
