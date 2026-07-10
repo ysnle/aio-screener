@@ -69,9 +69,22 @@ async function auditRoute(page, routeId) {
     const badTextNodes = badTextRe.test(activeText)
       ? Array.from(activeText.match(new RegExp(badTextRe.source, 'g')) || []).slice(0, 3)
       : [];
-    const zeroCanvases = [];
+    // v52.5x/WO-4 (F-02): this array was declared but never populated — the zeroCanvasCount
+    // field below always silently reported 0 regardless of actual canvas render state. A
+    // canvas that's in the DOM, visible (offsetParent set), but rendered at 0x0 (a common
+    // symptom of a chart-init function running before its container has real layout, or
+    // erroring before the first draw call) went completely undetected.
+    const zeroCanvases = Array.from(activeRoot.querySelectorAll('canvas'))
+      .filter((cv) => cv.offsetParent !== null || cv.getClientRects().length > 0)
+      .filter((cv) => cv.clientWidth === 0 || cv.clientHeight === 0 || cv.width === 0 || cv.height === 0);
     const brokenImages = Array.from(activeRoot.querySelectorAll('img'))
       .filter((img) => img.complete && img.naturalWidth === 0);
+    // v52.5x/WO-4: small-text 정책 결정 — 9px는 관찰만(기존 코드베이스에 이미 34곳가량 존재하는
+    // 출처/타임스탬프류 라벨, 한 세션의 QA 게이트 작업 범위에서 전면 재설계 없이 강제하면 다수
+    // 페이지를 동시에 깨뜨림) 하되, 8px 이하는 실패 조건으로 승격 — index.html 정적 스캔 결과
+    // 7px 1건·8px 0건으로 사실상 존재하지 않아 이 임계값을 게이트로 걸어도 즉시 깨질 페이지가
+    // 없다(안전한 첫 단계). 9px를 포함한 강제는 별도 UX 패스로 남김.
+    const tinyTextCritical = Array.from(activeRoot.querySelectorAll('[style*="font-size:8px"],[style*="font-size:7px"],[style*="font-size:6px"],[style*="font-size:5px"]')).slice(0, 50);
     const tinyText = Array.from(activeRoot.querySelectorAll('[style*="font-size:9px"],[style*="font-size:8px"],[style*="font-size:7px"]')).slice(0, 50);
     const clipsViewport = (el) => {
       if (!el) return false;
@@ -147,14 +160,17 @@ async function auditRoute(page, routeId) {
       svgTinyTextCount: svgTinyText.length,
       duplicateCardCount: duplicateCards.length,
       tinyTextCount: tinyText.length,
+      tinyTextCriticalCount: tinyTextCritical.length,
       samples: {
         badText: badTextNodes.slice(0, 3),
         nameless: controls.slice(0, 3).map((el) => el.outerHTML.slice(0, 160)),
         topbarClips: topbarClips.slice(0, 3).map((el) => el.outerHTML.slice(0, 160)),
+        zeroCanvases: zeroCanvases.slice(0, 3).map((el) => (el.id ? '#' + el.id : el.className ? '.' + String(el.className).split(' ')[0] : 'canvas')),
         svgTextIssues: svgTextIssues.slice(0, 3),
         svgTinyText: svgTinyText.slice(0, 3),
         duplicateCards: duplicateCards.slice(0, 3),
-        tinyText: tinyText.slice(0, 3).map((el) => ({ text: (el.textContent || '').trim().slice(0, 60), style: el.getAttribute('style') || '' }))
+        tinyText: tinyText.slice(0, 3).map((el) => ({ text: (el.textContent || '').trim().slice(0, 60), style: el.getAttribute('style') || '' })),
+        tinyTextCritical: tinyTextCritical.slice(0, 3).map((el) => ({ text: (el.textContent || '').trim().slice(0, 60), style: el.getAttribute('style') || '' }))
       }
     };
   }, routeId);
@@ -169,10 +185,28 @@ async function main() {
   const failures = [];
   const reports = [];
 
+  // v52.5x/WO-4 (F-02): the route matrix previously collected zero pageerror/console.error
+  // signal — a route could throw on every single visit and still report a clean PASS. Attach
+  // per-page listeners and attribute each error to whichever route was active when it fired
+  // (best-effort — a small settle delay after showPage() in FULL_INIT mode narrows the window
+  // where an error could be misattributed to the next route instead of the one that caused it).
+  const ERR_ALLOWLIST = /net::ERR_FAILED|Failed to load resource/; // expected: all external fetches are aborted by design below
+  const jsErrors = [];
+
   try {
     for (const vp of VIEWPORTS) {
       console.log(`[ci-viewport-matrix] viewport ${vp.name} begin`);
       const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
+      let currentRouteId = null;
+      page.on('pageerror', (err) => {
+        jsErrors.push({ viewport: vp.name, routeId: currentRouteId, kind: 'pageerror', message: String(err && err.message || err) });
+      });
+      page.on('console', (msg) => {
+        if (msg.type() !== 'error') return;
+        const text = msg.text();
+        if (ERR_ALLOWLIST.test(text)) return;
+        jsErrors.push({ viewport: vp.name, routeId: currentRouteId, kind: 'console.error', message: text.slice(0, 300) });
+      });
       await page.route('**/*', (route) => {
         const url = route.request().url();
         if (url.startsWith(`http://127.0.0.1:${PORT}/`)) return route.continue();
@@ -183,13 +217,18 @@ async function main() {
       await page.evaluate((fullInit) => { window.__AIO_VIEWPORT_FULL_INIT__ = !!fullInit; }, FULL_INIT);
 
       for (const routeId of ROUTES) {
+        const errCountBefore = jsErrors.length;
+        currentRouteId = routeId;
         const r = await auditRoute(page, routeId);
+        if (FULL_INIT) await page.waitForTimeout(150); // let async post-showPage errors surface before attributing to the next route
         r.viewport = vp.name;
+        r.jsErrorCount = jsErrors.length - errCountBefore;
         reports.push(r);
         if (SCREENSHOTS) await page.screenshot({ path: resolve(OUT_DIR, `${vp.name}-${routeId}.png`), fullPage: false });
         const routeFailures = [];
         if (r.fatal) routeFailures.push(r.fatal);
         if (!r.activeFound) routeFailures.push('active page missing');
+        if (r.jsErrorCount) routeFailures.push(`unhandled pageerror/console.error ${r.jsErrorCount}`);
         if (r.docOverflowX > 3) routeFailures.push(`horizontal overflow ${r.docOverflowX}px`);
         if (r.badTextCount) routeFailures.push(`bad visible text ${r.badTextCount}`);
         if (r.namelessControlCount) routeFailures.push(`nameless controls ${r.namelessControlCount}`);
@@ -198,8 +237,12 @@ async function main() {
         if (r.topbarClipCount) routeFailures.push(`topbar clipped controls ${r.topbarClipCount}`);
         if (r.svgTextOverlapCount) routeFailures.push(`svg text overlaps ${r.svgTextOverlapCount}`);
         if (r.svgTinyTextCount) routeFailures.push(`svg text below 10px ${r.svgTinyTextCount}`);
+        if (r.tinyTextCriticalCount) routeFailures.push(`html text at/below 8px ${r.tinyTextCriticalCount}`);
         if (r.duplicateCardCount) routeFailures.push(`duplicate news/briefing cards ${r.duplicateCardCount}`);
-        if (routeFailures.length) failures.push({ viewport: vp.name, routeId, routeFailures, samples: r.samples });
+        if (routeFailures.length) {
+          const routeJsErrors = jsErrors.filter((e) => e.viewport === vp.name && e.routeId === routeId).slice(0, 3);
+          failures.push({ viewport: vp.name, routeId, routeFailures, samples: { ...r.samples, jsErrors: routeJsErrors } });
+        }
       }
       console.log(`[ci-viewport-matrix] ${vp.name} checked (${ROUTES.length} routes)`);
       await page.close();
@@ -207,7 +250,7 @@ async function main() {
 
     const worstOverflow = Math.max(...reports.map((r) => r.docOverflowX || 0));
     const totalTiny = reports.reduce((n, r) => n + (r.tinyTextCount || 0), 0);
-    console.log(`[ci-viewport-matrix] routes=${ROUTES.length}, viewports=${VIEWPORTS.length}, combos=${reports.length}, worstOverflow=${worstOverflow}px, tinyTextObservations=${totalTiny}`);
+    console.log(`[ci-viewport-matrix] routes=${ROUTES.length}, viewports=${VIEWPORTS.length}, combos=${reports.length}, worstOverflow=${worstOverflow}px, tinyTextObservations=${totalTiny}, jsErrors=${jsErrors.length}${FULL_INIT ? '' : ' (FULL_INIT=0 — showPage()/chart-init paths not exercised, so this is not a meaningful signal in default mode)'}`);
     if (failures.length) {
       console.error(`[ci-viewport-matrix] ❌ ${failures.length} failing route/viewport combo(s)`);
       for (const f of failures.slice(0, 20)) {
@@ -215,9 +258,11 @@ async function main() {
         if (f.samples && f.samples.badText?.length) console.error(`   badText: ${JSON.stringify(f.samples.badText)}`);
         if (f.samples && f.samples.nameless?.length) console.error(`   nameless: ${JSON.stringify(f.samples.nameless)}`);
         if (f.samples && f.samples.topbarClips?.length) console.error(`   topbarClips: ${JSON.stringify(f.samples.topbarClips)}`);
+        if (f.samples && f.samples.zeroCanvases?.length) console.error(`   zeroCanvases: ${JSON.stringify(f.samples.zeroCanvases)}`);
         if (f.samples && f.samples.svgTextIssues?.length) console.error(`   svgTextIssues: ${JSON.stringify(f.samples.svgTextIssues)}`);
         if (f.samples && f.samples.svgTinyText?.length) console.error(`   svgTinyText: ${JSON.stringify(f.samples.svgTinyText)}`);
         if (f.samples && f.samples.duplicateCards?.length) console.error(`   duplicateCards: ${JSON.stringify(f.samples.duplicateCards)}`);
+        if (f.samples && f.samples.jsErrors?.length) console.error(`   jsErrors: ${JSON.stringify(f.samples.jsErrors)}`);
       }
       process.exitCode = 1;
     } else {

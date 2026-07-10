@@ -107,7 +107,7 @@ function trailingMA(series, idx, window, field = 'spx') {
   return sum / window;
 }
 
-function trailingMax(series, idx, window, field = 'spx') {
+export function trailingMax(series, idx, window, field = 'spx') {
   const lo = Math.max(0, idx - window + 1);
   let max = -Infinity;
   for (let i = lo; i <= idx; i++) {
@@ -127,7 +127,7 @@ function forwardReturn(series, idx, daysAhead, field = 'spx') {
 
 // ── Spearman 순위상관 + Fisher-z 근사 신뢰구간(단순 tie 처리, 표본이 클 때 충분 — 기존 하네스와
 //    동일한 근사 수준 유지, n>=4에서만 CI 계산) ──
-function spearmanWithCI(pairs) {
+export function spearmanWithCI(pairs) {
   const clean = pairs.filter(p => p[0] != null && p[1] != null && isFinite(p[0]) && isFinite(p[1]));
   const n = clean.length;
   if (n < 3) return { n, rho: null, ci95: null };
@@ -170,7 +170,7 @@ function quantileSplit(records, scoreField, returnField, buckets = 3) {
 
 // ── regime 분류: 서술형 역사적 날짜 대신 데이터 자체에서 계산되는 VIX·trailing 1y drawdown으로
 //    산출 — 과거 사건의 정확한 날짜를 기억에 의존해 재현하는 위험을 피한다. ──
-function classifyRegime(record, series, idx) {
+export function classifyRegime(record, series, idx) {
   const vix = record.vix;
   const ath1y = trailingMax(series, idx, 252, 'spx');
   const drawdown = (ath1y && record.spx) ? (record.spx - ath1y) / ath1y * 100 : null;

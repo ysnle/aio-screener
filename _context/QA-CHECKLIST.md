@@ -3,10 +3,10 @@ verified_by: agent
 last_verified: 2026-07-10
 confidence: high
 version: v3.8
-checklist_version: v52.49
+checklist_version: v52.51
 total_items: 521
 stages: 22
-latest_P_covered: P664
+latest_P_covered: P666
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2699,3 +2699,9 @@ P665-Q2: `scripts/backtest-trading-score-longrun.mjs` must fetch real multi-year
 P665-Q3: The long-run backtest's regime labels must be derived from the fetched data itself (trailing VIX level + trailing-252-day drawdown from rolling ATH), not from hardcoded historical narrative dates — avoiding a memorized-date error becoming a silent data-classification bug.
 P665-Q4: `public-data/score-backtest-longrun.json` must retain its `methodology`/`caveats` fields stating plainly that only ~55% of `computeTradingScore()`'s weight (vol+trend+macro) is covered, and that the live app's displayed composite score remains provisional/unvalidated regardless of this result — a reader of only the top-level correlation numbers must not be able to conclude "the whole score is validated" or "the whole score is invalidated."
 P665-Q5: This finding must not have silently changed `computeTradingScore()`'s live logic, `getScoreAdvice()`'s text, or any band/threshold in `js/aio-core.js` or `index.html` — a negative backtest result on a partial-coverage validation is a documented finding requiring its own separate product decision, not an automatic trigger for a live behavior change.
+
+P666-Q1: `scripts/fetch-data.mjs`'s `backtestFactors(stockData, opts)` must accept optional `opts.offsets`/`opts.fwdDays` that default to the original constants (`[147,126,105,84,63,42]`/`21`) when omitted — the existing production call site (which passes no second argument) must produce structurally identical output (ignoring only `asOf`) before and after this change.
+P666-Q2: `fetch-data.mjs` must guard its `main()` invocation behind an `import.meta.url` direct-execution check (matching every other `scripts/*.mjs` file in this repo) — importing the file (to reuse `backtestFactors`/`closesToFactors`/`_mean`) must never trigger the live fetch pipeline's real network calls or overwrite `public-data/*.json`.
+P666-Q3: `scripts/backtest-factors-longrun.mjs` must select its ticker sample from `public-data/screener-universe.json` sorted by `mcap` descending, bounded to a `--top` count (default 120) — never the full universe — and must fetch with concurrency capped at 4 (matching `fetch-data.mjs`'s own `backfillHistory()` concurrency), given this repo's documented prior Yahoo IP-blocking history.
+P666-Q4: `public-data/factor-backtest-longrun.json` must retain its `methodology.survivorshipBiasCaveat` and `methodology.subsetNotFullUniverse` fields stating plainly that survivorship bias is unresolved and the sample is a top-mcap subset — a reader must not be able to conclude "the live factor model's survivorship/full-universe validation gate has passed" from this file alone.
+P666-Q5: This finding must not have silently changed `_aioComputeFactorRanks()`'s live factor weights, direction, or inclusion in `js/aio-data.js`, nor `backtestFactors()`'s live `COMP_W`/factor list in `fetch-data.mjs` — a negative-IC finding on a partial-coverage (4-of-7-factor, subset-universe, survivorship-unresolved) validation is a documented finding requiring its own separate product decision.

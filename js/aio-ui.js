@@ -3429,7 +3429,13 @@ window._aioDiagram = (function () {
       var mx = tx(m[0]);
       out += _l(mx, slY - 2, mx, slY + 10, m[2], 1.5);
       out += _t(mx, slY + 21, m[1], m[2], 10, 600, 'middle');
-      out += _t(mx, slY + 31, '$' + _n(m[0]), m[2], 10, 400, 'middle');
+      // v52.5x/WO-4(F-01): label(baseline slY+21)과 값(이전 slY+31) 사이 10px 간격이 10px 폰트의
+      // 실제 글리프 높이(대략 어센트+디센트 ~10px)와 거의 같아 브라우저 폰트 메트릭에 따라
+      // bounding box가 겹칠 수 있었다(실측: mobile390/tablet768/laptop1024/desktop1440 4곳 전부
+      // technical route에서 200MA/50MA/ATH 라벨-값 3쌍 전부 겹침 검출). 값 라인을 slY+35로 내려
+      // 두 텍스트 baseline 간격을 14px로 넓혀 여유를 둠(SVG 높이 H=170, 하단 stats 행은 H-50=120
+      // 부터 시작이라 4px 이동은 다른 요소와 충돌하지 않음).
+      out += _t(mx, slY + 35, '$' + _n(m[0]), m[2], 10, 400, 'middle');
     });
     var prx = tx(price);
     out += _r(prx - 7, slY - 6, 14, 20, _alphaRgb(C.cyan, 0.18), 3, C.cyan, 1.5);

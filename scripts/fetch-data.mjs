@@ -669,7 +669,7 @@ async function getScreenerSymbols() {
 // Yahoo 심볼 정규화: 클래스주 BRK.B→BRK-B. KR(.KS/.KQ)·일반은 보존.
 const _yhSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2');
 
-const _mean = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+export const _mean = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
 function _retPct(closes, n) {
   if (closes.length <= n) return null;
   const a = closes[closes.length - 1 - n], b = closes[closes.length - 1];
@@ -751,7 +751,7 @@ function _kalmanTrend(closes, vol) {
   const velConf = round(vel / (1 + Math.sqrt(Math.max(pt, 0))), 6);
   return { vel: round(vel, 6), pt: round(pt, 6), innovZ, velConf, scale: 'log_pct_day' };
 }
-function closesToFactors(closes) {
+export function closesToFactors(closes) {
   if (!Array.isArray(closes) || closes.length < 30) return null;
   const price = closes[closes.length - 1];
   const sma50 = closes.length >= 50 ? _mean(closes.slice(-50)) : null;
@@ -782,8 +782,12 @@ function _spearman(xs, ys) {
   for (var i = 0; i < n; i++) { var d = rx[i] - ry[i]; d2 += d * d; }
   return 1 - (6 * d2) / (n * (n * n - 1));
 }
-function backtestFactors(stockData) {
-  var OFFSETS = [147, 126, 105, 84, 63, 42], FWD = 21;     // 끝에서 N일 전 리밸 시점들
+// v52.50/WO-3: opts.offsets/opts.fwdDays는 선택적 override — 생략 시 기존 6개월 프로덕션
+// 리밸런스 세트+21일 forward 그대로(호출부 무변화, 하위호환). scripts/backtest-factors-longrun.mjs가
+// 수년치 데이터로 훨씬 많은 리밸런스 시점을 넘겨 이 동일 포뮬러를 재사용한다(로직 복제 방지).
+export function backtestFactors(stockData, opts) {
+  opts = opts || {};
+  var OFFSETS = opts.offsets || [147, 126, 105, 84, 63, 42], FWD = opts.fwdDays || 21;     // 끝에서 N일 전 리밸 시점들
   var isNum = function(v){ return typeof v === 'number' && isFinite(v); };
   // v51.91 P586/C2: this backtest validates a *fixed* 4-factor subset, not the live ranking model
   // (js/aio-data.js:_aioComputeFactorRanks), which uses 7 factors with regime-adaptive weights
@@ -808,7 +812,11 @@ function backtestFactors(stockData) {
   var EXCLUDED_FACTORS_REASON = 'size needs historical shares-outstanding data this pipeline does not fetch; value/quality are FMP today-only TTM snapshots with no historical time series, so backtesting them would use look-ahead information';
   var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
   var icS = {}, icN = {};
-  IC_FACTORS.forEach(function(k){ icS[k]=0; icN[k]=0; });
+  // v52.50/WO-3: per-rebalance-date IC list (additive, existing icS/icN mean-only output unchanged) —
+  // needed to compute ICIR (mean IC / stddev IC across dates) and its t-stat/CI, which Codex's WO-3
+  // gate asks for explicitly and which a single averaged IC number cannot support.
+  var icByDate = {};
+  IC_FACTORS.forEach(function(k){ icS[k]=0; icN[k]=0; icByDate[k]=[]; });
   var spreadSum = 0, spreadN = 0, hit = 0, hitN = 0;
   function rank01(vals) { // 값→0..1 percentile(null=0.5)
     var idx = vals.map(function(v, i){ return [v, i]; }).filter(function(p){ return isNum(p[0]); });
@@ -845,7 +853,7 @@ function backtestFactors(stockData) {
       var ps = rows.filter(function(r){ return isNum(r[pair[0]]); });
       if (ps.length < 10) return;
       var ic = _spearman(ps.map(function(r){ return r[pair[0]]; }), ps.map(function(r){ return r.fwd; }));
-      if (isNum(ic)) { icS[pair[1]] += ic; icN[pair[1]]++; }
+      if (isNum(ic)) { icS[pair[1]] += ic; icN[pair[1]]++; icByDate[pair[1]].push(ic); }
     });
     // 복합 팩터: 라이브 가중과 동기화된 percentile 가중합
     var rm  = rank01(rows.map(function(r){ return r.mom; }));
@@ -859,7 +867,7 @@ function backtestFactors(stockData) {
                + (isNum(r.kalman) ? COMP_W.kalman * rk[i] : 0)) / wTotal;
     });
     var icC = _spearman(rows.map(function(r){ return r.comp; }), rows.map(function(r){ return r.fwd; }));
-    if (isNum(icC)) { icS.composite += icC; icN.composite++; }
+    if (isNum(icC)) { icS.composite += icC; icN.composite++; icByDate.composite.push(icC); }
     // 상하위 20% 분위 스프레드 & 방향 적중률
     var sorted = rows.slice().sort(function(a, b){ return a.comp - b.comp; });
     var q = Math.max(1, Math.floor(sorted.length / 5));
@@ -872,6 +880,7 @@ function backtestFactors(stockData) {
     asOf: new Date().toISOString(), fwdDays: FWD, dates: spreadN,
     n: stockData.filter(function(s){ return s.closes && s.closes.length >= 148; }).length,
     ic: ic,
+    icByDate: icByDate,
     quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
     compWeights: COMP_W,
@@ -1357,4 +1366,11 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error('[fetch-data] 치명적 오류:', e); process.exit(1); });
+// v52.50/WO-3: direct-run guard (같은 패턴을 이미 backtest-trading-score.mjs 등이 씀) — 이 파일은
+// GitHub Actions에서 항상 `node scripts/fetch-data.mjs`로 직접 실행되므로 이 가드는 프로덕션 동작을
+// 전혀 바꾸지 않는다(그 경우 이 조건은 항상 참). 다만 이제 closesToFactors/backtestFactors/_mean이
+// export돼 있어, 이 가드가 없으면 다른 스크립트가 그 함수만 재사용하려고 import하는 순간 라이브
+// fetch 파이프라인 전체(실 네트워크 호출+public-data/*.json 덮어쓰기)가 부작용으로 실행돼버린다.
+if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
+  main().catch(e => { console.error('[fetch-data] 치명적 오류:', e); process.exit(1); });
+}

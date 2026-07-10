@@ -2,9 +2,18 @@
 verified_by: agent
 last_verified: 2026-07-10
 confidence: high
-target_version: v52.49
+target_version: v52.51
 
 ---
+
+## R299. A factor backtest's universe composition and lookback window can flip the sign of a well-known factor — don't compare against academic-literature factor performance without matching sample characteristics (v52.51)
+
+- A 10-year (2016-2026), 120-large-cap-ticker, monthly-rebalanced backtest of the live factor ranking model's `lowvol` sub-factor (`-annualizedVol`, computed over a trailing 60-day window) found a *statistically significant negative* Spearman IC with 5/21/63-day forward returns (e.g. 21-day: ICIR=-0.191, t-stat=-2.04, 95% CI [-0.093,-0.002], strengthening in the more recent walk-forward holdout period to ICIR=-0.491/t=-2.95) — the opposite sign from the "low-volatility anomaly" the factor's inclusion presumably assumed. The blended composite (momentum+trend+lowvol+kalman at live NEUTRAL weights) showed no statistically distinguishable-from-zero signal at any of 1/5/21/63-day horizons over the same sample.
+- Two candidate explanations, both plausible and neither proven: the academic low-vol anomaly is usually measured on a full-market universe over multi-decade, multi-regime windows using risk-adjusted (often beta-relative) volatility — a top-120-by-market-cap, single-decade, raw-60-day-volatility measurement is a materially different construct, not a replication attempt of the same claim. Separately, this specific decade's sample happens to be dominated by large-cap tech/AI-theme names where the historically-quieter (lower realized vol) names underperformed the historically-more-volatile high-growth names — a sample-composition effect, not necessarily a universal property of "low volatility" as a concept.
+- Before citing an academic factor-investing result (low-vol anomaly, momentum premium, quality premium, etc.) as justification for a scoring/ranking rule, or before treating a backtest's finding as evidence the underlying factor concept itself is wrong, check whether the backtest's universe (breadth, cap-weighting, sector composition), lookback window (which regimes it does/doesn't span), and exact factor definition (raw vs risk-adjusted, lookback length) actually match the literature's — a narrow, sample-specific result can validly point in the opposite direction from the general finding without either being "wrong."
+- Same underlying caution as R298 (fixed absolute thresholds vs. regime shift) applied to a different failure mode: there, a *rule's own threshold* didn't survive a regime-spanning window; here, a *factor's own sign* doesn't necessarily generalize from a narrow sample back to the broad-universe literature claim that motivated including it.
+- This finding does **not** by itself justify silently changing `_aioComputeFactorRanks()`'s live factor weights or the `lowvol` factor's direction/inclusion — same principle as R298's closing point: report it, don't act on it unilaterally on a partial-coverage (4-of-7-factor, subset-not-full-universe, survivorship-bias-unresolved) validation result.
+- See P666/BUG-POSTMORTEM.md, `public-data/factor-backtest-longrun.json`.
 
 ## R298. A hand-tuned score using fixed absolute-level thresholds on a macro indicator must be re-validated against realized outcomes across a regime-shifting window before trusting its sign, not just its shape (v52.49)
 

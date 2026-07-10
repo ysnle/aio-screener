@@ -563,6 +563,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 - survivorship·look-ahead 검사 PASS
 - baseline 대비 증분 성과와 실패 구간 공개
 
+> **상태(2026-07-10, Sonnet 5 세션, v52.51/P666/R299): 축소 검증 구현 완료 — 완료 게이트 전체 충족은 아님(정직하게 기록).** WO-2와 동일한 벽(라이브 팩터 백테스트가 이미 873종목의 1년치·6개 리밸런스만 사용, 코드 자체 주석이 이미 "부족"이라 자인) + WO-3 고유의 새 문제(오늘 유니버스로 다년치를 보면 survivorship bias 발생, 무료 데이터로 해결 불가)를 확인. 사용자에게 AskUserQuestion으로 실행 방식 확인(Yahoo IP 차단 이력 고려) 후 "제한된 표본"(시총 상위 120종목, concurrency=4) 선택. `backtestFactors()`에 선택적 offsets/fwdDays 파라미터 추가(하위호환 확인) + `fetch-data.mjs`에 direct-run 가드 신설(다른 스크립트가 import만 해도 라이브 파이프라인이 부작용으로 실행될 뻔했던 것을 발견·수정) 후, 신규 `scripts/backtest-factors-longrun.mjs`로 10년·117개 리밸런스(프로덕션 대비 ~20배) 검증. **결과**: composite는 1/5/21/63일 전 구간 통계적으로 무의미. lowvol 서브팩터만 5/21/63일에서 유의미한 음의 상관(21일 ICIR=-0.191/t=-2.04, 63일 ICIR=-0.308/t=-3.27, walk-forward holdout에서 더 강해짐) — 저변동성 팩터 통념과 반대 방향(표본 구성·정의 차이가 유력 가설, 확정 아님). **미충족 게이트**: survivorship bias(무료 데이터로 근본 불가), 873종목 전체(120종목 부분표본), decay/monotonicity/turnover/cost(미측정), baseline 비교(미시도). 이 발견으로 라이브 `_aioComputeFactorRanks()` 코드를 변경하지 않음(제품 결정 사항으로 사용자에게 별도 보고). 상세: `_context/BUG-POSTMORTEM.md` P666, `_context/KNOWLEDGE-BASE.md` TM-IX.
+
 ### WO-4 — 브라우저 실제 초기화 QA 폐쇄
 
 우선순위: P1

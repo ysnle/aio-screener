@@ -1,0 +1,792 @@
+{
+ "generatedAt": "2026-07-10T09:50:13.620Z",
+ "methodology": {
+  "scope": "Reduced-scope validation of the live factor ranking model's momentum/trend/lowvol/kalman(+composite) sub-formula, using top 120 tickers by market cap (of 120 in the full SCREENER_DB universe) with real 10y daily history.",
+  "excludedFactors": [
+   "size",
+   "value",
+   "quality"
+  ],
+  "excludedFactorsReason": "size needs historical shares-outstanding data this pipeline does not fetch; value/quality are FMP today-only TTM snapshots with no historical time series, so backtesting them would use look-ahead information",
+  "survivorshipBiasCaveat": "Uses TODAY's top-mcap universe applied retroactively over the full lookback window — any ticker that would have been delisted/acquired/failed during this period is entirely absent from the sample. This systematically tends to overstate momentum/quality-style factor performance in the finance literature. Not resolvable without paid point-in-time index-constituent history; NOT claimed as resolved or \"passed\" here.",
+  "subsetNotFullUniverse": "Uses top 120 by market cap, not the full 120-ticker universe, to bound Yahoo Finance request volume (this repo's own fetch-data.mjs/ci.yml comments document a prior Yahoo IP-blocking incident from excess request volume).",
+  "icIRNote": "ICIR = mean(IC across rebalance dates) / stddev(IC across rebalance dates), with a t-stat and approximate 95% CI via the standard IC-IR normal approximation (t = ICIR * sqrt(dates), CI = mean ± 1.96*stddev/sqrt(dates)) — this is what Codex's WO-3 gate means by \"IC/ICIR/t-stat\", distinct from the pooled-cross-section Fisher-z CI used in the WO-2 score backtest.",
+  "liveModelParity": "This still validates only 4 of the live _aioComputeFactorRanks() model's 7 factors, always at NEUTRAL-regime weights (same limitation already documented in fetch-data.mjs backtestFactors() since P586/C2) — RISK_OFF/RISK_ON adaptive weight blending remains unvalidated here."
+ },
+ "universe": {
+  "requestedTop": 120,
+  "fetchedTickers": 120,
+  "fullUniverseSize": 120,
+  "dataRange": "10y"
+ },
+ "rebalanceDates": {
+  "count": 117,
+  "comparedToProductionBacktest": 6
+ },
+ "overallByHorizon": {
+  "fwd1d": {
+   "dates": 114,
+   "n": 120,
+   "ic": {
+    "momentum": 0.038,
+    "trend": 0.034,
+    "lowvol": -0.039,
+    "kalman": 0.031,
+    "composite": 0.027
+   },
+   "icIR": {
+    "momentum": {
+     "n": 114,
+     "mean": 0.038,
+     "std": 0.234,
+     "icIR": 0.161,
+     "tStat": 1.72,
+     "ci95": [
+      -0.005,
+      0.081
+     ]
+    },
+    "trend": {
+     "n": 114,
+     "mean": 0.034,
+     "std": 0.233,
+     "icIR": 0.146,
+     "tStat": 1.56,
+     "ci95": [
+      -0.009,
+      0.077
+     ]
+    },
+    "lowvol": {
+     "n": 114,
+     "mean": -0.039,
+     "std": 0.255,
+     "icIR": -0.155,
+     "tStat": -1.65,
+     "ci95": [
+      -0.086,
+      0.007
+     ]
+    },
+    "kalman": {
+     "n": 114,
+     "mean": 0.031,
+     "std": 0.212,
+     "icIR": 0.148,
+     "tStat": 1.58,
+     "ci95": [
+      -0.008,
+      0.07
+     ]
+    },
+    "composite": {
+     "n": 114,
+     "mean": 0.027,
+     "std": 0.23,
+     "icIR": 0.117,
+     "tStat": 1.25,
+     "ci95": [
+      -0.015,
+      0.069
+     ]
+    }
+   },
+   "quantileSpread": 0.02,
+   "hitRate": 53.5
+  },
+  "fwd5d": {
+   "dates": 114,
+   "n": 120,
+   "ic": {
+    "momentum": 0.02,
+    "trend": 0.009,
+    "lowvol": -0.069,
+    "kalman": 0.009,
+    "composite": -0.003
+   },
+   "icIR": {
+    "momentum": {
+     "n": 114,
+     "mean": 0.02,
+     "std": 0.231,
+     "icIR": 0.088,
+     "tStat": 0.94,
+     "ci95": [
+      -0.022,
+      0.063
+     ]
+    },
+    "trend": {
+     "n": 114,
+     "mean": 0.009,
+     "std": 0.227,
+     "icIR": 0.041,
+     "tStat": 0.44,
+     "ci95": [
+      -0.032,
+      0.051
+     ]
+    },
+    "lowvol": {
+     "n": 114,
+     "mean": -0.069,
+     "std": 0.254,
+     "icIR": -0.271,
+     "tStat": -2.9,
+     "ci95": [
+      -0.115,
+      -0.022
+     ]
+    },
+    "kalman": {
+     "n": 114,
+     "mean": 0.009,
+     "std": 0.212,
+     "icIR": 0.042,
+     "tStat": 0.45,
+     "ci95": [
+      -0.03,
+      0.048
+     ]
+    },
+    "composite": {
+     "n": 114,
+     "mean": -0.003,
+     "std": 0.231,
+     "icIR": -0.015,
+     "tStat": -0.16,
+     "ci95": [
+      -0.046,
+      0.039
+     ]
+    }
+   },
+   "quantileSpread": -0.16,
+   "hitRate": 47.4
+  },
+  "fwd21d": {
+   "dates": 114,
+   "n": 120,
+   "ic": {
+    "momentum": 0.012,
+    "trend": 0.008,
+    "lowvol": -0.048,
+    "kalman": -0.007,
+    "composite": 0
+   },
+   "icIR": {
+    "momentum": {
+     "n": 114,
+     "mean": 0.012,
+     "std": 0.24,
+     "icIR": 0.049,
+     "tStat": 0.52,
+     "ci95": [
+      -0.032,
+      0.056
+     ]
+    },
+    "trend": {
+     "n": 114,
+     "mean": 0.008,
+     "std": 0.246,
+     "icIR": 0.034,
+     "tStat": 0.36,
+     "ci95": [
+      -0.037,
+      0.053
+     ]
+    },
+    "lowvol": {
+     "n": 114,
+     "mean": -0.048,
+     "std": 0.249,
+     "icIR": -0.191,
+     "tStat": -2.04,
+     "ci95": [
+      -0.093,
+      -0.002
+     ]
+    },
+    "kalman": {
+     "n": 114,
+     "mean": -0.007,
+     "std": 0.216,
+     "icIR": -0.032,
+     "tStat": -0.34,
+     "ci95": [
+      -0.047,
+      0.033
+     ]
+    },
+    "composite": {
+     "n": 114,
+     "mean": 0,
+     "std": 0.245,
+     "icIR": 0.001,
+     "tStat": 0.01,
+     "ci95": [
+      -0.045,
+      0.045
+     ]
+    }
+   },
+   "quantileSpread": -0.36,
+   "hitRate": 50
+  },
+  "fwd63d": {
+   "dates": 113,
+   "n": 120,
+   "ic": {
+    "momentum": 0.01,
+    "trend": 0.012,
+    "lowvol": -0.079,
+    "kalman": -0.032,
+    "composite": -0.013
+   },
+   "icIR": {
+    "momentum": {
+     "n": 113,
+     "mean": 0.01,
+     "std": 0.224,
+     "icIR": 0.044,
+     "tStat": 0.47,
+     "ci95": [
+      -0.031,
+      0.051
+     ]
+    },
+    "trend": {
+     "n": 113,
+     "mean": 0.012,
+     "std": 0.227,
+     "icIR": 0.053,
+     "tStat": 0.56,
+     "ci95": [
+      -0.03,
+      0.054
+     ]
+    },
+    "lowvol": {
+     "n": 113,
+     "mean": -0.079,
+     "std": 0.255,
+     "icIR": -0.308,
+     "tStat": -3.27,
+     "ci95": [
+      -0.126,
+      -0.031
+     ]
+    },
+    "kalman": {
+     "n": 113,
+     "mean": -0.032,
+     "std": 0.194,
+     "icIR": -0.167,
+     "tStat": -1.78,
+     "ci95": [
+      -0.068,
+      0.003
+     ]
+    },
+    "composite": {
+     "n": 113,
+     "mean": -0.013,
+     "std": 0.23,
+     "icIR": -0.056,
+     "tStat": -0.6,
+     "ci95": [
+      -0.055,
+      0.029
+     ]
+    }
+   },
+   "quantileSpread": -0.63,
+   "hitRate": 47.8
+  }
+ },
+ "walkForward": {
+  "referencePeriod": {
+   "n": 78,
+   "ic": {
+    "momentum": 0.007,
+    "trend": 0,
+    "lowvol": -0.015,
+    "kalman": -0.009,
+    "composite": 0.003
+   },
+   "icIR": {
+    "momentum": {
+     "n": 78,
+     "mean": 0.007,
+     "std": 0.238,
+     "icIR": 0.031,
+     "tStat": 0.27,
+     "ci95": [
+      -0.046,
+      0.06
+     ]
+    },
+    "trend": {
+     "n": 78,
+     "mean": 0,
+     "std": 0.245,
+     "icIR": 0.002,
+     "tStat": 0.02,
+     "ci95": [
+      -0.054,
+      0.055
+     ]
+    },
+    "lowvol": {
+     "n": 78,
+     "mean": -0.015,
+     "std": 0.247,
+     "icIR": -0.059,
+     "tStat": -0.52,
+     "ci95": [
+      -0.069,
+      0.04
+     ]
+    },
+    "kalman": {
+     "n": 78,
+     "mean": -0.009,
+     "std": 0.212,
+     "icIR": -0.043,
+     "tStat": -0.38,
+     "ci95": [
+      -0.056,
+      0.038
+     ]
+    },
+    "composite": {
+     "n": 78,
+     "mean": 0.003,
+     "std": 0.247,
+     "icIR": 0.01,
+     "tStat": 0.09,
+     "ci95": [
+      -0.052,
+      0.057
+     ]
+    }
+   }
+  },
+  "holdoutPeriod": {
+   "n": 36,
+   "ic": {
+    "momentum": 0.021,
+    "trend": 0.025,
+    "lowvol": -0.119,
+    "kalman": -0.002,
+    "composite": -0.005
+   },
+   "icIR": {
+    "momentum": {
+     "n": 36,
+     "mean": 0.021,
+     "std": 0.248,
+     "icIR": 0.086,
+     "tStat": 0.52,
+     "ci95": [
+      -0.06,
+      0.102
+     ]
+    },
+    "trend": {
+     "n": 36,
+     "mean": 0.025,
+     "std": 0.25,
+     "icIR": 0.101,
+     "tStat": 0.61,
+     "ci95": [
+      -0.056,
+      0.107
+     ]
+    },
+    "lowvol": {
+     "n": 36,
+     "mean": -0.119,
+     "std": 0.242,
+     "icIR": -0.491,
+     "tStat": -2.95,
+     "ci95": [
+      -0.198,
+      -0.04
+     ]
+    },
+    "kalman": {
+     "n": 36,
+     "mean": -0.002,
+     "std": 0.227,
+     "icIR": -0.009,
+     "tStat": -0.05,
+     "ci95": [
+      -0.076,
+      0.072
+     ]
+    },
+    "composite": {
+     "n": 36,
+     "mean": -0.005,
+     "std": 0.242,
+     "icIR": -0.019,
+     "tStat": -0.12,
+     "ci95": [
+      -0.084,
+      0.075
+     ]
+    }
+   }
+  }
+ },
+ "regimes": [
+  {
+   "label": "low-vol_bull(within-5%-of-1y-high)",
+   "n": 55,
+   "ic": {
+    "momentum": 0.012,
+    "trend": 0.007,
+    "lowvol": -0.021,
+    "kalman": 0.013,
+    "composite": 0.007
+   },
+   "icIR": {
+    "momentum": {
+     "n": 55,
+     "mean": 0.012,
+     "std": 0.236,
+     "icIR": 0.051,
+     "tStat": 0.38,
+     "ci95": [
+      -0.05,
+      0.074
+     ]
+    },
+    "trend": {
+     "n": 55,
+     "mean": 0.007,
+     "std": 0.242,
+     "icIR": 0.029,
+     "tStat": 0.21,
+     "ci95": [
+      -0.057,
+      0.071
+     ]
+    },
+    "lowvol": {
+     "n": 55,
+     "mean": -0.021,
+     "std": 0.202,
+     "icIR": -0.102,
+     "tStat": -0.76,
+     "ci95": [
+      -0.074,
+      0.033
+     ]
+    },
+    "kalman": {
+     "n": 55,
+     "mean": 0.013,
+     "std": 0.192,
+     "icIR": 0.067,
+     "tStat": 0.5,
+     "ci95": [
+      -0.038,
+      0.064
+     ]
+    },
+    "composite": {
+     "n": 55,
+     "mean": 0.007,
+     "std": 0.225,
+     "icIR": 0.032,
+     "tStat": 0.24,
+     "ci95": [
+      -0.052,
+      0.067
+     ]
+    }
+   }
+  },
+  {
+   "label": "mid-vol_bull(within-5%-of-1y-high)",
+   "n": 19,
+   "ic": {
+    "momentum": 0.039,
+    "trend": 0.033,
+    "lowvol": -0.098,
+    "kalman": -0.038,
+    "composite": 0.006
+   },
+   "icIR": {
+    "momentum": {
+     "n": 19,
+     "mean": 0.039,
+     "std": 0.238,
+     "icIR": 0.162,
+     "tStat": 0.7,
+     "ci95": [
+      -0.069,
+      0.146
+     ]
+    },
+    "trend": {
+     "n": 19,
+     "mean": 0.033,
+     "std": 0.246,
+     "icIR": 0.136,
+     "tStat": 0.59,
+     "ci95": [
+      -0.077,
+      0.144
+     ]
+    },
+    "lowvol": {
+     "n": 19,
+     "mean": -0.098,
+     "std": 0.252,
+     "icIR": -0.39,
+     "tStat": -1.7,
+     "ci95": [
+      -0.212,
+      0.015
+     ]
+    },
+    "kalman": {
+     "n": 19,
+     "mean": -0.038,
+     "std": 0.21,
+     "icIR": -0.181,
+     "tStat": -0.79,
+     "ci95": [
+      -0.132,
+      0.056
+     ]
+    },
+    "composite": {
+     "n": 19,
+     "mean": 0.006,
+     "std": 0.238,
+     "icIR": 0.023,
+     "tStat": 0.1,
+     "ci95": [
+      -0.101,
+      0.112
+     ]
+    }
+   }
+  },
+  {
+   "label": "mid-vol_correction(-5~-15%)",
+   "n": 19,
+   "ic": {
+    "momentum": 0.032,
+    "trend": 0.053,
+    "lowvol": 0.028,
+    "kalman": -0.042,
+    "composite": 0.046
+   },
+   "icIR": {
+    "momentum": {
+     "n": 19,
+     "mean": 0.032,
+     "std": 0.255,
+     "icIR": 0.127,
+     "tStat": 0.55,
+     "ci95": [
+      -0.082,
+      0.147
+     ]
+    },
+    "trend": {
+     "n": 19,
+     "mean": 0.053,
+     "std": 0.24,
+     "icIR": 0.222,
+     "tStat": 0.97,
+     "ci95": [
+      -0.055,
+      0.161
+     ]
+    },
+    "lowvol": {
+     "n": 19,
+     "mean": 0.028,
+     "std": 0.298,
+     "icIR": 0.093,
+     "tStat": 0.41,
+     "ci95": [
+      -0.106,
+      0.162
+     ]
+    },
+    "kalman": {
+     "n": 19,
+     "mean": -0.042,
+     "std": 0.228,
+     "icIR": -0.184,
+     "tStat": -0.8,
+     "ci95": [
+      -0.145,
+      0.061
+     ]
+    },
+    "composite": {
+     "n": 19,
+     "mean": 0.046,
+     "std": 0.268,
+     "icIR": 0.172,
+     "tStat": 0.75,
+     "ci95": [
+      -0.074,
+      0.166
+     ]
+    }
+   }
+  },
+  {
+   "label": "high-vol_correction(-5~-15%)",
+   "n": 6,
+   "ic": {
+    "momentum": 0.091,
+    "trend": 0.104,
+    "lowvol": 0.004,
+    "kalman": 0.145,
+    "composite": 0.097
+   },
+   "icIR": {
+    "momentum": {
+     "n": 6,
+     "mean": 0.091,
+     "std": 0.164,
+     "icIR": 0.554,
+     "tStat": 1.36,
+     "ci95": [
+      -0.04,
+      0.223
+     ]
+    },
+    "trend": {
+     "n": 6,
+     "mean": 0.104,
+     "std": 0.238,
+     "icIR": 0.436,
+     "tStat": 1.07,
+     "ci95": [
+      -0.087,
+      0.294
+     ]
+    },
+    "lowvol": {
+     "n": 6,
+     "mean": 0.004,
+     "std": 0.209,
+     "icIR": 0.021,
+     "tStat": 0.05,
+     "ci95": [
+      -0.163,
+      0.172
+     ]
+    },
+    "kalman": {
+     "n": 6,
+     "mean": 0.145,
+     "std": 0.278,
+     "icIR": 0.519,
+     "tStat": 1.27,
+     "ci95": [
+      -0.078,
+      0.367
+     ]
+    },
+    "composite": {
+     "n": 6,
+     "mean": 0.097,
+     "std": 0.255,
+     "icIR": 0.381,
+     "tStat": 0.93,
+     "ci95": [
+      -0.107,
+      0.301
+     ]
+    }
+   }
+  },
+  {
+   "label": "low-vol_correction(-5~-15%)",
+   "n": 6,
+   "ic": {
+    "momentum": -0.017,
+    "trend": -0.022,
+    "lowvol": -0.043,
+    "kalman": 0.084,
+    "composite": -0.007
+   },
+   "icIR": {
+    "momentum": {
+     "n": 6,
+     "mean": -0.017,
+     "std": 0.203,
+     "icIR": -0.084,
+     "tStat": -0.2,
+     "ci95": [
+      -0.18,
+      0.146
+     ]
+    },
+    "trend": {
+     "n": 6,
+     "mean": -0.022,
+     "std": 0.201,
+     "icIR": -0.109,
+     "tStat": -0.27,
+     "ci95": [
+      -0.183,
+      0.139
+     ]
+    },
+    "lowvol": {
+     "n": 6,
+     "mean": -0.043,
+     "std": 0.206,
+     "icIR": -0.207,
+     "tStat": -0.51,
+     "ci95": [
+      -0.208,
+      0.122
+     ]
+    },
+    "kalman": {
+     "n": 6,
+     "mean": 0.084,
+     "std": 0.142,
+     "icIR": 0.588,
+     "tStat": 1.44,
+     "ci95": [
+      -0.03,
+      0.197
+     ]
+    },
+    "composite": {
+     "n": 6,
+     "mean": -0.007,
+     "std": 0.192,
+     "icIR": -0.038,
+     "tStat": -0.09,
+     "ci95": [
+      -0.161,
+      0.146
+     ]
+    }
+   }
+  }
+ ],
+ "caveats": [
+  "Survivorship bias is NOT resolved (see methodology.survivorshipBiasCaveat) — treat all IC/ICIR figures here as an upper-bound-leaning estimate, not a clean out-of-sample figure.",
+  "Only 4 of 7 live-model factors covered (size/value/quality excluded — pre-existing limitation, not new to this script).",
+  "Top-mcap subset, not the full 873-ticker universe.",
+  "Live adaptive regime-weight blending (RISK_OFF/RISK_ON) is not validated — only the fixed NEUTRAL-weight composite."
+ ]
+}

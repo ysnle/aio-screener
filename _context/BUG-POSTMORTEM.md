@@ -2,15 +2,26 @@
 verified_by: agent
 last_verified: 2026-07-10
 confidence: high
-latest_version: v52.50
-latest_P_number: P665
-total_entries: 437
-next_P_number: P666
+latest_version: v52.51
+latest_P_number: P666
+total_entries: 438
+next_P_number: P667
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P666 - v52.51 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-3 축소 검증: 라이브 팩터 랭킹의 lowvol 서브팩터가 10년/120종목 백테스트에서 forward return과 유의미한 음의 상관(부호 반전), composite는 전 구간 무의미
+
+- **배경**: WO-3("Factor Model 연구→프로덕션 검증")도 WO-2와 동일한 벽 — 라이브 팩터 백테스트(`scripts/fetch-data.mjs` `backtestFactors()`)가 이미 SCREENER_DB 873종목의 딱 1년치(6개 리밸런스, `OFFSETS=[147,126,105,84,63,42]`)만 쓰고 있었고, 코드 내 기존 주석(P586/C2)이 이미 "6개 리밸런스로는 부족·라이브 7팩터 중 4개(momentum/trend/lowvol/kalman)만 검증·size/value/quality는 무료 다년치 소스 부재로 이미 제외"임을 자인하고 있었다. 여기에 WO-3 고유의 새 문제: 오늘 시점 유니버스로 다년치를 받으면 그 기간 지수 탈락 종목이 전부 빠지는 survivorship bias가 생기는데, 이는 무료 데이터로 구조적으로 해결 불가(Codex 게이트의 "survivorship 검사 PASS" 자체가 달성 불가). 사용자에게 AskUserQuestion으로 실행 방식 확인(이 리포는 과거 Yahoo 요청 과다로 IP 차단을 겪은 이력이 `ci.yml` 주석에 명시돼 있어, 873종목 전체 fetch는 라이브 파이프라인에 부하 위험) — "제한된 표본"(시총 상위 ~120종목, concurrency=4) 선택.
+- **구현**: (1) `scripts/fetch-data.mjs`의 `backtestFactors(stockData)`에 선택적 `opts.offsets`/`opts.fwdDays` 파라미터 추가(생략 시 기존 상수 그대로 — 재실행+구조적 diff로 기존 프로덕션 호출부 무변화 확인) + `icByDate`(리밸런스 시점별 개별 IC 배열, additive) 필드 추가. **부수 발견**: `fetch-data.mjs` 자체는 `main()`을 가드 없이 무조건 실행하는 유일한 스크립트였다(다른 모든 scripts/*.mjs는 `import.meta.url` 직접실행 가드가 있음) — 이 상태로 `backtestFactors`를 다른 스크립트가 재사용하려고 import만 해도 라이브 fetch 파이프라인 전체(실 네트워크 호출+`public-data/*.json` 덮어쓰기)가 부작용으로 실행될 뻔했다. `refresh-data.yml`이 항상 `node scripts/fetch-data.mjs`로 직접 실행하는 것을 확인한 뒤 동일 가드 패턴 추가(프로덕션 동작 무변화, import 시에는 실행 안 됨을 직접 검증). (2) `scripts/backtest-trading-score-longrun.mjs`(WO-2)의 `classifyRegime`/`spearmanWithCI`/`trailingMax`에 `export` 추가(로직 무변경) — WO-2에서 만든 코드를 재사용. (3) 신규 `scripts/backtest-factors-longrun.mjs` — `screener-universe.json`에서 시총 상위 120종목 선정, Yahoo 10년치 fetch(concurrency=4, 120/120 성공, 차단 없음 확인), 월간(~21거래일) 리밸런스 117개 생성(프로덕션 6개 대비 ~20배), 1/5/21/63일 forward, ICIR(mean IC/stddev IC across dates)+t-stat+95% CI, 시간순 70/30 walk-forward(reference/holdout), 시장 데이터 기반 regime 분류(WO-2와 동일 방식) 산출.
+- **결과(실측, n=114~120 리밸런스 시점)**: composite(라이브 NEUTRAL 가중 블렌드)는 **전 구간(1/5/21/63일) 통계적으로 무의미**(모든 CI가 0 포함 — 예: 21일 icIR=0.001, tStat=0.01, CI=[-0.045,0.045]) — "나쁘게 작동"은 아니지만 "확인 가능한 신호도 없음". 개별 팩터 중 **lowvol(=−60일 연율화변동성, 낮은 변동성일수록 고득점)이 5/21/63일 forward에서 일관되게 유의미한 음의 상관** — 21일 icIR=-0.191(tStat=-2.04, CI=[-0.093,-0.002]), 63일 icIR=-0.308(tStat=-3.27, CI=[-0.126,-0.031]) — 즉 최근 변동성이 낮았던 종목일수록 이후 수익률이 더 낮은, **저변동성 팩터 통념(방어적/우수)과 반대 방향**. Walk-forward holdout(최근 36개 시점)에서 lowvol 음의 상관이 더 강해짐(icIR=-0.491, tStat=-2.95) — 일회성 아님. momentum/trend/kalman은 양(+)의 방향이나 모든 구간에서 CI가 0을 포함해 통계적으로 확정 불가.
+- **유력 가설(확정 아님)**: (1) survivorship bias — 이 10년(2016-2026) 동안 지수 탈락 종목이 표본에 없어 일반적으로 팩터 성과를 부풀리는 방향인데 lowvol은 오히려 음(-)이 나온 것은 이 효과로 설명되지 않음(순수 알고리즘/샘플 특성 문제일 가능성↑). (2) 표본이 시총 상위 120개 대형주 위주(AI/빅테크 성장주 비중이 큰 이 10년)라, "최근 조용했던(저변동성) 대형주"가 "최근 변동성이 컸던(고성장·고변동 테마주) 대형주"보다 후행 수익률이 낮은, 이 특정 10년·이 특정 표본 구성에 고유한 현상일 가능성 — 학술 문헌의 "저변동성 이상현상"(보통 전체 시장·장기 리스크조정수익 기준)과는 정의·표본이 달라 직접 비교 불가.
+- **범위 밖으로 남긴 것(정직하게 기록)**: survivorship bias는 여전히 미해결(무료 데이터로 근본 불가 — `_context/DEFERRED-BLOCKS.md` B9에 WO-3 사례 추가). 873종목 전체가 아닌 상위 120개 부분집합. size/value/quality 3팩터는 이미 라이브 코드 자체가 제외 중(이 세션이 새로 만든 제약 아님). 라이브 모델의 RISK_OFF/RISK_ON 적응 가중치 블렌딩은 검증 범위 밖(NEUTRAL 고정 가중치만 검증) — WO-2와 동일하게 이 발견으로 `_aioComputeFactorRanks()`/`SCREENER_DB` 랭킹 로직·화면 표시를 코드로 변경하지 않음(제품 결정 사항으로 사용자에게 별도 보고).
+- **violated_rule**: 신규 R299(좁은 시가총액 상위·단일 10년 표본에서의 팩터 백테스트 결과는 학술 문헌의 일반 팩터 성과와 직접 비교 불가 — 표본 구성 자체가 결과를 좌우할 수 있음).
+- **prevention**: `public-data/factor-backtest-longrun.json`의 `methodology`/`caveats` 필드가 survivorship bias·부분표본·라이브 모델과의 차이를 명시적으로 박아둬 향후 이 파일만 보고 "팩터 모델 전체가 검증/반증됨"으로 오독하기 어렵게 함.
+- **verification**: `node --check` 통과(fetch-data.mjs/backtest-trading-score-longrun.mjs/backtest-factors-longrun.mjs). `backtestFactors()`의 옵션 없는 호출이 신규 `opts` 파라미터 추가 전후 구조적으로 100% 동일함을 합성 데이터로 직접 검증(타임스탬프 제외 JSON 비교). `fetch-data.mjs` import가 더 이상 `main()`을 실행하지 않음을 직접 검증(로그 부재+15초 타임아웃 내 정상 종료 확인). 로컬 게이트 재실행 예정(§gate 기록 참조). 장기 백테스트는 실제 네트워크 fetch로 120/120 종목 성공(차단 없음) — 결과 파일 커밋.
 
 ## P665 - v52.50 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-2 축소 검증: computeTradingScore() 매크로/변동성/추세 서브포뮬러(가중치 55%)가 10년 실측 백테스트에서 forward return과 통계적으로 유의미한 음의 상관을 보임
 

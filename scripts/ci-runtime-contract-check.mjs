@@ -478,6 +478,29 @@ check('WO-6: _aioDefaultDecision reads computeTradingScore()\'s full result (not
 check('WO-6: decision header caveat surfaces which specific score inputs are missing/stale, additively combined with (not overwritten by) the page\'s static evidence-contract caveat', /_scoreCaveat/.test(core) && /evidence\.caveat\s*&&\s*d\.caveat\s*&&\s*evidence\.caveat\s*!==\s*d\.caveat/.test(core));
 check('headless tests cover the WO-6 score-provenance contract', /_testV5249ScoreProvenance/.test(tests) && /T896/.test(tests) && /T897/.test(tests) && /T898/.test(tests) && /T899/.test(tests) && /T900/.test(tests));
 
+// v52.51 (P666/WO-3): Factor model longrun validation — backtestFactors() parameterized (backward
+// compatible), fetch-data.mjs given a direct-run guard so it's safely importable, and a new
+// concurrency-capped, top-mcap-subset longrun script added. See WO-2 (P665) for the analogous
+// trading-score validation this mirrors.
+const backtestFactorsIdx = fetchScript.indexOf('function backtestFactors(stockData, opts)');
+const backtestFactorsBody = backtestFactorsIdx >= 0 ? fetchScript.slice(backtestFactorsIdx, backtestFactorsIdx + 3000) : '';
+check('WO-3: backtestFactors() accepts optional offsets/fwdDays that default to the original production constants (backward compatible with the existing 30-min-cron call site)', /var OFFSETS = opts\.offsets \|\| \[147, 126, 105, 84, 63, 42\], FWD = opts\.fwdDays \|\| 21/.test(backtestFactorsBody));
+check('WO-3: backtestFactors() additionally returns a per-rebalance-date IC list (icByDate) needed to compute ICIR/t-stat, not just the averaged IC', /icByDate/.test(backtestFactorsBody));
+check('WO-3: fetch-data.mjs guards its main() invocation behind an import.meta.url direct-execution check, so importing it to reuse backtestFactors/closesToFactors never triggers the live fetch pipeline as a side effect', /if \(import\.meta\.url === `file:\/\/\$\{process\.argv\[1\]\.replace/.test(fetchScript) && /main\(\)\.catch\(e => \{ console\.error\('\[fetch-data\] 치명적 오류:', e\); process\.exit\(1\); \}\);\s*\}/.test(fetchScript));
+check('WO-3: closesToFactors/backtestFactors/_mean are exported from fetch-data.mjs for reuse by the longrun script (no formula duplication)', /export function closesToFactors/.test(fetchScript) && /export function backtestFactors/.test(fetchScript) && /export const _mean/.test(fetchScript));
+if (exists('scripts/backtest-factors-longrun.mjs')) {
+  const factorLongrun = read('scripts/backtest-factors-longrun.mjs');
+  check('WO-3: backtest-factors-longrun.mjs selects a bounded top-mcap subset (not the full universe) and caps fetch concurrency at 4, given this repo\'s documented prior Yahoo IP-blocking history', /rows\.sort\(\(a, b\) => b\.mcap - a\.mcap\)/.test(factorLongrun) && /const CONCURRENCY = 4/.test(factorLongrun));
+  check('WO-3: backtest-factors-longrun.mjs discloses survivorship bias as unresolved rather than claiming the WO-3 gate\'s "survivorship 검사 PASS" is satisfied', /survivorshipBiasCaveat/.test(factorLongrun) && /[Nn]ot resolvable without paid point-in-time/.test(factorLongrun));
+  check('WO-3: backtest-factors-longrun.mjs reuses classifyRegime/spearmanWithCI from the WO-2 longrun script instead of duplicating regime/CI logic', /import \{ classifyRegime, spearmanWithCI \} from '\.\/backtest-trading-score-longrun\.mjs'/.test(factorLongrun));
+} else {
+  check('WO-3: scripts/backtest-factors-longrun.mjs exists', false);
+}
+if (exists('scripts/backtest-trading-score-longrun.mjs')) {
+  const scoreLongrun = read('scripts/backtest-trading-score-longrun.mjs');
+  check('WO-3: classifyRegime/spearmanWithCI/trailingMax are exported from the WO-2 longrun script for reuse', /export function classifyRegime/.test(scoreLongrun) && /export function spearmanWithCI/.test(scoreLongrun) && /export function trailingMax/.test(scoreLongrun));
+}
+
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));
