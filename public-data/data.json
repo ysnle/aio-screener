@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-10T21:20:39.902Z",
+  "generatedAt": "2026-07-10T22:41:34.086Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -31,10 +31,13 @@
   "serverNewsScored": true,
   "newsScoreMin": 28,
   "newsScoreMax": 65,
-  "elapsedMs": 3073,
+  "elapsedMs": 4701,
   "schema": 1,
   "marketAnalysisOk": true,
-  "fmpHasKey": true
+  "fmpHasKey": true,
+  "fmpOk": false,
+  "fmpCount": 0,
+  "fmpPlanError": true
  },
  "quotes": [
   {
@@ -237,8 +240,8 @@
   },
   {
    "symbol": "CNY=X",
-   "regularMarketPrice": 6.7761,
-   "regularMarketChangePercent": -0.2355670972038525,
+   "regularMarketPrice": 6.7667,
+   "regularMarketChangePercent": -0.3739631759639394,
    "regularMarketPreviousClose": 6.792099952697754,
    "chartPreviousClose": 6.792099952697754,
    "_pctSource": "ohlcv-daily",
@@ -453,8 +456,8 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 63884.67,
-   "regularMarketChangePercent": 1.0942983212554043,
+   "regularMarketPrice": 64082.21,
+   "regularMarketChangePercent": 1.4068955013047164,
    "regularMarketPreviousClose": 63193.1484375,
    "chartPreviousClose": 63193.1484375,
    "_pctSource": "ohlcv-daily",
@@ -462,8 +465,8 @@
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1790,
-   "regularMarketChangePercent": 2.6091018722651143,
+   "regularMarketPrice": 1793.48,
+   "regularMarketChangePercent": 2.8085877239497425,
    "regularMarketPreviousClose": 1744.484619140625,
    "chartPreviousClose": 1744.484619140625,
    "_pctSource": "ohlcv-daily",
@@ -670,63 +673,63 @@
   {
    "symbol": "005930.KS",
    "regularMarketPrice": 285000,
-   "regularMarketChangePercent": 2.7027027027027026,
-   "regularMarketPreviousClose": 277500,
-   "chartPreviousClose": 277500,
+   "regularMarketChangePercent": 2.5179856115107913,
+   "regularMarketPreviousClose": 278000,
+   "chartPreviousClose": 278000,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "000660.KS",
    "regularMarketPrice": 2180000,
-   "regularMarketChangePercent": 5.009633911368015,
-   "regularMarketPreviousClose": 2076000,
-   "chartPreviousClose": 2076000,
+   "regularMarketChangePercent": -0.2744739249771272,
+   "regularMarketPreviousClose": 2186000,
+   "chartPreviousClose": 2186000,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "005380.KS",
    "regularMarketPrice": 457500,
-   "regularMarketChangePercent": -1.0810810810810811,
-   "regularMarketPreviousClose": 462500,
-   "chartPreviousClose": 462500,
+   "regularMarketChangePercent": 2.6936026936026933,
+   "regularMarketPreviousClose": 445500,
+   "chartPreviousClose": 445500,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "035420.KS",
    "regularMarketPrice": 191300,
-   "regularMarketChangePercent": -0.7265179034769071,
-   "regularMarketPreviousClose": 192700,
-   "chartPreviousClose": 192700,
+   "regularMarketChangePercent": 3.7418655097613884,
+   "regularMarketPreviousClose": 184400,
+   "chartPreviousClose": 184400,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "373220.KS",
    "regularMarketPrice": 326000,
-   "regularMarketChangePercent": 3.328050713153724,
-   "regularMarketPreviousClose": 315500,
-   "chartPreviousClose": 315500,
+   "regularMarketChangePercent": 3.9872408293460926,
+   "regularMarketPreviousClose": 313500,
+   "chartPreviousClose": 313500,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "105560.KS",
    "regularMarketPrice": 184400,
-   "regularMarketChangePercent": 7.83625730994152,
-   "regularMarketPreviousClose": 171000,
-   "chartPreviousClose": 171000,
+   "regularMarketChangePercent": 7.584597432905485,
+   "regularMarketPreviousClose": 171400,
+   "chartPreviousClose": 171400,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "207940.KS",
    "regularMarketPrice": 1395000,
-   "regularMarketChangePercent": 2.347762289068232,
-   "regularMarketPreviousClose": 1363000,
-   "chartPreviousClose": 1363000,
+   "regularMarketChangePercent": 5.283018867924529,
+   "regularMarketPreviousClose": 1325000,
+   "chartPreviousClose": 1325000,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   }
@@ -768,7 +771,7 @@
   "score": 49,
   "rating": "neutral",
   "_source": "cnn",
-  "asOf": "2026-07-10T21:00:37+00:00",
+  "asOf": "2026-07-10T22:25:45+00:00",
   "previousScore": 47,
   "previousWeek": 32
  },
@@ -864,6 +867,22 @@
    "score": 56,
    "selectionReason": "base+20 | source-tier1+16 | recency+6 | geopolitics-energy+14",
    "feedSource": "Google News - Geopolitics/Energy",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-08T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-09T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
+  },
+  {
+   "title": "Dow, Nasdaq, S&P 500 Futures Climb Amid US-Iran Tensions, Fed Inflation Worries: WULF, CMPS, ANET, PENG Stocks In Focus - TradingView",
+   "link": "https://news.google.com/rss/articles/CBMiggJBVV95cUxPX3VFQ0NRMkliT2dGOGFpRzVGODFqZ0MwU0h0amFqVW5uSTJOY1pHSUh5Ums2TVRZYWROUEJ5SnVOclBUSGhKaHBnZkIwdXoxS2pIdnBvR2hpdEVzc2o2Q3FuUHVMUXoybHQ1SFlpWElEZGpTb0k2YnRUZU5zRFBYUEFhbGN2eGhBSnFIMXNTVXQxd2tkUl9SekpTc3JIeGFUaEY4TmhXT3ZaY092M3h0YUR2TzZGdUNRT1pkb3hwcnFpRGtGTXFzREp6b0FJMGJheUtZMUxrMzNKWEl4alI1RTFIOFpkU3RSV1g2QjNaRWZSR1RJbFhoOFU2Tzl3ZzNXeFE?oc=5",
+   "source": "TradingView",
+   "pubDate": "Thu, 09 Jul 2026 01:38:00 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 56,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | geopolitics-energy+14",
+   "feedSource": "Google News - US markets",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-08T23:00:00.000Z",
    "newsCycleEnd": "2026-07-09T23:00:00.000Z",
@@ -1142,22 +1161,6 @@
    "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
   },
   {
-   "title": "PepsiCo (PEP) Earnings Preview July 9, 2026: Analysts Cut Targets - Can $144 Hold? - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPSGZHWnYtOVh3TVlqcWFLRW1hOWdkVVp0YXdOeUplV3pxRVhaQ0pkMl9BQnp6cVZTclZrT19LdlBpNTJQZjIxdUhNa0RBRHJiN1ZUbDNvUXZ2NU5PaVk2N2Npb2lGTHJNODR4Q1E2RENweExQNEF1dXNDQllSTFlfdlZ2QktZVldTZnZYMlByWFpxOEpEQktnQTBGX2RvNjV4RW83R2NXUWltR0JwdU96OHJidzE0LWFl?oc=5",
-   "source": "TradingKey",
-   "pubDate": "Thu, 09 Jul 2026 20:44:13 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 44,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
-   "feedSource": "Google News - Analyst/Earnings",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-08T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-09T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
-  },
-  {
    "title": "US Gold-Backed Bond Risks: The Fiscal Reality in 2025 - Discovery Alert",
    "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPblNQb3BJOFpETldIelVESUVjVTFVQ19Gc0F5UUlEYy02WXBRRk1ORnFMV2dVMTczZmppZWJ5azcxRjZmTVhsd05oaDA4aDdMZ0dBekdVZVpvblBvRXpiSkpZSE5BWS00QkpzTXU1em9rSjA1T0lONnRtZGFqWFZ2Z0p4SWJtWmpFNHB3VA?oc=5",
    "source": "Discovery Alert",
@@ -1302,26 +1305,10 @@
    "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
   },
   {
-   "title": "Dow, Nasdaq, S&P 500 Futures Climb Amid US-Iran Tensions, Fed Inflation Worries: WULF, CMPS, ANET, PENG Stocks In Focus - Stocktwits",
-   "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxQZ2o5d2J4V3JjNEpRWTVPcl90YTV3XzRleXhSYTlHS2c5NmlOelk0VnF0NDZ5R3JOQmxteEpoZEVMTzVMdVltbEg2d2xQQjAzQWNPM3kwM1I5UkhNaE9TTlpQdEVCaUIyeUV1NllTMUdHc1VWZThDZ05RSTJEeWl6aXZENUhEay1IX0FWMWxNQUNuS3pWRUgzcUQ2bjZ5b05oZHRpejJLYl9ESVdtQzc5dVlSN0Rzc3VZaHpFMWVtLVZ6bWZ4c2J4MDZJVjRlQTdXTXFhaQ?oc=5",
-   "source": "Stocktwits",
-   "pubDate": "Thu, 09 Jul 2026 01:39:21 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 4,
-   "score": 38,
-   "selectionReason": "base+20 | source-tier4-8 | recency+6 | macro-rates+14 | geopolitics-energy+14 | low-quality-source-8",
-   "feedSource": "Google News - US markets",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-08T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-09T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
-  },
-  {
-   "title": "UBS raises Helen of Troy stock price target on Q1 beat - Investing.com UK",
-   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPcHJ3cFZCRm9MTzU1ek5oTGppcGk0bVktU0JNVGlKWUk3alNjd1NRXy02LV9ta3lNLVBBWlFuWTlzdUVpZXJvaDA4dXRuZVRoMF9zS0pGWjFYR1RaanQ4UDVVTTMyajdKZVgzUTZnejh2Mml1bl9zVW9sVTNlbWRlMmZ1cmhEZW1zNHhSWFA4cGZhUXJCN3V2TWRYRllsMlh0bEUxWVdfREg2Nml0aEI2bk5oNVdtYUEtcC03Zmd6SDBpZ0ozWGc?oc=5",
-   "source": "Investing.com UK",
-   "pubDate": "Thu, 09 Jul 2026 14:24:14 GMT",
+   "title": "UBS raises Helen of Troy stock price target on Q1 beat - Investing.com",
+   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQbFZvVjRNV3BBNEZjMU1Ed1VKUnpoa1l3SFd0MWV2eXpEX0syUktmT2NmNU41SjFWbEZCNm1jcGdsVlA5bkpoUnlyUkVXT1gtVl9IcXlnaElQaXJlTVkzOUFuSE0zV2dqNFV3bHc4MjNDWmNTcHgyZnZmb0pIOFh6elJHYUdyaFVWRXJ4cENGSnE4WEVMX3VaWGVkUHdWbnJMelBtRG1qdVNGd2sxYjJQQVNKVlI?oc=5",
+   "source": "Investing.com",
+   "pubDate": "Thu, 09 Jul 2026 14:37:04 GMT",
    "topic": "analyst",
    "country": "us",
    "tier": 3,
@@ -1366,6 +1353,22 @@
    "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
   },
   {
+   "title": "TSM Stock Quote Price and Forecast - CNN",
+   "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBRUno5cWdRaTZJNFVEUWZFNEFWSnIyZXoxMXo0aEwwMHZsbUl0MERWcTVVZXl3QkR0Q2U1TFkwY0NfQ2NLRVRWNGluT3NmZUk?oc=5",
+   "source": "CNN",
+   "pubDate": "Thu, 09 Jul 2026 21:46:44 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 34,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-08T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-09T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
+  },
+  {
    "title": "Dow, S&P 500, Nasdaq Futures Climb As AI Frenzy Drives Record Rally: Why CSCO, LUNR, ONDS, NVDA, NOK Are In Focus - Stocktwits",
    "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxOMlRlYjR4azlSZVZmbVdnNHlGR2RfOUxRellPU1FieFJRUTNUOUFUckRWYVBZaS1ha1E2d0JxX0hhdmJldW53Ui1HWnVqNVR0UHp4UlV2Nk5hYzVDalBDaXp3NGRlTEhTdElPbFNGRGlITnlNRFlhZy1JUEFteWZzQ1RRUzVWWUFnV056Tk8zUjM3dmxVTGpXaVB6ejRJaXFPQ3FWMEVJM0dEdEhnUFVOMGx0RkoyT2tlbmlvUE9B?oc=5",
    "source": "Stocktwits",
@@ -1376,22 +1379,6 @@
    "score": 31,
    "selectionReason": "base+20 | source-tier4-8 | recency+6 | ai-semis+13 | mega-cap+8 | low-quality-source-8",
    "feedSource": "Google News - US markets",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-08T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-09T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
-  },
-  {
-   "title": "WDC Stock Quote Price and Forecast - CNN",
-   "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9jOHoxYUYyT2ZaWDZJX2J3TGxtQklHSHlpb0RaalE0YlFmbVNJcE1UYVpEaHZfamtwUUVrNUtIcEVFVDBPYTFVOWlOWlVvRms?oc=5",
-   "source": "CNN",
-   "pubDate": "Thu, 09 Jul 2026 15:59:10 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 28,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6",
-   "feedSource": "Google News - Analyst/Earnings",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-08T23:00:00.000Z",
    "newsCycleEnd": "2026-07-09T23:00:00.000Z",
@@ -1412,12 +1399,28 @@
    "newsCycleStart": "2026-07-08T23:00:00.000Z",
    "newsCycleEnd": "2026-07-09T23:00:00.000Z",
    "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
+  },
+  {
+   "title": "SpaceX Stock Falls Below Opening Price; Bonds Also Down 5% as 'Cash Furnace' Fears Spread - finance.biggo.com",
+   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE80V0Ezc2JlTUZWclhQSmVvZTdpTDVEVV9iWDhrZ0R6NFRTN2pCaDNWNE5OZG5LZmhLeUtOWXE0elQ5VDJYV3pVcG5PZ2Y2SEdTSFBocGNCOXdncnJDNEpfQ2U1R2FsNEFnWnlTaW1UcjhfMnViQmc?oc=5",
+   "source": "finance.biggo.com",
+   "pubDate": "Thu, 09 Jul 2026 04:55:00 GMT",
+   "topic": "credit",
+   "country": "global",
+   "tier": 3,
+   "score": 28,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6",
+   "feedSource": "Google News - Credit/Funding",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-08T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-09T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-09 08:00 KST ~ 2026-07-10 08:00 KST"
   }
  ],
  "marketAnalysis": {
-  "full": "## 현재 시장 분석\n\n**연준 통화정책 불확실성과 지정학적 리스크가 교차하는 가운데, 시장은 방향성을 모색 중이다.**\n\n① **변동성/심리** — Fear & Greed 지수가 49(중립)를 기록하며 투자 심리가 뚜렷한 방향 없이 관망세를 유지하고 있고, 주요 선물지수도 혼조세를 보이고 있다.\n\n② **거시/금리** — CPI 4.2%로 인플레이션이 여전히 높은 수준을 유지하는 가운데 연준 기준금리는 3.63%를 기록 중이며, FOMC 의사록 공개 이후 국채 금리가 견고하게 유지되면서 통화정책 전환 기대감이 제한되고 있다.\n\n③ **주도 뉴스/리스크** — 미국의 이란 원유 제재 면제 철회 및 호르무즈 해협 긴장 고조로 WTI 유가가 2% 하락하는 한편, 금 가격은 $4,100 위를 유지하며 안전자산 수요가 지속되고 있다. NVIDIA 실적 기대감과 빅테크의 회사채 시장 진출도 주목할 변수로 부상하고 있다.",
+  "full": "## 현재 시장 분석\n\n**연준 긴축 우려와 이란 지정학 리스크가 교차하는 가운데, 금은 $4,100 위를 유지하며 안전자산 수요를 반영하고 있다.**\n\n① **변동성/심리** — Fear & Greed 지수가 49(중립)를 기록하며 시장 심리가 낙관과 공포의 경계에 머물고 있고, 주요 선물 지수는 혼조세를 보이며 방향성을 탐색 중이다.\n\n② **거시/금리** — CPI 4.2%로 인플레이션이 여전히 높은 수준을 유지하는 가운데, 연준 기준금리 3.63%와 FOMC 의사록이 국채 금리를 지지하며 통화 긴축 장기화 우려가 이어지고 있다.\n\n③ **주도 뉴스/리스크** — 미국의 이란 석유 제재 면제 취소 및 호르무즈 해협 긴장으로 유가가 2% 하락하는 한편, 엔비디아 실적 기대감이 기술주 심리를 지지하는 상반된 재료가 동시에 시장을 압박하고 있다.\n\n> ⚠️ 본 내용은 시장 현황 요약이며 투자 판단의 근거로 활용할 수 없습니다.",
   "oneLine": "## 현재 시장 분석",
-  "generatedAt": "2026-07-10T21:20:49.377Z",
+  "generatedAt": "2026-07-10T22:41:43.735Z",
   "model": "claude-sonnet-4-6"
  }
 }
