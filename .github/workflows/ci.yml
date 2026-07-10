@@ -57,6 +57,12 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install CI script dependencies (js-yaml)
+        run: npm install --no-audit --no-fund
+
+      - name: Workflow YAML + control character checks (WO-0/P659)
+        run: node scripts/ci-control-char-check.mjs
+
       - name: JS 구문 검사 (전 클라이언트 스크립트 — P311 재발 방지)
         run: |
           set -e

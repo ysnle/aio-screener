@@ -3,6 +3,7 @@
   "private": true,
   "description": "CI-only tooling (no app runtime dependency — index.html is a dependency-free static SPA).",
   "devDependencies": {
+    "js-yaml": "5.2.1",
     "playwright": "^1.48.0"
   }
 }

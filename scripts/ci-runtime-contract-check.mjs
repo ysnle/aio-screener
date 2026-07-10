@@ -22,6 +22,8 @@ const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
 const worker = exists('cloudflare-worker-proxy.js') ? read('cloudflare-worker-proxy.js') : '';
+const packageJson = read('package.json');
+const ciWorkflow = read('.github/workflows/ci.yml');
 const runtimeBundle = [core, data, ui, chat].join('\n');
 const extractTelegramPageTags = () => {
   const match = data.match(/var _TG_PAGE_TAGS = \{([\s\S]*?)\n\};/);
@@ -440,6 +442,11 @@ check('B8: shared _aioFetchClaudeWithRetry helper exists with a server-key gate,
 check('B8: callClaude routes both its initial request and its 400-beta-header fallback retry through the shared helper instead of a bare fetch to the Worker/Anthropic endpoint', (chat.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length === 2);
 check('B8: both aio-data.js Claude call sites (news translation batch + AI briefing generation) route through the shared retry helper with a defensive typeof fallback to bare fetch', (data.match(/_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/g) || []).length === 2);
 check('headless tests cover the B8 Worker-retry mitigation', /_testV5244WorkerAnycastRetry/.test(tests) && /T887/.test(tests) && /T888/.test(tests) && /T889/.test(tests) && /T890/.test(tests));
+
+// v52.45 (P660): CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10 WO-0 — workflow YAML corruption gate wiring
+check('P660: package.json declares js-yaml as a devDependency (needed for real workflow YAML parsing, not just control-character regex)', /"js-yaml"\s*:/.test(packageJson));
+check('P660: ci.yml runs npm install before the new control-character/workflow-YAML gate, and actually invokes it in the validate job', /npm install/.test(ciWorkflow) && /ci-control-char-check\.mjs/.test(ciWorkflow));
+check('P660: control-char-baseline.json exists and records the known pre-existing mojibake count (regression-only gate, not a silent pass)', exists('_context/control-char-baseline.json'));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

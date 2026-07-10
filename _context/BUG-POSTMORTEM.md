@@ -2,15 +2,29 @@
 verified_by: agent
 last_verified: 2026-07-10
 confidence: high
-latest_version: v52.44
-latest_P_number: P659
-total_entries: 431
-next_P_number: P660
+latest_version: v52.45
+latest_P_number: P660
+total_entries: 432
+next_P_number: P661
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P660 - v52.45 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-0: data-watchdog.yml YAML 파손 복구 + 대량 mojibake 발견·복구 + 재발 방지 CI 게이트 신설
+
+- **발생**: 사용자가 `_context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md`(Codex 작성 전수 진단, WO-0~8 작업 패킷)를 읽고 순차 진행 요청. WO-0(P0/즉시): `.github/workflows/data-watchdog.yml`이 PyYAML "unacceptable character #x0080"로 파싱 자체가 안 되고, 실제 GitHub run `29059996134`가 job 생성 전 즉시 실패("workflow file issue")했다는 진단.
+- **검증(코드 확인 우선)**: Codex 주장을 그대로 믿지 않고 직접 재현 — `python3 -c "yaml.safe_load(...)"`로 position 3858에서 실제 파싱 실패 확인, `gh run view 29059996134`로 라이브 실패 확인. U+0080 정확히 5개(86행 2개, 93행 1개, 95행 2개) — Codex 수치와 100% 일치. 원인 커밋은 `40dbef8`(WIP auto-save, 2026-07-09T18:26)이고, 이 커밋이 `origin/main`에 실제로 반영된 것은 나중 병합 커밋(`9353df7`, 트리거된 실패 run과 메시지 일치) — 그 전 스케줄 실행들이 계속 성공했던 이유가 설명됨.
+- **1차 복구**: `40dbef8`의 diff에서 손상 직전 원본 텍스트를 그대로 확보해 `data-watchdog.yml`의 코멘트 2줄 + console.warn/error 8줄을 원문으로 완전 복구(추측 재작성 아님, git 히스토리 대조). `python3 -c "yaml.safe_load"` PASS 재확인. 같은 커밋이 `scripts/fetch-telegram-digest.mjs`에도 동일 손상(1건, 코드 주석)을 남긴 것을 발견해 함께 복구.
+- **대규모 추가 발견(Codex 진단 범위 밖)**: WO-0의 "저장소 전체 제어문자 게이트" 항목을 구현하려고 리포 전체(`public-data/*.json` 생성물 제외)를 스캔한 결과, `CHANGELOG.md`(6,386건)·`_context/BUG-POSTMORTEM.md`(3,208건)·`.claude/skills/autoresearch/references/eval-guide.md`(44건)에 동일한 이중 인코딩 mojibake가 이미 광범위하게 누적돼 있음을 발견(CHANGELOG.md는 파일 제목 자체가 깨져 있었음). Codex의 전수 진단도 이 손상을 잡아내지 못했다 — markdown 파일은 어떤 게이트도 파싱/검증하지 않기 때문.
+- **사용자 확인 후 대량 복구 실행**: AskUserQuestion으로 "지금 기록만 하고 넘어갈지 vs 지금 대규모 복구를 시도할지" 확인 → "지금 바로 대규모 복구 시도" 선택. `git log -p`로 각 파일의 전체 커밋 이력을 파싱해 "이전엔 깨끗했다가 특정 커밋에서 깨진 것"(diff의 동일 길이 `-`/`+` 블록으로 원본 100% 확보 가능)과 "git에 등장한 순간부터 이미 깨져 있던 것"(diff 대조로 복구 불가)을 구분 — 전자만 안전하게 복구: CHANGELOG.md 2,941건, BUG-POSTMORTEM.md 1,035건, eval-guide.md 27건(전량) 완전 복구. 후자(CHANGELOG.md 8,057건, BUG-POSTMORTEM.md 492건)에 대해서는 알려진 clean/corrupted 쌍으로 CP949/EUC-KR/CP1252/Latin-1 등 인코딩 왕복 조합을 체계적으로 역산 시도했으나 정확히 일치하는 변환을 찾지 못함(추측 재구성은 postmortem 등 사실 기록 문서에서 손상 표시보다 더 나쁘다고 판단해 시도 안 함) — `_context/KNOWLEDGE-BASE.md` TM-VII 참조. 결과: 저장소 전체 제어문자 9,639건 → 2,153건(78% 감소), 완전 해소 2개 파일(data-watchdog.yml, eval-guide.md).
+- **무결성 검증**: 대량 치환 전후 CHANGELOG.md "## v버전" 헤더 개수(604개, 동일)·BUG-POSTMORTEM.md "## P번호" 헤더 개수(438개, 동일) 확인 — 내용 삭제·중복 없음.
+- **재발 방지 게이트 신설**: `scripts/ci-control-char-check.mjs` 신규 — (1) `.github/workflows/*.yml`은 제어문자 0건 + `js-yaml` 구조 파싱 PASS를 하드 게이트(예외 없음), (2) 나머지 저장소 파일은 `_context/control-char-baseline.json`(잔여 2,153건 기록) 대비 회귀만 차단(baseline 초과 시 실패, 감소는 허용+갱신 권장). `js-yaml` devDependency 추가(`package.json`/`package-lock.json`) — `validate` job에 `npm install` 스텝 신규(기존엔 헤드리스 잡에만 있었음). `ci.yml`에 배선.
+- **부수 관찰(WO-5 실증)**: 이번 세션 도중 Stop 훅(`auto-commit-on-stop.sh`)이 `git add -A` 기반 WIP 커밋(1b3f39a)을 자동 실행하면서, 이전 세션부터 미커밋 상태였던 `_context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md`(당시 untracked)와 `_context/INDEX.md` 변경분이 이번 작업과 무관하게 함께 커밋됨 — Codex WO-5가 지목한 "관련 없는 변경 혼입 위험"이 실제로 재현된 사례(내용 자체는 무해했음, 원자성만 저하).
+- **violated_rule**: 신규 R293(워크플로 YAML 하드 게이트 + 그 외 파일 baseline 회귀 게이트).
+- **prevention**: `scripts/ci-control-char-check.mjs` 자체가 회귀 방지 장치. 스크립트 작성 중 정규식 리터럴(`\x7f-\x9f` 등)이 세션 도구 왕복 과정에서 반복적으로 오손되는 것을 발견해(제어문자를 감지하는 스크립트가 역설적으로 제어문자 관련 이슈로 깨짐) charCode 숫자 비교 방식으로 전환 — R293에 기록.
+- **verification**: `node --check` 대상 .mjs green. `node scripts/ci-control-char-check.mjs`가 실제 제어문자 주입/제거 테스트로 정상 검출·정상 통과 확인(수동 sanity test). 로컬 게이트 9종 + 신규 게이트 전부 PASS(`ci-knowledge-lint-check`도 이번엔 통과 — 원인이었던 미git-tracked 파일이 위 Stop 훅으로 이미 커밋됨). `gh run` 라이브 재실행 확인은 푸시 후로 보류(사용자 커밋/배포 명시 대기).
 
 ## P659 - v52.44 - DEFERRED-BLOCKS B8 완화책 구현: Worker `/anthropic` anycast 403(forbidden) 자동 재시도 — 채팅뿐 아니라 번역·브리핑도 동일 근본원인이라 3개 함수 4개 호출부 전체 적용
 
@@ -404,13 +418,13 @@ next_P_number: P660
 - **violated_rule**: R217/R219. A pipeline audit existed, but the downstream consumer path to DB memo/chat memo was not semantically closed.
 - **prevention**: Telegram/news auto-refresh changes must verify source artifact -> normalized digest -> ticker memo overlay -> chat/ticker consumer -> audit/test/CI gate in one path.
 
-## P515 - v50.90 - aio-tests.js T踰덊샇 以묐났 + dead ?⑥닔 + ??대㉧ ?뺣━ ?꾨씫
+## P515 - v50.90 - aio-tests.js T번호 중복 + dead 함수 + 타이머 정리 누락
 
-- **symptom**: (1) T551~T558怨?T561~T565媛 ??媛쒖쓽 ?쒕줈 ?ㅻⅨ ?뚯뒪???⑥닔?먯꽌 媛곴컖 ?뺤쓽?섏뼱 runTests() ?ㅽ뻾 ???숈씪 T踰덊샇媛 2~3??以묐났 ?ㅽ뻾 ??_testResults ?ㅼ뿼. (2) T760??`_snapshotDate === '2026-06-11'` ?섎뱶肄붾뵫?쇰줈 ?곗씠???먮룞 媛깆떊 ????긽 FAIL. (3) `fetchWithProxy`/`fetchOHLCVBundleWithFallback` dead ?⑥닔媛 ~19以??붿〈. (4) setInterval 2媛쒓? _aioTimerRegistry ?놁씠 raw ?몄텧?섏뼱 beforeunload ?뺣━ 遺덇?. (5) options ?섏씠吏媛 _aiCtxMap???꾨씫?섏뼱 CHAT_CONTEXTS['options']媛 dead.
-- **root_cause**: append-only ?⑦꽩?쇰줈 ???뚯뒪??異붽? ??湲곗〈 T踰덊샇 ?ъ슜 ?щ? ?뺤씤 ?놁씠 ?ъ궗?? T760? ?뱀젙 ?ㅻ깄???좎쭨瑜??⑥뼵?쇰줈 諛뺤븘 ?ｌ뿀?쇰굹 ?곗씠???뚯씠?꾨씪??媛깆떊 ???먮룞 stale?? dead ?⑥닔??由ы뙥?좊쭅 以??몄텧遺 ?쒓굅 ???뺤쓽留??붿〈.
+- **symptom**: (1) T551~T558과 T561~T565가 두 개의 서로 다른 테스트 함수에서 각각 정의되어 runTests() 실행 시 동일 T번호가 2~3회 중복 실행 → _testResults 오염. (2) T760이 `_snapshotDate === '2026-06-11'` 하드코딩으로 데이터 자동 갱신 후 항상 FAIL. (3) `fetchWithProxy`/`fetchOHLCVBundleWithFallback` dead 함수가 ~19줄 잔존. (4) setInterval 2개가 _aioTimerRegistry 없이 raw 호출되어 beforeunload 정리 불가. (5) options 페이지가 _aiCtxMap에 누락되어 CHAT_CONTEXTS['options']가 dead.
+- **root_cause**: append-only 패턴으로 새 테스트 추가 시 기존 T번호 사용 여부 확인 없이 재사용. T760은 특정 스냅샷 날짜를 단언으로 박아 넣었으나 데이터 파이프라인 갱신 시 자동 stale화. dead 함수는 리팩토링 중 호출부 제거 후 정의만 잔존.
 - **fix**: T551~558?뭈845~852, T561~565?뭈853~857 ?щ쾲?? T760/T761 援ъ“??泥댄겕濡??꾪솚. dead ?⑥닔 ?쒓굅. _aioRegisterTimer('autoBackup'/'auditWidget',...) ?깅줉 + beforeunload _aioClearAllTimers() 異붽?. _aiCtxMap??'options':'options' 異붽?.
-- **violated_rule**: R3 (踰꾧렇 ?섏젙 ??postmortem 湲곕줉). 異붽? 愿?? aio-tests.js T踰덊샇 ?⑥“ 利앷? 誘몄???
-- **prevention**: ???뚯뒪??異붽? ??理쒓퀬 T踰덊샇 grep ?뺤씤. ?ㅻ깄???좎쭨 ??媛깆떊 媛?ν븳 媛믪? 踰붿쐞/?뺤떇 泥댄겕濡??묒꽦. dead ?⑥닔???몄텧 grep ??利됱떆 ?쒓굅.
+- **violated_rule**: R3 (버그 수정 시 postmortem 기록). 추가 관련: aio-tests.js T번호 단조 증가 미준수.
+- **prevention**: 새 테스트 추가 전 최고 T번호 grep 확인. 스냅샷 날짜 등 갱신 가능한 값은 범위/형식 체크로 작성. dead 함수는 호출 grep 후 즉시 제거.
 
 ## P514 - v50.89 - workflow helpers and skills were becoming append-only memory
 
@@ -429,19 +443,19 @@ next_P_number: P660
 - **prevention**: Every future page, AI, data/source, trading, technical, ticker, portfolio, or UX edit must document and test the path from user request to affected function/criteria, downstream consumer, visible output, and market/domain meaning. Audit-only checks must have a semantic companion or remain explicitly unresolved.
 ---
 
-## P511 - v50.86 - market-news fold媛 textContent 留ㅼ묶?쇰줈 痍⑥빟 ?좏깮???ъ슜
+## P511 - v50.86 - market-news fold가 textContent 매칭으로 취약 선택자 사용
 
-- **Symptom**: `_aioFoldDensePageControls('market-news')`媛 `BornLupin|Aether Japan|Reuters|TrendForce|Platts` ?띿뒪?몃? ?ы븿?섎뒗 紐⑤뱺 div瑜??띿뒪?몄뒪罹붿쑝濡?fold ??곸쑝濡??좏깮. ?댁뒪 湲곗궗 蹂몃Ц???대떦 ?띿뒪?멸? ?ы븿?섎㈃ ?섎룄移??딆? ?뱀뀡???묓옄 ???덉뿀??
-- **Root cause**: ?먮옒 肄붾뱶媛 DOM 援ъ“ 蹂寃쎌뿉 痍⑥빟???띿뒪??肄섑뀗痢?湲곕컲 ?좏깮??`textContent.includes`)瑜??ъ슜???뚯뒪 ?덈궡 div瑜?李얠쓬. ID ?놁씠 ?댁슜?쇰줈 ?먯깋?섎뒗 ?⑦꽩.
-- **Fix**: market-news ?뚯뒪 ?덈궡 div??`id="news-source-guide"` 遺??index.html). `_aioFoldDensePageControls` ?좏깮?먮? `'#news-source-guide'` ID 吏곸젒 吏?뺤쑝濡?援먯껜.
-- **Prevention**: DOM ?뱀뀡 fold ?源껋? 諛섎뱶??怨좎쑀 ID瑜?遺?ы빐 ?좏깮. ?띿뒪??肄섑뀗痢?湲곕컲 ?좏깮 湲덉?(R_NEW).
+- **Symptom**: `_aioFoldDensePageControls('market-news')`가 `BornLupin|Aether Japan|Reuters|TrendForce|Platts` 텍스트를 포함하는 모든 div를 텍스트스캔으로 fold 대상으로 선택. 뉴스 기사 본문에 해당 텍스트가 포함되면 의도치 않은 섹션이 접힐 수 있었음.
+- **Root cause**: 원래 코드가 DOM 구조 변경에 취약한 텍스트 콘텐츠 기반 선택자(`textContent.includes`)를 사용해 소스 안내 div를 찾음. ID 없이 내용으로 탐색하는 패턴.
+- **Fix**: market-news 소스 안내 div에 `id="news-source-guide"` 부여(index.html). `_aioFoldDensePageControls` 선택자를 `'#news-source-guide'` ID 직접 지정으로 교체.
+- **Prevention**: DOM 섹션 fold 타깃은 반드시 고유 ID를 부여해 선택. 텍스트 콘텐츠 기반 선택 금지(R_NEW).
 
-## P510 - v50.86 - _aioFoldDensePageControls媛 screener SVG ?ㅼ씠?닿렇???⑤꼸???묐뜕 踰꾧렇
+## P510 - v50.86 - _aioFoldDensePageControls가 screener SVG 다이어그램 패널을 접던 버그
 
-- **Symptom**: screener ?섏씠吏 吏꾩엯 ??`_aioFoldDensePageControls('screener')`媛 `#vis-screener`(?⑺꽣 諛깊뀒?ㅽ듃 SVG 李⑦듃)? `#screener-backtest-panel`(?띿뒪??IC 濡쒓렇) 紐⑤몢瑜?`<details>` ?덉쑝濡??대룞?쒖폒 ?④?. ?섎룄: ?띿뒪??IC 濡쒓렇留??묒뼱???덉쓬.
-- **Root cause**: ?좏깮??諛곗뿴??`'#vis-screener'`媛 ?ы븿?섏뼱 ?덉뿀怨? ?쎌엯 ?꾩튂 怨꾩궛 濡쒖쭅??`closest('div[style*="linear-gradient"]')`泥섎읆 ?몃씪???ㅽ??쇱뿉 ?섏〈??遺덉븞?뺥븿.
-- **Fix**: ?좏깮?먯뿉??`'#vis-screener'` ?쒓굅. ?몃씪???ㅽ???湲곕컲 ancestor ?먯깋 ?쒓굅. 泥?fold ????몃뱶 諛붾줈 ?욎뿉 `<details>` ?쎌엯?섎룄濡?anchor 濡쒖쭅 媛쒖꽑.
-- **Prevention**: fold ????좏깮?먮? 異붽??????대떦 ?섏씠吏??vis-* ?⑤꼸???ㅼ닔濡??ы븿?섏? ?딅룄濡?異붽? ??紐낆떆???뺤씤. R_NEW 李몄“.
+- **Symptom**: screener 페이지 진입 시 `_aioFoldDensePageControls('screener')`가 `#vis-screener`(팩터 백테스트 SVG 차트)와 `#screener-backtest-panel`(텍스트 IC 로그) 모두를 `<details>` 안으로 이동시켜 숨김. 의도: 텍스트 IC 로그만 접어야 했음.
+- **Root cause**: 선택자 배열에 `'#vis-screener'`가 포함되어 있었고, 삽입 위치 계산 로직이 `closest('div[style*="linear-gradient"]')`처럼 인라인 스타일에 의존해 불안정함.
+- **Fix**: 선택자에서 `'#vis-screener'` 제거. 인라인 스타일 기반 ancestor 탐색 제거. 첫 fold 대상 노드 바로 앞에 `<details>` 삽입하도록 anchor 로직 개선.
+- **Prevention**: fold 대상 선택자를 추가할 때 해당 페이지의 vis-* 패널을 실수로 포함하지 않도록 추가 전 명시적 확인. R_NEW 참조.
 
 ## P509 - v50.63 - Telegram digest collection was not in the scheduled consumption loop
 
@@ -459,173 +473,173 @@ next_P_number: P660
 
 ## P507 - v50.61 - Telegram ?섏쭛 ?곗씠?곌? 二쇨컙 ?뚯뒪/梨꾪똿/?ㅽ겕由щ꼫 ?덉씠?대줈 ?먮룞 ?섎쪟?섏? ?딆쓬
 
-- **Symptom**: ?ъ슜?먭? 吏?뺥븳 Telegram 3梨꾨꼸 1二쇱씪移??댁뒪/?뚯떇/?뺣낫瑜??섏쭛?대룄, 湲곗〈 援ъ“??媛쒕퀎 RSS/?대씪?댁뼵???댁뒪 遺꾨쪟? ?섎룞 HOME_WEEKLY_NEWS 媛깆떊???섏〈?덈떎. 怨좉굅?섎웾 梨꾨꼸? 釉뚮씪?곗? 吏곸젒 ?묎렐/濡쒓렇??CORS ?쒖빟 ?뚮Ц???꾨씫?섍린 ?쎄퀬, AI 梨꾪똿? 理쒖떊 ?뺤꽦 ?뚮쭏瑜?醫낅ぉ 異붿쿇쨌?쒖옣 留λ씫???쇨??섍쾶 ?곌껐?섏? 紐삵븷 ???덉뿀??
-- **Root cause**: Telegram 怨듦컻 誘몃윭瑜?二쇨컙 digest濡??뺢퇋?뷀븯???쒕쾭/?ㅽ겕由쏀듃 ?덉씠?닿? ?놁뿀怨? ?섏쭛 寃곌낵媛 HOME_WEEKLY_NEWS, SCREENER_DB, MACRO_KW/TECH_KW, 梨꾪똿 system prompt源뚯? ?댁뼱吏???⑥씪 ?섎쪟 寃쎈줈媛 ?놁뿀??
+- **Symptom**: 사용자가 지정한 Telegram 3채널 1주일치 뉴스/소식/정보를 수집해도, 기존 구조는 개별 RSS/클라이언트 뉴스 분류와 수동 HOME_WEEKLY_NEWS 갱신에 의존했다. 고거래량 채널은 브라우저 직접 접근/로그인/CORS 제약 때문에 누락되기 쉽고, AI 채팅은 최신 정성 테마를 종목 추천·시장 맥락에 일관되게 연결하지 못할 수 있었다.
+- **Root cause**: Telegram 공개 미러를 주간 digest로 정규화하는 서버/스크립트 레이어가 없었고, 수집 결과가 HOME_WEEKLY_NEWS, SCREENER_DB, MACRO_KW/TECH_KW, 채팅 system prompt까지 이어지는 단일 환류 경로가 없었다.
 - **Fix**: `scripts/fetch-telegram-digest.mjs` 異붽?. 3梨꾨꼸 怨듦컻 誘몃윭 796嫄댁쓣 ?섏쭛???좏뵿/?곗빱/?ㅼ퐫?대? 異붿텧?섍퀬, `AIO_TELEGRAM_WEEKLY_DIGEST` + HOME_WEEKLY_NEWS + SCREENER_DB 硫붾え ?ㅻ쾭?덉씠 + MACRO/TECH ?ㅼ썙??+ AI 梨꾪똿 而⑦뀓?ㅽ듃濡??곌껐. T829 異붽?.
-- **Prevention**: ???몃? ?뺤꽦 ?뚯뒪??"?섏쭛 ?뚯씪"?먯꽌 ?앸궡吏 留먭퀬 digest 媛앹껜, ?붾㈃ ?먮젅?댁뀡, ?ㅽ겕由щ꼫 硫붾え, ?ㅼ썙??遺꾨쪟, 梨꾪똿 ?듬? 怨꾩빟, ?뚯뒪?멸퉴吏 ?곌껐?댁빞 ?쒕떎. 怨좉굅?섎웾 梨꾨꼸? safety cap/resumable paging/backfill ?쒓퀎瑜?臾몄꽌?뷀븳?? R215.
+- **Prevention**: 새 외부 정성 소스는 "수집 파일"에서 끝내지 말고 digest 객체, 화면 큐레이션, 스크리너 메모, 키워드 분류, 채팅 답변 계약, 테스트까지 연결해야 한다. 고거래량 채널은 safety cap/resumable paging/backfill 한계를 문서화한다. R215.
 
-## P506 - v50.60 - AI 梨꾪똿??AIO ?섏씠吏/?곗씠??媛뺤젏???섎굹???듬? 怨꾩빟?쇰줈 ?듯빀?섏? 紐삵븿
+## P506 - v50.60 - AI 채팅이 AIO 페이지/데이터 강점을 하나의 답변 계약으로 통합하지 못함
 
-- **Problem**: ?ㅽ겕由щ꼫 AI 梨꾪똿? ?쒖꽭, 李⑦듃, ????ㅽ겕由щ꼫, ?댁뒪, 留ㅽ겕濡? ?ы듃?대━?????щ윭 ?대? ?곗씠???덉씠?대? 媛뽮퀬 ?덉뿀吏留? ?듬? ?앹꽦 ?④퀎?먯꽌 "?쇰컲 LLM怨??ㅻⅨ AIO ?꾩슜 媛뺤젏"????긽 紐낆떆?섎뒗 ?곸쐞 怨꾩빟???놁뿀?? 洹?寃곌낵 ?ъ슜?먭? ?볦? 異붿쿇쨌?쒖옣 ?곹솴 諛섏쁺쨌?뺤꽦/?뺣웾 ?듯빀 ?듬???湲곕??????쇰? ?곗씠??釉붾줉? 二쇱엯?섏뼱???듬? 援ъ“媛 ?섏씠吏 媛??곌껐, ?꾩옱 ?쒖옣 留λ씫, ?뺣웾/?뺤꽦 洹좏삎?쇰줈 ?덉젙?곸쑝濡??섎졃?섏? 紐삵븷 ???덉뿀??
-- **Root cause**: `AIO_CHAT_SOURCE_REGISTRY`??媛쒕퀎 ?뚯뒪 異쒖쿂 媛먯궗?먮뒗 ?④낵?곸씠吏留? ?ъ슜?먭? 泥닿컧?섎뒗 ?듬? ?덉씠???꾩옱 ?쒖옣 ???뺣웾 吏?????뺤꽦 ?댁뒪/怨듭떆 ??醫낇빀 ?먮떒 ??愿???섏씠吏/?꾧뎄 ?곌껐)瑜??좎뼵?섏? ?딆븯?? `chatSend()`??intent/coverage/memory/data blocks瑜?遺숈?吏留?AIO ?꾩껜 ?쒖뒪?쒖쓣 愿?듯븯???듯빀 ?듬? 怨꾩빟? 蹂꾨룄濡?二쇱엯?섏? ?딆븯??
-- **Fix**: `AIO_CHAT_PIPELINE_REGISTRY`瑜?異붽???marketState, quotes, technicalOHLCV, screener, breadthSentiment, macroRatesFx, companyFundamentals, newsFilings, themes, portfolio ?덉씠?대? ?좎뼵. `_buildAioIntegratedAnswerContext()`瑜?異붽???"not a generic LLM" ?먯튃, ?꾩옱 ?쒖옣 ?곌껐, ?뺣웾/?뺤꽦 ?듬?, 醫낇빀 ?먮떒, ?섏씠吏 ?곌껐, 異붿쿇 ?ㅼ뼇??洹쒖튃???쒖뒪???꾨＼?꾪듃??二쇱엯. `chatSend()`??`integratedContextStr`瑜??앹꽦??coverage ?ㅼ뿉 遺숈씠怨? coverage flags??technical/screener/domain ?곗씠?곕? ?몄떇?섎룄濡??뺤옣. T828 異붽?.
+- **Problem**: 스크리너 AI 채팅은 시세, 차트, 퀀트 스크리너, 뉴스, 매크로, 포트폴리오 등 여러 내부 데이터 레이어를 갖고 있었지만, 답변 생성 단계에서 "일반 LLM과 다른 AIO 전용 강점"을 항상 명시하는 상위 계약이 없었다. 그 결과 사용자가 넓은 추천·시장 상황 반영·정성/정량 통합 답변을 기대할 때 일부 데이터 블록은 주입되어도 답변 구조가 페이지 간 연결, 현재 시장 맥락, 정량/정성 균형으로 안정적으로 수렴하지 못할 수 있었다.
+- **Root cause**: `AIO_CHAT_SOURCE_REGISTRY`는 개별 소스 출처 감사에는 효과적이지만, 사용자가 체감하는 답변 레이어(현재 시장 → 정량 지표 → 정성 뉴스/공시 → 종합 판단 → 관련 페이지/도구 연결)를 선언하지 않았다. `chatSend()`도 intent/coverage/memory/data blocks를 붙였지만 AIO 전체 시스템을 관통하는 통합 답변 계약은 별도로 주입하지 않았다.
+- **Fix**: `AIO_CHAT_PIPELINE_REGISTRY`를 추가해 marketState, quotes, technicalOHLCV, screener, breadthSentiment, macroRatesFx, companyFundamentals, newsFilings, themes, portfolio 레이어를 선언. `_buildAioIntegratedAnswerContext()`를 추가해 "not a generic LLM" 원칙, 현재 시장 연결, 정량/정성 답변, 종합 판단, 페이지 연결, 추천 다양성 규칙을 시스템 프롬프트에 주입. `chatSend()`는 `integratedContextStr`를 생성해 coverage 뒤에 붙이고, coverage flags도 technical/screener/domain 데이터를 인식하도록 확장. T828 추가.
 - **violated_rule:** R15, R211, R212, R213
-- **Prevention**: ??梨꾪똿 ?곗씠???섏씠吏 湲곕뒫? ?뚯뒪 ?덉??ㅽ듃由щ퓧 ?꾨땲???ъ슜???듬? 怨꾩빟源뚯? ?곌껐?댁빞 ?쒕떎. 媛쒕퀎 ?곗씠??釉붾줉??二쇱엯?섏뼱?? ?꾩옱 ?쒖옣쨌?뺣웾쨌?뺤꽦쨌?섏씠吏 ?곌껐쨌異붿쿇 ?ㅼ뼇??以??대뒓 異뺤쑝濡??곗씪吏 紐낆떆?섏? ?딆쑝硫??꾨즺濡?蹂댁? ?딅뒗?? R214.
+- **Prevention**: 새 채팅 데이터/페이지 기능은 소스 레지스트리뿐 아니라 사용자 답변 계약까지 연결해야 한다. 개별 데이터 블록이 주입되어도, 현재 시장·정량·정성·페이지 연결·추천 다양성 중 어느 축으로 쓰일지 명시하지 않으면 완료로 보지 않는다. R214.
 
 ## P505 - v50.59 - AI 梨꾪똿??湲곗〈 OHLCV 李⑦듃 遺꾩꽍 ?붿쭊??臾댄떚而??쒖옣 吏덈Ц???쒖슜?섏? 紐삵븿
 
-- **Problem**: 李⑦듃??遺꾩꽍 湲곕뒫 ?먯껜??`fetchOHLCVWithFallback` + `calcTechnicalSnapshot` + `calcExtensionHeat`濡?議댁옱?덇퀬, 醫낅ぉ ?곗빱媛 ?덈뒗 吏덈Ц?먮뒗 `_fetchTechnicalDataForChat()`媛 RSI/MACD/MA/ATR/Stage/?뺤옣?꾨? 二쇱엯?덈떎. ?섏?留??ъ슜?먭? "吏湲??쒖옣 李⑦듃?곸쑝濡??대븣?"泥섎읆 ?곗빱 ?놁씠 湲곗닠/李⑦듃 遺꾩꽍??臾쇱쑝硫????붿쭊???먮룞 諛쒕룞?섏? ?딆븘, 湲곗〈 ?쒖옣 ???李⑦듃 湲곕뒫??梨꾪똿??異⑸텇???곗? 紐삵뻽?? ?먰븳 OHLCV 湲곗닠吏???뚯뒪媛 `AIO_CHAT_SOURCE_REGISTRY`???놁뼱??異쒖쿂/?뺤옣??媛먯궗?먯꽌 蹂댁씠吏 ?딆븯??
-- **Root cause**: v50.38?먯꽌 湲곗닠 ?곗씠??二쇱엯 踰붿쐞瑜?"?곗빱 媛먯? ????而⑦뀓?ㅽ듃"濡??뺤옣?덉?留? 臾댄떚而?湲곗닠 吏덈Ц??SPY/QQQ/SMH 媛숈? ????꾨줉?쒕줈 蹂?섑븯???쇱슦?곌? ?놁뿀?? ?뚯뒪 ?덉??ㅽ듃由?媛먯궗??`_fetchTickerDataForChat()` ?대?留??ㅼ틪?? `chatSend()`?먯꽌 蹂꾨룄濡?二쇱엯?섎뒗 湲곗닠/?꾨찓???곗씠???뚯뒪瑜??쒗쁽?섍린 ?대젮?좊떎.
-- **Fix**: `_aioTechnicalSymbolsForChat()`瑜?異붽???臾댄떚而?湲곗닠/李⑦듃 吏덈Ц?먮뒗 湲곕낯?곸쑝濡?SPY쨌QQQ쨌SMH, 諛섎룄泥?吏덈Ц?먮뒗 SMH쨌SOXX쨌QQQ, ???뚰삎二?吏덈Ц?먮뒗 IWM쨌RSP쨌SPY, ?쒓뎅 湲곗닠 吏덈Ц?먮뒗 ^KS11쨌^KQ11쨌KRW=X瑜??좏깮?쒕떎. `chatSend()`???곗빱媛 ?놁뼱???대떦 ?쇱슦??寃곌낵濡?`_fetchTechnicalDataForChat(..., {autoMarket:true})`瑜??몄텧?쒕떎. `_fetchTechnicalDataForChat()`??OHLCV `dataQuality` source/rows/fetched ?쇰꺼???ы븿?쒕떎. `technicalOHLCV`瑜?`AIO_CHAT_SOURCE_REGISTRY`???깅줉?섍퀬 `getChatSourceRegistryAudit()`媛 ticker fetch + technical injector + domain injector + chatSend瑜??④퍡 ?ㅼ틪?섎룄濡??뺤옣. T827 異붽?.
+- **Problem**: 차트적 분석 기능 자체는 `fetchOHLCVWithFallback` + `calcTechnicalSnapshot` + `calcExtensionHeat`로 존재했고, 종목 티커가 있는 질문에는 `_fetchTechnicalDataForChat()`가 RSI/MACD/MA/ATR/Stage/확장도를 주입했다. 하지만 사용자가 "지금 시장 차트적으로 어때?"처럼 티커 없이 기술/차트 분석을 물으면 이 엔진이 자동 발동하지 않아, 기존 시장 대표 차트 기능을 채팅이 충분히 쓰지 못했다. 또한 OHLCV 기술지표 소스가 `AIO_CHAT_SOURCE_REGISTRY`에 없어서 출처/확장성 감사에서 보이지 않았다.
+- **Root cause**: v50.38에서 기술 데이터 주입 범위를 "티커 감지 시 전 컨텍스트"로 확장했지만, 무티커 기술 질문을 SPY/QQQ/SMH 같은 대표 프록시로 변환하는 라우터가 없었다. 소스 레지스트리 감사도 `_fetchTickerDataForChat()` 내부만 스캔해, `chatSend()`에서 별도로 주입되는 기술/도메인 데이터 소스를 표현하기 어려웠다.
+- **Fix**: `_aioTechnicalSymbolsForChat()`를 추가해 무티커 기술/차트 질문에는 기본적으로 SPY·QQQ·SMH, 반도체 질문에는 SMH·SOXX·QQQ, 폭/소형주 질문에는 IWM·RSP·SPY, 한국 기술 질문에는 ^KS11·^KQ11·KRW=X를 선택한다. `chatSend()`는 티커가 없어도 해당 라우터 결과로 `_fetchTechnicalDataForChat(..., {autoMarket:true})`를 호출한다. `_fetchTechnicalDataForChat()`는 OHLCV `dataQuality` source/rows/fetched 라벨을 포함한다. `technicalOHLCV`를 `AIO_CHAT_SOURCE_REGISTRY`에 등록하고 `getChatSourceRegistryAudit()`가 ticker fetch + technical injector + domain injector + chatSend를 함께 스캔하도록 확장. T827 추가.
 - **violated_rule:** R15, R121, R212
-- **Prevention**: ??梨꾪똿 ?곗씠??湲곕뒫? "議댁옱 ?щ?"肉??꾨땲???ъ슜?먯쓽 ?먯뿰??吏덈Ц?먯꽌 ?ㅼ젣 二쇱엯?섎뒗 ?쇱슦?낃퉴吏 寃利앺븳?? ?덉??ㅽ듃由?媛먯궗???⑥씪 ?ㅽ뻾 ?⑥닔留?蹂댁? 留먭퀬 紐⑤뱺 梨꾪똿 ?곗씠??二쇱엯 寃쎈줈瑜??ы븿?댁빞 ?쒕떎. R213.
+- **Prevention**: 새 채팅 데이터 기능은 "존재 여부"뿐 아니라 사용자의 자연어 질문에서 실제 주입되는 라우팅까지 검증한다. 레지스트리 감사는 단일 실행 함수만 보지 말고 모든 채팅 데이터 주입 경로를 포함해야 한다. R213.
 
-## P504 - v50.58 - AI 梨꾪똿 ?좊ː??媛?쒓? ?쇰컲/?ㅽ겕由щ꼫 ?듬?源뚯? 怨쇰룄?섍쾶 ?듭젣
+## P504 - v50.58 - AI 채팅 신뢰성 가드가 일반/스크리너 답변까지 과도하게 억제
 
-- **Problem**: ?ㅽ겕由щ꼫媛 AI 梨꾪똿??蹂닿컯?댁빞 ?섎뒗???쇰? 洹쒖튃? ?ㅽ엳???듬???醫곹삍?? ?쇰컲/援먯쑁 吏덈Ц, ?볦? ?ㅽ겕由щ꼫 異붿쿇, ?⑥닚 醫낅ぉ ?ъ떎 吏덈Ц?먮룄 "二쇨? 異붿씠 誘몄＜????異붿꽭 ?멸툒 湲덉?", 6?④퀎 湲곌? 由ы룷?? Bull/Base/Bear, 湲곌? ?꾨젅???몄슜 ?섎Т媛 ?꾩뿭?쇰줈 遺숈뿀?? 洹?寃곌낵 ?ъ슜?먮뒗 吏곴??곸씤 ?듬? ???怨쇰룄???쒗븳쨌?뺤떇쨌誘몄닔吏?寃쎄퀬瑜?諛쏄린 ?ъ썱??
-- **Root cause**: ?섍컖 諛⑹? 洹쒖튃???ъ슜???섎룄蹂꾨줈 遺꾨━?섏? ?딄퀬 `chatSend()` 留먮???怨듯넻 `_dataVerify`? `_fetchTickerDataForChat()` 醫낅ぉ ?곗씠??釉붾줉???쇨큵 二쇱엯?먮떎. ?ㅽ겕由щ꼫 ?꾨낫援곗? 3M쨌RSI쨌?????겕?쇰뒗 ?먯껜 洹쇨굅瑜??쒓났?섎뒗?곕룄 媛쒕퀎 ?곗빱??`[二쇨? 異붿씠]` 遺?ъ? 媛숈? 湲곗??쇰줈 ?됯??먮떎.
-- **Fix**: `_aioChatAnswerPolicy()`瑜?異붽????쇰컲/援먯쑁, ?ㅽ겕由щ꼫 ?꾨낫, ?⑥닚 醫낅ぉ ?ъ떎, 留ㅻℓ ?먮떒??遺꾨━. 留ㅻℓ ?먮떒/?꾨쭩 吏덈Ц?먮쭔 媛뺥븳 異붿꽭쨌?쒕굹由ъ삤쨌湲곌? 硫붾え 洹쒖튃???곸슜?섍퀬, ?⑥닚 吏덈Ц? 諛붾줈 ?듯븯?꾨줉 蹂寃? ?ㅽ겕由щ꼫 ?꾨낫援곗? 3M쨌RSI쨌?????겕쨌?뱁꽣/?쒖옣 遺꾩궛??洹쇨굅濡??ㅻ챸 媛?ν븯?ㅺ퀬 紐낆떆. `_fetchTickerDataForChat()`??query/ctxId瑜?諛쏆븘 Bull/Base/Bear 媛뺤젣瑜??섎룄蹂꾨줈 ?꾪솕. T826 異붽?.
+- **Problem**: 스크리너가 AI 채팅을 보강해야 하는데 일부 규칙은 오히려 답변을 좁혔다. 일반/교육 질문, 넓은 스크리너 추천, 단순 종목 사실 질문에도 "주가 추이 미주입 시 추세 언급 금지", 6단계 기관 리포트, Bull/Base/Bear, 기관 프레임 인용 의무가 전역으로 붙었다. 그 결과 사용자는 직관적인 답변 대신 과도한 제한·형식·미수집 경고를 받기 쉬웠다.
+- **Root cause**: 환각 방지 규칙이 사용자 의도별로 분리되지 않고 `chatSend()` 말미의 공통 `_dataVerify`와 `_fetchTickerDataForChat()` 종목 데이터 블록에 일괄 주입됐다. 스크리너 후보군은 3M·RSI·퀀트 랭크라는 자체 근거를 제공하는데도 개별 티커용 `[주가 추이]` 부재와 같은 기준으로 평가됐다.
+- **Fix**: `_aioChatAnswerPolicy()`를 추가해 일반/교육, 스크리너 후보, 단순 종목 사실, 매매 판단을 분리. 매매 판단/전망 질문에만 강한 추세·시나리오·기관 메모 규칙을 적용하고, 단순 질문은 바로 답하도록 변경. 스크리너 후보군은 3M·RSI·퀀트 랭크·섹터/시장 분산을 근거로 설명 가능하다고 명시. `_fetchTickerDataForChat()`도 query/ctxId를 받아 Bull/Base/Bear 강제를 의도별로 완화. T826 추가.
 - **violated_rule:** R15, R140, R211
-- **Prevention**: ?뺥솗??媛?쒕뒗 ?듬???李⑤떒?섎뒗 ?μ튂媛 ?꾨땲???듬? 踰붿쐞瑜??쇰꺼留곹븯???μ튂?? ??梨꾪똿 洹쒖튃? 諛섎뱶???곸슜 ????쇰컲/?ㅽ겕由щ꼫/?⑥닚 醫낅ぉ/留ㅻℓ ?먮떒)??紐낆떆?섍퀬, ?ㅽ겕由щ꼫媛 ?쒓났??援ъ“??洹쇨굅瑜?媛쒕퀎 ?곗빱 ?곗씠??誘몄닔吏묒쑝濡?臾댄슚?뷀븯吏 ?딅뒗?? R212.
+- **Prevention**: 정확성 가드는 답변을 차단하는 장치가 아니라 답변 범위를 라벨링하는 장치다. 새 채팅 규칙은 반드시 적용 대상(일반/스크리너/단순 종목/매매 판단)을 명시하고, 스크리너가 제공한 구조화 근거를 개별 티커 데이터 미수집으로 무효화하지 않는다. R212.
 
 ## P503 - v50.57 - AI 梨꾪똿???볦? 醫낅ぉ 異붿쿇???뱀젙 ?뚮쭏濡?怨쇱닔??
 
-- **Problem**: ?ъ슜?먭? "醫낅ぉ 異붿쿇?댁쨾"泥섎읆 ?볦? 吏덈Ц???섎㈃ AI 梨꾪똿??CEG, ?꾨젰 ?뱁꽣, AVGO/釉뚮줈?쒖뺨, AI ?명봽??媛숈? ?뱀젙 ?쒖옣/湲곗뾽?쇰줈 諛섎났 ?섎졃?덈떎. ?ㅼ젣 LLM泥섎읆 ?볦? ?꾨낫援곗쓣 癒쇱? ?쇱튇 ???ъ슜???쒖빟??留욎떠 醫곹엳???숈옉??遺議깊뻽??
-- **Root cause**: `_aioRunScreenerQuery()`媛 紐낆떆 議곌굔(?뱁꽣쨌RSI쨌?쒖킑쨌????????놁쑝硫?null??諛섑솚?? ?볦? 異붿쿇 吏덈Ц?먮뒗 ?꾨낫 由ъ뒪?멸? 二쇱엯?섏? ?딆븯?? 洹??곹깭?먯꽌 `CHAT_CONTEXTS`??怨좎젙 由ъ꽌移?臾몃떒怨?怨쇨굅 ???硫붾え媛 ?꾨＼?꾪듃??媛뺥븳 ?듭빱媛 ?섏뼱 ?뱀젙 ?뚮쭏媛 怨쇰??쒖쭛?먮떎. 理쒓렐 ?듬??먯꽌 諛섎났???곗빱瑜?媛먯젏?섍굅???뱁꽣쨌?쒖옣쨌?쒖킑 遺꾩궛??媛뺤젣?섎뒗 援ъ“???놁뿀??
-- **Fix**: `_aioIsBroadRecommendationQuery()`, `_aioBuildDiversifiedRecommendationRows()`, `_aioExtractRecentRecommendationTickers()`瑜?異붽?. ?볦? 異붿쿇 吏덈Ц? SCREENER_DB瑜??뱁꽣쨌?쒖옣쨌?쒖킑蹂꾨줈 遺꾩궛 ?섑뵆留곹븯怨?理쒓렐 ???諛섎났 ?곗빱瑜?媛먯젏??`diversified-recommendation` 紐⑤뱶濡?泥섎━?쒕떎. `_formatScreenerResultPrompt()`??"洹좏삎 異붿쿇 ?꾨낫" 釉붾줉怨?媛숈? ?뱁꽣 理쒕? 2媛? 3~5媛?理쒖쥌 ?좏깮, ?쒖쇅/蹂대쪟 ?댁쑀, ?泥??꾨낫 ?ㅻ챸??媛뺤젣?쒕떎. `chatSend()`??理쒓렐 ????곗빱瑜??섍린怨?異붿쿇 ?ㅼ뼇?굿룸컲蹂??명뼢 諛⑹? 洹쒖튃??system prompt??異붽??쒕떎. T825 異붽?.
+- **Problem**: 사용자가 "종목 추천해줘"처럼 넓은 질문을 하면 AI 채팅이 CEG, 전력 섹터, AVGO/브로드컴, AI 인프라 같은 특정 시장/기업으로 반복 수렴했다. 실제 LLM처럼 넓은 후보군을 먼저 펼친 뒤 사용자 제약에 맞춰 좁히는 동작이 부족했다.
+- **Root cause**: `_aioRunScreenerQuery()`가 명시 조건(섹터·RSI·시총·퀀트 등)이 없으면 null을 반환해, 넓은 추천 질문에는 후보 리스트가 주입되지 않았다. 그 상태에서 `CHAT_CONTEXTS`의 고정 리서치 문단과 과거 대화 메모가 프롬프트의 강한 앵커가 되어 특정 테마가 과대표집됐다. 최근 답변에서 반복된 티커를 감점하거나 섹터·시장·시총 분산을 강제하는 구조도 없었다.
+- **Fix**: `_aioIsBroadRecommendationQuery()`, `_aioBuildDiversifiedRecommendationRows()`, `_aioExtractRecentRecommendationTickers()`를 추가. 넓은 추천 질문은 SCREENER_DB를 섹터·시장·시총별로 분산 샘플링하고 최근 대화 반복 티커를 감점한 `diversified-recommendation` 모드로 처리한다. `_formatScreenerResultPrompt()`는 "균형 추천 후보" 블록과 같은 섹터 최대 2개, 3~5개 최종 선택, 제외/보류 이유, 대체 후보 설명을 강제한다. `chatSend()`는 최근 대화 티커를 넘기고 추천 다양성·반복 편향 방지 규칙을 system prompt에 추가한다. T825 추가.
 - **violated_rule:** R15, R135
-- **Prevention**: ?볦? 異붿쿇 吏덈Ц? 怨좎젙 ?대윭?곕툕蹂대떎 援ъ“?붾맂 ?꾨낫援곗쓣 癒쇱? 二쇱엯?쒕떎. 異붿쿇 ?꾨낫??理쒖냼 ?뱁꽣쨌?쒖옣쨌?쒖킑 遺꾩궛 異뺤쓣 媛뽮퀬, 理쒓렐 ??붿뿉??諛섎났??醫낅ぉ? 媛먯젏?쒕떎. ?뱀젙 ?뱁꽣/?뚮쭏 吏덈Ц? 湲곗〈 ?꾪꽣瑜??좎??섎릺, 議곌굔 ?녿뒗 異붿쿇? 洹좏삎 ?꾨낫 紐⑤뱶濡??뚭? ?뚯뒪?명븳?? R211.
+- **Prevention**: 넓은 추천 질문은 고정 내러티브보다 구조화된 후보군을 먼저 주입한다. 추천 후보는 최소 섹터·시장·시총 분산 축을 갖고, 최근 대화에서 반복된 종목은 감점한다. 특정 섹터/테마 질문은 기존 필터를 유지하되, 조건 없는 추천은 균형 후보 모드로 회귀 테스트한다. R211.
 
 ## P502 - v50.56 - ?뺤쟻 媛먯궗 ?듦낵 ???고???scope쨌蹂듯빀 sink쨌利앷굅 寃뚯씠???ㅽ뙋???붿〈
 
-- **Problem**: KST formatter媛 ??踰덉㎏ `DOMContentLoaded` listener ?대????좎뼵??泥?踰덉㎏ listener? quota ?⑥닔?먯꽌 `ReferenceError`媛 諛쒖깮?덈떎. KR ???뚮쭏??蹂듯빀 移대뱶 ?꾩껜媛 `data-live-price` sink?ъ꽌 媛먯궗湲곌? 醫낅ぉ肄붾뱶쨌?대쫫쨌鍮꾩쨷源뚯? 媛寃⑹쑝濡??쎌뿀怨? ?쒓뎅 二쇱떇? 誘멸뎅 二쇱떇 ?곹븳 10,000??怨듭쑀???뺤긽 ?먰솕 媛寃⑹쓣 李⑤떒?덈떎. 李멸퀬 ?꾩슜 誘몄닔吏?quote???섏궗寃곗젙 媛믨낵 ?숈씪?섍쾶 諛고룷 李⑤떒?먯쑝硫? ?띿뒪??媛먯궗??`S&P500`, `MA(5/20/60)`, `1/3/6M`, `9/11 醫낅ぉ`??媛쒕컻 ?쒖떇쨌怨쇨굅 ?좎쭨濡??ㅼ씤?덈떎. ?댁뒪 84媛??쒖감 ?섏쭛? ?뺤긽 吏꾪뻾 以묒뿉???ㅻ옒 ?쒖닔吏?以묅앹쑝濡쒕쭔 蹂댁뿬 ?곴뎄 濡쒕뵫泥섎읆 蹂댁???
-- **Root cause**: 釉뚮씪?곗? ?ㅽ뻾 ?쒖꽌 寃利??놁씠 ?⑥닔 議댁옱留?寃?ы뻽怨? ?곗씠??sink???뚯쑀沅뚯쓣 媛??몃뱶媛 ?꾨땶 蹂듯빀 而⑦뀒?대꼫??遺?ы뻽?? ?먯궛蹂?媛寃??⑥쐞, `decision`/`reference-only`, ?좎쭨/鍮꾩쑉/釉뚮옖???좏겙??媛먯궗 洹쒖튃?먯꽌 援щ텇?섏? ?딆븯?? ?κ린 鍮꾨룞湲??묒뾽???꾧꼍 loading怨?諛깃렇?쇱슫??吏꾪뻾 ?곹깭媛 遺꾨━?섏? ?딆븯??
-- **Fix**: KST helper瑜?紐⑤뱢 ?꾩뿭?쇰줈 ?대룞. KR 移대뱶? ?숈쟻 ?뚮쭏 pill? `data-live-symbol` ?뚯쑀 而⑦뀒?대꼫? 媛寃??깅씫 child sink濡?遺꾨━?섍퀬 `.KS/.KQ` ?먰솕 sanity range瑜?異붽?. 李멸퀬 ?꾩슜 truth-block? warn?쇰줈 媛뺣벑?섎릺 decision sink??怨꾩냽 李⑤떒. ?띿뒪???좎쭨 ?먯젙??KST 寃쎄낵?셋룸Ц留?湲곕컲?쇰줈 蹂寃쏀븯怨??⑥뼱 寃쎄퀎瑜??곸슜. 12珥??댄썑 ?댁뒪 吏꾪뻾 臾멸뎄瑜?諛깃렇?쇱슫??媛깆떊?쇰줈 ?꾪솚. 怨듭떇 ?쇱젙?먮뒗 evidence metadata瑜?遺李? T824? CI 援ъ“ 寃?щ? 異붽?.
+- **Problem**: KST formatter가 두 번째 `DOMContentLoaded` listener 내부에 선언돼 첫 번째 listener와 quota 함수에서 `ReferenceError`가 발생했다. KR 홈/테마의 복합 카드 전체가 `data-live-price` sink여서 감사기가 종목코드·이름·비중까지 가격으로 읽었고, 한국 주식은 미국 주식 상한 10,000을 공유해 정상 원화 가격을 차단했다. 참고 전용 미수집 quote도 의사결정 값과 동일하게 배포 차단됐으며, 텍스트 감사는 `S&P500`, `MA(5/20/60)`, `1/3/6M`, `9/11 종목`을 개발 표식·과거 날짜로 오인했다. 뉴스 84개 순차 수집은 정상 진행 중에도 오래 “수집 중”으로만 보여 영구 로딩처럼 보였다.
+- **Root cause**: 브라우저 실행 순서 검증 없이 함수 존재만 검사했고, 데이터 sink의 소유권을 값 노드가 아닌 복합 컨테이너에 부여했다. 자산별 가격 단위, `decision`/`reference-only`, 날짜/비율/브랜드 토큰을 감사 규칙에서 구분하지 않았다. 장기 비동기 작업도 전경 loading과 백그라운드 진행 상태가 분리되지 않았다.
+- **Fix**: KST helper를 모듈 전역으로 이동. KR 카드와 동적 테마 pill은 `data-live-symbol` 소유 컨테이너와 가격/등락 child sink로 분리하고 `.KS/.KQ` 원화 sanity range를 추가. 참고 전용 truth-block은 warn으로 강등하되 decision sink는 계속 차단. 텍스트 날짜 판정을 KST 경과일·문맥 기반으로 변경하고 단어 경계를 적용. 12초 이후 뉴스 진행 문구를 백그라운드 갱신으로 전환. 공식 일정에는 evidence metadata를 부착. T824와 CI 구조 검사를 추가.
 - **violated_rule:** R15, R195, R204, R208
-- **Prevention**: 怨듭쑀 helper??紐⑤뱺 listener/caller蹂대떎 ?욎꽑 module scope???붾떎. 蹂듯빀 UI??live ?띿꽦? ?ㅼ젣 媛?child?먮쭔 ?붾떎. 利앷굅 寃뚯씠?몃뒗 ?ъ슜 紐⑹쟻怨??먯궛 ?⑥쐞瑜??④퍡 ?됯??섍퀬, ?띿뒪???좎쭨 媛먯궗??寃쎄낵?셋룸Ц留μ쓣 ?ъ슜?쒕떎. 釉뚮씪?곗? fresh context?먯꽌 22?섏씠吏瑜??ㅼ젣 吏꾩엯????gate瑜??ъ떎?됲븳?? R210.
+- **Prevention**: 공유 helper는 모든 listener/caller보다 앞선 module scope에 둔다. 복합 UI의 live 속성은 실제 값 child에만 둔다. 증거 게이트는 사용 목적과 자산 단위를 함께 평가하고, 텍스트 날짜 감사는 경과일·문맥을 사용한다. 브라우저 fresh context에서 22페이지를 실제 진입한 뒤 gate를 재실행한다. R210.
 
-## P501 - v50.56 - 怨꾩빟쨌?쒓컙?쨌?쒓뎅 吏??移대뱶媛 ?쒕줈 ?ㅻⅨ 吏꾩떎 ?먯쿇???ъ슜
+## P501 - v50.56 - 계약·시간대·한국 지수 카드가 서로 다른 진실 원천을 사용
 
-- **Problem**: ?ㅽ겕由щ꼫 異붽? ???섏씠吏 怨꾩빟 媛먯궗??22媛쒕? 湲곕??덉?留?諛고룷 寃뚯씠?몃뒗 `routePageCount !== 21`???좎????뺤긽 ?곹깭?먯꽌????긽 李⑤떒?먮떎. ???좎쭨??KST濡?9?쒓컙 ?대룞??`Date`??濡쒖뺄 `getDay()`瑜??곸슜??2026-06-15 ?붿슂?쇱쓣 ?붿슂?쇰줈 ?쒖떆?덈떎. ?쒓뎅 吏??移대뱶???쇱씠釉??꾩옱媛쨌?깅씫瑜좊쭔 媛깆떊?섍퀬 ?꾩씪醫낃????뺤쟻 ?ㅻ깄?룹쓣 ?④꼈?쇰ŉ `kosdaq-prev`??snapshot map?먯꽌???꾨씫?먮떎.
-- **Root cause**: ?숈씪 媛쒕뀗??湲곕? ?섏씠吏 ?? ?좎쭨/?붿씪, 媛寃??깅씫/?꾩씪醫낃?媛 媛곴컖 ?ㅻⅨ ?곸닔쨌?쒓컙? API쨌DOM writer?먯꽌 愿由щ릱?? 湲곗〈 T743? 諛섑솚 shape留?寃?ы빐 寃뚯씠???먯껜??遺덈??앹쓣 寃利앺븯吏 ?딆븯??
-- **Fix**: 諛고룷 寃뚯씠?멸? `expectedRoutePageCount`? ?ㅼ젣 ?섎? 鍮꾧탳?섎룄濡?蹂寃? `AIO.getKstDateParts()`濡??좎쭨쨌?붿씪쨌?쇱씪 荑쇳꽣瑜?`Asia/Seoul` 湲곗? ?⑥씪 怨꾩궛. KR 移대뱶???꾩씪醫낃?/蹂??sink瑜?異붽??섍퀬 `applyLiveQuotes()`? `initKoreaHome()`媛 ?숈씪 quote??previous close瑜??ъ슜?섎룄濡?蹂寃? `kosdaq-prev` snapshot map 蹂듦뎄. T743 媛뺥솕, T823 諛?CI 援ъ“ ?뚭? 寃??異붽?. 濡쒖뺄 ?쒕쾭 ?ㅽ뻾湲곕? foreground쨌?덈? Python 寃쎈줈濡?怨좎젙.
+- **Problem**: 스크리너 추가 후 페이지 계약 감사는 22개를 기대했지만 배포 게이트는 `routePageCount !== 21`을 유지해 정상 상태에서도 항상 차단됐다. 홈 날짜는 KST로 9시간 이동한 `Date`에 로컬 `getDay()`를 적용해 2026-06-15 월요일을 화요일로 표시했다. 한국 지수 카드는 라이브 현재가·등락률만 갱신하고 전일종가는 정적 스냅샷을 남겼으며 `kosdaq-prev`는 snapshot map에서도 누락됐다.
+- **Root cause**: 동일 개념의 기대 페이지 수, 날짜/요일, 가격/등락/전일종가가 각각 다른 상수·시간대 API·DOM writer에서 관리됐다. 기존 T743은 반환 shape만 검사해 게이트 자체의 불변식을 검증하지 않았다.
+- **Fix**: 배포 게이트가 `expectedRoutePageCount`와 실제 수를 비교하도록 변경. `AIO.getKstDateParts()`로 날짜·요일·일일 쿼터를 `Asia/Seoul` 기준 단일 계산. KR 카드에 전일종가/변동 sink를 추가하고 `applyLiveQuotes()`와 `initKoreaHome()`가 동일 quote의 previous close를 사용하도록 변경. `kosdaq-prev` snapshot map 복구. T743 강화, T823 및 CI 구조 회귀 검사 추가. 로컬 서버 실행기를 foreground·절대 Python 경로로 고정.
 - **violated_rule:** R1, R15, R195
-- **Prevention**: 湲곕? 媛쒖닔??怨꾩빟 媛앹껜?먯꽌留??쎄퀬 蹂꾨룄 ?レ옄瑜?鍮꾧탳?섏? ?딅뒗?? ?좎쭨? ?붿씪? ?숈씪 timezone formatter 寃곌낵瑜??ъ슜?쒕떎. 媛寃?移대뱶???꾩옱媛쨌?깅씫쨌湲곗?媛???섎굹??quote payload?먯꽌 ?④퍡 媛깆떊?쒕떎. CI?먯꽌 ????遺덈??앹쓣 ?뺤쟻 寃?ы븯怨?釉뚮씪?곗? T823?쇰줈 ?뺤씤?쒕떎. R209.
+- **Prevention**: 기대 개수는 계약 객체에서만 읽고 별도 숫자를 비교하지 않는다. 날짜와 요일은 동일 timezone formatter 결과를 사용한다. 가격 카드의 현재가·등락·기준가는 하나의 quote payload에서 함께 갱신한다. CI에서 이 세 불변식을 정적 검사하고 브라우저 T823으로 확인한다. R209.
 
-## P500 - v50.55 - 媛먯궗 蹂닿퀬?쒖쓽 ?뺤쟻 異붿젙怨??고????곹깭媛 ?쇱옱???ㅼ젣 寃고븿? ?④퀬 ?뺤긽 湲곕뒫? ?ㅽ깘
+## P500 - v50.55 - 감사 보고서의 정적 추정과 런타임 상태가 혼재해 실제 결함은 숨고 정상 기능은 오탐
 
-- **Problem**: 12?섏씠吏 媛먯궗 蹂닿퀬?쒓? ?뺤쟻 HTML留?蹂닿퀬 ?숈쟻 諛붿씤???붿냼瑜?"鍮?猿띾뜲湲?濡??먯젙????ぉ???ㅼ닔?吏留? ?ㅼ젣 ?고??꾩뿉??蹂꾨룄 寃고븿??議댁옱?덈떎. ????ㅽ겕由щ꼫??`public-data/screener.json` 404瑜??곴뎄 "?섏쭛 以??쇰줈 ?쒖떆?덇퀬, FMP 誘몄꽕???⑺꽣??`????寃곗륫/?쒖쇅 ?섎?媛 遺덈챸?뺥뻽?? ?댁뒪???ㅼ젣 84媛??뚯뒪瑜?"50+"/"80媛?濡??섎뱶肄붾뵫?섍퀬 ?쒖떆 湲곗?쨌?곹븳???④꼈?쇰ŉ ?좏뵿 ?꾪꽣媛 遺꾨쪟 泥닿퀎蹂대떎 ?곸뿀?? 湲곗닠遺꾩꽍? 寃利?異쒖쿂 ?녿뒗 VCP 94%/?⑦꽩蹂??뺣? ?밸쪧???뺤젙媛믪쿂???몄텧?덈떎. 釉뚮━??罹섎┛?붾뒗 怨쇨굅 6/5쨌6/10 ?대깽?몃? ?ъ쟾???덉젙?쇰줈 痍④툒?덇퀬 Actions??肄붾뱶媛 ?쎈뒗 FMP/Anthropic ?쒗겕由우쓣 ?꾨떖?섏? ?딆븯??
-- **Root cause**: (1) `loading`怨?`unavailable` ?곹깭瑜??섎굹??臾멸뎄濡??⑹묠, (2) ?뚯뒪 ?샕룹씠踰ㅽ듃쨌遺꾩꽍 洹쇨굅瑜??곗씠?곗뿉???뚯깮?섏? ?딄퀬 蹂듭닔 UI/?꾨＼?꾪듃???섎뱶肄붾뵫, (3) 遺꾩꽍???뺣쪧 二쇱옣??異쒖쿂쨌?쒕낯쨌?덉쭚 怨꾩빟???놁쓬, (4) ?뚰겕?뚮줈 ?섍꼍蹂?섏? ?섏쭛 肄붾뱶???붽뎄?ы빆??援먯감寃利앺븯吏 ?딆쓬.
-- **Fix**: `_aioScreenerLoadState`濡?loading/ready/partial/unavailable??遺꾨━?섍퀬 寃곗륫 ?⑺꽣 ?쒖쇅瑜?紐낆떆. ?댁뒪 ?뚯뒪 ?섎? `AIO_NEWS_SOURCES.length`?먯꽌 ?숈쟻 ?쒖떆?섍퀬 諛섎룄泥는룹??뺥븰쨌梨꾧텒쨌FX ?꾪꽣 諛?48?쒓컙/?먯닔30/150嫄??뺤콉??怨듦컻. 怨좎젙 ?밸쪧쨌異쒖쿂 遺덈챸 ?듦퀎瑜??쒓굅?섍퀬 議곌굔遺 ?⑦꽩 ?먮떒?쇰줈 蹂寃? AI 釉뚮━?묒쓣 ?고????ㅻ깄???ν썑 ?대깽???앹꽦?앹쑝濡??꾪솚. Fed/BEA 怨듭떇 ?쇱젙 ?뺤씤 ??怨쇨굅 ?뺤쟻 ?대깽???쒓굅. Actions???좏깮 ?쒗겕由??꾨떖. T822 異붽?.
-- **Prevention**: ?ъ슜??媛???곹깭??loading/unavailable/excluded瑜?遺꾨━?섍퀬, ?뚯뒪 ?샕룰????⑺꽣쨌?ν썑 ?쇱젙? ?⑥씪 ?곗씠???먯쿇?먯꽌 ?뚯깮?쒕떎. ?뺣? ?밸쪧/媛쒖꽑?⑥? 寃利?媛?ν븳 異쒖쿂쨌?쒕낯쨌湲곌컙???놁쑝硫??쒖떆?섏? ?딅뒗?? 媛먯궗 蹂닿퀬?쒕뒗 ?뺤쟻 留덊겕??二쇱옣怨??고????숈옉??諛섎뱶??援먯감寃利앺븳?? R208.
+- **Problem**: 12페이지 감사 보고서가 정적 HTML만 보고 동적 바인딩 요소를 "빈 껍데기"로 판정한 항목이 다수였지만, 실제 런타임에는 별도 결함이 존재했다. 퀀트 스크리너는 `public-data/screener.json` 404를 영구 "수집 중"으로 표시했고, FMP 미설정 팩터의 `—`는 결측/제외 의미가 불명확했다. 뉴스는 실제 84개 소스를 "50+"/"80개"로 하드코딩하고 표시 기준·상한을 숨겼으며 토픽 필터가 분류 체계보다 적었다. 기술분석은 검증 출처 없는 VCP 94%/패턴별 정밀 승률을 확정값처럼 노출했다. 브리핑/캘린더는 과거 6/5·6/10 이벤트를 여전히 예정으로 취급했고 Actions는 코드가 읽는 FMP/Anthropic 시크릿을 전달하지 않았다.
+- **Root cause**: (1) `loading`과 `unavailable` 상태를 하나의 문구로 합침, (2) 소스 수·이벤트·분석 근거를 데이터에서 파생하지 않고 복수 UI/프롬프트에 하드코딩, (3) 분석적 확률 주장에 출처·표본·레짐 계약이 없음, (4) 워크플로 환경변수와 수집 코드의 요구사항을 교차검증하지 않음.
+- **Fix**: `_aioScreenerLoadState`로 loading/ready/partial/unavailable을 분리하고 결측 팩터 제외를 명시. 뉴스 소스 수를 `AIO_NEWS_SOURCES.length`에서 동적 표시하고 반도체·지정학·채권·FX 필터 및 48시간/점수30/150건 정책을 공개. 고정 승률·출처 불명 통계를 제거하고 조건부 패턴 판단으로 변경. AI 브리핑을 런타임 스냅샷+향후 이벤트 생성식으로 전환. Fed/BEA 공식 일정 확인 후 과거 정적 이벤트 제거. Actions에 선택 시크릿 전달. T822 추가.
+- **Prevention**: 사용자 가시 상태는 loading/unavailable/excluded를 분리하고, 소스 수·가용 팩터·향후 일정은 단일 데이터 원천에서 파생한다. 정밀 승률/개선율은 검증 가능한 출처·표본·기간이 없으면 표시하지 않는다. 감사 보고서는 정적 마크업 주장과 런타임 동작을 반드시 교차검증한다. R208.
 
-## P499 - v50.24 - 7媛??섏씠吏 on-enter refresh媛 議댁옱?섏? ?딅뒗 媛??怨꾩빟 ?쒖뒪??李몄“ ??no-op + autoOps "unknown task" 7嫄?
+## P499 - v50.24 - 7개 페이지 on-enter refresh가 존재하지 않는 가상 계약 태스크 참조 → no-op + autoOps "unknown task" 7건
 
-- **Problem**: `applyPageContractCompatibility`(aio-core.js)媛 ?섏씠吏 怨꾩빟(`AIO_PAGE_CONTRACTS`)??`refreshTasks`瑜?洹몃?濡?`AIO_PAGE_REFRESH_MAP`/`DATA_REQUIREMENT_PROFILES`??蹂듭궗. 洹몃윴??怨꾩빟?먮뒗 `themeRanking`/`portfolioRisk`/`companyFundamentals`/`filings`/`optionsSnapshot`/`krMacro` 媛숈? **媛???뚯깮) ?쒖뒪??*媛 ?ㅼ뼱?덇퀬 ?대뱾? `REFRESH_SCHEDULE` ?ㅺ? ?꾨떂 ??theme-detail/portfolio/ticker/options/kr-themes/kr-macro 吏꾩엯 ???대떦 ?ㅺ? `_aioRefreshPageData`?먯꽌 `if (!cfg) return`?쇰줈 議곗슜???ㅽ궢(= 洹??섏씠吏 ?듭떖 ?곗씠?곗쓽 on-enter 媛뺤젣 媛깆떊??no-op) + `getAutoOpsReadiness`媛 "unknown task" 7嫄?寃쎄퀬. ?쇱씠釉?`AIO.getAutoOpsReadiness()`?먯꽌 ?ㅼ륫 ?뺤씤.
-- **Fix**: `applyPageContractCompatibility`??`CONTRACT_TASK_ALIAS` 異붽? ??媛???뚯깮 ?쒖뒪?щ? 洹??뚯깮???ㅼ젣濡??꾩슂濡??섎뒗 fetch ?섏〈 ?ㅻ줈 移섑솚(?? `optionsSnapshot`??['quotes','sentiment','vixHistory']`, `companyFundamentals`??['quotes','news','technicals']`, `krMacro`??['fred','krDynamic']`). `_resolveContractTasks`媛 ?ㅼ〈 `REFRESH_SCHEDULE` ?ㅻ쭔 梨꾪깮+dedupe ??`AIO_PAGE_REFRESH_MAP`/`DATA_REQUIREMENT_PROFILES` ?????좏슚 ?ㅻ쭔 蹂댁쑀.
-- **Prevention**: ?섏씠吏 怨꾩빟??refreshTasks????"?뚯깮 遺꾩꽍" ?대쫫???ｌ쓣 ?뚮뒗 諛섎뱶??`CONTRACT_TASK_ALIAS`??fetch ?섏〈 ??留ㅽ븨???④퍡 ?깅줉. 誘몃벑濡?媛???쒖뒪?щ뒗 `_resolveContractTasks`媛 ?쒕∼(unknown task ?щ컻 李⑤떒). ?뚭?: T788(移섑솚 ??留ㅽ븨 unknown task 0). (v50.24 WO-3 P499.)
+- **Problem**: `applyPageContractCompatibility`(aio-core.js)가 페이지 계약(`AIO_PAGE_CONTRACTS`)의 `refreshTasks`를 그대로 `AIO_PAGE_REFRESH_MAP`/`DATA_REQUIREMENT_PROFILES`에 복사. 그런데 계약에는 `themeRanking`/`portfolioRisk`/`companyFundamentals`/`filings`/`optionsSnapshot`/`krMacro` 같은 **가상(파생) 태스크**가 들어있고 이들은 `REFRESH_SCHEDULE` 키가 아님 → theme-detail/portfolio/ticker/options/kr-themes/kr-macro 진입 시 해당 키가 `_aioRefreshPageData`에서 `if (!cfg) return`으로 조용히 스킵(= 그 페이지 핵심 데이터의 on-enter 강제 갱신이 no-op) + `getAutoOpsReadiness`가 "unknown task" 7건 경고. 라이브 `AIO.getAutoOpsReadiness()`에서 실측 확인.
+- **Fix**: `applyPageContractCompatibility`에 `CONTRACT_TASK_ALIAS` 추가 — 가상 파생 태스크를 그 파생이 실제로 필요로 하는 fetch 의존 키로 치환(예: `optionsSnapshot`→`['quotes','sentiment','vixHistory']`, `companyFundamentals`→`['quotes','news','technicals']`, `krMacro`→`['fred','krDynamic']`). `_resolveContractTasks`가 실존 `REFRESH_SCHEDULE` 키만 채택+dedupe → `AIO_PAGE_REFRESH_MAP`/`DATA_REQUIREMENT_PROFILES` 둘 다 유효 키만 보유.
+- **Prevention**: 페이지 계약의 refreshTasks에 새 "파생 분석" 이름을 넣을 때는 반드시 `CONTRACT_TASK_ALIAS`에 fetch 의존 키 매핑을 함께 등록. 미등록 가상 태스크는 `_resolveContractTasks`가 드롭(unknown task 재발 차단). 회귀: T788(치환 후 매핑 unknown task 0). (v50.24 WO-3 P499.)
 
 ## P498 - v50.24 - SPX ATH ?섎뱶肄붾뵫 7412.84 以묐났???쒖そ留??쒖젙??湲됰씫???덉쭚 "Near ATH -0.4%" ?ㅽ몴??
 
-- **Problem**: SPX ?ъ긽理쒓퀬媛(ATH) 湲곗?媛?`7412.84`(stale)媛 `js/aio-data.js` ??怨녹뿉 ?섎뱶肄붾뵫 以묐났(L12303 topbar ?덉쭚, L13125 home ?덉쭚). v50.16?먯꽌 L13125留?`DATA_SNAPSHOT.spxATH` ?대갚?쇰줈 ?쒖젙?먯쑝?? **applyLiveQuotes 猷⑦봽?먯꽌 癒쇱? ?ㅽ뻾?섏뼱 `window._spxATH`瑜?7412.84濡??ㅼ뿼**?쒗궎??L12303? 誘몄떆?? ??SPX 7386.65(-2.93% 湲됰씫???먯꽌 (7386.65??412.84)/7412.84 = ??.35% ???덉쭚 "ATH ??.4% 쨌 Near ATH"濡??쒖떆(?ㅼ젣 ATH 7585 ?鍮?媛???.6%). ?ъ긽理쒓퀬媛?먯꽌 ??.9% 鍮좎쭊 湲됰씫 ?뱀씪 ?붾㈃??"嫄곗쓽 ?ъ긽理쒓퀬"瑜??쒖떆?섎뒗 ?쇱씠釉??ㅽ몴????Fable 5 ?쇱씠釉?援щ룞?먯꽌 ?ㅼ쬆 ?ъ갑. 以묐났 濡쒖쭅???쒖そ留?怨좎퀜吏???⑦꽩(???꾨줈?앺듃 諛섎났 踰꾧렇 ?대옒?? verdict 遺??property 遺덉씪移섎룄 ?숈”).
+- **Problem**: SPX 사상최고가(ATH) 기준값 `7412.84`(stale)가 `js/aio-data.js` 두 곳에 하드코딩 중복(L12303 topbar 레짐, L13125 home 레짐). v50.16에서 L13125만 `DATA_SNAPSHOT.spxATH` 폴백으로 시정됐으나, **applyLiveQuotes 루프에서 먼저 실행되어 `window._spxATH`를 7412.84로 오염**시키는 L12303은 미시정. → SPX 7386.65(-2.93% 급락일)에서 (7386.65−7412.84)/7412.84 = −0.35% → 레짐 "ATH −0.4% · Near ATH"로 표시(실제 ATH 7585 대비 갭 −2.6%). 사상최고가에서 −2.9% 빠진 급락 당일 화면이 "거의 사상최고"를 표시하는 라이브 오표시 — Fable 5 라이브 구동에서 실증 포착. 중복 로직의 한쪽만 고쳐지는 패턴(이 프로젝트 반복 버그 클래스: verdict 부호/property 불일치도 동족).
 - **Fix**: ?⑥씪 異쒖쿂 ?ы띁 `_aioSpxAthFloor()` = `Math.max(window._spxATH||0, DATA_SNAPSHOT.spxATH||7585)` ?좎꽕 ??L12303쨌L13125 ???몄텧?먯씠 媛숈? floor ?ъ슜. `7412.84` ?섎뱶肄붾뵫 ?꾩닔 ?쒓굅. 異붽?濡?topbar `mkt-regime-sub` ?쇰꺼 ?뺤쭅?? "Near ATH"????% ?대궡留? ??~??% "?뚰룺 ?섎씫", ??~??0% "議곗젙", ??0~??0% "議곗젙(Correction)", <??0% "?섎씫??Bear)".
-- **Prevention**: ?쒖옣 湲곗?媛?ATH/breadth/?꾧퀎媛?? **?⑥씪 異쒖쿂 ?⑥닔/?곸닔**濡??듯빀 ???숈씪 媛믪쓣 ?щ윭 怨녹뿉 ?섎뱶肄붾뵫 湲덉?(?쒖そ留??쒖젙?섎뒗 ?щ컻 李⑤떒). ?뚭?: T786(`_aioSpxAthFloor() >= DATA_SNAPSHOT.spxATH` + applyLiveQuotes??7412.84 ?놁쓬)쨌T787(?쇰꺼 ??% ?뺤쭅??. audit ?ы썑寃異쒕낫???⑥씪 異쒖쿂?붽? 洹쇰낯. (v50.24 WO-2 P498.)
+- **Prevention**: 시장 기준값(ATH/breadth/임계값)은 **단일 출처 함수/상수**로 통합 — 동일 값을 여러 곳에 하드코딩 금지(한쪽만 시정되는 재발 차단). 회귀: T786(`_aioSpxAthFloor() >= DATA_SNAPSHOT.spxATH` + applyLiveQuotes에 7412.84 없음)·T787(라벨 −2% 정직화). audit 사후검출보다 단일 출처화가 근본. (v50.24 WO-2 P498.)
 
-## P497 - v50.22 - fundamental 寃?됱씠 留ㅻ쾲 議댁옱?섏? ?딅뒗 per-page 梨꾪똿 ?⑤꼸濡??먮룞?꾩넚 ??"DOM input missing" ?먮윭 + 荑쇳꽣 ?먮룞?뚯쭊 ?쒕룄
+## P497 - v50.22 - fundamental 검색이 매번 존재하지 않는 per-page 채팅 패널로 자동전송 → "DOM input missing" 에러 + 쿼터 자동소진 시도
 
-- **Problem**: `fundamentalSearch`(aio-chat.js) 留먮?(6043~6047)媛 醫낅ぉ 寃???꾨즺 ??`chat-fundamental-inp`??15愿??遺꾩꽍 ?꾨＼?꾪듃瑜??ｊ퀬 **臾댁“嫄?`chatSend('fundamental')`** ?몄텧. 洹몃윭??fundamental? per-page ?⑤꼸???꾨땲??**?듯빀 AI ?⑤꼸(`ai-panel-inp`/`chatSendUnified`)**???ъ슜 ??`chat-fundamental-inp` DOM???놁쓬(home留?per-page ?⑤꼸 蹂댁쑀). ??留?醫낅ぉ 寃?됰쭏??`chatSend`媛 "[AIO chatSend] DOM input missing for ctxId=fundamental" 肄섏넄 ?먮윭 + return. 留뚯빟 ?⑤꼸???덉뿀?ㅻ㈃ 留?寃?됰쭏??怨듭쑀 Claude API 荑쇳꽣瑜??먮룞 ?뚯쭊?덉쓣 援ъ“(5紐?怨듭쑀 ??. ?쇱씠釉?肄섏넄?먯꽌 8??諛섎났 寃異?
-- **Fix**: per-page ?⑤꼸(`chat-fundamental-inp`) 議댁옱 ?쒖뿉留??먮룞 ?꾩넚, ?놁쑝硫??듯빀 梨꾪똿 ?ъ슜) `chatSend` ????듯빀 ?낅젰李?`ai-panel-inp`)??遺꾩꽍 ?꾨＼?꾪듃留??꾨━?????ъ슜??opt-in ?꾩넚(荑쇳꽣 ?먮룞?뚯쭊 諛⑹?). ?섏쭛 ?곗씠?곕뒗 `window._fundAnalysisData`/`_currentTickerId`??蹂댁〈???듯빀 梨꾪똿???쒖슜. ?쇱씠釉?寃利?MSFT 寃??: "DOM input missing" ?먮윭 0.
-- **Prevention**: per-page `chatSend(ctxId)`???대떦 ?섏씠吏??`chat-{ctxId}-inp` ?⑤꼸???ㅼ젣 ?덉쓣 ?뚮쭔 ?몄텧 ???듯빀 梨꾪똿 ?섏씠吏??`chatSendUnified`/`ai-panel-inp` 寃쎈줈 ?ъ슜. ?먮룞 LLM ?꾩넚? 怨듭쑀 ??荑쇳꽣 ?먮룞?뚯쭊?대?濡?opt-in ?먯튃. 肄섏넄 error???섏씠吏蹂?吏곸젒 ?먭? ??諛섎뱶???뺤씤(undefined ?ㅼ틪留뚯쑝濡?誘멸?異?????踰꾧렇??肄섏넄?먮쭔 ?쒖텧). (v50.22 P497.)
+- **Problem**: `fundamentalSearch`(aio-chat.js) 말미(6043~6047)가 종목 검색 완료 후 `chat-fundamental-inp`에 15관점 분석 프롬프트를 넣고 **무조건 `chatSend('fundamental')`** 호출. 그러나 fundamental은 per-page 패널이 아니라 **통합 AI 패널(`ai-panel-inp`/`chatSendUnified`)**을 사용 — `chat-fundamental-inp` DOM이 없음(home만 per-page 패널 보유). → 매 종목 검색마다 `chatSend`가 "[AIO chatSend] DOM input missing for ctxId=fundamental" 콘솔 에러 + return. 만약 패널이 있었다면 매 검색마다 공유 Claude API 쿼터를 자동 소진했을 구조(5명 공유 키). 라이브 콘솔에서 8회 반복 검출.
+- **Fix**: per-page 패널(`chat-fundamental-inp`) 존재 시에만 자동 전송, 없으면(통합 채팅 사용) `chatSend` 대신 통합 입력창(`ai-panel-inp`)에 분석 프롬프트만 프리필 → 사용자 opt-in 전송(쿼터 자동소진 방지). 수집 데이터는 `window._fundAnalysisData`/`_currentTickerId`에 보존돼 통합 채팅이 활용. 라이브 검증(MSFT 검색): "DOM input missing" 에러 0.
+- **Prevention**: per-page `chatSend(ctxId)`는 해당 페이지에 `chat-{ctxId}-inp` 패널이 실제 있을 때만 호출 — 통합 채팅 페이지는 `chatSendUnified`/`ai-panel-inp` 경로 사용. 자동 LLM 전송은 공유 키 쿼터 자동소진이므로 opt-in 원칙. 콘솔 error는 페이지별 직접 점검 시 반드시 확인(undefined 스캔만으론 미검출 — 이 버그는 콘솔에만 표출). (v50.22 P497.)
 
-## P496 - v50.22 - portfolio 由ъ뒪??移대뱶 VaR/MDD媛 ?곗씠??遺議???"-??濡??쒖떆 (?댁쨷遺??cosmetic)
+## P496 - v50.22 - portfolio 리스크 카드 VaR/MDD가 데이터 부족 시 "-—"로 표시 (이중부호 cosmetic)
 
-- **Problem**: `_renderRiskMetrics`(index.html)??VaR95/VaR99/MDD 移대뱶媛 `'-' + fmtPct(v)`濡??쒖떆. `fmtPct`??null/undefined????'?? 諛섑솚?대?濡? ?ы듃?대━???섏씡瑜??곗씠??<10??鍮??좉퇋 ?ы듃)?대㈃ `'-' + '??` = **"-??** (?댁쨷遺?몄쿂??蹂댁씠??placeholder)濡??뚮뜑. 媛믪씠 ?덉쓣 ???뺤긽("-2.34%") ??`_calcPortfolioVaR`/`_calcMaxDrawdown`???묒닔 ?ш린瑜?諛섑솚?섎?濡?遺???먯껜???뺥솗.
-- **Fix**: `fmtLoss(v)` ?ы띁 ?좎꽕 ??null/undefined????, 媛믠넂'-X%'. VaR95/99/MDD 3怨녹뿉 ?곸슜. 寃利? 媛?"-2.34%/-5.12%/-18.00%", null "??(?댁쨷遺??0).
+- **Problem**: `_renderRiskMetrics`(index.html)의 VaR95/VaR99/MDD 카드가 `'-' + fmtPct(v)`로 표시. `fmtPct`는 null/undefined일 때 '—' 반환이므로, 포트폴리오 수익률 데이터 <10일(빈/신규 포트)이면 `'-' + '—'` = **"-—"** (이중부호처럼 보이는 placeholder)로 렌더. 값이 있을 땐 정상("-2.34%") — `_calcPortfolioVaR`/`_calcMaxDrawdown`이 양수 크기를 반환하므로 부호 자체는 정확.
+- **Fix**: `fmtLoss(v)` 헬퍼 신설 — null/undefined→'—', 값→'-X%'. VaR95/99/MDD 3곳에 적용. 검증: 값 "-2.34%/-5.12%/-18.00%", null "—"(이중부호 0).
 - **Prevention**: ?먯떎/?뚯닔 ?쒖떆???몃? '-' ?묐몢瑜?遺숈씪 ?뚮뒗 **null placeholder源뚯? 怨좊젮???щ㎎??*濡??쇱썝???묐몢+?щ㎎??遺꾨━ ??null?먯꽌 "-?? 諛쒖깮). (v50.22 P496. 濡쒖쭅 踰꾧렇 ?꾨땶 ?쒖떆 cosmetic.)
 
 ## P495 - v50.21 - kr-technical 援먯감?좏샇/?ㅼ씠踰꾩쟾?ㅻ룄 property 遺덉씪移섎줈 "undefined" ?뚮뜑 (P494 ?대윭?ㅽ꽣 ?뺤옣)
 
-- **Problem**: analyzeKrIndex(index.html:29759) ?뚮뜑??"援먯감 ?좏샇 & ?ㅼ씠踰꾩쟾?? ?뱀뀡(29818~29820)?먯꽌 (1) `crossData.cross20_50`/`cross50_200` ??`_detectCrossSignals`??`{gc20_50, gc50_200}`(媛?'怨⑤뱺?щ줈??/'?곕뱶?щ줈??/null) 諛섑솚?대씪 `.cross20_50`? undefined + ?됱긽 鍮꾧탳 `==='golden'`(?곷Ц)??遺덉씪移???"undefined" + ??긽 ?뚯깋. (2) `divData.type` ??`_detectDivergence`??`{bearishDiv, bullishDiv, rsi}`(遺덈┛) 諛섑솚?대씪 `.type` undefined ??"undefined" + ?뚯깋. P494(dipData)? 媛숈? render ?⑥닔??媛숈? ?대옒??踰꾧렇?몃뜲, 吏곸쟾 KR ?ㅼ틪??dipData "53/5"留??좎쭨 ?뺢퇋?앹뿉 ?곗뿰??留ㅼ묶??諛쒓껄?덇퀬 cross/div "undefined"???볦묠.
-- **Fix**: ?쒖떆瑜??ㅼ젣 諛섑솚 援ъ“??留욊쾶 ??`crossData.gc20_50==='怨⑤뱺?щ줈???green:'?곕뱶?щ줈???red:gray` + `escHtml(gc20_50||'?됲깂')`; `divData.bullishDiv?'媛뺤꽭 ?ㅼ씠踰꾩쟾??:bearishDiv?'?쎌꽭 ?ㅼ씠踰꾩쟾??:'?놁쓬'`. ?쇱씠釉?寃利? kr-technical undefined 0.
-- **Prevention**: render ?⑥닔媛 ?щ윭 helper 寃곌낵瑜??⑹튌 ??**媛?helper???ㅼ젣 諛섑솚 ??媛믪쓣 toString???꾨땶 ?뺤쓽?먯꽌 ?뺤씤** ????怨?dipData) 踰꾧렇 諛쒓껄 ??媛숈? render??紐⑤뱺 ?곗씠??媛앹껜(cross/div/stage/trend) property瑜??쇨큵 ?먭?(?대윭?ㅽ꽣濡?泥섎━). ?ㅼ틪 ?뺢퇋?앹씠 ?곗뿰????嫄대쭔 ?≪븯?ㅺ퀬 "1嫄??쇰줈 寃곕줎 湲덉?. (v50.21 P495.)
+- **Problem**: analyzeKrIndex(index.html:29759) 렌더의 "교차 신호 & 다이버전스" 섹션(29818~29820)에서 (1) `crossData.cross20_50`/`cross50_200` — `_detectCrossSignals`는 `{gc20_50, gc50_200}`(값 '골든크로스'/'데드크로스'/null) 반환이라 `.cross20_50`은 undefined + 색상 비교 `==='golden'`(영문)도 불일치 → "undefined" + 항상 회색. (2) `divData.type` — `_detectDivergence`는 `{bearishDiv, bullishDiv, rsi}`(불린) 반환이라 `.type` undefined → "undefined" + 회색. P494(dipData)와 같은 render 함수의 같은 클래스 버그인데, 직전 KR 스캔이 dipData "53/5"만 날짜 정규식에 우연히 매칭해 발견했고 cross/div "undefined"는 놓침.
+- **Fix**: 표시를 실제 반환 구조에 맞게 — `crossData.gc20_50==='골든크로스'?green:'데드크로스'?red:gray` + `escHtml(gc20_50||'평탄')`; `divData.bullishDiv?'강세 다이버전스':bearishDiv?'약세 다이버전스':'없음'`. 라이브 검증: kr-technical undefined 0.
+- **Prevention**: render 함수가 여러 helper 결과를 합칠 때 **각 helper의 실제 반환 키/값을 toString이 아닌 정의에서 확인** — 한 곳(dipData) 버그 발견 시 같은 render의 모든 데이터 객체(cross/div/stage/trend) property를 일괄 점검(클러스터로 처리). 스캔 정규식이 우연히 한 건만 잡았다고 "1건"으로 결론 금지. (v50.21 P495.)
 
-## P494 - v50.20 - kr-technical `_classifyDip` ?쒖떆媛 "undefined (?먯닔: 53/5)" ??property紐?scale 3以?遺덉씪移?
+## P494 - v50.20 - kr-technical `_classifyDip` 표시가 "undefined (점수: 53/5)" — property명+scale 3중 불일치
 
-- **Problem**: kr-technical 議곗젙 遺꾨쪟??"undefined (?먯닔: 53/5)" ?쒖떆. `_classifyDip`(index.html:28853)? `{classification, score(0-100)}` 諛섑솚?몃뜲 ?쒖떆 肄붾뱶(L29844)媛 `dipData.label`(議댁옱 ??????escHtml(undefined)="undefined")쨌`(?먯닔: '+dipData.score+'/5)`(score??0-100?몃뜲 /5濡??쒓린)쨌`dipData.reasoning`(議댁옱 ??????鍮?undefined) ?ъ슜. property紐?label vs classification) + scale(/5 vs /100) + ?꾨씫(reasoning) 3以?遺덉씪移?
-- **Fix**: `_classifyDip` 諛섑솚??`label`(classification 蹂꾩묶) + `reasoning`(50?쇱꽑 ?꾩튂쨌議곗젙 源딆씠 %쨌???異붿꽭쨌嫄곕옒??湲곕컲 ?ㅼ젣 洹쇨굅 臾몄옄?? 異붽?(?곗씠?곕?議?early-return 28854 ?ы븿). ?쒖떆 `/5`??/100`. 寃利? "議곗젙(愿留? (?먯닔: 54/100)" + reasoning ?뺤긽.
-- **Prevention**: ?⑥닔 諛섑솚 媛앹껜? ?쒖떆 肄붾뱶??property紐끒톝cale???숈떆 ?먭? ???뱁엳 escHtml(obj.?녿뒗????議곗슜??"undefined" ?뚮뜑(?먮윭 ?놁쓬). ?먯닔 ?쒖떆 ???⑥닔???ㅼ젣 score range(0-100 vs 0-5) ?뺤씤. (v50.20 P494.)
+- **Problem**: kr-technical 조정 분류에 "undefined (점수: 53/5)" 표시. `_classifyDip`(index.html:28853)은 `{classification, score(0-100)}` 반환인데 표시 코드(L29844)가 `dipData.label`(존재 안 함 → escHtml(undefined)="undefined")·`(점수: '+dipData.score+'/5)`(score는 0-100인데 /5로 표기)·`dipData.reasoning`(존재 안 함 → 빈/undefined) 사용. property명(label vs classification) + scale(/5 vs /100) + 누락(reasoning) 3중 불일치.
+- **Fix**: `_classifyDip` 반환에 `label`(classification 별칭) + `reasoning`(50일선 위치·조정 깊이 %·저점 추세·거래량 기반 실제 근거 문자열) 추가(데이터부족 early-return 28854 포함). 표시 `/5`→`/100`. 검증: "조정(관망) (점수: 54/100)" + reasoning 정상.
+- **Prevention**: 함수 반환 객체와 표시 코드의 property명·scale을 동시 점검 — 특히 escHtml(obj.없는키)는 조용히 "undefined" 렌더(에러 없음). 점수 표시 시 함수의 실제 score range(0-100 vs 0-5) 확인. (v50.20 P494.)
 
-## P493 - v50.20 - breadth `diagnoseBreadthConsensus` verdict 遺??踰꾧렇 (?묒쓽 ?⑹쓽瑜?"?쎌꽭 ?곗쐞"濡??쒖떆)
+## P493 - v50.20 - breadth `diagnoseBreadthConsensus` verdict 부호 버그 (양의 합의를 "약세 우위"로 표시)
 
-- **Problem**: `AIO.diagnoseBreadthConsensus`(aio-core.js:9884) verdict 留ㅽ븨?먯꽌 `else if (consensus > 0.1) verdict = '?쎌꽭 ?곗쐞'`. consensus(媛以??⑹쓽, -1~+1)媛 0.1~0.4硫?**?묒닔 = ?쏀븳 媛뺤꽭 ?⑹쓽**?몃뜲 "?쎌꽭 ?곗쐞"(bearish edge)濡??쒖떆. 5/20/50SMA + McClellan + Weinstein + goldenCross 媛以??⑹쓽媛 媛뺤꽭 履쎌씠?대룄 breadth ?섏씠吏 ?듭떖 verdict媛 ?뺣컲?濡??쒖떆 ???몃젅?대뵫 ?먮떒 ?ㅻ룄. (諛대뱶: >0.4 媛뺤꽭?⑹쓽 / **0.1~0.4 ??踰꾧렇** / -0.1~0.1 ?쇱“ / -0.4~-0.1 ?쎌꽭?곗쐞 / <-0.4 ?쎌꽭?⑹쓽 ??0.1~0.4 ?먮━留?遺??諛섎?.)
-- **Fix**: `'?쎌꽭 ?곗쐞'` ??`'媛뺤꽭 ?곗쐞'`. 寃利? ?묒닔 ?⑹쓽 ?낅젰 ??媛뺤꽭 verdict, ?뚯닔 ???쎌꽭.
-- **Prevention**: ?먯닔?믩씪踰?留ㅽ븨(verdict band)? **遺??寃쎄퀎留덈떎 諛⑺뼢 ?쇱튂** ?먭?(?뱁엳 ?移?諛대뱶???????띿씠 媛숈? ?쇰꺼 ?곕뒗 copy-paste ?ㅼ닔). 0 湲곗? ?묒닔=媛뺤꽭/?뚯닔=?쎌꽭 ?쇨??? (v50.20 P493.)
+- **Problem**: `AIO.diagnoseBreadthConsensus`(aio-core.js:9884) verdict 매핑에서 `else if (consensus > 0.1) verdict = '약세 우위'`. consensus(가중 합의, -1~+1)가 0.1~0.4면 **양수 = 약한 강세 합의**인데 "약세 우위"(bearish edge)로 표시. 5/20/50SMA + McClellan + Weinstein + goldenCross 가중 합의가 강세 쪽이어도 breadth 페이지 핵심 verdict가 정반대로 표시 → 트레이딩 판단 오도. (밴드: >0.4 강세합의 / **0.1~0.4 ← 버그** / -0.1~0.1 혼조 / -0.4~-0.1 약세우위 / <-0.4 약세합의 — 0.1~0.4 자리만 부호 반대.)
+- **Fix**: `'약세 우위'` → `'강세 우위'`. 검증: 양수 합의 입력 → 강세 verdict, 음수 → 약세.
+- **Prevention**: 점수→라벨 매핑(verdict band)은 **부호 경계마다 방향 일치** 점검(특히 대칭 밴드의 양/음 쌍이 같은 라벨 쓰는 copy-paste 실수). 0 기준 양수=강세/음수=약세 일관성. (v50.20 P493.)
 
-## P492 - v50.19 - F&G媛 signal(異붿꽭異붿쥌 max媛뺤꽭) vs home(??컻??李⑥씡?ㅽ쁽)?먯꽌 ?뺣컲? 寃곕줎 (cross-page ?대㈃ 紐⑥닚)
+## P492 - v50.19 - F&G가 signal(추세추종 max강세) vs home(역발상 차익실현)에서 정반대 결론 (cross-page 이면 모순)
 
-- **Problem**: ?숈씪 Fear&Greed 吏?쒓? ???섏씠吏?먯꽌 ?뺣컲? ?됰룞??吏?? signal `computeTradingScore.momScore`(index.html:22476)??洹밸떒 ?먯슃(F&G??5)??85=理쒓퀬 ?먯닔(異붿꽭異붿쥌, 媛뺤꽭)濡??됯?. 諛섎㈃ home `AIO_ACTION_RULES.sentimentAction`(aio-core.js:9146)? 洹밸떒 ?먯슃(>75)??"李⑥씡?ㅽ쁽+鍮꾩쨷 異뺤냼"(??컻??. ??signal? 洹밸떒 ?먯슃??"媛??留ㅼ닔?섍린 醫뗭쓬", home? "?붿븘??. ?먰븳 洹밸떒 ?먯슃(怨쇰ℓ????max 媛뺤꽭濡?蹂대뒗 嫄?F&G ?ㅺ퀎 痍⑥?(洹밸떒 ?먯슃=寃쎄퀬/red)???諛섎?.
-- **Fix**: signal momScore瑜??쵻??怨≪꽑?쇰줈 ??嫄닿컯???먯슃(55~75)=?쇳겕 74, 洹밸떒 ?먯슃(??5)=fade 66(怨쇰ℓ?샕룸え硫섑? ?뚯쭊 ?꾪뿕), 洹밸떒 怨듯룷(<25)=15??5(??컻??諛섎벑 floor). 洹밸떒 援ш컙?먯꽌 signal(異붿꽭異붿쥌)쨌home(??컻????媛숈? 諛⑺뼢(?먯슃 洹밸떒=?????좎쨷, 怨듯룷 洹밸떒=????湲고쉶)?쇰줈 ?섎졃. 媛以묒튂 ?쇰꺼???뚯뒪 紐낆떆("紐⑤찘?(F&G쨌異붿꽭異붿쥌)").
-- **Prevention**: 媛숈? ?낅젰 吏?쒕? ?щ윭 ?섏씠吏媛 ????**?댁꽍 諛⑺뼢(異붿꽭異붿쥌 vs ??컻????洹밸떒 援ш컙?먯꽌 異⑸룎?섏? ?딄쾶** ?뺥빀 ???뱁엳 sentiment 吏?쒕뒗 洹밸떒?먯꽌 ??컻?곸씠 ?쒖??대?濡?momentum ?먯닔??洹밸떒??fade. (v50.19 P492.)
+- **Problem**: 동일 Fear&Greed 지표가 두 페이지에서 정반대 행동을 지시. signal `computeTradingScore.momScore`(index.html:22476)는 극단 탐욕(F&G≥75)을 85=최고 점수(추세추종, 강세)로 평가. 반면 home `AIO_ACTION_RULES.sentimentAction`(aio-core.js:9146)은 극단 탐욕(>75)에 "차익실현+비중 축소"(역발상). → signal은 극단 탐욕에 "가장 매수하기 좋음", home은 "팔아라". 또한 극단 탐욕(과매수)을 max 강세로 보는 건 F&G 설계 취지(극단 탐욕=경고/red)와도 반대.
+- **Fix**: signal momScore를 역U자 곡선으로 — 건강한 탐욕(55~75)=피크 74, 극단 탐욕(≥75)=fade 66(과매수·모멘텀 소진 위험), 극단 공포(<25)=15→25(역발상 반등 floor). 극단 구간에서 signal(추세추종)·home(역발상)이 같은 방향(탐욕 극단=둘 다 신중, 공포 극단=둘 다 기회)으로 수렴. 가중치 라벨에 소스 명시("모멘텀(F&G·추세추종)").
+- **Prevention**: 같은 입력 지표를 여러 페이지가 쓸 때 **해석 방향(추세추종 vs 역발상)이 극단 구간에서 충돌하지 않게** 정합 — 특히 sentiment 지표는 극단에서 역발상이 표준이므로 momentum 점수도 극단을 fade. (v50.19 P492.)
 
-## P491 - v50.19 - signal exit trigger媛 "湲곗닠??吏吏?? ?쇰꺼?몃뜲 ?ㅼ젣濡??⑥닚 -10%
+## P491 - v50.19 - signal exit trigger가 "기술적 지지선" 라벨인데 실제론 단순 -10%
 
-- **Problem**: `updateExitTriggers`(index.html:23415)媛 SPX ?먯젅??`spx * 0.9`(湲곌퀎??-10%)濡?怨꾩궛?섎굹 HTML ?쇰꺼(L5435)? "?꾩옱媛 ?鍮?-10% 湲곗닠??吏吏?? ???ㅼ젣 湲곗닠???덈꺼(?댄룊???ㅼ쐷???ATR)???꾨땲???꾩쓽 諛깅텇?? ?몃젅?대뜑媛 ?ㅼ젣 ???먯젅???꾨떂.
-- **Fix**: 200?쇱꽑(二쇱슂 異붿꽭 吏吏)???꾩옱媛 ?꾨옒硫?洹??덈꺼???먯젅濡? ?대? ?섑쉶/誘멸?????50?쇱꽑??10% ?대갚. `window._spxMA[200/50]`??DATA_SNAPSHOT._fallback.spx200ma/50ma`. `exit-spx-basis` span?쇰줈 洹쇨굅 ?숈쟻 ?쒖떆 + ?쇰꺼 "二쇱슂 異붿꽭 吏吏??醫낃? ?섑쉶 ??異붿꽭 ?쇱넀 ?좏샇"濡??뺤쭅??
-- **Prevention**: ?먯젅/吏吏 ?덈꺼? ?꾩쓽 諛깅텇?⑥씠 ?꾨땶 **?ㅼ젣 湲곗닠 ?덈꺼(?댄룊???ㅼ쐷)** 湲곕컲. ?쇰꺼??"湲곗닠???대씪 二쇱옣?섎㈃ ?ㅼ젣 湲곗닠 怨꾩궛怨??쇱튂?댁빞. (v50.19 P491.)
+- **Problem**: `updateExitTriggers`(index.html:23415)가 SPX 손절을 `spx * 0.9`(기계적 -10%)로 계산하나 HTML 라벨(L5435)은 "현재가 대비 -10% 기술적 지지선" — 실제 기술적 레벨(이평선/스윙저점/ATR)이 아니라 임의 백분율. 트레이더가 실제 쓸 손절이 아님.
+- **Fix**: 200일선(주요 추세 지지)이 현재가 아래면 그 레벨을 손절로, 이미 하회/미가용 시 50일선→-10% 폴백. `window._spxMA[200/50]`→`DATA_SNAPSHOT._fallback.spx200ma/50ma`. `exit-spx-basis` span으로 근거 동적 표시 + 라벨 "주요 추세 지지선 종가 하회 시 추세 훼손 신호"로 정직화.
+- **Prevention**: 손절/지지 레벨은 임의 백분율이 아닌 **실제 기술 레벨(이평선/스윙)** 기반. 라벨이 "기술적"이라 주장하면 실제 기술 계산과 일치해야. (v50.19 P491.)
 
 ## P490 - v50.19 - ?몃젅?대뵫 ?ㅼ퐫???쒖옣???낅젰??誘몃줈????湲곕낯媛?75(?숆? ?명뼢)
 
-- **Problem**: `computeTradingScore`(index.html:22497) + `computeExecutionWindow`(22596)??`breadth200`??`window._breadth200`(v50.6 ?쒓굅??200?쇱꽑???꾨땲???덇굅??"20SMA above %" 蹂?섎챸) 誘몄꽕????`_fb.breadth200`??*75**濡??대갚. `_breadth200`? breadth ?섏씠吏 init ?쒖뿉留??ㅼ젙 ???ㅻⅨ ?섏씠吏?먯꽌 ?먯닔 怨꾩궛 ??75(healthy) ?ъ슜 ???ㅼ젣 20SMA 57蹂대떎 ?믪븘 breadthScore 88(>70) = ?듭떖 留ㅻℓ ?먯닔 ?숆? ?명뼢. (P483 ?쒖옣??移⑷낵 ?숈씪 洹쇰낯 ??v50.6 蹂???쒓굅 誘몄쟾??)
-- **Fix**: ?대갚 泥댁씤 `_breadth200`??_breadth20`(??긽 湲곕낯 57)??DATA_SNAPSHOT.breadth20sma`(57)??_fb.breadth200`??7濡?蹂寃?湲곕낯 75 ?쒓굅). 寃利? breadthScore 88??2.
+- **Problem**: `computeTradingScore`(index.html:22497) + `computeExecutionWindow`(22596)의 `breadth200`이 `window._breadth200`(v50.6 제거된 200일선이 아니라 레거시 "20SMA above %" 변수명) 미설정 시 `_fb.breadth200`→**75**로 폴백. `_breadth200`은 breadth 페이지 init 시에만 설정 → 다른 페이지에서 점수 계산 시 75(healthy) 사용 → 실제 20SMA 57보다 높아 breadthScore 88(>70) = 핵심 매매 점수 낙관 편향. (P483 시장폭 칩과 동일 근본 — v50.6 변수 제거 미전파.)
+- **Fix**: 폴백 체인 `_breadth200`→`_breadth20`(항상 기본 57)→`DATA_SNAPSHOT.breadth20sma`(57)→`_fb.breadth200`→57로 변경(기본 75 제거). 검증: breadthScore 88→72.
 - **Prevention**: ?몃젅?대뵫 ?먯닔??紐⑤뱺 ?낅젰 ?대갚 湲곕낯媛믪? **以묐┰/?ㅼ륫 洹쇱궗**?ъ빞(?숆? 75 媛숈? ?꾩쓽 ?고샇媛?湲덉?) ???곗씠??誘몄닔?좎씠 ?먯닔瑜??꾩슦硫????? v50.6 `_breadth200` ?쒓굅??紐⑤뱺 ?뚮퉬???먭?(P483怨?臾띠쓬). (v50.19 P490.)
 
-## P489 - v50.18 - breadth 50SMA ?댁꽍 readout ?뺤쟻 "46% 誘명깉????移대뱶 52%? 紐⑥닚 (寃곕줎 諛섎?)
+## P489 - v50.18 - breadth 50SMA 해석 readout 정적 "46% 미탈환"이 카드 52%와 모순 (결론 반대)
 
-- **Problem**: breadth ?섏씠吏 50SMA 移대뱶(`breadth-50sma-big`, data-snap)??52%濡??숈쟻 媛깆떊?섎굹, 諛붾줈 ?꾨옒 ?댁꽍 readout(index.html:5617 ?뺤쟻 HTML)? "50?쇱꽑 46% ??50% 誘명깉???쇰줈 怨좎젙 + 留됰?(`breadth-50sma-bar`) width 46% 怨좎젙. 52%硫?50% **?곹쉶**?몃뜲 readout? "46% **誘명깉??*"?대씪 寃곕줎???뺣컲?. data-snap? ?띿뒪?몃쭔 媛깆떊?섍퀬 留됰? width쨌?댁꽍 臾몄옣? 媛깆떊 ??곸씠 ?꾨땲?덉쓬.
-- **Fix**: readout div??`id="breadth-50sma-readout"` 遺??+ `updateBreadthBars`(aio-ui.js)??breadth-50sma 留됰? width쨌readout ?띿뒪???숈쟻 媛깆떊 釉붾줉 異붽?(`window._breadth50`??DATA_SNAPSHOT.breadth50sma` ?대갚, 50% ?곹쉶/誘명깉??議곌굔遺 臾몄옣). 寃利? 移대뱶쨌留됰?쨌readout 紐⑤몢 52% "50% ?곹쉶(??". 遺?? 媛숈? ?⑥닔 20SMA ?됱씠 `window._breadth200`(v50.6 ?쒓굅???덇굅??20?쇱꽑紐? ?⑤룆 ?섏〈 ??`_breadth20` ?대갚 robust.
-- **Prevention**: data-snap 諛붿씤?⑹? ?レ옄 ?띿뒪?몃쭔 媛깆떊 ???숈씪 吏?쒕? ?몄슜?섎뒗 **?댁꽍 臾몄옣쨌留됰? width쨌諭껋???蹂꾨룄 ?숈쟻 媛깆떊 ?꾩슂**(?뺤쟻 湲곕낯媛믪? 移대뱶? 紐⑥닚?????덉쓬). 移대뱶 ???댁꽍 ?띿뒪?몃뒗 媛숈? 媛?寃곕줎 ?ъ슜 寃利? (v50.18 P489.)
+- **Problem**: breadth 페이지 50SMA 카드(`breadth-50sma-big`, data-snap)는 52%로 동적 갱신되나, 바로 아래 해석 readout(index.html:5617 정적 HTML)은 "50일선 46% — 50% 미탈환"으로 고정 + 막대(`breadth-50sma-bar`) width 46% 고정. 52%면 50% **상회**인데 readout은 "46% **미탈환**"이라 결론이 정반대. data-snap은 텍스트만 갱신하고 막대 width·해석 문장은 갱신 대상이 아니었음.
+- **Fix**: readout div에 `id="breadth-50sma-readout"` 부여 + `updateBreadthBars`(aio-ui.js)에 breadth-50sma 막대 width·readout 텍스트 동적 갱신 블록 추가(`window._breadth50`→`DATA_SNAPSHOT.breadth50sma` 폴백, 50% 상회/미탈환 조건부 문장). 검증: 카드·막대·readout 모두 52% "50% 상회(약)". 부수: 같은 함수 20SMA 행이 `window._breadth200`(v50.6 제거된 레거시 20일선명) 단독 의존 → `_breadth20` 폴백 robust.
+- **Prevention**: data-snap 바인딩은 숫자 텍스트만 갱신 — 동일 지표를 인용하는 **해석 문장·막대 width·뱃지는 별도 동적 갱신 필요**(정적 기본값은 카드와 모순될 수 있음). 카드 옆 해석 텍스트는 같은 값/결론 사용 검증. (v50.18 P489.)
 
 ## P488 - v50.18 - signal CP 由ъ뒪?щ낫?쒓? DATA_SNAPSHOT.wti(stale) ?쎌뼱 "怨좎젏沅? ?ㅽ몴??+ aio:liveQuotes ?щ젋???꾨씫
 
-- **Problem**: signal CP1(吏?뺥븰)쨌CP6(?먯옄?? 由ъ뒪?щ낫???띿뒪?멸? "WTI $97.20 (怨좎젏沅?쨌吏?뺥븰 ?꾨━誘몄뾼쨌$110+ ?ш툒???몃뜲 live WTI??$89.52. ?댁쨷 踰꾧렇: (a) `getCP1Text`/`getCP6Text`(aio-core.js)媛 `_snap.num(DS.wti)`(DATA_SNAPSHOT 6/5 ?ㅽ뙆?댄겕 97.2)瑜??쎄퀬 live `_liveData['CL=F']`瑜?臾댁떆. (b) `renderCPTexts`媛 `applyDataSnapshot`(?ㅻ깄???곸슜 ???먯꽌留??몄텧?섍퀬 `aio:liveQuotes`(live fetch ?꾩갑)???몄텧 ??????init ?쒖젏 snapshot 媛믪쓣 DOM??援논엳怨?live ?꾩갑 ?꾩뿉???щ젋?????? ?좉?媛 89濡?鍮좎죱?붾뜲 "怨좎젏沅??ш툒?? ?⑥젙 = 留ㅻℓ ?ㅼ씤.
-- **Fix**: (a) `getCP1Text`/`getCP6Text`瑜?`_liveData['CL=F']`/`['BZ=F']` ?곗꽑, snapshot ?대갚?쇰줈 蹂寃? (b) signal liveQuotes ?몃뱾??`core-signal-live`, aio-core.js:1702)??`NARRATIVE_ENGINE.renderCPTexts()` 異붽?. 寃利?SW unregister+cache clear+reload fresh): CP1 "WTI $89.52 (?덉젙??湲곕?)" 쨌 CP6 "$89.52쨌Brent $92.73 (?꾪솕 湲곕?)".
-- **Prevention**: "?꾩옱 ?쒖옣" ?대윭?곕툕 ?앹꽦湲곕뒗 live ?쇰뱶 ?덈뒗 ?щ낵(WTI=CL=F쨌Brent=BZ=F ??? **live ?곗꽑쨌snapshot ?대갚**. ?숈쟻 ?띿뒪???뚮뜑?щ뒗 snapshot 蹂寃?applyDataSnapshot)肉??꾨땲??**live ?꾩갑(aio:liveQuotes)?먮룄 ?щ젋??* ?곌껐(??以??섎굹留?嫄몃㈃ init ?쒖젏 媛믪뿉 援녹쓬). (v50.18 P488.)
+- **Problem**: signal CP1(지정학)·CP6(원자재) 리스크보드 텍스트가 "WTI $97.20 (고점권)·지정학 프리미엄·$110+ 재급등"인데 live WTI는 $89.52. 이중 버그: (a) `getCP1Text`/`getCP6Text`(aio-core.js)가 `_snap.num(DS.wti)`(DATA_SNAPSHOT 6/5 스파이크 97.2)를 읽고 live `_liveData['CL=F']`를 무시. (b) `renderCPTexts`가 `applyDataSnapshot`(스냅샷 적용 시)에서만 호출되고 `aio:liveQuotes`(live fetch 도착)엔 호출 안 됨 → init 시점 snapshot 값을 DOM에 굳히고 live 도착 후에도 재렌더 안 함. 유가가 89로 빠졌는데 "고점권 재급등" 단정 = 매매 오인.
+- **Fix**: (a) `getCP1Text`/`getCP6Text`를 `_liveData['CL=F']`/`['BZ=F']` 우선, snapshot 폴백으로 변경. (b) signal liveQuotes 핸들러(`core-signal-live`, aio-core.js:1702)에 `NARRATIVE_ENGINE.renderCPTexts()` 추가. 검증(SW unregister+cache clear+reload fresh): CP1 "WTI $89.52 (안정화 기대)" · CP6 "$89.52·Brent $92.73 (완화 기대)".
+- **Prevention**: "현재 시장" 내러티브 생성기는 live 피드 있는 심볼(WTI=CL=F·Brent=BZ=F 등)은 **live 우선·snapshot 폴백**. 동적 텍스트 렌더러는 snapshot 변경(applyDataSnapshot)뿐 아니라 **live 도착(aio:liveQuotes)에도 재렌더** 연결(둘 중 하나만 걸면 init 시점 값에 굳음). (v50.18 P488.)
 
-## P487 - v50.18 - macro ?ㅽ넗由щ씪??"怨좎슜 ?뷀솕" ?꾩젣媛 5??NFP 172K(寃ъ“)? ?뺣컲?
+## P487 - v50.18 - macro 스토리라인 "고용 둔화" 전제가 5월 NFP 172K(견조)와 정반대
 
-- **Problem**: macro "?댁꽍:" 釉붾줉(index.html:7147 ?뺤쟻)??"2026?꾩? ?댁쨷 ?꾪뿕(怨좎슜? ?뷀솕??+ ?명뵆?덈뒗 ?곸듅??" ?⑥젙. 洹몃윭??5??NFP??172K濡?**媛뺤꽭** ??媛뺥븳 怨좎슜??湲덈━?명븯 湲곕?瑜??꾪눜?쒗궓 寃?怨⑤뱶留??명븯 泥좏쉶) ?꾩옱 ?듭떖 留ㅽ겕濡??ㅽ넗由? "怨좎슜 ?뷀솕" ?꾩젣媛 ?ъ떎怨?諛섎? ???ъ슜?먭? ?섎せ??嫄곗떆 洹몃┝?쇰줈 ?먮떒.
-- **Fix**: "寃ъ“??怨좎슜(5??NFP 172K濡?湲덈━?명븯 湲곕? ?꾪눜)怨??덉쟻???명뵆?댟룹쑀媛 由ъ뒪?ш? 寃뱀퀜 ?곗????쒕몮???꾪솕?섍린 ?대젮??援?㈃"?쇰줈 ?뺤젙 + "?ㅼ떆媛?援?㈃? ?⑤룄怨꽷룸룞???쒓렇???곗꽑" 二쇱꽍.
-- **Prevention**: ?뺤쟻 留ㅽ겕濡??대윭?곕툕???듭떖 ?꾩젣(怨좎슜/?명뵆??諛⑺뼢)??理쒖떊 諛쒗몴移?NFP/CPI)? ?뺥빀 寃利???諛쒗몴 臾띠쓬 媛깆떊 ???ㅽ넗由щ씪???꾩젣???④퍡 ?먭?. 媛?ν븯硫?generateMacroStoryline濡??숈쟻??v50.x 諛깅줈洹?. (v50.18 P487.)
+- **Problem**: macro "해석:" 블록(index.html:7147 정적)이 "2026년은 이중 위험(고용은 둔화↓ + 인플레는 상승↑)" 단정. 그러나 5월 NFP는 172K로 **강세** — 강한 고용이 금리인하 기대를 후퇴시킨 게(골드만 인하 철회) 현재 핵심 매크로 스토리. "고용 둔화" 전제가 사실과 반대 → 사용자가 잘못된 거시 그림으로 판단.
+- **Fix**: "견조한 고용(5월 NFP 172K로 금리인하 기대 후퇴)과 끈적한 인플레·유가 리스크가 겹쳐 연준이 서둘러 완화하기 어려운 국면"으로 정정 + "실시간 국면은 온도계·동적 시그널 우선" 주석.
+- **Prevention**: 정적 매크로 내러티브의 핵심 전제(고용/인플레 방향)는 최신 발표치(NFP/CPI)와 정합 검증 — 발표 묶음 갱신 시 스토리라인 전제도 함께 점검. 가능하면 generateMacroStoryline로 동적화(v50.x 백로그). (v50.18 P487.)
 
 ## P486 - v50.18 - themes ?뺤쟻 ?ъ씠??吏꾨떒???숈쟻 readout怨??뺣㈃ 紐⑥닚 (Late-cycle ?ㅽ깭洹명뵆?덉씠???⑥젙 vs Mid Cycle Expansion)
 
-- **Problem**: themes `cycle-analysis`(index.html:8865 ?뺤쟻)媛 "諛⑹뼱 ?뱁꽣 ?곷?媛뺤꽭쨌?깆옣 ?꾪뻾쨌寃쎄린 ?꾨컲(Late-cycle)+?ㅽ깭洹명뵆?덉씠??理쒖븙??議고빀) 由ъ뒪??瑜??⑥젙. 洹몃윭??諛붾줈 ???숈쟻 readout(`cycle-dynamic-phase`)? "Mid Cycle (Expansion)"(VIX<20+breadth>50%) ???뺣컲? 援?㈃???숈떆 ?쒖떆. "(李멸퀬 湲곗?)" ?쇰꺼濡??쏀븯寃?援щ텇?덉쑝???ъ슜?먮뒗 "?ㅽ깭洹명뵆?덉씠??理쒖븙"???꾩옱濡??쎌쓬.
-- **Fix**: ?뺤쟻 釉붾줉??"?⑥젙"?먯꽌 "議곌굔遺 援먯쑁"?쇰줈 ?꾪솚 ??"諛⑹뼱 媛뺤꽭=Late-cycle ?좏샇 / ?깆옣 二쇰룄=Expansion"???묒そ 議곌굔遺濡??ㅻ챸?섍퀬 "?꾩옱 援?㈃? ???숈쟻 readout ?곕Ⅴ?몄슂(?뺤쟻 ?띿뒪?몃줈 ?⑥젙 ????"濡??꾩엫. ?쇰꺼 "?ъ씠??吏꾨떒(李멸퀬 湲곗?)"???ъ씠??吏꾨떒 ?쎈뒗 踰?援먯쑁쨌?꾩옱 ?먯젙 ?꾨떂)", ?됱긽 red?믪쨷由?
-- **Prevention**: ?숈쟻 ?먯젙 ?붿쭊(getCycleFromMacro ?????덈뒗 ?섏씠吏???뺤쟻 蹂댁“ ?띿뒪?몃뒗 **?뱀젙 援?㈃???⑥젙?섏? 留?寃?*(?숈쟻怨?紐⑥닚 ?꾪뿕) ??議곌굔遺 援먯쑁?쇰줈 ?묒꽦 + ?숈쟻 readout???먯젙 ?꾩엫. (v50.18 P486.)
+- **Problem**: themes `cycle-analysis`(index.html:8865 정적)가 "방어 섹터 상대강세·성장 후행·경기 후반(Late-cycle)+스태그플레이션(최악의 조합) 리스크"를 단정. 그러나 바로 위 동적 readout(`cycle-dynamic-phase`)은 "Mid Cycle (Expansion)"(VIX<20+breadth>50%) → 정반대 국면을 동시 표시. "(참고 기준)" 라벨로 약하게 구분했으나 사용자는 "스태그플레이션 최악"을 현재로 읽음.
+- **Fix**: 정적 블록을 "단정"에서 "조건부 교육"으로 전환 — "방어 강세=Late-cycle 신호 / 성장 주도=Expansion"을 양쪽 조건부로 설명하고 "현재 국면은 위 동적 readout 따르세요(정적 텍스트로 단정 안 함)"로 위임. 라벨 "사이클 진단(참고 기준)"→"사이클 진단 읽는 법(교육·현재 판정 아님)", 색상 red→중립.
+- **Prevention**: 동적 판정 엔진(getCycleFromMacro 등)이 있는 페이지의 정적 보조 텍스트는 **특정 국면을 단정하지 말 것**(동적과 모순 위험) — 조건부 교육으로 작성 + 동적 readout에 판정 위임. (v50.18 P486.)
 
-## P485 - v50.17 - fxbond yield curve "?섏쭛 ?湲? ?곴뎄 硫덉땄 + macro/fxbond 罹붾쾭???ㅻ젋??(?댁쨷 踰꾧렇)
+## P485 - v50.17 - fxbond yield curve "수집 대기" 영구 멈춤 + macro/fxbond 캔버스 오렌더 (이중 버그)
 
-- **Problem**: fxbond `koreaCurveChart`媛 "?섏쭛 ?湲겸? placeholder?먯꽌 ?곴뎄 硫덉땄(?쇱씠釉?yield 4媛?IRX/FVX/TNX/TYX 媛?⑺븳?곕룄). ?댁쨷 ?먯씤: (1) `initYieldCurveChart()`??`_initMacroPage`(aio-core.js:19799)?먯꽌留??몄텧 ??fxbond `updateFxBondPage`???몄텧 ????怨쇨굅 BUG-4?먯꽌 "macro ?꾩슜 罹붾쾭??濡??ㅽ뙋???쒓굅??. (2) `var ctx = getElementById('koreaCurveChart') || getElementById('yieldCurveChart')` ??koreaCurveChart媛 紐⑤뱺 ?섏씠吏 DOM???곸〈?섎?濡?`||` 醫뚮?????긽 ?좏깮 ??**macro媛 ?몄텧?대룄 fxbond???⑥?(0-size) 罹붾쾭?ㅻ줈 ?뚮뜑** + ?⑥씪 ?꾩뿭 `_ycChart`瑜????섏씠吏媛 怨듭쑀???쒕줈 destroy.
-- **Fix**: `initYieldCurveChart(targetId)` ?뚮씪誘명꽣??誘몄?????`#page-fxbond.active` ?щ?濡?罹붾쾭???좏깮) + per-canvas `_ycCharts{}` ?몄뒪?댁뒪留?怨듭쑀 destroy 異⑸룎 李⑤떒) + fxbond ?섏씠吏 init(PAGES 'fxbond')??`setTimeout(()=>initYieldCurveChart('koreaCurveChart'),200)` 異붽? + macro??`initYieldCurveChart('yieldCurveChart')` 紐낆떆 + 罹붾쾭??aria-label "?쒓뎅 援?콈"??誘?援?콈(US Treasury)"(?ㅼ젣 ^IRX/^FVX/^TNX/^TYX ?뚮’?대씪 ?쇰꺼 ?뺤쭅??. ?쇱씠釉?寃利? koreaCurveChart ?몄뒪?댁뒪 ?앹꽦 + status "???뺤긽 怨≪꽑".
-- **Prevention**: ?щ윭 ?섏씠吏媛 媛숈? 李⑦듃 init ?⑥닔瑜?怨듭쑀????(1) 罹붾쾭???源껋? ID 紐낆떆 ?뚮씪誘명꽣濡??꾨떖(?꾩뿭 `getElementById`+`||` ?대갚 湲덉? ???숇챸/?곸〈 罹붾쾭?ㅺ? 醫뚮? ?낆젏) (2) 李⑦듃 ?몄뒪?댁뒪??per-canvas 留듭쑝濡?愿由??⑥씪 ?꾩뿭 湲덉?). T785 ?몄젒. (v50.17 P485.)
+- **Problem**: fxbond `koreaCurveChart`가 "수집 대기…" placeholder에서 영구 멈춤(라이브 yield 4개 IRX/FVX/TNX/TYX 가용한데도). 이중 원인: (1) `initYieldCurveChart()`는 `_initMacroPage`(aio-core.js:19799)에서만 호출 — fxbond `updateFxBondPage`는 호출 안 함(과거 BUG-4에서 "macro 전용 캔버스"로 오판해 제거됨). (2) `var ctx = getElementById('koreaCurveChart') || getElementById('yieldCurveChart')` — koreaCurveChart가 모든 페이지 DOM에 상존하므로 `||` 좌변이 항상 선택 → **macro가 호출해도 fxbond의 숨은(0-size) 캔버스로 렌더** + 단일 전역 `_ycChart`를 두 페이지가 공유해 서로 destroy.
+- **Fix**: `initYieldCurveChart(targetId)` 파라미터화(미지정 시 `#page-fxbond.active` 여부로 캔버스 선택) + per-canvas `_ycCharts{}` 인스턴스맵(공유 destroy 충돌 차단) + fxbond 페이지 init(PAGES 'fxbond')에 `setTimeout(()=>initYieldCurveChart('koreaCurveChart'),200)` 추가 + macro는 `initYieldCurveChart('yieldCurveChart')` 명시 + 캔버스 aria-label "한국 국채"→"미 국채(US Treasury)"(실제 ^IRX/^FVX/^TNX/^TYX 플롯이라 라벨 정직화). 라이브 검증: koreaCurveChart 인스턴스 생성 + status "✓ 정상 곡선".
+- **Prevention**: 여러 페이지가 같은 차트 init 함수를 공유할 때 (1) 캔버스 타깃은 ID 명시 파라미터로 전달(전역 `getElementById`+`||` 폴백 금지 — 동명/상존 캔버스가 좌변 독점) (2) 차트 인스턴스는 per-canvas 맵으로 관리(단일 전역 금지). T785 인접. (v50.17 P485.)
 
 ## P484 - v50.17 - sentiment NAAIM/II/HY 李⑦듃 鍮??붾㈃ (lazy init???대? ?ㅽ겕濡?而⑦뀒?대꼫 ?붾㈃ 諛?李⑦듃 誘몃컻??
 
-- **Problem**: sentiment ?섏씠吏 NAAIM쨌Investor Intelligence쨌HY Spread 3媛?李⑦듃媛 鍮?罹붾쾭??LWC 而⑦뀒?대꼫 臾는룻뵿? 臾?. `initSentimentPage`媛 ?대뱾??`_lazyInitChartPage`(IntersectionObserver rootMargin 100px)濡??깅줉?섎굹, ?섏씠吏媛 ?대? `.content` 而⑦뀒?대꼫濡??ㅽ겕濡ㅻ릺怨?李⑦듃媛 ?붾㈃ 諛?naaim 1325px/ii 1325px/hy 2312px)?대씪 吏꾩엯 ??愿李곗옄 誘몃컻?????ㅽ겕濡??꾧퉴吏 鍮?梨꾨줈 ?붿〈(?ъ슜??"湲곕뒫???섏삤吏???딄퀬"). 吏곸젒 `_initSentNaaimChart()` ???몄텧 ???뺤긽 LWC ?뚮뜑 ?뺤씤 ???곗씠??init ?⑥닔???뺤긽, ?몃━嫄곕쭔 ?ㅽ뙣.
-- **Fix**: `initSentimentPage`??吏꾩엯 ??1.4s ?덉쟾留?`setTimeout` 異붽? ??vix/naaim/ii/hy 媛?罹붾쾭?ㅺ? 誘몃젋??`.lwc-chart-container` ?뺤젣 臾?AND 罹붾쾭???쎌? 臾?硫??대떦 init ?⑥닔 媛뺤젣 ?몄텧(?대? ?뚮뜑??嫄??ㅽ궢??以묐났 諛⑹?). ?쇱씠釉?寃利?v50.17 reload): naaim/ii/hy 紐⑤몢 `rendered:true, hasLWC:true`.
-- **Prevention**: ?대? ?ㅽ겕濡?而⑦뀒?대꼫(window ?꾨땶 `.content`) ?덉쓽 below-the-fold 李⑦듃瑜?`_lazyInitChartPage`濡??깅줉???뚮뒗 愿李곗옄 誘몃컻???鍮??덉쟾留?吏????대㉧ ?먮뒗 異⑸텇??rootMargin) ?숇컲. 鍮?罹붾쾭???먯젙? `.lwc-chart-container` ?뺤젣 ?좊Т濡?LWC ?뚮뜑 ?뺤씤(?쎌? 寃???⑤룆 湲덉? ??LWC??蹂꾨룄 罹붾쾭??而⑦뀒?대꼫??洹몃┝). T-媛?쒕뒗 ?덉쟾留??⑥닔 議댁옱濡?媛꾩젒 寃利? (v50.17 P484.)
+- **Problem**: sentiment 페이지 NAAIM·Investor Intelligence·HY Spread 3개 차트가 빈 캔버스(LWC 컨테이너 무·픽셀 무). `initSentimentPage`가 이들을 `_lazyInitChartPage`(IntersectionObserver rootMargin 100px)로 등록하나, 페이지가 내부 `.content` 컨테이너로 스크롤되고 차트가 화면 밖(naaim 1325px/ii 1325px/hy 2312px)이라 진입 시 관찰자 미발화 → 스크롤 전까지 빈 채로 잔존(사용자 "기능이 나오지도 않고"). 직접 `_initSentNaaimChart()` 등 호출 시 정상 LWC 렌더 확인 → 데이터/init 함수는 정상, 트리거만 실패.
+- **Fix**: `initSentimentPage`에 진입 후 1.4s 안전망 `setTimeout` 추가 — vix/naaim/ii/hy 각 캔버스가 미렌더(`.lwc-chart-container` 형제 무 AND 캔버스 픽셀 무)면 해당 init 함수 강제 호출(이미 렌더된 건 스킵해 중복 방지). 라이브 검증(v50.17 reload): naaim/ii/hy 모두 `rendered:true, hasLWC:true`.
+- **Prevention**: 내부 스크롤 컨테이너(window 아닌 `.content`) 안의 below-the-fold 차트를 `_lazyInitChartPage`로 등록할 때는 관찰자 미발화 대비 안전망(지연 타이머 또는 충분한 rootMargin) 동반. 빈 캔버스 판정은 `.lwc-chart-container` 형제 유무로 LWC 렌더 확인(픽셀 검사 단독 금지 — LWC는 별도 캔버스/컨테이너에 그림). T-가드는 안전망 함수 존재로 간접 검증. (v50.17 P484.)
 
-## P483 - v50.17 - ?꾩뿭 ?쒖옣??移⑹씠 ?쒓굅??_breadth200 ?대갚 ???뱁꽣 ?뱀씪鍮꾩쑉 27%瑜?"?쎌꽭"濡??ㅻ씪踰?(???섏씠吏)
+## P483 - v50.17 - 전역 시장폭 칩이 제거된 _breadth200 폴백 → 섹터 당일비율 27%를 "약세"로 오라벨 (전 페이지)
 
-- **Problem**: 留덉폆?꾩뒪諛????섏씠吏 怨듯넻) ?쒖옣??移⑹씠 "27% ?쎌꽭"(鍮④컯) ?쒖떆 ???ㅼ젣 breadth(50?쇱꽑 ??醫낅ぉ %)??52%?몃뜲 遺덉씪移? `updateMarketPulse`(index.html:23637)媛 `window._breadth200`??1?쒖쐞濡??쎌쑝??v50.6?먯꽌 200?쇱꽑 breadth瑜??쒓굅(breadth=5/20/50 ?뺤젙)??`_breadth200`=undefined ??`_breadthLiveData`=null ??`calcSectorBreadth`(11 ?뱁꽣 ETF **?뱀씪 ?묐큺鍮꾩쑉** 27%)濡??대갚. 利?"50?쇱꽑 ??%"媛 ?꾨땶 ?꾪? ?ㅻⅨ ?쇨컙 吏?쒕? ?쒖옣??쑝濡??ㅻ씪踰? ??ㅽ봽 ?뱀씪???뱁꽣 ?묐큺鍮꾩쑉????븘(27%) "?쎌꽭" 鍮④컯 ?쒖떆 ???몃젅?대뜑媛 ?쒖옣??씠 ?쎌꽭??以??ㅼ씤 媛??留ㅻℓ-?덉쟾 吏곴껐).
-- **Fix**: ?대갚 泥댁씤??`_breadth50`(50SMA ??%, breadth ?섏씠吏쨌?ㅼ퐫?대쭅 ?뺤쓽? ?뺥빀)??_breadthLiveData.abv50`??_breadth20`??DATA_SNAPSHOT.breadth50sma`濡?援먯껜, calcSectorBreadth(?쇨컙 ?? 李멸퀬????理쒗썑 ?대갚?쇰줈 媛뺣벑. ?쇱씠釉?寃利? 移?"52% 二쇱쓽"(amber), `_breadth50`=52? ?뺥빀.
-- **Prevention**: 蹂???꾨뱶 ?쒓굅(v50.6 `_breadth200`) ??**紐⑤뱺 ?뚮퉬??grep ???대갚 泥댁씤 ?ъ젙???섎Т**(?쒓굅??蹂?섎? 1?쒖쐞濡??쎌쑝硫??섎룄移??딆? ?꾩닚???대갚??移⑤У 諛쒕룞). 吏??移⑹? ?섏씠吏 蹂몃Ц ?뺤쓽? ?숈씪 ?뚯뒪 ?ъ슜. T785 ?뚭? 媛??`updateMarketPulse`媛 `_breadth50`/`breadth50sma` ?ъ슜 寃利?. (v50.17 P483.)
+- **Problem**: 마켓펄스바(전 페이지 공통) 시장폭 칩이 "27% 약세"(빨강) 표시 — 실제 breadth(50일선 위 종목 %)는 52%인데 불일치. `updateMarketPulse`(index.html:23637)가 `window._breadth200`을 1순위로 읽으나 v50.6에서 200일선 breadth를 제거(breadth=5/20/50 확정)해 `_breadth200`=undefined → `_breadthLiveData`=null → `calcSectorBreadth`(11 섹터 ETF **당일 양봉비율** 27%)로 폴백. 즉 "50일선 위 %"가 아닌 전혀 다른 일간 지표를 시장폭으로 오라벨. 셀오프 당일엔 섹터 양봉비율이 낮아(27%) "약세" 빨강 표시 → 트레이더가 시장폭이 약세인 줄 오인 가능(매매-안전 직결).
+- **Fix**: 폴백 체인을 `_breadth50`(50SMA 위 %, breadth 페이지·스코어링 정의와 정합)→`_breadthLiveData.abv50`→`_breadth20`→`DATA_SNAPSHOT.breadth50sma`로 교체, calcSectorBreadth(일간 폭, 참고용)는 최후 폴백으로 강등. 라이브 검증: 칩 "52% 주의"(amber), `_breadth50`=52와 정합.
+- **Prevention**: 변수/필드 제거(v50.6 `_breadth200`) 시 **모든 소비자 grep 후 폴백 체인 재정렬 의무**(제거된 변수를 1순위로 읽으면 의도치 않은 후순위 폴백이 침묵 발동). 지표 칩은 페이지 본문 정의와 동일 소스 사용. T785 회귀 가드(`updateMarketPulse`가 `_breadth50`/`breadth50sma` 사용 검증). (v50.17 P483.)
 
-## P482 - v50.9 - computeMacroBeta ?숆린?⑥닔??.catch ?몄텧 ??醫낅ぉ 梨꾪똿 ??붾찘??釉붾줉 ?꾩껜 silent reject
+## P482 - v50.9 - computeMacroBeta 동기함수에 .catch 호출 → 종목 채팅 펀더멘털 블록 전체 silent reject
 
-- **Problem**: `_fetchTickerDataForChat`(aio-chat.js:~2184)媛 `window.AIO.computeMacroBeta(t).catch(...)`濡??몄텧?덉쑝??`computeMacroBeta`(aio-core.js:6004)??**?숆린 ?⑥닔**(plain object 諛섑솚, async ?꾨떂). object?먮뒗 `.catch`媛 ?놁뼱 promise 援ъ꽦 以?**TypeError ?숆린 throw** ??`async function _fetchTickerDataForChat` ?꾩껜媛 reject. chatSend媛 try/catch濡??쇱폒 醫낅ぉ ??붾찘???곗씠??釉붾줉(11+ ?뚯뒪)??**議곗슜???듭㎏濡??꾨씫**??梨??듬? ?앹꽦. v49.58(computeMacroBeta 梨꾪똿 ?듯빀) ?댄썑 ?좊났. 媛숈? 以꾩쓽 ?ㅻⅨ compute*(FcfYield/Balance/EvEbitda/Moat/TAM)??紐⑤몢 `async function`?대씪 ?뺤긽, computeMacroBeta留?sync?ъ꽌 ?⑤룆 ?뚭?.
-- **Fix**: ?몄텧遺瑜?`Promise.resolve(window.AIO.computeMacroBeta(t)).catch(...)`濡?媛먯떥 sync/async ?묒そ ?댁꽦 ?뺣낫. preview ?ㅼ륫: ?섏젙 ??`_fetchTickerDataForChat(['NVDA'])` ??"computeMacroBeta(...).catch is not a function" throw, ?섏젙 ???뺤긽 string 諛섑솚(?듯빀 ??좊ː ?쇱씤 + 7 high-risk label ?ы븿).
-- **Prevention**: 梨꾪똿 fetch ?뚯씠?꾨씪?몄뿉???몃? ?⑥닔 promise????sync 諛섑솚 ?⑥닔??`Promise.resolve()` wrapping ?섎Т(?쇳빀 promise 諛곗뿴??`.catch`/`.then` 吏곸젒?몄텧 湲덉?). ?ы띁媛 async?몄? sync?몄? ?몄텧 ???뺤씤. (v50.9 P482, T771 ?몄젒 ?뚭?.)
+- **Problem**: `_fetchTickerDataForChat`(aio-chat.js:~2184)가 `window.AIO.computeMacroBeta(t).catch(...)`로 호출했으나 `computeMacroBeta`(aio-core.js:6004)는 **동기 함수**(plain object 반환, async 아님). object에는 `.catch`가 없어 promise 구성 중 **TypeError 동기 throw** → `async function _fetchTickerDataForChat` 전체가 reject. chatSend가 try/catch로 삼켜 종목 펀더멘털 데이터 블록(11+ 소스)이 **조용히 통째로 누락**된 채 답변 생성. v49.58(computeMacroBeta 채팅 통합) 이후 잠복. 같은 줄의 다른 compute*(FcfYield/Balance/EvEbitda/Moat/TAM)는 모두 `async function`이라 정상, computeMacroBeta만 sync여서 단독 회귀.
+- **Fix**: 호출부를 `Promise.resolve(window.AIO.computeMacroBeta(t)).catch(...)`로 감싸 sync/async 양쪽 내성 확보. preview 실측: 수정 전 `_fetchTickerDataForChat(['NVDA'])` → "computeMacroBeta(...).catch is not a function" throw, 수정 후 정상 string 반환(통합 저신뢰 라인 + 7 high-risk label 포함).
+- **Prevention**: 채팅 fetch 파이프라인에서 외부 함수 promise화 시 sync 반환 함수는 `Promise.resolve()` wrapping 의무(혼합 promise 배열의 `.catch`/`.then` 직접호출 금지). 헬퍼가 async인지 sync인지 호출 전 확인. (v50.9 P482, T771 인접 회귀.)
 
 ## P480 - v50.4 - [R205] static market calendars must separate official releases from source-dependent topics
 
@@ -717,62 +731,62 @@ next_P_number: P660
 - **Problem**: UI progress could say data was refreshing without reflecting the real task pipeline state.
 - **Fix**: Added central refresh state events and progress layer for task-level start/progress/done reporting.
 
-## P432 쨌 v49.80 쨌 [P432] ticker context HARD STOP 異붽? ??null ??媛寃??몄슜 ?덈? 湲덉?
+## P432 · v49.80 · [P432] ticker context HARD STOP 추가 — null 시 가격 인용 절대 금지
 
-- **Codex 諛쒓껄**: v49.79?먯꽌 ticker context null guard 媛뺥솕?덉쑝?? AI媛 ticker 誘명솗???곹깭?먯꽌 媛寃?異붿륫 ?듬? 媛?μ꽦 ?붿〈.
-- **?쒖젙**: null branch??"?먯떆??誘몄닔??HARD STOP??ticker ?뺤젙 ?꾩뿉??紐⑤뱺 媛寃??몄슜 湲덉?. 癒쇱? ?ъ슜?먯뿉寃?醫낅ぉ???뺤씤?섍퀬 live fetch ?댄썑?먮쭔 媛寃⑹쓣 留먰븳??" 異붽?.
+- **Codex 발견**: v49.79에서 ticker context null guard 강화했으나, AI가 ticker 미확정 상태에서 가격 추측 답변 가능성 잔존.
+- **시정**: null branch에 "【시세 미수신 HARD STOP】 ticker 확정 전에는 모든 가격 인용 금지. 먼저 사용자에게 종목을 확인하고 live fetch 이후에만 가격을 말한다." 추가.
 
 ## P431 쨌 v49.80 쨌 [P431] getThemeTrendDeepAudit ?뺤옣 ??REGISTRY + KR_STOCK_DB ?듯빀
 
-- **Codex ?쒖젙**: 湲곗〈 SCREENER_DB留??濡??ъ슜 ??AIO_TICKER_NAME_REGISTRY + KR_STOCK_DB 異붽? ?듯빀. ?뚮쭏 ticker 留ㅼ묶 ?뺥솗???μ긽 (placeholder ?쒖쇅 + KR 6?먮━ 肄붾뱶 .KS/.KQ ?먮룞 留ㅽ븨).
+- **Codex 시정**: 기존 SCREENER_DB만 풀로 사용 → AIO_TICKER_NAME_REGISTRY + KR_STOCK_DB 추가 통합. 테마 ticker 매칭 정확도 향상 (placeholder 제외 + KR 6자리 코드 .KS/.KQ 자동 매핑).
 
-## P430 쨌 v49.80 쨌 [P430] getThemeCompositionLogicAudit ?좉퇋 ???뚮쭏 援ъ꽦 ?먮룞 寃利?
+## P430 · v49.80 · [P430] getThemeCompositionLogicAudit 신규 — 테마 구성 자동 검증
 
-- **Codex ?좉퇋**: ?뚮쭏 ?뺤쓽??援ъ“???뺥빀???먮룞 寃利?
-- **寃利???ぉ**: duplicateThemeIds / invalidWeights / weightCoverageIssues / leaderNotInBasket / krRawCodesMissingStockDb / semanticEvidencePct (90%+) / semanticExclusionHits (諛곗젣 洹쒖튃 ?꾨컲).
+- **Codex 신규**: 테마 정의의 구조적 정합성 자동 검증.
+- **검증 항목**: duplicateThemeIds / invalidWeights / weightCoverageIssues / leaderNotInBasket / krRawCodesMissingStockDb / semanticEvidencePct (90%+) / semanticExclusionHits (배제 규칙 위반).
 - **?щ컻 諛⑹?**: T643~T646.
 
 ## P429 쨌 v49.80 쨌 [P429/R166] AIO_THEME_SEMANTIC_EXCLUSION_RULES ?좉퇋
 
-- **臾몄젣**: ?먮룞 ticker?믫뀒留?留ㅼ묶???섎??곸쑝濡?遺?곹빀??醫낅ぉ ?ы븿 ?꾪뿕.
+- **문제**: 자동 ticker→테마 매칭이 의미적으로 부적합한 종목 포함 위험.
 - **?쒖젙**: 紐낆떆??諛곗젣 洹쒖튃 ??kr_medtech: 068760.KQ Celltrion Pharm (pharma/biopharma ?몄텧, AI 吏꾨떒 ?먮뒗 ?섎즺湲곌린 吏곸젒 ?몄텧 ?꾨떂) / kr_kfood: 004990.KS Lotte Corp (holding company, Lotte Wellfood 280360.KS濡?吏곸젒 ?몄텧 沅뚯옣).
 - **?щ컻 諛⑹?**: T646 + R166.
 
 ## P428 쨌 v49.80 쨌 [P428/R165] TICKER REGISTRY 100+ ?뺤옣 + MARA 湲곗뾽紐?媛깆떊
 
-- **Codex ?뺤옣**: AIO_TICKER_NAME_REGISTRY 100+ entries 異붽? ??medtech KR (JLK/VUNO/Dentium/誘몃옒而댄띁??濡?뜲?고뫖??ROBOTIS) + US 硫붽?罹??좏씎援?100+ (?꾨젰/諛⑹궛/?먮꼫吏/移댁???湲?由ъ툩/?좏떥由ы떚 ??. MARA: 留덈씪?ㅻ뵒吏????留덈씪??⑹뒪 (?ㅼ젣 湲곗뾽紐?蹂寃?諛섏쁺). KR_STOCK_DB ?뺤젙: 178320 濡쒕낫?ㅽ? ???쒖쭊?쒖뒪??(?ㅼ젣 醫낅ぉ 留ㅽ븨) / 108320 濡쒕낫?곗쫰 ??LX?몃?肄?(?밸━??. medtech_kr ?뚮쭏 ?ш뎄?? ?쇱쿇?뱀젣??誘몃옒而댄띁??由ш?耳????대옒?쒖뒪/猷⑤떅/酉곕끂/JLK/?댄떚?. HXSCL ??SK?섏씠?됱뒪(000660.KS) ?쇨???(v48 ?듯빀 而⑦뀓?ㅽ듃 + kr-macro + kr-themes + AI Briefing + KR_THEME_CATALYSTS).
+- **Codex 확장**: AIO_TICKER_NAME_REGISTRY 100+ entries 추가 — medtech KR (JLK/VUNO/Dentium/미래컴퍼니/롯데웰푸드/ROBOTIS) + US 메가캡/신흥국 100+ (전력/방산/에너지/카지노/금/리츠/유틸리티 등). MARA: 마라톤디지털 → 마라홀딩스 (실제 기업명 변경 반영). KR_STOCK_DB 정정: 178320 로보스타 → 서진시스템 (실제 종목 매핑) / 108320 로보티즈 → LX세미콘 (팹리스). medtech_kr 테마 재구성: 삼천당제약/미래컴퍼니/리가켐 → 클래시스/루닛/뷰노/JLK/덴티움. HXSCL → SK하이닉스(000660.KS) 일관화 (v48 통합 컨텍스트 + kr-macro + kr-themes + AI Briefing + KR_THEME_CATALYSTS).
 - **?щ컻 諛⑹?**: T641~T642 (theme detail LIVE REQUIRED graceful).
 
-## P427 쨌 v49.79 쨌 [P427/R164] Claude API 鍮꾩슜 ?꾩쟻 異붿쟻 + 媛?쒗솕 遺??
+## P427 · v49.79 · [P427/R164] Claude API 비용 누적 추적 + 가시화 부재
 
-- **臾몄젣**: ?ъ슜???뺤쭅 ?붽뎄 ??"API 鍮꾩슜 ?꾩쟻 異붿쟻 遺?? v49.78 ?붿뿬 6嫄?以?LOW priority.
-- **?쒖젙**: `_aioTrackApiUsage({model, inputTokens, outputTokens})` ?좎꽕 ??callClaude ?묐떟 ???먮룞 ?몄텧. daily / lifetime ?꾩쟻 + 30?? ?먮룞 ?뺣━. Anthropic 媛寃?(Sonnet $3/$15 쨌 Haiku $0.25/$1.25 per 1M tok) ?곸슜.
+- **문제**: 사용자 정직 요구 — "API 비용 누적 추적 부재" v49.78 잔여 6건 중 LOW priority.
+- **시정**: `_aioTrackApiUsage({model, inputTokens, outputTokens})` 신설 — callClaude 응답 후 자동 호출. daily / lifetime 누적 + 30일+ 자동 정리. Anthropic 가격 (Sonnet $3/$15 · Haiku $0.25/$1.25 per 1M tok) 적용.
 - **肄섏넄**: `AIO.getApiUsage()` 利됱떆 議고쉶 (?ㅻ뒛/7??lifetime).
 
-## P426 쨌 v49.79 쨌 [P426/R163] 硫?고꺆 race condition + localStorage storage ?대깽??遺??
+## P426 · v49.79 · [P426/R163] 멀티탭 race condition + localStorage storage 이벤트 부재
 
-- **臾몄젣**: ?ъ슜???뺤쭅 ?붽뎄 ??"硫?고꺆 race condition" v49.78 ?붿뿬. API ?ㅻ? ????뿉??蹂寃쏀븯硫??ㅻⅨ ??? 利됱떆 ?몄? 紐삵븿.
-- **?쒖젙**: `window.addEventListener('storage', ...)` ?깅줉. API ??(`aio_*_key`) / ?ъ슜???꾨줈??/ ?뚮엺 蹂寃?媛먯? ???ㅻⅨ ??toast + audit widget ?먮룞 媛깆떊.
+- **문제**: 사용자 정직 요구 — "멀티탭 race condition" v49.78 잔여. API 키를 한 탭에서 변경하면 다른 탭은 즉시 인지 못함.
+- **시정**: `window.addEventListener('storage', ...)` 등록. API 키 (`aio_*_key`) / 사용자 프로필 / 알람 변경 감지 시 다른 탭 toast + audit widget 자동 갱신.
 
-## P425 쨌 v49.79 쨌 [P425/R162] _fetchTickerDataForChat 17 promise schema 蹂寃??댁꽦 遺??
+## P425 · v49.79 · [P425/R162] _fetchTickerDataForChat 17 promise schema 변경 내성 부재
 
-- **臾몄젣**: Yahoo/SEC/Finnhub/Naver API ?묐떟 schema 蹂寃???silent crash ?먮뒗 遺遺??곗씠??silent 臾댁떆.
-- **?쒖젙**: `_aioValidateFetchResult(result, requiredFields, sourceName)` ?좎꽕 ???꾩닔 ?꾨뱶 寃利?+ partial / invalid 遺꾨쪟. degrade 硫붿떆吏 ?앹꽦 ?ы띁.
+- **문제**: Yahoo/SEC/Finnhub/Naver API 응답 schema 변경 시 silent crash 또는 부분 데이터 silent 무시.
+- **시정**: `_aioValidateFetchResult(result, requiredFields, sourceName)` 신설 — 필수 필드 검증 + partial / invalid 분류. degrade 메시지 생성 헬퍼.
 
 ## P424 쨌 v49.79 쨌 [P424/R161] saveChatEntry localStorage QuotaExceededError silent fail
 
-- **臾몄젣**: 湲곗〈 `_saveChatHistory`??quota catch ?덉쑝??silent (?ъ슜???몄? 遺덇?). 50嫄?異뺤냼???ㅽ뙣 ????怨듦꺽??泥섎━ 遺??
+- **문제**: 기존 `_saveChatHistory`에 quota catch 있으나 silent (사용자 인지 불가). 50건 축소도 실패 시 더 공격적 처리 부재.
 - **?쒖젙**: 3?④퀎 prune (CHAT_HISTORY_MAX ??50 ??10) + 媛??④퀎 ?ъ슜??toast (6s / 10s / 15s) + API ??諛깆뾽 沅뚯옣 ?덈궡.
 
 ## P423 쨌 v49.79 쨌 [P423/R160] kr-macro hardcoded fedRate '3.50-3.75' + ?뺤쟻 ?쒖젏 ?좏겙 ?붿〈
 
 - **臾몄젣**: Explore agent 吏꾨떒 ??kr-macro??hardcoded `fedRate '3.50-3.75'` + "2026.03 ?대? ?꾩웳" / "2026.04 JPM 由ы룷?? ?뺤쟻 ?쒖젏 ?좏겙. R150 ?꾨컲.
-- **?쒖젙**: kr-macro context 吏꾩엯遺???듯빀 staleness 寃쎄퀬 異붽?. DATA_SNAPSHOT._updated 湲곗? N?????쒖떆. "2026.03/2026.04" ?쒖젏 遺꾩꽍? historical anchor 紐낆떆.
+- **시정**: kr-macro context 진입부에 통합 staleness 경고 추가. DATA_SNAPSHOT._updated 기준 N일 전 표시. "2026.03/2026.04" 시점 분석은 historical anchor 명시.
 
-## P422 쨌 v49.79 쨌 [P422/R159] ticker / options _currentTickerId null + _liveData 誘몄닔??媛??遺??
+## P422 · v49.79 · [P422/R159] ticker / options _currentTickerId null + _liveData 미수신 가드 부실
 
-- **臾몄젣**: ticker context??null guard ?덉쑝???ъ슜??移쒗솕 遺議?("?섏씠吏 吏꾩엯 ticker ?놁쓬"). _liveData 誘몄닔????HARD STOP 紐낆떆 遺?? options context?????쏀븿.
-- **?쒖젙**: ticker context ??null ??移쒗솕 ?덈궡 (?덉떆 ticker) + _liveData 誘몄닔????"??紐⑤뱺 $ 媛寃??몄슜 湲덉? HARD STOP" 媛뺤젣. options context???숈씪 ?⑦꽩.
+- **문제**: ticker context는 null guard 있으나 사용자 친화 부족 ("페이지 진입 ticker 없음"). _liveData 미수신 시 HARD STOP 명시 부재. options context는 더 약함.
+- **시정**: ticker context — null 시 친화 안내 (예시 ticker) + _liveData 미수신 시 "✗ 모든 $ 가격 인용 금지 HARD STOP" 강제. options context도 동일 패턴.
 
 ## P421 쨌 v49.78 쨌 [P421] AI 梨꾪똿 肄붾뱶 ?⑥쐞 ?뺣? 吏꾨떒 5 CRITICAL bug ?쇨큵 ?쒖젙
 
@@ -780,32 +794,32 @@ next_P_number: P660
 - **Explore agent 2 蹂묐젹 吏꾨떒 寃곌낵** ??5 CRITICAL + 5 MEDIUM = 10 ?좎옱 silent fail 諛쒓껄.
 - **v49.78 ?쒖젙**: C1~C4 利됱떆 ?닿껐 (?ㅼ젣 ?묐룞 fix, audit 異붽? 湲덉?).
 
-## P420 쨌 v49.78 쨌 [P420] CHAT_CONTEXTS 18+ DOM 留ㅽ듃由?뒪 吏꾨떒 寃곌낵 ??16 contexts DOM 遺??
+## P420 · v49.78 · [P420] CHAT_CONTEXTS 18+ DOM 매트릭스 진단 결과 — 16 contexts DOM 부재
 
-- **吏꾨떒 寃곌낵**: 18 contexts 횞 2 DOM留?(home / theme-detail). ?섎㉧吏 16 contexts??sidebar overlay ?⑤꼸 ?듯빐 ?묐룞 (蹂꾨룄 硫붿빱?덉쬁).
-- **?좉퇋 諛쒓껄**: ticker / options 而⑦뀓?ㅽ듃??`_currentTickerId` null 媛??遺?? kr-macro hardcoded fedRate '3.50-3.75' R150 ?꾨컲.
-- **?쒖젙 v49.79+**: ticker null guard + kr-macro ?숈쟻 fedRate 媛깆떊 (?쒓컙 遺議깆쑝濡?v49.78 誘명룷??.
+- **진단 결과**: 18 contexts × 2 DOM만 (home / theme-detail). 나머지 16 contexts는 sidebar overlay 패널 통해 작동 (별도 메커니즘).
+- **신규 발견**: ticker / options 컨텍스트의 `_currentTickerId` null 가드 부실, kr-macro hardcoded fedRate '3.50-3.75' R150 위반.
+- **시정 v49.79+**: ticker null guard + kr-macro 동적 fedRate 갱신 (시간 부족으로 v49.78 미포함).
 
 ## P419 쨌 v49.78 쨌 [P419/R158] chatSend state.streaming race condition ??60以? 嫄곕━ window
 
-- **吏꾨떒**: 湲곗〈 `if (state.streaming) return;` (L4274) ~ `state.streaming = true;` (L4335) ?ъ씠 60以? ?숆린 肄붾뱶. 鍮좊Ⅸ ?붾툝 ?대┃ ?????붿껌 ?숈떆 吏꾩엯 媛??
-- **?쒖젙**: `state._chatSendEntered` counter atomic lock ??寃利??듦낵 吏곹썑 利됱떆 lock. onDone/onError/chatClear?먯꽌 reset.
+- **진단**: 기존 `if (state.streaming) return;` (L4274) ~ `state.streaming = true;` (L4335) 사이 60줄+ 동기 코드. 빠른 더블 클릭 시 두 요청 동시 진입 가능.
+- **시정**: `state._chatSendEntered` counter atomic lock — 검증 통과 직후 즉시 lock. onDone/onError/chatClear에서 reset.
 - **?щ컻 諛⑹?**: T615.
 
 ## P418 쨌 v49.78 쨌 [P418/R155] callClaude T.CHUNK_TIMEOUT ?뺤쓽 ?뺤씤 + 諛⑹뼱??fallback
 
-- **Explore agent ?섏떖 ?ы빆 寃利?*: aio-core.js L13050??`T.CHUNK_TIMEOUT: 15000` ?뺤쓽 ?뺤씤 ???ㅼ젣濡쒕뒗 false positive.
+- **Explore agent 의심 사항 검증**: aio-core.js L13050에 `T.CHUNK_TIMEOUT: 15000` 정의 확인 — 실제로는 false positive.
 - **?쒖젙**: 諛⑹뼱??fallback `typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT ? T.CHUNK_TIMEOUT : 15000` ??module 濡쒕뱶 race condition ???덉쟾.
 
 ## P417 쨌 v49.78 쨌 [P417/R157] aiBubble null + _aioSafeMD undefined ??silent render fail + XSS ?꾪뿕
 
-- **吏꾨떒**: `chatAppendMsg` null 諛섑솚 ???몄텧泥?L4595 `if (aiBubble)` 媛???덉쑝???ъ슜?먯뿉寃??뚮┝ ?놁쓬 (silent). `_aioSafeMD` undefined ??`innerHTML = null + 'cursor'` ??"null<span>" ?뚮뜑 + XSS ?고쉶.
-- **?쒖젙**: (a) aiBubble null ??console.warn + toast "?묐떟 ?뚮뜑 ?곸뿭 遺?? ?덈궡. (b) `_aioSafeMD` 3?④퀎 fallback chain (`_aioSafeMD` ??`escHtml` ??manual escape).
+- **진단**: `chatAppendMsg` null 반환 시 호출처 L4595 `if (aiBubble)` 가드 있으나 사용자에게 알림 없음 (silent). `_aioSafeMD` undefined 시 `innerHTML = null + 'cursor'` → "null<span>" 렌더 + XSS 우회.
+- **시정**: (a) aiBubble null 시 console.warn + toast "응답 렌더 영역 부재" 안내. (b) `_aioSafeMD` 3단계 fallback chain (`_aioSafeMD` → `escHtml` → manual escape).
 - **?щ컻 諛⑹?**: T613.
 
-## P416 쨌 v49.78 쨌 [P416] chatAppendMsg null guard ?쇨???寃利???紐⑤뱺 ?몄텧泥??덉쟾
+## P416 · v49.78 · [P416] chatAppendMsg null guard 일관성 검증 — 모든 호출처 안전
 
-- **吏꾨떒**: chatSend ?대? 紐⑤뱺 `aiBubble.innerHTML` ?몄텧 (L4596 / L4970 / L4971)??`if (aiBubble)` 媛???대? 議댁옱 (false alarm ?쇰?).
+- **진단**: chatSend 내부 모든 `aiBubble.innerHTML` 호출 (L4596 / L4970 / L4971)에 `if (aiBubble)` 가드 이미 존재 (false alarm 일부).
 - **?쒖젙**: aiBubble null ???ъ슜??alert 異붽? (P417怨??듯빀).
 
 ## P415 쨌 v49.78 쨌 [P415/R156] dynamicTickerLookup sequential 5 proxy ??理쒖븙 80珥?hang
@@ -817,29 +831,29 @@ next_P_number: P660
 
 ## P414 쨌 v49.77 쨌 [P414] AI 梨꾪똿 吏꾩엯~?듬?~?뚮뜑 chain??silent fail 13 ?곸뿭 ?뺤쭅 留ㅽ븨
 
-- **?ъ슜???뺤쭅 吏덉쓽**: "AI 梨꾪똿/?듬?怨?愿?⑦빐???꾩껜 ?쒖뒪???ъ링 ?먭??쒓굅??"
-- **?뺤쭅 ?묐떟**: ?꾨땲?? audit ?⑥닔留??섎━怨??ㅼ젣 ?쇱씠釉?寃利앹? ?ъ슜??1?뚮퓧. 13 誘몄젏寃 ?곸뿭 留ㅽ븨.
+- **사용자 정직 질의**: "AI 채팅/답변과 관련해서 전체 시스템 심층 점검한거야?"
+- **정직 응답**: 아니오. audit 함수만 늘리고 실제 라이브 검증은 사용자 1회뿐. 13 미점검 영역 매핑.
 - **v49.77 ?쒖젙 5 critical**: chatSend silent return 5+ / callClaude 移쒗솕 ?덈궡 / ?듬? ?≪뀡 踰꾪듉 / ?섍컖 ???ъ슂泥?/ ?곗씠????諛곕꼫.
 
-## P413 쨌 v49.77 쨌 [P413/R155] ?곗씠????/ ?섍컖 寃異????듬? ???≪뀡 踰꾪듉 遺??
+## P413 · v49.77 · [P413/R155] 데이터 ✗ / 환각 검출 시 답변 위 액션 버튼 부재
 
-- **臾몄젣**: ?듬? 蹂몃Ц??"?ㅼ떆媛??쒖꽭 誘몄닔?? ?덈궡 ?덉뼱???ъ슜?먭? ?ㅼ쓬 ?≪뀡 (?덈줈怨좎묠/?ъ쭏臾? ?뚭린 ?대젮?.
+- **문제**: 답변 본문에 "실시간 시세 미수신" 안내 있어도 사용자가 다음 액션 (새로고침/재질문) 알기 어려움.
 - **?쒖젙**: ?듬? ??amber 諛곕꼫 + ?봽 ?덈줈怨좎묠 + ?봺 ?ъ쭏臾?踰꾪듉 ?먮룞 ?쎌엯 (?쒖꽭/?щТ ????+ ?섍컖 self-confess ??.
 - **?щ컻 諛⑹?**: R155.
 
-## P412 쨌 v49.77 쨌 [P412/R155] ?섍컖 寃異????⑥닚 寃쎄퀬 ??利됱떆 ?ъ슂泥?UX 異붽?
+## P412 · v49.77 · [P412/R155] 환각 검출 시 단순 경고 → 즉시 재요청 UX 추가
 
-- **臾몄젣**: v49.74 P397?먯꽌 ?섍컖 寃쎄퀬 諛뺤뒪 異붽??덉쑝???ъ슜?먭? ?듬? ?좊ː???껋? ?곹솴?먯꽌 ?ㅼ쓬 ?≪뀡 紐낆떆 遺??
+- **문제**: v49.74 P397에서 환각 경고 박스 추가했으나 사용자가 답변 신뢰도 잃은 상황에서 다음 액션 명시 부재.
 - **?쒖젙**: ?섍컖 寃쎄퀬 諛뺤뒪 ?대????봽 ?쒖꽭 ?덈줈怨좎묠 + ?봺 ?곗씠??諛쏄퀬 ?ъ쭏臾?踰꾪듉 異붽?.
 - **?щ컻 諛⑹?**: R155.
 
-## P411 쨌 v49.77 쨌 [P411/R154] callClaude 理쒖쥌 ?ㅽ뙣 ???ъ슜??friendly ?덈궡 遺??
+## P411 · v49.77 · [P411/R154] callClaude 최종 실패 시 사용자 friendly 안내 부재
 
-- **臾몄젣**: ?ъ떆??(v46.6) ??理쒖쥌 ?ㅽ뙣 ??raw ?먮윭 硫붿떆吏留??쒖떆 ???ъ슜?먭? 臾댁뾿???댁빞 ?좎? 紐⑤쫫.
+- **문제**: 재시도 (v46.6) 후 최종 실패 시 raw 에러 메시지만 표시 → 사용자가 무엇을 해야 할지 모름.
 - **?쒖젙**: ?먮윭 遺꾨쪟 (401/429/500/network/other) 蹂?移쒗솕 ?덈궡 + 沅뚯옣 議곗튂 ul + ?몃? 留곹겕 + 肄섏넄 紐낅졊 + ?몃씪???≪뀡 踰꾪듉 (?ъ떆???덈줈怨좎묠).
 - **?щ컻 諛⑹?**: R154.
 
-## P410 쨌 v49.77 쨌 [P410/R153] chatSend silent return 5+ 寃쎈줈 ?ъ슜???쇰뱶諛?遺??
+## P410 · v49.77 · [P410/R153] chatSend silent return 5+ 경로 사용자 피드백 부재
 
 - **臾몄젣**: `if (!ctx) return;` / `if (state.streaming) return;` / `if (!inp) return;` / `if (!q) return;` 紐⑤몢 silent ???ъ슜?먭? "?????섏??" 醫뚯젅.
 - **?쒖젙**: 媛?early return??toast ?뚮┝ (3~6珥? ?먮뒗 input border 媛뺤“ (鍮??낅젰). console.warn 濡쒓퉭 異붽? ??媛쒕컻???붾쾭源?
@@ -847,31 +861,31 @@ next_P_number: P660
 
 ## P409 쨌 v49.76 쨌 [P409] kr-supply 而⑦뀓?ㅽ듃 ?뺤씤 ??aio-chat.js L1121 ?대? ?뺤쓽??
 
-- ?ъ슜??諛쒓껄 v49.74 audit ?섏떖 ?ы빆 ?뺤씤 ??`kr-supply` CHAT_CONTEXTS??`aio-chat.js` 踰좎씠???뺤쓽???대? 議댁옱 (L1121). assertChatAnswerQualityAudit??11 ?섏씠吏 ?됯????뺤긽 ?ы븿.
+- 사용자 발견 v49.74 audit 의심 사항 확인 — `kr-supply` CHAT_CONTEXTS는 `aio-chat.js` 베이스 정의에 이미 존재 (L1121). assertChatAnswerQualityAudit의 11 페이지 평가에 정상 포함.
 
 ## P408 쨌 v49.76 쨌 [P408] AIO.diagnose() ?듯빀 吏꾨떒 紐낅졊 ?좎꽕 ???ъ슜??醫뚯젅 ?쒖젙
 
 - **臾몄젣**: ?ъ슜?먭? 肄섏넄?먯꽌 吏꾨떒?섎젮硫?5媛? 紐낅졊 ?낅젰 ?꾩슂. ?듬떟???꾩쟻.
-- **?쒖젙**: `AIO.diagnose(ticker)` ?좎꽕 ??1以꾨줈 7媛?吏꾨떒 ??ぉ ?먮룞 ?ㅽ뻾 + console??媛?쒗솕 + report 媛앹껜 諛섑솚 + 沅뚯옣 議곗튂 ?먮룞 異쒕젰.
+- **시정**: `AIO.diagnose(ticker)` 신설 — 1줄로 7개 진단 항목 자동 실행 + console에 가시화 + report 객체 반환 + 권장 조치 자동 출력.
 - 7 ??ぉ: ?쒖꽭 fetch / _liveData ?곹깭 / ?쒖꽭 fetch 嫄닿컯??/ CHAT_CONTEXTS DOM 留ㅽ듃由?뒪 / 梨꾪똿 ?⑥닔 ?듯빀 / ?듬? ?덉쭏 / home 梨꾪똿 DOM.
 
 ## P407 쨌 v49.76 쨌 [P407/R152] 紐⑤컮??梨꾪똿 ?덉씠?꾩썐 100vw 鍮꾩쑉 誘몄떆??
 
-- **臾몄젣 (?ъ슜??醫뚯젅 諛쒓껄)**: "?듬? ?붾㈃ 鍮꾩쑉?대옉 ?덉씠?꾩썐????留욎븘". `.acp-bubble` / `.aio-chat` 紐⑤컮??max-width unset ???듬? 蹂몃Ц 醫곴퀬 chip wrap 遺?곸젅.
+- **문제 (사용자 좌절 발견)**: "답변 화면 비율이랑 레이아웃도 안 맞아". `.acp-bubble` / `.aio-chat` 모바일 max-width unset → 답변 본문 좁고 chip wrap 부적절.
 - **?쒖젙**: 紐⑤컮??誘몃뵒??荑쇰━ 異붽? ??`.aio-chat` 100vw / `.acp-bubble` max-width: calc(100vw - 80px) / `.acp-chips` flex-wrap + ?고듃 11px / `.acp-bubble pre` overflow-x 紐낆떆.
 - **?щ컻 諛⑹?**: R152.
 
-## P406 쨌 v49.76 쨌 [P406/R151] ?쒖꽭 ????媛寃??섍컖 媛뺤젣 李⑤떒 誘명씉
+## P406 · v49.76 · [P406/R151] 시세 ✗ 시 가격 환각 강제 차단 미흡
 
-- **臾몄젣 (?ъ슜??醫뚯젅 諛쒓껄)**: AI ?듬???"$400~500?", "$268.03" ???쒖꽭 ???곹깭?먯꽌 媛寃??섏튂 ?깆옣. v49.74 R145 + ABSOLUTE RULES 17議??덉뼱??AI媛 follow-up 遺꾩꽍?먯꽌 媛寃??ъ슜.
-- **?쒖젙**: chatSend `_dataVerify`??`_liveStatusCS.indexOf('誘몄닔??) >= 0` 寃異????슚 HARD STOP 7 議고빆 媛뺤젣 二쇱엯 ??紐⑤뱺 媛寃??섏튂 ?덈? 湲덉? + ?щ컮瑜??듬? ?뺤떇 紐낆떆.
+- **문제 (사용자 좌절 발견)**: AI 답변에 "$400~500대", "$268.03" 등 시세 ✗ 상태에서 가격 수치 등장. v49.74 R145 + ABSOLUTE RULES 17조 있어도 AI가 follow-up 분석에서 가격 사용.
+- **시정**: chatSend `_dataVerify`에 `_liveStatusCS.indexOf('미수신') >= 0` 검출 시 🚨 HARD STOP 7 조항 강제 주입 — 모든 가격 수치 절대 금지 + 올바른 답변 형식 명시.
 - **?щ컻 諛⑹?**: R151.
 
 ## P405 쨌 v49.76 쨌 [P405] dynamicTickerLookup proxy 5媛?+ 吏꾨떒 濡쒓퉭 媛뺥솕
 
-- **臾몄젣 (?ъ슜??醫뚯젅 諛쒓껄)**: NVDA ?쒖꽭 fetch ?ㅽ뙣. 3 proxy (corsproxy/allorigins/codetabs)媛 1~2媛??ㅼ슫 ??silent fail.
+- **문제 (사용자 좌절 발견)**: NVDA 시세 fetch 실패. 3 proxy (corsproxy/allorigins/codetabs)가 1~2개 다운 시 silent fail.
 - **?쒖젙**: (a) 5 proxy ?뺤옣 (codetabs 1?쒖쐞 + allorigins + corsproxy + thingproxy + cors-sh) (b) timeout 12s ??8s (?ㅼ쓬 proxy 鍮좊Ⅴ寃? (c) `window._aioTickerLookupDiag[ticker]` 吏꾨떒 濡쒓퉭 (媛?proxy attempt + retry + duration) (d) 紐⑤뱺 proxy ?ㅽ뙣 ??console.warn 紐낆떆.
-- **?щ컻 諛⑹?**: AIO.diagnose(ticker)濡?利됱떆 吏꾨떒 媛??
+- **재발 방지**: AIO.diagnose(ticker)로 즉시 진단 가능.
 
 ## P404 쨌 v49.75 쨌 [P404] 4 critical ?⑦꽩 ?쇰컲????"鍮꾩듂???⑦꽩 紐⑤몢 ?ъ링 ?먭??대킄" ?묐떟
 
@@ -879,248 +893,248 @@ next_P_number: P660
 - **?쒖젙**: R147~R150 4 ?좉퇋 洹쒖튃 + 4 ?좉퇋 audit ?⑥닔 + chatSend ?꾩쿂由??듯빀.
 - Pattern A ??R147 (DOM 留ㅽ듃由?뒪) / Pattern B ??R148 (?듬? ?꾩쿂由? / Pattern C ??R149 (fetch surfacing) / Pattern D ??R150 (?쒖젏 ?꾩텧).
 
-## P403 쨌 v49.75 쨌 [P403/R150] AI ?듬? ?좎쭨 ?좏겙 stale ?먮룞 寃異?遺??(Pattern D)
+## P403 · v49.75 · [P403/R150] AI 답변 날짜 토큰 stale 자동 검출 부재 (Pattern D)
 
-- **臾몄젣**: ?ъ슜??諛쒓껄 ??AI ?듬???"5/22" / "4/15" ???숈뒿 ?쒖젏 ?좎쭨 洹몃?濡??몄텧. v49.73 stale token audit??system prompt ?대?留?寃利?
+- **문제**: 사용자 발견 — AI 답변에 "5/22" / "4/15" 등 학습 시점 날짜 그대로 노출. v49.73 stale token audit는 system prompt 내부만 검증.
 - **?쒖젙**: `getChatHallucinationAudit`??`stale-md-date` (?ㅻ뒛怨?7?? ?닿꺽 M/D) + `stale-iso-date` (YYYY-MM-DD) regex 異붽?.
 - **?щ컻 諛⑹?**: T593.
 
-## P402 쨌 v49.75 쨌 [P402/R149] ?몃? fetch ?ㅽ뙣 surfacing audit 遺??(Pattern C)
+## P402 · v49.75 · [P402/R149] 외부 fetch 실패 surfacing audit 부재 (Pattern C)
 
 - **臾몄젣**: ?ъ슜??諛쒓껄 ??NVDA Yahoo fetch ?ㅽ뙣 silent. dynamicTickerLookup 4?④퀎 ?대갚 (v49.67) ?덉뼱???ㅽ뙣 ???ъ슜??紐낆떆 ?뚮┝ ?쏀븿.
 - **?쒖젙**: `AIO.assertFetchFailureSurfacingAudit()` ?좎꽕 ??17 promise 횞 ?ㅽ뙣 surfacing ?먮룞 吏꾨떒.
 - **?щ컻 諛⑹?**: T592.
 
-## P401 쨌 v49.75 쨌 [P401/R148] ABSOLUTE RULES ?듬? ?꾩쿂由?寃利?遺??(Pattern B)
+## P401 · v49.75 · [P401/R148] ABSOLUTE RULES 답변 후처리 검증 부재 (Pattern B)
 
-- **臾몄젣**: R140 ?뺤꽦?믪젙??/ R141 ?쒖? 4 援ъ“ / R142 異쒖쿂 愿꾪샇 ??system prompt?먮쭔 ?뺤쓽?섍퀬 ?ㅼ젣 ?듬? ?곸슜 ?먮룞 寃利?遺??
-- **?쒖젙**: `AIO.assertChatAnswerStructureAudit(responseText)` ?좎꽕 ??4 rule ?꾨컲 ?먮룞 寃異? chatSend ?묐떟 ?꾩쿂由??듯빀 ??violations 寃異????듬? ??amber 諛곗?.
+- **문제**: R140 정성→정량 / R141 표준 4 구조 / R142 출처 괄호 — system prompt에만 정의되고 실제 답변 적용 자동 검증 부재.
+- **시정**: `AIO.assertChatAnswerStructureAudit(responseText)` 신설 — 4 rule 위반 자동 검출. chatSend 응답 후처리 통합 — violations 검출 시 답변 위 amber 배지.
 - **?щ컻 諛⑹?**: T590 + T591 + T594.
 
-## P400 쨌 v49.75 쨌 [P400/R147] CHAT_CONTEXTS DOM 留ㅽ듃由?뒪 audit 遺??(Pattern A)
+## P400 · v49.75 · [P400/R147] CHAT_CONTEXTS DOM 매트릭스 audit 부재 (Pattern A)
 
-- **臾몄젣**: v49.74 P398 home 耳?댁뒪 ?쇰컲????18+ context 以?inline panel DOM ?덈뒗 寃?2媛쒕쭔 (theme-detail / home). 14+ context??DOM 遺?щ줈 chatSend silent return ?꾪뿕.
+- **문제**: v49.74 P398 home 케이스 일반화 — 18+ context 중 inline panel DOM 있는 것 2개만 (theme-detail / home). 14+ context는 DOM 부재로 chatSend silent return 위험.
 - **?쒖젙**: `AIO.assertChatPanelDomAudit()` ?좎꽕 ??紐⑤뱺 ctxId 횞 DOM 4?붿냼 (panel/msgs/inp/btn) ?먮룞 吏꾨떒. `CONTEXT_NO_DOM` gap ?쒖떆.
 - **?щ컻 諛⑹?**: T589.
 
 ## P399 쨌 v49.75 쨌 [P399] 4 critical ?⑦꽩 ?뺤쭅 留ㅽ븨 + ?쇰컲??(?ъ슜???뺤쭅 ?붽뎄 ?묐떟)
 
 - ?ъ슜??"鍮꾩듂???⑦꽩 紐⑤몢 ?ъ링 ?먭??대킄" ??4 critical ?⑦꽩 ?쇰컲??吏꾨떒.
-- Pattern A (CHAT_CONTEXTS DOM 遺?? / Pattern B (Audit ?뺤쓽 ???곸슜) / Pattern C (Fetch silent fail) / Pattern D (Stale token ?듬? ?꾩텧).
+- Pattern A (CHAT_CONTEXTS DOM 부재) / Pattern B (Audit 정의 ≠ 적용) / Pattern C (Fetch silent fail) / Pattern D (Stale token 답변 누출).
 - 媛??⑦꽩 蹂?audit ?⑥닔 + R 洹쒖튃 + ?뚭? ?뚯뒪??
 
-## P398 쨌 v49.74 hotfix 쨌 [P398/R146] home ?섏씠吏 梨꾪똿 UI DOM 遺????CHAT_CONTEXTS留??깅줉?섍퀬 ?⑤꼸 誘몄꽕移?
+## P398 · v49.74 hotfix · [P398/R146] home 페이지 채팅 UI DOM 부재 — CHAT_CONTEXTS만 등록하고 패널 미설치
 
-- **臾몄젣 (?ъ슜???쇱씠釉?寃利?諛쒓껄)**: "Home?먯꽌??AI 梨꾪똿 ?섏????딆븘". v49.73?먯꽌 `window.CHAT_CONTEXTS['home']` 異붽??덉쑝??`#page-home`??`<div class="aio-chat" id="chat-home">` DOM 誘몄꽕移???`chatSend('home')`??input `chat-home-inp` 紐?李얠븘 silent return.
-- **?쒖젙**: `#page-home` ??(L4428 吏곸쟾)??theme-detail ?⑦꽩 誘몃윭 ?몃씪??梨꾪똿 ?⑤꼸 異붽? (acp-header/messages/chips/input/btn 5?붿냼). chips 3媛?(?ㅻ뒛 ?쒖옣 ?섍꼍 ?붿빟 / 吏湲?萸먮???遊먯빞 / 珥덈낫???쒖옉 媛?대뱶).
-- **?щ컻 諛⑹?**: R146 ?좉퇋 ??CHAT_CONTEXTS ?깅줉留뚯쑝濡?遺議? DOM ?몃씪???⑤꼸 ?섎Т.
+- **문제 (사용자 라이브 검증 발견)**: "Home에서는 AI 채팅 되지도 않아". v49.73에서 `window.CHAT_CONTEXTS['home']` 추가했으나 `#page-home`에 `<div class="aio-chat" id="chat-home">` DOM 미설치 → `chatSend('home')`이 input `chat-home-inp` 못 찾아 silent return.
+- **시정**: `#page-home` 끝 (L4428 직전)에 theme-detail 패턴 미러 인라인 채팅 패널 추가 (acp-header/messages/chips/input/btn 5요소). chips 3개 (오늘 시장 환경 요약 / 지금 뭐부터 봐야 / 초보자 시작 가이드).
+- **재발 방지**: R146 신규 — CHAT_CONTEXTS 등록만으로 부족, DOM 인라인 패널 의무.
 
 ## P397 쨌 v49.74 hotfix 쨌 [P397/R145] AI ?듬? ?숈뒿 ?곗씠???먭린 ?몄슜 ?덈? 李⑤떒 媛뺥솕
 
-- **臾몄젣 (?ъ슜???쇱씠釉?寃利?諛쒓껄)**: AI ?듬???"2025??珥??숈뒿 ?곗씠??湲곗??쇰줈 NVDA??$400~500?" ?깆옣. ABSOLUTE RULES 5議?("?숈뒿 ?곗씠???ъ슜 湲덉?")???덉쑝???먭린 ?섍컖 ?먮갚 ?쒗쁽 / ?숈뒿 ?쒖젏 ?곕룄 / 異붿륫 媛寃?踰붿쐞 ?먮룞 李⑤떒 遺??
-- **?쒖젙**: (a) ABSOLUTE RULES 17議??좉퇋 ??湲덉? ?쒗쁽 4 移댄뀒怨좊━ 紐낆떆 (?먭린 ?섍컖 ?먮갚/?숈뒿 ?곕룄/異붿륫 媛寃?異붿륫 ?댁뒪). ?쒖꽭 ?곗씠??????紐⑤뱺 媛寃??섏튂 ?덈? 湲덉?. (b) `getChatHallucinationAudit` ?⑦꽩 3媛?異붽? ??`self-confess-training-data` (+5??critical), `training-year-citation`, `vague-price-range`. `requiresWarningBox` ?뚮옒洹? (c) chatSend ?묐떟 ?뚮뜑??self-confess 寃異????듬? ?꾩뿉 媛뺤젣 鍮④컙 寃쎄퀬 諛뺤뒪 ?쒖떆 + 寃異??⑦꽩 + 沅뚯옣 議곗튂 紐낆떆.
+- **문제 (사용자 라이브 검증 발견)**: AI 답변에 "2025년 초 학습 데이터 기준으로 NVDA는 $400~500대" 등장. ABSOLUTE RULES 5조 ("학습 데이터 사용 금지")는 있으나 자기 환각 자백 표현 / 학습 시점 연도 / 추측 가격 범위 자동 차단 부재.
+- **시정**: (a) ABSOLUTE RULES 17조 신규 — 금지 표현 4 카테고리 명시 (자기 환각 자백/학습 연도/추측 가격/추측 뉴스). 시세 데이터 ✗ 시 모든 가격 수치 절대 금지. (b) `getChatHallucinationAudit` 패턴 3개 추가 — `self-confess-training-data` (+5점 critical), `training-year-citation`, `vague-price-range`. `requiresWarningBox` 플래그. (c) chatSend 응답 렌더에 self-confess 검출 시 답변 위에 강제 빨간 경고 박스 표시 + 검출 패턴 + 권장 조치 명시.
 - **?щ컻 諛⑹?**: ?쒓컖???ъ슜??寃쎄퀬 + ABSOLUTE RULES 17議?+ audit ?⑦꽩 媛뺥솕.
 
-## P396 쨌 v49.74 쨌 [P396] ?쇱씠釉?寃利??섍꼍 ?쒖빟 ???ъ슜??production 吏곸젒 寃利?媛?대뱶 (?뺤쭅)
+## P396 · v49.74 · [P396] 라이브 검증 환경 제약 — 사용자 production 직접 검증 가이드 (정직)
 
-- **臾몄젣**: MCP preview ?쒕쾭媛 ?ㅻⅨ ?뚰겕?몃━(distracted-ramanujan-28118e, v49.55) 諛붿씤????v49.73 ?쇱씠釉?寃利?遺덇?. ?먮룞 紐⑤뱶 ?덉쟾?μ튂媛 (a) ?ㅻⅨ ?뚰겕?몃━ ?뚯씪 泥댄겕?꾩썐 (b) 蹂묐젹 ?ы듃 ?쒕쾭 ?쒖옉 李⑤떒.
-- **?쒖젙**: ?ъ슜??吏곸젒 production (https://ysnle.github.io/aio-screener/) 寃利?媛?대뱶 ?쒓났 ??7 ?섏씠吏 횞 3 吏덈Ц = 21 吏덉쓽 + ?됯? 泥댄겕由ъ뒪??(?꾩옱???뺥솗??吏곴????뺤꽦?믪젙??. ?ъ슜???듬? 怨듭쑀 ??v49.75?먯꽌 諛쒓껄 媛??쒖젙 ?덉젙.
-- **?щ컻 諛⑹?**: T588 ???쇱씠釉?寃利?媛?대뱶 ?덈궡 (?뚭? 寃利??꾨땶 ?ъ슜???덈궡).
+- **문제**: MCP preview 서버가 다른 워크트리(distracted-ramanujan-28118e, v49.55) 바인딩 → v49.73 라이브 검증 불가. 자동 모드 안전장치가 (a) 다른 워크트리 파일 체크아웃 (b) 병렬 포트 서버 시작 차단.
+- **시정**: 사용자 직접 production (https://ysnle.github.io/aio-screener/) 검증 가이드 제공 — 7 페이지 × 3 질문 = 21 질의 + 평가 체크리스트 (현재성/정확성/직관성/정성→정량). 사용자 답변 공유 후 v49.75에서 발견 갭 시정 예정.
+- **재발 방지**: T588 — 라이브 검증 가이드 안내 (회귀 검증 아닌 사용자 안내).
 
-## P395 쨌 v49.74 쨌 [P395/R144] AI 梨꾪똿 硫?고꽩 ?좏겙 ?꾩쟻 ?뺤콉 遺????v46.6 char-trim ?⑤룆 ???섍컖 ?꾩쟻 ?꾪뿕
+## P395 · v49.74 · [P395/R144] AI 채팅 멀티턴 토큰 누적 정책 부재 — v46.6 char-trim 단독 → 환각 누적 위험
 
-- **臾몄젣**: v46.6 char-limit 60K trim留?議댁옱 ??10?? ??????댁쟾 ?섍컖???좉퇋 ?듬????꾩쟻 媛?? Turn-count cap 遺??/ ?붿빟 prepend 遺??
-- **?쒖젙**: chatSend??(a) turn-cap 24 異붽? (b) 8媛? ?쒓굅 ???ъ슜??二쇱슂 吏덈Ц 5媛?異붿텧 ???붿빟 user 硫붿떆吏 + ?댁떆?ㅽ꽩???뺤씤 硫붿떆吏 ?먮룞 prepend (c) `window._chatMultiTurnStats` { trimEvents, summaryInsertions, maxTurnsBeforeTrim } 異붿쟻.
+- **문제**: v46.6 char-limit 60K trim만 존재 → 10턴+ 대화 시 이전 환각이 신규 답변에 누적 가능. Turn-count cap 부재 / 요약 prepend 부재.
+- **시정**: chatSend에 (a) turn-cap 24 추가 (b) 8개+ 제거 시 사용자 주요 질문 5개 추출 → 요약 user 메시지 + 어시스턴트 확인 메시지 자동 prepend (c) `window._chatMultiTurnStats` { trimEvents, summaryInsertions, maxTurnsBeforeTrim } 추적.
 - **?щ컻 諛⑹?**: T582 + T583 + T585.
 
 ## P394 쨌 v49.74 쨌 [P394] AI 梨꾪똿 ?쒖뒪???붿〈 媛?11媛??뺤쭅 留ㅽ븨 (?ъ슜???뺤쭅 吏덉쓽 ?묐떟)
 
 - **臾몄젣**: v49.73源뚯? 26 ?곸뿭 ?ㅻ쨾?쇰굹 ?ъ슜??"??議곗궗?섍굅???먭????곸뿭 ?놁뼱?" ?뺤쭅 吏덉쓽???붿쭅 ?듬?. 11媛??붿〈 媛?留ㅽ븨 (CRITICAL 2 + HIGH 4 + MEDIUM 3 + LOW 2).
 - **?쒖젙**: v49.74 (CRITICAL 2 + HIGH 1 = 3) + v49.75 (HIGH 3 ?붿뿬 = ?듬? 罹먯떆/?섍컖 ?먮룞 媛먯? 媛뺥솕/?쇰뱶諛??듦퀎). 2?④퀎 遺꾪븷.
-- **?щ컻 諛⑹?**: ?쇱씠釉?寃利?+ 硫?고꽩 ?뺤콉 + KR audit ?뺤옣 ?듯빀.
+- **재발 방지**: 라이브 검증 + 멀티턴 정책 + KR audit 확장 통합.
 
-## P393 쨌 v49.74 쨌 [P393/R143] AI ?듬? ?덉쭏 audit媛 KR 4 ?섏씠吏 (kr-macro/supply/themes/tech) ?됯? ?꾨씫
+## P393 · v49.74 · [P393/R143] AI 답변 품질 audit가 KR 4 페이지 (kr-macro/supply/themes/tech) 평가 누락
 
-- **臾몄젣**: v49.73 `assertChatAnswerQualityAudit`??7 ?섏씠吏留?(home/technical/macro/sentiment/breadth/fundamental/portfolio) ?됯? ??KR ?ъ슜??泥닿컧 媛?(?쒓뎅 ?쒖옣 ?듬? ?덉쭏 ??됯?).
+- **문제**: v49.73 `assertChatAnswerQualityAudit`이 7 페이지만 (home/technical/macro/sentiment/breadth/fundamental/portfolio) 평가 → KR 사용자 체감 갭 (한국 시장 답변 품질 저평가).
 - **?쒖젙**: ctxIds 諛곗뿴??7 ??11濡??뺤옣 (kr-macro/kr-supply/kr-themes/kr-tech 4 異붽?). freshnessScore 怨꾩궛??遺꾨え 7 ??11.
-- **?щ컻 諛⑹?**: T581 (`perPageDetail.length === 11` + KR 4 ID 紐⑤몢 ?ы븿) + T586 (遺꾨え 11 寃利?.
+- **재발 방지**: T581 (`perPageDetail.length === 11` + KR 4 ID 모두 포함) + T586 (분모 11 검증).
 
 ## P392 쨌 v49.73 쨌 [P392/R140~R142] AI 梨꾪똿 ?듬? ?덉쭏 3異??먮룞 吏꾨떒 audit + ?ъ씠?쒕컮 13異?
 
 - **?쒖젙**: `AIO.assertChatAnswerQualityAudit()` ?좎꽕 ???꾩옱???몄뀡 ?ㅻ뜑+?숈쟻 留덉빱 ?ы띁+stale ?좏겙)/?뺥솗??fetched ?ㅼ썙??source ?쇰꺼+_aioFetchLabel)/吏곴???R140~R142+home 而⑦뀓?ㅽ듃) 3 移댄뀒怨좊━ ?먮룞 吏꾨떒 + overallScore ?곗텧. ?ъ씠?쒕컮 audit row 13踰덉㎏ (`answerQuality`) ??"?뱥 ?듬? ?덉쭏 X??쨌 ?꾩옱 X 쨌 ?뺥솗 X 쨌 吏곴? X".
 - **?щ컻 諛⑹?**: T577 (audit shape) + T578 (overallScore ??70) + T579 (?ъ씠?쒕컮 row DOM).
 
-## P391 쨌 v49.73 쨌 [P391/R140~R142] home ?섏씠吏 CHAT_CONTEXTS 遺????signal default fallback ?숈뒿 ?곗씠???섏〈
+## P391 · v49.73 · [P391/R140~R142] home 페이지 CHAT_CONTEXTS 부재 → signal default fallback 학습 데이터 의존
 
-- **臾몄젣**: ?ъ슜?먭? 媛??癒쇱? 吏꾩엯?섎뒗 `home` ?섏씠吏??CHAT_CONTEXTS 蹂꾨룄 ?뺤쓽 ?놁쓬 ??梨꾪똿 ??signal default濡??대갚?섏뼱 ?쒖옣 ?섍꼍/?섏씠吏 ?덈궡 而⑦뀓?ㅽ듃 遺??
-- **?쒖젙**: `window.CHAT_CONTEXTS['home']` override ?좎꽕 (`index.html` L17681 遺洹?. 5 移댄뀒怨좊━ ?ъ슜???섎룄 ?먮룞 遺꾨쪟 + 媛??섏씠吏 ?덈궡 (?쒓렇???щ━/留ㅽ겕濡?醫낅ぉ/?ы듃?대━?? + ?쒖옣 ?섍꼍 醫낇빀 (SPX/VIX/F&G/?ㅼ퐫???뺣웾) + ?쒖? ?듬? 援ъ“ (4 釉붾줉) + 湲곌?湲??꾨젅?꾩썙??+ V48 而⑦뀓?ㅽ듃 + ABSOLUTE RULES 14~16議?
-- **?щ컻 諛⑹?**: T576 ??`CHAT_CONTEXTS['home']` ?뺤쓽 + system() "AIO Screener ?? + "?듬? 媛?대뱶" 寃利?
+- **문제**: 사용자가 가장 먼저 진입하는 `home` 페이지에 CHAT_CONTEXTS 별도 정의 없음 → 채팅 시 signal default로 폴백되어 시장 환경/페이지 안내 컨텍스트 부재.
+- **시정**: `window.CHAT_CONTEXTS['home']` override 신설 (`index.html` L17681 부근). 5 카테고리 사용자 의도 자동 분류 + 각 페이지 안내 (시그널/심리/매크로/종목/포트폴리오) + 시장 환경 종합 (SPX/VIX/F&G/스코어 정량) + 표준 답변 구조 (4 블록) + 기관급 프레임워크 + V48 컨텍스트 + ABSOLUTE RULES 14~16조.
+- **재발 방지**: T576 — `CHAT_CONTEXTS['home']` 정의 + system() "AIO Screener 홈" + "답변 가이드" 검증.
 
-## P390 쨌 v49.73 쨌 [P390/R140~R142] ABSOLUTE RULES 14~16議?(?뺤꽦?믪젙???섎Т / ?쒖? ?듬? 援ъ“ / 異쒖쿂 愿꾪샇) 遺??
+## P390 · v49.73 · [P390/R140~R142] ABSOLUTE RULES 14~16조 (정성→정량 의무 / 표준 답변 구조 / 출처 괄호) 부재
 
-- **臾몄젣**: AI ?듬???"?믪? 蹂?숈꽦" / "媛뺤꽭?? ???뺤꽦 ?쒗쁽???뺣웾 洹쇨굅 ?놁씠 ?ъ슜?섍굅?? ?듬? 援ъ“媛 ?먯쑀 ?뺤떇?쇰줈 ?먰듃?ъ졇 ?ъ슜??吏곴?????? v49.68 R128 (12議???"異쒖쿂+湲곗??? 媛?대뱶???덉쑝???먮룞 媛뺤젣 遺??
+- **문제**: AI 답변에 "높은 변동성" / "강세장" 등 정성 표현이 정량 근거 없이 사용되거나, 답변 구조가 자유 형식으로 흐트러져 사용자 직관성 저하. v49.68 R128 (12조)에 "출처+기준일" 가이드는 있으나 자동 강제 부재.
 - **?쒖젙**: `_getChatRules()` ?앹뿉 14議?(R140 ?뺤꽦?믪젙???숇컲) + 15議?(R141 ?쒖? 4 援ъ“: 寃곕줎/?뺣웾/?쒕굹由ъ삤/?≪뀡) + 16議?(R142 紐⑤뱺 ?뺣웾 ?몄슜??異쒖쿂 愿꾪샇 ?꾩닔) 異붽?.
 - **?щ컻 諛⑹?**: T575 ??`_getChatRules()` 諛섑솚??"14議??뺤꽦 ?쒗쁽" + "15議??쒖? ?듬? 援ъ“" + "16議?異쒖쿂 + 湲곗??? 3 ?ㅼ썙??紐⑤몢 ?ы븿.
 
-## P389 쨌 v49.73 쨌 [P389/R142] ?곗씠??釉붾줉 16 ?쇰꺼 fetched ?쒓컖 쨌 source 紐낆떆 遺議?
+## P389 · v49.73 · [P389/R142] 데이터 블록 16 라벨 fetched 시각 · source 명시 부족
 
-- **臾몄젣**: `_fetchTickerDataForChat`??16+ ?곗씠??釉붾줉 ?쇰꺼 ([SEC 10-K] / [Wikipedia] / [News] ????異쒖쿂???쇰? ?덉쑝??fetched ?쒓컖???꾨씫?섏뼱 AI ?듬??먯꽌 "?몄젣 媛?몄삩 ?곗씠?? 異붿쟻 遺덇?. ?ъ슜?먭? "??媛寃??대뵒??" 吏덈Ц ???듬? 遺덇?.
-- **?쒖젙**: `_aioFetchLabel(name, source, ts)` ?ы띁 ?좎꽕 (R142 ?쒖? 異쒕젰 `[name 쨌 fetched YYYY-MM-DD HH:MM KST 쨌 source]`). 醫낅ぉ蹂??곗씠??釉붾줉 吏꾩엯遺??"?곣봺?곣봺??[TICKER ?곗씠??釉붾줉 쨌 ?쇨큵 fetched X KST] ?곣봺?곣봺?? ?ㅻ뜑 異붽?. 5 二쇱슂 ?쇰꺼 (SEC 10-K / Wikipedia / SEC 8-K / News / Insider / Risk Factors)??"source X" 紐낆떆.
-- **?щ컻 諛⑹?**: T573 (?ы띁 ?뺤쓽) + T574 (?ㅻ뜑 + source ?쇰꺼 寃利?.
+- **문제**: `_fetchTickerDataForChat`에 16+ 데이터 블록 라벨 ([SEC 10-K] / [Wikipedia] / [News] 등)이 출처는 일부 있으나 fetched 시각이 누락되어 AI 답변에서 "언제 가져온 데이터" 추적 불가. 사용자가 "이 가격 어디서?" 질문 시 답변 불가.
+- **시정**: `_aioFetchLabel(name, source, ts)` 헬퍼 신설 (R142 표준 출력 `[name · fetched YYYY-MM-DD HH:MM KST · source]`). 종목별 데이터 블록 진입부에 "━━━━━ [TICKER 데이터 블록 · 일괄 fetched X KST] ━━━━━" 헤더 추가. 5 주요 라벨 (SEC 10-K / Wikipedia / SEC 8-K / News / Insider / Risk Factors)에 "source X" 명시.
+- **재발 방지**: T573 (헬퍼 정의) + T574 (헤더 + source 라벨 검증).
 
-## P388 쨌 v49.73 쨌 [P388/R140] ?몄뀡 ?쒓컖 ?먮룞 ?몄? ?ㅻ뜑 遺????AI ?듬? "?꾩옱" ?쒖젏 ?섍컖
+## P388 · v49.73 · [P388/R140] 세션 시각 자동 인지 헤더 부재 → AI 답변 "현재" 시점 환각
 
-- **臾몄젣**: AI 梨꾪똿 system ?꾨＼?꾪듃???몄뀡 ?쒓컖 紐낆떆 遺????AI媛 ?숈뒿 ?곗씠???쒖젏 ("2024??珥?/"?ы빐 4??)???꾩옱濡?李⑷컖?섏뿬 ?듬?. v49.67 ?쒖옣 ?섍꼍 ?ㅻ뜑??ticker ?듬??먮쭔 ?곸슜. `_getChatRules`???숈쟻 ?좎쭨 二쇱엯? ?덉쑝???곗씠???좎꽑??+ ?쒖젏 ?몄? 媛뺤젣 遺??
-- **?쒖젙**: `_aioSessionContextHeader()` ?ы띁 ?좎꽕 ???먯꽭???쒓컖: YYYY-MM-DD HH:MM KST??+ ?먯떆???먮룞 ?몄?: ?ㅻ뒛? X??Y??Z??(?붿씪)??+ ?먮뜲?댄꽣 ?좎꽑?? _liveData N遺???/ DATA_SNAPSHOT 湲곗??쇈?3異??먮룞 prepend. `_getChatRules()` 吏꾩엯遺???듯빀 ??14 CHAT_CONTEXTS 紐⑤몢 ?먮룞 ?몄?. `_aioRelativeDate(target)` ?ы띁 ?숇컲 ???뺤쟻 ?좎쭨 ?좏겙 (?? "2026.04 FOMC") ???숈쟻 留덉빱 ("2026??4??(X????") 移섑솚 媛??
+- **문제**: AI 채팅 system 프롬프트에 세션 시각 명시 부재 → AI가 학습 데이터 시점 ("2024년 초"/"올해 4월")을 현재로 착각하여 답변. v49.67 시장 환경 헤더는 ticker 답변에만 적용. `_getChatRules`의 동적 날짜 주입은 있으나 데이터 신선도 + 시점 인지 강제 부재.
+- **시정**: `_aioSessionContextHeader()` 헬퍼 신설 — 【세션 시각: YYYY-MM-DD HH:MM KST】 + 【시점 자동 인지: 오늘은 X년 Y월 Z일 (요일)】 + 【데이터 신선도: _liveData N분 전 / DATA_SNAPSHOT 기준일】 3축 자동 prepend. `_getChatRules()` 진입부에 통합 → 14 CHAT_CONTEXTS 모두 자동 인지. `_aioRelativeDate(target)` 헬퍼 동반 — 정적 날짜 토큰 (예: "2026.04 FOMC") → 동적 마커 ("2026년 4월 (X일 전)") 치환 가능.
 - **?щ컻 諛⑹?**: T571 (relativeDate) + T572 (sessionHeader).
 
 ## P387 쨌 v49.72 쨌 [P387/R138~R139] fundamental 7 李⑦듃 + 梨꾪똿 李⑦듃 蹂닿린 踰꾪듉 ?먮룞 吏꾨떒 audit + ?ъ씠?쒕컮 12異?
 
-- **?쒖젙**: `AIO.assertFinancialChartsAudit()` ?좎꽕 ??5 ?⑥닔(fetchFMP5YQuarterly/fetchKRQuarterly/fetchQuarterlyFinancials/renderFn/showHandler) + 7 canvas DOM + 4 ?듯빀 寃利?+ 罹먯떆 stats. ?ъ씠?쒕컮 audit row 12踰덉㎏ (`financialCharts`) ??"?뱤 李⑦듃 X% 쨌 X/7 canvas 쨌 罹먯떆 X".
+- **시정**: `AIO.assertFinancialChartsAudit()` 신설 — 5 함수(fetchFMP5YQuarterly/fetchKRQuarterly/fetchQuarterlyFinancials/renderFn/showHandler) + 7 canvas DOM + 4 통합 검증 + 캐시 stats. 사이드바 audit row 12번째 (`financialCharts`) — "📊 차트 X% · X/7 canvas · 캐시 X".
 - **?щ컻 諛⑹?**: T568 (audit coveragePct ??80) + T569 (?ъ씠?쒕컮 row DOM).
 
-## P386 쨌 v49.72 쨌 [P386/R139] AI 梨꾪똿 ?듬? ?쒓컖 ?먮즺 遺????inline chart ????섏씠吏 ?대룞 踰꾪듉 梨꾪깮
+## P386 · v49.72 · [P386/R139] AI 채팅 답변 시각 자료 부재 — inline chart 대신 페이지 이동 버튼 채택
 
-- **臾몄젣**: ?ъ슜??"AI 梨꾪똿?먯꽌 ?듬??????쒓컖???먮즺???앹꽦?댁꽌 媛숈씠 蹂댁뿬以????덉뼱? ?대?吏泥섎읆." 吏곸젒 吏덉쓽. Explore agent 吏꾨떒 寃곌낵 inline mini-chart??湲곗닠?곸쑝濡?媛?ν븯??(a) ?좏겙 鍮꾪슚??(b) 紐⑤컮???덉씠?꾩썐 蹂듭옟 (c) DOMPurify 寃뚯씠???듦낵 ?꾩슂.
-- **?쒖젙**: `chatSend` ?묐떟 ?뚮뜑??`?뱤 [醫낅ぉ] ?щТ 李⑦듃 蹂닿린 ?? ?쒖븞??踰꾪듉 ?먮룞 ?쎌엯 (detectedTickers ?쒗쉶). ?대┃ ??`_aioShowFundamentalChart(ticker)` ??fundamental ?섏씠吏 ?대룞 + ?먮룞 寃??+ 7 李⑦듃 ?꾩껜 ?뚮뜑 + 遺?쒕윭???ㅽ겕濡?
+- **문제**: 사용자 "AI 채팅에서 답변할 때 시각적 자료도 생성해서 같이 보여줄 수 있어? 이미지처럼." 직접 질의. Explore agent 진단 결과 inline mini-chart는 기술적으로 가능하나 (a) 토큰 비효율 (b) 모바일 레이아웃 복잡 (c) DOMPurify 게이트 통과 필요.
+- **시정**: `chatSend` 응답 렌더에 `📊 [종목] 재무 차트 보기 ↗` 시안색 버튼 자동 삽입 (detectedTickers 순회). 클릭 시 `_aioShowFundamentalChart(ticker)` → fundamental 페이지 이동 + 자동 검색 + 7 차트 전체 렌더 + 부드러운 스크롤.
 - **?μ젏 vs inline chart**: 7 ?뱀뀡 + 硫뷀듃由??뚯씠釉?full view + 紐⑤컮??1??諛섏쓳??+ 硫붾え由?leak 0 + ?좏겙 ?덉빟.
-- **?щ컻 諛⑹?**: T567 ??chatSend source??`_aioShowFundamentalChart` + `aio-financial-chart-btn` class 紐⑤몢 寃利?
+- **재발 방지**: T567 — chatSend source에 `_aioShowFundamentalChart` + `aio-financial-chart-btn` class 모두 검증.
 
-## P385 쨌 v49.72 쨌 [P385/R138] KR (.KS/.KQ) 醫낅ぉ 遺꾧린 ?щТ Naver ?ㅽ겕?섑븨 fallback 遺??
+## P385 · v49.72 · [P385/R138] KR (.KS/.KQ) 종목 분기 재무 Naver 스크래핑 fallback 부재
 
-- **臾몄젣**: FMP 臾대즺 ?곗뼱媛 KR 醫낅ぉ 遺꾧린 ?щТ 誘몄?????KR 醫낅ぉ fundamental ?섏씠吏 寃????7 李⑦듃 placeholder留??쒖떆.
-- **?쒖젙**: `AIO.fetchKRQuarterly(ticker)` ?좎꽕 ??`.KS/.KQ` ?뺢퇋??留ㅼ묶 ??`fetchNaverUSData(ticker, true).financials` ?몄텧, `quarterlyHistory` ?쒖???(income 諛곗뿴??遺꾧린 ?쒕━利?梨꾩썙 render ?⑥닔 ?명솚). ?⑥씪 遺꾧린留?媛?⑺빐??placeholder 李⑦듃 ?뚮뜑.
+- **문제**: FMP 무료 티어가 KR 종목 분기 재무 미지원 → KR 종목 fundamental 페이지 검색 시 7 차트 placeholder만 표시.
+- **시정**: `AIO.fetchKRQuarterly(ticker)` 신설 — `.KS/.KQ` 정규식 매칭 시 `fetchNaverUSData(ticker, true).financials` 호출, `quarterlyHistory` 표준화 (income 배열에 분기 시리즈 채워 render 함수 호환). 단일 분기만 가용해도 placeholder 차트 렌더.
 - **?щ컻 諛⑹?**: T562 ??`typeof AIO.fetchKRQuarterly === 'function'`.
 
-## P384 쨌 v49.72 쨌 [P384/R138] FMP 5??遺꾧린 ?곗씠??fetch 誘멸뎄????fundamental ?섏씠吏 遺꾧린 1~2媛쒕쭔 ?쒖떆
+## P384 · v49.72 · [P384/R138] FMP 5년 분기 데이터 fetch 미구현 — fundamental 페이지 분기 1~2개만 표시
 
 - **臾몄젣**: 湲곗〈 `fundamentalSearch`??FMP `/income-statement?limit=5` (annual)留??몄텧 ??遺꾧린蹂??쒓퀎??誘몄〈?? DART Financials ?ㅽ???5遺꾧린 trend 李⑦듃 遺덇?.
 - **?쒖젙**: `AIO.fetchFMP5YQuarterly(ticker)` ?좎꽕 ??4 endpoints (income-statement / balance-sheet-statement / cash-flow-statement / ratios) `period=quarter&limit=20` `Promise.allSettled` 蹂묐젹 fetch + 5遺?罹먯떆 (`_fmpQuarterlyCache` + LRU 50 醫낅ぉ cap). FMP key ?놁쑝硫?graceful `available:false` 諛섑솚.
-- **?щ컻 諛⑹?**: T561 ??`typeof AIO.fetchFMP5YQuarterly === 'function'` + T565 7 canvas DOM 寃利?
+- **재발 방지**: T561 — `typeof AIO.fetchFMP5YQuarterly === 'function'` + T565 7 canvas DOM 검증.
 
-## P383 쨌 v49.72 쨌 [P383/R138] fundamental ?섏씠吏 ?띿뒪?몃쭔 ??DART Financials ?ㅽ????쒓컖 李⑦듃 遺??
+## P383 · v49.72 · [P383/R138] fundamental 페이지 텍스트만 — DART Financials 스타일 시각 차트 부재
 
-- **臾몄젣**: ?ъ슜??"湲곗뾽 遺꾩꽍 ?섏씠吏????뉕쾶 ?щТ?쒗몴 遺꾩꽍?댁＜??湲곕뒫??異붽??댁빞 ?섎굹?" ?대?吏 (koreantickers.com/DART Financials 7 ?뱀뀡 李⑦듃) 泥⑤? ?붿껌. 湲곗〈 fundamental ?섏씠吏??移대뱶/???꾩＜ ?쒓컖?붾줈 5??遺꾧린 trend ?쒕늿??紐?遊?
-- **?쒖젙**: `#page-fundamental` "?щТ ?곸꽭" ??뿉 `#fundamental-financials-grid` 異붽? ??4x2 grid (Growth/Profitability/Balance/CashFlow/Liquidity+CurRatio Donut/WorkingCap/Valuation) + 媛?移대뱶 ?섎떒 5遺꾧린 metric ?뚯씠釉? Chart.js 7 instance (`_aioChartRegistry`???깅줉?섏뿬 ?섏씠吏 ?댄깉 ??硫붾え由?leak 0). 紐⑤컮??諛섏쓳??(4????2????1??.
-- **?щ컻 諛⑹?**: T563/T564/T565 ??render ?⑥닔 + grid DOM + 7 canvas 紐⑤몢 寃利?
+- **문제**: 사용자 "기업 분석 페이지에 저렇게 재무제표 분석해주는 기능을 추가해야 되나?" 이미지 (koreantickers.com/DART Financials 7 섹션 차트) 첨부 요청. 기존 fundamental 페이지는 카드/표 위주 시각화로 5년 분기 trend 한눈에 못 봄.
+- **시정**: `#page-fundamental` "재무 상세" 탭에 `#fundamental-financials-grid` 추가 — 4x2 grid (Growth/Profitability/Balance/CashFlow/Liquidity+CurRatio Donut/WorkingCap/Valuation) + 각 카드 하단 5분기 metric 테이블. Chart.js 7 instance (`_aioChartRegistry`에 등록하여 페이지 이탈 시 메모리 leak 0). 모바일 반응형 (4열 → 2열 → 1열).
+- **재발 방지**: T563/T564/T565 — render 함수 + grid DOM + 7 canvas 모두 검증.
 
 ## P377 쨌 v49.70 쨌 [P377/R135] Codex 4/5李?吏곸젒 ?꾩닔 ?먯옣 + 濡쒕뵫 臾멸뎄 ?ㅻ낫媛?
 
-- **臾몄젣**: 4/5李④? 媛먯궗 ?⑥닔 異붽???移섏슦移섎㈃ ?ㅼ젣 ?섏씠吏 ?띿뒪??踰꾪듉/?곗씠??諛붿씤???꾩닔 ?먭????앸궗?ㅺ퀬 ?ㅼ씤?????덉쓬.
-- **吏곸젒 ?먭?**: `index.html` 21媛?`.page[id]`瑜??쒖꽌?濡??섎씪 ?띿뒪?몃웾, 踰꾪듉/?낅젰, `data-action`, `data-on-*`, live/snap ?곗씠???깊겕, 異쒖쿂/?댁쁺 留덉빱, ??李⑦듃/?ㅻ챸, ?좎쭨???좏겙, 珥덇린 濡쒕뵫 臾멸뎄瑜??섏씠吏蹂??먯옣?쇰줈 異붿텧. `data-action` 127媛쒖? ?낅젰 諛붿씤??19媛쒕뒗 紐⑤몢 ?몃뱾??議댁옱 ?뺤씤. 以묐났 ID/鍮?踰꾪듉/?대?吏 alt/李⑦듃 ?쇰꺼/?섏걶 珥덇린 臾멸뎄??0嫄??뺤씤.
-- **?쒖젙**: `target="_blank"` ?몃? 留곹겕 7媛?rel 蹂닿컯, ?쇰꺼 ?쏀븳 input 3媛?aria/placeholder 蹂닿컯, 珥덇린/?숈쟻 ?ъ슜??臾멸뎄??"濡쒕뵫/濡쒕뵫 ?ㅽ뙣/遺덈윭?ㅻ뒗 以???"?섏떊 ?湲??붿껌 以??섏떊 ?ㅽ뙣" 怨꾩뿴濡??뺢퇋?? `fxbond` 怨쇨굅 ??꾨씪?몄? `data-aio-archive="true"`濡?蹂닿? 肄섑뀗痢좎엫??紐낆떆. ?④? glossary 踰꾪듉??aria/title ?쇰꺼 異붽?.
-- **?щ컻 諛⑹?**: `AIO.getFourthFifthPassAudit()` 異붽?. 4李⑤뒗 ?곗씠??吏꾩떎??異쒖쿂/理쒖떊??媛먯궗, 5李⑤뒗 湲곌?湲됀룹옄??理쒖떊?붋룹큹蹂댁옄 吏곴???3? 紐⑺몴瑜??섏씠吏蹂??먯닔?? `AIO.getTableAccessibilityAudit()` + `_aioApplyTableAccessibility()`濡?紐⑤뱺 ?쒖뿉 ?묎렐 媛?ν븳 ?대쫫/header semantics ?먮룞 蹂댁젙. Sidebar row, AutoOps, deployment gate, T551~T558???곌껐.
+- **문제**: 4/5차가 감사 함수 추가에 치우치면 실제 페이지 텍스트/버튼/데이터 바인딩 전수 점검이 끝났다고 오인될 수 있음.
+- **직접 점검**: `index.html` 21개 `.page[id]`를 순서대로 잘라 텍스트량, 버튼/입력, `data-action`, `data-on-*`, live/snap 데이터 싱크, 출처/운영 마커, 표/차트/설명, 날짜형 토큰, 초기 로딩 문구를 페이지별 원장으로 추출. `data-action` 127개와 입력 바인딩 19개는 모두 핸들러 존재 확인. 중복 ID/빈 버튼/이미지 alt/차트 라벨/나쁜 초기 문구는 0건 확인.
+- **시정**: `target="_blank"` 외부 링크 7개 rel 보강, 라벨 약한 input 3개 aria/placeholder 보강, 초기/동적 사용자 문구의 "로딩/로딩 실패/불러오는 중"을 "수신 대기/요청 중/수신 실패" 계열로 정규화. `fxbond` 과거 타임라인은 `data-aio-archive="true"`로 보관 콘텐츠임을 명시. 숨김 glossary 버튼에 aria/title 라벨 추가.
+- **재발 방지**: `AIO.getFourthFifthPassAudit()` 추가. 4차는 데이터 진실성/출처/최신성 감사, 5차는 기관급·자동 최신화·초보자 직관성 3대 목표를 페이지별 점수화. `AIO.getTableAccessibilityAudit()` + `_aioApplyTableAccessibility()`로 모든 표에 접근 가능한 이름/header semantics 자동 보정. Sidebar row, AutoOps, deployment gate, T551~T558에 연결.
 
 ## P376 쨌 v49.70 쨌 [P376/R132~R134] AI 梨꾪똿 怨좉툒 湲곕뒫 ?먮룞 吏꾨떒 audit + ?ъ씠?쒕컮 10異?
 - **?쒖젙**: `AIO.assertChatAdvancedFeaturesAudit()` ?좎꽕 (10 ?⑥닔 + 5 ?듯빀 + 5 API ?먮룞 吏꾨떒 + coveragePct 100%). ?ъ씠?쒕컮 audit row 10踰덉㎏ (chatAdvanced) ??"怨좉툒 湲곕뒫 X% 쨌 ?⑥닔 X/10 쨌 ?뵒X 쨌 ?뫀??.
 - **?щ컻 諛⑹?**: T548 (audit 100%) + T549 (?ъ씠?쒕컮 row).
 
-## P375 쨌 v49.70 쨌 [P375/R132~R134] AI 梨꾪똿 ?좉퇋 怨좉툒 湲곕뒫 ?듯빀 ?먮룞 ?뚭? 諛⑹? 遺??
-- **臾몄젣**: v49.70 ?좉퇋 4 ?곸뿭 (?꾨줈???뚮엺/?ㅼ슫濡쒕뱶/?쒕??덉씠?? ?듯빀 ?뚭? ?먮룞 吏꾨떒 遺??
+## P375 · v49.70 · [P375/R132~R134] AI 채팅 신규 고급 기능 통합 자동 회귀 방지 부재
+- **문제**: v49.70 신규 4 영역 (프로필/알람/다운로드/시뮬레이션) 통합 회귀 자동 진단 부재.
 - **?쒖젙**: assertChatAdvancedFeaturesAudit + ?ъ씠?쒕컮 row ?듯빀 (P376怨??④퍡).
 
-## P374 쨌 v49.70 쨌 [P374/R134] AI 梨꾪똿 湲덉븸/SPX % ?쒕굹由ъ삤 ?쒕??덉씠??遺??
+## P374 · v49.70 · [P374/R134] AI 채팅 금액/SPX % 시나리오 시뮬레이션 부재
 - **臾몄젣**: v49.69源뚯? "1???ъ옄 ?? / "SPX -5%" ?먯뿰???섎룄 silent ???ъ슜???뺣웾 ?쒕??덉씠??遺덇?.
-- **?쒖젙**: `_aioSimulateAmountOrPct(q, tickers)` ?좎꽕 ??湲덉븸 5 ?⑥쐞 (??泥쒕쭔/諛깅쭔/留?USD) + 吏??% ?묐갑??+ 3 ?먯궛 諛곕텇 (蹂댁닔??洹좏삎/怨듦꺽?? + ?쒕굹由ъ삤 ?곹뼢 (VIX/10Y/Gold/Sector/Position). Bridgewater All Weather + GS GIR + Ackman + Marks ?꾨젅???곸슜.
+- **시정**: `_aioSimulateAmountOrPct(q, tickers)` 신설 — 금액 5 단위 (억/천만/백만/만/USD) + 지수 % 양방향 + 3 자산 배분 (보수적/균형/공격적) + 시나리오 영향 (VIX/10Y/Gold/Sector/Position). Bridgewater All Weather + GS GIR + Ackman + Marks 프레임 적용.
 - **?щ컻 諛⑹?**: T546 (1??+ SPX -5% ?뺥솗 異붿궛).
 - **?뚯씪**: `js/aio-chat.js` _aioSimulateAmountOrPct + chatSend chip ?쎌엯
 
-## P373 쨌 v49.70 쨌 [P373/R134] AI 梨꾪똿 ?듬? ?곗씠???ㅼ슫濡쒕뱶 遺??
+## P373 · v49.70 · [P373/R134] AI 채팅 답변 데이터 다운로드 부재
 - **臾몄젣**: v49.69源뚯? ?ъ슜?먭? AI ?듬? ?몃? ?쒖슜 ???섎룞 蹂듭궗 ??遺덊렪 + ?곗씠???먯떎.
 - **?쒖젙**: `_aioExportChatData(ctxId, fullText, tickers, format)` ?좎꽕 ??Markdown/JSON/CSV 3 format + ?쒖옣 ?ㅻ깄??+ 醫낅ぉ ?곗씠??+ AI ?묐떟 ?듯빀 + ?대┰蹂대뱶 ?대갚. chatSend ?묐떟 吏곹썑 ?ㅼ슫濡쒕뱶 踰꾪듉 (MD/JSON/CSV) ?먮룞 ?쎌엯. AIO.exportChatData 肄섏넄 API.
 - **?щ컻 諛⑹?**: T545 (?⑥닔 ?뺤쓽).
 - **?뚯씪**: `js/aio-chat.js` _aioExportChatData + _aioExportFromBtn + chatSend 踰꾪듉
 
-## P372 쨌 v49.70 쨌 [P372/R133] AI 梨꾪똿 ?뚮엺/?꾧퀎媛??몃━嫄?遺??
+## P372 · v49.70 · [P372/R133] AI 채팅 알람/임계값 트리거 부재
 - **臾몄젣**: v49.69源뚯? "VIX 30 ?꾨떖 ???뚮┝" / "NVDA $200" ?ъ슜???붿껌 silent ???섎룞 紐⑤땲?곕쭅.
-- **?쒖젙**: `_aioParseAlertIntent(q)` ?먯뿰???섎룄 媛먯? (VIX/F&G/醫낅ぉ媛寃?횞 above/below 횞 ?쒓?+?곷Ц 4 蹂?? + `_aioAddAlert()` localStorage ?곸냽 + `_aioCheckAlerts()` 1遺꾨쭏???먮룞 ?먭? + 釉뚮씪?곗? Notification API. chatSend ?묐떟 吏곹썑 ?쒖븞??chip ?덈궡 + 沅뚰븳 ?붿껌. AIO.getAlerts/addAlert/removeAlert/checkAlerts 肄섏넄 API.
+- **시정**: `_aioParseAlertIntent(q)` 자연어 의도 감지 (VIX/F&G/종목가격 × above/below × 한글+영문 4 변형) + `_aioAddAlert()` localStorage 영속 + `_aioCheckAlerts()` 1분마다 자동 점검 + 브라우저 Notification API. chatSend 응답 직후 시안색 chip 안내 + 권한 요청. AIO.getAlerts/addAlert/removeAlert/checkAlerts 콘솔 API.
 - **?щ컻 諛⑹?**: T543 (5 ?뚮엺 ?⑥닔) + T544 (?섎룄 ?뚯떛 ?뺥솗??.
 - **?뚯씪**: `js/aio-chat.js` ?뚮엺 5?⑥닔 + chatSend chip ?쎌엯
 
-## P371 쨌 v49.70 쨌 [P371/R132] AI 梨꾪똿 ?ъ슜???ъ옄 ?꾨줈??硫붾え由?遺??(媛쒖씤???듬? 遺덇?)
+## P371 · v49.70 · [P371/R132] AI 채팅 사용자 투자 프로필 메모리 부재 (개인화 답변 불가)
 - **臾몄젣**: v49.69源뚯? 紐⑤뱺 ?ъ슜?먯뿉寃??숈씪 ?듬? ??蹂댁닔??怨듦꺽???ъ슜??援щ텇 ???? ?④린/?κ린 ?쒓컙異?臾댁떆.
-- **?쒖젙**: `_aioGetUserProfile()`/`_aioSetUserProfile()` localStorage `aio_user_profile_v1` ?곸냽 (riskTolerance + timeHorizon + preferredAssets + excludedAssets). `_buildUserProfileContext()` system prompt ?앹꽦 (?대え吏 ?쒖? + ?쒓컙異??쇰꺼). `_getV48IntegratedContext` ?먮룞 ?몄텧 ??14 CHAT_CONTEXTS 紐⑤몢 ?듯빀. AIO.getUserProfile/setUserProfile 肄섏넄 API.
+- **시정**: `_aioGetUserProfile()`/`_aioSetUserProfile()` localStorage `aio_user_profile_v1` 영속 (riskTolerance + timeHorizon + preferredAssets + excludedAssets). `_buildUserProfileContext()` system prompt 생성 (이모지 표준 + 시간축 라벨). `_getV48IntegratedContext` 자동 호출 → 14 CHAT_CONTEXTS 모두 통합. AIO.getUserProfile/setUserProfile 콘솔 API.
 - **?щ컻 諛⑹?**: T541 (3 ?⑥닔) + T542 (v48 ?먮룞 ?듯빀).
 - **?뚯씪**: `js/aio-chat.js` 3 ?꾨줈???⑥닔 + `index.html` _getV48IntegratedContext ?듯빀
 
-## P370 쨌 v49.69 쨌 [P370/R129~R131] AI 梨꾪똿 ?명꽣?숉떚釉?湲곕뒫 ?먮룞 吏꾨떒 audit 遺??
-- **臾몄젣**: v49.68源뚯? ?꾩냽 吏덈Ц/?먮룞 ?섏씠吏 ?대룞/?쒕??덉씠??fuzzy 留ㅼ묶 ???명꽣?숉떚釉?湲곕뒫 ?듯빀 ?щ? ?먮룞 寃利?audit ?놁쓬. ?좉퇋 湲곕뒫 異붽? ???듯빀 ?꾨씫 silent.
-- **?쒖젙 (v49.69)**: `AIO.assertChatInteractivityAudit()` ?좎꽕 (`js/aio-core.js`) ??6 ?⑥닔 ?뺤쓽 + 5 chatSend ?듯빀 ?먮룞 ?먭? + coveragePct 100% 寃利? ?ъ씠?쒕컮 audit row 9踰덉㎏ (`chatInteractivity`) "?명꽣?숉떚釉?X% 쨌 ?⑥닔 X/6 쨌 ?듯빀 X/5" ?됱긽 ?쒖떆.
+## P370 · v49.69 · [P370/R129~R131] AI 채팅 인터랙티브 기능 자동 진단 audit 부재
+- **문제**: v49.68까지 후속 질문/자동 페이지 이동/시뮬레이션/fuzzy 매칭 등 인터랙티브 기능 통합 여부 자동 검증 audit 없음. 신규 기능 추가 시 통합 누락 silent.
+- **시정 (v49.69)**: `AIO.assertChatInteractivityAudit()` 신설 (`js/aio-core.js`) — 6 함수 정의 + 5 chatSend 통합 자동 점검 + coveragePct 100% 검증. 사이드바 audit row 9번째 (`chatInteractivity`) "인터랙티브 X% · 함수 X/6 · 통합 X/5" 색상 표시.
 - **?щ컻 諛⑹?**: T537~T538 ?쇱씠釉?DOM ?뚭?.
 - **?뚯씪**: `js/aio-core.js` assertChatInteractivityAudit + ?ъ씠?쒕컮 ciaEl 遺꾧린
 
-## P369 쨌 v49.69 쨌 [P369/R131] AI 梨꾪똿 ?쎌뼱/蹂꾨챸 fuzzy 留ㅼ묶 遺??("?붾퉬"/"?쇱쟾" ?몄떇 ?ㅽ뙣)
-- **臾몄젣**: v49.68源뚯? `_extractTickers`媛 ?쒓? ?쎌뼱/蹂꾨챸 (?붾퉬/?쇱쟾/?뚯뒳???좉?/?꾩븞 ?? silent 誘멸컧吏 ??ticker 0嫄???醫낅ぉ 遺꾩꽍 fetch 誘몄떎????"?곗씠??誘몄닔?? silent fail. ?ъ슜??吏꾩엯?λ꼍 ??
-- **?쒖젙 (v49.69)**: `_resolveTickerFromFuzzy(input)` ?좎꽕 ??50+ ?쎌뼱/蹂꾨챸 留ㅽ븨 (?붾퉬?묿VDA / ?쇱쟾??05930.KS / ?뚯뒳?쇄넂TSLA / 移댁뭅?ㅲ넂035720.KS / 鍮꾪듃肄붿씤?묪TC-USD / ?좉??묬L=F / 肄붿뒪?쇄넂^KS11 ??. ?뺥솗 留ㅼ묶 + 遺遺?留ㅼ묶 (?묐갑??. `_extractTickers` 0嫄댁씪 ??chatSend?먯꽌 怨듬갚/議곗궗 ?좏겙?????먮룞 fallback ?몄텧 (理쒕? 3媛?.
-- **?щ컻 諛⑹?**: T535 (?붾퉬?묿VDA / ?쇱쟾??05930.KS / ?뚯뒳?쇄넂TSLA ?뺥솗 留ㅽ븨 寃利?.
+## P369 · v49.69 · [P369/R131] AI 채팅 약어/별명 fuzzy 매칭 부재 ("엔비"/"삼전" 인식 실패)
+- **문제**: v49.68까지 `_extractTickers`가 한글 약어/별명 (엔비/삼전/테슬라/유가/위안 등) silent 미감지 → ticker 0건 → 종목 분석 fetch 미실행 → "데이터 미수신" silent fail. 사용자 진입장벽 ↑.
+- **시정 (v49.69)**: `_resolveTickerFromFuzzy(input)` 신설 — 50+ 약어/별명 매핑 (엔비→NVDA / 삼전→005930.KS / 테슬라→TSLA / 카카오→035720.KS / 비트코인→BTC-USD / 유가→CL=F / 코스피→^KS11 등). 정확 매칭 + 부분 매칭 (양방향). `_extractTickers` 0건일 때 chatSend에서 공백/조사 토큰화 후 자동 fallback 호출 (최대 3개).
+- **재발 방지**: T535 (엔비→NVDA / 삼전→005930.KS / 테슬라→TSLA 정확 매핑 검증).
 - **?뚯씪**: `js/aio-chat.js` _resolveTickerFromFuzzy + chatSend detectedTickers fallback
 
-## P368 쨌 v49.69 쨌 [P368/R131] AI 梨꾪똿 嫄곗떆 ?쒕굹由ъ삤 ?숈쟻 ?쒕??덉씠??遺??
-- **臾몄젣**: v49.68源뚯? ?ъ슜??"Fed 50bp ?명븯 ???먯궛 ?곹뼢?" / "VIX 30 ?꾨떖 ??" 吏덉쓽 ???뺤꽦 ?듬?留????뺣웾 異붿궛 遺??
+## P368 · v49.69 · [P368/R131] AI 채팅 거시 시나리오 동적 시뮬레이션 부재
+- **문제**: v49.68까지 사용자 "Fed 50bp 인하 시 자산 영향?" / "VIX 30 도달 시?" 질의 시 정성 답변만 → 정량 추산 부재.
 - **?쒖젙 (v49.69)**: `_simulateMacroScenario(q)` ?좎꽕 ??6 ?쒕굹由ъ삤 ?⑦꽩 ?먮룞 媛먯? (fed-cut/fed-hike/vix-spike/spx-crash/dxy-strong/oil-spike) + Bridgewater + Druckenmiller ?꾨젅???곸슜 + SPX/10Y/DXY/Gold/Sector 5異??뺣웾 ?곹뼢 異붿궛 (?대━?ㅽ떛). chatSend ?묐떟 吏곹썑 amber chip + ???먮룞 ?쎌엯 (?먯궛 / ?덉긽 諛⑺뼢 / ?먯젙 ?윟?뵶).
-- **?щ컻 諛⑹?**: T534 (6 ?쒕굹由ъ삤 留ㅽ븨 寃利?.
+- **재발 방지**: T534 (6 시나리오 매핑 검증).
 - **?뚯씪**: `js/aio-chat.js` _simulateMacroScenario + chatSend chip ?쎌엯
 
-## P367 쨌 v49.69 쨌 [P367/R130] AI 梨꾪똿 ?ы듃?대━???숈쟻 ?쒕??덉씠??遺??
-- **臾몄젣**: v49.68源뚯? "AAPL 10% 異붽? ??鍮꾩쨷?" 吏덉쓽 silent ??portfolio.holdings ?먮룞 議고쉶 + 媛以묒튂 蹂??怨꾩궛 誘몄???
-- **?쒖젙 (v49.69)**: `_simulatePortfolioAddition(q, tickers)` ?좎꽕 ??鍮꾩쨷 % ?뺢퇋??留ㅼ묶 + portfolio.holdings ?먮룞 議고쉶 + ?쇱씠釉?媛寃?+ ?좉퇋 媛以묒튂 怨꾩궛. chatSend ?묐떟 吏곹썑 ?뱀깋 chip + ???먮룞 ?쎌엯 (醫낅ぉ / currentPct / newPct + 蹂???됱긽). ?좉퇋 醫낅ぉ (holdings 誘몃벑濡? ?먮룞 異붽? ?쒕??덉씠??
+## P367 · v49.69 · [P367/R130] AI 채팅 포트폴리오 동적 시뮬레이션 부재
+- **문제**: v49.68까지 "AAPL 10% 추가 시 비중?" 질의 silent — portfolio.holdings 자동 조회 + 가중치 변화 계산 미지원.
+- **시정 (v49.69)**: `_simulatePortfolioAddition(q, tickers)` 신설 — 비중 % 정규식 매칭 + portfolio.holdings 자동 조회 + 라이브 가격 + 신규 가중치 계산. chatSend 응답 직후 녹색 chip + 표 자동 삽입 (종목 / currentPct / newPct + 변화 색상). 신규 종목 (holdings 미등록) 자동 추가 시뮬레이션.
 - **?щ컻 諛⑹?**: T533 ?⑥닔 ?뺤쓽.
 - **?뚯씪**: `js/aio-chat.js` _simulatePortfolioAddition + chatSend chip ?쎌엯
 
-## P366 쨌 v49.69 쨌 [P366/R130] AI 梨꾪똿 ?먮룞 ?섏씠吏 ?대룞 遺??
-- **臾몄젣**: v49.68源뚯? ?ъ슜??"李⑦듃 蹂댁뿬以? ?낅젰 ???듬?留?+ ?섏씠吏 ?대룞 ?섎룞 ?대┃ ???ㅻ퉬寃뚯씠??鍮꾪슚??
-- **?쒖젙 (v49.69)**: `_autoNavigatePage(q, currentCtxId)` ?좎꽕 ??12+ ?ㅼ썙???⑦꽩 留ㅽ븨 (李⑦듃/湲곗닠?뭪echnical / ?쒓렇?먥넂signal / ?щ━?뭩entiment / 留ㅽ겕濡쒋넂macro / ?명솚梨꾧텒?뭚xbond / 湲곗뾽遺꾩꽍?뭚undamental / ?뚮쭏?뭪hemes / ?ы듃?대━?ㅲ넂portfolio / ?듭뀡?뭥ptions / ?댁뒪?뭢arket-news / ?쒓뎅?뭟r-macro). ?꾩옱 而⑦뀓?ㅽ듃? ?숈씪?섎㈃ ?대룞 ?덈궡 ?앸왂. 蹂대씪??chip + showPage data-action ?먮룞 ?쎌엯.
-- **?щ컻 諛⑹?**: T532 (12+ intent 留ㅽ븨 寃利?.
+## P366 · v49.69 · [P366/R130] AI 채팅 자동 페이지 이동 부재
+- **문제**: v49.68까지 사용자 "차트 보여줘" 입력 시 답변만 + 페이지 이동 수동 클릭 → 네비게이션 비효율.
+- **시정 (v49.69)**: `_autoNavigatePage(q, currentCtxId)` 신설 — 12+ 키워드 패턴 매핑 (차트/기술→technical / 시그널→signal / 심리→sentiment / 매크로→macro / 외환채권→fxbond / 기업분석→fundamental / 테마→themes / 포트폴리오→portfolio / 옵션→options / 뉴스→market-news / 한국→kr-macro). 현재 컨텍스트와 동일하면 이동 안내 생략. 보라색 chip + showPage data-action 자동 삽입.
+- **재발 방지**: T532 (12+ intent 매핑 검증).
 - **?뚯씪**: `js/aio-chat.js` _autoNavigatePage + chatSend chip ?쎌엯
 
-## P365 쨌 v49.69 쨌 [P365/R129] AI 梨꾪똿 ?꾩냽 吏덈Ц ?먮룞 ?쒖븞 遺??(???源딆씠 + 吏꾩엯?λ꼍)
-- **臾몄젣**: v49.68源뚯? ?듬? 醫낅즺 ???ъ슜?먭? 吏곸젒 ?ㅼ쓬 吏덈Ц ?낅젰 ??吏꾩엯?λ꼍 + ???源딆씠 ?⑥젅. 14 而⑦뀓?ㅽ듃蹂??곹빀 ?꾩냽 吏덈Ц 遺??
-- **?쒖젙 (v49.69)**: `_suggestFollowUpQuestions(ctxId, q, response, tickers)` ?좎꽕 ??14 而⑦뀓?ㅽ듃蹂?遺꾧린 (醫낅ぉ??7 愿??deep-dive / macro?묪ridgewater 4-Quadrant / sentiment?묺arks Pendulum / technical?뭌einstein Stage / portfolio??-Quadrant 遺꾪룷 / themes?뭆oros Bubble / kr-*?믫븳援??쒖옣). ?묐떟 ???ъ씠?숈깋 chip 3媛?(`q-chip aio-followup-chip`) ?먮룞 ?쎌엯 + ?대┃ ??`chatFromChip(ctxId, q)` ?먮룞 ?몄텧. ?ъ슜??吏덉쓽??"?몄젣"/"?? ?ㅼ썙????異붽? ?꾩냽 吏덈Ц.
-- **?щ컻 諛⑹?**: T531 (14 遺꾧린 寃利? + T539 (3媛?諛곗뿴 諛섑솚).
+## P365 · v49.69 · [P365/R129] AI 채팅 후속 질문 자동 제안 부재 (대화 깊이 + 진입장벽)
+- **문제**: v49.68까지 답변 종료 후 사용자가 직접 다음 질문 입력 → 진입장벽 + 대화 깊이 단절. 14 컨텍스트별 적합 후속 질문 부재.
+- **시정 (v49.69)**: `_suggestFollowUpQuestions(ctxId, q, response, tickers)` 신설 — 14 컨텍스트별 분기 (종목→17 관점 deep-dive / macro→Bridgewater 4-Quadrant / sentiment→Marks Pendulum / technical→Weinstein Stage / portfolio→4-Quadrant 분포 / themes→Soros Bubble / kr-*→한국 시장). 응답 후 사이앙색 chip 3개 (`q-chip aio-followup-chip`) 자동 삽입 + 클릭 시 `chatFromChip(ctxId, q)` 자동 호출. 사용자 질의에 "언제"/"왜" 키워드 시 추가 후속 질문.
+- **재발 방지**: T531 (14 분기 검증) + T539 (3개 배열 반환).
 - **?뚯씪**: `js/aio-chat.js` _suggestFollowUpQuestions + chatSend chip ?쎌엯
 
 ## P364 쨌 v49.68 쨌 [P364/R128] AI 梨꾪똿 ?ъ씠?쒕컮 audit row 7 ??8異?(chatContextConsistency 誘멸??쒗솕)
 
-- **臾몄젣**: v49.67 ?ъ씠?쒕컮 audit 7異?(registry/web_search/freshness/chatContexts/analysisFramework/essence/chatFunctionCoverage/tickerFetchHealth/fullSurface/deepReview)??"14 CHAT_CONTEXTS 湲곌?湲??꾨━?? ?뺥빀 row 遺?? ?ъ슜?먭? "AI 梨꾪똿 ?쒖뒪???꾩껜媛 ?좉린?곸쑝濡?湲곌?湲??꾨━?? ?붽뎄 ???먭? 吏꾨떒 遺덇?.
+- **문제**: v49.67 사이드바 audit 7축 (registry/web_search/freshness/chatContexts/analysisFramework/essence/chatFunctionCoverage/tickerFetchHealth/fullSurface/deepReview)에 "14 CHAT_CONTEXTS 기관급 퀄리티" 정합 row 부재. 사용자가 "AI 채팅 시스템 전체가 유기적으로 기관급 퀄리티" 요구 시 자가 진단 불가.
 - **?쒖젙 (v49.68)**: `[data-audit-key="chatContextConsistency"]` row 8踰덉㎏ 異붽? + `_aioRefreshAuditWidget`??cccEl 遺꾧린 ??"湲곌?湲??꾨━??X/100 쨌 ?꾨젅??X/14 쨌 ?쒕굹由ъ삤 ??쨌 ?쒓컖 ?? ?됱긽 ?쒖떆 (>=85% green / >=60% amber / <60% red).
 - **?щ컻 諛⑹?**: T528 ?쇱씠釉?DOM ?뚭? (?ъ씠?쒕컮 row DOM 議댁옱).
 - **?뚯씪**: `index.html` + `js/aio-core.js` _aioRefreshAuditWidget cccEl 遺꾧린
 
-## P363 쨌 v49.68 쨌 [P363/R128] AI 梨꾪똿 ?곗씠???뚯뒪 ?곗꽑?쒖쐞 誘몃챸臾명솕 + 異쒖쿂 ??꾩뒪?ы봽 ?꾨씫
+## P363 · v49.68 · [P363/R128] AI 채팅 데이터 소스 우선순위 미명문화 + 출처 타임스탬프 누락
 
-- **臾몄젣**: v49.67源뚯? _liveSnap/_closeSnap/DATA_SNAPSHOT 3以??곗씠???뚯뒪 ?쇱슜 + ?곗꽑?쒖쐞 紐낅Ц??遺?? ?대갚媛??몄슜 ??"湲곗??? 誘명몴湲곕줈 ?ъ슜?먭? stale ?щ? ?먮떒 遺덇?. macro context "Fed Rate: 3.50-3.75%" ?대갚媛믪쓣 ?ㅼ떆媛꾩쿂???몄슜.
+- **문제**: v49.67까지 _liveSnap/_closeSnap/DATA_SNAPSHOT 3중 데이터 소스 혼용 + 우선순위 명문화 부재. 폴백값 인용 시 "기준일" 미표기로 사용자가 stale 여부 판단 불가. macro context "Fed Rate: 3.50-3.75%" 폴백값을 실시간처럼 인용.
 - **?쒖젙 (v49.68)**: ABSOLUTE RULES **12議??좉퇋** ??1?쒖쐞 _liveSnap (?ㅼ떆媛?<5遺? ??2?쒖쐞 _closeSnap (醫낃?) ??3?쒖쐞 DATA_SNAPSHOT (?대갚, ?좎꽑??紐낆떆) ??4?쒖쐞 SEC/FMP/Naver/Finnhub fetched (5遺?罹먯떆). ?대갚媛??몄슜 ??"(?대갚)" 紐낆떆 + "Source 쨌 湲곗??? YYYY-MM-DD" ?쒓린 ?섎Т.
 - **?щ컻 諛⑹?**: T525 ?쇱씠釉?DOM ?뚭? (ABSOLUTE RULES 12議?紐낆떆).
 - **?뚯씪**: `js/aio-chat.js` ABSOLUTE RULES 12議?
 
-## P362 쨌 v49.68 쨌 [P362/R128] AI 梨꾪똿 14 而⑦뀓?ㅽ듃 ?쇨???+ 湲곌?湲??꾨━???먮룞 吏꾨떒 遺??
+## P362 · v49.68 · [P362/R128] AI 채팅 14 컨텍스트 일관성 + 기관급 퀄리티 자동 진단 부재
 
-- **臾몄젣**: v49.67源뚯? 14 CHAT_CONTEXTS???섎????덉쭏 (湲곌?湲??꾨젅???듯빀 / ?쒕굹由ъ삤 媛?대뱶 / ?쒓컖 ?⑥꽌 / 異쒖쿂 ??꾩뒪?ы봽) ?먮룞 吏꾨떒 遺?? ?ъ슜?먭? "湲곌?湲??꾨━???좉린???묐룞" ?붽뎄 ??肄섏넄?먯꽌 利됱떆 ?먯닔 ?뺤씤 遺덇?. 媛숈? ?곗씠??(VIX/10Y/DXY)媛 14 而⑦뀓?ㅽ듃???쇨? 二쇱엯?섎뒗吏 誘멸?利?
-- **?쒖젙 (v49.68)**: `AIO.getChatContextConsistencyAudit()` ?좎꽕 ??14 CHAT_CONTEXTS 횞 5 痢〓㈃ (?쇱씠釉??쇨???/ 湲곌?湲??꾨젅??/ ?쒕굹由ъ삤 / ?쒓컖 ?⑥꽌 / 異쒖쿂 ??꾩뒪?ы봽) + _fetchTickerDataForChat ?먯껜 5 痢〓㈃ 寃利? qualityScore 0~100 ?곗텧 (媛以묒튂: ?꾨젅??25??+ ?쇱씠釉?15??+ ?쒕굹由ъ삤 10??+ ?쒓컖 5??+ 異쒖쿂 5??+ 梨꾪똿 ?⑥닔 40??. status: 85+ ok / 60~85 warn / <60 fail.
+- **문제**: v49.67까지 14 CHAT_CONTEXTS의 의미적 품질 (기관급 프레임 통합 / 시나리오 가이드 / 시각 단서 / 출처 타임스탬프) 자동 진단 부재. 사용자가 "기관급 퀄리티 유기적 작동" 요구 시 콘솔에서 즉시 점수 확인 불가. 같은 데이터 (VIX/10Y/DXY)가 14 컨텍스트에 일관 주입되는지 미검증.
+- **시정 (v49.68)**: `AIO.getChatContextConsistencyAudit()` 신설 — 14 CHAT_CONTEXTS × 5 측면 (라이브 일관성 / 기관급 프레임 / 시나리오 / 시각 단서 / 출처 타임스탬프) + _fetchTickerDataForChat 자체 5 측면 검증. qualityScore 0~100 산출 (가중치: 프레임 25점 + 라이브 15점 + 시나리오 10점 + 시각 5점 + 출처 5점 + 채팅 함수 40점). status: 85+ ok / 60~85 warn / <60 fail.
 - **?щ컻 諛⑹?**: T526 ?⑥닔 ?뺤쓽 + T527 qualityScore >= 60 + T529 14 而⑦뀓?ㅽ듃 12+ ?꾨젅??
 - **?뚯씪**: `js/aio-core.js` getChatContextConsistencyAudit + `index.html` ?ъ씠?쒕컮 row
 
-## P361 쨌 v49.68 쨌 [P361/R127/R128] AI 梨꾪똿 Bull/Base/Bear ?쒕굹由ъ삤 遺꾧린 誘멸컯??+ ?쒓컖 ?⑥꽌 遺??
+## P361 · v49.68 · [P361/R127/R128] AI 채팅 Bull/Base/Bear 시나리오 분기 미강제 + 시각 단서 부재
 
-- **臾몄젣 (?섎???吏꾨떒)**: v49.67源뚯? 14 CHAT_CONTEXTS 以?macro留??쒕굹由ъ삤 遺꾧린 (60/25/15% ?뺣쪧) ?쒓났. 醫낅ぉ 遺꾩꽍/?ъ슜??吏덉쓽 ???⑥씪 寃곕줎留??듬? ??鍮꾨?移??꾪뿕 誘몄씤吏. ?대え吏/援듦린/?됱긽 ?쇨???遺?????ъ슜?먭? ?꾪뿕/湲고쉶 利됱떆 ?쒓컖 ?몄? 遺덇?.
+- **문제 (의미적 진단)**: v49.67까지 14 CHAT_CONTEXTS 중 macro만 시나리오 분기 (60/25/15% 확률) 제공. 종목 분석/사용자 질의 시 단일 결론만 답변 → 비대칭 위험 미인지. 이모지/굵기/색상 일관성 부재 → 사용자가 위험/기회 즉시 시각 인지 불가.
 - **?쒖젙 (v49.68)**:
-  - ?쒖옣 ?섍꼍 ?ㅻ뜑??VIX/F&G/Score ?대え吏 ?먮룞 遺꾨쪟: VIX ??5 ?뵶 / ??0 ?윞 / <20 ?윟 / F&G 洹밸떒 (??5 ?먮뒗 ??5) ?뵶 / 以묐┰ ?윟 / Score ??5 ?윟 / ??0 ?윞 / <40 ?뵶
+  - 시장 환경 헤더에 VIX/F&G/Score 이모지 자동 분류: VIX ≥25 🔴 / ≥20 🟡 / <20 🟢 / F&G 극단 (≤25 또는 ≥75) 🔴 / 중립 🟢 / Score ≥65 🟢 / ≥40 🟡 / <40 🔴
   - ABSOLUTE RULES **9議??좉퇋** (R127 Bull/Base/Bear 3 ?쒕굹由ъ삤 遺꾧린 + ?뺤떊??X+Y+Z=100 ?섎Т): ?뺤떇 "**?뱢 Bull (X%)**: [?몃━嫄? ??[?쒕굹由ъ삤] / **?윞 Base (Y%)** / **?뱣 Bear (Z%)**"
   - ABSOLUTE RULES **10議??좉퇋** (R128 ?쒓컖 ?⑥꽌 ?쒖? + Source 쨌 湲곗????쒓린 + 寃곕줎?? ?듭떖?믪떆?섎━?ㅲ넂?≪뀡 援ъ“ 媛뺤젣)
-- **?щ컻 諛⑹?**: T523 ?쒕굹由ъ삤 媛?대뱶 / T524 ?대え吏 + ??꾩뒪?ы봽 / T525 ABSOLUTE RULES 10議?
-- **?뚯씪**: `js/aio-chat.js` ?쒖옣 ?ㅻ뜑 ?대え吏 + ABSOLUTE RULES 9~10議?
+- **재발 방지**: T523 시나리오 가이드 / T524 이모지 + 타임스탬프 / T525 ABSOLUTE RULES 10조.
+- **파일**: `js/aio-chat.js` 시장 헤더 이모지 + ABSOLUTE RULES 9~10조
 
-## P360 쨌 v49.68 쨌 [P360/R126] AI 梨꾪똿 湲곌?湲?遺꾩꽍 ?꾨젅?꾩썙??8媛??듯빀 遺??(32% ??100% 留ㅽ븨)
+## P360 · v49.68 · [P360/R126] AI 채팅 기관급 분석 프레임워크 8개 통합 부재 (32% → 100% 매핑)
 
-- **?ъ슜???뺤쭅 吏??*: "AI 梨꾪똿 愿?⑦븳 ?쒖뒪???꾩껜媛 ?좉린?곸쑝濡?湲곌?湲??꾨━?곕줈 ?묐룞?댁빞"
+- **사용자 정직 지적**: "AI 채팅 관련한 시스템 전체가 유기적으로 기관급 퀄리티로 작동해야"
 - **臾몄젣 吏꾨떒 (Explore agent ?섎????뺣? 吏꾨떒)**: v49.67源뚯? 11 湲곌?湲??꾨젅??以?3.5/11 (32%) ?듯빀:
   - ??紐낆떆: Citi (Stagflation Playbook, NAND SCA), JPM (CoWoS, Healthcare, Liquidity), Goldman (Top of Mind, Evercore ?쇰?)
   - ??**?꾨씫 (?듭떖 8媛?**: Bridgewater All Weather 4-Quadrant / Druckenmiller Macro Overlay / Howard Marks Pendulum / Buffett Owner Earnings + Margin of Safety / Ackman Pershing Square 8 Criteria / Soros Reflexivity / GS GIR (Top of Mind / Out of Consensus 紐낆떆) / Morgan Stanley Cyclical Pendulum
 - **?쒖젙 (v49.68)**:
-  - `_getInstitutionalFrameworkContext(pageFocus)` ?좉퇋 ?⑥닔 (`index.html` L15222~15310) ??8 ?꾨젅???뺤쓽 + ?듬? ???섎Т 紐낆떆 + ?섏씠吏蹂??곗꽑 ?꾨젅??留ㅽ븨
+  - `_getInstitutionalFrameworkContext(pageFocus)` 신규 함수 (`index.html` L15222~15310) — 8 프레임 정의 + 답변 시 의무 명시 + 페이지별 우선 프레임 매핑
   - `_getV48IntegratedContext` ?먮룞 ?몄텧 ??14 CHAT_CONTEXTS 紐⑤몢 ?먮룞 二쇱엯 (`return common + focus + instFw;`)
   - ABSOLUTE RULES **11議??좉퇋** (R126 8 ?꾨젅??以?1~3媛??몄슜 ?섎Т): "Bridgewater 4-Quadrant 湲곗? ?꾩옱 ?꾩튂??~ / Druckenmiller Overlay ?좊룞???쒓렇?먯? ~ / ?곕씪??~"
-  - ?섏씠吏蹂??곗꽑 ?꾨젅?? macro?묪ridgewater+Druckenmiller / sentiment?묺arks+Soros / fundamental?묪uffett+Ackman / themes?뭆oros+MS Cyclical / fxbond?묪ridgewater+Druckenmiller / portfolio?묨ll Weather+Margin of Safety
+  - 페이지별 우선 프레임: macro→Bridgewater+Druckenmiller / sentiment→Marks+Soros / fundamental→Buffett+Ackman / themes→Soros+MS Cyclical / fxbond→Bridgewater+Druckenmiller / portfolio→All Weather+Margin of Safety
 - **?щ컻 諛⑹?**: T521 8 ?꾨젅??紐낆떆 + T522 v48 ??instFw ?먮룞 ?몄텧 + T529 14 而⑦뀓?ㅽ듃 12+ ?꾨젅??+ R126 ?좉퇋.
 - **?뚯씪**: `index.html` L15222 _getInstitutionalFrameworkContext + L15411 _getV48IntegratedContext ?듯빀
 
@@ -1402,130 +1416,130 @@ next_P_number: P660
 
 ## P329 쨌 v49.59 쨌 [P329/R109] Claude ??誘몄엯????silent fail ???ъ슜???몄? ?ㅽ뙣
 
-- **3 Explore agent UX 議곗궗 諛쒓껄**: chatSend Claude ??寃利????쇰컲 ?띿뒪??alert留??쒖떆. ?ъ슜?먭? ?ъ씠?쒕컮 ?꾩튂 ?몄? ?대젮?. ?좉퇋 ?ъ슜??泥??쒕룄 醫뚯젅.
+- **3 Explore agent UX 조사 발견**: chatSend Claude 키 검증 시 일반 텍스트 alert만 표시. 사용자가 사이드바 위치 인지 어려움. 신규 사용자 첫 시도 좌절.
 - **?쒖젙**: inline alert 媛뺥솕 ("??Claude API ???낅젰 ?꾩슂 + console.anthropic.com 留곹겕 + sk-ant- ?뺤떇 ?덈궡") + ?ъ씠?쒕컮 input border 鍮④컙??pulse (3珥? + ?먮룞 focus.
-- **?뚯씪**: `js/aio-chat.js` L3229 chatSend Claude ??寃利?釉붾줉
+- **파일**: `js/aio-chat.js` L3229 chatSend Claude 키 검증 블록
 
 ## P328 쨌 v49.59 쨌 [P328] AAII ?꾧퀎媛?-10/+10 ??-5/+5 fine-tune
 
 - **3 Explore agent 諛쒓껄**: spread -7.3 (bull 35.7 / bear 43)??"以묐┰"?쇰줈 遺꾨쪟?섏뼱 ?쏀븳 鍮꾧? ?좏샇 ?꾨씫. P196 蹂댁젙 (T196) 異붽? fine-tune.
-- **?쒖젙**: `AIO_THRESHOLD_REGISTRY.AAII.bands` ?꾧퀎媛?醫곹옒 ??以묒젙??鍮꾧? 踰붿쐞 -20~-5 / 以묐┰ 踰붿쐞 -5~+5濡?蹂寃?
+- **시정**: `AIO_THRESHOLD_REGISTRY.AAII.bands` 임계값 좁힘 — 중정도 비관 범위 -20~-5 / 중립 범위 -5~+5로 변경.
 - **?뚯씪**: `js/aio-core.js` AAII bands
 
-## P327 쨌 v49.59 쨌 [P327/R112] 14 CHAT_CONTEXTS ?뺥빀??audit 遺?????뚭? 誘멸컧吏
+## P327 · v49.59 · [P327/R112] 14 CHAT_CONTEXTS 정합성 audit 부재 → 회귀 미감지
 
-- **3 Explore agent 諛쒓껄**: 14 CHAT_CONTEXTS??system() ?몄텧 ?깃났 ?щ?, 湲몄씠, _getChatRules ?몄텧 ?щ?, dynamic injection ?⑦꽩 ?먮룞 寃利?遺?? ?좉퇋 ?섏씠吏 異붽? ???뚭? 寃異??대젮?.
-- **?쒖젙**: `AIO.auditAllChatContexts()` ?좉퇋 ?⑥닔. system() ?몄텧 ?깃났/?ㅽ뙣, 湲몄씠, ?숈쟻 ?⑦꽩 (_currentTickerId/_currentThemeId/_liveData/DATA_SNAPSHOT), _getChatRules ?몄텧 ?щ? ?먮룞 寃利? ?ъ씠?쒕컮 audit ?꾩젽??chatContexts row 異붽?.
+- **3 Explore agent 발견**: 14 CHAT_CONTEXTS의 system() 호출 성공 여부, 길이, _getChatRules 호출 여부, dynamic injection 패턴 자동 검증 부재. 신규 페이지 추가 시 회귀 검출 어려움.
+- **시정**: `AIO.auditAllChatContexts()` 신규 함수. system() 호출 성공/실패, 길이, 동적 패턴 (_currentTickerId/_currentThemeId/_liveData/DATA_SNAPSHOT), _getChatRules 호출 여부 자동 검증. 사이드바 audit 위젯에 chatContexts row 추가.
 - **?щ컻 諛⑹? R112**: 紐⑤뱺 CHAT_CONTEXTS??_getChatRules() ?몄텧 ?섎Т.
-- **寃利?*: `AIO.auditAllChatContexts().validCount === totalContexts` 紐⑺몴.
+- **검증**: `AIO.auditAllChatContexts().validCount === totalContexts` 목표.
 - **?뚯씪**: `js/aio-core.js` `AIO.auditAllChatContexts` ?좉퇋 + `_aioRefreshAuditWidget` ?뺤옣 + `index.html` L3886 ?꾩젽 row
 
 ## P326 쨌 v49.59 쨌 [P326/R109] fxbond ?쒓뎅 湲덈━ ?ㅻ깄???쒖젏 紐⑦샇 ???섍컖 ?꾪뿕
 
-- **3 Explore agent 諛쒓껄**: fxbond context??krBond3y/krBond10y媛 "?ㅻ깄??湲곗?" 紐낆떆 遺?? ?ъ슜?먭? "吏湲??쒓뎅 10Y 湲덈━?" 吏덈Ц ????誘멸뎅 10Y留??ㅼ떆媛? ?쒓뎅? ?뺢린 諛쒗몴 (BOK MPC/KRX) ?ㅻ깄?룹씤???쒖젏 遺덈챸??
+- **3 Explore agent 발견**: fxbond context의 krBond3y/krBond10y가 "스냅샷 기준" 명시 부재. 사용자가 "지금 한국 10Y 금리?" 질문 시 → 미국 10Y만 실시간, 한국은 정기 발표 (BOK MPC/KRX) 스냅샷인데 시점 불명확.
 - **?쒖젙**: fxbond system()??"?쒓뎅 湲덈━ [?ㅻ깄?? ?좎쭨 ???ㅼ떆媛?fetch ?놁쓬]" 留덉빱 + BOK 湲곗?湲덈━ + 3Y/10Y ?숈쟻 二쇱엯 + ?섍컖 李⑤떒 ?덈궡.
 - **?뚯씪**: `js/aio-chat.js` L795 fxbond context system() IIFE
 
-## P325 쨌 v49.59 쨌 [P325/R106] options ?섏씠吏 CHAT_CONTEXTS 遺?????듭뀡 遺꾩꽍 silent fallback
+## P325 · v49.59 · [P325/R106] options 페이지 CHAT_CONTEXTS 부재 → 옵션 분석 silent fallback
 
-- **3 Explore agent 諛쒓껄**: aio-chat.js L4952??`options:{}` 諛쒓껄?섎굹 Chart.js ?듭뀡 媛앹껜. 吏꾩젙??CHAT_CONTEXTS.options 誘몄젙?????듭뀡 ?섏씠吏 吏꾩엯 ??basic fallback.
-- **?쒖젙**: index.html??`window.CHAT_CONTEXTS['options']` override 異붽?. PCR/PCR Equity/PCR Index/VIX/VVIX/SKEW ?숈쟻 二쇱엯 + _currentTickerId ?쒖슜 (湲곗큹?먯궛 媛寃? + 5異??듭뀡 遺꾩꽍 ?꾨젅??(IV Surface/Percentile/Skew/Term Structure/GEX) + ?쒖옣 ?섍꼍蹂??꾨왂 留ㅽ븨.
-- **?щ컻 諛⑹?**: R106 (???섏씠吏 CHAT_CONTEXTS ?좉퇋 ??_currentXxxId ?먮룞 二쇱엯) ?⑦꽩 ?곕쫫.
+- **3 Explore agent 발견**: aio-chat.js L4952에 `options:{}` 발견되나 Chart.js 옵션 객체. 진정한 CHAT_CONTEXTS.options 미정의 → 옵션 페이지 진입 시 basic fallback.
+- **시정**: index.html에 `window.CHAT_CONTEXTS['options']` override 추가. PCR/PCR Equity/PCR Index/VIX/VVIX/SKEW 동적 주입 + _currentTickerId 활용 (기초자산 가격) + 5축 옵션 분석 프레임 (IV Surface/Percentile/Skew/Term Structure/GEX) + 시장 환경별 전략 매핑.
+- **재발 방지**: R106 (새 페이지 CHAT_CONTEXTS 신규 시 _currentXxxId 자동 주입) 패턴 따름.
 - **?뚯씪**: `index.html` L17613~ options CHAT_CONTEXTS override
 
 ## P324 쨌 v49.59 쨌 [P324/R110] signal/breadth/sentiment CHAT_CONTEXTS ?ㅻ뜲?댄꽣 誘몄＜?????섍컖 ?붿〈
 
-- **3 Explore agent 諛쒓껄**: signal context???꾨젅?꾨쭔 ?뺤쓽 / breadth??_breadth5/200/50留??ъ슜 (20 ?뺤쓽 ?먯껜 ?ㅻ쪟) / sentiment??F&G + VIX留? AAII/SKEW/VVIX ??6 吏??遺??
+- **3 Explore agent 발견**: signal context는 프레임만 정의 / breadth는 _breadth5/200/50만 사용 (20 정의 자체 오류) / sentiment는 F&G + VIX만, AAII/SKEW/VVIX 등 6 지표 부재.
 - **?쒖젙**:
   - signal: AIO_ACTION_RULES (v49.5) ?숈쟻 ?됯? (HOLD_CORE/TRIM_X/EXIT_OR_HEDGE ?먮룞 異붿쿇 + VIX/score 踰붿쐞蹂?留ㅽ븨)
   - breadth: AIO.diagnoseBreadthConsensus ?몄텧 + DATA_SNAPSHOT ?대갚 (breadth5sma/20sma/50sma/200sma)
-  - sentiment: 6 吏??Tail Risk Board (VIX/VVIX/SKEW/MOVE/VIX9D vs VIX3M structure/AAII spread/PCR/HY OAS)
+  - sentiment: 6 지표 Tail Risk Board (VIX/VVIX/SKEW/MOVE/VIX9D vs VIX3M structure/AAII spread/PCR/HY OAS)
 - **?щ컻 諛⑹? R109**: signal/breadth/sentiment context???쇱씠釉??섏튂 ?먮룞 二쇱엯 ?섎Т.
 - **?뚯씪**: `js/aio-chat.js` L868 signal / L906 breadth / L928 sentiment system() ?⑥닔
 
-## P323 쨌 v49.59 쨌 [P323] Pre-existing 15 FAIL ?붿뿬 (v49.42 ?댁쟾 援ъ“ 蹂寃??뺥빀 遺??
+## P323 · v49.59 · [P323] Pre-existing 15 FAIL 잔여 (v49.42 이전 구조 변경 정합 부재)
 
-- **3 Explore agent 諛쒓껄**: T317/T318? v49.41?먯꽌 auditStatus瑜?'partial' string ??6異?object 濡??꾪솚?덉쑝??test 誘멸갚?? T300? home subSections 8 ??15 ?뺤옣, test 誘몃컲?? T303? chips 7 ??13 ?뺤옣. T233? ?쇱씠釉??됱긽 蹂寃?vs static amber 遺덉씪移?
+- **3 Explore agent 발견**: T317/T318은 v49.41에서 auditStatus를 'partial' string → 6축 object 로 전환했으나 test 미갱신. T300은 home subSections 8 → 15 확장, test 미반영. T303은 chips 7 → 13 확장. T233은 라이브 색상 변경 vs static amber 불일치.
 - **?쒖젙 (test 蹂댁젙)**:
   - T317/T318: `=== 'partial'` ??`=== 'partial' || (typeof === 'object')` 議곌굔 ?뺤옣
   - T300: `=== 8` ??`>= 8` 踰붿쐞 ?덉슜
   - T303: `=== 7` ??`>= 7` ?덉슜 (chips 異붽? ?덉슜)
   - T233: THRESHOLD.BREADTH.getLabel ?뺥빀 議곌굔 異붽?
-  - T294: ?섏씠吏 ??諛곗? 1媛쒕? ?좊줈 蹂寃?(SEC 10-K ?泥?媛??
+  - T294: 페이지 ❌ 배지 1개를 ⚠로 변경 (SEC 10-K 대체 가능)
 - **?뚯씪**: `js/aio-tests.js` 5 test 蹂댁젙 + `index.html` L8212 (T294 ???꾪솚)
 
 
 
 ## P322 쨌 v49.58 쨌 [P322/R108] Audit 11 ?⑥닔 肄섏넄 ?꾩슜 ???ъ슜???먭? 吏꾨떒 遺덇?
 
-- **3 Explore agent 議곗궗 諛쒓껄**: assertTickerRegistryCompleteness/getWebSearchAudit/getChatContextFreshnessAudit ??11 audit ?⑥닔媛 肄섏넄?먯꽌留??몄텧 媛?? ?ъ슜?먭? ?ъ씠?쒕컮/??쒕낫?쒖뿉??吏곸젒 ?쒖뒪??嫄닿컯???뺤씤 遺덇?.
-- **?쒖젙**: ?ъ씠?쒕컮 API ???뱀뀡 ?섎떒??`.aio-audit-widget` 而댄뙥??移대뱶 ?좎꽕. 3媛??듭떖 audit 寃곌낵 + `?뵇 Claude ??寃?? ?좉? (localStorage ?곕룞) + `?뱿 諛깆뾽 / ?뱾 蹂듭썝 / ?봽 ?먮룞` 3 踰꾪듉 (`AIO.exportApiKeys/importApiKeys/recoverApiKeysFromIdb` ?몄텧). 5遺??먮룞 媛깆떊.
+- **3 Explore agent 조사 발견**: assertTickerRegistryCompleteness/getWebSearchAudit/getChatContextFreshnessAudit 등 11 audit 함수가 콘솔에서만 호출 가능. 사용자가 사이드바/대시보드에서 직접 시스템 건강도 확인 불가.
+- **시정**: 사이드바 API 키 섹션 하단에 `.aio-audit-widget` 컴팩트 카드 신설. 3개 핵심 audit 결과 + `🔍 Claude 웹 검색` 토글 (localStorage 연동) + `📥 백업 / 📤 복원 / 🔄 자동` 3 버튼 (`AIO.exportApiKeys/importApiKeys/recoverApiKeysFromIdb` 호출). 5분 자동 갱신.
 - **?щ컻 諛⑹? R108**: audit ?⑥닔 異붽? ???ъ씠?쒕컮 ?꾩젽?먮룄 ?몄텧 ?섎Т.
 - **?뚯씪**: `index.html` L3886 ?꾩젽 DOM + `js/aio-core.js` `_aioRefreshAuditWidget`/`_aioWebSearchToggle`/`_aioExportKeys`/`_aioImportKeysPrompt`/`_aioRecoverKeys` ?몃뱾??5媛?
 
-## P321 쨌 v49.58 쨌 [P321/R107] _fetchTickerDataForChat Promise.all timeout 遺????梨꾪똿 ?묐떟 30珥? hang
+## P321 · v49.58 · [P321/R107] _fetchTickerDataForChat Promise.all timeout 부재 → 채팅 응답 30초+ hang
 
-- **3 Explore agent 議곗궗 諛쒓껄**: 醫낅ぉ??11+ fetch 蹂묐젹 ???쇰? hang (Yahoo CORS 李⑤떒/SEC EDGAR ?묐떟 吏?? ???꾩껜 ?묐떟 30珥??湲? ?ъ슜??寃쏀뿕 ???
-- **洹쇰낯 ?먯씤**: 湲곗〈 `await secPromise` ?⑦꽩??timeout ?놁씠 臾댄븳 ?湲?
+- **3 Explore agent 조사 발견**: 종목당 11+ fetch 병렬 시 일부 hang (Yahoo CORS 차단/SEC EDGAR 응답 지연) → 전체 응답 30초 대기. 사용자 경험 저하.
+- **근본 원인**: 기존 `await secPromise` 패턴이 timeout 없이 무한 대기.
 - **?쒖젙**: `_withTimeout(promise, ms, fallback)` helper ?좎꽕. 11媛?promise (sec/wiki/sec8K/fhNews/insider/13F/fcf/balance/ev/macro/short) 紐⑤몢 2.5珥?timeout?쇰줈 ?섑븨.
 - **?щ컻 諛⑹? R107**: 梨꾪똿 fetch??諛섎뱶??Promise.allSettled + 媛쒕퀎 timeout ?섎Т.
-- **寃利?*: ?묐떟 ?쒓컙 ??4珥?(?댁쟾 30珥?).
+- **검증**: 응답 시간 ≤ 4초 (이전 30초+).
 - **?뚯씪**: `js/aio-chat.js` L1848 `_withTimeout` ?뺤쓽 + L1871~1884 11 promise ?섑븨
 
 ## P320 쨌 v49.58 쨌 [P320/R104] v49.35 Roadmap 6 ?⑥닔 ?뺤쓽留?/ 梨꾪똿?먯꽌 誘명샇異????섍컖 ?붿〈
 
-- **3 Explore agent 議곗궗 諛쒓껄**: computeFcfYield/computeBalanceSheetRatios/computeEvEbitda/computeMacroBeta/fetchFinnhubShortInterest 5 ?⑥닔媛 aio-core.js L3756~3943???뺤쓽?먯쑝??`_fetchTickerDataForChat`?먯꽌 ?몄텧 0?? fundamental ?섏씠吏?먯꽌留??ъ슜. 梨꾪똿?먯꽌 FCF/EV/Macro ??遺꾩꽍 ???숈뒿 ?곗씠???섏〈.
+- **3 Explore agent 조사 발견**: computeFcfYield/computeBalanceSheetRatios/computeEvEbitda/computeMacroBeta/fetchFinnhubShortInterest 5 함수가 aio-core.js L3756~3943에 정의됐으나 `_fetchTickerDataForChat`에서 호출 0회. fundamental 페이지에서만 사용. 채팅에서 FCF/EV/Macro 등 분석 시 학습 데이터 의존.
 - **?쒖젙**: 5 promise 異붽? + system ?꾨＼?꾪듃 ?쇰꺼 5 ?좉퇋 ([FCF Yield], [Balance Sheet], [EV/EBITDA], [Macro Beta], [Short Interest]). ABSOLUTE RULES "援ы쁽 6??1" ?낅뜲?댄듃.
 - **?щ컻 諛⑹?**: R104 "_fetchTickerDataForChat ??fetch 異붽? ??ABSOLUTE RULES ?숆린 ?뺤옣 ?섎Т" ?⑦꽩 ?곕쫫.
 - **?뚯씪**: `js/aio-chat.js` L1877~1884 5 promise + L2070~2105 5 ?쇰꺼 + L2114 ABSOLUTE RULES ?낅뜲?댄듃
 
-## P319 쨌 v49.58 쨌 [P319/R106] ticker / market-news ?섏씠吏 CHAT_CONTEXTS ?꾩쟾 ?꾨씫
+## P319 · v49.58 · [P319/R106] ticker / market-news 페이지 CHAT_CONTEXTS 완전 누락
 
-- **3 Explore agent 議곗궗 諛쒓껄**: 14 CHAT_CONTEXTS ?섏씠吏 enumerate 寃곌낵 ticker? market-news ?섏씠吏 而⑦뀓?ㅽ듃 ?뺤쓽 遺?? ticker???ъ슜?먭? 媛???먯＜ ?ㅼ뼱媛???섏씠吏 ??梨꾪똿 吏꾩엯 ??basic fallback留??ъ슜. v49.57 R105 (themes _currentThemeId ?⑦꽩) 誘명솗??
-- **?쒖젙**: index.html L17501??`window.CHAT_CONTEXTS['ticker']` + `window.CHAT_CONTEXTS['market-news']` override ?좉퇋. `window._currentTickerId` 留덉빱 (showTicker / fundamentalSearch 2 吏??set). ticker system()??5異??꾨젅?꾩썙??+ market-news system()???댁뒪 罹먯떆 ?먮룞 二쇱엯 + web_search ?먮룞 ?몃━嫄?
-- **?щ컻 諛⑹? R106**: ???섏씠吏 CHAT_CONTEXTS ?좉퇋 ??window._currentXxxId ?먮룞 二쇱엯 ?섎Т.
+- **3 Explore agent 조사 발견**: 14 CHAT_CONTEXTS 페이지 enumerate 결과 ticker와 market-news 페이지 컨텍스트 정의 부재. ticker는 사용자가 가장 자주 들어가는 페이지 — 채팅 진입 시 basic fallback만 사용. v49.57 R105 (themes _currentThemeId 패턴) 미확산.
+- **시정**: index.html L17501에 `window.CHAT_CONTEXTS['ticker']` + `window.CHAT_CONTEXTS['market-news']` override 신규. `window._currentTickerId` 마커 (showTicker / fundamentalSearch 2 지점 set). ticker system()에 5축 프레임워크 + market-news system()에 뉴스 캐시 자동 주입 + web_search 자동 트리거.
+- **재발 방지 R106**: 새 페이지 CHAT_CONTEXTS 신규 시 window._currentXxxId 자동 주입 의무.
 - **?뚯씪**: `index.html` L17501~17615 ticker/market-news override + `js/aio-core.js` L12717 showTicker + `js/aio-chat.js` L3774/3970 fundamentalSearch 留덉빱 set
 
 
 
-## P318 쨌 v49.57 쨌 [P318/R104] Claude web_search 議곌굔遺 ?듯빀 (寃??API ?놁씠 ?몃젋???댁뒪)
+## P318 · v49.57 · [P318/R104] Claude web_search 조건부 통합 (검색 API 없이 트렌딩 뉴스)
 
-- **?ъ슜??蹂닿퀬**: "寃??API ?놁쑝硫?湲곗뾽??醫낅ぉ???묒쭏??理쒖떊 ?곗씠??紐?媛?몄??"
-- **洹쇰낯 ?먯씤**: AIO Screener??SEC/Finnhub/Yahoo/Naver/Wikipedia ?뺣웾 80% + ?뺤꽦 70% 而ㅻ쾭?섎굹, breaking ?댁뒪/?몃젋???좏뵿/?좊꼸 由ы룷??蹂몃Ц? ?뺤쟻 臾대즺 API濡?紐?媛?몄샂. Perplexity/Google CSE???좊즺/???꾩슂.
-- **?쒖젙**: `_shouldUseClaudeWebSearch(q, ctxId, detectedTickers)` ?대━?ㅽ떛 ?좎꽕 (?쒖젏 ?ㅼ썙???섏씠吏 而⑦뀓?ㅽ듃/?곗빱+?대깽?????놁쓣 ???대갚) + `reqBody.tools = [{type:'web_search_20250305', max_uses:3}]` 議곌굔遺 二쇱엯 + `localStorage.aio_web_search_enabled='off'` opt-out + `AIO.getWebSearchAudit()` ?듦퀎
-- **?щ컻 諛⑹?**: `localStorage.setItem('aio_web_search_enabled','off')` 紐낆떆??鍮꾪솢?? max_uses 3 ?쒗븳?쇰줈 鍮꾩슜 媛?? ?대━?ㅽ떛 strict (?⑥닚 ?뺤쓽 吏덈Ц? ??諛쒕룞)
-- **寃利?*: `_shouldUseClaudeWebSearch('?ㅻ뒛 NVDA ?댁뒪', 'ticker', ['NVDA'])` === true. `AIO.getWebSearchAudit().enabled === true && calls >= 0`
+- **사용자 보고**: "검색 API 없으면 기업들/종목들 양질의 최신 데이터 못 가져와?"
+- **근본 원인**: AIO Screener는 SEC/Finnhub/Yahoo/Naver/Wikipedia 정량 80% + 정성 70% 커버하나, breaking 뉴스/트렌딩 토픽/애널 리포트 본문은 정적 무료 API로 못 가져옴. Perplexity/Google CSE는 유료/키 필요.
+- **시정**: `_shouldUseClaudeWebSearch(q, ctxId, detectedTickers)` 휴리스틱 신설 (시점 키워드/페이지 컨텍스트/티커+이벤트/키 없을 때 폴백) + `reqBody.tools = [{type:'web_search_20250305', max_uses:3}]` 조건부 주입 + `localStorage.aio_web_search_enabled='off'` opt-out + `AIO.getWebSearchAudit()` 통계
+- **재발 방지**: `localStorage.setItem('aio_web_search_enabled','off')` 명시적 비활성. max_uses 3 제한으로 비용 가드. 휴리스틱 strict (단순 정의 질문은 안 발동)
+- **검증**: `_shouldUseClaudeWebSearch('오늘 NVDA 뉴스', 'ticker', ['NVDA'])` === true. `AIO.getWebSearchAudit().enabled === true && calls >= 0`
 - **?뚯씪**: `js/aio-chat.js` `_shouldUseClaudeWebSearch` + `callClaude` reqBody.tools + chatSend webSearch opts ?꾨떖. `js/aio-core.js` `AIO.getWebSearchAudit`
 
-## P317 쨌 v49.57 쨌 [P317/R104] _fetchTickerDataForChat 源딆씠 遺議???8-K/News/Insider/13F ?꾨씫 ???섍컖
+## P317 · v49.57 · [P317/R104] _fetchTickerDataForChat 깊이 부족 — 8-K/News/Insider/13F 누락 → 환각
 
-- **?ъ슜??蹂닿퀬**: "媛?醫낅ぉ?ㅺ낵 湲곗뾽?ㅼ쓽 理쒖떊 ?뺣낫? ?곗씠?곕뱾??媛?몄삤怨??덈뒗 吏 ?몃??섍쾶 議곗궗"
-- **洹쇰낯 ?먯씤**: v49.34?먯꽌 SEC 10-K + Wikipedia 2 ?뚯뒪留?二쇱엯. AI媛 "理쒓렐 NVDA ?몄닔 諛쒗몴" 媛숈? 吏덈Ц???숈뒿 ?곗씠??2024~2025) ?섏〈 ???섍컖 ?꾪뿕. Items 5.02 CEO 蹂寃?Items 2.02 ?ㅼ쟻 ?ъ쟾 怨듭떆 媛숈? event-driven 8-K, Finnhub 14???댁뒪, ?꾩썝 留ㅼ닔/留ㅻ룄, 13F 蹂댁쑀 ???꾨씫
+- **사용자 보고**: "각 종목들과 기업들의 최신 정보와 데이터들을 가져오고 있는 지 세밀하게 조사"
+- **근본 원인**: v49.34에서 SEC 10-K + Wikipedia 2 소스만 주입. AI가 "최근 NVDA 인수 발표" 같은 질문에 학습 데이터(2024~2025) 의존 → 환각 위험. Items 5.02 CEO 변경/Items 2.02 실적 사전 공시 같은 event-driven 8-K, Finnhub 14일 뉴스, 임원 매수/매도, 13F 보유 등 누락
 - **?쒖젙**: 4媛?fetch 異붽? ??`AIO.fetchSECRecentFilings` (placeholder ???ㅼ젣 8-K 5嫄??뚯떛), `AIO.fetchFinnhubCompanyNews` ?좎꽕 (Top 5 14??, `AIO.fetchFinnhubInsider` (湲곗〈 ?⑥닔 ?쒖꽦), `AIO.fetchSEC13F` (URL ?덈궡). system ?꾨＼?꾪듃 ?쇰꺼 6媛쒕줈 ?뺤옣
 - **?щ컻 諛⑹?**: ABSOLUTE RULES 5議?異붽? ??"??[SEC 8-K]/[News]/[Insider]/[13F] 釉붾줉 ?곗씠?곕쭔 ?몄슜. ?숈뒿 ?곗씠??嫄곗떆 ?ш굔 ?섍컖 ?덈? 湲덉?. 釉붾줉 鍮꾩뼱 ?덉쑝硫?'?곗씠???놁쓬 ??吏곸젒 ?뺤씤 沅뚯옣'"
-- **寃利?*: `await _fetchTickerDataForChat(['NVDA'])` ?묐떟??`[SEC 8-K]`, `[News]`, `[Insider]` ?쇰꺼 ?ы븿
+- **검증**: `await _fetchTickerDataForChat(['NVDA'])` 응답에 `[SEC 8-K]`, `[News]`, `[Insider]` 라벨 포함
 - **?뚯씪**: `js/aio-chat.js` L1857~1862 (4 ?좉퇋 promise) + L1953 ?댄썑 (4 ?쇰꺼 push). `js/aio-core.js` `fetchSECRecentFilings` 媛뺥솕 + `fetchFinnhubCompanyNews` ?좎꽕
 
 ## P316 쨌 v49.57 쨌 [P316/R103] AIO_TICKER_NAME_REGISTRY 47媛???SCR_KEYWORD_ALIASES 543 ticker ?쒓? ?몄떇 媛?133媛?
 
-- **?ъ슜??蹂닿퀬**: "吏湲??ㅼ뼱媛 ?덈뒗 醫낅ぉ怨?湲곗뾽??遺꾩꽍 ?꾩뿉 ?뚮쭏/?몃젋?쒖뿉 ?덈뒗 醫낅ぉ?ㅼ? 紐⑤몢 ?ㅼ뼱媛 ?덈뒗 吏 ?뺤씤"
-- **洹쇰낯 ?먯씤**: v49.32?먯꽌 AIO_TICKER_NAME_REGISTRY 47媛?(硫붽?罹?30 + KR 17)留??깅줉. SCR_KEYWORD_ALIASES 259 ?뚮쭏 / 543 unique ticker 以?133媛?24%)媛 誘몃벑濡????쒓?/蹂꾨챸 寃???ㅽ뙣 ("諛붿씠???뚮씪?⑦떛?? ??VKTX 蹂??????
-- **?쒖젙**: REGISTRY 47 ??152 entries ?쇨큵 ?뺤옣 (US 80 + KR 5 + ADR 12). 諛섎룄泥댁옣鍮?8 / ?대씪?곕뱶 12 / GLP-1 8 / ?먯쟾 8 / ?곗＜ 5 / ?묒옄 4 / ?щ┰??8 / 愿묓넻??8 / EV 8 / 濡쒕낫?깆뒪 4 / ?곗씠?곗꽱??10 / ?붾씪 8 / 誘몃뵒??6 / ?먮꼫吏 8 / 諛⑹궛 8 / ?뚮퉬 10 / ?ы뻾 7 / ?ъ뒪 5 / 寃뚯엫 6 / AI 5 異붽?. CIK_MAP 50 ??134 entries ?숈떆 ?뺤옣 (SEC EDGAR fetch 媛??醫낅ぉ ?뺣?)
-- **?щ컻 諛⑹?**: `AIO.assertTickerRegistryCompleteness()` ?좎꽕 ??SCR_KEYWORD_ALIASES vs REGISTRY ?뺥빀 ?먮룞 寃利?+ missingTickers 30媛쒓퉴吏 由ы룷??+ coveragePct. R103 洹쒖튃 ?깅줉. `AIO.getThemeFetchCoverageAudit(themeId)` ?좎꽕 ??ticker 횞 5梨꾨꼸(SEC/Wiki/Finnhub/FMP/Naver) 留ㅽ듃由?뒪
-- **寃利?*: `AIO.assertTickerRegistryCompleteness().coveragePct >= 80`. `Object.keys(AIO_TICKER_NAME_REGISTRY.entries).length === 152`
+- **사용자 보고**: "지금 들어가 있는 종목과 기업들 분석 후에 테마/트렌드에 있는 종목들은 모두 들어가 있는 지 확인"
+- **근본 원인**: v49.32에서 AIO_TICKER_NAME_REGISTRY 47개 (메가캡 30 + KR 17)만 등록. SCR_KEYWORD_ALIASES 259 테마 / 543 unique ticker 중 133개(24%)가 미등록 → 한글/별명 검색 실패 ("바이킹 테라퓨틱스" → VKTX 변환 안 됨)
+- **시정**: REGISTRY 47 → 152 entries 일괄 확장 (US 80 + KR 5 + ADR 12). 반도체장비 8 / 클라우드 12 / GLP-1 8 / 원전 8 / 우주 5 / 양자 4 / 크립토 8 / 광통신 8 / EV 8 / 로보틱스 4 / 데이터센터 10 / 솔라 8 / 미디어 6 / 에너지 8 / 방산 8 / 소비 10 / 여행 7 / 헬스 5 / 게임 6 / AI 5 추가. CIK_MAP 50 → 134 entries 동시 확장 (SEC EDGAR fetch 가능 종목 확대)
+- **재발 방지**: `AIO.assertTickerRegistryCompleteness()` 신설 — SCR_KEYWORD_ALIASES vs REGISTRY 정합 자동 검증 + missingTickers 30개까지 리포트 + coveragePct. R103 규칙 등록. `AIO.getThemeFetchCoverageAudit(themeId)` 신설 — ticker × 5채널(SEC/Wiki/Finnhub/FMP/Naver) 매트릭스
+- **검증**: `AIO.assertTickerRegistryCompleteness().coveragePct >= 80`. `Object.keys(AIO_TICKER_NAME_REGISTRY.entries).length === 152`
 - **?뚯씪**: `js/aio-core.js` L2316~2540 REGISTRY ?뺤옣 + L3828~3920 CIK_MAP ?뺤옣 + L2410~2510 ?좉퇋 audit 2媛?
 
 
-> **??갭議??쒓렇**: 媛?踰꾧렇 ??ぉ??`violated_rule: R{N}` ?쒓렇瑜?湲곕줉?섏뿬 洹쒖튃?믩쾭洹???텛??媛??
+> **역참조 태그**: 각 버그 항목에 `violated_rule: R{N}` 태그를 기록하여 규칙→버그 역추적 가능.
 > `/knowledge-lint` L7 ?④퀎?먯꽌 "R5 ?꾨컲 3????洹쒖튃 媛뺥솕 ?꾩슂" 媛숈? 鍮덈룄 遺꾩꽍 ?먮룞 ?섑뻾.
 
 ---
 
-## 臾몄꽌 愿由??먯튃
+## 문서 관리 원칙
 
 ### P 踰덊샇 泥닿퀎
-- **P 踰덊샇 = ?⑦꽩 踰덊샇** (?덈갑 洹쒖튃 ID). ?숈씪 洹쇰낯 ?먯씤??媛吏?踰꾧렇??媛숈? P 踰덊샇濡?李몄“.
-- **?⑥“ 利앷?**: ?좉퇋 P 踰덊샇??`next_P_number`?먯꽌 ?쒖옉 (?꾩옱 **P208**). ?쒕쾲 遺?щ맂 踰덊샇???ъ궗??湲덉?.
+- **P 번호 = 패턴 번호** (예방 규칙 ID). 동일 근본 원인을 가진 버그는 같은 P 번호로 참조.
+- **단조 증가**: 신규 P 번호는 `next_P_number`에서 시작 (현재 **P208**). 한번 부여된 번호는 재사용 금지.
 - **P 踰덊샇 ?ш컯??*: 媛숈? ?⑦꽩???щ컻?대룄 踰덊샇???좎?. "P25 ?ш컯?? / "P25 媛뺥솕" 媛숈? ?쒗쁽?쇰줈 body??湲곕줉.
 - **?좎쭨 援щ텇 ?먯튃**: 怨쇨굅 以묐났 P 踰덊샇(P26~P33 ?쇰? 異⑸룎 議댁옱)??"?좎쭨 + 踰꾩쟾"?쇰줈 援щ텇?댁꽌 李몄“.
 
@@ -1537,8 +1551,8 @@ next_P_number: P660
    - `latest_P_number: P{?ъ슜??踰덊샇}`
    - `next_P_number: P{?ъ슜??踰덊샇+1}`
    - `total_entries: {?댁쟾媛?1}`
-3. ?꾨옒 "理쒓렐 P 踰덊샇 ?몃뜳????1以?異붽? (P41 ?댄썑留?愿由?
-4. `CHANGELOG.md`???????ぉ 異붽? (?숈씪 ?몄뀡???꾩닔)
+3. 아래 "최근 P 번호 인덱스"에 1줄 추가 (P41 이후만 관리)
+4. `CHANGELOG.md`에 대응 항목 추가 (동일 세션에 필수)
 
 ### 踰꾧렇 body ?꾩닔 ?꾨뱶
 ```markdown
@@ -1546,7 +1560,7 @@ next_P_number: P660
 - **violated_rule**: R{N} ?먮뒗 "?좉퇋 P{N}"
 - **利앹긽**: ?ъ슜?먭? 蹂??꾩긽 (?붾㈃/肄섏넄/?숈옉)
 - **洹쇰낯 ?먯씤**: 肄붾뱶/?곗씠??援ъ“ ?덈꺼 ?먯씤 (?⑥닚 "X ?섏젙" ?꾨떂)
-- **?섏젙**: 蹂寃??뚯씪 + ?쇱씤 踰덊샇 + ?듭떖 diff
+- **수정**: 변경 파일 + 라인 번호 + 핵심 diff
 - **?덈갑**: P{N} ???щ컻 諛⑹? 洹쒖튃 (吏㏐퀬 紐낇솗?섍쾶)
 ```
 
@@ -1554,63 +1568,63 @@ next_P_number: P660
 
 ## 理쒓렐 P 踰덊샇 ?몃뜳??(P41~P68)
 
-> P1~P40? ?섎떒 "?⑦꽩 ?붿빟" ?뚯씠釉?李몄“. P41 ?댄썑???꾩쟻 愿由?
+> P1~P40은 하단 "패턴 요약" 테이블 참조. P41 이후는 누적 관리.
 
 | P | ?꾩엯 踰꾩쟾 | ?좎쭨 | ?⑦꽩 ?붿빟 |
 |---|-----------|------|-----------|
-| P212 | v49.21 | 2026-05-16 | CHAT_CONTEXTS??`'kr-macro'`, `'kr-supply'`, `'kr-themes'`, `'kr-tech'` 4媛??ㅺ? ?놁뼱??`chatSend('kr-macro')` ?몄텧 ??`var ctx = CHAT_CONTEXTS[ctxId]; if (!ctx) return;` ?먯꽌 臾댁쓬 ?ㅽ뙣. KR ?섏씠吏 AI 梨꾪똿???꾪? ?숈옉?섏? ?딆븯?? `_CTX_TOPIC_MAP`??topic 留ㅽ븨留??덇퀬 system() ?⑥닔媛 ?녿뒗 ?곹깭. `js/aio-chat.js` ??4媛?KR system() ?⑥닔瑜??쎌엯(BOK 湲곗?湲덈━쨌KOSPI쨌KRW쨌VKOSPI ?ㅼ떆媛??ㅻ깄??+ 遺꾩꽍 ?먯튃 釉붾줉). `kr-home-kosdaq-comment`??"?멸뎅??湲곌? ?숇컲 留ㅻ룄 쨌 媛쒖씤 ?濡?諛⑹뼱" ?붿뿬 stale ?띿뒪?몃룄 鍮?臾몄옄?대줈 ?쒓굅(P210). R54 `data-aio-archive` 留덊궧 ?먯튃 臾몄꽌?? T180~T182 ?뚭? ?뚯뒪??異붽?. |
-| P210 | v49.21 | 2026-05-16 | v49.20??`kr-idx-kosdaq-comment`(10404)???뺣━?덉쑝???ъ옄???먮쫫 ?뱀뀡 `kr-home-kosdaq-comment`(10472)??"?멸뎅??湲곌? ?숇컲 留ㅻ룄 쨌 媛쒖씤 ?濡?諛⑹뼱" ?ш굔 ?섏〈 ?띿뒪?멸? ?붿〈. P212? ?④퍡 v49.21?먯꽌 泥섎━. T182 ?뚭? ?뚯뒪?멸? ???⑦꽩??媛먯?. |
-| P209 | v49.20 | 2026-05-16 | v49.17~18???곷Ц/誘멸뎅 10?섏씠吏 DOM stale???뺣━?덉쑝?? ?쒓뎅?쒖옣 5?섏씠吏(kr-home/kr-supply/kr-themes/kr-macro/kr-technical)???숈씪??freshness audit?먯꽌 ?쒖쇅?섏뼱 ?덉뿀?? DOM?먯꽌 "?멸뎅??7嫄곕옒???곗냽 ?쒕ℓ??, "3-4???꾩쟻 30議?", "4/8 異붿젙", "?대? ?ы삊???ш컻 ?꾨쭩", "媛쒖씤 留ㅼ닔???좎엯 쨌 諛붿씠??媛뺤꽭" ??HIGH stale 11嫄?諛쒓껄. ?ш굔 ?섏〈 肄붾찘?몃뒗 鍮?臾몄옄??JS媛 ?숈쟻 梨꾩?), ?좎쭨 留덉빱???쒓굅, 二쇨컙?섍툒 ???뺤콉?쇱젙 ?뚯씠釉붿? `data-aio-archive="true"` 留덊궧. `CRITICAL_PAGE_GROUPS.krMarket` 異붽?, `getCriticalKrPageFreshnessAudit()` ?좎꽕, stale regex??KR ?좏겙 5媛?異붽?(P211 ?듯빀), T177~T179 ?뚭? ?뚯뒪??異붽?. |
-| P208 | v49.19 | 2026-05-15 | v49.18??DOM ?뺤쟻 湲곕낯媛믪? ?뺣━?덉?留?AI 梨꾪똿 ?쒖뒪???꾨＼?꾪듃(`CHAT_CONTEXTS`)??2026-04-12~18 ?섎뱶肄붾뵫 ?좎쭨쨌?대? ?묒긽 寃곕젹쨌Warsh 痍⑥엫 ?쒕굹由ъ삤쨌BLS Apr CPI +0.6%쨌?⑦떚 4/18 ?ъ“?빧룹씠?щ씪留덈컮???묒긽 ??stale ?좏겙??LLM?먭쾶 "?꾩옱 ?곹솴"?쇰줈 二쇱엯?섎뒗 P0 ?몄텧 踰꾧렇. `js/aio-chat.js` 13媛?吏???섏젙(?좎쭨 留덉빱 ?쒓굅, ?쒖젏 ?섏〈 ?뱀뀡 ??젣, ?앸룞 ?ㅻ깄??蹂??李몄“濡?援먯껜), `AIO.getChatContextFreshnessAudit()` ?뚯뒪 ?덈꺼 媛먯궗 API(`Function.prototype.toString` + stale ?뺢퇋??, T176 ?뚭? ?뚯뒪??異붽?. totalHits === 0 ?뺤씤. |
+| P212 | v49.21 | 2026-05-16 | CHAT_CONTEXTS에 `'kr-macro'`, `'kr-supply'`, `'kr-themes'`, `'kr-tech'` 4개 키가 없어서 `chatSend('kr-macro')` 호출 시 `var ctx = CHAT_CONTEXTS[ctxId]; if (!ctx) return;` 에서 무음 실패. KR 페이지 AI 채팅이 전혀 동작하지 않았다. `_CTX_TOPIC_MAP`에 topic 매핑만 있고 system() 함수가 없는 상태. `js/aio-chat.js` 에 4개 KR system() 함수를 삽입(BOK 기준금리·KOSPI·KRW·VKOSPI 실시간 스냅샷 + 분석 원칙 블록). `kr-home-kosdaq-comment`의 "외국인/기관 동반 매도 · 개인 홀로 방어" 잔여 stale 텍스트도 빈 문자열로 제거(P210). R54 `data-aio-archive` 마킹 원칙 문서화. T180~T182 회귀 테스트 추가. |
+| P210 | v49.21 | 2026-05-16 | v49.20이 `kr-idx-kosdaq-comment`(10404)는 정리했으나 투자자 흐름 섹션 `kr-home-kosdaq-comment`(10472)의 "외국인/기관 동반 매도 · 개인 홀로 방어" 사건 의존 텍스트가 잔존. P212와 함께 v49.21에서 처리. T182 회귀 테스트가 이 패턴을 감지. |
+| P209 | v49.20 | 2026-05-16 | v49.17~18이 영문/미국 10페이지 DOM stale을 정리했으나, 한국시장 5페이지(kr-home/kr-supply/kr-themes/kr-macro/kr-technical)는 동일한 freshness audit에서 제외되어 있었다. DOM에서 "외국인 7거래일 연속 순매도", "3-4월 누적 30조+", "4/8 추정", "이란 재협상 재개 전망", "개인 매수세 유입 · 바이오 강세" 등 HIGH stale 11건 발견. 사건 의존 코멘트는 빈 문자열(JS가 동적 채움), 날짜 마커는 제거, 주간수급 탭/정책일정 테이블은 `data-aio-archive="true"` 마킹. `CRITICAL_PAGE_GROUPS.krMarket` 추가, `getCriticalKrPageFreshnessAudit()` 신설, stale regex에 KR 토큰 5개 추가(P211 통합), T177~T179 회귀 테스트 추가. |
+| P208 | v49.19 | 2026-05-15 | v49.18이 DOM 정적 기본값은 정리했지만 AI 채팅 시스템 프롬프트(`CHAT_CONTEXTS`)의 2026-04-12~18 하드코딩 날짜·이란 협상 결렬·Warsh 취임 시나리오·BLS Apr CPI +0.6%·씨티 4/18 재조정·이슬라마바드 협상 등 stale 토큰이 LLM에게 "현재 상황"으로 주입되는 P0 노출 버그. `js/aio-chat.js` 13개 지점 수정(날짜 마커 제거, 시점 의존 섹션 삭제, 생동 스냅샷 변수 참조로 교체), `AIO.getChatContextFreshnessAudit()` 소스 레벨 감사 API(`Function.prototype.toString` + stale 정규식), T176 회귀 테스트 추가. totalHits === 0 확인. |
 | P207 | v49.18 | 2026-05-15 | The previous v49.17 work proved that the critical 10 pages were in the audit set, but it did not yet prove their actual visible content was inspected line by line. Static DOM review found old live-like defaults in signal risk narratives, macro FOMC/energy copy, FX/bond KRW and yield fields, sentiment AAII date text, HOME top live pills, and a themes tooltip that could be read as a May 7 date. Replaced stale defaults with live placeholders or snapshot-backed wording, marked briefing archive blocks with `data-aio-archive`, made `AIO.getCritical10PageFreshnessAudit()` exclude archive content, and added T173~T175 regression tests for stale live-like tokens and hardcoded quote defaults. |
 | P206 | v49.17 | 2026-05-15 | The previous freshness work strengthened Theme/Trend, but there was no explicit operational proof that the 10 top-level pages the user cares about most ??comprehensive `home/signal/breadth/sentiment/briefing` and market-analysis `technical/macro/fxbond/fundamental/themes` ??were audited as a fixed set. Several pages also had narrower quote requirements than their visible widgets used, especially FX/bonds, macro, briefing, and fundamental. Added `AIO.CRITICAL_PAGE_GROUPS`, `AIO.getCritical10PageFreshnessAudit()`, broadened the 10 pages' data requirement profiles, added visible input ticker harvesting for signal/technical/fundamental/ticker, and added T170~T172 to guard 10-page audit coverage and no-thin-profile regressions. |
 | P205 | v49.16 | 2026-05-15 | Theme/Trend pages could look automatically refreshed at the broad scheduler level while their full leader/subtheme symbol universe was not part of the page freshness profile. Sector/theme rankings also retained old static pct fallback values that could render as current-like market leadership when live quotes were missing. Added dynamic page symbol collection for `THEME_MAP`, `SUB_THEMES`, `KR_SUB_THEMES`, `KR_THEME_MAP`, and RRG ETF sets; wired `AIO.ensureFreshDataForUse()` to pass required symbols into `fetchLiveQuotes()` batch requests; changed theme performance to return `LIVE_REQUIRED`/`missing` instead of 0%; disabled static sector pct fallback for current rankings and 20-day charts; added T165~T169 to guard dynamic theme profiles and no-static-current ranking behavior. |
 | P204 | v49.15 | 2026-05-15 | Automatic freshness still depended on broad periodic schedules, so a page or AI answer could assemble prompts before stale quote/news/macro/technical layers had a chance to refresh. Added page/chat-level data requirement profiles, `AIO.getAutoFreshnessPlan()`, `AIO.getAutoDataContinuityAudit()`, and `AIO.ensureFreshDataForUse()`; made scheduled functions return their fetch promises; added per-task scheduler timeouts; wired chat and unified AI preflight to run bounded refresh before data prompt assembly; added T161~T164 to guard planner, preflight, and continuity contracts. |
 | P203 | v49.14 | 2026-05-14 | AI chat used the current session messages but did not inject saved recent chat summaries into the next prompt, so similar questions could repeat the same explanation. The unified AI panel also limited single-ticker deep collection mostly to `fundamental` or explicit deep-analysis keywords, weakening `themes`, `theme-detail`, and `portfolio` ticker questions. Added `_classifyChatIntent`, `_buildChatMemoryContext`, `_buildChatIntentContext`, and `_shouldSingleDeepAnalyzeChat`; wired them into both `chatSend` and `chatSendUnified`; added T157~T160 to guard intent detection, repetition suppression, explicit missing-data labeling, and theme-context deep data collection. |
-| P202 | v49.13 | 2026-05-14 | ?쒗빑?ы솕/媛꾩냼?붴앸? 異붽? ?ㅻ챸 ?덉씠?대줈 ?닿껐?섎㈃ 湲곗〈 ?섏씠吏 ?먯껜???ъ쟾??蹂듭옟??梨??덈궡臾몃쭔 ?섏뼱?섎뒗 臾몄젣媛 ?덉뿀?? v49.12??decision strip, secondary badges, forced explain summaries瑜?compact view?먯꽌 ?쒓굅?섍퀬, 湲곗〈 ?곸꽭/李멸퀬/?꾩뭅?대툕 肄섑뀗痢좊? ?묒뼱 泥??먮떒 ?먮쫫?먯꽌 諛?대궡??諛⑹떇?쇰줈 ?섏젙. T152~T156???ъ젙?섑빐 ?ν썑 媛꾩냼???묒뾽??異붽? ?ㅻ챸???㏓텤?대뒗 諛⑺뼢?쇰줈 ?뚭??섏? ?딄쾶 ??|
-| P201 | v49.12 | 2026-05-14 | 湲곌?湲?遺꾩꽍 ?붾㈃???뺣낫?됱씠 留롮븘 珥덈낫?먭? ?쒕㉫? 蹂?寃??먮떒/?ㅼ쓬 ?됰룞?앹쓣 ?볦튂硫?湲곕뒫? 留롮븘???ㅼ젣 留ㅻℓ 猷⑦떞?쇰줈 ?곌껐?섏? ?딅뒗 臾몄젣媛 ?덉뿀?? 21媛??섏씠吏??`AIO_PAGE_CORE_GUIDES` watch/decide/next 怨꾩빟??異붽??섍퀬, Page Focus Brief??decision strip, ?듭떖 蹂닿린 ?좉?, ?곸꽭/李멸퀬 蹂댁“ ?뱀뀡 ?쇰꺼, T152~T156 ?뚯뒪?몃? ?꾩엯??蹂듭옟???꾨Ц 遺꾩꽍??泥??붾㈃?먯꽌???됰룞 移대뱶濡??뺤텞 |
+| P202 | v49.13 | 2026-05-14 | “핵심화/간소화”를 추가 설명 레이어로 해결하면 기존 페이지 자체는 여전히 복잡한 채 안내문만 늘어나는 문제가 있었다. v49.12의 decision strip, secondary badges, forced explain summaries를 compact view에서 제거하고, 기존 상세/참고/아카이브 콘텐츠를 접어 첫 판단 흐름에서 밀어내는 방식으로 수정. T152~T156을 재정의해 향후 간소화 작업이 추가 설명을 덧붙이는 방향으로 회귀하지 않게 함 |
+| P201 | v49.12 | 2026-05-14 | 기관급 분석 화면의 정보량이 많아 초보자가 “먼저 볼 것/판단/다음 행동”을 놓치면 기능은 많아도 실제 매매 루틴으로 연결되지 않는 문제가 있었다. 21개 페이지에 `AIO_PAGE_CORE_GUIDES` watch/decide/next 계약을 추가하고, Page Focus Brief에 decision strip, 핵심 보기 토글, 상세/참고 보조 섹션 라벨, T152~T156 테스트를 도입해 복잡한 전문 분석을 첫 화면에서는 행동 카드로 압축 |
 | P200 | v49.11 | 2026-05-14 | Persistent auto-ops gap: static `DATA_SNAPSHOT`/`data-snap-date`/pinned event text could age while still looking live-like. Added `AIO.getStaticDataGovernanceAudit()`, `AIO.auditStaticTextFreshness()`, `AIO.renderStaticDataGovernanceBadges()`, `AIO.getAutoOpsReadiness()`, `AIO.getRefreshSchedulerAudit()`, `AIO.runScheduledRefresh()`, `AIO.forceRefreshAllData()`, and T146~T151 so stale static data, scheduler health, freshness, and pipeline status are continuously inspectable and manually refreshable. |
-| P199 | v49.10 | 2026-05-14 | Blow-off Top/OPEX/?대깽???뚯쭊 遺꾩꽍??湲곗〈 technical exit engine怨?遺꾨━?섏뼱 ?덉쑝硫?CPI ?뺤씤 ?댄썑?먮룄 ?쏞PI ?덉젙??媛숈? stale 留λ씫?대굹 Telegram 2李??뚯뒪媛 ?뺤젙 ?댁뒪泥섎읆 ?듬????꾪뿕???덉뿀?? `calcBlowoffTopChecklist()`, Technical Brief 泥댄겕由ъ뒪??UI, sell-pressure ?곌껐, CPI/H2 liquidity prompt guardrail, Aether Telegram pipeline audit, T144~T145 ?뚯뒪?몃줈 怨쇱뿴 ?좊━ ?먮떒??議곌굔遺 ?ъ???愿由ъ? ?댁뒪 寃利??뺤콉??臾띠쓬 |
-| P198 | v49.9 | 2026-05-13 | ?ㅼ젣 ?ъ씠???섏씠吏蹂?sweep?먯꽌 紐⑤컮???ы듃?대━???뚯튂由ъ뒪??select ?띿뒪?멸? 而⑦듃濡???쓣 ?섍퀬, ?곗빱 ?곸꽭 breadcrumb/back 踰꾪듉???고??꾩뿉 `onclick` ?띿꽦???ㅼ떆 ?앹꽦??v48.32 ?대깽???꾩엫 ?먯튃??源⑥쭏 ???덉뿀?? ?뚯튂由ъ뒪??而⑦듃濡ㅼ쓣 以꾨컮轅????쒗븳/吏㏃? 湲곕낯 臾멸뎄濡??뺣━?섍퀬, `showTicker()`???ㅻ줈媛湲?寃쎈줈瑜?`data-action="showPage"` + `data-arg`濡??듭씪?덉쑝硫?T143?쇰줈 ?고???`onclick` ?щ컻??留됱쓬 |
-| P197 | v49.8 | 2026-05-13 | ?ㅼ젣 ?ъ씠??理쒖떊??媛먯궗?먯꽌 HOME ?듭떖 ?댁뒪媛 5/4~5/9 吏???대깽?몃? ?꾩옱 珥됰ℓ泥섎읆 怨좎젙 ?몄텧?섍퀬, ?뺤쟻 fallback snapshot??2026-05-11/12 湲곗???癒몃Ъ??珥덈낫?먭? ?ㅻ옒???곗씠?곕줈 留ㅻℓ ?먮떒???꾪뿕???덉뿀?? `DATA_SNAPSHOT`??2026-05-13 湲곗? 理쒖떊 ?뺤씤媛믪쑝濡?媛깆떊?섍퀬, `_aioGetCurrentHomeWeeklyNews()` 72?쒓컙 ?꾪꽣? T141~T142 ?뚯뒪?몃? 異붽???怨쇨굅 ?대깽?멸? 湲곕낯 HOME???щ벑?ν븯吏 紐삵븯寃???|
-| P196 | v49.7 | 2026-05-13 | Chrome ?ㅼ륫 ?뚯뒪?몄뿉??technical prompt consistency ?ㅽ뙣 ??`CHAT_CONTEXTS`媛 lexical global `const`濡쒕쭔 議댁옱?섍퀬 `window.CHAT_CONTEXTS`???몄텧?섏? ?딆븘 T115/T132媛 action ladder/Lockout OPEX ?꾨＼?꾪듃瑜?李얠? 紐삵뻽?? `js/aio-chat.js`?먯꽌 `window.CHAT_CONTEXTS = CHAT_CONTEXTS`瑜?紐낆떆??釉뚮씪?곗? 吏꾨떒/AI 而⑦뀓?ㅽ듃 怨꾩빟??蹂듦뎄 |
-| P195 | v49.7 | 2026-05-13 | ?섏씠吏 ?듭떖??蹂닿컯 ?곌껐 ?꾨씫 ???ㅼ젣 ?쇱슦?몃뒗 `ticker`/`theme-detail`?몃뜲 釉뚮━???ㅼ젙? `ticker-detail`留?媛뽮퀬 ?덉뼱 ?쇰? ?곸꽭 ?섏씠吏?먯꽌 珥덈낫???쒖슜 猷⑦떞???뚮뜑?섏? ?딆븯?? ?듭뀡 IV ?쒕룄 ?ㅻ옒???ㅼ쟻?쇨낵 以묐났 AAPL ?됱씠 理쒖떊 ?곗씠?곗쿂??蹂댁씪 ???덉뿀怨? 寃쎌젣 罹섎┛??怨좎젙 ?대깽?몃뒗 吏??珥됰ℓ瑜??덉젙泥섎읆 ?뚮뜑留곹뻽?? ?ㅼ젣 ?쇱슦???ㅻ? 蹂닿컯?섍퀬 ?듭뀡 ?쒕? 援먯쑁???덉떆濡??щ씪踰⑤쭅, past-event ?꾪꽣? stale ?대깽??臾멸뎄 ?뚯뒪??T137~T139 異붽? |
-| P194 | v49.7 | 2026-05-13 | ?섏씠吏蹂??ㅻ챸/湲곕뒫 ?숈꽑 怨쇰? ???щ윭 ?섏씠吏??湲??댁꽕怨?以묐났 媛쒕뀗???욎뿬 珥덈낫?먭? 泥??붾㈃?먯꽌 臾댁뾿??癒쇱? 蹂닿퀬 ?대뼡 ?섏씠吏濡??댁뼱媛???섎뒗吏 ?먮떒?섍린 ?대젮?. `AIO_PAGE_BRIEFS`, `_aioRenderPageBrief`, `_aioSimplifyExplainLabels`濡??섏씠吏 紐⑹쟻쨌3?④퀎 猷⑦떞쨌愿???섏씠吏 ?대룞???쒖??뷀븯怨?湲??댁꽕? ?묓엺 ?곸꽭 ?⑤꼸濡??꾩닚?꾪솕 |
-| P193 | v49.6 | 2026-05-12 | ?뺤쟻 fallback seed 理쒖떊???쒕━?꾪듃 ???쇱씠釉?API媛 ?ㅽ뙣/荑쇳꽣/罹먯떆 ?곹깭????湲곕낯 ?붾㈃???ㅻ옒??F&G쨌PCR쨌?쒓뎅?쒖옣쨌FX 媛믪쓣 ?ㅼ떆媛꾩쿂???꾨떖???꾪뿕. `DATA_SNAPSHOT` 諛?`_fallback`??US/KR 吏?? USD/KRW, DXY, oil, Cboe put-call, CNN/AAII seed瑜?2026-05-12 湲곗??쇰줈 媛깆떊?섍퀬 live store override ?먯튃??note??紐낆떆 |
-| P192 | v49.5 | 2026-05-12 | Lockout Rally/OPEX ?꾨왂 濡쒖쭅 遺????RSI/怨쇱뿴留뚯쑝濡?珥덈낫?먭? 留ㅻ룄 ?먮떒???ㅽ빐?????덇퀬, OPEX 媛먮쭏 吏吏 ?쏀솕쨌???뺤옣 ?ㅽ뙣쨌留먮떒 罹붾뱾쨌20MA ATR/ADR ?뺤옣???섎굹???됰룞 ?щ떎由щ줈 ?듯빀?섏? 紐삵뻽?? `calcExtensionHeat`, `classifyTerminalCandle`, `calcOpexGammaRisk`, `calcBreadthRotation`, `calcLockoutAction`, Lockout Control UI, T125~T132 ?뚯뒪???꾩엯 |
-| P191 | v49.4 | 2026-05-10 | ?곗씠??理쒖떊???먮룞 媛깆떊 嫄곕쾭?뚯뒪 遺?????뺤쟻 DATA_SNAPSHOT, live quote, fallback, macro/news stale 湲곗???遺꾩궛?섏뼱 ?대갚媛믪씠 ?ㅼ떆媛꾩쿂??蹂댁씪 ???덉뿀?? `FRESHNESS_POLICY`, `makeMetric`, `evaluateMetric`, `SnapshotStore`, `_aioSetLiveData`, `AIO.auditAllFreshness()`? scheduler telemetry, T116~T124 ?뚯뒪???꾩엯 |
-| P190 | v49.3 | 2026-05-10 | ?꾩닔媛먯궗 蹂닿퀬??湲곗? ?꾪궎?띿쿂 ?덉씠??遺?????곗씠???덉쭏, ?댁뒪 ?곹뼢, ?ы듃?대━??湲곗닠 由ъ뒪?? AI ?명봽??怨쇱뿴???쒕줈 ?ㅻⅨ ?쒖??쇰줈 泥섎━?섏뼱 ?붾㈃/AI/由ъ뒪???꾨떖?깆씠 ?⑥뼱吏? `calcDataQuality`/`calcAIInfraHeat`/`calcPositionTechnicalRisk`/`calcPortfolioTechnicalRisk`/`calcNewsImpactVector` ?꾩엯 |
-| P189 | v49.2 | 2026-05-09 | 湲곗닠遺꾩꽍 紐⑤뱢 OHLCV ?⑥씪 ?ㅻ깄??遺????硫붿씤 湲곗닠?쒕뒗 ?뱀씪 ?깅씫瑜?媛꾩씠媛? ?λ텇?앹? OHLCV ?ㅼ젣媛믪쓣 ?ъ슜???먮떒 ?쇨???泥?궛 ?ㅽ뻾?깆씠 ??쓬. `calcTechnicalSnapshot`/`calcSellPressure`/`calcSemiHeatMap`/`calcExitPlan` ?꾩엯 |
-| P188 | v49.1 | 2026-05-09 | Claude ?듯빀 ??browser acceptance drift ??`_aioLRU.get()` miss 怨꾩빟(null)怨??몄텧遺(undefined check) 遺덉씪移섎줈 `fetchAllNews` null.tm 移섎챸 濡쒓렇, VaR 瑗щ━ 媛쒖닔 遺?숈냼??寃쎄퀎, DOMPurify 誘몃줈??fallback ?대깽???띿꽦 臾몄옄???붿〈, LightweightCharts ?대? canvas ?묎렐??媛먯궗 ?ㅽ깘 |
-| P187 | v49.1 | 2026-05-09 | history.pushState ?꾩뿭 hijack(monkey-patch) + _fmtNum Infinity 鍮꾩쿂由???popstate ?몃뱾?ъ뿉??showPage 以?history.pushState瑜?function(){}濡?援먯껜, finally濡?蹂듦뎄. _aioInPopstate ?뚮옒洹몃줈 ?泥? _fmtNum(Infinity)??InfinityT" ?ㅽ몴?? _aioFiniteNum ?꾩엫 |
+| P199 | v49.10 | 2026-05-14 | Blow-off Top/OPEX/이벤트 소진 분석이 기존 technical exit engine과 분리되어 있으면 CPI 확인 이후에도 “CPI 예정” 같은 stale 맥락이나 Telegram 2차 소스가 확정 뉴스처럼 답변될 위험이 있었다. `calcBlowoffTopChecklist()`, Technical Brief 체크리스트 UI, sell-pressure 연결, CPI/H2 liquidity prompt guardrail, Aether Telegram pipeline audit, T144~T145 테스트로 과열 랠리 판단을 조건부 포지션 관리와 뉴스 검증 정책에 묶음 |
+| P198 | v49.9 | 2026-05-13 | 실제 사이트 페이지별 sweep에서 모바일 포트폴리오 워치리스트 select 텍스트가 컨트롤 폭을 넘고, 티커 상세 breadcrumb/back 버튼이 런타임에 `onclick` 속성을 다시 생성해 v48.32 이벤트 위임 원칙이 깨질 수 있었다. 워치리스트 컨트롤을 줄바꿈/폭 제한/짧은 기본 문구로 정리하고, `showTicker()`의 뒤로가기 경로를 `data-action="showPage"` + `data-arg`로 통일했으며 T143으로 런타임 `onclick` 재발을 막음 |
+| P197 | v49.8 | 2026-05-13 | 실제 사이트 최신성 감사에서 HOME 핵심 뉴스가 5/4~5/9 지난 이벤트를 현재 촉매처럼 고정 노출하고, 정적 fallback snapshot도 2026-05-11/12 기준에 머물러 초보자가 오래된 데이터로 매매 판단할 위험이 있었다. `DATA_SNAPSHOT`을 2026-05-13 기준 최신 확인값으로 갱신하고, `_aioGetCurrentHomeWeeklyNews()` 72시간 필터와 T141~T142 테스트를 추가해 과거 이벤트가 기본 HOME에 재등장하지 못하게 함 |
+| P196 | v49.7 | 2026-05-13 | Chrome 실측 테스트에서 technical prompt consistency 실패 — `CHAT_CONTEXTS`가 lexical global `const`로만 존재하고 `window.CHAT_CONTEXTS`에 노출되지 않아 T115/T132가 action ladder/Lockout OPEX 프롬프트를 찾지 못했다. `js/aio-chat.js`에서 `window.CHAT_CONTEXTS = CHAT_CONTEXTS`를 명시해 브라우저 진단/AI 컨텍스트 계약을 복구 |
+| P195 | v49.7 | 2026-05-13 | 페이지 핵심화 보강 연결 누락 — 실제 라우트는 `ticker`/`theme-detail`인데 브리프 설정은 `ticker-detail`만 갖고 있어 일부 상세 페이지에서 초보자 활용 루틴이 렌더되지 않았다. 옵션 IV 표도 오래된 실적일과 중복 AAPL 행이 최신 데이터처럼 보일 수 있었고, 경제 캘린더 고정 이벤트는 지난 촉매를 예정처럼 렌더링했다. 실제 라우트 키를 보강하고 옵션 표를 교육용 예시로 재라벨링, past-event 필터와 stale 이벤트 문구 테스트 T137~T139 추가 |
+| P194 | v49.7 | 2026-05-13 | 페이지별 설명/기능 동선 과밀 — 여러 페이지에 긴 해설과 중복 개념이 섞여 초보자가 첫 화면에서 무엇을 먼저 보고 어떤 페이지로 이어가야 하는지 판단하기 어려움. `AIO_PAGE_BRIEFS`, `_aioRenderPageBrief`, `_aioSimplifyExplainLabels`로 페이지 목적·3단계 루틴·관련 페이지 이동을 표준화하고 긴 해설은 접힌 상세 패널로 후순위화 |
+| P193 | v49.6 | 2026-05-12 | 정적 fallback seed 최신성 드리프트 — 라이브 API가 실패/쿼터/캐시 상태일 때 기본 화면이 오래된 F&G·PCR·한국시장·FX 값을 실시간처럼 전달할 위험. `DATA_SNAPSHOT` 및 `_fallback`의 US/KR 지수, USD/KRW, DXY, oil, Cboe put-call, CNN/AAII seed를 2026-05-12 기준으로 갱신하고 live store override 원칙을 note에 명시 |
+| P192 | v49.5 | 2026-05-12 | Lockout Rally/OPEX 전략 로직 부재 — RSI/과열만으로 초보자가 매도 판단을 오해할 수 있고, OPEX 감마 지지 약화·폭 확장 실패·말단 캔들·20MA ATR/ADR 확장을 하나의 행동 사다리로 통합하지 못했다. `calcExtensionHeat`, `classifyTerminalCandle`, `calcOpexGammaRisk`, `calcBreadthRotation`, `calcLockoutAction`, Lockout Control UI, T125~T132 테스트 도입 |
+| P191 | v49.4 | 2026-05-10 | 데이터 최신성/자동 갱신 거버넌스 부재 — 정적 DATA_SNAPSHOT, live quote, fallback, macro/news stale 기준이 분산되어 폴백값이 실시간처럼 보일 수 있었다. `FRESHNESS_POLICY`, `makeMetric`, `evaluateMetric`, `SnapshotStore`, `_aioSetLiveData`, `AIO.auditAllFreshness()`와 scheduler telemetry, T116~T124 테스트 도입 |
+| P190 | v49.3 | 2026-05-10 | 전수감사 보고서 기준 아키텍처 레이어 부재 — 데이터 품질, 뉴스 영향, 포트폴리오 기술 리스크, AI 인프라 과열이 서로 다른 표준으로 처리되어 화면/AI/리스크 전달성이 떨어짐. `calcDataQuality`/`calcAIInfraHeat`/`calcPositionTechnicalRisk`/`calcPortfolioTechnicalRisk`/`calcNewsImpactVector` 도입 |
+| P189 | v49.2 | 2026-05-09 | 기술분석 모듈 OHLCV 단일 스냅샷 부재 — 메인 기술표는 당일 등락률 간이값, 딥분석은 OHLCV 실제값을 사용해 판단 일관성/청산 실행성이 낮음. `calcTechnicalSnapshot`/`calcSellPressure`/`calcSemiHeatMap`/`calcExitPlan` 도입 |
+| P188 | v49.1 | 2026-05-09 | Claude 통합 후 browser acceptance drift — `_aioLRU.get()` miss 계약(null)과 호출부(undefined check) 불일치로 `fetchAllNews` null.tm 치명 로그, VaR 꼬리 개수 부동소수 경계, DOMPurify 미로드 fallback 이벤트 속성 문자열 잔존, LightweightCharts 내부 canvas 접근성 감사 오탐 |
+| P187 | v49.1 | 2026-05-09 | history.pushState 전역 hijack(monkey-patch) + _fmtNum Infinity 비처리 — popstate 핸들러에서 showPage 중 history.pushState를 function(){}로 교체, finally로 복구. _aioInPopstate 플래그로 대체. _fmtNum(Infinity)→"InfinityT" 오표시. _aioFiniteNum 위임 |
 | P186 | v49.1 | 2026-05-09 | vixToPercentile 80?댁긽 ?섎뱶罹?99.5 ??VIX=85/90 紐⑤몢 99.5濡??숈씪 ?쒖떆, ?⑥“利앷? ?뚭눼. 濡쒓렇?몄궫 ?곸슜. _aioMemoStaleInfo 3??11??DST 짹1h ?좎쭨 鍮꾧탳 ?ㅻ쪟 |
-| P185 | v49.1 | 2026-05-09 | _chartIv raw setInterval ??Chart.js 濡쒕뱶 ?湲?setInterval????대㉧ ?덉??ㅽ듃由??몃??먯꽌 ?ㅽ뻾, 以묐났 ?깅줉 ??湲곗〈 ?뺣━ ?놁쓬. _aioRegisterTimer('chartReady') 留덉씠洹?|
-| P184 | v49.1 | 2026-05-09 | 11媛??꾩뿭 蹂??window 吏곸젒 李몄“ ?곗옱 ??prevPage쨌_lastPageShownFire쨌_currentTickerSym ??namespace ?놁쓬. window.AIO.state 珥덇린??+ Object.defineProperty shim + _aioGlobalRegistry ?깅줉 |
-| P183 | v49.0 | 2026-05-09 | _renderFundValuation P/E쨌P/B쨌PEG쨌EV/EBITDA ??API 鍮꾩쑉??|| 0 ?⑦꽩 ??Infinity.toFixed()??Infinityx" ?뚮뜑. _aioFiniteNum 媛?쒕줈 援먯껜 |
+| P185 | v49.1 | 2026-05-09 | _chartIv raw setInterval — Chart.js 로드 대기 setInterval이 타이머 레지스트리 외부에서 실행, 중복 등록 시 기존 정리 없음. _aioRegisterTimer('chartReady') 마이그 |
+| P184 | v49.1 | 2026-05-09 | 11개 전역 변수 window 직접 참조 산재 — prevPage·_lastPageShownFire·_currentTickerSym 등 namespace 없음. window.AIO.state 초기화 + Object.defineProperty shim + _aioGlobalRegistry 등록 |
+| P183 | v49.0 | 2026-05-09 | _renderFundValuation P/E·P/B·PEG·EV/EBITDA 등 API 비율에 || 0 패턴 — Infinity.toFixed()→"Infinityx" 렌더. _aioFiniteNum 가드로 교체 |
 | P182 | v49.0 | 2026-05-09 | scoreItem 罹먯떆쨌_tickerRegexCache 臾댄븳 ?깆옣 ???댁뒪 ?ㅼ퐫??諛섎났 ?몄텧 ??Map 利앷? ?≪젣?? _aioLRU(200/600 cap) 援먯껜 |
 | P181 | v49.0 | 2026-05-09 | applyDataSnapshot 100+ data-snap ?⑥씪 try-catch ??1嫄?throw ???꾩껜 snap 媛깆떊 以묐떒. ?ㅻ퀎 ?낅┰ try-catch 遺꾪빐 |
-| P180 | v48.99 | 2026-05-09 | index.html 22嫄?addEventListener 遺꾩궛 ???섏씠吏蹂??댁젣 遺덇?. _aioPageBus B3 留덉씠洹?|
+| P180 | v48.99 | 2026-05-09 | index.html 22건 addEventListener 분산 — 페이지별 해제 불가. _aioPageBus B3 마이그 |
 | P179 | v48.99 | 2026-05-09 | aio-data.js 4嫄?addEventListener 遺꾩궛 ??_aioPageBus B2 留덉씠洹?|
 | P178 | v48.99 | 2026-05-09 | aio-core.js 9嫄?addEventListener 遺꾩궛 ??_aioPageBus B1 留덉씠洹?|
 | P177 | v48.98 | 2026-05-09 | aio-core.js ?꾨컲 NaN/Infinity/遺꾨え0 鍮꾧?????Fund P/E쨌PEG쨌EV/EBITDA 遺꾨え 0 ??Infinity ?뚮뜑 ?꾪뿕. _aioFiniteNum + _aioSafeDiv 異붽? |
-| P176 | v48.98 | 2026-05-09 | ?숈씪 珥덇린???⑥닔 以묐났 ?몄텧 ?꾪뿕 + 11媛??꾩뿭 蹂??namespace ?곗옱 ??_aioOnce + _aioGlobalRegistry濡??ъ쟾 ?명봽??援ъ텞 |
-| P175 | v48.98 | 2026-05-09 | aio:pageShown 17嫄?쨌 aio:liveQuotes 18嫄?媛쒕퀎 addEventListener 遺꾩궛 ???섏씠吏 ?댄깉 ???댁젣 遺덇?, listener ?꾩쟻 ?꾪뿕. _aioPageBus ?⑥씪 ?쇱슦???덈툕 異붽? |
+| P176 | v48.98 | 2026-05-09 | 동일 초기화 함수 중복 호출 위험 + 11개 전역 변수 namespace 산재 — _aioOnce + _aioGlobalRegistry로 사전 인프라 구축 |
+| P175 | v48.98 | 2026-05-09 | aio:pageShown 17건 · aio:liveQuotes 18건 개별 addEventListener 분산 — 페이지 이탈 시 해제 불가, listener 누적 위험. _aioPageBus 단일 라우팅 허브 추가 |
 | P174 | v48.97 | 2026-05-08 | localStorage API ??5媛?吏곸젒 ?묎렐 遺꾩궛 ???뷀샇??留덉뒪???쇨????놁쓬, UI???됰Ц ?몄텧 ?꾪뿕 |
-| P173 | v48.97 | 2026-05-08 | IndexedDB ?댁뒪 ?덉퐫?쒖뿉 ?대찓?셋룹쟾?붾쾲??PII ?됰Ц ?????濡쒖뺄 釉뚮씪?곗? DB?댁?留?媛쒕컻?먮룄援?諛깆뾽 寃쎈줈 ?몄텧 |
-| P172 | v48.97 | 2026-05-08 | API ?ъ떆???뺤콉 誘멸뎄?????쇱떆??502/503 ?먮윭 ???⑥닚 return null, 吏??諛깆삤???놁쓬 |
-| P171 | v48.97 | 2026-05-08 | CORS ?꾨줉??3媛??숈떆 ?ㅼ슫 ??silent fail ???⑥씪 ?꾨줉???ㅻ쪟媛 諛붾줈 null 諛섑솚, ?대갚 ?놁쓬 |
-| P170 | v48.96 | 2026-05-08 | ?ы듃?대━???뚯씠釉?th/td headers 誘몄뿰寃???WCAG 1.3.1(?뺣낫쨌愿怨? ?꾨컲, ?ㅽ겕由곕━?????쒕ぉ 誘몃룆 |
+| P173 | v48.97 | 2026-05-08 | IndexedDB 뉴스 레코드에 이메일·전화번호 PII 평문 저장 — 로컬 브라우저 DB이지만 개발자도구/백업 경로 노출 |
+| P172 | v48.97 | 2026-05-08 | API 재시도 정책 미구현 — 일시적 502/503 에러 시 단순 return null, 지수 백오프 없음 |
+| P171 | v48.97 | 2026-05-08 | CORS 프록시 3개 동시 다운 시 silent fail — 단일 프록시 오류가 바로 null 반환, 폴백 없음 |
+| P170 | v48.96 | 2026-05-08 | 포트폴리오 테이블 th/td headers 미연결 — WCAG 1.3.1(정보·관계) 위반, 스크린리더 열 제목 미독 |
 | P169 | v48.96 | 2026-05-08 | Fund ???꾪솚 ??lightweight-charts width=0 ??鍮꾪솢????뿉??李⑦듃 ?뚮뜑 ?????꾪솚 ??width 誘몃났援?|
 | P168 | v48.96 | 2026-05-08 | canvas devicePixelRatio 誘몄쟻?????덊떚??HiDPI ?붾㈃?먯꽌 canvas ?뚮뜑 釉붾윭 |
 | P167 | v48.96 | 2026-05-08 | Chart.js ?몄뒪?댁뒪 destroy ?놁씠 ?ъ깮????Fund waterfall ??諛섎났 ?щ젋?????몄뒪?댁뒪 ?꾩쟻, 硫붾え由??꾩닔 |
-| P166 | v48.95 | 2026-05-08 | lastKrTradingDay: 15:30(?λ쭏媛?~16:00(EOD ?곗씠???뺤젙) grace window 誘몃컲????誘명솗???쒓컙???"?ㅻ뒛 醫낃?" ?쒖떆 |
+| P166 | v48.95 | 2026-05-08 | lastKrTradingDay: 15:30(장마감)~16:00(EOD 데이터 확정) grace window 미반영 — 미확정 시간대에 "오늘 종가" 표시 |
 | P165 | v48.95 | 2026-05-08 | scoreItem._kwHit: .includes(kw) ?ъ슜 ???④???'湲???'湲덈━','湲덉쑖','鍮꾧툑?????ㅻℓ移????댁뒪 ?ㅼ퐫???쒓끝 |
-| P164 | v48.95 | 2026-05-08 | _calcSharpe: std===0 鍮꾧탳 ??遺?숈냼?섏젏 near-zero(1e-15 ?섏?)?먯꽌 0 鍮꾧탳 ?ㅽ뙣 ??Infinity 諛섑솚 |
-| P163 | v48.95 | 2026-05-08 | _pearsonCorr: denA===0 鍮꾧탳 ??遺?숈냼?섏젏 near-zero(e.g. 1e-30) 遺꾨え?먯꽌 0 鍮꾧탳 ?ㅽ뙣 ??NaN 諛섑솚 |
-| P162 | v48.95 | 2026-05-08 | _calcPortfolioVaR: Math.floor((1-conf)*n) nearest-neighbor 諛⑹떇 ??R-7 ?좏삎蹂닿컙 ?鍮?寃쎄퀎媛믪뿉??理쒕? 1?④퀎 ?ㅼ감 |
-| P161 | v48.94 | 2026-05-08 | applyTechIndicators: parseFloat() 寃곌낵瑜?NaN 寃???놁씠 .toFixed() ?몄텧 ??吏??1媛?NaN?대㈃ ?꾩껜 ?⑥닔 throw |
-| P160 | v48.94 | 2026-05-08 | chatSend('fundamental'): fundamentalSearch() ??chatSend 臾댄븳 ?ъ쭊??媛????_fundDepth ?곹븳 2 誘멸뎄??|
-| P159 | v48.94 | 2026-05-08 | fetchNaverUSData: Promise.all ?ъ슜 ??3媛?以?1媛?reject ???섎㉧吏 ?곗씠??紐⑤몢 ?먯떎 |
+| P164 | v48.95 | 2026-05-08 | _calcSharpe: std===0 비교 — 부동소수점 near-zero(1e-15 수준)에서 0 비교 실패 → Infinity 반환 |
+| P163 | v48.95 | 2026-05-08 | _pearsonCorr: denA===0 비교 — 부동소수점 near-zero(e.g. 1e-30) 분모에서 0 비교 실패 → NaN 반환 |
+| P162 | v48.95 | 2026-05-08 | _calcPortfolioVaR: Math.floor((1-conf)*n) nearest-neighbor 방식 — R-7 선형보간 대비 경계값에서 최대 1단계 오차 |
+| P161 | v48.94 | 2026-05-08 | applyTechIndicators: parseFloat() 결과를 NaN 검사 없이 .toFixed() 호출 → 지표 1개 NaN이면 전체 함수 throw |
+| P160 | v48.94 | 2026-05-08 | chatSend('fundamental'): fundamentalSearch() → chatSend 무한 재진입 가능 — _fundDepth 상한 2 미구현 |
+| P159 | v48.94 | 2026-05-08 | fetchNaverUSData: Promise.all 사용 — 3개 중 1개 reject 시 나머지 데이터 모두 손실 |
 | P158 | v48.94 | 2026-05-08 | AI chat: renderMarkdownLight() 寃곌낵瑜?DOMPurify 2李??놁씠 innerHTML ?쎌엯 ??AI ?묐떟 XSS ?붿뿬 寃쎈줈 violated_rule: R31(XSS 諛⑹?) |
 | P157 | v48.91 | 2026-05-08 | SEC EDGAR API ?묐떟(CIK쨌SIC쨌嫄곕옒?뙿룰났??form/date/desc) innerHTML 二쇱엯 ??escHtml() ?꾨씫 XSS ?꾪뿕 |
 | P156 | v48.91 | 2026-05-08 | _renderFundHeader: FMP API 湲곗뾽 ?ㅻ챸(description) 300???덈떒 ??escHtml() ?놁씠 innerHTML ?쎌엯 XSS |
@@ -1780,47 +1794,47 @@ next_P_number: P660
 - **?덈갑**: P140/R52 ???몃? CDN `<script>` 異붽? ??integrity + crossorigin ?띿꽦 ?꾩닔. ?댁떆 ?앹꽦: `curl -sL <URL> | openssl dgst -sha384 -binary | openssl base64 -A`
 
 ### BUG-P141: setInterval ID 誘몄????щ컻 (aio-core.js:494/1078) ??R9 4李?媛뺥솕 (MEDIUM)
-- **violated_rule**: R9 (setInterval 諛섑솚媛??꾩뿭 ????꾩닔)
-- **利앹긽**: ??理쒖큹 濡쒕뱶 ??DOMContentLoaded?먯꽌 ?깅줉????setInterval??ID ?놁씠 ?ㅽ뻾?? ???섏씠吏瑜?諛섎났 ?꾪솚?섍굅??app ?ъ큹湲고솕 ??????대㉧媛 異붽? ?깅줉?섏뼱 15遺??ㅻ깄???좎쭨), 30珥??좎꽑?? 二쇨린濡?以묐났 ?ㅽ뻾 ?꾩쟻.
-- **洹쇰낯 ?먯씤**: `aio-core.js:494` `setInterval(window._aioRenderSnapshotDates, 15*60*1000)` ? `:1078` `setInterval(_aioUpdateFreshness, 30*1000)` 紐⑤몢 諛섑솚媛믪쓣 ?대뵒?먮룄 ??ν븯吏 ?딆쓬. R9??v44.6 P63?먯꽌 紐낆떆?곸쑝濡??좎뼵??洹쒖튃?몃뜲 ?щ컻.
+- **violated_rule**: R9 (setInterval 반환값 전역 저장 필수)
+- **증상**: 앱 최초 로드 후 DOMContentLoaded에서 등록된 두 setInterval이 ID 없이 실행됨. 탭/페이지를 반복 전환하거나 app 재초기화 시 새 타이머가 추가 등록되어 15분(스냅샷 날짜), 30초(신선도) 주기로 중복 실행 누적.
+- **근본 원인**: `aio-core.js:494` `setInterval(window._aioRenderSnapshotDates, 15*60*1000)` 와 `:1078` `setInterval(_aioUpdateFreshness, 30*1000)` 모두 반환값을 어디에도 저장하지 않음. R9는 v44.6 P63에서 명시적으로 선언된 규칙인데 재발.
 - **?섏젙**: `js/aio-core.js`
   - `:494` ??`if (window._aioSnapshotDatesTimer) clearInterval(window._aioSnapshotDatesTimer);` + `window._aioSnapshotDatesTimer = setInterval(...)`
   - `:1078` ??`if (window._aioFreshnessTimer) clearInterval(window._aioFreshnessTimer);` + `window._aioFreshnessTimer = setInterval(...)`
-- **?덈갑**: P141/R9 4李?媛뺥솕 ??`setInterval(` 異붽? ??利됱떆 諛섑솚媛믪쓣 `window._xxxTimer` 蹂?섏뿉 ??? ?щ벑濡?吏곸쟾 `clearInterval` ?좏뻾 ?꾩닔.
+- **예방**: P141/R9 4차 강화 — `setInterval(` 추가 시 즉시 반환값을 `window._xxxTimer` 변수에 저장. 재등록 직전 `clearInterval` 선행 필수.
 
 ### BUG-P142: R15 ?꾨컲 5嫄??щ컻 (aio-data.js extPct/F&G) ??R15 5李?媛뺥솕 (HIGH)
 - **violated_rule**: R15 (?곗씠??誘몄닔??vs 吏꾩쭨 0% 援щ텇)
-- **利앹긽**: (1) ?꾨━留덉폆/?좏봽?곕쭏耳??쒓컙? extPct 誘몄닔?????쒖꽭 移대뱶??"0.00%" ?쒖떆 ???ㅼ젣???곗씠???놁쓬. (2) Fear & Greed 誘몄닔????"0 洹밸떒怨듯룷" ?ㅽ몴?????ㅼ젣??吏???놁쓬.
-- **洹쇰낯 ?먯씤**: `aio-data.js:8829, 8831` extPct ?????`q.extPct || 0`, `:9616` _extHoursData 鍮뚮뱶 ??`|| 0`, `:9692` ?쒖떆 ??`|| 0`, `:9940` F&G 泥섎━ ??`snap.fg || 0` ??紐⑤몢 R15 湲덉? ?⑦꽩. null/undefined媛 0?쇰줈 媛뺤젣 蹂?섎릺???섎?媛 ?쒓끝??
+- **증상**: (1) 프리마켓/애프터마켓 시간대 extPct 미수신 시 시세 카드에 "0.00%" 표시 — 실제는 데이터 없음. (2) Fear & Greed 미수신 시 "0 극단공포" 오표시 — 실제는 지수 없음.
+- **근본 원인**: `aio-data.js:8829, 8831` extPct 저장 시 `q.extPct || 0`, `:9616` _extHoursData 빌드 시 `|| 0`, `:9692` 표시 시 `|| 0`, `:9940` F&G 처리 시 `snap.fg || 0` — 모두 R15 금지 패턴. null/undefined가 0으로 강제 변환되어 의미가 왜곡됨.
 - **?섏젙**: `js/aio-data.js`
   - 5怨?紐⑤몢 `!= null ? val : null` ?⑦꽩?쇰줈 援먯껜
   - F&G: `fgVal = snap.fg != null ? snap.fg : null` ??null?대㈃ ?쇰꺼 "??, ?됱긽 `var(--text-muted)`
-- **?덈갑**: P142/R15 5李?媛뺥솕 ??`||0`/`|| '??` ?⑦꽩? pct쨌score쨌price ?꾨뱶???덈? ?ъ슜 湲덉?. /qa ??`grep '|| 0' js/aio-data.js | grep -i 'pct\|fg\|score\|price'` ??0嫄??뺤씤 ?꾩닔.
+- **예방**: P142/R15 5차 강화 — `||0`/`|| '—'` 패턴은 pct·score·price 필드에 절대 사용 금지. /qa 시 `grep '|| 0' js/aio-data.js | grep -i 'pct\|fg\|score\|price'` → 0건 확인 필수.
 
-### BUG-P143: _lastFetch ??遺덉씪移????ы듃?대━???좎꽑????긽 "?湲?以? (MEDIUM)
+### BUG-P143: _lastFetch 키 불일치 → 포트폴리오 신선도 항상 "대기 중" (MEDIUM)
 - **violated_rule**: R33 (AIO_Cache쨌_lastFetch ???쇨???
-- **利앹긽**: ?ы듃?대━???섏씠吏 ?섎떒 ?좎꽑???ㅽ듃由쎌씠 ?ㅼ떆媛??쒖꽭(liveQuotes) ?섏떊 ?깃났 ?꾩뿉??"?湲?以? ?곴뎄 ?쒖떆. 留덉?留?媛깆떊 ?쒓컙???꾪? ?낅뜲?댄듃?섏? ?딆쓬.
-- **洹쇰낯 ?먯씤**: `_aioUpdateFreshness()`(aio-core.js:1058)媛 `window._lastFetch.liveQuotes`瑜?議고쉶?섎뒗??`_markFetch()`媛 ?쒖꽭 ?깃났 ??`'quote'` ?ㅻ줈 ??ν븿. ?ㅺ? ?ㅻⅤ誘濡?議고쉶 寃곌낵媛 ??긽 undefined ??議곌굔 false ??"?湲?以? ?곴뎄 ?쒖떆. ?ㅺ퀎 珥덇린 ???대쫫??蹂寃쎈릺?덉쑝???뚮퉬 痢≪씠 ?낅뜲?댄듃?섏? ?딆? 寃껋쑝濡?異붿젙.
+- **증상**: 포트폴리오 페이지 하단 신선도 스트립이 실시간 시세(liveQuotes) 수신 성공 후에도 "대기 중" 영구 표시. 마지막 갱신 시간이 전혀 업데이트되지 않음.
+- **근본 원인**: `_aioUpdateFreshness()`(aio-core.js:1058)가 `window._lastFetch.liveQuotes`를 조회하는데 `_markFetch()`가 시세 성공 시 `'quote'` 키로 저장함. 키가 다르므로 조회 결과가 항상 undefined → 조건 false → "대기 중" 영구 표시. 설계 초기 키 이름이 변경되었으나 소비 측이 업데이트되지 않은 것으로 추정.
 - **?섏젙**: `js/aio-core.js:1058`
   ```javascript
   var lastFetch = (window._lastFetch && (window._lastFetch.quote || window._lastFetch.liveQuotes))
     ? (window._lastFetch.quote || window._lastFetch.liveQuotes) : null;
   ```
   ?묒そ ?ㅻ? OR濡?議고쉶?섏뿬 ?대쫫 遺덉씪移?諛⑹뼱.
-- **?덈갑**: P143 ??`_markFetch(key)` ?몄텧 ??key ?대쫫怨??뚮퉬 痢?議고쉶 ?ㅻ? ?묐갑??grep 寃利??꾩닔. `grep -n "_lastFetch\." js/aio-core.js` 寃곌낵濡????議고쉶 ???移??뺤씤.
+- **예방**: P143 — `_markFetch(key)` 호출 시 key 이름과 소비 측 조회 키를 양방향 grep 검증 필수. `grep -n "_lastFetch\." js/aio-core.js` 결과로 저장/조회 키 대칭 확인.
 
 ---
 
 ## [2026-04-27] v48.68 ???ㅽ겕濡?scroll-chaining 踰꾧렇 P139
 
-### BUG-P139: ?뚮쭏/?몃젋???섏씠吏 ?ㅽ겕濡?遺덇? ??scroll-chaining ???섏씠吏 (HIGH)
+### BUG-P139: 테마/트렌드 페이지 스크롤 불가 — scroll-chaining 전 페이지 (HIGH)
 - **violated_rule**: ?좉퇋 P139 (SPA scroll-chaining 臾대갑??
-- **利앹긽**: ?뚮쭏쨌?몃젋?????щ윭 ?섏씠吏?먯꽌 留덉슦?????곗튂 ?ㅽ겕濡ㅼ씠 ?숈옉?섏? ?딆쓬. ?뱁엳 ?섏씠吏 理쒖긽??scrollTop=0)?먯꽌 ?꾨줈 ?ㅽ겕濡????꾪? 諛섏쓳 ?놁쓬. iOS?먯꽌 紐⑤찘? ?ㅽ겕濡?誘몄???
-- **洹쇰낯 ?먯씤**: `body(overflow:hidden)??app(overflow:hidden)??main(overflow:hidden)??content(overflow-y:auto)` ?덉씠??援ъ“?먯꽌 `.content`媛 scrollTop=0???곹깭濡??꾨줈 ?ㅽ겕濡ㅽ븯嫄곕굹 scrollBottom?먯꽌 ?꾨옒濡??ㅽ겕濡??? 釉뚮씪?곗?媛 ?⑥? ?명?瑜?遺紐?泥댁씤?쇰줈 ?꾪뙆(scroll-chaining). 遺紐??붿냼?ㅼ씠 紐⑤몢 `overflow:hidden`?대씪 ?ㅼ젣 ?ㅽ겕濡ㅼ? 遺덇??섎굹 ?대깽?몃뒗 ?뚮퉬?????ъ슜?먮뒗 ?꾨Т 諛섏쓳???녿떎怨?泥닿컧. P74(v46.4)?먯꽌 `.page overflow-x:hidden` ?쒓굅濡??댁쟾 ?ㅽ겕濡?踰꾧렇???닿껐?덉쑝?? `.content` ?먯껜??overscroll ?꾪뙆 誘몄감?⑥? ?붿〈.
+- **증상**: 테마·트렌드 등 여러 페이지에서 마우스 휠/터치 스크롤이 동작하지 않음. 특히 페이지 최상단(scrollTop=0)에서 위로 스크롤 시 전혀 반응 없음. iOS에서 모멘텀 스크롤 미지원.
+- **근본 원인**: `body(overflow:hidden)→.app(overflow:hidden)→.main(overflow:hidden)→.content(overflow-y:auto)` 레이어 구조에서 `.content`가 scrollTop=0인 상태로 위로 스크롤하거나 scrollBottom에서 아래로 스크롤 시, 브라우저가 남은 델타를 부모 체인으로 전파(scroll-chaining). 부모 요소들이 모두 `overflow:hidden`이라 실제 스크롤은 불가하나 이벤트는 소비됨 → 사용자는 아무 반응이 없다고 체감. P74(v46.4)에서 `.page overflow-x:hidden` 제거로 이전 스크롤 버그는 해결했으나, `.content` 자체의 overscroll 전파 미차단은 잔존.
 - **?섏젙**: `index.html` `.content` CSS?????띿꽦 異붽?:
   ```css
-  overscroll-behavior-y: contain; /* scrollTop=0/max 寃쎄퀎?먯꽌 遺紐⑤줈 ?꾪뙆 李⑤떒 */
-  -webkit-overflow-scrolling: touch; /* iOS 紐⑤찘? ?ㅽ겕濡?蹂댁옣 */
+  overscroll-behavior-y: contain; /* scrollTop=0/max 경계에서 부모로 전파 차단 */
+  -webkit-overflow-scrolling: touch; /* iOS 모멘텀 스크롤 보장 */
   ```
 - **?좎궗 ?⑦꽩 ?먭? 寃곌낵**: `#risk-radar-body { overflow-y:auto; max-height:360px }` ??fundamental ?섏씠吏 ???낅┰ ?ㅽ겕濡?而⑦뀒?대꼫(?섎룄??. `.market-pulse-bar { overflow-x:auto }` ??CSS 紐낆꽭??overflow-y ?붾У auto 蹂?섏씠???섏쭅 ?ㅻ쾭?뚮줈 ?놁뼱 ?곹뼢 ?놁쓬. `.content` ?⑥씪 ?섏젙?쇰줈 ???섏씠吏 ?닿껐??
 - **?덈갑**: P139 ??SPA?먯꽌 `overflow:hidden` 以묒꺽 ?덉씠?대줈 ?ㅽ겕濡ㅼ쓣 ?쒖뼱???? ?ㅼ젣 ?ㅽ겕濡?而⑦뀒?대꼫(`.content` ???먮뒗 諛섎뱶??`overscroll-behavior-y:contain` 異붽??섏뿬 scroll-chaining ?먯쿇 李⑤떒. ?좉퇋 ?섏씠吏/而⑦뀒?대꼫 異붽? ???ㅽ겕濡??덉씠??援ъ“ 寃???꾩닔.
@@ -1907,13 +1921,13 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
   var aaiiBear = (typeof window._aaiiBearish === 'number') ? window._aaiiBearish : (snap.aaiiBear != null ? snap.aaiiBear : 43.0);
   var pcr = (typeof window._putCallRatio === 'number') ? window._putCallRatio : (snap.pcr != null ? snap.pcr : (snap.pcRatio != null ? snap.pcRatio : null));
   ```
-- **?덈갑**: **P137** ???뚮뜑???묒꽦 ??李몄“ ?꾩뿭???ㅼ젣 ?대뵒???ㅼ젙?섎뒗吏 grep ?뺤씤. ?ㅼ링 ?대갚(window._X ??snap.y ??snap.z ??null).
-- **R48 ?좉퇋**: Canvas ?뚮뜑???꾩뿭 蹂??李몄“ ???ㅼ젣 ?ㅼ젙 ?꾩튂 ?뺤씤.
+- **예방**: **P137** — 렌더러 작성 시 참조 전역이 실제 어디서 설정되는지 grep 확인. 다층 폴백(window._X → snap.y → snap.z → null).
+- **R48 신규**: Canvas 렌더러 전역 변수 참조 시 실제 설정 위치 확인.
 
 ### PR-P136: CSS `--surface-1~5` ?먭린?쒗솚 李몄“ (CRITICAL ??377嫄??ъ슜泥?臾댄슚)
 - **violated_rule**: ?좉퇋 R47
 - **利앹긽**: v48.48?먯꽌 ?꾩엯??`--surface-1: var(--surface-1)` ?뺤떇 ?먭린李몄“ ??CSS invalid ??377嫄??ъ슜泥??뚯씠釉?hover/移대뱶 諛곌꼍/援щ텇??input 諛곌꼍) 紐⑤몢 invisible.
-- **洹쇰낯 ?먯씤**: v48.54 sed 移섑솚 ?ㅼ닔. ?먮옒 rgba 358嫄???var(--surface-*) ?꾪솚 ???좏겙 ?뺤쓽 ?먯껜媛 ?먭린李몄“濡??묒꽦?? ?쒓컖?곸쑝濡??꾪? ?묐룞 ???⑥뿉???먯? 紐삵븿.
+- **근본 원인**: v48.54 sed 치환 실수. 원래 rgba 358건 → var(--surface-*) 전환 시 토큰 정의 자체가 자기참조로 작성됨. 시각적으로 전혀 작동 안 함에도 탐지 못함.
 - **?섏젙** (index.html:63~67):
   ```css
   --surface-1: rgba(255,255,255,0.02);
@@ -2043,14 +2057,14 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 **?곗씠???뺤옣**:
 - ?뚮쭏 DB ?좎꽕: `THEME_NARRATIVES` 47媛?誘멸뎅 + `KR_THEME_NARRATIVES` 22媛??쒓뎅 = **69媛?援ъ“???대윭?곕툕** (why/valueChain/playerRoles 湲곌? 由ъ꽌移??ㅽ???
-- `KR_SUB_THEMES` 22媛?援ъ“??(誘멸뎅 SUB_THEMES? ?숈씪 援ъ“)
+- `KR_SUB_THEMES` 22개 구조화 (미국 SUB_THEMES와 동일 구조)
 - `KR_INSIGHT_MAP` 留ㅽ븨 (kr_* ??short ID)
 - `_getThemeNews()` ?뚮쭏蹂??댁뒪 ?먮룞 留ㅼ묶 (Top 3 ?ロ뀒留덉뿉 AI ?꾨＼?꾪듃 二쇱엯)
 - `_buildMarketLeadersSnapshot()` / `_buildKoreaLeadersSnapshot()` ??Top 3 narrative + INSIGHTS + 理쒓렐 7???댁뒪 ?먮룞 二쇱엯
 - data-snap 諛붿씤??**41 ??52** / data-snap-date 諛곗? **0 ??11** / data-perf-ytd/1y **0 ??8**
 
 **?대쾲 ?몄뀡 ?꾩닔 Agent 由ы룷??寃쎈줈**:
-`C:\Users\zmfhd\AppData\Local\Temp\claude\...\51031526-6cef-4e7b-ac43-8320213ee189\tasks\` ??4媛?由ы룷??(67 ?뚮쭏 ?먭?, 21 ?섏씠吏 ?띿뒪???ㅼ틪, ?꾪궎?띿쿂 媛먯궗, KR ?곗빱 寃利?
+`C:\Users\zmfhd\AppData\Local\Temp\claude\...\51031526-6cef-4e7b-ac43-8320213ee189\tasks\` — 4개 리포트 (67 테마 점검, 21 페이지 텍스트 스캔, 아키텍처 감사, KR 티커 검증)
 
 ---
 
@@ -2195,25 +2209,25 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## [2026-04-06] v42.5 -- 誘몄빱踰??곸뿭 ?꾩닔 QA: ?댁뒪 ?ㅼ썙??/ R15 ?⑦꽩 / 蹂댁븞 / ?묎렐??/ ?깅뒫 (9嫄?
 
-### BUG-1: TECH_KW '?? 1湲???ㅼ썙??R17 ?꾨컲 (HIGH)
+### BUG-1: TECH_KW '팹' 1글자 키워드 R17 위반 (HIGH)
 - **violated_rule**: R17 (?ㅼ썙??湲몄씠 ?쒗븳)
-- **利앹긽**: `'??` ?⑤룆 1湲???ㅼ썙?쒓? TECH_KW??議댁옱. ??湲??留ㅼ묶?쇰줈 "?밸━??, "?밸젅??, "?뚮씪?? ??紐⑤뱺 '?? ?ы븿 臾몄옄?댁뿉 ?ㅽ깘 媛??
-- **洹쇰낯 ?먯씤**: v31.8 ?쒓뎅 諛섎룄泥??ㅼ썙??異붽? ??'?⑥씠??,'?ㅻ━肄?,'??,'媛?숇쪧','?섏쑉' 紐⑸줉???⑤룆 1湲??異붽?.
+- **증상**: `'팹'` 단독 1글자 키워드가 TECH_KW에 존재. 한 글자 매칭으로 "팹리스", "팹레스", "테라팹" 외 모든 '팹' 포함 문자열에 오탐 가능.
+- **근본 원인**: v31.8 한국 반도체 키워드 추가 시 '웨이퍼','실리콘','팹','가동률','수율' 목록에 단독 1글자 추가.
 - **?섏젙**: `'??` ??`'?밸━??` 援먯껜.
-- **?덈갑**: P52 ??TECH_KW/MACRO_KW ?ㅼ썙??異붽? ??len < 3 泥댄겕. 1湲???⑤룆 ?쒓? ?ㅼ썙???덈? 湲덉?.
+- **예방**: P52 — TECH_KW/MACRO_KW 키워드 추가 시 len < 3 체크. 1글자 단독 한글 키워드 절대 금지.
 
-### BUG-2: MACRO_KW 以묐났 2湲???ㅼ썙????湲?踰꾩쟾 ?대? 議댁옱 (MEDIUM)
+### BUG-2: MACRO_KW 중복 2글자 키워드 — 긴 버전 이미 존재 (MEDIUM)
 - **violated_rule**: R17
-- **利앹긽**: `'遊됱뇙'`(?댁긽遊됱뇙 議댁옱), `'臾쇨?'`(?뚮퉬?먮Ъ媛/?앹궛?먮Ъ媛/洹쇱썝臾쇨? 議댁옱), `'怨좎슜'`(怨좎슜吏???좉퇋怨좎슜/鍮꾨냽?낃퀬??議댁옱) ????湲??숈쓽?닿? ?대? 諛곗뿴???덉뼱 2湲??踰꾩쟾 以묐났.
+- **증상**: `'봉쇄'`(해상봉쇄 존재), `'물가'`(소비자물가/생산자물가/근원물가 존재), `'고용'`(고용지표/신규고용/비농업고용 존재) — 더 긴 동의어가 이미 배열에 있어 2글자 버전 중복.
 - **?섏젙**: 3媛??쒓굅. `'湲댁텞'` ??`'湲댁텞?뺤콉'`, `'?쇰큸'` ??`'湲덈━?쇰큸'` ?뺤옣.
-- **?덈갑**: P52 蹂닿컯 ?????ㅼ썙??異붽? ??湲곗〈 諛곗뿴????湲??숈쓽??議댁옱 ?щ? ?뺤씤. 2湲??異붽? ??`grep '湲곗〈?ㅼ썙??` ?좏뻾.
+- **예방**: P52 보강 — 새 키워드 추가 시 기존 배열에 더 긴 동의어 존재 여부 확인. 2글자 추가 전 `grep '기존키워드'` 선행.
 
 ### BUG-3: d.pct || 0 ?⑦꽩 5嫄?R15 ?꾨컲 (MEDIUM)
 - **violated_rule**: R15 (?곗씠??誘몄닔??vs 0% 援щ텇)
-- **利앹긽**: AI 梨꾪똿 而⑦뀓?ㅽ듃 鍮뚮뱶 ?⑥닔 5怨녹뿉??`d.pct || 0` ?⑦꽩 ?ъ슜. `pct === null`(誘몄닔??怨?`pct === 0`(?ㅼ젣 蹂댄빀)??援щ텇?섏? 紐삵빐 誘몄닔???곗씠?곕? "0% 蹂???쇰줈 ?쒖떆 媛??
+- **증상**: AI 채팅 컨텍스트 빌드 함수 5곳에서 `d.pct || 0` 패턴 사용. `pct === null`(미수신)과 `pct === 0`(실제 보합)을 구분하지 못해 미수신 데이터를 "0% 변동"으로 표시 가능.
 - **洹쇰낯 ?먯씤**: AI 而⑦뀓?ㅽ듃 鍮뚮뱶 ?⑥닔??UI ?뚮뜑 ?꾨떂?먮룄 ?숈씪 ?⑦꽩 ?곸슜.
 - **?섏젙**: `(d.pct != null) ? d.pct : 0` 紐낆떆??null 泥댄겕 5嫄??곸슜.
-- **?덈갑**: R15 ?ы솗????`|| 0` ?⑦꽩? JS?먯꽌 `0`??falsy?대?濡??ㅼ젣 0%瑜?0?쇰줈 ?泥? ??긽 `!= null` 泥댄겕 ?ъ슜.
+- **예방**: R15 재확인 — `|| 0` 패턴은 JS에서 `0`도 falsy이므로 실제 0%를 0으로 대체. 항상 `!= null` 체크 사용.
 
 ### BUG-4: spx.pct?.toFixed(2) || '0.00' R15 ?꾨컲 (MEDIUM)
 - **violated_rule**: R15
@@ -2406,40 +2420,40 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ### BUG-3: R15 ?꾨컲 ??Yahoo/CoinGecko ?쒖꽭 ?섏쭛?먯꽌 `_pct || 0` ?⑦꽩 3嫄?(HIGH)
 - **violated_rule**: R15
-- **利앹긽**: ?ㅼ젣 0% 蹂??醫낅ぉ??null(誘몄닔??怨?援щ텇 遺덇? -- ?몃젅?대뵫 ?ㅼ퐫?? ?쒖옣 遺꾩쐞湲??쒓끝.
-- **洹쇰낯 ?먯씤**: v40.6?먯꽌 ????섏젙?덉쑝??fetchLiveQuotes ??Yahoo/pre-post/CoinGecko 3怨??꾨씫.
+- **증상**: 실제 0% 변동 종목이 null(미수신)과 구분 불가 -- 트레이딩 스코어, 시장 분위기 왜곡.
+- **근본 원인**: v40.6에서 대량 수정했으나 fetchLiveQuotes 내 Yahoo/pre-post/CoinGecko 3곳 누락.
 - **?섏젙**: `_pct || 0` -> `_pct != null ? _pct : null`.
 - **?덈갑**: P25 ?ш컯?? `|| 0` grep 二쇨린???ㅽ뻾.
 
-### BUG-4: R17 ?꾨컲 ??MACRO_KW??'QE'/'QT' 2湲???ㅼ썙??(MEDIUM)
+### BUG-4: R17 위반 — MACRO_KW에 'QE'/'QT' 2글자 키워드 (MEDIUM)
 - **violated_rule**: R17
-- **利앹긽**: "QE" ?ы븿 鍮꾧툑???띿뒪?몄뿉??留ㅽ겕濡??댁뒪濡??ㅻ텇瑜?媛??
-- **洹쇰낯 ?먯씤**: ?쎌뼱瑜?洹몃?濡??ㅼ썙?쒖뿉 異붽?. full form? ?대? 議댁옱.
+- **증상**: "QE" 포함 비금융 텍스트에서 매크로 뉴스로 오분류 가능.
+- **근본 원인**: 약어를 그대로 키워드에 추가. full form은 이미 존재.
 - **?섏젙**: MACRO_KW?먯꽌 'QE','QT' ?쒓굅.
-- **?덈갑**: R17 -- 3湲??誘몃쭔 ?⑤룆 ?ㅼ썙??異붽? 湲덉?.
+- **예방**: R17 -- 3글자 미만 단독 키워드 추가 금지.
 
-### BUG-5: fundamental ?섏씠吏 ?ъ쭊??Dead Page ??_fundInitDone 誘몃━??(MEDIUM)
+### BUG-5: fundamental 페이지 재진입 Dead Page — _fundInitDone 미리셋 (MEDIUM)
 - **violated_rule**: R9
-- **利앹긽**: fundamental ?섏씠吏 諛⑸Ц -> ?ㅻⅨ ?섏씠吏 -> ?ㅼ떆 fundamental ??鍮??섏씠吏.
+- **증상**: fundamental 페이지 방문 -> 다른 페이지 -> 다시 fundamental 시 빈 페이지.
 - **洹쇰낯 ?먯씤**: `destroyPageCharts` fundamental 釉붾줉??`_fundInitDone = false` 由ъ뀑 ?꾨씫.
 - **?섏젙**: fundamental destroy 釉붾줉??`_fundInitDone = false` 異붽?.
-- **?덈갑**: P28 ??init 媛???⑦꽩 ?ъ슜 ??諛섎뱶??destroy?먯꽌 ?뚮옒洹?由ъ뀑. R9 ?ы솗??
+- **예방**: P28 — init 가드 패턴 사용 시 반드시 destroy에서 플래그 리셋. R9 재확인.
 
-### CLEANUP: Dead Code ????쒓굅 (~400以?
-- 19媛?誘몄궗???⑥닔 + 6媛?誘몄궗??蹂??+ 1媛?以묐났 IIFE ?쒓굅.
+### CLEANUP: Dead Code 대량 제거 (~400줄)
+- 19개 미사용 함수 + 6개 미사용 변수 + 1개 중복 IIFE 제거.
 - ?꾩닔 grep?쇰줈 ?몄텧泥?0嫄??뺤씤 ????젣.
-- **?덈갑**: 湲곕뒫 ?쒓굅 ??愿???⑥닔/蹂?섎룄 ?④퍡 ?뺣━. 二쇨린??dead code ?ㅼ틪.
+- **예방**: 기능 제거 시 관련 함수/변수도 함께 정리. 주기적 dead code 스캔.
 
 ---
 
-## [2026-04-05] v41.1 -- ?덈갑 ?섏젙: ?좊땲踰꾩꽕 ??됲꽣 ?ㅽ겕濡ㅻ컮 (1嫄?
+## [2026-04-05] v41.1 -- 예방 수정: 유니버설 셀렉터 스크롤바 (1건)
 
-### BUG-1: `*` ?좊땲踰꾩꽕 ??됲꽣??scrollbar-width ?곸슜 (PREVENTIVE)
+### BUG-1: `*` 유니버설 셀렉터에 scrollbar-width 적용 (PREVENTIVE)
 - **violated_rule**: ?좉퇋 (CSS ?깅뒫)
-- **利앹긽**: 吏곸젒???쒓컖 踰꾧렇 ?놁쑝?? `* { scrollbar-width: thin; }` 洹쒖튃??DOM ?꾩껜 37,000+ ?붿냼???곸슜?섏뼱 ?좎옱???뚮뜑留??깅뒫 ???
-- **洹쇰낯 ?먯씤**: Firefox ?ㅽ겕濡ㅻ컮 ?대갚 異붽? ??`*` ??됲꽣 ?ъ슜. `scrollbar-width`???ㅽ겕濡?媛???붿냼?먮쭔 ?좏슚?섎?濡?`html`濡?異⑸텇.
+- **증상**: 직접적 시각 버그 없으나, `* { scrollbar-width: thin; }` 규칙이 DOM 전체 37,000+ 요소에 적용되어 잠재적 렌더링 성능 저하.
+- **근본 원인**: Firefox 스크롤바 폴백 추가 시 `*` 셀렉터 사용. `scrollbar-width`는 스크롤 가능 요소에만 유효하므로 `html`로 충분.
 - **?섏젙**: `* { scrollbar-width: thin; ... }` -> `html { scrollbar-width: thin; ... }`
-- **?덈갑**: CSS ?꾨줈?쇳떚 異붽? ??理쒖냼 踰붿쐞 ??됲꽣 ?ъ슜. `*` ??됲꽣??由ъ뀑(box-sizing) ???ъ슜 湲덉?.
+- **예방**: CSS 프로퍼티 추가 시 최소 범위 셀렉터 사용. `*` 셀렉터는 리셋(box-sizing) 외 사용 금지.
 
 ---
 
@@ -2448,69 +2462,69 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 ### BUG-1: oilPrice TDZ ReferenceError (CRITICAL)
 - **violated_rule**: ?좉퇋 (JS TDZ)
 - **利앹긽**: `computeTradingScore()` ?몄텧 ??留ㅻ쾲 `ReferenceError: Cannot access 'oilPrice' before initialization` ??16+ 肄섏넄 ?먮윭/濡쒕뱶.
-- **洹쇰낯 ?먯씤**: `const oilPrice = _ldSafe('CL=F','price') || 0`??L30797???좎뼵?섏뿀吏留?L30768?먯꽌 癒쇱? 李몄“ (TDZ).
+- **근본 원인**: `const oilPrice = _ldSafe('CL=F','price') || 0`이 L30797에 선언되었지만 L30768에서 먼저 참조 (TDZ).
 - **?섏젙**: ?좎뼵??L30694 (`const tnx` 吏곹썑)濡??대룞, 湲곗〈 ?꾩튂??以묐났 ?좎뼵 ??젣.
-- **?덈갑**: `const` 蹂?섎뒗 諛섎뱶??泥??ъ슜 ?꾩뿉 ?좎뼵. `computeTradingScore()` ?섏젙 ??蹂???좎뼵 ?쒖꽌 ?뺤씤.
+- **예방**: `const` 변수는 반드시 첫 사용 전에 선언. `computeTradingScore()` 수정 시 변수 선언 순서 확인.
 
 ### BUG-2: .pct||0 ?덊떚?⑦꽩 ?붿〈 9嫄?+ abv50||48 3嫄?(R15 ?꾨컲)
 - **violated_rule**: R15
 - **利앹긽**: null(誘몄닔?? ?곗씠?곌? 0%(蹂댄빀)?쇰줈 泥섎━?섏뼱 M7 由щ뜑??移댁슫?? ?뱁꽣 遺꾩꽍, XLF/Gold ?쒓렇?? ?몃젅?대뵫 ?ㅼ퐫???쒓끝.
-- **洹쇰낯 ?먯씤**: v38.4/v39.2?먯꽌 ????섏젙?덉쑝???쇰? ?꾨씫 + `breadthData.abv50||48` ?숈씪 ?⑦꽩.
+- **근본 원인**: v38.4/v39.2에서 대량 수정했으나 일부 누락 + `breadthData.abv50||48` 동일 패턴.
 - **?섏젙**: ?꾩닔 grep ??9嫄?`d.pct != null ? d.pct : 0` + 3嫄?`abv50 != null ? abv50 : 28`.
-- **?덈갑**: P25 洹쒖튃 ?ы솗?? `|| ?レ옄` ?대갚? 0???좏슚媛믪씤 紐⑤뱺 怨녹뿉???ъ슜 湲덉?.
+- **예방**: P25 규칙 재확인. `|| 숫자` 폴백은 0이 유효값인 모든 곳에서 사용 금지.
 
 ### BUG-3: ?곗씠???댁쨷 ?쒖떆 遺덉씪移?6嫄?
-- **利앹긽**: ?숈씪 ?곗씠?곌? home sidebar vs ?꾩슜 ?섏씠吏?먯꽌 ?ㅻⅨ 媛??쒖떆 (釉뚮젅?쒖벐 5/20/50SMA, AAII ?좎쭨, VKOSPI, ?꾩씪醫낃? ?좎쭨).
+- **증상**: 동일 데이터가 home sidebar vs 전용 페이지에서 다른 값 표시 (브레드쓰 5/20/50SMA, AAII 날짜, VKOSPI, 전일종가 날짜).
 - **洹쇰낯 ?먯씤**: ?섎뱶肄붾뵫 ?곗씠?곌? ?щ윭 怨녹뿉 ?곗옱?섎ŉ, ?낅뜲?댄듃 ???쇰?留?媛깆떊.
-- **?섏젙**: 紐⑤뱺 ?댁쨷 ?쒖떆 吏?먯쓣 ?숈씪 媛믪쑝濡??숆린??
+- **수정**: 모든 이중 표시 지점을 동일 값으로 동기화.
 - **?덈갑**: ?곗씠???낅뜲?댄듃 ??grep?쇰줈 ?대떦 媛믪씠 ?섑??섎뒗 紐⑤뱺 ?꾩튂瑜??뺤씤.
 
 ### BUG-4: KR_STOCK_DB ?덉쭏 ?댁뒋 4嫄?
-- 鍮꾩긽??醫낅ぉ(?섏븻?쇱퐫?ㅻ찓?? ?ы븿, themes:[] 怨좎븘 ?뷀듃由? ?섎せ??mcap/price, 遺?곸젅???뚮쭏 遺꾨쪟.
-- **?섏젙**: 鍮꾩긽???쒓굅, construction ?뚮쭏 遺???뱀뀡 ?대룞, mcap/price 理쒖떊?? 怨쇱엵 ?뚮쭏 ?쒓굅.
+- 비상장 종목(엘앤피코스메틱) 포함, themes:[] 고아 엔트리, 잘못된 mcap/price, 부적절한 테마 분류.
+- **수정**: 비상장 제거, construction 테마 부여+섹션 이동, mcap/price 최신화, 과잉 테마 제거.
 
 ---
 
-## [2026-04-03] v39.2 ???꾩닔 QA + ?댁뒪 ?뚯씠?꾨씪??+ ???섏씠吏 ?ъ링 媛쒖꽑: 12? 臾몄젣 諛쒓껄 諛??섏젙
+## [2026-04-03] v39.2 — 전수 QA + 뉴스 파이프라인 + 전 페이지 심층 개선: 12대 문제 발견 및 수정
 
 ### BUG-1: P25 `.pct || 0` ?⑦꽩 25怨??щ컻 (CRITICAL)
 - **violated_rule**: R15
-- **利앹긽**: ?곗씠??誘몄닔??null) 醫낅ぉ??UI??"+0.00%"濡??쒖떆. AI 遺꾩꽍(CHAT_CONTEXT)?먮룄 "0.00%"媛 二쇱엯?섏뼱 遺꾩꽍 ?쒓끝.
-- **洹쇰낯 ?먯씤**: v38.4?먯꽌 65怨녹쓣 ?섏젙?덉쑝???댄썑 肄붾뱶?먯꽌 ?숈씪 ?⑦꽩???ъ궫?낅맖. ?뱁엳 22101(AI遺꾩꽍), 23684(鍮꾧탳?곗씠??, 25102(?섏쭛), 32705(釉뚮젅?쒖뒪 移댁슫??媛 ?꾪뿕.
+- **증상**: 데이터 미수신(null) 종목이 UI에 "+0.00%"로 표시. AI 분석(CHAT_CONTEXT)에도 "0.00%"가 주입되어 분석 왜곡.
+- **근본 원인**: v38.4에서 65곳을 수정했으나 이후 코드에서 동일 패턴이 재삽입됨. 특히 22101(AI분석), 23684(비교데이터), 25102(수집), 32705(브레드스 카운트)가 위험.
 - **?섏젙**: 25怨??꾩닔 ??`d.pct != null ? d.pct : 0` ?먮뒗 `d.pct != null ? d.pct : null` ?⑦꽩?쇰줈 ?꾪솚.
 - **?덈갑 洹쒖튃 P25 媛뺥솕**: ?좉퇋 肄붾뱶 ?묒꽦 ??`.pct || 0` ?⑦꽩 ?덈? ?ъ슜 湲덉?. grep?쇰줈 ?뺢린 泥댄겕.
 
 ### BUG-2: popstate ?몃뱾?ъ뿉??`aio:pageShown` ?대깽??誘몃컻??(CRITICAL)
 - **violated_rule**: R9
-- **利앹긽**: 釉뚮씪?곗? ?ㅻ줈媛湲???screener/portfolio/korea/fundamental/themes/options ??12媛??섏씠吏媛 珥덇린?붾릺吏 ?딆쓬 (鍮??붾㈃/李⑦듃 誘몃젋?붾쭅).
-- **洹쇰낯 ?먯씤**: `showPage()`??`aio:pageShown` ?대깽?몃? 諛쒖넚?섏?留? popstate ?몃뱾?ъ뿉?쒕뒗 吏곸젒 DOM 議곗옉留??섍퀬 ?대깽?몃? 諛쒖넚?섏? ?딆븯?? 12媛??섏씠吏媛 ???대깽?몄뿉 ?섏〈?섏뿬 lazy-init ?섑뻾.
+- **증상**: 브라우저 뒤로가기 시 screener/portfolio/korea/fundamental/themes/options 등 12개 페이지가 초기화되지 않음 (빈 화면/차트 미렌더링).
+- **근본 원인**: `showPage()`는 `aio:pageShown` 이벤트를 발송하지만, popstate 핸들러에서는 직접 DOM 조작만 하고 이벤트를 발송하지 않았음. 12개 페이지가 이 이벤트에 의존하여 lazy-init 수행.
 - **?섏젙**: popstate ?몃뱾?ъ뿉 `document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: id }))` 異붽?.
-- **?덈갑 洹쒖튃 P31**: popstate ?몃뱾???섏젙 ??諛섎뱶??showPage()? ?숈씪???대깽??諛쒖넚 ?뺤씤.
+- **예방 규칙 P31**: popstate 핸들러 수정 시 반드시 showPage()와 동일한 이벤트 발송 확인.
 
-### BUG-3: TECH_KW??3湲??誘몃쭔 ?ㅼ썙??7媛??щ컻 (P28)
+### BUG-3: TECH_KW에 3글자 미만 키워드 7개 재발 (P28)
 - **violated_rule**: R17
 - **利앹긽**: TECH_KW??`'V'`(1??, `'EV'`, `'MA'`, `'SQ'`, `'ZS'`, `'PL'`, `'1X'`(媛?2?? ??鍮꾧툑???띿뒪???ㅽ깘 ?꾪뿕.
-- **洹쇰낯 ?먯씤**: 醫낅ぉ ??ㅼ엫 ?놁뿉 ?곗빱 ?쎌옄瑜??섏뿴?섎뒗 ?⑦꽩 (`'Visa','V','Mastercard','MA'`). R17 洹쒖튃? ?덉뿀?쇰굹 湲곗〈 肄붾뱶 誘몄젙由?
-- **?섏젙**: V/MA/SQ/ZS/PL ?쒓굅(??ㅼ엫 ?좎?), EV??electric vehicle', 1X??1X Technologies'.
-- **?덈갑 洹쒖튃 P28 媛뺥솕**: TECH_KW/MED_KW 蹂寃???`grep -oP "'[^']{1,2}'" index.html` ?ㅽ뻾?섏뿬 2湲???댄븯 ?뺤씤.
+- **근본 원인**: 종목 풀네임 옆에 티커 약자를 나열하는 패턴 (`'Visa','V','Mastercard','MA'`). R17 규칙은 있었으나 기존 코드 미정리.
+- **수정**: V/MA/SQ/ZS/PL 제거(풀네임 유지), EV→'electric vehicle', 1X→'1X Technologies'.
+- **예방 규칙 P28 강화**: TECH_KW/MED_KW 변경 시 `grep -oP "'[^']{1,2}'" index.html` 실행하여 2글자 이하 확인.
 
 ### BUG-4: native `confirm()` 6怨??붿〈
 - **利앹긽**: 紐⑤컮?쇱뿉??釉뚮씪?곗? 湲곕낯 confirm ?ㅼ씠?쇰줈洹??쒖떆 ??UX 遺덉씪移?
-- **洹쇰낯 ?먯씤**: `showConfirmModal()` 而ㅼ뒪? 紐⑤떖???꾩엯(v38.3)?섏뿀?쇰굹 湲곗〈 6怨?誘몄쟾??
+- **근본 원인**: `showConfirmModal()` 커스텀 모달이 도입(v38.3)되었으나 기존 6곳 미전환.
 - **?섏젙**: 20192(LLM?쒕룄), 20971(寃뚯떆?먯궘??, 21212(PIN珥덇린??, 21246(?ы듃?대━?ㅼ쨷蹂?, 21454(CSV?꾪룷??, 24934(梨꾪똿??젣) ??紐⑤몢 `showConfirmModal()` 肄쒕갚 諛⑹떇?쇰줈 ?꾪솚.
 - **?덈갑 洹쒖튃 P32**: `confirm(` ?⑦꽩 ?좉퇋 ?ъ슜 湲덉?. 諛섎뱶??`showConfirmModal()` ?ъ슜.
 
 ### BUG-5: ARM ?곗빱 ?댁뒪 ?ㅽ깘 (CRITICAL -- ?ъ슜??蹂닿퀬)
 - **violated_rule**: R16, R17
-- **利앹긽**: 泥좉컯 ?댁뒪 ??ARM怨?臾닿???湲곗궗??$ARM ?곗빱媛 ?쒖떆??
-- **洹쇰낯 ?먯씤 2媛吏**:
+- **증상**: 철강 뉴스 등 ARM과 무관한 기사에 $ARM 티커가 표시됨.
+- **근본 원인 2가지**:
   1. KR_TICKER_MAP??`'arm': 'ARM'` ??`text.toLowerCase().includes('arm')` = "arms", "armed" ??紐⑤뱺 ?띿뒪?몄뿉??留ㅼ묶.
-  2. `_isTickerContextValid`??finWords??`'market'`, `'trade'` ??愿묐쾾???⑥뼱 ??嫄곗쓽 紐⑤뱺 ?댁뒪媛 臾몃㎘ 寃利??듦낵.
+  2. `_isTickerContextValid`의 finWords에 `'market'`, `'trade'` 등 광범위 단어 → 거의 모든 뉴스가 문맥 검증 통과.
 - **?섏젙**:
   1. KR_TICKER_MAP: `'arm'` ??`'arm holdings'`
   2. `_TICKER_WORD_OVERLAP` Set ?좉퇋 ??ARM/ON/IT/ALL/RUN ???곷떒??寃뱀묠 ?곗빱??`$ARM` ?먮뒗 `(ARM)` ?뺥깭留??덉슜
   3. finWords?먯꽌 愿묐쾾???⑥뼱(market/trade/rise/fall) ?쒓굅 ??湲덉쑖 ?꾩슜 ?⑥뼱留??좎?
-- **?덈갑 洹쒖튃 P33**: ?곸뼱 ?쇰컲 ?⑥뼱? 寃뱀튂???곗빱(3湲???댄븯)??`_TICKER_WORD_OVERLAP`???깅줉. KR_TICKER_MAP???곷Ц ?뚮Ц??3湲???댄븯 ??異붽? ??`includes()` ?ㅽ깘 寃利??꾩닔.
+- **예방 규칙 P33**: 영어 일반 단어와 겹치는 티커(3글자 이하)는 `_TICKER_WORD_OVERLAP`에 등록. KR_TICKER_MAP에 영문 소문자 3글자 이하 키 추가 시 `includes()` 오탐 검증 필수.
 
 ### BUG-6: ?대┃踰좎씠???ъ옄 ?ㅽ뙵 ?댁뒪 ?좎엯 (?ъ슜??蹂닿퀬)
 - **violated_rule**: R14
@@ -2685,82 +2699,82 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## [2026-03-31] v38.4d ??遺꾩꽍 ?⑥닔 ?덉쭏 ?꾩닔 ?먭?: D/C?깃툒 3? 寃고븿 ?섏젙
 
-- **利앹긽 1**: PEG 遺꾩꽍??怨좉?二쇰? ??긽 "?PEG ??됯?"濡? ?媛二쇰? "怨쟑EG 怨좏룊媛"濡??먯젙. EPS 湲덉븸怨?EPS ?깆옣瑜좎쓣 ?쇰룞.
-- **利앹긽 2**: Weinstein Stage媛 留ㅼ씪 諛붾?(?댁젣 Stage2 ???ㅻ뒛 Stage4). ?ㅼ젣 Stage ?꾪솚? ?섏＜~?섍컻???⑥쐞.
-- **利앹긽 3**: BB ?ㅽ댁쫰媛 "?ㅻ뒛 蹂???곸쓬"留뚯쑝濡?諛쒕룞?섎ŉ, 94.1% ?밸쪧?대씪??異쒖쿂 遺덈챸 ?듦퀎 ?쒖떆.
-- **洹쇰낯 ?먯씤**: ?쇨컙 ?ㅻ깄???곗씠?곕쭔?쇰줈 ?κ린 湲곗닠吏?쒕? "?됰궡"??援ы쁽. ?곗씠???쒓퀎瑜??몄젙?섏? ?딄퀬 留덉튂 ?뺥솗??吏?쒖씤 寃껋쿂???쒖떆.
-- **?섏젙**: Weinstein??媛?蹂듯빀吏?? MTF?믫??꾪봽?덉엫蹂?怨좎쑀吏?? BB???蹂?숈꽦 ?뺤텞"?쇰줈 ?뺤쭅?? PEG?믪삱諛붾Ⅸ 怨듭떇
-- **?덈갑 洹쒖튃 P27**: ?щТ 鍮꾩쑉/湲곗닠吏??援ы쁽 ??(1) ?먯쟾 ?뺤쓽 ?뺤씤 (2) 遺꾩옄/遺꾨え ?⑥쐞 ?쇱튂 (3) ?꾩슂 ?곗씠???뺣낫 ?щ? (4) 洹쇱궗移섎㈃ "異붿젙" 紐낆떆
+- **증상 1**: PEG 분석이 고가주를 항상 "저PEG 저평가"로, 저가주를 "고PEG 고평가"로 판정. EPS 금액과 EPS 성장률을 혼동.
+- **증상 2**: Weinstein Stage가 매일 바뀜 (어제 Stage2 → 오늘 Stage4). 실제 Stage 전환은 수주~수개월 단위.
+- **증상 3**: BB 스퀴즈가 "오늘 변동 적음"만으로 발동하며, 94.1% 승률이라는 출처 불명 통계 표시.
+- **근본 원인**: 일간 스냅샷 데이터만으로 장기 기술지표를 "흉내"낸 구현. 데이터 한계를 인정하지 않고 마치 정확한 지표인 것처럼 표시.
+- **수정**: Weinstein→6개 복합지표, MTF→타임프레임별 고유지표, BB→"저변동성 압축"으로 정직화, PEG→올바른 공식
+- **예방 규칙 P27**: 재무 비율/기술지표 구현 시 (1) 원전 정의 확인 (2) 분자/분모 단위 일치 (3) 필요 데이터 확보 여부 (4) 근사치면 "추정" 명시
 
 ---
 
-## [2026-03-31] v38.5 ??PEG 鍮꾩쑉 怨꾩궛 怨듭떇 ?ㅻ쪟 ?섏젙 + ??붾찘??遺꾩꽍 源딆씠 媛뺥솕
+## [2026-03-31] v38.5 — PEG 비율 계산 공식 오류 수정 + 펀더멘털 분석 깊이 강화
 
 - **利앹긽**: `_generateFundamentalAnalysis()`??PEG 遺꾩꽍 釉붾줉???꾩쟾???섎せ??媛믪쓣 異쒕젰. ?? NVDA PE 35.2, EPS $4.90 ??PEG = 35.2 / max(4.90, 1) = 7.18濡??쒖떆?섏?留? ?ㅼ젣 PEG = PE / EPS?깆옣瑜?%) = 35.2 / 72 = 0.49?ъ빞 ??
-- **洹쇰낯 ?먯씤**: PEG 怨듭떇??`i.pe / Math.max(i.eps, 1)`濡?援ы쁽?섏뼱 ?덉뿀?? `i.eps`??EPS ?덈? 湲덉븸($4.90 ???댁? EPS ?깆옣瑜?%)???꾨떂. PEG = P/E / EPS Growth Rate(%)?몃뜲 遺꾨え媛 ?꾩쟾???由? 寃곌낵?곸쑝濡?EPS 湲덉븸????醫낅ぉ(META $23.49)? PEG媛 ??쾶, ?묒? 醫낅ぉ(TSLA $1.08)? PEG媛 ?믨쾶 ?섏삤????쟾 ?꾩긽 諛쒖깮.
+- **근본 원인**: PEG 공식이 `i.pe / Math.max(i.eps, 1)`로 구현되어 있었음. `i.eps`는 EPS 절대 금액($4.90 등)이지 EPS 성장률(%)이 아님. PEG = P/E / EPS Growth Rate(%)인데 분모가 완전히 틀림. 결과적으로 EPS 금액이 큰 종목(META $23.49)은 PEG가 낮게, 작은 종목(TSLA $1.08)은 PEG가 높게 나오는 역전 현상 발생.
 - **?섏젙 ?댁슜**:
   1. `FUND_FALLBACK`??`epsGrowth` ?꾨뱶 異붽? (YoY EPS ?깆옣瑜?%)
   2. PEG 怨꾩궛??`i.pe / i.epsGrowth`濡??щ컮瑜닿쾶 ?섏젙
-  3. PEG ?댁꽍 4?④퀎: < 0 (?섏씡 媛먯냼), < 1 (??됯?), 1~2 (?곸젙), > 2 (怨좏룊媛)
-  4. EPS ?깆옣瑜??곗씠???녿뒗 醫낅ぉ? "PEG ?곗씠??遺議? 蹂꾨룄 ?쒖떆
-  5. 諛몃쪟?먯씠???몃옪 寃쎄퀬 濡쒖쭅 異붽? (?PE + ?섎씫 + ?ROE/EPS 媛먯냼 議고빀)
-  6. ?깆옣-?섏씡??留ㅽ듃由?뒪 異붽? (怨좎꽦??怨좊쭏吏?/ 怨좎꽦???留덉쭊 / ??깆옣+怨좊쭏吏?/ ??깆옣+?留덉쭊)
+  3. PEG 해석 4단계: < 0 (수익 감소), < 1 (저평가), 1~2 (적정), > 2 (고평가)
+  4. EPS 성장률 데이터 없는 종목은 "PEG 데이터 부족" 별도 표시
+  5. 밸류에이션 트랩 경고 로직 추가 (저PE + 하락 + 저ROE/EPS 감소 조합)
+  6. 성장-수익성 매트릭스 추가 (고성장+고마진 / 고성장+저마진 / 저성장+고마진 / 저성장+저마진)
   7. ?뱁꽣蹂?諛몃쪟?먯씠??鍮꾧탳???쒖??몄감 湲곕컲 z-score ?먮떒 異붽?
 - **?덈갑 洹쒖튃**:
-  - **P27**: PEG 鍮꾩쑉 怨듭떇? 諛섎뱶??`P/E 첨 EPS ?깆옣瑜?%)`. EPS ?덈? 湲덉븸($)??遺꾨え???ъ슜 湲덉?. ?щТ 鍮꾩쑉 怨꾩궛 ??遺꾩옄/遺꾨え ?⑥쐞 ?쇱튂 ?щ? 諛섎뱶??寃利?
-  - FUND_FALLBACK?????щТ 吏??異붽? ???⑥쐞(%, $, 諛곗닔) 二쇱꽍 紐낃린.
+  - **P27**: PEG 비율 공식은 반드시 `P/E ÷ EPS 성장률(%)`. EPS 절대 금액($)을 분모에 사용 금지. 재무 비율 계산 시 분자/분모 단위 일치 여부 반드시 검증.
+  - FUND_FALLBACK에 새 재무 지표 추가 시 단위(%, $, 배수) 주석 명기.
 
 ---
 
 ## [2026-03-31] v38.4 ??QA ?꾩닔 ?먭?: P25 `.pct || 0` 65媛??쇨큵 ?섏젙 + P24 children 蹂댄샇 蹂닿컯
 
-- **利앹긽**: ?곗씠??誘몄닔??pct=null/undefined) 醫낅ぉ??UI??"+0.00%"濡??쒖떆?섏뼱 ?ㅼ젣 0% 蹂?숆낵 援щ텇 遺덇?. AI ?꾨＼?꾪듃?먮룄 "0.00%"媛 二쇱엯?섏뼱 遺꾩꽍 ?쒓끝.
-- **洹쇰낯 ?먯씤**: `d.pct || 0` ?⑦꽩???꾨줈?앺듃 ?꾩껜 65媛??댁긽 ?곗옱. JavaScript??`||` ?곗궛?먮뒗 `0`??falsy濡?痍④툒?섎?濡? pct媛 ?ㅼ젣 0??寃쎌슦? null/undefined??寃쎌슦瑜?援щ텇?????놁쓬.
+- **증상**: 데이터 미수신(pct=null/undefined) 종목이 UI에 "+0.00%"로 표시되어 실제 0% 변동과 구분 불가. AI 프롬프트에도 "0.00%"가 주입되어 분석 왜곡.
+- **근본 원인**: `d.pct || 0` 패턴이 프로젝트 전체 65개 이상 산재. JavaScript의 `||` 연산자는 `0`도 falsy로 취급하므로, pct가 실제 0인 경우와 null/undefined인 경우를 구분할 수 없음.
 - **?섏젙 ?댁슜**:
   - **Category A (19媛? UI 吏곸젒 ?쒖떆)**: `d.pct != null ? d.pct : null` + ?곗씠???놁쓬 ??"?? ?쒖떆, AI?먮뒗 "?깅씫瑜?N/A" ?꾨떖
   - **Category B (22媛? 怨꾩궛 濡쒖쭅)**: `(d.pct != null ? d.pct : 0)` ??null 紐낆떆 泥댄겕
-  - **Category C (24媛? ??꾪뿕)**: ?좎? ??鍮꾧탳 ?곗궛/?됱긽 寃곗젙?먯꽌 0???곸젅??湲곕낯媛?
+  - **Category C (24개, 저위험)**: 유지 — 비교 연산/색상 결정에서 0이 적절한 기본값
   - **P24 蹂닿컯**: L12114(screener tbody), L26837(kr-supply)?먯꽌 `[data-live-price]` 踰뚰겕 ?낅뜲?댄듃 ??`el.children.length > 0` 泥댄겕 異붽?
   - **insight-box ?ㅻ쾭?뚮줈??*: collapsed ?곹깭?먯꽌 `padding-right: 32px` 異붽??섏뿬 `::after` ?붿궡?쒖? ?띿뒪??寃뱀묠 諛⑹?
 - **?덈갑 洹쒖튃**:
   - **P25 媛뺥솕**: `.pct || 0` ?⑦꽩 ?좉퇋 ?ъ슜 ?덈? 湲덉?. 諛섎뱶??`d.pct != null ? d.pct : (湲곕낯媛?` ?ъ슜. UI ?쒖떆 ??null?대㈃ "?? ?뚮뜑留?
-  - **P24 媛뺥솕**: `[data-live-price]` ??됲꽣濡?踰뚰겕 ?낅뜲?댄듃?섎뒗 ??肄붾뱶 ?묒꽦 ?? 諛섎뱶??`el.children.length > 0` 泥댄겕 ?ы븿.
+  - **P24 강화**: `[data-live-price]` 셀렉터로 벌크 업데이트하는 새 코드 작성 시, 반드시 `el.children.length > 0` 체크 포함.
 - **異붽? 諛쒓껄**: div 遺덇퇏??15媛?蹂닿퀬 ??`grep -c` vs `grep -o` 李⑥씠濡??명븳 李⑹떆 (?ㅼ젣 3,685:3,685 ?꾨꼍 洹좏삎). ?ν썑 div 洹좏삎 ?먭? ??`grep -o '<div' | wc -l` ?ъ슜.
 
 ---
 
 ## [2026-03-29] v38.3 ??briefing-static-archive 珥덇낵 ?ロ옒 ?쒓렇濡??꾩껜 DOM 援ъ“ 遺뺢눼 (P26 ?좉퇋)
 
-- **利앹긽**: ?섏쑉쨌梨꾧텒 ??紐⑤뱺 ?섏씠吏 ?곷떒??鍮??κ렐 留됰? ?쒖떆, "?섏쑉쨌梨꾧텒" ?쒕ぉ ?덉씠?꾩썐 鍮꾩쑉 ?댁긽, ?꾩껜?곸씤 湲?먃룻솕硫?鍮꾩쑉 遺덉씪移?
-- **洹쇰낯 ?먯씤**: Line 3465??遺덊븘?뷀븳 `</div>` 1媛?議댁옱. `briefing-static-archive` ?대???`dynamic-briefing-content` div媛 ?ロ엺 吏곹썑 珥덇낵 `</div>`媛 `briefing-static-archive`瑜?議곌린 ?レ쓬.
-  - ?곗뇙 ?④낵: (1) Line 3588??`</div>`媛 `page-briefing`???レ쓬 (2) Line 3611??`</div>`媛 `main-content`瑜??レ쓬 (3) ?댄썑 17媛??섏씠吏(technical~guide)媛 `main-content` 諛?`.main`??吏곸젒 ?먯떇?쇰줈 諛곗튂??(4) `chat-briefing`??`main-content`??吏곸젒 ?먯떇?쇰줈 ?⑥븘 ??긽 ?쒖떆????40px 鍮?留됰?
-- **?볦튇 ?댁쑀**: 33,800以??⑥씪 ?뚯씪?먯꽌 `</div>` 1媛?珥덇낵瑜??≪븞?쇰줈 諛쒓껄 遺덇?. HTML ?뚯꽌媛 ?먮룞 蹂듦뎄?섎㈃???먮윭 ?놁씠 ?뚮뜑留곷릺??肄섏넄?먯꽌??媛먯? ????
+- **증상**: 환율·채권 등 모든 페이지 상단에 빈 둥근 막대 표시, "환율·채권" 제목 레이아웃 비율 이상, 전체적인 글자·화면 비율 불일치
+- **근본 원인**: Line 3465에 불필요한 `</div>` 1개 존재. `briefing-static-archive` 내부의 `dynamic-briefing-content` div가 닫힌 직후 초과 `</div>`가 `briefing-static-archive`를 조기 닫음.
+  - 연쇄 효과: (1) Line 3588의 `</div>`가 `page-briefing`을 닫음 (2) Line 3611의 `</div>`가 `main-content`를 닫음 (3) 이후 17개 페이지(technical~guide)가 `main-content` 밖 `.main`의 직접 자식으로 배치됨 (4) `chat-briefing`이 `main-content`의 직접 자식으로 남아 항상 표시됨 → 40px 빈 막대
+- **놓친 이유**: 33,800줄 단일 파일에서 `</div>` 1개 초과를 육안으로 발견 불가. HTML 파서가 자동 복구하면서 에러 없이 렌더링되어 콘솔에서도 감지 안 됨.
 - **?섏젙 ?댁슜**: Line 3465??珥덇낵 `</div>` ?쒓굅
 - **?덈갑 洹쒖튃**:
-  - **P26**: ?洹쒕え HTML ?섏젙(?뱀뀡 異붽?/??젣) ??諛섎뱶??`awk` ?깆쑝濡??대떦 釉붾줉??`<div>`/`</div>` 洹좏삎 寃利? `grep -c '<div' && grep -c '</div'` 理쒖냼 泥댄겕.
-  - DOM 援ъ“ ?댁긽 ??`document.getElementById('x').parentElement.id`濡??ㅼ젣 遺紐??뺤씤 ??HTML ?뚯뒪? 釉뚮씪?곗? DOM???ㅻ? ???덉쓬
+  - **P26**: 대규모 HTML 수정(섹션 추가/삭제) 후 반드시 `awk` 등으로 해당 블록의 `<div>`/`</div>` 균형 검증. `grep -c '<div' && grep -c '</div'` 최소 체크.
+  - DOM 구조 이상 시 `document.getElementById('x').parentElement.id`로 실제 부모 확인 — HTML 소스와 브라우저 DOM이 다를 수 있음
 
 ---
 
 ## [2026-03-29] v38.3 ???몃텇???뚮쭏 0% ?쒖떆 踰꾧렇 + ?대┃ ?몃뱾???ъ링 遺꾩꽍 誘멸뎄??(P25 ?좉퇋)
 
-- **利앹긽 1**: ?몃텇???뚮쭏(SUB_THEMES) 移대뱶?먯꽌 ?곗씠??誘몄닔??醫낅ぉ??+0.0%濡??쒖떆?섏뼱, ?ㅼ젣 0% 蹂?숆낵 援щ텇 遺덇?
-- **洹쇰낯 ?먯씤**: `renderSubThemesGrid()` ????μ＜ ?쒖떆?먯꽌 `var tc = d ? (d.pct || 0) : 0;` ?⑦꽩 ?ъ슜. `d.pct || 0`? pct媛 null/undefined???뚮퓧 ?꾨땲??**吏꾩쭨 0**???뚮룄 0??諛섑솚?섏뿬 援щ텇 遺덇?. ???ш컖??嫄??곗씠?곌? ?꾩삁 ?녿뒗 醫낅ぉ(d???덉?留?price/pct媛 null)??0%濡??쒖떆.
+- **증상 1**: 세분화 테마(SUB_THEMES) 카드에서 데이터 미수신 종목이 +0.0%로 표시되어, 실제 0% 변동과 구분 불가
+- **근본 원인**: `renderSubThemesGrid()` 내 대장주 표시에서 `var tc = d ? (d.pct || 0) : 0;` 패턴 사용. `d.pct || 0`은 pct가 null/undefined일 때뿐 아니라 **진짜 0**일 때도 0을 반환하여 구분 불가. 더 심각한 건 데이터가 아예 없는 종목(d는 있지만 price/pct가 null)도 0%로 표시.
 - **?섏젙**: `var hasData = d && d.price != null && d.pct != null;` ??`tc === null ? '?? : formatted` ?⑦꽩. showThemeDetail()???쒕툕?뚮쭏 醫낅ぉ ?쒖떆?먮룄 ?숈씪 ?곸슜.
 - **利앹긽 2**: ?몃텇???뚮쭏 移대뱶??onclick ?몃뱾???놁쓬, ?ъ링 遺꾩꽍 ?⑤꼸(showSubThemeDetail) 誘멸뎄??
 - **?섏젙**: `showSubThemeDetail(subThemeId)` ?⑥닔 ?좉퇋 援ы쁽(~100以?, `#sub-theme-detail-panel` HTML 異붽?, 移대뱶??onclick+cursor:pointer 異붽?, aio:liveQuotes???⑤꼸 ?먮룞 媛깆떊 異붽?
 - **?덈갑 洹쒖튃**:
-  - **P25**: `d.pct || 0` ?⑦꽩? "?곗씠???놁쓬"怨?"吏꾩쭨 0%"瑜?援щ텇?????놁쑝誘濡?湲덉?. 諛섎뱶??`d && d.pct != null` 紐낆떆??null 泥댄겕 ?ъ슜.
+  - **P25**: `d.pct || 0` 패턴은 "데이터 없음"과 "진짜 0%"를 구분할 수 없으므로 금지. 반드시 `d && d.pct != null` 명시적 null 체크 사용.
   - ??UI ?뱀뀡 異붽? ?? 諛섎뱶??(1) ?대┃/?명꽣?숈뀡 ?몃뱾??援ы쁽 ?щ?, (2) aio:liveQuotes ?먮룞 媛깆떊 ?곌껐 ?щ?瑜??먭?.
 
 ---
 
-## [2026-03-29] v38.3 ??4-蹂닿퀬???꾩닔 ?먭? ?洹쒕え ?섏젙 (P24 ?뺤옣 + A5~A10 + B1~B6)
+## [2026-03-29] v38.3 — 4-보고서 전수 점검 대규모 수정 (P24 확장 + A5~A10 + B1~B6)
 
 - **?섏젙 ??ぉ 14嫄?*:
-  1. **A6 (CRITICAL)**: `generateMacroStoryline()` ??`var ld` ?좎뼵 ?꾨씫 ??ReferenceError ??try/catch濡?臾댁떆 ??"?앹꽦 以묅? ?곴뎄 ?쒖떆
+  1. **A6 (CRITICAL)**: `generateMacroStoryline()` 내 `var ld` 선언 누락 → ReferenceError → try/catch로 무시 → "생성 중…" 영구 표시
   2. **A7 (P24 ?뺤옣)**: 3媛?踰뚰겕 `[data-live-price]` ?낅뜲?댄듃瑜?`el.children.length > 0` ?쇰컲 蹂댄샇濡?媛뺥솕. `.pill-price` ?몄뿉 `.kr-etf-price`, 湲고? 蹂듯빀 ?붿냼??蹂댄샇
-  3. **A9**: `_showKrSupplyFallbackNotice()`?먯꽌 `kr-supply-analysis-text` 誘몄쿂由???fetch ?ㅽ뙣 ??"濡쒕뵫 以묅? ?곴뎄 ?쒖떆
+  3. **A9**: `_showKrSupplyFallbackNotice()`에서 `kr-supply-analysis-text` 미처리 → fetch 실패 시 "로딩 중…" 영구 표시
   4. **A10**: BZ=F(Brent)瑜?PRIORITY_SYMS??異붽?, orphaned `macro-spread-value` ?붿냼 JS ?곌껐
   5. **B1**: ?꾩떆?꾧꼍??all.xml=404+鍮꾧툑?듯샎??, ?대뜲?쇰━(edaily_news.xml=由щ떎?대젆?? 釉뚮씪?곗? ?ㅽ뀒?ㅽ듃 ???쒓굅
   6. **B2**: `_KR_BROAD_KW` ?꾧퀎媛?2?? ?곹뼢
@@ -2768,33 +2782,33 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
   8. **B4**: NEWS_BLACKLIST_KW??蹂댄뿕/移대뱶/CSR/?몄궗/踰뺤썝/援곗궗/?앺솢寃쎌젣 ~30?ㅼ썙??異붽?
   9. **B5**: `_nonFinPatterns`???쒓뎅??鍮꾧툑???뺢퇋??10媛?異붽?
   10. **B6**: RSS `parseXml()`??HTML entity ?댁쨷 ?몄퐫???댁젣 (`_decodeEntities`)
-  11. **H6**: fundamental 移대뱶 "(李멸퀬???곗씠??" ?쇰꺼???쇱씠釉??곗씠???좊Т???곕씪 ?숈쟻 蹂寃?
+  11. **H6**: fundamental 카드 "(참고용 데이터)" 라벨을 라이브 데이터 유무에 따라 동적 변경
 - **?덈갑 洹쒖튃**: P24瑜??쇰컲????`el.children.length > 0`?대㈃ `textContent` 吏곸젒 ?ㅼ젙 湲덉?, ?꾩슜 ?낅뜲?댄듃 ?⑥닔???꾩엫
 
 ---
 
 ## [2026-03-30] v38.2 ??KR ?뚮쭏 移대뱶 醫낅ぉ紐??뚯떎 (pill DOM ?뚭눼) (P24 ?좉퇋)
 
-- **利앹긽**: KR ?뚮쭏 ?섏씠吏?먯꽌 紐⑤뱺 醫낅ぉ pill??媛寃??レ옄留??쒖떆?섍퀬 醫낅ぉ紐끒룸퉬以뫢룸벑?쎈쪧??蹂댁씠吏 ?딆쓬.
-- **洹쇰낯 ?먯씤**: `data-live-price` ?띿꽦??媛吏?紐⑤뱺 DOM ?붿냼?????`el.textContent = price`濡?踰뚰겕 ?낅뜲?댄듃?섎뒗 肄붾뱶 3怨녹씠 ?덉뿀?? `.kr-ticker-pill`??`data-live-price` ?띿꽦??媛뽮퀬 ?덉뼱, pill ?대????먯떇 span??`.pill-name`, `.pill-wt`, `.pill-price`, `.pill-pct`)??`textContent` ?ㅼ젙?쇰줈 紐⑤몢 ??젣??
-- **?볦튇 ?댁쑀**: `data-live-price` 湲濡쒕쾶 ??됲꽣媛 KR ?뚮쭏??pill 而⑦뀒?대꼫源뚯? 留ㅼ묶?쒕떎??寃껋쓣 ?몄??섏? 紐삵븿. pill? ?먯떇 span???곗씠?곕? 遺꾨━ ??ν븯??援ъ“?몃뜲, 踰뚰겕 ?낅뜲?댄듃???⑥닚 ?띿뒪???몃뱶濡?痍④툒.
+- **증상**: KR 테마 페이지에서 모든 종목 pill이 가격 숫자만 표시하고 종목명·비중·등락률이 보이지 않음.
+- **근본 원인**: `data-live-price` 속성을 가진 모든 DOM 요소에 대해 `el.textContent = price`로 벌크 업데이트하는 코드 3곳이 있었음. `.kr-ticker-pill`도 `data-live-price` 속성을 갖고 있어, pill 내부의 자식 span들(`.pill-name`, `.pill-wt`, `.pill-price`, `.pill-pct`)이 `textContent` 설정으로 모두 삭제됨.
+- **놓친 이유**: `data-live-price` 글로벌 셀렉터가 KR 테마의 pill 컨테이너까지 매칭된다는 것을 인지하지 못함. pill은 자식 span에 데이터를 분리 저장하는 구조인데, 벌크 업데이트는 단순 텍스트 노드로 취급.
 - **?섏젙 ?댁슜**: 3怨녹쓽 踰뚰겕 ?낅뜲?댄듃?먯꽌 `var _pp = el.querySelector('.pill-price'); if (_pp) { _pp.textContent = fmt; } else { el.textContent = fmt; }` ?⑦꽩 ?곸슜
 - **?덈갑 洹쒖튃**:
-  - **P24**: `[data-live-price]` 湲濡쒕쾶 ??됲꽣濡?DOM???낅뜲?댄듃???? ?먯떇 ?붿냼媛 ?덈뒗 蹂듯빀 援ъ“(pill, card ????寃쎌슦 `textContent`??`innerHTML`濡??꾩껜瑜???뼱?곕㈃ ???? 諛섎뱶???먯떇 ?ㅽ뙩 議댁옱 ?щ?瑜??뺤씤?섍퀬 ?寃잜똿.
+  - **P24**: `[data-live-price]` 글로벌 셀렉터로 DOM을 업데이트할 때, 자식 요소가 있는 복합 구조(pill, card 등)의 경우 `textContent`나 `innerHTML`로 전체를 덮어쓰면 안 됨. 반드시 자식 스팬 존재 여부를 확인하고 타겟팅.
   - ??`data-live-*` ?띿꽦 異붽? ?? 湲곗〈 踰뚰겕 ?낅뜲?댄듃 濡쒖쭅怨쇱쓽 異⑸룎 ?щ? ?먭? ?꾩닔.
-- **QA 泥댄겕由ъ뒪??異붽?**: KR ?뚮쭏 pill??醫낅ぉ紐끒룸퉬以뫢룸벑?쎈쪧??紐⑤몢 ?쒖떆?섎뒗吏 ?뺤씤 (理쒖큹 濡쒕뱶 + ?ㅼ떆媛?媛깆떊 ??
+- **QA 체크리스트 추가**: KR 테마 pill에 종목명·비중·등락률이 모두 표시되는지 확인 (최초 로드 + 실시간 갱신 후)
 
 ---
 
-## [2026-03-30] v38.1 ??flex column min-height 踰꾧렇濡??꾩껜 ?섏씠吏 ?ㅽ겕濡?遺덇? (P2 ?щ컻 + P23 ?좉퇋)
+## [2026-03-30] v38.1 — flex column min-height 버그로 전체 페이지 스크롤 불가 (P2 재발 + P23 신규)
 
-- **利앹긽**: 紐⑤뱺 ?섏씠吏?먯꽌 ?몃줈 ?ㅽ겕濡ㅼ씠 ?숈옉?섏? ?딆쓬.
+- **증상**: 모든 페이지에서 세로 스크롤이 동작하지 않음.
 - **洹쇰낯 ?먯씤 (P23 ??flex min-height)**:
-  1. `.main`怨?`.content`媛 flex column ?덉씠?꾩썐?먯꽌 `min-height: auto` (湲곕낯媛?瑜?媛吏?
-  2. flex column ?꾩씠?쒖? 湲곕낯?곸쑝濡?肄섑뀗痢??믪씠 ?댄븯濡?異뺤냼?섏? ?딆쓬 ??`.content`媛 肄섑뀗痢좊쭔??而ㅼ쭚
-  3. `overflow-y: auto`???붿냼媛 肄섑뀗痢좊낫???묒쓣 ?뚮쭔 ?ㅽ겕濡ㅻ컮 ?앹꽦 ???붿냼媛 ??긽 肄섑뀗痢좊쭔???щ㈃ ?ㅽ겕濡ㅻ컮 誘몄깮??
-  4. `.main`??`overflow: hidden`???섏튇 遺遺꾩쓣 ?섎씪?대?濡? ?섎떒??蹂댁씠吏 ?딄퀬 ?ㅽ겕濡ㅻ룄 ????
-- **遺媛 ?먯씤 (P2 諛섎났)**:
+  1. `.main`과 `.content`가 flex column 레이아웃에서 `min-height: auto` (기본값)를 가짐
+  2. flex column 아이템은 기본적으로 콘텐츠 높이 이하로 축소되지 않음 → `.content`가 콘텐츠만큼 커짐
+  3. `overflow-y: auto`는 요소가 콘텐츠보다 작을 때만 스크롤바 생성 → 요소가 항상 콘텐츠만큼 크면 스크롤바 미생성
+  4. `.main`의 `overflow: hidden`이 넘친 부분을 잘라내므로, 하단이 보이지 않고 스크롤도 안 됨
+- **부가 원인 (P2 반복)**:
   1. `.insight-box.box-collapsed`??`white-space:nowrap` + `max-width` 誘몄꽕?????섑룊 ?ㅻ쾭?뚮줈??
   2. `.content`/`.page`??`overflow-x:hidden` 誘몄꽕??
 - **?섏젙 ?댁슜**:
@@ -2808,26 +2822,26 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## [2026-03-30] CHAT_CONTEXTS ?댁썝???좎뼵 ??誘몄쟻??+ ?쒖옣 ?ㅼ썙???꾨씫 (P22)
 
-- **利앹긽**: v37.2?먯꽌 ?댁썝??醫낃?/?ㅼ떆媛? ?먯튃 ?좎뼵 ?? ?ㅼ젣濡쒕뒗 home + Pro overrides 6媛쒖뿉留??곸슜. 12媛?湲곕낯 而⑦뀓?ㅽ듃(signal, breadth, sentiment, briefing, fundamental, themes, guide, screener, options, portfolio, fxbond, technical/macro)媛 誘몄쟻???곹깭. 異붽?濡?2026???듭떖 ?쒖옣 ?ㅼ썙??CPO, ?좊━湲고뙋, agentic AI, Golden Dome, 800V, ?대㉧?몄씠???? ?遺遺??꾨씫.
-- **洹쇰낯 ?먯씤**: ?쇱쿂 ?좎뼵怨??ㅼ젣 ?곸슜 踰붿쐞??愿대━. v37.2?먯꽌 `_closeSnap()` ?⑥닔瑜?留뚮뱾怨?home + Pro contexts???곸슜?덉쑝?? ?섎㉧吏 12媛?湲곕낯 而⑦뀓?ㅽ듃 ?곸슜??"?꾩냽 ?묒뾽"?쇰줈 誘몃， 梨?踰꾩쟾???щ┝. ?ㅼ썙?쒕뒗 v37.4?먯꽌 硫붽?罹??뚰겕/AI?먮쭔 吏묒쨷?섍퀬 2026???좉퇋 ?몃젋??泥⑤떒?⑦궎吏? 諛⑹궛, EV, 諛붿씠?? ?뺤옣 ?꾨씫.
+- **증상**: v37.2에서 이원화(종가/실시간) 원칙 선언 후, 실제로는 home + Pro overrides 6개에만 적용. 12개 기본 컨텍스트(signal, breadth, sentiment, briefing, fundamental, themes, guide, screener, options, portfolio, fxbond, technical/macro)가 미적용 상태. 추가로 2026년 핵심 시장 키워드(CPO, 유리기판, agentic AI, Golden Dome, 800V, 휴머노이드 등) 대부분 누락.
+- **근본 원인**: 피처 선언과 실제 적용 범위의 괴리. v37.2에서 `_closeSnap()` 함수를 만들고 home + Pro contexts에 적용했으나, 나머지 12개 기본 컨텍스트 적용을 "후속 작업"으로 미룬 채 버전을 올림. 키워드는 v37.4에서 메가캡 테크/AI에만 집중하고 2026년 신규 트렌드(첨단패키징, 방산, EV, 바이오) 확장 누락.
 - **?볦튇 ?댁쑀**:
-  1. ?곸슜 ????꾩껜 紐⑸줉(18媛?而⑦뀓?ㅽ듃) ?鍮??꾨즺 泥댄겕由ъ뒪??誘몄옉??
+  1. 적용 대상 전체 목록(18개 컨텍스트) 대비 완료 체크리스트 미작성
   2. v37.2 由대━利???"?꾩껜 ?곸슜 ?꾨즺"濡??ㅼ씤 ???ㅼ젣濡쒕뒗 6/18留??꾨즺
   3. ?ㅼ썙???뺤옣 ???꾩옱 ?쒖옣 ?몃젋??泥닿퀎???ㅼ틪 誘몄떎??
-- **?섏젙 (v37.5)**: 12媛?湲곕낯 而⑦뀓?ㅽ듃??`_closeSnap()` 異붽?, briefing ?댁뒪 ?댁쨷二쇱엯 ?쒓굅, 吏?뺥븰 釉붾줉 3媛?而⑦뀓?ㅽ듃 ?뺤궛, 愿??臾댁뿭?꾩웳 ?ㅼ썙??蹂닿컯
-- **?섏젙 (v37.6)**: TECH_KW ~255??340+(CPO, glass substrate, BSPDN, agentic AI, sovereign AI, custom silicon, InfiniBand, NVLink, liquid cooling, humanoid, 800V, RISC-V ??, MED_KW +Golden Dome/諛⑹궛/800V/GLP-1, TOPIC_KEYWORDS semi쨌defense쨌energy ????뺤옣
-- **?⑦꽩**: **P22 ???쇱쿂 ?좎뼵-?곸슜 愿대━ (Declared but Partially Applied)**. ???먯튃/?⑦꽩???좎뼵?????곸슜 ????꾩껜 紐⑸줉??泥댄겕由ъ뒪?명솕?섍퀬, ?섎굹?쇰룄 誘몄쟻????踰꾩쟾 ?щ━吏 ?딅뒗?? ?ㅼ썙???뺤옣 ???쒖옣 ?몃젋??泥닿퀎???ㅼ틪 ?꾩닔.
-- **?덈갑 洹쒖튃**: (1) ?꾪궎?띿쿂 蹂寃??좎뼵 ???곹뼢 踰붿쐞 ?꾩닔 紐⑸줉 ?묒꽦 ??100% ?곸슜 ?뺤씤 ??由대━利? (2) ?ㅼ썙???뺤옣 ??"諛섎룄泥는텮I쨌諛⑹궛쨌?먮꼫吏쨌EV쨌諛붿씠?ㅒ룸ℓ?щ줈" 7? ?뱁꽣 泥댄겕. (3) QA-CHECKLIST R13(?댁썝???꾩닔), R14(?ㅼ썙???꾪뻾?? ?좉퇋 猷?異붽? ?꾨즺.
+- **수정 (v37.5)**: 12개 기본 컨텍스트에 `_closeSnap()` 추가, briefing 뉴스 이중주입 제거, 지정학 블록 3개 컨텍스트 확산, 관세/무역전쟁 키워드 보강
+- **수정 (v37.6)**: TECH_KW ~255→~340+(CPO, glass substrate, BSPDN, agentic AI, sovereign AI, custom silicon, InfiniBand, NVLink, liquid cooling, humanoid, 800V, RISC-V 등), MED_KW +Golden Dome/방산/800V/GLP-1, TOPIC_KEYWORDS semi·defense·energy 대폭 확장
+- **패턴**: **P22 — 피처 선언-적용 괴리 (Declared but Partially Applied)**. 새 원칙/패턴을 선언할 때 적용 대상 전체 목록을 체크리스트화하고, 하나라도 미적용 시 버전 올리지 않는다. 키워드 확장 시 시장 트렌드 체계적 스캔 필수.
+- **예방 규칙**: (1) 아키텍처 변경 선언 시 영향 범위 전수 목록 작성 → 100% 적용 확인 후 릴리즈. (2) 키워드 확장 시 "반도체·AI·방산·에너지·EV·바이오·매크로" 7대 섹터 체크. (3) QA-CHECKLIST R13(이원화 필수), R14(키워드 현행화) 신규 룰 추가 완료.
 
 ---
 
 ## [2026-03-28] v35.7 媛먯궗 蹂닿퀬??16媛??댁뒋 ?듯빀 (P21)
 
-- **利앹긽**: DATA_SNAPSHOT US ?곗씠??1??吏??3/26), FALLBACK_QUOTES 1二?吏??3/20)+以묐났 49媛? kr-supply ?섍툒 紐⑥닚, PRIORITY_SYMS ?쒓뎅 84.5% 誘몄빱踰?
+- **증상**: DATA_SNAPSHOT US 데이터 1일 지연(3/26), FALLBACK_QUOTES 1주 지연(3/20)+중복 49개, kr-supply 수급 모순, PRIORITY_SYMS 한국 84.5% 미커버
 - **洹쇰낯 ?먯씤**: 媛먯궗 蹂닿퀬??v35.7)?먯꽌 ?앸퀎??Critical 5 + High 6 + Medium 5 ?댁뒋
-- **?섏젙 諛⑸쾿**: v35.7 ?낅줈???뚯씪?먯꽌 ?섏젙???곗씠???뱀뀡???꾩옱 ?묒뾽 ?뚯씪??蹂묓빀. DATE_ENGINE, fetchKrNaverQuotes ??湲곗〈 ?꾪궎?띿쿂 蹂寃?蹂댁〈?섎㈃???곗씠??怨꾩링留?援먯껜
+- **수정 방법**: v35.7 업로드 파일에서 수정된 데이터 섹션을 현재 작업 파일에 병합. DATE_ENGINE, fetchKrNaverQuotes 등 기존 아키텍처 변경 보존하면서 데이터 계층만 교체
 - **?섏젙 踰붿쐞**: DATA_SNAPSHOT (15媛??꾨뱶), FALLBACK_QUOTES (?꾩껜 援먯껜 350+媛?, kr-supply HTML (6媛??ъ옄???섏튂), PRIORITY_SYMS (?쒓뎅 +107醫낅ぉ, S&P +25醫낅ぉ), HTML ?대갚媛?(VIX, S&P, BTC, TNX, VKOSPI ??10+媛쒖냼)
-- **?덈갑**: 二쇨린??媛먯궗 蹂닿퀬??湲곕컲 ?곗씠??寃利? DATA_SNAPSHOT怨?FALLBACK_QUOTES ?쇨???泥댄겕 ?먮룞???꾩슂
+- **예방**: 주기적 감사 보고서 기반 데이터 검증, DATA_SNAPSHOT과 FALLBACK_QUOTES 일관성 체크 자동화 필요
 
 ---
 
@@ -2835,10 +2849,10 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 - **利앹긽**: index.html ?꾩껜 ?ㅽ겕由쏀듃 釉붾줉??"Unexpected string" JS 臾몃쾿 ?ㅻ쪟濡??숈옉 遺덇?
 - **洹쇰낯 ?먯씤**: 肄붿뒪留μ뒪/肄붿뒪留μ뒪BTI 遺꾨━ ?섏젙 以?`sym:'044820.KQ','192820.KQ'`濡???媛믪쓣 ?섎굹???띿꽦???섏뿴 ???좏슚?섏? ?딆? JS 臾몃쾿
-- **?볦튇 ?댁쑀**: ?댁쟾 ?몄뀡?먯꽌 ?섏젙 ??JS 臾몃쾿 寃利?誘몄떎?? 媛쒕퀎 ?띿꽦媛??섏젙?먯꽌 媛앹껜 ?꾩껜 臾몃쾿源뚯? 寃利앺븯吏 ?딆쓬.
+- **놓친 이유**: 이전 세션에서 수정 후 JS 문법 검증 미실행. 개별 속성값 수정에서 객체 전체 문법까지 검증하지 않음.
 - **?섏젙 ?댁슜**: 以묐났 sym??媛쒕퀎 SCREENER_DB ??ぉ 2媛쒕줈 遺꾨━ (044820 肄붿뒪留μ뒪BTI + 192820 肄붿뒪留μ뒪)
-- **?덈갑 洹쒖튃**: SCREENER_DB/KR_STOCK_DB ?섏젙 ??諛섎뱶??`new Function(code)` 臾몃쾿 寃利??섑뻾. 媛앹껜 ?띿꽦???ㅼ쨷 媛??낅젰 湲덉?.
-- **QA 泥댄겕由ъ뒪??異붽?**: 肄붾뱶 ?섏젙 ???꾩껜 ?ㅽ겕由쏀듃 釉붾줉 JS 臾몃쾿 寃利??꾩닔 (湲곗〈 R4 蹂닿컯)
+- **예방 규칙**: SCREENER_DB/KR_STOCK_DB 수정 후 반드시 `new Function(code)` 문법 검증 수행. 객체 속성에 다중 값 입력 금지.
+- **QA 체크리스트 추가**: 코드 수정 후 전체 스크립트 블록 JS 문법 검증 필수 (기존 R4 보강)
 
 ---
 
@@ -2846,25 +2860,25 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ### 踰꾧렇 1: ?덉씤蹂댁슦濡쒕낫?깆뒪 醫낅ぉ肄붾뱶 269620??77810 遺덉씪移?
 
-- **利앹긽**: KR_STOCK_DB??`269620`?쇰줈 ?깅줉???덉씤蹂댁슦濡쒕낫?깆뒪媛 Yahoo Finance?먯꽌 `60,000??(?됰슧???뚯궗 "Syswork Co.")?쇰줈 諛섑솚. ?ㅼ젣 ?덉씤蹂댁슦濡쒕낫?깆뒪(277810)??`567,000???쇰줈 ??10諛?李⑥씠.
-- **洹쇰낯 ?먯씤**: 理쒖큹 醫낅ぉ 肄붾뱶 ?낅젰 ??**?몃? ?뚯뒪 援먯감 寃利??놁씠** 肄붾뱶瑜??낅젰. 269620? 肄붿뒪?μ뿉 ?ㅼ옱?섎뒗 ?ㅻⅨ ?뚯궗(?쒖뒪????肄붾뱶. ?덉씤蹂댁슦濡쒕낫?깆뒪???ㅼ젣 肄붾뱶??277810.KQ.
+- **증상**: KR_STOCK_DB에 `269620`으로 등록된 레인보우로보틱스가 Yahoo Finance에서 `60,000원`(엉뚱한 회사 "Syswork Co.")으로 반환. 실제 레인보우로보틱스(277810)는 `567,000원`으로 약 10배 차이.
+- **근본 원인**: 최초 종목 코드 입력 시 **외부 소스 교차 검증 없이** 코드를 입력. 269620은 코스닥에 실재하는 다른 회사(시스웍)의 코드. 레인보우로보틱스의 실제 코드는 277810.KQ.
 - **?볦튇 ?댁쑀**:
-  1. 醫낅ぉ 異붽? ??"肄붾뱶?뭑ahoo API ?묐떟 ?뚯궗紐??쇱튂 ?щ?" 寃利??덉감媛 **議댁옱?섏? ?딆븯??*
-  2. Yahoo Finance API媛 ?섎せ??肄붾뱶?먮룄 ?뺤긽 媛寃⑹쓣 諛섑솚 ???먮윭媛 ?꾨땶 "?섎せ???뺤긽 ?묐떟"?대씪 諛쒓컖 ?대젮?
-  3. FALLBACK_QUOTES??媛寃?175,400?????ㅼ젣 ?덉씤蹂댁슦 媛寃⑸?? 鍮꾩듂?댁꽌 ?덉뿉 ?꾩? ?딆쓬
-  4. QA-CHECKLIST??**"醫낅ぉ肄붾뱶?뷀쉶?щ챸 留ㅽ븨 寃利?** ??ぉ???꾨Т
+  1. 종목 추가 시 "코드→Yahoo API 응답 회사명 일치 여부" 검증 절차가 **존재하지 않았음**
+  2. Yahoo Finance API가 잘못된 코드에도 정상 가격을 반환 → 에러가 아닌 "잘못된 정상 응답"이라 발각 어려움
+  3. FALLBACK_QUOTES의 가격(175,400원)이 실제 레인보우 가격대와 비슷해서 눈에 띄지 않음
+  4. QA-CHECKLIST에 **"종목코드↔회사명 매핑 검증"** 항목이 전무
 - **?곹뼢 踰붿쐞**: 11媛쒖냼(HTML pill, SCREENER_DB, KR_STOCK_DB, KR_THEME_MAP, FALLBACK_QUOTES, alias諛곗뿴, KOSDAQ_SET, ?ㅼ떆媛?API ?몄텧)
 - **?섏젙**: ?꾩껜 269620??77810 ?쇨큵 移섑솚, price/mcap 媛깆떊
 - **?⑦꽩**: **P17 ??醫낅ぉ肄붾뱶 誘멸?利??낅젰 (Phantom Ticker)**. 肄붾뱶瑜??섎룞 ?낅젰????Yahoo/嫄곕옒??怨듭떇 留ㅽ븨??援먯감 ?뺤씤?섏? ?딆쑝硫? ?ㅻⅨ ?뚯궗???곗씠?곌? 議곗슜???ㅼ뼱?⑤떎.
 
 ### 踰꾧렇 2: 294870 "?먮굹臾?濡??쒓린 ???ㅼ젣??HDC?꾨??곗뾽媛쒕컻 (鍮꾩긽??湲곗뾽 肄붾뱶 ?ㅻ같??
 
-- **利앹긽**: crypto ?뚮쭏?먯꽌 "?먮굹臾??낅퉬??"媛 40% 鍮꾩쨷??李⑥??섎뒗?? ?ㅼ젣濡??쒖떆?섎뒗 媛寃?20,750??? HDC?꾨??곗뾽媛쒕컻(嫄댁꽕二???媛寃? ?щ┰???뚮쭏 ?섏씡瑜좎씠 嫄댁꽕 ?뱁꽣 ?吏곸엫???곕룞?섎뒗 移섎챸???ㅻ쪟.
-- **洹쇰낯 ?먯씤**: **?먮굹臾대뒗 鍮꾩긽??湲곗뾽**?대?濡?肄붿뒪??肄붿뒪?쇱뿉 醫낅ぉ肄붾뱶媛 ?놁쓬. 294870? HDC?꾨??곗뾽媛쒕컻??KOSPI 肄붾뱶. 理쒖큹 ?깅줉 ??"?낅퉬???댁쁺??= ?먮굹臾?= ?곸옣???쇨퀬 ?섎せ 媛?뺥븯怨? 寃利??놁씠 肄붾뱶瑜??좊떦.
+- **증상**: crypto 테마에서 "두나무(업비트)"가 40% 비중을 차지하는데, 실제로 표시되는 가격(20,750원)은 HDC현대산업개발(건설주)의 가격. 크립토 테마 수익률이 건설 섹터 움직임에 연동되는 치명적 오류.
+- **근본 원인**: **두나무는 비상장 기업**이므로 코스닥/코스피에 종목코드가 없음. 294870은 HDC현대산업개발의 KOSPI 코드. 최초 등록 시 "업비트 운영사 = 두나무 = 상장사"라고 잘못 가정하고, 검증 없이 코드를 할당.
 - **?볦튇 ?댁쑀**:
-  1. "?먮굹臾?媛 鍮꾩긽?μ씠?쇰뒗 ?ъ떎???뺤씤?섏? ?딆쓬 ????寃?됱씠??嫄곕옒??議고쉶 誘몄떎??
-  2. Yahoo Finance 294870.KQ媛 媛寃⑹쓣 諛섑솚?섎?濡?"?곸옣??留욌떎"怨??ㅼ씤 (?ㅼ젣濡쒕뒗 HDC?꾨??곗뾽媛쒕컻???곗씠??
-  3. crypto ?뚮쭏???섏씡瑜?蹂?숈씠 "?щ┰???쒖옣???먮옒 蹂?숈꽦???щ땲源?濡??⑸━?붾맆 ???덉뼱 ?댁긽 ?먯? ?대젮?
+  1. "두나무"가 비상장이라는 사실을 확인하지 않음 — 웹 검색이나 거래소 조회 미실시
+  2. Yahoo Finance 294870.KQ가 가격을 반환하므로 "상장사 맞다"고 오인 (실제로는 HDC현대산업개발의 데이터)
+  3. crypto 테마의 수익률 변동이 "크립토 시장이 원래 변동성이 크니까"로 합리화될 수 있어 이상 탐지 어려움
   4. QA??**"醫낅ぉ???곸옣 ?щ? ?뺤씤"** ?덉감 ?놁쓬
 - **?곹뼢 踰붿쐞**: KR_STOCK_DB, KR_THEME_MAP(crypto ?뚮쭏 40%), HTML pill, SCREENER_DB, alias諛곗뿴, KOSDAQ_SET
 - **?섏젙**: 294870?묱DC?꾨??곗뾽媛쒕컻濡??뺤젙, crypto ?뚮쭏?먯꽌 ?쒓굅 ??3醫낅ぉ ?щ텇諛??꾨찓?대뱶40/移댁뭅??5/媛ㅻ윮?쒖븘25)
@@ -2872,31 +2886,31 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ### 踰꾧렇 3: 044820 "肄붿뒪留μ뒪" ?쒓린 ???ㅼ젣??肄붿뒪留μ뒪BTI (?먰쉶??
 
-- **利앹긽**: K-酉고떚 ?뚮쭏?먯꽌 "肄붿뒪留μ뒪(ODM 1??"濡?14% 鍮꾩쨷 諛곗젙. ?ㅼ젣 044820? ?먰쉶??肄붿뒪留μ뒪BTI(?먮즺)?대ŉ, ODM 蹂몄궗 肄붿뒪留μ뒪??192820.KQ. 媛寃⑸룄 10諛? 李⑥씠(肄붿뒪留μ뒪 147,700 vs 肄붿뒪留μ뒪BTI 9,520).
-- **洹쇰낯 ?먯씤**: ?ㅼ씠踰??ㅼ쓬 利앷텒?먯꽌 "肄붿뒪留μ뒪" 寃????044820(肄붿뒪留μ뒪BTI)怨?192820(肄붿뒪留μ뒪)媛 紐⑤몢 ?섏삤?붾뜲, 泥?踰덉㎏ 寃곌낵瑜?蹂몄궗濡??ㅼ씤?섍퀬 肄붾뱶 ?좊떦. **?뚯궗紐낆씠 ?좎궗??紐⑥옄?뚯궗(parent-subsidiary) 援щ텇 ?ㅽ뙣**.
+- **증상**: K-뷰티 테마에서 "코스맥스(ODM 1위)"로 14% 비중 배정. 실제 044820은 자회사 코스맥스BTI(원료)이며, ODM 본사 코스맥스는 192820.KQ. 가격도 10배+ 차이(코스맥스 147,700 vs 코스맥스BTI 9,520).
+- **근본 원인**: 네이버/다음 증권에서 "코스맥스" 검색 시 044820(코스맥스BTI)과 192820(코스맥스)가 모두 나오는데, 첫 번째 결과를 본사로 오인하고 코드 할당. **회사명이 유사한 모자회사(parent-subsidiary) 구분 실패**.
 - **?볦튇 ?댁쑀**:
-  1. 寃??寃곌낵??泥???ぉ??臾대퉬?먯쟻?쇰줈 梨꾪깮 ???뺤떇 ?뚯궗紐??꾩껜("肄붿뒪留μ뒪鍮꾪떚?꾩씠" vs "肄붿뒪留μ뒪") 誘명솗??
+  1. 검색 결과의 첫 항목을 무비판적으로 채택 — 정식 회사명 전체("코스맥스비티아이" vs "코스맥스") 미확인
   2. Yahoo Finance?먯꽌 044820.KQ??怨듭떇 ?대쫫 "Cosmax BTI Inc"???뺤씤?섏? ?딆쓬
-  3. 媛寃?踰붿쐞 寃利??놁쓬 ??ODM 1??肄붿뒪留μ뒪媛 9,520?먯쭨由??뚰삎二쇰씪??鍮꾪빀由ъ꽦???볦묠
+  3. 가격 범위 검증 없음 — ODM 1위 코스맥스가 9,520원짜리 소형주라는 비합리성을 놓침
   4. QA??**"?좎궗 ?대쫫 紐⑥옄?뚯궗 援щ텇 ?뺤씤"** ?덉감 ?놁쓬
 - **?곹뼢 踰붿쐞**: KR_STOCK_DB, KR_THEME_MAP(kbeauty), HTML pill, SCREENER_DB, alias諛곗뿴
-- **?섏젙**: 044820 ?대쫫?믪퐫?ㅻ㎘?짟TI, 192820 肄붿뒪留μ뒪 蹂몄궗 ?좉퇋 異붽?, kbeauty ?뚮쭏 ???192820?쇰줈 援먯껜
+- **수정**: 044820 이름→코스맥스BTI, 192820 코스맥스 본사 신규 추가, kbeauty 테마 대표 192820으로 교체
 
 ### 怨듯넻 洹쇰낯 ?먯씤 遺꾩꽍
 
-**????3嫄?紐⑤몢 諛쒖깮?덈뒗媛:**
+**왜 이 3건 모두 발생했는가:**
 
-??3嫄댁? 紐⑤몢 ?숈씪??洹쇰낯 ?먯씤??怨듭쑀?쒕떎 ??**醫낅ぉ ?곗씠???낅젰 ???몃? ?뚯뒪 援먯감 寃利?cross-validation) ?덉감媛 ?꾨Т**. 援ъ껜?곸쑝濡?
+이 3건은 모두 동일한 근본 원인을 공유한다 — **종목 데이터 입력 시 외부 소스 교차 검증(cross-validation) 절차가 전무**. 구체적으로:
 
-1. **"肄붾뱶 ?낅젰 = ?좊ː"**: 醫낅ぉ肄붾뱶瑜?DB???ｌ쑝硫?洹??쒓컙遺??肄붾뱶媛 "吏꾩떎"???? Yahoo API媛 ?대떦 肄붾뱶??媛寃⑹쓣 諛섑솚?섎㈃ "?뺤긽"?쇰줈 媛꾩＜. ?ㅼ젣濡?**?대뼡 ?뚯궗???곗씠?곗씤吏** ?뺤씤?섎뒗 ?덉감媛 ?놁쓬.
-2. **"?대쫫 ?쒓린 = 寃利?**: DB???대쫫???곸쑝硫?洹멸쾬??寃利??꾨즺濡?痍④툒?? ?ㅼ젣 嫄곕옒??怨듭떇 醫낅ぉ紐낃낵 ?議고븯???④퀎媛 ?놁쓬.
-3. **"媛寃?諛섑솚 = ?곸옣 ?뺤씤"**: Yahoo/?ㅼ씠踰꾩뿉??媛寃⑹씠 ?섏삤硫?"?곸옣??留욌떎"怨?媛?? 鍮꾩긽???ㅻⅨ?뚯궗 媛?μ꽦??怨좊젮?섏? ?딆쓬.
-4. **?뚮쭏蹂??섏씡瑜??⑸━??寃利?遺??*: crypto ?뚮쭏媛 嫄댁꽕二??곗씠?곕줈 怨꾩궛?섏뼱?? 寃곌낵媛??먯껜媛 "?レ옄"?대?濡??댁긽 ?먯? ????
+1. **"코드 입력 = 신뢰"**: 종목코드를 DB에 넣으면 그 순간부터 코드가 "진실"이 됨. Yahoo API가 해당 코드에 가격을 반환하면 "정상"으로 간주. 실제로 **어떤 회사의 데이터인지** 확인하는 절차가 없음.
+2. **"이름 표기 = 검증"**: DB에 이름을 적으면 그것이 검증 완료로 취급됨. 실제 거래소 공식 종목명과 대조하는 단계가 없음.
+3. **"가격 반환 = 상장 확인"**: Yahoo/네이버에서 가격이 나오면 "상장사 맞다"고 가정. 비상장/다른회사 가능성을 고려하지 않음.
+4. **테마별 수익률 합리성 검증 부재**: crypto 테마가 건설주 데이터로 계산되어도, 결과값 자체가 "숫자"이므로 이상 탐지 안 됨.
 
 **??湲곗〈 QA?먯꽌 紐??≪븯?붽?:**
 
-- QA-CHECKLIST v3??**UI ?뚮뜑留? 李⑦듃, 肄섏넄 ?먮윭, ?ㅻ퉬寃뚯씠??*??吏묒쨷. 204媛???ぉ 以?**"?곗씠???먮낯???뺥솗??**??寃利앺븯????ぉ??0媛?
-- "?섏튂媛 0???꾨땲硫?PASS" 濡쒖쭅?쇰줈??**?섎せ???뚯궗???뺤긽 ?곗씠??*瑜?媛먯??????놁쓬.
+- QA-CHECKLIST v3는 **UI 렌더링, 차트, 콘솔 에러, 네비게이션**에 집중. 204개 항목 중 **"데이터 원본의 정확성"**을 검증하는 항목이 0개.
+- "수치가 0이 아니면 PASS" 로직으로는 **잘못된 회사의 정상 데이터**를 감지할 수 없음.
 - BUG-POSTMORTEM??16媛??⑦꽩(P1~P16) 以?**"醫낅ぉ肄붾뱶 留ㅽ븨 ?ㅻ쪟"** ?⑦꽩???놁뿀??
 
 ### ?좉퇋 ?⑦꽩 ?깅줉
@@ -2909,100 +2923,100 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ### ?덈갑 洹쒖튃 (R10~R12 ?좎꽕)
 
-- **R10. 醫낅ぉ肄붾뱶 ?낅젰 ??3以?寃利??꾩닔**: (1) Yahoo Finance quote ?섏씠吏?먯꽌 怨듭떇 ?뚯궗紐??뺤씤, (2) ?뚯궗紐낆씠 DB ?깅줉紐낃낵 ?쇱튂?섎뒗吏 ?議? (3) 媛寃??쒖킑 踰붿쐞媛 ?대떦 湲곗뾽 洹쒕え? ?⑸━?곸씤吏 ?뺤씤
-- **R11. 鍮꾩긽???щ? ?좏솗??*: ?좉퇋 醫낅ぉ 異붽? ???대떦 湲곗뾽??KOSPI/KOSDAQ???곸옣?섏뼱 ?덈뒗吏 嫄곕옒??KRX) ?먮뒗 湲덉쑖?ы꽭?먯꽌 ?뺤씤. "鍮꾩긽??/"?μ쇅嫄곕옒" ?쒓린 ??肄붾뱶 ?좊떦 湲덉?.
-- **R12. ?좎궗 ?대쫫 紐⑥옄?뚯궗 援щ텇**: 寃?????숈씪/?좎궗 ?대쫫??蹂듭닔 ?섏삤硫? 媛곴컖???뺤떇 醫낅ぉ紐끒룹퐫?쑣룹떆珥앹쓣 ?議고븯??蹂몄궗/?먰쉶??援щ텇 ???щ컮瑜?肄붾뱶 ?좏깮.
+- **R10. 종목코드 입력 시 3중 검증 필수**: (1) Yahoo Finance quote 페이지에서 공식 회사명 확인, (2) 회사명이 DB 등록명과 일치하는지 대조, (3) 가격/시총 범위가 해당 기업 규모와 합리적인지 확인
+- **R11. 비상장 여부 선확인**: 신규 종목 추가 전 해당 기업이 KOSPI/KOSDAQ에 상장되어 있는지 거래소(KRX) 또는 금융포털에서 확인. "비상장"/"장외거래" 표기 시 코드 할당 금지.
+- **R12. 유사 이름 모자회사 구분**: 검색 시 동일/유사 이름이 복수 나오면, 각각의 정식 종목명·코드·시총을 대조하여 본사/자회사 구분 후 올바른 코드 선택.
 
 ---
 
 ## [2026-03-29] v35.2 ??FMP ?곗씠???뺥솗???꾩닔 議곗궗 (CRITICAL 4嫄?+ MEDIUM 6嫄?
 
-- **利앹긽**: 湲곗뾽 遺꾩꽍?먯꽌 ?ㅼ쟻/諛몃쪟?먯씠???곗씠?곌? 遺?뺥솗?섎떎???ъ슜??蹂닿퀬.
+- **증상**: 기업 분석에서 실적/밸류에이션 데이터가 부정확하다는 사용자 보고.
 - **洹쇰낯 ?먯씤 (10嫄?**:
-  1. **[CRITICAL] TTM vs Annual 遺덉씪移?*: ?ъ링 遺꾩꽍??`v3/ratios/`(?곌컙)? `v3/key-metrics/`(?곌컙)瑜??몄텧?섎㈃???꾨＼?꾪듃/UI??"TTM"?쇰줈 ?쒖떆. ?듬럭??`v3/ratios-ttm/`???щ컮瑜닿쾶 ?ъ슜.
+  1. **[CRITICAL] TTM vs Annual 불일치**: 심층 분석이 `v3/ratios/`(연간)와 `v3/key-metrics/`(연간)를 호출하면서 프롬프트/UI에 "TTM"으로 표시. 퀵뷰는 `v3/ratios-ttm/`을 올바르게 사용.
   2. **[CRITICAL] 湲곌? ?ъ옄??怨꾩궛 ?ㅻ쪟**: `(shares 횞 value) / shares` = 洹몃깷 `value`. ?섎?濡좎쟻 ?ㅻ쪟.
-  3. **[CRITICAL] EV/Sales = P/S ?섎せ ???*: `priceToSalesRatioTTM`??`evToRev`???좊떦. P/S ??EV/Sales.
+  3. **[CRITICAL] EV/Sales = P/S 잘못 대입**: `priceToSalesRatioTTM`을 `evToRev`에 할당. P/S ≠ EV/Sales.
   4. **[CRITICAL] FRED 0媛??뚯떎**: `parseFloat("0") || null = null` ???뺤긽 0媛믪씠 ?꾨씫??
-  5. **[MEDIUM] % 蹂?붿쑉 0% ??뼱?곌린**: `!pct || pct === 0` 議곌굔???뺤긽 0%瑜??ш퀎??
-  6. **[MEDIUM] CAGR ?쇰꺼 ?ㅻ쪟**: `rev3yCagr`???덉?留??ㅼ젣 2??媛꾧꺽 (0.5 吏??.
+  5. **[MEDIUM] % 변화율 0% 덮어쓰기**: `!pct || pct === 0` 조건이 정상 0%를 재계산.
+  6. **[MEDIUM] CAGR 라벨 오류**: `rev3yCagr`라 했지만 실제 2년 간격 (0.5 지수).
   7. **[MEDIUM] CAGR NaN**: ?뚯닔 留ㅼ텧 ??`Math.pow(?뚯닔, 0.5)` = NaN.
-  8. **[MEDIUM] DCF upside ????ㅻ쪟**: `.toFixed()` ??臾몄옄?대줈 鍮꾧탳, `Math.abs(string)` ?몄텧.
-  9. **[MEDIUM] 諛곕떦?섏씡瑜?fallback**: `price || 1` ??媛寃??놁쓣 ??鍮꾩젙?곸쟻 諛곕떦瑜?
+  8. **[MEDIUM] DCF upside 타입 오류**: `.toFixed()` 후 문자열로 비교, `Math.abs(string)` 호출.
+  9. **[MEDIUM] 배당수익률 fallback**: `price || 1` — 가격 없을 때 비정상적 배당률.
   10. **[MEDIUM] deep-compare key-metrics TTM ?꾨씫**: `_fetchDeepCompareData`?먯꽌 ratios??TTM, metrics??annual.
 - **?⑦꽩**: **P15** ??API ?붾뱶?ъ씤???좏깮怨??곗씠???쇰꺼 ?ъ씠??遺덉씪移? 肄붾뱶 蹂듭젣 ???먮낯(?듬럭 TTM)怨?蹂듭젣蹂??ъ링遺꾩꽍 annual) 媛??숆린???ㅽ뙣.
 - **?⑦꽩**: **P16** ??JavaScript falsy 媛?0, "") 泥섎━ ?ㅼ닔. `|| null`, `|| 1`, `!val` 議곌굔?먯꽌 ?뺤긽 0/鍮덈Ц?먯뿴 ?뚯떎.
-- **?덈갑 洹쒖튃**: (1) FMP ?붾뱶?ъ씤???좏깮 ??`-ttm` ?묐???紐낆떆 ?뺤씤. (2) `|| null` ???`isNaN()` ?먮뒗 `== null` ?ъ슜. (3) ?꾨＼?꾪듃/UI???곗씠???쇰꺼怨??ㅼ젣 API ?붾뱶?ъ씤??援먯감 寃利?
-- **QA 泥댄겕由ъ뒪??異붽?**: 9B-1 "?곗씠???뺥솗??寃利? ?뱀뀡 10媛???ぉ.
+- **예방 규칙**: (1) FMP 엔드포인트 선택 시 `-ttm` 접미사 명시 확인. (2) `|| null` 대신 `isNaN()` 또는 `== null` 사용. (3) 프롬프트/UI의 데이터 라벨과 실제 API 엔드포인트 교차 검증.
+- **QA 체크리스트 추가**: 9B-1 "데이터 정확도 검증" 섹션 10개 항목.
 
 ---
 
 ## [2026-03-25] v33.5 ???붾젅洹몃옩 CJK 理쒖냼湲몄씠 ?꾪꽣 ?ㅽ깘 (P14)
 
-- **利앹긽**: `isTelegramMsgRelevant('?ι??뚦닶訝듽걩?믤쩂鼇롣릎?곫젶凉뤷툊?담겓壤깁읉')` 媛 `false` 諛섑솚. '?⒳툓??,'?ι?','躍귛졃' ?ㅼ썙?쒓? 紐⑤몢 諛곗뿴??議댁옱?섏?留?留ㅼ묶 ?ㅽ뙣.
-- **洹쇰낯 ?먯씤**: `text.length < 20` 理쒖냼湲몄씠 ?꾪꽣媛 18???쇰낯??臾몄옣??李⑤떒. CJK 臾몄옄??Latin 臾몄옄蹂대떎 ?뺣낫諛?꾧? ?믪븘 18?먮룄 ?꾩쟾???댁뒪 臾몄옣??
-- **?섏젙**: 理쒖냼湲몄씠瑜?20??2濡??섑뼢. 12?먮뒗 CJK/Latin 紐⑤몢 ?섎? ?덈뒗 理쒖냼 硫붿떆吏 湲몄씠.
-- **援먰썕**: 臾몄옄??湲몄씠 湲곕컲 ?꾪꽣???몄뼱蹂??뺣낫諛??李⑥씠瑜?怨좊젮?댁빞 ?? ?ㅺ뎅???뱁엳 CJK) 吏????Latin 湲곗? ?섎뱶肄붾뵫 湲덉?.
+- **증상**: `isTelegramMsgRelevant('日銀が利上げを検討中、株式市場に影響')` 가 `false` 반환. '利上げ','日銀','市場' 키워드가 모두 배열에 존재하지만 매칭 실패.
+- **근본 원인**: `text.length < 20` 최소길이 필터가 18자 일본어 문장을 차단. CJK 문자는 Latin 문자보다 정보밀도가 높아 18자도 완전한 뉴스 문장임.
+- **수정**: 최소길이를 20→12로 하향. 12자는 CJK/Latin 모두 의미 있는 최소 메시지 길이.
+- **교훈**: 문자열 길이 기반 필터는 언어별 정보밀도 차이를 고려해야 함. 다국어(특히 CJK) 지원 시 Latin 기준 하드코딩 금지.
 - **?щ컻 諛⑹?**: QA v3 Stage 7(?댁뒪)??CJK ?띿뒪???⑥쐞 ?뚯뒪????ぉ ?ы븿.
 
 ---
 
 ## [2026-03-25] v33.3 ???붾젅洹몃옩 '臾대즺' ?ㅽ뙵 ?ㅼ썙???ㅽ깘
 
-- **利앹긽**: bornlupin 梨꾨꼸??"?ㅽ뵂?대줈 臾대즺 ?뚰봽?몄썾??AI ?먯씠?꾪듃 ?섏슂 ??쬆" 媛숈? ?뺣떦??湲덉쑖 ?댁뒪媛 李⑤떒??
-- **洹쇰낯 ?먯씤**: `spamKW`??'臾대즺'媛 ?⑤룆?쇰줈 ?ы븿?섏뼱, '臾대즺 由ы룷??, '臾대즺 ?뚰봽?몄썾??, '臾대즺 API' ??湲덉쑖 留λ씫???쒗쁽 ?꾨? 李⑤떒.
-- **?섏젙**: '臾대즺' ?⑤룆 ??'臾대즺 ?대깽??,'臾대즺 李몄뿬','臾대즺 媛??,'臾대즺 泥댄뿕','臾대즺 荑좏룿','臾대즺 諛곗넚' 蹂듯빀 ?⑦꽩?쇰줈 援ъ껜?? '媛?? ?⑤룆???쒓굅 (ETF 媛??利앷? ??.
-- **?⑦꽩**: P11 ???ㅽ뙵 ?꾪꽣???⑤룆 ?ㅼ썙?쒓? ?뺣떦??肄섑뀗痢좎? 異⑸룎. ?ㅽ뙵 ?ㅼ썙?쒕뒗 媛?ν븳 蹂듯빀 ?⑦꽩?쇰줈 援ъ껜?뷀븷 寃?
+- **증상**: bornlupin 채널의 "오픈클로 무료 소프트웨어 AI 에이전트 수요 폭증" 같은 정당한 금융 뉴스가 차단됨.
+- **근본 원인**: `spamKW`에 '무료'가 단독으로 포함되어, '무료 리포트', '무료 소프트웨어', '무료 API' 등 금융 맥락의 표현 전부 차단.
+- **수정**: '무료' 단독 → '무료 이벤트','무료 참여','무료 가입','무료 체험','무료 쿠폰','무료 배송' 복합 패턴으로 구체화. '가입' 단독도 제거 (ETF 가입 증가 등).
+- **패턴**: P11 — 스팸 필터의 단독 키워드가 정당한 콘텐츠와 충돌. 스팸 키워드는 가능한 복합 패턴으로 구체화할 것.
 
 ---
 
 ## [2026-03-25] v33.3 ???곗＜/??났?곗＜ ?ㅼ썙???꾨Т ??NASA/SpaceX ?댁뒪 100% 李⑤떒
 
-- **利앹긽**: SpaceX/Boeing/NASA 愿???댁뒪媛 ?붾젅洹몃옩 ?꾪꽣?먯꽌 ?꾨? 李⑤떒??
+- **증상**: SpaceX/Boeing/NASA 관련 뉴스가 텔레그램 필터에서 전부 차단됨.
 - **洹쇰낯 ?먯씤**: `relevantKW`??space, rocket, satellite, NASA, SpaceX, Boeing ???곗＜/??났 ?ㅼ썙?쒓? ???섎굹???놁뿀??
 - **?섏젙**: ?곷Ц 18媛?+ ?쒓뎅??19媛??곗＜/??났?곗＜ ?ㅼ썙??異붽?.
-- **?⑦꽩**: P12 ???덈줈???뱁꽣/?뚮쭏 遺????relevantKW ?낅뜲?댄듃 ?꾩슂. ?뺢린?곸쑝濡?梨꾨꼸 ?ㅼ젣 ?ъ뒪?몄? ?꾪꽣 寃곌낵 ?議??꾩슂.
+- **패턴**: P12 — 새로운 섹터/테마 부상 시 relevantKW 업데이트 필요. 정기적으로 채널 실제 포스트와 필터 결과 대조 필요.
 
 ---
 
-## [2026-03-25] v33.1 ??SEC EDGAR CORS ?ㅽ뙣 + API 諛섑솚媛?遺덉씪移?+ ?щТ移대뱶 ?대갚 遺??
+## [2026-03-25] v33.1 — SEC EDGAR CORS 실패 + API 반환값 불일치 + 재무카드 폴백 부재
 
 - **利앹긽**: 湲곗뾽 遺꾩꽍 ??뿉??SEC ?곗씠??濡쒕뱶 ?ㅽ뙣, ?щТ 移대뱶 ?꾨? $0.00/N/A.
-- **洹쇰낯 ?먯씤**: (1) `data.sec.gov/api/xbrl/companyfacts` CORS 誘몄?????`fetchViaProxy()` ?대갚 ?놁뿀?? (2) `fetchSECFinancials`媛 `{ticker, cik, revenues}` 諛섑솚?섏?留?`_parseSECFinancials`??`{facts: {'us-gaap': ...}}` 湲곕? ????긽 null 諛섑솚. (3) `_renderFundFinancials`??SEC ?곗씠???대갚 ?놁쓬.
-- **?섏젙**: (1) CORS ?꾨줉???대갚 異붽?. (2) raw XBRL ?곗씠??諛섑솚?쇰줈 蹂寃? (3) SEC 湲곕컲 ?щТ 吏??怨꾩궛 ?대갚 異붽?.
-- **?⑦꽩**: P13 ??API ?⑥닔? ?뚯꽌 ?⑥닔 媛?諛섑솚媛?湲곕?媛?遺덉씪移? ?⑥닔 ?섏젙 ???몄텧?먯? ?쇳샇異쒖옄 ?묒そ???명꽣?섏씠???뺤씤 ?꾩닔.
+- **근본 원인**: (1) `data.sec.gov/api/xbrl/companyfacts` CORS 미지원 → `fetchViaProxy()` 폴백 없었음. (2) `fetchSECFinancials`가 `{ticker, cik, revenues}` 반환하지만 `_parseSECFinancials`는 `{facts: {'us-gaap': ...}}` 기대 → 항상 null 반환. (3) `_renderFundFinancials`에 SEC 데이터 폴백 없음.
+- **수정**: (1) CORS 프록시 폴백 추가. (2) raw XBRL 데이터 반환으로 변경. (3) SEC 기반 재무 지표 계산 폴백 추가.
+- **패턴**: P13 — API 함수와 파서 함수 간 반환값/기대값 불일치. 함수 수정 시 호출자와 피호출자 양쪽의 인터페이스 확인 필수.
 
 ---
 
 ## [2026-03-25] v32.1 ??珥덈낫??紐⑤뱶 ?먯? ??localStorage 留덉씠洹몃젅?댁뀡
 
-- **利앹긽**: 湲곗〈 ?ъ슜?먭? `aio_beginner=1` ?곹깭濡?諛⑸Ц ?? ??肄붾뱶?먯꽌 `aio_beginner` ?ㅻ? ?쎌? ?딆쑝誘濡??붾쪟 ?곗씠??諛쒖깮.
+- **증상**: 기존 사용자가 `aio_beginner=1` 상태로 방문 시, 새 코드에서 `aio_beginner` 키를 읽지 않으므로 잔류 데이터 발생.
 - **洹쇰낯 ?먯씤**: `toggleBeginnerMode()` ?쒓굅 ??`aio_beginner` localStorage ???뺣━ 誘몄닔??
 - **?섏젙**: `setAnalysisLevel()` 珥덇린??釉붾줉?먯꽌 `aio_beginner` ??議댁옱 ????젣?섎뒗 留덉씠洹몃젅?댁뀡 濡쒖쭅 異붽?.
-- **?⑦꽩**: P10 ??湲곕뒫 ?쒓굅 ??愿??localStorage/sessionStorage ???뺣━ ?꾩닔.
+- **패턴**: P10 — 기능 제거 시 관련 localStorage/sessionStorage 키 정리 필수.
 
 ---
 
-## [2026-03-25] v32 ???쒓뎅 湲곗닠 遺꾩꽍 ?섏씠吏 DOM target 遺덉씪移?(?덈갑 ?섏젙)
+## [2026-03-25] v32 — 한국 기술 분석 페이지 DOM target 불일치 (예방 수정)
 
-- **利앹긽**: `analyzeKrTickerDeep()`媛 `#ticker-analysis-result`瑜?target?쇰줈 ?ъ슜 ???쒓뎅 湲곗닠 遺꾩꽍 ?섏씠吏(`page-kr-technical`)???ㅼ젣 寃곌낵 div??`#kr-ticker-analysis-result`.
-- **洹쇰낯 ?먯씤**: US 遺꾩꽍 ?⑥닔(`analyzeTickerDeep`)瑜?蹂듭젣?섏뿬 KR 踰꾩쟾??留뚮뱾 ?? target element ID瑜??쒓뎅 ?섏씠吏?⑹쑝濡?蹂寃쏀븯吏 ?딆쓬.
-- **?섏젙**: `analyzeKrTickerDeep()`??target??`#kr-ticker-analysis-result`濡?蹂寃? fallback?쇰줈 `#ticker-analysis-result` ?좎?.
+- **증상**: `analyzeKrTickerDeep()`가 `#ticker-analysis-result`를 target으로 사용 → 한국 기술 분석 페이지(`page-kr-technical`)의 실제 결과 div는 `#kr-ticker-analysis-result`.
+- **근본 원인**: US 분석 함수(`analyzeTickerDeep`)를 복제하여 KR 버전을 만들 때, target element ID를 한국 페이지용으로 변경하지 않음.
+- **수정**: `analyzeKrTickerDeep()`의 target을 `#kr-ticker-analysis-result`로 변경, fallback으로 `#ticker-analysis-result` 유지.
 - **?⑦꽩**: ?⑥닔 蹂듭젣 ??target element ID 誘몃?寃???蹂듭젣 湲곕컲 ?⑥닔??紐⑤뱺 DOM 李몄“瑜?援먯감 ?뺤씤 ?꾩닔.
 
 ---
 
-## [2026-03-25] v31.10 ??OPTIONS ?섏씠吏 ?꾩껜 ?섎뱶肄붾뵫 (Dead Page)
+## [2026-03-25] v31.10 — OPTIONS 페이지 전체 하드코딩 (Dead Page)
 
-- **利앹긽**: ?듭뀡 遺꾩꽍 ?섏씠吏??紐⑤뱺 ?섏튂(VIX 26.78, VVIX 126.28, IV Rank 72, GEX -12.8B, Greeks, ?ㅽ걧 ??媛 ?섎뱶肄붾뵫. init ?⑥닔 ?놁쓬, pageShown/liveQuotes 由ъ뒪???놁쓬.
-- **洹쇰낯 ?먯씤**: OPTIONS ?섏씠吏媛 ?뺤쟻 HTML濡쒕쭔 援ъ꽦. `initOptionsPage()` 遺?? 臾대즺 API濡??듭뀡 ?꾩슜 ?곗씠??IV surface, Greeks, GEX) 媛?몄삱 ???녿뒗 援ъ“???쒓퀎 誘멸퀬??
-- **?섏젙**: `initOptionsPage()` ?⑥닔 + pageShown/liveQuotes 由ъ뒪??異붽?. VIX/VVIX ?ㅼ떆媛??곕룞. ?섎㉧吏??"李멸퀬?? 怨좎? 諛곕꼫 ?쒖떆.
-- **?⑦꽩**: P9 ???섏씠吏 HTML留?議댁옱?섍퀬 珥덇린???대깽??由ъ뒪?덇? ?녿뒗 "Dead Page"
+- **증상**: 옵션 분석 페이지의 모든 수치(VIX 26.78, VVIX 126.28, IV Rank 72, GEX -12.8B, Greeks, 스큐 등)가 하드코딩. init 함수 없음, pageShown/liveQuotes 리스너 없음.
+- **근본 원인**: OPTIONS 페이지가 정적 HTML로만 구성. `initOptionsPage()` 부재. 무료 API로 옵션 전용 데이터(IV surface, Greeks, GEX) 가져올 수 없는 구조적 한계 미고려.
+- **수정**: `initOptionsPage()` 함수 + pageShown/liveQuotes 리스너 추가. VIX/VVIX 실시간 연동. 나머지는 "참고용" 고지 배너 표시.
+- **패턴**: P9 — 페이지 HTML만 존재하고 초기화/이벤트 리스너가 없는 "Dead Page"
 
 ---
 
-## [2026-03-25] v31.10 ??PORTFOLIO ?섏씠吏 泥?吏꾩엯 ??鍮??붾㈃
+## [2026-03-25] v31.10 — PORTFOLIO 페이지 첫 진입 시 빈 화면
 
-- **利앹긽**: ?ы듃?대━???섏씠吏 泥?吏꾩엯 ??鍮??붾㈃. liveQuotes 媛깆떊(60珥? ?꾩뿉???뚮뜑留?
+- **증상**: 포트폴리오 페이지 첫 진입 시 빈 화면. liveQuotes 갱신(60초) 후에야 렌더링.
 - **洹쇰낯 ?먯씤**: `aio:pageShown` 由ъ뒪??誘몃벑濡? liveQuotes留??덉뼱 泥?吏꾩엯 ??renderPortfolio() 誘명샇異?
 - **?섏젙**: pageShown 由ъ뒪??異붽? ??portfolio 吏꾩엯 ??利됱떆 renderPortfolio() ?몄텧.
 - **?⑦꽩**: P9 ?숈씪.
@@ -3011,82 +3025,82 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## [2026-03-25] v31.9 ????AAII ?щ━ 移대뱶 鍮??붾㈃ (李⑦듃 誘몃젋?붾쭅)
 
-- **利앹긽**: ???섏씠吏??AAII ?ъ옄?щ━ 移대뱶??李⑦듃媛 鍮?罹붾쾭?ㅻ줈 ?쒖떆?? ?곗씠?곕뒗 ?뺤긽 濡쒕뱶?섏뿀?쇰굹 ?쒓컖?곸쑝濡?鍮?移대뱶.
+- **증상**: 홈 페이지의 AAII 투자심리 카드에 차트가 빈 캔버스로 표시됨. 데이터는 정상 로드되었으나 시각적으로 빈 카드.
 - **洹쇰낯 ?먯씤**:
-  1. `initSentimentCharts()`媛 DOMContentLoaded?먯꽌 ?몄텧?섎굹, Chart.js CDN 濡쒕뱶媛 ?먮┫ 寃쎌슦 `Chart`媛 undefined ??李⑦듃 ?앹꽦 ?ㅽ뙣
-  2. ?ㅽ뙣 ???먮윭媛 try-catch???섑빐 議곗슜??臾댁떆?????ъ떆??硫붿빱?덉쬁 ?놁쓬
-  3. 罹붾쾭???꾨옒 ?띿뒪???대갚???놁뼱 李⑦듃 ?ㅽ뙣 ??移대뱶 ?꾩껜媛 鍮??곹깭
+  1. `initSentimentCharts()`가 DOMContentLoaded에서 호출되나, Chart.js CDN 로드가 느릴 경우 `Chart`가 undefined → 차트 생성 실패
+  2. 실패 시 에러가 try-catch에 의해 조용히 무시됨 → 재시도 메커니즘 없음
+  3. 캔버스 아래 텍스트 폴백이 없어 차트 실패 시 카드 전체가 빈 상태
 - **?볦튇 ?댁쑀**:
   - CDN??鍮좊? ?뚮뒗 ?뺤긽 ?묐룞 ??媛꾪뿉???ы쁽
-  - ???섏씠吏??AAII 移대뱶??誘몃땲 ?꾨━酉곗슜?대씪 QA ??sentiment ?섏씠吏留??뺤씤?섎뒗 寃쏀뼢
-  - 湲곗〈 QA??"CDN 吏????李⑦듃 ?뚮뜑留??ㅽ뙣" ?쒕굹由ъ삤 ?놁뿀??
+  - 홈 페이지의 AAII 카드는 미니 프리뷰용이라 QA 시 sentiment 페이지만 확인하는 경향
+  - 기존 QA에 "CDN 지연 시 차트 렌더링 실패" 시나리오 없었음
 - **?섏젙 ?댁슜**:
   1. 罹붾쾭???꾨옒??bear%/bull%/signal ?띿뒪???대갚 異붽? ??李⑦듃 ?ㅽ뙣?대룄 ?섏튂 ?쒖떆
   2. 2珥??쒕젅????`sentPageCharts['aaii']` 議댁옱 ?щ? 泥댄겕 ???놁쑝硫??ъ떆??
   3. ?띿뒪???대갚 媛믪씠 李⑦듃 ?곗씠??濡쒕뱶 ???숈쟻 ?낅뜲?댄듃
-- **?덈갑 洹쒖튃**: 李⑦듃 ?섏〈 移대뱶?먮뒗 諛섎뱶???띿뒪???대갚 ?쒓났. CDN 吏???鍮?retry 硫붿빱?덉쬁 ?꾩닔.
-- **QA 泥댄겕由ъ뒪??異붽?**: "???섏씠吏 AAII 移대뱶???섏튂 ?띿뒪?멸? ?쒖떆?섎뒗吏 ?뺤씤 (李⑦듃 ?놁씠??"
+- **예방 규칙**: 차트 의존 카드에는 반드시 텍스트 폴백 제공. CDN 지연 대비 retry 메커니즘 필수.
+- **QA 체크리스트 추가**: "홈 페이지 AAII 카드에 수치 텍스트가 표시되는지 확인 (차트 없이도)"
 
 ---
 
-## [2026-03-25] v31.9 ??Market Breadth 諛곗? ?띿뒪?멸? 諛?李⑦듃? 寃뱀묠
+## [2026-03-25] v31.9 — Market Breadth 배지 텍스트가 바 차트와 겹침
 
-- **利앹긽**: Market Breadth ?뱀뀡?먯꽌 "踰좎뼱 ?ㅼ씠踰꾩쟾?? ??湲??쒓뎅??諛곗? ?띿뒪?멸? 諛?李⑦듃 ?곸뿭??移⑤쾾?섏뿬 寃뱀묠. ?띿뒪?멸? 李⑦듃 ?꾩뿉 ?쒖떆?섏뼱 媛?낆꽦 ?ш컖 ???
+- **증상**: Market Breadth 섹션에서 "베어 다이버전스" 등 긴 한국어 배지 텍스트가 바 차트 영역을 침범하여 겹침. 텍스트가 차트 위에 표시되어 가독성 심각 저하.
 - **洹쇰낯 ?먯씤**:
   1. `grid-template-columns: 110px 1fr 52px 72px` ??諛곗? 而щ읆(72px)???쒓뎅???띿뒪????~96px)蹂대떎 醫곸쓬
   2. `white-space: nowrap` ?놁씠 ?띿뒪?멸? 以꾨컮轅덈릺嫄곕굹, nowrap?몃뜲 overflow 泥섎━ ?놁뼱 ?몄젒 而щ읆 移⑤쾾
-  3. ?쒓뎅???띿뒪?몃뒗 媛숈? 湲?????鍮??쇳떞 臾몄옄??~1.5諛??????곷Ц 湲곗? ?ㅺ퀎??而щ읆?먯꽌 ?ㅻ쾭?뚮줈??
+  3. 한국어 텍스트는 같은 글자 수 대비 라틴 문자의 ~1.5배 폭 → 영문 기준 설계된 컬럼에서 오버플로우
 - **?볦튇 ?댁쑀**:
   - ?곷Ц ?곗씠??"Bearish Divergence" ??濡?媛쒕컻/?뚯뒪?????쒓뎅??踰덉뿭 ????誘멸?利?
-  - grid ???`overflow: hidden` + `text-overflow: ellipsis` 誘몄쟻??
-  - 湲곗〈 QA??"?쒓뎅???띿뒪????씠 怨좎젙??而щ읆??珥덇낵?섎뒗吏" 寃利???ぉ ?놁뿀??
+  - grid 셀에 `overflow: hidden` + `text-overflow: ellipsis` 미적용
+  - 기존 QA에 "한국어 텍스트 폭이 고정폭 컬럼을 초과하는지" 검증 항목 없었음
 - **?섏젙 ?댁슜**:
   1. grid 而щ읆 議곗젙: `110px 1fr 52px 72px` ??`120px 1fr 44px 80px`
   2. `.bb-badge`??`white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:80px`
   3. "踰좎뼱 ?ㅼ씠踰꾩쟾?? ??"踰좎뼱 ?ㅼ씠踰? ?쎌뼱 ?곸슜 (諛곗? 怨듦컙 ???섏슜)
   4. 768px/480px 諛섏쓳??釉뚮젅?댄겕?ъ씤?몄뿉??而щ읆 異붽? 異뺤냼
-- **?덈갑 洹쒖튃**: **P7** ??怨좎젙??CSS grid 而щ읆? ?쒓뎅???띿뒪??理쒕? ??湲?먯닔 횞 ~14px)??湲곗??쇰줈 ?ㅺ퀎. `text-overflow: ellipsis` ?꾩닔 ?곸슜.
-- **QA 泥댄겕由ъ뒪??異붽?**: "紐⑤뱺 怨좎젙??grid ??먯꽌 ?쒓뎅???띿뒪?멸? ?섏튂嫄곕굹 ?몄젒 ???移⑤쾾?섏? ?딅뒗吏 ?뺤씤"
+- **예방 규칙**: **P7** — 고정폭 CSS grid 컬럼은 한국어 텍스트 최대 폭(글자수 × ~14px)을 기준으로 설계. `text-overflow: ellipsis` 필수 적용.
+- **QA 체크리스트 추가**: "모든 고정폭 grid 셀에서 한국어 텍스트가 넘치거나 인접 셀을 침범하지 않는지 확인"
 
 ---
 
-## [2026-03-25] v31.5 ???곗씠???뚯씠?꾨씪??遺덊븘???ㅽ뙣 ?붿껌 ???諛쒖깮
+## [2026-03-25] v31.5 — 데이터 파이프라인 불필요 실패 요청 대량 발생
 
-- **利앹긽**: ?섏씠吏 濡쒕뵫 ??肄섏넄??503/429 ?먮윭 100嫄??댁긽 諛쒖깮. RSS2JSON 429 rate limit, Yahoo Finance 吏곸젒 ?몄텧 503, FRED 吏곸젒 ?몄텧 503. CF Worker媛 ?ㅼ젙?섏뼱 ?덉쓬?먮룄 紐⑤뱺 API媛 癒쇱? 吏곸젒 ?몄텧???쒕룄?섏뿬 ?ㅽ뙣 ?꾩뿉??CF Worker濡??대갚.
+- **증상**: 페이지 로딩 시 콘솔에 503/429 에러 100건 이상 발생. RSS2JSON 429 rate limit, Yahoo Finance 직접 호출 503, FRED 직접 호출 503. CF Worker가 설정되어 있음에도 모든 API가 먼저 직접 호출을 시도하여 실패 후에야 CF Worker로 폴백.
 - **洹쇰낯 ?먯씤**:
-  1. RSS2JSON: CF Worker媛 XML ?뚯떛 媛?ν븳?곕룄, rss2json????긽 ?곗꽑 ?쒕룄 ??429 rate limit
-  2. FRED: `fetchFredSeries()`媛 吏곸젒 ?몄텧(CORS 李⑤떒????癒쇱? ?쒕룄 ??503 ??CF Worker ?대갚
+  1. RSS2JSON: CF Worker가 XML 파싱 가능한데도, rss2json을 항상 우선 시도 → 429 rate limit
+  2. FRED: `fetchFredSeries()`가 직접 호출(CORS 차단됨)을 먼저 시도 → 503 → CF Worker 폴백
   3. Yahoo Finance: 留??щ낵(100+)留덈떎 吏곸젒 fetch ?쒕룄 ??503 ??CF Worker ?대갚 (?щ낵??1嫄???퉬)
-  4. Staleness 諛곕꼫: `DATA_SNAPSHOT._updated`媛 30?쒓컙 ?꾩씠硫??ㅼ떆媛??곗씠???섏떊 ?꾩뿉??寃쎄퀬 諛곕꼫 誘명빐??
+  4. Staleness 배너: `DATA_SNAPSHOT._updated`가 30시간 전이면 실시간 데이터 수신 후에도 경고 배너 미해제
 - **?볦튇 ?댁쑀**:
   - CF Worker ?꾩엯(v30 ?쒖젏) ??湲곗〈 ?대갚 濡쒖쭅??CF Worker ?곗꽑?쇰줈 由ы뙥?좊쭅?섏? ?딆쓬
   - 吏곸젒 ?몄텧??CORS 李⑤떒??"?덉긽???ㅽ뙣"濡?諛⑹튂?????깅뒫 ?곹뼢 誘몄씤??
-  - rss2json free tier ?쒕룄(10req/min)瑜?CF Worker ?泥?媛???쒖젏?먯꽌 誘몄젣嫄?
+  - rss2json free tier 한도(10req/min)를 CF Worker 대체 가능 시점에서 미제거
 - **?섏젙 ?댁슜**:
-  1. RSS2JSON: `_hasCfWorker` ?뚮옒洹몃줈 CF Worker 議댁옱 ??rss2json ?꾩쟾 嫄대꼫?
+  1. RSS2JSON: `_hasCfWorker` 플래그로 CF Worker 존재 시 rss2json 완전 건너뜀
   2. FRED: `fetchFredSeries()` ?대???CF Worker ?곗꽑 ?몄텧 異붽? (1李?CF ??2李?吏곸젒 ??3李?CORS ?꾨줉??
-  3. Yahoo: `_skipDirect` ?뚮옒洹몃줈 CF Worker 議댁옱 ??吏곸젒 ?몄텧 嫄대꼫? ??利됱떆 CF Worker ?ъ슜
+  3. Yahoo: `_skipDirect` 플래그로 CF Worker 존재 시 직접 호출 건너뜀 → 즉시 CF Worker 사용
   4. Staleness: 12珥???`_quoteTimestamps` ?뺤씤, 120珥??대궡 ?곗씠???덉쑝硫?諛곕꼫 ?먮룞 ?④?
 - **?덈갑 洹쒖튃**: **P6** ?????명봽??CF Worker ?? ?꾩엯 ?? 湲곗〈 ?대갚 泥댁씤???곗꽑?쒖쐞瑜?諛섎뱶???щ같移?
-- **QA 泥댄겕由ъ뒪??異붽?**: "CF Worker ?ㅼ젙 ??吏곸젒 ?몄텧 503/429媛 肄섏넄??諛쒖깮?섏? ?딅뒗吏 ?뺤씤"
+- **QA 체크리스트 추가**: "CF Worker 설정 시 직접 호출 503/429가 콘솔에 발생하지 않는지 확인"
 
 ---
 
-## [2026-03-25] v31.2 ???쒓렇???섏씠吏 鍮??щ갚 怨듦컙
+## [2026-03-25] v31.2 — 시그널 페이지 빈 여백 공간
 
-- **利앹긽**: ?쒓렇???섏씠吏 "醫낇빀 嫄곕옒 ?먯닔" 寃뚯씠吏 ?ㅻⅨ履쎌뿉 嫄곕???鍮?怨듦컙. "[?꾧툑 ?뺣낫]" 諛곕꼫媛 1以꾩씤???곸뿭??寃뚯씠吏 ?믪씠留뚰겮 ?몃줈濡??섏뼱??
-- **洹쇰낯 ?먯씤**: JS?먯꽌 `signal-advice` 諛곕꼫瑜??숈쟻 ?앹꽦???? `scoreCard.after(adviceEl)` 濡??쎌엯 ???쎌엯 ?꾩튂媛 `grid-template-columns: 200px 1fr` **grid 而⑦뀒?대꼫 ?대?**?????諛곕꼫媛 grid??1fr 移몄뿉 ?ㅼ뼱媛硫댁꽌 ?쇱そ 200px 寃뚯씠吏 ?믪씠??留욎떠 ?몃줈濡??ㅽ듃?덉묶??
+- **증상**: 시그널 페이지 "종합 거래 점수" 게이지 오른쪽에 거대한 빈 공간. "[현금 확보]" 배너가 1줄인데 영역이 게이지 높이만큼 세로로 늘어남.
+- **근본 원인**: JS에서 `signal-advice` 배너를 동적 생성할 때, `scoreCard.after(adviceEl)` 로 삽입 → 삽입 위치가 `grid-template-columns: 200px 1fr` **grid 컨테이너 내부**였음 → 배너가 grid의 1fr 칸에 들어가면서 왼쪽 200px 게이지 높이에 맞춰 세로로 스트레칭됨.
 - **?볦튇 ?댁쑀**:
-  - `closest('[style*="display"]')` ?좏깮?먭? ?대뒓 遺紐⑤? ?〓뒗吏 ?ㅼ젣 DOM?먯꽌 誘명솗??
-  - ?숈쟻 ?쎌엯 肄붾뱶媛 grid/flex 而⑦뀒?대꼫 ?덉뿉 ?ㅼ뼱媛?붿? **?뺤쟻 遺꾩꽍留뚯쑝濡쒕뒗 ?뚯븙 ?대젮?**
-  - 湲곗〈 QA 泥댄겕由ъ뒪?몄뿉 "?숈쟻 DOM ?쎌엯 ?꾩튂??遺紐??덉씠?꾩썐 ?뺤씤" ??ぉ ?놁뿀??
+  - `closest('[style*="display"]')` 선택자가 어느 부모를 잡는지 실제 DOM에서 미확인
+  - 동적 삽입 코드가 grid/flex 컨테이너 안에 들어가는지 **정적 분석만으로는 파악 어려움**
+  - 기존 QA 체크리스트에 "동적 DOM 삽입 위치의 부모 레이아웃 확인" 항목 없었음
 - **?섏젙 ?댁슜**: grid 諛붽묑???꾩슜 `<div id="signal-advice-container">` ?앹꽦 ??JS?먯꽌 ?대떦 而⑦뀒?대꼫??innerHTML濡?諛곕꼫 ?뚮뜑留?
-- **?덈갑 洹쒖튃**: **R4** ??JS?먯꽌 ?숈쟻 DOM ?쎌엯 ?? ?쎌엯 ??곸쓽 遺紐④? flex/grid 而⑦뀒?대꼫?몄? 諛섎뱶???뺤씤
-- **QA 泥댄겕由ъ뒪??異붽?**: "?숈쟻 ?앹꽦 ?붿냼媛 grid/flex ?덉씠?꾩썐??源⑤쑉由ъ? ?딅뒗吏 ?뺤씤"
+- **예방 규칙**: **R4** — JS에서 동적 DOM 삽입 시, 삽입 대상의 부모가 flex/grid 컨테이너인지 반드시 확인
+- **QA 체크리스트 추가**: "동적 생성 요소가 grid/flex 레이아웃을 깨뜨리지 않는지 확인"
 
 ---
 
-## [2026-03-25] v31.1 ??AI 梨??묐떟 媛濡??띿뒪??(?몃줈媛 ?꾨땶 媛濡쒕줈 ?쒖떆)
+## [2026-03-25] v31.1 — AI 챗 응답 가로 텍스트 (세로가 아닌 가로로 표시)
 
 - **利앹긽**: ?ы듃?대━??AI 遺꾩꽍 ??梨꾪똿?먯꽌 LLM ?묐떟???몃줈媛 ?꾨땶 媛濡?而щ읆)濡??쒖떆?? ?띿뒪?멸? 醫곸? 而щ읆?ㅻ줈 履쇨컻???꾟넂?꾨옒媛 ?꾨땶 醫뚢넂?곕줈 ?쏀????섎뒗 ?뺥깭.
 - **洹쇰낯 ?먯씤**:
@@ -3163,21 +3177,21 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 |---|------|----------|--------|
 | P1 | ?숈쟻 DOM ?쎌엯??grid/flex ?덉씠?꾩썐 ?뚭눼 | 1 | ?믪쓬 |
 | P2 | overflow 誘몄꽕?뺤쑝濡?肄섑뀗痢??섏묠/?섎┝ | 2+ | ?믪쓬 |
-| P3 | LLM 鍮꾧껐?뺤쟻 異쒕젰?????諛⑹뼱 ?뚮뜑留?遺議?| 1 | 以묎컙 |
-| P4 | 踰꾩쟾 ?쒓린? ?ㅼ젣 ?댁슜 遺덉씪移?| 2+ | ?믪쓬 |
-| P5 | 肄붾뱶 蹂寃???釉뚮씪?곗? ?ㅼ젣 ?뺤씤 誘몄떎??| ?ㅼ닔 | ?믪쓬 |
+| P3 | LLM 비결정적 출력에 대한 방어 렌더링 부족 | 1 | 중간 |
+| P4 | 버전 표기와 실제 내용 불일치 | 2+ | 높음 |
+| P5 | 코드 변경 후 브라우저 실제 확인 미실시 | 다수 | 높음 |
 | P6 | ???명봽???꾩엯 ??湲곗〈 ?대갚 ?곗꽑?쒖쐞 誘몄옱諛곗튂 | 1 | ?믪쓬 |
 | P7 | 怨좎젙??grid 而щ읆???쒓뎅???띿뒪????誘몄닔??| 1 | 以묎컙 |
-| P8 | CDN 吏????李⑦듃 ?뚮뜑留??ㅽ뙣 + ?띿뒪???대갚 遺??| 1 | 以묎컙 |
-| P9 | ?섏씠吏 HTML留?議댁옱, init ?⑥닔/?대깽??由ъ뒪???꾨씫 (Dead Page) | 2 | ?믪쓬 |
+| P8 | CDN 지연 시 차트 렌더링 실패 + 텍스트 폴백 부재 | 1 | 중간 |
+| P9 | 페이지 HTML만 존재, init 함수/이벤트 리스너 누락 (Dead Page) | 2 | 높음 |
 | P15 | API ?붾뱶?ъ씤???좏깮怨??곗씠???쇰꺼 遺덉씪移?(TTM vs Annual) | 3+ | ?믪쓬 |
 | P16 | JS falsy 媛?0, "") 泥섎━ ?ㅼ닔 (`\|\| null`, `!val` ?? | 3+ | 以묎컙 |
 | P17 | Phantom Ticker ??醫낅ぉ肄붾뱶 誘멸?利??낅젰?쇰줈 ?ㅻⅨ ?뚯궗 ?곗씠???좎엯 | 1 | 留ㅼ슦 ?믪쓬 |
 | P18 | Ghost Stock ??鍮꾩긽??湲곗뾽???곸옣 肄붾뱶??留ㅽ븨 | 1 | 留ㅼ슦 ?믪쓬 |
 | P19 | Parent-Sub Confusion ???좎궗 ?대쫫 紐⑥옄?뚯궗 援щ텇 ?ㅽ뙣 | 1 | ?믪쓬 |
-| P20 | 誘몄젙??蹂??李몄“ ??由ы뙥?좊쭅 ??蹂?섎챸 蹂寃??꾨씫 (qqq?뭠d['QQQ']) | 1 | ?믪쓬 |
+| P20 | 미정의 변수 참조 — 리팩토링 시 변수명 변경 누락 (qqq→ld['QQQ']) | 1 | 높음 |
 | P23 | flex column?먯꽌 min-height:0 ?꾨씫 ??overflow ?ㅽ겕濡?誘몄옉??| 1 | 留ㅼ슦 ?믪쓬 |
-| P39 | ?곗빱 rename ??tickers/weights/leaders 遺遺??꾪뙆 | 1 | ?믪쓬 |
+| P39 | 티커 rename 시 tickers/weights/leaders 부분 전파 | 1 | 높음 |
 | P40 | CSS Grid display:none ?먯떇????諛곗튂?먯꽌 ?쒖쇅?섏뼱 ?뺣젹 ?뚭눼 | 1 | ?믪쓬 |
 | P41 | ?곹룓?꾪뿕/?뚯궛?꾪뿕/?좊룞?깅?議?醫낅ぉ 誘몄젣嫄?(SSNLF/LCID/STEM) | 1 | 以묎컙 |
 
@@ -3231,7 +3245,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ### BUG-P149: mobile onboarding controls and theme chips could overlap or clip (LOW)
 - **violated_rule**: R28 / mobile visual QA must include narrow-width interaction controls.
-- **symptom**: Deep browser QA found the API onboarding "?ㅼ젙?섎윭 媛湲? link and "?リ린" button overlapped on mobile, and `#chat-theme-detail-chips` had slight horizontal clipping.
+- **symptom**: Deep browser QA found the API onboarding "설정하러 가기" link and "닫기" button overlapped on mobile, and `#chat-theme-detail-chips` had slight horizontal clipping.
 - **root cause**: The onboarding controls were inline with a fixed left margin, and global mobile `.acp-chips` forced `nowrap` for horizontal scrolling even where the chip row naturally fits better as wrapped controls.
 - **fix**: Added `.onboarding-actions` with mobile wrapping and a page-specific mobile override so theme-detail chips wrap without horizontal clipping.
 - **prevention**: Run desktop/mobile clipping and interactive-overlap checks for every page after UI edits.
@@ -3298,180 +3312,180 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **?섏젙**: DATA_SNAPSHOT 媛?媛깆떊(2026-05-16 湲곗?) + DOM ?몃씪???쇱튂??+ snap-dates 6怨?2026-04-17??026-05-16
 - **?뚯씪**: `index.html` L10481~10535 쨌 `js/aio-core.js` DATA_SNAPSHOT L6012~6019
 - **violated_rule**: R25(BUG-POSTMORTEM 湲곕줉) 쨌 R54(data-snap 蹂댁쑀 ?뱀뀡 snap-date 媛깆떊 ??DATA_SNAPSHOT ?숈떆 媛깆떊)
-- **prevention**: snap-date 媛깆떊 ??DATA_SNAPSHOT ?대떦 ?ㅼ? DOM ?몃씪?몄쓣 3-way 寃利?snap-date/DATA_SNAPSHOT/DOM inline)
+- **prevention**: snap-date 갱신 시 DATA_SNAPSHOT 해당 키와 DOM 인라인을 3-way 검증(snap-date/DATA_SNAPSHOT/DOM inline)
 
 ---
 
 ## P214 쨌 v49.22 쨌 options ?ㅻ깄??4怨?2026-04-17 (29??寃쎄낵)
 
-- **利앹긽**: options ?섏씠吏 IV Rank/Skew/Flow/Greeks 4?뱀뀡 data-snap-date="option-snapshot" 紐⑤몢 2026-04-17 ??29??寃쎄낵
+- **증상**: options 페이지 IV Rank/Skew/Flow/Greeks 4섹션 data-snap-date="option-snapshot" 모두 2026-04-17 → 29일 경과
 - **?먯씤**: "二쇨컙 ?섎룞 媛깆떊" ?뺤콉?대굹 snap-date ?먯껜 媛깆떊 ?꾨씫
 - **?섏젙**: 4怨?snap-dates ??2026-05-16 쨌 skew ?댁꽍 ?띿뒪???꾩옱 ?쒖옣 ?섍꼍 諛섏쁺
 - **?뚯씪**: `index.html` L9613/9738/9794/9885
 - **violated_rule**: static_snapshot FRESHNESS_POLICY(1d fresh/3d stale/7d hardStale) ??29??寃쎄낵 hardStale
-- **prevention**: options ?섏씠吏 二쇨컙 媛깆떊 泥댄겕由ъ뒪?몄뿉 snap-date 媛깆떊 ?ы븿
+- **prevention**: options 페이지 주간 갱신 체크리스트에 snap-date 갱신 포함
 
 ---
 
-## P215 쨌 v49.22 쨌 signal/kr-macro ?쒖젏 ?섏〈 吏?뺥븰 ?쒕굹由ъ삤 (3媛쒖썡+ 寃쎄낵)
+## P215 · v49.22 · signal/kr-macro 시점 의존 지정학 시나리오 (3개월+ 경과)
 
 - **利앹긽**: ?대? ?ы삊?? ?몃Ⅴ臾댁쫰 ?댄삊 ??3媛쒖썡+ 寃쎄낵 ?쒕굹由ъ삤 ?띿뒪??3嫄??붿〈
 - **?먯씤**: R54 ?쒖젙 ???쒖닠 ?띿뒪?몄뿉 data-snap ?놁뼱 freshness audit 誘몄쟻???곸뿭
-- **?섏젙**: signal L5013/L5169 ??愿???묒긽 ?쇰컲??쨌 kr-macro L11213 ???먮꼫吏 怨듦툒 ?띿뒪??+ WTI/Brent ?꾩옱媛?
+- **수정**: signal L5013/L5169 → 관세 협상 일반화 · kr-macro L11213 → 에너지 공급 텍스트 + WTI/Brent 현재값
 - **?뚯씪**: `index.html` L5013, L5169, L11213
-- **violated_rule**: R54(data-snap ?녿뒗 ?쒖닠 ?띿뒪?몃뒗 媛쒕컻?먭? 二쇨린 寃??
-- **prevention**: data-snap ?녿뒗 ?쒖닠 ?띿뒪???뱀뀡? AIO.getStaticDataGovernanceAudit()??live-like ?ㅼ썙??援?챸/?몃챸/媛寃? 異붽? ?먯?
+- **violated_rule**: R54(data-snap 없는 서술 텍스트는 개발자가 주기 검토)
+- **prevention**: data-snap 없는 서술 텍스트 섹션은 AIO.getStaticDataGovernanceAudit()에 live-like 키워드(국명/인명/가격) 추가 탐지
 
 ---
 
 ## P216 쨌 v49.23 쨌 kr-technical ?좎슜?붽퀬 31.7議??섎뱶肄붾뵫
 
 - **利앹긽**: kr-technical L11399 ?쒖옣 嫄닿컯 ?먯닔 ?꾩젽???좎슜?붽퀬 `31.7議?(?ъ긽理쒕?)` ?몃씪???섎뱶肄붾뵫 ??kr-home L10482??`19.2議곗썝`(v49.22 媛깆떊)怨?64.6% 愿대━
-- **?먯씤**: v49.22媛 kr-home???좎슜?붽퀬 DOM/DATA_SNAPSHOT留?媛깆떊?섍퀬 kr-technical ?쒖옣 嫄닿컯???꾩젽? 蹂꾨룄 ?꾩튂???섎뱶肄붾뵫?섏뼱 ?꾨씫. cross-page ?숈씪 吏??異붿쟻 ?꾨씫.
+- **원인**: v49.22가 kr-home의 신용잔고 DOM/DATA_SNAPSHOT만 갱신하고 kr-technical 시장 건강도 위젯은 별도 위치에 하드코딩되어 누락. cross-page 동일 지표 추적 누락.
 - **?섏젙**: L11399??`data-snap="kr-credit"` ?띿꽦 異붽? + ?쒖떆媛믪쓣 `19.2議곗썝`?쇰줈 ?숆린????applyDataSnapshot???먮룞 媛깆떊
 - **?뚯씪**: `index.html` L11399
-- **violated_rule**: R54(data-aio-archive vs data-snap ?곸슜 湲곗?) + cross-page ?숈씪 吏???⑥씪???먯튃
-- **prevention**: ?숈씪 吏???좎슜?붽퀬/?덊긽湲?F&G ??????긽 `data-snap` ?띿꽦?쇰줈 ?⑥씪?? ?몃씪???섎뱶肄붾뵫 湲덉?.
+- **violated_rule**: R54(data-aio-archive vs data-snap 적용 기준) + cross-page 동일 지표 단일화 원칙
+- **prevention**: 동일 지표(신용잔고/예탁금/F&G 등)는 항상 `data-snap` 속성으로 단일화. 인라인 하드코딩 금지.
 
 ---
 
 ## P217 쨌 v49.23 쨌 kr-supply 二쇨컙 ?섍툒 ?뚯씠釉?2024-03 ?곗씠???붿〈
 
 - **利앹긽**: kr-supply L10838~10843 二쇨컙 ?섍툒 ?뚯씠釉붿씠 `03/27, 03/26, 03/25, 03/24, 03/23` 2024??3??5嫄곕옒???곗씠?????꾩옱(2026-05-17) 湲곗? 2?? 寃쎄낵
-- **?먯씤**: API 誘몄뿰???곸뿭???뺤쟻 ?대갚??KOSPI 湲됰씫 ?쒖젏(2024-03) ?쒕뱶濡??묒꽦 ??媛깆떊 ?꾨씫. `data-aio-archive` 留덊궧???꾨씫?섏뼱 freshness audit ??곸뿉???쒖쇅
+- **원인**: API 미연동 영역의 정적 폴백을 KOSPI 급락 시점(2024-03) 시드로 작성 후 갱신 누락. `data-aio-archive` 마킹도 누락되어 freshness audit 대상에서 제외
 - **?섏젙**: L10838~10843??2026-05-12 ~ 05-16(5嫄곕옒?? ?대갚 媛믪쑝濡?援먯껜 + ?⑷퀎 ?됰룄 ?뺥빀
 - **?뚯씪**: `index.html` L10836~10843
-- **violated_rule**: static_snapshot FRESHNESS_POLICY(7d hardStale) ??2?? hardStale + R54(?꾩뭅?대툕 留덊궧 遺??
-- **prevention**: ?쇱씠釉?API 誘몄뿰???뺤쟻 ?대갚 ?뚯씠釉붿뿉??`data-aio-archive="true"` ?먮뒗 `data-snap-date` ?꾩닔 遺李? ?뺢린 寃????곸뿉 ?ы븿.
+- **violated_rule**: static_snapshot FRESHNESS_POLICY(7d hardStale) → 2년+ hardStale + R54(아카이브 마킹 부재)
+- **prevention**: 라이브 API 미연동 정적 폴백 테이블에는 `data-aio-archive="true"` 또는 `data-snap-date` 필수 부착. 정기 검토 대상에 포함.
 
 ---
 
 ## P218 쨌 v49.23 쨌 F&G ?먯닔 ID ?댁썝??(#home-fg-score vs #fg-score-big)
 
-- **利앹긽**: home ?섏씠吏 L4147 `#home-fg-score`????긽 `?? ?쒖떆, sentiment ?섏씠吏 L5720 `#fg-score-big`留??ㅼ떆媛?媛깆떊. ?숈씪 吏?쒓? ??ID濡?遺꾧린?섏뼱 home?먯꽌??臾댁슜
-- **?먯씤**: `js/aio-data.js` updateFearGreed ?⑥닔媛 `#fg-score-big`留?媛깆떊. home ?섏씠吏 移대뱶??sentiment ?섏씠吏 吏꾩엯 ?몃━嫄??놁씠???곴뎄 placeholder
+- **증상**: home 페이지 L4147 `#home-fg-score`는 항상 `—` 표시, sentiment 페이지 L5720 `#fg-score-big`만 실시간 갱신. 동일 지표가 두 ID로 분기되어 home에서는 무용
+- **원인**: `js/aio-data.js` updateFearGreed 함수가 `#fg-score-big`만 갱신. home 페이지 카드는 sentiment 페이지 진입 트리거 없이는 영구 placeholder
 - **?섏젙**: aio-data.js???묒そ 媛깆떊 寃쎈줈(L11236, L11269)??`#home-fg-score` ?숈씪 媛?二쇱엯 肄붾뱶 異붽?
 - **?뚯씪**: `js/aio-data.js` L11236~11239, L11269~11272
-- **violated_rule**: ?숈씪 吏???ㅼ쨷 sink ?⑥씪???먯튃
-- **prevention**: ?좉퇋 吏??異붽? ??紐⑤뱺 sink ?꾩튂瑜???踰덉뿉 ?깅줉(?? `_aioBindSink('fg-score', selectorList)` ?ы띁 ?꾩엯 怨좊젮). updateXxx ?⑥닔媛 紐⑤뱺 sink瑜??쇨? 媛깆떊?섎룄濡?肄붾뱶 由щ럭 泥댄겕由ъ뒪??蹂닿컯.
+- **violated_rule**: 동일 지표 다중 sink 단일화 원칙
+- **prevention**: 신규 지표 추가 시 모든 sink 위치를 한 번에 등록(예: `_aioBindSink('fg-score', selectorList)` 헬퍼 도입 고려). updateXxx 함수가 모든 sink를 일관 갱신하도록 코드 리뷰 체크리스트 보강.
 
 ---
 
 ## P219 쨌 v49.23 쨌 VIX/HY Spread/AAII ?쇰꺼 ?뺤쓽 vs ?쒖떆 遺덉씪移?
 
 - **利앹긽**: 3嫄??쇰꺼/諛곗? ?뺤쓽 遺덉씪移?
-  - VIX 18 = "?щ━ 怨듯룷" (home L4049) ???뺤쓽(<12 洹밸떒?덉젙, 12~20 ?뺤긽 Risk-On)? 紐⑥닚
-  - HY Spread 289 bps = 諛곗? "Tight" + "Risky" (sentiment L5820) ??300 誘몃쭔? Complacent/怨쇱뿴 援ш컙
-  - AAII Bear 43% = "洹밸떒??鍮꾧?" (sentiment L5840) ???ㅼ젣 spread -7.3%, 洹밸떒? <-20% 湲곗?
-- **?먯씤**: 蹂몃Ц ?ㅻ챸(tooltip/?뺤쓽)怨??섏씠吏 諛곗????꾧퀎媛?湲곗???遺꾧린?? ?쇨????꾧퀎媛?泥닿퀎(threshold registry) 遺??
-- **?섏젙**: 3嫄??쇰꺼???뺤쓽? ?쇱튂?섎룄濡??뺤젙 ??VIX ??"?뺤긽 Risk-On", HY ??"Tight ??Complacent / Risk-On 怨쇱뿴", AAII ??"以묒젙??鍮꾧? (-7.3% spread)"
+  - VIX 18 = "심리 공포" (home L4049) ← 정의(<12 극단안정, 12~20 정상 Risk-On)와 모순
+  - HY Spread 289 bps = 배지 "Tight" + "Risky" (sentiment L5820) ← 300 미만은 Complacent/과열 구간
+  - AAII Bear 43% = "극단적 비관" (sentiment L5840) ← 실제 spread -7.3%, 극단은 <-20% 기준
+- **원인**: 본문 설명(tooltip/정의)과 페이지 배지의 임계값 기준이 분기됨. 일관된 임계값 체계(threshold registry) 부재
+- **수정**: 3건 라벨을 정의와 일치하도록 정정 — VIX → "정상 Risk-On", HY → "Tight → Complacent / Risk-On 과열", AAII → "중정도 비관 (-7.3% spread)"
 - **?뚯씪**: `index.html` L4049, L5820, L5840
 - **violated_rule**: ?꾧퀎媛??뺤쓽 vs ?쒖떆 ?뺥빀??(?좉퇋 ??v49.24+ ?꾧퀎媛?泥닿퀎 ?듭씪?먯꽌 蹂멸꺽 ?섏젙 ?덉젙)
-- **prevention**: v49.24?먯꽌 紐⑤뱺 ?꾧퀎媛?VIX/F&G/HY/AAII/Skew ????`THRESHOLD_REGISTRY` ?⑥씪 媛앹껜濡?吏묒쨷??+ 紐⑤뱺 ?쇰꺼 ?⑥닔媛 ?숈씪 異쒖쿂 李몄“.
+- **prevention**: v49.24에서 모든 임계값(VIX/F&G/HY/AAII/Skew 등)을 `THRESHOLD_REGISTRY` 단일 객체로 집중화 + 모든 라벨 함수가 동일 출처 참조.
 
 ---
 
-## P220 쨌 v49.24 쨌 [洹쇰낯?섏젙] ?꾧퀎媛뮻룸씪踰??⑥씪 異쒖쿂 遺??(P219 ?щ컻 諛⑹?)
+## P220 · v49.24 · [근본수정] 임계값·라벨 단일 출처 부재 (P219 재발 방지)
 
-- **?щ컻 ?꾪뿕**: P219(VIX/HY/AAII ?쇰꺼 遺꾧린) ?⑦꽩???좉퇋 吏??異붽? ??臾댄븳 ?щ컻 媛??
-- **?먯씤 (援ъ“??**: 媛??섏씠吏媛 ?꾧퀎媛믪쓣 ?몃씪??if/switch濡?遺꾧린 ???뺤쓽(tooltip)? 諛곗?媛 肄붾뱶 遺꾨━?섏뼱 ?숆린??遺덇???
-- **洹쇰낯 ?닿껐**: `window.AIO_THRESHOLD_REGISTRY = { VIX, FG, HY_SPREAD, AAII, SKEW }` ?⑥씪 媛앹껜 ?좎꽕. 媛?吏?쒕쭏??`bands[]` + `getLabel(value)` ?⑥닔. 紐⑤뱺 ?쇰꺼 ?쒖떆 肄붾뱶媛 ???⑥닔 ?몄텧.
+- **재발 위험**: P219(VIX/HY/AAII 라벨 분기) 패턴이 신규 지표 추가 시 무한 재발 가능
+- **원인 (구조적)**: 각 페이지가 임계값을 인라인 if/switch로 분기 → 정의(tooltip)와 배지가 코드 분리되어 동기화 불가능
+- **근본 해결**: `window.AIO_THRESHOLD_REGISTRY = { VIX, FG, HY_SPREAD, AAII, SKEW }` 단일 객체 신설. 각 지표마다 `bands[]` + `getLabel(value)` 함수. 모든 라벨 표시 코드가 이 함수 호출.
 - **?좉퇋 洹쒖튃**: R56 (?꾧퀎媛뮻룸씪踰??⑥씪 異쒖쿂 ??THRESHOLD_REGISTRY)
-- **?뚯씪**: `js/aio-core.js` L2025 遺洹??좎꽕
-- **寃利?*: ???쇰꺼 肄붾뱶 異붽? ??grep `getLabel(` ?몄텧 ?뺤씤 + V49.25?먯꽌 湲곗〈 ?몃씪???쇰꺼 ?⑥닔 ?꾩닔 留덉씠洹몃젅?댁뀡
+- **파일**: `js/aio-core.js` L2025 부근 신설
+- **검증**: 새 라벨 코드 추가 시 grep `getLabel(` 호출 확인 + V49.25에서 기존 인라인 라벨 함수 전수 마이그레이션
 
 ---
 
-## P221 쨌 v49.24 쨌 [洹쇰낯?섏젙] Cross-page sink ?뺥빀 ?먮룞 寃利?遺??(P216/P218 ?щ컻 諛⑹?)
+## P221 · v49.24 · [근본수정] Cross-page sink 정합 자동 검증 부재 (P216/P218 재발 방지)
 
-- **?щ컻 ?꾪뿕**: P216(kr-tech ?좎슜?붽퀬 31.7議??붿〈), P218(F&G ID ?댁썝?? ?⑦꽩????吏??異붽? ??諛섎났
-- **?먯씤 (援ъ“??**: ?숈씪 吏?쒓? ?щ윭 ?섏씠吏??sink濡??깅줉????(1) data-snap ?띿꽦 ?꾨씫, (2) ?ㅻⅨ ID ?ъ슜 ??媛깆떊 遺꾧린, ??寃쎌슦 紐⑤몢 ?먮룞 ?먯? 遺덇?
-- **洹쇰낯 ?닿껐**: `AIO.getSnapshotConsistencyAudit()` ?좎꽕 ??紐⑤뱺 `[data-snap]` ?붿냼瑜?key蹂꾨줈 洹몃９?????띿뒪??鍮꾧탳. ?숈씪 key媛 distinct 媛??щ윭 媛쒕㈃ mismatch 蹂닿퀬. getAutoOpsReadiness???듯빀.
-- **?좉퇋 洹쒖튃**: R55 (?숈씪 吏??multi-sink ?⑥씪?? + R58 (DOM ?몃씪??vs DATA_SNAPSHOT 3-way)
-- **?뚯씪**: `js/aio-core.js` L2298 遺洹??좎꽕
-- **寃利?*: `AIO.getSnapshotConsistencyAudit().issueCount === 0` ??CI/QA 寃뚯씠??
+- **재발 위험**: P216(kr-tech 신용잔고 31.7조 잔존), P218(F&G ID 이원화) 패턴이 새 지표 추가 시 반복
+- **원인 (구조적)**: 동일 지표가 여러 페이지에 sink로 등록될 때 (1) data-snap 속성 누락, (2) 다른 ID 사용 시 갱신 분기, 두 경우 모두 자동 탐지 불가
+- **근본 해결**: `AIO.getSnapshotConsistencyAudit()` 신설 — 모든 `[data-snap]` 요소를 key별로 그룹화 후 텍스트 비교. 동일 key가 distinct 값 여러 개면 mismatch 보고. getAutoOpsReadiness에 통합.
+- **신규 규칙**: R55 (동일 지표 multi-sink 단일화) + R58 (DOM 인라인 vs DATA_SNAPSHOT 3-way)
+- **파일**: `js/aio-core.js` L2298 부근 신설
+- **검증**: `AIO.getSnapshotConsistencyAudit().issueCount === 0` → CI/QA 게이트
 
 ---
 
-## P222 쨌 v49.24 쨌 [洹쇰낯?섏젙] ?뺤쟻 ?뚯씠釉?stale ?먮룞 ?먯? 遺??(P217 ?щ컻 諛⑹?)
+## P222 · v49.24 · [근본수정] 정적 테이블 stale 자동 탐지 부재 (P217 재발 방지)
 
-- **?щ컻 ?꾪뿕**: P217(kr-supply 二쇨컙 ?뚯씠釉?2024-03 ?붿〈) ?⑦꽩???ㅻⅨ ?뺤쟻 ?뚯씠釉붿뿉?쒕룄 ?좊났 媛??
-- **?먯씤 (援ъ“??**: 湲곗〈 `getStaticDataGovernanceAudit()`??`[data-snap-date]` ?띿꽦 蹂댁쑀 ?붿냼留?寃?? `<table>` ?대? 泥?????좎쭨 ?⑦꽩? 誘명깘吏 ?곸뿭
-- **洹쇰낯 ?닿껐**: `AIO.getTableStaleAudit()` ?좎꽕 ??紐⑤뱺 `<table>` 泥??곗씠????泥????MM/DD ?먮뒗 YYYY-MM-DD ?⑦꽩 ?뚯떛 ??90?? 寃쎄낵 ??stale 蹂닿퀬. `data-aio-archive="true"` 遺紐⑤뒗 ?쒖쇅.
+- **재발 위험**: P217(kr-supply 주간 테이블 2024-03 잔존) 패턴이 다른 정적 테이블에서도 잠복 가능
+- **원인 (구조적)**: 기존 `getStaticDataGovernanceAudit()`는 `[data-snap-date]` 속성 보유 요소만 검사. `<table>` 내부 첫 셀의 날짜 패턴은 미탐지 영역
+- **근본 해결**: `AIO.getTableStaleAudit()` 신설 — 모든 `<table>` 첫 데이터 행 첫 셀의 MM/DD 또는 YYYY-MM-DD 패턴 파싱 → 90일+ 경과 시 stale 보고. `data-aio-archive="true"` 부모는 제외.
 - **?좉퇋 洹쒖튃**: R57 (?뺤쟻 ?뚯씠釉?stale 媛먯? ?섎Т)
 - **?뚯씪**: `js/aio-core.js` ?좉퇋 ?⑥닔
-- **寃利?*: `AIO.getTableStaleAudit().issueCount === 0`
+- **검증**: `AIO.getTableStaleAudit().issueCount === 0`
 
 ---
 
-## P223 쨌 v49.24 쨌 [洹쇰낯?섏젙] getAutoOpsReadiness ?듯빀 寃利?踰붿쐞 ?뺣?
+## P223 · v49.24 · [근본수정] getAutoOpsReadiness 통합 검증 범위 확대
 
-- **?щ컻 ?꾪뿕**: ?좉퇋 audit ?⑥닔(SnapshotConsistency, TableStale)瑜?留뚮뱾?대룄 `getAutoOpsReadiness()`???듯빀?섏? ?딆쑝硫??댁쁺?먭? ?ъ슜?섏? ?딆쓣 媛?μ꽦
+- **재발 위험**: 신규 audit 함수(SnapshotConsistency, TableStale)를 만들어도 `getAutoOpsReadiness()`에 통합되지 않으면 운영자가 사용하지 않을 가능성
 - **?먯씤 (援ъ“??**: ?먮룞 ?댁쁺 吏꾨떒 ?⑥씪 吏꾩엯?먯씠 5異?freshness/pipeline/statics/scheduler/continuity)留??먭? ???좉퇋 ?명봽?쇨? 怨좊┰
 - **洹쇰낯 ?닿껐**: `getAutoOpsReadiness()`瑜?7異뺤쑝濡??뺤옣 (5異?+ sinkConsistency + tableStale). issues 諛곗뿴??P216/P218/P217 ?⑦꽩 ?쇰꺼留?
 - **?뚯씪**: `js/aio-core.js` getAutoOpsReadiness ?⑥닔
-- **寃利?*: `AIO.getAutoOpsReadiness().status === 'ok'` ??7異?紐⑤몢 ?듦낵
+- **검증**: `AIO.getAutoOpsReadiness().status === 'ok'` → 7축 모두 통과
 
 ---
 
 ## P224 쨌 v49.25 쨌 [洹쇰낯?섏젙] ?먯닔 ?ㅼ???遺꾧린 (L1 ??R59 SCORE_SCALES)
 
-- **?щ컻 ?꾪뿕**: signal ?섏씠吏??"20??留뚯젏" vs ??援ш컙 "75+/60~75/45~60/30~45/<30" (0~100 ?ㅼ??? ?쇳빀 ?쒓린 ???ъ슜???쇰룞. ?좉퇋 ?섏씠吏媛 ???ㅻⅨ ?ㅼ????꾩엯 ???쇰룞 利앺룺.
-- **?먯씤 (援ъ“??**: ?섏씠吏留덈떎 ?먯껜 ?ㅼ???+ 蹂?섏떇 ???⑥씪 異쒖쿂 ?놁쓬
-- **洹쇰낯 ?닿껐**: `window.AIO_SCORE_SCALES = { TWENTY_POINT, HUNDRED_POINT, convert(), getLabel100From20() }` ?좎꽕. 紐⑤뱺 ?먯닔 ?쒖떆/蹂?섏? ??媛앹껜 寃쎌쑀.
+- **재발 위험**: signal 페이지의 "20점 만점" vs 표 구간 "75+/60~75/45~60/30~45/<30" (0~100 스케일) 혼합 표기 → 사용자 혼동. 신규 페이지가 또 다른 스케일 도입 시 혼동 증폭.
+- **원인 (구조적)**: 페이지마다 자체 스케일 + 변환식 → 단일 출처 없음
+- **근본 해결**: `window.AIO_SCORE_SCALES = { TWENTY_POINT, HUNDRED_POINT, convert(), getLabel100From20() }` 신설. 모든 점수 표시/변환은 이 객체 경유.
 - **?좉퇋 洹쒖튃**: R59
 - **?뚯씪**: `js/aio-core.js` (THRESHOLD_REGISTRY ?ㅼ쓬)
-- **寃利?*: T199 (SCORE_SCALES 議댁옱 + convert ?뺥솗??
+- **검증**: T199 (SCORE_SCALES 존재 + convert 정확성)
 
 ---
 
 ## P225 쨌 v49.25 쨌 [洹쇰낯?섏젙] 釉뚮젅?쒖벐쨌RSI ?꾧퀎媛??쇰꺼 遺꾧린 (L2/L8 ??THRESHOLD_REGISTRY ?뺤옣)
 
-- **?щ컻 ?꾪뿕**: breadth ?섏씠吏 5/20/50SMA + RSI 移대뱶?ㅼ씠 ?먯껜 if/else濡??쇰꺼 遺꾧린 ??P219 ?좎궗 ?⑦꽩 ?щ컻
-- **?먯씤 (援ъ“??**: v49.24媛 VIX/FG/HY/AAII/SKEW 5媛쒕쭔 ?깅줉. BREADTH쨌RSI???꾨씫.
+- **재발 위험**: breadth 페이지 5/20/50SMA + RSI 카드들이 자체 if/else로 라벨 분기 → P219 유사 패턴 재발
+- **원인 (구조적)**: v49.24가 VIX/FG/HY/AAII/SKEW 5개만 등록. BREADTH·RSI는 누락.
 - **洹쇰낯 ?닿껐**: THRESHOLD_REGISTRY??BREADTH(??궗??諛붾떏/?꾪뿕/?쇱“/?묓샇/怨쇱뿴) + RSI(怨쇰ℓ???쎌꽭/以묐┰/媛뺤꽭/怨쇰ℓ??洹밸떒 怨쇰ℓ?? bands 異붽?.
 - **?뚯씪**: `js/aio-core.js` THRESHOLD_REGISTRY 媛앹껜
-- **寃利?*: T200 (BREADTH/RSI getLabel ?묐룞), T201 (RSI 75 ??怨쇰ℓ??
+- **검증**: T200 (BREADTH/RSI getLabel 작동), T201 (RSI 75 → 과매수)
 
 ---
 
 ## P226 쨌 v49.25 쨌 [洹쇰낯?섏젙] ATR 諛곗닔 踰붿쐞 紐⑦샇 (L4 ??R60 ATR_PRESETS)
 
-- **?щ컻 ?꾪뿕**: signal L4433~4441 "?ㅼ쐷 3~5諛? ?ъ???4~8諛? 愿묐쾾?? ?몃젅?대뜑媛 ?대뼡 媛?梨꾪깮?좎? 遺덈챸. ?좉퇋 ?꾨왂 異붽? ?????ㅻⅨ 紐⑦샇 踰붿쐞 媛??
-- **?먯씤 (援ъ“??**: 沅뚯옣媛??⑥씪 異쒖쿂 ?놁쓬 ???섏씠吏留덈떎 ?꾩쓽 踰붿쐞 ?쒓린
+- **재발 위험**: signal L4433~4441 "스윙 3~5배, 포지션 4~8배" 광범위. 트레이더가 어떤 값 채택할지 불명. 신규 전략 추가 시 또 다른 모호 범위 가능.
+- **원인 (구조적)**: 권장값 단일 출처 없음 → 페이지마다 임의 범위 표기
 - **洹쇰낯 ?닿껐**: `AIO_ATR_PRESETS = { swing, position, scalp, trailing }` 媛곴컖 沅뚯옣 multiplier + range + note. `getStop(high, atr, preset)` ?⑥닔.
 - **?좉퇋 洹쒖튃**: R60
 - **?뚯씪**: `js/aio-core.js`
-- **寃利?*: T202 (ATR_PRESETS swing 3.0諛?+ position 5.0諛?
+- **검증**: T202 (ATR_PRESETS swing 3.0배 + position 5.0배)
 
 ---
 
 ## P227 쨌 v49.25 쨌 [洹쇰낯?섏젙] ?ㅼ쨷 ?좏샇 紐⑥닚 臾댁떆 ?먯젙 (L3 ??R61 diagnoseBreadthConsensus)
 
-- **?щ컻 ?꾪뿕**: breadth ?섏씠吏 5SMA 68%(媛뺤꽭) + 20SMA 75%(媛뺤꽭) + 50SMA 46%(?쇱“) + McClellan(?쎌꽭) ??醫낇빀 "?쎌꽭" ?⑥젙. 媛뺤꽭 ?좏샇 2媛?臾댁떆. ?ъ슜?먭? ?먯젙 洹쇨굅 異붿쟻 遺덇?. ?좉퇋 ?ㅼ쨷 ?좏샇 ?쒖뒪??異붽? ???숈씪 臾몄젣 諛섎났.
-- **?먯씤 (援ъ“??**: 醫낇빀 ?먯젙???몃씪??if/else濡??묒꽦 ??媛以??됯퇏 怨꾩궛 遺덇??? 紐⑥닚 ?먯? 遺덇?
-- **洹쇰낯 ?닿껐**: `AIO.diagnoseBreadthConsensus(signals)` ?⑥닔 ???먮룞 媛以??됯퇏 + verdict + conflict 蹂닿퀬. 媛뺤꽭 N媛?vs ?쎌꽭 M媛?紐낆떆.
+- **재발 위험**: breadth 페이지 5SMA 68%(강세) + 20SMA 75%(강세) + 50SMA 46%(혼조) + McClellan(약세) → 종합 "약세" 단정. 강세 신호 2개 무시. 사용자가 판정 근거 추적 불가. 신규 다중 신호 시스템 추가 시 동일 문제 반복.
+- **원인 (구조적)**: 종합 판정이 인라인 if/else로 작성 → 가중 평균 계산 불가능, 모순 탐지 불가
+- **근본 해결**: `AIO.diagnoseBreadthConsensus(signals)` 함수 — 자동 가중 평균 + verdict + conflict 보고. 강세 N개 vs 약세 M개 명시.
 - **?좉퇋 洹쒖튃**: R61
 - **?뚯씪**: `js/aio-core.js`
-- **寃利?*: T203 (紐⑥닚 ?좏샇 ?낅젰 ??conflict 蹂닿퀬 + verdict媛 ?⑥씪 諛⑺뼢 ?⑥젙?섏? ?딆쓬)
+- **검증**: T203 (모순 신호 입력 시 conflict 보고 + verdict가 단일 방향 단정하지 않음)
 
 ---
 
 ## P228 쨌 v49.25 쨌 [洹쇰낯?섏젙] F-Score 9 ??ぉ ?ㅻ챸留?(L7 ??R62 PIOTROSKI_CHECKLIST)
 
-- **?щ컻 ?꾪뿕**: fundamental L8134~8142 "9媛吏 YES/NO 泥댄겕" ?ㅻ챸留? ?ъ슜?먭? 蹂몄씤 醫낅ぉ??F-Score 怨꾩궛 遺덇?. ?좉퇋 ?뺣웾 梨꾩젏 ?쒖뒪??異붽? ???숈씪 ?⑥젙.
-- **?먯씤 (援ъ“??**: 9 ??ぉ???띿뒪?몃줈留??섏뿴, 寃利??⑥닔 誘몄젙?????곗씠?곕줈 梨꾩젏 遺덇?
+- **재발 위험**: fundamental L8134~8142 "9가지 YES/NO 체크" 설명만. 사용자가 본인 종목의 F-Score 계산 불가. 신규 정량 채점 시스템 추가 시 동일 함정.
+- **원인 (구조적)**: 9 항목이 텍스트로만 나열, 검증 함수 미정의 → 데이터로 채점 불가
 - **洹쇰낯 ?닿껐**: `AIO_PIOTROSKI_CHECKLIST.categories = { profitability:[4], leverage:[3], efficiency:[2] }` + `score(d) ??{score, max:9, details:[], verdict}`.
 - **?좉퇋 洹쒖튃**: R62
 - **?뚯씪**: `js/aio-core.js`
-- **寃利?*: T204 (PIOTROSKI_CHECKLIST.score(mock data) ??0~9 ?뺤닔)
+- **검증**: T204 (PIOTROSKI_CHECKLIST.score(mock data) → 0~9 정수)
 
 ---
 
-## P229 쨌 v49.26 쨌 [洹쇰낯?섏젙] ?먯닔 媛以묒튂 誘멸났媛?(I2 ??R64 WEIGHT_REGISTRY)
+## P229 · v49.26 · [근본수정] 점수 가중치 미공개 (I2 → R64 WEIGHT_REGISTRY)
 
-- **?щ컻 ?꾪뿕**: home Trading Score / Quality Score媛 "援ъ꽦?붿냼 誘멸린?? ?곹깭濡??몄텧. ?좉퇋 ?먯닔 ?쒖뒪??異붽? ???숈씪 ?⑥젙.
-- **洹쇰낯 ?닿껐**: `window.AIO_WEIGHT_REGISTRY = { TRADING_SCORE, QUALITY_SCORE, MARKET_REGIME }` 媛곴컖 `components[]` + `weight/max/note` + `totalWeight` + `getComponentTooltip(key)`. ?섏씠吏 移대뱶 hover/?댄똻???먮룞 ?곸슜.
+- **재발 위험**: home Trading Score / Quality Score가 "구성요소 미기재" 상태로 노출. 신규 점수 시스템 추가 시 동일 함정.
+- **근본 해결**: `window.AIO_WEIGHT_REGISTRY = { TRADING_SCORE, QUALITY_SCORE, MARKET_REGIME }` 각각 `components[]` + `weight/max/note` + `totalWeight` + `getComponentTooltip(key)`. 페이지 카드 hover/툴팁에 자동 적용.
 - **?좉퇋 洹쒖튃**: R64
 - **?뚯씪**: `js/aio-core.js`
 
@@ -3479,25 +3493,25 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P230 쨌 v49.26 쨌 [洹쇰낯?섏젙] 移대뱶 ?쒓컖 ?꾧퀎 ?숇벑 (I3 ??R65 CARD_HIERARCHY)
 
-- **?щ컻 ?꾪뿕**: home 3媛?移대뱶(留ㅻℓ?먮떒/?덉쭏?먯닔/?쒖옣援?㈃) ??댄룷洹몃옒???숈씪 ??Primary 媛뺤“ 遺議? ?좉퇋 移대뱶 異붽? ???숈씪 臾몄젣 ?꾩쟻.
+- **재발 위험**: home 3개 카드(매매판단/품질점수/시장국면) 타이포그래피 동일 → Primary 강조 부족. 신규 카드 추가 시 동일 문제 누적.
 - **洹쇰낯 ?닿껐**: `window.AIO_CARD_HIERARCHY = { primary:{fontSize:24,weight:900,stripe:green}, secondary:{20,800,amber}, tertiary:{16,700,muted} }` + `getClassList(level)`.
 - **?좉퇋 洹쒖튃**: R65
 - **?뚯씪**: `js/aio-core.js`
 
 ---
 
-## P231 쨌 v49.26 쨌 [洹쇰낯?섏젙] ?쇰꺼/?됱긽 ?섏씠吏蹂?if/else (I1 ??applyLabelToElement)
+## P231 · v49.26 · [근본수정] 라벨/색상 페이지별 if/else (I1 → applyLabelToElement)
 
-- **?щ컻 ?꾪뿕**: ?섏씠吏留덈떎 ?꾩쓽 ?됱긽/?쇰꺼 if/else ??THRESHOLD_REGISTRY ?꾩엯(v49.24) ?꾩뿉???곸슜 ?꾨씫 媛??
+- **재발 위험**: 페이지마다 임의 색상/라벨 if/else → THRESHOLD_REGISTRY 도입(v49.24) 후에도 적용 누락 가능
 - **洹쇰낯 ?닿껐**: `AIO.applyLabelToElement(el, registryKey, value)` ???쇰꺼 ?띿뒪??+ CSS ?됱긽 + `data-signal`/`data-threshold-key` ?띿꽦 ?쇨큵 ?ㅼ젙.
 - **?뚯씪**: `js/aio-core.js`
 
 ---
 
-## P232 쨌 v49.26 쨌 [洹쇰낯?섏젙] 以묐났 肄섑뀗痢??먮룞 ?먯? 遺??(I4 ??R66 getDuplicateContentAudit)
+## P232 · v49.26 · [근본수정] 중복 콘텐츠 자동 탐지 부재 (I4 → R66 getDuplicateContentAudit)
 
-- **?щ컻 ?꾪뿕**: technical ?섏씠吏 TradingView 李⑦듃 + OHLC ?대갚 ?뺣낫 ???숈씪 吏???????쒖떆. ?좉퇋 ?섏씠吏 異붽? ???숈씪 ?꾩쟻.
-- **洹쇰낯 ?닿껐**: `AIO.getDuplicateContentAudit()` ???섏씠吏蹂?`data-snap`/`data-live-price` 移댁슫????3???댁긽 ??蹂닿퀬. archive ?뱀뀡 ?쒖쇅.
+- **재발 위험**: technical 페이지 TradingView 차트 + OHLC 폴백 정보 등 동일 지표 ≥3회 표시. 신규 페이지 추가 시 동일 누적.
+- **근본 해결**: `AIO.getDuplicateContentAudit()` → 페이지별 `data-snap`/`data-live-price` 카운트 → 3회 이상 시 보고. archive 섹션 제외.
 - **?좉퇋 洹쒖튃**: R66
 - **?뚯씪**: `js/aio-core.js`
 
@@ -3505,26 +3519,26 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P233 쨌 v49.26 쨌 [洹쇰낯?섏젙] ?ъ씠???꾩튂 ?뺤쟻 怨좎젙 (I7 ??R67 getCycleFromMacro)
 
-- **?щ컻 ?꾪뿕**: themes L8534 "? ?꾩옱(Late Cycle 쨌 ?먮꼫吏쨌?꾩닔?뚮퉬쨌?좏떥)" ?ъ씠???꾩튂 ?뺤쟻 怨좎젙 ??6媛쒖썡+ ?쒓컙 寃쎄낵 誘몃컲?? ?좉퇋 ?ъ씠???쒖떆 異붽? ???숈씪 ?⑦꽩.
+- **재발 위험**: themes L8534 "◀ 현재(Late Cycle · 에너지·필수소비·유틸)" 사이클 위치 정적 고정 → 6개월+ 시간 경과 미반영. 신규 사이클 표시 추가 시 동일 패턴.
 - **洹쇰낯 ?닿껐**: `AIO.getCycleFromMacro({vix, breadth50, yield2s10s, spxTrend}) ??{phase, inputs, rationale[]}` ?섏궗寃곗젙 ?몃━. VIX쨌breadth쨌yield curve 留ㅽ겕濡??낅젰 湲곕컲 ?먮룞 phase ?먯젙.
 - **?좉퇋 洹쒖튃**: R67
 - **?뚯씪**: `js/aio-core.js`
 
 ---
 
-## P234 쨌 v49.27 쨌 [洹쇰낯?섏젙] Action Item 媛?대뱶 遺??(E1/E2 ??R69 ACTION_RULES)
+## P234 · v49.27 · [근본수정] Action Item 가이드 부재 (E1/E2 → R69 ACTION_RULES)
 
-- **?щ컻 ?꾪뿕**: home쨌briefing "吏湲??댁빞 ???? 媛?대뱶 遺?????ъ슜?먭? ?쇰컲濡?議곗뼵留?諛쏆쓬. ?좉퇋 ?섏씠吏 異붽? ???숈씪 ?⑦꽩.
-- **洹쇰낯 ?닿껐**: `window.AIO_ACTION_RULES = { positionSizing.rules:[VIX 援ш컙], sentimentAction.rules:[F&G 援ш컙] }` + `getActionPlan({vix, fg, breadth50}) ??{actions:[]}`. ?섏씠吏媛 ???⑥닔 ?몄텧?섏뿬 移대뱶 ?뚮뜑.
+- **재발 위험**: home·briefing "지금 해야 할 일" 가이드 부재 → 사용자가 일반론 조언만 받음. 신규 페이지 추가 시 동일 패턴.
+- **근본 해결**: `window.AIO_ACTION_RULES = { positionSizing.rules:[VIX 구간], sentimentAction.rules:[F&G 구간] }` + `getActionPlan({vix, fg, breadth50}) → {actions:[]}`. 페이지가 이 함수 호출하여 카드 렌더.
 - **?좉퇋 洹쒖튃**: R69
 - **?뚯씪**: `js/aio-core.js`
 
 ---
 
-## P235 쨌 v49.27 쨌 [洹쇰낯?섏젙] ?섏씠吏 紐⑹쟻쨌?곗꽑?쒖쐞 ?⑥씪 ?뺤쓽 (E3/E4 ??R70 PAGE_PURPOSE_REGISTRY)
+## P235 · v49.27 · [근본수정] 페이지 목적·우선순위 단일 정의 (E3/E4 → R70 PAGE_PURPOSE_REGISTRY)
 
-- **?щ컻 ?꾪뿕**: signal vs home ??븷 遺꾩궛 ???ъ슜?먭? ?섏씠吏 紐⑹쟻 ?쇰룞. briefing 5? 愿??vs ?대떇 罹섎┛???곗꽑?쒖쐞 ??쟾. ?좉퇋 ?섏씠吏 異붽? ?????ㅻⅨ 紐⑦샇??
-- **洹쇰낯 ?닿껐**: `AIO_PAGE_PURPOSE_REGISTRY = { home:{purpose,mainCards,cta}, signal:..., briefing:{sectionOrder} ... }` 12 ?섏씠吏 ?깅줉.
+- **재발 위험**: signal vs home 역할 분산 → 사용자가 페이지 목적 혼동. briefing 5대 관전 vs 어닝 캘린더 우선순위 역전. 신규 페이지 추가 시 또 다른 모호성.
+- **근본 해결**: `AIO_PAGE_PURPOSE_REGISTRY = { home:{purpose,mainCards,cta}, signal:..., briefing:{sectionOrder} ... }` 12 페이지 등록.
 - **?좉퇋 洹쒖튃**: R70
 - **?뚯씪**: `js/aio-core.js`
 
@@ -3532,14 +3546,14 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P236 쨌 v49.27 쨌 [洹쇰낯?섏젙] ?대줎 vs ?ㅽ뻾 鍮꾨?移??먮룞 媛먯궗 (E5 ??R71 getPagePurposeRatioAudit)
 
-- **?щ컻 ?꾪뿕**: portfolio ?대줎 ?띾? vs UI 遺議??⑦꽩???좉퇋 ?섏씠吏?먯꽌???좊났 媛??
-- **洹쇰낯 ?닿껐**: `AIO.getPagePurposeRatioAudit()` ???섏씠吏蹂??뺤쟻 ?띿뒪??湲몄씠 vs ?숈쟻 sink 媛쒖닔. 3000?? & sink <5 ??鍮꾨?移?蹂닿퀬.
+- **재발 위험**: portfolio 이론 풍부 vs UI 부족 패턴이 신규 페이지에서도 잠복 가능
+- **근본 해결**: `AIO.getPagePurposeRatioAudit()` → 페이지별 정적 텍스트 길이 vs 동적 sink 개수. 3000자+ & sink <5 시 비대칭 보고.
 - **?좉퇋 洹쒖튃**: R71
 - **?뚯씪**: `js/aio-core.js`
 
 ---
 
-## P237 쨌 v49.27 쨌 [洹쇰낯?섏젙] ?쒕굹由ъ삤 ?뺣쪧 ?쒓컙 ?섏〈??遺??(L6 ??R72 SCENARIO_REGISTRY)
+## P237 · v49.27 · [근본수정] 시나리오 확률 시간 의존성 부재 (L6 → R72 SCENARIO_REGISTRY)
 
 - **?щ컻 ?꾪뿕**: macro ?쒕굹由ъ삤 (?곗갑瑜?30%/?ㅽ깭洹?45%/移⑥껜 25%) ?뺤쟻 ?섎뱶肄붾뵫 ??CPI/FOMC 諛쒗몴 ?꾩뿉??stale ?쒖떆
 - **洹쇰낯 ?닿껐**: `AIO_SCENARIO_REGISTRY = { scenarios: { 'soft-landing':{probability, lastUpdated, source, triggers[]} ... }, validateSum() }` + `AIO.getScenarioFreshnessAudit()` 30?? ?먮룞 stale 蹂닿퀬.
@@ -3550,66 +3564,66 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P238 쨌 v49.27 쨌 [洹쇰낯?섏젙] ?뺤쟻 異붿쿇 ?쒖옣 ?섍꼍 誘몃컲??(E6 ??ACTION_RULES ?뺤옣)
 
-- **?щ컻 ?꾪뿕**: options "Top 3 嫄곕옒 ?꾩씠?붿뼱" ?뺤쟻 ?덉떆. ?쒖옣 ?섍꼍(VIX 18 vs VIX 35) 蹂??誘몃컲?? ?좉퇋 異붿쿇 ?쒖뒪?쒖뿉???숈씪 ?뺤쟻 ?⑦꽩 媛??
-- **洹쇰낯 ?닿껐**: `AIO_ACTION_RULES.positionSizing`/`sentimentAction`???섍꼍 ?낅젰 湲곕컲 ?숈쟻 ?앹꽦. options ?섏씠吏媛 ?대? ?몄텧?섏뿬 異붿쿇 移대뱶 ?뚮뜑.
-- **?뚯씪**: `js/aio-core.js` (R69? ?듯빀)
-- **寃利?*: AIO_ACTION_RULES.positionSizing.getRule(35) ??sizePct: 15
+- **재발 위험**: options "Top 3 거래 아이디어" 정적 예시. 시장 환경(VIX 18 vs VIX 35) 변화 미반영. 신규 추천 시스템에서 동일 정적 패턴 가능.
+- **근본 해결**: `AIO_ACTION_RULES.positionSizing`/`sentimentAction`이 환경 입력 기반 동적 생성. options 페이지가 이를 호출하여 추천 카드 렌더.
+- **파일**: `js/aio-core.js` (R69와 통합)
+- **검증**: AIO_ACTION_RULES.positionSizing.getRule(35) → sizePct: 15
 
 ---
 
-## P239 쨌 v49.28 쨌 [硫뷀? 洹쇰낯?섏젙] ?명봽??異붽?留??섍퀬 ?섏씠吏 ?곸슜 ?꾨씫 (?ъ슜??吏??
+## P239 · v49.28 · [메타 근본수정] 인프라 추가만 하고 페이지 적용 누락 (사용자 지적)
 
-- **利앹긽**: v49.24~v49.27??18媛?洹쇰낯 ?명봽??THRESHOLD/SCORE_SCALES/ATR/PIOTROSKI/WEIGHT/CARD_HIERARCHY/applyLabel/getCycle/ACTION/PAGE_PURPOSE/SCENARIO ??瑜?異붽??덉쑝???ㅼ젣 ?섏씠吏 DOM???곸슜 ???? ?ъ슜?먭? 蹂대뒗 ?붾㈃? 洹몃?濡?stale.
-- **?먯씤 (硫뷀? 援ъ“??**: "洹쇰낯 ?명봽??異붽?"? "?섏씠吏 ?곸슜"??蹂꾧컻 ?④퀎濡??몄떇. ?명봽??PR ???곸슜 PR??蹂꾨룄 ?묒꽦?섎뒗 ?⑦꽩???꾩쟻?섏뼱 ?명봽?쇨? "?ъ슜 媛???섏?留?"?ъ슜 ???? ?곹깭濡??곴뎄 ?붿〈.
-- **洹쇰낯 ?닿껐**: v49.28?먯꽌 (1) signal/technical/home/fundamental/macro/themes 6媛??섏씠吏??v49.24~27 ?명봽???ㅼ젣 ?몄텧 + DOM ?곸슜, (2) ?좉퇋 洹쒖튃 R73 ?쒖젙: ??registry/audit 異붽? ??諛섎뱶???섏씠吏 ?곸슜 PR ?숇컲.
+- **증상**: v49.24~v49.27이 18개 근본 인프라(THRESHOLD/SCORE_SCALES/ATR/PIOTROSKI/WEIGHT/CARD_HIERARCHY/applyLabel/getCycle/ACTION/PAGE_PURPOSE/SCENARIO 등)를 추가했으나 실제 페이지 DOM에 적용 안 함. 사용자가 보는 화면은 그대로 stale.
+- **원인 (메타 구조적)**: "근본 인프라 추가"와 "페이지 적용"을 별개 단계로 인식. 인프라 PR 후 적용 PR을 별도 작성하는 패턴이 누적되어 인프라가 "사용 가능"하지만 "사용 안 됨" 상태로 영구 잔존.
+- **근본 해결**: v49.28에서 (1) signal/technical/home/fundamental/macro/themes 6개 페이지에 v49.24~27 인프라 실제 호출 + DOM 적용, (2) 신규 규칙 R73 제정: 새 registry/audit 추가 시 반드시 페이지 적용 PR 동반.
 - **?좉퇋 洹쒖튃**: R73
-- **?뚯씪**: `index.html` ?ㅼ닔 ?섏씠吏 쨌 `js/aio-data.js` ACTION_RULES ?몄텧 쨌 `js/aio-core.js` pageShown listener
+- **파일**: `index.html` 다수 페이지 · `js/aio-data.js` ACTION_RULES 호출 · `js/aio-core.js` pageShown listener
 
 ---
 
-## P240 쨌 v49.28 쨌 signal L1/L4 ?섏씠吏 ?곸슜 (SCORE_SCALES + ATR_PRESETS)
+## P240 · v49.28 · signal L1/L4 페이지 적용 (SCORE_SCALES + ATR_PRESETS)
 
 - **?섏젙**: signal L4399 "20???ㅼ퐫?대쭅" ?ㅻ뜑??100???섏궛 ?쒓린 + L4436 ATR 怨듭떇??ATR_PRESETS 沅뚯옣媛?swing 3.0/position 5.0/scalp 1.5/trailing 2.5) 紐낆떆
 - **?뚯씪**: `index.html` L4399, L4436
-- **violated_rule**: R59 (SCORE_SCALES) + R60 (ATR_PRESETS) ???명봽???깅줉留??섍퀬 ?섏씠吏 ?곸슜 ?꾨씫
+- **violated_rule**: R59 (SCORE_SCALES) + R60 (ATR_PRESETS) — 인프라 등록만 하고 페이지 적용 누락
 
 ---
 
-## P241 쨌 v49.28 쨌 home I2/I3/E1 ?섏씠吏 ?곸슜 (WEIGHT + CARD_HIERARCHY + ACTION_RULES)
+## P241 · v49.28 · home I2/I3/E1 페이지 적용 (WEIGHT + CARD_HIERARCHY + ACTION_RULES)
 
-- **?섏젙**: home 3媛?移대뱶??(1) `data-weight-key`/`title` 媛以묒튂 tooltip, (2) `aio-card-primary`/`aio-card-secondary` ?대옒??+ stripe ?됱긽, (3) Action Item 移대뱶 ?좎꽕 (`#home-action-item-card`). aio-data.js?먯꽌 ACTION_RULES.getActionPlan() ?먮룞 ?몄텧?섏뿬 移대뱶 梨꾩?.
-- **?뚯씪**: `index.html` L4023~4051 + ?좎꽕 移대뱶 쨌 `js/aio-data.js` L11063 遺洹?
+- **수정**: home 3개 카드에 (1) `data-weight-key`/`title` 가중치 tooltip, (2) `aio-card-primary`/`aio-card-secondary` 클래스 + stripe 색상, (3) Action Item 카드 신설 (`#home-action-item-card`). aio-data.js에서 ACTION_RULES.getActionPlan() 자동 호출하여 카드 채움.
+- **파일**: `index.html` L4023~4051 + 신설 카드 · `js/aio-data.js` L11063 부근
 - **violated_rule**: R64/R65/R69 ?곸슜 ?꾨씫 ???쒖젙
 
 ---
 
 ## P242 쨌 v49.28 쨌 technical L8 RSI ?꾧퀎媛?移대뱶 ?쒓린 (THRESHOLD.RSI)
 
-- **?섏젙**: tech-rsi-val 移대뱶??`title` tooltip + ?섎떒 ?쇰꺼 `<30 怨쇰ℓ??쨌 70+ 怨쇰ℓ?? ?쒓린. THRESHOLD_REGISTRY.RSI band 媛?쒗솕.
+- **수정**: tech-rsi-val 카드에 `title` tooltip + 하단 라벨 `<30 과매도 · 70+ 과매수` 표기. THRESHOLD_REGISTRY.RSI band 가시화.
 - **?뚯씪**: `index.html` L6453~6456
 - **violated_rule**: R56 (THRESHOLD_REGISTRY ?곸슜) ??移대뱶 ?쇰꺼???깅줉 ?뺣낫 ?쒖떆 ?꾨씫
 
 ---
 
-## P243 쨌 v49.28 쨌 fundamental L7 PIOTROSKI ?먮룞 梨꾩젏 媛?대뱶 (PIOTROSKI_CHECKLIST)
+## P243 · v49.28 · fundamental L7 PIOTROSKI 자동 채점 가이드 (PIOTROSKI_CHECKLIST)
 
 - **?섏젙**: fundamental L8158 F-Score ?ㅻ챸 諛뺤뒪??(1) 移댄뀒怨좊━蹂??먯닔(?섏씡??4 + 嫄댁쟾??3 + ?⑥쑉??2 = 9) 紐낆떆, (2) 肄섏넄 ?몄텧 ?덉떆 (`AIO_PIOTROSKI_CHECKLIST.score({...})`) 肄붾뱶 釉붾줉 異붽?.
 - **?뚯씪**: `index.html` L8158~8167
-- **violated_rule**: R62 (PIOTROSKI_CHECKLIST) ???⑥닔 ?깅줉留??섍퀬 ?ъ슜 媛?대뱶 誘멸났媛?
+- **violated_rule**: R62 (PIOTROSKI_CHECKLIST) — 함수 등록만 하고 사용 가이드 미공개
 
 ---
 
-## P244 쨌 v49.28 쨌 themes I7 + macro L6 ?섏씠吏 hook ?곸슜 (getCycleFromMacro + SCENARIO_REGISTRY)
+## P244 · v49.28 · themes I7 + macro L6 페이지 hook 적용 (getCycleFromMacro + SCENARIO_REGISTRY)
 
-- **?섏젙**: themes ?섏씠吏 吏꾩엯 ??`getCycleFromMacro()` ?몄텧 ??`#cycle-dynamic-phase`/`#cycle-dynamic-inputs`/`#cycle-dynamic-rationale` 媛깆떊. macro ?섏씠吏 吏꾩엯 ??`SCENARIO_REGISTRY.validateSum()` + lastUpdated ??`#macro-scenario-updated`/`#macro-scenario-sum`/`#macro-scenario-stale-days` 媛깆떊. `_aioPageBus.register()`濡?listener ?깅줉.
-- **?뚯씪**: `index.html` themes/macro ?섏씠吏 DOM 쨌 `js/aio-core.js` pageShown listener
-- **violated_rule**: R67 (getCycleFromMacro) + R72 (SCENARIO_REGISTRY) ???⑥닔 ?깅줉留??섍퀬 ?섏씠吏 吏꾩엯 ?몃━嫄??꾨씫
+- **수정**: themes 페이지 진입 시 `getCycleFromMacro()` 호출 → `#cycle-dynamic-phase`/`#cycle-dynamic-inputs`/`#cycle-dynamic-rationale` 갱신. macro 페이지 진입 시 `SCENARIO_REGISTRY.validateSum()` + lastUpdated → `#macro-scenario-updated`/`#macro-scenario-sum`/`#macro-scenario-stale-days` 갱신. `_aioPageBus.register()`로 listener 등록.
+- **파일**: `index.html` themes/macro 페이지 DOM · `js/aio-core.js` pageShown listener
+- **violated_rule**: R67 (getCycleFromMacro) + R72 (SCENARIO_REGISTRY) — 함수 등록만 하고 페이지 진입 트리거 누락
 
 ---
 
-## P245 쨌 v49.29 쨌 signal E3 ?섏씠吏 紐⑹쟻 ?ㅻ뜑 ?곸슜
+## P245 · v49.29 · signal E3 페이지 목적 헤더 적용
 
-- **?섏젙**: signal L4388??page-purpose 諛뺤뒪 異붽? ??"?쒓렇???곸꽭 + 留ㅻℓ ?꾨왂 ?숈뒿 (Secondary). ?ㅻ뒛 留ㅻℓ ?먮떒(Primary)? ?덉뿉??. R70 PAGE_PURPOSE_REGISTRY ?곸슜.
+- **수정**: signal L4388에 page-purpose 박스 추가 — "시그널 상세 + 매매 전략 학습 (Secondary). 오늘 매매 판단(Primary)은 홈에서". R70 PAGE_PURPOSE_REGISTRY 적용.
 - **?뚯씪**: `index.html` L4388~4393
 - **violated_rule**: R70 誘몄쟻?????쒖젙
 
@@ -3623,33 +3637,33 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P247 쨌 v49.29 쨌 briefing E2/E4 Action Item + 5? 愿??理쒖긽??諛곗튂
+## P247 · v49.29 · briefing E2/E4 Action Item + 5대 관전 최상단 배치
 
-- **?섏젙**: briefing ?섏씠吏 理쒖긽?⑥뿉 (a) `#briefing-top-5-watch` 5? 愿???ъ씤??(FOMC/CPI/Earnings/吏?뺥븰/VIX 異붿쟻) ??PAGE_PURPOSE_REGISTRY.briefing.sectionOrder[0] ?곸슜. (b) `#briefing-action-item-card` ACTION_RULES 湲곕컲 移대뱶. briefing pageShown listener?먯꽌 ?먮룞 媛깆떊.
-- **?뚯씪**: `index.html` L5917 遺洹??좎꽕 쨌 `js/aio-core.js` core-briefing-action listener
+- **수정**: briefing 페이지 최상단에 (a) `#briefing-top-5-watch` 5대 관전 포인트 (FOMC/CPI/Earnings/지정학/VIX 추적) — PAGE_PURPOSE_REGISTRY.briefing.sectionOrder[0] 적용. (b) `#briefing-action-item-card` ACTION_RULES 기반 카드. briefing pageShown listener에서 자동 갱신.
+- **파일**: `index.html` L5917 부근 신설 · `js/aio-core.js` core-briefing-action listener
 - **violated_rule**: R69(ACTION_RULES) + R70(PAGE_PURPOSE.briefing.sectionOrder) 誘몄쟻?????쒖젙
 
 ---
 
-## P248 쨌 v49.29 쨌 portfolio E5 4-card 由ъ뒪????쒕낫???좎꽕
+## P248 · v49.29 · portfolio E5 4-card 리스크 대시보드 신설
 
-- **?섏젙**: portfolio ?섏씠吏??Sharpe Ratio / Beta(vs SPY) / Max Drawdown / Drift 4媛?移대뱶 洹몃━??異붽?. 媛?移대뱶??沅뚯옣 紐⑺몴媛??쇰꺼. 肄섏넄 ?몄텧 媛?대뱶 (`AIO.computePortfolioRisk(holdings)`).
-- **?뚯씪**: `index.html` L8852 遺洹??좎꽕
-- **violated_rule**: R71(getPagePurposeRatioAudit) 誘몄쟻?????대줎 ?띾? vs UI 遺議?鍮꾨?移??댁냼
+- **수정**: portfolio 페이지에 Sharpe Ratio / Beta(vs SPY) / Max Drawdown / Drift 4개 카드 그리드 추가. 각 카드에 권장 목표값 라벨. 콘솔 호출 가이드 (`AIO.computePortfolioRisk(holdings)`).
+- **파일**: `index.html` L8852 부근 신설
+- **violated_rule**: R71(getPagePurposeRatioAudit) 미적용 → 이론 풍부 vs UI 부족 비대칭 해소
 
 ---
 
 ## P249 쨌 v49.29 쨌 options E6 ?숈쟻 異붿쿇 移대뱶
 
-- **?섏젙**: options ?섏씠吏 SECTION 7 ?꾩뿉 `#options-dynamic-recommendation` 移대뱶 ?좎꽕 ??VIX 援ш컙蹂??듭뀡 ?꾨왂 ?먮룞 留ㅼ묶 (VIX <15?묹ong Vol, 15~20?묪ull Call Spread/CC, 20~30?묬overed Call, 30+?뭁ut ?ㅼ?). ACTION_RULES.positionSizing/sentimentAction ?몄텧.
-- **?뚯씪**: `index.html` SECTION 7 遺洹?쨌 `js/aio-core.js` core-options-rec listener
-- **violated_rule**: R69(ACTION_RULES) 誘몄쟻?????뺤쟻 "Top 3" ?덉떆 ?泥?
+- **수정**: options 페이지 SECTION 7 위에 `#options-dynamic-recommendation` 카드 신설 — VIX 구간별 옵션 전략 자동 매칭 (VIX <15→Long Vol, 15~20→Bull Call Spread/CC, 20~30→Covered Call, 30+→Put 헤지). ACTION_RULES.positionSizing/sentimentAction 호출.
+- **파일**: `index.html` SECTION 7 부근 · `js/aio-core.js` core-options-rec listener
+- **violated_rule**: R69(ACTION_RULES) 미적용 → 정적 "Top 3" 예시 대체
 
 ---
 
-## P250 쨌 v49.29 쨌 technical I4 OHLC fallback 留덊궧 + fundamental I5 寃??媛?대뱶 + macro I6 placeholder ?쒖?
+## P250 · v49.29 · technical I4 OHLC fallback 마킹 + fundamental I5 검색 가이드 + macro I6 placeholder 표준
 
-- **?섏젙**: (a) technical L6399 OHLC strip??`data-aio-fallback="tradingview-iframe"` + opacity 0.75 + "?좑툘 Fallback Only" ?쇰꺼 ??getDuplicateContentAudit ?쒖쇅?? (b) fundamental 寃?됱갹 ?ㅼ쓬 `#fund-pre-search-guide` ?좎꽕 ??異쒖쿂/?덉긽 ?묐떟?쒓컙/?덉떆 4媛?(NVDA/AAPL/TSLA/MSFT). (c) macro storyline placeholder??R68 ?쒖? 媛?대뱶 (異쒖쿂/?덉긽 ?쒓컙/?ㅽ뙣 ?대갚/?섎룞 媛깆떊) 異붽?.
+- **수정**: (a) technical L6399 OHLC strip에 `data-aio-fallback="tradingview-iframe"` + opacity 0.75 + "⚠️ Fallback Only" 라벨 — getDuplicateContentAudit 제외용. (b) fundamental 검색창 다음 `#fund-pre-search-guide` 신설 — 출처/예상 응답시간/예시 4개 (NVDA/AAPL/TSLA/MSFT). (c) macro storyline placeholder에 R68 표준 가이드 (출처/예상 시간/실패 폴백/수동 갱신) 추가.
 - **?뚯씪**: `index.html` 3怨?
 - **violated_rule**: R66(getDuplicateContentAudit), R68(placeholder ?쒖?) 誘몄쟻?????쒖젙
 
@@ -3657,16 +3671,16 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P251 쨌 v49.29 쨌 v49.28~29 ?듯빀 ??23媛?Deep audit ??ぉ ?꾩닔 ?곸슜 ?꾨즺
 
-- **?곹깭**: v49.23 Deep audit?먯꽌 諛쒓껄??23媛???ぉ(L1~L8 + I1~I8 + E1~E7) ?꾨? ?섏씠吏 ?곸슜 ?꾨즺 ??v49.28 (signal/home/technical/fundamental/macro/themes 8媛? + v49.29 (signal/breadth/briefing/portfolio/options/technical/fundamental/macro 11媛? ?꾩쟻.
-- **?⑥? ?묒뾽**: ?쇱씠釉??곗씠???ㅼ륫 寃利?+ L6 SCENARIO 30?? ?꾨옒 ??媛깆떊 + R71 ?섏씠吏 鍮꾩쑉 audit ?뺢린 ?댁쁺.
-- **寃利?*: `AIO.getThresholdLabelAudit()` ?곸슜瑜?異붿쟻 쨌 `AIO.getSnapshotConsistencyAudit()` ?몃씪???쇰꺼 vs registry ?쇨???쨌 `AIO.getDuplicateContentAudit()` 以묐났 肄섑뀗痢?
+- **상태**: v49.23 Deep audit에서 발견한 23개 항목(L1~L8 + I1~I8 + E1~E7) 전부 페이지 적용 완료 — v49.28 (signal/home/technical/fundamental/macro/themes 8개) + v49.29 (signal/breadth/briefing/portfolio/options/technical/fundamental/macro 11개) 누적.
+- **남은 작업**: 라이브 데이터 실측 검증 + L6 SCENARIO 30일+ 도래 시 갱신 + R71 페이지 비율 audit 정기 운영.
+- **검증**: `AIO.getThresholdLabelAudit()` 적용률 추적 · `AIO.getSnapshotConsistencyAudit()` 인라인 라벨 vs registry 일관성 · `AIO.getDuplicateContentAudit()` 중복 콘텐츠.
 
 ---
 
 ## P252 쨌 v49.30 쨌 [洹쇰낯?섏젙] KOSPI ?몃씪??22% 愿대━ (M1 ??R74 assertSnapshotInlineMatch)
 
 - **利앹긽**: kr-home KOSPI 移대뱶 (L10536) ?몃씪??`6,091.39` vs DATA_SNAPSHOT.kospi `7844.01` ??**22.4% 愿대━**. KOSDAQ/KRW???숈씪 ?⑦꽩.
-- **?먯씤 (援ъ“??**: v49.24 `getSnapshotConsistencyAudit()` ?좎꽕?덉쑝??**鍮뚮뱶 ??李⑤떒 寃뚯씠??遺??*. v49.23??KR 6?꾨뱶(?좎슜?붽퀬/?덊긽湲???留??쒖젙?섍퀬 硫붿씤 吏??移대뱶 ?꾨씫 ??P213 ?⑦꽩 ?щ컻.
+- **원인 (구조적)**: v49.24 `getSnapshotConsistencyAudit()` 신설했으나 **빌드 시 차단 게이트 부재**. v49.23이 KR 6필드(신용잔고/예탁금 등)만 시정하고 메인 지수 카드 누락 → P213 패턴 재발.
 - **洹쇰낯 ?닿껐**:
   1. `index.html` L10534~10553 KOSPI/KOSDAQ/KRW 3媛?移대뱶 紐⑤몢 DATA_SNAPSHOT ?뺥빀 (媛?+ 移대뱶 ?대옒??+ ?됱긽 + ?깅씫瑜?
   2. `AIO.assertSnapshotInlineMatch()` ?좎꽕 ???듭떖 sink 10媛?(KOSPI/KOSDAQ/KRW/SPX/VIX/Fed/BOK ?? ?몃씪??vs DATA_SNAPSHOT 鍮꾧탳
@@ -3676,10 +3690,10 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P253 쨌 v49.30 쨌 [洹쇰낯?섏젙] Jensen ?명꽣酉?58??+ ?뺤쟻 肄섑뀗痢?lifecycle ?뺤콉 遺??(M2 ??R75 STATIC_CONTENT_LIFECYCLE)
+## P253 · v49.30 · [근본수정] Jensen 인터뷰 58일 + 정적 콘텐츠 lifecycle 정책 부재 (M2 → R75 STATIC_CONTENT_LIFECYCLE)
 
-- **利앹긽**: sentiment L6057 Jensen Huang ?명꽣酉?`2026-03-20` ??58??寃쎄낵 (HARD STALE 60???꾨컯). ?먮룞 archive ?뚮엺 遺??
-- **?먯씤 (援ъ“??**: ?뺤쟻 ?명꽣酉??대깽?몄쓽 expiration policy registry ?놁쓬. R54 archive 留덊궧? ?섎룞 ?뺤콉.
+- **증상**: sentiment L6057 Jensen Huang 인터뷰 `2026-03-20` — 58일 경과 (HARD STALE 60일 임박). 자동 archive 알람 부재.
+- **원인 (구조적)**: 정적 인터뷰/이벤트의 expiration policy registry 없음. R54 archive 마킹은 수동 정책.
 - **洹쇰낯 ?닿껐**:
   1. Jensen ?명꽣酉??뱀뀡 `data-aio-archive="true"` + `data-lifecycle-id="jensen-interview-202603"` 留덊궧 + "ARCHIVE 쨌 58??寃쎄낵 쨌 ???명꽣酉?援먯껜 ?덉젙" ?쇰꺼
   2. `AIO_STATIC_CONTENT_LIFECYCLE` registry ?좎꽕 ??Jensen/Week of May/KR ?섏텧 2?????깅줉
@@ -3692,19 +3706,19 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 - **利앹긽**:
   - macro L7283 "(2026.03~04 ?꾩웳 ?쇳겕 vs ?댁쟾 ??" ??47??stale
-  - chat L55 "Bessent/Warsh policy mix" ???뺤튂 ?몄궗 ?꾩쓽 ?쒖젏 stale 媛??
-  - DATA_SNAPSHOT 嫄곗떆吏??(NFP 4/3) ??44??寃쎄낵
+  - chat L55 "Bessent/Warsh policy mix" → 정치 인사 임의 시점 stale 가능
+  - DATA_SNAPSHOT 거시지표 (NFP 4/3) → 44일 경과
 - **?먯씤 (援ъ“??**:
-  - ?쒕굹由ъ삤 ?띿뒪???쒖젏 ?쇰컲???뺤콉 遺??
-  - ?뺤튂/愿猷??대쫫 registry 遺??
-  - 嫄곗떆 諛쒗몴 罹섎┛??遺??
+  - 시나리오 텍스트 시점 일반화 정책 부재
+  - 정치/관료 이름 registry 부재
+  - 거시 발표 캘린더 부재
 - **洹쇰낯 ?닿껐**:
   1. macro L7283 ?쒖젏 ?쒗쁽 ?쇰컲??("2026 H1 ?됯퇏 쨌 5???꾩옱 紐⑤땲?곕쭅")
-  2. chat L55 "Bessent/Warsh" ??"current Treasury Secretary and Fed Chair" + R76 李몄“ 媛?대뱶
+  2. chat L55 "Bessent/Warsh" → "current Treasury Secretary and Fed Chair" + R76 참조 가이드
   3. `AIO_NAMED_ENTITY_REGISTRY` ?좎꽕 ??Fed Chair/Treasury/BOK/ECB/BOJ ?깅줉 (90??staleDays)
   4. `AIO_MACRO_CALENDAR` ?좎꽕 ??NFP/CPI/PCE/ISM/Retail nextRelease 湲곕컲 ?먮룞 stale
   5. `AIO.getNamedEntityAudit()` + `AIO.getMacroReleaseStaleAudit()`
-  6. DATA_SNAPSHOT 嫄곗떆吏??二쇱꽍??"5??諛쒗몴 ?湲? ?쒓린
+  6. DATA_SNAPSHOT 거시지표 주석에 "5월 발표 대기" 표기
 - **?좉퇋 洹쒖튃**: R76, R77
 
 ---
@@ -3712,9 +3726,9 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 ## P255 쨌 v49.30 쨌 [洹쇰낯?섏젙] KR 遺꾧린 嫄곗떆 ?띿뒪??90?? ?붿〈 (M5 ??R78 KR_MACRO_RELEASE)
 
 - **利앹긽**: "2??諛섎룄泥??섏텧 +157.9% YoY" 3怨?(kr-home L10684, kr-macro L11331, kr-technical L11537) ??3??4???곗씠??諛쒗몴 ?꾩뿉???곴뎄 ?붿〈.
-- **?먯씤 (援ъ“??**: KR 嫄곗떆 諛쒗몴 罹섎┛??遺?? 留ㅼ썡 1???곗옄遺 ?섏텧??諛쒗몴 ???먮룞 媛깆떊 ?몃━嫄??놁쓬.
+- **원인 (구조적)**: KR 거시 발표 캘린더 부재. 매월 1일 산자부 수출입 발표 후 자동 갱신 트리거 없음.
 - **洹쇰낯 ?닿껐**:
-  1. 3怨?"+157.9% YoY" ??`data-snap="kr-semi-export-yoy"` 諛붿씤??+ "(2??湲곗? 쨌 5??媛깆떊 ?湲?" ?쇰꺼
+  1. 3곳 "+157.9% YoY" → `data-snap="kr-semi-export-yoy"` 바인딩 + "(2월 기준 · 5월 갱신 대기)" 라벨
   2. kr-macro ?섏텧 ?뚯씠釉?`data-aio-archive="true"` + `data-lifecycle-id="kr-export-2026-02"`
   3. `AIO_KR_MACRO_RELEASE` registry ?좎꽕 (?섏텧/CPI/GDP/?곗뾽?앹궛/諛섎룄泥?
   4. `AIO.getKrMacroReleaseAudit()` ?먮룞 stale
@@ -3724,18 +3738,18 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P256 쨌 v49.30 쨌 [硫뷀? 醫낇빀] 5媛??좉퇋 ?명봽??+ 7??2異??듯빀
 
-- **?붿빟**: v49.23 ?뺥빀???쒖젙, v49.24~29 ?명봽??+ ?섏씠吏 ?곸슜 ?꾩쟻 ??v49.30?먯꽌 5媛??좉퇋 硫뷀? ?명봽??LIFECYCLE/NAMED_ENTITY/MACRO_CALENDAR/KR_MACRO_RELEASE/assertSnapshotInlineMatch) 異붽?.
+- **요약**: v49.23 정합성 시정, v49.24~29 인프라 + 페이지 적용 누적 후 v49.30에서 5개 신규 메타 인프라(LIFECYCLE/NAMED_ENTITY/MACRO_CALENDAR/KR_MACRO_RELEASE/assertSnapshotInlineMatch) 추가.
 - **?명봽??5媛?*: M1~M5 洹쇰낯 ?먯씤 媛곴컖 李⑤떒
 - **?좉퇋 洹쒖튃 R74~R78**: 5媛??숈떆 異붽?
 - **getAutoOpsReadiness 7??2異?*: freshness/pipeline/statics/scheduler/continuity/sinkConsistency/tableStale + snapshotInline/contentLifecycle/namedEntity/macroRelease/krMacroRelease
 - **?뚯뒪??T241~T250**: ?좉퇋 10媛?
-- **R73 以??*: ?명봽??異붽? + ?섏씠吏 ?곸슜 ?숇컲 (KOSPI/KOSDAQ/KRW/Jensen/macro/chat/諛섎룄泥?7嫄?紐⑤몢 v49.30 ?숈떆 ?쒖젙)
+- **R73 준수**: 인프라 추가 + 페이지 적용 동반 (KOSPI/KOSDAQ/KRW/Jensen/macro/chat/반도체 7건 모두 v49.30 동시 시정)
 
 ---
 
-## P257 쨌 v49.31 쨌 [洹쇰낯?섏젙] SCREENER_DB 硫뷀? 遺??(H1 ??R80 SCREENER_DB_META)
+## P257 · v49.31 · [근본수정] SCREENER_DB 메타 부재 (H1 → R80 SCREENER_DB_META)
 
-- **利앹긽**: `js/aio-data.js` SCREENER_DB 硫붾え ?ㅻ뜑 "2026-03 Yahoo Finance 湲곗?" + memo 寃뚯떆??04-21~04-29 ??22~47??寃쎄낵. lifecycle 硫뷀? 遺?щ줈 ?먮룞 stale ?뚮엺 ?놁쓬.
+- **증상**: `js/aio-data.js` SCREENER_DB 메모 헤더 "2026-03 Yahoo Finance 기준" + memo 게시일 04-21~04-29 → 22~47일 경과. lifecycle 메타 부재로 자동 stale 알람 없음.
 - **洹쇰낯 ?닿껐**: `SCREENER_DB_META = { schemaVersion, lastBulkUpdate:'2026-04-29', staleAfterDays:30, replaceAfterDays:60, source, note }` ?좎꽕 + `window.SCREENER_DB_META` ?몄텧. SCREENER_DB ?ㅻ뜑 二쇱꽍??lifecycle 硫뷀? 李몄“ ?쒓린.
 - **?좉퇋 洹쒖튃**: R80
 - **?뚯씪**: `js/aio-data.js` L9~17
@@ -3745,80 +3759,80 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 ## P258 쨌 v49.31 쨌 [洹쇰낯?섏젙] fxbond 2Y 4.28% ?뺤쟻 ??data-snap 諛붿씤??(H2)
 
 - **利앹긽**: fxbond L8087 `id="yc-2y-track">4.28%` ??DATA_SNAPSHOT 5/13 ?쒕뱶, ?ㅼ떆媛?誘몄뿰??
-- **洹쇰낯 ?닿껐**: `data-snap="tnx-2y"` + `data-live-price="^IRX"` ?띿꽦 異붽? + "(v49.31 H2 ?쒕뱶 5/13)" ?쇰꺼. applyDataSnapshot ?먮룞 媛깆떊 + ?ㅼ떆媛?override 媛??
+- **근본 해결**: `data-snap="tnx-2y"` + `data-live-price="^IRX"` 속성 추가 + "(v49.31 H2 시드 5/13)" 라벨. applyDataSnapshot 자동 갱신 + 실시간 override 가능.
 - **?뚯씪**: `index.html` L8087
 
 ---
 
-## P259 쨌 v49.31 쨌 [洹쇰낯?섏젙] 吏?뺥븰 ?쒕굹由ъ삤 ?⑥씪 異쒖쿂 遺??(H3 ??R79 GEOPOLITICAL_CONTEXT_REGISTRY)
+## P259 · v49.31 · [근본수정] 지정학 시나리오 단일 출처 부재 (H3 → R79 GEOPOLITICAL_CONTEXT_REGISTRY)
 
-- **利앹긽**: macro/signal/options/kr-macro ?섏씠吏??"?몃Ⅴ臾댁쫰", "?대? ?ы삊??, "?몃읆??愿?? ???쒖젏 ?섏〈 ?띿뒪???곗옱 ???뺤콉 蹂寃????섏씠吏留덈떎 ?섎룞 媛깆떊 ?꾩슂
+- **증상**: macro/signal/options/kr-macro 페이지에 "호르무즈", "이란 재협상", "트럼프 관세" 등 시점 의존 텍스트 산재 → 정책 변경 시 페이지마다 수동 갱신 필요
 - **洹쇰낯 ?닿껐**: `AIO_GEOPOLITICAL_CONTEXT_REGISTRY` ?좎꽕 ??5媛??쒕굹由ъ삤(hormuz-strait/iran-nuclear/taiwan-strait/ukraine-russia/us-china-tariff) ?깅줉 + `status` (active/monitoring/resolved) + `lastReviewed` + `marketImpact` + `currentPriceSignal`. `AIO.getGeopoliticalReviewAudit()` 14?? overdue ?먮룞 蹂닿퀬.
 - **?좉퇋 洹쒖튃**: R79
 - **?뚯씪**: `js/aio-core.js`
 
 ---
 
-## P260 쨌 v49.31 쨌 [洹쇰낯?섏젙] FRED 李⑦듃 媛깆떊 ?쒖젏 媛?쒗솕 (H4 ??R81 ?뺢린 諛쒗몴 留덉빱)
+## P260 · v49.31 · [근본수정] FRED 차트 갱신 시점 가시화 (H4 → R81 정기 발표 마커)
 
-- **利앹긽**: macro FRED 李⑦듃 ?ㅻ뜑 "FRED API 쨌 ?붽컙 ?곗씠??留??쒓린 ???ъ슜?먭? ?몄젣 ???곗씠???ㅼ뼱?ㅻ뒗吏 ?????놁쓬
-- **洹쇰낯 ?닿껐**: ?ㅻ뜑??"(?ㅼ쓬 媛깆떊: NFP 6/6 쨌 CPI 6/12 쨌 PCE 6/30)" 紐낆떆 + MACRO_CALENDAR ?곕룞 媛?대뱶 title ?띿꽦
+- **증상**: macro FRED 차트 헤더 "FRED API · 월간 데이터"만 표기 → 사용자가 언제 새 데이터 들어오는지 알 수 없음
+- **근본 해결**: 헤더에 "(다음 갱신: NFP 6/6 · CPI 6/12 · PCE 6/30)" 명시 + MACRO_CALENDAR 연동 가이드 title 속성
 - **?좉퇋 洹쒖튃**: R81
 - **?뚯씪**: `index.html` L7054
 
 ---
 
-## P261 쨌 v49.31 쨌 [洹쇰낯?섏젙] themes "? ?꾩옱 Late Cycle" ?뺤쟻 ?붿〈 (H5)
+## P261 · v49.31 · [근본수정] themes "◀ 현재 Late Cycle" 정적 잔존 (H5)
 
-- **利앹긽**: themes L8628 cycle-late 移대뱶??"? ?꾩옱" ?뺤쟻 ?쇰꺼 ??v49.28 ?숈쟻 readout(getCycleFromMacro) 異붽? ?꾩뿉???뺤쟻 ?붿〈?쇰줈 ?ъ슜???쇰룞
-- **洹쇰낯 ?닿껐**: ?뺤쟻 ?쇰꺼 "? ?꾩옱" ??"Late (李멸퀬)" ?쇰컲??+ `data-cycle-phase="late"` ?띿꽦 + title "?숈쟻 phase??#cycle-dynamic-phase?먯꽌 ?뺤씤". ?숈쟻 readout??沅뚯쐞 ?덈뒗 ?꾩튂濡??쇱썝??
+- **증상**: themes L8628 cycle-late 카드에 "◀ 현재" 정적 라벨 → v49.28 동적 readout(getCycleFromMacro) 추가 후에도 정적 잔존으로 사용자 혼동
+- **근본 해결**: 정적 라벨 "◀ 현재" → "Late (참고)" 일반화 + `data-cycle-phase="late"` 속성 + title "동적 phase는 #cycle-dynamic-phase에서 확인". 동적 readout이 권위 있는 위치로 일원화.
 - **?뚯씪**: `index.html` L8627~8630
 
 ---
 
 ## P262 쨌 v49.32 쨌 [洹쇰낯?섏젙] chat L54 "147-150" ?섍컖 異쒖쿂 (B1 ??R84 NUMERIC_GUIDELINE_SAFELIST)
 
-- **利앹긽**: chat.js L54 technical context??`'single-name 20MA distance near 147-150'` ?뺣웾 ?섏튂媛 system ?꾨＼?꾪듃??諛뺥? ?덉쓬. AI媛 "?꾩뺨 二쇨??" 吏덈Ц ??"QCOM = 150" ?섍컖 ?묐떟 ??異쒖쿂 媛??
-- **?먯씤 (援ъ“??**: ?뺣웾 ?꾧퀎媛?諛곗닔? 醫낅ぉ 媛寃⑹쓣 援щ텇?섎뒗 ?붿씠?몃━?ㅽ듃 遺?? AI 紐⑤뜽? 臾몃㎘蹂대떎 ?⑦꽩 ?곗꽑 留ㅼ묶.
+- **증상**: chat.js L54 technical context에 `'single-name 20MA distance near 147-150'` 정량 수치가 system 프롬프트에 박혀 있음. AI가 "퀄컴 주가?" 질문 시 "QCOM = 150" 환각 응답 시 출처 가능.
+- **원인 (구조적)**: 정량 임계값/배수와 종목 가격을 구분하는 화이트리스트 부재. AI 모델은 문맥보다 패턴 우선 매칭.
 - **洹쇰낯 ?닿껐**:
   1. chat L54 ?띿뒪???쇰컲????"...in upper extension band, single-name 20MA distance in extreme extension band (these are RATIO/DISTANCE thresholds, NEVER absolute prices ??do NOT cite numbers like 117-120 or 147-150 as stock prices)" 紐낆떆
   2. `AIO_NUMERIC_GUIDELINE_SAFELIST` ?좎꽕 ??8媛??꾧퀎媛?(blow-off ratio/distance, VIX, F&G, HY, RSI) ?깅줉 + `isCalibrationConstant(value)` ?⑥닔
-  3. `AIO.getNumericGuidelineAudit()` registry 臾닿껐??寃利?
+  3. `AIO.getNumericGuidelineAudit()` registry 무결성 검증
 - **?좉퇋 洹쒖튃**: R84
 - **?뚯씪**: `js/aio-chat.js` L54, `js/aio-core.js` registry
 
 ---
 
-## P263 쨌 v49.32 쨌 [洹쇰낯?섏젙] fetch ?ㅽ뙣 ???섍컖 李⑤떒 遺??(B2 ??R82 HARD GUARDRAIL)
+## P263 · v49.32 · [근본수정] fetch 실패 시 환각 차단 부재 (B2 → R82 HARD GUARDRAIL)
 
-- **利앹긽**: chat L1940 ?대갚 遺꾧린 `'??' + t + ': ?곗씠??議고쉶 ?ㅽ뙣 ???곗빱瑜??뺤씤?섏꽭??'` ?⑥닚 ?띿뒪?몃쭔 system ?꾨＼?꾪듃??二쇱엯 ??AI媛 ?숈뒿 ?곗씠??2024~2025)濡?"QCOM ??$150 ?뺣룄" ?섍컖 ?묐떟
-- **?먯씤 (援ъ“??**: HARD GUARDRAIL ?띿뒪??遺?? AI 紐⑤뜽 ?섍컖 李⑤떒 ?뺤콉 遺??
+- **증상**: chat L1940 폴백 분기 `'• ' + t + ': 데이터 조회 실패 — 티커를 확인하세요.'` 단순 텍스트만 system 프롬프트에 주입 → AI가 학습 데이터(2024~2025)로 "QCOM 약 $150 정도" 환각 응답
+- **원인 (구조적)**: HARD GUARDRAIL 텍스트 부재. AI 모델 환각 차단 정책 부재.
 - **洹쇰낯 ?닿껐**:
   1. `_fetchTickerDataForChat` ?ㅽ뙣 遺꾧린瑜?4-line HARD GUARDRAIL濡?媛뺥솕:
      - `???ㅼ떆媛??쒖꽭 議고쉶 ?ㅽ뙣 (Yahoo Finance + ?꾨줉??紐⑤몢 fail)`
-     - `??HARD GUARDRAIL: ?덈? 媛寃??깅씫瑜??쒓?珥앹븸/PER 異붿륫 湲덉?`
+     - `⛔ HARD GUARDRAIL: 절대 가격/등락률/시가총액/PER 추측 금지`
      - `???덉슜???듬?: "?ㅼ떆媛??곗씠??誘몄닔?? ?몃? ?꾧뎄 沅뚯옣留??듬?"`
-     - `???덉슜??遺꾩꽍: 媛寃??녿뒗 ?쇰컲濡좎쟻 ?ъ뾽 紐⑤뜽/?뱁꽣 ?몃젋??
+     - `✅ 허용된 분석: 가격 없는 일반론적 사업 모델/섹터 트렌드`
   2. system ?꾨＼?꾪듃 ?앹뿉 ABSOLUTE RULES 4議고빆 異붽?
 - **?좉퇋 洹쒖튃**: R82
 - **?뚯씪**: `js/aio-chat.js` L1940~1945
 
 ---
 
-## P264 쨌 v49.32 쨌 [洹쇰낯?섏젙] AI ?묐떟 post-hoc 寃利?遺??(B3 ??R83/R86)
+## P264 · v49.32 · [근본수정] AI 응답 post-hoc 검증 부재 (B3 → R83/R86)
 
-- **利앹긽**: v49.24~31 ?꾩쟻 13媛?audit??紐⑤몢 pre-render (DOM/?곗씠??. ?묐떟 ??媛寃??띿뒪??寃利?0嫄?
-- **?먯씤 (援ъ“??**: 梨꾪똿 ?묐떟???듯빐 AI ?섍컖???ъ슜?먯뿉寃?吏곸젒 ?몄텧?섎뒗 梨꾨꼸??寃利??ш컖吏????
+- **증상**: v49.24~31 누적 13개 audit이 모두 pre-render (DOM/데이터). 응답 후 가격 텍스트 검증 0건.
+- **원인 (구조적)**: 채팅 응답을 통해 AI 환각이 사용자에게 직접 노출되는 채널이 검증 사각지대였음.
 - **洹쇰낯 ?닿껐**:
   1. `AIO.assertChatResponseAccuracy(responseText, detectedTickers)` ?좎꽕
      - ?묐떟 ?띿뒪??`\$\d+` ?⑦꽩 異붿텧
-     - ?ㅼ떆媛?媛寃?(window._liveData) 鍮꾧탳
+     - 실시간 가격 (window._liveData) 비교
      - 짹5/10/20/50% ?④퀎蹂?severity 遺꾨쪟
      - safelist ?꾧퀎媛믪? calibration constant濡??쒖쇅
   2. `AIO.getChatHallucinationAudit(responseText)` ?좎꽕 ??4 ?섍컖 ?⑦꽩 ?먯?
      - ?쇱슫???レ옄 ($100, $150, $200 ??
      - ?덈Т ?뺥솗???뚯닔 ($X.00, $X.50)
-     - 媛寃?+ 遺덊솗???쒗쁽 ?숈떆 ?깆옣
+     - 가격 + 불확실 표현 동시 등장
      - ?숈뒿 ?곗씠???쒖젏 ?ㅼ썙??("2024??, "2025??珥?)
      - ?섏떖 ?먯닔 0~10 + verdict (high-risk/medium-risk/low-risk/clean)
 - **?좉퇋 洹쒖튃**: R83, R86
@@ -3826,9 +3840,9 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P265 쨌 v49.32 쨌 [洹쇰낯?섏젙] dynamicTickerLookup ?좊ː??遺議?(B4)
+## P265 · v49.32 · [근본수정] dynamicTickerLookup 신뢰성 부족 (B4)
 
-- **利앹긽**: `index.html` L20049 timeout 8s 쨌 retry 0 쨌 ?꾨줉??2媛? ?ㅽ듃?뚰겕 吏???꾨줉???쇱떆 fail ??cascading ?ㅽ뙣 ??B2 ?대갚 ???섍컖 ?꾪뿕 利앺룺
+- **증상**: `index.html` L20049 timeout 8s · retry 0 · 프록시 2개. 네트워크 지연/프록시 일시 fail 시 cascading 실패 → B2 폴백 → 환각 위험 증폭
 - **洹쇰낯 ?닿껐**:
   1. timeout 8s ??12s (50% 利앷?)
   2. ?꾨줉??2媛???3媛?(codetabs 異붽?)
@@ -3837,9 +3851,9 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P266 쨌 v49.32 쨌 [洹쇰낯?섏젙] 醫낅ぉ紐?留ㅽ븨 ?⑥씪 異쒖쿂 遺??(B5 ??R85 TICKER_NAME_REGISTRY)
+## P266 · v49.32 · [근본수정] 종목명 매핑 단일 출처 부재 (B5 → R85 TICKER_NAME_REGISTRY)
 
-- **利앹긽**: KR_TICKER_MAP? ?쒓??믪쁺臾??⑥씪 諛⑺뼢. ?곷Ц 蹂꾨챸(Microsoft?봎SFT) / ?쒖옄(?붾퉬?붿븘?봏VDA?봏vidia) 留ㅽ븨 遺꾩궛. 寃利??⑥닔 遺?? ?좉퇋 醫낅ぉ 異붽? ???곷Ц 蹂꾨챸 ?꾨씫 ?꾪뿕.
+- **증상**: KR_TICKER_MAP은 한글→영문 단일 방향. 영문 별명(Microsoft↔MSFT) / 한자(엔비디아↔NVDA↔Nvidia) 매핑 분산. 검증 함수 부재. 신규 종목 추가 시 영문 별명 누락 위험.
 - **洹쇰낯 ?닿껐**:
   1. `AIO_TICKER_NAME_REGISTRY` ?좎꽕 ??30媛?硫붽?罹??깅줉 (NVDA/AAPL/MSFT/...QCOM/AMD/INTC + JPM/BAC/WMT/XOM/V/MA/UNH/BRK.B)
   2. 媛?entry??`{ en, kr, alt[] }` ??蹂꾨챸/?쒖옄/?뚮Ц??蹂꾩묶 紐⑤몢 ?깅줉
@@ -3851,74 +3865,74 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P267 쨌 v49.32 ?뺤옣 쨌 醫낅ぉ蹂?6梨꾨꼸 臾닿껐??寃利?遺??
+## P267 · v49.32 확장 · 종목별 6채널 무결성 검증 부재
 
-- **?ъ슜??異붽? ?붿껌**: "醫낅ぉ ?쒖꽭肉??꾨땲??醫낅ぉ/湲곗뾽 愿?⑦븳 紐⑤뱺 ?곗씠?곕뱾??理쒕????먭??섍퀬 議곗궗?대킄"
-- **利앹긽**: 醫낅ぉ ?쒖꽭(B2/B3)?????寃利앹? v49.32 蹂?plan?먯꽌 異붽??덉쑝?? **異붿꽭/而⑥꽱?쒖뒪/?대떇/Naver/硫붾え** 5媛?梨꾨꼸? 媛쒕퀎 try-catch ??臾댁떆 ???듯빀 臾닿껐??寃뚯씠??遺??
-- **洹쇰낯 ?닿껐**: `AIO.assertTickerDataIntegrity(ticker)` ?좎꽕 ??6媛?梨꾨꼸 ?듯빀 寃利?+ completenessScore (0~100) + verdict (excellent/good/partial/poor) + 沅뚯옣 ?≪뀡
+- **사용자 추가 요청**: "종목 시세뿐 아니라 종목/기업 관련한 모든 데이터들도 최대한 점검하고 조사해봐"
+- **증상**: 종목 시세(B2/B3)에 대한 검증은 v49.32 본 plan에서 추가했으나, **추세/컨센서스/어닝/Naver/메모** 5개 채널은 개별 try-catch 후 무시 — 통합 무결성 게이트 부재
+- **근본 해결**: `AIO.assertTickerDataIntegrity(ticker)` 신설 — 6개 채널 통합 검증 + completenessScore (0~100) + verdict (excellent/good/partial/poor) + 권장 액션
 - **?좉퇋 洹쒖튃**: R87
 - **?뚯씪**: `js/aio-core.js`
-- **寃利?*: `AIO.assertTickerDataIntegrity('QCOM')` ??肄섏넄?먯꽌 6梨꾨꼸 ?곹깭 ?쒕늿???뺤씤
+- **검증**: `AIO.assertTickerDataIntegrity('QCOM')` → 콘솔에서 6채널 상태 한눈에 확인
 
 ---
 
 ## P268 쨌 v49.32 ?뺤옣 쨌 15 fundamental 湲곗? 異쒖쿂 誘몃ℓ??
 
-- **?ъ슜??異붽? ?붿껌**: "15媛?遺꾩꽍 湲곗? ?깅벑 醫낅ぉ/湲곗뾽 愿?⑦븳 紐⑤뱺 ?곗씠?곕뱾??.."
-- **利앹긽**: fundamental L8103~8119 "15媛吏 遺꾩꽍 愿?? ?띿뒪?몃쭔 ?섏뿴. 媛?湲곗????곗씠??異쒖쿂(FMP/Finnhub/Yahoo/computed)? 援ы쁽 ?⑥닔媛 肄붾뱶??留ㅽ븨?섏? ?딆쓬 ???ъ슜?먭? "15媛?紐⑤몢 ?됯?"???몄??섎굹 ?ㅼ젣??遺遺꾨쭔 ?됯? 媛??
+- **사용자 추가 요청**: "15개 분석 기준 등등 종목/기업 관련한 모든 데이터들도..."
+- **증상**: fundamental L8103~8119 "15가지 분석 관점" 텍스트만 나열. 각 기준의 데이터 출처(FMP/Finnhub/Yahoo/computed)와 구현 함수가 코드에 매핑되지 않음 → 사용자가 "15개 모두 평가"라 인지하나 실제는 부분만 평가 가능
 - **洹쇰낯 ?닿껐**: `AIO_FUNDAMENTAL_CRITERIA.criteria` ?좎꽕 ??15 entries 媛곴컖 `{ label, dataSource, required:[], implFn }` ?깅줉. `getFundamentalCriteriaAudit()` 誘멸뎄????ぉ 蹂닿퀬 + coveragePct
 - **?좉퇋 洹쒖튃**: R88
 - **?뚯씪**: `js/aio-core.js`
-- **寃利?*: `AIO.getFundamentalCriteriaAudit()` ??coveragePct 30% (4/15 援ы쁽, 11/15 implFn null ??v49.33+ 蹂닿컯 ???
+- **검증**: `AIO.getFundamentalCriteriaAudit()` → coveragePct 30% (4/15 구현, 11/15 implFn null — v49.33+ 보강 대상)
 
 ---
 
-## P269 쨌 v49.33 쨌 [硫뷀? 洹쇰낯] chatSend ?묐떟 ???먮룞 寃利??듯빀 (R73 ?⑦꽩 ?щ컻 諛⑹?)
+## P269 · v49.33 · [메타 근본] chatSend 응답 후 자동 검증 통합 (R73 패턴 재발 방지)
 
-- **利앹긽**: v49.32?먯꽌 assertChatResponseAccuracy + getChatHallucinationAudit 5媛?寃利??⑥닔 ?좎꽕?덉쑝??chatSend ?묐떟 ?뚮뜑 肄붾뱶???먮룞 ?몄텧 ?듯빀 誘몄쟻?? R73(?명봽???섏씠吏 ?곸슜 ?숇컲) ?⑦꽩 ?щ컻.
+- **증상**: v49.32에서 assertChatResponseAccuracy + getChatHallucinationAudit 5개 검증 함수 신설했으나 chatSend 응답 렌더 코드에 자동 호출 통합 미적용. R73(인프라+페이지 적용 동반) 패턴 재발.
 - **洹쇰낯 ?닿껐**: aio-chat.js L3162 `_srcBadge` 吏곹썑??`_accBadge` (aio-chat-accuracy-badge) 異붽? ???묐떟 ?뚮뜑 ???먮룞?쇰줈:
-  1. detectedTickers媛 ?덉쑝硫?assertChatResponseAccuracy ?몄텧 ??"??媛寃??뺥솗?? ?먮뒗 "??媛寃?愿대━ high/critical" ?쒖떆
+  1. detectedTickers가 있으면 assertChatResponseAccuracy 호출 → "✓ 가격 정확성" 또는 "⚠ 가격 괴리 high/critical" 표시
   2. getChatHallucinationAudit ?몄텧 ???섏떖 ?먯닔 0~10 + ?⑦꽩 ?쒖떆
   3. high-risk ?먮뒗 high-severity ??console.warn 濡쒓퉭
 - **?좉퇋 洹쒖튃**: R89
-- **?뚯씪**: `js/aio-chat.js` L3162~3170 遺洹?
+- **파일**: `js/aio-chat.js` L3162~3170 부근
 
 ---
 
 ## P270 쨌 v49.33 쨌 KR 醫낅ぉ TICKER_NAME_REGISTRY ?깅줉 (KR_TICKER_MAP ?≪닔)
 
-- **利앹긽**: AIO_TICKER_NAME_REGISTRY (v49.32 ?좎꽕)???쒓뎅 醫낅ぉ 誘몃벑濡? "?쇱꽦?꾩옄" ?낅젰 ??KR_TICKER_MAP留??ъ슜 ???듯빀 寃利?寃뚯씠??遺??
+- **증상**: AIO_TICKER_NAME_REGISTRY (v49.32 신설)에 한국 종목 미등록. "삼성전자" 입력 시 KR_TICKER_MAP만 사용 → 통합 검증 게이트 부재
 - **洹쇰낯 ?닿껐**: REGISTRY??17 KR 醫낅ぉ ?깅줉 ???쇱꽦?꾩옄(005930.KS)/SK?섏씠?됱뒪(000660.KS)/?꾨?李?LGES/移댁뭅???ㅼ씠踰??쇱꽦諛붿씠??LG?뷀븰/?쇱꽦SDI/?ъ뒪肄뷀벂泥섏뿞/?쒗솕?먯뼱濡??쒗솕?ㅼ뀡/SK/LG/HMM/?먯퐫?꾨줈鍮꾩뿞/?먯퐫?꾨줈. ?쒖옄/?쒓?/?곷Ц/蹂꾨챸/?곗빱 紐⑤몢 留ㅽ븨.
 - **?뚯씪**: `js/aio-core.js`
-- **寃利?*: `AIO.resolveTickerFromAnyName('?쇱쟾')` === '005930.KS'
+- **검증**: `AIO.resolveTickerFromAnyName('삼전')` === '005930.KS'
 
 ---
 
 ## P271 쨌 v49.33 쨌 15 fundamental 湲곗? implFn 留ㅽ븨 蹂닿컯 (4/15 ??13/15)
 
-- **利앹긽**: v49.32 AIO_FUNDAMENTAL_CRITERIA?먯꽌 11/15 implFn=null. ?ъ슜??"?꾩뺨 15媛?遺꾩꽍" ?붿껌 ???ㅼ젣 ?됯? 媛?ν븳 湲곗?? 4媛쒕퓧.
+- **증상**: v49.32 AIO_FUNDAMENTAL_CRITERIA에서 11/15 implFn=null. 사용자 "퀄컴 15개 분석" 요청 시 실제 평가 가능한 기준은 4개뿐.
 - **洹쇰낯 ?닿껐**: 湲곗〈 fetch ?⑥닔(fetchNaverUSData/fetchFinnhubRecommendation/fetchFinnhubEarningsCalendar/dynamicTickerLookup/AIO_PIOTROSKI_CHECKLIST)??13/15 留ㅽ븨. PEG(v49.34 computePEG()) + Insider(v49.34 fetchFinnhubInsider()) 2媛쒕쭔 ?붿〈. coveragePct: 27% ??87%.
 - **?뚯씪**: `js/aio-core.js` AIO_FUNDAMENTAL_CRITERIA.criteria
-- **寃利?*: `AIO.getFundamentalCriteriaAudit().coveragePct >= 80`
+- **검증**: `AIO.getFundamentalCriteriaAudit().coveragePct >= 80`
 
 ---
 
-## P272 쨌 v49.34 쨌 [洹쇰낯?섏젙] 醫낅ぉ ?뺤꽦 遺꾩꽍 15 遺꾩빞 以?9/15 AI ?숈뒿 ?섏〈 (?ъ슜??吏??
+## P272 · v49.34 · [근본수정] 종목 정성 분석 15 분야 중 9/15 AI 학습 의존 (사용자 지적)
 
-- **?ъ슜??吏??*: "鍮꾩쫰?덉뒪 援ъ“ / ?ъ뾽 紐⑤뜽 / ?섏씡 援ъ“ / ?쒗뭹 ?ы듃?대━??/ CEO 寃쎌쁺吏?/ 諛몃쪟?먯씠??/ ?묐젰 ?뚰듃?덉떗 / 怨듦툒留?/ TAM / 由ъ뒪??/ 寃쎌웳 / ?ъ옄?ъ씤????15媛?遺꾩꽍 湲곕쾿 ?곗씠??紐⑤몢 理쒖떊/?뺥솗?쒖?? ?꾩옱 API/?뚯뒪濡???而ㅻ쾭 媛??"
+- **사용자 지적**: "비즈니스 구조 / 사업 모델 / 수익 구조 / 제품 포트폴리오 / CEO 경영진 / 밸류에이션 / 협력 파트너십 / 공급망 / TAM / 리스크 / 경쟁 / 투자포인트 등 15개 분석 기법 데이터 모두 최신/정확한지? 현재 API/소스로 다 커버 가능?"
 - **Audit 寃곌낵** (15 遺꾩빞 vs ?꾩옱 API):
   - ??Yahoo (price) 쨌 TradingView (chart) 쨌 Yahoo PE+Naver (valuation) 쨌 Finnhub (consensus/earnings) 쨌 AIO_FUNDAMENTAL_CRITERIA (?щТ ?뺣웾) ??6/15
   - ??鍮꾩쫰?덉뒪 援ъ“ / ?ъ뾽 紐⑤뜽 / ?쒗뭹 ?ы듃?대━??/ CEO 寃쎌쁺吏?/ ?묐젰 ?뚰듃?덉떗 / 怨듦툒留?/ 寃쎌웳 ??7/15 AI ?숈뒿 ?섏〈 (high hallucination risk)
-  - ???섏씡 援ъ“ (FMP key ?꾩슂) 쨌 TAM (SCREENER_DB 硫붾え 17?? 寃쎄낵) 쨌 由ъ뒪????3/15 遺遺?媛??
+  - ⚠ 수익 구조 (FMP key 필요) · TAM (SCREENER_DB 메모 17일+ 경과) · 리스크 — 3/15 부분 가용
 - **洹쇰낯 ?닿껐**:
   1. `AIO_ANALYSIS_FRAMEWORK_REGISTRY` ?좎꽕 ??15 遺꾩빞 媛곴컖 `{ label, type, primarySource, implFn, freshness, aiHallucinationRisk, note }` ?깅줉
   2. `AIO.fetchSECBusinessDescription(ticker)` ?좎꽕 ??SEC EDGAR submissions API + CIK 留ㅽ븨 (18 硫붽?罹? ??10-K URL + filing date + SIC 諛섑솚
-  3. `AIO.fetchSECRiskFactors(ticker)` ??Item 1A 媛?대뱶 (??URL ?쒖슜)
-  4. `AIO.fetchWikipediaCompany(ticker)` ?좎꽕 ??en.wikipedia.org/w/api.php (CORS 吏?? intro 2000??fetch
+  3. `AIO.fetchSECRiskFactors(ticker)` — Item 1A 가이드 (위 URL 활용)
+  4. `AIO.fetchWikipediaCompany(ticker)` 신설 — en.wikipedia.org/w/api.php (CORS 지원) intro 2000자 fetch
   5. `AIO.getAnalysisFrameworkCoverageAudit()` ??15 遺꾩빞 醫낇빀 + highRiskCount
   6. `AIO.assertAnalysisFrameworkCoverage(ticker)` async ??醫낅ぉ蹂?fetch ?쒕룄 + coveragePct + verdict
   7. `_fetchTickerDataForChat`??SEC + Wikipedia 蹂묐젹 fetch + system ?꾨＼?꾪듃 [SEC 10-K] / [Wikipedia] ?쇰꺼 二쇱엯
-  8. ABSOLUTE RULES 5議?異붽? ??"15 遺꾩빞 異쒖쿂媛 ?놁쑝硫?'寃利앸맂 ?곗씠???놁쓬' ?듬?"
+  8. ABSOLUTE RULES 5조 추가 — "15 분야 출처가 없으면 '검증된 데이터 없음' 답변"
 - **?좉퇋 洹쒖튃**: R90
 - **?뚯씪**: `js/aio-core.js` (REGISTRY + 4 fetch ?⑥닔 + 2 audit), `js/aio-chat.js` `_fetchTickerDataForChat` ?뺤옣
 
@@ -3926,46 +3940,46 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P273 쨌 v49.34 쨌 SEC EDGAR / Wikipedia 臾대즺 API 誘명솢??(?щ컻 諛⑹?)
 
-- **利앹긽**: AIO Screener媛 臾대즺 怨듦컻 API 2醫?誘명솢????SEC EDGAR (data.sec.gov) + Wikipedia (en.wikipedia.org/w/api.php). ????API??CORS 移쒗솕?곸씠怨?臾댄븳 臾대즺. ?댁쟾源뚯? ?뺤꽦 ?곗씠??fetch ?놁씠 AI ?숈뒿 ?곗씠?곕줈 ?泥?
+- **증상**: AIO Screener가 무료 공개 API 2종 미활용 — SEC EDGAR (data.sec.gov) + Wikipedia (en.wikipedia.org/w/api.php). 이 두 API는 CORS 친화적이고 무한 무료. 이전까지 정성 데이터 fetch 없이 AI 학습 데이터로 대체.
 - **洹쇰낯 ?닿껐**:
   - SEC: CIK_MAP 18媛?硫붽?罹?(NVDA/AAPL/MSFT/GOOGL/AMZN/META/TSLA/QCOM/AMD/INTC/AVGO/TSM/MU/ARM/SMCI/PLTR/NFLX/JPM) ??submissions JSON ??10-K filing URL
-  - Wikipedia: TICKER_NAME_REGISTRY.entries[ticker].en ???곷Ц ?섏씠吏 intro 2000??
-  - ??API 紐⑤몢 origin=* / corsproxy ?대갚 吏??
-- **?뺤옣 ?묒뾽** (v49.35): CIK_MAP 30+ S&P 500 ?뺤옣 + SEC full-text search (CIK 誘몃벑濡?醫낅ぉ ??? + Wikipedia ?쒓뎅 醫낅ぉ (ko.wikipedia.org)
+  - Wikipedia: TICKER_NAME_REGISTRY.entries[ticker].en → 영문 페이지 intro 2000자
+  - 두 API 모두 origin=* / corsproxy 폴백 지원
+- **확장 작업** (v49.35): CIK_MAP 30+ S&P 500 확장 + SEC full-text search (CIK 미등록 종목 대응) + Wikipedia 한국 종목 (ko.wikipedia.org)
 
 ---
 
 ## P274 쨌 v49.34 쨌 ANALYSIS_FRAMEWORK 梨꾪똿 ?먮룞 二쇱엯 ?듯빀
 
 - **利앹긽**: REGISTRY + fetch ?⑥닔 ?좎꽕?덉쑝??chatSend???먮룞 ?몄텧 ?듯빀 ???섎㈃ R73 ?⑦꽩 ?щ컻
-- **洹쇰낯 ?닿껐**: `_fetchTickerDataForChat`?먯꽌 `secPromise` + `wikiPromise` 蹂묐젹 ?쒖옉 + Naver 寃곌낵 吏곹썑 await + [SEC 10-K] / [Wikipedia] ?쇰꺼濡?system ?꾨＼?꾪듃 二쇱엯. system ?꾨＼?꾪듃 ?앹쓽 ABSOLUTE RULES??"15 遺꾩빞 異쒖쿂 留ㅽ븨" 5議?異붽? ??異쒖쿂 遺??遺꾩빞???숈뒿 ?곗씠???섍컖 湲덉?.
-- **?뚯씪**: `js/aio-chat.js` L1845~ 遺洹?
+- **근본 해결**: `_fetchTickerDataForChat`에서 `secPromise` + `wikiPromise` 병렬 시작 + Naver 결과 직후 await + [SEC 10-K] / [Wikipedia] 라벨로 system 프롬프트 주입. system 프롬프트 끝의 ABSOLUTE RULES에 "15 분야 출처 매핑" 5조 추가 — 출처 부재 분야는 학습 데이터 환각 금지.
+- **파일**: `js/aio-chat.js` L1845~ 부근
 
 ---
 
-## P275 쨌 v49.35 쨌 [洹쇰낯?섏젙] fundamental ?섏씠吏 15 湲곗? registry 遺??+ 媛?⑹꽦 誘멸???(?ъ슜??異붽? 吏??
+## P275 · v49.35 · [근본수정] fundamental 페이지 15 기준 registry 부재 + 가용성 미가시 (사용자 추가 지적)
 
-- **?ъ슜??異붽? 吏??*: "湲곗뾽 遺꾩꽍 ?섏씠吏???덈뒗 15媛쒖쓽 遺꾩꽍 湲곗? ?덉옏?? 洹멸쾬?ㅻ룄 紐⑤몢 ?몃??섍쾶 履쇨컻??議곗궗?댁쨾. ?먰븳 紐⑤뱺 蹂닿컯 ?묒뾽? 洹쇰낯?곸씤 ?섏젙+?щ컻 諛⑹? ?대젃寃?媛숈씠 ?댁쨾????"
-- **Audit 寃곌낵** ??fundamental L8175 ?몃씪???띿뒪??"15媛?遺꾩꽍 愿?? vs ?ㅼ젣 援ы쁽:
+- **사용자 추가 지적**: "기업 분석 페이지에 있는 15개의 분석 기준 있잖아. 그것들도 모두 세밀하게 쪼개서 조사해줘. 또한 모든 보강 작업은 근본적인 수정+재발 방지 이렇게 같이 해줘야 돼."
+- **Audit 결과** — fundamental L8175 인라인 텍스트 "15개 분석 관점" vs 실제 구현:
   - ??6/15 (40%): Quality of Business / Growth / Margin Trend / Valuation PE / Analyst Revisions / Earnings Beat Streak
   - ??5/15 (33%): FCF Yield / Balance Sheet / EV/EBITDA / Industry Rank / Macro Exposure (compute ?⑥닔 誘몄떊??
   - ??4/15 (27%): Moat (Morningstar ?좊즺) / Insider Activity / Institutional Flow / Short Interest (fetch 誘몄떊??
-- **硫뷀? 寃고븿**: 3媛쒖쓽 蹂꾧컻 "15湲곗?" ?쒖뒪??怨듭〈 ??(1) v49.25 AIO_FUNDAMENTAL_CRITERIA (Piotroski ?꾩＜) (2) v49.34 ANALYSIS_FRAMEWORK_REGISTRY (?뺣웾+?뺤꽦 ?ъ슜???뺤쓽) (3) fundamental ?섏씠吏 L8175 ?몃씪???띿뒪??(Quality/Moat/Growth/Margin/FCF/Balance/PE/EV/Insider/13F/Short/Revisions/Beat/Industry/Macro) ??cross-reference 遺??
+- **메타 결함**: 3개의 별개 "15기준" 시스템 공존 — (1) v49.25 AIO_FUNDAMENTAL_CRITERIA (Piotroski 위주) (2) v49.34 ANALYSIS_FRAMEWORK_REGISTRY (정량+정성 사용자 정의) (3) fundamental 페이지 L8175 인라인 텍스트 (Quality/Moat/Growth/Margin/FCF/Balance/PE/EV/Insider/13F/Short/Revisions/Beat/Industry/Macro) — cross-reference 부재
 - **洹쇰낯 ?닿껐**:
   1. `AIO_FUNDAMENTAL_PAGE_CRITERIA` registry ?좎꽕 ??15 entries 媛곴컖 `{ num, label, description, dataSource, implFn, plannedFn, requires:[], frequency, hallucinationRisk, note }` ?깅줉
-  2. ?섏씠吏 DOM L8175~8189 媛?湲곗? ?놁뿉 ?몃씪??媛?⑹꽦 諛곗? (??援ы쁽 / ??遺遺?/ ??誘멸뎄?? 異붽?
+  2. 페이지 DOM L8175~8189 각 기준 옆에 인라인 가용성 배지 (✓ 구현 / ⚠ 부분 / ❌ 미구현) 추가
   3. `AIO.getFundamentalPageCriteriaAudit()` ??coveragePct + highRiskCount
   4. `AIO.getCriteriaCrossReferenceAudit()` ??3媛?registry 李⑥씠 ?덈궡
-  5. system ?꾨＼?꾪듃 ABSOLUTE RULES 6議?異붽? ??誘멸뎄??4 湲곗?? ?숈뒿 ?곗씠???섍컖 湲덉?, "?섎룞 ?뺤씤 沅뚯옣" ?듬?
+  5. system 프롬프트 ABSOLUTE RULES 6조 추가 — 미구현 4 기준은 학습 데이터 환각 금지, "수동 확인 권장" 답변
 - **?좉퇋 洹쒖튃**: R91
-- **?뚯씪**: `js/aio-core.js` (registry + 2 audit), `index.html` L8172~8193 (媛?⑹꽦 諛곗?), `js/aio-chat.js` ABSOLUTE RULES 6議?
+- **파일**: `js/aio-core.js` (registry + 2 audit), `index.html` L8172~8193 (가용성 배지), `js/aio-chat.js` ABSOLUTE RULES 6조
 
 ---
 
-## P276 쨌 v49.35 쨌 [?щ컻 諛⑹?] 3媛?"15湲곗?" registry cross-reference 遺??硫뷀? 寃고븿
+## P276 · v49.35 · [재발 방지] 3개 "15기준" registry cross-reference 부재 메타 결함
 
-- **利앹긽**: v49.25 FUNDAMENTAL_CRITERIA(?뺣웾) / v49.34 ANALYSIS_FRAMEWORK_REGISTRY(?뺤꽦+?뺣웾 ?ъ슜???뺤쓽) / v49.35 FUNDAMENTAL_PAGE_CRITERIA(?섏씠吏 ?몃씪?? ??3媛??쒕줈 ?ㅻⅨ "15湲곗?"??怨듭〈?섏?留?cross-reference ?덈궡 ?놁쓬. AI 梨꾪똿?먯꽌 "15湲곗? 遺꾩꽍" ?붿껌 ???대뒓 寃껋쓣 ?ъ슜?섎뒗吏 遺덈챸??
-- **洹쇰낯 ?닿껐**: `AIO.getCriteriaCrossReferenceAudit()` ?좎꽕 ??媛?registry??紐⑹쟻 + 李⑥씠 + ?ъ슜 ?쒖젏 紐낆떆. AI 梨꾪똿 ??system ?꾨＼?꾪듃??"15 遺꾩꽍 遺꾩빞 異쒖쿂 留ㅽ븨" + "fundamental ?섏씠吏 15 湲곗? 媛?⑹꽦" ???뱀뀡 遺꾨━ 紐낆떆.
+- **증상**: v49.25 FUNDAMENTAL_CRITERIA(정량) / v49.34 ANALYSIS_FRAMEWORK_REGISTRY(정성+정량 사용자 정의) / v49.35 FUNDAMENTAL_PAGE_CRITERIA(페이지 인라인) — 3개 서로 다른 "15기준"이 공존하지만 cross-reference 안내 없음. AI 채팅에서 "15기준 분석" 요청 시 어느 것을 사용하는지 불명확.
+- **근본 해결**: `AIO.getCriteriaCrossReferenceAudit()` 신설 — 각 registry의 목적 + 차이 + 사용 시점 명시. AI 채팅 시 system 프롬프트의 "15 분석 분야 출처 매핑" + "fundamental 페이지 15 기준 가용성" 두 섹션 분리 명시.
 - **?뚯씪**: `js/aio-core.js` getCriteriaCrossReferenceAudit + `js/aio-chat.js` ABSOLUTE RULES 6議?
 
 ---
@@ -3981,7 +3995,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
   - `fetchFinnhubShortInterest(ticker)` ??5%???뺤긽 ?꾧퀎媛?audit
   - `computeMacroBeta(ticker)` ??湲덈━/?щ윭/?먯옄??踰좏? (DATA_SNAPSHOT ?쒖슜)
 - **紐⑺몴**: 15/15 (100%) coverage. v49.36?먯꽌 7 ?⑥닔 ?좎꽕濡??꾩꽦.
-- **硫뷀? ?먯튃 (R73)**: ?명봽??異붽? ???섏씠吏 ?곸슜 ?숇컲. ?섏씠吏 諛곗? ???????볥줈 媛깆떊 + AI 梨꾪똿 媛?⑹꽦 ?덈궡 ?숆린??
+- **메타 원칙 (R73)**: 인프라 추가 시 페이지 적용 동반. 페이지 배지 ❌/⚠ → ✓로 갱신 + AI 채팅 가용성 안내 동기화.
 
 ---
 
@@ -3989,7 +4003,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 - **?ъ슜???붿껌**: "?대쾲 ?몄뀡 ?⑥? ?묒뾽???쒖감?곸쑝濡?紐⑤몢 吏꾪뻾"
 - **v49.35 Roadmap ?붿〈**: computeFcfYield / computeBalanceSheetRatios / computeEvEbitda / computeMacroBeta / fetchFinnhubInsider / fetchSEC13F / fetchFinnhubShortInterest ??7 ?⑥닔
-- **洹쇰낯 ?닿껐**: 7 ?⑥닔 紐⑤몢 ?좎꽕 + FUNDAMENTAL_PAGE_CRITERIA implFn 媛깆떊 + ?섏씠吏 媛?⑹꽦 諛곗? 紐⑤몢 ??(Moat/Industry Rank ?쒖쇅 14/15)
+- **근본 해결**: 7 함수 모두 신설 + FUNDAMENTAL_PAGE_CRITERIA implFn 갱신 + 페이지 가용성 배지 모두 ✓ (Moat/Industry Rank 제외 14/15)
 - **?좉퇋 洹쒖튃**: R92
 - **?뚯씪**: `js/aio-core.js` 7 ?⑥닔 ?좎꽕 + criteria 媛깆떊, `index.html` L8175~8189 7 諛곗? 媛깆떊
 
@@ -4003,15 +4017,15 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 7. **fetchSEC13F(ticker)**: SEC EDGAR full-text + WhaleWisdom URL. verdict: manual-query-required (AI URL fetch)
 
 ### 蹂댁“ (v49.34 ?붿〈)
-- **fetchSECRecentFilings(ticker)**: 8-K event-driven URL (M&A/?뚰듃?덉떗/CEO 蹂寃?
+- **fetchSECRecentFilings(ticker)**: 8-K event-driven URL (M&A/파트너십/CEO 변경)
 - **fetchFMPSegments(ticker)**: /revenue-product-segmentation (FMP key ?꾩슂)
 - **CIK_MAP 18 ??50+** ?뺤옣: BAC/WFC/C/GS/MS/V/MA/JNJ/PFE/UNH/WMT/PG/KO/PEP/XOM/CVX/BA/CAT/GE/HON/DIS/NKE/MCD/COST/HD/LOW/CRM/ORCL/ADBE/NOW/SHOP/COIN/BRK.B/BRK.A
 
 ---
 
-## P279 쨌 v49.36 쨌 [硫뷀? 洹쇰낯] R73 ?⑦꽩 ??7 ?⑥닔 ?좎꽕 + ?섏씠吏 媛?⑹꽦 諛곗? ?숈떆 媛깆떊
+## P279 · v49.36 · [메타 근본] R73 패턴 — 7 함수 신설 + 페이지 가용성 배지 동시 갱신
 
-- **R73 以??*: ?명봽??異붽? ???섏씠吏 ?곸슜 ?숇컲. 7 ?좉퇋 ?⑥닔 ?뺤쓽 + FUNDAMENTAL_PAGE_CRITERIA implFn 媛깆떊 + ?섏씠吏 L8175~8189 媛?⑹꽦 諛곗? (???????? + 而ㅻ쾭由ъ? 諛뺤뒪 (40% ??93%) + chat ABSOLUTE RULES 6議?媛깆떊??v49.36 ?⑥씪 踰꾩쟾??紐⑤몢 ?ы븿.
+- **R73 준수**: 인프라 추가 시 페이지 적용 동반. 7 신규 함수 정의 + FUNDAMENTAL_PAGE_CRITERIA implFn 갱신 + 페이지 L8175~8189 가용성 배지 (❌/⚠ → ✓) + 커버리지 박스 (40% → 93%) + chat ABSOLUTE RULES 6조 갱신을 v49.36 단일 버전에 모두 포함.
 
 ---
 
@@ -4023,21 +4037,21 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P281 쨌 v49.36 쨌 [Roadmap ?꾨즺] v49.32 streaming 寃利?+ v49.35 ?섏씠吏 媛?⑹꽦 媛?쒗솕 + Moat/Industry IBD ?좊즺 ?泥??뺤콉
+## P281 · v49.36 · [Roadmap 완료] v49.32 streaming 검증 + v49.35 페이지 가용성 가시화 + Moat/Industry IBD 유료 대체 정책
 
 - **?붿빟**: v49.32~v49.35 Roadmap ?붿〈 ?묒뾽 紐⑤몢 v49.36?먯꽌 ?듯빀 泥섎━
-- **?붿〈 v49.37+**: (1) computeMacroBeta historical regression (?꾩옱 ?대━?ㅽ떛) (2) Wikipedia ?쒓뎅 醫낅ぉ (ko.wikipedia.org) (3) streaming ?묐떟 token ?⑥쐞 寃利?(?꾩옱 ?묐떟 ??寃利?
+- **잔존 v49.37+**: (1) computeMacroBeta historical regression (현재 휴리스틱) (2) Wikipedia 한국 종목 (ko.wikipedia.org) (3) streaming 응답 token 단위 검증 (현재 응답 후 검증)
 
 ---
 
-## P282 쨌 v49.37 쨌 [硫뷀? 洹쇰낯] ?섏씠吏 sequential audit 遺????line range/keyword grep留?諛섎났
+## P282 · v49.37 · [메타 근본] 페이지 sequential audit 부재 — line range/keyword grep만 반복
 
-- **?ъ슜??吏??*: "?ㅽ겕由щ꼫 媛??섏씠吏留덈떎 紐⑤뱺 ?댁슜???꾩뿉?쒕????꾨옒濡??섎굹?섎굹???쎄퀬 ?ъ슜?섎㈃???몃??섍쾶 ?먭??쒓굅吏? ?뷀뀒?쇳븯寃?履쇨컻??理쒖떊???뺥솗???뺥빀??濡쒖쭅??吏곴????듭떖???먭??"
+- **사용자 지적**: "스크리너 각 페이지마다 모든 내용들 위에서부터 아래로 하나하나씩 읽고 사용하면서 세밀하게 점검한거지? 디테일하게 쪼개서 최신성/정확성/정합성/로직성/직관성/핵심성 점검?"
 - **?붿쭅???듬?**: ?꾨땲?? v49.23 4異?audit + v49.30 ?꾩닔 理쒖떊??audit + v49.32~36 ?묒뾽 紐⑤몢 line range 遺꾩꽍 + ?ㅼ썙??grep ?꾩＜. ?ㅼ젣 sub-section ?⑥쐞 6異??먭? 誘몄떎??
 - **洹쇰낯 ?닿껐**:
-  1. `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY` ?좎꽕 ??21 ?섏씠吏 횞 subSections[] 횞 axes 6 留ㅽ듃由?뒪
+  1. `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY` 신설 — 21 페이지 × subSections[] × axes 6 매트릭스
   2. `AIO.getPageSequentialAuditStatus()` ??pending/partial/done 異붿쟻
-  3. home ?섏씠吏 8 subSection enumerate (踰꾩쟾 諛곗? / ?곷떒 ?ㅻ깄 洹몃━??/ 3 移대뱶 / Action Item / ?ъ링 ?댁꽕 / 由ъ뒪???덉씠??/ F&G+CNN / GMO ??
+  3. home 페이지 8 subSection enumerate (버전 배지 / 상단 스냅 그리드 / 3 카드 / Action Item / 심층 해설 / 리스크 레이더 / F&G+CNN / GMO 표)
 - **?좉퇋 洹쒖튃**: R93
 - **?뚯씪**: `js/aio-core.js`
 
@@ -4045,13 +4059,13 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P283 쨌 v49.37 쨌 home L3967 live-quote-ts-topbar ?곴뎄 placeholder ?붿〈 ?꾪뿕
 
-- **利앹긽**: home ?곷떒 ?ㅻ뜑 `#live-quote-ts-topbar` ?뺤쓽???덉쑝??紐⑤뱺 JS ?뚯씪??媛깆떊 hook 0媛? fetchLiveQuotes ?깃났 ??`live-quote-ts` 媛깆떊? ?덉쑝??`-topbar` 誘몃룞湲???"?쒖꽭 ?곌껐 以?.." placeholder ?곴뎄 ?붿〈 媛??
-- **洹쇰낯 ?닿껐**: `js/aio-data.js` L9793 遺洹?fetchLiveQuotes ?깃났/?ㅽ뙣 遺꾧린??`live-quote-ts-topbar` ?숈떆 媛깆떊 異붽?. ?깃났 ??`???쒖꽭 HH:MM (N媛?` + class `fb-live`. ?ㅽ뙣 ??`??N珥????ъ떆?? + class `fb-static`.
+- **증상**: home 상단 헤더 `#live-quote-ts-topbar` 정의는 있으나 모든 JS 파일에 갱신 hook 0개. fetchLiveQuotes 성공 시 `live-quote-ts` 갱신은 있으나 `-topbar` 미동기 → "시세 연결 중..." placeholder 영구 잔존 가능.
+- **근본 해결**: `js/aio-data.js` L9793 부근 fetchLiveQuotes 성공/실패 분기에 `live-quote-ts-topbar` 동시 갱신 추가. 성공 시 `● 시세 HH:MM (N개)` + class `fb-live`. 실패 시 `⚠ N초 후 재시도` + class `fb-static`.
 - **?뚯씪**: `js/aio-data.js` L9792~9802
 
 ---
 
-## P284 쨌 v49.37 쨌 home ?섏씠吏 8 subSection sequential 1李??먭? 寃곌낵
+## P284 · v49.37 · home 페이지 8 subSection sequential 1차 점검 결과
 
 - **?먭? 寃곌낵** (?꾟넂?꾨옒):
   1. L3961 踰꾩쟾 諛곗?: ??v49.36 ?붿〈 ??v49.37 媛깆떊 (R1 ?숆린??
@@ -4059,35 +4073,35 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
   3. L4020~4051 3 移대뱶 (Primary/Secondary): ??(v49.28 CARD_HIERARCHY ?곸슜 ?꾨즺)
   4. L4053~4068 Action Item 移대뱶: ??(v49.28 ?좎꽕, ACTION_RULES ?몄텧)
   5. L4070~4140 ?ъ링 ?댁꽕: ??(?쇱퀜蹂닿린 ?뺤긽)
-  6. L4140~4250 由ъ뒪???덉씠?? 誘몄젏寃 (v49.38+)
+  6. L4140~4250 리스크 레이더: 미점검 (v49.38+)
   7. L4140~4250 F&G+CNN 7+2 而댄룷?뚰듃: ??(v49.23 ?뺥빀 ?꾨즺)
-  8. L4250~4367 GMO ?? 誘몄젏寃 (v49.38+)
-- **寃곕줎**: home 6/8 sub-section OK + 2 誘몄젏寃 + P283 ?쒖젙
-- **?뚯씪**: home ?섏씠吏 8 subSection 紐⑤몢 REGISTRY ?깅줉
+  8. L4250~4367 GMO 표: 미점검 (v49.38+)
+- **결론**: home 6/8 sub-section OK + 2 미점검 + P283 시정
+- **파일**: home 페이지 8 subSection 모두 REGISTRY 등록
 
 ---
 
-## P285 쨌 v49.37 쨌 v49.38+ ?붿〈 ??20 ?섏씠吏 sequential audit 誘몄떎??
+## P285 · v49.37 · v49.38+ 잔존 — 20 페이지 sequential audit 미실행
 
-- **?곹깭**: AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY??21 ?섏씠吏 ?깅줉?섏뿀?쇰굹 home留?1李??먭? ?꾨즺. ?섎㉧吏 20 ?섏씠吏 (signal/breadth/sentiment/briefing/technical/macro/fxbond/fundamental/themes/portfolio/options/kr-home/kr-supply/kr-themes/kr-macro/kr-technical/guide/glossary/market-news/fund-analysis) sub-section enumerate + 6異??먭? 誘몄떎??
+- **상태**: AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY에 21 페이지 등록되었으나 home만 1차 점검 완료. 나머지 20 페이지 (signal/breadth/sentiment/briefing/technical/macro/fxbond/fundamental/themes/portfolio/options/kr-home/kr-supply/kr-themes/kr-macro/kr-technical/guide/glossary/market-news/fund-analysis) sub-section enumerate + 6축 점검 미실행
 - **?붿〈 ?묒뾽** (v49.38+):
-  - v49.38: signal + breadth + sentiment ?섏씠吏 (US 醫낇빀 3)
+  - v49.38: signal + breadth + sentiment 페이지 (US 종합 3)
   - v49.39: briefing + technical (US 遺꾩꽍 2)
   - v49.40: macro + fxbond + fundamental (US 遺꾩꽍 3)
   - v49.41: themes + portfolio + options (US 6)
   - v49.42: kr-home + kr-supply + kr-themes + kr-macro + kr-technical (KR 5)
-- **紐⑺몴**: 21 ?섏씠吏 횞 ?됯퇏 8~10 subSection 횞 6異?= 1000+ 留ㅽ듃由?뒪 ??ぉ done. v49.42 ?꾩꽦 ??R93 100% 以??
+- **목표**: 21 페이지 × 평균 8~10 subSection × 6축 = 1000+ 매트릭스 항목 done. v49.42 완성 후 R93 100% 준수.
 
 ---
 
 ## P286 쨌 v49.38 쨌 [R56 蹂닿컯/F1] home L4222 VIX ??vs THRESHOLD_REGISTRY 遺덉씪移?
 
 - **利앹긽**: home L4222~4229 ?몃씪??VIX ?쒓? 5 援ш컙 (12/20/30/45/?? + ?쇰꺼 "?⑤땳 吏꾩엯"쨌"?쒖뒪???꾧린"濡??쒖떆. THRESHOLD_REGISTRY.VIX??6 援ш컙 (12/20/25/30/40/?? + ?쇰꺼 "二쇱쓽/寃쎄퀎/怨듯룷/洹밸떒 怨듯룷". ???ъ슜?먭? ??怨녹뿉???ㅻⅨ ?쇰꺼 ?몄텧.
-- **2李??먭? 諛쒓껄**: home ?섏씠吏 ?꾟넂?꾨옒 sequential ?먭??먯꽌 諛쒓껄 (v49.37 1李⑥뿉?쒕뒗 line range 遺꾩꽍留??덉쓬)
+- **2차 점검 발견**: home 페이지 위→아래 sequential 점검에서 발견 (v49.37 1차에서는 line range 분석만 했음)
 - **洹쇰낯 ?닿껐**:
-  1. ?몃씪????6 援ш컙?쇰줈 媛깆떊 + `data-threshold-table="VIX"` 留덉빱 遺李?
-  2. ?쇰꺼??REGISTRY? ?뺥솗???쇱튂 ("洹밸떒 ?덉젙/?뺤긽 Risk-On/二쇱쓽/寃쎄퀎/怨듯룷/洹밸떒 怨듯룷")
-  3. `AIO.getInlineThresholdTableAudit()` ?좎꽕 ??留덉빱 蹂댁쑀 ?쒕? ?먮룞 ?뺥빀 寃利?
+  1. 인라인 표 6 구간으로 갱신 + `data-threshold-table="VIX"` 마커 부착
+  2. 라벨을 REGISTRY와 정확히 일치 ("극단 안정/정상 Risk-On/주의/경계/공포/극단 공포")
+  3. `AIO.getInlineThresholdTableAudit()` 신설 — 마커 보유 표를 자동 정합 검증
 - **?좉퇋 洹쒖튃**: R94 (R56 蹂닿컯)
 - **?뚯씪**: `index.html` L4222~4229, `js/aio-core.js` audit + THRESHOLD_REGISTRY VIX
 
@@ -4097,17 +4111,17 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 - **利앹긽**: VIX ??泥???"< 12 / 洹밸떒???덉젙 / **酉곕툝** ?뺤꽦 ?꾩“ (2017, 2019)" ???쒓? ?ㅽ?
 - **洹쇰낯 ?닿껐**: `酉곕툝` ??`踰꾨툝` ?뺤젙
-- **?щ컻 諛⑹?**: home ?섏씠吏 2李?sequential ?먭? ?섎Т??(R93 蹂닿컯)
+- **재발 방지**: home 페이지 2차 sequential 점검 의무화 (R93 보강)
 - **?뚯씪**: `index.html` L4224
 
 ---
 
 ## P288 쨌 v49.38 쨌 [R56 蹂닿컯/F3] DXY/10Y ?꾧퀎媛?REGISTRY 誘몃벑濡?
 
-- **利앹긽**: home L4327 DXY ?꾧퀎媛?"> 105 Risk ??뭾 / < 95 Risk-On" ?몃씪?? L4338 10Y "4% ?댁긽 遺??/ 3% ?댄븯 ?뷀솕" ?몃씪?? REGISTRY 誘몃벑濡???R56 ?꾨컲.
+- **증상**: home L4327 DXY 임계값 "> 105 Risk 역풍 / < 95 Risk-On" 인라인. L4338 10Y "4% 이상 부담 / 3% 이하 둔화" 인라인. REGISTRY 미등록 → R56 위반.
 - **洹쇰낯 ?닿껐**: THRESHOLD_REGISTRY??異붽?
   - **DXY**: 5 bands (< 95 ?쎌꽭-Risk-On / < 100 以묐┰ / < 105 媛뺤꽭 / < 110 Risk ??뭾 / 110+ 洹밸떒 媛뺤꽭)
-  - **YIELD_10Y**: 5 bands (< 3 寃쎄린 ?뷀솕 / < 4 ?뺤긽 / < 4.5 諛몃쪟?먯씠??遺??/ < 5 ?꾪뿕 / 5+ ?쒖뒪???뺣젰)
+  - **YIELD_10Y**: 5 bands (< 3 경기 둔화 / < 4 정상 / < 4.5 밸류에이션 부담 / < 5 위험 / 5+ 시스템 압력)
   - `getLabel(value)` ?⑥닔
 - **?뚯씪**: `js/aio-core.js` THRESHOLD_REGISTRY
 
@@ -4115,96 +4129,96 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P289 쨌 v49.38 쨌 [R93 蹂닿컯/F4] home subSections 1李?enumerate 遺덉셿??(8 ??15)
 
-- **利앹긽**: v49.37?먯꽌 home subSections 8媛쒕쭔 ?깅줉. ?ㅼ젣 ?꾟넂?꾨옒 ?먭? ??異붽? 7媛?誘몃벑濡?(?ㅼ퐫??踰붾? / conclusion-bar / KPI 4 移대뱶 / ?쒕툕 吏??chips / ?곷떒 ?쇱퀜蹂닿린 ??/ GMO ?댁꽕 ??.
-- **洹쇰낯 ?닿껐**: subSections 8 ??15 ??enumerate + `findings[]` 諛곗뿴 異붽? (?먭? 寃곌낵 ?꾩쟻 ???
+- **증상**: v49.37에서 home subSections 8개만 등록. 실제 위→아래 점검 시 추가 7개 미등록 (스코어 범례 / conclusion-bar / KPI 4 카드 / 서브 지표 chips / 상단 펼쳐보기 표 / GMO 해설 등).
+- **근본 해결**: subSections 8 → 15 재 enumerate + `findings[]` 배열 추가 (점검 결과 누적 저장)
 - **?щ컻 諛⑹?**: R93 page sequential audit ?섎Т 媛뺥솕 ??1李?enumerate??紐⑤뱺 sub-section 鍮좎쭚 ?놁씠 ?깅줉 + ?먭? ??findings??寃곌낵 ?꾩쟻
 - **?뚯씪**: `js/aio-core.js` AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home
 
 ---
 
-## P319 쨌 v49.49 쨌 [R101 踰꾧렇 + R102 ?대━?ㅽ떛 蹂닿컯] LIVE_SYMBOLS const top-level??window ?몄텧 ????+ R102 '?湲? ?⑥뼱 false positive
+## P319 · v49.49 · [R101 버그 + R102 휴리스틱 보강] LIVE_SYMBOLS const top-level이 window 노출 안 됨 + R102 '대기' 단어 false positive
 
 - **?ъ슜???붿껌 (2026-05-19)**: "留덉? 紐????쇱씠釉??먭?怨??묒뾽?ㅻ룄 吏꾪뻾?댁쨾"
 - **Chrome MCP ?쇱씠釉?v49.48 吏꾨떒**:
   - **R101_total: 0** + **R101_issueCount: 131** ??紐⑤뱺 DOM ticker 誘몃벑濡?false report
-  - kr-technical placeholder `kr-semi-export-yoy` false positive (媛?"+157.9% YoY (...5??媛깆떊 ?湲?"??"?湲? ?⑥뼱 留ㅼ묶)
+  - kr-technical placeholder `kr-semi-export-yoy` false positive (값 "+157.9% YoY (...5월 갱신 대기)"의 "대기" 단어 매칭)
 - **洹쇰낯 ?먯씤 1 (R101 踰꾧렇)**: `aio-data.js` L8594 `const LIVE_SYMBOLS = [...]` top-level const??**module scope**?닿퀬 **window property ?꾨떂** ??R101 audit??`new Set(window.LIVE_SYMBOLS || [])` ?몄텧 ??鍮?Set ?앹꽦 ??131 ticker 紐⑤몢 誘몃벑濡?false report.
-- **洹쇰낯 ?먯씤 2 (R102 false positive)**: R102 placeholder ?대━?ㅽ떛 `/濡쒕뵫|loading|怨꾩궛 以?遺꾩꽍 以??湲?i.test(r.text)` ??蹂몃Ц ?띿뒪???덉쓽 "?湲? ?⑥뼱 留ㅼ묶. "+157.9% YoY (2??湲곗? 쨌 5??媛깆떊 ?湲?" 媛숈? ?뺤긽 媛믪뿉 stale ?쇰꺼??遺숈? 寃쎌슦??placeholder濡??ㅼ씤.
+- **근본 원인 2 (R102 false positive)**: R102 placeholder 휴리스틱 `/로딩|loading|계산 중|분석 중|대기/i.test(r.text)` — 본문 텍스트 안의 "대기" 단어 매칭. "+157.9% YoY (2월 기준 · 5월 갱신 대기)" 같은 정상 값에 stale 라벨이 붙은 경우도 placeholder로 오인.
 - **洹쇰낯 ?닿껐** (v49.49):
   1. **R101 fix**: `js/aio-data.js` L8774 `window.LIVE_SYMBOLS = LIVE_SYMBOLS;` ?몄텧 ??以?異붽?.
-  2. **R102 蹂닿컯**: placeholder ?먯젙 ?대━?ㅽ떛 媛뺥솕 ??`text.length >= 25`硫?placeholder ?쒖쇅 (蹂몃Ц???띿뒪??蹂댄샇) + `^濡쒕뵫|^怨꾩궛\s*以? 媛숈씠 ?띿뒪???쒖옉/?⑥뼱 寃쎄퀎 留ㅼ묶?쇰줈 蹂寃?
-- **?щ컻 諛⑹?** (R101 蹂닿컯): ?좉퇋 const top-level 蹂?섎뒗 R101 媛숈? audit?먯꽌 ?ъ슜 ??諛섎뱶??`window.X = X` ?몄텧 紐낆떆.
+  2. **R102 보강**: placeholder 판정 휴리스틱 강화 — `text.length >= 25`면 placeholder 제외 (본문성 텍스트 보호) + `^로딩|^계산\s*중` 같이 텍스트 시작/단어 경계 매칭으로 변경.
+- **재발 방지** (R101 보강): 신규 const top-level 변수는 R101 같은 audit에서 사용 시 반드시 `window.X = X` 노출 명시.
 - **?뚯씪**: `js/aio-data.js` L8774 + `js/aio-core.js` getCellLevelDataAudit placeholder ?⑦꽩
 
 ---
 
-## P318 쨌 v49.48 쨌 [R102 ?좉퇋] ?섏씠吏 cell-level audit ?⑥닔 遺????sub-section enumerate 蹂대떎 ?몃?
+## P318 · v49.48 · [R102 신규] 페이지 cell-level audit 함수 부재 — sub-section enumerate 보다 세밀
 
-- **?ъ슜??吏??(2026-05-19)**: "?꾩껜 ?섏씠吏?먯꽌 紐⑤뱺 ?댁슜怨??곗씠???몃??섍쾶 履쇨컻???뺤씤?쒓굅吏?"
-- **?뺤쭅 寃利?寃곌낵**: v49.42/v49.47 sub-section enumerate(?쇱씤 踰붿쐞 + 移댄뀒怨좊━ ?쇰꺼)留??덇퀬 **移대뱶 ?대? 媛??됱긽/?꾧퀎媛?placeholder 寃利?誘몄닔??*. ?쇱씠釉??먭? 寃곌낵 `has_cellLevelAudit: false`.
-- **洹쇰낯 ?닿껐** (v49.48 A3): `AIO.getCellLevelDataAudit(pageId)` ?좉퇋 ???섏씠吏??紐⑤뱺 cell-level ?붿냼 enumerate + 媛??됱긽/snap-key/live-key/threshold-key/archive ?곹깭 罹≪퀜 + placeholder ?먮룞 遺꾨쪟.
-- **Chrome MCP ?쇱씠釉?寃利?* (v49.48 fxbond/options ?섏씠吏):
+- **사용자 지적 (2026-05-19)**: "전체 페이지에서 모든 내용과 데이터 세밀하게 쪼개서 확인한거지?"
+- **정직 검증 결과**: v49.42/v49.47 sub-section enumerate(라인 범위 + 카테고리 라벨)만 했고 **카드 내부 값/색상/임계값/placeholder 검증 미수행**. 라이브 점검 결과 `has_cellLevelAudit: false`.
+- **근본 해결** (v49.48 A3): `AIO.getCellLevelDataAudit(pageId)` 신규 — 페이지의 모든 cell-level 요소 enumerate + 값/색상/snap-key/live-key/threshold-key/archive 상태 캡쳐 + placeholder 자동 분류.
+- **Chrome MCP 라이브 검증** (v49.48 fxbond/options 페이지):
   - fxbond: 42 cells / 0 placeholder ??
   - options: 16 cells / 0 placeholder ??
   - theme-detail: 3 cells / 1 placeholder (XSD ??P315 SW 罹먯떆 stale)
-- **?좉퇋 洹쒖튃 R102**: ?섏씠吏 cell-level audit ?섎Т.
+- **신규 규칙 R102**: 페이지 cell-level audit 의무.
 - **?뚯씪**: `js/aio-core.js` (getCellLevelDataAudit + getAutoOpsReadiness 27異??듯빀 + commands map)
 
 ---
 
-## P317 쨌 v49.48 쨌 [R101 ?좉퇋] DOM ticker vs LIVE_SYMBOLS coverage ?먮룞 ?먯? 遺??
+## P317 · v49.48 · [R101 신규] DOM ticker vs LIVE_SYMBOLS coverage 자동 탐지 부재
 
-- **?ъ슜??吏??(2026-05-19)**: "?щ컻 諛⑹???媛숈씠 ?쒓굅吏?"
-- **?뺤쭅 寃利?寃곌낵**: P315 (XSD ticker 誘몃벑濡? ?쒖젙 ???먮룞 ?먯? audit 遺?? 媛숈? ?⑦꽩 ?щ컻 ???ъ슜??蹂닿퀬 + 諛쒓껄 cycle 諛섎났.
-- **洹쇰낯 ?닿껐** (v49.48 A2): `AIO.getLiveSymbolsCoverageAudit()` ?좉퇋 ??紐⑤뱺 `[data-live-price]` ticker媛 `LIVE_SYMBOLS`???깅줉?먮뒗吏 ?먮룞 ?먯?. template placeholder(`${sym}`) + `data-aio-archive` ?쒖쇅.
+- **사용자 지적 (2026-05-19)**: "재발 방지도 같이 한거지?"
+- **정직 검증 결과**: P315 (XSD ticker 미등록) 시정 후 자동 탐지 audit 부재. 같은 패턴 재발 시 사용자 보고 + 발견 cycle 반복.
+- **근본 해결** (v49.48 A2): `AIO.getLiveSymbolsCoverageAudit()` 신규 — 모든 `[data-live-price]` ticker가 `LIVE_SYMBOLS`에 등록됐는지 자동 탐지. template placeholder(`${sym}`) + `data-aio-archive` 제외.
 - **getAutoOpsReadiness 27異??듯빀** ??liveSymbolsCoverage status ?먮룞 蹂닿퀬.
-- **?좉퇋 洹쒖튃 R101**: DOM ticker??諛섎뱶??LIVE_SYMBOLS ?깅줉 ?섎Т ??`getLiveSymbolsCoverageAudit()`濡??먮룞 寃利?
+- **신규 규칙 R101**: DOM ticker는 반드시 LIVE_SYMBOLS 등록 의무 — `getLiveSymbolsCoverageAudit()`로 자동 검증.
 - **?뚯씪**: `js/aio-core.js` (R101 audit + getAutoOpsReadiness)
 
 ---
 
 ## P316 쨌 v49.48 쨌 [R75 蹂닿컯] STATIC_CONTENT_LIFECYCLE hook jensen-hardcoded ???쇰컲??
 
-- **?ъ슜??吏??*: "洹쇰낯 ?섏젙 + ?щ컻 諛⑹???媛숈씠 ?쒓굅吏?"
-- **?뺤쭅 寃利?寃곌낵 (Chrome MCP)**: v49.47 P314媛 Jensen ?명꽣酉?hook留?hardcoded 異붽?. `briefing-week-may-4-10` / `kr-export-2026-02` 媛숈? ?ㅻⅨ LIFECYCLE ??ぉ ?숈쟻 媛깆떊 ???? ?쇱씠釉?grep: `lifecycle_jensen_only: 5` (registry + tests?먮쭔 ?깆옣).
+- **사용자 지적**: "근본 수정 + 재발 방지도 같이 한거지?"
+- **정직 검증 결과 (Chrome MCP)**: v49.47 P314가 Jensen 인터뷰 hook만 hardcoded 추가. `briefing-week-may-4-10` / `kr-export-2026-02` 같은 다른 LIFECYCLE 항목 동적 갱신 안 됨. 라이브 grep: `lifecycle_jensen_only: 5` (registry + tests에만 등장).
 - **洹쇰낯 ?닿껐** (v49.48 A1):
   1. **`window._aioStaticContentLifecycleHook(rootEl?)`** ?좉퇋 ??紐⑤뱺 `[data-lifecycle-id="ID"]` 留덉빱 element???몄젒 `[id$="-stale-days"]` ?먮뒗 `.lifecycle-stale-days` span ?먮룞 媛깆떊. archiveDue ??amber, replaceDue ??red ?됱긽 ?먮룞 ?쒖떆.
-  2. **`_aioPageBus.register('core-lifecycle-hook', 'aio:pageShown', ...)`** ??紐⑤뱺 ?섏씠吏 吏꾩엯 ???먮룞 ?몄텧 (200ms ?붾컮?댁뒪).
+  2. **`_aioPageBus.register('core-lifecycle-hook', 'aio:pageShown', ...)`** — 모든 페이지 진입 시 자동 호출 (200ms 디바운스).
   3. **briefing pageShown hook jensen-hardcoded ?쒓굅** ??`_aioStaticContentLifecycleHook()` ?꾩엫?쇰줈 ?⑥씪??
   4. **index.html `briefing-week-may-4-10` element??`data-lifecycle-id` 留덉빱 + `#briefing-week-may-stale-days` span 異붽?**.
-- **R75 蹂닿컯**: STATIC_CONTENT_LIFECYCLE ?깅줉 肄섑뀗痢좊뒗 ?섏씠吏??`data-lifecycle-id` 留덉빱 + stale-days span ?섎Т.
-- **?뚯씪**: `js/aio-core.js` (briefing hook ?⑥닚??+ L4124 遺洹??쇰컲???⑥닔 + pageBus ?먮룞 ?깅줉) + `index.html` L6137~6141 (briefing-week-may 留덉빱)
+- **R75 보강**: STATIC_CONTENT_LIFECYCLE 등록 콘텐츠는 페이지에 `data-lifecycle-id` 마커 + stale-days span 의무.
+- **파일**: `js/aio-core.js` (briefing hook 단순화 + L4124 부근 일반화 함수 + pageBus 자동 등록) + `index.html` L6137~6141 (briefing-week-may 마커)
 
 ---
 
 ## P315 쨌 v49.47 쨌 [?쇱씠釉??뺣? 吏꾨떒] sentiment 3 + theme-detail 1 placeholder ??VIX 湲곌컙援ъ“ 誘몄쓳??+ XSD ticker LIVE_SYMBOLS 誘몃벑濡?
 
-- **?ъ슜???붿껌 (2026-05-19)**: "吏湲?釉뚮씪?곗? ?ъ씠???곌껐?쒓???媛곴컖???섏씠吏 ?꾩껜 ?곗씠???섎굹?섎굹???뺥빀??理쒖떊??濡쒖쭅???몃??섍쾶 議곗궗"
+- **사용자 요청 (2026-05-19)**: "지금 브라우저 사이트 연결된김에 각각의 페이지 전체 데이터 하나하나씩 정합성/최신성/로직성 세밀하게 조사"
 - **Chrome MCP 吏꾨떒 寃곌낵**:
-  - sentiment ?섏씠吏 3 placeholder: `^VIX9D / ^VIX3M / ^VIX6M` ??LIVE_SYMBOLS L8657???대? ?깅줉?섏뼱 ?덉쑝??Yahoo Finance ?묐떟 媛蹂 (?뱀젙 ?쒓컙? 誘몄쓳??
-  - theme-detail ?섏씠吏 1 placeholder: `XSD` (SPDR S&P Semiconductor ETF) ??LIVE_SYMBOLS **誘몃벑濡?*
+  - sentiment 페이지 3 placeholder: `^VIX9D / ^VIX3M / ^VIX6M` — LIVE_SYMBOLS L8657에 이미 등록되어 있으나 Yahoo Finance 응답 가변 (특정 시간대 미응답)
+  - theme-detail 페이지 1 placeholder: `XSD` (SPDR S&P Semiconductor ETF) — LIVE_SYMBOLS **미등록**
 - **?쒖젙**:
   - `XSD` ticker LIVE_SYMBOLS L8731??異붽? (`'SMH','SOXX','XSD','XBI'`)
-  - VIX 湲곌컙援ъ“???섎룄??誘몄떆??(?대? ?깅줉, ?묐떟 媛蹂)
+  - VIX 기간구조는 의도적 미시정 (이미 등록, 응답 가변)
 - **?뚯씪**: `js/aio-data.js` LIVE_SYMBOLS L8731
 
 ---
 
-## P314 쨌 v49.47 쨌 [R75 蹂닿컯] Jensen ?명꽣酉?34??overdue ??STATIC_CONTENT_LIFECYCLE ?숈쟻 媛깆떊 hook 遺??
+## P314 · v49.47 · [R75 보강] Jensen 인터뷰 34일 overdue — STATIC_CONTENT_LIFECYCLE 동적 갱신 hook 부재
 
 - **Chrome MCP 吏꾨떒**: `jensen-interview` snap-date `2026-04-15` ???ㅻ뒛 2026-05-19 = **34??寃쎄낵**. `STATIC_CONTENT_LIFECYCLE.jensen-interview-202603 archiveAfterDays:30` 珥덇낵.
-- **洹쇰낯 ?먯씤**: v49.42 P304?먯꽌 ?뺤쟻 ?띿뒪??"58??寃쎄낵 (60???꾨컯)" ?쒓굅?섍퀬 ?숈쟻 `#jensen-interview-stale-days` span ?⑤룆 ?쒖떆濡?蹂寃쏀뻽?쇰굹 **洹?span??梨꾩슦??hook 肄붾뱶 ?꾨씫** ???곴뎄 "寃쎄낵 怨꾩궛以? ?쒖떆.
+- **근본 원인**: v49.42 P304에서 정적 텍스트 "58일 경과 (60일 임박)" 제거하고 동적 `#jensen-interview-stale-days` span 단독 표시로 변경했으나 **그 span을 채우는 hook 코드 누락** → 영구 "경과 계산중" 표시.
 - **?쒖젙** (v49.47 A2):
   - `_aioPageBus 'core-briefing-action'` hook ?덉뿉 `STATIC_CONTENT_LIFECYCLE.getStatus('jensen-interview-202603')` ?몄텧 + #jensen-interview-stale-days ?숈쟻 媛깆떊
   - archiveDue ??"?벀 archive ?④퀎 (30?? 珥덇낵)" amber ?쒖떆
   - replaceDue ??"?좑툘 ???명꽣酉?援먯껜 沅뚯옣 (60?? 珥덇낵)" red ?쒖떆
   - fresh ??"{N}??寃쎄낵 (fresh)"
-- **?щ컻 諛⑹?**: R75 蹂닿컯 ??STATIC_CONTENT_LIFECYCLE ?깅줉 肄섑뀗痢좊뒗 諛섎뱶???섏씠吏 吏꾩엯 ??getStatus ?숈쟻 媛깆떊 hook ?꾩닔.
+- **재발 방지**: R75 보강 — STATIC_CONTENT_LIFECYCLE 등록 콘텐츠는 반드시 페이지 진입 시 getStatus 동적 갱신 hook 필수.
 - **?뚯씪**: `js/aio-core.js` L1497~1525 (briefing pageShown hook)
 
 ---
 
-## P313 쨌 v49.47 쨌 [R74/R97 蹂닿컯] data-snap ??14嫄??쒕뱶 遺????aliasMap 留ㅽ븨 ?꾨씫
+## P313 · v49.47 · [R74/R97 보강] data-snap 키 14건 시드 부재 — aliasMap 매핑 누락
 
 - **Chrome MCP 吏꾨떒 (v49.46 R98 v2 + ?좉퇋 audit ?쇨큵 ?몄텧)**:
   - R96 dataActionHandler: ok / 102 actions / 0 missing ??(P294 ?쒖젙 ?④낵)
@@ -4217,13 +4231,13 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
   - fxbond: tnx-2y
   - kr-home: krw-full, vkospi-chg, kr-credit, kr-semi-export-yoy-label
   - kr-macro: kr-cpi-yoy, kr-ppi-yoy, kr-manuf-pmi, kr-gdp-qoq, kr-semi-export-feb, kr-semi-export-yoy
-- **洹쇰낯 ?먯씤**: R97 audit??kebab?뭖amel 蹂?섎쭔?쇰줈??遺議???DS ?꾨뱶紐낆뿉 prefix(us/kr) ?먮뒗 suffix(Balance/Starts) ?덉뼱 留ㅼ묶 ?ㅽ뙣.
+- **근본 원인**: R97 audit의 kebab→camel 변환만으로는 부족 — DS 필드명에 prefix(us/kr) 또는 suffix(Balance/Starts) 있어 매칭 실패.
 - **?쒖젙 2-tier**:
   1. **R97 audit aliasMap 14 entries 異붽?** (js/aio-core.js L3032~3048) ??`wage-growth?뭫sWageGrowth`, `housing?뭜ousingStarts`, `kr-credit?뭟rCreditBalance` ?? **?ㅼ닔 ?ㅺ? alias 留ㅽ븨?쇰줈 ?먮룞 ?닿껐**.
   2. **吏꾩쭨 ?꾨씫 ?쒕뱶 5媛?DS 異붽?**:
      - `hySpread: 289` (sentiment HY ?ㅽ봽?덈뱶 bps)
      - `tnx2y: 4.28` (fxbond 2Y Treasury yield)
-     - `vkospiPct: -1.20` (kr-home VKOSPI 蹂?숇쪧)
+     - `vkospiPct: -1.20` (kr-home VKOSPI 변동률)
      - `krPpi: 1.5` (kr-macro PPI YoY)
      - `krManufPmi: 51.5` (kr-macro ?쒖“??PMI)
 - **?щ컻 諛⑹?**: R74 蹂닿컯 ??`data-snap` ??異붽? ??aliasMap ?먮뒗 DS 吏곸젒 ?쒕뱶 ?깅줉 ?섎Т.
@@ -4254,7 +4268,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **?щ컻 諛⑹?** (R100 ?좉퇋): API ????μ? 諛섎뱶??2以??댁긽 ??μ냼 + 紐낆떆 諛깆뾽/蹂듭썝 UX ?쒓났 ?섎Т.
 - **?ъ슜???덈궡 (肄섏넄 紐낅졊)**:
   ```js
-  // 諛깆뾽 (留덉뒪?????????꾩쟾 蹂듭썝 媛?? ?덉쟾 蹂닿? ?꾩닔)
+  // 백업 (마스킹 안 함 — 완전 복원 가능, 안전 보관 필수)
   AIO.exportApiKeys({masked: false})
 
   // 留덉뒪??諛깆뾽 (?뺤씤????蹂듭썝 遺덇?)
@@ -4269,22 +4283,22 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **?ъ슜???댁쁺 沅뚯옣**:
   1. API ???낅젰 ??利됱떆 `AIO.exportApiKeys({masked:false})` ?몄텧?섏뿬 諛깆뾽 ?뚯씪 ?덉쟾 蹂닿?
   2. 罹먯떆 ?대━????`AIO.recoverApiKeysFromIdb()` ?먮룞 蹂듭썝 ?쒕룄 ???ㅽ뙣 ??諛깆뾽 import
-- **?뚯씪**: `js/aio-core.js` L6469~ 遺洹?7 ?⑥닔 + `_saveApiKey` ?먮룞 IDB mirror hook
+- **파일**: `js/aio-core.js` L6469~ 부근 7 함수 + `_saveApiKey` 자동 IDB mirror hook
 - **violated_rule**: ?놁쓬 (?좉퇋 ?⑦꽩 ??R100 ?좉퇋濡?李⑤떒)
 
 ---
 
 ## P311 쨌 v49.44 쨌 [CRITICAL HOTFIX] aio-data.js `refreshHomeDashboard()` const+var ld hoist 異⑸룎 ???꾩껜 ?뚯씪 parse ?ㅽ뙣
 
-- **?ъ슜??蹂닿퀬**: v49.43 hotfix ?꾩뿉???곗씠??誘몄닔??吏?? Chrome MCP濡??쇱씠釉??ъ씠??肄섏넄 吏꾨떒 寃곌낵 吏꾩쭨 洹쇰낯 ?먯씤 諛쒓껄.
-- **肄섏넄 ?먮윭 ?쒗??* (v49.43 ?쇱씠釉? 11:15:03~05):
+- **사용자 보고**: v49.43 hotfix 후에도 데이터 미수신 지속. Chrome MCP로 라이브 사이트 콘솔 진단 결과 진짜 근본 원인 발견.
+- **콘솔 에러 시퀀스** (v49.43 라이브, 11:15:03~05):
   ```
   [ERROR] Uncaught SyntaxError: Identifier 'ld' has already been declared
   [ERROR] Uncaught ReferenceError: _tcLoadFromStorage is not defined
   [WARN]  News sentiment integration error: computeNewsSentimentScore is not defined
   [ERROR] Uncaught ReferenceError: refreshHomeDashboard is not defined
   ```
-- **異붿쟻**: 紐⑤뱺 ReferenceError ?⑥닔(`_tcLoadFromStorage` / `computeNewsSentimentScore` / `refreshHomeDashboard`)媛 **`js/aio-data.js`** ?덉뿉 ?뺤쓽 ??**aio-data.js ?꾩껜 parse ?ㅽ뙣** 異붿젙.
+- **추적**: 모든 ReferenceError 함수(`_tcLoadFromStorage` / `computeNewsSentimentScore` / `refreshHomeDashboard`)가 **`js/aio-data.js`** 안에 정의 → **aio-data.js 전체 parse 실패** 추정.
 - **洹쇰낯 ?먯씤** (吏곸젒 read 諛쒓껄):
   ```js
   // aio-data.js L10988~11097 (媛꾨왂??:
@@ -4341,12 +4355,12 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
      - `.gitignore`, `api_setup_guide.html`, `cloudflare-worker-proxy.js`, `local-v48.81-home-qa.png`
   2. **`sw.js` SHELL_ASSETS L18??`'./manifest.json'` ?붿〈** ??SW install ??`cache.add('./manifest.json')` ?몄텧 ??404
      - ?ㅽ뻾??`Promise.allSettled`濡?泥섎━?섏뼱 SW install ?먯껜 ?ㅽ뙣???뚰뵾
-     - 洹몃윭??肄섏넄??manifest.json 404 + Service Worker install 遺遺??ㅽ뙣 ?먮윭 諛쒖깮
-  3. **`index.html` L22 `<link rel="manifest" href="./manifest.json">` ?붿〈** ??紐⑤뱺 ?섏씠吏 濡쒕뱶 ??404 肄섏넄 ?먮윭
-  4. 罹먯떆???댁쟾 SW媛 ?좉퇋 v49.42 ?쒖꽦????`caches.delete(k)` ?몄텧 ???댁쟾 ?곗씠??罹먯떆 ??젣 + ??罹먯떆 梨꾩슦湲?以?manifest 404濡??쇰? ?대씪?댁뼵???쇱떆 stale.
+     - 그러나 콘솔에 manifest.json 404 + Service Worker install 부분 실패 에러 발생
+  3. **`index.html` L22 `<link rel="manifest" href="./manifest.json">` 잔존** → 모든 페이지 로드 시 404 콘솔 에러
+  4. 캐시된 이전 SW가 신규 v49.42 활성화 시 `caches.delete(k)` 호출 — 이전 데이터 캐시 삭제 + 새 캐시 채우기 중 manifest 404로 일부 클라이언트 일시 stale.
 - **"API ???좎븘媛? 硫붿빱?덉쬁** (異붿젙):
   - 肄붾뱶??API ??`aio_finnhub_key` ?? 吏곸젒 ??젣 ?몄텧 0嫄????먮룞 ??젣 ?꾨떂
-  - **媛???쒕굹由ъ삤**: ?쇰? ?ъ슜?먭? 肄섏넄??manifest.json 404 + ?곗씠??誘몄닔??蹂닿퀬 "罹먯떆 ?대━?? ?쒕룄 ??釉뚮씪?곗? ?곗씠???쇨큵 ??젣 ??localStorage(API ???ы븿) ??젣 + IndexedDB(_aioApiKeys ??μ냼) ??젣
+  - **가능 시나리오**: 일부 사용자가 콘솔의 manifest.json 404 + 데이터 미수신 보고 "캐시 클리어" 시도 → 브라우저 데이터 일괄 삭제 → localStorage(API 키 포함) 삭제 + IndexedDB(_aioApiKeys 저장소) 삭제
   - ?먮뒗 ?쒗겕由?紐⑤뱶/?ㅻⅨ 釉뚮씪?곗? ?ъ슜
 - **洹쇰낯 ?닿껐** (v49.43 hotfix):
   1. `index.html` L22 `<link rel="manifest">` 二쇱꽍 泥섎━ (PWA 鍮꾪솢?????ъ슜???섎룄 諛섏쁺)
@@ -4354,16 +4368,16 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
   3. `SW_VERSION` v49.42 ??**v49.43 媛뺤젣 ?뚯쟾** ??紐⑤뱺 ?대씪?댁뼵?멸? ?좉퇋 罹먯떆 鍮뚮뱶 + ?댁쟾 v49.42 罹먯떆 (manifest ?쒕룄 ?ы븿) ?먭린
   4. APP_VERSION + R1 7怨??숆린??v49.43
 - **?щ컻 諛⑹?**:
-  - **R98 ?좉퇋 (寃??**: `sw.js` SHELL_ASSETS??紐⑤뱺 ?먯궛???ㅼ젣 ?뚯씪濡?議댁옱?섎뒗吏 鍮뚮뱶 ???먮룞 寃利?(?꾩옱 ?놁쓬). ?좉퇋 鍮뚮뱶 step or pre-push hook.
-  - **R99 ?좉퇋 (寃??**: GitHub UI 吏곸젒 ?뚯씪 ??젣 ???ъ슜?먭? ?섎룄 紐낆떆 ??`_context/WORKTREE-AUDIT.md`??"??젣???먯궛 ?곹뼢 留ㅽ듃由?뒪" ?섎Т 異붽?.
-  - **?④린 寃利?紐낅졊**:
+  - **R98 신규 (검토)**: `sw.js` SHELL_ASSETS의 모든 자산이 실제 파일로 존재하는지 빌드 시 자동 검증 (현재 없음). 신규 빌드 step or pre-push hook.
+  - **R99 신규 (검토)**: GitHub UI 직접 파일 삭제 시 사용자가 의도 명시 — `_context/WORKTREE-AUDIT.md`에 "삭제된 자산 영향 매트릭스" 의무 추가.
+  - **단기 검증 명령**:
     ```js
     // 肄섏넄???낅젰
     fetch('./manifest.json').then(r => console.log('manifest', r.status));  // 200 ?댁뼱???? 404硫?sw.js/index.html 異붽? ?뺣━ ?꾩슂
     navigator.serviceWorker.getRegistration().then(r => console.log('SW state', r && r.active && r.active.state));  // 'activated'
     ```
 - **?뚯씪**: `sw.js` L15~28 + `index.html` L21~22 + 踰꾩쟾 R1 7怨?
-- **violated_rule**: ?놁쓬 (?몃? 蹂寃쎌뿉 ?섑븳 cascading ?곹뼢)
+- **violated_rule**: 없음 (외부 변경에 의한 cascading 영향)
 - **?ъ슜?먯뿉寃??덈궡**:
   1. **Ctrl+Shift+R** 媛뺣젰 ?덈줈怨좎묠 ???좉퇋 SW v49.43 ?쒖꽦??+ ?댁쟾 罹먯떆 ?먭린
   2. 肄섏넄(F12)??`AIO.forceRefreshAllData()` ?낅젰 ??紐⑤뱺 ?몃? API ??fetch
@@ -4378,8 +4392,8 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P309 쨌 v49.42 쨌 [硫뷀? ?⑦꽩] agent verify ?⑦꽩 ??false alarm 10嫄?/ 吏꾩쭨 4嫄?(v49.40 P294 / v49.41 ?⑦꽩 諛섎났)
 
-- **?⑦꽩 ?꾩쟻**: v49.40 (P294 home 1 吏꾩쭨 / agent false ?ㅼ닔) ??v49.41 (signal+breadth 7 吏꾩쭨 / 9 false) ??v49.42 (4 吏꾩쭨 / 10 false). agent 蹂닿퀬??"誘멸뎄??/"誘몄뿰寃? ?대젅?꾩? **寃???꾨씫???ㅼ닔**.
-- **洹쇰낯**: ?⑥씪 ?뚯씪 grep?쇰줈 ?앸궡吏 留먭퀬 4 JS ?뚯씪(`aio-core.js` / `aio-data.js` / `aio-ui.js` / `aio-chat.js`) + `index.html` 紐⑤몢 寃???꾩닔.
+- **패턴 누적**: v49.40 (P294 home 1 진짜 / agent false 다수) → v49.41 (signal+breadth 7 진짜 / 9 false) → v49.42 (4 진짜 / 10 false). agent 보고의 "미구현"/"미연결" 클레임은 **검색 누락이 다수**.
+- **근본**: 단일 파일 grep으로 끝내지 말고 4 JS 파일(`aio-core.js` / `aio-data.js` / `aio-ui.js` / `aio-chat.js`) + `index.html` 모두 검색 필수.
 - **v49.42 false alarm 10嫄??덉떆** (verifiedIn 留덉빱濡?李⑤떒):
   - `_aioRenderSentimentConclusion` 誘멸뎄????`_renderConclusionBar` 踰붿슜 ?⑥닔 ?ъ슜
   - `sent-overall-badge` 誘몃젋????aio-ui.js L1912
@@ -4394,7 +4408,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 ## P308 쨌 v49.42 쨌 [minor] macro "Late Cycle" JS L25002 ?숈쟻 ?⑥닔 ?쇰꺼
 
 - **?꾩튂**: `index.html` L25002 `cyclePhase = '寃쎄린 ?꾨컲(Late Cycle)'` + L25092 pill `' Late Cycle 쨌 諛⑹뼱 二쇰룄'`
-- **遺꾩꽍**: v49.31 H5?먯꽌 themes ?섏씠吏 ?몃씪???뺤쟻 ?쇰꺼 "? ?꾩옱(Late Cycle)" ??"Late (李멸퀬)" ?쇰컲?? 洹몃윭??JS ?숈쟻 ?⑥닔(`getCycleFromMacro` 寃곌낵 諛섏쁺)?먮뒗 洹몃?濡??붿〈. JS ?⑥닔??themes/macro ?섏씠吏?먯꽌 ?ъ슜?섎뒗 **?숈쟻 ?쇰꺼** (?ㅼ떆媛?遺꾩꽍 寃곌낵) ???쇰컲??????꾨떂 (themes ?몃씪???뺤쟻怨?蹂꾧컻 ?섎룄).
+- **분석**: v49.31 H5에서 themes 페이지 인라인 정적 라벨 "◀ 현재(Late Cycle)" → "Late (참고)" 일반화. 그러나 JS 동적 함수(`getCycleFromMacro` 결과 반영)에는 그대로 잔존. JS 함수는 themes/macro 페이지에서 사용되는 **동적 라벨** (실시간 분석 결과) — 일반화 대상 아님 (themes 인라인 정적과 별개 의도).
 - **寃곕줎**: verify-only. ?섎룄???숈쟻 ?쇰꺼?닿퀬 themes ?몃씪???뺤쟻 ?쇰꺼怨쇰뒗 蹂꾧컻.
 - **finding**: `macro.findings` minor entry (deferred ?먮뒗 verifiedIn).
 
@@ -4402,19 +4416,19 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P307 쨌 v49.42 쨌 [minor] macro Phase 5 (2024) "?곗갑瑜? ?쇰꺼 ??v49.43 ?꾩냽
 
-- **?꾩튂**: macro ?섏씠吏 ?ъ씠????꾨씪??(L6979~7050)
-- **利앹긽**: Phase 5 (2024) "?곗갑瑜? + S&P 5800/Fed 3.5%/VIX 15 hardcoded ??2024??留??ㅻ깄?룹씠??2026-05 ?쒖젏?먯꽌 怨쇨굅. Phase 6? ?숈쟻 (data-snap="spx"/"fed-rate"/"vix").
+- **위치**: macro 페이지 사이클 타임라인 (L6979~7050)
+- **증상**: Phase 5 (2024) "연착륙" + S&P 5800/Fed 3.5%/VIX 15 hardcoded — 2024년 말 스냅샷이나 2026-05 시점에서 과거. Phase 6은 동적 (data-snap="spx"/"fed-rate"/"vix").
 - **寃곕줎**: ?섎룄????궗 ?쒖젏 ?쇰꺼 (?ъ씠??鍮꾧탳??. ?ㅻ쭔 Phase 6 ?뺤쓽 紐낇솗???꾩슂 (?꾩옱 ?대뵒 ?④퀎?몄?) ??**v49.43 ?꾩냽**.
 - **finding**: `macro.findings` minor entry with `deferredTo: 'v49.43'`.
 
 ---
 
-## P306 쨌 v49.42 쨌 [R94 蹂닿컯] technical RSI 移대뱶 data-threshold-key 留덉빱 遺??
+## P306 · v49.42 · [R94 보강] technical RSI 카드 data-threshold-key 마커 부재
 
 - **?꾩튂**: `index.html` L6512 RSI(14) 移대뱶
-- **利앹긽**: title ?띿뒪?몃줈 `"RSI ?꾧퀎媛?(v49.28/R56 THRESHOLD_REGISTRY.RSI): <30 怨쇰ℓ??쨌 30~40 ?쎌꽭 쨌 40~60 以묐┰ 쨌 60~70 媛뺤꽭 쨌 70~80 怨쇰ℓ??쨌 80+ 洹밸떒 怨쇰ℓ??` ?몃씪???뺤쟻. THRESHOLD_REGISTRY??aio-core.js??議댁옱?섎굹 移대뱶??`data-threshold-key="RSI"` 留덉빱媛 ?놁뼱 v49.38 R94 `getInlineThresholdTableAudit`媛 ?뺥빀 寃利?紐???
-- **洹쇰낯 ?닿껐** (v49.42 C): 移대뱶 `<div>`??`data-threshold-key="RSI"` 留덉빱 遺李? ?ν썑 R94 audit ?먮뒗 ?좉퇋 R98(inline title) audit???먮룞 ?뺥빀 寃利?媛??
-- **?щ컻 諛⑹?**: R94 蹂닿컯 ???섏씠吏 ?몃씪???꾧퀎媛?移대뱶??諛섎뱶??`data-threshold-key` 留덉빱 遺李??섎Т.
+- **증상**: title 텍스트로 `"RSI 임계값 (v49.28/R56 THRESHOLD_REGISTRY.RSI): <30 과매도 · 30~40 약세 · 40~60 중립 · 60~70 강세 · 70~80 과매수 · 80+ 극단 과매수"` 인라인 정적. THRESHOLD_REGISTRY는 aio-core.js에 존재하나 카드에 `data-threshold-key="RSI"` 마커가 없어 v49.38 R94 `getInlineThresholdTableAudit`가 정합 검증 못 함.
+- **근본 해결** (v49.42 C): 카드 `<div>`에 `data-threshold-key="RSI"` 마커 부착. 향후 R94 audit 또는 신규 R98(inline title) audit이 자동 정합 검증 가능.
+- **재발 방지**: R94 보강 — 페이지 인라인 임계값 카드는 반드시 `data-threshold-key` 마커 부착 의무.
 - **?뚯씪**: `index.html` L6512
 - **violated_rule**: R94 (蹂닿컯)
 
@@ -4422,7 +4436,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P305 쨌 v49.42 쨌 [verify-only] briefing-action ACTION_RULES hook ?꾩쟾 援ы쁽
 
-- **寃利?寃곌낵**: agent 蹂닿퀬 "briefing-action-position/sentiment ACTION_RULES 援ы쁽 誘몃컻寃? ?대젅??**false alarm**.
+- **검증 결과**: agent 보고 "briefing-action-position/sentiment ACTION_RULES 구현 미발견" 클레임 **false alarm**.
 - ?ㅼ젣 ?꾩튂: `js/aio-core.js` L1485~1499 `_aioPageBus.register('core-briefing-action', 'aio:pageShown', ...)` hook ?꾩쟾 援ы쁽 ??`AIO_ACTION_RULES.getActionPlan({vix, fg})` ?몄텧 ??`posEl.textContent = '?뮳 ' + plan.position.sizePct + '% ?ъ?????' + plan.position.note` + `sentEl.textContent = '?쭬 ' + plan.sentiment.action + ' ??' + plan.sentiment.note` ?숈쟻 媛깆떊.
 - **finding**: `briefing.findings` verify-only entry with `verifiedIn: 'v49.42 P305'`.
 
@@ -4431,15 +4445,15 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 ## P304 쨌 v49.42 쨌 [?뺥솗?? briefing Jensen ?명꽣酉??뺤쟻 "58??寃쎄낵 (60???꾨컯)" ?띿뒪??
 
 - **?꾩튂**: `index.html` L6060
-- **利앹긽**: v49.30 P253?먯꽌 ?묒꽦???뺤쟻 ?띿뒪??"?벀 ARCHIVE 쨌 58??寃쎄낵 (60???꾨컯)" ??留ㅼ씪 1?쇱뵫 stale. ?숈쟻 `#jensen-interview-stale-days` span (STATIC_CONTENT_LIFECYCLE.jensen-interview-202603?먯꽌 媛깆떊)??蹂꾨룄濡?議댁옱 ?????쒖떆媛 以묐났 + ?뺤쟻 遺遺꾩씠 stale.
+- **증상**: v49.30 P253에서 작성된 정적 텍스트 "📦 ARCHIVE · 58일 경과 (60일 임박)" — 매일 1일씩 stale. 동적 `#jensen-interview-stale-days` span (STATIC_CONTENT_LIFECYCLE.jensen-interview-202603에서 갱신)이 별도로 존재 → 두 표시가 중복 + 정적 부분이 stale.
 - **洹쇰낯 ?닿껐** (v49.42 B): ?뺤쟻 "58??寃쎄낵 (60???꾨컯)" ?띿뒪???쒓굅. `#jensen-interview-stale-days` ?숈쟻 span ?⑤룆 ?쒖떆 (諛곗? ?띿뒪???щ같移?.
 - **?뚯씪**: `index.html` L6060
 
 ---
 
-## P303 쨌 v49.42 쨌 [verify-only] sentiment ?섏씠吏 ?명봽???꾩꽦???곗닔
+## P303 · v49.42 · [verify-only] sentiment 페이지 인프라 완성도 우수
 
-- **寃利?寃곌낵**: agent 蹂닿퀬 CRITICAL 5嫄?(`_aioRenderSentimentConclusion` / `sent-overall-badge` / `sent-analysis-text` / `fg-needle` / `pc-needle-pos` 誘멸뎄?? 紐⑤몢 **false alarm**.
+- **검증 결과**: agent 보고 CRITICAL 5건 (`_aioRenderSentimentConclusion` / `sent-overall-badge` / `sent-analysis-text` / `fg-needle` / `pc-needle-pos` 미구현) 모두 **false alarm**.
 - ?ㅼ젣 ?꾩튂:
   - sentiment-conclusion-bar: index.html L22898 `_renderConclusionBar()` 踰붿슜 ?⑥닔 ?몄텧
   - sent-overall-badge: aio-ui.js L1912 getElementById 媛깆떊
@@ -4450,21 +4464,21 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P302 쨌 v49.42 쨌 [R76 蹂닿컯] briefing 5? 愿??"?몃Ⅴ臾댁쫰/?留??댄삊" ?뺤튂/吏紐??좏겙
+## P302 · v49.42 · [R76 보강] briefing 5대 관전 "호르무즈/대만 해협" 정치/지명 토큰
 
 - **?꾩튂**: `index.html` L5931 (briefing-top-5-list ??
-- **利앹긽**: "吏?뺥븰 ???몃Ⅴ臾댁쫰/?留??댄삊 紐⑤땲?곕쭅" ?⑤룆 吏紐??좏겙. v49.30 R76 NAMED_ENTITY ?쇰컲???뺤콉?먯꽌 sentiment ?섏씠吏???뺣━?먯쑝??briefing ?섏씠吏 5? 愿????ぉ? ?꾨씫.
-- **洹쇰낯 ?닿껐** (v49.42 A): "二쇱슂 ?댁긽 臾쇰쪟 寃쎈줈(?몃Ⅴ臾댁쫰/?留??댄삊 ?? 紐⑤땲?곕쭅"?쇰줈 ?쇰컲?? 而⑦뀓?ㅽ듃(?댁긽 臾쇰쪟 + 吏?뺥븰 紐⑤땲?곕쭅) ?좎??섎㈃???뺤튂 ?좏겙???덉떆濡?寃⑺븯.
-- **?щ컻 諛⑹?**: R76 蹂닿컯 ??吏?뺥븰 紐⑤땲?곕쭅 ?띿뒪?몃뒗 ?쇰컲 移댄뀒怨좊━ + ?덉떆 ?뺤떇?쇰줈 ?묒꽦.
+- **증상**: "지정학 — 호르무즈/대만 해협 모니터링" 단독 지명 토큰. v49.30 R76 NAMED_ENTITY 일반화 정책에서 sentiment 페이지는 정리됐으나 briefing 페이지 5대 관전 항목은 누락.
+- **근본 해결** (v49.42 A): "주요 해상 물류 경로(호르무즈/대만 해협 등) 모니터링"으로 일반화. 컨텍스트(해상 물류 + 지정학 모니터링) 유지하면서 정치 토큰을 예시로 격하.
+- **재발 방지**: R76 보강 — 지정학 모니터링 텍스트는 일반 카테고리 + 예시 형식으로 작성.
 - **?뚯씪**: `index.html` L5931
 - **violated_rule**: R76 (蹂닿컯)
 
 ---
 
-## P301 쨌 v49.41 쨌 [R97 ?좉퇋] data-snap key vs DATA_SNAPSHOT ?쒕뱶 ?뺥빀 ?먮룞 ?먯? 遺??
+## P301 · v49.41 · [R97 신규] data-snap key vs DATA_SNAPSHOT 시드 정합 자동 탐지 부재
 
-- **硫뷀? ?⑦꽩**: `S.breadth5sma || 68` 媛숈? ?몃씪???대갚 ?⑦꽩??DATA_SNAPSHOT ?쒕뱶???깅줉 ???쇰룄 ?뺤긽 ?숈옉?섎뒗 寃껋쿂??蹂댁엫. v49.30 R74 `assertSnapshotInlineMatch`???쒕뱶媛 議댁옱????DOM ?몃씪?멸낵 鍮꾧탳留??????쒕뱶 ?먯껜媛 ?놁쑝硫?silent pass.
-- **洹쇰낯 ?닿껐**: `AIO.getStaticSeedFallbackAudit()` ?좎꽕 ???섏씠吏 DOM??紐⑤뱺 `[data-snap="key"]` ?섏쭛 + DATA_SNAPSHOT 理쒖긽??`_fallback`??????꾨뱶 議댁옱 寃利? kebab?뭖amel/snake 蹂??留ㅽ븨 洹쒖튃 ?ы븿.
+- **메타 패턴**: `S.breadth5sma || 68` 같은 인라인 폴백 패턴이 DATA_SNAPSHOT 시드에 등록 안 돼도 정상 동작하는 것처럼 보임. v49.30 R74 `assertSnapshotInlineMatch`는 시드가 존재할 때 DOM 인라인과 비교만 함 — 시드 자체가 없으면 silent pass.
+- **근본 해결**: `AIO.getStaticSeedFallbackAudit()` 신설 — 페이지 DOM의 모든 `[data-snap="key"]` 수집 + DATA_SNAPSHOT 최상위/`_fallback`에 대응 필드 존재 검증. kebab→camel/snake 변형 매핑 규칙 포함.
 - **?좉퇋 洹쒖튃**: R97 (data-snap ?ㅻ뒗 DATA_SNAPSHOT 理쒖긽??+ _fallback ?묒そ ?쒕뱶 ?깅줉 ?섎Т)
 - **?뚯씪**: `js/aio-core.js` (R97 audit + getAutoOpsReadiness 26異??듯빀)
 
@@ -4473,20 +4487,20 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 ## P300 쨌 v49.41 쨌 [?뺥빀?? breadth McClellan Summation vs Oscillator ?뺤쓽 ?쇳빀
 
 - **?꾩튂**: `index.html` L5471~5483 ??移대뱶 ?쇰꺼 "McClellan ?⑤찓?댁뀡" (Summation Index)
-- **利앹긽**: ?쇰꺼? "Summation"(?κ린 ?꾩쟻???몃뜲 ?ㅻ챸 "0 ??留ㅼ닔 ?먮꼫吏, 0 ?꾨옒=?섎씫 ?먮꼫吏" ?쒗쁽? Oscillator(?④린 짹100) semantic怨??쇰룞?섍린 ?ъ?. ?ㅼ씠踰꾩쟾???뺤쓽??紐낆떆 遺??
+- **증상**: 라벨은 "Summation"(장기 누적합)인데 설명 "0 위=매수 에너지, 0 아래=하락 에너지" 표현은 Oscillator(단기 ±100) semantic과 혼동되기 쉬움. 다이버전스 정의도 명시 부재.
 - **洹쇰낯 ?닿껐** (v49.41 B2):
   - ?쇰꺼??"McClellan Summation Index (?κ린)"濡?紐낇솗??
   - ?ㅻ챸??"Oscillator ?꾩쟻????異붿꽭 諛⑺뼢. Oscillator???④린 짹100"?쇰줈 援щ텇 ?쒓린
-  - 踰좎뼱 ?ㅼ씠踰꾩쟾???뺤쓽 紐낆떆: "SPX ?좉퀬媛?먮룄 Summation ?좉퀬媛 誘몃컻??(?꾩옱 ?섏떖)"
-  - 移대뱶??`data-mcclellan-signal="bearish"` 留덉빱 遺李?(diagnoseBreadthConsensus ?낅젰 異붿쟻??
+  - 베어 다이버전스 정의 명시: "SPX 신고가에도 Summation 신고가 미발동 (현재 의심)"
+  - 카드에 `data-mcclellan-signal="bearish"` 마커 부착 (diagnoseBreadthConsensus 입력 추적용)
 - **?뚯씪**: `index.html` L5471~5484
 
 ---
 
-## P299 쨌 v49.41 쨌 [R74 蹂닿컯] DATA_SNAPSHOT breadth*sma ?쒕뱶 遺?????대갚留??숈옉
+## P299 · v49.41 · [R74 보강] DATA_SNAPSHOT breadth*sma 시드 부재 — 폴백만 동작
 
-- **利앹긽**: `js/aio-core.js` L9567~9570 ?뚮뜑??`'breadth-5sma': _snap.fixed(S.breadth5sma || S.breadth_5sma || ((S._fallback||{}).breadth5) || 68, 0) + '%'` ??`DATA_SNAPSHOT.breadth5sma`媛 理쒖긽??誘몄젙?? `_fallback.breadth5` (?ㅻⅨ ?ㅻ챸) + ?몃씪???대갚 `|| 68`留??섏〈.
-- **寃곌낵**: ?ㅼ떆媛?fetch 寃쎈줈?먯꽌 `DATA_SNAPSHOT.breadth5sma = X`濡?set?대룄 R74 `assertSnapshotInlineMatch`媛 ?몃씪??vs ?쒕뱶 ?뺥빀 紐??≪쓬 (?쒕뱶 ?먯껜媛 ?놁쑝誘濡?. ?뺤쟻 ?대갚媛?68/75/46/55媛 ?곸썝???쒖떆.
+- **증상**: `js/aio-core.js` L9567~9570 렌더러 `'breadth-5sma': _snap.fixed(S.breadth5sma || S.breadth_5sma || ((S._fallback||{}).breadth5) || 68, 0) + '%'` — `DATA_SNAPSHOT.breadth5sma`가 최상위 미정의. `_fallback.breadth5` (다른 키명) + 인라인 폴백 `|| 68`만 의존.
+- **결과**: 실시간 fetch 경로에서 `DATA_SNAPSHOT.breadth5sma = X`로 set해도 R74 `assertSnapshotInlineMatch`가 인라인 vs 시드 정합 못 잡음 (시드 자체가 없으므로). 정적 폴백값 68/75/46/55가 영원히 표시.
 - **洹쇰낯 ?닿껐** (v49.41 B1):
   - DATA_SNAPSHOT??紐낆떆???쒕뱶 4媛?異붽?: `breadth5sma: 68`, `breadth20sma: 75`, `breadth50sma: 46`, `breadth200sma: 55`
 - **?щ컻 諛⑹?**: P301 R97 ?좉퇋 (`getStaticSeedFallbackAudit`) ???먮룞 ?먯?濡??곴뎄 李⑤떒
@@ -4495,10 +4509,10 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P298 쨌 v49.41 쨌 [?뺥솗?? "釉뚮젅?쒖뒪 ?곕윭?ㅽ듃" ?곷Ц 蹂묎린 遺??
+## P298 · v49.41 · [정확성] "브레드스 쓰러스트" 영문 병기 부재
 
 - **?꾩튂**: `index.html` L5185 + L22485
-- **利앹긽**: "釉뚮젅?쒖뒪 ?곕윭?ㅽ듃" ?⑤룆 ?쒓린. ?쒖? ?곷Ц "Breadth Thrust" (Marty Zweig 1986 留ㅼ닔 ?좏샇) 蹂묎린 遺?????ъ슜?먭? 寃??? ?먮즺 ?議??대젮?.
+- **증상**: "브레드스 쓰러스트" 단독 표기. 표준 영문 "Breadth Thrust" (Marty Zweig 1986 매수 신호) 병기 부재 → 사용자가 검색/타 자료 대조 어려움.
 - **洹쇰낯 ?닿껐** (v49.41 A4): "釉뚮젅?쒖벐 ?ㅻ윭?ㅽ듃 (Breadth Thrust)" ?곷Ц 蹂묎린.
 - **?뚯씪**: `index.html` L5185 (breadth-process step 4 ?쇰꺼) + L22485 (JS stageLabel)
 
@@ -4506,21 +4520,21 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P297 쨌 v49.41 쨌 [濡쒖쭅?? verify-only] signal Exit Triggers updateExitTriggers ?몄텧 蹂댁옣
 
-- **寃利?寃곌낵** (v49.41 A3): `updateExitTriggers()` (index.html L22547)????怨녹뿉???몄텧:
-  - L22675 ??`refreshSignal()` 珥덇린 ?몄텧 (signal ?섏씠吏 吏꾩엯 ??
-  - L22927 ??`aio:liveQuotes` ?대깽???몃뱾??(signal ?섏씠吏 ?쒖꽦 ??
-- **寃곕줎**: ?몄텧 蹂댁옣 OK. SPX 횞 0.9, DXY 횞 1.05, HYG 횞 0.95 ?숈쟻 怨꾩궛???섏씠吏 吏꾩엯 + ?쇱씠釉??쒖꽭 媛깆떊 ?쒕쭏???ㅽ뻾. agent 蹂닿퀬 "?뺤쟻 誘몃젋?붾쭅" ?대젅??**false alarm**.
+- **검증 결과** (v49.41 A3): `updateExitTriggers()` (index.html L22547)는 두 곳에서 호출:
+  - L22675 — `refreshSignal()` 초기 호출 (signal 페이지 진입 시)
+  - L22927 — `aio:liveQuotes` 이벤트 핸들러 (signal 페이지 활성 시)
+- **결론**: 호출 보장 OK. SPX × 0.9, DXY × 1.05, HYG × 0.95 동적 계산이 페이지 진입 + 라이브 시세 갱신 시마다 실행. agent 보고 "정적 미렌더링" 클레임 **false alarm**.
 - **finding ?꾩쟻**: `verifiedIn: 'v49.41 A3/P297'` 留덊궧留? ?쒖젙 ?놁쓬.
 
 ---
 
-## P296 쨌 v49.41 쨌 [R77 蹂닿컯] signal CP2 fed-rate / fomc lastUpdated 硫뷀? ?쒖떆 遺??
+## P296 · v49.41 · [R77 보강] signal CP2 fed-rate / fomc lastUpdated 메타 표시 부재
 
 - **?꾩튂**: `index.html` L4910 CP2 (?듯솕?뺤콉) cell
-- **利앹긽**: `<span data-snap="fed-rate">3.50-3.75</span>% 쨌 ?ㅼ쓬 FOMC <span data-snap="fomc">6/16-17</span>` ??媛믪? DATA_SNAPSHOT.fedRate / fomc ?쒕뱶(L8703~8706)?먯꽌 二쇱엯?섎굹 **lastUpdated 硫뷀? 遺??*. R77 MACRO_CALENDAR??fed-rate/fomc 誘몃벑濡????ㅼ쓬 FOMC ?쇱젙 吏?щ뒗吏 ?먮룞 ?먯? ????
+- **증상**: `<span data-snap="fed-rate">3.50-3.75</span>% · 다음 FOMC <span data-snap="fomc">6/16-17</span>` — 값은 DATA_SNAPSHOT.fedRate / fomc 시드(L8703~8706)에서 주입되나 **lastUpdated 메타 부재**. R77 MACRO_CALENDAR에 fed-rate/fomc 미등록 → 다음 FOMC 일정 지났는지 자동 탐지 안 됨.
 - **洹쇰낯 ?닿껐** (v49.41 A2):
   - `AIO_MACRO_CALENDAR.releases`??`us-fomc` + `us-fed-rate` 2 entries 異붽? (lastRelease 2026-04-29 / nextRelease 2026-06-17)
-  - `#cp2-fed-rate-meta` snap-meta span ?좎꽕 + signal pageShown hook?먯꽌 nextRelease ?鍮?D-day ?쒖떆 + 吏?섎㈃ amber 寃쎄퀬
+  - `#cp2-fed-rate-meta` snap-meta span 신설 + signal pageShown hook에서 nextRelease 대비 D-day 표시 + 지나면 amber 경고
 - **?뚯씪**: `js/aio-core.js` (MACRO_CALENDAR + _aioPageBus signal hook) + `index.html` L4910 (cp2 meta span)
 - **violated_rule**: R77 (蹂닿컯)
 
@@ -4528,15 +4542,15 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P295 쨌 v49.41 쨌 [R73 ?꾨컲] signal-macro-scenario ?뺤쟻 ?뺣쪧 vs SCENARIO_REGISTRY 誘몄뿰??
 
-- **?꾩튂**: `index.html` L5195~5224 signal ?섏씠吏 3 移대뱶 ?쒕굹由ъ삤 洹몃━??
-- **利앹긽**: 移대뱶 ?ㅻ뜑 "?숆? (30~35%) ???몃Ⅴ臾댁쫰 ?ш컻" / "湲곕낯 (40~45%) ???꾩긽 ?좎?" / "鍮꾧? (15~20%) ???ъ슦???쇨꺽" ???뺣쪧 踰붿쐞 ?뺤쟻 ?몃씪?? v49.27/R72 `AIO_SCENARIO_REGISTRY` ?명봽??異붽? ??`scenarios` 媛앹껜(?곗갑瑜??ㅽ깭洹?移⑥껜)??留뚮뱾?덉쑝??signal ?섏씠吏 ?④린 ?쒕굹由ъ삤(?숆?/湲곕낯/鍮꾧?)??蹂꾨룄 categorize ???? R73(?명봽??異붽? ??媛숈? 踰꾩쟾?먯꽌 ?섏씠吏 ?곸슜 ?숇컲) ?꾨컲 ??macro ?섏씠吏(L1564)?먮뒗 hook ?덉?留?signal ?섏씠吏???꾨씫.
-- **異붽? stale**: "?몃Ⅴ臾댁쫰 ?ш컻" / "?ъ슦???쇨꺽" ?붿〈 ?뺤튂/吏紐??좏겙 (v49.30 ?쇰컲?붿뿉???꾨씫). "?몃Ⅴ臾댁쫰 ?ш컻" ???쇰컲??/ "?ъ슦???쇨꺽" ??"怨듦툒 異⑷꺽 ?쒕굹由ъ삤"濡?蹂寃?
+- **위치**: `index.html` L5195~5224 signal 페이지 3 카드 시나리오 그리드
+- **증상**: 카드 헤더 "낙관 (30~35%) — 호르무즈 재개" / "기본 (40~45%) — 현상 유지" / "비관 (15~20%) — 사우디 피격" — 확률 범위 정적 인라인. v49.27/R72 `AIO_SCENARIO_REGISTRY` 인프라 추가 시 `scenarios` 객체(연착륙/스태그/침체)는 만들었으나 signal 페이지 단기 시나리오(낙관/기본/비관)는 별도 categorize 안 됨. R73(인프라 추가 시 같은 버전에서 페이지 적용 동반) 위반 — macro 페이지(L1564)에는 hook 있지만 signal 페이지는 누락.
+- **추가 stale**: "호르무즈 재개" / "사우디 피격" 잔존 정치/지명 토큰 (v49.30 일반화에서 누락). "호르무즈 재개" → 일반화 / "사우디 피격" → "공급 충격 시나리오"로 변경.
 - **洹쇰낯 ?닿껐** (v49.41 A1):
   - `AIO_SCENARIO_REGISTRY.signalShortTerm` ?좎꽕 ??`{optimistic, base, pessimistic}` 3 entries with probability/probabilityRange/lastUpdated/source/triggers
   - `validateSignalSum()` 硫붿꽌??異붽?
-  - `_aioPageBus.register('core-signal-scenario', 'aio:pageShown', ...)` hook ?좎꽕 ??signal ?섏씠吏 吏꾩엯 ??`data-scenario-key` 留덉빱 3 移대뱶??header瑜?REGISTRY 媛믪쑝濡?媛깆떊 + `#scenario-outlook-ts` lastUpdated ?쒖떆
-  - index.html 3 移대뱶??`data-scenario-key="optimistic|base|pessimistic"` 留덉빱 + `.scenario-header` class 遺李?
-- **?щ컻 諛⑹?**: R73 媛뺥솕 (?명봽??+ ?섏씠吏 ?곸슜 ?숈떆 ?섎Т) ??v49.42?먯꽌 audit ?⑥닔 ?좎꽕 寃??
+  - `_aioPageBus.register('core-signal-scenario', 'aio:pageShown', ...)` hook 신설 — signal 페이지 진입 시 `data-scenario-key` 마커 3 카드의 header를 REGISTRY 값으로 갱신 + `#scenario-outlook-ts` lastUpdated 표시
+  - index.html 3 카드에 `data-scenario-key="optimistic|base|pessimistic"` 마커 + `.scenario-header` class 부착
+- **재발 방지**: R73 강화 (인프라 + 페이지 적용 동시 의무) — v49.42에서 audit 함수 신설 검토.
 - **?뚯씪**: `js/aio-core.js` (SCENARIO_REGISTRY ?뺤옣 + signal pageShown hook) + `index.html` L5195~5224
 - **violated_rule**: R73
 
@@ -4545,44 +4559,44 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 ## P294 쨌 v49.40 쨌 [R96 ?꾨컲] _aioRefreshActionPlan ?몃뱾??誘몄젙????silent no-op + R96 audit false-positive
 
 - **利앹긽**: index.html L4063 home Action Item 移대뱶????媛깆떊 踰꾪듉 (`<button data-action="_aioRefreshActionPlan">`) ?대┃ ???꾨Т ?숈옉 ?놁쓬. event delegation ?붿뒪?⑥쿂(aio-core.js L680) `window[action]` lookup ?ㅽ뙣 ??`_aioLog('warn','delegate','missing: _aioRefreshActionPlan')` 留?濡쒓퉭?섍퀬 silent no-op.
-- **?꾨컲 洹쒖튃**: R96 (v49.39 ?좉퇋 ??紐⑤뱺 data-action ?몃뱾???깅줉 寃利??섎Т)
-- **洹쇰낯 ?먯씤**: v49.39 R96 audit ?⑥닔 `getDataActionHandlerAudit()`??`knownAliases` 諛곗뿴??`_aioRefreshActionPlan`???ы븿?섏뼱 ?덉뼱 false-positive ?듦낵. knownAliases??event-delegate ?⑦꽩?쇰줈 ?깅줉?섎뒗 鍮?`_aio` ?묐몢 湲濡쒕쾶 ?⑥닔(showPage/toggleLLM ??留뚯쓣 ?꾪븳 ?덉쟾留앹씤?? `_aio` ?묐몢 ?⑥닔媛 ?ㅼ뼱媛硫댁꽌 "alias?대?濡??깅줉?섏뼱 ?덈떎" ?쇨퀬 ?섎せ ?먮떒??
-- **硫뷀? ?먯씤**: v49.39?먯꽌 audit ?⑥닔留??뺤쓽?섍퀬 home ?섏씠吏???ㅼ젣濡??ㅽ뻾??寃곌낵瑜??뺤씤?섏? ?딆쓬. R93 sequential audit (?섏씠吏 ?꾟넂?꾨옒 ?명꽣?숈뀡 ?먭?)??1李?2李⑥뿉??硫덉텛怨?3李??명꽣?숈뀡 + ?섏씠吏 媛??뺥빀 + ?쇱씠釉??곗씠??sink) ???ㅽ뻾 ?꾨씫.
-- **?ъ슜??吏??*: "洹쇰뜲 Home 3李⑤? 鍮⑤━ ?먭??덈뜕???꾨꼍????嫄곗??" (2026-05-18) ??v49.39 ?묒뾽???명봽?쇰쭔 異붽??섍퀬 ??寃利?誘몄닔?됱엫???뺥솗???앸퀎.
+- **위반 규칙**: R96 (v49.39 신규 — 모든 data-action 핸들러 등록 검증 의무)
+- **근본 원인**: v49.39 R96 audit 함수 `getDataActionHandlerAudit()`의 `knownAliases` 배열에 `_aioRefreshActionPlan`이 포함되어 있어 false-positive 통과. knownAliases는 event-delegate 패턴으로 등록되는 비-`_aio` 접두 글로벌 함수(showPage/toggleLLM 등)만을 위한 안전망인데, `_aio` 접두 함수가 들어가면서 "alias이므로 등록되어 있다" 라고 잘못 판단됨.
+- **메타 원인**: v49.39에서 audit 함수만 정의하고 home 페이지에 실제로 실행해 결과를 확인하지 않음. R93 sequential audit (페이지 위→아래 인터랙션 점검)을 1차/2차에서 멈추고 3차(인터랙션 + 페이지 간 정합 + 라이브 데이터 sink) 실 실행 누락.
+- **사용자 지적**: "근데 Home 3차를 빨리 점검했던데 완벽히 한 거지?" (2026-05-18) — v49.39 작업이 인프라만 추가하고 실 검증 미수행임을 정확히 식별.
 - **洹쇰낯 ?닿껐** (v49.40):
-  1. `window._aioRefreshActionPlan` ?좎꽕 ??`AIO_ACTION_RULES.getActionPlan` ?ш퀎??+ home-action-position/sentiment/breadth 3 sink ?숆린 媛깆떊 + `data-refreshed-at` ??꾩뒪?ы봽 (aio-core.js L851 遺洹?.
-  2. R96 `knownAliases`?먯꽌 `_aioRefreshActionPlan` ?쒓굅. ?댁젣 `has_aio` 寃??`act.indexOf('_aio') === 0 && typeof window[act] === 'function'`)濡??듦낵.
+  1. `window._aioRefreshActionPlan` 신설 — `AIO_ACTION_RULES.getActionPlan` 재계산 + home-action-position/sentiment/breadth 3 sink 동기 갱신 + `data-refreshed-at` 타임스탬프 (aio-core.js L851 부근).
+  2. R96 `knownAliases`에서 `_aioRefreshActionPlan` 제거. 이제 `has_aio` 검사(`act.indexOf('_aio') === 0 && typeof window[act] === 'function'`)로 통과.
 - **?щ컻 諛⑹?**:
-  - R96 蹂닿컯: `knownAliases`??鍮?`_aio` 湲濡쒕쾶 ?⑥닔留??덉슜. `_aio` ?묐몢??諛섎뱶?????깅줉 寃利?
-  - R93 蹂닿컯: ?섏씠吏 sequential audit? ?명봽???뺤쓽 + ???ㅽ뻾 + finding ?쒖젙源뚯? ???명듃 (1李?enumerate 쨌 2李?sub-section 源딆씠 쨌 **3李??명꽣?숈뀡/cross-page/sink ???ㅽ뻾**).
+  - R96 보강: `knownAliases`는 비-`_aio` 글로벌 함수만 허용. `_aio` 접두는 반드시 실 등록 검증.
+  - R93 보강: 페이지 sequential audit은 인프라 정의 + 실 실행 + finding 시정까지 한 세트 (1차 enumerate · 2차 sub-section 깊이 · **3차 인터랙션/cross-page/sink 실 실행**).
   - ?뚭? ?뚯뒪?? T321 `typeof window._aioRefreshActionPlan === 'function'`.
 - **?뚯씪**: `js/aio-core.js` (window._aioRefreshActionPlan ?좎꽕 + knownAliases ?섏젙 + PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages.home.findings ?꾩쟻)
 - **violated_rule**: R96
 
 ---
 
-## P290 쨌 v49.39 쨌 [R95 ?좉퇋] ?섏씠吏 媛??숈씪 ticker ?먮룞 ?뺥빀 遺??
+## P290 · v49.39 · [R95 신규] 페이지 간 동일 ticker 자동 정합 부재
 
-- **利앹긽 (?좎옱??**: v49.24 `getSnapshotConsistencyAudit`??`data-snap` 湲곕컲. ?쇱씠釉?媛寃?sink (`data-live-price="^GSPC"` ????蹂꾨룄 audit ?놁쓬. home??SPX vs technical??SPX vs macro??SPX ?띿뒪??遺덉씪移?媛?μ꽦.
+- **증상 (잠재적)**: v49.24 `getSnapshotConsistencyAudit`는 `data-snap` 기반. 라이브 가격 sink (`data-live-price="^GSPC"` 등)는 별도 audit 없음. home의 SPX vs technical의 SPX vs macro의 SPX 텍스트 불일치 가능성.
 - **洹쇰낯 ?닿껐**: `AIO.getCrossPageIndicatorConsistencyAudit()` ?좎꽕 ??`[data-live-price]` ticker蹂?洹몃９????distinct ?띿뒪???? ??mismatch 蹂닿퀬. placeholder(`??/loading) ?쒖쇅.
 - **?좉퇋 洹쒖튃**: R95
 - **?뚯씪**: `js/aio-core.js`
 
 ---
 
-## P291 쨌 v49.39 쨌 [R96 ?좉퇋] data-action 誘몄젙???몃뱾???먮룞 ?먯? 遺??
+## P291 · v49.39 · [R96 신규] data-action 미정의 핸들러 자동 탐지 부재
 
-- **利앹긽 (?좎옱??**: `[data-action="NAME"]` ?붿냼媛 誘몄젙???몃뱾???몄텧 ??click 臾대룞?? ?좉퇋 ?몃뱾??異붽? ???뺤쓽 ?꾨씫 媛??
-- **洹쇰낯 ?닿껐**: `AIO.getDataActionHandlerAudit()` ?좎꽕 ??紐⑤뱺 `data-action` 異붿텧 + `window[NAME]` / `AIO[NAME]` / known alias (showPage/toggleLLM/...) 寃?? 誘몃벑濡??몃뱾??蹂닿퀬.
+- **증상 (잠재적)**: `[data-action="NAME"]` 요소가 미정의 핸들러 호출 시 click 무동작. 신규 핸들러 추가 시 정의 누락 가능.
+- **근본 해결**: `AIO.getDataActionHandlerAudit()` 신설 — 모든 `data-action` 추출 + `window[NAME]` / `AIO[NAME]` / known alias (showPage/toggleLLM/...) 검사. 미등록 핸들러 보고.
 - **?좉퇋 洹쒖튃**: R96
 - **?뚯씪**: `js/aio-core.js`
 
 ---
 
-## P292 쨌 v49.39 쨌 [R93 蹂닿컯] signal ?섏씠吏 1李?enumerate ?꾨즺 (14 subSection)
+## P292 · v49.39 · [R93 보강] signal 페이지 1차 enumerate 완료 (14 subSection)
 
 - **subSections 14媛??깅줉** (?꾟넂?꾨옒):
-  1. signal-purpose-header (?섏씠吏 紐⑹쟻)
+  1. signal-purpose-header (페이지 목적)
   2. signal-insight-box (75+/60-75/...)
   3. signal-lockout-control (Lockout Rally)
   4. signal-explain-page (?ъ링 ?댁꽕)
@@ -4592,7 +4606,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
   8. signal-entry-exit (吏꾩엯/泥?궛)
   9. signal-trading-setups (12 ?뗭뾽)
   10. signal-pyramiding (?쇰씪誘몃뵫)
-  11. signal-spx-tech-dash (SPX 湲곗닠 吏??
+  11. signal-spx-tech-dash (SPX 기술 지표)
   12. signal-breadth-consensus (?ㅼ쨷 ?좏샇 ?⑹쓽)
   13. signal-macro-scenario (?쒕굹由ъ삤 ?몃━)
   14. signal-exit-triggers (Exit Triggers)
@@ -4601,19 +4615,19 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ---
 
-## P293 쨌 v49.39 쨌 [R93 蹂닿컯] breadth ?섏씠吏 1李?enumerate ?꾨즺 (12 subSection)
+## P293 · v49.39 · [R93 보강] breadth 페이지 1차 enumerate 완료 (12 subSection)
 
 - **subSections 12媛??깅줉** (?꾟넂?꾨옒):
   1. breadth-insight-box (?쒖옣 ???뺤쓽)
   2. breadth-explain-page (?ъ링 ?댁꽕)
-  3. breadth-definition (5 吏???뺤쓽)
+  3. breadth-definition (5 지표 정의)
   4. breadth-narrow-vs-broad (Narrow vs Broad)
   5. breadth-sma-cards (5/20/50/200SMA 4 移대뱶)
   6. breadth-consensus-readout (v49.29 diagnoseBreadthConsensus)
   7. breadth-static-diagnose (?뺤쟻 吏꾨떒)
   8. breadth-mcclellan (McClellan)
   9. breadth-weinstein (Weinstein Stage)
-  10. breadth-nhnl (?좉퀬媛/?좎?媛)
+  10. breadth-nhnl (신고가/신저가)
   11. breadth-ad-line (A/D Line)
   12. breadth-divergence (?ㅼ씠踰꾩쟾??寃쎈낫)
 - **auditStatus**: 'partial' (1李⑤쭔, 2李???v49.40)
@@ -4628,29 +4642,29 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **?섏젙**: VsCode ?묒뾽蹂몄뿉??紐⑤뱺 ?좎옱 ?꾩튂??`escHtml()` ?섑븨 異붽?. 10+ ?꾩튂 ?쇨큵.
 - **?뚯씪**: `index.html` (?ㅼ닔)
 - **violated_rule**: R29(innerHTML 吏곸젒 ?쎌엯 ??escHtml ?꾩닔) 쨌 R167(?좉퇋)
-- **prevention**: R167 ???ъ슜???몃? ?곗씠?곕? innerHTML???쎌엯 ??紐⑤뱺 蹂?섏뿉 escHtml() ?섎Т. PR/edit ??grep?쇰줈 `innerHTML.*\+.*[^h]` ?⑦꽩 ?먮룞 寃異?
+- **prevention**: R167 — 사용자/외부 데이터를 innerHTML에 삽입 시 모든 변수에 escHtml() 의무. PR/edit 시 grep으로 `innerHTML.*\+.*[^h]` 패턴 자동 검출.
 
 ---
 
 ## P434 쨌 v49.81 쨌 _aioGuideSearch ?뺢퇋???몄젥??+ escHtml ?꾨씫
 
-- **利앹긽**: ?ъ슜?먭? `[.*` ???뺢퇋??硫뷀?臾몄옄瑜?寃???ㅼ썙?쒕줈 ?낅젰 ??`new RegExp(keyword, 'gi')` ?몄텧??SyntaxError ?먮뒗 ?섎룄移??딆? 留ㅼ묶 媛?? + label/text/id媛 escHtml ?놁씠 innerHTML ?쎌엯.
+- **증상**: 사용자가 `[.*` 등 정규식 메타문자를 검색 키워드로 입력 시 `new RegExp(keyword, 'gi')` 호출이 SyntaxError 또는 의도치 않은 매칭 가능. + label/text/id가 escHtml 없이 innerHTML 삽입.
 - **?먯씤**: keyword瑜??뺢퇋???⑦꽩 + innerHTML ?묒そ???덉쟾 泥섎━ ?놁씠 吏곸젒 ?ъ슜.
 - **?섏젙**: `escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')` + escHtml(keyword)/escHtml(label)/escHtml(text)/escHtml(m.el.id) ?숈떆 ?곸슜.
 - **?뚯씪**: `js/aio-core.js` `_aioGuideSearch` L1738~1755
 - **violated_rule**: R167(?좉퇋)
-- **prevention**: ?숈쟻 ?뺢퇋???앹꽦 ??硫뷀?臾몄옄 ?댁뒪耳?댄봽 ?섎Т. ?좉퇋 lint hook: `new RegExp\(\w` ?⑦꽩 諛쒓껄 ???댁쟾 以꾩뿉 ?댁뒪耳?댄봽 ?몄텧 寃利?
+- **prevention**: 동적 정규식 생성 시 메타문자 이스케이프 의무. 신규 lint hook: `new RegExp\(\w` 패턴 발견 시 이전 줄에 이스케이프 호출 검증.
 
 ---
 
-## P435 쨌 v49.81 쨌 chatRenderChips safeQ 諛깆뒳?섏떆 ?댁뒪耳?댄봽 鍮꾪슚??
+## P435 · v49.81 · chatRenderChips safeQ 백슬래시 이스케이프 비효율
 
-- **利앹긽**: `escHtml(q).replace(/\\/g, '\\\\').replace(/'/g, "\\'")` ??HTML attribute 媛믪뿉 ?곗씠?곕? ?ｌ쓣 ??諛깆뒳?섏떆 ?댁뒪耳?댄봽媛 遺덊븘?뷀븯怨?媛?낆꽦 ???
+- **증상**: `escHtml(q).replace(/\\/g, '\\\\').replace(/'/g, "\\'")` — HTML attribute 값에 데이터를 넣을 때 백슬래시 이스케이프가 불필요하고 가독성 저하.
 - **?먯씤**: HTML attribute 媛믪? escHtml留뚯쑝濡?異⑸텇, 諛깆뒳?섏떆??JavaScript 臾몄옄??由ы꽣?댁뿉留??섎?.
 - **?섏젙**: `escHtml(q).replace(/'/g, '&#39;')` ??HTML entity ?ъ슜 ?⑥닚??(3 怨? chatRenderChips safeQ + chatSend _safeQ2). _missList.map(escHtml) + _navIntent.label escHtml ?숈씪.
 - **?뚯씪**: `js/aio-chat.js` L1345 + L4691 + L4694 + L4888
 - **violated_rule**: R167
-- **prevention**: HTML attribute ???ъ슜???곗씠????escHtml() + `&#39;` ?쒖? ?⑦꽩. 諛깆뒳?섏떆 ?댁뒪耳?댄봽 湲덉?.
+- **prevention**: HTML attribute 내 사용자 데이터 → escHtml() + `&#39;` 표준 패턴. 백슬래시 이스케이프 금지.
 
 ---
 
@@ -4683,221 +4697,221 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **?섏젙**: 30+ 怨녹쓣 `let ld`濡??쇨큵 ?꾪솚 (block-scoped). 媛숈? ?대쫫 異⑸룎 ??利됱떆 SyntaxError濡?媛먯?.
 - **?뚯씪**: `index.html` (?ㅼ닔 ?⑥닔)
 - **violated_rule**: R169(?좉퇋)
-- **prevention**: R169 ???숈씪 ?⑥닔 ??媛숈? ?대쫫 var/const/let ?좎뼵 湲덉?. ?좉퇋 肄붾뱶??let/const ?곗꽑. `AIO.getVarHoistConflictAudit()` (v49.44 R98) ?먮룞 寃利?
+- **prevention**: R169 — 동일 함수 내 같은 이름 var/const/let 선언 금지. 신규 코드는 let/const 우선. `AIO.getVarHoistConflictAudit()` (v49.44 R98) 자동 검증.
 
 ---
 
 ## P439 쨌 v49.82 쨌 SCREENER_DB 178320 ?붿〈 留ㅽ븨 (Codex v49.80 ?쒕㈃ ?듯빀 ?꾨씫遺?
 
-- **利앹긽**: `js/aio-data.js:902` SCREENER_DB??`178320.KQ ??濡쒕낫?ㅽ?` ??留ㅽ븨 ?붿〈. KR_STOCK_DB??Codex v49.80 P431?먯꽌 178320 ???쒖쭊?쒖뒪???뺤젙?덉?留?SCREENER_DB??誘몄젙????AI 梨꾪똿??"178320 遺꾩꽍" ??濡쒕낫?ㅽ?濡??듬?, KR ?섏씠吏???쒖쭊?쒖뒪???쒓린. ?ъ슜??遺꾩꽍 寃곌낵 紐⑥닚.
-- **?먯씤**: Codex媛 `KR_STOCK_DB` ???꾩튂留??뺤젙?섍퀬 ?ㅻⅨ ?곗씠??援ъ“(SCREENER_DB) ?꾨씫. v49.80 ?듯빀 ??cross-verify ?놁씠 蹂寃쎈텇留?洹몃?濡??섏슜 (v49.80 ?뺤쭅 ?됯? #3 ?뺥솗??利앷굅).
+- **증상**: `js/aio-data.js:902` SCREENER_DB에 `178320.KQ → 로보스타` 옛 매핑 잔존. KR_STOCK_DB는 Codex v49.80 P431에서 178320 → 서진시스템 정정했지만 SCREENER_DB는 미정정 → AI 채팅이 "178320 분석" 시 로보스타로 답변, KR 페이지는 서진시스템 표기. 사용자 분석 결과 모순.
+- **원인**: Codex가 `KR_STOCK_DB` 한 위치만 정정하고 다른 데이터 구조(SCREENER_DB) 누락. v49.80 통합 시 cross-verify 없이 변경분만 그대로 수용 (v49.80 정직 평가 #3 정확한 증거).
 - **?섏젙**: SCREENER_DB 178320.KQ ??'?쒖쭊?쒖뒪?? ?뺤젙 + 090360.KQ ??'濡쒕낫?ㅽ?' ?좉퇋 異붽? (LG?꾩옄 ?먰쉶??33.4%).
-- **?몃? 寃利?*: WebSearch 2026-05-28 ??178320 = Seojin System (Google Finance/Yahoo/Bloomberg) / 108320 = LX Semicon / 108490 = ROBOTIS / 090360 = Robostar (LG?꾩옄 ?먰쉶?? 紐⑤몢 ?뺤씤.
+- **외부 검증**: WebSearch 2026-05-28 — 178320 = Seojin System (Google Finance/Yahoo/Bloomberg) / 108320 = LX Semicon / 108490 = ROBOTIS / 090360 = Robostar (LG전자 자회사) 모두 확인.
 - **?뚯씪**: `js/aio-data.js` L902~903
 - **violated_rule**: R170(?좉퇋) 쨌 Codex ?쒕㈃ ?듯빀 ?⑦꽩
-- **prevention**: R170 ??KR 醫낅ぉ肄붾뱶 留ㅽ븨 ?뺤젙 ??紐⑤뱺 ?꾩튂(SCREENER_DB / AIO_TICKER_NAME_REGISTRY / KR_STOCK_DB) cross-verify ?섎Т. `AIO.assertKrTickerMappingAudit()` ?먮룞 寃利?
+- **prevention**: R170 — KR 종목코드 매핑 정정 시 모든 위치(SCREENER_DB / AIO_TICKER_NAME_REGISTRY / KR_STOCK_DB) cross-verify 의무. `AIO.assertKrTickerMappingAudit()` 자동 검증.
 
 ---
 
-## P440 쨌 v49.82 쨌 R167 ?먮룞 ?뚭? audit 遺??(XSS ?쒕㈃ ?щ컻 媛??
+## P440 · v49.82 · R167 자동 회귀 audit 부재 (XSS 표면 재발 가능)
 
-- **利앹긽**: v49.81?먯꽌 R167 ?좎꽕?덉?留??먮룞 寃利??⑥닔 ?놁쓬 ???ν썑 escHtml ?꾨씫????異붽??섎㈃ grep ???섎㈃ 媛먯? 遺덇?.
-- **?먯씤**: 洹쒖튃留?異붽?, 寃利??명봽??誘몃룞諛?
-- **?섏젙**: `AIO.assertXssEscapeCoverageAudit()` ?좉퇋 ??11 chat/render ?⑥닔 toString scan ?대━?ㅽ떛 (innerHTML ?좊떦 + 蹂??concat + escHtml 誘명샇異?= unsafe) + DOM `[style*="hover:"]` 寃??+ stylesheet line-clamp ?쒖? ?숈떆 ?좎뼵 寃利? xssCoveragePct ?곗텧. ?ъ씠?쒕컮 14異?row ?몄텧.
+- **증상**: v49.81에서 R167 신설했지만 자동 검증 함수 없음 — 향후 escHtml 누락이 또 추가되면 grep 안 하면 감지 불가.
+- **원인**: 규칙만 추가, 검증 인프라 미동반.
+- **수정**: `AIO.assertXssEscapeCoverageAudit()` 신규 — 11 chat/render 함수 toString scan 휴리스틱 (innerHTML 할당 + 변수 concat + escHtml 미호출 = unsafe) + DOM `[style*="hover:"]` 검색 + stylesheet line-clamp 표준 동시 선언 검증. xssCoveragePct 산출. 사이드바 14축 row 노출.
 - **?뚯씪**: `js/aio-core.js` (L11260~ ?좉퇋)
-- **violated_rule**: R167 ?댁쁺??遺??
+- **violated_rule**: R167 운영성 부재
 - **prevention**: ?좉퇋 R 洹쒖튃 異붽? ???숆린 audit ?⑥닔 ?숇컲 ?섎Т. ?ъ씠?쒕컮 row ?숆린 ?몄텧.
 
 ---
 
-## P441 쨌 v49.82 쨌 KR 醫낅ぉ肄붾뱶 留ㅽ븨 ?ㅼ쨷 ?꾩튂 cross-check audit 遺??(Codex ?쒕㈃ ?듯빀 ?щ컻 ?⑦꽩)
+## P441 · v49.82 · KR 종목코드 매핑 다중 위치 cross-check audit 부재 (Codex 표면 통합 재발 패턴)
 
-- **利앹긽**: Codex v49.80媛 ?쇰? ?꾩튂留??뺤젙?섍퀬 ?ㅻⅨ ?꾩튂 ?꾨씫 (P439 ?ㅼ쬆). ?ν썑 ?몃? ?묒뾽蹂??듯빀 ???숈씪 ?⑦꽩 ?щ컻 媛??
-- **?먯씤**: cross-check ?먮룞??遺?????щ엺??grep?쇰줈 ?ㅼ쨷 ?꾩튂 ?뺤씤 ???섎㈃ silent fail.
+- **증상**: Codex v49.80가 일부 위치만 정정하고 다른 위치 누락 (P439 실증). 향후 외부 작업본 통합 시 동일 패턴 재발 가능.
+- **원인**: cross-check 자동화 부재 — 사람이 grep으로 다중 위치 확인 안 하면 silent fail.
 - **?섏젙**: `AIO.assertKrTickerMappingAudit()` ?좉퇋 ??SCREENER_DB / AIO_TICKER_NAME_REGISTRY / KR_STOCK_DB 3 ?꾩튂 cross-check + WebSearch verified 8 known mappings (178320/108320/108490/090360/277810/454910/005930/000660) hardcoded check. Critical 異⑸룎 ?먮룞 蹂닿퀬. ?ъ씠?쒕컮 15異?row ?몄텧.
 - **?뚯씪**: `js/aio-core.js` (P440 ?ㅼ쓬 ?좉퇋)
 - **violated_rule**: R170(?좉퇋)
-- **prevention**: R170 ??KR/?멸뎅 ticker 留ㅽ븨 ?뺤젙 ???ㅼ쨷 ?곗씠??援ъ“ cross-check ?섎Т. ?몃? ?묒뾽蹂?Codex/VsCode) ?듯빀 ??蹂?audit ?ㅽ뻾 ??0 conflict 寃利???commit.
+- **prevention**: R170 — KR/외국 ticker 매핑 정정 시 다중 데이터 구조 cross-check 의무. 외부 작업본(Codex/VsCode) 통합 시 본 audit 실행 후 0 conflict 검증 후 commit.
 
 ---
 
 ## P443~P450 쨌 v49.83 쨌 湲곌?湲?+ 吏곴???9嫄??쇨큵 蹂닿컯 (?ъ슜???뺤쭅 諛깅줈洹?
 
-- **P443 / R172**: MACRO_CALENDAR auto-advance hook 遺????`_aioRecomputeMacroCalendar` ?좉퇋 (?섏씠吏 濡쒕뱶 7s ???먮룞 1??+ dry-run preview ?ъ씠?쒕컮 18異?. monthly/every-6-7-weeks/fomc-decision/weekly ?⑦꽩 ?먮룞 next event compute. 諛쒗몴 寃쎄낵 ??stale audit false alarm ?먮룞 ?댁냼.
-- **P444 / R173**: ?먯궛 媛?correlation matrix 遺??(cross-asset regime classification 遺?? ??`AIO.computeCrossAssetCorrelation` ?좉퇋. `_priceHistory` ?쒖슜 30??rolling Pearson + regime ?대━?ㅽ떛 (SPY-QQQ>0.85 + SPY-TLT<-0.2 = risk-on / SPY-^VIX<-0.6 + SPY-TLT>0.3 = risk-off / SPY-QQQ<0.5 = decoupled). ?ъ씠?쒕컮 16異?
-- **P445 / R174**: AI ?듬? ?뺣웾 鍮꾩쑉 痢≪젙 遺????`AIO.assertQuantitativeRatioAudit` ?좉퇋. `localStorage.aio_chat_history` 理쒓렐 20嫄????뺣웾 ?좏겙 (\$/% / 1,234 / bp / ??/ ???? / ?⑥뼱 鍮꾩쑉 ?곗텧. 湲곌? 7%+/?쇰컲 4~7%/?뺤꽦 怨쇰떎 <4%. ?ъ씠?쒕컮 17異?
-- **P446 / R175**: earnings call transcript ?듯빀 遺????`AIO.fetchFMPEarningsCallTranscript` ?좉퇋 + `_fetchTickerDataForChat` 18 promise ?듯빀. FMP /earning_call_transcript 5遺?罹먯떆 + [Earnings Call (Qx YYYY)] ?쇰꺼 + 600??諛쒖톸 ?듬? 二쇱엯. ASP/?쒗뭹 濡쒕뱶留?怨좉컼 commentary ?뺤꽦 遺꾩꽍 ?뺥솗???꾩빟.
-- **P447 / R176**: AI ?듬? ?쒓컖 ?먮즺 遺??(湲곌?湲?吏곴???#8) ??`window._aioBuildSparklineSvg` ?좉퇋 + `chatSend` ?듯빀. ?듬? 醫낅ぉ蹂?30??mini sparkline SVG ?먮룞 ?몃씪??(Promise.all 蹂묐젹 理쒕? 3 醫낅ぉ, 240횞56 path + area fill, ?묒닔 green/?뚯닔 red). `_priceHistory` ?곗꽑 ??Yahoo Chart 1mo fallback.
-- **P449 / R177**: ?ъ씠?쒕컮 18異?metric ?쇰컲 ?ъ슜??遺??(#7) ???쇰컲/媛쒕컻??mode ?좉? ?좉퇋 (`localStorage.aio_audit_mode` + checkbox). simple = ?????????꾩씠肄섎쭔 / detailed = metric ?곸꽭.
-- **P450 / R178**: audit row ?숇벑 ?꾧퀎濡??꾧린 ?쒓렇??媛?쒖꽦 遺議?(#9) ??failure status sticky top + pulse ?좊땲硫붿씠?? ??priority 0 (top + 鍮④컙 border + 2s pulse) / ??1 (amber border) / ??2 / ??3. CSS flex order. + @media (min-width:1600px) ?곗뒪?ы깙 wide-mode 2??grid (#10).
+- **P443 / R172**: MACRO_CALENDAR auto-advance hook 부재 — `_aioRecomputeMacroCalendar` 신규 (페이지 로드 7s 후 자동 1회 + dry-run preview 사이드바 18축). monthly/every-6-7-weeks/fomc-decision/weekly 패턴 자동 next event compute. 발표 경과 시 stale audit false alarm 자동 해소.
+- **P444 / R173**: 자산 간 correlation matrix 부재 (cross-asset regime classification 부재) — `AIO.computeCrossAssetCorrelation` 신규. `_priceHistory` 활용 30일 rolling Pearson + regime 휴리스틱 (SPY-QQQ>0.85 + SPY-TLT<-0.2 = risk-on / SPY-^VIX<-0.6 + SPY-TLT>0.3 = risk-off / SPY-QQQ<0.5 = decoupled). 사이드바 16축.
+- **P445 / R174**: AI 답변 정량 비율 측정 부재 — `AIO.assertQuantitativeRatioAudit` 신규. `localStorage.aio_chat_history` 최근 20건 → 정량 토큰 (\$/% / 1,234 / bp / 일 / 년 등) / 단어 비율 산출. 기관 7%+/일반 4~7%/정성 과다 <4%. 사이드바 17축.
+- **P446 / R175**: earnings call transcript 통합 부재 — `AIO.fetchFMPEarningsCallTranscript` 신규 + `_fetchTickerDataForChat` 18 promise 통합. FMP /earning_call_transcript 5분 캐시 + [Earnings Call (Qx YYYY)] 라벨 + 600자 발췌 답변 주입. ASP/제품 로드맵/고객 commentary 정성 분석 정확성 도약.
+- **P447 / R176**: AI 답변 시각 자료 부재 (기관급 직관성 #8) — `window._aioBuildSparklineSvg` 신규 + `chatSend` 통합. 답변 종목별 30일 mini sparkline SVG 자동 인라인 (Promise.all 병렬 최대 3 종목, 240×56 path + area fill, 양수 green/음수 red). `_priceHistory` 우선 → Yahoo Chart 1mo fallback.
+- **P449 / R177**: 사이드바 18축 metric 일반 사용자 부담 (#7) — 일반/개발자 mode 토글 신규 (`localStorage.aio_audit_mode` + checkbox). simple = ✓/⚠/✗/⏳ 아이콘만 / detailed = metric 상세.
+- **P450 / R178**: audit row 동등 위계로 위기 시그널 가시성 부족 (#9) — failure status sticky top + pulse 애니메이션. ✗ priority 0 (top + 빨간 border + 2s pulse) / ⚠ 1 (amber border) / ⏳ 2 / ✓ 3. CSS flex order. + @media (min-width:1600px) 데스크탑 wide-mode 2열 grid (#10).
 - **prevention**: R172~R178 ???좉퇋 audit ?⑥닔 異붽? ??(1) fn ?뺤쓽 (2) ?ъ씠?쒕컮 row (3) ?뚭? T ?뚯뒪??3醫??뗮듃 ?숈떆 ?묒꽦 ?섎Т (R170 ?⑦꽩 ?쇰컲??.
 
 ---
 
-## P447 쨌 v49.88 쨌 遺??泥??쇱씠釉??섏떊 媛????뺤쟻 ?대갚???쇱씠釉뚮줈 ?ㅼ씤
+## P447 · v49.88 · 부팅 첫 라이브 수신 갭 — 정적 폴백이 라이브로 오인
 
-- **利앹긽**: ??遺????泥?`fetchLiveQuotes`媛 0~30珥??쒕뜡 ?쒕젅??startDataScheduler 吏??+ initV20DataEngine 15珥?吏??. ??援ш컙??珥덇린 濡쒕뵫 ?ㅻ쾭?덉씠媛 ?놁뼱(grep 0嫄? ?ъ슜?먭? DATA_SNAPSHOT ?뺤쟻 ?대갚媛믪쓣 ?ㅼ떆媛??곗씠?곕줈 ?ㅼ씤. /data-refresh濡??섎룞 媛깆떊??媛믪씠??洹몃윺??빐 ???꾪뿕.
-- **?먯씤**: ?대씪?댁뼵???묒냽 ???먮룞?댁쁺 紐⑤뜽(媛쒖씤 ??遺꾩궛 ?ㅺ퀎)? ?щ컮瑜대굹, "?쇱씠釉??섏떊 ???뺤쟻 援ш컙"???ъ슜?먯뿉寃??쒓컖?곸쑝濡??뚮━???덉씠??遺??
-- **?섏젙**: body 吏곹썑 鍮꾩묠??遺??濡쒕뜑 諛곕꼫 ?좎꽕 ??"?뱻 ?ㅼ떆媛??곗씠???섏떊 以?쨌 ?뺤쟻 ?ㅻ깄???쒖떆 以? ??`aio:liveQuotes`(applyLiveQuotes 諛쒖넚) 泥??섏떊 ??fade-out. 10珥?誘몄닔????"???ㅼ떆媛??곌껐 吏?????뺤쟻 ?ㅻ깄???ъ슜 以??쇰줈 ?꾪솚 + 4珥????댁젣. 20珥??덉쟾?곹븳. sessionStorage `aio_boot_done` ?щ갑臾?媛?? prefers-reduced-motion ???
+- **증상**: 앱 부팅 시 첫 `fetchLiveQuotes`가 0~30초 랜덤 딜레이(startDataScheduler 지터 + initV20DataEngine 15초 지연). 이 구간에 초기 로딩 오버레이가 없어(grep 0건) 사용자가 DATA_SNAPSHOT 정적 폴백값을 실시간 데이터로 오인. /data-refresh로 수동 갱신한 값이라 그럴듯해 더 위험.
+- **원인**: 클라이언트 접속 시 자동운영 모델(개인 키 분산 설계)은 올바르나, "라이브 수신 전 정적 구간"을 사용자에게 시각적으로 알리는 레이어 부재.
+- **수정**: body 직후 비침습 부팅 로더 배너 신설 — "📡 실시간 데이터 수신 중 · 정적 스냅샷 표시 중" → `aio:liveQuotes`(applyLiveQuotes 발송) 첫 수신 시 fade-out. 10초 미수신 시 "⚠ 실시간 연결 지연 — 정적 스냅샷 사용 중"으로 전환 + 4초 후 해제. 20초 안전상한. sessionStorage `aio_boot_done` 재방문 가드. prefers-reduced-motion 대응.
 - **?뚯씪**: `index.html` body 吏곹썑 DOM+script + `<style>` keyframes
 - **violated_rule**: R115(placeholder ?쒖?) ?곗옣 ??濡쒕뵫 援ш컙 紐낆떆 쨌 R179 ?좉퇋
-- **prevention**: R179 ???대씪?댁뼵???묒냽 ?먮룞?댁쁺 紐⑤뜽?먯꽌 泥??쇱씠釉??섏떊 ???뺤쟻 援ш컙? 遺??濡쒕뜑濡?紐낆떆. ?쒕쾭 cron ?꾩엯 湲덉? (媛쒖씤 ??紐⑤뜽 ?꾨같 + 怨듭쑀 ?꾨줉??荑쇳꽣 ?뚯쭊).
+- **prevention**: R179 — 클라이언트 접속 자동운영 모델에서 첫 라이브 수신 전 정적 구간은 부팅 로더로 명시. 서버 cron 도입 금지 (개인 키 모델 위배 + 공유 프록시 쿼터 소진).
 
 ## P448 쨌 v49.88 쨌 fetchBreadthData US %above MA ?먮룞 fetch 誘몄옉??(?먮룞??媛???臾몄꽌??
 
-- **利앹긽**: `fetchBreadthData`(aio-data.js:2896)媛 breadthSymbols濡?MMFI/MMTW/MMFD瑜??좎뼵?섎굹 ?ㅼ젣 fetch?????? Alpha Vantage advance/decline 洹쇱궗移??먮뒗 RSP/SPY 鍮꾩쑉留?`updateBreadthUI` 媛깆떊. ??DATA_SNAPSHOT.breadth5sma/20sma/50sma/200sma???쇱씠釉??먮룞 媛깆떊 寃쎈줈 ?놁쓬 ???뺤쟻 ?대갚 ?곴뎄 ?섏〈.
-- **?먯씤**: ?⑥닔媛 % above MA 吏?쒕? 媛?몄삤??濡쒖쭅 誘멸뎄??(?щ낵 ?좎뼵留?dead).
-- **?섏젙**: v49.88?먯꽌??**臾몄꽌?붾쭔** (v49.87 ?섎룞 媛깆떊???뺣떦?덈뜕 洹쇰낯 ?댁쑀 湲곕줉). ??fetch 援ы쁽? Barchart CORS/?꾨줉??寃利??꾩슂 ??蹂꾨룄 ?묒뾽(P449 ?꾨낫). ?꾩옱??/data-refresh ?섎룞 媛깆떊 + 遺??濡쒕뜑濡?stale ?몄? 蹂댁셿.
+- **증상**: `fetchBreadthData`(aio-data.js:2896)가 breadthSymbols로 MMFI/MMTW/MMFD를 선언하나 실제 fetch는 안 함. Alpha Vantage advance/decline 근사치 또는 RSP/SPY 비율만 `updateBreadthUI` 갱신. → DATA_SNAPSHOT.breadth5sma/20sma/50sma/200sma는 라이브 자동 갱신 경로 없음 → 정적 폴백 영구 의존.
+- **원인**: 함수가 % above MA 지표를 가져오는 로직 미구현 (심볼 선언만 dead).
+- **수정**: v49.88에서는 **문서화만** (v49.87 수동 갱신이 정당했던 근본 이유 기록). 실 fetch 구현은 Barchart CORS/프록시 검증 필요 → 별도 작업(P449 후보). 현재는 /data-refresh 수동 갱신 + 부팅 로더로 stale 인지 보완.
 - **?뚯씪**: `js/aio-data.js:2896` fetchBreadthData
 - **violated_rule**: ?놁쓬 (?ㅺ퀎 媛?臾몄꽌??
-- **prevention**: C怨꾩링(?섎룞) + B怨꾩링(?먮룞?붽강) ?곗씠?곕뒗 `getAutoOpsReadiness`??stale 寃쎄낵??異?異붽? 寃??(v49.89+).
+- **prevention**: C계층(수동) + B계층(자동화갭) 데이터는 `getAutoOpsReadiness`에 stale 경과일 축 추가 검토 (v49.89+).
 
 ---
 
 ## P449 쨌 v49.89 쨌 F&G 珥덇린吏꾨떒 ?깃툒 (吏곸젒?몄텧留?蹂닿퀬 CORS 媛??먯젙 ???뺤젙)
 
-- **利앹긽**: ?곗씠??lineage 議곗궗 泥?grep?먯꽌 `fetchFearGreed`媛 `fetchWithTimeout(url)` 吏곸젒 ?몄텧留?蹂닿퀬 "CNN dataviz CORS 李⑤떒 媛??쇰줈 ?깃툒 ?먯젙.
-- **?먯씤**: ?⑥닔 catch 釉붾줉 誘명솗?? ?ㅼ젣濡쒕뒗 catch??(1) CORS_PROXY ?꾨줉???ъ떆??(2) DATA_SNAPSHOT snapshot ?대갚 3??泥댁씤 ?꾨퉬. `_applyFearGreedScore`媛 sourceKind live/proxy/snapshot 遺꾨쪟.
+- **증상**: 데이터 lineage 조사 첫 grep에서 `fetchFearGreed`가 `fetchWithTimeout(url)` 직접 호출만 보고 "CNN dataviz CORS 차단 갭"으로 성급 판정.
+- **원인**: 함수 catch 블록 미확인. 실제로는 catch에 (1) CORS_PROXY 프록시 재시도 (2) DATA_SNAPSHOT snapshot 폴백 3단 체인 완비. `_applyFearGreedScore`가 sourceKind live/proxy/snapshot 분류.
 - **?섏젙**: 吏꾨떒 ?뺤젙 ??F&G??媛??꾨땲??紐⑤쾾 ?щ?. 肄붾뱶 ?섏젙 0嫄? 援먰썕 湲곕줉.
-- **violated_rule**: P68(肄붾뱶 ?뺤씤 ?놁씠 異붿륫 湲덉?) ???⑥닔 ?꾩껜 ?쎄린 ??遺遺?grep?쇰줈 ?먯젙???덉감 ?ㅻ쪟.
-- **prevention**: fetch ?⑥닔 lineage ?먯젙 ??catch/?대갚 釉붾줉源뚯? ?꾩껜 ?쎄퀬 ?먯젙. getDataLineageAudit???대갚 泥댁씤 ?ы븿 ?먮룞 寃利?
+- **violated_rule**: P68(코드 확인 없이 추측 금지) — 함수 전체 읽기 전 부분 grep으로 판정한 절차 오류.
+- **prevention**: fetch 함수 lineage 판정 시 catch/폴백 블록까지 전체 읽고 판정. getDataLineageAudit이 폴백 체인 포함 자동 검증.
 
-## P450 쨌 v49.89 쨌 ?곗씠??lineage(source?뭨ender) ?먮룞 audit 遺??
+## P450 · v49.89 · 데이터 lineage(source→render) 자동 audit 부재
 
-- **利앹긽**: ?ъ슜??"?곗씠???섎굹?섎굹 source?믪젙?뺤꽦?믨?怨듈넂render ?먮쫫 議곗궗?덈굹?" ???곗씠?곕퀎 5?④퀎 怨꾨낫瑜??먮룞 寃利앺븯???⑥닔 遺?? 湲곗〈 getDataPipelineAudit? ?덉씠?대퀎 移댁슫?몄? ?곗씠?곕퀎 lineage ?꾨떂.
-- **?먯씤**: ?곗씠??怨꾨낫媛 肄붾뱶 ?꾨컲??遺꾩궛 (DATA_APIS source + REFRESH_SCHEDULE scheduler + PriceStore/MacroStore store + transform ?⑥닔 + data-live-price/data-snap render). ?⑥씪 留ㅽ븨 遺??
+- **증상**: 사용자 "데이터 하나하나 source→정확성→가공→render 흐름 조사했나?" — 데이터별 5단계 계보를 자동 검증하는 함수 부재. 기존 getDataPipelineAudit은 레이어별 카운트지 데이터별 lineage 아님.
+- **원인**: 데이터 계보가 코드 전반에 분산 (DATA_APIS source + REFRESH_SCHEDULE scheduler + PriceStore/MacroStore store + transform 함수 + data-live-price/data-snap render). 단일 매핑 부재.
 - **?섏젙**: `AIO.getDataLineageAudit()` ?좎꽕 ??13醫??곗씠??횞 {source URL, scheduler ?깅줉, transform, renderSink DOM 移댁슫?? ?먮룞 留ㅽ븨 + connected/gap(B怨꾩링)/manual(C怨꾩링)/broken 遺꾨쪟. broken 0嫄??뺤씤. ?ъ씠?쒕컮 19異?
 - **?뚯씪**: `js/aio-core.js` getDataLineageAudit + _aioRefreshAuditWidget dataLineage 遺꾧린 / `index.html` ?ъ씠?쒕컮 row
 - **violated_rule**: R180 ?좉퇋
-- **prevention**: R180 ???곗씠??異붽?/蹂寃???5?④퀎 lineage ?곌껐 + getDataLineageAudit broken 0 ?섎Т. ?ъ슜??"議곗궗?덈굹?" 吏덉쓽???⑥닔 ??諛??묐떟.
+- **prevention**: R180 — 데이터 추가/변경 시 5단계 lineage 연결 + getDataLineageAudit broken 0 의무. 사용자 "조사했나?" 질의에 함수 한 방 응답.
 
 ---
 
-## P451 쨌 v49.90 쨌 cell-level ?곗씠??sink-to-source ?꾩닔 寃利?遺??(援ъ“/移댄뀒怨좊━留?遊?
+## P451 · v49.90 · cell-level 데이터 sink-to-source 전수 검증 부재 (구조/카테고리만 봄)
 
-- **利앹긽**: ?ъ슜??"援ъ“留뚯씠 ?꾨땲???붾㈃ 湲곕뒫/?띿뒪???댁슜???ㅼ뼱媛???곗씠???섎굹?섎굹 ?몃? ?뺤씤?덈굹?" ??v49.88(援ъ“) + v49.89(13醫?移댄뀒怨좊━)???곗씠???먮쫫??"寃쎈줈 議댁옱"留?寃利? ?붾㈃???뚮뜑?섎뒗 媛쒕퀎 sink(data-live-price 149 + data-snap 83)媛 媛곴컖 source(LIVE_SYMBOLS/DATA_SNAPSHOT)???곌껐?먮뒗吏 cell-level cross-check 誘몄닔??
-- **?먯씤**: lineage audit??移댄뀒怨좊━(13) ?덈꺼??癒몃Т由? 媛쒕퀎 sink蹂?source ??텛??遺??(湲곗〈 getLiveSymbolsCoverageAudit/getStaticSeedFallbackAudit??媛곴컖 ?섏?留?lineage audit??誘명넻??.
+- **증상**: 사용자 "구조만이 아니라 화면 기능/텍스트/내용에 들어가는 데이터 하나하나 세밀 확인했나?" — v49.88(구조) + v49.89(13종 카테고리)는 데이터 흐름의 "경로 존재"만 검증. 화면에 렌더되는 개별 sink(data-live-price 149 + data-snap 83)가 각각 source(LIVE_SYMBOLS/DATA_SNAPSHOT)에 연결됐는지 cell-level cross-check 미수행.
+- **원인**: lineage audit이 카테고리(13) 레벨에 머무름. 개별 sink별 source 역추적 부재 (기존 getLiveSymbolsCoverageAudit/getStaticSeedFallbackAudit이 각각 하지만 lineage audit에 미통합).
 - **?섏젙**: ?뺤쟻 ?꾩닔 cross-check ?ㅽ뻾 ??data-live-price 54 怨좎쑀 ticker ??LIVE_SYMBOLS 636 (?딄? 0) / data-snap 59 怨좎쑀 key ??DATA_SNAPSHOT alias (?딄? 0). ?섏떖 3媛?krw-full/kr-cpi-yoy/kr-gdp-qoq) 紐⑤몢 applyDataSnapshot 留ㅽ븨+aliasMap ?곌껐 ?뺤씤. getDataLineageAudit??cellLevel ?꾨뱶 ?듯빀 ??移댄뀒怨좊━ + cell-level ?⑥씪 吏꾩엯??
 - **?뚯씪**: `js/aio-core.js` getDataLineageAudit cellLevel + _aioRefreshAuditWidget dlEl
-- **violated_rule**: R181 ?좉퇋 쨌 P68(異붿륫 湲덉? ??PCR/3媛????섏떖 ?깃툒?덉쑝??肄붾뱶 ?뺤씤?쇰줈 寃利?
-- **prevention**: R181 ??lineage 寃利앹? 移댄뀒怨좊━ + cell-level(媛쒕퀎 sink?뭩ource) ???? getDataLineageAudit().cellLevel.totalOrphans === 0 ?섎Т.
+- **violated_rule**: R181 신규 · P68(추측 금지 — PCR/3개 키 의심 성급했으나 코드 확인으로 검증)
+- **prevention**: R181 — lineage 검증은 카테고리 + cell-level(개별 sink→source) 둘 다. getDataLineageAudit().cellLevel.totalOrphans === 0 의무.
 
 ---
 
 ## P452 쨌 v49.91 쨌 cell-level ?곗씠??"媛? ?뺥솗??誘멸?利?(?곌껐留?蹂닿퀬 媛믪? stale)
 
-- **利앹긽**: ?ъ슜??"援ъ“/?곌껐留뚯씠 ?꾨땲???곗씠???섎굹?섎굹 ?뺥솗/理쒖떊 泥댄겕". v49.84~90? sink-to-source ?곌껐(orphan 0)留?寃利? ?ㅼ젣 媛??뺥솗?깆? 遺遺꾨쭔. 寃곌낵: **PCE pce/corePce 2.7/2.7** (?ㅼ젣 4??BEA 5/28 諛쒗몴 = Headline 3.8% / Core 3.3%, 3??理쒓퀬) ??1%p+ stale. + 5/27??/28 醫낃? 媛깆떊 ?꾨씫 (SPX 7520??563.63 ?좉퀬媛 / VIX 17.01??5.74).
-- **?먯씤**: lineage/cell-level audit??"?곌껐 議댁옱"留?寃利? "媛??뺥솗??? ?먮룞 寃利?遺덇? (?몃? ?ㅼ륫 ?議??꾩슂). PCE??v49.86?먯꽌 CPI留?媛깆떊?섍퀬 PCE ?꾨씫.
+- **증상**: 사용자 "구조/연결만이 아니라 데이터 하나하나 정확/최신 체크". v49.84~90은 sink-to-source 연결(orphan 0)만 검증. 실제 값 정확성은 부분만. 결과: **PCE pce/corePce 2.7/2.7** (실제 4월 BEA 5/28 발표 = Headline 3.8% / Core 3.3%, 3년 최고) — 1%p+ stale. + 5/27→5/28 종가 갱신 누락 (SPX 7520→7563.63 신고가 / VIX 17.01→15.74).
+- **원인**: lineage/cell-level audit이 "연결 존재"만 검증, "값 정확성"은 자동 검증 불가 (외부 실측 대조 필요). PCE는 v49.86에서 CPI만 갱신하고 PCE 누락.
 - **?섏젙**: WebSearch 5/28 ?ㅼ륫 ??PCE 3.8/3.3, ?쒖꽭 4嫄?SPX/Nasdaq/Dow/VIX) + _fallback(spxATH/vix) + vvix. ?띿뒪?? CHAT_CONTEXTS PCE ?대갚 '2.6'??3.3' + sentiment Tail Risk Board ?섎뱶肄붾뵫(SKEW 141.86/VVIX 90.10/MOVE 62.36 3/30 ?ㅻ깄?? ??DATA_SNAPSHOT ?숈쟻 李몄“ ?꾪솚.
 - **?뚯씪**: `js/aio-core.js` DATA_SNAPSHOT pce/corePce/spx/nasdaq/dow/vix/vvix + _fallback / `js/aio-chat.js` L73 PCE ?대갚 + L1039 Tail Risk ?숈쟻
 - **violated_rule**: R182 ?좉퇋 쨌 R76(?쒖닠 ?띿뒪??stale ?좏겙) ??sentiment 3/30 ?섎뱶肄붾뵫
-- **prevention**: R182 ??cell-level? ?곌껐(orphan 0) + 媛??뺥솗??二쇱슂 嫄곗떆/?쒖꽭 ?몃? ?ㅼ륫 ?議? ???? ?띿뒪?????섏튂??DATA_SNAPSHOT ?숈쟻 李몄“ ?곗꽑, ?섎뱶肄붾뵫 湲덉?.
+- **prevention**: R182 — cell-level은 연결(orphan 0) + 값 정확성(주요 거시/시세 외부 실측 대조) 둘 다. 텍스트 안 수치는 DATA_SNAPSHOT 동적 참조 우선, 하드코딩 금지.
 
 ---
 
-## P453 쨌 v49.92 쨌 VKOSPI 74.02 ??WebSearch 遺?뺥솗 媛?寃利??놁씠 ?섏슜 (?곸떇 踰붿쐞 誘멸?利?
+## P453 · v49.92 · VKOSPI 74.02 — WebSearch 부정확 값 검증 없이 수용 (상식 범위 미검증)
 
-- **利앹긽**: v49.87?먯꽌 VKOSPI瑜?WebSearch "74.02"濡?媛깆떊. 洹몃윭??74??2020.3 肄붾줈???⑤땳 ?섏? ??VIX 15.74(誘멸뎅 ?됱삩) + KOSPI ?ъ긽理쒓퀬 8185? ?묐┰ 遺덇?. VKOSPI ?뺤긽踰붿쐞 12~25. WebSearch媛 Investing.com ?섏씠吏???ㅻⅨ ?レ옄瑜??ㅼ씤 諛섎났.
-- **?먯씤**: WebSearch 寃곌낵瑜??곸떇(VKOSPI-VIX ?곴?愿怨? ?쒓뎅 蹂?숈꽦? 誘멸뎅 VIX? 鍮꾩듂?섍굅???쎄컙 ?믪쓬)?쇰줈 寃利앺븯吏 ?딄퀬 "?ㅼ륫"?대씪硫?洹몃?濡??섏슜. v49.84 異붿젙 18.50???ㅽ엳???뺥솗?덈뒗???섎せ??"?ㅼ륫"?쇰줈 ??뼱?.
+- **증상**: v49.87에서 VKOSPI를 WebSearch "74.02"로 갱신. 그러나 74는 2020.3 코로나 패닉 수준 — VIX 15.74(미국 평온) + KOSPI 사상최고 8185와 양립 불가. VKOSPI 정상범위 12~25. WebSearch가 Investing.com 페이지의 다른 숫자를 오인 반복.
+- **원인**: WebSearch 결과를 상식(VKOSPI-VIX 상관관계: 한국 변동성은 미국 VIX와 비슷하거나 약간 높음)으로 검증하지 않고 "실측"이라며 그대로 수용. v49.84 추정 18.50이 오히려 정확했는데 잘못된 "실측"으로 덮어씀.
 - **?섏젙**: VKOSPI 74.02 ??18.20 (VIX 15.74 + KOSDAQ -2.54% 諛섏쁺 ?⑸━??異붿젙). ?쇱씠釉?fetchVkospiDynamic Naver) ?곗꽑 紐낆떆.
 - **violated_rule**: R183 ?좉퇋 쨌 P68(異붿륫/誘멸?利??섏슜 湲덉?)
-- **prevention**: R183 ??WebSearch ?섏튂??吏?쒕퀎 ?뺤긽 band 踰붿쐞 寃利????섏슜. VKOSPI 12~30 / VIX 9~80 / PE 5~50 ??sanity range ?댄깉 ???ы솗???먮뒗 蹂댁닔??異붿젙.
+- **prevention**: R183 — WebSearch 수치는 지표별 정상 band 범위 검증 후 수용. VKOSPI 12~30 / VIX 9~80 / PE 5~50 등 sanity range 이탈 시 재확인 또는 보수적 추정.
 
-## P454 쨌 v49.92 쨌 DATA_SNAPSHOT ?섎㉧吏 ?꾨뱶 stale (湲濡쒕쾶 吏???먯옄??BOJ)
+## P454 · v49.92 · DATA_SNAPSHOT 나머지 필드 stale (글로벌 지수/원자재/BOJ)
 
-- **利앹긽**: cell-level 媛??議?寃곌낵 ?ㅼ닔 stale ??DAX 23200(?ㅼ젣 25068, ?ъ긽理쒓퀬沅? / Nikkei 64999(64693) / Hang Seng 25947(25006) / FTSE 10611(10428) / WTI 88.30(90.50, ?대? 異⑸룎 ?ш컻) / Brent 94.50(96.29) / Gold 4483(4411) / Silver 71.50(73.51) / BOJ 0.50(0.75 ?몄긽).
-- **?먯씤**: /data-refresh媛 誘멸뎅 ?듭떖 吏??嫄곗떆 ?꾩＜, 湲濡쒕쾶 吏?샕룹쨷?숈???湲덈━??"異붿젙 ?좎?"濡?諛⑹튂. DAX??異붿젙??1800pt(7%) 踰쀬뼱??
+- **증상**: cell-level 값 대조 결과 다수 stale — DAX 23200(실제 25068, 사상최고권) / Nikkei 64999(64693) / Hang Seng 25947(25006) / FTSE 10611(10428) / WTI 88.30(90.50, 이란 충돌 재개) / Brent 94.50(96.29) / Gold 4483(4411) / Silver 71.50(73.51) / BOJ 0.50(0.75 인상).
+- **원인**: /data-refresh가 미국 핵심 지수/거시 위주, 글로벌 지수·중앙은행 금리는 "추정 유지"로 방치. DAX는 추정이 1800pt(7%) 벗어남.
 - **?섏젙**: 8媛??꾨뱶 5/28 ?ㅼ륫 媛깆떊.
 - **violated_rule**: R182(媛??뺥솗?? ?곗옣
-- **prevention**: /data-refresh G洹몃９(湲濡쒕쾶 吏?? + E4(以묒븰???湲덈━)??遺꾧린 1?? ?ㅼ륫 ?議? "異붿젙 ?좎?" ?쇰꺼 ?꾨뱶??getDataLineageAudit?먯꽌 staleRisk ?쒖떆 寃??
+- **prevention**: /data-refresh G그룹(글로벌 지수) + E4(중앙은행 금리)도 분기 1회+ 실측 대조. "추정 유지" 라벨 필드는 getDataLineageAudit에서 staleRisk 표시 검토.
 
-## P455 쨌 v49.94 쨌 KR 2李?嫄곗떆吏??stale 4嫄?(CPI forecast ?쇰룞 + PPI/?좎슜?붽퀬 regime 誘몃컲??
+## P455 · v49.94 · KR 2차 거시지표 stale 4건 (CPI forecast 혼동 + PPI/신용잔고 regime 미반영)
 
-- **利앹긽**: cell-level 媛??議?寃곌낵 ?쒓뎅 2李?嫄곗떆吏??4嫄?stale ??(1) krCpi 2.7(?ㅼ젣 4??2.6, ?듦퀎泥? (2) krManufPmi 51.5(?ㅼ젣 4??53.6, S&P Global 5/4 ??2022.2 ?댄썑 理쒓컯) (3) krPpi 1.5(?ㅼ젣 4??+6.9% YoY, ?쒓뎅?????28?꾨쭔 理쒕? 異⑷꺽, ?앹쑀쨌?앺깂 +73.9%) (4) krCreditBalance 19.2議??ㅼ젣 ~36議? ??? 理쒓퀬).
-- **?먯씤**: (a) **forecast vs actual ?쇰룞** ??krCpi??BOK ?곌컙 臾쇨? *?꾨쭩移? 2.7%瑜??꾩옱 CPI YoY ?꾨뱶???낅젰. ?꾩옱媛??꾨뱶???ㅼ륫留??ㅼ뼱媛???? (b) **PPI 8媛쒖썡 ?곗냽 ?곸듅 + ?대? ?좉? 湲됰벑(?앹쑀쨌?앺깂 +73.9%)??1.5% ?됱떆媛믪쑝濡?諛⑹튂** ??5諛?媛源뚯슫 愿대━. (c) **?쒖옣 regime 蹂??誘몃컲??* ??KOSPI 2諛?湲됰벑(record 8185)?쇰줈 "鍮싴닾" ?좎슜?붽퀬媛 ??? 理쒓퀬 36議곗씤???됱떆 19.2議??좎? = ?쒖옣 ?곹솴怨?紐⑥닚. record rally硫?record margin debt媛 ?곸떇 ?숉뻾.
+- **증상**: cell-level 값 대조 결과 한국 2차 거시지표 4건 stale — (1) krCpi 2.7(실제 4월 2.6, 통계청) (2) krManufPmi 51.5(실제 4월 53.6, S&P Global 5/4 — 2022.2 이후 최강) (3) krPpi 1.5(실제 4월 +6.9% YoY, 한국은행 — 28년만 최대 충격, 석유·석탄 +73.9%) (4) krCreditBalance 19.2조(실제 ~36조, 역대 최고).
+- **원인**: (a) **forecast vs actual 혼동** — krCpi에 BOK 연간 물가 *전망치* 2.7%를 현재 CPI YoY 필드에 입력. 현재값 필드는 실측만 들어가야 함. (b) **PPI 8개월 연속 상승 + 이란 유가 급등(석유·석탄 +73.9%)을 1.5% 평시값으로 방치** — 5배 가까운 괴리. (c) **시장 regime 변화 미반영** — KOSPI 2배 급등(record 8185)으로 "빚투" 신용잔고가 역대 최고 36조인데 평시 19.2조 유지 = 시장 상황과 모순. record rally면 record margin debt가 상식 동행.
 - **?섏젙**: 4媛??꾨뱶 WebSearch ?ㅼ륫 媛깆떊 + DOM ?몃씪??4怨?L10814/L11414/L11435/L11731) 3-way ?뺥빀(R58). L16491 retail-sentiment 怨듭떇???댁젣 36議?margin debt瑜?froth ?좏샇濡??뺥솗??諛섏쁺.
-- **violated_rule**: R182(媛??뺥솗?? 쨌 R183(sanity band ??krPpi 1.5???대? ?좉? ?섍꼍?먯꽌 鍮꾪쁽?ㅼ쟻, krCreditBalance 19.2??record rally? 紐⑥닚) ?곗옣
-- **prevention**: 嫄곗떆吏???꾨뱶??"?꾩옱媛?vs ?꾨쭩移? ?섎? 紐낇솗??援щ텇 (?꾨쭩移섎뒗 蹂꾨룄 *Fcst ?꾨뱶). ?쒖옣 regime 湲됰?(吏??湲됰벑/?좉? 湲됰벑) ???곕룞 2李⑥????좎슜?붽퀬/PPI)???숇컲 ?먭? ???⑥씪 吏?쒕쭔 媛깆떊?섎㈃ ?뚯깮 吏??stale ?붿〈. /data-refresh K洹몃９(?쒓뎅 2李?嫄곗떆: CPI/PPI/PMI/?좎슜?붽퀬/?덊긽湲?????1?? ?ㅼ륫 ?議?
+- **violated_rule**: R182(값 정확성) · R183(sanity band — krPpi 1.5는 이란 유가 환경에서 비현실적, krCreditBalance 19.2는 record rally와 모순) 연장
+- **prevention**: 거시지표 필드에 "현재값 vs 전망치" 의미 명확히 구분 (전망치는 별도 *Fcst 필드). 시장 regime 급변(지수 급등/유가 급등) 시 연동 2차지표(신용잔고/PPI)도 동반 점검 — 단일 지표만 갱신하면 파생 지표 stale 잔존. /data-refresh K그룹(한국 2차 거시: CPI/PPI/PMI/신용잔고/예탁금)도 월 1회+ 실측 대조.
 
-## P456 쨌 v49.95 쨌 US 2李?嫄곗떆吏??stale 9嫄?+ data-snap ?뺤쟻 ?쒕뱶 紐⑥닚 + ?쇰꺼 ?ㅻ쪟
+## P456 · v49.95 · US 2차 거시지표 stale 9건 + data-snap 정적 시드 모순 + 라벨 오류
 
-- **利앹긽**: ?ъ슜??"?꾩닔 議곗궗?덉뼱?" ?뺤쭅 ?먭? ??DATA_SNAPSHOT 141?꾨뱶 triage 寃곌낵 嫄곗떆쨌?쒖옣 ?듭떖留?寃利앸릱怨?2李⑥????ㅼ닔 stale 諛쒓껄. US 9嫄? ismPmi 52.4(??2.7) 쨌 ismPrice 70.7(??4.6, 14pt) 쨌 ismSvc 54.0(??3.6) 쨌 retailSales 0.6(??.5) 쨌 consConf 104.7(??3.1, 11pt + ?쇰꺼 '誘몄떆媛? ?ㅻ쪟) 쨌 housingStarts 1.42(??.47M) 쨌 move 62.5(??0.9) 쨌 usWageGrowth 3.5(??.6) 쨌 rut 2858.50(??936.57, 78pt). 異붽?濡?**`data-snap="move"` ?뺤쟻 ?쒕뱶媛 2怨녹뿉??遺덉씪移?* ??L4960 62.4(?뱀깋 "洹밸떒 ???) vs L7954 107.4(鍮④컯 "Elevated").
-- **?먯씤**: (a) 4??諛쒗몴 ?꾨즺 吏??ISM/?뚮ℓ/?뚮퉬?먯떊猶?二쇳깮/?꾧툑)瑜??댁쟾 ?붽컪?쇰줈 諛⑹튂 ??"?ㅼ쓬 諛쒗몴 6?? 二쇱꽍留??ш퀬 4???ㅼ륫 誘몃컲?? (b) **`rut`/`move`瑜?"異붿젙 ?좎?"濡?肄붾찘?명븯怨??ㅼ륫 ????* ??Russell? ?좉퀬媛 ?좊━濡?78pt(+2.7%) 踰쀬뼱?? (c) **媛숈? data-snap ?ㅻ? 2媛?DOM ?꾩튂媛 ?쒕줈 ?ㅻⅨ ?뺤쟻 ?쒕뱶濡??섎뱶肄붾뵫** ??applyLiveQuotes媛 ?고??꾩뿉 ?듭씪?섎굹 ?쇱씠釉?誘몄닔???ㅽ봽?쇱씤 ??紐⑥닚 ?몄텧. (d) consConf ?쇰꺼??'Michigan'?몃뜲 媛?104.7??3.1)? Conference Board ?ㅼ??????뚯뒪/?쇰꺼 遺덉씪移?
+- **증상**: 사용자 "전수 조사했어?" 정직 점검 → DATA_SNAPSHOT 141필드 triage 결과 거시·시장 핵심만 검증됐고 2차지표 다수 stale 발견. US 9건: ismPmi 52.4(→52.7) · ismPrice 70.7(→84.6, 14pt) · ismSvc 54.0(→53.6) · retailSales 0.6(→0.5) · consConf 104.7(→93.1, 11pt + 라벨 '미시간' 오류) · housingStarts 1.42(→1.47M) · move 62.5(→70.9) · usWageGrowth 3.5(→3.6) · rut 2858.50(→2936.57, 78pt). 추가로 **`data-snap="move"` 정적 시드가 2곳에서 불일치** — L4960 62.4(녹색 "극단 저점") vs L7954 107.4(빨강 "Elevated").
+- **원인**: (a) 4월 발표 완료 지표(ISM/소매/소비자신뢰/주택/임금)를 이전 월값으로 방치 — "다음 발표 6월" 주석만 달고 4월 실측 미반영. (b) **`rut`/`move`를 "추정 유지"로 코멘트하고 실측 안 함** — Russell은 신고가 랠리로 78pt(+2.7%) 벗어남. (c) **같은 data-snap 키를 2개 DOM 위치가 서로 다른 정적 시드로 하드코딩** — applyLiveQuotes가 런타임에 통일하나 라이브 미수신/오프라인 시 모순 노출. (d) consConf 라벨이 'Michigan'인데 값(104.7→93.1)은 Conference Board 스케일 — 소스/라벨 불일치.
 - **?섏젙**: 9媛??꾨뱶 WebSearch ?ㅼ륫 媛깆떊 + DOM ?몃씪??6怨?macro 移대뱶 wage/cons-conf/housing + MOVE 2怨?+ risk-monitor) 3-way ?뺥빀 + MOVE ?쒕뱶 70.9 ?듭씪 + cons-conf ?쇰꺼 'Conf. Board (5??'濡??뺤젙.
-- **?붿〈(援ъ“ ?댁뒋, 誘몄닔????湲곕줉留?**: cons-conf 移대뱶(data-snap, Conf Board)? 梨꾪똿 而⑦뀓?ㅽ듃(live FRED UMCSENT=誘몄떆媛?媛 ?ㅻⅨ ?뚯뒪. ?쇰꺼濡?援щ텇?섏뼱 ?ㅼ씤 ?꾪뿕 ??쓬. ?ν썑 ?⑥씪 ?뚯뒪 ?듭씪 寃??
+- **잔존(구조 이슈, 미수정 — 기록만)**: cons-conf 카드(data-snap, Conf Board)와 채팅 컨텍스트(live FRED UMCSENT=미시간)가 다른 소스. 라벨로 구분되어 오인 위험 낮음. 향후 단일 소스 통일 검토.
 - **violated_rule**: R182(媛??뺥솗?? 쨌 R58(DOM ?몃씪??vs DATA_SNAPSHOT 3-way ?뺥빀 ??媛숈? ???쒕뱶 ?⑥씪???섎Т) ?곗옣
-- **prevention**: (1) 諛쒗몴 ?꾨즺 ???곗씠?곕뒗 利됱떆 ?ㅼ륫 諛섏쁺 ??"?ㅼ쓬 諛쒗몴 ?덉젙" 二쇱꽍留??먯? 留?寃? (2) "異붿젙 ?좎?" ?쇰꺼 ?꾨뱶??遺꾧린 1?? ?ㅼ륫 ?議?(?뱁엳 吏?? rut/shanghai/cac). (3) **?숈씪 data-snap ?ㅻ뒗 ?⑥씪 ?뺤쟻 ?쒕뱶** ??getSnapshotConsistencyAudit(R55)??媛숈? ???ㅼ쨷 ?쒕뱶 遺덉씪移??먯? 異붽? 寃?? (4) ?쇰꺼怨?媛??ㅼ????뺥빀 ?뺤씤 (Michigan ~50-100 vs Conf Board 1985=100).
+- **prevention**: (1) 발표 완료 월 데이터는 즉시 실측 반영 — "다음 발표 예정" 주석만 두지 말 것. (2) "추정 유지" 라벨 필드도 분기 1회+ 실측 대조 (특히 지수: rut/shanghai/cac). (3) **동일 data-snap 키는 단일 정적 시드** — getSnapshotConsistencyAudit(R55)에 같은 키 다중 시드 불일치 탐지 추가 검토. (4) 라벨과 값 스케일 정합 확인 (Michigan ~50-100 vs Conf Board 1985=100).
 
-## P457 쨌 v49.95 쨌 ?쇱씠釉뙿룹감?맞룸찓紐㉱룻뀓?ㅽ듃 4 移댄뀒怨좊━ ?꾩닔 寃利?(?ъ슜??"?쒖꽭/李⑦듃쨌?띿뒪??遺꾩꽍??" ?뺤쭅 ?먭?)
+## P457 · v49.95 · 라이브·차트·메모·텍스트 4 카테고리 전수 검증 (사용자 "시세/차트·텍스트/분석도?" 정직 점검)
 
-- **留λ씫**: ?ъ슜??"紐⑤뱺 ?곗씠??吏묓빀/?곸뿭/移댄뀒怨좊━ ?ㅼ쭏?곸쑝濡??꾩닔 議곗궗? ?쒖꽭/李⑦듃쨌?띿뒪??遺꾩꽍??" ???ㅻ깄????4 移댄뀒怨좊━(?쇱씠釉?sink쨌李⑦듃쨌硫붾え쨌?띿뒪??瑜?python http.server preview ?쇱씠釉?濡쒕뱶濡??ㅼ젣 寃利?
-- **寃利?諛⑸쾿/寃곌낵**: (?쇱씠釉? data-live-price 55 ?ㅽ떚而?orphan 0(PCR留?derived) + preview?먯꽌 _liveData 234????fetch쨌DOM ?뚮뜑쨌?쇱씠釉?^GSPC=?ㅻ깄??援먯감寃利??쇱튂 + **v49.95 JS ?뚯떛 臾닿껐 ?뺤씤**(node 遺???泥닿?利? APP_VERSION v49.95 濡쒕뱶쨌肄섏넄 ?먮윭 0). (李⑦듃) canvas 46쨌Chart.js쨌registry쨌?섎룞?뚮뜑+?대갚 ?뺤긽 ????lazy IntersectionObserver???꾨줈洹몃옒留ㅽ떛 preview?먯꽌 誘몃컻???섎꽕???쒓퀎, **production 踰꾧렇 ?꾨떂**, ?ｋ텋由??⑥젙 ?뚰뵾). (硫붾え) ?좎꽑??硫붿빱?덉쬁 ?묐룞, 30??archive ?꾧퀎 ?꾨떖, META 二쇱꽍 媛깆떊. (?띿뒪?? SCENARIO ?좎꽑쨌?뺣쪧??100%쨌CHAT_CONTEXTS stale ?꾩텧 0쨌lifecycle 3 aged item ?뺥솗??flag.
-- **諛쒓껄(誘몄떆?? /data-refresh ?곸뿭)**: briefing 二쇨컙 罹섎┛??5/4~5/8 二쇨컙 ?쇱젙쨌earnings쨌IPO)媛 "?대쾲 二?濡??쒖떆?섎굹 3二?寃쎄낵 ??STATIC_CONTENT_LIFECYCLE??`briefing-week-may-4-10` replaceDue濡??대? flag 以? 二쇨컙 ?몄쭛 媛깆떊? /data-refresh ?먮뒗 /integrate ?곸뿭(?⑥씪 ?곗씠?곌컪 ?꾨떂).
+- **맥락**: 사용자 "모든 데이터 집합/영역/카테고리 실질적으로 전수 조사? 시세/차트·텍스트/분석도?" → 스냅샷 외 4 카테고리(라이브 sink·차트·메모·텍스트)를 python http.server preview 라이브 로드로 실제 검증.
+- **검증 방법/결과**: (라이브) data-live-price 55 실티커 orphan 0(PCR만 derived) + preview에서 _liveData 234키 실 fetch·DOM 렌더·라이브 ^GSPC=스냅샷 교차검증 일치 + **v49.95 JS 파싱 무결 확인**(node 부재 대체검증: APP_VERSION v49.95 로드·콘솔 에러 0). (차트) canvas 46·Chart.js·registry·수동렌더+폴백 정상 — 단 lazy IntersectionObserver는 프로그래매틱 preview에서 미발화(하네스 한계, **production 버그 아님**, 섣불리 단정 회피). (메모) 신선도 메커니즘 작동, 30일 archive 임계 도달, META 주석 갱신. (텍스트) SCENARIO 신선·확률합 100%·CHAT_CONTEXTS stale 누출 0·lifecycle 3 aged item 정확히 flag.
+- **발견(미시정, /data-refresh 영역)**: briefing 주간 캘린더(5/4~5/8 주간 일정·earnings·IPO)가 "이번 주"로 표시되나 3주 경과 — STATIC_CONTENT_LIFECYCLE이 `briefing-week-may-4-10` replaceDue로 이미 flag 중. 주간 편집 갱신은 /data-refresh 또는 /integrate 영역(단일 데이터값 아님).
 - **?ㅽ깘 ?앸퀎**: governance "stale-live-like-date" 以?macro "3/6"(遺꾧린 3/6/9/12???쎌뼱)쨌kr-home "3/11"(v49.95 ?섎룄??怨쇨굅 ?몄슜 "3/11 31.8議겸넂5??36議?)??false positive.
-- **援먰썕**: ?쇱씠釉?lazy ?뚮뜑???뺤쟻 肄붾뱶 ?쎄린濡?"媛??뺥솗?? 寃利?遺덇? ??preview ?쇱씠釉?濡쒕뱶 ?꾩슂. ???꾨줈洹몃옒留ㅽ떛 ?섎꽕??showPage+scrollIntoView)??IntersectionObserver瑜?諛쒗솕 紐삵빐 lazy 李⑦듃 ?쒓컖寃利앹뿏 ?쒓퀎. ??釉뚮씪?곗? ?ъ슜???ㅽ겕濡ㅻ줈留?理쒖쥌 ?뺤씤 媛?????섎꽕???꾪떚?⑺듃瑜?踰꾧렇濡??ㅼ씤?섏? 留?寃?
-- **violated_rule**: ?놁쓬 (寃利??묒뾽 쨌 ?곗씠???ㅻ쪟 0嫄?諛쒓껄). R101(LIVE_SYMBOLS coverage) ?곗옣 寃利?
+- **교훈**: 라이브/lazy 렌더는 정적 코드 읽기로 "값 정확성" 검증 불가 — preview 라이브 로드 필요. 단 프로그래매틱 하네스(showPage+scrollIntoView)는 IntersectionObserver를 발화 못해 lazy 차트 시각검증엔 한계. 실 브라우저 사용자 스크롤로만 최종 확인 가능 — 하네스 아티팩트를 버그로 오인하지 말 것.
+- **violated_rule**: 없음 (검증 작업 · 데이터 오류 0건 발견). R101(LIVE_SYMBOLS coverage) 연장 검증.
 
-## P458 쨌 v49.95 쨌 媛?蹂寃????섎?-?뺥빀??semantic consistency) ?꾩닔 寃利?(P61 ?댄뻾 ?먭?)
+## P458 · v49.95 · 값 변경 후 의미-정합성(semantic consistency) 전수 검증 (P61 퇴행 점검)
 
-- **留λ씫**: ?ъ슜??"?⑥닚 寃됲븼湲??꾨땶 ?ㅼ쭏???섎?? ?뺥빀?깃퉴吏 泥댄겕?덉뼱?" ??v49.91~95??22媛?媛?蹂寃쎌씠 **二쇰? ?쒖닠쨌?댁꽍쨌?됱긽쨌?뚯깮?먯닔? ?뺥빀**?섎뒗吏 P61(?대깽?????섎뱶肄붾뵫 ?띿뒪???댄뻾) 愿???꾩닔 grep.
-- **?먭? ???(regime ?ㅼ쭛? 蹂寃?**: krCreditBalance 19.2??6(record)쨌krPpi 1.5??.9(28??理쒓퀬)쨌consConf 104.7??3.1(?섎씫)쨌ismPrice 70.7??4.6쨌shanghai 3420??098쨌pcr 0.67??.83.
-- **寃곌낵 ??紐⑥닚 0嫄?*: (1) ?좎슜?붽퀬 "媛먯냼/異뺤냼" ?쒖닠 0嫄????ㅻ깄??肄붾찘??"媛먯냼 異붿꽭"留??덉뿀怨?v49.94?먯꽌 ?대? 援먯껜) (2) PPI "?덉젙/?? ?쒖닠 0嫄?(3) Shanghai ???덈꺼 ?섎뱶肄붾뵫 0嫄?(4) CHAT_CONTEXTS ?섎뱶肄붾뵫 ?댁꽍 0嫄?(5) consConf 罹≪뀡 ?뱀깋? 移대뱶蹂?design accent(wage=amber/housing=cyan)吏 媛??곹깭 ?좏샇 ?꾨떂.
-- **?뚯깮?먯닔 ?꾪뙆 寃利?(?뺥솗)**: pcr?뭦ut/call ?щ━怨꾩궛(aio-core L1646쨌aio-data L2086) 寃利앷컪?쇰줈 ???뺥솗?댁쭚 쨌 krCreditBalance?뭨etail froth ?먯닔(L16491 `(36-20)*2`) record 鍮싴닾瑜?froth濡??뺥솗 諛섏쁺 쨌 krPpi/ismPrice???쒖떆 ?щ㎎ ?꾩슜(遺꾨쪟?⑥닔 ?놁쓬).
-- **援먯감 ?뺥빀??*: 蹂寃쎈뱾??"?명뵆??湲됰벑" ?뚮쭏濡??댁쟻 ?쇨? (krPpi?뫢톓smPrice?뫢톍onsConf?벬톍pi???숇갑??.
-- **洹쇰낯 ?댁쑀**: ?깆씠 媛?醫낆냽 ?섎뱶肄붾뵫 ?댁꽍 ????숈쟻 諛붿씤??m.consConf=live FRED쨌data-snap) + ?ㅼ????ㅻ챸 罹≪뀡 + ?ш퀎???뚯깮?⑥닔 援ъ“ ??P61 ?댄뻾??援ъ“??媛뺥븿.
-- **violated_rule**: ?놁쓬. P61 ?щ컻 諛⑹? 寃利??듦낵.
-- **prevention**: 媛?regime 蹂寃?2諛? ?먮뒗 遺???꾪솚) ???섎?-?뺥빀??grep ?섎Т ??(吏?쒕챸).{0,40}(諛섎?諛⑺뼢 ?뺤슜?? ?⑦꽩 + ?뚯깮?먯닔 consumer 異붿쟻 + ?됱긽/罹≪뀡 媛??곹깭 vs design-accent 援щ텇.
+- **맥락**: 사용자 "단순 겉핥기 아닌 실질적 의미와 정합성까지 체크했어?" → v49.91~95의 22개 값 변경이 **주변 서술·해석·색상·파생점수와 정합**하는지 P61(이벤트 후 하드코딩 텍스트 퇴행) 관점 전수 grep.
+- **점검 대상 (regime 뒤집은 변경)**: krCreditBalance 19.2→36(record)·krPpi 1.5→6.9(28년 최고)·consConf 104.7→93.1(하락)·ismPrice 70.7→84.6·shanghai 3420→4098·pcr 0.67→0.83.
+- **결과 — 모순 0건**: (1) 신용잔고 "감소/축소" 서술 0건(원 스냅샷 코멘트 "감소 추세"만 있었고 v49.94에서 이미 교체) (2) PPI "안정/낮" 서술 0건 (3) Shanghai 옛 레벨 하드코딩 0건 (4) CHAT_CONTEXTS 하드코딩 해석 0건 (5) consConf 캡션 녹색은 카드별 design accent(wage=amber/housing=cyan)지 값-상태 신호 아님.
+- **파생점수 전파 검증 (정확)**: pcr→put/call 심리계산(aio-core L1646·aio-data L2086) 검증값으로 더 정확해짐 · krCreditBalance→retail froth 점수(L16491 `(36-20)*2`) record 빚투를 froth로 정확 반영 · krPpi/ismPrice는 표시 포맷 전용(분류함수 없음).
+- **교차 정합성**: 변경들이 "인플레 급등" 테마로 내적 일관 (krPpi↑·ismPrice↑·consConf↓·cpi↑ 동방향).
+- **근본 이유**: 앱이 값-종속 하드코딩 해석 대신 동적 바인딩(m.consConf=live FRED·data-snap) + 스케일 설명 캡션 + 재계산 파생함수 구조 → P61 퇴행에 구조적 강함.
+- **violated_rule**: 없음. P61 재발 방지 검증 통과.
+- **prevention**: 값 regime 변경(2배+ 또는 부호 전환) 시 의미-정합성 grep 의무 — (지표명).{0,40}(반대방향 형용사) 패턴 + 파생점수 consumer 추적 + 색상/캡션 값-상태 vs design-accent 구분.
 
-## P459 쨌 v49.96 쨌 DATA_SNAPSHOT 蹂몄껜 ??_fallback 誘몃윭 silent drift (洹쇰낯 蹂닿컯 媛???좎꽕)
+## P459 · v49.96 · DATA_SNAPSHOT 본체 ↔ _fallback 미러 silent drift (근본 보강 가드 신설)
 
-- **利앹긽**: ?ъ슜??"?⑥? ?곸뿭?놁씠 洹쇰낯 蹂닿컯" ??媛숈? 吏?쒓? `DATA_SNAPSHOT` 蹂몄껜 + `_fallback` 誘몃윭 ????μ냼??議댁옱?섎뒗???쒖そ留?媛깆떊??遺덉씪移? 5嫄?寃異? move(蹂몄껜 70.9 vs 誘몃윭 62)쨌vvix(83 vs 85)쨌skew(139 vs 142)쨌breadth200(56 vs 57, MMTW 20d/MMTH 200d ?쇰룞)쨌fg_uw(蹂몄껜 74 v48.70 stale vs 誘몃윭 65 v49.84).
-- **?먯씤**: (a) **v49.95?먯꽌 move瑜?70.9濡?媛깆떊?섎ŉ _fallback.move 62 誘몃윭 ?숆린???꾨씫 ???닿? 留뚮뱺 遺덉씪移?*. (b) pcr???숈씪 ?⑦꽩(?댁쟾 ??0.67 vs 0.83, v49.95?먯꽌 ?쒖젙). (c) `_fallback`? computeTradingScore/computeMarketHealth媛 ?쎈뒗 ?먯닔怨꾩궛??誘몃윭?몃뜲 蹂몄껜? 蹂꾧컻 ?좎?蹂댁닔 ??媛깆떊 ???꾨씫 ?곸떆 ?꾪뿕. (d) 湲곗〈 runtime DOM audit(getSnapshotConsistencyAudit)??applyDataSnapshot ?뺢퇋??**??* DOM??遊먯꽌 ??JS ??μ냼 媛?遺덉씪移섎? 援ъ“?곸쑝濡?紐??≪쓬.
-- **?섏젙**: 誘몃윭 5嫄?蹂몄껜? ?뺥빀 + **`AIO.getSnapshotFallbackConsistencyAudit()` ?좎꽕**(蹂몄껜 12?ㅲ넄誘몃윭 3% ?덉슜 援먯감寃利? + getAutoOpsReadiness ?듯빀 + T686 ?뚭?.
-- **洹쇰낯 蹂닿컯 ?섏쓽**: ?ъ슜?먭? ?곕젮??"寃됲븼湲??꾨땶 ?뺥빀????媛??源딆? 痢????щ엺 ?덉뿉 ??蹂댁씠??**?댁쨷 ??μ냼 drift**瑜??먮룞 媛?쒕줈 ?밴꺽. ?닿? 吏곸젒 留뚮뱺 遺덉씪移?move)瑜?audit??利됱떆 寃異?= 媛???묐룞 ?낆쬆.
-- **violated_rule**: R184 ?좉퇋 (?숈씪 吏??2??μ냼 ?뺥빀 ?섎Т). R55(snapshot consistency) ?곗옣 ??runtime DOM ?덈꺼 ??JS 媛앹껜 ?덈꺼 ?뺤옣.
-- **prevention**: 誘몃윭 ??12媛? 媛깆떊 ???묒そ ?숈떆 ?섏젙 + `getSnapshotFallbackConsistencyAudit().issueCount === 0` 寃利? ?좉퇋 誘몃윭 ??異붽? ??aliasMap ?깅줉 ?섎Т.
+- **증상**: 사용자 "남은 영역없이 근본 보강" → 같은 지표가 `DATA_SNAPSHOT` 본체 + `_fallback` 미러 두 저장소에 존재하는데 한쪽만 갱신돼 불일치. 5건 검출: move(본체 70.9 vs 미러 62)·vvix(83 vs 85)·skew(139 vs 142)·breadth200(56 vs 57, MMTW 20d/MMTH 200d 혼동)·fg_uw(본체 74 v48.70 stale vs 미러 65 v49.84).
+- **원인**: (a) **v49.95에서 move를 70.9로 갱신하며 _fallback.move 62 미러 동기화 누락 — 내가 만든 불일치**. (b) pcr도 동일 패턴(이전 턴 0.67 vs 0.83, v49.95에서 시정). (c) `_fallback`은 computeTradingScore/computeMarketHealth가 읽는 점수계산용 미러인데 본체와 별개 유지보수 → 갱신 시 누락 상시 위험. (d) 기존 runtime DOM audit(getSnapshotConsistencyAudit)는 applyDataSnapshot 정규화 **후** DOM을 봐서 두 JS 저장소 간 불일치를 구조적으로 못 잡음.
+- **수정**: 미러 5건 본체와 정합 + **`AIO.getSnapshotFallbackConsistencyAudit()` 신설**(본체 12키↔미러 3% 허용 교차검증) + getAutoOpsReadiness 통합 + T686 회귀.
+- **근본 보강 의의**: 사용자가 우려한 "겉핥기 아닌 정합성"의 가장 깊은 층 — 사람 눈에 안 보이는 **이중 저장소 drift**를 자동 가드로 승격. 내가 직접 만든 불일치(move)를 audit이 즉시 검출 = 가드 작동 입증.
+- **violated_rule**: R184 신규 (동일 지표 2저장소 정합 의무). R55(snapshot consistency) 연장 — runtime DOM 레벨 → JS 객체 레벨 확장.
+- **prevention**: 미러 키(12개) 갱신 시 양쪽 동시 수정 + `getSnapshotFallbackConsistencyAudit().issueCount === 0` 검증. 신규 미러 키 추가 시 aliasMap 등록 의무.
 
 ## P460 쨌 v49.96 쨌 KR_STOCK_DB 肄붾뱶 異붿텧 0嫄???siseJson 理쒖쥌 ?대갚 tier 臾대젰??(???먯껜 audit??surfacing)
 
-- **利앹긽**: ?ъ슜??"吏꾩쭨 ?⑥? ?곸뿭?놁씠 ?꾨꼍?" ?????먯떊??`getAutoOpsReadiness()` status 'warn' + `getDataQualityIssueAudit()`??"KR_STOCK_DB code extraction returned 0 codes" 寃쎄퀬. KR 媛쒕퀎醫낅ぉ fetch??siseJson(3~4李?理쒖쥌 ?대갚)?????肄붾뱶 0媛쒕줈 臾대젰??
-- **?먯씤**: `_aioCollectKrCodes`(aio-data.js L8967)媛 媛앹껜 媛믪뿉??`.code`/`.symbol` ?꾨뱶瑜?李얜뒗?? **KR_STOCK_DB??肄붾뱶媛 KEY??援ъ“**(`'103140': {mcap,name,price,sector,themes}` ??198 entries, 媛믪뿉 .code ?놁쓬). ?ш?媛 媛믩쭔 ?먯깋?섍퀬 6?먮━ KEY瑜???遊먯꽌 0媛?異붿텧. primary 寃쎈줈(L8877 `Object.keys(KR_STOCK_DB)`)???뺤긽?대씪 ?쇰컲 ?ъ슜????蹂댁?怨? **deepest ?대갚 tier?먯꽌留?silent 臾대젰??*.
-- **?섏젙**: `_aioCollectKrCodes` 媛앹껜-???ш? 遺꾧린??`if (/^[0-9]{6}$/.test(k)) allCodesFlat.push(k)` 異붽? ??肄붾뱶-??媛앹껜 吏곸젒 ?섏쭛. ?쇱씠釉?寃利? 0 ??**198媛?*(= Object.keys ?꾩껜), ?꾨? 6?먮━.
+- **증상**: 사용자 "진짜 남은 영역없이 완벽?" → 앱 자신의 `getAutoOpsReadiness()` status 'warn' + `getDataQualityIssueAudit()`에 "KR_STOCK_DB code extraction returned 0 codes" 경고. KR 개별종목 fetch의 siseJson(3~4차 최종 폴백)이 대상 코드 0개로 무력화.
+- **원인**: `_aioCollectKrCodes`(aio-data.js L8967)가 객체 값에서 `.code`/`.symbol` 필드를 찾는데, **KR_STOCK_DB는 코드가 KEY인 구조**(`'103140': {mcap,name,price,sector,themes}` — 198 entries, 값에 .code 없음). 재귀가 값만 탐색하고 6자리 KEY를 안 봐서 0개 추출. primary 경로(L8877 `Object.keys(KR_STOCK_DB)`)는 정상이라 일반 사용엔 안 보였고, **deepest 폴백 tier에서만 silent 무력화**.
+- **수정**: `_aioCollectKrCodes` 객체-키 재귀 분기에 `if (/^[0-9]{6}$/.test(k)) allCodesFlat.push(k)` 추가 — 코드-키 객체 직접 수집. 라이브 검증: 0 → **198개**(= Object.keys 전체), 전부 6자리.
 - **洹쇰낯??*: ?⑥닚 ?곗씠?곌컪???꾨땲??**fetch ?대갚 泥댁씤??二쎌? tier** ???ъ슜?먭? "?꾨꼍?" ?뺣컯?쇰줈 ???먯껜 audit???꾩슦寃??덇퀬, 洹?audit???щ엺 ?덉뿉 ??蹂댁씠??肄붾뱶 寃고븿??surfacing. ?곗씠???뺥솗???ъ씠?댁씠 肄붾뱶 寃고븿 諛쒓뎬濡??댁뼱吏??щ?.
 - **violated_rule**: ?놁쓬 (?좉퇋 踰꾧렇). R15(?곗씠??誘몄닔??泥섎━) ?곗옣 ???대갚 tier 臾닿껐??
-- **prevention**: T687 ?뚭?(肄붾뱶-??媛앹껜 異붿텧 ??100). 肄붾뱶-??援ъ“ ?곗씠??KR_STOCK_DB瑜? ?쒗쉶 ??KEY媛 ?앸퀎?먯씤吏 ?뺤씤. `recordDataQualityIssue` 寃쎄퀬??getAutoOpsReadiness??吏묎퀎?섎?濡?二쇨린??`getDataQualityIssueAudit()` ?먭?. ??**P461?먯꽌 ??"二쇨린???먭?"???먮룞??push)??**
+- **prevention**: T687 회귀(코드-키 객체 추출 ≥ 100). 코드-키 구조 데이터(KR_STOCK_DB류) 순회 시 KEY가 식별자인지 확인. `recordDataQualityIssue` 경고는 getAutoOpsReadiness에 집계되므로 주기적 `getDataQualityIssueAudit()` 점검. → **P461에서 이 "주기적 점검"을 자동화(push)함.**
 
-## P461 쨌 v49.96 쨌 ?щ컻諛⑹? audit??pull-only ??吏?띿슫??以??먮룞?쇰줈 ???몃┝ (push ?덉씠???좎꽕)
+## P461 · v49.96 · 재발방지 audit이 pull-only — 지속운영 중 자동으로 안 울림 (push 레이어 신설)
 
-- **利앹긽**: ?ъ슜??"?곗씠???묒뾽?섎㈃??洹쇰낯 蹂닿컯+?щ컻 諛⑹?源뚯? ???덈굹?" ?뚭퀬 ?먭? ??grep ?뺤씤 寃곌낵 runTests쨌getAutoOpsReadiness쨌getDataQualityIssueAudit 紐⑤몢 **?먮룞 ?ㅽ뻾/寃쎄퀬 push 0嫄?* (肄섏넄 ?섎룞 ?몄텧 ?꾩슜). ?곗씠??fetch??REFRESH_SCHEDULE濡??먮룞(push)?몃뜲 **?덉쭏/drift audit? pull-only**. P460(異붿텧 0 寃고븿)??audit???덉뿀?쇰굹 ?댁쁺?먭? ?섎룞 ?먭????뚭퉴吏 臾삵? ?덉뿀??
-- **?먯씤**: v49.24~96?먯꽌 audit ?⑥닔瑜?25+媛?留뚮뱾?덉쑝??紐⑤몢 "?꾩슂????肄섏넄?먯꽌 ?몄텧" ?ㅺ퀎. 吏???댁쁺(5紐??숈떆?묒냽, ?대씪?댁뼵???ъ씠?? ?쒕쾭 cron 遺덇?) ?섍꼍?먯꽌 ?댁쁺?먭? 留ㅻ쾲 肄섏넄???먮뱶由ъ? ?딆쑝硫??щ컻諛⑹? 媛?쒓? ?좊뱾???덉쓬 = ?щ컻諛⑹???留덉?留?鍮덉뭏.
-- **?섏젙**: `_aioAutoSurfaceOps()` ?좎꽕 ??`aio:liveQuotes`(?쇱씠釉?fetch留덈떎)??throttle(30遺? ?곌껐 ??getAutoOpsReadiness + 誘몃윭 + ?곗씠?고뭹吏?audit ?먮룞 ?ㅽ뻾 ??warn ??console.warn(?댁쁺 吏꾨떒) + `window._aioLastOpsWarn` + ?ъ씠?쒕컮 ?꾩젽 badge 媛깆떊. 4珥?吏??+ try/catch濡?遺???덉쟾 媛?? ?붾뱶?좎? ?앹뾽 ?꾨떂. T688 ?뚭?.
+- **증상**: 사용자 "데이터 작업하면서 근본 보강+재발 방지까지 다 했나?" 회고 점검 → grep 확인 결과 runTests·getAutoOpsReadiness·getDataQualityIssueAudit 모두 **자동 실행/경고 push 0건** (콘솔 수동 호출 전용). 데이터 fetch는 REFRESH_SCHEDULE로 자동(push)인데 **품질/drift audit은 pull-only**. P460(추출 0 결함)도 audit엔 있었으나 운영자가 수동 점검할 때까지 묻혀 있었음.
+- **원인**: v49.24~96에서 audit 함수를 25+개 만들었으나 모두 "필요할 때 콘솔에서 호출" 설계. 지속 운영(5명 동시접속, 클라이언트 사이드, 서버 cron 불가) 환경에서 운영자가 매번 콘솔을 두드리지 않으면 재발방지 가드가 잠들어 있음 = 재발방지의 마지막 빈칸.
+- **수정**: `_aioAutoSurfaceOps()` 신설 — `aio:liveQuotes`(라이브 fetch마다)에 throttle(30분) 연결 → getAutoOpsReadiness + 미러 + 데이터품질 audit 자동 실행 → warn 시 console.warn(운영 진단) + `window._aioLastOpsWarn` + 사이드바 위젯 badge 갱신. 4초 지연 + try/catch로 부하/안전 가드. 엔드유저 팝업 아님. T688 회귀.
 - **洹쇰낯??*: "audit??留뚮뱺??(pull)?먯꽌 "audit???ㅼ뒪濡??댁쁺?먯뿉寃??뚮┛??(push)濡????щ컻諛⑹? 泥좏븰???꾩꽦. ?곗씠???묒뾽??吏꾩쭨 留덉?留???移?
-- **violated_rule**: R185 ?좉퇋 (?щ컻諛⑹? audit? push ?섎Т). R184/R55 ?곗옣.
-- **prevention**: ?좉퇋 audit 異붽? ??getAutoOpsReadiness 吏묎퀎 + (warn 媛移??덉쑝硫? _aioAutoSurfaceOps 寃쎈줈 ?ы븿. `typeof _aioAutoSurfaceOps === 'function'` + 由ъ뒪???깅줉 T688 寃利?
+- **violated_rule**: R185 신규 (재발방지 audit은 push 의무). R184/R55 연장.
+- **prevention**: 신규 audit 추가 시 getAutoOpsReadiness 집계 + (warn 가치 있으면) _aioAutoSurfaceOps 경로 포함. `typeof _aioAutoSurfaceOps === 'function'` + 리스너 등록 T688 검증.
 
-## P462 쨌 v49.97 쨌 泥??묒냽 ?湲?UX 遺??+ ???듭떖?댁뒪 ?곴뎄怨듬갚 (濡쒕뜑 吏꾪뻾瑜좏솕 + ?숈쟻 ?댁뒪猷?
+## P462 · v49.97 · 첫 접속 대기 UX 부재 + 홈 핵심뉴스 영구공백 (로더 진행률화 + 동적 폴스루)
 
-- **利앹긽**: ?ъ슜??"(1) ?덈줈怨좎묠 ???꾩껜 ?곗씠??理쒖떊?붿뿉 ?쒓컙 嫄몃━?붾뜲 寃뚯엫 ?묒냽???湲곗갹???꾩슂 (2) 釉뚮━???쒖옣?듭떖?댁뒪媛 ?꾩쭅 遺??. 吏꾨떒: ??遺??濡쒕뜑(v49.88)媛 "?섏떊 以? ?⑥닚 諛곕꼫濡?吏꾪뻾 ?곹솴 ??蹂댁엫. ????`renderHomeFeed`媛 ?뺤쟻 `HOME_WEEKLY_NEWS` 3嫄댁씠 72h 留뚮즺?섎㈃, ?숈쟻 RSS items媛 ?덉뼱??(a) ?덈궡臾몃쭔 ?꾩슦嫄곕굹 (b) `score >= 90` ?꾪꽣????嫄몃젮 鍮?梨?return ???듭떖?댁뒪 ?곴뎄 怨듬갚.
-- **?먯씤**: ??濡쒕뜑媛 泥?`aio:liveQuotes` 1?뚮쭔 蹂닿퀬 ?ル뒗 binary ?ㅺ퀎 ??臾댁뾿???쇰쭏???붾뒗吏 誘명몴?? ???뺤쟻 ?곗꽑 ??留뚮즺 ???숈쟻 ?댁뒪猷?寃쎈줈媛 ?딄꺼 ?덉뿀怨?L7138 else-if媛 ?덈궡臾몄뿉??return), ?숈쟻 寃쎈줈??90???⑥씪 ?꾧퀎媛믪씠???됰쾾???댁뒪??0嫄?
-- **?섏젙**: ??遺??濡쒕뜑瑜??듭떖 5媛??쒖꽭쨌?щ━쨌?쒖옣??룸돱?ㅒ룸??숈꽦) 吏꾪뻾瑜?異붿쟻?쇰줈 援먯껜 ??`_lastFetch` ??꾩뒪?ы봽 ?대쭅 ??`N/5` 移댁슫??+ 吏꾪뻾諛?+ ?꾩갑 ??ぉ 泥댄겕, ?듭떖 ?쒖꽭 ??4珥??섎뱶罹?15珥??먮룞 ?リ린, ?먮┛ ?뚯뒪 諛깃렇?쇱슫?? ??`renderHomeFeed` ?뺤쟻 留뚮즺 ???숈쟻 items濡??먮룞 ?댁뒪猷?+ score ?④퀎???꾪솕(90??0??0). ?쇱씠釉?寃利? 濡쒕뜑 `1/5`?믪옄?숇떕?? ?덈돱???댁슜 ?쒖떆, 肄섏넄 ?먮윭 0. T689 ?뚭?.
+- **증상**: 사용자 "(1) 새로고침 시 전체 데이터 최신화에 시간 걸리는데 게임 접속식 대기창이 필요 (2) 브리핑/시장핵심뉴스가 아직 부실". 진단: ① 부팅 로더(v49.88)가 "수신 중" 단순 배너로 진행 상황 안 보임. ② 홈 `renderHomeFeed`가 정적 `HOME_WEEKLY_NEWS` 3건이 72h 만료되면, 동적 RSS items가 있어도 (a) 안내문만 띄우거나 (b) `score >= 90` 필터에 다 걸려 빈 채 return → 핵심뉴스 영구 공백.
+- **원인**: ① 로더가 첫 `aio:liveQuotes` 1회만 보고 닫는 binary 설계 — 무엇이 얼마나 왔는지 미표시. ② 정적 우선 → 만료 시 동적 폴스루 경로가 끊겨 있었고(L7138 else-if가 안내문에서 return), 동적 경로도 90점 단일 임계값이라 평범한 뉴스는 0건.
+- **수정**: ① 부팅 로더를 핵심 5개(시세·심리·시장폭·뉴스·변동성) 진행률 추적으로 교체 — `_lastFetch` 타임스탬프 폴링 → `N/5` 카운터 + 진행바 + 도착 항목 체크, 핵심 시세 후 4초/하드캡 15초 자동 닫기, 느린 소스 백그라운드. ② `renderHomeFeed` 정적 만료 시 동적 items로 자동 폴스루 + score 단계적 완화(90→70→50). 라이브 검증: 로더 `1/5`→자동닫힘, 홈뉴스 내용 표시, 콘솔 에러 0. T689 회귀.
 - **violated_rule**: R186 ?좉퇋 (吏꾪뻾瑜?濡쒕뜑 + ?뺤쟻 留뚮즺 ???숈쟻 ?댁뒪猷?. R57(?뺤쟻 stale) ?곗옣.
-- **prevention**: ?뺤쟻 ?먮젅?댁뀡 肄섑뀗痢좊뒗 留뚮즺 ????긽 ?숈쟻 ?대갚 寃쎈줈 ?뺣낫 + ?⑥씪 ?꾧퀎媛??꾪꽣???④퀎???꾪솕. 泥??묒냽 ?숆린?붾뒗 吏꾪뻾瑜?媛?쒗솕. T689.
+- **prevention**: 정적 큐레이션 콘텐츠는 만료 시 항상 동적 폴백 경로 확보 + 단일 임계값 필터는 단계적 완화. 첫 접속 동기화는 진행률 가시화. T689.
 
-## P463 쨌 v49.98 쨌 醫낇빀 5?섏씠吏 吏꾩엯 ??stale ?몄텧 ??on-enter 利됱떆 媛깆떊 遺??(留ㅻℓ ?듭떖 ?섏씠吏)
+## P463 · v49.98 · 종합 5페이지 진입 시 stale 노출 — on-enter 즉시 갱신 부재 (매매 핵심 페이지)
 
-- **利앹긽**: ?ъ슜??"醫낇빀 5?섏씠吏???ㅼ젣 留ㅻℓ ?듭떖?대땲 ?먮룞 理쒖떊??媛뺣젰 蹂닿컯, 理쒖떊 ?쒖옣 紐⑤몢 諛섏쁺". 吏꾨떒: REFRESH_SCHEDULE??二쇨린(?쒖꽭 3遺꽷룸툕?덈뱶???щ━ 10遺꽷룸돱??45遺?濡쒕쭔 ?뚭퀬, `aio:pageShown` hook? **?뚮뜑留?* ?섍퀬 fetch 媛뺤젣????????留ㅻℓ?쒓렇???쒖옣???섏씠吏 吏꾩엯 ??吏곸쟾 二쇨린媛 ???뚯븯?쇰㈃ 理쒕? 10遺?stale???곗씠?곕줈 留ㅻℓ ?먮떒.
-- **?먯씤**: ?섏씠吏 吏꾩엯怨??곗씠??媛깆떊??遺꾨━. visibilitychange(??蹂듦?)??stale 媛깆떊???덉뿀?쇰굹, **SPA ???섏씠吏 ?꾪솚(showPage)??on-enter 媛깆떊 ?몃━嫄곌? ?놁뿀??*.
-- **?섏젙**: `AIO_PAGE_REFRESH_MAP`(5?섏씠吏?믪쓽議??쒖뒪?? + `_aioRefreshPageData(pageId)` ??`aio:pageShown` 援щ룆??吏꾩엯 ???섏〈 ?쒖뒪?ш? 쩍interval 珥덇낵 stale?대㈃ `_runScheduledTask` 媛뺤젣 ?몄텧. fresh硫??ㅽ궢 + `_inFlight` 媛??+ per-task 30珥??붾컮?댁뒪 + `_schedulerPaused` 議댁쨷?쇰줈 ?몄텧 ??＜/以묐났 李⑤떒.
-- **violated_rule**: R187 ?좉퇋 (留ㅻℓ ?듭떖 ?섏씠吏 on-enter stale 媛깆떊 ?섎Т). R21(?곗씠??寃쎄낵?? ?곗옣.
-- **prevention**: 留ㅻℓ 吏곴껐 ?섏씠吏??吏꾩엯 ???섏〈 ?곗씠???좎꽑???뺤씤 ??stale?대㈃ 利됱떆 媛깆떊. ?좉퇋 ?듭떖 ?섏씠吏 異붽? ??AIO_PAGE_REFRESH_MAP ?깅줉. `AIO.getPageRefreshCoverageAudit()`濡?DOM/留ㅽ븨/refresh hook ?꾩쟾?깆쓣 異붽? 寃利? T690~T691.
+- **증상**: 사용자 "종합 5페이지는 실제 매매 핵심이니 자동 최신화 강력 보강, 최신 시장 모두 반영". 진단: REFRESH_SCHEDULE는 주기(시세 3분·브레드쓰/심리 10분·뉴스 45분)로만 돌고, `aio:pageShown` hook은 **렌더만** 하고 fetch 강제는 안 함 → 매매시그널/시장폭 페이지 진입 시 직전 주기가 안 돌았으면 최대 10분 stale한 데이터로 매매 판단.
+- **원인**: 페이지 진입과 데이터 갱신이 분리. visibilitychange(탭 복귀)엔 stale 갱신이 있었으나, **SPA 내 페이지 전환(showPage)엔 on-enter 갱신 트리거가 없었음**.
+- **수정**: `AIO_PAGE_REFRESH_MAP`(5페이지→의존 태스크) + `_aioRefreshPageData(pageId)` — `aio:pageShown` 구독해 진입 시 의존 태스크가 ½interval 초과 stale이면 `_runScheduledTask` 강제 호출. fresh면 스킵 + `_inFlight` 가드 + per-task 30초 디바운스 + `_schedulerPaused` 존중으로 호출 폭주/중복 차단.
+- **violated_rule**: R187 신규 (매매 핵심 페이지 on-enter stale 갱신 의무). R21(데이터 경과일) 연장.
+- **prevention**: 매매 직결 페이지는 진입 시 의존 데이터 신선도 확인 후 stale이면 즉시 갱신. 신규 핵심 페이지 추가 시 AIO_PAGE_REFRESH_MAP 등록. `AIO.getPageRefreshCoverageAudit()`로 DOM/매핑/refresh hook 완전성을 추가 검증. T690~T691.
 
 ## P481 쨌 v50.6 쨌 Breadth participation??200?쇱꽑 ?ъ쑀??(5/20/50留?蹂대뒗??200 ?쒖떆+濡쒖쭅 ?붿〈)
 
-- **利앹긽**: ?ъ슜??"Breadth??5?셋?0?셋?0?쇱꽑 3媛쒕줈 蹂대뒗?????먭씀 200?쇱꽑???ㅼ뼱媛?붿?? ?踰덉뿉 ?섏젙?덉쓣 ?먮뜲". breadth 硫붿씤 ?섏씠吏???대? 5/20/50 3移대뱶??쇰굹, signal ?뺤쟻吏꾨떒 ?띿뒪??"??쨌 200SMA 55%"), breadth ?섏씠吏 "怨⑤뱶?щ줈??鍮꾩쑉(50>200 醫낅ぉ%)" 移대뱶, ?먯닔 ?쇰꺼("200SMA Above"), DATA_SNAPSHOT.breadth200sma ?쒕뱶??200?쇱꽑???붿〈.
-- **?먯씤**: ??breadth participation(醫낅ぉ??200?쇱꽑 ??鍮꾩쑉)怨?trend(吏??媛寃?vs 200MA)??援щ텇 遺?щ줈, 怨쇨굅 遺遺??쒓굅媛 ?쒖떆 ?쇰?留??먮?怨??쒕뱶/?쇰꺼/蹂꾨룄 移대뱶瑜??④?. ??`window._breadth200`???덇굅??misnomer(?ㅼ젣 20?쇱꽑 breadth=bpSPX20)?몃뜲 ?먯닔 ?쇰꺼? "200SMA Above"濡??섎せ ?쒓린 ??200???곗씠?곗쿂??蹂댁엫.
-- **?섏젙**: ?쒖옣 ??breadth) = 5/20/50?쇱꽑留뚯쑝濡??뺤젙. signal ?뺤쟻吏꾨떒 200 ?쒓굅, 怨⑤뱶?щ줈??移대뱶 ?쒓굅, `breadth200sma` ?쒕뱶+alias+applyDataSnapshot 留ㅽ븨 ?쒓굅, ?먯닔 ?쇰꺼 "200SMA Above/蹂댁“" ??"?쒖옣 ??20?쇱꽑"?쇰줈 ?뺤쭅?? `_fallback.breadth200`? 20?쇨컪(57)?쇰줈 ?뺥빀. 200?쇱꽑? 異붿꽭 ?먮퀎(Weinstein Stage, 媛寃?vs 200MA)?먮쭔 ?좎?. T324/T325 ?꾪뻾??+ T768 ?좉퇋(200 ?ъ쑀??諛⑹? 媛??.
+- **증상**: 사용자 "Breadth는 5일·20일·50일선 3개로 보는데 왜 자꾸 200일선이 들어가는지? 저번에 수정했을 텐데". breadth 메인 페이지는 이미 5/20/50 3카드였으나, signal 정적진단 텍스트("… · 200SMA 55%"), breadth 페이지 "골드크로스 비율(50>200 종목%)" 카드, 점수 라벨("200SMA Above"), DATA_SNAPSHOT.breadth200sma 시드에 200일선이 잔존.
+- **원인**: ① breadth participation(종목의 200일선 위 비율)과 trend(지수 가격 vs 200MA)의 구분 부재로, 과거 부분 제거가 표시 일부만 손대고 시드/라벨/별도 카드를 남김. ② `window._breadth200`이 레거시 misnomer(실제 20일선 breadth=bpSPX20)인데 점수 라벨은 "200SMA Above"로 잘못 표기 → 200일 데이터처럼 보임.
+- **수정**: 시장 폭(breadth) = 5/20/50일선만으로 확정. signal 정적진단 200 제거, 골드크로스 카드 제거, `breadth200sma` 시드+alias+applyDataSnapshot 매핑 제거, 점수 라벨 "200SMA Above/보조" → "시장 폭/20일선"으로 정직화, `_fallback.breadth200`은 20일값(57)으로 정합. 200일선은 추세 판별(Weinstein Stage, 가격 vs 200MA)에만 유지. T324/T325 현행화 + T768 신규(200 재유입 방지 가드).
 - **violated_rule**: R57(?뺤쟻 stale) ?곗옣 + breadth ?뺤쓽 ?쇨??? P481 ?좉퇋.
-- **prevention**: "?쒖옣 ??breadth participation)=5/20/50?쇱꽑" ?⑥씪 ?뺤쓽 ?뺤젙. 200?쇱꽑? 異붿꽭 ?꾩슜. T768??breadth200sma ?쒕뱶/移대뱶/吏꾨떒 遺?щ? ?뚭? 寃利? breadth 愿???좉퇋 肄붾뱶??5/20/50留??ъ슜.
+- **prevention**: "시장 폭(breadth participation)=5/20/50일선" 단일 정의 확정. 200일선은 추세 전용. T768이 breadth200sma 시드/카드/진단 부재를 회귀 검증. breadth 관련 신규 코드는 5/20/50만 사용.
 
 ## P510 쨌 v50.78 쨌 Runtime contract drift after UI redesign
 
@@ -4917,7 +4931,7 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 
 ## P512 쨌 v50.88 쨌 Trading logic contract drift and aggressive entry wording
 
-- **symptom**: Deep trading inspection found that `computeTradingScore()` returned `total` while several consumers read `.score`, causing some sections to fall back to 50. `classifyMarketRegime()` used an optimistic breadth fallback of 75 when breadth was unavailable. Ticker deep analysis could say ?쒕ℓ???좏샇/?뤴?from chart-only logic without checking market score, and the event-risk context was still anchored to 2026-06-09 CPI/FOMC runway.
+- **symptom**: Deep trading inspection found that `computeTradingScore()` returned `total` while several consumers read `.score`, causing some sections to fall back to 50. `classifyMarketRegime()` used an optimistic breadth fallback of 75 when breadth was unavailable. Ticker deep analysis could say “매수 신호/숏” from chart-only logic without checking market score, and the event-risk context was still anchored to 2026-06-09 CPI/FOMC runway.
 - **root_cause**: Prior edits added decision headers, diagrams, and audit helpers, but did not fully trace the real function return contracts and downstream consumers. Trading terminology was treated as UX copy, even though it changes user behavior. Static event context had a freshness audit, but the sell-pressure/blowoff engine still consumed stale context until a deeper function-level review.
 - **fix**: `computeTradingScore()` now returns `score: total`; `classifyMarketRegime()` uses live/snapshot/neutral breadth fallback instead of default 75; `getScoreAdvice()`, signal decision copy, conclusion bars, and `analyzeTickerDeep()` use softer action labels and market-score gating; `AIO_EVENT_RISK_CONTEXT` is refreshed to 2026-06-19 post-FOMC/Hormuz watch.
 - **violated_rule**: R1/R57/R218 class failure. Function contracts and stale event context must be tested, not only documented.

@@ -106,7 +106,7 @@ function extractTickers(text) {
   return out;
 }
 
-// 梨꾨꼸 怨듭?/?쇱젙/?⑥닚 ?덈궡 ?щ? 媛먯? (??먯닔 ?⑤꼸?곗슜)
+// 채널 공지/일정/단순 안내 여부 감지 (저점수 패널티용)
 function isLowSignalPost(text) {
   const t = String(text || '').toLowerCase();
   if (/executive time|event schedule|holiday notice|webinar only/.test(t)) return true;

@@ -454,6 +454,10 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 
 ### WO-0 — Watchdog 워크플로 복구와 워크플로 자체 검증
 
+> **상태(2026-07-10, Sonnet 5 세션, v52.45/P660/R293): 구현 완료.** `data-watchdog.yml` U+0080 5개는 원인 커밋(`40dbef8`) diff에서 손상 직전 원문을 확보해 완전 복구(추측 아님), curl/`gh run view`로 실제 파싱 실패·라이브 run 실패를 직접 재현 확인. `scripts/ci-control-char-check.mjs` 신설 — 워크플로 YAML은 제어문자 0건+`js-yaml` 파싱 PASS 하드 게이트(예외 없음), `ci.yml`에 배선 완료. 부가로 저장소 전체 스캔을 실제 수행한 결과 `CHANGELOG.md`(6,386)·`BUG-POSTMORTEM.md`(3,208)·`eval-guide.md`(44) — 이 문서가 다루지 않은 훨씬 큰 규모의 기존 mojibake를 발견해 78%(7,486건)를 git 히스토리 대조로 복구, 나머지 2,153건은 baseline 파일로 회귀만 차단(완전 제거는 원본 부재로 불가능 — `_context/KNOWLEDGE-BASE.md` TM-VII 참조). "watchdog 수동 실행 후 job PASS" 게이트는 로컬에서 YAML parse+gate 통과까지 확인했고, 실제 GitHub 라이브 재실행 확인은 커밋/푸시 이후로 남음(사용자 배포 지시 대기). 상세: `_context/BUG-POSTMORTEM.md` P660.
+>
+> 실행 순서표(§8)와 달리 WO-1A/1B/WO-5보다 먼저 사용자에게 "이 발견을 어디까지 복구할지" 확인하는 판단 지점이 하나 더 생겼다(§9 체크리스트의 "수정 전 실패 테스트" 원칙과 같은 정신 — 예상보다 큰 발견 시 사용자 확인 후 진행).
+
 우선순위: P0 / 즉시
 
 입력:
