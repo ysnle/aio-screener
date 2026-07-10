@@ -586,6 +586,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 - route 왕복 후 listener/timer/fetch 증가 없음
 - 키보드와 screen reader 핵심 흐름 수동 증거
 
+> **상태(2026-07-10, Sonnet 5 세션, v52.52/P667/R300): 부분 구현 완료 — 완료 게이트 전체 충족은 아님(정직하게 기록).** 동시 실행 중인 별도 Codex 세션의 `CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`(사용자가 이번 지시 범위 밖이라고 확인한 문서)에 이미 이 WO의 진단(F-01/F-02)이 있었음을 발견 — 코드 파일에 미커밋 충돌이 없음을 먼저 확인한 뒤 참고만 하고 전부 직접 재검증(그 문서의 더 큰 UX 재설계 의제는 채택하지 않고 WO-4 자체 게이트만 구현). `AIO_VIEWPORT_FULL_INIT=1`로 직접 실행해 22×4 중 technical route 4콤보가 `_pricePosition()` SVG 라벨-값 겹침으로 실패함을 재현 확인 → 라벨/값 baseline 간격을 10px→14px로 넓혀 수정, 재실행으로 해소 확인. `pageerror`/`console.error` 수집을 처음으로 게이트에 추가(이전엔 전혀 없었음) — 켜자마자 앱 자체의 정상적인 API 헬스 warn→error 로그 8건이 걸렸으나 소스 추적으로 버그 아님을 확인 후 정확한 패턴만 허용목록화(포괄 억제 아님, R300). `zeroCanvases`(선언만 되고 채워진 적 없던 죽은 코드) 실구현. small-text 정책 결정: 8px 이하는 게이트 실패, 9px(기존 34곳)는 관찰만 유지. 최종 88/88 PASS 확인 후 `ci.yml`의 viewport-matrix를 `continue-on-error` 제거+FULL_INIT=1 기본+deploy `needs:` 편입으로 실제 배포 차단 게이트 승격. **미충족 게이트**: 외부 정상/timeout/partial-data 시나리오(현재 "전부 abort=장애"만), route 왕복 리소스 누수 계측, 키보드/screen reader 실사(자동화 불가, 사람 필요). 상세: `_context/BUG-POSTMORTEM.md` P667, `_context/DEFERRED-BLOCKS.md` B9.
+
 ### WO-5 — 변경 통제와 hook 단일화
 
 > **상태(2026-07-10, Sonnet 5 세션, v52.48/P663/R296): 구현 완료.** 사용자에게 2건 확인 — 브랜치 보호 범위("안전망만": force-push+삭제 차단, PR/상태체크 요구 없음 — 이 저장소는 봇/훅이 PR 없이 main에 직접 push하는 구조라 확인) + auto-commit 범위("세션 시작 스냅샷 대조"). `gh api`로 브랜치 보호를 실제로 활성화(재조회로 확인). `.codex/hooks.json`을 직접 읽어 이 문서가 지목한 OneDrive 경로가 **실제로 존재하지 않아 6개 훅 전부가 무력화**돼 있었음을 확정(상대경로로 전환). "hash가 다르다"고 지목한 `.claude`/`.codex` 6쌍 hook 스크립트는 실제로는 CRLF/LF 차이일 뿐 로직은 완전히 동일함을 확인. 신규 `SessionStart` 훅으로 auto-commit의 "관련 없는 파일 혼입" 문제를 스냅샷 대조 방식으로 해결(이 문서 작성 이후 같은 세션에서 실제로 재현된 사례를 근거로 확정). 버전 정규식 자릿수 고정 버그도 재현·수정. 상세: `_context/BUG-POSTMORTEM.md` P663.
@@ -647,6 +649,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 - 기존 948+88과 full-init 신규 게이트 유지
 - ±500줄 이상 변경 시 CODE-MAP 갱신
 
+> **상태(2026-07-10, Sonnet 5 세션, v52.53/P668): Packet 1(전역 read/write 인벤토리) 완료 — 다개 패킷 중 첫 걸음일 뿐, WO-7 전체 완료 아님(자체 정의상 원래 여러 세션에 걸친 점진적 작업).** baseline 실측: innerHTML 395·전역쓰기 1,318·이스케이프 호출 282·localStorage direct 146 vs safeLS 8. 핵심 발견: Codex가 "도입하라"고 한 timer/chart/page-lifecycle 어댑터는 **이미 존재**(`_aioTimerRegistry`/`_aioChartRegistry`/`_aioPageBus`) — 실제 갭은 어댑터 부재가 아니라 채택률. snapshot adapter만 진짜 부재. 위험 0에 가까운 수정 1건(raw setInterval 1건을 기존 레지스트리 경유로 전환)만 실행, 나머지(storage adapter 전면화·snapshot adapter 신설·innerHTML 전수 분류)는 규모상 별도 패킷으로 명시 이관. 상세: `_context/WO7-GLOBAL-INVENTORY-2026-07-10.md`, `_context/BUG-POSTMORTEM.md` P668.
+
 ### WO-8 — 문서·운영 기록 압축과 현재성 회복
 
 우선순위: P2
@@ -663,6 +667,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 - active 문서에서 현재 계약을 한 번에 찾을 수 있음
 - archive 이동 뒤 링크·knowledge lint PASS
 - 운영 사실과 문서 drift를 CI가 검출
+
+> **상태(2026-07-10, Sonnet 5 세션, v52.54/P669): Packet 1(CODE-MAP 현재성 검사+갱신, 감사 문서 상태 명시) 완료 — WO-8 전체 완료 아님.** 신규 `scripts/ci-doc-currency-check.mjs`로 CODE-MAP.md §1 파일 크기 표를 실제 코드와 대조 — v51.90(2026-07-02) 이후 무재검증으로 최대 484줄(aio-tests.js) 드리프트를 발견, CI에 정보성(non-blocking) 단계로 배선 후 CODE-MAP §1을 실측치로 갱신(§2 이하 개별 함수 line 범위는 이번에 재검증하지 않았음을 문서에 명시, confidence high→medium). 6개 주요 감사 문서 중 상태 배너가 없던 유일한 문서(FABLE-LIVE-AUDIT-2026-07-04.md)에 resolved/closed-by-decision 요약 추가, 나머지는 이미 자체 배너 보유 확인. **미완료**: CHANGELOG.md/BUG-POSTMORTEM.md의 연도·버전별 archive 분리(440+/600+ 항목의 대규모 콘텐츠 이동 — 별도의 신중한 패킷 필요), INDEX.md/WORKTREE-AUDIT.md 자동 현재성 검사(INDEX.md는 동시 실행 중인 별도 세션이 편집 중이라 이번엔 읽기만 함), 오래된/중복 규칙 정리. 상세: `_context/BUG-POSTMORTEM.md` P669.
 
 ---
 

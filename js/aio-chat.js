@@ -4659,7 +4659,13 @@ window.AIO.setUserProfile = _aioSetUserProfile;
 if (typeof setTimeout !== 'undefined' && typeof window !== 'undefined') {
   setTimeout(function() {
     try { _aioCheckAlerts(); } catch(_) {}
-    setInterval(function() { try { _aioCheckAlerts(); } catch(_) {} }, 60 * 1000);
+    // v52.5x/WO-7: 기존 window._aioRegisterTimer(name, fn, ms) 레지스트리를 경유하도록 전환 —
+    // 이전엔 이름 없는 raw setInterval이라 _aioTimerRegistry에 잡히지 않고, 같은 이름으로 중복
+    // 실행돼도 clearInterval 자동 정리가 없었다(이 스크립트 블록이 두 번 실행될 경로는 현재
+    // 없지만, 레지스트리 경유는 이 코드베이스의 다른 모든 named interval이 이미 따르는 표준
+    // 패턴이라 통일).
+    if (typeof window._aioRegisterTimer === 'function') window._aioRegisterTimer('alerts-check', function() { try { _aioCheckAlerts(); } catch(_) {} }, 60 * 1000);
+    else setInterval(function() { try { _aioCheckAlerts(); } catch(_) {} }, 60 * 1000);
   }, 30000);
 }
 

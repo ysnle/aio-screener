@@ -3,10 +3,10 @@ verified_by: agent
 last_verified: 2026-07-10
 confidence: high
 version: v3.8
-checklist_version: v52.51
+checklist_version: v52.54
 total_items: 521
 stages: 22
-latest_P_covered: P666
+latest_P_covered: P669
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2705,3 +2705,19 @@ P666-Q2: `fetch-data.mjs` must guard its `main()` invocation behind an `import.m
 P666-Q3: `scripts/backtest-factors-longrun.mjs` must select its ticker sample from `public-data/screener-universe.json` sorted by `mcap` descending, bounded to a `--top` count (default 120) — never the full universe — and must fetch with concurrency capped at 4 (matching `fetch-data.mjs`'s own `backfillHistory()` concurrency), given this repo's documented prior Yahoo IP-blocking history.
 P666-Q4: `public-data/factor-backtest-longrun.json` must retain its `methodology.survivorshipBiasCaveat` and `methodology.subsetNotFullUniverse` fields stating plainly that survivorship bias is unresolved and the sample is a top-mcap subset — a reader must not be able to conclude "the live factor model's survivorship/full-universe validation gate has passed" from this file alone.
 P666-Q5: This finding must not have silently changed `_aioComputeFactorRanks()`'s live factor weights, direction, or inclusion in `js/aio-data.js`, nor `backtestFactors()`'s live `COMP_W`/factor list in `fetch-data.mjs` — a negative-IC finding on a partial-coverage (4-of-7-factor, subset-universe, survivorship-unresolved) validation is a documented finding requiring its own separate product decision.
+
+P667-Q1: `js/aio-ui.js`'s `_pricePosition()` must keep its per-marker label baseline and value baseline at least 14px apart (currently `slY+21` and `slY+35`) — reverting to a 10px gap reintroduces the SVG bounding-box overlap this fixed (verified failing on all 4 supported viewport widths for the `technical` route before the fix, passing after).
+P667-Q2: `scripts/ci-viewport-matrix-check.mjs` must collect `pageerror` and `console.error` events per page and attribute them to whichever route was active when they fired — a route silently throwing on every visit must fail the gate, not report a clean PASS.
+P667-Q3: The viewport matrix's console-error allowlist must match only the specific, source-verified expected-noise patterns (`net::ERR_FAILED`/`Failed to load resource` from the deliberate network abort, and the app's own `[AIO:api] {source}: warn → error` health-escalation log) — it must not broaden to a pattern that would also swallow a genuine new JS error in the same subsystem.
+P667-Q4: `zeroCanvasCount` must reflect a real query against `<canvas>` elements with zero client width/height (or zero backing-store width/height) among visible canvases — not an array that is declared but never populated.
+P667-Q5: Any inline `font-size` at or below 8px in visible page content must fail the viewport gate (`tinyTextCriticalCount`); 9px remains observation-only (`tinyTextCount`) pending a dedicated typography remediation pass, per the documented static scan (index.html: 1 instance at 7px, 0 at 8px, ~34 at 9px) informing this threshold choice.
+P667-Q6: `.github/workflows/ci.yml`'s `viewport-matrix` job must run with `AIO_VIEWPORT_FULL_INIT=1`, must not have `continue-on-error: true`, and must be included in `deploy`'s `needs:` array — a regression here must fail CI and block deploy, not silently report-and-continue.
+P667-Q7 (deferred, tracked in DEFERRED-BLOCKS.md, not a standing gate): WO-4's full literal completion gate — external success/timeout/partial-data scenario coverage (only the "everything aborted" failure scenario is tested today), route-round-trip listener/timer/fetch-leak detection, and manual keyboard/screen-reader walkthrough evidence — remain unimplemented/unavailable. This session's P667 slice covers the SVG-overlap bug fix and the pageerror/console.error/zero-canvas/small-text/blocking-gate portions of WO-4's scope only.
+
+P668-Q1: `js/aio-chat.js`'s alert auto-check must register its 60-second interval through `window._aioRegisterTimer('alerts-check', ...)` when that function exists, with a defensive fallback to a bare `setInterval` only if it doesn't — the interval's actual firing behavior (60s cadence, 30s initial delay) must be unchanged.
+P668-Q2: `_context/WO7-GLOBAL-INVENTORY-2026-07-10.md`'s baseline counts (innerHTML/global-write/localStorage-direct-vs-safeLS counts) must be treated as the reference point for any future WO-7 packet's "decreased or justified increase" claim — a future packet must not report a bare count without comparing it to this baseline.
+
+P669-Q1: `scripts/ci-doc-currency-check.mjs` must always exit 0 (informational only) — it must never hard-fail CI on ordinary line-count drift, only surface it as a warning above the configured threshold (500 lines, matching this repo's own existing "±500줄 이상 변경 시 CODE-MAP 갱신" convention).
+P669-Q2: `_context/CODE-MAP.md`'s §1 file-size table must match `wc -l` on each listed file within the ±500-line threshold at any given time — run `node scripts/ci-doc-currency-check.mjs` to check, and treat a reported drift as a signal to refresh the table (not to silence the check).
+P669-Q3: `_context/CODE-MAP.md`'s own frontmatter/intro must continue to disclose that only §1 (file-size table) was re-verified in the WO-8/P669 pass — not the detailed per-function line ranges in §2 onward — until a dedicated full rescan happens; a reader must not assume every line reference in the document is current just because the top-level table is.
+P669-Q4: `_context/FABLE-LIVE-AUDIT-2026-07-04.md`'s added status line must not claim P4 (FMP key plan error) is resolved by code — it is explicitly an operator-action item the user chose to leave as-is (closed-by-decision, not closed-by-fix).

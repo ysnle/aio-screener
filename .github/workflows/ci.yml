@@ -106,6 +106,9 @@ jobs:
       - name: Skill contract checks
         run: node scripts/ci-skill-contract-check.mjs
 
+      - name: Documentation currency check (WO-8/P669, informational)
+        run: node scripts/ci-doc-currency-check.mjs
+
       - name: stray 임시/백업 파일 검사
         run: |
           set -e
@@ -150,10 +153,16 @@ jobs:
       - name: Run AIO.runTests() headlessly
         run: node scripts/ci-headless-tests.mjs
 
+  # v52.5x/WO-4: was report-only (continue-on-error: true, default FULL_INIT=0 — only swapped
+  # .active classes, never called showPage()/rendered charts/fired events). CODEX-COMPREHENSIVE-
+  # DIAGNOSIS-2026-07-10.md WO-4 flagged this as a real init QA gap (F-02): default 88/88 PASS was
+  # not evidence of real page-init success. Verified locally with AIO_VIEWPORT_FULL_INIT=1 (real
+  # showPage() + chart render + pageerror/console.error collection, see ci-runtime-contract-check.mjs
+  # WO-4 checks) — found and fixed one real bug (js/aio-ui.js _pricePosition() SVG label/value
+  # overlap, F-01) before promoting this to a blocking gate.
   viewport-matrix:
-    name: Viewport route matrix (report-only)
+    name: Viewport route matrix (full-init, blocking)
     runs-on: ubuntu-latest
-    continue-on-error: true
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     permissions:
       contents: read
@@ -173,7 +182,9 @@ jobs:
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
 
-      - name: Run route x viewport surface matrix
+      - name: Run route x viewport surface matrix (FULL_INIT)
+        env:
+          AIO_VIEWPORT_FULL_INIT: '1'
         run: node scripts/ci-viewport-matrix-check.mjs
 
   # P557/R248: GitHub Pages was on "legacy" branch-deploy, which republishes whatever is on
@@ -182,9 +193,16 @@ jobs:
   # anyway). This job makes deployment depend on `validate` succeeding first via `needs:`,
   # so a broken push simply does not update the live site instead of deploying broken.
   # CURRENT v52.22: deployment also depends on the blocking headless-tests job.
+  # v52.5x/WO-4: also depends on viewport-matrix now that it runs FULL_INIT=1 and is a real
+  # signal (previously report-only against a mode that never exercised showPage()/chart-init,
+  # so gating deploy on it would have blocked nothing meaningful while still adding failure
+  # surface). This does mean a real viewport-matrix regression now blocks the automated
+  # refresh-data.yml -> deploy path too, not just human pushes — accepted deliberately, same
+  # blocking philosophy this repo already applies to validate/headless-tests (R248), not a new
+  # risk category.
   deploy:
-    name: Deploy to GitHub Pages (gated on validate + headless)
-    needs: [validate, headless-tests]
+    name: Deploy to GitHub Pages (gated on validate + headless + viewport-matrix)
+    needs: [validate, headless-tests, viewport-matrix]
     # Deploy on a direct human/session push to main, OR on a successful refresh-data.yml run
     # completing on main (the workflow_run path this comment block's `on:` note added — see
     # above). workflow_dispatch and pull_request never deploy.

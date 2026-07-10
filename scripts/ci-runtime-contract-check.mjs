@@ -501,6 +501,24 @@ if (exists('scripts/backtest-trading-score-longrun.mjs')) {
   check('WO-3: classifyRegime/spearmanWithCI/trailingMax are exported from the WO-2 longrun script for reuse', /export function classifyRegime/.test(scoreLongrun) && /export function spearmanWithCI/.test(scoreLongrun) && /export function trailingMax/.test(scoreLongrun));
 }
 
+// v52.5x (P667/WO-4): viewport-matrix promoted from a report-only, FULL_INIT=0-by-default check
+// to a real, blocking, FULL_INIT=1 gate — see BUG-POSTMORTEM P667 for the F-01 (SVG label
+// overlap) bug this immediately found and fixed, and F-02 (zeroCanvases dead code, no
+// pageerror/console.error collection) gaps it closed.
+const viewportScript = exists('scripts/ci-viewport-matrix-check.mjs') ? read('scripts/ci-viewport-matrix-check.mjs') : '';
+check('WO-4: ci.yml runs viewport-matrix with AIO_VIEWPORT_FULL_INIT=1 and viewport-matrix is a real deploy blocker (not continue-on-error, and included in deploy\'s needs:)', /AIO_VIEWPORT_FULL_INIT:\s*'1'/.test(ciWorkflow) && /needs:\s*\[validate,\s*headless-tests,\s*viewport-matrix\]/.test(ciWorkflow) && !/continue-on-error: true[\s\S]{0,400}ci-viewport-matrix-check\.mjs/.test(ciWorkflow));
+check('WO-4: viewport matrix collects real pageerror/console.error signal per route, not just static DOM shape checks', /page\.on\('pageerror'/.test(viewportScript) && /page\.on\('console'/.test(viewportScript) && /jsErrorCount/.test(viewportScript));
+check('WO-4: viewport matrix\'s console.error allowlist only excludes verified-expected noise (the offline-test-harness net::ERR_FAILED side effect and the app\'s own intentional API-health warn→error escalation log), not a blanket suppression', /net::ERR_FAILED/.test(viewportScript) && /warn\\s\*→\\s\*error/.test(viewportScript));
+check('WO-4: zeroCanvases detection actually queries and filters real <canvas> elements instead of the previous always-empty declared-but-unpopulated array', /querySelectorAll\('canvas'\)/.test(viewportScript) && /clientWidth === 0 \|\| cv\.clientHeight === 0/.test(viewportScript));
+check('WO-4: a small-text policy is adopted and enforced (8px-and-below fails the gate; 9px stays observation-only pending a dedicated remediation pass, per the static scan showing ~34 pre-existing 9px instances vs ~0-1 at 7-8px)', /tinyTextCriticalCount/.test(viewportScript) && /html text at\/below 8px/.test(viewportScript));
+check('WO-4: js/aio-ui.js _pricePosition() label/value SVG text baselines are spaced enough to not collide (F-01 fix — was 10px apart at 10px font, now 14px)', /slY \+ 35/.test(ui) && /slY \+ 21/.test(ui));
+
+// v52.5x (P669/WO-8): documentation currency check — CODE-MAP.md's file-size table/target_version
+// drifting silently against actual code was exactly the kind of "operational fact vs. doc drift"
+// WO-8 asks CI to detect. Non-blocking by design (line counts drift continuously during normal
+// development; a hard-failing gate here would just get bypassed/ignored, R300-adjacent lesson).
+check('WO-8: documentation currency check script exists and is wired into CI', exists('scripts/ci-doc-currency-check.mjs') && /ci-doc-currency-check\.mjs/.test(ciWorkflow));
+
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));

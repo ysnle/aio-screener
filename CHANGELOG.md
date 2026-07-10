@@ -1,3 +1,34 @@
+## v52.54 (2026-07-10)
+- **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-8 Packet 1 (P669)**: WO-8("문서·운영 기록 압축과 현재성 회복")의 작업 범위 중 append-only 기록(CHANGELOG.md 600+ 섹션, BUG-POSTMORTEM.md 440+ 항목)의 연도/버전별 archive 분리는 되돌리기 어려운 대규모 콘텐츠 이동이라 이번 패킷 범위 밖으로 명시 이관 — "INDEX/CODE-MAP/WORKTREE-AUDIT 자동 현재성 검사"와 "감사 문서의 resolved/open 상태 명시"만 실행.
+- **실측**: `_context/CODE-MAP.md`의 frontmatter가 `target_version: v51.90`(2026-07-02)로 고정된 채 v52.54까지(이번 세션에서만 v52.39 이후 16개 버전) 재검증 안 됨. `wc -l` 대조 결과 §1 파일 크기 표 6개 중 5개 드리프트: index.html +195, aio-core.js +365, aio-data.js +359, aio-chat.js +78, aio-tests.js +484(이 프로젝트 자신의 "±500줄 이상 변경 시 CODE-MAP 갱신" 임계값 근접) — 감지 장치 전무.
+- **구현**: (1) 신규 `scripts/ci-doc-currency-check.mjs` — CODE-MAP.md 파일 크기 표를 실측과 대조해 드리프트 정량화, ±500줄 초과 시 경고. **의도적으로 non-blocking**(항상 exit 0) — 줄 수는 정상 개발 중에도 계속 변해 하드 실패시키면 게이트가 무시당하는 역효과(R300과 동일한 "게이트 설계" 판단). `ci.yml` `validate` job에 정보성 단계로 배선. (2) `CODE-MAP.md` frontmatter+§1을 실측치로 갱신(target_version v52.53, 6개 파일 줄 수 최신화) — §2 이하 개별 함수 line 범위는 이번에 재검증하지 않았음을 문서 자체에 명시(전면 재스캔은 별도 규모, confidence high→medium 정직 하향). (3) 6개 주요 감사 문서 중 상태 배너가 없던 유일한 문서(`FABLE-LIVE-AUDIT-2026-07-04.md`)에 resolved/open 상태 요약 추가 — P0~P3/P5/P6은 코드로 해소, P4(FMP 키 플랜)는 운영자 액션이라 사용자가 이미 "현행 유지"로 결정(open 아닌 closed-by-decision). 나머지 5개는 이미 자체 상태 배너 보유 확인.
+- **범위 밖(의도적, 별도 패킷 필요)**: CHANGELOG/BUG-POSTMORTEM archive 분리(대규모 콘텐츠 이동, WO-0 mojibake 복구급 신중한 검증 필요). INDEX.md/WORKTREE-AUDIT.md 자동 현재성 검사(INDEX.md는 동시 실행 중인 별도 Codex 세션이 편집 중이라 읽기만 함). 오래된/중복 규칙 정리. CODE-MAP §2 이하 전면 재스캔.
+- **검증**: `node --check`. `ci-doc-currency-check.mjs`를 갱신 전(드리프트 표시)/후(0 드리프트) 2회 실행 확인. js-yaml로 ci.yml 파싱 검증. 로컬 게이트 8종 전부 PASS(`ci-knowledge-lint-check`까지 포함해 green) + 헤드리스 963/963 green.
+- **문서 환류**: `_context/BUG-POSTMORTEM.md` P669, `_context/QA-CHECKLIST.md` P669-Q1~Q4, `_context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` WO-8 상태 주석.
+- R1 7곳 v52.54
+
+## v52.53 (2026-07-10)
+- **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-7 Packet 1 (P668)**: WO-7("점진적 구조 격리")은 자체적으로 전체 재작성·대규모 전역 제거를 금지하고 여러 패킷에 걸친 점진적 작업으로 정의돼 있어, 이번 세션은 완료 게이트가 요구하는 baseline("패킷마다 전역 write 수·innerHTML 수·누수 대리 지표가 감소 또는 증가 근거 명시")을 먼저 실측하는 Packet 1만 수행.
+- **실측**: index.html+js/*.js 총 95,389줄 기준 `innerHTML =` 395건, 명시적 전역 쓰기(`window.X =`) 1,318건, `escHtml`/`DOMPurify`/`_esc` 이스케이프 호출 282건, `setInterval(` 직접 호출 2건(1건 미경유), `addEventListener(` 109건, direct `localStorage` 146건 vs `safeLS()` 경유 8건.
+- **핵심 발견**: Codex 원문이 "도입하라"고 지시한 timer/chart/page-lifecycle 어댑터가 **이미 존재**함을 확인(`window._aioTimerRegistry`+`_aioRegisterTimer`/`_aioClearTimer`, `window._aioChartRegistry`, `window._aioPageBus` — 기존 P175 항목) — WO-7의 실제 갭은 어댑터 부재가 아니라 전면 채택 여부다(이번 세션 WO-6/WO-2/WO-3에서 반복된 "인프라는 있는데 소비가 안 됨" 패턴과 동일 계열). Snapshot adapter만 진짜 부재. Storage adapter는 부분 존재(WO-1A `safeLS`)하나 146 direct vs 8 wrapped로 ~95% 우회 — 가장 큰 단일 갭으로 확인.
+- **구현(위험 0에 가까운 유일한 코드 변경)**: `js/aio-chat.js`의 60초 주기 alert 자동점검이 `_aioRegisterTimer`를 거치지 않는 raw `setInterval`이었던 것을 레지스트리 경유로 전환(동작 자체는 무변화, `typeof` 가드로 안전 폴백).
+- **범위 밖(다음 패킷 후보로 명시 이관)**: storage adapter 전면화(146건), snapshot adapter 신설(638건 직접 참조), chart/pageBus 실제 채택률 계측, innerHTML 395건 전수 신뢰도 분류 — 전부 규모상 별도 패킷 필요. `_context/WO7-GLOBAL-INVENTORY-2026-07-10.md`에 baseline+우선순위 고정 기록.
+- **부수 확인**: 동시 실행 중인 별도 Codex CLI 세션의 파일(`_context/INDEX.md`/`CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`, 이번 작업 범위 밖)이 그 세션 자신의 커밋(`58d6cb6`)으로 정리된 것을 확인 — WO-5(P663)에서 만든 세션별 스냅샷 diff 메커니즘이 실제 동시-멀티에이전트 상황에서 서로 침범 없이 작동함을 재확인.
+- **검증**: `node --check js/aio-chat.js`. 로컬 게이트 4종 확인 + 헤드리스 963/963 green.
+- **문서 환류**: `_context/BUG-POSTMORTEM.md` P668, `_context/QA-CHECKLIST.md` P668-Q1~Q2, `_context/WO7-GLOBAL-INVENTORY-2026-07-10.md`(신규), `_context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` WO-7 상태 주석.
+- R1 7곳 v52.53
+
+## v52.52 (2026-07-10)
+- **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-4 부분 구현 (P667/R300)**: viewport 회귀 게이트(`scripts/ci-viewport-matrix-check.mjs`)가 `FULL_INIT=0`(단순 `.active` 클래스 스왑, `showPage()`/차트 렌더/이벤트 전혀 미실행) 기본값으로 report-only 실행돼 실제 페이지 초기화 결함을 놓치고 있었음을 확인.
+- **교차 세션 발견**: 이 리포에서 동시 실행 중인 별도 Codex CLI 세션이 작성한 `CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`(사용자가 이번 작업 지시와는 별개라고 명시적으로 확인한 문서)에 이미 이 정확한 이슈에 대한 진단(F-01/F-02)이 있었음을 발견 — 관련 코드 파일에 미커밋 변경이 없어 편집 충돌 위험이 없음을 먼저 확인한 뒤, 그 진단을 참고 정보로만 삼고 전부 직접 재검증(그 문서의 더 큰 UX 재설계 의제는 이번 지시 범위 밖이라 채택하지 않음).
+- **실측 확인 및 수정**: `AIO_VIEWPORT_FULL_INIT=1`로 직접 실행해 22×4 중 정확히 4콤보(technical route 전 뷰포트)가 `_pricePosition()`(js/aio-ui.js) SVG 라벨-값 겹침으로 실패함을 재현(200MA/$669, 50MA/$725, ATH/$759 3쌍) — 10px 폰트에 10px 간격이던 라벨/값 baseline을 14px 간격으로 확대해 수정, 재실행으로 해소 확인.
+- **게이트 자체의 사각지대 보강**: `pageerror`/`console.error` 수집을 viewport 게이트에 처음 추가(이전엔 전혀 없어 라우트가 매번 throw해도 PASS로 보고됨). 켜자마자 앱 자체의 정상적인 API 헬스 모니터(`js/aio-core.js` `_reportApiError()`)가 3회 연속 실패 시 warn→error로 남기는 의도된 로그 8건이 걸렸으나, 소스 추적으로 버그가 아니라 "모든 외부 요청을 의도적으로 차단하는 이 하네스 자체가 유발한 예상된 로그"임을 확인 후 정확한 패턴만 허용목록에 추가(포괄 억제 아님, 신규 R300). `zeroCanvases`(선언만 되고 채워진 적 없던 죽은 코드) 실구현. small-text 정책 결정: index.html 정적 스캔(7px 1건·8px 0건·9px 34건) 근거로 8px 이하만 게이트 실패 승격, 9px는 관찰만 유지(전면 재설계 없이 강제하면 다수 페이지 동시 파손).
+- **CI 승격**: 위 전부 재실행해 88/88 PASS(jsErrors=0) 확인 후, `.github/workflows/ci.yml`의 `viewport-matrix` job에서 `continue-on-error: true` 제거 + `AIO_VIEWPORT_FULL_INIT=1` 기본 적용 + `deploy`의 `needs:`에 편입 — report-only 체크에서 실제 배포 차단 게이트로 승격(기존 validate/headless-tests와 동일한 R248 차단 철학 적용).
+- **범위 밖(정직하게 기록)**: 외부 정상/timeout/partial-data 시나리오(현재 "전부 abort=장애"만 테스트), route 왕복 후 listener/timer/fetch 누적 검사, 키보드/screen reader 실사(자동화 불가) — `_context/DEFERRED-BLOCKS.md` B9 확장.
+- **검증**: `node --check`(js/aio-ui.js, ci-viewport-matrix-check.mjs), js-yaml로 ci.yml 파싱 검증. 실제 Playwright 22×4 실행 3회(수정 전 4콤보 실패 → 계측 추가 후 8콤보 실패 → 허용목록 수정 후 88/88 PASS) — 매 단계 실측. 로컬 게이트 7종 PASS + 헤드리스 963/963 green(F-01은 순수 SVG 레이아웃 변경이라 기존 유닛테스트 영향 없음).
+- **문서 환류**: `_context/BUG-POSTMORTEM.md` P667, `_context/RULES.md` R300, `_context/QA-CHECKLIST.md` P667-Q1~Q7, `_context/DEFERRED-BLOCKS.md` B9 확장, `_context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` WO-4 상태 주석.
+- R1 7곳 v52.52
+
 ## v52.51 (2026-07-10)
 - **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-3 축소 검증 (P666/R299)**: WO-3("Factor Model 연구→프로덕션 검증")도 WO-2와 동일한 벽 — 라이브 팩터 백테스트(`fetch-data.mjs backtestFactors()`)가 이미 873종목의 1년치·6개 리밸런스만 쓰고 있었고(기존 코드 주석 P586/C2가 이미 "부족" 자인), size/value/quality 3팩터는 이미 무료 다년치 소스 부재로 제외돼 있었음. 여기에 WO-3 고유 신규 문제: 오늘 시점 유니버스로 다년치를 받으면 그 기간 탈락 종목이 전부 빠지는 survivorship bias(무료 데이터로 근본 해결 불가, Codex 게이트의 "survivorship 검사 PASS" 자체가 달성 불가).
 - **사용자 결정 (AskUserQuestion)**: "제한된 표본"(권장) 선택 — 시총 상위 ~120종목만, 동시 요청 4개로 제한(이 리포의 과거 Yahoo IP 차단 이력을 `ci.yml` 주석에서 확인한 뒤 결정).

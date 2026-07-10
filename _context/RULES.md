@@ -2,9 +2,16 @@
 verified_by: agent
 last_verified: 2026-07-10
 confidence: high
-target_version: v52.51
+target_version: v52.52
 
 ---
+
+## R300. When turning on new error/warning signal collection inside a test harness that deliberately blocks network access, expect the app's own legitimate failure-detection code to surface through that same channel — trace it to source before allowlisting or failing on it (v52.52)
+
+- Adding `page.on('pageerror')`/`page.on('console')` collection to `scripts/ci-viewport-matrix-check.mjs` (which had never collected either before — a route could throw on every single visit and still report a clean PASS) immediately surfaced 8 new "failures" the moment it was turned on, all sharing one message shape: `[AIO:api] {source}: warn → error {errCount: 3}`. Tracing this to its source (`js/aio-core.js` `_reportApiError()`) showed it was the app's own intentional API-health monitor correctly detecting that a data source failed 3 consecutive times and escalating its tracked status from `warn` to `error` — entirely expected, since this exact harness aborts every external network request by design (for deterministic, offline testing). Not a bug; the app behaving exactly as designed under conditions the test itself created.
+- The fix is not to disable the new error collection (that would throw away the real signal it's meant to provide) and not to blanket-suppress all `console.error` (same problem). Extend the allowlist to match the *specific, verified* expected-noise pattern only, the same way this repo already handles `net::ERR_FAILED`/`Failed to load resource` in `ci-headless-tests.mjs` (documented there as "the expected side-effect of the route.abort() below, not a real regression"). A narrow, source-traced allowlist entry preserves the ability to catch a genuinely new unexpected error later; a broad one (e.g. matching on `[AIO:api]` alone, or any `console.error` containing "error") would silently swallow real regressions in the same logging subsystem.
+- General pattern: any time a QA harness deliberately creates an abnormal environment (blocked network, mocked time, stubbed randomness, forced error injection) and you add a *new* signal-collection mechanism to that harness, budget time to first triage what fires under normal/expected conditions before treating the first run's failure list as a queue of real bugs to fix. Some of it usually is real (see the F-01 SVG-overlap bug this same effort found and fixed, P667) — but conflating "test-environment-induced expected noise" with "genuine defect" either wastes effort chasing non-bugs or, worse, trains the next person to distrust and ignore the new gate.
+- See P667/BUG-POSTMORTEM.md.
 
 ## R299. A factor backtest's universe composition and lookback window can flip the sign of a well-known factor — don't compare against academic-literature factor performance without matching sample characteristics (v52.51)
 

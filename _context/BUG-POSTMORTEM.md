@@ -2,15 +2,47 @@
 verified_by: agent
 last_verified: 2026-07-10
 confidence: high
-latest_version: v52.51
-latest_P_number: P666
-total_entries: 438
-next_P_number: P667
+latest_version: v52.54
+latest_P_number: P669
+total_entries: 441
+next_P_number: P670
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P669 - v52.54 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-8 Packet 1: CODE-MAP.md 파일 크기 표가 v51.90(2026-07-02) 이후 무재검증 상태로 최대 484줄 드리프트, 자동 감지 장치 부재
+
+- **배경**: WO-8("문서·운영 기록 압축과 현재성 회복")의 작업 범위 중 "INDEX/CODE-MAP/WORKTREE-AUDIT 자동 현재성 검사"와 "감사 문서의 resolved/open 상태 명시"를 우선 실행. append-only 기록(CHANGELOG.md 600+ 섹션, BUG-POSTMORTEM.md 440+ 항목)의 연도/버전별 archive 분리는 되돌리기 어려운 대규모 콘텐츠 이동이라 이번 패킷 범위 밖으로 명시 이관(다음 패킷 후보).
+- **실측**: `_context/CODE-MAP.md`의 frontmatter가 `target_version: v51.90`·`last_verified: 2026-07-02`로 고정된 채 v52.53(이번 세션에서만 v52.39 이후 15개 버전 경과)까지 재검증되지 않고 있었음. `wc -l` 대조 결과 §1 파일 크기 표의 6개 파일 중 5개가 드리프트: index.html +195, aio-core.js +365, aio-data.js +359, aio-chat.js +78, aio-tests.js +484(이 프로젝트 자신의 "±500줄 이상 변경 시 CODE-MAP 갱신" 규칙 임계값에 근접) — 이를 감지하는 자동 장치가 전혀 없었음.
+- **구현**: (1) 신규 `scripts/ci-doc-currency-check.mjs` — CODE-MAP.md의 파일 크기 표를 실제 `wc -l`과 대조해 드리프트를 정량화하고 ±500줄 임계값 초과 시 경고. **의도적으로 non-blocking**(exit 0 고정) — 줄 수는 정상 개발 중에도 계속 변하므로 하드 실패시키면 오히려 게이트 자체가 무시당하는 역효과(R300과 동일 계열의 "게이트 설계" 판단). `.github/workflows/ci.yml`의 `validate` job에 정보성 단계로 배선. (2) `CODE-MAP.md`의 frontmatter+§1 표를 실측치로 갱신(target_version v52.53, 6개 파일 줄 수 전부 최신화) — **단, §2 이하 개별 함수·섹션의 line 범위는 이번에 재검증하지 않았음을 문서 자체에 명시**(전면 재스캔은 별도 규모의 작업, confidence를 high→medium으로 정직하게 하향). (3) `FABLE-LIVE-AUDIT-2026-07-04.md`(감사 문서 6개 중 상태 배너가 없던 유일한 문서)에 resolved/open 상태 요약 추가 — P0~P3/P5/P6은 코드로 해소, P4(FMP 키 플랜)는 운영자 액션 항목이라 사용자가 "현행 유지"로 이미 결정(open 아닌 closed-by-decision)임을 명시. 나머지 5개 감사 문서(FABLE-EFFICACY-AUDIT 등)는 이미 자체 상태 배너를 갖추고 있음을 확인(추가 조치 불요).
+- **범위 밖으로 남긴 것(의도적, 규모상 별도 패킷 필요)**: CHANGELOG.md/BUG-POSTMORTEM.md의 연도·버전별 archive+active summary 분리(440+/600+ 항목의 대규모 콘텐츠 이동 — 손실 없음을 구조적 불변량으로 검증하는 신중한 별도 작업 필요, WO-0의 mojibake 복구 때 쓴 것과 같은 검증 기법 권장). INDEX.md/WORKTREE-AUDIT.md 자동 현재성 검사(CODE-MAP만 이번에 구현 — INDEX.md는 동시 실행 중인 별도 세션이 활발히 편집 중이라 이번 패킷에서는 읽기만 하고 쓰지 않음). CODE-MAP §2 이하 전면 재스캔.
+- **violated_rule**: 신규 규칙 없음(R300과 동일한 "게이트는 정직한 신호를 내되 무시당하지 않게 설계" 원칙의 다른 적용 사례로 판단, 별도 일반화 불요).
+- **prevention**: `ci-doc-currency-check.mjs`가 앞으로 매 `validate` 실행마다 드리프트를 가시화 — 다음에 483줄 이상 드리프트가 쌓이면 CI 로그에서 바로 확인 가능.
+- **verification**: `node --check`. `ci-doc-currency-check.mjs`를 CODE-MAP 갱신 전(드리프트 표시)/후(0 드리프트) 2회 실행해 실제로 작동함을 확인. js-yaml로 ci.yml 파싱 검증. 로컬 게이트 8종 전부 PASS(신규로 `ci-knowledge-lint-check`까지 포함해 green) + 헤드리스 963/963 green.
+
+## P668 - v52.53 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-7 Packet 1: 전역 read/write 인벤토리 실측 — timer/chart/page-lifecycle 어댑터는 이미 존재(채택률 미측정), snapshot adapter는 부재, localStorage 직접 접근이 safeLS 대비 ~95%
+
+- **배경**: WO-7("점진적 구조 격리")은 자체적으로 "전체 재작성, 한 번에 프레임워크 전환, 대규모 전역 제거"를 금지하고 "패킷마다 전역 write 수·innerHTML 수·누수 대리 지표가 감소 또는 증가 근거 명시"를 완료 게이트로 요구한다 — 즉 baseline 측정이 선행돼야 어떤 패킷도 "감소"를 주장할 수 있다. 이번 패킷은 그 baseline 측정과, 측정 중 발견한 위험 0에 가까운 단일 수정 하나만 수행했다.
+- **실측(index.html 32,220줄+js/*.js 62,875줄)**: `innerHTML =` 395건, `window.X =` 명시적 전역 쓰기 1,318건, `escHtml`/`DOMPurify`/`_esc` 이스케이프 호출 282건, `setInterval(` 직접 호출 2건(1건은 레지스트리 자체 구현, 1건은 미경유), `addEventListener(` 109건, direct `localStorage.setItem/getItem` 146건 vs `safeLS()` 경유 8건.
+- **핵심 발견**: Codex 원문은 "snapshot adapter, storage adapter, page lifecycle adapter부터 도입"이라 썼지만, 코드 확인 결과 **timer 레지스트리**(`window._aioTimerRegistry`+`_aioRegisterTimer`/`_aioClearTimer`, js/aio-core.js:492)와 **chart 레지스트리**(`window._aioChartRegistry`, js/aio-core.js:301)와 **page lifecycle bus**(`window._aioPageBus`, js/aio-core.js:526, 기존 P175 항목)가 **이미 존재**했다 — WO-7의 실제 갭은 "어댑터 부재"가 아니라 "어댑터는 있는데 전면 채택이 안 됨"에 더 가깝다(이번 세션 WO-6/WO-2/WO-3에서 반복 발견된 "인프라는 있는데 소비/채택이 안 됨" 패턴과 동일 계열, 신규 RULES는 작성하지 않음 — 이미 여러 P번호에서 같은 교훈이 기록돼 추가 일반화가 필요 없다고 판단). 실제로 부재를 확인한 것은 **snapshot adapter**(DATA_SNAPSHOT 638회 참조에 대한 단일 read 경유 지점 없음)뿐이었다. **storage adapter는 부분 존재**(WO-1A의 `safeLS`가 있으나 146 direct vs 8 wrapped로 ~95%가 우회 — 가장 큰 단일 갭).
+- **구현(이번 패킷에서 실행한 유일한 코드 변경)**: `js/aio-chat.js`의 60초 주기 alert 자동점검이 `_aioRegisterTimer`를 거치지 않는 raw `setInterval`이었던 것을 레지스트리 경유로 전환(`typeof` 가드로 미존재 시 안전 폴백, 동작 자체는 무변화 — 여전히 60초마다 실행). 위험이 사실상 0(1개 패턴 교체, 기존에 이미 검증된 레지스트리 재사용)이면서 "전역 쓰기 감소" 게이트에 바로 기여하는 유일한 즉시-안전 항목이었기 때문에 이것만 실행.
+- **범위 밖으로 남긴 것(의도적, 다음 패킷 후보로 문서화)**: (1) storage adapter 전면화(146건 전환 — 호출부별 동기/비동기 가정이 달라 일괄 치환 불가, 별도 대규모 패킷 필요). (2) snapshot adapter 신설(638건 직접 참조 — 기존 참조는 손대지 않고 신규 코드부터 강제하는 점진적 접근 권장). (3) chart/pageBus 실제 채택률 계측(이번엔 존재만 확인, 몇 %가 실제로 경유하는지는 미측정). (4) innerHTML 395건 전수 신뢰도 분류(개별 데이터 흐름 추적 필요 — 기계적 grep은 helper 함수 경유 이스케이프를 놓쳐 오탐이 큼, 외부 데이터 유입 고위험 대상부터 우선순위화 필요).
+- **부수 확인**: 이 조사 중 `_context/INDEX.md`/`CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`(동시 실행 중인 별도 Codex 세션의 파일, 이번 작업 범위 밖)가 어느 시점에 `git log`상 별도 커밋(`58d6cb6`, 이 세션이 만들지 않은 커밋)으로 정리된 것을 확인 — WO-5(P663)에서 만든 세션별 스냅샷 diff 메커니즘이 실제 동시-멀티에이전트 상황에서 서로의 파일을 침범하지 않고 각자 정상 작동함을 실측으로 재확인(의도적으로 설계 검증한 것은 아니고 작업 중 관찰).
+- **violated_rule**: 신규 규칙 없음(§ "핵심 발견" 참조 — 기존 인프라-미채택 패턴 재확인이라 이미 존재하는 교훈의 반복 사례로 판단).
+- **prevention**: `_context/WO7-GLOBAL-INVENTORY-2026-07-10.md`에 baseline 수치+어댑터 존재 여부+다음 패킷 우선순위를 고정 기록 — 다음 패킷이 이 숫자 대비로 "감소/증가"를 보고할 수 있게 함.
+- **verification**: `node --check js/aio-chat.js` 통과. 로컬 게이트 4종(version/structural/runtime-contract/data-pipeline-contract) 확인 + 헤드리스 963/963 green(1줄 미만 규모 패턴 교체라 기존 유닛테스트 영향 없음).
+
+## P667 - v52.52 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-4: viewport 회귀 게이트가 FULL_INIT=0(단순 .active 클래스 스왑) 기본값으로 report-only 실행돼 실제 페이지 초기화 결함(technical route SVG 라벨-값 겹침)을 놓치고 있었음
+
+- **배경**: WO-4("브라우저 실제 초기화 QA 폐쇄")의 완료 게이트는 "22×4 full-init PASS·unhandled pageerror/console.error 0·critical warning allowlist 밖 0·route 왕복 후 listener/timer/fetch 증가 없음·키보드와 screen reader 핵심 흐름 수동 증거"를 요구한다. 이 리포와 같은 저장소에서 동시 실행 중인 별도 Codex CLI 세션이 작성한 `_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`(사용자가 이번 작업 지시와는 별개라고 명시적으로 확인한 문서)에 이미 이 정확한 이슈에 대한 진단(F-01: `_pricePosition()` SVG 라벨 겹침, F-02: viewport 게이트 자체의 사각지대)이 기록돼 있었음을 발견 — `git status`로 관련 코드 파일(js/aio-ui.js, scripts/ci-viewport-matrix-check.mjs)에 아직 미커밋 변경이 없음을 먼저 확인해 두 세션 간 편집 충돌 위험이 없음을 확인한 뒤, 그 진단을 참고 정보로 삼되 전부 직접 재검증했다(그 문서 자체가 다루는 더 큰 UX 재설계 의제 H2-00~16은 이번 세션이 받은 지시 범위 밖이라 채택하지 않음 — WO-4 자체의 좁은 게이트 항목만 구현).
+- **실측 확인**: `AIO_VIEWPORT_FULL_INIT=1 node scripts/ci-viewport-matrix-check.mjs`를 직접 실행해(다른 세션의 주장을 신뢰하지 않고 스스로 재현) 22routes×4viewports 중 정확히 4콤보(technical route, 4개 뷰포트 전부)가 `svg text overlaps 3`로 실패함을 확인 — 3쌍 전부 `{"200MA","$669"}, {"50MA","$725"}, {"ATH","$759"}` 형태(라벨과 그 자신의 값이 겹침, 다른 마커와의 수평 충돌 아님). 코드 확인(`js/aio-ui.js` `_pricePosition()`): 라벨이 baseline `slY+21`, 값이 `slY+31`로 10px 폰트에 10px 간격 — 브라우저 폰트 메트릭상 어센트+디센트가 10px에 근접해 겹칠 수 있는 여유 없는 배치였음.
+- **구현**: (1) 값 라인을 `slY+35`로 이동해 baseline 간격을 14px로 확대(F-01 수정) — 재실행으로 4콤보 전부 해소 확인. (2) `scripts/ci-viewport-matrix-check.mjs`에 `page.on('pageerror')`/`page.on('console')` 리스너 신설(이전에는 route matrix 자체에 이 신호 수집이 전혀 없었음) — 각 라우트 방문 구간에 발생한 에러를 해당 routeId에 귀속. **부수 발견**: 이 계측을 켜자마자 8개 콤보가 즉시 실패 — 전부 `[AIO:api] {source}: warn → error {errCount: 3}` 패턴. 코드 추적(`js/aio-core.js` `_reportApiError()`) 결과 이는 버그가 아니라 이 하네스 자체가 모든 외부 요청을 의도적으로 abort하기 때문에 앱의 자체 API 헬스 모니터가 정확히 3회 연속 실패를 감지해 경고 수준을 warn→error로 전이시키며 남기는, 의도된 로그였음(`ci-headless-tests.mjs`의 기존 `net::ERR_FAILED` 허용 목록과 동일한 성격) — 허용 목록에 이 패턴만 정확히 추가(포괄적 억제 아님). (3) `zeroCanvases` 배열이 선언만 되고 채워진 적이 없던 죽은 코드(F-02)를 실제 `<canvas>` 요소 검사로 구현. (4) small-text 정책 결정: index.html 정적 스캔으로 7px 1건·8px 0건·9px 34건 확인 후, 8px 이하만 게이트 실패로 승격(9px는 기존 34곳 관찰 유지, 전면 재설계 없이 강제하면 다수 페이지가 동시에 깨짐 — 별도 UX 패스로 남김). (5) 위 전부 재실행해 88/88 콤보 전부 PASS(jsErrors=0) 확인 후, `ci.yml`의 `viewport-matrix` job을 `continue-on-error: true` 제거+`AIO_VIEWPORT_FULL_INIT=1` 기본 적용+`deploy`의 `needs:`에 추가해 실제 배포 차단 게이트로 승격(기존 validate/headless-tests와 동일한 R248 차단 철학 적용, 새로운 리스크 범주 아님).
+- **범위 밖으로 남긴 것(정직하게 기록)**: 외부 정상/timeout/partial-data 시나리오(현재는 "전부 abort=장애"만 테스트, 성공/타임아웃/부분데이터는 미구현 — 다수 외부 엔드포인트에 대한 mock 응답 체계가 필요한 별도 규모의 작업). route 왕복 후 listener/timer/fetch 누적 검사(미구현). 키보드 전체 경로·screen reader 실사(자동화 불가 — 실제 사람/보조기술 필요). theme-detail이 themes root로 치환되는 것은 기존 설계(canonical redirect)로 판단해 그대로 둠. 9px 텍스트 전면 정리(34곳, 별도 UX 패스 필요).
+- **violated_rule**: 신규 R300(네트워크를 의도적으로 차단한 테스트 하네스에서 새 에러 시그널을 켤 때는 앱 자신의 정상적인 장애 감지/로깅 코드가 그 채널로 함께 나타날 수 있음을 예상하고, 소스를 직접 추적해 "하네스가 유발한 예상된 노이즈"와 "진짜 버그"를 구분한 뒤 허용 목록을 좁게 설계할 것).
+- **prevention**: `ci-runtime-contract-check.mjs`에 WO-4 정적 계약 7건 추가(FULL_INIT=1 배선·차단 게이트화·pageerror/console.error 수집·허용목록 정확성·zeroCanvases 실제 구현·small-text 정책·F-01 수정 자체).
+- **verification**: `node --check` 3개 파일(js/aio-ui.js, scripts/ci-viewport-matrix-check.mjs — .mjs만 해당, ci.yml은 js-yaml로 파싱 검증). 실제 Playwright 22×4 실행 3회(수정 전 4콤보 실패 확인 → 계측 추가 후 8콤보 실패 확인 → 허용목록 수정 후 88/88 PASS 확인) — 매 단계 가정이 아니라 실측으로 검증. 로컬 게이트 7종 PASS + 헤드리스 963/963 green(F-01은 순수 SVG 레이아웃 변경이라 기존 유닛테스트에 영향 없음, 확인됨).
 
 ## P666 - v52.51 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-3 축소 검증: 라이브 팩터 랭킹의 lowvol 서브팩터가 10년/120종목 백테스트에서 forward return과 유의미한 음의 상관(부호 반전), composite는 전 구간 무의미
 
