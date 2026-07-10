@@ -7359,6 +7359,122 @@
     } catch (e878) { _assert('T878 kr_technical_refresh_button_wiring_v5241 (EF-19)', false, 'threw: ' + (e878 && e878.message)); }
   }
 
+  // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/16) 회귀 게이트
+  function _testV5242Batch3Efficacy() {
+    // T879 (EF-06): VIX 기간구조 시드값은 'na'+"(정적)", 라이브값은 'value' 상태로 시각 구분되는지
+    try {
+      if (typeof window._aioRenderVixTermRegime === 'function' && document.getElementById('vix-term-regime-text')) {
+        var savedLd879 = window._liveData;
+        window._liveData = { '^VIX': { price: 16.24 } }; // 9D/3M/6M은 결측 → snapshot 시드로 폴백
+        document.querySelectorAll('#page-sentiment [data-live-price="^VIX9D"],#page-sentiment [data-live-price="^VIX3M"],#page-sentiment [data-live-price="^VIX6M"]').forEach(function(el){ el.textContent = '—'; el.removeAttribute('data-value-state'); });
+        window._aioRenderVixTermRegime();
+        var v9dEl879 = document.querySelector('#page-sentiment [data-live-price="^VIX9D"]');
+        window._liveData = savedLd879;
+        var state879 = v9dEl879 ? v9dEl879.getAttribute('data-value-state') : null;
+        _assert('T879 vix_term_seed_visual_distinction_v5242 (EF-06): VIX9D가 라이브 미수신+시드 폴백 상태일 때 data-value-state="na"(시각 구분)로 렌더, state="value"로 라이브인 척하지 않음',
+          state879 === 'na', 'state=' + state879 + ' text=' + (v9dEl879 && v9dEl879.textContent));
+      } else {
+        _assert('T879 vix_term_seed_visual_distinction_v5242 (EF-06)', false, 'fn or element missing');
+      }
+    } catch (e879) { _assert('T879 vix_term_seed_visual_distinction_v5242 (EF-06)', false, 'threw: ' + (e879 && e879.message)); }
+
+    // T880 (EF-07): kr-home 수급 실패 상태 진입 시 "최근 수급 — N/D 기준" 제목이 정직한 문구로 대체되는지
+    try {
+      if (typeof window._showKrSupplyFailureState === 'function' || typeof _showKrSupplyFailureState === 'function') {
+        var fn880 = window._showKrSupplyFailureState || _showKrSupplyFailureState;
+        fn880('test-simulated-failure');
+        var titleEl880 = document.querySelector('#kr-home-kospi-supply .kr-supply-title span');
+        var txt880 = titleEl880 ? titleEl880.textContent : null;
+        _assert('T880 kr_home_supply_title_honest_on_failure_v5242 (EF-07): 실패 상태 진입 시 "최근 수급" 제목의 날짜가 확정 날짜 대신 "폴백 데이터"로 대체(날짜+실패경고 동시노출 모순 제거)',
+          txt880 === '폴백 데이터', 'titleText=' + txt880);
+      } else {
+        _assert('T880 kr_home_supply_title_honest_on_failure_v5242 (EF-07)', false, '_showKrSupplyFailureState missing');
+      }
+    } catch (e880) { _assert('T880 kr_home_supply_title_honest_on_failure_v5242 (EF-07)', false, 'threw: ' + (e880 && e880.message)); }
+
+    // T881 (EF-14): 비-라틴/비-한글 소스명(키릴 등)은 일반 라벨로, 영어/한국어 소스명은 그대로
+    try {
+      if (typeof window._aioSafeSourceLabel === 'function') {
+        var cyrillic881 = window._aioSafeSourceLabel('Межа. Новини України.');
+        var english881 = window._aioSafeSourceLabel('Reuters');
+        var korMixed881 = window._aioSafeSourceLabel('BornLupin·KR');
+        _assert('T881 news_source_label_script_guard_v5242 (EF-14): 키릴 소스명은 "외신"으로 대체되고 영어/한글혼합 소스명은 원문 유지',
+          cyrillic881 === '외신' && english881 === 'Reuters' && korMixed881 === 'BornLupin·KR',
+          'cyrillic=' + cyrillic881 + ' english=' + english881 + ' korMixed=' + korMixed881);
+      } else {
+        _assert('T881 news_source_label_script_guard_v5242 (EF-14)', false, '_aioSafeSourceLabel missing');
+      }
+    } catch (e881) { _assert('T881 news_source_label_script_guard_v5242 (EF-14)', false, 'threw: ' + (e881 && e881.message)); }
+
+    // T883 (EF-16): kr-macro 3개 카드에 _fieldTs 기반 "기준: MM/DD (N일 전)" 배지가 채워지는지
+    try {
+      if (typeof window._aioRenderKrMacroFreshnessBadges === 'function' && document.getElementById('kr-macro-bokrate-freshness')) {
+        window._aioRenderKrMacroFreshnessBadges();
+        var badgeIds883 = ['kr-macro-bokrate-freshness', 'kr-macro-cpi-freshness', 'kr-macro-pmi-freshness'];
+        var texts883 = badgeIds883.map(function(id) { var el = document.getElementById(id); return el ? el.textContent : null; });
+        var allBadged883 = texts883.every(function(t) { return t && t.indexOf('기준:') === 0 && /\d+일 전/.test(t); });
+        _assert('T883 kr_macro_freshness_badges_v5242 (EF-16): 기준금리/물가/경기 카드 3곳 모두 "기준: MM/DD (N일 전)" 배지 렌더',
+          allBadged883, 'texts=' + texts883.join(' | '));
+      } else {
+        _assert('T883 kr_macro_freshness_badges_v5242 (EF-16)', false, 'fn or element missing');
+      }
+    } catch (e883) { _assert('T883 kr_macro_freshness_badges_v5242 (EF-16)', false, 'threw: ' + (e883 && e883.message)); }
+  }
+
+  // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (EF-03/17/18) 회귀 게이트
+  function _testV5243Batch4Efficacy() {
+    // T884 (EF-03): BOK 다음 금통위 날짜가 WebSearch로 재확인한 실제 날짜(7/16)와 일치하는지 — 이전 7/10은 오류였음
+    try {
+      var bokNext884 = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT.bokNext : null;
+      var calRoot884 = (typeof window !== 'undefined') ? (window.AIO_MACRO_CALENDAR || window.MACRO_CALENDAR) : null;
+      var cal884 = (calRoot884 && calRoot884.releases) ? calRoot884.releases['kr-bok'] : null;
+      _assert('T884 bok_next_meeting_date_corrected_v5243 (EF-03): DATA_SNAPSHOT.bokNext와 MACRO_CALENDAR[kr-bok].nextRelease가 실제 확인된 7/16로 정정(기존 7/10 오류 수정)',
+        bokNext884 === '2026-07-16' && (!cal884 || cal884.nextRelease === '2026-07-16'),
+        'bokNext=' + bokNext884 + ' calNext=' + (cal884 && cal884.nextRelease));
+    } catch (e884) { _assert('T884 bok_next_meeting_date_corrected_v5243 (EF-03)', false, 'threw: ' + (e884 && e884.message)); }
+
+    // T885 (EF-17): 홈 글로벌 마켓 표에 ES=F/NQ=F 선물이 있고, 정규장 여부에 따라 강조가 갈리는지
+    try {
+      var esItem885 = null, nqItem885 = null;
+      if (typeof GMO_MARKETS !== 'undefined') {
+        GMO_MARKETS.forEach(function(g) { g.items.forEach(function(it) {
+          if (it.sym === 'ES=F') esItem885 = it;
+          if (it.sym === 'NQ=F') nqItem885 = it;
+        }); });
+      }
+      var hasFutures885 = !!esItem885 && !!nqItem885 && esItem885.isFutures === true && nqItem885.isFutures === true;
+      var okRender885 = false, renderDetail885 = 'n/a';
+      if (hasFutures885 && typeof renderGmoTable === 'function' && document.getElementById('gmo-tbody')) {
+        renderGmoTable();
+        var tbody885 = document.getElementById('gmo-tbody');
+        // innerHTML 직렬화 시 "&"가 "&amp;"로 왕복 인코딩되므로 "S&P Futures"는 매칭 실패 — "Nasdaq Futures"(& 없음)로 확인
+        okRender885 = tbody885 && tbody885.innerHTML.indexOf('Nasdaq Futures') !== -1 && /P Futures/.test(tbody885.innerHTML);
+        renderDetail885 = 'rendered=' + okRender885;
+      }
+      _assert('T885 gmo_futures_rows_v5243 (EF-17): GMO_MARKETS에 ES=F/NQ=F(isFutures) 등록 + renderGmoTable()이 실제로 두 행을 렌더',
+        hasFutures885 && okRender885, 'hasFutures=' + hasFutures885 + ' ' + renderDetail885);
+    } catch (e885) { _assert('T885 gmo_futures_rows_v5243 (EF-17)', false, 'threw: ' + (e885 && e885.message)); }
+
+    // T886 (EF-18): kr-supply fetch가 실제 살아있는 /trend 경로를 쓰고, 응답 변환이 Buy-Sell=순매수를 보존하는지
+    try {
+      // .toString()엔 설명 주석(경로 변경 이력 설명)이 포함돼 "/investorTrend" 문자열 자체는 남아있을 수 있음 —
+      // 실제 URL 대입문(kospiUrl = '...')이 /trend로 끝나는지를 구체적으로 확인(주석이 아닌 코드 검사).
+      var fnSrc886 = typeof fetchKrSupplyData === 'function' ? fetchKrSupplyData.toString() : '';
+      var usesTrendPath886 = /kospiUrl\s*=\s*'https:\/\/m\.stock\.naver\.com\/api\/index\/KOSPI\/trend'/.test(fnSrc886) &&
+        /kosdaqUrl\s*=\s*'https:\/\/m\.stock\.naver\.com\/api\/index\/KOSDAQ\/trend'/.test(fnSrc886);
+      var adaptOk886 = false, adaptDetail886 = 'n/a';
+      if (typeof _aioAdaptKrTrendResponse === 'function') {
+        var sample886 = { bizdate: '20260710', personalValue: '-100', foreignValue: '250', institutionalValue: '-150' };
+        var out886 = _aioAdaptKrTrendResponse(sample886);
+        var fNet886 = (out886.foreignBuy || 0) - (out886.foreignSell || 0);
+        adaptOk886 = fNet886 === 250 && out886.bizdate === '20260710';
+        adaptDetail886 = 'fNet=' + fNet886 + ' bizdate=' + out886.bizdate;
+      }
+      _assert('T886 kr_supply_trend_endpoint_v5243 (EF-18): fetchKrSupplyData가 확인된 살아있는 /trend 경로(404였던 /investorTrend 아님)를 쓰고, 응답 변환이 순매수 값을 보존',
+        usesTrendPath886 && adaptOk886, 'usesTrendPath=' + usesTrendPath886 + ' ' + adaptDetail886);
+    } catch (e886) { _assert('T886 kr_supply_trend_endpoint_v5243 (EF-18)', false, 'threw: ' + (e886 && e886.message)); }
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -7455,6 +7571,8 @@
     try { _testV5239PageFundamentals(); } catch(e) { console.error('Group81 error:', e); }
     try { _testV5240Batch1Efficacy(); } catch(e) { console.error('Group82 error:', e); }
     try { _testV5241Batch2Efficacy(); } catch(e) { console.error('Group83 error:', e); }
+    try { _testV5242Batch3Efficacy(); } catch(e) { console.error('Group84 error:', e); }
+    try { _testV5243Batch4Efficacy(); } catch(e) { console.error('Group85 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

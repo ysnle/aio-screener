@@ -1970,10 +1970,6 @@ window._aioRenderVixTermRegime = function() {
   var v3m = ld['^VIX3M'] ? ld['^VIX3M'].price : (_snap.vix3m != null ? _snap.vix3m : null);
   var v6m = ld['^VIX6M'] ? ld['^VIX6M'].price : (_snap.vix6m != null ? _snap.vix6m : null);
   if (!v30) { window._aioRenderValueSlot(el, 'pending', null, { text: 'VIX 데이터 수신 대기', reason: '30D VIX live/snapshot 모두 미수신' }); return; }
-  // v50.15: VIX9D/3M/6M 카드(data-live-price 싱크)가 live 부재로 '—'이면 시드값 표시 (regime과 일관)
-  [['^VIX9D', v9d], ['^VIX3M', v3m], ['^VIX6M', v6m]].forEach(function(p) {
-      try { var c = document.querySelector('#page-sentiment [data-live-price="' + p[0] + '"]'); if (c && p[1] != null) { var t = (c.textContent || '').trim(); if (t === '—' || t === '' || t === '-') window._aioRenderValueSlot(c, 'value', Number(p[1]).toFixed(2), { color: c.style.color }); } } catch (_vc) {}
-  });
   var available = [v9d, v30, v3m, v6m].filter(function(v){ return v != null; });
   if (available.length < 2) { window._aioRenderValueSlot(el, 'failed', null, { text: '기간구조 산정 불가 — 수신 만기 부족', reason: 'VIX 만기 데이터 2개 미만' }); return; }
   // FABLE-LIVE-AUDIT-2026-07-07 C3/Phase L1 (Verdict Gate): v30(^VIX)은 거의 항상 live인 반면
@@ -1982,6 +1978,23 @@ window._aioRenderVixTermRegime = function() {
   // 실제로는 콘탱고인데도 백워데이션(패닉)으로 오판정하는 사례가 실측됨. live 소스일 때만 방향성 판정.
   var v9dLive = !!(ld['^VIX9D'] && ld['^VIX9D'].price != null);
   var v3mLive = !!(ld['^VIX3M'] && ld['^VIX3M'].price != null);
+  var v6mLive = !!(ld['^VIX6M'] && ld['^VIX6M'].price != null);
+  // v52.42 (P657/EF-06): 위 forEach는 시드 폴백값을 state:'value'로 렌더해 라이브 30D VIX와 시각적으로
+  // 구분이 안 됐다("숫자는 배지로 충분"은 배지가 실제로 안 보이면 무의미 — R282 각주). live 여부에 따라
+  // 'value'(라이브) vs 'na'+"(정적)" 텍스트(시드)로 분기해 인접한 숫자들 사이에도 시각 구분을 준다.
+  [['^VIX9D', v9d, v9dLive], ['^VIX3M', v3m, v3mLive], ['^VIX6M', v6m, v6mLive]].forEach(function(p) {
+    try {
+      var c = document.querySelector('#page-sentiment [data-live-price="' + p[0] + '"]');
+      if (!c || p[1] == null) return;
+      var t = (c.textContent || '').trim();
+      if (t !== '—' && t !== '' && t !== '-') return;
+      if (p[2]) {
+        window._aioRenderValueSlot(c, 'value', Number(p[1]).toFixed(2), { color: c.style.color });
+      } else {
+        window._aioRenderValueSlot(c, 'na', null, { text: Number(p[1]).toFixed(2) + ' (정적)', color: 'var(--text-muted)', reason: '라이브 미수신 — DATA_SNAPSHOT 시드값(참고용, 실시간 아님)' });
+      }
+    } catch (_vc) {}
+  });
   // 정상(콘탱고): 단기<장기. 역전(백워데이션): 단기>장기.
   var diff30_3m = (v3m != null) ? (v3m - v30) : 0;
   var diff9d_30 = (v9d != null && v30 != null) ? (v30 - v9d) : 0;
@@ -2659,7 +2672,10 @@ if (typeof document !== 'undefined') {
           } catch(_) {}
           var newsHtml = items.map(function(n){
             var t = (typeof getDisplayTitle === 'function' ? getDisplayTitle(n) : n.title) || n.title || '';
-            return '· ' + String(t).slice(0, 70) + ' <span style="color:var(--text-muted);">(' + (n.source || '') + ')</span>';
+            // v52.42 (P657/EF-14): 제목은 getDisplayTitle의 isKoreanText 가드를 거치지만 소스명은
+            // 번역 대상이 아니라 그 가드를 안 거침 — 실측(브리핑)에서 키릴 소스명 원문 노출 확인.
+            var srcLabel = typeof window._aioSafeSourceLabel === 'function' ? window._aioSafeSourceLabel(n.source) : (n.source || '');
+            return '· ' + String(t).slice(0, 70) + ' <span style="color:var(--text-muted);">(' + srcLabel + ')</span>';
           }).join('<br>');
           rows.push('<b style="color:var(--text-primary);">핵심 뉴스</b><br>' + newsHtml);
         }
@@ -10928,10 +10944,13 @@ window.AIO_MACRO_CALENDAR = {
     'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-05-05', nextRelease: '2026-06-04', dataField: 'ismSvc' },
     'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-05-15', nextRelease: '2026-06-17', dataField: 'retailSales' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
-    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-04-29', nextRelease: '2026-06-17', dataField: 'fomc', sepMeeting: true },
-    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-04-29', nextRelease: '2026-06-17', dataField: 'fedRate', source: 'FOMC 결정' },
-    // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/10)
-    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-05-28', nextRelease: '2026-07-10', dataField: 'bokRate', source: '한국은행 금통위' }
+    // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
+    // 유지, 확인됨) lastRelease로 승격하고 다음 회의(7/28-29, 결정은 둘째날 7/29)를 nextRelease로 갱신.
+    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-06-17', nextRelease: '2026-07-29', dataField: 'fomc', sepMeeting: true },
+    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-06-17', nextRelease: '2026-07-29', dataField: 'fedRate', source: 'FOMC 결정' },
+    // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/16)
+    // v52.42 (P657/EF-03, WebSearch 재확인): 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
+    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-05-28', nextRelease: '2026-07-16', dataField: 'bokRate', source: '한국은행 금통위' }
   }
 };
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
@@ -17800,7 +17819,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.41';
+const APP_VERSION = 'v52.43';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -18836,7 +18855,7 @@ const DATA_SNAPSHOT = {
   pbocRate:     3.00,   // v49.93: PBOC 1년 LPR 3.0% (5월 12개월째 동결, 5Y LPR 3.5%, 기존 3.10 stale)
   // v34.6: 한국 금리·채권 강화 / v49.85: 신현송 총재 첫 금통위 5/28 결정
   bokRate:      2.50,   bokStatus: '동결',          // v49.85: 한은 2.50% 8연속 동결 (신현송 총재 첫 회의 2026-05-28, 중동 불확실성 사태 추이 점검)
-  bokNext:     '2026-07-10',                         // v49.85: 다음 금통위 7월 10일 (5/28 동결 완료, 신현송 총재 첫 결정)
+  bokNext:     '2026-07-16',                         // v52.42 (P657/EF-03, WebSearch 재확인): 기존 '2026-07-10'은 오류 — 실제 다음 금통위는 7/16(로이터/CNBC/Bloomberg 등 복수 소스 확인, 시장은 2.75%로 25bp 인상 확률 69%로 관측). 7/10엔 회의 없음.
   bokGdpFcst:   2.6,    bokCpiFcst: 2.7,             // v49.85: 한은 2026 성장률 2.6% / 물가 2.7% 상향 조정 (5/28 SEP)
   krBond3y:     3.20,   krBond10y: 4.27,             // v49.93: 국고채 10Y 4.27% (BOK snapshot 5월 중순, 2023.11 이후 최고 — 한은 인상 기대 급등, 기존 3.72 stale). 3Y 인상기대 반영 추정 (기준 2.50 동결 vs 시장금리 급등 = 가파른 커브)
   krCd91:       2.78,                             // CD 91일 금리
@@ -23292,10 +23311,29 @@ window.PAGES = {
   'kr-home':        { label: '한국 홈',          init: function() { var tid = setTimeout(function() { try { if (typeof renderKrIssues === 'function') renderKrIssues(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'renderKrIssues failed: ' + e.message); } }, 500); if (window._pageState) window._pageState.get('kr-home').timers.push(tid); }, chatCtx: null },
   'kr-supply':      { label: '한국 공급망',      init: null, chatCtx: null },
   'kr-themes':      { label: '한국 테마',        init: null, chatCtx: 'kr-themes' },
-  'kr-macro':       { label: '한국 거시',        init: null, chatCtx: 'kr-macro' },
+  'kr-macro':       { label: '한국 거시',        init: function() { try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }, chatCtx: 'kr-macro' },
   'kr-technical':   { label: '한국 기술',        init: null, chatCtx: 'kr-tech' },
   'guide':          { label: '사용 설명서',      init: null, chatCtx: null },
   'screener':       { label: '퀀트 스크리너',    init: function() { try { if (typeof _aioInitScreenerFilters === 'function') _aioInitScreenerFilters(); if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'screener init: ' + (e && e.message || e)); } }, chatCtx: 'screener' }  // v50.53 2A: 전용 퀀트 스크리너
+};
+
+// v52.42 (P657/EF-16): kr-macro 카드별 기준일 노출이 산발적이었다(수출입 동향엔 "아카이브" 라벨이
+// 있지만 기준금리·물가·경기 카드엔 없음) — 이미 있는 _fieldTs(bok_rate/kr_macro)를 재사용해
+// 일관된 "기준: MM/DD (N일 전)" 배지를 3개 주요 카드에 부여(새 필드 신설 없음, R276 정신).
+window._aioRenderKrMacroFreshnessBadges = function() {
+  var S = window.DATA_SNAPSHOT || {};
+  var ts = S._fieldTs || {};
+  function badge(id, key) {
+    var el = document.getElementById(id);
+    var dateStr = ts[key];
+    if (!el || !dateStr) return;
+    var days = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(dateStr) : Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+    el.textContent = '기준: ' + dateStr.slice(5).replace('-', '/') + ' (' + days + '일 전)';
+    el.style.color = days > 30 ? 'var(--data-amber)' : 'var(--text-muted)';
+  }
+  badge('kr-macro-bokrate-freshness', 'bok_rate');
+  badge('kr-macro-cpi-freshness', 'kr_macro');
+  badge('kr-macro-pmi-freshness', 'kr_macro');
 };
 
 // v48.15 (P2-A): PAGES.init 지원 헬퍼 함수들 — showPage/popstate에서 추출된 단일 진실 원천

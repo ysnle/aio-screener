@@ -2,15 +2,38 @@
 verified_by: agent
 last_verified: 2026-07-10
 confidence: high
-latest_version: v52.41
-latest_P_number: P656
-total_entries: 428
-next_P_number: P657
+latest_version: v52.43
+latest_P_number: P658
+total_entries: 430
+next_P_number: P659
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P658 - v52.43 - FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4: kr-supply의 진짜 원인은 프록시 차단이 아니라 404(존재하지 않는 엔드포인트), BOK 다음 금통위 날짜 자체가 틀려 있었음 (EF-03/05/17/18)
+
+- **발생**: Batch 3(P657) 완료 직후 마지막 배치(EF-03/05/17/18, 운영+조사+구조+승인된 스코프확장) 착수. 이번 배치는 WebSearch로 실제 2026년 7월 현재 시점의 금융 캘린더를 재확인하는 과정에서, 4개 배치 전체를 통틀어 가장 파급력이 큰 두 가지 발견이 나왔다.
+- **EF-18(kr-supply) — "프록시 차단"이 아니라 순수 404**: 라이브 Chrome MCP 네트워크 로그로 kr-supply 요청이 Cloudflare Worker(`aio-proxy.zmfhd007.workers.dev`)를 실제로 경유함을 확인했다(이전 가설이었던 "Worker 미경유"는 틀렸음). Worker가 502를 반환하길래 Worker 코드(`cloudflare-worker-proxy.js`)를 읽어보니 `looksLikeHtml(data)` 게이트가 업스트림이 HTML(차단/캡차 페이지)을 반환할 때 502로 변환하는 로직임을 확인 — 즉 Worker는 업스트림 응답을 있는 그대로 전달했을 뿐이었다. `curl`로 업스트림(`m.stock.naver.com/api/index/KOSPI/investorTrend`)을 직접 호출하자 Referer 유무와 무관하게 **404**가 나왔다 — 프록시/차단이 아니라 **경로 자체가 Naver 서버에 없다**는 뜻. 개별종목 API(`/api/stock/{code}/trend`, 정상 작동 확인됨)와 대조해 지수 API도 `/investorTrend`가 아니라 `/trend`일 가능성을 curl로 검증 → `https://m.stock.naver.com/api/index/KOSPI/trend`가 200과 함께 `{bizdate,personalValue,foreignValue,institutionalValue}`를 반환함을 확인. 이 응답은 배열이 아니라 당일 스냅샷 1건뿐이고 필드명도 기존 코드가 기대하던 `{foreignBuy,foreignSell,...}` 6필드 쌍과 다르다 — `_aioAdaptKrTrendResponse()`로 순매수값을 Buy필드에 매핑(Sell=0)해 기존 `Buy-Sell` 계산식과 하위 렌더링 로직을 무변경으로 재사용했다. 로컬 정적 서버(python http.server)로 콜드 로드 재확인 — 이번엔 CORS 프록시 자체가 이번 세션의 과도한 사용으로 rate-limit돼(동일 세션 내 다른 프록시 호출도 전부 503/403) 라이브 fetch 성공 여부까지는 직접 확인 못 했으나, Node 격리 테스트로 응답변환 로직 자체의 정확성은 검증함(T886).
+- **EF-03(데이터 갱신) — BOK 다음 금통위 날짜 자체가 오류였음**: `/data-refresh` 실행 결과(quotes 77/77·F&G 47·news 40 갱신, FRED는 로컬에 GitHub Secret 없어 BLOCKED) 자체는 정상이었으나, 별도로 WebSearch를 통해 Fed/BOK 캘린더를 실제 재확인한 결과 `DATA_SNAPSHOT.bokNext`(기존 '2026-07-10')와 `MACRO_CALENDAR['kr-bok'].nextRelease`(동일)가 **실제 확인된 다음 회의일(2026-07-16, Reuters/CNBC/Bloomberg 등 복수 소스 교차 확인)과 다름**을 발견했다 — "43일 경과라 오래됐다"는 단순 staleness가 아니라 애초에 저장된 날짜 자체가 틀린 값이었다. kr-macro 페이지의 정적 회의이력 표에서도 5/28 회의(8연속 동결, 신현송 총재 첫 회의) 행이 누락돼 있어 추가했다. US FOMC 캘린더 항목도 6/17 회의가 이미 지났는데 nextRelease로 남아있어 lastRelease로 승격 + 실제 다음 회의(7/29)로 갱신. Fed 기준금리(3.50-3.75%) 값 자체는 재확인 결과 여전히 정확해 무변경.
+- **EF-05(market-news 지연) — 재검증 결과 미재현**: 원 감사가 "17~20시간 전 뉴스"를 관찰했으나, 이번 세션에서 재확인한 결과 최신 기사가 59분 전(서버 생성 14분 전)으로 정상 신선했다. `refresh-data.yml`의 cron(`17,47 * * * *`, 30분 간격)도 건강 — 원 관찰은 감사 시점의 일시적 파이프라인 지연(예: 특정 GitHub Actions 실행 실패, R290/P572 계열의 "조용한 배포 중단")으로 추정되며, `data-watchdog.yml`이 이미 `newsOk`/`newsCount`로 이 클래스를 모니터링 중이라 신규 코드 수정을 하지 않음.
+- **EF-17(홈 선물 슬롯) — 사용자 승인 후 구현**: `GMO_MARKETS`에 ES=F/NQ=F 2행 추가. 두 심볼 모두 이미 `js/aio-data.js`의 라이브 시세 수집 SYMBOLS 배열에 존재해 새 데이터 파이프라인이 필요 없었다 — `renderGmoTable()`에 `_getUsSession()` 기반 정규장/정규장외 시각적 강조 분기만 추가.
+- **violated_rule**: 신규 패턴 — "프록시/헤더 문제로 보이는 상시 실패가 실제로는 존재하지 않는 엔드포인트 경로 문제"(EF-18)와 "데이터 최신화 요청이 실제로는 저장된 날짜 자체의 오류를 감추고 있었다"(EF-03) 둘 다, 향후 유사 진단 시 "프록시 탓"으로 성급히 결론짓기 전에 curl로 업스트림을 직접 검증하라는 교훈으로 `_context/KNOWLEDGE-BASE.md`에 남길 가치가 있음(별도 커밋 없이 이 postmortem에 기록).
+- **prevention**: `js/aio-tests.js` T884(BOK 날짜)/T885(GMO 선물 행)/T886(kr-supply /trend 경로+응답변환) 신규. `ci-runtime-contract-check.mjs`에 5건 정적 계약 추가. T885/886 최초 작성 시 테스트 자체의 사소한 버그(innerHTML "&"→"&amp;" 왕복 인코딩 미고려, 함수 주석에 남은 과거 경로명과 실제 코드 오탐)를 발견해 테스트를 수정 — 실제 프로덕션 코드는 처음부터 정확했다.
+- **verification**: `node --check` js/aio-core.js·index.html(구조검사) green. 로컬 게이트 9종 전부 PASS. `ci-headless-tests.mjs` → **948/948 PASS**(945 기존 + T884~886 신규). `curl` 직접 검증(업스트림 404→200 확인) + Node 격리 테스트(`_aioAdaptKrTrendResponse` 변환 정확성) + 로컬 python 정적 서버로 콜드 로드 확인(CORS 프록시 rate-limit로 실제 fetch 성공까지는 미확인 — 로직 정확성만 검증됨, 잔여 리스크로 기록).
+
+## P657 - v52.42 - FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3: 라벨·번역 정직화 5건 — 시드값 시각구분·수급라벨 모순·소스명 가드·F&G 델타 소스 불일치·기준일 배지
+
+- **발생**: Batch 2(P656) 완료 직후 Batch 3(EF-06/07/14/15/16, 라벨·번역 정직화 계열) 구현 착수. 이번 배치는 Batch 1/2와 달리 "설계 가정이 틀렸다"는 큰 반전은 없었고, 코드 추적으로 정확한 근본 원인을 찾아 각각 좁게 수정했다.
+- **EF-06(VIX 기간구조 시드)**: `_aioRenderVixTermRegime()`(js/aio-core.js)가 VIX9D/3M/6M live 미수신 시 DATA_SNAPSHOT 시드로 폴백하는 것 자체는 R282 게이트(판정 방향성 보류)가 이미 v52.24(P634)에 적용돼 있었으나, 그 옆에 나란히 표시되는 "숫자 슬롯"은 `_aioRenderValueSlot(c, 'value', ...)`로 렌더돼 — 판정 텍스트는 정직한데 인접 숫자는 라이브인 척했다. live 여부별로 `'value'`/`'na'`+"(정적)" 분기 추가. 발견: 이 forEach 블록이 새 로직 추가 전 코드에 이미 한 번(구버전) 존재해 두 블록이 같은 조건을 검사하며 앞선 블록이 "—"를 먼저 숫자로 바꿔놔 뒤 블록의 "—" 체크가 항상 스킵되는 구조였다 — 구 블록을 제거하고 새 블록 하나로 통합.
+- **EF-07(kr-home 수급 라벨)**: "최근 수급 (KOSPI) — 7/9 기준"의 날짜가 `DATE_ENGINE.applyToDOM()`의 범용 `data-date-ref="kr-last-basis"`(모든 사용처에 "마지막 거래일"을 무조건 채움)로 채워져, 프록시 차단 실패 경고와 **동시에** 확정 날짜처럼 표시됐다. `_showKrSupplyFailureState()`가 이 제목의 span만 "폴백 데이터"로 override하고 `data-date-ref` 속성 자체를 제거(이후 재실행되는 범용 date-fill이 되돌리지 못하게).
+- **EF-14(브리핑 번역, 소스명)**: `getDisplayTitle()`은 이미 `isKoreanText()` 가드로 원문 제목 노출을 막지만, 뉴스 카드의 "(출처명)" 부분은 번역 파이프라인이 건드리지 않는 필드라 이 가드를 우회했다 — 우크라이나어 등 소스명이 그대로 노출되는 실제 원인. 새 `_aioSafeSourceLabel()`(비-라틴·비-한글 스크립트 30% 초과 시 "외신"으로 대체, 로마자/한글 혼합 소스명은 원문 유지)을 브리핑 다이제스트에 적용.
+- **EF-15(F&G 전일/델타)**: `fg-h1`의 "전일: N점"은 사용자가 sentiment 페이지를 볼 때마다 CNN API를 직접 재fetch해 계산하는 반면, `sentiment-fg-delta`/`home-fg-delta`의 델타는 서버가 이전에 계산해 data.json에 저장해둔 `DATA_SNAPSHOT._fearGreedDelta`를 읽는다 — 두 값의 "전일" 기준 시점이 다를 수 있어 "전일 47, 오늘 47인데 델타 +5" 같은 산술 모순이 가능했다. CNN historical fetch가 성공하는 시점에 방금 받은 `prevScore`로 두 delta 엘리먼트를 즉시 재계산·덮어쓰기.
+- **EF-16(kr-macro 기준일)**: 기준금리/물가지표/경기지표 3개 위젯에 이미 존재하는 `DATA_SNAPSHOT._fieldTs.bok_rate`/`kr_macro`(BUG-POSTMORTEM 상 이미 콘솔 warn을 발생시키던 필드)를 재사용해 "기준: MM/DD (N일 전)" 배지를 각 위젯 제목에 부여. 수출입 동향 위젯은 라이브 재확인 결과 이미 "📦 2026-02 아카이브 · 최신: 5월 +64.8% YOY" 형태로 적절히 라벨돼 있어(원 감사 문서의 "몇 월분인지 알 수 없음" 서술은 이 실측 시점 기준 부정확) 추가 조치 없음.
+- **violated_rule**: R282(EF-06 — 숫자 슬롯도 판정 텍스트와 같은 시각 구분 기준 적용). R283(EF-07/EF-15 — 동일 화면 중복 지표 동일 소스). R206 계열(EF-14 — 원문 비한국어 텍스트 노출 재발).
+- **prevention**: `js/aio-tests.js` T879(EF-06 na-state)/T880(EF-07 제목 override)/T881(EF-14 소스 가드)/T883(EF-16 배지) 신규. T882(EF-15)는 CNN API 실제 네트워크 응답에 의존하는 비동기 fetch 내부 로직이라 헤드리스 유닛 테스트로 결정론적 재현이 어려워, 코드 패턴 존재 여부를 검사하는 `ci-runtime-contract-check.mjs` 정적 계약으로 대체(T-번호 미부여, 계약 설명에 사유 명시). `ci-runtime-contract-check.mjs`에 6건 정적 계약 추가.
+- **verification**: `node --check` js/aio-core.js·aio-data.js·aio-tests.js green. 로컬 게이트 9종 전부 PASS. `ci-headless-tests.mjs` → **945/945 PASS**(941 기존 + T879/880/881/883 신규 4건, 1차 실행부터 전부 통과 — 회귀 없이 클린 구현).
 
 ## P656 - v52.41 - FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2: 라이브 재검증 결과 절반의 발견이 원 진단과 다른 실제 원인·규모 (EF-08/09/10/11/12 + EF-19)
 

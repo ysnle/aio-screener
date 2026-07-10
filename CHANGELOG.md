@@ -1,3 +1,26 @@
+## v52.43 (2026-07-10)
+- **FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (P658/EF-03/05/17/18)**: 운영+조사 계열 마지막 배치. WebSearch로 실제 현재(2026-07) 시장 캘린더를 재확인한 결과 원 감사 설계 가정을 넘어서는 실제 데이터 오류를 발견·수정했다.
+- **EF-03 (데이터 갱신)**: `/data-refresh` 실행(`fetch-data.mjs`, quotes 77/77·F&G 47·news 40 갱신 성공, FRED는 GitHub Secret 로컬 미보유로 BLOCKED 명시). WebSearch로 Fed/BOK 캘린더를 실제 재확인한 결과 **BOK 다음 금통위가 기존 코드의 "2026-07-10"이 아니라 실제로는 "2026-07-16"임을 확인**(Reuters/CNBC/Bloomberg 등 복수 소스) — `DATA_SNAPSHOT.bokNext`, `MACRO_CALENDAR['kr-bok'].nextRelease`, kr-macro 페이지의 정적 경제일정 표를 전부 정정. 5/28 BOK 회의(8연속 동결, 신현송 총재 첫 회의)가 정적 회의이력 표에서 누락돼 있던 것도 추가. US FOMC 캘린더도 6/17 회의가 이미 지났으므로 lastRelease로 승격하고 실제 다음 회의(7/29, 결정일 기준)를 nextRelease로 갱신. Fed 기준금리(3.50-3.75%, 6/17 결정) 자체는 재확인 결과 여전히 최신이라 값은 무변경.
+- **EF-05 (market-news 지연 조사) — 재검증 결과 미재현**: 라이브 재확인 결과 최신 기사가 59분 전(서버 생성 14분 전)으로 매우 신선함을 확인 — 원 감사의 "17~20시간 지연" 관찰이 재현되지 않음. 갱신 cron(`refresh-data.yml`, 매시 :17/:47 = 30분 간격)도 건강해 구조적 문제가 아니라 감사 시점의 일시적 파이프라인 지연(예: 특정 GitHub Actions 런 실패)으로 추정. `data-watchdog.yml`이 이미 `newsOk`/`newsCount`로 이 클래스의 회귀를 모니터링 중이라 추가 코드 수정 없음.
+- **EF-17 (홈 선물 슬롯, 사용자 승인)**: `GMO_MARKETS`의 Americas 그룹에 ES=F/NQ=F(`isFutures:true`) 2행 추가 — 두 심볼 모두 이미 라이브 시세 수집 목록(`js/aio-data.js` SYMBOLS)에 포함돼 있어 새 fetch 파이프라인 불필요. `renderGmoTable()`이 `_getUsSession()` 기준으로 정규장 중엔 옅게, 정규장 외(프리/애프터/휴장)엔 "시간외" 배지와 함께 강조 표시.
+- **EF-18 (kr-supply 상시 실패) — 근본 원인 확정**: 라이브 네트워크 로그로 Cloudflare Worker가 실제로 요청을 경유함을 확인했으나 502를 반환 — Worker 코드 추적 결과 이는 업스트림이 HTML 차단 페이지를 반환할 때 Worker가 의도적으로 502로 변환하는 로직(`looksLikeHtml` 게이트)이었다. 직접 curl로 원인을 재확인한 결과 **프록시/차단 문제가 아니라 순수 404** — 기존 코드가 호출하던 `/api/index/{시장}/investorTrend` 경로 자체가 Naver 서버에 더 이상 존재하지 않았다(개별종목 API와 달리 "investorTrend"가 아니라 "trend"). `/api/index/{시장}/trend`(curl 200 확인, 개별종목 `/api/stock/{code}/trend`와 동일 패턴)로 교체 + 응답 형태가 `{personalValue,foreignValue,institutionalValue}`(당일 순매수 스냅샷, 배열 아님)로 바뀐 것에 맞춰 `_aioAdaptKrTrendResponse()`로 기존 Buy/Sell 계산식과 호환되게 변환(Sell=0, Buy=순매수값). 다일 이력 배열이 사라져 "N거래일 연속" 코멘트는 자동 생략(기존 가드 재사용).
+- **회귀 방지**: `js/aio-tests.js` T884~T886 신규(`_testV5243Batch4Efficacy`) + `ci-runtime-contract-check.mjs` 5건.
+- **문서 환류**: `_context/BUG-POSTMORTEM.md` P658, `_context/QA-CHECKLIST.md` P658-Q1~Q5, `_context/FABLE-EFFICACY-AUDIT-2026-07-10.md` §1/§5 갱신(전체 배치 완료 처리).
+- **검증**: `node --check` js/*.js green. 로컬 게이트 9종 전부 PASS. `ci-headless-tests` **948/948 PASS**(945 기존 + T884~886 신규 3건, 최초 실행 시 T885/886 테스트 자체의 사소한 버그 2건 발견·수정 후 재통과 — 실제 프로덕션 코드는 문제 없었음).
+- R1 7곳 v52.43
+
+## v52.42 (2026-07-10)
+- **FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (P657/EF-06/07/14/15/16)**: 라벨·번역 정직화 5건.
+- **EF-06 (sentiment VIX 기간구조)**: VIX9D/3M/6M 시드 폴백 슬롯이 `_aioRenderValueSlot(c, 'value', ...)`로 렌더돼 라이브 30D VIX와 시각적으로 구분이 안 됐다("숫자는 배지로 충분"이 배지가 안 보이면 무의미). live 여부에 따라 `'value'`(라이브) vs `'na'`+"(정적)" 텍스트(시드)로 분기해 인접 숫자 간에도 시각 구분 부여. 중복 forEach 블록도 함께 정리(구 버전이 새 버전 로직을 덮어쓰던 것 제거).
+- **EF-07 (kr-home 수급 라벨 모순)**: "최근 수급 (KOSPI) — 7/9 기준" 제목이 DATE_ENGINE의 범용 `data-date-ref="kr-last-basis"`(항상 "마지막 거래일"을 계산)로 채워져 실패 상태와 무관하게 확정 날짜처럼 보였다. `_showKrSupplyFailureState()`에서 이 제목만 정직하게 "폴백 데이터"로 대체(다른 kr-last-basis 사용처는 무변경).
+- **EF-14 (브리핑 번역, 소스명 노출)**: 뉴스 제목은 `getDisplayTitle()`의 `isKoreanText` 가드로 원문 노출이 막히지만, 그 뒤에 붙는 "(출처명)"은 번역 파이프라인 대상이 아니라(제목/요약만 번역) 가드를 안 거쳤다 — 실측(브리핑 핵심뉴스)에서 키릴 소스명이 그대로 노출됨을 확인. 신규 `_aioSafeSourceLabel()`(비-라틴/비-한글 스크립트 30%↑ 시 "외신"으로 대체, 영어/한국어 소스명은 원문 유지)을 브리핑 다이제스트 렌더에 적용.
+- **EF-15 (F&G 전일/델타 불일치)**: `fg-h1`의 "전일: N점"(방금 fetch한 CNN historical API 기반)과 `sentiment-fg-delta`/`home-fg-delta`의 델타(서버 스냅샷 `_fearGreedDelta` 필드 기반)가 서로 다른 시점의 "전일"을 참조해 "전일 47, 오늘 47인데 델타 +5" 같은 모순이 가능했다. CNN historical fetch가 성공할 때마다 방금 받은 `prevScore`로 두 delta 표면을 덮어써 항상 같은 기준을 쓰게 함(R283: 동일 화면 중복 지표 동일 소스).
+- **EF-16 (kr-macro 기준일 배지 불일치)**: 기준금리/물가지표/경기지표 3개 카드에 이미 존재하는 `_fieldTs.bok_rate`/`kr_macro`를 재사용해 "기준: MM/DD (N일 전)" 배지 신설(새 필드 없이 기존 값 재사용). 수출입 동향은 이미 "아카이브"+"최신: N월" 라벨이 있음을 재확인(추가 조치 불필요).
+- **회귀 방지**: `js/aio-tests.js` T879~T881, T883 신규(`_testV5242Batch3Efficacy`, T882는 async 네트워크 fetch 내부라 정적 계약으로 대체) + `ci-runtime-contract-check.mjs` 6건.
+- **문서 환류**: `_context/BUG-POSTMORTEM.md` P657, `_context/QA-CHECKLIST.md` P657-Q1~Q6, `_context/FABLE-EFFICACY-AUDIT-2026-07-10.md` §1/§5 갱신.
+- **검증**: `node --check` js/*.js green. 로컬 게이트 9종 전부 PASS. `ci-headless-tests` **945/945 PASS**(941 기존 + T879~883 신규 4건).
+- R1 7곳 v52.42
+
 ## v52.41 (2026-07-10)
 - **FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2 (P656/EF-08/09/10/11/12/19)**: 라이브(v52.34) Chrome MCP 재검증 결과 여러 발견이 원 진단과 다른 실제 원인·규모로 확인됐다.
 - **EF-08 엔캐리 게이지 — 실제 원인은 "3/4 부분 스코어"가 아니라 오펀 함수**: 라이브 콘솔에서 `_aioRenderCarryUnwindRisk()`를 수동 호출하면 즉시 정상화(점수 58, rate-diff 4.0%p)됨을 확인 — 계산 로직(4입력 전부 하드코딩 폴백 보유, 일본 10Y 라이브 의존 없음)은 이미 항상 유효했고, `window.showPage` 몽키패치의 setTimeout(600ms) 트리거가 콜드 로드(#fxbond 직접 진입) 경로에서 신뢰할 수 없었을 뿐이었다(P605 VKOSPI와 동일 패턴). 이미 검증된 `_aioPageBus('aio:pageShown'/'aio:liveQuotes')` 패턴을 보조 트리거로 추가. 부가로 금리차의 BOJ 쪽이 실시간이 아닌 고정값임을 라벨에 명시(R282 정신).

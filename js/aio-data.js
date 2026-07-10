@@ -9153,6 +9153,20 @@ function isKoreanText(text) {
   return korean && korean.length > text.length * 0.3; // 30% 이상 한글이면 한국어
 }
 
+// v52.42 (P657/EF-14): 뉴스 제목은 getDisplayTitle()이 이미 isKoreanText 가드로 원문 노출을 막지만,
+// 그 뒤에 붙는 "(출처명)"은 소스명 자체가 번역 파이프라인 대상이 아니라(제목/요약만 번역) 이 가드를
+// 거치지 않는다 — 실측(브리핑 핵심뉴스)에서 우크라이나어 등 키릴 소스명이 그대로 노출됨을 확인.
+// 영어/한국어 소스명(Reuters, TradingKey, BornLupin·KR 등)은 그대로 두고, 비-라틴/비-한글 스크립트
+// 비중이 높은 소스명만 일반 라벨로 대체(R206 계열 재발 방지).
+function _aioSafeSourceLabel(source) {
+  if (!source) return '';
+  var s = String(source);
+  var nonLatinKr = s.match(/[Ѐ-ӿ一-鿿؀-ۿ฀-๿֐-׿]/g);
+  if (nonLatinKr && nonLatinKr.length > s.length * 0.3) return '외신';
+  return source;
+}
+window._aioSafeSourceLabel = _aioSafeSourceLabel;
+
 /* ── v30.12: Google Translate 무료 API (배치 지원 + 재시도 + 품질 검증 강화) ── */
 const _GT_SEPARATOR = '\n§§§\n'; // 배치 구분자 — Google이 번역하지 않는 특수 패턴
 
@@ -16912,6 +16926,18 @@ async function fetchFearGreed() {
         // y = score, x = timestamp — 값이 1000 이상이면 timestamp이므로 무시
         if (prevScore > 0 && prevScore <= 100) {
           h1.textContent = '전일: ' + prevScore + '점';
+          // v52.42 (P657/EF-15): sentiment-fg-delta/home-fg-delta는 서버 스냅샷 필드
+          // (DATA_SNAPSHOT._fearGreedDelta, /data-refresh 시점 기준)로 델타를 그려 이 방금 가져온
+          // "전일: N점" 라이브 값과 다른 시점의 전일치를 참조할 수 있었다("전일 47, 오늘 47인데 델타
+          // +5" 같은 모순) — 지금 막 받은 CNN 라이브 전일값으로 두 delta 표면을 덮어써 같은 화면 안
+          // "전일" 문구와 델타 숫자가 항상 같은 기준을 쓰게 한다(R283: 동일 화면 중복 지표는 동일 소스).
+          try {
+            if (typeof _aioSetDeltaEl === 'function' && typeof _AIO_DELTA_POLARITY !== 'undefined') {
+              var _fgLiveDelta = score - prevScore;
+              _aioSetDeltaEl('sentiment-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0 });
+              _aioSetDeltaEl('home-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0 });
+            }
+          } catch(_fgDeltaErr) {}
         } else {
           var _fbScore = window._lastFG || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 35);
           h1.textContent = _fbScore <= 25 ? '극단 공포 구간' : _fbScore <= 45 ? '공포 구간' : _fbScore <= 55 ? '중립 구간' : _fbScore <= 75 ? '탐욕 구간' : '극단 탐욕 구간';
