@@ -1661,6 +1661,13 @@ function _aioClaudeTarget(apiKey) {
 }
 window._aioClaudeTarget = _aioClaudeTarget;
 
+// v52.47 WO-1B: Worker /anthropic 라우트에 실어보내는 공유 앱 토큰. 공개 클라이언트 JS에
+// 그대로 노출되므로 진짜 비밀이 아니다 — Worker(cloudflare-worker-proxy.js)가 이 값과 동일한
+// env.AIO_APP_TOKEN을 설정했을 때만 "URL만 아는" curl/스크립트 남용을 거르는 최소 방어선으로
+// 쓰인다(운영자가 설정 안 하면 Worker가 이 헤더를 아예 검사하지 않음 — 하위호환).
+function _aioAppToken() { return 'aio-screener-app-v1'; }
+window._aioAppToken = _aioAppToken;
+
 function _aioHasClaudeRoute(apiKey) {
   var target = _aioClaudeTarget(apiKey);
   return !!(apiKey || (target && target.serverKey));
@@ -1777,6 +1784,10 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     _claudeHeaders['x-api-key'] = apiKey;
     _claudeHeaders['anthropic-version'] = '2023-06-01';
     _claudeHeaders['anthropic-dangerous-direct-browser-access'] = 'true';
+  } else {
+    // v52.47 WO-1B: Worker가 env.AIO_APP_TOKEN을 설정했을 때만 실제로 검사(미설정 배포는 무시) —
+    // 공개 JS라 진짜 비밀은 아니지만 "URL만 아는" curl/스크립트 남용을 거르는 최소 방어선.
+    _claudeHeaders['X-AIO-App-Token'] = _aioAppToken();
   }
   // cache_control 사용 시에만 beta 헤더 포함 (array system field 감지)
   if (Array.isArray(_systemField) && _systemField.some(function(b){ return b.cache_control; })) {

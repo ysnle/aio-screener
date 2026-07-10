@@ -9845,7 +9845,7 @@ async function autoTranslateNews(items) {
     try {
       const resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
         method: 'POST',
-        headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? {} : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
+        headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? { 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : '') } : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 4000,
@@ -11631,7 +11631,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
   try {
     var resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
       method: 'POST',
-      headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? {} : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
+      headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? { 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : '') } : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 4000,

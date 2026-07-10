@@ -37,3 +37,11 @@ node_modules/
 # Stop-hook auto-commit's `git add -A` swept it in along with real WIP changes.
 # `git rm --cached` it once to stop future re-tracking (2026-07-04 config audit).
 .claude/settings.local.json
+
+# v52.47 WO-5: SessionStart hook's per-session git-status snapshot (session-start-snapshot.sh) —
+# working state for auto-commit-on-stop.sh's scoping, not a committed artifact. Removed by the
+# Stop hook itself on normal exit, but ignore it too in case a session ends without running Stop.
+# Separate files per tool (.claude/ vs .codex/) so two concurrent sessions from different tools
+# against the same repo don't clobber each other's snapshot mid-session.
+.claude/.session-start-snapshot
+.codex/.session-start-snapshot

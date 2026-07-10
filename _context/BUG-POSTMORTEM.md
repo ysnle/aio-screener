@@ -2,15 +2,50 @@
 verified_by: agent
 last_verified: 2026-07-10
 confidence: high
-latest_version: v52.45
-latest_P_number: P660
-total_entries: 432
-next_P_number: P661
+latest_version: v52.48
+latest_P_number: P663
+total_entries: 435
+next_P_number: P664
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
 > corrected by counting actual `## P` headings. This file has a mixed prepend/append history (older entries
 > newest-first near the top, P552+ appended oldest-first at the tail) — grep by P-number, don't assume position.
+
+## P663 - v52.48 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-5: main 브랜치 무보호 + `.codex/hooks.json`이 존재하지 않는 OneDrive 경로를 가리켜 전체 무력화 + 세션 종료 auto-commit이 세션과 무관한 파일을 쓸어담음 + 버전 정규식 자릿수 고정 버그
+
+- **발생**: Codex 진단 WO-5(변경 통제와 hook 단일화) 착수. `gh api`로 main 브랜치 보호 상태 직접 확인 → "Branch not protected" 404 실측(Codex 주장과 일치). `.claude/hooks/*.sh`와 `.codex/hooks/*.sh` 6쌍을 `diff`한 결과 전부 "다르다"고 나왔으나, 줄바꿈 문자(CRLF vs LF)만 벗겨내고 다시 비교하면 내용은 완전히 동일함을 확인(`diff <(tr -d '\r' ...)`) — Codex가 지목한 "hash가 달라 계약이 분기됨"의 실체는 로직 분기가 아니라 서식 차이였음. `.codex/hooks.json`을 직접 읽자 6개 훅 명령이 전부 `C:\Users\zmfhd\OneDrive\문서\Claude\Projects\AIO\.codex\hooks\...` 절대경로였고, 그 OneDrive 경로 자체가 `ls`로 확인 결과 실제로 존재하지 않아(비어있는 폴더) **Codex의 6개 훅 전부가 지금까지 조용히 아무 동작도 하지 않고 있었음**을 실측 확정. `check-version-sync.sh`(양쪽 동일)의 정규식 `v[0-9][0-9]*\.[0-9]`가 소수점 뒤 자릿수를 1개로 고정해 `v52.47`을 `v52.4`로 캡처하는 것도 직접 재현 확인(단, 4곳이 전부 동일하게 잘리면 우연히 안 걸릴 수 있어 "false negative를 만들 수 있는 잠복 버그"로 확정 — CI 측 권위 게이트 `ci-version-check.mjs`는 이 패턴을 안 써서 무관함을 별도 확인).
+- **부수 발견(실측, Codex 진단에 없던 내용)**: 이번 세션 도중 Stop 훅이 자동 실행한 커밋(`1b3f39a`)이 이번 세션과 무관한 이전 세션의 파일(진단 문서 자체·`_context/INDEX.md`)을 `git add -A`로 함께 쓸어담은 것을 직접 관찰 — Codex의 우려("관련 없는 untracked/user file 자동 stage")가 가설이 아니라 같은 세션에서 실제로 재현된 사례임을 확정. 또한 이 리포에 대해 **별도의 OpenAI Codex CLI 프로세스가 현재 세션과 동시에 실행 중**임을 `Get-CimInstance Win32_Process`로 발견 — `.codex/` 훅 설정이 정말 살아있는 다른 도구의 것임을 확인.
+- **사용자 결정**: (1) 브랜치 보호 범위 — "안전망만"(force-push 차단 + 삭제 차단, PR/상태체크 요구 없음) 선택. 데이터 리프레시 봇·세션 종료 훅이 PR 없이 main에 직접 push하는 구조라 "PR 필수" 계열 규칙은 자동화 전체를 즉시 멈추게 하므로 배제. (2) auto-commit 범위 재설계 — "세션 시작 스냅샷 대조" 선택.
+- **구현**: (1) `gh api repos/.../branches/main/protection --method PUT`으로 `allow_force_pushes=false`+`allow_deletions=false`만 활성화(라이브 GitHub 설정 변경, 재조회로 확인). (2) 신규 `SessionStart` 훅 `session-start-snapshot.sh`(`.claude/`+`.codex/` 양쪽, 각자 별도 스냅샷 파일 — 두 도구가 동시 실행 중이라 스냅샷 충돌 방지) — 세션 시작 시 `git status --porcelain`을 파일로 기록. `auto-commit-on-stop.sh`(양쪽)를 재작성 — 스냅샷이 있으면 `comm -13`으로 "세션 시작 시점엔 없던 경로"만 골라 `git add`, 없으면 기존 동작(전체 add)으로 안전 폴백. (3) `.codex/hooks.json`의 6개 절대경로를 전부 `.claude/settings.local.json`과 동일한 상대경로 패턴으로 교체(`.codex/hooks/xxx.sh`) — 존재하지 않는 경로보다 상대경로가 항상 더 안전하다는 판단(Codex의 상대경로 해석 방식이 Claude Code와 정확히 같은지는 확인 불가하나, 절대경로는 100% 깨져있었으므로 어느 쪽이든 개선). (4) `check-version-sync.sh`(양쪽) 정규식을 `v[0-9][0-9]*\.[0-9][0-9]*`로 수정 — 실제 버전 문자열로 재검증(오탐 없음 확인). (5) `_context/CLAUDE.md`의 "`settings.local.json`은 Git-tracked"라는 오래된(2026-07-04 감사 이후 사실이 아니게 된) 서술 정정 — `git ls-files`로 실제 미추적 상태 재확인.
+- **범위 밖으로 남긴 것**: `.codex/` 쪽 hook이 Claude Code와 완전히 동일한 상대경로 해석 규칙을 쓰는지는 Codex 내부 동작이라 직접 검증 불가 — 절대경로(100% 깨짐) 대비 상대경로가 더 안전하다는 판단으로 진행. 브랜치 보호에 상태 체크/PR 리뷰 요구는 사용자가 명시적으로 배제(자동화 워크플로 보존 우선).
+- **violated_rule**: 신규 R296(세션 스코프 자동화 훅은 절대경로·정적 환경 가정을 하드코딩하면 안 되고, 부수효과 범위를 자기 세션이 만든 변화로 한정해야 함).
+- **prevention**: 각 훅 스크립트를 실제 파이프 테스트로 검증(`echo '{}' | bash <script>` + 실제 git 상태로 `comm` 로직 확인) 후 배선 — `update-config` 스킬의 구성→검증 워크플로 준수. 자동화 회귀 게이트는 두지 않음(훅 자체가 CI 대상이 아님 — 로컬 개발 환경 설정).
+- **verification**: JSON 문법 검증(`.claude/settings.local.json`, `.codex/hooks.json`) 통과. `session-start-snapshot.sh` 파이프 테스트 통과(스냅샷 생성 확인). `auto-commit-on-stop.sh`의 `comm -13` 로직을 격리 테스트로 검증(스냅샷 직후 diff=빈 값, 신규 파일 생성 후 diff=해당 파일 정확히 검출). `check-version-sync.sh` 파이프 테스트로 실제 버전(v52.47→48) 정상 매칭 확인. 브랜치 보호는 `gh api` 재조회로 `allow_force_pushes:false, allow_deletions:false, enforce_admins:false, required_pull_request_reviews 없음` 확인. 로컬 게이트 11종 전부 PASS(변경 없음 — 이번 WO는 리포 코드가 아닌 개발환경/거버넌스 설정). 배포는 미실행 — 브랜치 보호만 라이브 GitHub 설정으로 즉시 반영(사용자 승인 범위 내), 나머지는 로컬 파일 변경.
+
+## P662 - v52.47 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-1B: 공유 Anthropic 프록시(/anthropic)가 일반 프록시 방어(bot-UA·rate limit·도메인 allowlist)를 전부 우회했고 호출자 인증·Origin 강제도 없었으며 KV 미바인딩 시 일일 캡이 조용히 무제한이었음
+
+- **발생**: Codex 진단 P0-3(공유 Anthropic 프록시 권한·비용 경계 부족) 착수. `cloudflare-worker-proxy.js`의 `/anthropic` 분기(line 243 부근)가 봇-UA 검사·rate limit·도메인 allowlist보다 먼저 처리돼 이 3개 방어를 전부 우회함을 코드로 확인. `handleAnthropic`은 호출자 인증이 전혀 없고 Origin은 CORS 응답 헤더 발급에만 쓰일 뿐 요청 자체를 거부하는 데는 안 쓰였다(CORS는 브라우저의 응답 "읽기"만 막을 뿐 curl 등 서버측 호출 자체는 막지 못함). `env.AIO_QUOTA`(일일 캡 KV) 미바인딩 시 캡 검사 자체를 건너뛰어 무제한 통과했고, KV get→put 사이엔 원자성이 없어 동시 요청 시 캡을 초과할 수 있었다. 요청 body 크기/입력 상한도 전혀 없었다. 파일 상단 주석은 "AI 채팅 Claude 키는 이 Worker 경유 아님"이라고 썼으나 실제로는 `/anthropic` 라우트가 존재해 문서가 드리프트돼 있었다.
+- **사용자 결정**: AskUserQuestion 2건 — (1) 보호 수준: "계층형 경량 강화"(권장) 선택 — 정적 사이트+무료 Workers 구조상 진짜 인증은 불가능하다는 한계를 명시하고도 "URL만 아는 curl 남용" 차단을 목표로 진행. (2) KV 미바인딩 정책: "Fail-closed"(권장) 선택 — 무제한 비용 노출보다 서버 키 모드 일시 비활성화를 우선.
+- **구현 (`cloudflare-worker-proxy.js`)**: (1) kill switch(`env.ANTHROPIC_KILL_SWITCH='1'`) — 실제 키를 안 지우고도 즉시 라우트 차단. (2) Origin 서버측 강제 — `ALLOWED_ORIGINS`에 없으면 403(기존엔 CORS 헤더만 발급하고 요청은 통과시켰음). (3) 앱 토큰(`env.AIO_APP_TOKEN`, 선택) — 미설정 시 하위호환으로 건너뜀, 설정 시 `X-AIO-App-Token` 헤더 불일치면 403. (4) `/anthropic` 전용 레이트리밋 신설(20회/분, 기존 데이터 프록시 300회/분과 별개 — `checkRateLimit`/`cleanupRateLimitMap`을 map/limit 인자화해 재사용). (5) KV 미바인딩 시 fail-closed(503, 사용자 결정 반영) — 기존엔 조용히 통과. (6) body 크기 상한 200KB(클라이언트 자체 90K자 트리밍보다 여유 있게) — `request.json()` 대신 `request.text()`로 먼저 크기 확인 후 파싱. (7) 상단 주석의 "Worker 경유 아님" 문서 드리프트 정정.
+- **구현 (클라이언트)**: `js/aio-chat.js`에 `_aioAppToken()` 헬퍼 신설, `callClaude()`가 서버 키 모드일 때 `X-AIO-App-Token` 헤더 전송(개인 키 모드는 무관). `js/aio-data.js`의 `autoTranslateNews`/`_generateAIBriefing` 2곳도 동일 헤더 전송(`typeof` 방어 가드, 기존 `_aioClaudeTarget` 참조 패턴과 동일). CORS `Access-Control-Allow-Headers`에 신규 헤더 추가 누락 시 브라우저가 프리플라이트에서 자체 차단했을 것 — 함께 수정.
+- **검증**: Worker가 표준 Fetch API(Request/Response/URL)만 쓰므로 Node 18+에서 실제 핸들러를 직접 호출하는 진짜 동작 테스트 작성(`scripts/ci-worker-anthropic-check.mjs`, 신규 영구 CI 게이트) — B8/WO-1A와 달리 이 로직은 브라우저 비동기 테스트러너 제약이 없어 정적 계약이 아닌 실제 호출 검증 가능. 13개 시나리오 전부 확인: API 키 미설정→503, kill switch→503, Origin 없는 curl→403, 잘못된 Origin→403, 앱토큰 불일치→403, 정상 Origin+토큰→통과, 앱토큰 미설정 시 하위호환 통과, KV 미바인딩→503(fail-closed), 일일 캡 초과→429, 250KB 초과 body→413, 동일 IP 21번째 /anthropic 요청→429, OPTIONS 프리플라이트 정상+신규 헤더 허용 확인. **13/13 PASS**. `package.json`에 `"type":"module"` 추가(Worker 파일을 ESM으로 직접 import하기 위함 — 저장소에 다른 root-level `.js`는 브라우저 전용 `sw.js`뿐이라 Node 쪽 영향 없음을 확인 후 적용).
+- **범위 밖으로 남긴 것**: KV get→put 원자성 자체는 Cloudflare KV의 근본 한계(Durable Objects 필요)라 손대지 않음 — 최악의 경우 동시 요청 수만큼 캡을 약간 초과할 수 있으나 이미 있던 제약이고 이번 세션에서 새로 만든 문제는 아님. 진짜 호출자 인증(OAuth 등)은 정적 배포 전제와 근본적으로 안 맞아 시도하지 않음 — 앱 토큰이 공개 JS에 노출되는 한계는 코드 주석과 이 postmortem에 정직하게 기록.
+- **violated_rule**: 신규 R295(공유 프록시에 새 라우트를 추가할 때 기존 라우트의 방어를 자동 상속하지 않으므로 명시적으로 재적용해야 하며, CORS 헤더는 서버측 접근 제어가 아니라는 원칙).
+- **prevention**: `scripts/ci-worker-anthropic-check.mjs`(신규, `ci.yml` `validate` job에 배선) + `ci-runtime-contract-check.mjs` 5건(클라이언트 헤더 배선 + Worker 소스 정적 계약).
+- **verification**: `node --check` 대상 파일 green. 로컬 게이트 11종(신규 2개 포함) 전부 PASS. `ci-headless-tests` **958/958 PASS**(변경 없음 — 이번 WO는 런타임 채팅 로직 자체는 안 건드림). 배포는 미실행 — 로컬 구현까지만(Worker 코드는 리포에 반영됐으나 실제 라이브 Cloudflare Worker는 운영자가 대시보드에서 수동 재배포해야 반영됨 — 과거 P638/C1과 동일한 배포 갭 존재).
+
+## P661 - v52.46 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-1A: 포트폴리오 "PIN 설정 후 AES-256 암호화" UI 주장이 거짓이었음 — 실제 Vault(기존 API 키용)로 통합, 잠금 게이트 자체가 고아 함수였던 것도 함께 발견·수정
+
+- **발생**: Codex 진단 P0-2(포트폴리오 보안 계약 불일치) 착수. UI는 "PIN 설정 후 저장 시 AES-256 암호화"라고 명시하지만, 코드 확인 결과 `getPortfolioData`/`savePortfolioData`가 순수 `localStorage.getItem/setItem` + `JSON.stringify`뿐이고, PIN(`aio_portfolio_pin`)도 평문 저장 후 `input.value === pin` 직접 비교였다. 반면 API 키용 `_AioVault`(AES-GCM-256+PBKDF2 100k iterations, `js/aio-core.js`)는 실제로 존재하고 정상 동작하지만 포트폴리오와는 완전히 무관했다.
+- **사용자 결정**: AskUserQuestion으로 "실제 암호화 구현(기존 Vault 재사용)" vs "UI 문구만 정직화(코드 무변경)" 중 선택 요청 → 사용자가 "실제 암호화 구현" 선택. 두 PIN 시스템(포트폴리오 전용 + API 키 Vault)을 하나로 통합하는 방향으로 확정.
+- **부수 발견 — 잠금 게이트 자체가 고아 함수였음(R294 신규)**: `checkPortfolioPin()`이 "PIN이 설정돼 있으면 잠금화면, 아니면 메인화면"을 결정하는 함수로 존재했으나, 전체 리포 grep 결과 **어디서도 호출되지 않는 완전한 고아 함수**였다. 실제로 포트폴리오 페이지는 `aio:pageShown` 훅에서 `renderPortfolio()`만 직접 호출했고, `pf-main`의 기본 `display:block` 때문에 PIN을 설정한 사용자도 페이지 진입 시 잠금화면을 본 적이 없었다(데이터는 항상 즉시 평문 렌더). 즉 암호화 문제 이전에 **PIN 게이트 자체가 실질적으로 작동한 적이 없었다**.
+- **구현**: (1) `_AIO_SENSITIVE_KEYS`(js/aio-core.js)에 `'aio_portfolio_data'` 추가 — 기존 `safeLS`/`_migrateToEncrypted` 계약을 그대로 재사용(신규 암호화 로직 작성 없음). (2) 동기 호출부 수십 곳을 async로 바꾸지 않기 위해 API 키가 이미 쓰는 `_AioVault._keyRuntime` 동기 캐시 패턴을 포트폴리오에도 적용 — `savePortfolioData`는 캐시를 즉시 갱신 후 `safeLS`로 fire-and-forget 영속화, `getPortfolioData`는 캐시 우선 동기 읽기. (3) `isPortfolioLocked()` 신설 — `aio_vault_salt`(Vault 설정 이력) 또는 레거시 `aio_portfolio_pin` 존재 + `_AioVault.isUnlocked()`를 단일 진실 원천으로 판정. (4) `renderPortfolio()` 최상단에 이 게이트를 실제로 배선(고아였던 `checkPortfolioPin` 대체) — 모든 호출부가 자동으로 게이트를 통과하게 됨. (5) `unlockPortfolio()`를 async로 전환 — 기존 Vault 있으면 저장된 암호문을 실제로 복호화 시도해 `null`(AES-GCM 인증 실패=오PIN)이면 거부, 신규 Vault면 평문 데이터를 그 자리에서 암호화로 승격. (6) 레거시 평문 PIN 마이그레이션 — 기존 `aio_portfolio_pin` 값을 그대로 새 Vault PIN으로 사용해 사용자가 같은 숫자를 한 번 더 입력하는 것만으로 완전히 투명하게 전환. (7) `resetPortfolioPin()`을 "보호 해제"로 재정의 — 포트폴리오만 평문으로 되돌리고(`aio_portfolio_vault_optout` 플래그) 사이드바 API 키 Vault(공유 salt)는 건드리지 않음. PIN을 모르는 상태에서의 초기화는 데이터 자체가 복구 불가함을 정직하게 confirm 문구에 명시.
+- **검증**: Playwright로 실제 페이지를 구동해 7개 시나리오·17개 어서션 실측 — (A) 무PIN 평문 저장 (B) PIN 설정 후 실제 `aio_enc::` 암호화 확인 (C) 재시작 후(같은 세션 재로드) 잠금 상태로 정확히 전환 + 평문 미노출 + 잠금화면 실제 표시 (D) 오PIN 거부 (E) 정PIN으로 정확한 원본 데이터 복구 (F) 레거시 평문 PIN 설치 시나리오 시뮬레이션 → 마이그레이션 성공 확인 (G) 보호 해제가 공유 Vault salt를 손상시키지 않음 확인. **17/17 PASS**. 이후 소스 텍스트 정적 계약(T891~895, `js/aio-tests.js`)으로 회귀 방지 게이트화 — 실제 암호화 동작 자체는 async라 상시 헤드리스 스위트에 넣지 않고(P657 T882/B8 T887 선례와 동일 판단) 이번 세션의 Playwright 실측으로 근거를 대체.
+- **범위 밖으로 남긴 것**: `_AioVault` 자체의 "PIN 변경" 기능은 기존에도 없었고(첫 설정만 안전) 이번에도 신설하지 않음 — 포트폴리오 통합이 API 키 Vault 전체의 PIN 변경 정책까지 새로 설계하는 것은 과잉 범위라 판단. API 키 Vault 자체의 오PIN 미검증(기존부터 있던 약점, `_restoreDecryptedKeys()`가 복호화 실패를 감지하지 않음)은 손대지 않음(WO-1A 범위 밖, 포트폴리오 쪽만 명시적으로 검증 로직 추가).
+- **violated_rule**: 신규 R294(PIN/암호화 보안 UI 주장은 실제 저장 경로·게이트 배선과 자동 테스트로 함께 묶어야 하며, "설정 화면이 존재한다"와 "그 설정이 실제로 읽기 경로를 지킨다"는 별개로 검증해야 한다).
+- **prevention**: `js/aio-tests.js` T891~895(`_testV5246PortfolioVault`) + `ci-runtime-contract-check.mjs` 5건.
+- **verification**: `node --check` 대상 파일 green. 로컬 게이트 10종 전부 PASS. `ci-headless-tests` **958/958 PASS**(952 기존 + T891~895 신규 6개 어서션). 배포는 미실행 — 로컬 구현까지만.
 
 ## P660 - v52.45 - CODEX-COMPREHENSIVE-DIAGNOSIS WO-0: data-watchdog.yml YAML 파손 복구 + 대량 mojibake 발견·복구 + 재발 방지 CI 게이트 신설
 

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\protect-files.sh'",
+            "command": ".codex/hooks/protect-files.sh",
             "timeout": 5
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\block-dangerous.sh'",
+            "command": ".codex/hooks/block-dangerous.sh",
             "timeout": 5
           }
         ]
@@ -28,17 +28,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\validate-edit.sh'",
+            "command": ".codex/hooks/validate-edit.sh",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\check-antipatterns.sh'",
+            "command": ".codex/hooks/check-antipatterns.sh",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\check-version-sync.sh'",
+            "command": ".codex/hooks/check-version-sync.sh",
             "timeout": 5
           }
         ]
@@ -54,8 +54,19 @@
           },
           {
             "type": "command",
-            "command": "'C:\\Users\\zmfhd\\OneDrive\\문서\\Claude\\Projects\\AIO\\.codex\\hooks\\auto-commit-on-stop.sh'",
+            "command": ".codex/hooks/auto-commit-on-stop.sh",
             "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".codex/hooks/session-start-snapshot.sh",
+            "timeout": 5
           }
         ]
       }

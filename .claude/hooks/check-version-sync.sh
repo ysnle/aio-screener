@@ -23,10 +23,12 @@ if [ ! -f "$ROOT/index.html" ]; then
 fi
 
 # 6곳에서 버전 추출
-VER_TITLE=$(grep "<title>" "$ROOT/index.html" | grep -o 'v[0-9][0-9]*\.[0-9]' | head -1)
-VER_APP=$(grep "APP_VERSION" "$ROOT/index.html" | grep -o 'v[0-9][0-9]*\.[0-9]' | head -1)
-VER_JSON=$(grep '"version"' "$ROOT/version.json" 2>/dev/null | grep -o 'v[0-9][0-9]*\.[0-9]' | head -1)
-VER_CLAUDE=$(grep '현재 버전' "$ROOT/CLAUDE.md" 2>/dev/null | grep -o 'v[0-9][0-9]*\.[0-9]' | head -1)
+# v52.47 WO-5: 정규식이 소수점 뒤 자릿수를 1개로 고정해 v52.43 같은 2자리 patch를 v52.4로
+# 잘라 캡처하던 버그 수정(Codex 지적) — v51.64+ 두 자리 patch 체계와 항상 어긋나 보였음.
+VER_TITLE=$(grep "<title>" "$ROOT/index.html" | grep -o 'v[0-9][0-9]*\.[0-9][0-9]*' | head -1)
+VER_APP=$(grep "APP_VERSION" "$ROOT/index.html" | grep -o 'v[0-9][0-9]*\.[0-9][0-9]*' | head -1)
+VER_JSON=$(grep '"version"' "$ROOT/version.json" 2>/dev/null | grep -o 'v[0-9][0-9]*\.[0-9][0-9]*' | head -1)
+VER_CLAUDE=$(grep '현재 버전' "$ROOT/CLAUDE.md" 2>/dev/null | grep -o 'v[0-9][0-9]*\.[0-9][0-9]*' | head -1)
 
 # 모든 값이 있고 일치하는지 확인
 if [ -n "$VER_TITLE" ] && [ -n "$VER_APP" ] && [ -n "$VER_JSON" ] && [ -n "$VER_CLAUDE" ]; then

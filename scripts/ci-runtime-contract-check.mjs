@@ -448,6 +448,23 @@ check('P660: package.json declares js-yaml as a devDependency (needed for real w
 check('P660: ci.yml runs npm install before the new control-character/workflow-YAML gate, and actually invokes it in the validate job', /npm install/.test(ciWorkflow) && /ci-control-char-check\.mjs/.test(ciWorkflow));
 check('P660: control-char-baseline.json exists and records the known pre-existing mojibake count (regression-only gate, not a silent pass)', exists('_context/control-char-baseline.json'));
 
+// v52.46 (P661/R294/WO-1A): portfolio data now shares the real _AioVault (AES-GCM-256+PBKDF2) with API keys,
+// instead of the separate plaintext localStorage path the UI's "PIN 설정 후 AES-256 암호화" claim never matched.
+check('WO-1A: aio_portfolio_data is enrolled in _AIO_SENSITIVE_KEYS so safeLS actually encrypts it when the shared vault is unlocked', /'aio_portfolio_data'/.test(core) && /_AIO_SENSITIVE_KEYS = new Set\(\[[\s\S]{0,400}'aio_portfolio_data'/.test(core));
+check('WO-1A: renderPortfolio() is the real lock gate (checks isPortfolioLocked() before rendering), replacing the orphaned checkPortfolioPin() that nothing ever called', /function isPortfolioLocked\(\)/.test(html) && /if \(typeof isPortfolioLocked === 'function' && isPortfolioLocked\(\)\)/.test(html) && !/function checkPortfolioPin/.test(html));
+check('WO-1A: unlockPortfolio() detects a wrong PIN via a null decrypt result (AES-GCM auth failure) rather than the old plaintext input.value===pin comparison', /const dec = await _AioVault\.decrypt\(raw\)/.test(html) && /dec === null/.test(html) && !/input\.value === pin\)/.test(html));
+check('WO-1A: opting out of portfolio vault protection does not remove the shared aio_vault_salt (other encrypted API keys must stay intact)', /PF_VAULT_OPTOUT_KEY/.test(html) && !/removeItem\('aio_vault_salt'\)/.test(html));
+check('headless tests cover the WO-1A portfolio vault contract', /_testV5246PortfolioVault/.test(tests) && /T891/.test(tests) && /T892/.test(tests) && /T893/.test(tests) && /T894/.test(tests) && /T895/.test(tests));
+
+// v52.47 (P662/WO-1B): Anthropic proxy auth/cost-boundary hardening — client side sends the shared
+// app token when routed through the Worker; the Worker's own behavior is verified separately by
+// scripts/ci-worker-anthropic-check.mjs (a real handler-invocation test, not just a static contract).
+check('WO-1B: _aioAppToken() helper exists and is exposed for cross-file reuse', /function _aioAppToken\(\)/.test(chat) && /window\._aioAppToken = _aioAppToken/.test(chat));
+check('WO-1B: callClaude() sends the app token header specifically on the server-key (Worker) branch, not the direct-personal-key branch', /_claudeHeaders\['X-AIO-App-Token'\] = _aioAppToken\(\)/.test(chat));
+check('WO-1B: both aio-data.js Claude call sites (translation + briefing) send the app token when server-key routed, with a defensive typeof fallback', (data.match(/'X-AIO-App-Token':\s*\(typeof _aioAppToken === 'function' \? _aioAppToken\(\) : ''\)/g) || []).length === 2);
+check('WO-1B: cloudflare-worker-proxy.js enforces server-side Origin allowlist, an optional app-token check, a dedicated /anthropic rate limit, and KV fail-closed on the daily cap', /ALLOWED_ORIGINS\.includes\(_normalizedOrigin\)/.test(worker) && /env\.AIO_APP_TOKEN/.test(worker) && /ANTHROPIC_RATE_LIMIT/.test(worker) && /서버 키 모드 일시 비활성화/.test(worker) && /ANTHROPIC_KILL_SWITCH/.test(worker));
+check('WO-1B: CORS preflight allows the new X-AIO-App-Token header (otherwise browsers block it before the Worker ever sees it)', /Access-Control-Allow-Headers['"]?:\s*'[^']*X-AIO-App-Token/.test(worker));
+
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));

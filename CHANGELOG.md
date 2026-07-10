@@ -1,3 +1,31 @@
+## v52.48 (2026-07-10)
+- **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-5 구현 (P663/R296)**: main 브랜치 무보호(GitHub API "Branch not protected" 실측) + `.codex/hooks.json`이 존재하지 않는 OneDrive 절대경로를 가리켜 6개 훅 전부가 조용히 무력화돼 있었던 것 + 세션 종료 auto-commit이 세션과 무관한 파일을 쓸어담는 것(실측 재현) + 버전 동기화 훅의 정규식 자릿수 고정 버그를 확인·수정.
+- **사용자 결정**: 브랜치 보호 범위 — "안전망만"(force-push+삭제 차단, PR/상태체크 요구 없음, 봇 직접 push 워크플로 보존) 선택. auto-commit 범위 — "세션 시작 스냅샷 대조" 선택.
+- **구현**: `gh api`로 브랜치 보호 활성화(`allow_force_pushes=false`, `allow_deletions=false`, 재조회로 확인). 신규 `SessionStart` 훅 `session-start-snapshot.sh`(`.claude/`+`.codex/` 양쪽, 도구별 별도 스냅샷 — 동시 실행 중인 별도 Codex 프로세스와 충돌 방지) + `auto-commit-on-stop.sh` 재작성(스냅샷 대비 신규 경로만 `git add`, 스냅샷 없으면 안전 폴백). `.codex/hooks.json` 6개 절대경로 → 상대경로 전환. `check-version-sync.sh`(양쪽) 정규식 수정(`v52.47`이 `v52.4`로 잘리던 버그). `_context/CLAUDE.md`의 "settings.local.json Git-tracked" 오기 정정(2026-07-04부터 실제로는 gitignore).
+- **검증**: 각 훅을 파이프 테스트로 직접 실행 확인(`update-config` 스킬의 구성→검증 워크플로 준수) — 스냅샷 생성/`comm -13` diff 로직(격리 테스트: 무변화 시 빈 값, 신규 파일 생성 시 정확히 검출)/버전 정규식(실제 v52.47→48로 재검증) 전부 확인. 브랜치 보호는 `gh api` 재조회로 의도한 필드만 켜졌는지 확인. 로컬 게이트 11종 전부 PASS(코드 변경 없음 — 개발환경 설정).
+- **문서 환류**: `_context/BUG-POSTMORTEM.md` P663, `_context/RULES.md` R296, `_context/QA-CHECKLIST.md` P663-Q1~Q6, `_context/CLAUDE.md` hook 표/구조 갱신.
+- **범위 밖**: 브랜치 보호에 PR 리뷰/상태체크 요구는 사용자가 명시적으로 배제(기존 자동화 보존 우선). Codex의 상대경로 해석이 Claude Code와 완전히 동일한지는 직접 검증 불가(절대경로는 100% 깨져있었으므로 어느 쪽이든 개선이라는 판단으로 진행).
+- R1 7곳 v52.48
+
+## v52.47 (2026-07-10)
+- **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-1B 구현 (P662/R295)**: 공유 Anthropic 프록시(`cloudflare-worker-proxy.js` `/anthropic`)가 일반 데이터 프록시의 bot-UA 검사·rate limit·도메인 allowlist를 전부 우회하고, 호출자 인증·서버측 Origin 강제도 없었으며, 일일 캡 KV 미바인딩 시 조용히 무제한 통과했음을 확인(Codex P0-3).
+- **사용자 결정**: 보호 수준 — "계층형 경량 강화"(권장) 선택. KV 미바인딩 정책 — "Fail-closed"(권장) 선택.
+- **구현(Worker)**: kill switch(`ANTHROPIC_KILL_SWITCH`) + 서버측 Origin 강제(403) + 선택적 앱 토큰(`AIO_APP_TOKEN`, 미설정 시 하위호환) + `/anthropic` 전용 레이트리밋(20/분, 데이터 프록시 300/분과 별개) + KV 미바인딩 시 fail-closed(503) + body 크기 상한(200KB) + 문서 드리프트("Worker 경유 아님") 정정.
+- **구현(클라이언트)**: `js/aio-chat.js` `_aioAppToken()` 신설 + `callClaude()`/`autoTranslateNews()`/`_generateAIBriefing()` 3곳에서 서버 키 모드일 때 `X-AIO-App-Token` 헤더 전송. CORS `Access-Control-Allow-Headers`에 신규 헤더 추가(누락 시 브라우저가 프리플라이트에서 자체 차단).
+- **검증**: Worker가 표준 Fetch API만 써서 Node 18+에서 실제 핸들러를 직접 호출하는 진짜 동작 테스트 작성(`scripts/ci-worker-anthropic-check.mjs`, 신규 영구 CI 게이트, `ci.yml` 배선) — 13개 시나리오 **13/13 PASS**(API키 미설정·kill switch·Origin없는 curl·잘못된 Origin·앱토큰 불일치·정상 통과·앱토큰 미설정 하위호환·KV미바인딩 fail-closed·일일캡 초과·body 초과·레이트리밋·OPTIONS프리플라이트+CORS헤더).
+- **문서 환류**: `_context/BUG-POSTMORTEM.md` P662, `_context/RULES.md` R295, `_context/QA-CHECKLIST.md` P662-Q1~Q8.
+- **검증**: `node --check` 대상 파일 green. `package.json`에 `"type":"module"` 추가(Worker 직접 import용, 영향 확인 완료). 로컬 게이트 11종 전부 PASS. `ci-headless-tests` **958/958 PASS**(변경 없음). 배포는 미실행 — 리포 코드는 반영됐으나 실제 라이브 Cloudflare Worker는 운영자 수동 재배포 필요(과거 P638과 동일 배포 갭).
+- R1 7곳 v52.47
+
+## v52.46 (2026-07-10)
+- **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-1A 구현 (P661/R294)**: 포트폴리오 UI가 "PIN 설정 후 저장 시 AES-256 암호화"라고 오랫동안 명시했으나, 실제로는 `getPortfolioData`/`savePortfolioData`가 순수 평문 localStorage였고 PIN도 평문 비교였다(Codex P0-2). 사용자에게 "실제 암호화 구현(기존 Vault 재사용)" vs "UI 문구 정직화" 중 선택 요청 → 실제 암호화 선택.
+- **부수 발견**: 잠금 게이트로 쓰이던 `checkPortfolioPin()`이 리포 전체에서 호출부 0건인 고아 함수였음을 발견 — PIN을 설정해도 페이지 진입 시 잠금화면이 뜬 적이 없었다(암호화 여부와 별개로 게이트 자체가 작동 안 함).
+- **구현**: API 키에 이미 쓰이는 `_AioVault`(AES-GCM-256+PBKDF2)에 `'aio_portfolio_data'`를 `_AIO_SENSITIVE_KEYS`로 편입해 `safeLS` 계약 재사용. 동기 호출부 수십 곳을 async 전환하지 않기 위해 `_AioVault._keyRuntime` 동기 캐시 패턴 재사용. `isPortfolioLocked()` 신설(공유 Vault 상태가 단일 진실 원천) 후 `renderPortfolio()` 최상단에 실제로 배선(고아 게이트 대체). `unlockPortfolio()`는 복호화 `null`(AES-GCM 인증 실패) 감지로 오PIN 거부. 레거시 평문 PIN 사용자는 같은 PIN 재입력만으로 투명하게 마이그레이션. "PIN 초기화"는 포트폴리오만 평문 복귀(사이드바 API 키 Vault의 공유 salt는 무손상).
+- **검증**: Playwright 실브라우저로 7개 시나리오·17개 어서션 실측(무PIN 평문·PIN 설정 후 암호화 확인·재로드 후 잠김+미노출+잠금화면 표시·오PIN 거부·정PIN 정확 복구·레거시 마이그레이션·보호해제가 공유 vault 무손상) — **17/17 PASS**. 이후 소스 정적 계약(T891~895)으로 회귀 게이트화.
+- **문서 환류**: `_context/BUG-POSTMORTEM.md` P661, `_context/RULES.md` R294, `_context/QA-CHECKLIST.md` P661-Q1~Q6.
+- **검증**: `node --check` 대상 파일 green. 로컬 게이트 10종 전부 PASS. `ci-headless-tests` **958/958 PASS**(952 기존 + T891~895 신규). 배포는 미실행 — 로컬 구현까지만.
+- R1 7곳 v52.46
+
 ## v52.45 (2026-07-10)
 - **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-0 구현 (P660/R293)**: 사용자가 Codex 작성 전수 진단 문서(WO-0~8 작업 패킷)를 순차 진행 요청 — WO-0(P0/즉시)부터 착수.
 - **워크플로 YAML 파손 복구**: `.github/workflows/data-watchdog.yml`에 U+0080 제어문자 5개가 mojibake로 유입돼 PyYAML 파싱 자체가 실패("unacceptable character #x0080")하고 있었음을 curl/gh CLI로 직접 재현 확인(GitHub run 29059996134가 job 생성 전 즉시 실패). 원인 커밋(`40dbef8`)의 diff에서 손상 직전 원문을 확보해 완전 복구(추측 재작성 아님) — 같은 커밋이 `scripts/fetch-telegram-digest.mjs`에도 남긴 동일 손상(1건)도 함께 복구.

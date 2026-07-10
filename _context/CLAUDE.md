@@ -4,7 +4,7 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v52.45
+- **현재 버전**: v52.48
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
 ## _context/ 문서 (29개 활성, 2026-07-10 갱신)
@@ -58,9 +58,11 @@ AIO/
 └── .claude/             ← 전부 Git-tracked (2026-05-18~, 09d2200 이후)
     ├── agents/          ← 4개: accessibility-auditor · code-reviewer · performance-analyzer · qa-auditor
     ├── commands/         ← 9개 wrapper (아래 표)
-    ├── hooks/            ← 6개 (아래 표), settings.local.json에 배선
+    ├── hooks/            ← 7개(아래 표), settings.local.json에 배선
     ├── skills/           ← 7개: _shared · autoresearch · bug-fix · data-refresh · integrate · knowledge-lint · post-edit-qa
-    └── settings.local.json ← hooks 배선 + 권한 설정 (Git-tracked)
+    └── settings.local.json ← hooks 배선 + 권한 설정. **Git-tracked 아님**(gitignore) — 2026-07-04 감사 때
+        `git rm --cached`로 재추적 방지 처리됨(머신별 개인 설정이라 팀 공유 대상 아님).
+        `_context/CLAUDE.md`(이 문서) 구버전이 "Git-tracked"라고 잘못 적어뒀던 것을 v52.47 WO-5에서 정정.
 ```
 
 > 이전 버전 문서(및 `_context/CODE-MAP.md` 하단 메모)의 "`.claude/commands`와 `.claude/hooks`는
@@ -81,7 +83,7 @@ AIO/
 | `/version-up` | 인라인 | — |
 | `/autoresearch` | autoresearch | — |
 
-## Hook 시스템 (`.claude/hooks/`, Git-tracked, `settings.local.json`에 배선됨)
+## Hook 시스템 (`.claude/hooks/`, Git-tracked, `settings.local.json`(개인 설정·비-Git)에 배선됨)
 
 | Hook | 트리거 | 역할 |
 |------|--------|------|
@@ -89,8 +91,9 @@ AIO/
 | `block-dangerous.sh` | PreToolUse | rm -rf, force push 차단 |
 | `validate-edit.sh` | PostToolUse | div 닫힘/괄호 균형 검증 |
 | `check-antipatterns.sh` | PostToolUse | alert()/confirm(), `d.pct\|\|0`, 금지 핫코드 감지 |
-| `check-version-sync.sh` | PostToolUse | R1 버전 6곳 동기화 자동 검증(index.html·APP_VERSION·version.json·CLAUDE.md) |
-| `auto-commit-on-stop.sh` | Stop | 세션 종료 시 미푸시 변경사항 WIP 자동 커밋 |
+| `check-version-sync.sh` | PostToolUse | R1 버전 동기화 자동 검증(index.html·APP_VERSION·version.json·CLAUDE.md). v52.47: 소수점 뒤 1자리 고정 정규식 버그 수정(두 자리 patch 오인식 가능성 해소) |
+| `session-start-snapshot.sh` | SessionStart | 세션 시작 시점 `git status --porcelain` 스냅샷 기록(v52.47 WO-5 신규) |
+| `auto-commit-on-stop.sh` | Stop | 세션 종료 시 미푸시 변경사항 WIP 자동 커밋. v52.47: 스냅샷과 대조해 "이번 세션에 새로 dirty해진 경로"만 스테이징 — 세션 시작 전부터 있던 무관한 파일을 더 이상 쓸어담지 않음(`.codex/`도 동일 로직으로 미러링) |
 
 ## 복리 루프 (Karpathy Second Brain)
 

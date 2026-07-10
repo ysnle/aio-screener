@@ -484,6 +484,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 
 ### WO-1A — 포트폴리오 보안 계약 일치
 
+> **상태(2026-07-10, Sonnet 5 세션, v52.46/P661/R294): 구현 완료.** 사용자에게 두 선택지(실제 암호화 vs UI 문구 정직화)를 제시해 "실제 암호화"로 확정. 기존 API 키용 `_AioVault`(AES-GCM-256+PBKDF2, 이미 구현돼 있었음)에 포트폴리오를 편입 — 신규 암호화 로직 작성 없이 `_AIO_SENSITIVE_KEYS`+`safeLS`+`_migrateToEncrypted` 기존 계약을 재사용. 동기 호출부 수십 곳을 async로 바꾸지 않기 위해 API 키가 이미 쓰는 `_keyRuntime` 동기 캐시 패턴을 그대로 재사용했다. **부수 발견**: 이 문서가 지목한 "PIN도 평문 비교"보다 한 단계 더 근본적인 버그가 있었다 — 잠금화면을 띄우는 게이트 `checkPortfolioPin()`이 리포 전체에서 호출부가 0건인 고아 함수였다(PIN을 설정한 사용자도 페이지 진입 시 잠금화면을 본 적이 없음). `renderPortfolio()` 자체를 게이트로 재설계해 해결. Playwright로 실제 페이지를 구동해 완료 게이트가 요구한 4개 항목(평문 없음/PIN 직접비교 없음/오PIN·마이그레이션·backup 테스트/암호화 주장과 런타임 저장값 동시 검사) 전부를 7개 시나리오·17개 어서션으로 실측 확인(17/17 PASS). 상세: `_context/BUG-POSTMORTEM.md` P661.
+
 우선순위: P0
 
 작업 범위 선택지는 둘 중 하나다.
@@ -499,6 +501,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 - 암호화 주장과 런타임 저장값을 함께 검사하는 자동 테스트
 
 ### WO-1B — Anthropic 프록시 권한·비용 경계
+
+> **상태(2026-07-10, Sonnet 5 세션, v52.47/P662/R295): 구현 완료.** 사용자에게 2건 확인 — 보호 수준("계층형 경량 강화" 선택, 정적 사이트+무료 Workers 구조상 진짜 인증 불가라는 이 문서의 한계 인정을 전제로) + KV 미바인딩 정책("Fail-closed" 선택). 구현: kill switch·서버측 Origin 강제(기존엔 CORS 헤더만 발급하고 요청 자체는 거부 안 했음)·선택적 앱 토큰(`AIO_APP_TOKEN`, 미설정 시 하위호환)·`/anthropic` 전용 레이트리밋(20/분, 데이터 프록시 300/분과 분리)·KV fail-closed·body 200KB 상한. 완료 게이트 4개(인증없는 curl 거부/quota 상한 확인/oversized body·token 거부/서버키 노출 0+kill switch) 전부 충족 확인. **검증 방법**: Worker가 표준 Fetch API만 사용하므로 Node 18+에서 실제 `fetch` 핸들러를 직접 호출하는 진짜 동작 테스트(`scripts/ci-worker-anthropic-check.mjs`, `ci.yml` 배선) — 13개 시나리오 13/13 PASS, 정적 계약이 아닌 실제 호출 검증. KV get→put 원자성 자체(동시 요청 시 캡 소폭 초과 가능)는 Durable Objects 없이는 근본 해결 불가로 범위 밖 유지(문서화만). 상세: `_context/BUG-POSTMORTEM.md` P662.
 
 우선순위: P0
 
@@ -579,6 +583,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 - 키보드와 screen reader 핵심 흐름 수동 증거
 
 ### WO-5 — 변경 통제와 hook 단일화
+
+> **상태(2026-07-10, Sonnet 5 세션, v52.48/P663/R296): 구현 완료.** 사용자에게 2건 확인 — 브랜치 보호 범위("안전망만": force-push+삭제 차단, PR/상태체크 요구 없음 — 이 저장소는 봇/훅이 PR 없이 main에 직접 push하는 구조라 확인) + auto-commit 범위("세션 시작 스냅샷 대조"). `gh api`로 브랜치 보호를 실제로 활성화(재조회로 확인). `.codex/hooks.json`을 직접 읽어 이 문서가 지목한 OneDrive 경로가 **실제로 존재하지 않아 6개 훅 전부가 무력화**돼 있었음을 확정(상대경로로 전환). "hash가 다르다"고 지목한 `.claude`/`.codex` 6쌍 hook 스크립트는 실제로는 CRLF/LF 차이일 뿐 로직은 완전히 동일함을 확인. 신규 `SessionStart` 훅으로 auto-commit의 "관련 없는 파일 혼입" 문제를 스냅샷 대조 방식으로 해결(이 문서 작성 이후 같은 세션에서 실제로 재현된 사례를 근거로 확정). 버전 정규식 자릿수 고정 버그도 재현·수정. 상세: `_context/BUG-POSTMORTEM.md` P663.
 
 우선순위: P1
 

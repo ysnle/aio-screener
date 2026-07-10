@@ -7526,6 +7526,64 @@
     }
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  // Group87: v52.46 WO-1A — 포트폴리오 Vault 암호화 통합 (T891~T895)
+  //   실제 AES-GCM 암호화/복호화/오PIN 거부/레거시 마이그레이션 동작은 이 세션에서
+  //   Playwright E2E(17개 시나리오, 별도 스크립트)로 실측 검증 완료 — runTests()가 동기
+  //   실행되는 제약(B8 T887~890과 동일 이유)상 여기서는 소스 텍스트 정적 계약만 검증.
+  // ══════════════════════════════════════════════════════════════════════
+  function _testV5246PortfolioVault() {
+    // T891: _AIO_SENSITIVE_KEYS에 'aio_portfolio_data'가 편입돼 safeLS가 암호화 대상으로 취급하는지
+    if (typeof _AIO_SENSITIVE_KEYS !== 'undefined' && _AIO_SENSITIVE_KEYS && typeof _AIO_SENSITIVE_KEYS.has === 'function') {
+      _assert('T891 portfolio_in_sensitive_keys (WO-1A): _AIO_SENSITIVE_KEYS가 aio_portfolio_data를 포함',
+        _AIO_SENSITIVE_KEYS.has('aio_portfolio_data'));
+    } else {
+      _assert('T891 portfolio_in_sensitive_keys (WO-1A): _AIO_SENSITIVE_KEYS 미존재', false);
+    }
+
+    // T892: getPortfolioData/savePortfolioData가 _AioVault._keyRuntime 동기 캐시 + safeLS를 실제로 경유하는지
+    if (typeof getPortfolioData === 'function' && typeof savePortfolioData === 'function') {
+      var getSrc892 = getPortfolioData.toString();
+      var saveSrc892 = savePortfolioData.toString();
+      var getUsesVault892 = /_AioVault\._keyRuntime\[PF_STORAGE_KEY\]/.test(getSrc892) && /aio_enc::/.test(getSrc892);
+      var saveUsesSafeLS892 = /_AioVault\._keyRuntime\[PF_STORAGE_KEY\]\s*=\s*json/.test(saveSrc892) && /safeLS\(PF_STORAGE_KEY/.test(saveSrc892);
+      _assert('T892 portfolio_io_uses_vault (WO-1A): getPortfolioData는 Vault 동기 캐시+암호화 상태 감지, savePortfolioData는 캐시 갱신+safeLS 영속화를 모두 수행',
+        getUsesVault892 && saveUsesSafeLS892, 'get=' + getUsesVault892 + ' save=' + saveUsesSafeLS892);
+    } else {
+      _assert('T892 portfolio_io_uses_vault (WO-1A): getPortfolioData/savePortfolioData 미존재', false);
+    }
+
+    // T893: isPortfolioLocked가 공유 Vault 상태(salt 존재+isUnlocked)를 단일 진실 원천으로 삼는지
+    if (typeof isPortfolioLocked === 'function') {
+      var lockSrc893 = isPortfolioLocked.toString();
+      _assert('T893 portfolio_lock_uses_shared_vault (WO-1A): isPortfolioLocked가 aio_vault_salt 존재 여부와 _AioVault.isUnlocked()를 함께 확인',
+        /aio_vault_salt/.test(lockSrc893) && /_AioVault\.isUnlocked\(\)/.test(lockSrc893));
+    } else {
+      _assert('T893 portfolio_lock_uses_shared_vault (WO-1A): isPortfolioLocked 미존재', false);
+    }
+
+    // T894: renderPortfolio()이 실제로 게이트 역할을 하는지 — 이전엔 고아 함수 checkPortfolioPin이
+    // 그 역할을 하려 했으나 아무도 호출하지 않아 PIN이 있어도 잠금화면이 뜬 적이 없었다(R294).
+    if (typeof renderPortfolio === 'function') {
+      var renderSrc894 = renderPortfolio.toString();
+      _assert('T894 render_portfolio_is_gate (WO-1A): renderPortfolio가 시작 부분에서 isPortfolioLocked()를 호출해 잠금 시 조기 반환',
+        /isPortfolioLocked\s*\(\s*\)/.test(renderSrc894));
+      _assert('T894 dead_gate_removed (WO-1A): 아무도 호출하지 않던 고아 게이트 checkPortfolioPin이 제거됨',
+        typeof checkPortfolioPin === 'undefined');
+    } else {
+      _assert('T894 render_portfolio_is_gate (WO-1A): renderPortfolio 미존재', false);
+    }
+
+    // T895: unlockPortfolio이 복호화 결과 null(오PIN)을 실제로 판별해 거부하는지
+    if (typeof unlockPortfolio === 'function') {
+      var unlockSrc895 = unlockPortfolio.toString();
+      _assert('T895 wrong_pin_detected (WO-1A): unlockPortfolio이 decrypt() 결과가 null이면(AES-GCM 인증 실패=오PIN) 잠금 유지 후 거부',
+        /dec\s*===\s*null/.test(unlockSrc895) && /_AioVault\.lock\(\)/.test(unlockSrc895));
+    } else {
+      _assert('T895 wrong_pin_detected (WO-1A): unlockPortfolio 미존재', false);
+    }
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -7625,6 +7683,7 @@
     try { _testV5242Batch3Efficacy(); } catch(e) { console.error('Group84 error:', e); }
     try { _testV5243Batch4Efficacy(); } catch(e) { console.error('Group85 error:', e); }
     try { _testV5244WorkerAnycastRetry(); } catch(e) { console.error('Group86 error:', e); }
+    try { _testV5246PortfolioVault(); } catch(e) { console.error('Group87 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

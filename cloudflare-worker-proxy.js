@@ -5,10 +5,13 @@
  *        보안: Origin 화이트리스트, URL 도메인 화이트리스트, SSRF 차단, 타임아웃,
  *        봇/스캐너 UA 차단, 보안 응답 헤더.
  *
- * ※ 이 Worker는 "데이터(시세/뉴스/FRED 등) CORS 프록시"다. AI 채팅 Claude 키는
- *   별도로 클라이언트가 api.anthropic.com에 직접 호출한다(이 Worker 경유 아님).
+ * ※ 이 Worker는 기본적으로 "데이터(시세/뉴스/FRED 등) CORS 프록시"다. 개인 Claude 키를 쓰는
+ *   사용자는 여전히 클라이언트가 api.anthropic.com에 직접 호출한다(이 Worker 미경유).
  *   v50.23부터 시세/매크로/F&G는 서버측 GitHub Actions(public-data/data.json)가 우선이고,
  *   이 Worker는 그 외 데이터(뉴스 RSS 등)의 브라우저 CORS 우회 레이어다.
+ *   [v52.47 WO-1B 정정] 위 설명은 오래 전엔 사실이었으나 v50.52(B5)부터 "서버 키 모드"가 추가돼
+ *   아래 POST /anthropic 라우트로 실제로 이 Worker를 경유하는 경로가 생겼다(개인 키가 없거나
+ *   서버 모드 토글 시). 이 주석이 실제 코드와 어긋나 있던 것 자체가 WO-1B에서 발견된 문제였다.
  *
  * ── Cloudflare WAF Rate Limiting Rules (권장 — 코드 외부) ───────────────────
  * Workers > Zone > Security > WAF > Rate Limiting Rules:
@@ -23,13 +26,22 @@
  * 3. 워커 URL 복사 (예: https://aio-proxy.username.workers.dev)
  * 4. AIO Screener 사이드바 "CF Worker URL"에 붙여넣기
  *
- * ── v50.52 B5: Claude(AI 채팅) 서버 키 모드 (선택 — 사용자가 키 입력 없이 AI 채팅) ──
+ * ── v50.52 B5 / v52.47 WO-1B: Claude(AI 채팅) 서버 키 모드 (선택 — 사용자가 키 입력 없이 AI 채팅) ──
  * 운영자만 1회 설정하면 모든 사용자가 개인 Claude 키 없이 AI 채팅 사용(키는 서버 시크릿).
  *   1) 위 Worker 배포 후 → Worker 설정(Settings) → Variables and Secrets:
- *        - Secret 추가: 이름 ANTHROPIC_API_KEY, 값 = 운영자 Anthropic API 키
+ *        - Secret 추가(필수): 이름 ANTHROPIC_API_KEY, 값 = 운영자 Anthropic API 키
  *        - (선택) 변수 ANTHROPIC_DAILY_CAP (기본 300), ANTHROPIC_MAX_TOKENS (기본 1500)
- *   2) (권장) 일일 캡 강제: KV Namespace 생성 → Worker에 바인딩 이름 AIO_QUOTA 로 추가
- *        (KV 없으면 캡은 best-effort 미적용 — Cloudflare WAF Rate Limiting Rules 병행 권장)
+ *        - (선택, WO-1B) 변수 AIO_APP_TOKEN — 값은 반드시 클라이언트(js/aio-chat.js
+ *          `_aioAppToken()`)와 동일한 문자열로 설정. 미설정 시 이 검사는 건너뜀(기존 배포
+ *          하위호환 — 갑자기 막히지 않음). 설정 시 이 헤더 없는 curl 등 단순 남용 차단.
+ *          공개 클라이언트 JS에 그대로 노출되는 값이라 진짜 비밀은 아님 — "URL만 아는" 수준의
+ *          자동화 남용을 거르는 최소 방어선일 뿐, 소스를 직접 읽는 공격자는 우회 가능(WO-1B 한계).
+ *        - (선택, WO-1B) 변수 ANTHROPIC_KILL_SWITCH = '1' — 값을 실제 API 키를 지우지 않고도
+ *          /anthropic 라우트 전체를 즉시 차단하고 싶을 때(예: 남용 급증 대응) 사용.
+ *   2) (v52.47부터 필수 — WO-1B fail-closed) 일일 캡 강제용 KV Namespace 생성 → Worker에
+ *        바인딩 이름 AIO_QUOTA 로 추가. **KV 미바인딩이면 서버 키 모드 자체가 503으로 비활성화된다**
+ *        (v52.46 이전엔 캡 없이 그냥 통과하는 fail-open이었음 — 무제한 비용 노출 방지를 위해 정책
+ *        변경). 개인 Claude 키 입력 경로는 KV와 무관하게 항상 정상 동작.
  *   3) 사이트에서: 사이드바 "CF Worker URL" 입력 + localStorage 'aio_claude_server_mode'='1'
  *        (개인 키를 입력하면 개인 키가 우선 — 서버 키는 개인 키 없을 때/서버모드 토글 시 사용)
  * 비용 보호: 모델 haiku/sonnet만 허용(opus 차단), max_tokens 상한, 일일 호출 캡.
@@ -124,30 +136,38 @@ function looksLikeHtml(text) {
 // ── Rate Limiter ─────────────────────────────────────────────────
 // NOTE: Worker isolate 간 Map 공유 불가. 단일 isolate 내 best-effort 방어.
 // 완전한 레이트 리밋은 Cloudflare Rate Limiting Rules 또는 Durable Objects 필요.
+// v52.47 WO-1B: map/limit을 인자로 받도록 일반화 — 데이터 프록시(300/분)와 /anthropic
+// (훨씬 비싼 호출이라 20/분, 아래 별도 map)이 같은 로직을 공유하되 서로 다른 한도를 쓴다.
 const rateLimitMap = new Map();
-const RATE_LIMIT = 300; // 요청/분
+const RATE_LIMIT = 300; // 요청/분 — 데이터 프록시(GET)
 
-function checkRateLimit(ip) {
+const anthropicRateLimitMap = new Map();
+const ANTHROPIC_RATE_LIMIT = 20; // 요청/분 — AI 호출은 데이터 프록시보다 훨씬 비쌈
+
+function checkRateLimit(ip, map, limit) {
+  map = map || rateLimitMap;
+  limit = limit || RATE_LIMIT;
   const now = Date.now();
-  if (!rateLimitMap.has(ip)) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
+  if (!map.has(ip)) {
+    map.set(ip, { count: 1, resetTime: now + 60000 });
     return true;
   }
-  const record = rateLimitMap.get(ip);
+  const record = map.get(ip);
   if (now > record.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
+    map.set(ip, { count: 1, resetTime: now + 60000 });
     return true;
   }
-  if (record.count >= RATE_LIMIT) return false;
+  if (record.count >= limit) return false;
   record.count++;
   return true;
 }
 
 // 오래된 항목 정리 (isolate 장기 유지 시 메모리 방어)
-function cleanupRateLimitMap() {
+function cleanupRateLimitMap(map) {
+  map = map || rateLimitMap;
   const now = Date.now();
-  for (const [key, val] of rateLimitMap) {
-    if (now > val.resetTime + 60000) rateLimitMap.delete(key);
+  for (const [key, val] of map) {
+    if (now > val.resetTime + 60000) map.delete(key);
   }
 }
 
@@ -159,7 +179,7 @@ function getCorsHeaders(requestOrigin) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, anthropic-version',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, anthropic-version, X-AIO-App-Token', // v52.47 WO-1B: 신규 앱 토큰 헤더 — 없으면 브라우저 CORS 프리플라이트가 이 헤더 전송 자체를 차단
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -180,28 +200,74 @@ function errorResponse(message, status = 400, origin = '') {
   );
 }
 
-// ── v50.52 B5: Claude(Anthropic) 서버 키 프록시 ──────────────────────
+// ── v50.52 B5 / v52.47 WO-1B: Claude(Anthropic) 서버 키 프록시 ──────────────────────
 // 운영자 시크릿(env.ANTHROPIC_API_KEY)으로 호출 → 사용자는 개인 키 입력 불요.
-// 비용 보호: 모델 allowlist(haiku/sonnet, opus 차단)·max_tokens 상한·일일 캡(env.AIO_QUOTA KV).
-// 스트리밍 지원: 업스트림 응답 본문(r.body)을 그대로 파이프(SSE 보존).
+// 비용/남용 보호(WO-1B 강화): kill switch → Origin 서버측 강제 → 앱 토큰(선택) →
+// IP당 20회/분 레이트리밋 → 일일 캡(KV 필수, fail-closed) → body 크기 상한 → 모델
+// allowlist(haiku/sonnet, opus 차단) → max_tokens 상한. 스트리밍 지원(SSE 그대로 파이프).
+// [WO-1B 한계 — 정직하게 기록] 정적 사이트+무료 Workers 구조상 진짜 호출자 인증은 불가능하다.
+// 앱 토큰은 공개 클라이언트 JS에 그대로 노출되므로 "URL만 알고 curl로 두드리는" 자동화
+// 남용은 막지만, 공개 소스를 직접 읽는 작정한 공격자는 우회할 수 있다 — Codex 자체도 이 구조적
+// 한계를 명시했다(진짜 해결은 사용자 계정/OAuth 백엔드가 필요한데 정적 배포 전제와 맞지 않는다).
+// [HKG/B8] Cloudflare 무료 플랜 anycast가 홍콩(HKG) 리전으로 라우팅하면 Anthropic이 지역 정책상
+// 403을 반환하는 사례가 있다(레포/시크릿 문제 아님, `_context/DEFERRED-BLOCKS.md` B8). 이 Worker
+// 코드로는 우회 불가 — 클라이언트(`js/aio-chat.js` `_aioFetchClaudeWithRetry`)가 같은 403 forbidden
+// 포맷일 때만 즉시 재시도해 다른(정상) 엣지로 재라우팅되길 기대하는 완화책을 이미 구현 중(v52.44).
 async function handleAnthropic(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin) });
   if (request.method !== 'POST') return errorResponse('POST required for /anthropic', 405, origin);
+
+  // Kill switch — 실제 API 키를 지우지 않고도 대시보드 변수 하나로 즉시 전체 차단(남용 급증 대응용).
+  if (env && env.ANTHROPIC_KILL_SWITCH === '1') return errorResponse('서버 키 모드 일시 중단(운영자 kill switch 활성) — 개인 Claude 키를 입력하세요', 503, origin);
   if (!env || !env.ANTHROPIC_API_KEY) return errorResponse('서버 Claude 키 미설정 (운영자가 ANTHROPIC_API_KEY 시크릿 추가 필요)', 503, origin);
 
-  // 일일 호출 캡 (KV 바인딩 시). 미바인딩이면 통과(Cloudflare WAF Rate Limiting 권장).
-  const DAILY_CAP = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
-  if (env.AIO_QUOTA && typeof env.AIO_QUOTA.get === 'function') {
-    try {
-      const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
-      const cur = parseInt((await env.AIO_QUOTA.get(dayKey)) || '0', 10);
-      if (cur >= DAILY_CAP) return errorResponse('일일 AI 사용 한도 초과 — 잠시 후 다시 시도하거나 개인 Claude 키를 입력하세요', 429, origin);
-      await env.AIO_QUOTA.put(dayKey, String(cur + 1), { expirationTtl: 172800 });
-    } catch (e) { /* KV 실패는 통과(best-effort) */ }
+  // Origin 서버측 강제(WO-1B) — 기존엔 CORS 헤더만 발급하고 실제로 거부하지 않았다.
+  // CORS는 브라우저가 응답을 "읽지" 못하게 할 뿐 서버로의 요청 자체는 막지 않으므로(curl은 CORS의
+  // 적용을 받지 않음), 이 검사가 진짜 방어선은 아니지만 Origin 헤더조차 안 보내는 단순 curl/스크립트
+  // 남용은 차단한다.
+  let _normalizedOrigin;
+  try { _normalizedOrigin = new URL(origin).origin; } catch { _normalizedOrigin = ''; }
+  if (!ALLOWED_ORIGINS.includes(_normalizedOrigin)) return errorResponse('Origin not allowed', 403, origin);
+
+  // 앱 토큰(WO-1B, 선택) — env.AIO_APP_TOKEN 미설정이면 기존 배포 하위호환을 위해 건너뜀.
+  if (env.AIO_APP_TOKEN) {
+    const _sentToken = request.headers.get('X-AIO-App-Token') || '';
+    if (_sentToken !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin);
   }
 
+  // IP당 레이트리밋(WO-1B) — 기존엔 /anthropic이 일반 프록시의 checkRateLimit을 완전히 우회했다.
+  const _clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
+  cleanupRateLimitMap(anthropicRateLimitMap);
+  if (!checkRateLimit(_clientIp, anthropicRateLimitMap, ANTHROPIC_RATE_LIMIT)) {
+    return errorResponse('Too many AI requests — 잠시 후 다시 시도하세요', 429, origin);
+  }
+
+  // 일일 호출 캡 — v52.47부터 KV 필수(fail-closed). 미바인딩이면 무제한 비용 노출 상태로
+  // 조용히 통과시키는 대신 서버 키 모드 자체를 비활성화한다(개인 키 입력 경로는 영향 없음).
+  if (!env.AIO_QUOTA || typeof env.AIO_QUOTA.get !== 'function') {
+    return errorResponse('서버 키 모드 일시 비활성화(용량 캐핑 미설정) — 개인 Claude 키를 입력하세요', 503, origin);
+  }
+  const DAILY_CAP = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
+  try {
+    const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
+    const cur = parseInt((await env.AIO_QUOTA.get(dayKey)) || '0', 10);
+    if (cur >= DAILY_CAP) return errorResponse('일일 AI 사용 한도 초과 — 잠시 후 다시 시도하거나 개인 Claude 키를 입력하세요', 429, origin);
+    await env.AIO_QUOTA.put(dayKey, String(cur + 1), { expirationTtl: 172800 });
+  } catch (e) {
+    // KV put/get 자체의 일시 오류(바인딩은 있으나 호출 실패) — 캡을 무의미하게 만들지 않기 위해
+    // 여기서는 요청을 막지 않고 통과시킨다(바인딩 자체가 없는 경우와는 다름 — 그건 위에서 이미 차단).
+  }
+
+  // Body 크기 상한(WO-1B) — 기존엔 요청 크기 제한이 전혀 없어 비정상적으로 큰 입력(=입력 토큰
+  // 비용 폭주)을 그대로 업스트림에 전달했다. 클라이언트 자체가 90K자에서 자동 트리밍하므로(v51.04)
+  // 200KB면 정상 트래픽엔 절대 안 걸리면서 악의적 대용량 payload는 차단하는 여유 있는 상한.
+  const MAX_BODY_BYTES = 200 * 1024;
+  let _bodyText;
+  try { _bodyText = await request.text(); } catch { return errorResponse('Failed to read request body', 400, origin); }
+  if (_bodyText.length > MAX_BODY_BYTES) return errorResponse('Request body too large', 413, origin);
+
   let body;
-  try { body = await request.json(); } catch { return errorResponse('Invalid JSON body', 400, origin); }
+  try { body = JSON.parse(_bodyText); } catch { return errorResponse('Invalid JSON body', 400, origin); }
   // 모델 allowlist: haiku/sonnet만 (opus 차단 — 비용 폭주 방지)
   if (!/^claude-(haiku|sonnet)/.test(String(body.model || ''))) body.model = 'claude-haiku-4-5';
   // max_tokens 상한 (공유 키 비용 한계)
