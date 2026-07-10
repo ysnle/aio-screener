@@ -3902,8 +3902,26 @@ function _aioDefaultDecision(pageId) {
 
   // 기존 refreshHomeDashboard 5밴드와 동일 기준으로 라이브 스코어 읽기
   var _sc = 50;
+  var _scoreCaveat = '';
   try {
-    if (typeof computeTradingScore === 'function') { _sc = computeTradingScore(_scoreMode).total; }
+    if (typeof computeTradingScore === 'function') {
+      var _scResult = computeTradingScore(_scoreMode);
+      _sc = _scResult.total;
+      // v52.49/WO-6: 화면(sourceKind/confidence)과 score가 같은 provenance를 소비하도록 —
+      // computeTradingScore() 내부 13개 입력 중 trading-use 결측/스테일 개수로 별도 sourceKind를
+      // 산출해 위 5-metric merge에 반영한다. 1~2개 결측은 DELAYED(경미), 3개+는 SNAPSHOT(광범위 결측)로
+      // 제한해 — 정상적으로 한두 입력만 갱신 대기 중인 상태에서 배지가 항상 "스냅샷"으로 고정되는
+      // 반대 방향 오탐(신선한데 스테일로 표시)을 피한다.
+      var _audit = _scResult.evidenceAudit;
+      var _missing = (_audit && Array.isArray(_audit.criticalMissing)) ? _audit.criticalMissing : [];
+      var _scoreEvidenceKind = _missing.length >= 3 ? 'SNAPSHOT' : (_missing.length >= 1 ? 'DELAYED' : 'LIVE');
+      sourceKind = _aioMergeSourceKind(sourceKind, _scoreEvidenceKind);
+      if (_missing.length) {
+        _scoreCaveat = '스코어 입력 확인 필요(' + _missing.length + '/' + _audit.total + '): '
+          + _missing.slice(0, 4).map(function(m) { return m.label; }).join(', ')
+          + (_missing.length > 4 ? ' 외 ' + (_missing.length - 4) + '개' : '');
+      }
+    }
     else if (window._tradingScore != null) { _sc = window._tradingScore; }
   } catch(_) { _sc = window._tradingScore != null ? window._tradingScore : 50; }
   var _band = _sc >= 75 ? { label:'매수 우호', action:'ATR 손절선과 무효화 가격을 정한 뒤 분할 진입 검토. 80+ 구간은 차익실현 병행.' }
@@ -4077,6 +4095,7 @@ function _aioDefaultDecision(pageId) {
   d.sourceKind = d.sourceKind || sourceKind || 'SNAPSHOT';
   d.asOf = _aioDecisionAsOf(d.sourceKind);
   d.confidence = _aioDecisionConfidence(d.sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84);
+  if (_scoreCaveat) d.caveat = d.caveat ? (d.caveat + ' · ' + _scoreCaveat) : _scoreCaveat;
   return d;
 }
 
@@ -4106,7 +4125,11 @@ window._aioBuildPageDecision = function(pageId) {
     d.sourceKind = evidence.sourceKind || d.sourceKind;
     d.asOf = evidence.asOf || d.asOf;
     d.confidence = evidence.confidence || d.confidence;
-    d.caveat = evidence.caveat || d.caveat;
+    // v52.49/WO-6: 페이지 계약의 정적 caveat와 score의 동적 결측 caveat는 서로 다른 정보이므로
+    // 덮어쓰지 않고 병기한다(정적 caveat만 있으면 그대로, 동적 caveat만 있으면 그대로, 둘 다 있으면 결합).
+    d.caveat = (evidence.caveat && d.caveat && evidence.caveat !== d.caveat)
+      ? (evidence.caveat + ' · ' + d.caveat)
+      : (evidence.caveat || d.caveat);
     d.evidence = evidence;
   }
   return {
@@ -17823,7 +17846,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.48';
+const APP_VERSION = 'v52.50';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -22590,7 +22613,17 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     { id:'tnx-yield', symbol:'^TNX', label:'10Y Treasury yield', family:'macro', maxAgeMin:60, decisionUse:'trading' },
     { id:'hyg-credit', symbol:'HYG', label:'credit proxy', family:'credit', maxAgeMin:60, decisionUse:'trading' },
     { id:'dxy-dollar', symbol:'DX-Y.NYB', label:'DXY dollar pressure', family:'fx', maxAgeMin:60, decisionUse:'trading' },
-    { id:'oil-price', symbol:'CL=F', label:'WTI oil shock filter', family:'commodity', maxAgeMin:60, decisionUse:'trading' }
+    { id:'oil-price', symbol:'CL=F', label:'WTI oil shock filter', family:'commodity', maxAgeMin:60, decisionUse:'trading' },
+    { id:'vvix-price', symbol:'^VVIX', label:'VVIX vol-of-vol', family:'volatility', maxAgeMin:60, decisionUse:'trading' },
+    // v52.49/WO-6: computeTradingScore()가 실제로 읽는 나머지 입력. 이 5개는 심볼 시세가 아니라
+    // 전역 변수(+ _markFetch 레지스트리)로 갱신되므로 globalVar/fetchKey 경로로 평가한다.
+    { id:'fg-sentiment', globalVar:'_lastFG', fetchKey:'fearGreed', snapshotKey:'fg', label:'Fear & Greed', family:'sentiment', maxAgeMin:240, decisionUse:'trading' },
+    { id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadth', snapshotKey:'breadth20sma', label:'20SMA breadth 참여도', family:'breadth', maxAgeMin:240, decisionUse:'trading' },
+    { id:'pcr-putcall', globalVar:'_putCallRatio', fetchKey:'putCall', snapshotKey:'pcr', label:'Put/Call ratio', family:'sentiment', maxAgeMin:240, decisionUse:'trading' },
+    { id:'hy-spread-bp', globalVar:'_hySpreadBp', fetchKey:'hySpread', snapshotKey:'hySpread', label:'HY spread (bp)', family:'credit', maxAgeMin:1440, decisionUse:'trading' },
+    // AAII는 주간 수동 갱신 스냅샷 전용(aio-ui.js data-source-kind="snapshot"/reference-only과 동일 취급) —
+    // 실시간 fetchKey가 없으므로 항상 snapshot_reference이며 trading 게이트(criticalMissing)에서 제외한다.
+    { id:'aaii-bearish', globalVar:'_aaiiBearish', snapshotKey:'aaiiBear', label:'AAII bearish %', family:'sentiment', maxAgeMin:10080, decisionUse:'reference' }
   ];
 
   function _aioGetLastFetchTs(symbol) {
@@ -22605,13 +22638,14 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     return null;
   }
 
-  function _aioMetricRuntimeEvidence(input) {
+  // v52.49/WO-6: 심볼 시세(window._liveData[symbol].price) 입력 전용 경로. 기존 7개 입력이 사용.
+  function _aioQuoteRuntimeEvidence(input) {
     var ld = window._liveData || {};
     var row = ld[input.symbol] || null;
     var snap = window.DATA_SNAPSHOT || {};
     var fallbackMap = {
       '^GSPC':'spx', SPY:'spy', '^VIX':'vix', '^TNX':'tnx', HYG:'hyg',
-      'DX-Y.NYB':'dxy', 'CL=F':'wti', QQQ:'qqq', RSP:'rsp'
+      'DX-Y.NYB':'dxy', 'CL=F':'wti', QQQ:'qqq', RSP:'rsp', '^VVIX':'vvix'
     };
     var snapKey = fallbackMap[input.symbol];
     var ts = row && (row.ts || row._ts || row.updatedAt || row.lastUpdated) || _aioGetLastFetchTs(input.symbol);
@@ -22636,17 +22670,69 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       remediation = 'fetch live source and cross-check before trading use';
     }
     return {
-      id: input.id,
-      symbol: input.symbol,
-      label: input.label,
-      family: input.family,
       value: hasLiveValue ? Number(row.price) : (hasSnapshotValue ? Number(snap[snapKey]) : null),
       source: source,
       status: status,
       ageMin: ageMin,
+      remediation: remediation
+    };
+  }
+
+  // v52.49/WO-6: computeTradingScore()가 심볼 시세가 아닌 전역 변수로 읽는 입력(F&G/breadth/PCR/HY스프레드/AAII) 전용 경로.
+  // 이 값들은 window._lastFetch[fetchKey](_markFetch 레지스트리, P594 계열)로만 신선도를 알 수 있다 —
+  // fetchKey가 없는 입력(AAII)은 실시간 경로 자체가 없으므로 항상 snapshot_reference로 정직하게 보고한다.
+  function _aioGlobalRuntimeEvidence(input) {
+    var snap = window.DATA_SNAPSHOT || {};
+    var raw = window[input.globalVar];
+    var hasValue = raw != null && isFinite(Number(raw));
+    var ts = input.fetchKey ? _aioGetLastFetchTs(input.fetchKey) : null;
+    var ageMin = ts ? Math.round((Date.now() - new Date(ts).getTime()) / 60000) : null;
+    var hasSnapshotValue = input.snapshotKey && snap[input.snapshotKey] != null && isFinite(Number(snap[input.snapshotKey]));
+    var status = 'unavailable';
+    var source = 'none';
+    var remediation = '';
+    if (hasValue && input.fetchKey && ts && ageMin != null && ageMin <= input.maxAgeMin) {
+      status = 'verified_current';
+      source = input.fetchKey;
+    } else if (hasValue && input.fetchKey && ts) {
+      status = 'stale_live';
+      source = input.fetchKey;
+      remediation = 'refresh live source before using for trading decision';
+    } else if (hasValue) {
+      // 값은 있으나 fetch 타임스탬프가 없음(수동/주간 갱신 스냅샷류) — snapshot_reference로 취급.
+      status = 'snapshot_reference';
+      source = 'DATA_SNAPSHOT';
+      remediation = input.decisionUse === 'trading' ? 'promote through live/evidence source before trading use' : '';
+    } else if (hasSnapshotValue) {
+      status = 'snapshot_reference';
+      source = 'DATA_SNAPSHOT';
+      remediation = 'promote through live/evidence source before trading use';
+    } else {
+      remediation = 'fetch live source and cross-check before trading use';
+    }
+    return {
+      value: hasValue ? Number(raw) : (hasSnapshotValue ? Number(snap[input.snapshotKey]) : null),
+      source: source,
+      status: status,
+      ageMin: ageMin,
+      remediation: remediation
+    };
+  }
+
+  function _aioMetricRuntimeEvidence(input) {
+    var r = input.symbol ? _aioQuoteRuntimeEvidence(input) : _aioGlobalRuntimeEvidence(input);
+    return {
+      id: input.id,
+      symbol: input.symbol || null,
+      label: input.label,
+      family: input.family,
+      value: r.value,
+      source: r.source,
+      status: r.status,
+      ageMin: r.ageMin,
       maxAgeMin: input.maxAgeMin,
       decisionUse: input.decisionUse,
-      remediation: remediation
+      remediation: r.remediation
     };
   }
 

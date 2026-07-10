@@ -465,6 +465,19 @@ check('WO-1B: both aio-data.js Claude call sites (translation + briefing) send t
 check('WO-1B: cloudflare-worker-proxy.js enforces server-side Origin allowlist, an optional app-token check, a dedicated /anthropic rate limit, and KV fail-closed on the daily cap', /ALLOWED_ORIGINS\.includes\(_normalizedOrigin\)/.test(worker) && /env\.AIO_APP_TOKEN/.test(worker) && /ANTHROPIC_RATE_LIMIT/.test(worker) && /서버 키 모드 일시 비활성화/.test(worker) && /ANTHROPIC_KILL_SWITCH/.test(worker));
 check('WO-1B: CORS preflight allows the new X-AIO-App-Token header (otherwise browsers block it before the Worker ever sees it)', /Access-Control-Allow-Headers['"]?:\s*'[^']*X-AIO-App-Token/.test(worker));
 
+// v52.49 (P664/WO-6): Trading Score provenance/freshness — computeTradingScore()'s own evidenceAudit
+// (7 tracked inputs, never consumed anywhere) is extended to the 6 remaining score inputs and wired
+// into the shared cross-page decision header, so the screen and the score now read the same
+// provenance object instead of two disconnected ones (WO-6 completion-gate wording, scoped to this
+// slice — see DEFERRED-BLOCKS.md for the literal "every value" remainder that is out of scope here).
+check('WO-6: TRADING_DECISION_CRITICAL_INPUTS covers all 13 computeTradingScore() inputs (previously only 7 of ~13, silently missing F&G/breadth/PCR/HY-spread/AAII/VVIX)', /vvix-price/.test(core) && /fg-sentiment/.test(core) && /breadth200-participation/.test(core) && /pcr-putcall/.test(core) && /hy-spread-bp/.test(core) && /aaii-bearish/.test(core));
+check('WO-6: evidence engine has a distinct globalVar-based path for non-quote inputs (F&G/breadth/PCR/HY-spread/AAII are window globals + _markFetch keys, not window._liveData[symbol] quotes)', /function _aioGlobalRuntimeEvidence\(input\)/.test(core) && /function _aioQuoteRuntimeEvidence\(input\)/.test(core));
+check('WO-6: AAII is honestly marked decisionUse=reference (weekly manual snapshot, no live fetch path) so it cannot silently count against the trading-critical-missing gate', /id:'aaii-bearish'[\s\S]{0,200}decisionUse:'reference'/.test(core));
+check('WO-6: fetchHYSpread records into the shared _markFetch freshness registry like its sibling fetch functions (previously only a module-local hyLastFetch invisible to the evidence engine)', /_markFetch\('hySpread'\)/.test(data));
+check('WO-6: _aioDefaultDecision reads computeTradingScore()\'s full result (not just .total) and merges its evidenceAudit.criticalMissing count into the page sourceKind, bounded to DELAYED/SNAPSHOT so routine partial staleness cannot flip every page to a permanent SNAPSHOT badge', /_scResult\.evidenceAudit/.test(core) && /_aioMergeSourceKind\(sourceKind,\s*_scoreEvidenceKind\)/.test(core) && /_missing\.length\s*>=\s*3/.test(core));
+check('WO-6: decision header caveat surfaces which specific score inputs are missing/stale, additively combined with (not overwritten by) the page\'s static evidence-contract caveat', /_scoreCaveat/.test(core) && /evidence\.caveat\s*&&\s*d\.caveat\s*&&\s*evidence\.caveat\s*!==\s*d\.caveat/.test(core));
+check('headless tests cover the WO-6 score-provenance contract', /_testV5249ScoreProvenance/.test(tests) && /T896/.test(tests) && /T897/.test(tests) && /T898/.test(tests) && /T899/.test(tests) && /T900/.test(tests));
+
 if (errors.length) {
   console.error('Runtime contract check failed:');
   errors.forEach((e) => console.error(' - ' + e));

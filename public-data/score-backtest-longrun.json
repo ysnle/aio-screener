@@ -1,0 +1,343 @@
+{
+ "generatedAt": "2026-07-10T08:56:01.175Z",
+ "methodology": {
+  "scope": "PARTIAL validation of computeTradingScore() — covers only volScore(VIX)+trendScore(SPX vs 50/200MA)+macroScore(DXY/TNX/HYG/VIX/oil) inputs, which are the ones with freely obtainable multi-year PIT history.",
+  "excludedInputs": [
+   "momScore (Fear&Greed) — held at neutral constant (45), no free multi-year historical source",
+   "breadthScore (breadth200) — held at code fallback constant (57), no free multi-year historical source",
+   "PCR correction — held at code fallback constant (0.95)",
+   "AAII-bearish correction — held at code fallback constant (50)",
+   "news sentiment correction — omitted (0), no historical news corpus"
+  ],
+  "fixedRuleNotFittedModel": "computeTradingScore weights/thresholds are hand-set constants, not parameters fit to data. \"referencePeriod\"/\"holdoutPeriod\" below check temporal stability of a FIXED rule, not generalization of a fitted model — deliberately not called \"train/test\".",
+  "regimeClassification": "Computed from the fetched data itself (trailing VIX level + trailing-252-day drawdown from rolling ATH) — not from hardcoded historical narrative dates, to avoid relying on memorized calendar boundaries.",
+  "dataSource": "Yahoo Finance public chart API (query1/query2.finance.yahoo.com/v8/finance/chart), same endpoint pattern already used in production by scripts/fetch-data.mjs fetchHistory()."
+ },
+ "dataRange": {
+  "from": "2016-07-11",
+  "to": "2026-07-09",
+  "tradingDays": 2513,
+  "perSymbolFetchCount": {
+   "spx": 2513,
+   "vix": 2515,
+   "vvix": 2505,
+   "tnx": 2511,
+   "dxy": 2514,
+   "wti": 2514,
+   "hyg": 2513
+  }
+ },
+ "overallCorrelations": {
+  "fwd1d": {
+   "composite": {
+    "n": 2512,
+    "rho": -0.043,
+    "ci95": [
+     -0.082,
+     -0.004
+    ]
+   },
+   "vol": {
+    "n": 2512,
+    "rho": -0.041,
+    "ci95": [
+     -0.08,
+     -0.002
+    ]
+   },
+   "trend": {
+    "n": 2512,
+    "rho": -0.024,
+    "ci95": [
+     -0.063,
+     0.015
+    ]
+   },
+   "macro": {
+    "n": 2512,
+    "rho": 0.008,
+    "ci95": [
+     -0.031,
+     0.047
+    ]
+   }
+  },
+  "fwd5d": {
+   "composite": {
+    "n": 2508,
+    "rho": -0.096,
+    "ci95": [
+     -0.134,
+     -0.057
+    ]
+   },
+   "vol": {
+    "n": 2508,
+    "rho": -0.104,
+    "ci95": [
+     -0.142,
+     -0.065
+    ]
+   },
+   "trend": {
+    "n": 2508,
+    "rho": -0.04,
+    "ci95": [
+     -0.079,
+     -0.001
+    ]
+   },
+   "macro": {
+    "n": 2508,
+    "rho": -0.007,
+    "ci95": [
+     -0.046,
+     0.032
+    ]
+   }
+  },
+  "fwd21d": {
+   "composite": {
+    "n": 2492,
+    "rho": -0.165,
+    "ci95": [
+     -0.203,
+     -0.127
+    ]
+   },
+   "vol": {
+    "n": 2492,
+    "rho": -0.171,
+    "ci95": [
+     -0.209,
+     -0.133
+    ]
+   },
+   "trend": {
+    "n": 2492,
+    "rho": -0.082,
+    "ci95": [
+     -0.121,
+     -0.043
+    ]
+   },
+   "macro": {
+    "n": 2492,
+    "rho": -0.116,
+    "ci95": [
+     -0.154,
+     -0.077
+    ]
+   }
+  },
+  "fwd63d": {
+   "composite": {
+    "n": 2450,
+    "rho": -0.255,
+    "ci95": [
+     -0.291,
+     -0.217
+    ]
+   },
+   "vol": {
+    "n": 2450,
+    "rho": -0.265,
+    "ci95": [
+     -0.302,
+     -0.228
+    ]
+   },
+   "trend": {
+    "n": 2450,
+    "rho": -0.101,
+    "ci95": [
+     -0.14,
+     -0.062
+    ]
+   },
+   "macro": {
+    "n": 2450,
+    "rho": -0.09,
+    "ci95": [
+     -0.129,
+     -0.051
+    ]
+   }
+  }
+ },
+ "walkForward": {
+  "referencePeriod": {
+   "dateRange": [
+    "2016-07-11",
+    "2023-07-06"
+   ],
+   "n": 1759,
+   "corr21d_composite": {
+    "n": 1759,
+    "rho": -0.174,
+    "ci95": [
+     -0.219,
+     -0.128
+    ]
+   }
+  },
+  "holdoutPeriod": {
+   "dateRange": [
+    "2023-07-07",
+    "2026-07-09"
+   ],
+   "n": 754,
+   "corr21d_composite": {
+    "n": 733,
+    "rho": -0.184,
+    "ci95": [
+     -0.253,
+     -0.113
+    ]
+   }
+  }
+ },
+ "regimes": [
+  {
+   "label": "low-vol_bull(within-5%-of-1y-high)",
+   "n": 1366,
+   "corr21d_composite": {
+    "n": 1353,
+    "rho": -0.011,
+    "ci95": [
+     -0.064,
+     0.042
+    ]
+   }
+  },
+  {
+   "label": "mid-vol_bull(within-5%-of-1y-high)",
+   "n": 417,
+   "corr21d_composite": {
+    "n": 409,
+    "rho": -0.152,
+    "ci95": [
+     -0.246,
+     -0.056
+    ]
+   }
+  },
+  {
+   "label": "mid-vol_correction(-5~-15%)",
+   "n": 322,
+   "corr21d_composite": {
+    "n": 322,
+    "rho": -0.113,
+    "ci95": [
+     -0.219,
+     -0.004
+    ]
+   }
+  },
+  {
+   "label": "mid-vol_bear(-15%+)",
+   "n": 105,
+   "corr21d_composite": {
+    "n": 105,
+    "rho": -0.252,
+    "ci95": [
+     -0.423,
+     -0.063
+    ]
+   }
+  },
+  {
+   "label": "high-vol_correction(-5~-15%)",
+   "n": 101,
+   "corr21d_composite": {
+    "n": 101,
+    "rho": 0.06,
+    "ci95": [
+     -0.137,
+     0.252
+    ]
+   }
+  },
+  {
+   "label": "high-vol_bear(-15%+)",
+   "n": 97,
+   "corr21d_composite": {
+    "n": 97,
+    "rho": 0.178,
+    "ci95": [
+     -0.022,
+     0.365
+    ]
+   }
+  },
+  {
+   "label": "low-vol_correction(-5~-15%)",
+   "n": 87,
+   "corr21d_composite": {
+    "n": 87,
+    "rho": 0.157,
+    "ci95": [
+     -0.056,
+     0.356
+    ]
+   }
+  },
+  {
+   "label": "high-vol_bull(within-5%-of-1y-high)",
+   "n": 18,
+   "corr21d_composite": {
+    "n": 18,
+    "rho": -0.354,
+    "ci95": [
+     -0.704,
+     0.135
+    ]
+   }
+  }
+ ],
+ "ablationNote": "overallCorrelations above already reports vol/trend/macro sub-scores individually alongside the composite — that IS the ablation (isolates which sub-score, if any, carries signal vs the blended total).",
+ "quantileSpread": {
+  "fwd5d": {
+   "n": 2508,
+   "bottomTercile": {
+    "n": 836,
+    "meanReturn": 0.5,
+    "hitRate": 61.5
+   },
+   "topTercile": {
+    "n": 836,
+    "meanReturn": 0.21,
+    "hitRate": 64.6
+   },
+   "unconditional": {
+    "meanReturn": 0.28,
+    "hitRate": 61.5
+   },
+   "quantileSpread": -0.29
+  },
+  "fwd21d": {
+   "n": 2492,
+   "bottomTercile": {
+    "n": 830,
+    "meanReturn": 1.94,
+    "hitRate": 67.7
+   },
+   "topTercile": {
+    "n": 830,
+    "meanReturn": 0.67,
+    "hitRate": 71
+   },
+   "unconditional": {
+    "meanReturn": 1.15,
+    "hitRate": 68.5
+   },
+   "quantileSpread": -1.28
+  }
+ },
+ "caveats": [
+  "This validates only ~55% of computeTradingScore's weight (vol 25% + trend 20% + macro 10%) — momScore(25%) and breadthScore(20%) remain unvalidated placeholders here.",
+  "The live app's displayed composite score must stay labeled provisional/unvalidated regardless of this result, since its momScore/breadthScore/PCR/AAII inputs are not covered by this backtest.",
+  "No transaction costs, slippage, or capacity constraints modeled — this measures statistical association with forward index returns only, not tradeable strategy performance.",
+  "A significant correlation here would support only the macro/vol/trend sub-formula, not the full scoring system Codex's WO-2 gate describes."
+ ]
+}

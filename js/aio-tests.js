@@ -7584,6 +7584,82 @@
     }
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  // Group88: v52.49 WO-6 — Trading Score provenance/freshness 통합 (T896~T900)
+  //   computeTradingScore()의 13개 입력 중 기존 7개만 evidence 추적 대상이었고, 나머지 6개
+  //   (VVIX/F&G/breadth200/PCR/HY스프레드/AAII)는 결측·스테일이어도 아무 표시 없이 조용히
+  //   폴백값을 썼다. evidenceAudit 자체는 계산되지만 화면(_aioDefaultDecision)이 전혀 소비하지
+  //   않아 스코어와 화면이 서로 다른 provenance를 보일 수 있었다(WO-6 완료 게이트 "화면과 score가
+  //   같은 provenance 객체를 소비"). getTradingDecisionInputEvidence/_aioBuildPageDecision은
+  //   실제 브라우저 전역을 읽는 진짜 동작으로 검증(라이브 데이터 유무와 무관한 구조 계약만 확인),
+  //   _aioDefaultDecision 내부 병합 로직은 B8/WO-1A와 동일한 이유(비동기·전역 의존)로 소스 계약 검증.
+  // ══════════════════════════════════════════════════════════════════════
+  function _testV5249ScoreProvenance() {
+    // T896: getTradingDecisionInputEvidence()가 13개 입력(기존 7 + 신규 6)을 모두 추적하는지
+    if (window.AIO && typeof window.AIO.getTradingDecisionInputEvidence === 'function') {
+      var ev896 = window.AIO.getTradingDecisionInputEvidence();
+      var ids896 = (ev896 && Array.isArray(ev896.rows)) ? ev896.rows.map(function(r) { return r.id; }) : [];
+      var newIds896 = ['vvix-price', 'fg-sentiment', 'breadth200-participation', 'pcr-putcall', 'hy-spread-bp', 'aaii-bearish'];
+      var hasAllNew896 = newIds896.every(function(id) { return ids896.indexOf(id) >= 0; });
+      _assert('T896 score_evidence_covers_13_inputs (WO-6): getTradingDecisionInputEvidence가 신규 6개 입력(VVIX/F&G/breadth200/PCR/HY스프레드/AAII)을 모두 추적, total=13',
+        hasAllNew896 && ev896.total === 13, 'total=' + (ev896 && ev896.total) + ' ids=' + ids896.join(','));
+    } else {
+      _assert('T896 score_evidence_covers_13_inputs (WO-6): getTradingDecisionInputEvidence 미존재', false);
+    }
+
+    // T897: AAII는 실시간 fetch 경로가 없는 주간 스냅샷 전용이므로 decisionUse가 'reference'로
+    // 정직하게 표시되고, trading 전용 criticalMissing 게이트에서 제외되는지
+    if (window.AIO && typeof window.AIO.getTradingDecisionInputEvidence === 'function') {
+      var ev897 = window.AIO.getTradingDecisionInputEvidence();
+      var aaiiRow897 = (ev897.rows || []).filter(function(r) { return r.id === 'aaii-bearish'; })[0];
+      var aaiiExcluded897 = (ev897.criticalMissing || []).every(function(r) { return r.id !== 'aaii-bearish'; });
+      _assert('T897 aaii_marked_reference_not_trading (WO-6): AAII 입력이 decisionUse=reference로 표시되고 criticalMissing(trading 전용) 게이트에서 제외됨',
+        !!(aaiiRow897 && aaiiRow897.decisionUse === 'reference' && aaiiExcluded897),
+        'decisionUse=' + (aaiiRow897 && aaiiRow897.decisionUse));
+    } else {
+      _assert('T897 aaii_marked_reference_not_trading (WO-6): getTradingDecisionInputEvidence 미존재', false);
+    }
+
+    // T898: fetchHYSpread가 다른 fetch 함수들과 동일하게 중앙 freshness 레지스트리(_markFetch)에
+    // 기록하는지 — 이전엔 모듈 로컬 hyLastFetch(6h 캐시 게이트 전용)뿐이라 HY 스프레드의 신선도를
+    // getTradingDecisionInputEvidence가 전혀 알 수 없었다
+    if (typeof fetchHYSpread === 'function') {
+      var fnSrc898 = fetchHYSpread.toString();
+      _assert("T898 hy_spread_marks_fetch (WO-6): fetchHYSpread가 _markFetch('hySpread')를 호출해 중앙 freshness 레지스트리에 기록",
+        /_markFetch\(['"]hySpread['"]\)/.test(fnSrc898));
+    } else {
+      _assert('T898 hy_spread_marks_fetch (WO-6): fetchHYSpread 미존재', false);
+    }
+
+    // T899: _aioDefaultDecision이 computeTradingScore()의 evidenceAudit/criticalMissing을
+    // 실제로 읽어 화면 sourceKind 병합에 반영하는지(이전엔 .total만 읽고 나머지는 버렸다)
+    if (typeof _aioDefaultDecision === 'function') {
+      var fnSrc899 = _aioDefaultDecision.toString();
+      var readsAudit899 = /_scResult\.evidenceAudit/.test(fnSrc899);
+      var mergesSourceKind899 = /_aioMergeSourceKind\(sourceKind,\s*_scoreEvidenceKind\)/.test(fnSrc899);
+      var boundedTiers899 = /_missing\.length\s*>=\s*3/.test(fnSrc899) && /_missing\.length\s*>=\s*1/.test(fnSrc899);
+      _assert('T899 decision_header_consumes_score_evidence (WO-6): _aioDefaultDecision이 evidenceAudit.criticalMissing 개수로 sourceKind를 병합(화면과 score가 같은 provenance 소비)',
+        readsAudit899 && mergesSourceKind899 && boundedTiers899,
+        'readsAudit=' + readsAudit899 + ' merges=' + mergesSourceKind899 + ' bounded=' + boundedTiers899);
+    } else {
+      _assert('T899 decision_header_consumes_score_evidence (WO-6): _aioDefaultDecision 미존재', false);
+    }
+
+    // T900: window._aioBuildPageDecision('home')을 실제로 호출해 전체 파이프라인(스코어→
+    // evidenceAudit→sourceKind 병합→caveat 병기→getPageEvidenceState 오버레이)이 예외 없이
+    // 끝까지 실행되고 유효한 형태의 결과를 반환하는지(실동작 스모크 테스트)
+    if (typeof window._aioBuildPageDecision === 'function') {
+      var threw900 = false, d900 = null;
+      try { d900 = window._aioBuildPageDecision('home'); } catch(e) { threw900 = true; }
+      var validShape900 = !!d900 && typeof d900.sourceKind === 'string' && typeof d900.confidence === 'string'
+        && (d900.caveat === undefined || d900.caveat === '' || typeof d900.caveat === 'string');
+      _assert('T900 build_page_decision_smoke (WO-6): _aioBuildPageDecision(home)이 예외 없이 실행되고 sourceKind/confidence/caveat이 올바른 타입으로 반환됨',
+        !threw900 && validShape900, 'threw=' + threw900 + ' sourceKind=' + (d900 && d900.sourceKind));
+    } else {
+      _assert('T900 build_page_decision_smoke (WO-6): window._aioBuildPageDecision 미존재', false);
+    }
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -7684,6 +7760,7 @@
     try { _testV5243Batch4Efficacy(); } catch(e) { console.error('Group85 error:', e); }
     try { _testV5244WorkerAnycastRetry(); } catch(e) { console.error('Group86 error:', e); }
     try { _testV5246PortfolioVault(); } catch(e) { console.error('Group87 error:', e); }
+    try { _testV5249ScoreProvenance(); } catch(e) { console.error('Group88 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

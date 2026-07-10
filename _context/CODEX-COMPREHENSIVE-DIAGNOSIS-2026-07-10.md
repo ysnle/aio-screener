@@ -542,6 +542,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 - 음의 상관 또는 무효 결과일 때 라벨 자동 완화 정책
 - 결과가 나쁘더라도 삭제하지 않는 재현 가능한 artifact
 
+> **상태(2026-07-10, Sonnet 5 세션, v52.50/P665/R298): 축소 검증 구현 완료 — 완료 게이트 전체 충족은 아님(정직하게 기록).** 코드 확인 결과 `history.json`이 약 7개월치뿐이라 "최소 수년·다중 regime"을 문자 그대로 만족할 데이터가 없었음(이미 있던 자체 검증 하네스도 스스로 n≥30 미달을 명시). 사용자에게 AskUserQuestion으로 확인 후 "축소 검증"(자유 소스로 구할 수 있는 부분만 별도 장기 검증) 선택. computeTradingScore 13개 입력 중 SPX/VIX/VVIX/TNX/DXY/WTI/HYG(가중치 55%)는 Yahoo Finance 공개 API로 10년치가 실제로 fetch됨을 사전 확인 후 신규 `scripts/backtest-trading-score-longrun.mjs`로 재구성·검증. **결과**: 21일 forward rho=-0.165(95% CI [-0.203,-0.127], n=2492)·63일 rho=-0.255(CI [-0.291,-0.217]) — 통계적으로 유의미한 음의 상관, walk-forward 양분(2016-23/2023-26)에도 부호 일관. 이는 Codex 게이트가 명시적으로 예견한 "음의 상관 또는 무효 결과" 시나리오와 정확히 일치하지만, **완료 게이트의 "라벨 자동 완화 정책"은 제품 사용자 노출 문구를 바꾸는 결정이라 이번 세션에서 코드로 실행하지 않았다** — 발견만 기록하고 별도 확인이 필요한 후속 결정으로 사용자에게 보고(`computeTradingScore()`/`getScoreAdvice()`/밴드 임계값 전혀 무변경). 미충족 게이트: train/tune/test의 "tune"(스코어는 애초에 fit된 파라미터가 없는 hand-set 규칙이라 해당 없음, methodology 필드에 명시), momScore/breadthScore/PCR/AAII 45%는 자유 다년치 소스 부재로 검증 범위 밖(DEFERRED 성격 — 유료/대체 데이터 소스 확보 시 재개 가능), calibration(확률적 신뢰도 캘리브레이션)은 미시도. 상세: `_context/BUG-POSTMORTEM.md` P665, `_context/KNOWLEDGE-BASE.md` TM-VIII.
+
 ### WO-3 — Factor Model 연구→프로덕션 검증
 
 우선순위: P1
@@ -620,6 +622,8 @@ CI 실패는 단순 flaky로 치부할 수 없다. 확인한 실패에는 stale 
 - stale/manual/seed가 최신 live처럼 표시되는 사례 0
 - field별 freshness fixture와 boundary test
 - 감사 가능한 source lineage export
+
+> **상태(2026-07-10, Sonnet 5 세션, v52.49/P664/R297): 핵심 슬라이스 구현 완료, 전면 범위는 잔여(정직하게 미완료로 기록).** 코드 확인 결과 evidence 인프라(`TRADING_DECISION_CRITICAL_INPUTS`·`_aioMetricRuntimeEvidence`·`getTradingDecisionInputEvidence`·`getTradingDecisionLogicAudit`)는 이미 존재했고 `computeTradingScore()`가 `evidenceAudit`를 실제로 계산해 반환하고 있었으나, repo 전체에서 `.evidenceAudit`/`.evidenceStatus`를 **읽는 코드가 0곳**이었다(계산만 되고 완전히 버려짐). 또한 등록된 입력은 7개뿐이었는데 `computeTradingScore()`가 실제로 읽는 입력은 13개(VVIX/F&G/breadth200/PCR/HY스프레드/AAII 6개 누락). 화면 쪽에는 이미 20개 페이지에 실제 렌더링되는 별도의 성숙한 provenance 시스템(`_aioDefaultDecision`→`_aioRenderPageDecisionHeader`, source badge+confidence badge)이 있었지만 이쪽은 VIX/SPX/TNX/DXY/WTI 5개 지표만 보고 `computeTradingScore().total`은 숫자만 취해 evidenceAudit을 참조하지 않았다 — "화면과 score가 다른 provenance"라는 이 문서의 지적이 코드로 정확히 확인됨. **구현**: 6개 누락 입력 등록(심볼 시세 경로 1개 + `window` 전역/`_markFetch` 경로 5개로 evidence 엔진 이원화), AAII는 실시간 fetch 경로가 없어 `decisionUse:'reference'`로 정직하게 표시(trading 게이트에서 정당하게 제외), `fetchHYSpread`에 `_markFetch` 배선, `_aioDefaultDecision`이 `evidenceAudit.criticalMissing` 개수로 화면 `sourceKind`를 병합(0→무변화/1-2→DELAYED/3+→SNAPSHOT — 무제한 병합은 "신선한데 항상 스냅샷으로 표시"라는 반대방향 오탐을 만들므로 의도적으로 제한)하고 결측 입력명을 caveat로 병기. **정직하게 미구현으로 남긴 것**: 이 문서가 요구한 "모든 값"(20개 페이지의 개별 표시값 전체) 리트로핏, `DATA_SNAPSHOT` 파일 자체의 필드별 타임스탬프 구조화, 전용 source-lineage export UI — 전부 단일 세션 범위를 넘는 다주 단위 작업이라 `_context/DEFERRED-BLOCKS.md` B9로 이관(§1 "진짜 블록"이 아니라 순수 엔지니어링 규모 문제로 명시 — 다음 세션에 이어서 가능). 헤드리스 963/963(신규 T896~900 포함, 오프라인/차단 네트워크 조건에서도 통과) + 로컬 게이트 7종 PASS. 상세: `_context/BUG-POSTMORTEM.md` P664.
 
 ### WO-7 — 점진적 구조 격리
 

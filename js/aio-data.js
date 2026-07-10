@@ -17360,6 +17360,10 @@ async function fetchHYSpread() {
     window._hySpreadBp = spreadBp;
     window._hySpreadDate = date;
     try { if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.hySpread = spreadBp; } catch(_) {}
+    // v52.49/WO-6: 다른 fetch 함수들과 동일하게 중앙 freshness 레지스트리에 기록 —
+    // 이전에는 모듈 로컬 hyLastFetch(6h 캐시 게이트 전용)만 있어 getTradingDecisionInputEvidence()가
+    // HY 스프레드의 신선도를 전혀 알 수 없었다.
+    if (typeof window._markFetch === 'function') window._markFetch('hySpread');
 
     // Update display
     const hyVal = document.getElementById('hy-live-val');

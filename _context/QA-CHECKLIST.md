@@ -3,10 +3,10 @@ verified_by: agent
 last_verified: 2026-07-10
 confidence: high
 version: v3.8
-checklist_version: v52.39
+checklist_version: v52.49
 total_items: 521
 stages: 22
-latest_P_covered: P654
+latest_P_covered: P664
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2685,3 +2685,17 @@ P663-Q3: Both `.claude/hooks/auto-commit-on-stop.sh` and `.codex/hooks/auto-comm
 P663-Q4: `.claude/hooks/session-start-snapshot.sh` and `.codex/hooks/session-start-snapshot.sh` must write `git status --porcelain` to their own tool-specific snapshot file (`.claude/.session-start-snapshot` / `.codex/.session-start-snapshot`, both gitignored) — not a shared file, since two different agent tools can run against this repo concurrently (observed directly this session).
 P663-Q5: `.claude/hooks/check-version-sync.sh` and `.codex/hooks/check-version-sync.sh` must capture version numbers with a variable-length patch digit group (`v[0-9][0-9]*\.[0-9][0-9]*`), not a fixed single digit after the decimal point, which silently truncated e.g. `v52.47` to `v52.4`.
 P663-Q6: `_context/CLAUDE.md` must not claim `.claude/settings.local.json` is Git-tracked — it has been gitignored since the 2026-07-04 config audit (`git ls-files .claude/settings.local.json` returns nothing).
+
+P664-Q1: `window.AIO.getTradingDecisionInputEvidence().total` must equal 13 and its `rows` must include `vvix-price`/`fg-sentiment`/`breadth200-participation`/`pcr-putcall`/`hy-spread-bp`/`aaii-bearish` alongside the original 7 — `computeTradingScore()`'s actual input list and the evidence registry's tracked-input list must stay 1:1.
+P664-Q2: The `aaii-bearish` row must always report `decisionUse:'reference'` (never `'trading'`) and must never appear in `criticalMissing` — AAII has no live-fetch path (weekly manual snapshot only) and must not be able to trip the trading-critical-missing gate.
+P664-Q3: `fetchHYSpread()` (js/aio-data.js) must call `window._markFetch('hySpread')` immediately after a successful FRED fetch, alongside its existing module-local `hyLastFetch` cache-gate update — the evidence engine can only report HY-spread freshness through the shared `_lastFetch` registry, not the module-local variable.
+P664-Q4: `_aioDefaultDecision()` (js/aio-core.js) must read `computeTradingScore(...)`'s full return value (not only `.total`) and merge `evidenceAudit.criticalMissing.length` into the page's `sourceKind`: 0 missing → no change, 1-2 → `DELAYED`, 3+ → `SNAPSHOT`. The merge must stay bounded exactly this way — an unbounded merge (any single missing input forcing `SNAPSHOT`) would make the decision header show "스냅샷" during routine, harmless single-input staleness, trading a stale-shown-as-live bug for a live-shown-as-stale one.
+P664-Q5: When `criticalMissing` is non-empty, `_aioDefaultDecision()`'s dynamic caveat (naming the specific missing inputs) must be combined with — not overwritten by — the page's static `AIO_PAGE_EVIDENCE_CONTRACT` caveat when both are present (see `window._aioBuildPageDecision`'s evidence-merge step).
+P664-Q6: `js/aio-tests.js` T896-T900 and `ci-runtime-contract-check.mjs`'s 6 WO-6 static checks must fail if P664-Q1~Q5 regress. (T896/T897/T900 call the real `window.AIO.getTradingDecisionInputEvidence()`/`window._aioBuildPageDecision('home')` functions directly rather than regex-matching source, since these don't depend on async network state the way B8/WO-1A's Claude-fetch and vault-crypto logic did.)
+P664-Q7 (deferred, tracked as DEFERRED-BLOCKS.md B9, not a standing gate): WO-6's full literal completion gate — per-field `source`/`observedAt`/`publishedAt`/`fetchedAt`/`freshnessClass`/`fallbackReason` on every value shown across all ~20 pages, a structural separation between `DATA_SNAPSHOT`'s single file-level `_updated` timestamp and true per-field observation times, and a dedicated auditable source-lineage export UI — remains unimplemented. This session's P664 slice covers only `computeTradingScore()`'s 13 inputs and the shared cross-page decision header.
+
+P665-Q1: `scripts/backtest-trading-score.mjs`'s `reconstructScore()` must accept an optional `hyg` parameter that defaults to the original constant (78) when omitted — the existing production call site (`fetch-data.mjs`'s 30-minute-cron `runBacktest`) must produce byte-for-byte-structurally-identical output (ignoring only `generatedAt`) before and after this change.
+P665-Q2: `scripts/backtest-trading-score-longrun.mjs` must fetch real multi-year daily history for SPX/VIX/VVIX/TNX/DXY/WTI/HYG via the same Yahoo chart API pattern already used in production, and must throw (not silently produce a truncated/misleading report) if the merged series comes back under 300 trading days.
+P665-Q3: The long-run backtest's regime labels must be derived from the fetched data itself (trailing VIX level + trailing-252-day drawdown from rolling ATH), not from hardcoded historical narrative dates — avoiding a memorized-date error becoming a silent data-classification bug.
+P665-Q4: `public-data/score-backtest-longrun.json` must retain its `methodology`/`caveats` fields stating plainly that only ~55% of `computeTradingScore()`'s weight (vol+trend+macro) is covered, and that the live app's displayed composite score remains provisional/unvalidated regardless of this result — a reader of only the top-level correlation numbers must not be able to conclude "the whole score is validated" or "the whole score is invalidated."
+P665-Q5: This finding must not have silently changed `computeTradingScore()`'s live logic, `getScoreAdvice()`'s text, or any band/threshold in `js/aio-core.js` or `index.html` — a negative backtest result on a partial-coverage validation is a documented finding requiring its own separate product decision, not an automatic trigger for a live behavior change.

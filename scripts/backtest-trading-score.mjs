@@ -96,7 +96,11 @@ export function calcMacroScore(dxy, tnx, hyg, fg, vvix) {
 // 전체 조합 — 재현 가능한 입력만 사용. breadth200/pcr/aaiiBear/hyg는 history.json에 없어 라이브
 // 코드 자신의 "실시간 미수신" 폴백 상수 그대로 사용(근사가 아니라 이미 존재하는 코드 경로 재현).
 // 뉴스감성 보정은 과거 뉴스 데이터가 없어 완전히 생략(0 기여, 임의 대입 금지).
-export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50ma, spx200ma, mode }) {
+// v52.49/WO-2 longrun: hyg는 이제 선택적 override를 받는다 — 기본값 78은 그대로라 기존 호출부
+// (fetch-data.mjs의 30분 cron 프로덕션 하네스, history.json 기반 단기 재구성)는 동작 무변화.
+// 장기(수년) 백테스트 스크립트만 실제 과거 HYG 종가를 넘겨 신용 스트레스 보정을 상수 대신
+// 진짜 값으로 재현할 수 있다 — 포뮬러 자체를 두 파일에 복제하지 않기 위한 최소 확장(R280 회피).
+export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50ma, spx200ma, mode, hyg: hygOverride }) {
   vix = CLAMP(vix, 5, 150);
   vvix = CLAMP(vvix ?? 100, 50, 250);
   dxy = CLAMP(dxy ?? 104, 80, 130);
@@ -106,7 +110,7 @@ export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50
   const breadth200 = 57;  // history.json에 없음 — 라이브 코드 폴백 상수(_fb.breadth200 없을 때)
   const pcr = 0.95;       // history.json에 없음 — 라이브 코드 폴백 상수
   const aaiiBear = 50;    // history.json에 없음 — 라이브 코드 폴백 상수
-  const hyg = 78;         // history.json에 없음 — 라이브 코드 최종 폴백 상수
+  const hyg = (typeof hygOverride === 'number' && isFinite(hygOverride)) ? hygOverride : 78;
 
   let volScore = calcVolScore(vix, mode);
   let momScore = calcMomScore(fg);
