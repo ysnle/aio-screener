@@ -1,10 +1,10 @@
 ---
 verified_by: Codex
-last_verified: 2026-07-10
-confidence: high for repository/static/headless evidence; medium for current live UI; blocked for full Tier 13/device/screen-reader coverage
+last_verified: 2026-07-11
+confidence: high for repository/static and local real-Chromium PC/laptop evidence; medium for external-source parity; blocked for human screen-reader and authenticated/external-success flows
 auto_refresh: true
-target_version: v52.48
-implementation_status: planning-and-design-only
+target_version: v52.58
+implementation_status: implemented-locally; external-success and manual-screen-reader evidence pending
 source_documents:
   - _context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md
   - _context/FABLE-UIUX-DEEP-AUDIT-2026-07-08.md
@@ -1006,3 +1006,337 @@ UNVERIFIED 실행하지 않았거나 과거 증거만 존재
 H2-01~H2-11이 닫히면 외부 사용자 베타/공개 품질을 판단할 수 있다. H2-12~H2-14가 닫히기 전에는 제품을 유용한 투자 정보 터미널로 표현할 수는 있어도, 검증된 수익 예측 또는 기관급 의사결정 엔진으로 표현해서는 안 된다.
 
 이 문서는 작업 완료 선언이 아니라 **작업이 완료됐는지를 후속 모델과 사용자가 같은 기준으로 판정하기 위한 설계**다.
+## 16. 2026-07-11 PC/노트북 실브라우저 3차 보강 진단
+
+### 16.1 이번 보강의 범위와 증거
+
+사용자 요청에 따라 모바일·태블릿을 우선순위에서 제외하고 다음 두 실제 Chromium viewport만 조사했다.
+
+- 노트북: `1024×768`
+- PC: `1440×900`
+- route: 22개 전부
+- 조합: 44개
+- 방식: 로컬 서버에서 각 route에 실제 `showPage()` 실행, 400ms settle 후 DOM/화면/콘솔/요청/차트/표/컨트롤/텍스트 수집 및 viewport 스크린샷
+- 원본 증거: `_artifacts/desktop-browser-audit/report.json`, `_artifacts/desktop-browser-audit/*.png`
+- 진단 전용 수집기: `_artifacts/desktop-browser-audit.mjs` (제품 코드가 아님)
+
+Codex 인앱 Browser는 `about:blank` 빈 탭 WebContents 생성만으로 앱이 종료되는 데스크톱 앱 결함이 재현됐다. 캐시 재생성·Windows 앱 복구 뒤에도 동일했다. 따라서 본 조사는 저장소의 Playwright가 실제 Chromium을 별도 프로세스로 구동하는 방식으로 수행했다. 이 방식은 DOM 에뮬레이션이 아니라 실제 브라우저 렌더링이지만, 사람의 눈·키보드·스크린리더 실사는 아니다.
+
+### 16.2 44조합 기계 수집 결과
+
+| 항목 | 결과 | 판정 |
+|---|---:|---|
+| route/viewport 조합 | 44/44 진입 | PASS |
+| fatal/missing page | 0 | PASS |
+| document 전체 가로 overflow | 0 | PASS |
+| zero-size visible canvas | 0 | PASS |
+| console/page error | 5 | FAIL |
+| 노트북 clipped 요소 | 4 | FAIL |
+| 화면 캡처 실패 | 2 | HARNESS WARN |
+
+확정 오류·잘림:
+
+1. `briefing` 노트북·PC: `[AIO:api] fred: warn → error {errCount: 3}`.
+2. `fundamental` 노트북: Telegram Insider Tracking/BornLupin 각 6개 proxy 전부 실패.
+3. `kr-supply` 데스크톱: Telegram WalterBloomberg 6개 proxy 전부 실패.
+4. `sentiment` 노트북: Investors Intelligence canvas와 Put/Call canvas가 오른쪽 viewport 밖으로 잘림.
+5. `macro` 노트북: FRED FEDFUNDS 12개월 canvas가 오른쪽 viewport 밖으로 잘림.
+6. `screener` 노트북: 결과 table 우측이 viewport 밖으로 잘림.
+7. screenshot 실패 0건(이번 실행에서는 font-ready timeout 재현 안 됨).
+
+### 16.3 고빈도 Critical-10 정의
+
+코드의 고정 계약과 사용자의 “종합 5 + 분석 5”는 다음과 같다.
+
+| 그룹 | route |
+|---|---|
+| 종합 5 | `home`, `signal`, `breadth`, `sentiment`, `briefing` |
+| 분석 5 | `technical`, `macro`, `fxbond`, `fundamental`, `themes` |
+
+근거: `AIO.CRITICAL_PAGE_GROUPS`, `AIO_CRITICAL_10_PAGE_IDS`, `CRITICAL_5`, `ANALYSIS_5`, R187~R199. 이후 작업자는 이 10페이지를 나머지 12페이지보다 높은 release gate로 다뤄야 한다.
+
+### 16.4 Critical-10 현재 시장 적합성 심층 판정
+
+#### 공통 P0 — 서로 다른 시간축을 하나의 “오늘 판단” 카드에 혼합
+
+Critical-10 상단 판정 카드들은 2026-07-11 화면에서 `2026-06-17` FOMC 해설과 `24일 경과`를 표시하면서 동시에 `데이터: 스냅샷`, 신뢰도 66~76%, 현재 시세, 당일 뉴스, AI 분석 버튼을 한 카드에 배치한다. 날짜는 보이지만 시각적 위계상 오늘의 결론으로 읽힌다. 6/17 FOMC 사실 자체는 현재 정책 기준을 설명하는 데 유효하며 FRED의 2026-06 월평균 EFFR 3.63과도 모순되지 않는다. 문제는 **사실의 오류가 아니라 오래된 이벤트 해설을 현재 매매 결론의 핵심 근거처럼 재사용하는 시간축 설계**다.
+
+필수 구조 개편:
+
+- `marketNow`: 최신 가격·변동성·breadth·심리
+- `policyRegime`: 최근 정책 결정과 아직 유효한 체제
+- `upcomingCatalysts`: 다음 CPI/FOMC/고용 일정
+- `historicalContext`: 과거 이벤트 회고
+
+네 블록을 분리하고 결론 엔진은 각 블록의 `asOf`, TTL, sourceKind, decisionUse를 검사해야 한다. `historicalContext`는 오늘 점수에 직접 가산하지 말고 설명 근거로만 사용한다.
+
+#### C10-01 `home` — 공개 사용자 기본 화면으로 부적합
+
+- 운영자 노트가 `2026-06-30 · 11일 경과` 상태로 첫 화면 최상단을 점유한다.
+- PUBLIC STATUS가 `public-data가 6시간 이상 지연`, `확인 필요`, 미수신 항목을 기본 사용자에게 노출한다.
+- 한 화면 안에서 “실시간 자동갱신”, 서버 snapshot 지연, 과거 이벤트 해설이 함께 보인다.
+- 시장 판단 자체보다 운영 상태·개발 진단이 더 강한 시각적 우선순위를 가진다.
+
+판정: 내부 운영 콘솔로는 유용하지만 외부 사용자의 첫 화면으로는 PUBLIC 차단. 운영자/개발자 상태는 별도 admin/debug surface로 이동하고 기본 화면은 `결론 → 근거 → 위험 → 다음 확인시각`만 남겨야 한다.
+
+#### C10-02 `signal` — 설명 가능성·효능 문제
+
+- 화면은 점수 65, `선별 진입 가능`, `52% 좋은 랠리`, 5개 팩터 가중치를 강한 매매 언어로 노출한다.
+- 기존 WO-2 장기 검증에서 부분 재구성 점수는 21일/63일 forward return과 음의 상관을 보였다. 따라서 현재 점수는 성과 예측 신호로 홍보할 수 없다.
+- 상단 FOMC 문맥은 24일 전이며, 현재 입력 4/13 확인 필요가 동시에 표시된다.
+- 점수의 표시 팩터와 최종 점수 사이 감점·보정 항을 사용자가 완전히 재현하기 어렵다는 과거 live finding도 아직 핵심 위험이다.
+
+판정: “매수 점수”가 아니라 `환경 체크리스트/리스크 허용도`로 격하해야 한다. 기여도 합계, 결측 패널티, 데이터 나이, OOS 효능을 한 화면에서 재현 가능하게 만들기 전 PUBLIC 매매 시그널 금지.
+
+#### C10-03 `breadth` — 현재 국면 지표로 적절하나 추정치·스냅샷 경계 부족
+
+- 5/20/50SMA 참여율, Weinstein Stage, McClellan은 시장 내부 확산을 보는 데 적절한 조합이다.
+- 화면에 McClellan `(추정)`이 표시되는 점은 긍정적이나, 추정값과 실제 거래소 breadth 원자료의 차이·기준시각·계산 universe가 즉시 보이지 않는다.
+- 상단 결론은 “참여도는 개선”인데 뉴스 비중이 커서 breadth 자체의 시계열·분포·전일 대비 변화가 첫 viewport에서 약하다.
+
+판정: 지표 선택은 적합. 각 지표에 universe/산식/asOf/source/실측·추정 배지를 붙이고 1D·1W 변화와 가격 대비 divergence를 우선 노출해야 매매에 유용하다.
+
+#### C10-04 `sentiment` — 동일 앱 내 F&G 값 충돌(P0)
+
+- 상단 공통 strip·briefing은 F&G `49 중립`을 사용한다.
+- sentiment 복합판정은 `Fear & Greed 31 — 공포 우세`를 사용한다.
+- 코드에는 snapshot/fallback `fg:31`이 남아 있고 최신 `public-data/history.json` 2026-07-10 값은 `49`다.
+- “정적 데이터 · 8일 전 기준 · 실시간 아님” 경고는 있으나, 같은 화면 체계가 최신값과 구값으로 서로 다른 투자 행동(중립 vs 관심종목 준비)을 제시한다.
+
+판정: PUBLIC P0. 모든 F&G 소비자를 단일 EvidenceStore/current selector로 통합하고, historical series의 마지막 점과 headline 값이 다르면 페이지를 차단해야 한다. 결측 시 구값을 현재값처럼 fallback하지 말고 `현재 검증값 없음`으로 표시해야 한다.
+
+#### C10-05 `briefing` — 시간 구조는 좋지만 FRED 실패와 오래된 공통 결론 혼합
+
+- 2026-07-11 08:00 KST, 24h window, 다음 갱신시각, 기사 window가 명시돼 있어 시간 설계는 Critical-10 중 가장 낫다.
+- 실제 브라우저에서 FRED가 노트북·PC 모두 error로 승격됐다.
+- briefing 본문은 당일 가격/F&G 49를 쓰지만 상단 공통 결론은 6/17 FOMC 문맥을 다시 사용한다.
+- FRED 실패 시 briefing이 어느 문장/지표를 제외했는지 사용자에게 명확히 표시되지 않는다.
+
+판정: 조건부. source별 성공/실패/부분완료를 briefing 문장 단위 provenance로 연결하고, 실패한 macro 블록은 결론에서 자동 제외해야 한다.
+
+#### C10-06 `technical` — 지표 선택은 적합, 현재 차트의 의미·외부 의존 분리 필요
+
+- RSI/MACD/이평/가격 위치/Weinstein은 진입·추세 확인에 적합하다.
+- SPY `$754`, 50MA `$728`, ATH `$759` 등의 label은 v52.52 수정 뒤 겹침 fatal은 사라졌지만 한 영역에 여전히 밀집돼 읽기 부담이 있다.
+- 3M 수익이 `0.0%`로 표시되는 등 계산 불가/미수신이 실제 0으로 보일 위험이 남아 있다.
+- TradingView iframe 요청은 외부 차단 시 abort됐다. 자체 차트와 외부 embed의 책임·fallback을 구분해야 한다.
+
+판정: 조건부. `0`과 `missing`을 타입으로 분리하고, 차트 마지막 거래일·가격 원천·조정주가 여부·시장 휴장 상태를 차트 제목 바로 옆에 표시해야 한다.
+
+#### C10-07 `macro` — 현재 국면 프레임은 유용하나 정책 이벤트와 데이터 주기 혼합
+
+- 금리·인플레·달러·유가·고용의 연결은 현재 시장 해석에 적절하다.
+- 6/17 FOMC 정책 레짐을 현재 기준으로 참고하는 것은 타당하지만 “이미 가격 반영” 같은 해설은 이후 24일간의 가격·고용·CPI 변화로 재검증되지 않았다.
+- 노트북에서 FEDFUNDS chart가 viewport 밖으로 잘린다.
+- FRED task는 briefing에서 실제 error를 냈으므로 macro 화면의 SOURCE 확인 배지만으로 성공을 단정할 수 없다.
+
+판정: 조건부. 주기별 release calendar와 최신 observation date를 분리하고, macro narrative는 각 입력의 최신 발표 뒤 자동 재생성돼야 한다.
+
+#### C10-08 `fxbond` — 매크로 선행지표로 적절하나 지연 상태에서 행동 문구가 강함
+
+- DXY, 커브, 국채수익률, credit spread 조합은 주식 위험선호 판단에 적절하다.
+- 페이지 자체가 `데이터: 지연`을 표시하면서도 “달러·금리·커브·크레딧 반응만 본다”, “주의: 달러 강세·금리 압박” 같은 현재 행동 문구를 유지한다.
+- 지연 데이터가 어느 지표인지, 최신·지연이 섞인 경우 결론이 무엇을 제외했는지 불명확하다.
+
+판정: PUBLIC 조건 미충족. 지연 source가 하나라도 결론 핵심 입력이면 confidence만 낮추는 것이 아니라 해당 주장과 행동 문구를 block/hold로 바꿔야 한다.
+
+#### C10-09 `fundamental` — 첫 화면이 기업 분석이 아니라 뉴스 피드
+
+- “17개 관점과 데이터 가용성부터 확인”은 정직한 방향이다.
+- 첫 viewport에는 ticker 입력·기업 핵심 재무·17관점 availability matrix가 보이지 않고 일반 뉴스 피드가 대부분을 차지한다.
+- SEC/FMP/Yahoo 배지를 표시하지만 실제 ticker를 선택하지 않은 상태에서 `DATA 확인`이 무엇을 검증했는지 모호하다.
+- 외부 API 성공/키 없음/부분 데이터/filing 없음의 실제 사용자 흐름은 이번 로컬 외부차단 run에서 검증되지 않았다.
+
+판정: 구조 개편 필요. 첫 화면은 `검색 → identity → 데이터 가용성 17/17 → 최신 filing/실적 asOf → 분석` 순서여야 하며 뉴스는 기업 선택 이후 하위 블록으로 이동해야 한다.
+
+#### C10-10 `themes` — 경기 사이클 계산의 결측 중립화 의심(P0)
+
+- 섹터 상대강도·breadth·뉴스 촉매를 함께 보는 프레임은 적절하다.
+- 화면은 `Mid Cycle (Expansion)` 근거에 `VIX 15.4 · Breadth50 48% · 2s10s 0.00 · SPX up`을 사용한다.
+- `2s10s 0.00`은 실제 평탄화일 수도 있으나, 현재 코드/화면 구조에서는 2Y 결측 또는 미갱신이 0으로 중립화됐는지 사용자가 구분할 수 없다.
+- 페이지 자체는 `데이터: 지연`인데 강한 cycle label과 종목 전략을 제시한다.
+
+판정: PUBLIC P0 후보. 2Y·10Y 두 leg의 값/asOf/source를 먼저 검증하고 하나라도 missing이면 cycle 분류를 `산정 불가`로 바꿔야 한다. cycle label은 검증된 입력만으로 재계산하고 전략 종목 문구는 delayed 상태에서 숨겨야 한다.
+
+### 16.5 나머지 12페이지 요소 전수 점검 요약
+
+| route | PC/노트북 실브라우저 판정 | 추가 심층 작업 |
+|---|---|---|
+| `market-news` | 진입·렌더 성공, 긴 동적 피드 | 중복·번역 실패·source 우선순위·기사시각/시장시각 분리 |
+| `screener` | 노트북 결과표 잘림 | 모든 필터·정렬·행 클릭·빈 결과·100개 결측표현을 실제 상호작용으로 재검증 |
+| `ticker` | 진입·정적 shell 렌더 | 실제 ticker 검색 성공/오류/부분 데이터/재검색/route roundtrip |
+| `portfolio` | 44 controls/20 actions의 고복잡도 | 잠금·PIN·legacy migration·CRUD·재로드·가격 stale·AI 전송 경계 |
+| `theme-detail` | `themes` canonical panel로 redirect | 실제 theme click별 panel 내용·뒤로가기·deep-link·빈 theme 검증 |
+| `options` | orphan/reference shell 유지 | 외부 공개 내비게이션에서 제거 또는 참고자료로 명확히 고정 |
+| `kr-home` | 렌더 성공, snapshot 비중 큼 | 장중/휴장/전일종가·KOSPI/KOSDAQ·환율 시간축 일치 |
+| `kr-supply` | Telegram proxy 전체 실패 1건 | Naver/KRX/Telegram 각각 success/timeout/partial/fallback 및 table 기준일 |
+| `kr-themes` | 렌더 성공, 결측 표현 다수 | 필터·정렬·상세 진입·종목 pill·실시간/스냅샷 분리 |
+| `kr-macro` | 렌더 성공, 긴 snapshot 표 | 발표 주기·기준일·현재 국면 해설 재생성 |
+| `kr-technical` | 3 canvas 렌더 | ticker 검색·캔들 마지막 거래일·조정주가·VKOSPI history provenance |
+| `guide` | 31 sections, 8.2k visible chars | 현재 기능과 문구 parity, 사용자용 화면에서 로그 다운로드/초기화 제거 |
+
+### 16.6 화면 요소 ↔ 프론트 ↔ 데이터/백엔드 역추적 기준
+
+후속 모델은 각 visible element를 다음 12필드로 inventory해야 한다. DOM 개수만 세는 감사는 불충분하다.
+
+```text
+pageId / sectionId / elementId-or-selector / userQuestion / displayValue
+sourceKind / sourceFamily / sourceEndpoint-or-file / transformFormula
+asOf / freshnessSla / failure-and-fallback / decisionUse
+```
+
+주요 계층:
+
+1. 화면/라우팅: `index.html`, `showPage()`, `aio:pageShown`.
+2. 렌더/차트/상호작용: `js/aio-ui.js`, `data-action`, `_aioChartRegistry`, `_aioPageBus`.
+3. 데이터/계산: `js/aio-data.js`, `DATA_SNAPSHOT`, `PriceStore`, `EvidenceStore`, `DATA_REQUIREMENT_PROFILES`.
+4. 중앙 판단/감사/내러티브: `js/aio-core.js`, `AIO_PAGE_CONTRACTS`, Critical-10 audit 계열.
+5. AI 설명: `js/aio-chat.js`, `CHAT_CONTEXTS`, freshness preflight.
+6. 정적/누적 데이터: `public-data/data.json`, `history.json`, `screener.json`, Telegram/user research/operator note.
+7. 수집/백엔드: `scripts/fetch-data.mjs`, GitHub Actions, `cloudflare-worker-proxy.js`, 외부 Yahoo/FRED/Naver/SEC/FMP/Finnhub/Anthropic.
+8. 저장/개인정보: localStorage/safeLS, portfolio encryption, Worker server-key route.
+
+### 16.7 구조 개편 및 근본 보강 설계
+
+#### H3-00 단일 Currentness Graph
+
+페이지별로 값과 해설을 따로 최신화하지 말고 다음 그래프를 SSOT로 만든다.
+
+```text
+source observation → normalized evidence → derived indicator → regime claim
+→ page conclusion → action guidance → AI context
+```
+
+각 노드는 `value/asOf/source/status/confidence/dependsOn`을 가진다. upstream 하나가 stale/missing이면 downstream claim은 자동 `degraded` 또는 `blocked`가 된다.
+
+#### H3-01 0/null/missing/delayed 타입 강제
+
+- `0.00`, `0.0%`를 fallback 기본값으로 사용 금지.
+- 실제 0은 `VALID_ZERO`, 미수신은 `MISSING`, 오래됨은 `STALE`, 일부만 성공은 `PARTIAL`.
+- 점수·cycle·regime 계산기는 `VALID` 입력만 사용하고 minimum quorum 미달 시 산정 불가.
+
+#### H3-02 Narrative Compiler
+
+현재 해설을 인라인 문자열·오래된 이벤트 문장으로 유지하지 않는다. claim template + evidence dependency + expiry rule로 생성한다.
+
+- 숫자 claim: 해당 evidence asOf 표시
+- regime claim: 입력 전체 목록과 기준시각 표시
+- 이벤트 claim: 발생/현재유효/예정 상태 분리
+- action claim: stale/partial이면 자동 완화 또는 숨김
+
+#### H3-03 Critical-10 release gate
+
+다음이 모두 PASS일 때만 외부 공개 가능:
+
+1. 10페이지 PC/노트북 실제 Chromium 진입·상호작용 PASS.
+2. 동일 지표 cross-page 값/asOf/source 일치.
+3. 모든 차트 마지막 점이 최신 유효 거래일과 일치.
+4. chart series와 headline 값 일치.
+5. stale/missing 입력이 점수·regime·action에 들어가지 않음.
+6. external success/timeout/partial/malformed 4시나리오 PASS.
+7. route 왕복 후 timer/listener/fetch/chart 증가 없음.
+8. 점수·cycle·regime을 표시 입력으로 재현 가능.
+
+#### H3-04 사용자 여정 기반 재배치
+
+Critical-10 공통 정보 순서를 다음으로 통일한다.
+
+```text
+지금 결론 → 기준시각/시장상태 → 핵심 근거 3~5개 → 반대 근거
+→ 무엇이 바뀌면 결론이 바뀌는가 → 사용자가 할 수 있는 행동
+→ 상세 차트/뉴스/교육 → provenance/debug
+```
+
+운영자 상태, 장문 뉴스 피드, 개발 로그, API 진단은 기본 첫 viewport에서 제거한다.
+
+### 16.8 Luna/후속 모델 실행 패킷
+
+| 우선순위 | 패킷 | 범위 | 종료조건 |
+|---|---|---|---|
+| P0 | H3-A Cross-page truth | F&G, VIX, SPY/QQQ, breadth, 2s10s, Fed rate | Critical-10 동일값/asOf/source; F&G 31/49 충돌 제거; 결측 0 금지 |
+| P0 | H3-B Claim expiry | 6/17 FOMC·운영자 노트·시장 해설 | historical/current/upcoming 분리, expired claim이 오늘 action에 기여하지 않음 |
+| P0 | H3-C Derived regime safety | signal score, theme cycle, macro regime | 모든 입력 dependency 공개, missing/stale quorum 시 산정 차단 |
+| P1 | H3-D Laptop geometry | sentiment/macro/screener | 1024×768 잘림 0, 핵심 차트/표 스크롤·축소 정책 통일 |
+| P1 | H3-E External scenario | FRED/Telegram/FMP/SEC/Yahoo/Naver | success/timeout/partial/malformed fixture와 사용자 상태 PASS |
+| P1 | H3-F Page journeys | 22 route | 모든 주요 click/filter/search/back/reload/empty/error 증거 |
+| P1 | H3-G Backend lineage | 모든 visible numeric/chart/narrative | 12필드 inventory 100%, orphan sink/source 0 |
+| P2 | H3-H Content hierarchy | Critical-10 | 첫 viewport가 결론·근거·위험 중심, 운영/debug 분리 |
+| P2 | H3-I Human accessibility | Critical-10 | 실제 키보드·NVDA/스크린리더 수동 evidence |
+
+### 16.9 현재 외부 공유 판정
+
+| 단계 | 판정 |
+|---|---|
+| 내부 개인 사용 | 가능하나 F&G/점수/cycle/stale 문구를 매매 근거로 단독 사용 금지 |
+| 제한 베타 | 보류 — P0 truth/claim/derived-regime 패킷 선행 |
+| 일반 외부 공개 | 불가 |
+| 성과·매매 신호 홍보 | 불가 |
+
+핵심 이유는 페이지가 열리지 않아서가 아니다. 44개 PC/노트북 조합은 모두 열렸다. 문제는 **같은 화면 체계가 서로 다른 기준시각과 값으로 현재 시장을 설명하고, 일부 결측·지연 입력에서도 강한 regime/action 문구를 유지한다는 점**이다. 구조 개편은 UI 정리보다 먼저 currentness graph와 claim dependency를 바로잡아야 한다.
+
+### 16.10 2026-07-11 H3-A 실행 결과 및 다음 순서
+
+H3-A는 코드 덧붙이기식 병렬 경로가 아니라 기존 `AIO_OPERATIONAL_DATA_CONTRACT`/Evidence/decision 흐름 안에서 완료했다.
+
+- `window.AIO.getCanonicalMetric('fg')`를 단일 currentness selector로 추가하고 `getCurrentMarketMetric` 별칭을 제공했다. 결과 envelope는 `value/source/sourceKind/asOf/fetchedAt/ageMs/freshness/status/confidence/allowedUse/reason`을 갖는다.
+- F&G 생산자는 `_lastFGMeta`를 함께 기록한다. CNN live/proxy는 fetch 시각, 서버 지연값은 observation 시각, 스냅샷은 reference로 분리한다. 초기 UI가 스냅샷을 `_lastFG`에 복사하던 경로를 제거했다.
+- home/signal/sentiment/briefing 및 pulse/risk/AI evidence, `computeTradingScore()`/`computeExecutionWindow()`/regime이 같은 selector를 소비한다. stale/reference 값은 표시 가능하지만 `allowedUse:false`이며 점수 입력은 중립화된다.
+- 회귀 계약: T901~T904(실시간 우선·0 보존·스냅샷 매매 차단·stale 차단), runtime contract gate, headless **967/967 PASS**.
+- PC/노트북 실 Chromium 재점검: 44/44 조합 진입, fatal 0, horizontal overflow 0, zero-size canvas 0. 기존 외부 FRED/Telegram 실패와 1024px sentiment/macro/screener clipping은 H3-D/E의 미완료 항목으로 유지한다.
+
+후속 모델은 반드시 H3-B → H3-C → H3-D/E → H3-F/G → H3-H/I 순서로 진행한다. H3-A 완료를 이유로 일반 외부 공개 판정을 상향하지 않는다.
+
+### 16.11 H3-B/H3-C P0 실행 결과
+
+### 16.12 H3-D/H3-E P1 실행 결과
+
+### 16.13 H3-F/H3-G P1 실행 결과
+
+- H3-F: CDN Chart.js/DOMPurify/Lightweight Charts를 local app module보다 앞선 `defer` 순차 의존성에서 `async` progressive enhancement로 전환했다. CDN 실패 시에도 local `aio-*` module과 route router가 reload 이후 실행되며 기존 fallback chart path를 유지한다.
+- 1024×768 Chromium journey: screener tab/profile/advanced filter/search, KR supply tab, KR themes filter roundtrip, guide search, browser back, `#screener` reload recovery를 실제로 통과했다. 이는 모바일 검증이 아니며 PC/노트북 경로만의 증거다.
+- H3-G: `AIO.getPageContractAudit()`는 22/22 DOM/profile/refresh/deep/sequential contract 누락 0을, `AIO.getDataLineageAudit()`는 13 category, broken 0, cell-level orphan sink 0을 보고한다. Breadth gap 1과 static-macro manual 1은 자동화 완료로 위장하지 않고 기존 lineage inventory의 명시적 제한으로 남긴다.
+- 회귀: T912(외부 CDN이 local boot queue를 막지 않음), T913(route/lineage/orphan contract), runtime H3-F/G check, Chromium journey artifact `_artifacts/desktop-journey-audit.json`.
+
+- H3-D: sentiment/macro canvas가 Chart.js의 300px intrinsic width를 유지하지 않고 실제 1024px grid parent 폭에 맞도록 제한된다. screener ranking의 의도된 wide table은 `.aio-table-scroll` 안에 유지하고 `role=region`, `tabindex=0`, 한국어 가로 스크롤 label을 제공한다.
+- H3-E: `AIO.normalizeExternalSourceState()`가 success/partial/timeout/malformed/unavailable를 동일 policy로 `allowedUse`/`usable`과 함께 정규화한다. API(`api:*`)와 Telegram RSS(`telegram:*`) 상태를 `AIO_EXTERNAL_STATES`에 기록하고, Telegram 슬롯은 정상/부분/외부 실패를 사용자에게 표시한다. 빈 외부 결과를 조용한 blank slot으로 남기지 않는다.
+- 회귀: T907–T911, runtime-contract H3-D/E, headless **974/974 PASS**. 실브라우저 44조합은 **fatal 0 / horizontal overflow 0 / accidental clipped 0 / zero-size canvas 0 / screenshot failure 0**으로 종료했다. 남은 2건은 FRED API health가 반복 실패를 `warn→error`로 승격한 예상 가능한 외부 장애 신호이며, 사용자 화면의 상태 계약과 별도로 추적된다.
+- 다음 순서: H3-F/G → H3-H/I. 이번 단계는 PC/노트북 범위만 다루며 모바일 개선을 확장하지 않는다.
+
+- `window.AIO.getEventClaimState(eventId, nowTs)`를 기존 `AIO_EVENT_FRESHNESS_REGISTRY`에 연결했다. FOMC/이란·호르무즈/Apple CXMT 항목에 claim window를 부여하고 `CURRENT/AGING/EXPIRED/MISSING` 및 `allowedUse`를 계산한다.
+- `_aioDefaultDecision()`과 `_aioApplyEventFreshnessGate()`는 만료된 사건을 `과거 참고`로 표시하고, 현재 action/decision의 근거로 사용하지 않는다. FOMC footer는 기존 30일 숨김 정책과 새 claim state를 함께 소비한다.
+- trading-input critical missing이 3개 이상이면 숫자 스코어는 보존하되 모든 page decision을 `판단 보류 · 핵심 입력 부족 (스코어 N/100)`으로 바꾸고 실행 문구를 차단한다. tactical overlay가 이 차단을 덮어쓸 수 없도록 `decisionBlocked`를 반환·재검증한다.
+- 회귀 계약 T905/T906, runtime contract H3-B/C, headless **969/969 PASS**. 이는 H3-D/E의 노트북 잘림·외부 success/timeout fixture 작업을 완료했다는 뜻이 아니다.
+### 16.14 2026-07-11 H3-G/H3-H/H3-I results
+
+- H3-G element lineage inventory was implemented for the Critical-10 routes. The handoff calls this a 12-field inventory but lists 13 fields; the full listed set is enforced: `pageId`, `sectionId`, `elementIdOrSelector`, `userQuestion`, `displayValue`, `sourceKind`, `sourceFamily`, `sourceEndpointOrFile`, `transformFormula`, `asOf`, `freshnessSla`, `failureAndFallback`, and `decisionUse`. Visible numeric/chart/narrative items report incomplete 0 and orphan sink 0; static copy is explicitly `reference-only`.
+- H3-H content hierarchy: real Chromium at 1024×768 passed all 10 Critical-10 routes. Decision header/conclusion/evidence/status/action checks passed, with zero visible developer/debug surfaces. `.stale-badge` is treated as a legitimate status prelude and `data-aio-archive` reference content is not classified as developer surface.
+- H3-I automated accessibility: accessible-name, focusability, positive-tabindex, canvas-name, and 36-step Tab traversal checks passed on all 10 routes. NVDA/manual screen-reader evidence and external CDN-success/external-data parity remain unverified.
+- The CDN-loss Chromium audit found and fixed P675/R305: `initBreadthPage()` touched `Chart.registry` even when only the local partial Chart stub existed. T918 and the Chromium gate preserve the guard.
+- Final gates: `node scripts/ci-runtime-contract-check.mjs` PASS; `node scripts/ci-headless-tests.mjs` **981/981 PASS**; `AIO_VIEWPORT_FULL_INIT=1 node scripts/ci-viewport-matrix-check.mjs` **88/88 PASS, worstOverflow 0px, jsErrors 0**; `node scripts/ci-critical10-human-surface-check.mjs` **10/10 PASS, consoleErrors 0**. Structural, UX-default, data-pipeline, semantic, workflow, skill, control-character, worker-security, version, and knowledge-lint checks also passed; doc-currency remained informational-only with the pre-existing CODE-MAP `aio-core.js` +534-line warning.
+- Artifact: `_artifacts/critical10-human-surface-audit.json`; no deploy/commit performed.
+
+### 16.15 2026-07-11 H2 second-pass execution ledger
+
+로컬 기준선 이후 H2 작업을 순차 실행한 현재 판정이다. 이 섹션은 기존 설계 항목을 지우지 않고, 실행 결과와 외부 의존성을 분리해 기록한다.
+
+| 항목 | 현재 판정 | 증거/남은 조건 |
+|---|---|---|
+| H2-00 | LOCAL_PASS | `scripts/ci-second-pass-baseline.mjs`, local `v52.59`; live/Worker revision은 별도 확인 필요 |
+| H2-01 | DEPLOY_PENDING | GitHub Pages/Worker 운영 권한과 실제 배포 revision 확인 필요 |
+| H2-02 | LOCAL_PASS | FULL_INIT 22×4 = 88/88, semantic settle, late rejection capture, jsErrors 0 |
+| H2-03 | LOCAL_PASS | SVG 양끝 clamp + T921 fixture, viewport 88/88 |
+| H2-04 | LOCAL_PASS | 공통 AI error envelope + T919/T920 + Worker `aioAiError` |
+| H2-05 | LOCAL_PASS / LIVE_PENDING | Portfolio Vault PFE2-01~08 PASS; 실제 공개 배포 후 cross-reload 확인 필요 |
+| H2-06 | LOCAL_PASS / DEPLOY_PENDING | explicit Pages allowlist, `og-image.svg`, `robots.txt`, `sitemap.xml`, manifest |
+| H2-07 | LOCAL_PASS | content-truth audit, public GitHub Issues 경로, KR snapshot context T922/T923 |
+| H2-08 | LOCAL_PASS | 19 NAV_ROUTE + 2 DERIVED_VIEW + 1 REFERENCE, canonical/history/hash T924/T925 |
+| H2-09 | LOCAL_PASS_PARTIAL | 22 route intent/scenario registry와 priority review set; human visual density review는 별도 |
+| H2-10 | LOCAL_PASS | 22/22 accessibility matrix, computed font <10px 0, nameless control/select/canvas 0, positive tabindex 0 |
+| H2-11 | BLOCKED_EXTERNAL | Chromium evidence만 확보. Firefox/WebKit 바이너리 설치가 사용량 제한으로 거부되어 중단; NVDA는 human gate |
+| H2-12 | LOCAL_PASS_PARTIAL | typed evidence envelope/T930 및 decision header `data-evidence-id`; 전체 10개 지표 cross-surface parity는 추가 data/live run 필요 |
+| H2-13 | REDUCED_SCOPE_PASS | `score-backtest-longrun.json`의 fixed-rule/holdout/regime 결과 유지; PIT 입력·calibration·cost는 미충족 |
+| H2-14 | REDUCED_SCOPE_PASS | factor artifact의 IC/ICIR/t-stat 유지; PIT universe/delisted/cost/adaptive-weight 검증은 미충족 |
+| H2-15 | LOCAL_PARTIAL | portfolio/storage/snapshot/lifecycle/timer/chart 경계 audit T931; legacy direct storage/snapshot 전면 이전은 별도 패킷 |
+| H2-16 | LOCAL_PASS | CHANGELOG/version note, doc currency, workflow compaction, knowledge lint 실행 |
+
+최종 로컬 게이트: headless **992/992 PASS**, FULL_INIT **88/88 PASS**, accessibility **22/22 PASS**, Portfolio Vault **PFE2-01~08 PASS**, runtime/data/semantic/workflow/knowledge gates PASS. 실제 Pages/Worker 배포, live parity, Firefox/WebKit/NVDA는 이 로컬 결과만으로 완료 처리하지 않는다.

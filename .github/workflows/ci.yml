@@ -187,6 +187,91 @@ jobs:
           AIO_VIEWPORT_FULL_INIT: '1'
         run: node scripts/ci-viewport-matrix-check.mjs
 
+  # v52.58/H3-H/I: route-level human surface gate. This exercises the actual
+  # showPage lifecycle at the supported laptop viewport, then checks the first
+  # decision surface, accessible names, keyboard reachability, and canvas labels.
+  human-surface:
+    name: Critical-10 human surface (hierarchy + keyboard a11y)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Run Critical-10 human surface audit
+        run: node scripts/ci-critical10-human-surface-check.mjs
+
+  # v52.59/H2-05: portfolio storage is a separate deterministic Chromium gate.
+  # It covers PIN creation, AES-GCM ciphertext, reload lock, wrong/correct PIN,
+  # legacy migration, explicit opt-out, and the input XSS boundary. Live quotes
+  # and operator secrets remain outside this local fixture's evidence scope.
+  portfolio-vault:
+    name: Portfolio Vault storage E2E
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Run portfolio Vault E2E
+        run: node scripts/ci-portfolio-vault-e2e.mjs
+
+  # v52.59/H2-10: every classified route receives the same Chromium accessibility
+  # contract.  This is structural evidence; NVDA/screen-reader and browser-engine
+  # parity remain explicit manual/Tier-13 evidence.
+  a11y-matrix:
+    name: All-route accessibility matrix
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Run all-route accessibility matrix
+        run: node scripts/ci-accessibility-matrix-check.mjs
+
   # P557/R248: GitHub Pages was on "legacy" branch-deploy, which republishes whatever is on
   # main the instant it's pushed — completely independent of whether `validate` above passed
   # or failed (confirmed live: 33% of recent CI runs failed, some of those pushes went live
@@ -201,8 +286,8 @@ jobs:
   # blocking philosophy this repo already applies to validate/headless-tests (R248), not a new
   # risk category.
   deploy:
-    name: Deploy to GitHub Pages (gated on validate + headless + viewport-matrix)
-    needs: [validate, headless-tests, viewport-matrix]
+    name: Deploy to GitHub Pages (gated on validate + headless + viewport + human-surface + portfolio + a11y)
+    needs: [validate, headless-tests, viewport-matrix, human-surface, portfolio-vault, a11y-matrix]
     # Deploy on a direct human/session push to main, OR on a successful refresh-data.yml run
     # completing on main (the workflow_run path this comment block's `on:` note added — see
     # above). workflow_dispatch and pull_request never deploy.
@@ -223,18 +308,16 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
-      # Legacy branch-deploy ran the repo root through Jekyll, which by default silently
-      # excludes any dotfile/dot-directory and any underscore-prefixed file/directory
-      # (_context, _archive, _backup, .github, .claude, .agents, .git, ...) even with no
-      # _config.yml present. actions/upload-pages-artifact does not run Jekyll and has no
-      # such default, so uploading the raw checkout would newly expose all of that internal
-      # content publicly. This staging step reproduces Jekyll's dot/underscore exclusion
-      # exactly, so the public surface stays identical to what main already serves today.
-      - name: Stage public site (replicate Jekyll dot/underscore exclusion)
+      # H2-06: stage the explicit public artifact allowlist. A raw checkout would expose
+      # root AGENTS/CLAUDE/CHANGELOG/Worker/source-control files that are not part of the
+      # product surface; dot/underscore exclusion alone is insufficient for those files.
+      - name: Stage public site (explicit artifact allowlist)
         run: |
           set -e
           mkdir -p "$RUNNER_TEMP/pages-dist"
-          rsync -a --exclude='.*' --exclude='_*' ./ "$RUNNER_TEMP/pages-dist/"
+          cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json "$RUNNER_TEMP/pages-dist/"
+          rsync -a js/ "$RUNNER_TEMP/pages-dist/js/"
+          rsync -a public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

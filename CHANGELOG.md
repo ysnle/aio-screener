@@ -1,3 +1,43 @@
+## v52.59 (2026-07-11)
+- H2-02/H2-03: FULL_INIT route-specific settle/rejection capture and SVG marker clamp; final local viewport matrix 88/88 PASS (22 routes × 4 viewports, overflow 0px, tiny text 0, jsErrors 0).
+- H2-04/H2-05: normalized AI error contract across browser/data/Worker paths and blocking Portfolio Vault PFE2-01~08 Chromium E2E PASS.
+- H2-06~H2-10: explicit Pages public artifact allowlist/metadata, content-truth and route-IA audits, declutter intent registry, and blocking all-route accessibility matrix (22/22; computed font <10px 0; nameless controls/selects/canvases 0).
+- H2-12~H2-15: typed provenance/action-strength fixture and incremental architecture boundary audits added. Trading Score/Factor research artifacts remain explicitly partial pending PIT/cost/calibration evidence; NVDA and Firefox/WebKit evidence remain human/external gates.
+- Local verification: headless **992/992 PASS**, runtime contracts PASS, data/semantic/workflow/knowledge gates PASS, Portfolio Vault **PFE2-01~08 PASS**.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.59
+
+## v52.58 (2026-07-11) - H3-G/H3-H/H3-I continuation
+- H3-G element-level lineage inventory now enforces the full 13-field set listed in the handoff (the document calls it 12-field but lists 13), with incomplete/orphan counts exposed in the runtime audit.
+- H3-H/I added executable Critical-10 content-hierarchy and keyboard/accessibility audits plus a blocking real-Chromium CI job at 1024×768. The audit passed 10/10 routes with zero unexpected console errors.
+- P675 fixed breadth initialization when CDN loss leaves a partial local `Chart` stub without `registry/plugins/register`; T914–T918 and the runtime contract gate cover the regression.
+- Final local gates: headless **981/981 PASS**, viewport **88/88 PASS** (`worstOverflow=0px`, `jsErrors=0`), and Critical-10 **10/10 PASS** (`consoleErrors=0`).
+
+## v52.57 (2026-07-11)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.57
+
+## v52.56 (2026-07-11) — version sync
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.56
+
+## v52.57 (2026-07-11) — H3-F/G delivery
+- H3-F boot resilience: Chart.js, DOMPurify, and Lightweight Charts are async progressive enhancements. A failed third-party CDN no longer blocks local `aio-*` deferred modules or route recovery after reload; the existing guarded chart fallback remains the degraded path.
+- H3-G runtime evidence: 22 route contracts, 13 data-lineage rows, and cell-level sink mapping now have an executable H3-F/G regression check (no missing route contract, broken lineage, or orphan sink).
+- Browser journey evidence: screener tab/profile/advanced-filter/search, KR supply tabs, KR-theme filter roundtrip, guide search, browser back, and reload-to-screener pass at 1024×768 in the local Chromium harness.
+
+## v52.56 (2026-07-11)
+- H3-D PC geometry: sentiment/macro Chart.js canvases now obey the actual grid parent width at 1024px; screener ranking keeps its intentional wide table inside a keyboard/screen-reader-labelled horizontal-scroll region.
+- H3-E external failure state: a shared source-state contract covers success, partial, timeout, malformed, and unavailable responses; API/Telegram transitions and feed slots expose localized status instead of silent blanks.
+- Validation: T907–T911, runtime contracts, headless **974/974 PASS**, and real Chromium 44-combination matrix **fatal 0 / overflow 0 / clipped 0 / zero-canvas 0 / screenshot 0**; two remaining FRED `warn→error` entries are expected external-health escalation signals.
+
+## v52.55 (2026-07-11)
+- **H3-A 구조 개편**: F&G의 분산된 `_lastFG`/스냅샷/페이지별 fallback 경로를 `window.AIO.getCanonicalMetric('fg')` 단일 currentness envelope로 통합. live/proxy/delayed/snapshot-reference/stale 상태와 `asOf`·`fetchedAt`·`allowedUse`를 함께 전달.
+- **매매 안전성**: 스냅샷·오래된 서버값은 화면 참고용으로만 표시하고 `computeTradingScore()`·`computeExecutionWindow()`의 trading input으로 자동 승격하지 않도록 중립/차단. 유효한 0점도 보존.
+- **표면 정합성**: home/signal/sentiment/briefing 및 pulse/risk/AI evidence가 동일 selector를 소비하도록 정리하고, 초기 UI의 스냅샷→`_lastFG` 복사를 제거. T901–T904 및 runtime contract gate 추가.
+- **H3-B/H3-C P0**: FOMC·지정학·기업 이벤트 claim에 만료 창과 `CURRENT/AGING/EXPIRED` 상태를 연결하고, 만료 서사는 과거 참고로만 표시. 핵심 trading 입력 3개 이상 결측/스테일이면 숫자 스코어는 남기되 page decision/action을 차단(`decisionBlocked`)해 후속 overlay가 강한 결론을 복구하지 못하게 함. T905/T906 및 runtime gate 추가.
+- R1 7곳 v52.55
+
 ## v52.54 (2026-07-10)
 - **CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-8 Packet 1 (P669)**: WO-8("문서·운영 기록 압축과 현재성 회복")의 작업 범위 중 append-only 기록(CHANGELOG.md 600+ 섹션, BUG-POSTMORTEM.md 440+ 항목)의 연도/버전별 archive 분리는 되돌리기 어려운 대규모 콘텐츠 이동이라 이번 패킷 범위 밖으로 명시 이관 — "INDEX/CODE-MAP/WORKTREE-AUDIT 자동 현재성 검사"와 "감사 문서의 resolved/open 상태 명시"만 실행.
 - **실측**: `_context/CODE-MAP.md`의 frontmatter가 `target_version: v51.90`(2026-07-02)로 고정된 채 v52.54까지(이번 세션에서만 v52.39 이후 16개 버전) 재검증 안 됨. `wc -l` 대조 결과 §1 파일 크기 표 6개 중 5개 드리프트: index.html +195, aio-core.js +365, aio-data.js +359, aio-chat.js +78, aio-tests.js +484(이 프로젝트 자신의 "±500줄 이상 변경 시 CODE-MAP 갱신" 임계값 근접) — 감지 장치 전무.

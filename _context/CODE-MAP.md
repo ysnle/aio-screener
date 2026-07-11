@@ -1,13 +1,13 @@
 ---
 verified_by: agent (Sonnet 5, wc -l 실측 — WO-8/P669 currency packet, 파일 크기 표만 갱신)
-last_verified: 2026-07-10
+last_verified: 2026-07-11
 confidence: medium
-target_version: v52.53
+target_version: v52.59
 target_file: index.html + js/*.js
-target_lines: index.html 32220 + js modules 63175
+target_lines: index.html 32253 + js modules 63844
 ---
 
-# AIO v52.53 CODE-MAP
+# AIO v52.58 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.
@@ -26,12 +26,12 @@ target_lines: index.html 32220 + js modules 63175
 
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
-| `index.html` | 32,220(v52.53 실측) | HTML shell, CSS, 22개 route page DOM, inline runtime(8블록), 외부 모듈 로드. v51.98: 매매 알고리즘 4함수 aio-core.js로 이관(-273줄, Phase 3 A3). v52.39: `.aio-fund` CSS 9줄 추가(P654) |
-| `js/aio-core.js` | 24,482(v52.53 실측) | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, **매매 알고리즘 핵심(v51.98 이관, §3)**. `AIO_PAGE_CONTRACTS`는 22개 route 계약. v52.49: WO-6 evidence 레지스트리(13개 입력)+`_aioDefaultDecision` sourceKind 병합 추가 |
-| `js/aio-data.js` | 17,894(v52.53 실측) | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, 스크리너 |
-| `js/aio-ui.js` | 5,734(v52.53 실측) | 차트/렌더러, sentiment/breadth init, LLM quota UI, 기업분석 렌더러, **페이지 기초 교육 레이어(v52.39 P654, §3 아래)**. v52.52: `_pricePosition()` SVG 라벨-값 간격 수정(P667/F-01) |
-| `js/aio-chat.js` | 6,955(v52.53 실측) | CHAT_CONTEXTS, 데이터 preflight/evidence, Claude/Perplexity, 추천 분산 후보, 의도별 답변 정책, AIO 통합 답변 파이프라인. v52.44: `_aioFetchClaudeWithRetry` 재시도 헬퍼(B8) |
-| `js/aio-tests.js` | 7,796(v52.53 실측) | 브라우저 회귀 테스트 T1~T900, `AIO.runTests()` / `AIO.getTestResults()`. CI 헤드리스 상설화됨(§5 참고) — 이 줄의 "CI 미실행" 구서술은 stale(실제로는 `.github/workflows/ci.yml`의 `headless-tests` job이 `scripts/ci-headless-tests.mjs`로 실행) |
+| `index.html` | 32,253(v52.58 실측) | HTML shell, CSS, 22개 route page DOM, inline runtime(8블록), 외부 모듈 로드. v51.98: 매매 알고리즘 4함수 aio-core.js로 이관(-273줄, Phase 3 A3). v52.39: `.aio-fund` CSS 9줄 추가(P654) |
+| `js/aio-core.js` | 25,016(v52.58 실측) | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, **매매 알고리즘 핵심(v51.98 이관, §3)**. `AIO_PAGE_CONTRACTS`는 22개 route 계약. v52.58: H3-G element lineage 및 H3-H/I human-surface 감사 추가 |
+| `js/aio-data.js` | 17,919(v52.58 실측) | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, 스크리너 |
+| `js/aio-ui.js` | 5,740(v52.58 실측) | 차트/렌더러, sentiment/breadth init, LLM quota UI, 기업분석 렌더러, **페이지 기초 교육 레이어(v52.39 P654, §3 아래)**. v52.58: partial Chart fallback guard(P675) |
+| `js/aio-chat.js` | 6,955(v52.58 실측) | CHAT_CONTEXTS, 데이터 preflight/evidence, Claude/Perplexity, 추천 분산 후보, 의도별 답변 정책, AIO 통합 답변 파이프라인. v52.44: `_aioFetchClaudeWithRetry` 재시도 헬퍼(B8) |
+| `js/aio-tests.js` | 7,900(v52.58 실측) | 브라우저 회귀 테스트 T1~T918, `AIO.runTests()` / `AIO.getTestResults()`. CI 헤드리스 상설화됨(§5 참고) — 이 줄의 "CI 미실행" 구서술은 stale(실제로는 `.github/workflows/ci.yml`의 `headless-tests` job이 `scripts/ci-headless-tests.mjs`로 실행) |
 | `js/aio-glossary.js` | 314 | 용어사전 검색/렌더 |
 
 ---

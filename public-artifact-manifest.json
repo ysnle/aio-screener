@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1",
+  "purpose": "GitHub Pages public artifact allowlist",
+  "generatedFor": "AIO Screener",
+  "publicRootAllowlist": [
+    "index.html",
+    "sw.js",
+    "version.json",
+    "og-image.svg",
+    "robots.txt",
+    "sitemap.xml",
+    "public-artifact-manifest.json",
+    "js/*.js",
+    "public-data/*.json"
+  ],
+  "excludedFromPagesArtifact": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CHANGELOG.md",
+    "_context/**",
+    "_archive/**",
+    "_backup/**",
+    ".github/**",
+    ".agents/**",
+    ".claude/**",
+    "scripts/**",
+    "cloudflare-worker-proxy.js",
+    "debug.log",
+    "*.pdf",
+    "*.py",
+    "package*.json"
+  ],
+  "dataHandling": {
+    "portfolioAndApiKeys": "browser-local; never intentionally uploaded by the static app",
+    "publicData": "public-data contains published snapshots, research references, and derived artifacts; do not place secrets or personal data there",
+    "contact": "https://github.com/ysnle/aio-screener/issues",
+    "termsAndDisclaimer": "guide-public-policy section in index.html"
+  },
+  "deploymentContract": "The Pages workflow stages only this allowlist; a root checkout is not itself a public artifact."
+}

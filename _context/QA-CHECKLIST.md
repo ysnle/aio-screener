@@ -1,12 +1,12 @@
 ---
 verified_by: agent
-last_verified: 2026-07-10
+last_verified: 2026-07-11
 confidence: high
 version: v3.8
-checklist_version: v52.54
-total_items: 521
+checklist_version: v52.59
+total_items: 528
 stages: 22
-latest_P_covered: P669
+latest_P_covered: P676
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2721,3 +2721,39 @@ P669-Q1: `scripts/ci-doc-currency-check.mjs` must always exit 0 (informational o
 P669-Q2: `_context/CODE-MAP.md`'s §1 file-size table must match `wc -l` on each listed file within the ±500-line threshold at any given time — run `node scripts/ci-doc-currency-check.mjs` to check, and treat a reported drift as a signal to refresh the table (not to silence the check).
 P669-Q3: `_context/CODE-MAP.md`'s own frontmatter/intro must continue to disclose that only §1 (file-size table) was re-verified in the WO-8/P669 pass — not the detailed per-function line ranges in §2 onward — until a dedicated full rescan happens; a reader must not assume every line reference in the document is current just because the top-level table is.
 P669-Q4: `_context/FABLE-LIVE-AUDIT-2026-07-04.md`'s added status line must not claim P4 (FMP key plan error) is resolved by code — it is explicitly an operator-action item the user chose to leave as-is (closed-by-decision, not closed-by-fix).
+
+P671-Q1: F&G and any other multi-page current metric must resolve through `window.AIO.getCanonicalMetric()` (or its documented successor) with explicit `status`, `asOf`/`fetchedAt`, `freshness`, and `allowedUse`; no current consumer may read `_lastFG`/snapshot through a truthy fallback chain.
+
+P671-Q2: A delayed/server or snapshot F&G value may be visible with a localized reference/delay badge, but must be `allowedUse:false` and must not affect `computeTradingScore()`/`computeExecutionWindow()` as a trading input; missing/stale current evidence must be neutralized or blocked.
+
+P671-Q3: The canonical selector regression suite must retain live precedence, numeric zero preservation, snapshot-reference isolation, and stale-current blocking tests (T901–T904), plus the runtime-contract static checks.
+
+P671-Q4: PC/desktop route validation must verify that all repeated F&G sinks (home, signal, sentiment, briefing, risk/pulse overlays) agree on the same canonical value and source state; any visible split is a release blocker.
+
+P672-Q1: `AIO_EVENT_FRESHNESS_REGISTRY` entries used in decision copy must declare a claim-age window and resolve through `AIO.getEventClaimState()`; expired FOMC/geopolitical/issuer narratives must render as historical/reference-only.
+
+P672-Q2: `_aioDefaultDecision()` must block current action/decision when the trading-critical missing-input quorum reaches 3+, retain the numeric diagnostic score for transparency, and expose `decisionBlocked`; tactical/page overlays must not overwrite the block.
+
+P672-Q3: T905/T906 and runtime-contract H3-B/C checks must remain in the release gate, alongside headless route execution.
+P673-Q1: At 1024×768, sentiment and macro canvases must not extend beyond their grid parent; the desktop audit must report zero accidental clipped canvases.
+P673-Q2: A deliberately wide screener table may overflow only inside `.aio-table-scroll`, which must expose `role="region"`, `tabindex="0"`, and a localized label.
+P673-Q3: `AIO.normalizeExternalSourceState()` fixtures must keep success→decision, partial→reference-only, and timeout/malformed/unavailable→none policies stable (T907–T910).
+P673-Q4: Telegram/API failures must produce an explicit user-facing state row; a blank `tg-feed-*` slot is a release blocker (T911 + runtime H3-E).
+
+P674-Q1: Chart.js, DOMPurify, and Lightweight Charts must not use ordered `defer` ahead of local `aio-*` modules; CDN loss must leave route boot/reload available (T912).
+P674-Q2: H3-F PC journey must cover screener tab/filter/search, KR supply/theme interactions, guide search, browser back, and hash-route reload with no page error.
+P674-Q3: H3-G must keep `getPageContractAudit()` at 22 routes with zero missing contract categories and `getDataLineageAudit()` at broken/orphan sink 0 (T913); known breadth/manual tiers remain explicit, not silently promoted.
+
+P675-Q1: `initBreadthPage()` must guard missing and partial Chart fallbacks (`registry`, `plugins`, and `register`) before chart registration; the CDN-blocked breadth route must produce no page error.
+P675-Q2: H3-G element lineage inventory must expose all 13 fields listed in the handoff, with incomplete 0 and orphan sinks 0; static content remains explicit reference-only.
+P675-Q3: Critical-10 Chromium at 1024×768 must keep the decision header/conclusion/evidence/action in the first human surface and keep developer/debug surfaces hidden; status badges and reference archives must not be misclassified.
+P675-Q4: Automated H3-I checks must find no nameless or unfocusable controls, positive tabindex, or unnamed canvases during Tab traversal; NVDA/manual screen-reader evidence remains separately marked unverified.
+P675-Q5: T914–T918, `ci-runtime-contract-check.mjs`, and the blocking `human-surface` CI job must remain wired.
+
+P676-Q1: `ci-accessibility-matrix-check.mjs` must cover all 22 routes at the mobile viewport and report zero computed fonts under 10px, nameless controls, unnamed selects/canvases, and positive tabindex values; small-target findings remain explicitly observational.
+P676-Q2: `ci-viewport-matrix-check.mjs` FULL_INIT must cover 22 routes × 4 viewports (88/88), with zero overflow and runtime errors; the offline TG proxy failure is allowed only through the exact expected-log contract.
+P676-Q3: the final Chromium headless suite must remain 992/992 PASS, including T919–T931 for AI errors, content truth, route IA, declutter, typed provenance, and architecture governance.
+P676-Q4: `ci-portfolio-vault-e2e.mjs` must keep PFE2-01–PFE2-08 green for encrypted storage, lock/reload, migration, explicit plaintext opt-out, and input boundaries.
+P676-Q5: typed provenance must preserve one evidence ID across UI/score/AI projections, distinguish missing from neutral, and weaken future/stale/manual/seed evidence to non-decision action strength; decision surfaces must expose `data-evidence-id` and `data-operational-use`.
+P676-Q6: score/factor research artifacts must retain their reduced-scope status and PIT/delisted/cost/adaptive-weight caveats until the full validation gate is actually run.
+P676-Q7: Firefox/WebKit, NVDA/manual screen-reader, live GitHub Pages, and Worker deployment remain separate external/human gates and must not be marked PASS from Chromium/local evidence alone.

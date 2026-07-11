@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-07-10
+last_verified: 2026-07-11
 confidence: high
-target_version: v52.52
+target_version: v52.58
 
 ---
 
@@ -3316,3 +3316,55 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 - When a literal control-character regex/escape sequence needs to live in the *checking script itself*, prefer numeric char-code range comparisons over regex character-class escapes (`\x7f-\x9f` etc.) — those exact escapes proved unreliable to author/transcribe correctly through this session's own tooling, ironically for a script whose entire job is detecting that class of corruption.
 
 **Validation**: `scripts/ci-control-char-check.mjs` (hard workflow gate + baseline regression gate) wired into `ci.yml`'s `validate` job; `_context/control-char-baseline.json` tracks the known pre-existing count per file.
+
+## R301. A current market metric must have one canonical selector and an explicit provenance state; a snapshot may render as reference but must never silently drive a decision (v52.55, H3-A/P671 root)
+
+**Rule**: A metric shown in multiple pages (especially Fear & Greed) must be selected through one canonical currentness envelope containing value, source, as-of/fetched-at, freshness, status, and decision-use permission. Truthy fallback chains (`live || snapshot || default`) are prohibited for current claims because they erase valid zeroes and can promote an old snapshot into a trading input. A stale or reference value may remain visible only with its reference state; score/entry logic must neutralize or block it until current evidence is available.
+
+**Required**: Producers must write provenance metadata at the same time as the value; consumers (page summaries, dashboards, decision headers, AI evidence) must read the selector rather than `_lastFG`/`DATA_SNAPSHOT` directly. CI and headless tests must cover live-over-snapshot precedence, zero preservation, snapshot non-decision use, and stale blocking.
+
+**Validation**: `window.AIO.getCanonicalMetric('fg')`, `js/aio-tests.js` T901–T904, and `scripts/ci-runtime-contract-check.mjs` H3-A checks.
+
+## R302. Historical event context must expire before it can influence a current action; derived regimes need a missing-input quorum gate (v52.55, H3-B/C/P672 root)
+
+## R303. PC geometry and external-source failures must be explicit, bounded, and user-visible (v52.56, H3-D/E/P673 root)
+
+## R304. Third-party libraries are progressive enhancements and must never block the local route boot queue (v52.57, H3-F/P674 root)
+
+**Rule**: A CDN-only library may improve charts, sanitization, or visualization, but it must not sit ahead of local application modules in a blocking ordered load queue. The core route router, page state, and safe fallback must boot even if every third-party CDN is unavailable.
+
+**Required**: Load external enhancement libraries asynchronously or through an explicit bounded loader; keep local application modules in their deterministic order; retain a no-library fallback for every route that depends on an enhancement.
+
+**Validation**: T912, runtime H3-F check, and the PC Chromium reload journey.
+
+**Rule**: A canvas must never keep an intrinsic width larger than its actual desktop grid parent; an intentionally wide table must be contained by an explicit, keyboard-accessible horizontal-scroll region. External success, partial, timeout, malformed, and unavailable responses must resolve through one state contract with an explicit `allowedUse` policy. Console warnings alone or blank feed slots are not a valid failure state.
+
+**Required**: Use the shared canvas width contract and `.aio-table-scroll` region semantics; use `AIO.normalizeExternalSourceState()`/`AIO_EXTERNAL_STATES` for API/RSS transitions; render a localized status and retry/reference policy where an external feed has no usable result.
+
+**Validation**: T907–T911, runtime-contract H3-D/E checks, and the real PC/laptop Chromium artifact matrix.
+
+**Rule**: Event/result narratives are reusable context, not perpetual current signals. Every event claim needs an explicit age window and must become historical/reference-only after expiry. A derived score or regime may retain a numeric diagnostic output for transparency, but when critical current inputs are missing/stale beyond the quorum threshold it must block an execution conclusion and expose the reason.
+
+**Required**: Use `AIO_EVENT_FRESHNESS_REGISTRY` through `AIO.getEventClaimState()`; do not read event status/date directly to form current action copy. Preserve the diagnostic score, but block action/decision and prevent later overlays from restoring a strong conclusion.
+
+**Validation**: T905/T906, `_aioDefaultDecision().decisionBlocked`, `_aioApplyEventFreshnessGate()` claim-state attributes, and runtime H3-B/C checks.
+
+## R305. Partial third-party chart stubs must be treated as unavailable before registry access (v52.58, P675 root)
+
+**Rule**: A truthy global library symbol is not proof that the required API surface loaded. Progressive-enhancement chart initialization must guard every API it calls, including `registry`, `plugins`, and `register`, before touching a partial local fallback stub.
+
+**Required**: Keep the `initBreadthPage()` partial-Chart guard, preserve the local non-chart fallback path, and retain T918 plus the real Chromium H3-H/H3-I gate so CDN-loss route errors remain visible.
+
+## R306. Typed provenance must separate evidence state from action strength (v52.59, P676 root)
+
+**Rule**: Missing, neutral, future-dated, stale, delayed, snapshot, manual, seed, fallback, and proxy evidence are not interchangeable. A typed evidence envelope must preserve the source kind, as-of time, status, operational use, action strength, confidence, and one stable evidence ID.
+
+**Required**: Reuse the same evidence ID across decision UI, score metadata, and AI context; missing remains distinct from neutral; future or missing evidence blocks action, while stale/reference evidence is reference-only and cautious-only. Validate through T930, the typed-provenance runtime contract, and `data-evidence-id`/`data-operational-use` attributes.
+
+## R307. Full-route accessibility is a blocking local gate; assistive technology remains separate (v52.59, P676 root)
+
+**Rule**: Every registered route must be checked at the mobile viewport for computed font sizes, control naming, select/canvas naming, positive tabindex, skip-link behavior, and modal semantics. A local route matrix cannot substitute for Firefox/WebKit or NVDA/manual evidence.
+
+**Required**: Keep `ci-accessibility-matrix-check.mjs` in the blocking workflow and require zero computed fonts under 10px, nameless controls, unnamed selects/canvases, and positive tabindex values. Keep small-target observations and external/human Tier-13 evidence explicitly separate.
+
+**Validation**: T918, `ci-runtime-contract-check.mjs`, and `ci-critical10-human-surface-check.mjs` with external requests blocked.

@@ -1,11 +1,19 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-07-10
+last_verified: 2026-07-11
 confidence: high
-latest_version: v52.54
-latest_P_number: P669
-total_entries: 441
-next_P_number: P670
+latest_version: v52.59
+latest_P_number: P676
+total_entries: 442
+next_P_number: P677
+
+## P676 - v52.59 - H2 second-pass gates: accessibility font contract, route settle false positives, typed provenance, and public artifact closure
+
+- **root cause**: the second-pass handoff had separate evidence for full-init, accessibility, research, and architecture work, but several checks were either missing from deploy CI or encoded assumptions that did not survive wrappers/heavy renders. The route matrix also treated expected offline TG proxy failure logs as unexpected errors, and a 5-second polling timeout could be reported even after a heavy screener/portfolio render had become active.
+- **fix**: added the blocking all-route accessibility matrix (22 routes at 390×844) with computed-font/name/tabindex/canvas/modal metrics; removed current 7/8/9px visible font sources and promoted the matrix to deploy needs. Added a precise TG offline-harness allowlist and post-timeout predicate recheck. Added typed evidence envelopes, missing/neutral/future/stale/manual action-strength fixtures, decision-header `data-evidence-id`, and incremental architecture boundary audits for portfolio storage, snapshot, storage, lifecycle, timer, chart, and provenance paths.
+- **verification**: headless **992/992 PASS**; FULL_INIT **88/88 PASS**, overflow 0px, tiny text observations 0, jsErrors 0; accessibility **22/22 PASS** with computed font <10px 0 and nameless controls/selects/canvases 0; Portfolio Vault PFE2-01~08 PASS; runtime/data/semantic/workflow/knowledge gates PASS.
+- **remaining gates**: Firefox/WebKit binaries were not installed because the escalated Playwright install was rejected by the environment usage limit; NVDA/screen-reader evidence, live Pages/Worker revision, live data watchdog, and PIT/cost/calibration research remain external or human gates. No pass claim is made for those items.
+- **prevention**: `ci-runtime-contract-check.mjs` now checks H2-10/H2-12~H2-16 wiring; the second-pass handoff ledger records LOCAL_PASS, REDUCED_SCOPE_PASS, LOCAL_PARTIAL, and BLOCKED_EXTERNAL separately instead of collapsing them into one completion flag.
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —
@@ -5904,3 +5912,47 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **prevention**: T686 already detects this class; R289 documents required bridge behavior.
 - **verification**: `node --check js/aio-data.js`; `node scripts/ci-version-check.mjs`; `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-ux-default-path-check.mjs`; `node scripts/ci-structural-check.mjs`; `node scripts/ci-data-pipeline-contract-check.mjs`; `node scripts/ci-semantic-review-check.mjs`; `node scripts/ci-workflow-compaction-check.mjs`; `node scripts/ci-headless-tests.mjs` → **929/929 PASS**.
 
+## P671 · v52.55 · F&G had multiple currentness paths, so a live strip could disagree with a stale composite and stale values could enter score logic
+
+- **motivation**: H3-A of `CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`. PC/노트북 browser evidence showed the top strip/briefing at F&G 49 while the sentiment composite remained at snapshot 31. Static consumers also used `_lastFG || DATA_SNAPSHOT` and the UI initialized `_lastFG` from the snapshot before the network response.
+- **root_cause**: There was no single selector carrying source/as-of/fetched-at/freshness/decision permission. The scheduler could mark `fearGreed` fetched even when `fetchFearGreed()` had already fallen back to a snapshot, and truthy OR chains both lost a valid score of 0 and promoted old data into current-looking calculations.
+- **fix**: Added `window.AIO.getCanonicalMetric('fg')`/`getCurrentMarketMetric` as the single currentness envelope. Live/proxy values require a recent fetch; delayed server values use observation age; snapshots remain `SNAPSHOT_REFERENCE` with `allowedUse:false`. F&G producers now write `_lastFGMeta`; score/execution/regime, briefing, home, sentiment, pulse/risk, and pipeline consumers read the selector. The initial snapshot copy into `_lastFG` was removed, and delayed/reference badges are explicit.
+- **violated_rule**: New — see R301.
+- **prevention**: T901–T904 cover live precedence, zero preservation, snapshot isolation, and stale blocking. `ci-runtime-contract-check.mjs` rejects truthy `_lastFG` fallback consumers and requires canonical provenance wiring.
+- **verification**: `node --check js/aio-core.js`; `node --check js/aio-data.js`; `node --check js/aio-ui.js`; `node --check js/aio-tests.js`; `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-structural-check.mjs`; `node scripts/ci-headless-tests.mjs` → **967/967 PASS**; real Chromium PC/laptop audit 44/44 route×viewport entered with fatal 0, horizontal overflow 0, zero-size canvas 0 (known external FRED/Telegram failures and laptop clipping remain documented observations; no code deploy/commit performed).
+
+## P672 · v52.55 · Expired event narratives and missing-input regimes could still sound current after the score provenance fix
+
+## P673 · v52.56 · Laptop chart intrinsic widths and silent external-feed failures hid the real user state
+
+## P674 · v52.57 · A third-party CDN outage could stall the local application boot queue after reload
+
+- **motivation**: H3-F actual Chromium journey audit. Route interactions passed, but the reload scenario delayed until external CDN resources failed because Chart.js, DOMPurify, and Lightweight Charts appeared before `aio-*` modules in the same `defer` execution queue.
+- **root cause**: `defer` preserves document order. A slow or unreachable first-party-independent CDN script can therefore postpone every later local application script; the existing CDN fallback ran only at `DOMContentLoaded`, which occurs after the queue had already waited.
+- **fix**: Converted the three third-party libraries to `async` progressive enhancements. Local `aio-*` scripts retain ordered `defer` loading, while the existing guarded chart fallback supplies a usable degraded path when Chart.js is not available.
+- **violated_rule**: New — see R304.
+- **prevention**: T912, the runtime H3-F check, and `_artifacts/desktop-journey-audit.mjs` exercise reload-to-route recovery under intentionally unavailable external resources.
+- **verification**: 1024×768 Chromium journey passes screener/KR/guide/back/reload checks with no page errors; H3-G contract audit reports 22 routes, lineage broken 0, orphan sink 0.
+
+- **motivation**: H3-D/E PC audit of the 22 routes at 1024×768 and 1440×900. Sentiment II/Put-Call and macro FRED canvases retained Chart.js's 300px intrinsic width inside narrow grid cells; Telegram proxy failures were visible only in diagnostics while page feed slots could remain blank.
+- **root cause**: Canvas parents were allowed to shrink but canvases had no max-width contract, and external API/RSS health had no shared user-facing state vocabulary.
+- **fix**: Constrained sentiment/macro canvases to `width/max-width:100%`; labelled the screener scroll region; added `AIO.normalizeExternalSourceState`, `AIO_EXTERNAL_STATES`, API/RSS wiring, and explicit Telegram normal/partial/failure rows.
+- **violated_rule**: New — see R303.
+- **prevention**: T907–T911, runtime-contract H3-D/E, and the real Chromium 44-combination artifact are required before H3-F/G.
+- **verification**: `node scripts/ci-headless-tests.mjs` → **974/974 PASS**; Chromium result recorded in `_artifacts/desktop-browser-audit/report.json`.
+
+- **motivation**: H3-B/H3-C required by the second-pass handoff. FOMC 6/17 and geopolitical result text remained in the shared registry, while a derived score could still present a strong band when several trading-critical inputs were stale/missing.
+- **root_cause**: Existing footer expiry hid some copy after 30 days, but the decision builder still read registry `status/result` directly and did not carry an explicit claim state. The score provenance merge changed the source badge but did not prevent page/tactical overlays from restoring an action conclusion when the missing-input quorum was broad.
+- **fix**: Added `AIO.getEventClaimState()` with per-event claim windows; `_aioDefaultDecision()` and the event freshness DOM gate now mark expired context historical/reference-only. Added a quorum block (`criticalMissing >= 3`) that preserves the numeric diagnostic score, sets `decisionBlocked`, and overrides action/decision after tactical overlays.
+- **violated_rule**: New — see R302.
+- **prevention**: T905/T906 and runtime-contract H3-B/C checks enforce event expiry and derived-regime blocking.
+- **verification**: `node --check js/aio-core.js`; `node --check js/aio-tests.js`; `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-headless-tests.mjs` → **969/969 PASS**; no deploy/commit performed.
+
+## P675 - v52.58 - CDN-loss breadth initialization still touched the registry on a partial Chart fallback stub
+
+- **motivation**: The H3-H/H3-I Critical-10 Chromium audit deliberately blocked external CDNs to verify that local route boot and the degraded chart path remain usable. The breadth route produced a real page error even though the global `Chart` symbol existed.
+- **root_cause**: `initBreadthPage()` checked only `typeof Chart === 'undefined'` and then called `Chart.registry.plugins.get(...)` and `Chart.register(...)`. The local fallback intentionally exposes a minimal `Chart` function for non-chart surfaces, but that stub has no registry/plugins API.
+- **fix**: Added a required-API guard for `Chart.registry`, `Chart.registry.plugins`, and `Chart.register` before breadth chart initialization. The existing non-Chart breadth value/fallback path remains available.
+- **violated_rule**: New - see R305.
+- **prevention**: T918 and the H3-H/H3-I Chromium human-surface gate must keep the partial-stub path free of page errors; the runtime contract check keeps both the guard and test wiring present.
+- **verification**: `node --check js/aio-ui.js`; `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-headless-tests.mjs` -> **981/981 PASS**; `AIO_VIEWPORT_FULL_INIT=1 node scripts/ci-viewport-matrix-check.mjs` -> **88/88 PASS, worstOverflow 0px, jsErrors 0**; `node scripts/ci-critical10-human-surface-check.mjs` -> **10/10 routes PASS, consoleErrors 0**. No deploy/commit performed.

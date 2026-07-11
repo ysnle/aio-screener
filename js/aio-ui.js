@@ -468,7 +468,7 @@ function initSentimentPage(forceReinit) {
       if (typeof _renderSentimentCanvasFallbackCharts === 'function') _renderSentimentCanvasFallbackCharts();
     } catch(_) {}
     // F&G + AI 분석은 Chart.js 무관하게 계속
-    try { if (typeof fgUpdateNeedle === 'function') fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15); } catch(_) {}
+    try { if (typeof fgUpdateNeedle === 'function') { var _fg0 = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null; fgUpdateNeedle(_fg0 && _fg0.value != null ? _fg0.value : 15); } } catch(_) {}
     try { if (typeof fetchFearGreed === 'function') fetchFearGreed(); } catch(_) {}
     try { if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 300); } catch(_) {}
     return;
@@ -499,7 +499,8 @@ function initSentimentPage(forceReinit) {
     _initSentVixChart(); _initSentNaaimChart(); _initSentIIChart(); _initSentHYChart();
   }
 
-  fgUpdateNeedle((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15);
+  var _fg1 = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+  fgUpdateNeedle(_fg1 && _fg1.value != null ? _fg1.value : 15);
   fetchFearGreed();
   fetchPutCall();
 
@@ -855,7 +856,10 @@ function initBreadthPage(forceReinit) {
       }
     });
   }
-  if (typeof Chart === 'undefined') return;
+  // v52.58/P675: the local no-CDN fallback exposes a minimal Chart stub for
+  // non-chart surfaces. Treat a partial stub as unavailable before touching
+  // Chart.registry or Chart.register.
+  if (typeof Chart === 'undefined' || typeof Chart !== 'function' || !Chart.registry || !Chart.registry.plugins || typeof Chart.register !== 'function') return;
   // v40.4: 날만 데이터 경고
   renderStaleWarning('page-breadth');
   if (bpChartsInitialized && !forceReinit) {
@@ -1496,8 +1500,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof renderHomeFeed === 'function') renderHomeFeed([]);
   // v30.3: DATA_SNAPSHOT → HTML 매핑 (단일 진실 원천)
   if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
-  // v42.7: _lastFG 초기값 — fetchFearGreed() 응답 전 DATA_SNAPSHOT.fg 사용 (API 실패 시 18 폴백)
-  if (!window._lastFG) window._lastFG = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fg) || 35;
+  // v52.55/H3-A: 스냅샷을 _lastFG에 복사하지 않는다. 현재값과 참고값을
+  // getCanonicalMetric()이 구분해야 점수/설명/배지가 같은 provenance를 소비한다.
   // 실시간 시세 (성공 시 기본값 교체)
   fetchLiveQuotes();
   // v20: Adaptive refresh - slow down if repeatedly failing
@@ -2363,7 +2367,9 @@ async function globalRefresh() {
 // ═══════════════════════════════════════════════════════════════════════
 //  FEEDBACK SYSTEM
 // ═══════════════════════════════════════════════════════════════════════
-const FEEDBACK_EMAIL = 'dydyd007@naver.com';
+// H2-07: the feedback overlay was retired with its DOM. Keep the legacy helpers
+// inert for old bookmarks; the public contact path is the GitHub Issues link in Guide.
+const FEEDBACK_EMAIL = '';
 let fbSelectedType = 'bug';
 
 function openFeedback() {
@@ -2401,6 +2407,10 @@ function buildFeedbackText() {
 }
 
 function submitFeedback() {
+  if (!document.getElementById('feedback-overlay')) {
+    if (typeof showToast === 'function') showToast('피드백 보드는 운영하지 않습니다. 가이드의 GitHub Issues 문의 경로를 이용하세요.');
+    return false;
+  }
   const desc = document.getElementById('fb-desc')?.value?.trim() || '';
   if (!desc) {
     const s = document.getElementById('fb-status');
@@ -2413,7 +2423,7 @@ function submitFeedback() {
     desc.slice(0, 40) + (desc.length > 40 ? '...' : ''));
   const body = encodeURIComponent(buildFeedbackText());
   const link  = document.createElement('a');
-  link.href   = 'mailto:' + FEEDBACK_EMAIL + '?subject=' + subj + '&body=' + body;
+  link.href   = 'https://github.com/ysnle/aio-screener/issues';
   link.click();
   const s = document.getElementById('fb-status');
   if (s) { s.style.color = '#00e5a0'; s.textContent = '메일 앱이 열립니다. 전송 후 창을 닫아주세요.'; }
@@ -3419,7 +3429,10 @@ window._aioDiagram = (function () {
     out += _t(14, 18, sym + ' 가격 포지셔닝', C.text, 10, 700);
     var lo = Math.min(sma200, price) * 0.96, hi = Math.max(ath, price) * 1.03;
     var range = hi - lo || 1;
-    var tx = function (v) { return 18 + Math.min(((v - lo) / range) * 366, 366); };
+    // H2-03: clamp both ends so malformed/future values cannot place marker text
+    // outside the SVG viewport; the observed label/value collision is covered by
+    // T921 and the 390/768/1024/1440 matrix gate.
+    var tx = function (v) { return 18 + Math.max(0, Math.min(((v - lo) / range) * 366, 366)); };
     var slY = 48;
     out += _r(18, slY, 366, 8, 'rgba(255,255,255,0.05)', 4);
     out += _r(18, slY, _cl(tx(sma200) - 18, 0, 366), 8, _alphaRgb(C.red, 0.18), 4);
@@ -3684,8 +3697,9 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
 
   function _buildSentiment() {
     var snap = _snap();
+    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
     return {
-      fg:       _cl(window._lastFG != null ? window._lastFG : (snap.fearGreed || 50), 0, 100),
+      fg:       _cl(fgMetric && fgMetric.value != null ? fgMetric.value : 50, 0, 100),
       vix:      _ld('^VIX')  || snap.vix   || 20,
       vvix:     _ld('^VVIX') || 100,
       aaiiBear: _cl(window._aaiiBearish || 40, 0, 70),
@@ -3697,7 +3711,8 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     var live = window._liveData || {};
     var lk = Object.keys(live);
     var symOk = lk.filter(function (k) { return live[k] && typeof live[k].price === 'number'; }).length;
-    var fg = window._lastFG != null ? window._lastFG : (snap.fearGreed != null ? snap.fearGreed : null);
+    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+    var fg = fgMetric && fgMetric.value != null ? fgMetric.value : null;
     var ageMin = null;
     try {
       var ts = snap._snapshotDate || snap.ts;

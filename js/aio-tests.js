@@ -3433,9 +3433,9 @@
       t866ok,
       t866detail);
     var briefSummarySrc867 = typeof _buildBriefingDecisionSummary === 'function' ? _buildBriefingDecisionSummary.toString() : '';
-    _assert('T867 briefing_decision_summary_fg_live_first_v5234: 6축 요약 카드 F&G가 live _lastFG 우선 소스를 쓰고 dead snap.fg.value/snap.fearGreed 필드를 참조하지 않음',
-      /fgLive\s*=\s*Number\(window\._lastFG\)/.test(briefSummarySrc867) && !/snap\.fg\.value/.test(briefSummarySrc867) && !/snap\.fearGreed/.test(briefSummarySrc867),
-      'hasLiveFirst=' + /fgLive/.test(briefSummarySrc867) + ' hasDeadFields=' + /snap\.fg\.value|snap\.fearGreed/.test(briefSummarySrc867));
+    _assert('T867 briefing_decision_summary_fg_canonical_v5234: 6축 요약 카드 F&G가 canonical currentness selector를 쓰고 dead snap.fg.value/snap.fearGreed 필드를 참조하지 않음',
+      /getCanonicalMetric\(['"]fg['"]\)/.test(briefSummarySrc867) && !/snap\.fg\.value/.test(briefSummarySrc867) && !/snap\.fearGreed/.test(briefSummarySrc867),
+      'hasCanonical=' + /getCanonicalMetric/.test(briefSummarySrc867) + ' hasDeadFields=' + /snap\.fg\.value|snap\.fearGreed/.test(briefSummarySrc867));
     var calcKrHealthSrc868 = typeof calcKrHealthScore === 'function' ? calcKrHealthScore.toString() : '';
     _assert('T868 vkospi_failure_state_contract_v5234: VKOSPI 연속 실패 시 실패 상태를 노출하고 calcKrHealthScore가 그 상태를 스냅샷 값으로 덮어쓰지 않음',
       typeof _showVkospiFailureState === 'function' && typeof _vkospiIsFailedState === 'function' && /_vkospiIsFailedState\(\)/.test(calcKrHealthSrc868),
@@ -7006,7 +7006,7 @@
     // T841: v50.74 structural fix — decision engine reads live score, FOMC uses registry, footer is conditional.
     var t841ok = false, t841detail = '';
     try {
-      var validBands841 = { '매수 우호':1, '선별 매수':1, '중립 · 관망':1, '주의 · 축소':1, '위험 · 방어':1 };
+      var validBands841 = { '매수 우호':1, '선별 매수':1, '중립 · 관망':1, '주의 · 축소':1, '위험 · 방어':1, '판단 보류 · 핵심 입력 부족':1 };
       var homeDecision841 = typeof window._aioBuildPageDecision === 'function' ? window._aioBuildPageDecision('home') : null;
       // decision 문구가 5밴드 중 하나를 포함해야 함 (정적 고정 문구 제거 검증)
       var bandInDecision841 = homeDecision841 && Object.keys(validBands841).some(function(b) {
@@ -7660,6 +7660,163 @@
     }
   }
 
+  // Group89: v52.55 H3-A — 단일 canonical metric selector가 live/reference/stale를
+  // 일관되게 선택하고 0점/서로 다른 소스를 조용히 덮어쓰지 않는지 검증.
+  function _testV5255CanonicalMetricSelector() {
+    if (!(window.AIO && typeof window.AIO.getCanonicalMetric === 'function')) {
+      _assert('T901 canonical_metric_selector_exists (H3-A)', false, 'getCanonicalMetric missing');
+      return;
+    }
+    var prevFg = window._lastFG, prevMeta = window._lastFGMeta, prevSnap = window.DATA_SNAPSHOT;
+    try {
+      window.DATA_SNAPSHOT = { fg: 31, _updated: '2026-07-03T00:00:00Z' };
+      window._lastFG = 49;
+      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'live', sourceLabel:'test-live', sourceTs:new Date().toISOString(), fetchedAt:Date.now(), freshnessClock:'fetch' };
+      var live901 = window.AIO.getCanonicalMetric('fg');
+      _assert('T901 canonical_prefers_live_over_snapshot (H3-A)', live901.value === 49 && live901.status === 'VALID' && live901.allowedUse === true, JSON.stringify(live901));
+      window._lastFG = 0;
+      window._lastFGMeta = { value:0, source:'cnn', sourceKind:'live', sourceLabel:'test-zero', sourceTs:new Date().toISOString(), fetchedAt:Date.now(), freshnessClock:'fetch' };
+      var zero902 = window.AIO.getCanonicalMetric('fg');
+      _assert('T902 canonical_preserves_zero (H3-A)', zero902.value === 0 && zero902.status === 'VALID', JSON.stringify(zero902));
+      window._lastFG = 49;
+      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'snapshot', sourceLabel:'test-snapshot', sourceTs:'2026-07-03T00:00:00Z', fetchedAt:null, freshnessClock:'observation' };
+      var ref903 = window.AIO.getCanonicalMetric('fg');
+      _assert('T903 snapshot_not_decision_use (H3-A)', ref903.value === 31 && ref903.status === 'SNAPSHOT_REFERENCE' && ref903.allowedUse === false, JSON.stringify(ref903));
+      window._lastFG = 49;
+      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'live', sourceLabel:'test-stale', sourceTs:new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), fetchedAt:Date.now() - 8 * 60 * 60 * 1000, freshnessClock:'fetch' };
+      var stale904 = window.AIO.getCanonicalMetric('fg');
+      _assert('T904 stale_current_is_blocked (H3-A)', stale904.value === 49 && stale904.status === 'STALE' && stale904.allowedUse === false, JSON.stringify(stale904));
+    } finally {
+      window._lastFG = prevFg; window._lastFGMeta = prevMeta; window.DATA_SNAPSHOT = prevSnap;
+    }
+  }
+
+  function _testV5255ClaimExpiryAndRegimeGate() {
+    if (!(window.AIO && typeof window.AIO.getEventClaimState === 'function')) {
+      _assert('T905 event_claim_expiry_selector (H3-B)', false, 'getEventClaimState missing');
+      return;
+    }
+    var current905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-06-20T00:00:00+09:00'));
+    var expired905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-07-20T00:00:00+09:00'));
+    _assert('T905 event_claim_expiry_selector (H3-B): current window allows use, expired window is historical-only', current905.status === 'CURRENT' && current905.allowedUse === true && expired905.status === 'EXPIRED' && expired905.allowedUse === false, JSON.stringify({ current: current905, expired: expired905 }));
+    var decisionSrc906 = typeof _aioDefaultDecision === 'function' ? _aioDefaultDecision.toString() : '';
+    var gate906 = /getEventClaimState\(['"]fomc['"]\)/.test(decisionSrc906) && /_scoreBlocked/.test(decisionSrc906) && /판단 보류/.test(decisionSrc906);
+    _assert('T906 derived_regime_quorum_gate (H3-C): decision builder exposes claim expiry and missing-input block', gate906, 'gate=' + gate906);
+  }
+
+  // Group90: v52.56 H3-E 외부 소스 상태 계약 — 실패를 콘솔 전용으로 남기지 않고
+  // timeout/partial/malformed를 결정·UI 계층에서 재현 가능한 상태로 정규화한다.
+  function _testV5256ExternalSourceState() {
+    if (!(window.AIO && typeof window.AIO.normalizeExternalSourceState === 'function')) {
+      _assert('T907 external_source_state_contract (H3-E)', false, 'normalizeExternalSourceState missing');
+      return;
+    }
+    var ok907 = window.AIO.normalizeExternalSourceState({ status:'success', count:5, expected:5 });
+    var partial908 = window.AIO.normalizeExternalSourceState({ count:2, expected:5 });
+    var timeout909 = window.AIO.normalizeExternalSourceState({ message:'AbortError: timeout' });
+    var malformed910 = window.AIO.normalizeExternalSourceState({ status:'malformed', message:'HTML block page' });
+    _assert('T907 external_source_success_fixture (H3-E)', ok907.status === 'success' && ok907.allowedUse === 'decision' && ok907.usable === true, JSON.stringify(ok907));
+    _assert('T908 external_source_partial_fixture (H3-E)', partial908.status === 'partial' && partial908.allowedUse === 'reference-only', JSON.stringify(partial908));
+    _assert('T909 external_source_timeout_fixture (H3-E)', timeout909.status === 'timeout' && timeout909.allowedUse === 'none' && timeout909.usable === false, JSON.stringify(timeout909));
+    _assert('T910 external_source_malformed_fixture (H3-E)', malformed910.status === 'malformed' && malformed910.allowedUse === 'none', JSON.stringify(malformed910));
+    var table910 = document.querySelector('#scr-tab-ranking .aio-table-scroll');
+    _assert('T911 screener_horizontal_scroll_affordance (H3-D)', !!table910 && table910.getAttribute('role') === 'region' && table910.getAttribute('tabindex') === '0', table910 ? table910.outerHTML.slice(0, 180) : 'wrapper missing');
+    var bootCdn912 = Array.prototype.slice.call(document.querySelectorAll('script[src]')).filter(function(el) { return /chart\.js@4\.4\.0|dompurify@3\.0\.9|lightweight-charts@4\.2\.0/.test(el.src || ''); });
+    _assert('T912 external_cdn_does_not_block_local_boot_queue (H3-F)', bootCdn912.length === 3 && bootCdn912.every(function(el) { return el.async === true && el.defer === false; }), bootCdn912.map(function(el) { return { src: el.src, async: el.async, defer: el.defer }; }));
+    var contract913 = window.AIO.getPageContractAudit && window.AIO.getPageContractAudit();
+    var lineage913 = window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
+      _assert('T913 route_contract_and_lineage_no_orphan_sink (H3-G)', !!contract913 && contract913.status === 'ok' && contract913.routePageCount === 22 && !!lineage913 && lineage913.broken === 0 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans === 0, JSON.stringify({ contracts:contract913 && contract913.status, routes:contract913 && contract913.routePageCount, broken:lineage913 && lineage913.broken, orphans:lineage913 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans }));
+  }
+
+  // Group91: v52.58 H3-G element lineage + H3-H/I human surface contracts.
+  function _testV5258HumanSurfaceContracts() {
+    var required91 = ['pageId','sectionId','elementIdOrSelector','userQuestion','displayValue','sourceKind','sourceFamily','sourceEndpointOrFile','transformFormula','asOf','freshnessSla','failureAndFallback','decisionUse'];
+    var inventory91 = window.AIO && window.AIO.getElementLineageInventory ? window.AIO.getElementLineageInventory({ pages:['home','signal'], includeItems:true }) : null;
+    var sample91 = inventory91 && inventory91.items && inventory91.items[0];
+    var shape91 = !!sample91 && required91.every(function(field) { return Object.prototype.hasOwnProperty.call(sample91, field) && String(sample91[field]).trim() !== ''; });
+    _assert('T914 element_lineage_inventory_13_fields (H3-G): visible numeric/chart/narrative inventory exposes every listed field and no orphan sink',
+      !!inventory91 && inventory91.fieldCount === required91.length && inventory91.total > 0 && inventory91.incomplete === 0 && inventory91.orphanSinks === 0 && shape91,
+      JSON.stringify({ status: inventory91 && inventory91.status, total: inventory91 && inventory91.total, incomplete: inventory91 && inventory91.incomplete, orphanSinks: inventory91 && inventory91.orphanSinks, fieldCount: inventory91 && inventory91.fieldCount, sample: sample91 }));
+
+    var hierarchy91 = window.AIO && window.AIO.getCritical10ContentHierarchyAudit ? window.AIO.getCritical10ContentHierarchyAudit({ pages:['home'] }) : null;
+    _assert('T915 critical10_first_view_hierarchy_contract (H3-H): conclusion/evidence/action precede detail and developer surfaces stay hidden',
+      !!hierarchy91 && hierarchy91.status !== 'fail' && hierarchy91.pages && hierarchy91.pages[0] && hierarchy91.pages[0].decisionHeader && hierarchy91.pages[0].conclusion && hierarchy91.pages[0].evidenceAndStatus && hierarchy91.pages[0].actionAffordance && hierarchy91.pages[0].developerSurfaceVisible === 0,
+      JSON.stringify(hierarchy91));
+
+    var a11y91 = window.AIO && window.AIO.getCritical10AccessibilityAudit ? window.AIO.getCritical10AccessibilityAudit({ pages:['home'] }) : null;
+    _assert('T916 critical10_keyboard_a11y_contract (H3-I): controls/canvases have accessible names and keyboard reachability',
+      !!a11y91 && a11y91.status !== 'fail' && a11y91.pages && a11y91.pages[0] && a11y91.pages[0].nameless.length === 0 && a11y91.pages[0].unfocusable.length === 0 && a11y91.pages[0].positiveTabindex.length === 0 && a11y91.pages[0].chartIssues.length === 0,
+      JSON.stringify(a11y91));
+
+    var lineage91 = window.AIO && window.AIO.getDataLineageAudit ? window.AIO.getDataLineageAudit() : null;
+    var element91 = lineage91 && lineage91.elementLevel;
+    _assert('T917 data_lineage_audit_includes_element_level_summary (H3-G): category audit carries the element inventory result',
+      !!lineage91 && !!element91 && element91.fieldCount === required91.length && element91.incomplete === 0 && element91.orphanSinks === 0,
+      JSON.stringify({ fieldCount: element91 && element91.fieldCount, incomplete: element91 && element91.incomplete, orphanSinks: element91 && element91.orphanSinks }));
+
+    var breadthUi91 = window.initBreadthPage && window.initBreadthPage.toString ? window.initBreadthPage.toString() : '';
+    _assert('T918 breadth_chart_partial_chart_stub_guard (H3-H/I): breadth init checks the Chart registry API before registration',
+      /typeof Chart === 'undefined'/.test(breadthUi91) && /!Chart\.registry/.test(breadthUi91) && /typeof Chart\.register !== 'function'/.test(breadthUi91),
+      breadthUi91.slice(0, 700));
+    var svgHolder919 = null, svgIssues919 = [];
+    try {
+      var svgHtml919 = window._aioDiagram && window._aioDiagram.getSvg('price-position', { sym:'FIX', price:700, sma50:725, sma200:669, ath:759, ret3m:3, rsi:55 });
+      svgHolder919 = document.createElement('div');
+      svgHolder919.style.cssText = 'position:absolute;left:-10000px;top:0;width:420px;height:170px;';
+      svgHolder919.innerHTML = svgHtml919 || '';
+      document.body.appendChild(svgHolder919);
+      var texts919 = Array.prototype.slice.call(svgHolder919.querySelectorAll('text'));
+      [['200MA','$669'],['50MA','$725'],['ATH','$759']].forEach(function(pair) {
+        var label = texts919.filter(function(el) { return (el.textContent || '').trim() === pair[0]; })[0];
+        var value = texts919.filter(function(el) { return (el.textContent || '').trim() === pair[1]; })[0];
+        if (!label || !value) { svgIssues919.push(pair[0] + ':missing'); return; }
+        var lb = label.getBBox(), vb = value.getBBox();
+        if (vb.y < lb.y + lb.height) svgIssues919.push(pair[0] + ':overlap');
+      });
+    } catch (e919) { svgIssues919.push(String(e919 && e919.message || e919)); }
+    if (svgHolder919 && svgHolder919.parentNode) svgHolder919.parentNode.removeChild(svgHolder919);
+    _assert('T921 price_position_svg_marker_fixture (H2-03): marker labels and values remain non-overlapping in the regression fixture', svgIssues919.length === 0, JSON.stringify(svgIssues919));
+  }
+
+  // Group92: v52.59/H2-04 AI failure contract — every AI surface must classify
+  // success, auth/origin, regional, quota, upstream, and timeout failures with
+  // the same user-facing reason and next action fields.
+  function _testV5259AiErrorContract() {
+    var normalize92 = window.AIO && window.AIO.normalizeAiError;
+    var cases92 = [
+      [{ status: 200, message: 'success' }, 'success'],
+      [{ status: 403, message: 'forbidden region HKG' }, 'regional_forbidden'],
+      [{ status: 403, message: 'Origin not allowed' }, 'auth_or_origin'],
+      [{ status: 429, message: 'Too many requests' }, 'rate_limit'],
+      [{ status: 503, message: 'KV binding missing' }, 'upstream_unavailable'],
+      [{ status: 408, message: 'AbortError timeout' }, 'timeout']
+    ];
+    var results92 = cases92.map(function(pair) { return normalize92 ? normalize92(pair[0], { source: 'fixture' }) : null; });
+    var shape92 = !!normalize92 && results92.every(function(r) {
+      return r && typeof r.code === 'string' && typeof r.kind === 'string' && typeof r.source === 'string'
+        && Object.prototype.hasOwnProperty.call(r, 'status') && typeof r.reason === 'string'
+        && typeof r.userMessage === 'string' && typeof r.nextAction === 'string'
+        && typeof r.retryable === 'boolean' && typeof r.referenceOnly === 'boolean';
+    });
+    var kinds92 = results92.map(function(r) { return r && r.kind; });
+    _assert('T919 ai_error_normalizer_common_shape (H2-04): all fixture outcomes expose one contract', shape92 && kinds92.join('|') === cases92.map(function(pair) { return pair[1]; }).join('|'), JSON.stringify(kinds92));
+    var userPath92 = results92.filter(function(r) { return r && r.kind !== 'success'; }).every(function(r) { return r.userMessage.length > 5 && r.nextAction.length > 5; });
+    _assert('T920 ai_error_normalizer_user_next_action (H2-04): failure is actionable and not console-only', userPath92, JSON.stringify(results92));
+    var truth922 = window.AIO && typeof window.AIO.getContentTruthAudit === 'function' ? window.AIO.getContentTruthAudit() : null;
+    _assert('T922 content_truth_retired_feedback_and_policy_path (H2-07): guide has one public inquiry path and no retired board instruction', !!truth922 && truth922.fakeFeedbackInstructionCount === 0 && truth922.oldPrivateContactCount === 0 && truth922.publicContactPath === true && truth922.guideBeginnerRoute === true, JSON.stringify(truth922));
+    _assert('T923 content_truth_kr_snapshot_context (H2-07): KR snapshot dates carry stale/reference context and reference action sinks are surfaced', !!truth922 && truth922.unlabeledKrSnapshotDateCount === 0 && typeof truth922.referenceActionCount === 'number', JSON.stringify(truth922));
+    var route924 = window.AIO && typeof window.AIO.getRouteIAAudit === 'function' ? window.AIO.getRouteIAAudit() : null;
+    _assert('T924 route_ia_single_registry (H2-08): 22 DOM routes classify exactly once and map to contracts/PAGES', !!route924 && route924.status === 'pass' && route924.routeCount === 22 && route924.classCounts.NAV_ROUTE === 19 && route924.classCounts.DERIVED_VIEW === 2 && route924.classCounts.REFERENCE === 1, JSON.stringify(route924));
+    _assert('T925 route_ia_history_and_theme_canonical (H2-08): theme-detail canonical redirect and history/hash contracts are present', !!route924 && route924.themeDetailCanonical === true && route924.historyPushState === true && route924.hashNavigation === true, JSON.stringify(route924));
+    var declutter926 = window.AIO && typeof window.AIO.getPageDeclutterAudit === 'function' ? window.AIO.getPageDeclutterAudit() : null;
+    _assert('T926 page_declutter_intent_registry (H2-09): every route has a first-screen intent and primary scenario', !!declutter926 && declutter926.status === 'pass' && declutter926.routeCount === 22 && declutter926.missingIntent.length === 0, JSON.stringify(declutter926));
+    _assert('T927 page_declutter_priority_routes (H2-09): high-risk routes are explicitly included in the visual review set', !!declutter926 && ['signal','macro','technical','fxbond','guide','kr-macro','themes','portfolio','screener','kr-home'].every(function(id){ return declutter926.priorityRoutes.indexOf(id) >= 0; }), JSON.stringify(declutter926 && declutter926.priorityRoutes));
+    var provenance930 = window.AIO && typeof window.AIO.getTypedProvenanceAudit === 'function' ? window.AIO.getTypedProvenanceAudit() : null;
+    _assert('T930 typed_provenance_action_strength (H2-12): evidence IDs, missing/neutral, future asOf, and stale/manual action weakening are executable', !!provenance930 && provenance930.status === 'pass' && provenance930.checks.sameEvidenceIdAcrossUiScoreAi && provenance930.checks.missingAndNeutralDistinct && provenance930.checks.futureAsOfBlocked && provenance930.checks.staleManualActionWeak && provenance930.checks.lineageExportable, JSON.stringify(provenance930));
+    var architecture931 = window.AIO && typeof window.AIO.getArchitectureGovernanceAudit === 'function' ? window.AIO.getArchitectureGovernanceAudit() : null;
+    _assert('T931 architecture_boundary_audit (H2-15): portfolio/storage/snapshot/lifecycle/timer/chart boundaries are inventoried without claiming legacy migration complete', !!architecture931 && architecture931.status === 'partial' && architecture931.partialByDesign === true && Object.keys(architecture931.boundaries || {}).length >= 7 && architecture931.incompleteSlices.length >= 3, JSON.stringify(architecture931));
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -7761,6 +7918,11 @@
     try { _testV5244WorkerAnycastRetry(); } catch(e) { console.error('Group86 error:', e); }
     try { _testV5246PortfolioVault(); } catch(e) { console.error('Group87 error:', e); }
     try { _testV5249ScoreProvenance(); } catch(e) { console.error('Group88 error:', e); }
+    try { _testV5255CanonicalMetricSelector(); } catch(e) { console.error('Group89 error:', e); }
+    try { _testV5255ClaimExpiryAndRegimeGate(); } catch(e) { console.error('Group89b error:', e); }
+    try { _testV5256ExternalSourceState(); } catch(e) { console.error('Group90 error:', e); }
+    try { _testV5258HumanSurfaceContracts(); } catch(e) { console.error('Group91 error:', e); }
+    try { _testV5259AiErrorContract(); } catch(e) { console.error('Group92 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

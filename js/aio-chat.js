@@ -1701,11 +1701,19 @@ async function _aioFetchClaudeWithRetry(url, fetchOpts, serverKey, maxRetries) {
 }
 window._aioFetchClaudeWithRetry = _aioFetchClaudeWithRetry;
 
+function _aioChatError(error, status) {
+  var normalized = typeof window._aioSetLastAiError === 'function'
+    ? window._aioSetLastAiError(Object.assign({}, (typeof error === 'object' ? error : { message: error }), status ? { status: status } : {}), { source: 'chat' })
+    : { userMessage: String(error || 'AI 요청 실패'), nextAction: '잠시 후 다시 시도하세요.' };
+  return normalized;
+}
+
 async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var apiKey = getApiKey();
   var _claudeTarget = _aioClaudeTarget(apiKey);   // v50.52 B5: 서버 키 모드면 개인 키 불요
   if (!apiKey && !_claudeTarget.serverKey) {
-    onError('AI 답변을 쓰려면 Claude 키를 저장하세요. 브리핑/번역은 운영자 서버키 가능, 채팅은 개인키 또는 Worker 서버키 모드 필요.');
+    var missingCreds = _aioChatError({ message: 'Claude API key missing', status: 401 });
+    onError(missingCreds.displayMessage || (missingCreds.userMessage + ' ' + missingCreds.nextAction));
     return;
   }
   opts = opts || {};
@@ -1811,7 +1819,8 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
         }, _claudeTarget.serverKey);
       } else {
         // beta 관련 아닌 400 — 원래 에러 흐름 유지
-        onError('API 오류 (400): ' + _errTxt.slice(0, 200));
+        var badRequest = _aioChatError({ message: _errTxt.slice(0, 200), status: 400 }, 400);
+        onError(badRequest.displayMessage || badRequest.userMessage);
         clearTimeout(connectTimer);
         return;
       }
@@ -1823,9 +1832,11 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
       var errMsg = 'API 오류 (' + res.status + ')';
       try {
         var j = JSON.parse(errText);
-        errMsg += ': ' + (j.error && j.error.message ? j.error.message : errText.slice(0, 200));
+        var workerAiError = j && j.aioAiError;
+        errMsg += ': ' + (workerAiError && workerAiError.rawMessage ? workerAiError.rawMessage : (j.error && j.error.message ? j.error.message : (typeof j.error === 'string' ? j.error : errText.slice(0, 200))));
       } catch(e) { errMsg += ': ' + errText.slice(0, 200); }
-      onError(errMsg);
+      var httpError = _aioChatError({ message: errMsg, status: res.status }, res.status);
+      onError(httpError.displayMessage || httpError.userMessage);
       return;
     }
 
@@ -1934,17 +1945,23 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
       try { reader.cancel(); } catch(e) {}
       if (streamErr.message === 'chunk_timeout') {
         if (fullText) onDone(fullText);  // 일부 수신된 텍스트가 있으면 그대로 완료
-        else onError('응답 시간 초과 — 다시 시도해주세요.');
+        else {
+          var chunkTimeout = _aioChatError({ message: 'chunk_timeout', status: 408 }, 408);
+          onError(chunkTimeout.displayMessage || chunkTimeout.userMessage);
+        }
       } else {
-        onError('스트림 처리 오류: ' + streamErr.message);
+        var streamError = _aioChatError({ message: 'stream error: ' + streamErr.message, status: 502 }, 502);
+        onError(streamError.displayMessage || streamError.userMessage);
       }
     }
   } catch(err) {
     clearTimeout(connectTimer);
     if (err.name === 'AbortError') {
-      onError('연결 시간 초과 (30초) — 네트워크를 확인해주세요.');
+      var abortError = _aioChatError({ message: 'AbortError timeout', status: 408 }, 408);
+      onError(abortError.displayMessage || abortError.userMessage);
     } else {
-      onError('네트워크 오류: ' + err.message);
+      var networkError = _aioChatError({ message: 'network error: ' + err.message }, 0);
+      onError(networkError.displayMessage || networkError.userMessage);
     }
   }
 }
@@ -6145,7 +6162,7 @@ async function chatSend(ctxId) {
                 var _vis3SvgSafe = (typeof DOMPurify !== 'undefined')
                   ? DOMPurify.sanitize(_vis3Svg, {USE_PROFILES: {svg: true}})
                   : _vis3Svg;
-                _vis3Div.innerHTML = '<div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">' +
+                _vis3Div.innerHTML = '<div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">' +
                   escHtml(_vis3.label) + ' <span style="font-weight:400;opacity:.55;">· 자동 시각화</span></div>' + _vis3SvgSafe;
                 aiBubble.parentNode.appendChild(_vis3Div);
               }
@@ -6173,7 +6190,7 @@ async function chatSend(ctxId) {
               var _mcDiv = document.createElement('div');
               _mcDiv.className = 'aio-maker-checker';
               _mcDiv.style.cssText = 'margin:6px 0 4px;padding:6px 10px;background:rgba(0,0,0,0.2);border:1px solid var(--border);border-left:3px solid var(--text-muted);border-radius:var(--radius);';
-              var _mcHTML = '<div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Maker-Checker · 퀀트 검증</div>';
+              var _mcHTML = '<div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Maker-Checker · 퀀트 검증</div>';
               _mcHTML += '<div style="display:flex;flex-wrap:wrap;gap:5px;">';
               _mcr.forEach(function(r) {
                 var col = r.verdict === 'CONFIRMED' ? '#22c55e' : r.verdict === 'CAUTION' ? '#f59e0b' : '#ef4444';

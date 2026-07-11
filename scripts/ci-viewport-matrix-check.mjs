@@ -147,6 +147,9 @@ async function auditRoute(page, routeId) {
       else seenCards.set(key, text);
     }
 
+    const unhandledRejections = Array.isArray(window.__AIO_UNHANDLED_REJECTIONS__)
+      ? window.__AIO_UNHANDLED_REJECTIONS__.splice(0, 20)
+      : [];
     return {
       routeId: id,
       activeFound: !!pageEl,
@@ -161,6 +164,7 @@ async function auditRoute(page, routeId) {
       duplicateCardCount: duplicateCards.length,
       tinyTextCount: tinyText.length,
       tinyTextCriticalCount: tinyTextCritical.length,
+      unhandledRejectionCount: unhandledRejections.length,
       samples: {
         badText: badTextNodes.slice(0, 3),
         nameless: controls.slice(0, 3).map((el) => el.outerHTML.slice(0, 160)),
@@ -169,11 +173,36 @@ async function auditRoute(page, routeId) {
         svgTextIssues: svgTextIssues.slice(0, 3),
         svgTinyText: svgTinyText.slice(0, 3),
         duplicateCards: duplicateCards.slice(0, 3),
+        unhandledRejections,
         tinyText: tinyText.slice(0, 3).map((el) => ({ text: (el.textContent || '').trim().slice(0, 60), style: el.getAttribute('style') || '' })),
         tinyTextCritical: tinyTextCritical.slice(0, 3).map((el) => ({ text: (el.textContent || '').trim().slice(0, 60), style: el.getAttribute('style') || '' }))
       }
     };
   }, routeId);
+}
+
+// H2-02: a route visit is not considered settled merely because showPage() returned.
+// Most pages start data/chart work from the pageShown event.  The derived theme-detail
+// route has a stronger predicate: its canonical themes panel must be visible and bound
+// to a selected theme, otherwise the matrix would only prove that the themes root exists.
+async function settleRoute(page, routeId) {
+  await page.waitForFunction((id) => {
+    const targetId = id === 'theme-detail' ? 'themes' : id;
+    const pageEl = document.getElementById('page-' + targetId);
+    if (!pageEl || !pageEl.classList.contains('active')) return false;
+    if (id === 'theme-detail') {
+      const panel = document.getElementById('theme-detail-panel');
+      return !!panel
+        && panel.style.display !== 'none'
+        && !!panel.dataset.currentTheme
+        && (panel.textContent || '').trim().length > 40;
+    }
+    return true;
+  }, routeId, { timeout: 5000 });
+  // Allow one paint and one microtask turn after the semantic predicate.  This is
+  // intentionally short; long network waits belong to fixture tests, not this offline
+  // route-surface gate.
+  await page.waitForTimeout(50);
 }
 
 async function main() {
@@ -196,7 +225,7 @@ async function main() {
   // (아래 route.abort()가 모든 외부 요청을 차단하는 이 하네스 자체의 설계상 당연히 발생). 실제
   // 버그가 아니라 "네트워크를 일부러 차단한 테스트 환경에서 앱이 정확히 장애를 감지해 보고했다"는
   // 신호이므로, net::ERR_FAILED와 동일한 근거로 허용 목록에 추가한다.
-  const ERR_ALLOWLIST = /net::ERR_FAILED|Failed to load resource|\[AIO:api\][^:]*:\s*warn\s*→\s*error/; // expected: all external fetches are aborted by design below
+  const ERR_ALLOWLIST = /net::ERR_FAILED|Failed to load resource|\[AIO:api\][^:]*:\s*warn\s*→\s*error|\[AIO:fetch\]\s*TG .*모든 프록시\(6개\) 실패 Failed to fetch/; // expected: external fetches are aborted by design below
   const jsErrors = [];
 
   try {
@@ -220,13 +249,57 @@ async function main() {
       });
       await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 15000 });
       await page.waitForFunction(() => typeof window.showPage === 'function', { timeout: 15000 });
-      await page.evaluate((fullInit) => { window.__AIO_VIEWPORT_FULL_INIT__ = !!fullInit; }, FULL_INIT);
+      await page.evaluate((fullInit) => {
+        window.__AIO_VIEWPORT_FULL_INIT__ = !!fullInit;
+        window.__AIO_UNHANDLED_REJECTIONS__ = [];
+        if (!window.__AIO_UNHANDLED_REJECTIONS_LISTENER__) {
+          window.addEventListener('unhandledrejection', (event) => {
+            window.__AIO_UNHANDLED_REJECTIONS__.push(String(event && event.reason && event.reason.message || event && event.reason || 'unhandled rejection'));
+          });
+          window.__AIO_UNHANDLED_REJECTIONS_LISTENER__ = true;
+        }
+      }, FULL_INIT);
 
       for (const routeId of ROUTES) {
         const errCountBefore = jsErrors.length;
         currentRouteId = routeId;
         const r = await auditRoute(page, routeId);
-        if (FULL_INIT) await page.waitForTimeout(150); // let async post-showPage errors surface before attributing to the next route
+        if (FULL_INIT) {
+          try { await settleRoute(page, routeId); }
+          catch (e) {
+            // Heavy synchronous table renders (notably screener/portfolio) can block
+            // the 5s polling deadline even though the route is active once the main
+            // thread yields. Re-check the same predicate before calling it a failure.
+            const activeAfterTimeout = await page.evaluate((id) => {
+              const targetId = id === 'theme-detail' ? 'themes' : id;
+              const pageEl = document.getElementById('page-' + targetId);
+              if (!pageEl || !pageEl.classList.contains('active')) return false;
+              if (id !== 'theme-detail') return true;
+              const panel = document.getElementById('theme-detail-panel');
+              return !!panel && panel.style.display !== 'none' && !!panel.dataset.currentTheme
+                && (panel.textContent || '').trim().length > 40;
+            }, routeId);
+            if (!activeAfterTimeout) r.fatal = r.fatal || `route settle timeout: ${e.message}`;
+            else r.settleTimedOutButActive = true;
+          }
+          r.routeSemanticReady = await page.evaluate((id) => {
+            const targetId = id === 'theme-detail' ? 'themes' : id;
+            const pageEl = document.getElementById('page-' + targetId);
+            if (!pageEl || !pageEl.classList.contains('active')) return false;
+            if (id !== 'theme-detail') return true;
+            const panel = document.getElementById('theme-detail-panel');
+            return !!panel && panel.style.display !== 'none' && !!panel.dataset.currentTheme
+              && (panel.textContent || '').trim().length > 40;
+          }, routeId);
+          // let async post-showPage errors surface before attributing to the next route
+          await page.waitForTimeout(150);
+          const late = await page.evaluate(() => Array.isArray(window.__AIO_UNHANDLED_REJECTIONS__)
+            ? window.__AIO_UNHANDLED_REJECTIONS__.splice(0, 20) : []);
+          if (late.length) {
+            r.unhandledRejectionCount = (r.unhandledRejectionCount || 0) + late.length;
+            r.samples.unhandledRejections = (r.samples.unhandledRejections || []).concat(late).slice(0, 20);
+          }
+        }
         r.viewport = vp.name;
         r.jsErrorCount = jsErrors.length - errCountBefore;
         reports.push(r);
@@ -234,7 +307,9 @@ async function main() {
         const routeFailures = [];
         if (r.fatal) routeFailures.push(r.fatal);
         if (!r.activeFound) routeFailures.push('active page missing');
+        if (FULL_INIT && r.routeSemanticReady === false) routeFailures.push('route semantic settle predicate not satisfied');
         if (r.jsErrorCount) routeFailures.push(`unhandled pageerror/console.error ${r.jsErrorCount}`);
+        if (r.unhandledRejectionCount) routeFailures.push(`unhandledrejection ${r.unhandledRejectionCount}`);
         if (r.docOverflowX > 3) routeFailures.push(`horizontal overflow ${r.docOverflowX}px`);
         if (r.badTextCount) routeFailures.push(`bad visible text ${r.badTextCount}`);
         if (r.namelessControlCount) routeFailures.push(`nameless controls ${r.namelessControlCount}`);
@@ -269,6 +344,7 @@ async function main() {
         if (f.samples && f.samples.svgTinyText?.length) console.error(`   svgTinyText: ${JSON.stringify(f.samples.svgTinyText)}`);
         if (f.samples && f.samples.duplicateCards?.length) console.error(`   duplicateCards: ${JSON.stringify(f.samples.duplicateCards)}`);
         if (f.samples && f.samples.jsErrors?.length) console.error(`   jsErrors: ${JSON.stringify(f.samples.jsErrors)}`);
+        if (f.samples && f.samples.unhandledRejections?.length) console.error(`   unhandledRejections: ${JSON.stringify(f.samples.unhandledRejections)}`);
       }
       process.exitCode = 1;
     } else {

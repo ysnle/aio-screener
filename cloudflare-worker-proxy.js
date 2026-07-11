@@ -184,10 +184,28 @@ function getCorsHeaders(requestOrigin) {
   };
 }
 
-/** 에러 응답 생성 */
-function errorResponse(message, status = 400, origin = '') {
+/** 에러 응답 생성 — /anthropic은 브라우저와 공유하는 정규화된 AI 오류 envelope도 함께 반환 */
+function errorResponse(message, status = 400, origin = '', aiContext = null) {
+  const raw = String(message || 'Proxy request failed');
+  const lower = raw.toLowerCase();
+  let reason = 'unknown';
+  let retryable = false;
+  if (status === 408 || /timeout|timed out/i.test(lower)) { reason = 'timeout'; retryable = true; }
+  else if (status === 429 || /rate|too many|한도/i.test(lower)) { reason = 'rate_limit'; retryable = true; }
+  else if (status === 403 && /region|regional|location|country|hkg/i.test(lower)) { reason = 'regional_forbidden'; retryable = true; }
+  else if (status === 401 || (status === 403 && /origin|token|key|auth|forbidden/i.test(lower))) reason = 'auth_or_origin';
+  else if (status >= 500 || /upstream|kv|일시|중단/i.test(lower)) { reason = 'upstream_unavailable'; retryable = true; }
+  const aioAiError = aiContext ? {
+    code: 'AIO_AI_' + reason.toUpperCase(), kind: reason, status,
+    source: aiContext.source || 'worker-anthropic', reason,
+    rawMessage: raw.slice(0, 240), retryable, referenceOnly: true,
+    userMessage: reason === 'rate_limit' ? 'AI 사용 한도에 도달했습니다.' : reason === 'timeout' ? 'AI 응답이 시간 초과되었습니다.' : reason === 'auth_or_origin' ? 'AI 인증 또는 허용 출처 확인이 필요합니다.' : reason === 'regional_forbidden' ? '현재 네트워크 지역에서 AI 요청이 거부되었습니다.' : 'AI 서버가 일시적으로 사용할 수 없습니다.',
+    nextAction: reason === 'rate_limit' ? '1분 후 다시 시도하세요.' : reason === 'auth_or_origin' ? 'API 키·Worker URL·Origin 설정을 확인하세요.' : '잠시 후 다시 시도하세요.'
+  } : undefined;
+  const payload = { error: raw, status };
+  if (aioAiError) payload.aioAiError = aioAiError;
   return new Response(
-    JSON.stringify({ error: message, status }),
+    JSON.stringify(payload),
     {
       status,
       headers: {
@@ -215,11 +233,12 @@ function errorResponse(message, status = 400, origin = '') {
 // 포맷일 때만 즉시 재시도해 다른(정상) 엣지로 재라우팅되길 기대하는 완화책을 이미 구현 중(v52.44).
 async function handleAnthropic(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin) });
-  if (request.method !== 'POST') return errorResponse('POST required for /anthropic', 405, origin);
+  const aiError = { source: 'worker-anthropic' };
+  if (request.method !== 'POST') return errorResponse('POST required for /anthropic', 405, origin, aiError);
 
   // Kill switch — 실제 API 키를 지우지 않고도 대시보드 변수 하나로 즉시 전체 차단(남용 급증 대응용).
-  if (env && env.ANTHROPIC_KILL_SWITCH === '1') return errorResponse('서버 키 모드 일시 중단(운영자 kill switch 활성) — 개인 Claude 키를 입력하세요', 503, origin);
-  if (!env || !env.ANTHROPIC_API_KEY) return errorResponse('서버 Claude 키 미설정 (운영자가 ANTHROPIC_API_KEY 시크릿 추가 필요)', 503, origin);
+  if (env && env.ANTHROPIC_KILL_SWITCH === '1') return errorResponse('서버 키 모드 일시 중단(운영자 kill switch 활성) — 개인 Claude 키를 입력하세요', 503, origin, aiError);
+  if (!env || !env.ANTHROPIC_API_KEY) return errorResponse('서버 Claude 키 미설정 (운영자가 ANTHROPIC_API_KEY 시크릿 추가 필요)', 503, origin, aiError);
 
   // Origin 서버측 강제(WO-1B) — 기존엔 CORS 헤더만 발급하고 실제로 거부하지 않았다.
   // CORS는 브라우저가 응답을 "읽지" 못하게 할 뿐 서버로의 요청 자체는 막지 않으므로(curl은 CORS의
@@ -227,31 +246,31 @@ async function handleAnthropic(request, env, origin) {
   // 남용은 차단한다.
   let _normalizedOrigin;
   try { _normalizedOrigin = new URL(origin).origin; } catch { _normalizedOrigin = ''; }
-  if (!ALLOWED_ORIGINS.includes(_normalizedOrigin)) return errorResponse('Origin not allowed', 403, origin);
+  if (!ALLOWED_ORIGINS.includes(_normalizedOrigin)) return errorResponse('Origin not allowed', 403, origin, aiError);
 
   // 앱 토큰(WO-1B, 선택) — env.AIO_APP_TOKEN 미설정이면 기존 배포 하위호환을 위해 건너뜀.
   if (env.AIO_APP_TOKEN) {
     const _sentToken = request.headers.get('X-AIO-App-Token') || '';
-    if (_sentToken !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin);
+    if (_sentToken !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin, aiError);
   }
 
   // IP당 레이트리밋(WO-1B) — 기존엔 /anthropic이 일반 프록시의 checkRateLimit을 완전히 우회했다.
   const _clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
   cleanupRateLimitMap(anthropicRateLimitMap);
   if (!checkRateLimit(_clientIp, anthropicRateLimitMap, ANTHROPIC_RATE_LIMIT)) {
-    return errorResponse('Too many AI requests — 잠시 후 다시 시도하세요', 429, origin);
+    return errorResponse('Too many AI requests — 잠시 후 다시 시도하세요', 429, origin, aiError);
   }
 
   // 일일 호출 캡 — v52.47부터 KV 필수(fail-closed). 미바인딩이면 무제한 비용 노출 상태로
   // 조용히 통과시키는 대신 서버 키 모드 자체를 비활성화한다(개인 키 입력 경로는 영향 없음).
   if (!env.AIO_QUOTA || typeof env.AIO_QUOTA.get !== 'function') {
-    return errorResponse('서버 키 모드 일시 비활성화(용량 캐핑 미설정) — 개인 Claude 키를 입력하세요', 503, origin);
+    return errorResponse('서버 키 모드 일시 비활성화(용량 캐핑 미설정) — 개인 Claude 키를 입력하세요', 503, origin, aiError);
   }
   const DAILY_CAP = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
   try {
     const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
     const cur = parseInt((await env.AIO_QUOTA.get(dayKey)) || '0', 10);
-    if (cur >= DAILY_CAP) return errorResponse('일일 AI 사용 한도 초과 — 잠시 후 다시 시도하거나 개인 Claude 키를 입력하세요', 429, origin);
+    if (cur >= DAILY_CAP) return errorResponse('일일 AI 사용 한도 초과 — 잠시 후 다시 시도하거나 개인 Claude 키를 입력하세요', 429, origin, aiError);
     await env.AIO_QUOTA.put(dayKey, String(cur + 1), { expirationTtl: 172800 });
   } catch (e) {
     // KV put/get 자체의 일시 오류(바인딩은 있으나 호출 실패) — 캡을 무의미하게 만들지 않기 위해
@@ -263,11 +282,11 @@ async function handleAnthropic(request, env, origin) {
   // 200KB면 정상 트래픽엔 절대 안 걸리면서 악의적 대용량 payload는 차단하는 여유 있는 상한.
   const MAX_BODY_BYTES = 200 * 1024;
   let _bodyText;
-  try { _bodyText = await request.text(); } catch { return errorResponse('Failed to read request body', 400, origin); }
-  if (_bodyText.length > MAX_BODY_BYTES) return errorResponse('Request body too large', 413, origin);
+  try { _bodyText = await request.text(); } catch { return errorResponse('Failed to read request body', 400, origin, aiError); }
+  if (_bodyText.length > MAX_BODY_BYTES) return errorResponse('Request body too large', 413, origin, aiError);
 
   let body;
-  try { body = JSON.parse(_bodyText); } catch { return errorResponse('Invalid JSON body', 400, origin); }
+  try { body = JSON.parse(_bodyText); } catch { return errorResponse('Invalid JSON body', 400, origin, aiError); }
   // 모델 allowlist: haiku/sonnet만 (opus 차단 — 비용 폭주 방지)
   if (!/^claude-(haiku|sonnet)/.test(String(body.model || ''))) body.model = 'claude-haiku-4-5';
   // max_tokens 상한 (공유 키 비용 한계)
@@ -295,7 +314,7 @@ async function handleAnthropic(request, env, origin) {
       },
     });
   } catch (e) {
-    return errorResponse(e.name === 'AbortError' ? 'Claude timeout' : 'Claude upstream error', 502, origin);
+    return errorResponse(e.name === 'AbortError' ? 'Claude timeout' : 'Claude upstream error', 502, origin, aiError);
   }
 }
 

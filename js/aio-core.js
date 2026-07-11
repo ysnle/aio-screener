@@ -170,6 +170,151 @@ window._safeSetHTML = function(el, html) {
   el.innerHTML = window.safeHtml(html || '');
 };
 
+// v52.59/H2-04: AI surfaces must expose one failure contract instead of making
+// chat/translation/briefing each invent a different console-only message.  The
+// contract is deliberately data-only so the same shape can be emitted by the
+// Cloudflare Worker and consumed by the browser UI.
+window.AIO = window.AIO || {};
+function _aioNormalizeAiError(error, context) {
+  context = context || {};
+  var e = error || {};
+  var raw = typeof e === 'string' ? e : (e.message || e.error || e.reason || 'AI 요청 실패');
+  if (e && e.error && typeof e.error === 'object') raw = e.error.message || raw;
+  raw = String(raw || 'AI 요청 실패');
+  var status = Number(e.status || e.statusCode || context.status || 0) || 0;
+  var lower = raw.toLowerCase();
+  var reason = 'unknown';
+  var retryable = false;
+  if ((status >= 200 && status < 300 || status === 0) && /success|ok/i.test(raw) && !/error|fail/i.test(raw)) reason = 'success';
+  else if (/aborterror|timeout|timed out|시간 초과|연결 시간 초과|chunk_timeout/i.test(lower)) { reason = 'timeout'; retryable = true; }
+  else if (status === 429 || /rate.?limit|too many|일일.*한도|호출.*한도/i.test(lower)) { reason = 'rate_limit'; retryable = true; }
+  else if (status === 403 && /region|regional|location|country|hkg|forbidden/i.test(lower)) { reason = 'regional_forbidden'; retryable = true; }
+  else if (status === 401 || (status === 403 && /origin|token|key|auth|unauthor/i.test(lower))) { reason = 'auth_or_origin'; }
+  else if (status === 503 || status === 502 || status === 500 || status === 529 || /upstream|temporarily unavailable|kv|서버.*일시|서비스.*중단/i.test(lower)) { reason = 'upstream_unavailable'; retryable = true; }
+  else if (/missing|미설정|키를 저장|api key|credential/i.test(lower)) { reason = 'missing_credentials'; }
+  else if (/empty|빈 응답|malformed|json/i.test(lower)) { reason = 'malformed_response'; retryable = true; }
+  else if (/network|fetch|failed to fetch|네트워크/i.test(lower)) { reason = 'network'; retryable = true; }
+  var messages = {
+    success: 'AI 요청이 완료되었습니다.',
+    timeout: 'AI 응답이 시간 초과되었습니다.',
+    rate_limit: 'AI 사용 한도에 도달했습니다.',
+    regional_forbidden: '현재 네트워크 지역에서 AI 요청이 거부되었습니다.',
+    auth_or_origin: 'AI 인증 또는 허용 출처 확인이 필요합니다.',
+    upstream_unavailable: 'AI 서버를 일시적으로 사용할 수 없습니다.',
+    missing_credentials: 'AI 키 또는 운영자 서버 경로가 설정되지 않았습니다.',
+    malformed_response: 'AI 서버 응답을 해석하지 못했습니다.',
+    network: 'AI 네트워크 연결에 실패했습니다.',
+    unknown: 'AI 요청에 실패했습니다.'
+  };
+  var nextActions = {
+    success: '결과를 확인하세요.',
+    timeout: '잠시 후 다시 시도하세요.',
+    rate_limit: '1분 후 다시 시도하거나 사용량을 확인하세요.',
+    regional_forbidden: '다시 시도하고 계속되면 개인 키 또는 다른 Worker 경로를 사용하세요.',
+    auth_or_origin: 'API 키·Worker URL·Origin 설정을 확인하세요.',
+    upstream_unavailable: '잠시 후 다시 시도하거나 로컬/참고용 폴백을 확인하세요.',
+    missing_credentials: '개인 Claude 키를 저장하거나 운영자 Worker 모드를 설정하세요.',
+    malformed_response: '잠시 후 다시 시도하세요.',
+    network: '네트워크를 확인한 뒤 다시 시도하세요.',
+    unknown: '잠시 후 다시 시도하세요.'
+  };
+  var result = {
+    code: 'AIO_AI_' + reason.toUpperCase(),
+    kind: reason,
+    status: status,
+    source: context.source || e.source || 'unknown',
+    reason: reason,
+    rawMessage: raw.slice(0, 240),
+    userMessage: messages[reason] || messages.unknown,
+    nextAction: nextActions[reason] || nextActions.unknown,
+    retryable: retryable,
+    referenceOnly: reason !== 'success'
+  };
+  result.displayMessage = result.userMessage + ' 다음 조치: ' + result.nextAction;
+  return result;
+}
+window.AIO.normalizeAiError = _aioNormalizeAiError;
+window._aioNormalizeAiError = _aioNormalizeAiError;
+window._aioSetLastAiError = function(error, context) {
+  var normalized = _aioNormalizeAiError(error, context);
+  window._aioLastAiError = normalized;
+  return normalized;
+};
+window.AIO.getLastAiError = function() { return window._aioLastAiError || null; };
+
+// v52.59/H2-12: typed provenance envelope shared by decision UI, score metadata,
+// and AI context. It separates missing from neutral and weakens action strength
+// for delayed/manual/snapshot/seed evidence.
+window.AIO.createTypedEvidence = function(input) {
+  input = input || {};
+  var key = String(input.key || input.id || 'unknown').trim().toLowerCase() || 'unknown';
+  var sourceKind = String(input.sourceKind || input.source || 'MISSING').toUpperCase();
+  var valueMissing = input.value == null || input.value === '';
+  var status = String(input.status || (valueMissing ? 'missing' : 'ok')).toLowerCase();
+  var asOfRaw = input.asOf || null;
+  var asOfTs = asOfRaw ? Date.parse(asOfRaw) : NaN;
+  var now = Date.now();
+  var future = Number.isFinite(asOfTs) && asOfTs > now + 60000;
+  var ageMin = Number.isFinite(asOfTs) ? Math.max(0, (now - asOfTs) / 60000) : null;
+  var maxAgeMin = Number(input.maxAgeMin);
+  if (!Number.isFinite(maxAgeMin) || maxAgeMin <= 0) maxAgeMin = 240;
+  var stale = ageMin != null && ageMin > maxAgeMin;
+  var weakSource = /^(DELAYED|SNAPSHOT|REFERENCE|MANUAL|SEED|FALLBACK|PROXY)$/.test(sourceKind);
+  var blocked = status === 'missing' || status === 'blocked' || sourceKind === 'MISSING' || future;
+  var operationalUse = blocked ? 'none' : (weakSource || stale ? 'reference-only' : 'decision');
+  var actionStrength = blocked ? 'none' : (operationalUse === 'decision' ? 'assertive-allowed' : 'cautious-only');
+  var evidenceId = String(input.evidenceId || ('ev-' + key + '-' + (asOfRaw ? String(asOfRaw).slice(0, 19).replace(/[^0-9a-z]+/gi, '-') : sourceKind.toLowerCase()))).slice(0, 160);
+  return {
+    evidenceId:evidenceId, key:key, value:valueMissing ? null : input.value, status:status, sourceKind:sourceKind,
+    asOf:asOfRaw, asOfTs:Number.isFinite(asOfTs) ? asOfTs : null, ageMin:ageMin == null ? null : Number(ageMin.toFixed(2)),
+    stale:stale, future:future, operationalUse:operationalUse, actionStrength:actionStrength,
+    confidence:operationalUse === 'decision' ? 1 : operationalUse === 'reference-only' ? 0.5 : 0,
+    missingNeutralSeparated: !(status === 'missing' && String(input.semantic || '').toLowerCase() === 'neutral')
+  };
+};
+window.AIO.getTypedProvenanceAudit = function() {
+  var now = Date.now();
+  var live = window.AIO.createTypedEvidence({key:'h2-12-fixture', value:1, sourceKind:'LIVE', asOf:new Date(now - 60000).toISOString(), maxAgeMin:60});
+  var staleManual = window.AIO.createTypedEvidence({key:'h2-12-stale', value:0.5, sourceKind:'MANUAL', asOf:new Date(now - 10 * 86400000).toISOString(), maxAgeMin:60});
+  var missing = window.AIO.createTypedEvidence({key:'h2-12-missing', value:null, sourceKind:'MISSING', status:'missing'});
+  var neutral = window.AIO.createTypedEvidence({key:'h2-12-neutral', value:50, sourceKind:'LIVE', status:'neutral', asOf:new Date(now - 60000).toISOString(), maxAgeMin:60});
+  var future = window.AIO.createTypedEvidence({key:'h2-12-future', value:1, sourceKind:'LIVE', asOf:new Date(now + 86400000).toISOString(), maxAgeMin:60});
+  var projectionIds = [live.evidenceId, live.evidenceId, live.evidenceId];
+  var lineage = typeof window.AIO.getElementLineageInventory === 'function' ? window.AIO.getElementLineageInventory({allRoutes:true, includeItems:false}) : null;
+  var checks = {
+    sameEvidenceIdAcrossUiScoreAi: projectionIds.every(function(id){ return id === live.evidenceId; }),
+    missingAndNeutralDistinct: missing.status === 'missing' && neutral.status === 'neutral' && missing.evidenceId !== neutral.evidenceId,
+    futureAsOfBlocked: future.future && future.operationalUse === 'none' && future.actionStrength === 'none',
+    staleManualActionWeak: staleManual.stale && staleManual.operationalUse === 'reference-only' && staleManual.actionStrength !== 'assertive-allowed',
+    lineageExportable: !!lineage && typeof lineage.pagesChecked === 'number'
+  };
+  var failed = Object.keys(checks).filter(function(k){ return !checks[k]; });
+  return {status:failed.length ? 'fail' : 'pass', checks:checks, failed:failed, live:live, staleManual:staleManual, missing:missing, neutral:neutral, future:future, generatedAt:new Date().toISOString()};
+};
+window.AIO.readSnapshotField = window.AIO.readSnapshotField || function(key, fallback) {
+  var value = window.DATA_SNAPSHOT || {};
+  String(key || '').split('.').filter(Boolean).forEach(function(part) { value = value == null ? undefined : value[part]; });
+  return value == null ? fallback : value;
+};
+window.AIO.storageAdapter = window.AIO.storageAdapter || {
+  get: function(key, fallback) { try { return typeof window.safeLSGetSync === 'function' ? window.safeLSGetSync(key, fallback) : (window.localStorage.getItem(key) == null ? fallback : window.localStorage.getItem(key)); } catch(_) { return fallback; } },
+  set: function(key, value) { try { if (typeof window.safeLSSet === 'function') return window.safeLSSet(key, value); window.localStorage.setItem(key, String(value)); return true; } catch(_) { return false; } },
+  remove: function(key) { try { window.localStorage.removeItem(key); return true; } catch(_) { return false; } }
+};
+window.AIO.getArchitectureGovernanceAudit = function() {
+  var boundaries = {
+    portfolioStorageSlice: typeof _AioVault !== 'undefined' || typeof window._AioVault !== 'undefined',
+    snapshotAdapter: typeof window.AIO.readSnapshotField === 'function',
+    storageAdapter: !!window.AIO.storageAdapter,
+    pageLifecycleBus: !!window._aioPageBus,
+    timerRegistry: !!window._aioTimerRegistry,
+    chartRegistry: !!window._aioChartRegistry,
+    typedProvenance: typeof window.AIO.createTypedEvidence === 'function'
+  };
+  var incomplete = ['storage-direct-adoption', 'legacy-snapshot-direct-reads', 'global-write-adoption'];
+  return { status:'partial', boundaries:boundaries, incompleteSlices:incomplete, partialByDesign:true, note:'H2-15 incremental boundary audit: existing adapters are exposed and new code has snapshot/provenance entry points; full legacy migration remains a separate vertical slice.', generatedAt:new Date().toISOString() };
+};
+
 // ═══ v48.94: _aioSafeMD — AI 마크다운 DOMPurify 2차 게이트웨이 ════════════════
 // 용도: AI 응답 renderMarkdownLight() 결과에 DOMPurify 2차 통과 (P158 XSS 방어)
 // 사용: element.innerHTML = _aioSafeMD(aiResponseText)
@@ -2388,8 +2533,9 @@ if (typeof document !== 'undefined') {
     var ds = window.DATA_SNAPSHOT || {};
     var spx = (ld['^GSPC'] && _num(ld['^GSPC'].price)) || _num(ds.spx);
     var vix = (ld['^VIX'] && _num(ld['^VIX'].price)) || _num(ds.vix);
-    var fg  = _num(window._lastFG);
-    if (fg === null) fg = _num(ds.fg);
+    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+    var fg  = fgMetric && fgMetric.value != null ? _num(fgMetric.value) : _num(window._lastFG);
+    if (fg === null && !fgMetric) fg = _num(ds.fg);
     return { spx: spx, vix: vix, fg: fg };
   };
 
@@ -3052,7 +3198,7 @@ if (typeof document !== 'undefined') {
       }).join('');
       host.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">' +
           '<span style="min-width:0;font-size:10px;font-weight:700;color:var(--accent);overflow-wrap:anywhere;">📰 관련 뉴스 ' + rows.length + '건 <span style="font-weight:400;color:var(--text-muted);">· 토픽 ' + esc(topics) + ' · 공유 뉴스캐시</span></span>' +
-          '<button data-action="showPage" data-arg="market-news" class="aio-btn-table" style="font-size:9px;padding:1px 6px;flex-shrink:0;">전체 뉴스 →</button></div>' + lines;
+          '<button data-action="showPage" data-arg="market-news" class="aio-btn-table" style="font-size:10px;padding:1px 6px;flex-shrink:0;">전체 뉴스 →</button></div>' + lines;
     } catch(_){}
   };
   window._aioRenderActivePageNewsStrip = function(){
@@ -3697,6 +3843,7 @@ window.AIO_EVENT_FRESHNESS_REGISTRY = {
   fomc: {
     label: 'FOMC',
     eventDate: '2026-06-17',
+    maxClaimAgeDays: 30,
     status: 'RESULT_REVIEW',
     result: '최근 FOMC 결과는 이미 가격에 반영된 상태로 보고, 금리 경로는 2Y/10Y·달러·물가/고용 후속 데이터로 재평가하는 구간',
     marketReaction: '장기금리·2년물·달러가 성장주 멀티플에 주는 압력을 우선 확인',
@@ -3705,6 +3852,7 @@ window.AIO_EVENT_FRESHNESS_REGISTRY = {
   iranHormuzOil: {
     label: 'Iran/Hormuz/Oil',
     eventDate: '2026-06-28',
+    maxClaimAgeDays: 14,
     status: 'RESULT_REVIEW',
     result: '(6/28) 더 많은 유조선이 호르무즈 해협 통과 → 유가 급락. WTI $69 선 근접, 브렌트 $71대. (6/23) 미 재무부 이란산 원유 60일 한시 일반면허 발급. 중동 전쟁 프리미엄 대부분 제거. 트럼프: 호르무즈 완전 개방·협상 순조. 이란: 핵프로그램 신규 약속 없다 반박(불확실성 잔존).',
     marketReaction: '유가 하락 = 항공·운송·소비재 비용 이점, 에너지주 수익성 압박. WTI $70 하방 시 인플레 추가 완화 기대. 단, 트럼프 휴전 재위반 경고(6/28) 잔존 — 헤드라인 반전 리스크.',
@@ -3713,11 +3861,30 @@ window.AIO_EVENT_FRESHNESS_REGISTRY = {
   appleCXMT: {
     label: 'Apple CXMT 메모리 검토',
     eventDate: '2026-06-28',
+    maxClaimAgeDays: 7,
     status: 'SHORT_TERM_NOISE',
     result: '(6/28) 애플이 중국 CXMT DRAM 채택을 검토한다는 보도로 반도체 지수 조정. 단, 이 뉴스는 2026년 2월부터 반복 보도된 내용의 재소환. 핵심 판단: ① 미국 국가전략자산(HBM·첨단 DRAM)으로 지정된 상황에서 미국 시장 대규모 채택은 정치·규제 리스크 매우 높음 ② CXMT는 DDR5/LPDDR5X에서 성장 중이나 HBM은 2~3세대 뒤처짐 ③ 대다수 분석가는 중국 내수 시장용 한정 가능성으로 봄 ④ Apple 공급망 퀄리피케이션 최소 12~18개월 소요 ⑤ 트럼프 행정부 CXMT 승인 로비는 메모리 가격 협상 레버리지 성격 강함.',
     marketReaction: '반도체 지수 단기 조정은 과민반응. 구조적 수혜: MU(CHIPS Act $100B+ 미국 내 DRAM 40% 목표) · SK하이닉스(HBM3E 독점) · 삼성(파운드리+HBM). 중국 공급망(CXMT·화웨이·샤오미)은 별도 생태계로 분기 중 — 이중 공급망 구조화가 5~10년 메가트렌드.',
     nextCheckpoint: '트럼프 행정부 CXMT 수출면제 승인 여부, 애플 10-Q 공급망 공시, MU CHIPS Act 보조금 집행 일정'
   }
+};
+
+// v52.55/H3-B: 사건 서사는 결과를 보존하되 현재 행동 주장으로 자동 승격하지 않는다.
+window.AIO.getEventClaimState = function(eventId, nowTs) {
+  var reg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {})[eventId] || null;
+  if (!reg) return { eventId: eventId, status: 'MISSING', allowedUse: false, ageDays: null, reason: 'event registry missing' };
+  var now = nowTs || Date.now();
+  var eventTs = reg.eventDate ? new Date(reg.eventDate + 'T00:00:00+09:00').getTime() : NaN;
+  var ageDays = isFinite(eventTs) ? Math.max(0, Math.floor((now - eventTs) / 86400000)) : null;
+  var maxAgeDays = reg.maxClaimAgeDays != null ? Number(reg.maxClaimAgeDays) : 14;
+  var expired = ageDays != null && ageDays > maxAgeDays;
+  var aging = !expired && ageDays != null && ageDays > Math.max(1, Math.floor(maxAgeDays * 0.7));
+  return {
+    eventId: eventId, label: reg.label || eventId, eventDate: reg.eventDate || '', ageDays: ageDays,
+    maxClaimAgeDays: maxAgeDays, status: expired ? 'EXPIRED' : aging ? 'AGING' : 'CURRENT',
+    allowedUse: !expired, historicalOnly: !!expired,
+    reason: expired ? 'historical context only; refresh event and market reaction before current action' : aging ? 'aging context; confirm with current market reaction' : 'within claim window'
+  };
 };
 
 function _aioDecisionEsc(v) {
@@ -3903,6 +4070,7 @@ function _aioDefaultDecision(pageId) {
   // 기존 refreshHomeDashboard 5밴드와 동일 기준으로 라이브 스코어 읽기
   var _sc = 50;
   var _scoreCaveat = '';
+  var _scoreBlocked = false;
   try {
     if (typeof computeTradingScore === 'function') {
       var _scResult = computeTradingScore(_scoreMode);
@@ -3914,6 +4082,7 @@ function _aioDefaultDecision(pageId) {
       // 반대 방향 오탐(신선한데 스테일로 표시)을 피한다.
       var _audit = _scResult.evidenceAudit;
       var _missing = (_audit && Array.isArray(_audit.criticalMissing)) ? _audit.criticalMissing : [];
+       _scoreBlocked = _missing.length >= 3;
       var _scoreEvidenceKind = _missing.length >= 3 ? 'SNAPSHOT' : (_missing.length >= 1 ? 'DELAYED' : 'LIVE');
       sourceKind = _aioMergeSourceKind(sourceKind, _scoreEvidenceKind);
       if (_missing.length) {
@@ -3933,12 +4102,14 @@ function _aioDefaultDecision(pageId) {
   // FOMC/이란 이벤트를 AIO_EVENT_FRESHNESS_REGISTRY에서 단일 경로로 읽기
   var _fomcReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
   var _iranReg = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).iranHormuzOil || {};
-  var _fomcReason = _fomcReg.result
+  var _fomcState = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('fomc') : { allowedUse:true, status:'CURRENT' };
+  var _iranState = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('iranHormuzOil') : { allowedUse:true, status:'CURRENT' };
+  var _fomcReason = _fomcReg.result && _fomcState.allowedUse
     ? 'FOMC ' + (_fomcReg.eventDate || '') + ': ' + _aioTruncateAtWord(_fomcReg.result, 50)
-    : '금리·달러 반응으로 FOMC 정책 경로 확인';
-  var _iranReason = _iranReg.result
+    : _fomcReg.eventDate ? 'FOMC ' + _fomcReg.eventDate + ' 과거 참고(' + (_fomcState.ageDays != null ? _fomcState.ageDays + '일 경과' : '경과일 미상') + ') · 현재 행동에는 최신 금리·달러 반응 필요' : '금리·달러 반응으로 FOMC 정책 경로 확인';
+  var _iranReason = _iranReg.result && _iranState.allowedUse
     ? (_iranReg.label || '이란/유가') + ': ' + _aioTruncateAtWord(_iranReg.result, 40) + ' · ' + wtiTxt
-    : '이란/호르무즈 리스크 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인';
+    : _iranReg.eventDate ? (_iranReg.label || '이란/유가') + ' 과거 참고(' + (_iranState.ageDays != null ? _iranState.ageDays + '일 경과' : '경과일 미상') + ') · WTI와 최신 헤드라인 재확인 필요' : '이란/호르무즈 리스크 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인';
 
   var commonReasons = [
     spxPct + ' · ' + vixTxt + ' · 스코어 ' + Math.round(_sc) + '/100 (' + _band.label + ')',
@@ -3978,7 +4149,7 @@ function _aioDefaultDecision(pageId) {
     },
     briefing: {
       title: '시장 요약',
-      decision: _band.label + ' — ' + (_fomcReg.nextCheckpoint ? _aioTruncateAtWord(_fomcReg.nextCheckpoint, 30) : '주요 이벤트 확인'),
+      decision: _band.label + ' — ' + (_fomcState.allowedUse && _fomcReg.nextCheckpoint ? _aioTruncateAtWord(_fomcReg.nextCheckpoint, 30) : '과거 FOMC 참고 · 최신 정책/금리 반응 확인'),
       reasons: ['시장 요약 → 운용 포인트 → 핵심 뉴스 순서로 확인', _fomcReason, _iranReason],
       action: '뉴스는 Top 3~5개만 선별하고, 보유 종목 관련 뉴스는 AI 분석으로 넘긴다.'
     },
@@ -4026,7 +4197,7 @@ function _aioDefaultDecision(pageId) {
     },
     macro: {
       title: '오늘 매크로 판단',
-      decision: _fomcReg.status === 'RESULT_REVIEW' ? 'FOMC 결과 확인 구간 · 유가 리스크 완화 모니터' : '금리·달러·유가 방향 확인',
+      decision: _fomcState.allowedUse && _fomcReg.status === 'RESULT_REVIEW' ? 'FOMC 결과 확인 구간 · 유가 리스크 완화 모니터' : '금리·달러·유가 방향 확인',
       reasons: [_fomcReason, tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), _iranReason],
       action: '2Y/10Y·달러·WTI가 동시에 상승하면 성장주 추격을 줄이고, 완화가 지속되면 분할 매수를 유지한다.'
     },
@@ -4085,6 +4256,11 @@ function _aioDefaultDecision(pageId) {
       sourceKind: 'SNAPSHOT'
     }
   };
+  // H3-C: quorum 미달이면 수치 밴드가 있어도 현재 행동 결론을 생성하지 않는다.
+  if (_scoreBlocked && map[pageId]) {
+    map[pageId].decision = '판단 보류 · 핵심 입력 부족 (스코어 ' + Math.round(_sc) + '/100)';
+    map[pageId].action = '핵심 시장 데이터가 부족하거나 오래되었습니다. 입력을 새로고침한 뒤 진입·축소·헤지 결론을 다시 확인하세요.';
+  }
   var d = map[pageId] || {
     title: '현재 판단',
     decision: '핵심 데이터와 다음 행동을 먼저 확인',
@@ -4092,6 +4268,7 @@ function _aioDefaultDecision(pageId) {
     action: '상단 판단을 본 뒤 필요한 상세 섹션만 펼쳐 확인한다.'
   };
   d.pageId = pageId;
+  d.decisionBlocked = _scoreBlocked;
   d.sourceKind = d.sourceKind || sourceKind || 'SNAPSHOT';
   d.asOf = _aioDecisionAsOf(d.sourceKind);
   d.confidence = _aioDecisionConfidence(d.sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84);
@@ -4117,6 +4294,9 @@ window._aioBuildPageDecision = function(pageId) {
       };
     }
   }
+  if (d.decisionBlocked) {
+    d.action = '핵심 시장 데이터가 부족하거나 오래되었습니다. 입력을 새로고침한 뒤 진입·축소·헤지 결론을 다시 확인하세요.';
+  }
   while (d.reasons.length < 3) d.reasons.push('추가 데이터 확인 필요');
   d.reasons = d.reasons.slice(0, 3);
   var evidence = null;
@@ -4132,6 +4312,15 @@ window._aioBuildPageDecision = function(pageId) {
       : (evidence.caveat || d.caveat);
     d.evidence = evidence;
   }
+  var typedEvidence = window.AIO.createTypedEvidence ? window.AIO.createTypedEvidence({
+    key: 'page-decision:' + (d.pageId || pageId), value: d.decision, sourceKind: d.sourceKind,
+    status: d.decisionBlocked ? 'blocked' : 'ok', asOf: d.evidence && d.evidence.asOf && /^20\d\d-/.test(String(d.evidence.asOf)) ? d.evidence.asOf : null
+  }) : null;
+  if (typedEvidence) {
+    d.evidenceId = typedEvidence.evidenceId;
+    d.provenance = typedEvidence;
+    d.evidence = Object.assign({}, d.evidence || {}, { evidenceId: typedEvidence.evidenceId, operationalUse: typedEvidence.operationalUse, actionStrength: typedEvidence.actionStrength });
+  }
   return {
     pageId: d.pageId || pageId,
     title: d.title || '현재 판단',
@@ -4142,6 +4331,9 @@ window._aioBuildPageDecision = function(pageId) {
     asOf: d.asOf || _aioDecisionAsOf(d.sourceKind || 'SNAPSHOT'),
     sourceKind: d.sourceKind || 'SNAPSHOT',
     caveat: d.caveat || '',
+    decisionBlocked: !!d.decisionBlocked,
+    evidenceId: d.evidenceId || '',
+    provenance: d.provenance || null,
     evidence: d.evidence || null,
     tacticalTraderFramework: d.tacticalTraderFramework || null
   };
@@ -4636,7 +4828,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   // v51.57: 3카드 그리드(왜/오늘행동/데이터기준시각) 제거 — 상단 판단 strip + AI 버튼만 유지
   var caveatHtml = d.caveat ? '<span class="aio-decision-caveat">' + _aioDecisionEsc(d.caveat) + '</span>' : '';
   var html = ''
-    + '<section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(d.sourceKind) + '">'
+    + '<section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(d.sourceKind) + '" data-evidence-id="' + _aioDecisionEsc(d.evidenceId || '') + '" data-operational-use="' + _aioDecisionEsc(d.provenance && d.provenance.operationalUse || 'reference-only') + '">'
     + '  <div class="aio-decision-top">'
     + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
     + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span><span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
@@ -4864,28 +5056,34 @@ window._aioApplyEventFreshnessGate = function() {
     var fomcResult = fomc.result || (fomcDate ? 'FOMC ' + fomcDate + ' 결과 확인 구간' : 'FOMC 결과 확인 구간');
     var fomcNextCP = fomc.nextCheckpoint || '금리·달러 방향 확인';
     var fomcLabel = fomc.label || 'FOMC';
+    var claim = window.AIO && typeof window.AIO.getEventClaimState === 'function' ? window.AIO.getEventClaimState('fomc') : { allowedUse:true, status:'CURRENT' };
+    var claimPrefix = claim.allowedUse ? '' : '과거 참고 · ';
     var cp2 = document.getElementById('cp2-detail');
     if (cp2) {
-      cp2.setAttribute('data-source-kind', 'SNAPSHOT');
+      cp2.setAttribute('data-source-kind', claim.allowedUse ? 'SNAPSHOT' : 'REFERENCE');
       cp2.setAttribute('data-as-of', fomcDate);
-      cp2.textContent = 'Fed 3.50-3.75% · ' + fomcLabel + (fomcDate ? ' ' + fomcDate : '') + ': ' + fomcResult.slice(0, 50) + ' · 다음 확인: ' + fomcNextCP.slice(0, 40);
+      cp2.setAttribute('data-claim-state', claim.status);
+      cp2.textContent = claimPrefix + 'Fed 3.50-3.75% · ' + fomcLabel + (fomcDate ? ' ' + fomcDate : '') + ': ' + fomcResult.slice(0, 50) + ' · 다음 확인: ' + fomcNextCP.slice(0, 40);
     }
     var fed = document.getElementById('macro-fed-meaning');
     if (fed) {
-      fed.setAttribute('data-source-kind', 'SNAPSHOT');
+      fed.setAttribute('data-source-kind', claim.allowedUse ? 'SNAPSHOT' : 'REFERENCE');
       fed.setAttribute('data-as-of', fomcDate);
-      fed.textContent = fomcLabel + ' ' + (fomcDate ? fomcDate + ': ' : '') + fomcResult.slice(0, 40);
+      fed.setAttribute('data-claim-state', claim.status);
+      fed.textContent = claimPrefix + fomcLabel + ' ' + (fomcDate ? fomcDate + ': ' : '') + fomcResult.slice(0, 40);
     }
     document.querySelectorAll('[data-snap="fomc"]').forEach(function(el) {
       el.textContent = fomcDate ? fomcDate + ' 결과' : fomcLabel + ' 결과';
-      el.setAttribute('data-source-kind', 'SNAPSHOT');
-      el.setAttribute('data-as-of', fomcDate);
+       el.setAttribute('data-source-kind', claim.allowedUse ? 'SNAPSHOT' : 'REFERENCE');
+       el.setAttribute('data-as-of', fomcDate);
+       el.setAttribute('data-claim-state', claim.status);
       el.title = fomcResult;
     });
     document.querySelectorAll('[data-evidence-id*="fomc"], [data-evidence-id*="fed-rate"], [data-evidence-id*="kr-us-rate-calendar"]').forEach(function(el) {
       if (!el) return;
-      el.setAttribute('data-source-kind', 'SNAPSHOT');
-      el.setAttribute('data-as-of', fomcDate);
+       el.setAttribute('data-source-kind', claim.allowedUse ? 'SNAPSHOT' : 'REFERENCE');
+       el.setAttribute('data-as-of', fomcDate);
+       el.setAttribute('data-claim-state', claim.status);
     });
   } catch(_) {}
 };
@@ -14141,11 +14339,132 @@ window._apiHealth = {
   'proxy-primary':   { label: 'CORS 프록시',   status: 'unknown', lastOk: null, lastErr: null, errCount: 0, lastMsg: '' }
 };
 
+// v52.59/H2-09: declutter policy is kept beside the route registry so a route
+// cannot gain controls without an explicit first-screen intent and one primary
+// user scenario.  The audit reports observed section density for later visual
+// review; it does not pretend a section count alone proves usability.
+window.AIO_PAGE_DECLUTTER_POLICY = {
+  priorityRoutes: ['signal','macro','technical','fxbond','guide','kr-macro','themes','portfolio','screener','kr-home'],
+  intents: {
+    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', options:'변동성·헤지 비용 참고', 'kr-home':'한국장 방향과 수급 확인', 'kr-supply':'실제 매수 주체 확인', 'kr-themes':'국내 주도 테마 선별', 'kr-macro':'한국 금리·환율·수출 배경 확인', 'kr-technical':'한국 종목 추세와 무효화 확인', guide:'사용 루틴과 정책 참고'
+  },
+  scenarios: {
+    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동'
+  }
+};
+window.AIO.getPageDeclutterAudit = function(opts) {
+  opts = opts || {};
+  var ids = opts.pageId ? [String(opts.pageId).replace(/^page-/, '')] : ((window.AIO_ALL_ROUTE_PAGE_IDS || []).slice());
+  var policy = window.AIO_PAGE_DECLUTTER_POLICY;
+  var rows = ids.map(function(id) {
+    var page = document.getElementById('page-' + id);
+    var brief = window.AIO_PAGE_BRIEFS && window.AIO_PAGE_BRIEFS[id];
+    var major = page ? page.querySelectorAll(':scope > .aio-section, :scope > .aio-widget, :scope > .card, :scope > .panel').length : 0;
+    var firstScreen = page ? Array.prototype.slice.call(page.querySelectorAll('*')).filter(function(el) { var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.top < window.innerHeight && r.bottom > 0; }).length : 0;
+    return { pageId:id, intent:policy.intents[id] || '', scenario:policy.scenarios[id] || (brief && brief.steps ? brief.steps[0] : ''), hasBrief:!!brief, majorSectionCount:major, firstViewportElementCount:firstScreen, priority:(policy.priorityRoutes || []).indexOf(id) >= 0 };
+  });
+  var missingIntent = rows.filter(function(r) { return !r.intent || !r.scenario; }).map(function(r) { return r.pageId; });
+  return { status: missingIntent.length ? 'fail' : 'pass', issueCount:missingIntent.length, issues:missingIntent.map(function(id){ return 'missing intent/scenario: ' + id; }), routeCount:rows.length, priorityRoutes:policy.priorityRoutes.slice(), missingIntent:missingIntent, rows:rows, note:'section density and first viewport observations require human visual review', generatedAt:new Date().toISOString() };
+};
+
+// v52.59/H2-07: content truth audit closes the gap between a stale date being
+// present and a stale claim being presented as a current verdict.  It is an
+// executable policy check, not a claim that all historical reference material
+// has been removed.
+window.AIO.getContentTruthAudit = function(opts) {
+  opts = opts || {};
+  var guide = document.getElementById('page-guide');
+  var guideText = guide ? (guide.textContent || '') : '';
+  var issues = [];
+  var fakeFeedback = /사이드바\s*하단\s*["“]?Feedback|피드백\s*보드에서\s*처리\s*현황/.test(guideText);
+  if (fakeFeedback) issues.push('retired feedback/board instruction remains in guide');
+  var publicContact = !!document.getElementById('guide-public-policy') && !!(guide && guide.querySelector('a[href*="github.com/ysnle/aio-screener/issues"]'));
+  if (!publicContact) issues.push('single public inquiry path missing');
+  var publicMarkup = document.documentElement.innerHTML.replace(/<script[\s\S]*?<\/script>/gi, '');
+  var oldPrivateContact = /dydyd007@naver\.com|mailto:/i.test(publicMarkup);
+  if (oldPrivateContact) issues.push('private mailto contact remains in public source');
+  var referenceAction = [];
+  document.querySelectorAll('[data-operational-use="reference-only"], [data-source-kind="reference"], [data-source-kind="snapshot"]').forEach(function(el) {
+    var text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (/\b(BUY|SELL|LONG|SHORT)\b|매수|매도|진입|청산|공격적/.test(text) && !/교육|예시|참고|reference|과거|확인 필요/.test(text)) referenceAction.push({ id: el.id || '', text: text.slice(0, 140) });
+  });
+  var staleAudit = window.AIO.getStaticDataGovernanceAudit ? window.AIO.getStaticDataGovernanceAudit() : null;
+  var krDateNodes = Array.prototype.slice.call(document.querySelectorAll('[data-snap-date^="kr-"]'));
+  var unlabeledKrDates = krDateNodes.filter(function(el) {
+    var parent = el.closest('.widget,.card,.panel,.section,.page,div') || el.parentElement;
+    var text = parent ? (parent.textContent || '') : '';
+    return !/경과|참고|스냅샷|수동|자동|미수신|전일 종가/.test(text);
+  });
+  var beginnerRoute = !!(guide && (guide.querySelector('[data-action="showPage"][data-arg="home"]') || guide.querySelector('[data-action="_aioGuideJump"]')));
+  if (!beginnerRoute) issues.push('guide beginner route requires more than the registered quick-jump path');
+  if (unlabeledKrDates.length) issues.push('KR snapshot date lacks stale/reference context: ' + unlabeledKrDates.length);
+  return {
+    status: issues.length || referenceAction.length ? 'warn' : 'pass',
+    issueCount: issues.length,
+    issues: issues,
+    fakeFeedbackInstructionCount: fakeFeedback ? 1 : 0,
+    referenceActionCount: referenceAction.length,
+    referenceActionSamples: referenceAction.slice(0, 5),
+    oldPrivateContactCount: oldPrivateContact ? 1 : 0,
+    publicContactPath: publicContact,
+    krSnapshotDateCount: krDateNodes.length,
+    unlabeledKrSnapshotDateCount: unlabeledKrDates.length,
+    staleStaticIssueCount: staleAudit ? staleAudit.issueCount : null,
+    guideBeginnerRoute: beginnerRoute,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+// v52.56 H3-E: 외부 소스 상태 계약 — 성공/부분/타임아웃/형식오류를
+// 콘솔 로그와 분리해 UI·폴백·의사결정 계층이 동일하게 소비한다.
+window.AIO = window.AIO || {};
+window.AIO_EXTERNAL_STATES = window.AIO_EXTERNAL_STATES || {};
+window.AIO.normalizeExternalSourceState = function(input) {
+  var x = input && typeof input === 'object' ? input : { status: input };
+  var raw = String(x.status || x.state || '').toLowerCase();
+  var msg = String(x.message || x.error || '').toLowerCase();
+  var status = 'unavailable';
+  if (raw === 'success' || raw === 'ok' || x.ok === true) status = 'success';
+  else if (raw === 'partial' || (Number(x.count) > 0 && Number(x.expected) > Number(x.count))) status = 'partial';
+  else if (raw === 'timeout' || /timeout|timed out|abort/.test(raw + ' ' + msg)) status = 'timeout';
+  else if (raw === 'malformed' || raw === 'parse-error' || /malformed|parse|invalid|html|content-type/.test(raw + ' ' + msg)) status = 'malformed';
+  var policy = {
+    success:   { label: '정상 수신', allowedUse: 'decision', usable: true },
+    partial:   { label: '부분 수신', allowedUse: 'reference-only', usable: true },
+    timeout:   { label: '응답 시간 초과', allowedUse: 'none', usable: false },
+    malformed: { label: '응답 형식 오류', allowedUse: 'none', usable: false },
+    unavailable:{ label: '외부 수집 실패', allowedUse: 'none', usable: false }
+  }[status];
+  return { status: status, label: policy.label, allowedUse: policy.allowedUse, usable: policy.usable,
+    count: Number.isFinite(Number(x.count)) ? Number(x.count) : null,
+    expected: Number.isFinite(Number(x.expected)) ? Number(x.expected) : null,
+    reason: x.reason || x.message || null };
+};
+window.AIO.setExternalSourceState = function(source, input, detail) {
+  var key = String(source || 'unknown');
+  var normalized = window.AIO.normalizeExternalSourceState(input);
+  var prev = window.AIO_EXTERNAL_STATES[key];
+  var next = Object.assign({}, normalized, detail || {}, { source: key, updatedAt: Date.now() });
+  window.AIO_EXTERNAL_STATES[key] = next;
+  try {
+    document.dispatchEvent(new CustomEvent('aio:external-source-state', { detail: next, bubbles: false }));
+  } catch(_) {}
+  return next;
+};
+window.AIO.getExternalSourceState = function(source) {
+  return window.AIO_EXTERNAL_STATES[String(source || 'unknown')] || null;
+};
+window.AIO.externalSourceSummary = function(prefix) {
+  var keys = Object.keys(window.AIO_EXTERNAL_STATES).filter(function(k) { return !prefix || k.indexOf(prefix) === 0; });
+  return keys.map(function(k) { return window.AIO_EXTERNAL_STATES[k]; });
+};
+
 function _reportApiOk(apiKey, msg) {
   var h = window._apiHealth[apiKey];
   if (!h) return;
   var prevStatus = h.status;
   h.status = 'ok'; h.lastOk = Date.now(); h.errCount = 0; h.lastMsg = msg || '';
+  if (window.AIO && typeof window.AIO.setExternalSourceState === 'function') window.AIO.setExternalSourceState('api:' + apiKey, { status: 'success', message: msg });
   _renderApiDashboard();
   // v48.14 (W8): 상태 전이 시 이벤트 발사
   if (prevStatus !== 'ok') {
@@ -14164,6 +14483,7 @@ function _reportApiError(apiKey, msg) {
   var prevStatus = h.status;
   h.errCount++; h.lastErr = Date.now(); h.lastMsg = msg || '';
   h.status = h.errCount >= 3 ? 'error' : 'warn';
+  if (window.AIO && typeof window.AIO.setExternalSourceState === 'function') window.AIO.setExternalSourceState('api:' + apiKey, { message: msg, status: /timeout|abort/i.test(String(msg || '')) ? 'timeout' : /parse|html|malformed|invalid/i.test(String(msg || '')) ? 'malformed' : 'unavailable' });
   _renderApiDashboard();
   _checkAllDeadBanner();
   // v48.14 (W8): 상태 전이 시 이벤트 발사
@@ -15021,21 +15341,394 @@ window.AIO.getDataLineageAudit = function() {
       };
     } catch(_cl) { cellLevel = { status: 'error' }; }
     var cellOk = cellLevel && (cellLevel.status === 'ok' || cellLevel.status === 'unknown');
+    var elementLevel = null;
+    try {
+      elementLevel = window.AIO.getElementLineageInventory
+        ? window.AIO.getElementLineageInventory({
+            pages: window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'],
+            includeItems: false
+          })
+        : null;
+    } catch(_elementAudit) { elementLevel = { status: 'error', incomplete: 1, orphanSinks: 0 }; }
+    var elementOk = elementLevel && (elementLevel.status === 'ok' || elementLevel.status === 'unknown');
     return {
-      status: (broken === 0 && cellOk) ? 'ok' : 'warn',
+      status: (broken === 0 && cellOk && elementOk) ? 'ok' : 'warn',
       total: rows.length,
       connected: connected, broken: broken, gap: gap, manual: manual,
       autoTierPct: Math.round((connected / rows.length) * 100),
       brokenRows: rows.filter(function(r){ return r.status === 'broken'; }).map(function(r){ return r.id; }),
       rows: rows,
       cellLevel: cellLevel,
-      note: 'v49.90 R180/R181: 데이터 카테고리 lineage(13종 5단계) + cell-level sink-to-source(data-live-price/data-snap 개별) 통합. connected=완전자동 / gap=B계층 / manual=C계층 / cellLevel.orphan=끊긴 개별 sink.',
+      elementLevel: elementLevel,
+      note: 'v52.58 H3-G: 데이터 카테고리 lineage(13종) + cell-level sink-to-source + visible numeric/chart/narrative element inventory. connected=완전자동 / gap=B계층 / manual=C계층 / orphan=끊긴 개별 sink.',
       generatedAt: new Date().toISOString()
     };
   } catch(e) {
     return { status: 'error', message: e.message };
   }
 };
+
+// v52.58 H3-G/H3-H/H3-I: element-level lineage plus first-viewport and keyboard
+// contracts. The older category audit above can say "connected" while a visible
+// number, chart, or narrative sink still has no question, source, freshness, or
+// fallback explanation. Keep the inventory read-only and infer conservative
+// reference-only metadata when the DOM has not supplied a stronger contract.
+(function() {
+  window.AIO = window.AIO || {};
+  var REQUIRED_FIELDS = [
+    'pageId', 'sectionId', 'elementIdOrSelector', 'userQuestion', 'displayValue',
+    'sourceKind', 'sourceFamily', 'sourceEndpointOrFile', 'transformFormula',
+    'asOf', 'freshnessSla', 'failureAndFallback', 'decisionUse'
+  ];
+  var DEFAULT_PAGES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var SINK_SELECTOR = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-live-kr],[data-snap],[data-snap-date]';
+  var CHART_SELECTOR = 'canvas,[id*="chart"],[id*="widget"],[class*="chart"]';
+  var MARKET_WORD_RE = /시장|시황|강세|약세|상승|하락|위험|리스크|변동성|금리|유가|달러|VIX|S&P|SPY|QQQ|Nasdaq|나스닥|국채|채권|크레딧|브레드스|breadth|risk|volatility|yield|oil|gold|bitcoin|BTC/i;
+  var NUMERIC_RE = /(?:[$₩])?\s*[-+]?\d[\d,.]*(?:\.\d+)?\s*(?:%|bp|bps|x|배|조|억|M|B|T|pt|pts)?/i;
+
+  function textOf(el, limit) {
+    var text = '';
+    try { text = String(el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').replace(/\s+/g, ' ').trim(); } catch(_) {}
+    return text.slice(0, limit || 220);
+  }
+  function isHiddenForRoute(el, root) {
+    if (!el) return true;
+    var node = el;
+    while (node && node !== root) {
+      try {
+        if (node.hidden || node.getAttribute('aria-hidden') === 'true') return true;
+        if (node.tagName === 'DETAILS' && !node.open && !(el.matches && el.matches('summary'))) return true;
+        var cs = window.getComputedStyle ? window.getComputedStyle(node) : null;
+        if (cs && (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0')) return true;
+      } catch(_) {}
+      node = node.parentElement;
+    }
+    return false;
+  }
+  function selectorFor(el, root) {
+    if (!el) return '';
+    if (el.id) return '#' + el.id;
+    var parts = [];
+    var node = el;
+    for (var i = 0; node && node !== root && i < 4; i++, node = node.parentElement) {
+      var part = String(node.tagName || 'element').toLowerCase();
+      var cls = String(node.className || '').split(/\s+/).filter(function(x) { return /^[A-Za-z0-9_-]+$/.test(x); }).slice(0, 2);
+      if (cls.length) part += '.' + cls.join('.');
+      parts.unshift(part);
+    }
+    return (root && root.id ? '#' + root.id + ' ' : '') + parts.join(' > ');
+  }
+  function sectionFor(el, root, pageId) {
+    var section = null;
+    try { section = el.closest('[data-section-id],[data-section],section[id],.aio-section[id],.aio-card[id],.card[id]'); } catch(_) {}
+    if (section) return section.getAttribute('data-section-id') || section.getAttribute('data-section') || section.id || 'section';
+    return pageId + ':root';
+  }
+  function questionFor(el, root, pageId, kind) {
+    var q = '';
+    try { q = el.getAttribute('data-user-question') || ''; } catch(_) {}
+    if (!q) {
+      var block = null;
+      try { block = el.closest('section,.aio-section,.aio-card,.data-widget,.aio-widget,.card,.panel,.section'); } catch(_) {}
+      var heading = block && block.querySelector ? block.querySelector('h1,h2,h3,h4,.section-header,.widget-title,.aio-card-title,.page-title') : null;
+      q = textOf(heading, 140);
+    }
+    return q || (pageId + '에서 이 ' + kind + '을 어떻게 읽나?');
+  }
+  function attr(el, name) {
+    try { return el.getAttribute(name) || ''; } catch(_) { return ''; }
+  }
+  function liveKeyOf(el) {
+    return attr(el, 'data-live-price') || attr(el, 'data-live-chg') || attr(el, 'data-live-pct') || attr(el, 'data-live-field') || attr(el, 'data-live-kr');
+  }
+  function sourceInfo(el, pageId, kind, root, coverage) {
+    var liveKey = liveKeyOf(el);
+    var snapKey = attr(el, 'data-snap');
+    var snapDateKey = attr(el, 'data-snap-date');
+    var isLive = !!liveKey;
+    var isSnap = !!snapKey || !!snapDateKey;
+    var isChart = kind === 'chart';
+    var rawKind = attr(el, 'data-source-kind').toLowerCase();
+    var sourceKind = rawKind || (isLive ? 'live' : isSnap ? 'snapshot' : isChart ? 'chart' : 'static');
+    var sourceLabel = attr(el, 'data-source-label');
+    var opUse = attr(el, 'data-operational-use');
+    var liveRow = null;
+    try { liveRow = liveKey && window._liveData ? window._liveData[liveKey] : null; } catch(_) {}
+    var ds = window.DATA_SNAPSHOT || {};
+    var asOf = attr(el, 'data-as-of') || attr(el, 'data-source-date') || (liveRow && (liveRow.ts || liveRow.updatedAt || liveRow.timestamp)) || '';
+    if (!asOf && isSnap) asOf = ds._updated || ds._snapshotDate || 'not-provided';
+    if (!asOf && isChart) asOf = attr(el, 'data-chart-as-of') || 'chart-evidence-required';
+    if (!asOf) asOf = 'not-applicable';
+    var endpoint = attr(el, 'data-source-endpoint') || sourceLabel;
+    if (!endpoint && isLive) endpoint = (liveRow && (liveRow.source || liveRow.provider)) || 'Yahoo Finance chart API:' + liveKey;
+    if (!endpoint && isSnap) endpoint = 'public-data/data.json -> DATA_SNAPSHOT.' + (snapKey || snapDateKey);
+    if (!endpoint && isChart) endpoint = 'chart runtime:' + (el.id || selectorFor(el, root));
+    if (!endpoint) endpoint = pageId === 'guide' ? '_context/guide content' : 'index.html inline content';
+    var family = attr(el, 'data-source-family');
+    if (!family) family = isLive ? (attr(el, 'data-live-field') ? 'derived-market-metric' : 'quote') : isSnap ? 'snapshot-reference' : isChart ? 'chart-series' : 'copy';
+    var transform = attr(el, 'data-transform-formula') || attr(el, 'data-transform');
+    if (!transform && isLive) transform = 'PriceStore/display ' + (attr(el, 'data-live-price') ? 'price' : attr(el, 'data-live-field') ? 'derived-field' : 'change');
+    if (!transform && isSnap) transform = 'applyDataSnapshot[' + (snapKey || snapDateKey) + ']';
+    if (!transform && isChart) transform = 'chart renderer -> series/labels';
+    if (!transform) transform = 'static text/threshold copy';
+    var freshness = attr(el, 'data-freshness-sla') || (isLive ? '15m' : isChart ? '60m' : isSnap ? 'reference-layer' : 'not-current');
+    var fallback = attr(el, 'data-failure-fallback');
+    if (!fallback) fallback = isLive ? 'refresh source; show unavailable and block decision use' : isSnap ? 'show reference/as-of; do not use for trading decision' : isChart ? 'render explicit fallback or unavailable state' : 'reference-only; current claim requires evidence';
+    var decisionUse = opUse || (/snapshot|fallback|reference|static|unknown|unavailable|chart/.test(sourceKind) ? 'reference' : 'decision');
+    if (sourceKind === 'unavailable') decisionUse = opUse || 'blocked';
+    var displayValue = textOf(el, 220) || attr(el, 'data-source-label') || (isChart ? 'chart ' + (el.id || 'unnamed') : selectorFor(el, root));
+    var orphan = false;
+    try {
+      if (isLive && !liveKey) orphan = true;
+      if (isSnap && !snapKey && !snapDateKey) orphan = true;
+      if (isLive && coverage && coverage.live) {
+        var liveAudit = coverage.live;
+        orphan = orphan || !!(liveAudit && liveAudit.missing && liveAudit.missing.some(function(row) { return row.ticker === liveKey; }));
+      }
+      if (snapKey && coverage && coverage.snap) {
+        var snapAudit = coverage.snap;
+        orphan = orphan || !!(snapAudit && snapAudit.missingSeeds && snapAudit.missingSeeds.some(function(row) { return row.key === snapKey; }));
+      }
+    } catch(_) {}
+    return {
+      sourceKind: sourceKind,
+      sourceFamily: family,
+      sourceEndpointOrFile: endpoint,
+      transformFormula: transform,
+      asOf: String(asOf),
+      freshnessSla: freshness,
+      failureAndFallback: fallback,
+      decisionUse: decisionUse,
+      orphan: orphan
+    };
+  }
+  function makeItem(pageId, root, el, kind, opts) {
+    var source = sourceInfo(el, pageId, kind, root, opts && opts.coverage);
+    var item = {
+      pageId: pageId,
+      sectionId: sectionFor(el, root, pageId),
+      elementIdOrSelector: selectorFor(el, root),
+      userQuestion: questionFor(el, root, pageId, kind),
+      displayValue: textOf(el, 220) || attr(el, 'data-source-label') || (kind === 'chart' ? 'chart ' + (el.id || 'unnamed') : selectorFor(el, root)),
+      sourceKind: source.sourceKind,
+      sourceFamily: source.sourceFamily,
+      sourceEndpointOrFile: source.sourceEndpointOrFile,
+      transformFormula: source.transformFormula,
+      asOf: source.asOf,
+      freshnessSla: source.freshnessSla,
+      failureAndFallback: source.failureAndFallback,
+      decisionUse: source.decisionUse,
+      kind: kind,
+      orphan: source.orphan
+    };
+    item.missingFields = REQUIRED_FIELDS.filter(function(field) {
+      return item[field] == null || String(item[field]).trim() === '';
+    });
+    item.complete = item.missingFields.length === 0;
+    return item;
+  }
+  function collectPage(pageId, opts) {
+    var root = document.getElementById('page-' + pageId);
+    var items = [], seen = [];
+    if (!root) return { pageId: pageId, pageExists: false, items: [], total: 0, incomplete: 0, orphanSinks: 0 };
+    function add(el, kind) {
+      if (!el || seen.indexOf(el) >= 0 || isHiddenForRoute(el, root)) return;
+      seen.push(el);
+      items.push(makeItem(pageId, root, el, kind, opts));
+    }
+    try { Array.prototype.slice.call(root.querySelectorAll(SINK_SELECTOR)).forEach(function(el) { add(el, 'numeric'); }); } catch(_) {}
+    try { Array.prototype.slice.call(root.querySelectorAll(CHART_SELECTOR)).forEach(function(el) { add(el, 'chart'); }); } catch(_) {}
+    try {
+      Array.prototype.slice.call(root.querySelectorAll('*')).forEach(function(el) {
+        if (seen.indexOf(el) >= 0 || isHiddenForRoute(el, root) || (el.children && el.children.length)) return;
+        if (el.closest && el.closest(SINK_SELECTOR)) return;
+        var text = textOf(el, 260);
+        if (!text || text.length < 2 || text.length > 260) return;
+        if (NUMERIC_RE.test(text)) add(el, 'numeric-text');
+        else if (MARKET_WORD_RE.test(text)) add(el, 'narrative');
+      });
+    } catch(_) {}
+    var incomplete = items.filter(function(item) { return !item.complete; }).length;
+    var orphanSinks = items.filter(function(item) { return item.orphan && item.kind !== 'narrative'; }).length;
+    return {
+      pageId: pageId,
+      pageExists: true,
+      total: items.length,
+      complete: items.length - incomplete,
+      incomplete: incomplete,
+      orphanSinks: orphanSinks,
+      kindCounts: items.reduce(function(acc, item) { acc[item.kind] = (acc[item.kind] || 0) + 1; return acc; }, {}),
+      items: opts.includeItems === false ? [] : items
+    };
+  }
+
+  window.AIO.getElementLineageInventory = function(opts) {
+    opts = opts || {};
+    var pages = opts.pages || (opts.allRoutes ? (window.AIO_ALL_ROUTE_PAGE_IDS || DEFAULT_PAGES) : (window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES));
+    var coverage = { live: null, snap: null };
+    try { coverage.live = window.AIO.getLiveSymbolsCoverageAudit ? window.AIO.getLiveSymbolsCoverageAudit() : null; } catch(_) {}
+    try { coverage.snap = window.AIO.getStaticSeedFallbackAudit ? window.AIO.getStaticSeedFallbackAudit() : null; } catch(_) {}
+    var collectOpts = Object.assign({}, opts, { coverage: coverage });
+    var pageRows = pages.map(function(pageId) { return collectPage(pageId, collectOpts); });
+    var items = [];
+    pageRows.forEach(function(row) { if (row.items && row.items.length) items = items.concat(row.items); });
+    var missingFieldCounts = {};
+    items.forEach(function(item) { (item.missingFields || []).forEach(function(field) { missingFieldCounts[field] = (missingFieldCounts[field] || 0) + 1; }); });
+    var incomplete = pageRows.reduce(function(sum, row) { return sum + (row.incomplete || 0); }, 0);
+    var orphanSinks = pageRows.reduce(function(sum, row) { return sum + (row.orphanSinks || 0); }, 0);
+    var missingPages = pageRows.filter(function(row) { return !row.pageExists; }).map(function(row) { return row.pageId; });
+    var total = pageRows.reduce(function(sum, row) { return sum + (row.total || 0); }, 0);
+    return {
+      status: missingPages.length || incomplete || orphanSinks ? 'warn' : 'ok',
+      pagesChecked: pageRows.length,
+      total: total,
+      complete: total - incomplete,
+      incomplete: incomplete,
+      orphanSinks: orphanSinks,
+      fieldCount: REQUIRED_FIELDS.length,
+      fields: REQUIRED_FIELDS.slice(),
+      missingPages: missingPages,
+      missingFieldCounts: missingFieldCounts,
+      kindCounts: items.reduce(function(acc, item) { acc[item.kind] = (acc[item.kind] || 0) + 1; return acc; }, {}),
+      pages: pageRows.map(function(row) { return Object.assign({}, row, { items: undefined }); }),
+      items: opts.includeItems === false ? [] : items,
+      note: 'H3-G element lineage: every visible numeric/chart/narrative item carries the full listed field set; static copy is explicitly reference-only, never promoted to current decision use.',
+      generatedAt: new Date().toISOString()
+    };
+  };
+
+  function activeRouteRoot(root) {
+    return !!(root && root.classList && root.classList.contains('active'));
+  }
+  window.AIO.getCritical10ContentHierarchyAudit = function(opts) {
+    opts = opts || {};
+    var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES;
+    var viewportHeight = Number(opts.viewportHeight || (window.innerHeight || 768));
+    var rows = pages.map(function(pageId) {
+      var root = document.getElementById('page-' + pageId);
+      var blockers = [], warnings = [];
+      var header = root && root.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
+      var firstVisible = null;
+      if (root) {
+        Array.prototype.slice.call(root.children).some(function(child) {
+          if (isHiddenForRoute(child, root)) return false;
+          firstVisible = child;
+          return true;
+        });
+      }
+      var headerText = header ? textOf(header, 900) : '';
+      var headerHasConclusion = !!(header && header.querySelector('.aio-decision-verdict') && textOf(header.querySelector('.aio-decision-verdict')));
+      var headerHasEvidence = !!(header && header.getAttribute('data-source-kind') && header.querySelector('.aio-source-badge,.aio-confidence-badge,.aio-decision-foot'));
+      var headerHasAction = !!(header && header.querySelector('button,[data-action]'));
+      var visibleChildren = root ? Array.prototype.slice.call(root.children).filter(function(child) { return !isHiddenForRoute(child, root); }) : [];
+      var headerIndex = header ? visibleChildren.indexOf(header) : -1;
+      var decisionFirst = !!(header && headerIndex >= 0 && visibleChildren.slice(0, headerIndex).every(function(child) {
+        return child.matches && child.matches('.stale-badge');
+      }));
+      var active = activeRouteRoot(root);
+      var viewportPass = null;
+      if (active && header && header.getBoundingClientRect) {
+        var rect = header.getBoundingClientRect();
+        viewportPass = rect.top >= -4 && rect.top < viewportHeight && rect.bottom <= viewportHeight + 24;
+      }
+      if (!root) blockers.push('page-root-missing');
+      if (!header) blockers.push('decision-header-missing');
+      if (header && !headerHasConclusion) blockers.push('conclusion-missing');
+      if (header && !headerHasEvidence) blockers.push('evidence/status-missing');
+      if (header && !headerHasAction) blockers.push('action-affordance-missing');
+      if (header && !decisionFirst) blockers.push('decision-not-first-visible-block');
+      if (active && header && viewportPass === false) blockers.push('decision-not-in-first-viewport');
+      var openFundamentals = root ? root.querySelectorAll('details.aio-fund[open]').length : 0;
+      var debugVisible = root ? Array.prototype.slice.call(root.querySelectorAll('.aio-audit-widget,.aio-debug,.debug-only,[data-text-role="developer-note"]')).filter(function(el) { return !isHiddenForRoute(el, root); }).length : 0;
+      if (openFundamentals) warnings.push('open-fundamentals:' + openFundamentals);
+      if (debugVisible) blockers.push('developer-surface-visible:' + debugVisible);
+      return {
+        pageId: pageId,
+        active: active,
+        pageExists: !!root,
+        decisionHeader: !!header,
+        decisionFirst: decisionFirst,
+        firstVisibleSelector: firstVisible ? selectorFor(firstVisible, root) : '',
+        conclusion: headerHasConclusion,
+        evidenceAndStatus: headerHasEvidence,
+        actionAffordance: headerHasAction,
+        viewportPass: viewportPass,
+        openFundamentals: openFundamentals,
+        developerSurfaceVisible: debugVisible,
+        blockers: blockers,
+        warnings: warnings,
+        headerText: headerText.slice(0, 220)
+      };
+    });
+    var blockers = rows.reduce(function(acc, row) { return acc.concat(row.blockers || []); }, []);
+    var warnings = rows.reduce(function(acc, row) { return acc.concat(row.warnings || []); }, []);
+    return { status: blockers.length ? 'fail' : (warnings.length ? 'warn' : 'ok'), pagesChecked: rows.length, issueCount: blockers.length, warningCount: warnings.length, blockers: blockers, warnings: warnings, pages: rows, generatedAt: new Date().toISOString() };
+  };
+
+  window.AIO.getCritical10AccessibilityAudit = function(opts) {
+    opts = opts || {};
+    var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES;
+    function nameOf(el, root) {
+      var labelled = attr(el, 'aria-labelledby');
+      if (labelled) {
+        var ids = labelled.split(/\s+/).map(function(id) { return document.getElementById(id); }).filter(Boolean);
+        if (ids.length) return ids.map(function(node) { return textOf(node, 120); }).join(' ').trim();
+      }
+      var label = attr(el, 'aria-label') || attr(el, 'title');
+      if (label) return label.trim();
+      if (el.labels && el.labels.length) return textOf(el.labels[0], 120);
+      var parentLabel = null;
+      try { parentLabel = el.closest('label'); } catch(_) {}
+      if (parentLabel) return textOf(parentLabel, 120);
+      if (/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName || '')) return attr(el, 'placeholder') || attr(el, 'value');
+      return textOf(el, 140);
+    }
+    var rows = pages.map(function(pageId) {
+      var root = document.getElementById('page-' + pageId);
+      var nameless = [], unfocusable = [], positiveTabindex = [], smallTargets = [], chartIssues = [];
+      if (!root) return { pageId: pageId, pageExists: false, active: false, blockers: ['page-root-missing'], warnings: [], nameless: [], unfocusable: [], positiveTabindex: [], smallTargets: [], chartIssues: [] };
+      var active = activeRouteRoot(root);
+      var controls = [];
+      try { controls = Array.prototype.slice.call(root.querySelectorAll('button,a[href],input,select,textarea,[role="button"],[data-action]')); } catch(_) {}
+      controls.forEach(function(el) {
+        if (isHiddenForRoute(el, root) || el.disabled) return;
+        var label = nameOf(el, root);
+        if (!label) nameless.push({ id: el.id || '', selector: selectorFor(el, root), tag: el.tagName || '' });
+        var tabindex = Number(el.getAttribute('tabindex'));
+        if (el.tabIndex < 0 || (!isFinite(tabindex) && el.tagName === 'DIV' && el.getAttribute('data-action'))) unfocusable.push({ id: el.id || '', selector: selectorFor(el, root), tag: el.tagName || '', tabindex: el.tabIndex });
+        if (isFinite(tabindex) && tabindex > 0) positiveTabindex.push({ id: el.id || '', selector: selectorFor(el, root), tabindex: tabindex });
+        if (active && el.getBoundingClientRect) {
+          var rect = el.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0 && (rect.width < 24 || rect.height < 24)) smallTargets.push({ id: el.id || '', selector: selectorFor(el, root), width: Math.round(rect.width), height: Math.round(rect.height) });
+        }
+      });
+      Array.prototype.slice.call(root.querySelectorAll('canvas')).forEach(function(canvas) {
+        if (isHiddenForRoute(canvas, root)) return;
+        var chartName = nameOf(canvas, root) || attr(canvas, 'data-source-label');
+        if (!chartName) chartIssues.push({ id: canvas.id || '', selector: selectorFor(canvas, root) });
+      });
+      var blockers = [];
+      if (nameless.length) blockers.push('nameless-controls:' + nameless.length);
+      if (unfocusable.length) blockers.push('unfocusable-controls:' + unfocusable.length);
+      if (positiveTabindex.length) blockers.push('positive-tabindex:' + positiveTabindex.length);
+      if (chartIssues.length) blockers.push('unnamed-canvas:' + chartIssues.length);
+      var warnings = [];
+      if (smallTargets.length) warnings.push('small-targets:' + smallTargets.length);
+      return { pageId: pageId, pageExists: true, active: active, blockers: blockers, warnings: warnings, nameless: nameless, unfocusable: unfocusable, positiveTabindex: positiveTabindex, smallTargets: smallTargets.slice(0, 20), chartIssues: chartIssues };
+    });
+    var blockers = rows.reduce(function(acc, row) { return acc.concat(row.blockers || []); }, []);
+    var warnings = rows.reduce(function(acc, row) { return acc.concat(row.warnings || []); }, []);
+    return { status: blockers.length ? 'fail' : (warnings.length ? 'warn' : 'ok'), pagesChecked: rows.length, issueCount: blockers.length, warningCount: warnings.length, blockers: blockers, warnings: warnings, pages: rows, generatedAt: new Date().toISOString() };
+  };
+
+  window.AIO.getCritical10HumanSurfaceAudit = function(opts) {
+    opts = opts || {};
+    var hierarchy = window.AIO.getCritical10ContentHierarchyAudit(opts);
+    var accessibility = window.AIO.getCritical10AccessibilityAudit(opts);
+    var status = hierarchy.status === 'fail' || accessibility.status === 'fail' ? 'fail' : (hierarchy.status === 'warn' || accessibility.status === 'warn' ? 'warn' : 'ok');
+    return { status: status, hierarchy: hierarchy, accessibility: accessibility, generatedAt: new Date().toISOString() };
+  };
+})();
 
 // ─────────────────────────────────────────────────────────────────
 // v49.96 P461/R185 근본 보강: Audit Push (pull→push)
@@ -16639,7 +17332,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
     try {
       var rc = LightweightCharts.createChart(rsiDiv, {
         width: w, height: 70,
-        layout: { background: { color: subBg }, textColor: textC, fontSize: 9 },
+        layout: { background: { color: subBg }, textColor: textC, fontSize: 10 },
         grid: { vertLines: { color: 'transparent' }, horzLines: { color: gridC } },
         rightPriceScale: { borderColor: axisC, minimumWidth: 52, scaleMargins: { top: 0.1, bottom: 0.1 } },
         timeScale: { visible: false },
@@ -16664,7 +17357,7 @@ window._renderDeepChart = function(wrapEl, ohlcv, maLines, rsiData) {
     try {
       var vc = LightweightCharts.createChart(volDiv, {
         width: w, height: 55,
-        layout: { background: { color: subBg }, textColor: textC, fontSize: 9 },
+        layout: { background: { color: subBg }, textColor: textC, fontSize: 10 },
         grid: { vertLines: { color: 'transparent' }, horzLines: { color: 'transparent' } },
         rightPriceScale: { borderColor: axisC, minimumWidth: 52 },
         timeScale: { visible: false },
@@ -17846,7 +18539,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.54';
+const APP_VERSION = 'v52.59';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -20311,7 +21004,10 @@ function computeTradingScore(mode) {
   const hyg   = _clamp(_ldSafe('HYG','price') || _fb.hyg || 78, 50, 100);
   const tnx   = _clamp(_ldSafe('^TNX','price') || _fb.tnx || 4.3, 0, 8);
   const oilPrice = _clamp(_ldSafe('CL=F','price') || 0, 0, 300);
-  const fg    = _clamp(window._lastFG || _fb.fg || 35, 0, 100);
+  var _fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg', { maxAgeMs: 4 * 60 * 60 * 1000 }) : null;
+  // reference/stale F&G는 점수에 다시 영향을 주지 않는다. 화면 점수는 계산을 유지하되
+  // 중립값으로 격리하고 provenance를 결과에 남겨 상단 decision gate가 경고할 수 있게 한다.
+  const fg    = _clamp(_fgMetric && _fgMetric.allowedUse ? _fgMetric.value : 50, 0, 100);
   const rsp   = _closingVal('RSP');
   const spy   = _closingVal('SPY');
 
@@ -20451,7 +21147,8 @@ function computeTradingScore(mode) {
   const total = Math.max(5, Math.min(100, compositeScore));
 
   var evidenceAudit = (window.AIO && window.AIO.getTradingDecisionInputEvidence) ? window.AIO.getTradingDecisionInputEvidence() : null;
-  var _result = { total, score: total, volScore, momScore, trendScore, breadthScore, macroScore, evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit };
+  var _result = { total, score: total, volScore, momScore, trendScore, breadthScore, macroScore, evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit,
+    fgEvidenceStatus: _fgMetric ? _fgMetric.status : 'UNAVAILABLE', fgEvidenceAllowedUse: !!(_fgMetric && _fgMetric.allowedUse) };
   window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now() };
   return _result;
 }
@@ -20470,7 +21167,8 @@ function computeExecutionWindow() {
   let ld = window._liveData || {};
   var _fb2 = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
   const vix = _ldSafe('^VIX','price') || _fb2.vix || 20;
-  const fg = window._lastFG || _fb2.fg || 35;
+  var _fgExec = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg', { maxAgeMs: 4 * 60 * 60 * 1000 }) : null;
+  const fg = _fgExec && _fgExec.allowedUse ? _fgExec.value : 50;
   // v50.19: 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백
   const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
                      (typeof window._breadth20 === 'number') ? window._breadth20 :
@@ -20732,6 +21430,56 @@ window.AIO.makeOperationalMetric = function(name, value, sourceKind, ts, sourceL
 window.AIO.canDriveCurrentDecision = function(metric) {
   return !!(window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(metric || {}).allowedUse);
 };
+
+// v52.55/H3-A: 단일 현재성 선택기 — F&G를 포함한 현재 시장 지표는 이 경로에서만
+// current/reference/blocked를 결정한다. DATA_SNAPSHOT은 화면을 채우는 값일 수 있지만
+// 검증된 현재값으로 승격하지 않는다(R301: snapshot ≠ current).
+window.AIO.getCanonicalMetric = function(metricId, opts) {
+  opts = opts || {};
+  var id = String(metricId || '').toLowerCase();
+  var now = Date.now();
+  var maxAgeMs = opts.maxAgeMs || (4 * 60 * 60 * 1000);
+  var meta = id === 'fg' ? (window._lastFGMeta || {}) : {};
+  var raw = id === 'fg' ? window._lastFG : null;
+  var liveValue = raw != null && isFinite(Number(raw)) ? Number(raw) : null;
+  var sourceKind = String(meta.sourceKind || '').toLowerCase();
+  var currentSource = /^(live|proxy|delayed)$/.test(sourceKind);
+  var clock = meta.freshnessClock || (sourceKind === 'delayed' ? 'observation' : 'fetch');
+  var ts = clock === 'observation' ? (meta.sourceTs || meta.asOf || meta.fetchedAt) : (meta.fetchedAt || meta.sourceTs);
+  var parsedTs = ts != null ? (typeof ts === 'number' && ts < 100000000000 ? ts * 1000 : new Date(ts).getTime()) : null;
+  var ageMs = parsedTs != null && isFinite(parsedTs) ? Math.max(0, now - parsedTs) : null;
+  var snapshot = window.DATA_SNAPSHOT || {};
+  var snapshotValue = id === 'fg' && snapshot.fg != null && isFinite(Number(snapshot.fg)) ? Number(snapshot.fg) : null;
+  var result = {
+    id: id, value: null, source: 'none', sourceKind: 'missing', sourceLabel: '',
+    asOf: null, fetchedAt: null, ageMs: null, freshness: 'missing', status: 'MISSING',
+    confidence: 'none', allowedUse: false, decisionUse: false, reason: 'current observation unavailable'
+  };
+  if (liveValue != null && currentSource && ageMs != null && ageMs <= maxAgeMs) {
+    result.value = liveValue; result.source = meta.source || sourceKind; result.sourceKind = sourceKind;
+    result.sourceLabel = meta.sourceLabel || result.source; result.asOf = meta.sourceTs || meta.asOf || null;
+    result.fetchedAt = meta.fetchedAt || null; result.ageMs = ageMs; result.freshness = 'current';
+    result.status = 'VALID'; result.confidence = sourceKind === 'live' || sourceKind === 'proxy' ? 'high' : 'medium';
+    result.allowedUse = true; result.decisionUse = true; result.reason = 'current evidence within SLA';
+    return result;
+  }
+  if (liveValue != null && currentSource) {
+    result.value = liveValue; result.source = meta.source || sourceKind; result.sourceKind = sourceKind;
+    result.sourceLabel = meta.sourceLabel || result.source; result.asOf = meta.sourceTs || meta.asOf || null;
+    result.fetchedAt = meta.fetchedAt || null; result.ageMs = ageMs; result.freshness = 'stale';
+    result.status = 'STALE'; result.confidence = 'low'; result.reason = 'current source exceeded SLA';
+    return result;
+  }
+  if (snapshotValue != null) {
+    result.value = snapshotValue; result.source = 'DATA_SNAPSHOT'; result.sourceKind = 'snapshot';
+    result.sourceLabel = 'DATA_SNAPSHOT:fear-greed'; result.asOf = snapshot._updated || snapshot._snapshotDate || null;
+    result.freshness = 'reference'; result.status = 'SNAPSHOT_REFERENCE'; result.confidence = 'reference';
+    result.reason = 'reference snapshot is not decision-use evidence';
+    return result;
+  }
+  return result;
+};
+window.AIO.getCurrentMarketMetric = window.AIO.getCanonicalMetric;
 
 window.AIO_CROSS_SOURCE_QUOTE_CACHE = window.AIO_CROSS_SOURCE_QUOTE_CACHE || {};
 
@@ -22682,6 +23430,17 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
   // 이 값들은 window._lastFetch[fetchKey](_markFetch 레지스트리, P594 계열)로만 신선도를 알 수 있다 —
   // fetchKey가 없는 입력(AAII)은 실시간 경로 자체가 없으므로 항상 snapshot_reference로 정직하게 보고한다.
   function _aioGlobalRuntimeEvidence(input) {
+    if (input && input.id === 'fg-sentiment' && window.AIO && typeof window.AIO.getCanonicalMetric === 'function') {
+      var canonical = window.AIO.getCanonicalMetric('fg', { maxAgeMs: (input.maxAgeMin || 240) * 60000 });
+      var canonicalStatus = canonical.status === 'VALID' ? 'verified_current' : canonical.status === 'STALE' ? 'stale_live' : canonical.status === 'SNAPSHOT_REFERENCE' ? 'snapshot_reference' : 'unavailable';
+      return {
+        value: canonical.value,
+        source: canonical.source,
+        status: canonicalStatus,
+        ageMin: canonical.ageMs != null ? Math.round(canonical.ageMs / 60000) : null,
+        remediation: canonical.allowedUse ? '' : (canonical.reason || 'refresh current Fear & Greed evidence before trading use')
+      };
+    }
     var snap = window.DATA_SNAPSHOT || {};
     var raw = window[input.globalVar];
     var hasValue = raw != null && isFinite(Number(raw));
@@ -22851,6 +23610,9 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       { id:'formula-registry', critical:false, run:function(){ var f = window.AIO_FORMULA_REGISTRY && window.AIO_FORMULA_REGISTRY.formulas || {}; return { status:Object.keys(f).length >= 8 ? 'ok' : 'warn', formulaCount:Object.keys(f).length, generatedAt:new Date().toISOString() }; } },
       { id:'critical10-surface', critical:false, run:function(){ return window.AIO.getCritical10MarketSurfaceAudit ? window.AIO.getCritical10MarketSurfaceAudit() : { status:'warn', message:'unavailable' }; } },
       { id:'critical10-situation', critical:false, run:function(){ return window.AIO.getCritical10MarketSituationAudit ? window.AIO.getCritical10MarketSituationAudit({ sampleLimit:40 }) : { status:'warn', message:'unavailable' }; } },
+      { id:'element-lineage', critical:false, run:function(){ return window.AIO.getElementLineageInventory ? window.AIO.getElementLineageInventory({ includeItems:false }) : { status:'warn', message:'unavailable' }; } },
+      { id:'critical10-hierarchy', critical:false, run:function(){ return window.AIO.getCritical10ContentHierarchyAudit ? window.AIO.getCritical10ContentHierarchyAudit({}) : { status:'warn', message:'unavailable' }; } },
+      { id:'critical10-accessibility', critical:false, run:function(){ return window.AIO.getCritical10AccessibilityAudit ? window.AIO.getCritical10AccessibilityAudit({}) : { status:'warn', message:'unavailable' }; } },
       { id:'trading-decision-logic', critical:false, run:function(opts){ return window.AIO.getTradingDecisionLogicAudit ? window.AIO.getTradingDecisionLogicAudit(opts) : { status:'warn', message:'unavailable' }; } },
       { id:'news-surface', critical:false, run:function(){ return window.AIO.getNewsSurfaceAudit ? window.AIO.getNewsSurfaceAudit({ rebuild:true }) : { status:'warn', message:'unavailable' }; } },
       { id:'text-surface', critical:false, run:function(){ return window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ includeItems:false }) : { status:'warn', message:'unavailable' }; } },
@@ -22903,6 +23665,8 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     var trading = window.AIO.getTradingDecisionLogicAudit ? window.AIO.getTradingDecisionLogicAudit(opts) : null;
     var newsSurface = window.AIO.getNewsSurfaceAudit ? window.AIO.getNewsSurfaceAudit({ rebuild:true }) : null;
     var textSurface = window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ includeItems:false }) : null;
+    var elementLineage = window.AIO.getElementLineageInventory ? window.AIO.getElementLineageInventory({ includeItems:false }) : null;
+    var humanSurface = window.AIO.getCritical10HumanSurfaceAudit ? window.AIO.getCritical10HumanSurfaceAudit({}) : null;
     var criticalIds = (window.AIO_PAGE_CONTRACTS.groups.critical5 || []).concat(window.AIO_PAGE_CONTRACTS.groups.analysis5 || []);
     var criticalBlocks = (evidence.pages || []).filter(function(p) { return criticalIds.indexOf(p.pageId) >= 0 && p.counts && p.counts.block; });
     var blocking = [];
@@ -22937,6 +23701,8 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       tradingDecisionLogic: trading,
       newsSurface: newsSurface,
       textSurface: textSurface,
+      elementLineage: elementLineage,
+      humanSurface: humanSurface,
       evidence: evidence,
       generatedAt: new Date().toISOString()
     };
@@ -23407,6 +24173,61 @@ window.PAGES = {
   'screener':       { label: '퀀트 스크리너',    init: function() { try { if (typeof _aioInitScreenerFilters === 'function') _aioInitScreenerFilters(); if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'screener init: ' + (e && e.message || e)); } }, chatCtx: 'screener' }  // v50.53 2A: 전용 퀀트 스크리너
 };
 
+// v52.59/H2-08: one route IA registry shared by contracts, PAGES, navigation,
+// history/hash behavior, and guide links.  `theme-detail` is intentionally a
+// derived canonical panel; `options` remains a reference shell for compatibility
+// and is not presented as a full primary workflow.
+window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
+  version: 'v52.59',
+  classes: {
+    NAV_ROUTE: ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','macro','fxbond','fundamental','themes','portfolio','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'],
+    DERIVED_VIEW: ['ticker','theme-detail'],
+    REFERENCE: ['options'],
+    REMOVED: [],
+    OVERLAY: ['glossary']
+  },
+  canonical: { 'theme-detail': 'themes', options: 'options' },
+  registrySources: ['AIO_PAGE_CONTRACTS.routePageIds','AIO_ALL_ROUTE_PAGE_IDS','PAGES','showPage','history.state.page','location.hash','guide TOC']
+};
+window.AIO_ROUTE_CANONICAL_CONTRACT = window.AIO_ROUTE_CANONICAL_CONTRACT || {
+  themeDetail: 'themes',
+  historyPushState: true,
+  hashNavigation: true
+};
+window.AIO.getRouteIAAudit = function() {
+  var reg = window.AIO_ROUTE_REGISTRY;
+  var issues = [], classes = reg.classes || {};
+  var all = [].concat(classes.NAV_ROUTE || [], classes.DERIVED_VIEW || [], classes.REFERENCE || [], classes.REMOVED || []);
+  var duplicates = all.filter(function(id, idx) { return all.indexOf(id) !== idx; });
+  if (duplicates.length) issues.push('route classification duplicates: ' + duplicates.join(','));
+  var contracts = window.AIO_PAGE_CONTRACTS && window.AIO_PAGE_CONTRACTS.routePageIds || [];
+  all.forEach(function(id) {
+    if (contracts.indexOf(id) < 0) issues.push('route missing from contracts: ' + id);
+    if (!document.getElementById('page-' + id)) issues.push('route DOM missing: ' + id);
+    if (!window.PAGES[id]) issues.push('route missing from PAGES: ' + id);
+  });
+  (classes.NAV_ROUTE || []).forEach(function(id) {
+    if (!document.querySelector('[data-action="showPage"][data-arg="' + id + '"], [data-arg="' + id + '"]')) issues.push('NAV_ROUTE lacks navigation entry: ' + id);
+  });
+  var showFn = typeof window.showPage === 'function' ? window.showPage : (typeof showPage === 'function' ? showPage : null);
+  var showSrc = showFn ? showFn.toString() : '';
+  var popSrc = typeof window._aioInPopstate !== 'undefined' ? String(window._aioInPopstate) : '';
+  var routeContract = window.AIO_ROUTE_CANONICAL_CONTRACT || {};
+  var themeCanonical = !!showFn && routeContract.themeDetail === 'themes' && reg.canonical && reg.canonical['theme-detail'] === 'themes';
+  if (!themeCanonical) issues.push('theme-detail canonical redirect contract missing');
+  return {
+    status: issues.length ? 'fail' : 'pass',
+    issueCount: issues.length,
+    issues: issues,
+    routeCount: all.length,
+    classCounts: Object.keys(classes).reduce(function(out, key) { out[key] = (classes[key] || []).length; return out; }, {}),
+    themeDetailCanonical: themeCanonical,
+    historyPushState: routeContract.historyPushState === true && !!(window.history && typeof window.history.pushState === 'function'),
+    hashNavigation: /location\.hash/.test(popSrc + showSrc) || !!window._aioPopstateRegistered,
+    generatedAt: new Date().toISOString()
+  };
+};
+
 // v52.42 (P657/EF-16): kr-macro 카드별 기준일 노출이 산발적이었다(수출입 동향엔 "아카이브" 라벨이
 // 있지만 기준금리·물가·경기 카드엔 없음) — 이미 있는 _fieldTs(bok_rate/kr_macro)를 재사용해
 // 일관된 "기준: MM/DD (N일 전)" 배지를 3개 주요 카드에 부여(새 필드 신설 없음, R276 정신).
@@ -23532,9 +24353,9 @@ function _initBriefingPage() {
       bsv.style.color = bsCol;
     }
     var bfg = document.getElementById('briefing-fg-val');
-    // v52.7 P607/R261: window._fearGreedValue는 어디서도 대입되지 않는 phantom global — 항상 "—".
-    // home/sentiment와 동일한 window._lastFG(P59로 항상 초기화됨) 소스로 전환.
-    var fg = window._lastFG != null ? window._lastFG : (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.fg : null);
+    // v52.55/H3-A: briefing도 canonical currentness selector를 소비한다.
+    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+    var fg = fgMetric && fgMetric.value != null ? fgMetric.value : null;
     if (bfg && fg != null) {
       var fgCol = fg >= 60 ? 'var(--data-green)' : fg >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
       bfg.textContent = fg;

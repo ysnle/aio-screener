@@ -1352,7 +1352,16 @@ function _aioRenderTelegramFeedHtml(pageId) {
     var cfg = _TG_PAGE_CFG[pageId] || ['최신 소식', 5, false, 'date', false];
     var feedLabel = cfg[0], maxItems = cfg[1], showBody = cfg[2], sortBy = cfg[3], compact = cfg[4];
 
-    if (!items.length || !tags.length) return '';
+    var statusMarkup = function(state, count, expected) {
+      var n = window.AIO && typeof window.AIO.normalizeExternalSourceState === 'function'
+        ? window.AIO.normalizeExternalSourceState({ status: state, count: count, expected: expected })
+        : { status: state, label: state === 'success' ? '정상 수신' : '외부 수집 실패', allowedUse: state === 'success' ? 'decision' : 'none' };
+      var cls = n.status === 'success' ? 'is-ok' : n.status === 'partial' ? 'is-partial' : 'is-fail';
+      var note = n.status === 'success' ? '외부 피드 정상 수신' : n.status === 'partial' ? '일부 채널만 수신 · 참고용' : '외부 피드 실패 · 서버 다이제스트/기존 데이터 유지';
+      return '<div class="tg-source-state ' + cls + '" data-external-source="telegram:' + escHtml(pageId) + '" data-state="' + n.status + '" title="' + escHtml(note) + '">' +
+        '<span class="tg-source-state-dot"></span>' + escHtml(n.label) + ' · ' + escHtml(note) + '</div>';
+    };
+    if (!items.length || !tags.length) return statusMarkup('unavailable', 0, maxItems);
 
     // 태그 필터
     var filtered = items.filter(function(it) {
@@ -1373,7 +1382,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
       filtered = filtered.slice().sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
     }
     filtered = filtered.slice(0, maxItems);
-    if (!filtered.length) return '';
+    if (!filtered.length) return statusMarkup('unavailable', 0, maxItems);
 
     // 감성 집계 + 카드 사전 처리
     var sentCounts = { bull: 0, bear: 0, neutral: 0 };
@@ -1386,7 +1395,8 @@ function _aioRenderTelegramFeedHtml(pageId) {
     // 헤더
     var latestDate = (filtered[0].localDateKst || '').slice(5, 10);
     var feedCls = 'tg-live-feed' + (compact ? ' tg-compact' : '');
-    var html = '<div class="' + feedCls + '">';
+    var feedState = filtered.length < maxItems ? 'partial' : 'success';
+    var html = '<div class="' + feedCls + '">' + statusMarkup(feedState, filtered.length, maxItems);
 
     var sentBar = '';
     if (sentCounts.bull)    sentBar += '<span class="tg-sb-bull">▲' + sentCounts.bull + '</span>';
@@ -1957,13 +1967,13 @@ function renderScreenerResults() {
               '<div style="height:100%;width:'+rank+'%;background:'+rkColor+';border-radius:2px;"></div>' +
             '</div>'
           : '<span style="color:#5a6678;">—</span>') +
-        (r.quantSignal ? '<div style="font-size:9px;color:'+rkColor+';margin-top:2px;">'+escHtml(r.quantSignal)+'</div>' : '') +
+        (r.quantSignal ? '<div style="font-size:10px;color:'+rkColor+';margin-top:2px;">'+escHtml(r.quantSignal)+'</div>' : '') +
       '</td>' +
       '<td style="text-align:center;padding:5px 6px;"><span class="mv-grade ' + gradeClass + '" style="font-size:11px;">' + grade + '</span></td>' +
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
       _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) + _fcell(fs.kalman, '칼만추세', false) +
-      '<td style="text-align:right;padding:4px 8px;" title="VCP 점수 '+( vcpScore != null ? vcpScore : '—' )+' · '+vcpStageKey+'">' + (vcpScore != null ? '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:'+vcpColor+';">'+vcpScore+'</div><div style="font-size:9px;color:'+vcpColor+';">'+vcpStageShort+'</div>' : '<span style="color:#5a6678;">—</span>') + '</td>' +
+      '<td style="text-align:right;padding:4px 8px;" title="VCP 점수 '+( vcpScore != null ? vcpScore : '—' )+' · '+vcpStageKey+'">' + (vcpScore != null ? '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:'+vcpColor+';">'+vcpScore+'</div><div style="font-size:10px;color:'+vcpColor+';">'+vcpStageShort+'</div>' : '<span style="color:#5a6678;">—</span>') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
@@ -2200,8 +2210,8 @@ window._aioCalcPositionSize = function() {
   out.innerHTML =
     '<b style="color:var(--data-cyan);">최대 손실:</b> <b style="color:var(--data-red);">$' + maxLoss.toLocaleString('en-US',{maximumFractionDigits:0}) + '</b>' +
     ' &nbsp;|&nbsp; <b style="color:var(--text-muted);">투자 금액:</b> <b style="color:var(--text-primary);">$' + actualInvest.toLocaleString('en-US',{maximumFractionDigits:0}) + '</b> (' + pctOfCapital + '% of 자본)' +
-    (shares != null && shares > 0 ? ' &nbsp;|&nbsp; <b style="color:var(--text-muted);">추천 주수:</b> <b style="color:var(--data-green);">' + shares.toLocaleString() + '주</b> <span style="font-size:9px;color:var(--text-muted);">@ $' + price.toFixed(2) + '</span>' : '') +
-    ' <span style="display:block;font-size:9px;color:var(--text-muted);margin-top:3px;">※ 리스크 ' + riskPct + '% · 손절 ' + stopPct + '% · 계산 결과는 참고용이며 투자 결정은 본인 판단으로 하세요.</span>';
+    (shares != null && shares > 0 ? ' &nbsp;|&nbsp; <b style="color:var(--text-muted);">추천 주수:</b> <b style="color:var(--data-green);">' + shares.toLocaleString() + '주</b> <span style="font-size:10px;color:var(--text-muted);">@ $' + price.toFixed(2) + '</span>' : '') +
+    ' <span style="display:block;font-size:10px;color:var(--text-muted);margin-top:3px;">※ 리스크 ' + riskPct + '% · 손절 ' + stopPct + '% · 계산 결과는 참고용이며 투자 결정은 본인 판단으로 하세요.</span>';
 };
 window._aioHidePositionSizer = function() {
   var p = document.getElementById('scr-position-sizer');
@@ -2245,11 +2255,11 @@ window._aioRenderFactorTab = function() {
       var lbl = FACTOR_LABELS[key] || { ko:key, desc:'', color:'var(--text-secondary)' };
       var pct = maxW > 0 ? Math.round(w / maxW * 100) : 0;
       return '<div style="display:grid;grid-template-columns:50px 1fr 28px;gap:4px;align-items:center;" title="' + lbl.desc + '">' +
-        '<span style="font-size:9px;color:' + lbl.color + ';font-weight:600;">' + lbl.ko + '</span>' +
+        '<span style="font-size:10px;color:' + lbl.color + ';font-weight:600;">' + lbl.ko + '</span>' +
         '<div style="background:rgba(255,255,255,.06);border-radius:2px;height:7px;overflow:hidden;">' +
           '<div style="background:' + lbl.color + ';height:100%;width:' + pct + '%;opacity:.8;"></div>' +
         '</div>' +
-        '<span style="font-size:9px;color:var(--text-muted);text-align:right;">' + Math.round(w*100) + '%</span>' +
+        '<span style="font-size:10px;color:var(--text-muted);text-align:right;">' + Math.round(w*100) + '%</span>' +
       '</div>';
     }).join('');
   }
@@ -2301,7 +2311,7 @@ window._aioRenderScreenerBacktest = function() {
     return;
   }
   var fmtIC = function(v){ if (v == null) return '—'; var c = v>=0.05?'#00e5a0':v<=-0.05?'#ff5b50':'#ffa31a'; return '<span style="color:'+c+';font-weight:700;">'+v.toFixed(3)+'</span>'; };
-  var rows = [['모멘텀','momentum',false],['추세','trend',false],['저변동 <span style="font-size:9px;color:var(--data-amber);">↓우수·역방향</span>','lowvol',true],['종합','composite',false]].map(function(p){
+  var rows = [['모멘텀','momentum',false],['추세','trend',false],['저변동 <span style="font-size:10px;color:var(--data-amber);">↓우수·역방향</span>','lowvol',true],['종합','composite',false]].map(function(p){
     return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">'+p[0]+' IC</span>'+fmtIC(bt.ic[p[1]])+'</div>';
   }).join('');
   var spread = (bt.quantileSpread != null) ? ((bt.quantileSpread>=0?'+':'')+bt.quantileSpread.toFixed(1)+'%') : '—';
@@ -2318,7 +2328,7 @@ window._aioRenderScreenerBacktest = function() {
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">' + rows +
     '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">상-하위 분위 스프레드</span><span style="font-weight:700;">'+spread+'</span></div>' +
     '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;"><span style="color:var(--text-secondary);">방향 적중률</span><span style="font-weight:700;">'+hit+'</span></div></div>' +
-    '<div style="font-size:9px;color:var(--text-muted);margin-top:4px;">IC&gt;0.05 = 유의미한 예측력(랭크↑→수익↑). <b style="color:var(--data-amber);">검증 범위: 가격 파생 4팩터만(모멘텀/추세/저변동/칼만), 항상 '+weightRegime+' 고정 가중.</b> 라이브 랭킹에 있는 '+excluded.join('/')+' 팩터와 레짐 적응 가중은 이 검증에 포함되지 않음 — 라이브 종합 랭크 전체의 검증이 아닙니다.</div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">IC&gt;0.05 = 유의미한 예측력(랭크↑→수익↑). <b style="color:var(--data-amber);">검증 범위: 가격 파생 4팩터만(모멘텀/추세/저변동/칼만), 항상 '+weightRegime+' 고정 가중.</b> 라이브 랭킹에 있는 '+excluded.join('/')+' 팩터와 레짐 적응 가중은 이 검증에 포함되지 않음 — 라이브 종합 랭크 전체의 검증이 아닙니다.</div>';
 };
 
 // ═══ 스파크라인 미니차트 시스템 ═══════════════════════════════════════
@@ -5501,7 +5511,7 @@ async function _aioLoadServerData() {
     // 3) Fear & Greed
     if (d.fearGreed && typeof d.fearGreed.score === 'number' && isFinite(d.fearGreed.score)) {
       if (typeof _applyFearGreedScore === 'function') {
-        _applyFearGreedScore({ score: d.fearGreed.score, sourceKind: 'live', sourceLabel: 'cnn-via-github-actions', sourceTs: d.fearGreed.asOf || d.meta.generatedAt });
+        _applyFearGreedScore({ score: d.fearGreed.score, sourceKind: 'delayed', sourceLabel: 'cnn-via-github-actions', sourceTs: d.fearGreed.asOf || d.meta.generatedAt, operationalUse: 'reference-only' });
       }
       window._lastFG = d.fearGreed.score;
       // v51.66: _fieldTs.fearGreed — Fear & Greed 마지막 적용 시각 기록
@@ -6078,7 +6088,7 @@ function _aioRenderPipelineStatus() {
     var html = msgs.map(function(m) {
       return '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,0.25);border-left:2px solid ' + m.color + ';padding:3px 8px;border-radius:3px;font-size:10px;" title="' + m.detail.replace(/"/g,'&quot;') + '">'
            + m.icon + ' <b>' + m.text + '</b>'
-           + ' <span style="color:var(--text-muted);font-size:9px;">' + m.detail + '</span>'
+           + ' <span style="color:var(--text-muted);font-size:10px;">' + m.detail + '</span>'
            + '</span>';
     }).join('');
 
@@ -9175,7 +9185,10 @@ async function googleTranslateFree(text, from='en', to='ko', _retry=0) {
   try {
     var result = await _gtBatchTranslate([text], from, to, _retry);
     return result[0];
-  } catch(e) { _aioLog('warn', 'fetch', 'googleTranslateFree error: ' + e.message); return null; }
+  } catch(e) {
+    if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(e, { source: 'translation' });
+    _aioLog('warn', 'fetch', 'googleTranslateFree error: ' + e.message); return null;
+  }
 }
 
 // v30.12: 배치 번역 — 최대 8건을 하나의 API 호출로 처리
@@ -9204,7 +9217,10 @@ async function _gtBatchTranslate(texts, from, to, _retry) {
   for (var ei = 0; ei < endpoints.length; ei++) {
     try {
       var r = await fetchWithTimeout(endpoints[ei].url, {}, endpoints[ei].timeout);
-      if (!r.ok) continue;
+      if (!r.ok) {
+        if (ei === endpoints.length - 1 && typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError({ status: r.status, message: 'translation upstream HTTP ' + r.status }, { source: 'translation' });
+        continue;
+      }
       var d = await r.json();
       if (!Array.isArray(d) || !Array.isArray(d[0])) continue;
       var fullResult = d[0].map(function(s) { return (s && s[0]) || ''; }).join('');
@@ -9656,6 +9672,7 @@ async function freeTranslateNews(items) {
 
   if (needTrans.length === 0) {
     if (statusEl) statusEl.textContent = '✓ 번역 불필요 (한국어 뉴스)';
+    if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError({ status: 200, message: 'success' }, { source: 'translation' });
     return;
   }
 
@@ -9704,6 +9721,7 @@ async function freeTranslateNews(items) {
         });
       }
     } catch(e) {
+      if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(e, { source: 'translation' });
       // 배치 전체 실패 → 원문 유지
       for (var fi = 0; fi < batch.length; fi++) {
         var fItem = batch[fi];
@@ -9771,7 +9789,8 @@ async function freeTranslateNews(items) {
   var statusMsg = '✓ ' + translated + '건 번역 완료 (무료)';
   if (failed > 0) statusMsg += ' · <span style="color:#f87171;">' + failed + '건 번역 실패</span>';
   statusMsg += ' · ';
-  if (statusEl) statusEl.innerHTML = statusMsg + '<span style="cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">Claude 키 입력 시 AI 해석 추가</span>';
+  if (statusEl) statusEl.innerHTML = statusMsg + (failed > 0 ? ' · 네트워크를 확인한 뒤 다시 시도하세요. ' : '') + '<span style="cursor:pointer;text-decoration:underline;color:#fbbf24;" data-action="openApiKeyConfig">Claude 키 입력 시 AI 해석 추가</span>';
+  if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(failed > 0 ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
   // P4 수정: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
   renderFeed(newsCache);
@@ -9909,6 +9928,7 @@ ${prompt}`
         }
       } else {
         const errText = await resp.text().catch(() => '');
+        if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError({ status: resp.status, message: errText.slice(0, 200) || 'translation API error' }, { source: 'translation' });
         _aioLog('warn', 'translate', '번역 API 응답 에러: ' + resp.status + ' ' + errText.slice(0, 200));
         // FABLE-LIVE-AUDIT-2026-07-07 C2/L0-2: Claude(서버키) 경로 실패 시 바로 localEnrichSingle로
         // 가면 원문이 영문일 때 헤드라인 없는 일반 분류 템플릿만 남는다(B5: CF Worker /anthropic
@@ -9918,6 +9938,7 @@ ${prompt}`
         if (_failedBatch.length) { try { await freeTranslateNews(_failedBatch); } catch(_gtErr) { _failedBatch.forEach(orig => { if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig); }); } }
       }
     } catch(e) {
+      if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(e, { source: 'translation' });
       _aioLog('warn', 'translate', '번역 API 호출 에러: ' + (e && e.message || e));
       var _failedBatch2 = batch.filter(orig => !_translationCache.has(_tcKey(orig.title)));
       if (_failedBatch2.length) { try { await freeTranslateNews(_failedBatch2); } catch(_gtErr2) { _failedBatch2.forEach(orig => { if (!_translationCache.has(_tcKey(orig.title))) localEnrichSingle(orig); }); } }
@@ -9937,6 +9958,7 @@ ${prompt}`
   _translationInProgress = false;
   console.log(`[AIO v30.12] 번역+해석 완료: ${translated}건`);
   if (statusEl) statusEl.textContent = `✓ ${_translationCache.size}건 번역·해석 완료`;
+  if (typeof window._aioSetLastAiError === 'function') window._aioSetLastAiError(translated < needTranslation.length ? { status: 503, message: 'translation partial failure' } : { status: 200, message: 'success' }, { source: 'translation' });
 
   // v30.12 P4: 번역 완료 후 캐시 저장
   _tcSaveToStorage();
@@ -11271,9 +11293,8 @@ function _buildBriefingDecisionSummary(items, totalCount, bw) {
   var snap = window.DATA_SNAPSHOT || {};
   // v52.34 P649: 브리핑 페이지 세 번째 F&G 소스 — 이전엔 존재하지 않는/미할당 필드를 읽어 항상 null이었다.
   // P642가 고친 상단 스트립/요약 텍스트와 동일하게 live-first로 정합.
-  var fgLive = Number(window._lastFG);
-  var fgSnap = Number(snap.fg);
-  var fg = Number.isFinite(fgLive) ? fgLive : (Number.isFinite(fgSnap) ? fgSnap : null);
+  var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+  var fg = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : null;
   var textBlob = (items || []).slice(0, 40).map(function(i) {
     return [i.title, i.desc, i.topic, i.source].join(' ');
   }).join(' ').toLowerCase();
@@ -11638,7 +11659,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
         messages: [{ role: 'user', content: prompt }]
       })
     }, _ct.serverKey);
-    if (!resp.ok) throw new Error('API ' + resp.status);
+    if (!resp.ok) { var _briefHttpErr = new Error('API ' + resp.status); _briefHttpErr.status = resp.status; throw _briefHttpErr; }
     var data = await resp.json();
     var aiText = data.content && data.content[0] ? data.content[0].text : '';
     if (!aiText) throw new Error('빈 응답');
@@ -11667,9 +11688,12 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     _briefingCachedHtml = finalHtml;
     container.innerHTML = finalHtml;
   } catch(e) {
+    var _briefAiError = typeof window._aioSetLastAiError === 'function'
+      ? window._aioSetLastAiError(e, { source: 'briefing' })
+      : { displayMessage: 'AI 분석 브리핑 생성에 실패했습니다. 잠시 후 다시 시도하세요.' };
     _aioLog('warn', 'fetch', 'AI 브리핑 생성 실패: ' + (e.message || e));
     // 폴백: 카테고리별 분석 글
-    var errNote = '<div style="padding:8px 10px;font-size:11px;color:#fbbf24;background:var(--data-amber-faint);border-radius:3px;margin-bottom:10px;">AI 분석 브리핑 생성 실패 (' + escHtml(e.message || '알 수 없는 오류') + ') — 카테고리별 뉴스 상세로 표시합니다.</div>'; // v42.5: XSS 방어
+    var errNote = '<div style="padding:8px 10px;font-size:11px;color:#fbbf24;background:var(--data-amber-faint);border-radius:3px;margin-bottom:10px;">' + escHtml(_briefAiError.displayMessage || 'AI 분석 브리핑 생성에 실패했습니다.') + ' — 카테고리별 뉴스 상세로 표시합니다.</div>'; // v42.5: XSS 방어
     var finalHtml = briefingHeader + errNote + fallbackHtml;
     _briefingCacheKey = cacheKey;
     _briefingCachedHtml = finalHtml;
@@ -12083,10 +12107,16 @@ let _rss2jsonFailed = 0;
 const _rssSourceHealth = {}; // { sourceName: { fails: N, lastOk: ts } }
 function _rssMarkOk(name) {
   _rssSourceHealth[name] = { fails: 0, lastOk: Date.now() };
+  if (/^TG\s|telegram/i.test(String(name || '')) && window.AIO && typeof window.AIO.setExternalSourceState === 'function') {
+    window.AIO.setExternalSourceState('telegram:' + name, { status: 'success', message: 'feed items received' });
+  }
 }
 function _rssMarkFail(name) {
   if (!_rssSourceHealth[name]) _rssSourceHealth[name] = { fails: 0, lastOk: 0 };
   _rssSourceHealth[name].fails++;
+  if (/^TG\s|telegram/i.test(String(name || '')) && window.AIO && typeof window.AIO.setExternalSourceState === 'function') {
+    window.AIO.setExternalSourceState('telegram:' + name, { status: 'unavailable', message: 'all external mirrors failed', reason: 'all-proxies-failed' });
+  }
 }
 function _rssIsSkipped(name) {
   var h = _rssSourceHealth[name];
@@ -15896,9 +15926,8 @@ function generateDynamicBriefing() {
   else yieldStatus = '10Y ' + tnxPrice.toFixed(2) + '% — 금리 하향, 성장주 우호적';
 
   // F&G — v52.27 P642: same-page summary must use the same live source as the briefing strip.
-  var fgLive = Number(window._lastFG);
-  var fgSnap = Number(snap.fg);
-  var fgVal = Number.isFinite(fgLive) ? fgLive : (Number.isFinite(fgSnap) ? fgSnap : null);
+  var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+  var fgVal = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : null;
   var fgLabel = fgVal != null ? (fgVal <= 25 ? '극단공포' : fgVal <= 45 ? '공포' : fgVal <= 55 ? '중립' : fgVal <= 75 ? '탐욕' : '극단탐욕') : '—';
   var fgColor = fgVal != null ? (fgVal <= 25 ? '#ff5b50' : fgVal <= 45 ? '#ffa31a' : fgVal <= 55 ? 'var(--text-secondary)' : fgVal <= 75 ? '#00e5a0' : '#10b981') : 'var(--text-muted)';
 
@@ -16544,7 +16573,8 @@ function refreshHomeDashboard() {
   const spx = ld['^GSPC'] || {};
   const vix = ld['^VIX'] || {};
   const dxy = ld['DX-Y.NYB'] || {};
-  const fg = window._lastFG || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 35);
+  const _fgHomeMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+  const fg = _fgHomeMetric && _fgHomeMetric.value != null ? _fgHomeMetric.value : 35;
   const ts = new Date();
 
   // SECTION 0: One-line market summary
@@ -16838,8 +16868,17 @@ function _applyFearGreedScore(opts) {
   var score      = opts.score;
   var sourceKind = opts.sourceKind || 'unavailable';  // live | proxy | snapshot | unavailable
   var sourceLabel= opts.sourceLabel || 'cnn-fear-greed';
-  var sourceTs   = opts.sourceTs || new Date().toISOString();
+  var sourceTs   = opts.sourceTs || ((sourceKind === 'snapshot' || sourceKind === 'delayed') && typeof DATA_SNAPSHOT !== 'undefined' ? (DATA_SNAPSHOT._updated || DATA_SNAPSHOT._snapshotDate) : null) || new Date().toISOString();
   var operationalUse = opts.operationalUse || (sourceKind === 'live' ? 'decision' : sourceKind === 'proxy' ? 'decision' : 'reference-only');
+  // H3-A canonical provenance: DOM lineage and decision engine read the same envelope.
+  if (score != null && isFinite(score)) {
+    var _fgTsNum = typeof sourceTs === 'number' && sourceTs < 100000000000 ? sourceTs * 1000 : new Date(sourceTs).getTime();
+    window._lastFGMeta = {
+      value: Number(score), source: sourceLabel, sourceKind: sourceKind, sourceLabel: sourceLabel,
+      sourceTs: sourceTs, asOf: sourceTs, fetchedAt: (sourceKind === 'live' || sourceKind === 'proxy') ? Date.now() : null,
+      freshnessClock: sourceKind === 'delayed' ? 'observation' : 'fetch', normalizedSourceTs: isFinite(_fgTsNum) ? _fgTsNum : null
+    };
+  }
   var badge      = document.getElementById('fg-live-badge');
   var big        = document.getElementById('fg-score-big');
   var val        = document.getElementById('fg-score-val');
@@ -16867,8 +16906,8 @@ function _applyFearGreedScore(opts) {
     if (fgLink) fgLink.style.display = (score <= 25 || score >= 75) ? 'block' : 'none';
   }
   if (badge) {
-    badge.textContent = opts.badgeText || (sourceKind === 'live' ? '실시간 · CNN API' : sourceKind === 'proxy' ? '실시간 (프록시)' : sourceKind === 'snapshot' ? '폴백 데이터 (과거 스냅샷)' : '데이터 미수신');
-    badge.style.color = sourceKind === 'live' ? '#00e5a0' : sourceKind === 'proxy' ? '#ffa31a' : '#7b8599';
+    badge.textContent = opts.badgeText || (sourceKind === 'live' ? '실시간 · CNN API' : sourceKind === 'proxy' ? '실시간 (프록시)' : sourceKind === 'delayed' ? '지연 · 서버 스냅샷' : sourceKind === 'snapshot' ? '참고용 스냅샷 (매매 판단 제외)' : '데이터 미수신');
+    badge.style.color = sourceKind === 'live' ? '#00e5a0' : sourceKind === 'proxy' ? '#ffa31a' : sourceKind === 'delayed' ? '#ffa31a' : '#7b8599';
     badge.setAttribute('data-operational-use', operationalUse);
     badge.setAttribute('data-source-kind', sourceKind);
     badge.setAttribute('data-source-label', sourceLabel);
@@ -16917,7 +16956,7 @@ async function fetchFearGreed() {
       }
     } catch(subErr) { /* 서브컴포넌트는 옵셔널 — 실패해도 메인 score 갱신은 성공 */ }
     // v49.64 P334: 단일 helper로 sink + lineage 메타 일괄 적용 (live 경로)
-    _applyFearGreedScore({ score: score, sourceKind: 'live', sourceLabel: 'cnn-fear-greed-api', operationalUse: 'decision' });
+    _applyFearGreedScore({ score: score, sourceKind: 'live', sourceLabel: 'cnn-fear-greed-api', sourceTs: fg.timestamp || data.timestamp || new Date().toISOString(), operationalUse: 'decision' });
     // Historical
     if (prev && prev.length >= 4) {
       const h1 = document.getElementById('fg-h1');
@@ -16939,7 +16978,8 @@ async function fetchFearGreed() {
             }
           } catch(_fgDeltaErr) {}
         } else {
-          var _fbScore = window._lastFG || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 35);
+          var _fgFallbackMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+          var _fbScore = _fgFallbackMetric && _fgFallbackMetric.value != null ? _fgFallbackMetric.value : 35;
           h1.textContent = _fbScore <= 25 ? '극단 공포 구간' : _fbScore <= 45 ? '공포 구간' : _fbScore <= 55 ? '중립 구간' : _fbScore <= 75 ? '탐욕 구간' : '극단 탐욕 구간';
         }
       }
@@ -16957,15 +16997,15 @@ async function fetchFearGreed() {
       if (fg2) {
         const score2 = Math.round(fg2.score);
         // v49.64 P334: helper 통합 (proxy 경로)
-        _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', operationalUse: 'decision' });
+        _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', sourceTs: fg2.timestamp || data2.timestamp || new Date().toISOString(), operationalUse: 'decision' });
       }
       // v37.8: 심리 복합 분석 갱신
       if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return true;
     } catch(e2) {
       // v49.64 P334: snapshot 경로도 helper로 통합
-      var _snapFg = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : 15;
-      _applyFearGreedScore({ score: _snapFg, sourceKind: 'snapshot', sourceLabel: 'DATA_SNAPSHOT:fear-greed', operationalUse: 'reference-only' });
+      var _snapFg = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fg != null) ? DATA_SNAPSHOT.fg : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : null);
+      _applyFearGreedScore({ score: _snapFg, sourceKind: 'snapshot', sourceLabel: 'DATA_SNAPSHOT:fear-greed', sourceTs: (typeof DATA_SNAPSHOT !== 'undefined' && (DATA_SNAPSHOT._updated || DATA_SNAPSHOT._snapshotDate)) || null, operationalUse: 'reference-only' });
       if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return false;
     }
