@@ -2,7 +2,7 @@
 verified_by: agent (Sonnet 5, wc -l 실측 — WO-8/P669 currency packet, 파일 크기 표만 갱신)
 last_verified: 2026-07-11
 confidence: medium
-target_version: v52.59
+target_version: v52.60
 target_file: index.html + js/*.js
 target_lines: index.html 32253 + js modules 63844
 ---

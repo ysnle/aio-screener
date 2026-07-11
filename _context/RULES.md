@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-07-11
 confidence: high
-target_version: v52.58
+target_version: v52.60
 
 ---
 
@@ -3368,3 +3368,9 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Required**: Keep `ci-accessibility-matrix-check.mjs` in the blocking workflow and require zero computed fonts under 10px, nameless controls, unnamed selects/canvases, and positive tabindex values. Keep small-target observations and external/human Tier-13 evidence explicitly separate.
 
 **Validation**: T918, `ci-runtime-contract-check.mjs`, and `ci-critical10-human-surface-check.mjs` with external requests blocked.
+
+## R308. Fallback/reference freshness must not be forced into live parity (v52.60, P677 root)
+
+**Rule**: A static `DATA_SNAPSHOT` marked `_isFallback=true` is reference-only and may lag a dynamically refreshed digest or source artifact. Its freshness contract is explicit degraded-state labeling and chronological ordering, not identical timestamps with a live-ish source.
+
+**Required**: Regression tests must distinguish fallback from promoted snapshot state. For fallback data, require valid dates and `marketDate <= digestDate`; for promoted data, require the configured cross-source parity window. Never advance a fallback date without updating the values and provenance it describes.

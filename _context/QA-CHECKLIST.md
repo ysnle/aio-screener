@@ -3,10 +3,10 @@ verified_by: agent
 last_verified: 2026-07-11
 confidence: high
 version: v3.8
-checklist_version: v52.59
-total_items: 528
+checklist_version: v52.60
+total_items: 529
 stages: 22
-latest_P_covered: P676
+latest_P_covered: P677
 ---
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
@@ -2757,3 +2757,5 @@ P676-Q4: `ci-portfolio-vault-e2e.mjs` must keep PFE2-01–PFE2-08 green for encr
 P676-Q5: typed provenance must preserve one evidence ID across UI/score/AI projections, distinguish missing from neutral, and weaken future/stale/manual/seed evidence to non-decision action strength; decision surfaces must expose `data-evidence-id` and `data-operational-use`.
 P676-Q6: score/factor research artifacts must retain their reduced-scope status and PIT/delisted/cost/adaptive-weight caveats until the full validation gate is actually run.
 P676-Q7: Firefox/WebKit, NVDA/manual screen-reader, live GitHub Pages, and Worker deployment remain separate external/human gates and must not be marked PASS from Chromium/local evidence alone.
+
+P677-Q1: T830 must distinguish `_isFallback=true` reference snapshots from promoted live snapshots: fallback dates must be valid and no newer than the dynamic digest, while only promoted snapshots are subject to the seven-day cross-source parity window; the audit must expose fallback state and date delta.

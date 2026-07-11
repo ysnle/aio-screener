@@ -1340,3 +1340,8 @@ H3-A는 코드 덧붙이기식 병렬 경로가 아니라 기존 `AIO_OPERATIONA
 | H2-16 | LOCAL_PASS | CHANGELOG/version note, doc currency, workflow compaction, knowledge lint 실행 |
 
 최종 로컬 게이트: headless **992/992 PASS**, FULL_INIT **88/88 PASS**, accessibility **22/22 PASS**, Portfolio Vault **PFE2-01~08 PASS**, runtime/data/semantic/workflow/knowledge gates PASS. 실제 Pages/Worker 배포, live parity, Firefox/WebKit/NVDA는 이 로컬 결과만으로 완료 처리하지 않는다.
+### 16.16 2026-07-12 T830 remote-data rebase regression
+
+- `origin/main` advanced with scheduled data refresh commits after the H2 second-pass commit. The safe rebase preserved those commits and exposed a real freshness-contract mismatch: static `DATA_SNAPSHOT._isFallback=true` remained dated `2026-07-03` while the dynamic Telegram digest advanced to `2026-07-11`.
+- Local reproduction after rebase was `991/992 PASS`, only T830 failed. T830 now distinguishes fallback/reference snapshots from promoted snapshots: fallback requires valid chronological ordering and promoted data requires the seven-day parity window.
+- v52.60/P677/R308/QA P677-Q1 records the fix. The original local v52.59 gates were 992/992; the new remote-data-aware headless gate must pass before another Pages deployment is considered successful.

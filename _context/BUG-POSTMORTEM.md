@@ -2,10 +2,10 @@
 verified_by: agent
 last_verified: 2026-07-11
 confidence: high
-latest_version: v52.59
-latest_P_number: P676
-total_entries: 442
-next_P_number: P677
+latest_version: v52.60
+latest_P_number: P677
+total_entries: 443
+next_P_number: P678
 
 ## P676 - v52.59 - H2 second-pass gates: accessibility font contract, route settle false positives, typed provenance, and public artifact closure
 
@@ -14,6 +14,20 @@ next_P_number: P677
 - **verification**: headless **992/992 PASS**; FULL_INIT **88/88 PASS**, overflow 0px, tiny text observations 0, jsErrors 0; accessibility **22/22 PASS** with computed font <10px 0 and nameless controls/selects/canvases 0; Portfolio Vault PFE2-01~08 PASS; runtime/data/semantic/workflow/knowledge gates PASS.
 - **remaining gates**: Firefox/WebKit binaries were not installed because the escalated Playwright install was rejected by the environment usage limit; NVDA/screen-reader evidence, live Pages/Worker revision, live data watchdog, and PIT/cost/calibration research remain external or human gates. No pass claim is made for those items.
 - **prevention**: `ci-runtime-contract-check.mjs` now checks H2-10/H2-12~H2-16 wiring; the second-pass handoff ledger records LOCAL_PASS, REDUCED_SCOPE_PASS, LOCAL_PARTIAL, and BLOCKED_EXTERNAL separately instead of collapsing them into one completion flag.
+
+## P677 - v52.60 - T830 rejected a valid stale fallback snapshot after the remote Telegram digest refreshed
+
+- **발견 버전:** v52.59
+- **증상:** local reproduction after rebasing onto the latest remote data commits reported `991/992 PASS`; T830 saw `_marketDataDate=2026-07-03` and `_telegramDigestDate=2026-07-11` and failed the seven-day parity assertion.
+- **근본 원인:** `DATA_SNAPSHOT._isFallback=true` intentionally leaves the static market snapshot as reference-only, while the dynamic Telegram loader advances `_telegramDigestDate`. T830 treated fallback/reference data as if it had to be promoted in lockstep with the live-ish digest, so a valid degraded state became a CI failure.
+- **수정:** `js/aio-tests.js` now requires fallback market date <= digest date and records `fallbackSnapshot`/`dateDeltaDays`; only promoted snapshots require the seven-day cross-date parity contract.
+- **violated_rule:** R308
+- **감지 방법 (재발 방지 grep):**
+```bash
+rg -n "fallbackSnapshot830|datesConsistent830|_isFallback" js/aio-tests.js
+```
+- **예방 규칙:** fallback/reference evidence must be validated for direction and explicit degraded state, not forced into live parity with a separately refreshed source.
+- **검증:** local headless reproduction before fix 991/992; after fix T830 and the complete headless suite must pass; remote accessibility/Vault/Critical-10 jobs were already green in CI run 29164003575.
 ---
 
 > 2026-07-02: header counters were stale (claimed P551/550 while the file tail already held P552-P581) —

@@ -1,3 +1,8 @@
+## v52.60 (2026-07-12) - fallback freshness contract
+
+- **T830 freshness regression fix**: fallback/reference `DATA_SNAPSHOT` dates are no longer incorrectly required to match a separately refreshed Telegram digest. T830 now enforces chronological ordering for fallback state and close parity only for promoted snapshots; added P677/R308/QA coverage.
+- **Verification**: local reproduction identified `991/992 PASS` after the remote data rebase; the follow-up v52.60 gate reruns the complete headless suite before the next Pages deployment.
+
 ## v52.59 (2026-07-11)
 - H2-02/H2-03: FULL_INIT route-specific settle/rejection capture and SVG marker clamp; final local viewport matrix 88/88 PASS (22 routes × 4 viewports, overflow 0px, tiny text 0, jsErrors 0).
 - H2-04/H2-05: normalized AI error contract across browser/data/Worker paths and blocking Portfolio Vault PFE2-01~08 Chromium E2E PASS.

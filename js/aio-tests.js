@@ -6726,7 +6726,15 @@
       var themesTopics830 = contracts830.themes && contracts830.themes.topics || [];
       var isoDateRe830 = /^\d{4}-\d{2}-\d{2}$/;
       var datesValid830 = isoDateRe830.test(ds830._marketDataDate || '') && isoDateRe830.test(ds830._telegramDigestDate || '');
-      var datesConsistent830 = datesValid830 && Math.abs(new Date(ds830._marketDataDate) - new Date(ds830._telegramDigestDate)) <= 7 * 86400000;
+      var fallbackSnapshot830 = !!ds830._isFallback;
+      var marketTs830 = new Date(ds830._marketDataDate).getTime();
+      var digestTs830 = new Date(ds830._telegramDigestDate).getTime();
+      // The static snapshot is intentionally reference-only and can lag the dynamically
+      // refreshed Telegram digest. Enforce ordering for that degraded path; require
+      // close cross-date parity only when the snapshot is promoted out of fallback.
+      var datesConsistent830 = datesValid830 && (fallbackSnapshot830
+        ? marketTs830 <= digestTs830
+        : Math.abs(marketTs830 - digestTs830) <= 7 * 86400000);
       t830ok = !!(cats830.length >= 10 &&
         pagesOk830 &&
         technicalTopics830.indexOf('optical') >= 0 &&
@@ -6744,6 +6752,8 @@
         themesTopics: themesTopics830,
         marketDataDate: ds830._marketDataDate,
         telegramDigestDate: ds830._telegramDigestDate,
+        fallbackSnapshot: fallbackSnapshot830,
+        dateDeltaDays: datesValid830 ? Math.round(Math.abs(marketTs830 - digestTs830) / 86400000) : null,
         datesConsistent: datesConsistent830
       });
     } catch(e) { t830detail = 'ERR:' + e.message; }
