@@ -16567,8 +16567,54 @@ function refreshSignal() {
 }
 
 // ═══ HOME PAGE DASHBOARD REFRESH ═══════════════════════════════════
+// v52.65 아이보리 리디자인 1b: 종합 거래 점수 히어로 (레거시 _aioDiagram score-breakdown/market-regime
+// 원형게이지+2x2쿼드런트 완전 대체). computeTradingScore()를 직접 호출해 실데이터로 60px 스코어+판단문+5개 하위점수를 구성.
+function _aioRenderHomeHero() {
+  var totalEl = document.getElementById('home-hero-total');
+  if (!totalEl) return;
+  var sc = {};
+  try { sc = (typeof computeTradingScore === 'function') ? computeTradingScore() : {}; } catch(_) { sc = {}; }
+  var total = Math.round(sc.total != null ? sc.total : (window._tradingScore != null ? window._tradingScore : 50));
+  var clamp = function(v, lo, hi) { var n = Number(v); return Math.max(lo, Math.min(hi, isFinite(n) ? n : lo)); };
+  var band = total >= 75 ? { label: '매수 우호', action: 'ATR 손절선과 무효화 가격을 정한 뒤 분할 진입 검토. 80+ 구간은 차익실현 병행.' }
+    : total >= 60 ? { label: '선별 매수', action: 'ATR 손절선 설정 후 선별 분할 진입. 추격보다 1차 매수 우선.' }
+    : total >= 45 ? { label: '중립 · 관망', action: '신규 진입 자제. 기존 포지션 방어선과 손절을 먼저 확인.' }
+    : total >= 30 ? { label: '주의 · 축소', action: '리스크 자산 비중 축소. 현금 비율 높이고 헤지 검토.' }
+    : { label: '위험 · 방어', action: '신규 매수 중단. 방어 운용 후 스코어 45+ 복귀 확인 후 재개.' };
+  var ld = window._liveData || {};
+  var vixPrice = (ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : null);
+  var vixTxt = vixPrice != null ? 'VIX ' + Number(vixPrice).toFixed(1) : 'VIX 미수신';
+  var spxPct = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? Number(ld['^GSPC'].pct) : null;
+  var spxTxt = spxPct != null ? ('S&P ' + (spxPct >= 0 ? '+' : '') + spxPct.toFixed(2) + '%') : '지수 방향 확인 중';
+
+  totalEl.textContent = String(total);
+  var headEl = document.getElementById('home-hero-headline');
+  if (headEl) headEl.textContent = band.label;
+  var descEl = document.getElementById('home-hero-desc');
+  if (descEl) descEl.textContent = spxTxt + ' · ' + vixTxt + '. ' + band.action;
+
+  var compEl = document.getElementById('home-hero-components');
+  if (compEl) {
+    var comps = [
+      { label: '변동성', v: Math.round(clamp(sc.volScore, 0, 100) * 0.25), max: 25 },
+      { label: '추세', v: Math.round(clamp(sc.trendScore, 0, 100) * 0.20), max: 20 },
+      { label: '모멘텀', v: Math.round(clamp(sc.momScore, 0, 100) * 0.25), max: 25 },
+      { label: '시장 폭', v: Math.round(clamp(sc.breadthScore, 0, 100) * 0.20), max: 20 },
+      { label: '거시', v: Math.round(clamp(sc.macroScore, 0, 100) * 0.10), max: 10 }
+    ];
+    compEl.innerHTML = comps.map(function(c) {
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;">' +
+        '<span style="font-size:11.5px;color:var(--text-muted);">' + c.label + '</span>' +
+        '<span style="font-size:12px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">' + c.v + ' / ' + c.max + '</span>' +
+        '</div>';
+    }).join('');
+  }
+}
+window._aioRenderHomeHero = _aioRenderHomeHero;
+
 function refreshHomeDashboard() {
   try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
+  try { _aioRenderHomeHero(); } catch(_) {}
   const ld = window._liveData || {};
   const spx = ld['^GSPC'] || {};
   const vix = ld['^VIX'] || {};

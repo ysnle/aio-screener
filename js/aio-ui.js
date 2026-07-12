@@ -3825,8 +3825,9 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     try {
       switch (pid) {
         case 'home':
-          _render('vis-home-score',  'score-breakdown', _buildScore());
-          _render('vis-home-regime', 'market-regime',   _buildRegime());
+          // v52.65: vis-home-score/vis-home-regime(원형게이지+2x2쿼드런트) DOM 제거 —
+          // 시안 1b 히어로(index.html home-hero-*)로 대체, js/aio-data.js _aioRenderHomeHero()가 렌더.
+          try { if (typeof window._aioRenderHomeHero === 'function') window._aioRenderHomeHero(); } catch(_) {}
           break;
         case 'signal':
           _render('vis-signal-score', 'score-breakdown', _buildScore());
