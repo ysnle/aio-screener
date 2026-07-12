@@ -49,10 +49,11 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `FABLE-EFFICACY-AUDIT-2026-07-10.md` | 라이브(v52.34) 페이지별 시장데이터 완비·사용성·실효성 실측 진단(17.5/22페이지, §1 매트릭스) + 발견 대장 EF-01~18(technical S&P 0.5% stale·breadth 4중 모순·매크로 지표 1~2개월 stale·엔캐리 게이지 상시 사망·ticker 재무 침묵 숨김·어닝 캘린더 빈 화면 등) + 보강 설계 Batch 1~4. **차기 구현 진입점(§5, Sonnet 5 체크리스트)** · 미점검 잔여는 §4 명시 | 구현 완료/재감사 시 |
 | `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` | v52.43 저장소·이력·라이브 브라우저·GitHub/Pages/Actions·보안·데이터·시스템 레이어·Trading Score/Factor를 함께 본 종합 진단과 후속 에이전트 작업 패킷 WO-0~8. P0: 무효 watchdog YAML, 포트폴리오 암호화 표기 불일치, Anthropic 공유 프록시 비용 경계 | 각 WO 완료/전수 재감사 시 |
 | `CODEX-SECOND-PASS-HANDOFF-2026-07-10.md` | 1차 종합 진단과 22페이지 프론트엔드 추가 진단을 통합한 2차 실행 원장. 기존 WO local/live 상태 재분류, H2-00~16 개선·보강 설계, 외부 공개 BETA/PUBLIC/CLAIMS 게이트, Luna/후속 모델 실행 계약 | H2 항목 완료·라이브 parity·Tier 13 재감사 시 |
+| `REMAINING-WORK-2026-07-12.md` | v52.60 배포 후 남은 비차단 작업, 사용자 판단 필요 항목, 재개 규칙의 단일 요약 | 남은 H2 항목 상태·담당·공개 게이트 변경 시 |
 | `WO7-GLOBAL-INVENTORY-2026-07-10.md` | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7("점진적 구조 격리") Packet 1 — 전역 read/write baseline 실측(innerHTML 395·전역쓰기 1,318·localStorage direct 146 vs safeLS 8) + timer/chart/page-lifecycle 어댑터 기존재 확인(진짜 갭은 채택률) + snapshot/storage adapter 전면화 등 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 31개 `_context/*.md` 활성(2026-07-10 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 32개 `_context/*.md` 활성(2026-07-12 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 
