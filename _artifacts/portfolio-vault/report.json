@@ -1,0 +1,50 @@
+{
+  "checks": [
+    {
+      "id": "PFE2-01 new_user_no_pin",
+      "ok": true,
+      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":161},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
+    },
+    {
+      "id": "PFE2-02 pin_encrypts_storage",
+      "ok": true,
+      "detail": "{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":161}"
+    },
+    {
+      "id": "PFE2-03 lock_and_wrong_pin_rejected",
+      "ok": true,
+      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":161},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
+    },
+    {
+      "id": "PFE2-04 correct_pin_restores_data",
+      "ok": true,
+      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":161},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
+    },
+    {
+      "id": "PFE2-05 reload_requires_unlock",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "id": "PFE2-06 legacy_plaintext_migrates",
+      "ok": true,
+      "detail": "{\"encrypted\":true,\"legacyPinRemoved\":true,\"dataRestored\":true}"
+    },
+    {
+      "id": "PFE2-07 opt_out_is_explicit_plaintext",
+      "ok": true,
+      "detail": "{\"optOutPlain\":true,\"rawRoundTrip\":true,\"domHasExecutableHandler\":false,\"escapedTextVisible\":true}"
+    },
+    {
+      "id": "PFE2-08 portfolio_input_boundary",
+      "ok": true,
+      "detail": "{\"optOutPlain\":true,\"rawRoundTrip\":true,\"domHasExecutableHandler\":false,\"escapedTextVisible\":true}"
+    }
+  ],
+  "errors": [],
+  "scope": "local Chromium, external network blocked",
+  "page": {
+    "encryptedMarker": "[{\"sym\":\"",
+    "optOut": "1"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-07-12T08:48:38.873Z",
+  "viewport": "1024x768",
+  "checks": [
+    {
+      "name": "screener-tabs-profile-advanced-search",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "factorsVisible": true,
+        "rankingVisible": true,
+        "advOn": true,
+        "advOff": true,
+        "momentum": true,
+        "searchExists": true
+      }
+    },
+    {
+      "name": "kr-supply-tabs",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "tab": "weekly",
+        "visible": true
+      }
+    },
+    {
+      "name": "kr-themes-filter-roundtrip",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "total": 28,
+        "filtered": 4,
+        "restored": 28
+      }
+    },
+    {
+      "name": "guide-search",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "input": true,
+        "trigger": true
+      }
+    },
+    {
+      "name": "browser-back-route",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "active": "page-home",
+        "hash": "#home"
+      }
+    },
+    {
+      "name": "reload-route-recovery",
+      "pass": true,
+      "detail": {
+        "pass": true,
+        "active": "page-screener",
+        "hash": "#screener"
+      }
+    }
+  ],
+  "errors": [],
+  "pass": true
+}

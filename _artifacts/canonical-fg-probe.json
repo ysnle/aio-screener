@@ -1,0 +1,111 @@
+{
+  "generatedAt": "2026-07-12T09:08:42.770Z",
+  "global": {
+    "canonical": {
+      "id": "fg",
+      "value": 49,
+      "source": "cnn-via-github-actions",
+      "sourceKind": "delayed",
+      "sourceLabel": "cnn-via-github-actions",
+      "asOf": "2026-07-10T23:59:47+00:00",
+      "fetchedAt": null,
+      "ageMs": 119389299,
+      "freshness": "stale",
+      "status": "STALE",
+      "confidence": "low",
+      "allowedUse": false,
+      "decisionUse": false,
+      "reason": "current source exceeded SLA"
+    },
+    "lastFG": 49,
+    "snapshotFG": 31,
+    "fieldTs": "2026-07-10T23:59:47+00:00",
+    "lastFetch": null
+  },
+  "routes": {
+    "home": [
+      {
+        "tag": "DIV",
+        "id": "home-fg-score",
+        "class": "aio-metric-value",
+        "snap": null,
+        "text": "49"
+      },
+      {
+        "tag": "DIV",
+        "id": "home-fg-label",
+        "class": "aio-metric-delta",
+        "snap": null,
+        "text": "중립"
+      },
+      {
+        "tag": "SPAN",
+        "id": "home-fg-delta",
+        "class": "aio-metric-delta is-flat",
+        "snap": null,
+        "text": "+2"
+      }
+    ],
+    "signal": [],
+    "sentiment": [
+      {
+        "tag": "DIV",
+        "id": "fg-h1",
+        "class": "",
+        "snap": null,
+        "text": "극단 공포 구간"
+      },
+      {
+        "tag": "line",
+        "id": "fg-needle",
+        "class": "[object SVGAnimatedString]",
+        "snap": null,
+        "text": ""
+      },
+      {
+        "tag": "DIV",
+        "id": "fg-score-big",
+        "class": "",
+        "snap": null,
+        "text": "31"
+      },
+      {
+        "tag": "SPAN",
+        "id": "fg-score-val",
+        "class": "",
+        "snap": null,
+        "text": "31"
+      },
+      {
+        "tag": "SPAN",
+        "id": "sentiment-fg-delta",
+        "class": "aio-metric-delta is-flat",
+        "snap": null,
+        "text": "+2"
+      },
+      {
+        "tag": "SPAN",
+        "id": "fg-rating-text",
+        "class": "",
+        "snap": null,
+        "text": "공포 (Fear)"
+      },
+      {
+        "tag": "DIV",
+        "id": "fg-live-badge",
+        "class": "",
+        "snap": null,
+        "text": "참고용 스냅샷 (매매 판단 제외)"
+      }
+    ],
+    "briefing": [
+      {
+        "tag": "SPAN",
+        "id": "briefing-fg-val",
+        "class": "",
+        "snap": null,
+        "text": "31"
+      }
+    ]
+  }
+}

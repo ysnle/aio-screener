@@ -50,10 +50,11 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` | v52.43 저장소·이력·라이브 브라우저·GitHub/Pages/Actions·보안·데이터·시스템 레이어·Trading Score/Factor를 함께 본 종합 진단과 후속 에이전트 작업 패킷 WO-0~8. P0: 무효 watchdog YAML, 포트폴리오 암호화 표기 불일치, Anthropic 공유 프록시 비용 경계 | 각 WO 완료/전수 재감사 시 |
 | `CODEX-SECOND-PASS-HANDOFF-2026-07-10.md` | 1차 종합 진단과 22페이지 프론트엔드 추가 진단을 통합한 2차 실행 원장. 기존 WO local/live 상태 재분류, H2-00~16 개선·보강 설계, 외부 공개 BETA/PUBLIC/CLAIMS 게이트, Luna/후속 모델 실행 계약 | H2 항목 완료·라이브 parity·Tier 13 재감사 시 |
 | `REMAINING-WORK-2026-07-12.md` | v52.60 배포 후 남은 비차단 작업, 사용자 판단 필요 항목, 재개 규칙의 단일 요약 | 남은 H2 항목 상태·담당·공개 게이트 변경 시 |
+| `INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md` | v52.62 로컬/v52.61 라이브 기준 기관급 공개 진단·실행 원장. 18,064 leaf·77 quotes·846 screener·10 FRED·38 news 원천 대사, 22페이지 사용자 시각/의미 감사, F&G 49/31·870/846/873 분열, 운영 SLO·누락 영역, WP-0~14 게이트 | 각 WP 완료, 원천·라이선스·페이지 필수 데이터·공개 판정 변경 시 |
 | `WO7-GLOBAL-INVENTORY-2026-07-10.md` | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7("점진적 구조 격리") Packet 1 — 전역 read/write baseline 실측(innerHTML 395·전역쓰기 1,318·localStorage direct 146 vs safeLS 8) + timer/chart/page-lifecycle 어댑터 기존재 확인(진짜 갭은 채택률) + snapshot/storage adapter 전면화 등 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 32개 `_context/*.md` 활성(2026-07-12 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 33개 `_context/*.md` 활성(2026-07-12 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 

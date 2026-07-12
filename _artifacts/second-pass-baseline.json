@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-07-12T04:21:57.820Z",
+  "local": {
+    "branch": "main",
+    "head": "a155bc9",
+    "originMain": "a155bc9",
+    "version": "v52.61",
+    "built": "2026-07-12T13:20:00+09:00",
+    "dirty": true,
+    "changedFiles": [
+      "HANGELOG.md",
+      "CLAUDE.md",
+      "_context/CLAUDE.md",
+      "_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md",
+      "_context/REMAINING-WORK-2026-07-12.md",
+      "index.html",
+      "js/aio-chat.js",
+      "js/aio-core.js",
+      "js/aio-tests.js",
+      "scripts/ci-portfolio-vault-e2e.mjs",
+      "scripts/ci-runtime-contract-check.mjs",
+      "sw.js",
+      "version.json",
+      "_artifacts/",
+      "debug.log"
+    ]
+  },
+  "live": {
+    "status": "UNVERIFIED",
+    "url": "https://ysnle.github.io/aio-screener/version.json",
+    "version": null,
+    "error": "AIO_BASELINE_FETCH_LIVE=1 not supplied"
+  },
+  "worker": {
+    "sourceRoutePresent": true,
+    "sourceContract": true,
+    "configuredUrlInPublicSource": false,
+    "deployedRevision": "UNVERIFIED — Worker deployment is a separate operator action"
+  },
+  "changedFileAllowlist": {
+    "policy": "Only source/docs/scripts related to H2/H3 may be staged; debug.log and disposable _artifacts remain excluded unless explicitly needed.",
+    "files": [
+      "HANGELOG.md",
+      "CLAUDE.md",
+      "_context/CLAUDE.md",
+      "_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md",
+      "_context/REMAINING-WORK-2026-07-12.md",
+      "index.html",
+      "js/aio-chat.js",
+      "js/aio-core.js",
+      "js/aio-tests.js",
+      "scripts/ci-portfolio-vault-e2e.mjs",
+      "scripts/ci-runtime-contract-check.mjs",
+      "sw.js",
+      "version.json"
+    ]
+  },
+  "preFixFailureRepro": {
+    "status": "DOCUMENTED",
+    "evidence": "_context/BUG-POSTMORTEM.md P675: CDN-loss partial Chart fallback touched Chart.registry; original FULL_INIT technical SVG marker overlap reproduced across 4 viewports.",
+    "currentGate": "scripts/ci-headless-tests.mjs and scripts/ci-viewport-matrix-check.mjs"
+  },
+  "permissions": {
+    "pagesPush": "not performed by this script",
+    "workerDeploy": "not performed by this script",
+    "externalLiveEvidence": "pending operator/network evidence"
+  }
+}
