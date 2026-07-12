@@ -1,10 +1,10 @@
 ---
 verified_by: Codex
-last_verified: 2026-07-11
-confidence: high for repository/static and local real-Chromium PC/laptop evidence; medium for external-source parity; blocked for human screen-reader and authenticated/external-success flows
+last_verified: 2026-07-12
+confidence: high for repository/static, local real-Chromium, GitHub Actions, and Pages invariant evidence; medium for external-source parity; blocked for human screen-reader and Worker-authenticated/external-success flows
 auto_refresh: true
-target_version: v52.58
-implementation_status: implemented-locally; external-success and manual-screen-reader evidence pending
+target_version: v52.60
+implementation_status: Pages/watchdog/live-invariant verified; Worker external-success and manual-screen-reader evidence pending
 source_documents:
   - _context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md
   - _context/FABLE-UIUX-DEEP-AUDIT-2026-07-08.md
@@ -1321,17 +1321,17 @@ H3-A는 코드 덧붙이기식 병렬 경로가 아니라 기존 `AIO_OPERATIONA
 
 | 항목 | 현재 판정 | 증거/남은 조건 |
 |---|---|---|
-| H2-00 | LOCAL_PASS | `scripts/ci-second-pass-baseline.mjs`, local `v52.59`; live/Worker revision은 별도 확인 필요 |
-| H2-01 | DEPLOY_PENDING | GitHub Pages/Worker 운영 권한과 실제 배포 revision 확인 필요 |
-| H2-02 | LOCAL_PASS | FULL_INIT 22×4 = 88/88, semantic settle, late rejection capture, jsErrors 0 |
-| H2-03 | LOCAL_PASS | SVG 양끝 clamp + T921 fixture, viewport 88/88 |
-| H2-04 | LOCAL_PASS | 공통 AI error envelope + T919/T920 + Worker `aioAiError` |
-| H2-05 | LOCAL_PASS / LIVE_PENDING | Portfolio Vault PFE2-01~08 PASS; 실제 공개 배포 후 cross-reload 확인 필요 |
-| H2-06 | LOCAL_PASS / DEPLOY_PENDING | explicit Pages allowlist, `og-image.svg`, `robots.txt`, `sitemap.xml`, manifest |
+| H2-00 | LOCAL/LIVE_PASS | `v52.60`; `ci-live-invariant-check.mjs` PASS; live asset cachebusters match version |
+| H2-01 | PARTIAL_EXTERNAL | Pages deploy run `29164541698` PASS; Data Watchdog `29173397491` PASS; Worker revision/KV/token/quota live response matrix remains user-side |
+| H2-02 | LOCAL/CI_PASS | FULL_INIT 22×4 = 88/88; semantic settle, late rejection capture, jsErrors 0; blocking CI job PASS |
+| H2-03 | LOCAL/CI_PASS | SVG 양끝 clamp + T921 fixture; viewport 88/88; blocking CI job PASS |
+| H2-04 | LOCAL_PASS / WORKER_LIVE_PENDING | 공통 AI error envelope + T919/T920 + Worker `aioAiError`; live Worker success/limit/error responses require configured Worker URL |
+| H2-05 | DEPLOYED_LIVE_PENDING | Portfolio Vault PFE2-01~08 PASS; Pages is deployed, but live cross-reload/legacy migration still needs browser evidence |
+| H2-06 | LOCAL/LIVE_PASS | explicit Pages allowlist, `og-image.svg`, `robots.txt`, `sitemap.xml`, manifest; live invariant PASS |
 | H2-07 | LOCAL_PASS | content-truth audit, public GitHub Issues 경로, KR snapshot context T922/T923 |
 | H2-08 | LOCAL_PASS | 19 NAV_ROUTE + 2 DERIVED_VIEW + 1 REFERENCE, canonical/history/hash T924/T925 |
 | H2-09 | LOCAL_PASS_PARTIAL | 22 route intent/scenario registry와 priority review set; human visual density review는 별도 |
-| H2-10 | LOCAL_PASS | 22/22 accessibility matrix, computed font <10px 0, nameless control/select/canvas 0, positive tabindex 0 |
+| H2-10 | LOCAL/CI_PASS | 22/22 accessibility matrix, computed font <10px 0, nameless control/select/canvas 0, positive tabindex 0 |
 | H2-11 | BLOCKED_EXTERNAL | Chromium evidence만 확보. Firefox/WebKit 바이너리 설치가 사용량 제한으로 거부되어 중단; NVDA는 human gate |
 | H2-12 | LOCAL_PASS_PARTIAL | typed evidence envelope/T930 및 decision header `data-evidence-id`; 전체 10개 지표 cross-surface parity는 추가 data/live run 필요 |
 | H2-13 | REDUCED_SCOPE_PASS | `score-backtest-longrun.json`의 fixed-rule/holdout/regime 결과 유지; PIT 입력·calibration·cost는 미충족 |
@@ -1339,9 +1339,16 @@ H3-A는 코드 덧붙이기식 병렬 경로가 아니라 기존 `AIO_OPERATIONA
 | H2-15 | LOCAL_PARTIAL | portfolio/storage/snapshot/lifecycle/timer/chart 경계 audit T931; legacy direct storage/snapshot 전면 이전은 별도 패킷 |
 | H2-16 | LOCAL_PASS | CHANGELOG/version note, doc currency, workflow compaction, knowledge lint 실행 |
 
-최종 로컬 게이트: headless **992/992 PASS**, FULL_INIT **88/88 PASS**, accessibility **22/22 PASS**, Portfolio Vault **PFE2-01~08 PASS**, runtime/data/semantic/workflow/knowledge gates PASS. 실제 Pages/Worker 배포, live parity, Firefox/WebKit/NVDA는 이 로컬 결과만으로 완료 처리하지 않는다.
+최종 게이트: local headless **992/992 PASS**, CI run `29164541698`의 validate/headless/FULL_INIT/accessibility/Critical-10/Portfolio/Pages deploy 모두 PASS, live invariant PASS, Data Watchdog run `29173397491` PASS. Worker live response matrix, Portfolio live cross-reload, Firefox/WebKit/NVDA는 이 증거만으로 완료 처리하지 않는다.
 ### 16.16 2026-07-12 T830 remote-data rebase regression
 
 - `origin/main` advanced with scheduled data refresh commits after the H2 second-pass commit. The safe rebase preserved those commits and exposed a real freshness-contract mismatch: static `DATA_SNAPSHOT._isFallback=true` remained dated `2026-07-03` while the dynamic Telegram digest advanced to `2026-07-11`.
 - Local reproduction after rebase was `991/992 PASS`, only T830 failed. T830 now distinguishes fallback/reference snapshots from promoted snapshots: fallback requires valid chronological ordering and promoted data requires the seven-day parity window.
 - v52.60/P677/R308/QA P677-Q1 records the fix. The original local v52.59 gates were 992/992; the new remote-data-aware headless gate must pass before another Pages deployment is considered successful.
+
+### 16.17 2026-07-12 live closure evidence
+
+- Pages deployment run `29164541698` completed successfully after all blocking gates: validate, headless, FULL_INIT viewport, accessibility, Critical-10, Portfolio Vault, and deploy.
+- `node scripts/ci-live-invariant-check.mjs` returned `Live invariant check OK (https://ysnle.github.io/aio-screener, version=v52.60)`.
+- Data Watchdog run `29173397491` completed successfully; the watchdog is operational and producing jobs.
+- `node scripts/ci-worker-anthropic-check.mjs` passed the local real-handler security contract, but this is not a live Worker call. Cloudflare KV binding/secret/variable configuration and one real `/anthropic` response matrix remain operator evidence.
