@@ -1,3 +1,18 @@
+## v52.63 (2026-07-12) - 아이보리 리디자인 시안 대조 2차: 실제 comp HTML 기반 정밀화
+
+사용자가 실제 디자인 comp 파일(`AIO 리디자인.dc.html`, 13개 화면: 1a-c/2a-b/3a-g/4a-c)을 제공 — v52.62의 텍스트 스펙 기반 작업을 comp의 정확한 구조·타이포·수치와 재대조.
+
+- **사이드바 확인**: comp가 요구하는 종합(5)/시장분석(5)/내투자(2)/한국시장(5)/도구(3) 카테고리 구조가 이미 라이브에 정확히 일치함을 확인(별도 작업 불필요) — 리디자인 이전부터 존재하던 인프라.
+- **전역 타이포그래피**: `.page-title`을 22개 페이지 공통으로 세리프(Noto Serif KR) 27px 600으로 전환(comp 전 화면 공통 패턴) — 기존 `!important` 오버라이드 2곳까지 함께 수정하지 않으면 무효였음.
+- **page-briefing 신규 섹션 3개 구축**(2b 시안 기반, 기존에는 라벨 정리만 되어 있었음): "시장 분석"(리드 문단+"오늘 시장을 움직인 것" 이벤트연결 카드+2×2 서브섹션), "행동"(기존 미사용 상태였던 `AIO_ACTION_RULES.getActionPlan()` 유틸 재발견해 연결), "오늘 일정". 데이터는 `_ldSafe()`/`DATA_SNAPSHOT`/뉴스 상위 스코어 재사용, 조건 분기 기반 한국어 문장 조립(완전한 서술 생성은 범위 밖, 정직하게 문서화).
+- **2차 하드코딩 색상 스윕**: 1차 스윕이 놓친 저빈도 색상 106건 추가 발견·수정(다크 배경 채움 24건, 시맨틱 green/red 27건, 장식성 잉크 수렴 55건) — TradingView placeholder 배경(#131722) 등.
+- **레드 테두리 버그 수정**: 시장폭/거시경제/차트기술분석 페이지에서 중립 카드에 잘못 적용된 하드코딩 빨간 테두리(`rgba(177,58,48,...)`) 다수 발견·수정 — 배경은 중립인데 테두리만 경고색인 불일치 패턴.
+- **부수 발견(pre-existing 버그)**: page-breadth의 `breadth-diag-text` span과 인접 `<b>` 태그가 굽은 따옴표(smart quotes, ”)로 감싸여 있어 `style`/`id` 속성이 깨져 있었음(`document.getElementById('breadth-diag-text')`가 매칭 실패) — 직선 따옴표로 수정. 이번 세션 리디자인과 무관한 기존 결함, 작업 중 우연히 발견.
+- **동시성**: 별도 Codex 세션이 세션 중간에도 자체 Stop-hook WIP 커밋을 4회 발생시켜(`_artifacts/*` 테스트 산출물 + `debug.log`만 포함, 소스 변경 없음) 로컬 히스토리에 잡음이 섞였음 — `git reset --soft`로 해당 4개 커밋을 되돌리고 실제 소스 변경만 재커밋. `_context/INDEX.md`·`INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md`(그 세션의 별도 산출물)는 이번 커밋에서 명시적으로 제외.
+- **범위 밖(정직히 기록)**: fxbond/fundamental/themes/portfolio/market-news/screener 6개 페이지는 comp의 페이지별 신규 와이어프레임(신규 탭 시스템, 벤치마크 비교 차트, RRG 4분면 재배치, 검색+리포트 헤더 재구성 등)까지는 미착수 — 전역 색상/타이포 스윕의 혜택만 받은 상태. page-technical의 TradingView iframe → 캔들+거래량프로파일 전환(comp 3c)도 미착수(kr-technical에서 이미 수행한 것과 동급 규모의 별도 엔지니어링). 후속 세션 이관.
+- **게이트**: 로컬 9종 PASS + 헤드리스 992/992 PASS + viewport-matrix/human-surface/portfolio-vault/a11y-matrix 확인(세션 로그 참조).
+- R1 7곳 v52.63
+
 ## v52.62 (2026-07-12) - 아이보리 리디자인 P1~P2 전체 + P3~P10 부분 적용
 
 `C:\Users\zmfhd\Downloads\CLAUDE-CODE-HANDOFF.md`(시안 1b/2a/2b 기반) 순차 실행. 전체 재작성 없이 기존 변수명·구조 유지한 부분 패치.

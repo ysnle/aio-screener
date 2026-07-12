@@ -18634,7 +18634,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.62';
+const APP_VERSION = 'v52.63';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -24484,6 +24484,112 @@ function _initBriefingPage() {
       }
     }
   }, 45000);
+  try { _aioRenderBriefingMarketAnalysis(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'briefing market-analysis: ' + (e && e.message || e)); }
+}
+
+// v52.63 아이보리 리디자인 2b: 시장 분석(심층)/행동/오늘 일정 — 데이터 기반 템플릿 서술.
+// 손으로 쓴 문장이 아닌, 실시간 값 조건 분기로 조립되는 정직한 요약(정교한 서술 생성은 범위 밖).
+function _aioRenderBriefingMarketAnalysis() {
+  function fx(v, d) { return window._aioSafeFixed ? window._aioSafeFixed(v, d != null ? d : 2, '—') : (v == null ? '—' : Number(v).toFixed(d != null ? d : 2)); }
+  function pct(v) { var n = Number(v); return (n >= 0 ? '+' : '') + fx(n, 2) + '%'; }
+  function tone(v) { return Number(v) >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
+  function b(txt, color) { return '<b style="color:' + (color || 'var(--text-primary)') + ';">' + txt + '</b>'; }
+
+  var spy = _ldSafe('SPY', 'price'), spyChg = _ldSafe('SPY', 'chgPct');
+  var qqq = _ldSafe('QQQ', 'price'), qqqChg = _ldSafe('QQQ', 'chgPct');
+  var vix = _ldSafe('^VIX', 'price'), vixChg = _ldSafe('^VIX', 'chgPct');
+  var tnx = _ldSafe('^TNX', 'price'), tnxChg = _ldSafe('^TNX', 'chg');
+  var dxy = _ldSafe('DX-Y.NYB', 'price'), dxyChg = _ldSafe('DX-Y.NYB', 'chgPct');
+  var kospi = _ldSafe('^KS11', 'price'), kospiChg = _ldSafe('^KS11', 'chgPct');
+  var rsp = _ldSafe('RSP', 'price');
+  var S = window.DATA_SNAPSHOT || {};
+  var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+  var fg = fgMetric && fgMetric.value != null ? fgMetric.value : (S.fearGreedValue != null ? S.fearGreedValue : null);
+  var breadth50 = window._breadth50 != null ? window._breadth50 : S.breadth50sma;
+  var hySpread = S.hySpread, skew = S.skew;
+  var rspSpy = (rsp != null && spy) ? (rsp / spy) : null;
+  var wideBreadth = breadth50 != null && Number(breadth50) >= 60;
+  var extended = spyChg != null && qqqChg != null && Number(spyChg) > 0 && Number(qqqChg) > 0;
+
+  // 리드 문단
+  var leadEl = document.getElementById('briefing-analysis-lead');
+  if (leadEl && spy != null) {
+    var lead = extended
+      ? '가격은 강하지만 내부는 그만큼 강하지 않은 흐름입니다. S&amp;P 500 ' + b(fx(spy, 2)) + ' ' + b(pct(spyChg), tone(spyChg)) +
+        (wideBreadth ? ', 시장 참여 폭도 함께 넓어지는 중입니다.' : ', 다만 50일선 상회 종목 비율은 ' + b(fx(breadth50, 0) + '%') + '로 상승이 대형주에 쏠려 있습니다.') +
+        ' 요약하면 — ' + b(wideBreadth ? '추세와 확산이 함께 유효' : '추세는 유효하나, 확산 없는 상승') + '이라는 단서가 붙습니다.'
+      : 'S&amp;P 500 ' + b(fx(spy, 2)) + ' ' + b(pct(spyChg), tone(spyChg)) + ', VIX ' + b(fx(vix, 2)) + ' ' + b(pct(vixChg), tone(-vixChg)) +
+        '로 시장은 관망 우위의 하루입니다. 방향성 판단은 다음 확인 지표(시장 폭·금리 반응)를 기다리는 편이 합리적입니다.';
+    leadEl.innerHTML = lead;
+  }
+  var tsEl = document.getElementById('briefing-analysis-ts');
+  if (tsEl) tsEl.textContent = '실시간 갱신 · ' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ' 기준';
+
+  // 오늘 시장을 움직인 것 — 뉴스 상위 스코어 3건
+  var driversEl = document.getElementById('briefing-drivers-list');
+  if (driversEl) {
+    var items = (window._allNewsItems || (typeof newsCache !== 'undefined' ? newsCache : []) || []).slice();
+    items.sort(function(a, c) { return (c.score || 0) - (a.score || 0); });
+    var top = items.slice(0, 3);
+    if (top.length) {
+      driversEl.innerHTML = top.map(function(it) {
+        var cat = it.topic || it.category || '뉴스';
+        var sentColor = it.sentiment === 'positive' ? 'var(--data-green)' : it.sentiment === 'negative' ? 'var(--data-red)' : 'var(--text-muted)';
+        var reason = it.selectionReason || it.desc || it.summary || '';
+        return '<div style="display:flex;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid var(--border-subtle);">' +
+          '<span style="font-size:11px;font-weight:600;color:var(--text-secondary);border:1px solid var(--border-strong);border-radius:4px;padding:2px 8px;flex-shrink:0;">' + escHtml(cat) + '</span>' +
+          '<div style="flex:1;font-size:13px;line-height:1.65;color:var(--text-secondary);">' + b(escHtml((it.title || '').slice(0, 90))) +
+          (reason ? ' — ' + escHtml(reason.slice(0, 80)) : '') + '</div>' +
+          '<span style="font-size:11px;font-weight:600;color:' + sentColor + ';flex-shrink:0;">' + (it.sentiment === 'positive' ? '호재' : it.sentiment === 'negative' ? '부담' : '중립') + '</span>' +
+        '</div>';
+      }).join('');
+    } else {
+      driversEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">뉴스 수신 대기 중</div>';
+    }
+  }
+
+  // 2x2 서브섹션
+  var idxEl = document.getElementById('briefing-sub-index');
+  if (idxEl && spy != null) idxEl.innerHTML = 'S&amp;P 500 ' + b(fx(spy, 2)) + ' ' + b(pct(spyChg), tone(spyChg)) + ' · 나스닥100 ' + b(fx(qqq, 2)) + ' ' + b(pct(qqqChg), tone(qqqChg)) +
+    '. ' + (extended ? '지수는 상승 흐름을 유지하고 있습니다.' : '단기 방향은 혼조 — 다음 확인 지표를 기다리는 구간입니다.');
+  var ratesEl = document.getElementById('briefing-sub-rates');
+  if (ratesEl && tnx != null) ratesEl.innerHTML = '10년물 ' + b(fx(tnx, 2) + '%') + (tnxChg != null ? ' (' + b((tnxChg >= 0 ? '+' : '') + fx(tnxChg, 1) + 'bp', tone(tnxChg)) + ')' : '') +
+    ', DXY ' + b(fx(dxy, 2)) + '. ' + (tnx != null && Number(tnx) > 4.6 ? '4.6% 상회 — 성장주 밸류에이션 부담 구간입니다.' : '4.6% 밸류 부담선 아래에서 유지되고 있습니다.');
+  var volEl = document.getElementById('briefing-sub-vol');
+  if (volEl && vix != null) volEl.innerHTML = 'VIX ' + b(fx(vix, 2)) + ' ' + b(pct(vixChg), tone(-vixChg)) + ', F&amp;G ' + b(fg != null ? fx(fg, 0) : '—') +
+    (skew != null ? '. SKEW ' + b(fx(skew, 1)) + (Number(skew) > 130 ? '로 꼬리위험 헤지 수요가 높은 편입니다.' : '로 안정적입니다.') : '.');
+  var breadthEl = document.getElementById('briefing-sub-breadth');
+  if (breadthEl) breadthEl.innerHTML = (breadth50 != null ? '50일선 상회 종목 ' + b(fx(breadth50, 0) + '%') + (wideBreadth ? '로 확산이 확인됩니다.' : '로 가격 대비 미확인 상태입니다.') : '시장 폭 데이터 수신 대기 중.') +
+    (rspSpy != null ? ' RSP/SPY ' + b(fx(rspSpy, 3)) + '.' : '') + (kospi != null ? ' 코스피 ' + b(fx(kospi, 2)) + ' ' + b(pct(kospiChg), tone(kospiChg)) + '.' : '');
+
+  // 행동
+  var actEl = document.getElementById('briefing-action-list');
+  var metaEl = document.getElementById('briefing-action-meta');
+  if (actEl && window.AIO_ACTION_RULES) {
+    var plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: breadth50 });
+    var acts = (plan && plan.actions) || [];
+    actEl.innerHTML = acts.map(function(a, i) {
+      return '<div style="display:flex;gap:12px;"><span style="font-size:12px;font-weight:600;color:var(--text-dim);flex-shrink:0;">' + String(i + 1).padStart(2, '0') + '</span>' +
+        '<span style="font-size:13px;color:var(--text-secondary);line-height:1.65;">' + escHtml(a) + '</span></div>';
+    }).join('');
+    if (metaEl) metaEl.textContent = 'SCORE ' + (window._tradingScore != null ? window._tradingScore : '—') + (plan && plan.sentiment ? ' · ' + plan.sentiment.action : '');
+  }
+
+  // 오늘 일정 — 매크로 캘린더 상위 2건 재사용(있으면), 없으면 안내문
+  var schedEl = document.getElementById('briefing-schedule-list');
+  if (schedEl) {
+    var cal = (window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.upcoming) || window._upcomingMacroEvents || null;
+    if (Array.isArray(cal) && cal.length) {
+      schedEl.innerHTML = cal.slice(0, 4).map(function(ev) {
+        return '<div style="display:flex;align-items:baseline;gap:16px;padding:11px 0;border-top:1px solid var(--border-subtle);">' +
+          '<span style="font-size:11px;color:var(--text-dim);flex-shrink:0;width:76px;">' + escHtml(ev.when || ev.date || '') + '</span>' +
+          '<span style="font-size:13.5px;color:var(--text-secondary);flex:1;">' + escHtml(ev.label || ev.title || '') + '</span>' +
+        '</div>';
+      }).join('');
+    } else {
+      schedEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">공식 일정은 아래 "과거 참고 자료 → 향후 공식 시장 일정"에서 확인하세요.</div>';
+    }
+  }
 }
 
 // themes/theme-detail/kr-themes 공통: 성과 테이블 lazy-init (IntersectionObserver)

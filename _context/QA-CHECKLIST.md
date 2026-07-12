@@ -2768,3 +2768,16 @@ P676-Q6: score/factor research artifacts must retain their reduced-scope status 
 P676-Q7: Firefox/WebKit, NVDA/manual screen-reader, live GitHub Pages, and Worker deployment remain separate external/human gates and must not be marked PASS from Chromium/local evidence alone.
 
 P677-Q1: T830 must distinguish `_isFallback=true` reference snapshots from promoted live snapshots: fallback dates must be valid and no newer than the dynamic digest, while only promoted snapshots are subject to the seven-day cross-source parity window; the audit must expose fallback state and date delta.
+
+## Institutional public-release audit — 2026-07-12 handoff
+
+These are blocking acceptance checks derived from `_context/INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md`. They remain FAIL until implemented as executable CI/runtime tests; documentation or a green shape audit is not sufficient.
+
+- [ ] **IRG-1 repeated metric parity**: after a five-second settle, every visible F&G/VIX/breadth/score/regime sink on all 22 routes has the same evidence ID, value, `asOf`, `sourceKind`, and `allowedUse`. Baseline failure to reproduce first: canonical/home F&G 49 while signal/sentiment/briefing show snapshot 31. This is the literal executable closure of P671-Q4.
+- [ ] **IRG-2 quote observation contract**: all 77 server quote rows carry true `observedAt`, `marketState`, exchange timezone, delay metadata, and source; receipt/fetch time must never substitute for observation time.
+- [ ] **IRG-3 screener universe truth**: `universe`, `fetch-ok`, `ranked`, and `displayed` counts are either equal or separately labelled. Baseline failure: artifact 870/846 while UI displays 873.
+- [ ] **IRG-4 page semantic completeness**: all 22 routes declare unique required evidence producers, minimum coverage, allowed action strength, and failure copy. `theme-detail` aliasing `page-themes` does not count as an independently complete page.
+- [ ] **IRG-5 no hidden decision missingness**: exact placeholder values in any field used by rank/decision/action block the strong action surface. Baselines: screener 4,254 exact placeholders and KR themes 212 after settle.
+- [ ] **IRG-6 semantic AI validator**: generated analysis may publish only if every numeric token, metric label, unit, sign, and observation time resolves to input evidence. Baseline failures: F&G 49 relabelled as VIX 49 and NFP 57 thousand rendered as 570,000.
+- [ ] **IRG-7 operational failure matrix**: each external source has real success/partial/timeout/malformed fixtures, source-specific SLO, quarantine, and user-facing state. The current all-network-aborted browser fixture alone is insufficient.
+- [ ] **IRG-8 independent data/right review**: production-source reproducibility, independent-vendor/official-source divergence, corporate actions, redistribution entitlement, and vendor termination plan are approved before PUBLIC/commercial use.

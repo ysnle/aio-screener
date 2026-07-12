@@ -2,10 +2,19 @@
 verified_by: agent
 last_verified: 2026-07-12
 confidence: high
-latest_version: v52.62
-latest_P_number: P678
-total_entries: 444
-next_P_number: P679
+latest_version: v52.63
+latest_P_number: P679
+total_entries: 445
+next_P_number: P680
+
+## P679 - v52.63 - Curly/smart quotes in a `style`/`id` attribute silently broke `getElementById` lookup on page-breadth (pre-existing, unrelated to this session's edits)
+
+- **motivation**: 아이보리 리디자인 시안(3a 시장 폭) 대조 중 page-breadth "종합 진단" 블록을 읽다가 `<b style=”color:var(--data-amber);”>핵심:</b> <span id=”breadth-diag-text”>...`처럼 직선따옴표(") 대신 굽은따옴표(smart quotes, ” U+201D)로 감싸인 속성값을 발견.
+- **root_cause**: HTML5 파서는 `attr=”value”`처럼 따옴표가 아닌 문자로 시작하는 속성값을 "unquoted value"로 취급해 공백이나 `>`가 나올 때까지 읽는다 — 즉 `id` 속성의 실제 값이 `”breadth-diag-text”`(굽은따옴표 두 개 포함)가 되어버려 `document.getElementById('breadth-diag-text')`가 절대 매칭되지 않는 상태였음. `style` 속성도 동일하게 깨져 색상이 적용되지 않았을 것. 이번 세션의 어떤 편집과도 무관한 기존 결함(원인 미상 — 과거 어느 시점의 복사/붙여넣기 또는 인코딩 손상으로 추정, mojibake 계열과 유사한 패턴).
+- **fix**: 두 속성 모두 직선따옴표로 교체.
+- **violated_rule**: 기존 R25(반복 패턴) 범주 — 신규 R 승격은 보류(이번 세션 발견 1건뿐, 광범위 스윕은 범위 밖으로 판단해 REMAINING-WORK 성격 기록만 남김).
+- **prevention**: 향후 `/knowledge-lint` 또는 별도 스윕에서 `attr=”|attr=’` 패턴(직선따옴표가 아닌 속성 구분자) 전수 검색 권장 — 이번 세션에서는 발견 지점만 수정, 전체 파일 스윕은 미실행.
+- **verification**: `node scripts/ci-structural-check.mjs` PASS; `node scripts/ci-headless-tests.mjs` → 992/992 PASS.
 
 ## P678 - v52.62 - Bulk decorative-glyph removal script silently corrupted conditional logic inside JS string literals, producing an always-true "바닥 확인" checklist score
 
