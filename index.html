@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.63 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.64 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3139,9 +3139,9 @@ body { background: #fbf9f5 !important; }
 .tg-sb-neu{color:var(--text-muted);}
 .tg-sb-bear{color:#b13a30;}
 /* 분석 카드 */
-.tg-card{border-bottom:1px solid rgba(255,255,255,.04);transition:background .12s;}
+.tg-card{border-bottom:1px solid rgba(33,29,22,0.04);transition:background .12s;}
 .tg-card:last-child{border-bottom:none;}
-.tg-card:hover{background:rgba(0,136,204,.05);}
+.tg-card:hover{background:rgba(33,29,22,.05);}
 .tg-card-inner{display:block;padding:8px 10px;text-decoration:none;color:inherit;}
 .tg-card-hd{display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap;}
 .tg-cat{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:.03em;}
@@ -3150,7 +3150,7 @@ body { background: #fbf9f5 !important; }
 .tg-cat-macro{background:rgba(33,29,22,.12);color:#211d16;}
 .tg-cat-geo{background:rgba(177,58,48,.12);color:#b13a30;}
 .tg-cat-ai{background:rgba(34,117,76,.12);color:#22754c;}
-.tg-cat-equity{background:rgba(0,180,255,.12);color:#211d16;}
+.tg-cat-equity{background:rgba(33,29,22,.08);color:#211d16;}
 .tg-cat-other{background:rgba(33,29,22,.12);color:var(--text-muted);}
 .tg-sent{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;}
 .tg-sent-bull{background:rgba(34,117,76,.1);color:#22754c;}
@@ -3169,7 +3169,7 @@ body { background: #fbf9f5 !important; }
 .tg-compact .tg-card-inner{padding:6px 10px;}
 .tg-compact .tg-card-headline{font-size:11.5px;}
 /* 전체 피드 푸터 */
-.tg-feed-more{padding:5px 10px;border-top:1px solid rgba(0,136,204,.1);background:rgba(0,136,204,.03);}
+.tg-feed-more{padding:5px 10px;border-top:1px solid rgba(33,29,22,.1);background:rgba(33,29,22,.03);}
 .tg-feed-more .cross-link{font-size:10px;font-weight:600;}
 /* v42.1: 마켓 펄스 바 — 페이지 간 유기적 연결 */
 .market-pulse-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:var(--bg-surface);border-bottom:1px solid var(--border);font-size:10px;overflow-x:auto;white-space:nowrap;}
@@ -5429,7 +5429,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.63</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.64</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -8456,9 +8456,8 @@ button[data-filter-active="true"] {
         <span style="font-size:10px;font-weight:700;color:var(--text-secondary);">엔캐리 위험 <span id="carry-score-text">—</span>/100</span>
         <span style="font-size:10px;color:var(--data-red);">고위험</span>
       </div>
-      <div style="background:var(--surface-3);border-radius:4px;height:10px;overflow:hidden;position:relative;">
-        <div style="background:linear-gradient(90deg,var(--data-green),var(--data-amber),var(--data-red));width:100%;height:100%;opacity:0.25;position:absolute;top:0;left:0;"></div>
-        <div id="carry-score-bar" style="position:absolute;top:0;left:0;height:100%;width:0%;background:var(--data-amber);opacity:0.7;transition:width 0.4s;"></div>
+      <div style="background:var(--border);border-radius:4px;height:10px;overflow:hidden;position:relative;">
+        <div id="carry-score-bar" style="position:absolute;top:0;left:0;height:100%;width:0%;background:var(--text-primary);transition:width 0.4s, background 0.4s;"></div>
       </div>
     </div>
     <div id="carry-verdict" style="padding:8px 10px;background:var(--surface-2);border-radius:4px;font-size:11px;color:var(--text-secondary);line-height:1.55;">USD/JPY · VIX · 금리차 · HYG 데이터 수신 대기</div>
@@ -8795,7 +8794,7 @@ button[data-filter-active="true"] {
             <span id="hy-spread-est">추정 중…</span>
           </div>
           <div style="height:8px;background:rgba(33,29,22,0.07);border-radius:4px;overflow:hidden;position:relative;">
-            <div id="hy-spread-bar" style="height:100%;width:45%;background:linear-gradient(90deg,var(--data-green),var(--data-amber),var(--data-red));border-radius:4px;transition:width 1s ease;"></div>
+            <div id="hy-spread-bar" style="height:100%;width:45%;background:var(--text-secondary);border-radius:4px;transition:width 1s ease;"></div>
             <!-- markers -->
             <div style="position:absolute;top:0;left:25%;height:100%;width:1px;background:rgba(33,29,22,0.2);"></div>
             <div style="position:absolute;top:0;left:60%;height:100%;width:1px;background:rgba(33,29,22,0.2);"></div>
@@ -10736,7 +10735,7 @@ button[data-filter-active="true"] {
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
           <div class="aio-subhd">시장 레짐</div>
           <div id="scr-regime-display" style="margin-bottom:8px;">
-            <span id="screener-regime-note" style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,.06);color:var(--accent);">감지 중...</span>
+            <span id="screener-regime-note" style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(33,29,22,0.06);color:var(--accent);">감지 중...</span>
           </div>
           <div id="scr-regime-desc" style="font-size:10px;color:var(--text-muted);line-height:1.6;"></div>
           <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
@@ -10814,13 +10813,13 @@ button[data-filter-active="true"] {
       <table class="aio-table is-mono is-compact" style="width:100%;min-width:820px;">
         <thead>
           <tr style="border-bottom:1px solid var(--border);">
-            <th colspan="1" style="text-align:center;padding:4px 6px;font-size:10px;color:var(--text-muted);font-weight:500;background:rgba(255,255,255,.02);"></th>
-            <th colspan="4" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);">기본 정보</th>
-            <th colspan="7" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--data-cyan);font-weight:500;letter-spacing:.04em;background:rgba(0,200,220,.04);border-left:1px solid var(--border);">팩터 점수 (0~100)</th>
-            <th colspan="4" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);border-left:1px solid var(--border);">시장 데이터</th>
+            <th colspan="1" style="text-align:center;padding:4px 6px;font-size:10px;color:var(--text-muted);font-weight:500;background:rgba(33,29,22,0.02);"></th>
+            <th colspan="4" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);">기본 정보</th>
+            <th colspan="7" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--data-cyan);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,.04);border-left:1px solid var(--border);">팩터 점수 (0~100)</th>
+            <th colspan="4" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);border-left:1px solid var(--border);">시장 데이터</th>
             <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--data-green);font-weight:500;letter-spacing:.04em;background:rgba(34,117,76,0.04);border-left:1px solid var(--border);">진입</th>
-            <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);border-left:1px solid var(--border);">시그널</th>
-            <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(255,255,255,.02);border-left:1px solid var(--border);">뉴스</th>
+            <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);border-left:1px solid var(--border);">시그널</th>
+            <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);border-left:1px solid var(--border);">뉴스</th>
           </tr>
           <tr style="border-bottom:2px solid var(--surface-5);">
             <th style="text-align:center;padding:7px 6px;font-size:10px;color:var(--text-muted);" title="워치리스트 추가/제거"></th>
@@ -12834,9 +12833,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.63" defer></script>
-  <script src="./js/aio-data.js?v=52.63" defer></script>
-  <script src="./js/aio-ui.js?v=52.63" defer></script>
+  <script src="./js/aio-core.js?v=52.64" defer></script>
+  <script src="./js/aio-data.js?v=52.64" defer></script>
+  <script src="./js/aio-ui.js?v=52.64" defer></script>
 
   <script>
 
@@ -13693,8 +13692,8 @@ function renderPortfolio() {
       <td headers="pf-th-weight" style="text-align:center;padding:8px 6px;font-size:11px;font-weight:700;" id="pf-weight-${_eTk}">—</td>
       <td headers="pf-th-manage" style="text-align:center;padding:8px 6px;white-space:nowrap;">
         <button data-action="_aioTechnicalTicker" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="차트 분석" aria-label="차트 분석">차트</button>
-        <button data-action="_aioEditPosition" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="수정">️</button>
-        <button data-action="_aioRemovePosition" data-arg="${_eTk}" data-stop="1" aria-label="${_eTk} 포지션 삭제" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="삭제">️</button>
+        <button data-action="_aioEditPosition" data-arg="${_eTk}" data-stop="1" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="수정" aria-label="수정">수정</button>
+        <button data-action="_aioRemovePosition" data-arg="${_eTk}" data-stop="1" aria-label="${_eTk} 포지션 삭제" style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;" title="삭제">삭제</button>
       </td>
     </tr>`;
   });
@@ -16355,7 +16354,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.63" defer></script>
+<script src="./js/aio-chat.js?v=52.64" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28622,7 +28621,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.63" defer></script>
+<script src="./js/aio-glossary.js?v=52.64" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -31092,8 +31091,8 @@ function loadTVChart(page) {
   container.innerHTML = '';
   var widget = document.createElement('div');
   widget.innerHTML = '<iframe src="https://s.tradingview.com/widgetembed/?symbol=' + encodeURIComponent(sym) +
-    '&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=131722' +
-    '&studies=MAExp%4020&studies=RSI%40defval&theme=dark&style=1&timezone=Asia%2FSeoul' +
+    '&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f7f4ee' +
+    '&studies=MAExp%4020&studies=RSI%40defval&theme=light&style=1&timezone=Asia%2FSeoul' +
     '&withdateranges=1&showpopupbutton=1&locale=kr" style="width:100%;height:100%;border:none;" allowtransparency="true"></iframe>';
   container.appendChild(widget.firstChild);
 
@@ -32218,8 +32217,8 @@ async function chatSendUnified() {
       var _fbId = 'fb-' + Date.now();
       var _fbDiv = document.createElement('div');
       _fbDiv.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;margin:2px 0;';
-      _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨">👍</button>' +
-        '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확">👎</button>';
+      _fbDiv.innerHTML = '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="도움됨" aria-label="도움됨">도움됨</button>' +
+        '<button data-action="_aioAiFeedback" data-arg="' + escHtml(_fbId) + '" data-arg2="-1" data-pass-el="1" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);padding:2px 4px;" title="부정확" aria-label="부정확">부정확</button>';
       _bubbleParent.appendChild(_fbDiv);
     }
 

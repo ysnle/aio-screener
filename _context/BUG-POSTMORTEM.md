@@ -2,10 +2,19 @@
 verified_by: agent
 last_verified: 2026-07-12
 confidence: high
-latest_version: v52.63
-latest_P_number: P679
-total_entries: 445
-next_P_number: P680
+latest_version: v52.64
+latest_P_number: P680
+total_entries: 446
+next_P_number: P681
+
+## P680 - v52.64 - Second instance of the P678/R309 pattern: orphaned U+FE0F variation-selector left invisible, nameless-looking buttons after the emoji strip
+
+- **motivation**: 전 페이지 확장 검증 중 포트폴리오 보유 테이블의 수정/삭제 버튼이 시각적으로 완전히 비어 보이는 것을 발견.
+- **root_cause**: R309에서 이미 문서화한 정확히 같은 원인 클래스 — v52.62의 이모지 일괄 제거 스크립트가 이모지 코드포인트(✏, 🗑)는 제거했지만 뒤따르는 U+FE0F(variation selector-16, "emoji presentation" 지정 문자)는 별도 코드포인트라 매칭하지 못하고 남겨둠. 두 버튼 모두 `title` 속성은 있어 스크린리더 접근성 게이트(a11y-matrix)는 실제로 이 세션 내내 통과했지만(title이 name 계산에 유효), 시각적으로는 텍스트도 아이콘도 없는 빈 버튼으로 보였음 — R309가 "테스트 그린만으로 안심 금지"라 명시한 바로 그 상황.
+- **fix**: 두 버튼 모두 텍스트 라벨("수정"/"삭제")로 교체 + 수정 버튼에 누락돼 있던 `aria-label`도 추가.
+- **violated_rule**: R309 (기존 규칙 그대로 적용, 신규 규칙 불필요 — R309가 이미 "향후 스윕에서 정규식으로 전수 검색 권장"이라 명시했었고, 이번이 그 권장을 실행한 결과).
+- **prevention**: 이번 세션에서 전체 파일 U+FE0F 검색을 실행해 잔여 0건 확인(총 2건 존재했고 둘 다 수정). 향후 유사 일괄 치환 시 R309의 권장대로 사전 grep 권장.
+- **verification**: 수동 grep으로 전체 파일 재검색해 잔여 0건 확인. `node scripts/ci-structural-check.mjs` PASS.
 
 ## P679 - v52.63 - Curly/smart quotes in a `style`/`id` attribute silently broke `getElementById` lookup on page-breadth (pre-existing, unrelated to this session's edits)
 

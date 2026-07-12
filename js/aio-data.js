@@ -17561,7 +17561,7 @@ function _aioRenderCarryUnwindRisk() {
   // "라이브 4축 복합 스코어"처럼 보이는 라벨이 과장이었다 — 정직하게 고정값 기준임을 병기(R282 정신).
   e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk + ' (BOJ 정책금리 고정값 기준)';
   e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = hygRisk;
-  e = document.getElementById('carry-score-bar');  if (e) e.style.width = score + '%';
+  e = document.getElementById('carry-score-bar');  if (e) { e.style.width = score + '%'; e.style.background = riskColor; }
   e = document.getElementById('carry-score-text'); if (e) e.textContent = score;
   e = document.getElementById('carry-verdict');    if (e) e.textContent = verdict;
   e = document.getElementById('carry-risk-level'); if (e) { e.textContent = riskLevel; e.style.color = riskColor; }
