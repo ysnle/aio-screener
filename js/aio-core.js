@@ -272,6 +272,86 @@ window.AIO.createTypedEvidence = function(input) {
     missingNeutralSeparated: !(status === 'missing' && String(input.semantic || '').toLowerCase() === 'neutral')
   };
 };
+// v52.61/H2-12: deterministic, runtime-derived provenance bundle. The bundle ID is
+// deliberately based on the current input states rather than generatedAt so score/UI/AI
+// consumers can carry the same evidence identity during one refresh window.
+function _aioEvidenceHash(value) {
+  var text = String(value || ''), hash = 2166136261;
+  for (var i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+window.AIO.getDecisionEvidenceBundle = function(opts) {
+  opts = opts || {};
+  var bundleCache = window._aioDecisionEvidenceBundleCache;
+  if (!opts.forceFresh && bundleCache && bundleCache.bundle && (Date.now() - bundleCache.ts) < 20000) return bundleCache.bundle;
+  var audit = window.AIO.getTradingDecisionInputEvidence ? window.AIO.getTradingDecisionInputEvidence(opts) : {
+    status:'warn', total:0, verifiedCurrent:0, staleLive:0, snapshotReference:0, unavailable:0, criticalMissing:[], rows:[]
+  };
+  var rows = (audit.rows || []).map(function(row) {
+    var status = String(row.status || 'unavailable').toLowerCase();
+    var sourceKind = status === 'verified_current' ? 'LIVE' : status === 'stale_live' ? 'LIVE' : status === 'snapshot_reference' ? 'SNAPSHOT' : 'MISSING';
+    var typedStatus = status === 'verified_current' ? 'ok' : status === 'unavailable' ? 'missing' : status === 'stale_live' ? 'stale' : 'reference';
+    var evidenceId = 'ev-trading-input-' + String(row.id || 'unknown').replace(/[^a-z0-9_-]/gi, '-') + '-' + status;
+    var asOf = Number.isFinite(Number(row.ageMin)) ? new Date(Date.now() - Number(row.ageMin) * 60000).toISOString() : null;
+    var provenance = window.AIO.createTypedEvidence({
+      key:'trading-input:' + row.id,
+      evidenceId:evidenceId,
+      value:row.value,
+      sourceKind:sourceKind,
+      status:typedStatus,
+      asOf:asOf,
+      maxAgeMin:row.maxAgeMin,
+      semantic:row.decisionUse === 'reference' ? 'reference' : ''
+    });
+    return Object.assign({}, row, { evidenceId:provenance.evidenceId, provenance:provenance });
+  });
+  var signature = rows.map(function(row) {
+    return [row.id, row.status, row.source, row.decisionUse, row.value == null ? 'null' : String(row.value)].join(':');
+  }).join('|');
+  var bundleId = 'ev-trading-bundle-' + _aioEvidenceHash(signature);
+  var bundle = {
+    bundleId:bundleId,
+    evidenceId:bundleId,
+    status:audit.status,
+    total:audit.total || rows.length,
+    verifiedCurrent:audit.verifiedCurrent || 0,
+    staleLive:audit.staleLive || 0,
+    snapshotReference:audit.snapshotReference || 0,
+    unavailable:audit.unavailable || 0,
+    criticalMissing:audit.criticalMissing || [],
+    rows:rows,
+    signature:_aioEvidenceHash(signature),
+    generatedAt:new Date().toISOString()
+  };
+  window._aioDecisionEvidenceBundleCache = { bundle:bundle, ts:Date.now() };
+  return bundle;
+};
+
+window.AIO.getDecisionEvidencePromptContext = function(bundle) {
+  bundle = bundle || (window.AIO.getDecisionEvidenceBundle ? window.AIO.getDecisionEvidenceBundle() : null);
+  if (!bundle) return '';
+  var rows = (bundle.rows || []).map(function(row) {
+    return row.id + '=' + row.status + '/' + (row.source || 'none') + (row.ageMin != null ? '/ageMin=' + row.ageMin : '');
+  }).join(' | ');
+  return '\n\n【공통 매매 증거 묶음 provenance】\n' +
+    'evidenceId=' + bundle.bundleId + ' status=' + bundle.status + ' current=' + bundle.verifiedCurrent +
+    ' stale=' + bundle.staleLive + ' snapshot=' + bundle.snapshotReference + ' unavailable=' + bundle.unavailable + '\n' +
+    'inputs=' + (rows || 'none') + '\n' +
+    'rule: UI 결론·score·AI는 위 evidenceId와 상태를 유지해야 하며, missing/stale/snapshot은 현재 행동 근거로 과장하지 마라.\n';
+};
+
+window.AIO.buildPageDecisionAiPrompt = function(d) {
+  if (!d) return '';
+  var bundle = d.provenanceBundle || null;
+  var provenanceLine = bundle ? '\n증거 묶음 evidenceId: ' + bundle.bundleId + ' · 상태: ' + bundle.status + ' · 핵심 현재 입력: ' + bundle.verifiedCurrent + '/' + bundle.total : '';
+  return d.title + ': ' + d.decision + '\n근거: ' + (d.reasons || []).join(' / ') + '\n운용 포인트: ' + d.action + provenanceLine +
+    '\n\n이 현재 결과를 기준으로 운용 관점에서 1) 핵심 판단 2) 리스크 3) 추가 확인 데이터 4) 실행/보류 조건을 간결하게 정리해줘.';
+};
+
 window.AIO.getTypedProvenanceAudit = function() {
   var now = Date.now();
   var live = window.AIO.createTypedEvidence({key:'h2-12-fixture', value:1, sourceKind:'LIVE', asOf:new Date(now - 60000).toISOString(), maxAgeMin:60});
@@ -279,17 +359,25 @@ window.AIO.getTypedProvenanceAudit = function() {
   var missing = window.AIO.createTypedEvidence({key:'h2-12-missing', value:null, sourceKind:'MISSING', status:'missing'});
   var neutral = window.AIO.createTypedEvidence({key:'h2-12-neutral', value:50, sourceKind:'LIVE', status:'neutral', asOf:new Date(now - 60000).toISOString(), maxAgeMin:60});
   var future = window.AIO.createTypedEvidence({key:'h2-12-future', value:1, sourceKind:'LIVE', asOf:new Date(now + 86400000).toISOString(), maxAgeMin:60});
-  var projectionIds = [live.evidenceId, live.evidenceId, live.evidenceId];
+  var bundle = window.AIO.getDecisionEvidenceBundle ? window.AIO.getDecisionEvidenceBundle() : null;
+  var score = typeof computeTradingScore === 'function' ? computeTradingScore('swing') : null;
+  var ui = typeof window._aioBuildPageDecision === 'function' ? window._aioBuildPageDecision('home') : null;
+  var aiPrompt = typeof window.AIO.buildPageDecisionAiPrompt === 'function' ? window.AIO.buildPageDecisionAiPrompt(ui) : '';
+  var surfaceIds = [bundle && bundle.bundleId, score && score.provenanceBundle && score.provenanceBundle.bundleId, ui && ui.provenanceBundle && ui.provenanceBundle.bundleId];
   var lineage = typeof window.AIO.getElementLineageInventory === 'function' ? window.AIO.getElementLineageInventory({allRoutes:true, includeItems:false}) : null;
+  var expectedIds = ['spx-price','spy-price','vix-price','tnx-yield','hyg-credit','dxy-dollar','oil-price','vvix-price','fg-sentiment','breadth200-participation','pcr-putcall','hy-spread-bp','aaii-bearish'];
+  var presentIds = bundle ? (bundle.rows || []).map(function(row){ return row.id; }) : [];
   var checks = {
-    sameEvidenceIdAcrossUiScoreAi: projectionIds.every(function(id){ return id === live.evidenceId; }),
+    sameEvidenceIdAcrossUiScoreAi: !!bundle && !!score && !!ui && surfaceIds.every(function(id){ return id === bundle.bundleId; }) && aiPrompt.indexOf('evidenceId: ' + bundle.bundleId) >= 0,
+    realRuntimeBundle: !!bundle && /^ev-trading-bundle-[0-9a-f]{8}$/.test(bundle.bundleId) && bundle.rows.length > 0,
+    criticalInputsCovered: expectedIds.every(function(id){ return presentIds.indexOf(id) >= 0; }),
     missingAndNeutralDistinct: missing.status === 'missing' && neutral.status === 'neutral' && missing.evidenceId !== neutral.evidenceId,
     futureAsOfBlocked: future.future && future.operationalUse === 'none' && future.actionStrength === 'none',
     staleManualActionWeak: staleManual.stale && staleManual.operationalUse === 'reference-only' && staleManual.actionStrength !== 'assertive-allowed',
     lineageExportable: !!lineage && typeof lineage.pagesChecked === 'number'
   };
   var failed = Object.keys(checks).filter(function(k){ return !checks[k]; });
-  return {status:failed.length ? 'fail' : 'pass', checks:checks, failed:failed, live:live, staleManual:staleManual, missing:missing, neutral:neutral, future:future, generatedAt:new Date().toISOString()};
+  return {status:failed.length ? 'fail' : 'pass', checks:checks, failed:failed, bundle:bundle, scoreEvidenceId:score && score.provenanceBundle && score.provenanceBundle.bundleId, uiEvidenceId:ui && ui.provenanceBundle && ui.provenanceBundle.bundleId, live:live, staleManual:staleManual, missing:missing, neutral:neutral, future:future, generatedAt:new Date().toISOString()};
 };
 window.AIO.readSnapshotField = window.AIO.readSnapshotField || function(key, fallback) {
   var value = window.DATA_SNAPSHOT || {};
@@ -311,8 +399,9 @@ window.AIO.getArchitectureGovernanceAudit = function() {
     chartRegistry: !!window._aioChartRegistry,
     typedProvenance: typeof window.AIO.createTypedEvidence === 'function'
   };
-  var incomplete = ['storage-direct-adoption', 'legacy-snapshot-direct-reads', 'global-write-adoption'];
-  return { status:'partial', boundaries:boundaries, incompleteSlices:incomplete, partialByDesign:true, note:'H2-15 incremental boundary audit: existing adapters are exposed and new code has snapshot/provenance entry points; full legacy migration remains a separate vertical slice.', generatedAt:new Date().toISOString() };
+  var completed = ['portfolio-storage-adapter'];
+  var incomplete = ['legacy-snapshot-direct-reads', 'global-write-adoption'];
+  return { status:'partial', boundaries:boundaries, completedSlices:completed, incompleteSlices:incomplete, partialByDesign:true, note:'H2-15 incremental boundary audit: portfolio read/write and opt-out flag use the shared storage adapter; legacy snapshot reads and global writes remain separate vertical slices.', generatedAt:new Date().toISOString() };
 };
 
 // ═══ v48.94: _aioSafeMD — AI 마크다운 DOMPurify 2차 게이트웨이 ════════════════
@@ -4071,10 +4160,12 @@ function _aioDefaultDecision(pageId) {
   var _sc = 50;
   var _scoreCaveat = '';
   var _scoreBlocked = false;
+  var _scoreEvidenceBundle = null;
   try {
     if (typeof computeTradingScore === 'function') {
       var _scResult = computeTradingScore(_scoreMode);
       _sc = _scResult.total;
+      _scoreEvidenceBundle = _scResult.provenanceBundle || null;
       // v52.49/WO-6: 화면(sourceKind/confidence)과 score가 같은 provenance를 소비하도록 —
       // computeTradingScore() 내부 13개 입력 중 trading-use 결측/스테일 개수로 별도 sourceKind를
       // 산출해 위 5-metric merge에 반영한다. 1~2개 결측은 DELAYED(경미), 3개+는 SNAPSHOT(광범위 결측)로
@@ -4273,6 +4364,7 @@ function _aioDefaultDecision(pageId) {
   d.asOf = _aioDecisionAsOf(d.sourceKind);
   d.confidence = _aioDecisionConfidence(d.sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84);
   if (_scoreCaveat) d.caveat = d.caveat ? (d.caveat + ' · ' + _scoreCaveat) : _scoreCaveat;
+  d.provenanceBundle = _scoreEvidenceBundle;
   return d;
 }
 
@@ -4314,6 +4406,7 @@ window._aioBuildPageDecision = function(pageId) {
   }
   var typedEvidence = window.AIO.createTypedEvidence ? window.AIO.createTypedEvidence({
     key: 'page-decision:' + (d.pageId || pageId), value: d.decision, sourceKind: d.sourceKind,
+    evidenceId: d.provenanceBundle && d.provenanceBundle.bundleId,
     status: d.decisionBlocked ? 'blocked' : 'ok', asOf: d.evidence && d.evidence.asOf && /^20\d\d-/.test(String(d.evidence.asOf)) ? d.evidence.asOf : null
   }) : null;
   if (typedEvidence) {
@@ -4334,6 +4427,7 @@ window._aioBuildPageDecision = function(pageId) {
     decisionBlocked: !!d.decisionBlocked,
     evidenceId: d.evidenceId || '',
     provenance: d.provenance || null,
+    provenanceBundle: d.provenanceBundle || null,
     evidence: d.evidence || null,
     tacticalTraderFramework: d.tacticalTraderFramework || null
   };
@@ -4341,8 +4435,9 @@ window._aioBuildPageDecision = function(pageId) {
 
 window._aioAskAiFromPageDecision = function(pageId) {
   var d = window._aioBuildPageDecision ? window._aioBuildPageDecision(pageId) : null;
-  var prompt = (d ? (d.title + ': ' + d.decision + '\n근거: ' + d.reasons.join(' / ') + '\n운용 포인트: ' + d.action) : '') +
-    '\n\n이 현재 결과를 기준으로 운용 관점에서 1) 핵심 판단 2) 리스크 3) 추가 확인 데이터 4) 실행/보류 조건을 간결하게 정리해줘.';
+  var prompt = window.AIO && typeof window.AIO.buildPageDecisionAiPrompt === 'function'
+    ? window.AIO.buildPageDecisionAiPrompt(d)
+    : (d ? (d.title + ': ' + d.decision + '\n근거: ' + d.reasons.join(' / ') + '\n운용 포인트: ' + d.action) : '');
   var ctxMap = {
     home:'home', signal:'signal', breadth:'breadth', sentiment:'sentiment', briefing:'briefing',
     technical:'technical', screener:'screener', ticker:'ticker', portfolio:'portfolio',
@@ -18539,7 +18634,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.60';
+const APP_VERSION = 'v52.61';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -21147,8 +21242,10 @@ function computeTradingScore(mode) {
   const total = Math.max(5, Math.min(100, compositeScore));
 
   var evidenceAudit = (window.AIO && window.AIO.getTradingDecisionInputEvidence) ? window.AIO.getTradingDecisionInputEvidence() : null;
+  var provenanceBundle = (window.AIO && window.AIO.getDecisionEvidenceBundle) ? window.AIO.getDecisionEvidenceBundle() : null;
   var _result = { total, score: total, volScore, momScore, trendScore, breadthScore, macroScore, evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit,
-    fgEvidenceStatus: _fgMetric ? _fgMetric.status : 'UNAVAILABLE', fgEvidenceAllowedUse: !!(_fgMetric && _fgMetric.allowedUse) };
+    fgEvidenceStatus: _fgMetric ? _fgMetric.status : 'UNAVAILABLE', fgEvidenceAllowedUse: !!(_fgMetric && _fgMetric.allowedUse),
+    evidenceId: provenanceBundle && provenanceBundle.bundleId || '', provenanceBundle: provenanceBundle };
   window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now() };
   return _result;
 }

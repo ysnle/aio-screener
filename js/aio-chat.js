@@ -5521,6 +5521,14 @@ async function chatSend(ctxId) {
 
   // v20+: dynamic system prompts (portfolio injects live data)
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
+  var chatProvenanceBundle = null;
+  var chatProvenanceContextStr = '';
+  try {
+    chatProvenanceBundle = window.AIO && typeof window.AIO.getDecisionEvidenceBundle === 'function' ? window.AIO.getDecisionEvidenceBundle() : null;
+    chatProvenanceContextStr = window.AIO && typeof window.AIO.getDecisionEvidencePromptContext === 'function'
+      ? window.AIO.getDecisionEvidencePromptContext(chatProvenanceBundle) : '';
+  } catch(_provenanceErr) {}
+  if (chatProvenanceContextStr) systemPrompt += chatProvenanceContextStr;
   if (intentContextStr) systemPrompt += intentContextStr;
   if (coverageContextStr) systemPrompt += coverageContextStr;
   if (integratedContextStr) systemPrompt += integratedContextStr;

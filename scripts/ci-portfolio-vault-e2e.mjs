@@ -9,8 +9,11 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_PORTFOLIO_PORT || 8894);
-const url = `http://127.0.0.1:${port}/index.html`;
-const artifactDir = resolve(root, '_artifacts', 'portfolio-vault');
+const liveBaseUrl = String(process.env.CI_PORTFOLIO_BASE_URL || '').replace(/\/+$/, '');
+const isLive = !!liveBaseUrl;
+const baseUrl = liveBaseUrl || `http://127.0.0.1:${port}`;
+const url = `${baseUrl}/index.html`;
+const artifactDir = resolve(root, '_artifacts', isLive ? 'portfolio-vault-live' : 'portfolio-vault');
 
 function startServer() {
   return new Promise((resolvePromise, reject) => {
@@ -27,13 +30,15 @@ function startServer() {
 
 async function main() {
   mkdirSync(artifactDir, { recursive: true });
-  const server = await startServer();
+  const server = isLive ? null : await startServer();
   const browser = await chromium.launch();
-  const report = { checks: [], errors: [], scope: 'local Chromium, external network blocked' };
+  const report = { checks: [], errors: [], scope: isLive ? `live Chromium, ${baseUrl}, external network allowed` : 'local Chromium, external network blocked' };
   const check = (id, ok, detail) => report.checks.push({ id, ok: !!ok, detail: detail || '' });
   try {
     const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
-    await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
+    if (!isLive) {
+      await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
+    }
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForFunction(() => typeof window.AIO === 'object' && typeof window.AIO.loadTests === 'function', { timeout: 30000 });
     const capability = await page.evaluate(() => ({
@@ -110,7 +115,7 @@ async function main() {
   } finally {
     writeFileSync(resolve(artifactDir, 'report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
     await browser.close();
-    server.kill();
+    if (server) server.kill();
   }
   const failed = report.checks.filter((item) => !item.ok);
   console.log(JSON.stringify(report, null, 2));

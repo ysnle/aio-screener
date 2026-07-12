@@ -3,6 +3,12 @@
 - **T830 freshness regression fix**: fallback/reference `DATA_SNAPSHOT` dates are no longer incorrectly required to match a separately refreshed Telegram digest. T830 now enforces chronological ordering for fallback state and close parity only for promoted snapshots; added P677/R308/QA coverage.
 - **Verification**: local `992/992 PASS`; CI run `29164541698` passed validate, headless, FULL_INIT viewport, accessibility, Critical-10, Portfolio Vault, and Pages deploy; live invariant and Data Watchdog run `29173397491` also passed. Worker live response and human browser gates remain external.
 
+## v52.61 (2026-07-12) - H2-05/H2-12/H2-15 closure slices
+- H2-05: Portfolio Vault E2E now supports `CI_PORTFOLIO_BASE_URL`; live Pages Chromium verification passed PFE2-01~08, including cross-reload lock, wrong/correct PIN, legacy plaintext migration, opt-out, and input boundary.
+- H2-12: replaced fixture-only repeated provenance IDs with a deterministic 13-input trading evidence bundle. Score, page decision, page-to-AI prompt, and normal chat context carry the same `evidenceId`; T930 and headless `992/992 PASS`.
+- H2-15: completed the safe portfolio storage vertical slice by routing plaintext/opt-out reads and writes through `AIO.storageAdapter` while preserving encrypted Vault ciphertext handling. Remaining legacy snapshot direct reads and global writes stay explicit in T931 and the remaining-work log.
+- Validation before version bump: syntax, runtime contract, and headless `992/992 PASS`.
+
 ## v52.59 (2026-07-11)
 - H2-02/H2-03: FULL_INIT route-specific settle/rejection capture and SVG marker clamp; final local viewport matrix 88/88 PASS (22 routes × 4 viewports, overflow 0px, tiny text 0, jsErrors 0).
 - H2-04/H2-05: normalized AI error contract across browser/data/Worker paths and blocking Portfolio Vault PFE2-01~08 Chromium E2E PASS.

@@ -3,7 +3,7 @@ verified_by: Codex
 last_verified: 2026-07-12
 confidence: high for repository/static, local real-Chromium, GitHub Actions, and Pages invariant evidence; medium for external-source parity; blocked for human screen-reader and Worker-authenticated/external-success flows
 auto_refresh: true
-target_version: v52.60
+target_version: v52.61
 implementation_status: Pages/watchdog/live-invariant verified; Worker external-success and manual-screen-reader evidence pending
 source_documents:
   - _context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md
@@ -1321,22 +1321,22 @@ H3-A는 코드 덧붙이기식 병렬 경로가 아니라 기존 `AIO_OPERATIONA
 
 | 항목 | 현재 판정 | 증거/남은 조건 |
 |---|---|---|
-| H2-00 | LOCAL/LIVE_PASS | `v52.60`; `ci-live-invariant-check.mjs` PASS; live asset cachebusters match version |
+| H2-00 | LOCAL/LIVE_PENDING_DEPLOY | `v52.61`; local version/cachebuster gates PASS; live asset parity is rechecked after this commit deploys |
 | H2-01 | PARTIAL_EXTERNAL | Pages deploy run `29164541698` PASS; Data Watchdog `29173397491` PASS; Worker revision/KV/token/quota live response matrix remains user-side |
 | H2-02 | LOCAL/CI_PASS | FULL_INIT 22×4 = 88/88; semantic settle, late rejection capture, jsErrors 0; blocking CI job PASS |
 | H2-03 | LOCAL/CI_PASS | SVG 양끝 clamp + T921 fixture; viewport 88/88; blocking CI job PASS |
 | H2-04 | LOCAL_PASS / WORKER_LIVE_PENDING | 공통 AI error envelope + T919/T920 + Worker `aioAiError`; live Worker success/limit/error responses require configured Worker URL |
-| H2-05 | DEPLOYED_LIVE_PENDING | Portfolio Vault PFE2-01~08 PASS; Pages is deployed, but live cross-reload/legacy migration still needs browser evidence |
+| H2-05 | LOCAL_LIVE_PASS | Portfolio Vault PFE2-01~08 PASS locally and on live Pages; live Chromium cross-reload, wrong/correct PIN, legacy plaintext migration, opt-out, and input boundary PASS |
 | H2-06 | LOCAL/LIVE_PASS | explicit Pages allowlist, `og-image.svg`, `robots.txt`, `sitemap.xml`, manifest; live invariant PASS |
 | H2-07 | LOCAL_PASS | content-truth audit, public GitHub Issues 경로, KR snapshot context T922/T923 |
 | H2-08 | LOCAL_PASS | 19 NAV_ROUTE + 2 DERIVED_VIEW + 1 REFERENCE, canonical/history/hash T924/T925 |
 | H2-09 | LOCAL_PASS_PARTIAL | 22 route intent/scenario registry와 priority review set; human visual density review는 별도 |
 | H2-10 | LOCAL/CI_PASS | 22/22 accessibility matrix, computed font <10px 0, nameless control/select/canvas 0, positive tabindex 0 |
 | H2-11 | BLOCKED_EXTERNAL | Chromium evidence만 확보. Firefox/WebKit 바이너리 설치가 사용량 제한으로 거부되어 중단; NVDA는 human gate |
-| H2-12 | LOCAL_PASS_PARTIAL | typed evidence envelope/T930 및 decision header `data-evidence-id`; 전체 10개 지표 cross-surface parity는 추가 data/live run 필요 |
+| H2-12 | LOCAL_PASS | runtime-derived 13-input provenance bundle; score/UI/AI share one evidenceId; missing/neutral/future/stale/manual and lineage checks PASS in T930 |
 | H2-13 | REDUCED_SCOPE_PASS | `score-backtest-longrun.json`의 fixed-rule/holdout/regime 결과 유지; PIT 입력·calibration·cost는 미충족 |
 | H2-14 | REDUCED_SCOPE_PASS | factor artifact의 IC/ICIR/t-stat 유지; PIT universe/delisted/cost/adaptive-weight 검증은 미충족 |
-| H2-15 | LOCAL_PARTIAL | portfolio/storage/snapshot/lifecycle/timer/chart 경계 audit T931; legacy direct storage/snapshot 전면 이전은 별도 패킷 |
+| H2-15 | LOCAL_PARTIAL_BOUNDED | portfolio storage/opt-out reads and writes now use the shared adapter; T931 records the completed slice and leaves legacy snapshot reads/global writes as explicit follow-up slices |
 | H2-16 | LOCAL_PASS | CHANGELOG/version note, doc currency, workflow compaction, knowledge lint 실행 |
 
 최종 게이트: local headless **992/992 PASS**, CI run `29164541698`의 validate/headless/FULL_INIT/accessibility/Critical-10/Portfolio/Pages deploy 모두 PASS, live invariant PASS, Data Watchdog run `29173397491` PASS. Worker live response matrix, Portfolio live cross-reload, Firefox/WebKit/NVDA는 이 증거만으로 완료 처리하지 않는다.
@@ -1349,6 +1349,12 @@ H3-A는 코드 덧붙이기식 병렬 경로가 아니라 기존 `AIO_OPERATIONA
 ### 16.17 2026-07-12 live closure evidence
 
 - Pages deployment run `29164541698` completed successfully after all blocking gates: validate, headless, FULL_INIT viewport, accessibility, Critical-10, Portfolio Vault, and deploy.
-- `node scripts/ci-live-invariant-check.mjs` returned `Live invariant check OK (https://ysnle.github.io/aio-screener, version=v52.60)`.
+- `node scripts/ci-live-invariant-check.mjs` returned the prior live closure for `v52.60`; the v52.61 live invariant is intentionally rechecked after this commit deploys.
 - Data Watchdog run `29173397491` completed successfully; the watchdog is operational and producing jobs.
 - `node scripts/ci-worker-anthropic-check.mjs` passed the local real-handler security contract, but this is not a live Worker call. Cloudflare KV binding/secret/variable configuration and one real `/anthropic` response matrix remain operator evidence.
+
+### 16.18 2026-07-12 H2-05/H2-12/H2-15 closure update
+
+- H2-05 live Portfolio Vault evidence was collected against `https://ysnle.github.io/aio-screener` with external network enabled: PFE2-01~08 all PASS, including reload lock, wrong/correct PIN, legacy migration, explicit opt-out, and input boundary.
+- H2-12 no longer relies on the old fixture-only repeated evidence ID. `getDecisionEvidenceBundle()` derives a deterministic 13-input bundle ID, `computeTradingScore()` exposes it, the page decision carries it, the page-to-AI prompt carries it, and normal chat system context carries the same ID. Headless T930 and the full 992/992 suite PASS.
+- H2-15 completed the safe portfolio-storage vertical slice: portfolio plaintext/opt-out reads and writes route through `AIO.storageAdapter`, while encrypted ciphertext handling remains in the Vault path. The audit now reports `portfolio-storage-adapter` complete and keeps `legacy-snapshot-direct-reads` and `global-write-adoption` explicit; this is bounded structural progress, not a false claim of full legacy rewrite.
