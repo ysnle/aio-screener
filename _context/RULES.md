@@ -1,8 +1,8 @@
 ---
 verified_by: agent
-last_verified: 2026-07-11
+last_verified: 2026-07-12
 confidence: high
-target_version: v52.60
+target_version: v52.62
 
 ---
 
@@ -3374,3 +3374,9 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: A static `DATA_SNAPSHOT` marked `_isFallback=true` is reference-only and may lag a dynamically refreshed digest or source artifact. Its freshness contract is explicit degraded-state labeling and chronological ordering, not identical timestamps with a live-ish source.
 
 **Required**: Regression tests must distinguish fallback from promoted snapshot state. For fallback data, require valid dates and `marketDate <= digestDate`; for promoted data, require the configured cross-source parity window. Never advance a fallback date without updating the values and provenance it describes.
+
+## R309. Bulk text-replacement scripts must not run blindly across JS string literals — check for characters doing double duty as logic markers before a global find-replace (v52.62, P678 root)
+
+**Rule**: Any script that mechanically strips or remaps literal characters/colors across an entire source file (not just HTML display text) can hit JS string literals where that character is not decorative but the *only* distinguishing content between two branches of a ternary or template string (e.g. `cond ? '✓' : '✗'`) that downstream code parses via `.indexOf()`/`.charAt()`/equality. Collapsing both branches to the same value silently makes the condition permanently true — this is worse than a visual regression because it looks like working code, still runs, and can pass a full test suite if that exact logic path isn't asserted.
+
+**Required**: After any bulk find/replace across a full HTML+JS file (emoji strips, color sweeps, label renames), grep specifically for the signature of this failure class before trusting the change: both-branches-identical ternaries (`? '...' : '...'` where both sides are now equal) and `.indexOf('')`/`.indexOf(<now-empty-or-collapsed-string>)` patterns. A passing headless suite is necessary but not sufficient — confirm the specific corrupted-looking lines by reading them, not just by re-running tests. See P678/BUG-POSTMORTEM.md.

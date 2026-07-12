@@ -1,13 +1,22 @@
 ---
 verified_by: agent
-last_verified: 2026-07-11
+last_verified: 2026-07-12
 confidence: high
 version: v3.8
-checklist_version: v52.60
-total_items: 529
+checklist_version: v52.62
+total_items: 531
 stages: 22
-latest_P_covered: P677
+latest_P_covered: P678
 ---
+
+## v52.62 - 아이보리 리디자인(CLAUDE-CODE-HANDOFF.md) P1~P2 전체 + P3~P10 부분 적용
+
+- [x] `:root` 색상 토큰 전수가 아이보리(웜 페이퍼) 값으로 교체되고, 두 번째 `:root!important` 오버라이드 블록(4462행 부근, "v51.43 visual hierarchy refresh")도 함께 갱신되어 실제로 반영됨. ✅ 로컬 확인 — 오버라이드 블록을 놓치면 P1 자체가 시각적 무효가 되는 함정이었음(향후 `:root` 토큰 작업 시 `grep -n "^:root {"`로 중복 블록 유무 먼저 확인할 것).
+- [x] 일괄 이모지/픽토그램 제거 스크립트 실행 후 반드시 (1) `<button ...></button>` 빈 태그 중 `aria-label` 없는 것 전수 검색, (2) `? '' : ''` 양쪽-빈 삼항식 전수 검색을 수행. ✅ 이번 세션 5개 nameless 버튼(chatClear×2/`_aioHidePositionSizer`/`_aioTechnicalTicker`/`ai-ph-close`) + 1개 로직버그(바닥 확인 체크리스트, P678) 발견·수정. 헤드리스 992/992 통과가 이 클래스의 버그를 잡아주지 못했음(assert되지 않는 경로였기 때문) — 테스트 그린만으로 안심 금지.
+- [x] 로컬 게이트 전종 PASS: syntax(js/*.js·scripts/*.mjs) · version-check · control-char · worker-anthropic · structural · ux-default-path · runtime-contract · data-pipeline-contract · semantic-review · workflow-compaction · skill-contract · stray-file. ✅
+- [x] 헤드리스 `AIO.runTests()` 992/992 PASS. ✅
+- [x] `AIO_VIEWPORT_FULL_INIT=1` viewport-matrix — kr-themes 테마 상세 닫기 버튼 nameless 발견·수정 후 재실행 확인 필요(세션 로그의 재실행 결과 참조). Portfolio Vault PFE2-01~08 전체 PASS. `ci-critical10-human-surface-check.mjs`에 TG 프록시 차단 예상 노이즈 allowlist 1건 추가(`ci-viewport-matrix-check.mjs`에는 이미 있던 패턴이 이 스크립트에는 누락돼 있었음).
+- [ ] page-signal 섹션 순서 재배열(①스코어 히어로~⑤연계분석), page-briefing "시장분석 2×2 그리드+행동카드+오늘일정" 신규 섹션, page-portfolio 보유종목 미니차트+S/R 주석, page-technical volume profile 등 §5의 페이지별 신규 와이어프레임은 **미착수** — JS 렌더러 로직을 새로 설계해야 하는 별도 규모 작업으로 후속 세션 이관(CHANGELOG.md v52.62 참조).
 
 > **2026-07-08 라이브 v52.26 일괄 검증 원장**: 아래 v52.7~v52.22 구간의 "(미확인)" 백로그와 P634~P641을 라이브에서 일괄 검증 — 각 박스에 ✅(통과)/⚠(부분)/❌(실패)/⛔(검증 불가) 주석 반영. 전체 증거·신규 발견(UX-01~UX-13: showThemeDetail P0 크래시, 프록시 SPOF, AI 백엔드 이원화 등)·구조 개선 설계(Phase V0~V4)는 **`FABLE-UIUX-DEEP-AUDIT-2026-07-08.md`** 참조.
 

@@ -1,11 +1,20 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-07-11
+last_verified: 2026-07-12
 confidence: high
-latest_version: v52.60
-latest_P_number: P677
-total_entries: 443
-next_P_number: P678
+latest_version: v52.62
+latest_P_number: P678
+total_entries: 444
+next_P_number: P679
+
+## P678 - v52.62 - Bulk decorative-glyph removal script silently corrupted conditional logic inside JS string literals, producing an always-true "바닥 확인" checklist score
+
+- **motivation**: 아이보리 리디자인(`CLAUDE-CODE-HANDOFF.md` §2 "이모지 전면 제거") 작업 중 index.html 전체 텍스트에서 이모지/픽토그램 문자를 일괄 제거하는 1회성 Node 스크립트를 실행. 잔여 위반 재검색 과정에서 `checks.push((vix > 30 ? '' : '') + ' VIX 30+ 스파이크...')` 처럼 삼항식 양쪽 분기가 모두 빈 문자열이 된 코드가 발견됨.
+- **root_cause**: 이모지 제거 스크립트는 순수 텍스트 대체(glyph + 인접 공백 제거)만 수행했고, 그 glyph가 JS 문자열 리터럴 내부에서 조건부 로직의 마커(✓/✗ 페어)로 쓰이는지는 구분하지 않았음. `(vix > 30 ? '✓' : '✗')` 패턴은 양쪽 문자가 모두 제거 대상이었으므로 두 분기가 동일한 빈 문자열이 되어 조건이 무의미해졌고, 뒤이은 `checks.filter(function(c){ return c.indexOf('✓')===0; })`도 `indexOf('')`가 되어 항상 0(매치)을 반환 — "바닥 확인 체크리스트"가 실제 VIX/SPY/수익률 조건과 무관하게 항상 "5/5 충족"으로 표시될 뻔했음(투자 판단에 영향을 주는 거짓 신호). 같은 세션의 `.ec-icon`(매매 시그널 진입 체크리스트) 상태 아이콘도 동일 원인으로 통과/미충족 구분이 빈 문자열로 사라졌음.
+- **fix**: 두 지점 모두 이모지 문자 대신 명시적 텍스트 마커("통과 · "/"미충족 · ", "통과"/"미충족"/"대기")로 치환해 조건 분기를 복원. 필터 조건도 `indexOf('통과')===0`로 함께 수정. 일괄 치환 스크립트 자체는 재사용하지 않고 1회성으로 폐기.
+- **violated_rule**: New — see R309.
+- **prevention**: R309. `node scripts/ci-headless-tests.mjs` 992/992 전수 재확인 + `? '' : ''`류 양쪽-빈 삼항식 수동 grep 재검색(추가 발견 없음)으로 이번 세션 내 재발 없음 확인.
+- **verification**: `node scripts/ci-headless-tests.mjs` → **992/992 PASS**; `node scripts/ci-structural-check.mjs` PASS.
 
 ## P676 - v52.59 - H2 second-pass gates: accessibility font contract, route settle false positives, typed provenance, and public artifact closure
 

@@ -1,3 +1,19 @@
+## v52.62 (2026-07-12) - 아이보리 리디자인 P1~P2 전체 + P3~P10 부분 적용
+
+`C:\Users\zmfhd\Downloads\CLAUDE-CODE-HANDOFF.md`(시안 1b/2a/2b 기반) 순차 실행. 전체 재작성 없이 기존 변수명·구조 유지한 부분 패치.
+
+- **P1(완료) — 토큰+폰트**: `:root` 전체(배경/테두리/텍스트/데이터팔레트/accent/shadow/차트/radius)를 다크 네이비→웜 아이보리로 교체. 색은 무채(잉크/페이퍼)+상승green(#22754c)+하락red(#b13a30) 2계열만 허용, cyan/magenta/purple/amber는 잉크로 수렴. Inter+JetBrains Mono → Pretendard Variable+Noto Serif KR 교체, tabular-nums 유틸 확장. 다크모드는 `body.light-theme`(구 라이트 토글, 실질 미작동 상태였음)를 `body.dark-theme`로 롤네임해 그래파이트 무채 팔레트로 재정의(JS `toggleTheme()`/복원 IIFE 동시 수정) — 기본값이 아이보리가 되며 토글 의미가 반전되므로 필요했던 변경.
+  - **P1 확장 발견**: `:root` 1개만 바꿔선 반영 안 됨 — line 4462 부근에 "v51.43 visual hierarchy refresh"라는 **두 번째 `:root{...!important}` 오버라이드 블록**이 소스 순서상 항상 이겨 거의 모든 핵심 토큰(bg/border/text/accent/shadow)을 다크 네이비로 재고정하고 있었음(사이드바/톱바/컨텐츠 배경 하드코딩 포함). 이 블록도 함께 아이보리 값으로 갱신하지 않으면 P1 자체가 시각적으로 무효였음. 추가로 2703행의 더 오래된 "v4 Override" `:root!important` 블록(소스 순서상 이미 죽어있던 코드)도 혼란 방지 위해 제거.
+- **P2(완료) — 컴포넌트+전역 색상 정리**: badge/status-pill/pill-chip/quality-meter/aio-btn-table(ghost·primary)/aio-card-primary/CP1~8 리스크 셀/사이드바 nav-item active 등 §4 규칙 적용. 전역 하드코딩 색 스윕: rgba 트리플 945건 + hex 190건(cyan/amber/purple/magenta/violet→잉크, green/red 계열→아이보리 green/red로 재매핑) + 잔여 white-alpha 124건(다크테마 블록 제외)을 자동화 스크립트로 치환. 이모지/픽토그램 221건 제거(방향 화살표 ↑↓→, 메뉴 ☰, 새로고침 ↻ 등 기능성 글리프는 접근성 이유로 보존 — VIX ▲/▼ up/down 색각 이상 대체 표시 포함). Chart.js 툴팁 3곳(브리핑/포트폴리오/기타) 다크 배경 잔존 수정. "무지개 quality meter" 2건 발견해 단색으로 평탄화(고정 배너 그라데이션, 매크로 페이지 "글로벌 경기 체온계" 온도계 — 5색 그라데이션 트랙 제거 + JS 동적 fill 색상도 3계열로 수렴).
+  - **P2 부수 발견 버그(P678/R309)**: 이모지 일괄 제거 스크립트가 JS 문자열 리터럴 내부의 `(cond ? '✓' : '✗')` 형태 조건 마커까지 무차별 제거해, "바닥 확인 체크리스트"(매크로 페이지) 스코어링이 실제 조건과 무관하게 항상 "5/5 충족"을 반환하는 실사용 버그를 유발할 뻔했음 — 발견 즉시 텍스트 마커("통과"/"미충족")로 복원. 매매 시그널 페이지 `.ec-icon` 상태 아이콘도 동일 원인으로 텍스트 라벨 복원.
+- **P3(완료) — page-home**: `home-market-heatmap`+`bloomberg-global-overview`(GLOBAL MARKETS 테이블)를 `<details>` "부가 지표"로 접어 1차 화면 밀도 축소. "GLOBAL MARKETS"/"EXPAND" 등 잔여 영문 대문자 라벨 → 한국어.
+- **P4(부분) — page-signal**: 8-포인트 리스크 히트맵(CP1~8)을 `<details>` "고급"으로 접음. 숨김 DOM(테스트/렌더러 호환 셸)은 무변경. 전체 섹션 재배열(①스코어 히어로~⑤연계분석 순서 재구성)은 CLAUDE.md가 명시 경고하는 히든 DOM/테스트 의존도(T226/T816/T820 등) 리스크로 이번 세션 범위 밖 — 후속 세션 이관.
+- **P5(부분) — page-briefing**: 정적 헤더/시장스트립/뉴스/과거참고 영역의 잔여 영문 라벨·하드코딩 색 정리(전역 스윕으로 자동 반영). §5가 요구하는 "시장 분석 심층 2×2 그리드 + 행동 카드 + 오늘 일정" 신규 섹션은 `#briefing-digest` 계열 JS 렌더러(`_aioRenderBriefing*`)의 출력 템플릿을 새로 설계해야 하는 별도 규모의 작업으로 판단 — 이번 세션 범위 밖, 후속 세션 이관.
+- **P6~P10(전역 스윕만 반영, 페이지별 신규 레이아웃 미착수)**: breadth/sentiment/technical/macro/fxbond/fundamental/portfolio/news/screener — F&G SVG 게이지는 토큰 교체만으로 이미 무채+red+green 3계열로 자동 수렴 확인(추가 작업 불필요). 나머지 페이지의 §5 신규 와이어프레임(포트폴리오 보유종목 미니차트+S/R 주석, 캔들차트 volume profile, 3개월 기본 차트 범위 등)은 차트 렌더링 JS 로직을 직접 새로 작성해야 하는 항목이라 범위 밖 — 후속 세션 이관.
+- **동시성 메모**: 이번 세션 작업 중 별도 Codex 세션이 동일 저장소에 `feat: close live portfolio and provenance slices`(c71587c) 등을 병행 커밋 — index.html 겹치는 라인 없음(버전 캐시버스터·포트폴리오 스토리지 어댑터 영역만 겹쳤으나 무충돌) 확인 후 진행.
+- **게이트**: 로컬 9종 전체 PASS(syntax·version·control-char·worker-anthropic·structural·ux-default-path·runtime-contract·data-pipeline·semantic-review·workflow-compaction·skill-contract·stray-file) + 헤드리스 **992/992 PASS** + `AIO_VIEWPORT_FULL_INIT=1` viewport-matrix/human-surface/portfolio-vault/a11y-matrix 확인(상세는 세션 로그 참조).
+- R1 7곳 v52.62
+
 ## v52.60 (2026-07-12) - fallback freshness contract
 
 - **T830 freshness regression fix**: fallback/reference `DATA_SNAPSHOT` dates are no longer incorrectly required to match a separately refreshed Telegram digest. T830 now enforces chronological ordering for fallback state and close parity only for promoted snapshots; added P677/R308/QA coverage.

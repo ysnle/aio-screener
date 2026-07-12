@@ -4,10 +4,10 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v52.61
+- **현재 버전**: v52.62
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (32개 활성, 2026-07-12 갱신)
+## _context/ 문서 (33개 활성, 2026-07-12 갱신)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -42,6 +42,7 @@
 | CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md | v52.43 저장소·라이브·GitHub/Pages/Actions·보안·데이터·아키텍처·알고리즘 종합 진단 + 후속 에이전트 작업 패킷 WO-0~8 | 각 WO 완료/전수 재감사 시 |
 | CODEX-SECOND-PASS-HANDOFF-2026-07-10.md | 1차 종합 진단과 22페이지 프론트엔드 추가 진단을 통합한 2차 실행 원장. 기존 WO local/live 재분류, H2-00~16 설계, 외부 공개 BETA/PUBLIC/CLAIMS 게이트, Luna용 작업 계약 | H2 항목 완료·라이브 parity·Tier 13 재감사 시 |
 | REMAINING-WORK-2026-07-12.md | v52.61 배포 후 남은 비차단 작업, 사용자 판단 필요 항목, 재개 규칙의 단일 요약 | 남은 H2 항목 상태·담당·공개 게이트 변경 시 |
+| INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md | 기관급 공개 기준의 데이터 원천·페이지별 커버리지·누락 데이터·실제 자동 해설 오류·quote 현재성 결함·WP-0~8 실행 원장 | 각 WP 완료, source/license/public gate 변경 시 |
 | WO7-GLOBAL-INVENTORY-2026-07-10.md | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7 Packet 1 — 전역 read/write baseline 실측 + timer/chart/page-lifecycle 어댑터 기존재 확인 + 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.

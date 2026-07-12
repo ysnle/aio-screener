@@ -42,7 +42,7 @@ async function main() {
     result.viewport = await page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }));
     page.on('pageerror', (error) => result.consoleErrors.push(`[pageerror] ${error.message}`));
     page.on('console', (msg) => {
-      if (msg.type() === 'error' && !/net::ERR_FAILED/.test(msg.text()) && !/\[AIO:api\].*warn\s*→\s*error/.test(msg.text())) {
+      if (msg.type() === 'error' && !/net::ERR_FAILED/.test(msg.text()) && !/\[AIO:api\].*warn\s*→\s*error/.test(msg.text()) && !/\[AIO:fetch\]\s*TG .*모든 프록시\(6개\) 실패 Failed to fetch/.test(msg.text())) {
         result.consoleErrors.push(`[console.error] ${msg.text()}`);
       }
     });
