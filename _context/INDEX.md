@@ -36,6 +36,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `GATE-BASELINE-2026-06-04.md` | v50.4 evidence deployment gate + unit-test 실측 기준선 (env-dependent vs code-internal 분리) | 게이트/테스트 재측정, 운영 baseline 추가 시 |
 | `GATE-BASELINE-2026-07-03.md` | v51.91→v51.96 헤드리스 CI 테스트(`ci-headless-tests.mjs`) 실측 (894/921→896/921 pass, T776/T686 실제 해소로 27→25건 skip-list) — Phase 2 [B5] + 전체 /data-refresh 산출물 | skip-list 갱신, 헤드리스 테스트 재측정 시 |
 | `CHAT-DATA-AUDIT-2026-06-04.md` | v50.8 AI 채팅 데이터 출처 전수 감사 baseline (fetch 파이프라인·시장맥락 주입·재사용·dead code 실측) | 채팅 데이터 경로/컨텍스트 변경 시 |
+| `AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md` | v52.63 AI 채팅·자동 브리핑·번역·서버 분석 기관급 전수 진단. 20개 컨텍스트/22 route, 의미 검증 반례, 경로 분열, prompt injection·개인정보·비용·SLO, WP-AI0~10과 A/B release gate | AI prompt/data/validator/model/Worker/privacy/public claim 변경 시 |
 | `FRONTEND-UX-AUDIT-2026-06-05.md` | v50.12 21페이지 라이브 프론트엔드/UX audit (클러터·중복 / 초보자 직관성·위계). 측정+audit 근거, P0/P1/P2 백로그 | UI/UX 시정·페이지 구조 변경 시 |
 | `OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md` | v50.23 구조 전수 감사 (백엔드/프론트/데이터/UX/자동운영 실측) + Opus 작업 백로그 WO-1~14. cron 미발화·ATH 레짐 버그(aio-data.js:12303)·stale 내러티브 구조 등 P0 5건 (전부 해소됨, FABLE-SYSTEM-DIAGNOSIS §2 참조) | WO 항목 완료/구조 변경 시 |
 | `PAGE-UX-AUDIT-2026-06-13.md` | 페이지별 UX 감사. 일부 "빈 껍데기/고장" 항목은 이후 라이브 검증에서 거짓양성 판정됨(`DEFERRED-BLOCKS.md` §3 참조) | UI/UX 재점검 시 |
@@ -54,7 +55,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `WO7-GLOBAL-INVENTORY-2026-07-10.md` | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7("점진적 구조 격리") Packet 1 — 전역 read/write baseline 실측(innerHTML 395·전역쓰기 1,318·localStorage direct 146 vs safeLS 8) + timer/chart/page-lifecycle 어댑터 기존재 확인(진짜 갭은 채택률) + snapshot/storage adapter 전면화 등 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 33개 `_context/*.md` 활성(2026-07-12 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 34개 `_context/*.md` 활성(2026-07-12 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 

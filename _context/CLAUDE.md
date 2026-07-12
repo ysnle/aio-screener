@@ -7,7 +7,7 @@
 - **현재 버전**: v52.63
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (33개 활성, 2026-07-12 갱신)
+## _context/ 문서 (34개 활성, 2026-07-12 갱신)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -28,6 +28,7 @@
 | GATE-BASELINE-2026-06-04.md | v50.4 evidence 게이트 단위테스트 실측 기준선 | 게이트/테스트 재측정 시 |
 | GATE-BASELINE-2026-07-03.md | v51.91→v51.96 헤드리스 CI 테스트 실측 기준선(894/921→896/921 pass, T776/T686 해소) — Phase 2 [B5] + 전체 /data-refresh | skip-list 갱신, 헤드리스 재측정 시 |
 | CHAT-DATA-AUDIT-2026-06-04.md | v50.8 AI 채팅 데이터 출처 전수 감사 baseline | 채팅 데이터 경로/컨텍스트 변경 시 |
+| AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md | v52.63 AI 전체 경로 기관급 감사: 20 context/22 route, 의미·근거 반례, injection/privacy/cost/SLO, WP-AI0~10·일반 LLM A/B gate | AI prompt/data/validator/model/Worker/privacy/public claim 변경 시 |
 | FRONTEND-UX-AUDIT-2026-06-05.md | v50.12 21페이지 라이브 프론트엔드/UX audit + P0/P1/P2 백로그 | UI/UX 시정·페이지 구조 변경 시 |
 | OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md | v50.23 구조 전수 감사 + Opus 작업 백로그 WO-1~14 (P0 5건 전부 해소됨) | WO 항목 완료/구조 변경 시 |
 | PAGE-UX-AUDIT-2026-06-13.md | 페이지별 UX 감사 (일부 항목은 이후 라이브 검증에서 거짓양성 판정 — DEFERRED-BLOCKS §3 참조) | UI/UX 재점검 시 |

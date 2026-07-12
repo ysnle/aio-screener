@@ -2781,3 +2781,20 @@ These are blocking acceptance checks derived from `_context/INSTITUTIONAL-DATA-R
 - [ ] **IRG-6 semantic AI validator**: generated analysis may publish only if every numeric token, metric label, unit, sign, and observation time resolves to input evidence. Baseline failures: F&G 49 relabelled as VIX 49 and NFP 57 thousand rendered as 570,000.
 - [ ] **IRG-7 operational failure matrix**: each external source has real success/partial/timeout/malformed fixtures, source-specific SLO, quarantine, and user-facing state. The current all-network-aborted browser fixture alone is insufficient.
 - [ ] **IRG-8 independent data/right review**: production-source reproducibility, independent-vendor/official-source divergence, corporate actions, redistribution entitlement, and vendor termination plan are approved before PUBLIC/commercial use.
+
+## AI institutional public-release gate — 2026-07-12
+
+Derived from `_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md`. All items are blocking until executable; prompt text, badges, or function-presence audits do not count.
+
+- [ ] **AIG-1 route↔context bidirectional coverage**: all 22 routes resolve to an explicit supported/unsupported AI contract, every `_aiCtxMap` target exists, and every supported path reaches the common response validator. Baseline failure: `briefing → briefing` while `CHAT_CONTEXTS['briefing']` is absent.
+- [ ] **AIG-2 typed semantic claims**: F&G↔VIX label swap, NFP K scale 10x, bp↔%, sign inversion, FX pair inversion, ticker-number attribution, and as-of mismatch fixtures are blocked before render.
+- [ ] **AIG-3 evidence-bound citations**: a nearby `Source: Yahoo/FRED` string alone cannot pass. Every current-sensitive claim must carry an allowlisted evidence ID whose entity/metric/value/unit/asOf match the claim.
+- [ ] **AIG-4 one response pipeline**: per-page, unified, retry-success, translation, briefing, and server `marketAnalysis` record the same validator/policy version and cannot bypass block/fallback behavior.
+- [ ] **AIG-5 prompt-injection boundary**: news, Telegram, filings, web-search text, user research, and imported notes are structured as untrusted data; direct/indirect injection and system-prompt/data-exfiltration red-team fixtures produce zero policy override.
+- [ ] **AIG-6 action permission**: missing/stale/reference evidence or incomplete suitability prevents personalized buy/sell/target/stop/position-size output. Disclaimer text is not a substitute for this code gate.
+- [ ] **AIG-7 privacy**: portfolio fields sent to an LLM are previewed, allowlisted/redacted, and explicitly consented at send time; chat-history storage is opt-in/off, encrypted where sensitive, and fully deletable.
+- [ ] **AIG-8 prompt/cost budget**: actual API input/cache-write/cache-read/output/search usage is measured. P95 prompt tokens obey a declared per-intent budget and displayed estimates differ from billed usage by no more than 10%. Baseline system-only average is ~82,669 chars/~20.7K tokens versus the UI's 2.5K input assumption.
+- [ ] **AIG-9 backend parity**: personal-key and Worker modes disclose and meet the same answer contract or visibly declare a reduced mode. Baseline mismatch: client requests 12K/16K output while Worker defaults to 1.5K.
+- [ ] **AIG-10 golden A/B**: the frozen 22-route corpus covers current facts, mechanism, comparison, action, stale/conflict, injection, and multi-turn correction. The AIO variant must beat the same general LLM on predeclared grounding/currentness/action-safety axes with P0 semantic errors equal to zero.
+- [ ] **AIG-11 live operations**: deployed Worker revision/config/KV, availability, TTFB/total latency, completion rate, retries, per-user/total cost, quota races, and kill/rollback are observed against SLO; local handler tests alone are insufficient.
+- [ ] **AIG-12 honest public claims**: “기관급”, “검증됨”, “실시간”, and “일반 LLM보다 우수” appear only where the corresponding measured gate passes; otherwise the surface says BETA/research aid and identifies unverified limits.
