@@ -1,3 +1,14 @@
+## v52.73 (2026-07-13)
+
+사용자가 재확인 질문("13개 페이지는 시안 그대로 이식한거지?")에 이어 직접 지적: v52.72에서 fundamental(3f)/market-news(4b)/screener(4c) 3개를 "이미 comp와 정합적"이라며 헤더/토큰 폴리싱만 하고 넘어간 것이 동일 패턴의 반복 실수였음(기존 구현이 더 정교하다는 것은 재구축을 건너뛸 이유가 아님). 3개 페이지 전부 실제 구조 재구축 + portfolio(4a) 잔여 구섹션 3개 통합 + macro(3d) 폴드 라벨 정확화.
+
+- **fundamental(3f)**: 시안의 "기업개요 — 정성분석" 2열 섹션이 통째로 없었던 것을 발견 — 신규 `_renderFundQualitative()`(js/aio-ui.js)로 좌측에 FMP `profile.description`(실 데이터, escHtml 처리) + 섹터/경영진/상장 행, 우측에 52주 레인지·거래량·시가총액 막대-행(시안의 매출비중 막대와 동일 시각언어, 실제 보유 데이터로 채움 — 사업부문 매출비중처럼 없는 데이터는 날조하지 않음)을 신규 렌더. `_renderFundHeader()`를 시안 구조(회사명+티커/섹터/거래소 좌, 가격+등락 우 한 줄)로 축소하고 버튼/배지/시총은 보조 줄로 압축. 성장성·수익성 미니차트를 7차트 그리드에서 신규 개요 섹션으로 이전(재무상세엔 5차트 잔류). 시안에 없는 관심종목스캔·매크로리스크레이더·시장전체실적서프라이즈 3개 클러스터를 details로 압축.
+- **market-news(4b)**: 카드 우측 요소를 topicBadge(카테고리)에서 시안의 `sentWord`(호재/부담/주의/중립)로 교체, 카테고리는 메타 줄로 이동.
+- **screener(4c)**: `.scr-adv-col` CSS 클래스 + `_aioScreenerToggleColumns()` 토글(js/aio-data.js) 신규 — 기본 노출 컬럼을 시안 수준(~9개: 종목/추세신뢰도/VCP셋업/3M/RSI/현재가 등)으로 압축, "전체 컬럼 보기" 클릭 시 전체 노출(Playwright 확인: 기본 14개 헤더 → 토글 후 26개). 프리셋+KPI 행 압축, 시안의 "읽는 법 + 전략 백테스트" 하단 섹션 신규 추가.
+- **portfolio(4a)**: 시안에 없는 AI 운용노트 / 백테스트 Lab / (관심종목 워치리스트+자동진단+VaR·상관계수 심화리스크, 묶어서 1개) — 3개 섹션을 `<details class="aio-page-advanced-toggle">`로 압축(R:R계산기는 이전 세션에서 이미 완료). 보유 종목 테이블 자체의 위치(시안은 히어로 바로 다음, 현재는 여러 섹션 뒤)는 이번 범위에서 재정렬하지 않음 — 토큰은 이미 정합적이라 재정렬로 인한 div-불균형 리스크 대비 우선순위 낮음으로 판단, 후속 세션 후보로 남김.
+- **macro(3d)**: 재확인 결과 시안 범위 밖 6개 섹션(인터커넥션맵·경제사이클·FRED차트·유가에너지·시나리오트리·경제캘린더)이 이미 v52.70에서 details 1개로 폴드 완료돼 있었음(작업 트래커의 "미착수" 기록이 낡은 정보였음 — 코드 확인으로 자기 정정). summary 라벨이 폴드 안 6개 주제 중 3개만 언급하던 것을 전체 언급으로 정정 + 본문 없는 고아 섹션 주석("SECTION 7") 1건 제거.
+- **검증**: `node --check` 전체(aio-ui.js/aio-chat.js/aio-data.js) 통과, 페이지별 div/details 균형 스크립트(fundamental 143/143·3/3, portfolio 182/182·4/4, macro 298/298·1/1) 통과, `ci-headless-tests` **992/992 PASS**, `ci-control-char-check`/`ci-structural-check`/`ci-ux-default-path-check`(전체 div 4202/4202) 전부 OK. fundamental은 Playwright로 합성 실데이터(NVDA 형태) 직접 호출해 `_renderFundHeader`/`_renderFundQualitative` 렌더 확인(오프라인 테스트 환경의 외부 API 차단 한계를 우회), market-news는 실검색으로 24개 카드의 sentWord/topicBadge 렌더 확인, screener는 컬럼 토글 전후 헤더 수(14→26) 확인. `ci-critical10-human-surface-check`(10라우트 PASS, 콘솔에러 0)/`ci-portfolio-vault-e2e`(PIN/암호화 8종 전부 PASS — portfolio details 폴드가 vault 흐름을 깨지 않음 확인)/`ci-accessibility-matrix-check`(22라우트 PASS, 콘솔에러 0) 전부 PASS.
+
 ## v52.72 (2026-07-13)
 
 사용자 재확인 후 (a) 시안 comp-compliant로 잘못 기록됐던 6개 페이지(3e~4c) 실제 재검증 + (b) 착수 전 — fxbond(3e)·fundamental(3f)·themes(3g)·portfolio(4a)·market-news(4b)·screener(4c) 전체 재작업.

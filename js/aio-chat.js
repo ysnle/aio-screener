@@ -6914,6 +6914,7 @@ async function fundamentalSearch() {
 
   // ─── UI 렌더링 ───
   _renderFundHeader(collected);
+  if (typeof _renderFundQualitative === 'function') _renderFundQualitative(collected);
   _renderFundSEC(collected);
   _renderFundFinancials(collected);
   _renderFundStatements(collected);

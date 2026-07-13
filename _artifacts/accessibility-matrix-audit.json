@@ -20,7 +20,7 @@
         {
           "id": "",
           "text": "DXY—",
-          "width": 86,
+          "width": 87,
           "height": 24
         },
         {
@@ -44,7 +44,7 @@
         {
           "id": "",
           "text": "KOSPI—",
-          "width": 108,
+          "width": 109,
           "height": 24
         },
         {
@@ -100,15 +100,8 @@
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
-      "smallTargetCount": 1,
-      "smallTargets": [
-        {
-          "id": "",
-          "text": "VIX 기간구조 설명",
-          "width": 2,
-          "height": 24
-        }
-      ],
+      "smallTargetCount": 0,
+      "smallTargets": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -175,8 +168,8 @@
       "smallTargets": [
         {
           "id": "",
-          "text": "균형",
-          "width": 44,
+          "text": "균형 (기본)",
+          "width": 76,
           "height": 23
         },
         {
@@ -816,30 +809,6 @@
         },
         {
           "id": "",
-          "text": "COIN",
-          "width": 30,
-          "height": 16
-        },
-        {
-          "id": "",
-          "text": "MSTR",
-          "width": 33,
-          "height": 16
-        },
-        {
-          "id": "",
-          "text": "MARA",
-          "width": 36,
-          "height": 16
-        },
-        {
-          "id": "",
-          "text": "HOOD",
-          "width": 36,
-          "height": 16
-        },
-        {
-          "id": "",
           "text": "LIN",
           "width": 19,
           "height": 16
@@ -860,6 +829,30 @@
           "id": "",
           "text": "APD",
           "width": 25,
+          "height": 16
+        },
+        {
+          "id": "",
+          "text": "COIN",
+          "width": 30,
+          "height": 16
+        },
+        {
+          "id": "",
+          "text": "MSTR",
+          "width": 33,
+          "height": 16
+        },
+        {
+          "id": "",
+          "text": "MARA",
+          "width": 36,
+          "height": 16
+        },
+        {
+          "id": "",
+          "text": "HOOD",
+          "width": 36,
           "height": 16
         },
         {
@@ -1166,7 +1159,7 @@
       "selectCount": 0,
       "selectsWithoutName": [],
       "positiveTabindex": [],
-      "canvasCount": 1,
+      "canvasCount": 3,
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
@@ -1186,8 +1179,15 @@
       "unnamedCanvas": [],
       "fontUnder10Count": 0,
       "fontUnder10": [],
-      "smallTargetCount": 0,
-      "smallTargets": [],
+      "smallTargetCount": 1,
+      "smallTargets": [
+        {
+          "id": "fund-search-input",
+          "text": "기업 분석 종목 티커 입력",
+          "width": 187,
+          "height": 15
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

@@ -3988,43 +3988,69 @@ var _fmtPct = window._fmtPct;
 function _renderFundHeader(d) {
   var el = document.getElementById('fund-rpt-header');
   if (!el) return;
-  var pctColor = d.pct != null ? (d.pct >= 0 ? '#00e5a0' : '#ff5b50') : '#7b8599';
+  var pctColor = d.pct != null ? (d.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
   var p = d.fmpProfile || {};
-  // v48.44: Ticker initial avatar (Figma profile chip 스타일)
-  var _initial = String(d.ticker || '?').slice(0, 2).toUpperCase();
-  var _avatarTone = (d.pct || 0) >= 0 ? 'tone-green' : 'tone-red';
-  var html = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">';
-  html += '<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">';
-  html += '<div class="aio-avatar is-lg ' + _avatarTone + '" style="font-family:var(--font-mono);">' + escHtml(_initial) + '</div>';
-  html += '<div style="min-width:0;flex:1;">';
-  html += '<div style="font-size:var(--fs-2xl);font-weight:800;color:var(--text-primary);letter-spacing:var(--ls-tight);font-family:var(--font-mono);">' + escHtml(d.ticker) + '</div>';
-  html += '<div style="font-size:var(--fs-md);color:var(--text-secondary);font-weight:600;">' + escHtml(d.name || '') + '</div>';
-  if (p.sector) html += '<div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:3px;font-weight:500;">' + escHtml(p.sector) + ' · ' + escHtml(p.industry || '') + ' · ' + escHtml(p.country || 'US') + '</div>';
-  if (p.ceo) html += '<div style="font-size:var(--fs-xs);color:var(--text-muted);">CEO: ' + escHtml(p.ceo) + ' · 직원: ' + (p.fullTimeEmployees ? Number(p.fullTimeEmployees).toLocaleString() : 'N/A') + '명</div>';
-  html += '</div></div>';
-  html += '<div style="text-align:right;">';
+  // v52.73 아이보리 3f: 시안 구조(회사명+티커/섹터/거래소 좌 · 가격+등락 우, 한 줄 리포트 헤더)
+  var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">';
+  html += '<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;min-width:0;">';
+  html += '<span style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);">' + escHtml(d.name || d.ticker) + '</span>';
+  html += '<span style="font-size:12.5px;color:var(--text-muted);">' + escHtml(d.ticker) + (p.sector ? ' · ' + escHtml(p.sector) : '') + (p.exchangeShortName ? ' · ' + escHtml(p.exchangeShortName) : '') + '</span>';
+  html += '</div>';
+  html += '<div style="display:flex;align-items:baseline;gap:10px;flex-shrink:0;">';
   if (d.price) {
-    html += '<div style="font-size:24px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);">$' + d.price.toFixed(2) + '</div>';
-    html += '<div style="font-size:14px;color:' + pctColor + ';font-weight:700;">' + _fmtPct(d.pct) + '</div>';
+    html += '<span style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">$' + d.price.toFixed(2) + '</span>';
+    html += '<span style="font-size:13px;font-weight:600;color:' + pctColor + ';font-variant-numeric:tabular-nums;">' + _fmtPct(d.pct) + '</span>';
   }
-  if (p.mktCap) html += '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">시가총액: $' + _fmtNum(p.mktCap) + '</div>';
-  // v38.8: 포트폴리오 추가 + 차트분석 연결 버튼
-  html += '<div style="display:flex;gap:6px;margin-top:6px;">';
+  html += '</div></div>';
+
+  // 보조 행 — 시가총액 · 포트폴리오/차트 액션 · 리포트 노화 배지 (시안엔 없으나 실사용 기능이라 압축된 한 줄로 유지)
+  html += '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">';
+  if (p.mktCap) html += '<span style="font-size:11px;color:var(--text-muted);">시가총액 $' + _fmtNum(p.mktCap) + '</span>';
   html += '<button data-action="_aioAddToPortfolio" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table" style="font-size:11px;">포트폴리오에 추가</button>';
   html += '<button data-action="_aioChartAnalyze" data-arg="' + escHtml(d.ticker) + '" class="aio-btn-table" style="font-size:11px;">차트 분석</button>';
-  html += '</div>';
   // v48.37: SCREENER_DB memo staleness 배지 (애널리스트 리포트 노화 경고)
   if (typeof window._aioStockStaleInfo === 'function') {
     var _staleInfo = window._aioStockStaleInfo(d.ticker);
     if (_staleInfo && _staleInfo.badge) {
-      html += '<div style="margin-top:4px;font-size:11px;color:var(--text-muted);">리포트 코멘트: ' + _staleInfo.badge + (_staleInfo.isStale ? ' <span style="color:#f87171;">· 최신 정보 재검증 권장</span>' : '') + '</div>';
+      html += '<span style="font-size:11px;color:var(--text-muted);">리포트 코멘트: ' + _staleInfo.badge + (_staleInfo.isStale ? ' <span style="color:var(--data-red);">· 최신 정보 재검증 권장</span>' : '') + '</span>';
     }
   }
-  html += '</div></div>';
+  html += '</div>';
 
-  // v48.6: 52주 위치 프로그레스 바 + 거래량 스파이크 배지 (Yahoo v7 배치 수집 필드 활용)
-  //   데이터 우선순위: _liveData(Yahoo v7/quote) > finnhubMetrics(v48.0)
-  //   52W 위치 0~100% — 저가 대비 현재가 백분위 / 거래량 = 오늘 거래량 ÷ 3개월 평균
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+function _renderFundQualitative(d) {
+  var sec = document.getElementById('fund-rpt-qualitative');
+  var descEl = document.getElementById('fund-qual-desc');
+  var rowsEl = document.getElementById('fund-qual-rows');
+  var barsEl = document.getElementById('fund-qual-bars');
+  if (!sec || !descEl || !rowsEl || !barsEl) return;
+  var p = d.fmpProfile || {};
+
+  // 좌측 — 정성 개요: FMP profile.description(실제 기업 공시 설명) + 섹터/경영진 실데이터 행
+  // v48.91과 동일하게 escHtml() 적용 — FMP API 기업 설명 XSS 방지
+  if (p.description) {
+    var desc = p.description.length > 420 ? p.description.slice(0, 420) + '...' : p.description;
+    descEl.innerHTML = escHtml(desc);
+  } else {
+    descEl.innerHTML = '<span style="color:var(--text-muted);">기업 설명 데이터 없음 (FMP profile.description 미제공)</span>';
+  }
+
+  function qrow(label, text) {
+    return '<div style="display:flex;gap:14px;">' +
+      '<span style="font-size:11px;font-weight:700;color:var(--text-dim);flex-shrink:0;width:64px;padding-top:2px;">' + escHtml(label) + '</span>' +
+      '<span style="font-size:12.5px;color:var(--text-secondary);line-height:1.7;">' + text + '</span></div>';
+  }
+  var rowsHtml = '';
+  if (p.sector || p.industry) rowsHtml += qrow('섹터', escHtml(p.sector || '') + (p.industry ? ' · ' + escHtml(p.industry) : '') + (p.country ? ' · ' + escHtml(p.country) : ''));
+  if (p.ceo) rowsHtml += qrow('경영진', 'CEO ' + escHtml(p.ceo) + (p.fullTimeEmployees ? ' · 직원 ' + Number(p.fullTimeEmployees).toLocaleString() + '명' : ''));
+  if (p.ipoDate) rowsHtml += qrow('상장', escHtml(p.ipoDate) + ' 상장' + (p.exchangeShortName ? ' · ' + escHtml(p.exchangeShortName) : ''));
+  rowsEl.innerHTML = rowsHtml;
+
+  // 우측 — 가격 포지션 · 거래 강도: 시안의 막대-행 시각언어를 실제 52주 레인지/거래량 데이터로 채움
+  //   (v48.6에서 이동 — 데이터 우선순위: _liveData(Yahoo v7/quote) > finnhubMetrics)
   var _ld = (window._liveData || {})[d.ticker] || {};
   var _fh = d.finnhubMetrics || {};
   var _w52High = _ld.fiftyTwoWeekHigh != null ? _ld.fiftyTwoWeekHigh : (_fh['52WeekHigh'] != null ? _fh['52WeekHigh'] : null);
@@ -4033,24 +4059,23 @@ function _renderFundHeader(d) {
   var _avgVol3M = _ld.averageDailyVolume3Month != null ? _ld.averageDailyVolume3Month : null;
   var _avgVol10D = _ld.averageDailyVolume10Day != null ? _ld.averageDailyVolume10Day : null;
 
+  function barRow(label, pct, valueText, color) {
+    return '<div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;">' +
+      '<span style="color:var(--text-muted);">' + escHtml(label) + '</span>' +
+      '<span style="color:' + color + ';font-weight:700;">' + valueText + '</span></div>' +
+      '<div style="height:6px;background:var(--border-subtle);border-radius:3px;overflow:hidden;">' +
+      '<div style="height:100%;width:' + Math.max(2, Math.min(100, pct)) + '%;background:' + color + ';border-radius:3px;"></div></div></div>';
+  }
+
+  var barsHtml = '';
   if (d.price && _w52High && _w52Low && _w52High > _w52Low) {
     var _pos = ((d.price - _w52Low) / (_w52High - _w52Low)) * 100;
     _pos = Math.max(0, Math.min(100, _pos));
-    var _posColor = _pos > 75 ? '#00e5a0' : _pos < 25 ? '#ff5b50' : '#ffa31a';
+    var _posColor = _pos > 75 ? 'var(--data-green)' : _pos < 25 ? 'var(--data-red)' : 'var(--data-amber)';
     var _posLabel = _pos > 90 ? '52주 고가 근접' : _pos > 75 ? '상단 구간' : _pos < 10 ? '52주 저가 근접' : _pos < 25 ? '하단 구간' : '중간 구간';
-    html += '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">';
-    html += '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;">';
-    html += '<span style="color:var(--text-muted);font-family:var(--font-mono);">52W저 $' + _w52Low.toFixed(2) + '</span>';
-    html += '<span style="color:' + _posColor + ';font-weight:700;">' + _posLabel + ' · ' + _pos.toFixed(0) + '%</span>';
-    html += '<span style="color:var(--text-muted);font-family:var(--font-mono);">52W고 $' + _w52High.toFixed(2) + '</span>';
-    html += '</div>';
-    html += '<div style="height:10px;background:var(--surface-5);border-radius:3px;position:relative;overflow:visible;">';
-    html += '<div style="height:100%;width:100%;background:linear-gradient(90deg,#f87171 0%,#fbbf24 50%,#3ddba5 100%);border-radius:3px;opacity:0.35;"></div>';
-    html += '<div style="position:absolute;top:-3px;left:' + _pos + '%;width:4px;height:16px;background:#fff;transform:translateX(-50%);box-shadow:0 0 6px rgba(255,255,255,0.8);border-radius:2px;"></div>';
-    html += '</div>';
-    html += '</div>';
+    barsHtml += barRow('52주 레인지 ($' + _w52Low.toFixed(2) + ' ~ $' + _w52High.toFixed(2) + ')', _pos, _posLabel + ' · ' + _pos.toFixed(0) + '%', _posColor);
   }
-
   if (_vol && _avgVol3M && _avgVol3M > 0) {
     var _volRatio = _vol / _avgVol3M;
     var _volLabel, _volColor;
@@ -4059,21 +4084,12 @@ function _renderFundHeader(d) {
     else if (_volRatio < 0.5) { _volLabel = '거래량 저조'; _volColor = 'var(--text-muted)'; }
     else { _volLabel = '거래량 정상'; _volColor = 'var(--data-green)'; }
     var _vol10dRatio = (_avgVol10D && _avgVol10D > 0) ? (_vol / _avgVol10D) : null;
-    html += '<div style="margin-top:8px;display:flex;gap:8px;font-size:11px;align-items:center;flex-wrap:wrap;">';
-    html += '<span style="padding:3px 10px;background:var(--surface-2);border:1px solid ' + _volColor + ';color:' + _volColor + ';border-radius:4px;font-weight:700;">' + _volLabel + ' ' + _volRatio.toFixed(1) + 'x</span>';
-    html += '<span style="color:var(--text-muted);">3개월 평균 대비 · 오늘 ' + Number(_vol).toLocaleString() + '주';
-    if (_vol10dRatio != null) html += ' · 10일 평균 대비 ' + _vol10dRatio.toFixed(1) + 'x';
-    html += '</span>';
-    html += '</div>';
+    barsHtml += barRow('거래량 (3개월 평균 대비, 오늘 ' + Number(_vol).toLocaleString() + '주)', Math.min(100, _volRatio * 50), _volLabel + ' ' + _volRatio.toFixed(1) + 'x' + (_vol10dRatio != null ? ' · 10일 대비 ' + _vol10dRatio.toFixed(1) + 'x' : ''), _volColor);
   }
+  if (p.mktCap) barsHtml += barRow('시가총액', 100, '$' + _fmtNum(p.mktCap), 'var(--text-primary)');
+  barsEl.innerHTML = barsHtml || '<span style="font-size:12px;color:var(--text-muted);">가격 포지션 데이터 없음</span>';
 
-  if (p.description) {
-    // v48.91: escHtml() 적용 — FMP API 기업 설명 XSS 방지
-    var desc = p.description.length > 300 ? p.description.slice(0, 300) + '...' : p.description;
-    html += '<div style="margin-top:10px;font-size:11px;color:var(--text-secondary);line-height:1.6;border-top:1px solid var(--border);padding-top:8px;">' + escHtml(desc) + '</div>';
-  }
-  el.innerHTML = html;
-  el.style.display = 'block';
+  sec.style.display = 'block';
 }
 
 function _renderFundSEC(d) {
