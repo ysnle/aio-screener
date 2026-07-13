@@ -2256,7 +2256,12 @@ window._aioRenderVixTermRegime = function() {
     if (pts.length >= 2) {
       var ptLabels = pts.map(function(p){ return p.x; });
       var ptData = pts.map(function(p){ return p.y; });
-      var chartColor = (ptData[ptData.length-1] > ptData[0]) ? '#00e5a0' : '#ff5b50';
+      // v52.72: 구 다크테마 잔재(네온 hex + 흰색 반투명 눈금) 교체 — 아이보리(밝은) 배경에서 흰색 눈금은
+      // 사실상 비가시 상태였음. getComputedStyle로 실제 토큰 값 해석(canvas는 var() cascade 미지원).
+      var _cs = getComputedStyle(document.documentElement);
+      var _muted = _cs.getPropertyValue('--text-muted').trim() || '#8a8271';
+      var _gridC = _cs.getPropertyValue('--border-subtle').trim() || 'rgba(0,0,0,0.08)';
+      var chartColor = (ptData[ptData.length-1] > ptData[0]) ? (_cs.getPropertyValue('--data-green').trim() || '#22754c') : (_cs.getPropertyValue('--data-red').trim() || '#b13a30');
       if (window._vixTermChart) { try { window._vixTermChart.destroy(); } catch(e){} delete window._vixTermChart; }
       window._vixTermChart = new Chart(canv, {
         type: 'line',
@@ -2265,8 +2270,8 @@ window._aioRenderVixTermRegime = function() {
           responsive: true, maintainAspectRatio: false, animation: false,
           plugins: { legend: { display: false }, tooltip: { enabled: true, callbacks: { label: function(ctx){ return window._aioSafeFixed(ctx && ctx.parsed && ctx.parsed.y, 2, '—'); } } } },
           scales: {
-            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 }, maxTicksLimit: 4 } }
+            x: { grid: { display: false }, ticks: { color: _muted, font: { size: 9 } } },
+            y: { grid: { color: _gridC }, ticks: { color: _muted, font: { size: 9 }, maxTicksLimit: 4 } }
           }
         }
       });

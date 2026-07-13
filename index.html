@@ -3984,6 +3984,13 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
   #page-portfolio [style*="display:flex;gap:8px;flex-wrap:wrap"] {
     flex-direction: column;
   }
+  /* v52.72: sentiment F&G+VIX 히어로 2열(minmax(260px,360px) | minmax(0,1fr))의 260px 최소폭이
+     768px 이하 뷰포트에서 두번째 열(VIX 기간구조 차트 포함)을 0폭으로 밀어냄
+     — ci-viewport-matrix가 mobile390/sentiment에서 vix-term-chart zero-size canvas로 포착. */
+  #page-sentiment [style*="grid-template-columns:minmax(260px,360px)"] {
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+  }
 }
 
 /* ═══ v27.4+v30.11: 스마트폰 (480px 이하) 반응형 ═══ */
