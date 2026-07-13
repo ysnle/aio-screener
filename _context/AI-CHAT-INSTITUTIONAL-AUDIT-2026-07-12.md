@@ -1,8 +1,10 @@
 ---
-verified_by: Codex (source review + offline Playwright counterexample audit + existing CI gates)
-last_verified: 2026-07-12
+verified_by: Codex (source review + v52.67 offline Playwright route/context re-audit + existing CI gates)
+last_verified: 2026-07-13
 confidence: high for repository/runtime structure; low for live model answer quality because paid live sampling was not executed
-target_version: v52.63
+target_version: version.json
+audit_baseline: v52.67-local
+status: execution-handoff; design complete, implementation and live/model certification incomplete
 ---
 
 # AIO AI 채팅 기관급 전수 진단 및 실행 핸드오프
@@ -736,3 +738,216 @@ PageAIContract
 | PG-AI8 | 페이지 결론·차트·AI 답변이 동일 evidence ID/asOf/conclusion을 사용 |
 | PG-AI9 | 페이지별 P0 semantic error 0, grounding ≥99%, abstention ≥99% |
 | PG-AI10 | 실제 모델 A/B와 P95 latency/token/cost가 페이지별 예산 내 |
+
+## 20. v52.67 재기준선과 문서 사용 규칙 (2026-07-13)
+
+이 문서는 **구현 완료 보고서가 아니라 실행형 구조개편 핸드오프**다. 다음 에이전트는 `WP-AI*` 항목이 문서에 존재한다는 사실을 구현 완료로 해석하면 안 된다. 각 항목은 아래 네 상태를 별도로 기록한다.
+
+```text
+DESIGNED -> IMPLEMENTED_LOCAL -> VERIFIED_LOCAL -> VERIFIED_LIVE
+```
+
+- `DESIGNED`: 목표 구조, 금지 조건, 완료 게이트가 문서에 정의됨.
+- `IMPLEMENTED_LOCAL`: 기존 우회 경로를 제거하고 단일 production path에 코드가 연결됨.
+- `VERIFIED_LOCAL`: 정상/결측/지연/충돌/공격 fixture와 실제 브라우저 경로가 통과함.
+- `VERIFIED_LIVE`: 배포된 앱·데이터·Worker·모델 설정이 동일 revision으로 확인됨.
+
+2026-07-13 v52.67 로컬에서 `_artifacts/ai-page-topic-audit.mjs`를 재실행한 결과는 다음과 같다.
+
+| 항목 | v52.67 실측 |
+|---|---:|
+| 전체 route | 22 |
+| AI 활성 | 20 |
+| 비의도 미활성 | `briefing` 1 |
+| required axis 전부 탐지 | 16 route |
+| 추가 결함 route | home, briefing, screener, portfolio, options |
+| 질문 칩 0 | briefing, options |
+| themes/theme-detail prompt 동일 | true |
+| system prompt 범위 | 63,966~106,820 chars |
+
+따라서 v52.64~v52.67의 화면 개편은 이 문서의 AI 구조 P0를 해소하지 않았다. 특히 `briefing` context 부재, `theme-detail` entity binding 소실, screener universe 부재, portfolio suitability 부재, options chain 부재는 현재형 결함이다.
+
+## 21. 3차 누락·저심도 영역 전수 보강
+
+아래 영역은 기존 §1~19에서 전혀 없었거나 이름만 언급되고 실행 계약이 충분하지 않았다. 이후 AI 감사는 이 목록까지 포함해야만 “전수”라고 부를 수 있다.
+
+### AI-X01 — 멀티턴·route·entity 수명주기 (P0)
+
+단순히 대화 기록이 존재하는지 보지 않는다. 다음 상태 전이를 검증한다.
+
+- ticker/theme/portfolio 변경 후 이전 entity 수치와 결론이 남지 않는가.
+- 스트리밍 중 route 이동, 뒤로가기, 패널 닫기, 새 질문이 발생했을 때 이전 응답이 새 화면에 붙지 않는가.
+- retry/cancel/timeout 이후 request ID와 validator 결과가 올바른 대화 turn에 귀속되는가.
+- context trim 이후 사용자 제약, suitability, 근거 시각, 정정 내용이 소실되지 않는가.
+- 이전 turn의 잘못된 전제를 사용자가 정정했을 때 후속 답변과 저장 memory가 함께 교정되는가.
+- 다중 탭·빠른 entity 전환에서 late response가 최신 상태를 덮지 않는가.
+
+완료 게이트: route/entity × stream 상태 × retry/cancel × context trim 상태 머신 fixture에서 stale entity claim과 잘못 귀속된 응답 0건.
+
+### AI-X02 — 결정론적 금융 계산·도구 경계 (P0)
+
+LLM은 옵션 손익, Greeks, 포트폴리오 VaR/베타/상관, CAGR/MDD, FX 환산, 포지션 크기, 수수료·세금·슬리피지를 암산하지 않는다.
+
+```text
+typed input -> approved calculation engine -> CalculationEvidence
+            -> deterministic invariant check -> AI explanation only
+```
+
+모든 계산 결과는 `formulaVersion`, `inputEvidenceIds`, `assumptions`, `currency`, `rounding`, `calculatedAt`을 가진다. LLM이 새 숫자를 만들거나 계산 엔진과 다른 결과를 말하면 block한다.
+
+완료 게이트: 옵션/포트폴리오/환율/수익률 golden arithmetic fixture 100% 일치, 모델 자체 계산값의 decision use 0건.
+
+### AI-X03 — Retrieval/RAG 품질과 오염 방어 (P0)
+
+`top-k`라는 단어만 추가하는 것으로 완료하지 않는다.
+
+- 질문별 recall@k/precision@k, source-tier coverage, temporal relevance를 측정한다.
+- chunk ID, document version, publishedAt, superseded/retracted 상태를 보존한다.
+- 현재 entity/관할/시각 필터를 먼저 적용하고 similarity 검색을 수행한다.
+- 상충 문서는 권위·시각·정정 관계로 병합하고 한쪽을 조용히 버리지 않는다.
+- poisoned note, 악성 PDF/HTML, 숨은 명령, Unicode confusable, citation spoofing을 격리한다.
+- 삭제·정정·권한 철회 문서는 cache와 vector/index에서 함께 제거한다.
+
+완료 게이트: route별 retrieval benchmark에서 사전 정의 recall/precision 충족, stale/retracted/poisoned document가 current action claim에 사용된 건수 0.
+
+### AI-X04 — 금융시장 행위·규제 정책 (P0)
+
+기존 suitability만으로는 부족하다. 다음 요청은 별도 conduct policy로 분류한다.
+
+- 미공개 중요정보(MNPI), 내부자정보, 유출 자료의 거래 활용.
+- pump-and-dump, 시세조종, wash trading, front-running, 허위 루머 확산.
+- 제재·거래정지·restricted list 종목, 시장질서 회피.
+- 복잡상품/레버리지/옵션의 소매 투자자 적합성.
+- 관할별 투자자문, AI 고지, 기록보존, 광고·성과표시 요건.
+
+앱에 주문 기능이 없더라도 “불법·조작성 전략을 설명하고 최적화하는 답변”은 차단 대상이다. 법률 자문이 필요한 항목은 `LEGAL_REVIEW_REQUIRED`로 남기며 에이전트가 임의 승인하지 않는다.
+
+완료 게이트: conduct red-team corpus에서 금지 전략의 실행 가능한 절차·타깃·타이밍 제공 0건, 관할 미확정 personalized advice 0건.
+
+### AI-X05 — Model Risk Management와 재현 가능한 replay (P1)
+
+각 응답에 `requestId`, app/data/Worker revision, model ID, prompt version, retriever version, validator version, evidence snapshot hash, sampling 설정, output hash를 기록한다. 모델·prompt·retrieval·validator 변경은 독립 변경으로 다루고 owner, reviewer, 승인 사유, canary, rollback을 남긴다.
+
+완료 게이트: 임의 production sample을 동일 evidence snapshot으로 replay 가능하고, 배포 manifest와 응답 metadata의 revision 불일치 0건.
+
+### AI-X06 — 캐시·멱등성·사용자 격리·스트림 완결성 (P0)
+
+- response/context cache key에 user/session/route/entity/evidence hash/model/prompt version을 포함한다.
+- 포트폴리오·대화·개인 설정 cache는 사용자 간 공유하지 않는다.
+- retry는 idempotency key를 사용해 중복 과금·중복 저장·중복 feedback을 방지한다.
+- partial/aborted stream은 `complete`로 저장하거나 benchmark sample로 채택하지 않는다.
+- 늦게 도착한 응답은 현재 request/entity와 일치할 때만 render한다.
+- cache hit도 원 evidence의 freshness/action permission을 다시 검사한다.
+
+완료 게이트: 2사용자 × 2탭 × retry/cancel/late-response race에서 cross-user leak, duplicate bill/store, stale render 0건.
+
+### AI-X07 — 추천·데이터 커버리지 편향 (P1)
+
+추천 다양성만이 아니라 데이터 가용성 자체가 순위를 왜곡하는지 측정한다.
+
+- 대형주/미국주/유명 ticker/특정 섹터 반복률.
+- fundamental/news가 풍부한 기업이 결측 기업보다 자동 우대되는 정도.
+- 한국어·영어 원천량 차이와 KR/US 분석 깊이 차이.
+- 소형주·저유동성·고스프레드 종목의 위험 과소평가.
+- `missing`이 `neutral` 또는 낮은 점수로 치환되는지.
+
+완료 게이트: universe/sector/region/cap/liquidity/source-coverage별 exposure report와 결측 중립화 검증, 숨은 결측으로 인한 추천 승격 0건.
+
+### AI-X08 — 채팅 전용 인간 사용성·접근성·신뢰 보정 (P1)
+
+- streaming `aria-live`가 문장 단위로 안정적으로 읽히고 토큰마다 과잉 낭독하지 않는가.
+- keyboard만으로 열기/질문/취소/재시도/인용 열기/닫기가 가능한가.
+- route 이동 후 focus가 합리적인 위치로 복귀하는가.
+- 초보자가 confidence, scenario, stale/reference, abstention의 차이를 올바르게 이해하는가.
+- 긴 답변·인용·표가 모바일과 확대 환경에서 탐색 가능한가.
+- NVDA/VoiceOver/실사용자 테스트에서 위험 문구와 근거가 같은 순서로 인지되는가.
+
+완료 게이트: 자동 접근성뿐 아니라 실제 보조기술·초보/숙련 사용자 task completion과 오해율 기록.
+
+### AI-X09 — 비에이전트·도구 권한 경계 (P1)
+
+현재 제품은 주문·외부 쓰기를 수행하지 않는 비에이전트 시스템으로 고정한다. read-only 검색/데이터 fetch와 외부 상태 변경 도구를 구분하고, 후자를 추가할 경우 별도 사용자 확인·allowlist·dry-run·감사 로그 없이는 호출할 수 없다.
+
+완료 게이트: 모델 출력만으로 주문, 메시지, 파일 업로드, 계정 변경 등 외부 mutation이 발생하는 경로 0건.
+
+### AI-X10 — 생성물 권리·보존·지역 정책 (P1)
+
+뉴스/리서치 요약의 인용 길이·저작권·재배포 범위, 모델 provider의 보존/학습/지역 처리 정책, 사용자 관할별 개인정보·금융 규제를 source rights registry와 연결한다. 모델 답변이 원문을 과도하게 재현하거나 비공개 리서치를 재배포하지 않도록 검사한다.
+
+완료 게이트: provider/data/output별 retention·training·region·copyright·redistribution 결정이 승인되고 사용자 고지와 일치.
+
+## 22. 추가 구조개편 작업 패킷 WP-AI11~20
+
+| Packet | 목적 | 선행 의존성 | 핵심 산출물 | 완료 판정 |
+|---|---|---|---|---|
+| WP-AI11 | Conversation State Machine | WP-AI1, WP-AI7 | request/turn/route/entity lifecycle, cancel/retry contract | AI-X01 fixture 100% |
+| WP-AI12 | Deterministic Finance Compute | data WP-1~7, WP-AI2 | CalculationEvidence registry와 approved calculators | AI-X02 arithmetic 100% |
+| WP-AI13 | Retrieval Quality & Poisoning | WP-AI3, WP-AI4 | versioned document index, recall/precision eval, quarantine | AI-X03 gate PASS |
+| WP-AI14 | Financial Conduct Policy | WP-AI5 | conduct classifier, policy matrix, legal-review state | AI-X04 P0 0 |
+| WP-AI15 | Model Risk & Replay | WP-AI8, WP-AI9 | response manifest, sample replay, approval/canary/rollback | AI-X05 replay PASS |
+| WP-AI16 | Cache/Isolation/Idempotency | WP-AI1, WP-AI4, WP-AI8 | tenant-safe cache keys, idempotency, stream finalization | AI-X06 race PASS |
+| WP-AI17 | Coverage Bias Audit | data WP-7, WP-AI9 | coverage/exposure report, missingness-neutralization | AI-X07 gate PASS |
+| WP-AI18 | Human Chat Certification | WP-AI7 | SR/keyboard/mobile/novice/expert test evidence | AI-X08 signed evidence |
+| WP-AI19 | Non-agentic Tool Boundary | WP-AI1, WP-AI4 | read/write capability registry, mutation deny gate | AI-X09 mutation 0 |
+| WP-AI20 | Rights/Retention/Region | data WP-14, WP-AI4 | provider/output rights register와 notices | AI-X10 approval |
+
+## 23. 두 핸드오프 간 단일 의존성 지도
+
+AI 작업은 `_context/INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md`와 별도 시스템을 만들지 않는다.
+
+| 데이터 핸드오프 | AI 핸드오프 | 단일 소유 구조 |
+|---|---|---|
+| WP-0 validated marketAnalysis | WP-AI6 auto publish gate | 하나의 `AIResponsePipeline`; 별도 validator 금지 |
+| WP-1 quote evidence | WP-AI2 typed claim | 동일 evidence ID를 UI/AI/decision이 공유 |
+| WP-2 macro evidence | WP-AI2/7 | release/observation/fetch time을 그대로 projection |
+| WP-3 breadth | WP-AI7 page contract | proxy/actual breadth를 같은 metric으로 합치지 않음 |
+| WP-4 filings/fundamental | WP-AI3/13 | filing/document version과 retrieval index 연결 |
+| WP-5 official event graph | WP-AI3/6/13 | event ID가 news/briefing/chat claim의 canonical source |
+| WP-6 KR official data | WP-AI7/17 | KR/US source coverage 차이를 공개·측정 |
+| WP-7 efficacy | WP-AI5/9/17 | 검증 안 된 score/factor는 AI action permission 없음 |
+| WP-8/12 ops gate | WP-AI8/15/16 | app/data/Worker/model release manifest 단일화 |
+| WP-10 page completeness | WP-AI7 `PageAIContract` | 기존 `AIO_PAGE_CONTRACTS`의 AI projection, 병렬 registry 금지 |
+| WP-13 human journey | WP-AI18 | 페이지와 AI를 같은 사용자 journey에서 검증 |
+| WP-14 data rights | WP-AI20 | source/data/output/provider 권리를 한 registry로 관리 |
+
+## 24. 후속 에이전트 원자적 실행 순서
+
+한 번에 대규모 덧붙이기식 수정으로 진행하지 않는다. 각 패킷은 기존 우회 경로 제거와 binary gate까지 한 묶음으로 닫는다.
+
+1. **P0 공개 차단**: WP-AI0 + data WP-0. 강한 행동 문구, 미검증 marketAnalysis, options 구체 추천을 먼저 차단한다.
+2. **단일 진실·단일 응답 경로**: data WP-1/2/9/10 + WP-AI1/2/6/7. 새 registry를 만들기 전에 기존 direct read/override를 제거한다.
+3. **행동·계산·대화 상태**: WP-AI5/11/12/14/16/19. suitability, conduct, calculation, race, mutation deny를 코드 게이트로 만든다.
+4. **공식 데이터·retrieval**: data WP-3~6 + WP-AI3/4/13/20. 공식 event/filing/document graph와 권리 정책을 연결한다.
+5. **기관급 증명**: data WP-7/12~14 + WP-AI8/9/10/15/17/18. 실제 모델·실사용자·live SLO·성과검증을 수행한다.
+
+각 패킷의 종료 보고는 다음 형식을 사용한다.
+
+```text
+Packet:
+Status: DESIGNED | IMPLEMENTED_LOCAL | VERIFIED_LOCAL | VERIFIED_LIVE
+Old path removed:
+New single path:
+Fixtures added:
+CI/runtime gate:
+Local result:
+Live result:
+Unverified:
+Rollback:
+```
+
+## 25. 확장 Release Gate G-AI13~22
+
+| Gate | PUBLIC PASS 조건 |
+|---|---|
+| G-AI13 Conversation lifecycle | route/entity/stream/retry/cancel/context-trim stale claim 0 |
+| G-AI14 Deterministic compute | 금융 계산 100% approved engine, LLM-created decision number 0 |
+| G-AI15 Retrieval quality | recall/precision 예산 충족, stale/retracted/poisoned action citation 0 |
+| G-AI16 Financial conduct | MNPI/조작/불법 전략 실행절차 0, 관할 미확정 personalized advice 0 |
+| G-AI17 Model replay | production sample manifest/replay/owner/approval/rollback 검증 |
+| G-AI18 Isolation/idempotency | cross-user leak, duplicate bill/store, stale late render 0 |
+| G-AI19 Coverage bias | region/sector/cap/liquidity/source coverage 보고와 hidden-missing promotion 0 |
+| G-AI20 Human chat | keyboard/SR/mobile/초보·숙련 task와 오해율 기준 통과 |
+| G-AI21 Non-agentic boundary | 사용자 확인 없는 외부 mutation 0 |
+| G-AI22 Rights/retention | provider/data/output 권리·보존·지역 정책 승인 및 고지 일치 |
+
+현재 G-AI1~22 중 실제 유료 모델·live Worker·실사용자·법률 승인이 필요한 항목은 **UNVERIFIED**다. 문서와 로컬 구조 감사만으로 PASS 처리할 수 없다.

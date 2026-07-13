@@ -1,6 +1,6 @@
 ---
 verified_by: Codex (repository/gates/Chrome live/GitHub Actions 실측)
-last_verified: 2026-07-10
+last_verified: 2026-07-13
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -11,6 +11,8 @@ target_version: version.json
 > **Current correction (2026-07-10 v52.43)**: local headless is `948/948 PASS`, viewport matrix is `88/88 PASS`, and direct live invariant passes. However `.github/workflows/data-watchdog.yml` currently contains five U+0080 control characters and GitHub run `29059996134` fails before creating jobs. The watchdog and its R290 live check are therefore not operational. See `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md`.
 
 > **Current correction (2026-07-10 v52.48 local, second pass)**: WO-0/WO-1A/WO-1B/WO-5 are implemented locally and headless is `958/958 PASS`, but they are not all live-verified; the inspected live site remained v52.43 and the Worker requires a separate operator deployment. A `FULL_INIT=true` viewport run found four failing `technical` route/viewports from `_pricePosition()` SVG label overlap. The default viewport job remains report-only and has `theme-detail`/zero-canvas/async-settle blind spots. Use `CODEX-SECOND-PASS-HANDOFF-2026-07-10.md` as the current external-readiness execution entrypoint.
+
+> **Current correction (2026-07-13 v52.67 local)**: `AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md` and `INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md` are now a paired execution handoff. They define a shared Evidence/Calculation/Page/AI Response/Release architecture, explicit `DESIGNED -> IMPLEMENTED_LOCAL -> VERIFIED_LOCAL -> VERIFIED_LIVE` status, AI-X01~10, WP-AI11~20, RG/G-AI extended gates, and a single dependency map. The documents are designs and acceptance contracts, not implementation-complete reports. v52.67 local route re-audit still finds `briefing` context missing, themes/theme-detail prompts identical, and screener/portfolio/options evidence gaps; PUBLIC remains NO-GO.
 
 # _context Index
 

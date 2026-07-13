@@ -1,9 +1,10 @@
 ---
-verified_by: Codex
-last_verified: 2026-07-12
+verified_by: Codex (data/source audit + v52.67 AI/data dependency re-audit)
+last_verified: 2026-07-13
 confidence: high
-target_version: v52.62-local / v52.61-live
-status: execution-handoff
+target_version: version.json
+audit_baseline: v52.67-local / live not revalidated in 2026-07-13 pass
+status: execution-handoff; design complete, implementation and live certification incomplete
 scope: data sources, per-page coverage, semantic correctness, public/institutional readiness
 ---
 
@@ -1129,3 +1130,210 @@ incidentNotificationTestPass == true
 - 법률 검토 전 PUBLIC/상업 사용 금지.
 
 완료 게이트: source별 데이터 권리·SLA·fallback·termination plan 승인.
+
+---
+
+## 19. AI 핸드오프와 통합한 단일 구조개편 프로그램 (2026-07-13)
+
+이 문서는 `_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md`의 데이터 기반이다. 두 문서는 서로 다른 Evidence Store, validator, page contract, release manifest를 만들면 안 된다.
+
+```text
+Source Rights Registry
+  -> Source Adapter
+  -> Typed Evidence Store (single write path)
+  -> Derived/Calculation Evidence
+  -> Page Evidence Contract
+  -> Regime/Decision/Action Permission
+  -> one AI Response Pipeline
+  -> UI/Chart/AI projection
+  -> Outcome/Feedback/Incident Store
+  -> human-approved rule/model promotion
+```
+
+각 작업은 아래 상태를 별도 기록한다.
+
+```text
+DESIGNED -> IMPLEMENTED_LOCAL -> VERIFIED_LOCAL -> VERIFIED_LIVE
+```
+
+문서에 WP와 gate가 존재하는 것은 `DESIGNED`일 뿐이다. current code가 기존 direct read, snapshot fallback, 별도 AI validator를 계속 사용하면 구현 완료가 아니다.
+
+### 19.1 중복 금지·단일 소유권
+
+| 공통 영역 | 단일 소유 구조 | 데이터 문서 책임 | AI 문서 책임 |
+|---|---|---|---|
+| Evidence | Typed Evidence Store | source/field/time/unit/right/status | claim binding과 abstention |
+| 계산 | CalculationEvidence | 공식·입력·가정·버전 | 설명만 수행, 새 숫자 생성 금지 |
+| 페이지 | `AIO_PAGE_CONTRACTS` | required producer/minCoverage/failure state | 같은 계약의 AI projection |
+| 자동 해설 | `AIResponsePipeline` | typed input와 publish sink | schema/semantic/policy validator |
+| 권리 | Source/Provider Rights Registry | 수집·캐시·재배포·상업 이용 | 모델 보존·학습·지역·생성물 권리 |
+| 운영 | Release Manifest | app/data/source revision | Worker/model/prompt/retriever/validator revision |
+| 성과 | Outcome Store | 예측/결정 시점 snapshot와 실현값 | 답변/행동/feedback/eval 연결 |
+
+### 19.2 두 문서 작업 패킷 의존성
+
+| 데이터 packet | 연결되는 AI packet | 통합 완료 조건 |
+|---|---|---|
+| WP-0 | WP-AI0/1/6 | 검증 실패 marketAnalysis가 어떤 sink에도 publish되지 않음 |
+| WP-1 | WP-AI2/5/12 | quote evidence와 계산/행동 permission이 동일 ID 사용 |
+| WP-2 | WP-AI2/7/13 | macro release/observation/fetch/vintage가 claim/retrieval에 보존 |
+| WP-3 | WP-AI7/17 | breadth proxy/actual coverage와 AI 표현 강도 일치 |
+| WP-4 | WP-AI3/13/20 | filing/XBRL version, retrieval, 권리가 연결 |
+| WP-5 | WP-AI6/13/14 | official event가 news/briefing/chat의 canonical source |
+| WP-6 | WP-AI7/17 | KR official coverage와 KR/US 분석 깊이 차이 측정 |
+| WP-7 | WP-AI5/9/17 | 효능 미검증 모델의 personalized action 0 |
+| WP-8/12 | WP-AI8/15/16 | data/app/Worker/model manifest와 SLO 단일화 |
+| WP-9/10/11 | WP-AI2/7/11 | cross-page truth, universe, route/entity state 일치 |
+| WP-13 | WP-AI18 | 페이지+AI 동일 journey 인간 검증 |
+| WP-14 | WP-AI20 | 수집/표시/AI 생성물 전체 권리 승인 |
+
+## 20. 데이터 프로그램에 추가된 AI·운영 책임
+
+AI 감사에서 새로 확정한 AI-X01~10은 AI 팀만의 문제가 아니다. 데이터·운영 계층이 아래 필드를 제공하지 않으면 AI 계층에서 해결할 수 없다.
+
+### DR-AI01 — Conversation snapshot binding
+
+각 turn은 `route`, `entityIds`, `portfolioVersion`, `evidenceSnapshotHash`, `requestId`, `parentTurnId`, `startedAt`, `completedAt`, `completionState`를 가진다. route/entity가 바뀌면 이전 snapshot을 current claim에 재사용하지 않는다.
+
+### DR-AI02 — CalculationEvidence
+
+옵션·포트폴리오·환율·수익률·리스크 계산은 다음 구조를 사용한다.
+
+```text
+CalculationEvidence {
+  calculationId, formulaId, formulaVersion,
+  inputEvidenceIds[], assumptions,
+  value, unit, currency, rounding,
+  calculatedAt, validatorVersion, status, allowedUse
+}
+```
+
+LLM 출력 숫자를 Evidence Store에 write하거나 다른 계산의 입력으로 사용하지 않는다.
+
+### DR-AI03 — Versioned retrieval document
+
+뉴스·공시·리서치·Telegram·사용자 문서는 `documentId`, `version`, `sourceTier`, `publishedAt`, `ingestedAt`, `supersedes`, `retractedAt`, `rights`, `untrustedContent`, `entityIds`를 가진다. vector/index 삭제도 원문 권한·정정 상태와 동기화한다.
+
+### DR-AI04 — Conduct and restriction evidence
+
+거래정지, 제재, restricted list, corporate action, market status, 정보 공개 여부를 action permission 입력으로 제공한다. 미확인 내부정보는 current evidence로 승격하지 않는다.
+
+### DR-AI05 — Response/release manifest
+
+app/data/Worker/model/prompt/retriever/validator/calculator version과 evidence snapshot hash를 하나의 manifest로 묶는다. 운영 sample과 incident는 이 manifest 없이는 기관급 검증 표본으로 인정하지 않는다.
+
+### DR-AI06 — Cache isolation and idempotency
+
+cache key는 user/session/route/entity/evidence hash/version을 포함하며 portfolio/chat data는 공유 cache에서 제외한다. retry/cancel/timeout에는 idempotency key와 terminal state를 기록한다.
+
+### DR-AI07 — Coverage and bias telemetry
+
+universe/sector/region/cap/liquidity/language/source coverage를 기록한다. `missing`과 `neutral`을 분리하고 데이터가 적다는 이유로 후보를 승격하거나 감점한 경우 이유를 노출한다.
+
+### DR-AI08 — Human-readable evidence state
+
+screen reader와 초보 사용자가 `current`, `delayed`, `snapshot`, `reference`, `conflict`, `blocked`를 구분할 수 있도록 짧은 label과 상세 설명을 Evidence 상태에 함께 저장한다. UI와 AI가 별도 문구를 만들지 않는다.
+
+### DR-AI09 — Read/write capability registry
+
+현재 제품은 read-only 분석 시스템이다. 데이터 fetch/read와 외부 mutation을 구분하고 주문·메시지·업로드·계정 변경 capability는 기본 deny한다.
+
+### DR-AI10 — Rights/retention/region registry
+
+source data뿐 아니라 LLM provider와 생성물에 대해 retention, training use, processing region, copyright, redistribution, commercial display, deletion을 기록한다.
+
+## 21. 실행 가능한 통합 백로그
+
+### Batch 0 — 공개 위험 차단
+
+- 데이터 WP-0과 AI WP-AI0/6을 함께 수행한다.
+- 미검증 marketAnalysis, score/factor 강한 행동 문구, options 구체 추천을 차단한다.
+- `generated`, `validated`, `published` 상태를 분리한다.
+
+완료 게이트: semantic validation을 통과하지 않은 자동 해설·계산·행동 문구의 visible sink 0.
+
+### Batch 1 — 단일 Evidence와 페이지 계약
+
+- WP-1/2/9/10/11과 WP-AI1/2/7을 수행한다.
+- 기존 `PriceStore`, `DATA_SNAPSHOT`, global, DOM direct read를 inventory하고 adapter 경유로 축소한다.
+- 새 parallel registry를 만들지 않고 `AIO_PAGE_CONTRACTS`를 확장한다.
+
+완료 게이트: 22 route의 required producer, last success, evidence ID, status, action permission과 AI projection이 일치.
+
+### Batch 2 — 계산·상태·행동 정책
+
+- DR-AI01/02/04/06/09와 WP-AI5/11/12/14/16/19를 수행한다.
+- route/entity race, suitability, conduct, calculation, cache isolation을 fixture로 고정한다.
+
+완료 게이트: stale entity claim, LLM-created decision number, conduct P0, cross-user leak, unauthorized mutation 각각 0.
+
+### Batch 3 — 공식 데이터·문서 graph·권리
+
+- WP-3~6/14, DR-AI03/10, WP-AI3/4/13/20을 수행한다.
+- official event/filing을 1차 source로 만들고 secondary news/research와 연결한다.
+
+완료 게이트: stale/retracted/poisoned/권리미승인 document가 current action claim에 사용된 건수 0.
+
+### Batch 4 — 효능·편향·운영·인간 인증
+
+- WP-7/8/12/13, DR-AI05/07/08, WP-AI8/9/10/15/17/18을 수행한다.
+- 실제 모델 A/B, live soak, SLO, bias report, 초보/숙련/보조기술 사용자를 검증한다.
+
+완료 게이트: 두 문서의 모든 PUBLIC gate가 실제 artifact/CI/live/human/legal evidence에 연결됨.
+
+## 22. 통합 Release Gate RG-13~22
+
+| Gate | Yes 조건 | 현재 |
+|---|---|---|
+| RG-13 conversation binding | turn이 route/entity/evidence snapshot에 고정되고 stale late response 0 | NO |
+| RG-14 deterministic compute | 금융 계산 100% CalculationEvidence, LLM-created decision number 0 | NO |
+| RG-15 retrieval integrity | version/retraction/poisoning/rights가 retrieval과 cache에 반영 | NO |
+| RG-16 financial conduct | MNPI/조작/제재/restricted/관할 정책과 red-team 승인 | NO |
+| RG-17 response replay | app/data/Worker/model/prompt/retriever/validator manifest로 replay | NO |
+| RG-18 cache isolation | cross-user leak, duplicate bill/store, partial-complete 오분류 0 | NO |
+| RG-19 coverage bias | universe/region/sector/cap/liquidity/language/source coverage 승인 | NO |
+| RG-20 human chat | keyboard/SR/mobile/초보·숙련 task와 오해율 기준 통과 | NO |
+| RG-21 non-agentic boundary | 사용자 승인 없는 외부 mutation 0 | NO |
+| RG-22 rights/retention/region | data/provider/output 권리·보존·지역 정책 승인 | NO |
+
+## 23. 다음 에이전트 인수 계약
+
+다음 에이전트는 작업 시작 전에 이 문서와 AI 핸드오프의 packet dependency를 함께 읽는다. 각 PR/세션은 하나의 Batch 또는 원자적 packet만 맡고 다음을 보고한다.
+
+```text
+Packet/Batch:
+Status: DESIGNED | IMPLEMENTED_LOCAL | VERIFIED_LOCAL | VERIFIED_LIVE
+Existing paths inventoried:
+Old path removed or retired:
+New single path:
+Data schema/migration:
+Failure fixtures:
+CI/runtime gate:
+Local browser result:
+Live result:
+Human/legal/vendor evidence:
+Unverified and blocker:
+Rollback:
+```
+
+완료를 주장하려면 source -> adapter -> evidence -> derived/calculation -> decision -> UI/AI -> outcome 경로를 한 샘플 이상 실제 값으로 추적하고, 결측/지연/충돌/악성 입력 fixture를 함께 통과해야 한다. 함수·registry·문구의 존재만으로 완료 처리하지 않는다.
+
+## 24. 2026-07-13 검증·미검증 경계
+
+검증됨:
+
+- 로컬 `version.json`은 v52.67.
+- v52.67 AI route/context 재감사에서 22 route, AI 활성 20, `briefing` context 부재가 재현됨.
+- `themes`와 `theme-detail` prompt 동일, screener universe/portfolio suitability/options chain 부재가 재현됨.
+- 기존 데이터 필드·source reconciliation 감사기와 AI route audit artifact가 저장소에 존재함.
+
+미검증:
+
+- v52.67 live 배포 parity.
+- 실제 유료 모델 답변 corpus와 일반 LLM blind A/B.
+- live Worker/model/KV/region/retention 설정.
+- 실제 사용자·NVDA/VoiceOver·다중 브라우저·다중 사용자 race.
+- 데이터 vendor/LLM provider/생성물의 법률·재배포 승인.
+- 이 문서의 WP/DR/RG 구현 완료 여부. 현재는 설계와 인수 계약만 보강됨.
+
+현재 판정은 계속 `PUBLIC NO-GO`다.

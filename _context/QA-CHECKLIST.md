@@ -1,6 +1,6 @@
 ---
 verified_by: agent
-last_verified: 2026-07-12
+last_verified: 2026-07-13
 confidence: high
 version: v3.8
 checklist_version: v52.62
@@ -2811,3 +2811,26 @@ Derived from `_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md`. All items are
 - [ ] **AIPG-8 page/UI/AI parity**: the visible page conclusion, chart annotation, AI claim, and action copy resolve to the same evidence IDs, as-of times, and source states after settle.
 - [ ] **AIPG-9 prompt specialization budget**: page-specific required evidence/policy stays within a declared token budget; unrelated historical examples and generic action rules are retrieved only when relevant rather than repeated in every 64K–107K-character context.
 - [ ] **AIPG-10 user-facing chips**: every supported page exposes four questions that are answerable from currently available data. Baseline missing unified chips: `options`; `briefing` has neither context nor chips.
+
+### AI extended institutional gate — 2026-07-13 third pass
+
+Derived from AI-X01~10 and WP-AI11~20 in `_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md`. These are PUBLIC-blocking. A prompt instruction or policy sentence does not count as enforcement.
+
+- [ ] **AIXG-1 conversation lifecycle**: route/entity change, stream overlap, retry/cancel/timeout, context trim, correction, and multi-tab late-response fixtures produce zero stale-entity claims and zero wrong-turn renders.
+- [ ] **AIXG-2 deterministic financial compute**: options payoff/Greeks, portfolio risk, FX, return, sizing, fee/tax/slippage values come only from approved versioned calculators with exact input evidence IDs; model-created decision numbers are zero.
+- [ ] **AIXG-3 retrieval quality and poisoning**: route-level recall@k/precision@k and temporal/source-tier budgets pass; retracted, superseded, poisoned, unauthorized, or malicious-instruction documents never support a current action claim.
+- [ ] **AIXG-4 financial conduct**: MNPI, insider information, manipulation, pump-and-dump, wash trading, front-running, rumor amplification, sanctions/restricted securities, and jurisdictional advice fixtures produce zero executable prohibited guidance.
+- [ ] **AIXG-5 model risk and replay**: each sampled answer records app/data/Worker/model/prompt/retriever/validator/calculator revisions and evidence snapshot hash; approved production samples can be replayed and rolled back.
+- [ ] **AIXG-6 cache isolation and idempotency**: two-user/two-tab retry/cancel/late-response tests produce zero cross-user data leakage, duplicate billing/storage, stale cache promotion, and partial-stream completion misclassification.
+- [ ] **AIXG-7 coverage bias**: recommendation and answer coverage is reported by universe/region/sector/cap/liquidity/language/source availability; missing is never silently converted to neutral or promoted into a recommendation.
+- [ ] **AIXG-8 human chat certification**: keyboard, streaming live-region, focus return, citation discovery, mobile zoom, NVDA/VoiceOver, novice and expert tasks meet declared completion and misunderstanding thresholds.
+- [ ] **AIXG-9 non-agentic capability boundary**: the current product has no model-triggered order, message, upload, account, or external-write path; any future mutation capability requires explicit confirmation, allowlist, dry-run, and audit log.
+- [ ] **AIXG-10 rights/retention/region**: source data, provider processing, chat retention/training, generated summaries, copyright, redistribution, commercial display, region, deletion, and termination-plan decisions are approved and match user notices.
+
+### Dual-handoff execution gate — 2026-07-13
+
+- [ ] **DHG-1 one Evidence Store**: data and AI work packets write/read the same typed evidence and calculation schemas; no parallel AI-only truth registry is introduced.
+- [ ] **DHG-2 one page contract**: `PageAIContract` is a projection of `AIO_PAGE_CONTRACTS`, not a second page registry.
+- [ ] **DHG-3 one response validator**: server marketAnalysis, briefing, translation, per-page, unified, and retry paths share one validator/publish policy.
+- [ ] **DHG-4 one release manifest**: app/data/Worker/model/prompt/retriever/validator/calculator revisions are tied to one request and live release manifest.
+- [ ] **DHG-5 explicit status**: every packet reports `DESIGNED`, `IMPLEMENTED_LOCAL`, `VERIFIED_LOCAL`, or `VERIFIED_LIVE`; documentation presence alone is never marked complete.
