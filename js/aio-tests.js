@@ -4273,7 +4273,10 @@
     // 6 today) as the remaining data-action="showPage" pill-chips on home. That was an intentional
     // UX decision, not a regression, so the specific number "7" was never going to hold going
     // forward — the actual invariant this test exists to protect is "no dead link," not a count.
-    var chips = document.querySelectorAll('#page-home .pill-chip[data-action=\"showPage\"]');
+    // v52.65: v52.62 아이보리 리디자인이 이 6개 chip을 .pill-chip(배경 필)→.is-interactive(베이스라인
+    // 텍스트, 핸드오프 §4 "배경 제거, 라벨+값 텍스트 행" 규칙)로 교체했으나 이 셀렉터가 갱신되지 않아
+    // chips=0으로 거짓 실패하던 것을 발견·수정 — 실제 DOM 클래스로 정정.
+    var chips = document.querySelectorAll('#page-home .is-interactive[data-action=\"showPage\"]');
     var allPagesExist = true;
     chips.forEach(function(c) {
       var pid = c.getAttribute('data-arg');

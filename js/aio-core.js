@@ -2862,8 +2862,10 @@ if (typeof document !== 'undefined') {
       if (!host) {
         host = document.createElement('div');
         host.id = 'briefing-digest';
-        // v50.32: 브리핑 본론 카드로 격상 (accent 좌측 스트립 + 또렷한 배경)
-        host.style.cssText = 'margin:10px 0 14px;padding:14px 16px;background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(0,212,255,0.02));border:1px solid rgba(0,212,255,0.28);border-left:3px solid var(--accent);border-radius:4px;font-size:12.5px;line-height:1.8;color:var(--text-secondary);';
+        // v52.65 아이보리 2b: v52.63에서 신설된 시장분석/행동/오늘의뉴스/오늘일정 상세 섹션(시안 2b 구조)과
+        // 완전 중복 콘텐츠라 시각만 숨김(DOM/텍스트는 유지 — T234/T795가 존재+렌더만 확인, 표시 여부는 미확인).
+        // 잔존 하드코딩 cyan(rgba(0,212,255,...))도 핸드오프 §8 grep 대상이었으므로 함께 무채화.
+        host.style.cssText = 'display:none;margin:10px 0 14px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;font-size:12.5px;line-height:1.8;color:var(--text-secondary);';
         var headRow = section.firstElementChild;
         if (headRow) headRow.insertAdjacentElement('afterend', host); else section.insertBefore(host, section.firstChild);
       }
@@ -18634,7 +18636,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.64';
+const APP_VERSION = 'v52.66';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -21352,7 +21354,11 @@ function classifyMarketRegime() {
   const badge = document.getElementById('regime-badge');
   const lbl = document.getElementById('regime-label');
   const subEl = document.getElementById('regime-sub');
-  if (badge) { badge.textContent = regime; badge.style.color = color; badge.style.borderColor = color.replace(')', ',0.3)').replace('#', 'rgba('); badge.style.background = color.replace(')', ',0.15)').replace('#', 'rgba('); }
+  // v52.65 아이보리 2a: 배지는 한국어 라벨(영문 코드 아님) + 항상 무채 필(시안 원칙 §1/§4) —
+  // 이전엔 영문 regime 코드를 tier색(rgba 문자열 치환)으로 채웠는데, color가 'var(--data-green)'
+  // 형태일 때 .replace(')',',0.15)') 결과가 CSS var() fallback 문법(var(--data-green,0.15))으로
+  // 해석돼 의도한 옅은 틴트가 아닌 불투명 원색 배경이 되던 버그도 함께 해소.
+  if (badge) { badge.textContent = label; }
   if (lbl) { lbl.textContent = label; }
   if (subEl) { subEl.textContent = sub; }
 
@@ -24434,10 +24440,13 @@ function _initBriefingPage() {
   if (brBadge && typeof classifyMarketRegime === 'function') {
     try {
       var rg = classifyMarketRegime();
-      var rgText = rg.regime || '분석중';
-      if (rgText.indexOf('BEAR') >= 0 || rgText.indexOf('DOWN') >= 0 || rgText.indexOf('하락') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-off'; }
-      else if (rgText.indexOf('CORR') >= 0 || rgText.indexOf('조정') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-off'; }
-      else if (rgText.indexOf('BULL') >= 0 || rgText.indexOf('상승') >= 0 || rgText.indexOf('UP') >= 0) { brBadge.textContent = ' ' + rgText; brBadge.className = 'status-pill sp-risk-on'; }
+      // v52.65: 배지 표시는 한국어 라벨(rg.label)로 — rg.regime은 UPTREND/DOWNTREND 같은 내부 enum
+      // 코드라 그대로 노출하면 터미널 클리셰 영문 라벨이 된다(핸드오프 §1/§4). 분기 판정 자체는 유지.
+      var rgText = rg.regime || '';
+      var rgLabelText = rg.label || '분석중';
+      if (rgText.indexOf('BEAR') >= 0 || rgText.indexOf('DOWN') >= 0 || rgText.indexOf('하락') >= 0) { brBadge.textContent = rgLabelText; brBadge.className = 'status-pill sp-risk-off'; }
+      else if (rgText.indexOf('CORR') >= 0 || rgText.indexOf('조정') >= 0) { brBadge.textContent = rgLabelText; brBadge.className = 'status-pill sp-risk-off'; }
+      else if (rgText.indexOf('BULL') >= 0 || rgText.indexOf('상승') >= 0 || rgText.indexOf('UP') >= 0) { brBadge.textContent = rgLabelText; brBadge.className = 'status-pill sp-risk-on'; }
     } catch(e) {}
   }
   // v50.76: 시장 현황 스트립 업데이트 (briefing-market-strip)
@@ -24461,8 +24470,8 @@ function _initBriefingPage() {
     var brb3 = document.getElementById('briefing-regime-badge3');
     if (brb3 && typeof classifyMarketRegime === 'function') {
       var rg3 = classifyMarketRegime();
-      var rt3 = rg3.regime || '—';
-      brb3.textContent = rt3;
+      var rt3 = rg3.regime || '';
+      brb3.textContent = rg3.label || '분석중'; // v52.65: 한국어 라벨(영문 enum 노출 금지, 핸드오프 §1/§4)
       brb3.className = (rt3.indexOf('BULL') >= 0 || rt3.indexOf('상승') >= 0) ? 'status-pill sp-risk-on' : 'status-pill sp-risk-off';
     }
   } catch(_) {}
@@ -24535,7 +24544,9 @@ function _aioRenderBriefingMarketAnalysis() {
       driversEl.innerHTML = top.map(function(it) {
         var cat = it.topic || it.category || '뉴스';
         var sentColor = it.sentiment === 'positive' ? 'var(--data-green)' : it.sentiment === 'negative' ? 'var(--data-red)' : 'var(--text-muted)';
-        var reason = it.selectionReason || it.desc || it.summary || '';
+        // v52.65/R204: selectionReason은 내부 스코어링 감사용 문자열("base+20 | source-tier3+2 | ...")이지
+        // 사용자용 요약문이 아니다 — 폴백 체인에 섞여 헤드라인 뒤에 그대로 노출되고 있었다(개발자 마커 노출 금지).
+        var reason = it.desc || it.summary || '';
         return '<div style="display:flex;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid var(--border-subtle);">' +
           '<span style="font-size:11px;font-weight:600;color:var(--text-secondary);border:1px solid var(--border-strong);border-radius:4px;padding:2px 8px;flex-shrink:0;">' + escHtml(cat) + '</span>' +
           '<div style="flex:1;font-size:13px;line-height:1.65;color:var(--text-secondary);">' + b(escHtml((it.title || '').slice(0, 90))) +
@@ -24575,19 +24586,37 @@ function _aioRenderBriefingMarketAnalysis() {
     if (metaEl) metaEl.textContent = 'SCORE ' + (window._tradingScore != null ? window._tradingScore : '—') + (plan && plan.sentiment ? ' · ' + plan.sentiment.action : '');
   }
 
-  // 오늘 일정 — 매크로 캘린더 상위 2건 재사용(있으면), 없으면 안내문
+  // 오늘 일정 — v52.65: AIO_MACRO_CALENDAR.upcoming/_upcomingMacroEvents는 어디서도 채워지지 않는
+  // 죽은 참조라 이 섹션이 항상 안내문 폴백으로 빠졌음(디제스트의 "다가오는 일정" 계산과 동일 로직으로 교체).
   var schedEl = document.getElementById('briefing-schedule-list');
   if (schedEl) {
-    var cal = (window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.upcoming) || window._upcomingMacroEvents || null;
-    if (Array.isArray(cal) && cal.length) {
+    var cal = [];
+    try {
+      var calSrc = window.AIO_MACRO_CALENDAR || window.MACRO_CALENDAR;
+      var rels = calSrc && calSrc.releases;
+      if (rels && typeof rels === 'object') {
+        var nowT = Date.now(), weekMs = 7 * 86400000;
+        Object.keys(rels).forEach(function(k) {
+          var rel = rels[k];
+          var d = rel && (rel.nextRelease || rel.next);
+          if (!d) return;
+          var t = new Date(String(d) + 'T09:00:00+09:00').getTime();
+          if (isFinite(t) && t >= nowT - 86400000 && t <= nowT + weekMs) {
+            cal.push({ t: t, when: String(d).slice(5), label: rel.name || rel.label || k });
+          }
+        });
+        cal.sort(function(a, b) { return a.t - b.t; });
+      }
+    } catch (_) {}
+    if (cal.length) {
       schedEl.innerHTML = cal.slice(0, 4).map(function(ev) {
         return '<div style="display:flex;align-items:baseline;gap:16px;padding:11px 0;border-top:1px solid var(--border-subtle);">' +
-          '<span style="font-size:11px;color:var(--text-dim);flex-shrink:0;width:76px;">' + escHtml(ev.when || ev.date || '') + '</span>' +
-          '<span style="font-size:13.5px;color:var(--text-secondary);flex:1;">' + escHtml(ev.label || ev.title || '') + '</span>' +
+          '<span style="font-size:11px;color:var(--text-dim);flex-shrink:0;width:76px;">' + escHtml(ev.when || '') + '</span>' +
+          '<span style="font-size:13.5px;color:var(--text-secondary);flex:1;">' + escHtml(ev.label || '') + '</span>' +
         '</div>';
       }).join('');
     } else {
-      schedEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">공식 일정은 아래 "과거 참고 자료 → 향후 공식 시장 일정"에서 확인하세요.</div>';
+      schedEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">7일 이내 예정된 공식 일정이 없습니다.</div>';
     }
   }
 }

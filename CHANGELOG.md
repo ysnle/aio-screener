@@ -1,3 +1,25 @@
+## v52.66 (2026-07-13)
+
+signal(2a)에 이어 briefing(2b) 재검증. 이 페이지는 v52.63에서 이미 시장분석/행동/오늘일정 섹션이 시안 구조로 실제 재구축돼 있어(P680류 미스와 달리 진짜 구현), signal처럼 전면 재구축은 불필요 — 스팟체크로 실행. 그 과정에서 발견한 실제 버그 6건 수정.
+
+- **비-아이보리 색상 잔존(핸드오프 §8 명시 패턴)**: `_aioRenderBriefingDigest()`가 만드는 구버전 다이제스트 카드가 하드코딩 `rgba(0,212,255,...)` 시안 그라데이션/테두리를 그대로 쓰고 있었음(P1/P2 스윕 누락). 이 카드는 v52.63에서 신설된 상세 섹션(시장분석/행동/오늘의뉴스/오늘일정)과 콘텐츠가 완전 중복이기도 해 무채 톤 전환 + 시각만 숨김(DOM/계산은 유지, signal-conclusion-bar와 동일 패턴) 처리.
+- **영문 국면 배지 3곳**: `_initBriefingPage()`가 `classifyMarketRegime()`의 영문 enum(`UPTREND` 등)을 그대로 배지 텍스트로 써 "UPTREND" 노출 — 헤더 배지(`briefing-regime-badge`)와 시장 스트립 배지(`briefing-regime-badge3`) 둘 다 한국어 라벨(`rg.label`, 예: "상승 추세")로 교체.
+- **날짜 라인 영문 요일**: `_aioRenderBriefingDateLine()`이 `['Sun','Mon',...]` 영문 약어를 쓰고 있어 "(Mon)"으로 노출 — 한국어 요일 배열로 교체 + "24h briefing" → 시안 문구 "24시간 브리핑"으로 통일.
+- **시장 스트립 KOSPI 누락**: 시안은 SCORE/SPY/QQQ/VIX/F&amp;G/KOSPI 6항목, 라이브는 KOSPI가 빠진 5항목이었음 — 기존 `data-live-price`/`data-live-chg` 패턴 그대로 재사용해 KOSPI 추가.
+- **뉴스 설명에 내부 스코어링 디버그 문자열 노출(R204 위반)**: "오늘 시장을 움직인 것" 카드가 헤드라인 뒤에 `it.selectionReason`("base+20 | source-tier3+2 | recency+12 | ...", `scripts/fetch-data.mjs`가 뉴스 랭킹용으로 생성하는 감사 문자열)을 그대로 이어붙이고 있었음. 실사용자에게 절대 노출되면 안 되는 개발자 내부 필드가 폴백 체인에 섞여 있던 것 — `it.desc`/`it.summary`만 남기고 제거.
+- **"오늘 일정" 섹션이 항상 빈 안내문**: `briefing-schedule-list` 렌더러가 `AIO_MACRO_CALENDAR.upcoming`/`window._upcomingMacroEvents`를 읽는데 이 두 참조 모두 코드베이스 어디에서도 채워진 적이 없는 죽은 참조였음(항상 undefined → 항상 "아래에서 확인하세요" 안내문 폴백). 브리핑 다이제스트가 이미 쓰고 있던 올바른 계산(`AIO_MACRO_CALENDAR.releases`를 순회해 `nextRelease` 7일 이내 항목 추출)으로 교체해 실제 일정(BLS CPI/BOK 금통위 등)이 표시되도록 수정.
+- **범위**: briefing(2b) 헤더/시장스트립/시장분석/행동/일정 섹션. "오늘의 주요 뉴스" 리스트는 시안의 미니멀한 hairline 리스트와 달리 훨씬 상세한 카드 포맷(중요도 점수·시장의미·확인포인트 등)을 쓰는 v16 시절 레거시 렌더러(`renderBriefingFeed`, home 등과 공유)라 구조 불일치를 확인만 하고 재작성은 범위 밖으로 이관(다음 세션, 공유 함수라 영향범위 큼).
+- **검증**: 로컬 8종 PASS + 헤드리스 992/992 PASS. Playwright 실브라우저로 헤더/시장스트립/시장분석/행동/일정 전 구간 스크린샷 확인 — 국면 배지 한국어 노출, KOSPI 추가, 디제스트 카드 숨김, selectionReason 미노출, 일정 실데이터(BLS CPI 07-14 등) 전부 확인.
+
+## v52.65 (2026-07-13)
+
+`_context/CLAUDE-CODE-HANDOFF.md`(사용자 제공 시안 핸드오프) + `AIO 리디자인.dc.html`(사용자 제공 코프) 기준, 어제 세션에서 시작한 아이보리 리디자인을 이어서 진행. P680(홈 히어로 구조 재구축, v52.64)과 정확히 같은 근본 원인 클래스를 signal(2a)에서 확인·해소.
+
+- **page-signal(2a) 구조 전면 재구축(P681)**: 진입점은 `feedback_comp_is_foundation_not_existing_code` 메모리의 진단 그대로 — v52.62 전역 P1/P2 스윕이 색/폰트 토큰만 교체했을 뿐 실제 DOM을 시안 markup과 대조하지 않아, 시그널 페이지의 스코어/리스크모니터/체크리스트/국면진단 섹션이 여전히 리디자인 이전 구조(박스형 카드·모노스페이스 대형숫자·uppercase 영문 라벨)로 남아있었음. 헤더(serif 27px 타이틀+무채 필 모드토글) · 스코어 히어로(60px serif + 구분선 + 판단문 + 5팩터 인라인 미니바) · 5열 헤어라인 진입 체크리스트 · 6셀 카드형 리스크 모니터 · 국면진단+트레이딩원칙(상단→하단 이동, 2열 무테두리) · 텍스트형 연계분석 링크로 시안 구조에 맞춰 재구축. 기존 렌더러(`refreshSignalDashboard`/`updateEntryChecklist`/`updateRiskMonitor`/`classifyMarketRegime`)는 동일 element id를 그대로 재사용해 무변경으로 계속 구동. 시안에 없는 콘텐츠(시장 스냅샷 카드·점수 상세+실행윈도우·포트폴리오 배분·미너비니 4단계·시나리오 전망·Exit Triggers)는 삭제 대신 신규 `<details>` 2개로 접어 밀도 축소(핸드오프 §1 원칙).
+- **부수 발견·수정 3건**: (1) T303 테스트가 v52.62에서 이미 `.pill-chip`→`.is-interactive`로 교체된 홈 chip 클래스를 갱신하지 않아 `chips=0`으로 거짓 실패 중이던 것을 수정. (2) `renderStaleWarning()`이 그리드 컨테이너 첫 자식으로 배지를 삽입하는데, 새 6열 고정 그리드에서 이게 7번째 셀이 되어 RSP/SPY가 줄바꿈되던 것을 배지에 `grid-column:1/-1` 부여로 해결. (3) `classifyMarketRegime()`가 배지에 영문 코드(UPTREND)를 tier색으로 채웠는데, `color.replace(')',',0.15)')`가 `var(--data-green)` 형태 문자열에는 CSS var() fallback 문법으로 해석돼 의도한 옅은 배경 대신 불투명 원색 배경이 되는 버그가 있었음 — 한국어 라벨+항상 무채 처리로 전환해 시안 일치와 버그 해소를 동시 달성.
+- **검증**: 로컬 8종(구조/버전/런타임계약/데이터파이프라인/시맨틱리뷰/UX기본경로/JS구문 — index.html 인라인 스크립트 11블록 개별 포함) PASS + 헤드리스 992/992 PASS. Chrome 확장 미연결로 로컬 정적서버+Playwright로 실제 브라우저 렌더 확인(스코어/판단문/체크리스트/리스크모니터/국면 실데이터 반영, 모드토글 클릭 동작, `<details>` 4개 전부 아코디언 동작 확인).
+- **범위**: signal(2a) 1개 페이지만. 나머지 미검증 페이지(breadth/sentiment/briefing/technical/macro — v52.64 CHANGELOG 기준 fxbond/fundamental/themes/portfolio/market-news/screener 6개는 이미 별도 검증 완료로 기록되어 있음)는 후속 세션 과제로 남음. 배포/커밋 없음(로컬 작업트리 변경만).
+
 ## v52.64 (2026-07-12) - 아이보리 리디자인 전 페이지 확장 완료
 
 시안 12개 화면(fxbond/fundamental/themes/portfolio/market-news/screener 포함) 전수 대조 + 나머지 비-시안 페이지(한국장 5개·테마상세·티커·옵션·설명서) 검증까지 완료.

@@ -16532,17 +16532,14 @@ function toggleSignalMode(mode) {
   const swBtn = document.getElementById('sig-sw-btn');
   const dyBtn = document.getElementById('sig-dy-btn');
   const desc  = document.getElementById('sig-mode-desc');
+  // v52.65 아이보리 2a: 모드 필은 상태색이 아닌 무채 반전(ink bg + paper text)만 사용 (원칙 §1 — 색은 3계열만)
   if (mode === 'swing') {
-    if (swBtn) swBtn.classList.add('primary');
-    if (dyBtn) dyBtn.classList.remove('primary');
-    if (swBtn) { swBtn.style.background='var(--accent-dim)'; swBtn.style.color='var(--accent)'; }
-    if (dyBtn) { dyBtn.style.background='transparent';       dyBtn.style.color='var(--text-muted)'; }
+    if (swBtn) { swBtn.classList.add('primary'); swBtn.style.background='var(--text-primary)'; swBtn.style.color='var(--bg-base)'; }
+    if (dyBtn) { dyBtn.classList.remove('primary'); dyBtn.style.background='transparent'; dyBtn.style.color='var(--text-muted)'; }
     if (desc)  desc.textContent = '스윙 트레이딩 모드 · 임계값 60점 · 자동 갱신 45초';
   } else {
-    if (dyBtn) dyBtn.classList.add('primary');
-    if (swBtn) swBtn.classList.remove('primary');
-    if (dyBtn) { dyBtn.style.background='var(--data-amber-mid)'; dyBtn.style.color='var(--yellow)'; }
-    if (swBtn) { swBtn.style.background='transparent';           swBtn.style.color='var(--text-muted)'; }
+    if (dyBtn) { dyBtn.classList.add('primary'); dyBtn.style.background='var(--text-primary)'; dyBtn.style.color='var(--bg-base)'; }
+    if (swBtn) { swBtn.classList.remove('primary'); swBtn.style.background='transparent'; swBtn.style.color='var(--text-muted)'; }
     if (desc)  desc.textContent = '데이 트레이딩 모드 · 임계값 65점 (더 엄격) · 자동 갱신 45초';
   }
 }

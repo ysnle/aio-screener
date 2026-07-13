@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.64 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.66 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -2717,8 +2717,8 @@ body { font-size: 14px !important; }
 .logo-mark { font-size: 14px !important; }
 .logo-sub  { font-size: 11px !important; }
 
-/* 페이지 헤더 */
-.page-title    { font-size: 18px !important; }
+/* 페이지 헤더 — v52.65: .page-title 18px!important 제거(2129행 27px 규칙과 상충해 소스순서상 항상 이겨
+   시안 전 페이지 공통 27px serif 타이틀 스펙을 무효화하던 죽은 코드 — v52.62 색토큰 정리와 동일 계열 이슈) */
 .page-subtitle { font-size: 13px !important; }
 
 /* 위젯 */
@@ -5429,7 +5429,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.64</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.66</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5683,28 +5683,28 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- ═══ v48.45: 시그널 페이지 기관급 해설 ═══ -->
-  <!-- v48.62: 페이지 결론 바 -->
-  <div id="signal-conclusion-bar"></div>
+  <!-- v48.62: 페이지 결론 바 — v52.65 아이보리 2a: 스코어 히어로 verdict와 중복 → DOM 유지, 시각만 숨김 (v50.75 home 패턴 동일 적용) -->
+  <div id="signal-conclusion-bar" style="display:none;"></div>
 
   <!-- ══════════════════════════════════════════════════════════
        AIO · "지금 거래해야 할까?" Bloomberg Terminal Dashboard
        ══════════════════════════════════════════════════════════ -->
 
-  <!-- ─ 헤더 ─ -->
-  <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div>
-        <div class="page-title" style="font-size:17px;letter-spacing:-0.02em;">
-          지금 거래해야 할까?
+  <!-- ─ 헤더 — v52.65 아이보리 2a: serif 27px 타이틀 + 무채 필 모드토글 ─ -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
+    <div>
+      <div class="page-title">지금 거래해야 할까?</div>
+      <div class="page-subtitle">변동성(VIX) 25% · 모멘텀(F&G·추세추종) 25% · 추세(MA) 20% · 시장폭(20일선) 20% · 거시 10% 가중 합산</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="display:flex;border:1px solid var(--border-strong);border-radius:999px;overflow:hidden;background:var(--bg-card);">
+          <button id="sig-sw-btn" data-action="toggleSignalMode" data-arg="swing" style="border:none;cursor:pointer;font-size:12.5px;font-weight:600;padding:7px 16px;background:var(--text-primary);color:var(--bg-base);">스윙</button>
+          <button id="sig-dy-btn" data-action="toggleSignalMode" data-arg="day" style="border:none;cursor:pointer;font-size:12.5px;font-weight:600;padding:7px 16px;background:transparent;color:var(--text-muted);">데이트레이딩</button>
         </div>
-        <div class="page-subtitle">변동성(VIX) 25% · 모멘텀(F&G·추세추종) 25% · 추세(MA) 20% · 시장폭(20일선) 20% · 거시 10%</div>
+        <span id="sig-ts" style="font-size:12px;color:var(--text-dim);font-variant-numeric:tabular-nums;">대기 중…</span>
       </div>
-      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-        <button id="sig-sw-btn" class="aio-btn-table primary" data-action="toggleSignalMode" data-arg="swing" style="font-size:10px;">스윙</button>
-        <button id="sig-dy-btn" class="aio-btn-table" data-action="toggleSignalMode" data-arg="day" style="font-size:10px;">데이트레이딩</button>
-        <span id="sig-mode-desc" style="font-size:11px;color:var(--text-secondary);"></span>
-        <span id="sig-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">대기 중…</span>
-      </div>
+      <span id="sig-mode-desc" style="font-size:11px;color:var(--text-dim);"></span>
     </div>
   </div>
 
@@ -5730,141 +5730,46 @@ button[data-filter-active="true"] {
   <!-- v48.57: FOMC 경보 배너 제거 — macro 페이지로 주제 정렬 (중복 제거) -->
   <!-- v50.29 declutter: "FOMC 일정 이전" 안내 스텁 제거 — 이전 공지는 사용자 가치 0 (FOMC는 거시경제 페이지/메뉴) -->
 
-  <!-- ─ 시장 스냅샷 카드 (Live Quotes Overlay) ─ -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:8px;margin-bottom:12px;">
-    <div id="snap-gspc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-green);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">S&P 500</div>
-      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">—</div>
-      <div style="font-size:10px;" data-live-chg="^GSPC">—</div>
-      <div data-idx-futures="^GSPC" style="display:none;font-size:11px;margin-top:2px;"></div>
-      <div id="mkt-regime-sub" style="font-size:11px;color:var(--text-muted);margin-top:3px;">ATH -0.4% · Near ATH</div>
-    </div>
-    <div id="snap-ixic" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-cyan);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">NASDAQ</div>
-      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^IXIC">—</div>
-      <div style="font-size:10px;" data-live-chg="^IXIC">—</div>
-      <div data-idx-futures="^IXIC" style="display:none;font-size:11px;margin-top:2px;"></div>
-    </div>
-    <div id="snap-vix" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="sentiment" title="투자 심리 →">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">VIX 공포지수</div>
-      <div id="snap-vix-val" style="font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--data-green);">16.18</div>
-      <div id="snap-vix-lbl" style="font-size:11px;color:var(--text-muted);">안정</div>
-      <div id="vol-regime-val" style="font-size:11px;font-weight:700;margin-top:3px;color:var(--data-green);">안정</div>
-      <div id="vol-regime-sub" style="font-size:11px;color:var(--text-muted);">VIX 16 · 정상 구간</div>
-    </div>
-    <div id="snap-oil" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-purple);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="macro" title="거시경제 →">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">WTI 원유</div>
-      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="CL=F">—</div>
-      <div style="font-size:10px;" data-live-chg="CL=F">—</div>
-    </div>
-    <div id="snap-gold" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="macro" title="거시경제 →">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">GOLD</div>
-      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="GC=F">—</div>
-      <div style="font-size:10px;" data-live-chg="GC=F">—</div>
-    </div>
-    <div id="snap-btc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="fxbond" title="환율·채권 →">
-      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">Bitcoin</div>
-      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="BTC-USD">—</div>
-      <div style="font-size:10px;" data-live-chg="BTC-USD">—</div>
-    </div>
-  </div>
+  <div id="tg-feed-signal"></div>
 
-  <!-- v50.33: cross-asset 안내 스텁 제거 — 무가치 안내문(상세는 연계 분석/사이드바 메뉴로 충분) -->
-
-  <!-- ─ 시장 국면 진단 + 트레이딩 원칙 ─ -->
-  <div class="aio-section">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-    <!-- 시장 국면 진단 -->
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 14px;">
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">시장 국면 진단</div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <div id="regime-badge" style="padding:5px 14px;border-radius:3px;font-size:11px;font-weight:800;font-family:var(--font-mono);background:rgba(34,117,76,0.15);border:1px solid rgba(34,117,76,0.3);color:var(--data-green);">—</div>
-        <div>
-          <div id="regime-label" style="font-size:10px;font-weight:600;color:var(--text-secondary);">—</div>
-          <div id="regime-sub" style="font-size:11px;color:var(--text-muted);margin-top:2px;">—</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-        <div style="background:var(--surface-1);border-radius:3px;padding:6px;text-align:center;">
-          <div style="font-size:11px;color:var(--text-muted);">NYSE 매도 비율</div>
-          <div id="regime-nyse-sell" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">—</div>
-        </div>
-        <div style="background:var(--surface-1);border-radius:3px;padding:6px;text-align:center;">
-          <div style="font-size:11px;color:var(--text-muted);">AAII 약세 비율</div>
-          <div id="regime-aaii" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">—</div>
-          <div style="font-size:11px;color:var(--data-amber);">—</div>
-        </div>
-        <div style="background:var(--surface-1);border-radius:3px;padding:6px;text-align:center;">
-          <div style="font-size:11px;color:var(--text-muted);">Put/Call 비율</div>
-          <div id="regime-pcr" style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--text-muted);">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">—</div>
-        </div>
-      </div>
-    </div>
-    <div id="tg-feed-signal"></div>
-    <!-- 트레이딩 원칙 어드바이저 -->
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-lg);padding:12px 14px;">
-      <div style="font-size:11px;font-weight:700;color:var(--data-cyan);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">트레이딩 원칙</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--text-secondary);line-height:1.5;">
-        <div style="display:flex;align-items:flex-start;gap:6px;">
-          <span style="color:var(--data-amber);font-weight:700;flex-shrink:0;">①</span>
-          <span><b style="color:var(--text-primary);">관망 우선</b> — 현재 국면은 관전이 투기보다 유리. 매수 충동 자제</span>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:6px;">
-          <span style="color:var(--data-amber);font-weight:700;flex-shrink:0;">②</span>
-          <span><b style="color:var(--text-primary);">칼 잡기 금지</b> — 바닥은 추측이 아닌 확인 후 진입. 최저가가 적정가가 아님</span>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:6px;">
-          <span style="color:var(--data-amber);font-weight:700;flex-shrink:0;">③</span>
-          <span><b style="color:var(--text-primary);">확인 후 진입</b> — 의미 있는 후속 상승(follow-through) 확인 전까지 자본 투입 보류</span>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:6px;">
-          <span style="color:var(--data-amber);font-weight:700;flex-shrink:0;">④</span>
-          <span><b style="color:var(--text-primary);">최소 노출</b> — 엄선된 A+ 셋업만. 포지션 사이즈 절반 이하. 실수 여지가 없는 시장</span>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:8px;border-top:1px solid rgba(33,29,22,0.15);padding-top:6px;line-height:1.4;">
-        역발상 신호(AAII 극단, Put/Call 스파이크)는 방향은 맞지만 <b style="color:var(--data-amber);">타이밍 지표가 아님</b>. 바닥 확인 전까지 방어적 유지.
-      </div>
-    </div>
-  </div>
-  </div><!-- /aio-section 시장국면 -->
-
-  <!-- ─ 시그널 어드바이스 배너 (grid 바깥) ─ -->
-  <div id="signal-advice-container" style="margin-bottom:12px;"></div>
-
-  <!-- ─ 스코어 히어로 (v50.76: flat — 원형 게이지 제거) ─ -->
-  <div class="aio-section">
+  <!-- ─ 스코어 히어로 — v52.65 아이보리 2a: 시안 구조로 전면 재구축(서체 60px + 구분선 + 판단문 + 5팩터 미니바) ─ -->
   <canvas id="score-gauge-canvas" aria-label="트레이딩 스코어" width="110" height="110" style="display:none;" aria-hidden="true"></canvas>
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:20px;">
-    <div style="text-align:center;min-width:90px;flex-shrink:0;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">종합 거래 점수 <span style="color:var(--data-amber);font-weight:400;">③ 결론</span></div>
-      <div id="score-gauge-val" style="font-size:54px;font-weight:900;font-family:var(--font-mono);color:var(--data-green);line-height:1;">—</div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">/100 <span id="score-delta-tag" class="aio-metric-delta is-flat" style="display:none;font-size:10px;font-family:var(--font-mono);" title="전일 대비 점수 변화"></span></div>
+  <div style="display:flex;align-items:center;gap:40px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:26px;margin-bottom:22px;">
+    <div style="flex-shrink:0;">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">종합 거래 점수</div>
+      <div style="display:flex;align-items:baseline;gap:9px;">
+        <span id="score-gauge-val" style="font-family:var(--font-display);font-size:60px;font-weight:600;color:var(--text-primary);line-height:1;font-variant-numeric:tabular-nums;">—</span>
+        <span style="font-size:15px;color:var(--text-muted);">/100</span>
+      </div>
+      <div style="font-size:12px;margin-top:8px;min-height:14px;">
+        <span id="score-delta-tag" class="aio-metric-delta is-flat" style="display:none;font-size:12px;font-weight:600;" title="전일 대비 점수 변화"></span>
+      </div>
     </div>
-    <div style="width:1px;background:var(--border);align-self:stretch;flex-shrink:0;"></div>
-    <div style="flex:1;min-width:0;">
-      <div id="score-decision-badge" style="padding:5px 16px;border-radius:3px;font-size:13px;font-weight:900;letter-spacing:0.05em;background:rgba(34,117,76,0.12);border:1px solid rgba(34,117,76,0.3);color:var(--data-green);display:inline-block;margin-bottom:8px;">—</div>
-      <div id="score-decision-sub" style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">점수 입력 수신 대기…</div>
-      <div id="score-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">—</div>
-      <div class="aio-why">이 점수는 <b>아래 ② 팩터 5개의 가중 합산</b>입니다. 어떤 요소가 올리고 내렸는지는 "점수 구성 상세"를 확인하세요.</div>
+    <div style="width:1px;align-self:stretch;background:var(--border-strong);min-height:70px;"></div>
+    <div style="flex:1;min-width:260px;max-width:600px;">
+      <div id="score-decision-badge" style="font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">—</div>
+      <div id="score-decision-sub" style="font-size:13.5px;color:var(--text-secondary);line-height:1.75;">점수 입력 수신 대기…</div>
+      <div id="score-ts" style="font-size:11px;color:var(--text-dim);margin-top:6px;font-variant-numeric:tabular-nums;">—</div>
     </div>
+    <div id="signal-hero-factors" style="flex-shrink:0;display:flex;flex-direction:column;gap:7px;min-width:230px;"></div>
   </div>
 
   <!-- v50.77: Minervini-style 메트릭 필 + 매수 국면 레이블 -->
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
     <div id="signal-mv-strip" class="mv-metric-strip" style="flex:1;min-width:0;">
       <span style="font-size:10px;color:var(--text-muted);">VIX — · F&amp;G — · SPY —</span>
     </div>
     <div id="signal-phase-label" style="flex-shrink:0;"></div>
   </div>
 
-  </div><!-- /aio-section 스코어히어로 -->
+  <!-- v52.65: getScoreAdvice() 배너 — 위 히어로 판단문(score-decision-sub)과 중복 → DOM 유지, 시각만 숨김 (v50.75 home 패턴) -->
+  <div id="signal-advice-container" style="display:none;"></div>
 
-  <!-- ─ 점수 구성 + 실행 타이밍 ─ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">② 팩터별 기여도 — 종합 점수의 구성 근거</span></div>
+  <!-- v52.65 아이보리: 팩터 기여도 상세+실행윈도우를 details "고급"으로 접음 (시안 2a 히어로는 5팩터 미니바만 노출) -->
+  <details style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:22px;">
+    <summary style="cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-secondary);">고급 — 점수 구성 상세 · 실행 타이밍</summary>
+    <div style="margin-top:12px;">
+  <div class="aio-section-hd"><span class="aio-section-label">팩터별 기여도 — 종합 점수의 구성 근거</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 14px;">
       <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">점수 구성 상세 — 각 팩터가 위 종합 점수에 얼마나 기여했는지</div>
@@ -5904,117 +5809,112 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  </div><!-- /aio-section 팩터기여도 -->
-
-  <!-- ─ 진입 체크리스트 (Jeff Sun CFTe Hard Rules 기반) ─ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">스윙 진입 체크리스트</span></div>
-  <div id="entry-checklist-card" style="background:var(--surface-1);border:1px solid var(--border);border-left:3px solid var(--data-purple);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div>
-        <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">스윙 진입 체크리스트<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="스윙 진입 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">스윙 진입 5대 필터</span>(1) 50SMA&gt;150SMA&gt;200SMA 정배열 (2) RS Rating 80+ (3) 52주 고점 대비 25% 이내 (4) 거래량 평균 대비 150%+ (5) 시장폭(Breadth) 60%+. <strong>5개 모두 통과 = A급 진입</strong>, 3개+ = 선별, 2개 이하 = 패스.</span></span></span>
-        <span style="font-size:11px;color:var(--text-muted);margin-left:6px;">전문 트레이더 검증 진입 필터 기반</span>
-      </div>
-      <div id="entry-check-summary" style="font-size:10px;font-weight:700;font-family:var(--font-mono);color:var(--text-muted);">판정 대기</div>
     </div>
-    <div id="entry-check-items" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px;">
-      <div id="ec-vix" style="padding:6px 10px;background:var(--surface-1);border-radius:3px;display:flex;align-items:center;gap:6px;">
-        <span class="ec-icon">⏳</span>
-        <div><div style="font-weight:700;">VIX &lt; 25</div><div style="font-size:11px;color:var(--text-muted);">변동성 환경</div></div>
-        <span class="ec-val" style="margin-left:auto;font-family:var(--font-mono);font-size:11px;">—</span>
+  </details>
+
+  <!-- ─ 진입 체크리스트 (Jeff Sun CFTe Hard Rules 기반) — v52.65 아이보리 2a: 5열 헤어라인 그리드 ─ -->
+  <div style="border-top:1px solid var(--border-strong);padding-top:22px;margin-bottom:22px;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:6px;">
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">스윙 진입 체크리스트<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="스윙 진입 설명" style="margin-left:6px;">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">스윙 진입 5대 필터</span>(1) 50SMA&gt;150SMA&gt;200SMA 정배열 (2) RS Rating 80+ (3) 52주 고점 대비 25% 이내 (4) 거래량 평균 대비 150%+ (5) 시장폭(Breadth) 60%+. <strong>5개 모두 통과 = A급 진입</strong>, 3개+ = 선별, 2개 이하 = 패스.</span></span></div>
+      <div id="entry-check-summary" style="font-size:12.5px;font-weight:600;color:var(--text-muted);">판정 대기</div>
+    </div>
+    <div id="entry-checklist-card">
+    <div id="entry-check-items" style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);">
+      <div id="ec-vix" style="padding:16px 18px 16px 0;border-right:1px solid var(--border-subtle);">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">VIX &lt; 25</div>
+        <div class="ec-val" style="font-size:15px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+        <div class="ec-icon" style="font-size:12px;font-weight:600;color:var(--text-muted);margin-top:4px;">대기</div>
       </div>
-      <div id="ec-score" style="padding:6px 10px;background:var(--surface-1);border-radius:3px;display:flex;align-items:center;gap:6px;">
-        <span class="ec-icon">⏳</span>
-        <div><div style="font-weight:700;">스코어 55+</div><div style="font-size:11px;color:var(--text-muted);">시장 환경</div></div>
-        <span class="ec-val" style="margin-left:auto;font-family:var(--font-mono);font-size:11px;">—</span>
+      <div id="ec-score" style="padding:16px 18px;border-right:1px solid var(--border-subtle);">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">스코어 55+</div>
+        <div class="ec-val" style="font-size:15px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+        <div class="ec-icon" style="font-size:12px;font-weight:600;color:var(--text-muted);margin-top:4px;">대기</div>
       </div>
-      <div id="ec-breadth" style="padding:6px 10px;background:var(--surface-1);border-radius:3px;display:flex;align-items:center;gap:6px;">
-        <span class="ec-icon">⏳</span>
-        <div><div style="font-weight:700;">섹터 폭 50%+</div><div style="font-size:11px;color:var(--text-muted);">참여도</div></div>
-        <span class="ec-val" style="margin-left:auto;font-family:var(--font-mono);font-size:11px;">—</span>
+      <div id="ec-breadth" style="padding:16px 18px;border-right:1px solid var(--border-subtle);">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">섹터 폭 50%+</div>
+        <div class="ec-val" style="font-size:15px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+        <div class="ec-icon" style="font-size:12px;font-weight:600;color:var(--text-muted);margin-top:4px;">대기</div>
       </div>
-      <div id="ec-streak" style="padding:6px 10px;background:var(--surface-1);border-radius:3px;display:flex;align-items:center;gap:6px;">
-        <span class="ec-icon">⏳</span>
-        <div><div style="font-weight:700;">연속 상승 주의</div><div style="font-size:11px;color:var(--text-muted);">추격 매수 방지</div></div>
-        <span class="ec-val" style="margin-left:auto;font-family:var(--font-mono);font-size:11px;">—</span>
+      <div id="ec-streak" style="padding:16px 18px;border-right:1px solid var(--border-subtle);">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">연속 상승 주의</div>
+        <div class="ec-val" style="font-size:15px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+        <div class="ec-icon" style="font-size:12px;font-weight:600;color:var(--text-muted);margin-top:4px;">대기</div>
       </div>
-      <div id="ec-event" style="padding:6px 10px;background:var(--surface-1);border-radius:3px;display:flex;align-items:center;gap:6px;grid-column:span 2;">
-        <span class="ec-icon">⏳</span>
-        <div><div style="font-weight:700;">주요 이벤트 48h 이내 아님</div><div style="font-size:11px;color:var(--text-muted);">FOMC/CPI 직전 신규 진입 자제</div></div>
-        <span class="ec-val" style="margin-left:auto;font-family:var(--font-mono);font-size:11px;">—</span>
+      <div id="ec-event" style="padding:16px 0 16px 18px;">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">주요 이벤트 48h</div>
+        <div class="ec-val" style="font-size:15px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+        <div class="ec-icon" style="font-size:12px;font-weight:600;color:var(--text-muted);margin-top:4px;">대기</div>
       </div>
+    </div>
     </div>
   </div>
 
-  </div><!-- /aio-section 진입체크리스트 -->
-
-  <!-- ─ 리스크 모니터 ─ -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">리스크 모니터링</span></div>
-
-  <!-- ─ 리스크 모니터 보드 (리스크봇 스타일) ─ -->
-  <div data-aio-archive="true" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
-      <div>
-        <span class="aio-subhd" style="margin-bottom:0;">리스크 모니터</span>
+  <!-- ─ 리스크 모니터 — v52.65 아이보리 2a: 6셀 카드 그리드 ─ -->
+  <div data-aio-archive="true" style="margin-bottom:22px;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:6px;">
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">리스크 모니터</div>
+      <div style="font-size:12.5px;color:var(--text-muted);">종합 리스크 <span id="risk-composite-label" style="font-weight:600;color:var(--data-green);">LOW</span> · <span id="risk-composite-val" style="font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">18</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px;" id="risk-monitor-grid">
+      <!-- VVIX -->
+      <div class="risk-mon-cell" id="rm-vvix" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 18px;">
+        <div class="rm-label">VVIX<span class="rm-tip">VIX 변동성 지수. 100↑=극도 공포</span></div>
+        <div style="font-size:17px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;margin-top:6px;"><span class="rm-val" data-live-price="^VVIX">90.1</span> <span data-live-chg="^VVIX" style="font-size:11.5px;font-weight:600;"></span></div>
+        <div class="rm-status" id="rm-vvix-status" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">—</div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="font-size:11px;color:var(--text-muted);">종합 리스크 점수:</div>
-        <div style="position:relative;width:60px;height:30px;">
-          <canvas id="risk-gauge-small" role="img" aria-label="리스크 수준 게이지" width="60" height="30"></canvas>
+      <!-- VIX Structure (Contango/Backwardation) — v36.6: 동적 -->
+      <div class="risk-mon-cell" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 18px;">
+        <div class="rm-label">VIX 선물<span class="rm-tip">콘탱고=정상, 백워데이션=공황징조</span></div>
+        <div id="rm-vixstr-status" style="font-size:17px;font-weight:600;color:var(--text-primary);margin-top:6px;">수집 대기</div>
+        <div id="rm-vixstr-val" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">대기</div>
+      </div>
+      <!-- MOVE Index (Bond Vol) -->
+      <div class="risk-mon-cell" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 18px;">
+        <div class="rm-label">MOVE<span class="rm-tip">채권변동성. 100+=불안</span></div>
+        <div style="font-size:17px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;margin-top:6px;"><span class="rm-val" id="rm-move-val" data-snap="move">73.58</span></div>
+        <div id="rm-move-status" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">평온 (80↓)</div>
+      </div>
+      <!-- SKEW -->
+      <div class="risk-mon-cell" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 18px;">
+        <div class="rm-label">
+          <span class="term-tooltip">SKEW<span class="tip-icon">?</span>
+            <span class="tip-body">테일 리스크 헤지 수요. 130+=극단적 하방 우려. 높을수록 풋옵션 수요 증가</span>
+          </span>
         </div>
-        <div>
-          <div id="risk-composite-val" style="font-size:16px;font-weight:800;font-family:var(--font-mono);color:var(--data-green);">18</div>
-          <div id="risk-composite-label" style="font-size:11px;color:var(--data-green);font-weight:700;">LOW</div>
+        <div style="font-size:17px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;margin-top:6px;"><span class="rm-val" id="rm-skew-val" data-snap="skew">136.86</span> <span data-live-chg="^SKEW" style="font-size:11.5px;font-weight:600;"></span></div>
+        <div style="font-size:12px;color:var(--data-red);margin-top:4px;">꼬리위험 높음</div>
+      </div>
+      <!-- Put/Call -->
+      <div class="risk-mon-cell" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 18px;">
+        <div class="rm-label">
+          <span class="term-tooltip">Put/Call<span class="tip-icon">?</span>
+            <span class="tip-body">풋/콜 비율. 1.0↑=과매도 영역 진입 징후. 스파이크=단기 바닥 근접 가능</span>
+          </span>
         </div>
+        <div style="font-size:17px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;margin-top:6px;"><span class="rm-val" id="rm-pcr-val">1.21</span></div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">스파이크</div>
+      </div>
+      <!-- RSP/SPY -->
+      <div class="risk-mon-cell" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 18px;">
+        <div class="rm-label">RSP / SPY<span class="rm-tip">동일가중/시총가중 비율. 낮으면 빅테크 쏠림</span></div>
+        <div style="font-size:17px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;margin-top:6px;"><span class="rm-val" id="rm-rspratio-val">0.291</span></div>
+        <div id="rm-rspratio-status" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">수신 대기</div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;" id="risk-monitor-grid">
-      <!-- VIX — 스냅카드 중복, 숨김 -->
-      <div class="risk-mon-cell" id="rm-vix" style="display:none">
+    <!-- 렌더러/테스트 호환 셸 — 중복 표시 지표(VIX·DXY) + HYG/TNX/F&G row + 리스크 게이지 캔버스. 삭제 금지 -->
+    <div style="display:none;" aria-hidden="true">
+      <div class="risk-mon-cell" id="rm-vix">
         <div class="rm-label">VIX<span class="rm-tip">15↓=안정, 15~20=주의, 20~25=경계, 25~30=공포, 30+=극단공포</span></div>
         <div class="rm-val" data-live-price="^VIX" data-static-default="true">—</div>
         <div class="rm-status" id="rm-vix-status">—</div>
         <div class="rm-bar-wrap"><div class="rm-bar" id="rm-vix-bar" style="width:60%;background:var(--data-amber);"></div></div>
       </div>
-      <!-- VVIX -->
-      <div class="risk-mon-cell" id="rm-vvix">
-        <div class="rm-label">VVIX<span class="rm-tip">VIX 변동성 지수. 100↑=극도 공포</span></div>
-        <div class="rm-val" data-live-price="^VVIX">90.1</div>
-        <div class="rm-status" id="rm-vvix-status">—</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" id="rm-vvix-bar" style="width:70%;background:var(--data-amber);"></div></div>
-      </div>
-      <!-- VIX Structure (Contango/Backwardation) — v36.6: 동적 -->
-      <div class="risk-mon-cell">
-        <div class="rm-label">VIX 선물<span class="rm-tip">콘탱고=정상, 백워데이션=공황징조</span></div>
-        <div class="rm-val" id="rm-vixstr-val" style="color:var(--text-muted);">대기</div>
-        <div class="rm-status" id="rm-vixstr-status" style="color:var(--text-muted);">수집 대기</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" id="rm-vixstr-bar" style="width:50%;background:var(--text-muted);"></div></div>
-      </div>
-      <!-- MOVE Index (Bond Vol) -->
-      <div class="risk-mon-cell">
-        <div class="rm-label">MOVE<span class="rm-tip">채권변동성. 100+=불안</span></div>
-        <div class="rm-val" id="rm-move-val" style="color:var(--data-green);" data-snap="move">73.58</div>
-        <div class="rm-status" id="rm-move-status" style="color:var(--data-green);background:rgba(34,117,76,0.1);">평온 (80↓)</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" style="width:20%;background:var(--data-green);"></div></div>
-      </div>
-      <!-- DXY — 홈 KPI/FX채권 중복, 숨김 -->
-      <div class="risk-mon-cell" id="rm-dxy" style="display:none">
+      <div class="risk-mon-cell" id="rm-dxy">
         <div class="rm-label">DXY<span class="rm-tip">달러인덱스. 100↑=달러 강세, 95↓=약세. 추세 방향이 핵심</span></div>
         <div class="rm-val" data-live-price="DX-Y.NYB">—</div>
         <div class="rm-status" id="rm-dxy-status">—</div>
         <div class="rm-bar-wrap"><div class="rm-bar" id="rm-dxy-bar" style="width:55%;background:var(--data-amber);"></div></div>
       </div>
-      <!-- RSP/SPY — row1으로 이동 -->
-      <div class="risk-mon-cell">
-        <div class="rm-label">RSP/SPY<span class="rm-tip">동일가중/시총가중 비율. 낮으면 빅테크 쏠림</span></div>
-        <div class="rm-val" id="rm-rspratio-val">0.291</div>
-        <div class="rm-status" id="rm-rspratio-status">수신 대기</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" id="rm-rspratio-bar" style="width:40%;background:var(--data-red);"></div></div>
-      </div>
-    </div>
-    <!-- HYG / TNX / F&G / RSP row — 중복 지표, 전체 숨김 (JS getElementById용 DOM 유지) -->
-    <div style="display:none;">
       <div class="risk-mon-cell">
         <div class="rm-label">HYG</div>
         <div class="rm-val" data-live-price="HYG">78.5</div>
@@ -6033,51 +5933,7 @@ button[data-filter-active="true"] {
         <div class="rm-status" id="rm-fg-status">수집 대기</div>
         <div class="rm-bar-wrap"><div class="rm-bar" id="rm-fg-bar"></div></div>
       </div>
-    </div>
-    <!-- 추가 리스크 지표: SKEW, 딜러감마, 기관매매, Put/Call -->
-    <div id="risk-extra-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;">
-      <div class="risk-mon-cell">
-        <div class="rm-label">
-          <span class="term-tooltip">SKEW<span class="tip-icon">?</span>
-            <span class="tip-body">테일 리스크 헤지 수요. 130+=극단적 하방 우려. 높을수록 풋옵션 수요 증가</span>
-          </span>
-        </div>
-        <div class="rm-val" id="rm-skew-val" style="color:var(--data-red);" data-snap="skew">136.86</div>
-        <div class="rm-status" style="color:var(--data-red);background:rgba(177,58,48,0.1);">꼬리위험 고점</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" style="width:85%;background:var(--data-red);"></div></div>
-      </div>
-      <div class="risk-mon-cell">
-        <div class="rm-label">
-          <span class="term-tooltip">딜러 감마<span class="tip-icon">?</span>
-            <span class="tip-body">옵션 딜러의 감마 포지션. 숏감마=하방 증폭, 롱감마=안정. 수동 업데이트 필요 (GEX 전용 데이터 소스 미연동)</span>
-          </span>
-        </div>
-        <div class="rm-val" id="rm-gamma-val" style="color:var(--text-muted);">참고값</div>
-        <div class="rm-status" style="color:var(--text-muted);background:rgba(33,29,22,0.04);">갱신 미정</div>
-        <div style="font-size:10px;color:var(--data-amber);margin-top:3px;">실시간 아님 · 수동 참고</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" style="width:50%;background:var(--text-muted);"></div></div>
-      </div>
-      <div class="risk-mon-cell">
-        <div class="rm-label">
-          <span class="term-tooltip">기관 매매<span class="tip-icon">?</span>
-            <span class="tip-body">GS/JPM 기관 플로우 추적. 바이백 블랙아웃 해제·롱온리 수급 확인. 수동 업데이트 필요 — 정확한 수치는 블룸버그/GS 데스크 플로우 리포트 참고</span>
-          </span>
-        </div>
-        <div class="rm-val" id="rm-inst-val" style="color:var(--text-muted);">참고값</div>
-        <div class="rm-status" style="color:var(--text-muted);background:rgba(33,29,22,0.04);">갱신 미정</div>
-        <div style="font-size:10px;color:var(--data-amber);margin-top:3px;">실시간 아님 · 수동 참고</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" style="width:50%;background:var(--text-muted);"></div></div>
-      </div>
-      <div class="risk-mon-cell">
-        <div class="rm-label">
-          <span class="term-tooltip">Put/Call<span class="tip-icon">?</span>
-            <span class="tip-body">풋/콜 비율. 1.0↑=과매도 영역 진입 징후. 스파이크=단기 바닥 근접 가능</span>
-          </span>
-        </div>
-        <div class="rm-val" id="rm-pcr-val" style="color:var(--data-amber);">1.21</div>
-        <div class="rm-status" style="color:var(--data-amber);background:rgba(33,29,22,0.1);">스파이크</div>
-        <div class="rm-bar-wrap"><div class="rm-bar" style="width:75%;background:var(--data-amber);"></div></div>
-      </div>
+      <div style="width:60px;height:30px;"><canvas id="risk-gauge-small" role="img" aria-label="리스크 수준 게이지" width="60" height="30"></canvas></div>
     </div>
   </div>
 
@@ -6089,6 +5945,30 @@ button[data-filter-active="true"] {
       <span style="font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(33,29,22,0.12);color:var(--data-amber);border:1px solid rgba(33,29,22,0.3);margin-left:auto;">내러티브 기준: <span data-snap-date="cp-narrative">2026-06-04</span> · <span id="cp-narrative-stale-days">경과 산출 대기</span></span>
     </summary>
     <div style="margin-top:10px;">
+    <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">추가 참고 지표 (수동 갱신)</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+      <div class="risk-mon-cell" style="border-color:var(--border);background:var(--bg-card);">
+        <div class="rm-label">
+          <span class="term-tooltip">딜러 감마<span class="tip-icon">?</span>
+            <span class="tip-body">옵션 딜러의 감마 포지션. 숏감마=하방 증폭, 롱감마=안정. 수동 업데이트 필요 (GEX 전용 데이터 소스 미연동)</span>
+          </span>
+        </div>
+        <div class="rm-val" id="rm-gamma-val" style="color:var(--text-muted);">참고값</div>
+        <div class="rm-status" style="color:var(--text-muted);background:rgba(33,29,22,0.04);">갱신 미정</div>
+        <div style="font-size:10px;color:var(--data-amber);margin-top:3px;">실시간 아님 · 수동 참고</div>
+      </div>
+      <div class="risk-mon-cell" style="border-color:var(--border);background:var(--bg-card);">
+        <div class="rm-label">
+          <span class="term-tooltip">기관 매매<span class="tip-icon">?</span>
+            <span class="tip-body">GS/JPM 기관 플로우 추적. 바이백 블랙아웃 해제·롱온리 수급 확인. 수동 업데이트 필요 — 정확한 수치는 블룸버그/GS 데스크 플로우 리포트 참고</span>
+          </span>
+        </div>
+        <div class="rm-val" id="rm-inst-val" style="color:var(--text-muted);">참고값</div>
+        <div class="rm-status" style="color:var(--text-muted);background:rgba(33,29,22,0.04);">갱신 미정</div>
+        <div style="font-size:10px;color:var(--data-amber);margin-top:3px;">실시간 아님 · 수동 참고</div>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">CP1~8 복합 리스크 히트맵</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
       <!-- CP1 -->
       <div class="cp-cell" style="border-color:var(--border);background:var(--bg-card);">
@@ -6158,27 +6038,59 @@ button[data-filter-active="true"] {
     </div>
   </details>
 
-  </div><!-- /aio-section 리스크모니터 -->
-
-  <!-- v48.60: signal 페이지 주제 정렬 — 시장 폭/RRG는 각 전용 페이지로 이전 -->
-  <div class="aio-section">
-  <div class="aio-section-hd"><span class="aio-section-label">연계 분석</span></div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
-    <button data-action="showPage" data-arg="breadth" class="aio-btn-table" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
-      <span style="font-size:12px;font-weight:700;color:var(--data-cyan);">시장 폭 분석 →</span>
-      <span style="font-size:11px;color:var(--text-muted);">5·20·50SMA · A-D 비율 · McClellan · Weinstein</span>
-    </button>
-    <button data-action="showPage" data-arg="themes" class="aio-btn-table" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
-      <span style="font-size:12px;font-weight:700;color:var(--data-amber);">섹터 로테이션 RRG →</span>
-      <span style="font-size:11px;color:var(--text-muted);">11섹터 · 서브섹터 · 45 세분화 테마</span>
-    </button>
-    <button data-action="showPage" data-arg="sentiment" class="aio-btn-table" style="padding:12px;font-size:12px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;text-align:left;flex-direction:column;align-items:flex-start;gap:3px;">
-      <span style="font-size:12px;font-weight:700;color:var(--data-purple);">투자 심리 →</span>
-      <span style="font-size:11px;color:var(--text-muted);">F&G · VIX · AAII · Put/Call · HY OAS</span>
-    </button>
+  <!-- ─ 시장 국면 진단 + 트레이딩 원칙 — v52.65 아이보리 2a: 상단→하단 이동, 2열 무테두리 지면식 ─ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;border-top:1px solid var(--border-strong);padding-top:22px;margin-bottom:22px;">
+    <div>
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">시장 국면 진단</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <span id="regime-badge" style="font-size:12.5px;font-weight:600;color:var(--text-primary);border:1px solid var(--border-strong);border-radius:999px;padding:5px 14px;background:var(--bg-card);">—</span>
+        <span id="regime-sub" style="font-size:13px;color:var(--text-secondary);">—</span>
+        <span id="regime-label" style="display:none;">—</span>
+      </div>
+      <div style="display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border-subtle);">
+          <span style="font-size:13px;color:var(--text-secondary);">NYSE 매도 비율</span>
+          <span style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" id="regime-nyse-sell">—</span>
+        </div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border-subtle);">
+          <span style="font-size:13px;color:var(--text-secondary);">AAII 약세 비율</span>
+          <span style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" id="regime-aaii">—</span>
+        </div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:13px;color:var(--text-secondary);">Put/Call 비율</span>
+          <span style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" id="regime-pcr">—</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:14px;">트레이딩 원칙</div>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);font-variant-numeric:tabular-nums;flex-shrink:0;">01</span><span style="font-size:13.5px;color:var(--text-secondary);line-height:1.6;"><b style="color:var(--text-primary);">관망 우선</b> — 현재 국면은 관전이 투기보다 유리. 매수 충동 자제</span></div>
+        <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);font-variant-numeric:tabular-nums;flex-shrink:0;">02</span><span style="font-size:13.5px;color:var(--text-secondary);line-height:1.6;"><b style="color:var(--text-primary);">칼 잡기 금지</b> — 바닥은 추측이 아닌 확인 후 진입. 최저가가 적정가가 아님</span></div>
+        <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);font-variant-numeric:tabular-nums;flex-shrink:0;">03</span><span style="font-size:13.5px;color:var(--text-secondary);line-height:1.6;"><b style="color:var(--text-primary);">확인 후 진입</b> — 의미 있는 후속 상승(follow-through) 확인 전까지 자본 투입 보류</span></div>
+        <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);font-variant-numeric:tabular-nums;flex-shrink:0;">04</span><span style="font-size:13.5px;color:var(--text-secondary);line-height:1.6;"><b style="color:var(--text-primary);">최소 노출</b> — 엄선된 A+ 셋업만. 포지션 사이즈 절반 이하. 실수 여지가 없는 시장</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:10px;border-top:1px solid var(--border-subtle);padding-top:8px;line-height:1.5;">
+        역발상 신호(AAII 극단, Put/Call 스파이크)는 방향은 맞지만 <b style="color:var(--text-secondary);">타이밍 지표가 아님</b>. 바닥 확인 전까지 방어적 유지.
+      </div>
+    </div>
   </div>
 
-  </div><!-- /aio-section 연계분석 -->
+  <!-- v48.60: signal 페이지 주제 정렬 — 시장 폭/RRG는 각 전용 페이지로 이전 -->
+  <div style="display:flex;gap:32px;flex-wrap:wrap;border-top:1px solid var(--border-subtle);padding-top:18px;margin-bottom:22px;">
+    <button data-action="showPage" data-arg="breadth" style="background:none;border:none;cursor:pointer;padding:0;text-align:left;">
+      <span style="font-size:13px;font-weight:600;color:var(--text-primary);">시장 폭 분석 →</span>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">5·20·50SMA · A-D 비율 · McClellan · Weinstein</div>
+    </button>
+    <button data-action="showPage" data-arg="themes" style="background:none;border:none;cursor:pointer;padding:0;text-align:left;">
+      <span style="font-size:13px;font-weight:600;color:var(--text-primary);">섹터 로테이션 RRG →</span>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">11섹터 · 서브섹터 · 45 세분화 테마</div>
+    </button>
+    <button data-action="showPage" data-arg="sentiment" style="background:none;border:none;cursor:pointer;padding:0;text-align:left;">
+      <span style="font-size:13px;font-weight:600;color:var(--text-primary);">투자 심리 →</span>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">F&G · VIX · AAII · Put/Call · HY OAS</div>
+    </button>
+  </div>
 
   <!-- v48.60: 시장 폭 + RRG 섹션 signal → 제거 (주제 침범 · 전용 페이지로 이관)
        제거된 DOM: bb-5sma-val/bb-20sma-val/bb-50sma-val · rrg 사분면 4개 · sector-heatmap
@@ -6320,6 +6232,51 @@ button[data-filter-active="true"] {
     </div>
   </div><!-- /v48.60 signal 제거 셸 끝 (내부는 display:none + renderers 용 DOM 호환 유지) -->
 
+  <!-- v52.65 아이보리: 시안 2a 범위 밖 부가 콘텐츠(시장 스냅샷·포트폴리오 배분·바닥프로세스·시나리오·Exit Triggers)를
+       details "고급"으로 접음 (handoff §1 밀도 축소 원칙) — 삭제 아님, 전부 실데이터 유지 -->
+  <details style="border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:16px;">
+    <summary style="cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-secondary);">고급 — 시장 스냅샷 · 포트폴리오 배분 · 시나리오 전망</summary>
+    <div style="margin-top:14px;">
+
+  <!-- ─ 시장 스냅샷 카드 (Live Quotes Overlay) ─ -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:8px;margin-bottom:16px;">
+    <div id="snap-gspc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-green);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">S&P 500</div>
+      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^GSPC">—</div>
+      <div style="font-size:10px;" data-live-chg="^GSPC">—</div>
+      <div data-idx-futures="^GSPC" style="display:none;font-size:11px;margin-top:2px;"></div>
+      <div id="mkt-regime-sub" style="font-size:11px;color:var(--text-muted);margin-top:3px;">ATH -0.4% · Near ATH</div>
+    </div>
+    <div id="snap-ixic" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-cyan);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="technical" title="차트 분석 →">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">NASDAQ</div>
+      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="^IXIC">—</div>
+      <div style="font-size:10px;" data-live-chg="^IXIC">—</div>
+      <div data-idx-futures="^IXIC" style="display:none;font-size:11px;margin-top:2px;"></div>
+    </div>
+    <div id="snap-vix" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="sentiment" title="투자 심리 →">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">VIX 공포지수</div>
+      <div id="snap-vix-val" style="font-size:14px;font-weight:800;font-family:var(--font-mono);color:var(--data-green);">16.18</div>
+      <div id="snap-vix-lbl" style="font-size:11px;color:var(--text-muted);">안정</div>
+      <div id="vol-regime-val" style="font-size:11px;font-weight:700;margin-top:3px;color:var(--data-green);">안정</div>
+      <div id="vol-regime-sub" style="font-size:11px;color:var(--text-muted);">VIX 16 · 정상 구간</div>
+    </div>
+    <div id="snap-oil" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-purple);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="macro" title="거시경제 →">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">WTI 원유</div>
+      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="CL=F">—</div>
+      <div style="font-size:10px;" data-live-chg="CL=F">—</div>
+    </div>
+    <div id="snap-gold" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="macro" title="거시경제 →">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">GOLD</div>
+      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="GC=F">—</div>
+      <div style="font-size:10px;" data-live-chg="GC=F">—</div>
+    </div>
+    <div id="snap-btc" style="background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--data-amber);border-radius:4px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s;" data-action="showPage" data-arg="fxbond" title="환율·채권 →">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:700;">Bitcoin</div>
+      <div style="font-size:14px;font-weight:800;font-family:var(--font-mono);" data-live-price="BTC-USD">—</div>
+      <div style="font-size:10px;" data-live-chg="BTC-USD">—</div>
+    </div>
+  </div>
+
   <!-- ─ 포트폴리오 배분 (v42.2: Pattern Scanner 제거 — 미구현 Dead 컬럼) ─ -->
   <div class="aio-section">
   <div class="aio-section-hd"><span class="aio-section-label">추천 포트폴리오 배분</span></div>
@@ -6453,6 +6410,9 @@ button[data-filter-active="true"] {
     </div>
   </div>
   </div><!-- /aio-section exit-triggers -->
+
+    </div>
+  </details>
 </div><!-- fix: page-signal outer close -->
 
     <div class="page" id="page-breadth">
@@ -7022,14 +6982,16 @@ button[data-filter-active="true"] {
           window._aioRenderBriefingDateLine = function(nowOverride) {
             var el = document.getElementById('briefing-date-line');
             if (!el) return null;
-            var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            // v52.65 아이보리 2b: 시안(comp 2b)은 "2026-07-10 (금) · 08:00 KST 기준 24시간 브리핑" —
+            // 영문 요일 약어는 터미널 클리셰(핸드오프 §1/§4)라 한국어 요일로 교체.
+            var days = ['일', '월', '화', '수', '목', '금', '토'];
             var base = (nowOverride instanceof Date) ? nowOverride : new Date();
             var kst = new Date(base.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
             var isPreCutoff = kst.getHours() < 8;
             var basis = new Date(kst);
             if (isPreCutoff) basis.setDate(basis.getDate() - 1);
             var label = basis.getFullYear() + '-' + String(basis.getMonth() + 1).padStart(2, '0') + '-' + String(basis.getDate()).padStart(2, '0') +
-              ' (' + days[basis.getDay()] + ') · 08:00 KST 24h briefing' + (isPreCutoff ? ' · 어제 생성분' : '');
+              ' (' + days[basis.getDay()] + ') · 08:00 KST 기준 24시간 브리핑' + (isPreCutoff ? ' · 어제 생성분' : '');
             el.textContent = label;
             return { label: label, isPreCutoff: isPreCutoff, basisDate: basis };
           };
@@ -7081,6 +7043,11 @@ button[data-filter-active="true"] {
       <div style="display:flex;align-items:center;gap:5px;">
         <span style="font-size:10px;color:var(--text-muted);font-weight:700;">F&amp;G</span>
         <span id="briefing-fg-val" style="font-size:12px;font-weight:800;font-family:var(--font-mono);">—</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span style="font-size:10px;color:var(--text-muted);font-weight:700;">KOSPI</span>
+        <span style="font-size:12px;font-weight:800;font-family:var(--font-mono);" data-live-price="^KS11">—</span>
+        <span style="font-size:11px;" data-live-chg="^KS11">—</span>
       </div>
       <div style="margin-left:auto;">
         <span id="briefing-regime-badge3" class="status-pill sp-neutral" style="font-size:10px;">국면 대기</span>
@@ -12854,9 +12821,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.64" defer></script>
-  <script src="./js/aio-data.js?v=52.64" defer></script>
-  <script src="./js/aio-ui.js?v=52.64" defer></script>
+  <script src="./js/aio-core.js?v=52.66" defer></script>
+  <script src="./js/aio-data.js?v=52.66" defer></script>
+  <script src="./js/aio-ui.js?v=52.66" defer></script>
 
   <script>
 
@@ -15063,7 +15030,9 @@ function renderStaleWarning(containerId) {
   if (existing) return;
   var badge = document.createElement('div');
   badge.className = 'stale-badge';
-  badge.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(33,29,22,0.15);border:1px solid rgba(33,29,22,0.3);border-radius:4px;font-size:11px;color:var(--data-amber);font-weight:700;margin-bottom:6px;';
+  // grid-column:1/-1 — 컨테이너가 CSS grid일 때 이 배지가 셀 하나를 차지해 열 수를 밀어내지 않도록
+  // 전체 너비 배너로 스팬(v52.65, risk-monitor-grid 6열 고정화로 발견). flex/block 컨테이너에선 무시되는 안전한 속성.
+  badge.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(33,29,22,0.15);border:1px solid rgba(33,29,22,0.3);border-radius:4px;font-size:11px;color:var(--data-amber);font-weight:700;margin-bottom:6px;grid-column:1/-1;width:fit-content;';
   badge.textContent = '정적 데이터 · ' + age.label + ' 기준 · 실시간 아님';
   el.insertBefore(badge, el.firstChild);
 }
@@ -16459,7 +16428,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.64" defer></script>
+<script src="./js/aio-chat.js?v=52.66" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23930,7 +23899,7 @@ function updateEntryChecklist() {
       icon.style.color = ok ? 'var(--data-green)' : (ok === null ? 'var(--text-muted)' : 'var(--data-red)');
     }
     if (valEl) valEl.textContent = val;
-    el.style.borderLeft = ok ? '2px solid var(--data-green)' : (ok === null ? '' : '2px solid var(--data-red)');
+    // v52.65 아이보리 2a: 셀 좌측 컬러 스트라이프 제거(원칙 §3) — 통과/미충족은 텍스트 색만으로 표시
     if (ok) passed++;
   }
 
@@ -24039,33 +24008,34 @@ function refreshSignalDashboard() {
   // Decision — 5-tier system
   var decision, decColor, decBg, decSub;
   if (total >= 75) {
-    decision = ' 매수 우호 — 리스크 관리 후 진입 검토';
+    decision = '매수 우호 — 리스크 관리 후 진입 검토';
     decColor = '#22754c'; decBg = 'rgba(34,117,76,0.15)';
     decSub = '종합 지표 매우 양호. 풀 포지션보다 분할 진입과 무효화 가격을 먼저 확인.';
   } else if (total >= 60) {
-    decision = ' 선별 매수 — 조건부 진입 가능';
+    decision = '선별 매수 — 조건부 진입 가능';
     decColor = 'var(--data-green)'; decBg = 'rgba(34,117,76,0.15)';
     decSub = '거래 환경 양호. 규모 60~80% 이내, ATR 손절과 이벤트 리스크 확인.';
   } else if (total >= 45) {
-    decision = ' 중립 — 관망 우선';
+    decision = '중립 — 관망 우선';
     decColor = 'var(--data-cyan)'; decBg = 'rgba(33,29,22,0.15)';
     decSub = '시장 신호 혼합. 50% 현금 유지, 좋은 기회까지 대기.';
   } else if (total >= 30) {
-    decision = ' 주의 — 비중 축소 검토';
+    decision = '주의 — 비중 축소 검토';
     decColor = 'var(--data-amber)'; decBg = 'rgba(33,29,22,0.15)';
     decSub = '리스크 증가. 기존 포지션의 방어선, 현금 비중, 헤지 조건 점검.';
   } else {
-    decision = ' 위험 — 방어 우선';
+    decision = '위험 — 방어 우선';
     decColor = '#b13a30'; decBg = 'rgba(177,58,48,0.15)';
     decSub = '극단 리스크. 신규 진입 중단, 현금·헤지·VIX 추적 우선.';
   }
 
   // Update gauge
   drawScoreGauge('score-gauge-canvas', total, decColor);
+  // v52.65 아이보리 2a: 히어로 스코어/판단문은 시안처럼 항상 잉크색 텍스트 — decColor는 캔버스 게이지(숨김)에만 사용
   var gv = document.getElementById('score-gauge-val');
-  if (gv) { gv.textContent = total; gv.style.color = decColor; }
+  if (gv) { gv.textContent = total; }
   var badge = document.getElementById('score-decision-badge');
-  if (badge) { badge.textContent = decision; badge.style.color = decColor; badge.style.background = decBg; badge.style.borderColor = decColor.replace(')',',0.4)').replace('rgb','rgba'); }
+  if (badge) { badge.textContent = decision; }
   var dsub = document.getElementById('score-decision-sub');
   if (dsub) { dsub.textContent = decSub; }
   var ts = document.getElementById('score-ts');
@@ -24081,6 +24051,27 @@ function refreshSignalDashboard() {
 
   // Render score bars
   renderScoreBars(scores);
+
+  // v52.65 아이보리 2a: 히어로 인라인 5팩터 미니바 — "가중 기여도/만점" 표기(시안과 동일 포맷)
+  var heroFactorsEl = document.getElementById('signal-hero-factors');
+  if (heroFactorsEl) {
+    var _hfClamp = function(v) { var n = Number(v); return Math.max(0, Math.min(100, isFinite(n) ? n : 0)); };
+    var hfComps = [
+      { label: '변동성', v: Math.round(_hfClamp(scores.volScore) * 0.25), max: 25 },
+      { label: '모멘텀', v: Math.round(_hfClamp(scores.momScore) * 0.25), max: 25 },
+      { label: '추세',   v: Math.round(_hfClamp(scores.trendScore) * 0.20), max: 20 },
+      { label: '시장폭', v: Math.round(_hfClamp(scores.breadthScore) * 0.20), max: 20 },
+      { label: '거시',   v: Math.round(_hfClamp(scores.macroScore) * 0.10), max: 10 }
+    ];
+    heroFactorsEl.innerHTML = hfComps.map(function(c) {
+      var pct = Math.round((c.v / c.max) * 100);
+      return '<div style="display:flex;align-items:center;gap:12px;">' +
+        '<span style="font-size:12px;color:var(--text-muted);width:40px;flex-shrink:0;">' + c.label + '</span>' +
+        '<div style="flex:1;height:3px;background:var(--border-subtle);border-radius:2px;min-width:60px;"><div style="width:' + pct + '%;height:100%;background:var(--text-primary);border-radius:2px;"></div></div>' +
+        '<span style="font-size:12px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;width:44px;text-align:right;flex-shrink:0;">' + c.v + '/' + c.max + '</span>' +
+        '</div>';
+    }).join('');
+  }
 
   // ── Render Action Guidance (Signal Advice) — v31.2: grid 바깥 전용 컨테이너 사용
   var adviceContainer = document.getElementById('signal-advice-container');
@@ -28726,7 +28717,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.64" defer></script>
+<script src="./js/aio-glossary.js?v=52.66" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

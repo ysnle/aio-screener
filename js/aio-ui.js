@@ -3830,7 +3830,10 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
           try { if (typeof window._aioRenderHomeHero === 'function') window._aioRenderHomeHero(); } catch(_) {}
           break;
         case 'signal':
-          _render('vis-signal-score', 'score-breakdown', _buildScore());
+          // v52.65: vis-signal-score(원형게이지, 이미 DOM 부재) 대체 — 시안 2a 히어로(index.html
+          // score-gauge-val 등)는 refreshSignalDashboard()가 렌더(js/aio-core.js 로드순서 의존이라
+          // typeof 가드 후 호출). initSignalDashboard()가 이미 페이지 진입 시 호출하므로 중복 안전.
+          try { if (typeof window.refreshSignalDashboard === 'function') window.refreshSignalDashboard(); } catch(_) {}
           break;
         case 'breadth':
           _render('vis-breadth-regime', 'market-regime', _buildRegime());
