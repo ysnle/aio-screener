@@ -5283,7 +5283,7 @@ function applyTechIndicators(data) {
       const el = document.getElementById('tech-rsi-val');
       if (el) {
         el.textContent = window._aioRenderNum ? window._aioRenderNum(rsi, '', 1) : (Number.isFinite(rsi) ? rsi.toFixed(1) : '—');
-        el.style.color = rsi > 70 ? '#ff5b50' : rsi < 30 ? '#00e5a0' : 'var(--text-primary)';
+        el.style.color = rsi > 70 ? 'var(--data-red)' : rsi < 30 ? 'var(--data-green)' : 'var(--text-primary)';
       }
     }
     // MACD — v48.94 P161: NaN 가드
@@ -5292,7 +5292,7 @@ function applyTechIndicators(data) {
       const el = document.getElementById('tech-macd-val');
       if (el) {
         el.textContent = window._aioRenderNum ? window._aioRenderNum(macd, '', 2) : (Number.isFinite(macd) ? macd.toFixed(2) : '—');
-        el.style.color = macd > 0 ? '#00e5a0' : '#ff5b50';
+        el.style.color = macd > 0 ? 'var(--data-green)' : 'var(--data-red)';
       }
     }
     // Stochastic — v48.94 P161: NaN 가드
@@ -5301,7 +5301,7 @@ function applyTechIndicators(data) {
       const el = document.getElementById('tech-stoch-val');
       if (el) {
         el.textContent = window._aioRenderNum ? window._aioRenderNum(k, '', 1) : (Number.isFinite(k) ? k.toFixed(1) : '—');
-        el.style.color = k > 80 ? '#ff5b50' : k < 20 ? '#00e5a0' : 'var(--text-primary)';
+        el.style.color = k > 80 ? 'var(--data-red)' : k < 20 ? 'var(--data-green)' : 'var(--text-primary)';
       }
     }
     // ADX — v48.94 P161: NaN 가드
@@ -5310,7 +5310,7 @@ function applyTechIndicators(data) {
       const el = document.getElementById('tech-adx-val');
       if (el) {
         el.textContent = window._aioRenderNum ? window._aioRenderNum(adx, '', 1) : (Number.isFinite(adx) ? adx.toFixed(1) : '—');
-        el.style.color = adx > 25 ? '#00e5a0' : '#ffa31a';
+        el.style.color = adx > 25 ? 'var(--data-green)' : 'var(--data-amber)';
       }
     }
     // v48.96 P1-4: 성공 완료 — stale 마커 해제
