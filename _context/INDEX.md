@@ -14,6 +14,12 @@ target_version: version.json
 
 > **Current correction (2026-07-13 v52.67 local)**: `AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md` and `INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md` are now a paired execution handoff. They define a shared Evidence/Calculation/Page/AI Response/Release architecture, explicit `DESIGNED -> IMPLEMENTED_LOCAL -> VERIFIED_LOCAL -> VERIFIED_LIVE` status, AI-X01~10, WP-AI11~20, RG/G-AI extended gates, and a single dependency map. The documents are designs and acceptance contracts, not implementation-complete reports. v52.67 local route re-audit still finds `briefing` context missing, themes/theme-detail prompts identical, and screener/portfolio/options evidence gaps; PUBLIC remains NO-GO.
 
+> **Current correction (2026-07-13 v52.75 local)**: WP-AI0 + 데이터 WP-0 is `IMPLEMENTED_LOCAL`: both AI chat surfaces identify as beta education/research assistance, concrete trade instructions are blocked at streaming/final/retry render boundaries, and unverified server market prose falls back to deterministic synthesis. Local syntax/runtime/Chromium headless gates pass (`997/997`), but live Pages/Worker/model-response certification and WP-AI1 single-path integration remain open; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-13 v52.76 local)**: WP-AI1 is `VERIFIED_LOCAL`: per-page/unified/retry/translation/briefing share one request envelope and response pipeline with recorded pipeline/validator/block-policy versions; retry reuses the same completion contract; `CHAT_CONTEXTS.briefing` is defined. Final local gates pass: headless `1001/1001`, critical10 `10/10`, accessibility `22/22`, portfolio vault `8/8`, viewport `88/88`, boot interaction within budget. Live Pages/Worker/model certification and deployment remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-13 v52.77 local)**: WP-AI2 is `VERIFIED_LOCAL`: `wp-ai2.claim.v1` typed claims and the common response pipeline now validate metric/unit/scale/direction/asOf/source/evidenceId, with fail-closed counterexamples for F&G/VIX, NFP 10x, bp/%, sign, FX inversion, and missing Evidence. Local syntax/runtime/version checks and Chromium headless `1010/1010 PASS` pass. Live Pages/Worker/model certification and post-deploy live verification remain unverified; PUBLIC remains NO-GO.
+
 # _context Index
 
 This folder is the active project knowledge base for AIO. It should describe the current GitHub-deployed structure first, then local Claude worktree exceptions only when they affect routing.

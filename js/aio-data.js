@@ -5462,7 +5462,11 @@ async function _aioLoadServerData() {
       macroKeyCount: d.meta.macroKeyCount || 0,
       newsOk: !!d.meta.newsOk,
       newsCount: d.meta.newsCount || (Array.isArray(d.news) ? d.news.length : 0),
-      marketAnalysisOk: !!d.meta.marketAnalysisOk,
+      // v52.75/WP-AI0: generation success is not semantic verification.
+      // The raw LLM marketAnalysis remains blocked until the producer emits
+      // an explicit semantic-gate pass.
+      marketAnalysisSemanticOk: d.meta.marketAnalysisSemanticOk === true,
+      marketAnalysisOk: d.meta.marketAnalysisOk === true && d.meta.marketAnalysisSemanticOk === true,
       fmpHasKey: d.meta.fmpHasKey != null ? !!d.meta.fmpHasKey : null, // null = screener skipped이라 미확인
       fmpOk: !!d.meta.fmpOk,
       fmpCount: d.meta.fmpCount || 0,
@@ -5549,19 +5553,29 @@ async function _aioLoadServerData() {
       }
     } catch(_) {}
     // 5) v50.48/Phase 4: 서버 LLM 시장 분석문(운영자 키 있을 때 cron 생성) — 있으면 합성 sink가 템플릿 대신 우선 사용.
+    // v52.75/WP-AI0: do not expose generated-but-unverified LLM prose to any
+    // public sink. A future typed/semantic producer must opt in explicitly.
+    window._serverMarketAnalysis = null;
     if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
-      window._serverMarketAnalysis = {
-        full: d.marketAnalysis.full || d.marketAnalysis.oneLine,
-        oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full,
-        generatedAt: d.marketAnalysis.generatedAt || d.meta.generatedAt,
-        source: d.marketAnalysis.source || d.marketAnalysis.model || 'github-actions-market-analysis'
-      };
+      var _serverMarketAnalysisVerified = d.meta.marketAnalysisSemanticOk === true || d.marketAnalysis.semanticStatus === 'verified' || d.marketAnalysis.status === 'verified';
+      var _serverMarketAnalysisGeneratedAt = d.marketAnalysis.generatedAt || d.meta.generatedAt;
+      var _serverMarketAnalysisSource = d.marketAnalysis.source || d.marketAnalysis.model || 'github-actions-market-analysis';
+      if (_serverMarketAnalysisVerified) {
+        window._serverMarketAnalysis = {
+          status: 'verified',
+          full: d.marketAnalysis.full || d.marketAnalysis.oneLine,
+          oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full,
+          generatedAt: _serverMarketAnalysisGeneratedAt,
+          source: _serverMarketAnalysisSource
+        };
+      }
       if (window._serverDataMeta) {
         window._serverDataMeta.marketAnalysis = {
-          status: 'ready',
-          generatedAt: window._serverMarketAnalysis.generatedAt,
-          source: window._serverMarketAnalysis.source,
-          fullLength: String(window._serverMarketAnalysis.full || '').length
+          status: _serverMarketAnalysisVerified ? 'verified' : 'blocked-unverified',
+          generatedAt: _serverMarketAnalysisGeneratedAt,
+          source: _serverMarketAnalysisSource,
+          fullLength: String(d.marketAnalysis.full || d.marketAnalysis.oneLine || '').length,
+          reason: _serverMarketAnalysisVerified ? null : 'semantic-gate-required'
         };
       }
       try { if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_) {}
@@ -5802,7 +5816,7 @@ function _aioRenderDataFreshness() {
         fredEl.style.display = 'none';
       }
     }
-    if (typeof _aioRenderPublicReadiness === 'function') _aioRenderPublicReadiness();
+    if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
   } catch(_) {}
 }
 window._aioRenderDataFreshness = _aioRenderDataFreshness;
@@ -6066,7 +6080,7 @@ function _aioRenderServerDataAge() {
     el.style.display = '';
     el.title = title;
     el.setAttribute('data-server-age-min', String(age));
-    if (typeof _aioRenderPublicReadiness === 'function') _aioRenderPublicReadiness();
+    if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
   } catch(_) {}
 }
 window._aioRenderServerDataAge = _aioRenderServerDataAge;
@@ -6123,7 +6137,7 @@ function _aioRenderPipelineStatus() {
         scrFmpEl.style.display = 'none';
       }
     }
-    if (typeof _aioRenderPublicReadiness === 'function') _aioRenderPublicReadiness();
+    if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
   } catch(_) {}
 }
 window._aioRenderPipelineStatus = _aioRenderPipelineStatus;
@@ -6189,15 +6203,39 @@ function _aioPublicReadinessPageText(pageId) {
   return map[pageId] || '페이지';
 }
 
-function _aioBuildPublicShareReadiness() {
+function _aioBuildPublicShareReadiness(opts) {
+  opts = opts || {};
+  var detailed = opts.full === true || !!(window.AIO && window.AIO.isDetailedAuditMode && window.AIO.isDetailedAuditMode());
   var version = (typeof APP_VERSION === 'string' ? APP_VERSION : (window.AIO && window.AIO.version) || '');
   var meta = window._serverDataMeta || null;
   var pageAudit = null;
   var pipelineAudit = null;
   var shareAudit = null;
-  try { pageAudit = window.AIO && window.AIO.getPageEvidenceCurrentnessAudit ? window.AIO.getPageEvidenceCurrentnessAudit() : null; } catch(_) {}
-  try { pipelineAudit = window.AIO && window.AIO.getDataPipelineAudit ? window.AIO.getDataPipelineAudit() : null; } catch(_) {}
-  try { shareAudit = window.AIO && window.AIO.getShareReadinessAudit ? window.AIO.getShareReadinessAudit({ skipEssence: true }) : null; } catch(_) {}
+  if (detailed) {
+    try { pageAudit = window.AIO && window.AIO.getPageEvidenceCurrentnessAudit ? window.AIO.getPageEvidenceCurrentnessAudit() : null; } catch(_) {}
+    try { pipelineAudit = window.AIO && window.AIO.getDataPipelineAudit ? window.AIO.getDataPipelineAudit() : null; } catch(_) {}
+    try { shareAudit = window.AIO && window.AIO.getShareReadinessAudit ? window.AIO.getShareReadinessAudit({ skipEssence: true }) : null; } catch(_) {}
+  } else {
+    // Public boot must never execute deployment/share audits. Build the visible home status
+    // from already-materialized evidence and server metadata; CI/dev mode owns full scans.
+    var activePage = document.querySelector('.page.active');
+    var activeId = activePage && String(activePage.id || '').replace(/^page-/, '') || 'home';
+    var activeEvidence = null;
+    try { activeEvidence = window.AIO && window.AIO.getPageEvidenceState ? window.AIO.getPageEvidenceState(activeId) : null; } catch(_) {}
+    if (activeEvidence) {
+      pageAudit = {
+        status: activeEvidence.caveat ? 'pass' : 'warn',
+        pageCount: 1,
+        missingCaveat: activeEvidence.caveat ? [] : [activeId],
+        liveOverstatement: [],
+        rows: [Object.assign({ pageId: activeId }, activeEvidence)]
+      };
+    }
+    pipelineAudit = {
+      status: meta && meta.generatedAt ? 'ok' : 'warn',
+      issues: meta && meta.generatedAt ? [] : ['public-data metadata pending']
+    };
+  }
 
   var blockers = [];
   var warnings = [];
@@ -6262,12 +6300,15 @@ function _aioBuildPublicShareReadiness() {
     weakPages: weakPages,
     blockers: blockers,
     warnings: warnings,
-    generatedAt: new Date().toISOString()
+    generatedAt: new Date().toISOString(),
+    auditMode: detailed ? 'detailed' : 'runtime'
   };
 }
 window._aioBuildPublicShareReadiness = _aioBuildPublicShareReadiness;
 window.AIO = window.AIO || {};
-window.AIO.getPublicShareReadiness = _aioBuildPublicShareReadiness;
+window.AIO.getPublicShareReadiness = function(opts) {
+  return _aioBuildPublicShareReadiness(Object.assign({ full: true }, opts || {}));
+};
 window.AIO.getServerMarketAnalysis = function() {
   var m = window._serverMarketAnalysis || null;
   return m ? {
@@ -6283,7 +6324,9 @@ function _aioRenderPublicReadiness() {
   try {
     var el = document.getElementById('aio-public-readiness');
     if (!el) return;
-    var m = _aioBuildPublicShareReadiness();
+    var activePage = document.querySelector('.page.active');
+    if (activePage && activePage.id !== 'page-home') return;
+    var m = _aioBuildPublicShareReadiness({ full: false });
     var issues = (m.blockers || []).concat(m.warnings || []).slice(0, 4);
     var rows = (m.pageEvidenceRows || []).slice(0, 8);
     var sourceHtml = rows.length ? (
@@ -6313,10 +6356,22 @@ function _aioRenderPublicReadiness() {
   } catch(_) {}
 }
 window._aioRenderPublicReadiness = _aioRenderPublicReadiness;
+var _aioPublicReadinessTimer = 0;
+function _aioSchedulePublicReadiness(delay) {
+  clearTimeout(_aioPublicReadinessTimer);
+  _aioPublicReadinessTimer = setTimeout(function() {
+    _aioPublicReadinessTimer = 0;
+    _aioRenderPublicReadiness();
+  }, Math.max(0, Number(delay) || 0));
+}
+window._aioSchedulePublicReadiness = _aioSchedulePublicReadiness;
 try {
-  window.addEventListener('aio:liveQuotes', function() { _aioRenderPublicReadiness(); });
-  window.addEventListener('aio:pageShown', function() { _aioRenderPublicReadiness(); });
-  setTimeout(function() { _aioRenderPublicReadiness(); }, 1500);
+  window.addEventListener('aio:liveQuotes', function() { _aioSchedulePublicReadiness(250); });
+  window.addEventListener('aio:pageShown', function(e) {
+    var pageId = e && e.detail && e.detail.pageId;
+    if (!pageId || pageId === 'home') _aioSchedulePublicReadiness(100);
+  });
+  _aioSchedulePublicReadiness(1500);
 } catch(_) {}
 
 // v50.24/WO-4: 부팅 후에도 탭을 열어두면 data.json을 30분마다 재로드 (boot-only 갭 해소).
@@ -9876,6 +9931,14 @@ async function autoTranslateNews(items) {
     }).join('\n\n');
 
     try {
+      // v52.76/WP-AI1: translation uses the same request envelope and final
+      // response pipeline as chat/retry. If the shared pipeline is absent,
+      // fail closed into the existing local/free translation fallback.
+      const _translationRequest = typeof _aioCreateAIRequestObject === 'function'
+        ? _aioCreateAIRequestObject('auto-translation', { ctxId: 'news-translation', query: prompt })
+        : null;
+      if (!_translationRequest || typeof _aioRunAIResponsePipeline !== 'function') throw new Error('AI response pipeline unavailable');
+      if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_translationRequest, 'claude-haiku-4-5-20251001');
       const resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
         method: 'POST',
         headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? { 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : '') } : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
@@ -9910,7 +9973,14 @@ ${prompt}`
       if (resp.ok) {
         const data = await resp.json();
         const text = data.content?.[0]?.text || '';
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        const _translationResult = _aioRunAIResponsePipeline(text, {
+          request: _translationRequest,
+          entrypoint: 'auto-translation',
+          ctxId: 'news-translation',
+          stripChips: false
+        });
+        if (_translationResult.blocked) throw new Error('AI translation blocked by public action policy');
+        const jsonMatch = _translationResult.text.match(/\[[\s\S]*\]/);
         if (jsonMatch) {
           try {
             const translations = JSON.parse(jsonMatch[0]);
@@ -11667,6 +11737,14 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '- 단순 사실 나열 금지 — E→M→I→A 없는 문단은 쓰지 마라';
 
   try {
+    // v52.76/WP-AI1: briefing shares the same request envelope and public
+    // response pipeline as both chat surfaces. A blocked result uses the
+    // existing deterministic fallback below.
+    var _briefingRequest = typeof _aioCreateAIRequestObject === 'function'
+      ? _aioCreateAIRequestObject('auto-briefing', { ctxId: 'briefing', query: newsText })
+      : null;
+    if (!_briefingRequest || typeof _aioRunAIResponsePipeline !== 'function') throw new Error('AI response pipeline unavailable');
+    if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_briefingRequest, 'claude-haiku-4-5-20251001');
     var resp = await (typeof _aioFetchClaudeWithRetry === 'function' ? _aioFetchClaudeWithRetry : fetch)(_ct.url, {
       method: 'POST',
       headers: Object.assign({ 'Content-Type': 'application/json' }, _ct.serverKey ? { 'X-AIO-App-Token': (typeof _aioAppToken === 'function' ? _aioAppToken() : '') } : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }),
@@ -11679,6 +11757,13 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     if (!resp.ok) { var _briefHttpErr = new Error('API ' + resp.status); _briefHttpErr.status = resp.status; throw _briefHttpErr; }
     var data = await resp.json();
     var aiText = data.content && data.content[0] ? data.content[0].text : '';
+    var _briefingResult = _aioRunAIResponsePipeline(aiText, {
+      request: _briefingRequest,
+      entrypoint: 'auto-briefing',
+      ctxId: 'briefing'
+    });
+    if (_briefingResult.blocked) throw new Error('AI briefing blocked by public action policy');
+    aiText = _briefingResult.text;
     if (!aiText) throw new Error('빈 응답');
 
     // 마크다운 → HTML 변환 (간단)
@@ -14393,7 +14478,10 @@ async function fetchLiveQuotes(requestedSymbols) {
     // v49.37 P282: live-quote-ts-topbar 동시 갱신 (영구 placeholder 잔존 차단)
     const lqTsTop = document.getElementById('live-quote-ts-topbar');
     if (lqTsTop) { lqTsTop.textContent = '● 클라 시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (' + allQuotes.length + '개)'; lqTsTop.className = 'freshness-badge fb-live'; }
-    try { if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') window.AIO.applyMarketCurrentnessGuard({ reason: 'live-quotes' }); } catch(_mcg) {}
+    try {
+      if (window.AIO && typeof window.AIO.scheduleMarketCurrentnessGuard === 'function') window.AIO.scheduleMarketCurrentnessGuard(250, 'live-quotes');
+      else if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') window.AIO.applyMarketCurrentnessGuard({ reason: 'live-quotes' });
+    } catch(_mcg) {}
   } else {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
     // v46.4: 지수적 백오프 (선형 30×N → 지수 15×2^N, 최대 300초)

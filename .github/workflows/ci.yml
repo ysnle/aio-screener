@@ -153,6 +153,9 @@ jobs:
       - name: Run AIO.runTests() headlessly
         run: node scripts/ci-headless-tests.mjs
 
+      - name: Enforce boot interaction performance budget
+        run: node scripts/ci-boot-interaction-check.mjs
+
   # v52.5x/WO-4: was report-only (continue-on-error: true, default FULL_INIT=0 — only swapped
   # .active classes, never called showPage()/rendered charts/fired events). CODEX-COMPREHENSIVE-
   # DIAGNOSIS-2026-07-10.md WO-4 flagged this as a real init QA gap (F-02): default 88/88 PASS was

@@ -2,10 +2,45 @@
 verified_by: agent
 last_verified: 2026-07-13
 confidence: high
-latest_version: v52.73
-latest_P_number: P688
-total_entries: 454
-next_P_number: P689
+latest_version: v52.77
+latest_P_number: P692
+total_entries: 458
+next_P_number: P693
+
+## P692 - v52.77 - typed claim/evidence validation was missing from the shared AI response boundary
+
+- **motivation**: WP-AI2 required current-sensitive model claims to preserve metric, value, unit, scale, direction, as-of, source, and evidence identity. The existing typed provenance envelope described inputs, but the model output had no claim schema or claim-to-evidence cardinality/value validation.
+- **root_cause**: The common WP-AI1 response pipeline only applied the public action gate. Structured claims could therefore carry F&G/VIX confusion, NFP 10x scaling, bp/percent conversion, sign inversion, FX direction inversion, or current values without a named Evidence item.
+- **fix**: Added `wp-ai2.claim.v1`, typed claim normalization, balanced JSON envelope extraction, claim/evidence matching, current-sensitive evidence requirements, and shared `claimAudit` fail-closed handling. Per-page and unified paths pass their injected quote Evidence into the same pipeline; the common prompt now includes the output contract.
+- **violated_rule**: Handoff WP-AI2 typed evidence/claim acceptance gate; the gap was a missing enforcement boundary rather than a second validator path.
+- **prevention**: T941~T949 cover F&G/VIX, NFP 10x, bp/percent, direction sign, FX inversion, missing Evidence, nested JSON parsing, and shared-pipeline blocking. `ci-runtime-contract-check.mjs` keeps the schema, caller wiring, and fixtures present.
+- **verification**: `node --check` for core/chat/tests/runtime contract, version sync, and Chromium offline headless `1010/1010 PASS` with no skip-list-outside failures. Live Pages/Worker/model response certification remains unverified.
+
+## P691 - v52.76 - AI 공개 진입점이 공통 요청/응답 계약 없이 각 경로의 완료·재시도·자동 콘텐츠 처리를 따로 수행
+
+- **motivation**: AI 감사 WP-AI1은 per-page/unified/retry/translation/briefing/server-analysis가 하나의 요청 객체와 검증 버전을 공유해야 하며, entrypoint별 우회 경로를 허용하지 않는다고 명시했다.
+- **root_cause**: WP-AI0 action gate는 공개 채팅 렌더 경계에 연결됐지만, per-page retry callback은 별도 inline callback이었고 unified retry도 자체 완료 경로를 유지했다. 자동 번역과 브리핑은 직접 모델 텍스트를 JSON/HTML로 소비해 동일한 응답 계약과 버전 기록이 없었다. briefing은 unified context map에는 있었지만 기본 `CHAT_CONTEXTS`가 없어 route가 조용히 중단될 수 있었다.
+- **fix**: `_aioCreateAIRequestObject`/`_aioBeginAIRequestAttempt`/`_aioRunAIResponsePipeline`을 추가해 pipeline·validator·block-policy 버전과 attempt를 공통 envelope로 기록했다. per-page/unified initial/retry가 동일 completion callback/request를 사용하고, 번역·브리핑도 같은 pipeline을 통과하며 pipeline 부재/action 차단 시 기존 local/deterministic fallback으로 fail-closed 한다. bounded audit manifest에는 raw model text를 저장하지 않는다. `CHAT_CONTEXTS.briefing`을 evidence-first context로 추가했다.
+- **violated_rule**: 핸드오프 §15/§24의 single truth/single response path 및 parallel validator 금지 원칙이 WP-AI0 이후에도 자동 콘텐츠·retry entrypoint까지 확장되지 않은 구현 공백. R310을 공통 pipeline 기록 규칙으로 확장한다.
+- **prevention**: T937–T940이 공통 envelope 버전/attempt/audit, briefing context, 네 진입점의 pipeline 사용을 고정한다. `ci-runtime-contract-check.mjs`가 callback 재사용·retry request 재사용·translation/briefing fail-closed wiring을 검사한다.
+- **verification**: 변경 JS 문법, version/runtime/structural/data-pipeline/semantic contract 통과. 최종 Chromium headless `1001/1001 PASS`, critical10 `10 routes/consoleErrors 0`, accessibility `22 routes/consoleErrors 0`, portfolio vault `PFE2-01~08 PASS`, viewport `88/88·worstOverflow 0px·jsErrors 0`, boot `FCP 1504ms·route 96ms·maxLongTask 1119ms`. Pages/Worker live 응답·실제 모델 출력·배포는 미검증/미실행.
+
+## P690 - v52.75 - AI 채팅 감사에서 경고만 하던 응답 검증과 생성 성공만 확인하던 자동 시장분석이 공개 표면의 안전 경계를 우회
+
+- **motivation**: `AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md`의 WP-AI0 + 데이터 WP-0을 실행했다. 감사는 AI가 독립 투자자문·검증 시스템처럼 보이지 않아야 하고, 구체 매수·매도·비중·손절·목표가와 검증되지 않은 marketAnalysis를 P0에서 차단해야 한다고 명시했다.
+- **root_cause**: per-page와 unified 채팅 모두 응답 정확성/구조 검증 실패를 배지·경고로만 표시하고 렌더를 계속했다. retry callback은 더 짧은 경로로 다시 렌더해 같은 검증을 우회할 수 있었다. `marketAnalysisOk`도 LLM 생성 성공만 의미해 의미 검증을 거치지 않은 원문이 sink 우선 경로가 될 수 있었다. 공개 헤더에는 AI 분석가·기관 스타일 표현이 남아 있었다.
+- **fix**: `js/aio-chat.js`에 공통 `AI 베타 · 교육/리서치 보조` 정책, 구체 action gate, 기준시각/Evidence/원천 재확인 disclosure를 추가하고 streaming·완료·retry의 양쪽 경로에 연결했다. 차단 전 원문은 assistant history/chips에 저장하지 않는다. `marketAnalysisSemanticOk` 또는 명시적 `status: verified`가 없으면 server LLM prose를 sink에서 제외하고 deterministic synthesis로 폴백한다. 공개 패널·임베디드 헤더도 beta/research wording으로 표기했다.
+- **violated_rule**: R306/R347 계열의 기존 evidence/action 분리 원칙이 실제 공개 render boundary에서 강제되지 않은 구현 공백. 신규 R310으로 render/retry/history/auto-prose 계약을 승격했다.
+- **prevention**: T932–T936가 concrete action/강한 방향성 문구 차단·교육성 답변 허용·disclosure 메타·unverified marketAnalysis 폴백을 고정한다. `ci-runtime-contract-check.mjs`가 양쪽 경로, public label, semantic gate, fixtures 연결을 blocking 정적 계약으로 확인한다.
+- **verification**: `node --check js/aio-chat.js js/aio-data.js js/aio-core.js` 통과, `node scripts/ci-runtime-contract-check.mjs` 통과, Chromium offline headless `997/997 PASS`. GitHub Pages/Worker live response와 실제 모델 답변은 이번 패킷에서 미검증이며 배포하지 않았다.
+
+## P689 - v52.74 - 일반 방문자 부팅에서 배포·공유 준비도 전체 감사를 반복 실행해 초기 페이지 이동이 수 초간 멈춤
+
+- **motivation**: 첫 접속 직후 다른 페이지를 클릭할 수 없을 정도로 메인 스레드가 멈췄다. 로딩 표시만 추가해서는 실제 대기와 입력 차단이 해결되지 않으므로 앱 셸/핵심 데이터/점진 로드 구조와 3초 강제 해제 계약이 필요했다.
+- **root_cause**: 홈 Public Status 렌더러가 부팅·라이브 시세·모든 `aio:pageShown` 이벤트마다 `getShareReadinessAudit()`를 호출했다. 이 함수는 배포 게이트, 운영 준비도, full-surface Evidence 감사를 연쇄 호출해 약 3.8만 DOM 노드와 22개 페이지 텍스트를 반복 순회했다. 현재성 가드도 document 전체를 여러 시점에 재검사했고 자동 운영 감사가 일반 방문자 경로에서 실행됐다. GitHub Pages 서버 부재가 주원인이 아니라 2.2MB 문서 파싱 뒤 메인 스레드에서 수행한 전체 감사 작업이 원인이었다.
+- **fix**: Public Status의 일반 런타임 경로는 이미 materialize된 활성 페이지 Evidence와 `_serverDataMeta`만 읽는 경량 모델로 분리하고, 전체 공유/배포 감사는 명시적 API·`aioAudit=1`·개발자 모드에서만 실행한다. 이벤트 렌더는 홈에서만 debounce한다. 현재성 검사는 `.page.active` 범위로 제한하고 DOM read/write를 배치했으며, 6초/18초 전체 재스캔을 제거했다. 운영 감사 자동 push도 light 모드가 기본이다. 비차단 부팅 상태 배너와 3초 hard-release를 추가했다.
+- **prevention**: `PERF-BOOT-01~05` 정적 계약과 실제 Chromium `ci-boot-interaction-check.mjs`를 CI에 추가했다. FCP 2.5초, 첫 라우트 2초, 최대 long task 2.5초, 3초 상태창 해제 및 목적 페이지 활성화를 blocking gate로 검증한다.
+- **verification**: 동일 로컬/offline 조건에서 FCP 1.44초, DCL 1.40초, load 2.46초, 첫 `showPage('signal')` 92ms, 최대 long task 1.11초. 수정 전 load 13.96초, 첫 이동 5.89초, 최대 long task 7.67초였다. `node --check`, runtime/structural/headless 및 신규 boot interaction gate로 회귀 검증.
 
 ## P688 - v52.73 - P687's "fundamental/market-news/screener already comp-compliant, polish only" claim was the same self-assessment error a second time — user caught it directly, all 3 needed real structural rebuilds, plus portfolio(4a)'s remaining non-comp sections were still in old box style
 

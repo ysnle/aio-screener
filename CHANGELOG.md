@@ -1,3 +1,49 @@
+## v52.77 (2026-07-13)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.77
+
+## v52.77 (2026-07-13) — WP-AI2 typed claim/evidence
+
+AI 감사 핸드오프의 WP-AI2 typed claim/evidence 계약을 공통 AI 응답 파이프라인에 연결했다.
+
+- `js/aio-core.js`에 `wp-ai2.claim.v1` 스키마와 claim/evidence 정규화·검증을 추가했다. 현재성 주장에는 정확히 하나의 Evidence를 요구한다.
+- F&G↔VIX, NFP 10배, bp↔%, 방향 부호, USD/KRW 역전, Evidence 누락을 fail-closed로 차단하고 중첩 claims JSON을 균형 괄호 파서로 추출한다.
+- per-page/unified 초기·streaming·retry 응답이 동일 `_aioRunAIResponsePipeline`에 Evidence와 `claimAudit`를 전달한다. T941~T949와 WP-AI2 runtime contract를 추가했다.
+- 검증: `node --check` 4개 파일, runtime/version contract, Chromium headless `1010/1010 PASS`; 상태 `VERIFIED_LOCAL`.
+
+## v52.76 (2026-07-13)
+
+AI 감사 WP-AI1을 로컬 구현했다. per-page/unified 채팅, 재시도, 자동 번역, 자동 브리핑이 동일한 요청 envelope와 응답 파이프라인을 사용한다.
+
+- `_aioCreateAIRequestObject`가 entrypoint·requestId·attempt·pipeline/validator/block-policy 버전을 기록하고, `_aioRunAIResponsePipeline`이 기존 WP-AI0 action gate를 공통 응답 경계로 재사용한다. 원문 모델 텍스트는 audit manifest에 저장하지 않으며 최근 100건만 유지한다.
+- per-page/unified 채팅 retry가 동일한 completion callback과 request object를 재사용한다. streaming/final/history/chips는 동일한 gated text를 기준으로 동작한다.
+- 자동 번역과 자동 브리핑도 공통 파이프라인을 통과하며, 공통 파이프라인이 없거나 공개 action 정책에 걸리면 기존 무료 번역/결정론적 브리핑 fallback으로 fail-closed 한다.
+- `CHAT_CONTEXTS.briefing`을 추가해 unified briefing route의 undefined context 경로를 제거했다.
+- 회귀 계약 T937–T940 및 WP-AI1 runtime contract를 추가했다.
+- 검증: `node --check` 변경 JS 3개, version/runtime/structural/data-pipeline/semantic contract 통과, Chromium headless `1001/1001 PASS`, critical10 `10 routes/consoleErrors 0`, accessibility `22 routes/consoleErrors 0`, portfolio vault `PFE2-01~08 PASS`, viewport `88/88·worstOverflow 0px·jsErrors 0`, boot `FCP 1504ms·route 96ms·maxLongTask 1119ms`.
+- 상태: `VERIFIED_LOCAL`; GitHub Pages/Worker live 응답, 실제 모델 출력, 공개 배포는 미검증/미실행.
+
+## v52.75 (2026-07-13)
+
+AI 채팅 감사 핸드오프의 1순위 WP-AI0 + 데이터 WP-0을 로컬 구현했다.
+
+- 공개 AI 표면을 `AI 베타 · 교육/리서치 보조`로 표시하고, 기준시각·Evidence 상태·원천/원문 재확인 안내를 공통 disclosure로 추가했다.
+- 임베디드/통합 채팅의 스트리밍·완료·재시도 결과에 동일한 구체 매수·매도·비중·손절·목표가 action gate를 적용했다. 차단 전 원문은 assistant history/chips에 저장하지 않는다.
+- `marketAnalysisOk` 생성 성공만으로 서버 LLM 문장을 공개하지 않도록 `marketAnalysisSemanticOk`/`status: verified` 명시 게이트를 추가하고, 미검증 문장은 deterministic synthesis로 폴백한다.
+- 회귀 계약 T932–T936 및 CI runtime contract를 추가했다.
+- 로컬 검증: `node --check` 3개 모듈 통과, runtime contract 통과, Chromium headless `997/997 PASS`.
+- 핸드오프 packet 상태: `IMPLEMENTED_LOCAL`; 실제 배포/라이브 인증 및 WP-AI1 이후 단일 파이프라인 통합은 미검증/후속 범위다.
+
+## v52.74 (2026-07-13)
+
+첫 접속 직후 메뉴와 페이지 전환이 수 초간 멈추던 P689를 구조적으로 수정했다. 로딩창으로 시간을 가리는 방식이 아니라 일반 사용자 부팅에서 배포·공유 전수 감사를 제거하고, 활성 페이지 핵심 상태만 우선 반영하는 점진 부팅 경로로 분리했다.
+
+- Public Status는 일반 런타임에서 활성 페이지의 materialized Evidence와 서버 데이터 메타만 사용한다. 22개 페이지/full-surface/배포 준비도 감사는 명시적 API·`aioAudit=1`·개발자 모드에서만 실행한다.
+- 현재성 가드는 활성 페이지로 scope하고 DOM read/write를 배치했다. 라이브 시세 이벤트는 debounce하며 6초/18초 document 전체 재스캔을 제거했다.
+- 비차단 부팅 상태 배너(`pointer-events:none`)를 추가했고 3초에 강제 해제한다. 홈 핵심 데이터 수신 후 즉시 완료할 수 있고 지연 데이터는 백그라운드 상태로 전환한다.
+- 실제 Chromium 성능 게이트 `scripts/ci-boot-interaction-check.mjs`를 CI에 연결했다. 동일 로컬/offline 조건에서 수정 전→후: load 13.96초→2.46초, 최초 signal 전환 5.89초→92ms, 최대 long task 7.67초→1.11초, FCP 1.44초.
+- `PERF-BOOT-01~05` 정적 계약, syntax/runtime/structural/headless 및 Chromium 성능 예산을 회귀 게이트로 보강했다.
+
 ## v52.73 (2026-07-13)
 
 사용자가 재확인 질문("13개 페이지는 시안 그대로 이식한거지?")에 이어 직접 지적: v52.72에서 fundamental(3f)/market-news(4b)/screener(4c) 3개를 "이미 comp와 정합적"이라며 헤더/토큰 폴리싱만 하고 넘어간 것이 동일 패턴의 반복 실수였음(기존 구현이 더 정교하다는 것은 재구축을 건너뛸 이유가 아님). 3개 페이지 전부 실제 구조 재구축 + portfolio(4a) 잔여 구섹션 3개 통합 + macro(3d) 폴드 라벨 정확화.

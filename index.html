@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.73 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.77 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4359,14 +4359,14 @@ body.dark-theme .nav-item.kr-item.active { background: rgba(255,255,255,0.07) !i
   }
 }
 
-/* v49.88: 부팅 로더 — 첫 접속 시 라이브 데이터 수신 전 비침습 상단 배너 */
+/* 초기 부팅 상태 — 앱 셸을 가리지 않고 클릭을 막지 않는 상단 상태 배너 */
 #aio-boot-loader {
   position: fixed; top: 0; left: 50%; transform: translateX(-50%);
   z-index: 99999; display: flex; align-items: center; gap: 8px;
   padding: 7px 16px; margin-top: 8px;
-  background: rgba(10,14,20,0.94); border: 1px solid rgba(33,29,22,0.35);
+  background: rgba(251,249,245,0.97); border: 1px solid rgba(33,29,22,0.28);
   border-radius: 0 0 10px 10px; box-shadow: 0 4px 18px rgba(0,0,0,0.45);
-  font-size: 12px; color: var(--text-primary, #8a8271);
+  font-size: 12px; color: var(--text-primary, #211d16);
   pointer-events: none; max-width: 92vw;
   animation: aioBootSlideIn 0.4s ease-out;
 }
@@ -5099,7 +5099,47 @@ button[data-filter-active="true"] {
 </style>
 </head>
 <body>
-  <!-- v50.31: v49.88 부팅 로더 제거 — v50.23 서버 data.json 즉시 로드로 "첫 수신 갭"이 사라져 존재 이유 소멸. topbar 갱신 칩과 중복 + 부팅 시 topbar 위 겹침(사용자 스크린샷). -->
+  <div id="aio-boot-loader" role="status" aria-live="polite" aria-atomic="true">
+    <span class="aio-boot-spinner" aria-hidden="true"></span>
+    <span class="aio-boot-txt">
+      <strong id="aio-boot-title">화면을 준비하고 있습니다</strong>
+      <span id="aio-boot-sub">메뉴는 준비되는 즉시 사용할 수 있습니다.</span>
+      <span class="aio-boot-bar" aria-hidden="true"><span id="aio-boot-bar-fill"></span></span>
+    </span>
+  </div>
+  <script>
+  (function() {
+    var loader = document.getElementById('aio-boot-loader');
+    var title = document.getElementById('aio-boot-title');
+    var sub = document.getElementById('aio-boot-sub');
+    var bar = document.getElementById('aio-boot-bar-fill');
+    var closed = false;
+    function closeBootLoader(message) {
+      if (closed || !loader) return;
+      closed = true;
+      if (message && title) title.textContent = message;
+      if (sub) sub.textContent = '시장 데이터는 화면별로 계속 갱신됩니다.';
+      if (bar) bar.style.width = '100%';
+      loader.classList.add('aio-boot-hide');
+      setTimeout(function() { if (loader && loader.parentNode) loader.parentNode.removeChild(loader); }, 550);
+    }
+    window.AIO_BOOT = {
+      ready: closeBootLoader,
+      progress: function(pct, message) {
+        if (closed) return;
+        if (bar) bar.style.width = Math.max(0, Math.min(100, Number(pct) || 0)) + '%';
+        if (message && sub) sub.textContent = message;
+      }
+    };
+    if (bar) bar.style.width = '18%';
+    document.addEventListener('DOMContentLoaded', function() {
+      if (bar) bar.style.width = '78%';
+      requestAnimationFrame(function() { requestAnimationFrame(function() { closeBootLoader('화면 준비 완료'); }); });
+    }, { once:true });
+    window.addEventListener('aio:liveDataReceived', function() { closeBootLoader('화면 준비 완료'); }, { once:true });
+    setTimeout(function() { closeBootLoader('화면 준비 완료'); }, 3000);
+  })();
+  </script>
   <!-- v34.9: 다크/라이트 테마 토글 -->
   <button class="theme-toggle-btn" id="theme-toggle" data-action="toggleTheme" title="다크/라이트 테마 전환" aria-label="테마 전환"></button>
   <a href="#main-content" class="skip-link">메인 콘텐츠로 건너뛰기</a>
@@ -5401,7 +5441,7 @@ button[data-filter-active="true"] {
           <!-- v48.43: VIX 톱바 배지 -->
           <span data-vix-badge class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;">VIX —</span>
           <!-- v48.43: AI 분석가 버튼 -->
-          <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 분석가 열기/닫기" title="AI 분석가 사이드바">AI 분석가</button>
+          <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 베타 열기/닫기" title="AI 베타 · 교육/리서치 보조 사이드바">AI 베타</button>
           <!-- v48.43: 새로고침 (primary 강조) -->
           <button id="topbar-refresh-btn" class="aio-btn-table primary" data-action="_aioGlobalRefresh">↻ 새로고침</button>
           <span id="data-status-panel" style="display:none;font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;" title="연결된 API 상태"></span>
@@ -5445,7 +5485,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.73</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.77</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -6689,7 +6729,7 @@ button[data-filter-active="true"] {
 
   <!-- SECTION 6: AI Chat Panel -->
   <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;color:var(--text-muted);font-size:11px;margin-bottom:16px;">
-    시장 폭에 대한 질문이 있으신가요? AI 분석가와 대화해보세요.
+    시장 폭에 대한 질문이 있으신가요? AI 베타 교육·리서치 보조와 대화해보세요.
   </div>
 
 </div>
@@ -12721,9 +12761,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.73" defer></script>
-  <script src="./js/aio-data.js?v=52.73" defer></script>
-  <script src="./js/aio-ui.js?v=52.73" defer></script>
+  <script src="./js/aio-core.js?v=52.77" defer></script>
+  <script src="./js/aio-data.js?v=52.77" defer></script>
+  <script src="./js/aio-ui.js?v=52.77" defer></script>
 
   <script>
 
@@ -16069,7 +16109,7 @@ function _getChatRules() {
 
   // v48.79: AI 채팅 행동 원칙 — 정확성 최우선·아첨 금지
   '77. 【AI 채팅 행동 원칙 — 정확성 최우선·아첨 금지 (v48.79)】\n' +
-  '  [세계 최고 수준 전문가] 이 채팅의 AI는 세계 최고 수준의 투자 전략가처럼 답한다. 월가 헤지펀드 CIO가 자신의 포트폴리오에 대해 솔직하게 말하는 방식으로 답하라. "어느 정도 알고 있다"는 수준이 아니라, 최고의 분석 깊이와 직접성으로 답하라. 확신 있으면 확신 있게, 불확실하면 불확실하다고 명시하라.\n' +
+  '  [리서치 보조 품질] 이 채팅의 AI는 깊이 있는 투자 교육·리서치 보조처럼 답한다. 근거와 한계를 분리하고, 확신 있으면 근거를 제시하며 불확실하면 확인 필요로 명시하라. 독립 투자자문처럼 말하지 마라.\n' +
   '  [아첨·찬사 절대 금지] "좋은 질문입니다", "훌륭한 관점이네요", "맞습니다", "정확합니다" 같은 공허한 찬사를 절대 사용하지 마라. 첫 단어가 찬사이면 즉시 삭제하라. 사용자가 기분 좋아질 말이 아니라 사용자가 돈을 잃지 않을 말을 하라. 아첨은 잘못된 투자를 확신시키는 가장 위험한 행동이다.\n' +
   '  [반론 선행 원칙] 사용자의 분석·포지션·판단이 틀렸다고 판단되면, 동의하거나 칭찬하기 전에 반론을 먼저 제시하라. "X를 고려하셨나요?"가 아니라 "이 분석은 X를 놓쳤습니다. 이유는 Y이고, 이것이 중요한 이유는 Z입니다"처럼 직접적으로 말하라. 사용자의 주장을 먼저 칭찬한 뒤 "그러나..."로 반론하는 구조는 금지다.\n' +
   '  [확신도 명시] 핵심 판단·예측·시나리오마다 확신도를 %(퍼센트)로 명시하라. 예: "단기 조정 가능성 (확신도 70%)" / "이 종목 6개월 목표가 $200 달성 가능성 (확신도 45%)". 확신도 없이 확정적 표현 금지. 데이터 부재 시 "데이터 없어 판단 불가"로 명시하라. 50%는 사실상 무지를 의미하므로, 50% 근방이면 "불확실 — 데이터 추가 확인 필요"로 표현하라.\n' +
@@ -16102,7 +16142,8 @@ function _getChatRules() {
   '• 금지 3: "약 $X~$Y대에서 베이스를 형성", "$X 부근에서 매수" 등 시스템 프롬프트에 가격이 없는데 추측 가격 언급\n' +
   '• 금지 4: "최근 발표", "이번 분기 실적", "지난 어닝" — [News]/[SEC 8-K]/[Earnings] 데이터 블록에 없는데 추측 인용\n' +
   '시세 데이터 표시 시 답변 전체에서 **모든 가격 수치 절대 금지**. "현재 시세 미수신으로 정량 분석 불가, 정성 프레임워크만 적용" 명시. 그 외 학습 시점 가격 일체 환각.\n' +
-  '데이터 부재 시 올바른 답변: "현재 데이터 블록에 [Price] 미주입 — 실시간 시세 새로고침 후 재질문 권장. 정성 분석만 가능: [Weinstein Stage]/[ATR Extension] 등 시스템 프레임워크 적용".\n';
+  '데이터 부재 시 올바른 답변: "현재 데이터 블록에 [Price] 미주입 — 실시간 시세 새로고침 후 재질문 권장. 정성 분석만 가능: [Weinstein Stage]/[ATR Extension] 등 시스템 프레임워크 적용".\n' +
+  (typeof _aioPublicAIActionPolicyPrompt === 'function' ? _aioPublicAIActionPolicyPrompt() : '');
 }
 
 // v49.68 P360 R126: 기관급 분석 프레임워크 8개 통합 — 14 CHAT_CONTEXTS 공통 주입 (사용자 "기관급 퀄리티" 요구)
@@ -16328,7 +16369,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.73" defer></script>
+<script src="./js/aio-chat.js?v=52.77" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -28833,7 +28874,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.73" defer></script>
+<script src="./js/aio-glossary.js?v=52.77" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -31776,16 +31817,17 @@ document.addEventListener('DOMContentLoaded', function() {
 </div><!-- /app -->
 
 <!-- ai-panel: .app 외부 (body 직계 자식) — position:fixed가 overflow:hidden 조상 영향 받지 않도록 (v42.2) -->
-<div id="ai-panel" role="complementary" aria-label="AI 분석가 채팅 패널" style="transform:translateX(100%)" aria-hidden="true">
+<div id="ai-panel" role="complementary" aria-label="AI 베타 교육·리서치 보조 채팅 패널" style="transform:translateX(100%)" aria-hidden="true">
   <div class="ai-ph">
-    <span class="ai-ph-title" id="ai-panel-title">AI 분석가</span>
-    <span class="ai-ph-badge" id="ai-panel-badge">AI 분석가</span>
+    <span class="ai-ph-title" id="ai-panel-title">AI 베타</span>
+    <span class="ai-ph-badge" id="ai-panel-badge">BETA · 교육/리서치 보조</span>
     <button class="ai-ph-close" data-action="toggleAIPanel" aria-label="닫기">×</button>
   </div>
+  <div id="ai-panel-policy" data-ai-public-policy="beta-research" style="margin:0 10px 8px;padding:6px 8px;border-left:2px solid var(--data-amber);background:rgba(255,163,26,0.07);color:var(--text-muted);font-size:10px;line-height:1.45;">AI 베타 · 교육/리서치 보조 · 수치와 출처는 기준시각·Evidence 상태를 확인하세요. 구체적 매매 지시는 제공하지 않습니다.</div>
   <div id="ai-panel-msgs"></div>
   <div id="ai-panel-chips" class="ai-chips"></div>
   <div class="ai-input-row">
-    <input id="ai-panel-inp" aria-label="AI 분석가에게 질문" placeholder="질문하세요..." data-on-enter="chatSendUnified"/>
+    <input id="ai-panel-inp" aria-label="AI 베타에게 교육·리서치 질문" placeholder="교육·리서치 질문을 입력하세요..." data-on-enter="chatSendUnified"/>
     <button id="ai-panel-btn" data-action="chatSendUnified">전송</button>
   </div>
 </div>
@@ -31915,7 +31957,7 @@ function toggleAIPanel() {
     p.classList.remove('open');
     if (app && window.innerWidth > 768) { app.style.maxWidth = ''; app.style.width = ''; }
     p.setAttribute('aria-hidden', 'true');
-    if (btn) { btn.classList.remove('active'); btn.textContent = 'AI 분석가'; btn.setAttribute('aria-expanded', 'false'); }
+    if (btn) { btn.classList.remove('active'); btn.textContent = 'AI 베타'; btn.setAttribute('aria-expanded', 'false'); }
   } else {
     p.style.transform = 'translateX(0)';
     p.style.boxShadow = '-8px 0 32px rgba(0,0,0,0.4)';
@@ -31969,7 +32011,7 @@ function updateAIPanelContext(pageId) {
       msgsEl.innerHTML = '<div class="ai-no-ctx" style="text-align:center;padding:32px 20px;color:var(--text-muted);font-size:12px;line-height:1.6;">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
     }
     var titleEl = document.getElementById('ai-panel-title');
-    if (titleEl) titleEl.textContent = 'AI 분석가';
+    if (titleEl) titleEl.textContent = 'AI 베타';
     var chipsEl = document.getElementById('ai-panel-chips');
     if (chipsEl) chipsEl.innerHTML = '';
     return;
@@ -31979,8 +32021,9 @@ function updateAIPanelContext(pageId) {
   _aiCurrentCtx = ctxId;
   var titleEl = document.getElementById('ai-panel-title');
   var badgeEl = document.getElementById('ai-panel-badge');
-  if (titleEl) titleEl.textContent = chatContexts[ctxId].title || 'AI';
-  if (badgeEl) badgeEl.textContent = pageId;
+  var _ctxPublicTitle = String(chatContexts[ctxId].title || '리서치').replace(/^AI\s*/i, '').replace(/분석가/g, '리서치');
+  if (titleEl) titleEl.textContent = 'AI 베타 · ' + _ctxPublicTitle;
+  if (badgeEl) badgeEl.textContent = 'BETA · 교육/리서치 보조';
   // 메시지 이력 복원
   var msgsEl = document.getElementById('ai-panel-msgs');
   if (msgsEl) {
@@ -32323,12 +32366,12 @@ async function chatSendUnified() {
   sysPrompt += '6. 네 기억 속 주가/실적 수치는 거의 100% 오래된 것. 주입된 [주가 추이]·[실시간 시세]·[웹검색]만 현재값으로 취급.\n';
 
   // v48.12: 기관 리서치 스타일 답변 구조 — 단편적 의견 대신 논리적 투자 리서치 형태
-  sysPrompt += '\n【기관 애널리스트 스타일 답변 구조 — 종목 질문 시】\n';
-  sysPrompt += '골드만·JP모건·버핏·아크인베스트·월가 애널리스트처럼 논리적 이유·근거와 함께 설명하라. 단순 의견("좋다/나쁘다") 금지. 다음 6단계 프레임워크를 반드시 따르되, 데이터 항목은 생략하고 솔직히 표기:\n';
+  sysPrompt += '\n【근거 중심 교육·리서치 답변 구조 — 종목 질문 시】\n';
+  sysPrompt += '특정 기관이나 투자자의 권위를 빌리지 말고, 논리적 이유·근거와 함께 설명하라. 단순 의견("좋다/나쁘다") 금지. 다음 6단계 프레임워크를 따르되, 데이터 항목은 생략하고 솔직히 표기:\n';
   sysPrompt += '① **현재 상황** (한 줄 요약): 가격 · [주가 추이] 라벨 · 최근 주요 변화\n';
   sysPrompt += '② **투자 스토리/내러티브**: 이 기업이 왜 시장 관심인가 — 핵심 비즈니스, 성장 동력, 해자(moat — 네트워크 효과·전환비용·규모의 경제·브랜드·지적재산), 속한 테마(AI/반도체/2차전지 등)\n';
   sysPrompt += '③ **재무·밸류에이션**: 주입된 PER/ROE/매출성장/FCF를 섹터 평균 대비 평가. "비싸다/싸다"가 아니라 "왜 그 수준인가"\n';
-  sysPrompt += '④ **Bull Case (낙관)**: 목표가 상단 + 달성 조건(구체적 KPI·이벤트). 예: "FOMC 금리인하 + Q3 어닝 10% 상회 시 목표 $X"\n';
+  sysPrompt += '④ **Bull Case (낙관)**: 상승 시나리오 + 달성 조건(구체적 KPI·이벤트). 가격 목표나 매매 지시는 제시하지 마라.\n';
   sysPrompt += '⑤ **Bear Case (비관)**: 하락 시나리오 + 트리거. 예: "경쟁사 XYZ 점유율 탈환 시 섹터 리레이팅"\n';
   sysPrompt += '⑥ **핵심 카탈리스트 + 리스크 + 깨지는 신호**: 향후 3~6개월 주가 방향 결정 요소 3~5개. [다음 어닝] [애널리스트 컨센서스] 반영. 깨지는 신호("이 지표가 X 돌파하면 판단 재검토") 명시.\n';
   sysPrompt += '규칙: 주입된 [실시간 시세] [주가 추이] [뉴스] [애널리스트 컨센서스] [다음 어닝] [재무 FMP] [웹검색]을 **모두 교차 참조**. "~카더라" "일반적으로" 같은 두루뭉실 금지. 항상 숫자·시점·출처로 근거 제시. 인사이트의 핵심("이 종목에서 지금 가장 중요한 한 가지")을 먼저 명시.\n';
@@ -32360,6 +32403,9 @@ async function chatSendUnified() {
     modelOpts.webSearch = true;
   }
 
+  // v52.75/WP-AI0: keep the public safety policy last after optional web-search instructions.
+  if (typeof _aioPublicAIActionPolicyPrompt === 'function') sysPrompt += _aioPublicAIActionPolicyPrompt();
+
   // v46.10: 웹검색 수행 시 검색 알림 배지
   if (_uniWebResult) {
     var _engBadge = _uniWebResult.engine === 'perplexity' ? 'Perplexity' : 'Google';
@@ -32377,12 +32423,21 @@ async function chatSendUnified() {
   state.streaming = true;
   state._streamStartedAt = Date.now();
 
+  // v52.76/WP-AI1: one request object survives initial call and retries.
+  var _uniAIRequest = typeof _aioCreateAIRequestObject === 'function'
+    ? _aioCreateAIRequestObject('unified-chat', { ctxId: ctxId, query: q, model: selectedModelKey })
+    : null;
+  if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, selectedModelKey);
+
   // v46.10: chatSend()와 동일한 onChunk/onDone/onError + 재시도/폴백 완전 이식
   var _uniOnChunk = function(fullText) {
     var loadEl = document.getElementById('ai-panel-loading');
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
-    var visible = stripChips(fullText);
+    var _uniChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
+      ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, entrypoint: 'unified-chat', ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: (_uniFreshPreflight && _uniFreshPreflight.after && _uniFreshPreflight.after.quoteRows) || [], record: false })
+      : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
+    var visible = _uniChunkResult.text;
     if (aiBubble) aiBubble.innerHTML = renderMarkdownLight(visible) + '<span style="color:var(--accent);animation:blink 0.7s infinite;">|</span>';
     var msgsEl = document.getElementById('ai-panel-msgs');
     if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
@@ -32396,10 +32451,14 @@ async function chatSendUnified() {
     var loadEl = document.getElementById('ai-panel-loading');
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     var streamEl = document.getElementById('ai-panel-streaming');
-    var visible = stripChips(fullText);
+    var _uniDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
+      ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, entrypoint: 'unified-chat', ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: (_uniFreshPreflight && _uniFreshPreflight.after && _uniFreshPreflight.after.quoteRows) || [] })
+      : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
+    var visible = _uniDoneResult.text;
+    var _publicGate = _uniDoneResult.actionGate;
     if (streamEl) { streamEl.id = ''; streamEl.querySelector('.ai-bubble').innerHTML = renderMarkdownLight(visible); }
     else if (!aiBubble) { _appendAIMsg('ai', renderMarkdownLight(visible)); }
-    state.messages.push({ role: 'assistant', content: fullText });
+    state.messages.push({ role: 'assistant', content: visible });
 
     // v46.10: 모델 배지
     var _bubbleParent = (streamEl || (aiBubble ? aiBubble.parentNode : null));
@@ -32409,6 +32468,9 @@ async function chatSendUnified() {
       badgeEl.style.cssText = 'font-size:11px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:2px 0 0;opacity:0.6;';
       badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
       _bubbleParent.appendChild(badgeEl);
+      if (typeof _aioAppendAIPublicDisclosure === 'function') {
+        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate });
+      }
 
       // v46.10: 데이터 신뢰도 배지
       var _srcBadge = document.createElement('div');
@@ -32447,7 +32509,7 @@ async function chatSendUnified() {
     // v46.10: 대화 기록 저장
     if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
 
-    var newChips = extractChips(fullText);
+    var newChips = extractChips(visible);
     if (newChips.length > 0) {
       var chipsEl = document.getElementById('ai-panel-chips');
       if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + escHtml(c) + '</div>'; }).join('');
@@ -32472,8 +32534,9 @@ async function chatSendUnified() {
       }
       setTimeout(function() {
         try {
+          if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, nextModel);
           callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone,
-            function(e2) { state.streaming = false; state._streamStartedAt = null; state._retryCount = 0; if (btn) { btn.disabled = false; btn.textContent = '전송'; } _appendAIMsg('ai', '<span style="color:var(--data-red);">' + renderMarkdownLight(e2) + '</span>'); },
+            _uniOnError,
             { modelKey: nextModel }
           );
         } catch(rtEx) {

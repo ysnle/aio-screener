@@ -2,9 +2,36 @@
 verified_by: agent
 last_verified: 2026-07-12
 confidence: high
-target_version: v52.62
+target_version: v52.77
 
 ---
+
+## R312. Structured current-sensitive AI claims must preserve typed Evidence identity and fail closed on mismatch (v52.77, P692)
+
+**Rule**: A model-generated current-sensitive claim is not publishable merely because it contains a number. It must carry metric, value, unit, scale, direction, as-of, source/sourceKind, and exactly one evidenceId that resolves to the same metric/unit/scale/value/direction evidence row. Unstructured prose remains subject to the existing public action/freshness gates; structured claim envelopes additionally pass the shared WP-AI2 claim audit.
+
+**Required**: Reuse the common `_aioRunAIResponsePipeline`; do not create a parallel AI-only validator or evidence store. Block missing/duplicate evidence, future or missing as-of/source, F&G↔VIX confusion, NFP scale errors, bp↔percent errors, sign reversal, and FX quote inversion. Keep counterexample fixtures in T941~T949 and keep the prompt schema versioned.
+
+**Validation**: `AIO.createTypedClaim`, `AIO.validateTypedClaim`, `AIO.validateAIResponseClaims`, `claimAudit`, WP-AI2 runtime contract, and Chromium headless T941~T949 (`1010/1010 PASS` locally). Live model-output certification is separate.
+
+## R311. 공개 AI의 모든 진입점은 동일 요청 envelope·응답 pipeline·validator/block-policy 버전을 기록하고 retry는 같은 completion contract를 재사용한다 (v52.76, P691)
+
+- per-page/unified/retry/translation/briefing/server-analysis는 `_aioCreateAIRequestObject`와 `_aioRunAIResponsePipeline`을 공유한다. 새 parallel validator를 만들지 말고 기존 action gate를 공통 pipeline에 흡수한다.
+- request object에는 entrypoint·requestId·attempt·pipelineVersion·validatorVersion·blockPolicyVersion을 기록하고, retry는 새 request를 만들지 않는다. 최종 manifest에는 raw model text를 저장하지 않는다.
+- 자동 콘텐츠가 pipeline 부재 또는 공개 action 정책 차단을 만나면 local/deterministic fallback으로 닫혀야 하며, undefined `CHAT_CONTEXTS`로 조용히 실패하면 안 된다. T937–T940과 runtime contract를 함께 유지한다.
+
+## R310. 공개 AI는 렌더 경계까지 베타·교육/리서치 보조 정책을 강제하고, 검증되지 않은 자동 문장을 공개하지 않는다 (v52.75, P690)
+
+- 공개 AI 표면은 `AI 베타 · 교육/리서치 보조`로 식별해야 하며, 독립 투자자문·검증 시스템·실시간 주문 도구처럼 보이는 문구를 사용하지 않는다.
+- 구체적인 매수·매도·진입·청산·비중·수량·손절·목표가 지시는 typed evidence/suitability/action gate가 구현·통과되기 전까지 차단한다. 이 게이트는 streaming, 완료, retry, 양쪽 채팅 진입점, assistant history와 후속 chips에 동일하게 적용한다.
+- current-sensitive 답변은 기준시각·Evidence 상태·원천/원문 재확인 안내를 표시하고, `marketAnalysisOk` 생성 성공만으로 자동 LLM 문장을 공개하지 않는다. 의미 검증 `marketAnalysisSemanticOk=true` 또는 명시적 `status: verified`가 필요하다.
+- 검증은 T932–T936와 `ci-runtime-contract-check.mjs`로 concrete/강한 방향성 action 차단·교육성 답변·disclosure 메타·unverified marketAnalysis 폴백을 모두 고정한다. 현재 로컬 Chromium 기준선은 `997/997 PASS`이며, 실제 Pages/Worker와 모델 문답은 별도 live gate다.
+
+## R301. 일반 사용자 부팅 경로에서는 배포·공유·전수 Evidence 감사를 실행하지 않는다 (v52.74)
+
+- 부팅 및 페이지 이동 이벤트가 호출하는 함수는 활성 페이지와 이미 수집된 런타임 상태만 읽어야 한다. `getShareReadinessAudit`, `getDeploymentGateAudit`, `getAutoOpsReadiness`, full-surface DOM/text 감사는 CI·명시적 개발자 모드에서만 허용한다.
+- 초기 상태 UI는 `pointer-events:none`인 비차단 표시여야 하며 3초 이내 강제 해제한다. 상태 표시의 존재를 성능 개선으로 간주하지 않는다.
+- CI는 실제 Chromium에서 FCP ≤2.5초, 최초 페이지 전환 ≤2초, 최대 long task ≤2.5초, 목적 라우트 활성화와 상태 표시 해제를 검증한다.
 
 ## R300. When turning on new error/warning signal collection inside a test harness that deliberately blocks network access, expect the app's own legitimate failure-detection code to surface through that same channel — trace it to source before allowlisting or failing on it (v52.52)
 

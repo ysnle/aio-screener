@@ -1177,7 +1177,8 @@
     var staticAudit = window.AIO && typeof window.AIO.getStaticDataGovernanceAudit === 'function' ? window.AIO.getStaticDataGovernanceAudit() : null;
     _assert('T147 static_data_governance: audit shape', staticAudit && Array.isArray(staticAudit.items) && typeof staticAudit.issueCount === 'number', staticAudit && JSON.stringify({ items: staticAudit.items && staticAudit.items.length, issues: staticAudit.issueCount }));
 
-    var badgeAudit = window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function' ? window.AIO.renderStaticDataGovernanceBadges() : null;
+    // Full-document rendering is an explicit audit action; normal boot is active-page scoped (P689/R301).
+    var badgeAudit = window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function' ? window.AIO.renderStaticDataGovernanceBadges({ full: true }) : null;
     var hasBadge = !!document.querySelector('.aio-static-data-badge');
     _assert('T148 static_data_governance: badges render without breaking DOM', badgeAudit && hasBadge, badgeAudit && JSON.stringify({ items: badgeAudit.items && badgeAudit.items.length }));
 
@@ -3574,13 +3575,16 @@
       typeof APP_VERSION !== 'undefined' ? APP_VERSION : 'undefined');
   }
 
-  // v49.88 부팅 로더 → v50.31 제거 (서버 data.json 즉시 로드로 "첫 수신 갭" 소멸 + topbar 칩 중복 + 겹침)
+  // 초기 부팅 상태 배너 — 앱 셸을 가리지 않고 클릭을 막지 않는 비차단 계약
   function _testV4988BootLoader() {
-    // T673 (v50.31 스펙 반전): 부팅 로더 DOM 부재 — topbar 위 겹침 + 갱신 칩 중복 재유입 가드
-    var loaderPresent = !!document.getElementById('aio-boot-loader');
-    _assert('T673 boot_loader_removed_v5031: 부팅 토스트 제거됨 (서버 즉시 로드로 불필요 + 겹침/중복 차단)',
-      !loaderPresent,
-      'loaderPresent=' + loaderPresent);
+    // T673: 상태 배너는 존재할 수 있지만 클릭을 막지 않고 3초 hard timeout으로 닫혀야 한다.
+    var loader = document.getElementById('aio-boot-loader');
+    var nonBlocking = !loader || getComputedStyle(loader).pointerEvents === 'none';
+    var bootApi = window.AIO_BOOT;
+    var bootSource = document.documentElement.innerHTML;
+    _assert('T673 boot_loader_nonblocking: pointer-events none + ready/progress API + 3s hard timeout',
+      nonBlocking && !!bootApi && typeof bootApi.ready === 'function' && typeof bootApi.progress === 'function' && /closeBootLoader\('화면 준비 완료'\); \}, 3000/.test(bootSource),
+      'loader=' + !!loader + ' nonBlocking=' + nonBlocking + ' api=' + !!bootApi);
     // T674: APP_VERSION semver >= 49.88
     _assert('T674 app_version_v4988: APP_VERSION >= v49.88 (semver, v50+ 정합)',
       (function(){ var _m=/^v(\d+)\.(\d+)$/.exec(typeof APP_VERSION!=='undefined'?APP_VERSION:''); return !!_m && (+_m[1] > 49 || (+_m[1] === 49 && +_m[2] >= 88)); })(),
@@ -4757,13 +4761,14 @@
       !!b20 && (/amber|255,\s*163|data-amber/.test(color20) || (thresholdLabel === 'data-amber') || /green|229,\s*160|red|255,\s*91/.test(color20)),
       b20 ? 'color=' + color20 + ' text=' + text20 + ' threshold=' + thresholdLabel : 'missing');
 
-    // T234 (v50.32 스펙 반전): 중복 상단 블록(5대 관전 + Action Item 카드) 제거 → 단일 브리핑 디제스트
+    // T234 (v52.65 구조): 중복 상단 블록 제거 + 현재 브리핑의 시장/행동/뉴스/일정 흐름 존재
     var top5 = document.getElementById('briefing-top-5-watch');
     var brAction = document.getElementById('briefing-action-item-card');
-    var digestEl234 = document.getElementById('briefing-digest');
-    _assert('T234 briefing_consolidated: 중복 블록 제거 + 단일 #briefing-digest 존재',
-      !top5 && !brAction && !!digestEl234,
-      'top5=' + !!top5 + ' action=' + !!brAction + ' digest=' + !!digestEl234);
+    var flow234 = ['briefing-market-strip','briefing-analysis-lead','briefing-action-list','briefing-live-news-list','briefing-schedule-list']
+      .every(function(id) { return !!document.getElementById(id); });
+    _assert('T234 briefing_consolidated: 중복 블록 제거 + 시장→행동→뉴스→일정 단일 흐름 존재',
+      !top5 && !brAction && flow234,
+      'top5=' + !!top5 + ' action=' + !!brAction + ' flow=' + flow234);
 
     // T235: portfolio 4-card 대시보드
     var pfSharpe = document.getElementById('pf-sharpe-val');
@@ -6037,22 +6042,23 @@
     } catch(e) { t801detail = 'ERR:' + e.message; }
     _assert('T801 v5029_declutter: 비-guide 21페이지 설명서형 요소(.aio-page-brief/.aio-explain/.beginner-tip) 0 + 목적 박스 제거', t801ok, t801detail);
 
-    // ─── v50.31 부팅 겹침 제거 (사용자 스크린샷: 토스트+진행패널+배너 동시 겹침) ───
-    // T802: (a) 부팅 토스트 부재 (b) 플로팅 진행 패널은 forceRefresh(사용자 트리거)에만 표시 게이트
+    // ─── 초기 상태 배너와 사용자 트리거 진행 패널의 상호작용 계약 ───
+    // T802: (a) 부팅 상태 배너 비차단 (b) 플로팅 진행 패널은 forceRefresh(사용자 트리거)에만 표시 게이트
     //       (c) data-status-panel 중복 기록 제거 — render 소스 레벨 가드
     var t802ok = false, t802detail = '';
     try {
-      var noBootToast = !document.getElementById('aio-boot-loader');
+      var bootToast = document.getElementById('aio-boot-loader');
+      var bootNonBlocking = !bootToast || getComputedStyle(bootToast).pointerEvents === 'none';
       // 진행 패널이 떠 있다면 사용자 트리거 중일 때만 — 백그라운드 부팅 후 idle 상태에선 숨김이어야 함
       var lay802 = document.getElementById('aio-refresh-progress-layer');
       var st802 = (window.AIO && window.AIO.getRefreshState) ? window.AIO.getRefreshState() : null;
       var idle802 = !st802 || st802.active === false || st802.type === 'done';
       var layerHiddenWhenIdle = !lay802 || lay802.style.display === 'none' || !idle802;
       // (render는 IIFE 내부라 소스 직접 검증 불가 — 부팅 후 idle DOM 상태로 동작 검증)
-      t802ok = noBootToast && layerHiddenWhenIdle;
-      t802detail = 'noBootToast=' + noBootToast + ' layerHiddenWhenIdle=' + layerHiddenWhenIdle + ' idle=' + idle802;
+      t802ok = bootNonBlocking && layerHiddenWhenIdle;
+      t802detail = 'bootNonBlocking=' + bootNonBlocking + ' layerHiddenWhenIdle=' + layerHiddenWhenIdle + ' idle=' + idle802;
     } catch(e) { t802detail = 'ERR:' + e.message; }
-    _assert('T802 v5031_no_boot_overlap: 부팅 토스트 제거 + 진행 패널 idle 시 숨김 (겹침 재발 가드)', t802ok, t802detail);
+    _assert('T802 boot_status_no_interaction_overlap: 부팅 상태 비차단 + 진행 패널 idle 시 숨김', t802ok, t802detail);
 
     // ─── v50.33 종합5 개편: signal Exit 상단 이동 + cross-asset 안내문 제거 + 브리핑 뉴스 캡 ───
     var t803ok = false, t803detail = '';
@@ -6407,7 +6413,7 @@
       var serverPriorityOk = false;
       try {
         var prev = window._serverMarketAnalysis;
-        window._serverMarketAnalysis = { full: '서버 LLM 테스트 분석문 — 충분히 긴 더미 텍스트입니다.', oneLine: '서버 LLM 테스트', generatedAt: new Date().toISOString() };
+        window._serverMarketAnalysis = { status: 'verified', full: '서버 LLM 테스트 분석문 — 충분히 긴 더미 텍스트입니다.', oneLine: '서버 LLM 테스트', generatedAt: new Date().toISOString() };
         window._aioRenderMarketAnalysisSinks();
         var sk = document.getElementById('home-market-analysis');
         serverPriorityOk = !!(sk && sk.getAttribute('data-analysis-source') === 'server-llm');
@@ -7830,6 +7836,154 @@
     _assert('T931 architecture_boundary_audit (H2-15): portfolio adapter slice is complete while remaining legacy slices stay explicit', !!architecture931 && architecture931.status === 'partial' && architecture931.partialByDesign === true && Object.keys(architecture931.boundaries || {}).length >= 7 && architecture931.completedSlices.indexOf('portfolio-storage-adapter') >= 0 && architecture931.incompleteSlices.length >= 2, JSON.stringify(architecture931));
   }
 
+  // Group93: v52.75/WP-AI0 public beta contract — concrete action text is
+  // blocked at the shared render boundary and unverified auto prose never wins
+  // over the deterministic market-analysis fallback.
+  function _testV5275PublicAIContract() {
+    var gate933 = window._aioApplyAIActionGate;
+    var blocked933 = gate933 ? gate933('결론: NVDA $100 매수 추천') : null;
+    var education933 = gate933 ? gate933('매수와 매도의 차이는 주문 방향과 위험 관리에 있다.') : null;
+    var strong934 = gate933 ? gate933('현재는 매수에 우호적이다.') : null;
+    _assert('T932 public_ai_action_gate_blocks_concrete_instruction (WP-AI0): concrete price/action output is replaced', !!blocked933 && blocked933.blocked === true && /안전 모드/.test(blocked933.text), JSON.stringify(blocked933));
+    _assert('T933 public_ai_action_gate_allows_education (WP-AI0): neutral concept explanation is not overblocked', !!education933 && education933.blocked === false, JSON.stringify(education933));
+    _assert('T934 public_ai_action_gate_blocks_strong_wording (WP-AI0): directional recommendation wording is replaced', !!strong934 && strong934.blocked === true, JSON.stringify(strong934));
+    var disclosure934 = window._aioBuildAIResponseDisclosure ? window._aioBuildAIResponseDisclosure({
+      freshness: { status: 'pass', after: { quoteRows: [{ hasLivePrice: true, truthStatus: 'verified', source: 'Yahoo', asOf: '2026-07-13T12:00:00Z' }] } }
+    }) : null;
+    _assert('T935 public_ai_disclosure_has_asof_evidence_source (WP-AI0): beta label, as-of, Evidence, and recheck text are present', !!disclosure934 && /AI 베타/.test(disclosure934.text) && /기준시각/.test(disclosure934.text) && /Evidence/.test(disclosure934.text) && /원문 재확인/.test(disclosure934.text), JSON.stringify(disclosure934));
+    var sink935 = document.getElementById('home-market-analysis');
+    var render935 = typeof window._aioRenderMarketAnalysisSinks === 'function';
+    var prev935 = window._serverMarketAnalysis;
+    var blockedSource935 = false, verifiedSource935 = false;
+    try {
+      window._serverMarketAnalysis = { status: 'blocked-unverified', full: 'unverified prose', oneLine: 'unverified prose' };
+      if (render935) window._aioRenderMarketAnalysisSinks();
+      blockedSource935 = !!(sink935 && sink935.getAttribute('data-analysis-source') === 'template');
+      window._serverMarketAnalysis = { status: 'verified', full: 'verified prose', oneLine: 'verified prose' };
+      if (render935) window._aioRenderMarketAnalysisSinks();
+      verifiedSource935 = !!(sink935 && sink935.getAttribute('data-analysis-source') === 'server-llm');
+    } finally {
+      window._serverMarketAnalysis = prev935;
+      if (render935) window._aioRenderMarketAnalysisSinks();
+    }
+    _assert('T936 market_analysis_semantic_gate_blocks_unverified (WP-AI0): only explicit verified status can select server prose', render935 && blockedSource935 && verifiedSource935, JSON.stringify({ render: render935, blocked: blockedSource935, verified: verifiedSource935 }));
+  }
+
+  // Group94: v52.76/WP-AI1 shared AI request/response pipeline contract.
+  function _testV5276AIUnifiedPipeline() {
+    var create937 = window._aioCreateAIRequestObject;
+    var run937 = window._aioRunAIResponsePipeline;
+    var begin937 = window._aioBeginAIRequestAttempt;
+    var req937 = create937 ? create937('test-pipeline', { ctxId: 'briefing', query: 'fixture' }) : null;
+    if (begin937) { begin937(req937, 'test-model'); begin937(req937, 'fallback-model'); }
+    var result937 = run937 && req937 ? run937('NVDA $100 매수 추천', { request: req937, entrypoint: 'test-pipeline' }) : null;
+    _assert('T937 ai_pipeline_shared_envelope (WP-AI1): request and response expose one pipeline/validator/block-policy version',
+      !!result937 && result937.blocked === true && result937.pipelineVersion === req937.pipelineVersion &&
+      result937.validatorVersion === req937.validatorVersion && result937.blockPolicyVersion === req937.blockPolicyVersion &&
+      req937.attempt === 2,
+      JSON.stringify({ result: result937, attempt: req937 && req937.attempt }));
+
+    var audit937 = window.AIO && typeof window.AIO.getAIResponsePipelineAudit === 'function'
+      ? window.AIO.getAIResponsePipelineAudit() : [];
+    _assert('T938 ai_pipeline_audit_manifest (WP-AI1): final response records entrypoint/request/attempt without raw model text',
+      audit937.length > 0 && audit937[audit937.length - 1].requestId === (req937 && req937.requestId) &&
+      audit937[audit937.length - 1].entrypoint === 'test-pipeline' &&
+      audit937[audit937.length - 1].attempt === 2 && !Object.prototype.hasOwnProperty.call(audit937[audit937.length - 1], 'text'),
+      JSON.stringify(audit937[audit937.length - 1]));
+
+    var briefing937 = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.briefing;
+    _assert('T939 briefing_context_enabled (WP-AI1): unified briefing route has an evidence-first CHAT_CONTEXTS entry',
+      !!briefing937 && typeof briefing937.system === 'function' && /교육·리서치|구체적인 매수/.test(briefing937.system()),
+      briefing937 ? String(briefing937.title) : 'missing');
+
+    var pageSrc937 = typeof chatSend === 'function' ? chatSend.toString() : '';
+    var unifiedSrc937 = typeof chatSendUnified === 'function' ? chatSendUnified.toString() : '';
+    var translateSrc937 = typeof autoTranslateNews === 'function' ? autoTranslateNews.toString() : '';
+    var briefingSrc937 = typeof _generateAIBriefing === 'function' ? _generateAIBriefing.toString() : '';
+    _assert('T940 ai_entrypoints_use_one_pipeline (WP-AI1): chat/unified/translation/briefing all call the shared response pipeline',
+      /_aioRunAIResponsePipeline/.test(pageSrc937) && /_aioRunAIResponsePipeline/.test(unifiedSrc937) &&
+      /_aioRunAIResponsePipeline/.test(translateSrc937) && /_aioRunAIResponsePipeline/.test(briefingSrc937),
+      JSON.stringify({ page: /_aioRunAIResponsePipeline/.test(pageSrc937), unified: /_aioRunAIResponsePipeline/.test(unifiedSrc937), translation: /_aioRunAIResponsePipeline/.test(translateSrc937), briefing: /_aioRunAIResponsePipeline/.test(briefingSrc937) }));
+  }
+
+  // Group95: v52.77/WP-AI2 typed claim/evidence validation contract.
+  function _testV5277TypedClaimContract() {
+    var now941 = new Date(Date.now() - 60000).toISOString();
+    var claim941 = window.AIO.createTypedClaim({
+      claimId: 'fg-1', metric: 'fear_greed', value: 31, unit: 'score', scale: 'raw',
+      direction: 'down', asOf: now941, source: 'CNN', sourceKind: 'LIVE', evidenceId: 'ev-fg'
+    });
+    _assert('T941 typed_claim_schema_shape (WP-AI2): metric/unit/scale/direction/asOf/source/evidenceId are normalized',
+      claim941 && claim941.schemaVersion === 'wp-ai2.claim.v1' && claim941.metric === 'fear_greed' &&
+      claim941.unit === 'score' && claim941.scale === 'raw' && claim941.direction === 'down' &&
+      claim941.asOf === now941 && claim941.source === 'CNN' && claim941.evidenceId === 'ev-fg', JSON.stringify(claim941));
+
+    var fgEvidence942 = [{ evidenceId: 'ev-fg', metric: 'vix', value: 16, unit: 'index', scale: 'raw', direction: 'down', asOf: now941 }];
+    var mismatch942 = window.AIO.validateTypedClaim(claim941, fgEvidence942, { currentSensitive: true });
+    _assert('T942 typed_claim_blocks_fear_greed_to_vix_mismatch (WP-AI2): metric mismatch is fail-closed',
+      mismatch942 && mismatch942.blocked === true && mismatch942.issues.some(function(i) { return /^metric-mismatch/.test(i); }), JSON.stringify(mismatch942));
+
+    var nfp943 = window.AIO.validateTypedClaim({
+      claimId: 'nfp-1', metric: 'nfp_change', value: 570, unit: 'thousands', scale: 'raw',
+      direction: 'up', asOf: now941, source: 'BLS', sourceKind: 'LIVE', evidenceId: 'ev-nfp'
+    }, [{ evidenceId: 'ev-nfp', metric: 'nfp_change', value: 57, unit: 'thousands', scale: 'raw', direction: 'up', asOf: now941 }], { currentSensitive: true });
+    _assert('T943 typed_claim_blocks_nfp_ten_x_scale_error (WP-AI2): 570 vs 57 is not silently accepted',
+      nfp943 && nfp943.blocked === true && nfp943.issues.indexOf('value-mismatch') >= 0, JSON.stringify(nfp943));
+
+    var bp944 = window.AIO.validateTypedClaim({
+      claimId: 'hy-1', metric: 'hy_spread', value: 3.5, unit: 'percent', scale: 'raw',
+      direction: 'up', asOf: now941, source: 'ICE', sourceKind: 'LIVE', evidenceId: 'ev-hy'
+    }, [{ evidenceId: 'ev-hy', metric: 'hy_spread', value: 350, unit: 'bp', scale: 'raw', direction: 'up', asOf: now941 }], { currentSensitive: true });
+    _assert('T944 typed_claim_blocks_bp_percent_mismatch (WP-AI2): bp and percent remain distinct units',
+      bp944 && bp944.blocked === true && bp944.issues.some(function(i) { return /^unit-mismatch/.test(i); }), JSON.stringify(bp944));
+
+    var sign945 = window.AIO.validateTypedClaim({
+      claimId: 'vix-1', metric: 'vix', value: 16, unit: 'index', scale: 'raw',
+      direction: 'up', asOf: now941, source: 'Yahoo', sourceKind: 'LIVE', evidenceId: 'ev-vix'
+    }, [{ evidenceId: 'ev-vix', metric: 'vix', value: 16, unit: 'index', scale: 'raw', direction: 'down', asOf: now941 }], { currentSensitive: true });
+    _assert('T945 typed_claim_blocks_direction_sign_mismatch (WP-AI2): up/down sign is validated',
+      sign945 && sign945.blocked === true && sign945.issues.indexOf('direction-mismatch') >= 0, JSON.stringify(sign945));
+
+    var fx946 = window.AIO.validateTypedClaim({
+      claimId: 'fx-1', metric: 'fx_krw_usd', value: 0.00075, unit: 'ratio', scale: 'raw',
+      direction: 'flat', asOf: now941, source: 'FX', sourceKind: 'LIVE', evidenceId: 'ev-fx'
+    }, [{ evidenceId: 'ev-fx', metric: 'fx_usd_krw', value: 1335, unit: 'ratio', scale: 'raw', direction: 'flat', asOf: now941 }], { currentSensitive: true });
+    _assert('T946 typed_claim_blocks_fx_inversion (WP-AI2): USD/KRW and KRW/USD cannot be swapped',
+      fx946 && fx946.blocked === true && fx946.issues.some(function(i) { return /^metric-mismatch/.test(i); }), JSON.stringify(fx946));
+
+    var missing947 = window.AIO.validateTypedClaim({
+      claimId: 'vix-missing', metric: 'vix', value: 16, unit: 'index', scale: 'raw',
+      direction: 'up', asOf: now941, source: 'Yahoo', sourceKind: 'LIVE'
+    }, [], { currentSensitive: true });
+    _assert('T947 typed_claim_blocks_current_sensitive_without_evidence (WP-AI2): no evidenceId is fail-closed',
+      missing947 && missing947.blocked === true && missing947.issues.indexOf('evidence-cardinality') >= 0, JSON.stringify(missing947));
+
+    var envelope948Text = '[AI_CLAIMS_JSON]' + JSON.stringify({
+      schemaVersion: 'wp-ai2.claim.v1', claims: [{
+        claimId: 'vix-structured', metric: 'vix', value: 16, unit: 'index', scale: 'raw', direction: 'up',
+        asOf: now941, source: 'Yahoo', sourceKind: 'LIVE', evidenceId: 'ev-vix-structured'
+      }]
+    }) + '[/AI_CLAIMS_JSON]';
+    var envelope948 = window.AIO.extractAIClaimEnvelope(envelope948Text);
+    var valid948 = window.AIO.validateAIClaimEnvelope(envelope948, { currentSensitive: true, evidence: [{
+      evidenceId: 'ev-vix-structured', metric: 'vix', value: 16, unit: 'index', scale: 'raw', direction: 'up', asOf: now941
+    }] });
+    _assert('T948 typed_claim_envelope_parser_and_validation (WP-AI2): nested JSON marker is parsed and accepted',
+      !!envelope948 && valid948 && valid948.blocked === false && valid948.validCount === 1, JSON.stringify({ envelope: envelope948, valid: valid948 }));
+
+    var pipeline949 = window._aioRunAIResponsePipeline(JSON.stringify({
+      schemaVersion: 'wp-ai2.claim.v1', claims: [{
+        claimId: 'vix-invalid', metric: 'vix', value: 99, unit: 'index', scale: 'raw', direction: 'up',
+        asOf: now941, source: 'Yahoo', sourceKind: 'LIVE', evidenceId: 'ev-vix-invalid'
+      }]
+    }), { request: window._aioCreateAIRequestObject('typed-claim-test', { ctxId: 'test' }), record: false, evidence: [{
+      evidenceId: 'ev-vix-invalid', metric: 'vix', value: 16, unit: 'index', scale: 'raw', direction: 'up', asOf: now941
+    }] });
+    _assert('T949 ai_pipeline_attaches_claim_audit_and_blocks_invalid_claim (WP-AI2): shared pipeline owns typed validation',
+      pipeline949 && pipeline949.blocked === true && pipeline949.claimAudit && pipeline949.claimAudit.blocked === true &&
+      pipeline949.reasons.indexOf('typed-claim-validation') >= 0, JSON.stringify(pipeline949));
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -7936,6 +8090,9 @@
     try { _testV5256ExternalSourceState(); } catch(e) { console.error('Group90 error:', e); }
     try { _testV5258HumanSurfaceContracts(); } catch(e) { console.error('Group91 error:', e); }
     try { _testV5259AiErrorContract(); } catch(e) { console.error('Group92 error:', e); }
+    try { _testV5275PublicAIContract(); } catch(e) { console.error('Group93 error:', e); }
+    try { _testV5276AIUnifiedPipeline(); } catch(e) { console.error('Group94 error:', e); }
+    try { _testV5277TypedClaimContract(); } catch(e) { console.error('Group95 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

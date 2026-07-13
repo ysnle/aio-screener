@@ -3,11 +3,50 @@ verified_by: agent
 last_verified: 2026-07-13
 confidence: high
 version: v3.8
-checklist_version: v52.62
-total_items: 531
+checklist_version: v52.77
+total_items: 555
 stages: 22
-latest_P_covered: P678
+latest_P_covered: P692
 ---
+
+## v52.77 - AI typed claim/evidence contract (P692)
+
+- [x] `wp-ai2.claim.v1` normalizes metric, value, unit, scale, direction, asOf, source, sourceKind, and evidenceId.
+- [x] Current-sensitive claims require one matching Evidence item and fail closed when Evidence is missing, duplicated, future-dated, or has a metric/unit/scale/value/direction mismatch.
+- [x] Counterexamples cover F&G↔VIX, NFP 10x, bp↔%, direction sign, USD/KRW inversion, and current-sensitive Evidence omission.
+- [x] Nested `[AI_CLAIMS_JSON]` envelopes parse through balanced JSON extraction and valid claims pass the shared `claimAudit` response boundary.
+- [x] Per-page/unified streaming/final/retry paths pass injected quote Evidence to the common pipeline.
+- [x] T941~T949 and WP-AI2 runtime contract are present.
+- [x] `node --check`, runtime/version contract, and Chromium offline headless `1010/1010 PASS` completed.
+- [ ] Pages/Worker live response, actual model-output certification, and post-deploy live verification remain open.
+
+## v52.76 - AI 공개 진입점 공통 pipeline (P691)
+
+- [x] `_aioCreateAIRequestObject`/`_aioBeginAIRequestAttempt`가 per-page/unified/retry/translation/briefing에 동일 pipeline·validator·block-policy 버전과 attempt를 기록한다.
+- [x] per-page/unified retry가 같은 completion callback과 request object를 사용하고, assistant history/chips는 공통 gated text만 저장한다.
+- [x] 자동 번역·브리핑이 공통 response pipeline을 통과하며, pipeline 부재/action 차단 시 local/deterministic fallback으로 fail-closed 한다.
+- [x] `CHAT_CONTEXTS.briefing`이 정의되어 unified briefing route가 undefined context로 조용히 종료되지 않는다.
+- [x] T937–T940 및 runtime contract가 envelope/audit/route/entrypoint wiring을 검사한다.
+- [x] 변경 JS 문법, version/runtime/structural/data-pipeline/semantic contract 통과.
+- [x] 최종 큰 단위 Chromium headless `1001/1001 PASS`, critical10 `10 routes/consoleErrors 0`, accessibility `22 routes/consoleErrors 0`, portfolio vault `PFE2-01~08 PASS`, viewport `88/88·worstOverflow 0px·jsErrors 0`, boot `FCP 1504ms·route 96ms·maxLongTask 1119ms`.
+- [ ] GitHub Pages/Worker live 응답, 실제 모델 출력, 공개 배포는 미검증/미실행.
+
+## v52.75 - AI 베타 공개 안전·시장분석 semantic gate (P690)
+
+- [x] 공개 AI 패널과 임베디드 채팅 헤더가 `AI 베타 · 교육/리서치 보조`로 표시되고, 구체적 매매 지시를 제공하지 않는다는 안내가 보인다.
+- [x] per-page/unified 채팅의 streaming·완료·retry 결과가 동일 action gate를 거치며, 차단 전 원문이 assistant history/chips에 저장되지 않는다.
+- [x] current-sensitive 응답에 기준시각·Evidence 상태·원천/원문 재확인 disclosure가 붙는다.
+- [x] `marketAnalysisOk` 생성 성공만으로 server LLM 문장을 렌더하지 않고 `marketAnalysisSemanticOk` 또는 `status: verified`를 요구한다.
+- [x] T932–T936, runtime contract, syntax, Chromium offline headless `997/997 PASS`로 로컬 회귀 확인.
+- [ ] GitHub Pages/Worker live 응답, 실제 모델별 문장 품질, WP-AI1 단일 파이프라인 통합은 후속 packet에서 검증한다.
+
+## v52.74 - 초기 부팅·상호작용 성능 게이트 (P689)
+
+- [x] 일반 부팅에서 Public Status가 `getShareReadinessAudit()`/배포 게이트/full-surface 감사를 호출하지 않고 활성 페이지의 materialized Evidence만 읽는다.
+- [x] 현재성 검사는 `.page.active` 범위에서 DOM read/write를 배치하며 6초·18초 document 전체 재스캔이 없다.
+- [x] 부팅 상태 표시는 `pointer-events:none`이고 3초 hard-release 후 제거되어 메뉴 입력을 막지 않는다.
+- [x] Chromium gate에서 FCP ≤2.5초, 첫 페이지 전환 ≤2초, 최대 long task ≤2.5초를 만족한다.
+- [x] 상세 운영·공유 감사는 명시적 API 또는 `aioAudit=1` 개발자 모드에서 계속 사용할 수 있다.
 
 ## v52.62 - 아이보리 리디자인(CLAUDE-CODE-HANDOFF.md) P1~P2 전체 + P3~P10 부분 적용
 
