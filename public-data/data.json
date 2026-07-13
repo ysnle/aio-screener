@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-13T21:13:03.346Z",
+  "generatedAt": "2026-07-13T22:11:03.401Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -21,7 +21,7 @@
   "macroKeyCount": 19,
   "fredFailedSeries": [],
   "newsOk": true,
-  "newsCount": 19,
+  "newsCount": 18,
   "newsSourceCount": 8,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-07-11T23:00:00.000Z",
@@ -30,11 +30,14 @@
   "newsNextRefresh": "2026-07-13T23:00:00.000Z",
   "serverNewsScored": true,
   "newsScoreMin": 16,
-  "newsScoreMax": 68,
-  "elapsedMs": 3595,
+  "newsScoreMax": 59,
+  "elapsedMs": 2767,
   "schema": 1,
   "marketAnalysisOk": true,
-  "fmpHasKey": true
+  "fmpHasKey": true,
+  "fmpOk": false,
+  "fmpCount": 0,
+  "fmpPlanError": true
  },
  "quotes": [
   {
@@ -156,8 +159,8 @@
   },
   {
    "symbol": "CL=F",
-   "regularMarketPrice": 78,
-   "regularMarketChangePercent": 9.228393782294848,
+   "regularMarketPrice": 77.93,
+   "regularMarketChangePercent": 9.130368300695363,
    "regularMarketPreviousClose": 71.41000366210938,
    "chartPreviousClose": 71.41000366210938,
    "_pctSource": "ohlcv-daily",
@@ -165,8 +168,8 @@
   },
   {
    "symbol": "BZ=F",
-   "regularMarketPrice": 83.18,
-   "regularMarketChangePercent": 9.432966270569185,
+   "regularMarketPrice": 83.04,
+   "regularMarketChangePercent": 9.248779984468204,
    "regularMarketPreviousClose": 76.01000213623047,
    "chartPreviousClose": 76.01000213623047,
    "_pctSource": "ohlcv-daily",
@@ -174,8 +177,8 @@
   },
   {
    "symbol": "GC=F",
-   "regularMarketPrice": 4008.7,
-   "regularMarketChangePercent": -2.324507087698246,
+   "regularMarketPrice": 4012.8,
+   "regularMarketChangePercent": -2.2246069901752406,
    "regularMarketPreviousClose": 4104.10009765625,
    "chartPreviousClose": 4104.10009765625,
    "_pctSource": "ohlcv-daily",
@@ -183,8 +186,8 @@
   },
   {
    "symbol": "SI=F",
-   "regularMarketPrice": 57.98,
-   "regularMarketChangePercent": -3.0580651169079887,
+   "regularMarketPrice": 58.03,
+   "regularMarketChangePercent": -2.9744656559877574,
    "regularMarketPreviousClose": 59.808998107910156,
    "chartPreviousClose": 59.808998107910156,
    "_pctSource": "ohlcv-daily",
@@ -192,8 +195,8 @@
   },
   {
    "symbol": "DX-Y.NYB",
-   "regularMarketPrice": 101.293,
-   "regularMarketChangePercent": 0.3198957862651317,
+   "regularMarketPrice": 101.282,
+   "regularMarketChangePercent": 0.30900146134978806,
    "regularMarketPreviousClose": 100.97000122070312,
    "chartPreviousClose": 100.97000122070312,
    "_pctSource": "ohlcv-daily",
@@ -210,8 +213,8 @@
   },
   {
    "symbol": "EURUSD=X",
-   "regularMarketPrice": 1.1387,
-   "regularMarketChangePercent": -0.1530934149660336,
+   "regularMarketPrice": 1.1384,
+   "regularMarketChangePercent": -0.17939891419805865,
    "regularMarketPreviousClose": 1.1404459476470947,
    "chartPreviousClose": 1.1404459476470947,
    "_pctSource": "ohlcv-daily",
@@ -219,8 +222,8 @@
   },
   {
    "symbol": "JPY=X",
-   "regularMarketPrice": 162.396,
-   "regularMarketChangePercent": 0.319990362751347,
+   "regularMarketPrice": 162.446,
+   "regularMarketChangePercent": 0.3508778200664207,
    "regularMarketPreviousClose": 161.8780059814453,
    "chartPreviousClose": 161.8780059814453,
    "_pctSource": "ohlcv-daily",
@@ -228,8 +231,8 @@
   },
   {
    "symbol": "GBPUSD=X",
-   "regularMarketPrice": 1.335,
-   "regularMarketChangePercent": -0.27550368530677316,
+   "regularMarketPrice": 1.3348,
+   "regularMarketChangePercent": -0.29044368475466564,
    "regularMarketPreviousClose": 1.3386881351470947,
    "chartPreviousClose": 1.3386881351470947,
    "_pctSource": "ohlcv-daily",
@@ -246,8 +249,8 @@
   },
   {
    "symbol": "AUDUSD=X",
-   "regularMarketPrice": 0.692,
-   "regularMarketChangePercent": -0.3197500488320103,
+   "regularMarketPrice": 0.6922,
+   "regularMarketChangePercent": -0.2909407280368622,
    "regularMarketPreviousClose": 0.6942197680473328,
    "chartPreviousClose": 0.6942197680473328,
    "_pctSource": "ohlcv-daily",
@@ -453,8 +456,8 @@
   },
   {
    "symbol": "BTC-USD",
-   "regularMarketPrice": 62032.99,
-   "regularMarketChangePercent": -2.705892328587053,
+   "regularMarketPrice": 63736.4,
+   "regularMarketChangePercent": -0.034221078360973725,
    "regularMarketPreviousClose": 63758.21875,
    "chartPreviousClose": 63758.21875,
    "_pctSource": "ohlcv-daily",
@@ -462,8 +465,8 @@
   },
   {
    "symbol": "ETH-USD",
-   "regularMarketPrice": 1760.77,
-   "regularMarketChangePercent": -2.4929883128633143,
+   "regularMarketPrice": 1812.53,
+   "regularMarketChangePercent": 0.3733502350027863,
    "regularMarketPreviousClose": 1805.7880859375,
    "chartPreviousClose": 1805.7880859375,
    "_pctSource": "ohlcv-daily",
@@ -670,63 +673,63 @@
   {
    "symbol": "005930.KS",
    "regularMarketPrice": 254500,
-   "regularMarketChangePercent": -8.453237410071942,
-   "regularMarketPreviousClose": 278000,
-   "chartPreviousClose": 278000,
+   "regularMarketChangePercent": -10.701754385964913,
+   "regularMarketPreviousClose": 285000,
+   "chartPreviousClose": 285000,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "000660.KS",
    "regularMarketPrice": 1845000,
-   "regularMarketChangePercent": -15.599268069533395,
-   "regularMarketPreviousClose": 2186000,
-   "chartPreviousClose": 2186000,
+   "regularMarketChangePercent": -15.36697247706422,
+   "regularMarketPreviousClose": 2180000,
+   "chartPreviousClose": 2180000,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "005380.KS",
    "regularMarketPrice": 444000,
-   "regularMarketChangePercent": -0.33670033670033667,
-   "regularMarketPreviousClose": 445500,
-   "chartPreviousClose": 445500,
+   "regularMarketChangePercent": -2.9508196721311477,
+   "regularMarketPreviousClose": 457500,
+   "chartPreviousClose": 457500,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "035420.KS",
    "regularMarketPrice": 188000,
-   "regularMarketChangePercent": 1.9522776572668112,
-   "regularMarketPreviousClose": 184400,
-   "chartPreviousClose": 184400,
+   "regularMarketChangePercent": -1.7250392054364874,
+   "regularMarketPreviousClose": 191300,
+   "chartPreviousClose": 191300,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "373220.KS",
    "regularMarketPrice": 328500,
-   "regularMarketChangePercent": 4.784688995215311,
-   "regularMarketPreviousClose": 313500,
-   "chartPreviousClose": 313500,
+   "regularMarketChangePercent": 0.7668711656441718,
+   "regularMarketPreviousClose": 326000,
+   "chartPreviousClose": 326000,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "105560.KS",
    "regularMarketPrice": 186200,
-   "regularMarketChangePercent": 8.634772462077013,
-   "regularMarketPreviousClose": 171400,
-   "chartPreviousClose": 171400,
+   "regularMarketChangePercent": 0.9761388286334056,
+   "regularMarketPreviousClose": 184400,
+   "chartPreviousClose": 184400,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   },
   {
    "symbol": "207940.KS",
    "regularMarketPrice": 1400000,
-   "regularMarketChangePercent": 5.660377358490567,
-   "regularMarketPreviousClose": 1325000,
-   "chartPreviousClose": 1325000,
+   "regularMarketChangePercent": 0.35842293906810035,
+   "regularMarketPreviousClose": 1395000,
+   "chartPreviousClose": 1395000,
    "_pctSource": "ohlcv-daily",
    "_source": "live:yahoo-gh"
   }
@@ -768,27 +771,11 @@
   "score": 44,
   "rating": "fear",
   "_source": "cnn",
-  "asOf": "2026-07-13T20:52:34+00:00",
+  "asOf": "2026-07-13T21:52:30+00:00",
   "previousScore": 49,
   "previousWeek": 44
  },
  "news": [
-  {
-   "title": "Oil prices jump more than 9% after Trump reinstates Strait of Hormuz blockade on Iranian ships - CNBC",
-   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOVFYzekVvMlNULUZZc3ZlUkE5RmRjYVE0ZXJMLW80SzQ5MzhLRUt0UlZRRmxXbi1sQ3Q4REVTcXZNSVg3bFVwRnNwT3FKbXVBaGZvWWhuOUVLSUZ6X2dUTHlVMGcxVlRaR25EYkVkckw5VG55ZlZObmRQRjRMQ1JqclkwVm7SAYoBQVVfeXFMT0RzeVVLZHMxdEFSczJLVFpiODNfYjJXN0gtWFNsbGlveVJfQXkxendKY2J0UkJHQ0pnMGRBVFVwWk03ZExkc2tjb0paNzQzTXlTNXhYMnR3Nkh4R3NZOTB6RjF5X05iclhwMTBoVklQQks0UTBncUFIYzhCdzNEYmdERUdMWkJYdUxn?oc=5",
-   "source": "CNBC",
-   "pubDate": "Sun, 12 Jul 2026 22:07:32 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 1,
-   "score": 68,
-   "selectionReason": "base+20 | source-tier1+16 | recency+18 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-12 08:00 KST ~ 2026-07-13 08:00 KST"
-  },
   {
    "title": "Citi Hikes TSMC Price Target by Over 30%. Some Key Information You Need to Know Ahead of Earnings Call. - TradingKey",
    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPX0NFaVNhQWRCdUxFSDBHZm1UN0xBQjYwU2ZKLTNVb05OUGc5bVBYMlJ2NGVHcXlvVFh0cTdva3BYZVNOb0VyejltZ1ZlR0RkZ0JCQkVVVlM2eC14MXFXMkZKdVB6ZnZwVUNDVkc5ZVMyNGpvZTJRdXRJdk16TVVXd2ZRM1ZYYnJIVHh4MjAwcEJwbTJiRm91QWYyZw?oc=5",
@@ -1079,9 +1066,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "## 현재 시장 분석\n\n**글로벌 시장은 이란-미국 갈등 고조와 인플레이션 재부상 우려가 겹치며 복합적 리스크 국면에 진입하고 있다.**\n\n① **변동성/심리:** Fear & Greed 지수 44로 '공포' 구간에 위치하며, S&P 500·나스닥이 하락 압력을 받는 가운데 투자 심리는 전반적으로 위축된 상태다.\n\n② **거시/금리:** CPI 4.2%로 목표치를 크게 상회하는 상황에서 Fed 기준금리 3.63%, 10년물 금리 수준과 맞물려 화요일 CPI 발표·워시 의회 증언·은행 실적이 동시에 예정돼 금리 경로 불확실성이 집중되고 있다.\n\n③ **주도 뉴스/리스크:** 트럼프 행정부의 호르무즈 해협 봉쇄 재추진으로 WTI 유가가 9% 이상 급등하며 에너지發 인플레이션 재점화 우려가 부각됐고, 이란 갈등은 미 국채·엔화·금의 전통적 안전자산 기능에도 의문을 제기하고 있어 자산군 전반의 상관관계 변화에 주목할 필요가 있다.\n\n> ⚠️ *본 내용은 시장 정보 요약이며, 특정 투자 판단을 권고하지 않습니다.*",
+  "full": "## 현재 시장 분석\n\n**📊 한 줄 요약:** CPI 4.2%와 Fed 금리 3.63% 환경 속에서 인플레이션 재점화 우려가 투자심리를 압박하며 위험자산 전반에 경계감이 높아지고 있다.\n\n**① 변동성/심리:** 공포탐욕지수(F&G)가 44로 '공포' 영역에 위치해 있어 시장 참여자들의 심리가 전반적으로 위축된 상태이며, S&P 500·다우·나스닥이 일제히 하락하며 인플레이션 우려에 따른 매도 압력이 현실화되는 모습이다.\n\n**② 거시/금리:** CPI 4.2%는 여전히 목표치를 상회하는 수준으로, 이번 주 화요일 예정된 CPI 발표·은행 실적·Fed 인사 의회 증언이 90분 내 집중되며 금리 추가 인상 기대를 자극할 수 있는 분기점으로 주목받고 있다.\n\n**③ 주도 뉴스/리스크:** TSMC 실적 콜과 Citi의 목표주가 대폭 상향으로 AI·반도체 섹터에 관심이 집중되는 한편, 이란 분쟁 리스크가 미국채·엔·금의 전통적 안전자산 지위를 흔들며 유가와 금 가격 경로에 대한 불확실성을 높이고 있다.",
   "oneLine": "## 현재 시장 분석",
-  "generatedAt": "2026-07-13T21:13:14.341Z",
+  "generatedAt": "2026-07-13T22:11:14.905Z",
   "model": "claude-sonnet-4-6"
  }
 }
