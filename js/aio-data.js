@@ -4017,20 +4017,22 @@ async function fetchBreadthData() {
 
 function updateBreadthUI(data) {
   // Update breadth KPI cards
+  // v52.66: 하드코딩 네온 hex(#00e5a0 등, 구 다크테마 잔재 — P1/P2 스윕 누락)를 토큰으로,
+  // 영문 터미널 라벨(BROAD RALLY 등)을 한국어로 교체.
   if (data.advanceRatio !== undefined) {
     const pct = (data.advanceRatio * 100).toFixed(1);
     const el = document.getElementById('breadth-advance-ratio');
     if (el) {
       el.textContent = pct + '%';
-      el.style.color = data.advanceRatio > 0.5 ? '#00e5a0' : data.advanceRatio > 0.3 ? '#ffa31a' : '#ff5b50';
+      el.style.color = data.advanceRatio > 0.5 ? 'var(--data-green)' : data.advanceRatio > 0.3 ? 'var(--data-amber)' : 'var(--data-red)';
     }
   }
   if (data.breadthSignal !== undefined) {
     const el = document.getElementById('breadth-signal-val');
     if (el) {
-      const txt = data.breadthSignal > 0.5 ? 'BROAD RALLY' : data.breadthSignal > -0.5 ? 'NEUTRAL' : 'NARROW MARKET';
+      const txt = data.breadthSignal > 0.5 ? '광범위 상승' : data.breadthSignal > -0.5 ? '중립' : '쏠림 장세';
       el.textContent = txt;
-      el.style.color = data.breadthSignal > 0.5 ? '#00e5a0' : data.breadthSignal > -0.5 ? '#ffa31a' : '#ff5b50';
+      el.style.color = data.breadthSignal > 0.5 ? 'var(--data-green)' : data.breadthSignal > -0.5 ? 'var(--data-amber)' : 'var(--data-red)';
     }
   }
   // Update source badge
