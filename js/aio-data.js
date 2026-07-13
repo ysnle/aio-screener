@@ -1926,64 +1926,67 @@ function renderScreenerResults() {
 
   var html = '';
   // v50.53 2A: 멀티팩터 퀀트 랭크 컬럼 + 팩터 점수(모멘텀/추세/저변동). editorial signal/메모는 보존(행 title).
-  var _fcell = function(v, label, gated){
+  // v52.72: cls 인자 추가 — 시안 4c는 9열만 노출, 나머지 팩터 셀은 scr-adv-col로 기본 숨김(토글로 노출)
+  var _fcell = function(v, label, gated, cls){
+    cls = cls == null ? 'scr-adv-col' : cls;
+    var clsAttr = cls ? ' class="' + cls + '"' : '';
     if (v == null) {
       var why = gated ? label + ' 데이터 미수신 — 현재 랭크에서 제외' : label + ' 팩터 데이터 미수신';
-      return '<td aria-label="' + escHtml(why) + '" title="' + escHtml(why) + '" style="text-align:right;padding:6px 8px;color:#5a6678;">—</td>';
+      return '<td' + clsAttr + ' aria-label="' + escHtml(why) + '" title="' + escHtml(why) + '" style="text-align:right;padding:6px 8px;color:var(--text-muted);">—</td>';
     }
-    var c = v>=66?'#00e5a0':v>=40?'#ffa31a':'#ff5b50';
-    return '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+c+';">'+v+'</td>';
+    var c = v>=66?'var(--data-green)':v>=40?'var(--data-amber)':'var(--data-red)';
+    return '<td' + clsAttr + ' style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+c+';">'+v+'</td>';
   };
   // v51.39: 워치리스트 전체 조회 (행별 ★ 상태 결정)
   var _wlArr = (typeof window._aioWatchlistGet === 'function') ? window._aioWatchlistGet() : [];
   filtered.forEach(function(r) {
-    var sc = r.signal === 'BUY' ? '#00e5a0' : r.signal === 'SELL' ? '#ff5b50' : r.signal === 'WATCH' ? '#ffa31a' : '#7b8599';
+    var sc = r.signal === 'BUY' ? 'var(--data-green)' : r.signal === 'SELL' ? 'var(--data-red)' : r.signal === 'WATCH' ? 'var(--data-amber)' : 'var(--text-muted)';
     var sb = r.signal === 'BUY' ? 'var(--data-green-soft)' : r.signal === 'SELL' ? 'var(--data-red-soft)' : r.signal === 'WATCH' ? 'var(--data-amber-soft)' : 'var(--data-muted-soft)';
     var mcapStr = (r.mcap >= 1000) ? '$' + (r.mcap/1000).toFixed(1) + 'T' : '$' + (r.mcap||0) + 'B';
     var rank = (typeof r.rank === 'number') ? r.rank : null;
-    var rkColor = rank == null ? '#7b8599' : rank >= 80 ? '#00e5a0' : rank >= 60 ? '#7ddf8f' : rank >= 40 ? '#ffa31a' : '#ff5b50';
+    var rkColor = rank == null ? 'var(--text-muted)' : rank >= 80 ? 'var(--data-green)' : rank >= 60 ? 'var(--data-green)' : rank >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
     var grade = rank == null ? '—' : rank >= 80 ? 'A' : rank >= 65 ? 'B' : rank >= 50 ? 'C' : rank >= 35 ? 'D' : 'F';
     var gradeClass = rank == null ? '' : 'mv-grade-' + grade;
     var fs = r.factorScores || {};
     var ret3 = (typeof r.ret3m === 'number') ? ((r.ret3m>=0?'+':'')+r.ret3m.toFixed(1)+'%') : '—';
-    var ret3c = (typeof r.ret3m === 'number') ? (r.ret3m>=0?'#00e5a0':'#ff5b50') : '#5a6678';
+    var ret3c = (typeof r.ret3m === 'number') ? (r.ret3m>=0?'var(--data-green)':'var(--data-red)') : 'var(--text-muted)';
     // v51.39: 워치리스트 ★ 상태
     var inWL = _wlArr.indexOf(r.sym) >= 0;
     var starHtml = '<span class="scr-star' + (inWL?' active':'') + '" data-action="_aioWLToggle" data-arg="' + escHtml(r.sym) + '" data-stop="1" data-wl-sym="' + escHtml(r.sym) + '" title="' + (inWL?'워치리스트에서 제거':'워치리스트에 추가') + '" role="button" tabindex="0" aria-label="워치리스트 ' + (inWL?'제거':'추가') + '">' + (inWL?'★':'☆') + '</span>';
     // v51.39: 진입 타이밍 신호
-    var entryHtml = (typeof window._aioEntryTiming === 'function') ? window._aioEntryTiming(r) : '<span style="color:#5a6678;">—</span>';
+    var entryHtml = (typeof window._aioEntryTiming === 'function') ? window._aioEntryTiming(r) : '<span style="color:var(--text-muted);">—</span>';
     // v51.68: VCP 점수/단계
     var vcpScore = typeof r.vcpScore === 'number' ? r.vcpScore : null;
     var vcpStageKey = r.vcpStage || '';
     var vcpStageShort = vcpStageKey === 'breakout' ? '돌파' : vcpStageKey === 'near_pivot' ? '피벗' : vcpStageKey === 'contracting' ? '수축' : vcpStageKey === 'basing' ? '기저' : vcpStageKey === 'stage2_only' ? 'S2' : '—';
-    var vcpColor = vcpScore == null ? '#5a6678' : vcpScore >= 70 ? '#00e5a0' : vcpScore >= 50 ? '#ffa31a' : '#ff5b50';
+    var vcpColor = vcpScore == null ? 'var(--text-muted)' : vcpScore >= 70 ? 'var(--data-green)' : vcpScore >= 50 ? 'var(--data-amber)' : 'var(--data-red)';
     // 주의: r.memo는 내부 마커(vNN·RNN·Codex 등)를 포함할 수 있어 title 툴팁에 노출하지 않음(R206). 행 클릭 → 심층 분석.
     html += '<tr class="aio-hover-row" style="border-bottom:1px solid var(--surface-4);cursor:pointer;" data-action="_aioScreenerTicker" data-arg="' + escHtml(r.sym) + '">' +
       '<td style="text-align:center;padding:4px 6px;width:28px;">' + starHtml + '</td>' +
-      '<td style="text-align:center;padding:5px 8px;">' +
+      '<td class="scr-adv-col" style="text-align:center;padding:5px 8px;">' +
         (rank!=null
           ? '<div style="font-family:var(--font-mono);font-weight:800;font-size:11px;color:'+rkColor+';">' + rank + '</div>' +
-            '<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:3px;overflow:hidden;">' +
+            '<div style="height:3px;background:var(--border-subtle);border-radius:2px;margin-top:3px;overflow:hidden;">' +
               '<div style="height:100%;width:'+rank+'%;background:'+rkColor+';border-radius:2px;"></div>' +
             '</div>'
-          : '<span style="color:#5a6678;">—</span>') +
+          : '<span style="color:var(--text-muted);">—</span>') +
         (r.quantSignal ? '<div style="font-size:10px;color:'+rkColor+';margin-top:2px;">'+escHtml(r.quantSignal)+'</div>' : '') +
       '</td>' +
-      '<td style="text-align:center;padding:5px 6px;"><span class="mv-grade ' + gradeClass + '" style="font-size:11px;">' + grade + '</span></td>' +
+      '<td class="scr-adv-col" style="text-align:center;padding:5px 6px;"><span class="mv-grade ' + gradeClass + '" style="font-size:11px;">' + grade + '</span></td>' +
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
-      '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
-      _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) + _fcell(fs.kalman, '칼만추세', false) +
-      '<td style="text-align:right;padding:4px 8px;" title="VCP 점수 '+( vcpScore != null ? vcpScore : '—' )+' · '+vcpStageKey+'">' + (vcpScore != null ? '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:'+vcpColor+';">'+vcpScore+'</div><div style="font-size:10px;color:'+vcpColor+';">'+vcpStageShort+'</div>' : '<span style="color:#5a6678;">—</span>') + '</td>' +
+      '<td class="scr-adv-col" style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
+      _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) + _fcell(fs.kalman, '추세신뢰도', false, '') +
+      '<td style="text-align:right;padding:4px 8px;" title="VCP 점수 '+( vcpScore != null ? vcpScore : '—' )+' · '+vcpStageKey+'">' + (vcpScore != null ? '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:'+vcpColor+';">'+vcpScore+'</div><div style="font-size:10px;color:'+vcpColor+';">'+vcpStageShort+'</div>' : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
-      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
+      '<td class="scr-adv-col" style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
       // v52.16 P5j/P622: 라이브 시세는 ~85종목만 커버해 나머지 788종목은 이 셀이 영구 "—"였음 — 다른
       // 팩터 셀(RSI/시총 등)과 동일하게 SCREENER_DB 자체 필드(r.price, screener.json 서버 종가로 이미
       // 채워짐 — _aioApplyServerScreener) 우선 표시. data-live-price는 유지해 ~85종목은 계속 실시간 갱신.
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">' + (typeof r.price === 'number' ? r.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—') + '</td>' +
-      '<td style="text-align:center;padding:4px 8px;border-left:1px solid var(--border);">' + entryHtml + '</td>' +
-      '<td style="text-align:center;padding:6px 8px;border-left:1px solid var(--border);"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
-      '<td style="padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (r.newsMemo ? escHtml(r.newsMemo) : '') + '">' + (r.newsMemo ? escHtml(r.newsMemo.slice(0, 70)) : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
+      '<td class="scr-adv-col" style="text-align:center;padding:4px 8px;border-left:1px solid var(--border);">' + entryHtml + '</td>' +
+      '<td class="scr-adv-col" style="text-align:center;padding:6px 8px;border-left:1px solid var(--border);"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
+      '<td class="scr-adv-col" style="padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (r.newsMemo ? escHtml(r.newsMemo) : '') + '">' + (r.newsMemo ? escHtml(r.newsMemo.slice(0, 70)) : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
     '</tr>';
   });
 
@@ -2036,10 +2039,10 @@ function renderScreenerResults() {
       var sym = el.getAttribute('data-live-chg');
       var d = ld2[sym];
       if (!d) return;
-      if (d.pct == null) { el.textContent = '—'; el.style.color = '#7b8599'; return; }
+      if (d.pct == null) { el.textContent = '—'; el.style.color = 'var(--text-muted)'; return; }
       var pct = d.pct;
       el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-      el.style.color = pct >= 0 ? '#00e5a0' : '#ff5b50';
+      el.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
       el.style.fontWeight = '700';
     });
   }
@@ -2125,6 +2128,15 @@ window._aioToggleAdvFilters = function() {
   if (!row) return;
   row.classList.toggle('active');
 };
+// v52.72: 시안 4c는 9열 핵심 컬럼만 노출 — 나머지(순위/등급/섹터/모멘텀/추세/저변동/밸류/퀄리티/시총/
+// 진입?/시그널/최신뉴스)는 기본 숨김, 이 토글로 전체 컬럼 노출/축소(삭제 아님 — 데이터·정렬 기능 그대로).
+window._aioScreenerToggleColumns = function() {
+  var table = document.getElementById('screener-results-table');
+  var btn = document.getElementById('scr-col-toggle-btn');
+  if (!table) return;
+  var showing = table.classList.toggle('scr-show-adv');
+  if (btn) btn.textContent = showing ? '핵심 컬럼만 보기' : '전체 컬럼 보기';
+};
 // 고급 필터 초기화
 window._aioResetAdvFilters = function() {
   ['scr-min-rank','scr-rsi-min','scr-rsi-max','scr-min-mom'].forEach(function(id){
@@ -2145,7 +2157,7 @@ window._aioEntryTiming = function(r) {
   var rsi = (typeof r.rsi === 'number') ? r.rsi : null;
   var rank = (typeof r.rank === 'number') ? r.rank : null;
   var mom = (typeof r.ret1m === 'number') ? r.ret1m : (typeof r.ret3m === 'number' ? r.ret3m / 3 : null);
-  if (rank == null) return '<span style="color:#5a6678;font-size:10px;">—</span>';
+  if (rank == null) return '<span style="color:var(--text-muted);font-size:10px;">—</span>';
   if (rank < 30) return '<span class="scr-entry-chip entry-avoid">↓ 관망</span>';
   if (rsi != null && rsi > 78) return '<span class="scr-entry-chip entry-wait">⏸ 고RSI</span>';
   if (rsi != null && rsi < 22) return '<span class="scr-entry-chip entry-wait">⏸ 저RSI</span>';
@@ -11025,6 +11037,9 @@ function renderFeed(items) {
       }
     }
 
+    // v52.72 아이보리 4b: 시안 구조 — 우측은 topicBadge(카테고리) 대신 호재/부담/중립 감성 단어,
+    // 카테고리는 메타 줄로 이동(시안 "AOL · 반도체·AI · 미국 · 중요도 65" 형식에 근접).
+    const sentWord = sent === 'bull' ? '호재' : sent === 'bear' ? '부담' : sent === 'warn' ? '주의' : '중립';
     return `${dateHeader}<div class="news-item-card" data-open-url="${escHtml(escUrl(item.link))}" data-news-idx="${idx}" title="${escHtml((item.title||'').slice(0,200))}">
       <div class="news-time-col">
         <span class="news-time-abs">${timeDisplay}</span>
@@ -11033,9 +11048,9 @@ function renderFeed(items) {
       <div class="news-item-body">
         <div class="news-item-headline">${tickerHtml}${displayTitle}</div>
         ${summaryHtml}
-        <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${timeAgo} ${scoreBar}</div>
+        <div class="news-item-meta">${item._tgChannel ? '<span style="background:var(--data-purple-border);color:#a78bfa;font-size:11px;font-weight:700;padding:1px 4px;border-radius:3px;margin-right:4px;">TG</span>' : ''}${unverifiedBadge}${item.flag||''} ${escHtml(item.source||'')} · ${topicBadge} · ${timeAgo} ${scoreBar}</div>
       </div>
-      ${topicBadge}
+      <span style="font-size:12px;font-weight:600;color:${sentColor};flex-shrink:0;">${sentWord}</span>
     </div>`;
   }).join('');
 
