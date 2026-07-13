@@ -1426,8 +1426,11 @@ window._aioKrTickerSubmit = function() {
 };
 window._aioTickerSubmit = function() {
   var inp = document.getElementById('ticker-analysis-input');
-  if (inp && typeof window.analyzeTickerDeep === 'function') {
-    window.analyzeTickerDeep(inp.value.toUpperCase());
+  if (inp) {
+    var sym = inp.value.toUpperCase();
+    if (typeof window.analyzeTickerDeep === 'function') window.analyzeTickerDeep(sym);
+    // v52.69: 시안 3c 심볼 셀렉터가 이 버튼을 겸함 — 캔들 차트도 동일 심볼로 갱신
+    if (sym && typeof window.loadTechCandleChart === 'function') window.loadTechCandleChart(sym);
   }
 };
 window._aioAddToPortfolio = function(ticker) {
@@ -18636,7 +18639,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.67';
+const APP_VERSION = 'v52.70';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

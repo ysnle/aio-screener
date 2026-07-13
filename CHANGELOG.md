@@ -1,3 +1,24 @@
+## v52.70 (2026-07-13)
+
+signal(2a)·briefing(2b)·breadth(3a)·sentiment(3b)에 이어 technical(3c)·macro(3d) 구조 재구축 — 이로써 comp(`AIO 리디자인.dc.html`)의 13개 마킹 화면 중 아이보리 리디자인 대상 페이지 전체(1b/2a/2b/3a~3d, +기존에 이미 comp-compliant로 확인된 fxbond/fundamental/themes/portfolio/market-news/screener)를 이번 세션에서 일괄 커버 완료.
+
+- **technical(3c)**: 헤더/건강도 히어로(serif54 점수+SPY·QQQ·VIX 바+M7 리더십)/4카드 지표(RSI·MACD·Stochastic·ADX)/심볼 셀렉터(SPY·QQQ pill+티커 입력)/캔들+Weinstein 2열/MTF 4열을 시안 구조로 재구축. **신규 네이티브 캔들 차트**(`loadTechCandleChart()`, kr-technical의 `loadKrCandleChart()` Chart.js bar-type 패턴을 MA5/10/20/50/200 5선으로 확장) — 기존 TradingView iframe 위젯을 details로 보존하며 1차 화면은 대체. 매물대(volume profile) 히스토그램은 신규 알고리즘이 필요해 범위 밖으로 명시 제외, 표준 시간축 거래량 바로 대체. Weinstein은 시안의 수직 리스트로 전환(`ws-stage1~4` id 유지), S/R는 차트 옆 목록으로 유지(`updateSRLevels()` 무변경).
+  - **핵심 버그 발견+수정**: `updateTechIndicators()`가 `#tech-indicators-live` 컨테이너 전체를 `<table>`로 `innerHTML` 갈아끼우고 있어, 새 4카드 마크업이 페이지 진입 300ms 후 통째로 파괴되고 있었음(Stochastic/ADX id는 애초에 이 함수 대상이 아니었고, RSI/MACD만 캡션 텍스트까지 뒤섞여 렌더). 외과적으로 `tech-rsi-val`/`tech-macd-val` 두 셀만 갱신하도록 재작성해 `applyTechIndicators()`(Stochastic/ADX 담당, js/aio-data.js)와 공존하게 수정.
+  - CSS var 알파-접미사 버그 3건 추가 발견+수정(`classifyMarketRegime()`에서 처음 발견한 것과 동일 계열): `updateWeinsteinStage()` 활성 단계 하이라이트, `updateMTF()` 타임프레임 카드, `updateSRLevels()`의 MA200 색상 하드코딩.
+- **macro(3d)**: 헤더/오늘의 거시 브리핑(기존 `generateMacroStoryline()` 재사용)/WTI·Gold 2카드(serif32 가격+등락)/금리·환율 6열/인플레이션·고용 5열/수익률곡선+원자재·사이클 2열을 시안 구조로 재구축. 기존 `data-snap`/`data-live-price`/`data-live-chg` 파이프라인과 `renderYieldCurve()` 캔버스를 전부 그대로 재사용. 구 8카드 라이브 매크로 그리드·구 인플레이션 5카드 그리드·구 수익률곡선 분석기 섹션은 동일 id 재사용으로 인한 중복을 막기 위해 삭제(렌더러 함수 무변경) — 인터커넥션 맵/경제 사이클 타임라인/FRED 12개월 차트/추가 매크로지표/글로벌 경기 체온계는 details로 보존.
+- **검증(시간 압박 하 축소)**: `node --check` 전체 통과, index.html 11개 inline `<script>` 블록 개별 구문 검사 통과, `ci-structural-check`/`ci-ux-default-path-check`(div 균형 4118/4118)/`ci-runtime-contract-check`/`ci-data-pipeline-contract-check`/`ci-semantic-review-check`/`ci-accessibility-matrix-check`(22라우트, 콘솔에러 0) 전부 PASS, `ci-headless-tests` **992/992 PASS**. technical(3c)만 Playwright 실브라우저로 추가 확인(건강도/SPY·QQQ·VIX/M7/마켓폭/RSI·MACD/Weinstein/MTF 전부 실데이터 반영, QQQ pill 클릭 시 차트·라벨 전환 확인). macro(3d)는 사용자 지시에 따라 실브라우저 스크린샷 단계 생략 — 자동 게이트만으로 검증.
+
+## v52.68 (2026-07-13)
+
+signal(2a)·briefing(2b)·breadth(3a)에 이어 sentiment(3b) 구조 재구축. breadth와 마찬가지로 시안 마커가 전혀 없어 전면 재구축 필요.
+
+- **F&G 히어로 + VIX 기간구조 2열 재구축**: 시안 구조(380px 히어로 | 1fr 기간구조)로 전환 — F&G는 serif 44px 큰 숫자+등급, VIX 기간구조는 4칸 그리드(VIX9D/VIX/VIX3M/VIX6M) + 스파클라인 차트 + 판정 캡션. 기존 `fg-score-big`/`vix-term-summary`/`vix-term-regime-text`(`_aioRenderVixTermRegime` 대상) 등 id 전부 유지, DOM 형태만 그 함수가 기대하는 wrapper+`<strong>` 구조에 맞춰 재배치.
+- **지표 행을 시안 4카드로 축소**: HY스프레드/AAII/Put-Call은 기존 캔버스 차트+값 혼합에서 값+해석 텍스트만 남기고 차트는 details로 이동. **SKEW 카드 신규 추가**(시안엔 있으나 라이브엔 없었음) — 기존 `data-snap="skew"`/`data-live-chg="^SKEW"` 범용 패턴 재사용이라 신규 JS 불필요.
+- **details 2개로 폴드**: (1) VIX 전체 히스토리 차트 + NAAIM + Investors Intelligence 차트, (2) HY/AAII/Put-Call 히스토리 캔버스 + 뉴스 감성 추이 차트 전체 섹션.
+- **복합 판단**: 시안 헤딩+해설문 구조로 `sent-analysis-text` 재배치(기존 위젯 박스에서 지면식으로 전환).
+- **부수 정리**: `sentiment-conclusion-bar`가 새 복합판단 섹션과 중복 — signal-conclusion-bar와 동일 패턴으로 시각만 숨김. `vix-live-label`이 실제로 VIX 상태 라벨을 표시하는 살아있는 요소였음을 확인해(첫 시도에서 실수로 숨겼던 것을 재검토 중 발견) 캡션에 노출 유지.
+- **검증**: 로컬 3종(구조/UX기본경로/JS구문) PASS + 헤드리스 992/992 PASS. Playwright 실브라우저 확인 — F&G 49, VIX9D 18.80(정적)/VIX 15.03(실시간)/VIX3M 19.90(정적)/VIX6M 20.40(정적) 정직 라벨링 확인, 복합판단 문단 실데이터 반영, 페이지 에러 0건.
+
 ## v52.67 (2026-07-13)
 
 signal(2a)·briefing(2b)에 이어 breadth(3a) 구조 재구축. 이 페이지는 briefing과 달리 시안 재구축이 전혀 안 되어 있어(v52.6x 코멘트 마커 없음) signal과 동일한 전면 재구축이 필요했음.
