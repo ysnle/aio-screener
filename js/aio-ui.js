@@ -4054,13 +4054,13 @@ function _renderFundHeader(d) {
   if (_vol && _avgVol3M && _avgVol3M > 0) {
     var _volRatio = _vol / _avgVol3M;
     var _volLabel, _volColor;
-    if (_volRatio >= 2.0) { _volLabel = '거래량 폭증'; _volColor = '#ef4444'; }
-    else if (_volRatio >= 1.3) { _volLabel = '거래량 상승'; _volColor = '#ffa31a'; }
-    else if (_volRatio < 0.5) { _volLabel = '거래량 저조'; _volColor = '#7b8599'; }
-    else { _volLabel = '거래량 정상'; _volColor = '#00e5a0'; }
+    if (_volRatio >= 2.0) { _volLabel = '거래량 폭증'; _volColor = 'var(--data-red)'; }
+    else if (_volRatio >= 1.3) { _volLabel = '거래량 상승'; _volColor = 'var(--data-amber)'; }
+    else if (_volRatio < 0.5) { _volLabel = '거래량 저조'; _volColor = 'var(--text-muted)'; }
+    else { _volLabel = '거래량 정상'; _volColor = 'var(--data-green)'; }
     var _vol10dRatio = (_avgVol10D && _avgVol10D > 0) ? (_vol / _avgVol10D) : null;
     html += '<div style="margin-top:8px;display:flex;gap:8px;font-size:11px;align-items:center;flex-wrap:wrap;">';
-    html += '<span style="padding:3px 10px;background:' + _volColor + '22;border:1px solid ' + _volColor + ';color:' + _volColor + ';border-radius:4px;font-weight:700;">' + _volLabel + ' ' + _volRatio.toFixed(1) + 'x</span>';
+    html += '<span style="padding:3px 10px;background:var(--surface-2);border:1px solid ' + _volColor + ';color:' + _volColor + ';border-radius:4px;font-weight:700;">' + _volLabel + ' ' + _volRatio.toFixed(1) + 'x</span>';
     html += '<span style="color:var(--text-muted);">3개월 평균 대비 · 오늘 ' + Number(_vol).toLocaleString() + '주';
     if (_vol10dRatio != null) html += ' · 10일 평균 대비 ' + _vol10dRatio.toFixed(1) + 'x';
     html += '</span>';

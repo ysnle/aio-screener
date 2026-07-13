@@ -10984,7 +10984,7 @@ function renderFeed(items) {
 
     // 기존 카드 형식 (전체/시장 뉴스)
     const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
-    const sentColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
+    const sentColor = sent === 'bull' ? 'var(--data-green)' : sent === 'bear' ? 'var(--data-red)' : sent === 'warn' ? 'var(--data-amber)' : 'var(--text-muted)';
     const topicBadge = getTopicBadge(item.topic || 'general');
     const impact = item.impactVector || calcNewsImpactVector(item);
     const impactHtml = (typeof window.renderNewsImpactBadge === 'function')
@@ -11002,7 +11002,7 @@ function renderFeed(items) {
     const _showTicker = !_MACRO_TOPICS.includes(item.topic);
     const tickers = _showTicker ? getDisplayTickers(item) : [];
     const tickerHtml = tickers.length > 0
-      ? `<span class="news-tickers">${tickers.map(t => `<span class="news-ticker-badge" style="color:#60a5fa;font-weight:800;font-size:11px;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:3px;">${escHtml(t)}</span>`).join('')}</span>`
+      ? `<span class="news-tickers">${tickers.map(t => `<span class="news-ticker-badge" style="color:var(--data-cyan);font-weight:800;font-size:11px;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:3px;">${escHtml(t)}</span>`).join('')}</span>`
       : '';
 
     // v51.57: 번역된 제목만, desc/explain/action 제거, template summary 필터
@@ -11013,7 +11013,7 @@ function renderFeed(items) {
     const summaryHtml = _isTplSummary ? '' : `<div class="news-item-summary" style="font-size:11px;color:var(--text-secondary);margin-top:3px;line-height:1.45;">${escHtml(displaySummary)}</div>`;
 
     // 스코어 바
-    const scoreBar = item.score > 0 ? `<span style="font-size:11px;color:${item.score > 50 ? '#00e5a0' : item.score > 30 ? '#ffa31a' : 'var(--text-muted)'};font-family:var(--font-mono);">■${item.score}</span>` : '';
+    const scoreBar = item.score > 0 ? `<span style="font-size:11px;color:${item.score > 50 ? 'var(--data-green)' : item.score > 30 ? 'var(--data-amber)' : 'var(--text-muted)'};font-family:var(--font-mono);">■${item.score}</span>` : '';
 
     // 날짜 그룹 헤더 (시간순 정렬일 때만)
     let dateHeader = '';
@@ -16778,7 +16778,7 @@ function refreshHomeDashboard() {
       const top3 = window._newsItems.slice(0, 3);
       newsEl.innerHTML = top3.map(item => {
         const sent = typeof getSentimentFromText === 'function' ? getSentimentFromText(item.headline || '') : 'neut';
-        const sentColor = sent === 'bull' ? '#00e5a0' : sent === 'bear' ? '#ff5b50' : sent === 'warn' ? '#ffa31a' : '#7b8599';
+        const sentColor = sent === 'bull' ? 'var(--data-green)' : sent === 'bear' ? 'var(--data-red)' : sent === 'warn' ? 'var(--data-amber)' : 'var(--text-muted)';
         const tickers = typeof getDisplayTickers === 'function' && item.title ? getDisplayTickers(item) : [];
         const tickerStr = tickers.length > 0 ? `<div style="margin-top:3px;">${tickers.map(t => `<span style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);background:var(--data-cyan-soft);padding:1px 4px;border-radius:3px;margin-right:2px;">${escHtml(t)}</span>`).join('')}</div>` : '';
         return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px;border-top:2px solid ${sentColor};">
@@ -17578,12 +17578,12 @@ function _aioRenderCarryUnwindRisk() {
   if (hyg < 78) score += 15; else if (hyg < 82) score += 8; else score += 3;
   score = Math.min(100, score);
 
-  // v51.06 팔레트: --data-red #ef4444, --data-amber #f59e0b, --data-green #10c98b
+  // v52.71: 구 v51.06 팔레트(#ef4444/#f59e0b/#10c98b, 다크테마 잔재)를 아이보리 토큰으로 교체
   var riskLevel, riskColor;
-  if (score >= 70)      { riskLevel = '⚠ 고위험';  riskColor = '#ef4444'; }
-  else if (score >= 45) { riskLevel = '⚡ 중위험'; riskColor = '#f59e0b'; }
-  else if (score >= 25) { riskLevel = '● 저위험';  riskColor = '#10c98b'; }
-  else                  { riskLevel = '● 안전';     riskColor = '#10c98b'; }
+  if (score >= 70)      { riskLevel = '고위험';  riskColor = 'var(--data-red)'; }
+  else if (score >= 45) { riskLevel = '중위험'; riskColor = 'var(--data-amber)'; }
+  else if (score >= 25) { riskLevel = '저위험';  riskColor = 'var(--data-green)'; }
+  else                  { riskLevel = '안전';     riskColor = 'var(--data-green)'; }
 
   var jpyRisk  = jpy > 155 ? 'BOJ 개입 경계선 근접' : jpy > 148 ? '고점 압박 · BOJ 긴축 지속' : '엔화 강세 전환 · 언와인드 압력';
   var vixRisk  = vix > 22  ? '리스크-오프 · 청산 압박' : vix > 16 ? '변동성 경계' : '안정적 환경';

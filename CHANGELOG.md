@@ -1,3 +1,17 @@
+## v52.72 (2026-07-13)
+
+사용자 재확인 후 (a) 시안 comp-compliant로 잘못 기록됐던 6개 페이지(3e~4c) 실제 재검증 + (b) 착수 전 — fxbond(3e)·fundamental(3f)·themes(3g)·portfolio(4a)·market-news(4b)·screener(4c) 전체 재작업.
+
+- **fxbond(3e)**: 완전 재구축 필요로 판명(구 CHANGELOG v52.64의 "comp-compliant" 기록은 부정확 — 실제로는 국기 이모지 카드+SECTION A-H 레거시 구조였음). 오늘의 브리핑/10Y·JPY 3개월 추이 신규 미니차트(`loadFxBondTrendCharts()`, fetchOHLCVWithFallback 재사용)/크로스에셋 4축(달러·10Y·엔·크레딧, 기존 cam-*/carry-jpy 재사용)/주요 통화쌍 6열/스프레드+크레딧·변동성(엔캐리 게이지 포함) 2열로 재구축. 구 8카드/국가별테이블 등은 details로 보존.
+- **fundamental(3f)**: 이미 시안과 구조적으로 상당히 정합(3탭·4카드 하이라이트·성장성/수익성 차트가 이미 comp와 거의 일치) — 헤더/검색바만 시안 스타일로 재구축, 나머지는 가벼운 검증만.
+- **themes(3g)**: RRG를 산점도 캔버스에서 시안의 4분면 텍스트 카드로 전환(`renderRRGQuadrantCards()` 신규, 기존 `calcLiveRS()`/`classifyRRG()` 재사용) — 기존 산점도는 details로 보존. 섹터 ETF 11열 등락 + 로테이션 해석 문단 신규.
+- **portfolio(4a)**: 총자산가치 히어로(serif44, 시안 구조)로 헤더 재구축, 리스크분석(Sharpe/Beta/MDD/Drift) 카드를 시안 스타일로 재배치. AI 운용노트/백테스트Lab/R:R계산기 등 시안에 없는 고급 기능은 그대로 유지(코멘트로 명시).
+- **market-news(4b)**: 센티먼트 스트립을 헤더로 이전 + 시안 스타일 재구축, 필터 유지. 뉴스 카드 제목 폰트 10px→13px(가독성).
+- **screener(4c)**: 기존 멀티팩터 랭킹 시스템(트레이더 프로파일·팩터/레짐·백테스트IC 3탭)이 시안보다 훨씬 정교해 축소하지 않고 헤더만 시안 스타일로 재구축.
+- **부수 발견(신규 버그 다수)**: `_aioRenderCarryUnwindRisk()`(엔캐리 게이지)·`applyTechIndicators` 유사 패턴의 하드코딩 구팔레트(`#ef4444` 등)를 아이보리 토큰으로 교체 + 이모지 제거. 뉴스 카드 렌더러(`sentColor`/티커뱃지/스코어바 3곳)의 동일 계열 하드코딩 hex도 교체. **자체 발견 버그 2건**: fxbond·portfolio 재구축 도중 구간 삭제 시 매칭되는 닫는 `</div>`를 함께 삭제해버려 페이지 전체 div 불균형이 발생 — `ci-ux-default-path-check.mjs`가 즉시 포착, depth-trace로 정확한 위치 특정 후 수정(P685/P686에서 확립한 방법론 재사용). portfolio 재구축 중 리스크분석 4카드(Sharpe/Beta/MDD/Drift) 섹션 자체를 실수로 통째로 누락했다가 헤드리스 테스트(T235)가 포착해 복구.
+- **미해결로 남긴 발견**: `js/aio-core.js`에서만 하드코딩 구팔레트 hex(`#00e5a0`/`#ff5b50`/`#ffa31a`/`#ef4444` 등) 83건 확인 — 이번 세션에서 실제로 만진 함수 안의 것만 그때그때 수정했고, 전수 스윕은 범위 밖(별도 세션 필요, 시각적으로는 값이 현재 토큰과 우연히 일치해 당장 눈에 띄는 문제는 아님).
+- **검증**: `node --check` 전체, inline script 11블록 개별 구문검사, `ci-structural-check`/`ci-ux-default-path-check`(div 균형 4191/4191)/`ci-runtime-contract-check`/`ci-data-pipeline-contract-check` PASS, `ci-headless-tests` **992/992 PASS**. fxbond/themes/portfolio/market-news는 Playwright 실브라우저로 실데이터 렌더 확인(fxbond 신규 미니차트만 오프라인 테스트 환경 한계로 미확인 — technical 페이지와 동일한 기지의 제약).
+
 ## v52.70 (2026-07-13)
 
 signal(2a)·briefing(2b)·breadth(3a)·sentiment(3b)에 이어 technical(3c)·macro(3d) 구조 재구축 — 이로써 comp(`AIO 리디자인.dc.html`)의 13개 마킹 화면 중 아이보리 리디자인 대상 페이지 전체(1b/2a/2b/3a~3d, +기존에 이미 comp-compliant로 확인된 fxbond/fundamental/themes/portfolio/market-news/screener)를 이번 세션에서 일괄 커버 완료.
