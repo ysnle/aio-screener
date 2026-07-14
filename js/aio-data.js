@@ -5557,7 +5557,10 @@ async function _aioLoadServerData() {
     // public sink. A future typed/semantic producer must opt in explicitly.
     window._serverMarketAnalysis = null;
     if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
-      var _serverMarketAnalysisVerified = d.meta.marketAnalysisSemanticOk === true || d.marketAnalysis.semanticStatus === 'verified' || d.marketAnalysis.status === 'verified';
+      var _serverMarketPublishAudit = window.AIO && typeof window.AIO.validateAIAutomatedPublish === 'function'
+        ? window.AIO.validateAIAutomatedPublish({ entrypoint: 'market-analysis', text: d.marketAnalysis.full || d.marketAnalysis.oneLine, currentSensitive: true, requiresStructuredClaims: false, evidence: [] })
+        : { blocked: false, sourceLabel: 'AI_GENERATED' };
+      var _serverMarketAnalysisVerified = (d.meta.marketAnalysisSemanticOk === true || d.marketAnalysis.semanticStatus === 'verified' || d.marketAnalysis.status === 'verified') && !_serverMarketPublishAudit.blocked;
       var _serverMarketAnalysisGeneratedAt = d.marketAnalysis.generatedAt || d.meta.generatedAt;
       var _serverMarketAnalysisSource = d.marketAnalysis.source || d.marketAnalysis.model || 'github-actions-market-analysis';
       if (_serverMarketAnalysisVerified) {
@@ -5566,7 +5569,9 @@ async function _aioLoadServerData() {
           full: d.marketAnalysis.full || d.marketAnalysis.oneLine,
           oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full,
           generatedAt: _serverMarketAnalysisGeneratedAt,
-          source: _serverMarketAnalysisSource
+          source: _serverMarketAnalysisSource,
+          publishAudit: _serverMarketPublishAudit,
+          sourceLabel: window.AIO && typeof window.AIO.getAIOutputSourceLabel === 'function' ? window.AIO.getAIOutputSourceLabel('AI_GENERATED', _serverMarketPublishAudit) : 'AI_GENERATED'
         };
       }
       if (window._serverDataMeta) {
@@ -5575,7 +5580,9 @@ async function _aioLoadServerData() {
           generatedAt: _serverMarketAnalysisGeneratedAt,
           source: _serverMarketAnalysisSource,
           fullLength: String(d.marketAnalysis.full || d.marketAnalysis.oneLine || '').length,
-          reason: _serverMarketAnalysisVerified ? null : 'semantic-gate-required'
+          reason: _serverMarketAnalysisVerified ? null : (_serverMarketPublishAudit.blocked ? 'automated-publish-gate' : 'semantic-gate-required'),
+          publishAudit: _serverMarketPublishAudit,
+          fallback: 'AIO.synthesizeMarketAnalysis'
         };
       }
       try { if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_) {}
@@ -9926,8 +9933,13 @@ async function autoTranslateNews(items) {
   for (let i = 0; i < Math.min(needTranslation.length, 60); i += BATCH) {
     const batch = needTranslation.slice(i, i + BATCH);
     const prompt = batch.map((item, idx) => {
-      const desc = (item.desc || '').slice(0, 200);
-      return `[${idx+1}] Title: ${item.title}${desc ? '\nDesc: ' + desc : ''}\nSource: ${item.source || 'unknown'}`;
+      const safeItem = (window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function')
+        ? window.AIO.sanitizeAIUntrustedText((item.title || '') + '\n' + (item.desc || ''), { maxChars: 600 })
+        : { text: (item.title || '') + '\n' + (item.desc || '') };
+      const safeParts = String(safeItem.text || '').split('\n');
+      const title = safeParts.shift() || '';
+      const desc = safeParts.join(' ').slice(0, 200);
+      return `[${idx+1}] Title: ${title}${desc ? '\nDesc: ' + desc : ''}\nSource: ${(item.source || 'unknown').toString().slice(0, 80)}\nSecurityFlags: ${(safeItem.flags || []).join(',') || 'none'}`;
     }).join('\n\n');
 
     try {
@@ -11736,6 +11748,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     '- 뉴스 원문 그대로 복붙 금지 — 반드시 분석·해석·연결해서 서사를 만들어라\n' +
     '- 단순 사실 나열 금지 — E→M→I→A 없는 문단은 쓰지 마라';
 
+  if (window.AIO && typeof window.AIO.getAIClaimSchemaPrompt === 'function') prompt += window.AIO.getAIClaimSchemaPrompt();
   try {
     // v52.76/WP-AI1: briefing shares the same request envelope and public
     // response pipeline as both chat surfaces. A blocked result uses the
@@ -11760,7 +11773,10 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
     var _briefingResult = _aioRunAIResponsePipeline(aiText, {
       request: _briefingRequest,
       entrypoint: 'auto-briefing',
-      ctxId: 'briefing'
+      ctxId: 'briefing',
+      currentSensitive: true,
+      requiresStructuredClaims: true,
+      evidence: []
     });
     if (_briefingResult.blocked) throw new Error('AI briefing blocked by public action policy');
     aiText = _briefingResult.text;
@@ -11768,6 +11784,8 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
 
     // 마크다운 → HTML 변환 (간단)
     var aiHtml = _markdownToHtml(aiText);
+    var _briefSourceLabel = window.AIO && typeof window.AIO.getAIOutputSourceLabel === 'function'
+      ? window.AIO.getAIOutputSourceLabel('AI_GENERATED', _briefingResult.publishAudit) : 'AI_GENERATED';
 
     var finalHtml = briefingHeader +
       '<div style="padding:2px 0;">' +
@@ -11777,7 +11795,7 @@ async function _generateAIBriefing(newsText, bw, fallbackHtml, cacheKey, briefin
       '<div style="font-size:12px;font-weight:700;color:#a78bfa;">AI 종합 분석 브리핑</div>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-top:1px;">' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'}) + ' 생성 · Claude Haiku</div>' +
       '</div></div>' +
-      '<div class="ai-briefing-content" style="font-size:11px;line-height:1.8;color:var(--text-primary);padding:0 4px;">' + aiHtml + '</div>' +
+      '<div class="ai-briefing-content" data-ai-source-label="' + _briefSourceLabel + '" style="font-size:11px;line-height:1.8;color:var(--text-primary);padding:0 4px;">' + aiHtml + '</div>' +
       '</div>' +
       '<div style="border-top:1px solid var(--border);margin-top:18px;padding-top:12px;">' +
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">' +

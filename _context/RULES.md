@@ -1,10 +1,130 @@
 ---
 verified_by: agent
-last_verified: 2026-07-12
+last_verified: 2026-07-14
 confidence: high
-target_version: v52.77
+target_version: v52.86
 
 ---
+
+## R313. AI reference retrieval must be intent-aware, top-k bounded, source-separated, and deterministically compacted (v52.78, P693)
+
+**Rule**: Imported research is `REFERENCE` material, not current market evidence. AI context assembly must classify the question, declare required evidence fields, rank route-relevant research with a stable top-k/tie order, and compact over-budget reference text deterministically within the declared 2K–6K token budget.
+
+**Required**: Reuse `AIO.classifyAIQueryIntent`, `AIO.retrieveImportedResearch`, `AIO.buildAIRetrievalContext`, and `AIO.compactAIContext`; preserve `sourceKind`/`asOf` and the explicit live/SNAPSHOT/verified-data rule. Do not trim separately injected current evidence or create a parallel AI truth store. Record P95 input-token samples using the shared chars/4 estimator with the stated ±10% target.
+
+**Validation**: T950~T957, WP-AI3 runtime-contract checks, `AIO.getAIRetrievalAudit`, `AIO.recordAIContextBudget`, and Chromium headless `1018/1018 PASS` locally. Live model/retrieval quality certification remains separate.
+
+## R314. External AI inputs must be explicitly untrusted and portfolio data must be allowlisted (v52.79, P694)
+
+**Rule**: News, Telegram, web-search, and translation-source text are data, not instructions. Normalize hidden/control characters, audit injection signatures, and wrap the block before model submission. Portfolio AI may send only the declared field allowlist after a session-only consent preview; chat history must expose bounded retention and off mode.
+
+**Required**: Reuse `AIO.sanitizeAIUntrustedText`, `AIO.buildAIUntrustedBlock`, `AIO.redactPortfolioForAI`, `AIO.getPortfolioAIPrivacyPreview`, and `AIO.getChatHistoryPolicy`. Do not pass account/user identifiers, exact position quantities/costs, targets, or raw journal fields by default.
+
+**Validation**: T958~T962, WP-AI4 runtime-contract checks, and Chromium headless `1027/1027 PASS` locally.
+
+## R315. Personalized financial action permission must be evaluated once at the shared response boundary (v52.79, P694)
+
+**Rule**: Prohibited conduct is denied; personalized trade instructions require suitability, current/live evidence, sourceKind/asOf, and explicit assumptions/invalidation context. Stale, missing, or `REFERENCE`-only evidence cannot authorize a personalized action. Probability claims require evidence or calibration metadata.
+
+**Required**: Use `AIO.evaluateAIActionPermission` inside `_aioRunAIResponsePipeline`; retain `conductAudit` in the response envelope and do not create a per-page parallel gate.
+
+**Validation**: T963~T966 and WP-AI5 runtime-contract checks; live model/red-team and jurisdiction-specific legal review remain separate.
+
+## R316. Automated content must pass a publish audit and retain a deterministic fallback/source label (v52.80, P695)
+
+**Rule**: Translation, briefing, and market-analysis output are publish surfaces, not merely chat responses. Structured claim corruption or a missing required envelope must fail closed without breaking the page; expose a deterministic evidence-summary/template fallback and distinguish it from AI-generated text.
+
+**Required**: Reuse `AIO.validateAIAutomatedPublish`, `AIO.buildDeterministicEvidenceSummary`, and `AIO.getAIOutputSourceLabel` through the shared response pipeline. Preserve the existing `AIO.synthesizeMarketAnalysis` fallback for unverified server prose.
+
+**Validation**: T967~T968, WP-AI6 runtime-contract checks, and Chromium headless `1032/1032 PASS` locally.
+
+## R317. AI page context contracts must be projected from the existing page registry (v52.80, P695)
+
+**Rule**: Every route must declare required/optional/forbidden AI data, beginner/expert answer modes, decision policy, and explicit disabled-state behavior. The source of truth remains `AIO_PAGE_CONTRACTS`; aliases such as `kr-technical`/`kr-tech` are audited explicitly.
+
+**Required**: Reuse `AIO.getPageAIContract` and `AIO.auditPageAIContracts`; do not create a parallel route registry or silently omit a page context.
+
+**Validation**: T969~T971, WP-AI7 runtime-contract checks, and 22-route audit with `silentDisabled=0`.
+
+## R326. Tool capabilities are read-only by default and mutation/unknown operations are denied (v52.86, P701)
+
+**Rule**: AI may inspect explicitly registered read-only data only. Unknown capabilities, writes, orders, account changes, external sends, file/network mutations, and operation mismatches are denied at the shared response boundary.
+
+**Required**: Reuse `AIO.getAIToolCapabilityRegistry`, `AIO.evaluateAIToolPermission`, and `AIO.auditAIToolCapabilities`; do not infer write permission from user prose or create an entrypoint-specific mutation path.
+
+**Validation**: T1007~T1009 and T1013, WP-AI19 runtime-contract checks, and Chromium headless `1075/1075 PASS` locally. Live tool/operator certification remains separate.
+
+## R327. Provider/data/output rights, retention, training, redistribution, and region require explicit registry approval (v52.86, P701)
+
+**Rule**: Availability of a provider or data source is not rights approval. Missing or unverified rights metadata remains review-required; notices must state the scope and no training/redistribution/region permission may be inferred.
+
+**Required**: Reuse `AIO.getAIRightsRegistry`, `AIO.evaluateAIDataRights`, and `AIO.auditAIRightsRegistry`; keep local-reference approval separate from live provider/legal/operator verification.
+
+**Validation**: T1010~T1014, WP-AI20 runtime-contract checks, and Chromium headless `1075/1075 PASS` locally. Live rights/legal/operator certification remains separate.
+
+## R324. Coverage and exposure audits must neutralize missingness before recommendations (v52.85, P700)
+
+**Rule**: Region/sector/cap/liquidity/source coverage and exposure must be reported explicitly. Missing or unknown fields are neutral, never a positive/negative score or eligible recommendation; any promotion of missingness fails the gate.
+
+**Required**: Reuse `AIO.buildAICoverageExposureReport` and `AIO.evaluateAICoverageBias`; retain per-dimension missingness, exposure counts, unknown rows, and promoted IDs. Keep population/model bias certification separate from local structural coverage.
+
+**Validation**: T999~T1001, WP-AI17 runtime-contract checks, and Chromium headless `1067/1067 PASS` locally. Live universe/model bias remains separate.
+
+## R325. Human chat claims require signed cross-mode evidence and explicit incomplete states (v52.85, P700)
+
+**Rule**: Chat usability/accessibility claims require screen-reader, keyboard, mobile, novice, expert, and task-completion evidence with evidence ID, signer, and signed timestamp. Missing dimensions or signatures are blocked, not silently promoted to pass.
+
+**Required**: Reuse `AIO.getHumanChatCertificationMatrix`, `AIO.createHumanChatCertification`, and `AIO.evaluateHumanChatCertification`; preserve surface/route/viewport/assistive-tech context and keep live human certification separate from local fixtures.
+
+**Validation**: T1002~T1006, WP-AI18 runtime-contract checks, and Chromium headless `1067/1067 PASS` locally. Live SR/mobile/user certification remains separate.
+
+## R322. Model releases require replay provenance, approval, canary, and rollback evidence (v52.84, P699)
+
+**Rule**: A model response is replayable only when request/app/data/Worker revision, model, prompt, retriever, validator, evidence snapshot, sampling, and output hash are retained. Release approval requires named owner/reviewer, replay pass, canary pass, and no rollback trigger.
+
+**Required**: Reuse `AIO.createAIReplayManifest`, `AIO.recordAIReplayManifest`, `AIO.replayAIResponseSample`, and `AIO.evaluateAIModelRelease`; keep model prose separate from Evidence and fail closed on metadata/output drift.
+
+**Validation**: T991~T994, WP-AI15 runtime-contract checks, and Chromium headless `1059/1059 PASS` locally. Live provider/model replay and canary certification remain separate.
+
+## R323. AI cache identity, idempotency, and stream completion must be tenant-safe and auditable (v52.84, P699)
+
+**Rule**: Response/context identity must include tenant/session/route/entity/evidence/model/prompt/retriever scope without raw identifier leakage. Duplicate in-flight requests are denied, completed requests are replay-only, and partial/aborted streams cannot be silently promoted to complete.
+
+**Required**: Reuse `AIO.buildAIIsolationCacheKey`, `AIO.beginAIIdempotentRequest`, `AIO.finalizeAIIdempotentRequest`, `AIO.abortAIIdempotentRequest`, and `AIO.finalizeAIStream`; keep current request ownership and stream state at the shared pipeline boundary.
+
+**Validation**: T995~T998, WP-AI16 runtime-contract checks, and Chromium headless `1059/1059 PASS` locally. Live multi-user race/isolation certification remains separate.
+
+## R320. Retrieval documents require lifecycle metadata and poisoning quarantine before AI use (v52.83, P698)
+
+**Rule**: Imported research is untrusted reference material. Every indexed document must retain document/chunk/version/time/source-tier metadata; injection/encoded/hidden content, retracted, superseded, or manually quarantined rows cannot enter active top-k or current-action evidence.
+
+**Required**: Reuse `AIO.indexAIRetrievalDocuments`, `AIO.evaluateAIRetrievalQuality`, `AIO.quarantineAIRetrievalDocument`, and `AIO.retrieveImportedResearch`. Record recall/precision/source-tier/temporal metrics and fail closed when a quarantined document is used by a current action path.
+
+**Validation**: T983~T987, WP-AI13 runtime-contract checks, and Chromium headless `1051/1051 PASS` locally. Live retrieval/model certification remains separate.
+
+## R321. Financial conduct classification must preserve P0, legal-review, and educational states (v52.83, P698)
+
+**Rule**: Conduct policy must classify all matched categories, block executable prohibited conduct at P0, route actionable jurisdictional/legal/tax/regulatory advice to legal review, and preserve non-actionable educational explanations. The shared response boundary is the enforcement point.
+
+**Required**: Reuse `AIO.getFinancialConductPolicy`, `AIO.classifyFinancialConduct`, and `AIO.evaluateAIActionPermission`; do not create per-entrypoint conduct exceptions or silently convert legal-review-required content into advice.
+
+**Validation**: T988~T990, WP-AI14 runtime-contract checks, and Chromium headless `1051/1051 PASS` locally. Live red-team/legal certification remains separate.
+
+## R318. AI operations and release claims require measured SLO, deterministic benchmark, and manifest-linked feedback (v52.81, P696)
+
+**Rule**: Provider usage, latency, token/cost, quota, model A/B, and user feedback must be observable through bounded local contracts. A candidate is not releasable when it regresses groundedness/currentness/action safety, exceeds the latency/cost tolerance, or has any P0 error.
+
+**Required**: Reuse `AIO.recordAISLOSample`, `AIO.getAISLOReport`, `AIO.tryAcquireAIQuota`, `AIO.runAIGoldenBenchmark`, `AIO.evaluateAIGoldenABGate`, and `AIO.createAIFeedbackSample`. Keep live-provider/model certification separate from deterministic local fixtures.
+
+**Validation**: T972~T976, WP-AI8/9/10 runtime-contract checks, and Chromium headless `1037/1037 PASS` locally.
+
+## R319. Conversation state and finance arithmetic must be deterministic, scoped, and auditable (v52.82, P697)
+
+**Rule**: A response may render only for its current session/turn/route/entity. Route/entity changes, cancel, retry, timeout, and trim must invalidate stale ownership. Financial arithmetic must come from an approved deterministic calculator and a validated `CalculationEvidence` object; model-generated numbers cannot become decision inputs.
+
+**Required**: Reuse `AIO.createAIConversationState`, `AIO.transitionAIConversationState`, `AIO.isCurrentAIResponse`, `AIO.runApprovedCalculation`, `AIO.validateCalculationEvidence`, and `AIO.checkCalculationInvariant`.
+
+**Validation**: T977~T982, WP-AI11/12 runtime-contract checks, and Chromium headless `1043/1043 PASS` locally.
 
 ## R312. Structured current-sensitive AI claims must preserve typed Evidence identity and fail closed on mismatch (v52.77, P692)
 

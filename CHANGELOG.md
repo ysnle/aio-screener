@@ -1,3 +1,76 @@
+## v52.86 (2026-07-14)
+- WP-AI19/20 is `VERIFIED_LOCAL`: tool capabilities are read-only by default with unknown/mutation deny; provider/data/output rights, retention, training, redistribution, and region fields now live in an explicit registry with review-required states for unverified live entries.
+- Added `AIO.getAIToolCapabilityRegistry`, `AIO.evaluateAIToolPermission`, `AIO.auditAIToolCapabilities`, `AIO.getAIRightsRegistry`, `AIO.evaluateAIDataRights`, and `AIO.auditAIRightsRegistry`; the shared pipeline carries `toolAudit`/`rightsAudit` and blocks mutation intent.
+- Added T1007~T1014 and WP-AI19/20 runtime-contract checks. Verification: changed-module syntax, runtime contract, version contract, and Chromium offline headless `1075/1075 PASS`; live provider/data/output rights, legal/operator configuration, multi-user tool isolation, deployment, and PUBLIC readiness remain unverified.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.86
+
+## v52.85 (2026-07-14)
+- WP-AI17/18 is `VERIFIED_LOCAL`: coverage/exposure reports now measure region/sector/cap/liquidity/source coverage and block missingness promotion; human-chat certification records signed SR/keyboard/mobile/novice/expert/task evidence with explicit incomplete states.
+- Added `AIO.buildAICoverageExposureReport`, `AIO.evaluateAICoverageBias`, `AIO.getHumanChatCertificationMatrix`, `AIO.createHumanChatCertification`, and `AIO.evaluateHumanChatCertification`; missing data remains neutral and unsigned/incomplete human evidence fails closed.
+- Added T999~T1006 and WP-AI17/18 runtime-contract checks. Verification: changed-module syntax, runtime contract, version contract, and Chromium offline headless `1067/1067 PASS`; live population/model bias, assistive-tech/user certification, deployment, and PUBLIC readiness remain unverified.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.85
+
+## v52.84 (2026-07-14)
+- WP-AI15/16 is `VERIFIED_LOCAL`: response manifests now retain replay provenance and output/evidence hashes with approval/canary/rollback release gates; request envelopes carry tenant-safe isolation keys and idempotency state, while stream partial/complete/aborted finalization is auditable.
+- Added `AIO.createAIReplayManifest`, `AIO.recordAIReplayManifest`, `AIO.replayAIResponseSample`, `AIO.evaluateAIModelRelease`, `AIO.buildAIIsolationCacheKey`, `AIO.beginAIIdempotentRequest`, `AIO.finalizeAIIdempotentRequest`, and `AIO.finalizeAIStream`; the existing shared pipeline records replay and stream audits.
+- Added T991~T998 and WP-AI15/16 runtime-contract checks. Verification: changed-module syntax, runtime contract, version contract, and Chromium offline headless `1059/1059 PASS`; live model replay/provider canary/red-team, multi-user isolation, deployment, and PUBLIC readiness remain unverified.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.84
+
+## v52.83 (2026-07-14)
+- WP-AI13/14 is `VERIFIED_LOCAL`: retrieval now indexes document/chunk/version/time metadata, quarantines poisoned/retracted/superseded material, measures recall/precision/source-tier/temporal quality, and blocks poisoned current-action use; the shared conduct boundary now exposes P0/legal-review/educational states.
+- Added `AIO.indexAIRetrievalDocuments`, `AIO.evaluateAIRetrievalQuality`, `AIO.quarantineAIRetrievalDocument`, `AIO.getFinancialConductPolicy`, and `AIO.classifyFinancialConduct`; retrieval top-k excludes quarantined cards and actionable jurisdictional advice fails closed to legal review.
+- Added T983~T990 and WP-AI13/14 runtime-contract checks. Verification: changed-module syntax, runtime contract, version contract, and Chromium offline headless `1051/1051 PASS`; live retrieval/model/red-team/legal certification, deployment, and PUBLIC readiness remain unverified.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.83
+
+## v52.82 (2026-07-14) — WP-AI11/12 conversation lifecycle and CalculationEvidence
+
+WP-AI11/12 is `VERIFIED_LOCAL`: request envelopes now carry session/turn/route/entity ownership with explicit trim and stale-response audits; financial arithmetic is isolated in approved deterministic calculators that emit validated `CalculationEvidence` and never authorize model decision use.
+
+- Added `AIO.createAIConversationState`, `AIO.beginAIConversationTurn`, `AIO.transitionAIConversationState`, `AIO.isCurrentAIResponse`, and `AIO.trimAIConversationContext`.
+- Extended `_aioCreateAIRequestObject` and the shared response envelope with conversation ID, turn ID, route, entity, and conversation audit metadata.
+- Added `AIO.registerApprovedCalculator`, `AIO.runApprovedCalculation`, `AIO.createCalculationEvidence`, `AIO.validateCalculationEvidence`, and `AIO.checkCalculationInvariant` with percent-change and portfolio-weight calculators.
+- Added T977–T982 and WP-AI11/12 runtime-contract checks. Verification: changed-module syntax, runtime contract, and Chromium offline headless `1043/1043 PASS`; live multi-user race/model arithmetic certification and deployment remain unverified.
+
+## v52.81 (2026-07-14) — WP-AI8/9/10 operations, benchmark, and feedback loop
+
+WP-AI8/9/10 is `VERIFIED_LOCAL`: AI usage now exposes bounded latency/token/failure SLO samples and quota acquisition guards; a deterministic 12-case golden corpus plus A/B release gate prevents unsupported regressions/P0 release; and feedback samples retain request/model/prompt/evidence/validator metadata.
+
+- Added `AIO.recordAISLOSample`, `AIO.getAISLOReport`, and `AIO.tryAcquireAIQuota`; live Claude usage records latency/tokens while existing API cost accounting remains available.
+- Added `AIO.getAIGoldenCorpus`, `AIO.runAIGoldenBenchmark`, and `AIO.evaluateAIGoldenABGate` for deterministic safety/grounding release checks without claiming live model quality.
+- Linked `AIO.createAIFeedbackSample` to stored thumbs-up/down feedback so triage retains the response manifest context.
+- Added T972–T976 and WP-AI8/9/10 runtime-contract checks. Verification: changed-module syntax, runtime contract, and Chromium offline headless `1037/1037 PASS`; live provider SLO, model A/B quality, and deployment remain unverified.
+
+## v52.80 (2026-07-14) — WP-AI6/7 automated publish and page context contracts
+
+WP-AI6/7 is `VERIFIED_LOCAL`: translation, briefing, and server market-analysis outputs now expose a structured publish audit with deterministic evidence-summary fallback/source labels; the existing `AIO_PAGE_CONTRACTS` registry now projects required/optional/forbidden AI context contracts and beginner/expert modes across all 22 routes, including the `kr-technical` → `kr-tech` context alias.
+
+- Added `AIO.validateAIAutomatedPublish`, `AIO.buildDeterministicEvidenceSummary`, and `AIO.getAIOutputSourceLabel`; automated outputs carry `publishAudit` through the common response envelope.
+- Briefing requests include the typed claim contract and fail closed to deterministic fallback when the required structured envelope is missing; market-analysis metadata records its publish gate and `AIO.synthesizeMarketAnalysis` fallback.
+- Added `AIO.getPageAIContract` and `AIO.auditPageAIContracts` as a projection of `AIO_PAGE_CONTRACTS`, with explicit route data requirements, optional axes, forbidden states, answer modes, and disabled-state disclosure.
+- Added T967–T971 and WP-AI6/7 runtime-contract checks. Verification: changed-module syntax, runtime contract, and Chromium offline headless `1032/1032 PASS`; live model/content quality, live Pages/Worker certification, and deployment remain unverified.
+
+## v52.79 (2026-07-14) — WP-AI4/5 external-data safety and financial action boundary
+
+WP-AI4/5 is `VERIFIED_LOCAL`: external news/search/Telegram/translation inputs now use an explicit `UNTRUSTED DATA` boundary with hidden-Unicode/injection audit; portfolio AI uses a field allowlist, redacted preview, and session-only opt-in; chat history exposes 30-day/50-entry retention and off mode; and conduct, suitability, evidence/sourceKind, and probability checks run in the shared response pipeline.
+
+- Added `AIO.sanitizeAIUntrustedText`, `AIO.buildAIUntrustedBlock`, `AIO.redactPortfolioForAI`, `AIO.getPortfolioAIPrivacyPreview`, and chat-history policy helpers.
+- Wrapped per-page/unified news and web-search blocks; translation prompts now sanitize external titles/descriptions before model submission.
+- Added `AIO.evaluateAIActionPermission` and carried `conductAudit` through `_aioRunAIResponsePipeline`; prohibited conduct, stale/missing/REFERENCE personalized action, missing suitability, and uncalibrated probability claims fail closed.
+- Added T958–T966 and WP-AI4/5 runtime-contract checks. Verification: changed-module syntax, runtime contract, and Chromium offline headless `1027/1027 PASS`; live model quality, live Pages/Worker certification, and deployment remain unverified.
+
+## v52.78 (2026-07-14) — WP-AI3 retrieval and context compression
+
+WP-AI3 is `VERIFIED_LOCAL`: page/unified AI prompts now classify question intent, retrieve imported research by deterministic top-k ranking, keep all research `sourceKind=REFERENCE`, and compact that block under a declared 2K–6K token budget. Live/SNAPSHOT/verified evidence blocks remain separate and are not trimmed by this change.
+
+- Added `AIO.classifyAIQueryIntent`, `AIO.retrieveImportedResearch`, `AIO.buildAIRetrievalContext`, and `AIO.compactAIContext` in `js/aio-core.js`.
+- Added deterministic relevance/tie ordering, required-evidence contract recall, REFERENCE/asOf separation, P95 input-token measurement, and a stated ±10% token-estimation target.
+- Bound both per-page and unified chat retrieval to the active query; the shared response envelope carries retrieval and context-budget audits.
+- Added T950–T957 and WP-AI3 runtime-contract checks. Verification: changed-module syntax, runtime contract, and Chromium headless `1018/1018 PASS`; no full viewport/accessibility/deploy suite repeated for this medium-sized context-only change.
+
 ## v52.77 (2026-07-13)
 - <!-- 변경 내용을 이곳에 기록하세요 -->
 - R1 7곳 v52.77

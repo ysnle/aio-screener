@@ -1,13 +1,94 @@
 ---
 verified_by: agent
-last_verified: 2026-07-13
+last_verified: 2026-07-14
 confidence: high
 version: v3.8
-checklist_version: v52.77
-total_items: 555
+checklist_version: v52.86
+total_items: 620
 stages: 22
-latest_P_covered: P692
+latest_P_covered: P701
 ---
+
+## v52.86 - WP-AI19/20 non-agentic tool boundary and rights/retention/region (P701)
+
+- [x] Tool capability registry distinguishes read-only market/research/portfolio access from mutation-capable order/account/external-send capabilities.
+- [x] Unknown tools, write/mutation operations, consent failures, and operation mismatches fail closed at the common response boundary.
+- [x] Rights registry retains provider, data use, output use, retention, region, training, redistribution, status, and notice fields.
+- [x] Locally approved reference rights are explicit; live provider/Worker/market-data entries remain review-required unless separately verified.
+- [x] Tool and rights audits are carried in the shared response envelope; T1007~T1014 and WP-AI19/20 runtime-contract checks pass with headless `1075/1075 PASS`; live legal/operator/multi-user and deploy verification remain open.
+
+## v52.85 - WP-AI17/18 coverage bias and human chat certification (P700)
+
+- [x] Coverage report measures region, sector, cap, liquidity, source-kind coverage and exposure counts with deterministic ordering.
+- [x] Missing/unknown dimensions are explicit and remain neutral; eligible recommendations with promoted missingness fail closed.
+- [x] Coverage bias audit exposes overall coverage, per-dimension missingness, neutralization, and binary gate status.
+- [x] Human certification matrix requires screen-reader, keyboard, mobile, novice, expert, and task-completion evidence.
+- [x] Complete and split human evidence aggregate deterministically; evidence ID, signer, and signed timestamp are required.
+- [x] Unsigned/incomplete certification remains blocked; T999~T1006 and WP-AI17/18 runtime-contract checks pass with headless `1067/1067 PASS`; live bias/user/SR certification and deploy verification remain open.
+
+## v52.84 - WP-AI15/16 model-risk replay and cache/isolation/idempotency (P699)
+
+- [x] Response replay manifests retain request/app/data/Worker revision, model, prompt, retriever, validator, evidence snapshot hash, sampling, output hash, owner, reviewer, canary, and rollback fields.
+- [x] Sample replay passes only when output/evidence/model/prompt/retriever/validator metadata remains consistent; drift fails closed.
+- [x] Model release approval requires owner/reviewer, approval, canary, and replay pass evidence; rollback-triggered releases are blocked.
+- [x] Isolation cache keys separate tenant/session/route/entity/evidence/model/prompt/retriever context without embedding raw tenant/session identifiers.
+- [x] Idempotency denies duplicate in-flight requests, returns completed requests as replay-only, and requires request ownership for finalization.
+- [x] Stream partial/complete/aborted states and output hashes are finalized through one auditable helper; T991~T998 and WP-AI15/16 runtime-contract checks pass with headless `1059/1059 PASS`; live provider/canary/isolation and deploy verification remain open.
+
+## v52.83 - WP-AI13/14 retrieval quality, poisoning, and financial conduct (P698)
+
+- [x] Retrieval document index retains document ID, chunk ID, document version, publication time, source tier, and bounded text flags.
+- [x] Instruction-injection/encoded/hidden-Unicode, retracted, superseded, and explicit-quarantine rows are excluded from active retrieval top-k results.
+- [x] Recall@K, precision@K, source-tier coverage, temporal relevance, and poisoned current-action-use gates are deterministic and auditable.
+- [x] Financial conduct policy exposes prohibited P0, jurisdictional legal-review, complex-product review, and educational states; multi-category matches are retained.
+- [x] Actionable tax/regulatory/legal advice is blocked to the shared legal-review safe response while educational conduct explanations remain allowed.
+- [x] T983~T990 and WP-AI13/14 runtime-contract checks pass; changed-module syntax and Chromium headless `1051/1051 PASS`; live retrieval/model/legal/red-team and deploy verification remain open.
+
+## v52.79 - WP-AI4/5 external-data safety and financial action boundary (P694)
+
+- [x] External news, Telegram, and web-search prompt blocks are marked `UNTRUSTED DATA` and retain hidden-Unicode/injection audit flags.
+- [x] Translation prompts sanitize external title/description input and carry security flags into the request payload.
+- [x] Portfolio AI preview exposes the field allowlist and excludes account/user identifiers, exact quantities, costs, targets, and notes until session opt-in.
+- [x] Chat history has a 30-day retention window, 50-entry bound, sanitized entries, and an explicit off mode.
+- [x] The common response pipeline carries `conductAudit` and blocks prohibited conduct, stale/missing/REFERENCE personalized actions, missing suitability, and uncalibrated probabilities.
+- [x] T958~T966 and WP-AI4/5 runtime-contract checks pass; live model/red-team and deploy verification remain open.
+
+## v52.80 - WP-AI6/7 automated publish and page context contracts (P695)
+
+- [x] Automated translation/briefing/market-analysis routes expose `wp-ai6.publish.v1` validation and a deterministic evidence-summary fallback.
+- [x] Briefing requests include the typed claim contract; missing structured output is blocked and fallback/source labels distinguish template text from AI text.
+- [x] Server market-analysis metadata records publish-gate status and the `AIO.synthesizeMarketAnalysis` deterministic fallback.
+- [x] Existing `AIO_PAGE_CONTRACTS` projects required/optional/forbidden AI data, beginner/expert modes, and explicit disabled-state rules.
+- [x] All 22 route contracts are audited, including the `kr-technical`/`kr-tech` context alias; silent-disabled count is zero.
+- [x] T967~T971 and WP-AI6/7 runtime-contract checks pass; live model/content quality and deploy verification remain open.
+
+## v52.81 - WP-AI8/9/10 operations, benchmark, and feedback loop (P696)
+
+- [x] AI success samples expose bounded latency, input/output tokens, failure rate, P50/P95, and estimated cost metadata.
+- [x] Quota acquisition uses a bounded lock/limit contract and the shared API counter delegates to it.
+- [x] The 12-case deterministic golden corpus covers educational, action, conduct, evidence, calibration, portfolio, and missing-data boundaries.
+- [x] A/B release gate rejects metric regressions over threshold and any P0 error; no unsupported improvement is publishable.
+- [x] Feedback samples retain request ID, entrypoint, model, prompt version, evidence status, validator version, and asOf.
+- [x] T972~T976 and WP-AI8/9/10 runtime-contract checks pass; live provider SLO/model A-B and deploy verification remain open.
+
+## v52.82 - WP-AI11/12 conversation lifecycle and CalculationEvidence (P697)
+
+- [x] Request envelopes carry conversation/session, turn, route, entity, retry, and current-response ownership metadata.
+- [x] Route/entity changes invalidate late streams; trim audits preserve the latest turn shape and bounded context.
+- [x] Approved calculators emit `wp-ai12.calculation-evidence.v1` with formula version, input evidence IDs, assumptions, currency/rounding, result, and timestamp.
+- [x] Calculation invariant mismatch, invalid/mutated evidence, model decision-use, and unknown calculators fail closed.
+- [x] T977~T982 and WP-AI11/12 runtime-contract checks pass; live multi-user race/model arithmetic and deploy verification remain open.
+
+## v52.78 - WP-AI3 intent retrieval and context compression (P693)
+
+- [x] `AIO.classifyAIQueryIntent()` maps action/evidence/comparison/current/missing/mechanism/education questions to a required-evidence contract.
+- [x] `AIO.retrieveImportedResearch()` ranks route research deterministically, limits results to top-k, and retains `sourceKind: REFERENCE` with `asOf`.
+- [x] `AIO.buildAIRetrievalContext()` keeps static research separate from LIVE/SNAPSHOT/verified evidence and exposes retriever/version/recall audit metadata.
+- [x] `AIO.compactAIContext()` applies deterministic line trimming within the declared 2K–6K token range and preserves required contract markers.
+- [x] `AIO.recordAIContextBudget()` records estimated input tokens and P95 samples with the declared chars/4 ±10% measurement target.
+- [x] Per-page and unified chat bind the active query and pass retrieval/context audits through the common response pipeline.
+- [x] T950~T957 cover intent, top-k relevance, stable order, reference/live separation, recall, trim, P95, and pipeline audit.
+- [x] Verification: changed-module syntax, runtime contract, and headless `1018/1018 PASS`; full viewport/accessibility/deploy gates intentionally not repeated for this packet.
 
 ## v52.77 - AI typed claim/evidence contract (P692)
 

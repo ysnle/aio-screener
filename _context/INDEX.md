@@ -1,6 +1,6 @@
 ---
 verified_by: Codex (repository/gates/Chrome live/GitHub Actions 실측)
-last_verified: 2026-07-13
+last_verified: 2026-07-14
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -19,6 +19,24 @@ target_version: version.json
 > **Current correction (2026-07-13 v52.76 local)**: WP-AI1 is `VERIFIED_LOCAL`: per-page/unified/retry/translation/briefing share one request envelope and response pipeline with recorded pipeline/validator/block-policy versions; retry reuses the same completion contract; `CHAT_CONTEXTS.briefing` is defined. Final local gates pass: headless `1001/1001`, critical10 `10/10`, accessibility `22/22`, portfolio vault `8/8`, viewport `88/88`, boot interaction within budget. Live Pages/Worker/model certification and deployment remain unverified; PUBLIC remains NO-GO.
 
 > **Current correction (2026-07-13 v52.77 local)**: WP-AI2 is `VERIFIED_LOCAL`: `wp-ai2.claim.v1` typed claims and the common response pipeline now validate metric/unit/scale/direction/asOf/source/evidenceId, with fail-closed counterexamples for F&G/VIX, NFP 10x, bp/%, sign, FX inversion, and missing Evidence. Local syntax/runtime/version checks and Chromium headless `1010/1010 PASS` pass. Live Pages/Worker/model certification and post-deploy live verification remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.78 local)**: WP-AI3 is `VERIFIED_LOCAL`: the shared AI context path now classifies query intent, retrieves imported research with deterministic top-k ranking, keeps it `REFERENCE`/`asOf` separated from current Evidence, and compacts it within a declared 2K–6K token budget. P95 input-token audit and ±10% chars/4 measurement metadata are recorded. Local syntax/runtime/headless gates pass (`1018/1018 PASS`); live retrieval/model quality and public certification remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.79 local)**: WP-AI4/5 is `VERIFIED_LOCAL`: external news/Telegram/web-search/translation inputs use an explicit `UNTRUSTED DATA` boundary and injection audit; portfolio AI uses redacted allowlisted fields with session opt-in; chat history has 30-day/50-entry retention and off mode; and the shared response pipeline blocks prohibited conduct, unsuitable/stale/REFERENCE personalized actions, and uncalibrated probability claims. Local syntax/runtime/headless gates pass (`1027/1027 PASS`); live model/red-team, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.80 local)**: WP-AI6/7 is `VERIFIED_LOCAL`: automated translation/briefing/market-analysis publish gates now validate structured claims, preserve deterministic evidence-summary/template fallbacks, and expose source labels; the existing `AIO_PAGE_CONTRACTS` registry projects required/optional/forbidden AI context and beginner/expert modes across all 22 routes with explicit disabled states and `kr-technical`/`kr-tech` alias coverage. Local syntax/runtime/headless gates pass (`1032/1032 PASS`); live model/content quality, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.81 local)**: WP-AI8/9/10 is `VERIFIED_LOCAL`: AI usage records bounded latency/token/failure SLO samples and quota acquisition guards; a 12-case golden corpus and no-regression/P0 A-B release gate are available; and thumbs feedback links request/model/prompt/evidence/validator metadata. Local syntax/runtime/headless gates pass (`1037/1037 PASS`); live provider SLO, live model A/B quality, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.82 local)**: WP-AI11/12 is `VERIFIED_LOCAL`: request envelopes carry explicit session/turn/route/entity ownership and late-response/trim audits; approved deterministic calculators emit validated `CalculationEvidence`, while model decision-use and invariant mismatch are blocked. Local syntax/runtime/headless gates pass (`1043/1043 PASS`); live multi-user race/model arithmetic certification, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.83 local)**: WP-AI13/14 is `VERIFIED_LOCAL`: retrieval indexes document/chunk/version/time/source-tier metadata, quarantines poisoned/retracted/superseded material, measures recall/precision/source-tier/temporal quality, and blocks poisoned current-action use; the shared conduct boundary classifies P0 prohibited, legal-review-required, and educational states. Local syntax/runtime/version/headless gates pass (`1051/1051 PASS`); live retrieval/model/red-team/legal certification, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.84 local)**: WP-AI15/16 is `VERIFIED_LOCAL`: replay manifests retain model/prompt/retriever/validator/evidence/output provenance with approval/canary/rollback gates; tenant-safe isolation keys, idempotency, and partial/complete/aborted stream audits are carried by the existing request/response path. Local syntax/runtime/version/headless gates pass (`1059/1059 PASS`); live provider replay/canary/red-team, multi-user isolation, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.85 local)**: WP-AI17/18 is `VERIFIED_LOCAL`: coverage/exposure reports measure region/sector/cap/liquidity/source coverage and keep missingness neutral; signed human-chat evidence covers screen-reader/keyboard/mobile/novice/expert/task dimensions with explicit incomplete/blocked states. Local syntax/runtime/version/headless gates pass (`1067/1067 PASS`); live population/model bias, assistive-tech/user certification, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
+
+> **Current correction (2026-07-14 v52.86 local)**: WP-AI19/20 is `VERIFIED_LOCAL`: registered read-only tool capabilities deny unknown/mutation operations, and provider/data/output rights, retention, training, redistribution, and region metadata are explicit with review-required live entries. Local syntax/runtime/version/headless gates pass (`1075/1075 PASS`); live provider/data/output rights, legal/operator configuration, multi-user tool isolation, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
 
 # _context Index
 

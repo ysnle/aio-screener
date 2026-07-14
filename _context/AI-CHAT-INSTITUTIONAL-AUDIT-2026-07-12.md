@@ -935,6 +935,16 @@ Unverified:
 Rollback:
 ```
 
+### 현재 패킷 진행 상태 (2026-07-14)
+
+- WP-AI11/12: `VERIFIED_LOCAL` — v52.82, T977~T982, headless `1043/1043 PASS`.
+- WP-AI13/14: `VERIFIED_LOCAL` — v52.83, T983~T990, headless `1051/1051 PASS`.
+- WP-AI15/16: `VERIFIED_LOCAL` — v52.84, T991~T998, headless `1059/1059 PASS`.
+- WP-AI17/18: `VERIFIED_LOCAL` — v52.85, T999~T1006, headless `1067/1067 PASS`.
+- WP-AI19/20: `VERIFIED_LOCAL` — v52.86, T1007~T1014, headless `1075/1075 PASS`.
+- WP-AI11~20 local packets are complete. Remaining gates are live model/red-team/legal/operator/assistive-tech/multi-user certification, Pages/Worker deployment, and public readiness; these remain separate from local implementation verification.
+- 2026-07-14 final local/live probe: FULL_INIT viewport matrix passed `88/88` (22 routes × 4 viewports, overflow 0px, JS errors 0), and `ci-live-invariant-check.mjs` passed against the deployed site; however, the fetched public version is `v52.77` while the local verified tree is `v52.86`, so live parity is not established. `ci-second-pass-baseline.mjs` confirmed the same mismatch, and no Pages/Worker deployment was performed in this task.
+
 ## 25. 확장 Release Gate G-AI13~22
 
 | Gate | PUBLIC PASS 조건 |

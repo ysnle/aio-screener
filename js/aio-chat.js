@@ -26,19 +26,37 @@ function _aioCreateAIRequestObject(entrypoint, meta) {
   meta = meta || {};
   var stamp = Date.now();
   var entropy = Math.random().toString(36).slice(2, 8);
-  return {
-    requestId: 'aio-ai-' + stamp + '-' + entropy,
+  var requestId = 'aio-ai-' + stamp + '-' + entropy;
+  var conversation = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.createAIConversationState === 'function')
+    ? window.AIO.createAIConversationState({ sessionId: meta.sessionId, route: meta.route || meta.ctxId, ctxId: meta.ctxId, entityKey: meta.entityKey }) : null;
+  if (conversation && window.AIO && typeof window.AIO.beginAIConversationTurn === 'function') conversation = window.AIO.beginAIConversationTurn(conversation, { requestId: requestId, route: meta.route || meta.ctxId, entityKey: meta.entityKey });
+  var idempotencyKey = meta.idempotencyKey || requestId;
+  var isolationKey = (window.AIO && typeof window.AIO.buildAIIsolationCacheKey === 'function')
+    ? window.AIO.buildAIIsolationCacheKey({ tenantId: meta.tenantId || meta.tenantKey, sessionId: conversation && conversation.sessionId, route: conversation && conversation.route || meta.route || meta.ctxId, entityKey: conversation && conversation.entityKey || meta.entityKey, evidence: meta.evidence || [], model: meta.model, promptVersion: meta.promptVersion }) : null;
+  var request = {
+    requestId: requestId,
     entrypoint: String(entrypoint || 'unknown'),
     ctxId: meta.ctxId || null,
     query: meta.query ? String(meta.query).slice(0, 160) : '',
     pipelineVersion: _AIO_AI_PIPELINE_VERSION,
     validatorVersion: _AIO_AI_VALIDATOR_VERSION,
     blockPolicyVersion: _AIO_AI_BLOCK_POLICY_VERSION,
+    conversationId: conversation && conversation.sessionId || null,
+    turnId: conversation && conversation.turnId || 0,
+    route: conversation && conversation.route || meta.route || meta.ctxId || null,
+    entityKey: conversation && conversation.entityKey || meta.entityKey || null,
+    conversationState: conversation,
     createdAt: new Date(stamp).toISOString(),
     attempt: 0,
     lastModel: meta.model || null,
-    lastAttemptAt: null
+    lastAttemptAt: null,
+    idempotencyKey: idempotencyKey,
+    isolationKey: isolationKey,
+    promptVersion: meta.promptVersion || null,
+    sampling: meta.sampling || null
   };
+  if (window.AIO && typeof window.AIO.beginAIIdempotentRequest === 'function') window.AIO.beginAIIdempotentRequest(idempotencyKey, { requestId: requestId });
+  return request;
 }
 
 function _aioBeginAIRequestAttempt(request, model) {
@@ -52,6 +70,17 @@ function _aioBeginAIRequestAttempt(request, model) {
 function _aioRecordAIResponseManifest(result) {
   if (typeof window === 'undefined' || !result || !result.request) return;
   var audit = window._aioAiPipelineAudit = window._aioAiPipelineAudit || [];
+  var replayManifest = (window.AIO && typeof window.AIO.recordAIReplayManifest === 'function')
+    ? window.AIO.recordAIReplayManifest({
+      request: result.request,
+      outputText: result.text,
+      evidence: result.evidence || [],
+      status: result.blocked ? 'blocked' : 'complete',
+      modelId: result.request.lastModel,
+      promptVersion: result.request.promptVersion,
+      validatorVersion: result.validatorVersion,
+      retrieverVersion: result.retrievalAudit && result.retrievalAudit.retrieverVersion
+    }) : null;
   audit.push({
     requestId: result.request.requestId,
     entrypoint: result.request.entrypoint,
@@ -60,17 +89,26 @@ function _aioRecordAIResponseManifest(result) {
     pipelineVersion: result.pipelineVersion,
     validatorVersion: result.validatorVersion,
     blockPolicyVersion: result.blockPolicyVersion,
+    model: result.request.lastModel || null,
+    promptVersion: result.request.promptVersion || null,
+    isolationKey: result.request.isolationKey || null,
+    idempotencyKey: result.request.idempotencyKey || null,
+    replayManifest: replayManifest,
     blocked: result.blocked === true,
     evidenceStatus: result.evidenceStatus || 'unknown',
     asOf: result.asOf || null,
     recordedAt: new Date().toISOString()
   });
+  if (window.AIO && typeof window.AIO.finalizeAIIdempotentRequest === 'function' && result.request.idempotencyKey) {
+    window.AIO.finalizeAIIdempotentRequest(result.request.idempotencyKey, { requestId: result.request.requestId, responseText: result.text });
+  }
   if (audit.length > 100) audit.splice(0, audit.length - 100);
 }
 
 function _aioRunAIResponsePipeline(rawText, meta) {
   meta = meta || {};
   var request = meta.request || _aioCreateAIRequestObject(meta.entrypoint, meta);
+  if (typeof window !== 'undefined' && request && request.requestId) window._aioActiveAIRequestId = request.requestId;
   var visible = String(rawText == null ? '' : rawText);
   if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
   var gate = (typeof _aioApplyAIActionGate === 'function')
@@ -81,7 +119,52 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       evidence: meta.evidence || [],
       currentSensitive: meta.currentSensitive === true
     })
-    : { status: 'unavailable', blocked: false, claims: [], validCount: 0, issues: [] };
+     : { status: 'unavailable', blocked: false, claims: [], validCount: 0, issues: [] };
+  var conductAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.evaluateAIActionPermission === 'function')
+    ? window.AIO.evaluateAIActionPermission({
+      query: meta.query || (request && request.query) || '',
+      text: visible,
+      ctxId: meta.ctxId || (request && request.ctxId) || '',
+      evidence: meta.evidence || [],
+      suitabilityProfile: meta.suitabilityProfile || null,
+      calibrated: meta.calibrated === true
+    })
+    : { status: 'unavailable', blocked: false, reasons: [] };
+  var publishAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.validateAIAutomatedPublish === 'function' && /^(?:auto-|market-analysis)/.test(String(meta.entrypoint || request.entrypoint || '')))
+    ? window.AIO.validateAIAutomatedPublish({
+      entrypoint: meta.entrypoint || request.entrypoint,
+      text: visible,
+      evidence: meta.evidence || [],
+      currentSensitive: meta.currentSensitive === true,
+      requiresStructuredClaims: meta.requiresStructuredClaims === true
+    }) : null;
+  var conversationAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.isCurrentAIResponse === 'function' && request.conversationState)
+    ? { version: 'wp-ai11.conversation.v1', current: window.AIO.isCurrentAIResponse(request.conversationState, { requestId: request.requestId, turnId: request.turnId }), requestId: request.requestId, turnId: request.turnId, route: request.route, entityKey: request.entityKey } : null;
+  var streamAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.finalizeAIStream === 'function' && meta.streamPhase)
+    ? window.AIO.finalizeAIStream({ streamId: request.requestId, status: meta.streamPhase, done: meta.streamPhase === 'complete', outputText: visible }) : null;
+  var toolAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.evaluateAIToolPermission === 'function')
+    ? window.AIO.evaluateAIToolPermission({ capability: meta.toolCapability, operation: meta.toolOperation, mutation: meta.toolMutation === true, consent: meta.toolConsent === true }) : null;
+  var rightsAudit = (meta.rights && typeof window !== 'undefined' && window.AIO && typeof window.AIO.evaluateAIDataRights === 'function')
+    ? window.AIO.evaluateAIDataRights(meta.rights) : null;
+  if (conductAudit.blocked === true) {
+    gate = {
+      blocked: true,
+      text: conductAudit.safeText || 'AI 안전 모드\n\n현재 답변은 안전 정책을 통과하지 못해 표시하지 않습니다.',
+      reasons: (gate.reasons || []).concat(conductAudit.reasons || ['conduct-policy'])
+    };
+  }
+  if (toolAudit && toolAudit.blocked === true) {
+    gate = { blocked: true, text: 'AI 안전 모드\n\n이 AI는 읽기 전용 보조 도구이며 주문·계정·외부 전송 등 상태 변경을 수행하지 않습니다.', reasons: (gate.reasons || []).concat(toolAudit.reasons || ['non-agentic-boundary']) };
+  }
+  if (publishAudit && publishAudit.blocked === true) {
+    gate = {
+      blocked: true,
+      text: (typeof window !== 'undefined' && window.AIO && typeof window.AIO.buildDeterministicEvidenceSummary === 'function')
+        ? window.AIO.buildDeterministicEvidenceSummary(meta.evidence || [], { label: 'Automated publish fallback' })
+        : '자동 생성 결과를 검증할 수 없어 결정론적 근거 요약으로 대체합니다.',
+      reasons: (gate.reasons || []).concat(publishAudit.issues || ['automated-publish-gate'])
+    };
+  }
   if (claimAudit.blocked === true) {
     gate = {
       blocked: true,
@@ -100,8 +183,17 @@ function _aioRunAIResponsePipeline(rawText, meta) {
     reasons: gate.reasons || [],
     actionGate: gate,
     claimAudit: claimAudit,
+    conductAudit: conductAudit,
+    publishAudit: publishAudit,
+    conversationAudit: conversationAudit,
+    streamAudit: streamAudit,
+    toolAudit: toolAudit,
+    rightsAudit: rightsAudit,
+    evidence: meta.evidence || [],
     evidenceStatus: meta.evidenceStatus || null,
-    asOf: meta.asOf || null
+    asOf: meta.asOf || null,
+    retrievalAudit: meta.retrievalAudit || null,
+    contextBudgetAudit: meta.contextBudgetAudit || null
   };
   if (meta.record !== false) _aioRecordAIResponseManifest(result);
   return result;
@@ -222,6 +314,9 @@ if (typeof window !== 'undefined') {
 
 function _getImportedResearchContext(ctxId) {
   try {
+    if (window.AIO && typeof window.AIO.buildAIRetrievalContext === 'function') {
+      return window.AIO.buildAIRetrievalContext(window._aioActiveAIQuery || '', ctxId, { topK: 4, budgetTokens: 2400 });
+    }
     var map = {
       home:'home', briefing:'home', macro:'macro', fxbond:'fxbond',
       technical:'technical', signal:'technical', screener:'screener',
@@ -1956,6 +2051,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   }
   opts = opts || {};
   var modelCfg = getModelConfig(opts.modelKey);
+  var _aiStartedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
 
   // v51.04: systemPrompt + messages 크기 모니터링 + 자동 트리밍 (90K+ 시 oldest 제거, system 보존)
   var _sysLen = (system || '').length;
@@ -2177,6 +2273,18 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
             window._aioTrackApiUsage({ model: (modelCfg && modelCfg.key) || selectedModelKey || 'sonnet', inputTokens: _totalInput, outputTokens: _out });
           }
         } catch(_) {}
+      }
+      if (window.AIO && typeof window.AIO.recordAISLOSample === 'function') {
+        var _aiEndedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+        var _sloUsage = window._lastClaudeUsage || {};
+        window.AIO.recordAISLOSample({
+          requestId: window._aioActiveAIRequestId || null,
+          entrypoint: opts.entrypoint || 'chat',
+          model: (modelCfg && modelCfg.key) || opts.modelKey || 'unknown',
+          status: 'success', latencyMs: Math.round(_aiEndedAt - _aiStartedAt),
+          inputTokens: (_sloUsage.input_tokens || 0) + (_sloUsage.cache_read_input_tokens || 0) + (_sloUsage.cache_creation_input_tokens || 0),
+          outputTokens: _sloUsage.output_tokens || 0
+        });
       }
       onDone(fullText);
     } catch(streamErr) {
@@ -5706,6 +5814,9 @@ async function chatSend(ctxId) {
     try {
       webSearchResult = await _aiWebSearch(searchQuery);
       webSearchStr = _formatSearchForPrompt(webSearchResult);
+      if (webSearchStr && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') {
+        webSearchStr = window.AIO.buildAIUntrustedBlock('WEB_SEARCH', webSearchStr);
+      }
       console.log('[AIO] 웹검색 완료 [' + (webSearchResult.engine||'?') + ']:', searchQuery, '→', (webSearchResult.answer || '').length + '자');
     } catch(e) {
       _aioLog('warn', 'fetch', '웹검색 실패: ' + e.message);
@@ -5715,6 +5826,9 @@ async function chatSend(ctxId) {
 
   // v37.2: 뉴스 컨텍스트 주입 — newsCache에서 관련 뉴스 자동 추출
   var newsContextStr = _buildNewsContext(ctxId, q);
+  if (newsContextStr && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') {
+    newsContextStr = window.AIO.buildAIUntrustedBlock(newsContextStr.indexOf('텔레그램') >= 0 ? 'NEWS_TELEGRAM' : 'NEWS', newsContextStr);
+  }
   var intentContextStr = _buildChatIntentContext(ctxId, q, {
     tickers: detectedTickers,
     tickerData: !!tickerDataStr,
@@ -5757,6 +5871,8 @@ async function chatSend(ctxId) {
   var memoryContextStr = _buildChatMemoryContext(ctxId, q);
   var tacticalTraderContextStr = (typeof _aioTacticalTraderFrameworkContext === 'function') ? _aioTacticalTraderFrameworkContext(ctxId, q) : '';
 
+  // v52.78/WP-AI3: let page-scoped research retrieval see the active question.
+  window._aioActiveAIQuery = q;
   // v20+: dynamic system prompts (portfolio injects live data)
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
   var chatProvenanceBundle = null;
@@ -5948,6 +6064,17 @@ async function chatSend(ctxId) {
   // v52.75/WP-AI0: keep the public safety policy last after optional web-search instructions.
   if (typeof _aioPublicAIActionPolicyPrompt === 'function') systemPrompt += _aioPublicAIActionPolicyPrompt();
 
+  // v52.78/WP-AI3: record the full prompt size while the reference block is
+  // already bounded by the shared retriever. This provides a P95 input-token
+  // sample without trimming live evidence or policy blocks.
+  var _pageRetrievalAudit = (window.AIO && typeof window.AIO.getAIRetrievalAudit === 'function')
+    ? window.AIO.getAIRetrievalAudit() : null;
+  var _pageContextBudgetAudit = (window.AIO && typeof window.AIO.recordAIContextBudget === 'function')
+    ? window.AIO.recordAIContextBudget(systemPrompt, {
+      entrypoint: 'per-page-chat', ctxId: ctxId,
+      intent: _pageRetrievalAudit && _pageRetrievalAudit.intent
+    }) : null;
+
   // v52.76/WP-AI1: one request object survives initial call and retries.
   var _pageAIRequest = typeof _aioCreateAIRequestObject === 'function'
     ? _aioCreateAIRequestObject('per-page-chat', { ctxId: ctxId, query: q, model: selectedModelKey })
@@ -5964,7 +6091,7 @@ async function chatSend(ctxId) {
         aiBubble = chatAppendMsg(ctxId, 'ai', '', 'chat-' + ctxId + '-streaming');
       }
       var _pageChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
-        ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, entrypoint: 'per-page-chat', ctxId: ctxId, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], record: false })
+         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'partial', record: false })
         : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
       var visible = _pageChunkResult.text;
       // v49.78 C2/C3 P417: aiBubble null 시 사용자에게 즉시 안내 (silent fail 차단) + _aioSafeMD fallback
@@ -6002,7 +6129,7 @@ async function chatSend(ctxId) {
 
       var streamEl = document.getElementById('chat-' + ctxId + '-streaming');
       var _pageDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
-        ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, entrypoint: 'per-page-chat', ctxId: ctxId, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [] })
+         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'complete' })
         : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
       var visible = _pageDoneResult.text;
       var _publicGate = _pageDoneResult.actionGate;
@@ -6664,6 +6791,13 @@ function _bumpApiCounter(providerKey) {
   try {
     var lim = _QUOTA_LIMITS[providerKey];
     if (!lim) return 0;
+    if (window.AIO && typeof window.AIO.tryAcquireAIQuota === 'function') {
+      var atomicQuota = window.AIO.tryAcquireAIQuota(providerKey, lim.daily);
+      if (atomicQuota && atomicQuota.handled) {
+        if (!atomicQuota.allowed) _aioLog('error', 'fetch', lim.label + ' 일일 한도 도달 또는 quota lock — ' + providerKey + ' 호출 스킵');
+        return atomicQuota.count;
+      }
+    }
     var today = new Date().toISOString().slice(0,10);
     var lsKey = 'aio_quota_' + providerKey;
     var raw = localStorage.getItem(lsKey);

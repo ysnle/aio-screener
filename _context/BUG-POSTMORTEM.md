@@ -1,11 +1,92 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-07-13
+last_verified: 2026-07-14
 confidence: high
-latest_version: v52.77
-latest_P_number: P692
-total_entries: 458
-next_P_number: P693
+latest_version: v52.86
+latest_P_number: P701
+total_entries: 467
+next_P_number: P702
+
+## P701 - v52.86 - tool mutation and data rights were implicit rather than registry-gated
+
+- **motivation**: WP-AI19/20 required a non-agentic read/write capability boundary with mutation deny and a provider/data/output rights registry covering retention, training, redistribution, and region.
+- **root_cause**: tool intent had no shared capability registry or unknown-operation deny; provider and source availability did not establish rights, retention, training, redistribution, or regional approval.
+- **fix**: Added `wp-ai19.tool-boundary.v1` capability/permission/audit contracts with deny-by-default mutation and unknown-tool handling; added `wp-ai20.rights.v1` registry/evaluation/audit contracts and carried tool/rights audits through the existing response pipeline.
+- **violated_rule**: Handoff AI-X09/AI-X10 and WP-AI19/20 acceptance gates; no mutation-capable agent or implicit live rights approval was introduced.
+- **prevention**: T1007~T1014 cover registry, read/write/unknown/consent boundaries, pipeline mutation deny, local/live rights states, missing metadata, audits, and pipeline rights wiring. Runtime-contract checks keep the single shared boundary in place.
+- **verification**: Changed-module syntax, runtime contract, version contract, and Chromium offline headless `1075/1075 PASS` with no skip-list-outside failures. Live provider/data/output rights, legal/operator configuration, multi-user tool isolation, and deployment remain unverified.
+
+## P700 - v52.85 - coverage bias and human chat usability evidence were not binary gates
+
+- **motivation**: WP-AI17/18 required a coverage/exposure report with missingness neutralization and signed chat evidence across screen reader, keyboard, mobile, novice, expert, and task-completion paths.
+- **root_cause**: coverage surfaces exposed percentages but did not identify missingness promotion; human usability claims had no common evidence schema, signature requirement, or explicit incomplete state.
+- **fix**: Added `wp-ai17.coverage-bias.v1` dimension/exposure/missingness reports and a fail-closed promotion gate; added `wp-ai18.human-cert.v1` certification matrix, complete/split evidence aggregation, signature checks, and incomplete-state handling.
+- **violated_rule**: Handoff AI-X07/AI-X08 and WP-AI17/18 acceptance gates; no recommendation score was recalculated and no synthetic human sign-off was treated as live certification.
+- **prevention**: T999~T1006 cover exposure/missingness, bias gate, required dimensions, complete/split evidence, unsigned evidence, and incomplete state. Runtime-contract checks keep the gates deterministic and local.
+- **verification**: Changed-module syntax, runtime contract, version contract, and Chromium offline headless `1067/1067 PASS` with no skip-list-outside failures. Live population/model bias and assistive-tech/user certification remain unverified.
+
+## P699 - v52.84 - model replay and request isolation lacked enforceable release and finalization contracts
+
+- **motivation**: WP-AI15/16 required reproducible response samples with model/prompt/retriever/validator/evidence/output provenance, explicit approval/canary/rollback evidence, tenant-safe cache identity, idempotency, and stream completion states.
+- **root_cause**: response manifests retained only a small pipeline audit and no replay hash; model release state was implicit; request envelopes had no cache/isolation identity or duplicate completion state; and partial/aborted streams had no common finalization audit.
+- **fix**: Added `wp-ai15.model-risk.v1` replay manifests/sample replay/release gate and `wp-ai16.isolation.v1` tenant-safe cache keys, idempotency state, request finalization, and stream audits. The existing request/response pipeline now carries and records these fields.
+- **violated_rule**: Handoff AI-X05/AI-X06 and WP-AI15/16 acceptance gates; no model output became evidence and no cross-tenant cache was introduced.
+- **prevention**: T991~T998 cover provenance, replay pass/fail, approval/canary/rollback, raw-identifier isolation, duplicate in-flight/replay behavior, stream states, and shared-pipeline wiring. Runtime-contract checks keep the contracts on the existing path.
+- **verification**: Changed-module syntax, runtime contract, version contract, and Chromium offline headless `1059/1059 PASS` with no skip-list-outside failures. Live provider replay/canary, red-team, multi-user isolation, and deployment remain unverified.
+
+## P698 - v52.83 - retrieval and conduct boundaries lacked poisoning quality and legal-review states
+
+- **motivation**: WP-AI13/14 required versioned retrieval metadata, poisoning/retraction quarantine, measurable retrieval quality, a financial-conduct matrix, and a shared legal-review state for actionable jurisdictional advice.
+- **root_cause**: imported research cards had no document/chunk/version lifecycle or quarantine gate; retrieval quality was not measured beyond ranking; and conduct handling returned a first-match block without a reusable policy matrix or legal-review classification.
+- **fix**: Added `wp-ai13.retrieval-quality.v1` indexing/recall/precision/source-tier/temporal audits, manual quarantine, poisoned current-action blocking, and runtime top-k filtering; added `wp-ai14.conduct-policy.v1` with P0, legal-review, and educational states consumed by `evaluateAIActionPermission` and the common response pipeline.
+- **violated_rule**: Handoff AI-X03/AI-X04 and WP-AI13/14 acceptance gates; no separate retrieval truth store or parallel conduct gate was introduced.
+- **prevention**: T983~T990 cover metadata/quarantine, quality metrics, poisoned action use, runtime filter, multi-category conduct, legal review, and shared-pipeline enforcement. Runtime-contract checks keep retrieval and conduct decisions on the existing common paths.
+- **verification**: Changed-module syntax, runtime contract, version contract, and Chromium offline headless `1051/1051 PASS` with no skip-list-outside failures. Live retrieval/model/red-team/legal certification and deployment remain unverified.
+
+## P697 - v52.82 - request lifecycle and finance arithmetic were implicit rather than enforceable contracts
+
+- **motivation**: WP-AI11/12 required route/entity/turn ownership through stream/retry/cancel/trim and deterministic finance calculation evidence separated from model prose.
+- **root_cause**: request envelopes had IDs but no explicit conversation state or late-response acceptance check; arithmetic had no approved-calculator registry, invariant audit, or decision-use deny field.
+- **fix**: Added `wp-ai11.conversation.v1` state transitions/trim audit/current-response checks and `wp-ai12.calculation-evidence.v1` approved calculators, evidence schema, invariant checks, and fail-closed mutation/unknown-calculator handling.
+- **violated_rule**: Handoff AI-X01/AI-X02 and WP-AI11/12 acceptance gates; no parallel calculation truth store was introduced.
+- **prevention**: T977~T982 cover route/entity race, request envelope, trim, percent arithmetic, invariant mismatch, model decision-use denial, unknown calculators, and portfolio weight.
+- **verification**: Changed-module syntax, runtime contract, and Chromium offline headless `1043/1043 PASS` with no skip-list-outside failures. Live multi-user race/model arithmetic certification and deployment remain unverified.
+
+## P696 - v52.81 - AI operations, benchmark, and feedback surfaces lacked a single local release contract
+
+- **motivation**: WP-AI8/9/10 required actual usage observability, quota-race protection, golden/A-B release evidence, and feedback samples linked to the response manifest.
+- **root_cause**: token/cost tracking existed but latency/SLO and bounded quota acquisition were not exposed through one contract; no deterministic golden corpus/A-B gate existed; and thumbs feedback stored only an ID and score.
+- **fix**: Added `wp-ai8.ops.v1` SLO/quota helpers, `wp-ai9.golden.v1` 12-case benchmark and no-regression/P0 gate, and `wp-ai10.feedback.v1` manifest-linked feedback samples; live Claude success paths now record latency/tokens while existing cost accounting remains intact.
+- **violated_rule**: Handoff WP-AI8/9/10 acceptance gates; these are local release/observability contracts and do not claim live provider or model certification.
+- **prevention**: T972~T976 cover P95/failure/token metrics, quota race, golden corpus, A/B gate, P0 rejection, and feedback metadata. Runtime-contract checks keep the existing usage/cost and shared response paths wired.
+- **verification**: Changed-module syntax, runtime contract, and Chromium offline headless `1037/1037 PASS` with no skip-list-outside failures. Live provider SLO, model A/B quality, and deployment remain unverified.
+
+## P695 - v52.80 - automated outputs had no common publish fallback and page contracts lacked an AI projection
+
+- **motivation**: WP-AI6/7 required translation, briefing, and market-analysis outputs to fail closed on structured-claim corruption, retain a deterministic evidence-summary fallback/source label, and expose a complete 22-route AI context contract.
+- **root_cause**: automated routes shared response validation but had no publish-specific audit/fallback contract; server market prose had only a semantic flag; and `AIO_PAGE_CONTRACTS` described data surfaces without required/optional/forbidden AI axes or route/context alias coverage.
+- **fix**: Added `wp-ai6.publish.v1`, structured publish validation, deterministic evidence-summary fallback, source labels, briefing claim-contract enforcement, market-analysis publish metadata, and derived `wp-ai7.page-contract.v1` projections/audit over the existing page registry.
+- **violated_rule**: Handoff WP-AI6/7 acceptance gates; the gap was missing release evidence and projection metadata, not permission to create a parallel page registry or validator path.
+- **prevention**: T967~T971 cover structured publish blocking, deterministic fallback, 22-route coverage, route/context aliasing, answer modes, forbidden silent states, and source labels. Runtime-contract checks keep the common pipeline and existing registry as the single path.
+- **verification**: Changed-module syntax, runtime contract, and Chromium offline headless `1032/1032 PASS` with no skip-list-outside failures. Live model/content quality, live Pages/Worker certification, and deployment remain unverified.
+
+## P694 - v52.79 - external data and portfolio AI crossed the action boundary without a deterministic safety contract
+
+- **motivation**: WP-AI4/5 required external news/search/Telegram content to remain untrusted data, portfolio prompts to apply redaction and opt-in, chat history to expose retention/off controls, and personalized financial actions to depend on conduct, suitability, evidence, and calibration.
+- **root_cause**: external prompt blocks were concatenated as ordinary system text; portfolio context included exact quantity/cost/target/memo fields; history had no explicit retention/off policy; and the response pipeline had no shared conduct/action-permission audit.
+- **fix**: Added `wp-ai4.security.v1` normalization and untrusted block boundaries, a portfolio field allowlist with session consent preview, 30-day/50-entry history policy, translation-input sanitization, and `wp-ai5.conduct.v1` shared action permission evaluation.
+- **violated_rule**: Handoff AI-SEC01/AI-X04/AI-P05 acceptance gates; the gap was a missing common boundary, not permission to add a parallel validator or truth store.
+- **prevention**: T958~T966 cover hidden/encoded injection, direct/indirect untrusted blocks, redaction, opt-in, history off, prohibited conduct, suitability/evidence/sourceKind, shared pipeline audit, and probability calibration. `ci-runtime-contract-check.mjs` keeps all caller wiring and fixtures present.
+- **verification**: Changed-module syntax, runtime contract, and Chromium offline headless `1027/1027 PASS` with no skip-list-outside failures. Live model/red-team quality, live Pages/Worker certification, and deployment remain unverified.
+
+## P693 - v52.78 - imported research was injected wholesale without intent retrieval or a deterministic context budget
+
+- **motivation**: WP-AI3 required question intent to select the required evidence contract, imported research top-k retrieval, explicit separation of static policy/reference evidence from current evidence, and deterministic trimming within a 2K–6K input-token budget.
+- **root_cause**: `_getImportedResearchContext()` selected the first six page cards without query relevance scoring or a stable retrieval audit. Neither page nor unified chat recorded retrieval provenance or input-token P95, so oversized static context could grow without a bounded reference budget.
+- **fix**: Added the shared `wp-ai3.retriever.v1` helpers in `aio-core.js`, including intent classification, route-aware relevance ranking, stable tie ordering, REFERENCE/asOf rendering, required-evidence recall, deterministic compaction, and P95/token-cost measurement. Both chat surfaces bind the active query and carry retrieval/context audits through `_aioRunAIResponsePipeline`; current evidence blocks remain separate.
+- **violated_rule**: Handoff WP-AI3 retrieval/context-compression acceptance gate; the gap was missing retrieval/measurement enforcement, not a need for a second truth or validator path.
+- **prevention**: T950~T957 cover intent, top-k relevance, deterministic order, live/reference separation, recall, bounded trim, P95 meter, and pipeline audit. `ci-runtime-contract-check.mjs` keeps the shared helper, caller wiring, and fixture contracts present.
+- **verification**: Changed-module syntax, runtime contract, and Chromium offline headless `1018/1018 PASS` with no skip-list-outside failures. Full viewport/accessibility/deploy gates were not repeated for this context-only medium-sized packet; live model retrieval quality remains unverified.
 
 ## P692 - v52.77 - typed claim/evidence validation was missing from the shared AI response boundary
 

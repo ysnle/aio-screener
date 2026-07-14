@@ -1,13 +1,28 @@
 ---
 verified_by: agent (Sonnet 5, wc -l 실측 — v52.66 currency refresh, 파일 크기 표만 갱신)
-last_verified: 2026-07-13
+last_verified: 2026-07-14
 confidence: medium
-target_version: v52.66
+target_version: v52.86
 target_file: index.html + js/*.js
-target_lines: index.html 32414 + js modules 64530
+target_lines: index.html 32630 + js modules 67283
 ---
 
-# AIO v52.58 CODE-MAP
+## Current machine-verified file-size table (v52.86, 2026-07-14)
+
+| File | Lines | Verification |
+|------|------:|--------------|
+| `index.html` | 32,630 | `scripts/ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 27,090 | `scripts/ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 18,100 | `scripts/ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 5,769 | `scripts/ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 7,386 | `scripts/ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 8,624 | `scripts/ci-doc-currency-check.mjs` |
+| `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
+
+> The historical v52.66 table below is retained for audit context. Use this current
+> file-size table first, then confirm any detailed line anchor with `rg -n` before editing.
+
+# AIO v52.86 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.
