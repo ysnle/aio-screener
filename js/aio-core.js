@@ -2865,6 +2865,8 @@ if (typeof document !== 'undefined') {
 window._aioGuideJump = function(targetId) {
   var el = document.getElementById(targetId);
   if (el) {
+    var chapter = el.closest && el.closest('details.aio-guide-chapter');
+    if (chapter) chapter.open = true;
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     // 펼쳐진 상태로
     if (el.classList && !el.classList.contains('is-open')) el.classList.add('is-open');
@@ -3543,15 +3545,8 @@ if (typeof document !== 'undefined') {
 
   window._aioReorderCoreSections = function() {
     try {
-      // sentiment: 복합 판단(결론)을 결론바 바로 뒤로
-      var ps = document.getElementById('page-sentiment');
-      if (ps) {
-        var verdictS = _directChildOf(ps, '#sent-analysis-text');
-        var anchorS = document.getElementById('sentiment-conclusion-bar');
-        if (verdictS && anchorS && anchorS.parentElement === ps && verdictS.previousElementSibling !== anchorS) {
-          anchorS.insertAdjacentElement('afterend', verdictS);
-        }
-      }
+      // v52.88 P703: sentiment 복합 판단은 시안 3b의 마지막 결론이다.
+      // 상단으로 끌어올리던 구 로직을 제거해 헤더→F&G/VIX→지표→복합판단 순서를 보존한다.
       // breadth: 종합 진단(결론)을 페이지 헤더(2번째 child) 바로 뒤로
       var pb = document.getElementById('page-breadth');
       if (pb) {
@@ -3600,6 +3595,12 @@ if (typeof document !== 'undefined') {
             anchorH.insertAdjacentElement('afterend', b);
           }
         });
+        // v52.88 P703: 시안 1b의 순서(점수→KPI→교차자산→핵심뉴스)를 고정한다.
+        // 기존 뉴스 렌더 sink는 유지하고 DOM 위치만 교차자산 뒤로 이동한다.
+        var crossAssets = document.getElementById('home-cross-assets');
+        if (crossAssets && crossAssets.parentElement === ph && crossAssets.nextElementSibling !== anchorH) {
+          crossAssets.insertAdjacentElement('afterend', anchorH);
+        }
       }
       // v50.36: technical verdict-first — 시장 건강도(페이지 결론)를 헤더 직후로(TV차트보다 먼저) +
       //   Institutional Brief(per-ticker 심화 도구)를 라이브 지표 섹션 직후로 하향 → 상단 declutter.
@@ -3727,31 +3728,38 @@ if (typeof document !== 'undefined') {
     try {
       var list = document.getElementById('briefing-live-news-list');
       if (!list) return;
-      var CAP = 1500;
+      var CAP = 820;
       if (list.scrollHeight <= CAP + 200) { // 짧으면 캡 불필요
         list.style.maxHeight = ''; list.style.overflow = '';
         var ex0 = document.getElementById('briefing-news-more'); if (ex0) ex0.style.display = 'none';
         return;
       }
-      if (list.dataset.aioCapped !== '1') {
-        list.dataset.aioCapped = '1';
-        list.style.maxHeight = CAP + 'px';
-        list.style.overflow = 'hidden';
-        list.style.position = 'relative';
+      list.dataset.aioCapped = '1';
+      list.classList.remove('is-expanded');
+      list.style.maxHeight = CAP + 'px';
+      list.style.overflow = 'hidden';
+      list.style.position = 'relative';
+      if (!document.getElementById('briefing-news-more')) {
         var toggle = document.createElement('button');
         toggle.id = 'briefing-news-more';
         toggle.className = 'aio-btn-table';
         toggle.style.cssText = 'display:block;width:100%;margin:8px 0 4px;font-size:12px;font-weight:700;';
         toggle.textContent = '전체 뉴스 보기 ▼';
         toggle.addEventListener('click', function(){
-          var capped = list.style.maxHeight !== '';
-          list.style.maxHeight = capped ? '' : CAP + 'px';
-          toggle.textContent = capped ? '접기 ▲' : '전체 뉴스 보기 ▼';
+          window._aioToggleBriefingNews(toggle);
         });
         list.insertAdjacentElement('afterend', toggle);
       }
       document.getElementById('briefing-news-more') && (document.getElementById('briefing-news-more').style.display = '');
     } catch(_){}
+  };
+  window._aioToggleBriefingNews = function(el) {
+    var list = document.getElementById('briefing-live-news-list');
+    if (!list) return;
+    var expanded = list.classList.toggle('is-expanded');
+    list.style.maxHeight = expanded ? 'none' : '820px';
+    list.style.overflow = expanded ? 'visible' : 'hidden';
+    if (el) el.textContent = expanded ? '핵심만 보기 ▲' : '전체 뉴스 보기 ▼';
   };
 
   // v50.32 (항목4) 빈 결론 박스 금지: 상단에 올린 결론/판단 박스가 placeholder("수신 대기" 등)면 그 박스를
@@ -17167,6 +17175,7 @@ window.AIO.getDataLineageAudit = function() {
     opts = opts || {};
     var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || DEFAULT_PAGES;
     var viewportHeight = Number(opts.viewportHeight || (window.innerHeight || 768));
+    var compRoutes = { home:1, signal:1, briefing:1, breadth:1, sentiment:1, technical:1, macro:1, fxbond:1, fundamental:1, themes:1, portfolio:1, 'market-news':1, screener:1 };
     var rows = pages.map(function(pageId) {
       var root = document.getElementById('page-' + pageId);
       var blockers = [], warnings = [];
@@ -17180,17 +17189,20 @@ window.AIO.getDataLineageAudit = function() {
         });
       }
       var headerText = header ? textOf(header, 900) : '';
+      var compHeaderHidden = !!(header && compRoutes[pageId] && isHiddenForRoute(header, root));
       var headerHasConclusion = !!(header && header.querySelector('.aio-decision-verdict') && textOf(header.querySelector('.aio-decision-verdict')));
       var headerHasEvidence = !!(header && header.getAttribute('data-source-kind') && header.querySelector('.aio-source-badge,.aio-confidence-badge,.aio-decision-foot'));
       var headerHasAction = !!(header && header.querySelector('button,[data-action]'));
       var visibleChildren = root ? Array.prototype.slice.call(root.children).filter(function(child) { return !isHiddenForRoute(child, root); }) : [];
       var headerIndex = header ? visibleChildren.indexOf(header) : -1;
-      var decisionFirst = !!(header && headerIndex >= 0 && visibleChildren.slice(0, headerIndex).every(function(child) {
+      var decisionFirst = compHeaderHidden || !!(header && headerIndex >= 0 && visibleChildren.slice(0, headerIndex).every(function(child) {
         return child.matches && child.matches('.stale-badge');
       }));
       var active = activeRouteRoot(root);
       var viewportPass = null;
-      if (active && header && header.getBoundingClientRect) {
+      if (compHeaderHidden) {
+        viewportPass = true;
+      } else if (active && header && header.getBoundingClientRect) {
         var rect = header.getBoundingClientRect();
         viewportPass = rect.top >= -4 && rect.top < viewportHeight && rect.bottom <= viewportHeight + 24;
       }
@@ -17210,6 +17222,7 @@ window.AIO.getDataLineageAudit = function() {
         active: active,
         pageExists: !!root,
         decisionHeader: !!header,
+        compHeaderHidden: compHeaderHidden,
         decisionFirst: decisionFirst,
         firstVisibleSelector: firstVisible ? selectorFor(firstVisible, root) : '',
         conclusion: headerHasConclusion,
@@ -17778,6 +17791,11 @@ window._aioAuditModeToggle = function(checked, el) {
     localStorage.setItem('aio_audit_mode', checked ? 'detailed' : 'simple');
   } catch(_) {}
   try { if (document.body) document.body.classList.toggle('aio-dev-mode', !!checked); } catch(_) {}
+  try {
+    var readiness = document.getElementById('aio-public-readiness');
+    if (checked && typeof window._aioRenderPublicReadiness === 'function') window._aioRenderPublicReadiness();
+    else if (readiness) readiness.style.removeProperty('display');
+  } catch(_) {}
   // 즉시 재렌더
   try { window._aioRefreshAuditWidget(); } catch(_) {}
 };
@@ -20113,7 +20131,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.86';
+const APP_VERSION = 'v52.89';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -25822,12 +25840,12 @@ window.PAGES = {
                      }, chatCtx: null },
   'market-news':    { label: '시장 뉴스',        init: function() { _initMarketNewsPage(); }, chatCtx: null },
   'options':        { label: '옵션 분석',        init: function() { _safePageInitGlobal('options', _initOptionsPage); }, chatCtx: null },
-  'kr-home':        { label: '한국 홈',          init: function() { var tid = setTimeout(function() { try { if (typeof renderKrIssues === 'function') renderKrIssues(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'renderKrIssues failed: ' + e.message); } }, 500); if (window._pageState) window._pageState.get('kr-home').timers.push(tid); }, chatCtx: null },
-  'kr-supply':      { label: '한국 공급망',      init: null, chatCtx: null },
-  'kr-themes':      { label: '한국 테마',        init: null, chatCtx: 'kr-themes' },
-  'kr-macro':       { label: '한국 거시',        init: function() { try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }, chatCtx: 'kr-macro' },
-  'kr-technical':   { label: '한국 기술',        init: null, chatCtx: 'kr-tech' },
-  'guide':          { label: '사용 설명서',      init: null, chatCtx: null },
+  'kr-home':        { label: '한국 홈',          init: function() { _aioPolishRemainingPages('kr-home'); var tid = setTimeout(function() { try { if (typeof renderKrIssues === 'function') renderKrIssues(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'renderKrIssues failed: ' + e.message); } }, 500); if (window._pageState) window._pageState.get('kr-home').timers.push(tid); }, chatCtx: null },
+  'kr-supply':      { label: '한국 공급망',      init: function() { _aioPolishRemainingPages('kr-supply'); }, chatCtx: null },
+  'kr-themes':      { label: '한국 테마',        init: function() { _aioPolishRemainingPages('kr-themes'); }, chatCtx: 'kr-themes' },
+  'kr-macro':       { label: '한국 거시',        init: function() { _aioPolishRemainingPages('kr-macro'); try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }, chatCtx: 'kr-macro' },
+  'kr-technical':   { label: '한국 기술',        init: function() { _aioPolishRemainingPages('kr-technical'); }, chatCtx: 'kr-tech' },
+  'guide':          { label: '사용 설명서',      init: function() { _aioPolishRemainingPages('guide'); }, chatCtx: null },
   'screener':       { label: '퀀트 스크리너',    init: function() { try { if (typeof _aioInitScreenerFilters === 'function') _aioInitScreenerFilters(); if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'screener init: ' + (e && e.message || e)); } }, chatCtx: 'screener' }  // v50.53 2A: 전용 퀀트 스크리너
 };
 
@@ -25959,6 +25977,99 @@ function _initMacroPage() {
 function _initFundamentalPage() {
   if (typeof initFundamentalCards === 'function') { try { initFundamentalCards(); } catch(e) {} }
   if (typeof _fundRecentSearches === 'function') { try { _fundRecentSearches(); } catch(e) {} }
+  // v52.88 P703: 시안 3f의 기본 상태는 NVDA 분석 결과다. 세션 최초 진입에 한해
+  // 기존 검색 파이프라인을 그대로 실행해 정적 데모가 아닌 실제 데이터/폴백 리포트를 채운다.
+  var page = document.getElementById('page-fundamental');
+  var input = document.getElementById('fund-search-input');
+  var report = document.getElementById('fund-report-container');
+  if (page && input && report && page.dataset.aioDefaultCompany !== '1' && report.style.display === 'none') {
+    page.dataset.aioDefaultCompany = '1';
+    input.value = 'NVDA';
+    setTimeout(function() {
+      try { if (typeof window.fundamentalSearch === 'function') window.fundamentalSearch(); } catch(e) {}
+    }, 120);
+  }
+}
+
+// v52.89 P704: 13면 시안의 조용한 정보 위계를 가이드·용어사전·한국 5면으로 확장한다.
+// 기존 데이터/액션 DOM은 그대로 재사용하고, 보조 섹션만 명시적 탐색 단계로 묶는다.
+function _aioPolishRemainingPages(pageId) {
+  var page = document.getElementById('page-' + pageId);
+  if (!page || page.dataset.aioRemainingPolished === '1') return;
+  page.dataset.aioRemainingPolished = '1';
+
+  function directSections(root) {
+    return Array.prototype.slice.call(root.children).filter(function(el) { return el.classList && el.classList.contains('aio-section'); });
+  }
+  function sectionLabel(section, fallback) {
+    var label = section && section.querySelector('.aio-section-label, .page-title, .widget-title');
+    return (label && label.textContent || fallback || '추가 정보').replace(/\s+/g, ' ').trim();
+  }
+  function wrapSections(root, sections, title, className) {
+    sections = (sections || []).filter(function(el) { return el && el.parentElement === root; });
+    if (!sections.length) return null;
+    var details = document.createElement('details');
+    details.className = className || 'aio-comp-secondary';
+    var summary = document.createElement('summary');
+    summary.textContent = title;
+    details.appendChild(summary);
+    root.insertBefore(details, sections[0]);
+    sections.forEach(function(section) { details.appendChild(section); });
+    return details;
+  }
+  function markFeed(feedId) {
+    var feed = document.getElementById(feedId);
+    var section = feed && feed.closest('.aio-section');
+    if (section && section.parentElement === page) section.classList.add('aio-comp-secondary-feed');
+  }
+
+  if (pageId === 'guide') {
+    var guideSections = directSections(page);
+    var quick = guideSections[0];
+    var hero = guideSections.filter(function(section) { return !!section.querySelector('.page-title'); })[0];
+    if (hero) page.insertBefore(hero, page.firstChild);
+    if (quick && hero) hero.insertAdjacentElement('afterend', quick);
+    var chapterSections = directSections(page).filter(function(section) { return section !== hero && section !== quick; });
+    chapterSections.forEach(function(section) {
+      var details = wrapSections(page, [section], sectionLabel(section), 'aio-guide-chapter');
+    });
+    var policy = document.getElementById('guide-public-policy');
+    if (policy) page.appendChild(policy);
+  }
+
+  if (pageId === 'kr-home') {
+    var homeSections = directSections(page);
+    wrapSections(page, homeSections.slice(4, 8), '추가 시장 탐색 · 이슈 · 섹터 · 모멘텀', 'aio-comp-secondary');
+    markFeed('tg-feed-kr-home');
+  }
+  if (pageId === 'kr-supply') markFeed('tg-feed-kr-supply');
+  if (pageId === 'kr-macro') {
+    var macroSections = directSections(page);
+    wrapSections(page, macroSections.slice(5, 9), '추가 지표 · 수출 · 부동산 · 시나리오', 'aio-comp-secondary');
+    markFeed('tg-feed-kr-macro');
+  }
+  if (pageId === 'kr-technical') {
+    markFeed('tg-feed-kr-technical');
+    directSections(page).forEach(function(section) {
+      if (/기술 분석 핵심 용어/.test(sectionLabel(section))) section.classList.add('aio-comp-guide-only');
+    });
+  }
+  if (pageId === 'kr-themes') {
+    var container = document.getElementById('kr-theme-container');
+    if (container && !document.getElementById('kr-theme-more')) {
+      container.classList.add('aio-theme-progressive');
+      var button = document.createElement('button');
+      button.id = 'kr-theme-more';
+      button.className = 'aio-btn-table aio-comp-more';
+      button.type = 'button';
+      button.textContent = '테마 더 보기';
+      button.addEventListener('click', function() {
+        var expanded = container.classList.toggle('is-expanded');
+        button.textContent = expanded ? '핵심 테마만 보기' : '테마 더 보기';
+      });
+      container.insertAdjacentElement('afterend', button);
+    }
+  }
 }
 
 function _initOptionsPage() {

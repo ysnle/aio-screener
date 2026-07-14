@@ -2,10 +2,37 @@
 verified_by: agent
 last_verified: 2026-07-14
 confidence: high
-latest_version: v52.86
-latest_P_number: P701
-total_entries: 467
-next_P_number: P702
+latest_version: v52.89
+latest_P_number: P704
+total_entries: 470
+next_P_number: P705
+
+## P704 - v52.89 - 사용자 페이지 20개와 내부 QA 라우트 22개를 혼용했고 남은 7면은 시안 정보 위계가 확장되지 않았다
+
+- **motivation**: 13개 시안면은 정리됐지만 사용설명서·용어사전·한국 5면은 긴 기존 구조가 남았고, 검증 결과의 `22 routes`를 사용자 페이지 수처럼 설명해 실제 메뉴 구조를 오해하게 했다.
+- **root_cause**: 라우트 계약은 이미 19개 `NAV_ROUTE`, 2개 `DERIVED_VIEW`, 1개 `REFERENCE`, 1개 `OVERLAY`를 구분했지만 UI 개수와 QA 순회 개수를 같은 용어로 보고했다. 시안 확장도 핵심 13면에만 적용해 교육·한국 시장 표면의 밀도 계약이 없었다.
+- **fix**: 19개 메뉴 페이지와 용어사전 오버레이를 20개 사용자 표면으로 명시했다. 사용설명서는 검색+장별 아코디언, 용어사전은 267개 항목의 넓은 검색 모달, 국내 테마는 3개 우선 노출+더보기, 한국 홈/매크로는 핵심과 추가 탐색 분리, 수급/기술은 중복 뉴스·페이지 내 용어 설명을 통합 제거했다.
+- **violated_rule**: R329의 최종 화면 정보 위계 계약을 13면에만 한정했고, 내부 구현 용어를 사용자 정보구조 설명에 그대로 사용했다.
+- **prevention**: R330과 T869가 19 primary + 2 derived + 1 reference + 1 overlay 분류와 남은 7면의 점진 공개 구조를 함께 검사한다. viewport 스크립트에도 22가 내부 QA 라우트 수임을 명시한다.
+- **verification**: 남은 7면을 로컬 Chromium 1440×900·390×844로 각각 렌더링해 pageerror 0을 확인했고 용어사전 267개 항목을 검증했다. 사용설명서 기본 높이 6,727→1,079px, 한국 홈 3,262→1,168px, 한국 매크로 4,985→1,803px로 축소됐다. syntax와 11개 정적 게이트, headless **1075/1075 PASS**, 내부 22라우트×4뷰포트 **88/88 PASS**(overflow 0px, JS error 0), 접근성 22 내부 라우트, 핵심 10면, 포트폴리오 vault E2E 8/8을 통과했다.
+
+## P703 - v52.88 - 정적 시안 정리는 런타임 주입·무제한 목록·기존 재배치 로직까지 제어하지 못했다
+
+- **motivation**: v52.87에서 시안 밖 고급 블록을 격리했지만 실제 브라우저에서는 자동 판단 헤더와 관련 뉴스, 중복 Telegram 피드, 긴 뉴스 목록, 기존 섹션 재배치가 다시 나타나 시안과 다른 정보 밀도와 순서를 만들었다.
+- **root_cause**: 초기 HTML만 시안 구조로 정리하고 페이지 진입 후 실행되는 공통 런타임 주입기와 페이지별 재배치 함수를 같은 계약으로 묶지 않았다. 뉴스·스크리너 렌더러도 전체 결과를 첫 화면에 출력해, 데이터가 많아질수록 시안의 조용한 밀도가 무너졌다.
+- **fix**: 13면 기본 경로에서 자동 판단 헤더·자동 관련 뉴스·중복 피드·운영 배지를 런타임 생성 뒤에도 비노출 처리했다. 홈·심리·거시경제의 순서를 시안 기준으로 고정하고, 뉴스와 스크리너는 12개씩 점진 공개하며 브리핑 뉴스는 820px 명시 확장으로 제한했다. 포트폴리오는 총손익·현금·노출 규칙 3열 요약, 기업 분석은 기존 검색 파이프라인으로 NVDA 기본 보고서를 채운다.
+- **violated_rule**: R328의 시안 기본 정보구조 계약을 정적 DOM에만 적용하고 런타임 삽입·재배치·데이터량 증가 경로까지 확장하지 않았다.
+- **prevention**: R329로 시안 계약을 최종 렌더 DOM까지 확장했다. T869와 runtime contract는 자동 주입 패널 비노출, 12행 상한, 브리핑 캡, 포트폴리오 3열, NVDA 기존 파이프라인 진입을 함께 검사한다.
+- **verification**: 로컬 Chromium으로 13면 데스크톱(1440×900)·모바일(390×844) 총 26면을 실제 렌더링해 JS pageerror 0, 자동 판단 헤더 0, 노출 details 0, 스크리너 12행을 확인했다. 펀더멘털은 로딩 완료까지 기다려 NVDA 실데이터/폴백 보고서 렌더를 확인했다. 변경 모듈 syntax와 version/structural/default-path/runtime/data/semantic/workflow/skill/knowledge/control-char/doc-currency 게이트 통과, headless **1075/1075 PASS**, 22라우트×4뷰포트 **88/88 PASS**(overflow 0px, JS error 0), 접근성 22라우트와 핵심 10면 PASS, 포트폴리오 vault E2E 8/8 PASS. 배포·커밋은 수행하지 않았다.
+
+## P702 - v52.87 - 시안을 기본 구조가 아닌 기존 화면 위 장식층으로 적용해 중복과 운영 노이즈가 남았다
+
+- **motivation**: 13개 시안은 전체 사이트의 정보 우선순위와 화면 밀도를 바꾸기 위한 기준안이었지만, 실제 화면에는 시안 밖 콘텐츠가 대량으로 남아 이전 버전과 체감 차이가 작았다.
+- **root_cause**: 기존 기능을 삭제·이관·통합하지 않고 대부분 접힌 `<details>`로 감싸 보존했으며, 기초 가이드와 Public Status/파이프라인 진단까지 사용자 화면에 추가했다. `접어두기`를 `정리 완료`로 취급한 구현 방식이 R228의 의도와 충돌했다.
+- **fix**: 13개 시안을 기본 정보구조로 선언하고 기초 가이드 DOM 주입을 퇴역시켰다. 시안 밖 레거시/운영 패널은 일반 경로에서 제거해 개발자 모드로 격리했으며, 포트폴리오 순서와 입력 흐름 및 스크리너 9열을 시안에 맞게 재구축했다.
+- **violated_rule**: R228(접힌 details는 정리의 대체물이 아님), 시안/핸드오프의 conclusion → evidence → action 우선순위. 기존 R291의 페이지별 교육 블록 의무는 본 변경의 R328로 대체한다.
+- **prevention**: T869는 13면에서 `.aio-fund` 0개, 고급 블록 기본 비노출, 운영 패널 비노출, 스크리너 9열, 포트폴리오 CTA 입력을 검증한다. runtime contract는 navigation 주입 재도입과 기본 경로 노출을 차단한다.
+- **verification**: 변경 모듈 syntax, version/structural/runtime/data contracts, 기본 경로 UX, Chromium headless `1075/1075 PASS`, 22라우트×4뷰포트(88조합, overflow/JS error 0), 22라우트 접근성 및 핵심 10면 검사를 통과했다. 배포 사이트 live invariant와 인앱 브라우저 직접 육안 점검은 각각 네트워크/브라우저 제어 런타임 제약으로 미검증이다.
 
 ## P701 - v52.86 - tool mutation and data rights were implicit rather than registry-gated
 

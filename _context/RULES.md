@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-07-14
 confidence: high
-target_version: v52.86
+target_version: v52.89
 
 ---
 
@@ -3527,3 +3527,27 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: Any script that mechanically strips or remaps literal characters/colors across an entire source file (not just HTML display text) can hit JS string literals where that character is not decorative but the *only* distinguishing content between two branches of a ternary or template string (e.g. `cond ? '✓' : '✗'`) that downstream code parses via `.indexOf()`/`.charAt()`/equality. Collapsing both branches to the same value silently makes the condition permanently true — this is worse than a visual regression because it looks like working code, still runs, and can pass a full test suite if that exact logic path isn't asserted.
 
 **Required**: After any bulk find/replace across a full HTML+JS file (emoji strips, color sweeps, label renames), grep specifically for the signature of this failure class before trusting the change: both-branches-identical ternaries (`? '...' : '...'` where both sides are now equal) and `.indexOf('')`/`.indexOf(<now-empty-or-collapsed-string>)` patterns. A passing headless suite is necessary but not sufficient — confirm the specific corrupted-looking lines by reading them, not just by re-running tests. See P678/BUG-POSTMORTEM.md.
+
+## R328. 승인된 화면 시안은 장식층이 아니라 기본 정보구조이며, 접힌 레거시는 통합으로 간주하지 않는다 (v52.87, P702 root)
+
+**Rule**: 시안에 없는 기존 섹션을 `<details>`로 접거나 시안 앞뒤에 그대로 붙이는 방식은 이식 완료가 아니다. 기본 사용자 경로는 시안의 순서·밀도·텍스트 계층을 우선하고, 중복 설명·교육·운영 진단은 삭제하거나 전용 도움말/개발자 모드로 이관해야 한다.
+
+**Required**: 13개 시안 화면에는 conclusion → evidence → action 순서에 직접 기여하는 콘텐츠만 기본 노출한다. `.aio-fund`, Public Status, 파이프라인 감사, 시안 밖 고급 도구는 기본 경로에 렌더하지 않는다. R291의 페이지별 교육 블록 의무는 본 규칙으로 대체하며, 교육은 전용 사용 설명서에서 제공한다.
+
+**Validation**: T869, runtime-contract의 inert fundamentals/no-navigation-hook, 13면 advanced developer-only, 포트폴리오 순서/CTA, 스크리너 9열 게이트.
+
+## R329. 시안 기본 경로 계약은 초기 HTML이 아니라 런타임 주입이 끝난 최종 화면에 적용한다 (v52.88, P703 root)
+
+**Rule**: 승인 시안의 순서·밀도·중복 제거 계약은 페이지 진입 이벤트, 비동기 데이터 렌더, 공통 헤더/뉴스 삽입, 기존 재배치 함수가 모두 실행된 뒤에도 유지되어야 한다. 자동 생성된 패널이라는 이유로 시안 밖 콘텐츠를 일반 사용자 화면에 되살리지 않는다.
+
+**Required**: 13면의 자동 판단 헤더·관련 뉴스·중복 피드·운영 진단은 개발자 경로로 격리한다. 결과 수가 변하는 뉴스와 스크리너는 첫 화면 상한과 명시적 점진 공개를 사용하고, 긴 브리핑 피드는 사용자가 확장하기 전까지 높이를 제한한다. 시안에서 정의한 핵심 순서를 런타임 DOM 이동으로 뒤집지 않는다.
+
+**Validation**: T869 `redesign_default_path_v5288`, runtime-contract [G], 로컬 Chromium 13면 데스크톱·모바일 캡처, viewport/accessibility matrix.
+
+## R330. 사용자 표면 수와 내부 QA 라우트 수를 분리하고, 시안 정보 위계를 모든 사용자 표면에 적용한다 (v52.89, P704 root)
+
+**Rule**: 제품 페이지 수는 메뉴에서 직접 접근하는 19개 페이지와 용어사전 오버레이 1개를 합한 20개 사용자 표면으로 설명한다. `ticker`, `theme-detail`은 파생 뷰이며 `options`는 폐기 호환 reference shell이므로 22개 QA 라우트를 22개 사용자 페이지라고 부르지 않는다.
+
+**Required**: 핵심 13면의 타이포그래피·여백·정보 우선순위를 사용설명서·용어사전·한국 5면에도 확장한다. 교육 콘텐츠는 검색 가능한 장별 공개, 대규모 테마 목록은 점진 공개, 중복 뉴스와 페이지 내 반복 용어 설명은 공용 뉴스/가이드 표면으로 통합한다. 기존 데이터·액션 함수는 재사용하고 별도 정적 데모를 만들지 않는다.
+
+**Validation**: T869 `redesign_default_path_v5289`, runtime-contract [G], `AIO_ROUTE_REGISTRY.classes`, 남은 7면 데스크톱·모바일 실렌더링.

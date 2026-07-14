@@ -1502,6 +1502,7 @@ function getAdrEstimate(r) {
 
 var _scrSortCol = 'mcap';
 var _scrSortAsc = false;
+var _scrVisibleLimit = 12;
 // v49.1 P184: AIO.state 등록
 if (window.AIO && window.AIO.state) {
   window.AIO.state._scrSortCol = _scrSortCol;
@@ -1939,7 +1940,8 @@ function renderScreenerResults() {
   };
   // v51.39: 워치리스트 전체 조회 (행별 ★ 상태 결정)
   var _wlArr = (typeof window._aioWatchlistGet === 'function') ? window._aioWatchlistGet() : [];
-  filtered.forEach(function(r) {
+  var visibleRows = filtered.slice(0, _scrVisibleLimit);
+  visibleRows.forEach(function(r) {
     var sc = r.signal === 'BUY' ? 'var(--data-green)' : r.signal === 'SELL' ? 'var(--data-red)' : r.signal === 'WATCH' ? 'var(--data-amber)' : 'var(--text-muted)';
     var sb = r.signal === 'BUY' ? 'var(--data-green-soft)' : r.signal === 'SELL' ? 'var(--data-red-soft)' : r.signal === 'WATCH' ? 'var(--data-amber-soft)' : 'var(--data-muted-soft)';
     var mcapStr = (r.mcap >= 1000) ? '$' + (r.mcap/1000).toFixed(1) + 'T' : '$' + (r.mcap||0) + 'B';
@@ -1948,8 +1950,8 @@ function renderScreenerResults() {
     var grade = rank == null ? '—' : rank >= 80 ? 'A' : rank >= 65 ? 'B' : rank >= 50 ? 'C' : rank >= 35 ? 'D' : 'F';
     var gradeClass = rank == null ? '' : 'mv-grade-' + grade;
     var fs = r.factorScores || {};
-    var ret3 = (typeof r.ret3m === 'number') ? ((r.ret3m>=0?'+':'')+r.ret3m.toFixed(1)+'%') : '—';
-    var ret3c = (typeof r.ret3m === 'number') ? (r.ret3m>=0?'var(--data-green)':'var(--data-red)') : 'var(--text-muted)';
+    var _retText = function(v){ return typeof v === 'number' ? ((v>=0?'+':'')+v.toFixed(1)+'%') : '—'; };
+    var _retColor = function(v){ return typeof v === 'number' ? (v>=0?'var(--data-green)':'var(--data-red)') : 'var(--text-muted)'; };
     // v51.39: 워치리스트 ★ 상태
     var inWL = _wlArr.indexOf(r.sym) >= 0;
     var starHtml = '<span class="scr-star' + (inWL?' active':'') + '" data-action="_aioWLToggle" data-arg="' + escHtml(r.sym) + '" data-stop="1" data-wl-sym="' + escHtml(r.sym) + '" title="' + (inWL?'워치리스트에서 제거':'워치리스트에 추가') + '" role="button" tabindex="0" aria-label="워치리스트 ' + (inWL?'제거':'추가') + '">' + (inWL?'★':'☆') + '</span>';
@@ -1962,7 +1964,7 @@ function renderScreenerResults() {
     var vcpColor = vcpScore == null ? 'var(--text-muted)' : vcpScore >= 70 ? 'var(--data-green)' : vcpScore >= 50 ? 'var(--data-amber)' : 'var(--data-red)';
     // 주의: r.memo는 내부 마커(vNN·RNN·Codex 등)를 포함할 수 있어 title 툴팁에 노출하지 않음(R206). 행 클릭 → 심층 분석.
     html += '<tr class="aio-hover-row" style="border-bottom:1px solid var(--surface-4);cursor:pointer;" data-action="_aioScreenerTicker" data-arg="' + escHtml(r.sym) + '">' +
-      '<td style="text-align:center;padding:4px 6px;width:28px;">' + starHtml + '</td>' +
+      '<td class="scr-adv-col" style="text-align:center;padding:4px 6px;width:28px;">' + starHtml + '</td>' +
       '<td class="scr-adv-col" style="text-align:center;padding:5px 8px;">' +
         (rank!=null
           ? '<div style="font-family:var(--font-mono);font-weight:800;font-size:11px;color:'+rkColor+';">' + rank + '</div>' +
@@ -1975,25 +1977,33 @@ function renderScreenerResults() {
       '<td class="scr-adv-col" style="text-align:center;padding:5px 6px;"><span class="mv-grade ' + gradeClass + '" style="font-size:11px;">' + grade + '</span></td>' +
       '<td style="padding:6px 8px;"><div style="font-weight:800;font-family:var(--font-mono);font-size:12px;">' + escHtml(r.sym) + '</div><div style="font-size:10px;color:var(--text-muted);">' + escHtml(r.name) + '</div></td>' +
       '<td class="scr-adv-col" style="padding:6px 8px;font-size:10px;color:var(--text-secondary);">' + escHtml(r.sector||'') + '</td>' +
-      _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) + _fcell(fs.kalman, '추세신뢰도', false, '') +
-      '<td style="text-align:right;padding:4px 8px;" title="VCP 점수 '+( vcpScore != null ? vcpScore : '—' )+' · '+vcpStageKey+'">' + (vcpScore != null ? '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:'+vcpColor+';">'+vcpScore+'</div><div style="font-size:10px;color:'+vcpColor+';">'+vcpStageShort+'</div>' : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
-      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+ret3c+';">' + ret3 + '</td>' +
-      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
-      '<td class="scr-adv-col" style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
+      _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) +
       // v52.16 P5j/P622: 라이브 시세는 ~85종목만 커버해 나머지 788종목은 이 셀이 영구 "—"였음 — 다른
       // 팩터 셀(RSI/시총 등)과 동일하게 SCREENER_DB 자체 필드(r.price, screener.json 서버 종가로 이미
       // 채워짐 — _aioApplyServerScreener) 우선 표시. data-live-price는 유지해 ~85종목은 계속 실시간 갱신.
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">' + (typeof r.price === 'number' ? r.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—') + '</td>' +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+_retColor(r.ret1m)+';">' + _retText(r.ret1m) + '</td>' +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+_retColor(r.ret3m)+';">' + _retText(r.ret3m) + '</td>' +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+_retColor(r.ret6m)+';">' + _retText(r.ret6m) + '</td>' +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
+      '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+_retColor(r.pctSma50)+';">' + _retText(r.pctSma50) + '</td>' +
+      _fcell(fs.kalman, '추세신뢰도', false, '') +
+      '<td style="text-align:right;padding:4px 8px;" title="VCP 점수 '+( vcpScore != null ? vcpScore : '—' )+' · '+vcpStageKey+'">' + (vcpScore != null ? '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:'+vcpColor+';">'+vcpScore+'</div><div style="font-size:10px;color:'+vcpColor+';">'+vcpStageShort+'</div>' : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
+      '<td class="scr-adv-col" style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
       '<td class="scr-adv-col" style="text-align:center;padding:4px 8px;border-left:1px solid var(--border);">' + entryHtml + '</td>' +
       '<td class="scr-adv-col" style="text-align:center;padding:6px 8px;border-left:1px solid var(--border);"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
       '<td class="scr-adv-col" style="padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (r.newsMemo ? escHtml(r.newsMemo) : '') + '">' + (r.newsMemo ? escHtml(r.newsMemo.slice(0, 70)) : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
     '</tr>';
   });
 
-  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="19" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
+  document.getElementById('screener-results-body').innerHTML = html || '<tr><td colspan="22" style="text-align:center;padding:20px;color:var(--text-muted);">조건에 맞는 종목이 없습니다</td></tr>';
   // 스파크라인 미니차트 렌더링
-  requestAnimationFrame(function() { renderSparklines(filtered); });
+  requestAnimationFrame(function() { renderSparklines(visibleRows); });
   document.getElementById('screener-result-count').textContent = filtered.length;
+  var moreWrap = document.getElementById('scr-load-more-wrap');
+  var visibleSummary = document.getElementById('scr-visible-summary');
+  if (moreWrap) moreWrap.hidden = visibleRows.length >= filtered.length;
+  if (visibleSummary) visibleSummary.textContent = '전체 ' + filtered.length + '개 중 ' + visibleRows.length + '개 표시';
   // v37.8: 동적 스크리너 분석
   if (typeof _generateScreenerAnalysis === 'function') _generateScreenerAnalysis(filtered, ld);
 
@@ -2063,17 +2073,17 @@ window._aioInitScreenerFilters = function() {
   fill('scr-sector', 'sector', '전체 섹터');
   ['scr-market','scr-sector','scr-signal','scr-cap','scr-min-rank'].forEach(function(id){
     var el = document.getElementById(id);
-    if (el && !el.getAttribute('data-wired')) { el.addEventListener('change', function(){ renderScreenerResults(); }); el.setAttribute('data-wired','1'); }
+    if (el && !el.getAttribute('data-wired')) { el.addEventListener('change', function(){ _scrVisibleLimit = 12; renderScreenerResults(); }); el.setAttribute('data-wired','1'); }
   });
   var ts = document.getElementById('scr-text-search');
-  if (ts && !ts.getAttribute('data-wired')) { ts.addEventListener('input', function(){ renderScreenerResults(); }); ts.setAttribute('data-wired','1'); }
+  if (ts && !ts.getAttribute('data-wired')) { ts.addEventListener('input', function(){ _scrVisibleLimit = 12; renderScreenerResults(); }); ts.setAttribute('data-wired','1'); }
   // v51.39: 고급 필터 입력 배선
   ['scr-rsi-min','scr-rsi-max','scr-min-mom'].forEach(function(id){
     var el = document.getElementById(id);
-    if (el && !el.getAttribute('data-wired')) { el.addEventListener('input', function(){ renderScreenerResults(); }); el.setAttribute('data-wired','1'); }
+    if (el && !el.getAttribute('data-wired')) { el.addEventListener('input', function(){ _scrVisibleLimit = 12; renderScreenerResults(); }); el.setAttribute('data-wired','1'); }
   });
   var wlCk = document.getElementById('scr-watchlist-only');
-  if (wlCk && !wlCk.getAttribute('data-wired')) { wlCk.addEventListener('change', function(){ renderScreenerResults(); }); wlCk.setAttribute('data-wired','1'); }
+  if (wlCk && !wlCk.getAttribute('data-wired')) { wlCk.addEventListener('change', function(){ _scrVisibleLimit = 12; renderScreenerResults(); }); wlCk.setAttribute('data-wired','1'); }
   // 포지션 사이저 입력 배선
   ['ps-capital','ps-risk','ps-stop'].forEach(function(id){
     var el = document.getElementById(id);
@@ -2299,7 +2309,13 @@ window._aioScreenerSort = function(col) {
   if (!col) return;
   if (_scrSortCol === col) { _scrSortAsc = !_scrSortAsc; }
   else { _scrSortCol = col; _scrSortAsc = (col === 'sym' || col === 'sector'); } // 텍스트=오름차순, 수치/랭크=내림차순 기본
+  _scrVisibleLimit = 12;
   try { window.AIO.state._scrSortCol = _scrSortCol; window.AIO.state._scrSortAsc = _scrSortAsc; } catch(_) {}
+  if (typeof renderScreenerResults === 'function') renderScreenerResults();
+};
+
+window._aioScreenerLoadMore = function() {
+  _scrVisibleLimit += 12;
   if (typeof renderScreenerResults === 'function') renderScreenerResults();
 };
 
@@ -6331,6 +6347,11 @@ function _aioRenderPublicReadiness() {
   try {
     var el = document.getElementById('aio-public-readiness');
     if (!el) return;
+    // v52.87 P702: 운영/배포 진단은 개발자 모드 전용이다. 일반 투자 화면에는 렌더하지 않는다.
+    if (!document.body || !document.body.classList.contains('aio-dev-mode')) {
+      el.style.removeProperty('display');
+      return;
+    }
     var activePage = document.querySelector('.page.active');
     if (activePage && activePage.id !== 'page-home') return;
     var m = _aioBuildPublicShareReadiness({ full: false });
@@ -11059,7 +11080,8 @@ function renderFeed(items) {
 
   // v40.4: 건수 상한 150건 (브리핑 20건보다 넓지만 과부하 방지)
   var eligibleCount = filtered.length;
-  filtered = filtered.slice(0, 150);
+  var visibleLimit = window._aioNewsVisibleLimit || 12;
+  filtered = filtered.slice(0, visibleLimit);
   _aioRenderMarketNewsRewriteSurfaces(filtered || items || []);
   const html = filtered.map((item, idx) => {
     // 기업 뉴스 간결 불릿 형식
@@ -11142,7 +11164,17 @@ function renderFeed(items) {
   // 카운트 업데이트
   const countEl = document.getElementById('market-news-count');
   if (countEl) countEl.textContent = eligibleCount > filtered.length ? (filtered.length + '건 표시 / ' + eligibleCount + '건 일치') : (filtered.length + '건');
+  var moreWrap = document.getElementById('news-load-more-wrap');
+  var visibleSummary = document.getElementById('news-visible-summary');
+  if (moreWrap) moreWrap.hidden = filtered.length >= eligibleCount;
+  if (visibleSummary) visibleSummary.textContent = '전체 ' + eligibleCount + '건 중 ' + filtered.length + '건 표시';
 }
+
+window._aioNewsLoadMore = function() {
+  window._aioNewsVisibleLimit = (window._aioNewsVisibleLimit || 12) + 12;
+  var source = window._allNewsItems || window.newsCache || [];
+  if (typeof renderFeed === 'function') renderFeed(source);
+};
 
 /* ── renderHomeFeed(): 홈 "오늘의 시장" 하단에 핵심 뉴스 불릿 (v39.0) ── */
 // v51.30 P531: HOME 핵심 뉴스는 최근 30시간 안의 시장 충격도 높은 맥락만 기본 노출한다.

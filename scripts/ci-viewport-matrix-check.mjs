@@ -1,5 +1,6 @@
 // FABLE-UIUX-DEEP-AUDIT-2026-07-08 Phase V3-1
-// Route x viewport surface check. Screenshots are opt-in via AIO_VIEWPORT_SCREENSHOTS=1.
+// Internal route x viewport surface check: 19 primary pages + 2 derived views + 1 reference shell.
+// The glossary is a user-facing overlay, so the product has 20 user surfaces although this matrix has 22 routes.
 
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

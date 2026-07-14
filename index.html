@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.86 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.89 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -4702,7 +4702,7 @@ body {
   color: #57513f !important;
 }
 .aio-public-readiness {
-  display: none;
+  display: none !important;
   grid-template-columns: minmax(180px, 0.8fr) repeat(3, minmax(130px, 1fr));
   gap: 8px;
   margin: 0 0 12px;
@@ -4712,6 +4712,7 @@ body {
   border-radius: 8px;
   background: var(--bg-card);
 }
+body.aio-dev-mode .aio-public-readiness { display:grid !important; }
 .aio-public-readiness.is-ok { border-left-color: var(--data-green); }
 .aio-public-readiness.is-warn { border-left-color: var(--data-amber); }
 .aio-public-readiness.is-block { border-left-color: var(--data-red); }
@@ -4917,6 +4918,205 @@ body {
 }
 .aio-page-advanced-toggle[open] > summary:after { content:'접기'; }
 .aio-page-advanced-body { padding:0 12px 12px; }
+/* v52.87 P702: 13개 아이보리 시안이 기본 정보구조다. 시안 밖 레거시/운영 패널은
+   일반 사용자 경로에 접힌 행으로도 남기지 않고, 명시적 개발자 모드에서만 복구한다. */
+#page-home .aio-page-advanced-toggle,
+#page-signal .aio-page-advanced-toggle,
+#page-briefing .aio-page-advanced-toggle,
+#page-breadth .aio-page-advanced-toggle,
+#page-sentiment .aio-page-advanced-toggle,
+#page-technical .aio-page-advanced-toggle,
+#page-macro .aio-page-advanced-toggle,
+#page-fxbond .aio-page-advanced-toggle,
+#page-fundamental .aio-page-advanced-toggle,
+#page-themes .aio-page-advanced-toggle,
+#page-portfolio .aio-page-advanced-toggle,
+#page-market-news .aio-page-advanced-toggle,
+#page-screener .aio-page-advanced-toggle { display:none !important; }
+body.aio-dev-mode #page-home .aio-page-advanced-toggle,
+body.aio-dev-mode #page-signal .aio-page-advanced-toggle,
+body.aio-dev-mode #page-briefing .aio-page-advanced-toggle,
+body.aio-dev-mode #page-breadth .aio-page-advanced-toggle,
+body.aio-dev-mode #page-sentiment .aio-page-advanced-toggle,
+body.aio-dev-mode #page-technical .aio-page-advanced-toggle,
+body.aio-dev-mode #page-macro .aio-page-advanced-toggle,
+body.aio-dev-mode #page-fxbond .aio-page-advanced-toggle,
+body.aio-dev-mode #page-fundamental .aio-page-advanced-toggle,
+body.aio-dev-mode #page-themes .aio-page-advanced-toggle,
+body.aio-dev-mode #page-portfolio .aio-page-advanced-toggle,
+body.aio-dev-mode #page-market-news .aio-page-advanced-toggle,
+body.aio-dev-mode #page-screener .aio-page-advanced-toggle { display:block !important; }
+/* v52.88 P703: 시안 13면을 실제 기본 화면으로 고정한다. 운영 진단/중복 피드는
+   삭제하지 않고 개발자 모드에만 남겨 사용자 화면의 판단 밀도를 보존한다. */
+body:not(.aio-dev-mode) #market-pulse-bar,
+body:not(.aio-dev-mode) #home-operator-note,
+body:not(.aio-dev-mode) #aio-public-readiness,
+body:not(.aio-dev-mode) #snapshot-stale-warning,
+body:not(.aio-dev-mode) #home-conclusion-bar,
+body:not(.aio-dev-mode) #home-trading-grid,
+body:not(.aio-dev-mode) #chat-home,
+body:not(.aio-dev-mode) #tg-feed-signal,
+body:not(.aio-dev-mode) #tg-feed-breadth,
+body:not(.aio-dev-mode) #tg-feed-sentiment,
+body:not(.aio-dev-mode) #tg-feed-technical,
+body:not(.aio-dev-mode) #tg-feed-macro,
+body:not(.aio-dev-mode) #tg-feed-fxbond,
+body:not(.aio-dev-mode) #tg-feed-fundamental,
+body:not(.aio-dev-mode) #tg-feed-themes,
+body:not(.aio-dev-mode) #tg-feed-briefing,
+body:not(.aio-dev-mode) #tg-feed-market-news,
+body:not(.aio-dev-mode) #news-korean-rewrite-brief,
+body:not(.aio-dev-mode) #news-stale-banner,
+body:not(.aio-dev-mode) #page-sentiment > .stale-badge,
+body:not(.aio-dev-mode) #vis-technical,
+body:not(.aio-dev-mode) #live-source-static-badge,
+body:not(.aio-dev-mode) #server-data-age,
+body:not(.aio-dev-mode) #llm-header-badge,
+body:not(.aio-dev-mode) #llm-quota,
+body:not(.aio-dev-mode) #topbar-refresh-btn,
+body:not(.aio-dev-mode) #macro-regime-detail,
+body:not(.aio-dev-mode) #macro-summary-line,
+body:not(.aio-dev-mode) .macro-provenance,
+body:not(.aio-dev-mode) #breadth-ai-prompt,
+body:not(.aio-dev-mode) #fund-pre-search-guide,
+body:not(.aio-dev-mode) #fund-earnings-calendar,
+body:not(.aio-dev-mode) #page-signal > details,
+body:not(.aio-dev-mode) #page-breadth > details,
+body:not(.aio-dev-mode) #page-sentiment > details,
+body:not(.aio-dev-mode) #page-themes > .aio-section,
+body:not(.aio-dev-mode) #page-themes > .aio-guide-group-header,
+body:not(.aio-dev-mode) #page-themes > #chat-theme-detail,
+body:not(.aio-dev-mode) .page > .aio-decision-header { display:none !important; }
+body:not(.aio-dev-mode) #page-home > details.aio-card,
+body:not(.aio-dev-mode) #page-signal > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-breadth > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-sentiment > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-technical > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-macro > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-fxbond > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-fundamental > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-themes > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-portfolio > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-market-news > .aio-page-news-strip,
+body:not(.aio-dev-mode) #page-screener > .aio-page-news-strip { display:none !important; }
+body:not(.aio-dev-mode) .page.has-aio-decision-header { padding-top:0 !important; }
+
+/* 홈 뉴스는 운영 카드가 아니라 시안의 마지막 헤어라인 섹션으로 재사용한다. */
+#home-market-summary-banner {
+  border:0 !important; border-top:1px solid var(--border-strong) !important;
+  border-radius:0 !important; box-shadow:none !important; background:transparent !important;
+  padding:20px 0 0 !important; margin:22px 0 0 !important;
+}
+#home-market-summary-banner.has-stripe-left:before { display:none !important; }
+#home-market-summary-banner > div:first-child { margin-bottom:12px !important; }
+#home-market-summary-banner > div:first-child > div:first-child > div:first-child {
+  font-family:var(--font-display); font-size:16px !important; font-weight:600 !important;
+  color:var(--text-primary) !important; letter-spacing:0 !important; text-transform:none !important;
+}
+#home-market-summary-banner #home-summary-text,
+#home-market-summary-banner #home-summary-time,
+#home-market-summary-banner > div:first-child > div:last-child > div:first-child,
+#home-market-summary-banner #tg-feed-home { display:none !important; }
+#home-news-highlights { border-top:0 !important; padding-top:0 !important; margin-top:0 !important; }
+
+/* 4a 시안: 총손익·현금·노출규칙의 3열 요약. */
+#pf-hero-stats { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+#pf-freshness-strip { display:none !important; }
+
+/* 4c 시안은 첫 화면에 12개 후보만 보여주고 전체 결과는 점진 공개한다. */
+#scr-load-more-wrap { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:14px; }
+#scr-load-more-wrap[hidden] { display:none !important; }
+#news-load-more-wrap { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px; }
+#news-load-more-wrap[hidden] { display:none !important; }
+body:not(.aio-dev-mode) #briefing-live-news-list { max-height:820px; overflow:hidden; }
+body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; overflow:visible; }
+#vix-term-chart { width:100% !important; height:80px !important; max-height:80px !important; display:block; }
+#risk-banner { background:transparent !important; border-top:1px solid var(--border-subtle) !important; color:var(--text-dim) !important; margin-top:28px !important; padding:12px 0 !important; }
+#risk-banner button { display:none; }
+
+/* v52.89 P704: 사용설명서·용어사전·한국 5면도 13면 시안의 조용한 정보 위계를 공유한다. */
+#page-guide > .aio-section:has(.page-title),
+#page-kr-home > .aio-section:first-of-type,
+#page-kr-supply > .aio-section:first-of-type,
+#page-kr-macro > .aio-section:first-of-type,
+#page-kr-technical > :first-child,
+#page-kr-themes > .row:first-child {
+  border-bottom:1px solid var(--border-strong); padding-bottom:20px; margin-bottom:22px;
+}
+#page-guide .aio-section-hd,
+#page-kr-home .aio-section-hd,
+#page-kr-supply .aio-section-hd,
+#page-kr-themes .aio-section-hd,
+#page-kr-macro .aio-section-hd,
+#page-kr-technical .aio-section-hd {
+  border:0; padding:0 0 10px; margin:0; background:transparent;
+}
+#page-guide .aio-section-label,
+#page-kr-home .aio-section-label,
+#page-kr-supply .aio-section-label,
+#page-kr-themes .aio-section-label,
+#page-kr-macro .aio-section-label,
+#page-kr-technical .aio-section-label {
+  font-family:var(--font-display); font-size:15px; font-weight:600; letter-spacing:0; text-transform:none;
+}
+.aio-comp-secondary,
+.aio-guide-chapter {
+  border:0; border-top:1px solid var(--border-strong); border-radius:0; margin:24px 0 0; padding:0;
+}
+.aio-comp-secondary > summary,
+.aio-guide-chapter > summary {
+  cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between;
+  padding:16px 0; color:var(--text-primary); font-family:var(--font-display); font-size:15px; font-weight:600;
+}
+.aio-comp-secondary > summary::-webkit-details-marker,
+.aio-guide-chapter > summary::-webkit-details-marker { display:none; }
+.aio-comp-secondary > summary:after,
+.aio-guide-chapter > summary:after { content:'+'; font-family:var(--font-sans); color:var(--text-dim); font-weight:400; }
+.aio-comp-secondary[open] > summary:after,
+.aio-guide-chapter[open] > summary:after { content:'−'; }
+.aio-comp-secondary > .aio-section,
+.aio-guide-chapter > .aio-section { margin-bottom:16px; }
+.aio-comp-secondary-feed,
+.aio-comp-guide-only { display:none; }
+#page-guide > .aio-explain { margin:16px 0 0; }
+#page-guide #guide-public-policy { margin-top:28px !important; }
+#page-guide .aio-guide-chapter .aio-section-hd { display:none; }
+#page-kr-home .kr-index-grid,
+#page-kr-themes .kr-theme-grid { gap:12px; }
+#page-kr-themes .aio-theme-progressive .kr-theme-card:nth-child(n+4) { display:none; }
+#page-kr-themes .aio-theme-progressive.is-expanded .kr-theme-card { display:block; }
+.aio-comp-more { display:block; margin:14px auto 24px; min-width:160px; }
+#glossary-modal { background:rgba(33,29,22,.42) !important; backdrop-filter:blur(2px) !important; }
+#glossary-modal > div { max-width:860px !important; max-height:86vh !important; border-radius:8px !important; box-shadow:0 24px 70px rgba(33,29,22,.22); }
+#glossary-modal h2 { font-family:var(--font-display); font-size:22px !important; font-weight:600; color:var(--text-primary) !important; }
+#glossary-body .aio-glossary-item { padding:15px 0 !important; }
+#glossary-body .aio-glossary-term { color:var(--text-primary) !important; font-family:var(--font-display); font-size:15px !important; }
+@media (max-width:720px) {
+  #glossary-modal > div { width:calc(100% - 20px) !important; max-height:92vh !important; }
+  #glossary-modal > div > div:first-child, #glossary-body { padding-left:16px !important; padding-right:16px !important; }
+  .aio-comp-secondary > summary, .aio-guide-chapter > summary { font-size:14px; }
+}
+
+/* 시안의 조용한 브랜드/내비게이션. */
+.logo .aio-avatar { display:none !important; }
+.logo-mark { font-family:var(--font-display) !important; font-size:24px !important; letter-spacing:-0.03em !important; }
+.logo-sub { margin-top:2px; }
+.nav-icon { display:none !important; }
+.nav-item { padding-left:12px !important; }
+@media (max-width: 720px) {
+  #pf-hero-stats { grid-template-columns:1fr !important; gap:14px !important; }
+}
+/* 포트폴리오는 시안 4a 순서(보유→리스크→배분→벤치마크→종목분석)를 CSS order로 고정한다. */
+#pf-main { flex-direction:column; }
+#pf-main > * { order:90; }
+#pf-freshness-strip { order:-10; }
+#pf-entry-section { order:0; display:none; }
+#pf-entry-section.is-open { display:block; }
+#pf-holdings-table-section { order:1; }
+#pf-risk-section { order:2; }
+#pf-allocation-section { order:3; }
+#pf-benchmark-section { order:4; }
+#pf-holdings-analysis-section { order:5; }
 /* v52.39 P654: 페이지 기초 가이드 (기본 접힘, .aio-page-advanced-toggle 상속) */
 .aio-fund { margin:10px 0 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-secondary); }
 .aio-fund-body { font-size:12px; line-height:1.65; color:var(--text-secondary); }
@@ -5150,8 +5350,8 @@ button[data-filter-active="true"] {
         <div style="display:flex;align-items:center;gap:10px;">
           <div class="aio-avatar tone-cyan" style="width:32px;height:32px;font-size:var(--fs-sm);">AI</div>
           <div style="flex:1;min-width:0;">
-            <span class="logo-mark">AIO SCREENER</span>
-            <span class="logo-sub">올인원 투자 터미널</span>
+            <span class="logo-mark">AIO</span>
+            <span class="logo-sub">Investment Screener</span>
           </div>
         </div>
       </div>
@@ -5485,7 +5685,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.86</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.89</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5554,7 +5754,7 @@ button[data-filter-active="true"] {
 
   <!-- v52.65 아이보리 리디자인 1b: 종합 거래 점수 히어로 — 레거시 vis-home(원형게이지+2x2쿼드런트, _aioDiagram
        score-breakdown/market-regime 타입) 완전 대체. computeTradingScore()를 직접 호출해 실데이터로 구성. -->
-  <div style="display:flex;align-items:center;gap:44px;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 0;margin-bottom:var(--space-3);">
+  <div id="home-score-hero" style="display:flex;align-items:center;gap:44px;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 0;margin-bottom:var(--space-3);">
     <div style="flex-shrink:0;">
       <div style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:8px;">종합 거래 점수</div>
       <div style="display:flex;align-items:baseline;gap:9px;">
@@ -5621,7 +5821,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- v52.65 아이보리 리디자인 1b: KPI 4열 셀-스트립 (시안 — 카드 박스 대신 헤어라인 구분선). data-live-price/chg 훅은 유지. -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px;">
+  <div id="home-kpi-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px;">
     <div class="is-interactive" data-action="showPage" data-arg="technical" role="button" tabindex="0" title="S&P 500 · 미국 대표 지수" style="padding:18px 20px 18px 0;border-right:1px solid var(--border-subtle);cursor:pointer;">
       <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">S&amp;P 500</div>
       <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^GSPC">—</div>
@@ -5649,7 +5849,7 @@ button[data-filter-active="true"] {
   </div>
 
   <!-- v52.65 아이보리 리디자인 1b: quiet indices — pill 배경 제거, 시안처럼 baseline inline 나열 -->
-  <div style="display:flex;align-items:center;flex-wrap:wrap;column-gap:28px;row-gap:8px;margin-bottom:16px;">
+  <div id="home-cross-assets" style="display:flex;align-items:center;flex-wrap:wrap;column-gap:28px;row-gap:8px;margin-bottom:16px;">
     <span class="is-interactive" data-action="showPage" data-arg="fxbond" title="달러 인덱스" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">DXY</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="DX-Y.NYB">—</b></span>
     <span class="is-interactive" data-action="showPage" data-arg="fxbond" title="10년 국채 수익률" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">美 10년물</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^TNX">—</b></span>
     <span class="is-interactive" data-action="showPage" data-arg="macro" title="금 가격" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">금</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="GC=F">—</b></span>
@@ -6728,7 +6928,7 @@ button[data-filter-active="true"] {
   </details>
 
   <!-- SECTION 6: AI Chat Panel -->
-  <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;color:var(--text-muted);font-size:11px;margin-bottom:16px;">
+  <div id="breadth-ai-prompt" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;color:var(--text-muted);font-size:11px;margin-bottom:16px;">
     시장 폭에 대한 질문이 있으신가요? AI 베타 교육·리서치 보조와 대화해보세요.
   </div>
 
@@ -7079,6 +7279,7 @@ button[data-filter-active="true"] {
       <div id="briefing-live-news-list" style="display:flex;flex-direction:column;gap:6px;">
         <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:11px;">핵심 뉴스 확인 중</div>
       </div>
+      <button id="briefing-news-more" class="aio-btn-table" data-action="_aioToggleBriefingNews" data-pass-el="1" style="display:block;width:100%;margin:8px 0 4px;font-size:12px;font-weight:700;">전체 뉴스 보기 ▼</button>
     </div>
 
     </div><!-- /aio-section 주요뉴스 -->
@@ -9223,7 +9424,7 @@ button[data-filter-active="true"] {
     </details>
 
     <!-- v48.56: 어닝 캘린더 — EarningsHub 스타일 주간 그리드 (Finnhub + FMP + IPO) -->
-    <div class="aio-section">
+    <div class="aio-section" id="fund-earnings-calendar">
     <div class="aio-section-hd"><span class="aio-section-label">어닝 캘린더</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
@@ -9711,6 +9912,7 @@ button[data-filter-active="true"] {
       <div class="page-subtitle">보유 자산 · 실시간 손익 · 리밸런싱 — 로컬 저장, 서버 전송 없음</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="aio-btn-table primary is-interactive" data-action="_aioTogglePortfolioEntry" style="font-size:12.5px;border-radius:6px;padding:6px 14px;">종목 추가</button>
       <button class="aio-btn-table is-interactive" data-action="exportPortfolio" style="font-size:12.5px;color:var(--text-secondary);border:1px solid var(--border);border-radius:6px;padding:6px 14px;background:var(--bg-elevated);">내보내기</button>
       <label class="is-interactive" style="font-size:12.5px;color:var(--text-secondary);border:1px solid var(--border);border-radius:6px;padding:6px 14px;background:var(--bg-elevated);cursor:pointer;">가져오기<input type="file" accept=".json" aria-label="포트폴리오 JSON 파일 가져오기" style="display:none" data-on-change="_aioImportPortfolio"></label>
     </div>
@@ -9724,9 +9926,10 @@ button[data-filter-active="true"] {
       <div style="font-size:12.5px;color:var(--text-dim);margin-top:8px;"><span id="pf-holding-count">0 종목</span> · 오늘 <b id="pf-daily-chg" style="font-variant-numeric:tabular-nums;">$0</b> (<span id="pf-daily-pct" style="font-variant-numeric:tabular-nums;">0%</span>)</div>
     </div>
     <div style="width:1px;align-self:stretch;background:var(--border-subtle);"></div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:36px;flex:1;min-width:260px;">
+    <div id="pf-hero-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:36px;flex:1;min-width:260px;">
       <div><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">총 손익</div><div id="pf-total-pnl" style="font-size:20px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">$0</div><div id="pf-total-pnl-pct" style="font-size:12.5px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;">0%</div></div>
-      <div><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">자산 배분</div><div id="pf-allocation" style="font-size:13px;color:var(--text-primary);line-height:1.6;">포지션을 추가하세요</div></div>
+      <div><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">현금</div><div id="pf-cash-hero" style="font-size:20px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">$0</div><div id="pf-cash-pct-hero" style="font-size:12.5px;color:var(--text-dim);margin-top:4px;font-variant-numeric:tabular-nums;">0%</div></div>
+      <div><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">노출 규칙</div><div id="pf-exposure-rule" style="font-size:14px;font-weight:600;color:var(--text-primary);line-height:1.45;">VIX 확인 중</div><div id="pf-exposure-current" style="font-size:12.5px;color:var(--text-dim);margin-top:4px;">현재 노출 0%</div></div>
     </div>
   </div>
 
@@ -9753,12 +9956,12 @@ button[data-filter-active="true"] {
     </div>
 
     <!-- 포트폴리오 메인 (잠금 해제 후 표시) -->
-    <div id="pf-main" style="display:block;">
+    <div id="pf-main" style="display:flex;flex-direction:column;">
 
     <!-- v48.58: 시세 신선도 배지 (판매 Blocker #2 해소) -->
     <div id="pf-freshness-strip" style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;font-size:11px;flex-wrap:wrap;">
       <span style="display:inline-flex;align-items:center;gap:6px;">
-        <span id="pf-freshness-dot" style="width:8px;height:8px;border-radius:50%;background:var(--data-green);box-shadow:0 0 6px var(--data-green);"></span>
+        <span id="pf-freshness-dot" style="width:8px;height:8px;border-radius:50%;background:var(--data-green);"></span>
         <span style="color:var(--text-muted);font-weight:700;">시세 신선도</span>
       </span>
       <span id="pf-freshness-label" style="color:var(--text-primary);font-weight:600;">실시간 (Yahoo v7)</span>
@@ -9814,7 +10017,7 @@ button[data-filter-active="true"] {
          위 히어로 블록으로 이전 재사용 — 동일 id 중복 방지를 위해 구 위치에서 제거(렌더러 함수는 무변경). -->
 
     <!-- 리스크 분석 — v52.71 아이보리 4a: 시안 구조(2x2 카드), pf-sharpe-val 등 실계산 id 재사용 -->
-    <div class="aio-section">
+    <div class="aio-section" id="pf-risk-section">
     <div class="aio-section-hd"><span class="aio-section-label">리스크 분석</span></div>
     <div id="pf-analysis-dashboard" style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px;">
       <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 20px;">
@@ -9843,7 +10046,7 @@ button[data-filter-active="true"] {
 
     <!-- v40.4: 포트폴리오 비중 시각화 + 섹터 + 현금 -->
     <!-- v48.3: 타이틀 10px→12px, 현금 입력 라벨 8px→11px, 입력 10px→12px 상향 · 도넛 크기 150→170 확대 -->
-    <div class="aio-section">
+    <div class="aio-section" id="pf-allocation-section">
     <div class="aio-section-hd"><span class="aio-section-label">비중 현황 · 섹터 배분</span></div>
     <div style="display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:14px;">
       <!-- 비중 도넛 -->
@@ -9870,7 +10073,7 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 비중·섹터 -->
 
     <!-- v34.9: SPY 벤치마크 비교 차트 -->
-    <div class="aio-section">
+    <div class="aio-section" id="pf-benchmark-section">
     <div class="aio-section-hd"><span class="aio-section-label">포트폴리오 vs SPY 수익률 비교</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -9886,7 +10089,7 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section SPY비교 -->
 
     <!-- v52.65 아이보리 리디자인 4a: 보유 종목 AI 차트 분석 -->
-    <div class="aio-section">
+    <div class="aio-section" id="pf-holdings-analysis-section">
     <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px;">
       <span style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);">보유 종목 AI 차트 분석</span>
       <span style="font-size:12px;color:var(--text-muted);">일봉 기준 · MA5/20/50 + 최근 20일 고저 · 카드 클릭 시 차트·기술 분석으로 이동</span>
@@ -10014,7 +10217,7 @@ button[data-filter-active="true"] {
 
     <!-- 종목 추가 폼 -->
     <!-- v48.3: 라벨 9px→11px, 입력 10px→12px, 버튼 9~10px→11~12px 일괄 상향. 입력 필드 padding 확장으로 탭/모바일 터치 친화성 개선 -->
-    <div class="aio-section">
+    <div class="aio-section" id="pf-entry-section">
     <div class="aio-section-hd"><span class="aio-section-label">종목 추가 / 수정</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:14px;">
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
@@ -10045,7 +10248,7 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 종목추가 -->
 
     <!-- 보유 종목 테이블 -->
-    <div class="aio-widget" style="margin-bottom:14px;">
+    <div class="aio-widget" id="pf-holdings-table-section" style="margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;">
         <div class="widget-title" style="margin:0;">보유 종목</div>
         <div style="display:flex;gap:6px;">
@@ -10731,7 +10934,7 @@ button[data-filter-active="true"] {
             <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);border-left:1px solid var(--border);">뉴스</th>
           </tr>
           <tr style="border-bottom:2px solid var(--surface-5);">
-            <th style="text-align:center;padding:7px 6px;font-size:10px;color:var(--text-muted);" title="워치리스트 추가/제거"></th>
+            <th class="scr-adv-col" style="text-align:center;padding:7px 6px;font-size:10px;color:var(--text-muted);" title="워치리스트 추가/제거"></th>
             <th class="scr-adv-col" data-scr-sort="rank" data-action="_aioScreenerSort" data-arg="rank" role="button" style="cursor:pointer;text-align:center;padding:7px 8px;font-size:10px;">순위<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" style="text-align:center;padding:7px 8px;font-size:10px;">등급</th>
             <th data-scr-sort="sym" data-action="_aioScreenerSort" data-arg="sym" role="button" style="cursor:pointer;text-align:left;padding:7px 8px;font-size:10px;">종목<span class="scr-arrow"></span></th>
@@ -10741,21 +10944,32 @@ button[data-filter-active="true"] {
             <th class="scr-adv-col" data-scr-sort="lowvol" data-action="_aioScreenerSort" data-arg="lowvol" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">저변동 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">↓역</span><span class="scr-arrow"></span></th>
             <th class="scr-adv-col" data-scr-sort="value" data-action="_aioScreenerSort" data-arg="value" role="button" title="밸류(저PER/PBR/EV-EBITDA) — FMP 키 필요" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">밸류<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" data-scr-sort="quality" data-action="_aioScreenerSort" data-arg="quality" role="button" title="퀄리티(ROE/마진/매출성장) — FMP 키 필요" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">퀄리티<span class="scr-arrow"></span></th>
+            <th data-scr-sort="price" data-action="_aioScreenerSort" data-arg="price" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">현재가<span class="scr-arrow"></span></th>
+            <th data-scr-sort="ret1m" data-action="_aioScreenerSort" data-arg="ret1m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);">1M<span class="scr-arrow"></span></th>
+            <th data-scr-sort="ret3m" data-action="_aioScreenerSort" data-arg="ret3m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">3M<span class="scr-arrow"></span></th>
+            <th data-scr-sort="ret6m" data-action="_aioScreenerSort" data-arg="ret6m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">6M<span class="scr-arrow"></span></th>
+            <th data-scr-sort="rsi" data-action="_aioScreenerSort" data-arg="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
+            <th data-scr-sort="pctSma50" data-action="_aioScreenerSort" data-arg="pctSma50" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">vs 50MA<span class="scr-arrow"></span></th>
             <th data-scr-sort="kalman" data-action="_aioScreenerSort" data-arg="kalman" role="button" title="추세 신뢰도 — Kalman 필터 기반 추세 방향 확신도. 65%+ 상승 방향이면 추세 추종 유효" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세신뢰도<span class="scr-arrow"></span></th>
             <th data-scr-sort="vcpScore" data-action="_aioScreenerSort" data-arg="vcpScore" role="button" title="VCP(변동성 수축 패턴) 셋업 — Minervini 방법론. '피벗 임박' = 돌파 매수 후보" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">VCP 셋업<span class="scr-arrow"></span></th>
-            <th data-scr-sort="ret3m" data-action="_aioScreenerSort" data-arg="ret3m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);">3M<span class="scr-arrow"></span></th>
-            <th data-scr-sort="rsi" data-action="_aioScreenerSort" data-arg="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" data-scr-sort="mcap" data-action="_aioScreenerSort" data-arg="mcap" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">시총<span class="scr-arrow"></span></th>
-            <th data-scr-sort="price" data-action="_aioScreenerSort" data-arg="price" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">현재가<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);" title="RSI·랭크·모멘텀 조합 진입 타이밍 신호">진입?</th>
             <th class="scr-adv-col" style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);">시그널</th>
             <th class="scr-adv-col" style="text-align:left;padding:7px 8px;font-size:10px;min-width:110px;border-left:1px solid var(--border);">최신뉴스</th>
           </tr>
         </thead>
-        <tbody id="screener-results-body"><tr><td colspan="19" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
+        <tbody id="screener-results-body"><tr><td colspan="22" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
       </table>
     </div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.7;">= 개인 워치리스트 · <b>진입?</b> = RSI·랭크·모멘텀 조합 타이밍 신호 (참고용, 단독 매매 근거 아님). 서버 팩터 파일 미수신 시 랭크·백테스트 비활성화. 밸류·퀄리티 ‘—‘는 FMP 미수신.</div>
+    <div id="scr-load-more-wrap" hidden>
+      <span id="scr-visible-summary" style="font-size:12px;color:var(--text-dim);"></span>
+      <button class="aio-btn-table" data-action="_aioScreenerLoadMore">12개 더 보기</button>
+    </div>
+    <div id="news-load-more-wrap" hidden>
+      <span id="news-visible-summary" style="font-size:12px;color:var(--text-dim);"></span>
+      <button class="aio-btn-table" data-action="_aioNewsLoadMore">12개 더 보기</button>
+    </div>
 
     <!-- 읽는 법 + 전략 백테스트 — v52.72 아이보리 4c: 시안 구조(2열), 기존 백테스트IC 패널 요약 재사용 -->
     <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:44px;border-top:1px solid var(--border-strong);padding-top:22px;margin-top:22px;">
@@ -12761,9 +12975,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.86" defer></script>
-  <script src="./js/aio-data.js?v=52.86" defer></script>
-  <script src="./js/aio-ui.js?v=52.86" defer></script>
+  <script src="./js/aio-core.js?v=52.89" defer></script>
+  <script src="./js/aio-data.js?v=52.89" defer></script>
+  <script src="./js/aio-ui.js?v=52.89" defer></script>
 
   <script>
 
@@ -13393,9 +13607,21 @@ function showPortfolioMain() {
   const lock = document.getElementById('pf-lock-screen');
   const main = document.getElementById('pf-main');
   if (lock) lock.style.display = 'none';
-  if (main) main.style.display = 'block';
+  if (main) main.style.display = 'flex';
   renderPortfolio();
 }
+
+// v52.87 P702: 시안의 조용한 기본 화면을 유지하면서 입력 폼은 명시적 CTA로 연다.
+window._aioTogglePortfolioEntry = function(forceOpen) {
+  var section = document.getElementById('pf-entry-section');
+  if (!section) return;
+  var open = forceOpen == null ? !section.classList.contains('is-open') : !!forceOpen;
+  section.classList.toggle('is-open', open);
+  if (open) {
+    try { section.scrollIntoView({ behavior:'smooth', block:'start' }); } catch(_) {}
+    try { document.getElementById('pf-add-ticker').focus(); } catch(_) {}
+  }
+};
 
 // Add/Edit Position
 function addPortfolioPosition() {
@@ -13425,6 +13651,7 @@ function addPortfolioPosition() {
       savePortfolioData(positions);
       clearPortfolioForm();
       renderPortfolio();
+      window._aioTogglePortfolioEntry(false);
       showToast(ticker + ' 업데이트 완료');
     }, '');
     return;
@@ -13434,6 +13661,7 @@ function addPortfolioPosition() {
   savePortfolioData(positions);
   clearPortfolioForm();
   renderPortfolio();
+  window._aioTogglePortfolioEntry(false);
   // v48.3: 신규 추가 성공 토스트 (기존엔 업데이트 경로만 있었음) — 사용자가 "저장되었는지" 즉시 확인 가능
   if (typeof showToast === 'function') showToast(ticker + ' 포지션 추가 완료 · 브라우저에만 저장됨');
 }
@@ -13733,16 +13961,19 @@ function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDaily
   totalValue = totalValue || 0;
   totalCost = totalCost || 0;
   totalDailyChg = totalDailyChg || 0;
+  var cashValue = 0;
+  try { cashValue = Math.max(0, parseFloat(localStorage.getItem('aio_portfolio_cash') || '0') || 0); } catch(e) {}
+  const totalAssets = totalValue + cashValue;
   const totalPnl = totalValue - totalCost;
   const totalPnlPct = totalCost > 0 ? (totalPnl / totalCost * 100) : 0;
-  const dailyPct = totalValue > 0 ? (totalDailyChg / totalValue * 100) : 0;
+  const dailyPct = totalAssets > 0 ? (totalDailyChg / totalAssets * 100) : 0;
 
   const fmt = n => '$' + Math.abs(n).toLocaleString('en', {maximumFractionDigits: 0});
   const sign = n => n >= 0 ? '+' : '-';
   const color = n => n >= 0 ? 'var(--green)' : 'var(--red)';
 
   const tvEl = document.getElementById('pf-total-value');
-  if (tvEl) tvEl.textContent = fmt(totalValue);
+  if (tvEl) tvEl.textContent = fmt(totalAssets);
   const hcEl = document.getElementById('pf-holding-count');
   if (hcEl) hcEl.textContent = positions.length + ' 종목';
 
@@ -13755,6 +13986,21 @@ function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDaily
   if (dcEl) { dcEl.textContent = sign(totalDailyChg) + fmt(totalDailyChg); dcEl.style.color = color(totalDailyChg); }
   const dpEl = document.getElementById('pf-daily-pct');
   if (dpEl) { dpEl.textContent = sign(dailyPct) + Math.abs(dailyPct).toFixed(2) + '% today'; dpEl.style.color = color(dailyPct); }
+
+  const cashEl = document.getElementById('pf-cash-hero');
+  if (cashEl) cashEl.textContent = fmt(cashValue);
+  const cashPctEl = document.getElementById('pf-cash-pct-hero');
+  if (cashPctEl) cashPctEl.textContent = (totalAssets > 0 ? cashValue / totalAssets * 100 : 0).toFixed(1) + '%';
+  var vix = ld && ld['^VIX'] && isFinite(ld['^VIX'].price) ? Number(ld['^VIX'].price) : null;
+  var exposureCap = vix == null ? null : vix < 15 ? 100 : vix < 20 ? 80 : vix < 25 ? 50 : vix < 30 ? 30 : 15;
+  var exposurePct = totalAssets > 0 ? totalValue / totalAssets * 100 : 0;
+  var exposureRuleEl = document.getElementById('pf-exposure-rule');
+  if (exposureRuleEl) exposureRuleEl.textContent = exposureCap == null ? 'VIX 확인 중' : 'VIX ' + vix.toFixed(1) + ' · 최대 ' + exposureCap + '%';
+  var exposureCurrentEl = document.getElementById('pf-exposure-current');
+  if (exposureCurrentEl) {
+    exposureCurrentEl.textContent = '현재 노출 ' + exposurePct.toFixed(1) + '%' + (exposureCap != null && exposurePct > exposureCap ? ' · 축소 필요' : '');
+    exposureCurrentEl.style.color = exposureCap != null && exposurePct > exposureCap ? 'var(--data-red)' : 'var(--text-dim)';
+  }
 
   // Allocation summary
   const alloc = {};
@@ -16391,7 +16637,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.86" defer></script>
+<script src="./js/aio-chat.js?v=52.89" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17537,22 +17783,19 @@ function generateMacroStoryline() {
     macroActionNow += ' 유가 상승은 인플레 재점화 리스크로 반영.';
   }
   function macroCardNow(label, value, note, color) {
-    return '<div style="background:rgba(15,23,42,0.42);border:1px solid var(--border);border-radius:4px;padding:10px 11px;">' +
+    return '<div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:16px 18px;">' +
       '<div style="font-size:10px;color:var(--text-muted);font-weight:800;margin-bottom:5px;">' + label + '</div>' +
       '<div style="font-size:15px;color:' + color + ';font-weight:900;margin-bottom:5px;">' + value + '</div>' +
       '<div style="font-size:10.5px;color:var(--text-secondary);line-height:1.45;">' + note + '</div>' +
       '</div>';
   }
-  story =
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;">' +
-    macroCardNow('시장 톤', spyToneNow, 'SPY ' + (spyChg >= 0 ? '+' : '') + spyChg.toFixed(1) + '% · VIX ' + vix.toFixed(1), spyChg >= 0 ? 'var(--data-green)' : 'var(--data-amber)') +
-    macroCardNow('FOMC/금리', ratePressureNow ? '매파 압력' : '금리 부담 완화', '2Y ' + y2Now.toFixed(2) + '% · 10Y ' + tnx.toFixed(2) + '% · 점도표/발언은 할인율 변수', ratePressureNow ? 'var(--data-amber)' : 'var(--data-green)') +
-    macroCardNow('이란/유가', oilReliefNow ? '유가 리스크 완화' : '유가 경계', 'WTI $' + wti.toFixed(1) + ' · Brent $' + brent.toFixed(1) + ' · 호르무즈/휴전 뉴스는 꼬리위험', oilReliefNow ? 'var(--data-green)' : 'var(--data-red)') +
-    macroCardNow('달러/유동성', dollarToneNow, 'DXY ' + dxy.toFixed(1) + ' (' + (dxyChg >= 0 ? '+' : '') + dxyChg.toFixed(1) + '%) · 신흥국/원화 민감도 확인', dxyChg > 0.3 ? 'var(--data-amber)' : 'var(--data-cyan)') +
-    '</div>' +
-    '<div style="margin-top:10px;padding:10px 12px;background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.18);border-radius:4px;color:var(--text-secondary);line-height:1.55;">' +
-    '<b style="color:var(--data-cyan);">핵심 판단</b> ' + macroActionNow +
-    '</div>';
+  // v52.88 P703: 시안 3d는 운영 카드 4장을 나열하지 않고 한 문단의 거시 연결로 시작한다.
+  // 동일 실데이터를 금리→유가→달러→행동 순서의 짧은 서사로 통합한다.
+  story = '<p style="margin:0 0 10px;font-size:14px;color:var(--text-secondary);line-height:1.9;">' +
+    '<b style="color:var(--text-primary);">' + (ratePressureNow ? '금리 부담이 이어지는 가운데' : '금리 부담이 완화되는 가운데') + '</b> ' +
+    '미 2년물 ' + y2Now.toFixed(2) + '%, 10년물 ' + tnx.toFixed(2) + '%입니다. ' +
+    'WTI는 $' + wti.toFixed(1) + ', DXY는 ' + dxy.toFixed(1) + '로 ' + dollarToneNow + ' 흐름이며, 시장 톤은 ' + spyToneNow + '입니다.</p>' +
+    '<p style="margin:0;font-size:13.5px;color:var(--text-secondary);line-height:1.85;">' + macroActionNow + '</p>';
   summary = (ratePressureNow ? 'FOMC 이후 금리 경계' : '금리 부담 완화') + ' · ' +
     (oilReliefNow ? '이란/유가 리스크 완화' : '유가 리스크 확인') + ' · ' +
     spyToneNow + ' 대응';
@@ -17567,7 +17810,7 @@ function generateMacroStoryline() {
     var source = row && (row.source || row._sourceLabel || row.provider);
     return sym + ':' + (source || 'snapshot/fallback');
   });
-  story += '<div style="margin-top:8px;padding:7px 9px;background:rgba(33,29,22,0.08);border-left:3px solid var(--border);border-radius:3px;font-size:10px;color:var(--text-muted);line-height:1.6;">'
+  story += '<div class="macro-provenance" style="margin-top:8px;padding:7px 9px;background:rgba(33,29,22,0.08);border-left:3px solid var(--border);border-radius:3px;font-size:10px;color:var(--text-muted);line-height:1.6;">'
     + '<b>출처</b>: ' + macroSourceParts.join(' · ')
     + '<br><b>예상 시간</b>: 라이브 수집 1~2초, 차단/오프라인 시 정적 스냅샷 즉시 폴백'
     + '</div>';
@@ -23495,6 +23738,7 @@ function saveCashPosition(val) {
   var cash = parseFloat(val) || 0;
   try { localStorage.setItem('aio_portfolio_cash', cash > 0 ? cash.toString() : '0'); } catch(e) {}
   drawPositionDonut();
+  renderPortfolio();
 }
 
 // ── Update Risk Monitor ───────────────────────────────────────────
@@ -28896,7 +29140,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.86" defer></script>
+<script src="./js/aio-glossary.js?v=52.89" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -28913,6 +29157,8 @@ function openGlossary() {
   _glossaryCat = 'all';
   renderGlossaryCats();
   renderGlossaryItems('');
+  var title = document.querySelector('#glossary-modal h2');
+  if (title) title.textContent = '투자 용어 사전 · ' + GLOSSARY.length + '개';
   searchInput.focus();
 }
 
@@ -28940,9 +29186,9 @@ function renderGlossaryItems(query) {
   } else {
     filtered.forEach(function(g) {
       var catColors = {'기초':'var(--data-green)','기술적분석':'var(--data-cyan)','경제':'var(--data-amber)','외환':'#211d16','채권':'#211d16','매크로':'var(--data-amber)','옵션':'#211d16','한국시장':'var(--data-purple)','전략':'#57513f','배경지식':'var(--text-muted)'};
-      html += '<div style="padding:12px 0;border-bottom:1px solid var(--surface-4);">';
+      html += '<div class="aio-glossary-item" style="padding:12px 0;border-bottom:1px solid var(--surface-4);">';
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
-      html += '<span style="font-weight:600;color:#8a8271;font-size:14px;">' + escHtml(g.term) + '</span>';
+      html += '<span class="aio-glossary-term" style="font-weight:600;color:#8a8271;font-size:14px;">' + escHtml(g.term) + '</span>';
       html += '<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:' + (catColors[g.cat]||'var(--text-muted)') + '22;color:' + (catColors[g.cat]||'var(--text-muted)') + ';">' + escHtml(g.cat) + '</span>';
       html += '</div>';
       html += '<div style="color:var(--text-secondary);font-size:13px;line-height:1.5;">' + escHtml(g.def) + '</div>';

@@ -5719,51 +5719,6 @@ var AIO_PAGE_FUNDAMENTALS = {
   }
 };
 
-// 렌더러: 페이지 헤더(.page-title 포함, sec 직계 자식 블록) 바로 다음에 삽입.
-// 헤더 블록을 못 찾으면 섹션 최상단 prepend — 어느 경우든 렌더 자체는 항상 성공.
-function _aioRenderPageFundamentals(pageId) {
-  try {
-    var spec = AIO_PAGE_FUNDAMENTALS[pageId];
-    var sec = document.getElementById('page-' + pageId);
-    if (!spec || !sec || sec.getAttribute('data-aio-fund-done') === '1') return;
-    var li = function(arr){ return (arr||[]).map(function(t){ return '<li>' + t + '</li>'; }).join(''); };
-    var el = document.createElement('details');
-    el.className = 'aio-page-advanced-toggle aio-fund';
-    el.innerHTML =
-      '<summary>📚 기초 가이드 — ' + spec.title + '</summary>' +
-      '<div class="aio-page-advanced-body aio-fund-body">' +
-        '<div class="aio-fund-sec"><strong>핵심 개념</strong><ul>' + li(spec.concept) + '</ul></div>' +
-        '<div class="aio-fund-sec"><strong>원리 — 왜 중요한가</strong><ul>' + li(spec.why) + '</ul></div>' +
-        '<div class="aio-fund-sec"><strong>이 페이지에서 보는 법</strong><ul>' + li(spec.how) + '</ul></div>' +
-        '<div class="aio-fund-sec"><strong>실전 적용</strong><ul>' + li(spec.action) + '</ul></div>' +
-        (spec.terms ? '<div class="aio-fund-terms">용어 더 보기: 사용 설명서 → 용어사전에서 ' + spec.terms + ' 검색</div>' : '') +
-      '</div>';
-    // v52.39: border-bottom 인라인 스타일 하드코딩 대신, .page-title에서 sec의 직계 자식까지
-    // 걸어 올라가 그 블록 바로 뒤에 삽입 — briefing/fundamental/market-news/kr-* 계열처럼
-    // 헤더가 .aio-section으로 한 겹 더 감싸여 있거나 border-bottom 스타일이 없는 페이지도
-    // "헤더 블록 바로 다음"에 정확히 배치된다(22페이지 헤더 구조가 제각각이라 일반화 필요).
-    var head = sec.querySelector('.page-title');
-    var anchor = null;
-    if (head) {
-      var node = head;
-      while (node && node.parentElement && node.parentElement !== sec) node = node.parentElement;
-      if (node && node.parentElement === sec) anchor = node;
-    }
-    if (anchor) anchor.insertAdjacentElement('afterend', el);
-    else sec.insertBefore(el, sec.firstElementChild);
-    sec.setAttribute('data-aio-fund-done', '1');
-  } catch(_) {}
-}
-_aioPageBus.register('ui-page-fundamentals', 'aio:pageShown', function(e){
-  _aioRenderPageFundamentals(e && e.detail);
-});
-// v52.39: this file's own initFromHash() (~line 2156) already ran and fired the *first*
-// aio:pageShown before script execution reached this registration point — a bare load with no
-// hash never calls showPage() for 'home' at all (it is .active from static HTML), and a
-// hash-loaded page's one showPage() call fires before the listener above exists. Catch up once
-// for whatever page is already active by now so the very first page a visitor sees isn't the
-// one exception that never gets the block until they navigate away and back.
-try {
-  var _aioFundInitPage = document.querySelector('.page.active');
-  if (_aioFundInitPage && _aioFundInitPage.id) _aioRenderPageFundamentals(_aioFundInitPage.id.replace(/^page-/, ''));
-} catch(_) {}
+// v52.87 P702: 기초 가이드는 각 분석 화면의 기본 정보구조에서 퇴역했다.
+// 레지스트리는 용어사전/도움말로 이관할 원문 보존용이며, 페이지에는 어떤 DOM도 삽입하지 않는다.
+function _aioRenderPageFundamentals() { return false; }

@@ -112,4 +112,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Structural regression check OK: ${routeIds.length} route pages, KST date contract, KR previous-close contract.`);
+console.log(`Structural regression check OK: ${routeIds.length} internal routes (19 primary + 2 derived + 1 reference; glossary overlay separate), KST date contract, KR previous-close contract.`);

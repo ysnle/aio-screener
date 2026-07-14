@@ -6007,17 +6007,18 @@
         var n = inner; while (n && n.parentElement !== p) n = n.parentElement;
         return n;
       };
-      var sentVerdictEl = directChildOf800('sentiment', '#sent-analysis-text');
-      var sentAnchorEl = document.getElementById('sentiment-conclusion-bar');
-      var sentVerdictAdjacent = !!(sentVerdictEl && sentAnchorEl && sentVerdictEl.previousElementSibling === sentAnchorEl);
+      var sentHeaderIdx = idxOf('sentiment', '.page-title');
+      var sentEvidenceIdx = idxOf('sentiment', '#vix-term-summary');
+      var sentVerdictIdx = idxOf('sentiment', '#sent-analysis-text');
+      var sentCompOrder = sentHeaderIdx >= 0 && sentEvidenceIdx > sentHeaderIdx && sentVerdictIdx > sentEvidenceIdx;
       var breadthVerdictIdx = idxOf('breadth', '#breadth-diag-signal');
       var lockIdx = idxOf('signal', '#signal-lockout-dashboard');
       var tickIdx = idxOf('signal', '#sig-ticker-track');
       // 결론이 바로 뒤 인접 배치(sentiment) + 상단권(breadth ≤3) + lockout이 티커 뒤
-      t800ok = hasReorder800 && sentVerdictAdjacent && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 3 && lockIdx > tickIdx && tickIdx >= 0;
-      t800detail = 'sentAdjacent=' + sentVerdictAdjacent + ' breadthIdx=' + breadthVerdictIdx + ' lock=' + lockIdx + '>tick=' + tickIdx;
+      t800ok = hasReorder800 && sentCompOrder && breadthVerdictIdx >= 0 && breadthVerdictIdx <= 3 && lockIdx > tickIdx && tickIdx >= 0;
+      t800detail = 'sentOrder=' + [sentHeaderIdx,sentEvidenceIdx,sentVerdictIdx].join('<') + ' breadthIdx=' + breadthVerdictIdx + ' lock=' + lockIdx + '>tick=' + tickIdx;
     } catch(e) { t800detail = 'ERR:' + e.message; }
-    _assert('T800 v5030_verdict_first_reorder: 결론 섹션이 결론바 직후 인접 배치(sentiment)·상단권(breadth≤3) + lockout 후순위', t800ok, t800detail);
+    _assert('T800 v5288_comp_evidence_then_synthesis: sentiment evidence precedes composite judgment, breadth stays upper, and signal lockout follows ticker', t800ok, t800detail);
 
     // ─── v50.29 declutter — 설명서형 요소 제거 (사용자 지시: 페이지=데이터/분석/액션, 설명=guide+용어집) ───
     // T801: 비-guide 페이지에 .aio-page-brief/.aio-explain/.beginner-tip 0 + guide에는 설명 보존
@@ -6933,12 +6934,13 @@
         ? window._buildBriefingDecisionSummary([{ title: 'FOMC Iran oil market note', desc: 'Fed rates and Hormuz oil risk', topic: 'macro' }], 1, {})
         : '';
       var renderSrc836 = typeof window.renderBriefingFeed === 'function' ? String(window.renderBriefingFeed) : '';
-      var macroCompact836 = /핵심 판단/.test(macroText836) && /FOMC\/금리/.test(macroText836) && !/1장|2장|3장/.test(macroText836);
+      var macroParagraphs836 = macroStory836 ? macroStory836.querySelectorAll('p').length : 0;
+      var macroCompact836 = macroParagraphs836 >= 2 && macroText836.length >= 80 && macroText836.length <= 900 && !macroStory836.querySelector('.macro-now-card') && !/1장|2장|3장/.test(macroText836);
       var briefingSummary836 = /시장 상황 요약/.test(briefingHelper836) && /오늘 행동/.test(briefingHelper836) && /briefingDecisionHtml/.test(renderSrc836);
       t836ok = !!(macroCompact836 && briefingSummary836);
-      t836detail = JSON.stringify({ macroCompact: macroCompact836, briefingSummary: briefingSummary836 });
+      t836detail = JSON.stringify({ macroCompact: macroCompact836, macroParagraphs: macroParagraphs836, briefingSummary: briefingSummary836 });
     } catch(e) { t836detail = 'ERR:' + e.message; }
-    _assert('T836 v5069_macro_briefing_decision_ux: macro and briefing start with current-market decision summary', t836ok, t836detail);
+    _assert('T836 v5288_macro_briefing_comp_ux: macro uses concise narrative paragraphs and briefing keeps its market/action summary', t836ok, t836detail);
 
     // T837: v50.70 page decision/source contract + FOMC freshness gate.
     var t837ok = false, t837detail = '';
@@ -7165,41 +7167,86 @@
     _assert('T859 v527_macro_calendar_weekday_anchor: monthly-first-friday 주기 nextRelease는 항상 금요일(요일 구조 검증)', t859ok, t859detail);
   }
 
-  // v52.39 P654/R291: 페이지 기초 가이드 레이어 — 20개 route 페이지(theme-detail/guide 제외) 전수 스모크
-  function _testV5239PageFundamentals() {
-    var pageIds869 = (window.AIO_ALL_ROUTE_PAGE_IDS || []).filter(function(id) {
-      return id !== 'theme-detail' && id !== 'guide';
+  // v52.89 P704/R330: 13개 시안 + 가이드/용어/한국 5면까지 20개 사용자 표면 계약을 유지한다.
+  function _testV5287RedesignDefaultPath() {
+    var pages869 = ['home','signal','briefing','breadth','sentiment','technical','macro','fxbond','fundamental','themes','portfolio','market-news','screener'];
+    var failures869 = [];
+    try { document.body.classList.remove('aio-dev-mode'); } catch(_) {}
+    pages869.forEach(function(id) {
+      var page = document.getElementById('page-' + id);
+      if (!page) { failures869.push(id + ':missing'); return; }
+      if (page.querySelectorAll('.aio-fund').length) failures869.push(id + ':fund');
+      Array.prototype.forEach.call(page.querySelectorAll('.aio-page-advanced-toggle'), function(el) {
+        if (getComputedStyle(el).display !== 'none') failures869.push(id + ':advanced-visible');
+      });
     });
-    var reg869 = window.AIO_PAGE_FUNDAMENTALS || {};
-    var missingRegistry869 = pageIds869.filter(function(id) { return !reg869[id]; });
-    var renderFails869 = [];
-    pageIds869.forEach(function(id) {
-      try {
-        if (typeof window.showPage === 'function') window.showPage(id);
-        if (typeof window._aioRenderPageFundamentals === 'function') window._aioRenderPageFundamentals(id);
-        var pageEl = document.getElementById('page-' + id);
-        var funds = pageEl ? pageEl.querySelectorAll('.aio-fund') : [];
-        var ok = funds.length === 1 && !funds[0].hasAttribute('open') &&
-          funds[0].querySelectorAll('.aio-fund-sec').length === 4;
-        if (!ok) renderFails869.push(id + '(count=' + funds.length + ')');
-      } catch(e869) {
-        renderFails869.push(id + ':ERR:' + (e869 && e869.message));
-      }
-    });
-    // idempotency: re-entering the first page must not inject a second .aio-fund block (data-aio-fund-done guard)
-    var dupDetail869 = 'n/a';
-    if (pageIds869.length && typeof window.showPage === 'function' && typeof window._aioRenderPageFundamentals === 'function') {
-      try {
-        window.showPage(pageIds869[0]);
-        window._aioRenderPageFundamentals(pageIds869[0]);
-        var dupCount869 = document.getElementById('page-' + pageIds869[0]).querySelectorAll('.aio-fund').length;
-        dupDetail869 = pageIds869[0] + '=' + dupCount869;
-        if (dupCount869 !== 1) renderFails869.push('DUP:' + dupDetail869);
-      } catch(eDup869) { renderFails869.push('DUP:ERR:' + (eDup869 && eDup869.message)); }
-    }
-    _assert('T869 page_fundamentals_registry_and_render_v5239: AIO_PAGE_FUNDAMENTALS covers all 20 non-excluded route pages and each renders exactly one collapsed .aio-fund block with 4 sections, idempotently on revisit',
-      pageIds869.length >= 20 && missingRegistry869.length === 0 && renderFails869.length === 0,
-      'pages=' + pageIds869.length + ' missingRegistry=' + missingRegistry869.join(',') + ' renderFails=' + renderFails869.join(',') + ' dupCheck=' + dupDetail869);
+    try {
+      ['guide','kr-home','kr-supply','kr-themes','kr-macro','kr-technical'].forEach(function(id) {
+        if (typeof _aioPolishRemainingPages === 'function') _aioPolishRemainingPages(id);
+      });
+      if (typeof window._aioRenderPageFundamentals === 'function' && window._aioRenderPageFundamentals('home') !== false) failures869.push('fund-renderer-active');
+      var compFundCount = pages869.reduce(function(total, id) {
+        var page = document.getElementById('page-' + id);
+        return total + (page ? page.querySelectorAll('.aio-fund').length : 0);
+      }, 0);
+      if (compFundCount) failures869.push('fund-injected=' + compFundCount);
+      var readiness = document.getElementById('aio-public-readiness');
+      if (readiness && getComputedStyle(readiness).display !== 'none') failures869.push('public-readiness-visible');
+      var pulse = document.getElementById('market-pulse-bar');
+      if (pulse && getComputedStyle(pulse).display !== 'none') failures869.push('market-pulse-visible');
+      Array.prototype.forEach.call(document.querySelectorAll('.page > .aio-decision-header'), function(el) {
+        if (getComputedStyle(el).display !== 'none') failures869.push('decision-header-visible');
+      });
+      pages869.forEach(function(id) {
+        var page = document.getElementById('page-' + id);
+        if (!page) return;
+        Array.prototype.forEach.call(page.querySelectorAll(':scope > .aio-page-news-strip'), function(el) {
+          if (getComputedStyle(el).display !== 'none') failures869.push(id + ':related-news-visible');
+        });
+      });
+      var homeDetails = document.querySelectorAll('#page-home > details.aio-card');
+      Array.prototype.forEach.call(homeDetails, function(el) {
+        if (getComputedStyle(el).display !== 'none') failures869.push('home-details-visible');
+      });
+      var visibleHeaders = Array.prototype.filter.call(document.querySelectorAll('#screener-results-table thead tr:last-child th'), function(th){ return getComputedStyle(th).display !== 'none'; });
+      if (visibleHeaders.length !== 9) failures869.push('screener-columns=' + visibleHeaders.length);
+      var screenerRows = document.querySelectorAll('#screener-results-body tr').length;
+      if (screenerRows > 12) failures869.push('screener-rows=' + screenerRows);
+      var newsRows = document.querySelectorAll('#page-market-news .news-item-card').length;
+      if (newsRows > 12) failures869.push('news-rows=' + newsRows);
+      var briefList = document.getElementById('briefing-live-news-list');
+      if (briefList && briefList.scrollHeight > 1020 && parseInt(getComputedStyle(briefList).maxHeight, 10) > 820) failures869.push('briefing-uncapped');
+      var pfForm = document.getElementById('pf-entry-section');
+      if (!pfForm || getComputedStyle(pfForm).display !== 'none') failures869.push('portfolio-form-default');
+      ['pf-cash-hero','pf-exposure-rule','pf-exposure-current'].forEach(function(id) {
+        if (!document.getElementById(id)) failures869.push(id + ':missing');
+      });
+      var pfHero = document.getElementById('pf-hero-stats');
+      if (!pfHero || getComputedStyle(pfHero).gridTemplateColumns.split(' ').length !== 3) failures869.push('portfolio-hero-columns');
+      var ia = window.AIO_ROUTE_REGISTRY && window.AIO_ROUTE_REGISTRY.classes;
+      if (!ia || ia.NAV_ROUTE.length !== 19 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 1 || ia.OVERLAY.length !== 1) failures869.push('surface-count-contract');
+      var guideChapters = document.querySelectorAll('#page-guide > .aio-guide-chapter');
+      if (guideChapters.length < 8) failures869.push('guide-chapters=' + guideChapters.length);
+      if (Array.prototype.filter.call(guideChapters, function(el){ return el.open; }).length) failures869.push('guide-chapter-default-open');
+      var krThemeCards = document.querySelectorAll('#kr-theme-container .kr-theme-card');
+      var krThemeVisible = Array.prototype.filter.call(krThemeCards, function(el){ return getComputedStyle(el).display !== 'none'; }).length;
+      if (krThemeCards.length > 3 && krThemeVisible !== 3) failures869.push('kr-theme-visible=' + krThemeVisible);
+      if (!document.getElementById('kr-theme-more')) failures869.push('kr-theme-more-missing');
+      if (document.querySelectorAll('.aio-comp-secondary-feed:not(.aio-dev-mode)').length < 3) failures869.push('kr-duplicate-feeds-not-marked');
+      if (typeof renderGlossaryItems === 'function') renderGlossaryItems('');
+      if (document.querySelectorAll('#glossary-body .aio-glossary-item').length < 200) failures869.push('glossary-items');
+      var pfOrderIds = ['pf-holdings-table-section','pf-risk-section','pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section'];
+      var pfOrders = pfOrderIds.map(function(id){ var el = document.getElementById(id); return el ? parseInt(getComputedStyle(el).order, 10) : NaN; });
+      if (pfOrders.some(function(v, i){ return v !== i + 1; })) failures869.push('portfolio-order=' + pfOrders.join('/'));
+      if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(true);
+      if (!pfForm || !pfForm.classList.contains('is-open')) failures869.push('portfolio-form-toggle');
+      if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(false);
+      document.body.classList.add('aio-dev-mode');
+      var advanced = document.querySelector('#page-technical .aio-page-advanced-toggle');
+      if (advanced && getComputedStyle(advanced).display === 'none') failures869.push('developer-mode-hidden');
+      document.body.classList.remove('aio-dev-mode');
+    } catch(e869) { failures869.push('ERR:' + (e869 && e869.message)); }
+    _assert('T869 redesign_default_path_v5289: 20 user surfaces keep the comp hierarchy; internal QA routes remain explicitly classified as 19 primary + 2 derived + 1 reference + 1 glossary overlay', failures869.length === 0, failures869.join(','));
   }
 
   // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) 회귀 게이트
@@ -8564,7 +8611,7 @@
     try { _testV4988BootLoader(); } catch(e) { console.error('Group78 error:', e); }
     try { _testV4989DataLineage(); } catch(e) { console.error('Group79 error:', e); }
     try { _testV500EvidenceFoundation(); } catch(e) { console.error('Group80 error:', e); }
-    try { _testV5239PageFundamentals(); } catch(e) { console.error('Group81 error:', e); }
+    try { _testV5287RedesignDefaultPath(); } catch(e) { console.error('Group81 error:', e); }
     try { _testV5240Batch1Efficacy(); } catch(e) { console.error('Group82 error:', e); }
     try { _testV5241Batch2Efficacy(); } catch(e) { console.error('Group83 error:', e); }
     try { _testV5242Batch3Efficacy(); } catch(e) { console.error('Group84 error:', e); }

@@ -1,7 +1,28 @@
+## v52.89 (2026-07-14) — 남은 7면 시안 확장과 20개 사용자 표면 정리
+
+- 사용설명서·용어사전·한국장 홈·수급·국내 테마·한국 매크로·한국 기술까지 13면 시안의 아이보리 타이포그래피, 헤어라인 구획, 낮은 시각 소음을 확장했다.
+- 사용설명서는 검색 가능한 8개 장, 용어사전은 267개 의미 단위 행, 국내 테마는 3개 우선 노출+더보기로 재구성했다. 한국 홈·매크로는 핵심과 추가 탐색을 분리하고 중복 뉴스/용어 블록은 공용 표면으로 통합했다.
+- 제품 수를 19개 메뉴 페이지 + 용어사전 오버레이 = 20개 사용자 표면으로 명확히 했다. 자동 QA의 22개는 여기에 파생 뷰 2개(`ticker`, `theme-detail`)와 폐기 호환 reference 1개(`options`)가 포함된 내부 라우트 수다.
+- T869와 runtime contract에 이 분류와 7면 점진 공개 계약을 추가했다. headless 1075/1075, 내부 22라우트×4뷰포트 88/88, 접근성, 핵심 10면, 포트폴리오 vault E2E 8/8을 통과했다.
+
+## v52.88 (2026-07-14) — 13면 시안 최종 렌더 고정과 정보 밀도 보정
+
+- 페이지 진입 뒤 자동 삽입되던 판단 헤더·관련 뉴스, 중복 Telegram 피드, 운영 배지와 시안 밖 details를 일반 사용자 경로에서 제거해 초기 HTML과 실제 화면을 일치시켰다.
+- 시장 뉴스와 퀀트 스크리너는 각각 12개씩 점진 공개하고, 브리핑 뉴스는 820px에서 명시적으로 확장하도록 바꿔 데이터량이 늘어도 첫 화면 밀도가 유지된다.
+- 포트폴리오 상단을 총손익·현금·노출 규칙 3열로 정리하고, 기업 분석은 기존 데이터 파이프라인으로 NVDA 기본 보고서를 자동 채운다. 홈·투자 심리·거시경제의 기존 재배치/운영 블록도 시안 순서에 맞췄다.
+- T869와 runtime contract를 최종 렌더 계약으로 강화했다. 로컬 Chromium 13면×데스크톱/모바일 26면 캡처에서 pageerror 0, 자동 판단 헤더 0, 노출 details 0을 확인했고, headless 1075/1075·22라우트×4뷰포트 88/88·접근성 22라우트·핵심 10면·포트폴리오 vault E2E 8/8을 통과했다. 배포·커밋은 수행하지 않았다.
+
+## v52.87 (2026-07-14) — 13면 시안 중심 기본 정보구조 재구축
+- 13개 핵심 화면에서 동적 기초 가이드, 접힌 레거시/고급 패널, 파이프라인 경고를 일반 사용자 경로에서 제거하고 개발자 모드에서만 확인하도록 분리했다.
+- 홈 `Public Status` 운영 진단은 일반 화면에서 렌더하지 않으며 개발자 모드에서만 기존 감사 API를 통해 표시된다.
+- 포트폴리오는 보유 종목 → 리스크 → 비중/섹터 → 벤치마크 → 보유 종목 분석 순으로 재배치했고 종목 입력 폼은 상단 `종목 추가` CTA로 열도록 바꿨다.
+- 스크리너 기본 표를 시안의 9개 열(종목, 현재가, 1M, 3M, 6M, RSI, vs 50MA, 추세신뢰도, VCP)로 맞추고 나머지는 `전체 컬럼 보기`에 유지했다.
+- T869와 runtime contract를 시안 기본 경로 회귀 게이트로 교체했다. Chromium headless `1075/1075`, 22라우트×4뷰포트 88조합, 접근성 22라우트, 핵심 10면 검사를 통과했으며 배포·커밋은 수행하지 않았다.
+
 ## v52.86 (2026-07-14)
 - WP-AI19/20 is `VERIFIED_LOCAL`: tool capabilities are read-only by default with unknown/mutation deny; provider/data/output rights, retention, training, redistribution, and region fields now live in an explicit registry with review-required states for unverified live entries.
 - Added `AIO.getAIToolCapabilityRegistry`, `AIO.evaluateAIToolPermission`, `AIO.auditAIToolCapabilities`, `AIO.getAIRightsRegistry`, `AIO.evaluateAIDataRights`, and `AIO.auditAIRightsRegistry`; the shared pipeline carries `toolAudit`/`rightsAudit` and blocks mutation intent.
-- Added T1007~T1014 and WP-AI19/20 runtime-contract checks. Verification: changed-module syntax, runtime contract, version contract, and Chromium offline headless `1075/1075 PASS`; live provider/data/output rights, legal/operator configuration, multi-user tool isolation, deployment, and PUBLIC readiness remain unverified.
+- Added T1007~T1014 and WP-AI19/20 runtime-contract checks. Verification: changed-module syntax, runtime contract, version contract, and Chromium offline headless `1075/1075 PASS`; an operator-provided authenticated Worker smoke reached Anthropic with `HTTP 200`, while provider/data/output rights, legal/operator policy approval, multi-user tool isolation, and PUBLIC readiness remain unverified.
 - <!-- 변경 내용을 이곳에 기록하세요 -->
 - R1 7곳 v52.86
 

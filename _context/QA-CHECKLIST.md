@@ -3,11 +3,41 @@ verified_by: agent
 last_verified: 2026-07-14
 confidence: high
 version: v3.8
-checklist_version: v52.86
-total_items: 620
+checklist_version: v52.89
+total_items: 641
 stages: 22
-latest_P_covered: P701
+latest_P_covered: P704
 ---
+
+## v52.89 - 남은 7면 시안 확장과 사용자 표면 수 정정 (P704)
+
+- [x] 제품 정보구조는 19개 메뉴 페이지 + 용어사전 오버레이 = 20개 사용자 표면으로 설명한다.
+- [x] 내부 22개 QA 라우트는 19 primary + 2 derived(`ticker`, `theme-detail`) + 1 reference(`options`)로 구분한다.
+- [x] 사용설명서는 제목과 검색이 먼저 보이고 8개 장을 필요할 때 펼치는 구조다.
+- [x] 용어사전은 267개 항목, 검색, 11개 카테고리와 모바일 대응 모달을 유지한다.
+- [x] 국내 테마는 첫 화면 3개 테마만 보여주고 전체 목록은 명시적 더보기로 연다.
+- [x] 한국 홈·매크로는 핵심 근거와 보조 탐색을 분리하고 기존 데이터/액션 DOM을 그대로 재사용한다.
+- [x] 한국 수급·기술 및 한국 페이지의 중복 뉴스/용어 설명은 공용 뉴스·가이드로 통합한다.
+- [x] 남은 7면을 1440×900과 390×844로 실렌더링하고 JS pageerror·가로 넘침·상호작용을 확인한다.
+
+## v52.88 - 시안 최종 렌더 계약과 목록 밀도 보정 (P703)
+
+- [x] 13면에서 런타임 자동 생성 `.aio-decision-header`와 `.aio-page-news-strip`이 일반 사용자 경로에 노출되지 않는다.
+- [x] Telegram 피드·운영 배지·기존 details 등 시안 밖 중복 정보가 기본 화면에 되살아나지 않는다.
+- [x] 시장 뉴스와 퀀트 스크리너는 첫 화면 12개/12행만 표시하고 명시적 더보기로 점진 공개한다.
+- [x] 브리핑의 전체 뉴스 벽은 820px로 제한하며 사용자가 직접 확장할 수 있다.
+- [x] 포트폴리오 상단 요약은 총손익·현금·노출 규칙 3열이고 모바일에서는 1열로 자연스럽게 쌓인다.
+- [x] 기업 분석은 시안의 NVDA 기본 상태를 기존 `fundamentalSearch()` 데이터 파이프라인으로 채우며 정적 데모를 별도로 만들지 않는다.
+- [x] 로컬 Chromium 1440×900 및 390×844에서 13면씩 총 26면을 캡처하고 JS pageerror 0·판단 헤더 0·노출 details 0을 확인한다.
+
+## v52.87 - 13면 시안 중심 기본 경로 재구축 (P702)
+
+- [x] 13개 시안 화면에 동적 `.aio-fund`가 생성되지 않고 페이지 이동 이벤트 등록도 제거됐다.
+- [x] 시안 밖 `.aio-page-advanced-toggle`과 파이프라인 경고는 일반 모드에서 비노출, 개발자 모드에서만 접근 가능하다.
+- [x] `aio-public-readiness`는 일반 모드에서 렌더되지 않고 개발자 모드에서만 기존 감사 데이터로 표시된다.
+- [x] 포트폴리오 기본 순서는 보유 종목 → 리스크 → 배분 → 벤치마크 → 종목 분석이며 입력 폼은 CTA로만 열린다.
+- [x] 스크리너 기본 표는 시안의 9개 핵심 열이며 기존 팩터/진입/뉴스 열은 전체 컬럼 모드에 남아 있다. Chromium headless `1075/1075`, 22라우트×4뷰포트 88조합, 접근성 22라우트, 핵심 10면 검사 모두 오류 0건이다.
+- [ ] 실제 브라우저 13면 데스크톱/모바일 육안 점검 — 브라우저 제어 런타임 오류로 미완료, 로컬 자동 QA와 별도 구분한다.
 
 ## v52.86 - WP-AI19/20 non-agentic tool boundary and rights/retention/region (P701)
 
@@ -15,7 +45,7 @@ latest_P_covered: P701
 - [x] Unknown tools, write/mutation operations, consent failures, and operation mismatches fail closed at the common response boundary.
 - [x] Rights registry retains provider, data use, output use, retention, region, training, redistribution, status, and notice fields.
 - [x] Locally approved reference rights are explicit; live provider/Worker/market-data entries remain review-required unless separately verified.
-- [x] Tool and rights audits are carried in the shared response envelope; T1007~T1014 and WP-AI19/20 runtime-contract checks pass with headless `1075/1075 PASS`; live legal/operator/multi-user and deploy verification remain open.
+- [x] Tool and rights audits are carried in the shared response envelope; T1007~T1014 and WP-AI19/20 runtime-contract checks pass with headless `1075/1075 PASS`; authenticated Worker live smoke (`HTTP 200`) is recorded separately, while live provider/data rights, legal/operator policy approval, and multi-user verification remain open.
 
 ## v52.85 - WP-AI17/18 coverage bias and human chat certification (P700)
 

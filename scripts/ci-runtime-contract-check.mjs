@@ -134,7 +134,7 @@ check('H3-B event claims expose an explicit expiry state and expired FOMC contex
 check('H3-C derived decision gate blocks quorum-missing inputs instead of preserving a strong action band', /_scoreBlocked/.test(core) && /decisionBlocked/.test(core) && /핵심 입력 부족/.test(core) && /T906 derived_regime_quorum_gate/.test(tests));
 check('decision header renders page evidence caveat', /aio-decision-caveat/.test(core) && /d\.caveat/.test(core));
 check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
-check('home public readiness panel is wired to runtime audits', /id="aio-public-readiness"/.test(html) && /_aioBuildPublicShareReadiness/.test(data) && /getPublicShareReadiness/.test(data) && /getShareReadinessAudit/.test(core));
+check('home public readiness audit remains available only in developer mode', /id="aio-public-readiness"/.test(html) && /_aioBuildPublicShareReadiness/.test(data) && /getPublicShareReadiness/.test(data) && /getShareReadinessAudit/.test(core) && /body\.aio-dev-mode \.aio-public-readiness/.test(html) && /classList\.contains\('aio-dev-mode'\)/.test(data));
 check('visible static labels do not overstate live/action state', !/\u25cf\s*LIVE|LIVE RSS|BUY\s*\/\s*LONG|공격적 매매|\(실시간\)|실시간 감지|실시간 수급|FMP 실시간|FINNHUB\s*실시간/.test(visibleHtml));
 check('news fallback titles must not expose translation-pending placeholder text', !/return\s+['"`]\[번역 대기\]/.test(data) && !/\[번역 대기\]\s*['"`]\s*\+/.test(data));
 check('put/call badge renders localized source state instead of raw enum labels', /스냅샷\s*·\s*참고/.test(data) && !/SNAPSHOT\s*·\s*reference/.test(data));
@@ -385,28 +385,23 @@ if (hiddenImportantCount > HIDDEN_BLOCK_THRESHOLD) {
   warnings.push(`display:none !important count is ${hiddenImportantCount} (threshold ${HIDDEN_BLOCK_THRESHOLD}) — review for dead UI blocks`);
 }
 
-// [G] v52.39 P654/R291: page fundamentals education layer (AIO_PAGE_FUNDAMENTALS) contract.
-// §1 audit found E1(concept)/E2(why)/E5(action) missing across 20 of 22 route pages; this
-// component is the single registry+renderer that closes that gap. theme-detail/guide are
-// intentionally excluded (orphan redirect surface / already-complete hub page, see design doc §4).
-const pageFundStart = ui.indexOf('var AIO_PAGE_FUNDAMENTALS = {');
-const pageFundEnd = ui.indexOf("_aioPageBus.register('ui-page-fundamentals'");
-const pageFundBlock = pageFundStart >= 0 && pageFundEnd >= 0 ? ui.slice(pageFundStart, pageFundEnd) : '';
-const pageFundKeys = [...pageFundBlock.matchAll(/^\s*'([a-z-]+)':\s*\{$/gm)].map((m) => m[1]);
-check('AIO_PAGE_FUNDAMENTALS registry exists with at least 20 page entries', pageFundKeys.length >= 20, `found ${pageFundKeys.length} keys`);
-check('AIO_PAGE_FUNDAMENTALS excludes theme-detail/guide (orphan redirect / already-complete hub)', !pageFundKeys.includes('theme-detail') && !pageFundKeys.includes('guide'));
-check('_aioRenderPageFundamentals renderer is defined and wired to aio:pageShown', /function\s+_aioRenderPageFundamentals\(pageId\)/.test(ui) && /_aioPageBus\.register\('ui-page-fundamentals',\s*'aio:pageShown'/.test(ui));
-check('page fundamentals renderer is idempotent across repeated page visits', /data-aio-fund-done/.test(ui));
-check('page fundamentals component must not reuse the declutter-flagged .aio-page-brief class (R291/v50.29)', !/aio-page-brief/.test(pageFundBlock));
-check('page fundamentals component does not add new aria-live regions (R291 scarcity gate)', !/aria-live/.test(pageFundBlock));
-check('headless tests cover the page fundamentals registry+render contract', /T869 page_fundamentals_registry_and_render_v5239/.test(tests));
-// P654 follow-up: initFromHash() (aio-ui.js, fires the first aio:pageShown for a hash-loaded page,
-// and 'home' never calls showPage() at all on a bare load) runs earlier in this same file than the
-// 'ui-page-fundamentals' registration above — without a one-time catch-up render for whatever page
-// is already .active by then, the very first page a visitor lands on never gets the block until
-// they navigate away and back. Guard this so the catch-up call cannot be silently deleted later.
-check('page fundamentals renderer catches up on the page already active at script-load time (initFromHash ordering)', /querySelector\('\.page\.active'\)[\s\S]{0,200}_aioRenderPageFundamentals\(/.test(ui));
-
+// [G] v52.89 P704/R330: 13 comp pages extend to all 20 user-facing surfaces.
+check('page fundamentals renderer is inert and no longer registered on navigation', /function\s+_aioRenderPageFundamentals\(\)\s*\{\s*return false;\s*\}/.test(ui) && !/_aioPageBus\.register\('ui-page-fundamentals'/.test(ui));
+check('page fundamentals no longer marks or injects page DOM', !/data-aio-fund-done/.test(ui) && !/className\s*=\s*'aio-page-advanced-toggle aio-fund'/.test(ui));
+check('13 comp routes hide advanced legacy blocks by default and expose them in developer mode only', /#page-home \.aio-page-advanced-toggle[\s\S]{0,1800}display:none !important/.test(html) && /body\.aio-dev-mode #page-home \.aio-page-advanced-toggle[\s\S]{0,1800}display:block !important/.test(html));
+check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holdings-table-section"/.test(html) && /id="pf-risk-section"/.test(html) && /id="pf-entry-section"/.test(html) && /_aioTogglePortfolioEntry/.test(html));
+check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /_retText\(r\.ret1m\)/.test(data) && /_retText\(r\.ret6m\)/.test(data));
+check('runtime-injected decision headers and related-news strips stay out of the 13-route default surface', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && /#page-signal > \.aio-page-news-strip[\s\S]{0,1200}display:none !important/.test(html));
+check('home details and duplicate operational feeds are absent from the default surface', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && /#tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html));
+check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /_scrVisibleLimit\s*=\s*12/.test(data) && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
+check('briefing news wall is capped and can be explicitly expanded', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && /_aioCapBriefingNews/.test(core) && /_aioToggleBriefingNews/.test(core));
+check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
+check('fundamental comp enters through the existing NVDA analysis pipeline', /function _initFundamentalPage\(\)[\s\S]{0,900}aioDefaultCompany[\s\S]{0,500}fundamentalSearch/.test(core));
+check('remaining seven user surfaces reuse the comp hierarchy without new parallel data paths', /function _aioPolishRemainingPages\(pageId\)/.test(core) && /aio-guide-chapter/.test(core) && /aio-theme-progressive/.test(core) && /aio-comp-secondary-feed/.test(core));
+check('route terminology separates 20 user surfaces from 22 internal QA routes', /NAV_ROUTE:\s*\[[^\]]+\]/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\['options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
+check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#page-kr-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
+check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(html) && /class="aio-glossary-term"/.test(html) && /GLOSSARY\.length/.test(html));
+check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
 // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) structural gates
 check('EF-13: FOMC decision-header footnote prefixes the registry eventDate on every consuming page (previously date-less outside macro calendar table)', /_fomcFoot\.eventDate\s*\?\s*_fomcFoot\.eventDate\s*\+/.test(core) && /_fomcAsOfAge/.test(core));
 check('EF-13: FOMC footnote auto-badges past 21 days and collapses past 30 days instead of asserting a dateless "today" frame forever', /_fomcAsOfAge\s*>\s*21/.test(core) && /_fomcTooStale/.test(core));
