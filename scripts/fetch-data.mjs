@@ -141,6 +141,12 @@ async function fetchQuote(symbol) {
         chartPreviousClose: prev,
         _pctSource: pctSource,
         _source: 'live:yahoo-gh',
+        // Observation lineage: generatedAt is fetch time, not necessarily market observation time.
+        regularMarketTime: Number.isFinite(m.regularMarketTime) ? m.regularMarketTime : null,
+        marketState: m.marketState || null,
+        exchangeTimezoneName: m.exchangeTimezoneName || null,
+        fullExchangeName: m.fullExchangeName || m.exchangeName || null,
+        currency: m.currency || null,
       };
     } catch (e) { lastErr = e; }
   }
@@ -194,6 +200,11 @@ async function fetchQuoteTwelveData(symbol, apiKey) {
     chartPreviousClose: isFinite(prev) ? prev : null,
     _pctSource: 'twelvedata-quote',
     _source: 'live:twelvedata-fallback',
+    regularMarketTime: j && j.timestamp ? Number(j.timestamp) : null,
+    marketState: j && j.is_market_open === true ? 'REGULAR' : (j && j.is_market_open === false ? 'CLOSED' : null),
+    exchangeTimezoneName: j && j.timezone || null,
+    fullExchangeName: j && j.exchange || null,
+    currency: j && j.currency || null,
   };
 }
 
@@ -555,6 +566,7 @@ async function fetchHistory(symbol, range = '6mo') {
         const a = Array.isArray(adjArr) ? adjArr[i] : undefined;
         out.push({
           date: new Date(ts[i] * 1000).toISOString().slice(0, 10),
+          observedAt: new Date(ts[i] * 1000).toISOString(),
           close: round(c, 2),
           adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : round(c, 2),
           high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : round(c, 2),
@@ -1077,6 +1089,7 @@ async function _enrichPriceFactors(syms) {
       highs:     (rows || []).map(r => r.high   || r.close),
       lows:      (rows || []).map(r => r.low    || r.close),
       volumes:   (rows || []).map(r => r.volume || 0),
+      observedAt:(rows && rows.length && rows[rows.length - 1].observedAt) || null,
     };
   });
   const data = {};
@@ -1094,6 +1107,63 @@ async function _enrichPriceFactors(syms) {
     }
   }
   return { data, results, ok };
+}
+
+// Daily market breadth from the same price history used by the screener factors.
+// The former pipeline fetched 800+ histories but left breadth on a manual snapshot/RSP proxy.
+// This output is explicitly the AIO screener universe, not official exchange breadth.
+export function computeScreenerBreadth(syms, results) {
+  const isKr = (sym) => /\.(KS|KQ)$/i.test(String(sym || ''));
+  const validRows = (results || []).filter(r => r && !r.__error && Array.isArray(r.adjCloses) && r.adjCloses.length >= 2);
+  const pct = (n, d) => d > 0 ? round(n / d * 100, 1) : null;
+  const meanLast = (arr, n) => arr.length >= n ? _mean(arr.slice(-n)) : null;
+
+  function buildSegment(id, label, include) {
+    const segmentSymbols = (syms || []).filter(include);
+    const rows = validRows.filter(r => include(r.sym));
+    const counts = { above5:0, eligible5:0, above20:0, eligible20:0, above50:0, eligible50:0, above200:0, eligible200:0 };
+    let advances = 0, declines = 0, unchanged = 0;
+    let observedAt = null;
+    rows.forEach(r => {
+      const c = r.adjCloses;
+      const last = c[c.length - 1], prev = c[c.length - 2];
+      if (last > prev) advances++; else if (last < prev) declines++; else unchanged++;
+      [5,20,50,200].forEach(n => {
+        const avg = meanLast(c, n);
+        if (avg == null || !isFinite(avg)) return;
+        counts['eligible' + n]++;
+        if (last > avg) counts['above' + n]++;
+      });
+      if (r.observedAt && (!observedAt || new Date(r.observedAt).getTime() > new Date(observedAt).getTime())) observedAt = r.observedAt;
+    });
+    const directional = advances + declines;
+    return {
+      id, label,
+      universe: segmentSymbols.length,
+      eligible: rows.length,
+      coveragePct: pct(rows.length, segmentSymbols.length),
+      observedAt,
+      above5: pct(counts.above5, counts.eligible5),
+      above20: pct(counts.above20, counts.eligible20),
+      above50: pct(counts.above50, counts.eligible50),
+      above200: pct(counts.above200, counts.eligible200),
+      eligibleByWindow: { d5:counts.eligible5, d20:counts.eligible20, d50:counts.eligible50, d200:counts.eligible200 },
+      advanceRatio: directional > 0 ? round(advances / directional, 4) : null,
+      advances, declines, unchanged,
+    };
+  }
+
+  return {
+    schemaVersion: '1.0',
+    source: 'github-actions:yahoo-1y-adjusted-close',
+    method: 'unweighted share above trailing adjusted-close SMA; advance ratio excludes unchanged securities',
+    decisionScope: 'research/reference; AIO screener universe, not official exchange breadth',
+    segments: {
+      all: buildSegment('all', 'AIO 전체 스크리너 유니버스', () => true),
+      us: buildSegment('us', 'AIO 미국 스크리너 유니버스', sym => !isKr(sym)),
+      kr: buildSegment('kr', 'AIO 한국 스크리너 유니버스', sym => isKr(sym)),
+    },
+  };
 }
 
 // Phase 3: 주요 종목 Google News RSS fetch → data[sym].newsMemo 인라인 갱신.
@@ -1114,7 +1184,7 @@ async function _enrichTickerNews(prioSyms, data) {
   return ok;
 }
 
-async function enrichScreener() {
+export async function enrichScreener() {
   // 자가 스로틀: screener.json이 20시간 내면 스킵(일 1회). BACKFILL/SCREENER_ENRICH=1로 강제.
   if (process.env.SCREENER_ENRICH !== '1' && process.env.BACKFILL !== '1') {
     try {
@@ -1153,6 +1223,7 @@ async function enrichScreener() {
   let backtest = null;
   try { backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148)); }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
+  const breadth = computeScreenerBreadth(syms, results);
 
   // v51.91 P586/C2: IC/spread/hitRate 시계열 누적(별도 아티팩트) — 매 실행 덮어쓰기로 드리프트가
   // 안 보이던 문제 시정. screener.json 자체는 계속 최신 1개 스냅샷만 유지(기존 소비자 영향 없음).
@@ -1163,6 +1234,7 @@ async function enrichScreener() {
 
   const payload = {
     asOf: new Date().toISOString(),
+    factorObservedAt: breadth.segments.all.observedAt,
     source: 'github-actions:yahoo-1y',
     universe: syms.length,
     ok,
@@ -1170,6 +1242,15 @@ async function enrichScreener() {
     fmpOk: fmpResult.ok > 0,
     fmpCount: fmpResult.ok,
     fmpPlanError: fmpResult.planError,
+    breadth,
+    rankingContract: {
+      allowedUse: 'research-relative-ranking-only',
+      tradingSignal: false,
+      predictiveValidation: 'not-established',
+      liveModelParity: false,
+      reason: 'long-run composite IC is not positive/stable; backtest covers only fixed NEUTRAL momentum/trend/lowvol/kalman subset and excludes live adaptive weights',
+      evidenceArtifact: 'public-data/factor-backtest-longrun.json'
+    },
     data,
     backtest,
   };
@@ -1323,6 +1404,13 @@ async function main() {
   if (fredHasKey && fredFailedSeries.length > 0) console.warn(`[fetch-data] 경고: FRED 시리즈 ${fredFailedSeries.length}건 실패 — ${fredFailedSeries.join(', ')}`);
   if (!process.env.ANTHROPIC_API_KEY) console.warn('[fetch-data] 경고: ANTHROPIC_API_KEY 미등록 — AI 분석 비활성. 클라이언트 템플릿 폴백 사용.');
 
+  // Fail closed before touching the last-known-good public artifact. A transient
+  // provider/network outage must never replace data.json with an empty payload.
+  const minimumQuoteCount = Math.ceil(SYMBOLS.length * 0.5);
+  if (quotes.length < minimumQuoteCount) {
+    throw new Error(`CORE_QUOTE_COVERAGE_FAILED:${quotes.length}/${SYMBOLS.length}; existing data.json preserved`);
+  }
+
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(data, null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
@@ -1359,11 +1447,6 @@ async function main() {
     : `hasKey=${!!process.env.FMP_API_KEY} (screener skipped)`;
   console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, FMP ${fmpSummary}, ${data.meta.elapsedMs}ms`);
 
-  // 핵심 심볼이 절반 미만이면 비정상 — 비0 종료로 워크플로가 알림
-  if (quotes.length < SYMBOLS.length * 0.5) {
-    console.error('[fetch-data] 경고: 절반 이상 실패 — 기존 data.json 유지 권장');
-    process.exit(1);
-  }
 }
 
 // v52.50/WO-3: direct-run guard (같은 패턴을 이미 backtest-trading-score.mjs 등이 씀) — 이 파일은
@@ -1372,5 +1455,6 @@ async function main() {
 // export돼 있어, 이 가드가 없으면 다른 스크립트가 그 함수만 재사용하려고 import하는 순간 라이브
 // fetch 파이프라인 전체(실 네트워크 호출+public-data/*.json 덮어쓰기)가 부작용으로 실행돼버린다.
 if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
-  main().catch(e => { console.error('[fetch-data] 치명적 오류:', e); process.exit(1); });
+  const task = process.env.SCREENER_ONLY === '1' ? enrichScreener() : main();
+  task.catch(e => { console.error('[fetch-data] 치명적 오류:', e); process.exit(1); });
 }

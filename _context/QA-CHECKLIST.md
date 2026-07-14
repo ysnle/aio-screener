@@ -3,11 +3,24 @@ verified_by: agent
 last_verified: 2026-07-14
 confidence: high
 version: v3.8
-checklist_version: v52.89
-total_items: 641
+checklist_version: v52.90
+total_items: 649
 stages: 22
-latest_P_covered: P704
+latest_P_covered: P705
 ---
+
+## v52.90 - 상태 기반 사용자 여정 2차 보강 (P705)
+
+- [x] 기업 분석은 공급자 무응답에도 8초 총 예산 안에서 부분 성공/명시적 실패로 종료한다.
+- [x] 서버 캐시·기기 캐시·직접 수집 뉴스는 피드와 헤더 요약이 동일한 항목·기준시각을 사용한다.
+- [x] 뉴스 더보기는 시장 뉴스 페이지 안에서 피드 바로 뒤에 있고 실제 다음 12개를 공개한다.
+- [x] 닫힌 AI 패널은 `inert`이며 열기/닫기 `aria-expanded`와 닫기 후 트리거 포커스가 일치한다.
+- [x] 국내 테마는 시세 갱신 후에도 카드당 기본 5종목·260자 메모를 유지하고 나머지를 명시적으로 펼친다.
+- [x] 한국 수급 실패는 단일 설명으로 수렴하고 종목 요청·프록시 폴백·재시도 회로에 상한이 있다.
+- [x] 빈 포트폴리오는 계산 불가능한 카드 대신 첫 종목 추가 CTA를 우선하며, 보유 종목이 생기면 분석 영역을 복원한다.
+- [x] 브리핑 제목과 모바일 상단바·검색·필터 조작 영역은 원문 노출/잘림/겹침 없이 읽고 누를 수 있다.
+
+검증 결과: headless 1081/1081, 내부 라우트×뷰포트 88/88, 접근성 22라우트, 핵심 10면, 포트폴리오 8/8, 20개 사용자 표면 데스크톱/모바일 40/40 및 상태 여정 14/14 PASS. 실제 브라우저 pageerror 0, 문서 가로 넘침 0px.
 
 ## v52.89 - 남은 7면 시안 확장과 사용자 표면 수 정정 (P704)
 
@@ -2984,3 +2997,26 @@ Derived from AI-X01~10 and WP-AI11~20 in `_context/AI-CHAT-INSTITUTIONAL-AUDIT-2
 - [ ] **DHG-3 one response validator**: server marketAnalysis, briefing, translation, per-page, unified, and retry paths share one validator/publish policy.
 - [ ] **DHG-4 one release manifest**: app/data/Worker/model/prompt/retriever/validator/calculator revisions are tied to one request and live release manifest.
 - [ ] **DHG-5 explicit status**: every packet reports `DESIGNED`, `IMPLEMENTED_LOCAL`, `VERIFIED_LOCAL`, or `VERIFIED_LIVE`; documentation presence alone is never marked complete.
+
+### 3차 라이브 데이터·현재시장 전수 게이트 — v52.91 / P706
+
+- [x] **LIVE3-01 비밀정보**: 저장된 API 키 실값이 password input DOM/accessibility tree에 복원되지 않고 고정 마스크만 표시된다.
+- [x] **LIVE3-02 부팅**: 초기 snapshot date 렌더가 `DATA_SNAPSHOT` TDZ를 만들지 않는다.
+- [x] **LIVE3-03 판단 입력**: 관측 근거가 오래된 breadth/PCR/AAII는 전술 점수·레짐·실행창에 현재값으로 들어가지 않는다.
+- [x] **LIVE3-04 시장 브리핑**: S&P 500은 SPY가 아니라 `^GSPC`의 canonical `price/pct`로 표시된다.
+- [x] **LIVE3-05 한국 수급**: 누락값을 0으로 바꾸지 않으며 실패 시 숫자·막대·순매수/순매도 라벨을 함께 중립화한다.
+- [x] **LIVE3-06 소스 충돌**: 한국 지수의 서버/Naver 차이가 0.75%를 넘으면 후발 Naver 값이 서버 확정치를 덮지 않는다.
+- [x] **LIVE3-07 수집 이력**: Telegram `attemptedAt`, `lastSuccessfulAt`, `collectionStatus`가 분리되고 전 채널 실패 시 성공시각이 갱신되지 않는다.
+- [x] **LIVE3-08 로직/문구**: 기대값 예시는 +0.4R이며 전술 점수는 예측·매수 신호가 아닌 환경 설명으로 표시된다.
+- [x] **LIVE3-09 시세 현재성**: producer와 client가 `regularMarketTime`/`observedAt`, `marketState`, 거래소 시간대를 보존한다.
+- [x] **LIVE3-10 F&G 우선순위**: client 직결/proxy 실패가 이미 적용된 최신 서버 F&G를 오래된 정적 seed로 덮어쓰지 않는다.
+- [x] **LIVE3-11 시장 대조**: 2026-07-14 미국·한국 지수, VIX, Fed/BLS/BEA/BOK 최신 수치를 외부 자료와 대조했다.
+- [ ] **LIVE3-X 외부 복구 필요**: Telegram 3채널, 한국 투자자 수급, FMP, PCR/AAII의 정상 자동수집 성공 증거는 아직 없다. breadth는 847/870 일봉 기반 자동 계산으로 복구됐지만 공개 배포 후 VERIFIED_LIVE는 별도 필요하다. 실패를 성공으로 표시하지 않는 상태가 합격 조건이다.
+
+### 외부 의존·산출물 보존 게이트 — v52.92 / P707
+
+- [x] **LIVE3-12 last-known-good**: 핵심 시세 커버리지 50% 미만이면 첫 `data.json` 쓰기 전에 실패한다.
+- [x] **LIVE3-13 독립 갱신**: `SCREENER_ONLY=1`은 핵심 data/history를 건드리지 않고 screener만 갱신한다.
+- [x] **LIVE3-14 브레드쓰 증거**: all/us/kr별 universe, eligible, coveragePct, observedAt, SMA window별 eligible을 기록한다.
+- [x] **LIVE3-15 팩터 사용범위**: `rankingContract.tradingSignal=false`, predictive validation 미확립, live/backtest parity false를 유지한다.
+- [x] **LIVE3-16 외부 대체 레지스트리**: 각 외부 의존에 현재 경로·대체 공급자·권리·cadence·구현 상태가 있으며 API 존재를 연결 완료로 표시하지 않는다.

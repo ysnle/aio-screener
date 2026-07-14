@@ -2523,7 +2523,10 @@ window._aioRRFillFromPosition = function(el) {
 // 실행 시점: applyDataSnapshot 성공 후 + setInterval 주기적 호출 (stale-days 자동 갱신)
 window._aioRenderSnapshotDates = function() {
   try {
-    var snap = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : null;
+    // DATA_SNAPSHOT is declared later in this module with `const`. Even `typeof DATA_SNAPSHOT`
+    // throws while that binding is in the temporal dead zone, so early DOMContentLoaded work
+    // must use the window bridge that is populated only after initialization.
+    var snap = window.DATA_SNAPSHOT || null;
     if (!snap) return;
     var staticDates = snap._staticDates || {};
     // 데이터 종류별 세부 날짜 (필요 시 확장) — 현재는 동일 날짜
@@ -4973,8 +4976,8 @@ function _aioDefaultDecision(pageId) {
     }
     else if (window._tradingScore != null) { _sc = window._tradingScore; }
   } catch(_) { _sc = window._tradingScore != null ? window._tradingScore : 50; }
-  var _band = _sc >= 75 ? { label:'매수 우호', action:'ATR 손절선과 무효화 가격을 정한 뒤 분할 진입 검토. 80+ 구간은 차익실현 병행.' }
-    : _sc >= 60 ? { label:'선별 매수', action:'ATR 손절선 설정 후 선별 분할 진입. 추격보다 1차 매수 우선.' }
+  var _band = _sc >= 75 ? { label:'환경 우호', action:'현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격을 별도로 확인.' }
+    : _sc >= 60 ? { label:'환경 양호', action:'점수 단독 진입 금지. 종목 품질과 이벤트 리스크를 추가 확인.' }
     : _sc >= 45 ? { label:'중립 · 관망', action:'신규 진입 자제. 기존 포지션 방어선과 손절을 먼저 확인.' }
     : _sc >= 30 ? { label:'주의 · 축소', action:'리스크 자산 비중 축소. 현금 비율 높이고 헤지 검토.' }
     : { label:'위험 · 방어', action:'신규 매수 중단. 방어 운용 후 스코어 45+ 복귀 확인 후 재개.' };
@@ -5124,7 +5127,7 @@ function _aioDefaultDecision(pageId) {
     'kr-macro': {
       title: '한국 매크로 판단',
       decision: '금리·환율·유가·수출입만 상단 판단에 사용',
-      reasons: [_fomcReason + ' (원화/수급 경로 반영)', '아카이브와 현재 판단을 분리', '7/10 금통위 전까지 환율·물가·수출 모멘텀 확인'],
+      reasons: [_fomcReason + ' (원화/수급 경로 반영)', '아카이브와 현재 판단을 분리', '7/16 금통위 전까지 환율·물가·수출 모멘텀 확인'],
       action: 'USD/KRW 상승과 외국인 매도가 겹치면 방어, 환율 안정과 반도체 수급 개선이면 선별 확대.',
       sourceKind: 'SNAPSHOT'
     },
@@ -16418,7 +16421,7 @@ function _saveApiKey(lsKey, inputId, btnEl) {
   var el = document.getElementById(inputId);
   var val = el ? el.value : '';
   // v47.9: 마스킹된 값("abcd...xyz1") 저장 방지 — 사용자가 input에 입력한 원본만 허용
-  if (val && val.indexOf('...') !== -1 && val.length < 30) {
+  if (val && ((val.indexOf('...') !== -1 && val.length < 30) || val === '••••••••')) {
     _aioLog('warn', 'vault', '마스킹된 값 저장 거부: ' + lsKey);
     btnEl.textContent = '×';
     setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK || 1500);
@@ -16432,6 +16435,7 @@ function _saveApiKey(lsKey, inputId, btnEl) {
     }
     // v47.9: Claude 키는 _claudeKeyRuntime 레거시 필드도 동기화
     if (lsKey === 'aio_claude_api_key' && _AioVault) _AioVault._claudeKeyRuntime = val || '';
+    if (el) { el.value = val ? '••••••••' : ''; el.dataset.secretStored = val ? 'true' : ''; }
     btnEl.textContent = '✓';
     setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK);
     // CORS 프록시 레지스트리 재초기화 (CF Worker URL 변경 시)
@@ -16442,6 +16446,7 @@ function _saveApiKey(lsKey, inputId, btnEl) {
     // 폴백: 평문 저장 + 런타임 캐시 동기화
     localStorage.setItem(lsKey, val);
     if (_AioVault && _AioVault._keyRuntime) { if (val) _AioVault._keyRuntime[lsKey] = val; else delete _AioVault._keyRuntime[lsKey]; }
+    if (el) { el.value = val ? '••••••••' : ''; el.dataset.secretStored = val ? 'true' : ''; }
     btnEl.textContent = '✓';
     setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK);
     // v49.45 P312: 폴백 경로에서도 IndexedDB mirror 보장
@@ -16868,7 +16873,7 @@ window.AIO.getDataLineageAudit = function() {
       { id:'news',       label:'뉴스',             source:'RSS 다중 (fetchOneFeed)',                    schedKey:'news',       transform:'scoreItem + classifyTopic',  renderAttr:null,              tier:'auto' },
       { id:'krSupply',   label:'KR 수급',          source:'Naver investorTrend API (프록시)',           schedKey:'krSupply',   transform:'updateKrSupplyDOM',          renderAttr:null,              tier:'auto' },
       { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:'data-snap', tier:'auto' },
-      { id:'breadth',    label:'Breadth %above MA', source:'(실 fetch 미구현 — AV advance/decline 근사치만)', schedKey:'breadth', transform:'updateBreadthUI (근사)',     renderAttr:'data-snap',       tier:'gap',    note:'B계층: fetchBreadthData가 MMFI/MMTW/MMFD 선언만, %above MA는 정적 폴백 (P448). /data-refresh 수동 갱신.' },
+      { id:'breadth',    label:'Breadth %above MA', source:'GitHub Actions Yahoo 1y adjusted-close · AIO US universe', schedKey:'breadth', transform:'computeScreenerBreadth → _aioApplyScreenerBreadth', renderAttr:'data-snap', tier:'auto', note:'공식 거래소 breadth가 아닌 AIO 미국 스크리너 유니버스 비가중 집계. 관측시각·85% 커버리지·값 범위 게이트 통과 시에만 의사결정 입력 허용.' },
       { id:'staticMacro',label:'CPI/PCE/NFP/AAII/NAAIM/SKEW/MOVE/글로벌지수', source:'(fetch 함수 0건)', schedKey:null, transform:'/data-refresh 수동', renderAttr:'data-snap', tier:'manual', note:'C계층: 자동 fetch 경로 없음, 수동 갱신 (R179 클라이언트 모델 — 개인 키 부재 데이터)' },
       { id:'crypto',     label:'BTC/ETH',          source:'CoinGecko (무키 30/min) / 수동 폴백',         schedKey:'quotes',     transform:'PriceStore.set',             renderAttr:'data-live-price', tier:'auto' }
     ];
@@ -16937,6 +16942,39 @@ window.AIO.getDataLineageAudit = function() {
   } catch(e) {
     return { status: 'error', message: e.message };
   }
+};
+
+// v52.92/P707: 외부 공급자 의존성을 개별 카테고리로 분해한다. 이 레지스트리는
+// "대체 API가 존재한다"와 "현재 AIO에 운영 연결됐다"를 혼동하지 않도록 한다.
+window.AIO.getExternalDependencyAudit = function() {
+  var rows = [
+    { id:'us-quotes-bars', current:'Yahoo chart/quote + Twelve Data/Finnhub fallback', state:'migration_recommended', target:'licensed_provider_adapter', alternatives:['Massive REST/WebSocket/flat files','Alpaca Market Data HTTP/WebSocket','Nasdaq Data Link'], rights:'provider plan and display/redistribution review required', cadence:'stream + EOD reconciliation' },
+    { id:'us-fundamentals', current:'FMP plan-dependent + SEC partial path', state:'operator_required', target:'sec_xbrl_normalizer', alternatives:['SEC EDGAR submissions/companyfacts/frames/bulk ZIP','Intrinio standardized fundamentals','Nasdaq Data Link premium datasets'], rights:'SEC fair-access/user-agent policy; paid vendor display rights separately', cadence:'filing event + nightly reconciliation' },
+    { id:'us-macro', current:'FRED server/client', state:'connected', target:'official_macro_adapters', alternatives:['FRED/ALFRED','BLS Public Data API','BEA API','US Treasury Fiscal Data'], rights:'official API terms and attribution', cadence:'release-calendar driven + daily reconciliation' },
+    { id:'kr-macro', current:'BOK ECOS/KOSIS key-dependent', state:'operator_required', target:'official_macro_adapters', alternatives:['BOK ECOS','KOSIS Open API','data.go.kr approved datasets'], rights:'API key, attribution, dataset-specific terms', cadence:'release-calendar driven' },
+    { id:'kr-eod-reference', current:'Yahoo .KS/.KQ + Naver proxy', state:'migration_recommended', target:'krx_eod_adapter', alternatives:['KRX Data Marketplace Open API','approved Koscom/vendor EOD feed'], rights:'KRX approval; display attribution; third-party provision restrictions', cadence:'post-close + correction reconciliation' },
+    { id:'kr-realtime-supply-short', current:'Naver investorTrend proxy; short data unavailable', state:'license_required', target:'licensed_kr_market_feed', alternatives:['KRX/Koscom contracted feed','licensed Korean market-data vendor'], rights:'real-time/redistribution contract required', cadence:'stream or official EOD depending license' },
+    { id:'breadth', current:'AIO universe adjusted-close aggregation', state:'connected_research_only', target:'point_in_time_universe_breadth', alternatives:['licensed full-universe EOD bars','exchange/vendor breadth series'], rights:'underlying constituent/history rights required', cadence:'daily after all bars settle' },
+    { id:'put-call', current:'Cboe page/CDN through proxy + snapshot fallback', state:'migration_recommended', target:'official_cboe_ingest', alternatives:['Cboe daily/current market statistics','licensed options-volume vendor'], rights:'Cboe terms/attribution; redistribution review', cadence:'intraday if licensed, otherwise daily close' },
+    { id:'survey-sentiment', current:'AAII/NAAIM/Investors Intelligence snapshots', state:'manual_or_license_required', target:'licensed_survey_ingest', alternatives:['AAII licensed sentiment data','NAAIM official weekly publication','Investors Intelligence subscription'], rights:'no equivalent free public API; do not relabel market proxies as the same survey', cadence:'weekly publication' },
+    { id:'news-events', current:'multi-RSS + Finnhub/NewsData optional', state:'connected_with_gap', target:'normalized_news_event_bus', alternatives:['GDELT Event/GKG','licensed news API','issuer/exchange/regulator RSS'], rights:'headline/body copyright and redistribution differ by source', cadence:'5-15 minute ingest + dedupe' },
+    { id:'telegram', current:'public web/RSS mirrors with per-channel failure tracking', state:'operator_required', target:'authorized_channel_ingest', alternatives:['Telegram Bot API for managed channels','Telegram MTProto/TDLib user-authorized client','licensed aggregator'], rights:'account authorization, channel rights, platform terms; anonymous scraping is not a durable primary source', cadence:'webhook/update stream + 24h gap reconciliation' },
+    { id:'options-chain-greeks', current:'FMP/other optional provider path', state:'license_required', target:'licensed_options_adapter', alternatives:['Massive options','Intrinio options','Alpaca options market data','Cboe DataShop/products'], rights:'OPRA/exchange entitlements and display rights commonly required', cadence:'stream/snapshot + EOD settlement' },
+    { id:'earnings-calendars', current:'Finnhub then FMP fallback', state:'operator_required', target:'calendar_reconciliation', alternatives:['Finnhub/Intrinio/vendor calendar','SEC filing events + issuer IR feeds'], rights:'provider-specific plan/redistribution terms', cadence:'daily horizon rebuild + event updates' },
+    { id:'disclosures-kr', current:'DART direct confirmation only', state:'operator_required', target:'opendart_ingest', alternatives:['OpenDART disclosures/financial statements/XBRL','licensed Korean fundamentals vendor'], rights:'OpenDART key and terms; normalize filing amendments', cadence:'filing event + nightly reconciliation' },
+    { id:'crypto', current:'CoinGecko + quote fallback', state:'connected_with_gap', target:'multi_exchange_reconciled_quotes', alternatives:['CoinGecko','exchange public market-data APIs','licensed consolidated crypto feed'], rights:'provider/exchange attribution and redistribution terms', cadence:'stream/poll + exchange timestamp reconciliation' }
+  ];
+  var byState = {};
+  rows.forEach(function(r) { byState[r.state] = (byState[r.state] || 0) + 1; });
+  return {
+    schemaVersion:'external-dependency-audit.v1',
+    generatedAt:new Date().toISOString(),
+    total:rows.length,
+    byState:byState,
+    rows:rows,
+    targetLayers:['provider adapters','immutable raw evidence','canonical normalized store','point-in-time universe/corporate actions','derived factor jobs','freshness/quality gates','versioned API/cache','page and AI consumers'],
+    invariant:'provider availability is not implementation status; missing/licence-blocked inputs fail closed and are never converted to neutral/current values'
+  };
 };
 
 // v52.58 H3-G/H3-H/H3-I: element-level lineage plus first-viewport and keyboard
@@ -17975,19 +18013,13 @@ async function _restoreDecryptedKeys() {
       var el = document.getElementById(inputId);
       // v47.9: 복호화된 값은 반드시 _keyRuntime에 저장 (fetcher들의 _getApiKey 참조 대상)
       if (val) _AioVault._keyRuntime[lsKey] = val;
-      // v47.7: Claude 키는 기존 _claudeKeyRuntime 필드와도 호환 유지 + input 마스킹
+      // 비밀값은 런타임 캐시에만 보관하고 DOM에는 고정 마스크만 둔다.
       if (val && lsKey === 'aio_claude_api_key') {
         _AioVault._claudeKeyRuntime = val;
-        if (el) el.value = val.slice(0, 8) + '...' + val.slice(-4);
+        if (el) { el.value = '••••••••'; el.dataset.secretStored = 'true'; }
       } else if (val && el) {
-        // v47.9: 다른 민감 키도 마스킹 표시 (4자+4자, URL은 원본 유지)
-        if (lsKey === 'aio_cf_worker_url' || lsKey === 'aio_google_cse_cx') {
-          el.value = val;
-        } else if (val.length > 12) {
-          el.value = val.slice(0, 4) + '...' + val.slice(-4);
-        } else {
-          el.value = val;
-        }
+        el.value = '••••••••';
+        el.dataset.secretStored = 'true';
       }
     }
     console.log('[AIO Vault] _restoreDecryptedKeys: ' + Object.keys(_AioVault._keyRuntime).length + '개 키 캐시 복원');
@@ -20131,7 +20163,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.89';
+const APP_VERSION = 'v52.92';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -21183,12 +21215,12 @@ const DATA_SNAPSHOT = {
   pce:          4.1,   corePce:   3.4,            // v51.90: PCE YoY 4.1% (FRED via data.json asOf:2026-05-01) / Core 3.4%(3.3→3.4 FRED 실측 갱신). 런타임 FRED write-back 시 자동 오버라이드
   pceYoy:       4.1,   corePceYoy: 3.4,  // v51.90: data-snap="pce-yoy"/"core-pce-yoy" seed — FRED 4.1%/3.4% 동기화. FRED write-back 시 자동 오버라이드
   nfp:          57,                               // v51.96: 6월 NFP +57K (FRED PAYEMS asOf 2026-06-01, 텔레그램 브리핑 교차확인 — 예상·전월 모두 큰 폭 하회, 5월분도 172→43K 대폭 하향조정). 노동시장 냉각 시그널 → 금리인하 기대 재부각. data-snap="nfp", FRED PAYEMS 설정 시 자동 오버라이드
-  cpiNext:     '2026-07-15',                       // v50.39: 5월 CPI 6/10 발표 완료(값 미확인 — 라이브/공식 우선, 추측 금지) → 다음 6월 CPI ~7/15 예정
+  cpiNext:     '2026-07-14',                       // BLS 공식 일정: 6월 CPI 7/14 08:30 ET
   nfpNext:     '2026-08-07',                       // v51.96: 6월 고용 7/3 발표 완료(+57K) → 다음 7월분 NFP는 통상 첫째주 금요일 관례상 ~8/7 예정(공식 캘린더 미확정, 추정)
   pceNext:     '2026-07-30',                       // v51.31: May PCE released 2026-06-25 (today). Next = June PCE ~2026-07-30
   computexWeek:'2026-06-01~2026-06-05',            // v50.4: Computex/GTC Taipei window (종료)
   nvidiaKoreaWeek: '2026-06-08',                   // v50.15: 젠슨 황 방한 한국 AI 인프라 동맹 발표일 — SK하이닉스(차세대 메모리 다년)/삼성(HBM4·Groq 4-8nm)/네이버(1GW AI팩토리·소버린 AI)/SKT(DSX)/현대차(AV) 동시 발표. 현재 시장 화두
-  currentTopic: '(2026-07-03) 6월 고용 쇼크: NFP +57K(예상·전월 대폭 하회, 5월분도 172→43K 하향), 실업률은 4.2%로 예상보다 낮음 — 금리인하 기대 재부각, AI 대형주 차익실현→경기민감주/중소형주 순환매. 2분기 마감: S&P +15%/나스닥 +21% 강한 분기. KOSPI +1.12%(전일 급락 후 반등, 삼성전기 대규모 MLCC 공급계약), KOSDAQ -2.77%(반도체 약세 지속). F&G 31 공포. Gold $4192(+3.05%, 안전자산+금리인하 기대). BTC $61,553(+2.58%)/ETH $1,712(+6.43%) 강세. CPI(7/15) 주목.',  // v51.96
+  currentTopic: '(2026-07-14 검증) 미·이란 충돌과 호르무즈 해협 운송 불확실성으로 유가·국채금리가 상승하고, 반도체/AI 주도주 조정이 나스닥 약세를 키운 흐름입니다. 7/13 S&P 500 -0.8%, Nasdaq -1.6%. 한국은 7/14 KOSPI +0.73%, KOSDAQ -1.92%로 대형주와 코스닥이 엇갈렸습니다. 6월 CPI는 BLS 공식 일정상 7/14 08:30 ET 발표 예정이며 발표 전에는 5월 수치가 최신입니다.',
   spacexIpoStatus: 'SpaceX IPO 실행(6/12~13): Nasdaq 상장 $135/주 IPO가, 시총 ~$1.78T, ~$75B 조달(역대 최대 IPO), 머스크 순자산 $1조 돌파. 한국 증권사 2x 롱/숏 상품 출시. SATS(주주) +6.8%',
   ismPmi:      53.3,   ismPrice:  73.0,           // v51.90: 6월 ISM Mfg 53.3%(5월 54%에서 -0.7pt, 6개월 연속 확장 · 20개월 연속 경제확장) · Prices 73.0(5월 82.1에서 -9.1pt, 원가압력 완화). ISM 7/1 발표.
   ismSvc:      53.6,                              // v49.95: 4월 실측값 유지 — 6월 서비스 PMI는 7/3(내일) 발표 예정, 미발표 상태(BLOCKED, 추측 금지)
@@ -22589,6 +22621,15 @@ function computeTradingScore(mode) {
   var _cached = window._aioScoreCache[_cacheKey];
   if (_cached && (Date.now() - _cached.ts) < 20000) return _cached.result;
   var _fb = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
+  var _verifiedDecisionValue = function(id, raw, neutral) {
+    try {
+      var audit = window.AIO && typeof window.AIO.getTradingDecisionInputEvidence === 'function'
+        ? window.AIO.getTradingDecisionInputEvidence() : null;
+      var row = audit && audit.rows && audit.rows.find(function(r) { return r.id === id; });
+      if (row && row.status === 'verified_current' && raw != null && isFinite(Number(raw))) return Number(raw);
+    } catch(_) {}
+    return neutral;
+  };
   var _clamp = function(v, lo, hi) { return Math.max(lo, Math.min(hi, isFinite(v) ? v : lo)); };
   const vix   = _clamp(_ldSafe('^VIX','price') || _fb.vix || 20, 5, 150);
   const vvix  = _clamp(_ldSafe('^VVIX','price') || _fb.vvix || 100, 50, 250);
@@ -22643,10 +22684,11 @@ function computeTradingScore(mode) {
   // window._breadth200 is updated by initSentimentCharts() → bpSPX20[last] 캐싱;
   // fallback to _fb.breadth200 if not yet available.
   // v50.19: _breadth200(레거시 20SMA명) 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백으로 시정
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
-                     (typeof window._breadth20 === 'number') ? window._breadth20 :
-                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
-                     (_fb.breadth200 != null ? _fb.breadth200 : 57));
+  const breadthCandidate = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                           (typeof window._breadth20 === 'number') ? window._breadth20 : null;
+  // % above 20SMA has no live value-specific collector. A generic breadth refresh timestamp
+  // must not promote the static chart series into a trading input. Unknown => neutral 50.
+  const breadth200 = _verifiedDecisionValue('breadth200-participation', breadthCandidate, 50);
   let breadthScore;
   if (breadth200 > 70)      breadthScore = 88;
   else if (breadth200 > 55) breadthScore = 72;
@@ -22665,13 +22707,12 @@ function computeTradingScore(mode) {
   macroScore = Math.max(10, Math.min(90, macroScore));
 
   // v20+: Put/Call ratio 보정
-  const pcr = window._putCallRatio || _fb.pcr || 0.95;
+  const pcr = _verifiedDecisionValue('pcr-putcall', window._putCallRatio, 0.95);
   if (pcr > 1.3) { momScore = Math.max(5, momScore - 8); }
   else if (pcr > 1.1) { momScore = Math.max(5, momScore - 4); }
 
-  // v20+: AAII extreme bearish = contrarian positive (but NOT timing indicator)
-  const aaiiBear = window._aaiiBearish || _fb.aaiiBear || 50;
-  if (aaiiBear > 55) { breadthScore = Math.max(breadthScore, 20); }
+  // AAII is weekly reference-only data. It is displayed for context but never changes a
+  // current trading score without an independent current-evidence path.
 
   // v39.2: 교차변수 보정 — 복합 리스크 시 추가 감점
   var crossRiskCount = 0;
@@ -22704,18 +22745,7 @@ function computeTradingScore(mode) {
   //   2순위 DATA_SNAPSHOT.hySpread (서버/시드 실측값)
   //   3순위 (100-HYG)*15bp 근사 — HYG 가격은 금리 듀레이션(~3.8y)에 오염돼 금리 100bp 상승만으로
   //          가짜 +45bp "스프레드 확대"를 만든다. 실측이 전혀 없을 때만 최후 폴백.
-  var hyBp = 0;
-  if (typeof window._hySpreadBp === 'number' && isFinite(window._hySpreadBp) && window._hySpreadBp > 0) {
-    hyBp = window._hySpreadBp;
-  } else if (typeof DATA_SNAPSHOT !== 'undefined' && typeof DATA_SNAPSHOT.hySpread === 'number' && DATA_SNAPSHOT.hySpread > 0) {
-    hyBp = DATA_SNAPSHOT.hySpread;
-  } else {
-    var _hyg = _ldSafe('HYG','price') || _fb.hyg || 78;
-    if (_hyg > 0 && _hyg < 90) hyBp = Math.round((100 - _hyg) * 15); // HYG→OAS 근사 (최후 폴백)
-    // v51.98/Phase3[A3]: 예전 4순위 'hy-spread-val' DOM textContent 파싱 폴백(A5 발견) 제거 —
-    // 2순위(DATA_SNAPSHOT.hySpread)가 고정 시드값(275) 또는 fetchHYSpread 실측값만 대입받고
-    // 어디서도 지워지지 않아 항상 truthy이므로 이 분기 자체가 죽은 코드였음(R266 원칙 재적용).
-  }
+  var hyBp = _verifiedDecisionValue('hy-spread-bp', window._hySpreadBp, 0);
   if (hyBp > 500) compositeScore -= 15; // Distressed credit
   else if (hyBp > 400) compositeScore -= 8;
   else if (hyBp > 350) compositeScore -= 3;
@@ -22749,8 +22779,10 @@ function computeTradingScore(mode) {
 
 // ── Score Advice: Convert Score to Action Guidance ────────────────
 function getScoreAdvice(score) {
-  if (score >= 75) return {text:'매수 우호 구간 — 시장 환경이 매우 우호적입니다. 관심 종목은 분할 진입과 명확한 무효화 가격을 함께 검토하세요.', color:'var(--data-green)', action:'매수 우호'};
-  if (score >= 60) return {text:'선별 매수 구간 — 시장 환경은 양호하지만 포지션 크기는 평소의 60-80%로 조절하세요.', color:'#4ade80', action:'선별 매수'};
+  // 누적 표본이 통계 기준에 못 미치고 최근 IC도 음수다. 이 점수는 예측/매수 신호가
+  // 아니라 현재 시장 환경을 요약하는 설명형 상태 지표로만 안내한다.
+  if (score >= 75) return {text:'환경 우호 구간 — 현재 입력 조합이 우호적입니다. 예측 신호가 아니므로 종목별 근거·무효화 가격을 별도로 확인하세요.', color:'var(--data-green)', action:'환경 우호'};
+  if (score >= 60) return {text:'환경 양호 구간 — 현재 시장 여건은 양호하지만 점수 단독으로 진입하지 말고 종목·거래량·손익비를 확인하세요.', color:'#4ade80', action:'환경 양호'};
   if (score >= 45) return {text:'중립 구간 — 시장 방향이 혼재되어 있습니다. 신규 진입보다 기존 포지션 관리와 후보 관찰을 우선하세요.', color:'var(--data-amber)', action:'관망/보유'};
   if (score >= 30) return {text:'주의 구간 — 시장 환경이 불리합니다. 신규 매수는 줄이고 손절선과 헤지 조건을 점검하세요.', color:'var(--data-amber)', action:'매수 자제'};
   return {text:' 위험 구간 — 시장이 매우 불안합니다. 현금 비중을 늘리고 방어적으로 대응하세요. 패닉 매도는 금물!', color:'#ef4444', action:'현금 확보'};
@@ -22764,10 +22796,15 @@ function computeExecutionWindow() {
   var _fgExec = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg', { maxAgeMs: 4 * 60 * 60 * 1000 }) : null;
   const fg = _fgExec && _fgExec.allowedUse ? _fgExec.value : 50;
   // v50.19: 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
-                     (typeof window._breadth20 === 'number') ? window._breadth20 :
-                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
-                     (_fb2.breadth200 != null ? _fb2.breadth200 : 57));
+  const breadthCandidate = (typeof window._breadth200 === 'number') ? window._breadth200 :
+                           (typeof window._breadth20 === 'number') ? window._breadth20 : null;
+  const breadth200 = (function() {
+    try {
+      var a = window.AIO.getTradingDecisionInputEvidence();
+      var r = a.rows.find(function(x) { return x.id === 'breadth200-participation'; });
+      return r && r.status === 'verified_current' && breadthCandidate != null ? breadthCandidate : 50;
+    } catch(_) { return 50; }
+  })();
 
   // v46.9: 기저값 상향 — 중립 시 MOD(65) 판정되도록 (이전 46.25→WEAK)
   // Breakout holding: are breakouts sustaining?
@@ -22794,7 +22831,13 @@ function computeExecutionWindow() {
   // Leader retention: are leading stocks holding gains?
   let leaderHold = 65;
   if (breadth200 < 40) leaderHold -= 15;
-  const pcr = window._putCallRatio || _fb2.pcr || 0.95;
+  const pcr = (function() {
+    try {
+      var a = window.AIO.getTradingDecisionInputEvidence();
+      var r = a.rows.find(function(x) { return x.id === 'pcr-putcall'; });
+      return r && r.status === 'verified_current' && isFinite(Number(window._putCallRatio)) ? Number(window._putCallRatio) : 0.95;
+    } catch(_) { return 0.95; }
+  })();
   if (pcr > 1.2) leaderHold -= 10;
   leaderHold = Math.max(0, Math.min(100, leaderHold));
 
@@ -22826,18 +22869,21 @@ function classifyMarketRegime() {
   const spx200ma = (window._spxMA && window._spxMA[200]) || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx200ma : null);
   const spx50ma  = (window._spxMA && window._spxMA[50])  || ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.spx50ma  : null);
   const vix = _ldSafe('^VIX','price') || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.vix : 20);
-  const breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
-                     (typeof window._breadth20 === 'number') ? window._breadth20 :
-                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
-                     ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.breadth200 != null) ? DATA_SNAPSHOT._fallback.breadth200 : 57));
+  var breadthEvidence = null;
+  try {
+    var _ba = window.AIO.getTradingDecisionInputEvidence();
+    breadthEvidence = _ba.rows.find(function(x) { return x.id === 'breadth200-participation'; });
+  } catch(_) {}
+  const breadthCurrent = !!(breadthEvidence && breadthEvidence.status === 'verified_current');
+  const breadth200 = breadthCurrent && typeof window._breadth200 === 'number' ? window._breadth200 : 50;
 
   let regime = 'CHOP';
   let label = '횡보·혼조';
   let color = 'var(--data-amber)';
   let sub = '방향성 불분명';
 
-  if (!spxPrice || !spx50ma || !spx200ma) {
-    regime = 'DATA_CHECK'; label = 'Data check'; color = 'var(--data-amber)'; sub = 'SPX MA evidence required';
+  if (!spxPrice || !spx50ma || !spx200ma || !breadthCurrent) {
+    regime = 'DATA_CHECK'; label = '근거 확인 필요'; color = 'var(--data-amber)'; sub = !breadthCurrent ? '시장폭 최신 근거 미수신' : 'SPX 이동평균 근거 필요';
   } else if (spxPrice > spx50ma && breadth200 > 55) {
     regime = 'UPTREND'; label = '상승 추세'; color = 'var(--data-green)'; sub = '50MA 위 + 시장폭 양호';
   } else if (spxPrice < spx200ma && breadth200 < 30) {
@@ -25022,7 +25068,9 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     // v52.49/WO-6: computeTradingScore()가 실제로 읽는 나머지 입력. 이 5개는 심볼 시세가 아니라
     // 전역 변수(+ _markFetch 레지스트리)로 갱신되므로 globalVar/fetchKey 경로로 평가한다.
     { id:'fg-sentiment', globalVar:'_lastFG', fetchKey:'fearGreed', snapshotKey:'fg', label:'Fear & Greed', family:'sentiment', maxAgeMin:240, decisionUse:'trading' },
-    { id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadth', snapshotKey:'breadth20sma', label:'20SMA breadth 참여도', family:'breadth', maxAgeMin:240, decisionUse:'trading' },
+    // generic `breadth` refresh updates proxies/top-gainers, not % above 20SMA itself.
+    // Therefore it cannot be used as freshness evidence for this value-specific input.
+    { id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener', snapshotKey:'breadth20sma', label:'AIO 미국 유니버스 20SMA 상회 비율', family:'breadth', maxAgeMin:5760, decisionUse:'trading' },
     { id:'pcr-putcall', globalVar:'_putCallRatio', fetchKey:'putCall', snapshotKey:'pcr', label:'Put/Call ratio', family:'sentiment', maxAgeMin:240, decisionUse:'trading' },
     { id:'hy-spread-bp', globalVar:'_hySpreadBp', fetchKey:'hySpread', snapshotKey:'hySpread', label:'HY spread (bp)', family:'credit', maxAgeMin:1440, decisionUse:'trading' },
     // AAII는 주간 수동 갱신 스냅샷 전용(aio-ui.js data-source-kind="snapshot"/reference-only과 동일 취급) —
@@ -25667,7 +25715,8 @@ function destroyPageCharts(pageId) {
     if (pageId === 'kr-supply' && typeof _krSupplyRetryTimer !== 'undefined' && _krSupplyRetryTimer) {
       clearTimeout(_krSupplyRetryTimer); _krSupplyRetryTimer = null; _krSupplyRetry = 0;
     }
-    if (pageId === 'kr-supply') window._krSupplyLoaded = false; // v46.9: 재진입 시 수급 재fetch 허용
+    // v52.90/P705: 재진입마다 Naver 수급/종목 배치를 다시 쏘지 않는다.
+    // 10분 REFRESH_SCHEDULE과 fetchKrSupplyData 자체 상태가 갱신을 소유한다.
     if (pageId === 'kr-macro' && typeof _krMacroRetryTimer !== 'undefined' && _krMacroRetryTimer) {
       clearTimeout(_krMacroRetryTimer); _krMacroRetryTimer = null; _krMacroRetry = 0;
     }
@@ -26170,12 +26219,13 @@ function _aioRenderBriefingMarketAnalysis() {
   function tone(v) { return Number(v) >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
   function b(txt, color) { return '<b style="color:' + (color || 'var(--text-primary)') + ';">' + txt + '</b>'; }
 
-  var spy = _ldSafe('SPY', 'price'), spyChg = _ldSafe('SPY', 'chgPct');
-  var qqq = _ldSafe('QQQ', 'price'), qqqChg = _ldSafe('QQQ', 'chgPct');
-  var vix = _ldSafe('^VIX', 'price'), vixChg = _ldSafe('^VIX', 'chgPct');
+  var spx = _ldSafe('^GSPC', 'price'), spxChg = _ldSafe('^GSPC', 'pct');
+  var spy = _ldSafe('SPY', 'price'), spyChg = _ldSafe('SPY', 'pct');
+  var qqq = _ldSafe('QQQ', 'price'), qqqChg = _ldSafe('QQQ', 'pct');
+  var vix = _ldSafe('^VIX', 'price'), vixChg = _ldSafe('^VIX', 'pct');
   var tnx = _ldSafe('^TNX', 'price'), tnxChg = _ldSafe('^TNX', 'chg');
-  var dxy = _ldSafe('DX-Y.NYB', 'price'), dxyChg = _ldSafe('DX-Y.NYB', 'chgPct');
-  var kospi = _ldSafe('^KS11', 'price'), kospiChg = _ldSafe('^KS11', 'chgPct');
+  var dxy = _ldSafe('DX-Y.NYB', 'price'), dxyChg = _ldSafe('DX-Y.NYB', 'pct');
+  var kospi = _ldSafe('^KS11', 'price'), kospiChg = _ldSafe('^KS11', 'pct');
   var rsp = _ldSafe('RSP', 'price');
   var S = window.DATA_SNAPSHOT || {};
   var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
@@ -26188,12 +26238,12 @@ function _aioRenderBriefingMarketAnalysis() {
 
   // 리드 문단
   var leadEl = document.getElementById('briefing-analysis-lead');
-  if (leadEl && spy != null) {
+  if (leadEl && spx != null) {
     var lead = extended
-      ? '가격은 강하지만 내부는 그만큼 강하지 않은 흐름입니다. S&amp;P 500 ' + b(fx(spy, 2)) + ' ' + b(pct(spyChg), tone(spyChg)) +
+      ? '가격은 강하지만 내부는 그만큼 강하지 않은 흐름입니다. S&amp;P 500 지수 ' + b(fx(spx, 2)) + ' ' + b(pct(spxChg), tone(spxChg)) +
         (wideBreadth ? ', 시장 참여 폭도 함께 넓어지는 중입니다.' : ', 다만 50일선 상회 종목 비율은 ' + b(fx(breadth50, 0) + '%') + '로 상승이 대형주에 쏠려 있습니다.') +
         ' 요약하면 — ' + b(wideBreadth ? '추세와 확산이 함께 유효' : '추세는 유효하나, 확산 없는 상승') + '이라는 단서가 붙습니다.'
-      : 'S&amp;P 500 ' + b(fx(spy, 2)) + ' ' + b(pct(spyChg), tone(spyChg)) + ', VIX ' + b(fx(vix, 2)) + ' ' + b(pct(vixChg), tone(-vixChg)) +
+      : 'S&amp;P 500 지수 ' + b(fx(spx, 2)) + ' ' + b(pct(spxChg), tone(spxChg)) + ', VIX ' + b(fx(vix, 2)) + ' ' + b(pct(vixChg), tone(-vixChg)) +
         '로 시장은 관망 우위의 하루입니다. 방향성 판단은 다음 확인 지표(시장 폭·금리 반응)를 기다리는 편이 합리적입니다.';
     leadEl.innerHTML = lead;
   }
@@ -26212,10 +26262,11 @@ function _aioRenderBriefingMarketAnalysis() {
         var sentColor = it.sentiment === 'positive' ? 'var(--data-green)' : it.sentiment === 'negative' ? 'var(--data-red)' : 'var(--text-muted)';
         // v52.65/R204: selectionReason은 내부 스코어링 감사용 문자열("base+20 | source-tier3+2 | ...")이지
         // 사용자용 요약문이 아니다 — 폴백 체인에 섞여 헤드라인 뒤에 그대로 노출되고 있었다(개발자 마커 노출 금지).
-        var reason = it.desc || it.summary || '';
+        var visibleTitle = (typeof getDisplayTitle === 'function' ? getDisplayTitle(it) : it.title) || '';
+        var reason = (typeof getDisplayDesc === 'function' ? getDisplayDesc(it) : (it.desc || it.summary)) || '';
         return '<div style="display:flex;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid var(--border-subtle);">' +
           '<span style="font-size:11px;font-weight:600;color:var(--text-secondary);border:1px solid var(--border-strong);border-radius:4px;padding:2px 8px;flex-shrink:0;">' + escHtml(cat) + '</span>' +
-          '<div style="flex:1;font-size:13px;line-height:1.65;color:var(--text-secondary);">' + b(escHtml((it.title || '').slice(0, 90))) +
+          '<div class="briefing-news-title" style="flex:1;font-size:13px;line-height:1.65;color:var(--text-secondary);">' + b(escHtml(visibleTitle)) +
           (reason ? ' — ' + escHtml(reason.slice(0, 80)) : '') + '</div>' +
           '<span style="font-size:11px;font-weight:600;color:' + sentColor + ';flex-shrink:0;">' + (it.sentiment === 'positive' ? '호재' : it.sentiment === 'negative' ? '부담' : '중립') + '</span>' +
         '</div>';

@@ -2,10 +2,37 @@
 verified_by: agent
 last_verified: 2026-07-14
 confidence: high
-latest_version: v52.89
-latest_P_number: P704
-total_entries: 470
-next_P_number: P705
+latest_version: v52.92
+latest_P_number: P707
+total_entries: 473
+next_P_number: P708
+
+## P707 - v52.92 - 외부 수집 전면 실패가 마지막 정상 data.json을 빈 산출물로 덮어썼다
+
+- **motivation**: 전체 데이터 자동 최신화의 남은 구조 문제와 외부 의존별 대체 API를 검증하는 과정에서 로컬 수집을 실행했다.
+- **root_cause**: `fetch-data.mjs`가 핵심 시세 커버리지 50% 게이트를 파일 기록 뒤에 검사했다. 네트워크가 차단되자 77/77 실패 결과를 먼저 `public-data/data.json`에 기록한 뒤 종료해 마지막 정상값 보존 원칙을 위반했다. 전체 파이프라인과 870종목 스크리너 갱신도 하나의 실행 경로라, 스크리너만 안전하게 재생성할 수 없었다.
+- **fix**: 핵심 시세 커버리지 검사를 첫 `writeFile(OUT)` 앞으로 이동해 실패 시 기존 파일을 보존한다. `enrichScreener()`를 export하고 `SCREENER_ONLY=1` 직접 실행 경로를 추가했다. 외부 의존 15개 카테고리를 구현/승인/라이선스/수동 상태로 분해한 `getExternalDependencyAudit()`와 대체 계획 문서를 추가했다.
+- **violated_rule**: R332의 `attemptedAt`/`lastSuccessfulAt` 분리와 마지막 정상값 보존을 producer artifact publish 단계까지 적용하지 않았다.
+- **prevention**: R333, data-pipeline contract, runtime LIVE3-11~12가 쓰기 전 커버리지 게이트, 독립 스크리너 경로, 외부 공급자 상태·권리·cadence 레지스트리를 검사한다.
+- **verification**: 독립 외부 수집으로 스크리너 847/870, 미국 707/725, 한국 140/145를 생성했다. 관측시각은 미국 2026-07-14T12:00:10Z, 한국 2026-07-14T00:00:00Z이며 브레드쓰 커버리지는 각각 97.5%, 96.6%다. 복구된 핵심 `data.json`은 77/77 시세, F&G 44, FRED 19, 뉴스 40을 유지한다. Browser 플러그인은 호출 중단으로 검증 수단에서 제외했다.
+
+## P706 - v52.91 - 파일 갱신 성공과 개별 관측 최신성을 혼용해 일부 정적·실패 데이터를 현재 판단처럼 보였다
+
+- **motivation**: 20개 사용자 표면을 실브라우저로 읽고 조작하면서 개별 데이터가 실제 외부 자동수집·갱신 이력을 갖는지, 현재 시장과 맞는지, 알고리즘 입력으로 유효한지 3차 전수 진단했다.
+- **root_cause**: 공용 `generatedAt`/fetch 성공을 개별 관측시각과 같은 의미로 사용했다. 그 결과 6월 26일 시장폭이 최근 일반 fetch 시각을 빌려 점수에 들어가고, Telegram 전 채널 실패도 새 `generatedAt`을 써 성공처럼 보였으며, 한국 수급 누락 문자열은 `Number()`를 거쳐 0/매도 방향으로 렌더됐다. 브리핑은 SPY를 S&P 500으로 부르고 존재하지 않는 `chgPct`를 읽었다. 점수 백테스트가 통계적으로 유의하지 않은데도 Buy/매수 밴드가 행동 허가처럼 보였고 비밀키 실값이 password input DOM에 복원됐다.
+- **fix**: 시세 producer/consumer에 `regularMarketTime`→`observedAt`, `marketState`, 거래소 시간대를 보존했다. 지표별 freshness budget과 decision-evidence gate를 적용해 미검증 breadth/PCR/AAII를 판단에서 격리했다. Telegram은 `attemptedAt`/`lastSuccessfulAt`/`collectionStatus`를 분리하고 전부 실패하면 성공시각을 유지한다. 한국 수급은 형식화 숫자만 파싱하고 누락 시 값·막대·방향 라벨·기관/프로그램 정적 표를 모두 중립화하며, 한국 지수 소스가 0.75% 이상 충돌하면 오래된 Naver 덮어쓰기를 거부한다. 브리핑은 `^GSPC.price/pct`를 사용하고, 실패한 client F&G가 최신 서버 관측값을 정적 seed로 덮지 않게 했다. 점수 표현·용어사전 기대값·API 키 DOM 보관도 바로잡았다.
+- **violated_rule**: R301의 개별 currentness envelope를 F&G에만 엄격히 적용하고 다른 데이터군의 파일 freshness·관측 freshness·수집 실패 의미까지 일반화하지 않았다.
+- **prevention**: R332와 LIVE3-01~10이 비밀키 DOM, TDZ, 오래된 breadth, S&P 브리핑, 한국 수급 missingness, 한국 지수 소스 충돌, Telegram 성공시각, 비예측 점수 문구, 거래 관측시각 보존, 실패한 client F&G의 서버 관측값 보존을 검사한다. 22개 데이터 범주별로 source/observed/fetched/status/decision permission을 별도 기록한다.
+- **verification**: `public-data/data.json`은 2026-07-14T10:25:27Z 기준 시세 77/77, F&G 44, FRED 19개, 뉴스 40개·8소스를 기록했다. S&P 500 7,515.34(-0.79%), Nasdaq 25,873.18(-1.55%), KOSPI 6,856.83(+0.73%), KOSDAQ 783.98(-1.92%)를 당일 외부 자료와 대조했다. 로컬 Chromium 19 primary+용어사전의 데스크톱·모바일 40렌더에서 pageerror 0을 확인했다. 별도 20초 후 currentness 재검증에서 F&G 44/`cnn-via-github-actions`/VALID 유지, 한국 수급 6값 `—`, 기관·프로그램 표 미수신 상태를 확인했다. Telegram·한국 수급·FMP·breadth/PCR/AAII는 성공으로 승격하지 않고 제한 상태로 남겼다.
+
+## P705 - v52.90 - 시안 구조 검사는 통과했지만 비동기·빈 상태·닫힌 상태의 실제 사용자 여정이 분리돼 있었다
+
+- **motivation**: 20개 사용자 표면의 1차 전수 진단 뒤 실제 사용자가 기다리고, 펼치고, 닫고, 데이터 실패를 만나는 흐름까지 2차로 확인해 구조적 문제를 모두 개선해 달라는 요청이 있었다.
+- **root_cause**: 시안 계약과 기존 T869는 초기/최종 DOM의 섹션 수와 기본 노출 밀도를 잘 검사했지만, 외부 요청이 응답하지 않는 기업 분석, 서버 캐시로만 채워진 뉴스 헤더, 잘못된 컨테이너에 놓인 더보기, 닫힌 오프스크린 AI 포커스, 포트폴리오 0건, 한국 수급 실패처럼 `loaded/empty/degraded/closed` 상태 전환의 소유권과 종료 시간을 하나의 사용자 여정으로 검증하지 않았다. 한국 종목 수급은 100+30 연쇄 요청을 허용했고 테마 메모는 최초 요약 뒤 라이브 갱신 함수가 다시 전체 문장을 주입했다.
+- **fix**: 기업 분석에 8초 총 예산과 병렬·부분 성공 렌더를 적용하고 0개 소스를 완료로 표시하던 상태를 명시적 실패로 바꿨다. 뉴스 취득 경로를 `_aioUpdateNewsSummaryFromItems()`로 통합하고 더보기를 시장 뉴스 피드로 이동했다. AI 패널은 닫힘 시 `inert`/`aria-hidden`/`aria-expanded`/포커스를 함께 전환한다. 국내 테마는 5종목·260자 기본 밀도를 라이브 갱신 뒤에도 유지하고, 한국 수급은 24개 직접 요청·종목별 프록시 재순회 제거·in-flight+10분 회로·단일 실패 설명으로 바꿨다. 포트폴리오 빈 상태, 브리핑 상단 시장 동인의 영어 원문, 모바일 조작 영역도 실제 상태 기준으로 보강했다.
+- **violated_rule**: R329의 최종 렌더 계약을 섹션 노출 여부 위주로 해석했고 R330의 정보 위계를 네트워크 실패·0건·오프스크린 포커스까지 확장하지 않았다.
+- **prevention**: R331과 T1015~T1020, runtime contract G2가 페이지 소유권, 제한시간, 단일 뉴스 상태, AI 포커스 경계, 테마 밀도, 빈 포트폴리오, 한국 수급 요청 상한, 브리핑 제목을 함께 검사한다. 표준 정적 게이트와 별도로 로컬 Chromium에서 20개 사용자 표면의 데스크톱/모바일 및 상태 전환 여정을 실행한다.
+- **verification**: 최종 변경 모듈 syntax와 정적 12게이트, runtime contract G2, 기본 경로 UX, diff whitespace를 통과했다. Chromium headless **1081/1081 PASS**, 내부 22라우트×4뷰포트 **88/88 PASS**(overflow 0px·tiny text 0·JS error 0), 접근성 22라우트, 핵심 10면, 포트폴리오 vault 8/8을 통과했다. 별도 실제 사용자 여정은 19 메뉴+용어사전의 데스크톱/모바일 **40/40면**과 14개 상태 계약을 통과했으며 pageerror 0, 기업 분석 무응답 5.3초 수렴, 뉴스 12→24개 공개, 한국 수급 실패 대상 요청 26건·중복 경고 0건을 확인했다. 부팅은 FCP 1.07초·첫 라우트 1.40초였다.
 
 ## P704 - v52.89 - 사용자 페이지 20개와 내부 QA 라우트 22개를 혼용했고 남은 7면은 시안 정보 위계가 확장되지 않았다
 

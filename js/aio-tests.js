@@ -3602,11 +3602,11 @@
     _assert('T676 data_lineage_no_broken_v4989: lineage rows >= 13 + broken === 0 (gap/manual은 정상)',
       dl && Array.isArray(dl.rows) && dl.rows.length >= 13 && dl.broken === 0,
       dl ? 'total=' + dl.total + ' connected=' + dl.connected + ' broken=' + dl.broken + ' gap=' + dl.gap + ' manual=' + dl.manual : 'no audit');
-    // T677: breadth=gap / staticMacro=manual 정확 분류 (조사 결과 반영)
+    // T677: breadth=connected / staticMacro=manual 정확 분류 (v52.92 자동 breadth 반영)
     var breadthRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'breadth'; })[0];
     var macroRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'staticMacro'; })[0];
-    _assert('T677 data_lineage_tier_classify_v4989: breadth=gap + staticMacro=manual (B/C계층 분류)',
-      breadthRow && breadthRow.status === 'gap' && macroRow && macroRow.status === 'manual',
+    _assert('T677 data_lineage_tier_classify_v5292: breadth=connected + staticMacro=manual',
+      breadthRow && breadthRow.status === 'connected' && macroRow && macroRow.status === 'manual',
       'breadth=' + (breadthRow ? breadthRow.status : '?') + ' macro=' + (macroRow ? macroRow.status : '?'));
     // T678: 사이드바 19축 dataLineage row DOM
     _assert('T678 sidebar_19_lineage_v4989: [data-audit-key="dataLineage"] DOM',
@@ -7027,7 +7027,7 @@
     // T841: v50.74 structural fix — decision engine reads live score, FOMC uses registry, footer is conditional.
     var t841ok = false, t841detail = '';
     try {
-      var validBands841 = { '매수 우호':1, '선별 매수':1, '중립 · 관망':1, '주의 · 축소':1, '위험 · 방어':1, '판단 보류 · 핵심 입력 부족':1 };
+      var validBands841 = { '환경 우호':1, '환경 양호':1, '중립 · 관망':1, '주의 · 축소':1, '위험 · 방어':1, '판단 보류 · 핵심 입력 부족':1 };
       var homeDecision841 = typeof window._aioBuildPageDecision === 'function' ? window._aioBuildPageDecision('home') : null;
       // decision 문구가 5밴드 중 하나를 포함해야 함 (정적 고정 문구 제거 검증)
       var bandInDecision841 = homeDecision841 && Object.keys(validBands841).some(function(b) {
@@ -7247,6 +7247,63 @@
       document.body.classList.remove('aio-dev-mode');
     } catch(e869) { failures869.push('ERR:' + (e869 && e869.message)); }
     _assert('T869 redesign_default_path_v5289: 20 user surfaces keep the comp hierarchy; internal QA routes remain explicitly classified as 19 primary + 2 derived + 1 reference + 1 glossary overlay', failures869.length === 0, failures869.join(','));
+  }
+
+  // v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 상태까지 사용자 여정 계약으로 고정한다.
+  function _testV5290HumanUXStateContracts() {
+    var newsMore = document.getElementById('news-load-more-wrap');
+    _assert('T1015 news_progressive_reveal_owner: 뉴스 더보기는 시장 뉴스 피드 바로 뒤에 속한다',
+      !!(newsMore && newsMore.closest('#page-market-news') && !newsMore.closest('#page-screener') && newsMore.previousElementSibling && newsMore.previousElementSibling.id === 'live-news-feed'),
+      newsMore && newsMore.parentElement && newsMore.parentElement.id);
+
+    var newsStateOk = false;
+    try {
+      if (typeof window._aioUpdateNewsSummaryFromItems === 'function') {
+        window._aioUpdateNewsSummaryFromItems([
+          { title: '반도체 수요 회복과 실적 개선', source: '회귀 소스', pubDate: new Date().toISOString(), topic: 'semi' },
+          { title: '시장 변동성 확대 주의', source: '회귀 소스 2', pubDate: new Date().toISOString(), topic: 'macro' }
+        ], { kind: 'server-cache', generatedAt: new Date().toISOString() });
+        var count1016 = document.getElementById('news-24h-count');
+        var fetch1016 = document.getElementById('last-fetch-time');
+        newsStateOk = !!(count1016 && count1016.textContent === '2건' && fetch1016 && fetch1016.textContent.indexOf('서버 캐시') >= 0);
+      }
+    } catch (_) {}
+    _assert('T1016 news_summary_single_state: 서버/기기/직접 뉴스는 본문과 같은 항목으로 요약 상태를 갱신한다', newsStateOk,
+      (document.getElementById('news-24h-count') || {}).textContent + '/' + (document.getElementById('last-fetch-time') || {}).textContent);
+
+    var aiPanel1017 = document.getElementById('ai-panel');
+    var aiBtn1017 = document.getElementById('topbar-ai-btn');
+    try { if (aiPanel1017 && aiPanel1017.classList.contains('open')) toggleAIPanel(); } catch (_) {}
+    var closed1017 = !!(aiPanel1017 && aiPanel1017.hasAttribute('inert') && aiPanel1017.getAttribute('aria-hidden') === 'true' && aiBtn1017 && aiBtn1017.getAttribute('aria-expanded') === 'false');
+    try { toggleAIPanel(); } catch (_) {}
+    var open1017 = !!(aiPanel1017 && !aiPanel1017.hasAttribute('inert') && aiPanel1017.getAttribute('aria-hidden') === 'false' && aiBtn1017 && aiBtn1017.getAttribute('aria-expanded') === 'true');
+    try { toggleAIPanel(); } catch (_) {}
+    var reclosed1017 = !!(aiPanel1017 && aiPanel1017.hasAttribute('inert') && document.activeElement === aiBtn1017);
+    _assert('T1017 ai_panel_closed_focus_boundary: 닫힌 AI 패널은 inert이고 열기/닫기 상태 및 복귀 포커스가 일치한다',
+      closed1017 && open1017 && reclosed1017, JSON.stringify({ closed: closed1017, open: open1017, reclosed: reclosed1017 }));
+
+    var cards1018 = document.querySelectorAll('#kr-theme-container .kr-theme-card');
+    var density1018 = cards1018.length > 0 && Array.prototype.every.call(cards1018, function(card) {
+      var visiblePills = card.querySelectorAll(':scope > .kr-theme-tickers > .kr-ticker-pill').length;
+      var lead = card.querySelector('.kr-theme-catalyst');
+      return visiblePills <= 5 && (!lead || lead.textContent.length <= 261);
+    });
+    _assert('T1018 kr_theme_progressive_density: 테마 카드는 기본 5종목과 260자 메모를 넘지 않고 나머지는 명시적으로 펼친다', density1018,
+      'cards=' + cards1018.length);
+
+    var pfMain1019 = document.getElementById('pf-main');
+    var pfRisk1019 = document.getElementById('pf-risk-section');
+    var pfEmpty1019 = document.querySelector('#pf-holdings-body .pf-empty-state');
+    var empty1019 = !pfMain1019 || !pfMain1019.classList.contains('is-empty') || (!!pfEmpty1019 && pfRisk1019 && getComputedStyle(pfRisk1019).display === 'none');
+    _assert('T1019 portfolio_empty_state_hierarchy: 빈 포트폴리오는 추가 CTA만 우선하고 계산 불가능한 리스크 카드를 숨긴다', empty1019,
+      pfMain1019 && pfMain1019.className);
+
+    var briefTitles1020 = document.querySelectorAll('.briefing-news-title');
+    var brief1020 = Array.prototype.every.call(briefTitles1020, function(el) {
+      return getComputedStyle(el).wordBreak !== 'normal' && el.getBoundingClientRect().height <= 42;
+    });
+    _assert('T1020 briefing_title_readability: 브리핑 뉴스 제목은 한국어 대체 경로와 2줄 안전 레이아웃을 사용한다', brief1020,
+      'titles=' + briefTitles1020.length);
   }
 
   // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) 회귀 게이트
@@ -8635,7 +8692,8 @@
      try { _testV5283RetrievalQualityAndConduct(); } catch(e) { console.error('Group101 error:', e); }
      try { _testV5284ModelRiskIsolation(); } catch(e) { console.error('Group102 error:', e); }
      try { _testV5285CoverageAndHumanCertification(); } catch(e) { console.error('Group103 error:', e); }
-     try { _testV5286ToolBoundaryAndRights(); } catch(e) { console.error('Group104 error:', e); }
+    try { _testV5286ToolBoundaryAndRights(); } catch(e) { console.error('Group104 error:', e); }
+    try { _testV5290HumanUXStateContracts(); } catch(e) { console.error('Group105 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

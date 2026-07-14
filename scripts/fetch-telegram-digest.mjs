@@ -34,9 +34,11 @@ const previousLastPostId = new Map();
 // topItems/broadItems), so those are what we carry forward to backfill whatever an
 // early-stopped scrapeChannel run no longer re-fetches from prior pages.
 let previousMergePool = [];
+let previousDigest = null;
 if (outPath && existsSync(outPath)) {
   try {
     const prev = JSON.parse(readFileSync(outPath, 'utf8'));
+    previousDigest = prev;
     for (const ch of (prev.channels || [])) {
       if (ch.channel && Number.isFinite(ch.lastPostId)) previousLastPostId.set(ch.channel, ch.lastPostId);
     }
@@ -240,6 +242,14 @@ for (const it of [...previousMergePool, ...freshItems]) {
   mergedById.set(it.id, it); // fresh items processed after pool entries win on id collision
 }
 const items = [...mergedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+const successfulChannelCount = channels.filter(c => !c.error).length;
+const collectionStatus = successfulChannelCount === CHANNELS.length ? 'ok' : successfulChannelCount > 0 ? 'partial' : 'failed';
+const attemptedAt = new Date().toISOString();
+const previousLastSuccessfulAt = previousDigest?.lastSuccessfulAt || previousDigest?.generatedAt || null;
+const lastSuccessfulAt = collectionStatus === 'failed' ? previousLastSuccessfulAt : attemptedAt;
+// generatedAt means successful collection time, not merely file rewrite time. Failed attempts
+// update attemptedAt while preserving the last success so cached items cannot look newly fetched.
+const generatedAt = collectionStatus === 'failed' ? (previousDigest?.generatedAt || previousLastSuccessfulAt) : attemptedAt;
 const topicCounts = {};
 const tickerCounts = {};
 for (const it of items) {
@@ -247,7 +257,11 @@ for (const it of items) {
   for (const ticker of it.tickers) tickerCounts[ticker] = (tickerCounts[ticker] || 0) + 1;
 }
 const digest = {
-  generatedAt: new Date().toISOString(),
+  generatedAt,
+  attemptedAt,
+  lastSuccessfulAt,
+  collectionStatus,
+  successfulChannelCount,
   since: since.toISOString(),
   until: now.toISOString(),
   source: 'telegram-public-mirror',

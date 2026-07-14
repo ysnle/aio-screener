@@ -10,7 +10,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_A11Y_PORT || 8901);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const routes = ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
-const outPath = resolve(root, '_artifacts', 'accessibility-matrix-audit.json');
+const outPath = process.env.CI_A11Y_OUT
+  ? resolve(root, process.env.CI_A11Y_OUT)
+  : resolve(root, '_artifacts', 'accessibility-matrix-audit.json');
 
 function startServer() {
   return new Promise((resolvePromise, reject) => {

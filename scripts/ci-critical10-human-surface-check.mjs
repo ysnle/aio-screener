@@ -12,7 +12,9 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..');
 const PORT = Number(process.env.CI_HUMAN_SURFACE_PORT || 8893);
 const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
-const OUT_PATH = resolve(root, '_artifacts', 'critical10-human-surface-audit.json');
+const OUT_PATH = process.env.CI_HUMAN_SURFACE_OUT
+  ? resolve(root, process.env.CI_HUMAN_SURFACE_OUT)
+  : resolve(root, '_artifacts', 'critical10-human-surface-audit.json');
 const ROUTES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
 
 function startServer() {

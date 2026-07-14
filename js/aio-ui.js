@@ -1890,8 +1890,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // v31.3: 적응형 모델 — 기본 Haiku, 질문 복잡도에 따라 Sonnet/Thinking 자동 승격
   updateQuotaBadge();
 
-  // ── 확장 API 키 자동 복원 (safeLSGetSync → input 필드) ──
-  // v30.11: safeLSGetSync 사용 — 암호화된 키는 PIN 해제 후 복원됨
+  // ── 확장 API 키 상태 복원 ──
+  // 실제 비밀값은 런타임 조회 경로만 사용한다. password input의 value에 원문을 넣으면
+  // 접근성 트리/브라우저 자동화 스냅샷에서 노출될 수 있다.
   var _keyMap = [
     ['aio_av_key', 'aio_av_key_input'],
     ['aio_finnhub_key', 'aio_finnhub_key_input'],
@@ -1907,7 +1908,11 @@ document.addEventListener('DOMContentLoaded', () => {
   _keyMap.forEach(function(pair) {
     var saved = safeLSGetSync(pair[0]);
     var el = document.getElementById(pair[1]);
-    if (saved && el) el.value = saved;
+    if (saved && el) {
+      el.value = '••••••••';
+      el.dataset.secretStored = 'true';
+      el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + ' · 저장됨');
+    }
   });
   // v30.11: Vault 상태 배지 초기화
   if (typeof _updateVaultStatus === 'function') _updateVaultStatus();
@@ -3240,7 +3245,7 @@ window._aioDiagram = (function () {
     out += _o(cx, cy, r, _alphaRgb(C.bgSolid, 0.6), col, 2.5);
     out += _t(cx, cy - 3, _n(total), col, 26, 900, 'middle');
     out += _t(cx, cy + 14, '/ 100', C.muted, 10, 400, 'middle');
-    var band = total >= 75 ? 'SEPA Zone' : total >= 60 ? 'Buy Ready' : total >= 45 ? 'Neutral' : total >= 30 ? '주의' : 'Avoid';
+    var band = total >= 75 ? '환경 우호' : total >= 60 ? '환경 양호' : total >= 45 ? '중립' : total >= 30 ? '주의' : '위험';
     out += _r(cx - 32, cy + 22, 64, 15, _alphaRgb(col, 0.14), 4, col, 1);
     out += _t(cx, cy + 33, band, col, 10, 700, 'middle');
     var y0 = 34;

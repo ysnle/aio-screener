@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v52.89 — 올인원 투자 터미널</title>
+  <title>AIO Screener v52.92 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5086,6 +5086,13 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #page-kr-themes .aio-theme-progressive .kr-theme-card:nth-child(n+4) { display:none; }
 #page-kr-themes .aio-theme-progressive.is-expanded .kr-theme-card { display:block; }
 .aio-comp-more { display:block; margin:14px auto 24px; min-width:160px; }
+.kr-theme-card-more { margin-top:8px; border-top:1px solid var(--border-subtle); }
+.kr-theme-card-more > summary { cursor:pointer; list-style:none; min-height:34px; display:flex; align-items:center; color:var(--text-dim); font-size:11px; font-weight:600; }
+.kr-theme-card-more > summary::-webkit-details-marker { display:none; }
+.kr-theme-card-more > summary:after { content:'+'; margin-left:auto; font-size:14px; font-weight:400; }
+.kr-theme-card-more[open] > summary:after { content:'−'; }
+.kr-theme-memo-full { padding:8px 0 2px; font-size:11px; line-height:1.7; color:var(--text-secondary); }
+.briefing-news-title { overflow-wrap:anywhere; word-break:keep-all; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
 #glossary-modal { background:rgba(33,29,22,.42) !important; backdrop-filter:blur(2px) !important; }
 #glossary-modal > div { max-width:860px !important; max-height:86vh !important; border-radius:8px !important; box-shadow:0 24px 70px rgba(33,29,22,.22); }
 #glossary-modal h2 { font-family:var(--font-display); font-size:22px !important; font-weight:600; color:var(--text-primary) !important; }
@@ -5095,6 +5102,23 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
   #glossary-modal > div { width:calc(100% - 20px) !important; max-height:92vh !important; }
   #glossary-modal > div > div:first-child, #glossary-body { padding-left:16px !important; padding-right:16px !important; }
   .aio-comp-secondary > summary, .aio-guide-chapter > summary { font-size:14px; }
+  #fund-search-input { font-size:16px !important; min-height:42px; }
+  #news-country-chips .chip,
+  #news-topic-chips .chip,
+  .news-sort-btn,
+  .news-type-tab,
+  #page-kr-supply a,
+  #page-kr-themes a,
+  .kr-tab,
+  .kr-sector-tab { min-height:34px; display:inline-flex; align-items:center; }
+  .topbar { flex-wrap:nowrap !important; min-height:48px; }
+  .topbar-actions-right { flex:0 1 auto !important; flex-wrap:nowrap !important; justify-content:flex-end !important; gap:5px !important; }
+  .topbar-actions-right [data-vix-badge] { position:absolute !important;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
+  #live-quote-ts { max-width:104px !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #topbar-ai-btn { min-height:34px; padding:5px 9px !important; }
+  #page-kr-themes > .row.mb-4 { flex-direction:column;align-items:stretch !important; }
+  #page-kr-themes > .row.mb-4 .page-actions { width:100%;display:grid !important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px !important; }
+  #page-kr-themes > .row.mb-4 .page-actions .aio-btn-table { justify-content:center;white-space:nowrap;min-width:0;padding-left:8px;padding-right:8px; }
 }
 
 /* 시안의 조용한 브랜드/내비게이션. */
@@ -5641,7 +5665,7 @@ button[data-filter-active="true"] {
           <!-- v48.43: VIX 톱바 배지 -->
           <span data-vix-badge class="aio-badge is-solid" style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;">VIX —</span>
           <!-- v48.43: AI 분석가 버튼 -->
-          <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 베타 열기/닫기" title="AI 베타 · 교육/리서치 보조 사이드바">AI 베타</button>
+          <button id="topbar-ai-btn" class="aio-btn-table" data-action="toggleAIPanel" aria-label="AI 베타 열기/닫기" aria-expanded="false" aria-controls="ai-panel" title="AI 베타 · 교육/리서치 보조 사이드바">AI 베타</button>
           <!-- v48.43: 새로고침 (primary 강조) -->
           <button id="topbar-refresh-btn" class="aio-btn-table primary" data-action="_aioGlobalRefresh">↻ 새로고침</button>
           <span id="data-status-panel" style="display:none;font-size:var(--fs-xs);color:var(--text-muted);font-family:var(--font-sans);font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;" title="연결된 API 상태"></span>
@@ -5685,7 +5709,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.89</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v52.92</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5930,7 +5954,7 @@ button[data-filter-active="true"] {
   <div class="page" id="page-signal" data-page-purpose="signal">
   <!-- v50.29 declutter: "페이지 목적" 설명 박스 제거 (사용자 지시 — 원칙적 설명서 제거, 페이지=데이터/분석/액션) -->
   <div class="insight-box box-collapsed">
-    <strong>지금 매매해도 될까? — 75+ 매수 우호 | 60-75 선별 매수 | 45-60 중립 | 30-45 주의 | 30↓ 위험</strong>
+    <strong>시장 환경 점수 — 75+ 우호 | 60-74 양호 | 45-59 중립 | 30-44 주의 | 30↓ 위험 · 예측/매수 신호 아님</strong>
   </div>
 
   <div id="signal-lockout-control" style="display:none;" aria-hidden="true">
@@ -10752,6 +10776,10 @@ button[data-filter-active="true"] {
         검증 뉴스 준비 중 · <span style="color:var(--data-cyan);">소스 상태 확인</span>
       </div>
     </div>
+    <div id="news-load-more-wrap" hidden>
+      <span id="news-visible-summary" style="font-size:12px;color:var(--text-dim);"></span>
+      <button class="aio-btn-table" data-action="_aioNewsLoadMore">12개 더 보기</button>
+    </div>
     </div><!-- /aio-section 뉴스피드 -->
   </div>
 <div class="page" id="page-options">
@@ -10798,7 +10826,7 @@ button[data-filter-active="true"] {
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
       <div>
         <div class="page-title">퀀트 스크리너</div>
-        <div class="page-subtitle">멀티팩터 랭킹 · 전체 유니버스 · 모멘텀 + 추세(Kalman) + VCP 셋업 팩터 · 헤더 클릭으로 정렬</div>
+        <div class="page-subtitle">일봉 기반 멀티팩터 상대 랭킹 · 모멘텀 + 추세(Kalman) + 저변동 + VCP · 헤더 클릭으로 정렬</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
         <span data-factor-asof style="font-size:12px;color:var(--text-dim);">팩터 데이터 대기</span>
@@ -10807,6 +10835,9 @@ button[data-filter-active="true"] {
           밸류·퀄리티 팩터 비활성 — <span id="screener-fmp-reason">FMP API 상태 확인</span>
         </span>
       </div>
+    </div>
+    <div id="screener-readiness-note" role="status" style="margin:-10px 0 18px;padding:9px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:11px;line-height:1.6;color:var(--text-muted);">
+      팩터 산출물과 검증 상태 확인 중…
     </div>
     <!-- 프리셋(트레이더 프로파일) + 통계 압축 한 줄 — v52.72 아이보리 4c: 시안 구조(pill행 + 우측 요약) -->
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
@@ -10820,8 +10851,8 @@ button[data-filter-active="true"] {
       <span style="margin-left:auto;font-size:12.5px;color:var(--text-dim);">
         <span id="scr-profile-desc" style="font-style:italic;">레짐 기반 자동 가중</span> ·
         총 <span id="scr-kpi-total" style="color:var(--text-primary);font-weight:600;">—</span>종목 중
-        <b style="color:var(--text-primary);">통과 <span id="scr-kpi-top">—</span></b> ·
-        강세 <span id="scr-kpi-buy" style="color:var(--data-green);font-weight:600;">—</span> ·
+        <b style="color:var(--text-primary);">상위 20% <span id="scr-kpi-top">—</span></b> ·
+        기존 편집 시그널 BUY <span id="scr-kpi-buy" style="color:var(--text-primary);font-weight:600;">—</span> ·
         활성팩터 <span id="scr-kpi-factors">—</span>
       </span>
     </div>
@@ -10840,7 +10871,7 @@ button[data-filter-active="true"] {
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
           <div class="aio-subhd">팩터 가중 현황</div>
           <div id="scr-factor-bars" style="display:flex;flex-direction:column;gap:5px;"></div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">퀀트 랭크(0~100) = 각 팩터 점수를 섹터 내 상대 순위로 환산 후 가중합산. 막대 길이 = 현재 레짐에서의 가중치.</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:8px;">상대 랭크(0~100) = 각 팩터 점수를 섹터 내 상대 순위로 환산한 가중합. 절대 수익률 예측이나 매수·매도 신호가 아닙니다. 막대 길이 = 현재 레짐 가중치.</div>
         </div>
         <!-- Right: 시장 레짐 -->
         <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:10px;">
@@ -10929,7 +10960,7 @@ button[data-filter-active="true"] {
             <th colspan="4" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);">기본 정보</th>
             <th colspan="7" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--data-cyan);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,.04);border-left:1px solid var(--border);">팩터 점수 (0~100)</th>
             <th colspan="4" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);border-left:1px solid var(--border);">시장 데이터</th>
-            <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--data-green);font-weight:500;letter-spacing:.04em;background:rgba(34,117,76,0.04);border-left:1px solid var(--border);">진입</th>
+            <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);border-left:1px solid var(--border);">상대 상태</th>
             <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);border-left:1px solid var(--border);">시그널</th>
             <th colspan="1" style="text-align:center;padding:4px 8px;font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;background:rgba(33,29,22,0.02);border-left:1px solid var(--border);">뉴스</th>
           </tr>
@@ -10951,9 +10982,9 @@ button[data-filter-active="true"] {
             <th data-scr-sort="rsi" data-action="_aioScreenerSort" data-arg="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
             <th data-scr-sort="pctSma50" data-action="_aioScreenerSort" data-arg="pctSma50" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">vs 50MA<span class="scr-arrow"></span></th>
             <th data-scr-sort="kalman" data-action="_aioScreenerSort" data-arg="kalman" role="button" title="추세 신뢰도 — Kalman 필터 기반 추세 방향 확신도. 65%+ 상승 방향이면 추세 추종 유효" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세신뢰도<span class="scr-arrow"></span></th>
-            <th data-scr-sort="vcpScore" data-action="_aioScreenerSort" data-arg="vcpScore" role="button" title="VCP(변동성 수축 패턴) 셋업 — Minervini 방법론. '피벗 임박' = 돌파 매수 후보" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">VCP 셋업<span class="scr-arrow"></span></th>
+            <th data-scr-sort="vcpScore" data-action="_aioScreenerSort" data-arg="vcpScore" role="button" title="VCP(변동성 수축 패턴) 가격 구조의 상대 상태. 매매 신호가 아님" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">VCP 구조<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" data-scr-sort="mcap" data-action="_aioScreenerSort" data-arg="mcap" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">시총<span class="scr-arrow"></span></th>
-            <th class="scr-adv-col" style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);" title="RSI·랭크·모멘텀 조합 진입 타이밍 신호">진입?</th>
+            <th class="scr-adv-col" style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);" title="RSI·상대 랭크·모멘텀 조합 상태. 매매 신호가 아님">상대 상태</th>
             <th class="scr-adv-col" style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);">시그널</th>
             <th class="scr-adv-col" style="text-align:left;padding:7px 8px;font-size:10px;min-width:110px;border-left:1px solid var(--border);">최신뉴스</th>
           </tr>
@@ -10961,24 +10992,19 @@ button[data-filter-active="true"] {
         <tbody id="screener-results-body"><tr><td colspan="22" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
       </table>
     </div>
-    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.7;">= 개인 워치리스트 · <b>진입?</b> = RSI·랭크·모멘텀 조합 타이밍 신호 (참고용, 단독 매매 근거 아님). 서버 팩터 파일 미수신 시 랭크·백테스트 비활성화. 밸류·퀄리티 ‘—‘는 FMP 미수신.</div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.7;">★ = 개인 워치리스트 · <b>상대 상태</b> = RSI·랭크·모멘텀의 설명형 분류이며 매매 신호가 아닙니다. 서버 팩터 파일 미수신 시 랭크·백테스트 비활성화. 밸류·퀄리티 ‘—‘는 FMP 미수신.</div>
     <div id="scr-load-more-wrap" hidden>
       <span id="scr-visible-summary" style="font-size:12px;color:var(--text-dim);"></span>
       <button class="aio-btn-table" data-action="_aioScreenerLoadMore">12개 더 보기</button>
     </div>
-    <div id="news-load-more-wrap" hidden>
-      <span id="news-visible-summary" style="font-size:12px;color:var(--text-dim);"></span>
-      <button class="aio-btn-table" data-action="_aioNewsLoadMore">12개 더 보기</button>
-    </div>
-
     <!-- 읽는 법 + 전략 백테스트 — v52.72 아이보리 4c: 시안 구조(2열), 기존 백테스트IC 패널 요약 재사용 -->
     <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:44px;border-top:1px solid var(--border-strong);padding-top:22px;margin-top:22px;">
       <div>
         <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">읽는 법</div>
         <div style="display:flex;flex-direction:column;gap:9px;">
           <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">추세신뢰도</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Kalman 필터 기반 추세 방향 확신도. 65% 이상 + 상승 방향이면 추세 추종 유효</span></div>
-          <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">VCP 셋업</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">변동성 수축 패턴 단계. "피벗 임박" = 돌파 매수 후보, 피벗 가격 명시</span></div>
-          <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">진입 원칙</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">스크리너 통과 = 후보일 뿐. 매매 시그널 페이지 체크리스트 통과 후 진입</span></div>
+          <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">VCP 구조</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">변동성 수축과 피벗 근접도를 설명하는 가격 구조 지표. 이후 수익률이나 돌파 성공을 보장하지 않음</span></div>
+          <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">사용 원칙</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">상대 랭킹은 조사 후보를 좁히는 도구이며, 주문·포지션 결정에는 별도 검증이 필요</span></div>
         </div>
       </div>
       <div>
@@ -11914,8 +11940,8 @@ button[data-filter-active="true"] {
         <tr><td>10Y 국채</td><td data-snap="kr-bond-10y">2.92%</td><td>4.41%</td><td>1.52%</td><td>1.82%</td></tr>
         <tr><td>주식시장 YTD</td><td style="color:var(--green);">+5.2%</td><td style="color:var(--red);">-3.8%</td><td style="color:var(--red);">-4.2%</td><td style="color:var(--green);">+1.8%</td></tr>
       </table>
-      <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-as-of="2026-06-16" style="margin-top:10px;padding:8px 10px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-        한국과 미국의 금리차는 원화와 외국인 수급의 핵심 변수입니다. 최근 FOMC 결과는 금리·달러·2Y/10Y 반응으로 재평가하고, 후속 고용·CPI·PCE 발표와 한국 7/10 금통위 전 환율·물가·수출 모멘텀을 함께 봅니다.
+      <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-as-of="2026-07-14" style="margin-top:10px;padding:8px 10px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
+        한국과 미국의 금리차는 원화와 외국인 수급의 핵심 변수입니다. 최근 FOMC 결과는 금리·달러·2Y/10Y 반응으로 재평가하고, 후속 고용·CPI·PCE 발표와 7/16 한국은행 금통위 전 환율·물가·수출 모멘텀을 함께 봅니다.
       </div>
     </div>
     </div><!-- /aio-section 매크로환경분석 -->
@@ -12975,9 +13001,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=52.89" defer></script>
-  <script src="./js/aio-data.js?v=52.89" defer></script>
-  <script src="./js/aio-ui.js?v=52.89" defer></script>
+  <script src="./js/aio-core.js?v=52.92" defer></script>
+  <script src="./js/aio-data.js?v=52.92" defer></script>
+  <script src="./js/aio-ui.js?v=52.92" defer></script>
 
   <script>
 
@@ -13360,8 +13386,8 @@ function saveSidebarApiKey() {
     btn.style.color = 'var(--data-green)';
     setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, T.UI_FEEDBACK);
   }
-  // 마스킹 표시 (별표 사용, 유니코드 … 대신 ... 사용)
-  if (key) input.value = key.slice(0, 8) + '...' + key.slice(-4);
+  // 부분 문자열도 접근성 트리에 남기지 않는다.
+  if (key) { input.value = '••••••••'; input.dataset.secretStored = 'true'; }
   else input.value = '';
 }
 
@@ -13369,7 +13395,7 @@ function loadSidebarApiKey() {
   const input = document.getElementById('sidebar-api-key');
   if (!input) return;
   const key = getApiKey();
-  if (key) input.value = key.slice(0, 8) + '...' +key.slice(-4);
+  if (key) { input.value = '••••••••'; input.dataset.secretStored = 'true'; }
 }
 function saveRss2jsonKey() {
   const inp = document.getElementById('rss2json-api-key');
@@ -13378,12 +13404,12 @@ function saveRss2jsonKey() {
   try { if (key) localStorage.setItem('aio_rss2json_key', key); else localStorage.removeItem('aio_rss2json_key'); } catch(e) {}
   const btn = inp.nextElementSibling;
   if (btn) { const o = btn.textContent; btn.textContent = ''; setTimeout(()=>btn.textContent=o,T.UI_FEEDBACK); }
-  if (key) inp.value = key.slice(0,4)+'***'+key.slice(-4);
+  if (key) { inp.value = '••••••••'; inp.dataset.secretStored = 'true'; }
 }
 function loadRss2jsonKey() {
   const inp = document.getElementById('rss2json-api-key');
   const key = _getApiKey('aio_rss2json_key') || '';
-  if (inp && key) inp.value = key.slice(0,4)+'***'+key.slice(-4);
+  if (inp && key) { inp.value = '••••••••'; inp.dataset.secretStored = 'true'; }
 }
 
 
@@ -13392,15 +13418,13 @@ function loadRss2jsonKey() {
 document.addEventListener('DOMContentLoaded', () => {
   const inp = document.getElementById('sidebar-api-key');
   if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') saveSidebarApiKey(); });
-  // 포커스 시 전체 선택 (재입력 편의)
+  // 포커스 시에도 실제 키를 DOM에 복원하지 않는다.
   if (inp) inp.addEventListener('focus', () => {
-    const key = getApiKey();
-    if (key) inp.value = key; // 실제 키 표시
     inp.select();
   });
   if (inp) inp.addEventListener('blur', () => {
     const key = getApiKey();
-    if (key) inp.value = key.slice(0, 8) + '...' +key.slice(-4);
+    if (key) { inp.value = '••••••••'; inp.dataset.secretStored = 'true'; }
   });
 });
 
@@ -13644,6 +13668,8 @@ function addPortfolioPosition() {
   }
 
   const positions = getPortfolioData();
+  var pfMain = document.getElementById('pf-main');
+  if (pfMain) pfMain.classList.toggle('is-empty', positions.length === 0);
   const existing = positions.findIndex(p => p.ticker === ticker);
   if (existing >= 0) {
     showConfirmModal('종목 중복', ticker + ' 이미 존재합니다. 업데이트하시겠습니까?', function() {
@@ -13796,15 +13822,23 @@ function renderPortfolio() {
   let ld = window._liveData || {};
   const tbody = document.getElementById('pf-positions-tbody');
   if (!tbody) return;
+  var _pfEmpty = positions.length === 0;
+  var _pfMain = document.getElementById('pf-main');
+  if (_pfMain) _pfMain.classList.toggle('is-empty', _pfEmpty);
+  ['pf-risk-section','pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.hidden = _pfEmpty;
+  });
   // v48.47: R:R 계산기 포지션 드롭다운 동기화
   try { if (typeof window._aioRRPopulateSelect === 'function') window._aioRRPopulateSelect(); } catch(_){}
   try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
 
   if (positions.length === 0) {
     // v48.3: 빈 상태 안내 강화 — 폰트 크기 상향 + 명확한 3단계 가이드
-    tbody.innerHTML = '<tr><td colspan="9" style="padding:28px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
+    tbody.innerHTML = '<tr class="pf-empty-state"><td colspan="9" style="padding:28px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
       '<div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">포트폴리오가 비어 있습니다</div>' +
-      '<div>아래 "종목 추가/수정" 폼에 <b style="color:var(--text-primary);">티커 · 수량 · 매수 단가</b>를 입력하세요.</div>' +
+      '<div><b style="color:var(--text-primary);">티커 · 수량 · 매수 단가</b>를 입력하면 보유 현황과 리스크 분석이 시작됩니다.</div>' +
+      '<button class="aio-btn-table primary" data-action="_aioTogglePortfolioEntry" style="margin-top:10px;min-height:36px;padding:7px 16px;">첫 종목 추가</button>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">데이터는 브라우저 localStorage에만 저장되며 서버로 전송되지 않습니다. PIN 설정 후 저장 시 AES-256 암호화.</div>' +
       '</td></tr>';
     updatePortfolioSummary(positions, ld);
@@ -16637,7 +16671,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=52.89" defer></script>
+<script src="./js/aio-chat.js?v=52.92" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -19935,10 +19969,14 @@ function initKoreaThemes() {
     }
 
     // v35.5: 카탈리스트 텍스트 JS 변수에서 동적 주입
+    var catalyst = KR_THEME_CATALYSTS[themeId] || '';
+    var catalystLead = catalyst.length > 260 ? catalyst.slice(0, 260).replace(/\s+\S*$/, '') + '…' : catalyst;
     var catEl = card.querySelector('.kr-theme-catalyst');
-    if (catEl && KR_THEME_CATALYSTS[themeId]) { catEl.textContent = KR_THEME_CATALYSTS[themeId]; }
+    if (catEl) catEl.textContent = catalystLead;
+    var catFullEl = card.querySelector('.kr-theme-memo-full');
+    if (catFullEl) catFullEl.textContent = catalyst;
     if (!card._krBound) { card._krBound = true;
-      card.addEventListener('click', function(e) { if (e.target.closest('.kr-ticker-pill')) return; showKrThemeDetail(themeId); });
+      card.addEventListener('click', function(e) { if (e.target.closest('.kr-ticker-pill, details, summary, [data-stop]')) return; showKrThemeDetail(themeId); });
     }
   });
   renderKrThemePerfBars(ld);
@@ -20000,36 +20038,46 @@ function renderKrThemeCardsFromMap() {
       var d = ld[sym];
       if (d && d.pct != null && s.w > 0) { vs += d.pct * s.w; ws += s.w; }
     });
-    var avg = ws > 0 ? vs / ws : 0;
+    var avg = ws > 0 ? vs / ws : null;
     var heat, heatLabel;
-    if (avg >= 3)      { heat = 'hot';  heatLabel = 'HOT'; }
+    if (avg == null)   { heat = 'pending'; heatLabel = '시세 미수신'; }
+    else if (avg >= 3) { heat = 'hot';  heatLabel = 'HOT'; }
     else if (avg >= 1) { heat = 'warm'; heatLabel = '강세'; }
     else if (avg >= -1){ heat = 'cool'; heatLabel = '중립'; }
     else               { heat = 'cold'; heatLabel = avg <= -3 ? '급락' : '조정'; }
 
     // 종목 pill 생성 (비중 내림차순 = 시총/대장주 순)
     var sorted = tmap.slice().sort(function(a, b) { return b.w - a.w; });
-    var pillsHtml = '';
-    sorted.forEach(function(s) {
+    var pillsHtml = '', extraPillsHtml = '';
+    sorted.forEach(function(s, stockIdx) {
       var sym = krTickerToYahoo(s.code);
       var info = KR_STOCK_DB[s.code] || {};
       var name = info.name || s.code;
       var d = ld[sym];
-      var pctStr = '—', pctColor = 'var(--text-muted)';
+      var pctStr = '', pctColor = 'var(--text-muted)';
       if (d && d.pct != null) {
         pctStr = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(1) + '%';
         pctColor = d.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
       }
       var priceStr = d && d.price ? d.price.toLocaleString() : '';
       var barC = d && d.pct != null ? (d.pct >= 0 ? 'rgba(34,117,76,0.12)' : 'rgba(177,58,48,0.10)') : 'transparent';
-      pillsHtml += '<span class="kr-ticker-pill" data-live-symbol="' + sym + '" style="--bar-w:' + s.w + '%;--bar-c:' + barC + ';cursor:pointer;" data-action="showTicker" data-arg="' + sym + '" data-stop="1" title="' + (info.name||s.code) + ' ↗">' +
+      var pillHtml = '<span class="kr-ticker-pill" data-live-symbol="' + sym + '" style="--bar-w:' + s.w + '%;--bar-c:' + barC + ';cursor:pointer;" data-action="showTicker" data-arg="' + sym + '" data-stop="1" title="' + (info.name||s.code) + ' ↗">' +
         '<span class="pill-code">' + s.code + '</span> ' +
         '<span class="pill-name">' + name + '</span> ' +
         '<span class="pill-wt">' + s.w + '%</span> ' +
         '<span class="pill-price" data-live-price="' + sym + '">' + priceStr + '</span> ' +
         '<span class="pill-pct" data-live-chg="' + sym + '" style="color:' + pctColor + ';">' + pctStr + '</span>' +
         '</span>';
+      if (stockIdx < 5) pillsHtml += pillHtml;
+      else extraPillsHtml += pillHtml;
     });
+
+    if (extraPillsHtml) {
+      pillsHtml += '<details class="kr-theme-card-more" data-stop="1"><summary>' + (sorted.length - 5) + '개 구성 종목 더 보기</summary><div class="kr-theme-tickers" style="margin-top:6px;">' + extraPillsHtml + '</div></details>';
+    }
+    var catalystLead = catalyst.length > 260 ? catalyst.slice(0, 260).replace(/\s+\S*$/, '') + '…' : catalyst;
+    var catalystHtml = catalyst ? '<div class="kr-theme-catalyst">' + escHtml(catalystLead) + '</div>' +
+      (catalyst.length > catalystLead.length ? '<details class="kr-theme-card-more kr-theme-memo-more" data-stop="1"><summary>근거 메모 전체 보기</summary><div class="kr-theme-memo-full">' + escHtml(catalyst) + '</div></details>' : '') : '';
 
     // 카드 HTML 조립
     html += '<div class="kr-theme-card" data-heat="' + heat + '" data-theme-id="' + tid + '">' +
@@ -20040,9 +20088,9 @@ function renderKrThemeCardsFromMap() {
       '</div>' +
       '<div class="kr-theme-tickers">' + pillsHtml + '</div>' +
       '<div class="kr-theme-stat" data-theme-stat="' + tid + '">' +
-        '<span>일간 수익률 <b style="color:' + (avg >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + (ws > 0 ? ((avg >= 0 ? '+' : '') + avg.toFixed(2) + '%') : '—') + '</b></span>' +
+        (avg == null ? '<span><b style="color:var(--text-muted);">시세 미수신 · 구성 비중만 표시</b></span>' : '<span>일간 수익률 <b style="color:' + (avg >= 0 ? 'var(--data-green)' : 'var(--data-red)') + ';">' + (avg >= 0 ? '+' : '') + avg.toFixed(2) + '%</b></span>') +
       '</div>' +
-      '<div class="kr-theme-catalyst">' + catalyst + '</div>' +
+      catalystHtml +
     '</div>';
   });
 
@@ -20063,7 +20111,7 @@ function renderKrThemeCardsFromMap() {
   cards.forEach(function(card) {
     var themeId = card.getAttribute('data-theme-id');
     card.addEventListener('click', function(e) {
-      if (e.target.closest('.kr-ticker-pill')) return;
+      if (e.target.closest('.kr-ticker-pill') || e.target.closest('.kr-theme-card-more')) return;
       if (typeof showKrThemeDetail === 'function') showKrThemeDetail(themeId);
     });
   });
@@ -20315,16 +20363,30 @@ async function _aioReadKrJsonResponse(r, label) {
 // Sell은 0으로 둬 기존 'Buy - Sell' 계산식을 그대로 재사용(다운스트림 포맷팅/코멘트 로직 무변경).
 function _aioAdaptKrTrendResponse(raw) {
   if (!raw) return null;
-  var num = function(v) { var n = Number(v); return isFinite(n) ? n : 0; };
+  var num = function(v) {
+    if (v == null || v === '') return null;
+    var n = Number(String(v).replace(/[,+\s]/g, ''));
+    return isFinite(n) ? n : null;
+  };
+  var foreign = num(raw.foreignValue);
+  var institution = num(raw.institutionalValue);
+  var individual = num(raw.personalValue);
+  if (foreign == null && institution == null && individual == null) return null;
   return {
-    foreignBuy: num(raw.foreignValue), foreignSell: 0,
-    institutionBuy: num(raw.institutionalValue), institutionSell: 0,
-    individualBuy: num(raw.personalValue), individualSell: 0,
+    foreignBuy: foreign, foreignSell: 0,
+    institutionBuy: institution, institutionSell: 0,
+    individualBuy: individual, individualSell: 0,
     bizdate: raw.bizdate || null
   };
 }
 
 async function fetchKrSupplyData() {
+  window._krSupplyFetchState = window._krSupplyFetchState || { inFlight: false, lastAttempt: 0, ok: false };
+  var _supplyState = window._krSupplyFetchState;
+  if (_supplyState.inFlight) return;
+  if (Date.now() - _supplyState.lastAttempt < 10 * 60 * 1000) return;
+  _supplyState.inFlight = true;
+  _supplyState.lastAttempt = Date.now();
   try {
     // v52.42 (P657/EF-18): 실측(curl) 결과 기존 /investorTrend 경로는 Naver 서버에서 404(프록시/차단이
     // 아니라 경로 자체가 없음) — 개별종목 /api/stock/{code}/trend와 동일 패턴인 /api/index/{시장}/trend가
@@ -20365,6 +20427,7 @@ async function fetchKrSupplyData() {
     } catch(e) { _aioLog('warn', 'fetch', 'KR KOSDAQ 수급 fetch 실패 — 프록시 차단 가능: ' + e.message); }
 
     if (kospiData || kosdaqData) {
+      _supplyState.ok = true;
       updateKrSupplyDOM(
         kospiData || null,
         kosdaqData || null,
@@ -20376,35 +20439,24 @@ async function fetchKrSupplyData() {
     }
 
     _aioLog('warn', 'fetch', 'KR 프록시 차단으로 수급 데이터 수집 실패 — 폴백 데이터 사용 중');
+    _supplyState.ok = false;
     _showKrSupplyFailureState('Naver index trend 수신 실패 — 프록시 차단 또는 HTML 응답');
     _renderKrWeeklySupplyFallback('KR index trend unavailable');
   } catch(e) {
+    _supplyState.ok = false;
     _aioLog('warn', 'fetch', 'KR 프록시 차단으로 수급 데이터 수집 실패 — 폴백 데이터 사용 중: ' + e.message);
     _showKrSupplyFailureState(e && e.message || 'KR supply fetch failed');
     _renderKrWeeklySupplyFallback(e && e.message || 'KR supply fetch failed');
-  }
+  } finally { _supplyState.inFlight = false; }
   _ensureKrSupplyAnalysisResolved('현재 수급 데이터를 불러오지 못해 정적 스냅샷을 표시합니다.');
 }
 
 // v35.5: 수급 데이터 폴백 안내 표시
 function _showKrSupplyFallbackNotice() {
-  var targets = ['kr-home-kospi-supply', 'kr-supply-kospi-flow', 'kr-supply-kosdaq-flow'];
-  targets.forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    var existing = el.querySelector('.kr-supply-fallback-notice');
-    if (existing) return; // 이미 표시됨
-    var notice = document.createElement('div');
-    notice.className = 'kr-supply-fallback-notice';
-    notice.style.cssText = 'padding:6px 8px;margin-top:6px;background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);border-radius:4px;font-size:11px;color:var(--yellow);';
-    notice.textContent = '프록시 차단으로 수급 데이터 수집 실패 — 아래는 폴백 데이터입니다. AI 채팅에서 최신 수급을 질문하세요.';
-    el.appendChild(notice);
-  });
-  // v38.3: 분석 텍스트 "로딩 중..." 소거 — 실패 시에도 안내 표시
+  document.querySelectorAll('.kr-supply-fallback-notice').forEach(function(el) { el.remove(); });
+  // 실패 설명은 분석 영역 한 곳만 소유한다. 각 표에 같은 경고를 반복하지 않는다.
   var analysisEl = document.getElementById('kr-supply-analysis-text');
-  if (analysisEl && analysisEl.textContent.indexOf('로딩') !== -1) {
-    analysisEl.innerHTML = '현재 수급 데이터를 불러오지 못했습니다. 아래 스냅샷은 정적 데이터입니다.';
-  }
+  if (analysisEl) analysisEl.innerHTML = '<b style="color:var(--text-primary);">수급 원천 미수신</b> · 아래 값은 정적 스냅샷이며 현재 판단에는 사용하지 않습니다. 최신 값은 Naver 투자자별 매매동향에서 확인하세요.';
 }
 
 function _showKrSupplyFailureState(reason) {
@@ -20417,8 +20469,11 @@ function _showKrSupplyFailureState(reason) {
   // data-date-ref="kr-last-basis"(항상 "마지막 거래일"을 계산해 채움)라 실패 상태와 무관하게 확정 날짜처럼
   // 보였다 — 바로 옆 폴백 경고와 동시에 보이면 "실패인지 N/D 확정치인지" 판단 불가(실측 재현). 실패 시
   // 이 제목의 날짜 부분만 정직하게 대체(다른 화면의 kr-last-basis 사용처는 건드리지 않음).
-  var titleDateEl = document.querySelector('#kr-home-kospi-supply .kr-supply-title [data-date-ref="kr-last-basis"]');
-  if (titleDateEl) { titleDateEl.textContent = '폴백 데이터'; titleDateEl.removeAttribute('data-date-ref'); titleDateEl.style.color = 'var(--data-amber)'; }
+  document.querySelectorAll('#page-kr-home .kr-supply-title [data-date-ref="kr-last-basis"]').forEach(function(titleDateEl) {
+    titleDateEl.textContent = '폴백 데이터';
+    titleDateEl.removeAttribute('data-date-ref');
+    titleDateEl.style.color = 'var(--data-amber)';
+  });
   var analysisEl = document.getElementById('kr-supply-analysis-text');
   if (analysisEl) {
     analysisEl.innerHTML = '수급 데이터 수신 실패 — <span style="color:var(--text-muted);">프록시 차단 또는 Naver HTML 응답 가능성. 아래 값은 참고 폴백이며 실시간 판단 전 원천 확인이 필요합니다.</span>';
@@ -20428,6 +20483,39 @@ function _showKrSupplyFailureState(reason) {
     bannerEl.innerHTML = '수급 데이터 수신 실패 · <span style="color:var(--text-muted);">' + escHtml(reason) + '</span>';
     bannerEl.style.color = 'var(--data-amber)';
   }
+  // 미수신을 0원/매도 우위로 해석하지 않는다. 정적 숫자는 의사결정 화면에서 제거한다.
+  [
+    'kr-home-kospi-foreign','kr-home-kospi-inst','kr-home-kospi-retail',
+    'kr-home-kosdaq-foreign','kr-home-kosdaq-inst','kr-home-kosdaq-retail',
+    'kr-supply-kospi-foreign','kr-supply-kospi-inst','kr-supply-kospi-retail',
+    'kr-supply-kosdaq-foreign','kr-supply-kosdaq-inst','kr-supply-kosdaq-retail'
+  ].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = '—';
+    el.style.color = 'var(--text-muted)';
+    var row = el.closest('.kr-investor-row');
+    if (!row) return;
+    var bar = row.querySelector('.kr-bar-fill');
+    if (bar) {
+      bar.style.width = '0%';
+      bar.classList.remove('kr-bar-buy', 'kr-bar-sell');
+      bar.setAttribute('aria-label', '수급 미수신');
+      bar.title = '수급 미수신';
+    }
+    var direction = row.querySelector('.kr-investor-amt');
+    if (direction) {
+      direction.textContent = '미수신';
+      direction.style.color = 'var(--text-muted)';
+    }
+  });
+  var streakEl = document.getElementById('kr-health-foreign-streak');
+  if (streakEl) { streakEl.textContent = '수급 미수신'; streakEl.style.color = 'var(--text-muted)'; }
+  // 라이브 실패 화면 아래에 정적 기관/프로그램 수치가 현재값처럼 남지 않게 표 자체를 상태행으로 교체한다.
+  var instTable = document.getElementById('kr-supply-inst-detail');
+  if (instTable) instTable.innerHTML = '<tr><th>기관 유형</th><th>순매수</th><th>비고</th></tr><tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:14px;">기관 세부 수급 미수신 · 원천에서 확인</td></tr>';
+  var programTable = document.getElementById('kr-supply-program-table');
+  if (programTable) programTable.innerHTML = '<tr><th>구분</th><th>매수</th><th>매도</th><th>순매수</th></tr><tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:14px;">프로그램 매매 미수신 · 원천에서 확인</td></tr>';
 }
 
 function _ensureKrSupplyAnalysisResolved(reason) {
@@ -20733,6 +20821,19 @@ var _krInvestorCache = { data: null, ts: 0 };
 var _KR_INVESTOR_CACHE_TTL = 600000; // 10분 캐시
 
 async function fetchKrInvestorTop10() {
+  window._krInvestorFetchState = window._krInvestorFetchState || { inFlight: false, lastAttempt: 0 };
+  var _investorState = window._krInvestorFetchState;
+  if (_krInvestorCache.data && Date.now() - _krInvestorCache.ts < _KR_INVESTOR_CACHE_TTL) {
+    _renderInvestorTop10(_krInvestorCache.data);
+    return;
+  }
+  if (_investorState.inFlight) return;
+  if (Date.now() - _investorState.lastAttempt < _KR_INVESTOR_CACHE_TTL) {
+    _renderInvestorFallback('10분 재시도 대기 중');
+    return;
+  }
+  _investorState.inFlight = true;
+  _investorState.lastAttempt = Date.now();
   try {
     // 캐시 유효하면 재사용
     if (_krInvestorCache.data && Date.now() - _krInvestorCache.ts < _KR_INVESTOR_CACHE_TTL) {
@@ -20740,7 +20841,12 @@ async function fetchKrInvestorTop10() {
       return;
     }
 
-    // KR_STOCK_DB에서 시총 상위 100종목 추출
+    window._krInvestorCircuit = window._krInvestorCircuit || { failUntil: 0, attempts: 0 };
+    if (Date.now() < window._krInvestorCircuit.failUntil) {
+      _renderInvestorFallback('브라우저 요청 제한 중');
+      return;
+    }
+    // 브라우저에서 100+30건을 연쇄 호출하던 경로를 상위 24건으로 제한한다.
     var codes = Object.keys(KR_STOCK_DB);
     var sorted = codes.map(function(c) {
       var d = KR_STOCK_DB[c];
@@ -20750,16 +20856,16 @@ async function fetchKrInvestorTop10() {
       else if (m.indexOf('억') !== -1) val *= 1e8;
       return { code: c, mcapVal: val, name: d.name };
     }).sort(function(a, b) { return b.mcapVal - a.mcapVal; });
-    var top100 = sorted.slice(0, 100);
+    var top100 = sorted.slice(0, 24);
 
-    // 5개씩 20배치 병렬 fetch (rate limit 방어)
+    // 6개씩 4배치. 알려진 CORS 실패 뒤에는 세션 회로를 열어 요청 폭주를 막는다.
     var results = [];
-    var BATCH = 5;
+    var BATCH = 6;
     for (var i = 0; i < top100.length; i += BATCH) {
       var batch = top100.slice(i, i + BATCH);
       var promises = batch.map(function(s) {
         var url = 'https://m.stock.naver.com/api/stock/' + s.code + '/trend';
-        return fetchWithTimeout(url, { headers: { 'Accept': 'application/json' } }, 6000)
+        return fetchWithTimeout(url, { headers: { 'Accept': 'application/json' } }, 2500)
           .then(function(r) { return r && r.ok ? r.json() : null; })
           .catch(function() { return null; });
       });
@@ -20789,39 +20895,9 @@ async function fetchKrInvestorTop10() {
     }
 
     if (results.length === 0) {
-      _aioLog('warn', 'fetch', 'KR 투자자 TOP10: 유효 데이터 없음 — 프록시 폴백 시도');
-      // 프록시 경유 폴백 (상위 30종목만)
-      var top30 = top100.slice(0, 30);
-      for (var pi = 0; pi < top30.length; pi += BATCH) {
-        var pb = top30.slice(pi, pi + BATCH);
-        var pp = pb.map(function(s) {
-          var url = 'https://m.stock.naver.com/api/stock/' + s.code + '/trend';
-          return fetchViaProxy(url, 8000)
-            .then(function(r) { return r && r.ok ? r.json() : null; })
-            .catch(function() { return null; });
-        });
-        var pbr = await Promise.allSettled(pp);
-        pbr.forEach(function(r, idx) {
-          var item = pb[idx];
-          var d = r.status === 'fulfilled' ? r.value : null;
-          if (!d) return;
-          // allorigins JSON 래핑 해제
-          if (d.contents) { try { d = JSON.parse(d.contents); } catch(e) { return; } }
-          if (!Array.isArray(d) || d.length === 0) return;
-          var today = d[0];
-          var fQuant = _parseKrNum(today.foreignerPureBuyQuant);
-          var oQuant = _parseKrNum(today.organPureBuyQuant);
-          var price = _parseKrNum(today.closePrice);
-          if (price <= 0) return;
-          results.push({
-            code: item.code, name: item.name,
-            fQuant: fQuant, oQuant: oQuant,
-            fAmt: fQuant * price, oAmt: oQuant * price,
-            price: price, fHold: today.foreignerHoldRatio || '—',
-            bizdate: today.bizdate || ''
-          });
-        });
-      }
+      // 종목 24건 뒤 공용 프록시를 종목별로 재순회하면 실패 요청이 5배 증폭된다.
+      // 종목 수급은 직접 CORS 성공만 채택하고, 실패 시 서버 캐시 도입 전까지 명시적 폴백으로 종료한다.
+      _aioLog('warn', 'fetch', 'KR 투자자 TOP10: 유효 데이터 없음 — 종목별 공용 프록시 연쇄 호출 생략');
     }
 
     if (results.length > 0) {
@@ -20830,12 +20906,14 @@ async function fetchKrInvestorTop10() {
       console.log('[KR] 투자자 TOP10 완료 (' + results.length + '종목 수집, 기준일: ' + (results[0].bizdate || '?') + ')');
     } else {
       _aioLog('warn', 'fetch', 'KR 투자자 TOP10: 데이터 수집 실패');
+      window._krInvestorCircuit.failUntil = Date.now() + 10 * 60 * 1000;
+      window._krInvestorCircuit.attempts += top100.length;
       _renderInvestorFallback();
     }
   } catch(e) {
     _aioLog('warn', 'fetch', 'KR fetchKrInvestorTop10 실패: ' + e.message);
     _renderInvestorFallback();
-  }
+  } finally { _investorState.inFlight = false; }
 }
 
 // v48.57: kr-investor 3개 테이블 fallback (API 실패 시 "로딩 중..." 영구 잔존 방지)
@@ -24337,13 +24415,13 @@ function refreshSignalDashboard() {
   // Decision — 5-tier system
   var decision, decColor, decBg, decSub;
   if (total >= 75) {
-    decision = '매수 우호 — 리스크 관리 후 진입 검토';
+    decision = '환경 우호 — 종목별 근거 별도 확인';
     decColor = '#22754c'; decBg = 'rgba(34,117,76,0.15)';
-    decSub = '종합 지표 매우 양호. 풀 포지션보다 분할 진입과 무효화 가격을 먼저 확인.';
+    decSub = '현재 시장 입력 조합이 우호적입니다. 점수는 예측 신호가 아니며 종목별 거래량·손익비·무효화 가격을 별도로 확인하세요.';
   } else if (total >= 60) {
-    decision = '선별 매수 — 조건부 진입 가능';
+    decision = '환경 양호 — 단독 진입 신호 아님';
     decColor = 'var(--data-green)'; decBg = 'rgba(34,117,76,0.15)';
-    decSub = '거래 환경 양호. 규모 60~80% 이내, ATR 손절과 이벤트 리스크 확인.';
+    decSub = '현재 시장 여건은 양호하지만 통계적 예측력은 아직 검증되지 않았습니다. 종목 근거와 이벤트 리스크를 함께 확인하세요.';
   } else if (total >= 45) {
     decision = '중립 — 관망 우선';
     decColor = 'var(--data-cyan)'; decBg = 'rgba(33,29,22,0.15)';
@@ -24463,10 +24541,10 @@ function refreshSignalDashboard() {
     }
     if (phaseEl) {
       var phaseClass77, phaseText77;
-      if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '▲ SEPA Zone'; }
-      else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● Buy Ready'; }
-      else if (total >= 45) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ Buy Alert'; }
-      else { phaseClass77 = 'mv-phase-avoid'; phaseText77 = 'Avoid'; }
+      if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '● 환경 우호'; }
+      else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● 환경 양호'; }
+      else if (total >= 45) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 중립'; }
+      else { phaseClass77 = 'mv-phase-avoid'; phaseText77 = '주의'; }
       phaseEl.innerHTML = '<span class="mv-phase-lbl ' + phaseClass77 + '">' + phaseText77 + '</span>';
     }
   } catch(_) {}
@@ -29140,7 +29218,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=52.89" defer></script>
+<script src="./js/aio-glossary.js?v=52.92" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -30427,12 +30505,14 @@ async function analyzeTickerDeep(ticker) {
     var _mScore = (typeof computeTradingScore === 'function') ? computeTradingScore('swing') : null;
     marketScore = _mScore && typeof _mScore.total === 'number' && isFinite(_mScore.total) ? _mScore.total : null;
     marketBand = marketScore == null ? '시장 점수 미확인' :
-      marketScore >= 75 ? '매수 우호' :
-      marketScore >= 60 ? '선별 매수' :
+      marketScore >= 75 ? '환경 우호' :
+      marketScore >= 60 ? '환경 양호' :
       marketScore >= 45 ? '중립' :
       marketScore >= 30 ? '주의' : '위험';
   } catch(_) {}
-  var marketAllowsEntry = marketScore == null ? true : marketScore >= 60;
+  // 시장 환경 점수는 설명용 필터이며 예측/매수 허가가 아니다. 미확인은 허용으로 승격하지 않는다.
+  var marketAllowsEntry = marketScore != null && marketScore >= 60;
+  var marketUnavailable = marketScore == null;
   var marketCaution = marketScore != null && marketScore < 60;
 
   // Color scheme
@@ -30621,13 +30701,17 @@ async function analyzeTickerDeep(ticker) {
   if (instEngine.score >= 78 && instEngine.ma.fullBull && stageData.stage === 2) {
     verdict = marketAllowsEntry
       ? '미너비니 핵심 조건(상승 스테이지, 단기·장기 이평 정배열, 매물대 부담 제한)이 가장 깨끗한 구간입니다. 추격 매수보다 피벗·거래량·무효화 가격을 정해 분할 접근하세요.'
-      : '종목 셋업은 기관급 후보지만 시장 점수가 낮습니다. 시장 회복과 돌파 유지가 확인될 때까지 신규 비중은 낮게 유지하세요.';
+      : marketUnavailable
+        ? '종목 셋업은 기관급 후보지만 시장 환경 입력이 미확인입니다. 점수가 복구되고 돌파 유지·거래량이 확인될 때까지 신규 비중 판단을 보류하세요.'
+        : '종목 셋업은 기관급 후보지만 시장 점수가 낮습니다. 시장 회복과 돌파 유지가 확인될 때까지 신규 비중은 낮게 유지하세요.';
   } else if (instEngine.volumeZones && instEngine.volumeZones.nearestResistance && Math.abs(instEngine.volumeZones.nearestResistance.distancePct) <= 3) {
     verdict = '상단 수평 매물대가 가까워 단기 추격 효율이 낮습니다. 매물벽 소화, 거래량 동반 돌파, 돌파 후 지지 전환을 확인하는 편이 낫습니다.';
   } else if (stageData.stage === 2 && trendData.alignment > 80 && entryData.grade.charAt(0) === 'A') {
     verdict = marketAllowsEntry
       ? '상승 추세와 진입 품질이 모두 양호합니다. 다만 즉시 추격보다 분할 진입, ATR 손절, 이벤트 리스크 확인이 우선입니다.'
-      : '종목 셋업은 강하지만 현재 시장 점수가 낮아 신규 진입은 보류하고 돌파 유지·거래량·시장 회복을 함께 확인하세요.';
+      : marketUnavailable
+        ? '종목 셋업은 강하지만 시장 환경 입력이 미확인입니다. 점수가 복구될 때까지 신규 진입 판단을 보류하고 돌파 유지·거래량을 확인하세요.'
+        : '종목 셋업은 강하지만 현재 시장 점수가 낮아 신규 진입은 보류하고 돌파 유지·거래량·시장 회복을 함께 확인하세요.';
   } else if (stageData.stage === 2 && trendData.alignment > 50) {
     verdict = '상승 추세이나 정렬도가 약합니다. 조정 후 재진입 후보로 관리하고, 20/50일선 회복과 거래량을 확인하세요.';
   } else if (stageData.stage === 1) {
@@ -32085,7 +32169,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div><!-- /app -->
 
 <!-- ai-panel: .app 외부 (body 직계 자식) — position:fixed가 overflow:hidden 조상 영향 받지 않도록 (v42.2) -->
-<div id="ai-panel" role="complementary" aria-label="AI 베타 교육·리서치 보조 채팅 패널" style="transform:translateX(100%)" aria-hidden="true">
+<div id="ai-panel" role="complementary" aria-label="AI 베타 교육·리서치 보조 채팅 패널" style="transform:translateX(100%)" aria-hidden="true" inert>
   <div class="ai-ph">
     <span class="ai-ph-title" id="ai-panel-title">AI 베타</span>
     <span class="ai-ph-badge" id="ai-panel-badge">BETA · 교육/리서치 보조</span>
@@ -32223,10 +32307,15 @@ function toggleAIPanel() {
     p.style.transform = 'translateX(100%)';
     p.style.boxShadow = '';
     p.classList.remove('open');
+    p.inert = true;
+    p.setAttribute('inert', '');
     if (app && window.innerWidth > 768) { app.style.maxWidth = ''; app.style.width = ''; }
     p.setAttribute('aria-hidden', 'true');
     if (btn) { btn.classList.remove('active'); btn.textContent = 'AI 베타'; btn.setAttribute('aria-expanded', 'false'); }
+    if (btn && typeof btn.focus === 'function') btn.focus();
   } else {
+    p.inert = false;
+    p.removeAttribute('inert');
     p.style.transform = 'translateX(0)';
     p.style.boxShadow = '-8px 0 32px rgba(0,0,0,0.4)';
     p.classList.add('open');

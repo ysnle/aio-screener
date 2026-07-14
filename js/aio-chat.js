@@ -1382,7 +1382,7 @@ const CHAT_CONTEXTS = {
         '【진입 체크리스트 5항목】\n' +
         '✓ VIX <30 (패닉 아닌 환경) ✓ 50MA 이격률 4x ATR 미만 (과매수 아님) ✓ 일중 저점 ATR 60% 미만 (스프링 해방 전) ✓ 연준 이벤트 48h 외 ✓ 직전 3일 대비 거래량 증가 (RVOL)\n\n' +
         '【응답 원칙】\n' +
-        '스코어 해석 → "지금 매매해야 하는가?" 명확 답변. 75+ 매수 우호(분할·무효화 우선) / 60~75 선별 매수 / 45~60 중립 / 30~45 주의 / 30↓ 위험.\n' +
+        '스코어는 예측/매수 신호가 아닌 현재 시장 환경 상태 요약으로만 해석. 75+ 환경 우호 / 60~74 환경 양호 / 45~59 중립 / 30~44 주의 / 30↓ 위험. 종목별 근거와 무효화 조건을 별도 확인.\n' +
         '바닥 판별 질문 시 → 미너비니 3단계 중 현재 어디인지 명시. "바닥이냐"에 대한 답은 3단계 완성 여부로 판단.\n' +
         '차트 분석(기술 타이밍)·매크로(거시 환경)·투자 심리(공포/탐욕) 페이지 연결.\n\n' +
 
@@ -2700,9 +2700,10 @@ async function _fetchTickerTrend(ticker) {
 // ─────────────────────────────────────────────────────────────────
 function _withTimeout(promise, ms, fallback) {
   if (!promise || typeof promise.then !== 'function') return Promise.resolve(fallback);
+  var waitMs = ms == null ? 2500 : Math.max(0, Number(ms) || 0);
   var to;
   var timeoutPromise = new Promise(function(resolve) {
-    to = setTimeout(function() { resolve(fallback); }, ms || 2500);
+    to = setTimeout(function() { resolve(fallback); }, waitMs);
   });
   return Promise.race([
     promise.then(function(v) { clearTimeout(to); return v; }).catch(function() { clearTimeout(to); return fallback; }),
@@ -7124,48 +7125,45 @@ async function fundamentalSearch() {
 
   // 수집 결과 저장용
   var collected = { ticker: ticker, sources: [], ts: new Date().toISOString() };
+  var _fundDeadline = Date.now() + 8000;
+  function _fundRemaining(cap) { return Math.max(0, Math.min(cap, _fundDeadline - Date.now())); }
   function updateProgress(msg) { if (progressEl) progressEl.innerHTML += '<div>' + escHtml(msg) + '</div>'; }
   function updateFail(msg) { if (progressEl) progressEl.innerHTML += '<div>' + escHtml(msg) + '</div>'; }
 
-  // ─── 1. Yahoo Finance 실시간 시세 ───
-  if (progressEl) progressEl.innerHTML = '<div>⏳ Yahoo Finance 실시간 시세 조회 중...</div>';
-  try {
-    var liveData = await dynamicTickerLookup(ticker);
-    if (liveData && liveData.price) {
-      collected.price = liveData.price;
-      collected.pct = liveData.pct != null ? liveData.pct : null;
-      collected.name = liveData.name || ticker;
-      collected.volume = liveData.volume;
-      collected.sources.push('Yahoo Finance (실시간 시세)');
-      updateProgress('실시간 시세: $' + liveData.price.toFixed(2) + ' (' + _fmtPct(liveData.pct) + ')');
-    } else { updateFail('Yahoo Finance 시세 조회 실패 — 폴백 데이터 사용'); }
-  } catch(e) { updateFail('Yahoo Finance 오류: ' + e.message); }
-
-  // ─── 2. SEC EDGAR 공시 + XBRL 재무데이터 ───
-  updateProgress('SEC EDGAR 공시 조회 중...');
-  try {
-    var secFilings = await fetchSECFilings(ticker);
-    if (secFilings) {
-      collected.sec = secFilings;
-      collected.sources.push('SEC EDGAR (공시 정보)');
-      updateProgress('SEC 공시: ' + (secFilings.name || ticker) + ' | CIK: ' + (secFilings.cik || 'N/A') + ' | SIC: ' + (secFilings.sicDescription || 'N/A'));
-      if (!collected.name || collected.name === ticker) collected.name = secFilings.name || ticker;
+  // ─── 1~2. Yahoo + SEC를 병렬·유한 시간으로 수집 ───
+  // 한 소스의 CORS/프록시 체인이 멈춰도 확보된 데이터로 8초 안에 결과 화면을 완성한다.
+  if (progressEl) progressEl.innerHTML = '<div>Yahoo Finance 시세 · SEC 공시/재무 병렬 조회 중...</div>';
+  var _primaryResults = await Promise.all([
+    _withTimeout(dynamicTickerLookup(ticker), _fundRemaining(5200), null),
+    _withTimeout(fetchSECFilings(ticker), _fundRemaining(5200), null),
+    _withTimeout(fetchSECFinancials(ticker), _fundRemaining(5200), null)
+  ]);
+  var liveData = _primaryResults[0];
+  var secFilings = _primaryResults[1];
+  var secFin = _primaryResults[2];
+  if (liveData && liveData.price) {
+    collected.price = liveData.price;
+    collected.pct = liveData.pct != null ? liveData.pct : null;
+    collected.name = liveData.name || ticker;
+    collected.volume = liveData.volume;
+    collected.sources.push('Yahoo Finance (실시간 시세)');
+    updateProgress('실시간 시세: $' + liveData.price.toFixed(2) + ' (' + _fmtPct(liveData.pct) + ')');
+  } else { updateFail('Yahoo Finance 응답 없음 — 확보된 데이터로 계속'); }
+  if (secFilings) {
+    collected.sec = secFilings;
+    collected.sources.push('SEC EDGAR (공시 정보)');
+    updateProgress('SEC 공시: ' + (secFilings.name || ticker) + ' | CIK: ' + (secFilings.cik || 'N/A') + ' | SIC: ' + (secFilings.sicDescription || 'N/A'));
+    if (!collected.name || collected.name === ticker) collected.name = secFilings.name || ticker;
+  } else { updateFail('SEC 공시 시간 제한 — 부분 데이터로 분석'); }
+  if (secFin) {
+    var parsed = _parseSECFinancials(secFin);
+    if (parsed) {
+      collected.secFin = parsed;
+      collected.sources.push('SEC EDGAR XBRL (재무제표 원본)');
+      var revCount = (parsed.revenue || []).length;
+      updateProgress('XBRL 재무데이터: ' + revCount + '개년 재무 파싱 완료');
     }
-  } catch(e) { updateFail('SEC EDGAR 공시 오류'); }
-
-  updateProgress('SEC EDGAR XBRL 재무데이터 파싱 중...');
-  try {
-    var secFin = await fetchSECFinancials(ticker);
-    if (secFin) {
-      var parsed = _parseSECFinancials(secFin);
-      if (parsed) {
-        collected.secFin = parsed;
-        collected.sources.push('SEC EDGAR XBRL (재무제표 원본)');
-        var revCount = (parsed.revenue || []).length;
-        updateProgress('XBRL 재무데이터: ' + revCount + '개년 매출 + 순이익 + 자산 + EPS + 현금흐름 파싱 완료');
-      }
-    }
-  } catch(e) { updateFail('SEC XBRL 파싱 오류: ' + e.message); }
+  } else { updateFail('SEC XBRL 시간 제한 — 재무 원문 없이 계속'); }
 
   // v48.5: SEC Frames 섹터 순위 prefetch — 최신 완료 분기의 Revenues/NetIncomeLoss 백분위 계산
   // 전 US-GAAP 보고 기업 대비 상대적 위치를 AI 프롬프트 품질 향상에 활용
@@ -7180,8 +7178,12 @@ async function fundamentalSearch() {
       if (_q <= 0) { _q = 4; _year -= 1; }
       var _period = 'CY' + _year + 'Q' + _q + 'I';
       updateProgress('SEC Frames 섹터 순위 조회 중 (' + _period + ')...');
-      var _frameRev = await fetchSECFrame('Revenues', _period);
-      var _frameNI = await fetchSECFrame('NetIncomeLoss', _period);
+      var _frameResults = await _withTimeout(Promise.all([
+        fetchSECFrame('Revenues', _period),
+        fetchSECFrame('NetIncomeLoss', _period)
+      ]), _fundRemaining(1400), [null, null]);
+      var _frameRev = _frameResults[0];
+      var _frameNI = _frameResults[1];
       var _rankSummary = {};
       if (_frameRev) {
         var revRank = _secFrameRank(_frameRev, _cik);
@@ -7236,9 +7238,11 @@ async function fundamentalSearch() {
     var _fmpChunks = [];
     for (var _fi = 0; _fi < fmpJobs.length; _fi += 6) _fmpChunks.push(fmpJobs.slice(_fi, _fi + 6));
     for (var _fc = 0; _fc < _fmpChunks.length; _fc++) {
-      await Promise.allSettled(_fmpChunks[_fc].map(function(j){
+      var _fmpRemain = _fundRemaining(1400);
+      if (_fmpRemain < 250) { updateFail('FMP 추가 데이터는 시간 예산 초과로 생략'); break; }
+      await _withTimeout(Promise.allSettled(_fmpChunks[_fc].map(function(j){
         return _fmpFetch(j.url).then(j.handler).catch(function(e){ _aioLog('warn', 'fetch', 'FMP ' + j.url + ' error: ' + e.message); });
-      }));
+      })), _fmpRemain, []);
     }
   } else {
     updateFail('FMP API 키 미설정 — SEC EDGAR + Finnhub 무료 데이터로 분석 진행');
@@ -7253,14 +7257,16 @@ async function fundamentalSearch() {
   if (_finnhubKey) {
     updateProgress('Finnhub 무료 보조 데이터 조회 중...');
     try {
+      var _fhRemain = _fundRemaining(1200);
+      if (_fhRemain < 250) throw new Error('전체 분석 시간 예산 초과');
       var _today = new Date().toISOString().slice(0,10);
       var _90d = new Date(Date.now() + 90*86400000).toISOString().slice(0,10);
-      var _fhResults = await Promise.allSettled([
+      var _fhResults = await _withTimeout(Promise.allSettled([
         fetchFinnhubMetrics(ticker),
         fetchFinnhubRecommendation(ticker),
         fetchFinnhubEarningsCalendar(_today, _90d, ticker),
         fetchFinnhubCompanyNews(ticker, 14)  // v48.13: 최근 14일 기업 뉴스
-      ]);
+      ]), _fhRemain, []);
       if (_fhResults[0].status === 'fulfilled' && _fhResults[0].value) {
         collected.finnhubMetrics = _fhResults[0].value;
         collected.sources.push('Finnhub (무료 밸류에이션)');
@@ -7294,8 +7300,17 @@ async function fundamentalSearch() {
 
   // ─── 데이터 수집 완료 ───
   if (loadingEl) {
-    var loadHtml = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">데이터 수집 완료 — ' + collected.sources.length + '개 소스</div>';
-    loadHtml += '<div style="font-size:11px;color:var(--text-muted);">' + collected.sources.join(' · ') + '</div>';
+    var _progressHtml = progressEl ? progressEl.innerHTML : '';
+    var loadHtml = '';
+    if (collected.sources.length) {
+      loadHtml = '<div style="font-size:11px;font-weight:700;color:#3ddba5;margin-bottom:6px;">데이터 수집 완료 — ' + collected.sources.length + '개 소스</div>';
+      loadHtml += '<div style="font-size:11px;color:var(--text-muted);">' + collected.sources.join(' · ') + '</div>';
+      if (_progressHtml) loadHtml += '<details style="margin-top:8px;"><summary style="font-size:10px;color:var(--text-muted);cursor:pointer;">수집 과정 보기</summary><div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;margin-top:5px;">' + _progressHtml + '</div></details>';
+    } else {
+      loadHtml = '<div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:6px;">외부 데이터 수신 실패 — 빈 보고서로 단정하지 않습니다</div>';
+      loadHtml += '<div style="font-size:11px;color:var(--text-secondary);line-height:1.65;margin-bottom:6px;">네트워크·공급자 응답을 확인한 뒤 다시 시도하세요. 확보된 데이터가 없어 현재 분석은 참고용으로도 생성하지 않습니다.</div>';
+      loadHtml += '<div id="fund-rpt-progress" style="font-size:10px;color:var(--text-secondary);line-height:1.8;">' + _progressHtml + '</div>';
+    }
     loadingEl.innerHTML = loadHtml;
   }
 

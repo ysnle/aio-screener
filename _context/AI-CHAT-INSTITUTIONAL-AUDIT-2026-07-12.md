@@ -1,10 +1,10 @@
 ---
-verified_by: Codex (source review + v52.67 offline Playwright route/context re-audit + existing CI gates)
-last_verified: 2026-07-13
-confidence: high for repository/runtime structure; low for live model answer quality because paid live sampling was not executed
+verified_by: Codex (source review + v52.86 local gates + GitHub Pages live invariant + operator-provided Worker smoke evidence)
+last_verified: 2026-07-14
+confidence: high for repository/runtime structure and the recorded Worker smoke result; low for live model quality, provider rights terms, and legal approval because those require separate evidence
 target_version: version.json
-audit_baseline: v52.67-local
-status: execution-handoff; design complete, implementation and live/model certification incomplete
+audit_baseline: v52.86
+status: execution-handoff; local implementation and Worker smoke verified; provider/data rights, retention/training/region, and legal/operator approval incomplete
 ---
 
 # AIO AI 채팅 기관급 전수 진단 및 실행 핸드오프
@@ -942,8 +942,50 @@ Rollback:
 - WP-AI15/16: `VERIFIED_LOCAL` — v52.84, T991~T998, headless `1059/1059 PASS`.
 - WP-AI17/18: `VERIFIED_LOCAL` — v52.85, T999~T1006, headless `1067/1067 PASS`.
 - WP-AI19/20: `VERIFIED_LOCAL` — v52.86, T1007~T1014, headless `1075/1075 PASS`.
-- WP-AI11~20 local packets are complete. Remaining gates are live model/red-team/legal/operator/assistive-tech/multi-user certification, Pages/Worker deployment, and public readiness; these remain separate from local implementation verification.
-- 2026-07-14 final local/live probe: FULL_INIT viewport matrix passed `88/88` (22 routes × 4 viewports, overflow 0px, JS errors 0), and `ci-live-invariant-check.mjs` passed against the deployed site; however, the fetched public version is `v52.77` while the local verified tree is `v52.86`, so live parity is not established. `ci-second-pass-baseline.mjs` confirmed the same mismatch, and no Pages/Worker deployment was performed in this task.
+- WP-AI11~20 local packets are complete. Remaining gates are live model/red-team/legal/operator/assistive-tech/multi-user certification and public readiness; the Worker route technical smoke subgate is now separately verified live, while provider/data rights and legal approval remain open.
+- 2026-07-14 final local/live probe: FULL_INIT viewport matrix passed `88/88` (22 routes × 4 viewports, overflow 0px, JS errors 0), and `ci-live-invariant-check.mjs` passed against the deployed public site at `v52.86`. This establishes Pages parity for the recorded probe; it does not certify live model quality or provider/legal policy.
+
+### 24.1 2026-07-14 Worker live technical smoke evidence
+
+This is operator-provided evidence from the deployed Cloudflare dashboard and PowerShell response. Secret values are intentionally excluded.
+
+| Evidence | Result |
+|---|---|
+| Worker URL | `https://aio-proxy.zmfhd007.workers.dev` |
+| Active revision shown in dashboard | `a072a497` (manual deployment, 2026-07-14) |
+| `ANTHROPIC_API_KEY` | Configured as a Cloudflare Secret; value not recorded |
+| `AIO_APP_TOKEN` | Configured; value not recorded. It was displayed as plaintext in the dashboard and must be rotated with the site-side value after this smoke test |
+| `AIO_QUOTA` | Bound to KV namespace `aio-quota-prod` |
+| Request | `POST /anthropic`, `Origin: https://ysnle.github.io`, app-token header present, minimal Haiku request |
+| Response | `HTTP/1.1 200 OK`; `X-AIO-Proxy: cloudflare-worker-anthropic`; response text `AIO smoke OK` |
+| Verified by this probe | Worker route, accepted Origin, app-token gate, configured Anthropic key, upstream Anthropic call, and response pass-through |
+
+The probe does **not** close provider retention/training/region terms, upstream market-data copyright/redistribution rights, Worker log-content/retention review, jurisdictional privacy/financial-regulatory review, or an authorized legal/operator approval. It is a technical live subgate only.
+
+### 24.2 Provider/data/legal closure packet — operator input required
+
+The following are evidence anchors, not approvals. Public provider documentation is useful for the baseline, but the production account, contract, jurisdiction, and operator decision control the final status.
+
+| Item | Current evidence / public baseline | Required operator confirmation | Status |
+|---|---|---|---|
+| Anthropic retention | Anthropic states that commercial API inputs/outputs are automatically deleted within 30 days, subject to longer-retention services, agreement/ZDR, Usage Policy, law, Covered Models, and feedback exceptions. [Source](https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data) | Is this account on the standard policy, or does it have ZDR/another retention agreement? | `REVIEW_REQUIRED` |
+| Anthropic training | Anthropic states that commercial API chats/coding sessions are not used for training unless the customer joins the Development Partner Program, explicitly reports material, or opts in. [Source](https://privacy.claude.com/en/articles/7996885-how-do-you-use-personal-data-in-model-training) | Confirm the account has no such program/feedback/model-improvement opt-in. | `REVIEW_REQUIRED` |
+| Processing region | The live endpoint is a `workers.dev` Worker; no custom-domain or Regional Services evidence was recorded. Do not claim Korea-only or EEA-only processing. [Cloudflare Workers regional processing](https://developers.cloudflare.com/data-localization/how-to/workers/) | Is global/multi-region edge processing acceptable for the intended users and jurisdiction? | `REVIEW_REQUIRED` |
+| Worker logs | Cloudflare dashboard evidence shows Logs enabled with 100% sampling; the actual log fields, prompt redaction, and retention decision were not reviewed. [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/workers-logs/) | Check one recent invocation and confirm no API key, prompt, portfolio detail, or response body is retained in logs; record the chosen log retention/sampling policy. | `REVIEW_REQUIRED` |
+| Market-data rights | Live upstream market-data redistribution and sending snippets to an AI provider are not inferred from the fact that an endpoint is reachable. | Confirm the relevant Yahoo/Finnhub/RSS/other provider terms permit the intended AI processing and user-facing output. | `REVIEW_REQUIRED` |
+| Jurisdiction and approval | No jurisdiction, privacy owner, or legal approver is recorded in this audit. | Provide the operating jurisdiction(s), the responsible privacy/legal owner, approval decision, and date. | `REVIEW_REQUIRED` |
+
+User answers may be supplied as `yes/no/unknown` plus a short note. No API key, App Token, contract secret, or personal portfolio data should be pasted into this repository or sent to Codex. Until the rows above have evidence and an authorized approval, `G-AI22` and PUBLIC readiness remain blocked even though the Worker technical smoke passed.
+
+### 24.3 Operator scope received 2026-07-14
+
+- **Operating scope**: individual operator, invite-only sharing with a small number of acquaintances in Korea; no company legal/privacy team or separate approver.
+- **Provider path**: the Worker uses an Anthropic API key. “Commercial API” here means the Anthropic API/Console product as distinct from the consumer `claude.ai` application; it does not mean the operator must be a company or enterprise customer. The key is personal, so the account-specific contract/retention settings remain unverified.
+- **Retention/training**: operator does not know whether ZDR, a Development Partner Program, explicit training opt-in, or feedback exceptions apply. Keep `REVIEW_REQUIRED`; do not infer approval from the API key working.
+- **Region**: intended users are in Korea, but the deployed `workers.dev` edge is not evidenced as Korea-pinned. Keep the region claim as `operator-intended: Korea / technical processing: unverified-global` until an explicit region decision is made.
+- **Logs**: operator has not reviewed Cloudflare log fields. Source review found no application `console.log` of request bodies/prompts in `cloudflare-worker-proxy.js`; Cloudflare Observability is still enabled at 100% sampling, so the dashboard log-field/retention check remains open.
+- **Data rights**: upstream market-data and news redistribution permissions are unknown. Keep `market-data-live` at `REVIEW_REQUIRED`.
+- **Approval**: self-operated and small-scale does not by itself constitute independent privacy/legal approval. This record should remain an invite-only research beta, not an institutionally approved public financial service.
 
 ## 25. 확장 Release Gate G-AI13~22
 
@@ -960,4 +1002,4 @@ Rollback:
 | G-AI21 Non-agentic boundary | 사용자 확인 없는 외부 mutation 0 |
 | G-AI22 Rights/retention | provider/data/output 권리·보존·지역 정책 승인 및 고지 일치 |
 
-현재 G-AI1~22 중 실제 유료 모델·live Worker·실사용자·법률 승인이 필요한 항목은 **UNVERIFIED**다. 문서와 로컬 구조 감사만으로 PASS 처리할 수 없다.
+현재 G-AI1~22 중 실제 유료 모델·실사용자·법률 승인이 필요한 항목은 **UNVERIFIED**다. G-AI22의 Worker 라우트 기술 smoke subgate는 위 증거로 `VERIFIED_LIVE`지만, provider/data/output 권리·보존·학습·지역 정책과 법무 승인은 여전히 `REVIEW_REQUIRED`이며 문서와 로컬 구조 감사만으로 PASS 처리할 수 없다.

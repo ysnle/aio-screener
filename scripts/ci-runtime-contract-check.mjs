@@ -21,6 +21,9 @@ const data = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
+const glossary = read('js/aio-glossary.js');
+const fetchData = read('scripts/fetch-data.mjs');
+const telegramFetcher = read('scripts/fetch-telegram-digest.mjs');
 const worker = exists('cloudflare-worker-proxy.js') ? read('cloudflare-worker-proxy.js') : '';
 const packageJson = read('package.json');
 const ciWorkflow = read('.github/workflows/ci.yml');
@@ -402,6 +405,20 @@ check('route terminology separates 20 user surfaces from 22 internal QA routes',
 check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#page-kr-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
 check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(html) && /class="aio-glossary-term"/.test(html) && /GLOSSARY\.length/.test(html));
 check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
+
+// [G2] v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 사용자 상태 계약.
+const newsMoreAt = html.indexOf('id="news-load-more-wrap"');
+const marketNewsAt = html.indexOf('id="page-market-news"');
+const optionsAt = html.indexOf('id="page-options"');
+check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < optionsAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
+check('fundamental search has one bounded total deadline and parallel bounded primary providers', /var _fundDeadline = Date\.now\(\) \+ 8000/.test(chat) && /Promise\.all\(\[[\s\S]{0,500}dynamicTickerLookup[\s\S]{0,500}fetchSECFilings[\s\S]{0,500}fetchSECFinancials/.test(chat) && /_fundRemaining\(5200\)/.test(chat) && /_fundRemaining\(1400\)/.test(chat));
+check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));
+check('closed AI panel is inert and its trigger owns expanded state and focus return', /id="topbar-ai-btn"[\s\S]{0,300}aria-expanded="false"[\s\S]{0,300}aria-controls="ai-panel"/.test(html) && /id="ai-panel"[\s\S]{0,220}aria-hidden="true" inert/.test(html) && /p\.setAttribute\('inert', ''\)/.test(html) && /p\.removeAttribute\('inert'\)/.test(html) && /btn\.focus\(\)/.test(html));
+check('KR theme cards preserve progressive density after live updates', /stockIdx < 5/.test(html) && /kr-theme-card-more/.test(html) && /catalyst\.length > 260/.test(html) && /catFullEl\.textContent = catalyst/.test(html) && /closest\('\.kr-ticker-pill, details, summary, \[data-stop\]'\)/.test(html));
+check('KR supply requests are bounded and failure copy has a single owner', /sorted\.slice\(0, 24\)/.test(html) && /종목별 공용 프록시 연쇄 호출 생략/.test(html) && !/top100\.slice\(0, 6\)/.test(html) && /_krInvestorFetchState/.test(html) && /_investorState\.inFlight/.test(html) && /10 \* 60 \* 1000/.test(html) && /querySelectorAll\('\.kr-supply-fallback-notice'\)[\s\S]{0,180}\.remove\(\)/.test(html));
+check('empty portfolio hides non-computable panels and exposes one first-position CTA', /var _pfEmpty = positions\.length === 0/.test(html) && /el\.hidden = _pfEmpty/.test(html) && /class="pf-empty-state"/.test(html) && />첫 종목 추가</.test(html));
+check('briefing and news display titles reject failed or non-Korean cached translations', /!cached\.ko_title \|\| !isKoreanText\(cached\.ko_title\)/.test(data) && /class="briefing-news-title"/.test(data + core) && /visibleTitle = \(typeof getDisplayTitle/.test(core) && /\.briefing-news-title\s*\{[\s\S]{0,500}-webkit-line-clamp:2/.test(html));
+check('headless tests exercise the final human UX state contracts', /_testV5290HumanUXStateContracts/.test(tests) && /T1015/.test(tests) && /T1020/.test(tests));
 // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) structural gates
 check('EF-13: FOMC decision-header footnote prefixes the registry eventDate on every consuming page (previously date-less outside macro calendar table)', /_fomcFoot\.eventDate\s*\?\s*_fomcFoot\.eventDate\s*\+/.test(core) && /_fomcAsOfAge/.test(core));
 check('EF-13: FOMC footnote auto-badges past 21 days and collapses past 30 days instead of asserting a dateless "today" frame forever', /_fomcAsOfAge\s*>\s*21/.test(core) && /_fomcTooStale/.test(core));
@@ -425,7 +442,7 @@ check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19)', /_testV
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/15/16) structural gates
 check('EF-06: VIX term-structure seed fallback values render a distinguishable na state instead of the same value state as a live number', /_aioRenderVixTermRegime/.test(core) && /\(정적\)/.test(core) && /라이브 미수신 — DATA_SNAPSHOT 시드값/.test(core));
-check('EF-07: kr-home KOSPI supply title date is overridden to an honest fallback label when the failure state renders, instead of coexisting with a confident "N/D 기준" date next to the failure warning', /_showKrSupplyFailureState/.test(html) && /kr-home-kospi-supply \.kr-supply-title/.test(html) && /폴백 데이터/.test(html));
+check('EF-07: kr-home supply title dates are overridden to an honest fallback label when the failure state renders, instead of coexisting with a confident "N/D 기준" date next to the failure warning', /_showKrSupplyFailureState/.test(html) && /#page-kr-home \.kr-supply-title/.test(html) && /폴백 데이터/.test(html));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /window\._aioSafeSourceLabel\(n\.source\)/.test(core));
 check('EF-15: Fear & Greed delta surfaces are recomputed from the just-fetched CNN previous-day score instead of only a possibly stale server snapshot field', /_fgLiveDelta/.test(data) && /_aioSetDeltaEl\('sentiment-fg-delta', _fgLiveDelta/.test(data) && /_aioSetDeltaEl\('home-fg-delta', _fgLiveDelta/.test(data));
 check('EF-16: kr-macro rate/CPI/PMI cards expose a shared _fieldTs-based freshness badge instead of inconsistent per-card date disclosure', /_aioRenderKrMacroFreshnessBadges/.test(core) && /kr-macro-bokrate-freshness/.test(html) && /kr-macro-cpi-freshness/.test(html) && /kr-macro-pmi-freshness/.test(html));
@@ -487,7 +504,7 @@ const backtestFactorsIdx = fetchScript.indexOf('function backtestFactors(stockDa
 const backtestFactorsBody = backtestFactorsIdx >= 0 ? fetchScript.slice(backtestFactorsIdx, backtestFactorsIdx + 3000) : '';
 check('WO-3: backtestFactors() accepts optional offsets/fwdDays that default to the original production constants (backward compatible with the existing 30-min-cron call site)', /var OFFSETS = opts\.offsets \|\| \[147, 126, 105, 84, 63, 42\], FWD = opts\.fwdDays \|\| 21/.test(backtestFactorsBody));
 check('WO-3: backtestFactors() additionally returns a per-rebalance-date IC list (icByDate) needed to compute ICIR/t-stat, not just the averaged IC', /icByDate/.test(backtestFactorsBody));
-check('WO-3: fetch-data.mjs guards its main() invocation behind an import.meta.url direct-execution check, so importing it to reuse backtestFactors/closesToFactors never triggers the live fetch pipeline as a side effect', /if \(import\.meta\.url === `file:\/\/\$\{process\.argv\[1\]\.replace/.test(fetchScript) && /main\(\)\.catch\(e => \{ console\.error\('\[fetch-data\] 치명적 오류:', e\); process\.exit\(1\); \}\);\s*\}/.test(fetchScript));
+check('WO-3: fetch-data.mjs guards its direct execution and allows an isolated screener-only task without import side effects', /if \(import\.meta\.url === `file:\/\/\$\{process\.argv\[1\]\.replace/.test(fetchScript) && /process\.env\.SCREENER_ONLY === '1' \? enrichScreener\(\) : main\(\)/.test(fetchScript) && /task\.catch\(e => \{ console\.error\('\[fetch-data\] 치명적 오류:', e\); process\.exit\(1\); \}\);\s*\}/.test(fetchScript));
 check('WO-3: closesToFactors/backtestFactors/_mean are exported from fetch-data.mjs for reuse by the longrun script (no formula duplication)', /export function closesToFactors/.test(fetchScript) && /export function backtestFactors/.test(fetchScript) && /export const _mean/.test(fetchScript));
 if (exists('scripts/backtest-factors-longrun.mjs')) {
   const factorLongrun = read('scripts/backtest-factors-longrun.mjs');
@@ -641,6 +658,21 @@ check('WP-AI17/18: regression fixtures cover exposure, missingness promotion, bi
 check('WP-AI19: tool capability registry is read-only by default, denies unknown/mutation operations, and exposes an audit summary', /getAIToolCapabilityRegistry/.test(core) && /evaluateAIToolPermission/.test(core) && /BLOCKED_MUTATION/.test(core) && /BLOCKED_UNKNOWN_CAPABILITY/.test(core) && /DENY_BY_DEFAULT/.test(core) && /auditAIToolCapabilities/.test(core));
 check('WP-AI20: rights registry retains provider/data/output/retention/region/training/redistribution fields and blocks unverified entries', /getAIRightsRegistry/.test(core) && /evaluateAIDataRights/.test(core) && /auditAIRightsRegistry/.test(core) && /trainingAllowed/.test(core) && /redistributionAllowed/.test(core) && /UNVERIFIED_LIVE/.test(core) && /rightsAudit/.test(chat));
 check('WP-AI19/20: shared pipeline carries tool and rights audits and denies mutation intent', /toolAudit/.test(chat) && /non-agentic-boundary/.test(chat + core) && /T1009/.test(tests) && /T1014/.test(tests) && /_testV5286ToolBoundaryAndRights/.test(tests) && /T1007/.test(tests) && /T1008/.test(tests) && /T1010/.test(tests) && /T1011/.test(tests) && /T1012/.test(tests) && /T1013/.test(tests));
+
+// v52.91: third-pass live currentness/root-cause gates.
+check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial key fragments', /el\.value = '••••••••'/.test(ui + core) && !/el\.value = saved/.test(ui) && !/inp\.value = key;\s*\/\/ 실제 키 표시/.test(html) && !/slice\(0, 8\) \+ '\.\.\.' \+/.test(html + core));
+check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
+check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /_verifiedDecisionValue\('breadth200-participation', breadthCandidate, 50\)/.test(core) && /시장폭 최신 근거 미수신/.test(core));
+check('LIVE3-04: briefing labels the actual S&P index and reads the canonical pct field', /var spx = _ldSafe\('\^GSPC', 'price'\), spxChg = _ldSafe\('\^GSPC', 'pct'\)/.test(core) && /S&amp;P 500 지수/.test(core) && !/_ldSafe\('SPY', 'chgPct'\)/.test(core));
+check('LIVE3-05: KR supply parses formatted values and renders missing as unknown rather than zero', /String\(v\)\.replace\(\/\[,\+\\s\]\/g/.test(html) && /streakEl\.textContent = '수급 미수신'/.test(html) && /미수신을 0원\/매도 우위로 해석하지 않는다/.test(html) && /기관 세부 수급 미수신/.test(html) && /프로그램 매매 미수신/.test(html));
+check('LIVE3-06: conflicting stale Naver KR index quotes cannot overwrite a materially different server quote', /_aioKrQuoteConflicts/.test(data) && /_krDiff > 0\.0075/.test(data));
+check('LIVE3-07: Telegram collection attempts and last success have separate semantics', /collectionStatus/.test(telegramFetcher) && /attemptedAt/.test(telegramFetcher) && /lastSuccessfulAt/.test(telegramFetcher) && /generatedAt means successful collection time/.test(telegramFetcher));
+check('LIVE3-08: glossary expectancy math and tactical-score wording are non-predictive', /거래당 \+0\.4R/.test(glossary) && /예측·매수 신호가 아니며/.test(glossary) && !/승률 40% × R 2\.5 = \+100% 수익/.test(glossary));
+check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));
+check('LIVE3-10: failed client F&G refresh preserves a newer server observation instead of overwriting it with static seed', /\^\(live\|proxy\|delayed\)\$/.test(data) && /외부 관측값이 전혀 없을 때만 정적 snapshot/.test(data));
+
+check('LIVE3-11: every external dependency has an explicit replacement/rights/cadence state and provider availability is not treated as implementation', /getExternalDependencyAudit/.test(core) && /external-dependency-audit\.v1/.test(core) && /provider availability is not implementation status/.test(core) && /license_required/.test(core) && /manual_or_license_required/.test(core));
+check('LIVE3-12: a core quote outage preserves the last-known-good data artifact and screener refresh can run in isolation', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchScript) && fetchScript.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchScript.indexOf('await writeFile(OUT') && /SCREENER_ONLY/.test(fetchScript));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

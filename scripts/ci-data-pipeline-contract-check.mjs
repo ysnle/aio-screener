@@ -97,6 +97,30 @@ check('telegram classifier routes credit and capex funding risk', /add\('credit'
 check('fetch-data queries current Korea AI/semi market movers', /KOSPI Samsung Electronics SK Hynix AI semiconductor selloff rebound Micron/.test(fetchData));
 check('fetch-data enforces KST 08:00 completed 24h news cycle', /NEWS_CYCLE_POLICY\s*=\s*'kst-0800-completed-24h'/.test(fetchData) && /getKst0800NewsCycle/.test(fetchData) && /newsCycleStart/.test(fetchData) && /newsCycleEnd/.test(fetchData) && /newsCycleLabel/.test(fetchData));
 check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\)/.test(fetchData) && /Math\.expm1\(s1\)\s*\*\s*100/.test(fetchData) && /scale:\s*'log_pct_day'/.test(fetchData) && /kalmanScale/.test(fetchData) && /kalmanScale:\s*'log_pct_day'/.test(fetchData));
+check('screener pipeline emits timestamped universe breadth and a research-only ranking contract', /computeScreenerBreadth/.test(fetchData) && /factorObservedAt/.test(fetchData) && /coveragePct/.test(fetchData) && /rankingContract/.test(fetchData) && /research-relative-ranking-only/.test(fetchData));
+check('fetch-data preserves the last-known-good artifact on core quote outage', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchData) && fetchData.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchData.indexOf('await writeFile(OUT'));
+check('fetch-data exposes an isolated screener-only refresh path', /SCREENER_ONLY/.test(fetchData) && /export async function enrichScreener/.test(fetchData));
+{
+  let detail = '';
+  let ok = false;
+  try {
+    const src = extractFunctionSource(fetchData, 'computeScreenerBreadth');
+    const fn = new Function('round', '_mean', `${src}\nreturn computeScreenerBreadth;`)(
+      (v, d) => Number(v.toFixed(d)),
+      (a) => a.reduce((s, v) => s + v, 0) / a.length
+    );
+    const up = Array.from({ length: 220 }, (_, i) => 100 + i);
+    const down = Array.from({ length: 220 }, (_, i) => 400 - i);
+    const out = fn(['UP','DOWN','005930.KS'], [
+      { sym:'UP', adjCloses:up, observedAt:'2026-07-13T20:00:00.000Z' },
+      { sym:'DOWN', adjCloses:down, observedAt:'2026-07-13T20:00:00.000Z' },
+      { sym:'005930.KS', adjCloses:up, observedAt:'2026-07-14T06:30:00.000Z' }
+    ]);
+    ok = out.segments.us.universe === 2 && out.segments.us.eligible === 2 && out.segments.us.above20 === 50 && out.segments.us.advanceRatio === 0.5 && out.segments.kr.above200 === 100;
+    detail = JSON.stringify(out.segments);
+  } catch (error) { detail = error.message; }
+  check('screener breadth calculation separates US/KR and computes MA/advance ratios', ok, detail.slice(0, 400));
+}
 // P586/C2: backtest must self-disclose that it does not cover the live model's size/value/quality
 // factors or its regime-adaptive weights, and the client panel must actually surface that disclosure
 // rather than implying the full live composite rank is validated.
@@ -200,6 +224,8 @@ check('telegram digest script extracts topics, tickers, topItems', /topicCounts/
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));
 check('app applies quotes, macro, F&G, news, telegram, LLM, screener', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyServerScreener/.test(data));
+check('app gates and applies screener breadth with observation time and coverage', /_aioApplyScreenerBreadth/.test(data) && /breadthScreener/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data));
+check('quant readiness blocks trading claims until model parity and predictive validation pass', /getQuantReadinessAudit/.test(data) && /liveModelParity/.test(data) && /predictiveValidation/.test(data) && /research-relative-ranking-only/.test(data) && /매매 신호 아님/.test(data));
 check('app only merges versioned log-scale Kalman screener fields', /f\.kalmanScale\s*===\s*'log_pct_day'/.test(data) && /sd\.backtest\.kalmanScale\s*===\s*'log_pct_day'/.test(data) && /legacy_kalman_scale/.test(data) && /kalmanVelConf/.test(data) && /kalmanInnovZ/.test(data));
 check('app exposes public-data operational meta', /window\._serverDataMeta/.test(data) && /fredHasKey/.test(data) && /marketAnalysisOk/.test(data) && /telegramMemoOverlay/.test(data));
 check('core data pipeline audit exposes publicData', /getDataPipelineAudit/.test(core) && /publicData/.test(core) && /server FRED_API_KEY not configured/.test(core) && /server LLM market analysis unavailable/.test(core));

@@ -2,7 +2,7 @@
 verified_by: agent
 last_verified: 2026-07-14
 confidence: high
-target_version: v52.89
+target_version: v52.90
 
 ---
 
@@ -3551,3 +3551,27 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Required**: 핵심 13면의 타이포그래피·여백·정보 우선순위를 사용설명서·용어사전·한국 5면에도 확장한다. 교육 콘텐츠는 검색 가능한 장별 공개, 대규모 테마 목록은 점진 공개, 중복 뉴스와 페이지 내 반복 용어 설명은 공용 뉴스/가이드 표면으로 통합한다. 기존 데이터·액션 함수는 재사용하고 별도 정적 데모를 만들지 않는다.
 
 **Validation**: T869 `redesign_default_path_v5289`, runtime-contract [G], `AIO_ROUTE_REGISTRY.classes`, 남은 7면 데스크톱·모바일 실렌더링.
+
+## R331. 시안의 최종 렌더 계약은 loaded/empty/degraded/closed 상태 전환과 종료 시간까지 포함한다 (v52.90, P705 root)
+
+**Rule**: 섹션의 존재·순서·기본 노출만 맞아도 사용자 여정이 완료된 것으로 보지 않는다. 비동기 공급자 무응답, 캐시 폴백, 결과 0건, 접힌 상세, 닫힌 오프스크린 패널에서도 화면은 유한 시간 안에 읽을 수 있는 한 상태로 수렴해야 하며 같은 정보의 본문·요약·상태 소유자가 분리돼서는 안 된다.
+
+**Required**: 외부 다중 요청은 총 예산과 부분 성공 경로를 가진다. 뉴스 피드와 헤더는 한 상태 갱신 함수를 사용한다. 점진 공개 컨트롤은 자신이 공개할 콘텐츠와 같은 페이지/컨테이너에 둔다. 닫힌 패널은 `inert`와 ARIA/포커스 상태를 함께 전환한다. 데이터가 없으면 계산 불가능한 카드를 숨기고 다음 행동을 우선한다. 대량 브라우저 요청은 명시적 상한·회로·단일 실패 설명을 가진다.
+
+**Validation**: T1015~T1020, runtime-contract [G2], 20개 사용자 표면 데스크톱/모바일 렌더와 기업 분석 timeout·뉴스 cache/load-more·AI open/close·KR failure·portfolio empty 실제 Chromium 여정.
+
+## R332. 데이터 파일 갱신시각·외부 관측시각·마지막 수집 성공시각을 분리하고 missing을 판단값으로 승격하지 않는다 (v52.91, P706 root)
+
+**Rule**: `generatedAt`은 파일 생성 또는 실제 성공 중 문서화된 한 의미만 가져야 하며, 가격의 거래소 관측시각과 공급자 요청시각을 대신하지 않는다. 값이 없거나 원천이 실패한 상태를 `0`, 중립, 현재값, 또는 새 성공시각으로 변환하지 않는다. 지표가 그대로라는 이유만으로 정책금리를 stale 처리하지 않고 지표 주기에 맞는 freshness budget을 사용한다.
+
+**Required**: 모든 의사결정 입력은 source, `observedAt`, `fetchedAt` 또는 `attemptedAt`, `lastSuccessfulAt`, freshness, `allowedUse`를 구분한다. 시세 producer는 거래 관측 메타데이터를 보존한다. 시장폭·심리·수급처럼 최신성이 끊긴 값은 점수/레짐/행동 문구에서 차단하며 화면에는 원천 미수신·참고값을 명시한다. 비밀키 실값은 masked input DOM에 복원하지 않는다. 통계적 예측 검증을 통과하지 않은 점수는 환경 설명으로만 명명한다.
+
+**Validation**: runtime contract LIVE3-01~10, data-pipeline contract, 22개 범주 currentness 평가표, 실브라우저 20개 사용자 표면, 당일 공식/1차 소스 시장 대조.
+
+## R333. 핵심 수집 실패는 마지막 정상 산출물을 덮어쓰지 않으며 공급자 가용성과 구현 완료를 분리한다 (v52.92, P707 root)
+
+**Rule**: producer는 핵심 커버리지·스키마·관측시각 게이트를 통과하기 전에 공개 artifact를 쓰지 않는다. 독립 갱신 가능한 데이터군은 전체 파이프라인과 분리한다. 대체 API가 존재한다는 사실을 현재 연결·권리 승인·운영 준비 완료로 표시하지 않는다.
+
+**Required**: 각 외부 의존은 current provider, target adapter, alternative, implementation state, rights, cadence를 기록한다. 실패 시 마지막 정상 artifact와 `lastSuccessfulAt`을 유지하고 새 `attemptedAt`/실패 상태만 기록한다. missing·라이선스 차단 입력은 중립값이나 현재값으로 변환하지 않는다.
+
+**Validation**: data-pipeline contract의 `CORE_QUOTE_COVERAGE_FAILED` 선행 순서와 `SCREENER_ONLY`, runtime contract LIVE3-11~12, `AIO.getExternalDependencyAudit()`.

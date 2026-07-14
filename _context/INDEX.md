@@ -38,6 +38,8 @@ target_version: version.json
 
 > **Current correction (2026-07-14 v52.86 local)**: WP-AI19/20 is `VERIFIED_LOCAL`: registered read-only tool capabilities deny unknown/mutation operations, and provider/data/output rights, retention, training, redistribution, and region metadata are explicit with review-required live entries. Local syntax/runtime/version/headless gates pass (`1075/1075 PASS`); live provider/data/output rights, legal/operator configuration, multi-user tool isolation, live Pages/Worker certification, and deployment remain unverified; PUBLIC remains NO-GO.
 
+> **Current correction (2026-07-14 v52.92 local)**: the screener-only producer generated 847/870 histories and timestamped US/KR universe breadth without overwriting core data. Core quote coverage now fails before writing `data.json`; external dependencies are split into 15 implementation/rights/cadence states. Quant ranking remains research-only because predictive validation and live/backtest parity are not established. Browser plugin execution aborted and was not counted as browser verification; deployment remains unverified.
+
 # _context Index
 
 This folder is the active project knowledge base for AIO. It should describe the current GitHub-deployed structure first, then local Claude worktree exceptions only when they affect routing.
@@ -59,6 +61,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `DATA-PIPELINE-AUDIT-2026-05-06.md` | End-to-end data pipeline map: source, transport, store, analysis, render | API/source, analysis, or render pipeline changes |
 | `ARCHITECTURE-AUDIT-2026-05-10.md` | v49.3 architecture-audit reinforcement summary | Data/function/risk layer changes |
 | `DATA-FRESHNESS-AUDIT-2026-05-10.md` | v49.4 freshness policy / auto-refresh reinforcement summary | Freshness policy/source/stale criteria changes |
+| `DATA-SOURCE-REPLACEMENT-PLAN-2026-07-14.md` | 15개 외부 데이터 카테고리별 현재 경로·대체 API·권리·자동화 가능성 및 목표 수집 아키텍처 | 공급자, API, 라이선스, cadence, 자동화 상태 변경 시 |
 | `GATE-BASELINE-2026-06-04.md` | v50.4 evidence deployment gate + unit-test 실측 기준선 (env-dependent vs code-internal 분리) | 게이트/테스트 재측정, 운영 baseline 추가 시 |
 | `GATE-BASELINE-2026-07-03.md` | v51.91→v51.96 헤드리스 CI 테스트(`ci-headless-tests.mjs`) 실측 (894/921→896/921 pass, T776/T686 실제 해소로 27→25건 skip-list) — Phase 2 [B5] + 전체 /data-refresh 산출물 | skip-list 갱신, 헤드리스 테스트 재측정 시 |
 | `CHAT-DATA-AUDIT-2026-06-04.md` | v50.8 AI 채팅 데이터 출처 전수 감사 baseline (fetch 파이프라인·시장맥락 주입·재사용·dead code 실측) | 채팅 데이터 경로/컨텍스트 변경 시 |
