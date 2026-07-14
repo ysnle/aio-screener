@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-07-14T14:14:30.471Z",
+ "generatedAt": "2026-07-14T15:48:56.349Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. breadth/pcr/aaiiBear/hyg/뉴스감성은 history.json에 없어 라이브 코드의 실시간-미수신 폴백 상수(또는 완전 생략)를 사용 — 근사가 아니라 이미 존재하는 코드 경로 재현. 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 \"검증 결과\"가 아니라 \"누적 진행 상황\"으로 취급할 것.",
  "summary": {
   "n5d": 30,
-  "corr5d": -0.477,
+  "corr5d": -0.453,
   "n21d": 14,
   "corr21d": -0.253,
   "statisticallyMeaningful": false
@@ -319,7 +319,7 @@
     "macro": 55
    },
    "fwd5dReturn": -0.1553195591313998,
-   "fwd21dReturn": 2.1794972751192696,
+   "fwd21dReturn": 2.4385442321321364,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -686,7 +686,7 @@
     "breadth": 72,
     "macro": 45
    },
-   "fwd5dReturn": -0.23397192867104666,
+   "fwd5dReturn": 0.018956365892319645,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
