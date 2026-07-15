@@ -1,0 +1,65 @@
+name: Refresh screener and SEC fundamentals
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh-screener:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Refresh bounded SEC companyfacts batch
+        env:
+          SEC_BATCH_LIMIT: 24
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+        run: node scripts/fetch-sec-fundamentals.mjs
+
+      - name: Refresh screener independently
+        env:
+          SCREENER_ONLY: '1'
+          SCREENER_ENRICH: '1'
+        run: node scripts/fetch-data.mjs
+
+      - name: Validate semantic artifact contract
+        run: node scripts/validate-screener-artifact.mjs public-data/screener.json
+
+      - name: Commit only validated screener artifacts
+        run: |
+          git config user.name "aio-data-bot"
+          git config user.email "actions@github.com"
+          git add public-data/screener.json public-data/sec-fundamentals.json
+          [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
+          if git diff --staged --quiet; then
+            echo "No screener changes to commit"
+            exit 0
+          fi
+          ts=$(date -u +"%Y-%m-%dT%H:%MZ")
+          git commit -m "data: refresh screener and SEC fundamentals ${ts}"
+          attempt=1
+          max_attempts=5
+          until git push; do
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "::error::git push failed after ${max_attempts} attempts"
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
+            attempt=$((attempt + 1))
+            sleep $((attempt * 3))
+          done

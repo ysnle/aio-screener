@@ -1,3 +1,20 @@
+## v52.94 (2026-07-15)
+- BLS Public Data API keyless adapter를 추가해 CPI, core CPI, 실업률, 노동참가율, 비농업고용, 시간당 임금을 typed official evidence로 수집한다. 12시간 성공 캐시, M13/연간 혼입 차단, insufficient history, releaseAt null, last-known-good 보존을 계약화했다.
+- 22개 route page contract에 required/optional producer, coverage, age, failure state, forbidden claims를 연결하고 `AIO.getPageDataCompleteness()`/`auditPageDataCompleteness()`로 loaded/partial/empty/blocked/stale-reference를 판정한다.
+- 스케줄러에 attemptedAt/lastSuccessfulAt/status/coverage/evidenceIds/failureReason을 기록하고 BLS·페이지 완결성 fixture 및 runtime contract gate를 추가했다.
+- 대규모 로컬 검증: data/runtime/structural/version/semantic/knowledge 게이트 PASS, Chromium headless 1084/1084 PASS, 22-route accessibility PASS, viewport 88/88 PASS, portfolio E2E 8/8 PASS.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.94
+
+## v52.93 (2026-07-15) — 무료 공식 소스·독립 스크리너 publish 완결
+
+- 기관급 데이터 핸드오프와 v52.92 실제 구현을 전수 대조해 중복·부분 구현·미구현을 `INSTITUTIONAL-HANDOFF-RECONCILIATION-2026-07-15.md`에 구분하고, 다른 모델이 바로 실행할 수 있도록 기준선·Batch 0~6·WP 파일 카드·22-route 데이터 계약·BLS 설계·게이트·배포/롤백 절차까지 단일 실행 계약으로 확장했다.
+- `SCREENER_ONLY`를 6시간 독립 GitHub Actions workflow로 연결하고, 846/870 재생성 row마다 실제 `observedAt/sourceKind/allowedUse`를 저장한다. publish 전 커버리지·행 수·시장폭·research-only 계약을 검증한다.
+- 무료 SEC companyfacts를 24종목 bounded batch로 누적하는 annual 정규화 adapter와 atomic artifact를 추가했다. 미국 유니버스 재무 커버리지 80% 전에는 value/quality를 활성화하지 않으며 운영 연락 User-Agent가 없으면 fail-closed다.
+- 403인 Cboe CDN/공용 proxy 대신 공식 Daily Market Statistics에서 total/equity/index Put/Call과 거래일을 server ingest하고 delayed로만 사용한다. client 실패가 공식 서버값을 snapshot으로 되돌리지 못하게 했다.
+- quote producer에 `observedAt/fetchedAt/delayedByMs/session/venue/allowedUse`를 명시하고, direct-run guard 5곳의 빈 `process.argv[1]` import 충돌을 수정했다. knowledge lint는 미스테이징 신규 문서도 검사한다. P708/R334, LIVE3-17~23과 runtime/data-pipeline/knowledge 계약을 추가했다.
+- R1 7곳 v52.93
+
 ## v52.92 (2026-07-14) — 스크리너 자동 브레드쓰·외부 의존 대체 구조
 
 - 870종목 스크리너를 핵심 데이터 파이프라인과 분리해 갱신하는 `SCREENER_ONLY` 경로를 추가하고 실제 847개 일봉 이력을 재생성했다.

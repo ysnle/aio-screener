@@ -215,7 +215,8 @@ function computeICIR(icByDateMap) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
+const __entryArg = process.argv[1] ? process.argv[1].replace(/\\/g, '/') : '';
+if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url === `file:///${__entryArg}`)) {
   runFactorLongrunBacktest(RANGE, TOP_N, OUT_PATH).then((output) => {
     console.log(`[backtest-factors-longrun] tickers=${output.universe.fetchedTickers}/${output.universe.requestedTop} rebalanceDates=${output.rebalanceDates.count} (vs production's 6)`);
     console.log(`[backtest-factors-longrun] fwd21d composite: ${JSON.stringify(output.overallByHorizon.fwd21d.ic)} icIR=${JSON.stringify(output.overallByHorizon.fwd21d.icIR.composite)}`);

@@ -2937,7 +2937,7 @@ var AIO_CHAT_SOURCE_REGISTRY = [
   { key:'tam',          label:'TAM/시장규모 추정',    fn:'computeTAMEstimate',            tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'earningsCall', label:'어닝콜 전사(ASP/로드맵)', fn:'fetchFMPEarningsCallTranscript', tier:'fundamental', free:false, requiresKey:'aio_fmp_key', appliesTo:function(){return true;} },
   // 확장점(미배선) — KR DART: .KS/.KQ 종목 재무. OpenDART 키 + 프록시 필요. wired:false로 카탈로그에 명시.
-  { key:'dartFinancials', label:'KR DART 재무(.KS/.KQ)', fn:'fetchDartFinancials',         tier:'fundamental', free:false, requiresKey:'aio_dart_key', wired:false, planned:true, appliesTo:function(t){return /\.(KS|KQ)$/i.test(t||'');} }
+  { key:'dartFinancials', label:'KR DART 재무(.KS/.KQ)', fn:'fetchDartFinancials',         tier:'fundamental', free:true, requiresKey:'aio_dart_key', wired:false, planned:true, appliesTo:function(t){return /\.(KS|KQ)$/i.test(t||'');} }
 ];
 window.AIO_CHAT_SOURCE_REGISTRY = AIO_CHAT_SOURCE_REGISTRY;
 

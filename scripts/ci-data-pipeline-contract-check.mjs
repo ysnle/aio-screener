@@ -51,6 +51,7 @@ const extractFunctionSource = (text, name) => {
 };
 
 const refresh = read('.github/workflows/refresh-data.yml');
+const screenerRefresh = read('.github/workflows/refresh-screener.yml');
 const watchdog = read('.github/workflows/data-watchdog.yml');
 const ci = read('.github/workflows/ci.yml');
 const fetchData = read('scripts/fetch-data.mjs');
@@ -71,9 +72,11 @@ const newsEmptyBlock = newsEmptyStart >= 0 ? data.slice(newsEmptyStart, newsEmpt
 
 check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(refresh));
 check('refresh workflow has write permission and no cancel-in-progress', /contents:\s*write/.test(refresh) && /cancel-in-progress:\s*false/.test(refresh));
-check('refresh workflow fetches market data with required optional secrets', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && /FMP_API_KEY/.test(refresh) && /ANTHROPIC_API_KEY/.test(refresh));
+check('refresh workflow fetches market data with free/official optional secrets', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && !/FMP_API_KEY/.test(refresh) && /ANTHROPIC_API_KEY/.test(refresh));
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
-check('refresh workflow commits all public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/screener\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh) && /public-data\/backtest-history\.json/.test(refresh) && /public-data\/score-backtest-history\.json/.test(refresh));
+check('core refresh workflow commits core public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh) && /public-data\/score-backtest-history\.json/.test(refresh));
+check('screener refresh is an independent six-hour validated publish job', /cron:\s*'23 \*\/6 \* \* \*'/.test(screenerRefresh) && /SCREENER_ONLY:\s*'1'/.test(screenerRefresh) && /SCREENER_ENRICH:\s*'1'/.test(screenerRefresh) && /validate-screener-artifact\.mjs/.test(screenerRefresh));
+check('screener workflow default automation uses only free SEC path', /fetch-sec-fundamentals\.mjs/.test(screenerRefresh) && /SEC_USER_AGENT/.test(screenerRefresh) && /sec-fundamentals\.json/.test(screenerRefresh) && !/FMP_API_KEY/.test(screenerRefresh));
 check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(read('scripts/fetch-data.mjs')) && exists('scripts/backtest-trading-score.mjs'));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
@@ -99,7 +102,97 @@ check('fetch-data enforces KST 08:00 completed 24h news cycle', /NEWS_CYCLE_POLI
 check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\)/.test(fetchData) && /Math\.expm1\(s1\)\s*\*\s*100/.test(fetchData) && /scale:\s*'log_pct_day'/.test(fetchData) && /kalmanScale/.test(fetchData) && /kalmanScale:\s*'log_pct_day'/.test(fetchData));
 check('screener pipeline emits timestamped universe breadth and a research-only ranking contract', /computeScreenerBreadth/.test(fetchData) && /factorObservedAt/.test(fetchData) && /coveragePct/.test(fetchData) && /rankingContract/.test(fetchData) && /research-relative-ranking-only/.test(fetchData));
 check('fetch-data preserves the last-known-good artifact on core quote outage', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchData) && fetchData.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchData.indexOf('await writeFile(OUT'));
+check('server quote rows emit explicit observation/fetch/delay/session/venue/use lineage', /observedAt:\s*Number\.isFinite\(m\.regularMarketTime\)/.test(fetchData) && /fetchedAt:\s*new Date\(\)\.toISOString\(\)/.test(fetchData) && /delayedByMs:/.test(fetchData) && /marketSession:/.test(fetchData) && /venue:/.test(fetchData) && /current-with-session-and-delay-gate/.test(fetchData));
 check('fetch-data exposes an isolated screener-only refresh path', /SCREENER_ONLY/.test(fetchData) && /export async function enrichScreener/.test(fetchData));
+check('screener rows retain per-symbol observation/source/use lineage', /f\.observedAt\s*=\s*r\.observedAt/.test(fetchData) && /f\.sourceKind\s*=\s*'delayed-eod'/.test(fetchData) && /f\.allowedUse\s*=\s*'research-relative-ranking-only'/.test(fetchData));
+check('core refresh ingests official delayed Cboe statistics without a public CORS proxy', /parseCboePutCallHtml/.test(fetchData) && /Cboe Daily Market Statistics/.test(fetchData) && /sourceKind:\s*'delayed'/.test(fetchData) && /fetchCboePutCall\(\)/.test(fetchData));
+check('client applies server Cboe data first and protects it from failed legacy proxy fallback', /d\.putCall\.totalPutCall/.test(data) && /sourceLabel:\s*'Cboe Daily Market Statistics'/.test(data) && /must not overwrite a fresher official/.test(data));
+check('free SEC fundamentals use bounded batches and atomic persistence', exists('scripts/fetch-sec-fundamentals.mjs') && /SEC_BATCH_LIMIT/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /SEC_USER_AGENT/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /rename\(temp, path\)/.test(read('scripts/fetch-sec-fundamentals.mjs')));
+check('BLS direct adapter is keyless, bounded, cadence-gated, and merged as typed official evidence',
+  /BLS_SERIES/.test(fetchData) && /api\.bls\.gov\/publicAPI\/v1\/timeseries\/data/.test(fetchData) &&
+  /method:\s*'POST'/.test(fetchData) && /BLS_CACHE_MAX_AGE_MS/.test(fetchData) && /12 \* 60 \* 60 \* 1000/.test(fetchData) &&
+  /M\(\?:0\[1-9\]\|1\[0-2\]\)/.test(fetchData) && /releaseAt:\s*null/.test(fetchData) &&
+  /macro\._bls/.test(fetchData) && /blsStatus/.test(fetchData) && /blsLastSuccessfulAt/.test(fetchData));
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeBlsSeriesResponse } = await import('./fetch-data.mjs');
+    const monthly = (id, latest, priorMonth, priorYear = priorMonth, extra = []) => ({
+      seriesID: id,
+      data: [
+        { year: '2026', period: 'M06', value: String(latest), footnotes: [] },
+        { year: '2026', period: 'M05', value: String(priorMonth), footnotes: [] },
+        { year: '2026', period: 'M13', value: '999999', footnotes: [] },
+        { year: '2025', period: 'M06', value: String(priorYear), footnotes: extra }
+      ]
+    });
+    const aheSeries = monthly('CES0500000003', 40, 39, 38);
+    aheSeries.data[0].footnotes = [{ code: 'P', text: 'Preliminary' }];
+    const payload = { Results: { series: [
+      monthly('CUSR0000SA0', 300, 299, 285),
+      monthly('CUSR0000SA0L1E', 200, 199, 190),
+      monthly('LNS14000000', 4.1, 4.0),
+      monthly('LNS11300000', 62.5, 62.4),
+      monthly('CES0000000001', 16000, 15900),
+      aheSeries
+    ] } };
+    const result = normalizeBlsSeriesResponse(payload, '2026-07-15T00:00:00.000Z');
+    const cpi = result.series.cpi;
+    const nfp = result.series.nonfarmPayroll;
+    const ahe = result.series.averageHourlyEarnings;
+    ok = result.status === 'ok' && result.values.blsCpiYoY === 5.3 && result.values.blsNfpMoM === 100 &&
+      result.values.blsAverageHourlyEarningsYoY === 5.3 && cpi.unit === 'index' && cpi.releaseAt === null &&
+      cpi.inputObservationPeriods.every(period => !period.endsWith('M13')) && ahe.observationStatus === 'footnote-present' &&
+      nfp.unit === 'thousands' && nfp.observedAt === '2026-06-01';
+    detail = JSON.stringify({ status: result.status, values: result.values, cpi, nfp });
+  } catch (error) { detail = error.message; }
+  check('BLS normalizer rejects M13, preserves units/observation periods, and derives YoY/MoM deterministically', ok, detail.slice(0, 1200));
+}
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
+    const facts = {
+      cik: 1,
+      entityName: 'Fixture Corp',
+      facts: {
+        'us-gaap': {
+          RevenueFromContractWithCustomerExcludingAssessedTax: { units: { USD: [
+            { start:'2024-01-01', end:'2024-12-31', filed:'2025-02-01', form:'10-K', fp:'FY', val:800, accn:'a' },
+            { start:'2025-01-01', end:'2025-12-31', filed:'2026-02-01', form:'10-K', fp:'FY', val:1000, accn:'b' }
+          ] } },
+          NetIncomeLoss: { units: { USD: [
+            { start:'2024-01-01', end:'2024-12-31', filed:'2025-02-01', form:'10-K', fp:'FY', val:80, accn:'a' },
+            { start:'2025-01-01', end:'2025-12-31', filed:'2026-02-01', form:'10-K', fp:'FY', val:100, accn:'b' }
+          ] } },
+          StockholdersEquity: { units: { USD: [
+            { end:'2025-12-31', filed:'2026-02-01', form:'10-K', fp:'FY', val:500, accn:'b' }
+          ] } }
+        },
+        dei: { EntityCommonStockSharesOutstanding: { units: { shares: [
+          { end:'2025-12-31', filed:'2026-02-01', form:'10-K', fp:'FY', val:10, accn:'b' }
+        ] } } }
+      }
+    };
+    const row = normalizeSecCompanyFacts('FIX', facts, 100);
+    ok = row && row.pe === 10 && row.pb === 2 && row.roe === 20 && row.margin === 10 && row.revGrowth === 25 && row.model === 'sec-fy-normalized-v1';
+    detail = JSON.stringify(row);
+  } catch (error) { detail = error.message; }
+  check('SEC companyfacts normalizer preserves annual period and computes bounded comparable ratios', ok, detail.slice(0, 500));
+}
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { parseCboePutCallHtml } = await import('./fetch-data.mjs');
+    const row = parseCboePutCallHtml('{\\"name\\":\\"TOTAL PUT/CALL RATIO\\",\\"value\\":\\"0.93\\"},{\\"name\\":\\"INDEX PUT/CALL RATIO\\",\\"value\\":\\"1.01\\"},{\\"name\\":\\"EQUITY PUT/CALL RATIO\\",\\"value\\":\\"0.62\\"},{\\"selectedDate\\":\\"2026-07-14\\"}');
+    ok = row && row.totalPutCall === 0.93 && row.indexPutCall === 1.01 && row.equityPutCall === 0.62 && row.asOf === '2026-07-14' && row.sourceKind === 'delayed';
+    detail = JSON.stringify(row);
+  } catch (error) { detail = error.message; }
+  check('Cboe official page parser binds total/equity/index ratios to selected trading date', ok, detail);
+}
 {
   let detail = '';
   let ok = false;

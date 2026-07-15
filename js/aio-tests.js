@@ -8256,6 +8256,31 @@
       sourceLabel === 'DETERMINISTIC_TEMPLATE', sourceLabel);
   }
 
+  function _testV5294BlsAndPageCompleteness() {
+    var contracts = window.AIO.getPageContracts();
+    var routeIds = contracts && contracts.routePageIds || [];
+    var contractFields = routeIds.every(function(id) {
+      var c = contracts.pages[id];
+      return c && Array.isArray(c.requiredProducers) && Array.isArray(c.optionalProducers) && c.minCoverage && c.maxAge && c.failureState && Array.isArray(c.forbiddenClaims);
+    });
+    _assert('T1021 page_completeness_contract_fields (WP-10): all 22 routes carry producer, coverage, age, failure, and forbidden-claim contracts',
+      routeIds.length === 22 && contractFields, JSON.stringify({ routeCount:routeIds.length, contractFields:contractFields }));
+
+    var beforeScreener = window._aioScreenerLoadState;
+    window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'fixture producer disconnected' };
+    var screener = window.AIO.getPageDataCompleteness('screener');
+    var guide = window.AIO.getPageDataCompleteness('guide');
+    window._aioScreenerLoadState = beforeScreener;
+    _assert('T1022 producer_disconnect_failure_state (WP-10): a disconnected screener producer is explicit partial while static guide remains loaded',
+      screener && screener.status === 'partial' && screener.producers && screener.producers.screenerArtifact && screener.producers.screenerArtifact.status === 'unavailable' && guide && guide.status === 'loaded',
+      JSON.stringify({ screener:screener, guide:guide }));
+
+    var audit = window.AIO.auditPageDataCompleteness({ allRoutes:true });
+    _assert('T1023 page_completeness_audit_22_routes (WP-10): all route completeness states are returned by one executable audit',
+      audit && audit.routeCount === 22 && Array.isArray(audit.pages) && audit.pages.length === 22 && audit.pages.every(function(row) { return row && row.version === 'wp10.page-completeness.v1' && ['loaded','partial','empty','blocked','stale-reference'].indexOf(row.status) >= 0; }),
+      JSON.stringify(audit && { status:audit.status, routeCount:audit.routeCount, loaded:audit.loadedCount, partial:audit.partialCount, empty:audit.emptyCount, staleReference:audit.staleReferenceCount, blocked:audit.blockedCount }));
+  }
+
   function _testV5281OpsGoldenFeedback() {
     var oldSamples = window._aioAISLOSamples;
     window._aioAISLOSamples = [];
@@ -8687,6 +8712,7 @@
     try { _testV5278AIRetrievalCompression(); } catch(e) { console.error('Group96 error:', e); }
     try { _testAIUntrustedSecurityAndConduct(); } catch(e) { console.error('Group97 error:', e); }
     try { _testV5280PublishAndPageContracts(); } catch(e) { console.error('Group98 error:', e); }
+    try { _testV5294BlsAndPageCompleteness(); } catch(e) { console.error('Group98b error:', e); }
     try { _testV5281OpsGoldenFeedback(); } catch(e) { console.error('Group99 error:', e); }
      try { _testV5282ConversationAndCalculation(); } catch(e) { console.error('Group100 error:', e); }
      try { _testV5283RetrievalQualityAndConduct(); } catch(e) { console.error('Group101 error:', e); }

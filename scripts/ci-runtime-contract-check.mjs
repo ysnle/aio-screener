@@ -504,7 +504,7 @@ const backtestFactorsIdx = fetchScript.indexOf('function backtestFactors(stockDa
 const backtestFactorsBody = backtestFactorsIdx >= 0 ? fetchScript.slice(backtestFactorsIdx, backtestFactorsIdx + 3000) : '';
 check('WO-3: backtestFactors() accepts optional offsets/fwdDays that default to the original production constants (backward compatible with the existing 30-min-cron call site)', /var OFFSETS = opts\.offsets \|\| \[147, 126, 105, 84, 63, 42\], FWD = opts\.fwdDays \|\| 21/.test(backtestFactorsBody));
 check('WO-3: backtestFactors() additionally returns a per-rebalance-date IC list (icByDate) needed to compute ICIR/t-stat, not just the averaged IC', /icByDate/.test(backtestFactorsBody));
-check('WO-3: fetch-data.mjs guards its direct execution and allows an isolated screener-only task without import side effects', /if \(import\.meta\.url === `file:\/\/\$\{process\.argv\[1\]\.replace/.test(fetchScript) && /process\.env\.SCREENER_ONLY === '1' \? enrichScreener\(\) : main\(\)/.test(fetchScript) && /task\.catch\(e => \{ console\.error\('\[fetch-data\] 치명적 오류:', e\); process\.exit\(1\); \}\);\s*\}/.test(fetchScript));
+check('WO-3: fetch-data.mjs guards its direct execution and allows an isolated screener-only task without import side effects', /const __entryArg = process\.argv\[1\] \? process\.argv\[1\]\.replace/.test(fetchScript) && /if \(__entryArg && \(import\.meta\.url === `file:\/\/\$\{__entryArg\}`/.test(fetchScript) && /process\.env\.SCREENER_ONLY === '1' \? enrichScreener\(\) : main\(\)/.test(fetchScript) && /task\.catch\(e => \{ console\.error\('\[fetch-data\] 치명적 오류:', e\); process\.exit\(1\); \}\);\s*\}/.test(fetchScript));
 check('WO-3: closesToFactors/backtestFactors/_mean are exported from fetch-data.mjs for reuse by the longrun script (no formula duplication)', /export function closesToFactors/.test(fetchScript) && /export function backtestFactors/.test(fetchScript) && /export const _mean/.test(fetchScript));
 if (exists('scripts/backtest-factors-longrun.mjs')) {
   const factorLongrun = read('scripts/backtest-factors-longrun.mjs');
@@ -671,8 +671,16 @@ check('LIVE3-08: glossary expectancy math and tactical-score wording are non-pre
 check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));
 check('LIVE3-10: failed client F&G refresh preserves a newer server observation instead of overwriting it with static seed', /\^\(live\|proxy\|delayed\)\$/.test(data) && /외부 관측값이 전혀 없을 때만 정적 snapshot/.test(data));
 
-check('LIVE3-11: every external dependency has an explicit replacement/rights/cadence state and provider availability is not treated as implementation', /getExternalDependencyAudit/.test(core) && /external-dependency-audit\.v1/.test(core) && /provider availability is not implementation status/.test(core) && /license_required/.test(core) && /manual_or_license_required/.test(core));
+check('LIVE3-11: every external dependency has an explicit free-only replacement/rights/cadence state and provider availability is not treated as implementation', /getExternalDependencyAudit/.test(core) && /external-dependency-audit\.v1/.test(core) && /provider availability is not implementation status/.test(core) && /free-plan-only/.test(core) && /free_equivalent_unavailable/.test(core) && /free_key_required/.test(core));
 check('LIVE3-12: a core quote outage preserves the last-known-good data artifact and screener refresh can run in isolation', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchScript) && fetchScript.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchScript.indexOf('await writeFile(OUT') && /SCREENER_ONLY/.test(fetchScript));
+check('WP-10: every route contract carries required/optional producers, coverage, age, failure, and forbidden-claim state',
+  /function _pageCompletenessContract\(id\)/.test(core) && /requiredProducers:/.test(core) && /optionalProducers:/.test(core) && /minCoverage:/.test(core) && /maxAge:/.test(core) && /failureState:/.test(core) && /forbiddenClaims:/.test(core));
+check('WP-10: runtime exposes one page completeness API and distinguishes missing/stale/partial/blocked producer states',
+  core.includes('getPageDataCompleteness') && core.includes('auditPageDataCompleteness') && core.includes('wp10.page-completeness.v1') && core.includes('stale-reference') && core.includes('empty') && core.includes('partial') && core.includes('blocked'));
+check('WP-10: scheduler records attemptedAt/lastSuccessfulAt/coverage/evidenceIds and failure reason',
+  /cfg\._attemptedAt/.test(data) && /cfg\._lastSuccessfulAt/.test(data) && /cfg\._coverage/.test(data) && /cfg\._evidenceIds/.test(data) && /cfg\._failureReason/.test(data));
+check('WP-10: browser fixtures cover 22-route contract fields and disconnected producer failure state',
+  /T1021 page_completeness_contract_fields/.test(tests) && /T1022 producer_disconnect_failure_state/.test(tests) && /T1023 page_completeness_audit_22_routes/.test(tests));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

@@ -280,7 +280,8 @@ export async function runLongrunBacktest(range, outPath) {
   return output;
 }
 
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
+const __entryArg = process.argv[1] ? process.argv[1].replace(/\\/g, '/') : '';
+if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url === `file:///${__entryArg}`)) {
   runLongrunBacktest(RANGE, OUT_PATH).then((output) => {
     console.log(`[backtest-trading-score-longrun] tradingDays=${output.dataRange.tradingDays} range=${output.dataRange.from}..${output.dataRange.to}`);
     console.log(`[backtest-trading-score-longrun] overall fwd21d composite: n=${output.overallCorrelations.fwd21d.composite.n} rho=${output.overallCorrelations.fwd21d.composite.rho} ci95=${JSON.stringify(output.overallCorrelations.fwd21d.composite.ci95)}`);

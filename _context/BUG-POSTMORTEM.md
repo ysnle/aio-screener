@@ -6240,3 +6240,12 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **violated_rule**: New - see R305.
 - **prevention**: T918 and the H3-H/H3-I Chromium human-surface gate must keep the partial-stub path free of page errors; the runtime contract check keeps both the guard and test wiring present.
 - **verification**: `node --check js/aio-ui.js`; `node scripts/ci-runtime-contract-check.mjs`; `node scripts/ci-headless-tests.mjs` -> **981/981 PASS**; `AIO_VIEWPORT_FULL_INIT=1 node scripts/ci-viewport-matrix-check.mjs` -> **88/88 PASS, worstOverflow 0px, jsErrors 0**; `node scripts/ci-critical10-human-surface-check.mjs` -> **10/10 routes PASS, consoleErrors 0**. No deploy/commit performed.
+
+## P708 · v52.93 · 무료 대체 계획이 실행 workflow·행 lineage·공식 Put/Call 경로 없이 부분 완료로 남음
+
+- **motivation**: `INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md`와 `DATA-SOURCE-REPLACEMENT-PLAN-2026-07-14.md`를 v52.92 실제 코드와 대조했다. `SCREENER_ONLY` 함수는 있었지만 workflow가 없었고, 새 validator가 현재 screener row의 `observedAt` 누락을 재현했다. Cboe CDN은 실제 403이었으며 client proxy 실패가 snapshot으로 되돌아가는 구조였다.
+- **root_cause**: 대체 공급자 registry와 CLI 진입점 존재를 운영 연결과 혼동했고, 계약 검사는 artifact top-level `factorObservedAt`/breadth만 확인해 row lineage를 검사하지 않았다. Put/Call은 공식 HTML에 값이 있어도 오래된 CDN JSON과 공용 proxy를 계속 주경로로 사용했다. direct-run guard 5곳도 `process.argv[1]`이 항상 있다고 가정해 정상 import 환경에서 충돌했다. 지식 린트는 git-tracked 파일만 열거해 새 문서를 커밋 전에는 잘못된 orphan으로 판정했다.
+- **fix**: 6시간 `refresh-screener.yml`, publish 전 `validate-screener-artifact.mjs`, 846개 row별 observation/source/use fields, 무료 SEC bounded companyfacts artifact, Cboe official delayed server ingest, 80% fundamentals coverage gate, free-plan-only dependency states를 추가했다. direct-run guard 5곳은 빈 argv를 안전하게 처리하고, 지식 린트는 non-ignored 신규 `_context/*.md`도 양쪽 문서 표와 대조한다.
+- **violated_rule**: R333의 “구현 완료 분리”를 workflow/row/publish 수준까지 실행하지 못함. R334로 승격.
+- **prevention**: data-pipeline/runtime contract가 독립 workflow, SEC/Cboe fixture, row lineage, semantic validator, free-only 상태를 검사한다. knowledge lint는 staged 여부와 무관하게 신규 지식 문서와 `INDEX.md`/`_context/CLAUDE.md` 양쪽 표를 검사한다. validator grep: `rg -n "validate-screener-artifact|observedAt|research-relative-ranking-only" .github/workflows/refresh-screener.yml scripts/fetch-data.mjs scripts/validate-screener-artifact.mjs`.
+- **verification**: 새 screener 실제 생성 `846/870`, validator PASS, US 706/725·KR 140/145 breadth coverage 80%+, Cboe 공식 live page `total 0.93/index 1.01/equity 0.62/asOf 2026-07-14` 파서 PASS, SEC normalization fixture PASS. SEC live collection은 monitored contact를 담은 `SEC_USER_AGENT` 미등록으로 의도적으로 미검증/차단.

@@ -25,8 +25,11 @@ const warn = (label, condition, detail = '') => {
   if (!condition) warnings.push(label + (detail ? ': ' + detail : ''));
 };
 
-// --- Pass A: git-tracked _context/*.md files vs INDEX.md's document table -------------
-const trackedFiles = execSync('git ls-files -- "_context/*.md"', { cwd: root, encoding: 'utf8' })
+// --- Pass A: versioned + newly-created _context/*.md files vs INDEX.md's table --------
+// Include non-ignored, untracked documents so the lint is useful before staging/commit.
+// The previous tracked-only query falsely reported a correctly indexed new document as
+// "no longer git-tracked" during the exact local-edit window this gate is meant to cover.
+const trackedFiles = execSync('git ls-files --cached --others --exclude-standard -- "_context/*.md"', { cwd: root, encoding: 'utf8' })
   .split('\n')
   .filter(Boolean)
   .map((p) => p.replace(/^_context\//, ''));
@@ -47,12 +50,12 @@ const claudeMdDocs = extractDocTable(claudeMd, /^\|\s*([\w.-]+\.md)\s*\|/gm);
 const missingFromIndex = [...trackedSet].filter((f) => !indexDocs.has(f));
 const indexButNotTracked = [...indexDocs].filter((f) => !trackedSet.has(f));
 check(
-  'every git-tracked _context/*.md file is listed in INDEX.md\'s document table',
+  'every versioned or newly-created _context/*.md file is listed in INDEX.md\'s document table',
   missingFromIndex.length === 0,
   missingFromIndex.join(', ')
 );
 check(
-  'INDEX.md\'s document table does not list a file that is no longer git-tracked',
+  'INDEX.md\'s document table does not list a missing or ignored file',
   indexButNotTracked.length === 0,
   indexButNotTracked.join(', ')
 );
@@ -100,4 +103,4 @@ if (errors.length) {
   for (const e of errors) console.error(`  - ${e}`);
   process.exit(1);
 }
-console.log(`Knowledge lint check OK (${trackedFiles.length} _context/*.md files, ${warnings.length} warning(s)).`);
+console.log(`Knowledge lint check OK (${trackedFiles.length} versioned/new _context/*.md files, ${warnings.length} warning(s)).`);

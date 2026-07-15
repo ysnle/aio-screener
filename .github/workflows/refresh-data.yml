@@ -31,7 +31,6 @@ jobs:
       - name: Fetch market data
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
         run: node scripts/fetch-data.mjs
@@ -57,10 +56,12 @@ jobs:
               `| Quotes | ${m.symbolsOk >= 70 ? 'OK' : 'WARN'} | ${m.symbolsOk || 0}/${totalSymbols} failed: ${(m.failedSymbols || []).join(',') || 'none'} |`,
               `| Twelve Data fallback | ${m.tdHasKey ? 'OK' : 'SKIP'} | hasKey=${m.tdHasKey} eligible=${m.tdFallbackEligible || 0} recovered=${m.tdFallbackRecovered || 0} |`,
               `| Fear&Greed | ${m.fearGreedOk ? 'OK' : 'WARN'} | ${d.fearGreed && d.fearGreed.score != null ? d.fearGreed.score : 'n/a'} |`,
+              `| Cboe Put/Call | ${m.putCallOk ? 'OK (delayed)' : 'WARN'} | ${d.putCall && d.putCall.totalPutCall != null ? d.putCall.totalPutCall + ' · ' + (d.putCall.asOf || 'date n/a') : 'n/a'} |`,
               `| FRED Secret | ${m.fredHasKey ? (m.fredFailedSeries && m.fredFailedSeries.length ? 'WARN' : 'OK') : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'}${m.fredFailedSeries && m.fredFailedSeries.length ? ' · failed: ' + m.fredFailedSeries.join(',') : ''} |`,
+              `| BLS official | ${m.blsStatus === 'ok' || m.blsStatus === 'cached-fresh' ? 'OK' : m.blsStatus === 'partial' ? 'PARTIAL' : 'WARN'} | status=${m.blsStatus || 'unavailable'} series=${m.blsSeriesCount || 0}/6 failed=${(m.blsFailedSeries || []).join(',') || 'none'} lastSuccessfulAt=${m.blsLastSuccessfulAt || 'none'} |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
               `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'ANTHROPIC_API_KEY missing or generation failed'} |`,
-              `| FMP Factors | ${m.fmpHasKey === false ? 'MISSING' : m.fmpOk ? 'OK' : m.fmpPlanError ? 'PLAN_ERROR' : m.fmpHasKey ? 'WARN(0/N)' : 'SKIP'} | hasKey=${m.fmpHasKey} ok=${m.fmpOk} count=${m.fmpCount || 0}${m.fmpPlanError ? ' ← Starter플랜($14.99/월) 이상 필요' : ''} |`,
+              `| Fundamentals | ${Number(m.fundamentalCoveragePct || 0) >= 80 ? 'OK' : 'PARTIAL'} | free SEC companyfacts=${m.secFundamentalsCount || 0} coverage=${m.fundamentalCoveragePct || 0}% · paid FMP not required |`,
               `| Elapsed | OK | ${m.elapsedMs || 0}ms |`,
             ].join('\n');
             const summary = `## Data refresh summary\n\n${rows}\n`;

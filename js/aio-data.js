@@ -4254,6 +4254,9 @@ async function _runScheduledTask(key, cfg, showError, opts) {
   if (cfg._inFlight) return { key: key, ok: false, skipped: true, error: 'scheduler task already in flight' };
   cfg._inFlight = true;
   cfg.lastRunStart = Date.now();
+  cfg._attemptedAt = new Date(cfg.lastRunStart).toISOString();
+  cfg._status = 'loading';
+  cfg._failureReason = '';
   var resolved;
   try {
     var taskResult = cfg.fn(opts);
@@ -4270,6 +4273,8 @@ async function _runScheduledTask(key, cfg, showError, opts) {
     }
     if (resolved && typeof resolved === 'object' && resolved.ok === false) {
       cfg._lastErr = resolved.error || resolved.reason || 'scheduler task returned no update';
+      cfg._status = resolved.status || (resolved.skipped ? 'missing' : 'failed');
+      cfg._failureReason = cfg._lastErr;
       return {
         key: key,
         ok: false,
@@ -4281,6 +4286,8 @@ async function _runScheduledTask(key, cfg, showError, opts) {
     }
     if (resolved && typeof resolved === 'object' && resolved.updated === false && resolved.skipped) {
       cfg._lastErr = resolved.error || resolved.reason || 'scheduler task skipped without update';
+      cfg._status = resolved.status || 'missing';
+      cfg._failureReason = cfg._lastErr;
       return {
         key: key,
         ok: false,
@@ -4291,12 +4298,22 @@ async function _runScheduledTask(key, cfg, showError, opts) {
       };
     }
     cfg._lastOk = Date.now();
+    cfg._lastSuccessfulAt = new Date(cfg._lastOk).toISOString();
     cfg._lastErr = '';
+    cfg._failureReason = '';
     cfg.retryCount = 0;
+    var settledFailure = Array.isArray(resolved) && resolved.some(function(row) { return row && row.status === 'rejected'; });
+    cfg._status = (resolved && resolved.status) || (settledFailure ? 'partial' : 'loaded');
+    cfg._coverage = resolved && typeof resolved.coverage === 'number' ? resolved.coverage : (resolved && typeof resolved.coveragePct === 'number' ? resolved.coveragePct : (cfg._coverage != null ? cfg._coverage : 100));
+    cfg._evidenceIds = resolved && Array.isArray(resolved.evidenceIds) ? resolved.evidenceIds.slice() : (cfg._evidenceIds || []);
+    cfg._sourceKind = resolved && resolved.sourceKind || cfg._sourceKind || null;
+    cfg._allowedUse = resolved && resolved.allowedUse || cfg._allowedUse || null;
     _aioMarkSchedulerFetch(key, resolved);
-    return { key: key, ok: true, skipped: false, updated: !(resolved && resolved.updated === false), error: '', result: resolved };
+    return { key: key, ok: !settledFailure, skipped: false, updated: !(resolved && resolved.updated === false), status: cfg._status, lastSuccessfulAt: cfg._lastSuccessfulAt, error: '', result: resolved };
   } catch(e) {
     cfg._lastErr = e && e.message || String(e);
+    cfg._status = 'failed';
+    cfg._failureReason = cfg._lastErr;
     cfg.retryCount = (cfg.retryCount || 0) + 1;
     if (showError) showDataError(cfg.label, 'auto refresh failed; retrying on next cycle', 'warn');
     return { key: key, ok: false, skipped: false, updated: false, error: cfg._lastErr };
@@ -4624,6 +4641,12 @@ window.AIO.getRefreshSchedulerAudit = function() {
       hasFn: hasFn,
       inFlight: !!cfg._inFlight,
       lastOk: cfg._lastOk || 0,
+      attemptedAt: cfg._attemptedAt || null,
+      lastSuccessfulAt: cfg._lastSuccessfulAt || (cfg._lastOk ? new Date(cfg._lastOk).toISOString() : null),
+      status: cfg._status || (cfg._lastOk ? 'loaded' : 'missing'),
+      coverage: cfg._coverage != null ? cfg._coverage : null,
+      evidenceIds: Array.isArray(cfg._evidenceIds) ? cfg._evidenceIds.slice() : [],
+      failureReason: cfg._failureReason || cfg._lastErr || null,
       lastErr: cfg._lastErr || '',
       retryCount: cfg.retryCount || 0,
       nextDue: cfg.nextDue || 0,
@@ -5489,6 +5512,8 @@ async function _aioLoadServerData() {
       macroKeyCount: d.meta.macroKeyCount || 0,
       newsOk: !!d.meta.newsOk,
       newsCount: d.meta.newsCount || (Array.isArray(d.news) ? d.news.length : 0),
+      putCallOk: !!d.meta.putCallOk,
+      putCallAsOf: d.meta.putCallAsOf || (d.putCall && d.putCall.asOf) || null,
       // v52.75/WP-AI0: generation success is not semantic verification.
       // The raw LLM marketAnalysis remains blocked until the producer emits
       // an explicit semantic-gate pass.
@@ -5498,6 +5523,14 @@ async function _aioLoadServerData() {
       fmpOk: !!d.meta.fmpOk,
       fmpCount: d.meta.fmpCount || 0,
       fmpPlanError: !!d.meta.fmpPlanError,
+      secFundamentalsOk: !!d.meta.secFundamentalsOk,
+      secFundamentalsCount: d.meta.secFundamentalsCount || 0,
+      fundamentalCoveragePct: d.meta.fundamentalCoveragePct || 0,
+      blsStatus: d.meta.blsStatus || (d.macro && d.macro._bls && d.macro._bls.status) || 'unavailable',
+      blsSeriesCount: d.meta.blsSeriesCount || 0,
+      blsFailedSeries: d.meta.blsFailedSeries || [],
+      blsAttemptedAt: d.meta.blsAttemptedAt || (d.macro && d.macro._bls && d.macro._bls.attemptedAt) || null,
+      blsLastSuccessfulAt: d.meta.blsLastSuccessfulAt || (d.macro && d.macro._bls && d.macro._bls.lastSuccessfulAt) || null,
       loadedAt: Date.now(),
       artifacts: { dataJson: 'ready', telegramDigest: 'pending', screenerJson: 'pending' }
     };
@@ -5528,6 +5561,34 @@ async function _aioLoadServerData() {
           window.DATA_SNAPSHOT['_' + k + 'Delta'] = d.macro[k + 'Delta'];
         }
       });
+      // BLS stays a separate official evidence family. It is projected into
+      // namespaced snapshot fields and never silently replaces the FRED values
+      // above; the typed series retains observation/release/fetch semantics.
+      var _blsEvidence = d.macro._bls || null;
+      window._serverBlsMacro = _blsEvidence;
+      if (window._serverDataMeta) {
+        window._serverDataMeta.bls = _blsEvidence ? {
+          status: _blsEvidence.status || 'unavailable',
+          sourceKind: _blsEvidence.sourceKind || 'official-primary',
+          attemptedAt: _blsEvidence.attemptedAt || null,
+          fetchedAt: _blsEvidence.fetchedAt || null,
+          lastSuccessfulAt: _blsEvidence.lastSuccessfulAt || null,
+          releaseAt: _blsEvidence.releaseAt || null,
+          failures: Array.isArray(_blsEvidence.failures) ? _blsEvidence.failures.slice() : [],
+          series: _blsEvidence.series || {}
+        } : null;
+      }
+      if (_blsEvidence && _blsEvidence.values) {
+        Object.keys(_blsEvidence.values).forEach(function(k) {
+          var value = _blsEvidence.values[k];
+          if (typeof value !== 'number' || !isFinite(value)) return;
+          window.DATA_SNAPSHOT[k] = value;
+          window.DATA_SNAPSHOT['_' + k + '_src'] = 'bls-official-primary';
+        });
+        if (window.DATA_SNAPSHOT._fieldTs && (_blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt)) {
+          window.DATA_SNAPSHOT._fieldTs.macro_bls = _blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt;
+        }
+      }
     }
     // v51.67: F&G previousScore → _fearGreedDelta 계산
     if (d.fearGreed && typeof d.fearGreed.score === 'number') {
@@ -5564,7 +5625,20 @@ async function _aioLoadServerData() {
         window.DATA_SNAPSHOT._fieldTs.fearGreed = d.fearGreed.asOf || d.meta.generatedAt || new Date().toISOString();
       }
     }
-    // 4) v50.28/WO-6: 서버 뉴스 백스톱 저장 + (클라이언트 뉴스 비었을 때만) 적용 — additive
+    // 4) Cboe official daily Put/Call. Server-side collection avoids the
+    // public CORS proxy and is explicitly delayed, never called real-time.
+    if (d.putCall && typeof d.putCall.totalPutCall === 'number' && isFinite(d.putCall.totalPutCall) && typeof _aioUpdatePutCallDom === 'function') {
+      _aioUpdatePutCallDom({
+        totalPutCall: d.putCall.totalPutCall,
+        equityPutCall: d.putCall.equityPutCall,
+        indexPutCall: d.putCall.indexPutCall,
+        sourceKind: 'delayed',
+        sourceLabel: 'Cboe Daily Market Statistics',
+        asOf: d.putCall.asOf || d.meta.generatedAt
+      });
+      if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) window.DATA_SNAPSHOT._fieldTs.putCall = d.putCall.asOf || d.meta.generatedAt;
+    }
+    // 5) v50.28/WO-6: 서버 뉴스 백스톱 저장 + (클라이언트 뉴스 비었을 때만) 적용 — additive
     if (Array.isArray(d.news) && d.news.length) {
       window._serverNewsBackstop = d.news;
       try { _aioApplyNewsBackstop(false); } catch(_) {}
@@ -5579,7 +5653,7 @@ async function _aioLoadServerData() {
         }
       }
     } catch(_) {}
-    // 5) v50.48/Phase 4: 서버 LLM 시장 분석문(운영자 키 있을 때 cron 생성) — 있으면 합성 sink가 템플릿 대신 우선 사용.
+    // 6) v50.48/Phase 4: 서버 LLM 시장 분석문(운영자 키 있을 때 cron 생성) — 있으면 합성 sink가 템플릿 대신 우선 사용.
     // v52.75/WP-AI0: do not expose generated-but-unverified LLM prose to any
     // public sink. A future typed/semantic producer must opt in explicitly.
     window._serverMarketAnalysis = null;
@@ -5621,7 +5695,7 @@ async function _aioLoadServerData() {
       if (sr.ok) {
         var sd = await sr.json();
         if (sd && sd.data) {
-          window._aioScreenerLoadState = { status:sd.backtest ? 'ready' : 'partial', checkedAt:Date.now(), asOf:sd.asOf || null, factorObservedAt:sd.factorObservedAt || null, count:Object.keys(sd.data).length, universe:sd.universe || null, fmpOk:!!sd.fmpOk, breadthStatus:'pending' };
+          window._aioScreenerLoadState = { status:sd.backtest ? 'ready' : 'partial', checkedAt:Date.now(), asOf:sd.asOf || null, factorObservedAt:sd.factorObservedAt || null, count:Object.keys(sd.data).length, universe:sd.universe || null, fmpOk:!!sd.fmpOk, secFundamentalsOk:!!sd.secFundamentalsOk, fundamentalCoveragePct:Number(sd.fundamentalCoveragePct)||0, breadthStatus:'pending' };
           window._aioServerScreener = sd;
           if (typeof _aioApplyServerScreener === 'function') _aioApplyServerScreener(sd);
           if (typeof _aioApplyScreenerBreadth === 'function') {
@@ -6191,11 +6265,9 @@ function _aioRenderPipelineStatus() {
     if (meta.marketAnalysisOk === false) {
       msgs.push({ icon: '🤖', text: 'AI 시장 분석 비활성', detail: 'GitHub Secrets → ANTHROPIC_API_KEY 등록 시 자동 활성화', color: '#f59e0b' });
     }
-    if (meta.fmpHasKey && meta.fmpOk === false) {
-      var fmpDetail = meta.fmpPlanError
-        ? 'FMP 키 등록됨 → HTTP 403 — Starter 플랜($14.99/월) 이상 필요 (ratios-ttm 엔드포인트)'
-        : 'FMP 키 등록됨 → 데이터 0건 — 키 유효성 또는 API 오류';
-      msgs.push({ icon: '📊', text: 'FMP 팩터 비활성 (밸류/퀄리티/어닝)', detail: fmpDetail, color: '#ef4444' });
+    if (meta.fmpHasKey && meta.fmpOk === false && Number(meta.fundamentalCoveragePct || 0) < 80) {
+      var fmpDetail = '유료 FMP는 사용하지 않음 · 무료 SEC companyfacts 누적 커버리지 ' + Number(meta.fundamentalCoveragePct || 0).toFixed(1) + '%';
+      msgs.push({ icon: '📊', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#ef4444' });
     }
     if (!meta.fredHasKey) {
       msgs.push({ icon: '🏦', text: 'FRED 매크로 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화 (클라이언트 키로 대체 가능)', color: '#94a3b8' });
@@ -6222,10 +6294,10 @@ function _aioRenderPipelineStatus() {
     if (scrFmpEl && meta.fmpHasKey != null) {
       if (meta.fmpHasKey && meta.fmpOk === false) {
         scrFmpEl.style.display = 'inline-flex';
-        if (scrFmpReason) scrFmpReason.textContent = meta.fmpPlanError ? 'FMP 키 등록됨 → 플랜 업그레이드 필요 (Starter $14.99/월)' : 'FMP 키 등록됨 → 데이터 0건';
+        if (scrFmpReason) scrFmpReason.textContent = '유료 플랜 미사용 · 무료 SEC companyfacts ' + Number(meta.fundamentalCoveragePct || 0).toFixed(1) + '% 누적';
       } else if (!meta.fmpHasKey) {
         scrFmpEl.style.display = 'inline-flex';
-        if (scrFmpReason) scrFmpReason.textContent = 'FMP_API_KEY 미등록 (4팩터 모드)';
+        if (scrFmpReason) scrFmpReason.textContent = Number(meta.fundamentalCoveragePct || 0) >= 80 ? '무료 SEC 재무 팩터 사용' : '무료 SEC 재무 데이터 누적 중 (가격 팩터 모드)';
       } else {
         scrFmpEl.style.display = 'none';
       }
@@ -15685,13 +15757,16 @@ function applyLiveQuotes(quotes) {
     // Fetch time and market observation time are distinct. Preserve provider market-state/timezone
     // metadata so intraday snapshots cannot look like later closing observations merely because
     // data.json itself was fetched recently.
-    var _rawObsTs = q.regularMarketTime || q.postMarketTime || q.preMarketTime || null;
-    var _obsMs = _rawObsTs ? (Number(_rawObsTs) < 1e12 ? Number(_rawObsTs) * 1000 : Number(_rawObsTs)) : null;
+    var _rawObsTs = q.observedAt || q.regularMarketTime || q.postMarketTime || q.preMarketTime || null;
+    var _parsedObsMs = typeof _rawObsTs === 'string' ? new Date(_rawObsTs).getTime() : Number(_rawObsTs);
+    var _obsMs = _parsedObsMs ? (_parsedObsMs < 1e12 ? _parsedObsMs * 1000 : _parsedObsMs) : null;
     window._liveData[q.symbol] = window._liveData[q.symbol] || {};
     if (_obsMs && isFinite(_obsMs)) window._liveData[q.symbol].observedAt = new Date(_obsMs).toISOString();
     if (q.marketState) window._liveData[q.symbol].marketState = q.marketState;
     if (q.exchangeTimezoneName) window._liveData[q.symbol].exchangeTimezoneName = q.exchangeTimezoneName;
     if (q.fullExchangeName) window._liveData[q.symbol].fullExchangeName = q.fullExchangeName;
+    if (q.fetchedAt) window._liveData[q.symbol].fetchedAt = q.fetchedAt;
+    if (typeof q.delayedByMs === 'number') window._liveData[q.symbol].delayedByMs = q.delayedByMs;
     // v30.14: 환율 심볼의 chartPreviousClose를 _fxPrevClose에 자동 보정
     // Yahoo chart API에서 가져온 chartPreviousClose로 환율 변화율 즉시 계산 가능하게 함
     if (q.chartPreviousClose && q.chartPreviousClose > 0 && q.symbol.includes('=X')) {
@@ -15713,7 +15788,10 @@ function applyLiveQuotes(quotes) {
       observedAt: _obsMs && isFinite(_obsMs) ? new Date(_obsMs).toISOString() : null,
       marketState: q.marketState || null,
       exchangeTimezoneName: q.exchangeTimezoneName || null,
-      exchange: q.fullExchangeName || null
+      exchange: q.fullExchangeName || q.venue || null,
+      fetchedAt: q.fetchedAt || null,
+      delayedByMs: typeof q.delayedByMs === 'number' ? q.delayedByMs : null,
+      allowedUse: q.allowedUse || null
     };
     try {
       if (window.AIO && typeof window.AIO.recordCrossSourceQuote === 'function') {
@@ -16443,6 +16521,7 @@ function _aioApplyServerScreener(sd) {
     }
     // v50.54 3B/3C: FMP 밸류/퀄리티/어닝(키 있을 때만 존재)
     ['pe','pb','evEbitda','roe','margin','revGrowth','epsSurprise'].forEach(function(k){ if (typeof f[k] === 'number') item[k] = f[k]; });
+    ['fundamentalSource','fundamentalModel','fundamentalPeriod','fundamentalObservedAt','fundamentalFiledAt','fundamentalFetchedAt','fundamentalAccession'].forEach(function(k){ if (f[k] != null) item['_' + k] = f[k]; });
     // v51.68: VCP 패턴 인식 데이터 병합
     if (typeof f.vcpScore === 'number') item.vcpScore = f.vcpScore;
     if (f.vcpStage) item.vcpStage = f.vcpStage;
@@ -16627,9 +16706,11 @@ function _aioComputeFactorRanks() {
     return typeof r.mcap === 'number' && r._mcapObservedAt && (Date.now() - new Date(r._mcapObservedAt).getTime()) <= 7 * 86400000;
   }).length;
   if (mcapCurrentCount >= Math.ceil(items.length * 0.8)) FACTORS.push({ key:'size', fn:sizeRaw });
-  var fmpCurrent = !!(window._aioServerScreener && window._aioServerScreener.fmpOk);
-  if (fmpCurrent && items.some(function(r){ return valueRaw(r) != null; }))   FACTORS.push({ key:'value',   fn:valueRaw });
-  if (fmpCurrent && items.some(function(r){ return qualityRaw(r) != null; })) FACTORS.push({ key:'quality', fn:qualityRaw });
+  var serverFundamentals = window._aioServerScreener || {};
+  var fundamentalCoveragePct = Number(serverFundamentals.fundamentalCoveragePct || 0);
+  var fundamentalCurrent = !!serverFundamentals.fmpOk || fundamentalCoveragePct >= 80;
+  if (fundamentalCurrent && items.some(function(r){ return valueRaw(r) != null; }))   FACTORS.push({ key:'value',   fn:valueRaw });
+  if (fundamentalCurrent && items.some(function(r){ return qualityRaw(r) != null; })) FACTORS.push({ key:'quality', fn:qualityRaw });
   if (items.some(function(r){ return kalmanRaw(r) != null; }))  FACTORS.push({ key:'kalman',  fn:kalmanRaw });
   var W = (typeof _aioFactorWeights === 'function') ? _aioFactorWeights(window.AIO && window.AIO.marketState) : null;
   var weights = (W && W.weights) ? W.weights : { momentum:0.32, trend:0.23, lowvol:0.18, size:0.18, value:0, quality:0, kalman:0.09 };
@@ -16638,8 +16719,8 @@ function _aioComputeFactorRanks() {
   window._aioActiveFactors = FACTORS.map(function(F){ return F.key; });
   window._aioInactiveFactorReasons = {
     size: mcapCurrentCount >= Math.ceil(items.length * 0.8) ? null : '시가총액 관측시각·80% 커버리지 미확보',
-    value: fmpCurrent ? null : 'FMP 현재 재무 데이터 미수신',
-    quality: fmpCurrent ? null : 'FMP 현재 재무 데이터 미수신'
+    value: fundamentalCurrent ? null : '무료 SEC/FMP 재무 커버리지 80% 미만 (' + fundamentalCoveragePct.toFixed(1) + '%)',
+    quality: fundamentalCurrent ? null : '무료 SEC/FMP 재무 커버리지 80% 미만 (' + fundamentalCoveragePct.toFixed(1) + '%)'
   };
   var stats = function(vals){
     if (!vals.length) return {mu:0,sd:1};
@@ -17730,6 +17811,11 @@ function _aioUpdatePutCallDom(payload) {
 
 async function fetchPutCall() {
   const badge = document.getElementById('pc-live-badge');
+  var serverPayload = window._lastPutCallPayload;
+  if (serverPayload && serverPayload.sourceLabel === 'Cboe Daily Market Statistics' && serverPayload.asOf) {
+    var serverAgeDays = (Date.now() - new Date(serverPayload.asOf).getTime()) / 86400000;
+    if (serverAgeDays >= -1 && serverAgeDays <= 4) return true;
+  }
   const cboeUrl = 'https://cdn.cboe.com/api/global/us_options_volume/options_volume.json';
   try {
     const proxy = CORS_PROXY + encodeURIComponent(cboeUrl);
@@ -17754,6 +17840,9 @@ async function fetchPutCall() {
     }
     throw new Error('no pcr data');
   } catch(e) {
+    // A failed legacy CDN/proxy request must not overwrite a fresher official
+    // server snapshot already applied from data.json.
+    if (window._lastPutCallPayload && window._lastPutCallPayload.sourceLabel === 'Cboe Daily Market Statistics') return true;
     var snap = (typeof DATA_SNAPSHOT !== 'undefined') ? Number(DATA_SNAPSHOT.pcr) : NaN;
     if (isFinite(snap)) {
       _aioUpdatePutCallDom({

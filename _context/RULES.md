@@ -2,9 +2,21 @@
 verified_by: agent
 last_verified: 2026-07-14
 confidence: high
-target_version: v52.90
+target_version: v52.94
 
 ---
+
+## R335. BLS 공식 macro evidence는 FRED 대체값이 아니라 typed primary producer로 보존한다 (v52.94)
+
+**Rule**: BLS keyless API 값은 FRED 값과 별도의 sourceKind/evidence/series metadata로 보존한다. `releaseAt`은 API가 제공하지 않으면 null이어야 하며, fetch time을 release time으로 승격하지 않는다. M13·연간 평균·불충분한 history·실패 응답은 정상 관측값이나 결정용 값으로 혼합하지 않는다.
+
+**Required**: allowlist와 bounded POST를 유지하고 12시간 성공 캐시, last-known-good, `attemptedAt/failureReason`, unit/frequency/seasonalAdjustment, derived input observation periods를 artifact와 runtime contract fixture로 검증한다.
+
+## R336. 모든 route의 page completeness는 producer failure와 reference fallback을 종결 상태로 노출한다 (v52.94)
+
+**Rule**: `loading`을 최종 상태로 남기지 말고 `loaded | partial | empty | blocked | stale-reference` 중 하나로 종료한다. `missing/zero`, 공급자 장애, stale/reference를 서로 다른 상태로 유지하며 required producer가 충족되지 않으면 해당 route의 금지 claim과 allowed use를 함께 노출한다.
+
+**Required**: `AIO_PAGE_CONTRACTS.pages[id]`의 required/optional/coverage/age/failure/forbidden fields와 `AIO.getPageDataCompleteness()`/`auditPageDataCompleteness({allRoutes:true})`를 단일 실행 경로로 사용한다. 22-route fixture, runtime contract, headless/accessibility/viewport matrix를 큰 변경 단위마다 통과시킨다.
 
 ## R313. AI reference retrieval must be intent-aware, top-k bounded, source-separated, and deterministically compacted (v52.78, P693)
 
@@ -3575,3 +3587,11 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Required**: 각 외부 의존은 current provider, target adapter, alternative, implementation state, rights, cadence를 기록한다. 실패 시 마지막 정상 artifact와 `lastSuccessfulAt`을 유지하고 새 `attemptedAt`/실패 상태만 기록한다. missing·라이선스 차단 입력은 중립값이나 현재값으로 변환하지 않는다.
 
 **Validation**: data-pipeline contract의 `CORE_QUOTE_COVERAGE_FAILED` 선행 순서와 `SCREENER_ONLY`, runtime contract LIVE3-11~12, `AIO.getExternalDependencyAudit()`.
+
+## R334. 데이터 대체 계획은 독립 실행·행 단위 lineage·publish 전 의미 검사로 닫는다 (v52.93, P708 root)
+
+**Rule**: CLI 진입점이나 후보 API 문서만 존재하는 상태를 자동화 완료로 표시하지 않는다. 반복 artifact는 각 행의 관측시각·출처·허용 용도를 보존하고, publish 전에 커버리지·현재성·사용범위를 실행 가능한 validator로 검사한다.
+
+**Required**: 무료 공식 원천을 우선하고 무료 동등 경로가 없으면 reference/education으로 제한한다. 운영자 이메일·무료 키·승인이 필요한 원천은 `operator_configuration_required`로 fail-closed 처리한다. 공용 CORS proxy/CDN 실패가 더 최신인 공식 서버 artifact를 snapshot으로 되돌리지 못하게 한다.
+
+**Validation**: `refresh-screener.yml`, `validate-screener-artifact.mjs`, SEC companyfacts 정규화 fixture, Cboe 공식 페이지 parser fixture/live probe, 종목별 `observedAt/sourceKind/allowedUse`, runtime/data-pipeline contract.

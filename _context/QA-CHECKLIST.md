@@ -1,13 +1,22 @@
 ---
 verified_by: agent
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 confidence: high
 version: v3.8
-checklist_version: v52.90
-total_items: 649
+checklist_version: v52.94
+total_items: 653
 stages: 22
 latest_P_covered: P705
 ---
+
+## v52.94 - BLS 공식 evidence와 22-route page completeness contract
+
+- [x] BLS 6개 allowlist series가 bounded keyless POST, 12시간 성공 캐시, M01-M12 필터, typed unit/seasonal adjustment/sourceKind를 유지한다.
+- [x] BLS derived YoY/MoM은 필요한 history가 없으면 `insufficient_history`로 차단하고 `releaseAt`을 fetch time으로 대체하지 않으며 실패 시 last-known-good를 보존한다.
+- [x] 22개 route contract가 required/optional producer, minCoverage, maxAge, failureState, forbiddenClaims를 가지며 completeness API가 loaded/partial/empty/blocked/stale-reference를 반환한다.
+- [x] BLS fixture, pipeline/runtime contract, Chromium headless 1084/1084, accessibility 22 routes, viewport 88/88, portfolio E2E 8/8을 통과했다.
+
+검증 시각: 2026-07-15. 외부 GitHub Actions/Pages live, human/legal approval은 별도 증거가 필요하다.
 
 ## v52.90 - 상태 기반 사용자 여정 2차 보강 (P705)
 
@@ -3020,3 +3029,14 @@ Derived from AI-X01~10 and WP-AI11~20 in `_context/AI-CHAT-INSTITUTIONAL-AUDIT-2
 - [x] **LIVE3-14 브레드쓰 증거**: all/us/kr별 universe, eligible, coveragePct, observedAt, SMA window별 eligible을 기록한다.
 - [x] **LIVE3-15 팩터 사용범위**: `rankingContract.tradingSignal=false`, predictive validation 미확립, live/backtest parity false를 유지한다.
 - [x] **LIVE3-16 외부 대체 레지스트리**: 각 외부 의존에 현재 경로·대체 공급자·권리·cadence·구현 상태가 있으며 API 존재를 연결 완료로 표시하지 않는다.
+
+### 무료 공식 소스·독립 publish 게이트 — v52.93 / P708
+
+- [x] **LIVE3-17 독립 workflow**: 6시간 screener workflow가 core `data.json/history.json`과 분리되고 `SCREENER_ONLY=1`, `SCREENER_ENRICH=1`로 실행된다.
+- [x] **LIVE3-18 행 lineage**: 모든 새 screener row가 자기 OHLCV의 `observedAt`, `source`, `sourceKind`, `allowedUse`를 가진다.
+- [x] **LIVE3-19 semantic publish**: `validate-screener-artifact.mjs`가 80% 가격/시장폭 커버리지, 행 수 일치, 관측시각, research-only 계약을 통과하기 전 publish를 막는다.
+- [x] **LIVE3-20 Cboe 공식 지연값**: Cboe Daily Market Statistics의 total/equity/index P/C와 selectedDate를 함께 파싱하며 `delayed`로만 사용한다. 실패한 CDN/proxy는 공식 서버값을 snapshot으로 덮지 않는다.
+- [x] **LIVE3-21 SEC 무료 누적**: companyfacts는 bounded batch, annual form/period/accession provenance, atomic artifact를 사용한다. `SEC_USER_AGENT`가 없으면 operator configuration required로 종료한다.
+- [x] **LIVE3-22 재무 커버리지 차단**: SEC/FMP 재무 커버리지가 미국 유니버스 80% 미만이면 value/quality를 활성화하지 않는다.
+- [x] **LIVE3-23 신규 지식 문서 게이트**: knowledge lint는 아직 stage하지 않은 non-ignored `_context/*.md`도 `INDEX.md`와 `_context/CLAUDE.md` 양쪽 문서 표에 존재하는지 검사한다.
+- [ ] **LIVE3-X2 운영자/외부**: 저장소 변수 `SEC_USER_AGENT`, OpenDART/ECOS/KOSIS 무료 키, KRX 승인·제3자 제공 조건, live Pages 재실행은 별도 필요하다.

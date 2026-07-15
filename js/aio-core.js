@@ -16948,20 +16948,20 @@ window.AIO.getDataLineageAudit = function() {
 // "대체 API가 존재한다"와 "현재 AIO에 운영 연결됐다"를 혼동하지 않도록 한다.
 window.AIO.getExternalDependencyAudit = function() {
   var rows = [
-    { id:'us-quotes-bars', current:'Yahoo chart/quote + Twelve Data/Finnhub fallback', state:'migration_recommended', target:'licensed_provider_adapter', alternatives:['Massive REST/WebSocket/flat files','Alpaca Market Data HTTP/WebSocket','Nasdaq Data Link'], rights:'provider plan and display/redistribution review required', cadence:'stream + EOD reconciliation' },
-    { id:'us-fundamentals', current:'FMP plan-dependent + SEC partial path', state:'operator_required', target:'sec_xbrl_normalizer', alternatives:['SEC EDGAR submissions/companyfacts/frames/bulk ZIP','Intrinio standardized fundamentals','Nasdaq Data Link premium datasets'], rights:'SEC fair-access/user-agent policy; paid vendor display rights separately', cadence:'filing event + nightly reconciliation' },
+    { id:'us-quotes-bars', current:'Yahoo chart/quote + Twelve Data fallback', state:'free_equivalent_unavailable', target:'free_reference_only', freeAlternatives:['Stooq EOD cross-check','SEC filings are not a quote substitute'], rights:'no free source has confirmed consolidated real-time display/redistribution parity', cadence:'EOD/reference only until rights are confirmed' },
+    { id:'us-fundamentals', current:'SEC companyfacts bounded batch + optional FMP', state:'connected_incremental', target:'sec_xbrl_normalizer', freeAlternatives:['SEC EDGAR companyfacts/frames/bulk ZIP'], rights:'free/keyless; SEC fair-access and declared User-Agent required', cadence:'bounded 6-hour batch + filing reconciliation' },
     { id:'us-macro', current:'FRED server/client', state:'connected', target:'official_macro_adapters', alternatives:['FRED/ALFRED','BLS Public Data API','BEA API','US Treasury Fiscal Data'], rights:'official API terms and attribution', cadence:'release-calendar driven + daily reconciliation' },
     { id:'kr-macro', current:'BOK ECOS/KOSIS key-dependent', state:'operator_required', target:'official_macro_adapters', alternatives:['BOK ECOS','KOSIS Open API','data.go.kr approved datasets'], rights:'API key, attribution, dataset-specific terms', cadence:'release-calendar driven' },
-    { id:'kr-eod-reference', current:'Yahoo .KS/.KQ + Naver proxy', state:'migration_recommended', target:'krx_eod_adapter', alternatives:['KRX Data Marketplace Open API','approved Koscom/vendor EOD feed'], rights:'KRX approval; display attribution; third-party provision restrictions', cadence:'post-close + correction reconciliation' },
-    { id:'kr-realtime-supply-short', current:'Naver investorTrend proxy; short data unavailable', state:'license_required', target:'licensed_kr_market_feed', alternatives:['KRX/Koscom contracted feed','licensed Korean market-data vendor'], rights:'real-time/redistribution contract required', cadence:'stream or official EOD depending license' },
+    { id:'kr-eod-reference', current:'Yahoo .KS/.KQ + Naver proxy', state:'free_key_approval_required', target:'krx_eod_adapter', freeAlternatives:['KRX Data Marketplace Open API'], rights:'free non-commercial key still requires approval, attribution, and third-party provision review', cadence:'post-close + correction reconciliation' },
+    { id:'kr-realtime-supply-short', current:'Naver investorTrend proxy; short data unavailable', state:'free_equivalent_unavailable', target:'reference_only', freeAlternatives:[], rights:'no confirmed free source with equivalent real-time/redistribution rights', cadence:'official delayed snapshot only when permitted' },
     { id:'breadth', current:'AIO universe adjusted-close aggregation', state:'connected_research_only', target:'point_in_time_universe_breadth', alternatives:['licensed full-universe EOD bars','exchange/vendor breadth series'], rights:'underlying constituent/history rights required', cadence:'daily after all bars settle' },
-    { id:'put-call', current:'Cboe page/CDN through proxy + snapshot fallback', state:'migration_recommended', target:'official_cboe_ingest', alternatives:['Cboe daily/current market statistics','licensed options-volume vendor'], rights:'Cboe terms/attribution; redistribution review', cadence:'intraday if licensed, otherwise daily close' },
-    { id:'survey-sentiment', current:'AAII/NAAIM/Investors Intelligence snapshots', state:'manual_or_license_required', target:'licensed_survey_ingest', alternatives:['AAII licensed sentiment data','NAAIM official weekly publication','Investors Intelligence subscription'], rights:'no equivalent free public API; do not relabel market proxies as the same survey', cadence:'weekly publication' },
+    { id:'put-call', current:'Cboe official daily statistics server ingest', state:'connected_delayed', target:'official_cboe_ingest', freeAlternatives:['Cboe Daily Market Statistics'], rights:'free public page with Cboe attribution; website terms still apply', cadence:'30-minute fetch of latest completed daily statistic' },
+    { id:'survey-sentiment', current:'AAII/NAAIM/Investors Intelligence snapshots', state:'free_equivalent_unavailable', target:'manual_reference_only', freeAlternatives:['NAAIM official weekly publication when publicly posted'], rights:'no equivalent free API; do not relabel VIX/F&G as the same survey', cadence:'weekly manual/reference' },
     { id:'news-events', current:'multi-RSS + Finnhub/NewsData optional', state:'connected_with_gap', target:'normalized_news_event_bus', alternatives:['GDELT Event/GKG','licensed news API','issuer/exchange/regulator RSS'], rights:'headline/body copyright and redistribution differ by source', cadence:'5-15 minute ingest + dedupe' },
     { id:'telegram', current:'public web/RSS mirrors with per-channel failure tracking', state:'operator_required', target:'authorized_channel_ingest', alternatives:['Telegram Bot API for managed channels','Telegram MTProto/TDLib user-authorized client','licensed aggregator'], rights:'account authorization, channel rights, platform terms; anonymous scraping is not a durable primary source', cadence:'webhook/update stream + 24h gap reconciliation' },
-    { id:'options-chain-greeks', current:'FMP/other optional provider path', state:'license_required', target:'licensed_options_adapter', alternatives:['Massive options','Intrinio options','Alpaca options market data','Cboe DataShop/products'], rights:'OPRA/exchange entitlements and display rights commonly required', cadence:'stream/snapshot + EOD settlement' },
+    { id:'options-chain-greeks', current:'reference-only page; no verified chain', state:'free_equivalent_unavailable', target:'education_only', freeAlternatives:[], rights:'OPRA/exchange entitlements and display rights required for equivalent live coverage', cadence:'none' },
     { id:'earnings-calendars', current:'Finnhub then FMP fallback', state:'operator_required', target:'calendar_reconciliation', alternatives:['Finnhub/Intrinio/vendor calendar','SEC filing events + issuer IR feeds'], rights:'provider-specific plan/redistribution terms', cadence:'daily horizon rebuild + event updates' },
-    { id:'disclosures-kr', current:'DART direct confirmation only', state:'operator_required', target:'opendart_ingest', alternatives:['OpenDART disclosures/financial statements/XBRL','licensed Korean fundamentals vendor'], rights:'OpenDART key and terms; normalize filing amendments', cadence:'filing event + nightly reconciliation' },
+    { id:'disclosures-kr', current:'DART direct confirmation only', state:'free_key_required', target:'opendart_ingest', freeAlternatives:['OpenDART disclosures/financial statements/XBRL'], rights:'free OpenDART key and terms; normalize filing amendments', cadence:'filing event + nightly reconciliation' },
     { id:'crypto', current:'CoinGecko + quote fallback', state:'connected_with_gap', target:'multi_exchange_reconciled_quotes', alternatives:['CoinGecko','exchange public market-data APIs','licensed consolidated crypto feed'], rights:'provider/exchange attribution and redistribution terms', cadence:'stream/poll + exchange timestamp reconciliation' }
   ];
   var byState = {};
@@ -16973,6 +16973,7 @@ window.AIO.getExternalDependencyAudit = function() {
     byState:byState,
     rows:rows,
     targetLayers:['provider adapters','immutable raw evidence','canonical normalized store','point-in-time universe/corporate actions','derived factor jobs','freshness/quality gates','versioned API/cache','page and AI consumers'],
+    planConstraint:'free-plan-only',
     invariant:'provider availability is not implementation status; missing/licence-blocked inputs fail closed and are never converted to neutral/current values'
   };
 };
@@ -20163,7 +20164,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v52.92';
+const APP_VERSION = 'v52.94';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -24198,6 +24199,37 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     return p[id] || { tasks:['quotes'], symbols:[] };
   }
 
+  // WP-10: executable page completeness is part of the existing page contract.
+  // This is deliberately not exposed as a second registry: producers, coverage,
+  // age budgets, and failure semantics travel with AIO_PAGE_CONTRACTS.pages[id].
+  function _pageCompletenessContract(id) {
+    var p = {
+      home: { requiredProducers:['quotes','sentiment','breadth','technicals'], optionalProducers:['news'], minCoverage:{ quotes:80, sentiment:50, breadth:50, technicals:50 }, maxAge:{ quotes:1200000, sentiment:14400000, breadth:345600000, technicals:3600000, news:10800000 }, failureState:'partial', forbiddenClaims:['today-action-conclusion-when-core-stale'] },
+      signal: { requiredProducers:['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], optionalProducers:['news'], minCoverage:{ quotes:80, sentiment:50, breadth:50, technicals:50, vixHistory:50, hySpread:50 }, maxAge:{ quotes:1200000, sentiment:14400000, breadth:345600000, technicals:3600000, vixHistory:86400000, hySpread:172800000 }, failureState:'blocked', forbiddenClaims:['predictive-buy-sell-claim'] },
+      breadth: { requiredProducers:['breadth','quotes'], optionalProducers:['officialExchangeBreadth'], minCoverage:{ breadth:50, quotes:80 }, maxAge:{ breadth:345600000, quotes:1200000 }, failureState:'blocked', forbiddenClaims:['breadth-without-denominator'] },
+      sentiment: { requiredProducers:['sentiment','vixHistory','hySpread'], optionalProducers:['delayedCboe','surveys'], minCoverage:{ sentiment:50, vixHistory:50, hySpread:50 }, maxAge:{ sentiment:14400000, vixHistory:86400000, hySpread:172800000 }, failureState:'partial', forbiddenClaims:['snapshot-survey-as-current-composite'] },
+      briefing: { requiredProducers:['quotes','fred','news','sentiment','breadth'], optionalProducers:['aiNarrative'], minCoverage:{ quotes:80, fred:50, news:50, sentiment:50, breadth:50 }, maxAge:{ quotes:1200000, fred:172800000, news:10800000, sentiment:14400000, breadth:345600000 }, failureState:'partial', forbiddenClaims:['unverified-ai-narrative'] },
+      technical: { requiredProducers:['quotes','technicals'], optionalProducers:['breadth','sentiment'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, breadth:345600000, sentiment:14400000 }, failureState:'blocked', forbiddenClaims:['mixed-observation-quote-history'] },
+      macro: { requiredProducers:['fred','quotes'], optionalProducers:['bls','bea','treasury','news'], minCoverage:{ fred:50, quotes:80 }, maxAge:{ fred:172800000, quotes:1200000 }, failureState:'partial', forbiddenClaims:['release-date-from-fetch-time'] },
+      fxbond: { requiredProducers:['quotes','fred','hySpread'], optionalProducers:['news'], minCoverage:{ quotes:80, fred:50, hySpread:50 }, maxAge:{ quotes:1200000, fred:172800000, hySpread:172800000 }, failureState:'partial', forbiddenClaims:['pair-inversion-or-percent-bp-mix'] },
+      fundamental: { requiredProducers:['quotes','news'], optionalProducers:['companyFundamentals','technicals'], minCoverage:{ quotes:80, news:50 }, maxAge:{ quotes:1200000, news:10800000 }, failureState:'partial', forbiddenClaims:['valuation-without-filing-coverage'] },
+      themes: { requiredProducers:['quotes','technicals'], optionalProducers:['news','valuation'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000 }, failureState:'partial', forbiddenClaims:['stale-constituent-current-leader-claim'] },
+      'theme-detail': { requiredProducers:['quotes','technicals'], optionalProducers:['news'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000 }, failureState:'partial', forbiddenClaims:['orphan-theme-entity'] },
+      portfolio: { requiredProducers:['quotes'], optionalProducers:['fundamentals','news'], minCoverage:{ quotes:80 }, maxAge:{ quotes:1200000 }, failureState:'partial', forbiddenClaims:['empty-portfolio-calculation'] },
+      ticker: { requiredProducers:['quotes','technicals','news'], optionalProducers:['fundamentals','filings'], minCoverage:{ quotes:80, technicals:50, news:50 }, maxAge:{ quotes:1200000, technicals:3600000, news:10800000 }, failureState:'partial', forbiddenClaims:['late-response-for-previous-symbol'] },
+      'market-news': { requiredProducers:['news'], optionalProducers:['quotes','sentiment'], minCoverage:{ news:50 }, maxAge:{ news:10800000 }, failureState:'partial', forbiddenClaims:['translation-failure-as-success'] },
+      options: { requiredProducers:['quotes','sentiment','vixHistory'], optionalProducers:['delayedPcr','chain','greeks'], minCoverage:{ quotes:80, sentiment:50, vixHistory:50 }, maxAge:{ quotes:1200000, sentiment:14400000, vixHistory:86400000 }, failureState:'blocked', forbiddenClaims:['live-chain-or-greeks-without-evidence'] },
+      'kr-home': { requiredProducers:['quotes','krDynamic','krSupply'], optionalProducers:['news'], minCoverage:{ quotes:80, krDynamic:50, krSupply:50 }, maxAge:{ quotes:1200000, krDynamic:86400000, krSupply:86400000 }, failureState:'partial', forbiddenClaims:['naver-snapshot-as-official-realtime'] },
+      'kr-supply': { requiredProducers:['krSupply'], optionalProducers:['quotes'], minCoverage:{ krSupply:50 }, maxAge:{ krSupply:86400000 }, failureState:'partial', forbiddenClaims:['missing-as-zero-or-neutral-bar'] },
+      'kr-themes': { requiredProducers:['quotes','krDynamic'], optionalProducers:['news'], minCoverage:{ quotes:80, krDynamic:50 }, maxAge:{ quotes:1200000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['historical-memo-as-current-catalyst'] },
+      'kr-macro': { requiredProducers:['fred','krDynamic'], optionalProducers:['news'], minCoverage:{ fred:50, krDynamic:50 }, maxAge:{ fred:172800000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['macro-claim-without-period-unit-release'] },
+      'kr-technical': { requiredProducers:['quotes','technicals','krDynamic'], optionalProducers:['krSupply','fred'], minCoverage:{ quotes:80, technicals:50, krDynamic:50 }, maxAge:{ quotes:1200000, technicals:3600000, krDynamic:86400000 }, failureState:'blocked', forbiddenClaims:['us-symbol-or-unofficial-mix'] },
+      guide: { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'loaded', forbiddenClaims:[] },
+      screener: { requiredProducers:['screenerArtifact'], optionalProducers:['fundamentals'], minCoverage:{ screenerArtifact:80 }, maxAge:{ screenerArtifact:345600000 }, failureState:'partial', forbiddenClaims:['complete-universe-claim-when-covered-subset'] }
+    };
+    return p[id] || { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'partial', forbiddenClaims:[] };
+  }
+
   function _pageType(id) {
     if (CRITICAL_5.indexOf(id) >= 0) return 'trading-core';
     if (ANALYSIS_5.indexOf(id) >= 0) return 'market-analysis';
@@ -24248,6 +24280,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
 
   function _makeContract(id) {
     var profile = _contractProfile(id);
+    var completeness = _pageCompletenessContract(id);
     var base = BASELINE_SURFACE[id] || {};
     return {
       pageId: id,
@@ -24255,6 +24288,12 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       sections: ['route-root','live-sinks','snapshot-sinks','charts','tables','forms','numeric-text','narratives'],
       refreshTasks: (profile.tasks || []).slice(),
       symbols: (profile.symbols || []).slice(),
+      requiredProducers: completeness.requiredProducers.slice(),
+      optionalProducers: completeness.optionalProducers.slice(),
+      minCoverage: Object.assign({}, completeness.minCoverage),
+      maxAge: Object.assign({}, completeness.maxAge),
+      failureState: completeness.failureState,
+      forbiddenClaims: completeness.forbiddenClaims.slice(),
       dataSinks: {
         live: '[data-live-price],[data-live-chg],[data-live-pct],[data-live-field]',
         snapshot: '[data-snap],[data-snap-date]',
@@ -24309,6 +24348,120 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
   window.AIO.getPageContract = function(pageId) {
     var id = String(pageId || '').replace(/^page-/, '');
     return (window.AIO_PAGE_CONTRACTS && window.AIO_PAGE_CONTRACTS.pages && window.AIO_PAGE_CONTRACTS.pages[id]) || null;
+  };
+  function _aioIsoMs(ms) {
+    return ms && isFinite(ms) ? new Date(ms).toISOString() : null;
+  }
+  function _aioProducerState(producer) {
+    var meta = window._serverDataMeta || {};
+    var cfg = window.REFRESH_SCHEDULE && window.REFRESH_SCHEDULE[producer] || null;
+    var state = {
+      producer: producer,
+      status: 'missing',
+      coverage: null,
+      attemptedAt: cfg && cfg._attemptedAt || null,
+      lastSuccessfulAt: cfg && (cfg._lastSuccessfulAt || _aioIsoMs(cfg._lastOk)) || null,
+      evidenceIds: cfg && Array.isArray(cfg._evidenceIds) ? cfg._evidenceIds.slice() : [],
+      failureReason: cfg && (cfg._failureReason || cfg._lastErr) || null,
+      sourceKind: cfg && cfg._sourceKind || null,
+      allowedUse: cfg && cfg._allowedUse || null
+    };
+    var direct = {
+      quotes: meta.generatedAt && Number(meta.symbolsOk) > 0 ? { status: Number(meta.symbolsFail || 0) ? 'partial' : 'loaded', coverage: (Number(meta.symbolsOk) / Math.max(1, Number(meta.symbolsOk) + Number(meta.symbolsFail || 0))) * 100, lastSuccessfulAt: meta.generatedAt, evidenceIds:['data.json:quotes'], sourceKind:'delayed-eod' } : null,
+      news: meta.generatedAt && meta.newsOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:news'], sourceKind:'server-cache' } : null,
+      fred: meta.generatedAt && meta.fredFetchOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:macro:fred'], sourceKind:'official-primary' } : null,
+      sentiment: meta.generatedAt && meta.fearGreedOk ? { status:'loaded', coverage:100, lastSuccessfulAt:meta.generatedAt, evidenceIds:['data.json:fearGreed'], sourceKind:'delayed' } : null,
+      breadth: meta.screener && meta.screener.status === 'ready' ? { status:'loaded', coverage:Number(meta.screener.coveragePct || 100), lastSuccessfulAt:meta.screener.generatedAt || meta.generatedAt, evidenceIds:['screener.json:breadth'], sourceKind:'delayed-eod' } : null,
+      screenerArtifact: meta.screener && meta.screener.status === 'ready' ? { status:'loaded', coverage:Number(meta.screener.coveragePct || (Number(meta.screener.ok) / Math.max(1, Number(meta.screener.universe)) * 100)), lastSuccessfulAt:meta.screener.generatedAt || meta.generatedAt, evidenceIds:['screener.json'], sourceKind:'delayed-eod', allowedUse:'research-relative-ranking-only' } : null
+    }[producer] || null;
+    if (direct) state = Object.assign(state, direct);
+    if (cfg) {
+      if (cfg._status) state.status = cfg._status;
+      if (cfg._coverage != null) state.coverage = Number(cfg._coverage);
+      if (cfg._lastSuccessfulAt) state.lastSuccessfulAt = cfg._lastSuccessfulAt;
+      if (cfg._attemptedAt) state.attemptedAt = cfg._attemptedAt;
+      if (Array.isArray(cfg._evidenceIds) && cfg._evidenceIds.length) state.evidenceIds = cfg._evidenceIds.slice();
+      if (cfg._failureReason || cfg._lastErr) state.failureReason = cfg._failureReason || cfg._lastErr;
+      if (cfg._sourceKind) state.sourceKind = cfg._sourceKind;
+      if (cfg._allowedUse) state.allowedUse = cfg._allowedUse;
+      if (!state.lastSuccessfulAt && cfg._lastOk) state.lastSuccessfulAt = _aioIsoMs(cfg._lastOk);
+      if (state.status === 'missing' && cfg._lastOk) state.status = 'loaded';
+    }
+    if (producer === 'screenerArtifact' && !direct) {
+      var load = window._aioScreenerLoadState || {};
+      state.status = load.status === 'ready' ? 'loaded' : load.status === 'loading' ? 'loading' : load.status || 'missing';
+      state.attemptedAt = load.checkedAt ? _aioIsoMs(load.checkedAt) : state.attemptedAt;
+      state.failureReason = load.detail || state.failureReason;
+    }
+    return state;
+  }
+  window.AIO.getPageDataCompleteness = function(pageId) {
+    var id = String(pageId || '').replace(/^page-/, '');
+    var contract = window.AIO.getPageContract(id);
+    if (!contract) return { version:'wp10.page-completeness.v1', pageId:id, status:'blocked', reason:'unknown-route', producers:{} };
+    var producerIds = Array.from(new Set((contract.requiredProducers || []).concat(contract.optionalProducers || [])));
+    var producers = {};
+    var issues = [];
+    producerIds.forEach(function(producer) {
+      var state = _aioProducerState(producer);
+      var maxAgeMs = contract.maxAge && contract.maxAge[producer] != null ? Number(contract.maxAge[producer]) : Infinity;
+      var minCoverage = contract.minCoverage && contract.minCoverage[producer] != null ? Number(contract.minCoverage[producer]) : 0;
+      var ageMs = state.lastSuccessfulAt ? Date.now() - new Date(state.lastSuccessfulAt).getTime() : null;
+      if (state.status === 'loaded' && ageMs != null && isFinite(maxAgeMs) && ageMs > maxAgeMs) state.status = 'stale';
+      if (state.status === 'loaded' && state.coverage != null && state.coverage < minCoverage) state.status = state.coverage <= 0 ? 'zero' : 'partial';
+      state.ageMs = ageMs;
+      state.maxAgeMs = maxAgeMs;
+      state.minCoverage = minCoverage;
+      producers[producer] = state;
+    });
+    (contract.requiredProducers || []).forEach(function(producer) {
+      var state = producers[producer];
+      if (!state) return;
+      if (['missing','loading','failed','unavailable','error','stale','zero','partial','blocked','reference','neutral'].indexOf(state.status) >= 0) {
+        issues.push({ producer:producer, status:state.status, failureReason:state.failureReason || null, coverage:state.coverage, maxAgeMs:state.maxAgeMs });
+      }
+    });
+    var blocked = issues.some(function(issue) { return issue.status === 'blocked' || contract.failureState === 'blocked' && issue.status === 'failed'; });
+    var staleReference = issues.some(function(issue) { return issue.status === 'reference'; });
+    var emptyStatuses = ['missing','zero','empty'];
+    var empty = issues.length > 0 && issues.length === (contract.requiredProducers || []).length && issues.every(function(issue) { return emptyStatuses.indexOf(issue.status) >= 0; });
+    var status = !issues.length ? 'loaded' : staleReference ? 'stale-reference' : empty ? 'empty' : blocked ? 'blocked' : 'partial';
+    return {
+      version:'wp10.page-completeness.v1',
+      pageId:id,
+      status:status,
+      requiredProducers:(contract.requiredProducers || []).slice(),
+      optionalProducers:(contract.optionalProducers || []).slice(),
+      minCoverage:Object.assign({}, contract.minCoverage || {}),
+      maxAge:Object.assign({}, contract.maxAge || {}),
+      failureState:contract.failureState || 'partial',
+      forbiddenClaims:(contract.forbiddenClaims || []).slice(),
+      producers:producers,
+      issues:issues,
+      checkedAt:new Date().toISOString()
+    };
+  };
+  window.AIO.auditPageDataCompleteness = function(opts) {
+    opts = opts || {};
+    var ids = opts.allRoutes ? (window.AIO_PAGE_CONTRACTS.routePageIds || []).slice() : (Array.isArray(opts.pageIds) && opts.pageIds.length ? opts.pageIds.slice() : [String(opts.pageId || '').replace(/^page-/, '')]);
+    ids = ids.filter(Boolean);
+    var pages = ids.map(function(id) { return window.AIO.getPageDataCompleteness(id); });
+    var blockedCount = pages.filter(function(row) { return row.status === 'blocked'; }).length;
+    var partialCount = pages.filter(function(row) { return row.status === 'partial'; }).length;
+    var emptyCount = pages.filter(function(row) { return row.status === 'empty'; }).length;
+    var staleReferenceCount = pages.filter(function(row) { return row.status === 'stale-reference'; }).length;
+    return {
+      version:'wp10.page-completeness.v1',
+      status:blockedCount ? 'blocked' : staleReferenceCount ? 'stale-reference' : emptyCount ? 'empty' : partialCount ? 'partial' : 'loaded',
+      routeCount:ids.length,
+      loadedCount:pages.filter(function(row) { return row.status === 'loaded'; }).length,
+      partialCount:partialCount,
+      blockedCount:blockedCount,
+      emptyCount:emptyCount,
+      staleReferenceCount:staleReferenceCount,
+      pages:pages,
+      checkedAt:new Date().toISOString()
+    };
   };
   window.AIO.getPageAIContract = function(pageId) {
     var contract = window.AIO.getPageContract(pageId);

@@ -242,7 +242,8 @@ export async function runBacktest(historyPath, outPath) {
 }
 
 // 직접 실행 시에만 동작(다른 스크립트가 함수만 import할 수 있도록 top-level 부작용 없음)
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
+const __entryArg = process.argv[1] ? process.argv[1].replace(/\\/g, '/') : '';
+if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url === `file:///${__entryArg}`)) {
   runBacktest(HISTORY_PATH, OUT_PATH).then((output) => {
     console.log(`[backtest-trading-score] records=${output.records.length} summary=${JSON.stringify(output.summary)}`);
   }).catch((e) => { console.error('[backtest-trading-score] error:', e.stack || e.message); process.exit(1); });

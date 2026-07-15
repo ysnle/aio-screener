@@ -20,6 +20,7 @@ import { runBacktest as runTradingScoreBacktest } from './backtest-trading-score
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
 const HIST = `${__dir}/../public-data/history.json`;
+const SEC_FUNDAMENTALS_OUT = `${__dir}/../public-data/sec-fundamentals.json`;
 
 // ── 수집 심볼 (v1 핵심셋). 더 넣으려면 배열에 추가만 하면 됨 (배치 처리 자동) ──
 const SYMBOLS = [
@@ -62,6 +63,20 @@ const FRED_SERIES = {
   retailSales:   { id: 'RSAFS',          kind: 'mom_pct' },             // 소매판매 MoM% (레벨 $ 시리즈에서 파생)
   usWageGrowth:  { id: 'CES0500000003',  kind: 'yoy' },                 // 시간당 평균임금 YoY%
 };
+
+// BLS Public Data API v1 is a separate official observation path from FRED.
+// Keep the six-series allowlist bounded and preserve typed observation evidence
+// inside data.json.macro; do not silently overwrite the FRED projection above.
+const BLS_SERIES = {
+  cpi: { id: 'CUSR0000SA0', field: 'blsCpiYoY', unit: 'index', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'yoy' },
+  coreCpi: { id: 'CUSR0000SA0L1E', field: 'blsCoreCpiYoY', unit: 'index', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'yoy' },
+  unemployment: { id: 'LNS14000000', field: 'blsUnemployment', unit: 'percent', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'level' },
+  laborForceParticipation: { id: 'LNS11300000', field: 'blsLaborForceParticipation', unit: 'percent', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'level' },
+  nonfarmPayroll: { id: 'CES0000000001', field: 'blsNfpMoM', unit: 'thousands', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'mom_diff' },
+  averageHourlyEarnings: { id: 'CES0500000003', field: 'blsAverageHourlyEarningsYoY', unit: 'USD/hour', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'yoy' },
+};
+const BLS_ENDPOINT = 'https://api.bls.gov/publicAPI/v1/timeseries/data/';
+const BLS_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; AIO-Screener-bot/1.0)' };
 
@@ -143,10 +158,18 @@ async function fetchQuote(symbol) {
         _source: 'live:yahoo-gh',
         // Observation lineage: generatedAt is fetch time, not necessarily market observation time.
         regularMarketTime: Number.isFinite(m.regularMarketTime) ? m.regularMarketTime : null,
+        observedAt: Number.isFinite(m.regularMarketTime) ? new Date(m.regularMarketTime * 1000).toISOString() : null,
+        fetchedAt: new Date().toISOString(),
+        delayedByMs: Number.isFinite(m.regularMarketTime) ? Math.max(0, Date.now() - m.regularMarketTime * 1000) : null,
         marketState: m.marketState || null,
+        marketSession: m.marketState || null,
         exchangeTimezoneName: m.exchangeTimezoneName || null,
         fullExchangeName: m.fullExchangeName || m.exchangeName || null,
+        venue: m.fullExchangeName || m.exchangeName || null,
         currency: m.currency || null,
+        source: 'Yahoo chart',
+        sourceTier: 'public-information-service',
+        allowedUse: Number.isFinite(m.regularMarketTime) ? 'current-with-session-and-delay-gate' : 'reference-only',
       };
     } catch (e) { lastErr = e; }
   }
@@ -201,10 +224,18 @@ async function fetchQuoteTwelveData(symbol, apiKey) {
     _pctSource: 'twelvedata-quote',
     _source: 'live:twelvedata-fallback',
     regularMarketTime: j && j.timestamp ? Number(j.timestamp) : null,
+    observedAt: j && j.timestamp ? new Date(Number(j.timestamp) * 1000).toISOString() : null,
+    fetchedAt: new Date().toISOString(),
+    delayedByMs: j && j.timestamp ? Math.max(0, Date.now() - Number(j.timestamp) * 1000) : null,
     marketState: j && j.is_market_open === true ? 'REGULAR' : (j && j.is_market_open === false ? 'CLOSED' : null),
+    marketSession: j && j.is_market_open === true ? 'REGULAR' : (j && j.is_market_open === false ? 'CLOSED' : null),
     exchangeTimezoneName: j && j.timezone || null,
     fullExchangeName: j && j.exchange || null,
+    venue: j && j.exchange || null,
     currency: j && j.currency || null,
+    source: 'Twelve Data quote fallback',
+    sourceTier: 'public-api-plan',
+    allowedUse: j && j.timestamp ? 'current-with-session-and-delay-gate' : 'reference-only',
   };
 }
 
@@ -299,6 +330,224 @@ async function fetchFearGreed() {
     }
   } catch (e) {}
   return { _source: 'cnn:fail' };
+}
+
+function blsObservationDate(year, period) {
+  const month = Number(String(period || '').slice(1));
+  return /^\d{4}$/.test(String(year || '')) && month >= 1 && month <= 12
+    ? `${year}-${String(month).padStart(2, '0')}-01`
+    : null;
+}
+
+function blsMonthlyRows(series) {
+  return (series && Array.isArray(series.data) ? series.data : [])
+    .filter(row => /^M(?:0[1-9]|1[0-2])$/.test(String(row.period || '')))
+    .map(row => ({
+      year: String(row.year),
+      period: String(row.period),
+      date: blsObservationDate(row.year, row.period),
+      value: Number(row.value),
+      footnotes: Array.isArray(row.footnotes) ? row.footnotes.filter(Boolean) : []
+    }))
+    .filter(row => row.date && Number.isFinite(row.value))
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function blsPriorMonth(date) {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function blsPriorYear(date) {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCFullYear(d.getUTCFullYear() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISOString()) {
+  const responseRows = new Map((payload && payload.Results && Array.isArray(payload.Results.series) ? payload.Results.series : [])
+    .map(series => [series.seriesID, series]));
+  const series = {};
+  const values = {};
+  const failures = [];
+
+  Object.entries(BLS_SERIES).forEach(([metricId, config]) => {
+    const raw = responseRows.get(config.id);
+    const rows = blsMonthlyRows(raw);
+    const latest = rows[0] || null;
+    const evidence = {
+      metricId,
+      seriesId: config.id,
+      unit: config.unit,
+      frequency: config.frequency,
+      seasonalAdjustment: config.seasonalAdjustment,
+      source: 'BLS Public Data API v1',
+      sourceKind: 'official-primary',
+      sourceUrl: 'https://www.bls.gov/developers/',
+      fetchedAt,
+      releaseAt: null,
+      observedAt: latest && latest.date,
+      observationPeriod: latest ? `${latest.year}-${latest.period}` : null,
+      rawValue: latest ? latest.value : null,
+      observationStatus: latest && latest.footnotes.length ? 'footnote-present' : 'final',
+      footnotes: latest ? latest.footnotes : [],
+      allowedUse: 'macro-evidence-with-observation-date',
+      decisionUse: false,
+      status: 'unavailable',
+      value: null,
+      inputObservationPeriods: []
+    };
+
+    if (!latest) {
+      failures.push({ metricId, seriesId: config.id, reason: 'empty_or_invalid_monthly_data' });
+      series[metricId] = evidence;
+      return;
+    }
+
+    let derived = latest.value;
+    let inputs = [latest];
+    if (config.derive === 'yoy') {
+      const prior = rows.find(row => row.date === blsPriorYear(latest.date));
+      if (!prior || prior.value === 0) {
+        evidence.status = 'insufficient_history';
+        failures.push({ metricId, seriesId: config.id, reason: 'insufficient_history_for_yoy' });
+        series[metricId] = evidence;
+        return;
+      }
+      derived = round((latest.value / prior.value - 1) * 100, 1);
+      inputs = [latest, prior];
+    } else if (config.derive === 'mom_diff') {
+      const prior = rows.find(row => row.date === blsPriorMonth(latest.date));
+      if (!prior) {
+        evidence.status = 'insufficient_history';
+        failures.push({ metricId, seriesId: config.id, reason: 'insufficient_history_for_mom_diff' });
+        series[metricId] = evidence;
+        return;
+      }
+      derived = round(latest.value - prior.value, 0);
+      inputs = [latest, prior];
+    }
+
+    evidence.value = derived;
+    evidence.status = 'ok';
+    evidence.inputObservationPeriods = inputs.map(row => `${row.year}-${row.period}`);
+    values[config.field] = derived;
+    series[metricId] = evidence;
+  });
+
+  const successful = Object.values(series).filter(row => row.status === 'ok').length;
+  return {
+    schemaVersion: 'bls-evidence.v1',
+    source: 'BLS Public Data API v1',
+    sourceKind: 'official-primary',
+    sourceUrl: BLS_ENDPOINT,
+    fetchedAt,
+    lastSuccessfulAt: successful ? fetchedAt : null,
+    attemptedAt: fetchedAt,
+    releaseAt: null,
+    status: successful === Object.keys(BLS_SERIES).length ? 'ok' : successful ? 'partial' : 'unavailable',
+    series,
+    values,
+    failures,
+    allowedUse: 'macro-evidence-with-observation-date',
+    decisionUse: false
+  };
+}
+
+export async function fetchBlsSeries(previous = null) {
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const previousFetchedAt = previous && previous.fetchedAt ? new Date(previous.fetchedAt).getTime() : NaN;
+  if (previous && Number.isFinite(previousFetchedAt) && Date.now() - previousFetchedAt <= BLS_CACHE_MAX_AGE_MS) {
+    return { ...previous, attemptedAt: nowIso, status: 'cached-fresh', cacheHit: true };
+  }
+
+  try {
+    const year = now.getUTCFullYear();
+    const response = await fetchJSON(BLS_ENDPOINT, {
+      method: 'POST',
+      headers: { ...UA, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        seriesid: Object.values(BLS_SERIES).map(config => config.id),
+        startyear: String(year - 2),
+        endyear: String(year)
+      })
+    });
+    if (!response || response.status !== 'REQUEST_SUCCEEDED') throw new Error(`BLS status ${response && response.message || response && response.status || 'unknown'}`);
+    const normalized = normalizeBlsSeriesResponse(response, nowIso);
+    if (Object.keys(normalized.values).length) return normalized;
+    throw new Error('BLS response contained no usable monthly series');
+  } catch (error) {
+    const failureReason = String(error && error.message || error);
+    if (previous && previous.series) {
+      return {
+        ...previous,
+        status: 'stale',
+        attemptedAt: nowIso,
+        failureReason,
+        cacheHit: false
+      };
+    }
+    return {
+      schemaVersion: 'bls-evidence.v1',
+      source: 'BLS Public Data API v1',
+      sourceKind: 'official-primary',
+      sourceUrl: BLS_ENDPOINT,
+      fetchedAt: null,
+      lastSuccessfulAt: null,
+      attemptedAt: nowIso,
+      releaseAt: null,
+      status: 'unavailable',
+      series: {},
+      values: {},
+      failures: [{ metricId: 'batch', seriesId: Object.values(BLS_SERIES).map(config => config.id).join(','), reason: failureReason }],
+      failureReason,
+      allowedUse: 'none',
+      decisionUse: false
+    };
+  }
+}
+
+// ── Cboe official daily Put/Call statistics ──
+// The legacy CDN JSON currently returns AccessDenied to server/browser callers.
+// Cboe's official daily statistics page embeds the same ratios and selected
+// trading date in its server-rendered payload, so Actions can ingest it without
+// a public CORS proxy. This is delayed daily volume, never labelled real-time.
+export function parseCboePutCallHtml(html) {
+  const normalized = String(html || '').replace(/\\"/g, '"');
+  const pick = (label) => {
+    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const match = normalized.match(new RegExp('"name"\\s*:\\s*"' + escaped + '"\\s*,\\s*"value"\\s*:\\s*"([0-9.]+)"', 'i'));
+    const value = match ? Number(match[1]) : null;
+    return Number.isFinite(value) ? value : null;
+  };
+  const selectedDate = (normalized.match(/"selectedDate"\s*:\s*"(\d{4}-\d{2}-\d{2})"/) || [])[1] || null;
+  const totalPutCall = pick('TOTAL PUT/CALL RATIO');
+  if (!Number.isFinite(totalPutCall) || !selectedDate) return null;
+  return {
+    totalPutCall,
+    indexPutCall: pick('INDEX PUT/CALL RATIO'),
+    equityPutCall: pick('EQUITY PUT/CALL RATIO'),
+    asOf: selectedDate,
+    fetchedAt: new Date().toISOString(),
+    source: 'Cboe Daily Market Statistics',
+    sourceUrl: 'https://www.cboe.com/data/mktstat.aspx',
+    sourceKind: 'delayed',
+    allowedUse: 'decision-with-daily-delay'
+  };
+}
+
+async function fetchCboePutCall() {
+  try {
+    const html = await _fetchRss('https://www.cboe.com/data/mktstat.aspx', 18000);
+    const parsed = parseCboePutCallHtml(html);
+    if (!parsed) throw new Error('official page did not contain ratio/date contract');
+    return parsed;
+  } catch (error) {
+    console.warn('[fetch-data] Cboe Put/Call 수집 실패:', error && error.message || error);
+    return { source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: new Date().toISOString(), error: String(error && error.message || error) };
+  }
 }
 
 // ── WO-6 (ops): 서버측 뉴스 백스톱 (브라우저 CORS 프록시 전멸 대비) ──
@@ -1004,6 +1253,39 @@ async function enrichFundamentals(syms) {
   return { data: out, hasKey: true, ok, total: us.length, planError: false };
 }
 
+async function enrichSecFundamentals(syms, priceData) {
+  try {
+    const payload = JSON.parse(await readFile(SEC_FUNDAMENTALS_OUT, 'utf8'));
+    const rows = payload && payload.data || {};
+    const out = {};
+    let available = 0;
+    const maxFetchAge = 45 * 86400000;
+    for (const sym of syms) {
+      const row = rows[sym];
+      if (!row || !row.fetchedAt || Date.now() - new Date(row.fetchedAt).getTime() > maxFetchAge) continue;
+      const rec = {};
+      ['pe','pb','roe','margin','revGrowth'].forEach(key => {
+        if (typeof row[key] === 'number' && Number.isFinite(row[key])) rec[key] = row[key];
+      });
+      if (!Object.keys(rec).length) continue;
+      Object.assign(rec, {
+        fundamentalSource: 'SEC EDGAR companyfacts',
+        fundamentalModel: row.model || payload.model || 'sec-fy-normalized-v1',
+        fundamentalPeriod: row.periodType || 'FY',
+        fundamentalObservedAt: row.observedAt || null,
+        fundamentalFiledAt: row.filedAt || null,
+        fundamentalFetchedAt: row.fetchedAt,
+        fundamentalAccession: row.accession || null
+      });
+      out[sym] = rec;
+      available++;
+    }
+    return { data: out, ok: available, stored: Object.keys(rows).length, generatedAt: payload.generatedAt || null, source: payload.source || 'SEC EDGAR companyfacts' };
+  } catch (error) {
+    return { data: {}, ok: 0, stored: 0, generatedAt: null, source: 'SEC EDGAR companyfacts', error: String(error && error.message || error) };
+  }
+}
+
 // v51.68: VCP (Volatility Contraction Pattern) 서버 사이드 계산 — aio-core.js _calcVCP 대응
 function _calcVCPServer(closes, highs, lows, volumes) {
   const n = closes.length;
@@ -1103,6 +1385,10 @@ async function _enrichPriceFactors(syms) {
         const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
         if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; }
       }
+      f.observedAt = r.observedAt;
+      f.source = 'Yahoo chart 1y adjusted-close history';
+      f.sourceKind = 'delayed-eod';
+      f.allowedUse = 'research-relative-ranking-only';
       data[r.sym] = f; ok++;
     }
   }
@@ -1212,18 +1498,40 @@ export async function enrichScreener() {
     }
   } catch (e) { console.warn('[fetch-data] fundamentals 병합 실패(무시):', e && e.message || e); }
 
-  // 3단계: 개별 종목 뉴스 메모 (지수/선물/FX/크립토/KR 제외)
+  // 3단계: 무료 공식 SEC annual facts를 FMP 결측 필드에 병합.
+  // SEC는 annual filing facts이고 FMP는 TTM이므로 서로 같은 모델처럼 섞지 않는다.
+  const secResult = await enrichSecFundamentals(syms, data);
+  for (const sym in secResult.data) {
+    if (!data[sym]) data[sym] = {};
+    const sec = secResult.data[sym];
+    ['pe','pb','roe','margin','revGrowth'].forEach(key => {
+      if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') data[sym][key] = sec[key];
+    });
+    if (!data[sym].fundamentalSource) {
+      ['fundamentalSource','fundamentalModel','fundamentalPeriod','fundamentalObservedAt','fundamentalFiledAt','fundamentalFetchedAt','fundamentalAccession'].forEach(key => {
+        if (sec[key] != null) data[sym][key] = sec[key];
+      });
+    }
+  }
+
+  // 4단계: 개별 종목 뉴스 메모 (지수/선물/FX/크립토/KR 제외)
   const prioSyms = SYMBOLS.filter(s => !/^\^|=F$|=X$|-USD$|\.KS$|\.KQ$/i.test(s));
   let tickerNewsOk = 0;
   try { tickerNewsOk = await _enrichTickerNews(prioSyms, data); }
   catch (e) { console.warn('[fetch-data] ticker news 실패(무시):', e && e.message || e); }
   console.log(`[fetch-data] ticker news: ${tickerNewsOk}종목 뉴스 메모 수집`);
 
-  // 4단계: 횡단면 팩터 백테스트(closes 재사용 — 1패스)
+  // 5단계: 횡단면 팩터 백테스트(closes 재사용 — 1패스)
   let backtest = null;
   try { backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148)); }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
   const breadth = computeScreenerBreadth(syms, results);
+  const usUniverse = syms.filter(s => !/\.(KS|KQ)$/i.test(s)).length;
+  const fundamentalCount = syms.filter(sym => {
+    const row = data[sym] || {};
+    return ['pe','pb','roe','margin','revGrowth'].some(key => typeof row[key] === 'number' && Number.isFinite(row[key]));
+  }).length;
+  const fundamentalCoveragePct = usUniverse ? round(fundamentalCount / usUniverse * 100, 1) : 0;
 
   // v51.91 P586/C2: IC/spread/hitRate 시계열 누적(별도 아티팩트) — 매 실행 덮어쓰기로 드리프트가
   // 안 보이던 문제 시정. screener.json 자체는 계속 최신 1개 스냅샷만 유지(기존 소비자 영향 없음).
@@ -1242,6 +1550,14 @@ export async function enrichScreener() {
     fmpOk: fmpResult.ok > 0,
     fmpCount: fmpResult.ok,
     fmpPlanError: fmpResult.planError,
+    secFundamentalsOk: secResult.ok > 0,
+    secFundamentalsCount: secResult.ok,
+    secFundamentalsStored: secResult.stored,
+    secFundamentalsGeneratedAt: secResult.generatedAt,
+    fundamentalCount,
+    fundamentalCoveragePct,
+    fundamentalCoverageDenominator: usUniverse,
+    fundamentalModels: ['fmp-ttm', 'sec-fy-normalized-v1'],
     breadth,
     rankingContract: {
       allowedUse: 'research-relative-ranking-only',
@@ -1255,7 +1571,7 @@ export async function enrichScreener() {
     backtest,
   };
   await writeFile(SCREENER_OUT, JSON.stringify(payload));
-  return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError };
+  return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError, secFundamentalsOk: secResult.ok > 0, secFundamentalsCount: secResult.ok, fundamentalCount, fundamentalCoveragePct };
 }
 
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
@@ -1305,12 +1621,22 @@ async function main() {
   const t0 = Date.now();
   console.log(`[fetch-data] ${SYMBOLS.length} 심볼 + FRED + F&G 수집 시작`);
 
-  const [quotesRaw, macro, fearGreed, news] = await Promise.all([
+  let previousBls = null;
+  try {
+    const previous = JSON.parse(await readFile(OUT, 'utf8'));
+    previousBls = previous && previous.macro && previous.macro._bls || null;
+  } catch (_) {}
+
+  const [quotesRaw, macro, fearGreed, news, putCall, bls] = await Promise.all([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
     fetchFearGreed(),
     fetchNews(),
+    fetchCboePutCall(),
+    fetchBlsSeries(previousBls),
   ]);
+  Object.assign(macro, bls.values || {});
+  macro._bls = bls;
 
   // v50.99: 검증 패스 — 의심 항목 재시도 후 최종 확정
   const pass1 = quotesRaw.filter(q => _quoteOk(q));
@@ -1369,7 +1695,12 @@ async function main() {
       fredFetchOk,
       fredOk,
       macroKeyCount: macroKeys.length,
-      fredFailedSeries,
+       fredFailedSeries,
+      blsStatus: bls.status,
+      blsSeriesCount: Object.keys(bls.values || {}).length,
+      blsFailedSeries: (bls.failures || []).map(row => row.metricId),
+      blsAttemptedAt: bls.attemptedAt || null,
+      blsLastSuccessfulAt: bls.lastSuccessfulAt || null,
       newsOk: Array.isArray(news) && news.length > 0,
       newsCount: Array.isArray(news) ? news.length : 0,
       newsSourceCount: NEWS_FEEDS.length,
@@ -1381,12 +1712,15 @@ async function main() {
       serverNewsScored: true,
       newsScoreMin: newsScores.length ? Math.min(...newsScores) : null,
       newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
+      putCallOk: putCall && Number.isFinite(putCall.totalPutCall),
+      putCallAsOf: putCall && putCall.asOf || null,
       elapsedMs: Date.now() - t0,
       schema: 1,
     },
     quotes,
     macro,
     fearGreed,
+    putCall,
     news,
   };
 
@@ -1421,9 +1755,24 @@ async function main() {
   try { scoreBacktestInfo = await runTradingScoreBacktest(HIST, `${__dir}/../public-data/score-backtest-history.json`); }
   catch (e) { console.warn('[fetch-data] trading-score backtest 실패(무시):', e && e.message || e); }
   if (scoreBacktestInfo) console.log(`[fetch-data] score backtest: ${scoreBacktestInfo.records.length}건 누적, summary=${JSON.stringify(scoreBacktestInfo.summary)}`);
-  // v50.52 Track1: 스크리너 팩터 enrichment (일 1회 자가 스로틀 — screener.json)
+  // Screener is a separate six-hour workflow. The 30-minute core job never
+  // downloads 870 one-year histories or writes screener.json.
   let scrInfo = null;
-  try { scrInfo = await enrichScreener(); } catch (e) { console.warn('[fetch-data] screener enrich 실패(무시):', e && e.message || e); }
+  try {
+    const existing = JSON.parse(await readFile(SCREENER_OUT, 'utf8'));
+    scrInfo = {
+      skipped: true,
+      count: Object.keys(existing.data || {}).length,
+      universe: existing.universe || 0,
+      fmpHasKey: existing.fmpHasKey,
+      fmpOk: existing.fmpOk,
+      fmpCount: existing.fmpCount || 0,
+      fmpPlanError: existing.fmpPlanError,
+      secFundamentalsOk: existing.secFundamentalsOk,
+      secFundamentalsCount: existing.secFundamentalsCount || 0,
+      fundamentalCoveragePct: existing.fundamentalCoveragePct || 0
+    };
+  } catch (e) { console.warn('[fetch-data] 기존 screener 상태 읽기 실패:', e && e.message || e); }
 
   // FMP 상태를 data.meta에 후기록 (screener 실행 결과 반영)
   if (scrInfo && !scrInfo.skipped) {
@@ -1437,6 +1786,11 @@ async function main() {
     }
   } else {
     data.meta.fmpHasKey = !!process.env.FMP_API_KEY;
+  }
+  if (scrInfo) {
+    data.meta.secFundamentalsOk = !!scrInfo.secFundamentalsOk;
+    data.meta.secFundamentalsCount = scrInfo.secFundamentalsCount || 0;
+    data.meta.fundamentalCoveragePct = scrInfo.fundamentalCoveragePct || 0;
   }
 
   // scrInfo 반영 후 data.json 재기록 (fmpHasKey 등 meta 업데이트)
@@ -1454,7 +1808,8 @@ async function main() {
 // 전혀 바꾸지 않는다(그 경우 이 조건은 항상 참). 다만 이제 closesToFactors/backtestFactors/_mean이
 // export돼 있어, 이 가드가 없으면 다른 스크립트가 그 함수만 재사용하려고 import하는 순간 라이브
 // fetch 파이프라인 전체(실 네트워크 호출+public-data/*.json 덮어쓰기)가 부작용으로 실행돼버린다.
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
+const __entryArg = process.argv[1] ? process.argv[1].replace(/\\/g, '/') : '';
+if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url === `file:///${__entryArg}`)) {
   const task = process.env.SCREENER_ONLY === '1' ? enrichScreener() : main();
   task.catch(e => { console.error('[fetch-data] 치명적 오류:', e); process.exit(1); });
 }
