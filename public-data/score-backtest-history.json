@@ -1,11 +1,11 @@
 {
- "generatedAt": "2026-07-14T12:02:29.047Z",
+ "generatedAt": "2026-07-15T01:01:33.517Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. breadth/pcr/aaiiBear/hyg/뉴스감성은 history.json에 없어 라이브 코드의 실시간-미수신 폴백 상수(또는 완전 생략)를 사용 — 근사가 아니라 이미 존재하는 코드 경로 재현. 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 \"검증 결과\"가 아니라 \"누적 진행 상황\"으로 취급할 것.",
  "summary": {
-  "n5d": 30,
-  "corr5d": -0.477,
-  "n21d": 14,
-  "corr21d": -0.253,
+  "n5d": 31,
+  "corr5d": -0.472,
+  "n21d": 15,
+  "corr21d": -0.354,
   "statisticallyMeaningful": false
  },
  "records": [
@@ -319,7 +319,7 @@
     "macro": 55
    },
    "fwd5dReturn": -0.1553195591313998,
-   "fwd21dReturn": 2.0349034547740414,
+   "fwd21dReturn": 2.418450443013744,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -342,7 +342,7 @@
     "macro": 55
    },
    "fwd5dReturn": 1.1172539010793376,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 2.5192233991372897,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -686,7 +686,7 @@
     "breadth": 72,
     "macro": 45
    },
-   "fwd5dReturn": -0.3751504578691478,
+   "fwd5dReturn": -0.0006628099962376505,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -709,7 +709,7 @@
     "breadth": 72,
     "macro": 45
    },
-   "fwd5dReturn": null,
+   "fwd5dReturn": -0.4197803677434453,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -793,6 +793,29 @@
   },
   {
    "date": "2026-07-14",
+   "reconstructedScore": 57,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": 50,
+    "breadth": 72,
+    "macro": 45
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrAaiiHygFellBackToNeutral": true,
+    "newsSentimentOmitted": true
+   }
+  },
+  {
+   "date": "2026-07-15",
    "reconstructedScore": 57,
    "subScores": {
     "vol": 78,
