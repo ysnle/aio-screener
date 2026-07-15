@@ -2,7 +2,7 @@
 verified_by: Codex (handoff-to-code reconciliation + focused live source probes)
 last_verified: 2026-07-15
 confidence: high for local implementation state; live/legal/human gates remain explicit
-target_version: v52.94
+target_version: v52.96
 source_handoff: _context/INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md
 source_plan: _context/DATA-SOURCE-REPLACEMENT-PLAN-2026-07-14.md
 document_role: current reconciliation ledger and executable handoff contract
@@ -12,6 +12,13 @@ execution_contract_version: 1.0
 # 기관급 데이터 핸드오프 대조 및 실행 설계
 
 ## 결론
+
+### v52.96 local audit addendum
+
+- `scripts/ci-data-lineage-audit.mjs`가 tracked `public-data/*.json` 12개를 정책별로 열거하고 timestamp, age, source, producer failure, 마지막 Git commit을 출력한다. 2026-07-15 local 결과는 `PASS 10 / WARN 2 / FAIL 0`이다.
+- WARN은 `screener-universe.json`의 선언된 7일 staleAfterDays 초과와 `sec-fundamentals.json` 24/655(3.7%)로, SEC 80% decision-use 게이트는 계속 차단된다. 값의 존재만으로 current/decision-use로 승격하지 않는다.
+- AI 답변은 T940~T1014 및 T1021~T1023의 shared pipeline, typed claim/evidence, currentness, retrieval poisoning, conduct/action, automated publish, SLO/golden/replay, rights/tool, page completeness 계약과 Chromium headless 1084/1084 결과로 `VERIFIED_LOCAL` 범위만 확인된다. 이는 실제 모델의 사실성, provider rights, live model, human/legal 인증을 의미하지 않는다.
+- 이 보강으로 공개 판정은 변경하지 않는다. SEC 80% 누적, 공식 이벤트/KR server adapter, PIT/corporate actions, live soak, Firefox/WebKit·NVDA/VoiceOver·실사용자, 법률/권리 승인은 여전히 `PUBLIC NO-GO` 조건이다.
 
 핸드오프와 v52.92까지의 작업은 중복 문서를 만들었지만, 동일한 항목을 이중 실행한 것은 아니다. 핸드오프는 `DESIGNED` 기준 원장이고 대체 계획은 공급자 선택표이며, 실제 구현은 일부만 진행돼 있었다. 이번 대조에서 세 가지 누락을 확인하고 로컬 구현했다.
 
@@ -410,6 +417,7 @@ node --check js/aio-core.js
 node --check js/aio-data.js
 node --check js/aio-chat.js
 node scripts/ci-data-pipeline-contract-check.mjs
+node scripts/ci-data-lineage-audit.mjs --json
 node scripts/validate-screener-artifact.mjs public-data/screener.json
 node scripts/ci-runtime-contract-check.mjs
 node scripts/ci-structural-check.mjs

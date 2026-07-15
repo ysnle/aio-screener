@@ -1,3 +1,9 @@
+## v52.96 (2026-07-15)
+- Added `scripts/ci-data-lineage-audit.mjs`, a policy-aware audit for all 12 tracked `public-data/*.json` artifacts. It reports the selected timestamp, age, source, producer failures, and last Git commit without promoting one timestamp type into another.
+- Added the lineage/freshness CI gate and R338/QA coverage. Live-core failures fail closed; reference/research staleness and SEC coverage below the 80% decision-use gate remain explicit warnings.
+- Local evidence: PASS 10, WARN 2, FAIL 0. Warnings are the stale declared universe reference and SEC 24/655 (3.7%) coverage; no provider rights, factual truth, live deployment, or human/legal approval is inferred.
+- R1 7 surfaces v52.96.
+
 ## v52.95 (2026-07-15)
 - WP-8 local release revision contract added: CI derives one deterministic revision from app version, SW build, data/screener hashes, Worker source hash, and the Pages artifact allowlist. It does not certify live deployment, provider rights, or human/legal approval.
 - <!-- 변경 내용을 이곳에 기록하세요 -->

@@ -2,9 +2,17 @@
 verified_by: agent
 last_verified: 2026-07-14
 confidence: high
-target_version: v52.94
+target_version: v52.96
 
 ---
+
+## R338. 데이터 artifact lineage는 정책별 timestamp와 반영 commit을 함께 검증하고, 다른 시각을 승격하지 않는다 (v52.96, P710)
+
+**Rule**: live-core quote, incremental official reference, daily history, research horizon, editorial note, and universe reference have different freshness semantics. A tracked JSON file must have an explicit policy and timestamp selector; `generatedAt`, `asOf`, `observedAt`, `fetchedAt`, `releaseAt`, `lastSuccessfulAt`, and row dates must not be silently substituted for one another. A current-looking file without producer/source and last-commit evidence is not a complete lineage record.
+
+**Required**: `scripts/ci-data-lineage-audit.mjs` must enumerate every tracked `public-data/*.json`, report timestamp/age/source/producer failures/last commit, fail on missing or invalid core lineage, warn on reference/research staleness, and preserve explicit decision-use gates such as SEC coverage below 80%. Its report is local/CI evidence only and never upgrades provider rights, factual truth, live deployment, or human/legal approval.
+
+**Validation**: `node scripts/ci-data-lineage-audit.mjs --json` with the 12-artifact local report and CI invocation.
 
 ## R335. BLS 공식 macro evidence는 FRED 대체값이 아니라 typed primary producer로 보존한다 (v52.94)
 

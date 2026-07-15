@@ -3,11 +3,20 @@ verified_by: agent
 last_verified: 2026-07-15
 confidence: high
 version: v3.8
-checklist_version: v52.94
-total_items: 654
+checklist_version: v52.96
+total_items: 660
 stages: 22
-latest_P_covered: P709
+latest_P_covered: P710
 ---
+
+## v52.96 - tracked public-data lineage/freshness audit (P710/R338)
+
+- [x] 12개 tracked `public-data/*.json` 파일이 모두 명시적 정책과 timestamp selector를 갖고, 미등록 artifact는 CI에서 실패한다.
+- [x] `generatedAt`, `asOf`, `observedAt`, `releaseAt`, `lastSuccessfulAt`, history date를 서로 대체하지 않는 self-test가 있다.
+- [x] artifact별 timestamp, age, source, producer failure count, 마지막 Git commit SHA/시각을 재현 가능한 JSON 보고서로 출력한다.
+- [x] live-core freshness/producer failure는 실패하고, research/reference stale 및 SEC 80% 미달은 경고로 남기며 decision-use 차단 상태를 보존한다.
+- [x] 2026-07-15 local run: 12 artifacts, PASS 10, WARN 2, FAIL 0; WARN은 `screener-universe` staleAfterDays 초과와 SEC 24/655(3.7%) coverage 미달이다.
+- [ ] SEC 누적 coverage 80%와 universe 갱신은 외부 Actions 실행/시간이 필요한 별도 조건이다.
 
 ## v52.94 regression closure (P709/R337)
 

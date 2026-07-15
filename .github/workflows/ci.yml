@@ -88,6 +88,9 @@ jobs:
       - name: Local release revision contract (WP-8)
         run: node scripts/ci-release-revision-check.mjs
 
+      - name: Data lineage and freshness audit (WP-8/WP-12)
+        run: node scripts/ci-data-lineage-audit.mjs
+
       - name: Structural regression checks
         run: node scripts/ci-structural-check.mjs
 
