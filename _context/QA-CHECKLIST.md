@@ -2947,6 +2947,8 @@ P677-Q1: T830 must distinguish `_isFallback=true` reference snapshots from promo
 
 ## Institutional public-release audit — 2026-07-12 handoff
 
+- [x] **Local release revision contract (WP-8)**: CI derives one deterministic local revision from app/version, SW build, data/screener hashes, Worker source hash, and the Pages artifact allowlist; live deployment, provider rights, and human/legal certification remain separate gates.
+
 These are blocking acceptance checks derived from `_context/INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md`. They remain FAIL until implemented as executable CI/runtime tests; documentation or a green shape audit is not sufficient.
 
 - [ ] **IRG-1 repeated metric parity**: after a five-second settle, every visible F&G/VIX/breadth/score/regime sink on all 22 routes has the same evidence ID, value, `asOf`, `sourceKind`, and `allowedUse`. Baseline failure to reproduce first: canonical/home F&G 49 while signal/sentiment/briefing show snapshot 31. This is the literal executable closure of P671-Q4.

@@ -85,6 +85,9 @@ jobs:
       - name: 버전 동기화 검증 (R1 7곳 + 캐시버스터 6곳)
         run: node scripts/ci-version-check.mjs
 
+      - name: Local release revision contract (WP-8)
+        run: node scripts/ci-release-revision-check.mjs
+
       - name: Structural regression checks
         run: node scripts/ci-structural-check.mjs
 

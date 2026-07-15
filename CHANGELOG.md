@@ -1,3 +1,8 @@
+## v52.95 (2026-07-15)
+- WP-8 local release revision contract added: CI derives one deterministic revision from app version, SW build, data/screener hashes, Worker source hash, and the Pages artifact allowlist. It does not certify live deployment, provider rights, or human/legal approval.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v52.95
+
 ## v52.94 (2026-07-15)
 - post-refresh CI regression fixed: T686 now distinguishes dated reference-only fallback drift from live parity, and T1022 load-state fixtures override direct artifact metadata; runtime contract, postmortem P709, and R337 record the prevention gate.
 - BLS Public Data API keyless adapter를 추가해 CPI, core CPI, 실업률, 노동참가율, 비농업고용, 시간당 임금을 typed official evidence로 수집한다. 12시간 성공 캐시, M13/연간 혼입 차단, insufficient history, releaseAt null, last-known-good 보존을 계약화했다.
