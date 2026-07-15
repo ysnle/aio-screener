@@ -3676,11 +3676,12 @@
     _assert('T685 us_secondary_macro_v4995: ismPrice 84.6(≥80) + consConf 93.1(85~100) + move 70.9(60~90) + rut 2936(≥2900) + wage 3.6 + shanghai 4098(≥3800)',
       ismOk && consOk && moveOk && rutOk && wageOk && shanghaiOk,
       'ismPmi=' + ds2.ismPmi + ' ismPrice=' + ds2.ismPrice + ' consConf=' + ds2.consConf + ' move=' + ds2.move + ' rut=' + ds2.rut + ' wage=' + ds2.usWageGrowth + ' shanghai=' + ds2.shanghai);
-    // T686: v49.96 R184/P459 근본 보강 — DATA_SNAPSHOT 본체 vs _fallback 미러 정합 (move 62/70.9·pcr 0.67/0.83 류 drift 자동 탐지)
+    // T686: v49.96 R184/P459 + R308 — current snapshot과 dated reference mirror를 구분
     var sfc = (window.AIO && window.AIO.getSnapshotFallbackConsistencyAudit) ? window.AIO.getSnapshotFallbackConsistencyAudit() : null;
-    _assert('T686 snapshot_fallback_mirror_consistency_v4996: 본체↔_fallback 미러 drift 0 (R184)',
-      !!sfc && sfc.issueCount === 0,
-      sfc ? ('issueCount=' + sfc.issueCount + ' mismatches=' + JSON.stringify(sfc.mismatches)) : 'audit fn missing');
+    var sfcReferenceOnly = !!sfc && sfc.referenceOnly === true && !!sfc.fallbackAsOf && sfc.parityRequired === false;
+    _assert('T686 snapshot_fallback_mirror_consistency_v4996: reference fallback drift is disclosed, not promoted into live parity (R184/R308)',
+      !!sfc && (sfc.issueCount === 0 || sfcReferenceOnly),
+      sfc ? ('issueCount=' + sfc.issueCount + ' referenceOnly=' + sfc.referenceOnly + ' fallbackAsOf=' + sfc.fallbackAsOf + ' snapshotAsOf=' + sfc.snapshotAsOf + ' mismatches=' + JSON.stringify(sfc.mismatches)) : 'audit fn missing');
     // T687: v49.96 P460 — KR_STOCK_DB 코드 추출 (코드-키 객체에서 6자리 KEY 수집). 0이면 siseJson 폴백 tier 무력화
     var krdb = (typeof window.KR_STOCK_DB !== 'undefined') ? window.KR_STOCK_DB : (typeof KR_STOCK_DB !== 'undefined' ? KR_STOCK_DB : null);
     var krCodes = [];

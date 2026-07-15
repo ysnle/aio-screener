@@ -681,6 +681,8 @@ check('WP-10: scheduler records attemptedAt/lastSuccessfulAt/coverage/evidenceId
   /cfg\._attemptedAt/.test(data) && /cfg\._lastSuccessfulAt/.test(data) && /cfg\._coverage/.test(data) && /cfg\._evidenceIds/.test(data) && /cfg\._failureReason/.test(data));
 check('WP-10: browser fixtures cover 22-route contract fields and disconnected producer failure state',
   /T1021 page_completeness_contract_fields/.test(tests) && /T1022 producer_disconnect_failure_state/.test(tests) && /T1023 page_completeness_audit_22_routes/.test(tests));
+check('R308/T686: reference fallback drift is explicit and not promoted to live parity',
+  core.includes('referenceOnly') && core.includes('fallbackAsOf') && core.includes('parityRequired') && tests.includes('sfcReferenceOnly') && tests.includes('reference fallback drift is disclosed'));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

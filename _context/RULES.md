@@ -18,6 +18,12 @@ target_version: v52.94
 
 **Required**: `AIO_PAGE_CONTRACTS.pages[id]`의 required/optional/coverage/age/failure/forbidden fields와 `AIO.getPageDataCompleteness()`/`auditPageDataCompleteness({allRoutes:true})`를 단일 실행 경로로 사용한다. 22-route fixture, runtime contract, headless/accessibility/viewport matrix를 큰 변경 단위마다 통과시킨다.
 
+## R337. Runtime fixture override와 reference fallback drift의 의미를 테스트 계약에 고정한다 (v52.94, P709)
+
+**Rule**: 명시적인 `_aioScreenerLoadState.status` fixture/operator 상태는 실제 artifact metadata보다 우선하여 producer 장애를 재현해야 한다. 반대로 날짜가 있는 `_fallback` mirror의 값 차이는 `referenceOnly/fallbackAsOf/snapshotAsOf/parityRequired`로 공개하고, reference-only 상태를 live parity 실패로 승격하지 않는다.
+
+**Required**: T686은 zero drift 또는 명시적인 dated reference-only evidence만 허용하고, T1022는 실제 artifact가 존재하는 환경에서도 disconnected producer를 검증한다. `AIO.getSnapshotFallbackConsistencyAudit()`와 page completeness API를 함께 유지한다.
+
 ## R313. AI reference retrieval must be intent-aware, top-k bounded, source-separated, and deterministically compacted (v52.78, P693)
 
 **Rule**: Imported research is `REFERENCE` material, not current market evidence. AI context assembly must classify the question, declare required evidence fields, rank route-relevant research with a stable top-k/tie order, and compact over-budget reference text deterministically within the declared 2K–6K token budget.

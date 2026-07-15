@@ -1,4 +1,5 @@
 ## v52.94 (2026-07-15)
+- post-refresh CI regression fixed: T686 now distinguishes dated reference-only fallback drift from live parity, and T1022 load-state fixtures override direct artifact metadata; runtime contract, postmortem P709, and R337 record the prevention gate.
 - BLS Public Data API keyless adapter를 추가해 CPI, core CPI, 실업률, 노동참가율, 비농업고용, 시간당 임금을 typed official evidence로 수집한다. 12시간 성공 캐시, M13/연간 혼입 차단, insufficient history, releaseAt null, last-known-good 보존을 계약화했다.
 - 22개 route page contract에 required/optional producer, coverage, age, failure state, forbidden claims를 연결하고 `AIO.getPageDataCompleteness()`/`auditPageDataCompleteness()`로 loaded/partial/empty/blocked/stale-reference를 판정한다.
 - 스케줄러에 attemptedAt/lastSuccessfulAt/status/coverage/evidenceIds/failureReason을 기록하고 BLS·페이지 완결성 fixture 및 runtime contract gate를 추가했다.

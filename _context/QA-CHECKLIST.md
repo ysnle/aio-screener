@@ -4,10 +4,14 @@ last_verified: 2026-07-15
 confidence: high
 version: v3.8
 checklist_version: v52.94
-total_items: 653
+total_items: 654
 stages: 22
-latest_P_covered: P705
+latest_P_covered: P709
 ---
+
+## v52.94 regression closure (P709/R337)
+
+- [x] T686 distinguishes dated reference-only fallback drift from live parity, and T1022 fixtures override direct screener artifact metadata during disconnected-producer tests.
 
 ## v52.94 - BLS 공식 evidence와 22-route page completeness contract
 

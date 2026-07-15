@@ -6249,3 +6249,12 @@ Agent 醫낇빀 ?먯닔: **8.2/10 ??9.3/10** 吏꾩엯 (?곸쐞 1% ?⑥씪 HTML 
 - **violated_rule**: R333의 “구현 완료 분리”를 workflow/row/publish 수준까지 실행하지 못함. R334로 승격.
 - **prevention**: data-pipeline/runtime contract가 독립 workflow, SEC/Cboe fixture, row lineage, semantic validator, free-only 상태를 검사한다. knowledge lint는 staged 여부와 무관하게 신규 지식 문서와 `INDEX.md`/`_context/CLAUDE.md` 양쪽 표를 검사한다. validator grep: `rg -n "validate-screener-artifact|observedAt|research-relative-ranking-only" .github/workflows/refresh-screener.yml scripts/fetch-data.mjs scripts/validate-screener-artifact.mjs`.
 - **verification**: 새 screener 실제 생성 `846/870`, validator PASS, US 706/725·KR 140/145 breadth coverage 80%+, Cboe 공식 live page `total 0.93/index 1.01/equity 0.62/asOf 2026-07-14` 파서 PASS, SEC normalization fixture PASS. SEC live collection은 monitored contact를 담은 `SEC_USER_AGENT` 미등록으로 의도적으로 미검증/차단.
+
+## P709 · v52.94 · Automated refresh exposed stale fallback-parity and producer-fixture assertions
+
+- **motivation**: The post-refresh CI run `29388582785` passed 1082/1084 headless checks but exposed two data-dependent regressions before Pages deployment: T686 treated the dated `_fallback` mirror as live parity data, and T1022 could not simulate a disconnected screener when a direct server artifact was present.
+- **root_cause**: `getSnapshotFallbackConsistencyAudit()` reported numeric drift without declaring the fallback's reference-only date semantics, while `_aioProducerState()` only applied `_aioScreenerLoadState` when direct artifact metadata was absent. The test suite therefore encoded stale assumptions about both reference data and fixture isolation.
+- **fix**: The snapshot audit now exposes `fallbackAsOf`, `snapshotAsOf`, `referenceOnly`, and `parityRequired`; T686 accepts zero drift or explicit dated reference-only evidence. Explicit screener load-state fixtures now override direct artifact metadata, while normal runtime behavior preserves direct metadata when no fixture status exists.
+- **violated_rule**: R308 enforcement gap; promoted to R337 for fixture precedence and explicit fallback-drift semantics.
+- **prevention**: Added the R308/T686 runtime contract check, updated T686/T1022, and added the QA checklist closure. The test must be rerun after artifact refresh because the failure depends on the current snapshot/fallback relationship.
+- **verification**: Local `node --check` and targeted runtime contract/headless tests after the patch; final Actions CI and Pages deployment must pass before release closure.

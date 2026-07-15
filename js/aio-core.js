@@ -14009,11 +14009,22 @@ window.AIO.getSnapshotFallbackConsistencyAudit = function(opts) {
   } catch (e) {
     return { status: 'error', message: e && e.message || String(e) };
   }
+  var fallbackAsOf = F._syncDate || null;
+  var snapshotAsOf = S._snapshotDate || S._updated || null;
+  var fallbackTs = fallbackAsOf ? Date.parse(String(fallbackAsOf)) : NaN;
+  var snapshotTs = snapshotAsOf ? Date.parse(String(snapshotAsOf)) : NaN;
+  // R308: _fallback is an explicitly dated reference mirror; it may lag the
+  // live/current snapshot and must not be promoted to parity-required data.
+  var referenceOnly = !!fallbackAsOf && isFinite(fallbackTs) && (!snapshotAsOf || !isNaN(snapshotTs) && fallbackTs <= snapshotTs);
   return {
     status: mismatches.length ? 'warn' : 'ok',
     issueCount: mismatches.length,
     checkedPairs: 12,
     mismatches: mismatches,
+    fallbackAsOf: fallbackAsOf,
+    snapshotAsOf: snapshotAsOf,
+    referenceOnly: referenceOnly,
+    parityRequired: !referenceOnly,
     note: 'DATA_SNAPSHOT 본체 vs _fallback 미러 정합 (R184/P459) — 불일치 시 한쪽만 갱신된 silent drift',
     generatedAt: new Date().toISOString()
   };
@@ -24387,11 +24398,16 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       if (!state.lastSuccessfulAt && cfg._lastOk) state.lastSuccessfulAt = _aioIsoMs(cfg._lastOk);
       if (state.status === 'missing' && cfg._lastOk) state.status = 'loaded';
     }
-    if (producer === 'screenerArtifact' && !direct) {
+    if (producer === 'screenerArtifact') {
       var load = window._aioScreenerLoadState || {};
-      state.status = load.status === 'ready' ? 'loaded' : load.status === 'loading' ? 'loading' : load.status || 'missing';
-      state.attemptedAt = load.checkedAt ? _aioIsoMs(load.checkedAt) : state.attemptedAt;
-      state.failureReason = load.detail || state.failureReason;
+      // A test/operator load-state fixture is authoritative even when a
+      // server artifact is present; without an explicit status preserve the
+      // direct artifact metadata.
+      if (load.status) {
+        state.status = load.status === 'ready' ? 'loaded' : load.status === 'loading' ? 'loading' : load.status;
+        state.attemptedAt = load.checkedAt ? _aioIsoMs(load.checkedAt) : state.attemptedAt;
+        state.failureReason = load.detail || state.failureReason;
+      }
     }
     return state;
   }
