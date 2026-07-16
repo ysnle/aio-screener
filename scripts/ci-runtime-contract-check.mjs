@@ -76,6 +76,8 @@ check('deployment gate includes runtime contract', /runtimeContract/.test(core) 
 check('tests cover runtime/share gate', /T844 v5079_runtime_contract_share_gate/.test(tests));
 check('Telegram digest applies latest items into SCREENER_DB memo', /function\s+_aioApplyTelegramDigestToScreenerDb/.test(data) && /_aioApplyTelegramDigestToScreenerDb\(raw,\s*merged\)/.test(data));
 check('Telegram memo overlay is exposed through audit', /_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(data));
+check('Telegram dynamic artifact replaces static narrative and exposes honest coverage', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /pipelineNote:\s*String\(raw\.pipelineNote/.test(data) && /coverage:\s*raw\.coverage/.test(data));
+check('Telegram page coverage audit spans all 22 routes', /getTelegramPageCoverageAudit/.test(data) && /requiredPageCount/.test(data) && /'portfolio':\s*\[/.test(data) && /'ticker':\s*\[/.test(data) && /'screener':\s*\[/.test(data) && /'kr-themes':\s*\[/.test(data) && /'guide':\s*\[\]/.test(data));
 check('tests cover Telegram digest memo injection', /T831[\s\S]{0,2200}SCREENER_DB memo/.test(tests) && /_telegramMemoOverlay/.test(tests));
 check('Telegram page feeds cover fundamental/themes/KR technical pages', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && /id="tg-feed-theme-detail"/.test(html) && /id="tg-feed-kr-technical"/.test(html));
 check('Telegram page routing includes credit and AI infrastructure tags by page', /'fundamental':\s*\[[^\]]*'semi'[^\]]*'credit'/.test(data) && /'themes':\s*\[[^\]]*'power'[^\]]*'credit'/.test(data) && /'fxbond':\s*\[[^\]]*'credit'/.test(data) && /'kr-technical':\s*\[[^\]]*'semi'/.test(data) && /'credit':\s*\{\s*label:/.test(data));
@@ -84,8 +86,12 @@ if (exists('public-data/telegram-digest.json')) {
   try {
     const digest = JSON.parse(read('public-data/telegram-digest.json'));
     const produced = Object.entries(digest.topicCounts || {}).filter(([, count]) => Number(count) > 0).map(([topic]) => topic);
-    const missing = produced.filter((topic) => !telegramConsumedTags.has(topic));
+    const missing = produced.filter((topic) => topic !== 'media-only' && !telegramConsumedTags.has(topic));
     check('produced Telegram digest topics are consumed by at least one page', missing.length === 0, missing.join(', '));
+    if (Array.isArray(digest.observedItems)) {
+      check('public Telegram digest count matches observed whole-window lineage', digest.count === digest.observedItems.length, `count=${digest.count}, observed=${digest.observedItems.length}`);
+      check('public Telegram digest reports capped-payload coverage funnel', digest.coverage && digest.coverage.observedCount === digest.count && Number.isFinite(digest.coverage.selectedRawCoveragePct));
+    }
   } catch (error) {
     check('public Telegram digest topic inventory parses for routing coverage', false, error.message);
   }
@@ -432,7 +438,7 @@ check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV524
 
 // v52.41 (P656): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2 (EF-08/10/11/12/19) structural gates
 check('EF-08: carry-unwind-risk render function has an independent aio:pageShown/aio:liveQuotes trigger, not only the showPage-monkeypatch setTimeout path that live-audit proved unreliable on cold load', /data-carry-unwind-shown/.test(data) && /data-carry-unwind-live/.test(data) && /_aioPageBus\.register\('data-carry-unwind-shown'/.test(data));
-check('EF-08: carry-unwind rate-diff label discloses the BOJ side is a fixed constant, not a live feed', /BOJ 정책금리 고정값 기준/.test(data));
+check('EF-08: carry observation proxy discloses the manually verified BOJ input and holds instead of inventing a score when current inputs are absent', /BOJ 수동 확인값 기준/.test(data) && /관측 프록시 보류/.test(data) && /inputsComplete/.test(data));
 check('EF-10: ticker page Key Metrics + Quarterly Results dead slots render an honest na state pointing to the fundamental page instead of a silent permanent dash', /_tickerGapIds/.test(core) && /ticker-m-mcap/.test(core) && /ticker-f-ni/.test(core) && /펀더멘탈.*이동 후/.test(core));
 check('EF-11: risk-monitor VXX-term-structure and RSP/SPY-ratio status slots fall back to an explicit pending state when live inputs are missing', /VXX 또는 VIX 라이브 시세 미수신/.test(html) && /RSP 또는 SPY 라이브 시세 미수신/.test(html));
 check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(html) && /html-tv-ohlc-fallback-shown/.test(html) && /html-tv-ohlc-fallback-live/.test(html));
@@ -449,8 +455,15 @@ check('EF-16: kr-macro rate/CPI/PMI cards expose a shared _fieldTs-based freshne
 check('headless tests cover Batch 3 efficacy fixes (EF-06/07/14/16)', /_testV5242Batch3Efficacy/.test(tests) && /T879/.test(tests) && /T880/.test(tests) && /T881/.test(tests) && /T883/.test(tests));
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (EF-03/05/17/18) structural gates
-check('EF-03: BOK next-meeting date is corrected to the WebSearch-verified 2026-07-16 (was the wrong 2026-07-10) in both DATA_SNAPSHOT and the MACRO_CALENDAR registry', /bokNext:\s*'2026-07-16'/.test(core) && /nextRelease:\s*'2026-07-16'/.test(core));
-check('EF-03: US FOMC calendar entry rolled forward past the already-occurred 6/17 meeting to the actual next meeting (7/29)', /lastRelease:\s*'2026-06-17',\s*nextRelease:\s*'2026-07-29'/.test(core));
+check('EF-03/P713: BOK next-meeting date is a valid ISO date consistent between DATA_SNAPSHOT.bokNext and the MACRO_CALENDAR kr-bok registry (date no longer pinned in this gate — the pinned form rotted deterministically on meeting day and turned CI red)', (() => {
+  const bokM = core.match(/bokNext:\s*'(\d{4}-\d{2}-\d{2})'/);
+  const calM = core.match(/'kr-bok':\s*\{[^}]*nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/);
+  return !!bokM && !!calM && bokM[1] === calM[1] && bokM[1] !== '2026-07-10' && Number.isFinite(Date.parse(bokM[1]));
+})());
+check('EF-03/P713: US FOMC calendar entry has valid ISO lastRelease < nextRelease (date no longer pinned — pinned 6/17→7/29 form would rot deterministically on 7/29 meeting day, same class as the BOK T884 rot)', (() => {
+  const m = core.match(/'us-fed-rate':\s*\{[^}]*lastRelease:\s*'(\d{4}-\d{2}-\d{2})',\s*nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/);
+  return !!m && Date.parse(m[1]) < Date.parse(m[2]) && m[2] !== '2026-06-17';
+})());
 check('EF-17 (user-approved scope addition): home GLOBAL MARKETS table includes ES=F/NQ=F futures rows with a regular-hours-aware highlight, and the underlying symbols are already part of the live-quote fetch set (no new fetch pipeline required)', /sym:\s*'ES=F',\s*label:\s*'S&P Futures',\s*isFutures:\s*true/.test(html) && /isRegularHours/.test(html));
 check('EF-18: kr-supply fetch uses the confirmed-live /api/index/{market}/trend path (curl-verified 200) instead of the confirmed-404 /investorTrend path, with a response-shape adapter preserving net-flow semantics', /_aioAdaptKrTrendResponse/.test(html) && /api\/index\/KOSPI\/trend'/.test(html) && /api\/index\/KOSDAQ\/trend'/.test(html));
 check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Batch4Efficacy/.test(tests) && /T884/.test(tests) && /T885/.test(tests) && /T886/.test(tests));
@@ -662,7 +675,10 @@ check('WP-AI19/20: shared pipeline carries tool and rights audits and denies mut
 // v52.91: third-pass live currentness/root-cause gates.
 check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial key fragments', /el\.value = '••••••••'/.test(ui + core) && !/el\.value = saved/.test(ui) && !/inp\.value = key;\s*\/\/ 실제 키 표시/.test(html) && !/slice\(0, 8\) \+ '\.\.\.' \+/.test(html + core));
 check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
-check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /_verifiedDecisionValue\('breadth200-participation', breadthCandidate, 50\)/.test(core) && /시장폭 최신 근거 미수신/.test(core));
+check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /window\._breadthLiveData\s*=/.test(data) && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
+check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
+check('LIVE3-05: MOVE/SKEW regimes require live observations and stale seeds render unavailable', /live\['\^SKEW'\]/.test(core) && /live\['\^MOVE'\]/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core));
+check('LIVE3-06: late breadth producer refreshes breadth, signal, and home consumers atomically', /updateBreadthBars\(\)/.test(data) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
 check('LIVE3-04: briefing labels the actual S&P index and reads the canonical pct field', /var spx = _ldSafe\('\^GSPC', 'price'\), spxChg = _ldSafe\('\^GSPC', 'pct'\)/.test(core) && /S&amp;P 500 지수/.test(core) && !/_ldSafe\('SPY', 'chgPct'\)/.test(core));
 check('LIVE3-05: KR supply parses formatted values and renders missing as unknown rather than zero', /String\(v\)\.replace\(\/\[,\+\\s\]\/g/.test(html) && /streakEl\.textContent = '수급 미수신'/.test(html) && /미수신을 0원\/매도 우위로 해석하지 않는다/.test(html) && /기관 세부 수급 미수신/.test(html) && /프로그램 매매 미수신/.test(html));
 check('LIVE3-06: conflicting stale Naver KR index quotes cannot overwrite a materially different server quote', /_aioKrQuoteConflicts/.test(data) && /_krDiff > 0\.0075/.test(data));
@@ -683,6 +699,18 @@ check('WP-10: browser fixtures cover 22-route contract fields and disconnected p
   /T1021 page_completeness_contract_fields/.test(tests) && /T1022 producer_disconnect_failure_state/.test(tests) && /T1023 page_completeness_audit_22_routes/.test(tests));
 check('R308/T686: reference fallback drift is explicit and not promoted to live parity',
   core.includes('referenceOnly') && core.includes('fallbackAsOf') && core.includes('parityRequired') && tests.includes('sfcReferenceOnly') && tests.includes('reference fallback drift is disclosed'));
+check('R340/P712: Treasury maturity fields are separated and 2s10s uses the canonical evidence helper',
+  /'\^TNX':\s*\['tnx',\s*null\]/.test(data) && !/'\^TNX':\s*\['tnx2y'/.test(data) && /getUsTreasuryCurveEvidence/.test(core) && /spread2s10s/.test(core) && !/\^FVX[^\n]{0,120}\*\s*0\.95/.test(html));
+check('R340/P712: KR theme breadth and market-health claims fail closed on missing current inputs',
+  /evaluateKrThemeQuoteCoverage/.test(html) && /weightedCoverage\s*>=\s*0\.7/.test(html) && /테마 종합판정 보류/.test(html) && /currentInputs\s*<\s*4/.test(html) && /판정 보류 · 현재 입력/.test(html));
+check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
+  /renderOfficialFutureCalendar/.test(html) && /id="official-future-calendar"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html));
+check('R340/P712: semantic market-integrity tests cover curve exactness and KR missingness',
+  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_no_random_history/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_required_inputs_fail_closed/.test(tests));
+check('R340/P712: synthetic market-series formulas are absent from decision paths',
+  !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
+check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
+  /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core) && /_breadthSeriesReferenceAsOf\s*=\s*'2026-06-05'/.test(ui) && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

@@ -1,11 +1,38 @@
 ﻿---
 verified_by: agent
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 confidence: high
-latest_version: v52.92
-latest_P_number: P707
-total_entries: 473
-next_P_number: P708
+latest_version: v53.0
+latest_P_number: P713
+total_entries: 490
+next_P_number: P714
+
+## P713 - v53.0 - fail-closed 전수 스윕이 이중 구현 표면을 놓쳤고, 날짜 하드코딩 테스트가 이벤트 당일 CI를 죽였다
+
+- **motivation**: 사용자 요청으로 v52.73~v52.99 Codex 작업분(커밋 +7,834줄, 미커밋 +2,061줄)을 금융 전문가 관점에서 전수 리뷰했다. CHANGELOG 주장과 실제 코드의 정합성을 diff·구현 정독·게이트 실행·라이브 CI 실측으로 대조했다.
+- **root_cause**: ① P712/v52.98이 "Weinstein Stage·MTF는 관측 이력 없으면 판정 보류"를 aio-core.js marketState 경로에만 적용하고, index.html의 별도 구현 `updateWeinsteinStage()`/`updateMTF()`(호출부 살아있는 라이브 경로)를 놓쳤다 — 임의 폴백(abv50=28, 20SMA=57)과 HYG 달러 고정 가격밴드($80/76/72) 신용 판정, "매수 금지! 현금이 최고의 포지션" 처방 문구가 잔존(이중 표면 드리프트 재발). ② VKOSPI 시드 주석은 "live 성공값만 current evidence로 허용"이라 선언했지만 소비처(kr-supply 배너+채팅 컨텍스트 5곳)는 게이트 없이 시드를 현재값처럼 사용. ③ T884가 '2026-07-16'을 하드코딩해 금통위 당일 캘린더 auto-advance와 충돌 — origin/main CI가 이벤트 당일 결정론적으로 RED가 됐고, runtime contract의 BOK/FOMC 날짜 핀 2건도 동일 클래스(FOMC 핀은 7/29에 부패 예정이었음). ④ 스코어 공시 "예측력 아직 검증되지 않음"은 WO-2 실측(유의한 음의 상관)을 과소 공시.
+- **fix**: 두 함수 evidence-gate 교체(50SMA 폭 미수신 시 Weinstein 판정 보류·MTF 축 제외), HYG 가격밴드→FRED HY OAS(350/450/550bp) 교체+미수신 시 축 제외, 처방 문구 프레임워크 귀속형 전환, `_vkospiLiveOk` 플래그로 소비처 6곳 게이트, T884·runtime contract 날짜 핀 3건을 rot-proof 정합성 검증으로 재설계(BOK 공식 일정 7/16→8/27 반영), 스코어 공시에 음의 상관 실측 명시, 잔여 매매 권유 문구 5곳 관측형 전환, debug.log untrack.
+- **violated_rule**: R340(파생 결론의 결측 대체 금지 — 이중 구현까지 전수 강제 실패), R276 계열(동일 판정의 이중 표면), R3·R25(날짜 하드코딩 단언은 P604 auto-advance 버그와 같은 "달력 회전 부패" 계열인데 테스트/계약에서 재발).
+- **prevention**: (a) fail-closed 스윕은 함수 단위가 아니라 **동일 지표를 소비하는 모든 호출 표면의 grep 전수**(예: `abv50`, `hygPrice >`, `DATA_SNAPSHOT.vkospi`)로 완료를 판정한다. (b) 테스트·CI 계약에 미래 특정일을 등호로 고정하는 단언 금지 — 유효성(ISO 파싱)+표면 간 정합(등호는 소스 상수끼리만)으로 작성한다. 위반 검출: `grep -n "=== '20[0-9][0-9]-" js/aio-tests.js`. (c) 시드 정책 주석("판정에 사용 안 함")을 달 때는 소비처 grep 결과를 주석에 병기한다.
+- **verification**: 워킹트리 헤드리스 1099/1100(유일 실패가 T884 당일 부패임을 실측 확인) → 수정 후 전체 재실행 + runtime contract + structural + version 게이트. BOK 2026 일정은 한국은행 공식 페이지·복수 언론으로 확인(2/26·4/10·5/28·7/16·8/27·10/22·11/26). 리뷰 도중 실제로 7/16 금통위가 열려 만장일치 2.50%→2.75% 인상(3년6개월 만)이 확정됐음을 WebSearch 복수 소스(Newspim·파이낸셜뉴스·이투데이)로 교차 확인 — DATA_SNAPSHOT 시드·currentTopic·정적 HTML 3곳·히스토리 표·이슈 카드·폴백 리터럴 4곳·KR 건강점수를 실제 결과로 동기화(이 자체가 R340 "결측/정적값의 현재 판정 승격 금지" 원칙의 정상 사례 — 값이 바뀐 즉시 소비 표면 전체를 갱신). 배포·커밋은 이 시점까지 수행하지 않았다.
+
+## P712 - v52.99 - 결측·정적·합성 데이터가 현재 시장 판정으로 승격됐다
+
+- **motivation**: Telegram digest 주입 여부를 넘어 22개 페이지의 모든 가시 텍스트·숫자·차트·판정 문구를 현재 시장 및 공식 원천과 비교했다.
+- **root_cause**: 미국채 만기 필드가 혼용돼 `^TNX` 10년물이 2년물 슬롯을 덮었고, 일부 화면은 5년물에 계수를 곱해 2년물을 합성했다. 기술 페이지는 OHLCV 실패 시 당일 등락률로 RSI·MACD·Stage를 추정했고, 종목 차트와 시장폭 차트는 난수 시계열을 만들었다. RRG는 과거 섹터 시드, McClellan은 50일선 상회율 역산, HY OAS는 HYG 가격 임의 변환을 사용했다. 과거 일정·설문·한국 테마 촉매와 결측 수급/VKOSPI도 현재 결론으로 승격됐다.
+- **fix**: 만기별 금리를 명시적 canonical curve evidence로 분리하고 2s10s는 관측 2Y·10Y로만 산출한다. 기술지표·Weinstein Stage·멀티타임프레임·ticker/breadth 차트·RRG·McClellan·HY OAS는 필요한 관측 이력이 없으면 판정 보류한다. 공식 미래 일정은 snapshot 일정에서 동적 생성하고, AAII·NAAIM·한국 촉매·수출 자료는 기준일과 reference-only 용도를 표시한다. 한국 테마·시장건강도는 coverage와 현재 수급/VKOSPI가 부족하면 점수·등급을 만들지 않는다. 후속 전수 렌더에서 발견한 엔캐리 프록시의 하드코딩 입력, 이동평균 시각 없는 시장 레짐, OHLCV 없는 라운드 지지·저항, 비정규화 RSP/SPY 집중도, 출처 없는 한국 공매도 수치도 현재 결론에서 제거하거나 보류 처리했다.
+- **violated_rule**: R301/R332의 currentness·lineage gate를 개별 값에는 적용했지만, 파생 결론과 시각화가 필수 입력 결측을 중립값·정적값·합성값으로 대체하는 경로까지 강제하지 못했다.
+- **prevention**: R340과 T1024~T1027·T1037~T1039·갱신 T874, runtime contract가 만기 의미 분리, 합성 금리 금지, 결측 시 엔캐리 프록시 보류, 현재 OHLCV 없는 레짐/지지저항 보류, 비정규화 가격비율의 시장폭 결론 금지를 검사한다. 페이지 전수 semantic inventory와 CI에 합성 시계열·RRG seed·HYG→OAS·과거 일정의 현재 판정 재유입 금지를 추가한다.
+- **verification**: BLS CPI, BEA PCE, Fed/BOK 일정, FRED 2s10s, Cboe put/call, NAAIM 공식값과 `public-data/data.json`을 대조했다. 22개 route semantic render, runtime/data-pipeline contract, Chromium headless, 접근성 22/22 및 viewport 88/88을 통과했다. Telegram/공식 원천과 22개 페이지 비교 결과는 `_artifacts/page-content-market-audit-2026-07-15.md`에 기록한다. 배포·커밋은 수행하지 않았다.
+
+## P711 - v52.97 - Telegram 증분 digest가 전체 관측 커버리지와 최신 narrative를 동시에 잃었다
+
+- **motivation**: 로그인된 Telegram Web에서 Aether Japan Research, Insider Tracking, BornLupin의 최근 5일 게시물 546건을 끝까지 수집해 스크리너의 페이지·종목·채팅 반영 상태와 전수 대조했다.
+- **root_cause**: `lastPostId` 증분 수집은 capped `topItems`/`broadItems`만 다음 주기로 넘겨 저점수 게시물의 ID·태그 lineage를 소실했고, `count`와 채널 count가 전체 기간이 아니라 이번 fetch/보존 pool 규모를 나타냈다. producer는 themes/catalysts/categories/pageMap을 만들지 않았고 runtime normalizer는 동적 원문을 받으면서도 2026-07-03 정적 narrative를 유지했다. 분류기는 insider/earnings/flows/healthcare/japan이 없고 티커 추출도 소수 하드코딩 목록에 갇혀 있었다. 공개 미러 전면 실패 시 full scan은 빈 digest를 쓸 수 있었다.
+- **fix**: 전체 기간 경량 `observedItems`와 capped 본문 payload를 분리하고 count/fresh/text-eligible/selected/coverage 의미를 명시했다. 현재 원문 기반 narrative·22-page map을 producer와 구형-artifact runtime fallback에서 재생성한다. 5개 태그와 22-route 소비 계약, SCREENER_DB 동적 alias 사전, page coverage audit을 추가했다. 전 채널 실패 시 이전 성공 digest 본문과 `generatedAt`을 보존하고 `attemptedAt`/실패 상태만 갱신한다.
+- **violated_rule**: R215의 digest→화면→스크리너→채팅 환류를 원문 배열 존재 여부로만 판단했고 R262의 self-throttle을 전체 기간 lineage와 독립적으로 설계하지 않았다. R338의 timestamp 의미 분리도 count/coverage 의미까지 확장하지 않았다.
+- **prevention**: R339, T830~T831, data/runtime contract가 전체 관측 lineage, capped payload 보존률, 동적 narrative 치환, 22-page map, expanded tags/ticker aliases, 실패 시 마지막 정상 digest 보존을 검사한다.
+- **verification**: Telegram Web 546건(106/345/95) 대 기존 5일 보존 원문 254건(57/122/75)을 대조했다. syntax, version/data/runtime/structural/semantic/knowledge 계약과 Chromium headless 1084/1084, 접근성 22 routes, viewport 22×4=88, portfolio E2E 8/8을 통과했다. 공개 미러 Node 재수집은 3채널 모두 네트워크 실패해 기존 정상 artifact를 복구·보존했으며 이 실패를 성공 수집으로 승격하지 않았다. 전체 결과는 `_artifacts/telegram-5d-coverage-audit-2026-07-15.md`에 기록했다.
 
 ## P707 - v52.92 - 외부 수집 전면 실패가 마지막 정상 data.json을 빈 산출물로 덮어썼다
 

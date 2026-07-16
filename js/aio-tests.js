@@ -2037,8 +2037,8 @@
 
     // T422: VKOSPI 임계값 < 20 → "정상" (P278 fix)
     var hvkEl = document.getElementById('kr-health-vkospi');
-    _assert('T422 vkospi_label_v4958: 17.80 → "정상" (임계값 15→20)',
-      hvkEl && (/정상/.test(hvkEl.textContent || '') || /17\.\d+\s*\(정상\)/.test(hvkEl.textContent || '')),
+    _assert('T422 vkospi_label_v4958: missing live evidence renders unavailable instead of a normal seed',
+      hvkEl && (hvkEl.textContent || '').trim() === '—' && !hvkEl.hasAttribute('data-snap'),
       hvkEl ? 'text=' + hvkEl.textContent : 'missing');
 
     // T423: showTicker 호출 시 _currentTickerId 설정 source 검증
@@ -3389,6 +3389,7 @@
       var prev20_866 = window._breadth20;
       var prev200_866 = window._breadth200;
       var prev50_866 = window._breadth50;
+      var prevLiveBreadth866 = window._breadthLiveData;
       var b5Bar866 = document.getElementById('bb-5sma-bar');
       var b5Val866 = document.getElementById('bb-5sma-val');
       var b5Badge866 = document.getElementById('bb-5sma-badge');
@@ -3401,6 +3402,7 @@
       window._breadth20 = 38;
       window._breadth200 = null;
       window._breadth50 = 48;
+      window._breadthLiveData = { sma5:32, sma20:38, sma50:48, ts:Date.now(), source:'test-observed' };
       if (typeof _aioSetDeltaEl === 'function') _aioSetDeltaEl('t866-delta', 0, 1, { suffix:'pp', decimals:0 });
       if (typeof updateBreadthBars === 'function') updateBreadthBars();
       var delta866 = document.getElementById('t866-delta');
@@ -3419,6 +3421,7 @@
       window._breadth20 = prev20_866;
       window._breadth200 = prev200_866;
       window._breadth50 = prev50_866;
+      window._breadthLiveData = prevLiveBreadth866;
       if (b5Bar866) b5PrevStyle866 == null ? b5Bar866.removeAttribute('style') : b5Bar866.setAttribute('style', b5PrevStyle866);
       if (b5Val866) {
         b5Val866.textContent = b5ValPrevText866;
@@ -4470,8 +4473,8 @@
     var vkEl = document.getElementById('kr-vkospi-val');
     var vkExpected = typeof DATA_SNAPSHOT !== 'undefined' ? Number(DATA_SNAPSHOT.vkospi) : NaN;
     var vkActual = vkEl ? Number((vkEl.textContent.match(/[\d.]+/) || [])[0]) : NaN;
-    _assert('T277 vkospi_inline_fix: kr-vkospi-val starts with 17.80 and not stale 45.00',
-      vkEl && isFinite(vkExpected) && Math.abs(vkActual - vkExpected) < 0.011 && vkActual >= 10 && vkActual <= 35,
+    _assert('T277 vkospi_inline_fix: missing live evidence does not expose a static seed',
+      vkEl && (vkEl.textContent || '').trim() === '—' && !vkEl.hasAttribute('data-snap'),
       vkEl ? 'text=' + vkEl.textContent : 'missing');
 
     // T278: kr-health-vkospi (kr-technical) DATA_SNAPSHOT 정합
@@ -4480,8 +4483,8 @@
     // (17.80→정상 tier)는 그대로이므로 새 포맷으로 갱신해 검증.
     var hvkEl = document.getElementById('kr-health-vkospi');
     var hvkActual = hvkEl ? Number((hvkEl.textContent.match(/[\d.]+/) || [])[0]) : NaN;
-    _assert('T278 kr_health_vkospi: 45.0 극단공포 → 17.80 폴백·정상 추정',
-      hvkEl && isFinite(vkExpected) && Math.abs(hvkActual - vkExpected) < 0.011 && /\(폴백·정상 추정\)/.test(hvkEl.textContent || ''),
+    _assert('T278 kr_health_vkospi: health card rejects static VKOSPI classification',
+      hvkEl && (hvkEl.textContent || '').trim() === '—' && !hvkEl.hasAttribute('data-snap'),
       hvkEl ? 'text=' + hvkEl.textContent : 'missing');
   }
 
@@ -5563,12 +5566,14 @@
         showPage('breadth');
         var vEl = document.getElementById('breadth-consensus-verdict');
         var beforeV = vEl ? vEl.textContent : '';
-        window._breadth5 = 30; window._breadth200 = 28; // 레거시명=20일선, 약세 주입
+        var oldBreadth769 = window._breadthLiveData;
+        window._breadthLiveData = { sma5:30, sma20:28, sma50:31, ts:Date.now(), source:'test-observed' };
         var r1 = window.AIO.refreshActivePageNarratives('test');
         var afterV = vEl ? vEl.textContent : '';
         liveRerenderOk = !!(r1 && r1.page === 'breadth') && beforeV !== afterV;
         var r2 = window.AIO.refreshActivePageNarratives('test2'); // 즉시 2회차 → 스로틀
         throttleOk = (r2 === null);
+        window._breadthLiveData = oldBreadth769;
       }
       t769ok = (regPages.length >= 7) && hasCore && namedOk && hasRefresh && hasStamp && liveRerenderOk && throttleOk;
       t769detail = 'pages=' + regPages.length + ' core=' + hasCore + ' named=' + namedOk + ' refresh=' + hasRefresh + ' stamp=' + hasStamp + ' rerender=' + liveRerenderOk + ' throttle=' + throttleOk;
@@ -6308,6 +6313,8 @@
     // T817: computeMarketState 정본 full 객체(breadthConsensusFull/cycleFull) + 페이지 렌더러 4종 marketState 소비 + audit 이중정의 해소
     var t817ok = false, t817detail = '';
     try {
+      var oldBreadth817 = window._breadthLiveData;
+      window._breadthLiveData = { sma5:61, sma20:57, sma50:52, ts:Date.now(), source:'test-observed' };
       var ms817 = (window.AIO && typeof window.AIO.computeMarketState === 'function') ? window.AIO.computeMarketState() : null;
       // A1: 정본 full 객체 + breadthScore가 .consensus(수치)로 채워짐(이전 .score=undefined 버그 시정)
       var fullOk = !!(ms817 && ms817.breadthConsensusFull && ms817.breadthConsensusFull.verdict && ms817.cycleFull && ms817.cycleFull.phase && typeof ms817.breadthScore === 'number');
@@ -6322,6 +6329,7 @@
       var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'function');
       t817ok = fullOk && consumerOk && breadthMatch && dedupOk;
       t817detail = 'full=' + fullOk + ' consumers4=' + consumerOk + ' breadthMatch=' + breadthMatch + ' dedup=' + dedupOk;
+      window._breadthLiveData = oldBreadth817;
     } catch(e) { t817detail = 'ERR:' + e.message; }
     _assert('T817 v5044_consumer_transition: 정본 full 객체 + 페이지 렌더러 4종 marketState 소비 + audit 이중정의 해소', t817ok, t817detail);
 
@@ -6731,8 +6739,8 @@
       var contracts830 = window.AIO_NEWS_SURFACE_CONTRACTS || {};
       var ds830 = window.DATA_SNAPSHOT || {};
       var ctx830 = (typeof window._buildAioIntegratedAnswerContext === 'function') ? window._buildAioIntegratedAnswerContext('themes', 'broad market themes', { news:true, screenerData:true, freshness:true }) : '';
-      var requiredPages830 = ['home','macro','fxbond','technical','themes','sentiment','signal','fundamental','breadth','screener','briefing','market-news'];
-      var pagesOk830 = requiredPages830.every(function(k) { return Array.isArray(map830[k]) && map830[k].length >= 1; });
+      var requiredPages830 = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+      var pagesOk830 = requiredPages830.every(function(k) { return Array.isArray(map830[k]) && (k === 'guide' || map830[k].length >= 1); });
       var technicalTopics830 = contracts830.technical && contracts830.technical.topics || [];
       var themesTopics830 = contracts830.themes && contracts830.themes.topics || [];
       var isoDateRe830 = /^\d{4}-\d{2}-\d{2}$/;
@@ -6784,8 +6792,15 @@
           { channel:'bornlupin', count:143 }
         ],
         count: 796,
+        retainedItemCount: 320,
+        coverage: { observedCount:796, eligibleTextCount:780, selectedRawCount:320, selectedRawCoveragePct:41.0 },
         topicCounts: { macro:244, semi:187, optical:45, power:80 },
         tickerCounts: { NVDA:66, MU:56 },
+        themes: ['CURRENT_DYNAMIC_THEME_2026-06-16: HBM allocation, AI server demand, optical capacity, and macro funding risk are regenerated from this artifact.'],
+        catalysts: [{ key:'NVDA', count:66, text:'Current-window NVDA supply-chain catalyst.' }],
+        categories: ['macro','geo','credit','semi','optical','power','ai-policy','kr-market','equity','crypto','earnings','healthcare','japan','flows','insider'].map(function(id) { return { id:id, label:id, topics:[id], count:1, focus:'current artifact focus for ' + id }; }),
+        pageMap: ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'].reduce(function(out, id) { out[id] = id === 'guide' ? [] : ['macro','semi']; return out; }, {}),
+        pipelineNote: 'CURRENT_DYNAMIC_PIPELINE_NOTE_2026-06-16',
         topItems: [
           { channel:'insidertracking', datetime:'2026-06-16T05:00:00.000Z', tickers:['NVDA','MU'], score:94, text:'NVDA and MU memory supply update: HBM allocation, AI server demand, and optical capacity pressure.' },
           { channel:'bornlupin', datetime:'2026-06-16T04:00:00.000Z', tickers:['NVDA'], score:88, text:'NVDA Rubin supply-chain memo and hyperscaler capex check from Telegram public mirror.' }
@@ -6794,15 +6809,21 @@
       var applied831 = typeof window._aioApplyTelegramDigestPayload === 'function' && window._aioApplyTelegramDigestPayload(sample831);
       var tg831 = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
       var audit831 = window.AIO && typeof window.AIO.getTelegramPipelineAudit === 'function' ? window.AIO.getTelegramPipelineAudit() : null;
+      var pageAudit831 = window.AIO && typeof window.AIO.getTelegramPageCoverageAudit === 'function' ? window.AIO.getTelegramPageCoverageAudit() : null;
       var memoRow831 = (typeof SCREENER_DB !== 'undefined' && Array.isArray(SCREENER_DB)) ? SCREENER_DB.find(function(r) { return r && r.sym === 'NVDA'; }) : null;
       t831ok = !!(applied831 &&
         tg831.dynamicDigestLoaded === true &&
         tg831.counts && tg831.counts.total === 796 &&
+        tg831.themes && tg831.themes[0].indexOf('CURRENT_DYNAMIC_THEME_2026-06-16') >= 0 &&
+        tg831.pipelineNote === 'CURRENT_DYNAMIC_PIPELINE_NOTE_2026-06-16' &&
+        tg831.coverage && tg831.coverage.observedCount === 796 &&
         Array.isArray(window.AIO_TELEGRAM_CATEGORY_REGISTRY) && window.AIO_TELEGRAM_CATEGORY_REGISTRY.length >= 10 &&
-        window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP && Array.isArray(window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP.home) &&
+        window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP && Object.keys(window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP).length === 22 &&
         window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._telegramDigestUpdated === '2026-06-16T06:08:15.307Z' &&
         String(window._aioLoadServerTelegramDigest || '').indexOf('telegram-digest.json') >= 0 &&
         audit831 && audit831.digest && audit831.digest.dynamicLoaded === true &&
+        audit831.digest.dynamicNarrative === true &&
+        pageAudit831 && pageAudit831.status === 'OK' && pageAudit831.mappedPageCount === 22 &&
         audit831.memoOverlay && audit831.memoOverlay.appliedCount >= 1 &&
         memoRow831 && String(memoRow831.memo || '').indexOf('[TG 2026-06-16') === 0 &&
         String(memoRow831._telegramMemoOverlay || '').indexOf('auto') >= 0);
@@ -6813,6 +6834,8 @@
         digestStatus: audit831 && audit831.digest && audit831.digest.status,
         memoApplied: audit831 && audit831.memoOverlay && audit831.memoOverlay.appliedCount,
         memoTickers: audit831 && audit831.memoOverlay && audit831.memoOverlay.tickers,
+        dynamicNarrative: audit831 && audit831.digest && audit831.digest.dynamicNarrative,
+        mappedPages: pageAudit831 && pageAudit831.mappedPageCount,
         telegramDigestUpdated: window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._telegramDigestUpdated
       });
     } catch(e) { t831detail = 'ERR:' + e.message; }
@@ -6958,14 +6981,15 @@
       if (typeof window._aioApplyEventFreshnessGate === 'function') window._aioApplyEventFreshnessGate();
       var screenerHeader837 = document.querySelector('#page-screener .aio-decision-header');
       var aiBtn837 = screenerHeader837 && screenerHeader837.querySelector('[data-action="_aioAskAiFromPageDecision"][data-arg="screener"]');
-      var fomcSnapshot837 = window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.fomc === '6/17 결과' &&
-        !/갱신 예정|6\/16-17/.test(String(window.DATA_SNAPSHOT.fomcDotPlot || ''));
+      var fomcSnapshot837 = window.DATA_SNAPSHOT && /6\/17/.test(String(window.DATA_SNAPSHOT.fomc || '')) &&
+        /^2026-07-28~29$/.test(String(window.DATA_SNAPSHOT.fomcNext || '')) &&
+        !/6\/16-17/.test(String(window.DATA_SNAPSHOT.fomcDotPlot || ''));
       var cp2Text837 = document.getElementById('cp2-detail') ? document.getElementById('cp2-detail').textContent : '';
       var domFresh837 = /6\/17|결과/.test(cp2Text837) && !/다음 FOMC|6\/16-17/.test(cp2Text837);
       t837ok = !!(window.AIO_SOURCE_KIND && modelOk837 && aiBtn837 && fomcSnapshot837 && domFresh837);
       t837detail = JSON.stringify({ modelOk:modelOk837, aiBtn:!!aiBtn837, fomcSnapshot:fomcSnapshot837, domFresh:domFresh837 });
     } catch(e) { t837detail = 'ERR:' + e.message; }
-    _assert('T837 v5070_page_decision_source_contract: pages expose decision/sourceKind/actions and FOMC is result-review', t837ok, t837detail);
+    _assert('T837 v5070_page_decision_source_contract: pages expose decision/sourceKind/actions and the next FOMC is current', t837ok, t837detail);
 
     // T838: v50.71 residual deep-audit fixes — guide header + screener/ticker AI contexts stay wired.
     var t838ok = false, t838detail = '';
@@ -7357,10 +7381,11 @@
 
     // T873 (EF-02): breadth 표면 3곳(홈 스트립·헤더배지/종합신호·신고저 카드)이 canonical 소스/정직한 상태를 쓰는지
     try {
+      var oldBreadth873 = window._breadthLiveData;
       var okA873 = false, detailA873 = 'n/a';
       try {
         if (typeof NARRATIVE_ENGINE !== 'undefined' && typeof updateMarketPulse === 'function' && document.getElementById('mp-breadth-label')) {
-          window._breadth50 = 25; window._breadthLiveData = null; window._breadth20 = null;
+          window._breadth50 = 25; window._breadthLiveData = { sma5:24, sma20:26, sma50:25, ts:Date.now(), source:'test-observed' }; window._breadth20 = 26;
           updateMarketPulse();
           var mpLabelEl873 = document.getElementById('mp-breadth-label');
           var expectedReg873 = NARRATIVE_ENGINE.getBreadthRegime(25);
@@ -7399,6 +7424,7 @@
         }
       } catch (eC873) { detailC873 = 'threw: ' + (eC873 && eC873.message); }
 
+      window._breadthLiveData = oldBreadth873;
       _assert('T873 breadth_regime_unification_v5240 (EF-02): market-pulse strip + breadth header-badge/diag-signal use canonical getBreadthRegime/consensus, dead new-high/low cards render honest na state',
         okA873 && okB873 && okC873, detailA873 + ' | ' + detailB873 + ' | ' + detailC873);
     } catch (e873) { _assert('T873 breadth_regime_unification_v5240 (EF-02)', false, 'threw: ' + (e873 && e873.message)); }
@@ -7406,23 +7432,24 @@
 
   // v52.41 (P656): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2 (EF-08/10/11/12/19) 회귀 게이트
   function _testV5241Batch2Efficacy() {
-    // T874 (EF-08): 엔캐리 게이지 함수 자체가 (라이브 실측으로 확인된) 오펀 호출 문제와 무관하게 항상
-    // 유효한 점수를 내는지 — 4개 입력 전부 하드코딩 폴백이 있어 null이 나올 수 없어야 한다.
+    // T874 (P712): 엔캐리 관측 프록시는 라이브 입력이 없을 때 하드코딩 값을 채워 넣지 않고 보류해야 한다.
     try {
       if (typeof window._aioRenderCarryUnwindRisk === 'function' && document.getElementById('carry-score-text')) {
         var savedLive874 = window._liveData;
-        window._liveData = {}; // 라이브 시세 전부 결측 시뮬레이션 — 그래도 폴백값으로 점수 나와야 함
+        window._liveData = {}; // 라이브 시세 전부 결측 시뮬레이션
         document.getElementById('carry-score-text').textContent = '—';
         window._aioRenderCarryUnwindRisk();
         var scoreEl874 = document.getElementById('carry-score-text');
-        var scoreNum874 = scoreEl874 ? parseFloat(scoreEl874.textContent) : NaN;
+        var verdictEl874 = document.getElementById('carry-verdict');
+        var held874 = scoreEl874 && scoreEl874.textContent === '—' && verdictEl874 && verdictEl874.textContent.indexOf('보류') >= 0;
         window._liveData = savedLive874;
-        _assert('T874 carry_unwind_always_scores_v5241 (EF-08): 라이브 입력 전부 결측이어도 4개 폴백값으로 score-text가 숫자로 채워짐(오펀 호출 시에도 계산 자체는 항상 유효)',
-          Number.isFinite(scoreNum874), 'scoreText=' + (scoreEl874 && scoreEl874.textContent));
+        window._aioRenderCarryUnwindRisk();
+        _assert('T874 carry_unwind_holds_without_live_inputs_v5298 (P712): 라이브 입력 결측 시 하드코딩 수치 대신 프록시를 보류',
+          held874, 'scoreText=' + (scoreEl874 && scoreEl874.textContent) + ' | verdict=' + (verdictEl874 && verdictEl874.textContent));
       } else {
-        _assert('T874 carry_unwind_always_scores_v5241 (EF-08)', false, 'fn or element missing');
+        _assert('T874 carry_unwind_holds_without_live_inputs_v5298 (P712)', false, 'fn or element missing');
       }
-    } catch (e874) { _assert('T874 carry_unwind_always_scores_v5241 (EF-08)', false, 'threw: ' + (e874 && e874.message)); }
+    } catch (e874) { _assert('T874 carry_unwind_holds_without_live_inputs_v5298 (P712)', false, 'threw: ' + (e874 && e874.message)); }
 
     // T875 (EF-10): ticker Key Metrics/Quarterly 슬롯이 검색 후 na 상태(정직한 상태)로 렌더되는지
     try {
@@ -7547,15 +7574,24 @@
 
   // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (EF-03/17/18) 회귀 게이트
   function _testV5243Batch4Efficacy() {
-    // T884 (EF-03): BOK 다음 금통위 날짜가 WebSearch로 재확인한 실제 날짜(7/16)와 일치하는지 — 이전 7/10은 오류였음
+    // T884 (EF-03→P713 재설계): BOK 금통위 날짜 단언을 날짜 하드코딩('2026-07-16' 고정)에서
+    // 부패 불가능한 정합성 검증으로 교체 — 기존 방식은 이벤트 당일(auto-advance 발화 시점)에
+    // 결정론적으로 실패해 main CI를 RED로 만들었다. 원 회귀 의도(과거/오기 날짜 검출)는 유지:
+    // ① bokNext가 유효 ISO 날짜 ② 과거로 36시간 이상 밀리지 않음(발표 당일 유예)
+    // ③ 캘린더 nextRelease는 bokNext와 같거나(정상) auto-advance로 그 이후(당일 경과 직후)만 허용
     try {
       var bokNext884 = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT.bokNext : null;
       var calRoot884 = (typeof window !== 'undefined') ? (window.AIO_MACRO_CALENDAR || window.MACRO_CALENDAR) : null;
       var cal884 = (calRoot884 && calRoot884.releases) ? calRoot884.releases['kr-bok'] : null;
-      _assert('T884 bok_next_meeting_date_corrected_v5243 (EF-03): DATA_SNAPSHOT.bokNext와 MACRO_CALENDAR[kr-bok].nextRelease가 실제 확인된 7/16로 정정(기존 7/10 오류 수정)',
-        bokNext884 === '2026-07-16' && (!cal884 || cal884.nextRelease === '2026-07-16'),
+      var bokTs884 = Date.parse(String(bokNext884 || ''));
+      var calTs884 = cal884 ? Date.parse(String(cal884.nextRelease || '')) : NaN;
+      var notStale884 = Number.isFinite(bokTs884) && bokTs884 >= (Date.now() - 36 * 3600 * 1000);
+      var calConsistent884 = !cal884 || cal884.nextRelease === bokNext884 ||
+        (Number.isFinite(calTs884) && calTs884 >= bokTs884);
+      _assert('T884 bok_next_meeting_date_valid (EF-03/P713): bokNext가 유효한 당일/미래 날짜이고 MACRO_CALENDAR[kr-bok].nextRelease와 정합(날짜 하드코딩 제거 — 이벤트 당일 CI 부패 방지)',
+        notStale884 && calConsistent884,
         'bokNext=' + bokNext884 + ' calNext=' + (cal884 && cal884.nextRelease));
-    } catch (e884) { _assert('T884 bok_next_meeting_date_corrected_v5243 (EF-03)', false, 'threw: ' + (e884 && e884.message)); }
+    } catch (e884) { _assert('T884 bok_next_meeting_date_valid (EF-03/P713)', false, 'threw: ' + (e884 && e884.message)); }
 
     // T885 (EF-17): 홈 글로벌 마켓 표에 ES=F/NQ=F 선물이 있고, 정규장 여부에 따라 강조가 갈리는지
     try {
@@ -8601,6 +8637,123 @@
       JSON.stringify(rightsPipeline));
   }
 
+  function _testV5298SemanticMarketIntegrity() {
+    _assert('T1024 treasury_curve_canonical_helper: canonical curve evidence helper exists',
+      !!(window.AIO && typeof window.AIO.getUsTreasuryCurveEvidence === 'function'),
+      'AIO.getUsTreasuryCurveEvidence missing');
+
+    if (window.AIO && typeof window.AIO.getUsTreasuryCurveEvidence === 'function') {
+      var oldLd = window._liveData, old2y = window._live2Y, oldFred = window._fredData;
+      try {
+        window._live2Y = 4.10;
+        window._fredData = {};
+        window._liveData = {
+          '^IRX': { price: 3.70 }, '^FVX': { price: 4.30 }, '^TNX': { price: 4.50 }, '^TYX': { price: 5.00 }
+        };
+        var curve = window.AIO.getUsTreasuryCurveEvidence();
+        _assert('T1025 treasury_curve_exact_2s10s: 2s10s uses observed 2Y and 10Y, never a synthetic 5Y proxy',
+          curve.complete === true && curve.twoY === 4.10 && curve.fiveY === 4.30 && curve.tenY === 4.50 && curve.spread2s10s === 0.40,
+          JSON.stringify(curve));
+      } finally {
+        window._liveData = oldLd; window._live2Y = old2y; window._fredData = oldFred;
+      }
+    }
+
+    var ds = window.DATA_SNAPSHOT || {};
+    _assert('T1026 treasury_snapshot_maturity_separation: 10Y and 2Y snapshot fields are explicit and non-aliased',
+      Number.isFinite(Number(ds.tnx)) && Number.isFinite(Number(ds.tnx2y)) && Math.abs(Number(ds.tnx) - Number(ds.tnx2y)) >= 0.1,
+      JSON.stringify({ tnx: ds.tnx, tnx2y: ds.tnx2y }));
+
+    var coverageFn = window.AIO && window.AIO.evaluateKrThemeQuoteCoverage;
+    var map = { a:[{code:'1',w:0.5},{code:'2',w:0.5}], b:[{code:'3',w:0.5},{code:'4',w:0.5}] };
+    var sparse = coverageFn ? coverageFn({'1.KS':{pct:1}}, map) : null;
+    var full = coverageFn ? coverageFn({'1.KS':{pct:1},'2.KS':{pct:2},'3.KS':{pct:-1},'4.KS':{pct:0}}, map) : null;
+    _assert('T1027 kr_theme_missingness_fail_closed: sparse theme quotes cannot produce a market-wide style verdict',
+      !!coverageFn && sparse && sparse.sufficient === false && full && full.sufficient === true,
+      JSON.stringify({ sparse: sparse, full: full }));
+
+    var techSrc = typeof updateTechIndicators === 'function' ? String(updateTechIndicators) : '';
+    _assert('T1028 technical_indicator_no_intraday_synthesis: RSI/MACD remain unavailable when OHLCV is absent',
+      !!techSrc && techSrc.indexOf('50 + (chg * 5)') < 0 && techSrc.indexOf("macdValue = macdHist !== null") >= 0 && techSrc.indexOf("'—'") >= 0,
+      'updateTechIndicators synthesis contract');
+
+    var tickerChartSrc = typeof loadTickerChart === 'function' ? String(loadTickerChart) : '';
+    _assert('T1029 ticker_chart_no_random_history: missing price history cannot generate a random chart',
+      !!tickerChartSrc && tickerChartSrc.indexOf('Math.random') < 0 && tickerChartSrc.indexOf('합성 차트를 표시하지 않습니다') >= 0,
+      'loadTickerChart random=' + (tickerChartSrc.indexOf('Math.random') >= 0));
+
+    var rrgOldLd = window._liveData;
+    try {
+      window._liveData = { 'TST-RRG': { price: 100, pct: 1 }, SPY: { price: 700, pct: 0.5 } };
+      var rrgMissing = typeof calcLiveRS === 'function' ? calcLiveRS('TST-RRG') : null;
+      _assert('T1030 rrg_history_fail_closed: current-day quotes cannot replace relative-price history',
+        rrgMissing && rrgMissing.quadrant === 'unknown' && rrgMissing.rsRatio === null,
+        JSON.stringify(rrgMissing));
+    } finally { window._liveData = rrgOldLd; }
+
+    var mcSrc = typeof updateMcClellanUI === 'function' ? String(updateMcClellanUI) : '';
+    _assert('T1031 mcclellan_requires_advance_decline_history: 50MA breadth cannot be inverted into A/D counts',
+      !!mcSrc && mcSrc.indexOf('500 * abv50') < 0 && mcSrc.indexOf('adHistory') >= 0,
+      'updateMcClellanUI proxy=' + (mcSrc.indexOf('500 * abv50') >= 0));
+
+    var sentimentSrc = typeof _refreshSentimentChartData === 'function' ? String(_refreshSentimentChartData) : '';
+    _assert('T1032 hy_oas_official_only: HYG price cannot be converted to OAS with a synthetic formula',
+      !!sentimentSrc && sentimentSrc.indexOf('(85 - p)') < 0 && sentimentSrc.indexOf('BAMLH0A0HYM2') >= 0,
+      'HYG-to-OAS formula=' + (sentimentSrc.indexOf('(85 - p)') >= 0));
+
+    var breadthCanvasSrc = window._aioBreadthCanvasRender ? String(window._aioBreadthCanvasRender) : '';
+    _assert('T1033 breadth_chart_no_random_series: a latest point cannot be expanded into fake history',
+      !!breadthCanvasSrc && breadthCanvasSrc.indexOf('Math.random') < 0,
+      'breadth random=' + (breadthCanvasSrc.indexOf('Math.random') >= 0));
+
+    var healthOldLd = window._liveData;
+    try {
+      window._liveData = {};
+      var healthMissing = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
+      _assert('T1034 market_health_required_inputs_fail_closed: missing SPY/QQQ/VIX cannot produce a grade',
+        healthMissing && healthMissing.available === false && healthMissing.score === null && healthMissing.missing.length === 3,
+        JSON.stringify(healthMissing));
+    } finally { window._liveData = healthOldLd; }
+
+    var krYieldOldLd = window._liveData;
+    try {
+      window._liveData = {};
+      var krYieldMissing = typeof calcKrYieldSpreads === 'function' ? calcKrYieldSpreads() : null;
+      var krMacroSrc = typeof updateKrMacroFromLive === 'function' ? String(updateKrMacroFromLive) : '';
+      _assert('T1035 kr_yield_current_source_fail_closed: historical KR bond seeds cannot become current yields or spreads',
+        krYieldMissing && krYieldMissing.available === false && krYieldMissing.spread3y10y === null && krMacroSrc.indexOf('DATA_SNAPSHOT.krBond3y') < 0,
+        JSON.stringify(krYieldMissing));
+    } finally { window._liveData = krYieldOldLd; }
+
+    var breadthOld = window._breadthLiveData;
+    try {
+      window._breadthLiveData = {};
+      var breadthMissing = window.AIO && window.AIO.getCurrentBreadthEvidence ? window.AIO.getCurrentBreadthEvidence() : null;
+      window._breadthLiveData = { sma5:61, sma20:57, sma50:52, ts:Date.now(), source:'test-observed' };
+      var breadthObserved = window.AIO && window.AIO.getCurrentBreadthEvidence ? window.AIO.getCurrentBreadthEvidence() : null;
+      var breadthUiSrc = typeof updateBreadthBars === 'function' ? String(updateBreadthBars) : '';
+      _assert('T1036 breadth_current_evidence_gate: undated static arrays are rejected and timestamped observations are accepted',
+        breadthMissing && breadthMissing.available === false && breadthObserved && breadthObserved.available === true && breadthObserved.sma50 === 52 &&
+        breadthUiSrc.indexOf("['breadth-5sma-big','—']") >= 0 && breadthUiSrc.indexOf("['breadth-50sma-big','—']") >= 0,
+        JSON.stringify({ missing:breadthMissing, observed:breadthObserved, failClosedUi:breadthUiSrc.indexOf("['breadth-5sma-big','—']") >= 0 }));
+    } finally { window._breadthLiveData = breadthOld; }
+
+    var fredBridgeSrc = typeof _syncYahooToFred === 'function' ? String(_syncYahooToFred) : '';
+    _assert('T1037 treasury_bridge_no_default_2y: missing 2Y cannot fabricate or overwrite an official T10Y2Y observation',
+      !!fredBridgeSrc && fredBridgeSrc.indexOf(": 4.0") < 0 && fredBridgeSrc.indexOf("!fd['T10Y2Y']") >= 0 && fredBridgeSrc.indexOf('Number(window._live2Y)') >= 0,
+      'official guard=' + (fredBridgeSrc.indexOf("!fd['T10Y2Y']") >= 0));
+
+    var tailBoardSrc = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.renderTailRiskBoard ? String(NARRATIVE_ENGINE.renderTailRiskBoard) : '';
+    _assert('T1038 tail_risk_current_observation_only: stale MOVE/SKEW seeds cannot render as current regimes',
+      !!tailBoardSrc && tailBoardSrc.indexOf("live['^SKEW']") >= 0 && tailBoardSrc.indexOf("live['^MOVE']") >= 0 && tailBoardSrc.indexOf('_snap.num(DS.skew') < 0 && tailBoardSrc.indexOf('_snap.num(DS.move') < 0,
+      'live-only tail board=' + (!!tailBoardSrc && tailBoardSrc.indexOf("live['^SKEW']") >= 0));
+
+    var breadthProducerSrc = typeof _aioApplyScreenerBreadth === 'function' ? String(_aioApplyScreenerBreadth) : '';
+    _assert('T1039 breadth_producer_refreshes_all_consumers: late current breadth cannot leave stale pending diagnostics or scores',
+      !!breadthProducerSrc && breadthProducerSrc.indexOf('updateBreadthBars()') >= 0 && breadthProducerSrc.indexOf('refreshSignalDashboard()') >= 0 && breadthProducerSrc.indexOf('refreshHomeDashboard()') >= 0,
+      'breadth refresh hooks=' + breadthProducerSrc.length);
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -8721,6 +8874,7 @@
      try { _testV5285CoverageAndHumanCertification(); } catch(e) { console.error('Group103 error:', e); }
     try { _testV5286ToolBoundaryAndRights(); } catch(e) { console.error('Group104 error:', e); }
     try { _testV5290HumanUXStateContracts(); } catch(e) { console.error('Group105 error:', e); }
+    try { _testV5298SemanticMarketIntegrity(); } catch(e) { console.error('Group106 error:', e); }
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'

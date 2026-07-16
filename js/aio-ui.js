@@ -30,28 +30,11 @@ async function _refreshSentimentChartData() {
         vixChart.update('none');
         // 경고 배지 제거 (실시간 데이터 로드 성공)
         var badge = document.querySelector('#page-sentiment .stale-badge');
-        if (badge) badge.textContent = 'VIX/HYG 실시간 차트 · ' + labels[labels.length - 1] + ' 기준';
+        if (badge) badge.textContent = 'VIX 관측 차트 · ' + labels[labels.length - 1] + ' 기준 · HY OAS 차트는 별도 기준일 확인';
         if (badge) { badge.style.background = 'var(--data-green-mid)'; badge.style.borderColor = 'var(--data-green-dim)'; badge.style.color = '#00e5a0'; }
       }
     }
-    // HY OAS 프록시: HYG ETF 가격을 반전 사용 (HYG↓ = 스프레드↑)
-    var hyChart = sentPageCharts['hy'];
-    if (hyChart && typeof _fetchYahooChartData === 'function') {
-      var hygData = await _fetchYahooChartData('HYG', '1mo');
-      if (hygData && hygData.closes && hygData.closes.length >= 5) {
-        var last12 = hygData.closes.slice(-12).filter(function(v) { return v != null; });
-        var last12ts = hygData.timestamps.slice(-12);
-        var hygLabels = last12ts.map(function(ts) {
-          var d = new Date(ts * 1000);
-          return (d.getMonth() + 1) + '/' + d.getDate();
-        }).slice(-last12.length);
-        // HYG 가격 → OAS 추정: 높은 HYG = 낮은 스프레드. 간이 변환: OAS ≈ (85 - HYG) * 20 + 250
-        var oasEstimate = last12.map(function(p) { return Math.round((85 - p) * 20 + 250); });
-        hyChart.data.labels = hygLabels;
-        hyChart.data.datasets[0].data = oasEstimate;
-        hyChart.update('none');
-      }
-    }
+    // HY OAS는 FRED BAMLH0A0HYM2 관측치만 허용한다. HYG ETF 가격을 임의 공식으로 bp에 변환하지 않는다.
   } catch(e) { _aioLog('warn', 'chart', 'Sentiment chart refresh error: ' + (e && e.message || e)); }
 }
 
@@ -73,19 +56,12 @@ var _SENT_COMMON = {
 // 이 기본값으로 폴백이 항상 실제 추이(5월 신고가→6/5 셀오프)를 표시. initBreadthPage 실행 시 전체 47포인트 배열로 덮어씀.
 if (typeof window !== 'undefined') {
   // v50.15 (사용자 지적: 차트 평탄·안 바뀜): 전체 사이클(3월 변동성 저점→4-5월 신고가 랠리→6/5 셀오프 급락)로 풍부화 — 평탄선 해소
-  window._breadthSeries = window._breadthSeries || {
-    'bp-5ma-chart':  [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61],
-    'bp-20ma-chart': [33,32,33,34,58,72,75,78,80,80,81,82,83,84,85,85,86,84,83,82,80,57],
-    'bp-50ma-chart': [33,34,35,38,46,50,52,54,56,58,60,62,65,68,71,72,73,74,75,74,72,52],
-    'bp-ad-ratio-chart': [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61],
-    'bp-price-chart': [620,623,638,655,678,692,702,710,713,715,717,719,721,728,735,742,748,752,756,758,752,738],
-    'bp-price-chart-qqq': [534,540,560,585,610,640,652,658,662,665,668,671,678,690,700,705,710,713,716,717,710,687]
-    // v50.51 A2: bh-* 히스토리 차트 제거 (bp-*로 통합) — 폴백 시리즈 엔트리도 삭제
-  };
-  window._breadthLabels = window._breadthLabels || ['3/13','3/19','3/26','4/2','4/8','4/14','4/18','4/23','4/28','4/30','5/6','5/12','5/15','5/20','5/22','5/27','5/28','5/29','6/2','6/3','6/4','6/5'];
-  if (typeof window._breadth5 !== 'number')  window._breadth5  = 61;
-  if (typeof window._breadth20 !== 'number') window._breadth20 = 57;
-  if (typeof window._breadth50 !== 'number') window._breadth50 = 52;
+  window._breadthSeries = null;
+  window._breadthLabels = null;
+  window._breadthSeriesReferenceAsOf = '2026-06-05';
+  window._breadth5 = null;
+  window._breadth20 = null;
+  window._breadth50 = null;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -169,10 +145,10 @@ function _renderSentimentCanvasFallbackCharts() {
   var pcData = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60,0.62,0.58,0.60,0.55,0.57,0.83]; // v50.15: 6/5 연장
   _drawSentimentFallbackLine(document.getElementById('vix-chart'), [{ data: vixData, color: '#ffa31a' }], { label: 'VIX fallback', min: 10, max: 50 });
   _drawSentimentFallbackLine(document.getElementById('vix-term-chart'), [{ data: [2.4,2.1,1.8,1.4,0.9,0.6,0.3,0.1,-0.1,0.2,0.5,0.7], color: '#a78bfa' }], { label: 'Term structure' });
-  _drawSentimentFallbackLine(document.getElementById('naaim-chart'), [{ data: [63.5,67.1,67.0,60.2,62.5,68.36,69.38,79.49,94.15,96.2,92.5,95.1,97.8,96.4,89.5], color: '#00bcd4' }], { label: 'NAAIM', min: 0, max: 100 }); // v50.15: 6/3 연장
+  _drawSentimentFallbackLine(document.getElementById('naaim-chart'), [{ data: [79.49,94.15,93.79,96.67,77.34,82.02,98.39,86.82,79.27,92.83,98.59,84.69,82.95], color: '#00bcd4' }], { label: 'NAAIM', min: 0, max: 100 });
   _drawSentimentFallbackLine(document.getElementById('ii-chart'), [{ data: [33.5,31.2,29.4,28.2,26.5,25.1,24.0,26.5,30.2,35.8,38.5,41.2,44.0,46.5,43.0], color: '#00e5a0', fill: false }, { data: [36.8,38.5,40.2,41.5,43.2,44.8,46.0,43.5,40.0,35.5,33.0,30.5,28.8,28.0,31.5], color: '#ff5b50', fill: false }], { label: 'II bull/bear', min: 0, max: 60, fill: false }); // v50.15: 6/4 연장
   _drawSentimentFallbackLine(document.getElementById('hy-chart'), [{ data: hyData, color: '#fb923c' }], { label: 'HY OAS', min: 250, max: 420 });
-  _drawSentimentFallbackLine(document.getElementById('aaii-chart'), [{ data: [34.0,42.0,44.0,41.0,39.0,38.1], color: '#00e5a0', fill: false }, { data: [42.0,34.0,33.0,34.0,35.0,39.7], color: '#ff5b50', fill: false }], { label: 'AAII bull/bear', min: 0, max: 60, fill: false }); // v50.15: 6/5 정합
+  _drawSentimentFallbackLine(document.getElementById('aaii-chart'), [{ data: [44.9,36.6,30.4,36.3,35.6,31.7], color: '#00e5a0', fill: false }, { data: [36.1,39.4,47.7,37.0,41.9,43.6], color: '#ff5b50', fill: false }], { label: 'AAII bull/bear', min: 0, max: 60, fill: false });
   _drawSentimentFallbackLine(document.getElementById('pc-chart'), [{ data: pcData, color: '#ffa31a' }], { label: 'Put/Call', min: 0.45, max: 1.15 });
   _drawSentimentFallbackLine(document.getElementById('news-sentiment-chart'), [{ data: [42,46,51,55,49,57,61,58,54,59,63,60], color: '#2dd4bf' }], { label: 'News tone', min: 0, max: 100 });
 }
@@ -263,9 +239,9 @@ function _initSentNaaimChart() {
   var naaimCtx = document.getElementById('naaim-chart');
   if (!naaimCtx) return;
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
-  var naaimLabels = ['2/26','3/5','3/12','3/19','3/26','4/1','4/8','4/15','4/22','4/29','5/6','5/13','5/20','5/27','6/3']; // v50.15: 6/3까지 연장 (주간 서베이·무료 API 없음, 수동 갱신)
-  var naaimData = [63.5, 67.1, 67.0, 60.2, 62.5, 68.36, 69.38, 79.49, 94.15, 96.2, 92.5, 95.1, 97.8, 96.4, 89.5]; // v50.15: 5월 신고가 구간 노출 고점(95~98)→6/3 6/5 셀오프 직전 소폭 경계. NAAIM 주간(수)
-  window._sentHistUpdated = '2026-06-05'; // 심리 차트 히스토리 최종 갱신일 (data-refresh 시 갱신)
+  var naaimLabels = ['4/15','4/22','4/29','5/6','5/13','5/20','5/27','6/3','6/10','6/17','6/24','7/1','7/8'];
+  var naaimData = [79.49,94.15,93.79,96.67,77.34,82.02,98.39,86.82,79.27,92.83,98.59,84.69,82.95];
+  window._sentHistUpdated = '2026-07-08';
   var _gNaaim = chartDataGate('naaim-chart', naaimLabels, [naaimData], { minPoints: 3, chartName: 'NAAIM' });
   if (!_gNaaim) return;
 
@@ -403,6 +379,9 @@ function _initSentIIChart() {
 function _initSentHYChart() {
   var hyCtx = document.getElementById('hy-chart');
   if (!hyCtx) return;
+  hyCtx.setAttribute('data-source-kind', 'snapshot');
+  hyCtx.setAttribute('data-operational-use', 'reference-only');
+  hyCtx.setAttribute('title', 'HY OAS 과거 참고 시계열 · 2026-06-05 종료 · 현재 판단은 FRED BAMLH0A0HYM2 최신값만 사용');
   var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
   var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279, 282, 286, 292, 297, 294, 291, 296, 294, 290, 285, 280, 276, 278, 275, 289]; /* v50.15: 5월 타이트닝(~275)→6/5 셀오프 소폭 확대 289bp. DATA_SNAPSHOT.hySpread 정합 */
   var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' });
@@ -543,18 +522,22 @@ function initSentimentCharts() {
   // ─ AAII stacked horizontal bar ─────────────────────────────────────
   const aaiiCtx = document.getElementById('aaii-chart');
   if (aaiiCtx) {
-    const aaiiLabels = ['6/5', '5/28', '5/21', '5/14', '5/7', '4/29']; // v50.15: 6/5까지 (최신순, 주간·DATA_SNAPSHOT.aaiiBear가 최신값 덮어씀)
-    // Bull / Neutral / Bear (합계 100) — v50.15: 5월 신고가 랠리 낙관(Bull 44)→6/5 셀오프 비관 급증(Bear 42, DATA_SNAPSHOT.aaiiBear 41.9 정합)
-    const aaiiDatasets = [[34.0, 42.0, 44.0, 41.0, 39.0, 38.1], [24.0, 24.0, 23.0, 25.0, 26.0, 22.2], [42.0, 34.0, 33.0, 34.0, 35.0, 39.7]];
+    const aaiiLabels = ['6/27', '6/20', '6/13', '6/6', '5/30', '5/23'];
+    // Bull / Neutral / Bear (합계 100). 주간 수동 자료이므로 reference-only.
+    const aaiiDatasets = [[44.9,36.6,30.4,36.3,35.6,31.7], [18.9,24.1,22.0,26.7,22.6,24.7], [36.1,39.4,47.7,37.0,41.9,43.6]];
     // v31.9: 텍스트 폴백 동적 업데이트
     var _aaiiBearEl = document.getElementById('aaii-bear-val');
     var _aaiiBullEl = document.getElementById('aaii-bull-val');
     var _aaiiSignal = document.getElementById('aaii-signal-badge');
     var snapAaiiBear = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.aaiiBear != null) ? Number(DATA_SNAPSHOT.aaiiBear) : NaN;
+    var snapAaiiBull = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.aaiiBull != null) ? Number(DATA_SNAPSHOT.aaiiBull) : NaN;
+    var snapAaiiNeutral = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.aaiiNeutral != null) ? Number(DATA_SNAPSHOT.aaiiNeutral) : NaN;
     var latestBear = isFinite(snapAaiiBear) ? snapAaiiBear : aaiiDatasets[2][0];
-    var latestBull = aaiiDatasets[0][0];
+    var latestBull = isFinite(snapAaiiBull) ? snapAaiiBull : aaiiDatasets[0][0];
     if (isFinite(snapAaiiBear)) {
       aaiiDatasets[2][0] = snapAaiiBear;
+      if (isFinite(snapAaiiBull)) aaiiDatasets[0][0] = snapAaiiBull;
+      if (isFinite(snapAaiiNeutral)) aaiiDatasets[1][0] = snapAaiiNeutral;
       if (aaiiCtx.setAttribute) {
         aaiiCtx.setAttribute('data-source-kind', 'snapshot');
         aaiiCtx.setAttribute('data-operational-use', 'reference-only');
@@ -571,11 +554,9 @@ function initSentimentCharts() {
       _regAaii.style.color = latestBear > 50 ? '#ff5b50' : latestBear > 40 ? '#ffa31a' : '#00e5a0';
     }
     var _regAaiiSub = _regAaii ? _regAaii.nextElementSibling : null;
-    if (_regAaiiSub) _regAaiiSub.textContent = latestBear > 50 ? '극단 비관 (역발상)' : latestBear > 40 ? '비관 우세' : '정상 범위';
+    if (_regAaiiSub) _regAaiiSub.textContent = (latestBear > 50 ? '극단 비관' : latestBear > 40 ? '비관 우세' : '정상 범위') + ' · 주간 참고';
     if (_aaiiSignal) {
-      if (latestBear > 50) _aaiiSignal.innerHTML = '<span style="font-size:11px;font-weight:700;color:#f87171;">● 극단적 비관</span><span style="font-size:11px;color:var(--text-muted);margin-left:4px;">(역발상 매수 시그널)</span>';
-      else if (latestBear > 40) _aaiiSignal.innerHTML = '<span style="font-size:11px;font-weight:700;color:#fbbf24;">● 비관 우세</span>';
-      else _aaiiSignal.innerHTML = '<span style="font-size:11px;font-weight:700;color:#3ddba5;">● 정상 범위</span>';
+      _aaiiSignal.innerHTML = '<span style="font-size:11px;font-weight:700;color:var(--text-secondary);">주간 설문 참고값 · 현재 매매판정 제외</span>';
     }
     var _gAaii = chartDataGate('aaii-chart', aaiiLabels, aaiiDatasets, { minPoints: 3, chartName: 'AAII' }); if (_gAaii)
     sentPageCharts['aaii'] = new Chart(aaiiCtx, {
@@ -761,10 +742,10 @@ function updateRallyQualityVerdict() {
 
   var verdict = '', color = '', bg = '';
   if (b5 > 70 && b50 > 60) {
-    verdict = ' <b>브레드스 쓰러스트 수준</b> — 5SMA ' + b5.toFixed(0) + '% · 50SMA ' + b50.toFixed(0) + '%. 극히 높은 참여율. 진짜 바닥 확인 가능성. 리더주 셋업 완성 시 분할 진입 검토.';
+    verdict = ' <b>브레드스 쓰러스트 수준</b> — 5SMA ' + b5.toFixed(0) + '% · 50SMA ' + b50.toFixed(0) + '%. 극히 높은 참여율. 과거 바닥 확인 국면에서 관측되던 조합(예측 아님).';
     color = '#00e5a0'; bg = 'var(--data-green-faint)';
   } else if (b5 > 50 && b20 > 40) {
-    verdict = ' <b>고품질 랠리</b> — 5SMA ' + b5.toFixed(0) + '% · 20SMA ' + b20.toFixed(0) + '%. 광범위 참여. Follow-through 진행 중. 리테스트 대기하며 선별 매수 가능.';
+    verdict = ' <b>고품질 랠리</b> — 5SMA ' + b5.toFixed(0) + '% · 20SMA ' + b20.toFixed(0) + '%. 광범위 참여. Follow-through 진행 중 — 리테스트 통과 여부가 다음 관찰 포인트.';
     color = '#00bcd4'; bg = 'var(--data-cyan-light)';
   } else if (b5 > 30) {
     verdict = ' <b>품질 미확인 랠리</b> — 5SMA ' + b5.toFixed(0) + '%. 제한적 참여. 숏커버링 주도 가능성. 첫 며칠은 노이즈 — 후속 확인 필요. 관망 유지.';
@@ -781,6 +762,35 @@ function updateRallyQualityVerdict() {
 // v42.4: 브레드쓰 바 동적 갱신 — signal 페이지 + breadth 페이지 NDX 카드
 // v49.64 Codex P332: 20-SMA 70%+ amber override (과열 신호 — v49.63 index.html 정적 변경의 동적 보강)
 function updateBreadthBars() {
+  var currentBreadth = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
+  if (!currentBreadth.available) {
+    var pendingText = '현재 원천 미수신';
+    [['breadth-header-badge','판정 보류'],['breadth-diag-signal','판정 보류'],['breadth-5sma-big','—'],['breadth-20sma-big','—'],['breadth-50sma-big','—'],['breadth-5sma-label',pendingText],['breadth-20sma-label',pendingText],['breadth-50sma-label',pendingText],['breadth-5sma-freshness',pendingText],['breadth-20sma-freshness',pendingText],['breadth-50sma-freshness',pendingText],['breadth-advance-ratio','—'],['breadth-signal-val','—']].forEach(function(p){ var el=document.getElementById(p[0]); if(el){ el.textContent=p[1]; el.style.color='var(--text-muted)'; } });
+    ['breadth-5sma-bar','breadth-20sma-bar','breadth-50sma-bar','bb-5sma-bar','bb-20sma-bar','bb-50sma-bar'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.width='0%'; });
+    var stageEl = document.getElementById('breadth-stage-summary');
+    if (stageEl) stageEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">OHLCV 근거 미수신</span>';
+    var mcEl = document.getElementById('breadth-mcclellan-summary');
+    if (mcEl) { mcEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">A/D 시계열 미수신</span>'; mcEl.setAttribute('data-mcclellan-signal','unavailable'); }
+    var diagEl = document.getElementById('breadth-diag-text');
+    if (diagEl) diagEl.textContent = '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다. 2026-06-05 종료 참고 배열은 현재 판단에서 제외됩니다.';
+    if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
+    return;
+  }
+  window._breadth5 = currentBreadth.sma5;
+  window._breadth20 = currentBreadth.sma20;
+  window._breadth200 = currentBreadth.sma20;
+  window._breadth50 = currentBreadth.sma50;
+  var diagSummary = '5/20/50일선 상회 ' + Math.round(currentBreadth.sma5) + '/' + Math.round(currentBreadth.sma20) + '/' + Math.round(currentBreadth.sma50) + '%';
+  var breadthHeader = document.getElementById('breadth-header-badge');
+  if (breadthHeader) { breadthHeader.textContent = '현재 관측'; breadthHeader.style.color = 'var(--data-green)'; }
+  var breadthDiagSignal = document.getElementById('breadth-diag-signal');
+  if (breadthDiagSignal) { breadthDiagSignal.textContent = diagSummary; breadthDiagSignal.style.color = 'var(--text-primary)'; }
+  var breadthDiagText = document.getElementById('breadth-diag-text');
+  if (breadthDiagText) breadthDiagText.textContent = diagSummary + ' · ' + (currentBreadth.source || 'AIO screener universe') + '의 현재 관측입니다. Weinstein Stage와 McClellan은 각각 OHLCV·A/D 시계열이 없어 별도 판정을 보류합니다.';
+  var breadthAdvance = document.getElementById('breadth-advance-ratio');
+  if (breadthAdvance) breadthAdvance.textContent = currentBreadth.advanceRatio != null ? (currentBreadth.advanceRatio * 100).toFixed(1) + '%' : '—';
+  var breadthSignal = document.getElementById('breadth-signal-val');
+  if (breadthSignal) breadthSignal.textContent = '현재 5/20/50SMA 관측 · 방향 예측 아님';
   function _bbRegime(v) {
     if (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime) {
       var reg = NARRATIVE_ENGINE.getBreadthRegime(v);
@@ -862,6 +872,29 @@ function initBreadthPage(forceReinit) {
   if (typeof Chart === 'undefined' || typeof Chart !== 'function' || !Chart.registry || !Chart.registry.plugins || typeof Chart.register !== 'function') return;
   // v40.4: 날만 데이터 경고
   renderStaleWarning('page-breadth');
+  var currentBreadth = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
+  if (!currentBreadth.available) {
+    window._breadth5 = window._breadth20 = window._breadth50 = window._breadth200 = null;
+    window._breadthSeries = null;
+    updateBreadthBars();
+    ['breadth-5sma','breadth-20sma','breadth-50sma'].forEach(function(key) {
+      document.querySelectorAll('[data-snap="' + key + '"]').forEach(function(el) {
+        if (typeof window._aioRenderValueSlot === 'function') window._aioRenderValueSlot(el, 'na', null, { text:'—', reason:'현재 breadth 원천 미수신 · 2026-06-05 종료 정적 배열은 판단에서 제외' });
+        else el.textContent = '—';
+      });
+    });
+    if (typeof window._aioBreadthCanvasRender === 'function') window._aioBreadthCanvasRender();
+    bpChartsInitialized = false;
+    return;
+  }
+  [['breadth-5sma-label', currentBreadth.sma5, false], ['breadth-20sma-label', currentBreadth.sma20, true], ['breadth-50sma-label', currentBreadth.sma50, false]].forEach(function(p) {
+    var el = document.getElementById(p[0]);
+    if (!el) return;
+    el.textContent = p[2] ? _bb20smaLbl(p[1]) : _bbLbl(p[1]);
+    el.style.color = p[2] ? _bb20smaColor(p[1]) : _bbColor(p[1]);
+  });
+  var breadthAsOf = currentBreadth.ts ? new Date(currentBreadth.ts).toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit' }) : '현재';
+  ['breadth-5sma-freshness','breadth-20sma-freshness','breadth-50sma-freshness'].forEach(function(id) { var el=document.getElementById(id); if(el) el.textContent='관측: ' + breadthAsOf + ' · ' + (currentBreadth.source || 'AIO screener universe'); });
   if (bpChartsInitialized && !forceReinit) {
     try { Object.values(bpChartInstances).forEach(c => c.resize()); } catch(e) {}
     return;
@@ -5470,8 +5503,8 @@ var AIO_PAGE_FUNDAMENTALS = {
     ],
     how: [
       `'Cross-Asset 신호 매트릭스'에서 DXY·10Y·수익률스프레드·HYG 네 축의 신호가 같은 방향인지부터 확인하세요 — 합의될 때만 강한 신호입니다.`,
-      `'외환시장' 섹션의 원/달러·엔/달러 카드를 DXY와 한 세트로: 셋이 같은 방향(달러↑·원↓·엔↓)이면 정상 리스크오프, 엔만 급등하면 캐리 청산 경계.`,
-      `<strong>'엔캐리 언와인드 위험도' 게이지</strong>가 위 원리(엔·금리차·VIX·HYG 합성)를 점수화한 것입니다 — 엔 급등이 보이면 이 게이지부터 확인하세요.`,
+      `'외환시장' 섹션의 원/달러·엔/달러와 DXY는 같은 시점의 방향을 비교하는 관찰값입니다. 단일 조합만으로 리스크온·오프나 포지션 청산을 판정하지 않습니다.`,
+      `<strong>'엔캐리 관측 프록시'</strong>는 엔·금리차·VIX·HYG의 단순 규칙값입니다. 실제 캐리 포지션·청산 확률은 옵션·포지션·정책 자료로 별도 확인하세요.`,
       `'미 국채 수익률 곡선'에서 금리의 '레벨'보다 '변화 속도'와 역전 여부(2s10s·3m10y 배지)를 보세요 — 빠른 급등/급락이 주식시장을 흔듭니다.`,
       `'채권 변동성 · 크레딧 시장'의 HY 스프레드가 주식 급락과 함께 확대되는지 확인하세요 — 스프레드가 조용하면 주식만의 노이즈일 가능성, 같이 벌어지면 신용 문제로 승격.`
     ],

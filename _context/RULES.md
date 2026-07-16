@@ -1,10 +1,26 @@
 ---
 verified_by: agent
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 confidence: high
-target_version: v52.96
+target_version: v52.99
 
 ---
+
+## R340. 파생 시장 결론은 필수 관측 입력의 의미·기준일·coverage가 충족될 때만 표시한다 (v52.99, P712)
+
+**Rule**: 금리 스프레드, 기술지표, Stage, RRG, 시장폭, McClellan, HY OAS, 테마·시장 건강도처럼 여러 값을 결합하는 결론은 각 필수 입력의 instrument/maturity/unit/source/asOf/coverage를 검증해야 한다. 다른 만기·다른 지표·정적 시드·중립 상수·난수 시계열을 결측 대용으로 사용해 현재값이나 현재 판정처럼 표시하지 않는다.
+
+**Required**: 2s10s는 명시적 2Y·10Y 관측치만, RSI/MACD/Stage·시장 레짐·지지저항은 기준시각이 확인된 충분한 OHLCV만, RRG는 상대가격 히스토리만, McClellan은 실제 상승·하락 종목수 시계열만, HY OAS는 공식 OAS 관측치만 사용한다. 엔캐리·크로스에셋 프록시는 모든 필수 현재 입력이 있어도 포지션·옵션·당국조치·방향 예측으로 승격하지 않으며, 하나라도 없으면 점수도 보류한다. 비정규화 가격비율은 시장폭·집중도 결론에 쓰지 않는다. 한국 테마·시장건강도는 최소 coverage와 현재 수급/VKOSPI를 충족해야 한다. 하나라도 충족하지 않으면 값·등급·행동 문구를 함께 `판정 보류`로 닫고 누락 입력을 표시한다.
+
+**Validation**: T874, T1024~T1027, T1037~T1039, `scripts/ci-runtime-contract-check.mjs`, 22-route semantic inventory, synthetic-series/RRG-seed/HYG-to-OAS/past-calendar source scans.
+
+## R339. 증분 정성 피드는 전체 관측 lineage와 capped 소비 payload를 분리하고 현재 narrative를 재생성한다 (v52.97, P711)
+
+**Rule**: Telegram 같은 증분 정성 피드의 `count`는 이번 fetch 수나 capped 본문 배열 길이로 가장하지 않는다. rolling window 전체의 경량 ID/channel/time/score/tags/tickers lineage와 UI/chat용 capped full text를 분리하고, `freshCount`, text eligibility, high/broad signal, selected payload coverage를 각각 노출한다. 동적 artifact가 로드되면 정적 과거 themes/catalysts/categories/pageMap을 유지하지 않고 현재 원문에서 재생성한다.
+
+**Required**: producer와 runtime fallback은 동일한 22-page 의미 map을 만들고, guide처럼 뉴스가 불필요한 route는 명시적 비적용으로 남긴다. 분류 taxonomy와 ticker alias는 현재 채널 주제를 수용하고 SCREENER_DB universe를 활용한다. 전 채널 실패는 이전 성공 digest의 본문·`generatedAt`을 보존하고 `attemptedAt`/failure만 갱신한다. Telegram 내용은 계속 secondary/reference이며 가격·금리·매매 판단값으로 직접 승격하지 않는다.
+
+**Validation**: `AIO.getTelegramPageCoverageAudit()`, `AIO.getTelegramPipelineAudit().digest.coverage`, T830~T831, `ci-data-pipeline-contract-check.mjs`, `ci-runtime-contract-check.mjs`, `_artifacts/telegram-5d-coverage-audit-2026-07-15.md`.
 
 ## R338. 데이터 artifact lineage는 정책별 timestamp와 반영 commit을 함께 검증하고, 다른 시각을 승격하지 않는다 (v52.96, P710)
 

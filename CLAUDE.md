@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v52.96**
+- 현재 버전: **v53.0**
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 이력의 단일 출처). 아래는 **최근 버전 요약만** 유지한다.
 - **v52.7~v52.15 FABLE-LIVE-AUDIT-2026-07-04.md P2~P6 전체 완료(P604~P616)**: P0/P1(v52.5/52.6)에 이어 감사 백로그 마저 처리. **P5a**(P604/R279): 매크로 캘린더 auto-advance가 요일-고정 발표일(NFP)을 불가능한 요일로 미는 버그 — `_firstWeekdayOfMonth` 스냅 추가. **P5b**(P605/R280): VKOSPI 27.00 고정 표시의 진짜 원인은 시드 stale이 아니라 `fetchKrDynamicData`가 index.html/aio-data.js에 중복 선언돼 defer 로드 순서상 후자가 항상 이겨 VKOSPI 실시간 fetch가 영구 미실행이었던 것 — 최소 범위로 해당 fetch만 복구(다른 5개 orphan 함수는 미검증 상태로 범위 밖 유지). **P5c**(P606, R276 사례): themes 사이클 칩-본문 모순 — 동일 소스 구독 전환. **P5d**(P607, R261 사례): briefing/signal F&G phantom global(`_fearGreedValue`) → `_lastFG`. **P5e**(P608): briefing 헤더 단어 중간 잘림 — 단어경계+'…' 헬퍼. **P2**(P609): "30분마다" tooltip을 실제 cron 실발화(1~4h) 기준으로 정정. **P3**(P610, 사용자 명시 요청으로 재개): kr-technical TradingView KRX 하드 브레이크 — Naver 일봉+Chart.js 자체 캔들/거래량/MA20으로 완전 대체(신규 CDN 없음). **P6**(P611~616): PUBLIC STATUS 영문 로그 노출(R206 사례)·`:focus-visible` 오검출·AI 패널 공백+프롬프트 잔류·운영자 노트 경과일 배지·모바일 버튼 잘림 기계적 수정 5건 + 홈 경고 pill 11개 연속→1줄요약+펼치기(`<details>` 재사용, 사용자가 3안 중 확정) 1건. Telegram 페이지간 중복·FMP다운 컬럼 UX는 사용자가 현행 유지로 확정(코드 변경 없음). 전 항목 헤드리스 899/922(스킵리스트 T278/T422 해소로 제거) 확인, **단 Chrome 확장 미연결로 이번 세션 UI 변경 전체의 실브라우저 시각 확인은 QA-CHECKLIST 잔여 항목**.
 - v52.6 이하 전체 버전 이력(P0/P1 뉴스번역·CI워크플로 수정, Phase 0~3 로드맵 진행 상세 포함) → `CHANGELOG.md`

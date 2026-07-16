@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const CHANNELS = ['aetherjapanresearch', 'insidertracking', 'bornlupin'];
 const DEFAULT_DAYS = 14;
@@ -9,6 +11,39 @@ const UA = {
   'accept': 'text/html,application/xhtml+xml',
   'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
 };
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const REQUIRED_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+const PAGE_TOPIC_MAP = {
+  home:['kr-market','macro','credit','semi','ai-policy','equity','geo','earnings','flows','insider'],
+  signal:['kr-market','equity','semi','macro','geo','credit','earnings','flows','insider'],
+  breadth:['macro','credit','equity','kr-market','geo','semi','power','flows'],
+  sentiment:['macro','credit','kr-market','equity','geo','crypto','flows','insider'],
+  briefing:['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','power','optical','earnings','healthcare','japan','flows','insider'],
+  technical:['semi','equity','power','optical','flows','earnings'],
+  macro:['macro','credit','geo','ai-policy','power','japan'],
+  fxbond:['macro','credit','geo','power','flows','japan'],
+  fundamental:['equity','semi','credit','power','optical','ai-policy','kr-market','earnings','healthcare','insider'],
+  themes:['semi','power','optical','ai-policy','equity','kr-market','macro','credit','healthcare','japan'],
+  'theme-detail':['semi','power','optical','ai-policy','equity','kr-market','macro','credit','healthcare','japan'],
+  portfolio:['equity','earnings','flows','insider','macro','credit','geo'],
+  ticker:['equity','earnings','insider','semi','power','optical','healthcare'],
+  'market-news':['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','optical','power','crypto','earnings','healthcare','japan','flows','insider'],
+  options:['macro','equity','flows','earnings','crypto','geo'],
+  screener:['equity','earnings','insider','semi','power','optical','healthcare','kr-market'],
+  'kr-home':['kr-market','semi','equity','macro','credit','earnings','flows'],
+  'kr-supply':['kr-market','equity','geo','semi','power','optical','credit','flows','insider'],
+  'kr-themes':['kr-market','semi','power','optical','equity','healthcare'],
+  'kr-macro':['kr-market','macro','credit','semi','ai-policy','geo','japan'],
+  'kr-technical':['kr-market','semi','equity','macro','geo','flows'],
+  guide:[],
+};
+const CATEGORY_LABELS = {
+  macro:'Macro/Rates', geo:'Geopolitics', credit:'Credit/Funding', semi:'Semiconductors/Memory', optical:'Optical/Networking', power:'AI Power/Grid',
+  'ai-policy':'AI Policy/Export Controls', 'kr-market':'Korea Market', equity:'Equity/Analyst', crypto:'Crypto/Risk', earnings:'Earnings/Corporate',
+  healthcare:'Healthcare/GLP-1', japan:'Japan Market', flows:'Positioning/Flows', insider:'Insider Activity', 'market-note':'Market Notes'
+};
+const missingPageContracts = REQUIRED_PAGE_IDS.filter(pageId => !Object.prototype.hasOwnProperty.call(PAGE_TOPIC_MAP, pageId));
+if (missingPageContracts.length) throw new Error(`Telegram page map missing: ${missingPageContracts.join(', ')}`);
 
 function argValue(name, fallback = null) {
   const pref = `--${name}=`;
@@ -19,6 +54,7 @@ function argValue(name, fallback = null) {
 const sinceArg = argValue('since');
 const days = Number(argValue('days', DEFAULT_DAYS));
 const outPath = argValue('out');
+const forceFullScan = argValue('full', 'false') === 'true';
 const now = new Date(argValue('now', new Date().toISOString()));
 const since = sinceArg ? new Date(sinceArg) : new Date(now.getTime() - days * 86400000);
 
@@ -34,17 +70,40 @@ const previousLastPostId = new Map();
 // topItems/broadItems), so those are what we carry forward to backfill whatever an
 // early-stopped scrapeChannel run no longer re-fetches from prior pages.
 let previousMergePool = [];
+let previousObservedPool = [];
 let previousDigest = null;
+let lineageStatus = 'complete';
+let legacyReportedCount = null;
+let lineageCompleteAfter = null;
 if (outPath && existsSync(outPath)) {
   try {
     const prev = JSON.parse(readFileSync(outPath, 'utf8'));
     previousDigest = prev;
-    for (const ch of (prev.channels || [])) {
-      if (ch.channel && Number.isFinite(ch.lastPostId)) previousLastPostId.set(ch.channel, ch.lastPostId);
-    }
-    const prevSeen = new Set();
-    for (const it of [...(prev.topItems || []), ...(prev.broadItems || [])]) {
-      if (it && it.id && !prevSeen.has(it.id)) { prevSeen.add(it.id); previousMergePool.push(it); }
+    if (!forceFullScan) {
+      for (const ch of (prev.channels || [])) {
+        if (ch.channel && Number.isFinite(ch.lastPostId)) previousLastPostId.set(ch.channel, ch.lastPostId);
+      }
+      const prevObservedIds = new Set((prev.observedItems || []).map(x => x && x.id).filter(Boolean));
+      const prevSeen = new Set();
+      for (const it of [...(prev.topItems || []), ...(prev.broadItems || [])]) {
+        if (it && it.id && !prevSeen.has(it.id)) {
+          prevSeen.add(it.id);
+          previousMergePool.push(it);
+          if (!prevObservedIds.has(it.id)) {
+            previousObservedPool.push({ id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst, score:Number(it.score || 0), tags:it.tags || [], tickers:it.tickers || [], hasText:!!String(it.text || '').trim() });
+          }
+        }
+      }
+      previousObservedPool.push(...(Array.isArray(prev.observedItems) ? prev.observedItems.filter(it => it && it.id) : []));
+      const priorCoverage = prev.coverage || {};
+      const priorCompleteAfter = priorCoverage.lineageCompleteAfter || null;
+      if (!Array.isArray(prev.observedItems) || priorCoverage.lineageStatus === 'legacy-partial') {
+        lineageCompleteAfter = priorCompleteAfter || new Date(new Date(prev.until || now).getTime() + days * 86400000).toISOString();
+        if (now < new Date(lineageCompleteAfter)) {
+          lineageStatus = 'legacy-partial';
+          legacyReportedCount = Number(priorCoverage.legacyReportedCount || prev.count || 0) || null;
+        }
+      }
     }
   } catch (e) { console.warn(`[fetch-telegram-digest] previous digest read failed (non-fatal, full re-scan): ${e.message}`); }
 }
@@ -84,8 +143,34 @@ function classify(text) {
   if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|기관|코스피|코스닥|국장|한국장|선물|환율/i.test(raw)) add('kr-market');
   if (/spacex|prime day|amazon|adobe|smci|meta|murata|ipo|buy|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
   if (/crypto|bitcoin|ethereum|coinbase/i.test(raw)) add('crypto');
+  if (/insider (?:buy|purchase|sale|selling|transaction)|open.market (?:buy|purchase)|form 4|director bought|executive bought|내부자|임원 매수|자사주/i.test(raw)) add('insider');
+  if (/earnings|revenue|eps|guidance|operating profit|quarterly results|실적|매출|영업이익|가이던스|컨센서스/i.test(raw)) add('earnings');
+  if (/fund flow|etf flow|positioning|short interest|gamma|option flow|foreign buying|institutional buying|수급|외국인|기관|순매수|포지셔닝/i.test(raw)) add('flows');
+  if (/healthcare|pharma|biotech|glp.?1|wegovy|ozempic|mounjaro|novo nordisk|eli lilly|비만약|제약|바이오/i.test(raw)) add('healthcare');
+  if (/\bjapan\b|nikkei|topix|yen|jgb|tokyo stock|일본|닛케이|토픽스|엔화|일은/i.test(raw)) add('japan');
   return tags.length ? tags : ['market-note'];
 }
+
+function escapeRegex(s) { return String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function loadScreenerAliases() {
+  const rows = [];
+  try {
+    const src = readFileSync(join(ROOT, 'js/aio-data.js'), 'utf8');
+    const re = /\{\s*sym:'([^']+)'\s*,\s*name:'([^']+)'/g;
+    let m;
+    const generic = new Set(['AI','Apple','Meta','Oracle','Target','Block','Unity','Toast','Line','Korea','Japan','Samsung','Amazon']);
+    while ((m = re.exec(src))) {
+      const sym = m[1].toUpperCase();
+      const name = decodeEntities(m[2]).trim();
+      if (!name || name.length < 4 || generic.has(name)) continue;
+      rows.push([sym, new RegExp(`(?:^|[^\\p{L}\\p{N}])${escapeRegex(name)}(?:$|[^\\p{L}\\p{N}])`, 'iu')]);
+    }
+  } catch (e) { console.warn(`[fetch-telegram-digest] screener alias load failed (non-fatal): ${e.message}`); }
+  return rows;
+}
+
+const SCREENER_ALIASES = loadScreenerAliases();
 
 function extractTickers(text) {
   const raw = String(text || '');
@@ -105,6 +190,10 @@ function extractTickers(text) {
   ];
   const out = [];
   for (const [ticker, re] of map) if (re.test(raw) && !out.includes(ticker)) out.push(ticker);
+  for (const [ticker, re] of SCREENER_ALIASES) {
+    if (out.length >= 20) break;
+    if (re.test(raw) && !out.includes(ticker)) out.push(ticker);
+  }
   return out;
 }
 
@@ -148,10 +237,9 @@ function parsePage(html, channel) {
     if (!tm) continue;
     const textMatch = block.match(/<div class="tgme_widget_message_text js-message_text"[^>]*>([\s\S]*?)<\/div>/);
     const text = decodeEntities(textMatch ? textMatch[1] : '');
-    if (!text) continue;
     const date = new Date(tm[1]);
-    const tags = classify(text);
-    const tickers = extractTickers(text);
+    const tags = text ? classify(text) : ['media-only'];
+    const tickers = text ? extractTickers(text) : [];
     out.push({
       id: post,
       channel,
@@ -160,7 +248,8 @@ function parsePage(html, channel) {
       localDateKst: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit' }).format(date),
       tags,
       tickers,
-      score: scoreItem(text, tags, tickers),
+      score: text ? scoreItem(text, tags, tickers) : 0,
+      hasText: !!text,
       text,
     });
   }
@@ -242,6 +331,18 @@ for (const it of [...previousMergePool, ...freshItems]) {
   mergedById.set(it.id, it); // fresh items processed after pool entries win on id collision
 }
 const items = [...mergedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+const observedById = new Map();
+for (const it of [...previousObservedPool, ...freshItems]) {
+  if (!it || !it.id) continue;
+  const d = new Date(it.datetime);
+  if (!(d >= since && d <= now)) continue;
+  observedById.set(it.id, {
+    id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst,
+    score:Number(it.score || 0), tags:Array.isArray(it.tags) ? it.tags : [],
+    tickers:Array.isArray(it.tickers) ? it.tickers : [], hasText:it.hasText !== false && !!String(it.text || '').trim()
+  });
+}
+const observedItems = [...observedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 const successfulChannelCount = channels.filter(c => !c.error).length;
 const collectionStatus = successfulChannelCount === CHANNELS.length ? 'ok' : successfulChannelCount > 0 ? 'partial' : 'failed';
 const attemptedAt = new Date().toISOString();
@@ -252,10 +353,69 @@ const lastSuccessfulAt = collectionStatus === 'failed' ? previousLastSuccessfulA
 const generatedAt = collectionStatus === 'failed' ? (previousDigest?.generatedAt || previousLastSuccessfulAt) : attemptedAt;
 const topicCounts = {};
 const tickerCounts = {};
-for (const it of items) {
+for (const it of observedItems) {
   for (const tag of it.tags) topicCounts[tag] = (topicCounts[tag] || 0) + 1;
   for (const ticker of it.tickers) tickerCounts[ticker] = (tickerCounts[ticker] || 0) + 1;
 }
+
+function previewText(text, max = 180) {
+  const s = String(text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
+  return s.length > max ? `${s.slice(0, max - 3).replace(/\s+\S*$/, '')}...` : s;
+}
+
+function bestTextForTag(tag) {
+  const hit = items.filter(it => Array.isArray(it.tags) && it.tags.includes(tag) && it.text)
+    .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))[0];
+  return hit ? previewText(hit.text) : '';
+}
+
+function buildDynamicNarrative() {
+  const rankedTopics = Object.entries(topicCounts)
+    .filter(([tag, count]) => tag !== 'media-only' && count > 0)
+    .sort((a, b) => b[1] - a[1]);
+  const themes = rankedTopics.slice(0, 8).map(([tag, count]) => {
+    const sample = bestTextForTag(tag);
+    return `${CATEGORY_LABELS[tag] || tag} (${count} posts in current window): ${sample || 'No retained full-text sample; see coverage metadata.'}`;
+  });
+  const catalysts = Object.entries(tickerCounts).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([ticker, count]) => {
+    const hit = items.filter(it => Array.isArray(it.tickers) && it.tickers.includes(ticker) && it.text)
+      .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))[0];
+    return { key:ticker, count, text:hit ? previewText(hit.text) : `${count} observed mentions in the current Telegram window.` };
+  });
+  const categories = Object.entries(CATEGORY_LABELS).map(([id, label]) => ({
+    id, label, topics:[id], count:Number(topicCounts[id] || 0),
+    focus:bestTextForTag(id) || `No retained full-text sample; ${Number(topicCounts[id] || 0)} observed posts in the current window.`
+  }));
+  return { themes, catalysts, categories, pageMap:PAGE_TOPIC_MAP };
+}
+
+const dynamicNarrative = buildDynamicNarrative();
+const topItems = (function() {
+  const candidates = items.filter(x => x.hasText !== false && x.score >= 65).sort((a, b) => b.score - a.score);
+  const perChannel = {}, out = [];
+  for (const it of candidates) {
+    const ch = it.channel || 'unknown';
+    perChannel[ch] = (perChannel[ch] || 0) + 1;
+    if (perChannel[ch] > 20) continue;
+    out.push(it);
+    if (out.length >= 45) break;
+  }
+  return out;
+})();
+const broadItems = (function() {
+  const candidates = items.filter(x => x.hasText !== false && x.score >= 50).sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+  const perChannel = {}, out = [];
+  for (const it of candidates) {
+    const ch = it.channel || 'unknown';
+    perChannel[ch] = (perChannel[ch] || 0) + 1;
+    if (perChannel[ch] > 120) continue;
+    out.push(it);
+    if (out.length >= 400) break;
+  }
+  return out;
+})();
+const selectedRawIds = new Set([...topItems, ...broadItems].map(it => it.id));
+const eligibleTextCount = observedItems.filter(it => it.hasText).length;
 const digest = {
   generatedAt,
   attemptedAt,
@@ -265,38 +425,40 @@ const digest = {
   since: since.toISOString(),
   until: now.toISOString(),
   source: 'telegram-public-mirror',
-  channels: channels.map(c => ({ channel: c.channel, pages: c.pages, reachedOlder: c.reachedOlder, reachedKnown: !!c.reachedKnown, count: c.items.length, error: c.error || null, lastPostId: Number.isFinite(c.lastPostId) ? c.lastPostId : (previousLastPostId.get(c.channel) ?? null) })),
-  count: items.length,
+  channels: channels.map(c => {
+    const observed = observedItems.filter(it => it.channel === c.channel);
+    return { channel:c.channel, pages:c.pages, reachedOlder:c.reachedOlder, reachedKnown:!!c.reachedKnown,
+      count:observed.length, freshCount:c.items.length, eligibleTextCount:observed.filter(it => it.hasText).length,
+      selectedCount:[...selectedRawIds].filter(id => String(id).startsWith(`${c.channel}/`)).length,
+      error:c.error || null, lastPostId:Number.isFinite(c.lastPostId) ? c.lastPostId : (previousLastPostId.get(c.channel) ?? null) };
+  }),
+  count: observedItems.length,
+  retainedItemCount: items.length,
+  observedItems,
+  coverage: {
+    lineageStatus,
+    legacyReportedCount,
+    lineageCompleteAfter,
+    observedCount:observedItems.length,
+    eligibleTextCount,
+    mediaOnlyCount:observedItems.length - eligibleTextCount,
+    highSignalCount:observedItems.filter(it => it.score >= 65).length,
+    broadSignalCount:observedItems.filter(it => it.score >= 50).length,
+    selectedRawCount:selectedRawIds.size,
+    selectedRawCoveragePct:eligibleTextCount ? Math.round(selectedRawIds.size / eligibleTextCount * 1000) / 10 : 0,
+    semantics:'observedItems is lightweight whole-window lineage; topItems/broadItems are capped full-text consumer payloads.'
+  },
   topicCounts,
   tickerCounts,
+  themes:dynamicNarrative.themes,
+  catalysts:dynamicNarrative.catalysts,
+  categories:dynamicNarrative.categories,
+  pageMap:dynamicNarrative.pageMap,
+  pipelineNote:'Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; capped full text is retained separately for UI/chat/memo consumers.',
   // topItems: score>=65, 梨꾨꼸??理쒕? 20媛? ?꾩껜 理쒕? 45媛? score ?대┝李⑥닚
-  topItems: (function() {
-    const candidates = items.filter(x => x.score >= 65).sort((a, b) => b.score - a.score);
-    const perChannel = {};
-    const out = [];
-    for (const it of candidates) {
-      const ch = it.channel || 'unknown';
-      perChannel[ch] = (perChannel[ch] || 0) + 1;
-      if (perChannel[ch] > 20) continue;
-      out.push(it);
-      if (out.length >= 45) break;
-    }
-    return out;
-  })(),
+  topItems,
   // broadItems: score>=50, 梨꾨꼸??理쒕? 120媛? ?꾩껜 理쒕? 400媛? datetime ?대┝李⑥닚 (?댁뒪?쇰뱶)
-  broadItems: (function() {
-    const candidates = items.filter(x => x.score >= 50).sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
-    const perChannel = {};
-    const out = [];
-    for (const it of candidates) {
-      const ch = it.channel || 'unknown';
-      perChannel[ch] = (perChannel[ch] || 0) + 1;
-      if (perChannel[ch] > 120) continue;
-      out.push(it);
-      if (out.length >= 400) break;
-    }
-    return out;
-  })(),
+  broadItems,
   // Phase 3 [A1/B3] P598: `items` (the full merged/deduped set, ~1.04MB / 46% of this file's
   // pre-fix size) used to be included here too, even though the "previousMergePool" logic just
   // above (P571/R262) already documents "the digest we write never persists the full raw item
@@ -311,6 +473,17 @@ const digest = {
   // just not re-serialized into the output file anymore.
 };
 
-const json = JSON.stringify(digest, null, 2);
+const outputDigest = collectionStatus === 'failed' && previousDigest && Number(previousDigest.count || 0) > 0
+  ? Object.assign({}, previousDigest, {
+      attemptedAt,
+      collectionStatus:'failed',
+      successfulChannelCount:0,
+      channels:(previousDigest.channels || []).map(ch => {
+        const failed = channels.find(row => row.channel === ch.channel);
+        return Object.assign({}, ch, { error:failed && failed.error || 'collection failed', freshCount:0 });
+      })
+    })
+  : digest;
+const json = JSON.stringify(outputDigest, null, 2);
 if (outPath) writeFileSync(outPath, json + '\n', 'utf8');
 console.log(json);

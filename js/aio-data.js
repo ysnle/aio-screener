@@ -1047,6 +1047,37 @@ function _aioTelegramWindowLabel(sinceIso, untilIso) {
   } catch(_) { return null; }
 }
 
+function _aioBuildTelegramRuntimeNarrative(raw) {
+  var items = Array.isArray(raw && raw.broadItems) ? raw.broadItems : (Array.isArray(raw && raw.topItems) ? raw.topItems : []);
+  var topicCounts = raw && raw.topicCounts && typeof raw.topicCounts === 'object' ? raw.topicCounts : {};
+  var tickerCounts = raw && raw.tickerCounts && typeof raw.tickerCounts === 'object' ? raw.tickerCounts : {};
+  var labels = { macro:'Macro/Rates', geo:'Geopolitics', credit:'Credit/Funding', semi:'Semiconductors/Memory', optical:'Optical/Networking', power:'AI Power/Grid', 'ai-policy':'AI Policy/Export Controls', 'kr-market':'Korea Market', equity:'Equity/Analyst', crypto:'Crypto/Risk', earnings:'Earnings/Corporate', healthcare:'Healthcare/GLP-1', japan:'Japan Market', flows:'Positioning/Flows', insider:'Insider Activity', 'market-note':'Market Notes' };
+  function clean(v, max) {
+    var s = String(v || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
+    return s.length > max ? s.slice(0, max - 3).replace(/\s+\S*$/, '') + '...' : s;
+  }
+  function sampleFor(tag, ticker) {
+    var row = items.find(function(it) {
+      return it && (tag ? Array.isArray(it.tags) && it.tags.indexOf(tag) >= 0 : Array.isArray(it.tickers) && it.tickers.indexOf(ticker) >= 0);
+    });
+    return row ? clean(row.text || row.title || row.summary || '', 180) : '';
+  }
+  var rankedTopics = Object.keys(topicCounts).filter(function(tag) { return tag !== 'media-only' && Number(topicCounts[tag]) > 0; })
+    .sort(function(a, b) { return Number(topicCounts[b]) - Number(topicCounts[a]); });
+  var themes = rankedTopics.slice(0, 8).map(function(tag) {
+    return (labels[tag] || tag) + ' (' + Number(topicCounts[tag]) + ' posts in current window): ' + (sampleFor(tag) || 'No retained full-text sample; see coverage metadata.');
+  });
+  var catalysts = Object.keys(tickerCounts).sort(function(a, b) { return Number(tickerCounts[b]) - Number(tickerCounts[a]); }).slice(0, 12).map(function(ticker) {
+    return { key:ticker, count:Number(tickerCounts[ticker]), text:sampleFor(null, ticker) || (Number(tickerCounts[ticker]) + ' observed mentions in the current Telegram window.') };
+  });
+  var categories = Object.keys(labels).map(function(id) {
+    return { id:id, label:labels[id], topics:[id], count:Number(topicCounts[id] || 0), focus:sampleFor(id) || ('No retained full-text sample; ' + Number(topicCounts[id] || 0) + ' observed posts in the current window.') };
+  });
+  var pageMap = {};
+  Object.keys(_TG_PAGE_TAGS || {}).forEach(function(pageId) { pageMap[pageId] = (_TG_PAGE_TAGS[pageId] || []).slice(); });
+  return { themes:themes, catalysts:catalysts, categories:categories, pageMap:pageMap };
+}
+
 function _aioNormalizeTelegramDigestPayload(raw) {
   if (!raw || typeof raw !== 'object') return null;
   var base = AIO_TELEGRAM_WEEKLY_DIGEST || {};
@@ -1060,21 +1091,28 @@ function _aioNormalizeTelegramDigestPayload(raw) {
   }) : (base.sources || []);
   var windowLabel = _aioTelegramWindowLabel(raw.since, raw.until) || base.window || '';
   var asOf = raw.generatedAt || raw.until || base.asOf || null;
+  var generatedNarrative = _aioBuildTelegramRuntimeNarrative(raw);
   var merged = Object.assign({}, base, {
     asOf: asOf,
     window: windowLabel,
     sources: sources,
     counts: counts,
-    topicCounts: Object.assign({}, base.topicCounts || {}, raw.topicCounts || {}),
-    tickerCounts: Object.assign({}, base.tickerCounts || {}, raw.tickerCounts || {}),
+    topicCounts: raw.topicCounts && typeof raw.topicCounts === 'object' ? Object.assign({}, raw.topicCounts) : {},
+    tickerCounts: raw.tickerCounts && typeof raw.tickerCounts === 'object' ? Object.assign({}, raw.tickerCounts) : {},
+    themes: Array.isArray(raw.themes) ? raw.themes.slice(0, 12) : generatedNarrative.themes,
+    catalysts: Array.isArray(raw.catalysts) ? raw.catalysts.slice(0, 20) : generatedNarrative.catalysts,
+    categories: Array.isArray(raw.categories) ? raw.categories.slice(0, 30) : generatedNarrative.categories,
+    pageMap: raw.pageMap && typeof raw.pageMap === 'object' ? Object.assign({}, raw.pageMap) : generatedNarrative.pageMap,
     rawTopItems: Array.isArray(raw.topItems) ? raw.topItems.slice(0, 45) : [],
     rawBroadItems: Array.isArray(raw.broadItems) ? raw.broadItems.slice(0, 400) : [],
     rawBroadItemCount: Array.isArray(raw.broadItems) ? raw.broadItems.length : 0,
     rawItemCount: Number(raw.count || 0) || 0,
+    retainedItemCount: Number(raw.retainedItemCount || 0) || 0,
+    coverage: raw.coverage && typeof raw.coverage === 'object' ? Object.assign({}, raw.coverage) : null,
     rawChannels: channelRows,
     dynamicDigestLoaded: true,
     dynamicDigestSource: raw.source || 'telegram-public-mirror',
-    pipelineNote: String(base.pipelineNote || '') + ' Automated public-data/telegram-digest.json is loaded at boot when available.'
+    pipelineNote: String(raw.pipelineNote || 'Automated public-data/telegram-digest.json loaded at boot; dynamic narrative unavailable in this artifact.')
   });
   return merged;
 }
@@ -1181,6 +1219,8 @@ function _aioApplyTelegramDigestPayload(raw) {
       collectionStatus: _collectionStatus,
       window: merged.window,
       count: merged.counts && merged.counts.total,
+      retainedItemCount: merged.retainedItemCount || 0,
+      coverage: merged.coverage || null,
       source: merged.dynamicDigestSource,
       memoOverlay: memoOverlay
     };
@@ -1225,22 +1265,28 @@ try {
 
 // ── v51.37: 텔레그램 분석·가공 카드 피드 렌더러 ──────────────────────
 var _TG_PAGE_TAGS = {
-  'home':        ['kr-market','macro','credit','semi','ai-policy','equity','geo'],
-  'signal':      ['kr-market','equity','semi','macro','geo','credit'],
-  'breadth':     ['macro','credit','equity','kr-market','geo','semi','power'],
-  'sentiment':   ['macro','credit','kr-market','equity','geo','crypto'],
-  'briefing':    ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','power','optical'],
-  'technical':   ['semi','equity','power','optical'],
-  'macro':       ['macro','credit','geo','ai-policy'],
-  'fxbond':      ['macro','credit','geo','power'],
-  'fundamental': ['equity','semi','credit','power','optical','ai-policy','kr-market'],
-  'themes':      ['semi','power','optical','ai-policy','equity','kr-market','macro','credit'],
-  'theme-detail':['semi','power','optical','ai-policy','equity','kr-market','macro','credit'],
-  'market-news': ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','optical','power','crypto'],
-  'kr-home':     ['kr-market','semi','equity','macro','credit'],
-  'kr-supply':   ['kr-market','equity','geo','semi','power','optical','credit'],
-  'kr-macro':    ['kr-market','macro','credit','semi','ai-policy','geo'],
-  'kr-technical':['kr-market','semi','equity','macro','geo'],
+  'home':        ['kr-market','macro','credit','semi','ai-policy','equity','geo','earnings','flows','insider'],
+  'signal':      ['kr-market','equity','semi','macro','geo','credit','earnings','flows','insider'],
+  'breadth':     ['macro','credit','equity','kr-market','geo','semi','power','flows'],
+  'sentiment':   ['macro','credit','kr-market','equity','geo','crypto','flows','insider'],
+  'briefing':    ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','power','optical','earnings','healthcare','japan','flows','insider'],
+  'technical':   ['semi','equity','power','optical','flows','earnings'],
+  'macro':       ['macro','credit','geo','ai-policy','power','japan'],
+  'fxbond':      ['macro','credit','geo','power','flows','japan'],
+  'fundamental': ['equity','semi','credit','power','optical','ai-policy','kr-market','earnings','healthcare','insider'],
+  'themes':      ['semi','power','optical','ai-policy','equity','kr-market','macro','credit','healthcare','japan'],
+  'theme-detail':['semi','power','optical','ai-policy','equity','kr-market','macro','credit','healthcare','japan'],
+  'portfolio':   ['equity','earnings','flows','insider','macro','credit','geo'],
+  'ticker':      ['equity','earnings','insider','semi','power','optical','healthcare'],
+  'market-news': ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','optical','power','crypto','earnings','healthcare','japan','flows','insider'],
+  'options':     ['macro','equity','flows','earnings','crypto','geo'],
+  'screener':    ['equity','earnings','insider','semi','power','optical','healthcare','kr-market'],
+  'kr-home':     ['kr-market','semi','equity','macro','credit','earnings','flows'],
+  'kr-supply':   ['kr-market','equity','geo','semi','power','optical','credit','flows','insider'],
+  'kr-themes':   ['kr-market','semi','power','optical','equity','healthcare'],
+  'kr-macro':    ['kr-market','macro','credit','semi','ai-policy','geo','japan'],
+  'kr-technical':['kr-market','semi','equity','macro','geo','flows'],
+  'guide':       [],
 };// [0]=표시라벨 [1]=최대건수 [2]=본문표시 [3]=정렬(score|date) [4]=compact
 var _TG_PAGE_CFG = {
   'home':        ['오늘 시장 핵심',             3,  false, 'score', true ],
@@ -1274,6 +1320,11 @@ var _TG_CAT_MAP = {
   'crypto':     { label:'크립토',     cls:'tg-cat-other'  },
   'market-note':{ label:'시장소식',   cls:'tg-cat-other'  },
 };
+_TG_CAT_MAP.earnings = { label:'실적', cls:'tg-cat-equity' };
+_TG_CAT_MAP.healthcare = { label:'헬스케어', cls:'tg-cat-other' };
+_TG_CAT_MAP.japan = { label:'일본', cls:'tg-cat-macro' };
+_TG_CAT_MAP.flows = { label:'수급', cls:'tg-cat-macro' };
+_TG_CAT_MAP.insider = { label:'내부자', cls:'tg-cat-equity' };
 var _TG_CH_SRC = {
   aetherjapanresearch: 'Aether·JP',
   insidertracking:     'Insider·US',
@@ -3593,6 +3644,7 @@ function applyFredToUI(data) {
   if (data['DGS2']) {
     const rate2y = data['DGS2'].value;
     window._live2Y = rate2y;
+    if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT.tnx2y = rate2y;
     // Update yield curve if visible
     if (typeof updateFxBondPage === 'function') updateFxBondPage();
   }
@@ -5944,6 +5996,8 @@ var _MANUAL_FIELDTS_LABELS = {
   pboc_rate:       'PBOC LPR',
   kr_bond:         '한국 국고채',
   kr_macro:        '한국 거시경제',
+  kr_cpi:          '한국 소비자물가',
+  kr_pmi:          '한국 제조업 PMI',
   us_macro_manual: '미국 거시경제(수동)',
   breadth_sma:     '시장 폭 SMA',
 };
@@ -5951,7 +6005,7 @@ var _MANUAL_FIELDTS_LABELS = {
 // 결정을 stale로 오인하므로 각 데이터의 실제 관측/발표 주기에 맞춘다.
 var _MANUAL_FIELDTS_MAX_DAYS = {
   fed_rate: 55, boj_rate: 60, bok_rate: 60, boe_rate: 60, pboc_rate: 45,
-  kr_bond: 7, kr_macro: 40, us_macro_manual: 40, breadth_sma: 3
+  kr_bond: 7, kr_macro: 40, kr_cpi: 40, kr_pmi: 40, us_macro_manual: 40, breadth_sma: 3
 };
 function _aioCheckManualFieldStaleness() {
   var snap = window.DATA_SNAPSHOT;
@@ -11600,7 +11654,7 @@ function _buildBriefingDecisionSummary(items, totalCount, bw) {
   var actions = [];
   if (fedTone.indexOf('경계') >= 0) actions.push('금리 민감주·레버리지 노출 확인 후 분할 진입');
   if (oilTone.indexOf('경계') >= 0) actions.push('에너지·중동 가격 반응 확인 필요');
-  if (bojTone.indexOf('경계') >= 0) actions.push('엔캐리 청산 신호 시 위험자산 노출 축소');
+  if (bojTone.indexOf('경계') >= 0) actions.push('엔화·정책·변동성의 동시 변화를 추가 확인');
   if (semiTone.indexOf('활성') >= 0 || semiTone.indexOf('강세') >= 0) actions.push('AI·반도체 모멘텀 유효 — 추세 추종');
   if (oilTone.indexOf('완화') >= 0 && !actions.length) actions.push('유가 안정은 인플레 부담 완화 — 꼬리위험은 유지');
   if (krTone.indexOf('주목') >= 0) actions.push('한국장 외인 수급 방향 확인');
@@ -12353,6 +12407,30 @@ let currentCountryFilter = 'all';
 let currentTopicFilter = 'all';
 
 window.AIO = window.AIO || {};
+window.AIO.getTelegramPageCoverageAudit = function() {
+  var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
+  var pageMap = digest.pageMap || {};
+  var items = Array.isArray(digest.rawBroadItems) ? digest.rawBroadItems : (Array.isArray(digest.rawTopItems) ? digest.rawTopItems : []);
+  var required = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+  var routes = {};
+  required.forEach(function(pageId) {
+    var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];
+    var mapped = Array.isArray(pageMap[pageId]) ? pageMap[pageId] : [];
+    var matched = tags.length ? items.filter(function(it) {
+      return it && Array.isArray(it.tags) && it.tags.some(function(t) { return tags.indexOf(t) >= 0; });
+    }).length : 0;
+    routes[pageId] = {
+      mapped: Array.isArray(pageMap[pageId]),
+      tagCount: tags.length,
+      selectedItemCount: matched,
+      consumer: pageId === 'guide' ? 'not-applicable-guide'
+        : (['portfolio','ticker','screener'].indexOf(pageId) >= 0 ? 'ticker-memo-and-chat' : 'page-feed-and-chat')
+    };
+  });
+  var missing = required.filter(function(pageId) { return !Array.isArray(pageMap[pageId]); });
+  var narrativeCurrent = !!(digest.dynamicDigestLoaded && Array.isArray(digest.themes) && digest.themes.length && Object.keys(pageMap).length >= required.length);
+  return { status:missing.length || !narrativeCurrent ? 'DEGRADED' : 'OK', requiredPageCount:required.length, mappedPageCount:required.length - missing.length, missingPages:missing, dynamicNarrative:narrativeCurrent, routes:routes };
+};
 window.AIO.getTelegramPipelineAudit = function() {
   var sources = (window.AIO_NEWS_SOURCES || AIO_NEWS_SOURCES || []).filter(function(s) { return s && s.type === 'telegram'; });
   var all = (window._allNewsItems || newsCache || []).filter(function(it) { return it && (it._tgChannel || /TG|Telegram/i.test(String(it.feed || it.source || ''))); });
@@ -12361,6 +12439,7 @@ window.AIO.getTelegramPipelineAudit = function() {
   var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || null;
   var digestMeta = window._aioTelegramDigestMeta || null;
   var memoOverlay = window._aioTelegramMemoOverlayAudit || (digestMeta && digestMeta.memoOverlay) || null;
+  var pageCoverage = window.AIO.getTelegramPageCoverageAudit();
   return {
     status: aetherSource ? 'OK' : 'MISSING_AETHER_SOURCE',
     telegramSourceCount: sources.length,
@@ -12376,6 +12455,9 @@ window.AIO.getTelegramPipelineAudit = function() {
       count: digest.counts && digest.counts.total || null,
       categoryCount: Array.isArray(digest.categories) ? digest.categories.length : 0,
       pageMapCount: digest.pageMap ? Object.keys(digest.pageMap).length : 0,
+      retainedItemCount: digest.retainedItemCount || 0,
+      coverage: digest.coverage || null,
+      dynamicNarrative: pageCoverage.dynamicNarrative,
       memoOverlay: memoOverlay ? {
         status: memoOverlay.status || null,
         date: memoOverlay.date || null,
@@ -12384,6 +12466,7 @@ window.AIO.getTelegramPipelineAudit = function() {
       } : null
     } : null,
     memoOverlay: memoOverlay,
+    pageCoverage: pageCoverage,
     recentTelegramItems: all.length,
     recentAetherItems: aetherItems.length,
     verificationPolicy: 'Telegram items are fast secondary inputs. Confirm with primary source or market data before presenting as live trade facts.'
@@ -14960,11 +15043,11 @@ function vixRegime(vix) {
 // ═══════════════════════════════════════════════════════════════════
 // v35.8: Risk Monitor 추가 항목 처리 (FALLBACK과 localStorage 캐시 양쪽에서 재사용)
 function _applyRiskMonitorFallbacks() {
-  // RSP/SPY Ratio (0.162/0.5562 ≈ 0.291)
+  // RSP/SPY 가격비율은 정규화된 시장폭·상대수익률이 아니므로 하드코딩 폴백을 쓰지 않는다.
   const rmRsp = document.getElementById('rm-rspratio-val');
   if (rmRsp && rmRsp.textContent === '—') {
-    rmRsp.textContent = '0.291';
-    rmRsp.style.color = '#ffa31a';
+    rmRsp.textContent = '—';
+    rmRsp.style.color = 'var(--text-muted)';
   }
   // Fear & Greed (극단적 공포 구간)
   const rmFg = document.getElementById('rm-fg-val');
@@ -14975,8 +15058,9 @@ function _applyRiskMonitorFallbacks() {
   // HY Spread 홈 카드 (FRED 미도착 시)
   const hySpread = document.getElementById('hy-spread-val');
   if (hySpread && hySpread.textContent === '—') {
-    hySpread.textContent = '+342bp';
-    hySpread.style.color = '#ffa31a';
+    hySpread.textContent = '—';
+    hySpread.title = 'FRED HY OAS 관측값 미수신 — 정적 bp를 현재값으로 대체하지 않음';
+    hySpread.style.color = 'var(--text-muted)';
   }
 }
 
@@ -15667,7 +15751,7 @@ function applyLiveQuotes(quotes) {
     'GC=F':     ['gold',     'goldPct'],
     'KRW=X':    ['krw',      'krwPct'],
     'DX-Y.NYB': ['dxy',      'dxyPct'],
-    '^TNX':     ['tnx2y',    null],
+    '^TNX':     ['tnx',      null],
     '^N225':    ['nikkei',   'nikkeiPct'],
     '^HSI':     ['hangseng', 'hangsengPct'],
     '^FTSE':    ['ftse',     'ftsePct'],
@@ -16463,6 +16547,20 @@ function _aioApplyScreenerBreadth(sd) {
   window._breadth200 = b.above20; // legacy consumer name: this value is 20SMA breadth
   window._breadth50 = b.above50;
   window._breadth200Actual = b.above200;
+  window._breadthLiveData = {
+    sma5: b.above5,
+    sma20: b.above20,
+    sma50: b.above50,
+    above200: b.above200,
+    advances: b.advances,
+    declines: b.declines,
+    advanceRatio: b.advanceRatio,
+    ts: observedMs,
+    generatedAt: b.observedAt,
+    source: root.source || b.label || 'AIO US screener universe',
+    coveragePct: b.coveragePct,
+    eligible: b.eligible
+  };
   window._lastFetch = window._lastFetch || {};
   window._lastFetch.breadthScreener = observedMs;
   if (window.DATA_SNAPSHOT) {
@@ -16481,6 +16579,10 @@ function _aioApplyScreenerBreadth(sd) {
     });
     if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
     if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
+    if (typeof updateBreadthBars === 'function') updateBreadthBars();
+    if (typeof refreshSignalDashboard === 'function') refreshSignalDashboard();
+    if (typeof updateEntryChecklist === 'function') updateEntryChecklist();
+    if (typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
   } catch(_) {}
   return true;
 }
@@ -16905,9 +17007,9 @@ function _syncYahooToFred() {
 
   // DGS10 실시간 → 10Y-2Y 스프레드 자동 갱신
   const tnx = ld['^TNX'];
-  if (tnx && tnx.price > 0) {
+  if (tnx && tnx.price > 0 && !fd['T10Y2Y'] && Number.isFinite(Number(window._live2Y))) {
     const y10 = tnx.price;
-    const y2 = window._live2Y || (fd['DGS2'] ? fd['DGS2'].value : 4.0);
+    const y2 = Number(window._live2Y);
     const spread10y2y = y10 - y2;
     if (!window._fredData) window._fredData = {};
     window._fredData['T10Y2Y'] = {
@@ -17046,13 +17148,14 @@ function _aioRenderHomeHero() {
     : total >= 45 ? { label: '중립 · 관망', action: '신규 진입 자제. 기존 포지션 방어선과 손절을 먼저 확인.' }
     : total >= 30 ? { label: '주의 · 축소', action: '리스크 자산 비중 축소. 현금 비율 높이고 헤지 검토.' }
     : { label: '위험 · 방어', action: '신규 매수 중단. 방어 운용 후 스코어 45+ 복귀 확인 후 재개.' };
+  if (sc.partial) band = { label: '판정 보류 · 부분 데이터', action: '미수신 구성요소(' + (sc.componentMissing || []).join(', ') + ')는 중립값으로만 계산한 참고 점수입니다. 진입 판단에 사용하지 않습니다.' };
   var ld = window._liveData || {};
   var vixPrice = (ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : null);
   var vixTxt = vixPrice != null ? 'VIX ' + Number(vixPrice).toFixed(1) : 'VIX 미수신';
   var spxPct = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? Number(ld['^GSPC'].pct) : null;
   var spxTxt = spxPct != null ? ('S&P ' + (spxPct >= 0 ? '+' : '') + spxPct.toFixed(2) + '%') : '지수 방향 확인 중';
 
-  totalEl.textContent = String(total);
+  totalEl.textContent = String(total) + (sc.partial ? '*' : '');
   var headEl = document.getElementById('home-hero-headline');
   if (headEl) headEl.textContent = band.label;
   var descEl = document.getElementById('home-hero-desc');
@@ -17062,15 +17165,15 @@ function _aioRenderHomeHero() {
   if (compEl) {
     var comps = [
       { label: '변동성', v: Math.round(clamp(sc.volScore, 0, 100) * 0.25), max: 25 },
-      { label: '추세', v: Math.round(clamp(sc.trendScore, 0, 100) * 0.20), max: 20 },
+      { label: '추세', v: sc.trendScore == null ? null : Math.round(clamp(sc.trendScore, 0, 100) * 0.20), max: 20 },
       { label: '모멘텀', v: Math.round(clamp(sc.momScore, 0, 100) * 0.25), max: 25 },
-      { label: '시장 폭', v: Math.round(clamp(sc.breadthScore, 0, 100) * 0.20), max: 20 },
+      { label: '시장 폭', v: sc.breadthScore == null ? null : Math.round(clamp(sc.breadthScore, 0, 100) * 0.20), max: 20 },
       { label: '거시', v: Math.round(clamp(sc.macroScore, 0, 100) * 0.10), max: 10 }
     ];
     compEl.innerHTML = comps.map(function(c) {
       return '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;">' +
         '<span style="font-size:11.5px;color:var(--text-muted);">' + c.label + '</span>' +
-        '<span style="font-size:12px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">' + c.v + ' / ' + c.max + '</span>' +
+        '<span style="font-size:12px;font-weight:600;color:' + (c.v == null ? 'var(--text-muted)' : 'var(--text-primary)') + ';font-variant-numeric:tabular-nums;">' + (c.v == null ? '—' : c.v) + ' / ' + c.max + '</span>' +
         '</div>';
     }).join('');
   }
@@ -17551,6 +17654,8 @@ async function autoUpdateMA() {
         200: Math.round(ma200 * 100) / 100,
         50:  Math.round(ma50 * 100) / 100
       };
+      window._spxMATs = Date.now();
+      window._spxMASource = 'Yahoo ^GSPC observed daily closes';
       console.log('[AIO] MA auto-updated: 50SMA=' + window._spxMA[50] + ', 200SMA=' + window._spxMA[200]);
       if (typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
     }
@@ -17966,15 +18071,18 @@ async function fetchHYSpread() {
     _aioLog('warn', 'fetch', 'HY Spread fetch 실패: ' + e.message);
     // v48.27 (QA-1): 폴백 복귀 + 배지 갱신 — 사용자가 데이터 신선도 인지 가능
     try {
-      var _fbHy = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.hy) || 285;
       var _hyValEl = document.getElementById('hy-live-val');
+      var _hyDateEl = document.getElementById('hy-live-date');
       var _hyBadgeEl = document.getElementById('hy-live-badge');
-      if (_hyValEl) _hyValEl.textContent = _fbHy + 'bp';
+      var _hySignalEl = document.getElementById('hy-signal-badge');
+      if (_hyValEl) _hyValEl.textContent = '—';
+      if (_hyDateEl) _hyDateEl.textContent = 'FRED 관측값 미수신';
       if (_hyBadgeEl) {
-        _hyBadgeEl.textContent = '폴백 데이터';
+        _hyBadgeEl.textContent = '판정 보류';
         _hyBadgeEl.style.background = 'var(--data-muted-soft)';
         _hyBadgeEl.style.color = '#7b8599';
       }
+      if (_hySignalEl) _hySignalEl.textContent = '현재 OAS 미수신';
     } catch(_){}
   }
 }
@@ -18039,54 +18147,62 @@ window._aioRenderGxLFrame = _aioRenderGxLFrame;
 // FxBond 페이지 carry-unwind-risk 패널 갱신. fxbond showPage 훅으로 호출.
 function _aioRenderCarryUnwindRisk() {
   var ld = window._liveData || {};
-  var jpy = (ld['JPY=X'] && ld['JPY=X'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.jpy) || 155;
-  var vix = (ld['^VIX'] && ld['^VIX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.vix) || 18;
-  var tnx = (ld['^TNX'] && ld['^TNX'].price) || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.tnx) || 4.5;
-  var hyg = (ld['HYG'] && ld['HYG'].price) || 80;
+  var jpy = Number(ld['JPY=X'] && ld['JPY=X'].price);
+  var vix = Number(ld['^VIX'] && ld['^VIX'].price);
+  var tnx = Number(ld['^TNX'] && ld['^TNX'].price);
+  var hyg = Number(ld['HYG'] && ld['HYG'].price);
+  // DATA_SNAPSHOT의 BOJ 정책금리는 수동 확인 필드이며 fieldTS(60일)로 별도 검증된다.
+  var bojRate = Number(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.bojRate);
+  var inputsComplete = [jpy, vix, tnx, hyg, bojRate].every(Number.isFinite);
+  if (!inputsComplete) {
+    var missing = [];
+    if (!Number.isFinite(jpy)) missing.push('USD/JPY');
+    if (!Number.isFinite(vix)) missing.push('VIX');
+    if (!Number.isFinite(tnx)) missing.push('미 10Y');
+    if (!Number.isFinite(hyg)) missing.push('HYG');
+    if (!Number.isFinite(bojRate)) missing.push('BOJ 정책금리');
+    var missingText = '관측 프록시 보류 — 현재 입력 미수신: ' + missing.join(' · ');
+    var e;
+    e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = Number.isFinite(jpy) ? 'USD/JPY ' + jpy.toFixed(1) : '—';
+    e = document.getElementById('carry-vix-risk');   if (e) e.textContent = Number.isFinite(vix) ? 'VIX ' + vix.toFixed(1) : '—';
+    e = document.getElementById('carry-rate-diff');  if (e) e.textContent = '—';
+    e = document.getElementById('carry-rate-risk');  if (e) e.textContent = '미일 금리차 산출 보류';
+    e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = Number.isFinite(hyg) ? 'HYG $' + hyg.toFixed(1) : '—';
+    e = document.getElementById('carry-score-bar');  if (e) { e.style.width = '0%'; e.style.background = 'var(--text-muted)'; }
+    e = document.getElementById('carry-score-text'); if (e) e.textContent = '—';
+    e = document.getElementById('carry-verdict');    if (e) e.textContent = missingText;
+    e = document.getElementById('carry-risk-level'); if (e) { e.textContent = '보류'; e.style.color = 'var(--text-muted)'; }
+    return;
+  }
 
-  // BOJ 정책금리 (주석에 갱신일 기록)
-  var bojRate = 0.5; // BOJ 0.5% (2026-06-22 기준 — BOJ 추가 인상 확인 시 갱신)
   var rateDiff = parseFloat(tnx) - bojRate;
 
   // 스코어 (0~100, 높을수록 언와인드 위험 높음)
   var score = 0;
-  // USD/JPY: 158↑=BOJ 압박 극단, 145↓=급격 엔강세(이미 언와인드 중)
+  // USD/JPY 수준·VIX·금리차·HYG를 같은 시점에 비교하는 단순 규칙값(포지션/옵션 데이터 아님)
   if (jpy > 158) score += 35; else if (jpy > 152) score += 25; else if (jpy > 145) score += 15; else score += 30;
-  // VIX: 변동성 충격 → 레버리지 청산 촉발
+  // VIX: 변동성 수준 관측
   if (vix > 30) score += 30; else if (vix > 22) score += 20; else if (vix > 15) score += 10; else score += 5;
-  // 미일 금리차: 축소 시 캐리 매력 하락 → 언와인드 압력
+  // 미일 정책금리 차: 수준 관측
   if (rateDiff < 2.5) score += 20; else if (rateDiff < 3.5) score += 10; else score += 5;
   // HYG: 크레딧 스프레드 확대 시 리스크-오프 연동
   if (hyg < 78) score += 15; else if (hyg < 82) score += 8; else score += 3;
   score = Math.min(100, score);
 
-  // v52.71: 구 v51.06 팔레트(#ef4444/#f59e0b/#10c98b, 다크테마 잔재)를 아이보리 토큰으로 교체
-  var riskLevel, riskColor;
-  if (score >= 70)      { riskLevel = '고위험';  riskColor = 'var(--data-red)'; }
-  else if (score >= 45) { riskLevel = '중위험'; riskColor = 'var(--data-amber)'; }
-  else if (score >= 25) { riskLevel = '저위험';  riskColor = 'var(--data-green)'; }
-  else                  { riskLevel = '안전';     riskColor = 'var(--data-green)'; }
-
-  var jpyRisk  = jpy > 155 ? 'BOJ 개입 경계선 근접' : jpy > 148 ? '고점 압박 · BOJ 긴축 지속' : '엔화 강세 전환 · 언와인드 압력';
-  var vixRisk  = vix > 22  ? '리스크-오프 · 청산 압박' : vix > 16 ? '변동성 경계' : '안정적 환경';
-  var rateRisk = rateDiff < 3 ? '금리차 축소 · 캐리 매력 감소' : '금리차 ' + rateDiff.toFixed(1) + '%p — 캐리 우호';
-  var hygRisk  = hyg < 80  ? '크레딧 스프레드 확대 경계' : '크레딧 안정';
-
-  var verdict;
-  if (score >= 70)
-    verdict = '엔캐리 위험 ' + score + '점 — BOJ 긴축과 USD/JPY ' + Math.round(jpy) + '엔 구간은 글로벌 레버리지 청산을 촉발할 수 있습니다. 포지션 헤지와 변동성 노출 점검 필요.';
-  else if (score >= 45)
-    verdict = '엔캐리 위험 ' + score + '점 — USD/JPY ' + Math.round(jpy) + '엔·VIX ' + parseFloat(vix).toFixed(1) + ' 구간에서 중간 수준 주의. BOJ 추가 발언 또는 미 고용·물가 충격 시 급속 언와인드 가능.';
-  else
-    verdict = '엔캐리 위험 ' + score + '점 — 현재 USD/JPY ' + Math.round(jpy) + '엔·미일 금리차 ' + rateDiff.toFixed(1) + '%p는 캐리트레이드에 비교적 우호적. BOJ 정책 전환 신호 주시.';
+  // 이 지표는 포지션·옵션·당국조치 데이터를 포함하지 않는 단순 관측 프록시다.
+  var riskLevel = '참고';
+  var riskColor = 'var(--text-secondary)';
+  var jpyRisk  = 'USD/JPY ' + jpy.toFixed(1) + ' (수준 관측)';
+  var vixRisk  = 'VIX ' + vix.toFixed(1) + ' (변동성 관측)';
+  var rateRisk = '미일 정책금리 차 ' + rateDiff.toFixed(1) + '%p (BOJ 수동 확인값 기준)';
+  var hygRisk  = 'HYG $' + hyg.toFixed(1) + ' (가격 프록시; HY OAS 아님)';
+  var verdict = '관측 프록시 ' + score + '/100 — USD/JPY·VIX·미일 정책금리 차·HYG의 단순 규칙값입니다. 엔캐리 포지션 규모, 당국 조치, 청산 확률 및 자산가격 방향은 이 값만으로 판단하지 않습니다.';
 
   var e;
   e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = jpyRisk;
   e = document.getElementById('carry-vix-risk');   if (e) e.textContent = vixRisk;
   e = document.getElementById('carry-rate-diff');  if (e) e.textContent = rateDiff.toFixed(1) + '%p';
-  // v52.41 (P656/EF-08): 금리차의 절반(BOJ 쪽)은 실시간 시세가 아니라 위 bojRate 고정값이라
-  // "라이브 4축 복합 스코어"처럼 보이는 라벨이 과장이었다 — 정직하게 고정값 기준임을 병기(R282 정신).
-  e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk + ' (BOJ 정책금리 고정값 기준)';
+  e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk;
   e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = hygRisk;
   e = document.getElementById('carry-score-bar');  if (e) { e.style.width = score + '%'; e.style.background = riskColor; }
   e = document.getElementById('carry-score-text'); if (e) e.textContent = score;

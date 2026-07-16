@@ -1,13 +1,53 @@
 ---
 verified_by: agent
-last_verified: 2026-07-15
+last_verified: 2026-07-16
 confidence: high
 version: v3.8
-checklist_version: v52.96
-total_items: 660
+checklist_version: v53.0
+total_items: 691
 stages: 22
-latest_P_covered: P710
+latest_P_covered: P713
 ---
+
+## v53.0 - fail-closed 이중 표면·날짜핀 부패·공시 정직성 (P713)
+
+- [x] `updateWeinsteinStage()`가 시장폭(50SMA) 미수신 시 임의 폴백(28) 대신 판정 자체를 보류하는지 확인했다.
+- [x] `updateMTF()`가 시장폭 미수신 시 해당 축을 제외하고 null이 약세 분기로 떨어지지 않는지 확인했다.
+- [x] 두 함수의 신용 판정이 HYG 달러 가격밴드가 아니라 FRED HY OAS 관측값(350/450/550bp)만 사용하고 미수신 시 축을 제외하는지 확인했다.
+- [x] Weinstein 단계 문구가 명령형 매매 지시가 아니라 프레임워크 귀속 서술이고 disclaimer에 예측력 미검증이 명시되는지 확인했다.
+- [x] VKOSPI가 `_vkospiLiveOk` 없이 배너·채팅 컨텍스트에 시드값을 현재값처럼 노출하지 않는지 확인했다.
+- [x] 전술 스코어 공시가 "미검증"이 아니라 부분 백테스트의 음(−)의 상관 실측을 명시하는지 확인했다.
+- [x] 테스트·runtime contract에 미래 특정일 등호 고정 단언이 없는지 확인했다(`grep "=== '20"` 스윕 — 이벤트 당일 CI 부패 방지).
+- [x] BOK 금통위 날짜가 공식 2026 일정(7/16→8/27)과 일치하고 DATA_SNAPSHOT·MACRO_CALENDAR가 정합인지 확인했다.
+
+## v52.99 - 22페이지 현재시장·파생결론 무결성 (P712/R340)
+
+- [x] 10Y와 2Y 필드를 분리하고 2s10s가 명시적 관측 2Y·10Y로만 계산되는지 확인했다.
+- [x] 기술 OHLCV 미수신 시 RSI·MACD·Weinstein Stage·멀티타임프레임을 등락률/정적 breadth로 합성하지 않는지 확인했다.
+- [x] ticker·breadth 차트가 관측 이력 부재 시 난수 시계열을 생성하지 않는지 확인했다.
+- [x] RRG가 과거 섹터 시드를 현재 사분면으로 표시하지 않고 상대가격 히스토리 부족 시 보류되는지 확인했다.
+- [x] McClellan이 50MA 상회율에서 상승·하락 종목수를 역산하지 않는지 확인했다.
+- [x] HY OAS가 HYG ETF 가격 임의 변환·정적 bp 대신 FRED 관측값만 사용하는지 확인했다.
+- [x] 공식 미래 일정이 과거 이벤트를 제거하고 Fed/BLS/BEA/BOK 일정 필드에서 동적 생성되는지 확인했다.
+- [x] 한국 테마·시장건강도가 quote coverage·현재 수급·VKOSPI 부족 시 점수와 등급을 함께 보류하는지 확인했다.
+- [x] 엔캐리 프록시가 USD/JPY·VIX·10Y·HYG·수동확인 BOJ 금리 중 하나라도 결측이면 수치를 만들지 않고 보류되는지 확인했다.
+- [x] 엔캐리 프록시가 포지션·옵션·당국 조치·청산 확률·자산 방향을 뜻하지 않는다는 한계를 표시하는지 확인했다.
+- [x] 시장 레짐이 스냅샷 이동평균이 아니라 기준시각이 확인된 현재 OHLCV 이동평균을 요구하는지 확인했다.
+- [x] OHLCV 미수신 시 임의 라운드 숫자를 지지·저항으로 렌더하지 않는지 확인했다.
+- [x] RSP/SPY 단순 가격비율이 정규화 상대강도·시장폭·빅테크 집중도로 판정되지 않는지 확인했다.
+- [x] 한국 공매도·수급 현재 원천이 없을 때 과거/시드 수치를 현재 카드에 표시하지 않는지 확인했다.
+- [x] 거시·환율 카드가 단일 관측값으로 정책 조치, 자금흐름, 섹터/자산 방향을 단정하지 않는지 확인했다.
+
+## v52.97 - Telegram 3채널 5일 전수 커버리지와 동적 narrative (P711/R339)
+
+- [x] Telegram Web 3채널을 2026-07-11 00:00 KST부터 끝까지 스크롤하고 `data-mid` 중복 제거로 546건(106/345/95)을 전수 집계했다.
+- [x] 기존 5일 selected raw 254건(57/122/75)과 실제 관측 수를 분리해 누락률을 공개했다.
+- [x] producer가 rolling-window `observedItems` lineage와 capped `topItems`/`broadItems`를 분리하고 coverage funnel을 기록한다.
+- [x] 동적 artifact 또는 구형 artifact의 현재 broad items가 static 7/3 narrative를 대체한다.
+- [x] insider/earnings/flows/healthcare/japan 분류와 SCREENER_DB 기반 ticker alias 추출을 적용한다.
+- [x] 22개 route page map과 `getTelegramPageCoverageAudit()`가 portfolio/ticker/screener/KR themes 및 guide 비적용까지 보고한다.
+- [x] 공개 미러 전 채널 실패 시 이전 성공 digest와 성공시각을 보존한다.
+- [x] Telegram을 secondary/reference로 유지하고 검증되지 않은 수치를 live decision input으로 승격하지 않는다.
 
 ## v52.96 - tracked public-data lineage/freshness audit (P710/R338)
 

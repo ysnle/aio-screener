@@ -1,3 +1,36 @@
+## v53.0 (2026-07-16)
+- P713: 금융 전문가 관점 전수 리뷰(v52.73~v52.99 Codex 작업분)에서 발견된 fail-closed 정책 누락 표면 정리. `updateWeinsteinStage()`/`updateMTF()`가 시장폭 미수신 시 임의 폴백(abv50=28, 20SMA=57)과 정적 시드로 Stage/추세를 판정하던 것을 evidence-gate로 교체 — 50SMA 폭 미수신이면 Weinstein은 판정 자체를 보류하고, MTF는 해당 축을 제외한다.
+- 두 함수의 HYG 달러 고정 가격밴드($80/76/72, $80/75) 신용 판정을 FRED HY OAS(`_hySpreadBp`) 관측값 밴드(350/450/550bp)로 교체. OAS 미수신이면 신용 축을 제외하고 가중 평균이 재정규화된다(HYG 가격 '방향'만 단기 보조 신호로 유지).
+- Weinstein 단계별 전략 문구를 명령형("매수 금지! 현금이 최고의 포지션", "추세를 따라가세요")에서 프레임워크 귀속형("원 프레임워크의 교과서적 대응")으로 전환하고, disclaimer에 조합 점수의 예측력 미검증을 명시.
+- VKOSPI 시드(16.00)가 라이브 fetch 실패 시 kr-supply 배너와 AI 채팅 컨텍스트 5곳에 라벨 없이 현재값처럼 노출되던 누출 차단 — `window._vkospiLiveOk` 플래그를 fetch 성공 시에만 세우고 소비처 전부를 게이트("—(미수신)" 폴백).
+- 전술 스코어 공시 격상: "통계적 예측력은 아직 검증되지 않았습니다"가 실측(WO-2 부분 백테스트: 21/63일 선행수익률과 유의한 음의 상관)을 과소 공시하던 것을 정직화. 45~60 밴드의 "50% 현금 유지" 배분 지시도 관측형으로 교체.
+- 잔여 매매 권유 문구 스윕: "성장테마 선별 매수 구간"(kr-sentiment 크로스), "리테스트 대기하며 선별 매수 가능"/"분할 진입 검토"(breadth 판정), "반등 가능"(채팅 컨텍스트) → 과거 관측 서술로 전환.
+- T884 CI 부패 수리: '2026-07-16' 하드코딩 단언이 금통위 당일 auto-advance(→8/30 추정)와 충돌해 main CI를 RED로 만들던 것을 rot-proof 정합성 검증(유효 날짜+캘린더 일치)으로 재설계. BOK 공식 2026 일정 반영(7/16 종료→차기 8/27, 주기 추정 8/30 아님). 동일 클래스인 runtime contract의 BOK/FOMC 날짜 핀 2건도 구조 검증으로 교체(FOMC 핀은 7/29에 같은 방식으로 부패 예정이었음).
+- debug.log git 추적 해제(.gitignore 추가).
+- BOK 기준금리 실제 결과 반영(2026-07-16 공식 확인, 복수 언론 교차검증): 금통위 7인 만장일치로 2.50%→2.75% 0.25%p 인상(2023.1 이후 3년6개월 만의 인상, 14개월 동결 종료). DATA_SNAPSHOT 시드·currentTopic·정적 HTML placeholder 3곳(bok-rate/bok-next/bok-status)·금리 히스토리 표 신규 행·오늘의 이슈 카드·채팅 폴백 리터럴 3곳·KR 건강점수 폴백을 전부 2.75%/인상으로 동기화.
+- R1 7곳 v53.0
+
+## v52.99 (2026-07-15)
+- P712 전수 렌더 후속 점검에서 엔캐리 프록시의 하드코딩 입력·개입/청산 단정, 시각 없는 이동평균 레짐, OHLCV 없는 라운드 지지·저항, RSP/SPY 가격비율의 시장폭 해석, 출처 없는 한국 공매도 시드를 제거했다.
+- 결측이면 프록시 점수·레짐·지지저항을 보류하고, 환율·거시·크로스에셋 문구는 관측 수준과 확인할 추가 근거를 분리해 표시한다.
+- R340/P712·QA 체크리스트·runtime contract·T874를 새 fail-closed 정책으로 갱신했다. 22-route semantic render와 로컬 QA를 재실행했으며 배포·커밋은 수행하지 않았다.
+- R1 7곳 v52.99
+
+## v52.98 (2026-07-15)
+- Telegram 3채널 digest 주입 확인을 22개 페이지의 가시 텍스트·숫자·차트·판정 문구 전수 대조로 확장했다. BLS/BEA/Fed/FRED/BOK/Cboe/NAAIM 공식값과 최신 `public-data`를 기준으로 일정·물가·금리·심리·한국 시장 입력을 재검증했다.
+- `^TNX` 10년물의 2년물 슬롯 오염과 5년물 기반 합성 2년물을 제거하고 명시적 만기별 curve evidence 및 관측 2s10s만 사용한다.
+- OHLCV 실패 시 RSI/MACD/Stage 추정, ticker·breadth 난수 차트, 과거 시드 RRG, 50MA 상회율 역산 McClellan, HYG→HY OAS 임의 변환을 제거했다. 필수 관측값·시계열이 없으면 값·등급·행동 문구를 함께 판정 보류한다.
+- 공식 미래 일정은 동적 생성하고, AAII/NAAIM·한국 촉매·수출 자료를 기준일·reference-only로 분리했다. 한국 테마·시장건강도는 quote coverage와 현재 수급/VKOSPI가 부족하면 fail-closed한다.
+- P712/R340, T1024~T1027, runtime contract 및 22-route semantic audit을 추가했다. Chromium headless 1088/1088 PASS. 배포·커밋은 수행하지 않았다.
+- R1 7곳 v52.98
+
+## v52.97 (2026-07-15)
+- Telegram Web 3채널의 최근 5일 546건을 전수 대조해 기존 digest가 254건의 selected raw만 보존하고도 전체 count처럼 보이며, 동적 원문 로드 뒤에도 2026-07-03 static narrative/page map을 유지하던 결함을 확인했다.
+- 전체 기간 경량 `observedItems` lineage와 capped full-text payload를 분리하고 fresh/text-eligible/high-signal/selected coverage를 명시했다. producer와 runtime fallback이 현재 원문에서 themes/catalysts/categories와 22-page map을 재생성한다.
+- insider/earnings/flows/healthcare/japan 태그, SCREENER_DB 기반 ticker alias, `getTelegramPageCoverageAudit()`를 추가했다. 전 채널 공개 미러 실패 시 마지막 정상 digest와 성공시각을 보존한다.
+- P711/R339, T830~T831, data/runtime contract, `_artifacts/telegram-5d-coverage-audit-2026-07-15.md`에 감사·예방 근거를 기록했다. 배포/커밋은 수행하지 않았다.
+- R1 7곳 v52.97
+
 ## v52.96 (2026-07-15)
 - Added `scripts/ci-data-lineage-audit.mjs`, a policy-aware audit for all 12 tracked `public-data/*.json` artifacts. It reports the selected timestamp, age, source, producer failures, and last Git commit without promoting one timestamp type into another.
 - Added the lineage/freshness CI gate and R338/QA coverage. Live-core failures fail closed; reference/research staleness and SEC coverage below the 80% decision-use gate remain explicit warnings.
