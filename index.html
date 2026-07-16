@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.0 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.2 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5380,37 +5380,41 @@ button[data-filter-active="true"] {
         </div>
       </div>
 
-      <!-- 종합 -->
+      <!-- P715 IA 재편 (사용자 결정 "3축 재편 착수"): 5그룹 20항목 병렬 나열 → 사용자 여정
+           3축(데일리→시장 분석→학습) + 내 투자·도구, 한국 시장은 접힘(데이터 공백 B1 안내 겸).
+           라우트·페이지 id·기본 페이지는 무변경 — 메뉴 그룹핑/라벨만 재편.
+           "매매 시그널" 메뉴명은 P714 기준 지시형이라 "시장 환경"으로 정합. -->
+      <!-- 데일리 -->
       <div class="nav-section">
-        <div class="nav-label">종합</div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="home" data-pass-el="1"><span class="nav-icon"></span><span class="label">대시보드</span></div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="signal" data-pass-el="1"><span class="nav-icon"></span><span class="label">매매 시그널</span></div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="breadth" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 폭</span></div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="sentiment" data-pass-el="1"><span class="nav-icon"></span><span class="label">투자 심리</span></div>
+        <div class="nav-label">데일리</div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="briefing" data-pass-el="1"><span class="nav-icon"></span><span class="label">오늘의 브리핑</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="home" data-pass-el="1"><span class="nav-icon"></span><span class="label">대시보드</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="market-news" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 뉴스</span></div>
       </div>
 
       <!-- 시장 분석 -->
       <div class="nav-section">
         <div class="nav-label">시장 분석</div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="signal" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 환경</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="breadth" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 폭</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="sentiment" data-pass-el="1"><span class="nav-icon"></span><span class="label">투자 심리</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="technical" data-pass-el="1"><span class="nav-icon"></span><span class="label">차트 · 기술 분석</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="macro" data-pass-el="1"><span class="nav-icon"></span><span class="label">거시경제</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="fxbond" data-pass-el="1"><span class="nav-icon"></span><span class="label">환율 · 채권</span></div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="fundamental" data-pass-el="1"><span class="nav-icon"></span><span class="label">기업 분석</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="themes" data-pass-el="1"><span class="nav-icon"></span><span class="label">테마 · 트렌드</span></div>
       </div>
 
-      <!-- 내 투자 -->
+      <!-- 내 투자 · 도구 -->
       <div class="nav-section">
-        <div class="nav-label">내 투자</div>
+        <div class="nav-label">내 투자 · 도구</div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="portfolio" data-pass-el="1"><span class="nav-icon"></span><span class="label">포트폴리오</span></div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="market-news" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 뉴스</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="fundamental" data-pass-el="1"><span class="nav-icon"></span><span class="label">기업 분석</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="screener" data-pass-el="1"><span class="nav-icon"></span><span class="label">퀀트 스크리너</span></div>
       </div>
 
-      <!-- 도구 -->
+      <!-- 학습 -->
       <div class="nav-section">
-        <div class="nav-label">도구</div>
-        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="screener" data-pass-el="1"><span class="nav-icon"></span><span class="label">퀀트 스크리너</span></div>
+        <div class="nav-label">학습</div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="guide" data-pass-el="1"><span class="nav-icon"></span><span class="label">사용 설명서</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="openGlossary"><span class="nav-icon"></span><span class="label">용어 사전</span></div>
       </div>
@@ -5418,14 +5422,16 @@ button[data-filter-active="true"] {
       <!-- 고급 -->
       <!-- v50.35: '고급 > 옵션' 내비 제거 — 옵션 페이지 폐기(옵션체인 피드 미연결, 스큐·흐름·Greeks 정적 스냅샷) -->
 
-      <!-- 한국 시장 -->
+      <!-- 한국 시장 — P715: 수급/breadth 자동 수집 공백(B1) 동안 접힘 기본. 소스 확보 시 상시 그룹 승격. -->
       <div class="nav-section">
-        <div class="nav-label kr-label">한국 시장</div>
-        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-home" data-pass-el="1"><span class="nav-icon"></span><span class="label">한국장 홈</span></div>
-        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-supply" data-pass-el="1"><span class="nav-icon"></span><span class="label">수급 분석</span></div>
-        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-themes" data-pass-el="1"><span class="nav-icon"></span><span class="label">국내 테마</span></div>
-        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-macro" data-pass-el="1"><span class="nav-icon"></span><span class="label">한국 매크로</span></div>
-        <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-technical" data-pass-el="1"><span class="nav-icon"></span><span class="label">차트 · 기술 분석 (KR)</span></div>
+        <details class="nav-kr-fold">
+          <summary class="nav-label kr-label" style="cursor:pointer;list-style:revert;">한국 시장</summary>
+          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-home" data-pass-el="1"><span class="nav-icon"></span><span class="label">한국장 홈</span></div>
+          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-supply" data-pass-el="1"><span class="nav-icon"></span><span class="label">수급 분석</span></div>
+          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-themes" data-pass-el="1"><span class="nav-icon"></span><span class="label">국내 테마</span></div>
+          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-macro" data-pass-el="1"><span class="nav-icon"></span><span class="label">한국 매크로</span></div>
+          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-technical" data-pass-el="1"><span class="nav-icon"></span><span class="label">차트 · 기술 분석 (KR)</span></div>
+        </details>
       </div>
 
       <div class="nav-divider"></div>
@@ -5574,7 +5580,7 @@ button[data-filter-active="true"] {
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_kosis_key" data-arg2="aio_kosis_key_input" data-pass-el="1">저장</button>
               </div>
               <div class="llm-key-row" style="margin-bottom:3px;">
-                <input type="password" id="aio_cf_worker_input" class="llm-key-input" placeholder="CF Worker URL (자체 프록시)" title="Cloudflare Worker 프록시 URL" style="font-size:11px;">
+                <input type="password" id="aio_cf_worker_input" class="llm-key-input" placeholder="CF Worker URL (자체 프록시)" title="Cloudflare Worker 프록시 URL — 설정 시 모든 데이터 수집이 공용 CORS 프록시 대신 자체 Worker를 최우선(Tier-0) 사용해 가용성·무결성이 개선됩니다. 저장 즉시 적용." style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_cf_worker_url" data-arg2="aio_cf_worker_input" data-pass-el="1">저장</button>
               </div>
               <div style="font-size:11px;color:var(--accent);margin-top:3px;line-height:1.5;">키 발급 링크는 사용 설명서에서 확인하세요.</div>
@@ -5709,7 +5715,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.0</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.2</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5840,7 +5846,7 @@ button[data-filter-active="true"] {
     <div id="home-action-sentiment" style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;line-height:1.5;">심리 지표 확인 중</div>
     <div id="home-action-breadth" style="font-size:11px;color:var(--text-muted);line-height:1.5;"></div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
-      <strong>규칙</strong>: VIX <15→100%/15~20→80%/20~25→50%/25~30→30%/30+→15%. F&amp;G ≤25→역발상 매수 · 26~45→관심종목 1차 · 46~75→중립/추격자제 · 75+→차익실현.
+      <strong>프레임워크 참고(지시 아님)</strong>: VIX 구간별 노출 관리 관행(저변동→정상, 극단→축소)과 F&amp;G 구간 서술(≤25 극단 공포 · 26~45 공포 · 46~75 중립~탐욕 · 75+ 극단 탐욕)을 요약한 역사적 프레임워크입니다. 이 밴드들의 예측력은 검증되지 않았습니다.
     </div>
   </div>
 
@@ -6885,7 +6891,7 @@ button[data-filter-active="true"] {
         </div>
         <div style="font-size:11px;color:var(--text-muted);line-height:1.5;background:rgba(33,29,22,0.06);padding:8px;border-radius:3px;border-left:3px solid var(--data-amber);">
           Stage 3 (천장 형성). 30주선 위 횡보 중 개별주 이탈 증가.
-          <b style="color:var(--data-amber);">이익 실현 또는 현금 확보 검토 단계.</b>
+          <b style="color:var(--data-amber);">Weinstein 프레임워크가 이익 보호·현금 확보를 논의하는 단계로 분류(지시 아님).</b>
         </div>
       </div>
 
@@ -6961,7 +6967,7 @@ button[data-filter-active="true"] {
 
   <div class="page" id="page-sentiment">
   <div class="insight-box box-collapsed">
-    <strong>시장 참가자들의 감정 — F&G 25↓ = 극단 공포(역발상 매수 검토) | 75+ = 과열</strong>
+    <strong>시장 참가자들의 감정 — F&G 25↓ = 극단 공포(역발상 프레임 주목 구간) | 75+ = 과열</strong>
   </div>
 
   <!-- ═══ v48.45: 투자 심리 기관급 해설 ═══ -->
@@ -10828,7 +10834,7 @@ button[data-filter-active="true"] {
         <span id="scr-profile-desc" style="font-style:italic;">레짐 기반 자동 가중</span> ·
         총 <span id="scr-kpi-total" style="color:var(--text-primary);font-weight:600;">—</span>종목 중
         <b style="color:var(--text-primary);">상위 20% <span id="scr-kpi-top">—</span></b> ·
-        기존 편집 시그널 BUY <span id="scr-kpi-buy" style="color:var(--text-primary);font-weight:600;">—</span> ·
+        기존 편집 분류 강세 구조 <span id="scr-kpi-buy" style="color:var(--text-primary);font-weight:600;">—</span> ·
         활성팩터 <span id="scr-kpi-factors">—</span>
       </span>
     </div>
@@ -10884,7 +10890,7 @@ button[data-filter-active="true"] {
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
       <select id="scr-market" aria-label="시장 지수 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 지수</option></select>
       <select id="scr-sector" aria-label="섹터 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 섹터</option></select>
-      <select id="scr-signal" aria-label="매매 신호 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시그널</option><option value="BUY">BUY</option><option value="HOLD">HOLD</option><option value="WATCH">WATCH</option><option value="SELL">SELL</option></select>
+      <select id="scr-signal" aria-label="구조 분류 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 분류</option><option value="BUY">강세 구조</option><option value="HOLD">중립</option><option value="WATCH">관찰</option><option value="SELL">약세 구조</option></select>
       <select id="scr-cap" aria-label="시가총액 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시총</option><option value="MEGA">메가캡 (≥$1T... )</option><option value="LARGE">대형 ($10B~1T)</option><option value="MID">중형 ($2~10B)</option><option value="SMALL">소형 (&lt;$2B)</option></select>
       <input id="scr-text-search" type="text" placeholder="티커·이름·메모 검색" aria-label="스크리너 티커 이름 메모 검색" class="aio-btn-table" style="font-size:11px;padding:4px 8px;min-width:160px;">
       <button class="aio-btn-table" style="font-size:11px;" data-action="_aioScreenerToggleColumns" id="scr-col-toggle-btn">전체 컬럼 보기</button>
@@ -10957,7 +10963,7 @@ button[data-filter-active="true"] {
             <th data-scr-sort="ret6m" data-action="_aioScreenerSort" data-arg="ret6m" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">6M<span class="scr-arrow"></span></th>
             <th data-scr-sort="rsi" data-action="_aioScreenerSort" data-arg="rsi" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">RSI<span class="scr-arrow"></span></th>
             <th data-scr-sort="pctSma50" data-action="_aioScreenerSort" data-arg="pctSma50" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">vs 50MA<span class="scr-arrow"></span></th>
-            <th data-scr-sort="kalman" data-action="_aioScreenerSort" data-arg="kalman" role="button" title="추세 신뢰도 — Kalman 필터 기반 추세 방향 확신도. 65%+ 상승 방향이면 추세 추종 유효" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세신뢰도<span class="scr-arrow"></span></th>
+            <th data-scr-sort="kalman" data-action="_aioScreenerSort" data-arg="kalman" role="button" title="추세 신뢰도(연구 지표) — Kalman 필터 기반 추세 방향 확신도. 예측 검증 미확립·상대 랭킹 연구 전용이며 매매 신호가 아닙니다" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">추세신뢰도<span style="font-size:10px;color:var(--text-muted);">(연구)</span><span class="scr-arrow"></span></th>
             <th data-scr-sort="vcpScore" data-action="_aioScreenerSort" data-arg="vcpScore" role="button" title="VCP(변동성 수축 패턴) 가격 구조의 상대 상태. 매매 신호가 아님" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">VCP 구조<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" data-scr-sort="mcap" data-action="_aioScreenerSort" data-arg="mcap" role="button" style="cursor:pointer;text-align:right;padding:7px 8px;font-size:10px;">시총<span class="scr-arrow"></span></th>
             <th class="scr-adv-col" style="text-align:center;padding:7px 8px;font-size:10px;border-left:1px solid var(--border);" title="RSI·상대 랭크·모멘텀 조합 상태. 매매 신호가 아님">상대 상태</th>
@@ -10978,7 +10984,7 @@ button[data-filter-active="true"] {
       <div>
         <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">읽는 법</div>
         <div style="display:flex;flex-direction:column;gap:9px;">
-          <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">추세신뢰도</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Kalman 필터 기반 추세 방향 확신도. 65% 이상 + 상승 방향이면 추세 추종 유효</span></div>
+          <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">추세신뢰도</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Kalman 필터 기반 추세 방향 확신도(연구 지표). 예측 검증이 확립되지 않았으며 상대 비교·연구 전용 — 매매 신호가 아닙니다.</span></div>
           <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">VCP 구조</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">변동성 수축과 피벗 근접도를 설명하는 가격 구조 지표. 이후 수익률이나 돌파 성공을 보장하지 않음</span></div>
           <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);flex-shrink:0;width:80px;">사용 원칙</span><span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">상대 랭킹은 조사 후보를 좁히는 도구이며, 주문·포지션 결정에는 별도 검증이 필요</span></div>
         </div>
@@ -11113,9 +11119,18 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 투자자수급요약 -->
 
     <!-- ═══ 섹션 3: 한국 시장 대시보드 (신용·거래·공매도) ═══ -->
+    <!-- P715 (사용자 결정 "정지 위젯 정리"): 2026-05 정지 스냅샷 카드와 영구 '—' 대기 카드가
+         6~9칸을 차지하며 고장처럼 보이던 것을, 데이터 공백 상태 카드 1장 + 접힌 참고 스냅샷으로 재구성.
+         내부 data-snap/id는 전부 보존(테스트·갱신 파이프라인 무영향, 소스 확보 시 그대로 복원 가능). -->
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">한국 시장 대시보드</span></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">수급·시장폭 자동 수집 원천 공백</div>
+      <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.7;">신용잔고·예탁금·공매도 비중·거래대금·ADR·52주 신고/신저·상승/하락 종목수는 무료 공개 API가 없어 당일 자동 수집이 불가합니다(운영 기록 B1). 수신 가능한 항목은 자동 갱신되며, 나머지는 아래 과거 스냅샷을 참고용으로만 보존합니다 — 현재 시장 판단에는 사용되지 않습니다.</div>
+    </div>
+    <details class="aio-page-advanced-toggle" style="margin-bottom:14px;">
+    <summary style="cursor:pointer;font-size:12px;color:var(--text-muted);">과거 참고 스냅샷 보기 (2026-05 기준 · 현재 판단 제외)</summary>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0 14px;">
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
         <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">신용잔고 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-credit">2026-05-29</span> · <span id="kr-credit-stale-days">경과...</span>)</span> <span style="font-size:10px;background:rgba(33,29,22,0.12);border:1px solid rgba(33,29,22,0.28);color:var(--data-amber);border-radius:3px;padding:1px 4px;vertical-align:middle;">전일 종가</span></div>
         <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-credit">36.0조원</div>
@@ -11168,6 +11183,7 @@ button[data-filter-active="true"] {
         <div style="font-size:11px;color:var(--text-muted);">2026-05-16 참고값 · 현재 판단 제외</div>
       </div>
     </div>
+    </details>
     </div><!-- /aio-section 한국시장대시보드 -->
 
     <!-- ═══ 섹션 4: 오늘의 주요 이슈 ═══ -->
@@ -12356,8 +12372,8 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--data-green);margin-bottom:6px;">시그널 (SIGNAL)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 시장 거래 적합도 점수 + RSI/MACD/시장폭 상태 표시.<br>
-          <b>점수 해석:</b> 60~100=매수 고려 | 40~60=관망 | 0~40=현금 확보<br>
-          <b>유의사항:</b> 시장 환경 평가용 -- 개별 종목 매수 신호 아님.
+          <b>점수 해석:</b> 60~100=환경 우호 | 40~60=중립 | 0~40=환경 불리 (환경 설명값)<br>
+          <b>유의사항:</b> 예측/매매 신호 아님 — 부분 백테스트(2016~2026)에서 선행수익률과 음(−)의 상관이 관측됨. 타이밍 근거로 사용 금지.
         </div>
       </div>
 
@@ -12978,9 +12994,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.0" defer></script>
-  <script src="./js/aio-data.js?v=53.0" defer></script>
-  <script src="./js/aio-ui.js?v=53.0" defer></script>
+  <script src="./js/aio-core.js?v=53.2" defer></script>
+  <script src="./js/aio-data.js?v=53.2" defer></script>
+  <script src="./js/aio-ui.js?v=53.2" defer></script>
 
   <script>
 
@@ -14925,7 +14941,7 @@ function renderWatchlistContent() {
       '<td style="padding:6px 8px;"><b style="color:var(--text-primary);font-family:var(--font-mono);font-size:11px;">' + _eSym + '</b>' + (nameStr ? '<div style="font-size:11px;color:var(--text-muted);">' + escHtml(nameStr) + '</div>' : '') + '</td>' +
       '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;">' + price + '</td>' +
       '<td style="text-align:right;padding:6px;font-family:var(--font-mono);font-weight:700;font-size:10px;color:' + cc + ';">' + chgStr + '</td>' +
-      '<td style="text-align:center;padding:6px;">' + (signal !== '—' ? '<span style="background:' + sb + ';color:' + sc + ';padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700;">' + signal + '</span>' : '<span style="color:var(--text-muted);font-size:11px;">—</span>') + '</td>' +
+      '<td style="text-align:center;padding:6px;">' + (signal !== '—' ? '<span style="background:' + sb + ';color:' + sc + ';padding:1px 6px;border-radius:3px;font-size:11px;font-weight:700;">' + (typeof _scrSignalLabel === 'function' ? _scrSignalLabel(signal) : signal) + '</span>' : '<span style="color:var(--text-muted);font-size:11px;">—</span>') + '</td>' +
       '<td style="padding:6px;color:var(--text-muted);font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(t.note || '') + '</td>' +
       '<td style="text-align:center;padding:6px;">' +
         '<button data-action="removeFromWatchlist" data-arg="' + escHtml(_eSym) + '" data-stop="1" aria-label="' + escHtml(_eSym) + ' 관심 종목에서 삭제" style="background:none;border:none;cursor:pointer;font-size:11px;" title="삭제"></button>' +
@@ -16648,7 +16664,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.0" defer></script>
+<script src="./js/aio-chat.js?v=53.2" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17321,17 +17337,17 @@ function updateMTF() {
     var isMixed = (shortBull && longBear) || (shortBear && longBull);
 
     if (bullCount >= 3) {
-      verdictText = ' <b>종합 판단: 강세 ('+bullCount+'/4 순풍)</b> — 다수의 타임프레임이 순풍입니다. 추세 추종 매매에 적합한 환경. 풀백 매수 전략 유효!';
+      verdictText = ' <b>종합 관측: 강세 정렬 ('+bullCount+'/4 순풍)</b> — 다수 타임프레임이 순풍. 역사적으로 추세 추종 프레임워크가 우호적으로 서술하던 정렬입니다(예측 아님).';
       verdictColor = 'var(--data-green)';
-      ctaText = '<b>행동 가이드:</b> 기존 포지션 유지 + 풀백 시 추가 매수. CTA/자동매매도 매수 모드 → 상승 자기강화 구간.';
+      ctaText = '<b>프레임워크 참고:</b> 추세 추종 관행상 풀백 구간이 주목되던 정렬. CTA/자동매매의 매수 모드로 상승이 자기강화되는 경향이 서술됩니다.';
     } else if (bearCount >= 3) {
-      verdictText = ' <b>종합 판단: 약세 ('+bearCount+'/4 역풍)</b> — 대부분의 타임프레임이 역풍 신호. 신규 매수 자제, 리스크 관리 최우선!';
+      verdictText = ' <b>종합 관측: 약세 정렬 ('+bearCount+'/4 역풍)</b> — 대부분 타임프레임이 역풍. 역사적으로 위험 관리가 우선시되던 정렬입니다.';
       verdictColor = 'var(--data-red)';
-      ctaText = ' <b>행동 가이드:</b> 현금 비중 확대. 반등에 속지 마세요. 모든 타임프레임이 순풍 전환할 때까지 "인내".';
+      ctaText = ' <b>프레임워크 참고:</b> 약세 정렬에서의 반등은 지속성이 낮았다고 서술됩니다. 전 타임프레임 순풍 전환 여부가 관찰 포인트.';
     } else {
-      verdictText = ' <b>종합 판단: 혼조 (순풍 '+bullCount+' / 역풍 '+bearCount+')</b> — 타임프레임 간 엇갈림. 방향이 정렬될 때까지 보수적으로 대응하세요.';
+      verdictText = ' <b>종합 관측: 혼조 (순풍 '+bullCount+' / 역풍 '+bearCount+')</b> — 타임프레임 간 엇갈림 구간.';
       verdictColor = 'var(--data-amber)';
-      ctaText = ' <b>행동 가이드:</b> 포지션 사이즈 50% 축소. 단기·장기가 같은 방향으로 정렬될 때까지 관망.';
+      ctaText = ' <b>프레임워크 참고:</b> 방향 미정렬 구간은 역사적으로 성과 편차가 컸다고 서술됩니다. 정렬 여부가 관찰 포인트.';
     }
 
     var mixedWarning = '';
@@ -17534,7 +17550,7 @@ function updatePatternSignals() {
   } else if (vixP > 30) {
     signals.push({ name: 'VIX 공포 영역', type: 'risk', icon: '',
       color: 'var(--data-red)',
-      detail: 'VIX ' + vixP.toFixed(1) + ' → 공포 영역. 포지션 사이즈를 평소의 50% 이하로 축소하세요. 역발상 매수를 고려한다면 VIX가 하락 반전한 "이후"에 진입.',
+      detail: 'VIX ' + vixP.toFixed(1) + ' → 공포 영역. 역사적으로 노출 축소·헤지가 논의되던 환경입니다(지시 아님). 역발상 프레임워크는 VIX 하락 반전 "이후" 구간을 주목해왔습니다.',
       why: 'VIX 30+는 시장이 향후 30일간 연환산 30% 이상 변동을 예상한다는 의미입니다.',
       importance: 'HIGH' });
   } else if (vixP > 25) {
@@ -18092,7 +18108,7 @@ function generateMacroStoryline() {
   var isCyclicalDecline = (tnx > 4.3 && spread < 0.3);
   if (isEventDecline && !isCyclicalDecline) {
     story += ' <b style="color:var(--data-cyan);">이벤트성 하락 가능성 높음.</b> VIX 급등 + 대폭 변동이지만 금리 구조는 안정적 → 뉴스/이벤트가 트리거. ';
-    story += '이벤트 하락은 보통 <b>2~6주 내 회복</b>. 패닉 매도보다 분할 매수가 유효한 구간. ';
+    story += '이벤트성 하락은 역사적으로 <b>2~6주 내 회복</b>한 사례가 많았고, 패닉 매도의 성과가 나빴다고 서술됩니다(보장 아님). ';
     story += '단, "이벤트처럼 보이지만 실제로는 순환적 전환의 시작"인 경우를 구별해야 합니다 — 후속 경제지표(고용·PMI) 확인 필수.';
   } else if (isCyclicalDecline && !isEventDecline) {
     story += ' <b style="color:var(--data-red);">순환적 하락 신호.</b> 금리 커브 압축 + 고금리 지속 → 경기 둔화 진행 중. ';
@@ -18565,7 +18581,7 @@ function updateDynamicScenarios() {
       nt += '쉽게 말해: 경제가 급격히 식으면서 기업 이익도 줄어드는 상황입니다. 2008년이나 2020년 3월과 유사합니다.<br>';
       nt += '<b>유리한 자산:</b> 현금, 장기국채(TLT, IEF), 금(GLD) — 안전자산으로의 자금 이동(Flight to Quality).<br>';
       nt += '<b>불리한 자산:</b> 주식 대부분, 하이일드채(HYG), 원자재 — 수요 급감으로 가격 하락.<br>';
-      nt += '<b>기회:</b> 경기침체가 확인되면 Fed가 급격히 금리를 낮추기 시작합니다. 6~12개월 후 강한 반등의 씨앗이 됩니다. 지금 매수하지 말고, <b>바닥 확인 체크리스트</b>(VIX 하락 반전 + HY 스프레드 축소 + 거래량 급증)가 충족되면 분할 진입하세요.';
+      nt += '<b>역사적 패턴:</b> 경기침체가 확인되면 Fed가 급격히 금리를 낮추기 시작했고, 6~12개월 후 강한 반등으로 이어진 사례가 많습니다. 프레임워크는 <b>바닥 확인 체크리스트</b>(VIX 하락 반전 + HY 스프레드 축소 + 거래량 급증) 충족 여부를 관찰 포인트로 둡니다(지시 아님).';
       nt += ' Citi 분석: 현재 Fed의 매파적 동결은 향후 더 큰 폭의 인하를 부를 수 있습니다 — 금리 동결이 오히려 경기침체를 가속화하는 역설.';
       nt += _inputInfo;
     }
@@ -18802,7 +18818,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
       var s = _liveSnap();
       var c = _closeSnap();
       var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
-      var healthStr = health ? (health.score + '점 ' + health.grade + ' ' + health.regime) : '산출 대기';
+      var healthStr = (health && typeof health.score === 'number' && isFinite(health.score)) ? (health.score + '점 ' + health.grade + ' ' + health.regime) : '산출 대기(미수신)';
 
       var fresh = s._freshness;
       return '당신은 CMT(차트기술분석사)이며 Stan Weinstein Stage Analysis + screener_pro v5.4 전문가입니다. "차트/기술 분석" 페이지에서 대화하고 있습니다.\n\n' +
@@ -22721,9 +22737,9 @@ function _generateKrThemesAnalysis(ld) {
   var krTsVal = 50;
   try { if (typeof computeTradingScore === 'function') krTsVal = computeTradingScore().score || 50; } catch(e) {}
   h += '<br><b>【시장 환경】</b> 트레이딩 스코어 <b style="color:' + (krTsVal >= 55 ? 'var(--green)' : krTsVal >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + krTsVal + '/100</b> — ';
-  h += krTsVal >= 55 ? '테마 순환매 활발. 상위 테마 추종 유효.' :
-       krTsVal >= 35 ? '선별적 접근. 실적 뒷받침 테마만.' :
-       '방어 모드. 테마 매수 자제, 현금 확보 우선.';
+  h += krTsVal >= 55 ? '역사적으로 테마 순환매가 활발하던 환경(환경 설명값, 예측 아님).' :
+       krTsVal >= 35 ? '역사적으로 실적 뒷받침 없는 테마의 성과가 부진하던 환경.' :
+       '역사적으로 테마 전반이 부진하고 방어적 대응이 우선시되던 환경.';
 
   el.innerHTML = h;
 }
@@ -22891,7 +22907,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
         h += '<b style="color:var(--green);">목표 달성!</b> +' + Math.abs(distPct).toFixed(1) + '% 초과';
       } else {
         h += '<b style="color:' + color + ';">잔여 ' + distPct.toFixed(1) + '%</b>';
-        if (distPct < 5) h += ' — 거의 도달, 분할 매도 시작 고려';
+        if (distPct < 5) h += ' — 목표가 부근. 프레임워크상 이익 보호가 논의되는 지점(지시 아님)';
         else if (distPct < 15) h += ' — 접근 중, 목표 도달 시 매도 계획 준비';
       }
       h += ')</span><br>';
@@ -23040,7 +23056,7 @@ function _generateScreenerAnalysis(filtered, ld) {
   });
   if (rsiN > 0) avgRsi /= rsiN;
   var h = '<b>결과 ' + filtered.length + '종목:</b> ';
-  h += '<span style="color:var(--green);">BUY ' + buyCount + '</span> · <span style="color:var(--red);">SELL ' + sellCount + '</span> · <span style="color:var(--yellow);">WATCH ' + watchCount + '</span>';
+  h += '<span style="color:var(--green);">강세 구조 ' + buyCount + '</span> · <span style="color:var(--red);">약세 구조 ' + sellCount + '</span> · <span style="color:var(--yellow);">관찰 ' + watchCount + '</span>';
   h += ' (오늘 상승 ' + upCount + ' / 하락 ' + downCount + ')';
   h += '<br>';
   // RSI 분포
@@ -23113,16 +23129,16 @@ function _generateScreenerAnalysis(filtered, ld) {
     var netSignal = buyCount - sellCount;
     var signalMomentum = filtered.length > 0 ? (netSignal / filtered.length * 100) : 0;
     if (signalMomentum > 30) {
-      h += '<span style="color:var(--green);">강한 매수 우위 (순매수 시그널 ' + signalMomentum.toFixed(0) + '%p). 시장 모멘텀 상승 방향.</span>';
+      h += '<span style="color:var(--green);">강세 분류 우위 (순증 ' + signalMomentum.toFixed(0) + '%p). 편집 분류상 상승 구조 다수.</span>';
     } else if (signalMomentum < -30) {
-      h += '<span style="color:var(--red);">강한 매도 우위 (순매도 시그널 ' + Math.abs(signalMomentum).toFixed(0) + '%p). 하락 모멘텀 지배적.</span>';
+      h += '<span style="color:var(--red);">약세 분류 우위 (순감 ' + Math.abs(signalMomentum).toFixed(0) + '%p). 편집 분류상 하락 구조 다수.</span>';
     } else {
-      h += '<span style="color:var(--yellow);">혼조 (BUY ' + buyCount + ' vs SELL ' + sellCount + ' vs WATCH ' + watchCount + '). 방향 전환 탐색 구간.</span>';
+      h += '<span style="color:var(--yellow);">혼조 (강세 ' + buyCount + ' vs 약세 ' + sellCount + ' vs 관찰 ' + watchCount + '). 방향 전환 탐색 구간.</span>';
     }
     // WATCH 비중이 높으면 = 전환 과도기
     var watchRatio = filtered.length > 0 ? (watchCount / filtered.length * 100) : 0;
     if (watchRatio > 40) {
-      h += '<br><span style="color:var(--yellow);font-size:11px;">WATCH 비율 ' + watchRatio.toFixed(0) + '% — 다수 종목이 관망 구간. 시그널 전환 과도기. BUY/SELL 확정까지 신규 진입 보류 권장.</span>';
+      h += '<br><span style="color:var(--yellow);font-size:11px;">관찰 비율 ' + watchRatio.toFixed(0) + '% — 다수 종목이 분류 전환 과도기. 역사적으로 방향 확정 전 성과 편차가 컸던 구간.</span>';
     }
     h += '<br>';
   }
@@ -23197,9 +23213,9 @@ function _updateSentimentActionGuides() {
   }
   if (vixGuide && vix) {
     var vMsg, vBg;
-    if (vix >= 30) { vMsg = ' <b>행동:</b> 신규 매수 중단. 기존 포지션 50% 축소 또는 풋옵션 헤지. 현금 비중 최소 50% 유지.'; vBg = 'rgba(177,58,48,0.08)'; }
-    else if (vix >= 20) { vMsg = '<b>행동:</b> 포지션 규모 축소 (평소 70%). 분할 매수만 진행. 손절선 타이트하게 관리.'; vBg = 'rgba(33,29,22,0.08)'; }
-    else { vMsg = '<b>행동:</b> 정상 환경. 셋업 기반 매매 진행 가능. 적정 포지션 사이즈 유지.'; vBg = 'rgba(34,117,76,0.08)'; }
+    if (vix >= 30) { vMsg = ' <b>환경 관측:</b> 극단 변동성 — 역사적으로 신규 위험 확대가 회피되고 헤지가 검토되던 환경입니다(지시 아님).'; vBg = 'rgba(177,58,48,0.08)'; }
+    else if (vix >= 20) { vMsg = '<b>환경 관측:</b> 변동성 상승 구간 — 프레임워크상 노출 축소·분할 접근이 논의되던 환경입니다.'; vBg = 'rgba(33,29,22,0.08)'; }
+    else { vMsg = '<b>환경 관측:</b> 낮은 변동성 — 프레임워크상 정상 노출로 분류되는 환경입니다.'; vBg = 'rgba(34,117,76,0.08)'; }
     vixGuide.innerHTML = vMsg; vixGuide.style.background = vBg;
   }
 
@@ -24474,7 +24490,7 @@ function updateBottomProcess() {
       actionEl.innerHTML = ' <b>현재 행동:</b> 랠리 품질 관찰 중. Follow-through 확인 전까지 관망. 리더십 종목이 적절한 셋업(VCP, 돌파)을 형성하는지 모니터링. 소량 테스트 매수만.';
       actionEl.style.borderColor = 'var(--data-amber)';
     } else if (stage === 3) {
-      actionEl.innerHTML = ' <b>현재 행동:</b> 리테스트 결과 관찰. 매도 압력 감소 확인 시 선별적 매수 시작. 셋업이 완성된 리더주 위주로 점진적 포지션 확대.';
+      actionEl.innerHTML = ' <b>현재 관측:</b> 리테스트 진행 구간. 프레임워크상 매도 압력 감소 여부와 리더주 셋업 완성 여부가 다음 관찰 포인트입니다(지시 아님).';
       actionEl.style.borderColor = 'var(--data-cyan)';
     } else {
       actionEl.innerHTML = ' <b>현재 행동:</b> 바닥 확인. 리더주 셋업 완성 시 분할 진입 검토. 트레일링 스탑으로 수익 보호. 시장폭 유지 여부 지속 모니터링.';
@@ -24550,9 +24566,12 @@ function updateEntryChecklist() {
     setCheck('ec-vix', vixD.price < 25, vixD.price.toFixed(1));
   }
 
-  // 2. 시장 스코어 55+
-  if (health) {
+  // 2. 시장 스코어 55+ — P715: fail-closed로 score가 null일 수 있음(서버 시세 백스톱 제거 후
+  // 오프라인/미수신 부팅에서 "null점" 노출 실증). 유한값일 때만 표기, 아니면 명시적 미수신.
+  if (health && typeof health.score === 'number' && isFinite(health.score)) {
     setCheck('ec-score', health.score >= 55, health.score + '점');
+  } else if (health) {
+    setCheck('ec-score', null, '미수신');
   }
 
   // 3. 섹터 폭 50%+
@@ -24799,7 +24818,7 @@ function updateMarketPulse() {
     var sc = computeTradingScore('swing');
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : 50;
     var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-    var sLabel = t >= 75 ? '매수우호' : t >= 60 ? '선별매수' : t >= 45 ? '관망' : t >= 30 ? '비중축소' : '매매자제';
+    var sLabel = t >= 75 ? '환경 우호' : t >= 60 ? '환경 양호' : t >= 45 ? '중립' : t >= 30 ? '환경 불리' : '환경 극단';
     var el1 = document.getElementById('mp-signal-score');
     var el1b = document.getElementById('mp-signal-label');
     if (el1) { el1.textContent = t; el1.style.color = sColor; }
@@ -24898,10 +24917,10 @@ function _updateAllConclusionBars() {
     var t = (sc && typeof sc.total === 'number' && isFinite(sc.total)) ? sc.total : null;
     if (t !== null) {
       var sColor = t >= 70 ? 'var(--data-green)' : t >= 50 ? 'var(--data-cyan)' : t >= 35 ? 'var(--data-amber)' : 'var(--data-red)';
-      var sLabel = t >= 75 ? '매수 우호' : t >= 60 ? '선별매수' : t >= 45 ? '관망' : t >= 30 ? '비중축소' : '매매자제';
-      var sAction = t >= 60 ? 'ATR 스톱 설정 후 2% 룰 기준으로 분할 진입 검토' :
-                    t >= 45 ? '기존 포지션 유지, 신규 진입 자제' :
-                    '리스크 자산 비중 축소, 현금 확보';
+      var sLabel = t >= 75 ? '환경 우호' : t >= 60 ? '환경 양호' : t >= 45 ? '중립' : t >= 30 ? '환경 불리' : '환경 극단';
+      var sAction = t >= 60 ? '환경 설명값(예측 신호 아님) — 진입 판단은 종목 근거·손익비로 별도 확인' :
+                    t >= 45 ? '신호 혼재 — 점수 단독 판단 금지' :
+                    '역사적으로 방어적 대응이 우선시되던 환경(지시 아님)';
       var sOpts = { conclusion: t + '점 · ' + sLabel, conclusionColor: sColor, action: sAction, fetchKey: 'quote' };
       _renderConclusionBar('home-conclusion-bar', sOpts);
       _renderConclusionBar('signal-conclusion-bar', sOpts);
@@ -24915,11 +24934,11 @@ function _updateAllConclusionBars() {
     if (fv != null && !isNaN(fv)) {
       var fColor = fv <= 25 ? 'var(--data-red)' : fv <= 45 ? 'var(--data-amber)' : fv <= 55 ? 'var(--text-secondary)' : fv <= 75 ? 'var(--data-green)' : '#22754c';
       var fLabel = fv <= 25 ? '극단 공포' : fv <= 45 ? '공포' : fv <= 55 ? '중립' : fv <= 75 ? '탐욕' : '극단 탐욕';
-      var fAction = fv <= 25 ? '역발상 매수 적극 검토, 분할 진입 시작' :
-                    fv <= 45 ? '현금 준비, 분할 매수 고려' :
-                    fv <= 55 ? '기존 전략 유지' :
-                    fv <= 75 ? '신규 진입 자제, 스톱 조이기' :
-                    '익절·비중 축소 실행';
+      var fAction = fv <= 25 ? '역발상 프레임 주목 구간(예측 검증 없음) — 종목 근거 별도 확인' :
+                    fv <= 45 ? '심리 위축 구간 — 분할 접근이 논의되는 환경(지시 아님)' :
+                    fv <= 55 ? '심리 중립 — 뚜렷한 쏠림 없음' :
+                    fv <= 75 ? '심리 과열 초입 — 추격 진입 성과가 불안정하던 구간' :
+                    '심리 극단 — 역발상 프레임워크가 위험 축적을 경고해온 구간';
       _renderConclusionBar('sentiment-conclusion-bar', { conclusion: 'F&G ' + fv + ' · ' + fLabel, conclusionColor: fColor, action: fAction, fetchKey: 'fearGreed' });
     }
   } catch(e) {}
@@ -25424,7 +25443,7 @@ function generateFxBondCommentary() {
 
     // 환율 전략
     if (dxy && dxy >= 107) implParts.push('강달러: EM 비중↓, 달러 자산 유지');
-    if (krw && krw >= 1450) implParts.push('원화 위기: 달러 예금 유지, 환헤지 필수');
+    if (krw && krw >= 1450) implParts.push('원화 약세 극단: 역사적으로 환노출 관리가 우선시되던 환율대(지시 아님)');
     else if (krw && krw >= 1350) implParts.push('원화 약세: 수출주(삼성/현대차) 환율 수혜');
 
     // 신용 전략
@@ -25601,16 +25620,16 @@ async function initFundamentalCards() {
     ? ' <span style="font-size:11px;color:var(--data-green);">(실시간 가격 · 참고용 지표)</span>'
     : ' <span style="font-size:11px;color:var(--text-muted);">(참고용 데이터)</span>';
   var FUND_FALLBACK = {
-    'NVDA': { pe: 35.2, roe: 115.0, eps: 4.90, epsGrowth: 72.0, mcap: '4.20T', sector: 'Technology', signal: '매수 · Blackwell Ultra + 광학 $12B 투자 · 컴퓨트 2파동' },
-    'AAPL': { pe: 31.39, roe: 145.0, eps: 7.90, epsGrowth: 8.5, mcap: '3.64T', sector: 'Technology', signal: '보유 · Apple Intelligence · 서비스+인도 생산 확대' },
-    'MSFT': { pe: 23.90, roe: 37.5, eps: 15.98, epsGrowth: 14.2, mcap: '2.84T', sector: 'Technology', signal: '매수 · Azure AI + MAI 자체모델 3종 · Copilot 수익화' },
-    'GOOGL': { pe: 27.84, roe: 32.0, eps: 10.81, epsGrowth: 38.0, mcap: '3.64T', sector: 'Technology', signal: '매수 · Gemini 3.1 + Veo3 · AI 검색 전환' },
-    'TSLA': { pe: 340.70, roe: 10.2, eps: 1.08, epsGrowth: -23.0, mcap: '1.38T', sector: 'Consumer Cyclical', signal: '관망 · 로보택시 기대 vs 브랜드 리스크 · 고PE 부담' },
-    'AMD': { pe: 77.14, roe: 4.5, eps: 2.65, epsGrowth: 56.0, mcap: '328B', sector: 'Technology', signal: '선별매수 · MI350/Helios · VVP 비용 불이익 리스크' },
-    'AVGO': { pe: 60.53, roe: 55.0, eps: 5.13, epsGrowth: 25.0, mcap: '1.47T', sector: 'Technology', signal: '매수 · 커스텀 AI ASIC + VMware 통합 시너지' },
-    'TSM': { pe: 31.87, roe: 28.0, eps: 10.35, epsGrowth: 40.0, mcap: '1.71T', sector: 'Technology', signal: '매수 · AI 파운드리 독점 · 2nm 양산 · 지정학 리스크 모니터링' },
-    'INTC': { pe: -1, roe: -0.5, eps: -0.06, epsGrowth: null, mcap: '219B', sector: 'Technology', signal: '관망 · 18A 전환 · 파운드리 분사 검토 · 턴어라운드 불확실' },
-    'META': { pe: 25.27, roe: 35.0, eps: 23.49, epsGrowth: 60.0, mcap: '1.50T', sector: 'Technology', signal: '매수 · Llama AI 오픈소스 리더 · 광고 AI 최적화 · Reality Labs 리스크' }
+    'NVDA': { pe: 35.2, roe: 115.0, eps: 4.90, epsGrowth: 72.0, mcap: '4.20T', sector: 'Technology', signal: '강세 논거 · Blackwell Ultra + 광학 $12B 투자 · 컴퓨트 2파동' },
+    'AAPL': { pe: 31.39, roe: 145.0, eps: 7.90, epsGrowth: 8.5, mcap: '3.64T', sector: 'Technology', signal: '중립 논거 · Apple Intelligence · 서비스+인도 생산 확대' },
+    'MSFT': { pe: 23.90, roe: 37.5, eps: 15.98, epsGrowth: 14.2, mcap: '2.84T', sector: 'Technology', signal: '강세 논거 · Azure AI + MAI 자체모델 3종 · Copilot 수익화' },
+    'GOOGL': { pe: 27.84, roe: 32.0, eps: 10.81, epsGrowth: 38.0, mcap: '3.64T', sector: 'Technology', signal: '강세 논거 · Gemini 3.1 + Veo3 · AI 검색 전환' },
+    'TSLA': { pe: 340.70, roe: 10.2, eps: 1.08, epsGrowth: -23.0, mcap: '1.38T', sector: 'Consumer Cyclical', signal: '중립 논거 · 로보택시 기대 vs 브랜드 리스크 · 고PE 부담' },
+    'AMD': { pe: 77.14, roe: 4.5, eps: 2.65, epsGrowth: 56.0, mcap: '328B', sector: 'Technology', signal: '선별 강세 논거 · MI350/Helios · VVP 비용 불이익 리스크' },
+    'AVGO': { pe: 60.53, roe: 55.0, eps: 5.13, epsGrowth: 25.0, mcap: '1.47T', sector: 'Technology', signal: '강세 논거 · 커스텀 AI ASIC + VMware 통합 시너지' },
+    'TSM': { pe: 31.87, roe: 28.0, eps: 10.35, epsGrowth: 40.0, mcap: '1.71T', sector: 'Technology', signal: '강세 논거 · AI 파운드리 독점 · 2nm 양산 · 지정학 리스크 모니터링' },
+    'INTC': { pe: -1, roe: -0.5, eps: -0.06, epsGrowth: null, mcap: '219B', sector: 'Technology', signal: '중립 논거 · 18A 전환 · 파운드리 분사 검토 · 턴어라운드 불확실' },
+    'META': { pe: 25.27, roe: 35.0, eps: 23.49, epsGrowth: 60.0, mcap: '1.50T', sector: 'Technology', signal: '강세 논거 · Llama AI 오픈소스 리더 · 광고 AI 최적화 · Reality Labs 리스크' }
   };
 
   // Render fundamental cards from fallback data
@@ -29485,7 +29504,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.0" defer></script>
+<script src="./js/aio-glossary.js?v=53.2" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -32427,6 +32446,39 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 // 다음 줄의 beforeunload 리스너 등록과 이 스크립트 블록의 나머지 전부가 등록되지 않는 가장 심각한
 // 연쇄 실패 지점이었다(가격알림·접근성 인디케이터·McClellan 오실레이터·BOK 회의일 표시 전부 영향).
 window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); // v48.91: 언로드 시 전체 정리
+
+// ── P714: 첫 방문 투자 면책 고지 (1회, 확인 시까지 유지) ──
+// 기존 면책은 guide 페이지 <details> 안에 접혀 있어 실질 도달률이 0에 가까웠다.
+// 최초 방문 시 비차단 하단 바로 승격 — 확인 후 localStorage 플래그로 재표시 안 함.
+(function() {
+  try {
+    if (localStorage.getItem('aio_disclaimer_ack_v1') === '1') return;
+  } catch(_e) { return; } // storage 불가 환경(시크릿 등)에서는 매번 띄우는 대신 조용히 생략
+  function mountDisclaimer() {
+    if (document.getElementById('aio-first-visit-disclaimer')) return;
+    var bar = document.createElement('div');
+    bar.id = 'aio-first-visit-disclaimer';
+    bar.setAttribute('role', 'region');
+    bar.setAttribute('aria-label', '투자 면책 고지');
+    bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99990;background:var(--bg-elevated,#f5f1e8);border-top:1px solid var(--border,#d8d2c4);box-shadow:0 -2px 12px rgba(33,29,22,0.12);padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;line-height:1.6;color:var(--text-secondary,#57513f);';
+    var txt = document.createElement('div');
+    txt.style.cssText = 'flex:1;min-width:240px;';
+    txt.innerHTML = '<b style="color:var(--text-primary);">투자 면책 고지</b> — 본 도구의 모든 수치·점수·시그널·AI 답변은 지연/스냅샷/참고용일 수 있으며 <b>투자 권유·자문·매매 지시가 아닙니다</b>. 내부 점수의 예측력은 검증되지 않았고 부분 백테스트에서는 음(−)의 상관이 관측됐습니다. 투자 결정과 그 결과는 이용자 본인에게 있습니다.';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '확인했습니다';
+    btn.style.cssText = 'flex-shrink:0;font-size:12.5px;font-weight:600;color:var(--text-primary,#211d16);background:var(--surface-2,#ece7db);border:1px solid var(--border,#d8d2c4);border-radius:6px;padding:7px 16px;cursor:pointer;';
+    btn.addEventListener('click', function() {
+      try { localStorage.setItem('aio_disclaimer_ack_v1', '1'); } catch(_e) {}
+      if (bar.parentNode) bar.parentNode.removeChild(bar);
+    });
+    bar.appendChild(txt);
+    bar.appendChild(btn);
+    document.body.appendChild(bar);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountDisclaimer);
+  else mountDisclaimer();
+})();
 
 // ── 초기화 ──
 document.addEventListener('DOMContentLoaded', function() {

@@ -3,11 +3,32 @@ verified_by: agent
 last_verified: 2026-07-16
 confidence: high
 version: v3.8
-checklist_version: v53.0
-total_items: 691
+checklist_version: v53.2
+total_items: 706
 stages: 22
-latest_P_covered: P713
+latest_P_covered: P715
 ---
+
+## v53.2 - 소수 공유 준비 배치·시세 발행 중단·null 코어전 (P715)
+
+- [x] telegram-digest.json topItems/broadItems가 원문 전문 없이 120자 summary만 담는지 확인했다(producer+기존 아티팩트 변환, 1.32MB→193KB).
+- [x] TG 소비처(카드/피드필터/채팅 주입/narrative)가 text||summary 양쪽 아티팩트를 처리하는지 확인했다.
+- [x] data.json이 quotes를 빈 배열로 발행하고 meta.quotesPublished:false/quotePolicy를 명시하는지, 내부 파생(history/분석/건강도)은 유지되는지 확인했다.
+- [x] screener.json 846행에 원시 price 필드가 없고 validator가 price 발행을 계약 위반으로 차단하는지 확인했다.
+- [x] 스크리너/워치리스트의 signal 표시가 BUY/SELL raw enum이 아니라 관측형 라벨(강세 구조/중립/관찰/약세 구조)인지 확인했다.
+- [x] fail-closed null score가 어떤 표면에서도 "null점"으로 문자열화되지 않는지 확인했다 — 가드는 반드시 `typeof === 'number'`(Number(null)===0 함정 금지, `grep "Number.isFinite(Number("` 스윕).
+- [x] 감사/테스트 리터럴에 라이브 시장값과 충돌 가능한 가격·환율 숫자가 없는지 확인했다('1,508' 오탐 제거, T175 타깃 가드 전담).
+- [x] 사이드바가 데일리/시장 분석/내 투자·도구/학습 4그룹+한국 시장 접힘 구조이고 전 nav-item 라우트가 동작하는지 확인했다.
+
+## v53.1 - 시스템 발화형 지시 제거·면책 도달·연구 라벨 (P714)
+
+- [x] `AIO_ACTION_RULES`가 포지션%·매수/매도·헤지 지시를 렌더하지 않고 프레임워크 귀속 관측형만 출력하는지 확인했다(sizePct는 데이터 필드로만 존재).
+- [x] home/signal 결론 바·점수 범례·MTF/VIX/breadth 가이드에 "선별매수/현금 확보/매수 시작"류 시스템 발화 지시가 없는지 grep 스윕으로 확인했다.
+- [x] `computeTradingScore`에 HYG 달러 가격 고정 임계가 없고 신용 감점이 FRED HY OAS 실측 블록 단일 경로인지 확인했다(P713 계열 3번째 표면 소거).
+- [x] 첫 방문 시 투자 면책 하단 바가 표시되고 확인 후 재표시되지 않으며(localStorage), 키보드로 확인 버튼 접근이 가능한지 확인했다.
+- [x] 스크리너 추세신뢰도 컬럼이 헤더·범례·셀 툴팁 3곳에서 (연구)·예측 미확립을 명시하는지 확인했다.
+- [x] AI 응답이 envelope 미제출+현재성 수치일 때 "자동 검증 미통과" 고지가 비차단으로 부가되는지 확인했다.
+- [x] 출처 귀속 교육 서술(BofA FMS·Marks·Weinstein 원칙 등)은 귀속 표기와 함께 유지됐는지 확인했다(전면 삭제 아님).
 
 ## v53.0 - fail-closed 이중 표면·날짜핀 부패·공시 정직성 (P713)
 

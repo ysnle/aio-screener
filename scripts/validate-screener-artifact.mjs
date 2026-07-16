@@ -26,7 +26,9 @@ if (payload.fundamentalCoveragePct != null && (!Number.isFinite(Number(payload.f
 
 for (let i = 0; i < rows.length; i++) {
   const row = rows[i];
-  if (!row || !Number.isFinite(Number(row.price)) || Number(row.price) <= 0) { errors.push(`row ${i} has invalid price`); break; }
+  // P715: raw per-symbol price must NOT be published (redistribution posture) - derived-only artifact.
+  if (row && 'price' in row) { errors.push(`row ${i} publishes raw price (forbidden since P715)`); break; }
+  if (!row || (!Number.isFinite(Number(row.ret1m)) && !Number.isFinite(Number(row.rsi)))) { errors.push(`row ${i} has no derived factors`); break; }
   if (!row.observedAt || !Number.isFinite(new Date(row.observedAt).getTime())) { errors.push(`row ${i} has invalid observedAt`); break; }
 }
 

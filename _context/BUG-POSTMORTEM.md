@@ -2,10 +2,28 @@
 verified_by: agent
 last_verified: 2026-07-15
 confidence: high
-latest_version: v53.0
-latest_P_number: P713
-total_entries: 490
-next_P_number: P714
+latest_version: v53.2
+latest_P_number: P715
+total_entries: 492
+next_P_number: P716
+
+## P715 - v53.2 - 서버 백스톱 제거가 null 코어전 함정·오탐 리터럴·hue 결합 테스트를 연쇄로 드러냈다
+
+- **motivation**: 사용자 결정("지인 소수 공유 준비", 8건 AskUserQuestion 확정)에 따라 TG digest 요약화·KR 정지 위젯 정리·스크리너 enum/price·data.json 시세 발행 중단·IA 재편을 일괄 실행했다.
+- **root_cause**: ① `computeMarketHealth`의 fail-closed null score를 3개 소비처가 무가드 문자열화("null점") — 서버 시세 백스톱이 있는 동안은 score가 항상 유한해 잠복. ② 1차 가드를 `Number.isFinite(Number(v))`로 작성 — **`Number(null)===0`이라 null이 통과**하는 코어전 함정으로 가드가 무력(프로브 실측으로 확정). ③ critical10 감사 staleTokenRe의 `1,508` 리터럴이 과거 하드코드 검출용이었으나 라이브 USD/KRW가 1,508원을 지나는 순간 오탐(2026-07-16 실측 — 날짜핀 부패와 동족인 "시장값 회전 부패"). ④ T458이 '과열 override(≥70)' 회귀 의도를 amber 색상 hue로 검증 — 공유 팔레트가 40~69에도 amber를 쓰므로 US above20=52.5 아티팩트에서 오검출. ⑤ 하네스는 외부 요청 전면 차단+loadTests 경로인데 초기 프로브가 이를 재현하지 않아 원인 특정이 지연됨.
+- **fix**: `typeof score === 'number' && isFinite(score)` 가드 3곳(ec-score/바닥 체크리스트/기술 채팅 컨텍스트), staleTokenRe에서 시장값-충돌 리터럴 제거(타깃 가드 T175 전담), T458을 override 경계 검증으로 재작성, 하네스 동일조건 프로브(route.abort+loadTests) 확립.
+- **violated_rule**: R340(결측의 문자열 승격 — 이번엔 'null' 리터럴), R25(P713 날짜핀과 동족의 "외부값 회전 시 부패하는 리터럴 단언" 2번째 클래스), 신규 함정: truthy/finite 가드에서 Number() 선코어전 금지.
+- **prevention**: (a) null 가능 수치의 표시 가드는 반드시 `typeof v === 'number' && isFinite(v)` — `Number.isFinite(Number(v))`는 null/''/false를 통과시킴. 검출: `grep -n "Number.isFinite(Number(" js/ index.html`. (b) 감사/테스트 리터럴에 시장 실값과 충돌 가능한 숫자 금지(가격·지수·환율 리터럴은 요소-타깃 단언으로). (c) 헤드리스 재현은 반드시 하네스 동일 조건(외부 차단·loadTests)으로.
+- **verification**: 하네스 동일조건 프로브로 "null점" 2건 실측→수정→소멸 확인, 헤드리스 1100/1100 + 전 게이트 재실행(상세 CHANGELOG v53.2). TG 아티팩트 85% 축소·screener price 846행 제거·data.json quotes 0건을 validator/lineage로 확인. 배포·커밋 미수행.
+
+## P714 - v53.1 - 정적 UI가 AI 게이트가 차단하는 매매·배분 지시를 20여 곳에서 발화하고 있었다
+
+- **motivation**: 사용자 요청으로 최근 작업분이 아닌 시스템 전체(설계·아키텍처·알고리즘·데이터·UI/UX·운영·제품성)를 기관/펀드 관점에서 전수 진단했고, 발견 이슈 중 코드 실행 가능분을 일괄 개선했다.
+- **root_cause**: ① v52.75~86에서 AI 채팅에는 "구체 매수·매도·비중·손절·목표가" 차단 게이트를 정교하게 구축했지만, 동일 문형을 발화하는 **정적 UI 표면은 게이트 범위 밖**이었다 — `AIO_ACTION_RULES`(VIX→"포지션 X%로 축소·풋옵션 헤지 필수", F&G→"역발상 매수/차익실현"), 옵션 "권장 전략", home/signal 결론 바 "선별매수·분할 진입 검토"(v52.91 라벨 완화가 이 표면을 누락), 점수 범례 "0~40=현금 확보", MTF/VIX/breadth "행동 가이드" 등. 입력(VIX/F&G 절대 밴드)의 예측력은 검증된 적 없고 유사 입력 조합(WO-2)은 음의 상관이 실측된 상태였다. ② `computeTradingScore` macro 축의 `hyg<76` 달러 고정 임계 — 같은 함수 40줄 아래 주석이 스스로 "HYG 가격은 듀레이션 오염" 이라고 설명하면서 위쪽 코드는 그대로였고, P713(Weinstein/MTF)과 동일 클래스의 마지막 잔존이었다. ③ 면책 고지가 guide `<details>`에 접혀 있어 지시형 문구 대비 실질 도달률이 0에 가까웠다. ④ typed-claim 게이트는 envelope 미제출 시 검증 자체가 스킵되는 옵트인 구조인데 사용자에게 그 구별이 표시되지 않았다.
+- **fix**: 시스템 발화형 지시 20여 곳을 프레임워크 귀속 관측형으로 전환(sizePct는 데이터로만 유지·렌더 금지, 출처 귀속 교육 서술과 안전 테스트 픽스처는 보존), `hyg<76` 제거(신용은 FRED HY OAS 실측 블록으로 일원화), 첫 방문 비차단 면책 바 신설(localStorage 1회 확인), 스크리너 kalman 컬럼 (연구) 라벨, AI not-structured+현재성 수치 응답에 "자동 검증 미통과" 비차단 고지, T221 관측형 재작성.
+- **violated_rule**: R340 계열(검증 안 된 입력의 판정 승격 — 이번엔 값이 아니라 '지시문'이 승격 대상이었음), R25(P713과 동일 클래스 `hyg` 임계의 3번째 표면 — Weinstein/MTF/score), WP-AI0의 경계 정의(게이트가 "AI 응답"만 대상이라 정적 UI가 사각).
+- **prevention**: (a) 매매 지시 문형 게이트는 발화 주체(AI/정적)와 무관하게 적용한다 — 회귀 검출: `grep -nE "매수하세요|매도하세요|진입하세요|축소하세요|하세요.*포지션|포지션.*%.*(축소|확대)|헤지 (필수|하세요)" index.html js/*.js`(안전 픽스처·부정문 제외). (b) 달러 가격 고정 임계로 신용/스프레드를 판정하는 패턴 금지는 이제 3회 반복 — RULES 승격 요건 충족(R341 후보): `HYG.*[<>]\s*[0-9]{2}` 계열 grep을 QA에 편입. (c) 면책·공시 문구를 수정할 때는 그 공시와 모순되는 라벨이 남아있는지 결론 바/범례/가이드 전 표면을 함께 grep한다.
+- **verification**: 변경 JS 5종 node --check + index.html 인라인 12블록 전수 파스 + 헤드리스 전체 + runtime/structural/ux/critical10/a11y/vault/viewport(FULL_INIT) 게이트 재실행(결과는 CHANGELOG v53.1). 배포·커밋은 별도 지시 전 미수행.
 
 ## P713 - v53.0 - fail-closed 전수 스윕이 이중 구현 표면을 놓쳤고, 날짜 하드코딩 테스트가 이벤트 당일 CI를 죽였다
 

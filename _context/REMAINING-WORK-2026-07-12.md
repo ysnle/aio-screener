@@ -1,7 +1,7 @@
 ---
 verified_by: Codex
-last_verified: 2026-07-12
-target_version: v52.61
+last_verified: 2026-07-16
+target_version: v53.2
 status: tracked-nonblocking
 ---
 
@@ -47,3 +47,26 @@ H2-15의 남은 두 하위 slice는 사용자 확인이 필요한 항목이 아�
 - H2-13/H2-14의 미충족 연구 조건을 충족한 것으로 표현하지 않는다.
 - Firefox/WebKit/NVDA 증거 없이 PUBLIC 게이트 PASS라고 표현하지 않는다.
 - 남은 항목을 이유로 현재 v52.61 배포를 되돌리거나 재작업하지 않는다.
+
+
+## 2026-07-16 배치(P713~P715, v53.0~v53.2) 이후 남은 작업 — 다음 세션 진입점
+
+이번 배치에서 사용자가 AskUserQuestion으로 확정한 결정과 실행 결과는 CHANGELOG v53.0~v53.2, BUG-POSTMORTEM P713~P715, 메모리 `project_full_system_audit_2026-07-16` 참조. 아래는 **사용자가 이미 방향을 확정했으나 미착수/후속 확인이 남은 항목**이다.
+
+### A. 다음 세션 최우선 (사용자 확정: "이번 배치 후 착수")
+1. **전술 스코어 percentile/레짐 상대화 재설계** — 절대 임계값(vix<15, dxy>107, tnx>4.5 등)을 10년 롤링 percentile/z-score 기반으로 재설계 후 `scripts/backtest-trading-score-longrun.mjs`로 재백테스트. 통과(유의한 양의 IC) 못 하면 현행 "환경 설명값" 라벨 유지가 확정 정책. WO-2 원결과: 21일 rho=-0.165, 63일 -0.255.
+2. **IA 잔여** — 첫화면(signal 히어로) 스코어 게이지 강등(숫자 크게 쓰지 않기), 첫 방문 온보딩(브리핑/시장/학습 3버튼). 사이드바 4그룹 재편은 v53.2에서 완료.
+
+### B. 배포 후 확인 필요 (이번 배포의 후속 검증)
+3. **다음 cron 산출물 검증** — refresh-data(시간당)·refresh-screener(6h)·telegram(주기) 크론이 patched producer로 재생성한 라이브 아티팩트에서: data.json `quotes===[]`+`meta.quotesPublished:false`, screener.json 행에 `price` 부재(validator가 차단), telegram-digest topItems/broadItems에 `text` 부재·`summary`만 존재를 curl로 확인. 실패 시 producer 경로/워크플로 로그 확인.
+4. **KR 접힘 메뉴/정지 위젯의 실사용 피드백** — 지인 공유 후 한국 시장 접힘이 과한지 관찰(B1 소스 확보 시 상시 그룹 승격 + kr-home 스냅샷 카드 복원).
+
+### C. 보류 확정 (착수하지 않기로 함 — 재론 시에만)
+5. AI BYO-key: 현행(서버키+전역 캡 300/일) 유지 확정. 캡 도달 빈도가 높아지면 재론.
+6. KR 유료 데이터 소스 도입 조사: "정지 위젯 정리"로 대체 확정. 재론 트리거 = 한국 사용자 핵심 니즈 피드백.
+7. history.json 지수 종가(SPX/VIX 등 인덱스 레벨): 낮은 리스크 클래스로 유지 확정(개별 종목 아님, FRED 공식 대체 가능). 정식 공개(Gate 0 전체) 시 소스 라벨 교체 재검토.
+8. TG digest 첫 방문 443KB→193KB로 축소됨. 추가 축소(부팅 lazy)는 ETag 304 구조상 실익 낮아 no-op 확정.
+
+### D. 기존 장기 항목 (변동 없음)
+- B1(KR 무료 소스 부재)·B4(히스토리 누적 대기)·B8(CF HKG 403 완화 상태)·B9(PIT 데이터/전면 provenance/인간 접근성 실사) — `DEFERRED-BLOCKS.md` 참조.
+- 스크리너 fundamentals 커버리지 10.6%→80% 도달까지 value/quality 비활성(SEC 24종목/6h 배치 누적 중).

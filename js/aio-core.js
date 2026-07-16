@@ -2811,7 +2811,7 @@ window._aioRenderSignalRegime = function() {
         pcrEl.textContent = pcr.toFixed(2);
         pcrEl.style.color = pcr > 1.1 ? 'var(--data-green)' : pcr > 0.9 ? 'var(--data-amber)' : 'var(--data-red)';
         var pcrSub = pcrEl.nextElementSibling;
-        if (pcrSub) pcrSub.textContent = pcr > 1.1 ? '공포 심함 (역발상 매수)' : pcr > 0.9 ? '균형' : '과도한 낙관';
+        if (pcrSub) pcrSub.textContent = pcr > 1.1 ? '공포 우위 관측' : pcr > 0.9 ? '균형' : '낙관 쏠림 관측';
       } else {
         pcrEl.textContent = '—';
         var pcrSub2 = pcrEl.nextElementSibling;
@@ -3080,15 +3080,16 @@ if (typeof document !== 'undefined') {
       var posEl = document.getElementById('options-rec-position');
       var sentEl = document.getElementById('options-rec-sentiment');
       var stratEl = document.getElementById('options-rec-strategy');
-      if (posEl && pos) posEl.textContent = '💼 VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ' → 포지션 ' + pos.sizePct + '%';
+      if (posEl && pos) posEl.textContent = '💼 VIX ' + (isNaN(vixVal) ? '—' : vixVal.toFixed(1)) + ' → 변동성 환경: ' + pos.label;
       if (sentEl && sent) sentEl.textContent = '🧠 F&G ' + (isNaN(fgVal) ? '—' : fgVal) + ' → ' + sent.action;
       if (stratEl) {
+        // P714: "권장 전략" 지시형 제거 — IV 레짐별로 교과서적으로 논의되는 구조를 서술만 한다.
         var strategy;
         if (!isNaN(vixVal)) {
-          if (vixVal >= 30)      strategy = '🛡 권장 전략: Put 헤지 + Long Volatility (IV 높음 → IV crush 위험. CSP 매도는 회복 후)';
-          else if (vixVal >= 20) strategy = '⚠️ 권장 전략: Covered Call (IV 보통+ → premium 수익). Long Vol 신중.';
-          else if (vixVal >= 15) strategy = '✓ 권장 전략: Bull Call Spread / Covered Call (IV 정상 Risk-On)';
-          else                   strategy = '🔥 권장 전략: Long Volatility (VIX <15 → IV 저점 매수 기회). Naked Call/Put 매도 자제.';
+          if (vixVal >= 30)      strategy = 'IV 레짐 참고: 고IV 구간 — 교과서적으로 프리미엄 매도측이 IV crush를 경계하고 보호 구조가 논의되는 환경(지시 아님).';
+          else if (vixVal >= 20) strategy = 'IV 레짐 참고: 중상 IV — 프리미엄 수취 구조가 자주 논의되는 환경. 방향 판단은 별도 근거 필요.';
+          else if (vixVal >= 15) strategy = 'IV 레짐 참고: 정상 IV — 방향성 스프레드류가 교과서적으로 논의되는 환경.';
+          else                   strategy = 'IV 레짐 참고: 저IV — 역사적으로 변동성 매수측에 유리했다고 서술되는 환경. 무담보 매도 위험이 커지는 구간.';
         } else {
           strategy = '환경 데이터 부족 — VIX 로딩 후 자동 갱신';
         }
@@ -5082,7 +5083,7 @@ function _aioDefaultDecision(pageId) {
       title: '오늘 매크로 판단',
       decision: _fomcState.allowedUse && _fomcReg.status === 'RESULT_REVIEW' ? 'FOMC 결과 확인 구간 · 유가 리스크 완화 모니터' : '금리·달러·유가 방향 확인',
       reasons: [_fomcReason, tnxTxt + ' · DXY ' + (dxy.value != null ? _aioDecisionNum(dxy.value, 1) : '미수신'), _iranReason],
-      action: '2Y/10Y·달러·WTI가 동시에 상승하면 성장주 추격을 줄이고, 완화가 지속되면 분할 매수를 유지한다.'
+      action: '관찰 프레임: 2Y/10Y·달러·WTI 동시 상승은 역사적으로 성장주에 역풍, 완화 지속은 순풍으로 서술되던 조합(지시 아님).'
     },
     fxbond: {
       title: 'FX/Rates 판단',
@@ -13339,15 +13340,19 @@ window.AIO_THRESHOLD_REGISTRY = {
 // VIX·F&G 구간별 포지션 사이즈 + 헤지 규칙을 코드로 명시.
 // ─────────────────────────────────────────────────────────────────
 window.AIO_ACTION_RULES = {
-  version: 'v49.27',
-  // VIX 기반 포지션 사이즈 규칙
+  version: 'v53.1',
+  // P714: 이 객체는 v49.27까지 "포지션 X%로 축소/풋 헤지 필수/역발상 매수" 같은 시스템 발화형
+  // 배분·매매 지시를 정적 렌더했다. 입력(VIX/F&G 절대 밴드)의 예측력이 검증된 적 없고(WO-2는
+  // 유사 입력 계열에서 음의 상관), AI 채팅 게이트는 동일 문형을 차단한다 — 정적 UI만 예외일 수
+  // 없다. 전 문구를 "역사적 변동성 관리 프레임워크의 서술(귀속·참고)"로 재작성했다. sizePct는
+  // 프레임워크 참고치 데이터로만 유지하고 지시형 렌더에 사용하지 않는다.
   positionSizing: {
     rules: [
-      { vixMax: 15, sizePct: 100, note: '정상 환경 — 셋업 기반 매매 정상 진행. 풀 포지션 가능.' },
-      { vixMax: 20, sizePct: 80,  note: '안정 → 경계 — 분할 매수만. 손절선 타이트.' },
-      { vixMax: 25, sizePct: 50,  note: '주의 — 포지션 50%로 축소. 신규 진입 보수적.' },
-      { vixMax: 30, sizePct: 30,  note: '경계 — 30%로 축소. 푸트 헤지 검토.' },
-      { vixMax: Infinity, sizePct: 15, note: '공포 — 신규 매수 중단. 기존 50%+ 축소. 풋옵션 헤지 필수.' }
+      { vixMax: 15, sizePct: 100, label: '저변동',   note: 'VIX 15 미만 — 역사적으로 낮은 변동성 환경. 변동성 관리 프레임워크는 통상 정상 노출 구간으로 분류합니다(지시 아님).' },
+      { vixMax: 20, sizePct: 80,  label: '보통',     note: 'VIX 15~20 — 보통 수준 변동성. 프레임워크상 신규 노출을 나눠 접근하는 관행이 논의되는 구간입니다.' },
+      { vixMax: 25, sizePct: 50,  label: '상승 변동', note: 'VIX 20~25 — 변동성 상승 구간. 프레임워크상 노출 축소가 논의되는 구간이나, 판단 근거는 별도로 확인해야 합니다.' },
+      { vixMax: 30, sizePct: 30,  label: '높은 변동', note: 'VIX 25~30 — 높은 변동성. 역사적으로 손실 방어 수단(헤지 등)이 검토되던 환경입니다.' },
+      { vixMax: Infinity, sizePct: 15, label: '극단 변동', note: 'VIX 30 이상 — 극단 변동성. 역사적으로 신규 위험 확대가 회피되던 환경입니다. 개별 대응은 본인 리스크 한도로 판단하세요.' }
     ],
     getRule: function(vix) {
       var v = Number(vix); if (isNaN(v)) return null;
@@ -13355,14 +13360,14 @@ window.AIO_ACTION_RULES = {
       return this.rules[this.rules.length - 1];
     }
   },
-  // F&G 기반 행동 가이드
+  // F&G 구간 관측 (행동 지시가 아니라 심리 구간 서술)
   sentimentAction: {
     rules: [
-      { fgMax: 25, action: '역발상 매수', note: '극단 공포 → 우량주 분할 매수 시작. "남들이 공포에 떨 때 탐욕을 부려라" (버핏).' },
-      { fgMax: 45, action: '관심 종목 1차 매수', note: '공포 구간 → 분할 진입. 급하지 않게.' },
-      { fgMax: 55, action: '중립 유지',    note: '중립 → 기존 전략 유지. 신규 큰 변화 자제.' },
-      { fgMax: 75, action: '추격 매수 자제', note: '탐욕 → 기존 전략 유지. 신규 추격 매수 보류.' },
-      { fgMax: 101, action: '차익실현 + 비중 축소', note: '극단 탐욕 → 포지션 축소 검토. 신규 매수 보류.' }
+      { fgMax: 25, action: '극단 공포 구간', note: '역발상 프레임워크("남들이 공포에 떨 때…" — 버핏 귀속)가 주목해온 구간이나, F&G 밴드 자체의 예측력은 검증되지 않았습니다.' },
+      { fgMax: 45, action: '공포 구간',     note: '심리 위축 구간. 프레임워크상 분할 접근이 논의되는 환경이지만 종목별 근거가 우선입니다.' },
+      { fgMax: 55, action: '중립 구간',     note: '뚜렷한 심리 쏠림 없음.' },
+      { fgMax: 75, action: '탐욕 구간',     note: '심리 과열 초입. 역사적으로 추격 진입의 성과가 불안정하던 구간으로 서술됩니다.' },
+      { fgMax: 101, action: '극단 탐욕 구간', note: '심리 과열 극단. 역발상 프레임워크가 위험 축적을 경고해온 구간입니다(지시 아님).' }
     ],
     getRule: function(fg) {
       var v = Number(fg); if (isNaN(v)) return null;
@@ -13370,25 +13375,25 @@ window.AIO_ACTION_RULES = {
       return this.rules[this.rules.length - 1];
     }
   },
-  // 통합 Action Item 생성 (VIX + F&G + breadth)
+  // 통합 환경 관측 요약 (VIX + F&G + breadth) — 매매 지시를 생성하지 않는다
   getActionPlan: function(env) {
     env = env || {};
     var pos = this.positionSizing.getRule(env.vix);
     var sent = this.sentimentAction.getRule(env.fg);
     var actions = [];
-    if (pos) actions.push('포지션: ' + pos.sizePct + '% (' + pos.note + ')');
-    if (sent) actions.push('센티먼트 행동: ' + sent.action + ' — ' + sent.note);
+    if (pos) actions.push('변동성 환경(' + pos.label + '): ' + pos.note);
+    if (sent) actions.push('심리 환경(' + sent.action + '): ' + sent.note);
     if (env.breadth50 != null) {
       var bn = Number(env.breadth50);
-      if (bn < 30) actions.push('Breadth: 시장 참여 폭 협소 — 개별 종목 위험 회피, ETF 위주.');
-      else if (bn > 70) actions.push('Breadth: 광범위 참여 — 섹터 로테이션 기회.');
+      if (bn < 30) actions.push('Breadth: 시장 참여 폭 협소 — 역사적으로 개별 종목 변동성이 지수 대비 커지던 환경.');
+      else if (bn > 70) actions.push('Breadth: 광범위 참여 — 역사적으로 섹터 간 순환이 활발하던 환경.');
     }
-    // v50.45 [자율 루프] 뉴스 인지 — 받아온 뉴스 감성/이벤트를 행동 가이드에 반영(폴백: newsSignal 없으면 기존 동작).
+    // v50.45 [자율 루프] 뉴스 인지 — 받아온 뉴스 감성/이벤트를 환경 요약에 반영(폴백: newsSignal 없으면 기존 동작).
     var newsTilt = null, ns = env.newsSignal;
     if (ns && ns.available) {
-      if (ns.bias === 'bearish') { newsTilt = 'defensive'; actions.push('📰 뉴스 경계: 부정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 신규 진입 보수적, 손절 타이트.'); }
-      else if (ns.bias === 'bullish') { newsTilt = 'constructive'; actions.push('📰 뉴스 우호: 긍정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 추세 추종 우호, 과열만 주의.'); }
-      if (ns.eventFlags && ns.eventFlags.geopolitical) actions.push('⚠️ 지정학 뉴스 활성 — 이벤트 리스크 헤지 점검.');
+      if (ns.bias === 'bearish') { newsTilt = 'defensive'; actions.push('📰 뉴스 환경: 부정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 헤드라인 리스크가 큰 국면.'); }
+      else if (ns.bias === 'bullish') { newsTilt = 'constructive'; actions.push('📰 뉴스 환경: 긍정 뉴스 우위(감성 ' + ns.sentimentScore + ') — 과열 여부를 함께 볼 국면.'); }
+      if (ns.eventFlags && ns.eventFlags.geopolitical) actions.push('⚠️ 지정학 뉴스 활성 — 이벤트 리스크 확인 필요.');
     }
     return { actions: actions, position: pos, sentiment: sent, newsTilt: newsTilt, generatedAt: new Date().toISOString() };
   }
@@ -15072,7 +15077,10 @@ window.AIO.getCritical10PageFreshnessAudit = function(opts) {
   opts = opts || {};
   var groups = window.AIO.CRITICAL_PAGE_GROUPS;
   var ids = groups.comprehensive.concat(groups.marketAnalysis);
-  var staleTokenRe = /PCE\(4\/30\)|VIX Spot 18\.36|4\/14 daily|4\/9 종가|4\/28-29|1,508|5\/4|5\/5|5\/8|5\/9|2026-04-17|외국인 7거래일|3-4월 누적|3\/5 장중|4\/8 추정|이란 재협상 재개 전망/;
+  // P715: '1,508' 리터럴 제거 — 과거 KRW 하드코드 잔재 검출용이었으나 라이브 USD/KRW 실값이
+  // 1,508원을 지날 때마다 오탐하는 구조였음(2026-07-16 실증: 서버 스냅샷 시세가 정확히 그 값).
+  // 하드코드 회귀는 T175가 data-live-price 슬롯 단위로 직접 검증한다.
+  var staleTokenRe = /PCE\(4\/30\)|VIX Spot 18\.36|4\/14 daily|4\/9 종가|4\/28-29|5\/4|5\/5|5\/8|5\/9|2026-04-17|외국인 7거래일|3-4월 누적|3\/5 장중|4\/8 추정|이란 재협상 재개 전망/;
   var pages = ids.map(function(id) {
     var profile = window.AIO.getDataRequirementProfile({ pageId: id, reason: 'critical10-audit', symbolLimit: opts.symbolLimit || 999 });
     var plan = window.AIO.getAutoFreshnessPlan ? window.AIO.getAutoFreshnessPlan({ pageId: id, reason: 'critical10-audit', symbolLimit: opts.symbolLimit || 999 }) : null;
@@ -20175,7 +20183,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.0';
+const APP_VERSION = 'v53.2';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -22713,7 +22721,6 @@ function computeTradingScore(mode) {
   const vix   = _clamp(_ldSafe('^VIX','price') || _fb.vix || 20, 5, 150);
   const vvix  = _clamp(_ldSafe('^VVIX','price') || _fb.vvix || 100, 50, 250);
   const dxy   = _clamp(_ldSafe('DX-Y.NYB','price') || _fb.dxy || 104, 80, 130);
-  const hyg   = _clamp(_ldSafe('HYG','price') || _fb.hyg || 78, 50, 100);
   const tnx   = _clamp(_ldSafe('^TNX','price') || _fb.tnx || 4.3, 0, 8);
   const oilPrice = _clamp(_ldSafe('CL=F','price') || 0, 0, 300);
   var _fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg', { maxAgeMs: 4 * 60 * 60 * 1000 }) : null;
@@ -22780,7 +22787,9 @@ function computeTradingScore(mode) {
   if (dxy > 107) macroScore -= 12;  // DXY 강세 1단계
   if (dxy > 110) macroScore -= 8;   // DXY 극단 강세 2단계 (누진)
   if (tnx > 4.5) macroScore -= 10;
-  if (hyg < 76)  macroScore -= 12;
+  // P714: `hyg < 76`(HYG 달러 가격 고정 임계) 제거 — 아래 v51.88 블록 주석이 스스로 설명하듯
+  // HYG 가격은 금리 듀레이션(~3.8y)에 오염돼 신용 레벨 판정에 부적합하고, 신용 스트레스는
+  // 이미 하단의 FRED HY OAS(bp) 실측 전용 감점 블록이 담당한다(이중 계상 겸 오염 제거).
   if (fg < 20)   macroScore -= 5;
   if (vvix > 110) macroScore -= 8;
   macroScore = Math.max(10, Math.min(90, macroScore));
@@ -22868,8 +22877,8 @@ function getScoreAdvice(score) {
   if (score >= 75) return {text:'환경 우호 구간 — 현재 입력 조합이 우호적입니다. 예측 신호가 아니므로 종목별 근거·무효화 가격을 별도로 확인하세요.', color:'var(--data-green)', action:'환경 우호'};
   if (score >= 60) return {text:'환경 양호 구간 — 현재 시장 여건은 양호하지만 점수 단독으로 진입하지 말고 종목·거래량·손익비를 확인하세요.', color:'#4ade80', action:'환경 양호'};
   if (score >= 45) return {text:'중립 구간 — 시장 방향이 혼재되어 있습니다. 신규 진입보다 기존 포지션 관리와 후보 관찰을 우선하세요.', color:'var(--data-amber)', action:'관망/보유'};
-  if (score >= 30) return {text:'주의 구간 — 시장 환경이 불리합니다. 신규 매수는 줄이고 손절선과 헤지 조건을 점검하세요.', color:'var(--data-amber)', action:'매수 자제'};
-  return {text:' 위험 구간 — 시장이 매우 불안합니다. 현금 비중을 늘리고 방어적으로 대응하세요. 패닉 매도는 금물!', color:'#ef4444', action:'현금 확보'};
+  if (score >= 30) return {text:'주의 구간 — 시장 환경 입력이 불리한 조합입니다. 역사적으로 위험 관리(손절 규율·노출 점검)가 우선시되던 국면입니다.', color:'var(--data-amber)', action:'환경 불리'};
+  return {text:'위험 구간 — 시장 환경 입력이 극단적으로 불리합니다. 역사적으로 방어적 대응이 우선시되던 환경이며, 패닉성 일괄 매매의 성과가 나빴던 구간으로 서술됩니다.', color:'#ef4444', action:'환경 극단'};
 }
 
 // ── Execution Window Score (v20+) ────────────────────────────────
@@ -26935,10 +26944,13 @@ function showTicker(tkr) {
     // 상단 공용 스트립의 "시그널 NN" 종합 점수와 같은 지표로 오인돼 "같은 화면에서 서로 다른 시장
     // 판단이 동시에 뜬다"는 모순으로 보인다(실측). 로직/임계값은 그대로 두고, 상단 스트립의 종합
     // 점수와 다른 지표임을 라벨에서 바로 구분되도록 기존 페이지에서 이미 쓰는 명칭("시장 건강도")으로 통일.
-    if (health) {
+    if (health && typeof health.score === 'number' && isFinite(health.score)) {
       var envOk = health.score >= 55;
       checks.push({ label: '시장 건강도: ' + health.score + '점', ok: envOk, note: envOk ? health.regime : '약세 환경' });
       if (envOk) pass++;
+    } else if (health) {
+      // P715: fail-closed로 score가 null일 수 있음 — "null점" 문자열 노출 방지, 명시적 미수신.
+      checks.push({ label: '시장 건강도: 미수신', ok: false, note: '필수 시세 미수신 — 판정 보류' });
     }
 
     // 4. ADR%

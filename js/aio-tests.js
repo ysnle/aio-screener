@@ -2077,17 +2077,18 @@
 
     // T458 (v50.32 데이터-무관 로직화): 20SMA 값과 색/라벨 정합 — 70%+면 amber+"과열", 아니면 비-amber.
     // (기존: 75% amber 하드 단언 → 라이브 값이 57%로 바뀌면 오실패하는 데이터-드리프트 테스트였음)
-    var b20bar = document.getElementById('bb-20sma-bar');
+    // P715 정정: 기존 단언은 "amber 색상 hue ⇔ 과열(≥70)"을 결합했지만, 공유 팔레트
+    // _bbRegime은 40~69 대역('건강'/'좁은 랠리')에도 정상적으로 amber hue를 쓴다 — US above20이
+    // 52.5로 들어온 아티팩트에서 오검출로 실증됨. P332의 원 회귀 의도는 "70%+ 에서만 '과열'
+    // override 라벨"이므로 hue가 아니라 override 경계로 검증한다.
     var b20val = document.getElementById('bb-20sma-val');
     var b20badge = document.getElementById('bb-20sma-badge');
     var v20 = b20val ? parseFloat((b20val.textContent || '').replace('%', '')) : NaN;
-    var isAmber = b20bar && /data-amber|255,\s*163/.test(b20bar.style.background || '');
     var isOverheat = b20badge && /과열/.test(b20badge.textContent || '');
-    var coherent = !b20bar || isNaN(v20) ||
-      (v20 >= 70 ? (isAmber && isOverheat) : (!isAmber && !isOverheat));
-    _assert('T458 breadth_20sma_value_color_coherent: 20SMA 값↔색/라벨 정합 (70%+ amber·과열, 그 외 비-amber)',
+    var coherent = isNaN(v20) || (v20 >= 70 ? isOverheat : !isOverheat);
+    _assert('T458 breadth_20sma_value_color_coherent: 20SMA 과열 override 라벨은 70%+에서만 (팔레트 hue 비결합 — P715 정정)',
       coherent,
-      'v20=' + v20 + ' amber=' + isAmber + ' overheat=' + isOverheat);
+      'v20=' + v20 + ' overheat=' + isOverheat);
 
     // T459: sentiment initSentimentPage Chart.js undefined 가드
     var initSrc = (typeof initSentimentPage === 'function') ? initSentimentPage.toString() : '';
@@ -4914,10 +4915,12 @@
       scAudit && typeof scAudit.issueCount === 'number',
       scAudit ? ('issueCount=' + scAudit.issueCount + ' stale=' + scAudit.staleScenarios.length) : 'api unavailable');
 
-    // T221: ACTION_RULES F&G 18 → 역발상 매수
+    // T221 (P714 재작성): ACTION_RULES F&G 18 → 극단 공포 '구간 라벨'(관측형) — 기존 '역발상 매수'
+    // 지시형 라벨은 컴플라이언스 재작성으로 제거됨. 밴드 경계(fg<25) 회귀 의도는 유지.
     var sentAct = ar && ar.sentimentAction ? ar.sentimentAction.getRule(18) : null;
-    _assert('T221 sent_action_fg18: F&G 18 → 역발상 매수',
-      sentAct && sentAct.action === '역발상 매수', sentAct ? sentAct.action : 'undefined');
+    _assert('T221 sent_action_fg18: F&G 18 → 극단 공포 구간(관측형 라벨, 지시형 금지)',
+      sentAct && sentAct.action === '극단 공포 구간' && !/매수|매도|축소|비중/.test(String(sentAct.action)),
+      sentAct ? sentAct.action : 'undefined');
 
     // T222: PAGE_PURPOSE_REGISTRY briefing.sectionOrder 우선순위 (top-5-watch 첫번째)
     var br = pr && pr.briefing ? pr.briefing.sectionOrder : null;

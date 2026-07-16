@@ -88,9 +88,11 @@ if (outPath && existsSync(outPath)) {
       for (const it of [...(prev.topItems || []), ...(prev.broadItems || [])]) {
         if (it && it.id && !prevSeen.has(it.id)) {
           prevSeen.add(it.id);
-          previousMergePool.push(it);
+          // P715: published items now carry `summary` instead of full `text` — treat the summary
+          // as the internal text-equivalent so incremental merges keep classification/selection working.
+          previousMergePool.push(it.text || !it.summary ? it : { ...it, text: it.summary });
           if (!prevObservedIds.has(it.id)) {
-            previousObservedPool.push({ id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst, score:Number(it.score || 0), tags:it.tags || [], tickers:it.tickers || [], hasText:!!String(it.text || '').trim() });
+            previousObservedPool.push({ id:it.id, channel:it.channel, datetime:it.datetime, localDateKst:it.localDateKst, score:Number(it.score || 0), tags:it.tags || [], tickers:it.tickers || [], hasText:!!String(it.text || it.summary || '').trim() });
           }
         }
       }
@@ -363,6 +365,14 @@ function previewText(text, max = 180) {
   return s.length > max ? `${s.slice(0, max - 3).replace(/\s+\S*$/, '')}...` : s;
 }
 
+// P715 (사용자 결정: "전문 제거·요약만 공개"): 공개 아티팩트의 item payload는 원문 전문 대신
+// 인용 수준의 짧은 summary만 담는다 — 소스 채널 원문 재배포를 중단하는 권리 정직화 + 아티팩트
+// 대폭 경량화. 분류/카운트/태그/티커 lineage는 전부 유지된다.
+function toSummaryItem(it) {
+  const { text, ...rest } = it;
+  return { ...rest, summary: previewText(text, 120) };
+}
+
 function bestTextForTag(tag) {
   const hit = items.filter(it => Array.isArray(it.tags) && it.tags.includes(tag) && it.text)
     .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))[0];
@@ -446,7 +456,7 @@ const digest = {
     broadSignalCount:observedItems.filter(it => it.score >= 50).length,
     selectedRawCount:selectedRawIds.size,
     selectedRawCoveragePct:eligibleTextCount ? Math.round(selectedRawIds.size / eligibleTextCount * 1000) / 10 : 0,
-    semantics:'observedItems is lightweight whole-window lineage; topItems/broadItems are capped full-text consumer payloads.'
+    semantics:'observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715).'
   },
   topicCounts,
   tickerCounts,
@@ -454,11 +464,11 @@ const digest = {
   catalysts:dynamicNarrative.catalysts,
   categories:dynamicNarrative.categories,
   pageMap:dynamicNarrative.pageMap,
-  pipelineNote:'Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; capped full text is retained separately for UI/chat/memo consumers.',
+  pipelineNote:'Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).',
   // topItems: score>=65, 梨꾨꼸??理쒕? 20媛? ?꾩껜 理쒕? 45媛? score ?대┝李⑥닚
-  topItems,
+  topItems: topItems.map(toSummaryItem), // P715: summary-only
   // broadItems: score>=50, 梨꾨꼸??理쒕? 120媛? ?꾩껜 理쒕? 400媛? datetime ?대┝李⑥닚 (?댁뒪?쇰뱶)
-  broadItems,
+  broadItems: broadItems.map(toSummaryItem), // P715: summary-only
   // Phase 3 [A1/B3] P598: `items` (the full merged/deduped set, ~1.04MB / 46% of this file's
   // pre-fix size) used to be included here too, even though the "previousMergePool" logic just
   // above (P571/R262) already documents "the digest we write never persists the full raw item

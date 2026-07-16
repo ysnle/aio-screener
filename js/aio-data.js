@@ -1344,7 +1344,7 @@ function _aioProcessTelegramItem(it) {
   // "<img src=x onerror=...>" would execute on every one of the 9 pages that render this
   // feed. Escaping here, at the single point where the raw text enters this pipeline, fixes
   // every downstream consumer at once instead of patching each render call site.
-  var raw = escHtml((it.text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim());
+  var raw = escHtml((it.text || it.summary || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim()); // P715: summary-only 아티팩트 호환
 
   // 1) 감성 판단
   var bearKw = ['급락','하락','하향','약세','사이드카','손실','주의','경계','붕괴','폭락','위험','매도','하락세','공포','리스크','충격','쇼크','제재','관세','위기'];
@@ -1425,7 +1425,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
 
     // Filter out digest separators on all pages; keep long bank/research posts on analysis pages.
     filtered = filtered.filter(function(it) {
-      var txt = it.text || '';
+      var txt = it.text || it.summary || ''; // P715: summary-only 호환
       var allowLongReport = ['market-news','briefing','macro','fxbond','fundamental','themes','theme-detail','kr-macro'].indexOf(pageId) >= 0;
       if (txt.includes('━━━━')) return false;
       if (txt.length > 600 && !allowLongReport) return false;
@@ -2035,18 +2035,18 @@ function renderScreenerResults() {
       _fcell(fs.momentum, '모멘텀', false) + _fcell(fs.trend, '추세', false) + _fcell(fs.lowvol, '저변동', false) + _fcell(fs.value, '밸류', true) + _fcell(fs.quality, '퀄리티', true) +
       // v52.16 P5j/P622: 라이브 시세는 ~85종목만 커버해 나머지 788종목은 이 셀이 영구 "—"였음 — 다른
       // 팩터 셀(RSI/시총 등)과 동일하게 SCREENER_DB 자체 필드(r.price, screener.json 서버 종가로 이미
-      // 채워짐 — _aioApplyServerScreener) 우선 표시. data-live-price는 유지해 ~85종목은 계속 실시간 갱신.
+      // 채워짐) 우선 표시했으나, P715부터 서버 아티팩트가 원시 price를 발행하지 않으므로 라이브 미커버 종목은 '—'가 정상이다. data-live-price로 커버 종목만 실시간 갱신.
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-weight:700;" data-live-price="' + escHtml(r.sym) + '">' + (typeof r.price === 'number' ? r.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+_retColor(r.ret1m)+';">' + _retText(r.ret1m) + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+_retColor(r.ret3m)+';">' + _retText(r.ret3m) + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+_retColor(r.ret6m)+';">' + _retText(r.ret6m) + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);">' + (r.rsi!=null?r.rsi:'—') + '</td>' +
       '<td style="text-align:right;padding:6px 8px;font-family:var(--font-mono);color:'+_retColor(r.pctSma50)+';">' + _retText(r.pctSma50) + '</td>' +
-      _fcell(fs.kalman, '추세신뢰도', false, '') +
+      _fcell(fs.kalman, '추세신뢰도(연구 지표 — 매매 신호 아님)', false, '') +
       '<td style="text-align:right;padding:4px 8px;" title="VCP 점수 '+( vcpScore != null ? vcpScore : '—' )+' · '+vcpStageKey+'">' + (vcpScore != null ? '<div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:'+vcpColor+';">'+vcpScore+'</div><div style="font-size:10px;color:'+vcpColor+';">'+vcpStageShort+'</div>' : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
       '<td class="scr-adv-col" style="text-align:right;padding:6px 8px;font-family:var(--font-mono);font-size:10px;">' + mcapStr + '</td>' +
       '<td class="scr-adv-col" style="text-align:center;padding:4px 8px;border-left:1px solid var(--border);">' + entryHtml + '</td>' +
-      '<td class="scr-adv-col" style="text-align:center;padding:6px 8px;border-left:1px solid var(--border);"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(r.signal) + '</span></td>' +
+      '<td class="scr-adv-col" style="text-align:center;padding:6px 8px;border-left:1px solid var(--border);"><span style="background:' + sb + ';color:' + sc + ';padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;">' + escHtml(_scrSignalLabel(r.signal)) + '</span></td>' +
       '<td class="scr-adv-col" style="padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (r.newsMemo ? escHtml(r.newsMemo) : '') + '">' + (r.newsMemo ? escHtml(r.newsMemo.slice(0, 70)) : '<span style="color:var(--text-muted);">—</span>') + '</td>' +
     '</tr>';
   });
@@ -2676,6 +2676,13 @@ function fetchWithTimeout(url, opts = {}, ms = 8000) {
 
 // ── v30.11 Task 11: CORS 프록시 레지스트리 (단일 진실 원천) ──────────────────
 const _cfWorkerUrl = () => _getApiKey('aio_cf_worker_url') || '';
+
+// P715: SCREENER_DB signal enum(BUY/HOLD/WATCH/SELL)은 내부 분류 키로만 유지하고,
+// 사용자 표면에는 관측형 라벨만 렌더한다(시스템 발화형 매매 지시 금지 — P714 연장).
+function _scrSignalLabel(sig) {
+  return { BUY:'강세 구조', HOLD:'중립', WATCH:'관찰', SELL:'약세 구조' }[sig] || sig || '—';
+}
+try { window._scrSignalLabel = _scrSignalLabel; } catch(_) {}
 
 const _PROXY_REGISTRY = {
   list: [],
@@ -17243,7 +17250,7 @@ function refreshHomeDashboard() {
       if (explanEl) explanEl.textContent = '시장 품질 약화 · 신호 약함. 리스크 자산 비중 축소, 현금 확보.';
     } else {
       signalEl.textContent = '위험 · 방어'; signalEl.style.color = '#ff5b50';
-      if (explanEl) explanEl.textContent = '극단 약세 구간 · 방어적 운용.' + (sc <= 25 ? ' 참고: 역사적으로 분할 매수 시작 시 높은 수익으로 이어진 사례.' : '');
+      if (explanEl) explanEl.textContent = '극단 약세 구간 · 역사적으로 방어적 운용이 우선시되던 환경.' + (sc <= 25 ? ' 참고: 과거 유사 극단에서 이후 수익률이 높았던 사례가 있으나 보장이 아닙니다.' : '');
     }
   }
 

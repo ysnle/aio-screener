@@ -1540,6 +1540,12 @@ export async function enrichScreener() {
   catch (e) { console.warn('[fetch-data] backtest history 실패(무시):', e && e.message || e); }
   if (backtestHistInfo) console.log(`[fetch-data] backtest history: ${backtestHistInfo.days}일 누적 (${backtestHistInfo.upsert})`);
 
+  // P715 (사용자 결정 "클라이언트 직접 fetch 전환"의 스크리너 축): 공개 아티팩트에서 종목별
+  // 원시 현재가를 재배포하지 않는다 — 파생 지표(수익률/RSI/SMA대비%/kalman/VCP)만 공개한다.
+  // 내부 계산(breadth/backtest)은 위에서 이미 closes를 소비했고, 클라이언트 현재가 컬럼은
+  // data-live-price 라이브 갱신 경로로만 채워진다(미커버 종목은 '—').
+  for (const sym in data) { if (data[sym] && 'price' in data[sym]) delete data[sym].price; }
+
   const payload = {
     asOf: new Date().toISOString(),
     factorObservedAt: breadth.segments.all.observedAt,
@@ -1746,7 +1752,13 @@ async function main() {
   }
 
   await mkdir(dirname(OUT), { recursive: true });
-  await writeFile(OUT, JSON.stringify(data, null, 1));
+  // P715 (사용자 결정 "클라이언트 직접 fetch 전환"): 공개 data.json에서 종목별 시세 재배포를
+  // 중단한다 — quotes는 내부 파생(히스토리 append·분석 프롬프트·건강도 카운트)에만 사용하고
+  // 발행 아티팩트에는 빈 배열로 담는다(소비자 배열 형태 계약 보존). meta.symbolsOk는
+  // "수집 파이프라인 건강도" 의미로 유지되어 워치독 floor(<70) 계약이 그대로 동작한다.
+  const publicData = { ...data, quotes: [] };
+  publicData.meta = { ...data.meta, quotesPublished: false, quotePolicy: 'client-direct-fetch-only(P715)' };
+  await writeFile(OUT, JSON.stringify(publicData, null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   const histInfo = await updateHistory(data);
   // Phase 3 [C3] P599: computeTradingScore 재구성 검증 하네스 — history.json이 방금 갱신됐으니

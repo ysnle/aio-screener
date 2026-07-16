@@ -172,6 +172,17 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       reasons: (gate.reasons || []).concat(['typed-claim-validation'])
     };
   }
+  // P714: typed-claim 게이트의 옵트인 공백 완화 — 모델이 claim envelope를 아예 제출하지
+  // 않으면(status 'not-structured') 검증 자체가 스킵된다. 차단하면 대화형 응답 대부분이
+  // 막히므로, 현재성 표현+숫자를 담은 비구조 응답에는 "자동 검증 미통과" 고지를 비차단으로
+  // 덧붙여 사용자가 검증된 수치와 구별할 수 있게 한다.
+  if (gate.blocked !== true && claimAudit && claimAudit.status === 'not-structured' &&
+      /(현재|지금|오늘|현시점|방금|as of)/i.test(visible) && /\d/.test(visible)) {
+    gate = Object.assign({}, gate, {
+      text: gate.text + '\n\n※ 이 답변의 수치는 typed-claim 자동 검증을 거치지 않았습니다(모델이 claim envelope 미제출). 기준시각과 원문을 직접 확인하세요.',
+      unverifiedNumericNotice: true
+    });
+  }
   var result = {
     request: request,
     pipelineVersion: request.pipelineVersion || _AIO_AI_PIPELINE_VERSION,
@@ -4286,7 +4297,7 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
           var rel = 0;
           if (Array.isArray(it.tickers)) it.tickers.forEach(function(t) { if (qLower.indexOf(t.toLowerCase()) >= 0) rel += 4; });
           if (Array.isArray(it.tags)) it.tags.forEach(function(tag) { if (qLower.indexOf(tag) >= 0) rel += 2; });
-          var textLower = (it.text || '').toLowerCase();
+          var textLower = (it.text || it.summary || '').toLowerCase(); // P715: summary-only 호환
           ['반도체','메모리','mlcc','금리','코스피','ai','etf','목표주가','달러','엔','상향','하향'].forEach(function(kw) {
             if (qLower.indexOf(kw) >= 0 && textLower.indexOf(kw) >= 0) rel += 1;
           });
@@ -4297,7 +4308,7 @@ function _buildAioIntegratedAnswerContext(ctxId, query, flags) {
           tgLines += 'telegram_individual_items (' + broadItems.length + '건 중 관련 ' + picked.length + '건):\n';
           picked.forEach(function(x) {
             var it = x.it;
-            var preview = (it.text || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
+            var preview = (it.text || it.summary || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim(); // P715
             if (preview.length > 200) preview = preview.slice(0, 197) + '...';
             var tickers = (it.tickers || []).join(',');
             tgLines += '  [' + (it.localDateKst || '').slice(5) + ' ' + it.channel + ' score=' + (it.score || 0) + (tickers ? ' t=' + tickers : '') + '] ' + preview + '\n';
@@ -5293,7 +5304,7 @@ function _simulateMacroScenario(userQuery) {
         '10Y': { direction: '-15~30bp', verdict: '🟢 안전자산 도피 → 채권 매수' },
         Gold: { direction: '+1~3%', verdict: '🟢 안전자산 수혜' },
         'Quality': { direction: 'Defensive OW · High-Beta UW', verdict: '🔴 방어주 OW, 베타↑ 종목 회피' },
-        'Marks Pendulum': { direction: '비관 극단 진입 → 6~12개월 비대칭 매수 기회', verdict: '🟢 역발상 매수 시그널' }
+        'Marks Pendulum': { direction: '비관 극단 진입 — Marks 프레임워크가 6~12개월 비대칭 구간으로 서술', verdict: '🟢 역발상 프레임 주목 구간(Marks 귀속, 지시 아님)' }
       };
       break;
     case 'spx-crash':
