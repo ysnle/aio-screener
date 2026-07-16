@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-16T08:38:17.815Z",
+ "generatedAt": "2026-07-16T14:29:40.305Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 80,
+ "stored": 83,
  "attempted": 24,
  "updated": 3,
  "failures": [
@@ -97,7 +97,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 575,
+ "nextRefreshCandidates": 572,
  "data": {
   "A": {
    "symbol": "A",
@@ -2572,6 +2572,90 @@
    "roe": 14.7,
    "pe": 31.23,
    "pb": 4.6
+  },
+  "BXP": {
+   "symbol": "BXP",
+   "cik": "0001037540",
+   "entityName": "BXP, INC.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-27",
+   "fetchedAt": "2026-07-16T14:29:38.684Z",
+   "form": "10-K",
+   "accession": "0001037540-26-000006",
+   "revenue": 3482279000,
+   "netIncome": 276800000,
+   "equity": 7684702000,
+   "sharesOutstanding": 158629124,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 2.2,
+   "margin": 7.9,
+   "roe": 3.6
+  },
+  "C": {
+   "symbol": "C",
+   "cik": "0000831001",
+   "entityName": "Citigroup Inc",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-20",
+   "fetchedAt": "2026-07-16T14:29:39.482Z",
+   "form": "10-K",
+   "accession": "0000831001-26-000011",
+   "revenue": 85225000000,
+   "netIncome": 14306000000,
+   "equity": 213822000000,
+   "sharesOutstanding": 1749319009,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 5.6,
+   "margin": 16.8,
+   "roe": 6.7
+  },
+  "CAG": {
+   "symbol": "CAG",
+   "cik": "0000023217",
+   "entityName": "CONAGRA BRANDS, INC.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2026-05-31",
+   "filedAt": "2026-07-15",
+   "fetchedAt": "2026-07-16T14:29:40.154Z",
+   "form": "10-K",
+   "accession": "0001104659-26-083905",
+   "revenue": 11281600000,
+   "netIncome": -1916200000,
+   "equity": 6357600000,
+   "sharesOutstanding": 478565642,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": -2.9,
+   "margin": -17,
+   "roe": -30.1
   }
  }
 }
