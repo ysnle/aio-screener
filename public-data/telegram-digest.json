@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-16T06:05:17.487Z",
-  "attemptedAt": "2026-07-16T06:05:17.487Z",
-  "lastSuccessfulAt": "2026-07-16T06:05:17.487Z",
+  "generatedAt": "2026-07-16T08:35:00.871Z",
+  "attemptedAt": "2026-07-16T08:35:00.871Z",
+  "lastSuccessfulAt": "2026-07-16T08:35:00.871Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-02T06:05:13.310Z",
-  "until": "2026-07-16T06:05:13.310Z",
+  "since": "2026-07-02T08:34:55.724Z",
+  "until": "2026-07-16T08:34:55.724Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,41 +13,540 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 143,
+      "count": 147,
       "freshCount": 37,
       "eligibleTextCount": 37,
       "selectedCount": 129,
       "error": null,
-      "lastPostId": 23615
+      "lastPostId": 23619
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 3,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 143,
-      "freshCount": 33,
-      "eligibleTextCount": 30,
+      "count": 169,
+      "freshCount": 50,
+      "eligibleTextCount": 46,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 58483
+      "lastPostId": 58521
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 132,
+      "count": 136,
       "freshCount": 40,
       "eligibleTextCount": 40,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 19131
+      "lastPostId": 19135
     }
   ],
-  "count": 418,
-  "retainedItemCount": 418,
+  "count": 452,
+  "retainedItemCount": 434,
   "observedItems": [
+    {
+      "id": "insidertracking/58521",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T08:20:52.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 56,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19135",
+      "channel": "bornlupin",
+      "datetime": "2026-07-16T08:18:36.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 91,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58520",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T08:15:16.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58518",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T08:13:03.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "TSM",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19134",
+      "channel": "bornlupin",
+      "datetime": "2026-07-16T08:12:44.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 84,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19133",
+      "channel": "bornlupin",
+      "datetime": "2026-07-16T08:12:29.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 89,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58517",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T08:05:27.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23619",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-16T07:56:39.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 71,
+      "tags": [
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58516",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:56:16.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23618",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-16T07:44:13.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58515",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:38:50.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58514",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:37:42.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "aetherjapanresearch/23617",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-16T07:37:15.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58513",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:35:12.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23616",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-16T07:34:48.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 52,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [
+        "035420.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58511",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:28:27.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 65,
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58510",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:26:54.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58507",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:25:09.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58506",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:24:51.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 60,
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58500",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:22:46.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58499",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:14:52.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58498",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T07:13:21.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 47,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [
+        "035420.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58497",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:49:58.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "TSM",
+        "NKE",
+        "8035.T",
+        "6702.T"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58496",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:47:55.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 97,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58495",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:42:45.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 39,
+      "tags": [
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58491",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:30:03.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58490",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:27:54.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58489",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:26:47.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 80,
+      "tags": [
+        "macro",
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMZN",
+        "MU",
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58488",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:20:08.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19132",
+      "channel": "bornlupin",
+      "datetime": "2026-07-16T06:19:06.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 73,
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58487",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:18:50.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 52,
+      "tags": [
+        "semi",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58486",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:18:48.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 79,
+      "tags": [
+        "credit",
+        "macro",
+        "equity"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58485",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:10:13.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 73,
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58484",
+      "channel": "insidertracking",
+      "datetime": "2026-07-16T06:06:18.000Z",
+      "localDateKst": "2026-07-16",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
     {
       "id": "insidertracking/58483",
       "channel": "insidertracking",
@@ -730,7 +1229,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58453",
@@ -742,7 +1241,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58452",
@@ -754,7 +1253,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23603",
@@ -792,7 +1291,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58449",
@@ -804,7 +1303,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58448",
@@ -816,7 +1315,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58447",
@@ -829,7 +1328,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58444",
@@ -841,7 +1340,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58443",
@@ -854,7 +1353,7 @@
         "insider"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58441",
@@ -1874,7 +2373,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19103",
@@ -1924,7 +2423,7 @@
         "005930.KS",
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19101",
@@ -2037,7 +2536,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58333",
@@ -2224,7 +2723,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58299",
@@ -2253,7 +2752,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58296",
@@ -2321,7 +2820,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23575",
@@ -2352,7 +2851,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19092",
@@ -2371,7 +2870,7 @@
         "000660.KS",
         "BCS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58293",
@@ -6361,51 +6860,54 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 418,
-    "eligibleTextCount": 107,
-    "mediaOnlyCount": 311,
-    "highSignalCount": 240,
-    "broadSignalCount": 382,
+    "observedCount": 452,
+    "eligibleTextCount": 123,
+    "mediaOnlyCount": 329,
+    "highSignalCount": 252,
+    "broadSignalCount": 400,
     "selectedRawCount": 371,
-    "selectedRawCoveragePct": 346.7,
+    "selectedRawCoveragePct": 301.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped full-text consumer payloads."
   },
   "topicCounts": {
-    "macro": 220,
-    "semi": 296,
-    "earnings": 45,
-    "media-only": 3,
-    "kr-market": 99,
-    "japan": 4,
-    "market-note": 13,
-    "power": 120,
-    "geo": 112,
-    "healthcare": 6,
-    "equity": 91,
+    "semi": 312,
+    "macro": 231,
+    "power": 124,
+    "ai-policy": 47,
+    "japan": 10,
+    "geo": 116,
+    "kr-market": 105,
+    "earnings": 55,
+    "flows": 10,
+    "market-note": 24,
+    "equity": 96,
+    "media-only": 4,
+    "healthcare": 7,
+    "credit": 24,
     "optical": 17,
-    "flows": 7,
-    "credit": 23,
-    "ai-policy": 44,
     "insider": 4,
     "crypto": 2
   },
   "tickerCounts": {
-    "TSM": 65,
+    "005930.KS": 18,
+    "NVDA": 34,
+    "TSM": 76,
+    "000660.KS": 20,
+    "035420.KS": 8,
+    "MSFT": 17,
+    "NKE": 1,
+    "8035.T": 1,
+    "6702.T": 1,
+    "AMZN": 25,
+    "MU": 50,
     "016360.KS": 1,
-    "005930.KS": 15,
-    "000660.KS": 19,
-    "MU": 49,
     "6981.T": 2,
-    "035420.KS": 6,
     "META": 35,
     "CRWV": 1,
     "SNDK": 3,
     "ORCL": 10,
     "BE": 10,
     "AAPL": 20,
-    "MSFT": 16,
-    "AMZN": 24,
-    "NVDA": 30,
     "GOOG": 24,
     "IONQ": 1,
     "AVGO": 23,
@@ -6427,24 +6929,24 @@
     "MTSI": 1
   },
   "themes": [
-    "Semiconductors/Memory (296 posts in current window): 월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될...",
-    "Macro/Rates (220 posts in current window): 월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될...",
-    "AI Power/Grid (120 posts in current window): 월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될...",
-    "Geopolitics (112 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 16일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 인플레이션이 여전히 목표치를 크게 상회하지만 현재의 통화정책은 적절한 수준이라고 평가. 연말 물가 둔화와 중장기 2% 목표 달성을 전망하면서도 중동 공급망 리스크와 AI 투자 영향은...",
-    "Korea Market (99 posts in current window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 2026년 7월 16일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.18%) > 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS...",
-    "Equity/Analyst (91 posts in current window): 월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될...",
-    "Earnings/Corporate (45 posts in current window): Citi) Intel 프리뷰: 투자자들의 관심은 파운드리 고객사와 CPU 수요에 집중 CITI의 견해 인텔은 7월 23일 장 마감 후 실적을 발표합니다. 우리의 2Q26 매출/EPS 전망치는 144억 달러(전분기 대비 6% 증가)/0.24달러로 컨센서스인 143.6억 달러/0.21달러를 상회하며, 3Q26...",
-    "AI Policy/Export Controls (44 posts in current window): 월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될..."
+    "Semiconductors/Memory (312 posts in current window): 2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중....",
+    "Macro/Rates (231 posts in current window): 2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중....",
+    "AI Power/Grid (124 posts in current window): 2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중....",
+    "Geopolitics (116 posts in current window): 2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중....",
+    "Korea Market (105 posts in current window): 2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중....",
+    "Equity/Analyst (96 posts in current window): Pre-Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를 환영. · 미국, 브라질산 일부 수입품에 7월 22일부터 25% 관세 부과 결정. 쇠고기와 커피는 대상에서...",
+    "Earnings/Corporate (55 posts in current window): 2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중....",
+    "AI Policy/Export Controls (47 posts in current window): Pre-Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를 환영. · 미국, 브라질산 일부 수입품에 7월 22일부터 25% 관세 부과 결정. 쇠고기와 커피는 대상에서..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 65,
-      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 16일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 인플레이션이 여전히 목표치를 크게 상회하지만 현재의 통화정책은 적절한 수준이라고 평가. 연말 물가 둔화와 중장기 2% 목표 달성을 전망하면서도 중동 공급망 리스크와 AI 투자 영향은..."
+      "count": 76,
+      "text": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "key": "MU",
-      "count": 49,
+      "count": 50,
       "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 2026년 7월 16일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.18%) > 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS..."
     },
     {
@@ -6454,8 +6956,8 @@
     },
     {
       "key": "NVDA",
-      "count": 30,
-      "text": "Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 협상을 원하고 있다며 협상 여부 또는 군사행동 확대 여부를 곧 결정할 것이라고 발언. · 트럼프 대통령, 연말 인플레이션 둔화를 전망하며 금리 인상보다 동결 또는 인하가 바람직하다고 언급. ·..."
+      "count": 34,
+      "text": "Pre-Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를 환영. · 미국, 브라질산 일부 수입품에 7월 22일부터 25% 관세 부과 결정. 쇠고기와 커피는 대상에서..."
     },
     {
       "key": "AMD",
@@ -6464,7 +6966,7 @@
     },
     {
       "key": "AMZN",
-      "count": 24,
+      "count": 25,
       "text": "KeyBanc) 반도체: 아시아 테이크어웨이 – 메모리 혼조 속 아날로그 호조 지속 (2026.7.13) ■ 총평 KeyBanc는 최근 아시아 출장 이후 다수 기업의 추정치와 목표주가를 수정했습니다. 핵심은 데이터센터 수요의 지속적인 강세가 반도체 전반에 광범위한 파급효과를 일으키고 있다는 점으로, 메모리 부족과..."
     },
     {
@@ -6478,24 +6980,24 @@
       "text": "Citi) Intel 프리뷰: 투자자들의 관심은 파운드리 고객사와 CPU 수요에 집중 CITI의 견해 인텔은 7월 23일 장 마감 후 실적을 발표합니다. 우리의 2Q26 매출/EPS 전망치는 144억 달러(전분기 대비 6% 증가)/0.24달러로 컨센서스인 143.6억 달러/0.21달러를 상회하며, 3Q26..."
     },
     {
+      "key": "000660.KS",
+      "count": 20,
+      "text": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
+    },
+    {
       "key": "AAPL",
       "count": 20,
       "text": "Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 협상을 원하고 있다며 협상 여부 또는 군사행동 확대 여부를 곧 결정할 것이라고 발언. · 트럼프 대통령, 연말 인플레이션 둔화를 전망하며 금리 인상보다 동결 또는 인하가 바람직하다고 언급. ·..."
     },
     {
-      "key": "000660.KS",
-      "count": 19,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 2026년 7월 16일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.18%) > 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS..."
+      "key": "005930.KS",
+      "count": 18,
+      "text": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "key": "MSFT",
-      "count": 16,
-      "text": "Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 협상을 원하고 있다며 협상 여부 또는 군사행동 확대 여부를 곧 결정할 것이라고 발언. · 트럼프 대통령, 연말 인플레이션 둔화를 전망하며 금리 인상보다 동결 또는 인하가 바람직하다고 언급. ·..."
-    },
-    {
-      "key": "005930.KS",
-      "count": 15,
-      "text": "메타(Meta), 컴퓨팅 용량 두 배 확대를 위해 9월부터 자체 AI 칩 양산 돌입 자체 AI 칩 양산: 메타는 오는 9월부터 '아이리스(Iris)'라는 코드명의 자체 인공지능(AI) 칩 생산을 시작합니다. 컴퓨팅 인프라 확대: 올해 7기가와트(GW) 규모의 컴퓨팅 인프라를 구축하고, 내년(2027년)에는 이를 두..."
+      "count": 17,
+      "text": "Pre-Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를 환영. · 미국, 브라질산 일부 수입품에 7월 22일부터 25% 관세 부과 결정. 쇠고기와 커피는 대상에서..."
     }
   ],
   "categories": [
@@ -6505,8 +7007,8 @@
       "topics": [
         "macro"
       ],
-      "count": 220,
-      "focus": "월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될..."
+      "count": 231,
+      "focus": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "id": "geo",
@@ -6514,8 +7016,8 @@
       "topics": [
         "geo"
       ],
-      "count": 112,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 16일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 인플레이션이 여전히 목표치를 크게 상회하지만 현재의 통화정책은 적절한 수준이라고 평가. 연말 물가 둔화와 중장기 2% 목표 달성을 전망하면서도 중동 공급망 리스크와 AI 투자 영향은..."
+      "count": 116,
+      "focus": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "id": "credit",
@@ -6523,7 +7025,7 @@
       "topics": [
         "credit"
       ],
-      "count": 23,
+      "count": 24,
       "focus": "월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될..."
     },
     {
@@ -6532,8 +7034,8 @@
       "topics": [
         "semi"
       ],
-      "count": 296,
-      "focus": "월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될..."
+      "count": 312,
+      "focus": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "id": "optical",
@@ -6550,8 +7052,8 @@
       "topics": [
         "power"
       ],
-      "count": 120,
-      "focus": "월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될..."
+      "count": 124,
+      "focus": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "id": "ai-policy",
@@ -6559,8 +7061,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 44,
-      "focus": "월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될..."
+      "count": 47,
+      "focus": "Pre-Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를 환영. · 미국, 브라질산 일부 수입품에 7월 22일부터 25% 관세 부과 결정. 쇠고기와 커피는 대상에서..."
     },
     {
       "id": "kr-market",
@@ -6568,8 +7070,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 99,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 2026년 7월 16일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (53.18%) > 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS..."
+      "count": 105,
+      "focus": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "id": "equity",
@@ -6577,8 +7079,8 @@
       "topics": [
         "equity"
       ],
-      "count": 91,
-      "focus": "월가 은행들, AI ‘슈퍼 사이클’로 딜 및 금융 활성화 기대 글로벌 기술 기업들이 AI 인프라를 구축하기 위해 자금을 대거 조달하면서 월가 투자은행들이 수수료 호황을 누리고 있습니다. 최근 기술주 주가가 조정을 받고 있지만, 주요 은행 CEO들은 AI 투자 사이클이 이제 시작 단계에 불과하며 장기적으로 지속될..."
+      "count": 96,
+      "focus": "Pre-Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를 환영. · 미국, 브라질산 일부 수입품에 7월 22일부터 25% 관세 부과 결정. 쇠고기와 커피는 대상에서..."
     },
     {
       "id": "crypto",
@@ -6595,8 +7097,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 45,
-      "focus": "Citi) Intel 프리뷰: 투자자들의 관심은 파운드리 고객사와 CPU 수요에 집중 CITI의 견해 인텔은 7월 23일 장 마감 후 실적을 발표합니다. 우리의 2Q26 매출/EPS 전망치는 144억 달러(전분기 대비 6% 증가)/0.24달러로 컨센서스인 143.6억 달러/0.21달러를 상회하며, 3Q26..."
+      "count": 55,
+      "focus": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "id": "healthcare",
@@ -6604,7 +7106,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 6,
+      "count": 7,
       "focus": "Citi) Intel 프리뷰: 투자자들의 관심은 파운드리 고객사와 CPU 수요에 집중 CITI의 견해 인텔은 7월 23일 장 마감 후 실적을 발표합니다. 우리의 2Q26 매출/EPS 전망치는 144억 달러(전분기 대비 6% 증가)/0.24달러로 컨센서스인 143.6억 달러/0.21달러를 상회하며, 3Q26..."
     },
     {
@@ -6613,8 +7115,8 @@
       "topics": [
         "japan"
       ],
-      "count": 4,
-      "focus": "KeyBanc) 반도체: 아시아 테이크어웨이 – 메모리 혼조 속 아날로그 호조 지속 (2026.7.13) ■ 총평 KeyBanc는 최근 아시아 출장 이후 다수 기업의 추정치와 목표주가를 수정했습니다. 핵심은 데이터센터 수요의 지속적인 강세가 반도체 전반에 광범위한 파급효과를 일으키고 있다는 점으로, 메모리 부족과..."
+      "count": 10,
+      "focus": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중...."
     },
     {
       "id": "flows",
@@ -6622,7 +7124,7 @@
       "topics": [
         "flows"
       ],
-      "count": 7,
+      "count": 10,
       "focus": "JP모건) APAC 테크 코멘트2 Lasertec: 시장이 TSMC에서의 ASML EUV : Lasertec EUV Actinic Mask Inspection 4:1 물림 비율(tie-ratio)을 연관 짓는 가운데, ASML 실적을 앞두고 그리고 그 이후 Lasertec의 강세에 관한 것이 투자자들의 가장 많이..."
     },
     {
@@ -6640,7 +7142,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 13,
+      "count": 24,
       "focus": "금융권에 따르면 이번 사태에서 가장 큰 피해를 입은 계층은 20~30대 개인투자자였다. 전체 파산 또는 강제청산 계좌 가운데 약 62%가 20~30대 투자자로 집계됐으며, 고위험 레버리지 상품 투자 비중이 높았던 젊은 투자자들의 피해가 집중된 것으로 분석됐다. 증권업계는 최근 한 달간 개인투자자의 실제 손실 규모를..."
     }
   ],
@@ -6868,6 +7370,58 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; capped full text is retained separately for UI/chat/memo consumers.",
   "topItems": [
+    {
+      "id": "insidertracking/58518",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58518",
+      "datetime": "2026-07-16T08:13:03.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "TSM",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 100,
+      "hasText": true,
+      "text": "2026년 7월 16일 프리마켓 뉴스\n\n미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중.\n\n반도체 업종은 TSMC가 다시 AI 투자 사이클의 강도를 확인시키며 시장 심리를 주도. TSMC는 2분기 매출이 전년 대비 36%, EPS가 77% 증가하며 시장 기대를 상회했고, 2026년 연간 매출 성장률 전망을 40% 이상으로 상향하는 동시에 연간 설비투자도 600억~640억 달러로 확대. 첨단 공정 비중이 웨이퍼 매출의 77%를 차지했고 2나노 양산 확대가 3분기 성장을 견인할 것으로 제시되며 AI 인프라 투자 확대 기대를 재확인.\n\nAI 인프라 투자도 지속 확대. 일본은 로보틱스 중심의 국가 AI 전략을 위해 엔비디아 차세대 Rubin GPU 2만7,500개를 도입할 계획이며, 관련 데이터센터는 2028년 가동 예정. 대규모 국가 AI 투자 확대는 엔비디아와 AI 공급망 전반의 중장기 수요 기대를 강화하는 요인.\n\n반면 메모리 업종은 변동성 확대. 미국 국제무역위원회(ITC)가 DRAM 및 관련 제품에 대한 337조사를 개시하면서 삼성전자, SK하이닉스, 엔비디아, 구글 등이 조사 대상에 포함. 동시에 한국 금융당국은 단일 종목 레버리지 ETF 규제를 강화하고 신규 상품 출시를 제한하기로 발표. 이날 한국 증시에서는 삼성전자와 SK하이닉스가 큰 폭으로 하락했고 SK하이닉스 ADR도 미국 프리마켓에서 약세.\n\nM&A에서는 우버가 딜리버리히어로를 주당 41.5유로에 인수하는 공개매수안을 제시. 기존 보유 지분과 주요 주주의 참여로 거래 성사 가능성이 높아졌으며 글로벌 음식 배달 시장 재편 기대 확대.\n\n거시경제에서는 한국은행이 3년여 만에 기준금리를 25bp 인상하며 반도체 수출 호조와 물가 압력을 근거로 제시. 미국에서는 전일 생산자물가지수(PPI) 둔화 이후 연준의 추가 긴축 가능성이 낮아졌다는 평가가 이어지는 가운데 이날 발표될 소비와 고용지표가 금리 기대를 결정할 핵심 변수.\n\n무역 정책도 지속 부담. 미국은 브라질 일부 제품에 대해 25% 추가 관세를 확정했으며, 중국산 태양광 셀 우회 수출 여부에 대한 신규 반회피 조사도 개시. 공급망과 글로벌 제조업 전반에 추가 불확실성 요인으로 작용.\n\n중동 지정학 리스크는 여전히 상존. 이란은 미국의 추가 인프라 공격이 발생할 경우 역내 기반시설에 대한 보복을 경고하며 호르무즈 해협을 핵심 안보선으로 재확인. 동시에 우크라이나는 흑해에서 러시아의 '그림자 함대' 소속 유조선 2척을 공격했다고 발표하면서 에너지 공급망 관련 지정학적 긴장이 지속.\n\n아시아 증시는 혼조세. 일본 닛케이225는 차익실현과 반도체 약세 영향으로 하락했고, 한국 코스피는 삼성전자와 SK하이닉스 급락 영향으로 큰 폭의 조정을 기록. 반면 대만 시장은 TSMC의 호실적이 반도체 투자심리를 지지하며 상대적으로 견조한 흐름.\n\n오늘 시장은 TSMC가 확인시킨 AI 투자 확대와 미국 소비지표, 고용지표가 동시에 방향성을 결정할 전망. 장 마감 후 발표되는 넷플릭스 실적은 빅테크 실적 시즌의 첫 번째 핵심 이벤트로 기술주 투자심리에 중요한 변수가 될 가능성.\n\n작성자: 미국 주식 인사이더\n https://t.me/insidertracking"
+    },
+    {
+      "id": "insidertracking/58497",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58497",
+      "datetime": "2026-07-16T06:49:58.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "TSM",
+        "NKE",
+        "8035.T",
+        "6702.T"
+      ],
+      "score": 100,
+      "hasText": true,
+      "text": "Pre-Market Summary - 2026년 7월 16일\n\n━━━━━━━━━━━━━━\n\n 📍 미국 정치\n\n· 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를 환영.\n· 미국, 브라질산 일부 수입품에 7월 22일부터 25% 관세 부과 결정. 쇠고기와 커피는 대상에서 제외.\n· 마코 루비오 국무장관, 브라질 정부가 성실하게 협상하지 않았다며 관세 부과 배경 설명.\n· 미국·이라크, 약 600억 달러 규모 상업 협력 발표 예정.\n\n━━━━━━━━━━━━━━\n\n 📍 국제외교\n\n· 루비오 국무장관과 왕이 중국 외교부장, 필리핀 ASEAN 회의 참석 예정.\n· 필리핀 정부, 남중국해 행동수칙 협상이 2026년 중 진전될 가능성 제시.\n· 미국무부, 베트남과 수출통제 협상 타결을 확인하고 지식재산권 조사는 별도 진행.\n· 미국, 9월 미·중 관계 재점검 계획을 재확인.\n\n━━━━━━━━━━━━━━\n\n 📍 지정학\n\n· 미국, 이란에 대한 추가 공습 완료를 공식 발표.\n· 이란, 쿠웨이트 알리 알살렘 기지와 요르단 아즈라크 기지의 미군 시설을 미사일·드론으로 공격했다고 주장.\n· 요르단, 이란에서 발사된 미사일 8기를 요격했다고 발표.\n· 이란, 미국 MQ-9 리퍼 드론 격추를 주장하고 호르무즈 해협 개입은 레드라인이라고 경고.\n· 미국과 이스라엘 국방당국, 이란 대응 공조를 지속 확인.\n· IEA, 호르무즈 해협이 수주 내 재개되지 않으면 글로벌 에너지 위기가 발생할 수 있다고 경고.\n· 우크라이나, 해상 드론으로 러시아 그림자 선단을 공격했다고 발표.\n· 젤렌스키 대통령, 세르히 코레츠키를 신임 총리로 지명.\n\n━━━━━━━━━━━━━━\n\n 📍 연준 및 미국 경제\n\n· 미국 CPI와 PPI 둔화 영향으로 연준 추가 금리인상 기대는 완화.\n· 중동 긴장과 유가 상승이 향후 인플레이션 재상승 위험으로 부각.\n\n━━━━━━━━━━━━━━\n\n 📍 AI 및 빅테크\n\n· NVIDIA, Jetson Thor 공개와 함께 Toyota, Hitachi, NTT DATA, ENEOS 등과 피지컬 AI 협력 확대.\n· Tokyo Electron, Hitachi, Omron, Fujitsu, FANUC, 야스카와전기, Kawasaki Heavy 등 일본 기업들이 NVIDIA 기반 산업용 AI·로보틱스 생태계 확대.\n· Anthropic, IPO를 앞두고 수십억 달러 규모 신용한도 확대 협상 진행.\n· 미국, 중국 AI 견제를 강화하는 정책 기조 유지.\n\n━━━━━━━━━━━━━━\n\n 📍 반도체\n\n· TSMC 2분기 순이익 7,066억 대만달러로 시장 예상 크게 상회.\n· TSMC 3분기 매출 가이던스 446억~458억 달러로 컨센서스 상회.\n· TSMC, 2026년 CAPEX를 600억~640억 달러로 상향.\n· TSMC, AI 수요가 매우 강하며 2030년까지 성장세 지속 전망.\n· TSMC, 미국 투자 규모를 1,000억 달러 추가 확대하고 애리조나에서 N2 공정과 첨단 패키징 투자 추진.\n· TSMC, 애리조나 추가 공장 4곳도 검토 중이라고 발표.\n· TSMC, 첨단 패키징 공급은 여전히 타이트한 상태라고 설명.\n· TSMC, 대만에서도 첨단 반도체·패키징 공장 13개 건설 추진.\n· TSMC, A14 공정은 2028년 양산, A13·A12 공정은 2029년 양산 목표 유지.\n\n━━━━━━━━━━━━━━\n\n 📍 미국 주식 및 기업\n\n· Microsoft Xbox, 제니맥스 미디어에서 379명 감원.\n· Nike, 관세 환급금 3억200만 달러 수령. 추가 6억8,400만 달러는 미수령.\n· Uber, Delivery Hero에 주당 41.5유로 현금 인수 제안.\n· Uber, 2031년까지 독일에 20억 유로 추가 투자 계획.\n· United Airlines, 유가 상승으로 올해 연료비가 약 60억 달러 증가할 것으로 전망.\n· 일라이 릴리, 정신질환 치료제 기업 Atai Beckley 인수 협상 근접.\n\n━━━━━━━━━━━━━━\n\n 📍 원자재 및 에너지\n\n· WTI 유가 80달러를 상회하며 4거래일 연속 상승.\n· 중동 긴장과 호르무즈 해협 리스크가 원유 공급 우려 확대.\n· 금은 연준 긴축 기대 완화와 지정학 리스크 속 4,050달러 부근 유지.\n· 철광석 가격은 공급 증가와 중국 수요 둔화 우려로 하락.\n· BHP, 연간 철광석 생산은 사상 최대 기록을 유지하고 구리 중심 투자 전략 지속.\n· BHP와 이토추, 호주 Ministers North 철광석 프로젝트 최종 투자 결정.\n\n━━━━━━━━━━━━━━\n\n 📍 글로벌 경제 및 중앙은행\n\n· 한국은행, 기준금리를 예상대로 2.75%로 25bp 인상.\n· 한국은행, 올해 성장률이 기존 2.6% 전망을 크게 상회할 것으로 평가.\n· 한국은행, 2분기 GDP가 기존 0.2% 전망을 웃돌 것으로 예상.\n· 한국은행, 물가는 장기간 높은 수준을 유지할 가능성이 있으며 추가 대응은 데이터에 따라 결정.\n· 한국은행, 8월 경제전망에서 성장률 상향 가능성을 시사.\n· 일본 재무장관, 통화정책은 BOJ 소관이며 필요 시 환율시장 개입 준비가 돼 있다고 발언.\n· BOJ 고위 관계자, 통화정책 정상화 지연 시 인플레이션과 경기 둔화 위험이 커질 수 있다고 경고.\n· 일본 장기 국채금리 상승세 지속.\n· 영국 5월 GDP는 전월 대비 0.1% 증가하며 예상 상회.\n· 영국 서비스업은 개선됐지만 산업생산과 건설은 부진.\n· 중국 인민은행, 6,260억 위안 역레포 실시로 유동성 공급.\n\n━━━━━━━━━━━━━━\n\n 📍 암호화폐\n\n·특이사항 없음\n\n━━━━━━━━━━━━━━\n\n프리마켓 서머리는 오늘 아침부터 현재까지 있던 주요 뉴스들을 정리한 포스트입니다.\n\n작성자: 미국 주식 인사이더\n https://t.me/insidertracking"
+    },
     {
       "id": "bornlupin/19121",
       "channel": "bornlupin",
@@ -7506,31 +8060,6 @@
       "text": "Citi 미국 반도체 및 하드웨어; 주간 인베스터 펄스: RAISE 서밋 주요 시사점\n\n씨티의 견해\n우리는 지난주 RAISE 2026 AI 서밋을 청취하고 주요 시사점을 정리했습니다. 우리는 AMD를 1순위(에이전틱 CPU 수요), CBRS를 2순위(순수 고속 인퍼런스 플레이)로 유지하며, 가치 메가캡 컴퓨트 반도체 내에서는 NVDA를 1순위, AVGO를 2순위로 선호합니다.\n\nAI 수요: 토큰 집약적인 에이전틱 워크플로우와 실제 코드 생성 애플리케이션의 폭발적 성장이 AI 인퍼런스 인프라에 대한 전례 없는 수요를 견인하고 있습니다. 머신러닝 컴퓨트 요구량은 현재 전년 대비 약 10배 수준으로 확대되고 있습니다. 닷컴 시대와 달리, 오늘날의 AI 인프라 지출은 수억 달러, 많은 경우 수십억 달러 규모의 실질적인 매출을 창출하는 기업들에 의해 뒷받침되고 있습니다. 수요 전망은 여전히 매우 견조하지만, 사모 크레딧과 부채 금융에 대한 의존도가 높아지는 점은 투자 사이클의 리스크 요인으로 작용합니다.\n\n전통적 챗봇을 대체하는 AI 인턴: 선도 AI 랩들은 기존 챗봇을 넘어, 코딩 툴과 자율적 리서치 기능을 갖춘 AI 네이티브 \"인턴\"으로 점차 이동하고 있습니다. 고도화된 모델들은 이제 엔지니어링, 소프트웨어 제작, 리서치 워크플로우를 지원함으로써 자기 자신의 개발을 재귀적으로 가속화하고 있습니다. 이러한 자기강화적 플라이휠은 주요 모델 출시 주기를 기존의 6~9개월 주기에서 월 단위 반복으로 압축시키며 혁신 속도를 크게 높이고 있습니다.\n\n하드웨어 디스어그리게이션(분리): 하이퍼스케일러들은 기존 엔비디아 GPU 배치에서 더 큰 효율을 끌어내기 위해 분리형 인퍼런스 아키텍처를 빠르게 채택하고 있습니다. GPU AI 클러스터에만 의존하기보다, 지연에 민감한 인퍼런스, 실시간 툴 사용, 에이전틱 태스크 실행 등 개별 워크로드에 최적화된 특화 인프라를 구축하고 있습니다. 이러한 아키텍처 전환은 AI 워크로드가 다양해짐에 따라 점점 더 중요해지고 있습니다.\n\nCPU의 부활: GPU가 모델 학습의 지배적 플랫폼으로 남아 있는 가운데, 에이전틱 AI 워크로드가 확대되면서 CPU가 의미 있는 부활을 경험하고 있습니다. 복잡한 인퍼런스 파이프라인, 오케스트레이션 레이어, 강화학습 환경, 엔터프라이즈 AI 에이전트는 점점 더 CPU 집약적 처리에 의존하고 있으며, 이는 범용 컴퓨트의 시장 규모를 확대시키고 있습니다.\n\n메모리 스퀴즈: 데이터센터가 전 세계 메모리 반도체의 약 70%를 소비하는 궤도에 올라 있으며, 이는 광범위한 전자 생태계 전반으로 파급될 수 있는 공급 제약을 만들고 있습니다. 주요 하이퍼스케일러들은 이미 생산 캐파를 확보하기 위해 다년간의 공급 계약을 추진하고 있습니다. 산업의 수급 역학은 신규 생산 캐파가 가동될 것으로 예상되는 최소 2028년까지는 의미 있는 완화가 나타나지 않을 수 있음을 시사합니다.\n\n하이퍼스케일러 커스텀 실리콘: 전통적인 CPU 및 GPU 아키텍처는 네트워킹, 전력, 효율성 병목에 의해 점점 더 제약을 받고 있습니다. 이에 대응해 하이퍼스케일러들은 AI 워크로드 전용으로 설계된 커스텀 실리콘에 대한 투자를 가속화하고 있습니다. 이 칩들은 내부 인프라에서 구동되는 특정 모델, 인퍼런스 태스크, 에이전틱 워크플로우에 맞춰 최적화되어 있습니다. 구글의 최신 로드맵은 저지연 인퍼런스(8i)와 대규모 모델 학습(8t)에 각각 전용 실리콘 플랫폼을 두는 형태로 이러한 특화를 보여주며, 워크로드별 컴퓨트 아키텍처로 향하는 업계의 광범위한 움직임을 부각시킵니다.\n\nKV 캐시 병목: 멀티턴 에이전틱 워크플로우의 비용이 계속 상승함에 따라, 하이퍼스케일러들은 컨텍스트 메모리 관리 최적화에 점점 더 집중하고 있습니다. 핵심 전략 중 하나는 KV 캐시 데이터를 값비싼 GPU에서 저비용 스토리지 레이어로 오프로드하여 중복 연산을 줄이고 시스템 활용도를 개선하는 것입니다. 이러한 기법은 95%를 넘는 캐시 히트율을 달성하고, 첫 토큰까지의 지연 시간을 20배 단축하며, 인퍼런스 비용을 실질적으로 낮출 수 있습니다. 나아가 플래시가 부족한 상황이기 때문에, 대규모 AI 데이터셋을 위해 하드디스크 드라이브를 포함한 하이브리드 스토리지 아키텍처가 다시 부상하고 있습니다.\n\n경쟁 우위로서의 지연 시간: 엔터프라이즈 환경에서 인퍼런스 속도는 사용자 채택과 생산성을 결정짓는 핵심 요인이 되고 있습니다. 응답 시간이 빨라지면 워크플로우 마찰이 줄고, 컨텍스트 전환이 최소화되며, 사용자가 점점 더 정교한 코딩 및 분석 작업에 도전하도록 유도합니다. LLM 최신 모델들은 Cerebras 하드웨어에서 초당 750토큰으로 구동될 수 있으며, 이는 표준 GPU 플릿보다 한 자릿수 단위(약 10배) 빠른 수준입니다.\n\n엣지 AI와 소형 언어 모델: 중앙집중식 클라우드 인프라에 대한 압력이 커지면서 엣지 컴퓨팅과 특화된 소형 언어 모델(SLM)로의 전환이 가속화되고 있습니다. 기업들은 도메인 전문성을 제공하면서도 훨씬 가벼운 하드웨어 풋프린트에서 구동되는 태스크 특화 모델을 점점 더 많이 배포하고 있습니다. 엔비디아 RTX Spark 슈퍼칩과 같은 칩들은 AI 에이전트가 클라우드 의존 없이 소비자용 및 상업용 윈도우 디바이스에서 네이티브로 구동될 수 있도록 지원하고 있습니다."
     },
     {
-      "id": "insidertracking/58136",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58136",
-      "datetime": "2026-07-12T21:37:28.000Z",
-      "localDateKst": "2026-07-13",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity"
-      ],
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "META",
-        "AMZN",
-        "MU",
-        "RKLB"
-      ],
-      "score": 100,
-      "text": "미국 레딧 게시물 분석\n(2026년 7월 12일 00:00~06:30 기준)\n\n> 🌍 중동 전쟁 / SPY\n\n· \"폭격 = 매수\" 밈이 다시 지배\n· 추가 공습 뉴스에도 \"War is bullish\"\n· \"Missiles fly, time to buy\"\n· 휴전 루머 ↔️ 추가 공습 반복에도 시장은 무감각\n· 시장은 이제 전쟁보다 불확실성 해소를 더 중요하게 보는 분위기\n· 베어들은 -1~-2% 갭다운 외치지만 조롱당하는 중\n\n 🧠 NVDA / AI 반도체\n\n· \"Forward PER 18배에 성장 60~70%면 공짜\"\n· NVDA 콜 매수 계속 등장\n· \"Generational buying opportunity\"\n· AI 투자 축소는 없다는 의견 우세\n· 하이퍼스케일러 CapEx 경쟁은 계속된다는 DD 반복\n· AI 버블보다 AI 투자 지속론이 우세\n\n 💾 MU / SK하이닉스 / 메모리\n\n· MU 장기 강세론 여전\n· \"MU는 내년에 2000달러\"\n· MU 콜옵션 인증 지속\n· SK하이닉스 매수 언급 증가\n· 메모리 롱은 아직 끝나지 않았다는 분위기\n\n ⚡️ AI 인프라 / 데이터센터\n\n· GLXY 계속 언급\n· Terawulf(WULF) 기대감 유지\n· APLD 언급 지속\n· 데이터센터 CapEx 확대가 핵심 투자 논리\n· \"AI arms race는 멈출 수 없다\"는 의견 반복\n\n 🚀 우주\n\n· RKLB 풀포트\n· LUNR 풀포트\n· ASTS 언급 지속\n· 여전히 고변동 YOLO 플레이\n\n 🎬 NFLX / 실적 플레이\n\n· NFLX 올인 인증\n· 실적(Straddle) 베팅 증가\n· CPI와 함께 이번 주 대표 이벤트 취급\n\n 🛢 원유\n\n· 유가 상승 기대와 실제 가격 괴리 불만\n· USO 콜 기대\n· \"전쟁인데 왜 유가 안 오르냐\" 불만 반복\n\n 📈 기타 종목\n\n· TSLA 월요일 0DTE 콜 밈 지속\n· MSFT 장기 롱 의견\n· GOOG 추가 매수\n· META 풋 베팅 일부 등장\n· AMZN 평화 뉴스 기대\n· KO 장기 시총 확대 농담\n· COST/WMT 밸류에이션 토론\n\n 🔥 현재 WSB 전체 시장 심리\n\n· 베어보다 불이 훨씬 많음\n· 전쟁 뉴스조차 상승 재료 취급\n· \"Blood is bullish\"\n· \"War is bullish\"\n· \"Bombs = ATH\"\n· 프리장보다 오픈 직후 방향에 베팅 집중\n· 0DTE YOLO 분위기 매우 강함\n· 콜과 풋을 동시에 언급하는 단타 매매 증가\n· Theta(시간가치 손실) 농담과 GUH(대규모 손실) 밈도 활발\n· MU, NVDA, AI 인프라가 여전히 WSB의 핵심 컬트 테마\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
-    },
-    {
       "id": "bornlupin/19025",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19025",
@@ -7552,30 +8081,6 @@
       ],
       "score": 100,
       "text": "[하나증권 반도체 김록호]\nIndustry Research\n\n자료 링크: https://vo.la/dypMSL6\n\n반도체/소부장(Overweight): 글로벌 실적 시즌 진입. 실적으로 우려 해소 기대\n\n■ 데이터 포인트 및 주간 리뷰: DRAM 수출 단가 반등\n\n- 7월 10일 영업일 평균 메모리 반도체 수출 금액은 전년동기대비 200% 증가한 9.9억 달러를 기록. 구체적으로 DRAM은 437% 증가한 5.6억 달러, NAND는 211% 증가한 0.6억 달러를 달성. MCP와 SSD는 각각 42%, 178% 증가한 2.6억 달러, 0.9억 달러를 기록. 메모리 가격의 견조한 상승이 지속되며, 전년동월대비 큰 폭의 증가세가 유지. 6월 DRAM 수출 단가가 전월대비 하락하며 우려 포인트가 되었는데, 10일 잠정치 기준 전월대비 반등에 성공한 만큼 긍정적 주가 움직임 기대\n\n- 코스피 지수는 7.3% 하락하며 3주 연속 부진했고 낙폭도 크게 나타났음. 삼성전자 7.9%, SK하이닉스 10.1% 하락하며 2주 연속 지수를 하회. 삼성전자는 충당금 등을 제외하면 메모리 영업이익이 100조원을 상회한 것으로 추정. 양호한 실적 발표에도 불구하고 국내 메모리 업체들의 주가 변동폭이 크게 나타남. Micron 0.4%, Nanya 7% 상승을 감안하면, 국내 업체들의 주가가 유독 많이 하락했다는 것을 알 수 있음. 업황 및 실적이 아니라 수급 영향이 컸을 가능성이 높음. 4~6월 주가 상승 구간에서 쏠림 현상이 심했던 만큼 이를 소화하는 과정이 진행된 것으로 추정\n\n- 코스닥 지수는 3.6% 하락하며 한 주만에 반락. 최근 메모리 업체들의 주가 하락으로 코스피 낙폭이 컸던 구간에서 상대적으로 선방하는 모습. 연초 이후 하락폭이 9.5%에 달하고 있어 재조명이 필요한 상황이라 판단. 다만, 반도체 관련 서플라이 체인들의 주가는 지수를 크게 상회하고 있음. 하나증권이 커버하고 있는 전공정 장비 업체들은 금요일 크게 반등하며 주간 움직임이 양 전환으로 마무리. 누차 언급하고 있는 것처럼 전공정 장비 업체들은 외형 성장 가시성을 기반으로 글로벌 업체들과 동행 가능하다는 측변에서 지속 추천 가능한 업종군이라 판단\n\n■ 전망 및 전략: 다시 온 비중확대 기회. TSMC, ASML 실적 발표\n\n- 국내 메모리 업체들의 주가가 2주 연속 부진. 매크로 및 Apple 및 Meta발 리스크로 인해 글로벌 전체적으로도 반도체 관련 업체들의 주가가 부진. 다만, Micron이 0.7%, Nanya가 7% 상승한 주간에 국내 메모리 업체들의 주가가 10% 가까이 하락한 것은 이해하기 어려움. 7월 DRAM 수출 단가의 반등, SK하이닉스의 ADR 13% 상승을 감안하면 이번 주에는 주가 반등이 기대. 업황과 실적을 감안하면 최근의 주가 하락을 비중확대 기회로 활용 가능하다고 판단\n\n- 하나증권은 Nvidia발 LPDDR 강한 수요가 DRAM 가격 상승을 견인하는 드라이버라 판단. 아울러 2027년 HBM 가격 협상 역시 실적 상향의 또 다른 축. 실적 상향 조정이 마무리되기 전까지 주가의 우상향이 가능하다는 기존 생각에 변함 없음\n\n- 7월 15일 ASML의 실적 발표 예정. 최근 글로벌 상위 메모리 및 파운드리 업체들의 Capex 기조를 감안하면, 반도체 장비 시장 전망치에 대한 상향 언급 및 긍정적 가이던스 제시 기대. 17일에는 TSMC 실적 발표 예상. 3개월 합산 매출액은 이미 긍정적으로 확인되었고, GPM 개선 여부 및 양호한 가이던스 제시를 확인해야 함. 아울러 Capex 상향 가능성도 높을 것으로 예상. AI 수요에 대한 과잉 논란이 불거져 있기 때문에 TSMC 실적 발표를 통해 이러한 우려 완화되길 기대\n\n■ 미국 반도체 기업 업데이트\n\n- 이번 주 미국 반도체 업종은 AI 반도체 강세가 이어진 가운데 AI 인프라(ASIC·네트워킹) 관련 종목이 강세\n\n- Broadcom은 Apple과의 커스텀 ASIC 공급 계약을 2031년까지 연장한다는 소식에 11.0% 상승\n\n- Nvidia는 AI GPU 수요 강세와 AI 인프라 투자 확대 기대감이 지속되며 8.3% 상승\n\n■ 대만 반도체 기업 업데이트\n\n- 이번 주 대만 반도체 업종은 하이퍼스케일러의 AI CAPEX 지속 가능성에 대한 우려로 전반적인 투자심리 위축\n\n- 이에 AI 서버 및 ASIC 관련 종목을 중심으로 차익실현 매물이 출회되며 낙폭 확대(Global Unichip(GUC) -18.6%, Alchip -14.0%)\n\n(컴플라이언스 승인을 득함)"
-    },
-    {
-      "id": "insidertracking/58095",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58095",
-      "datetime": "2026-07-12T07:06:50.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "semi",
-        "power",
-        "kr-market",
-        "equity"
-      ],
-      "tickers": [
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "TSM",
-        "AAOI",
-        "ORCL",
-        "RKLB"
-      ],
-      "score": 100,
-      "text": "서학개미 순매수 미국 주식 TOP 50 (26년 7월 누적)\n\n> 기간: 2026/07/01 ~ 2026/07/10\n\n1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (31.47%)\n2위: DIREXION SHARES ETF TRUST DAILY MSCI SOUTH KOREA BULL (5.75%)\n3위: MICROSOFT CORP (4.86%)\n4위: IRIS ENERGY LTD (4.49%)\n5위: TRADR 2X LONG SNDK DAILY ETF (3.88%)\n6위: PROSHARES ULTRA QQQ ETF (3.73%)\n7위: ALPHABET INC CL A (3.57%)\n8위: INVESCO NASDAQ 100 ETF (2.72%)\n9위: ROUNDHILL T-REX 2X LONG DRAM DAILY TARGET ETF (2.68%)\n10위: APPLIED MATERIALS INC (2.67%)\n\n11위: SPACE EXPLORATION TECHN-CL A (2.46%)\n12위: OKTA INC (2.32%)\n13위: GUARDANT HEALTH INC (2.02%)\n14위: ROCKET LAB CORPORATION (1.96%)\n15위: PROSHARES ULTRAPRO QQQ ETF (1.85%)\n16위: VANGUARD SP 500 ETF (1.81%)\n17위: INVESCO QQQ TRUST SRS 1 ETF (1.43%)\n18위: ULTRA CLEAN HOLDINGS INC (1.08%)\n19위: SPDR SP 500 ETF TRUST (1.04%)\n20위: NAVAN INC-CL A (1.03%)\n\n21위: SCHWAB US DIVIDEND EQUITY ETF (1.03%)\n22위: T-REX 2X LONG SNDK DAILY TARGET ETF (0.98%)\n23위: NATERA INC (0.97%)\n24위: ORACLE CORP (0.97%)\n25위: J.P. MORGAN NASDAQ EQUITY PREMIUM INCOME ETF (0.96%)\n26위: DEFIAN DIY TT 2X LO IREN ETF (0.93%)\n27위: APPLIED OPTOELECTRONICS INC (0.88%)\n28위: NEOS NASDAQ 100 HIGH INCOME ETF (0.87%)\n29위: SPDR PORTFOLIO SP 500 ETF (0.71%)\n30위: IONQ INC (0.68%)\n\n31위: MICROSTRATEGY INC CL A (0.66%)\n32위: AMAZON.COM INC (0.65%)\n33위: POWELL INDUSTRIES INC (0.58%)\n34위: CATERPILLAR INC (0.58%)\n35위: DEFINCE D TRGT 2X L ORCL ETF (0.55%)\n36위: CoreWeave Inc (0.51%)\n37위: TAIWAN SEMICONDUCTOR MANUFACTURING CO LTD ADR (0.45%)\n38위: NUSCALE POWER CORP CL A (0.43%)\n39위: HINGE HEALTH INC (0.43%)\n40위: ALPHA ARCHITECT 1-3 MONTH BOX ETF (0.36%)\n\n41위: SILICON MOTION TECHNOLOGY CORP ADR (0.34%)\n42위: GOLDMAN SACHS NASDAQ 100 CORE PREMIUM INCOME ETF (0.34%)\n43위: T-REX 2X LONG MSTR DAILY TARGET ETF (0.33%)\n44위: STABLECOINX INC (0.31%)\n45위: SNOWFLAKE INC (0.29%)\n46위: ELI LILLY & CO (0.29%)\n47위: PROSHARES ULTRA SEMICONDUCTORS ETF (0.29%)\n48위: INFLEQTION INC (0.28%)\n49위: DATADOG INC CL A (0.28%)\n50위: DEFIANCE DAILY TARGET 2X LONG IONQ ETF (0.26%)\n\n ✅ 요약 분석\n\n총 순매수 금액: 2,438,903,263 USD\n(약 3조 7,112억 원, 평균 환율 1,521.69원 기준)\n\n ✅ 각 종목 옆에 있는 %는 전체 순매수 금액중에서 비중을 뜻합니다\n\n작성자: 미국 주식 인사이더\n출처: 한국예탁결제원"
     },
     {
       "id": "bornlupin/19019",
@@ -7872,6 +8377,344 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/58521",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58521",
+      "datetime": "2026-07-16T08:20:52.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 56,
+      "hasText": true,
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n넷리스트, 미국 ITC DRAM 특허 조사 개시…\n\n> 삼성전자·엔비디아·구글 등 포함\n\n 📍 조사 대상\n\n· 삼성전자\n· 삼성전자 미국법인\n· 삼성반도체 미국법인\n· 구글\n· 슈퍼마이크로컴퓨터\n· 엔비디아\n· 브로드컴\n\n 📍 조사 내용\n\n· 미국 국제무역위원회(USITC), DRAM 및 이를 포함한 제품에 대한 Section 337 조사 개시\n· 조사 대상은 DDR5 DIMM, HBM, 이를 포함한 서버·컴퓨팅 시스템·스토리지 시스템 등\n\n 📍 조사 배경\n\n· 넷리스트, 2026년 6월 16일 ITC에 특허 침해 소송 제기\n· 6월 24일과 25일 소장을 보완 제출\n· 미국 특허 제12,646,537호 및 제12,650,937호 침해 주장\n· 미국 내 산업 요건 충족도 함께 주장\n\n 📍 넷리스트 요청 사항\n\n· 제한적 수입금지명령(Limited Exclusion Order) 발령 요청\n· 판매중지명령(Cease and Desist Order) 발령 요청\n\n 📍 현재 진행 상황\n\n· ITC는 조사 개시만 결정\n· 사건의 본안에 대해서는 아직 어떠한 판단도 내리지 않았다고 명시\n· 행정판사(ALJ)가 배정돼 심리 진행 예정\n· ALJ가 Section 337 위반 여부에 대한 최초 결정을 내리고, 이후 ITC가 이를 검토 예정\n\n 📍 향후 절차\n\n· 조사 개시 후 45일 이내 조사 완료 목표일(Target Date) 설정 예정\n· ITC가 최종적으로 Section 337 위반 여부 결정\n· 구제명령이 발령될 경우 즉시 효력 발생\n· 미국 무역대표부(USTR)가 60일 이내 정책상 사유로 거부하지 않으면 최종 확정\n\n작성자: 미국 주식 인사이더\n https://t.me/insidertracking"
+    },
+    {
+      "id": "bornlupin/19135",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19135",
+      "datetime": "2026-07-16T08:18:36.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "score": 91,
+      "hasText": true,
+      "text": "엔비디아-일본 정부 및 산업 리더, 세계 최초 '국가 피지컬 AI 인프라' 구축\n엔비디아가 일본의 노에트라(Noetra) 및 경제산업성(METI)과 협력하여 물리적 AI(Physical AI)와 로보틱스 혁신을 이끌 국가급 AI 인프라를 구축합니다.\n\n 1. 핵심 인프라 스펙 및 규모\n 하드웨어: 엔비디아의 최신 '베라(Vera) CPU' 13,750개와 '루빈(Rubin) GPU' 27,500개를 탑재한 대규모 AI 팩토리를 건설합니다.\n\n 성능 및 네트워크: 140메가와트(MW) 용량의 데이터 센터로, 엔비디아 DSX ™ 플랫폼과 Spectrum-X ™ 이더넷 네트워킹을 기반으로 설계 하여 전력 효율과 AI 학습 속도를 극대화합니다. 향후 조(Trillion) 단위 매개변수 규모의 초거대 AI 모델 학습까지 지원할 예정입니다.\n\n 2. 'FRONTia 프로젝트' 지원과 기술 개방\n\n 국가적 프로젝트 지원: 이번 인프라는 일본 경제산업성(METI)이 주도하는 'FRONTia 프로젝트'(로봇 및 물리 AI를 위한 멀티모달 기초 모델 개발)의 핵심 컴퓨팅 기반 이 됩니다.\n\n 생태계 활성화: 개발된 멀티모달 AI 모델의 사전 학습 가중치(Pretrained weights)를 일본 내 개발자와 기업들에게 널리 공유합니다. 또한 엔비디아의 코스모스(Cosmos), 아이작(Isaac) GR00T 등 로보틱스 개발 소프트웨어도 함께 제공하여 일본 제조업, 물류, 의료 산업의 AI 전환을 돕습니다.\n\n 3. 일본의 AI 로봇 시장 목표\n일본 정부는 지난 3월 발표한 'AI 로봇 전략'을 통해 2040년까지 글로벌 AI 로봇 시장의 30% 이상(약 1,330억 달러 규모)을 점유하겠다는 목표를 제시 했습니다. 이번 AI 팩토리는 이 목표를 달성하기 위한 핵심 디딤돌 역할을 합니다.\n\n 젠슨 황 (엔비디아 설립자 겸 CEO):\n\"현대 제조업을 발명한 일본이 이제 다음 산업 혁명을 이끌 AI 팩토리를 짓고 있습니다 . 일본의 선두 기업들과 협력해 국가 경제와 혁신을 이끌 AI 인프라를 구축하게 되어 기쁩니다.\"\n\n 아카자와 료세이 (일본 경제산업상):\n \"FRONTia 프로젝트는 일본 물리 AI 생태계의 핵심입니다. 엔비디아를 비롯한 글로벌 혁신 기업들과 협업하고 일본의 현장 기술력을 결합해, 신뢰성 높은 기초 모델을 만들어 글로벌 사회 문제를 해결하겠습니다.\"\n\n 단바 히로노부 (노에트라 CEO):\n \"물리 AI를 현실 세계에 적용하려면 엄청난 컴퓨터 자원과 기술이 필요합니다. 단일 기업이 해결할 수 없는 이 과제를 위해, 국내외 파트너들과 힘을 합쳐 연구 결과를 널리 공유하고 일본 산업 전반에 AI 도입을 앞당기겠습니다.\"\n\n https://nvidianews.nvidia.com/news/japan-government-industrial-leaders-and-nvidia-launch-the-worlds-first-national-ai-infrastructure"
+    },
+    {
+      "id": "insidertracking/58520",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58520",
+      "datetime": "2026-07-16T08:15:16.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 51,
+      "hasText": true,
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n미국 국제무역위원회(ITC)가 특정 DRAM 장치 및 해당 하위 제품·부품(II)에 대한 337조 조사(조사번호: 337-TA-1511)를 공식 개시.\n\n이번 조사는 미국 내 특허권 침해 및 불공정 무역행위 여부를 대상으로 진행되며, 삼성전자, 구글, 엔비디아 등을 포함한 다수 기업이 피소 기업으로 지정됨.\n\n미국 국제무역위원회는 사건 접수 이후 45일 이내에 조사 종료 목표 시점을 확정할 예정.\n\n337조 조사에서 미국 국제무역위원회가 수입금지 명령이나 판매중지 명령 등 구제 조치를 발령할 경우, 미국 무역대표부(USTR)가 정책적 사유로 거부권을 행사하지 않는 한 명령 발효 즉시 효력이 발생하며, 발효 후 60일이 지나면 최종 효력을 갖게 됨."
+    },
+    {
+      "id": "insidertracking/58518",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58518",
+      "datetime": "2026-07-16T08:13:03.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "TSM",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 100,
+      "hasText": true,
+      "text": "2026년 7월 16일 프리마켓 뉴스\n\n미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은 소매판매, 신규 실업수당 청구건수, 필라델피아 연은 제조업지수와 장 마감 후 발표되는 넷플릭스 실적으로 집중.\n\n반도체 업종은 TSMC가 다시 AI 투자 사이클의 강도를 확인시키며 시장 심리를 주도. TSMC는 2분기 매출이 전년 대비 36%, EPS가 77% 증가하며 시장 기대를 상회했고, 2026년 연간 매출 성장률 전망을 40% 이상으로 상향하는 동시에 연간 설비투자도 600억~640억 달러로 확대. 첨단 공정 비중이 웨이퍼 매출의 77%를 차지했고 2나노 양산 확대가 3분기 성장을 견인할 것으로 제시되며 AI 인프라 투자 확대 기대를 재확인.\n\nAI 인프라 투자도 지속 확대. 일본은 로보틱스 중심의 국가 AI 전략을 위해 엔비디아 차세대 Rubin GPU 2만7,500개를 도입할 계획이며, 관련 데이터센터는 2028년 가동 예정. 대규모 국가 AI 투자 확대는 엔비디아와 AI 공급망 전반의 중장기 수요 기대를 강화하는 요인.\n\n반면 메모리 업종은 변동성 확대. 미국 국제무역위원회(ITC)가 DRAM 및 관련 제품에 대한 337조사를 개시하면서 삼성전자, SK하이닉스, 엔비디아, 구글 등이 조사 대상에 포함. 동시에 한국 금융당국은 단일 종목 레버리지 ETF 규제를 강화하고 신규 상품 출시를 제한하기로 발표. 이날 한국 증시에서는 삼성전자와 SK하이닉스가 큰 폭으로 하락했고 SK하이닉스 ADR도 미국 프리마켓에서 약세.\n\nM&A에서는 우버가 딜리버리히어로를 주당 41.5유로에 인수하는 공개매수안을 제시. 기존 보유 지분과 주요 주주의 참여로 거래 성사 가능성이 높아졌으며 글로벌 음식 배달 시장 재편 기대 확대.\n\n거시경제에서는 한국은행이 3년여 만에 기준금리를 25bp 인상하며 반도체 수출 호조와 물가 압력을 근거로 제시. 미국에서는 전일 생산자물가지수(PPI) 둔화 이후 연준의 추가 긴축 가능성이 낮아졌다는 평가가 이어지는 가운데 이날 발표될 소비와 고용지표가 금리 기대를 결정할 핵심 변수.\n\n무역 정책도 지속 부담. 미국은 브라질 일부 제품에 대해 25% 추가 관세를 확정했으며, 중국산 태양광 셀 우회 수출 여부에 대한 신규 반회피 조사도 개시. 공급망과 글로벌 제조업 전반에 추가 불확실성 요인으로 작용.\n\n중동 지정학 리스크는 여전히 상존. 이란은 미국의 추가 인프라 공격이 발생할 경우 역내 기반시설에 대한 보복을 경고하며 호르무즈 해협을 핵심 안보선으로 재확인. 동시에 우크라이나는 흑해에서 러시아의 '그림자 함대' 소속 유조선 2척을 공격했다고 발표하면서 에너지 공급망 관련 지정학적 긴장이 지속.\n\n아시아 증시는 혼조세. 일본 닛케이225는 차익실현과 반도체 약세 영향으로 하락했고, 한국 코스피는 삼성전자와 SK하이닉스 급락 영향으로 큰 폭의 조정을 기록. 반면 대만 시장은 TSMC의 호실적이 반도체 투자심리를 지지하며 상대적으로 견조한 흐름.\n\n오늘 시장은 TSMC가 확인시킨 AI 투자 확대와 미국 소비지표, 고용지표가 동시에 방향성을 결정할 전망. 장 마감 후 발표되는 넷플릭스 실적은 빅테크 실적 시즌의 첫 번째 핵심 이벤트로 기술주 투자심리에 중요한 변수가 될 가능성.\n\n작성자: 미국 주식 인사이더\n https://t.me/insidertracking"
+    },
+    {
+      "id": "bornlupin/19134",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19134",
+      "datetime": "2026-07-16T08:12:44.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 84,
+      "hasText": true,
+      "text": "#TSMC 2Q26 컨퍼런스콜 주요 Comment 및 Q&A 정리(2)\n_다올 반도체 고영민\n\nQ. PC 컴퓨터 부문에서 차세대 패키징 기술인 COUPE 플랫폼이 매출에 기여를 하게 되는 시점은?\n- 현재 소량 생산을 개시하였으며, 향후 램프업이 진행될 예정\n- AI 데이터센터의 전력 소모 감축 및 대역폭 확장 요구 → COUPE 플랫폼의 수요는 지속 증가하여 향후 수년 내 핵심적인 기술 플랫폼으로 부상 기대\n\n Q. 올해 연간 CapEx과 가이드라인을 상향한 가운데, Agentic AI 및 CPU 부문의 성장세와 기존 AI 가속기 부문 간의 수요 가시성 및 성장 잠재력을 비교해 준다면?\n- CPU, GPU, 가속기(XPU) 모두 TSMC의 최첨단 선단 공정을 공통적으로 사용하며 자사의 생태계 안에 있음\n- 고객사와의 긴밀한 사전 협력을 통해 칩셋 간의 최적의 패키징 비중을 유지할 수 있도록 웨이퍼 공급 할당을 유연하게 조율 예정\n\n Q. CoWoS 패키징의 레티클 크기를 14배 이상으로 확장하는 것 외에 글라스 기판이나 글라스 코어 등 차세대 재료 기술의 개발 현황과 일정은 어떻게 되는가?\n- 현재 주력 솔루션은 CoWoS 패키징이며, 이와 동시에 생산 원가를 낮추기 위해 기판 파트너사들과 함께 대체 기술을 다각도로 개발 중\n- 현재 관련 생산 라인을 구축하고 시제품을 생산 중\n→ 기술적 성숙도를 완성하여 실제 상업 양산에 적용하기까지는 약 1년의 시간이 추가 소요될 것으로 예상\n\nQ. 향후 중장기 매출 성장률을 정량적으로 전망해 줄 수 있는가? 아울러 이번 CapEx 증액을 이끈 핵심 수요 동인은?\n- CapEx는 철저히 시장 수요 예측에 기반한 것\n- 이번 CapEx 증액 및 수요 증가를 견인한 핵심 동인은 모바일이나 엣지 등의 요인보다 '전적으로 AI와 관련된 모든 수요'에 기인\n\nQ. 후공정 분야에서 인텔 등 경쟁사들의 추격으로 전체 파운드리 비즈니스 가치가 일부 잠식 당할 우려는?\n- 전공정 웨이퍼 비즈니스와 후공정 비즈니스는 근본적으로 영역이 다른 별개의 사업 분야\n- 현재 당사의 첨단 패키징 캐파는 심각한 쇼티지 상태 → 경쟁사의 대안적인 패키징 솔루션은 공급망의 병목 완화\n- 당사의 전공정 웨이퍼 비즈니스에 긍정적인 상생 효과 기대\n\nQ. 노광 필드 크기 축소에 따른 '다이 스티칭' 기술적 과제가 High-NA 장비 도입을 늦추는 걸림돌이 될 것이라 보는지?\n- High-NA EUV 도입 시 발생할 수 있는 노광 필드 크기 감소(기존 대비 1/2 수준) 등의 기술적 특성과 이로 인한 공정 비용 영향을 이미 내부 제조원가 산정에 면밀히 반영\n- 제조 파트너사인 ASML과 긴밀히 협력하여 '기술적 성숙도'와 '제조 원가 효율성' 측면에서 실제 양산에 적합한 시점에 해당 기술을 도입한다는 원칙을 고수\n\n Q. CapEx가 증액된 현 시점에서 이전 심포지엄에서 제시했던 2나노, 3나노, 5나노 캐파의 성장률 로드맵은 유효한가?\n- 기술 심포지엄 당시 공유했던 선단 공정 캐파 성장 전망 수치는 현재의 강력한 시장 수요를 반영하여 당시 예측했던 규모보다 더 확대된 상황\n\nQ. 첨단 패키징 부문만 별도로 분리하여 CapEx를 공시하지 않는 이유는?\n- 계획 수립 시 전공정과 후공정 간의 투자 효율성을 극대화하기 위해 자금을 유연하게 배분\n→ 최근에는 일부 고객사의 최첨단 칩 테스트 요구사 늘어남에 따라 테스트 장비 부족 현상이 심화되어 해당 분야에 투자를 늘리는 등 유동적인 상황 발생\n\n Q. 올해 초 전망치와 비교하여 약 100억달러 증액된 CapEx 가이드라인의 배경은?\n- 고객사들의 공급량 확대 요구의 지속적인 증가\n- 글로벌 인플레이션 영향으로 반도체 장비의 구매 단가 자체 상승\n\nQ. 성숙공정의 실제 수급 다이내믹과 가격 전망은?\n- 세부 세그먼트에 따라 철저히 양극화되어 있으며, 오직 'AI 산업과 직접 연계된 공정'에서만 쇼티지가 발생\n→ PMIC, 센서 등 AI데이터센터의 필수적인 요소들에 대한 강한 수요\n→ 반면 일반 스마트폰이나 PC 등 IT 소비자 가전 제품과 연계된 성숙 공정 분야는 쇼티지가 없음\n\n 📨 DAOL 반도체: https://t.me/Semi_Ko"
+    },
+    {
+      "id": "bornlupin/19133",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19133",
+      "datetime": "2026-07-16T08:12:29.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 89,
+      "hasText": true,
+      "text": "#TSMC 2Q26 컨퍼런스콜 주요 Comment 및 Q&A 정리(1)\n _다올 반도체 고영민\n\n ▶️ 가이던스(&#036;Bil)\n» 3Q26\n- 매출액: 44.6~45.8\n→ 기존 컨센서스: 43.1\n- GPM: 65~67%\n→ 기존 컨센서스: 65.9%\n- OPM: 56~58%\n\n» 26년\n- 매출액: YoY+40% 이상 성장 전망 (상향)\n- CapEx: &#036;60~64B (상향)\n\n ▶️ 총마진 관련\n- 당분기 GPM 67.7% (QoQ +1.5%p)\n→ 원가 개선 노력 및 전반적인 가동률 상승 영향, 해외 팹 마진 희석 효과로 일부 상쇄\n- 차분기 GPM 가이던스 66.0%(중간값 기준) 제시\n→ 선단 공정의 강력한 수요와 지속적인 원가 절감 노력이 지속되나, N2 램프업에 따른 마진 희석 영향 반영\n- N2 초기 램프업으로 인한 마진 희석 발생 → 하반기(2H) 기준 약 3~4%p 수준 희석 예상\n- 향후 몇 년간 해외 공장 램프업에 따른 마진 희석폭은 초기 단계 2~3%, 이후 3~4%로 확대될 것으로 예상\n\n ▶️ AI 수요 동향 및 전망\n- AI 수요 지속적으로 견조함 유지\n→ 2026년 연간 매출 성장률 가이드라인을 전년 대비 40% 이상으로 상향 조정\n- Agentic AI 가속화에 따른 수혜 집중 → 가상 비서/에이전트 AI의 부상으로 데이터센터 내 CPU의 역할이 다시 강화되며 수요 추가 견인\n→ x86, ARM, RISC-V 등 고객사의 아키텍처 경로와 무관하게 모든 CPU 설계사가 고객이므로 포괄적 수혜 기대\n- 다만 일부 소비자 및 가격 민감 부문은 위험 직면\n→ 부품 ASP 상승 및 거시경제 불확실성 영향 존재, 이에 따라 비즈니스 계획을 보수적·신중하게 운영 중\n\n ▶️ 팹 및 투자 계획\n» 미국\n- 애리조나에 1,000억 달러(US&#036; 100 Billion) 추가 투자 전격 발표\n→ 2나노 이하(2nm and below) 초선단 공정 논리 웨이퍼 팹 및 첨단 패키징(Advanced Packaging) 팹 추가 건설 목적\n- 글로벌 N3(3나노) 캐파 증설 계획의 일환으로 애리조나에 신규 N3 팹 추가 건설 진행 중\n\n» 일본\n- 구마모토 JASM 팹을 통해 고부가가치 성숙 공정 확대\n→ CMOS 이미지 센서(CIS) 등 차별화된 세그먼트 지원을 위한 캐파 확대 지속\n- 글로벌 N3(3나노) 캐파 확장의 일환으로 일본 내 신규 3나노 팹 추가 건설 진행 중\n\n» 유럽\n- 독일 ESMC 팹을 통해 차량용 및 산업용 성숙 공정 캐파 확대 추진\n→ 범용 품목이 아닌 자동차·산업 분야의 고부가가치 및 전략적 세그먼트 중심으로 공급 역량 확보\n\n» 대만\n- 향후 몇 년간 대만에 총 13개의 선단 공정 및 첨단 패키징 팹 건설 추진\n- 신주 및 가오슝에서 초선단 2나노 공정의 다단계 램프업 진행 중\n- 글로벌 N3(3나노) 수요 대응을 위한 대만 내 신규 3나노 팹 추가 건설 진행\n- 대만 내부의 기존 5나노 장비를 3나노용으로 전환하고, N7/N5/N3 노드 간 유연한 장비 최적화 지속 병행\n\n ▶️ 기술/공정\n- N2 (2나노) 공정 현황 : 스마트폰 및 HPC/AI 고객사 중심으로 매우 강력한 수요 확인, 가파른 램프업 진행 중\n- 차세대 A14 (1.4나노급) 공정 개발 순항 → 2세대 나노시트(Nanosheet) 트랜지스터 기반 공정으로 개발 순항 중 (2028년 양산 예정)\n→ N2 대비 성능 +10~15% 향상, 동일 속도에서 소비전력 25~30% 절감, 칩 밀도 약 20% 향상 제공\n→ 내부 테스트 제품(Light Vehicle)에서 디바이스 성능 및 수율 모두 90%에 육박하는 우수한 결과 확보\n\n ▶️ 주요 Q&A\nQ. 향후 3개년 CapEx 전망은 어떻게 보고 있는지?\n- 구체적인 숫자를 제시할 수는 없으나, 현재 AI 메가 트렌드에 대한 강한 확신을 바탕으로 CapEx 확대 하는 중\n- 향후 3개년 CapEx 규모를 과거 대비 한층 더 대폭 확대하여 집행하는 기조\n\nQ. 미국 애리조나에 1,000억 달러 추가 투자에 대한 구체적인 타임라인과 캐파 가동 계획은 어떻게 되는지?\n- 구체적인 일정은 철저히 시장 수요에 맞추어 유연하게 결정할 계획\n- 현재 AI 및 HPC 메가트렌드 수요가 워낙 강력하여 이번 추가 투자를 전격 결정 하게 되었음\n→ 전공정(Front-end)과 후공정(Back-end)을 합쳐 최소 4개 이상의 팹(Fabs)이 추가로 건설될 예정\n- 미국, 대만, 일본 내 신규 팹 및 생산 시설 구축 역시 가용한 리소스를 총동원하여 빠르게 추진 중\n\nQ. 경쟁사(삼성, 인텔 등)가 EUV 장비 등을 대거 확보하며 위협하고 있는데, 경쟁 우위를 어떻게 유지할 것인지?\n- 반도체 파운드리 비즈니스는 단순히 제품을 구매하는 일회성 거래가 아니라, 기술 협력부터 캐파 준비, 양산까지 최소 5년 이상 소요되는 장기적이고 긴밀한 파트너십\n- 기술적 전환비용과 진입 장벽이 매우 높기 떄문에 고객사가 단기적인 변수에 따라 쉽게 파운드리 파트너 교체는 어려움\n→ 정부 지원이나 자금력도 긍정적인 요소이지만, 파운드리 경쟁력의 본질은 ① 독보적인 기술 리더십, ② 제조 우수성, ③ 견고한 고객 신뢰에 있음\n\n Q. 지난 1월 제시했던 '향후 5년간 AI 반도체 매출 CAGR 50%대 중후반' 가이드라인을 더 상향 조정할 계획이 있는가?\n- 구체적인 성장률 수치를 오늘 당장 새롭게 제시하기는 어렵지만, AI 반도체의 중장기 성장세는 기존 전망보다 강해지고 확실히 말할 수 있음\n- 시장 수요와 성장세가 지속해서 우상향하며 끊임없이 증가하기에 특정 숫자로 한계를 두지 않고 있으며, 이것이 올해 CapEx를 증액한 실질적인 이유\n\nQ. 업계에서 경쟁사의 EMIB 등 대안 패키징 기술이 주목받고 있는데, 첨단 패키징 시장의 경쟁 구도 변화에 대해 어떻게 대응할 것인가?\n- 현재 TSMC의 첨단 패키징(CoWoS 등) 캐파는 고객사들의 강력한 수요를 감당하기에 매우 타이트한 상태\n→ 패키지 병목 상태 지속 중, 업계에 다른 대안 패키징 솔루션이 활성화되는 것을 적극적으로 환영\n- 시장에 유연성을 더해주어 TSMC 매출의 가장 큰 비중을 차지하는 전공정 웨이퍼 비즈니스의 성장에도 결과적으로 큰 도움 기대\n\n Q. 경쟁 압박이나 전력 공급, 데이터센터 건설 지연 등 외부 변수가 많은 상황에서 CapEx 계획을 어떻게 수립하는가?\n- 경쟁사 동향 분석 및 최상위 클라우드 서비스 제공업체(CSP)를 포함한 고객사 및 최종 고객사들의 수요를 탑다운과 바텀업 방식으로 평가\n- 대규모 자금이 투입되는 투자인 만큼, 고객사들이 제시하는 공격적인 예측치를 그대로 수용하지 않고 TSMC 자체적인 전략적 판단을 거쳐 CapEx를 결정\n\n Q. 내년 말까지 여전히 공급 부족 현상이 지속될 것으로 보는가?\n- 현재 시점부터 최소 2029년 혹은 2030년까지 중장기적인 반도체 수요는 매우 강력하게 유지될 것으로 전망\n- 현재 전 산업군(자동차, 휴머노이드 로봇 등)에 걸쳐 인류의 일상을 바꾸고 있는 'AI 산업'이라는 거대한 신산업의 탄생이 진행중\n- 빅테크들이 엄청난 자금을 투입하고 있는 이 중요한 신산업의 근간은 결국 '반도체 칩'이며, 그 칩들의 대부분을 TSMC가 생산\n\nQ. 장기적인 수익성 목표와 웨이퍼 Pricing 전략은?\n- TSMC의 가장 근본적인 철학은 '고객의 성공을 지원하는 파트너'가 되는 것\n- 단기적인 초과 수요 상황이나 무리하게 가격을 올리지 않으며, 고객사와의 두터운 '신뢰 관계'를 최우선으로 생각\n- 장기적이고 지속 가능한 CapEx를 감당할 수 있는 수준의 건전한 GPM을 확보하는 것을 목표\n\nQ. AI수요 급증으로 상위 5개 고객사에 대한 매출 집중도가 높이지는 리스크는 어떻게 보는가?\n- 고객 집중도는 전혀 우려하는 요인이 아니며, 오히려 기존 고객사들이 지속해서 성장하고 커지는 것에 대해 긍정적으로 생각\n- 몇 개의 대형 고객사만 커지는 것이 아니라, 현재 AI 산업 내에 새로운 플레이어들이 등장하며 성장하고 있어 고객 기반은 다변화\n\nQ. 빅테크들이 AI 수요를 지원하기 위해 직접 파이낸싱이나 지분 투자를 당행하는데 관련 계획이 있는가?\n- 고객사들에게 파이낸싱이나 금융 지원 계획은 가지고 있지 않음\n- 기존의 비즈니스 모델을 고수할 계획\n\n 📨 DAOL 반도체: https://t.me/Semi_Ko"
+    },
+    {
+      "id": "aetherjapanresearch/23619",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23619",
+      "datetime": "2026-07-16T07:56:39.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 71,
+      "hasText": true,
+      "text": "JP모건 TSMC 실적 첫인상\n\nTSMC 2분기 GM(매출총이익률)은 67.7%로, 바이사이드(buyside) 기준선 68.9% 및 JPMe(Gokul) 69.5%를 밑돌았으나 컨센서스 67.6%는 소폭 상회했습니다. N2가 웨이퍼 매출의 3%를 차지했는데, 이는 마진에 다소 기여하는 요인일 수 있습니다. 순이익(Net profit)은 더 높은 영업외(non-op) 및 세전 이익에 힘입어 서프라이즈를 기록했는데, NT&#036;862.4bn으로 당사의 NT&#036;801.6bn을 상회했습니다. 상반기 누적 캐펙스는 &#036;26.8bn이며, 바이사이드는 클린룸(cleanroom) 캐파 부족을 감안해 FY26 캐펙스를 &#036;57.8bn으로, Gokul은 &#036;58bn으로 모델링하고 있습니다. 바이사이드가 FY27/28 캐펙스를 &#036;77.6bn/&#036;86bn으로, 당사는 &#036;78bn/&#036;83.5bn으로 모델링하는 가운데, 우리는 향후 연도(outer year) 캐펙스 가이던스는 예상하지 않습니다. 투자자들은 2분기 GM을 68.4%로 모델링하는데, 이는 당사의 67.6%와 대비되며, 다만 하반기 가격 인상을 예상하는 이들을 제외하면 68%까지 낮아질(faded down) 수 있습니다."
+    },
+    {
+      "id": "aetherjapanresearch/23616",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23616",
+      "datetime": "2026-07-16T07:34:48.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [
+        "035420.KS"
+      ],
+      "score": 52,
+      "hasText": true,
+      "text": "단일종목 레버리지 예탁금 현금 3천만원 강화…20주씩 매매가능\n\n- 단일종목 레버리지 예탁금 1천만→3천만원 강화…현금만 인정\n- 단일종목 레버리지 20주씩만 매매가능…\"상품가격 현실화\"…11월 시행\n- 단일종목 레버리지 신규상장 잠정 중단…광고도 금지\n- 단일종목 레버리지 상품 사전교육 1시간 추가…총 3시간 이수 의무화\n- 투자유의종목 지정절차 3단계→2단계로 단축…괴리율 급등시 신속 대응\n- LP, 종가 괴리율 관리의무 2%로 강화…고의·중과실 위반시 업무 제한\n\n https://n.news.naver.com/article/001/0016199553?sid=101"
+    },
+    {
+      "id": "insidertracking/58511",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58511",
+      "datetime": "2026-07-16T07:28:27.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 65,
+      "hasText": true,
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n단일종목 레버리지 상품 보완방안 - 2026년 7월 16일\n\n 📍 시장 과열 대응\n\n· 관계기관, 단일종목 레버리지 상품(ETF·ETN) 보완방안 발표\n· 시장 안정 시까지 단일종목 상품 신규 상장 잠정 중단\n· 인버스·커버드콜을 포함한 단일종목 상품 신규 출시 중단\n· 기존 상장 상품의 광고 및 이벤트성 마케팅 즉시 금지\n\n 📍 추진 배경\n\n· 해외 상장 단일종목 레버리지 상품으로 국내 투자자 자금 유입 지속\n· 국내 상품은 5월 27일 출시 이후 해외 상품 투자 수요 일부 대체\n· 단일종목 상품 시가총액 4.4조원 → 11.9조원 증가\n· 거래대금 10.4조원 → 13.0조원 증가\n· 주요 메모리 반도체 기업 주가 변동성 확대에 따른 투자자 보호 필요성 제기\n\n 📍 괴리율 관리 강화\n\n· LP 괴리율 관리 기준 3% → 2%로 강화(8월 시행)\n· 고의·중과실 위반 LP는 신규 유동성공급 업무 제한 근거 마련\n· 적정 괴리율 반복 위반 ETF 운용사에 신규 ETF 상장 제한 검토\n· 투자유의종목 지정 절차 3단계 → 2단계로 단축\n\n 📍 투자자 보호 강화\n\n· 단일종목 레버리지 상품 사전교육 2시간 → 3시간 확대\n· 최근 시장 상황과 손실 사례 중심 교육 추가\n· 중간평가 60점 미만 시 해당 교육 재이수 의무화\n· MTS를 통한 손실률·장기보유 위험 안내를 자동·주기적으로 제공\n\n 📍 투자요건 강화\n\n· 기본예탁금 1천만원 → 3천만원 상향\n· 대용증권 인정 폐지\n· 현금 3천만원만 기본예탁금으로 인정\n· 국내·해외 단일종목 레버리지 상품 모두 동일 기준 적용\n· 거래 경험에 따른 기본예탁금 완화 허용 폐지\n\n 📍 매매 방식 변경\n\n· 매매수량 단위 1좌 → 20좌(잠정) 확대\n· 단일종목 레버리지 상품 가격을 기초주식 수준에 맞도록 조정\n\n 📍 향후 일정\n\n· 광고 금지 및 신규 상장 중단 즉시 시행\n· 괴리율 관리·교육 강화 등은 8월부터 순차 시행\n· 기본예탁금 3천만원은 8월 초 시행 예정\n· 현금만 인정하는 예탁금 기준은 8월 중순 시행 예정\n· 매매수량 단위 확대는 11월 시행 예정\n· 시장 불안이 지속될 경우 추가 보완방안 검토 예정\n\n작성자: 미국 주식 인사이더\n https://t.me/insidertracking"
+    },
+    {
+      "id": "insidertracking/58506",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58506",
+      "datetime": "2026-07-16T07:24:51.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 60,
+      "hasText": true,
+      "text": "https://www.fss.or.kr/fss/bbs/B0000188/view.do?nttId=219255&menuNo=200218\n\n공식 자료 나왔네요\n\n> ㅁ 관계기관은 7.16일 경제부총리 주재 시장상황점검회의 논의를 바탕으로 단일종목 레버리지 상품 보완방안을 마련,발표\n\nㅁ 국내-해외 비대칭 규제 해소 등 제도 도입 취지, 최근 전세계적으로 확대된 주요 메모리 반도체 기업 관련 주가변동성*의 추가 증가 우려, 투자자 보호 필요성 등을 균형있게 감안\n\n① [시장 내 과열경쟁 완화] 시장 안정화까지 단일종목 상품 관련 신규상장 잠정 중단 및 광고 금지\n\n② [괴리율 관리 등 투자자 보호 체계 개선] 증권사(LP),운용사의 괴리율 관리 책임 제고, 투자자 위험안내 및 사전교육(해외 포함) 추가 내실화\n\n③ [수요 안정을 위한 투자요건 강화] 단일종목 레버리지 상품 관련 기본예탁금 강화(해외 포함) 및 매매수량 단위개선(1좌 → 20좌)\n\nㅁ 관계기관은 조속한 시장 안정을 위해 사안별로 신속 추진하는 한편, 시장상황을 지속 모니터링하면서, 시장이 안정되지 않을 경우 전문가와 투자자 등과 심도 있는 논의를 거쳐 추가 조치 방안도 단계적으로 검토\n\nㅁ 이와 함께 코스닥 시장 활성화, 장기투자 기반 마련 등 자본시장 체질개선 노력도 지속해나갈 예정"
+    },
+    {
+      "id": "insidertracking/58497",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58497",
+      "datetime": "2026-07-16T06:49:58.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "TSM",
+        "NKE",
+        "8035.T",
+        "6702.T"
+      ],
+      "score": 100,
+      "hasText": true,
+      "text": "Pre-Market Summary - 2026년 7월 16일\n\n━━━━━━━━━━━━━━\n\n 📍 미국 정치\n\n· 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를 환영.\n· 미국, 브라질산 일부 수입품에 7월 22일부터 25% 관세 부과 결정. 쇠고기와 커피는 대상에서 제외.\n· 마코 루비오 국무장관, 브라질 정부가 성실하게 협상하지 않았다며 관세 부과 배경 설명.\n· 미국·이라크, 약 600억 달러 규모 상업 협력 발표 예정.\n\n━━━━━━━━━━━━━━\n\n 📍 국제외교\n\n· 루비오 국무장관과 왕이 중국 외교부장, 필리핀 ASEAN 회의 참석 예정.\n· 필리핀 정부, 남중국해 행동수칙 협상이 2026년 중 진전될 가능성 제시.\n· 미국무부, 베트남과 수출통제 협상 타결을 확인하고 지식재산권 조사는 별도 진행.\n· 미국, 9월 미·중 관계 재점검 계획을 재확인.\n\n━━━━━━━━━━━━━━\n\n 📍 지정학\n\n· 미국, 이란에 대한 추가 공습 완료를 공식 발표.\n· 이란, 쿠웨이트 알리 알살렘 기지와 요르단 아즈라크 기지의 미군 시설을 미사일·드론으로 공격했다고 주장.\n· 요르단, 이란에서 발사된 미사일 8기를 요격했다고 발표.\n· 이란, 미국 MQ-9 리퍼 드론 격추를 주장하고 호르무즈 해협 개입은 레드라인이라고 경고.\n· 미국과 이스라엘 국방당국, 이란 대응 공조를 지속 확인.\n· IEA, 호르무즈 해협이 수주 내 재개되지 않으면 글로벌 에너지 위기가 발생할 수 있다고 경고.\n· 우크라이나, 해상 드론으로 러시아 그림자 선단을 공격했다고 발표.\n· 젤렌스키 대통령, 세르히 코레츠키를 신임 총리로 지명.\n\n━━━━━━━━━━━━━━\n\n 📍 연준 및 미국 경제\n\n· 미국 CPI와 PPI 둔화 영향으로 연준 추가 금리인상 기대는 완화.\n· 중동 긴장과 유가 상승이 향후 인플레이션 재상승 위험으로 부각.\n\n━━━━━━━━━━━━━━\n\n 📍 AI 및 빅테크\n\n· NVIDIA, Jetson Thor 공개와 함께 Toyota, Hitachi, NTT DATA, ENEOS 등과 피지컬 AI 협력 확대.\n· Tokyo Electron, Hitachi, Omron, Fujitsu, FANUC, 야스카와전기, Kawasaki Heavy 등 일본 기업들이 NVIDIA 기반 산업용 AI·로보틱스 생태계 확대.\n· Anthropic, IPO를 앞두고 수십억 달러 규모 신용한도 확대 협상 진행.\n· 미국, 중국 AI 견제를 강화하는 정책 기조 유지.\n\n━━━━━━━━━━━━━━\n\n 📍 반도체\n\n· TSMC 2분기 순이익 7,066억 대만달러로 시장 예상 크게 상회.\n· TSMC 3분기 매출 가이던스 446억~458억 달러로 컨센서스 상회.\n· TSMC, 2026년 CAPEX를 600억~640억 달러로 상향.\n· TSMC, AI 수요가 매우 강하며 2030년까지 성장세 지속 전망.\n· TSMC, 미국 투자 규모를 1,000억 달러 추가 확대하고 애리조나에서 N2 공정과 첨단 패키징 투자 추진.\n· TSMC, 애리조나 추가 공장 4곳도 검토 중이라고 발표.\n· TSMC, 첨단 패키징 공급은 여전히 타이트한 상태라고 설명.\n· TSMC, 대만에서도 첨단 반도체·패키징 공장 13개 건설 추진.\n· TSMC, A14 공정은 2028년 양산, A13·A12 공정은 2029년 양산 목표 유지.\n\n━━━━━━━━━━━━━━\n\n 📍 미국 주식 및 기업\n\n· Microsoft Xbox, 제니맥스 미디어에서 379명 감원.\n· Nike, 관세 환급금 3억200만 달러 수령. 추가 6억8,400만 달러는 미수령.\n· Uber, Delivery Hero에 주당 41.5유로 현금 인수 제안.\n· Uber, 2031년까지 독일에 20억 유로 추가 투자 계획.\n· United Airlines, 유가 상승으로 올해 연료비가 약 60억 달러 증가할 것으로 전망.\n· 일라이 릴리, 정신질환 치료제 기업 Atai Beckley 인수 협상 근접.\n\n━━━━━━━━━━━━━━\n\n 📍 원자재 및 에너지\n\n· WTI 유가 80달러를 상회하며 4거래일 연속 상승.\n· 중동 긴장과 호르무즈 해협 리스크가 원유 공급 우려 확대.\n· 금은 연준 긴축 기대 완화와 지정학 리스크 속 4,050달러 부근 유지.\n· 철광석 가격은 공급 증가와 중국 수요 둔화 우려로 하락.\n· BHP, 연간 철광석 생산은 사상 최대 기록을 유지하고 구리 중심 투자 전략 지속.\n· BHP와 이토추, 호주 Ministers North 철광석 프로젝트 최종 투자 결정.\n\n━━━━━━━━━━━━━━\n\n 📍 글로벌 경제 및 중앙은행\n\n· 한국은행, 기준금리를 예상대로 2.75%로 25bp 인상.\n· 한국은행, 올해 성장률이 기존 2.6% 전망을 크게 상회할 것으로 평가.\n· 한국은행, 2분기 GDP가 기존 0.2% 전망을 웃돌 것으로 예상.\n· 한국은행, 물가는 장기간 높은 수준을 유지할 가능성이 있으며 추가 대응은 데이터에 따라 결정.\n· 한국은행, 8월 경제전망에서 성장률 상향 가능성을 시사.\n· 일본 재무장관, 통화정책은 BOJ 소관이며 필요 시 환율시장 개입 준비가 돼 있다고 발언.\n· BOJ 고위 관계자, 통화정책 정상화 지연 시 인플레이션과 경기 둔화 위험이 커질 수 있다고 경고.\n· 일본 장기 국채금리 상승세 지속.\n· 영국 5월 GDP는 전월 대비 0.1% 증가하며 예상 상회.\n· 영국 서비스업은 개선됐지만 산업생산과 건설은 부진.\n· 중국 인민은행, 6,260억 위안 역레포 실시로 유동성 공급.\n\n━━━━━━━━━━━━━━\n\n 📍 암호화폐\n\n·특이사항 없음\n\n━━━━━━━━━━━━━━\n\n프리마켓 서머리는 오늘 아침부터 현재까지 있던 주요 뉴스들을 정리한 포스트입니다.\n\n작성자: 미국 주식 인사이더\n https://t.me/insidertracking"
+    },
+    {
+      "id": "insidertracking/58496",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58496",
+      "datetime": "2026-07-16T06:47:55.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "score": 97,
+      "hasText": true,
+      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 16일\n\n━━━━━━━━━━━━━━\n\n 🇺🇸 아메리카\n\n• 미국 정부는 이라크와 약 600억 달러 규모의 상업·투자 협력을 발표하며 양국 관계를 군사 중심에서 경제 협력 중심으로 전환한다고 밝혀.\n\n• 미국은 브라질산 일부 수입품에 대해 7월 22일부터 25% 관세를 부과하기로 결정. 다만 쇠고기와 커피는 대상에서 제외한다고 발표. 브라질 정부는 상호주의 법률을 활용해 대응 절차에 착수한다고 밝혀. 마코 루비오 국무장관은 브라질 정부가 성실한 협상에 임하지 않았다고 비판.\n\n• 미국무역대표부(USTR)는 베트남의 지식재산권 문제에 대한 별도 조사와 수출통제 합의를 추진 중이라고 밝혀. 중국 희토류 합의 이행과 러시아 제재, 멕시코 원산지 규정 협의도 병행한다고 설명.\n\n• 미국 상원에서는 의약품 공급망의 중국 의존도를 축소하기 위한 법안 추진이 진행 중이라고 보도.\n\n• 미국 국토안보부는 에볼라 관련 신규 입국 제한 조치를 시행한다고 발표.\n\n━━━━━━━━━━━━━━\n\n 🇪🇺 유럽\n\n• 우크라이나 젤렌스키 대통령은 세르히 코레츠키를 총리 후보로 지명하며 정부 개편을 추진.\n\n• 우크라이나는 해군 드론을 활용해 러시아의 이른바 '그림자 선단(Shadow Fleet)' 선박을 공격했다고 발표.\n\n• 그리스는 자국 해운업 보호를 이유로 러시아 추가 제재에 반대 입장을 표명했다고 FT가 보도.\n\n• 영국의 5월 GDP는 전월 대비 0.1% 증가하며 예상치를 상회. 서비스업이 성장세를 견인한 반면 산업생산과 건설 부문은 부진을 지속.\n\n• 영국 정부는 런던 증시 경쟁력 강화를 위해 사모펀드 업계와 협의를 진행 중이라고 FT가 보도. 케임브리지대는 첨단 풍동 시설 구축을 통해 영국 제조업 경쟁력 강화를 추진.\n\n• 우버는 독일에 2031년까지 20억 유로 규모의 투자 확대 계획을 발표. 동시에 딜리버리히어로에 주당 41.5유로 현금 인수 제안을 제시.\n\n━━━━━━━━━━━━━━\n\n 🌍 중동\n\n• 미국 중부사령부는 이란에 대한 최신 공습을 완료했다고 발표. 미국은 쿠웨이트를 거쳐 이란을 향한 군사작전을 이어갔다고 확인.\n\n• 이란 혁명수비대는 쿠웨이트 알리 알살렘 공군기지의 조기경보 레이더를 미사일과 드론으로 타격했으며, 이후 요르단 아즈라크 기지의 미군 통신시설과 연료시설도 공격했다고 주장.\n\n• 요르단은 자국 영공으로 접근한 이란 미사일 8발을 방공망으로 요격했다고 발표.\n\n• 이란은 미국 MQ-9 리퍼 드론을 격추했다고 주장했으며, 테헤란 등 주요 지역의 방공망을 가동했다고 밝혀.\n\n• 이란 합동군사령부는 미국의 호르무즈 해협 개입은 이란의 레드라인이라며 어떠한 간섭도 허용하지 않겠다고 경고.\n\n• 국제에너지기구(IEA)는 호르무즈 해협이 수주 내 재개되지 않을 경우 글로벌 에너지 위기로 이어질 수 있다고 경고.\n\n• 쿠웨이트군은 적대적 드론 위협에 대응해 방공 작전을 실시했다고 발표.\n\n• 트럼프 대통령은 2024년 말부터 이란에 억류됐던 미국 시민이 석방됐다고 밝히며 이란의 조치를 긍정적인 신호라고 평가.\n\n• 미국과 이스라엘 국방장관은 이란 관련 군사작전 상황을 공유하고 긴밀한 공조를 지속하기로 확인. 이스라엘은 지역 안보 완충지대 배치를 유지하겠다고 밝혀.\n\n━━━━━━━━━━━━━━\n\n 🌏 아시아\n\n• 일본 재무상은 재정 건전성 확보를 위해 시장과 경제지표를 면밀히 점검하겠다고 밝혀. 통화정책은 일본은행의 독립적 판단 사항이라고 재확인.\n\n• 일본 정부는 국채 보유 기반 확대를 위해 국내외 투자자와 개인 투자자의 참여를 확대할 계획이라고 밝혀. GPIF의 연례 기본 포트폴리오 검토 체계는 유지하며 정부가 연금기금 자산배분에 개입하지 않을 것이라고 설명.\n\n• 일본은행 고위 관계자는 높은 인플레이션 환경에서 통화완화 정상화가 지연될 경우 향후 경기침체 위험이 커질 수 있다고 경고하며 적절한 정책 조정의 필요성을 강조.\n\n• 일본 정부와 자민당은 임시 주주총회 소집 요건을 현행 의결권 3%에서 5% 이상으로 상향하는 방안을 추진.\n\n• 일본에서는 가계의 90% 이상이 향후 물가 상승을 예상하는 등 기대인플레이션이 확대.\n\n• 한국은행은 기준금리를 2.75%로 25bp 인상하고, 물가 목표 달성까지 긴축 기조를 유지하겠다고 밝혀. 올해 성장률은 기존 전망을 상회할 것으로 예상하며 8월 경제전망에서 성장률을 상향 조정할 가능성을 시사.\n\n• 한국은행은 반도체 산업 회복과 전반적인 내수·수출 개선으로 2분기 GDP 성장률이 기존 전망치를 웃돌 것으로 전망. 강한 수요가 지속될 경우 인플레이션 압력이 확대될 수 있다고 경고.\n\n• 한국은행은 특별대출 금리를 인상하고, 향후 통화정책은 경제지표와 물가 흐름을 반영해 결정하겠다고 밝혀. MSCI 선진국 지수 편입 효과와 원·달러 거래시간 확대 영향은 제한적일 것으로 평가.\n\n• 필리핀은 남중국해 행동준칙(Code of Conduct) 협상이 2026년 중 진전을 이룰 수 있다고 전망했으며, 미얀마 관련 이해당사국 협의도 의미 있는 진전을 거뒀다고 평가.\n\n• 미국 국무장관과 중국 외교부장은 필리핀에서 열리는 ASEAN 회의에 참석할 예정이라고 발표.\n\n• 중국은 가계부채 부담이 소비 회복을 제약하고 있다고 FT가 보도.\n\n• 파나마 정부는 해운 갈등 해소를 위해 중국 베이징을 방문해 협의를 진행 중이라고 FT가 보도.\n\n• TSMC는 미국에 추가 1,000억 달러를 투자하고 애리조나에 첨단 공정과 첨단 패키징 시설을 확대한다고 발표. 2026년 설비투자 계획도 기존보다 대폭 상향했으며 AI 수요 강세가 2030년까지 지속될 것으로 전망.\n\n• TSMC는 대만 내 첨단 반도체 및 패키징 공장 13개 건설을 추진하고 일본 생산능력도 확대한다고 밝혔다. 차세대 A14 공정은 2028년, A13·A12 공정은 2029년 양산을 목표로 한다고 설명.\n\n• NVIDIA는 후지쓰, FANUC, 야스카와전기, 가와사키중공업, 히타치, 도쿄일렉트론, 옴론 등 일본 주요 제조업체들과 산업용 AI·로보틱스 플랫폼 협력을 확대한다고 발표.\n\n━━━━━━━━━━━━━━\n\n 🌍 아프리카\n\n• 특이사항 없음.\n\n━━━━━━━━━━━━━━\n\n 🌏 오세아니아\n\n• BHP와 이토추는 호주 Ministers North 철광석 프로젝트 최종 투자 결정을 승인. 2028년 하반기 생산 개시와 연간 2,000만 톤 생산을 목표로 추진.\n\n• BHP는 구리와 철광석 생산 가이던스를 유지하고 남미 구리 프로젝트와 잰슨 칼륨광산 등 대형 프로젝트 투자를 지속한다고 밝혀.\n\n• 호주 벨베이 망간 제련소는 즉시 사업 종료 절차에 착수한다고 발표.\n\n━━━━━━━━━━━━━━\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
+    },
+    {
+      "id": "insidertracking/58489",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58489",
+      "datetime": "2026-07-16T06:26:47.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMZN",
+        "MU",
+        "TSM"
+      ],
+      "score": 80,
+      "hasText": true,
+      "text": "미국 레딧 게시물 분석\n(2026년 7월 16일 05:30~15:30기준)\n\n>\n 💾 MU / TSM / 메모리 반도체 - 아직 AI는 안 끝났다\n\n· 반도체 수익 인증글 다시 증가 · \"19K → 65K → 11K\" 밈으로 섹터 변동성 조롱 · 메모리 홀더들 집단 PTSD 진행 중 · TSMC 실적 베팅 15만 달러 YOLO 등장 · AI 끝났다는 글보다 \"다음 랠리 준비\" 분위기 우세 · HBM·메모리 공급 부족 서사는 아직 살아있음 · 다만 이전처럼 무조건 buy the dip 분위기는 약해짐\n\n---\n\n 🛰️ ASTS / 우주 테마 - 컬트 주식의 현실\n\n· ASTS 전환사채 10억 달러 발행 발표 · \"Space has not been good to me\" · \"31일 뒤 세일룰 끝나면 돌아온다\" · ASTS로 인생 바뀌었다가 계좌 날린 사례 다수 · 한 번 크게 먹고 전 재산 재투입한 YOLO 후회글 증가 · 여전히 cult stock 취급 · \"다 죽어도 다음 발사는 놓칠 수 없다\" 분위기\n\n---\n\n 🚀 SpaceX / SPCX - IPO 열광 종료\n\n· \"&#036;220까지 moon 후 다시 IPO 가격 복귀\" · \"발사 성공 후 착륙도 완벽하게 성공\" · 우주 개미들 집단 손실 인증 중 · SpaceX 백홀더 밈 폭발 · SPCX 4주 추적글 등장 · IPO FOMO 추격 매수의 위험 사례로 소비되는 중 · 하지만 다음 우주 IPO 나오면 또 뛰어들 사람들 많음\n\n---\n\n 🛒 AMZN - 갑자기 다시 주목\n\n· \"젠장, AMZN 롱 치게 만들지 마라\" · 빅테크 중 상대적으로 덜 오른 종목 인식 · 안전한 AI 플레이 취급 · NVDA 피로감 자금 이동 기대 존재 · YOLO보다는 장기 보유 스토리\n\n---\n\n 🎬 NFLX - 실적 도박 시즌 시작\n\n· \"내일 난 요리된다.\" · 실적 발표 전 콜·풋 양방향 도박 증가 · IV Crush 알면서도 진입 · 결과 나오기 전까지는 카지노 분위기\n\n---\n\n 📈 SPY / SPX - 0DTE 제국\n\n· 금요일 만기인 줄 알고 산 0DTE · 하루 만에 인생 삭제 사례 반복 · 230PM~415PM 스캘핑 전략 추종자 등장 · 옵션 매매 자체가 콘텐츠가 되는 중 · 수익보다 손실 인증이 더 많은 시장\n\n---\n\n ⚡ 변동성 트레이딩 - 새로운 종교\n\n· \"Volatility is Vitality\" · 계좌가 흔들리지 않으면 재미가 없음 · 125K → 1K 손실 인증 등장 · 15K → 0 사례 등장 · 마진콜 대응 위해 보유주 매도 사례 증가 · 카지노가 먼저 걱정해주는 수준의 거래 증가\n\n---\n\n 🛃 관세 / 매크로 - 7월 24일 주목\n\n· 트럼프 관세 만료 이벤트 관심 증가 · 관세 완화 시 CPI 개선 기대 · 보편관세 재도입 시 인플레 재점화 우려 · 유가 상승과 함께 스태그플레이션 공포 재등장 · 아직은 \"어차피 시장은 오른다\"가 우세\n\n---\n\n 🐻 모멘텀 주식 - 균열 신호\n\n· \"역사적 모멘텀 매도세\" 화제 · \"2021년 매매법은 끝났다\" 주장 등장 · buy the dip 신앙에 대한 의문 증가 · 상승 추격보다 콜 매도·숏 전략 논의 시작 · 아직은 소수 의견 · 대부분은 아직도 다음 ATH 기대 중\n\n---\n\n 🔥 현재 WSB 전체 시장 심리\n\n· AI 열풍은 둔화됐지만 끝났다고 믿는 사람 거의 없음 · 반도체는 여전히 메인 무대 · 우주 테마는 cult stock 단계 진입 · 0DTE 옵션 도박 열기는 여전 · 손실 인증글 비중 급증 · 마진콜과 wash sale 이야기가 늘어남 · \"이번엔 다르다\"는 약세론 등장 시작 · 하지만 대부분은 아직 완전한 약세 전환을 믿지 않음 · FOMO는 줄었지만 YOLO는 살아있음 · 시장 분위기 한 줄 요약:\n\n\"Bull market는 늙어가고 있지만, WSB는 아직 카지노 문 닫을 생각이 없다.\"\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
+    },
+    {
+      "id": "bornlupin/19132",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19132",
+      "datetime": "2026-07-16T06:19:06.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 73,
+      "hasText": true,
+      "text": "TSMC 2026년 3분기 실적 전망(가이던스)\n\n 매출: 446억 ~ 458억 달러 (전분기 대비 12% 증가, 중간값 기준 37% 증가)\n 매출총이익률: 65% ~ 67%\n 영업이익률: 56% ~ 58%\n\n TSMC 2026년 자본지출(설비투자)\n기존 \"560억 달러 이상\"에서 600억 ~ 640억 달러 로 상향 조정\n\n TSMC 웨이저자(C.C. Wei) 회장 겸 CEO 발언\n\n \"3분기에는 첨단 공정 기술에 대한 강력한 수요를 예상합니다.\"\n\n \"AI 메가트렌드가 점점 더 많은 연산 역량에 대한 필요성을 자극하며, 이에 따라 첨단 실리콘(반도체) 수요를 계속해서 견인하고 있습니다.\"\n\n소비자 가전 수요는 높은 가격 때문에 위축될 것으로 예상됩니다.\n\n\"2026년 연간 매출은 달러화 기준으로 전년 대비 40%를 소폭 상회하는 성장을 기록할 것입니다.\"\n\n \"고객사들의 미래 수요에 맞추기 위해 자본지출 투자를 확대하고 있습니다.\"\n\n 미국 애리조나주에 1,000억 달러 추가 투자 발표\n\n\"이번 1,000억 달러 규모의 신규 투자에는 여러 개의 팹(반도체 제조 공장)과 첨단 패키징 공장 건설이 포함되며, 미국 내에 고임금 일자리를 창출할 것입니다.\""
+    },
+    {
+      "id": "insidertracking/58487",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58487",
+      "datetime": "2026-07-16T06:18:50.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "semi",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "text": "엔비디아와 도요타가 물리 AI 분야 협력 확대 발표.\n\n세계 최대 자동차 제조업체인 도요타는 생산 공정 최적화 분야에서 강점을 보여왔으며, 인공지능 기술 발전에 맞춰 AI 도입 확대에 나서는 모습.\n\n엔비디아는 시즈오카현에 위치한 도요타의 실증 도시인 우븐 시티에서 물리 AI 적용 확대를 지원할 예정. 해당 지역의 교통 관리 시스템은 엔비디아의 하드웨어와 소프트웨어 기반으로 구축될 계획.\n\n도요타 차량에 적용되는 첨단 운전자 보조 시스템(ADAS) 역시 엔비디아 기술을 기반으로 개발될 예정이며, 생산 공장 내 대규모 로봇 운영에는 엔비디아와 미국 스타트업 레디 로보틱스의 기술이 활용될 전망.\n\n엔비디아와 도요타의 협력은 지난 2017년부터 이어지고 있으며, 현재 도요타 차량에 탑재된 레벨 2+ 자율주행 시스템 역시 엔비디아 플랫폼 기반으로 구축되어 있음.\n\n젠슨 황 엔비디아 최고경영자는 이번 주 일본을 방문해 주요 협력사들과 회동 진행 중.\n\n도요타는 엔비디아 옴니버스의 디지털 트윈 기술을 활용해 자동차 조립 공정을 최적화할 계획이며, 엔비디아의 로봇 플랫폼 역시 다양한 사업 영역에 도입될 예정.\n\n양사는 지난해 도요타의 차세대 양산 차량에 엔비디아 드라이브 AGX 오린 플랫폼을 적용하기로 합의한 바 있음."
+    },
+    {
+      "id": "insidertracking/58486",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58486",
+      "datetime": "2026-07-16T06:18:48.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "credit",
+        "macro",
+        "equity"
+      ],
+      "tickers": [],
+      "score": 79,
+      "hasText": true,
+      "text": "스페이스X 주가가 상장 이후 처음으로 공모가인 주당 135달러 아래로 하락하며 시가총액이 고점 대비 1조 달러 이상 감소.\n\n파이낸셜타임스에 따르면 스페이스X 주가는 지난달 성공적인 기업공개(IPO) 이후 상승세를 이어갔으나, 전일 장중 처음으로 공모가를 하회한 것으로 확인됨.\n\n스페이스X 주가는 6월 중순 주당 225달러까지 상승했으나 이후 약 40% 하락했으며, 이에 따라 회사 시가총액도 1조 달러 이상 줄어든 것으로 집계됨.\n\n일론 머스크의 스페이스X 지분 가치 역시 1조2,000억 달러에서 7,600억 달러 수준으로 감소.\n\n6월 말 발행된 스페이스X 회사채 가격도 큰 폭의 하락세를 기록. 다만 전일 거래는 주당 135달러를 소폭 상회한 수준에서 마감했으나 장중에는 공모가를 밑도는 거래가 발생.\n\nIPO를 주관한 20개 이상의 투자은행들은 총 5억 달러 규모의 수수료를 확보한 것으로 전해짐.\n\n일론 머스크는 단기 투기 세력의 참여를 제한하기 위해 IPO 구조를 설계했으며, 상당수 투자자들은 장기 보유를 계획 중.\n\n스페이스X 직원들은 올해 8월까지 보유 주식 매도가 제한되며, 주요 IPO 참여 투자자들 역시 상장 후 366일이 지나야 매도가 가능.\n\n최근 스페이스X가 나스닥100 지수에 편입됐지만 주가에는 단기적인 긍정 효과만 나타났으며 이후 다시 하락세를 보인 것으로 전해짐."
+    },
+    {
+      "id": "insidertracking/58485",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58485",
+      "datetime": "2026-07-16T06:10:13.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 73,
+      "hasText": true,
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\nTSMC FY2026 2분기 실적 요약 (심화편)\n\n 📍 실적\n\n• 매출 NT&#036;1.270T (QoQ +12.0%, YoY +36.0%)\n• 달러 기준 매출 US&#036;40.20B (QoQ +12.0%, YoY +33.7%)\n• 순이익 NT&#036;706.56B (QoQ +23.4%, YoY +77.4%)\n• 희석 EPS NT&#036;27.25 (QoQ +23.4%, YoY +77.4%)\n• 매출총이익률 67.7%\n• 영업이익률 60.3%\n• 순이익률 55.6%\n• 자기자본이익률(ROE) 45.9%\n\n 📍 가이던스\n\n• 3분기 매출 US&#036;44.0B~US&#036;48.0B\n• 3분기 매출총이익률 55%~57%\n• 3분기 연구개발비 약 NT&#036;1.2B\n• 3분기 SG&A 비용 약 NT&#036;0.4B\n\n 📍 공정별 매출 비중\n\n• 2나노 3%\n• 3나노 30%\n• 5나노 33%\n• 7나노 11%\n• 7나노 이하 첨단 공정 비중 77%\n\n 📍 플랫폼별 매출 비중\n\n• HPC 66%\n• 스마트폰 22%\n• IoT 5%\n• 자동차 4%\n• DCE 1%\n• 기타 2%\n\n 📍 플랫폼별 QoQ 성장률\n\n• HPC +20%\n• 스마트폰 -4%\n• IoT +4%\n• 자동차 +15%\n• DCE +5%\n• 기타 +5%\n\n 📍 핵심 내용\n\n• 2분기 매출과 매출총이익률 모두 기존 회사 가이던스를 상회.\n• AI 투자 확대에 따른 HPC 수요가 실적 성장을 주도.\n• 3나노와 5나노 공정이 전체 매출의 63%를 차지하며 첨단 공정 믹스가 지속적으로 개선.\n• 2나노 매출 비중이 3%까지 확대되며 차세대 공정의 본격적인 매출 기여가 시작됨.\n• 첨단 공정 비중이 77%까지 상승하며 AI 반도체 중심의 구조적 수요 증가를 반영.\n• 웨이퍼 출하량은 433만6천 장으로 QoQ +3.9%, YoY +16.6% 증가.\n\n 📍 재무 현황\n\n• 현금 및 유가증권 NT&#036;3.518T\n• 총자산 NT&#036;9.376T\n• 총부채 NT&#036;2.901T\n• 자기자본 NT&#036;6.474T\n• 장기 이자부채 NT&#036;864.3B\n• 유동비율 2.5배\n\n 📍 현금흐름\n\n• 영업현금흐름 NT&#036;783.36B\n• 설비투자 NT&#036;496.00B\n• 잉여현금흐름 NT&#036;287.36B\n• 현금배당 지급 NT&#036;155.59B\n\n 📍 주주환원 및 주요 이벤트\n\n• 2026년 1분기 현금배당 NT&#036;7.00 승인.\n• Vanguard International Semiconductor 지분 8.1% 매각 완료.\n• 소니 반도체 솔루션과 차세대 이미지센서 전략적 파트너십 체결.\n• 북미 기술 심포지엄에서 A13 공정 기술 공개.\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
+    },
+    {
+      "id": "insidertracking/58484",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58484",
+      "datetime": "2026-07-16T06:06:18.000Z",
+      "localDateKst": "2026-07-16",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 51,
+      "hasText": true,
+      "text": "TSMC 오버나잇"
+    },
+    {
       "id": "insidertracking/58483",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/58483",
@@ -7887,7 +8730,7 @@
       ],
       "score": 73,
       "hasText": true,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\nTSMC FY2026 2분기 실적 요약\n\n 📍 실적 • 매출 NT&#036;1.270T (YoY +36.0%, QoQ +12.0%)\n• 순이익 NT&#036;706.56B (YoY +77.4%, QoQ +23.4%)\n• 희석 EPS NT&#036;27.25 (ADR 기준 US&#036;4.31)\n• 달러 기준 매출 US&#036;40.20B (YoY +33.7%, QoQ +12.0%)\n• 매출총이익률 67.7%\n• 영업이익률 60.3%\n• 순이익률 55.6%\n\n 📍 공정별 매출 비중 • 2나노: 웨이퍼 매출의 3%\n• 3나노: 30%\n• 5나노: 33%\n• 7나노: 11%\n• 7나노 이하 첨단 공정 비중: 전체 웨이퍼 매출의 77%\n\n 📍 핵심 내용 • 3나노와 5나노가 전체 웨이퍼 매출의 63%를 차지하며 첨단 공정 수요가 실적 성장을 견인.\n• 첨단 공정 매출 비중이 77%까지 상승하며 AI 및 고성능 컴퓨팅 수요 확대 수혜 지속.\n• 순이익 증가율이 매출 증가율을 크게 상회하며 높은 영업 레버리지 효과 확인.\n• 매출총이익률 67.7%, 영업이익률 60.3%를 기록하며 업계 최고 수준의 수익성 유지.\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\nTSMC FY2026 2분기 실적 요약\n\n 📍 실적\n\n• 매출 NT&#036;1.270T (YoY +36.0%, QoQ +12.0%)\n• 순이익 NT&#036;706.56B (YoY +77.4%, QoQ +23.4%)\n• 희석 EPS NT&#036;27.25 (ADR 기준 US&#036;4.31)\n• 달러 기준 매출 US&#036;40.20B (YoY +33.7%, QoQ +12.0%)\n• 매출총이익률 67.7%\n• 영업이익률 60.3%\n• 순이익률 55.6%\n\n 📍 공정별 매출 비중\n\n• 2나노: 웨이퍼 매출의 3%\n• 3나노: 30%\n• 5나노: 33%\n• 7나노: 11%\n• 7나노 이하 첨단 공정 비중: 전체 웨이퍼 매출의 77%\n\n 📍 핵심 내용\n\n• 3나노와 5나노가 전체 웨이퍼 매출의 63%를 차지하며 첨단 공정 수요가 실적 성장을 견인.\n• 첨단 공정 매출 비중이 77%까지 상승하며 AI 및 고성능 컴퓨팅 수요 확대 수혜 지속.\n• 순이익 증가율이 매출 증가율을 크게 상회하며 높은 영업 레버리지 효과 확인.\n• 매출총이익률 67.7%, 영업이익률 60.3%를 기록하며 업계 최고 수준의 수익성 유지.\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
     },
     {
       "id": "bornlupin/19131",
@@ -12149,113 +12992,6 @@
       "text": "한은 \"반도체 수요 증가보다 공급 확대 더뎌\"…고점론 일축\n https://n.news.naver.com/article/001/0016190004?type=journalists"
     },
     {
-      "id": "insidertracking/58139",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58139",
-      "datetime": "2026-07-12T22:03:31.000Z",
-      "localDateKst": "2026-07-13",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n원자재 현황\n\n 📉 금 - 4,103.70 -0.24%\n 📉 금/달러 - 4,095.26 -0.63%\n 📉 은 - 59.618 -0.91%\n 📉 구리 - 6.2635 -0.26%\n 📈 백금 - 1,629.55 +0.03%\n 📉 팔라듐 - 1,267.00 -0.73%\n\n 📈 WTI유 - 73.91 +3.50%"
-    },
-    {
-      "id": "insidertracking/58136",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58136",
-      "datetime": "2026-07-12T21:37:28.000Z",
-      "localDateKst": "2026-07-13",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "equity"
-      ],
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "META",
-        "AMZN",
-        "MU",
-        "RKLB"
-      ],
-      "score": 100,
-      "text": "미국 레딧 게시물 분석\n(2026년 7월 12일 00:00~06:30 기준)\n\n> 🌍 중동 전쟁 / SPY\n\n· \"폭격 = 매수\" 밈이 다시 지배\n· 추가 공습 뉴스에도 \"War is bullish\"\n· \"Missiles fly, time to buy\"\n· 휴전 루머 ↔️ 추가 공습 반복에도 시장은 무감각\n· 시장은 이제 전쟁보다 불확실성 해소를 더 중요하게 보는 분위기\n· 베어들은 -1~-2% 갭다운 외치지만 조롱당하는 중\n\n 🧠 NVDA / AI 반도체\n\n· \"Forward PER 18배에 성장 60~70%면 공짜\"\n· NVDA 콜 매수 계속 등장\n· \"Generational buying opportunity\"\n· AI 투자 축소는 없다는 의견 우세\n· 하이퍼스케일러 CapEx 경쟁은 계속된다는 DD 반복\n· AI 버블보다 AI 투자 지속론이 우세\n\n 💾 MU / SK하이닉스 / 메모리\n\n· MU 장기 강세론 여전\n· \"MU는 내년에 2000달러\"\n· MU 콜옵션 인증 지속\n· SK하이닉스 매수 언급 증가\n· 메모리 롱은 아직 끝나지 않았다는 분위기\n\n ⚡️ AI 인프라 / 데이터센터\n\n· GLXY 계속 언급\n· Terawulf(WULF) 기대감 유지\n· APLD 언급 지속\n· 데이터센터 CapEx 확대가 핵심 투자 논리\n· \"AI arms race는 멈출 수 없다\"는 의견 반복\n\n 🚀 우주\n\n· RKLB 풀포트\n· LUNR 풀포트\n· ASTS 언급 지속\n· 여전히 고변동 YOLO 플레이\n\n 🎬 NFLX / 실적 플레이\n\n· NFLX 올인 인증\n· 실적(Straddle) 베팅 증가\n· CPI와 함께 이번 주 대표 이벤트 취급\n\n 🛢 원유\n\n· 유가 상승 기대와 실제 가격 괴리 불만\n· USO 콜 기대\n· \"전쟁인데 왜 유가 안 오르냐\" 불만 반복\n\n 📈 기타 종목\n\n· TSLA 월요일 0DTE 콜 밈 지속\n· MSFT 장기 롱 의견\n· GOOG 추가 매수\n· META 풋 베팅 일부 등장\n· AMZN 평화 뉴스 기대\n· KO 장기 시총 확대 농담\n· COST/WMT 밸류에이션 토론\n\n 🔥 현재 WSB 전체 시장 심리\n\n· 베어보다 불이 훨씬 많음\n· 전쟁 뉴스조차 상승 재료 취급\n· \"Blood is bullish\"\n· \"War is bullish\"\n· \"Bombs = ATH\"\n· 프리장보다 오픈 직후 방향에 베팅 집중\n· 0DTE YOLO 분위기 매우 강함\n· 콜과 풋을 동시에 언급하는 단타 매매 증가\n· Theta(시간가치 손실) 농담과 GUH(대규모 손실) 밈도 활발\n· MU, NVDA, AI 인프라가 여전히 WSB의 핵심 컬트 테마\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
-    },
-    {
-      "id": "insidertracking/58134",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58134",
-      "datetime": "2026-07-12T21:33:59.000Z",
-      "localDateKst": "2026-07-13",
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 60,
-      "text": "블룸버그에 따르면 한국 증시의 가파른 상승세에도 불구하고 주식 밸류에이션은 사상 최저 수준까지 낮아진 것으로 나타남.\n\n코스피는 올해 약 80% 상승하며 연이어 사상 최고치를 경신했지만, 기업 실적 전망 상향 속도가 주가 상승을 웃돌면서 선행 주가수익비율(PER)은 6.4배까지 하락. 이는 2008년 글로벌 금융위기 당시보다도 낮은 수준.\n\n삼성전자와 SK하이닉스의 메모리 반도체 실적 급증이 이 같은 실적 개선을 주도한 것으로 분석됨."
-    },
-    {
-      "id": "insidertracking/58121",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58121",
-      "datetime": "2026-07-12T21:19:25.000Z",
-      "localDateKst": "2026-07-13",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "text": "금주 한국시간 (KST) 기준 경제지표 및 주요 일정\n\n━━━━━━━━━━━━━━\n\n 2026년 7월 14일 화요일\n\n21:30 – 소비자물가지수 (MoM) (6월)\n21:30 – 근원 소비자물가지수 (MoM) (6월)\n21:30 – 소비자물가지수 (YoY) (6월)\n\n━━━━━━━━━━━━━━\n\n 2026년 7월 15일 수요일\n\n21:30 – 생산자물가지수 (MoM) (6월)\n23:30 – 원유재고\n\n━━━━━━━━━━━━━━\n\n2026년 7월 16일 목요일\n\n21:30 – 소매판매 (MoM) (6월)\n21:30 – 근원 소매판매 (MoM) (6월)\n21:30 – 필라델피아 연은 제조업활동지수 (7월)\n21:30 – 신규 실업수당청구건수\n\n━━━━━━━━━━━━━━\n\n> 7월 14일 화요일에는 미국 소비자물가지수(CPI)가 발표됩니다.\n\nCPI는 미국의 대표적인 인플레이션 지표로, 연준의 금리 정책과 증시 방향에 큰 영향을 미치는 핵심 경제지표입니다.\n\n7월 16일 목요일에는 소매판매와 필라델피아 연은 제조업활동지수가 발표됩니다.\n\n소매판매는 미국 소비 흐름을, 필라델피아 연은 제조업활동지수는 제조업 경기의 방향을 보여주는 선행지표로 시장의 관심이 집중될 것으로 예상됩니다."
-    },
-    {
-      "id": "insidertracking/58112",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58112",
-      "datetime": "2026-07-12T21:12:16.000Z",
-      "localDateKst": "2026-07-13",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 50,
-      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 13일\n\n━━━━━━━━━━━━━━\n\n 🇺🇸 북미\n\n• 미국과 이란의 호르무즈 해협 갈등이 한층 격화. 이란은 미국의 불법 군사 활동으로 현재 호르무즈 해협 통항이 불가능하며 안정이 회복될 때까지 해협을 폐쇄한다고 밝혀. 반면 미국 중부사령부와 트럼프 대통령은 호르무즈 해협은 국제 항로이며 모든 상선의 통항이 가능하고 미국은 이를 유지할 준비가 돼 있다고 강조.\n\n• 트럼프 대통령은 전날 이란과 사실상 모든 쟁점에 합의했지만 약 2시간 뒤 이란이 드론으로 선박을 공격했다고 주장하며 합의가 무산됐다고 밝혀. 또한 이란이 약속을 지키지 않을 경우 군사력을 사용하는 데 주저하지 않을 것이라는 입장을 재확인.\n\n• 미국은 호르무즈 해협 인근에서 이란 혁명수비대(IRGC)의 미사일 시스템·방공망·소형 고속정을 겨냥한 추가 공습을 실시했다고 미국 정부 관계자와 Axios가 전해. 이번 공격은 상선을 위협하는 이란의 군사 능력을 약화하기 위한 목적이라고 설명.\n\n• 캐나다 외교부는 이란의 호르무즈 해협 통항 선박 공격은 국제법 위반이라고 규탄하며 긴장 완화를 촉구.\n\n• 미국 법무부는 전미자동차노조(UAW) 숀 페인 위원장 관련 의혹에 대한 조사에 착수.\n\n• 미국의 나토 대사는 튀르키예를 핵심 지역 동맹으로 평가하며 미국은 양국 협력을 확대해야 한다고 밝혀. 또한 법적 조건이 충족될 경우 F-35 전투기 판매도 추진될 수 있다고 시사.\n\n• 트럼프 대통령은 호주의 민간 연금 제도를 미국 연금 개혁 모델로 검토하도록 지시했다고 전해.\n\n• 트럼프 대통령은 린지 그레이엄 상원의원 별세를 추모하기 위해 미국 전역의 조기를 게양하도록 지시.\n\n━━━━━━━━━━━━━━\n\n 🌎 남미\n\n• 베네수엘라 대통령 권한대행은 카타르의 하마드 빈 칼리파 알사니 전 국왕 별세에 애도를 표하며 국가 발전과 국제적 위상 제고에 기여한 지도자였다고 평가.\n\n━━━━━━━━━━━━━━\n\n 🇪🇺 유럽\n\n• 우크라이나 젤렌스키 대통령은 대규모 정부 개편과 새로운 정치 전략을 추진하며 율리아 스비리덴코 총리가 사임했다고 발표.\n\n• 유럽연합(EU)은 바레인과 안보·무역 협력을 중심으로 한 새로운 전략적 파트너십 협상을 공식 개시했다고 발표.\n\n• 영국 외무장관은 카타르의 하마드 빈 칼리파 알사니 전 국왕이 양국 관계 강화에 크게 기여했다고 평가하며 애도를 표명.\n\n━━━━━━━━━━━━━━\n\n 🌍 중동\n\n• 카타르 외교부는 역내 안보를 위협하는 모든 군사 작전과 공격의 즉각적이고 완전한 중단이 필요하다고 촉구.\n\n• 이란 최고지도자 군사고문은 현재 국가가 전시 상황에 있으며 모든 군은 최고 수준의 대비태세를 유지해야 한다고 강조. 또한 내부 분열을 조장하려는 외부 시도에 맞서 국민과 정부의 단결이 가장 중요하다고 밝혀.\n\n• 이란 대통령은 국가가 복합적인 경제 전쟁을 겪고 있으며 이를 극복하기 위해 국민의 적극적인 참여가 필요하다고 강조.\n\n• 이란 외무장관은 유엔 레바논 특사와 회담을 갖고 레바논의 영토 통합과 안정에 대한 지속적인 지원 방침을 재확인.\n\n• 이란 남부 반다르아바스와 케슴섬 일대에서 다수의 폭발이 발생. 이후 이란 국영매체는 적의 미사일 공격으로 군사시설이 타격받았으며 최소 10발의 발사체가 군사 목표물을 공격했다고 보도. 일부 통신시설 관계자가 사망하고 부상자가 발생했다고 전해.\n\n• 쿠웨이트군은 북부 국경 초소 3곳이 공격을 받아 시설 피해가 발생했으며 쿠웨이트석유회사 시추시설도 드론 공격을 받아 작업자 1명이 부상했다고 발표.\n\n• 이란 혁명수비대 계열 매체는 드론 공격으로 쿠웨이트 내 미국 HIMARS 로켓 시스템을 타격했다고 주장. 다만 미국의 공식 확인은 나오지 않았으며 일부 사상자 주장도 확인되지 않음.\n\n• 이라크 총리는 미국 방문을 앞두고 이라크는 어떤 군사 동맹이나 역내 분쟁에도 치우치지 않는다는 메시지를 전달할 것이라고 밝혀.\n\n• 이라크 동부 술라이마니야의 이란계 쿠르드 반정부 세력이 있는 기지가 드론 공격을 받았다고 현지 보안 소식통이 전해.\n\n• 이스라엘군은 가자지구 북부에서 테러 활동을 준비하던 하마스 조직원 2명을 제거했다고 발표.\n\n• 네타냐후 이스라엘 총리는 트럼프 대통령이 이란 핵문제 합의를 원하지만 이란이 약속을 지키지 않을 경우 무력 사용도 주저하지 않을 것이라고 밝혀.\n\n• UAE와 이집트 정상은 지역 및 국제 정세와 긴장 완화 방안을 논의.\n\n• 바레인·아랍에미리트·요르단은 카타르의 하마드 빈 칼리파 알사니 전 국왕 별세를 애도하며 4일간 국가 애도 기간과 조기 게양을 선포.\n\n• 오만 외무장관은 하마드 빈 칼리파 알사니 전 국왕이 카타르를 중재 외교의 중심 국가로 성장시킨 지도자였으며 팔레스타인·수단·소말리아 등에서 인도주의적 역할을 수행했다고 평가.\n\n• 하마스와 헤즈볼라는 카타르 전 국왕 별세에 애도를 표하며 역내 지원과 재건 기여를 높이 평가.\n\n━━━━━━━━━━━━━━\n\n 🌏 아시아\n\n• 파키스탄 외교부는 대화와 외교를 통한 지속 가능한 평화 구축을 지지하며 역내 모든 국가의 주권과 영토 보전을 지지한다고 밝혀. 또한 모든 당사국에 긴장 완화와 기존 합의 이행을 촉구.\n\n━━━━━━━━━━━━━━\n\n 🌍 아프리카\n\n• 수단 정부는 카타르의 하마드 빈 칼리파 알사니 전 국왕 별세에 애도를 표하며 아랍권과 국제사회가 큰 지도자를 잃었다고 평가.\n\n━━━━━━━━━━━━━━\n\n 🌏 오세아니아\n\n• 호주의 퇴직연금 제도가 미국 연금 개혁의 참고 모델로 검토되고 있다고 미국 정부 관계자들이 전해.\n\n━━━━━━━━━━━━━━\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
-    },
-    {
-      "id": "insidertracking/58113",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58113",
-      "datetime": "2026-07-12T21:12:16.000Z",
-      "localDateKst": "2026-07-13",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 62,
-      "text": "트럼프 발언 및 미국 정치 정리 - 2026년 7월 13일\n\n 📍 트럼프\n\n· 트럼프 \"호르무즈 해협은 계속 통행 가능하다\" NBC 인터뷰에서 발언\n· 트럼프 \"호르무즈 해협은 상업용 선박에 개방돼 있다\" 발언\n· 트럼프 \"어제 이란과 합의를 했고 이란은 모든 것을 양보했지만, 두 시간 뒤 드론으로 선박을 공격했다\" CNN 인터뷰에서 발언\n· 트럼프, 호주의 3.1조 달러 규모 민간 연금제도를 미국 은퇴제도 개혁의 참고 모델로 검토하도록 지시\n\n 📍 미국 군사 대응\n\n· 미 중부사령부 \"이란 혁명수비대가 호르무즈 해협 통과 선박을 이란의 감시·추적 없이 통행시킬 수 없다고 한 주장은 사실이 아니다\"\n· 미 중부사령부 \"이란은 호르무즈 해협을 통제하지 않으며, 호르무즈 해협은 국제 항로이고 미국은 이를 유지할 준비가 돼 있다\"\n· 악시오스, 미국 관리 인용 \"미군이 호르무즈 해협 인근 두 곳에서 이란 혁명수비대의 미사일 시스템, 방공망, 소형 보트를 공습\"\n· 뉴욕타임스, 미국 관리 인용 \"이번 미군 공습은 이란의 상선 공격 능력을 약화시키는 것이 목적\"\n\n 📍 미국 행정부·정치\n\n· 트럼프, 린지 그레이엄 상원의원을 추모하기 위해 토요일 오후 6시까지 미국 전역의 조기를 게양하도록 지시\n· 미 법무부(DOJ), 전미자동차노조(UAW) 숀 페인 위원장 관련 의혹 조사 착수\n· 미국의 나토 대사 매슈 휘태커 \"튀르키예는 중요한 서방 동맹이며 미국은 앙카라와의 관계를 강화해야 한다\"\n· 미국의 나토 대사 매슈 휘태커 \"법적 조건이 충족되면 튀르키예의 F-35 도입은 이뤄질 것\"\n\n작성자: 미국 주식 인사이더\n https://t.me/insidertracking"
-    },
-    {
-      "id": "insidertracking/58111",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58111",
-      "datetime": "2026-07-12T21:12:15.000Z",
-      "localDateKst": "2026-07-13",
-      "tags": [
-        "macro",
-        "geo",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 75,
-      "text": "Market Summary - 2026년 7월 13일\n\n━━━━━━━━━━━━━━\n\n 📍 미국 정치\n\n· 트럼프 대통령, NBC 인터뷰에서 호르무즈 해협은 상선 운항이 가능한 상태이며 국제 항로가 유지되고 있다고 강조.\n· 트럼프 대통령, 전날 이란과 사실상 합의에 도달했으나 이후 이란이 드론으로 선박을 공격하며 상황이 급변했다고 주장.\n· 트럼프 대통령, 미국 은퇴제도 개혁 검토를 위해 호주의 3.1조 달러 규모 민간 연금 시스템 연구를 지시.\n· 트럼프 대통령, 린지 그레이엄 상원의원 별세를 기리기 위해 토요일 오후 6시까지 전역 조기 게양을 명령.\n· 미국 법무부, 전미자동차노조(UAW) 숀 페인 위원장 관련 의혹에 대한 조사 착수.\n\n━━━━━━━━━━━━━━\n\n 📍 국제외교\n\n· 카타르 외무부, 중동 지역 안보를 위협하는 모든 군사행동과 공격의 즉각적이고 완전한 중단 촉구.\n· UAE 대통령과 이집트 대통령, 지역 정세와 국제 현안을 논의하고 긴장 완화를 위한 협력 방안 협의.\n· 이라크 총리, 미국 방문을 앞두고 이라크는 어떠한 지역 분쟁과 군사 동맹에도 치우치지 않는다는 입장 전달.\n· 파키스탄 외무부, 대화와 외교를 통한 지역 평화 회복을 지지하며 모든 당사국의 자제와 긴장 완화를 촉구.\n· EU와 바레인, 안보·무역 협력을 확대하기 위한 새로운 전략적 파트너십 협상 개시.\n\n━━━━━━━━━━━━━━\n\n 📍 지정학\n\n· 미국과 이란의 군사 충돌이 추가로 확대되며 중동 긴장이 한층 고조.\n· 미국은 일주일 동안 세 번째 대이란 군사작전을 실시했고, 이란은 미사일과 드론으로 미국 우방국을 겨냥한 보복 공격 지속.\n· Axios에 따르면 미국은 호르무즈 해협 인근에서 혁명수비대 미사일 기지, 방공망, 소형 고속정을 정밀 타격.\n· 뉴욕타임스는 미국의 이번 공격 목적이 이란의 상선 공격 능력을 약화시키기 위한 것이라고 보도.\n· 이란 최고지도자 군사고문은 국가가 여전히 전시 상황에 있으며 모든 군은 최고 수준의 대비 태세를 유지해야 한다고 강조.\n· 네타냐후 총리는 트럼프 대통령이 이란 핵 문제 해결을 위한 합의를 원하지만 필요 시 군사력 사용도 주저하지 않는다고 언급.\n· 이란 외무장관은 UN 레바논 특사와 회담을 갖고 레바논 지원과 영토 통합에 대한 지지를 재확인.\n· 우크라이나에서는 젤렌스키 대통령이 대규모 정부 개편을 추진하는 가운데 율리아 스비리덴코 총리가 사임.\n\n━━━━━━━━━━━━━━\n\n 📍 중동 전쟁 및 지정학\n\n· 이란은 미국의 불법 군사행동으로 현재 호르무즈 해협 통과가 불가능하며 안정 회복 이후 운항 허가를 재검토하겠다고 발표.\n· 미국 중부사령부는 이란이 호르무즈 해협을 통제한다는 주장은 사실이 아니며 국제 항로는 계속 개방된 상태라고 반박.\n· 미국과 이란이 호르무즈 해협 개방 여부를 두고 상반된 입장을 발표하면서 시장 불확실성이 확대.\n· 이란 반다르아바스와 케슴섬 일대에서 연쇄 폭발이 발생했고 이후 군사시설이 공격받은 것으로 확인.\n· 이란 국영매체는 케슘섬과 하지아바드 지역이 공격받았으며 일부 통신시설 관계자가 사망하고 부상자가 발생했다고 보도.\n· 쿠웨이트 군은 북부 국경 초소 3곳이 공격받아 시설 피해가 발생했으며 쿠웨이트석유공사 시추시설도 드론 공격을 받아 작업자 1명이 부상했다고 발표.\n· 이란 매체는 혁명수비대가 쿠웨이트 내 미국 HIMARS 발사대를 드론으로 타격했다고 주장했으나 미국의 공식 확인은 나오지 않음.\n· 이스라엘군은 가자지구 북부에서 하마스 대원 2명을 제거했다고 발표.\n· 이라크 술라이마니야의 이란계 쿠르드 반정부 세력 기지가 드론 공격을 받은 것으로 전해짐.\n· 아부무사섬에서도 발사체 2발이 확인되며 호르무즈 인근 긴장이 지속.\n\n━━━━━━━━━━━━━━\n\n 📍 연준 및 미국 경제\n\n· 호르무즈 해협을 둘러싼 군사 충돌이 심화되며 글로벌 에너지 공급망과 인플레이션 우려가 다시 확대.\n· 미국 은퇴연금 제도 개편 논의가 본격화되며 장기 재정 구조 개선 논의가 이어질 전망.\n\n━━━━━━━━━━━━━━\n\n 📍 AI 및 빅테크\n\n· 관련 주요 신규 뉴스 부재.\n\n━━━━━━━━━━━━━━\n\n 📍 미국 주식 및 기업\n\n· 주말 거래 기준 WTI 유가는 약 3% 이상 상승하며 지정학적 리스크를 반영.\n· 미국 주요 주가지수 선물은 제한적인 약세를 기록하며 중동 긴장 고조에 따른 위험회피 심리 반영.\n\n━━━━━━━━━━━━━━\n\n 📍 암호화폐\n\n· 마이클 세일러가 추가 비트코인 매수를 시사하는 메시지를 게시하며 시장 관심 집중.\n· 미국 예측시장 Kalshi를 통한 월드컵 이벤트 계약은 투자상품으로 분류될 경우 스포츠베팅보다 낮은 세율과 손실 공제 혜택을 받을 가능성이 제기.\n· 다만 IRS의 명확한 가이드라인이 없어 향후 세금 추징과 벌금 위험이 존재한다는 지적.\n\n━━━━━━━━━━━━━━\n\n 📍 원자재 및 에너지\n\n· 호르무즈 해협을 둘러싼 군사 충돌로 글로벌 원유 수송 차질 우려가 확대.\n· 미국은 혁명수비대 소형 함정과 미사일 시설을 타격하며 상선 보호 작전을 강화.\n· 쿠웨이트 석유 시추시설이 드론 공격을 받아 에너지 인프라에 대한 위협이 현실화.\n· 시장은 중동 리스크 확대로 국제 원유 공급 차질 가능성을 주시.\n\n━━━━━━━━━━━━━━\n\n 📍 글로벌 경제 및 중앙은행\n\n· 캐나다 외무장관은 이란의 호르무즈 해협 선박 공격이 국제법 위반이라고 비판.\n· 영국, 오만, 요르단, UAE, 수단, 베네수엘라, 바레인 등 다수 국가는 카타르의 셰이크 하마드 빈 칼리파 알사니 전 국왕 별세에 애도를 표명하고 국가 애도 기간을 선포.\n· 오만 외무장관은 셰이크 하마드가 중동 분쟁 중재와 인도주의 활동에서 중요한 역할을 수행했다고 평가.\n\n━━━━━━━━━━━━━━\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
-    },
-    {
       "id": "bornlupin/19030",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19030",
@@ -12326,20 +13062,6 @@
       "text": "난야테크 Q&A 하이라이트 정리\nQ. 3Q26으로 접어들면서 DDR4와 DDR5의 가격 추이는 어떻습니까?\nA. 가격은 계속 상승하고 있습니다. 단기 계약은 ASP 상승 여지가 더 크며, 장기 계약은 더 나은 안정성을 제공합니다.\n\nQ. 추가 가격 인상의 폭은 어느 정도입니까?\nA. 구체적인 가이던스는 없습니다. LTA 가격은 비교적 안정적으로 유지될 것이며, 단기 가격은 계약이 갱신되면서 계속 개선될 수 있습니다.\n\nQ. 경쟁사들이 신규 캐파를 추가하는 가운데 2028~2029년 DRAM 수급 다이내믹스는 어떻게 보십니까?\nA. 2028년 예상 시점까지 수급 환경이 급격하게 변할 것으로 보지 않습니다. 신규 캐파 증설에도 불구하고, AI/서버 수요와 비(非)AI 애플리케이션 전반의 공급 제약으로 인해 전체 시장은 타이트하게 유지될 것입니다.\n\nQ. 2Q26 실적의 핵심 동인은 비트 출하가 플랫하고 원가 변동이 제한적이었음에도 불구하고 60%+ ASP 상승이었습니까?\nA. 그렇습니다. 비트 출하는 전분기 대비 플랫했고 원가 구조는 대체로 안정적이었으며 원가 절감은 제한적이었습니다. 급격한 실적 개선은 주로 ASP 상승에 의해 견인되었습니다.\n\nQ. 60%+의 전분기 대비 ASP 성장은, 앞서 LTA를 발표했음에도 불구하고 대부분의 사업이 여전히 월별 가격 협상에 기반하고 있음을 시사합니까?\nA. LTA는 일반적으로 협상 시점의 공정 시장 가격에 기반합니다. LTA가 상승장에서의 가격 상승 여지를 막지는 않습니다.\n\nQ. LTA는 가격, 물량, 아니면 양쪽 모두를 고정하도록 설계되어 있습니까?\nA. LTA 구조는 고객별로 다릅니다. 일부 계약은 물량을 고정하고, 일부는 가격 약정을 포함하며, 일부는 양쪽 모두를 포함합니다. 가격 및 물량 조건은 통상 분기 단위로 시장 추세를 참조하여 검토되는 경우가 많습니다.\n\nQ. 3분기/4분기 ASP와 영업 실적 전망은 어떻습니까?\nA. 3분기 영업 실적은 추가 개선될 것으로 예상되며, OPM은 이미 높은 수준이지만 더 올라갈 가능성이 있습니다. 4분기는 가시성이 시장 상황에 달려 있습니다.\n\nQ. 중국 현지 DRAM 업체들의 매출 또는 생산 증가에 따른 영향이 있습니까?\nA. 현재 NYT에 직접적인 영향은 없습니다. 사업은 글로벌 전반에서 안정적으로 유지되고 있으며, 고객/제품 중복은 제한적인 것으로 보입니다.\n\nQ. 제품별 매출 믹스는 어떻게 됩니까?\nA. DDR4가 여전히 가장 큰 비중을 차지합니다. DDR4와 LPDDR4가 합쳐서 매출의 약 60~70%를 차지하며, DDR3와 DDR5가 각각 약 10%, 나머지는 기타 제품들로 나뉩니다.\n\nQ. 45K WSPM을 위한 NT&#036;160억 캐펙스에 대해 설명해 주시겠습니까?\nA. 건설 비용은 NT&#036;30억 미만이며, 나머지는 EUV를 포함한 장비입니다. EUV 도입은 2028년 예상 시점 전후로 예상되며, 장비 배치와 기술 타이밍에 따라 1C/1D/1E에 적용될 가능성이 있습니다.\n\nQ. 커스터마이즈드 DRAM/AI 솔루션 및 HBM 개발에 대한 업데이트가 있습니까?\nA. 커스터마이즈드 DRAM 프로젝트는 복수의 고객사와 함께 진행되고 있습니다. 웨이퍼-투-웨이퍼 본딩을 포함한 HBM 관련 확장 프로젝트도 진행 중이며, 제품 타이밍은 고객사의 프로젝트 일정에 달려 있습니다.\n\nQ. 2028년까지 비AI 제품의 전망은 어떻습니까?\nA. 하이엔드 비AI 제품이 로우엔드 제품보다 좋은 성과를 내고 있습니다. NYT는 DDR3/LDDR4/DDR4/KDDR4 및 기타 DRAM 제품 전반에 걸쳐 비AI 고객들을 계속 지원하되, 공급이 타이트하게 유지되는 가운데 고부가가치 애플리케이션을 우선시할 것입니다.\n\nQ. DDR5 수요가 강한데도 DDR5가 총 매출의 약 10%에 불과한 이유는 무엇입니까?\nA. DDR4, LPDDR4, DDR3, DDR5 전반에 걸쳐 수요는 강하지만 캐파가 제한적입니다. DDR3/DDR4는 공급이 더 제약되어 있고 수익성도 여전히 매력적이기 때문에, NYT는 DDR5로 더 공격적으로 전환하기보다는 이들 제품에 의미 있는 캐파를 계속 배분하고 있습니다.\n\nQ. 어떤 애플리케이션이 수요를 견인하고 있습니까?\nA. 컨슈머 관련 애플리케이션에는 자동차, 산업, 통신이 포함됩니다. 이러한 애플리케이션이 매출의 약 60%를 차지하며, 나머지는 클라우드, PC, 모바일에서 발생합니다.\n\nQ. 주주 환원 전망은 어떻습니까?\nA. 배당 지급은 캐펙스 및 장비를 위한 자본 소요와 균형을 맞춰 이루어질 것입니다. 주주 환원 여력은 여전히 있으며, 순이익의 약 40% 수준의 배당 성향이 가능할 것으로 봅니다.\n\nQ. 직원 상여금 비용이 2분기 실적에 포함되었습니까?\nA. 직원 상여금 비용은 1H26 실적에 포함되었습니다.\n\nQ. 캐펙스 집행 시기에 대한 세부 사항은 어떻습니까?\nA. 캐펙스 현금 유출은 건설 및 장비 대금 지급 일정을 따를 것입니다. 대금은 일반적으로 검수와 인수 이후에 지급되므로, 실제 현금 지출은 약정된 캐펙스보다 후행할 것입니다.\n\nQ. NT&#036;520억의 2026년 캐펙스 계획은 현금 지급 기준이 아니라 약정 기준입니까?\nA. 그렇습니다. 1H26에는 NT&#036;69억만 지급되었으며, 프로젝트가 진행됨에 따라 향후 분기에 현금 지급이 증가할 것입니다.\n\nQ. NYT가 더 강력한 정부 지원을 받을 수 있습니까?\nA. 정부 지원은 중앙, 지방, 부처 수준으로 분산되어 있는 상태이지만, NYT는 대만 DRAM 산업을 위한 보다 통합된 지원을 계속 모색하고 있습니다.\n\nQ. 대만의 파운드리 생태계가 웨이퍼-투-웨이퍼 제품 개발에 어떤 도움이 됩니까?\nA. 대만의 선진 반도체 생태계는 커스터마이즈드 메모리 프로젝트를 효율화하는 데 도움이 될 것입니다. 여러 프로젝트가 대기 중이며, 선도적인 파운드리/패키징 역량과의 근접성이 웨이퍼-투-웨이퍼 개발을 뒷받침할 수 있습니다.\n\nQ. 다운턴 시 디폴트 리스크를 줄이기 위해 현금 선지급/가격 하한/테이크-오어-페이(take-or-pay)와 같은 LTA 구조를 고려하시겠습니까?\nA. 네, 그러한 구조를 고려할 것입니다.\n\nQ. 메모리의 순환적 특성을 감안할 때, 향후 전망은 어떻습니까?\nA. 메모리는 여전히 순환적이며, 특히 저부가가치 비AI 제품에서 그렇습니다. 다만 전체 시장은 AI/서버 수요와 애플리케이션 전반의 타이트한 캐파에 힘입어 여전히 공급 부족 상태에 있습니다.\n\nQ. NYT의 LPDDR이 NVIDIA의 Vera Rubin 서플라이체인에 진입할 가능성에 대해 코멘트해 주시겠습니까?\nA. 고객사 기밀 유지로 인해 코멘트하지 않겠습니다.\n\nQ. 최근 웨이퍼 가격 인상이 매출총이익률에 미치는 영향은 어떻습니까?\nA. 초점은 여전히 ASP 모멘텀에 있습니다. 2분기 ASP 상승이 3분기까지 이어질 것으로 예상되며, 이는 원가 압박을 상쇄하는 데 도움이 될 것입니다.\n\nQ. 앞서 컨슈머 부문의 가격 저항이 있었던 이후, 고객들의 풀인(pull-in) 모멘텀이 개선되었습니까?\nA. 공급이 여전히 타이트하여 추가적인 풀인 모멘텀을 지원할 여력이 제한적입니다."
     },
     {
-      "id": "insidertracking/58106",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58106",
-      "datetime": "2026-07-12T12:20:09.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 57,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️\n미국 중부사령부에 따르면 호르무즈 해협은 현재 선박 통항이 가능한 상태를 유지 중.\n\n호르무즈 해협을 통한 자유로운 항행 경로는 계속 개방되어 있으며, 이란은 글로벌 상품 및 에너지 수송에 사용되는 국제 항로를 통제하지 않는다는 입장 제시.\n\n미군은 최근 두 달 동안 800척 이상의 선박과 4억 배럴 이상의 원유가 호르무즈 해협을 통과할 수 있도록 지원했다고 발표.\n\n최근 7일 동안에도 140척 이상의 선박이 호르무즈 해협을 통항한 것으로 집계."
-    },
-    {
       "id": "aetherjapanresearch/23493",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23493",
@@ -12383,40 +13105,6 @@
       "text": "디지타임스 보고서에 따르면 AI 수요 급증과 구조적인 생산능력 병목 영향으로 차세대 HBM4 가격이 2026년 하반기 1,000비트당 2달러 수준에서 4~5달러 이상으로 상승할 가능성이 제기됨.\n\nHBM4 가격 상승 배경으로는 제조 공정의 극도로 높은 복잡성이 지목됨. 생산 기간이 4~6개월에 달하는 데다 초기 수율도 상대적으로 낮은 수준인 것으로 알려짐.\n\n또한 HBM 생산에는 표준 DDR5 D램 대비 약 3배 수준의 웨이퍼 생산능력이 소요돼 기존 생산시설에서 제조 가능한 전체 메모리 물량이 크게 제한되는 상황."
     },
     {
-      "id": "insidertracking/58104",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58104",
-      "datetime": "2026-07-12T11:23:36.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "kr-market"
-      ],
-      "tickers": [
-        "MRVL"
-      ],
-      "score": 96,
-      "text": "미국 레딧 게시물 분석\n(2026년 7월 12일 09:30~20:30 기준)\n\n> 🛢 오일 / 호르무즈\n\n· \"월요일 오일 갭상승\" 기대감 유지\n· 호르무즈 이슈는 아직 끝난 게 아니라는 의견\n· 오일 콜 홀더들 \"살았다\" 분위기\n· 반대로 \"월요일 되면 또 해결됐다며 던질 것\"이라는 냉소도 많음\n· 지정학 뉴스 하나에 YOLO 베팅 지속\n· 변동성 극단적\n\n 💾 SK하이닉스 / AI 메모리\n\n· SK하이닉스 월요일 방향성 토론 계속\n· \"Ride Hynix RAM to the moon\"\n· \"한국 매수세 와라\" 기대\n· 일부는 월요일 크게 깨질 거라는 약세 의견\n· AI 메모리 장기 강세 서사는 여전히 유지\n\n 🧠 AI 반도체 / CRDO / MRVL\n\n· \"왜 CRDO냐?\"라는 AI 네트워크 강세론 등장\n· MRVL도 실적 이후 급등 기대\n· GPU·메모리·네트워킹이 AI 수혜 핵심이라는 인식\n· AI 자체보다 인프라 업체 선호\n\n ⚡️ AI 산업 전체\n\n· \"AI 회사들이 정말 돈을 벌 수 있나?\" 논쟁 증가\n· OpenAI 등 모델 기업에는 회의적\n· 대신 GPU·HBM·클라우드 인프라가 결국 승자라는 의견 우세\n· \"GPU GO BRRR\" 밈 반복\n\n 📉 SPY / 옵션\n\n· 월요일 하락 예상 글 증가\n· 하지만 \"결국 ATH 찍는다\"는 불런도 공존\n· 0DTE·SPY 풋·SPX 풋 베팅 활발\n· \"Red Monday → Green Open\" 같은 밈성 전망 반복\n· 전형적인 YOLO 옵션 분위기\n\n 📺 실적 플레이\n\n· NFLX 콜/풋 고민\n· DIS 풋 관심\n· UNH 풋 언급\n· 이번 주 실적 시즌 베팅 준비\n\n 🪙 BTC / 크립토\n\n· BTC Treasury 기업 장기 강세론\n· SOL·ETH Treasury 기업도 관심\n· 다음 큰 조정이 오면 풀매수하겠다는 의견 증가\n· 장기 Bullish 심리 유지\n\n 🔥 현재 WSB 전체 시장 심리\n\n· 정치 이슈와 지정학 뉴스가 시장보다 더 큰 화제\n· 오일 콜 vs SPY 풋 동시 베팅\n· AI 인프라는 여전히 가장 강한 장기 테마\n· SK하이닉스·CRDO 등 AI 하드웨어 관심 지속\n· 옵션 도박(YOLO) 분위기 매우 강함\n· \"월요일 갭 → 방향 전환\" 시나리오를 기대하는 글 다수\n· 숏스퀴즈보다는 이벤트 드리븐 변동성 플레이가 중심\n· FOMO는 여전하지만 시장 방향에 대한 확신은 약해져 강세론과 약세론이 팽팽하게 충돌하는 분위기\n\n작성자: 미국 주식 인사이더\n t.me/insidertracking"
-    },
-    {
-      "id": "insidertracking/58102",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58102",
-      "datetime": "2026-07-12T10:21:34.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "geo",
-        "power",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 66,
-      "text": "합동해양정보센터(JMIC)가 7월 12일 권고문을 통해 호르무즈 해협 남부 항로가 여전히 이용 가능하다고 발표.\n\nJMIC는 이란의 호르무즈 해협 폐쇄 선언 이후에도 선주, 선사 및 선원들을 대상으로 이용 가능한 통항 경로 정보를 재차 안내했다고 설명.\n\n호르무즈 해협의 해상 안보 위협 수준은 여전히 '심각(SEVERE)' 단계로 유지되고 있으나, 2026년 7월 12일 이란의 해협 폐쇄 선언에도 불구하고 남부 항로는 개방 상태를 유지하고 있으며 양방향 통항이 가능하도록 확대 운영 중이라고 밝힘.\n\n선박들은 해군 전력의 무선 호출에 대비해야 하며, 기존 교통분리수역 내 기뢰 위험 지역에 대한 주의가 필요하다고 강조.\n\n또한 선박들은 미 해군 중부사령부 산하 NCAGS와의 협조 및 기존 보고·조정 절차 활용을 강력히 권고받고 있으며, 다만 NCAGS와의 협조는 의무 사항은 아니어서 별도 조정 없이도 남부 항로 이용이 가능하다고 설명.\n\n아울러 어떠한 항로에도 통항을 규제하는 기관이나 통행료는 존재하지 않는다고 명시.\n\nJMIC는 안전한 통항 경로 관련 정보를 위해 선박들이 미 해군 중부사령부 NCAGS와 연락할 것을 권고."
-    },
-    {
       "id": "aetherjapanresearch/23490",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23490",
@@ -12447,44 +13135,6 @@
       ],
       "score": 58,
       "text": "머스크의 xAI가 만든 공식 CLI 툴인 Grok Build 절때 사용하지 마세요. 여러분 데이터 다 훔쳐갑니다.\n\nxAI의 공식 코딩 CLI 도구인 Grok Build(grok)가 일반 소비자 계정으로 로그인한 상태에서 사용자의 코드와 데이터를 xAI 서버로 어떻게 전송하는지를 와이어 레벨(패킷 수준)에서 직접 캡처해 분석한 보안 폭로글입니다. 작성자는 자신의 기기에서 자신의 트래픽만을, 가짜 카나리(canary) 비밀값이 담긴 일회용 저장소를 이용해 검증했다고 밝히고 있으며, 실제 자격 증명은 유출되지 않았다고 명시하고 있습니다.\n\n핵심 발견은 크게 세 가지입니다.\n첫째, Grok이 파일을 읽으면 그 내용이 .env 같은 비밀 파일까지 포함해 아무런 마스킹 없이 그대로 xAI로 전송된다는 것입니다. 이 비밀값은 두 경로에서 확인되는데, 하나는 실시간 모델 응답(POST /v1/responses)이고, 다른 하나는 session_state 아카이브 형태로 POST /v1/storage를 통해 업로드되어 HTTP 200으로 정상 수락된 채널입니다. 작성자는 48,070바이트 크기의 복호화된 요청 본문에서 카나리 비밀값이 그대로 담겨 있는 것을 grep으로 확인했다고 제시합니다.\n\n둘째, 에이전트가 무엇을 읽었는지와 무관하게 저장소 전체가 업로드된다는 점입니다. \"어떤 파일도 읽지 말고 OK라고만 답하라\"는 프롬프트를 주었음에도 Grok은 전체 저장소를 git 번들 형태로 업로드했고, 캡처된 번들을 git clone하면 에이전트가 열지 말라고 지시받은 파일(src/_probe/never_read_canary.txt)이 고유 마커와 함께 그대로 복원되며 전체 git 히스토리까지 포함되어 있었다고 합니다. 규모 측면에서도, 한 번도 읽지 않은 무작위 파일로 구성된 12GB 저장소에서 /v1/storage 채널로는 5.10 GiB가 전송된 반면 모델 응답 채널로는 겨우 192KB만 오갔으며, 이 약 27,800배 차이가 업로드 대상이 \"읽은 내용\"이 아니라 \"코드베이스 전체\"임을 못박는다고 설명합니다. 이 과정에서 저장소 업로드는 단 한 건도 실패하지 않았고, 200이 아닌 응답은 모델 사용량 할당량(402/429)과 무관한 404 하나뿐으로, 저장 용량 상한이 아니었다고 합니다.\n\n셋째, 이 데이터가 저장되는 목적지가 AWS S3가 아니라 grok-code-session-traces라는 이름의 Google Cloud Storage 버킷이라는 점입니다. 이 버킷 이름은 바이너리 내부 문자열과 캡처된 metadata.json(gs://grok-code-session-traces/…)에 그대로 등장하며, 이 메커니즘은 기본값으로 활성화되어 있고 \"Improve the model(모델 개선)\" 옵션을 꺼도 비활성화되지 않는다고 합니다. 실제로 해당 옵션을 끈 뒤에도 저장소는 동일하게 git 번들로 업로드되었고, 서버의 /v1/settings 응답은 여전히 trace_upload_enabled: true를 반환했다는 것입니다. 즉 옵트아웃은 학습 사용 여부를 통제할 뿐, 코드가 업로드·저장되는 것 자체를 막지는 못한다고 정리합니다.\n https://gist.github.com/cereblab/dc9a40bc26120f4540e4e09b75ffb547\n https://www.reddit.com/r/LocalLLaMA/comments/1ut7tis/grok_build_cli_uploads_your_whole_repo_full_git/"
-    },
-    {
-      "id": "insidertracking/58099",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58099",
-      "datetime": "2026-07-12T07:41:29.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 59,
-      "text": "디지타임스 보고서에 따르면 AI 수요 급증과 구조적인 생산능력 병목 영향으로 차세대 HBM4 가격이 2026년 하반기 1,000비트당 2달러 수준에서 4~5달러 이상으로 상승할 가능성이 제기됨.\n\nHBM4 가격 상승 배경으로는 제조 공정의 극도로 높은 복잡성이 지목됨. 생산 기간이 4~6개월에 달하는 데다 초기 수율도 상대적으로 낮은 수준인 것으로 알려짐.\n\n또한 HBM 생산에는 표준 DDR5 D램 대비 약 3배 수준의 웨이퍼 생산능력이 소요돼 기존 생산시설에서 제조 가능한 전체 메모리 물량이 크게 제한되는 상황."
-    },
-    {
-      "id": "insidertracking/58095",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58095",
-      "datetime": "2026-07-12T07:06:50.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "semi",
-        "power",
-        "kr-market",
-        "equity"
-      ],
-      "tickers": [
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "TSM",
-        "AAOI",
-        "ORCL",
-        "RKLB"
-      ],
-      "score": 100,
-      "text": "서학개미 순매수 미국 주식 TOP 50 (26년 7월 누적)\n\n> 기간: 2026/07/01 ~ 2026/07/10\n\n1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (31.47%)\n2위: DIREXION SHARES ETF TRUST DAILY MSCI SOUTH KOREA BULL (5.75%)\n3위: MICROSOFT CORP (4.86%)\n4위: IRIS ENERGY LTD (4.49%)\n5위: TRADR 2X LONG SNDK DAILY ETF (3.88%)\n6위: PROSHARES ULTRA QQQ ETF (3.73%)\n7위: ALPHABET INC CL A (3.57%)\n8위: INVESCO NASDAQ 100 ETF (2.72%)\n9위: ROUNDHILL T-REX 2X LONG DRAM DAILY TARGET ETF (2.68%)\n10위: APPLIED MATERIALS INC (2.67%)\n\n11위: SPACE EXPLORATION TECHN-CL A (2.46%)\n12위: OKTA INC (2.32%)\n13위: GUARDANT HEALTH INC (2.02%)\n14위: ROCKET LAB CORPORATION (1.96%)\n15위: PROSHARES ULTRAPRO QQQ ETF (1.85%)\n16위: VANGUARD SP 500 ETF (1.81%)\n17위: INVESCO QQQ TRUST SRS 1 ETF (1.43%)\n18위: ULTRA CLEAN HOLDINGS INC (1.08%)\n19위: SPDR SP 500 ETF TRUST (1.04%)\n20위: NAVAN INC-CL A (1.03%)\n\n21위: SCHWAB US DIVIDEND EQUITY ETF (1.03%)\n22위: T-REX 2X LONG SNDK DAILY TARGET ETF (0.98%)\n23위: NATERA INC (0.97%)\n24위: ORACLE CORP (0.97%)\n25위: J.P. MORGAN NASDAQ EQUITY PREMIUM INCOME ETF (0.96%)\n26위: DEFIAN DIY TT 2X LO IREN ETF (0.93%)\n27위: APPLIED OPTOELECTRONICS INC (0.88%)\n28위: NEOS NASDAQ 100 HIGH INCOME ETF (0.87%)\n29위: SPDR PORTFOLIO SP 500 ETF (0.71%)\n30위: IONQ INC (0.68%)\n\n31위: MICROSTRATEGY INC CL A (0.66%)\n32위: AMAZON.COM INC (0.65%)\n33위: POWELL INDUSTRIES INC (0.58%)\n34위: CATERPILLAR INC (0.58%)\n35위: DEFINCE D TRGT 2X L ORCL ETF (0.55%)\n36위: CoreWeave Inc (0.51%)\n37위: TAIWAN SEMICONDUCTOR MANUFACTURING CO LTD ADR (0.45%)\n38위: NUSCALE POWER CORP CL A (0.43%)\n39위: HINGE HEALTH INC (0.43%)\n40위: ALPHA ARCHITECT 1-3 MONTH BOX ETF (0.36%)\n\n41위: SILICON MOTION TECHNOLOGY CORP ADR (0.34%)\n42위: GOLDMAN SACHS NASDAQ 100 CORE PREMIUM INCOME ETF (0.34%)\n43위: T-REX 2X LONG MSTR DAILY TARGET ETF (0.33%)\n44위: STABLECOINX INC (0.31%)\n45위: SNOWFLAKE INC (0.29%)\n46위: ELI LILLY & CO (0.29%)\n47위: PROSHARES ULTRA SEMICONDUCTORS ETF (0.29%)\n48위: INFLEQTION INC (0.28%)\n49위: DATADOG INC CL A (0.28%)\n50위: DEFIANCE DAILY TARGET 2X LONG IONQ ETF (0.26%)\n\n ✅ 요약 분석\n\n총 순매수 금액: 2,438,903,263 USD\n(약 3조 7,112억 원, 평균 환율 1,521.69원 기준)\n\n ✅ 각 종목 옆에 있는 %는 전체 순매수 금액중에서 비중을 뜻합니다\n\n작성자: 미국 주식 인사이더\n출처: 한국예탁결제원"
     },
     {
       "id": "aetherjapanresearch/23485",
@@ -13573,39 +14223,6 @@
       "text": "[속보] 반도체클러스터 광주 군공항 인근 토지거래허가구역 지정\n https://n.news.naver.com/article/011/0004639956?sid=101"
     },
     {
-      "id": "bornlupin/18982",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/18982",
-      "datetime": "2026-07-09T07:21:24.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "macro",
-        "power"
-      ],
-      "tickers": [
-        "BE"
-      ],
-      "score": 64,
-      "text": "미즈호(Mizuho), 블룸 에너지(Bloom Energy Corp, &#036;BE ) , 목표주가 285달러를 유지\n\n2026년 7월 8일, 한 투자 회사와 연계된 매체에서 공매도 보고서(short report)를 발표했습니다. 이 보고서는 여러 주장을 제기하고 있지만, 주로 스칸듐(Scandium) 조달, 중국 의존도, 제한된 공급 문제에 초점을 맞추고 있습니다. 또한 브룩필드(Brookfield) 자금 조달, 수주 잔고(backlog) 대비 잔여 계약 의무(RPO), 최고재무책임자(CFO) 교체, 뉴멕시코(NM)의 가스 파이프라인 지연, 그리고 AEP 계약과 관련하여 기존의 비관적 견해(bear takes)들을 재탕하고 있습니다.\n\n블룸 에너지는 7월 28일 2분기 실적 발표를 앞두고 침묵 기간(quiet period)에 돌입한 상태지만, 스칸듐 조달 문제에 대한 공매도 보고서의 주장에는 직접적으로 해명했습니다.\n\n보고서에서 지적한 사업 지연 문제들은 대부분 고객 및 인허가와 관련된 사항입니다.\n\n또한 해당 보고서는 AI 및 데이터센터 고객을 유인하는 블룸 에너지의 핵심 매력인 '신속한 전력 공급(speed to power)'을 간과하고 있습니다 . 이러한 강점은 인허가 절차가 더 빠른 다른 주에서 블룸 에너지를 여전히 매력적인 기업으로 만드는 요소 입니다.\n\n 당사는 7월 8일의 주가 하락(underperformance)이 과도하다고 판단합니다"
-    },
-    {
-      "id": "bornlupin/18981",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/18981",
-      "datetime": "2026-07-09T07:18:23.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "macro",
-        "power",
-        "kr-market"
-      ],
-      "tickers": [
-        "BE"
-      ],
-      "score": 77,
-      "text": "베어드(Baird), 블룸에너지(Bloom Energy Corp, &#036;BE )에 대해 'Outperform' 투자의견, 목표주가 310달러를 유지\n\n“ 오늘 주가에 하방 압력이 가해진 한 가지 원인은 기존의 여러 약세장 논리를 재탕하면서도, 수년 전부터 제기되어 온 '스칸듐(scandium) 조달' 문제를 부각시킨 공매도(Short) 보고서 때문이었습니다.\n\n공급망 확장은 당사가 면밀히 모니터링하고 있는 리스크이지만, 해당 공매도 보고서에서 지적한 스칸듐 우려는 주요 리스크가 아니라고 판단합니다 .\n\n 흥미롭게도 어제 BE의 최고운영책임자(COO)가 이 주제와 관련하여 블로그에 글을 올렸습니다.\n\n어제(그리고 과거에도 여러 차례), BE는 산화 스칸듐(scandium oxide)에 대해 언급했습니다 . 7월 7일, 사티시 치투리(Satish Chitoori) COO는 BE의 산화 스칸듐 사용에 대해 설명하는 블로그 글을 작성했습니다.\n\n이 글의 핵심은 BE가 산업 시설의 광물 찌꺼기(광미, tailings)에서 스칸듐을 조달한다는 것입니다.\n BE는 현재의 공급망으로 25GW 규모의 생산을 지원할 수 있다고 믿고 있습니다. 반면, 공매도 보고서는 프리몬트(Fremont) 공장이 완전히 확장되었을 때의 명목 생산 능력(실제로는 약간 더 높을 가능성 있음)인 5GW를 충족할 만한 스칸듐을 BE가 확보하지 못할 것이라는 점에 초점을 맞추고 있습니다.\n\n 어제 COO의 게시물은 현재의 공급망이 이보다 5배 많은 생산을 지원할 수 있으며, BE가 현재 공급망을 더욱 확장하고 있음을 시사했습니다.\n\n 이것은 새로운 논쟁거리가 아닙니다. 독립적인 원자재 연구 기관(CPM Group, 2022년)에서는 오랫동안 스칸듐 공급을 니켈, 티타늄, 보크사이트 폐기물에서 부산물로 회수하는 방식(BE의 COO가 설명한 것과 동일한 광미 기반 조달)으로 규정 해 왔으며, 자금력이 탄탄한 여러 생산자들을 지목한 바 있습니다 . 즉, 공매도 보고서에서 묘사한 제약 요인은 공급망 차원에서 이미 수년 동안 적극적으로 해결해 온 문제 입니다.”"
-    },
-    {
       "id": "aetherjapanresearch/23404",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23404",
@@ -13619,34 +14236,6 @@
       "tickers": [],
       "score": 84,
       "text": "📌 Citi 원유 모니터 요약 (2026.07.08)\n호르무즈 해협(SoH) 충돌 재개, 원유 시장에 미치는 영향\n\n이 보고서는 원래 5월부터 이번 주 월요일까지 이어진 석유제품 가격 급락을 설명하기 위해 작성되었습니다. 하락의 대부분은 원유 가격 구성 요소에서 발생했고, 제품 프리미엄과 크랙 스프레드는 매우 높은 수준을 유지했습니다. 리밸런싱의 주요 동인은 중국의 원유 수입 감소, 호르무즈 해협 물동량 회복, 중동발 우회 물량이었습니다. 다만 최근 24~48시간의 긴장 고조로 해협이 다시 봉쇄될 가능성이 제기되면서, 시장의 관심은 미국과 이란 간 향후 정치적 전개로 옮겨간 상황입니다.\n\nCiti는 호르무즈 물동량을 실질적으로 훼손하는 미국·이란 간 무한 분쟁을 기본 시나리오로 삼기는 어렵다고 보며, 결국 협상·양해각서(MoU)·딜로 회귀할 가능성이 높다고 판단합니다. 기본 시나리오는 향후 1~2주 내 신속한 협상 재개이지만 지연 리스크는 커졌습니다. 협상 재개 여부는 트럼프 대통령과 이란 정권에 달려 있으며, 이란이 여름 드라이빙 시즌 이후, 혹은 중간선거 이후까지 협상을 미룰 가능성도 있습니다.\n\n임박한 딜 성사 가능성이 실질적으로 훼손되면서 강세(bull case) 유가 시나리오의 확률이 높아졌지만, 양측 모두 분쟁 재개 시 잃을 것이 많다는 점이 지적됩니다. Citi는 이란 최고국가안보회의(SNSC)가 이미 MoU 조건을 승인했던 만큼 이란이 결국 협상 테이블로 복귀할 것을 기본 시나리오로 봅니다. 미국 측에서는 트럼프 대통령이 강한 주가와 안정적 채권 시장을 선호해 온 점을 근거로 비교적 빠른 시일 내 협상에 복귀할 것으로 전망합니다. 다만 시점이 오늘일지 향후 몇 달일지는 불확실하며, Citi는 이번 국면을 생산자 헤지 기회로 규정합니다(약세 시나리오에서 러·우 딜과 이란 딜로 유가가 50~60달러까지 하락하는 데 대비한 보험 매입 개념).\n\n가격 전망은 브렌트유 기준으로 3분기 26년 평균 배럴당 75달러, 4분기 70달러, 2027년 65달러이며, 궁극적으로 딜이 성사되고 호르무즈 해협이 개방되는 것을 전제로 합니다. 중동과 러시아의 정제 능력이 영향을 받으면서 제품 프리미엄과 크랙 스프레드는 높은 수준을 유지하고 있습니다. 중국의 수입 재개는 정제제품 시장의 열기를 다소 식힐 수 있으나, 동시에 러시아 수출 감소가 이를 상쇄할 수 있습니다.\n\n수급 측면에서, 최근 물동량을 분쟁 이전(2026년 2월)과 비교하면 중국 제외(ex-China) 시장은 약 1.5mb/d의 소폭 공급 과잉으로 이동했습니다. 걸프 국가 수출은 호르무즈 해협과 우회 노선(사우디 동서 송유관→홍해, UAE 송유관→후자이라 포함)을 통해 약 14mb/d 수준에서 이뤄지고 있으나, 이미 감소세에 접어들었고 긴장 고조로 추가 하락 가능성이 있습니다. 중국 매입은 분쟁 이전 대비 약 4.5mb/d 낮고, 미국 전략비축유(SPR)는 7월까지 약 1mb/d를 계속 방출 중입니다.\n\n원유만 놓고 보면 중국 제외 순공급 과잉이 약 4.3mb/d로 확대되었는데, 이는 최근 몇 달간 중국 매입 급감과 SPR 방출 지속, 호르무즈 물동량의 점진적 정상화가 겹친 결과입니다. 반면 정제제품 시장은 반대로 약 2.8mb/d의 순부족 상태로, 분쟁 이전 약 5mb/d에 달했던 호르무즈 제품 물동량이 최근 약 1mb/d만 회복된 데다 중국의 제품 수출 감소와 아시아 정제 가동률 축소가 겹쳤기 때문입니다. 다만 견조한 정제 마진이 점차 가동률 회복을 유도해, 시간이 지나면 원유 과잉이 제품 과잉으로 전환될 수 있습니다."
-    },
-    {
-      "id": "bornlupin/18980",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/18980",
-      "datetime": "2026-07-09T06:56:12.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "geo",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 75,
-      "text": "IMF, AI 붐에 힘입어 주요 경제국 중 한국의 경제 성장률 전망치를 가장 크게 상향 조정\n\n 성장률 전망치 대폭 상향:\n국제통화기금(IMF)은 최신 전망에서 전 세계 30개 주요 경제국 중 한국의 경제 성장률 전망치를 가장 큰 폭으로 상향 조정 했습니다. 한국의 2026년 성장률 전망치는 기존 1.9%(4월 기준)에서 2.6%로 , 2027년 전망치는 2.1%에서 2.5%로 올랐습니다.\n\n 상향 조정의 배경 (AI 반도체 호황):\n AI(인공지능)가 주도하는 반도체 호황이 중동 분쟁으로 인한 경제적 타격을 극복할 만큼 강력하게 작용 하고 있기 때문입니다.\n\n 수출 호조와 한국의 입지: 반도체에 대한 강력한 해외 수요가 전쟁의 부정적인 영향을 상쇄 했으며, 이로 인해 한국은 대만, 태국, 말레이시아와 함께 세계 4대 AI 하드웨어 순수출국으로 자리매김 했습니다.\n\n https://www.bloomberg.com/news/articles/2026-07-09/imf-raises-s-korea-growth-most-among-major-economies-on-ai-boom?taid=6a4eeca5d7fb6000010aa77d&utm_campaign=trueanthem&utm_content=business&utm_medium=social&utm_source=twitter"
-    },
-    {
-      "id": "bornlupin/18979",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/18979",
-      "datetime": "2026-07-09T06:14:58.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 50,
-      "text": "단일종목 레버리지 상한 20% 제한?…당국 “전혀 사실 아냐”\n\n‘정부 레버리지 ETF 규제안’이라는 이름으로 출처가 불분명한 정보가 무분별하게 퍼졌다. 정부가 △기본 예탁금 1000만→5000만 원 상향 △매주 레버리지 상품 강의 1시간 의무 시청 △상품 등락 상한 20%로 제한 등과 같은 조치를 취할 것이란 내용 이었다.\n\n이에 대해 금융당국은 이 같은 정보가 전혀 사실 무근 이라는 입장이다.\n\n https://www.sedaily.com/article/20065800"
     },
     {
       "id": "aetherjapanresearch/23396",
@@ -13730,41 +14319,6 @@
       ],
       "score": 51,
       "text": "아마도 공모자금으로 HBM 투자를 안할 수 도 있어 표기를 안했을 수도 있고, 디램 기술 개발에 포함된 자금일수도 있음\n\n여튼 디램 기술 고도화로 디램 선폭을 줄인다는 건 결국 HBM 한다는 의미\n\n https://blog.naver.com/redbirdstock/224333087090"
-    },
-    {
-      "id": "aetherjapanresearch/23385",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23385",
-      "datetime": "2026-07-09T00:30:45.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "MU",
-        "005930.KS",
-        "000660.KS"
-      ],
-      "score": 59,
-      "text": "(1) 후발주자로서 글로벌 선도 기업과는 아직 일정한 격차 존재\nDRAM 산업은 오랫동안 삼성전자, SK하이닉스, 마이크론(Micron Technology) 등 글로벌 선도 기업들이 주도해 왔다. 회사는 비교적 늦게 사업을 시작한 만큼, 이들 경쟁사와 비교하면 매출 규모, 연구개발(R&D) 및 자본 투자 규모, 생산능력(캐파), 제품 포트폴리오 등의 측면에서 아직 일정한 격차가 존재한다.\n이들 선도 기업은 수십 년에 걸친 발전을 통해 DRAM 제품의 설계와 제조 분야에서 깊은 기술력을 축적해 왔으며, 기술 선도 우위와 함께 일정 수준의 원가 경쟁력도 확보하고 있다. 이에 비해 회사는 아직 성장 초기 단계에 있어, 이들 기업과 경쟁하는 과정에서 상대적으로 더 큰 경쟁 압력을 받고 있다"
-    },
-    {
-      "id": "aetherjapanresearch/23384",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23384",
-      "datetime": "2026-07-08T23:29:38.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "AMD",
-        "AVGO"
-      ],
-      "score": 75,
-      "text": "Citi) Hewlett Packard Enterprise (HPE)투자자 미팅 시사점: 견고한 수요 동인, 점유율 확대 기회, 마진 개선 및 자본 환원 전망\n\n씨티의 견해 (CITI'S TAKE)\n당사는 Guillaume Gerardin(네트워킹 부문 CFO) 및 IR과 투자자 미팅을 진행했습니다. 경영진은 Juniper 통합의 초기 단계임에도 최근 실적에 대해 낙관적인 어조를 보였으며, 강력한 수주 모멘텀(직전 분기 전년 대비 +20%)이 매출을 크게 앞지르고 있고, AI용 네트워크(Networks for AI) 부문의 누적 수주 증가액이 약 20억 달러에 달합니다. 이는 주로 수요 전반에 걸친 폭발적인 규모 확대와 견조한 스케일아웃(scale out) 성과에 기인하며, 확대되고 있는 스케일업(scale up) 기회(AMD Helios 랙)는 향후 추가 상승 잠재력을 제공합니다. 메모리발 인플레이션(memflation)에도 불구하고, 기업들이 평가 단계에서 배포 단계로 이동함에 따라 클라우드 및 AI 수요는 여전히 견조하며, 공급은 여전히 제약 요인으로 남아 있습니다. 당사는 매력적인 밸류에이션 수준, 기업용 AI 인프라 전반의 강화된 입지, 견고한 수요 동인, 마진 개선 및 향후 개선될 주주 환원을 근거로 HPE 주식에 대해 긍정적인 견해를 유지합니다.\n\n주요 시사점 (Key takeaways)\n경영진은 Juniper 통합에 대해 여전히 매우 긍정적이며, 1년 차 시너지 목표는 현재 계획을 앞서 나가고 있습니다. 동사는 고객의 호응을 얻고 있는 제품 혁신을 추진하고 있으며, 강력한 업계 인정(유선 및 무선 LAN 인프라 부문 Gartner Magic Quadrant)을 받는 한편, 1년 차 시너지 목표(2억 달러 이상)를 초과 달성하고 있습니다. 통합 노력이 결실을 맺으면서 해당 부문의 실적이 가속화될 가능성이 있을 것으로 기대되나, 수요 충족에 있어 공급이 여전히 제약 요인이라는 점에 유의합니다.\n\n동사는 데이터센터 내 AI로부터의 구조적 성장 및 기업 현대화 이니셔티브에 뒷받침되는 네트워킹 부문의 지속적인 성장 동인에 대해 여전히 매우 낙관적이며, 데이터센터 내 스케일어크로스(scale across), 스케일아웃, 스케일업뿐만 아니라 클라우드 및 온프레미스 캠퍼스·브랜치(campus and branch) 제품에 이르는 완전한 네트워킹 제품 포트폴리오로 점유율을 확대할 기회를 보유하고 있습니다.\n\n특히 데이터센터와 관련하여, 경영진은 (26 회계연도 말까지) 누적 20억 달러의 AI용 네트워크 수주를 언급했는데, 이는 주로 DC 인터커넥트(스케일어크로스용 PTX)와 DC 이더넷 스위치(스케일아웃용 QFX, Tomahawk 6 칩을 최초로 시장 출시, 100% 액체 냉각)로 구성되어 있습니다. 참고로, AMD Helios 랙에서의 스케일업 기회는 이제 막 초기 확대 단계에 있으며, 추가적이고 상당한 상승 잠재력을 나타내고 다른 GPU 제조사들과의 파트너십을 위한 토대를 마련할 수 있습니다.\n\n캠퍼스·브랜치 부문(네트워킹 부문의 50%) 내에서, 경영진은 자가 운영 네트워크(self-driving networks)를 구현하기 위해 자사 제품 전반에 Juniper의 MIST AI 플랫폼을 도입한 것에 대한 긍정적인 고객 반응을 언급했습니다. 이 플랫폼은 탐지, 문제 해결, 프로비저닝을 자동화하여 IT 운영 및 지원에 상당한 비용 절감을 이끌어냅니다.\n\n네트워킹 수주는 (정규화 기준) +20%로, F2Q 동안 매출(전년 대비 +10%)을 앞질렀습니다. 경영진은 구매 약정(purchase commitments)의 전년 대비 40% 성장과 강력한 수주 잔고를 이행하기 위해 EMS 파트너사의 제조 능력을 늘리는 데 집중하고 있음을 언급했습니다. 상용 실리콘(merchant silicon)의 리드타임은 여전히 길지만, HPE는 이제 매우 중요한 구매자가 되었다는 점에서 Broadcom과 여전히 강력한 협력 관계를 유지하고 있습니다.\n\n시너지와 관련하여, 동사는 FY26 말까지 달성할 것으로 예상되는 2억 달러 이상의 시너지 비용 절감 목표인 1단계(Phase 1)를 앞서 나가고 있습니다. 초기 단계는 기업 기능 및 영업·서비스 조직 전반의 최적화로 구성되었으나, 예컨대 채널 중복 제거, 공급망 및 벤더 전반의 거점 통합, 고객 지원의 효율화, 리드-투-캐시(lead to cash) 전환 가속화, R&D 융합 등 향후 상당한 기회가 있으며, 이는 FY28 종료 시점에 약 6억 달러의 연환산 시너지에 대한 가시성을 제공합니다. 매출 확대와 결합되어, 이는 네트워킹 부문에서 F2Q의 현재 21.6% 수준에서 20%대 중후반(mid to high 20%) 영업이익률로 나아가는 데 대한 확신을 제공합니다.\n\n결합된 네트워킹 제품을 국제적으로 확장하는 것, 클라우드 및 AI와 네트워킹의 교차 판매(cross selling)로부터의 매출 시너지, 그리고 금융 서비스에 대한 접근성이 향후 점유율 확대 기회에 대한 경영진의 낙관론을 뒷받침합니다.\n\n클라우드 및 AI 부문 내에서, 경영진은 CPU 서버의 고메모리 구성에서 실행되는 에이전틱 AI(agentic AI) 워크로드로부터의 서버 수요의 지속성을 언급했으며, 이는 분기 중 세 자릿수 수주 성장을 이끌었습니다. 이는 대부분 가격 요인에 기인하나 전년 대비 유닛(unit) 성장도 포함합니다. 전통적 서버(traditional servers)의 매출총이익률은 더 높은 부품 가격에도 불구하고 동사가 가격 규율을 유지함에 따라 (전년 대비 및 전분기 대비) 확대되었습니다.\n\n공급은 여전히 제약 요인으로, 경영진은 제약의 순서로 메모리, NAND, CPU를 상위 세 가지 제약으로 꼽았으며 그 뒤를 이어 HDD가 병목의 원인이라고 언급했습니다. 공급업체와의 LTA(장기 공급 계약) 형태의 공급 계약은 현재의 FY27 매출 기대치를 충족할 수 있는 가시성을 제공합니다.\n\n경영진은 자본 배분 기대치를 재차 언급했으며, 순부채비율(net leverage ratio)이 FY26 말까지 약 2배 수준으로 향하고 있는 가운데 향후 두어 분기 내에 추가 세부 사항이 나올 것으로 예상됩니다. 이는 이후 자사주 매입 및 배당을 통해 FCF의 75%를 주주에게 환원하는 것으로 이어질 것입니다."
     }
   ]
 }
