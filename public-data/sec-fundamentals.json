@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-16T14:29:40.305Z",
+ "generatedAt": "2026-07-16T19:37:55.267Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 83,
+ "stored": 86,
  "attempted": 24,
  "updated": 3,
  "failures": [
@@ -97,7 +97,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 572,
+ "nextRefreshCandidates": 569,
  "data": {
   "A": {
    "symbol": "A",
@@ -2656,6 +2656,88 @@
    "revGrowth": -2.9,
    "margin": -17,
    "roe": -30.1
+  },
+  "CAH": {
+   "symbol": "CAH",
+   "cik": "0000721371",
+   "entityName": "Cardinal Health, Inc.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-06-30",
+   "filedAt": "2025-08-12",
+   "fetchedAt": "2026-07-16T19:37:53.144Z",
+   "form": "10-K",
+   "accession": "0000721371-25-000079",
+   "revenue": 222578000000,
+   "netIncome": 1561000000,
+   "equity": -2634000000,
+   "sharesOutstanding": 238793647,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin"
+   ],
+   "revGrowth": -1.9,
+   "margin": 0.7
+  },
+  "CARR": {
+   "symbol": "CARR",
+   "cik": "0001783180",
+   "entityName": "CARRIER GLOBAL CORPORATION",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-05",
+   "fetchedAt": "2026-07-16T19:37:54.114Z",
+   "form": "10-K",
+   "accession": "0001783180-26-000008",
+   "revenue": 21747000000,
+   "netIncome": 1484000000,
+   "equity": 14128000000,
+   "sharesOutstanding": 835843882,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": -3.3,
+   "margin": 6.8,
+   "roe": 10.5
+  },
+  "CAT": {
+   "symbol": "CAT",
+   "cik": "0000018230",
+   "entityName": "CATERPILLAR INC",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-13",
+   "fetchedAt": "2026-07-16T19:37:55.116Z",
+   "form": "10-K",
+   "accession": "0000018230-26-000008",
+   "revenue": 67589000000,
+   "netIncome": 2700000000,
+   "equity": 21318000000,
+   "sharesOutstanding": 465287332,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 4.3,
+   "margin": 4,
+   "roe": 12.7
   }
  }
 }
