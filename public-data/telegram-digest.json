@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-17T09:21:41.240Z",
-  "attemptedAt": "2026-07-17T09:21:41.240Z",
-  "lastSuccessfulAt": "2026-07-17T09:21:41.240Z",
+  "generatedAt": "2026-07-17T11:09:30.800Z",
+  "attemptedAt": "2026-07-17T11:09:30.800Z",
+  "lastSuccessfulAt": "2026-07-17T11:09:30.800Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-03T09:21:37.266Z",
-  "until": "2026-07-17T09:21:37.266Z",
+  "since": "2026-07-03T11:09:27.229Z",
+  "until": "2026-07-17T11:09:27.229Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,12 +13,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 170,
+      "count": 171,
       "freshCount": 32,
       "eligibleTextCount": 32,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 23649
+      "lastPostId": 23652
     },
     {
       "channel": "insidertracking",
@@ -45,9 +45,28 @@
       "lastPostId": 19139
     }
   ],
-  "count": 523,
-  "retainedItemCount": 405,
+  "count": 524,
+  "retainedItemCount": 396,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/23652",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-17T09:28:15.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 83,
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "META",
+        "AMZN"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23649",
       "channel": "aetherjapanresearch",
@@ -1951,7 +1970,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23611",
@@ -7926,23 +7945,23 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 523,
+    "observedCount": 524,
     "eligibleTextCount": 70,
-    "mediaOnlyCount": 453,
-    "highSignalCount": 273,
-    "broadSignalCount": 441,
+    "mediaOnlyCount": 454,
+    "highSignalCount": 274,
+    "broadSignalCount": 442,
     "selectedRawCount": 371,
     "selectedRawCoveragePct": 530,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 258,
+    "macro": 259,
+    "power": 140,
+    "ai-policy": 55,
+    "equity": 109,
+    "earnings": 77,
     "semi": 342,
-    "power": 139,
-    "ai-policy": 54,
-    "earnings": 76,
     "market-note": 41,
-    "equity": 108,
     "flows": 14,
     "japan": 16,
     "credit": 25,
@@ -7955,9 +7974,10 @@
     "optical": 17
   },
   "tickerCounts": {
+    "META": 39,
+    "AMZN": 30,
     "AMD": 30,
     "AVGO": 28,
-    "AMZN": 29,
     "TSM": 89,
     "6600.T": 4,
     "000660.KS": 21,
@@ -7968,7 +7988,6 @@
     "MRVL": 6,
     "BE": 12,
     "RDDT": 1,
-    "META": 38,
     "ORCL": 11,
     "RKLB": 5,
     "CAT": 1,
@@ -8042,13 +8061,13 @@
   },
   "themes": [
     "Semiconductors/Memory (342 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
-    "Macro/Rates (258 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
-    "AI Power/Grid (139 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
+    "Macro/Rates (259 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
+    "AI Power/Grid (140 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
     "Geopolitics (126 posts in current window): 2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로...",
     "Korea Market (110 posts in current window): 📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해...",
-    "Equity/Analyst (108 posts in current window): 📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해...",
-    "Earnings/Corporate (76 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
-    "AI Policy/Export Controls (54 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
+    "Equity/Analyst (109 posts in current window): 📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해...",
+    "Earnings/Corporate (77 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
+    "AI Policy/Export Controls (55 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
   ],
   "catalysts": [
     {
@@ -8063,7 +8082,7 @@
     },
     {
       "key": "META",
-      "count": 38,
+      "count": 39,
       "text": "📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해..."
     },
     {
@@ -8072,13 +8091,13 @@
       "text": "Market Summary - 2026년 7월 17일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 상원의원들과 암호화폐 CLARITY 법안 추진 논의 예정. · 백악관, 이란이 미국과 협상을..."
     },
     {
-      "key": "AMD",
+      "key": "AMZN",
       "count": 30,
       "text": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
-      "key": "AMZN",
-      "count": 29,
+      "key": "AMD",
+      "count": 30,
       "text": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8119,7 +8138,7 @@
       "topics": [
         "macro"
       ],
-      "count": 258,
+      "count": 259,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8164,7 +8183,7 @@
       "topics": [
         "power"
       ],
-      "count": 139,
+      "count": 140,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8173,7 +8192,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 54,
+      "count": 55,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8191,7 +8210,7 @@
       "topics": [
         "equity"
       ],
-      "count": 108,
+      "count": 109,
       "focus": "📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해..."
     },
     {
@@ -8209,7 +8228,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 76,
+      "count": 77,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -9514,6 +9533,27 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/23652",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23652",
+      "datetime": "2026-07-17T09:28:15.000Z",
+      "localDateKst": "2026-07-17",
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "META",
+        "AMZN"
+      ],
+      "score": 83,
+      "hasText": true,
+      "summary": "WSJ) 메타, 클라우드 진출을 저울질하며 아마존 최고 컴퓨팅 임원 영입 추진 데이터센터 및 컴퓨팅 자원 개발에 대한 이 소셜미디어 대기업의 야망이 커지고 있습니다 내용 요약: 아마존 웹서비스(AWS)의..."
+    },
     {
       "id": "aetherjapanresearch/23649",
       "channel": "aetherjapanresearch",
@@ -15508,23 +15548,6 @@
       ],
       "score": 66,
       "summary": "Andrew Bosworth(Meta CTO) @ Big Technology Podcast Q: 메타는 컴퓨팅도 많고 좋은 인력도 있는데 왜 리딩 모델을 만들어내지 못했는지? 무엇이 리딩 AI 모델을..."
-    },
-    {
-      "id": "aetherjapanresearch/23427",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23427",
-      "datetime": "2026-07-09T14:09:35.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "credit",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 81,
-      "summary": "SK하이닉스 주가 변동성, 신규 ADR 차익거래 베팅에 난제로 SK하이닉스의 신규 미국주식예탁증서(ADR)를 거래하려는 차익거래 데스크들이 대만 TSMC(대만 반도체 제조회사)의 전략을 다시 꺼내 들고..."
     },
     {
       "id": "bornlupin/18992",
