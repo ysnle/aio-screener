@@ -1,15 +1,15 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-17T03:45:10.703Z",
+ "generatedAt": "2026-07-17T08:32:12.053Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 89,
+ "stored": 90,
  "attempted": 24,
- "updated": 3,
+ "updated": 1,
  "failures": [
   {
    "symbol": "AMP",
@@ -94,10 +94,18 @@
   {
    "symbol": "BUD",
    "reason": "no comparable annual US-GAAP revenue/net-income facts"
+  },
+  {
+   "symbol": "CCEP",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts"
+  },
+  {
+   "symbol": "CCJ",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts"
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 566,
+ "nextRefreshCandidates": 565,
  "data": {
   "A": {
    "symbol": "A",
@@ -2822,6 +2830,34 @@
    "revGrowth": 217,
    "margin": 18,
    "roe": 126.3
+  },
+  "CBRE": {
+   "symbol": "CBRE",
+   "cik": "0001138118",
+   "entityName": "CBRE GROUP, INC.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-12",
+   "fetchedAt": "2026-07-17T08:32:11.295Z",
+   "form": "10-K",
+   "accession": "0001138118-26-000005",
+   "revenue": 39900000000,
+   "netIncome": 1157000000,
+   "equity": 9193000000,
+   "sharesOutstanding": 295158554,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 13.4,
+   "margin": 2.9,
+   "roe": 12.6
   }
  }
 }
