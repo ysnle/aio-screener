@@ -1059,7 +1059,7 @@
 
   function _testPageFocusBriefUX() {
     var briefs = window.AIO_PAGE_BRIEFS || {};
-    var required = ['home','signal','technical','macro','portfolio','market-news','options','ticker','theme-detail','kr-home','guide'];
+    var required = ['home','signal','technical','macro','portfolio','market-news','options','ticker','theme-detail','guide']; // v53.7 P725: kr-home retired
     var missing = required.filter(function(id) { return !briefs[id]; });
     _assert('T133 page_focus_brief: required page configs exist', missing.length === 0, missing.join(','));
 
@@ -1095,7 +1095,7 @@
     _assert('T139 briefing_ux: past pinned events are not rendered as upcoming', !/04\/29|04\/30|05\/04|05\/05|05\/06|05\/07|05\/08|05\/09/.test(calText), 'past pinned events still render as upcoming');
 
     var uxAudit = window.AIO && typeof window.AIO.getPageUXAudit === 'function' ? window.AIO.getPageUXAudit() : null;
-    _assert('T140 page_ux_audit: self audit available and clean', uxAudit && uxAudit.totalPages >= 20 && uxAudit.issueCount === 0, uxAudit && JSON.stringify({ total: uxAudit.totalPages, issues: uxAudit.issues }));
+    _assert('T140 page_ux_audit: self audit available and clean', uxAudit && uxAudit.totalPages >= 17 && uxAudit.issueCount === 0 /* v53.7 P725 */, uxAudit && JSON.stringify({ total: uxAudit.totalPages, issues: uxAudit.issues }));
 
     var currentHomeNews = typeof window._aioGetCurrentHomeWeeklyNews === 'function'
       ? window._aioGetCurrentHomeWeeklyNews(new Date('2026-05-13T12:00:00+09:00').getTime())
@@ -1263,7 +1263,7 @@
     _assert('T163 ensure_fresh_data: dry-run returns a Promise', dry && typeof dry.then === 'function', typeof dry);
 
     var continuity = window.AIO && typeof window.AIO.getAutoDataContinuityAudit === 'function' ? window.AIO.getAutoDataContinuityAudit({ dryRun:true }) : null;
-    _assert('T164 continuity_audit: page-level data flow contract', continuity && continuity.pagesChecked >= 20 && Array.isArray(continuity.pages), continuity && JSON.stringify({ pages: continuity.pagesChecked, issues: continuity.issueCount }));
+    _assert('T164 continuity_audit: page-level data flow contract', continuity && continuity.pagesChecked >= 17 && Array.isArray(continuity.pages) /* v53.7 P725 */, continuity && JSON.stringify({ pages: continuity.pagesChecked, issues: continuity.issueCount }));
 
     var themeProfile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function'
       ? window.AIO.getDataRequirementProfile({ pageId:'themes', symbolLimit:999 })
@@ -1271,7 +1271,7 @@
     _assert('T165 theme_fresh_profile: dynamic US theme leaders included', themeProfile && themeProfile.symbols.indexOf('NVDA') >= 0 && themeProfile.symbols.indexOf('PLTR') >= 0 && themeProfile.symbols.indexOf('VRT') >= 0, themeProfile && themeProfile.symbols.slice(0, 30).join(','));
 
     var krThemeProfile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function'
-      ? window.AIO.getDataRequirementProfile({ pageId:'kr-themes', symbolLimit:999 })
+      ? window.AIO.getDataRequirementProfile({ pageId:'themes', symbolLimit:999 }) /* v53.7 P725 */
       : null;
     _assert('T166 kr_theme_fresh_profile: dynamic KR theme leaders included', krThemeProfile && krThemeProfile.symbols.indexOf('005930.KS') >= 0 && krThemeProfile.symbols.indexOf('000660.KS') >= 0, krThemeProfile && krThemeProfile.symbols.slice(0, 30).join(','));
 
@@ -1691,8 +1691,9 @@
       document.getElementById('kr-temp-retail-score') &&
       document.getElementById('kr-temp-foreign-score') &&
       document.getElementById('kr-temp-momentum-score');
-    _assert('T375 kr_market_temperature_dynamic_slots',
-      !!krTempOk && !/4\/3/.test((document.getElementById('page-kr-home') || {}).textContent || ''),
+    // v53.7 P725: kr-home 퇴역 — 체감온도 슬롯 DOM이 남아 있으면 이관 누락
+    _assert('T375 kr_market_temperature_dynamic_slots retired with kr-home (v53.7 P725)',
+      !krTempOk && !document.getElementById('page-kr-home'),
       'slots=' + !!krTempOk);
 
     var regime = window.AIO && window.AIO.getCurrentMarketRegime ? window.AIO.getCurrentMarketRegime() : null;
@@ -2793,8 +2794,10 @@
       'r13=' + (chatSrc.indexOf('13. **[SCREENER_DB Memo] 신선도') >= 0) + ' r14=' + (chatSrc.indexOf('14. **[SCREENER_DB Memo 없음]') >= 0));
     // T849: AIO.assertMemoCoverageAudit + memoCoveragePct ≥ 50 (사용자 정직 질의 1)
     var mc = window.AIO && typeof window.AIO.assertMemoCoverageAudit === 'function' && window.AIO.assertMemoCoverageAudit();
+    // v53.7 (P722 클래스): `memoCoveragePct < 10` 상한은 봇 digest가 runtime memo를 10%+ 적용한 날
+    // 경계에서 오탐 — 불변식은 "정적 memo 0 = 모든 memo가 runtime overlay 유래"이며 커버리지 %가 아님.
     _assert('T849 memo_coverage_audit_v53_4: static memo coverage is retired; any memo is runtime-provenanced',
-      mc && mc.memoCoveragePct < 10 && (window.SCREENER_DB || []).every(function(row) { return !row.memo || (row._telegramMemoOverlay && row.memo.indexOf(row._telegramMemoOverlay) === 0); }),
+      mc && typeof mc.memoCoveragePct === 'number' && (window.SCREENER_DB || []).every(function(row) { return !row.memo || (row._telegramMemoOverlay && row.memo.indexOf(row._telegramMemoOverlay) === 0); }),
       mc ? ('memoCov=' + mc.memoCoveragePct + '%') : 'audit missing');
     // T850: 사용자 질의 2 — chatIntegrated + rulesText 활성
     _assert('T850 memo_chat_integration_active_v4971: chatIntegrated + rulesText 모두 true (사용자 질의 2)',
@@ -3145,7 +3148,7 @@
       themePageAudit ? 'status=' + themePageAudit.status + ' symbols=' + themePageAudit.dataFlow.symbolCount + ' blocking=' + themePageAudit.blocking.join(',') : 'audit missing');
     var allPageAudit = window.AIO && window.AIO.runAllPageDeepAudits && window.AIO.runAllPageDeepAudits({ symbolLimit: 999 });
     _assert('T618 all_page_deep_audit_system: all-page deep audit covers 20+ page systems',
-      allPageAudit && allPageAudit.pagesChecked >= 20 && Array.isArray(allPageAudit.pages),
+      allPageAudit && allPageAudit.pagesChecked >= 17 && Array.isArray(allPageAudit.pages) /* v53.7 P725 */,
       allPageAudit ? 'pages=' + allPageAudit.pagesChecked + ' status=' + allPageAudit.status : 'audit missing');
     _assert('T619 theme_essential_categories: no missing essential 2026 theme category',
       themeAudit && Array.isArray(themeAudit.missingThemeCategories) && themeAudit.missingThemeCategories.length === 0,
@@ -3425,7 +3428,7 @@
     _assert('T643 theme_composition_logic_audit_defined_v4979: theme composition logic audit exists',
       compositionAudit && compositionAudit.counts && compositionAudit.counts.themes >= 100,
       compositionAudit ? 'themes=' + compositionAudit.counts.themes : 'audit missing');
-    _assert('T644 theme_constituents_do_not_embed_static_weights', typeof KR_THEME_MAP === 'object' && Object.values(KR_THEME_MAP).every(function(rows){ return rows.every(function(row){ return row.w == null; }); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T644 theme_constituents_do_not_embed_static_weights', typeof KR_THEME_MAP === 'object' && Object.values(KR_THEME_MAP).every(function(rows){ return rows.every(function(row){ return row.w == null || row._weightSource != null; }); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null)); /* v53.7 P725: themes 통합으로 runtime weights가 테스트 전에 적용될 수 있음 — _weightSource 마커 있는 런타임 가중만 허용 */
     _assert('T645 theme_semantic_evidence_coverage_v4979: local registry/DB explainability covers 90%+ theme symbols',
       compositionAudit && compositionAudit.counts.semanticEvidencePct >= 90,
       compositionAudit ? 'semanticEvidencePct=' + compositionAudit.counts.semanticEvidencePct + ' gaps=' + compositionAudit.semanticGaps.length : 'audit missing');
@@ -5048,8 +5051,9 @@
       var rows = weeklyTable.querySelectorAll('tr');
       if (rows.length >= 2) firstDate = rows[1].cells[0] ? rows[1].cells[0].textContent.trim() : '';
     }
-    _assert('T188 kr_supply_weekly: embedded dated rows removed and unavailable state is explicit',
-      /수신\s*대기|수신\s*실패/.test(firstDate) && !/\d{2}\/\d{2}/.test(firstDate),
+    // v53.7 P725: kr-supply 페이지 퇴역 — 주간 수급 테이블 DOM이 존재하지 않아야 함(잔존=이관 누락)
+    _assert('T188 kr_supply_weekly: retired page leaves no weekly-supply DOM (v53.7 P725)',
+      !weeklyTable && !document.getElementById('page-kr-supply'),
       'first date: ' + firstDate);
 
     // T189: F&G 점수 home과 sentiment 동일 (둘 다 비어있지 않은 경우)
@@ -5100,8 +5104,9 @@
         }
       }
     }
-    _assert('T192 kr_supply_inst_sum: 기관 세부 합산이 -472억 부근 (±50)',
-      parseValid && Math.abs(sum - (-472)) < 50,
+    // v53.7 P725: kr-supply 페이지 퇴역 — 기관 세부 테이블이 존재하면 이관 누락
+    _assert('T192 kr_supply_inst_sum: retired page leaves no institutional-detail DOM (v53.7 P725)',
+      !instDetail && !document.getElementById('page-kr-supply'),
       'sum=' + sum);
   }
 
@@ -5172,8 +5177,8 @@
 
     function _testKrPageFreshnessAudit() {
     var krGroup = window.AIO && window.AIO.CRITICAL_PAGE_GROUPS && window.AIO.CRITICAL_PAGE_GROUPS.krMarket;
-    _assert('T177 kr_audit_group: CRITICAL_PAGE_GROUPS.krMarket has 5 pages',
-      Array.isArray(krGroup) && krGroup.length === 5,
+    _assert('T177 kr_audit_group: CRITICAL_PAGE_GROUPS.krMarket has 3 integrated sections (v53.7 P725)',
+      Array.isArray(krGroup) && krGroup.length === 3 && krGroup.every(function(id){ return /^kr-integrated-/.test(id); }),
       krGroup ? JSON.stringify(krGroup) : 'undefined');
 
     var krAudit = window.AIO && typeof window.AIO.getCriticalKrPageFreshnessAudit === 'function'
@@ -5203,18 +5208,18 @@
 
   function _testV500EvidenceFoundation() {
     var contracts = window.AIO && window.AIO.getPageContracts ? window.AIO.getPageContracts() : null;
-    _assert('T737 v500_page_contracts: 22 route pages have a single contract source (v50.53 +screener)',
-      contracts && Array.isArray(contracts.routePageIds) && contracts.routePageIds.length === 22 &&
-        contracts.pages && contracts.pages.home && contracts.pages['market-news'] && contracts.pages['kr-technical'] && contracts.pages.guide,
+    _assert('T737 v500_page_contracts: 17 route pages have a single contract source (v53.7 P725: KR 5 routes retired)',
+      contracts && Array.isArray(contracts.routePageIds) && contracts.routePageIds.length === 17 &&
+        contracts.pages && contracts.pages.home && contracts.pages['market-news'] && contracts.pages.themes && contracts.pages.guide, /* v53.7 P725 */
       JSON.stringify(contracts && contracts.routePageIds));
 
     var compat = window.AIO && window.AIO.applyPageContractCompatibility ? window.AIO.applyPageContractCompatibility() : null;
     _assert('T738 v500_contract_derivation: profiles/refresh/deep-audit maps derive from contracts',
       compat && compat.status === 'ok' &&
         window.AIO.DATA_REQUIREMENT_PROFILES && window.AIO.DATA_REQUIREMENT_PROFILES['market-news'] &&
-        window.AIO.DATA_REQUIREMENT_PROFILES['kr-technical'] &&
-        compat.sequentialRegistryCount >= 21 &&
-        (!window.AIO_PAGE_REFRESH_MAP || (window.AIO_PAGE_REFRESH_MAP.options && window.AIO_PAGE_REFRESH_MAP['kr-home'])),
+        window.AIO.DATA_REQUIREMENT_PROFILES.themes &&
+        compat.sequentialRegistryCount >= 17 &&
+        (!window.AIO_PAGE_REFRESH_MAP || (window.AIO_PAGE_REFRESH_MAP.options && window.AIO_PAGE_REFRESH_MAP.themes)), /* v53.7 P725 */
       JSON.stringify(compat));
 
     var sourceAudit = window.AIO && window.AIO.getSourceAdapterAudit ? window.AIO.getSourceAdapterAudit() : null;
@@ -5224,7 +5229,7 @@
 
     var evidence = window.AIO && window.AIO.getAllPageContentEvidenceMatrix ? window.AIO.getAllPageContentEvidenceMatrix({ includeItems: false }) : null;
     _assert('T740 v500_evidence_store: all route page surface items receive evidence ids and no needs_evidence residue',
-      evidence && evidence.pagesChecked === 22 && evidence.totals && evidence.totals.total >= 21 &&
+      evidence && evidence.pagesChecked === 17 && evidence.totals && evidence.totals.total >= 17 /* v53.7 P725 */ &&
         evidence.unclassifiedCount === 0 && evidence.totals.needs_evidence === 0,
       JSON.stringify(evidence && evidence.totals));
 
@@ -5240,7 +5245,7 @@
 
     var gate = window.AIO && window.AIO.runEvidenceDeploymentGate ? window.AIO.runEvidenceDeploymentGate({ strict: false, includeItems: false }) : null;
     _assert('T743 v500_evidence_deployment_gate: new gate returns deployable contract evidence summary',
-      gate && typeof gate.deployable === 'boolean' && gate.evidence && gate.evidence.pagesChecked === 22 &&
+      gate && typeof gate.deployable === 'boolean' && gate.evidence && gate.evidence.pagesChecked === 17 && /* v53.7 P725 */
         gate.pageContracts && gate.pageContracts.routePageCount === gate.pageContracts.expectedRoutePageCount &&
         !(gate.blocking || []).some(function(msg) { return /route-page contract/.test(msg); }) && gate.sourceAdapters,
       JSON.stringify(gate && { status: gate.status, blocking: gate.blocking && gate.blocking.length, warnings: gate.warnings && gate.warnings.length }));
@@ -5317,12 +5322,12 @@
     var textContracts = window.AIO && window.AIO.getTextSurfaceContracts ? window.AIO.getTextSurfaceContracts() : null;
     _assert('T755 v504_text_surface_contracts: 21 page text contracts classify market/user/dev copy',
       textContracts && textContracts.version === 'v50.4' && textContracts.routes &&
-        Object.keys(textContracts.routes).length >= 21 &&
+        Object.keys(textContracts.routes).length >= 17 && /* v53.7 P725 */
         textContracts.policy && textContracts.policy.roles.indexOf('current-market-claim') >= 0 &&
         textContracts.policy.roles.indexOf('developer-note') >= 0,
       JSON.stringify(textContracts && { version:textContracts.version, routes:Object.keys(textContracts.routes || {}).length }));
 
-    var textAudit = window.AIO && window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ pages:['home','signal','briefing','options','kr-home','kr-macro','kr-technical'], includeItems:true }) : null;
+    var textAudit = window.AIO && window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ pages:['home','signal','briefing','options','macro','technical'], includeItems:true }) /* v53.7 P725 */ : null;
     var leakedInternal = textAudit && textAudit.items ? textAudit.items.filter(function(i) {
       return i.text && /(\[PRIMARY\]|\[SECONDARY\]|PAGE_PURPOSE_REGISTRY|R69 ACTION_RULES|sectionOrder\[0\]|AIO_SCORE_SCALES)/.test(i.text);
     }) : [];
@@ -5337,7 +5342,7 @@
 
     var gateWithText = window.AIO && window.AIO.runEvidenceDeploymentGate ? window.AIO.runEvidenceDeploymentGate({ strict:false, includeItems:false }) : null;
     _assert('T758 v504_text_surface_audit_gate: deployment gate includes text surface audit',
-      textAudit && gateWithText && gateWithText.textSurface && gateWithText.textSurface.pageCount >= 21,
+      textAudit && gateWithText && gateWithText.textSurface && gateWithText.textSurface.pageCount >= 17 /* v53.7 P725 */,
       JSON.stringify(gateWithText && gateWithText.textSurface && { status:gateWithText.textSurface.status, blocks:gateWithText.textSurface.blockingCount, warns:gateWithText.textSurface.warningCount }));
 
     // P626-followup/R279: this pinned the exact June-cycle date literals that were current when
@@ -6048,7 +6053,7 @@
       var boardDrawer805 = !!document.getElementById('board-drawer');
       var optShell805 = !!document.getElementById('page-options'); // 셸은 21페이지 정합 위해 유지
       var pageCount805 = document.querySelectorAll('.page[id^="page-"]').length;
-      t805ok = !optNav805 && !fbBtn805 && !boardBtn805 && !fbModal805 && !boardDrawer805 && optShell805 && pageCount805 === 22;
+      t805ok = !optNav805 && !fbBtn805 && !boardBtn805 && !fbModal805 && !boardDrawer805 && optShell805 && pageCount805 === 17; /* v53.7 P725 */
       t805detail = 'optNavGone=' + !optNav805 + ' fbGone=' + (!fbBtn805 && !fbModal805) + ' boardGone=' + (!boardBtn805 && !boardDrawer805) + ' optShell=' + optShell805 + ' pages=' + pageCount805;
     } catch(e) { t805detail = 'ERR:' + e.message; }
     _assert('T805 v5035_remove_feedback_board_options: 피드백/게시판 버튼·DOM 제거 + 옵션 내비 제거(셸 유지·22 route 정합)', t805ok, t805detail);
@@ -6466,7 +6471,10 @@
       var ratioFalseBlocks824 = text824 && text824.items ? text824.items.filter(function(item) {
         return item.severity === 'block' && /(S&P500|M7\s+\d+\/\d+|섹터\s+\d+\/\d+|MA\(5\/20\/60\)|1\/3\/6M)/.test(item.text || '');
       }) : [];
-      t824ok = compositeLeak824 === 0 && themePillLeak824 === 0 && !!themePillPrice824 && !!krPrice824 && !!krPct824 &&
+      // v53.7 P725: kr-screen-card는 kr-home 퇴역으로 부재 가능 — 존재할 때만 소유권 계약 강제(패턴 계약)
+      var anyScreenCard824 = document.querySelector('.kr-screen-card[data-live-symbol]');
+      var screenCardOk824 = !anyScreenCard824 || (!!krPrice824 && !!krPct824);
+      t824ok = compositeLeak824 === 0 && themePillLeak824 === 0 && !!themePillPrice824 && screenCardOk824 &&
         krRange824 && krRange824[1] >= 1000000 && ratioFalseBlocks824.length === 0;
       t824detail = JSON.stringify({
         compositeLeak:compositeLeak824,
@@ -6762,7 +6770,7 @@
         String(window._aioLoadServerTelegramDigest || '').indexOf('telegram-digest.json') >= 0 &&
         audit831 && audit831.digest && audit831.digest.dynamicLoaded === true &&
         audit831.digest.dynamicNarrative === true &&
-        pageAudit831 && pageAudit831.status === 'OK' && pageAudit831.mappedPageCount === 22 &&
+        pageAudit831 && pageAudit831.status === 'OK' && pageAudit831.mappedPageCount === 17 && /* v53.7 P725 */
         audit831.memoOverlay && audit831.memoOverlay.appliedCount >= 1 &&
         memoRow831 && String(memoRow831.memo || '').indexOf('[TG 2026-06-16') === 0 &&
         String(memoRow831._telegramMemoOverlay || '').indexOf('auto') >= 0);
@@ -7189,7 +7197,7 @@
       var pfHero = document.getElementById('pf-hero-stats');
       if (!pfHero || getComputedStyle(pfHero).gridTemplateColumns.split(' ').length !== 3) failures869.push('portfolio-hero-columns');
       var ia = window.AIO_ROUTE_REGISTRY && window.AIO_ROUTE_REGISTRY.classes;
-      if (!ia || ia.NAV_ROUTE.length !== 19 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 1 || ia.OVERLAY.length !== 1) failures869.push('surface-count-contract');
+      if (!ia || ia.NAV_ROUTE.length !== 14 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 1 || ia.OVERLAY.length !== 1 || (ia.REMOVED || []).length !== 5) failures869.push('surface-count-contract'); /* v53.7 P725 */
       var guideChapters = document.querySelectorAll('#page-guide > .aio-guide-chapter');
       if (guideChapters.length < 8) failures869.push('guide-chapters=' + guideChapters.length);
       if (Array.prototype.filter.call(guideChapters, function(el){ return el.open; }).length) failures869.push('guide-chapter-default-open');
@@ -7197,7 +7205,7 @@
       var krThemeVisible = Array.prototype.filter.call(krThemeCards, function(el){ return getComputedStyle(el).display !== 'none'; }).length;
       if (krThemeCards.length > 3 && krThemeVisible !== 3) failures869.push('kr-theme-visible=' + krThemeVisible);
       if (!document.getElementById('kr-theme-more')) failures869.push('kr-theme-more-missing');
-      if (document.querySelectorAll('.aio-comp-secondary-feed:not(.aio-dev-mode)').length < 3) failures869.push('kr-duplicate-feeds-not-marked');
+      if (document.querySelectorAll('.aio-comp-secondary-feed:not(.aio-dev-mode)').length < 2) failures869.push('kr-duplicate-feeds-not-marked'); /* v53.7 P725: 잔여 KR 피드 2개(macro/technical) */
       if (typeof renderGlossaryItems === 'function') renderGlossaryItems('');
       if (document.querySelectorAll('#glossary-body .aio-glossary-item').length < 200) failures869.push('glossary-items');
       var pfOrderIds = ['pf-holdings-table-section','pf-risk-section','pf-allocation-section','pf-benchmark-section','pf-holdings-analysis-section'];
@@ -7468,19 +7476,15 @@
       }
     } catch (e879) { _assert('T879 vix_term_seed_visual_distinction_v5242 (EF-06)', false, 'threw: ' + (e879 && e879.message)); }
 
-    // T880 (EF-07): kr-home 수급 실패 상태 진입 시 "최근 수급 — N/D 기준" 제목이 정직한 문구로 대체되는지
+    // T880 (EF-07→v53.7 P725): kr-home 수급 카드 퇴역 — 실패 상태 헬퍼가 잔존해도 예외 없이 no-op이어야 함
     try {
-      if (typeof window._showKrSupplyFailureState === 'function' || typeof _showKrSupplyFailureState === 'function') {
-        var fn880 = window._showKrSupplyFailureState || _showKrSupplyFailureState;
-        fn880('test-simulated-failure');
-        var titleEl880 = document.querySelector('#kr-home-kospi-supply .kr-supply-title span');
-        var txt880 = titleEl880 ? titleEl880.textContent : null;
-        _assert('T880 kr_home_supply_title_honest_on_failure_v5242 (EF-07): 실패 상태 진입 시 "최근 수급" 제목의 날짜가 확정 날짜 대신 "폴백 데이터"로 대체(날짜+실패경고 동시노출 모순 제거)',
-          txt880 === '폴백 데이터', 'titleText=' + txt880);
-      } else {
-        _assert('T880 kr_home_supply_title_honest_on_failure_v5242 (EF-07)', false, '_showKrSupplyFailureState missing');
-      }
-    } catch (e880) { _assert('T880 kr_home_supply_title_honest_on_failure_v5242 (EF-07)', false, 'threw: ' + (e880 && e880.message)); }
+      var fn880 = window._showKrSupplyFailureState || (typeof _showKrSupplyFailureState === 'function' ? _showKrSupplyFailureState : null);
+      var threw880 = false;
+      if (fn880) { try { fn880('test-simulated-failure'); } catch(_e880) { threw880 = true; } }
+      _assert('T880 kr_home_supply_failure_helper_safe_after_retirement (v53.7 P725): 퇴역한 kr-home DOM 없이도 실패 헬퍼가 예외 없이 동작',
+        !threw880 && !document.getElementById('kr-home-kospi-supply'),
+        'threw=' + threw880);
+    } catch (e880) { _assert('T880 kr_home_supply_failure_helper_safe_after_retirement (v53.7 P725)', false, 'threw: ' + (e880 && e880.message)); }
 
     // T881 (EF-14): 비-라틴/비-한글 소스명(키릴 등)은 일반 라벨로, 영어/한국어 소스명은 그대로
     try {
@@ -7824,7 +7828,7 @@
     _assert('T912 external_cdn_does_not_block_local_boot_queue (H3-F)', bootCdn912.length === 3 && bootCdn912.every(function(el) { return el.async === true && el.defer === false; }), bootCdn912.map(function(el) { return { src: el.src, async: el.async, defer: el.defer }; }));
     var contract913 = window.AIO.getPageContractAudit && window.AIO.getPageContractAudit();
     var lineage913 = window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
-      _assert('T913 route_contract_and_lineage_no_orphan_sink (H3-G)', !!contract913 && contract913.status === 'ok' && contract913.routePageCount === 22 && !!lineage913 && lineage913.broken === 0 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans === 0, JSON.stringify({ contracts:contract913 && contract913.status, routes:contract913 && contract913.routePageCount, broken:lineage913 && lineage913.broken, orphans:lineage913 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans }));
+      _assert('T913 route_contract_and_lineage_no_orphan_sink (H3-G)', !!contract913 && contract913.status === 'ok' && contract913.routePageCount === 17 && /* v53.7 P725 */ !!lineage913 && lineage913.broken === 0 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans === 0, JSON.stringify({ contracts:contract913 && contract913.status, routes:contract913 && contract913.routePageCount, broken:lineage913 && lineage913.broken, orphans:lineage913 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans }));
   }
 
   // Group91: v52.58 H3-G element lineage + H3-H/I human surface contracts.
@@ -7905,11 +7909,11 @@
     _assert('T922 content_truth_retired_feedback_and_policy_path (H2-07): guide has one public inquiry path and no retired board instruction', !!truth922 && truth922.fakeFeedbackInstructionCount === 0 && truth922.oldPrivateContactCount === 0 && truth922.publicContactPath === true && truth922.guideBeginnerRoute === true, JSON.stringify(truth922));
     _assert('T923 content_truth_kr_snapshot_context (H2-07): KR snapshot dates carry stale/reference context and reference action sinks are surfaced', !!truth922 && truth922.unlabeledKrSnapshotDateCount === 0 && typeof truth922.referenceActionCount === 'number', JSON.stringify(truth922));
     var route924 = window.AIO && typeof window.AIO.getRouteIAAudit === 'function' ? window.AIO.getRouteIAAudit() : null;
-    _assert('T924 route_ia_single_registry (H2-08): 22 DOM routes classify exactly once and map to contracts/PAGES', !!route924 && route924.status === 'pass' && route924.routeCount === 22 && route924.classCounts.NAV_ROUTE === 19 && route924.classCounts.DERIVED_VIEW === 2 && route924.classCounts.REFERENCE === 1, JSON.stringify(route924));
+    _assert('T924 route_ia_single_registry (H2-08): 22 DOM routes classify exactly once and map to contracts/PAGES', !!route924 && route924.status === 'pass' && route924.routeCount === 22 && route924.classCounts.NAV_ROUTE === 14 && route924.classCounts.REMOVED === 5 && route924.classCounts.DERIVED_VIEW === 2 && route924.classCounts.REFERENCE === 1 /* v53.7 P725 */, JSON.stringify(route924));
     _assert('T925 route_ia_history_and_theme_canonical (H2-08): theme-detail canonical redirect and history/hash contracts are present', !!route924 && route924.themeDetailCanonical === true && route924.historyPushState === true && route924.hashNavigation === true, JSON.stringify(route924));
     var declutter926 = window.AIO && typeof window.AIO.getPageDeclutterAudit === 'function' ? window.AIO.getPageDeclutterAudit() : null;
-    _assert('T926 page_declutter_intent_registry (H2-09): every route has a first-screen intent and primary scenario', !!declutter926 && declutter926.status === 'pass' && declutter926.routeCount === 22 && declutter926.missingIntent.length === 0, JSON.stringify(declutter926));
-    _assert('T927 page_declutter_priority_routes (H2-09): high-risk routes are explicitly included in the visual review set', !!declutter926 && ['signal','macro','technical','fxbond','guide','kr-macro','themes','portfolio','screener','kr-home'].every(function(id){ return declutter926.priorityRoutes.indexOf(id) >= 0; }), JSON.stringify(declutter926 && declutter926.priorityRoutes));
+    _assert('T926 page_declutter_intent_registry (H2-09): every route has a first-screen intent and primary scenario', !!declutter926 && declutter926.status === 'pass' && declutter926.routeCount === 17 && declutter926.missingIntent.length === 0 /* v53.7 P725 */, JSON.stringify(declutter926));
+    _assert('T927 page_declutter_priority_routes (H2-09): high-risk routes are explicitly included in the visual review set', !!declutter926 && ['signal','macro','technical','fxbond','guide','themes','portfolio','screener'].every(function(id){ return declutter926.priorityRoutes.indexOf(id) >= 0; }), JSON.stringify(declutter926 && declutter926.priorityRoutes));
     var provenance930 = window.AIO && typeof window.AIO.getTypedProvenanceAudit === 'function' ? window.AIO.getTypedProvenanceAudit() : null;
     _assert('T930 typed_provenance_action_strength (H2-12): runtime-derived bundle ID is shared by score/UI/AI and covers all critical inputs', !!provenance930 && provenance930.status === 'pass' && provenance930.checks.sameEvidenceIdAcrossUiScoreAi && provenance930.checks.realRuntimeBundle && provenance930.checks.criticalInputsCovered && provenance930.checks.missingAndNeutralDistinct && provenance930.checks.futureAsOfBlocked && provenance930.checks.staleManualActionWeak && provenance930.checks.lineageExportable, JSON.stringify(provenance930));
     var architecture931 = window.AIO && typeof window.AIO.getArchitectureGovernanceAudit === 'function' ? window.AIO.getArchitectureGovernanceAudit() : null;
@@ -8221,7 +8225,7 @@
     var pageAudit = window.AIO.auditPageAIContracts();
     var briefingContract = window.AIO.getPageAIContract('briefing');
     _assert('T969 page_ai_contract_coverage (WP-AI7): every route has a derived AI contract and briefing is mapped',
-      pageAudit.status === 'pass' && pageAudit.routeCount >= 22 && pageAudit.coveredCount === pageAudit.routeCount && briefingContract && briefingContract.contextId === 'briefing' && briefingContract.required.indexOf('evidence') >= 0,
+      pageAudit.status === 'pass' && pageAudit.routeCount >= 17 && /* v53.7 P725 */ pageAudit.coveredCount === pageAudit.routeCount && briefingContract && briefingContract.contextId === 'briefing' && briefingContract.required.indexOf('evidence') >= 0,
       JSON.stringify({ audit: pageAudit, briefing: briefingContract }));
     _assert('T970 page_ai_contract_modes (WP-AI7): beginner/expert and forbidden silent-disabled states are explicit',
       briefingContract && briefingContract.answerModes.indexOf('beginner') >= 0 && briefingContract.answerModes.indexOf('expert') >= 0 && briefingContract.forbidden.indexOf('silent-disabled') >= 0 && briefingContract.disabledState.indexOf('explicit') >= 0,
@@ -8240,7 +8244,7 @@
       return c && Array.isArray(c.requiredProducers) && Array.isArray(c.optionalProducers) && c.minCoverage && c.maxAge && c.failureState && Array.isArray(c.forbiddenClaims);
     });
     _assert('T1021 page_completeness_contract_fields (WP-10): all 22 routes carry producer, coverage, age, failure, and forbidden-claim contracts',
-      routeIds.length === 22 && contractFields, JSON.stringify({ routeCount:routeIds.length, contractFields:contractFields }));
+      routeIds.length === 17 && contractFields /* v53.7 P725 */, JSON.stringify({ routeCount:routeIds.length, contractFields:contractFields }));
 
     var beforeScreener = window._aioScreenerLoadState;
     window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'fixture producer disconnected' };
@@ -8253,7 +8257,7 @@
 
     var audit = window.AIO.auditPageDataCompleteness({ allRoutes:true });
     _assert('T1023 page_completeness_audit_22_routes (WP-10): all route completeness states are returned by one executable audit',
-      audit && audit.routeCount === 22 && Array.isArray(audit.pages) && audit.pages.length === 22 && audit.pages.every(function(row) { return row && row.version === 'wp10.page-completeness.v1' && ['loaded','partial','empty','blocked','stale-reference'].indexOf(row.status) >= 0; }),
+      audit && audit.routeCount === 17 && Array.isArray(audit.pages) && audit.pages.length === 17 /* v53.7 P725 */ && audit.pages.every(function(row) { return row && row.version === 'wp10.page-completeness.v1' && ['loaded','partial','empty','blocked','stale-reference'].indexOf(row.status) >= 0; }),
       JSON.stringify(audit && { status:audit.status, routeCount:audit.routeCount, loaded:audit.loadedCount, partial:audit.partialCount, empty:audit.emptyCount, staleReference:audit.staleReferenceCount, blocked:audit.blockedCount }));
   }
 

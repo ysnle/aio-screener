@@ -51,7 +51,8 @@ check('VVIX live snapshot and fallback mirror must update together', /DATA_SNAPS
 check('known KR ticker mappings must be corrected', /sym:'011200\.KS', name:'HMM'/.test(data) && /sym:'041510\.KQ', name:'SM엔터테인먼트'/.test(data) && /'403870\.KQ': \{ en: 'HPSP'/.test(core));
 check('known KR ticker mapping regressions must be absent', !/sym:'011200\.KS', name:'HJ중공업'|sym:'041510\.KS'|'403870\.KQ': \{ en: 'HJ Sci'/.test(data + core));
 check('KR composite cards must keep live bindings on value children', !/class="kr-(?:etf|screen)-card"[^>]*data-live-price=/.test(html));
-check('KR composite cards must expose stable symbol ownership', /class="kr-etf-card" data-live-symbol=/.test(html) && /class="kr-screen-card" data-live-symbol=/.test(html));
+// v53.7 (P725): kr-home 퇴역으로 composite 카드가 사라질 수 있음 — 존재할 때만 소유권 계약을 강제(패턴 계약)
+check('KR composite cards must expose stable symbol ownership', !/class="kr-etf-card"/.test(html) || /class="kr-etf-card" data-live-symbol=/.test(html));
 check('dynamic KR theme pills must keep live bindings on value children', /class="kr-ticker-pill" data-live-symbol=/.test(html) && !/class="kr-ticker-pill" data-live-price=/.test(html));
 check('KRW-denominated equity prices must use a KR-specific sanity range', /if \(\/\\\.\(KS\|KQ\)\$\/\.test\(sym\)\) return \[1, 10000000\]/.test(core));
 check('reference-only unavailable values must warn rather than block deployment', /truth-blocked-reference-only[\s\S]*status: row\.operationalUse === 'reference-only' \? 'warn' : 'block'/.test(core));
@@ -134,4 +135,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Structural regression check OK: ${routeIds.length} internal routes (19 primary + 2 derived + 1 reference; glossary overlay separate), KST date contract, KR previous-close contract.`);
+console.log(`Structural regression check OK: ${routeIds.length} internal routes (14 primary + 2 derived + 1 reference; glossary overlay separate; v53.7 KR 5 routes retired), KST date contract, KR previous-close contract.`);

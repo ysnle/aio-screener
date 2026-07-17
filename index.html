@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.5 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.7 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -3893,7 +3893,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
 #fund-cards-grid > * {
   min-width: 0;
 }
-#page-kr-technical canvas {
+#kr-integrated-technical canvas {
   display: block;
   width: 100% !important;
   max-width: 100% !important;
@@ -3901,10 +3901,10 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
 }
 
 @media (max-width: 640px) {
-  #page-kr-technical [style*="grid-template-columns:1fr 1fr"],
-  #page-kr-technical [style*="grid-template-columns: 1fr 1fr"],
-  #page-kr-technical [style*="grid-template-columns:repeat(3,1fr)"],
-  #page-kr-technical [style*="grid-template-columns: repeat(3, 1fr)"] {
+  #kr-integrated-technical [style*="grid-template-columns:1fr 1fr"],
+  #kr-integrated-technical [style*="grid-template-columns: 1fr 1fr"],
+  #kr-integrated-technical [style*="grid-template-columns:repeat(3,1fr)"],
+  #kr-integrated-technical [style*="grid-template-columns: repeat(3, 1fr)"] {
     grid-template-columns: 1fr !important;
   }
 }
@@ -4748,10 +4748,7 @@ body.aio-dev-mode .aio-public-readiness { display:grid !important; }
 .aio-public-page-source.is-delayed em { color: var(--data-green); }
 .aio-public-page-source.is-reference em,
 .aio-public-page-source.is-unavailable em { color: var(--data-amber); }
-#page-kr-technical > .insight-box:first-child {
-  display: none !important;
-}
-#page-kr-technical .aio-decision-header {
+#kr-integrated-technical .aio-decision-header {
   margin-top: 0 !important;
   border-color: rgba(33,29,22,0.34) !important;
 }
@@ -4982,28 +4979,13 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #risk-banner button { display:none; }
 
 /* v52.89 P704: 사용설명서·용어사전·한국 5면도 13면 시안의 조용한 정보 위계를 공유한다. */
-#page-guide > .aio-section:has(.page-title),
-#page-kr-home > .aio-section:first-of-type,
-#page-kr-supply > .aio-section:first-of-type,
-#page-kr-macro > .aio-section:first-of-type,
-#page-kr-technical > :first-child,
-#page-kr-themes > .row:first-child {
+#page-guide > .aio-section:has(.page-title) {
   border-bottom:1px solid var(--border-strong); padding-bottom:20px; margin-bottom:22px;
 }
-#page-guide .aio-section-hd,
-#page-kr-home .aio-section-hd,
-#page-kr-supply .aio-section-hd,
-#page-kr-themes .aio-section-hd,
-#page-kr-macro .aio-section-hd,
-#page-kr-technical .aio-section-hd {
+#page-guide .aio-section-hd {
   border:0; padding:0 0 10px; margin:0; background:transparent;
 }
-#page-guide .aio-section-label,
-#page-kr-home .aio-section-label,
-#page-kr-supply .aio-section-label,
-#page-kr-themes .aio-section-label,
-#page-kr-macro .aio-section-label,
-#page-kr-technical .aio-section-label {
+#page-guide .aio-section-label {
   font-family:var(--font-display); font-size:15px; font-weight:600; letter-spacing:0; text-transform:none;
 }
 .aio-comp-secondary,
@@ -5028,10 +5010,9 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #page-guide > .aio-explain { margin:16px 0 0; }
 #page-guide #guide-public-policy { margin-top:28px !important; }
 #page-guide .aio-guide-chapter .aio-section-hd { display:none; }
-#page-kr-home .kr-index-grid,
-#page-kr-themes .kr-theme-grid { gap:12px; }
-#page-kr-themes .aio-theme-progressive .kr-theme-card:nth-child(n+4) { display:none; }
-#page-kr-themes .aio-theme-progressive.is-expanded .kr-theme-card { display:block; }
+#kr-integrated-themes .kr-theme-grid { gap:12px; }
+#kr-integrated-themes .aio-theme-progressive .kr-theme-card:nth-child(n+4) { display:none; }
+#kr-integrated-themes .aio-theme-progressive.is-expanded .kr-theme-card { display:block; }
 .aio-comp-more { display:block; margin:14px auto 24px; min-width:160px; }
 .kr-theme-card-more { margin-top:8px; border-top:1px solid var(--border-subtle); }
 .kr-theme-card-more > summary { cursor:pointer; list-style:none; min-height:34px; display:flex; align-items:center; color:var(--text-dim); font-size:11px; font-weight:600; }
@@ -5054,8 +5035,7 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
   #news-topic-chips .chip,
   .news-sort-btn,
   .news-type-tab,
-  #page-kr-supply a,
-  #page-kr-themes a,
+  #kr-integrated-themes a,
   .kr-tab,
   .kr-sector-tab { min-height:34px; display:inline-flex; align-items:center; }
   .topbar { flex-wrap:nowrap !important; min-height:48px; }
@@ -5063,9 +5043,9 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
   .topbar-actions-right [data-vix-badge] { position:absolute !important;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
   #live-quote-ts { max-width:104px !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #topbar-ai-btn { min-height:34px; padding:5px 9px !important; }
-  #page-kr-themes > .row.mb-4 { flex-direction:column;align-items:stretch !important; }
-  #page-kr-themes > .row.mb-4 .page-actions { width:100%;display:grid !important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px !important; }
-  #page-kr-themes > .row.mb-4 .page-actions .aio-btn-table { justify-content:center;white-space:nowrap;min-width:0;padding-left:8px;padding-right:8px; }
+  #kr-integrated-themes .row.mb-4 { flex-direction:column;align-items:stretch !important; }
+  #kr-integrated-themes .row.mb-4 .page-actions { width:100%;display:grid !important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px !important; }
+  #kr-integrated-themes .row.mb-4 .page-actions .aio-btn-table { justify-content:center;white-space:nowrap;min-width:0;padding-left:8px;padding-right:8px; }
 }
 
 /* 시안의 조용한 브랜드/내비게이션. */
@@ -5135,6 +5115,17 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 .mv-ind-lbl { font-size:10px; font-weight:700; color:var(--text-muted); text-align:right; text-transform:uppercase; letter-spacing:0.05em; }
 .mv-ind-track { height:8px; border-radius:2px; overflow:hidden; background:rgba(33,29,22,0.05); }
 .mv-ind-seg { height:100%; border-radius:2px; transition:width 0.4s; }
+/* v53.6: ticker 종목 개요 — 좌 요약 레일 + 우 대형 차트 (밸리AI 참조 레이아웃) */
+.ticker-ov-grid { display:grid; grid-template-columns:300px 1fr; gap:12px; align-items:start; }
+@media (max-width: 900px) { .ticker-ov-grid { grid-template-columns:1fr; } }
+.ticker-ov-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:5px 0; border-bottom:1px solid var(--surface-2); font-size:12px; }
+.ticker-ov-row:last-child { border-bottom:none; }
+.ticker-ov-row .ov-lbl { color:var(--text-muted); font-weight:600; white-space:nowrap; }
+.ticker-ov-row .ov-val { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); text-align:right; }
+.ticker-ov-52wbar { position:relative; height:6px; background:var(--surface-2); border-radius:3px; margin:6px 0 2px; overflow:hidden; }
+.ticker-ov-52wbar > div { position:absolute; top:-2px; width:2px; height:10px; background:var(--data-cyan); border-radius:1px; }
+.ticker-ov-theme-chip { display:inline-block; padding:3px 9px; margin:2px 3px 2px 0; font-size:11px; font-weight:600; color:var(--text-secondary); background:var(--surface-1); border:1px solid var(--border); border-radius:12px; cursor:pointer; }
+.ticker-ov-theme-chip:hover { border-color:var(--data-cyan); color:var(--text-primary); }
 /* Buy phase label (Buy Alert / Buy Ready / SEPA style) */
 .mv-phase-lbl { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:4px; font-size:11px; font-weight:900; letter-spacing:0.04em; }
 .mv-phase-alert { background:rgba(33,29,22,0.15); border:1px solid rgba(33,29,22,0.35); color:var(--data-amber); }
@@ -5369,17 +5360,6 @@ button[data-filter-active="true"] {
       <!-- 고급 -->
       <!-- v50.35: '고급 > 옵션' 내비 제거 — 옵션 페이지 폐기(옵션체인 피드 미연결, 스큐·흐름·Greeks 정적 스냅샷) -->
 
-      <!-- 한국 시장 — P715: 수급/breadth 자동 수집 공백(B1) 동안 접힘 기본. 소스 확보 시 상시 그룹 승격. -->
-      <div class="nav-section">
-        <details class="nav-kr-fold">
-          <summary class="nav-label kr-label" style="cursor:pointer;list-style:revert;">한국 시장</summary>
-          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-home" data-pass-el="1"><span class="nav-icon"></span><span class="label">한국장 홈</span></div>
-          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-supply" data-pass-el="1"><span class="nav-icon"></span><span class="label">수급 분석</span></div>
-          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-themes" data-pass-el="1"><span class="nav-icon"></span><span class="label">국내 테마</span></div>
-          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-macro" data-pass-el="1"><span class="nav-icon"></span><span class="label">한국 매크로</span></div>
-          <div class="nav-item kr-item" role="button" tabindex="0" data-action="showPage" data-arg="kr-technical" data-pass-el="1"><span class="nav-icon"></span><span class="label">차트 · 기술 분석 (KR)</span></div>
-        </details>
-      </div>
 
       <div class="nav-divider"></div>
 
@@ -5662,7 +5642,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.5</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.7</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -5834,7 +5814,7 @@ button[data-filter-active="true"] {
     <span class="is-interactive" data-action="showPage" data-arg="fxbond" title="10년 국채 수익률" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">美 10년물</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^TNX">—</b></span>
     <span class="is-interactive" data-action="showPage" data-arg="macro" title="금 가격" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">금</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="GC=F">—</b></span>
     <span class="is-interactive" data-action="showPage" data-arg="macro" title="WTI 원유" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">WTI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="CL=F">—</b></span>
-    <span class="is-interactive" data-action="showPage" data-arg="kr-home" title="KOSPI" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">KOSPI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^KS11">—</b></span>
+    <span class="is-interactive" data-action="showPage" data-arg="macro" title="KOSPI — 거시경제 페이지의 한국 시장 섹션" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">KOSPI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^KS11">—</b></span>
     <span class="is-interactive" data-action="showPage" data-arg="macro" title="비트코인" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">BTC</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="BTC-USD">—</b></span>
   </div>
 
@@ -7802,6 +7782,248 @@ button[data-filter-active="true"] {
   </details>
 
   <!-- ══ SECTION 7: 핵심 분석 가이드 ═════════════════════════════ -->
+
+  <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-technical) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
+  <details class="aio-page-advanced-toggle" id="kr-integrated-technical" style="margin-top:16px;">
+    <summary>한국 시장 — 한국 차트·기술 분석 (KOSPI/KOSDAQ · 종목 일봉 · 건강 점수)</summary>
+    <div class="aio-page-advanced-body">
+
+
+  <!-- ═══ v48.46: KR 기술 분석 심층 해설 ═══ -->
+    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-size:14.5px;font-weight:800;">한국장 차트·기술 분석 <span class="kr-badge">KRX</span></div>
+          <div class="page-subtitle">Weinstein 4단계 · 추세 위치 · 조정 판별 · 진입 등급 · RSI · MACD · 볼린저밴드</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+        </div>
+      </div>
+    </div>
+  <!-- v34.9: TradingView 한국장 차트 / v52.13 P610/B7: TradingView KRX 임베드 하드 브레이크(P3) 대체 —
+       Naver 일봉 시세 + Chart.js 자체 렌더(외부 위젯 의존 제거) -->
+  <div id="tv-chart-kr" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">한국 종목 일봉 차트 <span style="font-weight:400;color:var(--text-muted);">(Naver 시세 · 자체 렌더)</span></div>
+      <div style="display:flex;gap:6px;">
+        <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" data-on-enter="loadTVChart:kr" />
+        <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table" style="font-size:11px;">차트 로드</button>
+        <button data-action="krTvSymSearchFromInput" class="aio-btn-table" style="font-size:11px;">Ticker 분석 →</button>
+      </div>
+    </div>
+    <div id="tv-widget-kr" style="border-radius:4px;overflow:hidden;background:var(--bg-elevated);padding:8px;box-sizing:border-box;">
+      <canvas id="kr-candle-chart" height="320" style="width:100%;height:320px;max-height:340px;display:block;" role="img" aria-label="한국 종목 일봉 캔들 차트"></canvas>
+      <canvas id="kr-candle-volume" height="70" style="width:100%;height:70px;max-height:80px;display:block;margin-top:2px;" role="img" aria-label="거래량"></canvas>
+    </div>
+    <div id="kr-candle-meta" style="font-size:11px;color:var(--text-muted);margin-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+      <span data-role="kr-candle-asof">데이터 수신 대기...</span>
+      <span>출처: Naver Finance 일봉 종가 · MA20 포함 · TradingView 위젯 아님</span>
+    </div>
+  </div>
+
+  <div class="aio-section aio-comp-secondary-feed">
+    <div class="aio-section-hd"><span class="aio-section-label">한국 차트·반도체 최신 소식</span></div>
+    <div id="tg-feed-kr-technical"></div>
+  </div>
+
+    <!-- v35.6: 한국 시장 건강 점수 (미국 Market Health Score 동일 수준) -->
+    <div class="aio-section-rule" style="margin-bottom:8px;"><span>② 종합 점수 — 위 차트·추세·RSI·MACD에서 도출</span></div>
+    <div class="aio-why" style="margin-bottom:8px;">위 캔들 차트와 아래 RSI·MACD 지표를 종합해 계산합니다. 개별 지표를 먼저 확인 후 이 점수를 해석하세요.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <!-- 시장 건강 점수 -->
+      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 한국 시장 건강 점수</div>
+        <div id="kr-health-score" style="text-align:center;margin-bottom:8px;">
+          <div style="font-size:42px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-health-val">—</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text-muted);" id="kr-health-label">산출 중...</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;">
+          <div style="padding:4px 6px;background:rgba(33,29,22,0.04);border-radius:4px;">
+            <span style="color:var(--text-muted);">KOSPI 추세:</span> <span id="kr-health-trend" style="color:var(--text-muted);font-weight:700;">수신 대기</span>
+          </div>
+          <div style="padding:4px 6px;background:rgba(177,58,48,0.08);border-radius:4px;">
+            <span style="color:var(--text-muted);">VKOSPI:</span> <span style="color:var(--text-muted);font-weight:700;" id="kr-health-vkospi" title="VKOSPI(한국 변동성지수) — 실시간 원천 수신 성공 시 표시">—</span>
+          </div>
+          <div style="padding:4px 6px;background:rgba(177,58,48,0.08);border-radius:4px;">
+            <span style="color:var(--text-muted);">외국인 수급:</span> <span id="kr-health-foreign-streak" style="color:var(--text-muted);font-weight:700;">수신 대기</span>
+          </div>
+          <div style="padding:4px 6px;background:rgba(34,117,76,0.08);border-radius:4px;">
+            <span style="color:var(--text-muted);">수출·반도체:</span> <span style="color:var(--green);font-weight:700;" data-snap="kr-semi-export-yoy" data-operational-use="reference-only">확인 대기</span> <span style="color:var(--green);font-weight:700;"><span style="font-size:11px;color:var(--data-amber);">(최신 수출 데이터 검증 후 반영)</span></span>
+          </div>
+          <div style="padding:4px 6px;background:rgba(177,58,48,0.08);border-radius:4px;">
+            <span style="color:var(--text-muted);">신용잔고:</span> <span style="color:var(--yellow);font-weight:700;" data-snap="kr-credit">—</span>
+          </div>
+          <div style="padding:4px 6px;background:rgba(34,117,76,0.08);border-radius:4px;">
+            <span style="color:var(--text-muted);">기준금리:</span> <span style="color:var(--text-primary);font-weight:700;" data-snap="bok-rate">—</span> <span style="color:var(--text-muted);" data-snap="bok-status">—</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">필수 현재 입력이 모두 있을 때만 산출 · 각 구성요소 기준일 별도 적용</div>
+      </div>
+
+      <!-- VKOSPI 변동성 지수 -->
+      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">VKOSPI 변동성 지수 (KRX 공포지수)</div>
+        <canvas id="kr-vkospi-chart" height="160" style="width:100%;height:160px;max-height:180px;display:block;" role="img" aria-label="VKOSPI 변동성 지수 차트"></canvas>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px;font-size:11px;">
+          <div style="text-align:center;padding:4px;background:rgba(34,117,76,0.08);border-radius:4px;">
+            <div style="color:var(--text-muted);">안정</div>
+            <div style="color:var(--green);font-weight:700;">15 이하</div>
+          </div>
+          <div style="text-align:center;padding:4px;background:rgba(33,29,22,0.08);border-radius:4px;">
+            <div style="color:var(--text-muted);">경계</div>
+            <div style="color:var(--yellow);font-weight:700;">15~25</div>
+          </div>
+          <div style="text-align:center;padding:4px;background:rgba(177,58,48,0.08);border-radius:4px;">
+            <div style="color:var(--text-muted);">공포</div>
+            <div style="color:var(--red);font-weight:700;">25 이상</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">공포탐욕 참고값 — 최신값 자동갱신</div>
+      </div>
+    </div>
+
+    <!-- v35.6: 한국 시장 브레드스 (Market Breadth) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">시장 내부 건강도 (Breadth)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+          <div style="padding:8px;background:rgba(34,117,76,0.06);border-radius:3px;">
+            <div style="color:var(--text-muted);margin-bottom:4px;">상승/하락 비율</div>
+            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-adl">—</div>
+            <div style="font-size:11px;color:var(--text-muted);">현재 A/D 종목수 미수신</div>
+          </div>
+          <div style="padding:8px;background:rgba(177,58,48,0.06);border-radius:3px;">
+            <div style="color:var(--text-muted);margin-bottom:4px;">52주 신고/신저</div>
+            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-52w">—</div>
+            <div style="font-size:11px;color:var(--text-muted);">현재 52주 신고·신저가 원천 미수신</div>
+          </div>
+          <div style="padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
+            <div style="color:var(--text-muted);margin-bottom:4px;">20MA 위 종목 비율</div>
+            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-20ma">—</div>
+            <div style="font-size:11px;color:var(--text-muted);">현재 구성종목 원천 미수신</div>
+          </div>
+          <div style="padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
+            <div style="color:var(--text-muted);margin-bottom:4px;">거래대금</div>
+            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-volume">—</div>
+            <div style="font-size:11px;color:var(--text-muted);">현재 거래대금 원천 미수신</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 한국 금리 스프레드 -->
+      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">한국 금리 스프레드</div>
+        <div style="display:grid;gap:8px;font-size:11px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
+            <div>
+              <div style="font-weight:700;color:var(--data-cyan);">장단기 스프레드 (10Y-3Y)</div>
+              <div style="font-size:11px;color:var(--text-muted);">국고채 10년 - 3년</div>
+            </div>
+            <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-spread-3y10y">—</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
+            <div>
+              <div style="font-weight:700;color:var(--data-amber);">기준금리-10년 스프레드</div>
+              <div style="font-size:11px;color:var(--text-muted);">국고채 10년 - BOK 기준금리</div>
+            </div>
+            <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-spread-bok10y">—</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
+            <div>
+              <div style="font-weight:700;color:var(--data-purple);">CD-기준금리 스프레드</div>
+              <div style="font-size:11px;color:var(--text-muted);">CD 91일 - BOK 기준금리</div>
+            </div>
+            <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-spread-cd">—</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">기울기의 부호는 곡선 형태만 뜻합니다. 경기 판단은 물가·고용·신용·수급과 교차 확인합니다.</div>
+      </div>
+    </div>
+
+    <!-- 주요 지수 기술 분석 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">KOSPI 기술 분석<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="KOSPI 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">KOSPI 기술 분석</span>일봉·주봉 이평 정배열 + RSI(14) 50↑ = 상승 추세. VKOSPI 18↓ 안정, 25↑ 경보. <strong>외국인/기관 동행 순매수</strong>가 진짜 추세. 개인만 매수 시 단기 고점 가능성.</span></span></span>
+          <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KS11">—</span>
+        </div>
+        <div id="kr-kospi-tech-result" style="min-height:60px;">
+          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
+        </div>
+        <!-- v52.41 (P656/EF-19): data-action이 analyzeKrTickerDeep(개별종목용)로 오배선돼 결과를
+             하단 #kr-ticker-analysis-result에 써서 이 카드 자신은 절대 갱신되지 않았다 — 최초 렌더와
+             동일한 analyzeKrIndex(ticker, targetId, label)로 교체(index.html 30393 참조 패턴 재사용). -->
+        <button data-action="analyzeKrIndex" data-arg="^KS11" data-arg2="kr-kospi-tech-result" data-arg3="KOSPI" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSPI 분석 새로고침 </button>
+      </div>
+      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">KOSDAQ 기술 분석</span>
+          <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KQ11">—</span>
+        </div>
+        <div id="kr-kosdaq-tech-result" style="min-height:60px;">
+          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
+        </div>
+        <button data-action="analyzeKrIndex" data-arg="^KQ11" data-arg2="kr-kosdaq-tech-result" data-arg3="KOSDAQ" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSDAQ 분석 새로고침 </button>
+      </div>
+    </div>
+
+    <!-- 개별 종목 심화 분석 -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">한국 종목 심화 분석</span></div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 입력 (005930, 000660, 035720 등)" aria-label="한국 종목 심화 분석 종목코드 입력"
+               style="flex:1;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;"
+               data-on-enter="analyzeKrTickerDeep:__value_kr"/>
+        <button data-action="_aioKrTickerSubmit"
+                style="padding:8px 16px;background:#b13a30;color:white;border:none;border-radius:3px;font-weight:700;font-size:11px;cursor:pointer;">
+          분석
+        </button>
+      </div>
+      <!-- 빠른 종목 버튼 -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;">
+        <button data-action="analyzeKrTickerDeep" data-arg="005930.KS" class="aio-btn-table" style="font-size:11px;">삼성전자</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="000660.KS" class="aio-btn-table" style="font-size:11px;">SK하이닉스</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="035720.KS" class="aio-btn-table" style="font-size:11px;">카카오</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="005380.KS" class="aio-btn-table" style="font-size:11px;">현대차</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="006400.KS" class="aio-btn-table" style="font-size:11px;">삼성SDI</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="035420.KS" class="aio-btn-table" style="font-size:11px;">NAVER</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="051910.KS" class="aio-btn-table" style="font-size:11px;">LG화학</button>
+        <button data-action="analyzeKrTickerDeep" data-arg="247540.KQ" class="aio-btn-table" style="font-size:11px;">에코프로비엠</button>
+      </div>
+      <div id="kr-ticker-analysis-result" style="min-height:80px;">
+        <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">종목코드를 입력하거나 위 버튼을 클릭하면 Weinstein Stage, 추세 위치, 조정 판별, 진입 등급 등 종합 분석이 표시됩니다.</div>
+      </div>
+    </div>
+    </div><!-- /aio-section 한국종목심화 -->
+
+    <!-- 기술 분석 용어 설명 -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">기술 분석 핵심 용어</span></div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="padding:10px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
+          <div style="font-size:10px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">Weinstein 4단계</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">주기 분석: 1(바닥)→2(상승)→3(천장)→4(하락) 반복. <strong>2단계 초입=최적 매수</strong>, 3단계=매도 고려.</div>
+        </div>
+        <div style="padding:10px;background:rgba(34,117,76,0.06);border:1px solid rgba(34,117,76,0.15);border-radius:3px;">
+          <div style="font-size:10px;font-weight:700;color:var(--data-green);margin-bottom:4px;">이동평균 정배열</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">단기(5일) > 중기(20일) > 장기(50일) = <strong>정배열 = 상승추세</strong>. EMA5>10>20>SMA50이면 가장 강한 상승 신호.</div>
+        </div>
+        <div style="padding:10px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
+          <div style="font-size:10px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">건전한 조정 vs 추세전환</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;"><strong>건전한 조정:</strong> 50MA 지지 + 거래량↓ + Higher Low = 매수 기회. <strong>추세전환:</strong> 50MA 이탈 + 거래량↑ = 위험.</div>
+        </div>
+        <div style="padding:10px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
+          <div style="font-size:10px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">RSI 다이버전스</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">주가-RSI 반대 움직임. <strong>신고가+RSI↓ = 약세</strong>(힘 약화). 신저가+RSI↑ = 강세(바닥 신호). 추세 전환 선행지표.</div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /aio-section 기술분석핵심용어 -->
+
+    </div>
+  </details>
 </div>
 <div class="page" id="page-macro">
   <div class="insight-box box-collapsed">
@@ -8249,6 +8471,312 @@ button[data-filter-active="true"] {
       실시간 캘린더: <a href="https://www.investing.com/economic-calendar/" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">Investing.com</a> | <a href="https://tradingeconomics.com/calendar" target="_blank" rel="noopener noreferrer" style="color:var(--data-cyan);">TradingEconomics</a>
     </div>
   </div>
+    </div>
+  </details>
+
+  <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-macro) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
+  <details class="aio-page-advanced-toggle" id="kr-integrated-macro" style="margin-top:16px;">
+    <summary>한국 시장 — 핵심 지수 · 한국 매크로 (KOSPI/KOSDAQ · BOK 기준금리 · 물가 · 경기 · 환율 · 수출입)</summary>
+    <div class="aio-page-advanced-body">
+
+    <!-- ═══ v53.7 (P725): 핵심 지수 카드 — 구 kr-home 섹션 1 이관 (P636/P721 KR 전일종가·변화폭 계약 sink 보존) ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">핵심 지수</span></div>
+    <div class="kr-index-grid">
+      <div class="kr-idx-card up">
+        <div class="kr-idx-label">KOSPI</div>
+        <div class="kr-idx-val" id="kr-kospi-price" style="color:var(--green)" data-snap="kospi" data-live-price="^KS11">—</div>
+        <div class="kr-idx-chg" style="color:var(--green)"><span data-live-kr-change="^KS11"><span data-snap="kospi-pct" data-live-chg="^KS11">—</span></span> <span data-date-ref="kr-last"></span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kospi-prev" data-live-prev-close="^KS11">—</span></div>
+      </div>
+      <div class="kr-idx-card down">
+        <div class="kr-idx-label">KOSDAQ</div>
+        <div class="kr-idx-val" id="kr-kosdaq-price" style="color:var(--red)" data-snap="kosdaq" data-live-price="^KQ11">—</div>
+        <div class="kr-idx-chg" style="color:var(--red)"><span data-live-kr-change="^KQ11"><span data-snap="kosdaq-pct" data-live-chg="^KQ11">—</span></span> <span data-date-ref="kr-last"></span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kosdaq-prev" data-live-prev-close="^KQ11">—</span></div>
+      </div>
+      <div class="kr-idx-card down">
+        <div class="kr-idx-label">KRW/USD</div>
+        <div class="kr-idx-val" id="kr-krw-price" style="color:var(--red)" data-snap="krw-full">—</div>
+        <div class="kr-idx-chg" style="color:var(--text-muted)"><span data-live-kr-change="KRW=X">—</span> <span data-date-ref="kr-last"></span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">전일 종가 대비 방향만 표시 · 원인은 수급·금리·정책과 별도 확인</div>
+      </div>
+      <div class="kr-idx-card up">
+        <div class="kr-idx-label">VKOSPI</div>
+        <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--text-muted)" title="VKOSPI(한국 변동성지수) — 실시간 원천 수신 성공 시 표시">—</div>
+        <div class="kr-idx-chg" style="color:var(--text-muted)">현재 원천 수신 대기</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">변동성 지수 (KRX 공포지수)</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">15~20: 정상 · 30 이상: 극단적 공포</div>
+      </div>
+    </div>
+    </div><!-- /aio-section 핵심지수 -->
+
+
+  <!-- ═══ v48.46: KR 매크로 심층 해설 ═══ -->
+    <div class="aio-section">
+    <div class="row mb-4" style="align-items:flex-start;">
+      <div>
+        <div style="font-size:14.5px;font-weight:800;">한국 매크로 <span class="kr-badge">BOK</span></div>
+        <div class="page-subtitle">기준금리 · 물가 · 경기 · 환율 · 수출입 · 부동산</div>
+      </div>
+      <div class="page-actions">
+      </div>
+    </div>
+    </div><!-- /aio-section 한국매크로헤더 -->
+
+    <!-- ═══ 섹션 1: 기준금리 현황 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">기준금리 현황</span></div>
+    <div class="aio-widget" style="margin-bottom:12px;">
+      <div class="widget-title">한국은행 기준금리 현황 <span id="kr-macro-bokrate-freshness" class="aio-freshness-mini" style="font-size:10px;font-weight:400;"></span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 기준금리</div>
+          <div style="font-size:28px;font-weight:800;color:var(--yellow);font-family:var(--font-mono);margin-bottom:4px;" data-snap="bok-rate">—</div>
+          <div style="font-size:11px;color:var(--text-muted);">한국은행 공식 발표 기준</div>
+        </div>
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">다음 금통위</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;" data-snap="bok-next">—</div>
+          <div style="font-size:11px;color:var(--yellow);" data-snap="bok-status">—</div>
+        </div>
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">시장 기대</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">—</div>
+          <div style="font-size:11px;color:var(--text-muted);">현재 컨센서스 원천 미연결</div>
+        </div>
+      </div>
+      <div data-source-kind="official-primary" data-operational-use="reference-only" style="font-size:10px;color:var(--text-muted);">정책 이력의 내장 사본은 제거했습니다. 현재 값·기준일·다음 일정은 단일 공식 참조 레지스트리에서만 표시합니다.</div>
+    </div>
+
+    </div><!-- /aio-section 기준금리현황 -->
+
+    <!-- ═══ 섹션 2: 물가지표 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">물가 · 경기 지표</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="aio-widget">
+        <div class="widget-title">물가지표 <span id="kr-macro-cpi-freshness" class="aio-freshness-mini" style="font-size:10px;font-weight:400;"></span></div>
+        <div style="display:grid;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
+            <span style="font-size:11px;color:var(--text-secondary);">소비자물가지수 (CPI)</span>
+            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-cpi-yoy">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
+            <span style="font-size:11px;color:var(--text-secondary);">생산자물가지수 (PPI · 현재 원천 미수신)</span>
+            <span style="font-size:14px;font-weight:700;color:var(--data-red);font-family:var(--font-mono);" data-snap="kr-ppi-yoy">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
+            <span style="font-size:11px;color:var(--text-secondary);">핵심물가지수 (현재 원천 미수신)</span>
+            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-core-cpi">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
+            <span style="font-size:11px;color:var(--text-secondary);">기타공공서비스요금 (현재 원천 미수신)</span>
+            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);" data-snap="kr-service-price">—</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:8px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
+          공식 물가 관측치가 수신된 경우에만 목표 대비 위치를 판단합니다.
+        </div>
+      </div>
+
+      <div class="aio-widget">
+        <div class="widget-title">경기지표 <span id="kr-macro-pmi-freshness" class="aio-freshness-mini" style="font-size:10px;font-weight:400;"></span></div>
+        <div style="display:grid;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
+            <span style="font-size:11px;color:var(--text-secondary);">제조업 PMI</span>
+            <span style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--font-mono);" data-snap="kr-manuf-pmi">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
+            <span style="font-size:11px;color:var(--text-secondary);">서비스업 PMI (현재 원천 미수신)</span>
+            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-service-pmi">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
+            <span style="font-size:11px;color:var(--text-secondary);">GDP 성장률 (전분기 대비)</span>
+            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);" data-snap="kr-gdp-qoq">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
+            <span style="font-size:11px;color:var(--text-secondary);">실업률 (현재 원천 미수신)</span>
+            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);" data-snap="kr-unemploy">—</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:8px;background:rgba(177,58,48,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
+          제조업 PMI <span data-snap="kr-manuf-pmi">—</span>, GDP 전분기 대비 <span data-snap="kr-gdp-qoq">—</span>. 수출 <span data-snap="kr-export">—</span>% YoY는 6월 1~20일 잠정치이며 월 전체치와 혼용하지 않습니다.
+        </div>
+      </div>
+    </div>
+
+    </div><!-- /aio-section 물가경기지표 -->
+
+    <!-- ═══ 섹션 3: 원/달러 환율 분석 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">원/달러 환율 분석</span></div>
+    <div class="aio-widget" style="margin-bottom:12px;">
+      <div class="widget-title">원/달러 환율 분석</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 환율</div>
+          <div id="kr-macro-krw" style="font-size:26px;font-weight:800;color:var(--red);font-family:var(--font-mono);margin-bottom:4px;" data-snap="krw-full">—</div>
+          <div class="kr-idx-chg" data-live-kr-change="KRW=X" style="font-size:11px;color:var(--text-muted);">—</div>
+        </div>
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">1년 범위</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
+          <div style="font-size:11px;color:var(--text-muted);">현재 1년 OHLC 원천 미연결</div>
+        </div>
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">3개월 추이</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
+          <div style="font-size:11px;color:var(--text-muted);">현재 3개월 OHLC 원천 미연결</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div style="background:var(--surface-1);border-radius:4px;padding:10px;">
+          <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">확인 항목 (원인 미판정)</div>
+          <ul style="font-size:10px;color:var(--text-secondary);line-height:1.6;list-style:none;padding:0;">
+            <li>• 미·한 정책금리와 기대 변화</li>
+            <li>• 미국·한국 주요 경제지표</li>
+            <li>• 원유·지정학 뉴스와 실물지표</li>
+            <li>• 현물·NDF·주식 수급 자료</li>
+          </ul>
+        </div>
+        <div style="background:var(--surface-1);border-radius:4px;padding:10px;">
+          <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">영향 확인 범위</div>
+          <ul style="font-size:10px;color:var(--text-secondary);line-height:1.6;list-style:none;padding:0;">
+            <li>• 기업별 환노출·헤지 여부</li>
+            <li>• 원자재·수입단가 민감도</li>
+            <li>• 외국인 주식·채권 수급</li>
+            <li>• 수입물가·무역수지 후속 발표</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    </div><!-- /aio-section 원달러환율분석 -->
+
+    <!-- ═══ 섹션 3B: 채권 금리 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">주요 채권 금리</span></div>
+    <div class="aio-widget" style="margin-bottom:12px;">
+      <div class="widget-title">주요 채권 금리</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">미국 10년물</div>
+          <div id="kr-macro-us10y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="tnx">—</div>
+          <div style="font-size:11px;color:var(--text-muted);">Fed 정책 금리와 연관</div>
+        </div>
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">한국 3년물</div>
+          <div id="kr-macro-kr3y" style="font-size:26px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
+          <div id="kr-macro-kr3y-source" style="font-size:11px;color:var(--text-muted);">현재 금리 원천 미수신</div>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- /aio-section 주요채권금리 -->
+
+    <!-- ═══ 섹션 4: 수출입 동향 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">수출입 동향</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="aio-widget">
+        <div class="widget-title">주요 수출 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">2026-02 아카이브 · 현재 판단 제외 · 최신 잠정치는 상단 지표 참조</span></div>
+        <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-export-2026-02" title="Archived export table. Current-use data requires refresh evidence.">
+          <tr><th>품목</th><th>2월 수출 (참고)</th><th>YoY</th></tr>
+          <tr><td>반도체</td><td style="color:var(--green);" data-snap="kr-semi-export-feb">—</td><td style="color:var(--green);">+157.9%</td></tr>
+          <tr><td>자동차</td><td style="color:var(--text-muted);">58억 USD</td><td style="color:var(--green);">+3.2%</td></tr>
+          <tr><td>디스플레이</td><td style="color:var(--text-muted);">22억 USD</td><td style="color:var(--green);">+12.8%</td></tr>
+          <tr><td>조선</td><td style="color:var(--text-muted);">24억 USD</td><td style="color:var(--green);">+18.6%</td></tr>
+          <tr><td>화학</td><td style="color:var(--text-muted);">38억 USD</td><td style="color:var(--red);">-2.8%</td></tr>
+        </table>
+        <div style="margin-top:10px;padding:8px;background:rgba(34,117,76,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
+          2월 수출 674.5억$ 역대 최대 (+28.7% YoY). 반도체가 전체의 37% 차지. 3개월 연속 200억$ 돌파
+        </div>
+      </div>
+
+      <div class="aio-widget">
+        <div class="widget-title">주요 수입 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">2026-02 아카이브</span></div>
+        <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-import-2026-02">
+          <tr><th>품목</th><th>2월 수입 (참고)</th><th>YoY</th></tr>
+          <tr><td>원유</td><td style="color:var(--text-muted);">28억 USD</td><td style="color:var(--green);">+1.2%</td></tr>
+          <tr><td>가스</td><td style="color:var(--text-muted);">24억 USD</td><td style="color:var(--green);">+3.8%</td></tr>
+          <tr><td>반도체 부품</td><td style="color:var(--text-muted);">32억 USD</td><td style="color:var(--green);">+18.4%</td></tr>
+          <tr><td>광물</td><td style="color:var(--text-muted);">22억 USD</td><td style="color:var(--text-muted);">-1.6%</td></tr>
+          <tr><td>식품</td><td style="color:var(--text-muted);">15억 USD</td><td style="color:var(--red);">-3.2%</td></tr>
+        </table>
+        <div style="margin-top:10px;padding:8px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
+          에너지 수입 부담은 현재 WTI <span data-live-price="CL=F">—</span>, Brent <span data-live-price="BZ=F">—</span>, 원/달러 환율을 함께 확인합니다. 고정 가격만으로 무역수지 개선을 단정하지 않습니다.
+        </div>
+      </div>
+    </div>
+
+    </div><!-- /aio-section 수출입동향 -->
+
+    <!-- ═══ 섹션 5: 부동산 & 건설 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">부동산 · 건설 시장</span></div>
+    <div class="aio-widget" style="margin-bottom:12px;">
+      <div class="widget-title">부동산 / 건설 시장</div>
+      <div data-runtime-state="unavailable" data-operational-use="blocked" style="background:var(--surface-1);border-radius:4px;padding:12px;font-size:10px;color:var(--text-muted);">
+        주택가격·전세·미분양·PF 원천이 연결되지 않아 수치와 현재 상태 판단을 표시하지 않습니다.
+      </div>
+    </div>
+
+    </div><!-- /aio-section 부동산건설시장 -->
+
+    <!-- ═══ v37.8: 한국 매크로 동적 분석 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">매크로 환경 분석</span></div>
+    <div class="aio-widget" id="kr-macro-dynamic-widget" style="margin-bottom:12px;">
+      <div class="widget-title">매크로 환경 자동 판단</div>
+      <div id="kr-macro-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 수신 대기...</div>
+    </div>
+
+    <!-- ═══ 섹션 6: 정책 일정 ═══ -->
+    <div class="aio-widget">
+      <div class="widget-title">주요 경제 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(33,29,22,0.10);border-radius:3px;color:var(--accent);margin-left:6px;">공식 캘린더 기준</span></div>
+      <div data-runtime-state="official-reference" data-operational-use="calendar-only" style="padding:10px;color:var(--text-muted);font-size:10px;">미국·한국의 다음 정책·물가 일정은 거시경제 페이지의 공식 일정 레지스트리에서 단일 관리합니다.</div>
+    </div>
+
+    <!-- ═══ 섹션 6: 한국 경기 선행지수 ═══ -->
+    <div class="aio-widget" style="margin-bottom:12px;">
+      <div class="widget-title">경기 선행·동행·후행 지수 <span class="kr-tag">통계청</span></div>
+      <div data-runtime-state="unavailable" data-operational-use="blocked" style="padding:12px;background:var(--surface-2);border-radius:4px;font-size:10px;color:var(--text-muted);">통계청 경기종합지수 원천 미연결 · 수치와 경기 국면 판단을 보류합니다.</div>
+    </div>
+
+    <!-- ═══ 섹션 7: 국제 비교 ═══ -->
+    <div class="aio-widget" style="margin-bottom:12px;">
+      <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
+      <table class="kr-flow-table">
+        <tr><th>지표</th><th>한국</th><th>미국</th><th>일본</th><th>중국</th></tr>
+        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">—</td><td data-snap="fed-rate">—</td><td>—</td><td>—</td></tr>
+        <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">—</td><td data-snap="cpi">—</td><td>—</td><td>—</td></tr>
+        <tr><td>GDP 성장률</td><td data-snap="kr-gdp">—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>환율 (vs USD)</td><td data-snap="krw">—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>10Y 국채</td><td data-snap="kr-bond-10y">—</td><td data-live-price="^TNX">—</td><td>—</td><td>—</td></tr>
+        <tr><td>주식시장 YTD</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+      </table>
+      <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-operational-use="reference-only" style="margin-top:10px;padding:8px 10px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
+        한국과 미국의 정책금리·물가·국채·환율 관측치가 모두 있을 때만 금리차와 시장 영향을 해석합니다.
+      </div>
+    </div>
+    </div><!-- /aio-section 매크로환경분석 -->
+
+    <!-- 한국 반도체 구조 분석 -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">한국 반도체 — 성장→지속가능성 전환</span></div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
+      <div data-runtime-state="unavailable" data-operational-use="blocked" style="font-size:10px;color:var(--text-muted);line-height:1.8;">실적·메모리 가격·외국인 지분·포지셔닝 원천을 함께 수신한 경우에만 현재 반도체 구조 판단을 생성합니다.</div>
+    </div>
+    </div><!-- /aio-section 한국반도체 -->
+
+    <!-- ═══ 텔레그램 한국 매크로 최신 소식 ═══ -->
+    <div class="aio-section aio-comp-secondary-feed">
+      <div class="aio-section-hd"><span class="aio-section-label">한국 매크로·반도체 최신 소식</span></div>
+      <div id="tg-feed-kr-macro"></div>
+    </div>
+
     </div>
   </details>
 </div>
@@ -9552,6 +10080,76 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /aio-section 대표ETF -->
 
+  <!-- ═══ v53.7: 한국 시장 통합 섹션 (구 kr-themes) — 구 KR 전용 페이지를 접힌 섹션으로 이관, 요소 id 보존 ═══ -->
+  <details class="aio-page-advanced-toggle" id="kr-integrated-themes" style="margin-top:16px;">
+    <summary>한국 시장 — 국내 테마 분석 (KRX 28개 테마 · 등락률 · 대장주)</summary>
+    <div class="aio-page-advanced-body">
+
+
+  <!-- ═══ v48.46: KR 테마 심층 해설 ═══ -->
+    <div class="row mb-4" style="align-items:flex-start;">
+      <div>
+        <div style="font-size:14.5px;font-weight:800;">국내 테마 분석 <span class="kr-badge">KRX</span></div>
+        <div class="page-subtitle">한국 고유 투자 테마 · 대장주 수급·모멘텀 · 테마별 성과</div>
+      </div>
+      <div class="page-actions" style="display:flex;gap:8px;align-items:center;">
+        <a href="https://finance.naver.com/sise/theme.naver" target="_blank" rel="noopener noreferrer" rel="noopener" class="aio-btn-table" style="text-decoration:none;font-size:11px;">네이버 테마별 시세 ↗</a>
+      </div>
+    </div>
+
+    <!-- 테마 필터 바 -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">테마 필터</span></div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 16px;margin-bottom:14px;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="kr-tab active" data-action="filterKrThemes" data-arg-first-el="1" data-arg="all">전체</button>
+        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="hot">HOT</button>
+        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="warm">강세</button>
+        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cool">중립</button>
+        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cold">조정/부진</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--surface-4);">
+        <span style="font-size:11px;color:var(--text-muted);margin-right:2px;line-height:24px;">섹터:</span>
+        <button class="kr-tab kr-sector-tab active" data-action="filterKrSector" data-arg-first-el="1" data-arg="all">전체</button>
+        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="tech">IT/반도체</button>
+        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="industry">산업/에너지</button>
+        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="consumer">소비/문화</button>
+        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="finance">금융/통신</button>
+      </div>
+    </div>
+    </div><!-- /aio-section 테마필터 -->
+
+    <div class="kr-theme-grid" id="kr-theme-container">
+      <!-- v40.4: 정적 HTML 제거. KR_THEME_MAP 기반 JS 동적 생성 (renderKrThemeCardsFromMap). -->
+      <!-- ━━━ 아래는 renderKrThemeCardsFromMap()가 동적 생성 ━━━ -->
+    </div>
+
+    <!-- ═══ 테마 퍼포먼스 랭킹 ═══ -->
+    <div class="aio-section">
+    <div class="aio-section-hd"><span class="aio-section-label">테마별 일간 퍼포먼스 랭킹</span></div>
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span id="kr-theme-rank-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기…</span>
+      </div>
+      <div id="kr-theme-perf-bars" style="display:flex;flex-direction:column;gap:3px;"><div style="text-align:center;padding:12px;color:var(--text-muted);font-size:11px;">실시간 데이터 수신 후 자동 표시</div></div>
+    </div>
+    </div><!-- /aio-section 테마퍼포먼스 -->
+
+    <!-- ═══ 테마 종목 상세 분석 패널 ═══ -->
+    <div id="kr-theme-detail-panel" style="display:none;background:var(--bg-card);border:2px solid var(--accent);border-radius:4px;padding:18px;margin-bottom:14px;position:relative;">
+      <button data-action="_aioCloseThemeDetailPanel" aria-label="닫기" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;font-weight:700;">×</button>
+      <div id="kr-theme-detail-content"></div>
+    </div>
+
+    <!-- v37.8: kr-themes 동적 테마 분석 -->
+    <div class="aio-widget" style="margin-bottom:12px;">
+      <div class="widget-title">테마 동향 자동 분석</div>
+      <div id="kr-themes-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">테마 데이터 수집 대기...</div>
+    </div>
+
+    </div>
+  </details>
+
   </div>
     <!-- ═══════════════ PAGE: THEME-DETAIL (테마 상세) ═══════════════ -->
   <div class="page" id="page-theme-detail">
@@ -10204,6 +10802,48 @@ button[data-filter-active="true"] {
     <div id="ticker-entry-check" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:10px;"></div>
     </div><!-- /aio-section 종목검색 -->
 
+    <!-- ══ v53.6: 종목 개요 — 좌 요약 레일 + 우 TradingView 대형 차트 (밸리AI 참조, 실데이터만 표기) ══ -->
+    <div class="aio-section" id="ticker-valley-overview">
+      <div class="aio-section-hd">
+        <span class="aio-section-label">종목 개요</span>
+        <span id="ticker-ov-provenance" style="font-size:10px;color:var(--text-muted);">종목 검색 시 표시</span>
+      </div>
+      <div class="ticker-ov-grid">
+        <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+          <!-- 가격 정보 -->
+          <div class="aio-widget" style="padding:12px 14px;">
+            <div class="widget-title" style="margin-bottom:6px;">가격 정보</div>
+            <div class="ticker-ov-row"><span class="ov-lbl">전일 종가</span><span class="ov-val" id="ticker-ov-prevclose">—</span></div>
+            <div class="ticker-ov-row"><span class="ov-lbl">52주 범위</span><span class="ov-val" id="ticker-ov-52w" style="font-size:11px;">—</span></div>
+            <div class="ticker-ov-52wbar" id="ticker-ov-52wbar" style="display:none;" title="52주 범위 내 현재가 위치"><div id="ticker-ov-52wpos" style="left:50%;"></div></div>
+            <div class="ticker-ov-row"><span class="ov-lbl">지난 1개월 수익률</span><span class="ov-val" id="ticker-ov-ret1m">—</span></div>
+            <div class="ticker-ov-row"><span class="ov-lbl">지난 3개월 수익률</span><span class="ov-val" id="ticker-ov-ret3m">—</span></div>
+            <div class="ticker-ov-row"><span class="ov-lbl">지난 6개월 수익률</span><span class="ov-val" id="ticker-ov-ret6m">—</span></div>
+          </div>
+          <!-- 관련 테마 -->
+          <div class="aio-widget" style="padding:12px 14px;">
+            <div class="widget-title" style="margin-bottom:6px;">관련 테마</div>
+            <div id="ticker-ov-themes" style="line-height:1.9;"><span style="font-size:11px;color:var(--text-muted);">종목 검색 시 표시</span></div>
+          </div>
+          <!-- 팩터 프로파일 (서술적 — 예측 지표 아님) -->
+          <div class="aio-widget" style="padding:12px 14px;">
+            <div class="widget-title" style="margin-bottom:6px;">팩터 프로파일</div>
+            <div style="position:relative;height:180px;">
+              <canvas id="ticker-ov-factor-radar" role="img" aria-label="종목 팩터 프로파일 레이더 차트" style="width:100%;height:100%;"></canvas>
+            </div>
+            <div id="ticker-ov-factor-rows" style="margin-top:6px;"></div>
+            <div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-top:6px;">스크리너 유니버스 내 상대 백분위(0~100) — 종목 성격의 <b>서술</b>이며 수익률 예측 지표가 아닙니다(10년 백테스트에서 종합 팩터의 예측력은 통계적으로 무의미했습니다).</div>
+          </div>
+        </div>
+        <div style="min-width:0;">
+          <div id="tv-widget-ticker" style="height:520px;border-radius:4px;overflow:hidden;background:var(--bg-elevated);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:12px;color:var(--text-muted);">종목 검색 시 TradingView 실시간 차트가 로드됩니다</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">TradingView 위젯(외부 iframe) — 로드 실패 시 아래 Chart 탭의 자체 차트(관측 이력 기반)를 사용하세요. 한국 종목은 KRX 데이터 제한으로 미지원.</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Tabs -->
     <div class="page-tabs">
       <button class="page-tab tab active" data-action="switchTab" data-arg="overview">Overview</button>
@@ -10777,1142 +11417,6 @@ button[data-filter-active="true"] {
     </div><!-- /aio-section 퀀트스크리너 -->
   </div>
 
-  <!-- ═══════════════ PAGE: KR-HOME (한국장 홈) ═══════════════ -->
-  <div class="page" id="page-kr-home">
-  <div class="insight-box box-collapsed">
-    <strong>오늘 한국 시장 — KOSPI·KOSDAQ·외국인 수급·환율 한눈에</strong>
-  </div>
-
-  <!-- ═══ v48.45: 한국장 기관급 해설 ═══ -->
-    <div class="aio-section">
-    <div class="row mb-4" style="align-items:flex-start;">
-      <div>
-        <div class="page-title">한국장 홈 <span class="kr-badge">KRX</span></div>
-        <div class="page-subtitle">source 확인 지수 · KOSPI · KOSDAQ · KRW/USD · 투자자 수급 · 한국 시장 요약</div>
-      </div>
-      <div class="page-actions">
-        <button class="aio-btn-table" data-action="showPage" data-arg="kr-supply">수급 분석 →</button>
-        <button class="aio-btn-table" data-action="showPage" data-arg="kr-themes">국내 테마 →</button>
-        <button class="aio-btn-table primary" data-action="showPage" data-arg="kr-macro">매크로 →</button>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 한국장헤더 -->
-
-    <!-- ═══ 섹션 1: 핵심 지수 카드 (4열) ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">핵심 지수</span></div>
-    <div class="kr-index-grid">
-      <div class="kr-idx-card up">
-        <div class="kr-idx-label">KOSPI</div>
-        <div class="kr-idx-val" id="kr-kospi-price" style="color:var(--green)" data-snap="kospi" data-live-price="^KS11">—</div>
-        <!-- P721: 정적 변화폭 리터럴(▲ 200.86) 제거 — 미수신 시 하드코드 숫자가 현재값처럼 노출되던 카테고리 20 위반 -->
-        <div class="kr-idx-chg" style="color:var(--green)"><span data-live-kr-change="^KS11"><span data-snap="kospi-pct" data-live-chg="^KS11">—</span></span> <span data-date-ref="kr-last"></span></div>
-        <div id="kr-idx-kospi-comment" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kospi-prev" data-live-prev-close="^KS11">—</span></div>
-      </div>
-      <div class="kr-idx-card down">
-        <div class="kr-idx-label">KOSDAQ</div>
-        <div class="kr-idx-val" id="kr-kosdaq-price" style="color:var(--red)" data-snap="kosdaq" data-live-price="^KQ11">—</div>
-        <div class="kr-idx-chg" style="color:var(--red)"><span data-live-kr-change="^KQ11"><span data-snap="kosdaq-pct" data-live-chg="^KQ11">—</span></span> <span data-date-ref="kr-last"></span></div>
-        <div id="kr-idx-kosdaq-comment" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kosdaq-prev" data-live-prev-close="^KQ11">—</span></div>
-      </div>
-      <div class="kr-idx-card down">
-        <div class="kr-idx-label">KRW/USD</div>
-        <div class="kr-idx-val" id="kr-krw-price" style="color:var(--red)" data-snap="krw-full">—</div>
-        <div class="kr-idx-chg" style="color:var(--text-muted)"><span data-live-kr-change="KRW=X">—</span> <span data-date-ref="kr-last"></span></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">전일 종가 대비 방향만 표시 · 원인은 수급·금리·정책과 별도 확인</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">1년 범위: 현재 OHLC 원천 미연결</div>
-      </div>
-      <div class="kr-idx-card up">
-        <div class="kr-idx-label">VKOSPI</div>
-        <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--text-muted)" title="VKOSPI(한국 변동성지수) — 실시간 원천 수신 성공 시 표시">—</div>
-        <div class="kr-idx-chg" style="color:var(--text-muted)">현재 원천 수신 대기</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">변동성 지수 (KRX 공포지수)</div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">15~20: 정상 · 30 이상: 극단적 공포</div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 핵심지수 -->
-
-    <!-- ═══ 섹션 2: 수급 요약 (2열) ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">투자자 수급 요약</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-      <div class="kr-supply-section" id="kr-home-kospi-supply">
-        <div class="kr-supply-title">최근 수급 (KOSPI) — <span data-date-ref="kr-last-basis">종가 기준</span></div>
-        <div class="kr-investor-row">
-          <span class="kr-investor-label">외국인</span>
-          <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-sell" id="kr-home-kospi-foreign-bar" style="width:80%"></div></div>
-          <span class="kr-investor-amt" style="color:var(--red)">순매도</span>
-          <span class="kr-investor-net" id="kr-home-kospi-foreign" style="color:var(--red)">-1조 7,939억</span>
-        </div>
-        <div class="kr-investor-row">
-          <span class="kr-investor-label">기관</span>
-          <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-sell" id="kr-home-kospi-inst-bar" style="width:30%"></div></div>
-          <span class="kr-investor-amt" style="color:var(--red)">순매도</span>
-          <span class="kr-investor-net" id="kr-home-kospi-inst" style="color:var(--red)">-472억</span>
-        </div>
-        <div class="kr-investor-row">
-          <span class="kr-investor-label">개인</span>
-          <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-buy" id="kr-home-kospi-retail-bar" style="width:75%"></div></div>
-          <span class="kr-investor-amt" style="color:var(--green)">순매수</span>
-          <span class="kr-investor-net" id="kr-home-kospi-retail" style="color:var(--green)">+1조 7,048억</span>
-        </div>
-        <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">
-          <div id="kr-home-kospi-comment" style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:4px;"></div>
-          <div id="kr-home-kospi-comment2" style="font-size:10px;color:var(--text-muted);"></div>
-        </div>
-      </div>
-
-      <div class="kr-supply-section">
-        <div class="kr-supply-title">최근 수급 (KOSDAQ) — <span data-date-ref="kr-last-basis">종가 기준</span></div>
-        <div class="kr-investor-row">
-          <span class="kr-investor-label">외국인</span>
-          <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-sell" id="kr-home-kosdaq-foreign-bar" style="width:55%"></div></div>
-          <span class="kr-investor-amt" style="color:var(--red)">순매도</span>
-          <span class="kr-investor-net" id="kr-home-kosdaq-foreign" style="color:var(--red)">-459억</span>
-        </div>
-        <div class="kr-investor-row">
-          <span class="kr-investor-label">기관</span>
-          <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-sell" id="kr-home-kosdaq-inst-bar" style="width:45%"></div></div>
-          <span class="kr-investor-amt" style="color:var(--red)">순매도</span>
-          <span class="kr-investor-net" id="kr-home-kosdaq-inst" style="color:var(--red)">-423억</span>
-        </div>
-        <div class="kr-investor-row">
-          <span class="kr-investor-label">개인</span>
-          <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-buy" id="kr-home-kosdaq-retail-bar" style="width:60%"></div></div>
-          <span class="kr-investor-amt" style="color:var(--green)">순매수</span>
-          <span class="kr-investor-net" id="kr-home-kosdaq-retail" style="color:var(--green)">+818억</span>
-        </div>
-        <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">
-          <div id="kr-home-kosdaq-comment" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;"></div>
-          <div style="font-size:10px;color:var(--text-muted);"><span data-date-ref="kr-last-basis">종가 기준</span> 데이터. API 수급은 수신 성공 시 자동 갱신</div>
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 투자자수급요약 -->
-
-    <!-- ═══ 섹션 3: 한국 시장 대시보드 (신용·거래·공매도) ═══ -->
-    <!-- P715 (사용자 결정 "정지 위젯 정리"): 2026-05 정지 스냅샷 카드와 영구 '—' 대기 카드가
-         6~9칸을 차지하며 고장처럼 보이던 것을, 데이터 공백 상태 카드 1장 + 접힌 참고 스냅샷으로 재구성.
-         내부 data-snap/id는 전부 보존(테스트·갱신 파이프라인 무영향, 소스 확보 시 그대로 복원 가능). -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">한국 시장 대시보드</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">수급·시장폭 자동 수집 원천 공백</div>
-      <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.7;">신용잔고·예탁금·공매도 비중·거래대금·ADR·52주 신고/신저·상승/하락 종목수는 무료 공개 API가 없어 당일 자동 수집이 불가합니다(운영 기록 B1). 수신 가능한 항목은 자동 갱신되며, 나머지는 아래 과거 스냅샷을 참고용으로만 보존합니다 — 현재 시장 판단에는 사용되지 않습니다.</div>
-    </div>
-    <details class="aio-page-advanced-toggle" style="margin-bottom:14px;">
-    <summary style="cursor:pointer;font-size:12px;color:var(--text-muted);">과거 참고 스냅샷 보기 (2026-05 기준 · 현재 판단 제외)</summary>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0 14px;">
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">신용잔고 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-credit">2026-05-29</span> · <span id="kr-credit-stale-days">경과...</span>)</span> <span style="font-size:10px;background:rgba(33,29,22,0.12);border:1px solid rgba(33,29,22,0.28);color:var(--data-amber);border-radius:3px;padding:1px 4px;vertical-align:middle;">전일 종가</span></div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-credit">—</div>
-        <div data-operational-use="reference-only" data-as-of="2026-05-29" style="font-size:11px;color:var(--text-muted);">역대 최고 · "빚투" 급증 (3/11 31.8조 → 5월 36조)</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">예탁금 <span style="font-size:11px;color:var(--data-amber);">(<span data-snap-date="kr-deposit">2026-05-16</span> · <span id="kr-deposit-stale-days">경과...</span>)</span> <span style="font-size:10px;background:rgba(33,29,22,0.12);border:1px solid rgba(33,29,22,0.28);color:var(--data-amber);border-radius:3px;padding:1px 4px;vertical-align:middle;">전일 종가</span></div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-deposit">—</div>
-        <div style="font-size:11px;color:var(--text-muted);">개인투자자 보유</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">공매도 비중</div>
-        <div id="kr-dash-shortsell-val" style="font-size:20px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-        <div id="kr-dash-shortsell-sub" style="font-size:11px;color:var(--text-muted);">현재 원천 미수신 · 과거 수치 미표시</div>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">KOSPI 거래대금</div>
-        <div id="kr-dash-kospi-volume" style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-        <div style="font-size:11px;color:var(--text-muted);">현재 거래대금 원천 미수신</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">KOSDAQ 거래대금</div>
-        <div id="kr-dash-kosdaq-volume" style="font-size:20px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-        <div style="font-size:11px;color:var(--text-muted);">현재 거래대금 원천 미수신</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">ADR (수급)</div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-        <div style="font-size:11px;color:var(--text-muted);">현재 상승·하락 종목수 미수신</div>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">52주 신고가 종목</div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-52w-high">—</div>
-        <div style="font-size:11px;color:var(--text-muted);">현재 원천 미연결 · 판단 보류</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">52주 신저가 종목</div>
-        <div style="font-size:20px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;" data-snap="kr-52w-low">—</div>
-        <div style="font-size:11px;color:var(--text-muted);">현재 원천 미연결 · 판단 보류</div>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">상승/하락 종목수 <span style="font-size:10px;background:rgba(33,29,22,0.12);border:1px solid rgba(33,29,22,0.28);color:var(--data-amber);border-radius:3px;padding:1px 4px;vertical-align:middle;">스크리너 현재 유니버스</span></div>
-        <div style="font-size:18px;font-weight:800;color:var(--green);font-family:var(--font-mono);margin-bottom:4px;"><span data-snap="kr-advance">—</span> / <span data-snap="kr-decline">—</span></div>
-        <div style="font-size:11px;color:var(--text-muted);">검증된 스크리너 breadth 수신 시 표시</div>
-      </div>
-    </div>
-    </details>
-    </div><!-- /aio-section 한국시장대시보드 -->
-
-    <!-- ═══ 섹션 4: 오늘의 주요 이슈 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">오늘의 주요 이슈</span></div>
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">주요 이슈 <span id="kr-issues-status" style="font-size:11px;color:var(--text-muted);font-weight:400;">(검증 뉴스 피드 수신 대기)</span> <span class="kr-tag">KR</span></div>
-      <div id="kr-issues-container" style="display:flex;flex-direction:column;gap:6px;padding:4px 0;">
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:3px;background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.12);">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--data-amber);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">한국은행 7/16 금통위 2.50%→2.75% 인상(만장일치) — 다음 금통위 <span data-snap="bok-next">—</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">다음 결정 전에는 원화 환율·물가·수출 데이터를 함께 확인합니다. 일정은 단일 일정 원천에서 갱신됩니다.</div></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:3px;background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.12);">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--data-green);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);"><span data-snap="kr-semi-export-yoy-label" data-operational-use="reference-only">반도체 수출 모멘텀</span> — 최신 수출 데이터 확인 후 현재 판단에 반영 <span style="font-size:11px;color:var(--data-amber);">(검증 전 참고용)</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">HBM·파운드리·메모리 업황은 최신 수출/실적/수급 데이터와 함께 교차 확인합니다.</div></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:3px;background:rgba(177,58,48,0.05);border:1px solid rgba(177,58,48,0.15);">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--data-red);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">원/달러 환율 — 라이브 데이터 확인 필요 <span style="font-size:10px;color:var(--data-amber);">(정적 참고)</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">수출기업 수혜 vs 에너지·원자재 수입 부담 구도 유지. 엔·위안 동반 움직임 주시.</div></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:3px;background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.12);">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--data-green);display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text-primary);">K-방산 수출 확대 — 한화에어로·HD현대중공업 등 수혜</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">NATO 및 중동 방위 수요 지속. 외국인 방산 업종 매수세. 최신 수급은 Naver 확인 권장.</div></div>
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 오늘의주요이슈 -->
-
-    <!-- ═══ 섹션 5: KRX 섹터 ETF 성과 (v35.5: data-live-price 바인딩) ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">KRX 섹터 ETF 성과</span></div>
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">KRX 섹터 & 주요 ETF 성과 <span id="kr-etf-ts" style="font-size:11px;color:var(--text-muted);font-weight:400;">(source 확인)</span></div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;" id="kr-etf-grid">
-        <div class="kr-etf-card" data-live-symbol="091160.KS" style="background:var(--surface-1);border-radius:4px;padding:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 반도체</span>
-            <span class="kr-etf-pct" data-live-pct="091160.KS" style="font-size:11px;font-weight:700;">—</span>
-          </div>
-          <div class="kr-etf-price" data-live-price="091160.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
-        </div>
-        <div class="kr-etf-card" data-live-symbol="305720.KS" style="background:var(--surface-1);border-radius:4px;padding:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 2차전지</span>
-            <span class="kr-etf-pct" data-live-pct="305720.KS" style="font-size:11px;font-weight:700;">—</span>
-          </div>
-          <div class="kr-etf-price" data-live-price="305720.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
-        </div>
-        <div class="kr-etf-card" data-live-symbol="012450.KS" style="background:var(--surface-1);border-radius:4px;padding:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;font-weight:600;color:var(--text-primary);">방산 (한화에어로)</span>
-            <span class="kr-etf-pct" data-live-pct="012450.KS" style="font-size:11px;font-weight:700;">—</span>
-          </div>
-          <div class="kr-etf-price" data-live-price="012450.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
-        </div>
-        <div class="kr-etf-card" data-live-symbol="329180.KS" style="background:var(--surface-1);border-radius:4px;padding:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;font-weight:600;color:var(--text-primary);">조선 (HD현대중공업)</span>
-            <span class="kr-etf-pct" data-live-pct="329180.KS" style="font-size:11px;font-weight:700;">—</span>
-          </div>
-          <div class="kr-etf-price" data-live-price="329180.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
-        </div>
-        <div class="kr-etf-card" data-live-symbol="091220.KS" style="background:var(--surface-1);border-radius:4px;padding:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;font-weight:600;color:var(--text-primary);">TIGER 은행</span>
-            <span class="kr-etf-pct" data-live-pct="091220.KS" style="font-size:11px;font-weight:700;">—</span>
-          </div>
-          <div class="kr-etf-price" data-live-price="091220.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
-        </div>
-        <div class="kr-etf-card" data-live-symbol="244580.KS" style="background:var(--surface-1);border-radius:4px;padding:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;font-weight:600;color:var(--text-primary);">KODEX 바이오</span>
-            <span class="kr-etf-pct" data-live-pct="244580.KS" style="font-size:11px;font-weight:700;">—</span>
-          </div>
-          <div class="kr-etf-price" data-live-price="244580.KS" style="font-size:11px;color:var(--text-muted);">수집 대기</div>
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section KRX섹터ETF -->
-
-    <!-- ═══ 섹션 5.5: 한국 시장 체감 온도 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">시장 체감 온도</span></div>
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">시장 체감 온도 <span class="kr-tag" style="background:rgba(33,29,22,0.15);color:var(--data-amber);">LIVE</span></div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
-        <div style="text-align:center;padding:10px 6px;background:rgba(177,58,48,0.08);border-radius:4px;border:1px solid rgba(177,58,48,0.2);">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">투자심리</div>
-          <div id="kr-temp-sentiment-score" style="font-size:22px;font-weight:800;color:var(--red);">—</div>
-          <div id="kr-temp-sentiment-label" style="font-size:11px;color:var(--red);">라이브 산출 대기</div>
-        </div>
-        <div style="text-align:center;padding:10px 6px;background:rgba(34,117,76,0.08);border-radius:4px;border:1px solid rgba(34,117,76,0.2);">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">개인 매매동향</div>
-          <div id="kr-temp-retail-score" style="font-size:22px;font-weight:800;color:var(--green);">—</div>
-          <div id="kr-temp-retail-label" style="font-size:11px;color:var(--green);">라이브 산출 대기</div>
-        </div>
-        <div style="text-align:center;padding:10px 6px;background:rgba(177,58,48,0.08);border-radius:4px;border:1px solid rgba(177,58,48,0.2);">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">외인 수급 강도</div>
-          <div id="kr-temp-foreign-score" style="font-size:22px;font-weight:800;color:var(--red);">—</div>
-          <div id="kr-temp-foreign-label" style="font-size:11px;color:var(--red);">라이브 산출 대기</div>
-        </div>
-        <div style="text-align:center;padding:10px 6px;background:rgba(177,58,48,0.08);border-radius:4px;border:1px solid rgba(177,58,48,0.2);">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">시장 모멘텀</div>
-          <div id="kr-temp-momentum-score" style="font-size:22px;font-weight:800;color:var(--red);">—</div>
-          <div id="kr-temp-momentum-label" style="font-size:11px;color:var(--red);">라이브 산출 대기</div>
-        </div>
-      </div>
-      <div id="kr-supply-alert-banner" style="font-size:10px;color:var(--red);padding:8px 10px;background:rgba(177,58,48,0.06);border-radius:3px;font-weight:600;">
-        <span data-date-ref="kr-last-basis">최신 수급 데이터 갱신 중</span>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 시장체감온도 -->
-
-    <!-- ═══ 섹션 6: 상위 모멘텀 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">상위 모멘텀 종목</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div class="aio-widget">
-        <div class="widget-title">KOSPI 상위 상승</div>
-        <div class="kr-screener-grid" style="grid-template-columns:1fr;">
-          <div class="kr-screen-card" data-live-symbol="000660.KS"><span class="kr-screen-ticker">000660</span><span class="kr-screen-name">SK하이닉스</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="000660.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="000660.KS" style="color:var(--green)">—</div><div class="kr-screen-cap">97조원</div></div></div>
-          <div class="kr-screen-card" data-live-symbol="012450.KS"><span class="kr-screen-ticker">012450</span><span class="kr-screen-name">한화에어로스페이스</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="012450.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="012450.KS" style="color:var(--green)">—</div><div class="kr-screen-cap">26조원</div></div></div>
-          <div class="kr-screen-card" data-live-symbol="329180.KS"><span class="kr-screen-ticker">329180</span><span class="kr-screen-name">HD현대중공업</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="329180.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="329180.KS" style="color:var(--green)">—</div><div class="kr-screen-cap">18조원</div></div></div>
-          <div class="kr-screen-card" data-live-symbol="042660.KS"><span class="kr-screen-ticker">042660</span><span class="kr-screen-name">한화오션</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="042660.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="042660.KS" style="color:var(--green)">—</div><div class="kr-screen-cap">11조원</div></div></div>
-          <div class="kr-screen-card" data-live-symbol="298040.KS"><span class="kr-screen-ticker">298040</span><span class="kr-screen-name">효성중공업</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="298040.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="298040.KS" style="color:var(--green)">—</div><div class="kr-screen-cap">14조원</div></div></div>
-        </div>
-      </div>
-      <div class="aio-widget">
-        <div class="widget-title">KOSPI 상위 하락</div>
-        <div class="kr-screener-grid" style="grid-template-columns:1fr;">
-          <div class="kr-screen-card" data-live-symbol="373220.KS"><span class="kr-screen-ticker">373220</span><span class="kr-screen-name">LG에너지솔루션</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="373220.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="373220.KS" style="color:var(--red)">—</div><div class="kr-screen-cap">89조원</div></div></div>
-          <div class="kr-screen-card" data-live-symbol="068270.KS"><span class="kr-screen-ticker">068270</span><span class="kr-screen-name">셀트리온</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="068270.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="068270.KS" style="color:var(--red)">—</div><div class="kr-screen-cap">38조원</div></div></div>
-          <div class="kr-screen-card" data-live-symbol="005380.KS"><span class="kr-screen-ticker">005380</span><span class="kr-screen-name">현대차</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="005380.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="005380.KS" style="color:var(--red)">—</div><div class="kr-screen-cap">52조원</div></div></div>
-          <div class="kr-screen-card" data-live-symbol="035720.KS"><span class="kr-screen-ticker">035720</span><span class="kr-screen-name">카카오</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="035720.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="035720.KS" style="color:var(--red)">—</div><div class="kr-screen-cap">17조원</div></div></div>
-          <div class="kr-screen-card" data-live-symbol="090430.KS"><span class="kr-screen-ticker">090430</span><span class="kr-screen-name">아모레퍼시픽</span><div class="kr-screen-stats"><span class="kr-screen-price" data-live-price="090430.KS" style="font-family:var(--font-mono);font-size:12px;font-weight:700;">—</span><div class="kr-screen-chg" data-live-chg="090430.KS" style="color:var(--red)">—</div><div class="kr-screen-cap">19조원</div></div></div>
-        </div>
-      </div>
-    </div>
-    </div><!-- /aio-section 상위모멘텀종목 -->
-
-    <!-- ═══ 텔레그램 한국장 최신 소식 ═══ -->
-    <div class="aio-section">
-      <div class="aio-section-hd"><span class="aio-section-label">한국 시장 최신 소식</span></div>
-      <div id="tg-feed-kr-home"></div>
-    </div>
-
-  </div><!-- /page-kr-home -->
-
-
-  <!-- ═══════════════ PAGE: KR-SUPPLY (수급 분석) ═══════════════ -->
-  <div class="page" id="page-kr-supply">
-  <div class="insight-box box-collapsed">
-    <strong>외국인·기관·개인 누가 사고 파나? — 수급이 방향을 결정</strong>
-  </div>
-
-  <!-- ═══ v48.46: KR 수급 페이지 심층 해설 ═══ -->
-    <div class="aio-section">
-    <div class="row mb-4" style="align-items:flex-start;">
-      <div>
-        <div class="page-title">수급 분석 <span class="kr-badge">KRX</span></div>
-        <div class="page-subtitle">투자자별 순매수 · 프로그램 매매 · 공매도 현황 · 외인 보유 비중</div>
-      </div>
-      <div class="page-actions">
-        <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
-      </div>
-    </div>
-    </div><!-- /aio-section 수급분석헤더 -->
-
-    <!-- 동적 분석 컨테이너 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">수급 분석 요약</span></div>
-    <div id="kr-supply-analysis" class="aio-widget" style="margin-bottom:12px;background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);">
-      <div id="kr-supply-analysis-text" style="font-size:11px;color:var(--text-secondary);line-height:1.6;">수급 데이터 수신 대기...</div>
-    </div>
-    <div data-runtime-state="unavailable" data-operational-use="blocked" style="font-size:10px;color:var(--data-amber);background:rgba(33,29,22,0.07);border:1px solid rgba(33,29,22,0.2);border-radius:3px;padding:7px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-      <span></span>
-      <span>Naver API 수신 성공 시에만 수급 수치를 표시합니다. 미수신 상태에서는 값을 생성하지 않으며 <a href="https://finance.naver.com/sise/investor.naver" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">Naver 투자자별 매매동향 ↗</a>에서 확인할 수 있습니다.</span>
-    </div>
-
-    <!-- 지수 현황 카드 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div class="kr-idx-card" style="border-left:3px solid var(--green);">
-        <div class="kr-idx-label">KOSPI</div>
-        <div class="kr-idx-val" id="kr-supply-kospi-price" style="font-family:var(--font-mono);">—</div>
-        <div class="kr-idx-chg" style="font-size:10px;">—</div>
-      </div>
-      <div class="kr-idx-card" style="border-left:3px solid var(--green);">
-        <div class="kr-idx-label">KOSDAQ</div>
-        <div class="kr-idx-val" id="kr-supply-kosdaq-price" style="font-family:var(--font-mono);">—</div>
-        <div class="kr-idx-chg" style="font-size:10px;">—</div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 수급분석요약 -->
-
-    <!-- Tabs -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">수급 상세</span></div>
-    <div class="kr-tabs">
-      <div class="kr-tab active" data-action="krSupplyTab" data-arg-first-el="1" data-arg="daily">오늘 수급</div>
-      <div class="kr-tab" data-action="krSupplyTab" data-arg-first-el="1" data-arg="weekly">주간 트렌드</div>
-      <div class="kr-tab" data-action="krSupplyTab" data-arg-first-el="1" data-arg="short">공매도</div>
-      <div class="kr-tab" data-action="krSupplyTab" data-arg-first-el="1" data-arg="foreign">외인 보유</div>
-    </div>
-
-    <!-- DAILY TAB -->
-    <div id="kr-supply-daily">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-
-        <!-- KOSPI 수급 상세 -->
-        <div class="kr-supply-section" id="kr-supply-kospi-section">
-          <div class="kr-supply-title">KOSPI 투자자별 순매수 (<span data-date-ref="kr-last"></span>)</div>
-          <div class="kr-investor-row">
-            <span class="kr-investor-label">외국인</span>
-            <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-sell" id="kr-supply-kospi-foreign-bar" style="width:85%"></div></div>
-            <span class="kr-investor-net" id="kr-supply-kospi-foreign" style="color:var(--red)">-1조 7,939억</span>
-          </div>
-          <div class="kr-investor-row">
-            <span class="kr-investor-label">기관</span>
-            <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-sell" id="kr-supply-kospi-inst-bar" style="width:12%"></div></div>
-            <span class="kr-investor-net" id="kr-supply-kospi-inst" style="color:var(--red)">-472억</span>
-          </div>
-          <div class="kr-investor-row">
-            <span class="kr-investor-label">개인</span>
-            <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-buy" id="kr-supply-kospi-retail-bar" style="width:80%"></div></div>
-            <span class="kr-investor-net" id="kr-supply-kospi-retail" style="color:var(--green)">+1조 7,048억</span>
-          </div>
-          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
-            <div class="kr-supply-title" style="margin-bottom:8px;">기관 세분화</div>
-            <table class="kr-flow-table" id="kr-supply-inst-detail">
-              <tr><th>기관 유형</th><th>순매수</th><th>비고</th></tr>
-              <tr><td>투신(펀드)</td><td style="color:var(--red)">-700억</td><td style="color:var(--text-muted);">환매 압박</td></tr>
-              <tr><td>연기금</td><td style="color:var(--green)">+480억</td><td style="color:var(--text-muted);">저점 매수</td></tr>
-              <tr><td>보험</td><td style="color:var(--red)">-180억</td><td style="color:var(--text-muted);">포지션 축소</td></tr>
-              <tr><td>은행</td><td style="color:var(--text-muted)">-72억</td><td style="color:var(--text-muted);">소규모 · 합계 -472억</td></tr>
-            </table>
-          </div>
-        </div>
-
-        <!-- KOSDAQ 수급 상세 -->
-        <div class="kr-supply-section" id="kr-supply-kosdaq-section">
-          <div class="kr-supply-title">KOSDAQ 투자자별 순매수 (<span data-date-ref="kr-last"></span>)</div>
-          <div class="kr-investor-row">
-            <span class="kr-investor-label">외국인</span>
-            <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-sell" id="kr-supply-kosdaq-foreign-bar" style="width:0"></div></div>
-            <span class="kr-investor-net" id="kr-supply-kosdaq-foreign" style="color:var(--red)">-459억</span>
-          </div>
-          <div class="kr-investor-row">
-            <span class="kr-investor-label">기관</span>
-            <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-sell" id="kr-supply-kosdaq-inst-bar" style="width:0"></div></div>
-            <span class="kr-investor-net" id="kr-supply-kosdaq-inst" style="color:var(--red)">-423억</span>
-          </div>
-          <div class="kr-investor-row">
-            <span class="kr-investor-label">개인</span>
-            <div class="kr-bar-wrap"><div class="kr-bar-fill kr-bar-buy" id="kr-supply-kosdaq-retail-bar" style="width:0"></div></div>
-            <span class="kr-investor-net" id="kr-supply-kosdaq-retail" style="color:var(--green)">+818억</span>
-          </div>
-          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
-            <div class="kr-supply-title" style="margin-bottom:8px;">프로그램 매매</div>
-            <table class="kr-flow-table" id="kr-supply-program-table">
-              <tr><th>구분</th><th>매수</th><th>매도</th><th>순매수</th></tr>
-              <tr><td>차익거래</td><td style="color:var(--green)">+2,180억</td><td style="color:var(--red)">-1,360억</td><td style="color:var(--green)">+820억</td></tr>
-              <tr><td>비차익거래</td><td style="color:var(--red)">-</td><td style="color:var(--red)">-</td><td style="color:var(--red)">-1,240억</td></tr>
-              <tr><td style="font-weight:600">합계</td><td></td><td></td><td style="color:var(--red);font-weight:600">-420억</td></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 외국인/기관 순매수 TOP 10 종목 -->
-      <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:11px;color:var(--text-muted);">기준일: <span id="kr-investor-top10-date" style="font-family:var(--font-mono);">수신 대기</span> · 시총 상위 100종목 대상</div>
-        <span style="font-size:10px;">
-          <a href="https://finance.naver.com/sise/sise_deal_rank.naver" target="_blank" rel="noopener noreferrer" rel="noopener" style="color:var(--blue);text-decoration:none;opacity:0.8;">외국인 순매매 ↗</a>
-          <span style="color:var(--text-muted);margin:0 4px;">|</span>
-          <a href="https://finance.naver.com/sise/sise_deal_rank.naver?investor_gubun=1000" target="_blank" rel="noopener noreferrer" rel="noopener" style="color:var(--blue);text-decoration:none;opacity:0.8;">기관 순매매 ↗</a>
-        </span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="aio-widget">
-          <div class="widget-title">외국인 순매수 TOP 10</div>
-          <table class="kr-flow-table" id="kr-investor-foreign-buy">
-            <tr><th>#</th><th>종목</th><th>순매수 금액</th><th>순매수 수량</th></tr>
-            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 수신 대기...</td></tr>
-          </table>
-        </div>
-        <div class="aio-widget">
-          <div class="widget-title">기관 순매수 TOP 10</div>
-          <table class="kr-flow-table" id="kr-investor-organ-buy">
-            <tr><th>#</th><th>종목</th><th>순매수 금액</th><th>순매수 수량</th></tr>
-            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 수신 대기...</td></tr>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- WEEKLY TAB (hidden) -->
-    <div id="kr-supply-weekly" style="display:none;">
-      <div class="aio-widget">
-        <div class="widget-title">주간 투자자별 순매수 트렌드 (최근 5거래일)</div>
-        <table class="kr-flow-table" id="kr-weekly-supply-table">
-          <tr><th>날짜</th><th>외국인</th><th>기관</th><th>개인</th><th>프로그램</th><th>KOSPI</th></tr>
-          <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">주간 수급 데이터 수신 대기</td></tr>
-        </table>
-        <div id="kr-weekly-supply-comment" style="margin-top:10px;padding:8px 10px;background:rgba(177,58,48,0.08);border-radius:3px;font-size:11px;color:var(--red);font-weight:600;">
-</div>
-      </div>
-    </div>
-
-    <!-- SHORT SELLING TAB (hidden) -->
-    <div id="kr-supply-short" style="display:none;">
-      <div class="aio-widget" style="margin-bottom:12px;">
-        <div class="widget-title">공매도 현황 <span class="kr-tag">KR 전용</span></div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
-          <div style="background:var(--surface-2);border-radius:4px;padding:10px 12px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">KOSPI 공매도 비중</div>
-            <div id="kr-short-kospi-ratio" style="font-size:18px;font-weight:800;font-family:var(--font-mono);" data-live-kr="short-kospi-ratio">—</div>
-            <div id="kr-short-kospi-chg" style="font-size:10px;color:var(--text-muted);" data-live-kr="short-kospi-chg">데이터 수신 대기</div>
-          </div>
-          <div style="background:var(--surface-2);border-radius:4px;padding:10px 12px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">KOSDAQ 공매도 비중</div>
-            <div id="kr-short-kosdaq-ratio" style="font-size:18px;font-weight:800;font-family:var(--font-mono);" data-live-kr="short-kosdaq-ratio">—</div>
-            <div id="kr-short-kosdaq-chg" style="font-size:10px;color:var(--text-muted);" data-live-kr="short-kosdaq-chg">데이터 수신 대기</div>
-          </div>
-          <div style="background:var(--surface-2);border-radius:4px;padding:10px 12px;text-align:center;">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">공매도 잔고 (코스피)</div>
-            <div id="kr-short-balance" style="font-size:18px;font-weight:800;font-family:var(--font-mono);" data-live-kr="short-balance">—</div>
-            <div id="kr-short-balance-sub" style="font-size:10px;color:var(--text-muted);">데이터 수신 대기</div>
-          </div>
-        </div>
-        <table class="kr-flow-table" id="kr-short-stock-table">
-          <tr><th>종목</th><th>공매도잔고율</th><th>잔고수량</th><th>전일비</th><th>주가</th></tr>
-          <tr><td colspan="5" style="text-align:center;color:var(--text-muted);font-size:10px;padding:16px;">KRX 공매도 데이터 연동 예정 · 실시간 API 미제공</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- FOREIGN HOLDINGS TAB (hidden) -->
-    <div id="kr-supply-foreign" style="display:none;">
-      <div class="aio-widget">
-        <div class="widget-title">외국인 보유 비중 TOP 10 <span class="kr-tag">KR 전용</span></div>
-        <table class="kr-flow-table" id="kr-foreign-hold-top10">
-          <tr><th>#</th><th>종목</th><th>외인비중</th><th>순매수 금액</th></tr>
-          <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:16px;font-size:11px;">데이터 수신 대기...</td></tr>
-        </table>
-      </div>
-    </div>
-
-
-    </div><!-- /aio-section 수급상세 -->
-
-    <!-- ═══ 텔레그램 수급 관련 최신 소식 ═══ -->
-    <div class="aio-section">
-      <div class="aio-section-hd"><span class="aio-section-label">수급·외국인 최신 소식</span></div>
-      <div id="tg-feed-kr-supply"></div>
-    </div>
-
-  </div><!-- /page-kr-supply -->
-
-
-  <!-- ═══════════════ PAGE: KR-THEMES (국내 테마) ═══════════════ -->
-  <div class="page" id="page-kr-themes">
-  <div class="insight-box box-collapsed">
-    <strong>한국 시장 28개 테마 — 실시간 등락률·강세/약세·대장주 한눈에</strong>
-  </div>
-
-  <!-- ═══ v48.46: KR 테마 심층 해설 ═══ -->
-    <div class="row mb-4" style="align-items:flex-start;">
-      <div>
-        <div class="page-title">국내 테마 분석 <span class="kr-badge">KRX</span></div>
-        <div class="page-subtitle">한국 고유 투자 테마 · 대장주 수급·모멘텀 · 테마별 성과</div>
-      </div>
-      <div class="page-actions" style="display:flex;gap:8px;align-items:center;">
-        <a href="https://finance.naver.com/sise/theme.naver" target="_blank" rel="noopener noreferrer" rel="noopener" class="aio-btn-table" style="text-decoration:none;font-size:11px;">네이버 테마별 시세 ↗</a>
-        <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
-      </div>
-    </div>
-
-    <!-- 테마 필터 바 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">테마 필터</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:12px 16px;margin-bottom:14px;">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="kr-tab active" data-action="filterKrThemes" data-arg-first-el="1" data-arg="all">전체</button>
-        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="hot">HOT</button>
-        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="warm">강세</button>
-        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cool">중립</button>
-        <button class="kr-tab" data-action="filterKrThemes" data-arg-first-el="1" data-arg="cold">조정/부진</button>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--surface-4);">
-        <span style="font-size:11px;color:var(--text-muted);margin-right:2px;line-height:24px;">섹터:</span>
-        <button class="kr-tab kr-sector-tab active" data-action="filterKrSector" data-arg-first-el="1" data-arg="all">전체</button>
-        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="tech">IT/반도체</button>
-        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="industry">산업/에너지</button>
-        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="consumer">소비/문화</button>
-        <button class="kr-tab kr-sector-tab" data-action="filterKrSector" data-arg-first-el="1" data-arg="finance">금융/통신</button>
-      </div>
-    </div>
-    </div><!-- /aio-section 테마필터 -->
-
-    <div class="kr-theme-grid" id="kr-theme-container">
-      <!-- v40.4: 정적 HTML 제거. KR_THEME_MAP 기반 JS 동적 생성 (renderKrThemeCardsFromMap). -->
-      <!-- ━━━ 아래는 renderKrThemeCardsFromMap()가 동적 생성 ━━━ -->
-    </div>
-
-    <!-- ═══ 테마 퍼포먼스 랭킹 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">테마별 일간 퍼포먼스 랭킹</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span id="kr-theme-rank-ts" style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">수집 대기…</span>
-      </div>
-      <div id="kr-theme-perf-bars" style="display:flex;flex-direction:column;gap:3px;"><div style="text-align:center;padding:12px;color:var(--text-muted);font-size:11px;">실시간 데이터 수신 후 자동 표시</div></div>
-    </div>
-    </div><!-- /aio-section 테마퍼포먼스 -->
-
-    <!-- ═══ 테마 종목 상세 분석 패널 ═══ -->
-    <div id="kr-theme-detail-panel" style="display:none;background:var(--bg-card);border:2px solid var(--accent);border-radius:4px;padding:18px;margin-bottom:14px;position:relative;">
-      <button data-action="_aioCloseThemeDetailPanel" aria-label="닫기" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;font-weight:700;">×</button>
-      <div id="kr-theme-detail-content"></div>
-    </div>
-
-    <!-- v37.8: kr-themes 동적 테마 분석 -->
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">테마 동향 자동 분석</div>
-      <div id="kr-themes-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">테마 데이터 수집 대기...</div>
-    </div>
-
-  </div><!-- /page-kr-themes -->
-
-
-  <!-- ═══════════════ PAGE: KR-MACRO (한국 매크로) ═══════════════ -->
-  <div class="page" id="page-kr-macro">
-  <div class="insight-box box-collapsed">
-    <strong>한국 경제 환경 — 환율·금리·유가가 코스피에 미치는 영향</strong>
-  </div>
-
-  <!-- ═══ v48.46: KR 매크로 심층 해설 ═══ -->
-    <div class="aio-section">
-    <div class="row mb-4" style="align-items:flex-start;">
-      <div>
-        <div class="page-title">한국 매크로 <span class="kr-badge">BOK</span></div>
-        <div class="page-subtitle">기준금리 · 물가 · 경기 · 환율 · 수출입 · 부동산</div>
-      </div>
-      <div class="page-actions">
-        <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
-        <button class="aio-btn-table" data-action="showPage" data-arg="kr-technical">한국 기술 분석 →</button>
-      </div>
-    </div>
-    </div><!-- /aio-section 한국매크로헤더 -->
-
-    <!-- ═══ 섹션 1: 기준금리 현황 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">기준금리 현황</span></div>
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">한국은행 기준금리 현황 <span id="kr-macro-bokrate-freshness" class="aio-freshness-mini" style="font-size:10px;font-weight:400;"></span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 기준금리</div>
-          <div style="font-size:28px;font-weight:800;color:var(--yellow);font-family:var(--font-mono);margin-bottom:4px;" data-snap="bok-rate">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">한국은행 공식 발표 기준</div>
-        </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">다음 금통위</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;" data-snap="bok-next">—</div>
-          <div style="font-size:11px;color:var(--yellow);" data-snap="bok-status">—</div>
-        </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">시장 기대</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">현재 컨센서스 원천 미연결</div>
-        </div>
-      </div>
-      <div data-source-kind="official-primary" data-operational-use="reference-only" style="font-size:10px;color:var(--text-muted);">정책 이력의 내장 사본은 제거했습니다. 현재 값·기준일·다음 일정은 단일 공식 참조 레지스트리에서만 표시합니다.</div>
-    </div>
-
-    </div><!-- /aio-section 기준금리현황 -->
-
-    <!-- ═══ 섹션 2: 물가지표 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">물가 · 경기 지표</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-      <div class="aio-widget">
-        <div class="widget-title">물가지표 <span id="kr-macro-cpi-freshness" class="aio-freshness-mini" style="font-size:10px;font-weight:400;"></span></div>
-        <div style="display:grid;gap:8px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
-            <span style="font-size:11px;color:var(--text-secondary);">소비자물가지수 (CPI)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-cpi-yoy">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
-            <span style="font-size:11px;color:var(--text-secondary);">생산자물가지수 (PPI · 현재 원천 미수신)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--data-red);font-family:var(--font-mono);" data-snap="kr-ppi-yoy">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
-            <span style="font-size:11px;color:var(--text-secondary);">핵심물가지수 (현재 원천 미수신)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-core-cpi">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
-            <span style="font-size:11px;color:var(--text-secondary);">기타공공서비스요금 (현재 원천 미수신)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);" data-snap="kr-service-price">—</span>
-          </div>
-        </div>
-        <div style="margin-top:10px;padding:8px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-          공식 물가 관측치가 수신된 경우에만 목표 대비 위치를 판단합니다.
-        </div>
-      </div>
-
-      <div class="aio-widget">
-        <div class="widget-title">경기지표 <span id="kr-macro-pmi-freshness" class="aio-freshness-mini" style="font-size:10px;font-weight:400;"></span></div>
-        <div style="display:grid;gap:8px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
-            <span style="font-size:11px;color:var(--text-secondary);">제조업 PMI</span>
-            <span style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--font-mono);" data-snap="kr-manuf-pmi">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
-            <span style="font-size:11px;color:var(--text-secondary);">서비스업 PMI (현재 원천 미수신)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono);" data-snap="kr-service-pmi">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
-            <span style="font-size:11px;color:var(--text-secondary);">GDP 성장률 (전분기 대비)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);" data-snap="kr-gdp-qoq">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--surface-1);border-radius:3px;">
-            <span style="font-size:11px;color:var(--text-secondary);">실업률 (현재 원천 미수신)</span>
-            <span style="font-size:14px;font-weight:700;color:var(--red);font-family:var(--font-mono);" data-snap="kr-unemploy">—</span>
-          </div>
-        </div>
-        <div style="margin-top:10px;padding:8px;background:rgba(177,58,48,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-          제조업 PMI <span data-snap="kr-manuf-pmi">—</span>, GDP 전분기 대비 <span data-snap="kr-gdp-qoq">—</span>. 수출 <span data-snap="kr-export">—</span>% YoY는 6월 1~20일 잠정치이며 월 전체치와 혼용하지 않습니다.
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 물가경기지표 -->
-
-    <!-- ═══ 섹션 3: 원/달러 환율 분석 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">원/달러 환율 분석</span></div>
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">원/달러 환율 분석</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">현재 환율</div>
-          <div id="kr-macro-krw" style="font-size:26px;font-weight:800;color:var(--red);font-family:var(--font-mono);margin-bottom:4px;" data-snap="krw-full">—</div>
-          <div class="kr-idx-chg" data-live-kr-change="KRW=X" style="font-size:11px;color:var(--text-muted);">—</div>
-        </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">1년 범위</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">현재 1년 OHLC 원천 미연결</div>
-        </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">3개월 추이</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">현재 3개월 OHLC 원천 미연결</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div style="background:var(--surface-1);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">확인 항목 (원인 미판정)</div>
-          <ul style="font-size:10px;color:var(--text-secondary);line-height:1.6;list-style:none;padding:0;">
-            <li>• 미·한 정책금리와 기대 변화</li>
-            <li>• 미국·한국 주요 경제지표</li>
-            <li>• 원유·지정학 뉴스와 실물지표</li>
-            <li>• 현물·NDF·주식 수급 자료</li>
-          </ul>
-        </div>
-        <div style="background:var(--surface-1);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">영향 확인 범위</div>
-          <ul style="font-size:10px;color:var(--text-secondary);line-height:1.6;list-style:none;padding:0;">
-            <li>• 기업별 환노출·헤지 여부</li>
-            <li>• 원자재·수입단가 민감도</li>
-            <li>• 외국인 주식·채권 수급</li>
-            <li>• 수입물가·무역수지 후속 발표</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-
-    </div><!-- /aio-section 원달러환율분석 -->
-
-    <!-- ═══ 섹션 3B: 채권 금리 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">주요 채권 금리</span></div>
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">주요 채권 금리</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">미국 10년물</div>
-          <div id="kr-macro-us10y" style="font-size:26px;font-weight:800;color:var(--text-primary);font-family:var(--font-mono);margin-bottom:4px;" data-snap="tnx">—</div>
-          <div style="font-size:11px;color:var(--text-muted);">Fed 정책 금리와 연관</div>
-        </div>
-        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;">
-          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">한국 3년물</div>
-          <div id="kr-macro-kr3y" style="font-size:26px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">—</div>
-          <div id="kr-macro-kr3y-source" style="font-size:11px;color:var(--text-muted);">현재 금리 원천 미수신</div>
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 주요채권금리 -->
-
-    <!-- ═══ 섹션 4: 수출입 동향 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">수출입 동향</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-      <div class="aio-widget">
-        <div class="widget-title">주요 수출 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">2026-02 아카이브 · 현재 판단 제외 · 최신 잠정치는 상단 지표 참조</span></div>
-        <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-export-2026-02" title="Archived export table. Current-use data requires refresh evidence.">
-          <tr><th>품목</th><th>2월 수출 (참고)</th><th>YoY</th></tr>
-          <tr><td>반도체</td><td style="color:var(--green);" data-snap="kr-semi-export-feb">—</td><td style="color:var(--green);">+157.9%</td></tr>
-          <tr><td>자동차</td><td style="color:var(--text-muted);">58억 USD</td><td style="color:var(--green);">+3.2%</td></tr>
-          <tr><td>디스플레이</td><td style="color:var(--text-muted);">22억 USD</td><td style="color:var(--green);">+12.8%</td></tr>
-          <tr><td>조선</td><td style="color:var(--text-muted);">24억 USD</td><td style="color:var(--green);">+18.6%</td></tr>
-          <tr><td>화학</td><td style="color:var(--text-muted);">38억 USD</td><td style="color:var(--red);">-2.8%</td></tr>
-        </table>
-        <div style="margin-top:10px;padding:8px;background:rgba(34,117,76,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-          2월 수출 674.5억$ 역대 최대 (+28.7% YoY). 반도체가 전체의 37% 차지. 3개월 연속 200억$ 돌파
-        </div>
-      </div>
-
-      <div class="aio-widget">
-        <div class="widget-title">주요 수입 동향 <span style="font-size:10px;color:var(--data-amber);font-weight:400;">2026-02 아카이브</span></div>
-        <table class="kr-flow-table" data-aio-archive="true" data-text-role="reference-archive" data-lifecycle-id="kr-import-2026-02">
-          <tr><th>품목</th><th>2월 수입 (참고)</th><th>YoY</th></tr>
-          <tr><td>원유</td><td style="color:var(--text-muted);">28억 USD</td><td style="color:var(--green);">+1.2%</td></tr>
-          <tr><td>가스</td><td style="color:var(--text-muted);">24억 USD</td><td style="color:var(--green);">+3.8%</td></tr>
-          <tr><td>반도체 부품</td><td style="color:var(--text-muted);">32억 USD</td><td style="color:var(--green);">+18.4%</td></tr>
-          <tr><td>광물</td><td style="color:var(--text-muted);">22억 USD</td><td style="color:var(--text-muted);">-1.6%</td></tr>
-          <tr><td>식품</td><td style="color:var(--text-muted);">15억 USD</td><td style="color:var(--red);">-3.2%</td></tr>
-        </table>
-        <div style="margin-top:10px;padding:8px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-          에너지 수입 부담은 현재 WTI <span data-live-price="CL=F">—</span>, Brent <span data-live-price="BZ=F">—</span>, 원/달러 환율을 함께 확인합니다. 고정 가격만으로 무역수지 개선을 단정하지 않습니다.
-        </div>
-      </div>
-    </div>
-
-    </div><!-- /aio-section 수출입동향 -->
-
-    <!-- ═══ 섹션 5: 부동산 & 건설 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">부동산 · 건설 시장</span></div>
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">부동산 / 건설 시장</div>
-      <div data-runtime-state="unavailable" data-operational-use="blocked" style="background:var(--surface-1);border-radius:4px;padding:12px;font-size:10px;color:var(--text-muted);">
-        주택가격·전세·미분양·PF 원천이 연결되지 않아 수치와 현재 상태 판단을 표시하지 않습니다.
-      </div>
-    </div>
-
-    </div><!-- /aio-section 부동산건설시장 -->
-
-    <!-- ═══ v37.8: 한국 매크로 동적 분석 ═══ -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">매크로 환경 분석</span></div>
-    <div class="aio-widget" id="kr-macro-dynamic-widget" style="margin-bottom:12px;">
-      <div class="widget-title">매크로 환경 자동 판단</div>
-      <div id="kr-macro-analysis-text" style="padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7;">데이터 수신 대기...</div>
-    </div>
-
-    <!-- ═══ 섹션 6: 정책 일정 ═══ -->
-    <div class="aio-widget">
-      <div class="widget-title">주요 경제 일정 <span style="font-size:11px;padding:2px 6px;background:rgba(33,29,22,0.10);border-radius:3px;color:var(--accent);margin-left:6px;">공식 캘린더 기준</span></div>
-      <div data-runtime-state="official-reference" data-operational-use="calendar-only" style="padding:10px;color:var(--text-muted);font-size:10px;">미국·한국의 다음 정책·물가 일정은 거시경제 페이지의 공식 일정 레지스트리에서 단일 관리합니다.</div>
-    </div>
-
-    <!-- ═══ 섹션 6: 한국 경기 선행지수 ═══ -->
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">경기 선행·동행·후행 지수 <span class="kr-tag">통계청</span></div>
-      <div data-runtime-state="unavailable" data-operational-use="blocked" style="padding:12px;background:var(--surface-2);border-radius:4px;font-size:10px;color:var(--text-muted);">통계청 경기종합지수 원천 미연결 · 수치와 경기 국면 판단을 보류합니다.</div>
-    </div>
-
-    <!-- ═══ 섹션 7: 국제 비교 ═══ -->
-    <div class="aio-widget" style="margin-bottom:12px;">
-      <div class="widget-title">글로벌 비교 — 한국 vs 주요국</div>
-      <table class="kr-flow-table">
-        <tr><th>지표</th><th>한국</th><th>미국</th><th>일본</th><th>중국</th></tr>
-        <tr><td>기준금리</td><td style="font-weight:700;color:var(--yellow);" data-snap="bok-rate">—</td><td data-snap="fed-rate">—</td><td>—</td><td>—</td></tr>
-        <tr><td>CPI (YoY)</td><td data-snap="kr-cpi">—</td><td data-snap="cpi">—</td><td>—</td><td>—</td></tr>
-        <tr><td>GDP 성장률</td><td data-snap="kr-gdp">—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>환율 (vs USD)</td><td data-snap="krw">—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>10Y 국채</td><td data-snap="kr-bond-10y">—</td><td data-live-price="^TNX">—</td><td>—</td><td>—</td></tr>
-        <tr><td>주식시장 YTD</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-      </table>
-      <div data-evidence-id="kr-us-rate-calendar" data-source-kind="official-calendar" data-operational-use="reference-only" style="margin-top:10px;padding:8px 10px;background:rgba(33,29,22,0.05);border-radius:3px;font-size:10px;color:var(--text-secondary);">
-        한국과 미국의 정책금리·물가·국채·환율 관측치가 모두 있을 때만 금리차와 시장 영향을 해석합니다.
-      </div>
-    </div>
-    </div><!-- /aio-section 매크로환경분석 -->
-
-    <!-- 한국 반도체 구조 분석 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">한국 반도체 — 성장→지속가능성 전환</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-      <div data-runtime-state="unavailable" data-operational-use="blocked" style="font-size:10px;color:var(--text-muted);line-height:1.8;">실적·메모리 가격·외국인 지분·포지셔닝 원천을 함께 수신한 경우에만 현재 반도체 구조 판단을 생성합니다.</div>
-    </div>
-    </div><!-- /aio-section 한국반도체 -->
-
-    <!-- ═══ 텔레그램 한국 매크로 최신 소식 ═══ -->
-    <div class="aio-section">
-      <div class="aio-section-hd"><span class="aio-section-label">한국 매크로·반도체 최신 소식</span></div>
-      <div id="tg-feed-kr-macro"></div>
-    </div>
-
-  </div><!-- /page-kr-macro -->
-
-
-  <!-- ═══════════════ PAGE: KR-TECHNICAL (한국장 차트·기술 분석) ═══════════════ -->
-  <div class="page" id="page-kr-technical">
-  <div class="insight-box box-collapsed">
-    <strong>한국 종목 차트 분석 — RSI·MACD·이동평균으로 매매 타이밍</strong>
-  </div>
-
-  <!-- ═══ v48.46: KR 기술 분석 심층 해설 ═══ -->
-    <div style="padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:12px;">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-        <div>
-          <div class="page-title" style="font-size:17px;">한국장 차트·기술 분석 <span class="kr-badge">KRX</span></div>
-          <div class="page-subtitle">Weinstein 4단계 · 추세 위치 · 조정 판별 · 진입 등급 · RSI · MACD · 볼린저밴드</div>
-        </div>
-        <div style="display:flex;gap:6px;">
-          <button class="aio-btn-table" data-action="showPage" data-arg="kr-home">← 한국장 홈</button>
-          <button class="aio-btn-table" data-action="showPage" data-arg="kr-macro">← 한국 매크로</button>
-        </div>
-      </div>
-    </div>
-  <!-- v34.9: TradingView 한국장 차트 / v52.13 P610/B7: TradingView KRX 임베드 하드 브레이크(P3) 대체 —
-       Naver 일봉 시세 + Chart.js 자체 렌더(외부 위젯 의존 제거) -->
-  <div id="tv-chart-kr" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">한국 종목 일봉 차트 <span style="font-weight:400;color:var(--text-muted);">(Naver 시세 · 자체 렌더)</span></div>
-      <div style="display:flex;gap:6px;">
-        <input id="tv-kr-sym" value="005930" placeholder="종목코드 (예: 005930)" style="width:120px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:11px;font-family:var(--font-mono);" data-on-enter="loadTVChart:kr" />
-        <button data-action="loadTVChart" data-arg="kr" class="aio-btn-table" style="font-size:11px;">차트 로드</button>
-        <button data-action="krTvSymSearchFromInput" class="aio-btn-table" style="font-size:11px;">Ticker 분석 →</button>
-      </div>
-    </div>
-    <div id="tv-widget-kr" style="border-radius:4px;overflow:hidden;background:var(--bg-elevated);padding:8px;box-sizing:border-box;">
-      <canvas id="kr-candle-chart" height="320" style="width:100%;height:320px;max-height:340px;display:block;" role="img" aria-label="한국 종목 일봉 캔들 차트"></canvas>
-      <canvas id="kr-candle-volume" height="70" style="width:100%;height:70px;max-height:80px;display:block;margin-top:2px;" role="img" aria-label="거래량"></canvas>
-    </div>
-    <div id="kr-candle-meta" style="font-size:11px;color:var(--text-muted);margin-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
-      <span data-role="kr-candle-asof">데이터 수신 대기...</span>
-      <span>출처: Naver Finance 일봉 종가 · MA20 포함 · TradingView 위젯 아님</span>
-    </div>
-  </div>
-
-  <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">한국 차트·반도체 최신 소식</span></div>
-    <div id="tg-feed-kr-technical"></div>
-  </div>
-
-    <!-- v35.6: 한국 시장 건강 점수 (미국 Market Health Score 동일 수준) -->
-    <div class="aio-section-rule" style="margin-bottom:8px;"><span>② 종합 점수 — 위 차트·추세·RSI·MACD에서 도출</span></div>
-    <div class="aio-why" style="margin-bottom:8px;">위 캔들 차트와 아래 RSI·MACD 지표를 종합해 계산합니다. 개별 지표를 먼저 확인 후 이 점수를 해석하세요.</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <!-- 시장 건강 점수 -->
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;"> 한국 시장 건강 점수</div>
-        <div id="kr-health-score" style="text-align:center;margin-bottom:8px;">
-          <div style="font-size:42px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-health-val">—</div>
-          <div style="font-size:10px;font-weight:600;color:var(--text-muted);" id="kr-health-label">산출 중...</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;">
-          <div style="padding:4px 6px;background:rgba(33,29,22,0.04);border-radius:4px;">
-            <span style="color:var(--text-muted);">KOSPI 추세:</span> <span id="kr-health-trend" style="color:var(--text-muted);font-weight:700;">수신 대기</span>
-          </div>
-          <div style="padding:4px 6px;background:rgba(177,58,48,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">VKOSPI:</span> <span style="color:var(--text-muted);font-weight:700;" id="kr-health-vkospi" title="VKOSPI(한국 변동성지수) — 실시간 원천 수신 성공 시 표시">—</span>
-          </div>
-          <div style="padding:4px 6px;background:rgba(177,58,48,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">외국인 수급:</span> <span id="kr-health-foreign-streak" style="color:var(--text-muted);font-weight:700;">수신 대기</span>
-          </div>
-          <div style="padding:4px 6px;background:rgba(34,117,76,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">수출·반도체:</span> <span style="color:var(--green);font-weight:700;" data-snap="kr-semi-export-yoy" data-operational-use="reference-only">확인 대기</span> <span style="color:var(--green);font-weight:700;"><span style="font-size:11px;color:var(--data-amber);">(최신 수출 데이터 검증 후 반영)</span></span>
-          </div>
-          <div style="padding:4px 6px;background:rgba(177,58,48,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">신용잔고:</span> <span style="color:var(--yellow);font-weight:700;" data-snap="kr-credit">—</span>
-          </div>
-          <div style="padding:4px 6px;background:rgba(34,117,76,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">기준금리:</span> <span style="color:var(--text-primary);font-weight:700;" data-snap="bok-rate">—</span> <span style="color:var(--text-muted);" data-snap="bok-status">—</span>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">필수 현재 입력이 모두 있을 때만 산출 · 각 구성요소 기준일 별도 적용</div>
-      </div>
-
-      <!-- VKOSPI 변동성 지수 -->
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">VKOSPI 변동성 지수 (KRX 공포지수)</div>
-        <canvas id="kr-vkospi-chart" height="160" style="width:100%;height:160px;max-height:180px;display:block;" role="img" aria-label="VKOSPI 변동성 지수 차트"></canvas>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px;font-size:11px;">
-          <div style="text-align:center;padding:4px;background:rgba(34,117,76,0.08);border-radius:4px;">
-            <div style="color:var(--text-muted);">안정</div>
-            <div style="color:var(--green);font-weight:700;">15 이하</div>
-          </div>
-          <div style="text-align:center;padding:4px;background:rgba(33,29,22,0.08);border-radius:4px;">
-            <div style="color:var(--text-muted);">경계</div>
-            <div style="color:var(--yellow);font-weight:700;">15~25</div>
-          </div>
-          <div style="text-align:center;padding:4px;background:rgba(177,58,48,0.08);border-radius:4px;">
-            <div style="color:var(--text-muted);">공포</div>
-            <div style="color:var(--red);font-weight:700;">25 이상</div>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">공포탐욕 참고값 — 최신값 자동갱신</div>
-      </div>
-    </div>
-
-    <!-- v35.6: 한국 시장 브레드스 (Market Breadth) -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">시장 내부 건강도 (Breadth)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
-          <div style="padding:8px;background:rgba(34,117,76,0.06);border-radius:3px;">
-            <div style="color:var(--text-muted);margin-bottom:4px;">상승/하락 비율</div>
-            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-adl">—</div>
-            <div style="font-size:11px;color:var(--text-muted);">현재 A/D 종목수 미수신</div>
-          </div>
-          <div style="padding:8px;background:rgba(177,58,48,0.06);border-radius:3px;">
-            <div style="color:var(--text-muted);margin-bottom:4px;">52주 신고/신저</div>
-            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-52w">—</div>
-            <div style="font-size:11px;color:var(--text-muted);">현재 52주 신고·신저가 원천 미수신</div>
-          </div>
-          <div style="padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
-            <div style="color:var(--text-muted);margin-bottom:4px;">20MA 위 종목 비율</div>
-            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-20ma">—</div>
-            <div style="font-size:11px;color:var(--text-muted);">현재 구성종목 원천 미수신</div>
-          </div>
-          <div style="padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
-            <div style="color:var(--text-muted);margin-bottom:4px;">거래대금</div>
-            <div style="font-size:16px;font-weight:800;color:var(--text-muted);font-family:var(--font-mono);" id="kr-breadth-volume">—</div>
-            <div style="font-size:11px;color:var(--text-muted);">현재 거래대금 원천 미수신</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 한국 금리 스프레드 -->
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">한국 금리 스프레드</div>
-        <div style="display:grid;gap:8px;font-size:11px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
-            <div>
-              <div style="font-weight:700;color:var(--data-cyan);">장단기 스프레드 (10Y-3Y)</div>
-              <div style="font-size:11px;color:var(--text-muted);">국고채 10년 - 3년</div>
-            </div>
-            <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-spread-3y10y">—</div>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
-            <div>
-              <div style="font-weight:700;color:var(--data-amber);">기준금리-10년 스프레드</div>
-              <div style="font-size:11px;color:var(--text-muted);">국고채 10년 - BOK 기준금리</div>
-            </div>
-            <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-spread-bok10y">—</div>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(33,29,22,0.06);border-radius:3px;">
-            <div>
-              <div style="font-weight:700;color:var(--data-purple);">CD-기준금리 스프레드</div>
-              <div style="font-size:11px;color:var(--text-muted);">CD 91일 - BOK 기준금리</div>
-            </div>
-            <div style="font-size:18px;font-weight:900;font-family:var(--font-mono);color:var(--text-muted);" id="kr-spread-cd">—</div>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">기울기의 부호는 곡선 형태만 뜻합니다. 경기 판단은 물가·고용·신용·수급과 교차 확인합니다.</div>
-      </div>
-    </div>
-
-    <!-- 주요 지수 기술 분석 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">KOSPI 기술 분석<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="KOSPI 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">KOSPI 기술 분석</span>일봉·주봉 이평 정배열 + RSI(14) 50↑ = 상승 추세. VKOSPI 18↓ 안정, 25↑ 경보. <strong>외국인/기관 동행 순매수</strong>가 진짜 추세. 개인만 매수 시 단기 고점 가능성.</span></span></span>
-          <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KS11">—</span>
-        </div>
-        <div id="kr-kospi-tech-result" style="min-height:60px;">
-          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
-        </div>
-        <!-- v52.41 (P656/EF-19): data-action이 analyzeKrTickerDeep(개별종목용)로 오배선돼 결과를
-             하단 #kr-ticker-analysis-result에 써서 이 카드 자신은 절대 갱신되지 않았다 — 최초 렌더와
-             동일한 analyzeKrIndex(ticker, targetId, label)로 교체(index.html 30393 참조 패턴 재사용). -->
-        <button data-action="analyzeKrIndex" data-arg="^KS11" data-arg2="kr-kospi-tech-result" data-arg3="KOSPI" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSPI 분석 새로고침 </button>
-      </div>
-      <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">KOSDAQ 기술 분석</span>
-          <span style="font-size:14px;font-weight:900;font-family:var(--font-mono);" data-live-price="^KQ11">—</span>
-        </div>
-        <div id="kr-kosdaq-tech-result" style="min-height:60px;">
-          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">수집 대기…</div>
-        </div>
-        <button data-action="analyzeKrIndex" data-arg="^KQ11" data-arg2="kr-kosdaq-tech-result" data-arg3="KOSDAQ" class="aio-btn-table" style="width:100%;margin-top:8px;font-size:11px;">KOSDAQ 분석 새로고침 </button>
-      </div>
-    </div>
-
-    <!-- 개별 종목 심화 분석 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">한국 종목 심화 분석</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-      <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input id="kr-ticker-analysis-input" type="text" placeholder="종목코드 입력 (005930, 000660, 035720 등)" aria-label="한국 종목 심화 분석 종목코드 입력"
-               style="flex:1;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-size:12px;"
-               data-on-enter="analyzeKrTickerDeep:__value_kr"/>
-        <button data-action="_aioKrTickerSubmit"
-                style="padding:8px 16px;background:#b13a30;color:white;border:none;border-radius:3px;font-weight:700;font-size:11px;cursor:pointer;">
-          분석
-        </button>
-      </div>
-      <!-- 빠른 종목 버튼 -->
-      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;">
-        <button data-action="analyzeKrTickerDeep" data-arg="005930.KS" class="aio-btn-table" style="font-size:11px;">삼성전자</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="000660.KS" class="aio-btn-table" style="font-size:11px;">SK하이닉스</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="035720.KS" class="aio-btn-table" style="font-size:11px;">카카오</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="005380.KS" class="aio-btn-table" style="font-size:11px;">현대차</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="006400.KS" class="aio-btn-table" style="font-size:11px;">삼성SDI</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="035420.KS" class="aio-btn-table" style="font-size:11px;">NAVER</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="051910.KS" class="aio-btn-table" style="font-size:11px;">LG화학</button>
-        <button data-action="analyzeKrTickerDeep" data-arg="247540.KQ" class="aio-btn-table" style="font-size:11px;">에코프로비엠</button>
-      </div>
-      <div id="kr-ticker-analysis-result" style="min-height:80px;">
-        <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">종목코드를 입력하거나 위 버튼을 클릭하면 Weinstein Stage, 추세 위치, 조정 판별, 진입 등급 등 종합 분석이 표시됩니다.</div>
-      </div>
-    </div>
-    </div><!-- /aio-section 한국종목심화 -->
-
-    <!-- 기술 분석 용어 설명 -->
-    <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">기술 분석 핵심 용어</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="padding:10px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
-          <div style="font-size:10px;font-weight:700;color:var(--data-cyan);margin-bottom:4px;">Weinstein 4단계</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">주기 분석: 1(바닥)→2(상승)→3(천장)→4(하락) 반복. <strong>2단계 초입=최적 매수</strong>, 3단계=매도 고려.</div>
-        </div>
-        <div style="padding:10px;background:rgba(34,117,76,0.06);border:1px solid rgba(34,117,76,0.15);border-radius:3px;">
-          <div style="font-size:10px;font-weight:700;color:var(--data-green);margin-bottom:4px;">이동평균 정배열</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">단기(5일) > 중기(20일) > 장기(50일) = <strong>정배열 = 상승추세</strong>. EMA5>10>20>SMA50이면 가장 강한 상승 신호.</div>
-        </div>
-        <div style="padding:10px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
-          <div style="font-size:10px;font-weight:700;color:var(--data-amber);margin-bottom:4px;">건전한 조정 vs 추세전환</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;"><strong>건전한 조정:</strong> 50MA 지지 + 거래량↓ + Higher Low = 매수 기회. <strong>추세전환:</strong> 50MA 이탈 + 거래량↑ = 위험.</div>
-        </div>
-        <div style="padding:10px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
-          <div style="font-size:10px;font-weight:700;color:var(--data-purple);margin-bottom:4px;">RSI 다이버전스</div>
-          <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">주가-RSI 반대 움직임. <strong>신고가+RSI↓ = 약세</strong>(힘 약화). 신저가+RSI↑ = 강세(바닥 신호). 추세 전환 선행지표.</div>
-        </div>
-      </div>
-    </div>
-    </div><!-- /aio-section 기술분석핵심용어 -->
-
-  </div><!-- /page-kr-technical -->
 
 
   <!-- ═══════════════ PAGE: GUIDE (입문 가이드) ═══════════════ -->
@@ -12704,9 +12208,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.5" defer></script>
-  <script src="./js/aio-data.js?v=53.5" defer></script>
-  <script src="./js/aio-ui.js?v=53.5" defer></script>
+  <script src="./js/aio-core.js?v=53.7" defer></script>
+  <script src="./js/aio-data.js?v=53.7" defer></script>
+  <script src="./js/aio-ui.js?v=53.7" defer></script>
 
 
   <script>
@@ -14824,44 +14328,7 @@ function _closingVal(sym, field) {
 
 // ═══ v48.14: 한국 주요 이슈 카드 자동 렌더링 (Agent P1-21 — newsCache 재사용) ═══
 // kr-home 진입 시 호출. 08:00 KST 완료 24h 한국 관련 뉴스 Top 4 자동 추출해 카드 교체.
-function renderKrIssues() {
-  try {
-    if (typeof newsCache === 'undefined' || !newsCache || newsCache.length === 0) return;
-    var container = document.getElementById('kr-issues-container');
-    if (!container) return;
-    var krKeywords = /한국|KOSPI|KOSDAQ|삼성|SK하이닉스|LG에너지|현대차|기아|한화|원\/달러|KRW|한은|BOK|금통위|K-|원화|반도체|HBM|코스피|코스닥|\.KS|\.KQ/i;
-    var candidates = (typeof filterByKst0800NewsCycle === 'function' ? filterByKst0800NewsCycle(newsCache) : newsCache).filter(function(it) {
-      if (!it || !it.pubDate) return false;
-      var text = (it.title || '') + ' ' + (it.desc || '') + ' ' + (it.summary || '');
-      return krKeywords.test(text);
-    });
-    candidates.sort(function(a, b) { return ((b.score || 0) - (a.score || 0)) || (new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()); });
-    var top4 = candidates.slice(0, 4);
-    if (top4.length === 0) return;
-    var palette = [
-      { dot:'var(--data-amber)', bg:'rgba(33,29,22,0.05)', bd:'rgba(33,29,22,0.15)' },
-      { dot:'var(--data-green)', bg:'rgba(34,117,76,0.05)', bd:'rgba(34,117,76,0.15)' },
-      { dot:'var(--data-red)', bg:'rgba(177,58,48,0.05)', bd:'rgba(177,58,48,0.18)' },
-      { dot:'var(--data-cyan)', bg:'rgba(33,29,22,0.05)', bd:'rgba(33,29,22,0.15)' }
-    ];
-    var html = top4.map(function(it, i) {
-      var c = palette[i % palette.length];
-      var title = (it.title || '').substring(0, 90);
-      var desc = (it.desc || it.summary || '').substring(0, 120);
-      var meta = (it.source ? it.source + ' · ' : '') + (it.pubDate ? new Date(it.pubDate).toLocaleString('ko-KR', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '');
-      return '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:3px;background:' + c.bg + ';border:1px solid ' + c.bd + ';">' +
-             '<span style="width:8px;height:8px;border-radius:50%;background:' + c.dot + ';display:inline-block;flex-shrink:0;margin-top:3px;"></span>' +
-             '<div style="flex:1;min-width:0;">' +
-             '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + escHtml(title) + '</div>' +
-             '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.4;">' + escHtml(desc) + '</div>' +
-             '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;opacity:0.7;">' + escHtml(meta) + '</div>' +
-             '</div></div>';
-    }).join('');
-    container.innerHTML = html;
-    var statusEl = document.getElementById('kr-issues-status');
-    if (statusEl) statusEl.innerHTML = '(뉴스 피드 자동 추출 · ' + top4.length + '건 · 08:00 KST 완료 24h · ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + ' 갱신)';
-  } catch(e) { _aioLog('warn', 'render', 'renderKrIssues 실패: ' + e.message); }
-}
+// v53.7 (P725): renderKrIssues 퇴역 — kr-home 이슈 컨테이너가 페이지와 함께 삭제됨
 
 // ═══ 테마별 최신 뉴스 자동 매칭 (newsCache에서 테마 구성종목·이름 기반 필터) ═══
 // 테마 Top 3에 대해 최근 7일 뉴스 최대 3건 자동 주입 — narrative의 정적 수치 보완용
@@ -15249,7 +14716,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.5" defer></script>
+<script src="./js/aio-chat.js?v=53.7" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -16949,284 +16416,50 @@ function filterKrSector(btn, sector) {
   });
 }
 
-function krSupplyTab(btn, tabId) {
-  var tabBar = btn.closest('.kr-tabs');
-  if (tabBar) tabBar.querySelectorAll('.kr-tab').forEach(function(t){ t.classList.remove('active'); });
-  btn.classList.add('active');
-  ['daily','weekly','short','foreign'].forEach(function(id) {
-    var el = document.getElementById('kr-supply-' + id);
-    if (el) el.style.display = (id === tabId) ? '' : 'none';
-  });
-}
+// v53.7 (P725): krSupplyTab 퇴역 — kr-supply 페이지 삭제
 
 // ── Korea Home: live data update ────────────────────────────────
-var _krHomeRetry = 0;
-var _krHomeRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P93)
-function initKoreaHome() {
-  let ld = window._liveData || {};
-  // Check if Korean data is available, if not retry (max 12 attempts)
-  if (!ld['^KS11'] || !ld['^KQ11'] || !ld['KRW=X']) {
-    if (_krHomeRetry++ < 12) { _krHomeRetryTimer = setTimeout(initKoreaHome, Math.min(500 * Math.pow(1.3, _krHomeRetry), 3000)); return; }
-    _aioLog('warn', 'init', 'initKoreaHome: 한국 데이터 로딩 타임아웃');
-    return;
-  }
-  _krHomeRetry = 0;
-
-  // Helper: safe number display
-  function _krNum(v) { var n = Number(v); return isNaN(n) ? 0 : n; }
-  function _krUpdateIdx(idPrice, sym) {
-    var d = ld[sym];
-    if (!d || d.price == null) return;
-    var p = _krNum(d.price);
-    var el = document.getElementById(idPrice);
-    if (!el) return;
-    el.textContent = sym === 'KRW=X' ? p.toFixed(2) : p.toLocaleString();
-    var card = el.parentElement;
-    var chgEl = card && card.querySelector('[data-live-kr-change="' + sym + '"]');
-    var prevEl = card && card.querySelector('[data-live-prev-close="' + sym + '"]');
-    var prev = Number(d.regularMarketPreviousClose || d.chartPreviousClose ||
-      (window._dataSource && window._dataSource[sym] && window._dataSource[sym].previousClose));
-    if (prevEl && isFinite(prev) && prev > 0) prevEl.textContent = prev.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
-    if (chgEl && isFinite(prev) && prev > 0) {
-      var delta = p - prev;
-      var pct = delta / prev * 100;
-      var arrow = delta >= 0 ? '▲' : '▼';
-      var changeText = delta == null ? '' : Math.abs(delta).toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + ' ';
-      chgEl.textContent = arrow + ' ' + changeText + '(' + (delta >= 0 ? '+' : '') + pct.toFixed(2) + '%)';
-      chgEl.style.color = delta >= 0 ? 'var(--green)' : 'var(--red)';
-      el.style.color = delta >= 0 ? 'var(--green)' : 'var(--red)';
-      if (card) {
-        card.classList.remove('up', 'down');
-        card.classList.add(delta >= 0 ? 'up' : 'down');
-      }
-    }
-  }
-  // v30.11: KRX 장시간 상태 배지 업데이트
-  var _krxSess = _getKrxSession();
-  var _krxBadge = document.getElementById('kr-market-session-badge');
-  if (!_krxBadge) {
-    // 최초 1회: 배지 요소 생성
-    var hdr = document.querySelector('#page-kr-home .page-subtitle');
-    if (hdr) {
-      _krxBadge = document.createElement('span');
-      _krxBadge.id = 'kr-market-session-badge';
-      _krxBadge.style.cssText = 'display:inline-block;margin-left:8px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;';
-      hdr.appendChild(_krxBadge);
-    }
-  }
-  if (_krxBadge) {
-    var sessMap = {
-      'open':   { text: ' 장중 (source 확인)',   bg: 'rgba(34,117,76,0.15)', color: 'var(--data-green)' },
-      'pre':    { text: ' 프리마켓',         bg: 'rgba(33,29,22,0.15)', color: 'var(--data-amber)' },
-      'after':  { text: ' 시간외거래',       bg: 'rgba(33,29,22,0.15)', color: 'var(--data-amber)' },
-      'closed': { text: ' 장 마감 (전일 종가)', bg: 'rgba(177,58,48,0.15)', color: 'var(--data-red)' }
-    };
-    var s = sessMap[_krxSess] || sessMap['closed'];
-    _krxBadge.textContent = s.text;
-    _krxBadge.style.background = s.bg;
-    _krxBadge.style.color = s.color;
-  }
-
-  // Update KOSPI, KOSDAQ, KRW
-  _krUpdateIdx('kr-kospi-price', '^KS11');
-  _krUpdateIdx('kr-kosdaq-price', '^KQ11');
-  _krUpdateIdx('kr-krw-price', 'KRW=X');
-
-  // Update top mover prices on kr-home
-  var homeCards = document.querySelectorAll('#page-kr-home .kr-screen-card[data-live-symbol]');
-  homeCards.forEach(function(card) {
-    var sym = card.getAttribute('data-live-symbol');
-    var d = ld[sym];
-    if (d && d.price != null && !isNaN(d.price)) {
-      var priceEl = card.querySelector('.kr-screen-price');
-      if (priceEl) {
-        priceEl.textContent = Math.round(d.price).toLocaleString() + '원';
-        var pv = _krNum(d.pct);
-        if (pv !== 0 || d.pct != null) {
-          var pctStr = ' (' + (pv >= 0 ? '+' : '') + pv.toFixed(1) + '%)';
-          priceEl.textContent += pctStr;
-          priceEl.style.color = pv >= 0 ? 'var(--green)' : 'var(--red)';
-        }
-      }
-      // v35.5: 등락률·시총 동적 갱신
-      var chgEl = card.querySelector('.kr-screen-chg');
-      if (chgEl && d.pct != null) {
-        var pv2 = _krNum(d.pct);
-        chgEl.textContent = (pv2 >= 0 ? '+' : '') + pv2.toFixed(2) + '%';
-        chgEl.style.color = pv2 >= 0 ? 'var(--green)' : 'var(--red)';
-      }
-      var capEl = card.querySelector('.kr-screen-cap');
-      if (capEl && d.mktCap != null) {
-        var cap = _krNum(d.mktCap);
-        if (cap >= 1e12) capEl.textContent = (cap / 1e12).toFixed(0) + '조원';
-        else if (cap >= 1e8) capEl.textContent = (cap / 1e8).toFixed(0) + '억원';
-        else capEl.textContent = cap.toLocaleString() + '원';
-      }
-    }
-  });
-  // 현재 종목 시세가 없으면 정적 등락률을 남기지 않는다.
-  homeCards.forEach(function(card) {
-    var sym = card.getAttribute('data-live-symbol');
-    var d = ld[sym];
-    if (d && d.price != null && !isNaN(d.price)) return;
-    var priceEl = card.querySelector('.kr-screen-price');
-    var chgEl = card.querySelector('.kr-screen-chg');
-    var capEl = card.querySelector('.kr-screen-cap');
-    if (priceEl) { priceEl.textContent = '—'; priceEl.style.color = 'var(--text-muted)'; priceEl.setAttribute('data-source-kind', 'unavailable'); }
-    if (chgEl) { chgEl.textContent = '현재 시세 미수신'; chgEl.style.color = 'var(--text-muted)'; chgEl.setAttribute('data-source-kind', 'unavailable'); }
-    if (capEl) capEl.textContent = '시총 미수신';
-  });
-
-  // v35.5: 대장주 카드 클릭 → 해당 테마 페이지 이동
-  homeCards.forEach(function(card) {
-    if (card._krClickBound) return;
-    card._krClickBound = true;
-    card.style.cursor = 'pointer';
-    card.addEventListener('click', function() {
-      var sym = card.getAttribute('data-live-symbol');
-      if (!sym) return;
-      var code = sym.replace(/\.(KS|KQ)$/i, '');
-      // KR_THEME_MAP에서 해당 코드가 포함된 테마 찾기
-      if (typeof KR_THEME_MAP === 'undefined') return;
-      for (var themeId in KR_THEME_MAP) {
-        var found = KR_THEME_MAP[themeId].some(function(t) { return t.code === code; });
-        if (found) {
-          showPage('kr-themes');
-          // 해당 테마 카드로 스크롤
-          setTimeout(function() {
-            var tc = document.querySelector('[data-theme-id="' + themeId + '"]');
-            if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 200);
-          return;
-        }
-      }
-    });
-  });
-
-  // v35.5: ETF 카드 실시간 갱신
-  var etfCards = document.querySelectorAll('#kr-etf-grid .kr-etf-card[data-live-symbol]');
-  etfCards.forEach(function(card) {
-    var sym = card.getAttribute('data-live-symbol');
-    var d = ld[sym];
-    if (d && d.price != null) {
-      var pctEl = card.querySelector('.kr-etf-pct');
-      var priceEl = card.querySelector('.kr-etf-price');
-      var pv = _krNum(d.pct);
-      if (pctEl) {
-        pctEl.textContent = (pv >= 0 ? '+' : '') + pv.toFixed(2) + '%';
-        pctEl.style.color = pv >= 0 ? 'var(--green)' : 'var(--red)';
-      }
-      if (priceEl) {
-        priceEl.textContent = '₩' + Math.round(d.price).toLocaleString();
-        priceEl.style.color = pv >= 0 ? 'var(--green)' : 'var(--red)';
-      }
-    }
-  });
-
-  // v29.4: 수급 데이터 비동기 로드 (1회만)
-  if (!window._krSupplyLoaded) {
-    window._krSupplyLoaded = true;
-    fetchKrSupplyData();
-    // v35.7: 한국 동적 데이터 일괄 로드 (VKOSPI, 거래대금, 외국인 TOP, 주간 수급)
-    if (typeof fetchKrDynamicData === 'function') fetchKrDynamicData();
-  }
-}
-
+// v53.7 (P725): initKoreaHome 퇴역 — kr-home 페이지가 통합으로 삭제됨 (지수/배지/ETF 갱신은 이관 대상 아님)
 // v48.99: _aioPageBus 마이그 (P180)
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+// v53.7 (P725): KR 전용 5페이지를 themes/macro/technical 통합 섹션으로 이관 —
+// 트리거를 통합 대상 페이지로 재배선. kr-home/kr-supply는 퇴역(전용 init 삭제),
+// 공유 데이터 fetch(수급/VKOSPI/동적)는 _aioEnsureKrDataLoaded()로 1회 보장.
+function _aioEnsureKrDataLoaded() {
+  if (window._krSupplyLoaded) return;
+  window._krSupplyLoaded = true;
+  if (typeof fetchKrSupplyData === 'function') { try { fetchKrSupplyData(); } catch(_e) {} }
+  if (typeof fetchKrDynamicData === 'function') { try { fetchKrDynamicData(); } catch(_e) {} }
+}
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-kr-shown', 'aio:pageShown', function(e) {
-  if (e.detail === 'kr-home') initKoreaHome();
-  if (e.detail === 'kr-supply') initKoreaSupply();
-  if (e.detail === 'kr-themes') initKoreaThemes();
-  if (e.detail === 'kr-macro') initKoreaMacro();
-  if (e.detail === 'kr-technical') initKoreaTechnical();
+  if (e.detail === 'themes') initKoreaThemes();
+  if (e.detail === 'macro') { _aioEnsureKrDataLoaded(); initKoreaMacro(); }
+  if (e.detail === 'technical') { _aioEnsureKrDataLoaded(); initKoreaTechnical(); }
 });
 _aioPageBus.register('html-kr-live', 'aio:liveQuotes', function() {
   var activePage = document.querySelector('.page.active');
   if (!activePage) return;
   var pid = activePage.id.replace('page-','');
-  if (pid === 'kr-home') initKoreaHome();
-  if (pid === 'kr-supply') initKoreaSupply();
-  if (pid === 'kr-themes') initKoreaThemes();
-  if (pid === 'kr-macro') initKoreaMacro();
-  if (pid === 'kr-technical') initKoreaTechnical();
+  if (pid === 'themes') initKoreaThemes();
+  if (pid === 'macro') initKoreaMacro();
+  if (pid === 'technical') initKoreaTechnical();
 });
 });
 
-var _krSupplyRetry = 0;
-var _krSupplyRetryTimer = null; // v46.9: 페이지 이탈 시 clearTimeout용 (P84)
-function initKoreaSupply() {
-  let ld = window._liveData || {};
-  // v49.54: supply data fetch must not be blocked by index quote availability.
-  if (!window._krSupplyLoaded) {
-    window._krSupplyLoaded = true;
-    fetchKrSupplyData();
-    if (typeof fetchKrDynamicData === 'function') fetchKrDynamicData();
-  }
-  // Check if Korean data is available, if not retry (max 20 attempts = 10s)
-  if (!ld['^KS11'] || !ld['^KQ11']) {
-    if (_krSupplyRetry++ < 20) { _krSupplyRetryTimer = setTimeout(initKoreaSupply, 500); return; }
-    _aioLog('warn', 'init', 'initKoreaSupply: 한국 데이터 로딩 타임아웃');
-    _ensureKrSupplyAnalysisResolved('KOSPI/KOSDAQ 지수 시세가 지연되어 수급 데이터는 별도 폴백 상태로 표시합니다.');
-    _renderInvestorFallback();
-    _renderKrWeeklySupplyFallback('KR index quote timeout');
-    return;
-  }
-  _krSupplyRetry = 0;
-
-  // Update any data-live-price elements in kr-supply page
-  var els = document.querySelectorAll('#page-kr-supply [data-live-price]');
-  els.forEach(function(el) {
-    var sym = el.getAttribute('data-live-price');
-    var d = ld[sym];
-    if (d && d.price !== undefined) {
-      var fmt = d.price.toLocaleString();
-      if (el.children.length > 0) { var _pp = el.querySelector('.pill-price') || el.querySelector('.kr-etf-price'); if (_pp) _pp.textContent = fmt; }
-      else { el.textContent = fmt; }
-      if (d.pct !== undefined) {
-        el.className = d.pct >= 0 ? 'pnl pos' : 'pnl neg';
-      }
-    }
-  });
-
-  // Also update direct kr-supply page elements using KOSPI/KOSDAQ
-  var kospi = ld['^KS11'];
-  if (kospi && kospi.price !== undefined) {
-    var el = document.getElementById('kr-supply-kospi-price');
-    if (el) {
-      el.textContent = kospi.price.toLocaleString();
-      var chgEl = el.parentElement && el.parentElement.querySelector('.kr-idx-chg');
-      if (chgEl && kospi.pct !== undefined) {
-        chgEl.textContent = kospi.pct.toFixed(2) + '%';
-        chgEl.className = kospi.pct >= 0 ? 'pnl pos' : 'pnl neg';
-      }
-    }
-  }
-
-  var kosdaq = ld['^KQ11'];
-  if (kosdaq && kosdaq.price !== undefined) {
-    var el = document.getElementById('kr-supply-kosdaq-price');
-    if (el) {
-      el.textContent = kosdaq.price.toLocaleString();
-      var chgEl = el.parentElement && el.parentElement.querySelector('.kr-idx-chg');
-      if (chgEl && kosdaq.pct !== undefined) {
-        chgEl.textContent = kosdaq.pct.toFixed(2) + '%';
-        chgEl.className = kosdaq.pct >= 0 ? 'pnl pos' : 'pnl neg';
-      }
-    }
-  }
-}
+// v53.7 (P725): initKoreaSupply 퇴역 — kr-supply 페이지 삭제. 수급/동적 fetch는 _aioEnsureKrDataLoaded()가 담당.
 
 function initKoreaThemes() {
   let ld = window._liveData || {};
+  // v53.7 (P725): 테마 progressive 접기 버튼 — 통합 섹션에서 idempotent 보장
+  if (typeof window._aioEnsureKrThemeProgressive === 'function') { try { window._aioEnsureKrThemeProgressive(); } catch(_e) {} }
   refreshKrThemeRuntimeWeights();
   var quoteCoverage = window.AIO && typeof window.AIO.evaluateKrThemeQuoteCoverage === 'function'
     ? window.AIO.evaluateKrThemeQuoteCoverage(ld, KR_THEME_MAP) : { validThemeIds: [] };
   // v40.4: 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
   if (typeof renderKrThemeCardsFromMap === 'function') renderKrThemeCardsFromMap();
   // 1. pill: 종목명 · 가격 · 등락률 명확 표시
-  document.querySelectorAll('#page-kr-themes .kr-ticker-pill[data-live-symbol]').forEach(function(pill) {
+  document.querySelectorAll('#kr-integrated-themes .kr-ticker-pill[data-live-symbol]').forEach(function(pill) {
     var sym = pill.getAttribute('data-live-symbol'), d = ld[sym];
     if (d && d.price !== undefined) {
       var priceEl = pill.querySelector('.pill-price');
@@ -17244,7 +16477,7 @@ function initKoreaThemes() {
   });
 
   // 2. v30: 테마별 ETF 가중평균 수익률 → heat 자동 결정
-  var themeCards = document.querySelectorAll('#page-kr-themes .kr-theme-card');
+  var themeCards = document.querySelectorAll('#kr-integrated-themes .kr-theme-card');
   themeCards.forEach(function(card) {
     var themeId = card.getAttribute('data-theme-id');
     var tmap = (typeof KR_THEME_MAP !== 'undefined') && KR_THEME_MAP[themeId];
@@ -25512,7 +24745,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.5" defer></script>
+<script src="./js/aio-glossary.js?v=53.7" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -25902,7 +25135,7 @@ document.addEventListener('keydown', function(e) {
   }
 
   // Number keys 1-8 = page navigation
-  const pageMap = { '1':'home', '2':'signal', '3':'briefing', '4':'macro', '5':'market-news', '6':'portfolio', '7':'screener', '8':'kr-home' };
+  const pageMap = { '1':'home', '2':'signal', '3':'briefing', '4':'macro', '5':'market-news', '6':'portfolio', '7':'screener', '8':'themes' }; // v53.7 (P725): kr-home 퇴역
   if (pageMap[e.key]) {
     e.preventDefault();
     if (typeof showPage === 'function') showPage(pageMap[e.key], null);
@@ -27903,6 +27136,12 @@ function loadTVChart(page) {
     krCode = krCode.replace(/\.(KS|KQ)$/i, '').trim();
     if (typeof loadKrCandleChart === 'function') loadKrCandleChart(krCode);
     return;
+  } else if (page === 'ticker') {
+    // v53.6: ticker 종목 개요 대형 차트 — KR 종목은 P610(KRX 데이터 하드브레이크)으로 미지원
+    sym = (window._currentTickerSym || 'NVDA').toUpperCase();
+    if (/\.(KS|KQ)$/i.test(sym)) return;
+    containerId = 'tv-widget-ticker';
+    ohlcSym = sym;
   }
   var container = document.getElementById(containerId);
   if (!container) return;
@@ -27955,6 +27194,135 @@ try {
     });
   }
 } catch(_registerTvOhlcErr) {}
+
+// ═══ v53.6: ticker 종목 개요(밸리AI 참조 레이아웃) 렌더러 ═══════════════════
+// 원칙: 실데이터만 표기(결측은 정직한 '—' + 사유 title), 새 병렬 계산 경로 없음(R276) —
+// 시세는 _liveData, 수익률/팩터는 SCREENER_DB(스크리너 페이지와 동일 원천·동일 값)를 재사용.
+window._aioRenderTickerOverview = function(tkr) {
+  tkr = String(tkr || '').toUpperCase();
+  if (!tkr) return;
+  var isKr = /\.(KS|KQ)$/i.test(tkr);
+  // 1) TradingView 대형 차트 — 동일 심볼이면 iframe 재로드하지 않음
+  var tvC = document.getElementById('tv-widget-ticker');
+  if (tvC) {
+    if (isKr) {
+      if (tvC.dataset.tvSym !== 'KR-UNSUPPORTED') {
+        tvC.dataset.tvSym = 'KR-UNSUPPORTED';
+        tvC.innerHTML = '<span style="font-size:12px;color:var(--text-muted);padding:12px;text-align:center;">한국 종목은 TradingView KRX 데이터 제한(P610)으로 미지원 — 한국 기술분석 페이지의 자체 캔들 차트를 이용하세요</span>';
+      }
+    } else if (tvC.dataset.tvSym !== tkr) {
+      tvC.dataset.tvSym = tkr;
+      try { loadTVChart('ticker'); } catch(_tvErr) {}
+    }
+  }
+  // 2) 가격 정보 — 라이브 quote 결측 필드는 '—' 유지(합성 금지)
+  var live = (window._liveData || {})[tkr] || {};
+  var scr = (typeof SCREENER_DB !== 'undefined' && Array.isArray(SCREENER_DB)) ? SCREENER_DB.find(function(r){ return r && r.sym === tkr; }) : null;
+  var cur = isKr ? '' : '$';
+  function _set(id, txt, color, title) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = txt;
+    el.style.color = color || '';
+    if (title) el.title = title; else el.removeAttribute('title');
+  }
+  var prev = Number(live.regularMarketPreviousClose || live.chartPreviousClose);
+  _set('ticker-ov-prevclose', prev > 0 ? cur + prev.toFixed(2) : '—', null, prev > 0 ? null : '전일 종가 원천 미수신');
+  var hi52 = Number(live.fiftyTwoWeekHigh), lo52 = Number(live.fiftyTwoWeekLow), price = Number(live.price);
+  var bar = document.getElementById('ticker-ov-52wbar');
+  if (hi52 > 0 && lo52 > 0 && hi52 > lo52) {
+    _set('ticker-ov-52w', cur + lo52.toFixed(2) + ' ~ ' + cur + hi52.toFixed(2));
+    if (bar && price > 0) {
+      var pos = Math.max(0, Math.min(100, (price - lo52) / (hi52 - lo52) * 100));
+      bar.style.display = 'block';
+      var posEl = document.getElementById('ticker-ov-52wpos');
+      if (posEl) posEl.style.left = pos.toFixed(1) + '%';
+      bar.title = '52주 범위 내 현재가 위치: ' + pos.toFixed(0) + '%';
+    } else if (bar) bar.style.display = 'none';
+  } else {
+    _set('ticker-ov-52w', '—', null, '52주 범위 원천 미수신');
+    if (bar) bar.style.display = 'none';
+  }
+  function _fmtRet(v){ return (typeof v === 'number' && isFinite(v)) ? ((v >= 0 ? '+' : '') + v.toFixed(1) + '%') : '—'; }
+  function _retCol(v){ return (typeof v === 'number' && isFinite(v)) ? (v >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)'; }
+  ['1m','3m','6m'].forEach(function(k) {
+    var v = scr ? scr['ret' + k] : null;
+    _set('ticker-ov-ret' + k, _fmtRet(v), _retCol(v), (typeof v === 'number') ? '스크리너 관측 이력 기반 — 스크리너 페이지와 동일 값' : '스크리너 유니버스 외 종목 — 수익률 이력 미수신');
+  });
+  var prov = document.getElementById('ticker-ov-provenance');
+  if (prov) {
+    var srcs = [];
+    var dsrc = window._dataSource && window._dataSource[tkr];
+    if (price > 0) srcs.push('시세: ' + (live.source || (dsrc && dsrc.source) || 'live'));
+    if (scr) srcs.push('수익률·팩터: 스크리너 아티팩트');
+    prov.textContent = srcs.length ? srcs.join(' · ') : '원천 미수신 — 표시값 없음';
+  }
+  // 3) 관련 테마 칩 — THEME_MAP 소속 역조회 → theme-detail 이동
+  var themesEl = document.getElementById('ticker-ov-themes');
+  if (themesEl && typeof THEME_MAP !== 'undefined') {
+    var hits = [];
+    THEME_MAP.forEach(function(t) {
+      var inLeaders = Array.isArray(t.leaders) && t.leaders.indexOf(tkr) >= 0;
+      var subHit = null;
+      (t.subThemes || []).forEach(function(st){ if (!subHit && Array.isArray(st.tickers) && st.tickers.indexOf(tkr) >= 0) subHit = st.name; });
+      if (inLeaders || subHit) hits.push({ id: t.id, label: t.nameKr + (subHit ? ' · ' + subHit : '') });
+    });
+    themesEl.innerHTML = hits.length
+      ? hits.map(function(h){ return '<span class="ticker-ov-theme-chip" role="button" tabindex="0" data-action="showThemeDetail" data-arg="' + escHtml(h.id) + '" title="' + escHtml(h.label) + ' 테마 상세 →">' + escHtml(h.label) + '</span>'; }).join('')
+      : '<span style="font-size:11px;color:var(--text-muted);">테마 맵 미등록 종목</span>';
+  }
+  // 4) 팩터 프로파일 — SCREENER_DB factorScores(유니버스 내 상대 백분위, 서술적)
+  var rowsEl = document.getElementById('ticker-ov-factor-rows');
+  var radarC = document.getElementById('ticker-ov-factor-radar');
+  var radarWrap = radarC && radarC.parentElement;
+  if (scr && !scr.factorScores && typeof _aioComputeFactorRanks === 'function') { try { _aioComputeFactorRanks(); } catch(_frErr) {} }
+  var fs = scr && scr.factorScores;
+  var F_LBL = { momentum:'모멘텀', trend:'추세', lowvol:'저변동성', size:'사이즈', value:'밸류', quality:'퀄리티', kalman:'칼만추세' };
+  if (fs && rowsEl) {
+    var keys = Object.keys(fs).filter(function(k){ return typeof fs[k] === 'number' && isFinite(fs[k]); });
+    rowsEl.innerHTML = keys.map(function(k) {
+      return '<div class="ticker-ov-row"><span class="ov-lbl">' + escHtml(F_LBL[k] || k) + '</span><span class="ov-val">' + fs[k] + '</span></div>';
+    }).join('');
+    var sig = tkr + '|' + keys.map(function(k){ return k + ':' + fs[k]; }).join(',');
+    if (radarC && typeof Chart !== 'undefined' && keys.length >= 3 && radarC.dataset.sig !== sig) {
+      radarC.dataset.sig = sig;
+      if (radarWrap) radarWrap.style.display = 'block';
+      try {
+        if (window._aioChartRegistry) window._aioChartRegistry.destroyIfExists('ticker-ov-factor-radar');
+        var radarChart = new Chart(radarC.getContext('2d'), {
+          type: 'radar',
+          data: {
+            labels: keys.map(function(k){ return F_LBL[k] || k; }),
+            datasets: [{ data: keys.map(function(k){ return fs[k]; }), backgroundColor: 'rgba(34,117,76,0.12)', borderColor: '#22754c', borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: '#22754c' }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { r: { min: 0, max: 100, ticks: { display: false }, pointLabels: { font: { size: 10 }, color: '#57513f' }, grid: { color: 'rgba(33,29,22,0.08)' }, angleLines: { color: 'rgba(33,29,22,0.08)' } } }
+          }
+        });
+        if (window._aioChartRegistry) window._aioChartRegistry.register('ticker-ov-factor-radar', radarChart);
+      } catch(_radarErr) {}
+    } else if (radarWrap && (typeof Chart === 'undefined' || keys.length < 3)) {
+      radarWrap.style.display = 'none';
+    }
+  } else if (rowsEl) {
+    rowsEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">' + (scr ? '팩터 점수 미계산 — 스크리너 데이터 수신 대기' : '스크리너 유니버스 외 종목 — 팩터 백분위는 유니버스 내 상대값이라 제공되지 않습니다') + '</span>';
+    if (radarWrap) radarWrap.style.display = 'none';
+    if (radarC) radarC.dataset.sig = '';
+    if (window._aioChartRegistry) window._aioChartRegistry.destroyIfExists('ticker-ov-factor-radar');
+  }
+};
+try {
+  if (typeof _aioPageBus !== 'undefined' && _aioPageBus.register) {
+    _aioPageBus.register('html-ticker-overview-live', 'aio:liveQuotes', function() {
+      var p = document.getElementById('page-ticker');
+      if (p && p.classList.contains('active') && window._currentTickerSym) {
+        try { window._aioRenderTickerOverview(window._currentTickerSym); } catch(_e) {}
+      }
+    });
+  }
+} catch(_registerTickerOvErr) {}
 
 // ── Phase 2-2: McClellan Oscillator 계산 ──
 var _mcData = { advEma19: null, advEma39: null, decEma19: null, decEma39: null, summation: 0, history: [] };
@@ -28540,7 +27908,7 @@ var _aiCtxMap = {
   'signal':'signal','screener':'screener','ticker':'ticker','theme-detail':'theme-detail','briefing':'briefing',
   'market-news':'market-news','breadth':'breadth','sentiment':'sentiment',
   'options':'options',
-  'kr-home':'kr-home','kr-supply':'kr-supply','kr-themes':'kr-themes','kr-macro':'kr-macro','kr-technical':'kr-tech'
+  'kr-themes':'kr-themes','kr-macro':'kr-macro','kr-technical':'kr-tech' // v53.7 (P725): kr-home/kr-supply 퇴역
 };
 var _aiDefaultChips = {
   'home':['시장 레짐','리스크 팩터','포지션 영향','크로스체크'],
@@ -28558,8 +27926,6 @@ var _aiDefaultChips = {
   'market-news':['오늘 핵심 뉴스','뉴스가 시장에 미친 영향','섹터별 뉴스 흐름','추가 확인할 이슈'],
   'breadth':['시장 폭 건강도','상승/하락 종목 해석','브레드스와 추세 비교','숨은 약세 신호'],
   'sentiment':['공포탐욕 해석','VIX와 심리 연결','지금 과열인지 판단','심리 기반 대응'],
-  'kr-home':['한국장 레짐','수급/환율','테마 회전','오늘 리스크'],
-  'kr-supply':['주체별 수급','환율 민감도','프로그램 흐름','확인 조건'],
   'kr-themes':['K-방산 전망','반도체 수출','조선주 분석','2차전지 반등'],
   'kr-macro':['한은 금리','원/달러 전망','코리아 디스카운트','수출 경기'],
   'kr-tech':['삼성전자 분석','KOSPI 추세','SK하이닉스 RSI','한화에어로 타이밍']

@@ -1225,9 +1225,7 @@ var _TG_PAGE_TAGS = {
   'market-news': ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','optical','power','crypto','earnings','healthcare','japan','flows','insider'],
   'options':     ['macro','equity','flows','earnings','crypto','geo'],
   'screener':    ['equity','earnings','insider','semi','power','optical','healthcare','kr-market'],
-  'kr-home':     ['kr-market','semi','equity','macro','credit','earnings','flows'],
-  'kr-supply':   ['kr-market','equity','geo','semi','power','optical','credit','flows','insider'],
-  'kr-themes':   ['kr-market','semi','power','optical','equity','healthcare'],
+  // v53.7 (P725): kr-home/kr-supply/kr-themes 컨테이너 퇴역 — kr-macro/kr-technical 피드는 통합 섹션에 이관돼 유지
   'kr-macro':    ['kr-market','macro','credit','semi','ai-policy','geo','japan'],
   'kr-technical':['kr-market','semi','equity','macro','geo','flows'],
   'guide':       [],
@@ -1245,8 +1243,6 @@ var _TG_PAGE_CFG = {
   'themes':      ['테마·CAPEX 피드',            4,  false, 'score', true ],
   'theme-detail':['테마 상세 피드',             4,  false, 'score', true ],
   'market-news': ['텔레그램 전체 피드',         12, true,  'date',  false],
-  'kr-home':     ['한국장 최신 소식',            4,  false, 'date',  true ],
-  'kr-supply':   ['수급·외국인·공급망 동향',    4,  false, 'score', true ],
   'kr-macro':    ['한국 매크로 소식',            4,  true,  'score', false],
   'kr-technical':['한국 차트 소식',              3,  false, 'score', true ],
 };
@@ -1370,7 +1366,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
     // Filter out digest separators on all pages; keep long bank/research posts on analysis pages.
     filtered = filtered.filter(function(it) {
       var txt = it.text || it.summary || ''; // P715: summary-only 호환
-      var allowLongReport = ['market-news','briefing','macro','fxbond','fundamental','themes','theme-detail','kr-macro'].indexOf(pageId) >= 0;
+      var allowLongReport = ['market-news','briefing','macro','fxbond','fundamental','themes','theme-detail'].indexOf(pageId) >= 0;
       if (txt.includes('━━━━')) return false;
       if (txt.length > 600 && !allowLongReport) return false;
       return true;
@@ -4338,19 +4334,16 @@ var AIO_PAGE_REFRESH_MAP = {
   breadth:     ['quotes', 'breadth', 'technicals'],
   sentiment:   ['quotes', 'sentiment', 'vixHistory', 'hySpread'],
   briefing:    ['quotes', 'news', 'sentiment', 'breadth', 'fred', 'technicals'],
-  technical:   ['quotes', 'technicals', 'breadth', 'sentiment', 'vixHistory'],
-  macro:       ['quotes', 'fred', 'news', 'sentiment'],
+  technical:   ['quotes', 'technicals', 'breadth', 'sentiment', 'vixHistory', 'krDynamic'],
+  macro:       ['quotes', 'fred', 'news', 'sentiment', 'krDynamic', 'krSupply'],
   fxbond:      ['quotes', 'fred', 'hySpread', 'news'],
   fundamental: ['quotes', 'news', 'technicals'],
-  themes:      ['quotes', 'news', 'technicals'],
+  themes:      ['quotes', 'news', 'technicals', 'krDynamic'],
   screener:    ['quotes', 'technicals'],
   portfolio:   ['quotes', 'technicals'],
   'market-news': ['quotes', 'news'],
-  'kr-home':   ['quotes', 'news'],
-  'kr-supply': ['quotes'],
-  'kr-themes': ['quotes', 'news', 'technicals'],
-  'kr-macro':  ['quotes', 'fred'],
-  'kr-technical': ['quotes', 'technicals']
+  // v53.7 (P725): KR 라우트 퇴역 — themes/macro/technical가 KR 섹션 갱신을 겸함
+  'options': ['quotes', 'sentiment']
 };
 window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
 window.AIO_CRITICAL_10_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
@@ -6273,12 +6266,7 @@ function _aioPublicReadinessPageText(pageId) {
     options: '옵션',
     guide: '사용 설명서',
     glossary: '용어 사전',
-    mindset: '투자 마인드',
-    'kr-home': '한국장 홈',
-    'kr-supply': '수급 분석',
-    'kr-themes': '국내 테마',
-    'kr-macro': '한국 매크로',
-    'kr-technical': '한국 기술 분석'
+    mindset: '투자 마인드'
   };
   return map[pageId] || '페이지';
 }
@@ -12252,7 +12240,7 @@ window.AIO.getTelegramPageCoverageAudit = function() {
   var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
   var pageMap = digest.pageMap || {};
   var items = Array.isArray(digest.rawBroadItems) ? digest.rawBroadItems : (Array.isArray(digest.rawTopItems) ? digest.rawTopItems : []);
-  var required = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+  var required = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','guide']; // v53.7 (P725): KR 라우트 퇴역
   var routes = {};
   required.forEach(function(pageId) {
     var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];
@@ -15309,6 +15297,17 @@ function applyLiveQuotes(quotes) {
       window._liveData[q.symbol] = window._liveData[q.symbol] || {};
       window._liveData[q.symbol].regularMarketPreviousClose = q.regularMarketPreviousClose;
     }
+    // v53.6 (P724): v7 quote 확장 필드(52주 범위·당일 고저·거래량) 보존 — PriceStore.set은
+    // price/pct만 저장하므로 이 필드들은 지금까지 _liveData에 남은 적이 없었고, 이를 1순위
+    // 소스로 읽는 fundamental 가격 포지션 카드(aio-ui.js)와 ticker 종목 개요 52주 범위가
+    // 영구 결측이었다. 위 prevClose 보존과 동일 패턴으로 수신 시에만 복사(합성 없음).
+    ['fiftyTwoWeekHigh','fiftyTwoWeekLow','regularMarketDayHigh','regularMarketDayLow','regularMarketVolume','averageDailyVolume3Month','averageDailyVolume10Day'].forEach(function(_xk) {
+      var _xv = Number(q[_xk]);
+      if (isFinite(_xv) && _xv > 0) {
+        window._liveData[q.symbol] = window._liveData[q.symbol] || {};
+        window._liveData[q.symbol][_xk] = _xv;
+      }
+    });
     // Fetch time and market observation time are distinct. Preserve provider market-state/timezone
     // metadata so intraday snapshots cannot look like later closing observations merely because
     // data.json itself was fetched recently.
@@ -16694,7 +16693,7 @@ window.showPage = function(pageId, ...args) {
   if (pageId === 'fxbond') {
     setTimeout(function(){ try { if (typeof window._aioRenderCarryUnwindRisk === 'function') window._aioRenderCarryUnwindRisk(); } catch(_){} }, 600);
   }
-  if (pageId === 'kr-macro' || pageId === 'kr-home') {
+  if (pageId === 'macro') { // v53.7 (P725): KR 매크로 데이터는 macro 페이지 통합 섹션에서 사용
     setTimeout(function(){
       if (typeof fetchAllBokData === 'function' && !window._bokData) {
         try { fetchAllBokData(); } catch(_){}

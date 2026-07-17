@@ -1,3 +1,18 @@
+## v53.7 (2026-07-17)
+- **P725 한국장 5페이지 → 기존 분석 페이지 통합 (사용자 지시)**: 사용 빈도가 낮고 용량·코드만 차지하던 KR 전용 5페이지를 정리 — ① kr-home·kr-supply **완전 삭제**(수급 데이터는 B1 블록으로 원래 자동수집 불가), ② kr-themes→themes, kr-macro→macro, kr-technical→technical에 **접힌 "한국 시장" 통합 섹션**(`kr-integrated-*` details, 기존 `aio-page-advanced-toggle` 패턴)으로 요소 id 보존 이관. DOM 약 950줄 순삭감(index.html 총 -846줄).
+- 라우팅: NAV_ROUTE 19→14, ROUTE_REGISTRY.REMOVED에 5라우트 등록+canonical 리다이렉트, `_hashAlias`로 구 해시(#kr-home 등)를 대상 페이지로 리다이렉트(실브라우저 확인). `expectedRoutePageCount` 22→17. getRouteIAAudit은 REMOVED를 "canonical 있음+DOM 없음"으로 검사하게 확장.
+- 데이터 배선: KR 태스크/심볼(krDynamic·krSupply, ^KS11/^KQ11/KRW=X)을 themes/macro/technical 프로파일·refresh map·완비성 계약(optional)에 병합, `_aioEnsureKrDataLoaded()` 1회 로더 신설, pageShown/liveQuotes 훅을 통합 페이지로 재배선. KR 테마 심볼 수집은 themes 라우트로 이동(limit 900). BOK/KOSIS fetch 트리거 macro로 이관. macro 통합 섹션 상단에 구 kr-home 핵심 지수 카드(KOSPI/KOSDAQ/KRW/VKOSPI) 복원 — P636/P721 전일종가·변화폭 계약 sink 보존.
+- 코드 정리: initKoreaHome/initKoreaSupply/renderKrIssues/krSupplyTab/markFeed 퇴역, KR 5페이지 교육 블록·결론/허브/가이드 레지스트리 항목 제거, CSS `#page-kr-*` 셀렉터를 `#kr-integrated-*`로 재타깃(캔들 반응형·테마 progressive·모바일 규칙 보존), 사이드바 "한국 시장" 그룹 제거, 키보드 '8'→themes.
+- 게이트 정합: structural(17 routes)·runtime-contract·viewport(17×4=68)·a11y(17)·headless 29개 라우트-수 의존 테스트 갱신(T188/T192/T375/T880은 퇴역 검증으로 전환, T644는 runtime `_weightSource` 가중 허용, T824는 kr-screen-card 존재 조건부 패턴 계약으로). 게이트: 전 정적 게이트 PASS + 헤드리스 1101/1101 + viewport 68/68(FULL_INIT=1) + a11y 17 + critical10 PASS. 실브라우저: 리다이렉트 3종·테마 카드 28개·KOSPI/전일종가/BOK/CPI 배지·캔들 캔버스 확인(Naver 프록시 차단 환경에선 정직한 실패 문구), pageerror 0.
+- 참고: `public-data/screener-universe.json` drift는 Windows CRLF 체크아웃 아티팩트(내용 동일)로 확인, 재생성만 수행.
+- R1 7곳 v53.7
+
+## v53.6 (2026-07-17)
+- **P723 ticker 종목 개요 신설 (밸리AI 참조 레이아웃)**: 사용자 제공 밸리AI 종목 상세 화면을 분석해 데이터 원천이 실재하는 요소만 선별 반영 — ① 좌 요약 레일+우 대형 차트 2열 그리드(`.ticker-ov-grid`, 900px 이하 1열), ② TradingView 대형 차트(기존 `loadTVChart` iframe 빌더에 'ticker' 분기 추가, 동일 심볼 재로드 방지 `dataset.tvSym` 가드, KR 종목은 P610 KRX 하드브레이크 전례로 미지원 명시+자체 차트 안내), ③ 가격 정보 카드(전일 종가·52주 범위+현재가 위치 바·1/3/6개월 수익률 — 시세는 `_liveData`, 수익률은 SCREENER_DB 동일 원천 재사용, R276 새 병렬 계산 경로 없음, 결측은 정직한 '—'+사유 title), ④ 관련 테마 칩(THEME_MAP leaders/subThemes 역조회 → theme-detail 이동), ⑤ 팩터 프로파일 레이더+텍스트 행(SCREENER_DB `factorScores` 유니버스 상대 백분위 — "서술이며 수익률 예측 지표 아님(v52.51 백테스트)" 명시 캡션, Chart.js 미로드/3팩터 미만 시 텍스트만). `aio:liveQuotes` pageBus 재렌더(레이더는 시그니처 가드로 불필요 재생성 방지). 미반영 결정: 애널리스트 12개월 목표주가 팬차트(무료 컨센서스 원천 부재 — 합성 금지), 재무제표 점수 카드(미검증 합성 지표 신설 금지).
+- **P724 잠재 버그 발견·수정**: P723의 52주 범위 소스를 배선하기 전 쓰기 지점을 전수 추적한 결과, Yahoo v7 quote의 52주/거래량 확장 필드를 `_liveData`에 쓰는 코드가 저장소에 0곳이었음(v48.6부터 fundamental 가격 포지션 카드의 "1순위 _liveData" 읽기가 영구 미스 → 항상 Finnhub 폴백). `applyLiveQuotes()`에 기존 prevClose 보존 패턴과 동일하게 7개 필드 수신 시 복사 추가. 상세: BUG-POSTMORTEM P724.
+- 게이트: version/structural/runtime/control-char/static-data PASS + 헤드리스 1101/1101 + viewport 88/88(FULL_INIT=1) + a11y 22 routes + critical10 10 routes PASS. 로컬 실브라우저(Playwright) NVDA 실렌더 검증(수익률·테마 칩·팩터 레이더·TV iframe 로드 확인, 52주 범위는 라이브 quote 수신 환경에서만 표시).
+- R1 7곳 v53.6
+
 ## v53.5 (2026-07-17)
 - REMAINING-WORK "2026-07-16 배치 이후" 섹션 A1/A2/B3 실행 배치.
 - **B3 크론 산출물 검증 → P719 발견·수정**: v53.2 배포 후 라이브 아티팩트를 curl로 대사 — telegram-digest(topItems 45/broadItems 360 전부 summary-only ✅)·screener.json(845행 price 필드 0건 ✅)은 계약 준수였으나 **data.json은 quotes 77건이 그대로 재발행**되고 있었음. 원인: `fetch-data.mjs`가 P715 스트립을 적용한 첫 발행(1761행) 뒤 scrInfo meta 후기록 재기록(1809행)에서 스트립 안 된 원본 `data`를 그대로 써서 계약을 덮어씀. 발행 페이로드 생성을 `toPublicPayload()` 헬퍼로 일원화하고, 마지막 발행본을 디스크에서 다시 읽어 quotes=[]·quotesPublished:false를 단언하는 read-back 계약 검증 추가(위반 시 커밋 전 워크플로 fail).

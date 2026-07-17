@@ -1,3 +1,5 @@
+> **v53.7 (P725) 주의**: 한국장 5페이지(kr-home/kr-supply/kr-themes/kr-macro/kr-technical) DOM이 삭제·이관되어 index.html이 약 846줄 순감소했다. 아래 라인 범위는 v53.7 이전 기준 — KR 페이지 이후 구간은 어긋나 있으므로 실제 수정 전 grep으로 재확인할 것(±500줄 재스캔은 후속 세션 이관).
+
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` 전면 구조 재측정)
 last_verified: 2026-07-16

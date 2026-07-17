@@ -16,10 +16,11 @@ const SCREENSHOTS = process.env.AIO_VIEWPORT_SCREENSHOTS === '1';
 const FULL_INIT = process.env.AIO_VIEWPORT_FULL_INIT === '1';
 const OUT_DIR = resolve(root, '_artifacts', 'viewport-matrix');
 
+// v53.7 (P725): KR 전용 5라우트 퇴역 — 콘텐츠는 themes/macro/technical의 통합 섹션(라우트 방문으로 함께 검사됨)
 const ROUTES = [
   'home','signal','breadth','sentiment','briefing','market-news','technical','screener',
   'ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options',
-  'kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'
+  'guide'
 ];
 
 const VIEWPORTS = [

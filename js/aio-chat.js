@@ -333,9 +333,9 @@ function _getImportedResearchContext(ctxId) {
       technical:'technical', signal:'technical', screener:'screener',
       ticker:'ticker', fundamental:'fundamental', themes:'themes',
       'theme-detail':'theme-detail', portfolio:'portfolio',
-      'kr-market':'kr-home', 'kr-home':'kr-home', 'kr-supply':'kr-supply',
-      'kr-themes':'kr-themes', 'kr-macro':'macro', 'kr-tech':'kr-technical',
-      'kr-technical':'kr-technical'
+      'kr-market':'macro', 'kr-home':'macro', 'kr-supply':'macro',
+      'kr-themes':'themes', 'kr-macro':'macro', 'kr-tech':'technical',
+      'kr-technical':'technical'
     };
     var key = map[ctxId] || ctxId;
     var modules = window.AIO_USER_RESEARCH_PAGE_MODULES || {};
@@ -4086,7 +4086,7 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'options', label: '옵션 전략', emoji: '⚙️' };
   else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing', label: '데일리 브리핑', emoji: '📰' };
   else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news', label: '실시간 뉴스', emoji: '🗞️' };
-  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'kr-macro', label: '한국 거시', emoji: '🇰🇷' };
+  else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro', label: '한국 거시(거시경제 페이지 통합 섹션)', emoji: '🇰🇷' };
   // 현재 컨텍스트와 동일하면 이동 불필요
   if (intent && intent.page === currentCtxId) return null;
   return intent;

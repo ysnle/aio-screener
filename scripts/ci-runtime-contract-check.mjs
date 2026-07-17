@@ -77,7 +77,7 @@ check('tests cover runtime/share gate', /T844 v5079_runtime_contract_share_gate/
 check('Telegram digest applies latest items into SCREENER_DB memo', /function\s+_aioApplyTelegramDigestToScreenerDb/.test(data) && /_aioApplyTelegramDigestToScreenerDb\(raw,\s*merged\)/.test(data));
 check('Telegram memo overlay is exposed through audit', /_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(data));
 check('Telegram dynamic artifact replaces static narrative and exposes honest coverage', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /pipelineNote:\s*String\(raw\.pipelineNote/.test(data) && /coverage:\s*raw\.coverage/.test(data));
-check('Telegram page coverage audit spans all 22 routes', /getTelegramPageCoverageAudit/.test(data) && /requiredPageCount/.test(data) && /'portfolio':\s*\[/.test(data) && /'ticker':\s*\[/.test(data) && /'screener':\s*\[/.test(data) && /'kr-themes':\s*\[/.test(data) && /'guide':\s*\[\]/.test(data));
+check('Telegram page coverage audit spans all 17 routes (v53.7 P725)', /getTelegramPageCoverageAudit/.test(data) && /requiredPageCount/.test(data) && /'portfolio':\s*\[/.test(data) && /'ticker':\s*\[/.test(data) && /'screener':\s*\[/.test(data) && /'kr-macro':\s*\[/.test(data) && /'guide':\s*\[\]/.test(data));
 check('tests cover Telegram digest memo injection', /T831[\s\S]{0,2200}SCREENER_DB memo/.test(tests) && /_telegramMemoOverlay/.test(tests));
 check('Telegram page feeds cover fundamental/themes/KR technical pages', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && /id="tg-feed-theme-detail"/.test(html) && /id="tg-feed-kr-technical"/.test(html));
 check('Telegram page routing includes credit and AI infrastructure tags by page', /'fundamental':\s*\[[^\]]*'semi'[^\]]*'credit'/.test(data) && /'themes':\s*\[[^\]]*'power'[^\]]*'credit'/.test(data) && /'fxbond':\s*\[[^\]]*'credit'/.test(data) && /'kr-technical':\s*\[[^\]]*'semi'/.test(data) && /'credit':\s*\{\s*label:/.test(data));
@@ -98,7 +98,7 @@ if (exists('public-data/telegram-digest.json')) {
 }
 check('runtime promotes credit to a first-class news topic', /credit:\s*\[[^\]]*credit spread/.test(data) && /credit:\s*\{\s*cls:\s*'nit-warn'/.test(data) && /key:\s*'credit'[\s\S]{0,80}크레딧/.test(data));
 check('analysis news surfaces subscribe to credit/funding risk', /macro:\s*\{[\s\S]{0,360}topics:\s*\[[^\]]*'credit'/.test(data) && /fxbond:\s*\{[\s\S]{0,380}topics:\s*\[[^\]]*'credit'[^\]]*'fxbond'/.test(data) && /fundamental:\s*\{[\s\S]{0,420}topics:\s*\[[^\]]*'credit'/.test(data) && /themes:\s*\{[\s\S]{0,420}topics:\s*\[[^\]]*'credit'/.test(data) && /breadth:\s*\{[\s\S]{0,360}topics:\s*\[[^\]]*'credit'/.test(data));
-check('Telegram long-form reports survive on analysis pages', /allowLongReport/.test(data) && /'fundamental','themes','theme-detail','kr-macro'/.test(data));
+check('Telegram long-form reports survive on analysis pages', /allowLongReport/.test(data) && /'fundamental','themes','theme-detail'/.test(data));
 check('data pipeline contract gate exists', exists('scripts/ci-data-pipeline-contract-check.mjs'));
 check('data pipeline contract gate is wired into CI', /ci-data-pipeline-contract-check\.mjs/.test(read('.github/workflows/ci.yml')));
 check('semantic review gate script exists', exists('scripts/ci-semantic-review-check.mjs'));
@@ -224,7 +224,7 @@ for (const pageId of ['home','signal','market-news','technical','screener','tick
 }
 check('non-primary market-news/screener/signal controls are folded behind advanced details', /_aioFoldDensePageControls/.test(core) && /market-news/.test(core) && /screener-backtest-panel/.test(core) && /signal-lockout-control/.test(core));
 check('core news and screener filters remain active on the main screen', !/#news-country-chips|#news-topic-chips|#news-type-tabs|#scr-market/.test(core));
-check('unified AI panel covers home/screener/ticker/KR pages', /'home'\s*:\s*'home'/.test(html) && /'screener'\s*:\s*'screener'/.test(html) && /'ticker'\s*:\s*'ticker'/.test(html) && /'kr-home'\s*:\s*'kr-home'/.test(html) && /'kr-supply'\s*:\s*'kr-supply'/.test(html));
+check('unified AI panel covers home/screener/ticker/KR contexts (v53.7 P725)', /'home'\s*:\s*'home'/.test(html) && /'screener'\s*:\s*'screener'/.test(html) && /'ticker'\s*:\s*'ticker'/.test(html) && /'kr-themes'\s*:\s*'kr-themes'/.test(html) && /'kr-macro'\s*:\s*'kr-macro'/.test(html));
 check('CHAT_CONTEXTS includes kr-home for unified KR landing AI', /'kr-home'\s*:\s*_aioCreateEvidenceContext/.test(chat));
 check('safe numeric formatter is available for live/default-path renderers', /window\._aioSafeFixed\s*=\s*function/.test(core));
 check('ticker live price renderer does not call live.price.toFixed directly', !/live\.price\.toFixed\(/.test(core));
@@ -388,9 +388,9 @@ check('news and screener use 12-row progressive reveal instead of unbounded firs
 check('briefing news wall is capped and can be explicitly expanded', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && /_aioCapBriefingNews/.test(core) && /_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
 check('fundamental comp enters through the existing NVDA analysis pipeline', /function _initFundamentalPage\(\)[\s\S]{0,900}aioDefaultCompany[\s\S]{0,500}fundamentalSearch/.test(core));
-check('remaining seven user surfaces reuse the comp hierarchy without new parallel data paths', /function _aioPolishRemainingPages\(pageId\)/.test(core) && /aio-guide-chapter/.test(core) && /aio-theme-progressive/.test(core) && /aio-comp-secondary-feed/.test(core));
+check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', /function _aioPolishRemainingPages\(pageId\)/.test(core) && /aio-guide-chapter/.test(core) && /aio-theme-progressive/.test(core) && /aio-comp-secondary-feed/.test(html));
 check('route terminology separates 20 user surfaces from 22 internal QA routes', /NAV_ROUTE:\s*\[[^\]]+\]/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\['options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
-check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#page-kr-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
+check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#kr-integrated-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
 check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(html) && /class="aio-glossary-term"/.test(html) && /GLOSSARY\.length/.test(html));
 check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
 
@@ -541,7 +541,7 @@ check('H3-E: external source state normalizer covers success/partial/timeout/mal
 check('H3-E: Telegram feeds render an explicit external-feed state instead of silently leaving page slots blank', /tg-source-state/.test(data) && /setExternalSourceState/.test(core) && /statusMarkup/.test(data) && /_rssMarkFail/.test(data));
 check('headless tests cover H3-D/E deterministic state fixtures and scroll affordance', /_testV5256ExternalSourceState/.test(tests) && /T907/.test(tests) && /T908/.test(tests) && /T909/.test(tests) && /T910/.test(tests) && /T911/.test(tests));
 check('H3-F: third-party CDN libraries are async progressive enhancements, so an unavailable CDN cannot block the local app defer queue on reload', /chart\.umd\.min\.js"[^>]*async/.test(html) && /purify\.min\.js"[^>]*async/.test(html) && /lightweight-charts\.standalone\.production\.js"[^>]*async/.test(html) && !/chart\.umd\.min\.js"[^>]*defer/.test(html));
-check('H3-G: 22-route contracts and cell-level data-lineage audit stay executable with zero broken/orphan sink condition', /getPageContractAudit/.test(core) && /expectedRoutePageCount:\s*22/.test(core) && /getDataLineageAudit/.test(core) && /totalOrphans/.test(core));
+check('H3-G: 22-route contracts and cell-level data-lineage audit stay executable with zero broken/orphan sink condition', /getPageContractAudit/.test(core) && /expectedRoutePageCount:\s*17/.test(core) && /getDataLineageAudit/.test(core) && /totalOrphans/.test(core));
 check('headless tests cover H3-F/G boot-queue and route/lineage runtime contracts', /T912/.test(tests) && /T913/.test(tests));
 // v52.58 H3-G/H3-H/H3-I: close the handoff's element-level and human-surface gaps
 // with executable contracts. The handoff calls this a 12-field inventory but lists

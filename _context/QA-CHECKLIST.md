@@ -3153,3 +3153,17 @@ Derived from AI-X01~10 and WP-AI11~20 in `_context/AI-CHAT-INSTITUTIONAL-AUDIT-2
 - [x] **LIVE3-24 발행 write 전수**: 공개 아티팩트 발행 계약(quotes 스트립 등)을 바꿀 때 같은 출력 경로(OUT)에 쓰는 write 사이트를 전수 grep으로 확인한다 — P719는 meta 후기록 재기록이 스트립을 덮어쓴 사례.
 - [x] **LIVE3-25 read-back 단언**: fetch-data.mjs는 마지막 발행본을 디스크에서 다시 읽어 `quotes===[]`·`meta.quotesPublished===false`를 단언하며 위반 시 커밋 전에 fail한다.
 - [ ] **LIVE3-26 배포 후 라이브 재확인**: v53.5 배포 후 다음 refresh-data 크론 산출물에서 data.json 계약(quotes=[]/quotesPublished:false)을 curl로 재확인한다. (telegram summary-only·screener price-부재는 2026-07-17 라이브 확인 완료)
+
+### ticker 종목 개요 게이트 — v53.6 / P723·P724
+
+- [x] **TKOV-01 실데이터 렌더**: ticker 종목 개요(가격 정보·관련 테마·팩터 프로파일·TV 대형 차트)가 NVDA 기준 로컬 실브라우저에서 실데이터로 채워진다(수익률=SCREENER_DB 동일 값, 테마 칩=THEME_MAP 역조회, 레이더=factorScores). 결측 필드는 '—'+사유 title.
+- [x] **TKOV-02 KR 미지원 명시**: .KS/.KQ 심볼은 TV iframe을 로드하지 않고 P610 사유 안내를 표시한다.
+- [x] **TKOV-03 _liveData 확장 필드**: applyLiveQuotes가 52주/거래량 7필드를 수신 시 보존한다(P724). 새 UI가 _liveData 비표준 필드를 읽기 전 쓰기 지점을 grep으로 실증한다.
+- [ ] **TKOV-04 라이브 확인 잔여**: 배포 후 라이브에서 ① 52주 범위가 실제 quote 수신 시 채워지는지 ② TradingView iframe 실렌더(샌드박스에서는 iframe 생성만 확인됨) ③ fundamental 가격 포지션 카드가 _liveData 1순위로 채워지는지 재확인.
+
+### 한국장 통합 게이트 — v53.7 / P725
+
+- [x] **KRIN-01 라우트 퇴역**: kr-home/kr-supply/kr-themes/kr-macro/kr-technical 5라우트가 REMOVED로 분류되고 구 해시가 macro/themes/technical로 리다이렉트된다(실브라우저 확인).
+- [x] **KRIN-02 통합 섹션 렌더**: themes(테마 카드 28+progressive)·macro(핵심지수/전일종가/BOK/CPI/신선도 배지)·technical(캔들 캔버스/건강점수 슬롯)의 `kr-integrated-*` 섹션이 로컬 실브라우저에서 실데이터 렌더, pageerror 0.
+- [x] **KRIN-03 계약 sink 보존**: P636/P721 KR 전일종가·변화폭 sink(`data-live-prev-close`/`data-live-kr-change`)가 macro 통합 섹션에 보존되고 structural 게이트가 검증한다.
+- [ ] **KRIN-04 라이브 확인 잔여**: 배포 후 라이브에서 ① 구 해시 리다이렉트 ② KR 테마 카드 시세 커버리지(통합 후 themes 라우트 fetch로 변경) ③ Naver 캔들 차트 실로드 ④ tg-feed-kr-macro/technical 피드 주입 재확인.

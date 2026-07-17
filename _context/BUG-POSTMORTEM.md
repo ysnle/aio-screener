@@ -2,10 +2,21 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-17
 confidence: high
-latest_version: v53.5
-latest_P_number: P722
-total_entries: 499
-next_P_number: P723
+latest_version: v53.7
+latest_P_number: P724
+total_entries: 500
+next_P_number: P726
+# P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님)
+
+## P724 - v53.6 - Yahoo v7 quote의 52주/거래량 확장 필드를 _liveData에 쓰는 코드가 저장소에 0곳 — 이를 1순위 소스로 읽는 UI가 영구 결측이었다
+
+- **motivation**: P723(ticker 종목 개요 신설) 구현 중 52주 범위 행의 데이터 소스를 `_liveData[sym].fiftyTwoWeekHigh`로 배선하기 전, 이 필드가 실제로 채워지는지 전수 추적(EF-10 "fetch 없는 정적 슬롯" 재발 방지 절차).
+- **symptom/reproduction**: `grep fiftyTwoWeek` 전수 — 쓰기는 `_yfBatch` 생성부(aio-data.js)의 로컬 객체뿐, `window._liveData`에 도달하는 경로 없음. fundamental 가격 포지션 카드(aio-ui.js:3021)의 "1순위: _liveData(Yahoo v7/quote)" 읽기는 항상 미스 → 항상 2순위 finnhubMetrics로 폴백(Finnhub 실패 시 카드 공백). 실브라우저 검증에서도 NVDA `_liveData`에 52주 필드 부재 확인.
+- **root_cause**: `applyLiveQuotes()`가 시세를 `PriceStore.set()`(price/pct/메타만 저장)으로 넘기고, 확장 필드는 prevClose 2종만 명시 보존(v36.7)했음 — v48.6에서 52주/거래량 필드를 quote에 추가하고 소비자(fundamental 카드)까지 만들었지만 보존 단계를 빠뜨려 "생산-소비 사이 파이프 단절"이 2개월 이상 잠복.
+- **fix**: `applyLiveQuotes()`의 기존 prevClose 보존 블록과 동일 패턴으로 7개 확장 필드(52주 고저·당일 고저·거래량·평균거래량 2종)를 수신 시에만 `_liveData`에 복사(합성/폴백 없음). ticker 종목 개요(P723)와 fundamental 카드가 동일 경로를 공유.
+- **violated_rule**: R25 계열(인프라 추가 시 소비자까지 경로 연결) — P721(RRG)과 같은 "생산자-소비자 파이프 단절" 클래스.
+- **prevention**: 새 UI가 `_liveData`의 비표준 필드를 읽을 때는 그 필드의 쓰기 지점을 grep으로 먼저 실증한다(읽기 코드의 존재는 필드 존재의 증거가 아님 — 본 건이 반례).
+- **verification**: 로컬 실브라우저(Playwright)에서 ticker 종목 개요 렌더 + 헤드리스 1101/1101 PASS.
 
 ## P722 - v53.5 - v53.3/53.4 신규 테스트 3건이 "데이터 없음"을 영구 불변식으로 단언해 push 시 CI RED를 예약해 두고 있었다
 

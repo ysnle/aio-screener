@@ -4529,7 +4529,7 @@ var AIO_PAGE_BRIEFS = {
     use: '주식 밸류에이션과 글로벌 자금 흐름의 입력값입니다.',
     steps: ['DXY와 USD/KRW로 달러 스트레스 확인', '2Y·10Y·커브로 금리 압박 확인', 'HY/OAS가 벌어지면 리스크 축소'],
     focus: '주식 차트가 좋아도 달러와 금리가 동시에 올라가면 추격매수 품질이 떨어집니다.',
-    links: [['macro','매크로'], ['signal','시그널'], ['kr-home','한국장']]
+    links: [['macro','매크로'], ['signal','시그널'], ['themes','테마']]
   },
   fundamental: {
     title: '좋은 회사인지보다 지금 가격에 살 이유가 있는지 확인',
@@ -4580,41 +4580,7 @@ var AIO_PAGE_BRIEFS = {
     focus: '강한 테마일수록 “좋은 이야기”보다 대장주의 상대강도와 후발 확산 여부가 더 중요합니다.',
     links: [['themes','테마'], ['technical','기술 분석'], ['market-news','뉴스']]
   },
-  'kr-home': {
-    title: '한국장은 외국인 수급, 환율, 반도체를 먼저 확인',
-    use: 'KOSPI/KOSDAQ의 당일 방향성을 빠르게 봅니다.',
-    steps: ['KOSPI·KOSDAQ과 외국인 수급 확인', 'USD/KRW와 미국 반도체 영향 확인', '국내 테마/수급 페이지로 세부 확인'],
-    focus: '한국장은 환율과 외국인 수급이 지수 방향을 크게 좌우합니다.',
-    links: [['kr-supply','수급'], ['kr-themes','국내 테마'], ['kr-macro','한국 매크로']]
-  },
-  'kr-supply': {
-    title: '외국인·기관·개인의 실제 매수 주체 확인',
-    use: '가격보다 누가 사고 파는지 보는 페이지입니다.',
-    steps: ['시장별 순매수 주체 확인', '업종·종목 수급 집중 확인', '가격 추세와 함께 진입 가능성 판단'],
-    focus: '수급이 좋지만 가격이 약하면 아직 확인이 부족한 상태입니다.',
-    links: [['kr-home','한국장'], ['kr-themes','국내 테마'], ['kr-technical','KR 기술']]
-  },
-  'kr-themes': {
-    title: '국내 테마 중 실제 주도 테마만 선별',
-    use: '단기 테마 순환을 정리하는 페이지입니다.',
-    steps: ['상승 테마와 대장주 확인', '뉴스/수급이 붙었는지 확인', '차트 위치로 추격 여부 판단'],
-    focus: '테마주는 대장주와 2등주의 차이가 크므로 상대강도를 꼭 보세요.',
-    links: [['kr-supply','수급'], ['kr-technical','KR 기술'], ['market-news','뉴스']]
-  },
-  'kr-macro': {
-    title: '한국 금리, 환율, 수출 사이클을 확인',
-    use: '국내 증시의 배경 체력을 보는 페이지입니다.',
-    steps: ['BOK·국채금리·환율 확인', '수출/반도체 사이클 확인', '외국인 수급과 함께 결론 내리기'],
-    focus: '한국 매크로는 원화와 반도체 수출이 동시에 중요합니다.',
-    links: [['kr-home','한국장'], ['fxbond','환율·채권'], ['kr-supply','수급']]
-  },
-  'kr-technical': {
-    title: '국내 종목도 같은 exit/trim 기준으로 판단',
-    use: '한국 종목의 추세와 과열을 점검합니다.',
-    steps: ['티커/지수 차트 위치 확인', '이평선·RSI·거래량 확인', '추격/보유/축소 결론으로 연결'],
-    focus: '급등주는 거래량이 꺼지는 순간부터 리스크 관리가 먼저입니다.',
-    links: [['kr-home','한국장'], ['kr-supply','수급'], ['technical','미국 기술']]
-  },
+  // v53.7 (P725): KR 전용 5페이지 안내 항목 제거 — 콘텐츠는 themes/macro/technical 통합 섹션으로 이관
   guide: {
     title: '처음 쓰는 순서만 익히면 됩니다',
     use: '모든 설명을 읽기보다 루틴을 먼저 잡으세요.',
@@ -4807,11 +4773,8 @@ window.AIO_PAGE_EVIDENCE_CONTRACT = {
   fundamental: { maxSourceKind: 'DELAYED', requireLiveDom: true, emptyKind: 'UNAVAILABLE', caveat: '티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다.' },
   options: { maxSourceKind: 'REFERENCE', caveat: '실시간 옵션 체인 자동 수집은 제한되어 sentiment/volatility 확인용으로만 둡니다.' },
   guide: { maxSourceKind: 'REFERENCE', caveat: '가이드 페이지는 방법론 문서이며 현재 시장 데이터 판단 페이지가 아닙니다.' },
-  'kr-home': { maxSourceKind: 'SNAPSHOT', caveat: '한국장은 환율/수급/지수 일부가 스냅샷 또는 fallback일 수 있어 강한 결론을 보류합니다.' },
-  'kr-supply': { maxSourceKind: 'SNAPSHOT', caveat: '국내 수급 API 실패 시 정적 스냅샷은 참고용이며 현재 매매 판단에서 제외합니다.' },
-  'kr-themes': { maxSourceKind: 'SNAPSHOT', caveat: '국내 테마 live 커버리지 부족 시 평균 0%/중립 결론을 숨기고 후보 탐색용으로만 사용합니다.' },
-  'kr-macro': { maxSourceKind: 'SNAPSHOT', caveat: '한국 매크로는 발표 주기와 스냅샷 기준일을 확인한 뒤 해석합니다.' },
-  'kr-technical': { maxSourceKind: 'SNAPSHOT', caveat: '한국 기술 분석은 종목별 live 수신 전 거래 계획 생성을 보류합니다.' }
+  // v53.7 (P725): KR 라우트 퇴역 — 통합 섹션의 caveat은 각 대상 페이지 규칙을 따름
+  'kr-legacy-note': { maxSourceKind: 'SNAPSHOT', caveat: '한국 시장 통합 섹션은 환율/수급/지수 일부가 스냅샷 또는 fallback일 수 있어 강한 결론을 보류합니다.' }
 };
 
 function _aioSourceRank(kind) {
@@ -5059,42 +5022,8 @@ function _aioDefaultDecision(pageId) {
       reasons: ['옵션 데이터 커버리지가 제한적', '기본 화면에서 강한 방향 판단을 만들지 않음', '변동성·심리는 sentiment와 signal에서 더 안정적으로 해석'],
       action: '옵션은 참고로만 보고, VIX/심리/시그널 페이지에서 현재 판단을 확인한다.',
       sourceKind: 'REFERENCE'
-    },
-    'kr-home': {
-      title: '한국장 결론',
-      decision: '지수·수급·테마·환율을 1문장씩 확인',
-      reasons: ['KOSPI/KOSDAQ보다 USD/KRW와 외국인 수급을 같이 봄', '국내 테마는 live coverage 부족 시 중립 판정 숨김', '기술 신호는 거래 계획과 함께 사용'],
-      action: '데이터 부족 배지가 있으면 강한 결론을 보류하고, 확인된 수급/환율/테마만 반영한다.',
-      sourceKind: 'SNAPSHOT'
-    },
-    'kr-supply': {
-      title: '수급 판단',
-      decision: '외국인/기관/개인만으로 결론 내리지 않음',
-      reasons: ['환율, 프로그램, breadth 확인이 함께 필요', '단일 주체 순매수는 신호가 아니라 조건', '데이터 부족이면 중립/확인 필요로 표시'],
-      action: '외국인 매수 + 환율 안정 + breadth 개선이 같이 나올 때만 강도를 높인다.',
-      sourceKind: 'SNAPSHOT'
-    },
-    'kr-themes': {
-      title: '국내 테마 판단',
-      decision: '커버리지 부족 시 평균 0%/중립을 숨김',
-      reasons: ['실시간 커버리지가 부족하면 데이터 부족 표시', '리더와 후발주를 분리', '급등 테마는 거래량 감소 여부를 확인'],
-      action: '데이터 부족 테마는 후보군 탐색만 하고 매매 결론은 보류한다.',
-      sourceKind: 'SNAPSHOT'
-    },
-    'kr-macro': {
-      title: '한국 매크로 판단',
-      decision: '금리·환율·유가·수출입만 상단 판단에 사용',
-      reasons: [_fomcReason + ' (원화/수급 경로 반영)', '아카이브와 현재 판단을 분리', '7/16 금통위 전까지 환율·물가·수출 모멘텀 확인'],
-      action: 'USD/KRW 상승과 외국인 매도가 겹치면 방어, 환율 안정과 반도체 수급 개선이면 선별 확대.',
-      sourceKind: 'SNAPSHOT'
-    },
-    'kr-technical': {
-      title: '한국장 기술 계획',
-      decision: '차트 설명보다 거래 계획 먼저',
-      reasons: ['진입 구간, 무효화 가격, 손절, 기간, 신뢰도를 한 블록으로 표시', '급등주는 거래량과 이평선 이탈을 먼저 확인', '데이터 부족이면 계획 생성 보류'],
-      action: '티커 입력 후 진입/손절/기간을 확인하고, 미수신이면 강한 결론을 내지 않는다.',
-      sourceKind: 'SNAPSHOT'
     }
+    // v53.7 (P725): KR 전용 5페이지 결론 항목 제거 — 통합 섹션은 대상 페이지(themes/macro/technical) 결론을 따름
   };
   // H3-C: quorum 미달이면 수치 밴드가 있어도 현재 행동 결론을 생성하지 않는다.
   if (_scoreBlocked && map[pageId]) {
@@ -5191,8 +5120,7 @@ window._aioAskAiFromPageDecision = function(pageId) {
     home:'home', signal:'signal', breadth:'breadth', sentiment:'sentiment', briefing:'briefing',
     technical:'technical', screener:'screener', ticker:'ticker', portfolio:'portfolio',
     themes:'themes', 'theme-detail':'theme-detail', macro:'macro', fxbond:'fxbond', fundamental:'fundamental',
-    'market-news':'market-news', 'kr-home':'kr-home', 'kr-supply':'kr-supply',
-    'kr-themes':'kr-themes', 'kr-macro':'kr-macro', 'kr-technical':'kr-technical'
+    'market-news':'market-news'
   };
   var ctx = ctxMap[pageId] || pageId || 'home';
   var inp = document.getElementById('ai-panel-inp') || document.getElementById('chat-' + ctx + '-inp');
@@ -5308,36 +5236,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     cards:[['핵심 지표','VIX/VVIX와 심리 페이지 사용'],['운용 포인트','실시간 옵션체인 없는 결론은 사용하지 않음'],['이동','투자 심리에서 변동성 확인']],
     links:[['투자 심리','sentiment'],['시그널','signal']]
   },
-  'kr-home': {
-    title:'한국장 요약',
-    subtitle:'지수, 수급, 테마, 매크로, 기술을 각각 1문장 결론으로 봅니다.',
-    cards:[['핵심 지표','KOSPI/KOSDAQ · 외국인/기관 · 환율 · 주도 테마'],['운용 포인트','데이터 부족과 중립 신호를 구분'],['AI 분석','한국장 핵심 변수 요약']],
-    links:[['수급','kr-supply'],['국내 테마','kr-themes'],['AI 분석','ai']]
-  },
-  'kr-supply': {
-    title:'한국 수급',
-    subtitle:'외국인/기관/개인만으로 강한 결론을 내지 않고 환율·프로그램·breadth를 함께 봅니다.',
-    cards:[['핵심 지표','외국인 · 기관 · 개인 · 환율 · 프로그램'],['운용 포인트','수급 방향과 가격 확인 일치 여부 점검'],['AI 분석','수급의 시장 영향 분석']],
-    links:[['한국 홈','kr-home'],['한국 기술','kr-technical'],['AI 분석','ai']]
-  },
-  'kr-themes': {
-    title:'국내 테마',
-    subtitle:'live coverage가 부족하면 평균 0%/중립 대신 데이터 부족으로 표시합니다.',
-    cards:[['핵심 지표','테마별 수익률 · 리더 종목 · 거래대금'],['운용 포인트','데이터 부족 테마와 실제 강세 테마 분리'],['AI 분석','국내 테마 리더/후발주 비교']],
-    links:[['한국 홈','kr-home'],['스크리너','screener'],['AI 분석','ai']]
-  },
-  'kr-macro': {
-    title:'한국 매크로',
-    subtitle:'현재 판단과 아카이브를 분리하고 금리·환율·유가·수출입만 상단에 둡니다.',
-    cards:[['핵심 지표','금리 · 환율 · 유가 · 수출입 · BOK 일정'],['운용 포인트','원화 약세와 외국인 수급 동시 악화 여부 확인'],['AI 분석','한국장 매크로 리스크 정리']],
-    links:[['한국 홈','kr-home'],['수급','kr-supply'],['AI 분석','ai']]
-  },
-  'kr-technical': {
-    title:'한국장 기술 계획',
-    subtitle:'진입 구간, 무효화 가격, 손절, 기간, 신뢰도를 한 블록으로 봅니다.',
-    cards:[['핵심 지표','KOSPI/KOSDAQ · 종목 차트 · 거래량 · 이평선'],['운용 포인트','티커 입력 후 계획과 무효화 조건 확인'],['AI 분석','한국 종목 차트 계획']],
-    links:[['한국 홈','kr-home'],['수급','kr-supply'],['AI 분석','ai']]
-  },
+  // v53.7 (P725): KR 전용 5페이지 액션 허브 제거 — 통합 섹션은 themes/macro/technical 허브를 따름
   guide: {
     title:'설정/레퍼런스',
     subtitle:'기본 화면이 아니라 필요할 때 찾아보는 참고/아카이브입니다.',
@@ -5410,7 +5309,7 @@ window._aioApplyPageBodyRedesign = function(pageId) {
 window.AIO.getPageRedesignAudit = function() {
   var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
     ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','guide'];
   var hubs = window.AIO_PAGE_ACTION_HUBS || {};
   var details = ids.map(function(id) {
     var page = document.getElementById('page-' + id);
@@ -5556,9 +5455,9 @@ var _AIO_AI_RESEARCH_PAGE_ALIASES = {
   technical: 'technical', signal: 'technical', screener: 'screener',
   ticker: 'ticker', fundamental: 'fundamental', themes: 'themes',
   'theme-detail': 'theme-detail', portfolio: 'portfolio',
-  'kr-market': 'kr-home', 'kr-home': 'kr-home', 'kr-supply': 'kr-supply',
-  'kr-themes': 'kr-themes', 'kr-macro': 'macro', 'kr-tech': 'kr-technical',
-  'kr-technical': 'kr-technical'
+  'kr-market': 'macro', 'kr-home': 'macro', 'kr-supply': 'macro',
+  'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-tech': 'technical',
+  'kr-technical': 'technical'
 };
 
 function _aioAIClampBudget(value) {
@@ -6312,7 +6211,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   if (old) old.remove();
   var cls = 'aio-source-' + String(d.sourceKind || 'SNAPSHOT').toLowerCase();
   // FOMC 안내는 관련 페이지에만 표시, 텍스트는 레지스트리에서 읽음
-  var _fomcFooterPages = { home:1, macro:1, fxbond:1, signal:1, briefing:1, 'kr-macro':1 };
+  var _fomcFooterPages = { home:1, macro:1, fxbond:1, signal:1, briefing:1 };
   var _fomcFoot = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
   // v52.40 (P655/EF-13): 이 서브텍스트는 홈/시그널/브리핑 등 6개 페이지에서 asOf 없이 노출돼
   // "데이터: 실시간" 칩 옆에서 오늘 판단처럼 읽혔다 — macro 페이지의 캘린더 표만 날짜를 달고 있었음.
@@ -6361,7 +6260,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
 window.AIO.getPageEvidenceCurrentnessAudit = function() {
   var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
     ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','guide'];
   var sourceLabelMap = {
     LIVE: 'LIVE',
     DELAYED: 'DELAYED',
@@ -6552,7 +6451,7 @@ window._aioRenderAllPageDecisionHeaders = function() {
   // AIO_ALL_ROUTE_PAGE_IDS 우선 사용 — ROUTE_PAGE_IDS 단일 출처와 동기화
   var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
     ? window.AIO_ALL_ROUTE_PAGE_IDS
-    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','guide'];
   ids.forEach(function(id) {
     try { window._aioRenderPageDecisionHeader(id); } catch(_) {}
   });
@@ -8494,7 +8393,7 @@ window.AIO.getThemeTrendDeepAudit = function() {
   try {
     (window.AIO.collectPageDataSymbols('themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
     (window.AIO.collectPageDataSymbols('theme-detail', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
-    (window.AIO.collectPageDataSymbols('kr-themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
+    (window.AIO.collectPageDataSymbols('themes', { symbolLimit: 999 }) || []).forEach(function(s) { profileSet[String(s).toUpperCase()] = true; });
   } catch(_) {}
   var missingProfileSymbols = uniqueSymbols.filter(function(s) { return !profileSet[s]; });
   var quoteReadySymbols = uniqueSymbols.filter(function(s) { return profileSet[s]; });
@@ -14704,21 +14603,17 @@ window.AIO.DATA_REQUIREMENT_PROFILES = {
   breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
   sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
   briefing:    { tasks: ['quotes','news','sentiment','breadth','fred','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11'] },
-  technical:   { tasks: ['quotes','technicals','breadth','sentiment','vixHistory'], symbols: ['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX'] },
-  macro:       { tasks: ['quotes','fred','news','sentiment'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X'] },
+  technical:   { tasks: ['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'], symbols: ['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X'] },
+  macro:       { tasks: ['quotes','fred','news','sentiment','krDynamic','krSupply'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11'] },
   fxbond:      { tasks: ['quotes','fred','hySpread','news'], symbols: ['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD'] },
   fundamental: { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC'] },
-  themes:      { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD'] },
+  // v53.7 (P725): themes/macro/technical에 KR 통합 섹션 이관 — KR 태스크/심볼을 대상 페이지 프로파일에 병합
+  themes:      { tasks: ['quotes','news','technicals','krDynamic'], symbols: ['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD','^KS11','^KQ11','KRW=X'] },
   'theme-detail': { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY'] },
   portfolio:   { tasks: ['quotes','technicals'], symbols: ['SPY','QQQ','IWM','^VIX'] },
   ticker:      { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','^VIX'] },
   options:     { tasks: ['quotes','sentiment','vixHistory'], symbols: ['SPY','QQQ','^VIX'] },
-  korea:       { tasks: ['quotes','krSupply','krDynamic','news'], symbols: ['^KS11','^KQ11','KRW=X'] },
-  'kr-home':   { tasks: ['quotes','krSupply','krDynamic','news'], symbols: ['^KS11','^KQ11','KRW=X'] },
-  'kr-supply': { tasks: ['quotes','krSupply','krDynamic'], symbols: ['^KS11','^KQ11','KRW=X'] },
-  'kr-themes': { tasks: ['quotes','krDynamic','news'], symbols: ['^KS11','^KQ11','KRW=X'] },
-  'kr-macro':  { tasks: ['quotes','fred','krDynamic'], symbols: ['KRW=X','^KS11','^KQ11'] },
-  'kr-tech':   { tasks: ['quotes','technicals','krDynamic'], symbols: ['^KS11','^KQ11','KRW=X'] },
+  korea:       { alias: 'macro' },
   glossary:    { tasks: [], symbols: [] },
   guide:       { tasks: [], symbols: [] }
 };
@@ -14799,8 +14694,9 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
   var id = String(pageId || '').replace(/^page-/, '') || 'home';
   var out = [];
   var isThemePage = id === 'themes' || id === 'theme-detail';
-  var isKrThemePage = id === 'korea' || id === 'kr-home' || id === 'kr-themes' || id === 'kr-tech' || id === 'kr-technical';
-  var limit = (scope && scope.symbolLimit) || (isThemePage ? 650 : (isKrThemePage ? 360 : 260));
+  // v53.7 (P725): KR 테마 심볼은 이제 themes 페이지(통합 섹션)에서 수집 — KR 전용 라우트 퇴역
+  var isKrThemePage = id === 'themes';
+  var limit = (scope && scope.symbolLimit) || (isThemePage ? (isKrThemePage ? 900 : 650) : 260);
   if (id === 'signal') {
     _aioPushInputSymbol(out, 'signal-lockout-symbol');
   }
@@ -14856,7 +14752,8 @@ window.AIO.collectPageDataSymbols = function(pageId, scope) {
 window.AIO.CRITICAL_PAGE_GROUPS = {
   comprehensive: ['home','signal','breadth','sentiment','briefing'],
   marketAnalysis: ['technical','macro','fxbond','fundamental','themes'],
-  krMarket: ['kr-home','kr-supply','kr-themes','kr-macro','kr-technical']
+  // v53.7 (P725): KR 전용 페이지 퇴역 — 통합 섹션 요소 id로 감사 대상 전환
+  krMarket: ['kr-integrated-themes','kr-integrated-macro','kr-integrated-technical']
 };
 
 window.AIO.getCritical10PageFreshnessAudit = function(opts) {
@@ -15014,11 +14911,12 @@ window.AIO.getComprehensiveSurfaceIntegrityAudit = function(opts) {
 window.AIO.getCriticalKrPageFreshnessAudit = function(opts) {
   opts = opts || {};
   var krIds = (window.AIO.CRITICAL_PAGE_GROUPS && window.AIO.CRITICAL_PAGE_GROUPS.krMarket) ||
-    ['kr-home','kr-supply','kr-themes','kr-macro','kr-technical'];
+    ['kr-integrated-themes','kr-integrated-macro','kr-integrated-technical'];
   var krStaleRe = /외국인 7거래일|3-4월 누적|3\/5 장중|4\/8 추정|이란 재협상 재개 전망|개인 매수세 유입 · 바이오/;
   var pages = krIds.map(function(id) {
     var el = null;
-    try { el = document.getElementById('page-' + id); } catch(_) {}
+    // v53.7 (P725): kr-integrated-* 는 페이지가 아닌 통합 섹션 id — 직접 조회
+    try { el = document.getElementById(id.indexOf('kr-integrated-') === 0 ? id : 'page-' + id); } catch(_) {}
     var text = '';
     if (el) {
       try {
@@ -15121,22 +15019,16 @@ window.AIO.PAGE_DEEP_AUDIT_SYSTEMS = {
   breadth: ['getFullSurfaceAudit', 'getCrossPageIndicatorConsistencyAudit', 'getLiveSymbolsCoverageAudit'],
   sentiment: ['getFullSurfaceAudit', 'getMarketCurrentnessAudit', 'getDataFreshnessAudit'],
   briefing: ['getFullSurfaceAudit', 'getChatContextFreshnessAudit', 'getStaticContentLifecycleAudit'],
-  technical: ['getFullSurfaceAudit', 'getCellLevelDataAudit', 'getThresholdLabelAudit'],
-  macro: ['getMacroReleaseStaleAudit', 'getSnapshotDateSourceAudit', 'getDataFreshnessAudit'],
+  technical: ['getFullSurfaceAudit', 'getCellLevelDataAudit', 'getThresholdLabelAudit', 'getCriticalKrPageFreshnessAudit'],
+  macro: ['getMacroReleaseStaleAudit', 'getSnapshotDateSourceAudit', 'getDataFreshnessAudit', 'getKrMacroReleaseAudit'],
   fxbond: ['getMacroReleaseStaleAudit', 'getSnapshotConsistencyAudit', 'getDataFreshnessAudit'],
   fundamental: ['getFundamentalPageCriteriaAudit', 'assertFinancialChartsAudit', 'getAnalysisFrameworkCoverageAudit'],
-  themes: ['getThemeTrendDeepAudit', 'getThemeFetchCoverageAudit', 'getLiveSymbolsCoverageAudit'],
+  themes: ['getThemeTrendDeepAudit', 'getThemeFetchCoverageAudit', 'getLiveSymbolsCoverageAudit', 'getCriticalKrPageFreshnessAudit'],
   'theme-detail': ['getThemeTrendDeepAudit', 'getThemeFetchCoverageAudit', 'getLiveSymbolsCoverageAudit'],
   portfolio: ['getFullSurfaceAudit', 'getCellLevelDataAudit', 'getDataQualityIssueAudit'],
   ticker: ['getFullSurfaceAudit', 'getTickerMappingAudit', 'getNamedEntityAudit'],
   options: ['getFullSurfaceAudit', 'getCellLevelDataAudit', 'getDataFreshnessAudit'],
-  korea: ['getCriticalKrPageFreshnessAudit', 'getSnapshotDateSourceAudit', 'getDataFreshnessAudit'],
-  'kr-home': ['getCriticalKrPageFreshnessAudit', 'getSnapshotDateSourceAudit', 'getDataFreshnessAudit'],
-  'kr-supply': ['getCriticalKrPageFreshnessAudit', 'getSnapshotDateSourceAudit', 'getDataFreshnessAudit'],
-  'kr-themes': ['getThemeTrendDeepAudit', 'getThemeFetchCoverageAudit', 'getCriticalKrPageFreshnessAudit'],
-  'kr-macro': ['getKrMacroReleaseAudit', 'getSnapshotDateSourceAudit', 'getDataFreshnessAudit'],
-  'kr-tech': ['getCriticalKrPageFreshnessAudit', 'getCellLevelDataAudit', 'getThresholdLabelAudit'],
-  'kr-technical': ['getCriticalKrPageFreshnessAudit', 'getCellLevelDataAudit', 'getThresholdLabelAudit'],
+  // v53.7 (P725): KR 전용 라우트 퇴역 — KR 감사는 통합 대상 페이지(themes/macro/technical)에 병합
   glossary: ['getTableAccessibilityAudit'],
   guide: ['getPageUXAudit']
 };
@@ -15164,7 +15056,7 @@ function _aioRunNamedAuditForPage(name, pageId) {
 window.AIO.runPageDeepAudit = function(pageId, opts) {
   opts = opts || {};
   var id = String(pageId || 'home').replace(/^page-/, '');
-  var aliases = { signals: 'signal', 'kr-tech': 'kr-technical', 'kr-technical': 'kr-technical' };
+  var aliases = { signals: 'signal', 'kr-tech': 'technical', 'kr-technical': 'technical', korea: 'macro', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro' };
   id = aliases[id] || id;
   var profile = window.AIO.getDataRequirementProfile({ pageId: id, reason: 'page-deep-audit', symbolLimit: opts.symbolLimit || 999 });
   var symbols = profile.symbols || [];
@@ -15727,9 +15619,9 @@ window._apiHealth = {
 // user scenario.  The audit reports observed section density for later visual
 // review; it does not pretend a section count alone proves usability.
 window.AIO_PAGE_DECLUTTER_POLICY = {
-  priorityRoutes: ['signal','macro','technical','fxbond','guide','kr-macro','themes','portfolio','screener','kr-home'],
+  priorityRoutes: ['signal','macro','technical','fxbond','guide','themes','portfolio','screener'],
   intents: {
-    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', options:'변동성·헤지 비용 참고', 'kr-home':'한국장 방향과 수급 확인', 'kr-supply':'실제 매수 주체 확인', 'kr-themes':'국내 주도 테마 선별', 'kr-macro':'한국 금리·환율·수출 배경 확인', 'kr-technical':'한국 종목 추세와 무효화 확인', guide:'사용 루틴과 정책 참고'
+    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', options:'변동성·헤지 비용 참고', guide:'사용 루틴과 정책 참고'
   },
   scenarios: {
     home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동'
@@ -19930,7 +19822,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.5';
+const APP_VERSION = 'v53.7';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -22832,7 +22724,6 @@ var AIO_CURRENTNESS_LIVE_SELECTOR = '[data-live-price], [data-live-kr], [data-li
 var AIO_CURRENTNESS_NARRATIVE_IDS = [
   'snapshot-stale-warning',
   'opt-pcr-text',
-  'kr-supply-analysis-text',
   'mkt-regime-sub',
   'vol-regime-sub',
   'cam-verdict-text',
@@ -23481,17 +23372,17 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
 (function() {
   window.AIO = window.AIO || {};
 
+  // v53.7 (P725): KR 전용 5라우트 퇴역 — KR 콘텐츠는 themes/macro/technical 통합 섹션
   var ROUTE_PAGE_IDS = [
     'home','signal','breadth','sentiment','briefing',
     'technical','macro','fxbond','fundamental','themes',
     'theme-detail','portfolio','ticker','market-news','options',
-    'kr-home','kr-supply','kr-themes','kr-macro','kr-technical',
     'guide','screener'
   ];
   var CRITICAL_5 = ['home','signal','breadth','sentiment','briefing'];
   var ANALYSIS_5 = ['technical','macro','fxbond','fundamental','themes'];
   var WORKFLOW_5 = ['theme-detail','portfolio','ticker','market-news','options'];
-  var KR_5 = ['kr-home','kr-supply','kr-themes','kr-macro','kr-technical'];
+  var KR_5 = [];
   var EDUCATION = ['guide','glossary'];
 
   var BASELINE_SURFACE = {};
@@ -23503,21 +23394,16 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       breadth:{tasks:['quotes','breadth','technicals'],symbols:['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC']},
       sentiment:{tasks:['quotes','sentiment','vixHistory','hySpread'],symbols:['^VIX','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT']},
       briefing:{tasks:['quotes','news','sentiment','breadth','fred','technicals'],symbols:['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11']},
-      technical:{tasks:['quotes','technicals','breadth','sentiment','vixHistory'],symbols:['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX']},
-      macro:{tasks:['quotes','fred','news','sentiment'],symbols:['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X']},
+      technical:{tasks:['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'],symbols:['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X']},
+      macro:{tasks:['quotes','fred','news','sentiment','krDynamic','krMacro'],symbols:['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11']},
       fxbond:{tasks:['quotes','fred','hySpread','news'],symbols:['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD']},
       fundamental:{tasks:['quotes','news','technicals','companyFundamentals'],symbols:['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC']},
-      themes:{tasks:['quotes','news','technicals','themeRanking'],symbols:['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD']},
+      themes:{tasks:['quotes','news','technicals','themeRanking','krDynamic'],symbols:['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD','^KS11','^KQ11','KRW=X']},
       'theme-detail':{tasks:['quotes','news','technicals','themeRanking'],symbols:['SMH','SOXX','QQQ','SPY']},
       portfolio:{tasks:['quotes','technicals','portfolioRisk'],symbols:['SPY','QQQ','IWM','^VIX']},
       ticker:{tasks:['quotes','news','technicals','companyFundamentals','filings'],symbols:['SPY','QQQ','^VIX']},
       'market-news':{tasks:['news','quotes','sentiment'],symbols:['SPY','QQQ','^VIX','^TNX','DX-Y.NYB','CL=F','GC=F']},
       options:{tasks:['quotes','sentiment','vixHistory','optionsSnapshot'],symbols:['SPY','QQQ','^VIX','^VVIX','VXX','UVXY','ES=F','NQ=F','YM=F','RTY=F','PCR']},
-      'kr-home':{tasks:['quotes','krSupply','krDynamic','news'],symbols:['^KS11','^KQ11','KRW=X']},
-      'kr-supply':{tasks:['quotes','krSupply','krDynamic'],symbols:['^KS11','^KQ11','KRW=X']},
-      'kr-themes':{tasks:['quotes','krDynamic','news','themeRanking'],symbols:['^KS11','^KQ11','KRW=X']},
-      'kr-macro':{tasks:['quotes','fred','krDynamic','krMacro'],symbols:['KRW=X','^KS11','^KQ11']},
-      'kr-technical':{tasks:['quotes','technicals','krDynamic'],symbols:['^KS11','^KQ11','KRW=X']},
       guide:{tasks:[],symbols:[]},
       glossary:{tasks:[],symbols:[]},
       screener:{tasks:['quotes'],symbols:['SPY','QQQ','^VIX']}  // v50.53 2A: 퀀트 스크리너(전 유니버스는 screener.json 팩터로 랭킹)
@@ -23535,21 +23421,16 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       breadth: { requiredProducers:['breadth','quotes'], optionalProducers:['officialExchangeBreadth'], minCoverage:{ breadth:50, quotes:80 }, maxAge:{ breadth:345600000, quotes:1200000 }, failureState:'blocked', forbiddenClaims:['breadth-without-denominator'] },
       sentiment: { requiredProducers:['sentiment','vixHistory','hySpread'], optionalProducers:['delayedCboe','surveys'], minCoverage:{ sentiment:50, vixHistory:50, hySpread:50 }, maxAge:{ sentiment:14400000, vixHistory:86400000, hySpread:172800000 }, failureState:'partial', forbiddenClaims:['snapshot-survey-as-current-composite'] },
       briefing: { requiredProducers:['quotes','fred','news','sentiment','breadth'], optionalProducers:['aiNarrative'], minCoverage:{ quotes:80, fred:50, news:50, sentiment:50, breadth:50 }, maxAge:{ quotes:1200000, fred:172800000, news:10800000, sentiment:14400000, breadth:345600000 }, failureState:'partial', forbiddenClaims:['unverified-ai-narrative'] },
-      technical: { requiredProducers:['quotes','technicals'], optionalProducers:['breadth','sentiment'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, breadth:345600000, sentiment:14400000 }, failureState:'blocked', forbiddenClaims:['mixed-observation-quote-history'] },
-      macro: { requiredProducers:['fred','quotes'], optionalProducers:['bls','bea','treasury','news'], minCoverage:{ fred:50, quotes:80 }, maxAge:{ fred:172800000, quotes:1200000 }, failureState:'partial', forbiddenClaims:['release-date-from-fetch-time'] },
+      technical: { requiredProducers:['quotes','technicals'], optionalProducers:['breadth','sentiment','krDynamic'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, breadth:345600000, sentiment:14400000, krDynamic:86400000 }, failureState:'blocked', forbiddenClaims:['mixed-observation-quote-history'] },
+      macro: { requiredProducers:['fred','quotes'], optionalProducers:['bls','bea','treasury','news','krDynamic','krSupply','krMacro'], minCoverage:{ fred:50, quotes:80 }, maxAge:{ fred:172800000, quotes:1200000, krDynamic:86400000, krSupply:86400000 }, failureState:'partial', forbiddenClaims:['release-date-from-fetch-time','macro-claim-without-period-unit-release'] },
       fxbond: { requiredProducers:['quotes','fred','hySpread'], optionalProducers:['news'], minCoverage:{ quotes:80, fred:50, hySpread:50 }, maxAge:{ quotes:1200000, fred:172800000, hySpread:172800000 }, failureState:'partial', forbiddenClaims:['pair-inversion-or-percent-bp-mix'] },
       fundamental: { requiredProducers:['quotes','news'], optionalProducers:['companyFundamentals','technicals'], minCoverage:{ quotes:80, news:50 }, maxAge:{ quotes:1200000, news:10800000 }, failureState:'partial', forbiddenClaims:['valuation-without-filing-coverage'] },
-      themes: { requiredProducers:['quotes','technicals'], optionalProducers:['news','valuation'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000 }, failureState:'partial', forbiddenClaims:['stale-constituent-current-leader-claim'] },
+      themes: { requiredProducers:['quotes','technicals'], optionalProducers:['news','valuation','krDynamic'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['stale-constituent-current-leader-claim','historical-memo-as-current-catalyst'] },
       'theme-detail': { requiredProducers:['quotes','technicals'], optionalProducers:['news'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000 }, failureState:'partial', forbiddenClaims:['orphan-theme-entity'] },
       portfolio: { requiredProducers:['quotes'], optionalProducers:['fundamentals','news'], minCoverage:{ quotes:80 }, maxAge:{ quotes:1200000 }, failureState:'partial', forbiddenClaims:['empty-portfolio-calculation'] },
       ticker: { requiredProducers:['quotes','technicals','news'], optionalProducers:['fundamentals','filings'], minCoverage:{ quotes:80, technicals:50, news:50 }, maxAge:{ quotes:1200000, technicals:3600000, news:10800000 }, failureState:'partial', forbiddenClaims:['late-response-for-previous-symbol'] },
       'market-news': { requiredProducers:['news'], optionalProducers:['quotes','sentiment'], minCoverage:{ news:50 }, maxAge:{ news:10800000 }, failureState:'partial', forbiddenClaims:['translation-failure-as-success'] },
       options: { requiredProducers:['quotes','sentiment','vixHistory'], optionalProducers:['delayedPcr','chain','greeks'], minCoverage:{ quotes:80, sentiment:50, vixHistory:50 }, maxAge:{ quotes:1200000, sentiment:14400000, vixHistory:86400000 }, failureState:'blocked', forbiddenClaims:['live-chain-or-greeks-without-evidence'] },
-      'kr-home': { requiredProducers:['quotes','krDynamic','krSupply'], optionalProducers:['news'], minCoverage:{ quotes:80, krDynamic:50, krSupply:50 }, maxAge:{ quotes:1200000, krDynamic:86400000, krSupply:86400000 }, failureState:'partial', forbiddenClaims:['naver-snapshot-as-official-realtime'] },
-      'kr-supply': { requiredProducers:['krSupply'], optionalProducers:['quotes'], minCoverage:{ krSupply:50 }, maxAge:{ krSupply:86400000 }, failureState:'partial', forbiddenClaims:['missing-as-zero-or-neutral-bar'] },
-      'kr-themes': { requiredProducers:['quotes','krDynamic'], optionalProducers:['news'], minCoverage:{ quotes:80, krDynamic:50 }, maxAge:{ quotes:1200000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['historical-memo-as-current-catalyst'] },
-      'kr-macro': { requiredProducers:['fred','krDynamic'], optionalProducers:['news'], minCoverage:{ fred:50, krDynamic:50 }, maxAge:{ fred:172800000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['macro-claim-without-period-unit-release'] },
-      'kr-technical': { requiredProducers:['quotes','technicals','krDynamic'], optionalProducers:['krSupply','fred'], minCoverage:{ quotes:80, technicals:50, krDynamic:50 }, maxAge:{ quotes:1200000, technicals:3600000, krDynamic:86400000 }, failureState:'blocked', forbiddenClaims:['us-symbol-or-unofficial-mix'] },
       guide: { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'loaded', forbiddenClaims:[] },
       screener: { requiredProducers:['screenerArtifact'], optionalProducers:['fundamentals'], minCoverage:{ screenerArtifact:80 }, maxAge:{ screenerArtifact:345600000 }, failureState:'partial', forbiddenClaims:['complete-universe-claim-when-covered-subset'] }
     };
@@ -23914,7 +23795,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     return {
       status: status,
       routePageCount: contracts.routePageIds.length,
-      expectedRoutePageCount: 22,  // v50.53: +screener 전용 페이지
+      expectedRoutePageCount: 17,  // v53.7 (P725): KR 전용 5라우트 퇴역(22→17)
       missingDom: missingDom,
       missingProfile: missingProfile,
       missingRefreshMap: missingRefresh,
@@ -25362,11 +25243,9 @@ window.PAGES = {
                      }, chatCtx: null },
   'market-news':    { label: '시장 뉴스',        init: function() { _initMarketNewsPage(); }, chatCtx: null },
   'options':        { label: '옵션 분석',        init: function() { _safePageInitGlobal('options', _initOptionsPage); }, chatCtx: null },
-  'kr-home':        { label: '한국 홈',          init: function() { _aioPolishRemainingPages('kr-home'); var tid = setTimeout(function() { try { if (typeof renderKrIssues === 'function') renderKrIssues(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'renderKrIssues failed: ' + e.message); } }, 500); if (window._pageState) window._pageState.get('kr-home').timers.push(tid); }, chatCtx: null },
-  'kr-supply':      { label: '한국 공급망',      init: function() { _aioPolishRemainingPages('kr-supply'); }, chatCtx: null },
-  'kr-themes':      { label: '한국 테마',        init: function() { _aioPolishRemainingPages('kr-themes'); }, chatCtx: 'kr-themes' },
-  'kr-macro':       { label: '한국 거시',        init: function() { _aioPolishRemainingPages('kr-macro'); try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }, chatCtx: 'kr-macro' },
-  'kr-technical':   { label: '한국 기술',        init: function() { _aioPolishRemainingPages('kr-technical'); }, chatCtx: 'kr-tech' },
+  // v53.7 (P725): kr-home/kr-supply/kr-themes/kr-macro/kr-technical 라우트 퇴역 —
+  // 콘텐츠는 themes/macro/technical의 "한국 시장" 통합 섹션으로 이관(요소 id 보존),
+  // 구 해시는 showPage의 _hashAlias가 리다이렉트. KR 매크로 배지는 macro init에서 호출.
   'guide':          { label: '사용 설명서',      init: function() { _aioPolishRemainingPages('guide'); }, chatCtx: null },
   'screener':       { label: '퀀트 스크리너',    init: function() { try { if (typeof _aioInitScreenerFilters === 'function') _aioInitScreenerFilters(); if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'screener init: ' + (e && e.message || e)); } }, chatCtx: 'screener' }  // v50.53 2A: 전용 퀀트 스크리너
 };
@@ -25378,13 +25257,14 @@ window.PAGES = {
 window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
   version: 'v52.59',
   classes: {
-    NAV_ROUTE: ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','macro','fxbond','fundamental','themes','portfolio','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'],
+    NAV_ROUTE: ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','macro','fxbond','fundamental','themes','portfolio','guide'],
     DERIVED_VIEW: ['ticker','theme-detail'],
     REFERENCE: ['options'],
-    REMOVED: [],
+    // v53.7 (P725): KR 전용 5라우트 퇴역 — themes/macro/technical 통합 섹션으로 이관, _hashAlias 리다이렉트
+    REMOVED: ['kr-home','kr-supply','kr-themes','kr-macro','kr-technical'],
     OVERLAY: ['glossary']
   },
-  canonical: { 'theme-detail': 'themes', options: 'options' },
+  canonical: { 'theme-detail': 'themes', options: 'options', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical' },
   registrySources: ['AIO_PAGE_CONTRACTS.routePageIds','AIO_ALL_ROUTE_PAGE_IDS','PAGES','showPage','history.state.page','location.hash','guide TOC']
 };
 window.AIO_ROUTE_CANONICAL_CONTRACT = window.AIO_ROUTE_CANONICAL_CONTRACT || {
@@ -25399,10 +25279,17 @@ window.AIO.getRouteIAAudit = function() {
   var duplicates = all.filter(function(id, idx) { return all.indexOf(id) !== idx; });
   if (duplicates.length) issues.push('route classification duplicates: ' + duplicates.join(','));
   var contracts = window.AIO_PAGE_CONTRACTS && window.AIO_PAGE_CONTRACTS.routePageIds || [];
-  all.forEach(function(id) {
+  // v53.7 (P725): REMOVED 라우트는 역사적 기록 — DOM/contracts/PAGES 존재 대신
+  // canonical 리다이렉트 등록과 DOM 부재(진짜 제거됨)를 검사한다.
+  var active = [].concat(classes.NAV_ROUTE || [], classes.DERIVED_VIEW || [], classes.REFERENCE || []);
+  active.forEach(function(id) {
     if (contracts.indexOf(id) < 0) issues.push('route missing from contracts: ' + id);
     if (!document.getElementById('page-' + id)) issues.push('route DOM missing: ' + id);
     if (!window.PAGES[id]) issues.push('route missing from PAGES: ' + id);
+  });
+  (classes.REMOVED || []).forEach(function(id) {
+    if (!reg.canonical || !reg.canonical[id]) issues.push('REMOVED route lacks canonical redirect: ' + id);
+    if (document.getElementById('page-' + id)) issues.push('REMOVED route still has DOM: ' + id);
   });
   (classes.NAV_ROUTE || []).forEach(function(id) {
     if (!document.querySelector('[data-action="showPage"][data-arg="' + id + '"], [data-arg="' + id + '"]')) issues.push('NAV_ROUTE lacks navigation entry: ' + id);
@@ -25490,6 +25377,8 @@ function _initMacroPage() {
   // storyline/달력은 즉시 (텍스트 — 초기 로드 가벼움)
   if (typeof generateMacroStoryline === 'function') { try { generateMacroStoryline(); } catch(e) {} }
   if (typeof renderEconCalendar === 'function') { try { renderEconCalendar(); } catch(e) {} }
+  // v53.7 (P725): 한국 매크로 통합 섹션 — 구 PAGES['kr-macro'].init에서 이관
+  if (typeof _aioRenderKrMacroFreshnessBadges === 'function') { try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }
   // v48.15 (P2-C): Chart.js 무거운 작업은 IntersectionObserver 기반 lazy
   // yield curve 차트는 macro 페이지 중상단, FRED 12개월 시계열은 하단 — 각각 분리
   _lazyInitChartPage('macro', 'yieldCurveChart', function() {
@@ -25545,11 +25434,6 @@ function _aioPolishRemainingPages(pageId) {
     sections.forEach(function(section) { details.appendChild(section); });
     return details;
   }
-  function markFeed(feedId) {
-    var feed = document.getElementById(feedId);
-    var section = feed && feed.closest('.aio-section');
-    if (section && section.parentElement === page) section.classList.add('aio-comp-secondary-feed');
-  }
 
   if (pageId === 'guide') {
     var guideSections = directSections(page);
@@ -25565,40 +25449,27 @@ function _aioPolishRemainingPages(pageId) {
     if (policy) page.appendChild(policy);
   }
 
-  if (pageId === 'kr-home') {
-    var homeSections = directSections(page);
-    wrapSections(page, homeSections.slice(4, 8), '추가 시장 탐색 · 이슈 · 섹터 · 모멘텀', 'aio-comp-secondary');
-    markFeed('tg-feed-kr-home');
-  }
-  if (pageId === 'kr-supply') markFeed('tg-feed-kr-supply');
-  if (pageId === 'kr-macro') {
-    var macroSections = directSections(page);
-    wrapSections(page, macroSections.slice(5, 9), '추가 지표 · 수출 · 부동산 · 시나리오', 'aio-comp-secondary');
-    markFeed('tg-feed-kr-macro');
-  }
-  if (pageId === 'kr-technical') {
-    markFeed('tg-feed-kr-technical');
-    directSections(page).forEach(function(section) {
-      if (/기술 분석 핵심 용어/.test(sectionLabel(section))) section.classList.add('aio-comp-guide-only');
-    });
-  }
-  if (pageId === 'kr-themes') {
-    var container = document.getElementById('kr-theme-container');
-    if (container && !document.getElementById('kr-theme-more')) {
-      container.classList.add('aio-theme-progressive');
-      var button = document.createElement('button');
-      button.id = 'kr-theme-more';
-      button.className = 'aio-btn-table aio-comp-more';
-      button.type = 'button';
-      button.textContent = '테마 더 보기';
-      button.addEventListener('click', function() {
-        var expanded = container.classList.toggle('is-expanded');
-        button.textContent = expanded ? '핵심 테마만 보기' : '테마 더 보기';
-      });
-      container.insertAdjacentElement('afterend', button);
-    }
-  }
+  // v53.7 (P725): kr-home/kr-supply/kr-macro/kr-technical polish 분기 제거 — 페이지 퇴역.
+  // kr-themes 테마 progressive 버튼은 통합 섹션(#kr-integrated-themes) 내에서 동작해야 하므로
+  // 페이지 polish가 아닌 별도 idempotent 헬퍼로 유지(themes 진입 시 initKoreaThemes에서 호출).
 }
+
+window._aioEnsureKrThemeProgressive = function() {
+  var container = document.getElementById('kr-theme-container');
+  if (container && !document.getElementById('kr-theme-more')) {
+    container.classList.add('aio-theme-progressive');
+    var button = document.createElement('button');
+    button.id = 'kr-theme-more';
+    button.className = 'aio-btn-table aio-comp-more';
+    button.type = 'button';
+    button.textContent = '테마 더 보기';
+    button.addEventListener('click', function() {
+      var expanded = container.classList.toggle('is-expanded');
+      button.textContent = expanded ? '핵심 테마만 보기' : '테마 더 보기';
+    });
+    container.insertAdjacentElement('afterend', button);
+  }
+};
 
 function _initOptionsPage() {
   if (typeof initOptionsPage === 'function') {
@@ -25878,7 +25749,8 @@ function _firePageShown(id, source) {
 
 function showPage(id, navEl) {
   // v34.5: 해시 별칭 매핑 — 잘못된 해시로 진입 시 올바른 페이지로 리다이렉트
-  var _hashAlias = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'kr-home', 'kr-theme': 'kr-themes' };
+  // v53.7 (P725): KR 전용 5페이지 퇴역 — 구 해시/링크는 통합 섹션이 있는 페이지로 리다이렉트
+  var _hashAlias = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'macro', 'kr-theme': 'themes', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical' };
   if (_hashAlias[id]) id = _hashAlias[id];
   // v52.27 P642: theme-detail is an inline panel on #themes, not a separate user route.
   if (id === 'theme-detail') {
@@ -25894,7 +25766,7 @@ function showPage(id, navEl) {
     if (id !== 'ticker' && id !== 'fundamental' && id !== 'options') {
       // ticker context를 벗어나면 _currentTickerId clear (themes/macro 등에서 잔존 방지)
       // ticker/fundamental/options 진입은 showTicker 또는 fundamentalSearch에서 별도 set
-      if (id === 'themes' || id === 'theme-detail' || id === 'kr-themes') {
+      if (id === 'themes' || id === 'theme-detail') {
         // themes 계열은 _currentThemeId만 유지, ticker는 clear
         window._currentTickerId = null;
       }
@@ -26051,6 +25923,8 @@ function showTicker(tkr) {
   if (pnlEl) pnlEl.className = 'pnl' + (hasPosition ? ' pos' : '');
   var ab = document.getElementById('ticker-action-btn');
   if (ab) { ab.textContent = actionLabels[d.action] || d.action; ab.className = 'action-btn ' + (actionClasses[d.action]||'neutral'); }
+  // v53.6: 종목 개요(밸리AI 참조) — TV 대형 차트 + 가격/테마/팩터 좌측 레일 (index.html 정의)
+  try { if (typeof window._aioRenderTickerOverview === 'function') window._aioRenderTickerOverview(tkr); } catch(_ovErr) {}
   // v52.41 (P656/EF-10): ticker 페이지 Overview 탭의 Key Metrics(mcap/pe/pb/roe/div)와
   // Financials 탭의 Quarterly Results(rev/gp/op/ni) 8개 슬롯은 전수 확인 결과 어떤 fetch 시도도 없이
   // 정적 "—" 시드만 영구 잔존했다("FMP 실패로 숨김"이 아니라 애초에 이 뷰용 fetch가 없었음 — 실측
