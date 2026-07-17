@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-17T04:26:15.635Z",
-  "attemptedAt": "2026-07-17T04:26:15.635Z",
-  "lastSuccessfulAt": "2026-07-17T04:26:15.635Z",
+  "generatedAt": "2026-07-17T07:03:57.955Z",
+  "attemptedAt": "2026-07-17T07:03:57.955Z",
+  "lastSuccessfulAt": "2026-07-17T07:03:57.955Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-03T04:26:11.641Z",
-  "until": "2026-07-17T04:26:11.641Z",
+  "since": "2026-07-03T07:03:53.908Z",
+  "until": "2026-07-17T07:03:53.908Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,12 +13,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 159,
+      "count": 161,
       "freshCount": 37,
       "eligibleTextCount": 37,
       "selectedCount": 127,
       "error": null,
-      "lastPostId": 23635
+      "lastPostId": 23637
     },
     {
       "channel": "insidertracking",
@@ -45,9 +45,35 @@
       "lastPostId": 19139
     }
   ],
-  "count": 512,
-  "retainedItemCount": 397,
+  "count": 514,
+  "retainedItemCount": 399,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/23637",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-17T06:05:20.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23636",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-17T05:50:08.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23635",
       "channel": "aetherjapanresearch",
@@ -2659,7 +2685,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23596",
@@ -2679,7 +2705,7 @@
         "AVGO",
         "INTC"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23595",
@@ -7755,22 +7781,22 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 512,
+    "observedCount": 514,
     "eligibleTextCount": 75,
-    "mediaOnlyCount": 437,
+    "mediaOnlyCount": 439,
     "highSignalCount": 268,
-    "broadSignalCount": 432,
+    "broadSignalCount": 433,
     "selectedRawCount": 372,
     "selectedRawCoveragePct": 496,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "market-note": 40,
+    "semi": 336,
     "kr-market": 109,
     "macro": 251,
     "geo": 126,
-    "market-note": 39,
     "earnings": 71,
-    "semi": 335,
     "ai-policy": 52,
     "equity": 105,
     "power": 137,
@@ -7784,6 +7810,7 @@
     "optical": 17
   },
   "tickerCounts": {
+    "000660.KS": 21,
     "035420.KS": 7,
     "TSM": 86,
     "GOOG": 28,
@@ -7792,7 +7819,6 @@
     "MRVL": 6,
     "BE": 12,
     "RDDT": 1,
-    "000660.KS": 20,
     "AMD": 29,
     "META": 38,
     "ORCL": 11,
@@ -7870,7 +7896,7 @@
     "MTSI": 1
   },
   "themes": [
-    "Semiconductors/Memory (335 posts in current window): 2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로...",
+    "Semiconductors/Memory (336 posts in current window): 2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로...",
     "Macro/Rates (251 posts in current window): 2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로...",
     "AI Power/Grid (137 posts in current window): Market Summary - 2026년 7월 17일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 상원의원들과 암호화폐 CLARITY 법안 추진 논의 예정. · 백악관, 이란이 미국과 협상을...",
     "Geopolitics (126 posts in current window): 2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로...",
@@ -7927,7 +7953,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 20,
+      "count": 21,
       "text": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은..."
     },
     {
@@ -7975,7 +8001,7 @@
       "topics": [
         "semi"
       ],
-      "count": 335,
+      "count": 336,
       "focus": "2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로..."
     },
     {
@@ -8083,7 +8109,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 39,
+      "count": 40,
       "focus": "금융권에 따르면 이번 사태에서 가장 큰 피해를 입은 계층은 20~30대 개인투자자였다. 전체 파산 또는 강제청산 계좌 가운데 약 62%가 20~30대 투자자로 집계됐으며, 고위험 레버리지 상품 투자 비중이 높았던 젊은 투자자들의 피해가 집중된 것으로 분석됐다. 증권업계는 최근 한 달간 개인투자자의 실제 손실 규모를..."
     }
   ],
@@ -9346,6 +9372,22 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/23636",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23636",
+      "datetime": "2026-07-17T05:50:08.000Z",
+      "localDateKst": "2026-07-17",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "최태원, \"SK하이닉스 주식, 샀다 팔았다 말고 갖고 있으면 돼\" | 연합뉴스 와이프 홀딩vs주식 홀딩"
+    },
     {
       "id": "insidertracking/58573",
       "channel": "insidertracking",
@@ -15369,20 +15411,6 @@
       "tickers": [],
       "score": 87,
       "summary": "거버넌스포럼 \"SK하이닉스 1천100조 투자, 이사회는 승인했나\" 한국기업거버넌스포럼이 최태원 SK그룹 회장이 발표한 SK하이닉스 1천100조원 규모 투자 계획의 이사회 승인 여부를 지적했다. 이남우..."
-    },
-    {
-      "id": "aetherjapanresearch/23409",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23409",
-      "datetime": "2026-07-09T11:44:31.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 64,
-      "summary": "* SK하이닉스 ADR, 10일 나스닥 첫 거래…\"기준가 158.14달러\" - 9일 메리츠증권은 고객 공지를 통해 'SK하이닉스 ADR 나스닥 신규 상장 예정 안내와 투자 유의사항을 전달했다. 공지에 따르면..."
     }
   ]
 }
