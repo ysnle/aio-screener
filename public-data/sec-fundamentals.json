@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-17T08:32:12.053Z",
+ "generatedAt": "2026-07-17T14:10:02.425Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 90,
+ "stored": 91,
  "attempted": 24,
  "updated": 1,
  "failures": [
@@ -105,7 +105,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 565,
+ "nextRefreshCandidates": 564,
  "data": {
   "A": {
    "symbol": "A",
@@ -2858,6 +2858,32 @@
    "revGrowth": 13.4,
    "margin": 2.9,
    "roe": 12.6
+  },
+  "CCL": {
+   "symbol": "CCL",
+   "cik": "0000815097",
+   "entityName": "Carnival Corporation Ltd.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-11-30",
+   "filedAt": "2026-01-27",
+   "fetchedAt": "2026-07-17T14:10:02.274Z",
+   "form": "10-K",
+   "accession": "0000815097-26-000007",
+   "revenue": 26622000000,
+   "netIncome": 2760000000,
+   "equity": 0,
+   "sharesOutstanding": 1236706612,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin"
+   ],
+   "revGrowth": 6.4,
+   "margin": 10.4
   }
  }
 }
