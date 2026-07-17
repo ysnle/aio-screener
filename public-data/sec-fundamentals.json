@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-16T19:37:55.267Z",
+ "generatedAt": "2026-07-17T03:45:10.703Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 86,
+ "stored": 89,
  "attempted": 24,
  "updated": 3,
  "failures": [
@@ -97,7 +97,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 569,
+ "nextRefreshCandidates": 566,
  "data": {
   "A": {
    "symbol": "A",
@@ -2738,6 +2738,90 @@
    "revGrowth": 4.3,
    "margin": 4,
    "roe": 12.7
+  },
+  "CAVA": {
+   "symbol": "CAVA",
+   "cik": "0001639438",
+   "entityName": "CAVA Group, Inc.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-28",
+   "filedAt": "2026-02-25",
+   "fetchedAt": "2026-07-17T03:45:09.751Z",
+   "form": "10-K",
+   "accession": "0001628280-26-011296",
+   "revenue": 1179664000,
+   "netIncome": 63743000,
+   "equity": 779656000,
+   "sharesOutstanding": 116377765,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 22.4,
+   "margin": 5.4,
+   "roe": 8.2
+  },
+  "CB": {
+   "symbol": "CB",
+   "cik": "0000896159",
+   "entityName": "Chubb Limited",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-27",
+   "fetchedAt": "2026-07-17T03:45:10.181Z",
+   "form": "10-K",
+   "accession": "0000896159-26-000005",
+   "revenue": 59402000000,
+   "netIncome": 10310000000,
+   "equity": 79779000000,
+   "sharesOutstanding": 390156552,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 6.5,
+   "margin": 17.4,
+   "roe": 12.9
+  },
+  "CBOE": {
+   "symbol": "CBOE",
+   "cik": "0001374310",
+   "entityName": "Cboe Global Markets, Inc.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2017-12-31",
+   "filedAt": "2018-02-22",
+   "fetchedAt": "2026-07-17T03:45:10.553Z",
+   "form": "10-K",
+   "accession": "0001558370-18-000953",
+   "revenue": 2229100000,
+   "netIncome": 401700000,
+   "equity": 317946000,
+   "sharesOutstanding": 104667696,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 217,
+   "margin": 18,
+   "roe": 126.3
   }
  }
 }
