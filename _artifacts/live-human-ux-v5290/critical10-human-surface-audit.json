@@ -1,0 +1,2144 @@
+{
+  "version": "v52.90",
+  "viewport": {
+    "width": 1024,
+    "height": 768
+  },
+  "routes": [
+    {
+      "routeId": "home",
+      "status": "warn",
+      "focusableCount": 10,
+      "pageTitle": "시장 현황 v52.90",
+      "audit": {
+        "status": "warn",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "home",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-home div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 2026-06-17: 최근 FOMC 결과는 이미 가격에 반영된 상태로 보고, 금리 경로는 2Y/10Y·달러·물가/고용 후속 데이터로 재평가하는 구간 (오래된 컨텍스트 · 27일 경과)현재 결과로 AI 분석시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/1"
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:48.420Z"
+        },
+        "accessibility": {
+          "status": "warn",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 1,
+          "blockers": [],
+          "warnings": [
+            "small-targets:6"
+          ],
+          "pages": [
+            {
+              "pageId": "home",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [
+                "small-targets:6"
+              ],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [
+                {
+                  "id": "",
+                  "selector": "#page-home div > span.is-interactive",
+                  "width": 86,
+                  "height": 24
+                },
+                {
+                  "id": "",
+                  "selector": "#page-home div > span.is-interactive",
+                  "width": 115,
+                  "height": 24
+                },
+                {
+                  "id": "",
+                  "selector": "#page-home div > span.is-interactive",
+                  "width": 86,
+                  "height": 24
+                },
+                {
+                  "id": "",
+                  "selector": "#page-home div > span.is-interactive",
+                  "width": 78,
+                  "height": 24
+                },
+                {
+                  "id": "",
+                  "selector": "#page-home div > span.is-interactive",
+                  "width": 109,
+                  "height": 24
+                },
+                {
+                  "id": "",
+                  "selector": "#page-home div > span.is-interactive",
+                  "width": 101,
+                  "height": 24
+                }
+              ],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:48.422Z"
+        },
+        "generatedAt": "2026-07-14T09:50:48.422Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "S&P 500 — —",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "NASDAQ — —",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "공포지수 VIX — —",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "Fear & Greed — 갱신 대기",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "DXY—",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "美 10년물—",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "금—",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "WTI—",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "KOSPI—",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "BTC—",
+          "tabindex": "0"
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        }
+      ]
+    },
+    {
+      "routeId": "signal",
+      "status": "ok",
+      "focusableCount": 6,
+      "pageTitle": "지금 거래해야 할까?",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "signal",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-signal div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 2026-06-17: 최근 FOMC 결과는 이미 가격에 반영된 상태로 보고, 금리 경로는 2Y/10Y·달러·물가/고용 후속 데이터로 재평가하는 구간 (오래된 컨텍스트 · 27일 경과)현재 결과로 AI 분석신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. ·"
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:49.931Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "signal",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:49.932Z"
+        },
+        "generatedAt": "2026-07-14T09:50:49.932Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "BUTTON",
+          "id": "sig-sw-btn",
+          "name": "스윙",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sig-dy-btn",
+          "name": "데이트레이딩",
+          "tabindex": ""
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "스윙 진입 설명",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "시장 폭 분석 → 5·20·50SMA · A",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "섹터 로테이션 RRG → 11섹터 · 서브섹",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "투자 심리 → F&G · VIX · AAII",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
+        }
+      ]
+    },
+    {
+      "routeId": "breadth",
+      "status": "ok",
+      "focusableCount": 0,
+      "pageTitle": "시장 폭 분석",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "breadth",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-breadth div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:51.240Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "breadth",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:51.240Z"
+        },
+        "generatedAt": "2026-07-14T09:50:51.240Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국장 홈",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "수급 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "국내 테마",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국 매크로",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석 (KR)",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-theme-btn",
+          "name": "라이트 모드",
+          "tabindex": ""
+        },
+        {
+          "tag": "INPUT",
+          "id": "gh-repo-url",
+          "name": "username/repo-name",
+          "tabindex": ""
+        }
+      ]
+    },
+    {
+      "routeId": "sentiment",
+      "status": "ok",
+      "focusableCount": 1,
+      "pageTitle": "투자 심리",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "sentiment",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-sentiment div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:51.844Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "sentiment",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:51.844Z"
+        },
+        "generatedAt": "2026-07-14T09:50:51.845Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "VIX 기간구조 설명",
+          "tabindex": "0"
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국장 홈",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "수급 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "국내 테마",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국 매크로",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석 (KR)",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-theme-btn",
+          "name": "라이트 모드",
+          "tabindex": ""
+        }
+      ]
+    },
+    {
+      "routeId": "briefing",
+      "status": "ok",
+      "focusableCount": 11,
+      "pageTitle": "오늘의 브리핑",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "briefing",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-briefing div.aio-section",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 2026-06-17: 최근 FOMC 결과는 이미 가격에 반영된 상태로 보고, 금리 경로는 2Y/10Y·달러·물가/고용 후속 데이터로 재평가하는 구간 (오래된 컨텍스트 · 27일 경과)현재 결과로 AI 분석브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 "
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:52.732Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "briefing",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:52.733Z"
+        },
+        "generatedAt": "2026-07-14T09:50:52.733Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$TSM",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$TSM",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$ASML",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$AMD",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$INTC",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$AMAT",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$AMD",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$TSM",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$AMD",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$ASML",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "briefing-news-more",
+          "name": "전체 뉴스 보기 ▼",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "과거 참고 펼치기 ▼",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        }
+      ]
+    },
+    {
+      "routeId": "technical",
+      "status": "ok",
+      "focusableCount": 4,
+      "pageTitle": "차트 · 기술 분석",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "technical",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-technical div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:53.893Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "technical",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:53.894Z"
+        },
+        "generatedAt": "2026-07-14T09:50:53.894Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "SPY",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "QQQ",
+          "tabindex": "0"
+        },
+        {
+          "tag": "INPUT",
+          "id": "ticker-analysis-input",
+          "name": "미국 종목 간이 분석 티커 입력",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "차트 분석",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국장 홈",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "수급 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "국내 테마",
+          "tabindex": "0"
+        }
+      ]
+    },
+    {
+      "routeId": "macro",
+      "status": "ok",
+      "focusableCount": 0,
+      "pageTitle": "거시경제",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "macro",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-macro div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 2026-06-17: 최근 FOMC 결과는 이미 가격에 반영된 상태로 보고, 금리 경로는 2Y/10Y·달러·물가/고용 후속 데이터로 재평가하는 구간 (오래된 컨텍스트 · 27일 경과)현재 결과로 AI 분석FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다."
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:54.433Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "macro",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:54.434Z"
+        },
+        "generatedAt": "2026-07-14T09:50:54.434Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국장 홈",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "수급 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "국내 테마",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국 매크로",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석 (KR)",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-theme-btn",
+          "name": "라이트 모드",
+          "tabindex": ""
+        },
+        {
+          "tag": "INPUT",
+          "id": "gh-repo-url",
+          "name": "username/repo-name",
+          "tabindex": ""
+        }
+      ]
+    },
+    {
+      "routeId": "fxbond",
+      "status": "ok",
+      "focusableCount": 0,
+      "pageTitle": "환율 · 채권",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "fxbond",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-fxbond div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 2026-06-17: 최근 FOMC 결과는 이미 가격에 반영된 상태로 보고, 금리 경로는 2Y/10Y·달러·물가/고용 후속 데이터로 재평가하는 구간 (오래된 컨텍스트 · 27일 경과)현재 결과로 AI 분석금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코"
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:56.301Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "fxbond",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:56.301Z"
+        },
+        "generatedAt": "2026-07-14T09:50:56.301Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국장 홈",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "수급 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "국내 테마",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국 매크로",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석 (KR)",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-theme-btn",
+          "name": "라이트 모드",
+          "tabindex": ""
+        },
+        {
+          "tag": "INPUT",
+          "id": "gh-repo-url",
+          "name": "username/repo-name",
+          "tabindex": ""
+        }
+      ]
+    },
+    {
+      "routeId": "fundamental",
+      "status": "warn",
+      "focusableCount": 8,
+      "pageTitle": "기업 분석",
+      "audit": {
+        "status": "warn",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "fundamental",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-fundamental div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:56.713Z"
+        },
+        "accessibility": {
+          "status": "warn",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 1,
+          "blockers": [],
+          "warnings": [
+            "small-targets:1"
+          ],
+          "pages": [
+            {
+              "pageId": "fundamental",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [
+                "small-targets:1"
+              ],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [
+                {
+                  "id": "fund-search-input",
+                  "selector": "#fund-search-input",
+                  "width": 604,
+                  "height": 15
+                }
+              ],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:56.720Z"
+        },
+        "generatedAt": "2026-07-14T09:50:56.720Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "INPUT",
+          "id": "fund-search-input",
+          "name": "기업 분석 종목 티커 입력",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": ""
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "NVDA",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "포트폴리오에 추가",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "차트 분석",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "수집 과정 보기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "개요",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "재무 상세",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "외부 정보",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        }
+      ]
+    },
+    {
+      "routeId": "themes",
+      "status": "ok",
+      "focusableCount": 3,
+      "pageTitle": "테마 · 트렌드",
+      "audit": {
+        "status": "ok",
+        "hierarchy": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "themes",
+              "active": true,
+              "pageExists": true,
+              "decisionHeader": true,
+              "compHeaderHidden": true,
+              "decisionFirst": true,
+              "firstVisibleSelector": "#page-themes div",
+              "conclusion": true,
+              "evidenceAndStatus": true,
+              "actionAffordance": true,
+              "viewportPass": true,
+              "openFundamentals": 0,
+              "developerSurfaceVisible": 0,
+              "blockers": [],
+              "warnings": [],
+              "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 66/100) 데이터: 스냅샷신뢰도 66% 보통 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:57.150Z"
+        },
+        "accessibility": {
+          "status": "ok",
+          "pagesChecked": 1,
+          "issueCount": 0,
+          "warningCount": 0,
+          "blockers": [],
+          "warnings": [],
+          "pages": [
+            {
+              "pageId": "themes",
+              "pageExists": true,
+              "active": true,
+              "blockers": [],
+              "warnings": [],
+              "nameless": [],
+              "unfocusable": [],
+              "positiveTabindex": [],
+              "smallTargets": [],
+              "chartIssues": []
+            }
+          ],
+          "generatedAt": "2026-07-14T09:50:57.159Z"
+        },
+        "generatedAt": "2026-07-14T09:50:57.159Z"
+      },
+      "tabSequence": [
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "11섹터",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "서브섹터",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "전체",
+          "tabindex": "0"
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "mobile-overlay",
+          "name": "closeMobileMenu",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "대시보드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매매 시그널",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "차트 · 기술 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "거시경제",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "환율 · 채권",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기업 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마 · 트렌드",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 뉴스",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국장 홈",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "수급 분석",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "국내 테마",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "한국 매크로",
+          "tabindex": "0"
+        }
+      ]
+    }
+  ],
+  "consoleErrors": [],
+  "generatedAt": "2026-07-14T09:50:44.643Z",
+  "status": "pass"
+}

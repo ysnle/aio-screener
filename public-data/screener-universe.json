@@ -1,8741 +1,5249 @@
 {
  "meta": {
-  "schemaVersion": "v49.31",
-  "lastBulkUpdate": "2026-07-03",
-  "staleAfterDays": 7,
-  "replaceAfterDays": 14,
-  "source": "JPM/Citi/TDCowen/Mizuho/BofA/Morgan Stanley 04/21~07/02 게시 + 텔레그램 다이제스트 07/03",
-  "note": "v51.96 /data-refresh (2026-07-03 KST): 텔레그램 다이제스트 414건 반영(2026-06-19~07-03 window) — 6월 고용 쇼크(NFP+57K), Meta Compute/네오클라우드 논쟁(BofA 반박), 삼성전기 MLCC 대형계약, QCOM 데이터센터 진출, GOOGL PT 상향 등 4종목 메모 갱신(GOOGL/QCOM/META/009150.KS). 이전: v50.62 Telegram/data refresh (2026-06-16 KST) 796 posts."
+  "schemaVersion": "v53.4",
+  "lastBulkUpdate": "2026-07-16",
+  "staleAfterDays": 30,
+  "replaceAfterDays": 90,
+  "source": "js/aio-data.js curated identity universe; public-data/screener.json runtime enrichment",
+  "note": "정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다."
  },
  "universe": [
   {
    "sym": "NVDA",
    "name": "NVIDIA",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Computex GTC 타이페이 06/01~] 젠슨 황 기조연설+Windows PC 진출(MS 서피스·DELL 협력) · 폭스콘 Vera Rubin 2H26 출하 낙관 · 젠슨 황 2026 매출 성장률 ~100%·2027년도 동등 규모 · 린스에쿼티 단기 $250 근접 · [Q1 FY27 어닝 05/20] EPS $1.87(컨센 $1.76, +6.25%beat) Next 8/26 · [Citi+JPM 04/21] CX9 NIC 일부 2027 이월(CX8 대체불가) · Vera CPU 2H 마진·CPO 순풍·Rubin Ultra 회복 · AVGO/MRVL ASIC 경쟁 리스크 · Alpamayo 오픈소스 AV",
-   "mcap": 4197,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "AAPL",
    "name": "Apple",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "[Q2 FY26 어닝 04/30] 매출 $111.2B (+17% YoY, beat) · EPS $2.01 (+22% YoY, beat) · GM 49.3% (guidance 상회) · Next 7/30. [JPM 04/21] CEO 전환 Tim Cook→John Ternus(50세) 2026-09-01 · 하드웨어 중심 리더십(아이폰/맥/에어팟/비전프로 총괄, M시리즈 전환 주역) · 팀쿡 Executive Chairman 잔류(정책·관세) · Johny Srouji CHO 승격(A4 설계자) · Arthur Levinson lead independent director · 긍정 평가(스마트폰 이후 폼팩터+AI 매개체 대비) · 투자자 관심: (1)팀쿡급 실행력 지속 (2)서비스 우선순위 (3)AI 전략·개인화 Siri WWDC 주목",
-   "mcap": 3645,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "GOOGL",
    "name": "Alphabet",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "[모건스탠리 06/29] PT$375→$415 상향(OW 유지) — TPU 매출 반영한 28년 컴퓨팅 능력 재평가, 6/29 종가 $353.65 기준 +20% 상승여력 제시. [2026-06-23 ⚠️] DeepMind 핵심 인재 연이은 이탈·Anthropic 이동 → 투자심리 악화. GOOG -7%(13개월 최대 낙폭). A24 AI 협력 $7,500만 투자. SpaceX 지분가치 하락 부담. [JPM 04/29] PT$460 OW유지 · 검색+19%(사상최고 쿼리) Cloud$20B(+63%) · Cloud 백로그$4,620억(전분기 거의 2배) · GenAI 매출+800%YoY · CY26 CapEx $1,800-1,900억 · CY27 대폭증가 · Gemini 분당160억토큰(QoQ+60%) · Fabric 유료고객35,000(+60%YoY) · [TDCowen PT$375↑] CAGR13.6%·Waymo 2030 49시장 · FCF-P/E 28.3x · Interactions API GA",
-   "mcap": 3641,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "MSFT",
    "name": "Microsoft",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Computex 06/02] 서피스 브랜드로 NVDA ARM칩 기반 Windows PC 공식 출시 협력 · 로컬 AI 에이전트 강화(클라우드 비용 절감·온디바이스 AI) · [JPM 04/29] PT$550 Azure+39%CC · F4Q 가이던스 39-40%CC · Copilot 2,000만석(FQ2→FQ3 +33%) · AI ARR $37B(+123%YoY) · CY26 CapEx $1,900억(메모리가격상승 $250억 포함) · [Citi] PT$620↑ · E7 $99/월(Copilot+Entra+Agent) · 삼성→MS LTA 선지급 $100억+(메모리 공급 확보)",
-   "mcap": 2838,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "AMZN",
    "name": "Amazon",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/29] PT$330 OW유지 · AWS+28%(15분기 최고) 런레이트$1,500억 · 백로그$3,640억(전분기 거의 2배·Anthropic $100B 미포함) · Trainium $2,250억 약정 · Bedrock+170% QoQ · 칩 런레이트$20B+ · 2026 Capex $2,000억 · [Citi PT$285/Jefferies $300/WF $305] · Globalstar 인수",
-   "mcap": 2205,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "META",
    "name": "Meta Platforms",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "[Meta Compute/네오클라우드 논란 07/01~02] 블룸버그·Citi 보도로 잉여 AI 컴퓨팅을 외부 임대하는 클라우드 사업 진출 가능성 부각(5월 주총 \"definitely on the table\" 발언 연장선) — 코어위브·네비우스 주가 급락 유발. 이후 BofA는 \"메타 메모리 주문 감산설은 사실무근\"이라 반박, capex 불확실성 논쟁 양방향 전환. [하드웨어 로드맵 05/30] AI 펜던트 2027 테스트 시작 + AI 안경 라인업 대폭 확대 + \"업무용 웨어러블(Wearables for Work)\" 서비스 신설(The Information 내부문건). 하드웨어 적자 만회용 수익화 전략 구체화. [JPM 04/29] 하향 OW→N PT$725(기존$825↓) · 광고+33% 강하나 CapEx $1,250-1,450억↑ · FCF 2026E -$40억/2027E -$240억 전환 · [번스타인 PT$900] Muse Spark 첫 진전·메타AI 세션 두자릿수 증가 · 릴스+10%YoY · CoreWeave $350억(2032)",
-   "mcap": 1502,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "TSM",
    "name": "TSMC",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Citi PT NT$2875 JPM PT NT$2500] 1Q26 매출 NT$1,134B(+35%YoY, +8%QoQ), GM 66.2%, OPM 58.1%, EPS NT$22.08(컨센 전면상회) · 2Q26 가이던스 +10%QoQ · 2026 매출 가이던스 \"30%→30%+\" 상향(JPM 35%+, 바이사이드 36% 예상) · 2026-2028 3년 Capex $190~200B(역대급, 2023-2025 대비 2배) · 선단공정 캐파 2027까지 타이트, N5이하 CAGR 25% · N3 2027H1 타이난 램프, AZ P2 27H2, JP P2 28 · N2 4Q25 양산진입(수율 양호), 2028 150k wfpm · 2027 가격 +4-5% like-for-like 인상 논의(2Q26 콘콜) · C.C.Wei \"차세대 LPU 고객과 긴밀 협력\"=삼성 Groq 수주 위협 · 44% 점유율, 파운드리 독점 모트",
-   "mcap": 1708,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "AVGO",
    "name": "Broadcom",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[실적 06/03 장후 ★핵심 촉매] AI 반도체 섹터 방향타 — XPU/ASIC 매출 가이던스·구글 TPU 계약 업데이트 주목. [Citi 04/25] TPU 8t(학습)+TPU 8i(추론) 모두 AVGO 주요 실리콘 파트너 확인 · 추론 아키텍처 복잡성↑=구조적 수혜 · GOOG와 다년간 LTA · F27 컨빅션: 구글/앤스로픽 800억+OpenAI 150억+네트워킹 450억 · 27년 TPU 600-700만 AVGO · XPU 플랫폼·CPO 양산 유일 · META 1GW · Tomahawk 6 · AI 매출 2027 $130B+ 컨빅션",
-   "mcap": 1472,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "TSLA",
    "name": "Tesla",
    "sector": "Consumer",
-   "signal": "WATCH",
-   "memo": "[2026.04 공시] HW4+ 칩셋: 64GB(HW4 32GB 2배)·대역폭 +10%·2027 양산(HW4/HW4.5/HW4+ 3버전) · $2B AI 하드웨어 기업 인수 합의(10-Q 주석14): 보장분 $2억+마일스톤 $18억·익명 대상·주식 지급 · 2026 Capex $250억+ · AI5 칩 테이프아웃·Terafab·xAI $20억 투자 · [기존 04/21] FSD v14·로보택시 오스틴 2025.12~·GS $375 중립·HSBC $119 vs Bull $600",
-   "mcap": 1381,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "BRK.B",
    "name": "Berkshire Hathaway",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "워런 버핏 → Greg Abel 후계자 · 현금 $373B 역사적 고점 = 투자 대기 신호(bear trap vs bull trap) · 보험(GEICO)+철도(BNSF)+에너지+Apple 대량 보유 · 배당 없음 · PBR 1.5x",
-   "mcap": 1072,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "LLY",
    "name": "Eli Lilly",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "[2026-06-25 Minervini Triple Barrel 매수신호] Mark Minervini 본인 실매매 — $1,208 진입, 손절 $1,079(~11% risk). RPR 87/TPR B/ER 90/SR 96 · VCP 13.7% 수축 · GLP-1 비만치료제 1위 · Mounjaro $7.4B(+110%)/Zepbound $4.3B(+123%) · 2026 매출 가이던스 $80~83B · GLP-1 경구용 출시 예정 · PT 평균 $1,201",
-   "mcap": 812,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "WMT",
    "name": "Walmart",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "e-commerce 성장 · 인플레 방어 · 안정 배당",
-   "mcap": 949,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "JPM",
    "name": "JPMorgan Chase",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "미국 최대 은행 · 4/14 어닝발표 — \"전술적 강세\" 전환 · 금리 H4L 환경 NII 방어 · 호르무즈 재개통=필요조건이지 충분조건 아님(카네바)",
-   "mcap": 773,
-   "rsi": 53,
    "index": "DOW30"
   },
   {
    "sym": "V",
    "name": "Visa",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "글로벌 결제 인프라 · 국제거래 성장",
-   "mcap": 582,
-   "rsi": 56,
    "index": "SP500"
   },
   {
    "sym": "XOM",
    "name": "Exxon Mobil",
    "sector": "Energy",
-   "signal": "BUY",
-   "memo": "유가 안정 · 탄소 포집 · 배당 매력",
-   "mcap": 665,
-   "rsi": 58,
    "index": "SP500"
   },
   {
    "sym": "MA",
    "name": "Mastercard",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "글로벌 결제 네트워크 듀오폴리(V와) · 국제거래 비중 확대 = 달러 약세 수혜 · AI 사기탐지 기술 · 소비자 지출 둔화 리스크 · PER 35x",
-   "mcap": 480,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "UNH",
    "name": "UnitedHealth",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "헬스케어 최대 기업 · 안정적 수익 · 규제 리스크",
-   "mcap": 520,
-   "rsi": 38,
    "index": "DOW30"
   },
   {
    "sym": "JNJ",
    "name": "Johnson & Johnson",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "제약+메디컬 디바이스 · 안정 배당 · 소송 리스크",
-   "mcap": 395,
-   "rsi": 50,
    "index": "DOW30"
   },
   {
    "sym": "COST",
    "name": "Costco",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "회원제 리테일 · 안정적 성장 · 프리미엄 밸류에이션",
-   "mcap": 432,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "HD",
    "name": "Home Depot",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "주택 리모델링 수요 · 프로 고객 확대 · 금리 민감",
-   "mcap": 380,
-   "rsi": 48,
    "index": "DOW30"
   },
   {
    "sym": "PG",
    "name": "Procter & Gamble",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "글로벌 소비재 1위 · 안정 배당 · 프리미엄 밸류에이션",
-   "mcap": 395,
-   "rsi": 54,
    "index": "DOW30"
   },
   {
    "sym": "ABBV",
    "name": "AbbVie",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "Humira 후속 · Skyrizi/Rinvoq 성장 · 고배당",
-   "mcap": 350,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "MRK",
    "name": "Merck",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "Keytruda 2028 특허만료(매출50%+) · 피하주사형 전환으로 30~40% 환자 유지 목표 · Cidara($9.2B)+Verona($10B) M&A로 파이프라인 확장 · Winrevair/Capvaxive/Ohtuvayre 차세대 · FW PER 12x(섹터 37~46% 할인) · IRA Januvia 79% 가격인하 영향 · 2025 매출 $65B",
-   "mcap": 300,
-   "rsi": 45,
    "index": "DOW30"
   },
   {
    "sym": "CRM",
    "name": "Salesforce",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "AI Agent (Agentforce) · 엔터프라이즈 CRM 1위",
-   "mcap": 290,
-   "rsi": 48,
    "index": "DOW30"
   },
   {
    "sym": "CVX",
    "name": "Chevron",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "배당 매력 · Hess 인수 완료 · MS 텍사스 DC 전력 파트너십",
-   "mcap": 403,
-   "rsi": 57,
    "index": "DOW30"
   },
   {
    "sym": "AMD",
    "name": "Advanced Micro Devices",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Wedbush OW PT$400 / JPM 중립 PT$385 (v48.87 05/07)] 서버 CPU TAM $60B→$120B+(2030, UBS $30B→$170B). Q2 서버 CPU 가이던스 +70% YoY. MI450/Helios 3Q init/4Q ramp. 에이전틱 AI 워크로드 CPU:GPU 비율 1:4-8→1:1+ 재편 핵심 수혜. TSMC 3nm 제약 리스크: AMD 할당 3~5%, 4Q26 153K wafers/월(+28%) = 공급이 상승 여력 타임라인 결정(HSBC 하향 논거). Venice(Zen 6) 2H26 예정. 게이밍 2H26 -20%+ AMD 자체 전망 = 소비자 역풍. [기존] META·OpenAI 기가와트급 전략 파트너십 · Turin EPYC +40% · CoWoS 77K · Stiefel 12개월 최강 컨빅션",
-   "mcap": 328,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "NFLX",
    "name": "Netflix",
    "sector": "Communication Services",
-   "signal": "BUY",
-   "memo": "구독자 3억 돌파 · 광고 티어 성장 · 게임 진출",
-   "mcap": 350,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "PEP",
    "name": "PepsiCo",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "음료+스낵 · 안정 배당 · 방어적 포트폴리오",
-   "mcap": 225,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "KO",
    "name": "Coca-Cola",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "글로벌 음료 1위 · 안정 배당 63년 · 방어주",
-   "mcap": 260,
-   "rsi": 52,
    "index": "DOW30"
   },
   {
    "sym": "MCD",
    "name": "McDonald's",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "글로벌 외식 1위 · 프랜차이즈 수익 · 배당",
-   "mcap": 210,
-   "rsi": 50,
    "index": "DOW30"
   },
   {
    "sym": "TMO",
    "name": "Thermo Fisher",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "생명과학 장비/시약 · 바이오 CDMO 수혜",
-   "mcap": 195,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ADBE",
    "name": "Adobe",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "AI 기반 크리에이티브 도구 · Firefly · SaaS 성장",
-   "mcap": 192,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "ORCL",
    "name": "Oracle",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Citi PT$320, 미즈호 PT$400] OCI RoCE 네트워킹 해자(하이퍼스케일러 복제 불가) · 오프박스 가상화 · 통합 DB(관계형+JSON+벡터+그래프) · Fusion Agentic Apps 전제품군 · Agent Hub · 바이브 코딩 채택↑ · 멀티클라우드 전략(Azure) · 풀스택=인프라+DB+앱",
-   "mcap": 280,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "BAC",
    "name": "Bank of America",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "소비자 뱅킹 · NII 회복 · 금리 수혜",
-   "mcap": 310,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CSCO",
    "name": "Cisco Systems",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "네트워킹 장비 · AI 인프라 스위칭 수요",
-   "mcap": 230,
-   "rsi": 52,
    "index": "DOW30"
   },
   {
    "sym": "DIS",
    "name": "Walt Disney",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "스트리밍 흑자 전환 · 테마파크 · ESPN 재편",
-   "mcap": 195,
-   "rsi": 45,
    "index": "DOW30"
   },
   {
    "sym": "PLTR",
    "name": "Palantir",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Citi PT$210 / Mizuho PT$185 (v48.87 05/07)] 1Q26 확정: 매출 +85% YoY(비트). US Commercial +133% YoY, US Government +76% YoY. Rule of 40 = 145%. NDR 150%. FY26 가이던스 +71%. AIP 플랫폼 고착도 극단화 → 탈출 비용 구조 진입. [기존] 골든돔 $1,850억 소프트웨어 레이어 핵심 · Maven 공식 전력화 프로그램 지정 · ShipOS/GE 에어로스페이스 다년 파트너십 · NVIDIA 소버린 AI OS 레퍼런스(블랙웰 울트라) · \"Rule of 120+\" · 리스크: NHS FDP 규제 · EV/매출 27E 47x",
-   "mcap": 360,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "MU",
    "name": "Micron Technology",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[2026-06-23] Anthropic 전략제휴 확정 — HBM·DRAM·SSD 공급계약 + AI 메모리 아키텍처 공동개발. Micron = Anthropic 시리즈A 투자자 확인. AI 메모리 수요 장기화 구조 재확인. [Needham] 메모리 가격 상승+AI 수요 근거 목표가 상향. [Susquehanna 05/29] PT$1750(기존$600↑↑) · Q2 DRAM ASP +50~60%QoQ · Q2 NAND ASP +75~100%QoQ · [JPM 05/29] NVDA용 HBM 점유 ~20% + ASIC용 HBM 양쪽 성장 · TrendForce DRAM 2026E $619B(+303%YoY)·2027E $903B(+46%) · [DA Davidson 04/29] PT$1000 FY30 매출$393B · [Melius] PT$700 역SaaS G1-G4 · HBM4 CY26 완판",
-   "mcap": 477,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "CAT",
    "name": "Caterpillar",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] DC백업 발전기 MW당$100만(엔진$50만) · 리드타임 디젤12~18월/왕복36월 · 추론DC전환→스탠바이MW↑(100IT→175백업) · 발전부문 매출 상향여지",
-   "mcap": 319,
-   "rsi": 58,
    "index": "DOW30"
   },
   {
    "sym": "RTX",
    "name": "Raytheon Tech",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[2026-06-23] 트럼프 방산 CEO 회동 참여(6/25) + 국방부 $52.9B 예산 요청(토마호크 생산 확대 포함) · F-35/패트리엇 · 중동 전후 탄약재고 보충 수요 · 글로벌 방위비 증가 수혜",
-   "mcap": 267,
-   "rsi": 59,
    "index": "SP500"
   },
   {
    "sym": "GS",
    "name": "Goldman Sachs",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "M&A/IPO 수수료 회복 · 자산관리 확대 · 4/13 어닝발표 — 바이백 블랙아웃 해제 후 첫 실적 · 롱온리 +24% 매수우위(데스크플로우) · 금리 H4L 환경 NII 안정",
-   "mcap": 244,
-   "rsi": 52,
    "index": "DOW30"
   },
   {
    "sym": "GE",
    "name": "GE Aerospace",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "항공 엔진 독점 듀오폴리(RR과) · LEAP+GE9X 수주잔고 $150B+ · MRO 서비스 매출 성장 · GE Vernova 분사 완료(전력+풍력) · 항공 여행 구조적 회복 · 국방 예산 확대 수혜 · PER 38x",
-   "mcap": 220,
-   "rsi": 58,
    "index": "DOW30"
   },
   {
    "sym": "INTC",
    "name": "Intel",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[NVDA PC 위협 06/01] NVDA ARM기반 Windows PC 진출 = x86 독점 침식 위협. 단, 에이전틱 AI에서 CPU 수요 구조적 증가(Dell 어닝콜: AI가 CPU 하네스 필수 확인)로 서버 DCAI 실질 수혜는 유지. [Citi BUY $95/Keybanc OW $110 04/25] 에이전틱 AI 주도 서버 CPU: GPU:CPU 1:8→1:4→대등 방향 · 1Q26 DCAI +22%YoY EPS $0.29 컨센 대폭 상회 · 18A 수율 내부 예상 초과 · 2H26 14A 수주 발표 예상 · 파운드리 2027말 손익분기점",
-   "mcap": 100,
-   "rsi": 55,
    "index": "DOW30"
   },
   {
    "sym": "LMT",
    "name": "Lockheed Martin",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[2026-06-23] 트럼프 방산 CEO 회동(6/25) + 국방부 $52.9B 예산 요청(패트리엇·THAAD·토마호크 생산 확대) · 중동 전후 탄약재고 보충 수요 부각 · [기존] 트럼프 FY2027 $1.5T 국방예산(WWII후 최대증액) · F-35 조달 · Golden Dome $185B · 인도태평양 억제력 강화",
-   "mcap": 145,
-   "rsi": 61,
    "index": "SP500"
   },
   {
    "sym": "ARM",
    "name": "ARM Holdings",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM OW PT$240 / UBS PT$245 (v48.87 05/07)] AGI CPU 파이프라인 6주 만에 $1B→$2B+ 급증 — 공급이 수요 제약(TSMC/ASE 병목). FY27 DC 로열티 2x YoY 전망. ARM ISA 점유율 15%→40-45%(2030) 목표. Neoverse V3 에이전틱 오케스트레이션 최적. CPU:GPU 비율 재편 핵심 수혜자. AI CPU1→CPU2→CPU3 자체 설계 마진 성장 여정 지속. AVGO ASIC+MRVL NVLink Fusion 파트너십 상승여지. 리스크: 고객(Arm IP사용자)과 직접 경쟁·IP 침해 우려 · TSMC 3nm 공급 제약 2026 → 2027H2 완화 기대. [기존 JPM 04/21] Masa \"NVDA 신뢰할 2위 부재→ARM\" · GW당 $12-13B 콘텐츠",
-   "mcap": 141,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "QCOM",
    "name": "Qualcomm",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[신규 사업 진출 07/02] 데이터센터 칩 시장 공식 진출 발표 — 2029년까지 $150억 매출 목표, 시간외 +12.9% 급등. 스마트폰 중심 사업구조에서 데이터센터로 공격적 확장 선언, 시장 큰 관심. [NVDA PC 진출 영향 06/01] NVDA ARM기반 Windows PC = QCOM 스냅드래곤 X Elite와 유사 비x86 아키텍처 → 경쟁 격화 우려. 그러나 비x86 생태계 확장 선례 강화·시장 자체 확대 효과도 있음. 6월 Investor Day에서 QCOM 대응 전략 공개 예정. [Q2 FY2026 어닝 04/29] 매출$10.6B EPS$2.65(+상회) 주가+16% · 자동차$1.326B(+38%YoY 역대최고) · DC ASIC 대형하이퍼스케일러 12월출하 · 중국 FQ3 저점 반등 · Citi/JPM/WF PT$160↑",
-   "mcap": 139,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "PANW",
    "name": "Palo Alto Networks",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[실적 06/02 장후] 플랫폼화 진행도·ARR 가이던스 주목. [Citi AI서밋 04/21] Glasswing 창립파트너(CRWD와 공동 유일 순수사이버) · AI 기반 공격 규모·속도·정교함 대응 수혜 · 런타임 제어 전환=인라인 제어포인트 보유자 우위 · 섀도AI 확산 보안예산 확대 · Citi 2등급 선호(CRWD 다음) · Cortex XSIAM 플랫폼 통합",
-   "mcap": 133,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "NOW",
    "name": "ServiceNow",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[UBS 04/09] Neutral 하향 — AI 예산이 비AI SW 크라우딩아웃 · PT $100(from $170, 13x 2027E EV/FCF) · 1Q 가이던스 부진 리스크 · SW→Semi 로테이션 역풍 · 장기 CRPO 성장 16%→추정치 하향",
-   "mcap": 116,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "CRWD",
    "name": "CrowdStrike",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[실적 06/03 장후] ARR·NRR·플랫폼 채택률 주목. [Citi+WF AI서밋 04/21] **양쪽 독점 파트너**: Anthropic Glasswing(CRWD+PANW 유일 순수사이버) + OpenAI TAC 14파트너(GPT-5.4-Cyber 조기접근 유일 순수사이버) · Mythos 오픈소스 6-9개월 도달 예상 · 탐지→런타임 통제 전환 수혜 · CTEM 지출 확장 · LLM 익스플로잇 한계비용 0 수렴 → 예산 촉매 · CAISI/AISI 정부 표준화",
-   "mcap": 104,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "CEG",
    "name": "Constellation Energy",
    "sector": "Utilities",
-   "signal": "BUY",
-   "memo": "원전 PPA 장기계약 · AI 데이터센터 전력 계약 · 가동률 85~90% 목표 · Rate Base 확대",
-   "mcap": 102,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "BE",
    "name": "Bloom Energy",
    "sector": "Utilities",
-   "signal": "BUY",
-   "memo": "[04/14] Oracle 2.8GW 마스터 계약(초기 1.2GW 배치 중) · 55일 만에 가동(예상 90일) = time-to-power 우위 · 800V DC AI 워크로드 최적화 · 모듈형 연료전지 온사이트 발전 패러다임 · AI DC 고밀도+급변부하 대응 · 신주인수권 발행",
-   "mcap": 8,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "HON",
    "name": "Honeywell",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업자동화 · 항공우주 · 분사 계획",
-   "mcap": 140,
-   "rsi": 48,
    "index": "DOW30"
   },
   {
    "sym": "AMGN",
    "name": "Amgen",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "바이오 대형주 · 비만치료제 MariTide 임상 · 배당",
-   "mcap": 170,
-   "rsi": 44,
    "index": "DOW30"
   },
   {
    "sym": "IBM",
    "name": "IBM",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "Red Hat · AI watsonx · 하이브리드 클라우드 전환",
-   "mcap": 210,
-   "rsi": 55,
    "index": "DOW30"
   },
   {
    "sym": "BA",
    "name": "Boeing",
    "sector": "Industrials",
-   "signal": "WATCH",
-   "memo": "737 MAX 생산 정상화 · 품질 리스크 · 방산 수주",
-   "mcap": 120,
-   "rsi": 42,
    "index": "DOW30"
   },
   {
    "sym": "NKE",
    "name": "Nike",
    "sector": "Consumer",
-   "signal": "WATCH",
-   "memo": "중국 매출 회복 · DTC 전략 재편 · 경쟁 심화",
-   "mcap": 110,
-   "rsi": 38,
    "index": "DOW30"
   },
   {
    "sym": "PFE",
    "name": "Pfizer",
    "sector": "Healthcare",
-   "signal": "WATCH",
-   "memo": "코로나 이후 매출 급감 · 비용 절감 · 신약 파이프라인",
-   "mcap": 145,
-   "rsi": 35,
    "index": "DOW30"
   },
   {
    "sym": "AXP",
    "name": "American Express",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "프리미엄 카드 · 소비 지출 성장 · 고소득 고객",
-   "mcap": 190,
-   "rsi": 55,
    "index": "DOW30"
   },
   {
    "sym": "MMM",
    "name": "3M",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "헬스케어 분사 완료 · 구조조정 · 소송 해결",
-   "mcap": 70,
-   "rsi": 48,
    "index": "DOW30"
   },
   {
    "sym": "VZ",
    "name": "Verizon",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "5G 인프라 · 고배당 · 가입자 안정화",
-   "mcap": 170,
-   "rsi": 50,
    "index": "DOW30"
   },
   {
    "sym": "TRV",
    "name": "Travelers",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 · 프리미엄 인상 사이클 · 안정 배당",
-   "mcap": 55,
-   "rsi": 52,
    "index": "DOW30"
   },
   {
    "sym": "DOW",
    "name": "Dow Inc",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "화학·소재 · 원자재 가격 민감 · 배당",
-   "mcap": 32,
-   "rsi": 45,
    "index": "DOW30"
   },
   {
    "sym": "ASML",
    "name": "ASML Holdings",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Citi PT €1600 JPM OW AFL] 1Q26 매출 €87.7억(컨센상회 €86.9, 가이던스 €82-89 상단), GM 53.0%(상단), EPS €7.15(+10.5% JPM) · 2026 매출 가이던스 €360-400억(중간값 €380억, 기존 €365억 대비 상향) · 2027 Low NA EUV 최소 80대 공약(VA 컨센 72 대비 상승여력) · 삼성 P5 EUV 20대 오더 · \"고객 단기·중기 수요 상향\" = 매우 강한 수주 · 3800F 처리량 증가=2027 ASP 긍정 · 新가이던스 체계: 보수 제시→연중 상향 전환 · 2Q26 가이던스 €84-90억(컨센 하회 €90.7) 보수적 의도 · [2026-06-22] 루턱 상무장관의 EUV 중국 반출 비난에도 ASML 미반출 공식 확인 — 정치 헤드라인 노이즈 vs 실제 리스크 괴리 → 수출통제 리스크 오버프라이싱 해소 논리",
-   "mcap": 290,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "LIN",
    "name": "Linde",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "산업가스 세계 1위 · 반도체+에너지 수혜",
-   "mcap": 220,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "INTU",
    "name": "Intuit",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "TurboTax+QuickBooks · AI 기반 금융 SW",
-   "mcap": 170,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "BLK",
    "name": "BlackRock",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "세계 최대 자산운용사 · ETF · iShares",
-   "mcap": 150,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "ISRG",
    "name": "Intuitive Surgical",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "다빈치5 수술 로봇 독점(시장점유 80%+) · 시술 건수 YoY +17% 성장 · 설치 기반 확대(9,000대+) → 소모품 반복 매출 · 중국 FDA 승인으로 아시아 진출 가속 · PER 70x 프리미엄",
-   "mcap": 180,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "UBER",
    "name": "Uber Technologies",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[GS PT$125 BUY 04/21] 로보택시 잠식 아닌 증분 성장 · 웨이모 Uber앱 TpVD +30%(자체 대비) · 2030 미국 AV 라이드셰어 예약 30%+ 중개 여지 · 연간 65억건 수요 vs 2030 로보택시 62,750대=하이브리드 필수 · UCAN AV 잠식 2030 5%/베어16% · 웨이모 현재 운영 상위25 대도시 5% 미만 · 자율주행 파트너십 확장(Waymo+PONY+Zoox+테슬라 중립)",
-   "mcap": 145,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "AMAT",
    "name": "Applied Materials",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "Evercore 탑픽 — WFE $140B/$180B(2026/2027) 상향 수혜 · HBM4 고용량화+첨단패키징 장비 수요 · Agentic AI DRAM/NAND 집약화→설비투자 직접 수혜 · HBM 3~4x 용량 확장=AMAT 장비 수요 배수 확대",
-   "mcap": 140,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "SLB",
    "name": "Schlumberger",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "유전서비스 수요 · 디지털 전환 · 중동 확장",
-   "mcap": 70,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "T",
    "name": "AT&T",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "5G·광통신 · 부채 축소 · 고배당",
-   "mcap": 145,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "NEE",
    "name": "NextEra Energy",
    "sector": "Utilities",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] 가스터빈+에어로+왕복엔진+이동식발전기 올오브더어보브 독보적 · DC전력 원스톱 솔루션 · 학습→추론 전환 양면수혜 · BTM수요 포함 단기~중기 최선호",
-   "mcap": 155,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "LOW",
    "name": "Lowe's",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "주택 리모델링 · Home Depot 경쟁 · 주주환원",
-   "mcap": 125,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "SPGI",
    "name": "S&P Global",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "신용평가+데이터 · 금융 인프라 독점",
-   "mcap": 150,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "DE",
    "name": "Deere & Co",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "정밀 농업 자동화 · AI 기반 농기계",
-   "mcap": 151,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "NOC",
    "name": "Northrop Grumman",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[2026-04-25] B-21 Raider 생산 가속(FY26 업사이드) · Sentinel ICBM · SDA Tranche 3 $764M · Amazon Kuiper Gen63 모터 공급 · 백로그 $95.7B · 1년 수익률 +34% · YTD +21% 대형방산 최강세",
-   "mcap": 94,
-   "rsi": 58,
    "index": "SP500"
   },
   {
    "sym": "GD",
    "name": "General Dynamics",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "버지니아급 잠수함 건조 · FY2027 $1.5T 국방예산 수혜 · Gulfstream · 방산 수혜",
-   "mcap": 80,
-   "rsi": 57,
    "index": "SP500"
   },
   {
    "sym": "HII",
    "name": "Huntington Ingalls",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "미 해군 함정 독점 건조 · 버지니아급 잠수함 · FY2027 $1.5T 국방예산 최대수혜 · 핵잠수함",
-   "mcap": 12,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "WFC",
    "name": "Wells Fargo",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "소매 뱅킹 회복 중 · $1.95T 자산상한 해제 기대(2026 하반기?) → 성장 가속 촉매 · 순이자마진(NIM) 금리 민감 · 비용 절감 + 디지털 전환 · PER 11x 은행 섹터 평균 수준",
-   "mcap": 195,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MS",
    "name": "Morgan Stanley",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "자산관리 AUM $7T+(부유층 고객 중심) · IB+M&A 회복 사이클 수혜 · ETrade 통합 완료 · 실적 안정성 높음 · 배당 수익률 3%+ · IPO 시장 재개 시 촉매 · PER 14x",
-   "mcap": 175,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "COIN",
    "name": "Coinbase",
    "sector": "Financials",
-   "signal": "WATCH",
-   "memo": "BTC 강세 수혜 · 규제 명확화 · Base L2",
-   "mcap": 53,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "VST",
    "name": "Vistra",
    "sector": "Utilities",
-   "signal": "BUY",
-   "memo": "천연가스+원전 · AI 데이터센터 PPA · 가스 가동률 레버리지(60%→85%) · Rate Base 성장주 리레이팅",
-   "mcap": 49,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "MRNA",
    "name": "Moderna",
    "sector": "Healthcare",
-   "signal": "SELL",
-   "memo": "mRNA 파이프라인 불확실 · 현금 소진 · 매출 급감",
-   "mcap": 20,
-   "rsi": 32,
    "index": "SP500"
   },
   {
    "sym": "SQ",
    "name": "Block Inc",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "Cash App 성장 · 비트코인 전략 · Square 결제",
-   "mcap": 36,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "COP",
    "name": "ConocoPhillips",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "E&P 대형주 · Marathon 인수 · 생산 확대",
-   "mcap": 125,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "SBUX",
    "name": "Starbucks",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "중국 회복 · 미국 가격 전략 · 글로벌 확장",
-   "mcap": 105,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "BROS",
    "name": "Dutch Bros",
    "sector": "Consumer",
-   "signal": "BUY",
-   "memo": "[2026-01~02 Minervini VCP 돌파 사례] Jan 14 ~$43.65 매수 → Feb 13 ~$86(+45%) 목표가 TPR 달성 매도 · 현재 수익실현 후 조정구간 — 지지선 $75.31/$70.72/$59.76 · 서부 드라이브스루 커피 고성장 체인(점포 수 900+, 25-26 공격 확장) · 스타벅스 대비 틈새 + 빠른 서비스 모델 · 재돌파 시 Minervini 패턴 재진입 조건 확인",
-   "mcap": 17,
-   "rsi": 52,
    "index": "SMID"
   },
   {
    "sym": "GILD",
    "name": "Gilead Sciences",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "HIV+간염 치료 · 항암 파이프라인 · 고배당",
-   "mcap": 110,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MRVL",
    "name": "Marvell Technology",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM OW 04/25] Amazon-Anthropic 5GW 다세대 Trainium 약정 핵심 수혜: T3 물량 증가(2H26 $20억 실행률)+T4 2nm ASIC 2027H2 · T4 콘텐츠 확장: Celestial CPO+NVLink Fusion+UALink 스위칭 · CY27 아마존 비즈니스 +20% YoY(상회 여지) · [기존 04/21] GOOG MPU+추론 TPU 설계 협력·NVDA $2B NVLink Fusion·광학 50%/40% 가이던스·V10 AVGO 3.5년 계약 반박·F28 EPS $8",
-   "mcap": 62,
-   "rsi": 44,
    "index": "NASDAQ100"
   },
   {
    "sym": "SNPS",
    "name": "Synopsys",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "반도체 설계 EDA 도구 · AI 칩 설계 필수",
-   "mcap": 80,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "CDNS",
    "name": "Cadence Design",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "EDA + 시스템 설계 · AI 칩 설계 인프라",
-   "mcap": 75,
-   "rsi": 50,
    "index": "NASDAQ100"
   },
   {
    "sym": "LRCX",
    "name": "Lam Research",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "MS OW PT $260(from $254) · Beat & Raise — JunQ $6.2bn 가이던스(Street $6.0bn 상회) · 5분기 연속 Street 추정치 9% 평균 초과 · DRAM 매출 분기 최고치 경신 · NAND 집약적 WFE 최대 수혜주(Evercore 탑픽) · 10% QoQ 성장 JunQ · Foundry/Logic +31% y/y",
-   "mcap": 95,
-   "rsi": 45,
    "index": "NASDAQ100"
   },
   {
    "sym": "KLAC",
    "name": "KLA Corporation",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "반도체 검사/계측 장비 · 수율 관리 필수",
-   "mcap": 85,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "REGN",
    "name": "Regeneron",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "Eylea 안과 · Dupixent 면역 · 바이오 대형주",
-   "mcap": 95,
-   "rsi": 50,
    "index": "NASDAQ100"
   },
   {
    "sym": "VRTX",
    "name": "Vertex Pharma",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "낭포성 섬유증 독점 · 유전자 치료 · 통증",
-   "mcap": 115,
-   "rsi": 52,
    "index": "NASDAQ100"
   },
   {
    "sym": "FTNT",
    "name": "Fortinet",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "네트워크 보안 · SASE · AI 위협탐지",
-   "mcap": 65,
-   "rsi": 52,
    "index": "NASDAQ100"
   },
   {
    "sym": "MELI",
    "name": "MercadoLibre",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "라틴아메리카 이커머스+핀테크 1위",
-   "mcap": 100,
-   "rsi": 55,
    "index": "NASDAQ100"
   },
   {
    "sym": "DDOG",
    "name": "Datadog",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "클라우드 모니터링+옵저버빌리티 · AI 워크로드 추적",
-   "mcap": 42,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "SNOW",
    "name": "Snowflake",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "AI 투자 ROI 견조 — 문제해결 수일→10~15분 · AI 판매데모/고객지원/시스템 신뢰성 수익 확보 · 클라우드 데이터 웨어하우스",
-   "mcap": 52,
-   "rsi": 42,
    "index": "NASDAQ100"
   },
   {
    "sym": "ZS",
    "name": "Zscaler",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[WF 04/21] OpenAI TAC 14파트너 진입(순수사이버 CRWD와 함께 2곳) · Glasswing 제외됐으나 TAC 포지션 확보=AI 보안 대열 합류 · 제로트러스트+SASE+클라우드 보안 · 포스트양자 암호화 SASE 확장 · AI 크롤/에이전트 트래픽 신규 가시성 · 14 중 절반 금융·나머지(CSCO/CRWD/NVDA/ORCL/ZS)+스타트업(SpecterOps/iVerify) · CAISI/AISI 연방 기관 배포 → 정부 표준화 경로 · GPT-5.4-Cyber 접근",
-   "mcap": 30,
-   "rsi": 45,
    "index": "NASDAQ100"
   },
   {
    "sym": "TTD",
    "name": "The Trade Desk",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "프로그래매틱 광고 · CTV · 리테일 미디어",
-   "mcap": 40,
-   "rsi": 40,
    "index": "NASDAQ100"
   },
   {
    "sym": "SMCI",
    "name": "Super Micro Computer",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[2026-06-23] NVIDIA Vera Rubin 기반 AI DC 플랫폼 공개 — 최대 1,152개 Rubin GPU 수용 초대형 클러스터 설계 발표. AI 인프라 투자 확대 핵심 수혜. Dell 동시 발표로 Vera Rubin 생태계 경쟁 격화. 회계 이슈 재감사 완료·상장 유지 확인. AI 서버 고성장 vs 회계 리스크 잔존",
-   "mcap": 22,
-   "rsi": 38,
    "index": "NASDAQ100"
   },
   {
    "sym": "IONQ",
    "name": "IonQ",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[Quantinuum H2 마일스톤 05/24] Honeywell Quantinuum H2, 32큐비트 GHz(Greenberger-Horne-Zeilinger) 상태 기록 달성 — 양자컴퓨팅 업계 기록. 경쟁사 마일스톤이지만 섹터 전반 재부각 촉매. IonQ 트랩 이온 방식 차별화 포지션 재확인. Forte Enterprise · 정부 계약 · 이온트랩 방식 장기 우위",
-   "mcap": 11,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "RKLB",
    "name": "Rocket Lab USA",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[2026-04-25] Electron 2025년 21회 무사고 · Neutron 중형로켓 Q4 2026 데뷔(탱크 테스트 실패로 재연기) · SDA Tranche 3 $805M · NSSL Lane 1 온램프 · Mynaric $155M 인수 완료(레이저 통신 수직계열화) · Q4 2025 매출 $179M(+36%) · Q1 2026 가이던스 $185-200M · 시총 $48.8B · PSR 44배 · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)",
-   "mcap": 48,
-   "rsi": 55,
    "index": "NASDAQ100"
   },
   {
    "sym": "ASTS",
    "name": "AST SpaceMobile",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] BlueBird 7 2단 분리 실패·디오빗(2026-04-16) · 차세대 BlueBird 45기 연말 목표(월 1-2기) · D2D 50+ MNO 계약 · PSR 338배+연 $1.2B burn = 고위험 · Amazon-Globalstar $11.6B 인수(D2D 경쟁 격화) · 2026 YTD -30% 조정",
-   "mcap": 26,
-   "rsi": 50,
    "index": "NASDAQ100"
   },
   {
    "sym": "RGTI",
    "name": "Rigetti Computing",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "양자컴퓨팅 · 초전도 큐빗 · 초기 단계",
-   "mcap": 4,
-   "rsi": 55,
    "index": "RUSSELL2000"
   },
   {
    "sym": "XNDU",
    "name": "Xanadu Quantum",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[PhotonCap 04/12] 광자(photonic) 양자컴퓨팅 순수플레이 — Nature 3편(Borealis/Aurora/GKP) · SPAC 상장 EV $31B · 매출 $4.6M(초기) · 핵심 과제: optical loss 1/40 개선 필요(현재 56%→목표 <1%) · PennyLane 오픈소스 양자 SDK · CAD$390M 정부 지원 협상 중",
-   "mcap": 28,
-   "rsi": 50,
    "index": "NASDAQ"
   },
   {
    "sym": "AMKR",
    "name": "Amkor Technology",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[Perplexity 04/09 #2] OSAT 선두 · $54.97 · PE 36.6x · EV/EBITDA 8.4x · FCF Yield 1.96% · Q4 EPS $0.69 vs est $0.43(+60% beat) · 첨단패키징(HDFO) 매출 2026 3배↑ · CapEx $2.5-3.0B 3배 증가=실행 리스크 · CHIPS Act $2.85B · Arizona 메가팹 · Vietnam 손익분기 달성 · PT $51.57(Buy) 현재가 상회 · D/E 0.33",
-   "mcap": 14,
-   "rsi": 42,
    "index": "NASDAQ"
   },
   {
    "sym": "PLAB",
    "name": "Photronics",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[Perplexity 04/09 #1 최저밸류] 포토마스크 전문 · $44.09 · PE 18.8x(그룹 최저) · EV/EBITDA 4.2x · FCF Yield 4.33%(최고) · 부채 제로 · 현금비율 4.57 · 영업마진 22-26% 안정 · AI 패키징/High-NA EUV 마스크 수요↑ · ⚠CEO 내부자 매도 55K주(6개월) · 중국 샤먼 JV ~50% 지정학 리스크 · PT $43.50(Str Buy) 애널리스트 2명",
-   "mcap": 3,
-   "rsi": 48,
    "index": "NASDAQ"
   },
   {
    "sym": "ASX",
    "name": "ASE Technology",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[Perplexity 04/09 #6] 세계 최대 OSAT · $24.28 · PE 44.2x(+147% 프리미엄) · EV/EBITDA 10.8x · FCF Yield -2.0% · D/E 0.75(그룹 최고) · 마진 압축 ~340bps · 미국 애널리스트 커버리지 없음 · 대만 지정학 리스크 · 고위험-고보상 첨단패키징 플레이",
-   "mcap": 53,
-   "rsi": 45,
    "index": "NYSE"
   },
   {
    "sym": "LUNR",
    "name": "Intuitive Machines",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[2026-04-25] Lanteris(구 Maxar Space Systems) $800M 인수 완료 — 합산 매출 $850M·백로그 $943M · IM-3 Reiner Gamma 하반기 발사 예정 · NASA NSNS $4.82B IDIQ · LTVS $4.6B 결정 2026-11 · 시총 $5.1B · YTD +80%",
-   "mcap": 5,
-   "rsi": 60,
    "index": "RUSSELL2000"
   },
   {
    "sym": "SMR",
    "name": "NuScale Power",
    "sector": "Utilities",
-   "signal": "WATCH",
-   "memo": "소형모듈원전(SMR) · 최초 NRC 인증 · 상업화 준비",
-   "mcap": 5,
-   "rsi": 52,
    "index": "RUSSELL2000"
   },
   {
    "sym": "CLS",
    "name": "Celestica",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[Perplexity 04/09 #4] AI서버/HW EMS · $319 · PE 44.5x(+181% 프리미엄) · EV/EBITDA 28.1x · FCF Yield 1.35% · 매출 YoY +30% · 애널리스트 업사이드 +15.9%(그룹 최고) · PT $369.89(Buy) · D/E 0.34 · Q2-Q3 마진 변동성 주의",
-   "mcap": 37,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "FN",
    "name": "Fabrinet",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[JPM 04/17: OW→N 하향 + Negative Catalyst Watch] PT$700(기존$530↑) · 단기 고객 램프업 불안정 + 신규 고객 가시성 제한 · 광학모듈/정밀제조 · PE 59.6x · FCF Yield -1.9% · Rowe Price +163% 포지션 · 광학 섹터 밸류에이션 쏠림(AI 프리미엄 +83%) · 2028년 이익 전제 필요",
-   "mcap": 22,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "ONTO",
    "name": "Onto Innovation",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[Perplexity 04/09 #5] 반도체 검사/계측 · $246 · GAAP PE 88.2x(Semilab 인수 왜곡, Non-GAAP ~35-40x) · FCF Yield 3.64% · 부채 제로 · 현금비율 5.79 · 백로그 $330M 역대 최고 · 중국 노출 최소 · PT $242.50(Str Buy) · High-NA EUV 검사 수요",
-   "mcap": 12,
-   "rsi": 48,
    "index": "NASDAQ"
   },
   {
    "sym": "AFRM",
    "name": "Affirm Holdings",
    "sector": "Financials",
-   "signal": "WATCH",
-   "memo": "BNPL(후불결제) · 소비자 대출 · 성장+리스크",
-   "mcap": 15,
-   "rsi": 45,
    "index": "RUSSELL2000"
   },
   {
    "sym": "SOFI",
    "name": "SoFi Technologies",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "포브스 2026 세계최고은행 미국 1위 · 디지털 뱅킹 · 대출+투자 · 가입자 성장",
-   "mcap": 15,
-   "rsi": 48,
    "index": "RUSSELL2000"
   },
   {
    "sym": "UPST",
    "name": "Upstart Holdings",
    "sector": "Financials",
-   "signal": "WATCH",
-   "memo": "AI 신용평가 · 대출 플랫폼 · 금리 민감",
-   "mcap": 5,
-   "rsi": 42,
    "index": "RUSSELL2000"
   },
   {
    "sym": "RIOT",
    "name": "Riot Platforms",
    "sector": "Financials",
-   "signal": "WATCH",
-   "memo": "비트코인 채굴 · BTC 가격 연동 · 에너지 집약",
-   "mcap": 4,
-   "rsi": 50,
    "index": "RUSSELL2000"
   },
   {
    "sym": "MARA",
    "name": "Marathon Digital",
    "sector": "Financials",
-   "signal": "WATCH",
-   "memo": "비트코인 채굴 대형주 · BTC 보유 전략",
-   "mcap": 6,
-   "rsi": 48,
    "index": "RUSSELL2000"
   },
   {
    "sym": "RDW",
    "name": "Redwire",
    "sector": "Industrials",
-   "signal": "WATCH",
-   "memo": "우주 인프라·위성 부품 · 3D 프린팅 우주",
-   "mcap": 2,
-   "rsi": 55,
    "index": "RUSSELL2000"
   },
   {
    "sym": "JOBY",
    "name": "Joby Aviation",
    "sector": "Industrials",
-   "signal": "WATCH",
-   "memo": "eVTOL 도심항공모빌리티 · FAA 인증 진행",
-   "mcap": 6,
-   "rsi": 48,
    "index": "RUSSELL2000"
   },
   {
    "sym": "DNA",
    "name": "Ginkgo Bioworks",
    "sector": "Healthcare",
-   "signal": "SELL",
-   "memo": "합성생물학 플랫폼 · 매출 부진 · 현금 소진",
-   "mcap": 1,
-   "rsi": 30,
    "index": "RUSSELL2000"
   },
   {
    "sym": "QUBT",
    "name": "Quantum Computing",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "양자컴퓨팅 · 광자 기반 · 초기 매출",
-   "mcap": 2,
-   "rsi": 55,
    "index": "RUSSELL2000"
   },
   {
    "sym": "CAVA",
    "name": "CAVA Group",
    "sector": "Consumer",
-   "signal": "BUY",
-   "memo": "지중해 패스트캐주얼 · 고성장 외식 체인 · 미국 확장",
-   "mcap": 15,
-   "rsi": 58,
    "index": "RUSSELL2000"
   },
   {
    "sym": "SOUN",
    "name": "SoundHound AI",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "음성 AI 플랫폼 · 자동차+레스토랑 · 고평가",
-   "mcap": 5,
-   "rsi": 50,
    "index": "RUSSELL2000"
   },
   {
    "sym": "CRWV",
    "name": "CoreWeave",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[5/31 마이클 델] CoreWeave에 첫 번째 NVIDIA Vera Rubin NVL72 설치 인증 — Vera Rubin 실물 출하 세계 최초 확인. [Citi 04/29] PT$155(기존$126↑) 백로그 QoQ+35-40% · Jane Street+META 신규계약 · ARR $300억 잠재 · [DA Davidson PT$175↑ Mizuho PT$105 BofA PT$120] 프론티어 랩 독점 네오클라우드 — Meta $21B(신규 2032 Vera Rubin)+Meta $14B+OpenAI $22B+Anthropic 수십억 = 합산 $58B+ · NVIDIA 긴밀관계=비NVDA 호스팅 차단 · 1Q26E 매출 $19.5B(+99%YoY) · 2026 매출 $120-130B · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)",
-   "mcap": 23,
-   "rsi": 52,
    "index": "NASDAQ100"
   },
   {
    "sym": "NBIS",
    "name": "Nebius Group",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[GS PT $205↑, BofA PT $175↑] Meta $270억+MSFT 장기계약+NVDA $20억 전략투자 · 핀란드+앨라배마 DC 확장 · BofA 2027E EV/Sales 5.0x(피어 하단) · 글로벌 AI 인프라 핵심 공급자 입지 · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)",
-   "mcap": 6,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "IREN",
    "name": "IREN Limited",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[GS 05/29] PT$50(기존$44↑) · Dell과 $16억 Blackwell 기반 AI 시스템 구매계약(2027초 텍사스 가동) · 약 26,000개 B200 GPU 확보 · GPU 조달비용 기존 예상($20~25억) 하회 = 마진 개선 기대 · NVDA 5년 $34억 계약 이행 중 · FY26~28 EBITDA 14% 하향(BTC채굴 축소) · [Cantor OW] MSFT 5년 $97억 Take-or-pay(76K GB300, 200MW) · Childress 750MW+Sweetwater 2GW+Oklahoma 1.6GW 전력 · BTC마이너→AI DC 전환 선도",
-   "mcap": 4,
-   "rsi": 48,
    "index": "RUSSELL2000"
   },
   {
    "sym": "CORZ",
    "name": "Core Scientific",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Cantor Top Pick PT$29] AI DC 전환 선도 · CRWV 최초 딜 파트너(2024.06) · 딜 가치 기준 가장 큰 할인 거래 · DC 사상 최고 딜+선점 효과 · BTC마이너→AI 인프라",
-   "mcap": 5,
-   "rsi": 45,
    "index": "NASDAQ"
   },
   {
    "sym": "BIRD",
    "name": "Allbirds",
    "sector": "Consumer",
-   "signal": "SELL",
-   "memo": "친환경 신발 · 매출 감소 · 구조조정",
-   "mcap": 0.1,
-   "rsi": 28,
    "index": "RUSSELL2000"
   },
   {
    "sym": "DM",
    "name": "Desktop Metal",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "산업용 3D 프린팅 · 양산화 도전",
-   "mcap": 0.5,
-   "rsi": 35,
    "index": "RUSSELL2000"
   },
   {
    "sym": "AAOI",
    "name": "Applied Optoelectronics",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[시트론 공매도 04/11] 선행PER 112x(NVDA 버블정점40x의 3배) · GM 31%(NVDA 75%대비) · 앵커 ORCL(재무취약) vs LITE 앵커 NVDA · 범용HW마진에 독점배수 · 이노라이트 가격인하 리스크 · 2주전 $85→$140 급등",
-   "mcap": 2.5,
-   "rsi": 62,
    "index": "RUSSELL2000"
   },
   {
    "sym": "COHR",
    "name": "Coherent Corp",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM OW PT$380 (v48.87 05/07)] NVIDIA $20억 전략투자(2026.03) + 수십억 달러 10년+ 장기 매입 계약. InP 6인치 캐파 2배 달성 1분기 앞당김(목표 9월). F4Q26 가이던스 +$170M QoQ. FY27 매출 성장 FY26 초과 + GPM 42%+ 목표. OCS TAM OFC 이후 2배 상향. CPO scale-out H2'26 매출 시작, scale-up 2027H2. $15B+ CPO TAM. InP 수직통합 → 공급망 병목 해소. SiPh+레이저 양대산맥. 800G/1.6T CPO 모듈. CHIPS Act $33M. OFC2026 CPO TAM $21B 확인",
-   "mcap": 15,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "LITE",
    "name": "Lumentum",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Citi AI서밋 04/21] CEO Michael Hurlston: NVDA $2B 전략적 투자 확보(CPO 다년 R&D 협력) · InP 공급 2028-2029 수요 부족 지속 · 2028말~2029초 3.2T 노드 구리 유효거리 1.5-2m 급락=광학 주 백플레인 변곡점 · 분기 매출 $1.5-2B 목표 · 광학 업계 사상 처음 공급자 가격 인상+원가 전가 구조 · Scale-up CPO Rosa-Feynman 2028 · OCS 수주잔고 $400M+ · 미즈호 PT $930 · AVGO PA 레이저 4배 확장도 판도 영향 미미",
-   "mcap": 6,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "CRDO",
    "name": "Credo Technology",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[2026-06-23] Evercore PT$325↑ + Stifel PT$350↑ 동시 상향 — AI 투자 사이클이 GPU에서 네트워크·광통신 계층으로 확산. [실적 06/01 장후 ★] [BofA PT$210↑(160→210)] DustPhotonics 인수 후속 — FY27 광학 run-rate $5억+(기존 $1억+ 대비 대폭상향), FY27 총매출 $2.3B(+75%YoY)(컨센 +$3억) · ZR광 트랜시버+광DSP+SiPho 수직통합 · GM 63-65%/OpM 50% · EPS $10-11(AI TAM $96B 5% 점유) · CRDO CY27E PE 23배 vs 광학동종 40-50배 · AEC 800G(FY26-27) 1.6T(FY27-28) · AMZN/MSFT/xAI/META 지속 · 2029E AEC TAM $10B+",
-   "mcap": 10,
-   "rsi": 45,
    "index": "NASDAQ100"
   },
   {
    "sym": "POET",
    "name": "POET Technologies",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "광인터포저(Teralight) · 포토닉스 반도체화 · EML 4개(업계 8~16) · Luxshare/FIT/LITEON 파트너 · 1.6T 프로토 2026말 · Celestial AI(MRVL 인수) Photonic Fabric 핵심부품 공급 가능성 · NVIDIA 광학 supply chain 빈칸 후보 · 프리레버뉴 · 현금 $450M(시총57%)",
-   "mcap": 0.8,
-   "rsi": 44,
    "index": "OTC"
   },
   {
    "sym": "CIEN",
    "name": "Ciena",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "광네트워킹 장비 · AI 트래픽 증가 수혜",
-   "mcap": 9,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "GLW",
    "name": "Corning",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[JPM 04/17: OW→N 하향] PT$175(기존$115↑ but 밸류에이션 우려) · NTM PE 50배+, 2027E 40배+ = 펀더멘털보다 앞서감 · AI 광학 섹터 프리미엄 과거 평균 대비 +83% · 광섬유 · AI DC 광케이블 수요 폭증 · Gorilla Glass · 펀더멘털 강세 유지되나 2028년 이익 봐야 밸류에이션 정당화",
-   "mcap": 40,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "VRT",
    "name": "Vertiv Holdings",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[Citi $353 / JPM Q1강세 — 04/25] 1Q26: 유기적 매출 +23%·EPS $1.17 예상상회·2026 가이던스 상향 · 수주잔고+슬롯 100GW 조기 달성→110GW 상향 · EMEA 1Q 수주 탄탄(2H26 YoY+ 예상) · BMarko 인수완료/ThermoKey 2Q완료 · 순레버리지 0.2배 M&A 여력 · 관세 실질 상쇄 기대 · 투자자 데이 5/19-20 차기 촉매 · [기존] DC 파이프라인 415GW 누적·낙관 EPS 2026 $8/2027 $13",
-   "mcap": 42,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "DELL",
    "name": "Dell Technologies",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[2026-06-23] NVIDIA Vera Rubin 기반 차세대 AI DC 플랫폼 공개(SMCI와 동시). Vera Rubin 슈퍼컴퓨터 1순위 OEM 수혜. [FY1Q27 어닝 05/29] 매출 $43.8B(+88%YoY) EPS $4.86(+214%) OP $4.2B(+154%) · AI서버 매출 $16.1B · 수주 $24.4B · 잔고 $51.3B · 2Q 가이던스 $44-45B(+50%YoY) ISG+75% · FY27 연간 $165-169B AI서버 $60B · [Susquehanna 05/29] PT$700(기존$138↑↑) · 공급 제약 ①NAND ②DRAM ③CPU ④HDD · Computex ARM칩 기반 PC 협력",
-   "mcap": 80,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "HPE",
    "name": "Hewlett Packard Enterprise",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "AI 서버/네트워킹 · Juniper 인수 · 하이브리드 클라우드",
-   "mcap": 28,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "HIMS",
    "name": "Hims & Hers Health",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "텔레헬스 · GLP-1 비만치료 · D2C 헬스케어 급성장",
-   "mcap": 8,
-   "rsi": 65,
    "index": "RUSSELL2000"
   },
   {
    "sym": "AEHR",
    "name": "Aehr Test Systems",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "SiC 반도체 테스트 장비 · EV/전력 수요",
-   "mcap": 1,
-   "rsi": 38,
    "index": "RUSSELL2000"
   },
   {
    "sym": "VIAV",
    "name": "Viavi Solutions",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "네트워크 테스트/측정 · 광통신 · 5G 인프라",
-   "mcap": 2.5,
-   "rsi": 42,
    "index": "RUSSELL2000"
   },
   {
    "sym": "RDDT",
    "name": "Reddit",
    "sector": "Communication Services",
-   "signal": "BUY",
-   "memo": "소셜미디어 IPO · AI 데이터 라이선싱 · 광고 성장",
-   "mcap": 25,
-   "rsi": 58,
    "index": "SP500"
   },
   {
    "sym": "PINS",
    "name": "Pinterest",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "비주얼 검색 · 쇼핑 통합 · 광고 수익 성장",
-   "mcap": 20,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "SNAP",
    "name": "Snap Inc",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "Snapchat · AR 글래스 · 젊은 사용자층",
-   "mcap": 18,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "RBLX",
    "name": "Roblox",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "메타버스 게임 플랫폼 · 10대 사용자 · 수익화 진행",
-   "mcap": 32,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "SPOT",
    "name": "Spotify",
    "sector": "Communication Services",
-   "signal": "BUY",
-   "memo": "음악 스트리밍 1위 · 구독자 6억+ · 마진 개선",
-   "mcap": 85,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "TEM",
    "name": "Tempus AI",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "AI 기반 정밀의료 · 유전체 분석 · 데이터 플랫폼",
-   "mcap": 10,
-   "rsi": 60,
    "index": "NASDAQ100"
   },
   {
    "sym": "AI",
    "name": "C3.ai",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "엔터프라이즈 AI 플랫폼 · 정부/국방 계약 · 수익성 의문",
-   "mcap": 4,
-   "rsi": 45,
    "index": "NASDAQ100"
   },
   {
    "sym": "PATH",
    "name": "UiPath",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "RPA(로봇 프로세스 자동화) · AI Agent 통합",
-   "mcap": 8,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "CFLT",
    "name": "Confluent",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "데이터 스트리밍 · Apache Kafka · 실시간 AI 파이프라인",
-   "mcap": 8,
-   "rsi": 45,
    "index": "NASDAQ100"
   },
   {
    "sym": "CRSP",
    "name": "CRISPR Therapeutics",
    "sector": "Healthcare",
-   "signal": "WATCH",
-   "memo": "유전자 가위 치료 · Casgevy FDA 승인 · 겸상적혈구",
-   "mcap": 4,
-   "rsi": 40,
    "index": "NASDAQ100"
   },
   {
    "sym": "NET",
    "name": "Cloudflare",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Mizuho PT$235 (255→235↓)] 4Q 매출 +33.5%YoY(컨센 29%대비 +3.9%pt 초과달성) · 채널매출 비중 22%→29% · 1Q26E 매출 $621M(+29.5%YoY), OpM 11.4% · 2026 가이던스 $27.85-27.95B(+28~29%YoY) · 1Q 트래픽 +73%YoY · 마스터카드/센티넬원 통합/x402(코인베이스 Base 9,700만건+Stripe) · 포스트양자 SASE 최초 · Anthropic Claude 매니지드 에이전트 출시 후 -13% IGV언더 but Workers AI 직접경쟁 제한적 · EV/매출 26/27E 31x/24x · Dynamic Workers 오픈베타",
-   "mcap": 38,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "MDB",
    "name": "MongoDB",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "NoSQL 데이터베이스 · AI 워크로드 · 클라우드 전환",
-   "mcap": 18,
-   "rsi": 40,
    "index": "NASDAQ100"
   },
   {
    "sym": "GTLB",
    "name": "GitLab",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "DevSecOps 플랫폼 · AI 코드 어시스턴트 · 코딩 자동화",
-   "mcap": 8,
-   "rsi": 45,
    "index": "NASDAQ100"
   },
   {
    "sym": "ESTC",
    "name": "Elastic",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "검색/옵저버빌리티 · AI 기반 보안분석 · Elasticsearch",
-   "mcap": 10,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "HOOD",
    "name": "Robinhood",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "무수수료 트레이딩 · 크립토 · 골드카드 · 젊은 투자자",
-   "mcap": 35,
-   "rsi": 58,
    "index": "NASDAQ100"
   },
   {
    "sym": "SQ",
    "name": "Block Inc (SQ)",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "Square 결제 · Cash App · 비트코인 전략",
-   "mcap": 36,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "MSTR",
    "name": "MicroStrategy",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[Bernstein 04/10] PT $450 — BTC 최대 보유 상장사 · 양자컴퓨팅 리스크: Google CRQC 논문(큐빗 1K+게이트 20M=2017년 대비 5000배↓) · P2PK 취약주소 690만개(사토시 포함) · 공격 성공률 41%(9분 vs 블록 10분) · 포스트-양자 암호 업그레이드 속도가 핵심 변수",
-   "mcap": 65,
-   "rsi": 55,
    "index": "NASDAQ100"
   },
   {
    "sym": "NRG",
    "name": "NRG Energy",
    "sector": "Utilities",
-   "signal": "BUY",
-   "memo": "AI 데이터센터 PPA 직접계약 · 천연가스+재생에너지 · Rate Base 확대",
-   "mcap": 22,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "CCJ",
    "name": "Cameco",
    "sector": "Energy",
-   "signal": "BUY",
-   "memo": "우라늄 생산 세계 2위 · 원전 르네상스 수혜",
-   "mcap": 25,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "OKLO",
    "name": "Oklo Inc",
    "sector": "Utilities",
-   "signal": "WATCH",
-   "memo": "소형원전(SMR) · Sam Altman 투자 · AI 전력",
-   "mcap": 4,
-   "rsi": 58,
    "index": "RUSSELL2000"
   },
   {
    "sym": "TLN",
    "name": "Talen Energy",
    "sector": "Utilities",
-   "signal": "BUY",
-   "memo": "원전+천연가스 · AI 데이터센터 PPA · Rate Base 확대 · 리스트럭처링",
-   "mcap": 12,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "RIVN",
    "name": "Rivian Automotive",
    "sector": "Consumer",
-   "signal": "WATCH",
-   "memo": "EV 픽업/SUV · 아마존 배송 밴 · 현금 소진 우려",
-   "mcap": 15,
-   "rsi": 38,
    "index": "NASDAQ100"
   },
   {
    "sym": "LCID",
    "name": "Lucid Group",
    "sector": "Consumer",
-   "signal": "WATCH",
-   "memo": "럭셔리 EV · 사우디 투자 · 생산 램프업 느림",
-   "mcap": 7,
-   "rsi": 35,
    "index": "NASDAQ100"
   },
   {
    "sym": "GM",
    "name": "General Motors",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "EV 전환 + ICE 수익 · Cruise 자율주행 · 밸류에이션 매력",
-   "mcap": 48,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "F",
    "name": "Ford Motor",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "F-150 Lightning · EV 투자 + 트럭 수익 · 고배당",
-   "mcap": 42,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "PL",
    "name": "Planet Labs",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] SuperDove·SkySat·Pelican VHR·Tanager 하이퍼스펙트럴 포트폴리오 · Google Suncatcher 우주 AI 컴퓨팅 R&D · FY26 매출 $297-301M · RPO $672M(+361%) · 독일/NATO/파시픽 Pelican $230M · Defense+Intel 매출 +70% YoY · 1년 +93%",
-   "mcap": 12,
-   "rsi": 45,
    "index": "RUSSELL2000"
   },
   {
    "sym": "NVTS",
    "name": "Navitas Semiconductor",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[2026-04-25] NVIDIA 800V HVDC 공식 파트너 — GaNFast+GeneSiC · GTC2026 800V→6V 단일스테이지 DC-DC 공개(피크 효율 96.5%, 2100W/in³) · 48V 중간버스 제거=TCO 절감 · 순수 GaN·SiC 플레이어로 800V HVDC 매출 발생 시 레버리지 최대 · 2026 1년 +100%+ · PSR 고밸류·적자 = 고베타 리스크",
-   "mcap": 2,
-   "rsi": 55,
    "index": "NASDAQ"
   },
   {
    "sym": "WOLF",
    "name": "Wolfspeed",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] Chapter 11 구조조정 완료(2025-09-29) — 부채 70% 감축·신주 120대1 교환·기존주주 소각 · CEO EV→AI DC+산업+항공방산 피벗 선언 · AI DC 매출 QoQ +50% · 200mm 모호크밸리 fab 보유(북미 유일 수직계열화 SiC) · 순손실 지속·GAAP GPM -46% = 턴어라운드 베팅",
-   "mcap": 1,
-   "rsi": 38,
    "index": "NYSE"
   },
   {
    "sym": "FLY",
    "name": "Firefly Aerospace",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[2026-04-25] 2025-03 Blue Ghost 달착륙 완전 성공 — 민간 최초 역사 · 2025-08-07 IPO $45 · 백로그 $1.3B · Eclipse 중형로켓 2026 데뷔 · NSSL Lane 1 온램프 · 시총 $7B · $43.60",
-   "mcap": 7,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "VOYG",
    "name": "Voyager Technologies",
    "sector": "Industrials",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] Starlab 우주정거장 CDR 완료 · NASA $50M+ 마일스톤 수령 · Defense QoQ +85% YoY · Next Gen Interceptor 직접 노출 · 2024 매출 $144M → 2026 가이던스 $225-255M · 현금 $700M+ 부채 제로 · 상업우주정거장 3파전 최저평가",
-   "mcap": 2,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "KRMN",
    "name": "Karman Holdings",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[2026-04-25] 2025-02-13 IPO $22→현재 $83.85 (+281%) · FY25 매출 $471.5M(+37%) · 미사일/우주 발사체 추진+구조물 전문 · Seemann Composites $220M 인수 · Golden Dome 하드웨어 수혜 서사 · P/E 637배 = 과열 주의",
-   "mcap": 11,
-   "rsi": 60,
    "index": "NYSE"
   },
   {
    "sym": "BKSY",
    "name": "BlackSky",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[2026-04-25] EO 3사 중 유일 EBITDA 흑자(FY25 +$0.9M) · Gen-3 35cm VHR 4호기 first light · AFRL $99M IDIQ · NGA Luno A · FY26 가이던스 $120-145M(+12-35%) · PSR 11배(Planet Labs의 절반) · 1년 +215%",
-   "mcap": 1,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "IRDM",
    "name": "Iridium",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] 66기 LEO L-band 컨스텔레이션 유일 보유 · FY25 매출 $872M · NTN Direct D2D 2026-01 첫 메시지 성공 · Vodafone IoT 파트너십 · 2026 가이던스 서비스 매출 플랫~+2% · Amazon-Globalstar 딜로 D2D 스펙트럼 재평가 1M +64% · 배당 +$0.60/연",
-   "mcap": 4,
-   "rsi": 52,
    "index": "NASDAQ"
   },
   {
    "sym": "VSAT",
    "name": "Viasat",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] ViaSat-3 F2 발사 성공(2025-11)·2026-05 서비스 개시 · Ligado $420M → Inmarsat 텀론 조기상환 · FY26 3분기 연속 포지티브 FCF · Elliott Management DAT 세그먼트 분사 압박 · 1년 +600%(52주 저점 $7.95 대비 8배)",
-   "mcap": 9,
-   "rsi": 55,
    "index": "NASDAQ"
   },
   {
    "sym": "SATS",
    "name": "EchoStar",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] 스펙트럼 대매각 $42.6B — AT&T $23B(50MHz)+SpaceX $20B(AWS-4)+SpaceX $2.6B(AWS-3) · EchoStar Capital \"스펙트럼 지주회사\"로 전환 · SpaceX 비상장 간접 노출 · FY25 순손실 -$14.5B(비현금 손상) · 1년 +375%",
-   "mcap": 38,
-   "rsi": 58,
    "index": "NASDAQ"
   },
   {
    "sym": "GSAT",
    "name": "Globalstar",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "[2026-04-25] Amazon $11.57B 인수 합의(2026-04-14, 주당 $90 or 0.321 AMZN) · 2027 클로징 목표 · Apple 20% 지분 복잡성 · FY25 매출 $273M · C-3 17기 위성 제조 중 · 현재가 인수가 수준=업사이드 제한",
-   "mcap": 10,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "SPIR",
    "name": "Spire Global",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] Kpler 해양사업 $241M 매각→부채제로 전환(2025-04) · 2026-04 $70M 사모조달 · MDA SHIELD 선정 · FY26 가이던스 매출(ex-maritime) +50% · RF/AIS/기상 데이터 재가속 · 1년 +150%+",
-   "mcap": 1,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "SATL",
    "name": "Satellogic",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "[2026-04-25] FY25 매출 $17.7M(+38%) · 순손실 -$4.8M(2024 -$116.3M에서 급감) · 2026 가이던스 $30.9M · Merlin Constellation 1m 해상도 2027 배치 · ⚠ 중국 ABDAS 2033년 계약 지정학 리스크 · 1년 +450-500%",
-   "mcap": 1,
-   "rsi": 55,
    "index": "NASDAQ"
   },
   {
    "sym": "EA",
    "name": "Electronic Arts",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "FIFA/EA Sports · 모바일 게임 · 라이브 서비스",
-   "mcap": 38,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "TTWO",
    "name": "Take-Two Interactive",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "GTA 6 2025 출시 · Rockstar · NBA 2K",
-   "mcap": 28,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "LULU",
    "name": "Lululemon",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "애슬레저 · 프리미엄 브랜드 · 국제 확장",
-   "mcap": 35,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "DECK",
    "name": "Deckers Outdoor",
    "sector": "Consumer",
-   "signal": "BUY",
-   "memo": "HOKA 러닝화 · UGG · 초고성장 브랜드",
-   "mcap": 25,
-   "rsi": 58,
    "index": "SP500"
   },
   {
    "sym": "CELH",
    "name": "Celsius Holdings",
    "sector": "Consumer Defensive",
-   "signal": "BUY",
-   "memo": "기능성 에너지 음료 · 몬스터 대항마 · 고성장",
-   "mcap": 8,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "ONON",
    "name": "On Holding",
    "sector": "Consumer",
-   "signal": "BUY",
-   "memo": "스위스 러닝화 브랜드 · 로저 페더러 · 고성장",
-   "mcap": 15,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "TRGP",
    "name": "Targa Resources",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "천연가스 수집/처리 · 배당 성장 · 인프라",
-   "mcap": 35,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "WMB",
    "name": "Williams Companies",
    "sector": "Energy",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] BTM 배후미터 2GW·$70억+ 승인 · Socrates 10년계약 · 추가6GW 장비확보($200억+ capex잠재력) · capex/EBITDA 5배(10년계약기준) · 2026 EBITDA 50%+ 잠재 증분",
-   "mcap": 55,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "SEI",
    "name": "Solaris Energy Infrastructure",
    "sector": "Energy",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] 현장 발전 테마 BUY 유지 · IG등급 기술기업과 10년+5년옵션 계약 체결 · 오프그리드 DC 천연가스 현장발전 전문 · 2030년 업계 20GW 목표 수혜",
-   "mcap": 600,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "LBRT",
    "name": "Liberty Energy",
    "sector": "Energy",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] 현장 발전 테마 BUY 유지 · AI Capex 경쟁 지속→현장발전 수요↑ · 아일랜드모드 운영으로 가정용 전기요금 상승 압력 완화 매력 · 장기 계약 구조 확대",
-   "mcap": 2.8,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "KMI",
    "name": "Kinder Morgan",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "천연가스 인프라 · 배당 3.5%+ · 파이프라인",
-   "mcap": 50,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "URI",
    "name": "United Rentals",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "장비 렌탈 1위 · 인프라 투자 수혜 · 데이터센터 건설",
-   "mcap": 55,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "FCX",
    "name": "Freeport-McMoRan",
    "sector": "Materials",
-   "signal": "BUY",
-   "memo": "구리 생산 세계 최대 · AI/EV 구리 수요 폭증",
-   "mcap": 60,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "NUE",
    "name": "Nucor",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "미국 최대 철강사 · 인프라 수혜 · 주주환원",
-   "mcap": 35,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "SHOP",
    "name": "Shopify",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "이커머스 플랫폼 · AI 도구 · SMB 성장 엔진",
-   "mcap": 110,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "ABNB",
    "name": "Airbnb",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "숙박 플랫폼 · 체험 확대 · 여행 수요 안정",
-   "mcap": 80,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "DASH",
    "name": "DoorDash",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "음식 배달 1위 · 식료품/리테일 확장 · 흑자 전환",
-   "mcap": 62,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "ROKU",
    "name": "Roku",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "CTV 스트리밍 OS · 광고 수익 · 경쟁 심화",
-   "mcap": 10,
-   "rsi": 42,
    "index": "NASDAQ100"
   },
   {
    "sym": "DUOL",
    "name": "Duolingo",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "AI 기반 언어 학습 · 구독자 급증 · Ed-tech 리더",
-   "mcap": 12,
-   "rsi": 55,
    "index": "NASDAQ100"
   },
   {
    "sym": "APP",
    "name": "AppLovin",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "모바일 광고/앱 플랫폼 · AI 기반 광고 최적화 · 고성장",
-   "mcap": 95,
-   "rsi": 58,
    "index": "SP500"
   },
   {
    "sym": "AXON",
    "name": "Axon Enterprise",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "테이저/바디캠 · AI 기반 공공안전 플랫폼 · 정부 계약",
-   "mcap": 45,
-   "rsi": 60,
    "index": "SP500"
   },
   {
    "sym": "WDAY",
    "name": "Workday",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "클라우드 HCM/재무 · AI 코파일럿 · 엔터프라이즈",
-   "mcap": 62,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "MNDY",
    "name": "Monday.com",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "업무 관리 SaaS · AI 어시스턴트 · 기업 확장",
-   "mcap": 12,
-   "rsi": 52,
    "index": "NASDAQ100"
   },
   {
    "sym": "BKNG",
    "name": "Booking Holdings",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "온라인 여행 예약 글로벌 1위 · 총예약액(GBV) $160B+ · AI 기반 여행 에이전트 구축 · 유럽 비중 높아 EUR 강세 수혜 · 커넥티드 트립 전략 · 매출 성장 +12% YoY · PER 28x",
-   "mcap": 155,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "TOST",
    "name": "Toast",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "레스토랑 POS/결제 · SaaS · 외식업 디지털화",
-   "mcap": 18,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "GRAB",
    "name": "Grab Holdings",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "동남아 슈퍼앱 · 라이드/배달/핀테크 · 흑자 전환",
-   "mcap": 15,
-   "rsi": 45,
    "index": "NASDAQ100"
   },
   {
    "sym": "SE",
    "name": "Sea Limited",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "동남아 이커머스(Shopee) · 게임(Garena) · 핀테크",
-   "mcap": 35,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "NU",
    "name": "Nu Holdings",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "브라질 디지털 뱅킹 · 1억+ 고객 · 라틴아메리카 핀테크",
-   "mcap": 55,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "PYPL",
    "name": "PayPal",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "온라인 결제 · Venmo · 가치주 전환 · AI 체크아웃",
-   "mcap": 68,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "GME",
    "name": "GameStop",
    "sector": "Consumer",
-   "signal": "WATCH",
-   "memo": "밈주식 · 게임 리테일 · BTC 투자 · 소셜 트레이딩",
-   "mcap": 12,
-   "rsi": 48,
    "index": "RUSSELL2000"
   },
   {
    "sym": "AMC",
    "name": "AMC Entertainment",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "극장 체인 · 밈주식 · 부채 리스크",
-   "mcap": 2,
-   "rsi": 35,
    "index": "RUSSELL2000"
   },
   {
    "sym": "PLBY",
    "name": "PLBY Group",
    "sector": "Consumer",
-   "signal": "SELL",
-   "memo": "라이프스타일 브랜드 · 구조조정 · 매출 감소",
-   "mcap": 0.1,
-   "rsi": 25,
    "index": "RUSSELL2000"
   },
   {
    "sym": "IWM",
    "name": "iShares Russell 2000 ETF",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "Russell 2000 추종 ETF · 소형주 벤치마크",
-   "mcap": 60,
-   "rsi": 45,
    "index": "RUSSELL2000"
   },
   {
    "sym": "DIA",
    "name": "SPDR Dow Jones ETF",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "다우존스 30 추종 ETF · 대형 가치주 벤치마크",
-   "mcap": 35,
-   "rsi": 50,
    "index": "DOW30"
   },
   {
    "sym": "BRK-B",
    "name": "Berkshire Hathaway B",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "BRK.B와 동일(B주) · 워런 버핏 → Greg Abel 후계 · 현금 $373B · 상세 분석은 BRK.B 참조",
-   "mcap": 1072,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "ABT",
    "name": "Abbott Laboratories",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의약품+진단기기 · 신흥국 성장 · 배당",
-   "mcap": 280,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "PM",
    "name": "Philip Morris",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "가열식 담배(IQOS) 전환 가속 · ZYN 니코틴 파우치 미국 시장 폭발적 성장 · Swedish Match 인수 시너지 · 전통 담배 감소→RRP 성장으로 상쇄 · 배당 5%+ · 방어주 매력 · PER 20x",
-   "mcap": 165,
-   "rsi": 56,
    "index": "SP500"
   },
   {
    "sym": "PGR",
    "name": "Progressive Corp",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "자동차 보험 · 수익성 개선 · AI 손해사정",
-   "mcap": 175,
-   "rsi": 57,
    "index": "SP500"
   },
   {
    "sym": "UNP",
    "name": "Union Pacific",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "미국 서부 철도 독점(듀오폴리 CSX와) · 인터모달+벌크 운송 · 정밀 스케줄링(PSR) 효율화 · 리쇼어링+제조업 회복 수혜 · 배당 2%+ · 경기 민감주 · PER 24x",
-   "mcap": 195,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "TJX",
    "name": "TJX Companies",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "T.J. Maxx · 이월 상품 · 인플레 방어",
-   "mcap": 115,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "C",
    "name": "Citigroup",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "글로벌 IB · Jane Fraser CEO 구조조정 3년차 · 비핵심 사업 매각(멕시코 Banamex) · 비용효율화 목표 · 글로벌 트레이딩+크로스보더 강점 · PER 9x(섹터 최저 수준)",
-   "mcap": 165,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "SCHW",
    "name": "Charles Schwab",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "증권 플랫폼 · 자산 운용 · 금리 민감",
-   "mcap": 195,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "ADP",
    "name": "Automatic Data Processing",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "급여관리 SaaS · HCM 플랫폼 · 안정 성장",
-   "mcap": 278,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "BMY",
    "name": "Bristol Myers Squibb",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "제약회사 · 면역 질환 · 앞으로 배당",
-   "mcap": 115,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "PLD",
    "name": "Prologis",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "물류 부동산 REIT · e-commerce 수혜 · 배당",
-   "mcap": 95,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "BSX",
    "name": "Boston Scientific",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료 기기 · 심장 스텐트 · 신흥국 성장",
-   "mcap": 95,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "ADI",
    "name": "Analog Devices",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "Citi CW · 아날로그 칩 · 산업용 IoT · AI 센서 · 아날로그 가격 +10~15% 상승사이클 진입(수급 타이트)",
-   "mcap": 155,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MDLZ",
    "name": "Mondelez",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "과자 · Oreo · 글로벌 소비재 · 배당",
-   "mcap": 145,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "CI",
    "name": "Cigna Group",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "헬스케어 보험 · Express Scripts · 규제",
-   "mcap": 105,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "SYK",
    "name": "Stryker Corp",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "의료 기기 글로벌 1위급 · 정형외과(무릎/고관절)+수술 내비게이션 Mako 로봇 · 인구 고령화 구조적 수혜 · M&A 성장 전략 · 매출 +10% 안정 성장 · PER 35x",
-   "mcap": 155,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "WM",
    "name": "Waste Management",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "폐기물 관리 · 재활용 · 배당",
-   "mcap": 90,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "DUK",
    "name": "Duke Energy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "전력회사 · 원전 · 배당 · 인상",
-   "mcap": 85,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CME",
    "name": "CME Group",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "선물 거래소 · 암호화폐 선물 · 글로벌 시장",
-   "mcap": 78,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "EOG",
    "name": "EOG Resources",
    "sector": "Energy",
-   "signal": "BUY",
-   "memo": "석유/가스 · 셰일 오일 · 배당 매력",
-   "mcap": 95,
-   "rsi": 58,
    "index": "SP500"
   },
   {
    "sym": "AON",
    "name": "Aon",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 브로커 · 위험관리 · 인수합병",
-   "mcap": 82,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "CL",
    "name": "Colgate-Palmolive",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "치약 · 구강관리 · 글로벌 배당",
-   "mcap": 85,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "ICE",
    "name": "Intercontinental Exchange",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "거래소 · NYSE · 암호 선물 성장",
-   "mcap": 85,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "MSI",
    "name": "Motorola Solutions",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "무선통신 · 공공안전 · AI 기반 분석",
-   "mcap": 65,
-   "rsi": 56,
    "index": "SP500"
   },
   {
    "sym": "APH",
    "name": "Amphenol",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/17 AFL 2위] PT$190(기존$185↑) · 커버리지 내 커넥터/인터커넥트 최선호 · DC 및 비DC 호조 + Nvidia VeraRubin 수주잔고 견조 · 구리 인터커넥트 = 광(Optical)과 공존(대체 아님) · 광↔구리 로테이션 논란 속 구리 측 최대 수혜 · 견조한 1Q 상방 서프라이즈 예상",
-   "mcap": 120,
-   "rsi": 55,
    "index": "NASDAQ100"
   },
   {
    "sym": "NSC",
    "name": "Norfolk Southern",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "철도 운송 · 인프라 수혜 · 배당",
-   "mcap": 58,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "CTAS",
    "name": "Cintas",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "제복 임차 · 위생용품 · 높은 성장",
-   "mcap": 75,
-   "rsi": 58,
    "index": "SP500"
   },
   {
    "sym": "ORLY",
    "name": "O'Reilly Automotive",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "자동차 부품 · 애프터마켓 · 배당",
-   "mcap": 70,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "AZO",
    "name": "AutoZone",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "자동차 부품 · 독립점 지원 · 높은 배당",
-   "mcap": 68,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "MCK",
    "name": "McKesson",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의약품 배급 · 헬스케어 공급망",
-   "mcap": 95,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "MCO",
    "name": "Moody's",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "신용등급 기관 · 채권 평가 · 높은 마진",
-   "mcap": 75,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "MAR",
    "name": "Marriott International",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "호텔 체인 · 여행 수요 · 배당 재개",
-   "mcap": 75,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "MMC",
    "name": "Marsh McLennan",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 브로커 · 위험관리 · M&A 성장",
-   "mcap": 85,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "AIG",
    "name": "American International Group",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 · 손해보험 · 수익성 개선",
-   "mcap": 78,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "SHW",
    "name": "Sherwin-Williams",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "도료 · 건설 경기 민감 · 주택 수요",
-   "mcap": 65,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "FI",
    "name": "Fastenal",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업용 물품 · 배급 네트워크 · 배당",
-   "mcap": 35,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "SPG",
    "name": "Simon Property Group",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "쇼핑몰 REIT · 구조 조정 · 배당",
-   "mcap": 45,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "WELL",
    "name": "Welltower",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "의료 부동산 REIT · 고령화 수혜 · 배당",
-   "mcap": 65,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "AFL",
    "name": "Aflac",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보충 보험 · 일본/미국 · 배당",
-   "mcap": 45,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "ECL",
    "name": "Ecolab",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업용 화학 · 위생/급식 · 배당 성장",
-   "mcap": 72,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MET",
    "name": "MetLife",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "생명보험 · 연금 · 구조조정 진행",
-   "mcap": 95,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "PRU",
    "name": "Prudential Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "생명/일반 보험 · 연금 · 배당",
-   "mcap": 70,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "TROW",
    "name": "T. Rowe Price",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "자산운용 · 뮤추얼펀드 · 배당",
-   "mcap": 45,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "TGT",
    "name": "Target",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "백화점 · e-commerce 성장 · 배당",
-   "mcap": 65,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "EBAY",
    "name": "eBay",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "온라인 경매 · 헬스케어 확장 · 배당",
-   "mcap": 48,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "PCAR",
    "name": "PACCAR Inc",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "트럭 제조 · Peterbilt · 배당",
-   "mcap": 55,
-   "rsi": 56,
    "index": "SP500"
   },
   {
    "sym": "DD",
    "name": "DuPont de Nemours",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "화학 · 반도체 소재 · 배당",
-   "mcap": 72,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "HCA",
    "name": "HCA Healthcare",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "병원 체인 · 높은 마진 · 구매 자산",
-   "mcap": 72,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "ROP",
    "name": "Roper Technologies",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "산업용 소프트웨어 · 높은 배당 · M&A 전략",
-   "mcap": 75,
-   "rsi": 56,
    "index": "SP500"
   },
   {
    "sym": "DHR",
    "name": "Danaher",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "과학 장비 · Life Sciences · 배당",
-   "mcap": 195,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "A",
    "name": "Avantor",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "생명과학 장비·시약·소모품 · 연구용 화학제품",
-   "mcap": 18,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "CMG",
    "name": "Chipotle Mexican Grill",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "멕시코 음식 · 위생 기준 · 성장 정체",
-   "mcap": 75,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CARR",
    "name": "Carrier Global",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "냉난방 · 건설 수혜 · 배당",
-   "mcap": 62,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "MNST",
    "name": "Monster Beverage",
    "sector": "Consumer Defensive",
-   "signal": "BUY",
-   "memo": "에너지 음료 · 고성장 · 해외 확장",
-   "mcap": 52,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "PSA",
    "name": "Public Storage",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "보관 창고 REIT · 소비자 저축 · 배당",
-   "mcap": 62,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "KHC",
    "name": "Kraft Heinz",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "식품 · 저가 일용소비재 · 구조조정",
-   "mcap": 48,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "AEP",
    "name": "American Electric Power",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "전력회사 · 재생에너지 · 배당 성장",
-   "mcap": 82,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "O",
    "name": "Realty Income",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "상업용 REIT · 월배당 · 안정 수익",
-   "mcap": 68,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "SRE",
    "name": "Sempra Energy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "전력·가스 · 캘리포니아 · 배당 성장",
-   "mcap": 65,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "EXC",
    "name": "Exelon",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "전력회사 · 원전 · 배당",
-   "mcap": 68,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "WEC",
    "name": "WEC Energy Group",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "전력·가스 · 위스콘신 · 배당 성장",
-   "mcap": 45,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "SYY",
    "name": "Sysco",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "식품 배급 · 외식업 · 배당 · Jetro Restaurant Depot $290억 인수 발표(2026.03) 후 -6%",
-   "mcap": 55,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "YUM",
    "name": "YUM! Brands",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "KFC/Taco Bell · 프랜차이즈 · 배당",
-   "mcap": 95,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "HUM",
    "name": "Humana",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료보험 · Medicare Advantage · 규제",
-   "mcap": 52,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "IDXX",
    "name": "IDEXX Laboratories",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "동물 의료 · 진단기기 · 높은 성장",
-   "mcap": 65,
-   "rsi": 56,
    "index": "SP500"
   },
   {
    "sym": "PAYX",
    "name": "Paychex",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "급여관리 · HCM 플랫폼 · 배당 성장",
-   "mcap": 65,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "IQV",
    "name": "IQVIA Holdings",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "임상시험 · 의료 정보 · 배당",
-   "mcap": 65,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "BK",
    "name": "The Bank of New York Mellon",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "자산 보관 · 신탁 · 배당",
-   "mcap": 55,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "STZ",
    "name": "Constellation Brands",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "맥주 · 와인 · Corona · 배당",
-   "mcap": 52,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "CNC",
    "name": "Centene",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료보험 · Medicaid · 규제",
-   "mcap": 68,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "NXPI",
    "name": "NXP Semiconductors",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "반도체 · 자동차 칩 · 배당",
-   "mcap": 95,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "GPN",
    "name": "Global Payments",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "결제 처리 · 멀티채널 · 배당",
-   "mcap": 75,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CTSH",
    "name": "Cognizant",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "IT 서비스 · BPO · 배당",
-   "mcap": 68,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "MSCI",
    "name": "MSCI Inc",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "인덱스 데이터 · 사모펀드 · 배당",
-   "mcap": 65,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "OTIS",
    "name": "Otis Worldwide",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "엘리베이터 · 유지보수 · 배당",
-   "mcap": 65,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "KEYS",
    "name": "Keysight Technologies",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "전자 측정 · 반도체 테스트 · 배당",
-   "mcap": 75,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "TDG",
    "name": "Transdigm Group",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "항공 부품 · 차별화 · 높은 마진",
-   "mcap": 95,
-   "rsi": 58,
    "index": "SP500"
   },
   {
    "sym": "STE",
    "name": "Steris plc",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "의료 멸균 · 생명과학 장비 · 배당",
-   "mcap": 42,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "COF",
    "name": "Capital One",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "신용카드 · 자동차 대출 · 배당",
-   "mcap": 62,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "RMD",
    "name": "ResMed",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "호흡기 장비 · 수면 무호흡 · 배당",
-   "mcap": 48,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "VRSK",
    "name": "Verisk Analytics",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "보험 데이터 · AI 분석 · 배당",
-   "mcap": 55,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "EFX",
    "name": "Equifax",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "신용조회 · 빅데이터 · 배당",
-   "mcap": 62,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "HUBB",
    "name": "Hubbell Inc",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "전기 제품 · 인프라 수혜 · 배당",
-   "mcap": 55,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "GOOG",
    "name": "Alphabet Class C",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "GOOGL과 동일 사업(의결권 없는 C주) · 검색 90%+클라우드+Gemini+TPU+YouTube · 상세 분석은 GOOGL 참조",
-   "mcap": 3630,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "GEV",
    "name": "GE Vernova",
    "sector": "Utilities",
-   "signal": "BUY",
-   "memo": "[JPM Q1강세 04/25] 전기화 수주 $71B(DC $24B = 작년 연간 전체 초과) · 전력 수주 서비스+원전 업그레이드 강세 · 수주잔고 100GW→110GW 상향 · 2026 연간 매출/EBITDA/FCF 가이던스 상향 · OW 유지 · [기존] DC 전력망 3년+ 대기·가스터빈 $2,500→$3,000/kW·Behind-the-Meter 자체발전 수혜",
-   "mcap": 220,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "TMUS",
    "name": "T-Mobile US",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "미국 3대 통신 · 5G 선도 · 가입자 성장",
-   "mcap": 239,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "TXN",
    "name": "Texas Instruments",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "Citi 탑픽 · 아날로그 반도체 · 자동차/산업 · 배당 · 아날로그 가격 +10~15% 상승사이클 진입",
-   "mcap": 200,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ANET",
    "name": "Arista Networks",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/17 AFL 1위] PT$200(기존$190↑) · 네트워킹/스위치 커버리지 내 최선호 · 2026/2027 35%+ 매출 성장 가능, 2027 EPS $5 · 40%+ CAGR 맞는 멀티플 적용 시 강세 시나리오 주가 $200+ · Meta/Oracle 이어 Microsoft/OpenAI/Anthropic 등 NeoCloud 고객군 확장 · AI DC 네트워킹 핵심",
-   "mcap": 170,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "ETN",
    "name": "Eaton Corp",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] 전기복잡성증가·하이브리드전력아키텍처·가변부하관리 핵심수혜 · 학습→추론DC전환 양면 수혜 · VRT/NVT/GEV와 함께 수혜군",
-   "mcap": 150,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "NVT",
    "name": "nVent Electric",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] 전기복잡성증가·하이브리드전력아키텍처 수혜군 · DC 전기 보호·연결 솔루션 · ETN/VRT/GEV와 함께 학습→추론 전환 수혜",
-   "mcap": 10,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CB",
    "name": "Chubb Ltd",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "글로벌 손해보험 · 재보험",
-   "mcap": 128,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "ACN",
    "name": "Accenture",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "IT 컨설팅 글로벌 1위 · AI/클라우드 전환",
-   "mcap": 140,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "PH",
    "name": "Parker-Hannifin",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "모션&컨트롤 · 항공우주 · 산업",
-   "mcap": 126,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MDT",
    "name": "Medtronic",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료기기 글로벌 1위 · 심장/당뇨/척추",
-   "mcap": 130,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "MO",
    "name": "Altria Group",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "미국 담배 · 고배당 7%+ · 방어주",
-   "mcap": 108,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "NEM",
    "name": "Newmont Corp",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "세계 최대 금광 · 금값 상관",
-   "mcap": 107,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "SO",
    "name": "Southern Company",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "미국 최대 유틸리티 · 원전/태양광",
-   "mcap": 103,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "CMCSA",
    "name": "Comcast",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "NBC유니버셜 · Xfinity · Peacock",
-   "mcap": 108,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "SNDK",
    "name": "SanDisk",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Susquehanna 05/29] PT$3250(기존$2000↑↑) · [JPM 04/29] 1Q26 매출$5.95B(QoQ+97%/YoY+251%) EPS$23.41 GM78.4% 역대최고 · F4Q 가이던스 $7.75-8.25B GM79-81% · 5개 신규SCA(최소RPO $42B+금융보증$11B) · $60억 자사주매입 · [Citi] PT$1300 · [Melius] PT$1350 KV캐시 G3.5계층 HBF 콜옵션 · 역SaaS 테마 선두 · Q2 NAND ASP +75~100%QoQ 수혜 극대화 · 키옥시아 NAND 가격 6분기↑→2027Q3 정점 전망(UBS) · FY27 EPS $113 경로",
-   "mcap": 102,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "WDC",
    "name": "Western Digital",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/29] PT$530(기존$400↑) F3Q26 매출$3.337B(+45%YoY) GM50.5%(FY26기술데달성) · F4Q 가이던스 GM51-52% · HAMR 4개 고객 인증 진행 · 배당 20%↑ · [Citi] PT$500(기존$405↑) EB CAGR25% · ePMR 차세대(~40TB) 2Q내 인증 · 장기LTA 2030까지 · 장기GM50%+/EPS$20+ 경로 · HDD멀티플 18→21x 재평가",
-   "mcap": 94,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "HWM",
    "name": "Howmet Aerospace",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "항공우주 부품 · 엔진 · 방산",
-   "mcap": 96,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "EQIX",
    "name": "Equinix",
    "sector": "Real Estate",
-   "signal": "BUY",
-   "memo": "[Citi AI서밋 04/21] AI 수요 확장 4대 동력: 엔터프라이즈 채택+에이전트 소비자화+데이터 증권화+워크로드 분산화 · 컴퓨팅 제약 2028+ 지속=DC 가격결정력 강화 · 양자 컴퓨팅 2029 변곡점(AI 시너지) · Citi DC 매수 선호 TOP2 · 전력망 15-20년 제약 지속 · 브리지 수요 durable · CoreWeave 3GW 전력 계약(850MW→확장)",
-   "mcap": 93,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "TT",
    "name": "Trane Technologies",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "냉난방(HVAC) · 데이터센터 냉각",
-   "mcap": 95,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CVS",
    "name": "CVS Health",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "약국체인 + Aetna 보험 + 헬스허브",
-   "mcap": 90,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "STX",
    "name": "Seagate Tech",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/29] PT$775(기존$600↑) F3Q26 매출$3.112B GM47%(+480bp QoQ) EPS$4.10 · F4Q 가이던스 $3.35-3.55B GM40%초반 EPS$4.80-5.20 · HAMR 75% 클라우드 고객 출하 · Mozaic4+(44TB) 2개 하이퍼스케일러 양산 · Mozaic5(50TB) CY27말 퀄목표 · 중기 매출성장 HSD→최소 20%로 상향 · CY27까지 NL HDD 대부분 할당 · HDD 섹터 최우선 긍정",
-   "mcap": 88,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "SIMO",
    "name": "Silicon Motion",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/29] PT$260(Jun-27, 기존$145↑) · 1Q26 매출 QoQ+23%/YoY+105% 역대최고 · BootDrive $30M → 2026E $160M/2027E $375M AI인프라 OS드라이브 급성장 · BlueField-4 NIC 탑재 퀄 진행 ASP 2x+ · MonTitan TLC NAND 기반 2Q26 한 분기 앞당김 · AI반도체 컨트롤러 팹리스 운영레버리지 · NVDA 생태계 이중수혜(BlueField 탑재+DC SSD 밀도) · DC SSD 비중 12→19% 구조전환 수혜 · eMMC/UFS YoY+140%+ NAND 메이커 소비자 시장 철수 반사수혜",
-   "mcap": 4,
-   "rsi": 52,
    "index": "NASDAQ"
   },
   {
    "sym": "6600.T",
    "name": "Kioxia Holdings",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[GS 05/29] PT93,000엔(기존48,000엔↑↑) \"2028년까지 NAND 공급 부족 지속\" · [UBS 05/29] 매수 개시 PT79,000엔 FY3/27 OP 7.11조엔(컨센 6.43조↑)/FY3/28 OP 8.99조엔(컨센 대폭 상회). NAND 6분기 QoQ 상승→2027Q3 정점. 수평 스케일링으로 비트당 비용 경쟁우위. BICS10(332단) 전환 전 수익성 최고점. AI 추론 = NAND 구조적 수요. FY3/27~28 업계 최고 NAND 마진 전망. [JPM 05/29] 글로벌 메모리 선호주 ②위. Q2 NAND ASP +75~100%QoQ 직접 수혜",
-   "mcap": 30,
-   "rsi": 52,
    "index": "TSE"
   },
   {
    "sym": "8035.T",
    "name": "Tokyo Electron",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 05/29] 글로벌 메모리 선호주 ⑤위 — HBM4 고용량화+첨단패키징 장비 수요 직접 수혜. 메모리 TAM 2028E $1.7T 경로에서 WFE 지출 동반 급증. 테라팹(머스크) \"빛의 속도\" 견적 요청 후 TEL +6% 급등·어드반테스트/스크린HD/디스코 동반. CoWoS/HBM 패키징 장비 구조적 확대. 일본 반도체 장비 1위(글로벌 3위). FY2024 AI 수요 급등 수혜 회복 사이클",
-   "mcap": 55,
-   "rsi": 55,
    "index": "TSE"
   },
   {
    "sym": "6702.T",
    "name": "Fujitsu",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[GS 05/29] Buy 유지 PT4,330엔. FY3/26~FY3/36 매출 CAGR +6~9%, FY3/36 조정 영업이익률 25~30%, EPS CAGR 15%+, 조정 ROE 20%+. Uvance 매출 FY3/31에 50%+. 자체 CPU \"MONAKA\" — 경쟁사 대비 실행 성능·전력효율 2배. FY3/28 2nm·FY3/30 1.4nm 공정 목표. AI 기반 개발로 매년 2%p+ 매출총이익률 개선. 일본 IT서비스 1위·디지털 전환+AI 인프라 전환 구조적 수혜",
-   "mcap": 45,
-   "rsi": 52,
    "index": "TSE"
   },
   {
    "sym": "FDX",
    "name": "FedEx",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "글로벌 물류 · 이커머스 수혜",
-   "mcap": 86,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "PWR",
    "name": "Quanta Services",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "송전망 건설 최대 수혜 · 전력망 병목 구조적 Capex · 재생에너지 · AI 인프라",
-   "mcap": 78,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "POWL",
    "name": "Powell Industries",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "전력 배전·스위치기어 · 데이터센터/유틸리티 전력 인프라 병목 수혜 · DC 인프라 테마 보강 편입",
-   "mcap": 4,
-   "rsi": 50,
    "index": "NASDAQ"
   },
   {
    "sym": "MTZ",
    "name": "MasTec",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] 전력 인프라 EPC 핵심 수혜 · PWR과 함께 DC전력인프라 구조적 Capex 수혜 · 추론DC 입지 이동(남동부·중부대서양 연안)→신규 송전인프라 건설 수요",
-   "mcap": 7,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MRSH",
    "name": "Marsh McLennan",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 브로커 · 리스크 컨설팅",
-   "mcap": 85,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "UPS",
    "name": "UPS",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "미국 최대 택배 · 배당",
-   "mcap": 84,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "PNC",
    "name": "PNC Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "미국 6위 은행",
-   "mcap": 83,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "BX",
    "name": "Blackstone",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "세계 최대 대체투자 · PE/부동산",
-   "mcap": 82,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "AMT",
    "name": "American Tower",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "통신 타워 REIT · 글로벌",
-   "mcap": 82,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "JCI",
    "name": "Johnson Controls",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "빌딩 자동화 · HVAC · 화재안전",
-   "mcap": 82,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "KKR",
    "name": "KKR & Co",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "대체투자 · PE/인프라 · AI 투자",
-   "mcap": 82,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "USB",
    "name": "US Bancorp",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "미국 5위 은행 · 배당",
-   "mcap": 80,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ITW",
    "name": "Illinois Tool Works",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업 장비 · 다각화 · 배당왕",
-   "mcap": 76,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CMI",
    "name": "Cummins",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "[Citi 04/09] 디젤백업 업계표준 유지(대규모 저장 용이) · 천연가스왕복엔진 학습DC 가변부하 강점 · 추론DC전환→스탠바이MW↑ · 발전부문 상향여지",
-   "mcap": 76,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "KEX",
    "name": "Kirby Corp",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[Citi 04/09] DC발전기 패키징·공급망 · OEM엔진 리드타임18월(CAT/RR-MTU/Kawasaki)+패키징30~40일 · 천연가스왕복(HSD마진) vs 디젤백업(MSD마진) 믹스개선 · 발전매출22%+ 상향여지 · 2Q~3Q 엔진수령 증가",
-   "mcap": 6.5,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "RCL",
    "name": "Royal Caribbean",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "크루즈 · 프리미엄",
-   "mcap": 75,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "EMR",
    "name": "Emerson Electric",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업 자동화 · 소프트웨어 전환",
-   "mcap": 74,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CSX",
    "name": "CSX Corp",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "미국 철도 · 화물 운송",
-   "mcap": 73,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "PSX",
    "name": "Phillips 66",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "미국 정유 · 화학 · 미드스트림",
-   "mcap": 71,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "VLO",
    "name": "Valero Energy",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "미국 최대 독립 정유 · 배당",
-   "mcap": 71,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "CRH",
    "name": "CRH plc",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "건축자재 · 인프라 · 아일랜드 기반",
-   "mcap": 70,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "HLT",
    "name": "Hilton",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "글로벌 호텔 · 럭셔리/비즈니스",
-   "mcap": 70,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "ROST",
    "name": "Ross Stores",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "오프프라이스 리테일",
-   "mcap": 70,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MPC",
    "name": "Marathon Petroleum",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "미국 정유 · 자사주매입",
-   "mcap": 69,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "WBD",
    "name": "Warner Bros Discovery",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "HBO · CNN · DC · 부채 리스크",
-   "mcap": 68,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "RSG",
    "name": "Republic Services",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "폐기물 처리 2위 · ESG",
-   "mcap": 67,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "LHX",
    "name": "L3Harris Tech",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "[2026-04-25] Golden Dome 트럼프 브리핑 shout-out 1순위 수혜 · SHIELD IDIQ 프라임 벤더 · SDA Tranche 3 $843M · Virginia $1.27B 로켓모터 생산능력 2배 확장(2026-04) · RS-25 엔진(NASA SLS) + 고체로켓모터 보유 · P/E 41배 프리미엄",
-   "mcap": 66,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "APO",
    "name": "Apollo Global",
    "sector": "Financials",
-   "signal": "WATCH",
-   "memo": "대체투자 · 크레딧 · 보험 · $151억 사모대출펀드 Q1 환매 11.2% · 사모신용 디폴트율 5.8%(수년래 최고) · YTD -23%",
-   "mcap": 65,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "ELV",
    "name": "Elevance Health",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "헬스케어 보험 · Anthem",
-   "mcap": 64,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "COR",
    "name": "Cencora",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의약품 유통 · AmerisourceBergen",
-   "mcap": 63,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "APD",
    "name": "Air Products",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "산업가스 · 수소 · 클린에너지",
-   "mcap": 62,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "BKR",
    "name": "Baker Hughes",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "유전 서비스 · 에너지 전환",
-   "mcap": 62,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "DLR",
    "name": "Digital Realty",
    "sector": "Real Estate",
-   "signal": "BUY",
-   "memo": "[Citi AI서밋 04/21] DC REIT TOP2 선호(EQIX와 함께) · 하이퍼스케일러 IT 인프라 2026 $6650억(기존 $2500억 미만) · 티어2+네오클라우드 포함 $8000억 · AI 수요 확장+전력 병목 지속 · 피지컬 AI 합의 투자 테마=DC 용량 지속 긴장 · 양자-AI 시너지 2029+",
-   "mcap": 61,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "OXY",
    "name": "Occidental Petroleum",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "E&P · 탄소포집 · 버핏 투자",
-   "mcap": 60,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "TEL",
    "name": "TE Connectivity",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "커넥터 · 센서 · 자동차/산업/항공",
-   "mcap": 59,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "OKE",
    "name": "ONEOK",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "천연가스 가공 · MLP 대안",
-   "mcap": 57,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "TFC",
    "name": "Truist Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "미국 지역 은행",
-   "mcap": 56,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "AJG",
    "name": "Arthur J Gallagher",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 브로커 · M&A 성장",
-   "mcap": 56,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "FANG",
    "name": "Diamondback Energy",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "퍼미안 분지 E&P · 배당",
-   "mcap": 54,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ALL",
    "name": "Allstate",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "미국 손해보험 · 자동차보험",
-   "mcap": 54,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MPWR",
    "name": "Monolithic Power",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "Citi 탑픽 · KeyBanc OW PT $1500 · Vera Rubin Stage 2 전원 60~70% 점유(IFX/Renesas 경쟁) · GB300 vs VR ASP +30%↑ · Analog 채널재고 의미 있는 개선 · TXN/ON과 함께 DC 전력밀도 확대 최대 수혜 · 아날로그 가격인상 사이클",
-   "mcap": 53,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "CTVA",
    "name": "Corteva",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "농업 화학 · 종자/작물보호",
-   "mcap": 53,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ADSK",
    "name": "Autodesk",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "CAD/BIM 설계 소프트웨어",
-   "mcap": 53,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "D",
    "name": "Dominion Energy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "유틸리티 · 배당 · 재생에너지",
-   "mcap": 53,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "FAST",
    "name": "Fastenal",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업 유통 · 자동화 · 배당",
-   "mcap": 52,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "GWW",
    "name": "W.W. Grainger",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업 유통 · MRO",
-   "mcap": 50,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "FIX",
    "name": "Comfort Systems USA",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "데이터센터 MEP 시공 · AI 인프라",
-   "mcap": 50,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "NDAQ",
    "name": "Nasdaq Inc",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "거래소 · 데이터 · 핀테크",
-   "mcap": 49,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "AME",
    "name": "AMETEK",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "전자 장비 · 항공우주",
-   "mcap": 49,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "ZTS",
    "name": "Zoetis",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "동물 의약품 글로벌 1위",
-   "mcap": 49,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "CAH",
    "name": "Cardinal Health",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의약품 유통 · 배당",
-   "mcap": 49,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "XEL",
    "name": "Xcel Energy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "재생에너지 유틸리티",
-   "mcap": 48,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "TER",
    "name": "Teradyne",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/29] OW 상향 PT$400 · GPU 테스터 점유율 확대(HBM처럼 0%→50% 경로 예상) · HBM TAM 테스트 확대(삽입 3배) · SiPh/CPO 테스트 TAM $3억+ · 자동차/산업 경기회복 추가 레버 · FY27/28 EPS 40% 성장 · 35-40x PER 정당화 · [UBS] CPO Teach-in 재조명 CoPoS 앞당김 수혜 · Rubin Ultra 2-die 전환→288랙=2x 테스트 수량 · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)",
-   "mcap": 48,
-   "rsi": 52,
    "index": "NASDAQ100"
   },
   {
    "sym": "MTK",
    "name": "MediaTek",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/29] OW 상향 PT NT$3,400(Jun-27) · FY26 DC ASIC $20억 가이던스 · FY27 TAM $700-800억 목표 10-15% 점유 · TPUv9(Humufish) 2027말 양산 · CoWoS-L+EMIB-T 이중 패키징 경로 · 패키징 병목 우려 해소 · FY26 EPS+9%/FY27+29%/FY28+81% 상향 · 3-4건 신규 DC ASIC RFQ 진행 · AVGO Google TPU 의존 분산 수혜 · 모바일 하반기 스마트폰 부진 단기 역풍",
-   "mcap": 38,
-   "rsi": 50,
    "index": "TWSE"
   },
   {
    "sym": "EW",
    "name": "Edwards Lifesciences",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "심장 판막 · 구조적 심장질환",
-   "mcap": 48,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ETR",
    "name": "Entergy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "유틸리티 · 원전 · 데이터센터 전력",
-   "mcap": 46,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "GRMN",
    "name": "Garmin",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "GPS/웨어러블 · 항공 · 피트니스",
-   "mcap": 46,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "BDX",
    "name": "BD (Becton Dickinson)",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료기기 · 진단 · 주사기",
-   "mcap": 45,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "KR",
    "name": "Kroger",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "미국 대형 마트 · 배당",
-   "mcap": 44,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "HSY",
    "name": "Hershey",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "초콜릿/스낵 · 코코아 가격 영향",
-   "mcap": 44,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "CVNA",
    "name": "Carvana",
    "sector": "Consumer",
-   "signal": "WATCH",
-   "memo": "온라인 중고차 · 턴어라운드",
-   "mcap": 43,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "DAL",
    "name": "Delta Air Lines",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "휴전 후 항공/여행 강세 수혜 · 강한 수요+매출 증가 확인(4/9) · 미국 프리미엄 항공 · Amazon Leo 위성통신 탑재 예정",
-   "mcap": 43,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "WAB",
    "name": "Wabtec",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "철도 장비 · 기관차 · 디지털",
-   "mcap": 41,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "FITB",
    "name": "Fifth Third Bancorp",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "미국 중서부 지역 은행",
-   "mcap": 41,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "EQT",
    "name": "EQT Corporation",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "미국 최대 천연가스 · 앱팔래치아",
-   "mcap": 41,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "AMP",
    "name": "Ameriprise Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "자산운용 · 재무설계",
-   "mcap": 41,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "CBRE",
    "name": "CBRE Group",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "글로벌 상업용 부동산 서비스",
-   "mcap": 41,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ROK",
    "name": "Rockwell Automation",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업 자동화 · 스마트 팩토리",
-   "mcap": 41,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "DHI",
    "name": "DR Horton",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "미국 최대 주택건설 · 금리 민감",
-   "mcap": 40,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "PEG",
    "name": "PSEG",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "뉴저지 유틸리티 · 원전 · 데이터센터",
-   "mcap": 40,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "ED",
    "name": "Consolidated Edison",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "뉴욕 유틸리티 · 배당귀족",
-   "mcap": 38,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "FICO",
    "name": "Fair Isaac Corp",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "FICO 신용점수 · 데이터 독점",
-   "mcap": 42,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "GIS",
    "name": "General Mills",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "시리얼/스낵 · 방어주 · 배당",
-   "mcap": 35,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "DOV",
    "name": "Dover Corp",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업 장비 · 펌프/에너지",
-   "mcap": 22,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "ANSS",
    "name": "ANSYS",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "시뮬레이션 소프트웨어",
-   "mcap": 30,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "HIG",
    "name": "Hartford Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 · 손해/생명/뮤추얼",
-   "mcap": 32,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "ACGL",
    "name": "Arch Capital",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "재보험 · 인수심사 우수",
-   "mcap": 38,
-   "rsi": 54,
    "index": "SP500"
   },
   {
    "sym": "IFF",
    "name": "Intl Flavors & Fragrances",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "향료/향수/식품첨가물",
-   "mcap": 22,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "STT",
    "name": "State Street",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "자산관리 · SPDR ETF",
-   "mcap": 28,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "KVUE",
    "name": "Kenvue",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "JNJ 소비자헬스 분사 · 타이레놀/리스테린",
-   "mcap": 40,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "PPG",
    "name": "PPG Industries",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "페인트/코팅 · 자동차/건축",
-   "mcap": 28,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "VLTO",
    "name": "Veralto",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "수질/제품식별 · Danaher 분사",
-   "mcap": 28,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "GEHC",
    "name": "GE HealthCare",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료영상/진단 · AI · GE 분사",
-   "mcap": 38,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "HPQ",
    "name": "HP Inc",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "PC/프린터 · AI PC 기대",
-   "mcap": 30,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "MTB",
    "name": "M&T Bank",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "미국 동부 지역 은행",
-   "mcap": 28,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "LDOS",
    "name": "Leidos Holdings",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "방산 IT · 정부 계약",
-   "mcap": 22,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "IT",
    "name": "Gartner",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "IT 리서치/컨설팅",
-   "mcap": 35,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "K",
    "name": "Kellanova",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "시리얼/스낵 · Mars 인수",
-   "mcap": 28,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "CPAY",
    "name": "Corpay",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "기업 결제 · 플릿카드",
-   "mcap": 25,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "WST",
    "name": "West Pharma",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의약품 포장 · 바이알/주사기",
-   "mcap": 22,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "PHM",
    "name": "PulteGroup",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "주택건설 · 다양한 가격대",
-   "mcap": 22,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "SBAC",
    "name": "SBA Communications",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "통신 타워 REIT",
-   "mcap": 25,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "RF",
    "name": "Regions Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "남부 지역 은행",
-   "mcap": 22,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "WRB",
    "name": "Berkley Corp",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "특수보험",
-   "mcap": 22,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "NTAP",
    "name": "NetApp",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "[JPM 04/17: OW→N 하향] PT$110(기존$125↓) · AFF A/C 시리즈 점유율 확대 사이클 소진(최근 2분기 YoY 점유율 하락세) · AFX 신제품은 온프렘 엔터프라이즈 AI 지출 변곡 의존 · NAND 계약가 C4Q25 +36% → C1Q26 +88% → C2Q26 +73% 전례 없는 원가 상승 → FY27 GPM 약 -200bps YoY · 12배 NTM PE 싸 보이나 COVID 8배/FY23 10.5배 전례 → 추가 멀티플 하락 여지 · 메모리 원가 전가 지연 구조",
-   "mcap": 25,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MTD",
    "name": "Mettler-Toledo",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "정밀측정 장비",
-   "mcap": 25,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "AWK",
    "name": "American Water Works",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "미국 최대 수도회사",
-   "mcap": 28,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "ATO",
    "name": "Atmos Energy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "천연가스 유통",
-   "mcap": 22,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "PPL",
    "name": "PPL Corp",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "유틸리티 · 배당",
-   "mcap": 24,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "ESS",
    "name": "Essex Property",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "서부 아파트 REIT",
-   "mcap": 18,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "EIX",
    "name": "Edison Intl",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "캘리포니아 유틸리티",
-   "mcap": 28,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "DG",
    "name": "Dollar General",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "달러스토어 · 저소득층",
-   "mcap": 20,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "EXR",
    "name": "Extra Space Storage",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "셀프스토리지 REIT",
-   "mcap": 30,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "CDW",
    "name": "CDW Corp",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/17 Positive Catalyst Watch] 연말 대비 풀이어 가이던스(mid-단자릿수 EPS성장) 상회하는 +8% EPS 성장 제시 예상 · 투자자 장기보유 기준 +10% EPS 성장 로드맵 제시 가능성 상방 재료 · IT 디스트리뷰터 중 최선호",
-   "mcap": 25,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "IRM",
    "name": "Iron Mountain",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "데이터센터 REIT · AI 수혜",
-   "mcap": 30,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "CLX",
    "name": "Clorox",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "소독/청소용품 · 배당",
-   "mcap": 20,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "AVB",
    "name": "AvalonBay",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "프리미엄 아파트 REIT",
-   "mcap": 30,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "MAA",
    "name": "Mid-America Apartment",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "선벨트 아파트 REIT",
-   "mcap": 18,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "GDDY",
    "name": "GoDaddy",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "도메인/웹호스팅 · SMB",
-   "mcap": 25,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "TSCO",
    "name": "Tractor Supply",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "농촌 리테일 · 라이프스타일",
-   "mcap": 28,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "VTR",
    "name": "Ventas",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "시니어 주거/의료 REIT",
-   "mcap": 22,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "LII",
    "name": "Lennox Intl",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "HVAC · 냉난방 장비",
-   "mcap": 22,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "ZBRA",
    "name": "Zebra Technologies",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "바코드/RFID 스캐너",
-   "mcap": 18,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "CHD",
    "name": "Church & Dwight",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "가정용품 · OxiClean",
-   "mcap": 25,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "VRSN",
    "name": "VeriSign",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": ".com/.net 도메인 독점",
-   "mcap": 22,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "PKG",
    "name": "Packaging Corp",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "골판지 포장 · 이커머스",
-   "mcap": 18,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "MKTX",
    "name": "MarketAxess",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "채권 전자거래 플랫폼",
-   "mcap": 10,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "LYV",
    "name": "Live Nation",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "콘서트/티켓마스터 · 라이브 엔터",
-   "mcap": 25,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "TYL",
    "name": "Tyler Technologies",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "공공부문 소프트웨어",
-   "mcap": 22,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CBOE",
    "name": "Cboe Global Markets",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "옵션 거래소 · VIX",
-   "mcap": 22,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "BR",
    "name": "Broadridge Financial",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "금융 기술 인프라",
-   "mcap": 25,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "STLD",
    "name": "Steel Dynamics",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "미니밀 철강 · 건설/자동차",
-   "mcap": 20,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "FE",
    "name": "FirstEnergy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "오하이오 유틸리티",
-   "mcap": 25,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "J",
    "name": "Jacobs Solutions",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "엔지니어링/건설 · 인프라",
-   "mcap": 18,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "LUV",
    "name": "Southwest Airlines",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "미국 저가항공",
-   "mcap": 18,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "CAG",
    "name": "Conagra Brands",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "냉동식품 · 방어주",
-   "mcap": 15,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "NI",
    "name": "NiSource",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "가스 유틸리티",
-   "mcap": 18,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "KDP",
    "name": "Keurig Dr Pepper",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "음료/커피 · 배당",
-   "mcap": 40,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "HOLX",
    "name": "Hologic",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "여성건강 진단장비",
-   "mcap": 20,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "EG",
    "name": "Everest Group",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "재보험",
-   "mcap": 18,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "HAL",
    "name": "Halliburton",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "유전 서비스 · 시추/완결",
-   "mcap": 22,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "CFG",
    "name": "Citizens Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "동부 지역 은행",
-   "mcap": 20,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "WTW",
    "name": "Willis Towers Watson",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 브로커 · 컨설팅",
-   "mcap": 30,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "KEY",
    "name": "KeyCorp",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "지역 은행 · 배당",
-   "mcap": 18,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "BRO",
    "name": "Brown & Brown",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "보험 브로커 · M&A",
-   "mcap": 28,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "MOH",
    "name": "Molina Healthcare",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "Medicaid 관리의료",
-   "mcap": 20,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "PFG",
    "name": "Principal Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "자산운용/보험 · 은퇴",
-   "mcap": 18,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "COO",
    "name": "CooperCompanies",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "콘택트렌즈 · 여성건강",
-   "mcap": 20,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "TXT",
    "name": "Textron",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "Bell 헬리콥터 · Cessna",
-   "mcap": 15,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "DGX",
    "name": "Quest Diagnostics",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "임상검사 · 진단",
-   "mcap": 20,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "SNA",
    "name": "Snap-on",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "전문 공구 · 자동차 정비",
-   "mcap": 18,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "MAS",
    "name": "Masco Corp",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "주택 개보수 · 배관/페인트",
-   "mcap": 15,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "DPZ",
    "name": "Dominos Pizza",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "피자 프랜차이즈 · 디지털",
-   "mcap": 18,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "FDS",
    "name": "FactSet Research",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "금융 데이터/분석",
-   "mcap": 18,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "BG",
    "name": "Bunge Global",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "곡물/농산물 트레이딩",
-   "mcap": 15,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ARE",
    "name": "Alexandria RE",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "생명과학 오피스 REIT",
-   "mcap": 18,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "WSO",
    "name": "Watsco",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "HVAC 유통 · 에어컨",
-   "mcap": 20,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "BAX",
    "name": "Baxter Intl",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료기기 · 신장관리",
-   "mcap": 18,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "CPB",
    "name": "Campbell Soup",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "식품 · 스낵 · 배당",
-   "mcap": 12,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "DVA",
    "name": "DaVita",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "투석 센터 · 신장치료",
-   "mcap": 12,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "PODD",
    "name": "Insulet",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "인슐린 펌프 Omnipod",
-   "mcap": 18,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "WAT",
    "name": "Waters Corp",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "분석기기 · HPLC · 질량분석",
-   "mcap": 18,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "EXPD",
    "name": "Expeditors Intl",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "물류/포워딩 · 글로벌 운송",
-   "mcap": 15,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "WBA",
    "name": "Walgreens",
    "sector": "Healthcare",
-   "signal": "WATCH",
-   "memo": "약국체인 · 턴어라운드 · 리스크",
-   "mcap": 10,
-   "rsi": 38,
    "index": "SP500"
   },
   {
    "sym": "CINF",
    "name": "Cincinnati Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "손해보험 · 배당왕",
-   "mcap": 20,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "POOL",
    "name": "Pool Corp",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "수영장 장비/유통",
-   "mcap": 15,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "EMN",
    "name": "Eastman Chemical",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "특수화학 · 첨가제/섬유",
-   "mcap": 12,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "NVR",
    "name": "NVR Inc",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "주택건설 · 토지매입 안 함",
-   "mcap": 28,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "BLDR",
    "name": "Builders FirstSource",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "건축자재 유통 · 주택시장",
-   "mcap": 20,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "NTRS",
    "name": "Northern Trust",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "자산관리/커스터디",
-   "mcap": 20,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "IPG",
    "name": "Interpublic Group",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "광고 · Omnicom 합병 추진",
-   "mcap": 12,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "LKQ",
    "name": "LKQ Corp",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "자동차 부품 애프터마켓",
-   "mcap": 10,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "FSLR",
    "name": "First Solar",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "태양광 패널 · 미국 제조 · IRA",
-   "mcap": 18,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "ENPH",
    "name": "Enphase Energy",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "태양광 인버터 · 가정용 에너지",
-   "mcap": 10,
-   "rsi": 38,
    "index": "SP500"
   },
   {
    "sym": "ON",
    "name": "ON Semiconductor",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[2026-04-25] AI DC 800V HVDC 파워 생태계 공식 파트너 · 전력/센서 반도체 EV+산업+AI DC 3중 노출 · Q1 2026 가이던스 $1.435-1.535B = 3년+ 다운사이클 이후 첫 YoY 성장 분기 예상 · FCF 14억(시총 4.9%) · Fwd P/FCF 18.1배 · AI DC 매출 2025 $2.5억 급성장 · 3년 $60억 자사주매입",
-   "mcap": 25,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "SWKS",
    "name": "Skyworks Solutions",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "Citi 우선선택(vs QCOM) · KeyBanc mixed: iPhone 18 출시 지연→2H26 near-est 상방 but 중국 수요 악화·ARM 아키텍처 마이그레이션으로 royalty↑ · RF 반도체 · Apple 공급망 · CSS→ARM9 이전 시 royalty 비용 증가 우려",
-   "mcap": 14,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "JBHT",
    "name": "JB Hunt Transport",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "트럭/물류 · 인터모달",
-   "mcap": 18,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "JBL",
    "name": "Jabil Inc",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM 04/17 OW top10] EMS 제조 + AI 서버 조립 · 하이퍼스케일러 수주 · CLS/FLEX와 함께 광학 프리미엄 완화 수혜 그룹",
-   "mcap": 20,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "RL",
    "name": "Ralph Lauren",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "럭셔리 패션 · 브랜드",
-   "mcap": 14,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "KIM",
    "name": "Kimco Realty",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "리테일 REIT",
-   "mcap": 15,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "TFX",
    "name": "Teleflex",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료기기 · 카테터",
-   "mcap": 10,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "ILMN",
    "name": "Illumina",
    "sector": "Healthcare",
-   "signal": "WATCH",
-   "memo": "유전체 시퀀싱 · 정밀의료",
-   "mcap": 15,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "PTC",
    "name": "PTC Inc",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "CAD/PLM/IoT 소프트웨어",
-   "mcap": 20,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ALB",
    "name": "Albemarle",
    "sector": "Materials",
-   "signal": "WATCH",
-   "memo": "리튬 · 2차전지 소재 · 변동성",
-   "mcap": 10,
-   "rsi": 38,
    "index": "SP500"
   },
   {
    "sym": "ALGN",
    "name": "Align Technology",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "인비절라인 투명교정",
-   "mcap": 14,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "NCLH",
    "name": "Norwegian Cruise",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "크루즈 · 여행 수요",
-   "mcap": 10,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "BBWI",
    "name": "Bath & Body Works",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "홈/바디 프래그런스",
-   "mcap": 10,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "MGM",
    "name": "MGM Resorts",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "카지노 · 라스베가스",
-   "mcap": 12,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "APTV",
    "name": "Aptiv",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "자동차 전장 · ADAS · 커넥터",
-   "mcap": 14,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "GEN",
    "name": "Gen Digital",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "Norton/Avast 사이버보안",
-   "mcap": 18,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CZR",
    "name": "Caesars Entertainment",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "카지노/호텔 · 부채 리스크",
-   "mcap": 10,
-   "rsi": 40,
    "index": "SP500"
   },
   {
    "sym": "CE",
    "name": "Celanese",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "아세틸/폴리머",
-   "mcap": 10,
-   "rsi": 38,
    "index": "SP500"
   },
   {
    "sym": "GL",
    "name": "Globe Life",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "생명보험 · 배당",
-   "mcap": 12,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "HRL",
    "name": "Hormel Foods",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "육가공 · 배당왕",
-   "mcap": 17,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "AES",
    "name": "AES Corp",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "재생에너지/LNG · 글로벌",
-   "mcap": 12,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "CMS",
    "name": "CMS Energy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "미시간 유틸리티",
-   "mcap": 20,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "AKAM",
    "name": "Akamai",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "CDN/엣지컴퓨팅",
-   "mcap": 15,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "WRK",
    "name": "WestRock",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "포장 · 골판지",
-   "mcap": 12,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "JNPR",
    "name": "Juniper Networks",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "네트워크 장비 · HPE 인수",
-   "mcap": 14,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "UDR",
    "name": "UDR Inc",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "아파트 REIT",
-   "mcap": 15,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "BXP",
    "name": "Boston Properties",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "오피스 REIT",
-   "mcap": 12,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "ALLE",
    "name": "Allegion",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "보안/잠금장치 · Schlage",
-   "mcap": 12,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "AIZ",
    "name": "Assurant",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "특수보험 · 보증",
-   "mcap": 10,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "MHK",
    "name": "Mohawk Industries",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "바닥재/타일 · 주택리모델링",
-   "mcap": 10,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "MTCH",
    "name": "Match Group",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "Tinder/Hinge 데이팅 앱",
-   "mcap": 10,
-   "rsi": 40,
    "index": "SP500"
   },
   {
    "sym": "GNRC",
    "name": "Generac",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "발전기 · 에너지 저장",
-   "mcap": 10,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "RHI",
    "name": "Robert Half",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "인력 채용 · 컨설팅",
-   "mcap": 10,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "DAY",
    "name": "Dayforce",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "HR 클라우드 · Ceridian 후속",
-   "mcap": 10,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "CHRW",
    "name": "CH Robinson",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "물류 브로커 · 3PL",
-   "mcap": 12,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "HSIC",
    "name": "Henry Schein",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "치과/의료 유통",
-   "mcap": 10,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "DVN",
    "name": "Devon Energy",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "셰일 E&P · 변동배당",
-   "mcap": 22,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "LNT",
    "name": "Alliant Energy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "아이오와 유틸리티",
-   "mcap": 15,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "EVRG",
    "name": "Evergy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "캔자스 유틸리티",
-   "mcap": 15,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "FRT",
    "name": "Federal Realty",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "리테일 REIT · 배당왕",
-   "mcap": 10,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "TECH",
    "name": "Bio-Techne",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "단백질/항체 · 생명과학 도구",
-   "mcap": 10,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "REG",
    "name": "Regency Centers",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "쇼핑센터 REIT",
-   "mcap": 12,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "FFIV",
    "name": "F5 Networks",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "네트워크 보안/로드밸런싱",
-   "mcap": 15,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "IEX",
    "name": "IDEX Corp",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "유체처리 · 방산",
-   "mcap": 15,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "CPT",
    "name": "Camden Property",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "선벨트 아파트 REIT",
-   "mcap": 12,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "INCY",
    "name": "Incyte",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "항암/면역 바이오 · Jakafi",
-   "mcap": 15,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "BIO",
    "name": "Bio-Rad Labs",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "생명과학 기기 · 진단",
-   "mcap": 10,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "VTRS",
    "name": "Viatris",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "제네릭 의약품 · 배당",
-   "mcap": 12,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "CRL",
    "name": "Charles River Labs",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "CRO · 전임상 서비스",
-   "mcap": 10,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "TPR",
    "name": "Tapestry",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "Coach/Kate Spade · 럭셔리",
-   "mcap": 14,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "SWK",
    "name": "Stanley Black & Decker",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "전동공구 · DeWalt",
-   "mcap": 12,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "PAYC",
    "name": "Paycom",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "HR/급여 클라우드 SaaS",
-   "mcap": 12,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "EPAM",
    "name": "EPAM Systems",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "IT 아웃소싱 · 동유럽 기반",
-   "mcap": 12,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "RVTY",
    "name": "Revvity",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "생명과학 진단 · PerkinElmer",
-   "mcap": 12,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "SOLV",
    "name": "Solventum",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "3M 헬스케어 분사 · 의료용품",
-   "mcap": 10,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "BWA",
    "name": "BorgWarner",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "자동차 파워트레인 · EV 전환",
-   "mcap": 10,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "PSKY",
    "name": "Paramount Skydance",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "CBS · Paramount+ · Skydance 합병 완료 (2025.8) · Warner Bros Discovery 인수 추진",
-   "mcap": 10,
-   "rsi": 38,
    "index": ""
   },
   {
    "sym": "WYNN",
    "name": "Wynn Resorts",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "카지노 · 마카오/라스베가스",
-   "mcap": 10,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "CHTR",
    "name": "Charter Communications",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "미국 2위 케이블TV · Spectrum",
-   "mcap": 50,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "CPRT",
    "name": "Copart",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "온라인 자동차 경매 · 보험 폐차",
-   "mcap": 55,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "DLTR",
    "name": "Dollar Tree",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "달러스토어 · Family Dollar",
-   "mcap": 15,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "DXCM",
    "name": "DexCom",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "연속 혈당 모니터(CGM) · 당뇨관리",
-   "mcap": 30,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "GFS",
    "name": "GlobalFoundries",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "반도체 파운드리 · 비첨단 공정 특화",
-   "mcap": 25,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "MCHP",
    "name": "Microchip Technology",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "마이크로컨트롤러 · 아날로그 · 자동차",
-   "mcap": 30,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "ODFL",
    "name": "Old Dominion Freight",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "LTL 화물 · 미국 최고 효율",
-   "mcap": 40,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "FOXA",
    "name": "Fox Corp A",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "Fox News · 스포츠",
-   "mcap": 20,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "FOX",
    "name": "Fox Corp B",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "Fox News · 스포츠 · B주",
-   "mcap": 20,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "NWSA",
    "name": "News Corp A",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "WSJ · 출판/미디어",
-   "mcap": 18,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "NWS",
    "name": "News Corp B",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "WSJ · 출판/미디어 · B주",
-   "mcap": 18,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "BABA",
    "name": "Alibaba",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "중국 최대 이커머스 · 클라우드 · ADR",
-   "mcap": 351,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "SAP",
    "name": "SAP SE",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "ERP 글로벌 1위 · 클라우드 전환 · ADR",
-   "mcap": 234,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "NVO",
    "name": "Novo Nordisk",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "비만/당뇨 Ozempic · GLP-1 · ADR",
-   "mcap": 216,
-   "rsi": 42,
    "index": "NYSE"
   },
   {
    "sym": "NVS",
    "name": "Novartis",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "글로벌 제약 · 항암/면역 · ADR",
-   "mcap": 307,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "AZN",
    "name": "AstraZeneca",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "항암제 · 면역치료 · ADR",
-   "mcap": 315,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "HSBC",
    "name": "HSBC Holdings",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "글로벌 은행 · 아시아 강세 · ADR",
-   "mcap": 296,
-   "rsi": 54,
    "index": "NYSE"
   },
   {
    "sym": "TM",
    "name": "Toyota Motor",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "세계 최대 자동차 · 하이브리드 · ADR",
-   "mcap": 323,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "SHEL",
    "name": "Shell plc",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "글로벌 에너지 메이저 · LNG · ADR",
-   "mcap": 223,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "RIO",
    "name": "Rio Tinto",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "글로벌 광업 · 철광석/구리 · ADR",
-   "mcap": 168,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "BHP",
    "name": "BHP Group",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "세계 최대 광업 · 철광석/구리 · ADR",
-   "mcap": 184,
-   "rsi": 46,
    "index": "NYSE"
   },
   {
    "sym": "MUFG",
    "name": "MUFG Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "일본 최대 은행 · ADR",
-   "mcap": 223,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "SMFG",
    "name": "Sumitomo Mitsui FG",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "일본 3대 은행 · ADR",
-   "mcap": 152,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "MFG",
    "name": "Mizuho Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "일본 메가뱅크 · ADR",
-   "mcap": 124,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "UBS",
    "name": "UBS Group",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "스위스 투자은행 · Credit Suisse 합병 · ADR",
-   "mcap": 129,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "PDD",
    "name": "PDD Holdings",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "Temu/핀둬둬 · 중국 이커머스 · ADR",
-   "mcap": 142,
-   "rsi": 50,
    "index": "NASDAQ100"
   },
   {
    "sym": "SONY",
    "name": "Sony Group",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "게임/엔터/반도체 · PS5 · ADR",
-   "mcap": 139,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "SCCO",
    "name": "Southern Copper",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "구리 생산 · 전기화 수혜 · ADR",
-   "mcap": 160,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "SAN",
    "name": "Banco Santander",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "스페인 최대 은행 · ADR",
-   "mcap": 178,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "BBVA",
    "name": "BBVA",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "스페인 2위 은행 · 라틴 · ADR",
-   "mcap": 133,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "BTI",
    "name": "British American Tobacco",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "담배 · 고배당 · ADR",
-   "mcap": 130,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "UL",
    "name": "Unilever",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "글로벌 소비재 · 식품/뷰티 · ADR",
-   "mcap": 162,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "BUD",
    "name": "Anheuser-Busch InBev",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "세계 최대 맥주 · ADR",
-   "mcap": 159,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "TTE",
    "name": "TotalEnergies",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "프랑스 에너지 메이저 · ADR",
-   "mcap": 163,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "BP",
    "name": "BP plc",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "영국 에너지 메이저 · ADR",
-   "mcap": 96,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "HDB",
    "name": "HDFC Bank",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "인도 최대 민영은행 · ADR",
-   "mcap": 154,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "IBN",
    "name": "ICICI Bank",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "인도 2위 민영은행 · ADR",
-   "mcap": 113,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "BCS",
    "name": "Barclays",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "영국 투자은행 · ADR",
-   "mcap": 87,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "DB",
    "name": "Deutsche Bank",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "독일 최대 은행 · ADR",
-   "mcap": 70,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "ING",
    "name": "ING Groep",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "네덜란드 은행 · ADR",
-   "mcap": 84,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "TD",
    "name": "Toronto-Dominion",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "캐나다 최대 은행 · ADR",
-   "mcap": 160,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "RY",
    "name": "Royal Bank of Canada",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "캐나다 2위 은행 · ADR",
-   "mcap": 237,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "BMO",
    "name": "Bank of Montreal",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "캐나다 은행 · ADR",
-   "mcap": 100,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "BNS",
    "name": "Bank of Nova Scotia",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "캐나다 은행 · ADR",
-   "mcap": 94,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "CM",
    "name": "CIBC",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "캐나다 은행 · ADR",
-   "mcap": 88,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "SNY",
    "name": "Sanofi",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "프랑스 제약 · 면역/희귀질환 · ADR",
-   "mcap": 113,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "GSK",
    "name": "GSK plc",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "영국 제약 · 백신/면역 · ADR",
-   "mcap": 117,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "TAK",
    "name": "Takeda Pharma",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "일본 최대 제약 · ADR",
-   "mcap": 58,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "ENB",
    "name": "Enbridge",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "캐나다 파이프라인 · 고배당 · ADR",
-   "mcap": 113,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "EPD",
    "name": "Enterprise Products",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "미국 최대 MLP · 배당 · 파이프라인",
-   "mcap": 78,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "ET",
    "name": "Energy Transfer",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "MLP · 천연가스 · 고배당",
-   "mcap": 63,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "SU",
    "name": "Suncor Energy",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "캐나다 오일샌드 · ADR",
-   "mcap": 65,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "CNQ",
    "name": "Canadian Natural Res",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "캐나다 최대 석유 생산 · ADR",
-   "mcap": 83,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "EQNR",
    "name": "Equinor",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "노르웨이 국영 에너지 · ADR",
-   "mcap": 70,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "VALE",
    "name": "Vale SA",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "브라질 철광석 · 니켈 · ADR",
-   "mcap": 73,
-   "rsi": 44,
    "index": "NYSE"
   },
   {
    "sym": "PBR",
    "name": "Petrobras",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "브라질 국영 에너지 · 고배당 · ADR",
-   "mcap": 96,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "ITUB",
    "name": "Itau Unibanco",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "브라질 최대 은행 · ADR",
-   "mcap": 99,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "INFY",
    "name": "Infosys",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "인도 IT 아웃소싱 · ADR",
-   "mcap": 62,
-   "rsi": 46,
    "index": "NYSE"
   },
   {
    "sym": "NTES",
    "name": "NetEase",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "중국 게임/음악 · ADR",
-   "mcap": 88,
-   "rsi": 50,
    "index": "NASDAQ100"
   },
   {
    "sym": "JD",
    "name": "JD.com",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "중국 이커머스 · 물류 · ADR",
-   "mcap": 41,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "BIDU",
    "name": "Baidu",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "중국 검색/AI · 자율주행 · ADR",
-   "mcap": 43,
-   "rsi": 46,
    "index": "NASDAQ100"
   },
   {
    "sym": "TCOM",
    "name": "Trip.com",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "중국 최대 온라인여행 · ADR",
-   "mcap": 47,
-   "rsi": 50,
    "index": "NASDAQ100"
   },
   {
    "sym": "CPNG",
    "name": "Coupang",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "한국 이커머스 · ADR",
-   "mcap": 45,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "AMX",
    "name": "America Movil",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "라틴아메리카 통신 · ADR",
-   "mcap": 72,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "LYG",
    "name": "Lloyds Banking",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "영국 최대 리테일 은행 · ADR",
-   "mcap": 81,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "NWG",
    "name": "NatWest Group",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "영국 은행 · ADR",
-   "mcap": 65,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "NGG",
    "name": "National Grid",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "영/미 전력망 · ADR",
-   "mcap": 92,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "RELX",
    "name": "RELX plc",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "데이터/분석/출판 · ADR",
-   "mcap": 51,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "DEO",
    "name": "Diageo",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "주류 글로벌 1위 · 기네스/조니워커 · ADR",
-   "mcap": 56,
-   "rsi": 44,
    "index": "NYSE"
   },
   {
    "sym": "HLN",
    "name": "Haleon",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "소비자 헬스케어 · GSK 분사 · ADR",
-   "mcap": 45,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "RACE",
    "name": "Ferrari",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "럭셔리 자동차 · 프리미엄 밸류에이션",
-   "mcap": 69,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "MFC",
    "name": "Manulife Financial",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "캐나다 보험 · 아시아 · ADR",
-   "mcap": 60,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "B",
    "name": "Barrick Mining",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "세계 2위 금광 · ADR",
-   "mcap": 76,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "AU",
    "name": "AngloGold Ashanti",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "금광 · 아프리카/호주 · ADR",
-   "mcap": 55,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "AEM",
    "name": "Agnico Eagle Mines",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "금광 · 안정적 생산 · ADR",
-   "mcap": 108,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "WPM",
    "name": "Wheaton Precious Metals",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "금/은 스트리밍 · 로열티 · ADR",
-   "mcap": 63,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "FNV",
    "name": "Franco-Nevada",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "금/은 로열티 스트리밍 · ADR",
-   "mcap": 42,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "GFI",
    "name": "Gold Fields",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "남아공 금광 · ADR",
-   "mcap": 40,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "TRP",
    "name": "TC Energy",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "캐나다 파이프라인 · 배당 · ADR",
-   "mcap": 61,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "CP",
    "name": "Canadian Pacific KC",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "캐나다~멕시코 철도 · ADR",
-   "mcap": 75,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "CNI",
    "name": "Canadian National Railway",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "캐나다 철도 · 물류 · ADR",
-   "mcap": 65,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "IMO",
    "name": "Imperial Oil",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "캐나다 석유 · Exxon 자회사 · ADR",
-   "mcap": 56,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "E",
    "name": "Eni SpA",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "이탈리아 에너지 메이저 · ADR",
-   "mcap": 65,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "ARES",
    "name": "Ares Management",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "대체투자 · 크레딧 전문",
-   "mcap": 55,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "BAM",
    "name": "Brookfield Asset Mgmt",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "인프라/재생에너지 투자 · ADR",
-   "mcap": 86,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "BN",
    "name": "Brookfield Corp",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "글로벌 대체투자 · 인프라 · ADR",
-   "mcap": 107,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "WY",
    "name": "Weyerhaeuser",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "목재/부동산 REIT · 주택시장",
-   "mcap": 25,
-   "rsi": 46,
    "index": "SP500"
   },
   {
    "sym": "MPLX",
    "name": "MPLX LP",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "MLP · 미드스트림 · 고배당",
-   "mcap": 57,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "LNG",
    "name": "Cheniere Energy",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "미국 최대 LNG 수출 · 에너지 안보",
-   "mcap": 41,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "CCEP",
    "name": "Coca-Cola Europacific",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "코카콜라 유럽/태평양 보틀러",
-   "mcap": 41,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "CCL",
    "name": "Carnival Corp",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "크루즈 · 여행 수요 회복",
-   "mcap": 40,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "ALNY",
    "name": "Alnylam Pharma",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "RNAi 치료제 · 희귀질환",
-   "mcap": 53,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "ARGX",
    "name": "argenx SE",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "자가면역 항체치료 · Vyvgart · ADR",
-   "mcap": 51,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "TKO",
    "name": "TKO Group",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "WWE+UFC 합병 · 스포츠 엔터",
-   "mcap": 42,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "FERG",
    "name": "Ferguson Enterprises",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "배관/HVAC 유통 · 인프라",
-   "mcap": 51,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "TRI",
    "name": "Thomson Reuters",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "법률/세무/뉴스 데이터 · ADR",
-   "mcap": 59,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "MDLN",
    "name": "Medline Inc",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "의료용품 유통 · 최근 IPO",
-   "mcap": 57,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "WCN",
    "name": "Waste Connections",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "폐기물 처리 · 안정 성장 · ADR",
-   "mcap": 46,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "HEI",
    "name": "HEICO Corp",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "항공기 부품 · 방산",
-   "mcap": 46,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "FER",
    "name": "Ferrovial",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "인프라 · 톨도로/공항 · ADR",
-   "mcap": 53,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "TEAM",
    "name": "Atlassian",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "Jira/Confluence · 개발도구 · ADR",
-   "mcap": 43,
-   "rsi": 46,
    "index": "NASDAQ100"
   },
   {
    "sym": "RKT",
    "name": "Rocket Companies",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "온라인 모기지 · 핀테크",
-   "mcap": 54,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "SPY",
    "name": "SPDR S&P 500 ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "S&P 500 · 세계 최대 ETF",
-   "mcap": 580,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "QQQ",
    "name": "Invesco QQQ Trust",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "나스닥 100 · 기술주 중심",
-   "mcap": 280,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "VTI",
    "name": "Vanguard Total Market",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "미국 전체 시장 4,000+",
-   "mcap": 420,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "VOO",
    "name": "Vanguard S&P 500",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "S&P 500 · 저비용 0.03%",
-   "mcap": 530,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "IVV",
    "name": "iShares Core S&P 500",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "S&P 500 · iShares",
-   "mcap": 510,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "SOXX",
    "name": "iShares Semiconductor",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "반도체 ETF",
-   "mcap": 15,
-   "rsi": 48,
    "index": "NASDAQ100"
   },
   {
    "sym": "ARKK",
    "name": "ARK Innovation",
    "sector": "ETF",
-   "signal": "WATCH",
-   "memo": "캐시 우드 · 파괴적 혁신",
-   "mcap": 6,
-   "rsi": 42,
    "index": "NYSE"
   },
   {
    "sym": "ARKG",
    "name": "ARK Genomic",
    "sector": "ETF",
-   "signal": "WATCH",
-   "memo": "유전체/바이오 혁신",
-   "mcap": 2,
-   "rsi": 40,
    "index": "NYSE"
   },
   {
    "sym": "ARKF",
    "name": "ARK Fintech",
    "sector": "ETF",
-   "signal": "WATCH",
-   "memo": "핀테크 혁신 · 크립토",
-   "mcap": 1,
-   "rsi": 42,
    "index": "NYSE"
   },
   {
    "sym": "GLD",
    "name": "SPDR Gold",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "금 현물 · 인플레 헤지",
-   "mcap": 80,
-   "rsi": 55,
    "index": "NYSE"
   },
   {
    "sym": "SLV",
    "name": "iShares Silver",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "은 현물",
-   "mcap": 14,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "USO",
    "name": "US Oil Fund",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "WTI 원유 선물",
-   "mcap": 3,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "TLT",
    "name": "iShares 20+ Treasury",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "장기국채 · 금리 역상관 · 헤지",
-   "mcap": 50,
-   "rsi": 44,
    "index": "NASDAQ100"
   },
   {
    "sym": "TIP",
    "name": "iShares TIPS",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "물가연동 국채",
-   "mcap": 20,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "HYG",
    "name": "iShares High Yield",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "하이일드 회사채 · 크레딧",
-   "mcap": 15,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "LQD",
    "name": "iShares Inv Grade",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "투자등급 회사채",
-   "mcap": 30,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "SHY",
    "name": "iShares 1-3Y Treasury",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "단기국채 · 현금 대안",
-   "mcap": 25,
-   "rsi": 52,
    "index": "NYSE"
   },
   {
    "sym": "BND",
    "name": "Vanguard Total Bond",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "종합 채권",
-   "mcap": 100,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "AGG",
    "name": "iShares US Aggregate",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "종합 채권",
-   "mcap": 110,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "EEM",
    "name": "iShares Emerging",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "신흥국 · 중국/인도/한국",
-   "mcap": 20,
-   "rsi": 46,
    "index": "NYSE"
   },
   {
    "sym": "EFA",
    "name": "iShares EAFE",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "선진국(미국제외) · 유럽/일본",
-   "mcap": 50,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "FXI",
    "name": "iShares China",
    "sector": "ETF",
-   "signal": "WATCH",
-   "memo": "중국 대형주",
-   "mcap": 8,
-   "rsi": 50,
    "index": "NYSE"
   },
   {
    "sym": "EWJ",
    "name": "iShares Japan",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "일본 주식",
-   "mcap": 15,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "EWY",
    "name": "iShares Korea",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "한국 주식 · 삼성/SK",
-   "mcap": 5,
-   "rsi": 46,
    "index": "NYSE"
   },
   {
    "sym": "VWO",
    "name": "Vanguard Emerging",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "신흥국 · 저비용",
-   "mcap": 70,
-   "rsi": 46,
    "index": "NYSE"
   },
   {
    "sym": "INDA",
    "name": "iShares India",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "인도 주식",
-   "mcap": 10,
-   "rsi": 48,
    "index": "NYSE"
   },
   {
    "sym": "VXX",
    "name": "iPath VIX",
    "sector": "ETF",
-   "signal": "WATCH",
-   "memo": "VIX 선물 · 단기 헤지",
-   "mcap": 1,
-   "rsi": 45,
    "index": "NYSE"
   },
   {
    "sym": "UVXY",
    "name": "ProShares Ultra VIX",
    "sector": "ETF",
-   "signal": "WATCH",
-   "memo": "VIX 1.5X · 초단기 헤지",
-   "mcap": 1,
-   "rsi": 45,
    "index": "NYSE"
   },
   {
    "sym": "XLK",
    "name": "Technology Select Sector SPDR",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "기술 섹터 ETF · AAPL MSFT NVDA 등",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "AMLP",
    "name": "Alerian MLP ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "MLP 미드스트림 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "BOTZ",
    "name": "Global X Robotics & AI ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "로봇/AI ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "GDX",
    "name": "VanEck Gold Miners ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "금광 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "HACK",
    "name": "ETFMG Prime Cyber Security ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "사이버보안 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "ICLN",
    "name": "iShares Global Clean Energy ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "클린에너지 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "IGV",
    "name": "iShares Expanded Tech-Software ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "소프트웨어 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "ITA",
    "name": "iShares US Aerospace & Defense ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "방위산업 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "LIT",
    "name": "Global X Lithium & Battery ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "리튬/배터리 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "OIH",
    "name": "VanEck Oil Services ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "유전서비스 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "SMH",
    "name": "VanEck Semiconductor ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "반도체 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "URA",
    "name": "Global X Uranium ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "우라늄 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XBI",
    "name": "SPDR S&P Biotech ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "바이오테크 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLB",
    "name": "Materials Select Sector SPDR",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "소재 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLC",
    "name": "Communication Services Select SPDR",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "커뮤니케이션 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLE",
    "name": "Energy Select Sector SPDR",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "에너지 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLF",
    "name": "Financial Select Sector SPDR",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "금융 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLI",
    "name": "Industrial Select Sector SPDR",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업재 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLP",
    "name": "Consumer Staples Select SPDR",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "필수소비재 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLRE",
    "name": "Real Estate Select SPDR",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "부동산 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLU",
    "name": "Utilities Select Sector SPDR",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "유틸리티 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLV",
    "name": "Health Care Select Sector SPDR",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "헬스케어 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XLY",
    "name": "Consumer Discretionary Select SPDR",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "임의소비재 섹터 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "XOP",
    "name": "SPDR S&P Oil & Gas Exploration ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "석유가스 탐사 ETF",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "ABB",
    "name": "ABB Ltd",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "산업자동화 · 로봇 · 전력장비 글로벌 리더",
-   "mcap": 96,
-   "rsi": 52,
    "index": "ADR"
   },
   {
    "sym": "ADM",
    "name": "Archer-Daniels-Midland",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "곡물 트레이딩 · 식품 가공 메이저",
-   "mcap": 22,
-   "rsi": 44,
    "index": "SP500"
   },
   {
    "sym": "ES",
    "name": "Eversource Energy",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "뉴잉글랜드 유틸리티 · 전력/가스 배전",
-   "mcap": 22,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "FANUY",
    "name": "Fanuc Corp",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "일본 산업용 로봇·CNC 세계 1위",
-   "mcap": 30,
-   "rsi": 48,
    "index": "ADR"
   },
   {
    "sym": "JETS",
    "name": "US Global Jets ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "항공산업 ETF · 미국 항공사 집중",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "NDSN",
    "name": "Nordson Corp",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "정밀 분사·접착 장비 · 니치 산업 리더",
-   "mcap": 13,
-   "rsi": 48,
    "index": "SP500"
   },
   {
    "sym": "PNW",
    "name": "Pinnacle West Capital",
    "sector": "Utilities",
-   "signal": "HOLD",
-   "memo": "애리조나 전력 유틸리티 · APS 자회사",
-   "mcap": 11,
-   "rsi": 52,
    "index": "SP500"
   },
   {
    "sym": "TPL",
    "name": "Texas Pacific Land",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "텍사스 로열티/수자원 · 퍼미안 분지 광대한 토지",
-   "mcap": 35,
-   "rsi": 55,
    "index": "SP500"
   },
   {
    "sym": "AA",
    "name": "Alcoa Corp",
    "sector": "Basic Materials",
-   "signal": "HOLD",
-   "memo": "알루미늄 정련/제련 글로벌 리더 · 원자재 사이클",
-   "mcap": 8,
-   "rsi": 45,
    "index": "SP500"
   },
   {
    "sym": "BIIB",
    "name": "Biogen",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "알츠하이머 Leqembi · 바이오시밀러 · 신경과학 선두",
-   "mcap": 23,
-   "rsi": 42,
    "index": "SP500"
   },
   {
    "sym": "CLSK",
    "name": "CleanSpark",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "BTC 채굴 · 미국 내 친환경 마이닝 · 해시레이트 급성장",
-   "mcap": 3,
-   "rsi": 55,
    "index": "NASDAQ"
   },
   {
    "sym": "ETSY",
    "name": "Etsy",
    "sector": "Consumer Cyclical",
-   "signal": "HOLD",
-   "memo": "핸드메이드/빈티지 이커머스 · 크리에이터 경제",
-   "mcap": 7,
-   "rsi": 40,
    "index": "SP500"
   },
   {
    "sym": "LAC",
    "name": "Lithium Americas",
    "sector": "Basic Materials",
-   "signal": "WATCH",
-   "memo": "Thacker Pass 리튬 광산 · 미국 내 최대 리튬 프로젝트",
-   "mcap": 3,
-   "rsi": 38,
    "index": "NYSE"
   },
   {
    "sym": "MASI",
    "name": "Masimo Corp",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "맥박산소측정기 · 비침습 모니터링 · 의료기기 혁신",
-   "mcap": 8,
-   "rsi": 44,
    "index": "NASDAQ"
   },
   {
    "sym": "MP",
    "name": "MP Materials",
    "sector": "Basic Materials",
-   "signal": "WATCH",
-   "memo": "희토류 채굴/가공 · 미국 유일 통합 생산 · EV 자석",
-   "mcap": 4,
-   "rsi": 42,
    "index": "NYSE"
   },
   {
    "sym": "RUN",
    "name": "Sunrun",
    "sector": "Utilities",
-   "signal": "WATCH",
-   "memo": "미국 최대 가정용 태양광 설치 · 리스 모델",
-   "mcap": 4,
-   "rsi": 48,
    "index": "NASDAQ"
   },
   {
    "sym": "SEDG",
    "name": "SolarEdge Technologies",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "태양광 인버터/옵티마이저 · 유럽 시장 강세",
-   "mcap": 2,
-   "rsi": 35,
    "index": "NASDAQ"
   },
   {
    "sym": "STAG",
    "name": "STAG Industrial",
    "sector": "Real Estate",
-   "signal": "HOLD",
-   "memo": "물류/산업용 리츠 · 단일 테넌트 · 매월 배당",
-   "mcap": 7,
-   "rsi": 50,
    "index": "SP500"
   },
   {
    "sym": "IBIT",
    "name": "iShares Bitcoin Trust ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "BlackRock 비트코인 현물 ETF · AUM 최대",
-   "mcap": 0,
-   "rsi": 52,
    "index": "ETF"
   },
   {
    "sym": "BITO",
    "name": "ProShares Bitcoin Strategy ETF",
    "sector": "ETF",
-   "signal": "HOLD",
-   "memo": "비트코인 선물 ETF · 최초 승인",
-   "mcap": 0,
-   "rsi": 50,
    "index": "ETF"
   },
   {
    "sym": "QBTS",
    "name": "D-Wave Quantum",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "양자컴퓨터 상용화 선두 · 어닐링 방식",
-   "mcap": 2,
-   "rsi": 58,
    "index": "NYSE"
   },
   {
    "sym": "UMC",
    "name": "United Microelectronics",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "대만 파운드리 · 성숙 공정 특화 · TSMC 대안",
-   "mcap": 18,
-   "rsi": 45,
    "index": "ADR"
   },
   {
    "sym": "005930.KS",
    "name": "삼성전자",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[GS 04/15 Buy 유지] [05/31 JP모건] MS→삼성 LTA 선지급 $100억+ 확인. ASIC용 HBM 점유 1강(구글 TPU·AVGO 등 ASIC 파트너). NVDA용 HBM 점유 30%초중반(2중 체제). 요코하마 반도체 공장 300억엔 투자 예정. 1Q26 OP 역대 최강 2017-18 연간평균 상회 = ROE/P/B 구조 전환 · HBM4 고핀속도(11Gbps+) · Q2 NAND ASP +75~100% 전망=삼성 NAND 비중 극수혜 · 미국 투자자 선호 SEC>SKH(일반메모리 비중↑) · 수급 타이트 2028H1 · 리스크: 26H2 가격 둔화·중국 점유 상승",
-   "mcap": 350,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "000660.KS",
    "name": "SK하이닉스",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[KB증권 05/29] PT380만원(기존300만원↑) · 2Q 충족률 50%=부족 극심·2028까지 공급<수요·에이전틱AI 토큰 7배 증가 · \"메모리 마라톤 5km\" 시작 · [JPM 05/29] NVDA용 HBM 점유 ~50%(1강) — HBM4 11Gbps+ 기술격차 유지. ASIC용은 2중 체제 참여. 글로벌 메모리 선호주 ①위 · 베라 루빈 메모리 원가 블랙웰 대비 5배 확대 · [JPM OW PT180만원/Citi PT170만원 04/25] 1Q26 OP 37.6조 사상 최대(QoQ+96%/YoY+405%) · DRAM ASP +60%대중반/NAND ASP +70%대중반 · SOCAMM2 양산(Vera 192GB) · 26E Capex 43조(YoY+57%)",
-   "mcap": 120,
-   "rsi": 52,
    "index": "KOSPI"
   },
   {
    "sym": "373220.KS",
    "name": "LG에너지솔루션",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "글로벌 배터리 2위 · EV 둔화 우려 · 46시리즈 양산",
-   "mcap": 80,
-   "rsi": 40,
    "index": "KOSPI"
   },
   {
    "sym": "207940.KS",
    "name": "삼성바이오로직스",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "CDMO 글로벌 1위 · 4공장 가동 · 수주 잔고 역대",
-   "mcap": 55,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "005380.KS",
    "name": "현대차",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "EV 라인업 확대 · SDV 전환 · 보스턴다이내믹스 로봇",
-   "mcap": 45,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "012450.KS",
    "name": "한화에어로스페이스",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "수주 잔고 100조+ · NATO 추가 수주 · 글로벌 방산 대장",
-   "mcap": 45,
-   "rsi": 60,
    "index": "KOSPI"
   },
   {
    "sym": "000270.KS",
    "name": "기아",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "EV3 유럽 호조 · PBR 밸류업 · 배당 확대",
-   "mcap": 35,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "035420.KS",
    "name": "NAVER",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "HyperCLOVA X Agent · 검색 AI 전환 · 커머스 성장",
-   "mcap": 35,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "068270.KS",
    "name": "셀트리온",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "바이오시밀러 1위 · 미국 점유율 확대 · 짐펜트라 성장",
-   "mcap": 30,
-   "rsi": 52,
    "index": "KOSPI"
   },
   {
    "sym": "105560.KS",
    "name": "KB금융",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "밸류업 대표주 · 배당 확대 · PBR 저평가",
-   "mcap": 28,
-   "rsi": 55,
    "index": "KOSPI"
   },
   {
    "sym": "006400.KS",
    "name": "삼성SDI",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "전고체 전환기 · 각형 배터리 · 수익성 개선 필요",
-   "mcap": 25,
-   "rsi": 38,
    "index": "KOSPI"
   },
   {
    "sym": "055550.KS",
    "name": "신한지주",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "밸류업 프로그램 · 자사주 소각 · 배당 성장",
-   "mcap": 22,
-   "rsi": 53,
    "index": "KOSPI"
   },
   {
    "sym": "051910.KS",
    "name": "LG화학",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "석유화학 + 배터리 소재 · 구조조정 중 · 분할 이후",
-   "mcap": 20,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "259960.KS",
    "name": "크래프톤",
    "sector": "Communication Services",
-   "signal": "BUY",
-   "memo": "배그 인디아 MAU 폭발 · 인조이 신작 · 게임 대장주",
-   "mcap": 18,
-   "rsi": 55,
    "index": "KOSPI"
   },
   {
    "sym": "035720.KS",
    "name": "카카오",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "플랫폼 규제 · 경영 리스크 · Klaytn 블록체인",
-   "mcap": 15,
-   "rsi": 40,
    "index": "KOSPI"
   },
   {
    "sym": "138040.KS",
    "name": "메리츠금융지주",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "ROE 업계 1위 · 보험+증권 시너지 · 주주환원",
-   "mcap": 15,
-   "rsi": 58,
    "index": "KOSPI"
   },
   {
    "sym": "015760.KS",
    "name": "한국전력",
    "sector": "Utilities",
-   "signal": "WATCH",
-   "memo": "전력 인프라 대장 · 적자 축소 중 · 요금 인상 기대",
-   "mcap": 15,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "042660.KS",
    "name": "한화오션",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "LNG선 고부가 수주 · 선가 상승 사이클 · 수주 잔고 역대",
-   "mcap": 15,
-   "rsi": 55,
    "index": "KOSPI"
   },
   {
    "sym": "042700.KQ",
    "name": "한미반도체",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "HBM TC 본더 독점 · AI 반도체 후공정 수혜",
-   "mcap": 8,
-   "rsi": 55,
    "index": "KOSDAQ"
   },
   {
    "sym": "009150.KS",
    "name": "삼성전기",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[대형 CSP 공급계약 07/02] 북미 빅테크向 서버용 MLCC 4,500억원 규모 공급계약 체결(내년 1~12월). 초소형·고용량·고신뢰성 특성, AI 서버 랙 1개당 MLCC 약 60만개 탑재. 장덕현 사장 \"AI 핵심 부품 기술력 인정\" 발언. [MLCC 가격 급등 05/30] 중국 Guangdong XMAWEI MLCC 가격 급등으로 유통업체에 공식 가격인상 통보(메리츠증권). 현지 유통 전반 가격 인상 움직임 확인. AI 서버 고용량 MLCC 수요+전장 비중 확대+중국발 가격 인상 = 삼성전기 수혜 복합 요인. AI 서버용 고용량 MLCC 전환·LTCC·카메라모듈 · 전장 비중 확대",
-   "mcap": 10,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "402340.KS",
    "name": "SK스퀘어",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "SK하이닉스 지분 보유 · AI 투자 밸류체인",
-   "mcap": 10,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "039030.KQ",
    "name": "이오테크닉스",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "레이저 장비 · 반도체 후공정 · HBM 수혜",
-   "mcap": 4,
-   "rsi": 52,
    "index": "KOSDAQ"
   },
   {
    "sym": "403870.KQ",
    "name": "HPSP",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "고압 수소 어닐링 · 삼성 파운드리 필수 장비",
-   "mcap": 3,
-   "rsi": 50,
    "index": "KOSDAQ"
   },
   {
    "sym": "058470.KQ",
    "name": "리노공업",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "반도체 테스트 소켓 · AI칩 검증 수요 증가",
-   "mcap": 5,
-   "rsi": 48,
    "index": "KOSDAQ"
   },
   {
    "sym": "240810.KQ",
    "name": "원익IPS",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "CVD 장비 · 삼성전자 주요 협력사",
-   "mcap": 2,
-   "rsi": 45,
    "index": "KOSDAQ"
   },
   {
    "sym": "000990.KS",
    "name": "DB하이텍",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "8인치 파운드리 · 아날로그 반도체 · 전장",
-   "mcap": 2,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "036930.KQ",
    "name": "주성엔지니어링",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "ALD 장비 수주 급증 · AI 반도체 미세공정 필수",
-   "mcap": 3,
-   "rsi": 55,
    "index": "KOSDAQ"
   },
   {
    "sym": "131970.KQ",
    "name": "테크윙",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "반도체 핸들러 · HBM 테스트 수혜",
-   "mcap": 2,
-   "rsi": 48,
    "index": "KOSDAQ"
   },
   {
    "sym": "005290.KS",
    "name": "동진쎄미켐",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "포토레지스트 · EUV 소재 국산화",
-   "mcap": 2,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "357780.KQ",
    "name": "솔브레인",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "반도체 식각액 · 고순도 화학소재",
-   "mcap": 3,
-   "rsi": 47,
    "index": "KOSDAQ"
   },
   {
    "sym": "025560.KS",
    "name": "미래산업",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "반도체 장비 부품 · 소형주",
-   "mcap": 1,
-   "rsi": 40,
    "index": "KOSPI"
   },
   {
    "sym": "047810.KS",
    "name": "한국항공우주(KAI)",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "경공격기 FA-50 수출 · KF-21 양산 · 방산 수출 확대",
-   "mcap": 12,
-   "rsi": 55,
    "index": "KOSPI"
   },
   {
    "sym": "079550.KS",
    "name": "LIG넥스원",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "미사일/유도무기 · 중동 수출 급증 · 국방비 증가 수혜",
-   "mcap": 8,
-   "rsi": 52,
    "index": "KOSPI"
   },
   {
    "sym": "064350.KS",
    "name": "현대로템",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "K2 전차 · 폴란드 수출 · 철도·방산 이중 수혜",
-   "mcap": 6,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "272210.KS",
    "name": "한화시스템",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "위성통신 · 방산전자 · 한화 그룹 시너지",
-   "mcap": 5,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "000880.KS",
    "name": "한화",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "방산 지주 · 한화에어로/오션/시스템 모회사",
-   "mcap": 8,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "103140.KS",
    "name": "풍산",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "탄약 수출 수혜 · 동(구리) 가격 상승 · 방산+소재",
-   "mcap": 3,
-   "rsi": 52,
    "index": "KOSPI"
   },
   {
    "sym": "329180.KS",
    "name": "HD현대중공업",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "LNG/암모니아 선박 수주 · 세계 1위 조선사",
-   "mcap": 12,
-   "rsi": 53,
    "index": "KOSPI"
   },
   {
    "sym": "009540.KS",
    "name": "HD한국조선해양",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "조선 지주사 · HD현대중공업+HD현대삼호 · 그룹 시너지",
-   "mcap": 10,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "010140.KS",
    "name": "삼성중공업",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "해양플랜트 · LNG-FPSO · 수주 회복 중",
-   "mcap": 8,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "010620.KS",
    "name": "HD현대미포",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "중형 선박 전문 · 석유화학 탱커 수주",
-   "mcap": 4,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "267250.KS",
    "name": "HD현대",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "조선·중공업 지주 · 오일뱅크 · 그룹 밸류업",
-   "mcap": 6,
-   "rsi": 47,
    "index": "KOSPI"
   },
   {
    "sym": "082740.KS",
    "name": "한화엔진",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "선박 엔진 · 친환경 LNG 이중연료",
-   "mcap": 2,
-   "rsi": 46,
    "index": "KOSPI"
   },
   {
    "sym": "011200.KS",
    "name": "HMM",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "컨테이너 해운 · 운임 사이클 · 물류",
-   "mcap": 15,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "298040.KS",
    "name": "효성중공업",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "변압기/차단기 · 미국·중동 수출 호조 · 그리드 교체 수요",
-   "mcap": 8,
-   "rsi": 55,
    "index": "KOSPI"
   },
   {
    "sym": "267260.KS",
    "name": "HD현대일렉트릭",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "초고압 변압기 · 미국 그리드 노후화 · AI 데이터센터 전력",
-   "mcap": 12,
-   "rsi": 58,
    "index": "KOSPI"
   },
   {
    "sym": "010120.KS",
    "name": "LS일렉트릭",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "전력인프라 · 배전·변전 · 북미 시장 진출 가속",
-   "mcap": 6,
-   "rsi": 52,
    "index": "KOSPI"
   },
   {
    "sym": "103590.KS",
    "name": "일진전기",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "변압기 · 전력케이블 · 해외 수출 급증",
-   "mcap": 3,
-   "rsi": 54,
    "index": "KOSPI"
   },
   {
    "sym": "006260.KS",
    "name": "LS",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "LS그룹 지주 · 전선·전력·동 · 그룹 시너지",
-   "mcap": 4,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "229640.KQ",
    "name": "LS에코에너지",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "전력 케이블 · 에너지 인프라 · 해상풍력",
-   "mcap": 3,
-   "rsi": 53,
    "index": "KOSDAQ"
   },
   {
    "sym": "000500.KS",
    "name": "가온전선",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "전력 케이블 · LS그룹 · 인프라 수혜",
-   "mcap": 1,
-   "rsi": 47,
    "index": "KOSPI"
   },
   {
    "sym": "033100.KQ",
    "name": "제룡전기",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "수배전반 · 전력기기 · 해외 수출 성장",
-   "mcap": 2,
-   "rsi": 55,
    "index": "KOSDAQ"
   },
   {
    "sym": "034020.KS",
    "name": "두산에너빌리티",
    "sector": "Industrials",
-   "signal": "BUY",
-   "memo": "체코 원전 수주 · SMR 전용 공장 · 원전 르네상스",
-   "mcap": 12,
-   "rsi": 55,
    "index": "KOSPI"
   },
   {
    "sym": "000720.KS",
    "name": "현대건설",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "원전 건설 · 체코 원전 참여 · 플랜트 EPC",
-   "mcap": 5,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "052690.KS",
    "name": "한전기술",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "원전 설계 전문 · 체코 후속 수주 기대",
-   "mcap": 3,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "051600.KS",
    "name": "한전KPS",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "원전/발전 정비 · 안정적 수익",
-   "mcap": 2,
-   "rsi": 46,
    "index": "KOSPI"
   },
   {
    "sym": "092200.KQ",
    "name": "디아이씨",
    "sector": "Industrials",
-   "signal": "WATCH",
-   "memo": "원전 계장 · SMR 부품",
-   "mcap": 1,
-   "rsi": 50,
    "index": "KOSDAQ"
   },
   {
    "sym": "005490.KS",
    "name": "POSCO홀딩스",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "철강 대장 · 리튬 사업 · 포스코퓨처엠 모회사",
-   "mcap": 18,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "096770.KS",
    "name": "SK이노베이션",
    "sector": "Energy",
-   "signal": "WATCH",
-   "memo": "SK온 배터리 · 석유·화학 · 수익성 개선 필요",
-   "mcap": 10,
-   "rsi": 38,
    "index": "KOSPI"
   },
   {
    "sym": "247540.KQ",
    "name": "에코프로비엠",
    "sector": "Materials",
-   "signal": "WATCH",
-   "memo": "양극재 · 하이니켈 · 2차전지 소재 대장주",
-   "mcap": 8,
-   "rsi": 35,
    "index": "KOSDAQ"
   },
   {
    "sym": "086520.KQ",
    "name": "에코프로",
    "sector": "Materials",
-   "signal": "WATCH",
-   "memo": "에코프로비엠 모회사 · 2차전지 지주",
-   "mcap": 5,
-   "rsi": 33,
    "index": "KOSDAQ"
   },
   {
    "sym": "003670.KQ",
    "name": "포스코퓨처엠",
    "sector": "Materials",
-   "signal": "WATCH",
-   "memo": "양극재/음극재 · POSCO그룹 배터리 소재",
-   "mcap": 6,
-   "rsi": 35,
    "index": "KOSDAQ"
   },
   {
    "sym": "066970.KQ",
    "name": "엘앤에프",
    "sector": "Materials",
-   "signal": "WATCH",
-   "memo": "하이니켈 양극재 · LG엔솔 주요 공급사",
-   "mcap": 3,
-   "rsi": 32,
    "index": "KOSDAQ"
   },
   {
    "sym": "196170.KQ",
    "name": "알테오젠",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "SC 플랫폼 기술 수출 · 글로벌 빅파마 라이선스 계약",
-   "mcap": 20,
-   "rsi": 58,
    "index": "KOSDAQ"
   },
   {
    "sym": "128940.KS",
    "name": "한미약품",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "GLP-1 비만 치료제 · 기술 수출 기대 · 파이프라인",
-   "mcap": 5,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "028300.KQ",
    "name": "HLB",
    "sector": "Healthcare",
-   "signal": "WATCH",
-   "memo": "항암제 · 리보세라닙 · FDA 승인 기대",
-   "mcap": 4,
-   "rsi": 42,
    "index": "KOSDAQ"
   },
   {
    "sym": "000100.KS",
    "name": "유한양행",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "제약 대장주 · 레이저티닙 · 글로벌 기술수출",
-   "mcap": 5,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "326030.KS",
    "name": "SK바이오팜",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "세노바메이트(엑코프리) · 뇌질환 신약 · 글로벌 매출",
-   "mcap": 4,
-   "rsi": 47,
    "index": "KOSPI"
   },
   {
    "sym": "145020.KQ",
    "name": "휴젤",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "보톡스 · 미용 의료기기 · K-바이오 수출",
-   "mcap": 3,
-   "rsi": 50,
    "index": "KOSDAQ"
   },
   {
    "sym": "302440.KQ",
    "name": "SK바이오사이언스",
    "sector": "Healthcare",
-   "signal": "WATCH",
-   "memo": "백신 CDMO · mRNA 플랫폼",
-   "mcap": 2,
-   "rsi": 40,
    "index": "KOSDAQ"
   },
   {
    "sym": "141080.KQ",
    "name": "리가켐바이오",
    "sector": "Healthcare",
-   "signal": "BUY",
-   "memo": "ADC 항체약물결합 · 글로벌 빅딜 · 기술수출",
-   "mcap": 5,
-   "rsi": 55,
    "index": "KOSDAQ"
   },
   {
    "sym": "090430.KS",
    "name": "아모레퍼시픽",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "글로벌 K-뷰티 대장 · 미국·일본 리브랜딩",
-   "mcap": 10,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "051900.KS",
    "name": "LG생활건강",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "화장품+생활용품 · 후/숨 브랜드 · 중국 매출 회복",
-   "mcap": 8,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "044820.KQ",
    "name": "코스맥스BTI",
    "sector": "Consumer",
-   "signal": "BUY",
-   "memo": "ODM 글로벌 1위 · 수주 역대 최고 · 인도 공장",
-   "mcap": 5,
-   "rsi": 55,
    "index": "KOSDAQ"
   },
   {
    "sym": "192820.KQ",
    "name": "코스맥스",
    "sector": "Consumer",
-   "signal": "BUY",
-   "memo": "ODM 글로벌 1위 · K뷰티 수혜",
-   "mcap": 22,
-   "rsi": 55,
    "index": "KOSDAQ"
   },
   {
    "sym": "161890.KS",
    "name": "한국콜마",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "화장품 ODM · K-뷰티 서플라이 체인",
-   "mcap": 3,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "278470.KQ",
    "name": "에이피알(APR)",
    "sector": "Consumer",
-   "signal": "BUY",
-   "memo": "메디큐브 북미 고성장 · D2C 뷰티 플랫폼 · 2024.02 KOSDAQ 상장",
-   "mcap": 4,
-   "rsi": 58,
    "index": "KOSDAQ"
   },
   {
    "sym": "257720.KQ",
    "name": "실리콘투",
    "sector": "Consumer",
-   "signal": "BUY",
-   "memo": "K-뷰티 글로벌 유통 · 스타일코리안 · 수출 폭증",
-   "mcap": 3,
-   "rsi": 55,
    "index": "KOSDAQ"
   },
   {
    "sym": "237880.KQ",
    "name": "클리오",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "색조 화장품 · 세포라 입점 · 글로벌 확장",
-   "mcap": 2,
-   "rsi": 50,
    "index": "KOSDAQ"
   },
   {
    "sym": "950130.KQ",
    "name": "엑시큐어",
    "sector": "Healthcare",
-   "signal": "WATCH",
-   "memo": "핵산 치료제 플랫폼 · 임상·자금조달 리스크",
-   "mcap": 1,
-   "rsi": 47,
    "index": "KOSDAQ"
   },
   {
    "sym": "352820.KS",
    "name": "하이브",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "BTS 개별활동 · 내부 리스크 · 앨범 둔화 우려",
-   "mcap": 8,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "041510.KQ",
    "name": "SM엔터테인먼트",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "에스파 · K-POP 대표 · 카카오 자회사",
-   "mcap": 4,
-   "rsi": 45,
    "index": "KOSDAQ"
   },
   {
    "sym": "035900.KQ",
    "name": "JYP엔터테인먼트",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "스트레이키즈 · NiziU · K-POP 해외 수익",
-   "mcap": 3,
-   "rsi": 48,
    "index": "KOSDAQ"
   },
   {
    "sym": "122870.KQ",
    "name": "YG엔터테인먼트",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "블랙핑크 · 트레저 · IP 중심 전환",
-   "mcap": 2,
-   "rsi": 40,
    "index": "KOSDAQ"
   },
   {
    "sym": "253450.KS",
    "name": "스튜디오드래곤",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "K-드라마 제작 · 넷플릭스 파트너 · CJ ENM 자회사",
-   "mcap": 2,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "035760.KS",
    "name": "CJ ENM",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "미디어+커머스 · tvN · K-드라마 글로벌",
-   "mcap": 3,
-   "rsi": 38,
    "index": "KOSPI"
   },
   {
    "sym": "251270.KS",
    "name": "넷마블",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "모바일 게임 · 나혼렙 IP · 실적 부진",
-   "mcap": 3,
-   "rsi": 35,
    "index": "KOSPI"
   },
   {
    "sym": "112040.KQ",
    "name": "위메이드",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "미르4 글로벌 · 위믹스 블록체인 게임",
-   "mcap": 1,
-   "rsi": 38,
    "index": "KOSDAQ"
   },
   {
    "sym": "263750.KQ",
    "name": "펄어비스",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "검은사막 IP · 붉은사막 신작 기대",
-   "mcap": 2,
-   "rsi": 42,
    "index": "KOSDAQ"
   },
   {
    "sym": "012330.KS",
    "name": "현대모비스",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "자동차 부품 1위 · ADAS · 전동화 부품",
-   "mcap": 15,
-   "rsi": 46,
    "index": "KOSPI"
   },
   {
    "sym": "086280.KS",
    "name": "현대글로비스",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "자동차 물류 · 완성차 운반 · 현대차 그룹",
-   "mcap": 8,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "011210.KS",
    "name": "현대위아",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "자동차 부품 · 공작기계 · 방산",
-   "mcap": 2,
-   "rsi": 44,
    "index": "KOSPI"
   },
   {
    "sym": "204320.KS",
    "name": "HL만도",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "ADAS L3 수주 · 자동차 전장부품",
-   "mcap": 3,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "018880.KS",
    "name": "한온시스템",
    "sector": "Consumer",
-   "signal": "WATCH",
-   "memo": "자동차 공조 · 열관리 · EV 수혜",
-   "mcap": 2,
-   "rsi": 38,
    "index": "KOSPI"
   },
   {
    "sym": "316140.KS",
    "name": "우리금융지주",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "은행 · 밸류업 · 배당 확대 · PBR 저평가",
-   "mcap": 10,
-   "rsi": 52,
    "index": "KOSPI"
   },
   {
    "sym": "454910.KQ",
    "name": "두산로보틱스",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "협동로봇 · IPO 후 급등 · 밸류에이션 부담",
-   "mcap": 5,
-   "rsi": 55,
    "index": "KOSDAQ"
   },
   {
    "sym": "277810.KQ",
    "name": "레인보우로보틱스",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "양팔로봇 · 현대차 지분 투자 · 휴머노이드",
-   "mcap": 11,
-   "rsi": 50,
    "index": "KOSDAQ"
   },
   {
    "sym": "315640.KQ",
    "name": "뉴로메카",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "협동로봇 · 산업용 자동화",
-   "mcap": 1,
-   "rsi": 48,
    "index": "KOSDAQ"
   },
   {
    "sym": "178320.KQ",
    "name": "서진시스템",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "(v49.82 P439 정정 — Codex v49.80 KR_STOCK_DB 정정 누락분) 통신장비 케이스/금형 · AI DC 전력·ESS 케이스 수혜 · KOSDAQ tech mid-cap",
-   "mcap": 1,
-   "rsi": 45,
    "index": "KOSDAQ"
   },
   {
    "sym": "090360.KQ",
    "name": "로보스타",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "(v49.82 P439 신규) LG전자 자회사 33.4% · 산업용 로봇·디스플레이 장비 · 스마트팩토리",
-   "mcap": 1,
-   "rsi": 45,
    "index": "KOSDAQ"
   },
   {
    "sym": "086790.KS",
    "name": "하나금융지주",
    "sector": "Financials",
-   "signal": "BUY",
-   "memo": "은행 · 밸류업 · 자사주 소각 · PBR 저평가",
-   "mcap": 12,
-   "rsi": 53,
    "index": "KOSPI"
   },
   {
    "sym": "032830.KS",
    "name": "삼성생명",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "생명보험 1위 · 삼성전자 지분 · 배당",
-   "mcap": 15,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "000810.KS",
    "name": "삼성화재",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "손해보험 1위 · 안정적 배당 · 밸류업",
-   "mcap": 12,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "323410.KQ",
    "name": "카카오뱅크",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "인터넷전문은행 · 핀테크 대장 · 카카오 자회사",
-   "mcap": 10,
-   "rsi": 45,
    "index": "KOSDAQ"
   },
   {
    "sym": "024110.KS",
    "name": "기업은행",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "중소기업 특화 은행 · 배당 매력 · PBR 0.3배",
-   "mcap": 8,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "003550.KS",
    "name": "LG",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "LG그룹 지주 · LG전자/화학/에너지 · 밸류업",
-   "mcap": 10,
-   "rsi": 46,
    "index": "KOSPI"
   },
   {
    "sym": "066570.KS",
    "name": "LG전자",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "가전 글로벌 1위 · 전장(VS사업부) · webOS",
-   "mcap": 12,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "003230.KS",
    "name": "삼양식품",
    "sector": "Consumer Defensive",
-   "signal": "BUY",
-   "memo": "불닭 글로벌 폭증 · K-푸드 수출 역대 · 미국·동남아 확장",
-   "mcap": 8,
-   "rsi": 60,
    "index": "KOSPI"
   },
   {
    "sym": "097950.KS",
    "name": "CJ제일제당",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "비비고 미국 확장 · K-푸드 대장 · 바이오 사업부",
-   "mcap": 6,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "271560.KS",
    "name": "오리온",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "초코파이 · 중국/베트남 성장 · 해외 매출 비중 높음",
-   "mcap": 5,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "004370.KS",
    "name": "농심",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "신라면 · 미국 공장 증설 · K-라면 글로벌",
-   "mcap": 3,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "280360.KS",
    "name": "롯데웰푸드",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "제과/빙과 · 인도 시장 성장",
-   "mcap": 2,
-   "rsi": 46,
    "index": "KOSPI"
   },
   {
    "sym": "005180.KS",
    "name": "빙그레",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "바나나맛우유 · 해외 수출 성장",
-   "mcap": 1,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "000080.KS",
    "name": "하이트진로",
    "sector": "Consumer Defensive",
-   "signal": "HOLD",
-   "memo": "소주/맥주 1위 · 참이슬 글로벌 · K-소주 수출",
-   "mcap": 2,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "017670.KS",
    "name": "SK텔레콤",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "AI 데이터센터 확장 · 6G 표준화 · 배당주",
-   "mcap": 12,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "030200.KS",
    "name": "KT",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "클라우드/AI 분사 · AICT 전환 · 배당 매력",
-   "mcap": 8,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "032640.KS",
    "name": "LG유플러스",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "통신 3위 · IPTV · 배당주",
-   "mcap": 4,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "018260.KS",
    "name": "삼성SDS",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "IT 서비스 · AI 플랫폼 Brity · 클라우드",
-   "mcap": 10,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "294870.KS",
    "name": "HDC현대산업개발",
    "sector": "Industrials",
-   "signal": "WATCH",
-   "memo": "주택건설 · 재건축/재개발 · 아이파크 브랜드",
-   "mcap": 2,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "094480.KQ",
    "name": "갤럭시아머니트리",
    "sector": "Financials",
-   "signal": "WATCH",
-   "memo": "핀테크 · 블록체인 · 가상자산",
-   "mcap": 1,
-   "rsi": 42,
    "index": "KOSDAQ"
   },
   {
    "sym": "004170.KS",
    "name": "신세계",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "백화점 · 면세점 · SSG 이커머스",
-   "mcap": 3,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "023530.KS",
    "name": "롯데쇼핑",
    "sector": "Consumer",
-   "signal": "WATCH",
-   "memo": "백화점/마트/이커머스 · 구조조정 중",
-   "mcap": 2,
-   "rsi": 38,
    "index": "KOSPI"
   },
   {
    "sym": "069960.KQ",
    "name": "현대백화점",
    "sector": "Consumer",
-   "signal": "HOLD",
-   "memo": "백화점 · 프리미엄 소비 · 면세점",
-   "mcap": 2,
-   "rsi": 44,
    "index": "KOSDAQ"
   },
   {
    "sym": "000720.KS",
    "name": "현대건설",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "원전 건설 · 해외 플랜트 · 주택 건설",
-   "mcap": 5,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "047040.KS",
    "name": "대우건설",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "건설 · 해외 플랜트 · 푸르지오",
-   "mcap": 2,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "010950.KS",
    "name": "S-Oil",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "정유 · 아람코 합작 · 샤힌프로젝트",
-   "mcap": 8,
-   "rsi": 45,
    "index": "KOSPI"
   },
   {
    "sym": "078930.KS",
    "name": "GS",
    "sector": "Energy",
-   "signal": "HOLD",
-   "memo": "GS에너지/리테일 지주 · 정유·발전",
-   "mcap": 5,
-   "rsi": 44,
    "index": "KOSPI"
   },
   {
    "sym": "011170.KS",
    "name": "롯데케미칼",
    "sector": "Materials",
-   "signal": "WATCH",
-   "memo": "석유화학 · 실적 부진 · 구조조정",
-   "mcap": 3,
-   "rsi": 35,
    "index": "KOSPI"
   },
   {
    "sym": "006800.KS",
    "name": "미래에셋증권",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "증권 대장주 · 해외투자 · 자산관리",
-   "mcap": 5,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "016360.KS",
    "name": "삼성증권",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "증권 · WM 강자 · 배당",
-   "mcap": 4,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "028260.KS",
    "name": "삼성물산",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "삼성그룹 지주 · 건설·상사·패션·리조트",
-   "mcap": 20,
-   "rsi": 46,
    "index": "KOSPI"
   },
   {
    "sym": "034730.KS",
    "name": "SK",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "SK그룹 지주 · SK하이닉스/이노베이션 · 밸류업",
-   "mcap": 12,
-   "rsi": 44,
    "index": "KOSPI"
   },
   {
    "sym": "036570.KS",
    "name": "엔씨소프트",
    "sector": "Communication Services",
-   "signal": "WATCH",
-   "memo": "리니지 IP · 신작 부진 · 턴어라운드 필요",
-   "mcap": 5,
-   "rsi": 35,
    "index": "KOSPI"
   },
   {
    "sym": "030000.KS",
    "name": "제일기획",
    "sector": "Communication Services",
-   "signal": "HOLD",
-   "memo": "광고 대행 · 삼성 계열 · 글로벌 네트워크",
-   "mcap": 3,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "004020.KS",
    "name": "현대제철",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "철강 2위 · 자동차 강판 · 현대차 그룹",
-   "mcap": 4,
-   "rsi": 42,
    "index": "KOSPI"
   },
   {
    "sym": "011780.KS",
    "name": "금호석유",
    "sector": "Materials",
-   "signal": "HOLD",
-   "memo": "합성고무 · 페놀 · 석유화학",
-   "mcap": 3,
-   "rsi": 44,
    "index": "KOSPI"
   },
   {
    "sym": "009830.KS",
    "name": "한화솔루션",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "태양광 · 케미칼 · 갤러리아 · 실적 부진",
-   "mcap": 3,
-   "rsi": 35,
    "index": "KOSPI"
   },
   {
    "sym": "012510.KS",
    "name": "더존비즈온",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "AI ERP · 기업용 소프트웨어 · SaaS 전환",
-   "mcap": 5,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "030520.KQ",
    "name": "한글과컴퓨터",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "한컴오피스 · 공공부문 · AI 문서 · 클라우드",
-   "mcap": 2,
-   "rsi": 45,
    "index": "KOSDAQ"
   },
   {
    "sym": "041020.KQ",
    "name": "폴라리스오피스",
    "sector": "Technology",
-   "signal": "HOLD",
-   "memo": "오피스 SW · 글로벌 SaaS · AI 문서 편집",
-   "mcap": 1,
-   "rsi": 48,
    "index": "KOSDAQ"
   },
   {
    "sym": "304100.KQ",
    "name": "솔트룩스",
    "sector": "Technology",
-   "signal": "WATCH",
-   "memo": "한국형 AI · 대화형 AI · 정부 과제",
-   "mcap": 1,
-   "rsi": 42,
    "index": "KOSDAQ"
   },
   {
    "sym": "005940.KS",
    "name": "NH투자증권",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "증권 · IB 강자 · 농협 계열",
-   "mcap": 4,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "039490.KS",
    "name": "키움증권",
    "sector": "Financials",
-   "signal": "HOLD",
-   "memo": "온라인 증권 1위 · MTS · 개인투자자 대표",
-   "mcap": 4,
-   "rsi": 50,
    "index": "KOSPI"
   },
   {
    "sym": "003490.KS",
    "name": "대한항공",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "항공 대장주 · 아시아나 인수 · 화물 호조",
-   "mcap": 8,
-   "rsi": 48,
    "index": "KOSPI"
   },
   {
    "sym": "020560.KS",
    "name": "아시아나항공",
    "sector": "Industrials",
-   "signal": "WATCH",
-   "memo": "대한항공 합병 진행 · 저가 항공 경쟁",
-   "mcap": 2,
-   "rsi": 40,
    "index": "KOSPI"
   },
   {
    "sym": "180640.KS",
    "name": "한진칼",
    "sector": "Industrials",
-   "signal": "HOLD",
-   "memo": "대한항공 모회사 · 항공 지주",
-   "mcap": 3,
-   "rsi": 46,
    "index": "KOSPI"
   },
   {
    "sym": "326030.KS",
    "name": "SK바이오팜",
    "sector": "Healthcare",
-   "signal": "HOLD",
-   "memo": "세노바메이트(엑코프리) · 뇌질환 신약 · 글로벌 매출",
-   "mcap": 4,
-   "rsi": 47,
    "index": "KOSPI"
   },
   {
    "sym": "ALAB",
    "name": "Astera Labs",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[JPM OW PT$240 (v48.87 05/07)] 1Q26 $308M(+94%YoY, 8분기 연속 비트). 2Q26 가이던스 $360M. Scorpio XPU 콘텐츠 $1,000+ 상승 중. Trainium3+Scorpio X H2 램프업 초기 단계. NVLink Fusion/KV캐시 오프로드/CXL 메모리확장 신규 벡터. CPO/NPO 2027~2028 매출 기여. FY26 매출 +80% Non-GAAP EPS $2.88 전망. [기존 04/25] Amazon-Anthropic 5GW Trainium 약정 핵심 수혜 · T3 XPU Scorpio-X 물량 · T4 UALink/NVLink 스위치 기회 · 스케일업·스케일아웃 이중 네트워킹 포지션 · [2026-06-22] 나스닥100 신규 편입(인덱스 수급 수혜 기대)",
-   "mcap": 30,
-   "rsi": 60,
    "index": "NASDAQ100"
   },
   {
    "sym": "LSCC",
    "name": "Lattice Semiconductor",
    "sector": "Technology",
-   "signal": "BUY",
-   "memo": "[Stiefel BUY $130 04/19] AI 서버 FPGA 탑재율 $1→$3-4로 구조적 증가 · 2025 서버기반 매출 +85% · 재고 조정 극복 완료 · CPU 공급 제약 단기 변동성·장기 성장 궤도 무결 · 낮은 전력·실시간 제어 특화",
-   "mcap": 12,
-   "rsi": 50,
    "index": "NASDAQ100"
   }
  ],

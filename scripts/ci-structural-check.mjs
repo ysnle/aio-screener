@@ -45,7 +45,7 @@ check('quote pipeline must update previous-close sinks', /data-live-prev-close/.
 check('KR change sink must derive delta from the same price and previous close', /atomicDelta = price - previousClose/.test(data));
 check('T823 KST/KR regression test must exist', /T823 v5056_kst_kr_index_contract/.test(tests));
 check('T823 must validate numeric KR index consistency', /expectedDelta823 = price823 - prev823/.test(tests));
-check('official NFP/CPI schedule must replace mechanical monthly dates', /'us-nfp': \['2026-06-05', '2026-07-02'\]/.test(core) && /'us-cpi': \['2026-06-10', '2026-07-14'\]/.test(core));
+check('official NFP/CPI schedule must replace mechanical monthly dates', /'us-nfp': \['2026-07-02', '2026-08-07', '2026-09-04'\]/.test(core) && /'us-cpi': \['2026-07-14', '2026-08-12', '2026-09-11'\]/.test(core));
 check('macro page must expose the next official release', /id="macro-next-release"/.test(html) && /renderMacroNextRelease/.test(core));
 check('VVIX live snapshot and fallback mirror must update together', /DATA_SNAPSHOT\._fallback\.vvix = price/.test(data));
 check('known KR ticker mappings must be corrected', /sym:'011200\.KS', name:'HMM'/.test(data) && /sym:'041510\.KQ', name:'SM엔터테인먼트'/.test(data) && /'403870\.KQ': \{ en: 'HPSP'/.test(core));
@@ -96,6 +96,23 @@ for (const [file, src] of Object.entries(RUNTIME_SCRIPT_FILES)) {
 }
 const shadowed = [...fnOwners.entries()].filter(([name, files]) => files.length > 1 && !KNOWN_SHADOW_ALLOWLIST.has(name));
 
+// A named function that occurs only at its own declaration cannot be called, exported, or reached
+// by a data-action string. Counting identifiers across comments and strings is deliberately
+// conservative: those references can hide a candidate, but they cannot create a false dead-code
+// failure. This gate prevents retired compatibility stubs and superseded helpers from accumulating.
+const runtimeSource = Object.values(RUNTIME_SCRIPT_FILES).join('\n');
+const identifierCounts = new Map();
+for (const match of runtimeSource.matchAll(/[A-Za-z_$][\w$]*/g)) {
+  identifierCounts.set(match[0], (identifierCounts.get(match[0]) || 0) + 1);
+}
+const declarationOnlyFunctions = new Set();
+const ANY_NAMED_FN_RE = /^\s*(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
+for (const src of Object.values(RUNTIME_SCRIPT_FILES)) {
+  for (const match of src.matchAll(ANY_NAMED_FN_RE)) {
+    if (identifierCounts.get(match[1]) === 1) declarationOnlyFunctions.add(match[1]);
+  }
+}
+
 check(
   'no top-level function name may be declared in more than one runtime <script> file (R280)'
     + (shadowed.length ? ': ' + shadowed.map(([name, files]) => `${name} in [${files.join(', ')}]`).join('; ') : ''),
@@ -104,6 +121,11 @@ check(
 check(
   'R280 allowlist must only contain names that are actually still shadowed',
   [...KNOWN_SHADOW_ALLOWLIST].every((name) => (fnOwners.get(name) || []).length > 1)
+);
+check(
+  'runtime must not retain declaration-only named functions'
+    + (declarationOnlyFunctions.size ? ': ' + [...declarationOnlyFunctions].sort().join(', ') : ''),
+  declarationOnlyFunctions.size === 0
 );
 
 if (failures.length) {

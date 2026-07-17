@@ -133,13 +133,13 @@ check('ticker deep analysis includes institutional Minervini engine', /function\
 check('ticker deep analysis covers 5/10/20 short and 50/100/200 long MA stacks', /단기 정배열 5>10>20/.test(html) && /장기 정배열 50>100>200/.test(html) && /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat));
 check('ticker deep analysis exposes horizontal volume profile beginner guidance', /Volume Profile/.test(html) && /POC/.test(html) && /Value Area/.test(html) && /beginnerNote/.test(html) && /수평 매물대/.test(html));
 check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && /maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
-check('event risk context is refreshed to post-FOMC 2026-06-19', /AIO_EVENT_RISK_CONTEXT/.test(core) && /asOf:\s*'2026-06-19'/.test(core) && /Post-FOMC hawkish hold/.test(core) && /Hormuz\/oil reopening watch/.test(core));
+check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core) && /getPageRedesignAudit/.test(core));
 check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
 check('H3-A canonical currentness selector exists and is shared by score/evidence paths', /getCanonicalMetric/.test(core) && /fgEvidenceAllowedUse/.test(core) && /id === 'fg-sentiment'/.test(core) && /_lastFGMeta/.test(data));
 check('H3-A current F&G consumers do not silently promote fallback through truthy OR', !/window\._lastFG\s*\|\|/.test(runtimeBundle + '\n' + html) && /sourceKind: 'snapshot'/.test(data) && /allowedUse/.test(core));
 check('H3-A selector tests cover live precedence, zero, snapshot reference, and stale blocking', /T901 canonical_prefers_live_over_snapshot/.test(tests) && /T902 canonical_preserves_zero/.test(tests) && /T903 snapshot_not_decision_use/.test(tests) && /T904 stale_current_is_blocked/.test(tests));
-check('H3-B event claims expose an explicit expiry state and expired FOMC context cannot drive current decisions', /getEventClaimState/.test(core) && /maxClaimAgeDays/.test(core) && /_fomcState\.allowedUse/.test(core) && /T905 event_claim_expiry_selector/.test(tests));
+check('H3-B missing event claims fail closed and cannot drive current decisions', /getEventClaimState/.test(core) && /status: 'MISSING'/.test(core) && /_fomcState\.allowedUse/.test(core) && /T905 missing_event_claim_is_blocked/.test(tests));
 check('H3-C derived decision gate blocks quorum-missing inputs instead of preserving a strong action band', /_scoreBlocked/.test(core) && /decisionBlocked/.test(core) && /핵심 입력 부족/.test(core) && /T906 derived_regime_quorum_gate/.test(tests));
 check('decision header renders page evidence caveat', /aio-decision-caveat/.test(core) && /d\.caveat/.test(core));
 check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
@@ -168,7 +168,7 @@ check(
     && /drawdowns/.test(core)
     && /trackingError/.test(core)
     && /informationRatio/.test(core)
-    && /getPortfolioContextForAI[\s\S]{0,1800}_lastPortfolioBacktestLab/.test(html)
+    && /window\._lastPortfolioBacktestLab/.test(html)
     && /T845 v5179_portfolio_backtest_lab/.test(tests)
 );
 check(
@@ -183,11 +183,8 @@ check(
     && /function\s+_aioBuildPortfolioActionPrompt/.test(html)
     && /window\._aioPortfolioAsk/.test(html)
     && /window\._aioSavePortfolioJournal/.test(html)
-    && /복기 노트를 먼저 입력하세요/.test(html)
     && /updateAIPanelContext\('portfolio'\)/.test(html)
     && /chatSendUnified\(\)/.test(html)
-    && /매매 복기·학습 코치 모드/.test(chat)
-    && /사실\/감정\/추정 분리/.test(chat)
 );
 check(
   'trader tactical framework is centralized as REFERENCE and exposed through AIO',
@@ -206,36 +203,21 @@ check(
     && /failed breakdown/.test(data)
     && /software to semi rotation/.test(data)
 );
-const knowledgeBase = read('_context/KNOWLEDGE-BASE.md');
 check(
-  'v52.35 AI capex funding pulse framework feeds AI chat, keywords, and knowledge base',
-  /AI CAPEX 자금조달 맥박/.test(chat)
-    && /LQD YTM/.test(chat)
-    && /IG OAS/.test(chat)
-    && /AI capex funding/.test(data)
-    && /capital funding pulse/.test(data)
-    && /AI Capex Funding Pulse/.test(knowledgeBase),
-  'macro/signal answers must evaluate AI capex through funding cost and credit evidence, not demand headlines only'
+  'current AI contexts use runtime evidence instead of embedded capex narratives',
+  /function _aioCreateEvidenceContext/.test(chat)
+    && /현재 검증된 런타임 관측치만 사용합니다/.test(chat)
+    && !/LQD YTM/.test(chat)
 );
 check(
-  'v52.35 semiconductor breadth washout framework feeds AI chat, keywords, and knowledge base',
-  /20EMA \/ 50EMA \/ 100SMA \/ 200SMA Stage Map/.test(chat)
-    && /SMH\/XSD 반도체 브레드쓰 워시아웃/.test(chat)
-    && /sourceKind=REFERENCE/.test(chat)
-    && /SMH breadth washout/.test(data)
-    && /XSD breadth washout/.test(data)
-    && /Semi Breadth Washout/.test(knowledgeBase),
-  'semi breadth image levels must stay reference-only and MA layers must remain distinct'
+  'current AI contexts do not embed semiconductor image levels or stage-map claims',
+  !/20EMA \/ 50EMA \/ 100SMA \/ 200SMA Stage Map/.test(chat)
+    && !/SMH\/XSD.*washout/i.test(chat)
 );
 check(
-  'v52.35 AI value-chain long-short framework feeds fundamental chat and screener overlays',
-  /AI 밸류체인 포지션 구분/.test(chat)
-    && /인프라 판매자/.test(chat)
-    && /monetization layer|수익화/.test(chat)
-    && /Burry AI-chain debate/.test(data)
-    && /AI monetization-layer test case/.test(data)
-    && /Burry memory-cycle debate/.test(data),
-  'fundamental AI answers must distinguish infra seller risk from monetization platform evidence'
+  'current AI contexts do not embed point-in-time value-chain debates',
+  !/Burry AI-chain debate/.test(chat)
+    && !/Burry memory-cycle debate/.test(chat)
 );
 for (const pageId of ['home','signal','market-news','technical','screener','ticker','portfolio','macro','fxbond','fundamental','kr-home','kr-supply','kr-themes','kr-macro','kr-technical']) {
   check(`page redesign config exists for ${pageId}`, new RegExp(`${pageId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`).test(core) || core.includes(`'${pageId}':`));
@@ -243,7 +225,7 @@ for (const pageId of ['home','signal','market-news','technical','screener','tick
 check('non-primary market-news/screener/signal controls are folded behind advanced details', /_aioFoldDensePageControls/.test(core) && /market-news/.test(core) && /screener-backtest-panel/.test(core) && /signal-lockout-control/.test(core));
 check('core news and screener filters remain active on the main screen', !/#news-country-chips|#news-topic-chips|#news-type-tabs|#scr-market/.test(core));
 check('unified AI panel covers home/screener/ticker/KR pages', /'home'\s*:\s*'home'/.test(html) && /'screener'\s*:\s*'screener'/.test(html) && /'ticker'\s*:\s*'ticker'/.test(html) && /'kr-home'\s*:\s*'kr-home'/.test(html) && /'kr-supply'\s*:\s*'kr-supply'/.test(html));
-check('CHAT_CONTEXTS includes kr-home for unified KR landing AI', /'kr-home'\s*:\s*\{/.test(chat));
+check('CHAT_CONTEXTS includes kr-home for unified KR landing AI', /'kr-home'\s*:\s*_aioCreateEvidenceContext/.test(chat));
 check('safe numeric formatter is available for live/default-path renderers', /window\._aioSafeFixed\s*=\s*function/.test(core));
 check('ticker live price renderer does not call live.price.toFixed directly', !/live\.price\.toFixed\(/.test(core));
 check('scenario sum renderers guard missing sum before toFixed', !/sumCheck\.sum\.toFixed\(/.test(core) && !/sigSum\.sum\.toFixed\(/.test(core));
@@ -395,7 +377,7 @@ if (hiddenImportantCount > HIDDEN_BLOCK_THRESHOLD) {
 }
 
 // [G] v52.89 P704/R330: 13 comp pages extend to all 20 user-facing surfaces.
-check('page fundamentals renderer is inert and no longer registered on navigation', /function\s+_aioRenderPageFundamentals\(\)\s*\{\s*return false;\s*\}/.test(ui) && !/_aioPageBus\.register\('ui-page-fundamentals'/.test(ui));
+check('retired page fundamentals renderer is fully removed', !/_aioRenderPageFundamentals/.test(ui) && !/_aioPageBus\.register\('ui-page-fundamentals'/.test(ui));
 check('page fundamentals no longer marks or injects page DOM', !/data-aio-fund-done/.test(ui) && !/className\s*=\s*'aio-page-advanced-toggle aio-fund'/.test(ui));
 check('13 comp routes hide advanced legacy blocks by default and expose them in developer mode only', /#page-home \.aio-page-advanced-toggle[\s\S]{0,1800}display:none !important/.test(html) && /body\.aio-dev-mode #page-home \.aio-page-advanced-toggle[\s\S]{0,1800}display:block !important/.test(html));
 check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holdings-table-section"/.test(html) && /id="pf-risk-section"/.test(html) && /id="pf-entry-section"/.test(html) && /_aioTogglePortfolioEntry/.test(html));
@@ -455,8 +437,8 @@ check('EF-16: kr-macro rate/CPI/PMI cards expose a shared _fieldTs-based freshne
 check('headless tests cover Batch 3 efficacy fixes (EF-06/07/14/16)', /_testV5242Batch3Efficacy/.test(tests) && /T879/.test(tests) && /T880/.test(tests) && /T881/.test(tests) && /T883/.test(tests));
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 4 (EF-03/05/17/18) structural gates
-check('EF-03/P713: BOK next-meeting date is a valid ISO date consistent between DATA_SNAPSHOT.bokNext and the MACRO_CALENDAR kr-bok registry (date no longer pinned in this gate — the pinned form rotted deterministically on meeting day and turned CI red)', (() => {
-  const bokM = core.match(/bokNext:\s*'(\d{4}-\d{2}-\d{2})'/);
+check('EF-03/P713: BOK next-meeting date is a valid ISO date consistent between the manual reference and MACRO_CALENDAR registry', (() => {
+  const bokM = core.match(/bokPolicy:\s*Object\.freeze\(\{[\s\S]{0,700}?next:\s*'(\d{4}-\d{2}-\d{2})'/);
   const calM = core.match(/'kr-bok':\s*\{[^}]*nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/);
   return !!bokM && !!calM && bokM[1] === calM[1] && bokM[1] !== '2026-07-10' && Number.isFinite(Date.parse(bokM[1]));
 })());
@@ -568,7 +550,7 @@ check('H3-G: element lineage inventory exposes the full listed field set and is 
 check('H3-H: Critical-10 content hierarchy audit requires decision header, evidence/status, action affordance, and hidden developer surfaces', /getCritical10ContentHierarchyAudit/.test(core) && /evidenceAndStatus/.test(core) && /developerSurfaceVisible/.test(core) && /decision-not-first-visible-block/.test(core));
 check('H3-I: Critical-10 accessibility audit covers accessible names, keyboard reachability, positive tabindex, and canvas names', /getCritical10AccessibilityAudit/.test(core) && /nameless-controls/.test(core) && /unfocusable-controls/.test(core) && /positive-tabindex/.test(core) && /unnamed-canvas/.test(core));
 check('headless tests cover H3-G element lineage and H3-H/I surface contracts', /_testV5258HumanSurfaceContracts/.test(tests) && /T914/.test(tests) && /T915/.test(tests) && /T916/.test(tests) && /T917/.test(tests));
-check('H3-F/H3-H: breadth route guards the partial local Chart fallback before registry access', /typeof Chart === 'undefined' \|\| typeof Chart !== 'function' \|\| !Chart\.registry \|\| !Chart\.registry\.plugins \|\| typeof Chart\.register !== 'function/.test(ui) && /T918 breadth_chart_partial_chart_stub_guard/.test(tests));
+check('H3-F/H3-H: breadth route blocks synthetic chart fallbacks and uses history artifacts only', /data-operational-use/.test(ui) && /_aioHistorySeries\(['"]spx/.test(ui) && !/Chart\.register/.test(ui) && /T918 breadth_chart_runtime_only_contract/.test(tests));
 check('H3-H/I: the real Chromium human-surface audit is wired as a deploy dependency', exists('scripts/ci-critical10-human-surface-check.mjs') && /ci-critical10-human-surface-check\.mjs/.test(ciWorkflow) && /needs:\s*\[[^\]]*human-surface/.test(ciWorkflow));
 check('H2-04: one normalized AI error contract is shared by browser AI surfaces and Worker failures', /normalizeAiError/.test(core) && /_aioChatError/.test(chat) && /_aioSetLastAiError/.test(data) && /aioAiError/.test(worker) && /T919/.test(tests) && /T920/.test(tests));
 check('H2-05: portfolio Vault has a blocking deterministic Chromium E2E covering PIN, reload, wrong/correct PIN, migration, opt-out, and input boundary', exists('scripts/ci-portfolio-vault-e2e.mjs') && /ci-portfolio-vault-e2e\.mjs/.test(ciWorkflow) && /portfolio-vault/.test(ciWorkflow) && /PFE2-01/.test(read('scripts/ci-portfolio-vault-e2e.mjs')) && /PFE2-08/.test(read('scripts/ci-portfolio-vault-e2e.mjs')));
@@ -605,7 +587,7 @@ check('WP-AI1: shared request envelope records pipeline, validator, block-policy
 check('WP-AI1: embedded retry reuses one completion callback contract and request object', /var _pageOnChunk = function/.test(chat) && /var _pageOnDone = function/.test(chat) && /callClaude\(systemPrompt, state\.messages, _pageOnChunk, _pageOnDone/.test(chat) && /_aioBeginAIRequestAttempt\(_pageAIRequest, nextModel\)/.test(chat));
 check('WP-AI1: unified retry reuses one completion callback contract and request object', /var _uniOnChunk = function/.test(html) && /var _uniOnDone = function/.test(html) && /callClaude\(sysPrompt, state\.messages, _uniOnChunk, _uniOnDone/.test(html) && /_aioBeginAIRequestAttempt\(_uniAIRequest, nextModel\)/.test(html));
 check('WP-AI1: translation and briefing use the same response pipeline and fail closed to local/deterministic fallback', /_translationRequest/.test(data) && /_aioRunAIResponsePipeline/.test(data) && /auto-translation/.test(data) && /_briefingRequest/.test(data) && /auto-briefing/.test(data) && /AI response pipeline unavailable/.test(data));
-check('WP-AI1: briefing route is defined before unified context mapping and regression tests cover all entry points', /CHAT_CONTEXTS\.briefing/.test(chat) && /T937/.test(tests) && /T938/.test(tests) && /T939/.test(tests) && /T940/.test(tests));
+check('WP-AI1: briefing route is defined in the unified context map and regression tests cover all entry points', /briefing:\s*_aioCreateEvidenceContext/.test(chat) && /T937/.test(tests) && /T938/.test(tests) && /T939/.test(tests) && /T940/.test(tests));
 
 // v52.77 (WP-AI2): typed claim schema and fail-closed claim/evidence validation.
 check('WP-AI2: typed claim schema exposes metric/unit/scale/direction/asOf/source/evidenceId fields', /_AIO_CLAIM_SCHEMA_VERSION/.test(core) && /createTypedClaim/.test(core) && /validateTypedClaim/.test(core) && /getAIClaimSchemaPrompt/.test(core));
@@ -625,7 +607,7 @@ check('WP-AI3: regression fixtures cover intent, relevance, deterministic order,
 // one shared financial-conduct/action-permission gate.
 check('WP-AI4: untrusted external text is normalized, injection-audited, and wrapped as NEWS/WEB/TELEGRAM data', /sanitizeAIUntrustedText/.test(core) && /buildAIUntrustedBlock/.test(core) && /sourceKind=UNTRUSTED/.test(core) && /NEWS_TELEGRAM/.test(chat + html) && /WEB_SEARCH/.test(chat + html) && /SecurityFlags/.test(data));
 check('WP-AI4: chat history has explicit off mode, 30-day retention, bounded entries, and sanitized storage', /getChatHistoryPolicy/.test(core) && /setChatHistoryEnabled/.test(core) && /prepareChatHistoryEntry/.test(core) && /CHAT_HISTORY_MAX = 50/.test(html) && /retentionDays/.test(html) && /_aioChatHistoryToggle/.test(core));
-check('WP-AI5: portfolio AI uses a field allowlist, redaction preview, and session-only opt-in before unified send', /redactPortfolioForAI/.test(core) && /getPortfolioAIPrivacyPreview/.test(core) && /setPortfolioAIConsent/.test(core) && /포트폴리오 AI 전송 미리보기/.test(html) && /개인정보 최소화/.test(html));
+check('WP-AI5: portfolio AI uses a field allowlist, redaction preview, and session-only opt-in before unified send', /redactPortfolioForAI/.test(core) && /getPortfolioAIPrivacyPreview/.test(core) && /setPortfolioAIConsent/.test(core) && /포트폴리오 AI 전송 미리보기/.test(html) && /계좌ID.*제외/.test(html));
 check('WP-AI5: conduct, suitability, evidence/sourceKind, and probability gates run inside the shared response pipeline', /evaluateAIActionPermission/.test(core) && /conductAudit/.test(chat) && /prohibited-conduct/.test(core) && /evidence-action-permission/.test(core) && /uncalibrated-probability/.test(core));
 check('WP-AI4/5: page and unified entry points pass the active query to the common policy and untrusted wrappers', /query: q/.test(chat) && /query: q/.test(html) && /buildAIUntrustedBlock/.test(chat) && /buildAIUntrustedBlock/.test(html));
 check('WP-AI4/5: deterministic regression fixtures cover injection, redaction, consent, history off, conduct, evidence, pipeline, and calibration', /_testAIUntrustedSecurityAndConduct/.test(tests) && /T958/.test(tests) && /T959/.test(tests) && /T960/.test(tests) && /T961/.test(tests) && /T962/.test(tests) && /T963/.test(tests) && /T964/.test(tests) && /T965/.test(tests) && /T966/.test(tests));
@@ -677,7 +659,7 @@ check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial 
 check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
 check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /window\._breadthLiveData\s*=/.test(data) && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
 check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
-check('LIVE3-05: MOVE/SKEW regimes require live observations and stale seeds render unavailable', /live\['\^SKEW'\]/.test(core) && /live\['\^MOVE'\]/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core));
+check('LIVE3-05: MOVE/SKEW regimes require live observations and missing values render unavailable', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core));
 check('LIVE3-06: late breadth producer refreshes breadth, signal, and home consumers atomically', /updateBreadthBars\(\)/.test(data) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
 check('LIVE3-04: briefing labels the actual S&P index and reads the canonical pct field', /var spx = _ldSafe\('\^GSPC', 'price'\), spxChg = _ldSafe\('\^GSPC', 'pct'\)/.test(core) && /S&amp;P 500 지수/.test(core) && !/_ldSafe\('SPY', 'chgPct'\)/.test(core));
 check('LIVE3-05: KR supply parses formatted values and renders missing as unknown rather than zero', /String\(v\)\.replace\(\/\[,\+\\s\]\/g/.test(html) && /streakEl\.textContent = '수급 미수신'/.test(html) && /미수신을 0원\/매도 우위로 해석하지 않는다/.test(html) && /기관 세부 수급 미수신/.test(html) && /프로그램 매매 미수신/.test(html));
@@ -710,7 +692,7 @@ check('R340/P712: semantic market-integrity tests cover curve exactness and KR m
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
-  /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core) && /_breadthSeriesReferenceAsOf\s*=\s*'2026-06-05'/.test(ui) && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
+  /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core) && /_breadthSeriesReferenceAsOf\s*=\s*null/.test(ui) && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

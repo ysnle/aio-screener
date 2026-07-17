@@ -1,13 +1,44 @@
 ---
-verified_by: agent
+verified_by: Codex
 last_verified: 2026-07-16
 confidence: high
 version: v3.8
-checklist_version: v53.2
-total_items: 706
+checklist_version: v53.4
+total_items: 728
 stages: 22
-latest_P_covered: P715
+latest_P_covered: P718
 ---
+
+## v53.4 - 공급자 퇴역 소비자·실브라우저 결측 안전성 (P718/R341/R342)
+
+- [x] 시나리오 확률 공급자 퇴역 시 생산자뿐 아니라 갱신 함수·호출부·DOM sink가 함께 제거되고 provider-required/unavailable 상태만 남는지 검사한다.
+- [x] 외부 네트워크가 없는 실제 Chromium에서 거시 route를 포함한 critical-10과 22-route 접근성 검사를 실행해 console error가 0인지 확인한다.
+
+## v53.4 - 정적·하드코딩 데이터 전수 계약 (P717/R342)
+
+- [x] 22개 데이터 카테고리가 runtime artifact, 공식 reference 또는 explicit unavailable 중 하나로 분류되는지 검사한다.
+- [x] `DATA_SNAPSHOT`의 변동 필드가 explicit null이며 0·중립값·과거값으로 결측을 대체하지 않는지 검사한다.
+- [x] HTML의 `data-live-price/chg/pct/field`와 `data-snap` 슬롯에 숫자 초기값이 없는지 검사한다.
+- [x] quote/FRED 정적 테이블, 합성 차트, RRG seed, 정적 sentiment 시계열이 없는지 검사한다.
+- [x] 시나리오 확률·이벤트 결과·지정학·현재 narrative가 코드에 현재형 데이터로 내장되지 않는지 검사한다.
+- [x] SCREENER_DB가 identity-only이며 signal/memo/mcap/rsi의 정적 행 데이터가 없는지 검사한다.
+- [x] 런타임 Telegram memo가 적용될 경우 overlay provenance를 갖고 정적 memo와 구분되는지 검사한다.
+- [x] LLM 공급자 단가·환율·질의당 비용을 고정값으로 계산하지 않는지 검사한다.
+- [x] 공식 수동값은 `AIO_MANUAL_REFERENCE`에 source URL·asOf·operationalUse와 함께만 존재하는지 검사한다.
+- [x] 미수신 KR macro/ECB/VIX term 값이 `—` 또는 `기준: 미수신`으로 렌더되는지 검사한다.
+- [x] `AIO.getStaticSeedFallbackAudit()`와 page lineage의 orphan sink가 0인지 검사한다.
+- [x] 스크리너 유니버스 재생성 후 lineage와 1100개 브라우저 회귀 테스트를 통과하는지 검사한다.
+
+## v53.3 - 퇴역 코드·공개 artifact 정리 (P716/R341)
+
+- [x] feedback board의 DOM·CSS·상태·API·관리자·submit stub이 모든 runtime 파일에서 제거됐는지 확인했다.
+- [x] unconditional return 뒤 macro narrative, retired breadth history chart, legacy indicator와 wrapper 함수가 호출부·상태·CSS까지 수직 제거됐는지 확인했다.
+- [x] runtime 전체 named function 중 선언 외 참조가 없는 항목이 없고 `ci-structural-check.mjs`가 재유입을 실패시키는지 확인했다.
+- [x] 테마 상세는 활성 `showThemeDetail` 계약을 검증하고 퇴역 `_aioRenderPageFundamentals` stub의 완전 부재를 검증하는지 확인했다.
+- [x] Pages manifest와 CI staging이 5개 runtime script를 명시하며 `js/*.js`와 `aio-tests.js`를 포함하지 않는지 확인했다.
+- [x] service worker가 5개 runtime script를 캐시하되 `aio-tests.js`를 shell asset에 포함하지 않는지 확인했다.
+- [x] JS/MJS 38개 문법 검사와 정적 계약 14개, Chromium headless 1100/1100을 통과했는지 확인했다.
+- [x] boot·critical-10·portfolio vault 8/8·accessibility 22/22·FULL_INIT viewport 88/88에서 console error와 overflow가 없는지 확인했다.
 
 ## v53.2 - 소수 공유 준비 배치·시세 발행 중단·null 코어전 (P715)
 
@@ -3116,3 +3147,9 @@ Derived from AI-X01~10 and WP-AI11~20 in `_context/AI-CHAT-INSTITUTIONAL-AUDIT-2
 - [x] **LIVE3-22 재무 커버리지 차단**: SEC/FMP 재무 커버리지가 미국 유니버스 80% 미만이면 value/quality를 활성화하지 않는다.
 - [x] **LIVE3-23 신규 지식 문서 게이트**: knowledge lint는 아직 stage하지 않은 non-ignored `_context/*.md`도 `INDEX.md`와 `_context/CLAUDE.md` 양쪽 문서 표에 존재하는지 검사한다.
 - [ ] **LIVE3-X2 운영자/외부**: 저장소 변수 `SEC_USER_AGENT`, OpenDART/ECOS/KOSIS 무료 키, KRX 승인·제3자 제공 조건, live Pages 재실행은 별도 필요하다.
+
+### 발행 계약 무결성 게이트 — v53.5 / P719
+
+- [x] **LIVE3-24 발행 write 전수**: 공개 아티팩트 발행 계약(quotes 스트립 등)을 바꿀 때 같은 출력 경로(OUT)에 쓰는 write 사이트를 전수 grep으로 확인한다 — P719는 meta 후기록 재기록이 스트립을 덮어쓴 사례.
+- [x] **LIVE3-25 read-back 단언**: fetch-data.mjs는 마지막 발행본을 디스크에서 다시 읽어 `quotes===[]`·`meta.quotesPublished===false`를 단언하며 위반 시 커밋 전에 fail한다.
+- [ ] **LIVE3-26 배포 후 라이브 재확인**: v53.5 배포 후 다음 refresh-data 크론 산출물에서 data.json 계약(quotes=[]/quotesPublished:false)을 curl로 재확인한다. (telegram summary-only·screener price-부재는 2026-07-17 라이브 확인 완료)

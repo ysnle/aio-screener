@@ -1,0 +1,710 @@
+{
+  "version": "v52.90",
+  "scope": "19 menu routes + glossary overlay = 20 user surfaces",
+  "surfaces": {
+    "desktop": [
+      {
+        "route": "home",
+        "active": true,
+        "title": "시장 현황 v52.90",
+        "textLength": 500,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "signal",
+        "active": true,
+        "title": "지금 거래해야 할까?",
+        "textLength": 1069,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "breadth",
+        "active": true,
+        "title": "시장 폭 분석",
+        "textLength": 512,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "sentiment",
+        "active": true,
+        "title": "투자 심리",
+        "textLength": 1034,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "briefing",
+        "active": true,
+        "title": "오늘의 브리핑",
+        "textLength": 7229,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "market-news",
+        "active": true,
+        "title": "시장 뉴스",
+        "textLength": 1394,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "technical",
+        "active": true,
+        "title": "차트 · 기술 분석",
+        "textLength": 1651,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "screener",
+        "active": true,
+        "title": "퀀트 스크리너",
+        "textLength": 1736,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "macro",
+        "active": true,
+        "title": "거시경제",
+        "textLength": 1010,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "fxbond",
+        "active": true,
+        "title": "환율 · 채권",
+        "textLength": 1014,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "fundamental",
+        "active": true,
+        "title": "기업 분석",
+        "textLength": 622,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "themes",
+        "active": true,
+        "title": "테마 · 트렌드",
+        "textLength": 798,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "portfolio",
+        "active": true,
+        "title": "포트폴리오",
+        "textLength": 358,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-home",
+        "active": true,
+        "title": "한국장 홈 KRX",
+        "textLength": 1016,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-supply",
+        "active": true,
+        "title": "수급 분석 KRX",
+        "textLength": 852,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-themes",
+        "active": true,
+        "title": "국내 테마 분석 KRX",
+        "textLength": 1805,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-macro",
+        "active": true,
+        "title": "한국 매크로 BOK",
+        "textLength": 1103,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-technical",
+        "active": true,
+        "title": "한국장 차트·기술 분석 KRX",
+        "textLength": 1155,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "guide",
+        "active": true,
+        "title": "AIO Screener 사용 설명서",
+        "textLength": 261,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 1,
+        "visibleAdvanced": 1,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "glossary",
+        "active": true,
+        "title": "투자 용어사전",
+        "textLength": 23382,
+        "itemCount": 267,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      }
+    ],
+    "mobile": [
+      {
+        "route": "home",
+        "active": true,
+        "title": "시장 현황 v52.90",
+        "textLength": 500,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "signal",
+        "active": true,
+        "title": "지금 거래해야 할까?",
+        "textLength": 1069,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "breadth",
+        "active": true,
+        "title": "시장 폭 분석",
+        "textLength": 512,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "sentiment",
+        "active": true,
+        "title": "투자 심리",
+        "textLength": 1034,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "briefing",
+        "active": true,
+        "title": "오늘의 브리핑",
+        "textLength": 7229,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "market-news",
+        "active": true,
+        "title": "시장 뉴스",
+        "textLength": 1394,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "technical",
+        "active": true,
+        "title": "차트 · 기술 분석",
+        "textLength": 1651,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "screener",
+        "active": true,
+        "title": "퀀트 스크리너",
+        "textLength": 1736,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "macro",
+        "active": true,
+        "title": "거시경제",
+        "textLength": 1010,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "fxbond",
+        "active": true,
+        "title": "환율 · 채권",
+        "textLength": 955,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "fundamental",
+        "active": true,
+        "title": "기업 분석",
+        "textLength": 622,
+        "documentOverflow": 0,
+        "overflowEls": [
+          ".is-interactive"
+        ],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "themes",
+        "active": true,
+        "title": "테마 · 트렌드",
+        "textLength": 798,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "portfolio",
+        "active": true,
+        "title": "포트폴리오",
+        "textLength": 358,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-home",
+        "active": true,
+        "title": "한국장 홈 KRX",
+        "textLength": 1016,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-supply",
+        "active": true,
+        "title": "수급 분석 KRX",
+        "textLength": 852,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-themes",
+        "active": true,
+        "title": "국내 테마 분석 KRX",
+        "textLength": 1805,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-macro",
+        "active": true,
+        "title": "한국 매크로 BOK",
+        "textLength": 1103,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "kr-technical",
+        "active": true,
+        "title": "한국장 차트·기술 분석 KRX",
+        "textLength": 1155,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "guide",
+        "active": true,
+        "title": "AIO Screener 사용 설명서",
+        "textLength": 261,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 1,
+        "visibleAdvanced": 1,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      },
+      {
+        "route": "glossary",
+        "active": true,
+        "title": "투자 용어사전",
+        "textLength": 23382,
+        "itemCount": 267,
+        "documentOverflow": 0,
+        "overflowEls": [],
+        "visibleFundamentals": 0,
+        "visibleAdvanced": 0,
+        "dashRun": false,
+        "topbarWithinViewport": true,
+        "compContract": true
+      }
+    ]
+  },
+  "journeys": {
+    "fundamentalTimeout": {
+      "elapsedMs": 5334,
+      "reportVisible": true,
+      "partialMessage": true,
+      "sources": 0
+    },
+    "newsCacheAndMore": {
+      "before": 12,
+      "after": 24,
+      "owner": true,
+      "summary": "25건",
+      "sourceState": "서버 캐시 오후 06:46"
+    },
+    "aiFocus": {
+      "closed": true,
+      "open": true,
+      "reclosed": true,
+      "focusReturned": true
+    },
+    "krThemeDensity": {
+      "cards": 28,
+      "defaultVisibleCards": 3,
+      "maxPills": 5,
+      "maxMemo": 260,
+      "cardsWithMore": 20
+    },
+    "krSupplyFailure": {
+      "duplicateNotices": 0,
+      "singleFailureOwner": true,
+      "dateState": "수신 실패",
+      "requestCount": 26
+    },
+    "portfolioEmptyPopulated": {
+      "empty": {
+        "cta": true,
+        "riskHidden": true,
+        "rowCount": 1
+      },
+      "populated": {
+        "riskRestored": true,
+        "holdingRows": 1
+      }
+    },
+    "briefingTitle": {
+      "fallback": "매크로 · Reuters 기사",
+      "hasKorean": true,
+      "usesSafeClass": true,
+      "rawEnglishVisible": false,
+      "driverKorean": true
+    }
+  },
+  "pageErrors": [],
+  "assertions": [
+    {
+      "id": "SURFACE-40",
+      "ok": true,
+      "detail": 40
+    },
+    {
+      "id": "SURFACE-ACTIVE",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "id": "SURFACE-OVERFLOW",
+      "ok": true,
+      "detail": [
+        {
+          "route": "fundamental",
+          "overflow": 0,
+          "viewportEdgeObservations": [
+            ".is-interactive"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "SURFACE-CONTENT",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "id": "COMP-NO-LEGACY",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "id": "MOBILE-TOPBAR",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "id": "FUND-TIMEOUT",
+      "ok": true,
+      "detail": {
+        "elapsedMs": 5334,
+        "reportVisible": true,
+        "partialMessage": true,
+        "sources": 0
+      }
+    },
+    {
+      "id": "NEWS-STATE-MORE",
+      "ok": true,
+      "detail": {
+        "before": 12,
+        "after": 24,
+        "owner": true,
+        "summary": "25건",
+        "sourceState": "서버 캐시 오후 06:46"
+      }
+    },
+    {
+      "id": "AI-FOCUS",
+      "ok": true,
+      "detail": {
+        "closed": true,
+        "open": true,
+        "reclosed": true,
+        "focusReturned": true
+      }
+    },
+    {
+      "id": "KR-THEME-DENSITY",
+      "ok": true,
+      "detail": {
+        "cards": 28,
+        "defaultVisibleCards": 3,
+        "maxPills": 5,
+        "maxMemo": 260,
+        "cardsWithMore": 20
+      }
+    },
+    {
+      "id": "KR-SUPPLY-FAILURE",
+      "ok": true,
+      "detail": {
+        "duplicateNotices": 0,
+        "singleFailureOwner": true,
+        "dateState": "수신 실패",
+        "requestCount": 26
+      }
+    },
+    {
+      "id": "PORTFOLIO-STATES",
+      "ok": true,
+      "detail": {
+        "empty": {
+          "cta": true,
+          "riskHidden": true,
+          "rowCount": 1
+        },
+        "populated": {
+          "riskRestored": true,
+          "holdingRows": 1
+        }
+      }
+    },
+    {
+      "id": "BRIEFING-TITLE",
+      "ok": true,
+      "detail": {
+        "fallback": "매크로 · Reuters 기사",
+        "hasKorean": true,
+        "usesSafeClass": true,
+        "rawEnglishVisible": false,
+        "driverKorean": true
+      }
+    },
+    {
+      "id": "PAGEERROR",
+      "ok": true,
+      "detail": []
+    }
+  ]
+}

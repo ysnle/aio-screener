@@ -1,8 +1,8 @@
 ﻿// ╔═══════════════════════════════════════════════════════════════════════════╗
 // ║  P3-1 PHASE 2 ▸ MODULE 3: UI START (실제 분할 적용 v48.26)                ║
-// ║  책임: Render + Page Router + Charts (18개) + Filters + Gauges            ║
+// ║  책임: Render + Page Router + Charts + Filters + Gauges                   ║
 // ║  의존성: MODULE 1 (stores) + MODULE 2 (data fetch/score/translate)        ║
-// ║  Chart instances: sentPageCharts/bpChartInstances/bhChartInstances 등 11개 ║
+// ║  Chart instances: 페이지별 레지스트리에서 생성·정리                      ║
 // ║  주의: MODULE 1/2의 함수 호출은 모두 이벤트/타이머 콜백 내부 (즉시 호출 X) ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 // AAII Chart.js stacked bar + P/C sparkline
@@ -47,10 +47,8 @@ var _SENT_COMMON = {
     padding: 8
   },
   gridColor: 'var(--surface-4)',
-  tickColor: 'rgba(255,255,255,0.3)',
-  labels20: ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/20','3/24','3/26','3/31','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1','5/8','5/15','5/22','5/28','6/4','6/5']  /* v50.15: 6/5 연장 — VIX/HY/PC 공유 라벨 (5/8~6/5 주간 앵커, 6/5 셀오프 반영) */
+  tickColor: 'rgba(255,255,255,0.3)'
 };
-
 // v50.15 (사용자 지적: 시장 폭 차트 일자 라인 + "데이터 대기 중"): 모듈 로드 시 폭 시계열 기본값 설정.
 // 원인: breadth Chart.js init(makeBreadthPanel)이 lazy(페이지 가시화 시)라, 폴백 렌더러가 먼저 실행되면 _breadthSeries 미정의 → 단일값 평탄선/메시지.
 // 이 기본값으로 폴백이 항상 실제 추이(5월 신고가→6/5 셀오프)를 표시. initBreadthPage 실행 시 전체 47포인트 배열로 덮어씀.
@@ -58,7 +56,7 @@ if (typeof window !== 'undefined') {
   // v50.15 (사용자 지적: 차트 평탄·안 바뀜): 전체 사이클(3월 변동성 저점→4-5월 신고가 랠리→6/5 셀오프 급락)로 풍부화 — 평탄선 해소
   window._breadthSeries = null;
   window._breadthLabels = null;
-  window._breadthSeriesReferenceAsOf = '2026-06-05';
+  window._breadthSeriesReferenceAsOf = null;
   window._breadth5 = null;
   window._breadth20 = null;
   window._breadth50 = null;
@@ -138,306 +136,82 @@ function _drawSentimentFallbackLine(canvas, seriesList, opts) {
   return true;
 }
 
-function _renderSentimentCanvasFallbackCharts() {
-  // 폴백 데이터 — 정적 시계열 (라이브 미수신 시 참고용 표시)
-  var vixData = [19.09,19.55,18.63,19.86,23.57,23.75,29.49,24.93,27.29,27.19,22.37,24.06,25.50,26.95,30.20,34.10,23.87,23.87,24.17,25.78,21.04,31.50,31.10,29.80,18.36,18.36,17.82,17.48,17.95,18.40,19.60,20.10,19.50,18.92,17.83,17.50,16.99,15.80,15.20,14.90,15.74,15.40,19.38]; // v50.15: 6/5 연장
-  var hyData = [278,285,282,290,305,312,340,325,335,338,310,328,335,348,362,385,316,316,317,324,301,310,294,308,285,284,281,279,282,286,292,297,294,291,296,294,290,285,280,276,278,275,289]; // v50.15: 6/5 연장
-  var pcData = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60,0.62,0.58,0.60,0.55,0.57,0.83]; // v50.15: 6/5 연장
-  _drawSentimentFallbackLine(document.getElementById('vix-chart'), [{ data: vixData, color: '#ffa31a' }], { label: 'VIX fallback', min: 10, max: 50 });
-  _drawSentimentFallbackLine(document.getElementById('vix-term-chart'), [{ data: [2.4,2.1,1.8,1.4,0.9,0.6,0.3,0.1,-0.1,0.2,0.5,0.7], color: '#a78bfa' }], { label: 'Term structure' });
-  _drawSentimentFallbackLine(document.getElementById('naaim-chart'), [{ data: [79.49,94.15,93.79,96.67,77.34,82.02,98.39,86.82,79.27,92.83,98.59,84.69,82.95], color: '#00bcd4' }], { label: 'NAAIM', min: 0, max: 100 });
-  _drawSentimentFallbackLine(document.getElementById('ii-chart'), [{ data: [33.5,31.2,29.4,28.2,26.5,25.1,24.0,26.5,30.2,35.8,38.5,41.2,44.0,46.5,43.0], color: '#00e5a0', fill: false }, { data: [36.8,38.5,40.2,41.5,43.2,44.8,46.0,43.5,40.0,35.5,33.0,30.5,28.8,28.0,31.5], color: '#ff5b50', fill: false }], { label: 'II bull/bear', min: 0, max: 60, fill: false }); // v50.15: 6/4 연장
-  _drawSentimentFallbackLine(document.getElementById('hy-chart'), [{ data: hyData, color: '#fb923c' }], { label: 'HY OAS', min: 250, max: 420 });
-  _drawSentimentFallbackLine(document.getElementById('aaii-chart'), [{ data: [44.9,36.6,30.4,36.3,35.6,31.7], color: '#00e5a0', fill: false }, { data: [36.1,39.4,47.7,37.0,41.9,43.6], color: '#ff5b50', fill: false }], { label: 'AAII bull/bear', min: 0, max: 60, fill: false });
-  _drawSentimentFallbackLine(document.getElementById('pc-chart'), [{ data: pcData, color: '#ffa31a' }], { label: 'Put/Call', min: 0.45, max: 1.15 });
-  _drawSentimentFallbackLine(document.getElementById('news-sentiment-chart'), [{ data: [42,46,51,55,49,57,61,58,54,59,63,60], color: '#2dd4bf' }], { label: 'News tone', min: 0, max: 100 });
+function _markSentimentChartUnavailable(id, label) {
+  var canvas = document.getElementById(id);
+  if (!canvas) return false;
+  canvas.setAttribute('data-source-kind', 'unavailable');
+  canvas.setAttribute('data-operational-use', 'blocked');
+  canvas.setAttribute('title', label + ' 검증 시계열 미수신 — 차트 판정 보류');
+  return true;
 }
+
+function _renderSentimentCanvasFallbackCharts() {
+  var history = typeof _aioHistorySeries === 'function' ? _aioHistorySeries('vix', 5) : null;
+  if (history) {
+    _drawSentimentFallbackLine(document.getElementById('vix-chart'), [{ data: history.slice(-20).map(function(p) { return p.value; }), color: '#ffa31a' }], { label: 'VIX · public-data/history.json', min: 10, max: 50 });
+  } else {
+    _markSentimentChartUnavailable('vix-chart', 'VIX');
+  }
+  [['vix-term-chart','VIX 기간구조'],['naaim-chart','NAAIM'],['ii-chart','Investors Intelligence'],['hy-chart','HY OAS'],['aaii-chart','AAII'],['pc-chart','Put/Call'],['news-sentiment-chart','뉴스 심리']].forEach(function(pair) {
+    _markSentimentChartUnavailable(pair[0], pair[1]);
+  });
+}
+
 window._renderSentimentCanvasFallbackCharts = _renderSentimentCanvasFallbackCharts;
 window._drawSentimentFallbackLine = _drawSentimentFallbackLine;
+window.addEventListener('aio:historyLoaded', function() {
+  try {
+    if (sentPageCharts.vix && typeof sentPageCharts.vix.destroy === 'function') sentPageCharts.vix.destroy();
+    delete sentPageCharts.vix;
+    _initSentVixChart();
+  } catch(_) {}
+});
 
 // ── v48.22: VIX sparkline (개별 함수 — _lazyInit 래핑 가능)
 // ── v48.24: lightweight-charts dual-path — AIO.charts.shouldUseLWC()이 true이면 LWC 경로, 아니면 Chart.js
 function _initSentVixChart() {
   var vixCtx = document.getElementById('vix-chart');
   if (!vixCtx) return;
-  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var vixData = [19.09, 19.55, 18.63, 19.86, 23.57, 23.75, 29.49, 24.93, 27.29, 27.19, 22.37, 24.06, 25.50, 26.95, 30.20, 34.10, 23.87, 23.87, 24.17, 25.78, 21.04, 31.50, 31.10, 29.80, 18.36, 18.36, 17.82, 17.48, 17.95, 18.40, 19.60, 20.10, 19.50, 18.92, 17.83, 17.50, 16.99, 15.80, 15.20, 14.90, 15.74, 15.40, 19.38]; /* v50.15: 6/5=19.38 — 5월 신고가 안정(14.9~15.8)→6/5 셀오프 급등. 라이브 fetch 우선, 이건 폴백 */
-  var _gVix = chartDataGate('vix-chart', labels20, [vixData], { minPoints: 3, chartName: 'VIX' });
-  if (!_gVix) return;
-
-  // v48.24 (P3-5 Phase 2 실제 전환): lightweight-charts 경로 시도
-  if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
-    try {
-      var container = window.AIO.charts.wrapCanvas(vixCtx, 140);
-      if (container) {
-        var isoLabels = window.AIO.charts.monthDayToISO(labels20, new Date().getFullYear());
-        var lwcData = vixData.map(function(v, i) { return { time: isoLabels[i], value: v }; });
-        var lwcResult = window.AIO.charts.createLineChart(container, lwcData, {
-          color: '#ffa31a',
-          lineWidth: 2,
-          height: 140,
-          priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
-        });
-        if (lwcResult && lwcResult.series) {
-          // 20 (Fear) 참조선 추가
-          try {
-            lwcResult.series.createPriceLine({
-              price: 20,
-              color: 'rgba(255,91,80,0.5)',
-              lineWidth: 1,
-              lineStyle: 2, // dashed
-              axisLabelVisible: true,
-              title: 'Fear 20'
-            });
-          } catch(_){}
-          sentPageCharts['vix'] = window.AIO.charts.createCompatWrapper(lwcResult, vixCtx, container);
-          if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'VIX chart: lightweight-charts 경로 사용');
-          return;
-        }
-      }
-    } catch(e) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC VIX 전환 실패, Chart.js 폴백: ' + (e && e.message || e));
-    }
+  var series = typeof _aioHistorySeries === 'function' ? _aioHistorySeries('vix', 5) : null;
+  if (!series) { _markSentimentChartUnavailable('vix-chart', 'VIX'); return; }
+  series = series.slice(-20);
+  var labels = series.map(function(p) { return String(p.date || '').slice(5).replace('-', '/'); });
+  var values = series.map(function(p) { return p.value; });
+  if (!chartDataGate('vix-chart', labels, [values], { minPoints: 5, chartName: 'VIX' })) return;
+  vixCtx.setAttribute('data-source-kind', 'server-history');
+  vixCtx.setAttribute('data-operational-use', 'decision');
+  vixCtx.setAttribute('data-source-label', 'public-data/history.json:vix');
+  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
+  if (typeof Chart === 'undefined') {
+    _drawSentimentFallbackLine(vixCtx, [{ data: values, color: '#ffa31a' }], { label: 'VIX · history.json', min: 10, max: 50 });
+    return;
   }
-
-  // Chart.js 경로 (폴백 or LWC 미지원)
-  if (typeof Chart === 'undefined') return;
-  sentPageCharts['vix'] = new Chart(vixCtx, {
+  sentPageCharts.vix = new Chart(vixCtx, {
     type: 'line',
-    data: {
-      labels: labels20,
-      datasets: [{
-        label: 'VIX', data: vixData,
-        borderColor: '#ffa31a',
-        backgroundColor: function(ctx2) {
-          var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-          g.addColorStop(0, 'rgba(249,115,22,0.25)'); g.addColorStop(1, 'rgba(249,115,22,0)');
-          return g;
-        },
-        borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true
-      }, {
-        label: '20 (Fear)', data: Array(labels20.length).fill(20),
-        borderColor: 'rgba(255,91,80,0.3)', borderWidth: 1, borderDash: [3,3],
-        pointRadius: 0, fill: false
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue; } } }) },
-      scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 6 }, border: { display: false } },
-        y: { min: 10, max: 50, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, stepSize: 10 }, border: { display: false } }
-      }
-    }
+    data: { labels: labels, datasets: [
+      { label:'VIX', data:values, borderColor:'#ffa31a', borderWidth:1.8, pointRadius:0, tension:0.3, fill:false },
+      { label:'20 (Fear)', data:Array(labels.length).fill(20), borderColor:'rgba(255,91,80,0.3)', borderWidth:1, borderDash:[3,3], pointRadius:0, fill:false }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, animation:{duration:300}, interaction:{mode:'index',intersect:false}, plugins:{legend:{display:false},tooltip:tip}, scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,maxTicksLimit:6}},y:{min:10,max:50,grid:{color:gridColor},ticks:{color:tickColor}}} }
   });
 }
 
 // ── v48.22: NAAIM Exposure Index (개별 함수)
 // ── v48.25: lightweight-charts dual-path (P3-5 Phase 2)
 function _initSentNaaimChart() {
-  var naaimCtx = document.getElementById('naaim-chart');
-  if (!naaimCtx) return;
-  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
-  var naaimLabels = ['4/15','4/22','4/29','5/6','5/13','5/20','5/27','6/3','6/10','6/17','6/24','7/1','7/8'];
-  var naaimData = [79.49,94.15,93.79,96.67,77.34,82.02,98.39,86.82,79.27,92.83,98.59,84.69,82.95];
-  window._sentHistUpdated = '2026-07-08';
-  var _gNaaim = chartDataGate('naaim-chart', naaimLabels, [naaimData], { minPoints: 3, chartName: 'NAAIM' });
-  if (!_gNaaim) return;
-
-  // v48.25 (P3-5 Phase 2): lightweight-charts 경로 시도
-  if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
-    try {
-      var container = window.AIO.charts.wrapCanvas(naaimCtx, 140);
-      if (container) {
-        var isoLabels = window.AIO.charts.monthDayToISO(naaimLabels, new Date().getFullYear());
-        var lwcData = naaimData.map(function(v, i) { return { time: isoLabels[i], value: v }; });
-        var lwcResult = window.AIO.charts.createLineChart(container, lwcData, {
-          color: '#00bcd4',
-          lineWidth: 2,
-          height: 140,
-          priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
-        });
-        if (lwcResult && lwcResult.series) {
-          // 62 (Avg) 참조선 추가
-          try {
-            lwcResult.series.createPriceLine({
-              price: 62,
-              color: 'rgba(255,255,255,0.3)',
-              lineWidth: 1,
-              lineStyle: 2, // dashed
-              axisLabelVisible: true,
-              title: 'Avg 62'
-            });
-          } catch(_){}
-          sentPageCharts['naaim'] = window.AIO.charts.createCompatWrapper(lwcResult, naaimCtx, container);
-          if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'NAAIM chart: lightweight-charts 경로 사용');
-          return;
-        }
-      }
-    } catch(e) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC NAAIM 전환 실패, Chart.js 폴백: ' + (e && e.message || e));
-    }
-  }
-
-  // Chart.js 경로 (폴백 or LWC 미지원)
-  if (typeof Chart === 'undefined') return;
-  sentPageCharts['naaim'] = new Chart(naaimCtx, {
-    type: 'line',
-    data: {
-      labels: naaimLabels,
-      datasets: [{
-        label: 'NAAIM', data: naaimData,
-        borderColor: '#00bcd4',
-        backgroundColor: function(ctx2) {
-          var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-          g.addColorStop(0, 'rgba(0,212,255,0.2)'); g.addColorStop(1, 'rgba(0,212,255,0)');
-          return g;
-        },
-        borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: true
-      }, {
-        label: 'Avg (62)', data: Array(naaimLabels.length).fill(62),
-        borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderDash: [3,3],
-        pointRadius: 0, fill: false
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue + '%'; } } }) },
-      scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 6 }, border: { display: false } },
-        y: { min: 0, max: 100, grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, callback: function(v){ return v + '%'; } }, border: { display: false } }
-      }
-    }
-  });
+  _markSentimentChartUnavailable('naaim-chart', 'NAAIM');
 }
 
 // ── v48.22: Investors Intelligence Bull/Bear (개별 함수)
 // ── v48.25: lightweight-charts dual-path (P3-5 Phase 2) — multi-line
 function _initSentIIChart() {
-  var iiCtx = document.getElementById('ii-chart');
-  if (!iiCtx) return;
-  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor;
-  var iiLabels = ['2/26','3/5','3/12','3/19','3/26','4/2','4/9','4/16','4/23','4/30','5/7','5/14','5/21','5/28','6/4']; // v50.15: 6/4까지 연장 (주간 서베이·무료 API 없음)
-  var iiBull = [33.5, 31.2, 29.4, 28.2, 26.5, 25.1, 24.0, 26.5, 30.2, 35.8, 38.5, 41.2, 44.0, 46.5, 43.0]; // v50.15: 5월 신고가 랠리에 낙관 회복(35.8→46.5)→6/4 셀오프 직전 소폭 경계
-  var iiBear = [36.8, 38.5, 40.2, 41.5, 43.2, 44.8, 46.0, 43.5, 40.0, 35.5, 33.0, 30.5, 28.8, 28.0, 31.5]; // v50.15: 비관 완화(35.5→28.0)→6/4 셀오프 직전 소폭 반등
-  var _gII = chartDataGate('ii-chart', iiLabels, [iiBull, iiBear], { minPoints: 3, chartName: 'II Bull/Bear' });
-  if (!_gII) return;
-
-  // v48.25 (P3-5 Phase 2): lightweight-charts 경로 시도 — multi-line (Bull + Bear)
-  if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
-    try {
-      var container = window.AIO.charts.wrapCanvas(iiCtx, 140);
-      if (container) {
-        var isoLabels = window.AIO.charts.monthDayToISO(iiLabels, new Date().getFullYear());
-        var bullData = iiBull.map(function(v, i) { return { time: isoLabels[i], value: v }; });
-        var bearData = iiBear.map(function(v, i) { return { time: isoLabels[i], value: v }; });
-        var lwcResult = window.AIO.charts.createMultiLineChart(container, [
-          { name: 'Bulls', color: '#00e5a0', lineWidth: 2, data: bullData },
-          { name: 'Bears', color: '#ff5b50', lineWidth: 2, data: bearData }
-        ], { height: 140 });
-        if (lwcResult && lwcResult.series) {
-          sentPageCharts['ii'] = window.AIO.charts.createCompatWrapper(lwcResult, iiCtx, container);
-          if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'II chart: lightweight-charts 경로 사용 (multi-line)');
-          return;
-        }
-      }
-    } catch(e) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC II 전환 실패, Chart.js 폴백: ' + (e && e.message || e));
-    }
-  }
-
-  // Chart.js 경로 (폴백 or LWC 미지원)
-  if (typeof Chart === 'undefined') return;
-  sentPageCharts['ii'] = new Chart(iiCtx, {
-    type: 'line',
-    data: {
-      labels: iiLabels,
-      datasets: [{
-        label: 'Bulls', data: iiBull,
-        borderColor: '#00e5a0', borderWidth: 1.8, pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
-      }, {
-        label: 'Bears', data: iiBear,
-        borderColor: '#ff5b50', borderWidth: 1.8, borderDash: [4,2], pointRadius: 2, pointHoverRadius: 4, tension: 0.3, fill: false
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' ' + i.dataset.label + ': ' + i.formattedValue + '%'; } } }) },
-      scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 } }, border: { display: false } },
-        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, callback: function(v){ return v + '%'; } }, border: { display: false } }
-      }
-    }
-  });
+  _markSentimentChartUnavailable('ii-chart', 'Investors Intelligence');
 }
 
 // ── v48.22: HY Credit Spread (개별 함수)
 // ── v48.25: lightweight-charts dual-path (P3-5 Phase 2)
 function _initSentHYChart() {
-  var hyCtx = document.getElementById('hy-chart');
-  if (!hyCtx) return;
-  hyCtx.setAttribute('data-source-kind', 'snapshot');
-  hyCtx.setAttribute('data-operational-use', 'reference-only');
-  hyCtx.setAttribute('title', 'HY OAS 과거 참고 시계열 · 2026-06-05 종료 · 현재 판단은 FRED BAMLH0A0HYM2 최신값만 사용');
-  var tip = _SENT_COMMON.tip, gridColor = _SENT_COMMON.gridColor, tickColor = _SENT_COMMON.tickColor, labels20 = _SENT_COMMON.labels20;
-  var hyData = [278, 285, 282, 290, 305, 312, 340, 325, 335, 338, 310, 328, 335, 348, 362, 385, 316, 316, 317, 324, 301, 310, 294, 308, 285, 284, 281, 279, 282, 286, 292, 297, 294, 291, 296, 294, 290, 285, 280, 276, 278, 275, 289]; /* v50.15: 5월 타이트닝(~275)→6/5 셀오프 소폭 확대 289bp. DATA_SNAPSHOT.hySpread 정합 */
-  var _gHY = chartDataGate('hy-chart', labels20, [hyData], { minPoints: 3, chartName: 'HY OAS' });
-  if (!_gHY) return;
-
-  // v48.25 (P3-5 Phase 2): lightweight-charts 경로 시도
-  if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
-    try {
-      var container = window.AIO.charts.wrapCanvas(hyCtx, 160);
-      if (container) {
-        var isoLabels = window.AIO.charts.monthDayToISO(labels20, new Date().getFullYear());
-        var lwcData = hyData.map(function(v, i) { return { time: isoLabels[i], value: v }; });
-        var lwcResult = window.AIO.charts.createLineChart(container, lwcData, {
-          color: '#fb923c',
-          lineWidth: 2,
-          height: 160,
-          priceFormat: { type: 'price', precision: 0, minMove: 1 }
-        });
-        if (lwcResult && lwcResult.series) {
-          sentPageCharts['hy'] = window.AIO.charts.createCompatWrapper(lwcResult, hyCtx, container);
-          if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'HY chart: lightweight-charts 경로 사용');
-          return;
-        }
-      }
-    } catch(e) {
-      if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC HY 전환 실패, Chart.js 폴백: ' + (e && e.message || e));
-    }
-  }
-
-  // Chart.js 경로 (폴백 or LWC 미지원)
-  if (typeof Chart === 'undefined') return;
-  sentPageCharts['hy'] = new Chart(hyCtx, {
-    type: 'line',
-    data: {
-      labels: labels20,
-      datasets: [{
-        label: 'HY OAS', data: hyData,
-        borderColor: '#fb923c',
-        backgroundColor: function(ctx2) {
-          var g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-          g.addColorStop(0, 'rgba(251,146,60,0.2)'); g.addColorStop(1, 'rgba(251,146,60,0)');
-          return g;
-        },
-        borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-      interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { display: false }, tooltip: Object.assign({}, tip, { callbacks: { label: function(i){ return ' HY OAS: ' + i.formattedValue + 'bp'; } } }) },
-      scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 6 }, border: { display: false } },
-        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: tickColor, font: { size: 11 }, callback: function(v){ return v + 'bp'; } }, border: { display: false } }
-      }
-    }
-  });
+  _markSentimentChartUnavailable('hy-chart', 'HY OAS');
 }
 
 function initSentimentPage(forceReinit) {
@@ -447,7 +221,7 @@ function initSentimentPage(forceReinit) {
       if (typeof _renderSentimentCanvasFallbackCharts === 'function') _renderSentimentCanvasFallbackCharts();
     } catch(_) {}
     // F&G + AI 분석은 Chart.js 무관하게 계속
-    try { if (typeof fgUpdateNeedle === 'function') { var _fg0 = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null; fgUpdateNeedle(_fg0 && _fg0.value != null ? _fg0.value : 15); } } catch(_) {}
+    try { if (typeof fgUpdateNeedle === 'function') { var _fg0 = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null; if (_fg0 && _fg0.value != null) fgUpdateNeedle(_fg0.value); } } catch(_) {}
     try { if (typeof fetchFearGreed === 'function') fetchFearGreed(); } catch(_) {}
     try { if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 300); } catch(_) {}
     return;
@@ -479,7 +253,7 @@ function initSentimentPage(forceReinit) {
   }
 
   var _fg1 = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-  fgUpdateNeedle(_fg1 && _fg1.value != null ? _fg1.value : 15);
+  if (_fg1 && _fg1.value != null) fgUpdateNeedle(_fg1.value);
   fetchFearGreed();
   fetchPutCall();
 
@@ -513,186 +287,27 @@ function initSentimentPage(forceReinit) {
 let sentChartsInitialized = false;
 
 function initSentimentCharts() {
-  if (typeof Chart === 'undefined') return;
   if (sentChartsInitialized) return;
-  // v30.10: Destroy previous AAII/PC charts if any (v48.69: delete after destroy — 좀비 참조 방지)
-  ['aaii','pc'].forEach(k => { if (sentPageCharts[k]) { try { sentPageCharts[k].destroy(); } catch(e){} delete sentPageCharts[k]; } });
   sentChartsInitialized = true;
-
-  // ─ AAII stacked horizontal bar ─────────────────────────────────────
-  const aaiiCtx = document.getElementById('aaii-chart');
-  if (aaiiCtx) {
-    const aaiiLabels = ['6/27', '6/20', '6/13', '6/6', '5/30', '5/23'];
-    // Bull / Neutral / Bear (합계 100). 주간 수동 자료이므로 reference-only.
-    const aaiiDatasets = [[44.9,36.6,30.4,36.3,35.6,31.7], [18.9,24.1,22.0,26.7,22.6,24.7], [36.1,39.4,47.7,37.0,41.9,43.6]];
-    // v31.9: 텍스트 폴백 동적 업데이트
-    var _aaiiBearEl = document.getElementById('aaii-bear-val');
-    var _aaiiBullEl = document.getElementById('aaii-bull-val');
-    var _aaiiSignal = document.getElementById('aaii-signal-badge');
-    var snapAaiiBear = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.aaiiBear != null) ? Number(DATA_SNAPSHOT.aaiiBear) : NaN;
-    var snapAaiiBull = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.aaiiBull != null) ? Number(DATA_SNAPSHOT.aaiiBull) : NaN;
-    var snapAaiiNeutral = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.aaiiNeutral != null) ? Number(DATA_SNAPSHOT.aaiiNeutral) : NaN;
-    var latestBear = isFinite(snapAaiiBear) ? snapAaiiBear : aaiiDatasets[2][0];
-    var latestBull = isFinite(snapAaiiBull) ? snapAaiiBull : aaiiDatasets[0][0];
-    if (isFinite(snapAaiiBear)) {
-      aaiiDatasets[2][0] = snapAaiiBear;
-      if (isFinite(snapAaiiBull)) aaiiDatasets[0][0] = snapAaiiBull;
-      if (isFinite(snapAaiiNeutral)) aaiiDatasets[1][0] = snapAaiiNeutral;
-      if (aaiiCtx.setAttribute) {
-        aaiiCtx.setAttribute('data-source-kind', 'snapshot');
-        aaiiCtx.setAttribute('data-operational-use', 'reference-only');
-        aaiiCtx.setAttribute('data-source-label', 'DATA_SNAPSHOT:aaiiBear');
-      }
-    }
-    if (_aaiiBearEl) _aaiiBearEl.textContent = latestBear.toFixed(1) + '%';
-    if (_aaiiBullEl) _aaiiBullEl.textContent = latestBull.toFixed(1) + '%';
-    window._aaiiBearish = latestBear;
-    // v46.10: signal 페이지 regime-aaii 동적 연결
-    var _regAaii = document.getElementById('regime-aaii');
-    if (_regAaii) {
-      _regAaii.textContent = latestBear.toFixed(1) + '%';
-      _regAaii.style.color = latestBear > 50 ? '#ff5b50' : latestBear > 40 ? '#ffa31a' : '#00e5a0';
-    }
-    var _regAaiiSub = _regAaii ? _regAaii.nextElementSibling : null;
-    if (_regAaiiSub) _regAaiiSub.textContent = (latestBear > 50 ? '극단 비관' : latestBear > 40 ? '비관 우세' : '정상 범위') + ' · 주간 참고';
-    if (_aaiiSignal) {
-      _aaiiSignal.innerHTML = '<span style="font-size:11px;font-weight:700;color:var(--text-secondary);">주간 설문 참고값 · 현재 매매판정 제외</span>';
-    }
-    var _gAaii = chartDataGate('aaii-chart', aaiiLabels, aaiiDatasets, { minPoints: 3, chartName: 'AAII' }); if (_gAaii)
-    sentPageCharts['aaii'] = new Chart(aaiiCtx, {
-      type: 'bar',
-      data: {
-        labels: aaiiLabels,
-        datasets: [
-          { label: '강세', data: aaiiDatasets[0],
-            backgroundColor: 'rgba(0,229,160,0.7)', borderRadius: 2 },
-          { label: '중립', data: aaiiDatasets[1],
-            backgroundColor: 'rgba(107,114,128,0.6)', borderRadius: 2 },
-          { label: '약세', data: aaiiDatasets[2],
-            backgroundColor: 'rgba(255,91,80,0.75)', borderRadius: 2 },
-        ]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true, maintainAspectRatio: false,
-        animation: { duration: 700 },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-            titleColor: '#a5b0c2', bodyColor: '#f0f4fc',
-            titleFont: { size: 9 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 9 },
-            callbacks: { label: i => ' ' + i.dataset.label + ': ' + i.formattedValue + '%' }
-          }
-        },
-        scales: {
-          x: { stacked: true, max: 100,
-               grid: { color: 'var(--surface-4)', drawBorder: false },
-               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 }, callback: v => v + '%' },
-               border: { display: false } },
-          y: { stacked: true,
-               grid: { display: false },
-               ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 11 } },
-               border: { display: false } }
-        }
-      }
-    });
+  var snap = window.DATA_SNAPSHOT || {};
+  function currentNumber(value) {
+    if (value == null || value === '') return null;
+    value = Number(value);
+    return Number.isFinite(value) ? value : null;
   }
-
-  // ─ Put/Call 1M sparkline ─────────────────────────────────────────
-  // ── v48.26: lightweight-charts dual-path (P3-5 Phase 5) — priceLine 활용 (중립선 0.7)
-  const pcCtx = document.getElementById('pc-chart');
-  if (pcCtx) {
-    // CBOE Equity P/C Ratio (추정치, 실거래일 기준)
-    const pcLabels = ['2/20','2/24','2/26','2/27','3/3','3/5','3/6','3/10','3/12','3/13','3/17','3/19','3/22','3/23','3/25','3/27','3/30','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17','4/18','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1','5/8','5/15','5/22','5/28','6/4','6/5']; // v50.15: 6/5 연장 (셀오프 풋 급증)
-    // v50.15: 5월 안정/저복 풋콜(~0.55)→6/5 셀오프 풋 급증 0.83 (DATA_SNAPSHOT.pcr 정합)
-    const pcData   = [0.72,0.75,0.74,0.78,0.82,0.80,0.92,0.85,0.88,0.90,0.82,0.88,1.08,1.02,0.92,0.82,0.66,0.62,0.59,0.65,0.68,0.74,0.61,0.55,0.51,0.72,0.58,0.55,0.52,0.54,0.57,0.60,0.62,0.59,0.57,0.61,0.64,0.69,0.78,0.60,0.62,0.58,0.60,0.55,0.57,0.83]; // reference scaffold; DATA_SNAPSHOT.pcr overrides latest point when available
-    var snapPcr = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr != null) ? Number(DATA_SNAPSHOT.pcr) : NaN;
-    if (isFinite(snapPcr)) {
-      pcData[pcData.length - 1] = snapPcr;
-      if (pcCtx.setAttribute) {
-        pcCtx.setAttribute('data-source-kind', 'snapshot');
-        pcCtx.setAttribute('data-operational-use', 'reference-only');
-        pcCtx.setAttribute('data-source-label', 'DATA_SNAPSHOT:pcr');
-      }
-    }
-    var _gPC = chartDataGate('pc-chart', pcLabels, [pcData], { minPoints: 3, chartName: 'Put/Call Ratio' });
-    if (_gPC && window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
-      try {
-        var _pcContainer = window.AIO.charts.wrapCanvas(pcCtx, 160);
-        if (_pcContainer) {
-          var _pcIso = window.AIO.charts.monthDayToISO(pcLabels, new Date().getFullYear());
-          var _pcLwcData = pcData.map(function(v, i) { return { time: _pcIso[i], value: v }; });
-          var _pcLwc = window.AIO.charts.createLineChart(_pcContainer, _pcLwcData, {
-            color: '#ffa31a',
-            lineWidth: 2,
-            height: 160,
-            priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
-          });
-          if (_pcLwc && _pcLwc.series) {
-            try {
-              _pcLwc.series.createPriceLine({
-                price: 0.7,
-                color: 'rgba(255,255,255,0.3)',
-                lineWidth: 1,
-                lineStyle: 2,
-                axisLabelVisible: true,
-                title: '중립 0.7'
-              });
-            } catch(_){}
-            sentPageCharts['pc'] = window.AIO.charts.createCompatWrapper(_pcLwc, pcCtx, _pcContainer);
-            if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'PC chart: lightweight-charts 경로 사용 (priceLine 0.7)');
-          }
-        }
-      } catch(_pcE) {
-        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC PC 전환 실패, Chart.js 폴백: ' + (_pcE && _pcE.message || _pcE));
-      }
-    }
-    if (_gPC && !sentPageCharts['pc'])
-    sentPageCharts['pc'] = new Chart(pcCtx, {
-      type: 'line',
-      data: {
-        labels: pcLabels,
-        datasets: [{
-          label: 'P/C', data: pcData,
-          borderColor: '#ffa31a',
-          backgroundColor: (ctx2) => {
-            const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(255,163,26,0.2)'); g.addColorStop(1, 'rgba(255,163,26,0)');
-            return g;
-          },
-          borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 3, tension: 0.3, fill: true,
-        }, {
-          label: '중립선(0.7)', data: Array(pcLabels.length).fill(0.7),
-          borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderDash: [3,3],
-          pointRadius: 0, fill: false, tension: 0,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-            titleColor: '#a5b0c2', bodyColor: '#f0f4fc',
-            titleFont: { size: 8 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 9 },
-            filter: i => i.datasetIndex === 0,
-            callbacks: { label: i => ' P/C: ' + i.formattedValue }
-          }
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 11 }, maxTicksLimit: 5 }, border: { display: false } },
-          y: { min: 0.5, max: 1.2,
-               grid: { color: 'var(--surface-4)', drawBorder: false },
-               ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 11 }, maxTicksLimit: 4 },
-               border: { display: false } }
-        }
-      }
-    });
-  }
+  var bear = currentNumber(snap.aaiiBear);
+  var bull = currentNumber(snap.aaiiBull);
+  var bearEl = document.getElementById('aaii-bear-val');
+  var bullEl = document.getElementById('aaii-bull-val');
+  if (bearEl) bearEl.textContent = bear != null ? bear.toFixed(1) + '%' : '—';
+  if (bullEl) bullEl.textContent = bull != null ? bull.toFixed(1) + '%' : '—';
+  window._aaiiBearish = bear;
+  _markSentimentChartUnavailable('aaii-chart', 'AAII');
+  _markSentimentChartUnavailable('pc-chart', 'Put/Call 일별 시계열');
+  var pcr = currentNumber(snap.pcr);
+  var pc = document.getElementById('pc-chart');
+  if (pc && Number.isFinite(pcr)) pc.title = '현재 Cboe 일별 Put/Call ' + pcr.toFixed(2) + ' · 시계열 미수신으로 차트 판정 보류';
 }
-
 
 // ── Weinstein Stage Analysis Update ──────────────────────────────────
 function updateWSAnalysis() {
@@ -704,8 +319,11 @@ function updateWSAnalysis() {
   var spyPct = spy ? (spy.pct != null ? spy.pct : 0) : 0;
   var breadth = (typeof window._breadth200 === 'number') ? window._breadth200 :
                 (typeof window._breadth20 === 'number') ? window._breadth20 :
-                ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma :
-                ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback && DATA_SNAPSHOT._fallback.breadth200 != null) ? DATA_SNAPSHOT._fallback.breadth200 : 57));
+                ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma : null);
+  if (!Number.isFinite(Number(breadth))) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">시장 폭 실측값 미수신 — Stage 판정 보류</div>';
+    return;
+  }
 
   var stage, color, advice;
   if (breadth > 65 && spyPct > 0) {
@@ -724,7 +342,7 @@ function updateWSAnalysis() {
 
   el.innerHTML = '<div style="margin-bottom:8px;"><span style="font-size:15px;font-weight:700;color:' + color + ';">' + stage + '</span></div>' +
     '<div style="color:#a0aab8;font-size:13px;line-height:1.5;">' + advice + '</div>' +
-    '<div style="margin-top:8px;font-size:11px;color:#7e8a9e;">200일선 위 종목: ' + breadth.toFixed(1) + '% | SPY 일간: ' + spyPct.toFixed(2) + '%</div>';
+    '<div style="margin-top:8px;font-size:11px;color:#7e8a9e;">20일선 위 종목: ' + Number(breadth).toFixed(1) + '% | SPY 일간: ' + spyPct.toFixed(2) + '%</div>';
 }
 
 // ── Market Breadth 전용 페이지 Charts ─────────────────────────────────
@@ -772,7 +390,7 @@ function updateBreadthBars() {
     var mcEl = document.getElementById('breadth-mcclellan-summary');
     if (mcEl) { mcEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">A/D 시계열 미수신</span>'; mcEl.setAttribute('data-mcclellan-signal','unavailable'); }
     var diagEl = document.getElementById('breadth-diag-text');
-    if (diagEl) diagEl.textContent = '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다. 2026-06-05 종료 참고 배열은 현재 판단에서 제외됩니다.';
+    if (diagEl) diagEl.textContent = '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다.';
     if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
     return;
   }
@@ -855,614 +473,67 @@ function updateBreadthBars() {
 }
 
 function initBreadthPage(forceReinit) {
-  // v52.40 (P655/EF-02c, R284): NYSE 52주 신고가/신저가 카드는 무료 실시간 소스가 없어 이 코드베이스
-  // 어디에도 값을 채우는 함수가 존재한 적이 없다(전수 grep 확인) — Chart.js 가드보다 먼저 실행해
-  // Chart 로드 여부와 무관하게 항상 정직한 'na' 상태로 렌더(무한 '—' 금지, R284 4상태 계약).
   if (typeof window._aioRenderValueSlot === 'function') {
-    ['breadth-new-highs', 'breadth-new-lows', 'breadth-hl-ratio'].forEach(function(id) {
+    ['breadth-new-highs','breadth-new-lows','breadth-hl-ratio'].forEach(function(id) {
       var el = document.getElementById(id);
-      if (el && el.getAttribute('data-value-state') !== 'na') {
-        window._aioRenderValueSlot(el, 'na', null, { text: '해당 없음', reason: 'NYSE 신고가/신저가 무료 실시간 소스 없음 — 자동 수집 미구현' });
-      }
+      if (el) window._aioRenderValueSlot(el, 'na', null, { text:'해당 없음', reason:'NYSE 신고가/신저가 검증 원천 미수신' });
     });
   }
-  // v52.58/P675: the local no-CDN fallback exposes a minimal Chart stub for
-  // non-chart surfaces. Treat a partial stub as unavailable before touching
-  // Chart.registry or Chart.register.
-  if (typeof Chart === 'undefined' || typeof Chart !== 'function' || !Chart.registry || !Chart.registry.plugins || typeof Chart.register !== 'function') return;
-  // v40.4: 날만 데이터 경고
   renderStaleWarning('page-breadth');
-  var currentBreadth = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
-  if (!currentBreadth.available) {
+  var evidence = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
+  if (!evidence.available) {
     window._breadth5 = window._breadth20 = window._breadth50 = window._breadth200 = null;
-    window._breadthSeries = null;
+    window._breadthSeries = window._breadthLabels = null;
     updateBreadthBars();
     ['breadth-5sma','breadth-20sma','breadth-50sma'].forEach(function(key) {
-      document.querySelectorAll('[data-snap="' + key + '"]').forEach(function(el) {
-        if (typeof window._aioRenderValueSlot === 'function') window._aioRenderValueSlot(el, 'na', null, { text:'—', reason:'현재 breadth 원천 미수신 · 2026-06-05 종료 정적 배열은 판단에서 제외' });
-        else el.textContent = '—';
-      });
+      document.querySelectorAll('[data-snap="' + key + '"]').forEach(function(el) { el.textContent = '—'; });
     });
-    if (typeof window._aioBreadthCanvasRender === 'function') window._aioBreadthCanvasRender();
-    bpChartsInitialized = false;
-    return;
+  } else {
+    window._breadth5 = evidence.sma5;
+    window._breadth20 = window._breadth200 = evidence.sma20;
+    window._breadth50 = evidence.sma50;
+    [['breadth-5sma-label',evidence.sma5,false],['breadth-20sma-label',evidence.sma20,true],['breadth-50sma-label',evidence.sma50,false]].forEach(function(p) {
+      var el = document.getElementById(p[0]);
+      if (!el) return;
+      el.textContent = p[2] ? _bb20smaLbl(p[1]) : _bbLbl(p[1]);
+      el.style.color = p[2] ? _bb20smaColor(p[1]) : _bbColor(p[1]);
+    });
+    var asOf = evidence.ts ? new Date(evidence.ts).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit'}) : '현재';
+    ['breadth-5sma-freshness','breadth-20sma-freshness','breadth-50sma-freshness'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = '관측: ' + asOf + ' · ' + (evidence.source || 'AIO screener universe');
+    });
+    updateBreadthBars();
+    if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
   }
-  [['breadth-5sma-label', currentBreadth.sma5, false], ['breadth-20sma-label', currentBreadth.sma20, true], ['breadth-50sma-label', currentBreadth.sma50, false]].forEach(function(p) {
-    var el = document.getElementById(p[0]);
-    if (!el) return;
-    el.textContent = p[2] ? _bb20smaLbl(p[1]) : _bbLbl(p[1]);
-    el.style.color = p[2] ? _bb20smaColor(p[1]) : _bbColor(p[1]);
+
+  Object.keys(bpChartInstances).forEach(function(k) { try { bpChartInstances[k].destroy(); } catch(_) {} delete bpChartInstances[k]; });
+  ['bp-ad-ratio-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart'].forEach(function(id) {
+    var canvas = document.getElementById(id);
+    if (!canvas) return;
+    canvas.setAttribute('data-source-kind','unavailable');
+    canvas.setAttribute('data-operational-use','blocked');
+    canvas.setAttribute('title','브레드쓰 과거 시계열 미수신 — 현재 단면값만 표시');
   });
-  var breadthAsOf = currentBreadth.ts ? new Date(currentBreadth.ts).toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit' }) : '현재';
-  ['breadth-5sma-freshness','breadth-20sma-freshness','breadth-50sma-freshness'].forEach(function(id) { var el=document.getElementById(id); if(el) el.textContent='관측: ' + breadthAsOf + ' · ' + (currentBreadth.source || 'AIO screener universe'); });
-  if (bpChartsInitialized && !forceReinit) {
-    try { Object.values(bpChartInstances).forEach(c => c.resize()); } catch(e) {}
-    return;
+  window._breadthSeries = window._breadthLabels = null;
+
+  var priceCanvas = document.getElementById('bp-price-chart');
+  var spxSeries = typeof _aioHistorySeries === 'function' ? _aioHistorySeries('spx', 5) : null;
+  if (priceCanvas && spxSeries && typeof Chart === 'function') {
+    var rows = spxSeries.slice(-60);
+    priceCanvas.setAttribute('data-source-kind','server-history');
+    priceCanvas.setAttribute('data-source-label','public-data/history.json:spx');
+    bpChartInstances.price = new Chart(priceCanvas, {
+      type:'line',
+      data:{labels:rows.map(function(p){return String(p.date).slice(5).replace('-','/');}),datasets:[{label:'S&P 500',data:rows.map(function(p){return p.value;}),borderColor:'#00bcd4',borderWidth:2,pointRadius:0,tension:0.25,fill:false}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:7}},y:{ticks:{maxTicksLimit:5}}}}
+    });
+  } else if (priceCanvas) {
+    priceCanvas.setAttribute('data-source-kind','unavailable');
+    priceCanvas.setAttribute('title','S&P 500 히스토리 미수신');
   }
-  // Destroy existing if reinit
-  Object.values(bpChartInstances).forEach(c => { try { c.destroy(); } catch(e){ _aioLog('warn', 'chart', 'BP chart destroy error: ' + (e && e.message || e)); } });
   bpChartsInitialized = true;
-
-  // Yahoo Finance SPY/QQQ 종가 기반 (v42.4: 2026-03-06 ~ 04-02, 20거래일. 4/3 Good Friday 휴장)
-  const bpLabels = ['3/6','3/9','3/10','3/11','3/12','3/13',
-    '3/16','3/17','3/18','3/19','3/20','3/23','3/24','3/25','3/26','3/27',
-    '3/30','3/31','4/1','4/2','4/3','4/6','4/7','4/8','4/9','4/10','4/13','4/14','4/15','4/16','4/17',
-    '4/18','4/21','4/22','4/23','4/24','4/25','4/28','4/29','4/30','5/1','5/8','5/15','5/22','5/28','6/4','6/5']; // v50.15: 6/5 연장 (5월 신고가 SPX 7585→6/5 셀오프 -2.6% 7388)
-
-  const bpSPY   = [640,635,638,633,628,631,635,643,648,655,651,647,650,644,640,636,639,634,629,622,620,623,638,648,655,663,678,692,702,702,710,712,713,710,714,715,717,716,718,719,721,728,740,748,752,758,738]; // v50.15: 5/1 $721→6/4 $758(SPX 7585)→6/5 $738(셀오프)
-  const bpQQQ   = [556,550,554,548,544,547,551,558,563,569,565,561,564,558,554,549,552,547,542,534,532,535,551,563,570,578,585,593,595,593,649,652,654,651,655,657,660,659,662,665,671,678,692,705,712,717,687]; // v50.15: 5/1 $671→6/4 $717(NASDAQ 26831)→6/5 $687(셀오프)
-  // v45.4: 사용자 제공 SPY+S5TW+S5FI+S5TH+NDFI+R2TH 차트(4/8) 기반 실값 정정
-  // S5TW=75.49(20SMA), S5FI=46.41(50SMA), S5TH=54.98(200SMA), NDFI=48.51(NDX 50SMA), R2TH=56.00(R2K 200SMA)
-  // v48.61 data-refresh: 4/9~4/17 breadth 확장 (SPX 11일 연속 상승 ATH 구간 + 위험선호 지속)
-  const bpSPX5  = [42, 40, 41, 39, 37, 38, 40, 43, 44, 43, 42, 40, 41, 39, 38, 36, 37, 39, 38, 37.8, 37.5, 39.0, 55, 68, 70, 72, 74, 75, 76, 75, 77, 76, 77, 75, 78, 79, 77, 76, 79, 78, 78, 80, 82, 81, 80, 78, 61];   // $SPXA5R (v50.15: 5월 고점 80→6/5 셀오프 61, snapshot override)
-  const bpNDX5  = [38, 36, 37, 35, 33, 35, 37, 39, 40, 40, 38, 36, 37, 35, 34, 32, 33, 36, 35, 33.4, 33.2, 35.0, 50, 65, 67, 69, 71, 72, 73, 72, 74, 73, 74, 72, 75, 76, 74, 73, 76, 75, 75, 76, 78, 77, 76, 74, 58];   // MNFD (v50.15: 6/5 셀오프 58)
-  const bpSPX20 = [36, 35, 34, 33, 32, 33, 34, 35, 36, 37, 36, 35, 34, 33, 32, 31, 32, 33, 32, 32.0, 31.8, 32.5, 58, 75, 76, 78, 79, 80, 80, 80, 81, 82, 82, 82, 83, 83, 83, 83, 84, 84, 85, 85, 86, 85, 84, 82, 57];   // $SPXA20R / S5TW (v50.15: 5월 고점 85→6/5 셀오프 57, snapshot override)
-  // ── v14: Breadth200 최신값을 전역 변수에 캐싱 (computeTradingScore 참조용) ──
-  const bpNDX20 = [28, 27, 26, 25, 24, 25, 26, 27, 28, 28, 27, 26, 25, 24, 23, 22, 23, 24, 23, 23.2, 23.0, 23.8, 55, 72, 73, 75, 76, 77, 78, 78, 79, 80, 80, 80, 81, 81, 81, 81, 82, 82, 83, 83, 84, 83, 82, 80, 55];   // MNTW (v50.15: 6/5 셀오프 55)
-  const bpSPX50 = [38, 37, 36, 35, 34, 34, 35, 36, 37, 38, 37, 36, 35, 34, 33, 32, 32, 33, 32, 31.8, 31.5, 32.2, 38, 46, 48, 50, 51, 52, 53, 54, 55, 57, 58, 59, 61, 62, 63, 65, 67, 69, 71, 72, 74, 75, 74, 72, 52];   // $SPXA50R / S5FI (v50.15: 5월 상승 75→6/5 셀오프 52, snapshot override)
-  const bpNDX50 = [34, 33, 32, 31, 30, 30, 31, 32, 33, 33, 32, 31, 30, 29, 28, 28, 29, 29, 28, 27.6, 27.4, 28.2, 40, 49, 51, 52, 53, 54, 55, 55, 56, 58, 59, 60, 62, 63, 64, 66, 68, 70, 72, 73, 75, 76, 75, 73, 53];   // MNFI / NDFI (v50.15: 6/5 셀오프 53)
-  // ── 전역 캐싱: computeTradingScore + updateRallyQualityVerdict 참조용 ──
-  var snapBreadth = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : {};
-  var snapB5 = Number(snapBreadth.breadth5sma);
-  var snapB20 = Number(snapBreadth.breadth20sma);
-  var snapB50 = Number(snapBreadth.breadth50sma);
-  if (isFinite(snapB5)) bpSPX5[bpSPX5.length - 1] = snapB5;
-  if (isFinite(snapB20)) bpSPX20[bpSPX20.length - 1] = snapB20;
-  if (isFinite(snapB50)) bpSPX50[bpSPX50.length - 1] = snapB50;
-  window._breadth200 = bpSPX20[bpSPX20.length - 1]; // 20SMA above % (레거시 오명 — 실제 20SMA)
-  window._breadth20 = bpSPX20[bpSPX20.length - 1];  // v50.15 버그 수정: 폴백(_aioBreadthCanvasRender)이 _breadth20을 읽는데 미정의였음 → 20SMA "데이터 대기 중" 오류
-  window._breadth5 = bpSPX5[bpSPX5.length - 1];     // 5SMA above %
-  window._breadth50 = bpSPX50[bpSPX50.length - 1];   // 50SMA above %
-  // v42.4: NDX 전역 캐싱 추가 — updateBreadthBars() 참조용
-  window._breadthNDX5  = bpNDX5[bpNDX5.length - 1];
-  window._breadthNDX20 = bpNDX20[bpNDX20.length - 1];
-  window._breadthNDX50 = bpNDX50[bpNDX50.length - 1];
-  // v50.15 (사용자 지적: 폭 차트 일자 라인/데이터 대기 중): 폴백 렌더러가 단일값 평탄선 대신 실제 시계열을 쓰도록 전역 저장.
-  // 폭 %aboveMA는 무료 실시간 API가 없어(Yahoo 404·Stooq N/D) 이 하드코딩 시계열이 유일 소스 — "API 키 확인" 메시지는 오해.
-  window._breadthSeries = {
-    'bp-ad-ratio-chart': bpSPX5, 'bp-price-chart': bpSPY, 'bp-price-chart-qqq': bpQQQ,
-    'bp-5ma-chart': bpSPX5, 'bp-20ma-chart': bpSPX20, 'bp-50ma-chart': bpSPX50,
-    'bh-5ma-chart': bpNDX5, 'bh-20ma-chart': bpNDX20, 'bh-50ma-chart': bpNDX50, 'bh-price-chart': bpQQQ
-  };
-  window._breadthLabels = bpLabels;
-  const n       = bpLabels.length;
-
-  Chart.defaults.font.family = "'Inter', 'Noto Sans KR', sans-serif";
-
-  // ─ Shared style helpers ──────────────────────────────────────────
-  const xScale = (showLabels) => ({
-    grid:   { color: 'var(--surface-4)', drawBorder: false },
-    ticks:  { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
-              maxTicksLimit: 7, display: showLabels, maxRotation: 0 },
-    border: { display: false }
-  });
-  const tip = {
-    backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1, titleColor: '#a5b0c2', bodyColor: '#f0f4fc',
-    padding: 8, titleFont: { size: 9 },
-    bodyFont: { family: 'JetBrains Mono, monospace', size: 10 }
-  };
-
-  // Cross-panel sync: draw vertical cursor line on all breadth charts
-  // v30.10: 중복 등록 방지 — 이미 등록된 플러그인이면 스킵
-  const crosshairPlugin = {
-    id: 'bpCrosshair',
-    afterDraw(chart) {
-      if (!chart._cursorX) return;
-      const ctx = chart.ctx;
-      ctx.save();
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 3]);
-      ctx.beginPath();
-      ctx.moveTo(chart._cursorX, chart.chartArea.top);
-      ctx.lineTo(chart._cursorX, chart.chartArea.bottom);
-      ctx.stroke();
-      ctx.restore();
-    }
-  };
-  // v30.10: 중복 등록 방지
-  if (!Chart.registry.plugins.get('bpCrosshair')) {
-    Chart.register(crosshairPlugin);
-  }
-
-  function syncCursor(sourceChart, x) {
-    Object.values(bpChartInstances).forEach(c => {
-      if (c === sourceChart) return;
-      if (!c || typeof c.draw !== 'function') return;   // v50.15: LWC 래퍼/null은 .draw() 없음 → 가드 (c.draw is not a function 386건 에러 차단)
-      c._cursorX = x;
-      c.draw();
-    });
-  }
-
-  // ─ Helper: build a breadth line chart ────────────────────────────
-  function makeBreadthPanel(canvasId, spxData, ndxData, spxColor, gradAlpha) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    // v30.11: 차트 데이터 검증 게이트
-    var _gBp = chartDataGate(canvasId, bpLabels, [spxData, ndxData], { minPoints: 3, chartName: canvasId });
-    if (!_gBp) return null;
-    const ref80 = Array(n).fill(80);
-    const ref50 = Array(n).fill(50);
-    const ref20 = Array(n).fill(20);
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: bpLabels,
-        datasets: [
-          // Reference lines (hidden from tooltip)
-          { label: '_80', data: ref80, borderColor: 'rgba(0,229,160,0.2)',  borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
-          { label: '_50', data: ref50, borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
-          { label: '_20', data: ref20, borderColor: 'rgba(255,91,80,0.25)', borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
-          // SPX (solid blue + fill)
-          { label: 'SPX', data: spxData, borderColor: spxColor,
-            backgroundColor: (ctx2) => {
-              const g = ctx2.chart.ctx.createLinearGradient(0,0,0,ctx2.chart.height);
-              // spxColor is hex (#rrggbb); convert to rgba
-              const hex = spxColor.replace('#','');
-              const r=parseInt(hex.slice(0,2),16),gv=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
-              g.addColorStop(0, `rgba(${r},${gv},${b},${gradAlpha})`);
-              g.addColorStop(1, `rgba(${r},${gv},${b},0)`);
-              return g;
-            },
-            borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: true },
-          // NDX (dashed red)
-          { label: 'NDX', data: ndxData, borderColor: '#ff5b50',
-            borderWidth: 1.6, borderDash: [5,3], pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: false }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: { ...tip,
-            filter: i => !i.dataset.label.startsWith('_'),
-            callbacks: { label: i => ' ' + i.dataset.label + ': ' + i.formattedValue + '%' }
-          }
-        },
-        scales: {
-          x: xScale(true),
-          y: { min: 0, max: 100,
-               grid: { color: 'var(--surface-4)', drawBorder: false },
-               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
-                        callback: v => v + '%', stepSize: 20 },
-               border: { display: false } }
-        },
-        onHover(e, els, chart) {
-          if (e.native && chart.chartArea) {
-            const rect = chart.canvas.getBoundingClientRect();
-            const x = e.native.clientX - rect.left;
-            if (x >= chart.chartArea.left && x <= chart.chartArea.right) {
-              chart._cursorX = x;
-              syncCursor(chart, x);
-            }
-          }
-        }
-      }
-    });
-    // v30.10: named handler for cleanup
-    function bpMouseLeave() {
-      Object.values(bpChartInstances).forEach(c => { if (c && typeof c.draw === 'function') { c._cursorX = null; c.draw(); } });
-    }
-    if (ctx._bpMouseLeave) ctx.removeEventListener('mouseleave', ctx._bpMouseLeave);
-    ctx._bpMouseLeave = bpMouseLeave;
-    ctx.addEventListener('mouseleave', bpMouseLeave);
-    return chart;
-  }
-
-  // ─ Panel 0: Price ────────────────────────────────────────────────
-  // ── v48.26: lightweight-charts dual-path (P3-5 Phase 4) — LWC 모드는 syncCursor 무력화
-  const priceCtx = document.getElementById('bp-price-chart');
-  if (priceCtx) {
-    var _gBpPrice = chartDataGate('bp-price-chart', bpLabels, [bpSPY, bpQQQ], { minPoints: 3, chartName: 'Breadth: SPY/QQQ' });
-    if (_gBpPrice && window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
-      try {
-        var _bpContainer = window.AIO.charts.wrapCanvas(priceCtx, 180);
-        if (_bpContainer) {
-          var _bpIso = window.AIO.charts.monthDayToISO(bpLabels, new Date().getFullYear());
-          var _bpSpyData = bpSPY.map(function(v, i) { return { time: _bpIso[i], value: v }; });
-          var _bpQqqData = bpQQQ.map(function(v, i) { return { time: _bpIso[i], value: v }; });
-          var _bpLwc = window.AIO.charts.createMultiLineChart(_bpContainer, [
-            { name: 'SPY', color: '#00bcd4', lineWidth: 2, data: _bpSpyData },
-            { name: 'QQQ', color: '#ff5b50', lineWidth: 2, data: _bpQqqData }
-          ], { height: 180 });
-          if (_bpLwc && _bpLwc.series) {
-            bpChartInstances['price'] = window.AIO.charts.createCompatWrapper(_bpLwc, priceCtx, _bpContainer);
-            if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'bp-price chart: lightweight-charts 경로 사용 (multi-line, syncCursor 무력화)');
-          }
-        }
-      } catch(_bpE) {
-        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC bp-price 전환 실패, Chart.js 폴백: ' + (_bpE && _bpE.message || _bpE));
-      }
-    }
-    if (_gBpPrice && !bpChartInstances['price'])
-    bpChartInstances['price'] = new Chart(priceCtx, {
-      type: 'line',
-      data: {
-        labels: bpLabels,
-        datasets: [
-          { label: 'SPY', data: bpSPY, borderColor: '#00bcd4',
-            backgroundColor: (ctx2) => {
-              const g = ctx2.chart.ctx.createLinearGradient(0,0,0,ctx2.chart.height);
-              g.addColorStop(0,'rgba(0,212,255,0.2)'); g.addColorStop(1,'rgba(0,212,255,0)'); return g;
-            },
-            borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: true },
-          { label: 'QQQ', data: bpQQQ, borderColor: '#ff5b50',
-            borderWidth: 1.6, borderDash: [5,3], pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: false }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: { ...tip, callbacks: { label: i => ' ' + i.dataset.label + ': $' + i.formattedValue } }
-        },
-        scales: {
-          x: xScale(false),
-          y: { grid: { color: 'var(--surface-4)', drawBorder: false },
-               ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
-                        callback: v => '$' + v, maxTicksLimit: 5 },
-               border: { display: false } }
-        },
-        onHover(e, els, chart) {
-          if (e.native && chart.chartArea) {
-            const rect = chart.canvas.getBoundingClientRect();
-            const x = e.native.clientX - rect.left;
-            if (x >= chart.chartArea.left && x <= chart.chartArea.right) {
-              chart._cursorX = x;
-              syncCursor(chart, x);
-            }
-          }
-        }
-      }
-    });
-    // v30.10: named handler for cleanup
-    function bpPriceMouseLeave() {
-      Object.values(bpChartInstances).forEach(c => { if (c && typeof c.draw === 'function') { c._cursorX = null; c.draw(); } });
-    }
-    // P568/R259: the sibling bp-chart canvas above guards re-registration with
-    // `if (ctx._bpMouseLeave) ctx.removeEventListener(...)` before adding a new listener —
-    // this canvas omitted that guard, so every revisit of the breadth page stacked one more
-    // 'mouseleave' listener on priceCtx (initBreadthPage re-runs on each page (re)visit).
-    if (priceCtx._bpMouseLeave) priceCtx.removeEventListener('mouseleave', priceCtx._bpMouseLeave);
-    priceCtx._bpMouseLeave = bpPriceMouseLeave;
-    priceCtx.addEventListener('mouseleave', bpPriceMouseLeave);
-  }
-
-  // ─ Panels 1-3: Breadth ──────────────────────────────────────────
-  bpChartInstances['5ma']  = makeBreadthPanel('bp-5ma-chart',  bpSPX5,  bpNDX5,  '#00bcd4', 0.18);
-  bpChartInstances['20ma'] = makeBreadthPanel('bp-20ma-chart', bpSPX20, bpNDX20, '#00bcd4', 0.15);
-  bpChartInstances['50ma'] = makeBreadthPanel('bp-50ma-chart', bpSPX50, bpNDX50, '#fb923c', 0.15);
-
-  // Update Weinstein analysis
   updateWSAnalysis();
-
-  // v50.51 A2: SECTION 5-B(bh-* 히스토리 차트) 제거 — bp-*가 동일 시장폭을 일별 전체 사이클로 통합.
-  //   initBreadthCharts() 호출 제거 (함수는 retired stub).
-
-  // v40.4: SPY/QQQ 가격 차트 동적 교체 (Yahoo Finance)
-  _refreshBreadthPriceChart();
-  // v46.6: A-D ratio 시계열 차트 (bpSPX5 데이터 활용)
-  // ── v48.26: lightweight-charts dual-path (P3-5 Phase 5) — 점별 색상 손실 수용, priceLine 50%
-  var adCanvas = document.getElementById('bp-ad-ratio-chart');
-  if (adCanvas && bpSPX5 && bpLabels) {
-    if (bpChartInstances['ad-ratio']) { try { bpChartInstances['ad-ratio'].destroy(); } catch(_){} }
-    // A-D ratio = 5SMA above % (상승 비율과 동일 의미)
-    var adColors = bpSPX5.map(function(v) { return v >= 50 ? '#00e5a0' : v >= 35 ? '#ffa31a' : '#ff5b50'; });
-
-    // LWC 경로 시도
-    var _adLwcOk = false;
-    if (window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
-      try {
-        var _adContainer = window.AIO.charts.wrapCanvas(adCanvas, 140);
-        if (_adContainer) {
-          var _adIso = window.AIO.charts.monthDayToISO(bpLabels, new Date().getFullYear());
-          var _adLwcData = bpSPX5.map(function(v, i) { return { time: _adIso[i], value: v }; });
-          var _adLwc = window.AIO.charts.createLineChart(_adContainer, _adLwcData, {
-            color: '#00bcd4',
-            lineWidth: 2,
-            height: 140,
-            priceFormat: { type: 'price', precision: 1, minMove: 0.1 }
-          });
-          if (_adLwc && _adLwc.series) {
-            try {
-              _adLwc.series.createPriceLine({
-                price: 50,
-                color: 'rgba(0,229,160,0.4)',
-                lineWidth: 1,
-                lineStyle: 2,
-                axisLabelVisible: true,
-                title: '50%'
-              });
-            } catch(_){}
-            bpChartInstances['ad-ratio'] = window.AIO.charts.createCompatWrapper(_adLwc, adCanvas, _adContainer);
-            if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'AD-ratio chart: lightweight-charts 경로 사용 (priceLine 50%, 점별 색상 손실)');
-            _adLwcOk = true;
-          }
-        }
-      } catch(_adE) {
-        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC AD-ratio 전환 실패, Chart.js 폴백: ' + (_adE && _adE.message || _adE));
-      }
-    }
-    if (!_adLwcOk)
-    bpChartInstances['ad-ratio'] = new Chart(adCanvas, {
-      type: 'line',
-      data: {
-        labels: bpLabels,
-        datasets: [{
-          label: '상승 비율 (%)', data: bpSPX5,
-          borderColor: '#00bcd4', backgroundColor: 'rgba(0,212,255,0.08)',
-          borderWidth: 2, pointRadius: 3, pointBackgroundColor: adColors,
-          fill: true, tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        scales: {
-          y: { min: 0, max: 100, grid: { color: 'var(--surface-4)' }, ticks: { color: '#a0b4c8', font: { size: 11 }, callback: function(v) { return v + '%'; } } },
-          x: { grid: { display: false }, ticks: { color: '#a0b4c8', font: { size: 11 }, maxTicksLimit: 8 } }
-        },
-        plugins: {
-          legend: { display: false },
-          annotation: { annotations: { fiftyLine: { type: 'line', yMin: 50, yMax: 50, borderColor: 'rgba(0,229,160,0.3)', borderWidth: 1, borderDash: [4,4], label: { display: true, content: '50%', position: 'end', color: '#00e5a0', font: { size: 11 } } } } }
-        }
-      }
-    });
-  }
-  // v42.4: signal 페이지 브레드쓰 바 + breadth 페이지 NDX 카드 동기 갱신
-  updateBreadthBars();
-}
-
-async function _refreshBreadthPriceChart() {
-  try {
-    var priceChart = bpChartInstances['price'];
-    if (!priceChart || typeof _fetchYahooChartData !== 'function') return;
-    var [spyData, qqqData] = await Promise.all([
-      _fetchYahooChartData('SPY', '1mo'),
-      _fetchYahooChartData('QQQ', '1mo')
-    ]);
-    if (spyData && spyData.closes && spyData.closes.length >= 5 &&
-        qqqData && qqqData.closes && qqqData.closes.length >= 5) {
-      var len = Math.min(spyData.closes.length, qqqData.closes.length, 20);
-      var spyCloses = spyData.closes.slice(-len).map(function(v) { return v != null ? Math.round(v) : null; });
-      var qqqCloses = qqqData.closes.slice(-len).map(function(v) { return v != null ? Math.round(v) : null; });
-      var labels = spyData.timestamps.slice(-len).map(function(ts) {
-        var d = new Date(ts * 1000);
-        return (d.getMonth() + 1) + '/' + d.getDate();
-      });
-      priceChart.data.labels = labels;
-      priceChart.data.datasets[0].data = spyCloses;
-      priceChart.data.datasets[1].data = qqqCloses;
-      priceChart.update('none');
-      // 경고 배지 업데이트
-      var badge = document.querySelector('#page-breadth .stale-badge');
-      if (badge) {
-        badge.textContent = 'SPY/QQQ 실시간 차트 · ' + labels[labels.length - 1] + ' 기준';
-        badge.style.background = 'var(--data-green-mid)';
-        badge.style.borderColor = 'var(--data-green-dim)';
-        badge.style.color = '#00e5a0';
-      }
-    }
-  } catch(e) { _aioLog('warn', 'chart', 'Breadth price chart refresh error: ' + (e && e.message || e)); }
-}
-
-// v41.2: bh-price 히스토리 차트도 Yahoo Finance 동적 교체
-async function _refreshBreadthHistoryCharts() {
-  try {
-    var priceChart = bhChartInstances['price'];
-    if (!priceChart || typeof _fetchYahooChartData !== 'function') return;
-    var [spyData, qqqData] = await Promise.all([
-      _fetchYahooChartData('SPY', '1mo'),
-      _fetchYahooChartData('QQQ', '1mo')
-    ]);
-    if (spyData && spyData.closes && spyData.closes.length >= 5 &&
-        qqqData && qqqData.closes && qqqData.closes.length >= 5) {
-      var len = Math.min(spyData.closes.length, qqqData.closes.length, 20);
-      var spyCloses = spyData.closes.slice(-len).map(function(v) { return v != null ? Math.round(v) : null; });
-      var qqqCloses = qqqData.closes.slice(-len).map(function(v) { return v != null ? Math.round(v) : null; });
-      var labels = spyData.timestamps.slice(-len).map(function(ts) {
-        var d = new Date(ts * 1000);
-        return (d.getMonth() + 1) + '/' + d.getDate();
-      });
-      priceChart.data.labels = labels;
-      priceChart.data.datasets[0].data = spyCloses;
-      priceChart.data.datasets[1].data = qqqCloses;
-      priceChart.update('none');
-    }
-  } catch(e) { _aioLog('warn', 'chart', 'Breadth history price chart refresh error: ' + (e && e.message || e)); }
-}
-
-// ── Market Breadth Charts (Chart.js) ─────────────────────────────────
-let bhChartsInitialized = false;
-const bhChartInstances = {};
-
-function initBreadthCharts() {
-  // v50.51 A2: RETIRED — bh-* 히스토리 차트(Section 5-B)는 bp-*(Section 5)로 통합됨.
-  //   호출 경로(initBreadthPage) 제거됨. no-op 가드로 잔존 호출 무해화. 아래 본문은 비활성.
-  return;
-  if (typeof Chart === 'undefined') return;
-  if (bhChartsInitialized) {
-    // Already created — just resize to fit newly visible panel
-    try { Object.values(bhChartInstances).forEach(c => c.resize()); } catch(e) {}
-    return;
-  }
-  // v30.10: Destroy previous instances before reinit
-  Object.values(bhChartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
-  Object.keys(bhChartInstances).forEach(k => delete bhChartInstances[k]);
-  bhChartsInitialized = true;
-
-  // v42.4: bh 히스토리 차트도 bp 패널과 동일 범위 (2026-03-06 ~ 04-02) 동기화
-  // v50.15 (사용자 지적: 히스토리 차트 평탄·안 바뀜): 전체 사이클(3월 변동성 저점→4-5월 신고가 랠리→6/5 셀오프 급락)로 교체.
-  //   기존 최근 20일 윈도우는 5월 고점 구간만이라 평탄. 히스토리는 변화가 보이는 장기 뷰가 적합.
-  const bhLabels = ['3/13','3/19','3/26','4/2','4/8','4/14','4/18','4/23','4/28','4/30','5/6',
-    '5/12','5/15','5/20','5/22','5/27','5/28','5/29','6/2','6/3','6/4','6/5'];
-
-  const bhSPY   = [620,623,638,655,678,692,702,710,713,715,717,719,721,728,735,742,748,752,756,758,752,738];
-  const bhQQQ   = [534,540,560,585,610,640,652,658,662,665,668,671,678,690,700,705,710,713,716,717,710,687];
-  // 5MA: 단기 이동평균 위 비율 (저점 40→랠리 82→6/5 급락 61)
-  const bhSPX5   = [40,38,40,43,55,68,72,74,76,75,77,78,79,80,82,81,80,79,78,80,78,61];  // $SPXA5R
-  const bhNDX5   = [37,35,38,41,52,65,69,71,73,72,74,75,76,77,79,78,77,76,75,77,75,58];  // MNFD
-  // 20MA: 단기 추세 위 비율 (저점 33→랠리 86→6/5 급락 57)
-  const bhSPX20  = [33,32,33,34,58,72,75,78,80,80,81,82,83,84,85,85,86,84,83,82,80,57];  // $SPXA20R
-  const bhNDX20  = [31,30,31,32,55,70,73,76,78,78,79,80,81,82,83,83,84,82,81,80,78,55];  // MNTW
-  // 50MA: 중기 추세 위 비율 (저점 33→랠리 75→6/5 급락 52)
-  const bhSPX50  = [33,34,35,38,46,50,52,54,56,58,60,62,65,68,71,72,73,74,75,74,72,52];  // $SPXA50R
-  const bhNDX50  = [31,32,33,36,44,48,50,52,54,56,58,60,63,66,69,70,71,72,73,72,70,53];  // MNFI
-
-  Chart.defaults.font.family = "'Inter', 'Noto Sans KR', sans-serif";
-  Chart.defaults.color = 'rgba(255,255,255,0.28)';
-
-  const xScale = {
-    grid: { color: 'var(--surface-4)', drawBorder: false },
-    ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 }, maxRotation: 0, maxTicksLimit: 7 },
-    border: { display: false }
-  };
-
-  const tipStyle = {
-    backgroundColor: '#111a2f', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-    titleColor: '#a5b0c2', bodyColor: '#f0f4fc', padding: 8,
-    titleFont: { family: 'Inter', size: 9 }, bodyFont: { family: 'JetBrains Mono, monospace', size: 10 }
-  };
-
-  // ── Price chart ──────────────────────────────────────────────────────
-  // ── v48.26: lightweight-charts dual-path (P3-5 Phase 4) — multi-line SPY/QQQ
-  const priceCtx = document.getElementById('bh-price-chart');
-  if (priceCtx) {
-    var _gBhPrice = chartDataGate('bh-price-chart', bhLabels, [bhSPY, bhQQQ], { minPoints: 3, chartName: 'Breadth History: SPY/QQQ' });
-    if (_gBhPrice && window.AIO && window.AIO.charts && window.AIO.charts.shouldUseLWC()) {
-      try {
-        var _bhContainer = window.AIO.charts.wrapCanvas(priceCtx, 180);
-        if (_bhContainer) {
-          var _bhIso = window.AIO.charts.monthDayToISO(bhLabels, new Date().getFullYear());
-          var _bhSpyData = bhSPY.map(function(v, i) { return { time: _bhIso[i], value: v }; });
-          var _bhQqqData = bhQQQ.map(function(v, i) { return { time: _bhIso[i], value: v }; });
-          var _bhLwc = window.AIO.charts.createMultiLineChart(_bhContainer, [
-            { name: 'SPY', color: '#00bcd4', lineWidth: 2, data: _bhSpyData },
-            { name: 'QQQ', color: '#fb923c', lineWidth: 2, data: _bhQqqData }
-          ], { height: 180 });
-          if (_bhLwc && _bhLwc.series) {
-            bhChartInstances['price'] = window.AIO.charts.createCompatWrapper(_bhLwc, priceCtx, _bhContainer);
-            if (typeof _aioLog === 'function') _aioLog('info', 'chart', 'bh-price chart: lightweight-charts 경로 사용 (multi-line)');
-          }
-        }
-      } catch(_bhE) {
-        if (typeof _aioLog === 'function') _aioLog('warn', 'chart', 'LWC bh-price 전환 실패, Chart.js 폴백: ' + (_bhE && _bhE.message || _bhE));
-      }
-    }
-    if (_gBhPrice && !bhChartInstances['price'])
-    bhChartInstances['price'] = new Chart(priceCtx, {
-      type: 'line',
-      data: {
-        labels: bhLabels,
-        datasets: [
-          { label: 'SPY', data: bhSPY, borderColor: '#00bcd4',
-            backgroundColor: (ctx) => {
-              const g = ctx.chart.ctx.createLinearGradient(0,0,0,ctx.chart.height);
-              g.addColorStop(0, 'rgba(0,212,255,0.15)'); g.addColorStop(1, 'rgba(0,212,255,0)');
-              return g;
-            },
-            borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: true },
-          { label: 'QQQ', data: bhQQQ, borderColor: '#fb923c',
-            borderWidth: 1.6, borderDash: [5,3], pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: false }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 700 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { ...tipStyle,
-          callbacks: { label: i => ' ' + i.dataset.label + ': $' + i.formattedValue }
-        }},
-        scales: {
-          x: xScale,
-          y: { grid: { color: 'var(--surface-4)', drawBorder: false },
-            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
-              callback: v => '$' + v, maxTicksLimit: 5 },
-            border: { display: false } }
-        }
-      }
-    });
-  }
-
-  // ── Shared breadth scale options ────────────────────────────────────
-  function maScale(min, max) {
-    return {
-      grid: { color: 'var(--surface-4)', drawBorder: false },
-      ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 11 },
-        callback: v => v + '%', maxTicksLimit: 5 },
-      border: { display: false }, min, max,
-      afterDataLimits: scale => { scale.min = min; scale.max = max; }
-    };
-  }
-
-  function makeBreadthChart(canvasId, spxData, ndxData, refLine50, spxColor, gradColor) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
-    // v30.11: 차트 데이터 검증 게이트
-    var _gBh = chartDataGate(canvasId, bhLabels, [spxData, ndxData], { minPoints: 3, chartName: canvasId });
-    if (!_gBh) return null;
-    const n = spxData.length;
-    const ref50 = Array(n).fill(50);
-    return new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: bhLabels,
-        datasets: [
-          // 50% 기준선
-          { label: '50% 기준선', data: ref50, borderColor: 'rgba(255,255,255,0.12)',
-            borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0 },
-          // SPX
-          { label: 'SPX', data: spxData, borderColor: spxColor,
-            backgroundColor: (ctx2) => {
-              const g = ctx2.chart.ctx.createLinearGradient(0,0,0,ctx2.chart.height);
-              g.addColorStop(0, gradColor + '0.18)'); g.addColorStop(1, gradColor + '0)');
-              return g;
-            },
-            borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: true },
-          // NDX
-          { label: 'NDX', data: ndxData, borderColor: '#ff5b50',
-            borderWidth: 1.6, borderDash: [5,3], pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: false }
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 700 },
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: false }, tooltip: { ...tipStyle,
-          filter: item => item.datasetIndex > 0,
-          callbacks: { label: i => ' ' + i.dataset.label + ': ' + i.formattedValue + '%' }
-        }},
-        scales: { x: xScale, y: maScale(0, 100) }
-      }
-    });
-  }
-
-  bhChartInstances['5ma']  = makeBreadthChart('bh-5ma-chart',   bhSPX5,   bhNDX5,   true, '#00bcd4', 'rgba(0,212,255,');
-  bhChartInstances['20ma'] = makeBreadthChart('bh-20ma-chart',  bhSPX20,  bhNDX20,  true, '#00bcd4', 'rgba(0,212,255,');
-  bhChartInstances['50ma'] = makeBreadthChart('bh-50ma-chart',  bhSPX50,  bhNDX50,  true, '#60d394', 'rgba(96,211,148,');
-
-  // v41.2: SPY/QQQ 히스토리 가격 차트 동적 교체 (Yahoo Finance)
-  _refreshBreadthHistoryCharts();
 }
 
 function _aioGetKstDateParts(input) {
@@ -1557,7 +628,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(function() {
     try { if (typeof fetchAllNews === 'function') { var p = fetchAllNews(false); if (p && p.catch) p.catch(function(){}); } } catch(e){}
   }, 3000);
-  // initBreadthCharts() 제거 — initBreadthPage()가 breadth 페이지 진입 시 초기화
   // v31.9: AAII/PC 차트 즉시 + 재시도 (Chart.js CDN 로딩 완료 보장)
   try { initSentimentCharts(); } catch(e) { _aioLog('warn', 'init', 'initSentimentCharts: ' + e.message); }
   // 2초 후 재시도 — Chart.js 미로드 시 대비 (canvas 빈 화면 방지)
@@ -1588,48 +658,24 @@ document.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════════════════════════════════════════
 // v30.13: LLM 예산 관리 시스템 (Budget Management)
 // v31.3: 적응형 모델 — 기본 Haiku 4.5, 복잡도별 Sonnet/Thinking 자동 승격
-// Anthropic API Pricing (2026.03):
-//   Sonnet 4.6: Input $3/MTok,  Output $15/MTok  (~$0.020/query)
-// v31.3: 적응형 모델 시스템 — 기본 Haiku, 복잡한 질문은 Sonnet+Thinking 자동 승격
-//   Haiku 4.5:  Input $1/MTok,  Output $5/MTok   (~$0.007/query) — 기본
-//   Sonnet 4.6: Input $3/MTok,  Output $15/MTok  (~$0.020/query) — 심층 분석 시만
-//   Extended Thinking: Output 토큰 요금과 동일 (thinking 토큰도 output으로 과금)
-// Haiku 기본 전환으로 비용 ~67% 절감 (동일 일일 한도 기준 3배 더 많은 질문 가능)
+// 모델 가격과 환율은 시점 의존 데이터이므로 코드에 저장하지 않는다.
+// 비용 표시는 공급자 청구 내역을 연결하기 전까지 unavailable로 유지한다.
 const LLM_MODELS = {
   haiku: {
     id: 'claude-haiku-4-5-20251001',
-    label: 'Haiku 4.5',
-    inputPerMTok: 1,
-    outputPerMTok: 5,
-    avgInputTokens: 2500,
-    avgOutputTokens: 800,
-    get costPerQuery() { return (this.avgInputTokens * this.inputPerMTok + this.avgOutputTokens * this.outputPerMTok) / 1e6; }
-    // ~$0.0065/query (기본)
+    label: 'Haiku 4.5'
   },
   sonnet: {
     id: 'claude-sonnet-4-6',
-    label: 'Sonnet 4.6',
-    inputPerMTok: 3,
-    outputPerMTok: 15,
-    avgInputTokens: 2500,
-    avgOutputTokens: 800,
-    get costPerQuery() { return (this.avgInputTokens * this.inputPerMTok + this.avgOutputTokens * this.outputPerMTok) / 1e6; }
-    // ~$0.0195/query (심층 분석 전용)
+    label: 'Sonnet 4.6'
   },
   'sonnet-thinking': {
     id: 'claude-sonnet-4-6',
     label: 'Sonnet 4.6 Thinking',
-    inputPerMTok: 3,
-    outputPerMTok: 15,
-    avgInputTokens: 2500,
-    avgOutputTokens: 3000, // thinking 토큰 포함
     thinking: true,
-    thinkingBudget: 5000,
-    get costPerQuery() { return (this.avgInputTokens * this.inputPerMTok + this.avgOutputTokens * this.outputPerMTok) / 1e6; }
-    // ~$0.0525/query (추론 모드)
+    thinkingBudget: 5000
   }
 };
-
 // v31.3: 질문 복잡도 감지 → 모델 자동 선택
 function _detectQueryComplexity(query, ctxId) {
   var q = query.toLowerCase();
@@ -1747,15 +793,9 @@ function _detectQueryComplexity(query, ctxId) {
 }
 
 const LLM_BUDGET = {
-  totalUSD: 50,               // v30.13: 총 크레딧 $50
-  users: 5,                   // 동시 사용자 수
-  exchangeRate: 1500,         // KRW per USD (2026.03 환율 반영)
-  get perUserUSD() { return this.totalUSD / this.users; },        // $10/인
-  get monthlyUSD() { return this.perUserUSD; },                   // $10/인/월
-  get monthlyKRW() { return Math.round(this.monthlyUSD * this.exchangeRate); }, // ~₩14,500
-  get dailyUSD() { return this.monthlyUSD / 30; },               // ~$0.33/일
+  dailyQueryLimit: 20,
+  pricingAvailable: false
 };
-
 function getSelectedModel() {
   return 'haiku'; // v31.3: 기본 Haiku (질문별 자동 승격은 chatSend에서 처리)
 }
@@ -1765,8 +805,7 @@ function getModelConfig(modelKey) {
 }
 
 function calcDailyLimit() {
-  const model = getModelConfig();
-  return Math.floor(LLM_BUDGET.dailyUSD / model.costPerQuery);
+  return LLM_BUDGET.dailyQueryLimit;
 }
 
 function getLLMState() {
@@ -1795,20 +834,7 @@ function saveQuota(quota) {
 //   cache_read_input_tokens는 input 단가의 10%로 과금되므로 cache hit 시 큰 절감.
 function _refineQuotaByUsage(modelCfg, totalInputTokens, outputTokens, cacheReadTokens) {
   if (!modelCfg || typeof modelCfg !== 'object') return;
-  // 단가 추출 — 기존 LLM_MODELS는 inputPerMTok/outputPerMTok 필드명 사용 ($/1M tokens)
-  var inputRate = modelCfg.inputPerMTok != null ? modelCfg.inputPerMTok : modelCfg.inputCostPer1M;
-  var outputRate = modelCfg.outputPerMTok != null ? modelCfg.outputPerMTok : modelCfg.outputCostPer1M;
-  if (inputRate == null || outputRate == null) return;
-  // cache_read는 input 단가의 10% (Anthropic 공식)
-  var nonCacheInput = Math.max(0, (totalInputTokens || 0) - (cacheReadTokens || 0));
-  var actualCost = (nonCacheInput * inputRate + (cacheReadTokens || 0) * inputRate * 0.1 + (outputTokens || 0) * outputRate) / 1e6;
-  // 추정 비용과 차이를 quota에 반영
-  var est = modelCfg.costPerQuery || 0;
-  var delta = actualCost - est;
-  if (Math.abs(delta) < 1e-6) return;  // 무시할 수준
   var q = getQuota();
-  q.costUSD = Math.max(0, (q.costUSD || 0) + delta);
-  // tokensRead/tokensCreate 통계 누적 (분석용)
   q._realInputTokens = (q._realInputTokens || 0) + totalInputTokens;
   q._realOutputTokens = (q._realOutputTokens || 0) + outputTokens;
   q._realCacheRead = (q._realCacheRead || 0) + (cacheReadTokens || 0);
@@ -1857,13 +883,12 @@ function updateQuotaBadge() {
   const remaining = Math.max(0, dailyLimit - used);
   const pct       = Math.min(100, Math.round(used / dailyLimit * 100));
   const overBudget= quota.overBudget || 0;
-  const costKRW   = Math.round((quota.costUSD || 0) * LLM_BUDGET.exchangeRate);
 
   const grade = remaining === 0 ? (overBudget > 0 ? 'over' : 'empty') : remaining <= Math.ceil(dailyLimit * 0.2) ? 'warn' : 'green';
 
   if (remEl)  { remEl.textContent = remaining + '회' + (overBudget > 0 ? ' (초과 ' + overBudget + '회)' : ''); remEl.className = 'llm-quota-val ' + grade; }
   if (progEl) { progEl.style.width = Math.min(pct, 100) + '%'; progEl.className = 'llm-prog-fill' + (grade !== 'green' ? ' ' + grade : ''); }
-  if (costEl) costEl.textContent = '오늘 사용: W' + costKRW.toLocaleString() + ' / 일 예산 W' + Math.round(LLM_BUDGET.monthlyKRW / 30).toLocaleString() + ' (5명 분배)';
+  if (costEl) costEl.textContent = '비용 정보: 공급자 청구 원천 미연결';
 
   if (badge)    badge.textContent = remaining + '/' + dailyLimit;
   if (hdrBadge) {
@@ -1893,14 +918,12 @@ function consumeLLMQuery() {
   const model = getModelConfig();
 
   if (quota.used >= dailyLimit) {
-    const extraCostKRW = Math.round(model.costPerQuery * LLM_BUDGET.exchangeRate);
     return new Promise(function(resolve) {
       showConfirmModal('일일 한도 초과',
-        '일일 무료 한도(' + dailyLimit + '회)를 모두 사용했습니다.\n추가 질문 시 약 ' + extraCostKRW + '원/회 비용이 사용자 본인에게 귀속됩니다.\n(' + model.label + ' 모델 기준, 월 예산 ₩' + LLM_BUDGET.monthlyKRW.toLocaleString() + ' 초과분)\n계속 질문하시겠습니까?',
+        '일일 사용 한도(' + dailyLimit + '회)를 모두 사용했습니다.\n공급자 가격·환율 원천이 연결되지 않아 추가 비용은 이 화면에서 계산하지 않습니다.\n계속 질문하시겠습니까?',
         function() {
           quota.overBudget = (quota.overBudget || 0) + 1;
           quota.used += 1;
-          quota.costUSD = (quota.costUSD || 0) + model.costPerQuery;
           resolve(true);
         }, '');
       // Cancel case — modal close without confirm
@@ -1909,7 +932,6 @@ function consumeLLMQuery() {
     });
   }
   quota.used += 1;
-  quota.costUSD = (quota.costUSD || 0) + model.costPerQuery;
   saveQuota(quota);
   updateQuotaBadge();
   return true; // allowed
@@ -2400,122 +1422,6 @@ async function globalRefresh() {
 
 // v30.11: T4 _sentimentAutoInterval 삭제 — REFRESH_SCHEDULE.sentiment(10min)이 FG+PC 담당, HY는 hySpread(6h)로 이관
 // (기존 5분 IIFE 제거 — 중앙 스케줄러 단일 경로화)
-
-
-// ═══════════════════════════════════════════════════════════════════════
-//  FEEDBACK SYSTEM
-// ═══════════════════════════════════════════════════════════════════════
-// H2-07: the feedback overlay was retired with its DOM. Keep the legacy helpers
-// inert for old bookmarks; the public contact path is the GitHub Issues link in Guide.
-const FEEDBACK_EMAIL = '';
-let fbSelectedType = 'bug';
-
-function openFeedback() {
-  const overlay = document.getElementById('feedback-overlay');
-  if (!overlay) return;
-  overlay.style.display = 'flex';
-  const pageEl = document.getElementById('fb-page-info');
-  const timeEl = document.getElementById('fb-time-info');
-  if (pageEl) pageEl.textContent = prevPage || 'home';
-  if (timeEl) timeEl.textContent = new Date().toLocaleString('ko-KR');
-  document.getElementById('fb-desc')?.focus();
-  renderFBHistory();
-}
-
-function closeFeedback() {
-  const overlay = document.getElementById('feedback-overlay');
-  if (overlay) overlay.style.display = 'none';
-  const s = document.getElementById('fb-status');
-  if (s) s.textContent = '';
-}
-
-function selectFBType(btn) {
-  document.querySelectorAll('.fb-type-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  fbSelectedType = btn.dataset.type;
-}
-
-function buildFeedbackText() {
-  const labels = { bug: 'Bug/Error', data: 'Data Issue', realtime: 'Realtime Issue', feature: 'Feature Request' };
-  const desc = document.getElementById('fb-desc')?.value?.trim() || '';
-  const page = document.getElementById('fb-page-info')?.textContent || '';
-  const time = document.getElementById('fb-time-info')?.textContent || '';
-  return ['[AIO Feedback]', 'Type: ' + (labels[fbSelectedType] || fbSelectedType),
-    'Page: ' + page, 'Time: ' + time, '', desc].join('\n');
-}
-
-function submitFeedback() {
-  if (!document.getElementById('feedback-overlay')) {
-    if (typeof showToast === 'function') showToast('피드백 보드는 운영하지 않습니다. 가이드의 GitHub Issues 문의 경로를 이용하세요.');
-    return false;
-  }
-  const desc = document.getElementById('fb-desc')?.value?.trim() || '';
-  if (!desc) {
-    const s = document.getElementById('fb-status');
-    if (s) { s.style.color = 'var(--red)'; s.textContent = '내용을 입력해주세요.'; }
-    return;
-  }
-  saveFeedbackToHistory();
-  const typeKo = { bug: '[버그]', data: '[데이터]', realtime: '[실시간]', feature: '[건의]' };
-  const subj = encodeURIComponent('[AIO] ' + (typeKo[fbSelectedType] || '') + ' ' +
-    desc.slice(0, 40) + (desc.length > 40 ? '...' : ''));
-  const body = encodeURIComponent(buildFeedbackText());
-  const link  = document.createElement('a');
-  link.href   = 'https://github.com/ysnle/aio-screener/issues';
-  link.click();
-  const s = document.getElementById('fb-status');
-  if (s) { s.style.color = '#00e5a0'; s.textContent = '메일 앱이 열립니다. 전송 후 창을 닫아주세요.'; }
-}
-
-function copyFeedback() {
-  const desc = document.getElementById('fb-desc')?.value?.trim();
-  if (!desc) {
-    const s = document.getElementById('fb-status');
-    if (s) { s.style.color = 'var(--red)'; s.textContent = '내용을 입력해주세요.'; }
-    return;
-  }
-  navigator.clipboard.writeText(buildFeedbackText()).then(() => {
-    const s = document.getElementById('fb-status');
-    if (s) { s.style.color = '#00e5a0'; s.textContent = '클립보드에 복사됐습니다.'; }
-    saveFeedbackToHistory();
-  }).catch(() => {
-    const s = document.getElementById('fb-status');
-    if (s) { s.style.color = 'var(--red)'; s.textContent = '복사 실패.'; }
-  });
-}
-
-function saveFeedbackToHistory() {
-  let list;
-  try { list = JSON.parse(localStorage.getItem('aio_feedback') || '[]'); } catch(e) { list = []; }
-  list.unshift({
-    type: fbSelectedType,
-    desc: (document.getElementById('fb-desc')?.value?.trim() || '').slice(0, 120),
-    page: document.getElementById('fb-page-info')?.textContent || '',
-    time: new Date().toISOString()
-  });
-  try { localStorage.setItem('aio_feedback', JSON.stringify(list.slice(0, 20))); } catch(e) {}
-  renderFBHistory();
-}
-
-function renderFBHistory() {
-  const el = document.getElementById('fb-history-list');
-  if (!el) return;
-  let list;
-  try { list = JSON.parse(localStorage.getItem('aio_feedback') || '[]'); } catch(e) { list = []; }
-  if (!list.length) {
-    el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px;">제출 내역 없음</div>';
-    return;
-  }
-  const icons = { bug: 'BUG', data: 'DATA', realtime: 'RT', feature: 'REQ' };
-  el.innerHTML = list.map(f => {
-    const d = new Date(f.time).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-    return '<div style="font-size:11px;padding:5px 6px;border-bottom:1px solid var(--surface-4);display:flex;gap:6px;">' +
-      '<span>' + (icons[f.type] || '') + '</span>' +
-      '<span style="flex:1;color:var(--text-secondary);">' + escHtml(f.desc) + '</span>' +
-      '<span style="color:var(--text-muted);white-space:nowrap;">' + d + '</span></div>';
-  }).join('');
-}
-
 
 
 // v30.11 (분리 v48.64): WCAG 2.1 AA 접근성 초기화
@@ -3301,7 +2207,7 @@ window._aioDiagram = (function () {
   function _marketRegime(d) {
     var regime = d.regime || 'NEUTRAL';
     var score = _cl(d.score || 50, 0, 100);
-    var vix = d.vix || 20;
+    var vix = Number(d.vix);
     var spyPct = _cl(d.spyScore || 50, 0, 100);
     var vixPct = _cl(d.vixScore || 50, 0, 100);
     var W = 440, H = 200, out = '';
@@ -3444,9 +2350,9 @@ window._aioDiagram = (function () {
     out += _o(cx, cy, inner, _alphaRgb(C.bgSolid, 0.8));
     out += _t(cx, cy + 4, stage, stageCols[stageMap[stage] || 0], 10, 900, 'middle');
     var indicators = [
-      ['CPI',  _n(d.cpi || 3.0, 1) + '%',  (d.cpi || 3) > 3.5 ? C.red : (d.cpi || 3) > 2 ? C.amber : C.green],
-      ['금리', _n(d.fedRate || 4.5, 2) + '%', (d.fedRate || 4.5) > 4.5 ? C.red : C.amber],
-      ['실업', _n(d.unemployment || 4.0, 1) + '%', (d.unemployment || 4) > 4.5 ? C.red : C.green],
+      ['CPI',  _n(Number(d.cpi), 1) + '%',  Number(d.cpi) > 3.5 ? C.red : Number(d.cpi) > 2 ? C.amber : C.green],
+      ['금리', _n(Number(d.fedRate), 2) + '%', Number(d.fedRate) > 4.5 ? C.red : C.amber],
+      ['실업', _n(Number(d.unemployment), 1) + '%', Number(d.unemployment) > 4.5 ? C.red : C.green],
     ];
     indicators.forEach(function (row, i) {
       var ry = 30 + i * 54;
@@ -3459,12 +2365,17 @@ window._aioDiagram = (function () {
 
   // ── 6. price-position: 가격 위치 (MA/ATH 슬라이더) ──────────
   function _pricePosition(d) {
-    var sym = d.sym || '—', price = d.price || 0, sma50 = d.sma50 || price * 0.96;
-    var sma200 = d.sma200 || price * 0.88, ath = d.ath || price * 1.10;
-    var ret3m = d.ret3m || 0, rsi = d.rsi || 50;
+    var sym = d.sym || '—';
+    function observed(v) { return v == null || !isFinite(Number(v)) ? null : Number(v); }
+    var price = observed(d.price), sma50 = observed(d.sma50), sma200 = observed(d.sma200);
+    var ath = observed(d.ath), ret3m = observed(d.ret3m), rsi = observed(d.rsi);
     var W = 420, H = 170, out = '';
     out += _r(0, 0, W, H, C.bg, 8, C.border);
     out += _t(14, 18, sym + ' 가격 포지셔닝', C.text, 10, 700);
+    if ([price, sma50, sma200, ath, ret3m, rsi].some(function(v) { return v == null; })) {
+      out += _t(210, 88, 'OHLCV·MA·ATH·RSI 원천 미수신', C.muted, 12, 600, 'middle');
+      return _svg(W, H, out);
+    }
     var lo = Math.min(sma200, price) * 0.96, hi = Math.max(ath, price) * 1.03;
     var range = hi - lo || 1;
     // H2-03: clamp both ends so malformed/future values cannot place marker text
@@ -3530,11 +2441,11 @@ window._aioDiagram = (function () {
   // ── 8. yield-curve: 금리 기간구조 ────────────────────────────
   function _yieldCurve(d) {
     var pts = [
-      { term: '1M',  rate: d.irx  || 5.2 },
-      { term: '2Y',  rate: d.twoY || 4.8 },
-      { term: '5Y',  rate: d.fvx  || 4.5 },
-      { term: '10Y', rate: d.tnx  || 4.5 },
-      { term: '30Y', rate: d.tyx  || 4.8 },
+      { term: '1M',  rate: Number(d.irx) },
+      { term: '2Y',  rate: Number(d.twoY) },
+      { term: '5Y',  rate: Number(d.fvx) },
+      { term: '10Y', rate: Number(d.tnx) },
+      { term: '30Y', rate: Number(d.tyx) },
     ];
     var W = 380, H = 180, out = '';
     var minR = Math.min.apply(null, pts.map(function (p) { return p.rate; })) - 0.3;
@@ -3575,10 +2486,10 @@ window._aioDiagram = (function () {
   // ── 9. sentiment-gauge: 다중 심리 게이지 ─────────────────────
   function _sentimentGauge(d) {
     var gauges = [
-      { label: 'Fear & Greed', v: _cl(d.fg      || 50, 0, 100), min: 0, max: 100, inv: false, lo: '공포', hi: '탐욕',   unit: '' },
-      { label: 'VIX',          v: _cl(d.vix     || 20, 0, 60),  min: 0, max: 60,  inv: true,  lo: '안정', hi: '극공포', unit: '' },
-      { label: 'VVIX',         v: _cl(d.vvix    || 100, 70, 180), min: 70, max: 180, inv: true, lo: '안정', hi: '극공포', unit: '' },
-      { label: 'AAII Bear%',   v: _cl(d.aaiiBear|| 40, 0, 70),  min: 0, max: 70,  inv: true,  lo: '낙관', hi: '비관',   unit: '%' },
+      { label: 'Fear & Greed', v: _cl(Number(d.fg), 0, 100), min: 0, max: 100, inv: false, lo: '공포', hi: '탐욕',   unit: '' },
+      { label: 'VIX',          v: _cl(Number(d.vix), 0, 60),  min: 0, max: 60,  inv: true,  lo: '안정', hi: '극공포', unit: '' },
+      { label: 'VVIX',         v: _cl(Number(d.vvix), 70, 180), min: 70, max: 180, inv: true, lo: '안정', hi: '극공포', unit: '' },
+      { label: 'AAII Bear%',   v: _cl(Number(d.aaiiBear), 0, 70),  min: 0, max: 70,  inv: true,  lo: '낙관', hi: '비관',   unit: '%' },
     ];
     var W = 420, H = 192, out = '';
     out += _r(0, 0, W, H, C.bg, 8, C.border);
@@ -3660,6 +2571,12 @@ window._aioDiagram = (function () {
     render: function (type, el, data) {
       if (typeof el === 'string') el = document.getElementById(el);
       if (!el) return;
+      if (data && data.available === false) {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:11px;padding:12px">검증 입력 미수신 · 시각화 판정 보류</div>';
+        el.setAttribute('data-source-kind', 'unavailable');
+        el.setAttribute('data-operational-use', 'blocked');
+        return;
+      }
       var fn = _fns[type];
       if (!fn) {
         el.innerHTML = '<div style="color:#5a7080;font-size:11px;padding:8px">다이어그램 없음: ' + _esc(type) + '</div>';
@@ -3700,7 +2617,9 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
   }
 
   function _econStage(snap) {
-    var cpi = snap.cpi || 3, rate = snap.fedRate || 4.5, u = snap.usUnemploy || 4.0;
+    if ([snap.cpi,snap.fedRate,snap.usUnemploy].some(function(v){ return v == null || v === ''; })) return 'UNAVAILABLE';
+    var cpi = Number(snap.cpi), rate = Number(snap.fedRate), u = Number(snap.usUnemploy);
+    if (![cpi, rate, u].every(Number.isFinite)) return 'UNAVAILABLE';
     if (u >= 5.2 || (u >= 4.8 && cpi < 2.5)) return 'CONTRACTION';
     if (cpi >= 3.8 && rate >= 4.8) return 'LATE';
     if (cpi >= 2.5 || rate >= 3.0) return 'MID';
@@ -3709,7 +2628,11 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
 
   function _buildScore() {
     var s = _getScore();
-    var total = s.total || 0;
+    var rawRequired = [s.total,s.volScore,s.momScore,s.trendScore,s.breadthScore,s.macroScore];
+    if (rawRequired.some(function(v) { return v == null || v === ''; })) return { available:false };
+    var required = rawRequired.map(Number);
+    if (!required.every(Number.isFinite)) return { available:false };
+    var total = required[0];
     return {
       total: total,
       components: [
@@ -3725,8 +2648,12 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
   function _buildRegime() {
     var s = _getScore();
     var snap = _snap();
-    var total = s.total || 50;
-    var vix = _ld('^VIX') || snap.vix || 20;
+    if (s.total == null) return { available:false };
+    var total = Number(s.total);
+    var vixRaw = _ld('^VIX') || snap.vix;
+    if (vixRaw == null || vixRaw === '') return { available:false };
+    var vix = Number(vixRaw);
+    if (!Number.isFinite(total) || !Number.isFinite(vix) || vix <= 0) return { available:false };
     var regime = total >= 75 ? 'BULL' : total >= 60 ? '매수우호' : total >= 45 ? 'NEUTRAL' : total >= 30 ? '경계' : 'BEAR';
     var spyScore = _cl(s.trendScore || 50, 0, 100);
     var vixScore = vix >= 35 ? 8 : vix >= 25 ? 28 : vix >= 18 ? 55 : vix >= 14 ? 78 : 92;
@@ -3736,12 +2663,14 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
   function _buildSentiment() {
     var snap = _snap();
     var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-    return {
-      fg:       _cl(fgMetric && fgMetric.value != null ? fgMetric.value : 50, 0, 100),
-      vix:      _ld('^VIX')  || snap.vix   || 20,
-      vvix:     _ld('^VVIX') || 100,
-      aaiiBear: _cl(window._aaiiBearish || 40, 0, 70),
-    };
+    var fgRaw = fgMetric && fgMetric.value;
+    var vixRaw = _ld('^VIX') || snap.vix;
+    var vvixRaw = _ld('^VVIX') || snap.vvix;
+    var aaiiRaw = window._aaiiBearish;
+    if ([fgRaw,vixRaw,vvixRaw,aaiiRaw].some(function(v){ return v == null || v === ''; })) return { available:false };
+    var fg = Number(fgRaw), vix = Number(vixRaw), vvix = Number(vvixRaw), aaii = Number(aaiiRaw);
+    if (![fg,vix,vvix,aaii].every(Number.isFinite) || vix <= 0 || vvix <= 0) return { available:false };
+    return { fg:_cl(fg,0,100), vix:vix, vvix:vvix, aaiiBear:_cl(aaii,0,70) };
   }
 
   function _buildPipeline() {
@@ -3779,39 +2708,37 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
 
   function _buildEcon() {
     var snap = _snap();
+    if ([snap.cpi,snap.fedRate,snap.usUnemploy].some(function(v){ return v == null || v === ''; })) return { available:false };
+    var cpi = Number(snap.cpi), rate = Number(snap.fedRate), unemployment = Number(snap.usUnemploy);
+    if (![cpi,rate,unemployment].every(Number.isFinite)) return { available:false };
     return {
       stage:        _econStage(snap),
-      cpi:          snap.cpi || snap.coreCpi || 3.0,
-      fedRate:      snap.fedRate || 4.5,
-      unemployment: snap.usUnemploy || 4.0,
+      cpi:          cpi,
+      fedRate:      rate,
+      unemployment: unemployment,
     };
   }
 
   function _buildPrice() {
     var snap = _snap();
-    var price  = _ld('SPY') || snap.spyClose || 550;
-    // SPX MA를 10으로 나눠 SPY 근사. _spxMA 없으면 가격 기반 추정
-    var sma50  = (window._spxMA && window._spxMA[50])  ? window._spxMA[50]  / 10 : price * 0.965;
-    var sma200 = (window._spxMA && window._spxMA[200]) ? window._spxMA[200] / 10 : price * 0.89;
-    var ath = snap.spxATH ? snap.spxATH / 10 : price * 1.03;
-    if (ath < price) ath = price * 1.01;
+    var price  = Number(_ld('SPY'));
+    var sma50  = window._spxMA && Number(window._spxMA[50]) / 10;
+    var sma200 = window._spxMA && Number(window._spxMA[200]) / 10;
+    var ath = snap.spxATH == null || snap.spxATH === '' ? null : Number(snap.spxATH) / 10;
     // v52.16 P5l/P619: snap.spy3m/spyRsi는 어디서도 대입되지 않는 phantom field라 항상 0/50 기본값이었음 —
     // updateTechIndicators()(index.html)이 실계산해 저장하는 window._spyPositionStats로 전환.
     var posStats = window._spyPositionStats;
-    var ret3m = (posStats && posStats.ret3m != null) ? posStats.ret3m : (snap.spy3m || 0);
-    var rsi = (posStats && posStats.rsi != null) ? posStats.rsi : (snap.spyRsi || 50);
+    var ret3m = posStats && Number(posStats.ret3m);
+    var rsi = posStats && Number(posStats.rsi);
+    if (![price,sma50,sma200,ath,ret3m,rsi].every(Number.isFinite) || price <= 0 || sma50 <= 0 || sma200 <= 0 || ath <= 0) return { available:false };
     return { sym: 'SPY', price: price, sma50: sma50, sma200: sma200, ath: ath, ret3m: ret3m, rsi: rsi };
   }
 
   function _buildYield() {
-    var snap = _snap();
-    var tnx = _ld('^TNX') || snap.tnx || 4.5;
+    var curve = window.AIO && typeof window.AIO.getUsTreasuryCurveEvidence === 'function' ? window.AIO.getUsTreasuryCurveEvidence() : null;
+    if (!curve || !curve.complete) return { available:false };
     return {
-      irx:  snap.irx  || 5.2,
-      twoY: snap.tnx2y || tnx * 0.97,
-      fvx:  snap.fvx  || tnx * 0.98,
-      tnx:  tnx,
-      tyx:  snap.tyx  || tnx * 1.06,
+      irx:curve.threeM, twoY:curve.twoY, fvx:curve.fiveY, tnx:curve.tenY, tyx:curve.thirtyY
     };
   }
 
@@ -4974,10 +3901,6 @@ function _renderFundMultiPeriod(d) {
     if (a >= 1e6) return (v / 1e6).toFixed(0) + 'M';
     return (v / 1e3).toFixed(0) + 'K';
   }
-  function fmtR(v, d2) { // 비율/EPS → 소수점
-    if (v === null) return '—';
-    return v.toFixed(d2 !== undefined ? d2 : 1);
-  }
   function fmtP(v) { // 퍼센트 (소수 → %)
     if (v === null) return '—';
     return (v * 100).toFixed(1) + '%';
@@ -5756,7 +4679,3 @@ var AIO_PAGE_FUNDAMENTALS = {
     terms: `이동평균선(MA) · 거래량(Volume)`
   }
 };
-
-// v52.87 P702: 기초 가이드는 각 분석 화면의 기본 정보구조에서 퇴역했다.
-// 레지스트리는 용어사전/도움말로 이관할 원문 보존용이며, 페이지에는 어떤 DOM도 삽입하지 않는다.
-function _aioRenderPageFundamentals() { return false; }

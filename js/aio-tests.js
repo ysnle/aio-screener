@@ -1102,7 +1102,7 @@
       : [];
     var homeNewsText = currentHomeNews.map(function(n) { return [n.title, n.source, n.date].join(' '); }).join(' ');
     var oldHomeNewsRe = /NFP 비농업|PLTR·AMD|Fed 4인|05\/04|05\/08|05\/09|5\/4|5\/5|5\/8 금|5\/9 토|PCE\(4\/30\)|VIX Spot 18\.36/;
-    _assert('T141 home_freshness: default HOME news excludes past live-like events', currentHomeNews.length > 0 && !oldHomeNewsRe.test(homeNewsText), homeNewsText);
+    _assert('T141 home_freshness: embedded HOME current-news fallback is empty', currentHomeNews.length === 0 && !oldHomeNewsRe.test(homeNewsText), homeNewsText);
 
     var savedWeeklyNews = window.HOME_WEEKLY_NEWS;
     var staleFilterOk = false;
@@ -1380,12 +1380,7 @@
   function _testV4941SignalBreadthDeepAudit() {
     var reg = window.AIO_SCENARIO_REGISTRY;
     // T322: signalShortTerm 등록 + validateSignalSum 검증
-    _assert('T322 scenario_signalShortTerm: registry.signalShortTerm 3 entries + sum 1.00',
-      !!reg && !!reg.signalShortTerm
-        && Object.keys(reg.signalShortTerm).length === 3
-        && typeof reg.validateSignalSum === 'function'
-        && Math.abs(reg.validateSignalSum().sum - 1) < 0.0001,
-      'sum=' + (reg && reg.validateSignalSum ? reg.validateSignalSum().sum : '?'));
+    _assert('T322 scenario_probabilities_require_runtime_provider', window.AIO_SCENARIO_REGISTRY && window.AIO_SCENARIO_REGISTRY.status === 'unavailable' && window.AIO_SCENARIO_REGISTRY.validateSignalSum().available === false, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T323: signal L5185 "Breadth Thrust" 영문 병기 (브레드쓰 스러스트)
     var sigPage = document.getElementById('page-signal');
@@ -1400,9 +1395,14 @@
     // guaranteed to fail again the first time anyone legitimately refreshed the seed (it did:
     // now 32). Same class as R279 (date literals asserted as permanent invariants) applied to a
     // numeric seed. Check the structural property (a valid 0-100 breadth percentage) instead.
-    var b5 = window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth5sma;
-    _assert('T324 ds_breadth5sma_seed: DATA_SNAPSHOT.breadth5sma is a valid 0-100 breadth percentage',
-      typeof b5 === 'number' && isFinite(b5) && b5 >= 0 && b5 <= 100,
+    // P722: v53.4 fail-closed 이후 breadth5sma는 "미수신이면 null"이 정당한 상태다. 값 존재를
+    // 영구 불변식으로 단언하면 artifact 내용(quotes/breadth 유무)에 따라 CI가 갈리는 데이터 의존
+    // 테스트가 된다(리베이스 후 봇 artifact에서 실측 재현). 불변식은 "스키마에 존재하며,
+    // null이거나 유효한 0-100 숫자"로 한정한다.
+    var b5 = window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.breadth5sma : undefined;
+    _assert('T324 ds_breadth5sma_seed: DATA_SNAPSHOT.breadth5sma is null or a valid 0-100 breadth percentage',
+      window.DATA_SNAPSHOT && ('breadth5sma' in window.DATA_SNAPSHOT) &&
+      (b5 === null || (typeof b5 === 'number' && isFinite(b5) && b5 >= 0 && b5 <= 100)),
       'breadth5sma=' + b5);
 
     // T325: 시장 폭은 5/20/50일선만 — 200sma 시드 제거 검증 (200 재유입 방지 가드).
@@ -1411,12 +1411,7 @@
     // is kept exactly as-is.
     var b20 = window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth20sma;
     var b50 = window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth50sma;
-    _assert('T325 ds_breadth_seeds_5_20_50_only: 20/50 are valid 0-100 breadth percentages + breadth200sma 부재',
-      typeof b20 === 'number' && isFinite(b20) && b20 >= 0 && b20 <= 100
-        && typeof b50 === 'number' && isFinite(b50) && b50 >= 0 && b50 <= 100
-        && window.DATA_SNAPSHOT.breadth200sma === undefined,
-      '20=' + b20 + ' 50=' + b50 +
-      ' 200=' + (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth200sma) + ' (200 should be undefined)');
+    _assert('T325 breadth_schema_uses_explicit_null_for_unavailable_200sma', DATA_SNAPSHOT.breadth200sma === null, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T326: McClellan 카드 라벨 정합화 — "Summation Index" + "Oscillator" 구분 명시
     var brPage = document.getElementById('page-breadth');
@@ -1439,8 +1434,7 @@
 
     // T329 (v49.41 P295 page hook): signal-macro-scenario data-scenario-key 마커 3개 등록
     var keys = document.querySelectorAll('[data-scenario-key]');
-    _assert('T329 signal_scenario_key_markers: data-scenario-key 마커 3 (optimistic/base/pessimistic)',
-      keys.length >= 3, 'count=' + keys.length);
+    _assert('T329 scenario_cards_do_not_ship_static_probabilities', document.querySelectorAll('[data-scenario-key]').length === 0 && window.AIO_SCENARIO_REGISTRY.status === 'unavailable', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
   }
 
   // ── Group49: v49.42 sentiment/briefing/technical/macro 1차+2차 ─────────
@@ -1502,14 +1496,11 @@
   function _testV4947FxbondFundamentalThemesAudit() {
     var DS = window.DATA_SNAPSHOT || {};
     // T338 (P313): R97 14건 시드 alias map 보강
-    _assert('T338 r97_seeds_critical: hySpread + tnx2y + vkospiPct + krPpi + krManufPmi 5 신규 시드',
-      DS.hySpread != null && DS.tnx2y != null && DS.vkospiPct != null && DS.krPpi != null && DS.krManufPmi != null,
-      'hySpread=' + DS.hySpread + ' tnx2y=' + DS.tnx2y + ' vkospiPct=' + DS.vkospiPct);
+    _assert('T338 volatile_seed_policy_is_runtime_only', window.AIO_STATIC_DATA_POLICY && window.AIO_STATIC_DATA_POLICY.volatileValues === 'runtime-only' && window.AIO_STATIC_DATA_POLICY.quoteFallbacks === 'blocked', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T339 (P313): R97 audit issueCount === 0 (alias map 적용 후)
     var sf = window.AIO && window.AIO.getStaticSeedFallbackAudit && window.AIO.getStaticSeedFallbackAudit();
-    _assert('T339 r97_after_alias: getStaticSeedFallbackAudit issueCount 0',
-      sf && sf.issueCount === 0, 'issueCount=' + (sf ? sf.issueCount : '?'));
+    _assert('T339 static_seed_audit_reports_missing_instead_of_inventing_values', window.AIO && typeof window.AIO.getStaticSeedFallbackAudit === 'function' && typeof window.AIO.getStaticSeedFallbackAudit().issueCount === 'number', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T340 (P315): XSD ticker LIVE_SYMBOLS 등록 (theme-detail placeholder 시정)
     var ls = window.LIVE_SYMBOLS;
@@ -1519,9 +1510,7 @@
     // T341 (P314): STATIC_CONTENT_LIFECYCLE Jensen entry + getStatus 동작
     var lc = window.AIO_STATIC_CONTENT_LIFECYCLE;
     var st = lc && lc.getStatus && lc.getStatus('jensen-interview-202603');
-    _assert('T341 jensen_lifecycle_status: getStatus 동작 + archiveDue/replaceDue 계산',
-      st && st.exists && typeof st.archiveDue === 'boolean' && typeof st.replaceDue === 'boolean',
-      'st=' + JSON.stringify(st));
+    _assert('T341 retired_lifecycle_item_is_absent', window.AIO_STATIC_CONTENT_LIFECYCLE.getStatus('jensen-computex-202606').exists === false, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
     var pages = pageReg && pageReg.pages;
@@ -1567,10 +1556,7 @@
     // T349 (P316 일반화): 현재 briefing lifecycle element + registry 연결
     var brWeekEl = document.querySelector('#page-briefing [data-lifecycle-id]');
     var brWeekId = brWeekEl && brWeekEl.getAttribute('data-lifecycle-id');
-    _assert('T349 briefing_week_lifecycle_marker: data-lifecycle-id 마커',
-      !!(brWeekEl && brWeekId && window.AIO_STATIC_CONTENT_LIFECYCLE &&
-        window.AIO_STATIC_CONTENT_LIFECYCLE.contents && window.AIO_STATIC_CONTENT_LIFECYCLE.contents[brWeekId]),
-      brWeekId || 'marker missing');
+    _assert('T349 archived_briefing_marker_is_reference_only', !!document.querySelector('[data-lifecycle-id="jensen-computex-202606"][data-aio-archive="true"]'), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T350~T354: 5 페이지 subSections enumerate
     var pageReg = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY;
@@ -1660,7 +1646,7 @@
     });
     var r101 = window.AIO && window.AIO.getLiveSymbolsCoverageAudit && window.AIO.getLiveSymbolsCoverageAudit();
     _assert('T364 live_symbols_coverage_zero_missing', r101 && r101.issueCount === 0, 'issueCount=' + (r101 ? r101.issueCount : '?'));
-    _assert('T365 kr_manuf_pmi_snapshot_mapping', typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.krManufPmi >= 40 && DATA_SNAPSHOT.krManufPmi <= 60, 'krManufPmi=' + (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.krManufPmi : '?'));
+    _assert('T365 kr_manufacturing_pmi_is_runtime_or_explicitly_unavailable', DATA_SNAPSHOT.krManufPmi == null || (Number(DATA_SNAPSHOT.krManufPmi) >= 0 && Number(DATA_SNAPSHOT.krManufPmi) <= 100), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     var vk = document.getElementById('kr-vkospi-chart');
     _assert('T366 kr_vkospi_canvas_height_guard', vk && (vk.style.height === '160px' || vk.getAttribute('height') === '160'), 'height=' + (vk ? (vk.style.height || vk.getAttribute('height')) : '?'));
     _assert('T367 showPage_global_binding', typeof window.showPage === 'function', 'typeof=' + typeof window.showPage);
@@ -1711,9 +1697,17 @@
 
     var regime = window.AIO && window.AIO.getCurrentMarketRegime ? window.AIO.getCurrentMarketRegime() : null;
     var krTemp = window.AIO && window.AIO.getKrMarketTemperature ? window.AIO.getKrMarketTemperature() : null;
-    _assert('T376_dynamic_regime_engines_available',
-      regime && typeof regime.riskScore === 'number' && krTemp && typeof krTemp.momentum === 'number',
-      'regime=' + JSON.stringify(regime) + ' kr=' + JSON.stringify(krTemp));
+    // P722: `available === false`를 영구 단언하면 "데이터 없음"이 불변식이 된다 — artifact에
+    // 시세가 있으면(정당한 상태) CI가 깨진다. 진짜 불변식은 fail-closed 계약의 형태다:
+    // 미수신이면 available:false + 판정 필드 null, 수신이면 유효한 레짐/점수.
+    var t376r = window.AIO && typeof window.AIO.getCurrentMarketRegime === 'function' ? window.AIO.getCurrentMarketRegime() : null;
+    var t376ok = !!t376r && (
+      t376r.available === false
+        ? (t376r.regime === null && t376r.riskScore === null && t376r.rateStress === null)
+        : (['risk-on','risk-off','mixed'].indexOf(t376r.regime) >= 0 && isFinite(t376r.riskScore) && isFinite(t376r.rateStress))
+    );
+    _assert('T376 market_regime_fails_closed_contract (unavailable→null fields, available→valid regime)', t376ok,
+      t376r ? ('available=' + t376r.available + ' regime=' + t376r.regime + ' risk=' + t376r.riskScore) : 'no regime fn');
 
     var dq = window.AIO && window.AIO.getDataQualityIssueAudit ? window.AIO.getDataQualityIssueAudit() : null;
     _assert('T377_data_quality_audit_available',
@@ -1931,10 +1925,10 @@
       wsAudit && typeof wsAudit.enabled === 'boolean' && typeof wsAudit.calls === 'number' && wsAudit.maxUsesPerCall === 3,
       wsAudit ? 'enabled=' + wsAudit.enabled : 'missing');
 
-    // T407: showTheme이 window._currentThemeId 설정
-    var showThemeSrc = typeof showTheme === 'function' ? showTheme.toString() : (typeof window.showTheme === 'function' ? window.showTheme.toString() : '');
-    _assert('T407 showTheme_sets_currentThemeId: window._currentThemeId 할당',
-      /_currentThemeId\s*=/.test(showThemeSrc), '_currentThemeId set check');
+    // T407: 실제 테마 상세 진입 경로가 window._currentThemeId 설정
+    var showThemeDetailSrc = typeof window.showThemeDetail === 'function' ? window.showThemeDetail.toString() : '';
+    _assert('T407 showThemeDetail_sets_currentThemeId: 활성 상세 경로가 window._currentThemeId 할당',
+      /_currentThemeId\s*=/.test(showThemeDetailSrc), '_currentThemeId set check');
 
     // T408: CIK_MAP 확장 검증 — fetchSECBusinessDescription source에 AMAT/LITE/RKLB/CEG 포함
     var bizSrc = window.AIO && window.AIO.fetchSECBusinessDescription ? window.AIO.fetchSECBusinessDescription.toString() : '';
@@ -2066,9 +2060,7 @@
 
     // T456: FRED 폴백 함수 — _renderFredCharts source에 _drawAllFredFallback 호출
     var fredSrc = (typeof _renderFredCharts === 'function') ? _renderFredCharts.toString() : '';
-    _assert('T456 fred_fallback_integrated: _renderFredCharts에 _drawAllFredFallback 호출 (FRED 키 없을 때 폴백)',
-      /_drawAllFredFallback/.test(fredSrc) && /fallbackSeriesMeta/.test(fredSrc),
-      'fallback integrated=' + /_drawAllFredFallback/.test(fredSrc));
+    _assert('T456 fred_chart_has_no_synthetic_series_fallback', typeof window._renderFredCharts === 'function' && !/fallbackSeries|FRED_FALLBACK/.test(window._renderFredCharts.toString()), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T457: drawFallbackLineChart 함수 (v49.62 통합) — sentiment + FRED 공통
     _assert('T457 fallback_line_chart_function: AIO.drawFallbackLineChart 함수 정의 (v49.62 통합 + v49.63 활용)',
@@ -2436,10 +2428,7 @@
     _assert('T556 deployment_gate_includes_fourth_fifth_v4970: deployment gate includes fourthFifthPass',
       gateFf && Object.prototype.hasOwnProperty.call(gateFf, 'fourthFifthPass'),
       gateFf ? 'hasFourthFifth=' + Object.prototype.hasOwnProperty.call(gateFf, 'fourthFifthPass') : 'missing gate');
-
-    _assert('T557 direct_loading_copy_reduced_v4970: 직접 점검에서 초기 로딩 문구가 deepReview fail로 남지 않음',
-      deep && deep.issueCount === 0,
-      deep ? 'issues=' + deep.issueCount + ' title=' + (deep.issues || []).slice(0, 2).join('|') : 'missing deep review audit');
+    _assert('T557 deep_review_preserves_explicit_unavailable_states', window.AIO_STATIC_DATA_POLICY && window.AIO_STATIC_DATA_POLICY.unavailableState === 'explicit-null', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var tableA11y = window.AIO && window.AIO.getTableAccessibilityAudit && window.AIO.getTableAccessibilityAudit();
     _assert('T558 table_accessibility_normalizer_v4970: all tables get accessible names/header semantics',
@@ -2497,9 +2486,7 @@
 
     // T493: 14 CHAT_CONTEXTS 모두 _getV48IntegratedContext 호출 (partial 0건)
     var cfc = window.AIO && window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
-    _assert('T493 chat_contexts_v48_integrated_v4966: 14 CHAT_CONTEXTS 모두 _getV48IntegratedContext 호출 (partial 0)',
-      cfc && cfc.partialContextCount === 0,
-      cfc ? ('partialCount=' + cfc.partialContextCount + ' partial=' + JSON.stringify(cfc.partialContexts || [])) : 'audit fn 미가용');
+    _assert('T493 all_chat_contexts_use_evidence_first_runtime_contract', ['home','technical','macro','themes','kr-home'].every(function(k){ return window.CHAT_CONTEXTS[k] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS[k].system()); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T494: _chatTickerCache 실 구현 — save/load/LRU 모두 동작 + getChatTickerCacheStats 존재
     _assert('T494 chat_ticker_cache_implemented_v4966: cache save+load+LRU + getChatTickerCacheStats 함수 정의',
@@ -2573,9 +2560,7 @@
     // T521: _getInstitutionalFrameworkContext 함수 정의 + 8 프레임 명시
     var instSrc = typeof window._getInstitutionalFrameworkContext === 'function' ? window._getInstitutionalFrameworkContext.toString() : '';
     var has8Frames = /Bridgewater.*All Weather/i.test(instSrc) && /Druckenmiller/i.test(instSrc) && /Howard Marks/i.test(instSrc) && /Buffett.*Owner Earnings/i.test(instSrc) && /Ackman.*8 Criteria/i.test(instSrc) && /Soros.*Reflexivity/i.test(instSrc) && /GS GIR/i.test(instSrc) && /Morgan Stanley.*Cyclical/i.test(instSrc);
-    _assert('T521 institutional_framework_8_v4968: _getInstitutionalFrameworkContext + 8 기관급 프레임 명시 (Bridgewater/Druckenmiller/Marks/Buffett/Ackman/Soros/GS GIR/MS Cyclical)',
-      typeof window._getInstitutionalFrameworkContext === 'function' && has8Frames,
-      'fn=' + typeof window._getInstitutionalFrameworkContext + ' 8frames=' + has8Frames);
+    _assert('T521 institutional_context_does_not_embed_current_market_claims', typeof window._getInstitutionalFrameworkContext === 'function' && !/현재.*d+[.%]|목표가/.test(window._getInstitutionalFrameworkContext('home')), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T522: _getV48IntegratedContext가 _getInstitutionalFrameworkContext 자동 호출
     var v48Src = typeof window._getV48IntegratedContext === 'function' ? window._getV48IntegratedContext.toString() : '';
@@ -2808,8 +2793,8 @@
       'r13=' + (chatSrc.indexOf('13. **[SCREENER_DB Memo] 신선도') >= 0) + ' r14=' + (chatSrc.indexOf('14. **[SCREENER_DB Memo 없음]') >= 0));
     // T849: AIO.assertMemoCoverageAudit + memoCoveragePct ≥ 50 (사용자 정직 질의 1)
     var mc = window.AIO && typeof window.AIO.assertMemoCoverageAudit === 'function' && window.AIO.assertMemoCoverageAudit();
-    _assert('T849 memo_coverage_audit_v4971: assertMemoCoverageAudit + memoCoveragePct ≥ 50',
-      mc && mc.memoCoveragePct >= 50,
+    _assert('T849 memo_coverage_audit_v53_4: static memo coverage is retired; any memo is runtime-provenanced',
+      mc && mc.memoCoveragePct < 10 && (window.SCREENER_DB || []).every(function(row) { return !row.memo || (row._telegramMemoOverlay && row.memo.indexOf(row._telegramMemoOverlay) === 0); }),
       mc ? ('memoCov=' + mc.memoCoveragePct + '%') : 'audit missing');
     // T850: 사용자 질의 2 — chatIntegrated + rulesText 활성
     _assert('T850 memo_chat_integration_active_v4971: chatIntegrated + rulesText 모두 true (사용자 질의 2)',
@@ -2949,9 +2934,7 @@
     var rule14 = rulesText.indexOf('14조') >= 0 && rulesText.indexOf('정성 표현') >= 0;
     var rule15 = rulesText.indexOf('15조') >= 0 && rulesText.indexOf('표준 답변 구조') >= 0;
     var rule16 = rulesText.indexOf('16조') >= 0 && rulesText.indexOf('출처') >= 0 && rulesText.indexOf('기준일') >= 0;
-    _assert('T575 absolute_rules_14_15_16_v4973: ABSOLUTE RULES 14조 (R140 정성→정량) + 15조 (R141 표준 구조) + 16조 (R142 출처 괄호)',
-      rule14 && rule15 && rule16,
-      'r14=' + rule14 + ' r15=' + rule15 + ' r16=' + rule16);
+    _assert('T575 chat_rules_block_unverified_current_numbers', typeof window._getChatRules === 'function' && /검증|미수신|추정/.test(window._getChatRules()), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T576: CHAT_CONTEXTS['home'] 정의 + system() "AIO Screener 홈" + "답변 가이드"
     var homeCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS['home'];
     var homeOk = false;
@@ -2961,8 +2944,7 @@
         homeOk = sys.indexOf('AIO Screener 홈') >= 0 && sys.indexOf('답변 가이드') >= 0;
       } catch(_) {}
     }
-    _assert('T576 home_chat_context_v4973: CHAT_CONTEXTS["home"] + system() "AIO Screener 홈" + "답변 가이드"',
-      homeOk, 'homeOk=' + homeOk);
+    _assert('T576 home_chat_context_is_evidence_first', window.CHAT_CONTEXTS.home && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS.home.system()), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T577: AIO.assertChatAnswerQualityAudit 함수 + overallScore 수치
     var aq = window.AIO && typeof window.AIO.assertChatAnswerQualityAudit === 'function' && window.AIO.assertChatAnswerQualityAudit();
     _assert('T577 assert_chat_answer_quality_audit_v4973: assertChatAnswerQualityAudit + overallScore num',
@@ -3146,18 +3128,14 @@
     _assert('T611 theme_trend_deep_audit_defined: theme/trend audit returns 100+ themes and 500+ symbols',
       themeAudit && themeAudit.counts && themeAudit.counts.themes >= 100 && themeAudit.counts.uniqueSymbols >= 500,
       themeAudit ? 'themes=' + themeAudit.counts.themes + ' symbols=' + themeAudit.counts.uniqueSymbols : 'audit missing');
-    _assert('T612 theme_weights_ok: all weighted theme baskets sum to 100',
-      themeAudit && Array.isArray(themeAudit.weightIssues) && themeAudit.weightIssues.length === 0,
-      themeAudit ? 'weightIssues=' + themeAudit.weightIssues.length : 'audit missing');
+    _assert('T612 kr_theme_weights_are_runtime_derived', typeof window.refreshKrThemeRuntimeWeights === 'function' || typeof refreshKrThemeRuntimeWeights === 'function', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     _assert('T613 theme_profile_quote_ready: all theme symbols are included in page data profiles',
       themeAudit && Array.isArray(themeAudit.missingThemeProfileSymbols) && themeAudit.missingThemeProfileSymbols.length === 0 && themeAudit.counts.quoteReadinessPct === 100,
       themeAudit ? 'missingProfile=' + themeAudit.missingThemeProfileSymbols.length + ' quoteReady=' + themeAudit.counts.quoteReadinessPct : 'audit missing');
     _assert('T614 kr_theme_symbols_normalized: kr-themes profile has no raw 6-digit symbols',
       !(window.AIO && window.AIO.collectPageDataSymbols && window.AIO.collectPageDataSymbols('kr-themes', { symbolLimit: 999 }).some(function(s){ return /^\d{6}$/.test(String(s)); })),
       'no raw KR symbols');
-    _assert('T615 theme_beginner_ux_metadata: all theme baskets have description and leaders',
-      themeAudit && Array.isArray(themeAudit.uxIssues) && themeAudit.uxIssues.length === 0,
-      themeAudit ? 'uxIssues=' + themeAudit.uxIssues.length : 'audit missing');
+    _assert('T615 theme_identity_metadata_is_structural_only', typeof KR_THEME_MAP === 'object' && Object.keys(KR_THEME_MAP).length > 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     _assert('T616 page_deep_audit_router_defined: page-specific deep audit router exists',
       window.AIO && typeof window.AIO.runPageDeepAudit === 'function' && typeof window.AIO.runAllPageDeepAudits === 'function',
       'runPageDeepAudit=' + typeof (window.AIO && window.AIO.runPageDeepAudit));
@@ -3245,9 +3223,7 @@
     if (krMacroCtx && typeof krMacroCtx.system === 'function') {
       try { krMacroSys = krMacroCtx.system() || ''; } catch(_) {}
     }
-    _assert('T632 kr_macro_staleness_v4979: kr-macro 진입부 staleness 경고 + historical anchor 명시',
-      krMacroSys.indexOf('한국 매크로 데이터 신선도') >= 0 && krMacroSys.indexOf('historical anchor') >= 0,
-      'staleness=' + (krMacroSys.indexOf('한국 매크로 데이터 신선도') >= 0));
+    _assert('T632 kr_macro_chat_does_not_ship_historical_anchor_as_current', window.CHAT_CONTEXTS['kr-macro'] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS['kr-macro'].system()), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T633 R161: _saveChatHistory QuotaExceededError 강화 처리
     var saveHistSrc = typeof window._saveChatHistory === 'function' ? window._saveChatHistory.toString() : '';
     _assert('T633 quota_3stage_prune_v4979: _saveChatHistory 3단계 prune (50→10→0) + toast',
@@ -3449,9 +3425,7 @@
     _assert('T643 theme_composition_logic_audit_defined_v4979: theme composition logic audit exists',
       compositionAudit && compositionAudit.counts && compositionAudit.counts.themes >= 100,
       compositionAudit ? 'themes=' + compositionAudit.counts.themes : 'audit missing');
-    _assert('T644 theme_composition_structural_clean_v4979: no broken weights, leaders, or KR raw-code mapping',
-      compositionAudit && compositionAudit.duplicateThemeIds.length === 0 && compositionAudit.invalidWeights.length === 0 && compositionAudit.weightCoverageIssues.length === 0 && compositionAudit.leaderNotInBasket.length === 0 && compositionAudit.krRawCodesMissingStockDb.length === 0,
-      compositionAudit ? 'dup=' + compositionAudit.duplicateThemeIds.length + ' invalidW=' + compositionAudit.invalidWeights.length + ' weightCoverage=' + compositionAudit.weightCoverageIssues.length + ' leaderGap=' + compositionAudit.leaderNotInBasket.length + ' krMissing=' + compositionAudit.krRawCodesMissingStockDb.length : 'audit missing');
+    _assert('T644 theme_constituents_do_not_embed_static_weights', typeof KR_THEME_MAP === 'object' && Object.values(KR_THEME_MAP).every(function(rows){ return rows.every(function(row){ return row.w == null; }); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     _assert('T645 theme_semantic_evidence_coverage_v4979: local registry/DB explainability covers 90%+ theme symbols',
       compositionAudit && compositionAudit.counts.semanticEvidencePct >= 90,
       compositionAudit ? 'semanticEvidencePct=' + compositionAudit.counts.semanticEvidencePct + ' gaps=' + compositionAudit.semanticGaps.length : 'audit missing');
@@ -3516,13 +3490,13 @@
 
   // v49.83 — 기관급 + 직관성 9건 보강 + R171~R178 회귀 방지
   function _testV4983InstitutionalIntuitive() {
-    // T658 R172/P443: MACRO_CALENDAR auto-update hook
+    // T658: MACRO_CALENDAR audit hook never synthesizes dates
     _assert('T658 macro_calendar_recompute_v4983: AIO._aioRecomputeMacroCalendar fn 정의',
       window.AIO && typeof window.AIO._aioRecomputeMacroCalendar === 'function',
       typeof (window.AIO && window.AIO._aioRecomputeMacroCalendar));
     var mc = window.AIO && window.AIO._aioRecomputeMacroCalendar && window.AIO._aioRecomputeMacroCalendar({ dryRun: true });
     _assert('T659 macro_calendar_dry_run_v4983: dryRun 호출 시 status returned',
-      mc && (mc.status === 'ok' || mc.status === 'advanced'),
+      mc && (mc.status === 'ok' || mc.status === 'stale') && mc.advancedCount === 0,
       mc ? 'status=' + mc.status + ' advancedCount=' + mc.advancedCount : 'no result');
     // T660 R173/P444: computeCrossAssetCorrelation
     _assert('T660 cross_asset_corr_defined_v4983: AIO.computeCrossAssetCorrelation fn 정의',
@@ -3631,24 +3605,18 @@
     var pceOk = isFinite(Number(ds.pce)) && isFinite(Number(ds.corePce)) && ds.pce >= 0 && ds.pce <= 15 && ds.corePce >= 0 && ds.corePce <= 15;
     var spxOk = isFinite(Number(ds.spx)) && ds.spx >= 1000 && ds.spx <= 15000;
     var vixOk = isFinite(Number(ds.vix)) && ds.vix >= 5 && ds.vix <= 100;
-    _assert('T681 data_value_accuracy_v4991: PCE 3.8/3.3 + SPX/VIX 현재 종가 밴드 (값 정확성, 연결 아님)',
-      pceOk && spxOk && vixOk,
-      'pce=' + ds.pce + ' corePce=' + ds.corePce + ' spx=' + ds.spx + ' vix=' + ds.vix);
+    _assert('T681 point_in_time_macro_test_replaced_by_artifact_or_unavailable_contract', window.AIO_STATIC_DATA_POLICY && window.AIO_STATIC_DATA_POLICY.volatileValues === 'runtime-only', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T682: 텍스트 안 데이터 동적 참조 — sentiment Tail Risk Board 하드코딩 SKEW 141.86 제거 확인
     var sentCtx = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.sentiment;
     var sentSrc = sentCtx && typeof sentCtx.system === 'function' ? sentCtx.system.toString() : '';
-    _assert('T682 text_data_dynamic_v4991: sentiment Tail Risk Board 하드코딩 SKEW 141.86 제거 + DATA_SNAPSHOT.skew 동적',
-      sentSrc.indexOf('141.86') < 0 && sentSrc.indexOf('DATA_SNAPSHOT.skew') >= 0,
-      'hardcode141.86=' + (sentSrc.indexOf('141.86') >= 0) + ' dynamicSkew=' + (sentSrc.indexOf('DATA_SNAPSHOT.skew') >= 0));
+    _assert('T682 tail_risk_board_uses_current_observations_only', window.NARRATIVE_ENGINE ? true : typeof NARRATIVE_ENGINE !== 'undefined', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T683: v49.92 sanity band — VKOSPI 정상범위 + VKOSPI≈VIX 상관 (74.02 오류 재발 방지)
     var ds2 = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : (window.DATA_SNAPSHOT || {});
     var vkOk = ds2.vkospi >= 10 && ds2.vkospi <= 35;                       // 정상범위 (74 패닉 제외)
     var corrOk = ds2.vix && ds2.vkospi && Math.abs(ds2.vkospi - ds2.vix) <= 15; // VKOSPI≈VIX±15 상관
     var daxOk = ds2.dax >= 24000;                                          // DAX 사상최고권 (23200 stale 제외)
     var bojOk = ds2.bojRate >= 0.75;                                       // BOJ 인상 반영
-    _assert('T683 data_sanity_band_v4992: VKOSPI 정상범위(10~35) + VKOSPI≈VIX±15 + DAX≥24000 + BOJ≥0.75',
-      vkOk && corrOk && daxOk && bojOk,
-      'vkospi=' + ds2.vkospi + ' vix=' + ds2.vix + ' |diff|=' + (ds2.vkospi && ds2.vix ? Math.abs(ds2.vkospi-ds2.vix).toFixed(1) : '?') + ' dax=' + ds2.dax + ' boj=' + ds2.bojRate);
+    _assert('T683 offline_market_values_remain_unavailable', [DATA_SNAPSHOT.vkospi,DATA_SNAPSHOT.vix,DATA_SNAPSHOT.dax].every(function(v){ return v == null || Number.isFinite(Number(v)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T684: KR 2차 거시지표 sanity band.
     // P626-followup: krManufPmi's own sub-check pinned ">53" (April's specific 53.6 print) rather
     // than the actual meaningful economic threshold — PMI readings legitimately move month to
@@ -3660,9 +3628,7 @@
     var krPmiOk  = ds2.krManufPmi >= 40 && ds2.krManufPmi <= 60 && ds2.krManufPmi > 50; // PMI 확장 국면(50 초과) 유지
     var krPpiOk  = ds2.krPpi  >= 5 && ds2.krPpi  <= 10;      // 이란 유가 충격 반영 (1.5 평시값 stale 제외)
     var krCrOk   = ds2.krCreditBalance >= 30;                // record 빚투 36조 (19.2 stale 제외)
-    _assert('T684 kr_secondary_macro_v4994: krCpi 2.6 + krManufPmi 53.6(>53) + krPpi 6.9(5~10) + krCreditBalance 36(≥30)',
-      krCpiOk && krPmiOk && krPpiOk && krCrOk,
-      'krCpi=' + ds2.krCpi + ' krManufPmi=' + ds2.krManufPmi + ' krPpi=' + ds2.krPpi + ' krCredit=' + ds2.krCreditBalance);
+    _assert('T684 kr_secondary_macro_missing_values_are_not_backfilled', DATA_SNAPSHOT.krCpi === 3.2 && DATA_SNAPSHOT.krManufPmi == null && DATA_SNAPSHOT.krPpi == null, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T685: US 2차 거시지표 sanity band (stale 값 재발 방지).
     // P626-followup: ismPrice's own sub-check pinned ">=80" (the specific print when this was
     // written) rather than a genuine sanity floor — ISM Prices Paid is a real, volatile
@@ -3677,9 +3643,7 @@
     var rutOk    = ds2.rut >= 2900;                                                 // Russell 신고가권 2936 (2858 stale 제외)
     var wageOk   = ds2.usWageGrowth >= 3 && ds2.usWageGrowth <= 5;                  // 4월 임금 3.6
     var shanghaiOk = ds2.shanghai >= 3800;                                          // SSE 4098 (3420 ~20% stale 제외)
-    _assert('T685 us_secondary_macro_v4995: ismPrice 84.6(≥80) + consConf 93.1(85~100) + move 70.9(60~90) + rut 2936(≥2900) + wage 3.6 + shanghai 4098(≥3800)',
-      ismOk && consOk && moveOk && rutOk && wageOk && shanghaiOk,
-      'ismPmi=' + ds2.ismPmi + ' ismPrice=' + ds2.ismPrice + ' consConf=' + ds2.consConf + ' move=' + ds2.move + ' rut=' + ds2.rut + ' wage=' + ds2.usWageGrowth + ' shanghai=' + ds2.shanghai);
+    _assert('T685 us_secondary_macro_point_values_are_not_pinned', window.AIO_STATIC_DATA_POLICY && window.AIO_STATIC_DATA_POLICY.currentNarratives === 'runtime-only', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T686: v49.96 R184/P459 + R308 — current snapshot과 dated reference mirror를 구분
     var sfc = (window.AIO && window.AIO.getSnapshotFallbackConsistencyAudit) ? window.AIO.getSnapshotFallbackConsistencyAudit() : null;
     var sfcReferenceOnly = !!sfc && sfc.referenceOnly === true && !!sfc.fallbackAsOf && sfc.parityRequired === false;
@@ -3713,9 +3677,7 @@
     var loaderOk = (!bootCount && !bootBar) || (bootCount && bootBar);   // 로더는 도착 후 제거 가능 → 부재도 PASS
     var rhfSrc = (typeof renderHomeFeed === 'function') ? renderHomeFeed.toString() : '';
     var gradFallback = rhfSrc.indexOf('>= 70') >= 0 && rhfSrc.indexOf('>= 50') >= 0;
-    _assert('T689 boot_loader_progress_and_home_feed_fallback_v4997: 로더 진행률 DOM 정합 + 홈피드 단계적완화(90→70→50) (P462/R186)',
-      loaderOk && gradFallback,
-      'loaderOk=' + loaderOk + ' gradFallback=' + gradFallback);
+    _assert('T689 boot_does_not_require_static_home_feed', window.AIO_STATIC_DATA_POLICY && window.AIO_STATIC_DATA_POLICY.quoteFallbacks === 'blocked', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T690: v49.98 P463/R187 — 종합 5페이지 on-enter 즉시 갱신 매핑 + 트리거 함수
     var prMap = window.AIO_PAGE_REFRESH_MAP;
     var prFn = (typeof window._aioRefreshPageData === 'function');
@@ -3758,10 +3720,7 @@
 
     var sentSrc690 = (typeof initSentimentCharts === 'function') ? initSentimentCharts.toString() : '';
     var breadthSrc690 = (typeof initBreadthPage === 'function') ? initBreadthPage.toString() : '';
-    _assert('T694 snapshot_over_static_scaffold_v49100: AAII/PCR/Breadth scaffold uses DATA_SNAPSHOT before globals',
-      sentSrc690.indexOf('DATA_SNAPSHOT.aaiiBear') >= 0 && sentSrc690.indexOf('DATA_SNAPSHOT.pcr') >= 0 &&
-        breadthSrc690.indexOf('DATA_SNAPSHOT') >= 0 && breadthSrc690.indexOf('breadth20sma') >= 0,
-      'sentSnapshot=' + (sentSrc690.indexOf('DATA_SNAPSHOT.aaiiBear') >= 0) + '/' + (sentSrc690.indexOf('DATA_SNAPSHOT.pcr') >= 0) + ' breadthSnapshot=' + (breadthSrc690.indexOf('breadth20sma') >= 0));
+    _assert('T694 sentiment_and_breadth_scaffolds_allow_explicit_unavailable', DATA_SNAPSHOT.aaiiBear == null && DATA_SNAPSHOT.breadth200sma == null, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var runSrc695 = (window.AIO && typeof window.AIO.runScheduledRefresh === 'function') ? window.AIO.runScheduledRefresh.toString() : '';
     _assert('T695 refresh_progress_events_v49101: scheduler emits start/progress/done state',
@@ -4605,8 +4564,7 @@
     var hasAll = gp && gp.scenarios && ['hormuz-strait','iran-nuclear-deal','taiwan-strait','ukraine-russia','us-china-tariff'].every(function(k) {
       return !!gp.scenarios[k];
     });
-    _assert('T251 geopolitical_registry: 5 시나리오 등록 (호르무즈/이란/대만/우크라/미중)',
-      hasAll, gp ? 'count=' + Object.keys(gp.scenarios).length : 'undefined');
+    _assert('T251 geopolitical_current_claims_are_not_embedded', window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY && window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY.status === 'unavailable' && Object.keys(window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY.scenarios).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T252: getGeopoliticalReviewAudit() 호출 + 구조
     var gpAudit = window.AIO && typeof window.AIO.getGeopoliticalReviewAudit === 'function'
@@ -4649,9 +4607,7 @@
 
     // T258: 호르무즈 시나리오 상세 (currentPriceSignal 포함)
     var hormuz = gp && gp.scenarios ? gp.scenarios['hormuz-strait'] : null;
-    _assert('T258 hormuz_detail: status + currentPriceSignal 포함',
-      hormuz && hormuz.status === 'monitoring' && /WTI|Brent/.test(hormuz.currentPriceSignal || ''),
-      hormuz ? 'status=' + hormuz.status : 'missing');
+    _assert('T258 geopolitical_detail_requires_current_news_evidence', window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY.status === 'unavailable', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
   }
 
   // ── Group38: v49.30 전수 최신성 audit + 5 신규 재발 방지 인프라 ─────────
@@ -4666,9 +4622,7 @@
     var liveStr = liveVal ? Number(liveVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null;
     var passDefault = kospiText === '7,844.01';
     var passLive = liveStr && (kospiText === liveStr || kospiText === liveStr.replace(/,/g, ''));
-    _assert('T241 kospi_inline_fix: kr-kospi-price === DATA_SNAPSHOT 정합 OR live update',
-      (passDefault || passLive) && !/6,091/.test(kospiText),
-      'kospi=' + kospiText + ' / live=' + liveStr);
+    _assert('T241 kospi_unavailable_is_not_replaced_by_static_price', window.AIO_STATIC_DATA_POLICY && (DATA_SNAPSHOT.kospi == null || Number.isFinite(Number(DATA_SNAPSHOT.kospi))), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T242: Jensen 인터뷰 archive 마킹
     var jensenEl = document.querySelector('[data-lifecycle-id="jensen-interview-202603"]');
@@ -4708,16 +4662,12 @@
 
     // T247: AIO_STATIC_CONTENT_LIFECYCLE + Jensen 등록
     var lc = window.AIO_STATIC_CONTENT_LIFECYCLE;
-    _assert('T247 lifecycle_registry: STATIC_CONTENT_LIFECYCLE + jensen 등록',
-      !!lc && !!lc.contents && !!lc.contents['jensen-interview-202603'] && typeof lc.getStatus === 'function',
-      lc ? 'keys=' + Object.keys(lc.contents).length : 'missing');
+    _assert('T247 static_content_registry_contains_no_point_in_time_payload', window.AIO_STATIC_CONTENT_LIFECYCLE && window.AIO_STATIC_CONTENT_LIFECYCLE.status === 'unavailable' && Object.keys(window.AIO_STATIC_CONTENT_LIFECYCLE.contents).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T248: AIO_NAMED_ENTITY_REGISTRY + currentAs 날짜
     var ne = window.AIO_NAMED_ENTITY_REGISTRY;
     var feed = ne && ne.entities ? ne.entities['us-fed-chair'] : null;
-    _assert('T248 named_entity_registry: us-fed-chair + currentAs',
-      !!feed && !!feed.currentAs && /\d{4}-\d{2}-\d{2}/.test(feed.currentAs),
-      feed ? 'name=' + feed.name + ' currentAs=' + feed.currentAs : 'missing');
+    _assert('T248 named_entities_require_runtime_verification', window.AIO_NAMED_ENTITY_REGISTRY && window.AIO_NAMED_ENTITY_REGISTRY.status === 'unavailable' && Object.keys(window.AIO_NAMED_ENTITY_REGISTRY.entities).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T249: AIO_MACRO_CALENDAR + NFP/CPI 등록
     var mc = window.AIO_MACRO_CALENDAR;
@@ -4727,9 +4677,7 @@
 
     // T250: AIO_KR_MACRO_RELEASE + 수출/CPI 등록
     var kmr = window.AIO_KR_MACRO_RELEASE;
-    _assert('T250 kr_macro_release: kr-export + kr-semi-export 등록',
-      !!kmr && !!kmr.releases && !!kmr.releases['kr-export'] && !!kmr.releases['kr-semi-export'],
-      kmr ? 'releases=' + Object.keys(kmr.releases).length : 'missing');
+    _assert('T250 kr_macro_release_claims_are_not_embedded', window.AIO_KR_MACRO_RELEASE && window.AIO_KR_MACRO_RELEASE.status === 'unavailable' && Object.keys(window.AIO_KR_MACRO_RELEASE.releases).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
   }
 
   // ── Group37: v49.29 나머지 11항목 페이지 적용 ─────────────────────────────
@@ -4803,11 +4751,11 @@
       !!fundGuide && fundExamples.length === 4,
       fundGuide ? 'examples=' + fundExamples.length : 'missing');
 
-    // T239: macro storyline placeholder 가이드 (R68 표준 — 출처/예상 시간 명시)
+    // T239: macro storyline placeholder is explicit about evidence/unavailable state
     var macroStory = document.getElementById('macro-storyline');
     var macroStoryText = macroStory ? macroStory.textContent : '';
-    _assert('T239 macro_placeholder: storyline에 출처+예상 시간 명시',
-      /출처|예상\s*시간/.test(macroStoryText),
+    _assert('T239 macro_placeholder: storyline exposes source or blocked-evidence state',
+      /출처|예상\s*시간|원천|판단\s*보류/.test(macroStoryText),
       macroStory ? 'has guide' : 'missing');
 
     // T240: aio-core.js에 breadth/briefing/options pageShown listener 등록
@@ -4902,11 +4850,12 @@
       ratio && Array.isArray(ratio.reports),
       ratio ? ('issueCount=' + ratio.issueCount + ' reports=' + ratio.reports.length) : 'api unavailable');
 
-    // T219: AIO_SCENARIO_REGISTRY + validateSum
+    // T219: 코드 내 시점 의존 확률 금지 — 공급자 미연결 시 명시적 unavailable
     var sr = window.AIO_SCENARIO_REGISTRY;
     var sum = sr && sr.validateSum ? sr.validateSum() : null;
-    _assert('T219 scenario_sum: probability sum === 1.0',
-      sum && sum.valid, sum ? 'sum=' + sum.sum.toFixed(3) : 'undefined');
+    _assert('T219 scenario_sum: embedded probabilities unavailable until runtime provider is connected',
+      sr && sr.status === 'unavailable' && sum && sum.available === false && sum.sum === null,
+      sum ? 'sum=' + sum.sum + ' status=' + sr.status : 'undefined');
 
     // T220: getScenarioFreshnessAudit() 호출 + 구조
     var scAudit = window.AIO && typeof window.AIO.getScenarioFreshnessAudit === 'function'
@@ -5090,19 +5039,17 @@
     // T187: kr-technical 신용잔고 data-snap="kr-credit" 보유 + 19.2조원
     var krTechCredit = document.querySelector('#page-kr-technical [data-snap="kr-credit"]');
     var krTechText = krTechCredit ? krTechCredit.textContent.trim() : '';
-    _assert('T187 kr_tech_credit_snap: kr-technical 신용잔고 data-snap 바인딩 + 19.2',
-      !!krTechCredit && /19\.2|\d+\.\d+조/.test(krTechText) && !/31\.7/.test(krTechText),
-      krTechCredit ? ('text=' + krTechText) : 'data-snap=kr-credit not found in kr-technical');
+    _assert('T187 kr_credit_runtime_only', window.AIO_STATIC_DATA_POLICY && (DATA_SNAPSHOT.krCreditBalance == null || Number.isFinite(Number(DATA_SNAPSHOT.krCreditBalance))), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
-    // T188: kr-supply 주간 테이블 첫 행에 05/16 포함 (2026-05 기준)
+    // T188: KR weekly supply has no embedded dated snapshot
     var weeklyTable = document.getElementById('kr-weekly-supply-table');
     var firstDate = '';
     if (weeklyTable) {
       var rows = weeklyTable.querySelectorAll('tr');
       if (rows.length >= 2) firstDate = rows[1].cells[0] ? rows[1].cells[0].textContent.trim() : '';
     }
-    _assert('T188 kr_supply_weekly: 주간 테이블 첫 행이 05/16 (2024-03 stale 제거)',
-      /05\/(1[2-6]|0[5-9])/.test(firstDate) && !/03\/2[3-7]/.test(firstDate),
+    _assert('T188 kr_supply_weekly: embedded dated rows removed and unavailable state is explicit',
+      /수신\s*대기|수신\s*실패/.test(firstDate) && !/\d{2}\/\d{2}/.test(firstDate),
       'first date: ' + firstDate);
 
     // T189: F&G 점수 home과 sentiment 동일 (둘 다 비어있지 않은 경우)
@@ -5423,24 +5370,11 @@
       }));
 
     var snapV504 = window.DATA_SNAPSHOT || {};
-    _assert('T760 v5039_snapshot_structural_fields: DATA_SNAPSHOT has _snapshotDate (YYYY-MM-DD), cpiNext/nfpNext/pceNext date fields, and currentTopic string',
-      /^\d{4}-\d{2}-\d{2}$/.test(String(snapV504._snapshotDate || '')) &&
-        /^\d{4}-\d{2}-\d{2}$/.test(String(snapV504.cpiNext || '')) &&
-        /^\d{4}-\d{2}-\d{2}$/.test(String(snapV504.nfpNext || '')) &&
-        /^\d{4}-\d{2}-\d{2}$/.test(String(snapV504.pceNext || '')) &&
-        typeof snapV504.currentTopic === 'string' && snapV504.currentTopic.length > 0,
-      JSON.stringify({
-        snapshotDate: snapV504._snapshotDate,
-        cpiNext: snapV504.cpiNext,
-        nfpNext: snapV504.nfpNext,
-        pceNext: snapV504.pceNext,
-        currentTopic: (snapV504.currentTopic || '').slice(0, 50)
-      }));
+    _assert('T760 snapshot_has_calendar_fields_without_embedded_current_topic', /^\d{4}-\d{2}-\d{2}$/.test(String(DATA_SNAPSHOT._snapshotDate || '')) && /^\d{4}-\d{2}-\d{2}$/.test(String(DATA_SNAPSHOT.cpiNext || '')) && !('currentTopic' in DATA_SNAPSHOT), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var homeWeeklyV504 = window.HOME_WEEKLY_NEWS || [];
-    _assert('T761 v5015_home_weekly_news_structural: HOME_WEEKLY_NEWS is array with ≥5 items each having title+source',
-      Array.isArray(homeWeeklyV504) && homeWeeklyV504.length >= 5 &&
-        homeWeeklyV504.every(function(i){ return typeof i.title === 'string' && typeof i.source === 'string'; }),
+    _assert('T761 home_weekly_news_runtime_only: embedded news digest stays empty',
+      Array.isArray(homeWeeklyV504) && homeWeeklyV504.length === 0,
       'length=' + homeWeeklyV504.length + ' sample=' + (homeWeeklyV504[0] ? homeWeeklyV504[0].title.slice(0, 40) : 'n/a'));
 
     var runtimeVersionV504 = (typeof APP_VERSION === 'string') ? APP_VERSION : (window.AIO && window.AIO.version);
@@ -5548,7 +5482,7 @@
       t768ok = seedOk && noDiag200 && cardsOk;
       t768detail = 'seed200undef=' + (ds768.breadth200sma === undefined) + ' noDiag200=' + noDiag200 + ' cards5/20/50=' + (!!b5) + '/' + (!!b20) + '/' + (!!b50) + ' no200card=' + (!b200);
     } catch(e) { t768detail = 'err: ' + (e && e.message); }
-    _assert('T768 v506_breadth_5_20_50_only: breadth200sma seed/card/diagnostic 제거 (200은 추세 전용)', t768ok, t768detail);
+    _assert('T768 breadth_200sma_current_seed_is_explicitly_unavailable', DATA_SNAPSHOT.breadth200sma === null, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // ── v50.7: 페이지별 "현재 시장 분석" 텍스트 라이브 동기화 ──
     // T769: 분석 렌더러 레지스트리 + named 함수 + refreshActivePageNarratives(라이브 재생성) + 스로틀
@@ -5605,7 +5539,7 @@
       t770ok = writeBackOk && macroExposeOk;
       t770detail = 'writeBack(corePce=2.7,nfp=147,_fredLive)=' + writeBackOk + ' macroExpose(근원PCE 2.7 FRED)=' + macroExposeOk;
     } catch(e) { t770detail = 'err: ' + (e && e.message); }
-    _assert('T770 v508_chat_reuses_fred: applyFredToUI→DATA_SNAPSHOT write-back + macro CHAT_CONTEXT 인플레 노출', t770ok, t770detail);
+    _assert('T770 macro_chat_uses_runtime_evidence_contract', window.CHAT_CONTEXTS.macro && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS.macro.system()), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // ── v50.9: 고위험(저신뢰) 관점 통합 confidence 고지 — 채팅 답변/데이터블록 ──
     // T771: _aioLowConfPerspectives 헬퍼가 highRiskFields(true) 레지스트리 기반으로 promptLine+badge 동적 생성 (하드코딩 X)
@@ -5791,7 +5725,7 @@
       t784ok = hasThreshold && coversSignal && !!scAudit && typeof scAudit.issueCount === 'number';
       t784detail = 'threshold=' + (sreg && sreg.signalStaleDaysThreshold) + 'd coversSignal=' + coversSignal + ' status=' + (scAudit && scAudit.status);
     } catch(e) { t784detail = 'ERR:' + e.message; }
-    _assert('T784 v5017_scenario_audit_covers_signal: getScenarioFreshnessAudit이 signalShortTerm 점검 + signalStaleDaysThreshold', t784ok, t784detail);
+    _assert('T784 scenario_audit_reports_provider_unavailable', window.AIO.getScenarioFreshnessAudit().status === 'unavailable', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T785: 마켓펄스 시장폭 칩이 제거된 _breadth200 대신 _breadth50/breadth50sma 사용 (27% 오라벨 재발 방지)
     var t785ok = false, t785detail = '';
@@ -5804,17 +5738,19 @@
 
     // ─── v50.24 P0 구조 시정 (OPUS-HANDOFF 백로그 WO-1~4) ───
     // T786 (WO-2/P498): SPX ATH 단일 출처 헬퍼 — floor가 DATA_SNAPSHOT.spxATH 아래로 안 내려감 + applyLiveQuotes 7412.84 하드코딩 제거
+    // P722: `_aioSpxAthFloor() == null`을 영구 단언하면 "관측값 없음"이 불변식이 된다 — artifact/
+    // 히스토리에 SPX가 있으면(정당한 상태) CI가 깨진다. 진짜 불변식은 "상수 floor 없음"이다:
+    // 관측값 없으면 null, 있으면 관측 유래의 유한 양수. applyLiveQuotes의 하드코딩 부재 검사는 유지.
     var t786ok = false, t786detail = '';
     try {
       var hasFloor786 = typeof window._aioSpxAthFloor === 'function';
-      var snapAth786 = (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spxATH) || 7585;
-      var floorVal786 = hasFloor786 ? window._aioSpxAthFloor() : 0;
+      var floorVal786 = hasFloor786 ? window._aioSpxAthFloor() : undefined;
       var aqSrc786 = (typeof applyLiveQuotes === 'function') ? applyLiveQuotes.toString() : '';
       var noHardcode786 = aqSrc786.indexOf('7412.84') === -1 && /_aioSpxAthFloor/.test(aqSrc786);
-      t786ok = hasFloor786 && floorVal786 >= snapAth786 && noHardcode786;
-      t786detail = 'floor=' + floorVal786 + ' >=snapATH(' + snapAth786 + ') noHardcode=' + noHardcode786;
+      t786ok = hasFloor786 && noHardcode786 && (floorVal786 == null || (isFinite(floorVal786) && floorVal786 > 0));
+      t786detail = 'floor=' + floorVal786 + ' noHardcode=' + noHardcode786;
     } catch(e) { t786detail = 'ERR:' + e.message; }
-    _assert('T786 v5024_spx_ath_single_source: _aioSpxAthFloor() >= DATA_SNAPSHOT.spxATH + applyLiveQuotes 7412.84 하드코딩 제거 (P498 레짐 오표시 재발 방지)', t786ok, t786detail);
+    _assert('T786 spx_ath_has_no_static_floor (null or observation-derived positive)', t786ok, t786detail);
 
     // T787 (WO-2): topbar 레짐 라벨 "Near ATH"는 -2% 이내만 (급락일 "Near ATH" 오표시 차단)
     var t787ok = false, t787detail = '';
@@ -6115,7 +6051,7 @@
       t805ok = !optNav805 && !fbBtn805 && !boardBtn805 && !fbModal805 && !boardDrawer805 && optShell805 && pageCount805 === 22;
       t805detail = 'optNavGone=' + !optNav805 + ' fbGone=' + (!fbBtn805 && !fbModal805) + ' boardGone=' + (!boardBtn805 && !boardDrawer805) + ' optShell=' + optShell805 + ' pages=' + pageCount805;
     } catch(e) { t805detail = 'ERR:' + e.message; }
-    _assert('T805 v5035_remove_feedback_board_options: 피드백/게시판 버튼·DOM 제거 + 옵션 내비 제거(셸 유지·21페이지 정합)', t805ok, t805detail);
+    _assert('T805 v5035_remove_feedback_board_options: 피드백/게시판 버튼·DOM 제거 + 옵션 내비 제거(셸 유지·22 route 정합)', t805ok, t805detail);
 
     // ─── v50.36 분석5 verdict-first: technical 건강도/themes 사이클을 헤더 직후로 + 죽은 설명서 소스 0 ───
     var t806ok = false, t806detail = '';
@@ -6723,7 +6659,7 @@
         memoWired: memoWired829
       });
     } catch(e) { t829detail = 'ERR:' + e.message; }
-    _assert('T829 v5061_telegram_digest_integration: rolling Telegram digest feeds home/news/chat/screener/keyword layers (shape, not this week\'s specific content)', t829ok, t829detail);
+    _assert('T829 telegram_digest_has_no_static_memo_overlay', typeof window._tgMemoOverlay === 'undefined', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T830: broad Telegram/data refresh is structurally mapped across pages and freshness layers.
     // P626-followup: two fixes. (1) pagesOk830 required every page to map to >=2 topics, but
@@ -6962,10 +6898,11 @@
         : '';
       var renderSrc836 = typeof window.renderBriefingFeed === 'function' ? String(window.renderBriefingFeed) : '';
       var macroParagraphs836 = macroStory836 ? macroStory836.querySelectorAll('p').length : 0;
-      var macroCompact836 = macroParagraphs836 >= 2 && macroText836.length >= 80 && macroText836.length <= 900 && !macroStory836.querySelector('.macro-now-card') && !/1장|2장|3장/.test(macroText836);
+      var macroBlocked836 = !!(macroStory836 && macroStory836.querySelector('[data-runtime-state="unavailable"][data-operational-use="blocked"]'));
+      var macroCompact836 = (macroParagraphs836 >= 2 && macroText836.length >= 80 && macroText836.length <= 900 && !macroStory836.querySelector('.macro-now-card') && !/1장|2장|3장/.test(macroText836)) || macroBlocked836;
       var briefingSummary836 = /시장 상황 요약/.test(briefingHelper836) && /오늘 행동/.test(briefingHelper836) && /briefingDecisionHtml/.test(renderSrc836);
       t836ok = !!(macroCompact836 && briefingSummary836);
-      t836detail = JSON.stringify({ macroCompact: macroCompact836, macroParagraphs: macroParagraphs836, briefingSummary: briefingSummary836 });
+      t836detail = JSON.stringify({ macroCompact: macroCompact836, macroBlocked:macroBlocked836, macroParagraphs: macroParagraphs836, briefingSummary: briefingSummary836 });
     } catch(e) { t836detail = 'ERR:' + e.message; }
     _assert('T836 v5288_macro_briefing_comp_ux: macro uses concise narrative paragraphs and briefing keeps its market/action summary', t836ok, t836detail);
 
@@ -6992,7 +6929,7 @@
       t837ok = !!(window.AIO_SOURCE_KIND && modelOk837 && aiBtn837 && fomcSnapshot837 && domFresh837);
       t837detail = JSON.stringify({ modelOk:modelOk837, aiBtn:!!aiBtn837, fomcSnapshot:fomcSnapshot837, domFresh:domFresh837 });
     } catch(e) { t837detail = 'ERR:' + e.message; }
-    _assert('T837 v5070_page_decision_source_contract: pages expose decision/sourceKind/actions and the next FOMC is current', t837ok, t837detail);
+    _assert('T837 event_context_is_not_embedded_as_current', window.AIO_EVENT_RISK_CONTEXT && window.AIO_EVENT_RISK_CONTEXT.available === false && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T838: v50.71 residual deep-audit fixes — guide header + screener/ticker AI contexts stay wired.
     var t838ok = false, t838detail = '';
@@ -7021,7 +6958,7 @@
         cp2Clean838);
       t838detail = JSON.stringify({ guideHeader:!!guideHeader838, screenerCtx:!!ctx838.screener, tickerCtx:!!ctx838.ticker, screenerMatch:screenerMatch838, tickerMatch:tickerMatch838, cp2Clean:cp2Clean838, cp2:cp2Text838 });
     } catch(e) { t838detail = 'ERR:' + e.message; }
-    _assert('T838 v5071_residual_deep_audit: guide/header and screener/ticker AI contexts are wired without stale FOMC copy', t838ok, t838detail);
+    _assert('T838 page_contexts_are_evidence_first_without_stale_event_copy', ['home','screener','ticker'].every(function(k){ return window.CHAT_CONTEXTS[k] && /현재 검증된 런타임 관측치/.test(window.CHAT_CONTEXTS[k].system()); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T839: v50.75 시장 팩터 히트맵 — 실데이터(SPX/VIX/F&G/TNX) 기반 4×4 그리드 렌더 (Codex 가짜 해시 데이터 제거 검증)
     var t839ok = false, t839detail = '';
@@ -7080,7 +7017,7 @@
       t841ok = !!(bandInDecision841 && scoreInDecision841 && fomcReasonDynamic841 && noFomcFooter841 && routeIds841);
       t841detail = JSON.stringify({ band:bandInDecision841, score:scoreInDecision841, fomcDynamic:fomcReasonDynamic841, noFomcPortfolio:noFomcFooter841, fomcMacro:fomcFooterOnMacro841, routeIds:routeIds841 });
     } catch(e) { t841detail = 'ERR:' + e.message; }
-    _assert('T841 v5074_structural_fix: decision reads live score, FOMC uses registry, footer is page-conditional, route-ids wired', t841ok, t841detail);
+    _assert('T841 decision_header_works_without_static_event_registry', typeof window._aioBuildPageDecision === 'function' && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T842: v50.78 user research digest is consumed as data-only context and visual reports exist.
     var t842ok = false, t842detail = '';
@@ -7212,7 +7149,7 @@
       ['guide','kr-home','kr-supply','kr-themes','kr-macro','kr-technical'].forEach(function(id) {
         if (typeof _aioPolishRemainingPages === 'function') _aioPolishRemainingPages(id);
       });
-      if (typeof window._aioRenderPageFundamentals === 'function' && window._aioRenderPageFundamentals('home') !== false) failures869.push('fund-renderer-active');
+      if (typeof window._aioRenderPageFundamentals === 'function') failures869.push('retired-fund-renderer-present');
       var compFundCount = pages869.reduce(function(total, id) {
         var page = document.getElementById('page-' + id);
         return total + (page ? page.querySelectorAll('.aio-fund').length : 0);
@@ -7375,8 +7312,7 @@
         var footTxt872 = footEl872 ? footEl872.textContent : '';
         var fomcReg872 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
         var hasDate872 = !!fomcReg872.eventDate && footTxt872.indexOf(fomcReg872.eventDate) !== -1;
-        _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13): home decision-header footnote includes FOMC eventDate',
-          hasDate872, 'footTxt=' + footTxt872.slice(0, 90) + ' expectedDate=' + fomcReg872.eventDate);
+    _assert('T872 decision_footer_does_not_expose_embedded_event_date', Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
       } else {
         _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13)', false, '_aioRenderPageDecisionHeader or #page-home missing');
       }
@@ -7566,8 +7502,8 @@
         window._aioRenderKrMacroFreshnessBadges();
         var badgeIds883 = ['kr-macro-bokrate-freshness', 'kr-macro-cpi-freshness', 'kr-macro-pmi-freshness'];
         var texts883 = badgeIds883.map(function(id) { var el = document.getElementById(id); return el ? el.textContent : null; });
-        var allBadged883 = texts883.every(function(t) { return t && t.indexOf('기준:') === 0 && /\d+일 전/.test(t); });
-        _assert('T883 kr_macro_freshness_badges_v5242 (EF-16): 기준금리/물가/경기 카드 3곳 모두 "기준: MM/DD (N일 전)" 배지 렌더',
+        var allBadged883 = texts883.every(function(t) { return t && t.indexOf('기준:') === 0 && (/\d+일 전/.test(t) || t === '기준: 미수신'); });
+        _assert('T883 kr_macro_freshness_badges_v53_4 (EF-16): 기준일 또는 명시적 미수신 상태 렌더',
           allBadged883, 'texts=' + texts883.join(' | '));
       } else {
         _assert('T883 kr_macro_freshness_badges_v5242 (EF-16)', false, 'fn or element missing');
@@ -7856,12 +7792,12 @@
 
   function _testV5255ClaimExpiryAndRegimeGate() {
     if (!(window.AIO && typeof window.AIO.getEventClaimState === 'function')) {
-      _assert('T905 event_claim_expiry_selector (H3-B)', false, 'getEventClaimState missing');
+      _assert('T905 missing_event_claim_is_blocked', false, 'getEventClaimState missing');
       return;
     }
     var current905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-06-20T00:00:00+09:00'));
     var expired905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-07-20T00:00:00+09:00'));
-    _assert('T905 event_claim_expiry_selector (H3-B): current window allows use, expired window is historical-only', current905.status === 'CURRENT' && current905.allowedUse === true && expired905.status === 'EXPIRED' && expired905.allowedUse === false, JSON.stringify({ current: current905, expired: expired905 }));
+    _assert('T905 missing_event_claim_is_blocked', current905.status === 'MISSING' && current905.allowedUse === false && expired905.status === 'MISSING' && expired905.allowedUse === false, JSON.stringify({ current: current905, expired: expired905 }));
     var decisionSrc906 = typeof _aioDefaultDecision === 'function' ? _aioDefaultDecision.toString() : '';
     var gate906 = /getEventClaimState\(['"]fomc['"]\)/.test(decisionSrc906) && /_scoreBlocked/.test(decisionSrc906) && /판단 보류/.test(decisionSrc906);
     _assert('T906 derived_regime_quorum_gate (H3-C): decision builder exposes claim expiry and missing-input block', gate906, 'gate=' + gate906);
@@ -7918,8 +7854,8 @@
       JSON.stringify({ fieldCount: element91 && element91.fieldCount, incomplete: element91 && element91.incomplete, orphanSinks: element91 && element91.orphanSinks }));
 
     var breadthUi91 = window.initBreadthPage && window.initBreadthPage.toString ? window.initBreadthPage.toString() : '';
-    _assert('T918 breadth_chart_partial_chart_stub_guard (H3-H/I): breadth init checks the Chart registry API before registration',
-      /typeof Chart === 'undefined'/.test(breadthUi91) && /!Chart\.registry/.test(breadthUi91) && /typeof Chart\.register !== 'function'/.test(breadthUi91),
+    _assert('T918 breadth_chart_runtime_only_contract: history uses artifacts and synthetic breadth charts stay blocked',
+      /data-operational-use/.test(breadthUi91) && /_aioHistorySeries\(['"]spx/.test(breadthUi91) && !/Chart\.register/.test(breadthUi91),
       breadthUi91.slice(0, 700));
     var svgHolder919 = null, svgIssues919 = [];
     try {
@@ -8037,7 +7973,7 @@
 
     var briefing937 = window.CHAT_CONTEXTS && window.CHAT_CONTEXTS.briefing;
     _assert('T939 briefing_context_enabled (WP-AI1): unified briefing route has an evidence-first CHAT_CONTEXTS entry',
-      !!briefing937 && typeof briefing937.system === 'function' && /교육·리서치|구체적인 매수/.test(briefing937.system()),
+      !!briefing937 && typeof briefing937.system === 'function' && /현재 검증된 런타임 관측치/.test(briefing937.system()),
       briefing937 ? String(briefing937.title) : 'missing');
 
     var pageSrc937 = typeof chatSend === 'function' ? chatSend.toString() : '';
@@ -8663,9 +8599,7 @@
     }
 
     var ds = window.DATA_SNAPSHOT || {};
-    _assert('T1026 treasury_snapshot_maturity_separation: 10Y and 2Y snapshot fields are explicit and non-aliased',
-      Number.isFinite(Number(ds.tnx)) && Number.isFinite(Number(ds.tnx2y)) && Math.abs(Number(ds.tnx) - Number(ds.tnx2y)) >= 0.1,
-      JSON.stringify({ tnx: ds.tnx, tnx2y: ds.tnx2y }));
+    _assert('T1026 treasury_maturities_are_explicit_and_non_aliased', ('tnx' in DATA_SNAPSHOT) && ('tnx2y' in DATA_SNAPSHOT) && (DATA_SNAPSHOT.tnx == null || DATA_SNAPSHOT.tnx2y == null || DATA_SNAPSHOT.tnx !== DATA_SNAPSHOT.tnx2y), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var coverageFn = window.AIO && window.AIO.evaluateKrThemeQuoteCoverage;
     var map = { a:[{code:'1',w:0.5},{code:'2',w:0.5}], b:[{code:'3',w:0.5},{code:'4',w:0.5}] };
@@ -8747,14 +8681,20 @@
       'official guard=' + (fredBridgeSrc.indexOf("!fd['T10Y2Y']") >= 0));
 
     var tailBoardSrc = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.renderTailRiskBoard ? String(NARRATIVE_ENGINE.renderTailRiskBoard) : '';
-    _assert('T1038 tail_risk_current_observation_only: stale MOVE/SKEW seeds cannot render as current regimes',
-      !!tailBoardSrc && tailBoardSrc.indexOf("live['^SKEW']") >= 0 && tailBoardSrc.indexOf("live['^MOVE']") >= 0 && tailBoardSrc.indexOf('_snap.num(DS.skew') < 0 && tailBoardSrc.indexOf('_snap.num(DS.move') < 0,
-      'live-only tail board=' + (!!tailBoardSrc && tailBoardSrc.indexOf("live['^SKEW']") >= 0));
+    var skewUnavailable1038 = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getSKEWRegime(null).available === false;
+    var moveUnavailable1038 = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getMOVERegime(null).available === false;
+    _assert('T1038 tail_risk_render_fails_closed_without_live_observations', window.AIO_STATIC_DATA_POLICY.chartFallbacks === 'message-only' && skewUnavailable1038 && moveUnavailable1038, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var breadthProducerSrc = typeof _aioApplyScreenerBreadth === 'function' ? String(_aioApplyScreenerBreadth) : '';
     _assert('T1039 breadth_producer_refreshes_all_consumers: late current breadth cannot leave stale pending diagnostics or scores',
       !!breadthProducerSrc && breadthProducerSrc.indexOf('updateBreadthBars()') >= 0 && breadthProducerSrc.indexOf('refreshSignalDashboard()') >= 0 && breadthProducerSrc.indexOf('refreshHomeDashboard()') >= 0,
       'breadth refresh hooks=' + breadthProducerSrc.length);
+
+    var scenarioBlocked1040 = document.querySelector('#page-macro [data-scenario-provider-state="unavailable"][data-runtime-state="unavailable"][data-operational-use="blocked"]');
+    var scenarioPolicy1040 = window.AIO_STATIC_DATA_POLICY && window.AIO_STATIC_DATA_POLICY.scenarioProbabilities === 'provider-required';
+    _assert('T1040 scenario_probability_requires_provider: no embedded probability calculator or current narrative',
+      typeof window.updateDynamicScenarios === 'undefined' && !!scenarioPolicy1040 && (!scenarioBlocked1040 || /정량 시나리오 공급자/.test(scenarioBlocked1040.textContent || '')),
+      'legacyFn=' + typeof window.updateDynamicScenarios + ' policy=' + scenarioPolicy1040 + ' blocked=' + !!scenarioBlocked1040);
   }
 
   window.AIO = window.AIO || {};

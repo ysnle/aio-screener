@@ -57,7 +57,7 @@ const _semanticRegimeIdx = core.search(/function\s+classifyMarketRegime/);
 const _semanticRegimeBody = _semanticRegimeIdx >= 0 ? core.slice(_semanticRegimeIdx, _semanticRegimeIdx + 1500) : '';
 check('breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && _semanticRegimeIdx >= 0 && !/breadth200[\s\S]{0,220}:\s*75\)/.test(_semanticRegimeBody));
 check('ticker entry verdict semantic gate is present', /ticker deep analysis gates entry verdict/.test(runtimeGate) && /computeTradingScore\('swing'\)/.test(html) && /marketAllowsEntry/.test(html));
-check('current event-risk semantic gate is present', /event risk context is refreshed/.test(runtimeGate) && /asOf:\s*'2026-06-19'/.test(core));
+check('event-risk semantic gate fails closed without an embedded point-in-time timeline', /event risk context fails closed/.test(runtimeGate) && /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core));
 
 const r219Path = /user request\/intent -> affected function\(s\) and criteria[\s\S]*affected function\(s\) -> downstream consumer\(s\)[\s\S]*downstream consumer\(s\) -> visible page\/chat\/report output[\s\S]*visible output -> market\/domain meaning/.test(rules);
 check('R219 defines the full semantic path', r219Path);

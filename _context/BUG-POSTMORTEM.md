@@ -1,11 +1,79 @@
 ﻿---
-verified_by: agent
-last_verified: 2026-07-15
+verified_by: agent (Fable 5)
+last_verified: 2026-07-17
 confidence: high
-latest_version: v53.2
-latest_P_number: P715
-total_entries: 492
-next_P_number: P716
+latest_version: v53.5
+latest_P_number: P722
+total_entries: 499
+next_P_number: P723
+
+## P722 - v53.5 - v53.3/53.4 신규 테스트 3건이 "데이터 없음"을 영구 불변식으로 단언해 push 시 CI RED를 예약해 두고 있었다
+
+- **motivation**: v53.3~v53.5 push 전 사전 검증 — 리베이스 직후 봇의 최신 data.json(quotes 77, P719 수정 전 producer 산출물) 기준으로 헤드리스를 재실행.
+- **symptom/reproduction**: 로컬 artifact(quotes=[])로는 1101/1101 green이던 스위트가 봇 artifact로는 T324/T376/T786 3건 실패. 그대로 push했으면 다음 크론(P719 수정판 발행) 전까지 main CI RED 윈도우 발생 — 사용자가 보고한 "run failed 이메일"을 하루 더 만들 뻔.
+- **root_cause**: 세 테스트 모두 quotes=[] 로컬 환경에서 작성되며 "그 환경에서의 관측 상태"(breadth5sma 숫자 존재 / regime available:false / ATH floor null)를 영구 불변식으로 고정 — P720(감사 리터럴 vs 실값)과 대칭인 "테스트 vs artifact 내용" 데이터 의존 클래스. 구현 함수들은 양쪽 상태 모두 올바르게 동작했고 테스트만 틀렸음.
+- **fix**: 3건을 형태 불변식으로 재작성 — T324: 스키마 존재+null 또는 유효 0-100, T376: fail-closed 계약 양방향(미수신→판정 필드 null, 수신→유효 레짐+유한 점수), T786: 상수 floor 부재(null 또는 관측 유래 양수)+하드코딩 부재 검사 복원(기존 코드가 계산해놓고 버리던 t786ok 사용).
+- **violated_rule**: R279 계열(관측 시점 상태를 영구 등호 단언) — 날짜(R279)·숫자 시드(P626)·이제 "결측 상태" 자체까지 3번째 변형. 규칙 승격: "테스트 불변식은 데이터 가용성 상태와 무관하게 참이어야 한다(가용/불가용 양쪽을 명시적으로 분기 검증)".
+- **prevention**: artifact 내용에 의존할 수 있는 테스트는 push 전 "현재 origin artifact"와 "차기 producer 산출물 형태" 양쪽으로 돌린다(이번에 실제로 잡음). 신규 fail-closed 테스트는 available true/false 두 상태의 계약을 모두 서술한다.
+- **verification**: 봇 artifact(quotes 77)와 quotes=[] 형태 양쪽에서 헤드리스 1101/1101 PASS.
+
+## P721 - v53.5 - RRG가 세션 내 틱 누적에 의존해 모든 신규 방문자에게 영구 판정 보류였다
+
+- **motivation**: 사용자 요청("각 페이지 핵심 정보가 나오는지 확인") — 22페이지 렌더 감사를 라이브/로컬 이중 실측한 결과 themes 페이지 RRG가 라이브에서 "사이클 판정 보류 · 근거 0/11"로 전면 공백.
+- **symptom/reproduction**: 라이브 v53.2 themes 진입 시 RRG 사분면 카드·사이클 pill 전부 보류. 원인 추적: `calcLiveRS()`가 요구하는 `_priceHistory`(>20 샘플)는 `collectPriceHistory()`가 30초 틱마다 세션 내 메모리에 push하는 구조 — 새 방문자는 10분+ 체류 전까지, 리로드 시엔 다시 0부터. 사실상 전 방문자 영구 보류.
+- **root_cause**: RRG는 일봉/주봉 종가 기반(13wk MA) 지표인데 데이터 소스를 세션 틱 누적으로 설계(v27.2 잔재). v52.98이 정적 RRG 시드를 제거(fail-closed)하면서 대체 실데이터 경로를 연결하지 않아 "정직한 영구 공백"이 됨 — v50.15 VKOSPI 미니차트(P641)와 동일 클래스.
+- **fix**: `hydrateRRGDailyHistory()` 신설 — 기존 검증된 클라 경로(fetchViaProxy+_parseYFChartResponse, fetchSentimentHistory 패턴)로 SPY+11섹터 ETF의 실제 6개월 일봉 종가를 배치 3개 동시·배치별 점진 재렌더로 수화. `_priceHistoryDaily` 마커로 틱 push의 일봉 오염 차단(혼합 금지). `calcLiveRS`/`renderRRGQuadrantCards`의 불필요한 라이브 틱 선행 게이트를 일봉 우선으로 완화(틱 없어도 일봉으로 판정, pct는 마지막 2개 종가 파생). 실패 심볼은 채우지 않고 보류 유지(추측 금지). 부수: kr-home KOSPI/KOSDAQ 변화폭 HTML 정적 리터럴(▲200.86/▼28.05) 제거 + `data-live-kr-change` 숫자 리터럴 금지 게이트 추가(기존 62행 패턴이 속성명 불일치로 미커버).
+- **violated_rule**: R25(인프라 교체 시 소비자 경로까지 연결 — v52.98이 시드 제거만 하고 실데이터 경로 미연결), 카테고리 20(정적 시장값 리터럴).
+- **prevention**: fail-closed로 시드를 제거할 때는 "정직한 공백"이 영구 상태인지(대체 실데이터 경로 존재 여부)를 함께 판정한다. 클라이언트 누적 기반 시각화는 첫 방문자 관점(누적 0)에서 검증한다.
+- **verification**: 로컬 실브라우저(시세 차단 환경)에서 themes 진입 → 12심볼 일봉 100개 수화 → RRG 근거 11/11, 사분면 카드 실분류 렌더 확인(exit 0). 정적 계약 게이트 22/22 + 신규 패턴 3방향 단위검증(회귀 잡힘/JS 템플릿 무시/정상 통과).
+
+## P720 - v53.5 - critical10 감사의 맨몸 날짜 토큰이 정상 체크리스트 "5/5"와 충돌해 간헐 CI RED를 만들었다
+
+- **motivation**: 사용자가 "run failed 이메일이 종종 온다"고 보고 — 2026-07-16 12:10Z/14:24Z CI 실패(T173) 2건을 조사.
+- **symptom/reproduction**: 데이터 갱신 커밋에서만 T173이 간헐 실패 후 다음 갱신에서 자연 복구. 실패 커밋(e603a583)의 data.json/telegram-digest.json을 현재 코드에 얹어 실브라우저 재현 — signal 페이지 실행 체크리스트가 그날 5개 조건을 전부 충족해 "5/5 (충족)"을 렌더했고, `staleTokenRe`의 맨몸 `5\/5` 토큰이 이를 2026-05월 정적 잔재로 오인.
+- **root_cause**: 4~5월 정적 스냅샷 잔재 검출용 토큰 중 `5/4|5/5|5/8|5/9`가 컨텍스트 없는 2문자 날짜 패턴이라 "n/5 점수" 등 정상 동적 텍스트와 구조적으로 충돌 — P715의 '1,508' 리터럴과 동일 클래스(감사 리터럴 vs 라이브 실값 충돌). 시장 상태(체크리스트 충족 수)에 따라 CI가 갈리는 간헐성.
+- **fix**: 맨몸 날짜 토큰 4개 제거(감지 대상이던 정적 잔재는 v53.4 정적 데이터 계약 22카테고리가 원천 차단). 컨텍스트 있는 토큰(VIX Spot 18.36, 이란 재협상 등)은 유지. 부수: 같은 체크리스트의 시스템 발화형 판정 라벨("진입 검토 가능/진입 자제" 2곳)을 P714 정합 관측형("조건 대부분/일부 충족·미충족 다수")으로 전환.
+- **violated_rule**: R25 반복(P715와 동일 클래스 3회째 — 감사 리터럴에 시장 실값과 충돌 가능한 짧은 숫자/날짜 패턴 금지를 규칙 승격 후보로).
+- **prevention**: 감사용 stale 토큰은 최소 1개 비숫자 컨텍스트 단어를 포함해야 한다. 간헐 CI 실패는 "데이터 내용 의존 단언" 여부를 최우선 가설로 조사한다.
+- **verification**: 실패 당시 데이터 재현 하네스에서 수정 전 issueCount 1("5/5" 매칭 문맥 실증) → 수정 후 issueCount 0. 전체 헤드리스는 배치 최종 게이트에서 확인.
+
+## P719 - v53.5 - data.json 발행 계약(P715 quotes 스트립)이 meta 후기록 재기록에 덮여 라이브에서 무효였다
+
+- **motivation**: REMAINING-WORK B3(배포 후 첫 크론 산출물 검증) — v53.2 배포 후 refresh-data 크론이 patched producer로 재생성한 라이브 아티팩트 3종을 curl로 대사했다.
+- **symptom/reproduction**: `https://ysnle.github.io/aio-screener/public-data/data.json`(generatedAt 2026-07-17T01:12Z, 배포 훨씬 이후)에 quotes 77건이 원시 시세 그대로 발행되고 `meta.quotesPublished`는 undefined. 같은 배치의 telegram-digest(summary-only)·screener.json(price 0건)은 계약 준수 — data.json만 위반.
+- **root_cause**: `fetch-data.mjs` main()이 P715 스트립을 적용한 `publicData`를 한 번 쓰고(1761행), 그 뒤 screener 상태(fmpHasKey 등)를 `data.meta`에 후기록한 다음 "재기록" 단계(1809행)에서 **스트립 안 된 원본 `data`를 그대로 다시 써서** 첫 발행을 덮어썼다. P715 구현 시 OUT에 쓰는 두 번째 write 사이트를 놓친 것 — 로컬 게이트는 producer를 실행하지 않아 잡지 못했고, 위반은 라이브 크론 첫 실행에서야 드러났다.
+- **fix**: 발행 페이로드 생성을 `toPublicPayload()` 헬퍼로 일원화해 두 write 모두 경유시키고, 마지막 발행본을 디스크에서 read-back해 quotes=[]·quotesPublished:false를 단언하는 계약 검증을 main() 끝에 추가(위반 시 throw → git 커밋 전에 워크플로 fail).
+- **violated_rule**: R25(같은 파일 내 이중 write 사이트 전수 확인 없이 한 곳만 패치). P712~P714의 "이중 표면 드리프트" 패턴의 producer 판 — 동일 산출물에 쓰는 모든 write 경로를 grep 전수로 닫아야 한다.
+- **prevention**: 발행 계약을 바꿀 때는 해당 출력 경로(OUT 등)에 대한 write 사이트를 전수 grep하고, 가능하면 계약을 write 시점 헬퍼+read-back 단언으로 코드화해 "패치 누락"이 조용히 살아남지 못하게 한다. 다음 크론 실행 후 라이브 재확인 필요(후속 검증 항목).
+- **verification**: `node --check` PASS. read-back 게이트는 다음 refresh-data 크론 실행에서 실동작(위반 재발 시 워크플로 RED). 라이브 재확인은 배포+크론 도래 후 curl로 수행 예정.
+
+## P718 - v53.4 - 공급자 퇴역 뒤 남은 시나리오 소비자가 null 확률을 숫자로 포맷했다
+
+- **motivation**: 정적 시나리오 확률 생산자를 제거한 뒤 실제 Chromium에서 거시 페이지를 열어, 결측 상태가 화면과 콘솔에서 안전하게 처리되는지 확인했다.
+- **symptom/reproduction**: 외부 네트워크를 차단한 실제 브라우저에서 거시 페이지 진입 시 legacy `updateDynamicScenarios()`가 공급자 없는 `null` 확률에 `.toFixed()`를 호출해 콘솔 오류를 냈다. 단위 테스트는 퇴역 생산자와 정적 확률 부재만 검사해 남은 소비자 경로를 실행하지 못했다.
+- **root_cause**: 정적 확률 레지스트리와 데이터 생산자는 제거했지만, 인라인 DOM 갱신 함수·호출부·빈 시나리오 DOM이 수직 경로로 함께 제거되지 않았다. 결측을 숫자로 강제 포맷하는 소비자 계약도 남아 있었다.
+- **fix**: `updateDynamicScenarios()` 선언, 모든 호출, 빈 시나리오 확률 DOM을 수직 제거하고 공급자 미연결 상태는 `data-scenario-provider-state="unavailable"`로 명시했다. T1040과 정적 데이터 계약은 provider-required 정책과 퇴역 소비자 부재를 함께 검사하도록 갱신했다.
+- **violated_rule**: R341의 퇴역 경로 완전 제거와 R342의 결측 숫자 포맷 금지 원칙을 생산자 쪽에만 적용하고 실제 route 소비자까지 닫지 못했다.
+- **prevention**: 데이터 생산자·레지스트리를 퇴역할 때 선언→호출→DOM sink→테스트를 한 묶음으로 제거한다. provider-required 출력은 유효한 공급자 응답 전까지 숫자·확률을 렌더하지 않으며, 실제 Chromium route 검증에서 console error 0을 필수로 한다.
+- **verification**: 호출·선언 잔존 0, 정적 데이터 계약 22/22, runtime/structural/semantic 계약, Chromium headless 1101/1101을 통과했다. 실제 Chromium critical-10은 10/10·consoleErrors 0, 접근성은 22/22·consoleErrors 0이었다. B1 재현, B2 직접 원인, B3 인접 소비자, B4 문서·규칙, B5 자동 회귀, B6 실제 브라우저까지 모두 닫았다. 커밋·배포는 수행하지 않았다.
+
+## P717 - v53.4 - 정적 시드와 현재형 서술이 데이터 생산자처럼 분산되어 결측을 숨겼다
+
+- **motivation**: 스크리너 전체 코드와 화면의 고정 수치·텍스트를 전수 조사하고, 최신화로 해결할 항목과 구조적으로 런타임화할 항목을 구분해 정리했다.
+- **root_cause**: 시세·심리·거시·시장폭·RRG·시나리오·이벤트·한국시장·LLM 비용까지 서로 다른 시기에 추가된 정적 폴백과 현재형 문장이 DOM, `DATA_SNAPSHOT`, 페이지별 채팅 override, 차트 seed, 스크리너 memo에 흩어져 있었다. 공급자 실패 시 이 값들이 명시적 결측 대신 정상 데이터처럼 보였고, 테스트와 CI도 오래된 상수의 존재를 계약으로 고정했다.
+- **fix**: 변동 데이터는 런타임 artifact/공급자만 허용하고 미수신은 explicit null과 `—`로 닫았다. `AIO_MANUAL_REFERENCE`에는 공식 일정·정책만 출처·기준일·reference-only 용도와 함께 남겼다. SCREENER_DB는 873개 식별자만 보관하고 signal/memo/mcap/rsi는 런타임 병합으로 제한했다. 정적 quote/FRED/RRG/감정/차트/시나리오/이벤트/현재 narrative/LLM 가격·환율 폴백과 중복 채팅 context를 제거했다. 22개 데이터 카테고리를 검사하는 `ci-static-data-contract-check.mjs`를 CI에 추가하고 스크리너 유니버스를 재생성했다.
+- **violated_rule**: R340의 fail-closed 원칙이 파생 결론에는 적용됐지만, 화면 초기값·현재형 텍스트·AI context·비용표·테스트 fixture까지 하나의 데이터 표면으로 묶이지 않았다.
+- **prevention**: R342로 변동 수치·현재형 서술·확률·공급자 가격은 runtime-only, 공식 수동값은 provenance 필수, 결측은 explicit unavailable로 강제한다. 22개 카테고리 계약과 DOM numeric seed 탐지, synthetic fallback 금지, identity-only screener 계약을 CI에서 차단한다.
+- **verification**: 정적 데이터 계약 22/22, runtime/structural/data-lineage 계약, JS 구문 검사, Chromium headless 1101/1101을 통과했다. 스크리너 유니버스는 873건으로 재동기화됐고 live-core lineage 실패는 0건이다. SEC 비표준/해외종목 커버리지 부족은 숫자로 보완하지 않고 reference 경고로 유지했다. 커밋·배포는 수행하지 않았다.
+
+## P716 - v53.3 - 퇴역 기능을 비활성 코드로 보존하고 테스트 번들을 공개 배포한 구조가 코드와 사이트를 함께 비대화했다
+
+- **motivation**: 사용자 요청으로 스크리너에 들어가는 전체 코드를 검토하고 중복·불용·도달 불가 코드와 공개 배포 구성을 정리했다.
+- **root_cause**: 이전 수정들이 feedback board, 구형 macro narrative, breadth history chart, legacy indicator를 완전히 제거하지 않고 `return`, inert stub, 숨김 CSS, 호환 wrapper 형태로 남겼다. 테스트도 퇴역 구현의 부재가 아니라 “호출해도 아무 일 없음”을 확인해 잔존을 정당화했다. 동시에 Pages staging이 `js/*.js`를 복사하고 service worker가 `aio-tests.js`까지 shell asset으로 캐시해 CI 전용 약 680KB 번들을 사용자에게 배포했다.
+- **fix**: 퇴역 기능의 DOM·CSS·상태·함수·호출·테스트를 수직 경로 단위로 제거하고, 현재 renderer 계약에 맞춰 회귀 테스트를 갱신했다. 선언만 있고 참조가 없는 named function을 차단하는 structural gate를 추가했다. Pages manifest·CI staging·service worker를 5개 runtime script 명시 허용목록으로 통일하고 테스트 번들을 제외했다. 총 diff는 코드·배포·문서 포함 순감소 1,300줄 이상이다.
+- **violated_rule**: R220의 compactness 원칙과 공개 artifact 최소화 계약이 퇴역 경로·CI 전용 자산까지 확장되지 않았다.
+- **prevention**: R341에 퇴역 수직 경로 완전 제거, declaration-only function 금지, Pages runtime allowlist와 service-worker 정합을 승격했다. `ci-structural-check.mjs`와 `ci-release-revision-check.mjs`가 재유입을 차단한다.
+- **verification**: JS/MJS 38개 문법 검사, 정적 계약 14개, Chromium headless 1100/1100, boot interaction, critical-10, portfolio vault 8/8, accessibility 22/22, FULL_INIT viewport 22×4=88/88(overflow 0, JS error 0)을 통과했다. 커밋·배포는 수행하지 않았다.
 
 ## P715 - v53.2 - 서버 백스톱 제거가 null 코어전 함정·오탐 리터럴·hue 결합 테스트를 연쇄로 드러냈다
 

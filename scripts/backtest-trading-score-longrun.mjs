@@ -150,6 +150,93 @@ export function spearmanWithCI(pairs) {
   return { n, rho: Math.round(rho * 1000) / 1000, ci95 };
 }
 
+// ── A-1 (2026-07-17, REMAINING-WORK §A1): percentile/레짐 상대화 변형 "relative-v1" ──
+// 왜: WO-2 원결과(21일 rho=-0.165, 63일 -0.255)의 유력 가설이 "dxy>107/tnx>4.5 같은 절대
+//     임계값이 10년 금리 레짐 구조 이동에 대응 못 함"(R298)이었다. 이 변형은 절대 임계값을
+//     trailing 롤링 percentile(최대 2520거래일=10y, 최소 252일 warm-up)로 치환해 같은 데이터·
+//     같은 밴드 구조·같은 가중치로 재백테스트한다.
+// 정직성 메모: percentile 밴드 경계([0.20,0.40,0.60,0.80,0.95] 등)는 데이터에 fit한 값이 아니라
+//     원 절대 밴드의 서수 구조를 보존한 손-지정 상수다(5밴드→5밴드). trailing-only라 look-ahead
+//     없음. HYG 달러가격 신용 판정·hyBp 변환은 라이브가 P713/P714에서 듀레이션 오염으로 이미
+//     제거했으므로 이 변형에도 넣지 않는다(baseline은 WO-2 결과와의 비교 가능성을 위해 원형 유지).
+const REL_WINDOW = 2520;   // 최대 10y trailing
+const REL_MIN_OBS = 252;   // 최소 1y 확보 전엔 판정 보류(null)
+
+export function rollingPercentile(values, idx, window = REL_WINDOW, minObs = REL_MIN_OBS) {
+  const cur = values[idx];
+  if (typeof cur !== 'number' || !isFinite(cur)) return null;
+  const lo = Math.max(0, idx - window + 1);
+  let n = 0, le = 0;
+  for (let i = lo; i <= idx; i++) {
+    const v = values[i];
+    if (typeof v !== 'number' || !isFinite(v)) continue;
+    n++;
+    if (v <= cur) le++;
+  }
+  if (n < minObs) return null;
+  return le / n;
+}
+
+export function reconstructRelativeScore({ vixP, dxyP, tnxP, vvixP, wtiP, spxPrice, spx50ma, spx200ma }) {
+  // warm-up/결측이면 판정 보류 — 절대 변형과 달리 상수 폴백으로 채우지 않는다(fail-closed).
+  if (vixP == null || dxyP == null || tnxP == null) return null;
+
+  // vol: 원 5밴드(vix<15/18/22/27/35 → 90/78/62/42/22/8)의 서수 구조를 percentile 밴드로 보존
+  let volScore;
+  if (vixP < 0.20) volScore = 90;
+  else if (vixP < 0.40) volScore = 78;
+  else if (vixP < 0.60) volScore = 62;
+  else if (vixP < 0.80) volScore = 42;
+  else if (vixP < 0.95) volScore = 22;
+  else volScore = 8;
+
+  // mom/breadth: baseline과 동일한 중립 상수 경로(fg=45→52, breadth200=57→72) — 비교 변인 통제
+  const momScore = 52;
+  let breadthScore = 72;
+
+  // trend: 이미 상대 지표(가격 vs 자기 MA)라 원형 유지
+  const trendScore = calcTrendScoreRel(spxPrice, spx50ma, spx200ma);
+
+  // macro: dxy>107→상위 20%, dxy>110→상위 10%, tnx>4.5→상위 20%, vvix>110→상위 20%
+  let macroScore = 55;
+  if (dxyP > 0.80) macroScore -= 12;
+  if (dxyP > 0.90) macroScore -= 8;
+  if (tnxP > 0.80) macroScore -= 10;
+  if (vvixP != null && vvixP > 0.80) macroScore -= 8;
+  macroScore = Math.max(10, Math.min(90, macroScore));
+
+  // cross-risk: 원형(vix>25/dxy>107/tnx>4.5/oil>100)의 percentile 등가
+  let crossRiskCount = 0;
+  if (vixP > 0.80) crossRiskCount++;
+  if (dxyP > 0.80) crossRiskCount++;
+  if (tnxP > 0.80) crossRiskCount++;
+  if (wtiP != null && wtiP > 0.95) crossRiskCount++;
+  if (crossRiskCount >= 3) macroScore = Math.max(10, macroScore - 10);
+
+  let composite = Math.round(
+    volScore * 0.25 + momScore * 0.25 + trendScore * 0.20 + breadthScore * 0.20 + macroScore * 0.10
+  );
+
+  // oil 보정: 원형($100/$90 절대가)의 percentile 등가(상위 5%/15%)
+  if (wtiP != null) {
+    if (wtiP > 0.95) composite -= 10;
+    else if (wtiP > 0.85) composite -= 5;
+  }
+
+  const total = Math.max(5, Math.min(100, composite));
+  return { total, volScore, trendScore, macroScore };
+}
+
+// trend 밴드는 reconstructScore 내부(calcTrendScore)와 동일 — import 순환 없이 로컬 재현
+function calcTrendScoreRel(spxPrice, spx50ma, spx200ma) {
+  if (!spxPrice || !spx50ma || !spx200ma) return 50;
+  if (spxPrice > spx50ma * 1.02) return 82;
+  if (spxPrice > spx50ma) return 68;
+  if (spxPrice > spx200ma) return 50;
+  if (spxPrice > spx200ma * 0.97) return 32;
+  return 15;
+}
+
 function quantileSplit(records, scoreField, returnField, buckets = 3) {
   const clean = records.filter(r => r[scoreField] != null && r[returnField] != null);
   const sorted = [...clean].sort((a, b) => a[scoreField] - b[scoreField]);
@@ -187,6 +274,10 @@ export async function runLongrunBacktest(range, outPath) {
     throw new Error(`insufficient merged series length (${series.length}) — Yahoo fetch likely degraded, aborting rather than reporting on a truncated window`);
   }
 
+  // A-1 relative-v1: 필드별 값 배열(시리즈 인덱스 정렬)을 만들어 trailing percentile 사전계산
+  const relFields = ['vix', 'dxy', 'tnx', 'vvix', 'wti'];
+  const relValues = Object.fromEntries(relFields.map(f => [f, series.map(d => d[f])]));
+
   const records = [];
   for (let i = 0; i < series.length; i++) {
     const d = series[i];
@@ -198,6 +289,11 @@ export async function runLongrunBacktest(range, outPath) {
       vix: d.vix, fg: 45, dxy: d.dxy, tnx: d.tnx, wti: d.wti, vvix: d.vvix,
       spxPrice: d.spx, spx50ma, spx200ma, mode: 'default', hyg: d.hyg,
     });
+    const pct = Object.fromEntries(relFields.map(f => [f, rollingPercentile(relValues[f], i)]));
+    const rel = reconstructRelativeScore({
+      vixP: pct.vix, dxyP: pct.dxy, tnxP: pct.tnx, vvixP: pct.vvix, wtiP: pct.wti,
+      spxPrice: d.spx, spx50ma, spx200ma,
+    });
     records.push({
       date: d.date,
       idx: i,
@@ -205,6 +301,9 @@ export async function runLongrunBacktest(range, outPath) {
       vol: result.volScore,
       trend: result.trendScore,
       macro: result.macroScore,
+      compositeRel: rel ? rel.total : null,
+      volRel: rel ? rel.volScore : null,
+      macroRel: rel ? rel.macroScore : null,
       regime: classifyRegime(d, series, i),
       fwd1d: forwardReturn(series, i, 1),
       fwd5d: forwardReturn(series, i, 5),
@@ -214,7 +313,7 @@ export async function runLongrunBacktest(range, outPath) {
   }
 
   const horizons = ['fwd1d', 'fwd5d', 'fwd21d', 'fwd63d'];
-  const subScores = ['composite', 'vol', 'trend', 'macro'];
+  const subScores = ['composite', 'vol', 'trend', 'macro', 'compositeRel', 'volRel', 'macroRel'];
 
   const overall = {};
   for (const h of horizons) {
@@ -230,11 +329,15 @@ export async function runLongrunBacktest(range, outPath) {
       dateRange: [referencePeriod[0]?.date, referencePeriod[referencePeriod.length - 1]?.date],
       n: referencePeriod.length,
       corr21d_composite: spearmanWithCI(referencePeriod.map(r => [r.composite, r.fwd21d])),
+      corr21d_compositeRel: spearmanWithCI(referencePeriod.map(r => [r.compositeRel, r.fwd21d])),
+      corr63d_compositeRel: spearmanWithCI(referencePeriod.map(r => [r.compositeRel, r.fwd63d])),
     },
     holdoutPeriod: {
       dateRange: [holdoutPeriod[0]?.date, holdoutPeriod[holdoutPeriod.length - 1]?.date],
       n: holdoutPeriod.length,
       corr21d_composite: spearmanWithCI(holdoutPeriod.map(r => [r.composite, r.fwd21d])),
+      corr21d_compositeRel: spearmanWithCI(holdoutPeriod.map(r => [r.compositeRel, r.fwd21d])),
+      corr63d_compositeRel: spearmanWithCI(holdoutPeriod.map(r => [r.compositeRel, r.fwd63d])),
     },
   };
 
@@ -247,11 +350,14 @@ export async function runLongrunBacktest(range, outPath) {
     .map(([label, rows]) => ({
       label, n: rows.length,
       corr21d_composite: spearmanWithCI(rows.map(r => [r.composite, r.fwd21d])),
+      corr21d_compositeRel: spearmanWithCI(rows.map(r => [r.compositeRel, r.fwd21d])),
     }))
     .sort((a, b) => b.n - a.n);
 
   const quantile21d = quantileSplit(records, 'composite', 'fwd21d');
   const quantile5d = quantileSplit(records, 'composite', 'fwd5d');
+  const quantileRel21d = quantileSplit(records, 'compositeRel', 'fwd21d');
+  const quantileRel63d = quantileSplit(records, 'compositeRel', 'fwd63d');
 
   const output = {
     generatedAt: new Date().toISOString(),
@@ -267,7 +373,14 @@ export async function runLongrunBacktest(range, outPath) {
     walkForward,
     regimes,
     ablationNote: 'overallCorrelations above already reports vol/trend/macro sub-scores individually alongside the composite — that IS the ablation (isolates which sub-score, if any, carries signal vs the blended total).',
-    quantileSpread: { fwd5d: quantile5d, fwd21d: quantile21d },
+    relativeVariant: {
+      name: 'relative-v1 (A-1, 2026-07-17)',
+      hypothesis: 'R298 — absolute thresholds (dxy>107, tnx>4.5, vix bands) fail to track structural regime shifts over 10y; replacing them with trailing rolling percentiles (window ≤2520d, warm-up ≥252d, trailing-only → no look-ahead) may restore a positive score↔forward-return relationship.',
+      design: 'Same band structure, same weights, same neutral constants for mom/breadth as baseline. Only the threshold *units* change (absolute level → trailing percentile). Percentile band edges ([0.20,0.40,0.60,0.80,0.95]) are hand-set a priori to preserve the ordinal structure of the original bands — NOT fitted to returns. HYG price-band credit corrections are excluded (live already removed them in P713/P714 as duration-polluted).',
+      passCriterion: 'Statistically significant POSITIVE rho (95% CI excluding 0) for compositeRel vs fwd21d/fwd63d, consistent sign across walk-forward reference/holdout. Anything else → the confirmed policy stands: keep the live score labeled as an environment-descriptive value, no live formula change.',
+      warmupExcludedDays: records.filter(r => r.compositeRel == null).length,
+    },
+    quantileSpread: { fwd5d: quantile5d, fwd21d: quantile21d, rel_fwd21d: quantileRel21d, rel_fwd63d: quantileRel63d },
     caveats: [
       'This validates only ~55% of computeTradingScore\'s weight (vol 25% + trend 20% + macro 10%) — momScore(25%) and breadthScore(20%) remain unvalidated placeholders here.',
       'The live app\'s displayed composite score must stay labeled provisional/unvalidated regardless of this result, since its momScore/breadthScore/PCR/AAII inputs are not covered by this backtest.',
@@ -286,6 +399,11 @@ if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url
     console.log(`[backtest-trading-score-longrun] tradingDays=${output.dataRange.tradingDays} range=${output.dataRange.from}..${output.dataRange.to}`);
     console.log(`[backtest-trading-score-longrun] overall fwd21d composite: n=${output.overallCorrelations.fwd21d.composite.n} rho=${output.overallCorrelations.fwd21d.composite.rho} ci95=${JSON.stringify(output.overallCorrelations.fwd21d.composite.ci95)}`);
     console.log(`[backtest-trading-score-longrun] walk-forward holdout fwd21d: n=${output.walkForward.holdoutPeriod.n} rho=${output.walkForward.holdoutPeriod.corr21d_composite.rho}`);
+    for (const h of ['fwd1d', 'fwd5d', 'fwd21d', 'fwd63d']) {
+      const abs = output.overallCorrelations[h].composite, rel = output.overallCorrelations[h].compositeRel;
+      console.log(`[relative-v1] ${h}: baseline rho=${abs.rho} ci95=${JSON.stringify(abs.ci95)} | relative rho=${rel.rho} ci95=${JSON.stringify(rel.ci95)} (n=${rel.n})`);
+    }
+    console.log(`[relative-v1] walk-forward 21d ref=${output.walkForward.referencePeriod.corr21d_compositeRel.rho} holdout=${output.walkForward.holdoutPeriod.corr21d_compositeRel.rho} | 63d ref=${output.walkForward.referencePeriod.corr63d_compositeRel.rho} holdout=${output.walkForward.holdoutPeriod.corr63d_compositeRel.rho}`);
     console.log(`[backtest-trading-score-longrun] regimes found: ${output.regimes.map(r => r.label + '(n=' + r.n + ')').join(', ')}`);
   }).catch((e) => { console.error('[backtest-trading-score-longrun] error:', e.stack || e.message); process.exit(1); });
 }

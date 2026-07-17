@@ -91,6 +91,9 @@ jobs:
       - name: Data lineage and freshness audit (WP-8/WP-12)
         run: node scripts/ci-data-lineage-audit.mjs
 
+      - name: Static and hardcoded data contract (22 categories)
+        run: node scripts/ci-static-data-contract-check.mjs
+
       - name: Structural regression checks
         run: node scripts/ci-structural-check.mjs
 
@@ -323,9 +326,9 @@ jobs:
       - name: Stage public site (explicit artifact allowlist)
         run: |
           set -e
-          mkdir -p "$RUNNER_TEMP/pages-dist"
+          mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/public-data"
           cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json "$RUNNER_TEMP/pages-dist/"
-          rsync -a js/ "$RUNNER_TEMP/pages-dist/js/"
+          cp js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js js/aio-glossary.js "$RUNNER_TEMP/pages-dist/js/"
           rsync -a public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
 
       - name: Setup Pages

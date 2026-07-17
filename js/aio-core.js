@@ -545,9 +545,6 @@ function _aioAIPercentile(values, percentile) {
 }
 window.AIO.recordAISLOSample = function(options) {
   options = options || {};
-  var modelName = String(options.model || 'unknown').toLowerCase();
-  var modelPrice = /opus/.test(modelName) ? { input: 15, output: 75 } : /haiku/.test(modelName) ? { input: 0.25, output: 1.25 } : { input: 3, output: 15 };
-  var estimatedCost = (Number(options.inputTokens) || 0) / 1e6 * modelPrice.input + (Number(options.outputTokens) || 0) / 1e6 * modelPrice.output;
   var sample = {
     version: _AIO_AI_OPS_VERSION,
     requestId: options.requestId || null,
@@ -557,7 +554,7 @@ window.AIO.recordAISLOSample = function(options) {
     latencyMs: Number(options.latencyMs) >= 0 ? Number(options.latencyMs) : null,
     inputTokens: Number(options.inputTokens) || 0,
     outputTokens: Number(options.outputTokens) || 0,
-    costUsd: isFinite(Number(options.costUsd)) && Number(options.costUsd) >= 0 ? Number(options.costUsd) : estimatedCost,
+    costUsd: isFinite(Number(options.costUsd)) && Number(options.costUsd) >= 0 ? Number(options.costUsd) : null,
     recordedAt: options.recordedAt || new Date().toISOString()
   };
   var samples = window._aioAISLOSamples = window._aioAISLOSamples || [];
@@ -577,7 +574,8 @@ window.AIO.getAISLOReport = function() {
     p95LatencyMs: _aioAIPercentile(latency, 0.95),
     inputTokens: samples.reduce(function(sum, s) { return sum + s.inputTokens; }, 0),
     outputTokens: samples.reduce(function(sum, s) { return sum + s.outputTokens; }, 0),
-    costUsd: samples.reduce(function(sum, s) { return sum + s.costUsd; }, 0),
+    costUsd: samples.some(function(s) { return s.costUsd != null; })
+      ? samples.reduce(function(sum, s) { return sum + (s.costUsd || 0); }, 0) : null,
     samples: samples.slice(-20)
   };
 };
@@ -1687,35 +1685,22 @@ window._aioClearAllTimers = function() {
     var page = pageId ? document.getElementById('page-' + pageId) : (document.querySelector('.page.active') || document);
     if (!page) return 0;
     var presets = {
-      'bp-ad-ratio-chart': { label: 'Breadth live feed unavailable', color: '#00bcd4', data: [50, 49, 51, 50, 50, 50] },
-      'bp-price-chart': { label: 'SPX breadth price unavailable', color: '#a78bfa', data: [100, 100.1, 99.9, 100.2, 100.0, 100.1] },
-      'bp-5ma-chart': { label: '5DMA breadth unavailable', color: '#00e5a0', data: [50, 50, 50, 50, 50, 50] },
-      'bp-20ma-chart': { label: '20DMA breadth unavailable', color: '#ffa31a', data: [50, 50, 50, 50, 50, 50] },
-      'bp-50ma-chart': { label: '50DMA breadth unavailable', color: '#ff5b50', data: [50, 50, 50, 50, 50, 50] },
-      'bh-price-chart': { label: 'NDX breadth price unavailable', color: '#a78bfa', data: [100, 100.1, 99.9, 100.2, 100.0, 100.1] },
-      'bh-5ma-chart': { label: 'NDX 5DMA breadth unavailable', color: '#00e5a0', data: [50, 50, 50, 50, 50, 50] },
-      'bh-20ma-chart': { label: 'NDX 20DMA breadth unavailable', color: '#ffa31a', data: [50, 50, 50, 50, 50, 50] },
-      'bh-50ma-chart': { label: 'NDX 50DMA breadth unavailable', color: '#ff5b50', data: [50, 50, 50, 50, 50, 50] },
-      'fred-unrate-chart': { label: 'FRED unemployment (참고)', color: '#ff5b50', data: [4.1, 4.2, 4.2, 4.3, 4.3, 4.3], status: 'fred-chart-status' },
-      'fred-cpi-chart': { label: 'FRED CPI (참고)', color: '#ffa31a', data: [3.5, 3.6, 3.7, 3.8, 3.8, 3.8], status: 'fred-chart-status' },  // v50.15: 2.9→3.8 (현재 CPI YoY 정합, 기존 stale)
-      'fred-fedfunds-chart': { label: 'FRED Fed Funds (참고)', color: '#00bcd4', data: [4.0, 3.75, 3.75, 3.625, 3.625, 3.625], status: 'fred-chart-status' },  // v50.15: 4.5-5.25→3.625 (현재 3.50-3.75% 정합)
-      'rrg-canvas': { label: 'RRG live data unavailable', color: '#00e5a0', data: [96, 98, 101, 103, 102, 104], status: 'rrg-chart-status' },
-      'sector-20d-chart': { label: 'Sector 20D live unavailable', color: '#00bcd4', data: [0, 0.2, -0.1, 0.4, 0.7, 0.5], status: 'sector-20d-status' },
-      'fund-var-chart': { label: 'Fundamental chart awaits ticker', color: '#a78bfa', data: [0, 1, 0.5, 1.8, 1.3, 2.2] },
-      'pf-benchmark-chart': { label: 'Portfolio benchmark awaits holdings', color: '#00bcd4', data: [100, 100.4, 100.1, 100.8, 101.2, 101.0] },
-      'pf-position-donut': { type: 'message', label: 'Portfolio awaits holdings' },
-      'ticker-price-chart': { label: 'Ticker price reference', color: '#00e5a0', data: [100, 101.2, 100.7, 102.4, 103.1, 102.8] },
-      'kr-vkospi-chart': { label: 'VKOSPI reference', color: '#ff5b50', data: [17.5, 17.8, 17.6, 17.3, 17.0, 18.2, 21.0] }  // v50.15: 오류값(82.0 등) 정정 — VKOSPI 정상 12~25
+      'bp-ad-ratio-chart': { type:'message', label:'Breadth A/D 시계열 미수신' },
+      'bp-price-chart': { type:'message', label:'S&P 가격 시계열 미수신' },
+      'bp-5ma-chart': { type:'message', label:'5DMA breadth 시계열 미수신' },
+      'bp-20ma-chart': { type:'message', label:'20DMA breadth 시계열 미수신' },
+      'bp-50ma-chart': { type:'message', label:'50DMA breadth 시계열 미수신' },
+      'fred-unrate-chart': { type:'message', label:'FRED 실업률 시계열 미수신', status:'fred-chart-status' },
+      'fred-cpi-chart': { type:'message', label:'FRED CPI 시계열 미수신', status:'fred-chart-status' },
+      'fred-fedfunds-chart': { type:'message', label:'FRED 기준금리 시계열 미수신', status:'fred-chart-status' },
+      'rrg-canvas': { type:'message', label:'RRG 시계열 미수신', status:'rrg-chart-status' },
+      'sector-20d-chart': { type:'message', label:'섹터 20일 시계열 미수신', status:'sector-20d-status' },
+      'fund-var-chart': { type:'message', label:'티커 선택 후 표시' },
+      'pf-benchmark-chart': { type:'message', label:'포트폴리오 구성 후 표시' },
+      'pf-position-donut': { type:'message', label:'포트폴리오 구성 후 표시' },
+      'ticker-price-chart': { type:'message', label:'티커 가격 시계열 미수신' },
+      'kr-vkospi-chart': { type:'message', label:'VKOSPI 시계열 미수신' }
     };
-    // v50.15 (사용자 지적: 폭 차트 일자/평탄선): preset 평탄값 [50,50,50] 대신 실제 시계열(전역 _breadthSeries) 사용
-    try {
-      var _bs = window._breadthSeries || {};
-      ['bp-ad-ratio-chart','bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart','bh-price-chart','bh-5ma-chart','bh-20ma-chart','bh-50ma-chart'].forEach(function(bid) {
-        if (presets[bid] && Array.isArray(_bs[bid]) && _bs[bid].length > 5) {
-          presets[bid] = { label: presets[bid].label.replace(' unavailable', ''), color: presets[bid].color, data: _bs[bid].slice() };  // v50.15: slice(-14)→전체 — 저점 시작부 잘려 평탄해 보이던 것 해소(사용자 지적)
-        }
-      });
-    } catch (_bsErr) {}
     function isBlank(canvas) {
       if (!canvas) return true;
       try {
@@ -1758,14 +1743,14 @@ window._aioClearAllTimers = function() {
       if (!ok) return;
       markFallbackCanvas(canvas);
       canvas.setAttribute('data-source-kind', 'unavailable');
-      canvas.setAttribute('data-operational-use', 'reference-only');
+      canvas.setAttribute('data-operational-use', 'blocked');
       canvas.setAttribute('data-source-label', 'chart-runtime-fallback');
       canvas.setAttribute('data-source', 'chart-runtime-fallback');
       canvas.setAttribute('data-source-ts', new Date().toISOString());
       if (preset.status) {
         var st = document.getElementById(preset.status);
         if (st && /로딩|Loading|loading|수집|지연|실패/i.test(st.textContent || '')) {
-          st.textContent = '라이브 차트 미수신 · 참고용 표시';
+          st.textContent = '라이브 차트 미수신 · 판단 보류';
           st.style.color = 'var(--data-amber)';
         }
       }
@@ -2246,8 +2231,7 @@ window._aioFundSearchFill = function(preset) {
   });
 })();
 
-// v49.79 P427/R164: API 비용 누적 추적 — Claude API 호출마다 토큰 기록
-// 사용자 정직 요구 — 비용 가시화 부재 시정.
+// API 사용량 추적. 변동하는 공급자 가격은 내장하지 않는다.
 // callClaude에서 응답 후 _aioTrackApiUsage({model, inputTokens, outputTokens}) 호출.
 window._aioTrackApiUsage = function(opts) {
   if (!opts || typeof opts !== 'object') return;
@@ -2255,31 +2239,20 @@ window._aioTrackApiUsage = function(opts) {
   var inTok = opts.inputTokens || 0;
   var outTok = opts.outputTokens || 0;
   if (!inTok && !outTok) return;
-  // Anthropic 모델별 가격 ($ per 1M tokens) — 2026년 5월 기준
-  var pricing = {
-    'sonnet':          { input: 3.00, output: 15.00 },   // Sonnet 4.x
-    'sonnet-thinking': { input: 3.00, output: 15.00 },
-    'haiku':           { input: 0.25, output: 1.25 },
-    'opus':            { input: 15.00, output: 75.00 }
-  };
-  var price = pricing[model] || pricing.sonnet;
-  var costUsd = (inTok / 1e6) * price.input + (outTok / 1e6) * price.output;
   try {
     var raw = localStorage.getItem('aio_api_usage_v1') || '{}';
     var data = JSON.parse(raw);
     var today = new Date().toISOString().slice(0, 10);
     data.daily = data.daily || {};
-    data.daily[today] = data.daily[today] || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, byModel: {} };
+    data.daily[today] = data.daily[today] || { calls: 0, inputTokens: 0, outputTokens: 0, byModel: {} };
     data.daily[today].calls++;
     data.daily[today].inputTokens += inTok;
     data.daily[today].outputTokens += outTok;
-    data.daily[today].costUsd += costUsd;
     data.daily[today].byModel[model] = (data.daily[today].byModel[model] || 0) + 1;
-    data.lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+    data.lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0 };
     data.lifetime.calls++;
     data.lifetime.inputTokens += inTok;
     data.lifetime.outputTokens += outTok;
-    data.lifetime.costUsd += costUsd;
     // 30일+ 오래된 daily 데이터 자동 삭제
     var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
     var cutoffStr = cutoff.toISOString().slice(0, 10);
@@ -2294,29 +2267,28 @@ window.AIO.getApiUsage = function() {
   try {
     var data = JSON.parse(localStorage.getItem('aio_api_usage_v1') || '{}');
     var today = new Date().toISOString().slice(0, 10);
-    var todayUsage = (data.daily || {})[today] || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+    var todayUsage = (data.daily || {})[today] || { calls: 0, inputTokens: 0, outputTokens: 0 };
     var dailyKeys = Object.keys(data.daily || {}).sort();
     var last7 = dailyKeys.slice(-7).reduce(function(acc, d) {
       var v = data.daily[d] || {};
       acc.calls += Number(v.calls) || 0;
       acc.inputTokens += Number(v.inputTokens) || 0;
       acc.outputTokens += Number(v.outputTokens) || 0;
-      acc.costUsd += Number(v.costUsd) || 0;
       return acc;
-    }, { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 });
-    var lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+    }, { calls: 0, inputTokens: 0, outputTokens: 0 });
+    var lifetime = data.lifetime || { calls: 0, inputTokens: 0, outputTokens: 0 };
     var report = {
-      today: { date: today, calls: Number(todayUsage.calls) || 0, inputTokens: Number(todayUsage.inputTokens) || 0, outputTokens: Number(todayUsage.outputTokens) || 0, costUsd: window._aioSafeFixed(todayUsage.costUsd, 4, '0.0000'), byModel: todayUsage.byModel || {} },
-      last7days: { calls: last7.calls, inputTokens: last7.inputTokens, outputTokens: last7.outputTokens, costUsd: window._aioSafeFixed(last7.costUsd, 4, '0.0000') },
-      lifetime: { calls: Number(lifetime.calls) || 0, inputTokens: Number(lifetime.inputTokens) || 0, outputTokens: Number(lifetime.outputTokens) || 0, costUsd: window._aioSafeFixed(lifetime.costUsd, 4, '0.0000') },
+      today: { date: today, calls: Number(todayUsage.calls) || 0, inputTokens: Number(todayUsage.inputTokens) || 0, outputTokens: Number(todayUsage.outputTokens) || 0, byModel: todayUsage.byModel || {} },
+      last7days: { calls: last7.calls, inputTokens: last7.inputTokens, outputTokens: last7.outputTokens },
+      lifetime: { calls: Number(lifetime.calls) || 0, inputTokens: Number(lifetime.inputTokens) || 0, outputTokens: Number(lifetime.outputTokens) || 0 },
       dailyDetail: data.daily || {},
-      note: 'v49.79 P427: Anthropic API 비용 자동 추적 (Sonnet $3/$15 · Haiku $0.25/$1.25 per 1M tok). 30일+ daily 자동 정리.'
+      note: '토큰 사용량만 추적합니다. 공식 청구 비용이 없으면 비용을 추정하지 않습니다.'
     };
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('[AIO v49.79 API Usage]');
-    console.log('오늘:', report.today.calls + '회 · $' + report.today.costUsd + ' (in:' + report.today.inputTokens + ' out:' + report.today.outputTokens + ')');
-    console.log('최근 7일:', report.last7days.calls + '회 · $' + report.last7days.costUsd);
-    console.log('전체 누적:', report.lifetime.calls + '회 · $' + report.lifetime.costUsd);
+    console.log('오늘:', report.today.calls + '회 (in:' + report.today.inputTokens + ' out:' + report.today.outputTokens + ')');
+    console.log('최근 7일:', report.last7days.calls + '회');
+    console.log('전체 누적:', report.lifetime.calls + '회');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     return report;
   } catch(e) {
@@ -2602,7 +2574,7 @@ if (typeof document !== 'undefined') {
   window._aioSnapshotDatesTimer = _aioRegisterTimer('snapshotDates', window._aioRenderSnapshotDates, 15 * 60 * 1000);
 }
 
-// v48.51: Breadth 5-canvas fallback 렌더러 — Chart.js 없이 2D 캔버스로 경량 sparkline (v50.51 bh-* 4캔버스 DOM 제거로 bp-* 5개만 유지)
+// Breadth 5-canvas fallback renderer — Chart.js 없이 2D canvas로 경량 sparkline 제공.
 window._aioBreadthCanvasRender = function() {
   var ids = ['bp-ad-ratio-chart','bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart'];
   var bld = window._breadthLiveData || {};
@@ -2790,15 +2762,16 @@ window._aioRenderSignalRegime = function() {
     }
 
     // 2) AAII 약세 비율 — 실시간 window._aaiiBearish 우선 (v48.61 버그 수정)
-    var aaiiBear = Number((typeof window._aaiiBearish === 'number') ? window._aaiiBearish
-                 : (snap.aaiiBear != null ? snap.aaiiBear : 43.0));
-    if (!Number.isFinite(aaiiBear)) aaiiBear = 43.0;
+    var aaiiRaw = (typeof window._aaiiBearish === 'number') ? window._aaiiBearish
+                 : (snap.aaiiBear != null ? snap.aaiiBear : null);
+    var aaiiBear = aaiiRaw == null || aaiiRaw === '' ? null : Number(aaiiRaw);
+    if (!Number.isFinite(aaiiBear)) aaiiBear = null;
     var aaiiEl = document.getElementById('regime-aaii');
     if (aaiiEl) {
-      aaiiEl.textContent = aaiiBear.toFixed(1) + '%';
-      aaiiEl.style.color = aaiiBear > 40 ? 'var(--data-amber)' : 'var(--data-green)';
+      aaiiEl.textContent = aaiiBear != null ? aaiiBear.toFixed(1) + '%' : '—';
+      aaiiEl.style.color = aaiiBear == null ? 'var(--text-muted)' : (aaiiBear > 40 ? 'var(--data-amber)' : 'var(--data-green)');
       var aaiiSub = aaiiEl.nextElementSibling;
-      if (aaiiSub) aaiiSub.textContent = aaiiBear > 40 ? '비관 우세' : aaiiBear > 30 ? '중립' : '낙관';
+      if (aaiiSub) aaiiSub.textContent = aaiiBear == null ? '미수신' : (aaiiBear > 40 ? '비관 우세' : aaiiBear > 30 ? '중립' : '낙관');
     }
 
     // 3) Put/Call 비율 — window._putCallRatio (실제 전역, P88 교정) + snap.pcr 키 (v48.61 버그 수정)
@@ -2978,6 +2951,13 @@ window._aioRenderVixTermRegime = function() {
   var v30 = ld['^VIX'] ? ld['^VIX'].price : (_snap.vix != null ? _snap.vix : null);
   var v3m = ld['^VIX3M'] ? ld['^VIX3M'].price : (_snap.vix3m != null ? _snap.vix3m : null);
   var v6m = ld['^VIX6M'] ? ld['^VIX6M'].price : (_snap.vix6m != null ? _snap.vix6m : null);
+  [['^VIX9D', v9d], ['^VIX3M', v3m], ['^VIX6M', v6m]].forEach(function(pair) {
+    var slot = document.querySelector('#page-sentiment [data-live-price="' + pair[0] + '"]');
+    var liveRow = ld[pair[0]];
+    if (!slot) return;
+    if (liveRow && liveRow.price != null) window._aioRenderValueSlot(slot, 'value', Number(liveRow.price).toFixed(2), { reason:'live term observation' });
+    else window._aioRenderValueSlot(slot, 'na', null, { text: pair[1] == null ? '—' : Number(pair[1]).toFixed(2) + ' (참고)', reason:'live term observation unavailable' });
+  });
   if (!v30) { window._aioRenderValueSlot(el, 'pending', null, { text: 'VIX 데이터 수신 대기', reason: '30D VIX live/snapshot 모두 미수신' }); return; }
   var available = [v9d, v30, v3m, v6m].filter(function(v){ return v != null; });
   if (available.length < 2) { window._aioRenderValueSlot(el, 'failed', null, { text: '기간구조 산정 불가 — 수신 만기 부족', reason: 'VIX 만기 데이터 2개 미만' }); return; }
@@ -3140,7 +3120,7 @@ if (typeof document !== 'undefined') {
         var pendingDetails = document.getElementById('breadth-consensus-details');
         if (pendingVerdict) { pendingVerdict.textContent = '판정 보류'; pendingVerdict.style.color = 'var(--text-muted)'; }
         if (pendingConflict) pendingConflict.textContent = '현재 5/20/50일선 breadth 원천 미수신';
-        if (pendingDetails) pendingDetails.textContent = '2026-06-05 종료 정적 배열은 현재 시장 판정에서 제외됩니다.';
+        if (pendingDetails) pendingDetails.textContent = '현재 시장 폭 시계열 원천이 없어 판정을 보류합니다.';
         return;
       }
       // v50.44: 단일 두뇌(marketState.breadthConsensusFull) 정본 우선 — 독립 재계산 제거. fresh(<15분) 아니면 폴백.
@@ -3231,13 +3211,16 @@ if (typeof document !== 'undefined') {
     setTimeout(window._aioRenderThemesCycle, 200);
   });
 
-  // v49.41 P295/R73 보강: signal 페이지 진입 시 SCENARIO_REGISTRY.signalShortTerm 동기 갱신
-  // index.html L5195~5224의 정적 인라인 확률(30~35%/40~45%/15~20%)을 REGISTRY 값으로 갱신 +
-  // L5199 #scenario-outlook-ts에 lastUpdated 동기 표시 (정적 "분석 대기 중" 차단).
+  // 시나리오 공급자 연결 시에만 확률을 렌더한다. 코드 내 확률 폴백은 금지한다.
   window._aioRenderSignalScenario = function() {
       try {
         var reg = window.AIO_SCENARIO_REGISTRY;
         if (!reg || !reg.signalShortTerm) return;
+        if (reg.status === 'unavailable') {
+          var unavailableEl = document.getElementById('scenario-outlook-ts');
+          if (unavailableEl) unavailableEl.textContent = '정량 시나리오 원천 미연결 · 확률 판단 보류';
+          return;
+        }
         var sst = reg.signalShortTerm;
         // lastUpdated 표시 (#scenario-outlook-ts)
         var latest = null;
@@ -3299,6 +3282,15 @@ if (typeof document !== 'undefined') {
       try {
         var reg = window.AIO_SCENARIO_REGISTRY;
         if (!reg) return;
+        if (reg.status === 'unavailable') {
+          var unavailableSum = document.getElementById('macro-scenario-sum');
+          var unavailableUpdated = document.getElementById('macro-scenario-updated');
+          var unavailableStale = document.getElementById('macro-scenario-stale-days');
+          if (unavailableSum) unavailableSum.textContent = '—';
+          if (unavailableUpdated) unavailableUpdated.textContent = '—';
+          if (unavailableStale) unavailableStale.textContent = '원천 미연결';
+          return;
+        }
         // 가장 늦은 lastUpdated 찾기
         var latest = null;
         Object.keys(reg.scenarios).forEach(function(k) {
@@ -3726,9 +3718,6 @@ if (typeof document !== 'undefined') {
       else host.innerHTML = '<span style="color:var(--text-muted);">데이터 수신 대기 — 시세·뉴스가 로드되면 자동으로 요약됩니다.</span>';
     } catch(_){}
   };
-
-  // v50.34: breadth 상세 차트 접기는 보류 — "추가 지표" 그리드(5571)가 차트 캔버스를 직접 담지 않고
-  //   (bh-* 캔버스는 다른 컨테이너) 구조가 복잡해, 절반만 접히는 위험. 차트 컨테이너 정밀 매핑 후 별도 진행.
 
   // v50.33: 브리핑 뉴스 벽(40건·~5900px) 캡 — 렌더 로직(카테고리 그룹)은 그대로 두고 표현 레벨에서
   // 기본 높이를 제한 + 페이드 + "전체 N건 보기" 토글. 디제스트가 Top3를 이미 주므로 "핵심만"에 부합.
@@ -4287,7 +4276,7 @@ window._aioShowOnboarding = function() {
         '</div>' +
       '</div>' +
       '<div style="padding:10px 12px;background:var(--data-cyan-light);border:1px solid var(--accent-border);border-radius:3px;margin-bottom:14px;font-size:11px;color:var(--text-secondary);line-height:1.6;">' +
-        '<strong style="color:var(--data-cyan);">키 없이도 사용 가능</strong> — Yahoo/Stooq/Naver/CoinGecko 공개 시세 + 정적 스냅샷 데이터. 단 AI 채팅·기업 재무는 키 필요.' +
+        '<strong style="color:var(--data-cyan);">키 없이도 사용 가능</strong> — Yahoo/Stooq/Naver/CoinGecko 공개 시세. 미수신 값은 표시하지 않으며 AI 채팅·기업 재무는 키가 필요합니다.' +
       '</div>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
         '<button data-action="_aioOnboardLater" class="aio-btn-table" style="font-size:12px;padding:8px 14px;">나중에</button>' +
@@ -4643,11 +4632,6 @@ var AIO_PAGE_BRIEFS = {
 };
 window.AIO_PAGE_BRIEFS = AIO_PAGE_BRIEFS;
 
-function _aioBriefEsc(v) {
-  return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch) {
-    return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[ch];
-  });
-}
 
 function _aioCoreViewOn() {
   try { return localStorage.getItem('aio_full_view') !== '1'; } catch(_) { return true; }
@@ -4721,35 +4705,7 @@ window.AIO_SOURCE_KIND = {
   UNAVAILABLE: 'UNAVAILABLE'
 };
 
-window.AIO_EVENT_FRESHNESS_REGISTRY = {
-  fomc: {
-    label: 'FOMC',
-    eventDate: '2026-06-17',
-    maxClaimAgeDays: 30,
-    status: 'RESULT_REVIEW',
-    result: '최근 FOMC 결과는 이미 가격에 반영된 상태로 보고, 금리 경로는 2Y/10Y·달러·물가/고용 후속 데이터로 재평가하는 구간',
-    marketReaction: '장기금리·2년물·달러가 성장주 멀티플에 주는 압력을 우선 확인',
-    nextCheckpoint: '다음 고용·CPI·PCE 발표, 7월 FOMC 공식 일정, 2Y/10Y·달러 방향'
-  },
-  iranHormuzOil: {
-    label: 'Iran/Hormuz/Oil',
-    eventDate: '2026-06-28',
-    maxClaimAgeDays: 14,
-    status: 'RESULT_REVIEW',
-    result: '(6/28) 더 많은 유조선이 호르무즈 해협 통과 → 유가 급락. WTI $69 선 근접, 브렌트 $71대. (6/23) 미 재무부 이란산 원유 60일 한시 일반면허 발급. 중동 전쟁 프리미엄 대부분 제거. 트럼프: 호르무즈 완전 개방·협상 순조. 이란: 핵프로그램 신규 약속 없다 반박(불확실성 잔존).',
-    marketReaction: '유가 하락 = 항공·운송·소비재 비용 이점, 에너지주 수익성 압박. WTI $70 하방 시 인플레 추가 완화 기대. 단, 트럼프 휴전 재위반 경고(6/28) 잔존 — 헤드라인 반전 리스크.',
-    nextCheckpoint: 'WTI $70 하방 안착 여부, 60일 로드맵 이행 첫 점검(7월말), 이란 핵협상 후속 결과, 트럼프 휴전 이행 확인'
-  },
-  appleCXMT: {
-    label: 'Apple CXMT 메모리 검토',
-    eventDate: '2026-06-28',
-    maxClaimAgeDays: 7,
-    status: 'SHORT_TERM_NOISE',
-    result: '(6/28) 애플이 중국 CXMT DRAM 채택을 검토한다는 보도로 반도체 지수 조정. 단, 이 뉴스는 2026년 2월부터 반복 보도된 내용의 재소환. 핵심 판단: ① 미국 국가전략자산(HBM·첨단 DRAM)으로 지정된 상황에서 미국 시장 대규모 채택은 정치·규제 리스크 매우 높음 ② CXMT는 DDR5/LPDDR5X에서 성장 중이나 HBM은 2~3세대 뒤처짐 ③ 대다수 분석가는 중국 내수 시장용 한정 가능성으로 봄 ④ Apple 공급망 퀄리피케이션 최소 12~18개월 소요 ⑤ 트럼프 행정부 CXMT 승인 로비는 메모리 가격 협상 레버리지 성격 강함.',
-    marketReaction: '반도체 지수 단기 조정은 과민반응. 구조적 수혜: MU(CHIPS Act $100B+ 미국 내 DRAM 40% 목표) · SK하이닉스(HBM3E 독점) · 삼성(파운드리+HBM). 중국 공급망(CXMT·화웨이·샤오미)은 별도 생태계로 분기 중 — 이중 공급망 구조화가 5~10년 메가트렌드.',
-    nextCheckpoint: '트럼프 행정부 CXMT 수출면제 승인 여부, 애플 10-Q 공급망 공시, MU CHIPS Act 보조금 집행 일정'
-  }
-};
+window.AIO_EVENT_FRESHNESS_REGISTRY = {};
 
 // v52.55/H3-B: 사건 서사는 결과를 보존하되 현재 행동 주장으로 자동 승격하지 않는다.
 window.AIO.getEventClaimState = function(eventId, nowTs) {
@@ -5710,7 +5666,7 @@ function _aioAINormalizeResearchCard(card, index, digest) {
       title: _aioAIClip(card[0] || 'Reference', 120),
       thesis: _aioAIClip(card[1] || '', 320),
       signals: [], risks: [], automationHint: '', categories: [], url: '', index: index,
-      sourceKind: 'REFERENCE', asOf: (digest && (digest.generatedAt || digest.asOf)) || '2026-06-18',
+      sourceKind: 'REFERENCE', asOf: (digest && (digest.generatedAt || digest.asOf)) || null,
       documentId: safety.documentId, chunkId: safety.chunkId, documentVersion: safety.documentVersion,
       publishedAt: safety.publishedAt, sourceTier: safety.sourceTier, text: safety.text,
       safetyFlags: safety.flags, poisoned: safety.poisoned, retracted: safety.retracted,
@@ -5727,7 +5683,7 @@ function _aioAINormalizeResearchCard(card, index, digest) {
     automationHint: _aioAIClip(card.automationHint || '', 220),
     categories: Array.isArray(card.categories) ? card.categories.slice(0, 5).map(function(v){ return _aioAIClip(v, 60); }) : [],
     url: _aioAIClip(card.url || '', 180), index: index,
-    sourceKind: 'REFERENCE', asOf: (digest && (digest.generatedAt || digest.asOf)) || card.asOf || '2026-06-18',
+    sourceKind: 'REFERENCE', asOf: (digest && (digest.generatedAt || digest.asOf)) || card.asOf || null,
     documentId: safety.documentId, chunkId: safety.chunkId, documentVersion: safety.documentVersion,
     publishedAt: safety.publishedAt, sourceTier: safety.sourceTier, text: safety.text,
     safetyFlags: safety.flags, poisoned: safety.poisoned, retracted: safety.retracted,
@@ -5774,7 +5730,7 @@ window.AIO.retrieveImportedResearch = function(query, ctxId, options) {
     candidateCount: scored.length,
     quarantinedCount: allScored.length - scored.length,
     items: scored.slice(0, topK),
-    asOf: (store.digest && (store.digest.generatedAt || store.digest.asOf)) || '2026-06-18',
+    asOf: (store.digest && (store.digest.generatedAt || store.digest.asOf)) || null,
     sourceKind: 'REFERENCE'
   };
 };
@@ -6204,10 +6160,6 @@ window.AIO.classifyFinancialConduct = function(value, options) {
   }
   return { version: _AIO_AI_CONDUCT_POLICY_VERSION, status: 'EDUCATIONAL_ALLOWED', severity: categories.length ? 'P1' : 'NONE', categories: categories, execution: execution, legalReviewRequired: false, reasons: [] };
 };
-function _aioAIConductMatch(text) {
-  var audit = window.AIO.classifyFinancialConduct(text, {});
-  return audit.categories[0] || null;
-}
 window.AIO.evaluateAIActionPermission = function(options) {
   options = options || {};
   var query = String(options.query || '');
@@ -9862,9 +9814,10 @@ window.AIO.getStaticSeedFallbackAudit = function() {
     var camel = toCamel(key);
     var snake = toSnakeUnderscore(key);
     var alias = aliasMap[key];
-    if (DS[key] != null || DS[camel] != null || DS[snake] != null) return true;
-    if (alias && DS[alias] != null) return true;
-    if (DS._fallback && (DS._fallback[key] != null || DS._fallback[camel] != null || DS._fallback[snake] != null || (alias && DS._fallback[alias] != null))) return true;
+    var owns = function(obj, field) { return !!obj && !!field && Object.prototype.hasOwnProperty.call(obj, field); };
+    if (owns(DS, key) || owns(DS, camel) || owns(DS, snake)) return true;
+    if (alias && owns(DS, alias)) return true;
+    if (DS._fallback && (owns(DS._fallback, key) || owns(DS._fallback, camel) || owns(DS._fallback, snake) || (alias && owns(DS._fallback, alias)))) return true;
     return false;
   }
   var missingSeeds = [];
@@ -12328,55 +12281,10 @@ window.AIO.assertChatPriceFetchHealth = function() {
 // R79 신규 (지정학 시나리오 단일 등록)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_GEOPOLITICAL_CONTEXT_REGISTRY = {
-  version: 'v50.73',
+  version: 'v53.4',
   defaultReviewDays: 14,
-  scenarios: {
-    'hormuz-strait': {
-      name: '호르무즈 해협 긴장',
-      region: 'middle-east',
-      status: 'monitoring',
-      lastReviewed: '2026-06-18',
-      marketImpact: 'oil-supply',
-      currentPriceSignal: 'WTI/Brent 급등 프리미엄 완화 — 호르무즈 재개 기대 반영, 단 헤드라인 반전 리스크 모니터',
-      note: '6/18 리뷰: 기본 판단은 완화 모니터. 실제 봉쇄/재개·협상 서명·WTI 80달러 재돌파 시 즉시 갱신'
-    },
-    'iran-nuclear-deal': {
-      name: '이란 핵협상',
-      region: 'middle-east',
-      status: 'monitoring',
-      lastReviewed: '2026-06-18',
-      marketImpact: 'oil-risk-premium',
-      currentPriceSignal: '핵협상/긴장 완화 기대가 유가 리스크 프리미엄을 낮추는 중',
-      note: '재협상 진전/결렬, 제재 세부, 호르무즈 실제 통항 여부 확인'
-    },
-    'taiwan-strait': {
-      name: '대만 해협 긴장',
-      region: 'asia-pacific',
-      status: 'monitoring',
-      lastReviewed: '2026-06-04',
-      marketImpact: 'semiconductor-supply',
-      currentPriceSignal: 'TSMC/SMCI/HBM 공급망 영향',
-      note: '실제 군사 충돌/제재 발표 시 status 변경'
-    },
-    'ukraine-russia': {
-      name: '러우 전쟁',
-      region: 'europe',
-      status: 'monitoring',
-      lastReviewed: '2026-06-04',
-      marketImpact: 'energy-grain',
-      currentPriceSignal: '천연가스 + 곡물 변동성',
-      note: '평화협상/확전 시 갱신'
-    },
-    'us-china-tariff': {
-      name: '미중 관세 분쟁',
-      region: 'global',
-      status: 'monitoring',
-      lastReviewed: '2026-06-04',
-      marketImpact: 'tech-equity-supply-chain',
-      currentPriceSignal: 'TSM/NVDA/AAPL 등 글로벌 공급망 영향',
-      note: 'Trump 관세 정책 변경 시 갱신'
-    }
-  }
+  status: 'unavailable',
+  scenarios: {}
 };
 
 window.AIO.getGeopoliticalReviewAudit = function() {
@@ -12459,18 +12367,11 @@ window._aioStaleDaysLabel = function(baseDate, opts) {
 // R75 신규 (인터뷰 자동 expire)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_STATIC_CONTENT_LIFECYCLE = {
-  version: 'v49.30',
+  version: 'v53.4',
   defaultArchiveAfterDays: 30,
   defaultReplaceAfterDays: 60,
-  contents: {
-    'jensen-interview-202603': { type: 'interview', createdAt: '2026-03-20', archiveAfterDays: 30, replaceAfterDays: 60, source: 'NVIDIA CEO All-In Podcast' },
-    'briefing-week-may-4-10': { type: 'weekly-calendar', createdAt: '2026-05-10', archiveAfterDays: 7, replaceAfterDays: 14, source: 'Past reference calendar' },
-    'briefing-week-jun-1-5':  { type: 'weekly-calendar', createdAt: '2026-05-31', archiveAfterDays: 7, replaceAfterDays: 14, source: 'Computex/GTC 주간 + AVGO/CRWD 실적 + NFP 6/5' },
-    // v50.11: 현재 DOM 콘텐츠 lifecycle 등록 (orphan marker 해소 — briefing-current-jun-3-25 / jensen-computex-202606)
-    'briefing-current-jun-3-25': { type: 'weekly-calendar', createdAt: '2026-06-05', archiveAfterDays: 21, replaceAfterDays: 28, source: '6월 매크로 경로: NFP 6/5 → CPI 6/10 → FOMC 6/17 결과 확인 → PCE 6/25' },
-    'jensen-computex-202606': { type: 'interview', createdAt: '2026-06-01', archiveAfterDays: 30, replaceAfterDays: 45, source: 'NVIDIA Computex/GTC Taipei 2026' },
-    'kr-export-2026-02':      { type: 'kr-macro-monthly', createdAt: '2026-03-01', archiveAfterDays: 45, replaceAfterDays: 60, source: '산업통상자원부 2월 수출' }
-  },
+  status: 'unavailable',
+  contents: {},
   // 콘텐츠 ID의 expire 상태 계산
   getStatus: function(contentId, nowTs) {
     var c = this.contents[contentId];
@@ -12673,16 +12574,10 @@ window.AIO.getCellLevelDataAudit = function(pageId) {
 // R76 신규 (인사 이름 시점 의존 차단)
 // ─────────────────────────────────────────────────────────────────
 window.AIO_NAMED_ENTITY_REGISTRY = {
-  version: 'v49.30',
+  version: 'v53.4',
   defaultStaleDays: 90,
-  entities: {
-    'us-fed-chair':       { name: 'Powell', alt: ['파월', 'Jerome Powell'], role: 'Fed Chair', currentAs: '2026-05-17', source: 'Reuters' },
-    'us-treasury-sec':    { name: 'Bessent', alt: ['Scott Bessent', 'Treasury Sec'], role: 'US Treasury Secretary', currentAs: '2026-05-17', source: 'Public record' },
-    'us-fed-vicechair':   { name: 'Warsh',  alt: ['Kevin Warsh'], role: 'Fed Vice Chair (candidate)', currentAs: '2026-05-17', source: 'Press speculation', note: '확정 임명 시 갱신' },
-    'kr-bok-governor':    { name: '이창용', alt: ['Lee Chang-yong'], role: 'BOK 총재', currentAs: '2026-05-17', source: 'BOK' },
-    'ecb-president':      { name: 'Lagarde', alt: ['Christine Lagarde'], role: 'ECB President', currentAs: '2026-05-17', source: 'ECB' },
-    'boj-governor':       { name: 'Ueda', alt: ['Kazuo Ueda', '우에다'], role: 'BOJ Governor', currentAs: '2026-05-17', source: 'BOJ' }
-  },
+  status: 'unavailable',
+  entities: {},
   getEntity: function(key) { return this.entities[key] || null; }
 };
 
@@ -12715,14 +12610,14 @@ window.AIO.getNamedEntityAudit = function() {
 // R77 신규
 // ─────────────────────────────────────────────────────────────────
 window.AIO_MACRO_CALENDAR = {
-  version: 'v50.63',
+  version: 'v53.4',
   releases: {
-    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-05-08', nextRelease: '2026-06-05', dataField: 'usUnemploy' },
-    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-05-12', nextRelease: '2026-06-10', dataField: 'cpi' },
-    'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-05-28', nextRelease: '2026-06-25', dataField: 'pce' },
-    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-06-02', nextRelease: '2026-07-01', dataField: 'ismPmi' },
-    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-05-05', nextRelease: '2026-06-04', dataField: 'ismSvc' },
-    'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-05-15', nextRelease: '2026-06-17', dataField: 'retailSales' },
+    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-07-02', nextRelease: '2026-08-07', dataField: 'usUnemploy', source: 'BLS official schedule' },
+    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-07-14', nextRelease: '2026-08-12', dataField: 'cpi', source: 'BLS official schedule' },
+    'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-06-25', nextRelease: '2026-07-30', dataField: 'pce', source: 'BEA official schedule' },
+    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-07-01', nextRelease: '2026-08-03', dataField: 'ismPmi', source: 'ISM official calendar' },
+    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-07-06', nextRelease: '2026-08-05', dataField: 'ismSvc', source: 'ISM official calendar' },
+    'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-07-16', nextRelease: '2026-08-14', dataField: 'retailSales', source: 'U.S. Census official schedule' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
     // 유지, 확인됨) lastRelease로 승격하고 다음 회의(7/28-29, 결정은 둘째날 7/29)를 nextRelease로 갱신.
@@ -12734,11 +12629,15 @@ window.AIO_MACRO_CALENDAR = {
   }
 };
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
-  'us-nfp': ['2026-06-05', '2026-07-02'],
-  'us-cpi': ['2026-06-10', '2026-07-14'],
-  'us-pce': ['2026-05-28', '2026-06-25', '2026-07-30'],
+  'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04'],
+  'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11'],
+  'us-pce': ['2026-06-25', '2026-07-30', '2026-08-26'],
+  'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01'],
+  'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03'],
+  'us-retail': ['2026-07-16', '2026-08-14'],
   'us-fomc': ['2026-06-17', '2026-07-29'],
-  'us-fed-rate': ['2026-06-17', '2026-07-29']
+  'us-fed-rate': ['2026-06-17', '2026-07-29'],
+  'kr-bok': ['2026-07-16', '2026-08-27']
 };
 
 window.AIO.renderMacroNextRelease = function() {
@@ -12787,116 +12686,18 @@ window.AIO.getMacroReleaseStaleAudit = function() {
   };
 };
 
-// ─────────────────────────────────────────────────────────────────
-// v49.83 P443/R172: MACRO_CALENDAR 자동 갱신 hook — 일자 경과 시 nextRelease 자동 compute
-// 발표일이 지났는데 갱신 안 된 entries를 다음 주기로 자동 advance.
-// 의도: monthly-first → 다음 달 1째주 / monthly-mid → 다음 달 15일경 / every-6-7-weeks → +45일
-// 주의: 실제 발표 데이터 변경은 별도 — 시각 cycle만 advance하여 stale audit false alarm 차단.
-// ─────────────────────────────────────────────────────────────────
-window.AIO._aioRecomputeMacroCalendar = function(opts) {
-  opts = opts || {};
-  var now = new Date();
-  var advanced = [];
-  // v50.11: monthData(YYYY-MM / YYYY-QN) 1 cycle advance (KR 캘린더 — 발표 데이터 월 동반 이동)
-  function _advMonthData(md, freq) {
-    if (!md) return md;
-    var q = String(md).match(/^(\d{4})-Q([1-4])$/);
-    if (q) { var yy=+q[1], qn=+q[2]+1; if(qn>4){qn=1;yy++;} return yy+'-Q'+qn; }
-    var m = String(md).match(/^(\d{4})-(\d{2})$/);
-    if (m) { var d=new Date(+m[1], +m[2]-1+ (String(freq).indexOf('quarterly')>=0?3:1), 1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
-    return md;
-  }
-  // v52.7 P604/R279: 'monthly-first-friday' 등 요일 고정 주기는 +1개월 기계적 연장만으로는
-  // 같은 일자가 다른 요일로 밀릴 수 있음(예: 6/5 금 +1개월 → 7/5는 일요일) — 목표 요일로 스냅.
-  function _firstWeekdayOfMonth(year, monthIndex0, weekday) {
-    var d = new Date(Date.UTC(year, monthIndex0, 1));
-    var dow = d.getUTCDay();
-    d.setUTCDate(1 + ((weekday - dow + 7) % 7));
-    return d;
-  }
-  // 단일 registry advance — 여러 cycle stale도 미래가 될 때까지 반복 (KR은 수개월 stale 가능)
-  function _advanceReg(reg) {
-    if (!reg || !reg.releases) return;
-    var todayKst = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
-    }).format(now);
-    Object.keys(reg.releases).forEach(function(key) {
-      var r = reg.releases[key];
-      var nextTs = new Date(r.nextRelease).getTime();
-      if (isNaN(nextTs)) return;
-      if (now.getTime() <= nextTs) return; // 아직 미발표
-      var freq = String(r.frequency || '').toLowerCase();
-      var oldNext = r.nextRelease, oldLast = r.lastRelease, oldMonth = r.monthData;
-      var official = window.AIO_MACRO_OFFICIAL_SCHEDULES && window.AIO_MACRO_OFFICIAL_SCHEDULES[key];
-      var officialIndex = Array.isArray(official) ? official.findIndex(function(date) { return date >= todayKst; }) : -1;
-      if (officialIndex >= 0) {
-        var officialNext = official[officialIndex];
-        var officialLast = officialIndex > 0 ? official[officialIndex - 1] : oldLast;
-        advanced.push({
-          key:key, name:r.name,
-          prevLastRelease:oldLast, prevNextRelease:oldNext,
-          newLastRelease:officialLast, newNextRelease:officialNext
-        });
-        if (!opts.dryRun) {
-          r.lastRelease = officialLast;
-          r.nextRelease = officialNext;
-          r.scheduleStatus = 'official';
-          r.scheduleNote = '공식 2026 발표 캘린더';
-        }
-        return;
-      }
-      var newNext = new Date(r.nextRelease), newLast = r.lastRelease, newMonth = r.monthData;
-      var guard = 0;
-      while (newNext.getTime() < now.getTime() && guard < 60) {
-        newLast = newNext.toISOString().slice(0, 10);
-        if (oldMonth) newMonth = _advMonthData(newMonth, freq);
-        var step = new Date(newNext);
-        if (freq.indexOf('quarterly') >= 0) step.setMonth(step.getMonth() + 3);
-        else if (freq === 'monthly-first-friday') step = _firstWeekdayOfMonth(step.getFullYear(), step.getMonth() + 1, 5);
-        else if (freq.indexOf('monthly') >= 0) step.setMonth(step.getMonth() + 1);
-        else if (freq.indexOf('every-6-7-weeks') >= 0 || freq.indexOf('fomc-decision') >= 0) step.setDate(step.getDate() + 45);
-        else if (freq.indexOf('weekly') >= 0) step.setDate(step.getDate() + 7);
-        else step.setMonth(step.getMonth() + 1); // default monthly
-        newNext = step;
-        guard++;
-      }
-      if (guard === 0) return;
-      advanced.push({
-        key: key, name: r.name,
-        prevLastRelease: oldLast, prevNextRelease: oldNext,
-        newLastRelease: newLast, newNextRelease: newNext.toISOString().slice(0, 10)
-      });
-      if (!opts.dryRun) {
-        r.lastRelease = newLast;
-        r.nextRelease = newNext.toISOString().slice(0, 10);
-        r.scheduleStatus = 'estimated';
-        r.scheduleNote = '기존 주기를 기계적으로 연장한 추정일 — 공식 캘린더 확인 필요';
-        if (oldMonth) r.monthData = newMonth;
-      }
-    });
-  }
-  // v50.11: US + KR 캘린더 모두 처리 (기존 US 단독 → KR stale 재발 방지 R78/P255)
-  _advanceReg(window.AIO_MACRO_CALENDAR);
-  _advanceReg(window.AIO_KR_MACRO_RELEASE);
-  if (!window.AIO_MACRO_CALENDAR) return { status: 'error', advancedCount: 0 };
+// Compatibility audit hook. It deliberately never invents or mutates release dates.
+// A past official date remains stale until a verified schedule refresh changes the registry.
+window.AIO._aioRecomputeMacroCalendar = function() {
+  var audit = window.AIO.getMacroReleaseStaleAudit();
   return {
-    status: advanced.length > 0 ? 'advanced' : 'ok',
-    advancedCount: advanced.length,
-    advanced: advanced,
-    dryRun: !!opts.dryRun,
-    generatedAt: now.toISOString()
+    status: audit.status === 'ok' ? 'ok' : 'stale',
+    advancedCount: 0,
+    advanced: [],
+    stale: audit.stale || [],
+    generatedAt: audit.generatedAt || new Date().toISOString()
   };
 };
-// 페이지 로드 후 1회 자동 advance (앱 시작 시 calendar 자동 최신화)
-setTimeout(function() {
-  try {
-    if (window.AIO && window.AIO._aioRecomputeMacroCalendar) {
-      var r = window.AIO._aioRecomputeMacroCalendar();
-      if (r.advancedCount > 0) console.log('[AIO] MACRO_CALENDAR auto-advanced ' + r.advancedCount + ' entries:', r.advanced.map(function(a){return a.key;}).join(', '));
-      if (window.AIO.renderMacroNextRelease) window.AIO.renderMacroNextRelease();
-    }
-  } catch(_) {}
-}, 0);
 
 // ─────────────────────────────────────────────────────────────────
 // v49.83 P444/R173: computeCrossAssetCorrelation — 자산 간 30일 rolling Pearson correlation
@@ -13103,14 +12904,9 @@ window.AIO.fetchFMPEarningsCallTranscript = async function(ticker) {
 // R78 신규
 // ─────────────────────────────────────────────────────────────────
 window.AIO_KR_MACRO_RELEASE = {
-  version: 'v49.30',
-  releases: {
-    'kr-export':    { name: '수출 1~20일 잠정 (관세청)', frequency: 'monthly-21st', lastRelease: '2026-06-21', nextRelease: '2026-07-21', dataField: 'krExport', monthData: '2026-06-partial', note: '월 전체 수출과 혼용 금지' },
-    'kr-cpi':       { name: 'CPI (통계청)',    frequency: 'monthly-second', lastRelease: '2026-07-02', nextRelease: '2026-08-04', dataField: 'krCpi', monthData: '2026-06' },
-    'kr-gdp':       { name: 'GDP (BOK)',       frequency: 'quarterly',     lastRelease: '2026-04-26', nextRelease: '2026-07-26', dataField: 'krGdp', monthData: '2026-Q1' },
-    'kr-industrial': { name: '산업생산 (통계청)', frequency: 'monthly',     lastRelease: '2026-05-30', nextRelease: '2026-06-30', dataField: 'krIndustrial', monthData: '2026-04' },  // v50.11: 날짜 현행화
-    'kr-semi-export': { name: '반도체 수출 (산자부)', frequency: 'monthly-first', lastRelease: '2026-06-01', nextRelease: '2026-07-01', dataField: 'krSemiExport', monthData: '2026-05', note: '+202.1% YoY 5월 1~20일 반도체 수출 (DATA_SNAPSHOT.krSemiExport)' }
-  }
+  version: 'v53.4',
+  status: 'unavailable',
+  releases: {}
 };
 
 window.AIO.getKrMacroReleaseAudit = function() {
@@ -13459,38 +13255,28 @@ window.AIO.getPagePurposeRatioAudit = function() {
 // 각 시나리오에 lastUpdated 필수 + audit이 stale 자동 탐지.
 // ─────────────────────────────────────────────────────────────────
 window.AIO_SCENARIO_REGISTRY = {
-  version: 'v50.16',
-  staleDaysThreshold: 30,
-  signalStaleDaysThreshold: 7, // v50.16: 단기 전술 시나리오는 주간 갱신 기대 — 7일+ 시 warn (signalShortTerm 9일 stale 미탐지 갭 차단)
-  // v50.11 6/4 업데이트: SPX 신고가 7,585(VIX 15.40)로 위험선호 지속이나 AVGO −12.6% AI 가이던스 실망 + US-Iran 분쟁 진행(유가 $93)으로 낙관 트리거 일부 약화
-  scenarios: {
-    'soft-landing':   { label: '연착륙', probability: 0.30, lastUpdated: '2026-06-04', source: 'JPM/Citi — SPX 신고가·VIX 15.40 위험선호 지속, 단 AI 반도체 가이던스 혼조(AVGO 실망 vs NVDA 견조)', triggers: ['US-Iran 긴장 완화(WTI 하락)', 'CPI <3.5%', 'May NFP +150K+', 'AI 반도체 어닝 모멘텀 지속(NVDA 견조)'] },
-    'stagflation':    { label: '스태그플레이션', probability: 0.45, lastUpdated: '2026-06-04', source: 'BofA Hartnett 6월 인플레 경고 + CPI 3.8%(3년 고점) + 유가 $93', triggers: ['CPI >3.5% 지속', 'May NFP 약화(4월 +115K 수준)', 'Oil >$95', 'PCE 3.3% 고착'] },
-    'recession':      { label: '경기침체', probability: 0.25, lastUpdated: '2026-06-04', source: '소비자신뢰 93.1 하락 + US-Iran 군사 충돌 지정학 리스크(6/4 진행)', triggers: ['이란→호르무즈 봉쇄 재발', 'May NFP <0', 'ISM PMI <45', 'Brent $130+'] }
-  },
-  // v49.99 5/31 업데이트: Computex 촉매(낙관↑) vs BofA 인플레 경고(비관↑)
-  signalShortTerm: {
-    'optimistic':  { label: '낙관', probability: 0.375, probabilityRange: '35~40%', lastUpdated: '2026-06-09', source: '메모리 슈퍼사이클(CLSA/NH 목표가 상향) + 젠슨황 방한 한국 AI 인프라 동맹 + 6/5 셀오프 후 반등 재개', triggers: ['6/17 FOMC 이후 금리·달러 완화', '메모리 ASP 추가 상향', '중동 휴전 확정·유가 안정'] },
-    'base':        { label: '기본', probability: 0.400, probabilityRange: '38~42%', lastUpdated: '2026-06-09', source: 'JPM — 6/5는 포지셔닝 청산(구조 훼손 아님), 메모리 강세 vs 금리 고착(골드만 인하 철회)·지정학 공존', triggers: ['6/10 CPI 인라인(~3.8%)', 'FOMC 동결·인하 신호 자제', 'VIX 17~22 박스', '메모리 강세 지속·밸류 부담'] },
-    'pessimistic': { label: '비관', probability: 0.225, probabilityRange: '20~25%', lastUpdated: '2026-06-09', source: '5월 NFP 172K 서프라이즈→금리인하 후퇴·듀레이션 압박 + 중동 재고조(호르무즈)',  triggers: ['6/10 CPI 재가속(>4%)', '호르무즈 봉쇄·유가 급등', '추가 포지셔닝 청산', '2Y >4.3%·AI capex 소화'] }
-  },
-  // 확률 합 검증 (macro 경기 시나리오)
-  validateSum: function() {
-    var sum = 0;
-    Object.keys(this.scenarios).forEach(function(k) { sum += Number(this.scenarios[k].probability); }, this);
-    return { sum: sum, valid: Math.abs(sum - 1.0) < 0.001 };
-  },
-  // v49.41 P295: signal 단기 시나리오 합 검증
-  validateSignalSum: function() {
-    var sum = 0;
-    Object.keys(this.signalShortTerm).forEach(function(k) { sum += Number(this.signalShortTerm[k].probability); }, this);
-    return { sum: sum, valid: Math.abs(sum - 1.0) < 0.001 };
-  }
+  version: 'v53.4',
+  status: 'unavailable',
+  scenarios: {},
+  signalShortTerm: {},
+  validateSum: function() { return { sum: null, valid: false, available: false }; },
+  validateSignalSum: function() { return { sum: null, valid: false, available: false }; }
 };
 
 window.AIO.getScenarioFreshnessAudit = function() {
   var reg = window.AIO_SCENARIO_REGISTRY;
   if (!reg) return { status: 'error', issueCount: 0, issues: ['SCENARIO_REGISTRY undefined'] };
+  if (reg.status === 'unavailable') {
+    return {
+      status: 'unavailable',
+      available: false,
+      issueCount: 0,
+      issues: [],
+      staleScenarios: [],
+      probabilitySum: null,
+      generatedAt: new Date().toISOString()
+    };
+  }
   var nowTs = Date.now();
   var issues = [];
   var staleScenarios = [];
@@ -13539,7 +13325,7 @@ window.AIO.getEventTimelineStalenessAudit = function() {
   var issues = [], checked = [];
   function ageDays(dStr) { var t = new Date(dStr + 'T00:00:00').getTime(); return isNaN(t) ? null : Math.floor((nowTs - t) / 86400000); }
   var erc = window.AIO_EVENT_RISK_CONTEXT;
-  if (erc) {
+  if (erc && erc.available !== false) {
     var asOfAge = erc.asOf ? ageDays(erc.asOf) : null;
     var rec = { id: 'AIO_EVENT_RISK_CONTEXT', asOf: erc.asOf, asOfAgeDays: asOfAge };
     if (asOfAge != null && asOfAge > 14) issues.push('AIO_EVENT_RISK_CONTEXT.asOf ' + asOfAge + 'd old (>14d) — refresh event runway');
@@ -13550,10 +13336,10 @@ window.AIO.getEventTimelineStalenessAudit = function() {
     else if (tl.length && future.length === 1) issues.push('AIO_EVENT_RISK_CONTEXT.timeline: only 1/' + tl.length + ' future event left (runway thinning)');
     checked.push(rec);
   } else {
-    issues.push('AIO_EVENT_RISK_CONTEXT undefined');
+    checked.push({ id: 'AIO_EVENT_RISK_CONTEXT', available: false, timelineTotal: 0, futureEvents: 0 });
   }
   return {
-    status: issues.length ? 'warn' : 'ok',
+    status: erc && erc.available === false ? 'unavailable' : (issues.length ? 'warn' : 'ok'),
     issueCount: issues.length,
     issues: issues,
     checked: checked,
@@ -15080,7 +14866,11 @@ window.AIO.getCritical10PageFreshnessAudit = function(opts) {
   // P715: '1,508' 리터럴 제거 — 과거 KRW 하드코드 잔재 검출용이었으나 라이브 USD/KRW 실값이
   // 1,508원을 지날 때마다 오탐하는 구조였음(2026-07-16 실증: 서버 스냅샷 시세가 정확히 그 값).
   // 하드코드 회귀는 T175가 data-live-price 슬롯 단위로 직접 검증한다.
-  var staleTokenRe = /PCE\(4\/30\)|VIX Spot 18\.36|4\/14 daily|4\/9 종가|4\/28-29|5\/4|5\/5|5\/8|5\/9|2026-04-17|외국인 7거래일|3-4월 누적|3\/5 장중|4\/8 추정|이란 재협상 재개 전망/;
+  // P720: 맨몸 날짜 토큰 `5/4|5/5|5/8|5/9` 제거 — 체크리스트 "5/5 (조건 충족)" 같은 정상 동적
+  // 렌더와 정면 충돌해, 시장 상태가 5개 조건을 전부 충족한 날에만 CI가 깨지는 간헐 오탐을
+  // 만들었음(2026-07-16 12:10Z/14:24Z run failure, e603a583 데이터로 실증 재현). 이 토큰들이
+  // 감지하던 2026-04/05월 정적 스냅샷 잔재는 v53.4 정적 데이터 계약(22 카테고리)이 원천 차단한다.
+  var staleTokenRe = /PCE\(4\/30\)|VIX Spot 18\.36|4\/14 daily|4\/9 종가|4\/28-29|2026-04-17|외국인 7거래일|3-4월 누적|3\/5 장중|4\/8 추정|이란 재협상 재개 전망/;
   var pages = ids.map(function(id) {
     var profile = window.AIO.getDataRequirementProfile({ pageId: id, reason: 'critical10-audit', symbolLimit: opts.symbolLimit || 999 });
     var plan = window.AIO.getAutoFreshnessPlan ? window.AIO.getAutoFreshnessPlan({ pageId: id, reason: 'critical10-audit', symbolLimit: opts.symbolLimit || 999 }) : null;
@@ -18151,25 +17941,6 @@ function _isFuturesOpen() {
   return true;
 }
 
-/**
- * KRX 장 상태에 따른 "실시간" vs "전일 종가" 표시 결정
- * @param {string} symbol - Yahoo Finance 심볼 (.KS, .KQ, ^KS11, ^KQ11)
- * @returns {{ label:string, dot:string, isLive:boolean }}
- */
-function _getKrxDataStatus(symbol) {
-  if (!symbol) return { label: '—', dot: '<span class="sd sd-w"></span>', isLive: false };
-  var isKrx = symbol.endsWith('.KS') || symbol.endsWith('.KQ') ||
-              symbol === '^KS11' || symbol === '^KQ11';
-  if (!isKrx) return { label: '실시간', dot: '<span class="sd sd-g"></span>', isLive: true };
-  var session = _getKrxSession();
-  switch(session) {
-    case 'open':   return { label: '실시간',      dot: '<span class="sd sd-g"></span>', isLive: true };
-    case 'pre':    return { label: '프리마켓',    dot: '<span class="sd sd-y"></span>', isLive: false };
-    case 'after':  return { label: '시간외거래',  dot: '<span class="sd sd-y"></span>', isLive: false };
-    default:       return { label: '전일 종가',   dot: '<span class="sd sd-r"></span>', isLive: false };
-  }
-}
-
 // ╔═══════════════════════════════════════════════════════════════════════════╗
 // ║  P3-1 PHASE 2 MARKER ▸ MODULE 1: CORE START                               ║
 // ║  책임: Stores (Price/Macro/News/DataHealth) + Engines + Constants + Utils ║
@@ -19707,34 +19478,10 @@ function calcLockoutAction(modules) {
 }
 
 var AIO_EVENT_RISK_CONTEXT = {
-  asOf: '2026-06-19',
-  title: 'Post-FOMC hawkish hold + Hormuz/oil risk normalization watch',
-  cpi: {
-    releaseDate: '2026-06-11',
-    headlineMoM: 0.6,
-    headlineYoY: 3.8,
-    coreMoM: 0.4,
-    coreYoY: 2.8,
-    energyMoM: 3.8,
-    energyYoY: 17.9,
-    interpretation: 'Post-6/17 FOMC, the rate path is not an immediate liquidity green light. Treat sticky inflation and energy feed-through as risk overlays until PCE/2Y/10Y/DXY confirm easing.'
-  },
-  liquidityThesis: {
-    label: 'H2 liquidity optionality delayed by policy risk',
-    drivers: ['eSLR/bank regulation relief', 'possible TGA drawdown', 'fiscal impulse', 'eventual rate cuts'],
-    caveat: 'The 6/17 FOMC hold at 3.50-3.75% and hawkish guidance can delay or cap the liquidity impulse; use it as medium-term backdrop, not a reason to chase extended candles.'
-  },
-  timeline: [
-    { date: '2026-06-17', label: 'FOMC result review', tone: 'risk', note: 'rates held at 3.50-3.75%; monitor 2Y/10Y, dollar and long-duration leadership instead of treating FOMC as upcoming.' },
-    { date: '2026-06-19', label: 'Hormuz/oil reopening watch', tone: 'risk', note: 'oil risk premium eased, but shipping/logistics and energy inflation feed-through remain the key reversal triggers.' },
-    { date: '2026-06-25', label: 'May PCE (Fed preferred gauge)', tone: 'risk', note: 'confirmation point for CPI/FOMC reaction; sticky core PCE caps the liquidity thesis and increases no-chase discipline.' }
-  ],
-  telegramPipeline: {
-    channel: 'aetherjapanresearch',
-    publicMirror: 'https://t.me/s/aetherjapanresearch',
-    purpose: 'Japan/US cross-market news, supply-chain alerts, broker notes, and Asia semiconductor flow context.',
-    handling: 'Public Telegram messages are treated as fast secondary sources: tag, dedupe, score, and require confirmation before promoting to live-like conclusions.'
-  }
+  available: false,
+  asOf: null,
+  title: 'Event context unavailable',
+  timeline: []
 };
 
 var AIO_TACTICAL_TRADER_FRAMEWORK = {
@@ -19871,7 +19618,7 @@ function calcBlowoffTopChecklist(snapshot, context) {
   function push(list, ok, label, detail, severity) {
     list.push({ ok: !!ok, label: label, detail: detail || '', severity: severity || (ok ? 'risk' : 'watch') });
   }
-  function fin(v) { var n = Number(v); return isFinite(n) ? n : null; }
+  function fin(v) { if (v == null || v === '') return null; var n = Number(v); return isFinite(n) ? n : null; }
   var dist20Pct = fin(snapshot.dist20Pct);
   var dist20Atr = fin(snapshot.dist20Atr);
   var rsi14 = fin(snapshot.rsi14);
@@ -20183,7 +19930,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.2';
+const APP_VERSION = 'v53.5';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -21128,303 +20875,120 @@ if (typeof window !== 'undefined') {
     }
   }, 30000);
 }
-// DATA_SNAPSHOT — 단일 진실 원천 (Single Source of Truth)
+// DATA_SNAPSHOT — 런타임 관측값 스키마
 // ─────────────────────────────────────────────────────────────────
-//  데이터 업데이트 시 이 객체만 수정하면 전체 페이지에 반영됩니다.
-//    HTML 본문에 직접 숫자를 수정하지 마세요!
+//  변동 수치는 소스에 커밋하지 않고 생산자 산출물에서만 주입합니다.
 // ─────────────────────────────────────────────────────────────────
+// Volatile observations are never committed here. Runtime producers populate
+// this schema; missing or stale producers must render unavailable.
+const AIO_MANUAL_REFERENCE = Object.freeze({
+  fedPolicy: Object.freeze({
+    value: '3.50-3.75', status: '동결', asOf: '2026-06-17', next: '2026-07-28~29',
+    source: 'Federal Reserve', sourceKind: 'official-primary',
+    sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
+    operationalUse: 'reference-only'
+  }),
+  bokPolicy: Object.freeze({
+    value: 2.75, status: '인상', asOf: '2026-07-16', next: '2026-08-27',
+    source: 'Bank of Korea', sourceKind: 'official-primary',
+    sourceUrl: 'https://www.bok.or.kr/portal/bbs/P0000559/view.do?menuNo=200690&nttId=11062942',
+    operationalUse: 'reference-only'
+  }),
+  krInflation: Object.freeze({
+    // P720 데이터 정직화: publishedAt은 참조 입력일이 아니라 통계청 실제 발표일(2026-07-02).
+    headline: 3.2, core: 2.5, observation: '2026-06', publishedAt: '2026-07-02',
+    source: 'Bank of Korea', sourceKind: 'official-primary',
+    sourceUrl: 'https://www.bok.or.kr/portal/bbs/P0000559/view.do?menuNo=200690&nttId=11062942',
+    operationalUse: 'reference-only'
+  }),
+  usCpiCalendar: Object.freeze({
+    next: '2026-08-12T08:30:00-04:00', asOf: '2026-07-14',
+    source: 'U.S. Bureau of Labor Statistics', sourceKind: 'official-primary',
+    sourceUrl: 'https://www.bls.gov/cpi/', operationalUse: 'calendar-only'
+  })
+});
+
+// 수동 편집 금지: 변동 데이터는 data.json에서 자동 파생하고 런타임 공급자로 보강한다.
+// 공식 일정·정책처럼 수동 검증이 필요한 값만 AIO_MANUAL_REFERENCE에 출처와 기준일을 함께 둔다.
 const DATA_SNAPSHOT = {
-  // ── 설계 원칙 (v51.64 P545) ─────────────────────────────────────────────
-  // 이 객체의 가격/변동률 필드(spx, spxPct, nasdaq 등)는 수동 편집 금지.
-  // 실제 값은 _aioLoadServerData() → applyLiveQuotes() → _LIVE_SNAP_MAP 경로로
-  // public-data/data.json에서 자동 파생된다. (data.json 생성 시 OHLCV 기반 일간 pct 보장)
-  // 아래 리터럴은 data.json을 전혀 로드할 수 없을 때(API 100% 차단)에만 폴백으로 사용.
-  // _isFallback=true 상태에서는 UI가 "데이터 로드 중..." 경고를 표시함.
-  // ── 수정 허용 필드: 금리·일정·거시 텍스트(fedRate/fomc/bokNext 등) — 자동화 불가 항목만 ──
-  // v48.36: _updated는 정적 폴백 스냅샷 작성 시점. 실제 UI freshness는 window._lastFetch[apiName]로 판정 (DATE_ENGINE.staleBadge 사용).
-  // v49.8: _updated → 2026-05-13 KST 정적 폴백 작성 시각 (미국 5/12 종가 + 한국 5/13 KOSPI 기준)
-  _updated: '2026-07-03T10:58:00+09:00',   // v51.96 /data-refresh: public-data/data.json 77/77 quotes, F&G 31 (Fear, was 32). Generated 2026-07-03T01:54:54Z.
-  _snapshotDate: '2026-07-03',
-  _marketDataDate: '2026-07-03',
-  _marketDataUpdated: '2026-07-03T01:54:54Z',
-  _telegramDigestDate: '2026-07-03',
-  _telegramDigestUpdated: '2026-07-03T01:55:06Z',
-  _telegramDigestWindow: '2026-06-19~2026-07-03 KST',
-  _narrativeUpdated: '2026-07-03T10:58:00+09:00',
-  _staticDates: {
-    briefingArchive: '2026-07-03',
-    jensenInterview: '2026-03-20',
-    optionSnapshot: '2026-05-28',
-    krMarket: '2026-07-03',
-    krCredit: '2026-05-29',
-    krDeposit: '2026-05-16',
-    krBreadthReference: '2026-05-16',
-    krIssues: '2026-07-03',
-    tnx: '2026-07-03',
-    tnx2y: '2026-07-03'
-  },
-  _isFallback: true,                         // v48.36: 실시간 데이터로 덮어쓰면 false로 전환 (applyDataSnapshot 내)
-  // v51.66: 데이터 카테고리별 마지막 갱신 타임스탬프 — 런타임에 자동 기록됨
-  // prices: applyLiveQuotes() 호출 시 | macro_fred: FRED 적용 시 | screener: screener.json 로드 시
-  // fearGreed: F&G 적용 시 | manual_policy: 정책금리 마지막 편집 날짜 (코드 리뷰로만 갱신)
+  _updated: null,
+  _snapshotDate: null,
+  _marketDataDate: null,
+  _marketDataUpdated: null,
+  _telegramDigestDate: null,
+  _telegramDigestUpdated: null,
+  _telegramDigestWindow: null,
+  _narrativeUpdated: null,
+  _staticDates: {},
+  _isFallback: true,
+  _manualReference: AIO_MANUAL_REFERENCE,
   _fieldTs: {
-    prices:       null,          // 실시간 시세 (applyLiveQuotes 호출 시각)
-    fearGreed:    null,          // F&G 지수 (data.json.fearGreed.asOf)
-    macro_fred:   null,          // FRED 매크로 지표 (data.json.meta.generatedAt, fredFetchOk=true일 때만)
-    screener:     null,          // 스크리너 팩터 (screener.json.asOf)
-    serverData:   null,          // data.json 로드 시각 (meta.generatedAt)
-    // 수동 유지 정책 필드 — 코드 편집 시 갱신, 자동화 불가
-    fed_rate:     '2026-06-17',  // v51.96: FOMC 마지막 금리결정 날짜 — 6/17 결과(동결 3.50-3.75 유지) 반영, 기존 5/28은 그 이전 회의 기준으로 stale했음
-    boj_rate:     '2026-06-16',  // BOJ 마지막 결정
-    bok_rate:     '2026-05-28',  // BOK 마지막 금통위
-    boe_rate:     '2026-04-30',  // BOE 마지막 결정
-    pboc_rate:    '2026-05-12',  // PBOC 마지막 LPR
-    kr_bond:      '2026-05-15',  // 국고채 수익률 과거 참고 스냅샷 (현재 판단에는 사용하지 않음)
-    kr_macro:     '2026-04-30',  // 레거시 한국 거시 묶음 필드(카드별 최신성에는 사용하지 않음)
-    kr_cpi:       '2026-07-02',  // 통계청/BOK: 2026년 6월 CPI 발표
-    kr_pmi:       '2026-07-01',  // S&P Global: 2026년 6월 제조업 PMI 발표
-    us_macro_manual: '2026-07-14', // BLS 6월 CPI 발표일. FRED/BLS 자동 오버라이드 전 초기값 기준.
-    breadth_sma:  '2026-06-26',  // 시장폭 SMA 추정치 마지막 갱신
+    prices: null, fearGreed: null, macro_fred: null, macro_bls: null,
+    screener: null, serverData: null, breadth_screener: null,
+    fed_rate: AIO_MANUAL_REFERENCE.fedPolicy.asOf,
+    bok_rate: AIO_MANUAL_REFERENCE.bokPolicy.asOf,
+    kr_cpi: AIO_MANUAL_REFERENCE.krInflation.publishedAt
   },
-  // 아래 날짜들은 정적 폴백값입니다. 실시간 데이터 수신 시 자동 교체됩니다.
-  _note: 'v51.96 /data-refresh (2026-07-03 기준, public-data/data.json 77/77 quotes): Pct값=당일 변동률. SPX 7483 (0.00%, 보합), NASDAQ 25833 (-0.80%), Dow 52900 (+1.14%), VIX 16.15 (-2.65%, 공포 추가 완화). KOSPI 7734 (+1.12%, 전일 급락 후 반등), KOSDAQ 843 (-2.77% 추가 하락). WTI 68.75 (+0.25%), Gold 4192 (+3.05%, 금리인하 기대+안전자산 수요), DXY 100.80. F&G 31 공포(전일 32에서 소폭 완화, 직전주 24 대비는 개선). TNX 4.485%. BTC 61553(+2.58%)/ETH 1712(+6.43%) 강세. 6월 NFP +57K(예상 하회, 5월 43K로 하향조정) — 실업률은 4.2% 유지.',
+  _note: '변동 데이터는 런타임 생산자에서만 채웁니다. 미수신 값은 표시·판정을 보류합니다.',
 
-  // ── 미국 주요 지수 (2026-07-03 / public-data/data.json) ──
-  spx:        7483.24,  spxPct:    0.00,   // v51.96: ^GSPC 2026-07-03 (보합, 6월 고용 부진에도 지수 방어)
-  nasdaq:    25832.67,  nasdaqPct: -0.80,   // v51.96: ^IXIC 2026-07-03 (반도체/AI 대형주 차익실현)
-  dow:       52900.07,  dowPct:    1.14,   // v51.96: ^DJI 2026-07-03 (경기민감주/중소형주 순환매 수혜)
-  rut:        2996.11,  rutPct:    -0.55,   // v51.96: ^RUT 2026-07-03
-  vix:          16.15,  vixPct:    -2.65,   // v51.96: ^VIX 2026-07-03 (공포 추가 완화, 7/2 16.59→16.15)
-  vix9d:        18.80,  vix3m:     19.90,  vix6m: 20.40,   // v50.39: VIX 기간구조 시드 (^VIX9D/^VIX3M/^VIX6M live 부재 시 폴백 — 9D<30D 정상 콘탱고 복귀). 라이브 fetch 우선
-  spxATH:     7585.00,                       // v50.15: SPX 사상최고 = 6/4 종가 7585 (현재 7483은 ATH -1.3% 아래 · _fallback 미러 정합)
-  vvix:         88.80,                        // v51.96: public-data Yahoo ^VVIX 2026-07-03
+  // Official manual references: display/calendar context only.
+  fedRate: AIO_MANUAL_REFERENCE.fedPolicy.value,
+  fedStatus: AIO_MANUAL_REFERENCE.fedPolicy.status,
+  ecbRate: null,
+  ecbStatus: null,
+  fomc: null,
+  fomcNext: AIO_MANUAL_REFERENCE.fedPolicy.next,
+  bokRate: AIO_MANUAL_REFERENCE.bokPolicy.value,
+  bokStatus: AIO_MANUAL_REFERENCE.bokPolicy.status,
+  bokNext: AIO_MANUAL_REFERENCE.bokPolicy.next,
+  krCpi: AIO_MANUAL_REFERENCE.krInflation.headline,
+  krCoreCpi: AIO_MANUAL_REFERENCE.krInflation.core,
+  cpiNext: AIO_MANUAL_REFERENCE.usCpiCalendar.next.slice(0, 10),
 
-  // ── 한국 지수 (2026-07-03 / public-data/data.json) ──
-  kospi:     7733.58,  kospiPct:  1.12,  kospiPrev: 7648.09,  // v51.96: ^KS11 2026-07-03 (전일 급락 이후 반등, 삼성전기 MLCC 대규모 공급계약 등 훈풍)
-  kosdaq:      842.71,  kosdaqPct: -2.77,  kosdaqPrev:  866.72,  // v51.96: ^KQ11 2026-07-03 (반도체 약세 지속)
-
-  // ── 원자재 (2026-07-03 / public-data/data.json) ──
-  wti:        68.75,  wtiPct:    0.25,   // v51.96: CL=F 2026-07-03
-  brent:     71.91, brentPct:   0.48,   // v51.96: BZ=F 2026-07-03
-  gold:      4192.30, goldPct:  3.05,  goldWeeklyPct: -1.41,  // v51.96: GC=F 2026-07-03 (금리인하 기대 재부각 + 안전자산 수요, goldWeeklyPct는 전주 기준값 유지, BLOCKED — 주간 재계산 소스 미확보)
-  ng:        3.07,                       // v49.95: Henry Hub 천연가스 $3.07/MMBtu (EIA/FRED 5/18) — v51.90: 라이브 심볼 미포함, 갱신 보류(BLOCKED)
-
-  // ── 환율 (2026-07-03 / public-data/data.json) ──
-  krw:      1540.01,  krwPct:   -0.76,  krwRound: 1540,  // v51.96: KRW=X 2026-07-03 (원화 강세 전환, KOSPI 반등과 동행)
-  dxy:       100.80,  dxyPct:   -0.06,             // v51.96: DX-Y.NYB 2026-07-03
-
-  // ── 금리·통화정책 ──
-  fedRate:     '3.50-3.75',
-  fedStatus:   '동결',                              // v45.6: 동적화 — Fed 금리 변경 시 이 값 갱신 (인하/인상/동결)
-  fomc:        '6/17 동결',
-  fomcNext:    '2026-07-28~29',                        // Federal Reserve 공식 2026 FOMC 일정
-  fomcDotPlot: '최근 FOMC 결과 확인 이후 구간. 금리 경로·점도표·발언은 인플레 2% 복귀 의지를 강조하는 방향으로 해석되며, 다음 체크포인트는 고용·CPI·PCE 후속 발표와 2Y/10Y·달러 반응.',  // v51.81: stale fixed-date checkpoint 제거
-  ecbRate:      2.15,  ecbStatus: '동결',
-  bojRate:      1.00,   // v50.61: BOJ 6/16 overnight call rate 25bp hike to 1.00% (Telegram/Aether digest; live macro source overrides when available)
-  boeRate:      3.75,   // v49.93: BOE 4/30 회의 8-1 동결 3.75% (기존 4.50 stale, 0.75%p — 중동 인플레로 추가 인하 보류)
-  pbocRate:     3.00,   // v49.93: PBOC 1년 LPR 3.0% (5월 12개월째 동결, 5Y LPR 3.5%, 기존 3.10 stale)
-  // v34.6: 한국 금리·채권 강화 / v49.85: 신현송 총재 첫 금통위 5/28 결정
-  bokRate:      2.75,   bokStatus: '인상',          // P713 (2026-07-16 공식 확인, 복수 언론): 금통위 7인 만장일치로 2.50%→2.75% 0.25%p 인상 — 2023.1 이후 3년6개월 만의 인상, 14개월 동결 기조 종료
-  bokNext:     '2026-08-27',                         // P713: 7/16 금통위 종료 → BOK 공식 2026 일정상 다음 회의 8/27 (공식 일정: 2/26·4/10·5/28·7/16·8/27·10/22·11/26)
-  bokGdpFcst:   2.6,    bokCpiFcst: 2.7,             // v49.85: 한은 2026 성장률 2.6% / 물가 2.7% 상향 조정 (5/28 SEP)
-  krBond3y:     3.20,   krBond10y: 4.27,             // 2026-05 과거 참고 스냅샷. 현재 금리/스프레드 판정에는 사용하지 않고 live evidence 미수신 시 fail-closed.
-  krCd91:       2.78,                             // CD 91일 금리
-  vkospi:      16.00,                             // 과거 참고 시드. UI/건강도에는 사용하지 않고 fetchVkospiDynamic 성공값만 current evidence로 허용.
-  vkospiPct:  -40.7,                              // v52.7: 재보정폭(27.0→16.0) — 실제 주간 변동률 아님, 시드 재조정값
-
-  hySpread:    275,                                // v49.84: HY 스프레드 (위험선호 지속, 신고가 환경 — 5/27 SPX 신고가)
-  tnx:         4.49,                               // 10Y Treasury (Yahoo ^TNX, 2026-07-03)
-  tnx2y:       4.14,                               // 2Y Treasury (10Y 4.49 - FRED T10Y2Y 0.35, 2026-07-03). 이름은 legacy DOM key와 호환 유지.
-  t10y2y:      0.40,                               // FRED T10Y2Y 2026-07-14 관측값(%p). 2Y 개별 금리와 혼용하지 않음.
-
-  // ── 거시 지표 ──
-  cpi:          3.5,   coreCpi:   2.6,   // BLS 2026-07-14 발표: 6월 CPI YoY 3.5%, core 2.6%. 런타임 FRED/BLS 우선.
-  cpiYoy:       3.5,   coreCpiYoy: 2.6,
-  pce:          4.1,   corePce:   3.4,            // v51.90: PCE YoY 4.1% (FRED via data.json asOf:2026-05-01) / Core 3.4%(3.3→3.4 FRED 실측 갱신). 런타임 FRED write-back 시 자동 오버라이드
-  pceYoy:       4.1,   corePceYoy: 3.4,  // v51.90: data-snap="pce-yoy"/"core-pce-yoy" seed — FRED 4.1%/3.4% 동기화. FRED write-back 시 자동 오버라이드
-  nfp:          57,                               // v51.96: 6월 NFP +57K (FRED PAYEMS asOf 2026-06-01, 텔레그램 브리핑 교차확인 — 예상·전월 모두 큰 폭 하회, 5월분도 172→43K 대폭 하향조정). 노동시장 냉각 시그널 → 금리인하 기대 재부각. data-snap="nfp", FRED PAYEMS 설정 시 자동 오버라이드
-  cpiNext:     '2026-08-12',                       // BLS 공식 일정: 7월 CPI 8/12 08:30 ET
-  nfpNext:     '2026-08-07',                       // v51.96: 6월 고용 7/3 발표 완료(+57K) → 다음 7월분 NFP는 통상 첫째주 금요일 관례상 ~8/7 예정(공식 캘린더 미확정, 추정)
-  pceNext:     '2026-07-30',                       // v51.31: May PCE released 2026-06-25 (today). Next = June PCE ~2026-07-30
-  computexWeek:'2026-06-01~2026-06-05',            // v50.4: Computex/GTC Taipei window (종료)
-  nvidiaKoreaWeek: '2026-06-08',                   // v50.15: 젠슨 황 방한 한국 AI 인프라 동맹 발표일 — SK하이닉스(차세대 메모리 다년)/삼성(HBM4·Groq 4-8nm)/네이버(1GW AI팩토리·소버린 AI)/SKT(DSX)/현대차(AV) 동시 발표. 현재 시장 화두
-  currentTopic: '(2026-07-16 검증) 미국 6월 CPI는 YoY 3.5%, 근원 2.6%로 7/14 발표됐습니다. 7/14 미국장은 S&P 500 -0.42%, Nasdaq -0.66%, Dow -0.24%였고 VIX는 16.5로 하락했습니다. 한국은행은 7/16 금통위에서 만장일치로 기준금리를 2.50%→2.75%로 0.25%p 인상했습니다(2023.1 이후 첫 인상, 14개월 동결 종료). WTI는 약 $80, USD/KRW는 약 1,492원으로 중동·유가·금리와 원화 변동을 함께 봐야 합니다. 다음 FOMC는 7/28~29, 다음 한국은행 금통위는 8/27입니다.',
-  spacexIpoStatus: 'SpaceX IPO 실행(6/12~13): Nasdaq 상장 $135/주 IPO가, 시총 ~$1.78T, ~$75B 조달(역대 최대 IPO), 머스크 순자산 $1조 돌파. 한국 증권사 2x 롱/숏 상품 출시. SATS(주주) +6.8%',
-  ismPmi:      53.3,   ismPrice:  73.0,           // v51.90: 6월 ISM Mfg 53.3%(5월 54%에서 -0.7pt, 6개월 연속 확장 · 20개월 연속 경제확장) · Prices 73.0(5월 82.1에서 -9.1pt, 원가압력 완화). ISM 7/1 발표.
-  ismSvc:      53.6,                              // v49.95: 4월 실측값 유지 — 6월 서비스 PMI는 7/3(내일) 발표 예정, 미발표 상태(BLOCKED, 추측 금지)
-  usUnemploy:   4.20,  // v51.96: 6월 실업률 4.2% (FRED UNRATE asOf 2026-06-01, 예상보다 낮음 — 5월 4.3%에서 소폭 개선에도 NFP 부진과 동시 발생해 "냉각이지만 급랭 아님" 해석)
-  usNfp:        57,                                // v51.96: 6월 NFP +57K (FRED PAYEMS, 예상·전월 대폭 하회 — 5월분도 172→43K 하향조정). 4개월래 최약 고용, 7월 FOMC 인하 기대 재부각
-  usWageGrowth: 3.6,                              // v49.95: 4월 시간당 평균 임금 +3.6% YoY 실측 ($37.41, MoM +0.2%, BLS 5/8 — 단 실질임금 -0.3% 인플레 잠식). v51.97/Phase2[B2]: FRED CES0500000003 서버 자동화 편입 — 이 값은 이제 라이브 fetch 100% 불가 시에만 쓰는 폴백(적용 시 window.DATA_SNAPSHOT.usWageGrowth 자동 덮어씀, _fieldTs.macro_fred 갱신)
-  retailSales:  0.9,                              // v51.90: 5월 소매판매 +0.9% MoM 실측 ($763.7B, +1.0% 소매무역 기준, YoY +6.9~7.5%, 3개월 누적 +5.3% YoY — Census 6월 발표). v51.97/Phase2[B2]: FRED RSAFS 서버 자동화 편입 — 폴백 전용으로 격하(위 usWageGrowth와 동일 메커니즘)
-  consConf:     91.2,                              // v51.90: 6월 Conference Board 소비자신뢰 91.2 실측 (1985=100, 5월 수정 90.6→6월 91.2 +0.6pt, 유가 하락이 인플레 우려 완화 — Present 116.4/-3.0pt, Expectations 74.4/+3.0pt, '구하기 어려움' 22.5%로 5.5년래 최고. 6/30 발표). v51.97/P593: FRED엔 Conference Board 무료 시리즈가 없어 자동화 대상에서 제외 — 계속 /data-refresh 수동 WebSearch 유지. UMCSENT(미시간대 소비자심리)와는 별개 지표이니 혼동 금지
-  housingStarts:1.47,                             // v49.95: 4월 주택착공 1.465M SAAR 실측 (Census 5/21 — 3월 수정 1.507M 대비 -2.8%, 전년比 +4.6%. 단독 930K). 기존 1.42 stale. v51.97/Phase2[B2]: FRED HOUST 서버 자동화 편입(천 단위→백만 단위 스케일 변환) — 폴백 전용으로 격하
-  krUnemploy:   3.4,
-  // v34.6: 한국 거시 지표 강화
-  krCpi:        3.2,                              // 통계청/BOK 2026-07-02 발표: 6월 CPI YoY 3.2%
-  krPpi:        6.9,                              // v49.94 실측값 유지 — v51.90: 5월 PPI 지수 129.82(4월 128.75 대비 +1.07pt MoM) 확인했으나 YoY% 환산 신뢰 소스 미확보(BLOCKED, 추측 금지)
-  krManufPmi:  52.1,                              // v51.90: 한국 6월 제조업 PMI 52.1 실측 (S&P Global 7/1 발표 — 5월 54.8→6월 52.1, 4개월래 최약 확장, 수출주문 2개월 연속 감소·중동 갈등+원자재비↑+원화약세). 다음 8/1 7월분
-  krManufPmiPrev: 54.8,                           // v51.90: 한국 5월 제조업 PMI (모멘텀 추적용, 6월 52.1 대비 -2.7pt) (모멘텀 추적용)
-  krGdp:       -0.2,   krGdpYoy:  2.6,           // v49.86: 한국 GDP QoQ -0.2 / YoY → BOK 5/28 SEP 성장률 2.6% 상향 (반도체 수출 호조)
-  krExport:    +60.4,   krExportStreak: 16,       // v51.90: 한국 6월 1~20일 +60.4% YoY (620억$ 1~20일 기준 역대 최대), 16개월 연속 흑자 추정 (관세청)
-  krSemiExport:+188.4,                            // v51.90: 6월 1~20일 반도체 +188.4% YoY (255억$ = 수출 41.2%, HBM AI 서버 수요 지속)
-  kospiPE:      9.8,    kospiPB:   0.92,          // KOSPI PER/PBR
-  kosdaqPE:    32.5,                              // KOSDAQ PER
-  krShortSell:  4.1,                              // 공매도 비중(%)
-  krForeignNet:-24800,                            // v51.90: 외국인 순매도 (5월 월간 누적 -2.48조원 — 단발 지표를 월간 누적으로 교체, 이전 5/27 단일 세션 -1.77조원과 지표 성격 다름 명시)
-
-  // ── v49.41 P299/R74 보강: breadth*sma DATA_SNAPSHOT 시드 등록 (이전 _fallback만 정의 → 폴백만 동작 차단) ──
-  // v50.6: 시장 폭(breadth)은 5/20/50일선 3개만 사용. 200일선은 추세(가격 vs 200MA) 판별 전용이며 breadth participation에서 제외.
-  // breadth-5sma / breadth-20sma / breadth-50sma data-snap 3 sink가 시드 의존.
-  breadth5sma:    32,   // v51.63: 추정치 — NASDAQ 주간-4.6% 누적 하락(금요일 당일 -0.24%). 실측 필요.
-  breadth20sma:   38,   // v51.63: 추정치 — 주간 반도체 급락 반영. 실측 필요.
-  breadth50sma:   48,   // v51.63: 추정치 — 50MA 지지선 부분 유지. 실측 필요.
-
-  // ── v48.61 P125 해소: DATA_SNAPSHOT 누락 필드 보충 (v49.22: 2026-05-16 기준 갱신, P213 DOM 정합) ──
-  krCreditBalance: 36.0,     // v49.94: 한국 신용거래융자 잔고 ~36조원 역대 최고 (5월 — KOSPI 8000+ 돌파 "빚투" 급증, 3/11 31.8조→5월 36조, 5/21 강제청산 뉴스. 금투협/FSC). 기존 19.2 심각 stale (시장 2배 급등 미반영)
-  krDeposit:       62.8,     // 예탁금 (조원, 2026-05-16 추정)
-  krShortSelling:   4.1,     // 공매도 비중 % — krShortSell 별칭
-  krAdvance:        593,     // 상승 종목수 (KOSPI+KOSDAQ, 2026-05-16 추정)
-  krDecline:        389,     // 하락 종목수 (2026-05-16 추정)
-  kr52wHigh:         52,     // 52주 신고가 종목수 (2026-05-16 추정)
-  kr52wLow:          64,     // 52주 신저가 종목수 (2026-05-16 추정)
-  krCoreCpi:        1.4,     // 한국 근원 CPI YoY (2026-02 기준, BOK)
-  krServicePrice:   3.2,     // 한국 서비스 물가 YoY
-  krServicePmi:    51.2,     // 한국 서비스업 PMI
-  gexCurrent:     -12.8,     // GEX (Gamma Exposure, $B) — CBOE/SpotGamma 수동 스냅샷
-
-  // ── v48.61 /data-refresh: GPU 임대가 + DRAM/NAND 가격 (JPM DC Watch 2026-03 실측) ──
-  // v51.90 BLOCKED: DDR5/NAND 스팟가·GPU 임대가는 6/30 TrendForce 자료 확인했으나 계약가·DDR4 기준 등 단위/제품이 기존 필드(DDR5/NAND $/unit)와 불일치 — 잘못된 단위로 덮어쓰는 위험이 커서(과거 KR ETF 매핑 오류 전례) 이번 사이클은 보류, 값 유지.
-  gpuRentalA100:    1.48,    // A100 $/h (2026-03, +6.5% MoM · 3개월 가속) — v51.90 BLOCKED(단위 불일치, 갱신 보류)
-  gpuRentalH100:    2.64,    // H100 $/h (+8.6% MoM · 4개월 연속)
-  gpuRentalB200:    5.47,    // B200 $/h (+23.5% MoM 급등)
-  gpuRentalRatio_B200_H100: 2.07,   // B200/H100 비율 확대 (압축 반전)
-  gpuRentalRatio_H100_A100: 1.78,   // H100/A100 비율
-  ddr5_16gb_spot:  31.18,    // DDR5 16Gb 현물가 ($/unit · 2026-03 · -6.1% MoM · +573% YoY)
-  nand_1tb_spot:   28.96,    // NAND 1Tb 현물가 ($/unit · 2026-03 · +16.0% MoM · +475% YoY)
-  dramContract_QoQ_1Q26: 95, // v49.95: DRAM 계약가 QoQ 1Q26 +95% (TrendForce/Tom's Hardware 확인, 96→95)
-  dramContract_QoQ_2Q26: 55, // v49.99: Susquehanna 5/29 마켓체크 "DRAM ASP QoQ +50~60%" 중간값 55. JPM 63%(TrendForce) vs Susquehanna 50~60% — Susquehanna 하향 수정 반영. AI 서버 수요 타이트 구조 유지
-  dramContract_YoY_2Q26: 421, // DRAM 계약가 YoY 2Q26 (+421%)
-  nandContract_QoQ_1Q26: 88, // NAND 계약가 QoQ 1Q26 +88% (TrendForce 확인)
-  nandContract_QoQ_2Q26: 87, // v49.99: Susquehanna 5/29 "NAND ASP QoQ +75~100%" 중간값 87 (기존 75 = 하한). 키옥시아 UBS·GS 동시 커버리지 개시 = 구조적 상승 확신
-  nandContract_YoY_2Q26: 362,
-  // ── v48.71 /data-refresh: AAII bearish 최신화 (정적 폴백) ──
-  aaiiBear:        36.1, aaiiBull: 44.9, aaiiNeutral: 18.9, aaiiAsOf: '2026-06-27', // 주간 수동 검증값. 7일 초과 시 reference-only이며 매매판정 제외.
-
-  // ── 글로벌 지수 (GMO 테이블용 정적 폴백, 실시간 수신 시 교체) ──
-  nikkei:    69157.29, nikkeiPct: -1.87,  // v51.90: public-data Yahoo ^N225 2026-07-02
-  hangseng:  23022.14, hangsengPct: +0.62, // v51.90: public-data Yahoo ^HSI 2026-07-02
-  shanghai:   4098,    shanghaiPct: +0.12, // v49.95: SSE Composite — v51.90: 라이브 심볼 미포함, 갱신 보류(BLOCKED)
-  dax:       25068,    daxPct:     -0.59,  // v49.92: 2026-05-28 close — v51.90: 라이브 심볼 미포함, 갱신 보류(BLOCKED, 5주+ stale)
-  ftse:      10478.34,  ftsePct:    -0.18,  // v51.90: public-data Yahoo ^FTSE 2026-07-02
-  cac:        8096,    cacPct:     -0.30,  // v49.95: CAC 40 — v51.90: 라이브 심볼 미포함, 갱신 보류(BLOCKED, 5주+ stale)
-
-  // ── 크립토·추가 원자재 (정적 폴백, 실시간 수신 시 교체) ──
-  btc:       60362.94, btcPct:   +3.08,   // v51.90: public-data Yahoo BTC-USD 2026-07-02
-  eth:        1621.46, ethPct:   +3.31,   // v51.90: public-data Yahoo ETH-USD 2026-07-02
-  silver:     60.40,  silverPct: +0.52,  // v51.90: public-data Yahoo SI=F 2026-07-02
-
-  // ── 리스크 지표 (5/27 갱신) ──
-  move:        73.58,   moveChg: +0.21,  // v50.5: MOVE 73.58 (Yahoo ^MOVE 2026-06-01) — 이제 ^MOVE LIVE_SYMBOLS 자동 fetch + 브릿지, 이 값은 폴백. 80 미만 = 채권시장 평온
-  skew:       136.86,   skewChg: -1.50,  // v50.5: SKEW 136.86 (Yahoo ^SKEW 2026-06-02 live) — ^SKEW 자동 fetch + 브릿지, 폴백값
-  vvix_live:   88.80,   vvixChg: -0.27,  // v51.96: public-data Yahoo VVIX 2026-07-03 (vvix_live가 vvix보다 우선 소비됨 — 이전 갱신에서 놓쳐 drift, T686 유사 패턴)
-  fg:            31,   fgLabel: '공포',  // v51.96: CNN Fear & Greed 31 Fear (2026-07-03, data.json) — 전일 32에서 소폭 완화, 레짐 유지. _fallback.fg와 정합(R184)
-  fg_uw:         65,   fg_uwLabel: '탐욕', // v49.96: UW 확장 F&G 65 — _fallback.fg_uw(v49.84 CNN 60→UW 65)와 정합 (기존 74는 v48.70 stale)
-
-  // ── v47.2: F&G 카테고리·지표별 분해 (Unusual Whales 4/15) ──
-  //   헤드라인 68 뒤에 숨은 내부 구조 — Market Breadth 35.9(공포) + Stock Price Strength 24.8(극단 공포)
-  //   vs Premium Trend 100(극단 탐욕) 극단 괴리가 "좁은 랠리"의 수치적 증거
-  fg_categories: {
-    momentum:  80.6,  // Market Momentum: SPX 125일선 대비 괴리 (강한 탐욕)
-    options:   76.6,  // Options Sentiment: 콜매수 우위 (탐욕)
-    bondRisk:  72.4,  // Bond And Risk: HY 스프레드 타이트 (탐욕)
-    marketData:69.1,  // Market Data: SPX 점유율 (탐욕)
-    volatility:60.0,  // Volatility: VIX 낮음 (약한 탐욕)
-    breadth:   35.9   // Market Breadth: 상승/하락 종목비 (공포 — 헤드라인 68과 괴리)
-  },
-  fg_indicators: {
-    putCall:       70.1,   // Put/Call Ratio → F&G 환산점수
-    momentum:      80.6,   // Market Momentum
-    premiumRatio:  91.8,   // Premium Ratio (극단 탐욕)
-    priceStrength: 24.8,   // Stock Price Strength: 52주 신고가/신저가 절대 비율 (극단 공포!)
-    breadth:       48.2,   // Market Breadth (중립)
-    premiumTrend:100.0     // Premium Trend (극단 탐욕 MAX)
-  },
-  fg_extended: {
-    // Unusual Whales 확장 5지표 (CNN F&G 구성요소 + 추가 지표)
-    junkBondDemand:   45.6, // HY vs IG 스프레드 기반 (중립)
-    safeHavenDemand:  99.2, // 주식 vs 채권 20일 수익률 차이 — 높을수록 주식 편애 (Extreme Greed, weight 6%)
-    fiftyTwoWeekSent: 91.2, // 52주 범위 내 상대 위치 높은 종목수 (극단 탐욕)
-    putCall:          47.2, // Put/Call F&G 환산치 (중립)
-    insiderSentiment: 0.1   // 내부자 매수/매도 3개월 비율 (극단 공포! 2021.11 고점 선례)
-  },
-
-  // v49.8: OPEX/gamma fallback seeds; live CBOE/option data overrides when available.
-  pcr: 0.83,            // v49.95: CBOE total put/call 0.83 실측 (2026-05-21, MacroMicro/ycharts) — 기존 0.67 stale + _fallback.pcr 0.83과 불일치 해소
-  equityPutCall: 0.51,
-  indexPutCall: 0.71,
-
-  // ── v47.2: 위험봇 3/30 12:49 STABLE 역사 스냅샷 (Tail Risk Board) ──
-  //   4/15 현재와 별개 — "관세 쇼크 저점 직후 STABLE 판정" 시점의 꼬리위험 구조
-  tail_risk_snapshot_0330: {
-    date:       '2026-03-30 12:49',
-    regime:     'STABLE',    // 안정 구간
-    signal:     'none',       // 핵심 신호 없음
-    skew:       139,  skewChg: -7.14,   // TAIL HEDGE: 하락했어도 여전히 꼬리헤지 비쌈
-    vvix:       98,   vvixChg: +2.36,   // VOL OF VOL: 정상 상단
-    vixStructure:'contango', vixSlope: +2.6, // 건강한 콘탱고
-    vix9d:      null, vix9dChg: -2.2,   // SHORT STRESS: 초단기 공포 하락
-    move:       68,   moveChg: -13.71,  // RATES VOL: 채권 변동성 극단 낮음 (정상 100+, 68은 비정상적 안정)
-    dxy:        98.0, dxyChg:  -0.65    // USD STRESS: 달러 약세 약간
-  },
-
-  // ── v47.2: ZBT (Zweig Breadth Thrust) 트래킹 ──
-  //   정의: NYSE 상승/하락 비율이 10거래일 내에 0.40 → 0.615 돌파 시 발동 → Lock-out Rally 신호
-  //   2025.4 선례: 0.38 → 0.617 → 발동 → 4월말~장기 랠리. 2026.4 현재: 0.5756 = 미발동
-  zbt: {
-    current:         0.5756,   // SPY 차트 하단 ZBT 지표 최신값 (2026.04.15)
-    trigger_low:     0.40,     // ZBT 촉발 하한
-    trigger_high:    0.615,    // ZBT 돌파 상한
-    last_trigger:    '2025-04-25', // 가장 최근 ZBT 발동 (0.38→0.617)
-    current_status:  'no_trigger', // 2026.3-4 랠리는 ZBT 없이 상승 = 브레드쓰 부실
-    breadth_0313:    0.37,     // 전쟁 우려 하락 시 상/하 종목비 저점
-    breadth_0330:    0.44      // 하락 피크에서 반등한 종목비 (일반적이면 클라이막스 신호)
-  },
-
-  // ── KR 섹터 ETF (4/3 종가 — v49.95 /data-refresh SKIPPED: ETF↔필드 매핑 불명 + 라이브 fetch 이상적. krSemiPrice 100200 > KODEX반도체(091160) 52주최고 90,900 = 다른 ETF/stale. 단발 WebSearch 대조 부적합, 라이브 우선) ──
-  krSemiEtf:   -1.50,  krSemiPrice:  100200,
-  kr2ndBatEtf: -1.20,  kr2ndBatPrice: 15800,
-  krDefense:   -0.80,  krDefensePrice: 1260000,
-  krShip:      -1.60,  krShipPrice:   34100,
-  krBank:      -1.30,  krBankPrice:   15300,
-  krBio:       -1.10,  krBioPrice:    12700,
-
-  // ── v46.4: 트레이딩 스코어 폴백값 (단일 진실 원천) ──
-  // /data-refresh 실행 시 이 값들을 DATA_SNAPSHOT과 함께 갱신.
-  // 모든 computeTradingScore/computeMarketHealth/computeExecutionWindow가 여기서 읽음.
-  _fallback: {
-    fg: 31,              // v51.96: CNN Fear & Greed 31 (Fear, 2026-07-03) — mirror 정합
-    fg_uw: 65,           // v49.84: UW 확장 F&G (CNN 60 → UW 65 추정) — v51.90: UW 갱신 소스 미확보, 유지
-    vix: 16.15,          // v51.96: DATA_SNAPSHOT.vix mirror
-    breadth200: 38,      // v51.96: window._breadth200(레거시 변수명, 실제 20일선 breadth=bpSPX20)의 폴백값. 본체 breadth20sma(38)와 재동기화 — v51.63 이후 처음 벌어졌던 mirror drift(본체 32/38/48 vs mirror 61/57/52, T686 회귀 감지) 시정. *200일선 데이터 아님*. 실측 필요(BLOCKED)
-    breadth5: 32,        // v51.96: 본체 breadth5sma(32)와 mirror 재동기화 — T686 drift 시정. 실측 필요(BLOCKED)
-    breadth50: 48,       // v51.96: 본체 breadth50sma(48)와 mirror 재동기화 — T686 drift 시정. 실측 필요(BLOCKED)
-    pcr: 0.83,           // v49.85: CBOE total PCR 2026-05-21 (equity 0.55 / index 별도) — v51.90: 갱신 소스 미확보, 유지(BLOCKED)
-    aaiiBear: 36.1,      // v51.96: WebSearch로 재확인 — 6월 말 발표치(44.9% Bull/36.1% Bear)가 여전히 최신 공개 수치, 갱신분 없음(AAII 주간 발표 확인)
-    spx50ma: 7438,       // v51.96: public-data/history.json 실측 계산(최근 144거래일 중 최근 50일 SPX 종가 평균 7438.28) — 첫 실측 전환(기존 7280은 추정치였음, DEFERRED-BLOCKS B4)
-    spx200ma: 6950,      // v51.96: 200일 실측 아직 불가(history.json 144/200 거래일 축적) — 추정치 유지(BLOCKED), ~56거래일 후 실측 전환 예상
-    spxATH: 7585.00,     // v50.11: SPX ATH = 2026-06-04 close 신고가 (본체 spx 정합)
-    dxy: 100.80,          // v51.96: DATA_SNAPSHOT.dxy mirror
-    tnx: 4.485,          // v51.96: public-data Yahoo ^TNX
-    hyg: 79.71,          // v51.96: public-data Yahoo HYG
-    vvix: 88.80,         // v51.96: DATA_SNAPSHOT.vvix mirror
-    move: 73.58,         // v50.5: MOVE 73.58 — DATA_SNAPSHOT.move와 정합 (Yahoo ^MOVE 2026-06-01) — v51.90: 갱신 소스 미확보, 유지(BLOCKED)
-    skew: 136.86,        // v50.5: SKEW 136.86 — DATA_SNAPSHOT.skew와 정합 (Yahoo ^SKEW 2026-06-02) — v51.90: 갱신 소스 미확보, 유지(BLOCKED)
-    _syncDate: '2026-07-03'  // v51.96: static fallback sync date
-  }
+  // Runtime-populated volatile fields. Explicit nulls prevent zero coercion.
+  spx:null, spxPct:null, spxATH:null, nasdaq:null, nasdaqPct:null,
+  dow:null, dowPct:null, rut:null, rutPct:null,
+  kospi:null, kospiPct:null, kospiPrev:null, kosdaq:null, kosdaqPct:null, kosdaqPrev:null,
+  vix:null, vixPct:null, vix9d:null, vix3m:null, vix6m:null, vvix:null, vvixChg:null,
+  move:null, moveChg:null, skew:null, skewChg:null, vkospi:null, vkospiPct:null,
+  wti:null, wtiPct:null, brent:null, brentPct:null, gold:null, goldPct:null,
+  goldWeeklyPct:null, silver:null, silverPct:null, ng:null,
+  krw:null, krwPct:null, krwRound:null, dxy:null, dxyPct:null,
+  btc:null, btcPct:null, eth:null, ethPct:null,
+  nikkei:null, nikkeiPct:null, hangseng:null, hangsengPct:null,
+  shanghai:null, shanghaiPct:null, dax:null, daxPct:null,
+  ftse:null, ftsePct:null, cac:null, cacPct:null,
+  tnx:null, tnx2y:null, t10y2y:null, irx:null, fvx:null, tyx:null, hySpread:null, hyOAS:null,
+  cpi:null, coreCpi:null, cpiYoy:null, coreCpiYoy:null,
+  pce:null, corePce:null, pceYoy:null, corePceYoy:null,
+  nfp:null, usNfp:null, usUnemploy:null, usWageGrowth:null,
+  retailSales:null, housingStarts:null, consConf:null, ismPmi:null, ismSvc:null,
+  fg:null, fgLabel:null, fg_categories:null, fg_indicators:null, fg_extended:null,
+  pcr:null, equityPutCall:null, indexPutCall:null,
+  aaiiBear:null, aaiiBull:null, aaiiNeutral:null,
+  naaimExposure:null, iiBull:null, iiBear:null, iiCorrection:null,
+  breadth5sma:null, breadth20sma:null, breadth50sma:null, breadth200sma:null,
+  krBond3y:null, krBond10y:null, krCd91:null, krUnemploy:null, krPpi:null,
+  krManufPmi:null, krManufPmiPrev:null, krGdp:null, krGdpYoy:null,
+  krExport:null, krImport:null, krSemiExport:null, krCreditBalance:null,
+  krDeposit:null, krShortSelling:null, krForeignNet:null,
+  krAdvance:null, krDecline:null, kr52wHigh:null, kr52wLow:null,
+  krServicePrice:null, krServicePmi:null, gexCurrent:null,
+  _fallback: {}
 };
 
 // 편의 포맷터 (안전한 숫자 포맷 — undefined/NaN 방어)
 window.DATA_SNAPSHOT = DATA_SNAPSHOT;
+window.AIO_MANUAL_REFERENCE = AIO_MANUAL_REFERENCE;
+window.AIO_STATIC_DATA_POLICY = Object.freeze({
+  version: 'v53.4',
+  volatileValues: 'runtime-only',
+  currentNarratives: 'runtime-only',
+  scenarioProbabilities: 'provider-required',
+  quoteFallbacks: 'blocked',
+  chartFallbacks: 'message-only',
+  unavailableState: 'explicit-null'
+});
 
 // P712/R340: 미국채 만기별 금리를 한 경로에서만 해석한다. 과거 일부 화면이
 // 5Y(^FVX)*0.95를 2Y로 합성하거나 ^TNX를 tnx2y에 덮어써 2s10s를 왜곡했다.
@@ -21434,7 +20998,11 @@ window.AIO.getUsTreasuryCurveEvidence = function() {
   var ld = window._liveData || {};
   var fd = window._fredData || {};
   var snap = window.DATA_SNAPSHOT || {};
-  function n(v) { v = Number(v); return isFinite(v) && v > -5 && v < 25 ? v : null; }
+  function n(v) {
+    if (v == null || v === '') return null;
+    v = Number(v);
+    return isFinite(v) && v > -5 && v < 25 ? v : null;
+  }
   function live(sym) { return n(ld[sym] && ld[sym].price); }
   function fred(id) { return n(fd[id] && fd[id].value); }
   function first(values) { for (var i = 0; i < values.length; i++) if (values[i] != null) return values[i]; return null; }
@@ -21446,7 +21014,7 @@ window.AIO.getUsTreasuryCurveEvidence = function() {
   var liveDerivedSpread = n(window._live2Y) != null && live('^TNX') != null ? Number((live('^TNX') - n(window._live2Y)).toFixed(2)) : null;
   var directSpread = first([fred('T10Y2Y'), liveDerivedSpread, n(snap.t10y2y)]);
   var spread = directSpread != null ? directSpread : ((twoY != null && tenY != null) ? Number((tenY - twoY).toFixed(2)) : null);
-  var source = fred('T10Y2Y') != null ? 'FRED T10Y2Y' : (liveDerivedSpread != null ? 'live maturities' : (n(snap.t10y2y) != null ? 'FRED T10Y2Y snapshot 2026-07-14' : ((n(window._live2Y) != null || fred('DGS2') != null) && (live('^TNX') != null || fred('DGS10') != null) ? 'live/FRED maturities' : 'partial')));
+  var source = fred('T10Y2Y') != null ? 'FRED T10Y2Y' : (liveDerivedSpread != null ? 'live maturities' : (n(snap.t10y2y) != null ? 'server snapshot' : ((n(window._live2Y) != null || fred('DGS2') != null) && (live('^TNX') != null || fred('DGS10') != null) ? 'live/FRED maturities' : 'partial')));
   var available = spread != null && (source !== 'partial');
   return {
     threeM: threeM, twoY: twoY, fiveY: fiveY, tenY: tenY, thirtyY: thirtyY,
@@ -21454,17 +21022,18 @@ window.AIO.getUsTreasuryCurveEvidence = function() {
     available: available,
     complete: [threeM, twoY, fiveY, tenY, thirtyY].every(function(v) { return v != null; }),
     source: source,
-    asOf: n(snap.t10y2y) != null ? '2026-07-14' : ((snap._fieldTs && snap._fieldTs.macro_fred) || snap._marketDataUpdated || snap._updated || null)
+    asOf: (snap._fieldTs && snap._fieldTs.macro_fred) || snap._marketDataUpdated || snap._updated || null
   };
 };
 
 const _snap = {
   num(v, fallback) { const n = Number(v); return isNaN(n) ? (fallback ?? 0) : n; },
-  comma(n) { return _snap.num(n).toLocaleString('en-US'); },
-  krw()    { return _snap.num(DATA_SNAPSHOT.krwRound).toLocaleString(); },
-  pct(n)   { const v = _snap.num(n); return (v > 0 ? '+' : '') + v.toFixed(2) + '%'; },
-  fixed(n, d) { return _snap.num(n).toFixed(d ?? 2); },
-  localeFull(n, d) { return _snap.num(n).toLocaleString('en-US',{minimumFractionDigits:d??2,maximumFractionDigits:d??2}); },
+  valid(v) { return v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)); },
+  comma(n) { return _snap.valid(n) ? Number(n).toLocaleString('en-US') : '—'; },
+  krw()    { return _snap.valid(DATA_SNAPSHOT.krwRound) ? Number(DATA_SNAPSHOT.krwRound).toLocaleString() : '—'; },
+  pct(n)   { if (!_snap.valid(n)) return '—'; const v = Number(n); return (v > 0 ? '+' : '') + v.toFixed(2) + '%'; },
+  fixed(n, d) { return _snap.valid(n) ? Number(n).toFixed(d ?? 2) : '—'; },
+  localeFull(n, d) { return _snap.valid(n) ? Number(n).toLocaleString('en-US',{minimumFractionDigits:d??2,maximumFractionDigits:d??2}) : '—'; },
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -21478,446 +21047,110 @@ const _snap = {
 // v48.14 (Agent W3): NARRATIVE_ENGINE 하드코딩 날짜·선례 상수 분리
 // 템플릿 문자열 내 '2000.01', '2021.11' 등 하드 레퍼런스를 중앙 관리
 // 향후 신규 선례 추가·과거 선례 재분류 시 이 객체만 갱신
-var HISTORICAL_PRECEDENTS = {
-  distributionPhases: [
-    { date: '2000.01', event: '닷컴 버블 정점', context: 'NASDAQ 5048 고점 직전 브레드쓰 악화' },
-    { date: '2007.10', event: '서브프라임 위기 전', context: '금융주 선행 균열' },
-    { date: '2021.11', event: '팬데믹 버블 정점', context: 'ARKK·MEME 주도 랠리 붕괴, Insider 공포 극단' }
-  ],
-  distributionSummary: '2000.01, 2007.10, 2021.11',
-  lockoutRally: { date: '2025.04.25', zbt: 0.617, context: '2025년 4월 Lock-out Rally ZBT 0.38→0.617 정식 돌파' },
-  bullCaseNarrowBreadth: ['2019', '2024'],
-  lastUpdated: '2026-04-18'
-};
-
 const NARRATIVE_ENGINE = (function() {
-  const DS = DATA_SNAPSHOT;
-  const FB = DS._fallback || {};
+  function num(value) {
+    if (value == null || value === '') return null;
+    var n = Number(value);
+    return isFinite(n) ? n : null;
+  }
+  function regime(value, bands, missingLabel) {
+    var n = num(value);
+    if (n == null) return { level:'unavailable', label:missingLabel || '미수신', color:'#8b93a7', bar:0, available:false };
+    for (var i = 0; i < bands.length; i++) {
+      if (n < bands[i][0]) return { level:bands[i][1], label:bands[i][2], color:bands[i][3], bar:Math.max(0, Math.min(100, bands[i][4])), available:true };
+    }
+    return { level:'observed', label:'관측', color:'#ffa31a', bar:50, available:true };
+  }
+  function getSKEWRegime(v) { return regime(v, [[125,'low','낮음','#00e5a0',25],[140,'normal','보통','#ffa31a',55],[Infinity,'high','높음','#ff5b50',85]]); }
+  function getMOVERegime(v) { return regime(v, [[80,'low','낮음','#00e5a0',25],[120,'normal','보통','#ffa31a',55],[Infinity,'high','높음','#ff5b50',85]]); }
+  function getVVIXRegime(v) { return regime(v, [[85,'low','낮음','#00e5a0',25],[105,'normal','보통','#ffa31a',55],[Infinity,'high','높음','#ff5b50',85]]); }
+  function getFGRegime(v) { return regime(v, [[25,'fear','공포','#ff5b50',25],[55,'neutral','중립','#ffa31a',50],[75,'greed','탐욕','#ffa31a',70],[Infinity,'extreme','극단 탐욕','#ff5b50',90]]); }
+  function getBreadthRegime(v) { return regime(v, [[40,'weak','공포 영역','#ff5b50',25],[55,'mixed','혼조','#ffa31a',45],[70,'healthy','양호','#00e5a0',70],[Infinity,'broad','광범위','#00e5a0',90]]); }
+  function getInsiderRegime(v) { return regime(v, [[20,'selling','매도 우위','#ff5b50',25],[50,'neutral','중립','#ffa31a',50],[Infinity,'buying','매수 우위','#00e5a0',80]]); }
 
-  // ── 1. 레짐 분류기 ──────────────────────────────
-  function getSKEWRegime(v) {
-    v = _snap.num(v, FB.skew);
-    if (v >= 150) return { level:'extreme',  label:'극단 꼬리헤지 비쌈', color:'#ff5b50', bar:95 };
-    if (v >= 140) return { level:'high',     label:'꼬리위험 고점',       color:'#ff5b50', bar:85 };
-    if (v >= 130) return { level:'elevated', label:'꼬리헤지 비쌈',       color:'#ffa31a', bar:70 };
-    if (v >= 120) return { level:'normal',   label:'정상 상단',           color:'#ffa31a', bar:50 };
-    return            { level:'low',      label:'정상',                color:'#00e5a0', bar:30 };
+  function current() {
+    var ds = window.DATA_SNAPSHOT || {};
+    var live = window._liveData || {};
+    function quote(symbol) { var row = live[symbol] || {}; return num(row.price); }
+    return {
+      vix: quote('^VIX'), wti: quote('CL=F'), skew: quote('^SKEW'), move: quote('^MOVE'), vvix: quote('^VVIX'),
+      fg: num(ds.fg), breadth: num(window._breadth50), fedRate: ds.fedRate || null
+    };
   }
-  function getMOVERegime(v) {
-    v = _snap.num(v, FB.move);
-    if (v >= 200) return { level:'crisis',    label:'위기 수준',        color:'#ff5b50', bar:95 };
-    if (v >= 150) return { level:'stress',    label:'스트레스',          color:'#ff5b50', bar:80 };
-    if (v >= 100) return { level:'normal',    label:'정상',              color:'#ffa31a', bar:55 };
-    if (v >= 75)  return { level:'calm',      label:'저점(정상화 리스크)', color:'#00e5a0', bar:35 };
-    return            { level:'extreme_low', label:'극단 저점',         color:'#00e5a0', bar:20 };
+  function valueText(label, value, suffix) {
+    return value == null ? label + ' 미수신' : label + ' ' + value.toFixed(2) + (suffix || '');
   }
-  function getVVIXRegime(v) {
-    v = _snap.num(v, FB.vvix);
-    if (v >= 140) return { level:'extreme', label:'옵션 변동성 극단', color:'#ff5b50', bar:95 };
-    if (v >= 110) return { level:'warn',    label:'경고',             color:'#ffa31a', bar:75 };
-    if (v >= 90)  return { level:'normal',  label:'정상 상단',         color:'#ffa31a', bar:60 };
-    return            { level:'low',     label:'정상',             color:'#00e5a0', bar:40 };
+  function availableText(parts) {
+    var usable = parts.filter(Boolean);
+    return usable.length ? usable.join(' · ') : '현재 검증 데이터 없음';
   }
-  function getFGRegime(v) {
-    v = _snap.num(v, FB.fg);
-    if (v >= 75) return { level:'extreme_greed', label:'극단 탐욕', color:'#ff5b50', bar:90 };
-    if (v >= 55) return { level:'greed',         label:'탐욕',      color:'#ffa31a', bar:70 };
-    if (v >= 45) return { level:'neutral',       label:'중립',      color:'#ffa31a', bar:50 };
-    if (v >= 25) return { level:'fear',          label:'공포',      color:'#00e5a0', bar:30 };
-    return          { level:'extreme_fear',  label:'극단 공포', color:'#00e5a0', bar:10 };
-  }
-  function getBreadthRegime(v) {
-    v = _snap.num(v);
-    if (v >= 70) return { level:'broad',   label:'광폭 랠리',     color:'#00e5a0' };
-    if (v >= 55) return { level:'healthy', label:'건강',          color:'#ffa31a' };
-    if (v >= 40) return { level:'narrow',  label:'좁은 랠리',     color:'#ffa31a' };
-    return          { level:'fearful', label:'공포 영역',     color:'#ff5b50' };
-  }
-  function getInsiderRegime(v) {
-    v = _snap.num(v);
-    if (v <= 5)  return { level:'extreme_fear', label:'극단 공포(매도 일변도)', color:'#ff5b50' };
-    if (v <= 20) return { level:'fear',         label:'공포',                  color:'#ffa31a' };
-    if (v <= 50) return { level:'neutral',      label:'중립',                  color:'#ffa31a' };
-    return          { level:'buying',       label:'매수 우위',             color:'#00e5a0' };
-  }
-
-  // ── 2. 분배 단계 진단 체크리스트 (3/3 동적 계산) ──────────
   function checkDistributionDiagnosis() {
-    const fgVal      = _snap.num(DS.fg_uw, FB.fg_uw);
-    const insider    = _snap.num((DS.fg_extended||{}).insiderSentiment);
-    const breadth    = _snap.num((DS.fg_categories||{}).breadth);
-    const premTrend  = _snap.num((DS.fg_indicators||{}).premiumTrend);
-    const skew       = _snap.num(DS.skew, FB.skew);
-    const gap        = fgVal - insider;
-
-    const c1 = { pass: fgVal >= 60 && insider <= 20 && gap >= 40, desc: `대중 탐욕 ≥60 vs 내부자 공포 ≤20 괴리 ≥40pt (현재 UW F&G ${fgVal} vs Insider ${_snap.fixed(insider,1)} = ${_snap.fixed(gap,1)}pt 갭)` };
-    const c2 = { pass: breadth <= 40,                               desc: `Market Breadth ≤40 동시 발생 (현재 ${_snap.fixed(breadth,1)} ${breadth<=40?'✅':'❌'})` };
-    const c3 = { pass: premTrend >= 90 && skew >= 135,              desc: `옵션 프리미엄 극단 (Premium Trend ≥90 + SKEW ≥135, 현재 ${_snap.fixed(premTrend,1)}/${_snap.fixed(skew,2)} ${(premTrend>=90&&skew>=135)?'✅':'❌'})` };
-    const passed = [c1,c2,c3].filter(c=>c.pass).length;
-    return { c1, c2, c3, passed, total: 3, confirmed: passed === 3 };
+    var c = current();
+    if (c.fg == null || c.breadth == null) return { available:false, passed:null, total:0, confirmed:false, reason:'required current evidence unavailable' };
+    var checks = [
+      { pass:c.fg >= 75, desc:'심리 과열 관측' },
+      { pass:c.breadth < 50, desc:'시장 폭 약화 관측' }
+    ];
+    return { available:true, passed:checks.filter(function(x){ return x.pass; }).length, total:checks.length, confirmed:checks.every(function(x){ return x.pass; }), checks:checks };
   }
-
-  // ── 3. F&G 내부 구조 분석 (§71 동적) ────────────────
   function getFGInternalStructureText() {
-    const cat = DS.fg_categories || {};
-    const ind = DS.fg_indicators || {};
-    const fgUW = _snap.num(DS.fg_uw, FB.fg_uw);
-    const fgCNN = _snap.num(DS.fg, FB.fg);
-    const momentum = _snap.num(cat.momentum);
-    const breadth  = _snap.num(cat.breadth);
-    const gap      = momentum - breadth;
-    const fgUWReg  = getFGRegime(fgUW);
-    const cnnReg   = getFGRegime(fgCNN);
-    const divergeNote = Math.abs(fgUW - fgCNN) >= 15
-      ? `(CNN F&G는 ${cnnReg.label} ${fgCNN}로 이미 전환 ← 괴리 중요 신호)`
-      : `(CNN F&G ${cnnReg.label} ${fgCNN} 동조)`;
-    return (
-      `[F&G ${fgUW} ${fgUWReg.label} — 실측, Unusual Whales] 카테고리별: Market Momentum ${_snap.fixed(cat.momentum,1)}(${getFGRegime(cat.momentum).label}), Options Sentiment ${_snap.fixed(cat.options,1)}(${getFGRegime(cat.options).label}), Bond Risk ${_snap.fixed(cat.bondRisk,1)}(${getFGRegime(cat.bondRisk).label}), Market Data ${_snap.fixed(cat.marketData,1)}(${getFGRegime(cat.marketData).label}), Volatility ${_snap.fixed(cat.volatility,1)}(${getFGRegime(cat.volatility).label}), Market Breadth ${_snap.fixed(cat.breadth,1)}(${getFGRegime(cat.breadth).label}!). 지표별: Premium Trend ${_snap.fixed(ind.premiumTrend,1)}(${getFGRegime(ind.premiumTrend).label}!), Premium Ratio ${_snap.fixed(ind.premiumRatio,1)}(${getFGRegime(ind.premiumRatio).label}!), Market Momentum ${_snap.fixed(ind.momentum,1)}, Put/Call ${_snap.fixed(ind.putCall,1)}, Market Breadth ${_snap.fixed(ind.breadth,1)}(${getFGRegime(ind.breadth).label}~공포), Stock Price Strength ${_snap.fixed(ind.priceStrength,1)}(${getFGRegime(ind.priceStrength).label}!).\n` +
-      `[F&G 내부 구조 괴리 = 핵심 트레이딩 시그널] 헤드라인 ${fgUW}(${fgUWReg.label}) ${divergeNote}이 숨기는 것: ① 브레드쓰 ${_snap.fixed(cat.breadth,1)}+주가강도 ${_snap.fixed(ind.priceStrength,1)} = 52주 신고가 종목 극소수, 소수 대형주가 지수를 끌어올리는 "좁은 랠리". ② Premium Trend ${_snap.fixed(ind.premiumTrend,0)}+Premium Ratio ${_snap.fixed(ind.premiumRatio,1)} = 옵션 시장 극단적 자만(complacency). ③ 모멘텀(${_snap.fixed(cat.momentum,1)}) vs 브레드쓰(${_snap.fixed(cat.breadth,1)}) 갭 = ${_snap.fixed(gap,1)}pt → 2021.11(나스닥 고점 직전)과 유사한 괴리 수준. 결론: F&G ${fgUW}은 건강한 탐욕이 아니라 "소수 종목의 모멘텀 + 옵션 레버리지"가 만든 착시. 시장 폭 회복(브레드쓰 55+) 없이 모멘텀만 유지되면 숏감마 청산 시 급락 취약.`
-    );
+    var c = current();
+    return availableText([
+      c.fg == null ? null : valueText('F&G', c.fg),
+      c.breadth == null ? null : valueText('50SMA 시장 폭', c.breadth, '%')
+    ]);
   }
-
-  // ── 4. 분배 단계 종합 진단 (§72 동적) ────────────────
-  function getDistributionDiagnosisText(dateStr) {
-    const d = dateStr || (typeof DATE_ENGINE !== 'undefined' ? DATE_ENGINE.fmtYMD(DATE_ENGINE.nowKST()) : '오늘');
-    const fgUW      = _snap.num(DS.fg_uw, FB.fg_uw);
-    const fgCNN     = _snap.num(DS.fg, FB.fg);
-    const fgCNNReg  = getFGRegime(fgCNN);
-    const fgUWReg   = getFGRegime(fgUW);
-    const ext       = DS.fg_extended || {};
-    const cat       = DS.fg_categories || {};
-    const ind       = DS.fg_indicators || {};
-    const zbt       = DS.zbt || {};
-    const zbtCurr   = _snap.num(zbt.current);
-    const zbtLow    = _snap.num(zbt.trigger_low);
-    const zbtHigh   = _snap.num(zbt.trigger_high);
-    const insider   = _snap.num(ext.insiderSentiment);
-    const insiderReg= getInsiderRegime(insider);
-    const skew      = _snap.num(DS.skew, FB.skew);
-    const skewChg   = _snap.num(DS.skewChg);
-    const skewReg   = getSKEWRegime(skew);
-    const move      = _snap.num(DS.move, FB.move);
-    const moveChg   = _snap.num(DS.moveChg);
-    const moveReg   = getMOVERegime(move);
-    const vvix      = _snap.num(DS.vvix_live, FB.vvix);
-    const vvixChg   = _snap.num(DS.vvixChg);
-    const junk      = _snap.num(ext.junkBondDemand);
-    const safeHaven = _snap.num(ext.safeHavenDemand);
-    const fiftyTwo  = _snap.num(ext.fiftyTwoWeekSent);
-    const putCallExt= _snap.num(ext.putCall);
-    const spyATH    = _snap.num(FB.spxATH);
-    const diag      = checkDistributionDiagnosis();
-    const breadthReg= getBreadthRegime(cat.breadth);
-    const gapIns    = fgUW - insider;
-
-    return (
-      `【§72 분배(Distribution) 단계 종합 진단 — 3개 레이어 진실 (${d})】\n` +
-      `[시장 단계 진단] 후기 사이클 분배(Distribution). 유사 패턴 = 2000.01, 2007.10, 2021.11. 세 레이어의 진실:\n` +
-      `  ① **표면(대중)**: UW F&G ${fgUW} ${fgUWReg.label}(CNN F&G는 ${fgCNNReg.label} ${fgCNN}로 이미 전환 ← 괴리 중요 신호), SPY ATH(~$${_snap.fixed(spyATH,2)} 권역), "Mission Accomplished" 내러티브. 대중은 "V자 회복 완료" 인식.\n` +
-      `  ② **중간(브레드쓰)**: Market Breadth ${_snap.fixed(cat.breadth,1)}(${breadthReg.label}), ZBT 미발동(현재 ${_snap.fixed(zbtCurr,4)}, 촉발 하한 ${_snap.fixed(zbtLow,2)} 미터치 + 상한 ${_snap.fixed(zbtHigh,3)} 미돌파), 상승 종목비 ${_snap.fixed(zbt.breadth_0330,2)} 수준. 2025.4 Lock-out Rally 때 ZBT 0.38→0.617 돌파와 대조적.\n` +
-      `  ③ **심층(스마트머니)**: Insider Sentiment ${_snap.fixed(insider,1)}(${insiderReg.label}), SKEW ${_snap.fixed(skew,2)}(${skewReg.label} — ${skew>=135?'꼬리헤지 비쌈 **심화**':'정상권'} 실측), Junk Bond Demand ${_snap.fixed(junk,1)}(채권쟁이 중립, 주식 UW F&G ${fgUW}과 ${_snap.fixed(fgUW-junk,1)}pt 괴리. CNN F&G ${fgCNN} ${fgCNNReg.label}).\n` +
-      `[진단 체크리스트 ${diag.passed}/${diag.total} 충족${diag.confirmed?' = 분배 확증':''}] ① ${diag.c1.desc} ${diag.c1.pass?'✅':'❌'} ② ${diag.c2.desc} ③ ${diag.c3.desc}. ${diag.confirmed?'3/3 충족 = 2000.01, 2007.10, 2021.11 선례 부합.':diag.passed+'/3 — 부분 충족, 추가 확증 필요.'}\n` +
-      `[ZBT ${zbtCurr>=zbtHigh?'발동':'없는 랠리 = 비정상 상승 구조'}] ZBT(Zweig Breadth Thrust) 정의: NYSE 상승/하락비 10거래일 내 ${_snap.fixed(zbtLow,2)}→${_snap.fixed(zbtHigh,3)} 돌파 = 강세장 개시 신호. 2025.4 저점(${_snap.fixed(zbt.breadth_0313,2)})→4월말 돌파 후 Lock-out Rally 정석. 현재 ${_snap.fixed(zbtCurr,4)}, 3/13 상하비 ${_snap.fixed(zbt.breadth_0313,2)}(촉발 하한 충족)했으나 3/15부터 대형주 저볼륨 투매가 지수 끌어내림 → 3/30 하락 피크 종목비 ${_snap.fixed(zbt.breadth_0330,2)}(클라이막스 기대)했으나 여기서부터 원웨이 상승으로 전환 = ZBT 메커니즘 작동 안 함. 히트맵: 시총 대형주 초록 / 나머지 빨강 = 안나 카레니나 "행복한 시장 모습이 아님".\n` +
-      `[위험봇 STABLE의 역설 — MOVE ${_snap.fixed(move,2)} ${moveReg.label}이 바로 리스크, 실측] 2026.3.30 위험봇 스냅샷: SKEW 139(-7%)+VVIX 98(+2.4%)+VIX 콘탱고 slope +2.6+9D-VIX -2.2+MOVE 68(-14%!!)+DXY 98.0. **현재**: SKEW ${_snap.fixed(skew,2)}(${_snap.fixed(skewChg,2)}%) + MOVE ${_snap.fixed(move,2)}(${_snap.fixed(moveChg,2)}%) + VVIX ${_snap.fixed(vvix,2)}(${_snap.fixed(vvixChg,2)}%) = **역설 ${(move<=70&&skew>=135)?'심화':'일부 완화'}**. MOVE 정상 100+, 스트레스 150+, 위기 200+. **MOVE ${_snap.fixed(move,2)}은 ${moveReg.level==='extreme_low'?'사실상 사상 최저권':moveReg.label}**. 채권시장이 금리 불확실성 완전히 소화했다는 착시 → 주식 탐욕의 기반. 문제: MOVE 추가 ${moveChg<0?'붕괴':'반등'} + Premium Trend ${_snap.fixed(ind.premiumTrend,0)}(옵션 극단 탐욕) + SKEW ${skewChg>0?'추가 상승':'일부 조정'}(${_snap.fixed(skew,2)}) 공존 = "겉은 평온, 내부는 헤지로 무장" → 저가 테일헤지(VIX 콜, SPY 풋) 정당화 구간 **${(move<=70&&skew>=135)?'강화':'유지'}**. 1-2주 내 MOVE 90+ 반등 시 주식 랠리 즉각 흔들림.\n` +
-      `[Unusual Whales 확장 5지표 — CNN 헤드라인 너머 스마트머니 증거] ① Junk Bond Demand ${_snap.fixed(junk,1)}(${getFGRegime(junk).label}) = 채권쟁이는 주식 F&G ${fgUW}만큼 낙관 안 함 ② Safe Haven Demand ${_snap.fixed(safeHaven,1)}(${getFGRegime(safeHaven).label}, 툴팁: 주식이 채권 대비 20일 수익률 극단 outperform) = 주식 편애 극단 ③ Fifty Two Week Sentiment ${_snap.fixed(fiftyTwo,1)} vs Stock Price Strength ${_snap.fixed(ind.priceStrength,1)} 모순 해결: 전자는 "52주 범위 내 상대 위치 높은 종목수(대형주 끌어올려 높게 나옴)", 후자는 "절대 신고가 vs 신저가 종목수 비율(좁은 랠리에서는 낮음)" — 둘 다 좁은 랠리 확증 ④ Put/Call ${_snap.fixed(putCallExt,1)}(${getFGRegime(putCallExt).label}, UW 환산치; PCR 실측 0.72~0.90과 별개) ⑤ Insider Sentiment ${_snap.fixed(insider,1)} = ${insiderReg.label}, 2021.11 고점 선례.\n` +
-      `[Pain Trade 완결 시나리오] "Skew 안 내려감 + VIX 낮은데 풋옵션 안 저렴" = 숏 포기(capitulation) 시점 = 진짜 고점. Premium Trend ${_snap.fixed(ind.premiumTrend,0)}은 이 시나리오와 정확히 일치(옵션 매수 극단 = 헤지·추격 모두 비쌈). 롱/숏 메커니즘 해소 진행 중: MSFT·TSLA↑ / MU·SNDK·CAT↓ = 전형적 강세장 모습 아님. 공매도가 완전히 포기하는 순간 랠리 연료 소진 → 급격한 언와인드 리스크. 2000.01 나스닥 5,048(고점) 직전 브레드쓰 악화 구조와 동일.\n` +
-      `[트레이딩 규칙 — 분배 단계 대응] ① 포지션 축소 시작(100%→70~80%), 신규 진입은 VCP/피봇 돌파 품질 종목 한정(무작위 매수 실패율 ↑ 확인: 상/하 종목비 불건강). ② 대형주 추격 매수 금지(MSFT·TSLA 등 과밀 포지션, 롱/숏 언와인드 시 가장 먼저 매도 대상). ③ 저가 테일헤지 정당화: VIX 낮고 SKEW ${_snap.fixed(skew,2)}(실측) ${skewChg>0?'상승':'유지'} + Premium Trend ${_snap.fixed(ind.premiumTrend,0)} = 가격 대비 가치 비싸 보여도 구조적 리스크 대비 정당화. SPY 풋 3% OTM 또는 VIX 콜 25 strike 검토. ④ 모니터링 트리거: (a) Market Breadth ${_snap.fixed(cat.breadth,1)}→55+ 회복 시 분배 진단 약화 (b) ZBT 지표 ${_snap.fixed(zbtHigh,3)}+ 돌파 시 새 Lock-out Rally 가능성 (c) MOVE ${_snap.fixed(move,2)}→90+ 반등 시 채권 변동성 재점화 경고 (d) Insider Sentiment ${_snap.fixed(insider,1)}→5+ 반등 시 경영진 공포 완화 (e) Safe Haven Demand ${_snap.fixed(safeHaven,1)}→70 이하 하락 시 주식 상대우위 붕괴.\n` +
-      `[반대 시나리오(Bull Case)] 강세 시기에도 브레드쓰 좁아지는 선례 존재(2019, 2024). AI 구조적 스토리 유효한 한 대형주 프리미엄 정당화 가능. MOVE ${_snap.fixed(move,2)}(실측) = 금리 변동성 ${moveReg.label} = 장기 랠리 연료(단 정상화 리스크 내재). 단, 이 시나리오는 Insider Sentiment ${_snap.fixed(insider,1)}→20+ 회복 없이 지속 불가 — 경영진이 계속 팔면서 AI 스토리만으로 올리는 건 구조적 한계.`
-    );
+  function getDistributionDiagnosisText() {
+    var d = checkDistributionDiagnosis();
+    return d.available ? '현재 심리·시장 폭 관측치 기반 진단 ' + d.passed + '/' + d.total + '개 조건 충족' : '현재 진단 보류 · 필수 라이브 증거 미수신';
   }
-
-  // ── 4B. CP1~CP8 체크포인트 동적 텍스트 생성기 (v48.15 텍스트-A) ─────────────────
-  // 8가지 리스크 현황판 각 셀(cp1-detail ~ cp8-detail)의 해설 텍스트를 DATA_SNAPSHOT 기반 동적 생성.
-  // 기존 getDistributionDiagnosisText · getFGInternalStructureText와 동일 패턴.
-  // 동적 핵심 데이터 없는 셀(CP4 재정 · CP5 유동성 · CP7 어닝 · CP8 보안)은 정적 기본 텍스트 반환 —
-  // 단일 진실 원천 유지 + 향후 필드 추가 시 점진 확장 가능.
-
-  function getCP1Text() {
-    // 지정학 — WTI 레짐 기반 문구 + 이란/우크라이나/대만 고정 축
-    // v50.17: live CL=F 우선 (DATA_SNAPSHOT.wti 단독은 6/5 스파이크 97.2가 89로 빠진 뒤에도 "고점권" 오표시)
-    var _liveWti = (window._liveData && window._liveData['CL=F'] && window._liveData['CL=F'].price) || null;
-    var wti = (_liveWti && isFinite(_liveWti) && _liveWti > 0) ? _liveWti : _snap.num(DS.wti, FB.wti);
-    var wtiText = isFinite(wti) && wti > 0 ? '$' + _snap.fixed(wti, 2) : '—';
-    var wtiTone, wtiReason;
-    if (wti >= 105)      { wtiTone = '재급등 경고'; wtiReason = '공급 차질 우려 고조 · $110+ 돌파 시 인플레 재점화'; }
-    else if (wti >= 95)  { wtiTone = '고점권';      wtiReason = '지정학 프리미엄 잔존 · 추이 관찰'; }
-    else if (wti >= 85)  { wtiTone = '안정화 기대'; wtiReason = '긴장 완화 시 수요 정상화 여지'; }
-    else                 { wtiTone = '완화 구간'; wtiReason = '공급 우려 선반영 해소 진행'; }
-    return (
-      '중동(호르무즈/이란)·우크라이나·대만 지정학 리스크 상시 모니터 · ' +
-      'WTI ' + wtiText + ' (' + wtiTone + ') · ' + wtiReason + ' · ' +
-      '에너지 공급 차질 시 유가·방산↑ / 완화 시 위험선호 회복'
-    );
-  }
-
-  function getCP2Text() {
-    // 통화정책 — fedRate + VIX 기반 스트레스 지표
-    var fedRate = DS.fedRate || FB.fedRate || '3.50-3.75';
-    var vix = _snap.num(DS.vix, FB.vix);
-    var stressLabel;
-    if (vix >= 30)      stressLabel = '변동성 극단 · 긴축 충격 노출';
-    else if (vix >= 25) stressLabel = '긴장 고조 · 긴축 충격 리스크';
-    else if (vix >= 20) stressLabel = '관찰 구간';
-    else if (vix >= 15) stressLabel = '안정';
-    else                stressLabel = '과도한 완화 지표';
-    return (
-      '연준 ' + fedRate + '% · FOMC 듀얼 리스크(고용 둔화 vs 인플레 고착) 균형 · ' +
-      'VIX ' + _snap.fixed(vix, 2) + ' (' + stressLabel + ') · 데이터 의존적 정책 경로'
-    );
-  }
-
-  function getCP3Text() {
-    // 거시경제 — F&G 내부 구조 + MOVE×SKEW 역설 + VVIX
-    var fg = _snap.num(DS.fg, FB.fg);
-    var fgReg = getFGRegime(fg);
-    var cat = DS.fg_categories || {};
-    var ind = DS.fg_indicators || {};
-    var momentum = _snap.num(cat.momentum);
-    var breadth  = _snap.num(cat.breadth);
-    var priceStr = _snap.num(ind.priceStrength);
-    var premTrend = _snap.num(ind.premiumTrend);
-    var move = _snap.num(DS.move, FB.move);
-    var skew = _snap.num(DS.skew, FB.skew);
-    var vvix = _snap.num(DS.vvix_live || DS.vvix, FB.vvix);
-    var gap  = momentum - breadth;
-    var moveReg = getMOVERegime(move);
-    var paradox = (move <= 70 && skew >= 135);
-    var diag = checkDistributionDiagnosis();
-    return (
-      '<b style="color:#fbbf24;">현재 F&amp;G ' + fg + ' ' + fgReg.label + '</b> — 모멘텀 ' + _snap.fixed(momentum, 1) +
-      ' vs 브레드쓰 ' + _snap.fixed(breadth, 1) + ' (갭 ' + _snap.fixed(gap, 1) + 'pt) · ' +
-      '주가강도 ' + _snap.fixed(priceStr, 1) + ' · 프리미엄트렌드 ' + _snap.fixed(premTrend, 0) + ' · ' +
-      'MOVE ' + _snap.fixed(move, 2) + '(' + moveReg.label + ') vs SKEW ' + _snap.fixed(skew, 2) +
-      ' <b>' + (paradox ? '역설 심화' : '역설 일부 완화') + '</b> · VVIX ' + _snap.fixed(vvix, 2) + ' · ' +
-      '분배 체크리스트 <b style="color:' + (diag.confirmed ? '#ff5b50' : '#ffa31a') + ';">' +
-      diag.passed + '/' + diag.total + '</b>' + (diag.confirmed ? ' = 2000·2007·2021 선례 부합' : ' — 추가 확증 필요')
-    );
-  }
-
-  function getCP4Text() {
-    // v48.21: 재정 — DXY 레짐 + 10Y 금리로 재정 리스크 가시화
-    var dxy = _snap.num(DS.dxy, FB.dxy);
-    var tnx = _snap.num(DS.tnx, FB.tnx);
-    var deficitSignal;
-    if (dxy >= 108)      deficitSignal = '강달러 스트레스(DXY ' + _snap.fixed(dxy, 2) + ') → 재정적자 우려 일시 완화';
-    else if (dxy >= 104) deficitSignal = '달러 강세(DXY ' + _snap.fixed(dxy, 2) + ') → 재정리스크 관리 가능';
-    else if (dxy >= 100) deficitSignal = '중립 구간(DXY ' + _snap.fixed(dxy, 2) + ') → 재정 우려 실체화 주시';
-    else                 deficitSignal = '달러 약세(DXY ' + _snap.fixed(dxy, 2) + ') → Debt-to-GDP 우려 부각';
-    var bondLoad = tnx >= 4.5 ? '재발행 부담↑↑' : tnx >= 4.0 ? '재발행 부담 관리' : '재발행 여력';
-    return (
-      '미국 재정적자 $2T↑ · 감세 환류 진행 · ' +
-      deficitSignal + ' · 10Y ' + _snap.fixed(tnx, 2) + '% = ' + bondLoad + ' · ' +
-      '생산성 vs Debt-to-GDP · 대규모 국채 재발행 압박 · 재무부 유동성 인센티브'
-    );
-  }
-
-  function getCP5Text() {
-    // v48.21: 유동성 — TGA + 10Y 금리 + F&G 종합 판단
-    var tga = _snap.num(DS.tga);
-    var tgaTxt = isFinite(tga) && tga > 0 ? '$' + _snap.fixed(tga, 0) + '억' : '$8,063억';
-    var tnx = _snap.num(DS.tnx, FB.tnx);
-    var fg = _snap.num(DS.fg, FB.fg);
-    var liquiditySignal;
-    if (tnx >= 5.0)      liquiditySignal = '10Y ' + _snap.fixed(tnx, 2) + '% 위기권 = 유동성 경색';
-    else if (tnx >= 4.5) liquiditySignal = '10Y ' + _snap.fixed(tnx, 2) + '% 긴축 임계 = 유동성 제약';
-    else if (tnx >= 4.0) liquiditySignal = '10Y ' + _snap.fixed(tnx, 2) + '% 중립 = 유동성 관리 가능';
-    else                 liquiditySignal = '10Y ' + _snap.fixed(tnx, 2) + '% 완화 = 유동성 풍부';
-    var fgTone = fg >= 70 ? '탐욕 극단(유동성 유입 증거)' : fg >= 50 ? '중립 낙관' : fg >= 30 ? '경계 구간' : '공포 구간(유동성 경직)';
-    return (
-      'QT 지속 · TGA ' + tgaTxt + ' · ' + liquiditySignal + ' · F&G ' + fg + ' ' + fgTone + ' · ' +
-      'TGA/재무부 발행 전략/금리 레벨을 함께 확인 · 유동성 환류가 확인되면 위험자산 우호, 장기금리 급등 시 제약'
-    );
-  }
-
-  function getCP6Text() {
-    // 원자재 — WTI/Brent 레짐 기반 (v50.17: live CL=F/BZ=F 우선 — snapshot 단독은 6/5 유가 스파이크 잔존)
-    var _lWti = (window._liveData && window._liveData['CL=F'] && window._liveData['CL=F'].price) || null;
-    var _lBrent = (window._liveData && window._liveData['BZ=F'] && window._liveData['BZ=F'].price) || null;
-    var wti = (_lWti && isFinite(_lWti) && _lWti > 0) ? _lWti : _snap.num(DS.wti, FB.wti);
-    var brent = (_lBrent && isFinite(_lBrent) && _lBrent > 0) ? _lBrent : _snap.num(DS.brent, FB.brent);
-    var wtiTxt = isFinite(wti) && wti > 0 ? '$' + _snap.fixed(wti, 2) : '—';
-    var brentTxt = isFinite(brent) && brent > 0 ? '$' + _snap.fixed(brent, 2) : '—';
-    var direction;
-    if (wti >= 105)     direction = '재급등 · 공급 차질 심화';
-    else if (wti >= 95) direction = '고점권 · 지정학 프리미엄';
-    else if (wti >= 85) direction = '완화 기대 · 추이 관찰';
-    else                direction = '완화 구간 · 수요 정상화';
-    return (
-      'WTI ' + wtiTxt + ' · Brent ' + brentTxt + ' (' + direction + ') · ' +
-      '중동 공급 리스크 잔존 · 공급 차질 확대 시 $110+ 재급등 가능 · 완화 시 정유 마진 정상화'
-    );
-  }
-
-  function getCP7Text() {
-    // v48.21: 기업실적 — F&G 모멘텀 + VIX 기반 어닝 시즌 환경 판단
-    var cat = DS.fg_categories || {};
-    var momentum = _snap.num(cat.momentum);
-    var vix = _snap.num(DS.vix, FB.vix);
-    var earningsContext;
-    if (momentum >= 70 && vix < 20)      earningsContext = 'momentum ' + _snap.fixed(momentum, 0) + ' 상위/VIX ' + _snap.fixed(vix, 1) + ' 안정 = 서프라이즈 긍정반응 가능';
-    else if (momentum >= 50)              earningsContext = 'momentum ' + _snap.fixed(momentum, 0) + ' 중립/VIX ' + _snap.fixed(vix, 1) + ' = 실적 품질 선별';
-    else                                  earningsContext = 'momentum ' + _snap.fixed(momentum, 0) + ' 약세/VIX ' + _snap.fixed(vix, 1) + ' = 서프라이즈 무시 위험';
-    return (
-      '실적 시즌: 긍정 서프라이즈가 이미 주가에 선반영되는 경향(서프라이즈 대비 주가 반응 둔화) · ' +
-      earningsContext + ' · 빅테크 외 종목으로 이익 성장 확산 여부가 관건'
-    );
-  }
-
-  function getCP8Text() {
-    // v48.21: 사이버·시스템 — VVIX 기반 시스템 리스크 지표
-    var vvix = _snap.num(DS.vvix_live || DS.vvix, FB.vvix);
-    var systemRisk;
-    if (vvix >= 110)      systemRisk = 'VVIX ' + _snap.fixed(vvix, 1) + ' 극단 = 변동성의 변동성 경고';
-    else if (vvix >= 95)  systemRisk = 'VVIX ' + _snap.fixed(vvix, 1) + ' 고조 = 시스템 리스크 관찰';
-    else if (vvix >= 85)  systemRisk = 'VVIX ' + _snap.fixed(vvix, 1) + ' 중립';
-    else                  systemRisk = 'VVIX ' + _snap.fixed(vvix, 1) + ' 안정';
-    return (
-      '사이버보안: AI로 취약점 무기화 시간 "수개월→수분" 단축 · OpenAI TAC 14개 파트너(CRWD 양쪽 독점) · ' +
-      systemRisk + ' · 섀도AI 50%+ 비인가 · CRWD/PANW 보안예산 확장 · 사모신용 잔존 리스크'
-    );
-  }
-
-  // CP1~CP8 DOM 일괄 렌더러 — applyDataSnapshot 말미에서 호출
+  function getCP1Text() { var c=current(); return c.wti == null ? '지정학·원유 판단 보류 · 현재 WTI 미수신' : valueText('WTI', c.wti) + ' · 최신 뉴스 원천과 함께 확인'; }
+  function getCP2Text() { var c=current(); return availableText([c.fedRate ? '공식 정책금리 참고 ' + c.fedRate + '%' : null, c.vix == null ? null : valueText('VIX', c.vix)]); }
+  function getCP3Text() { return getFGInternalStructureText(); }
+  function getCP4Text() { return '재정 판단 보류 · 현재 검증 원천 미연결'; }
+  function getCP5Text() { var c=current(); return availableText([c.move == null ? null : valueText('MOVE', c.move), c.skew == null ? null : valueText('SKEW', c.skew)]); }
+  function getCP6Text() { var c=current(); return c.breadth == null ? '시장 폭 판단 보류 · 현재 원천 미수신' : valueText('50SMA 시장 폭', c.breadth, '%'); }
+  function getCP7Text() { return '실적 판단 보류 · 현재 기업 실적 원천 미연결'; }
+  function getCP8Text() { var c=current(); return c.vvix == null ? '시스템 위험 판단 보류 · 현재 VVIX 미수신' : valueText('VVIX', c.vvix); }
   function renderCPTexts() {
-    try {
-      var generators = [getCP1Text, getCP2Text, getCP3Text, getCP4Text, getCP5Text, getCP6Text, getCP7Text, getCP8Text];
-      for (var i = 0; i < generators.length; i++) {
-        var el = document.getElementById('cp' + (i + 1) + '-detail');
-        if (!el) continue;
-        try {
-          var html = generators[i]();
-          if (html) el.innerHTML = html;
-        } catch(eInner) {
-          if (typeof _aioLog === 'function') _aioLog('warn', 'narrative', 'getCP' + (i + 1) + 'Text failed: ' + eInner.message);
-        }
-      }
-    } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'narrative', 'renderCPTexts: ' + e.message); }
+    [getCP1Text,getCP2Text,getCP3Text,getCP4Text,getCP5Text,getCP6Text,getCP7Text,getCP8Text].forEach(function(fn, i) {
+      var el = document.getElementById('cp' + (i + 1) + '-detail');
+      if (el) el.textContent = fn();
+    });
   }
-
-  // ── 5. DOM 렌더러 (rm-* 꼬리위험 보드) ─────────────────
-  function _setRM(idVal, idStatus, idBar, value, regime, fmt) {
-    const el = document.getElementById(idVal);
-    if (el) el.textContent = (fmt ? fmt(value) : value);
-    if (el) el.style.color = regime.color;
-    const st = document.getElementById(idStatus);
-    if (st) { st.textContent = regime.label; st.style.color = regime.color; st.style.background = regime.color==='#ff5b50' ? 'var(--data-red-mid)' : regime.color==='#00e5a0' ? 'var(--data-green-mid)' : 'var(--data-amber-mid)'; }
-    const bar = document.getElementById(idBar);
-    if (bar) { bar.style.width = regime.bar + '%'; bar.style.background = regime.color; }
+  function setMetric(id, value, reg) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = value == null ? '—' : value.toFixed(2);
+    el.style.color = reg.color;
+    el.setAttribute('data-runtime-state', value == null ? 'unavailable' : 'loaded');
   }
   function renderTailRiskBoard() {
-    try {
-      const live = window._liveData || {};
-      const skew = live['^SKEW'] && isFinite(Number(live['^SKEW'].price)) ? Number(live['^SKEW'].price) : null;
-      const move = live['^MOVE'] && isFinite(Number(live['^MOVE'].price)) ? Number(live['^MOVE'].price) : null;
-      const vvix = live['^VVIX'] && isFinite(Number(live['^VVIX'].price)) ? Number(live['^VVIX'].price) : _snap.num(DS.vvix_live, FB.vvix);
-      const skewReg = skew != null ? getSKEWRegime(skew) : null;
-      const moveReg = move != null ? getMOVERegime(move) : null;
-      const vvixReg = getVVIXRegime(vvix);
-      if (skewReg) _setRM('rm-skew-val', 'rm-skew-status', null, skew, skewReg, v => _snap.fixed(v,2));
-      else { const el = document.getElementById('rm-skew-val'); if (el) { el.textContent = '—'; el.style.color = 'var(--text-muted)'; } }
-      if (moveReg) _setRM('rm-move-val', 'rm-move-status', null, move, moveReg, v => _snap.fixed(v,2));
-      else { const el = document.getElementById('rm-move-val'); if (el) { el.textContent = '—'; el.style.color = 'var(--text-muted)'; } }
-      _setRM('rm-vvix-val', null, 'rm-vvix-bar', vvix, vvixReg, v => _snap.fixed(v,2));
-      // SKEW/MOVE bar (값 기반 bar 폭 동적 설정)
-      const skewBar = document.querySelector('#rm-skew-val ~ .rm-bar-wrap .rm-bar');
-      if (skewBar) { skewBar.style.width = skewReg ? skewReg.bar + '%' : '0%'; if (skewReg) skewBar.style.background = skewReg.color; }
-      const moveBar = document.querySelector('#rm-move-val ~ .rm-bar-wrap .rm-bar');
-      if (moveBar) { moveBar.style.width = moveReg ? moveReg.bar + '%' : '0%'; if (moveReg) moveBar.style.background = moveReg.color; }
-    } catch(e) { _aioLog('warn', 'narrative', 'renderTailRiskBoard: ' + (e && e.message || e)); }
+    var c = current();
+    setMetric('rm-skew-val', c.skew, getSKEWRegime(c.skew));
+    setMetric('rm-move-val', c.move, getMOVERegime(c.move));
+    setMetric('rm-vvix-val', c.vvix, getVVIXRegime(c.vvix));
   }
-
-  // ── 6. 초기화 (DOMContentLoaded 훅) ─────────────────────
-  function init() {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', renderTailRiskBoard);
-    } else {
-      renderTailRiskBoard();
-    }
-  }
-
-  // v48.14: FX 카드 해설 동적 생성기 (Agent P1-12)
   function getFXNote(sym, price) {
-    var p = parseFloat(price);
-    if (!isFinite(p)) return null;
-    if (sym === 'KRW=X') {
-      if (p >= 1500) return 'USD/KRW 1,500 상회 · 정책·수급·물가 자료 별도 확인';
-      if (p >= 1450) return 'USD/KRW 1,450~1,500 · 높은 환율 수준 관측';
-      if (p >= 1400) return 'USD/KRW 1,400~1,450 · 환율 수준 관측';
-      if (p >= 1300) return 'USD/KRW 1,300~1,400 · 환율 수준 관측';
-      return 'USD/KRW 1,300 미만 · 환율 수준 관측';
-    }
-    if (sym === 'JPY=X') {
-      if (p >= 160) return 'USD/JPY 160 상회 · 정책 발언·금리차·변동성 별도 확인';
-      if (p >= 150) return 'USD/JPY 150~160 · 환율 수준 관측';
-      if (p >= 140) return 'USD/JPY 140~150 · 환율 수준 관측';
-      return 'USD/JPY 140 미만 · 환율 수준 관측';
-    }
-    if (sym === 'EURUSD=X') {
-      if (p >= 1.15) return 'EUR/USD 1.15 상회 · 환율 수준 관측';
-      if (p >= 1.05) return 'EUR/USD 1.05~1.15 · 환율 수준 관측';
-      return 'EUR/USD 1.05 미만 · 환율 수준 관측';
-    }
-    if (sym === 'GBPUSD=X') {
-      if (p >= 1.30) return 'GBP/USD 1.30 상회 · 환율 수준 관측';
-      if (p >= 1.20) return 'GBP/USD 1.20~1.30 · 환율 수준 관측';
-      return 'GBP/USD 1.20 미만 · 환율 수준 관측';
-    }
-    if (sym === 'CNY=X') {
-      if (p >= 7.4) return 'USD/CNY 7.40 상회 · 정책·고시환율 별도 확인';
-      if (p >= 7.2) return 'USD/CNY 7.20~7.40 · 환율 수준 관측';
-      return 'USD/CNY 7.20 미만 · 환율 수준 관측';
-    }
-    if (sym === 'AUDUSD=X') {
-      if (p >= 0.70) return 'AUD/USD 0.70 상회 · 환율 수준 관측';
-      if (p >= 0.65) return 'AUD/USD 0.65~0.70 · 환율 수준 관측';
-      return 'AUD/USD 0.65 미만 · 환율 수준 관측';
-    }
-    if (sym === 'DX-Y.NYB') {
-      if (p >= 108) return '강달러 스트레스 · 신흥국 자금유출 · 원자재 압박';
-      if (p >= 104) return '달러 강세 · 이머징 압박 시작';
-      if (p >= 100) return '중립 구간';
-      return '달러 약세 · 신흥국·원자재·금 유리';
-    }
-    if (sym === 'BTC-USD') {
-      if (p >= 100000) return '구조적 상승 · 기관 자금 대량 유입';
-      if (p >= 70000) return '불장 유지 · 달러 대안 자산 수요';
-      if (p >= 40000) return '레인지 · 위험선호 지표 역할';
-      return '약세장 · 리스크오프';
-    }
-    return null;
+    var p = num(price);
+    if (p == null) return null;
+    return sym + ' ' + p.toFixed(4) + ' 관측 · 방향 판단은 금리·변동성·공식 정책 원천과 함께 확인';
   }
-
-  // v48.14 (Agent W10): DI 패턴 — 외부에서 snapshot 교체 가능하도록 setter 노출
-  // 현재 직접 `DS` 참조이나, setter 제공으로 테스트 주입·모킹 가능
-  function setSnapshot(snap) {
-    try {
-      if (snap && typeof snap === 'object') {
-        // 현재는 DS가 상수 참조라 직접 덮어쓰기 불가 — 대신 DS_OVERRIDE 힌트 저장
-        window._DS_OVERRIDE = snap;
-        if (typeof _aioLog === 'function') _aioLog('info', 'narrative', 'snapshot override set', { keys: Object.keys(snap).length });
-      }
-    } catch(e) {}
+  function setSnapshot(snap) { if (snap && typeof snap === 'object') window._DS_OVERRIDE = snap; }
+  function clearSnapshot() { try { delete window._DS_OVERRIDE; } catch(_) {} }
+  function init() {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderTailRiskBoard, { once:true });
+    else renderTailRiskBoard();
   }
-  function clearSnapshot() { try { delete window._DS_OVERRIDE; } catch(e) {} }
-
   return {
-    // 레짐 분류기
-    getSKEWRegime, getMOVERegime, getVVIXRegime, getFGRegime,
-    getBreadthRegime, getInsiderRegime, getFXNote,
-    // v48.14 (W10): DI API
-    setSnapshot, clearSnapshot,
-    // 진단
-    checkDistributionDiagnosis,
-    // 동적 텍스트 생성
-    getFGInternalStructureText,
-    getDistributionDiagnosisText,
-    // v48.15 (텍스트-A): CP1~CP8 체크포인트 생성기
-    getCP1Text, getCP2Text, getCP3Text, getCP4Text,
-    getCP5Text, getCP6Text, getCP7Text, getCP8Text,
-    renderCPTexts,
-    // DOM 렌더러
-    renderTailRiskBoard,
-    init
+    getSKEWRegime:getSKEWRegime, getMOVERegime:getMOVERegime, getVVIXRegime:getVVIXRegime,
+    getFGRegime:getFGRegime, getBreadthRegime:getBreadthRegime, getInsiderRegime:getInsiderRegime,
+    getFXNote:getFXNote, setSnapshot:setSnapshot, clearSnapshot:clearSnapshot,
+    checkDistributionDiagnosis:checkDistributionDiagnosis, getFGInternalStructureText:getFGInternalStructureText,
+    getDistributionDiagnosisText:getDistributionDiagnosisText, getCP1Text:getCP1Text, getCP2Text:getCP2Text,
+    getCP3Text:getCP3Text, getCP4Text:getCP4Text, getCP5Text:getCP5Text, getCP6Text:getCP6Text,
+    getCP7Text:getCP7Text, getCP8Text:getCP8Text, renderCPTexts:renderCPTexts,
+    renderTailRiskBoard:renderTailRiskBoard, init:init
   };
 })();
 try { NARRATIVE_ENGINE.init(); } catch(e) { _aioLog('warn', 'narrative', 'init: ' + (e && e.message || e)); }
@@ -22183,7 +21416,7 @@ window._aioSyncBreadth50Readout = function() {
   var b50Read = document.getElementById('breadth-50sma-readout');
   if (b50r == null || isNaN(b50r)) {
     if (b50Bar) b50Bar.style.width = '0%';
-    if (b50Read) b50Read.textContent = '현재 breadth 원천 미수신 · 2026-06-05 종료 참고 시계열은 현재 판단에서 제외';
+    if (b50Read) b50Read.textContent = '현재 breadth 원천 미수신 · 판단 보류';
     return;
   }
   if (b50Bar) b50Bar.style.width = b50r + '%';
@@ -22198,13 +21431,15 @@ function applyDataSnapshot() {
     const S = DATA_SNAPSHOT;
     if (!S) { if (typeof _aioLog === 'function') _aioLog('error', 'data', 'DATA_SNAPSHOT not defined'); else console.warn('[AIO] DATA_SNAPSHOT not defined'); return; }
     var currentBreadth = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
+    function unit(v, digits, suffix, prefix) { return _snap.valid(v) ? (prefix || '') + Number(v).toFixed(digits) + (suffix || '') : '—'; }
+    function signed(v, digits, suffix) { return _snap.valid(v) ? (Number(v) > 0 ? '+' : '') + Number(v).toFixed(digits) + (suffix || '') : '—'; }
     const map = {
-      'wti':           '$' + _snap.num(S.wti),
-      'brent':         '$' + _snap.num(S.brent),
-      'krw':           _snap.num(S.krwRound).toLocaleString(),
+      'wti':           unit(S.wti, 2, '', '$'),
+      'brent':         unit(S.brent, 2, '', '$'),
+      'krw':           _snap.valid(S.krwRound) ? Number(S.krwRound).toLocaleString() : '—',
       'krw-full':      _snap.localeFull(S.krw),
       'fomc':          S.fomc || '—',
-      'ecb-rate':      _snap.fixed(S.ecbRate) + '%',
+      'ecb-rate':      unit(S.ecbRate, 2, '%'),
       'ecb-status':    S.ecbStatus || '—',
       'kospi':         _snap.localeFull(S.kospi),
       'kospi-prev':    _snap.localeFull(S.kospiPrev),
@@ -22215,19 +21450,19 @@ function applyDataSnapshot() {
       'move':          '—', // current ^MOVE observation required
       'kr-unemploy':   '—', // current official observation is not wired; do not promote an undated seed
       'fed-rate':      S.fedRate || '—',
-      'cpi':           _snap.fixed(S.cpi, 1) + '%',
+      'cpi':           unit(S.cpi, 1, '%'),
       // v34.6: 한국 매크로 data-snap 매핑
-      'bok-rate':      _snap.fixed(S.bokRate) + '%',
+      'bok-rate':      unit(S.bokRate, 2, '%'),
       'bok-status':    S.bokStatus || '—',
       'bok-next':      S.bokNext || '—',
       'kr-bond-10y':   '—', // current official observation required
-      'kr-cpi':        _snap.fixed(S.krCpi, 1) + '%',
-      'kr-gdp':        (S.krGdp > 0 ? '+' : '') + _snap.fixed(S.krGdp, 1) + '%',
+      'kr-cpi':        unit(S.krCpi, 1, '%'),
+      'kr-gdp':        signed(S.krGdp, 1, '%'),
       // v42.4: macro 페이지 소비·고용·주택 카드 매핑 누락 수정 (A-3)
-      'retail-sales':  (S.retailSales > 0 ? '+' : '') + _snap.fixed(S.retailSales, 1) + '%',
-      'wage-growth':   _snap.fixed(S.usWageGrowth, 1) + '%',
+      'retail-sales':  signed(S.retailSales, 1, '%'),
+      'wage-growth':   unit(S.usWageGrowth, 1, '%'),
       'cons-conf':     '—', // current official consumer-confidence observation not wired
-      'housing':       _snap.fixed(S.housingStarts, 2) + 'M',
+      'housing':       unit(S.housingStarts, 2, 'M'),
       // v48.14: 전수 조사 결과 누락 지표 일괄 추가 (Agent P1-03/04/16/18 대응)
       // 볼라틸리티·꼬리위험
       'vix':           _snap.fixed(S.vix, 2),
@@ -22247,11 +21482,11 @@ function applyDataSnapshot() {
       // 확정적으로 읽혀 위기 상황에서 오정보가 된다 — 폴백 경로임을 라벨에 명시.
       'vkospi':        '—', // live VKOSPI only; static seed is reference-only
       // 금리 (폴백값용 — data-live-price 실시간이 우선)
-      'tnx':           _snap.fixed(S.tnx || 4.31, 2) + '%',
+      'tnx':           unit(S.tnx, 2, '%'),
       'tnx-2y':        '—', // individual 2Y requires DGS2/live observation; never infer from a spread
-      'tyx':           _snap.fixed(S.tyx || 5.02, 2) + '%',
-      'irx':           _snap.fixed(S.irx || 3.58, 2) + '%',
-      'fvx':           _snap.fixed(S.fvx || 4.08, 2) + '%',
+      'tyx':           unit(S.tyx, 2, '%'),
+      'irx':           unit(S.irx, 2, '%'),
+      'fvx':           unit(S.fvx, 2, '%'),
       // 환율·지수 (실시간 우선, data-snap은 폴백)
       'dxy':           _snap.fixed(S.dxy, 2),
       'dxy-pct':       _snap.pct(S.dxyPct),
@@ -22264,10 +21499,10 @@ function applyDataSnapshot() {
       'rut':           _snap.localeFull(S.rut),
       'rut-pct':       _snap.pct(S.rutPct),
       // 원자재·암호화폐
-      'gold':          '$' + _snap.num(S.gold),
-      'silver':        '$' + _snap.fixed(S.silver, 2),
-      'btc':           '$' + _snap.num(S.btc),
-      'eth':           '$' + _snap.num(S.eth),
+      'gold':          unit(S.gold, 2, '', '$'),
+      'silver':        unit(S.silver, 2, '', '$'),
+      'btc':           unit(S.btc, 2, '', '$'),
+      'eth':           unit(S.eth, 2, '', '$'),
       // Breadth (Agent P1-04 — 36px 대형 숫자 동기화)
       'breadth-5sma':  currentBreadth.available ? _snap.fixed(currentBreadth.sma5, 0) + '%' : '—',
       'breadth-20sma': currentBreadth.available ? _snap.fixed(currentBreadth.sma20, 0) + '%' : '—',
@@ -22275,36 +21510,36 @@ function applyDataSnapshot() {
       // v50.6: breadth-200sma 매핑 제거 (시장 폭은 5/20/50일선만)
       // 한국 매크로 추가 (Agent P1-22)
       'kr-ppi':        '—',
-      'kr-pmi':        _snap.fixed(S.krPmi, 1),
-      'kr-export':     _snap.fixed(S.krExport, 1),
-      'kr-import':     _snap.fixed(S.krImport, 1),
-      'kr-credit':     _snap.fixed(S.krCreditBalance, 1) + '조원',
-      'kr-deposit':    _snap.fixed(S.krDeposit, 1) + '조원',
-      'kr-short':      _snap.fixed(S.krShortSelling, 2) + '%',
-      'kr-foreign-net':_snap.fixed(S.krForeignNet, 0) + '억원',
+      'kr-pmi':        unit(S.krPmi, 1),
+      'kr-export':     unit(S.krExport, 1),
+      'kr-import':     unit(S.krImport, 1),
+      'kr-credit':     unit(S.krCreditBalance, 1, '조원'),
+      'kr-deposit':    unit(S.krDeposit, 1, '조원'),
+      'kr-short':      unit(S.krShortSelling, 2, '%'),
+      'kr-foreign-net':unit(S.krForeignNet, 0, '억원'),
       // v48.14: 한국 시장 추가 지표 (Agent P1-20)
-      'kr-52w-high':   _snap.fixed(S.kr52wHigh || 48, 0) + '개',
-      'kr-52w-low':    _snap.fixed(S.kr52wLow || 72, 0) + '개',
-      'kr-advance':    _snap.fixed(S.krAdvance || 684, 0) + '개',
-      'kr-decline':    _snap.fixed(S.krDecline || 481, 0) + '개',
+      'kr-52w-high':   unit(S.kr52wHigh, 0, '개'),
+      'kr-52w-low':    unit(S.kr52wLow, 0, '개'),
+      'kr-advance':    unit(S.krAdvance, 0, '개'),
+      'kr-decline':    unit(S.krDecline, 0, '개'),
       // v48.15: kr-macro 페이지 세부 지표 data-snap 바인딩 (텍스트-B)
-      'kr-cpi-yoy':    (S.krCpi > 0 ? '+' : '') + _snap.fixed(S.krCpi, 1) + '% YoY',
+      'kr-cpi-yoy':    signed(S.krCpi, 1, '% YoY'),
       'kr-ppi-yoy':    '—',
       'kr-manuf-pmi':  _snap.fixed(S.krManufPmi, 1),
-      'kr-gdp-qoq':    (S.krGdp > 0 ? '+' : '') + _snap.fixed(S.krGdp, 1) + '%',
+      'kr-gdp-qoq':    signed(S.krGdp, 1, '%'),
       'kr-bond-3y':    '—',
       // v48.61 P125 해소: 누락 data-snap 키 바인딩
       'kr-core-cpi':      '—',
       'kr-service-price': '—',
       'kr-service-pmi':   '—',
-      'gex-current':      (S.gexCurrent >= 0 ? '+' : '') + _snap.fixed(S.gexCurrent, 1) + 'B',
-      // v50.5: US 매크로 인플레·고용 (FRED 미설정 시 스냅샷 폴백 — 키 설정 시 applyFredToUI가 YoY로 오버라이드)
-      'cpi':           _snap.fixed(S.cpi, 1) + '%',
-      'cpi-yoy':       _snap.fixed(S.cpi, 1) + '%',
-      'core-cpi-yoy':  _snap.fixed(S.coreCpi, 1) + '%',
-      'pce-yoy':       _snap.fixed(S.pce, 1) + '%',
-      'core-pce-yoy':  _snap.fixed(S.corePce, 1) + '%',
-      'nfp':           (S.nfp >= 0 ? '+' : '') + _snap.fixed(S.nfp, 0) + 'K',
+      'gex-current':      signed(S.gexCurrent, 1, 'B'),
+      // US 매크로 인플레·고용: runtime producer가 채운 값만 표시한다.
+      'cpi':           unit(S.cpi, 1, '%'),
+      'cpi-yoy':       unit(S.cpi, 1, '%'),
+      'core-cpi-yoy':  unit(S.coreCpi, 1, '%'),
+      'pce-yoy':       unit(S.pce, 1, '%'),
+      'core-pce-yoy':  unit(S.corePce, 1, '%'),
+      'nfp':           signed(S.nfp, 0, 'K'),
     };
     // v48.99 P181: per-key try-catch — 개별 키 실패가 다른 키 렌더를 막지 않음
     var _snapApplied = 0, _snapFailed = 0;
@@ -22567,13 +21802,6 @@ function applyDataSnapshot() {
   }
 }
 
-// 안전한 날짜 포맷 헬퍼
-function _safeDate(iso) {
-  try {
-    const d = new Date(iso);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'});
-  } catch(e) { return '—'; }
-}
 
 // ═══ v30.3: 안전한 라이브데이터 접근자 ═══
 // _ldSafe(sym, prop, fallback) — ld[sym]?.prop ?? DATA_SNAPSHOT fallback ?? 하드코딩 fallback
@@ -22591,7 +21819,7 @@ const _SNAP_FALLBACK = {
   'GC=F':     { price: () => DATA_SNAPSHOT.gold },
   'KRW=X':    { price: () => DATA_SNAPSHOT.krw },
   'HYG':      { price: () => DATA_SNAPSHOT.hyg || (DATA_SNAPSHOT._fallback || {}).hyg },
-  'SPY':      { price: () => DATA_SNAPSHOT.spy || (DATA_SNAPSHOT.spx ? DATA_SNAPSHOT.spx / 10 : null), pct: () => DATA_SNAPSHOT.spxPct },
+  'SPY':      { price: () => DATA_SNAPSHOT.spy, pct: () => DATA_SNAPSHOT.spxPct },
   // v36.6: 지수 선물 + VIX 선물 ETF + VVIX
   'ES=F':     { price: () => DATA_SNAPSHOT.spx },
   'NQ=F':     { price: () => DATA_SNAPSHOT.nasdaq },
@@ -22606,11 +21834,11 @@ const _SNAP_FALLBACK = {
   '^DJI':     { price: () => DATA_SNAPSHOT.dow,    pct: () => DATA_SNAPSHOT.dowPct },
   '^IXIC':    { price: () => DATA_SNAPSHOT.nasdaq,  pct: () => DATA_SNAPSHOT.nasdaqPct },
   '^RUT':     { price: () => DATA_SNAPSHOT.rut,     pct: () => DATA_SNAPSHOT.rutPct },
-  'QQQ':      { price: () => DATA_SNAPSHOT.qqq || (DATA_SNAPSHOT.nasdaq ? DATA_SNAPSHOT.nasdaq / 45 : null) },
+  'QQQ':      { price: () => DATA_SNAPSHOT.qqq },
   'ETH-USD':  { price: () => DATA_SNAPSHOT.eth },
   'NG=F':     { price: () => DATA_SNAPSHOT.ng },
   'SI=F':     { price: () => DATA_SNAPSHOT.silver },
-  'GLD':      { price: () => DATA_SNAPSHOT.gld || (DATA_SNAPSHOT.gold ? DATA_SNAPSHOT.gold / 10 : null) },
+  'GLD':      { price: () => DATA_SNAPSHOT.gld },
   'TLT':      { price: () => DATA_SNAPSHOT.tlt },
 };
 function _aioSnapshotAgeMs() {
@@ -22697,7 +21925,6 @@ function computeTradingScore(mode) {
   // v37.1: 데이터 소스 이원화
   // - 주가(SPX, SPY, RSP): 종가 기준 → 장중 등락으로 점수 흔들림 방지
   // - 시장 환경(VIX, DXY, TNX, HYG, 유가): 실시간 → 현재 시장 상태 즉각 반영
-  // v46.4: 폴백값을 DATA_SNAPSHOT._fallback에서 읽음 (단일 진실 원천)
   // P553/R244: 호출부 16곳(헤더 텍스트·게이지·카드 등)이 각자 다른 이벤트(aio:liveQuotes vs
   // aio:marketStateUpdated)에서 독립적으로 이 함수를 재호출하면, 그 사이 실시간 입력값
   // (breadth200/putCallRatio/뉴스감성 등)이 바뀌어 같은 화면에 서로 다른 점수가 동시에 노출되는
@@ -22707,32 +21934,30 @@ function computeTradingScore(mode) {
   window._aioScoreCache = window._aioScoreCache || {};
   var _cached = window._aioScoreCache[_cacheKey];
   if (_cached && (Date.now() - _cached.ts) < 20000) return _cached.result;
-  var _fb = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
-  var _verifiedDecisionValue = function(id, raw, neutral) {
+  var _verifiedDecisionValue = function(id, raw) {
     try {
       var audit = window.AIO && typeof window.AIO.getTradingDecisionInputEvidence === 'function'
         ? window.AIO.getTradingDecisionInputEvidence() : null;
       var row = audit && audit.rows && audit.rows.find(function(r) { return r.id === id; });
       if (row && row.status === 'verified_current' && raw != null && isFinite(Number(raw))) return Number(raw);
     } catch(_) {}
-    return neutral;
+    return null;
   };
-  var _clamp = function(v, lo, hi) { return Math.max(lo, Math.min(hi, isFinite(v) ? v : lo)); };
-  const vix   = _clamp(_ldSafe('^VIX','price') || _fb.vix || 20, 5, 150);
-  const vvix  = _clamp(_ldSafe('^VVIX','price') || _fb.vvix || 100, 50, 250);
-  const dxy   = _clamp(_ldSafe('DX-Y.NYB','price') || _fb.dxy || 104, 80, 130);
-  const tnx   = _clamp(_ldSafe('^TNX','price') || _fb.tnx || 4.3, 0, 8);
-  const oilPrice = _clamp(_ldSafe('CL=F','price') || 0, 0, 300);
+  var _clamp = function(v, lo, hi) { return v == null || !isFinite(v) ? null : Math.max(lo, Math.min(hi, Number(v))); };
+  const vix   = _clamp(_ldSafe('^VIX','price'), 5, 150);
+  const vvix  = _clamp(_ldSafe('^VVIX','price'), 50, 250);
+  const dxy   = _clamp(_ldSafe('DX-Y.NYB','price'), 80, 130);
+  const tnx   = _clamp(_ldSafe('^TNX','price'), 0, 8);
+  const oilPrice = _clamp(_ldSafe('CL=F','price'), 0, 300);
   var _fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg', { maxAgeMs: 4 * 60 * 60 * 1000 }) : null;
-  // reference/stale F&G는 점수에 다시 영향을 주지 않는다. 화면 점수는 계산을 유지하되
-  // 중립값으로 격리하고 provenance를 결과에 남겨 상단 decision gate가 경고할 수 있게 한다.
-  const fg    = _clamp(_fgMetric && _fgMetric.allowedUse ? _fgMetric.value : 50, 0, 100);
+  const fg    = _clamp(_fgMetric && _fgMetric.allowedUse ? _fgMetric.value : null, 0, 100);
   const rsp   = _closingVal('RSP');
   const spy   = _closingVal('SPY');
 
   // 1. Volatility Score (25%) — lower VIX is better for trading
-  let volScore;
-  if (vix < 15)       volScore = 90;
+  let volScore = null;
+  if (vix == null)    volScore = null;
+  else if (vix < 15)  volScore = 90;
   else if (vix < 18)  volScore = 78;
   else if (vix < 22)  volScore = 62;
   else if (vix < 27)  volScore = 42;
@@ -22740,15 +21965,16 @@ function computeTradingScore(mode) {
   else                volScore = 8;
 
   // Day trading: elevated volatility is slightly better
-  if (mode === 'day') {
+  if (mode === 'day' && volScore != null) {
     if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
   }
 
   // 2. Momentum Score (25%) — Fear&Greed as proxy (v46.9: CNN 표준 25/45/55/75 통일)
-  let momScore;
+  let momScore = null;
   // v50.19: F&G 모멘텀 곡선 역U자화 — 극단 탐욕(≥75)은 과매수/모멘텀 소진 위험으로 fade(이전 85=최대치는 home 역발상 "차익실현"과 정면 모순).
   // 건강한 탐욕(55~75)이 피크. 극단 공포(<25)는 역발상 반등 여지로 바닥값 소폭 상향(15→25). signal=추세추종 / home=극단 역발상이 같은 방향으로 수렴.
-  if (fg >= 75)      momScore = 66;  // Extreme Greed — 과매수, 추격 위험 (피크 아님)
+  if (fg == null)    momScore = null;
+  else if (fg >= 75) momScore = 66;  // Extreme Greed — 과매수, 추격 위험 (피크 아님)
   else if (fg >= 55) momScore = 74;  // Greed — 건강한 모멘텀 피크
   else if (fg >= 45) momScore = 52;  // Neutral
   else if (fg >= 25) momScore = 34;  // Fear
@@ -22759,8 +21985,8 @@ function computeTradingScore(mode) {
   const spx200ma = maCurrent ? Number(window._spxMA[200]) : null;
   const spx50ma  = maCurrent ? Number(window._spxMA[50]) : null;
   const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');
-  let trendCalcScore;
-  if (!spxPrice || !spx50ma || !spx200ma) trendCalcScore = 50;
+  let trendCalcScore = null;
+  if (!spxPrice || !spx50ma || !spx200ma) trendCalcScore = null;
   else if (spxPrice > spx50ma * 1.02)     trendCalcScore = 82;
   else if (spxPrice > spx50ma)       trendCalcScore = 68;
   else if (spxPrice > spx200ma)      trendCalcScore = 50;
@@ -22774,7 +22000,7 @@ function computeTradingScore(mode) {
   // v50.19: _breadth200(레거시 20SMA명) 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백으로 시정
   const breadthEvidence = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
   const breadth200 = breadthEvidence.available ? breadthEvidence.sma20 : null;
-  let breadthCalcScore = 50;
+  let breadthCalcScore = null;
   if (breadth200 != null && breadth200 > 70)      breadthCalcScore = 88;
   else if (breadth200 != null && breadth200 > 55) breadthCalcScore = 72;
   else if (breadth200 != null && breadth200 > 40) breadthCalcScore = 52;
@@ -22783,32 +22009,32 @@ function computeTradingScore(mode) {
   let breadthScore = breadthEvidence.available ? breadthCalcScore : null;
 
   // 5. Macro Score (10%) — 기저 55, 누진 감점 (DXY>110이면 -12-8=-20 의도적 누진)
-  let macroScore = 55;
-  if (dxy > 107) macroScore -= 12;  // DXY 강세 1단계
-  if (dxy > 110) macroScore -= 8;   // DXY 극단 강세 2단계 (누진)
-  if (tnx > 4.5) macroScore -= 10;
+  let macroScore = dxy != null && tnx != null && vvix != null ? 55 : null;
+  if (macroScore != null && dxy > 107) macroScore -= 12;  // DXY 강세 1단계
+  if (macroScore != null && dxy > 110) macroScore -= 8;   // DXY 극단 강세 2단계 (누진)
+  if (macroScore != null && tnx > 4.5) macroScore -= 10;
   // P714: `hyg < 76`(HYG 달러 가격 고정 임계) 제거 — 아래 v51.88 블록 주석이 스스로 설명하듯
   // HYG 가격은 금리 듀레이션(~3.8y)에 오염돼 신용 레벨 판정에 부적합하고, 신용 스트레스는
   // 이미 하단의 FRED HY OAS(bp) 실측 전용 감점 블록이 담당한다(이중 계상 겸 오염 제거).
-  if (fg < 20)   macroScore -= 5;
-  if (vvix > 110) macroScore -= 8;
-  macroScore = Math.max(10, Math.min(90, macroScore));
+  if (macroScore != null && fg != null && fg < 20) macroScore -= 5;
+  if (macroScore != null && vvix > 110) macroScore -= 8;
+  if (macroScore != null) macroScore = Math.max(10, Math.min(90, macroScore));
 
   // v20+: Put/Call ratio 보정
-  const pcr = _verifiedDecisionValue('pcr-putcall', window._putCallRatio, 0.95);
-  if (pcr > 1.3) { momScore = Math.max(5, momScore - 8); }
-  else if (pcr > 1.1) { momScore = Math.max(5, momScore - 4); }
+  const pcr = _verifiedDecisionValue('pcr-putcall', window._putCallRatio);
+  if (pcr != null && momScore != null && pcr > 1.3) { momScore = Math.max(5, momScore - 8); }
+  else if (pcr != null && momScore != null && pcr > 1.1) { momScore = Math.max(5, momScore - 4); }
 
   // AAII is weekly reference-only data. It is displayed for context but never changes a
   // current trading score without an independent current-evidence path.
 
   // v39.2: 교차변수 보정 — 복합 리스크 시 추가 감점
   var crossRiskCount = 0;
-  if (vix > 25) crossRiskCount++;
-  if (dxy > 107) crossRiskCount++;
-  if (tnx > 4.5) crossRiskCount++;
-  if (oilPrice > 100) crossRiskCount++;
-  if (crossRiskCount >= 3) macroScore = Math.max(10, macroScore - 10); // 3개 이상 동시 악화 = 퍼펙트스톰 패널티
+  if (vix != null && vix > 25) crossRiskCount++;
+  if (dxy != null && dxy > 107) crossRiskCount++;
+  if (tnx != null && tnx > 4.5) crossRiskCount++;
+  if (oilPrice != null && oilPrice > 100) crossRiskCount++;
+  if (crossRiskCount >= 3 && macroScore != null) macroScore = Math.max(10, macroScore - 10);
 
   // v39.2: 추세-시장폭 다이버전스 보너스/패널티
   if (trendScore != null && breadthScore != null && trendScore > 65 && breadthScore < 30) {
@@ -22822,48 +22048,53 @@ function computeTradingScore(mode) {
   }
 
   // v20: Credit Stress 보정 (HY Spread 기반)
-  let compositeScore = Math.round(
-    volScore * 0.25 +
-    momScore * 0.25 +
-    trendCalcScore * 0.20 +
-    breadthCalcScore * 0.20 +
-    macroScore * 0.10
-  );
+  var weightedComponents = [
+    { value:volScore, weight:25 }, { value:momScore, weight:25 },
+    { value:trendCalcScore, weight:20 }, { value:breadthCalcScore, weight:20 },
+    { value:macroScore, weight:10 }
+  ];
+  var availableWeight = weightedComponents.reduce(function(sum, row) { return sum + (row.value == null ? 0 : row.weight); }, 0);
+  let compositeScore = availableWeight ? Math.round(weightedComponents.reduce(function(sum, row) {
+    return sum + (row.value == null ? 0 : row.value * row.weight);
+  }, 0) / availableWeight) : null;
 
   // v51.88 P576/R266: 신용 스트레스 입력 우선순위 — 측정값 > 근사.
   //   1순위 window._hySpreadBp (fetchHYSpread 가 FRED BAMLH0A0HYM2 실측 OAS 저장, 6h 갱신)
   //   2순위 DATA_SNAPSHOT.hySpread (서버/시드 실측값)
   //   3순위 (100-HYG)*15bp 근사 — HYG 가격은 금리 듀레이션(~3.8y)에 오염돼 금리 100bp 상승만으로
   //          가짜 +45bp "스프레드 확대"를 만든다. 실측이 전혀 없을 때만 최후 폴백.
-  var hyBp = _verifiedDecisionValue('hy-spread-bp', window._hySpreadBp, 0);
-  if (hyBp > 500) compositeScore -= 15; // Distressed credit
-  else if (hyBp > 400) compositeScore -= 8;
-  else if (hyBp > 350) compositeScore -= 3;
+  var hyBp = _verifiedDecisionValue('hy-spread-bp', window._hySpreadBp);
+  if (compositeScore != null && hyBp != null && hyBp > 500) compositeScore -= 15;
+  else if (compositeScore != null && hyBp != null && hyBp > 400) compositeScore -= 8;
+  else if (compositeScore != null && hyBp != null && hyBp > 350) compositeScore -= 3;
 
   // v20: 지정학 위험 보정 (v37.1: 유가 실시간 — 선물 24시간 거래)
-  if (oilPrice > 100) compositeScore -= 10; // 유가 $100+ = 스태그플레이션 위험
-  else if (oilPrice > 90) compositeScore -= 5;
+  if (compositeScore != null && oilPrice != null && oilPrice > 100) compositeScore -= 10;
+  else if (compositeScore != null && oilPrice != null && oilPrice > 90) compositeScore -= 5;
 
   // ── v20: 뉴스 감성 보정 ──────────────────────────────────────
   try {
     const newsSent = computeNewsSentimentScore();
-    if (newsSent.score < 30) compositeScore -= 8;       // 뉴스 전반적 비관
-    else if (newsSent.score > 70) compositeScore += 5;  // 뉴스 전반적 낙관
+    if (compositeScore != null && newsSent.score < 30) compositeScore -= 8;
+    else if (compositeScore != null && newsSent.score > 70) compositeScore += 5;
 
     // 뉴스 리스크 시그널 반영
     const newsRisks = computeNewsRiskSignals();
-    newsRisks.forEach(r => { compositeScore += r.impact; });
+    if (compositeScore != null) newsRisks.forEach(r => { compositeScore += r.impact; });
   } catch(e) { _aioLog('warn', 'render', 'News sentiment integration error: ' + (e && e.message || e)); }
 
   // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
-  const total = Math.max(5, Math.min(100, compositeScore));
+  const total = compositeScore == null ? null : Math.max(5, Math.min(100, compositeScore));
 
   var evidenceAudit = (window.AIO && window.AIO.getTradingDecisionInputEvidence) ? window.AIO.getTradingDecisionInputEvidence() : null;
   var provenanceBundle = (window.AIO && window.AIO.getDecisionEvidenceBundle) ? window.AIO.getDecisionEvidenceBundle() : null;
   var componentMissing = [];
+  if (volScore == null) componentMissing.push('volatility');
+  if (momScore == null) componentMissing.push('momentum');
   if (!maCurrent) componentMissing.push('trend');
   if (!breadthEvidence.available) componentMissing.push('breadth');
-  var _result = { total, score: total, volScore, momScore, trendScore, breadthScore, macroScore, componentCoveragePct: 100 - (maCurrent ? 0 : 20) - (breadthEvidence.available ? 0 : 20), componentMissing: componentMissing, partial: componentMissing.length > 0, neutralizedMissing: componentMissing.slice(), evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit,
+  if (macroScore == null) componentMissing.push('macro');
+  var _result = { total, score: total, volScore, momScore, trendScore, breadthScore, macroScore, componentCoveragePct: availableWeight, componentMissing: componentMissing, partial: availableWeight < 100, neutralizedMissing: [], evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit,
     fgEvidenceStatus: _fgMetric ? _fgMetric.status : 'UNAVAILABLE', fgEvidenceAllowedUse: !!(_fgMetric && _fgMetric.allowedUse),
     evidenceId: provenanceBundle && provenanceBundle.bundleId || '', provenanceBundle: provenanceBundle };
   window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now() };
@@ -22874,6 +22105,7 @@ function computeTradingScore(mode) {
 function getScoreAdvice(score) {
   // 누적 표본이 통계 기준에 못 미치고 최근 IC도 음수다. 이 점수는 예측/매수 신호가
   // 아니라 현재 시장 환경을 요약하는 설명형 상태 지표로만 안내한다.
+  if (score == null || !isFinite(Number(score))) return {text:'필수 시장 입력이 부족해 환경 점수를 산출하지 않습니다.', color:'var(--text-muted)', action:'산출 보류'};
   if (score >= 75) return {text:'환경 우호 구간 — 현재 입력 조합이 우호적입니다. 예측 신호가 아니므로 종목별 근거·무효화 가격을 별도로 확인하세요.', color:'var(--data-green)', action:'환경 우호'};
   if (score >= 60) return {text:'환경 양호 구간 — 현재 시장 여건은 양호하지만 점수 단독으로 진입하지 말고 종목·거래량·손익비를 확인하세요.', color:'#4ade80', action:'환경 양호'};
   if (score >= 45) return {text:'중립 구간 — 시장 방향이 혼재되어 있습니다. 신규 진입보다 기존 포지션 관리와 후보 관찰을 우선하세요.', color:'var(--data-amber)', action:'관망/보유'};
@@ -22884,20 +22116,34 @@ function getScoreAdvice(score) {
 // ── Execution Window Score (v20+) ────────────────────────────────
 function computeExecutionWindow() {
   let ld = window._liveData || {};
-  var _fb2 = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) || {};
-  const vix = _ldSafe('^VIX','price') || _fb2.vix || 20;
+  const vixRaw = _ldSafe('^VIX','price');
+  const vix = vixRaw == null || !isFinite(Number(vixRaw)) ? null : Number(vixRaw);
   var _fgExec = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg', { maxAgeMs: 4 * 60 * 60 * 1000 }) : null;
-  const fg = _fgExec && _fgExec.allowedUse ? _fgExec.value : 50;
-  // v50.19: 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백
+  const fg = _fgExec && _fgExec.allowedUse && isFinite(Number(_fgExec.value)) ? Number(_fgExec.value) : null;
   const breadthCandidate = (typeof window._breadth200 === 'number') ? window._breadth200 :
                            (typeof window._breadth20 === 'number') ? window._breadth20 : null;
   const breadth200 = (function() {
     try {
       var a = window.AIO.getTradingDecisionInputEvidence();
       var r = a.rows.find(function(x) { return x.id === 'breadth200-participation'; });
-      return r && r.status === 'verified_current' && breadthCandidate != null ? breadthCandidate : 50;
-    } catch(_) { return 50; }
+       return r && r.status === 'verified_current' && breadthCandidate != null ? breadthCandidate : null;
+    } catch(_) { return null; }
   })();
+
+  const pcr = (function() {
+    try {
+      var a = window.AIO.getTradingDecisionInputEvidence();
+      var r = a.rows.find(function(x) { return x.id === 'pcr-putcall'; });
+      return r && r.status === 'verified_current' && isFinite(Number(window._putCallRatio)) ? Number(window._putCallRatio) : null;
+    } catch(_) { return null; }
+  })();
+  if (vix == null || fg == null || breadth200 == null || pcr == null) {
+    ['ew-breakout','ew-pullback','ew-followthru','ew-leaders'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = 'N/A'; el.style.color = 'var(--text-muted)'; }
+    });
+    return { total:null, breakoutHold:null, pullbackBuy:null, followThru:null, leaderHold:null, available:false };
+  }
 
   // v46.9: 기저값 상향 — 중립 시 MOD(65) 판정되도록 (이전 46.25→WEAK)
   // Breakout holding: are breakouts sustaining?
@@ -22924,13 +22170,6 @@ function computeExecutionWindow() {
   // Leader retention: are leading stocks holding gains?
   let leaderHold = 65;
   if (breadth200 < 40) leaderHold -= 15;
-  const pcr = (function() {
-    try {
-      var a = window.AIO.getTradingDecisionInputEvidence();
-      var r = a.rows.find(function(x) { return x.id === 'pcr-putcall'; });
-      return r && r.status === 'verified_current' && isFinite(Number(window._putCallRatio)) ? Number(window._putCallRatio) : 0.95;
-    } catch(_) { return 0.95; }
-  })();
   if (pcr > 1.2) leaderHold -= 10;
   leaderHold = Math.max(0, Math.min(100, leaderHold));
 
@@ -22952,7 +22191,7 @@ function computeExecutionWindow() {
     if (el) { el.textContent = getLabel(val); el.style.color = getColor(val); }
   });
 
-  return { total, breakoutHold, pullbackBuy, followThru, leaderHold };
+  return { total, breakoutHold, pullbackBuy, followThru, leaderHold, available:true };
 }
 
 // ── Market Regime Classification (v20+) ──────────────────────────
@@ -22963,7 +22202,6 @@ function classifyMarketRegime() {
   const maCurrent = Number.isFinite(maTs) && Date.now() - maTs <= 96 * 60 * 60 * 1000;
   const spx200ma = maCurrent && window._spxMA && Number(window._spxMA[200]) || null;
   const spx50ma  = maCurrent && window._spxMA && Number(window._spxMA[50])  || null;
-  const vix = _ldSafe('^VIX','price') || (typeof DATA_SNAPSHOT !== 'undefined' ? DATA_SNAPSHOT.vix : 20);
   var breadthEvidence = null;
   try {
     var _ba = window.AIO.getTradingDecisionInputEvidence();
@@ -23019,6 +22257,7 @@ function _aioScoreColor(score) {
 
 window.AIO.getCurrentMarketRegime = function() {
   var snap = window.DATA_SNAPSHOT || {};
+  function currentNumber(v) { return v == null || v === '' || !isFinite(Number(v)) ? null : Number(v); }
   var spxPct = _ldSafe('^GSPC', 'pct', snap.spxPct);
   var nasPct = _ldSafe('^IXIC', 'pct', snap.nasdaqPct);
   var vix = _ldSafe('^VIX', 'price', snap.vix);
@@ -23026,16 +22265,25 @@ window.AIO.getCurrentMarketRegime = function() {
   var tnx = _ldSafe('^TNX', 'price', snap.tnx);
   var krw = _ldSafe('KRW=X', 'price', snap.krw);
   var hygPct = _ldSafe('HYG', 'pct', null);
+  spxPct = currentNumber(spxPct); nasPct = currentNumber(nasPct); vix = currentNumber(vix);
+  dxy = currentNumber(dxy); tnx = currentNumber(tnx); krw = currentNumber(krw); hygPct = currentNumber(hygPct);
+  var hasRiskCore = spxPct != null && nasPct != null && vix != null;
+  var hasStressCore = tnx != null && dxy != null;
+  if (!hasRiskCore || !hasStressCore) {
+    return { available:false, regime:null, riskScore:null, rateStress:null,
+      inputs:{ spxPct:spxPct, nasPct:nasPct, vix:vix, dxy:dxy, tnx:tnx, krw:krw, hygPct:hygPct },
+      source:'insufficient-evidence', generatedAt:new Date().toISOString() };
+  }
   var riskScore = 50;
-  if (isFinite(spxPct)) riskScore += spxPct * 8;
-  if (isFinite(nasPct)) riskScore += nasPct * 4;
-  if (isFinite(vix)) riskScore -= Math.max(0, vix - 18) * 2.2;
-  if (isFinite(hygPct)) riskScore += hygPct * 5;
+  riskScore += spxPct * 8;
+  riskScore += nasPct * 4;
+  riskScore -= Math.max(0, vix - 18) * 2.2;
+  if (hygPct != null) riskScore += hygPct * 5;
   riskScore = _aioClampScore(riskScore);
   var rateStress = 0;
-  if (isFinite(tnx)) rateStress += Math.max(0, tnx - 4.25) * 30;
-  if (isFinite(dxy)) rateStress += Math.max(0, dxy - 102) * 2;
-  if (isFinite(krw)) rateStress += Math.max(0, krw - 1450) / 8;
+  rateStress += Math.max(0, tnx - 4.25) * 30;
+  rateStress += Math.max(0, dxy - 102) * 2;
+  if (krw != null) rateStress += Math.max(0, krw - 1450) / 8;
   rateStress = _aioClampScore(rateStress);
   var regime = riskScore >= 65 && rateStress < 55 ? 'risk-on' : riskScore <= 35 || rateStress >= 70 ? 'risk-off' : 'mixed';
   return {
@@ -23050,29 +22298,35 @@ window.AIO.getCurrentMarketRegime = function() {
 
 window.AIO.getKrMarketTemperature = function() {
   var snap = window.DATA_SNAPSHOT || {};
+  var liveBreadth = window._krBreadthLiveData || null;
+  function currentNumber(v) { return v == null || v === '' || !isFinite(Number(v)) ? null : Number(v); }
   var kospiPct = _ldSafe('^KS11', 'pct', snap.kospiPct);
   var kosdaqPct = _ldSafe('^KQ11', 'pct', snap.kosdaqPct);
   var krwPct = _ldSafe('KRW=X', 'pct', snap.krwPct);
-  var vkospi = snap.vkospi;
-  var adv = Number(snap.krAdvance);
-  var dec = Number(snap.krDecline);
-  var breadth = isFinite(adv) && isFinite(dec) && adv + dec > 0 ? (adv / (adv + dec) - 0.5) * 100 : 0;
-  var sentiment = _aioClampScore(50 + (kospiPct || 0) * 8 + (kosdaqPct || 0) * 3 - Math.max(0, (vkospi || 18) - 20) * 1.5);
-  var retail = _aioClampScore(50 + ((Number(snap.krDeposit) || 0) - 60) * 1.2 - Math.max(0, (Number(snap.krCreditBalance) || 0) - 20) * 2);
-  var foreign = _aioClampScore(50 + (kospiPct || 0) * 8 - (krwPct || 0) * 6);
-  var momentum = _aioClampScore(50 + (kospiPct || 0) * 9 + (kosdaqPct || 0) * 5 + breadth * 0.5);
+  kospiPct = currentNumber(kospiPct); kosdaqPct = currentNumber(kosdaqPct); krwPct = currentNumber(krwPct);
+  var vkospi = currentNumber(snap.vkospi);
+  var adv = currentNumber(liveBreadth && liveBreadth.advances);
+  var dec = currentNumber(liveBreadth && liveBreadth.declines);
+  var deposit = currentNumber(snap.krDeposit);
+  var credit = currentNumber(snap.krCreditBalance);
+  var breadth = adv != null && dec != null && adv + dec > 0 ? (adv / (adv + dec) - 0.5) * 100 : null;
+  var sentiment = kospiPct != null && kosdaqPct != null && vkospi != null ? _aioClampScore(50 + kospiPct * 8 + kosdaqPct * 3 - Math.max(0, vkospi - 20) * 1.5) : null;
+  var retail = deposit != null && credit != null ? _aioClampScore(50 + (deposit - 60) * 1.2 - Math.max(0, credit - 20) * 2) : null;
+  var foreign = kospiPct != null && krwPct != null ? _aioClampScore(50 + kospiPct * 8 - krwPct * 6) : null;
+  var momentum = kospiPct != null && kosdaqPct != null && breadth != null ? _aioClampScore(50 + kospiPct * 9 + kosdaqPct * 5 + breadth * 0.5) : null;
   return {
     sentiment: sentiment,
     retail: retail,
     foreign: foreign,
     momentum: momentum,
     labels: {
-      sentiment: _aioScoreLabel(sentiment, '위험선호', '중립', '공포', '극단 공포'),
-      retail: _aioScoreLabel(retail, '매수 우위', '중립', '관망', '위축'),
-      foreign: _aioScoreLabel(foreign, '수급 우호', '중립', '약세', '이탈 경고'),
-      momentum: _aioScoreLabel(momentum, '강세', '중립', '약세', '극약세')
+      sentiment: sentiment == null ? '미수신' : _aioScoreLabel(sentiment, '위험선호', '중립', '공포', '극단 공포'),
+      retail: retail == null ? '미수신' : _aioScoreLabel(retail, '매수 우위', '중립', '관망', '위축'),
+      foreign: foreign == null ? '미수신' : _aioScoreLabel(foreign, '수급 우호', '중립', '약세', '이탈 경고'),
+      momentum: momentum == null ? '미수신' : _aioScoreLabel(momentum, '강세', '중립', '약세', '극약세')
     },
-    source: (window._liveData && (window._liveData['^KS11'] || window._liveData['^KQ11'])) ? 'live-first' : 'snapshot-guarded',
+    available: [sentiment, retail, foreign, momentum].some(function(v) { return v != null; }),
+    source: (window._liveData && (window._liveData['^KS11'] || window._liveData['^KQ11'])) ? 'live-first' : 'insufficient-evidence',
     generatedAt: new Date().toISOString()
   };
 };
@@ -23081,12 +22335,12 @@ window.AIO.renderDynamicMarketNarratives = function() {
   try {
     var reg = window.AIO.getCurrentMarketRegime ? window.AIO.getCurrentMarketRegime() : null;
     var fx = document.getElementById('fxbond-dynamic-thesis');
-    if (fx && reg) {
+    if (fx && reg && reg.available !== false) {
       var i = reg.inputs || {};
       var fmtNum = function(v, d, suffix) { return typeof v === 'number' && isFinite(v) ? v.toFixed(d) + (suffix || '') : 'n/a'; };
       var tone = reg.regime === 'risk-on' ? '위험선호가 우세합니다.' : reg.regime === 'risk-off' ? '방어적 해석이 우세합니다.' : '신호가 엇갈리는 혼합 국면입니다.';
       fx.textContent = tone + ' VIX ' + fmtNum(i.vix, 1) + ', 10Y ' + fmtNum(i.tnx, 2, '%') + ', DXY ' + fmtNum(i.dxy, 1) + ' 기준으로 금리/달러 스트레스 ' + reg.rateStress + ', 위험선호 점수 ' + reg.riskScore + '입니다. 이 문장은 라이브 지표 갱신 때 재계산됩니다.';
-    }
+    } else if (fx) fx.textContent = '핵심 시장 지표가 부족해 국면 판단을 보류합니다.';
     var kr = window.AIO.getKrMarketTemperature ? window.AIO.getKrMarketTemperature() : null;
     if (kr) {
       [
@@ -23097,8 +22351,8 @@ window.AIO.renderDynamicMarketNarratives = function() {
       ].forEach(function(row) {
         var scoreEl = document.getElementById(row[0]);
         var labelEl = document.getElementById(row[1]);
-        if (scoreEl) { scoreEl.textContent = row[2]; scoreEl.style.color = _aioScoreColor(row[2]); }
-        if (labelEl) { labelEl.textContent = row[3] + ' · ' + (kr.source === 'live-first' ? '라이브 연동' : '스냅샷 경계'); labelEl.style.color = _aioScoreColor(row[2]); }
+        if (scoreEl) { scoreEl.textContent = row[2] == null ? '—' : row[2]; scoreEl.style.color = row[2] == null ? 'var(--text-muted)' : _aioScoreColor(row[2]); }
+        if (labelEl) { labelEl.textContent = row[3] + (row[2] == null ? ' · 판단 보류' : ' · 라이브 연동'); labelEl.style.color = row[2] == null ? 'var(--text-muted)' : _aioScoreColor(row[2]); }
       });
     }
   } catch(e) {
@@ -24240,29 +23494,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
   var KR_5 = ['kr-home','kr-supply','kr-themes','kr-macro','kr-technical'];
   var EDUCATION = ['guide','glossary'];
 
-  var BASELINE_SURFACE = {
-    home:{live:11,snapshot:0,chart:0,controls:43,tables:4,numericTokens:525,riskTokens:4,lineageAttrs:2},
-    signal:{live:65,snapshot:8,chart:7,controls:28,tables:1,numericTokens:1185,riskTokens:6,lineageAttrs:1},
-    breadth:{live:0,snapshot:3,chart:18,controls:5,tables:1,numericTokens:628,riskTokens:1,lineageAttrs:0},
-    sentiment:{live:5,snapshot:1,chart:18,controls:7,tables:0,numericTokens:406,riskTokens:1,lineageAttrs:0},
-    briefing:{live:0,snapshot:2,chart:0,controls:6,tables:0,numericTokens:787,riskTokens:8,lineageAttrs:8},
-    technical:{live:4,snapshot:0,chart:15,controls:20,tables:0,numericTokens:914,riskTokens:5,lineageAttrs:0},
-    macro:{live:34,snapshot:11,chart:9,controls:7,tables:0,numericTokens:1049,riskTokens:6,lineageAttrs:0},
-    fxbond:{live:64,snapshot:9,chart:3,controls:8,tables:1,numericTokens:1085,riskTokens:4,lineageAttrs:2},
-    fundamental:{live:0,snapshot:0,chart:18,controls:29,tables:0,numericTokens:627,riskTokens:3,lineageAttrs:2},
-    themes:{live:12,snapshot:0,chart:7,controls:26,tables:1,numericTokens:322,riskTokens:0,lineageAttrs:0},
-    'theme-detail':{live:3,snapshot:0,chart:0,controls:18,tables:1,numericTokens:81,riskTokens:0,lineageAttrs:0},
-    portfolio:{live:0,snapshot:0,chart:3,controls:55,tables:2,numericTokens:686,riskTokens:0,lineageAttrs:0},
-    ticker:{live:0,snapshot:0,chart:5,controls:28,tables:1,numericTokens:312,riskTokens:2,lineageAttrs:0},
-    'market-news':{live:0,snapshot:0,chart:0,controls:27,tables:0,numericTokens:223,riskTokens:0,lineageAttrs:0},
-    options:{live:19,snapshot:6,chart:0,controls:3,tables:7,numericTokens:1337,riskTokens:25,lineageAttrs:18},
-    'kr-home':{live:21,snapshot:22,chart:0,controls:8,tables:0,numericTokens:519,riskTokens:11,lineageAttrs:0},
-    'kr-supply':{live:0,snapshot:0,chart:0,controls:8,tables:7,numericTokens:180,riskTokens:0,lineageAttrs:1},
-    'kr-themes':{live:0,snapshot:0,chart:0,controls:26,tables:0,numericTokens:67,riskTokens:0,lineageAttrs:0},
-    'kr-macro':{live:0,snapshot:23,chart:1,controls:4,tables:5,numericTokens:505,riskTokens:3,lineageAttrs:3},
-    'kr-technical':{live:2,snapshot:3,chart:4,controls:33,tables:0,numericTokens:393,riskTokens:1,lineageAttrs:0},
-    guide:{live:19,snapshot:18,chart:2,controls:136,tables:3,numericTokens:20264,riskTokens:565,lineageAttrs:0}
-  };
+  var BASELINE_SURFACE = {};
 
   function _contractProfile(id) {
     var p = {
@@ -24414,19 +23646,11 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     ROUTE_PAGE_IDS.concat(['glossary']).forEach(function(id) { pages[id] = _makeContract(id); });
     return {
       version: 'v50.0',
-      generatedAt: '2026-06-02T00:00:00+09:00',
+      generatedAt: null,
       routePageIds: ROUTE_PAGE_IDS.slice(),
       nonRouteOverlayIds: ['glossary'],
       groups: { critical5: CRITICAL_5.slice(), analysis5: ANALYSIS_5.slice(), workflow5: WORKFLOW_5.slice(), kr5: KR_5.slice(), education: EDUCATION.slice() },
-      baseline: {
-        liveBindings: 259,
-        snapshotBindings: 106,
-        chartLikeElements: 110,
-        controls: 525,
-        tables: 34,
-        numericTokens: 32095,
-        guideNumericTokens: 20264
-      },
+      baseline: {},
       pages: pages
     };
   }
@@ -24770,7 +23994,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
 
   var AIO_TEXT_SURFACE_CONTRACTS = window.AIO_TEXT_SURFACE_CONTRACTS || {
     version: 'v50.4',
-    generatedAt: '2026-06-03T10:40:00+09:00',
+    generatedAt: null,
     policy: {
       roles: ['current-market-claim','formula-threshold','education-explainer','operational-status','developer-note','risk-disclaimer','reference-archive'],
       visibleDeveloperNotes: 'blocked-on-route-pages',
@@ -25888,9 +25112,6 @@ function destroyPageCharts(pageId) {
       Object.values(bpChartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
       Object.keys(bpChartInstances).forEach(k => delete bpChartInstances[k]);
       bpChartsInitialized = false;
-      Object.values(bhChartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
-      Object.keys(bhChartInstances).forEach(k => delete bhChartInstances[k]);
-      bhChartsInitialized = false;
     }
     if (pageId === 'fxbond') {
       if (window._yieldCurveChart) { window._yieldCurveChart.destroy(); window._yieldCurveChart = null; }
@@ -26214,7 +25435,13 @@ window._aioRenderKrMacroFreshnessBadges = function() {
   function badge(id, key) {
     var el = document.getElementById(id);
     var dateStr = ts[key];
-    if (!el || !dateStr) return;
+    if (!el) return;
+    if (!dateStr) {
+      el.textContent = '기준: 미수신';
+      el.style.color = 'var(--text-muted)';
+      el.setAttribute('data-runtime-state', 'unavailable');
+      return;
+    }
     var days = (typeof window._aioStaleDays === 'function') ? window._aioStaleDays(dateStr) : Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
     el.textContent = '기준: ' + dateStr.slice(5).replace('-', '/') + ' (' + days + '일 전)';
     el.style.color = days > 30 ? 'var(--data-amber)' : 'var(--text-muted)';
@@ -26736,54 +25963,6 @@ if (typeof window !== 'undefined' && !window._aioPopstateRegistered) {
   if (window.AIO && window.AIO.state) window.AIO.state._aioPopstateRegistered = true; // v49.1 P184
 }
 
-function showTheme(themeId) {
-  // v49.57 R105 신규: 채팅 컨텍스트가 활성 테마 ticker를 라이브 가격으로 주입하도록 전역 마커
-  window._currentThemeId = themeId;
-  const themes = {
-    ai: {name:'AI · 반도체', icon:''},
-    defense: {name:'방산 · 우주', icon:''},
-    energy: {name:'에너지 · 클린', icon:''},
-    health: {name:'헬스케어 · 바이오', icon:''},
-    fintech: {name:'핀테크 · 결제', icon:''},
-    cloud: {name:'클라우드 · SaaS', icon:''},
-    consumer: {name:'소비재 · 리테일', icon:''},
-    real_estate: {name:'리츠 · 부동산', icon:''},
-    ev: {name:'전기차 · 자율주행', icon:''},
-    materials: {name:'원자재 · 광물', icon:''},
-    crypto: {name:'크립토 · 블록체인', icon:''},
-    infra: {name:'인프라 · 유틸리티', icon:''},
-  };
-  const t = themes[themeId] || {name:themeId, icon:''};
-  document.getElementById('theme-detail-name').textContent = t.name;
-  document.getElementById('theme-detail-icon').textContent = t.icon;
-  document.getElementById('theme-detail-title').textContent = t.name;
-  var briefEl = document.getElementById('theme-detail-currentness-brief');
-  if (briefEl) {
-    var liveCount = 0;
-    try {
-      ['SMH','SOXX','QQQ','SPY'].forEach(function(sym) {
-        var row = window._liveData && window._liveData[sym];
-        if (row && row.price != null) liveCount++;
-      });
-    } catch(_) {}
-    briefEl.innerHTML = '<div class="dc-title">테마 현재성 요약</div>' +
-      '<div style="font-size:11px;color:var(--text-secondary);line-height:1.7;">' +
-      '<b>' + escHtml(t.name) + '</b>는 리더 상대강도, 2차 후보 확산, 뉴스 촉매, 깨지는 신호를 함께 보는 비교 보드입니다. ' +
-      '현재 대표 ETF/지수 live 수신 ' + liveCount + '/4개 기준이며, 부족하면 SNAPSHOT/REFERENCE로 낮춰 해석합니다. ' +
-      '실행 판단은 스크리너 후보와 티커 페이지의 현재 시세/기술 데이터로 재검증합니다.' +
-      '</div>';
-  }
-  showPage('theme-detail', null);
-  document.querySelectorAll('.nav-item').forEach(n=>{
-    // v48.61 R45: data-arg 기반
-    var arg = n.dataset && n.dataset.arg;
-    var legacy = n.getAttribute('onclick');
-    if (arg === 'themes' || (legacy && legacy.includes("'themes'"))) n.classList.add('active');
-    else n.classList.remove('active');
-  });
-  const bc=document.getElementById('breadcrumb');
-  bc.innerHTML=`<span>AIO</span><span class="sep">/</span><span data-action="showPage" data-arg="themes" style="cursor:pointer;">테마</span><span class="sep">/</span><span class="current">${escHtml(t.name)}</span>`;
-}
 
 // v52.16 P5f/P620: NVDA/AAPL/MSFT/TSLA만 value가 가짜 평가금액(₩13.7M 등)으로 남아있어 실제 포트폴리오
 // 미등록 신규 방문자에게도 "보유 중"인 것처럼 표시되던 문제 — 나머지 16종목과 동일하게 '—'로 정정
@@ -26963,7 +26142,8 @@ function showTicker(tkr) {
 
     var total = checks.length;
     var color = pass >= total - 1 ? '#00e5a0' : pass >= total / 2 ? '#ffa31a' : '#ff5b50';
-    var verdict = pass >= total - 1 ? '진입 검토 가능' : pass >= total / 2 ? '선별적 검토' : '진입 자제';
+    // P720: 시스템 발화형 판정을 관측형(조건 충족도)으로 전환 — P714 정합.
+    var verdict = pass >= total - 1 ? '조건 대부분 충족' : pass >= total / 2 ? '조건 일부 충족' : '조건 미충족 다수';
 
     var barW = Math.round(pass / total * 100);
     var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +

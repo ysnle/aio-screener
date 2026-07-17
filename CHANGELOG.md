@@ -1,3 +1,31 @@
+## v53.5 (2026-07-17)
+- REMAINING-WORK "2026-07-16 배치 이후" 섹션 A1/A2/B3 실행 배치.
+- **B3 크론 산출물 검증 → P719 발견·수정**: v53.2 배포 후 라이브 아티팩트를 curl로 대사 — telegram-digest(topItems 45/broadItems 360 전부 summary-only ✅)·screener.json(845행 price 필드 0건 ✅)은 계약 준수였으나 **data.json은 quotes 77건이 그대로 재발행**되고 있었음. 원인: `fetch-data.mjs`가 P715 스트립을 적용한 첫 발행(1761행) 뒤 scrInfo meta 후기록 재기록(1809행)에서 스트립 안 된 원본 `data`를 그대로 써서 계약을 덮어씀. 발행 페이로드 생성을 `toPublicPayload()` 헬퍼로 일원화하고, 마지막 발행본을 디스크에서 다시 읽어 quotes=[]·quotesPublished:false를 단언하는 read-back 계약 검증 추가(위반 시 커밋 전 워크플로 fail).
+- **A1 전술 스코어 percentile/레짐 상대화 재설계(relative-v1) + 재백테스트 — 통과 실패, 확정 정책 유지**: 절대 임계값(vix 5밴드, dxy>107/110, tnx>4.5, vvix>110, oil>90/100, crossRisk)을 trailing 롤링 percentile(≤2520d, warm-up ≥252d, look-ahead 없음)로 치환한 변형을 `backtest-trading-score-longrun.mjs`에 추가, 동일 10y 데이터(2016-07-18~2026-07-16, 2513거래일)로 baseline과 병렬 재백테스트. **결과: 음의 상관 크기는 크게 감소(63일 rho −0.257→−0.078, 21일 −0.166→−0.078)해 R298 가설(절대 임계값의 레짐 드리프트)이 원인의 상당 부분이었음을 확인했으나, 여전히 유의한 음(−)(CI 0 미포함)이고 holdout 63일은 −0.306** — 통과 기준(유의한 양의 IC) 미달. 확정 정책대로 라이브 스코어/라벨 무변경("환경 설명값" 유지), 산출물 `public-data/score-backtest-longrun.json` 갱신.
+- **A2 IA 잔여 실행**: ①home/signal 스코어 히어로 게이지 강등 — 숫자 52px/60px→22px·색 secondary로 낮추고 라벨 "종합 거래 점수"→"시장 환경 점수 · 참고값"+"환경 설명값 — 매매 판단 지표 아님" 캡션(P714 공시와 시각 위계 일치, 판단문이 리드). ②첫 방문 온보딩 — home 상단 비차단 인라인 카드로 브리핑/시장 환경/학습 가이드 3버튼 1회 표시(v50.71 "첫 화면 모달 차단 금지" 결정 존중, P714 면책 바와 동일한 localStorage 1회 패턴, `aio_onboarding_nav_v1`).
+- **P720 간헐 CI RED 수리**: 사용자 보고("run failed 이메일 종종")의 원인을 e603a583 데이터 재현으로 실증 — critical10 감사 `staleTokenRe`의 맨몸 `5/4|5/5|5/8|5/9` 토큰이 signal 실행 체크리스트 "5/5 (충족)" 정상 렌더와 충돌(시장 상태 좋은 날만 T173 실패). 맨몸 날짜 토큰 제거(잔재 감지는 v53.4 정적 계약이 전담), 같은 체크리스트의 "진입 검토 가능/진입 자제" 시스템 발화 라벨 2곳을 관측형("조건 대부분/일부 충족·미충족 다수")으로 전환.
+- **P721 RRG 영구 공백 수리 (22페이지 렌더 전수 감사 발견)**: 라이브 themes RRG가 "근거 0/11 판정 보류"로 전 방문자 공백 — calcLiveRS가 세션 내 30초 틱 누적(>20샘플, 리로드 시 소멸)에 의존하던 v27.2 잔재가 v52.98 시드 제거 후 대체 경로 없이 남은 것. `hydrateRRGDailyHistory()` 신설(fetchViaProxy+_parseYFChartResponse 기존 패턴, SPY+11섹터 6개월 실제 일봉, 배치3 동시·점진 재렌더), `_priceHistoryDaily` 마커로 틱 오염 차단, calcLiveRS/사분면 카드의 라이브 틱 선행 게이트를 일봉 우선으로 완화. 시세 차단 로컬 실브라우저에서 근거 11/11·실분류 렌더 검증. 부수: kr-home KOSPI/KOSDAQ 변화폭 HTML 정적 리터럴(▲200.86/▼28.05, 카테고리 20 위반 잔존) 제거 + `data-live-kr-change` 숫자 리터럴 금지 게이트 추가.
+- **P722 push 전 CI RED 사전 차단**: 리베이스 후 봇 artifact(quotes 77)로 헤드리스를 재검증해 v53.3/53.4 신규 테스트 3건(T324/T376/T786)이 "데이터 없음"(quotes=[] 로컬 상태)을 영구 불변식으로 단언하고 있음을 발견 — 형태 불변식(스키마+null-or-valid, fail-closed 양방향 계약, 상수 floor 부재)으로 재작성. 양쪽 artifact 형태에서 1101/1101 확인.
+- **데이터 공백 staleness 22카테고리 전수 분류(/data-refresh)**: 채울 수 있는 것은 검증·갱신(Fed 3.50-3.75 동결·FOMC 7/28-29·KR CPI 3.2%/2.5% 공식 대조 일치, krInflation publishedAt을 실제 발표일 7/2로 정직화), 소스 없는 공백은 BLOCKED 명시 유지(B1 KR 수급/breadth, AAII/NAAIM/II, SEC 80% 게이트 누적 중). quotes=[] 형태 data.json(P719 수정 후 크론 발행 형태)으로 헤드리스 1101/1101 사전 검증 완료.
+- R1 7곳 v53.5
+
+## v53.4 (2026-07-16)
+- P718/R341/R342: 정적 시나리오 공급자 퇴역 뒤 남아 있던 `updateDynamicScenarios()`·호출·빈 DOM sink를 수직 제거했다. provider-required/unavailable 상태만 노출하며 결측 확률을 숫자로 포맷하지 않는다.
+- 거시 캘린더 기계식 날짜 생성, 고정 주간 뉴스·한국 수급/부동산/선행지수 스냅샷, 합성 SPY/QQQ/GLD 시세, 중립 점수·거시 storyline·AI 비용의 숫자 fallback을 제거했다. 데이터가 부족한 계산은 가용 입력 재가중 또는 명시적 산출 보류로 닫는다.
+- 강화된 검증은 정적 데이터 계약 22/22, runtime/structural/semantic, Chromium headless 1101/1101, 실제 Chromium critical-10 10/10·접근성 22/22(consoleErrors 0)를 통과했다.
+- P717/R342: 스크리너 전역의 정적 수치·현재형 텍스트를 22개 데이터 카테고리로 전수 분류하고, 변동 데이터는 runtime-only·미수신은 explicit null/`—`로 통일했다.
+- quote/FRED/RRG/sentiment/합성 차트/시나리오 확률/이벤트·지정학 narrative/LLM 가격·환율 폴백과 중복 CHAT_CONTEXTS를 제거했다. 공식 Fed·BOK·CPI 일정/정책만 provenance가 있는 `AIO_MANUAL_REFERENCE`에 reference-only로 남겼다.
+- SCREENER_DB 873행을 identity-only로 압축하고 스크리너 유니버스를 재생성했다. 동적 memo는 Telegram provenance가 있을 때만 허용한다.
+- `ci-static-data-contract-check.mjs`를 CI에 추가했다. 정적 데이터 계약 22/22, runtime/structural/data-lineage, Chromium headless 1100/1100을 통과했다. SEC 저커버리지는 합성값 없이 reference 경고로 유지한다.
+- R1 7곳 v53.4 동기화. 커밋·배포 미수행.
+
+## v53.3 (2026-07-16)
+- P716: feedback board, 구형 macro narrative, breadth history chart, legacy indicator 및 declaration-only wrapper를 DOM·CSS·상태·호출·테스트까지 수직 제거해 전체 diff를 순감소 1,300줄 이상으로 정리했다.
+- 퇴역 기능을 inert stub로 남기는 회귀를 차단하도록 runtime named-function declaration-only structural gate를 추가하고 테마·기업분석 테스트를 활성 계약/완전 부재 계약으로 전환했다.
+- Pages 배포를 5개 runtime script 명시 허용목록으로 전환하고 CI 전용 `aio-tests.js`(약 680KB)를 Pages artifact와 service worker shell cache에서 제외했다. manifest·CI workflow·SW 정합은 release revision gate가 검사한다.
+- JS/MJS 38개 문법 검사, 정적 계약 14개, Chromium 1100/1100, boot, critical-10, vault 8/8, 접근성 22/22, FULL_INIT viewport 88/88 통과. CODE-MAP의 파일 크기·script/style·22-route anchor를 v53.3 기준 전면 재측정했다.
+- R1 7곳 v53.3
+
 ## v53.2 (2026-07-16)
 - P715: "지인 소수 공유 준비" 사용자 결정 배치(AskUserQuestion 8건 확정). **WP-1 Telegram digest 요약화** — producer가 topItems/broadItems에 원문 전문 대신 120자 summary만 발행(권리 정직화), 기존 아티팩트 즉시 변환(1.32MB→193KB, 85%↓), 클라이언트 소비처 5곳 text||summary 호환, 증분 병합은 summary를 내부 text-등가로 처리.
 - **WP-2 KR 정지 위젯 정리** — kr-home "한국 시장 대시보드"의 2026-05 정지 스냅샷·영구 '—' 카드 9칸을 데이터 공백 상태 카드 1장 + 접힌 참고 스냅샷으로 재구성(data-snap/id 전부 보존, 소스 확보 시 복원 가능).

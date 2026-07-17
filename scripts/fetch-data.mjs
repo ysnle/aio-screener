@@ -1756,9 +1756,14 @@ async function main() {
   // 중단한다 — quotes는 내부 파생(히스토리 append·분석 프롬프트·건강도 카운트)에만 사용하고
   // 발행 아티팩트에는 빈 배열로 담는다(소비자 배열 형태 계약 보존). meta.symbolsOk는
   // "수집 파이프라인 건강도" 의미로 유지되어 워치독 floor(<70) 계약이 그대로 동작한다.
-  const publicData = { ...data, quotes: [] };
-  publicData.meta = { ...data.meta, quotesPublished: false, quotePolicy: 'client-direct-fetch-only(P715)' };
-  await writeFile(OUT, JSON.stringify(publicData, null, 1));
+  // P719: OUT에 쓰는 모든 경로는 반드시 이 헬퍼를 거친다 — 첫 발행 후 meta 후기록 재기록(아래
+  // scrInfo 반영)이 스트립 안 된 원본 `data`를 그대로 써서 P715 계약을 덮어쓴 라이브 사고의 재발 방지.
+  const toPublicPayload = (d) => ({
+    ...d,
+    quotes: [],
+    meta: { ...d.meta, quotesPublished: false, quotePolicy: 'client-direct-fetch-only(P715)' }
+  });
+  await writeFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   const histInfo = await updateHistory(data);
   // Phase 3 [C3] P599: computeTradingScore 재구성 검증 하네스 — history.json이 방금 갱신됐으니
@@ -1805,8 +1810,17 @@ async function main() {
     data.meta.fundamentalCoveragePct = scrInfo.fundamentalCoveragePct || 0;
   }
 
-  // scrInfo 반영 후 data.json 재기록 (fmpHasKey 등 meta 업데이트)
-  await writeFile(OUT, JSON.stringify(data, null, 1));
+  // scrInfo 반영 후 data.json 재기록 (fmpHasKey 등 meta 업데이트) — P719: 반드시 스트립 경유
+  await writeFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
+
+  // P719 read-back 계약 검증: 마지막으로 디스크에 남은 발행본이 P715 계약(quotes=[],
+  // quotesPublished:false)을 만족하는지 실제 파일로 확인. 위반이면 커밋 전에 워크플로가 죽는다.
+  {
+    const published = JSON.parse(await readFile(OUT, 'utf8'));
+    if ((Array.isArray(published.quotes) && published.quotes.length > 0) || published.meta?.quotesPublished !== false) {
+      throw new Error(`P715_QUOTE_CONTRACT_VIOLATION: published quotes=${published.quotes?.length}, quotesPublished=${published.meta?.quotesPublished}`);
+    }
+  }
 
   const fmpSummary = scrInfo && !scrInfo.skipped
     ? `hasKey=${scrInfo.fmpHasKey} ok=${scrInfo.fmpOk} count=${scrInfo.fmpCount || 0}${scrInfo.fmpPlanError ? ' ⚠PLAN_ERROR' : ''}`

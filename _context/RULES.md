@@ -1,10 +1,28 @@
 ---
-verified_by: agent
-last_verified: 2026-07-15
+verified_by: Codex
+last_verified: 2026-07-16
 confidence: high
-target_version: v52.99
+target_version: v53.4
 
 ---
+
+## R342. 변동 데이터와 현재형 서술은 런타임 증거만 사용하고 결측을 정적 시드로 메우지 않는다 (v53.4, P717)
+
+**Rule**: 시세·심리·거시·시장폭·수급·차트·시나리오 확률·이벤트 결과·현재 narrative·공급자 가격은 코드나 HTML의 고정 수치/문장으로 현재 상태를 만들지 않는다. 공식 일정·정책처럼 수동 검증이 필요한 값만 출처 URL, 기준일, 용도(`reference-only`/`calendar-only`)를 갖춘 단일 레지스트리에 둘 수 있다.
+
+**Required**: 변동 필드는 explicit null로 초기화하고 생산자 미수신 시 `—`/`미수신`/판단 보류를 표시한다. SCREENER_DB는 식별자만 정적으로 보관하며 signal/memo/mcap/rsi는 provenance가 있는 런타임 산출물만 병합한다. 합성 차트, quote/FRED 시계열, RRG seed, 고정 시나리오 확률, 현재형 이벤트·뉴스·테마 문장, LLM 가격·환율 fallback을 금지한다. 과거 사례를 남길 때는 archive/reference 표지와 비운영 용도를 명시한다.
+
+**Validation**: `node scripts/ci-static-data-contract-check.mjs` 22/22, `ci-runtime-contract-check.mjs`, DOM `data-live-*`/`data-snap` numeric seed 검사, `AIO_STATIC_DATA_POLICY`, `AIO.getStaticSeedFallbackAudit()` orphan 0, Chromium headless 전수 테스트.
+
+**Provider retirement addendum (P718)**: 변동 데이터 생산자·레지스트리를 퇴역할 때는 관련 선언, 호출, DOM sink, formatter, 테스트를 하나의 수직 경로로 제거한다. `provider-required` 출력은 검증된 응답 전까지 숫자·확률·중립 기본값을 렌더하지 않는다. 정적 검사만으로 완료 처리하지 않고, 외부 요청이 실패한 실제 Chromium route에서 console error 0을 확인한다.
+
+## R341. 퇴역 기능은 inert stub로 보존하지 않고 수직 경로와 공개 artifact에서 완전히 제거한다 (v53.3, P716)
+
+**Rule**: 사용하지 않는 기능을 unconditional `return`, 빈 함수, 숨김 DOM/CSS, legacy wrapper로 남기지 않는다. 실제 활성 대체 경로와 외부 참조가 없음을 증명한 뒤 DOM·스타일·상태·함수·호출·테스트·배포 항목을 하나의 수직 경로로 제거한다.
+
+**Required**: runtime named function은 선언 외 참조가 최소 1개 있어야 한다. 퇴역 기능 테스트는 “inert”가 아니라 심볼·DOM·배포 자산의 부재를 검증한다. Pages는 runtime script를 파일명으로 명시하고 `js/*.js` wildcard를 사용하지 않으며, CI 전용 `aio-tests.js`는 HTML·Pages artifact·service worker cache에 포함하지 않는다.
+
+**Validation**: `scripts/ci-structural-check.mjs` declaration-only scan, `scripts/ci-release-revision-check.mjs` manifest/CI/SW 정합 검사, `rg` 수직 참조 스윕, Chromium headless 전체 회귀.
 
 ## R340. 파생 시장 결론은 필수 관측 입력의 의미·기준일·coverage가 충족될 때만 표시한다 (v52.99, P712)
 

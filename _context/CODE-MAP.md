@@ -1,28 +1,28 @@
 ---
-verified_by: agent (Sonnet 5, wc -l 실측 — v52.66 currency refresh, 파일 크기 표만 갱신)
-last_verified: 2026-07-14
-confidence: medium
-target_version: v52.86
+verified_by: Codex (`ReadAllLines` + `rg -n` 전면 구조 재측정)
+last_verified: 2026-07-16
+confidence: high
+target_version: v53.4
 target_file: index.html + js/*.js
-target_lines: index.html 32630 + js modules 67283
+target_lines: index.html 29095 + js modules 64444
 ---
 
-## Current machine-verified file-size table (v52.86, 2026-07-14)
+## Current machine-verified file-size table (v53.4, 2026-07-16)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 32,630 | `scripts/ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 27,090 | `scripts/ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 18,100 | `scripts/ci-doc-currency-check.mjs` |
-| `js/aio-ui.js` | 5,769 | `scripts/ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 7,386 | `scripts/ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 8,624 | `scripts/ci-doc-currency-check.mjs` |
+| `index.html` | 29,095 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,681 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 17,853 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 4,681 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 6,079 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 8,836 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
 
 > The historical v52.66 table below is retained for audit context. Use this current
 > file-size table first, then confirm any detailed line anchor with `rg -n` before editing.
 
-# AIO v52.86 CODE-MAP
+# AIO v53.4 CODE-MAP
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.
@@ -37,6 +37,12 @@ target_lines: index.html 32630 + js modules 67283
 > **2026-07-13(v52.66)**: `ci-doc-currency-check.mjs`가 `js/aio-core.js` 드리프트 +519줄(≥500 임계)을
 > 보고해 §1 파일 크기 표만 재실측 갱신(아이보리 리디자인 signal/briefing 페이지 재구축, P681/P682).
 > §2 이하는 이번에도 재검증하지 않음 — 위 P669 메모와 동일 제약 유지.
+> **2026-07-16(v53.3/P716)**: 퇴역 feedback·breadth·macro·technical 경로 1,400여 줄을 제거한 뒤
+> §1 파일 크기와 §2의 모든 script/style/22-route 시작점을 전면 재측정했다. §3 이하의 함수별 line은
+>
+> **2026-07-16(v53.4/P717~P718)**: 정적 스냅샷·기계식 일정·합성 시세·퇴역 시나리오 소비자를 제거한 뒤
+> §1 파일 크기, §2 script/style/22-route, 현재 데이터 계약 앵커를 다시 전면 재측정했다.
+> 변경이 누적될 수 있으므로 함수명 검색을 최종 근거로 사용한다.
 
 ---
 
@@ -44,12 +50,12 @@ target_lines: index.html 32630 + js modules 67283
 
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
-| `index.html` | 32,414(v52.66 실측) | HTML shell, CSS, 22개 route page DOM, inline runtime(8블록), 외부 모듈 로드. v51.98: 매매 알고리즘 4함수 aio-core.js로 이관(-273줄, Phase 3 A3). v52.39: `.aio-fund` CSS 9줄 추가(P654). v52.65: page-signal 구조 재구축(P681) |
-| `js/aio-core.js` | 25,535(v52.66 실측) | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, **매매 알고리즘 핵심(v51.98 이관, §3)**. `AIO_PAGE_CONTRACTS`는 22개 route 계약. v52.58: H3-G element lineage 및 H3-H/I human-surface 감사 추가 |
-| `js/aio-data.js` | 17,977(v52.66 실측) | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, 스크리너 |
-| `js/aio-ui.js` | 5,753(v52.66 실측) | 차트/렌더러, sentiment/breadth init, LLM quota UI, 기업분석 렌더러, **페이지 기초 교육 레이어(v52.39 P654, §3 아래)**. v52.58: partial Chart fallback guard(P675) |
-| `js/aio-chat.js` | 6,980(v52.66 실측) | CHAT_CONTEXTS, 데이터 preflight/evidence, Claude/Perplexity, 추천 분산 후보, 의도별 답변 정책, AIO 통합 답변 파이프라인. v52.44: `_aioFetchClaudeWithRetry` 재시도 헬퍼(B8) |
-| `js/aio-tests.js` | 7,971(v52.66 실측) | 브라우저 회귀 테스트 T1~T918, `AIO.runTests()` / `AIO.getTestResults()`. CI 헤드리스 상설화됨(§5 참고) — 이 줄의 "CI 미실행" 구서술은 stale(실제로는 `.github/workflows/ci.yml`의 `headless-tests` job이 `scripts/ci-headless-tests.mjs`로 실행) |
+| `index.html` | 29,095 | HTML shell, CSS, 22개 route DOM, 초기화용 inline 블록, 외부 모듈 로드 |
+| `js/aio-core.js` | 26,681 | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, 매매 알고리즘 핵심 |
+| `js/aio-data.js` | 17,853 | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, identity-only 스크리너 |
+| `js/aio-ui.js` | 4,681 | 활성 차트/렌더러, sentiment UI, LLM quota UI, 교육 레이어 |
+| `js/aio-chat.js` | 6,079 | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
+| `js/aio-tests.js` | 8,836 | CI/로컬 브라우저 회귀 테스트 전용. Pages·service worker 배포 대상에서 제외 |
 | `js/aio-glossary.js` | 314 | 용어사전 검색/렌더 |
 
 ---
@@ -58,58 +64,72 @@ target_lines: index.html 32630 + js modules 67283
 
 | 범위 | 내용 |
 |------|------|
-| 1 ~ 38 | head meta, title, preload (aio-core/data/ui/chat preload at 29~32) |
-| 39 ~ 4888 | 메인 CSS (`<style>`~`</style>`) |
-| 4890 ~ 12461 | body shell + 22개 route page DOM 시작 |
-| 8998 ~ 9001 | 페이지 내 보조 `<style>` 블록(1건, screener 근방) |
-| 12461 ~ 12468 | `aio-core/data/ui` 로드 (`?v=52.0`, **v52.0/Phase3[A2] 2단계: defer 적용됨** — 이제 8개 인라인 블록 전부보다 나중에 실행) |
-| 12470 ~ 12812 | inline 블록 1 |
-| 12814 ~ 15954 | inline 블록 2 |
-| 15955 | `js/aio-chat.js` 로드 (`?v=52.0`, **defer 적용됨**) |
-| 15957 ~ 18401 | inline 블록 3 |
-| 18403 ~ 22742 | inline 블록 4 |
-| 22744 ~ 28119 | inline 블록 5 — **v51.98: computeTradingScore 등 핵심 매매 알고리즘이 여기 있었으나 Phase 3 A3로 `js/aio-core.js`(§3)로 이관됨. 이 블록은 이제 그 알고리즘을 소비만 함(호출부·UI 렌더)** |
-| 28121 ~ 28327 | inline 블록 6 |
-| 28330 | `js/aio-glossary.js` 로드 (`?v=52.0`, **defer 적용됨**) |
-| 28333 ~ 31141 | inline 블록 7 (SW 등록 대역 포함) |
-| 31143 ~ 31172 | 보조 `<style>` 블록(2건째) |
-| 31177 ~ 31853 | inline 블록 8 + closing HTML |
+| 1 ~ 5270 | head meta/preload + 메인 CSS (`<style>` 46~5270) |
+| 5271 ~ 12618 | body shell + 22개 route DOM; 페이지 내부 inline 3개(5281~5313, 7086~7107, 7871~7877) |
+| 12619 ~ 12623 | Chart.js·DOMPurify·Lightweight Charts CDN |
+| 12624 ~ 12694 | CDN 지연 폴백 초기화 |
+| 12701 ~ 12703 | `aio-core/data/ui` defer 로드 (`?v=53.4`) |
+| 12706 ~ 15244 | inline runtime 블록 |
+| 15246 | `js/aio-chat.js` defer 로드 (`?v=53.4`) |
+| 15248 ~ 16868 | inline runtime 블록 |
+| 16870 ~ 20798 | inline runtime 블록 |
+| 20799 ~ 25185 | inline runtime 블록 |
+| 25228 ~ 25426 | inline runtime 블록 |
+| 25437 | `js/aio-glossary.js` defer 로드 (`?v=53.4`) |
+| 25440 ~ 28295 | inline runtime/SW 등록 블록 |
+| 28333 ~ 28364 | 하단 보조 CSS |
+| 28369 ~ 29089 | 최종 inline runtime 블록 |
 
-> **v50.60 대비 변화**: 구 CODE-MAP은 inline runtime을 "블록 1/블록 2" 2개로 단순화했으나 실측하면 **8개 분리 블록**이다
-> (스크립트 태그 사이사이 재개). CSS도 3693→4888줄(+1195)로 성장했었고, v51.98에서 블록 5가 -273줄(A3 이관)로
-> 축소됐다. **v52.0/Phase3[A2] 완료**: 5개 스크립트(core/data/ui/chat/glossary) 전부 `defer` 적용 —
-> §4 진단(FABLE A2)의 "동기 로딩이 HTML 파서를 막는다" 문제 해소. 인라인 블록의 최상위 모듈 심볼
-> 참조 22곳은 A2 1단계(P595/R275)에서 DOMContentLoaded 래핑/CHAT_CONTEXTS 병합으로 이미 방어됨.
-> 실측: DOMContentLoaded 체감차 거의 없음(이미 `<head>` preload로 다운로드 병렬화돼 있었음, ~350ms
-> 동일) vs `load` 이벤트 평균 41% 단축(워밍업 제외 4회 평균 ~14.4s→~8.5s, 로컬 오프라인 측정).
-> 정확한 재탐색은 `grep -n "<script"` 우선 실행 권장.
+> 현재 `<script>`는 외부 8개(CDN 3 + runtime 5), inline 11개(페이지 내부 3 + CDN 폴백 1 + runtime 7)다.
+> runtime 5개는 모두 `defer`이며, 테스트 번들은 HTML·Pages artifact·service worker에 포함하지 않는다.
+> 정확한 재탐색은 `rg -n "<script|</script>|<style|</style>" index.html`을 사용한다.
 
 ### 22개 route 페이지 DOM 시작점
 
 | 페이지 | id | 시작 line |
 |--------|----|----------:|
-| 홈 대시보드 | `page-home` | 5227 |
-| 매매 시그널 | `page-signal` | 5457 |
-| 시장 폭 | `page-breadth` | 6239 |
-| 투자 심리 | `page-sentiment` | 6562 |
-| 데일리 브리핑 | `page-briefing` | 6773 |
-| 차트·기술 | `page-technical` | 7039 |
-| 거시경제 | `page-macro` | 7472 |
-| 환율·채권 | `page-fxbond` | 8062 |
-| 기업 분석 | `page-fundamental` | 8816 |
-| 테마/섹터 | `page-themes` | 9118 |
-| 테마 상세 | `page-theme-detail` | 9356 |
-| 포트폴리오 | `page-portfolio` | 9476 |
-| 티커 상세 | `page-ticker` | 9931 |
-| 시장 뉴스 | `page-market-news` | 10186 |
-| 옵션 분석(폐기 안내 shell) | `page-options` | 10333 |
-| 퀀트 스크리너 | `page-screener` | 10343 |
-| 한국 홈 | `page-kr-home` | 10526 |
-| 한국 수급 | `page-kr-supply` | 10851 |
-| 한국 테마 | `page-kr-themes` | 11068 |
-| 한국 거시 | `page-kr-macro` | 11139 |
-| 한국 기술 | `page-kr-technical` | 11471 |
-| 사용 설명서 | `page-guide` | 11699 |
+| 홈 대시보드 | `page-home` | 5655 |
+| 매매 시그널 | `page-signal` | 5907 |
+| 시장 폭 | `page-breadth` | 6624 |
+| 투자 심리 | `page-sentiment` | 6888 |
+| 데일리 브리핑 | `page-briefing` | 7072 |
+| 차트·기술 | `page-technical` | 7386 |
+| 거시경제 | `page-macro` | 7801 |
+| 환율·채권 | `page-fxbond` | 8252 |
+| 기업 분석 | `page-fundamental` | 8945 |
+| 테마/섹터 | `page-themes` | 9277 |
+| 테마 상세 | `page-theme-detail` | 9552 |
+| 포트폴리오 | `page-portfolio` | 9680 |
+| 티커 상세 | `page-ticker` | 10143 |
+| 시장 뉴스 | `page-market-news` | 10401 |
+| 옵션 분석(폐기 안내 shell) | `page-options` | 10538 |
+| 퀀트 스크리너 | `page-screener` | 10576 |
+| 한국 홈 | `page-kr-home` | 10776 |
+| 한국 수급 | `page-kr-supply` | 11111 |
+| 한국 테마 | `page-kr-themes` | 11322 |
+| 한국 거시 | `page-kr-macro` | 11393 |
+| 한국 기술 | `page-kr-technical` | 11669 |
+| 사용 설명서 | `page-guide` | 11913 |
+
+### v53.4 현재 데이터 계약 핵심 앵커
+
+| 대상 | 위치 |
+|------|------|
+| `SCREENER_DB_META` / identity-only `SCREENER_DB` | `js/aio-data.js:10`, `js/aio-data.js:16` |
+| 서버 screener 런타임 병합 | `js/aio-data.js:15893` (`_aioApplyServerScreener`) |
+| static seed orphan 감사 | `js/aio-core.js:9789` (`getStaticSeedFallbackAudit`) |
+| cell-level data lineage 감사 | `js/aio-core.js:16665` (`getDataLineageAudit`) |
+| `APP_VERSION` | `js/aio-core.js:19929` |
+| 공식 수동 reference 레지스트리 | `js/aio-core.js:20880` (`AIO_MANUAL_REFERENCE`) |
+| explicit-null `DATA_SNAPSHOT` | `js/aio-core.js:20908` |
+| 정적 데이터 정책 | `js/aio-core.js:20978` (`AIO_STATIC_DATA_POLICY`) |
+| live-only narrative engine | `js/aio-core.js:21045` (`NARRATIVE_ENGINE`) |
+| 매매점수 런타임 입력 | `js/aio-core.js:21919` (`computeTradingScore`) |
+| 22-route page contract | `js/aio-core.js:23653` (`AIO_PAGE_CONTRACTS`) |
+| 페이지 전환 | `js/aio-core.js:25874` (`showPage`) |
+| synthetic breadth 차단/히스토리 artifact | `js/aio-ui.js:475` (`initBreadthPage`) |
+| evidence-first 채팅 context factory/map | `js/aio-chat.js:385`, `js/aio-chat.js:418` |
+| 22-category CI 계약 | `scripts/ci-static-data-contract-check.mjs` |
 
 ---
 

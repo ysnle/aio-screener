@@ -53,12 +53,12 @@ H2-15의 남은 두 하위 slice는 사용자 확인이 필요한 항목이 아�
 
 이번 배치에서 사용자가 AskUserQuestion으로 확정한 결정과 실행 결과는 CHANGELOG v53.0~v53.2, BUG-POSTMORTEM P713~P715, 메모리 `project_full_system_audit_2026-07-16` 참조. 아래는 **사용자가 이미 방향을 확정했으나 미착수/후속 확인이 남은 항목**이다.
 
-### A. 다음 세션 최우선 (사용자 확정: "이번 배치 후 착수")
-1. **전술 스코어 percentile/레짐 상대화 재설계** — 절대 임계값(vix<15, dxy>107, tnx>4.5 등)을 10년 롤링 percentile/z-score 기반으로 재설계 후 `scripts/backtest-trading-score-longrun.mjs`로 재백테스트. 통과(유의한 양의 IC) 못 하면 현행 "환경 설명값" 라벨 유지가 확정 정책. WO-2 원결과: 21일 rho=-0.165, 63일 -0.255.
-2. **IA 잔여** — 첫화면(signal 히어로) 스코어 게이지 강등(숫자 크게 쓰지 않기), 첫 방문 온보딩(브리핑/시장/학습 3버튼). 사이드바 4그룹 재편은 v53.2에서 완료.
+### A. 다음 세션 최우선 (사용자 확정: "이번 배치 후 착수") — **v53.5(2026-07-17)에서 전부 실행 완료**
+1. ~~**전술 스코어 percentile/레짐 상대화 재설계**~~ **완료(v53.5) — 통과 실패, 확정 정책 유지**: relative-v1(절대 임계값→trailing 롤링 percentile ≤2520d, warm-up 252d)을 longrun 하네스에 추가해 동일 10y 데이터로 재백테스트. 음의 상관 크기는 크게 감소(63일 rho −0.257→−0.078, 21일 −0.166→−0.078)해 R298 가설이 원인의 상당 부분이었음을 확인했으나 **여전히 유의한 음(CI 0 미포함), holdout 63일 −0.306** → 통과 기준(유의한 양의 IC) 미달. 라이브 스코어/라벨 무변경("환경 설명값" 확정). 산출물: `public-data/score-backtest-longrun.json`.
+2. ~~**IA 잔여**~~ **완료(v53.5)**: home/signal 히어로 게이지 강등(숫자 52/60px→22px, "시장 환경 점수 · 참고값" + 환경 설명값 캡션) + 첫 방문 온보딩 인라인 카드(브리핑/시장 환경/학습 가이드 3버튼, localStorage 1회, 비차단).
 
 ### B. 배포 후 확인 필요 (이번 배포의 후속 검증)
-3. **다음 cron 산출물 검증** — refresh-data(시간당)·refresh-screener(6h)·telegram(주기) 크론이 patched producer로 재생성한 라이브 아티팩트에서: data.json `quotes===[]`+`meta.quotesPublished:false`, screener.json 행에 `price` 부재(validator가 차단), telegram-digest topItems/broadItems에 `text` 부재·`summary`만 존재를 curl로 확인. 실패 시 producer 경로/워크플로 로그 확인.
+3. ~~**다음 cron 산출물 검증**~~ **1차 완료(2026-07-17) — P719 발견·수정**: telegram-digest(405건 summary-only ✅)·screener.json(845행 price 0건 ✅) 계약 준수. **data.json은 quotes 77건 재발행 위반** — 원인은 fetch-data.mjs의 meta 후기록 재기록이 스트립 안 된 원본을 덮어쓴 것(P719). `toPublicPayload()` 일원화+read-back 단언으로 수정(v53.5, 로컬). **잔여: v53.5 배포 후 다음 refresh-data 크론 도래 시 data.json `quotes===[]`+`meta.quotesPublished:false` curl 재확인.**
 4. **KR 접힘 메뉴/정지 위젯의 실사용 피드백** — 지인 공유 후 한국 시장 접힘이 과한지 관찰(B1 소스 확보 시 상시 그룹 승격 + kr-home 스냅샷 카드 복원).
 
 ### C. 보류 확정 (착수하지 않기로 함 — 재론 시에만)
