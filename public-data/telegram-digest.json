@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-17T11:09:30.800Z",
-  "attemptedAt": "2026-07-17T11:09:30.800Z",
-  "lastSuccessfulAt": "2026-07-17T11:09:30.800Z",
+  "generatedAt": "2026-07-17T12:36:46.374Z",
+  "attemptedAt": "2026-07-17T12:36:46.374Z",
+  "lastSuccessfulAt": "2026-07-17T12:36:46.374Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-03T11:09:27.229Z",
-  "until": "2026-07-17T11:09:27.229Z",
+  "since": "2026-07-03T12:36:41.796Z",
+  "until": "2026-07-17T12:36:41.796Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,12 +13,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 171,
-      "freshCount": 32,
-      "eligibleTextCount": 32,
+      "count": 175,
+      "freshCount": 31,
+      "eligibleTextCount": 31,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 23652
+      "lastPostId": 23657
     },
     {
       "channel": "insidertracking",
@@ -34,20 +34,143 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 139,
-      "freshCount": 20,
-      "eligibleTextCount": 20,
+      "count": 143,
+      "freshCount": 40,
+      "eligibleTextCount": 40,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 19139
+      "lastPostId": 19143
     }
   ],
-  "count": 524,
-  "retainedItemCount": 396,
+  "count": 532,
+  "retainedItemCount": 402,
   "observedItems": [
+    {
+      "id": "bornlupin/19143",
+      "channel": "bornlupin",
+      "datetime": "2026-07-17T12:12:13.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 60,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19142",
+      "channel": "bornlupin",
+      "datetime": "2026-07-17T11:45:28.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 35,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19141",
+      "channel": "bornlupin",
+      "datetime": "2026-07-17T11:31:46.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 63,
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [
+        "MU"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23657",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-17T11:26:46.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23655",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-17T11:26:35.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 99,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19140",
+      "channel": "bornlupin",
+      "datetime": "2026-07-17T11:26:23.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 73,
+      "tags": [
+        "semi",
+        "kr-market"
+      ],
+      "tickers": [
+        "000660.KS",
+        "035420.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23654",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-17T11:23:36.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 71,
+      "tags": [
+        "macro",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [
+        "BE"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23653",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-17T11:16:57.000Z",
+      "localDateKst": "2026-07-17",
+      "score": 75,
+      "tags": [
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "AMZN",
+        "GOOGL"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23652",
       "channel": "aetherjapanresearch",
@@ -1391,7 +1514,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58513",
@@ -1417,7 +1540,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58511",
@@ -1776,7 +1899,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19129",
@@ -1846,7 +1969,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23613",
@@ -1858,7 +1981,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19126",
@@ -2734,7 +2857,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19118",
@@ -2746,7 +2869,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58413",
@@ -2775,7 +2898,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23598",
@@ -2820,7 +2943,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19115",
@@ -2835,7 +2958,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23597",
@@ -2920,7 +3043,7 @@
       "tickers": [
         "AMD"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19113",
@@ -2934,7 +3057,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58398",
@@ -3012,7 +3135,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58378",
@@ -3067,7 +3190,7 @@
       "tickers": [
         "INTC"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58371",
@@ -3137,7 +3260,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58365",
@@ -3223,7 +3346,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58362",
@@ -3266,7 +3389,7 @@
       "tickers": [
         "AEHR"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23586",
@@ -3382,7 +3505,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58349",
@@ -3414,7 +3537,7 @@
         "000660.KS",
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19105",
@@ -3428,7 +3551,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58347",
@@ -3455,7 +3578,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23581",
@@ -7945,48 +8068,49 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 524,
-    "eligibleTextCount": 70,
-    "mediaOnlyCount": 454,
-    "highSignalCount": 274,
-    "broadSignalCount": 442,
+    "observedCount": 532,
+    "eligibleTextCount": 89,
+    "mediaOnlyCount": 443,
+    "highSignalCount": 278,
+    "broadSignalCount": 448,
     "selectedRawCount": 371,
-    "selectedRawCoveragePct": 530,
+    "selectedRawCoveragePct": 416.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 259,
-    "power": 140,
-    "ai-policy": 55,
-    "equity": 109,
-    "earnings": 77,
-    "semi": 342,
-    "market-note": 41,
+    "semi": 346,
+    "earnings": 81,
+    "macro": 262,
+    "market-note": 42,
+    "power": 141,
+    "ai-policy": 58,
+    "kr-market": 112,
+    "equity": 110,
+    "healthcare": 13,
     "flows": 14,
     "japan": 16,
     "credit": 25,
-    "kr-market": 110,
     "geo": 126,
     "insider": 5,
-    "healthcare": 12,
     "crypto": 3,
     "media-only": 5,
     "optical": 17
   },
   "tickerCounts": {
+    "MU": 57,
+    "TSM": 90,
+    "000660.KS": 22,
+    "035420.KS": 8,
+    "BE": 13,
+    "MSFT": 19,
+    "GOOG": 29,
+    "AVGO": 29,
+    "AMZN": 31,
+    "GOOGL": 1,
     "META": 39,
-    "AMZN": 30,
     "AMD": 30,
-    "AVGO": 28,
-    "TSM": 89,
     "6600.T": 4,
-    "000660.KS": 21,
-    "035420.KS": 7,
-    "GOOG": 28,
-    "MSFT": 18,
-    "MU": 56,
     "MRVL": 6,
-    "BE": 12,
     "RDDT": 1,
     "ORCL": 11,
     "RKLB": 5,
@@ -8060,24 +8184,24 @@
     "MTSI": 1
   },
   "themes": [
-    "Semiconductors/Memory (342 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
-    "Macro/Rates (259 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
-    "AI Power/Grid (140 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
+    "Semiconductors/Memory (346 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
+    "Macro/Rates (262 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
+    "AI Power/Grid (141 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
     "Geopolitics (126 posts in current window): 2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로...",
-    "Korea Market (110 posts in current window): 📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해...",
-    "Equity/Analyst (109 posts in current window): 📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해...",
-    "Earnings/Corporate (77 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
-    "AI Policy/Export Controls (55 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
+    "Korea Market (112 posts in current window): 📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해...",
+    "Equity/Analyst (110 posts in current window): 📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해...",
+    "Earnings/Corporate (81 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI...",
+    "AI Policy/Export Controls (58 posts in current window): JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 89,
+      "count": 90,
       "text": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
       "key": "MU",
-      "count": 56,
+      "count": 57,
       "text": "2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로..."
     },
     {
@@ -8092,7 +8216,7 @@
     },
     {
       "key": "AMZN",
-      "count": 30,
+      "count": 31,
       "text": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8101,14 +8225,14 @@
       "text": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
-      "key": "AVGO",
-      "count": 28,
-      "text": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
+      "key": "GOOG",
+      "count": 29,
+      "text": "2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로..."
     },
     {
-      "key": "GOOG",
-      "count": 28,
-      "text": "2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로..."
+      "key": "AVGO",
+      "count": 29,
+      "text": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
       "key": "AAPL",
@@ -8117,12 +8241,12 @@
     },
     {
       "key": "000660.KS",
-      "count": 21,
+      "count": 22,
       "text": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은..."
     },
     {
       "key": "MSFT",
-      "count": 18,
+      "count": 19,
       "text": "Pre-Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를..."
     },
     {
@@ -8138,7 +8262,7 @@
       "topics": [
         "macro"
       ],
-      "count": 259,
+      "count": 262,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8165,7 +8289,7 @@
       "topics": [
         "semi"
       ],
-      "count": 342,
+      "count": 346,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8183,7 +8307,7 @@
       "topics": [
         "power"
       ],
-      "count": 140,
+      "count": 141,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8192,7 +8316,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 55,
+      "count": 58,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8201,7 +8325,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 110,
+      "count": 112,
       "focus": "📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해..."
     },
     {
@@ -8210,7 +8334,7 @@
       "topics": [
         "equity"
       ],
-      "count": 109,
+      "count": 110,
       "focus": "📌 Citi: 2Q26 메가캡 프리뷰 — 견조한 수요 트렌드, 초점은 CAPEX와 제품 사이클 (7/16) Citi는 GOOGL·META·AMZN의 2Q26 실적을 앞두고 5가지 핵심 관전 포인트를 제시했습니다. 첫째, 2027년 CAPEX 전망이 단연 최대 초점이며, AI 수요 지속과 부품 가격 상승을 반영해..."
     },
     {
@@ -8228,7 +8352,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 77,
+      "count": 81,
       "focus": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적 콘퍼런스 이후 데이터센터 AI 수요의 지속 가능성에 대한 확신이 한층 높아졌다고 평가했습니다. 강한 AI..."
     },
     {
@@ -8237,7 +8361,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 12,
+      "count": 13,
       "focus": "2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은 제조업지수가 2021년 이후 최고 수준을 기록한 점을 반영해 2분기 미국 GDP 성장률 전망을 2.4%로..."
     },
     {
@@ -8273,8 +8397,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 41,
-      "focus": "금융권에 따르면 이번 사태에서 가장 큰 피해를 입은 계층은 20~30대 개인투자자였다. 전체 파산 또는 강제청산 계좌 가운데 약 62%가 20~30대 투자자로 집계됐으며, 고위험 레버리지 상품 투자 비중이 높았던 젊은 투자자들의 피해가 집중된 것으로 분석됐다. 증권업계는 최근 한 달간 개인투자자의 실제 손실 규모를..."
+      "count": 42,
+      "focus": "이걸 시진핑이 말하니 이상하네"
     }
   ],
   "pageMap": {
@@ -9533,6 +9657,117 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19143",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19143",
+      "datetime": "2026-07-17T12:12:13.000Z",
+      "localDateKst": "2026-07-17",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 60,
+      "hasText": true,
+      "summary": "JP모건, 2027년 CSP(클라우드 서비스 제공업체) CapEx(설비투자) 중 AI 메모리가 차지하는 비중이 73%에 달할 것"
+    },
+    {
+      "id": "bornlupin/19141",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19141",
+      "datetime": "2026-07-17T11:31:46.000Z",
+      "localDateKst": "2026-07-17",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [
+        "MU"
+      ],
+      "score": 63,
+      "hasText": true,
+      "summary": "Daiwa Securities , 마이크론 ( &#036;MU), 목표주가를 1,600달러에서 1,700달러로 상향, '매수' 의견 유지"
+    },
+    {
+      "id": "aetherjapanresearch/23655",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23655",
+      "datetime": "2026-07-17T11:26:35.000Z",
+      "localDateKst": "2026-07-17",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 99,
+      "hasText": true,
+      "summary": "블룸버그) 중국의 강력한 새 AI, 투자자들을 놀라게 하며 기술주 급락을 부채질하다 중국 AI 스타트업 문샷(Moonshot)의 예상치 못한 돌파구가 금요일 글로벌 시장에 파장을 일으키며 AI 및 반도체..."
+    },
+    {
+      "id": "bornlupin/19140",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19140",
+      "datetime": "2026-07-17T11:26:23.000Z",
+      "localDateKst": "2026-07-17",
+      "tags": [
+        "semi",
+        "kr-market"
+      ],
+      "tickers": [
+        "000660.KS",
+        "035420.KS"
+      ],
+      "score": 73,
+      "hasText": true,
+      "summary": "최태원 “현재 AI ‘4살짜리 아이’ 수준… 메모리 계속 필요” AI포럼서 구조적 수요 증가 강조 SK하닉 주가 관련 “우상향할 것” 최태원 대한상공회의소 회장이 SK하이닉스 주가와 관련해 “ 메모리는 계속..."
+    },
+    {
+      "id": "aetherjapanresearch/23654",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23654",
+      "datetime": "2026-07-17T11:23:36.000Z",
+      "localDateKst": "2026-07-17",
+      "tags": [
+        "macro",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [
+        "BE"
+      ],
+      "score": 71,
+      "hasText": true,
+      "summary": "Z.AI , 연매출 10억 달러 달성하는 첫 중국 AI 기업 될 전망 즈푸(Zhipu)로 흔히 알려진 Z.AI가 연간 반복 매출(ARR) 10억 달러 달성을 앞두고 있으며, 이는 치열한 경쟁이 벌어지는 중국..."
+    },
+    {
+      "id": "aetherjapanresearch/23653",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23653",
+      "datetime": "2026-07-17T11:16:57.000Z",
+      "localDateKst": "2026-07-17",
+      "tags": [
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "AMZN",
+        "GOOGL"
+      ],
+      "score": 75,
+      "hasText": true,
+      "summary": "Edgewater Research Cloud & AI 업데이트 (7/15) \"토큰 최적화 확산에도 수요는 견조 — Anthropic·Bedrock 독주, OpenAI는 견고한 2위, Gemini 부진\" ■..."
+    },
     {
       "id": "aetherjapanresearch/23652",
       "channel": "aetherjapanresearch",
@@ -15490,21 +15725,6 @@
       "summary": "SemiAnalysis) 메타 초지능(MSL)의 미래: 1년 경과 업데이트 메타(Meta)가 Llama 4 출시 실패 이후 인공지능(AI) 조직을 전면 재편한 지 1년이 지난 시점(2026년 7월)의 진척..."
     },
     {
-      "id": "aetherjapanresearch/23432",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23432",
-      "datetime": "2026-07-09T22:10:30.000Z",
-      "localDateKst": "2026-07-10",
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 77,
-      "summary": "* 美 상무장관 \"삼성•SK하이닉스 美 본토 투자 확대해야\" 공식 촉구 - 9일(현지시각) 하워드 러트닉 미국 상무장관은 뉴욕주 시러큐스에서 열린 미국 반도체 기업 마이크론 테크놀로지 행사에 참석해 \"한국..."
-    },
-    {
       "id": "bornlupin/18993",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/18993",
@@ -15517,83 +15737,6 @@
       "tickers": [],
       "score": 64,
       "summary": "SK하이닉스 미국 ADR 공모는 약 2,000억 달러의 수요를 모으며 500곳 이상의 투자자를 유치. 전체 배정 물량 중 상위 25개 계좌가 약 67%를 배정받았으며, 상위 10개 계좌가 거의 절반을 차지"
-    },
-    {
-      "id": "aetherjapanresearch/23431",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23431",
-      "datetime": "2026-07-09T15:55:38.000Z",
-      "localDateKst": "2026-07-10",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 59,
-      "summary": "제목 : SK하이닉스, ADR 공모가 149달러… 알리바바 기록 경신 *연합인포맥스* 배런스는 SK하이닉스(NAS: SKHY)의 ADR 공모가가 149달러로 발표되면서 역대 최고 기록을 경신하게 된다고..."
-    },
-    {
-      "id": "aetherjapanresearch/23430",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23430",
-      "datetime": "2026-07-09T14:17:31.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "macro",
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [
-        "META"
-      ],
-      "score": 66,
-      "summary": "Andrew Bosworth(Meta CTO) @ Big Technology Podcast Q: 메타는 컴퓨팅도 많고 좋은 인력도 있는데 왜 리딩 모델을 만들어내지 못했는지? 무엇이 리딩 AI 모델을..."
-    },
-    {
-      "id": "bornlupin/18992",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/18992",
-      "datetime": "2026-07-09T13:14:36.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 64,
-      "summary": "SK하이닉스 미국 주식예탁증서(ADR) 공모 가격을 한국 증시 종가보다 3.1% 높은 수준인 ADR당 149달러로 안내하고 있는 것으로 알려짐"
-    },
-    {
-      "id": "bornlupin/18991",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/18991",
-      "datetime": "2026-07-09T12:56:59.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 68,
-      "summary": "마이크론, 미국 내 투자 가속화 및 뉴욕 신규 공장(Fab) 첫 콘크리트 타설 투자 규모 대폭 확대: 마이크론은 A I 메모리 반도체 수요 증가에 힘입어, 2035년까지 미국 내 투자 계획 규모를 2,500억..."
-    },
-    {
-      "id": "bornlupin/18990",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/18990",
-      "datetime": "2026-07-09T12:53:42.000Z",
-      "localDateKst": "2026-07-09",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 68,
-      "summary": "마이크론, 미국 반도체 생태계 강화를 위해 최대 30억 달러 전략적 투자 발표 총 투자 규모: 최대 30억 달러 (미국 반도체 공급망 강화 및 미래 기술 혁신을 위한 제조 기반 마련)..."
     }
   ]
 }
