@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-18T10:04:01.746Z",
+  "generatedAt": "2026-07-18T11:18:22.846Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -23,7 +23,7 @@
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-18T10:03:58.077Z",
+  "blsAttemptedAt": "2026-07-18T11:18:20.414Z",
   "blsLastSuccessfulAt": "2026-07-18T01:06:21.087Z",
   "newsOk": true,
   "newsCount": 40,
@@ -38,7 +38,7 @@
   "newsScoreMax": 63,
   "putCallOk": true,
   "putCallAsOf": "2026-07-17",
-  "elapsedMs": 3744,
+  "elapsedMs": 2509,
   "schema": 1,
   "marketAnalysisOk": true,
   "fmpHasKey": false,
@@ -94,7 +94,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-18T01:06:21.087Z",
    "lastSuccessfulAt": "2026-07-18T01:06:21.087Z",
-   "attemptedAt": "2026-07-18T10:03:58.077Z",
+   "attemptedAt": "2026-07-18T11:18:20.414Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -292,7 +292,7 @@
   "indexPutCall": 0.98,
   "equityPutCall": 0.73,
   "asOf": "2026-07-17",
-  "fetchedAt": "2026-07-18T10:03:58.643Z",
+  "fetchedAt": "2026-07-18T11:18:21.046Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -604,22 +604,6 @@
    "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
   },
   {
-   "title": "Stock Market Today, July 17: Stocks Slide as Semiconductor Rout Deepens - The Globe and Mail",
-   "link": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxQZk13QmpUMU1fWE1rQk1ZOFkyN20ydWhfbjJNU0J2MTFBcVFOY19QQjFPcmhwZmFEd2Vja0JYOUJSMnJwMDdHdDRnVkEtN09xWWFudW5qVHk5ZHdnTDV0ZVJhXzMtcGU1aEVfeHdQQXpOQjhOR2dGaGx5N1VCYUtzeEdVOEhuMHNjenZMM0xBajktWEpFdUpkTG1tb2xqNnJ4N0MxUWlPcnBiSER0N0RZVEhuM3FBampNSWx2a0lULUFHQWVUd0paSzE2WGphVGpHa0ZVa2Z5cnpJOEFSalhhb09SUGt0cnlN?oc=5",
-   "source": "The Globe and Mail",
-   "pubDate": "Fri, 17 Jul 2026 21:33:00 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 3,
-   "score": 47,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | ai-semis+13",
-   "feedSource": "Google News - US markets",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-16T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-17T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
-  },
-  {
    "title": "The Microeconomics of AI Infrastructure Debt: Capital Asymmetry and Balance Sheet Contraction - Lavender Hotel",
    "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOeGd6Sk5QQm1JUnJuWlpEbW1vVk9lQ2NOTzZfUTBIVFBGekJqVVlvc1RxM2E0clJmdHF5dlJUOHNObzhObGNSMkV6Um5DQ2IteDB4SFhXT3dnZ0ZENDRuaWRaQ3RnWXNVMy03QjBHWjVPQ29rU1ZVc2VWRnlLY0V1Q0xWb3poWVF4VzRCYjJPR2hmV0poUlFiWjhaX0dsTFFpRkppaWExSE41ZTg?oc=5",
    "source": "Lavender Hotel",
@@ -646,22 +630,6 @@
    "score": 46,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
    "feedSource": "Google News - Analyst/Earnings",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-16T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-17T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
-  },
-  {
-   "title": "Big Tech Firms Like Oracle Turn to Bonds to Finance A.I. Data Centers - The New York Times",
-   "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPckFkRlhlWjFRTTRweHNMZjc0d2RWR01wcWF5dUVEMmc4aDNuSHdRWTBmclhmRTJlSTdCNEJxc3VtVWlWNUhwN1VORWFUYnBfZXZacklFWHJLUmFQX3FMX1VJUmtoTGNMRzdFZjhWNDdwcVYxWUlXMFlzU0dmYlh5V3g5YlctOW8?oc=5",
-   "source": "The New York Times",
-   "pubDate": "Fri, 17 Jul 2026 20:50:32 GMT",
-   "topic": "credit",
-   "country": "global",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | mega-cap+8",
-   "feedSource": "Google News - Credit/Funding",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-16T23:00:00.000Z",
    "newsCycleEnd": "2026-07-17T23:00:00.000Z",
@@ -938,12 +906,44 @@
    "newsCycleStart": "2026-07-16T23:00:00.000Z",
    "newsCycleEnd": "2026-07-17T23:00:00.000Z",
    "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
+  },
+  {
+   "title": "Big Tech Firms Like Oracle Turn to Bonds to Finance A.I. Data Centers - The New York Times",
+   "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPckFkRlhlWjFRTTRweHNMZjc0d2RWR01wcWF5dUVEMmc4aDNuSHdRWTBmclhmRTJlSTdCNEJxc3VtVWlWNUhwN1VORWFUYnBfZXZacklFWHJLUmFQX3FMX1VJUmtoTGNMRzdFZjhWNDdwcVYxWUlXMFlzU0dmYlh5V3g5YlctOW8?oc=5",
+   "source": "The New York Times",
+   "pubDate": "Fri, 17 Jul 2026 12:55:24 GMT",
+   "topic": "credit",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | mega-cap+8",
+   "feedSource": "Google News - Credit/Funding",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-16T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-17T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
+  },
+  {
+   "title": "Gold Falls Below $4,000! Bank of America Urges 'Buy the Dip' but Warns 'Pullback May Not Have Bottomed Yet' - Moomoo",
+   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPRlJpaFY1aU5oZUkwdUl2eFYyQUZVa0JibjhLZUdRTy1NalZFczc1YWpYLXkybmVwZGhwZ2szZVNaRTRUOUszX2c1M0ZsT1ZSbGZ0YkJpOGdJS3hJTkl5MG1VSk1aVFVxcjBjYVFPakp2WFpVTmhSS1ZKNnRUY2E1UUtGMmZYRVB4M0xnY2RjQ3ZOdDd4OFl1dQ?oc=5",
+   "source": "Moomoo",
+   "pubDate": "Fri, 17 Jul 2026 02:49:02 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-16T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-17T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
   }
  ],
  "marketAnalysis": {
-  "full": "## 현재 시장 분석\n\n**미·이란 갈등 격화와 AI 반도체 매도세가 겹치며 글로벌 위험자산 전반에 하락 압력이 집중되고 있다.**\n\n① **변동성/심리** — Fear & Greed 지수 37(공포 구간)로 투자심리가 위축된 가운데, 나스닥·S&P 500 선물이 동반 하락하고 반도체·AI 관련 종목의 매도세가 두드러지고 있다.\n\n② **거시/금리** — CPI 3.5%로 인플레이션이 여전히 목표치를 상회하는 상황에서, 연준 의장 워시는 금리 경로를 명확히 제시하지 않았으며 정책위원 간 인플레이션 전망 의견 차이가 시장 불확실성을 높이고 있다. 연방기금금리는 현재 3.63% 수준이다.\n\n③ **주도 뉴스/리스크** — 미국의 이란 인프라 타격과 이란의 쿠웨이트 시설 공격 보도로 원유 공급 차질 우려가 확대되고 있으며, 홍해 봉쇄 위협까지 제기되며 유가 상승이 가속화되고 있다. 관세 불확실성과 지정학적 리스크가 동시에 작용하며 시장의 복합 부담이 커지는 국면이다.",
+  "full": "## 현재 시장 분석\n\n**글로벌 위험회피 심리가 확산되며 증시 선물 하락과 유가 급등이 동시에 나타나는 복합 리스크 장세가 전개되고 있다.**\n\n① **변동성/심리** — Fear & Greed Index가 37로 '공포' 구간에 위치하며, AI·반도체 대형주 중심의 매도세가 나스닥 및 S&P 500 선물 하락을 주도하고 있어 투자 심리가 위축된 상태다.\n\n② **거시/금리** — CPI 3.5%로 인플레이션이 여전히 목표치를 상회하는 가운데, 연준 기준금리는 3.63%를 유지 중이며 Fed 의장 워시(Warsh)가 금리 경로를 명확히 제시하지 않아 정책 불확실성이 지속되고 있다. NFP 57(만 명)은 고용 둔화 신호로 해석될 수 있어 거시 경제 방향성 논쟁이 이어지고 있다.\n\n③ **주도 뉴스/리스크** — 미국·이란 간 군사적 긴장 고조로 이란의 쿠웨이트 인프라 공격 및 홍해 봉쇄 위협이 부각되며 유가가 급등세를 보이고 있으며, 에너지 가격 상승이 인플레이션 재점화 우려와 맞물려 시장의 핵심 리스크 요인으로 작용하고 있다.",
   "oneLine": "## 현재 시장 분석",
-  "generatedAt": "2026-07-18T10:04:11.714Z",
+  "generatedAt": "2026-07-18T11:18:33.202Z",
   "model": "claude-sonnet-4-6"
  }
 }
