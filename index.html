@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.7 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.10 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5642,7 +5642,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.7</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.10</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12208,9 +12208,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.7" defer></script>
-  <script src="./js/aio-data.js?v=53.7" defer></script>
-  <script src="./js/aio-ui.js?v=53.7" defer></script>
+  <script src="./js/aio-core.js?v=53.10" defer></script>
+  <script src="./js/aio-data.js?v=53.10" defer></script>
+  <script src="./js/aio-ui.js?v=53.10" defer></script>
 
 
   <script>
@@ -14716,7 +14716,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.7" defer></script>
+<script src="./js/aio-chat.js?v=53.10" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -17030,6 +17030,7 @@ function _showKrSupplyFallbackNotice() {
 
 function _showKrSupplyFailureState(reason) {
   reason = reason || 'KR supply fetch failed';
+  window._krCurrentSupplyEvidence = null;
   _showKrSupplyFallbackNotice();
   _renderInvestorFallback(reason);
   var dateEl = document.getElementById('kr-investor-top10-date');
@@ -17490,7 +17491,6 @@ async function fetchKrInvestorTop10() {
 
 // v48.57: kr-investor 3개 테이블 fallback (API 실패 시 "로딩 중..." 영구 잔존 방지)
 function _renderInvestorFallback(reason) {
-  window._krCurrentSupplyEvidence = null;
   var msg = '<div style="padding:14px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.6;">네이버 수급 데이터 수신 실패<br><span style="font-size:10px;opacity:0.7;">' + escHtml(reason || '장 마감 후 또는 API 장애') + ' · 최신 Naver/거래소 원천 확인 필요</span></div>';
   ['kr-investor-foreign-buy','kr-investor-organ-buy','kr-foreign-hold-top10'].forEach(function(id){
     var el = document.getElementById(id);
@@ -17608,20 +17608,19 @@ function _renderKrWeeklySupplyFallback(reason) {
 window.AIO = window.AIO || {};
 window.AIO.getKrSupplyRuntimeAudit = function() {
   var issues = [];
-  var targets = ['kr-supply-analysis-text', 'kr-investor-foreign-buy', 'kr-investor-organ-buy', 'kr-foreign-hold-top10', 'kr-weekly-supply-table'];
-  targets.forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) {
-      issues.push({ type: 'missing-kr-supply-target', id: id });
-      return;
-    }
-    var txt = el.textContent || '';
-    if (/데이터 로딩 중|로딩 중/.test(txt)) issues.push({ type: 'perpetual-loading-text', id: id });
-  });
+  var state = window._krSupplyFetchState || null;
+  var evidence = window._krCurrentSupplyEvidence || null;
+  var ageMs = evidence && evidence.observedAt ? Date.now() - Number(evidence.observedAt) : null;
+  var valid = !!(evidence && Number.isFinite(Number(evidence.foreignNet)) && Number.isFinite(Number(evidence.institutionNet)) && ageMs >= 0 && ageMs < 86400000);
+  if (state && state.lastAttempt && !state.inFlight && !valid) {
+    issues.push({ type: 'kr-supply-evidence-unavailable', lastAttempt: state.lastAttempt, ok: state.ok === true });
+  }
   return {
-    status: issues.length ? 'warn' : 'ok',
+    status: state && state.inFlight ? 'pending' : (issues.length ? 'warn' : 'ok'),
     issueCount: issues.length,
     issues: issues,
+    evidenceAvailable: valid,
+    evidenceAgeMs: ageMs,
     generatedAt: new Date().toISOString()
   };
 };
@@ -21310,118 +21309,6 @@ _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
 // v9 FX & Bond Market JS
 // ══════════════════════════════════════════════════════════════════
 
-function updateFxDynamicComments() {
-  let ld = window._liveData || {};
-  var dxy = ld['DX-Y.NYB'], krw = ld['KRW=X'], jpy = ld['JPY=X'], cny = ld['CNY=X'];
-  var tnx = ld['^TNX'], tyx = ld['^TYX'], irx = ld['^IRX'];
-
-  // DXY Commentary
-  var dxyEl = document.getElementById('fx-dc-dxy');
-  if (dxyEl && dxy && dxy.price != null && isFinite(Number(dxy.price))) {
-    var dp = Number(dxy.price);
-    var comment = dp > 107 ? 'DXY 107 상회 — 달러 수준과 다른 자산의 당일 변화를 분리해 확인' :
-                  dp > 104 ? 'DXY 104 상회 — 달러가 강한 수준; 금리·신용·원자재 지표와 교차 확인' :
-                  dp > 100 ? 'DXY 100~104 — 달러 수준 관측' :
-                  'DXY 100 미만 — 달러 수준 관측';
-    dxyEl.textContent = comment;
-    dxyEl.style.color = dp > 106 ? 'var(--data-red)' : dp > 102 ? 'var(--data-amber)' : 'var(--data-green)';
-  }
-
-  // KRW Commentary
-  var krwEl = document.getElementById('fx-dc-krw');
-  if (krwEl && krw && krw.price != null && isFinite(Number(krw.price))) {
-    var kp = Number(krw.price);
-    var comment = kp > 1500 ? 'USD/KRW 1,500 상회 — 환율 수준·변화율 관측; 수급·정책 판단은 별도 자료 필요' :
-                  kp > 1450 ? 'USD/KRW 1,450~1,500 — 높은 환율 수준 관측; 기업별 환노출은 상이' :
-                  kp > 1350 ? 'USD/KRW 1,350~1,450 — 환율 수준 관측' :
-                  'USD/KRW 1,350 미만 — 환율 수준 관측';
-    krwEl.textContent = comment;
-    krwEl.style.color = kp > 1480 ? 'var(--data-red)' : kp > 1400 ? 'var(--data-amber)' : 'var(--data-green)';
-  }
-
-  // JPY Commentary
-  var jpyEl = document.getElementById('fx-dc-jpy');
-  if (jpyEl && jpy && jpy.price != null && isFinite(Number(jpy.price))) {
-    var jp = Number(jpy.price);
-    var comment = jp > 155 ? 'USD/JPY 155 상회 — 정책 발언·금리차·옵션 변동성 확인 필요' :
-                  jp > 148 ? 'USD/JPY 148~155 — 환율 수준 관측' :
-                  jp > 140 ? 'USD/JPY 140~148 — 환율 수준 관측' :
-                  'USD/JPY 140 미만 — 환율 수준 관측';
-    jpyEl.textContent = comment;
-    jpyEl.style.color = jp > 152 ? 'var(--data-red)' : jp > 145 ? 'var(--data-amber)' : 'var(--data-green)';
-  }
-
-  // CNY Commentary
-  var cnyEl = document.getElementById('fx-dc-cny');
-  if (cnyEl && cny && cny.price != null && isFinite(Number(cny.price))) {
-    var cp = Number(cny.price);
-    var comment = cp > 7.3 ? 'USD/CNY 7.30 상회 — 환율 수준 관측; 정책·무역·고시환율은 별도 확인' :
-                  cp > 7.1 ? 'USD/CNY 7.10~7.30 — 환율 수준 관측' :
-                  'USD/CNY 7.10 미만 — 환율 수준 관측';
-    cnyEl.textContent = comment;
-    cnyEl.style.color = cp > 7.25 ? 'var(--data-red)' : cp > 7.0 ? 'var(--data-amber)' : 'var(--data-green)';
-  }
-
-  // Bond Curve Commentary
-  var curveEl = document.getElementById('bond-dc-curve');
-  if (curveEl && tnx && irx && tnx.price != null && irx.price != null && isFinite(Number(tnx.price)) && isFinite(Number(irx.price))) {
-    var spread = Number(tnx.price) - Number(irx.price);
-    var comment = spread < 0 ? '3M10Y 음(-)의 기울기 — 2s10s·고용·신용과 함께 확인' :
-                  spread < 0.2 ? '3M10Y 평탄 구간 — 만기별 금리 수준 관측' :
-                  '3M10Y 양(+)의 기울기 — 경기·정책 경로를 단독으로 뜻하지 않음';
-    curveEl.textContent = comment;
-    curveEl.style.color = spread < 0 ? 'var(--data-red)' : spread < 0.3 ? 'var(--data-amber)' : 'var(--data-green)';
-  }
-
-  // 10Y Rate Commentary
-  var rateEl = document.getElementById('bond-dc-10y');
-  if (rateEl && tnx && tnx.price != null && isFinite(Number(tnx.price))) {
-    var r = Number(tnx.price);
-    var comment = r > 5.0 ? '미 10Y 5% 상회 — 할인율·대출금리 민감도를 종목별로 확인' :
-                  r > 4.5 ? '미 10Y 4.5~5.0% — 높은 금리 수준 관측' :
-                  r > 4.0 ? '미 10Y 4.0~4.5% — 금리 수준 관측' :
-                  '미 10Y 4.0% 미만 — 금리 수준 관측';
-    rateEl.textContent = comment;
-    rateEl.style.color = r > 4.5 ? 'var(--data-red)' : r > 4.0 ? 'var(--data-amber)' : 'var(--data-green)';
-  }
-
-  // Credit Spread Commentary
-  var creditEl = document.getElementById('bond-dc-credit');
-  if (creditEl) {
-    var hyBp = Number(window._hySpreadBp);
-    if (!isFinite(hyBp)) {
-      creditEl.textContent = 'HY OAS 판정 보류 — FRED BAMLH0A0HYM2 현재 관측값 미수신';
-      creditEl.style.color = 'var(--text-muted)';
-    } else {
-    var comment = hyBp > 500 ? '신용스프레드 급등 — 기업부도 우려 상승. 하이일드 위험 프리미엄 확인 필요' :
-                   hyBp > 400 ? '신용스프레드 확대 — 리스크 경고. 크레딧 시장 불안정' :
-                   hyBp > 350 ? '신용스프레드 중간 구간 — 방향·변화율 추가 확인' :
-                   '신용스프레드 타이트 — 현재 부도 위험 프리미엄은 낮지만 과도한 안도 여부 확인';
-    creditEl.textContent = comment;
-    creditEl.style.color = hyBp > 450 ? 'var(--data-red)' : hyBp > 380 ? 'var(--data-amber)' : 'var(--data-green)';
-    }
-  }
-
-  // Investment Implication Commentary
-  var implEl = document.getElementById('bond-dc-implication');
-  if (implEl && tnx && dxy && tnx.price != null && dxy.price != null && isFinite(Number(tnx.price)) && isFinite(Number(dxy.price))) {
-    var r = Number(tnx.price);
-    var d = Number(dxy.price);
-    var comment = '';
-    if (r > 4.5 && d > 105) {
-      comment = ' 고금리·강달러 조합 — 할인율과 환노출이 큰 자산의 민감도를 비교';
-    } else if (r > 4.0 && d > 103) {
-      comment = ' 금리·달러가 높은 조합 — 듀레이션·환노출·신용스프레드를 함께 비교';
-    } else if (r < 4.0) {
-      comment = ' 낮은 금리 수준 — 자산별 실적·밸류에이션 민감도를 별도로 확인';
-    } else {
-      comment = ' 금리·달러 혼합 환경 — 단일 지표로 자산 배분을 결정하지 않음';
-    }
-    implEl.textContent = comment;
-    implEl.style.color = '#8a8271';
-  }
-}
-
 function updateFxBondPage() {
   let ld = window._liveData || {};
 
@@ -21503,6 +21390,29 @@ function updateFxBondPage() {
     hySpreadEst.textContent = spreadBp != null ? Math.round(spreadBp) + 'bp · FRED' : '— · FRED OAS 미수신';
     hySpreadEst.style.color = sColor;
   }
+
+  // v53.8/P727: v52.71에서 제거된 fx-dc-*/bond-dc-* 해설 경로는 폐기하고,
+  // 현재 DOM에 남아 있는 상태 배지만 canonical fxbond updater에서 갱신한다.
+  var dxyLive = dxy != null && isFinite(Number(dxy)) ? Number(dxy) : null;
+  var tnxLive = ld['^TNX'] && ld['^TNX'].price != null && isFinite(Number(ld['^TNX'].price)) ? Number(ld['^TNX'].price) : null;
+  var irxLive = ld['^IRX'] && ld['^IRX'].price != null && isFinite(Number(ld['^IRX'].price)) ? Number(ld['^IRX'].price) : null;
+  var pill = document.getElementById('fxbond-risk-pill');
+  if (pill && dxyLive != null && tnxLive != null) {
+    if (dxyLive >= 107 || tnxLive >= 5.0) { pill.className = 'status-pill sp-risk-off'; pill.textContent = ' 관측 · 높은 달러·금리 수준'; }
+    else if (dxyLive >= 104 || tnxLive >= 4.5) { pill.className = 'status-pill sp-risk-off'; pill.textContent = ' 관측 · 달러·금리 수준 확인'; }
+    else if (dxyLive >= 100) { pill.className = 'status-pill sp-neutral'; pill.textContent = ' 관측 · 달러·금리 모니터링'; }
+    else { pill.className = 'status-pill sp-neutral'; pill.textContent = ' 관측 · 달러·금리 수준'; }
+  }
+  var invBadge = document.getElementById('yc-inversion-badge');
+  if (invBadge && tnxLive != null && irxLive != null) {
+    var live3m10y = tnxLive - irxLive;
+    if (live3m10y < -0.2) { invBadge.textContent = ' 깊은 역전 · 경기침체 경고'; invBadge.style.background = 'rgba(177,58,48,0.15)'; invBadge.style.color = 'var(--data-red)'; }
+    else if (live3m10y < 0) { invBadge.textContent = '역전 지속 · 주의'; invBadge.style.color = 'var(--data-amber)'; }
+    else if (live3m10y < 0.3) { invBadge.textContent = ' 역전 해소 중 · 위험 구간'; invBadge.style.color = 'var(--data-amber)'; }
+    else { invBadge.textContent = ' 정상 곡선 · 안정'; invBadge.style.background = 'rgba(34,117,76,0.12)'; invBadge.style.color = 'var(--data-green)'; }
+  }
+
+  try { updateCrossAssetMatrix(); } catch(e) { _aioLog('warn', 'render', 'CAM error: ' + (e && e.message || e)); }
 }
 
 // ── 10Y금리·엔화 3개월 추이 미니 라인차트 — v52.71 아이보리 3e: 시안 구조(단일 지표 히스토리,
@@ -21664,160 +21574,7 @@ function initYieldCurveChart(targetId) {
     st.style.color = isInverted ? 'var(--data-red)' : 'var(--data-green)';
   }
 
-  // Update dynamic commentary
-  updateFxDynamicComments();
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  DYNAMIC FX/BOND COMMENTARY (라이브 데이터 기반 자동 해설)
-// ═══════════════════════════════════════════════════════════════
-function generateFxBondCommentary() {
-  let ld = window._liveData || {};
-
-  // DXY commentary
-  var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
-  var dxyChg = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].chg : 0;
-  var dxyEl = document.getElementById('fx-dc-dxy');
-  if (dxyEl && dxy) {
-    var dxyText = '';
-    if (dxy >= 107) dxyText = 'DXY ' + dxy.toFixed(1) + ' — 107 상회 구간. 신흥국 자금흐름·원자재·신용 반응은 별도 확인이 필요합니다.';
-    else if (dxy >= 104) dxyText = 'DXY ' + dxy.toFixed(1) + ' — 104~107 구간. 정책 원인이나 자산 방향은 이 지수만으로 단정하지 않습니다.';
-    else if (dxy >= 100) dxyText = 'DXY ' + dxy.toFixed(1) + ' — 100~104 구간, 당일 변화 ' + (dxyChg > 0 ? '상승' : dxyChg < 0 ? '하락' : '보합') + ' 관측.';
-    else dxyText = 'DXY ' + dxy.toFixed(1) + ' — 100 미만 구간. 다른 통화·금리·원자재와 함께 확인.';
-    dxyEl.textContent = dxyText;
-  }
-
-  // KRW commentary
-  var krw = ld['KRW=X'] ? ld['KRW=X'].price : null;
-  var krwEl = document.getElementById('fx-dc-krw');
-  if (krwEl && krw) {
-    var krwText = '';
-    if (krw >= 1500) krwText = 'USD/KRW ' + Math.round(krw).toLocaleString() + '원 — 1,500 상회 수준 관측. 당국 조치·물가·정책 경로는 별도 자료가 필요합니다.';
-    else if (krw >= 1400) krwText = 'USD/KRW ' + Math.round(krw).toLocaleString() + '원 — 1,400대 수준 관측. 기업별 환노출과 현물·NDF 수급을 분리해 확인하세요.';
-    else if (krw >= 1300) krwText = 'USD/KRW ' + Math.round(krw).toLocaleString() + '원 — 환율 수준 관측.';
-    else krwText = 'USD/KRW ' + Math.round(krw).toLocaleString() + '원 — 환율 수준 관측.';
-    krwEl.textContent = krwText;
-  }
-
-  // JPY commentary
-  var jpy = ld['JPY=X'] ? ld['JPY=X'].price : null;
-  var jpyEl = document.getElementById('fx-dc-jpy');
-  if (jpyEl && jpy) {
-    if (jpy >= 155) jpyEl.textContent = 'USD/JPY ' + jpy.toFixed(1) + ' — 155 상회 수준 관측. 정책 발언·금리차·옵션 변동성을 함께 확인하세요.';
-    else if (jpy >= 150) jpyEl.textContent = 'USD/JPY ' + jpy.toFixed(1) + ' — 150~155 구간의 수준 관측.';
-    else if (jpy >= 140) jpyEl.textContent = 'USD/JPY ' + jpy.toFixed(1) + ' — 140~150 구간의 수준 관측.';
-    else jpyEl.textContent = 'USD/JPY ' + jpy.toFixed(1) + ' — 140 미만 구간의 수준 관측.';
-  }
-
-  // CNY commentary
-  var cny = ld['CNY=X'] ? ld['CNY=X'].price : null;
-  var cnyEl = document.getElementById('fx-dc-cny');
-  if (cnyEl && cny) {
-    if (cny >= 7.3) cnyEl.textContent = 'USD/CNY ' + cny.toFixed(4) + ' — 7.30 상회 수준 관측. PBOC 조치·무역 변수는 공시와 고시환율로 확인하세요.';
-    else if (cny >= 7.1) cnyEl.textContent = 'USD/CNY ' + cny.toFixed(4) + ' — 7.10~7.30 구간의 수준 관측.';
-    else cnyEl.textContent = 'USD/CNY ' + cny.toFixed(4) + ' — 7.10 미만 구간의 수준 관측.';
-  }
-
-  // Bond commentary
-  var tnx = ld['^TNX'] ? ld['^TNX'].price : null;
-  var irx = ld['^IRX'] ? ld['^IRX'].price : null;
-  var tyx = ld['^TYX'] ? ld['^TYX'].price : null;
-  var curveCurrent = window.AIO && typeof window.AIO.getUsTreasuryCurveEvidence === 'function' ? window.AIO.getUsTreasuryCurveEvidence() : {};
-
-  var curveEl = document.getElementById('bond-dc-curve');
-  if (curveEl && tnx && irx) {
-    var spread3m10y = tnx - irx;
-    var spread2s10s = curveCurrent.available ? curveCurrent.spread2s10s : null;
-    if (spread2s10s == null) curveEl.textContent = '3M10Y ' + (spread3m10y >= 0 ? '+' : '') + spread3m10y.toFixed(2) + '%. 공식 2s10s 원천은 미수신이라 종합 곡선 판정을 보류합니다.';
-    else if (spread2s10s < 0) curveEl.textContent = '2s10s ' + spread2s10s.toFixed(2) + '%로 역전 상태입니다. 침체 확률·시점을 단독 산출하지 않고 고용·신용·PMI와 교차 확인합니다.';
-    else curveEl.textContent = '2s10s +' + spread2s10s.toFixed(2) + '%로 양(+)의 기울기입니다. 경기 확장을 보장하지 않으며 스티프닝 원인과 크레딧을 함께 확인합니다.';
-  }
-
-  var tnxEl = document.getElementById('bond-dc-10y');
-  if (tnxEl && tnx) {
-    if (tnx >= 5.0) tnxEl.textContent = '미 10Y ' + tnx.toFixed(2) + '% — 높은 금리 수준. 할인율·대출금리 민감도를 자산별로 확인하세요.';
-    else if (tnx >= 4.5) tnxEl.textContent = '미 10Y ' + tnx.toFixed(2) + '% — 4.5~5.0% 구간의 금리 수준 관측.';
-    else if (tnx >= 4.0) tnxEl.textContent = '미 10Y ' + tnx.toFixed(2) + '% — 4.0~4.5% 구간의 금리 수준 관측.';
-    else tnxEl.textContent = '미 10Y ' + tnx.toFixed(2) + '% — 4.0% 미만 구간의 금리 수준 관측.';
-  }
-
-  // P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격 대신 FRED HY OAS(bp) 실측만 사용 — 이 블록이
-  // updateFxDynamicComments()의 동일 element(#bond-dc-credit) 갱신 직후 실행돼 항상 덮어쓰던 이중 표면.
-  var creditEl = document.getElementById('bond-dc-credit');
-  var hyOasBp = Number(window._hySpreadBp);
-  var hyOasOk = isFinite(hyOasBp);
-  if (creditEl) {
-    if (!hyOasOk) {
-      creditEl.textContent = 'HY OAS 판정 보류 — FRED BAMLH0A0HYM2 현재 관측값 미수신';
-      creditEl.style.color = 'var(--text-muted)';
-    } else if (hyOasBp > 500) creditEl.textContent = 'HY OAS ' + Math.round(hyOasBp) + 'bp — 신용스프레드 급등 구간. 기업 부도 위험 프리미엄 상승 관측.';
-    else if (hyOasBp > 400) creditEl.textContent = 'HY OAS ' + Math.round(hyOasBp) + 'bp — 신용스프레드 확대 구간. 크레딧 시장 불안정 관측.';
-    else if (hyOasBp > 350) creditEl.textContent = 'HY OAS ' + Math.round(hyOasBp) + 'bp — 신용스프레드 중간 구간.';
-    else creditEl.textContent = 'HY OAS ' + Math.round(hyOasBp) + 'bp — 신용스프레드 타이트 구간. 현재 부도 위험 프리미엄은 낮은 수준.';
-  }
-
-  var implEl = document.getElementById('bond-dc-implication');
-  if (implEl && tnx) {
-    // v40.4: 크로스에셋 상관분석 + 투자전략 통합
-    var implParts = [];
-    // 채권-주식 관계 진단
-    var spyD = ld['SPY'];
-    var spyPctV = spyD && spyD.pct != null ? spyD.pct : 0;
-    var tnxChgV = ld['^TNX'] && ld['^TNX'].pct != null ? ld['^TNX'].pct : 0;
-    if (tnxChgV > 1 && spyPctV < -0.5) implParts.push('채권↓주식↓ 동시 하락(안전자산 실종) — 현금+금 피난');
-    else if (tnxChgV < -1 && spyPctV > 0.5) implParts.push('채권↑주식↑ 동시 상승(골디락스) — 리스크온');
-    else if (tnxChgV > 1 && spyPctV > 0.5) implParts.push('금리↑인데 주식↑(금리 무시 랠리) — 지속 불가, 조정 준비');
-
-    // 금리 전략
-    if (tnx >= 5.0) implParts.push('10Y 5%+ 위기: 단기채(SHV/BIL) + 현금');
-    else if (tnx >= 4.5) implParts.push('10Y 4.5%+: 장기채(TLT) 매수 신중, 중기채(IEF) 선호');
-    else if (tnx < 3.5) implParts.push('10Y 3.5%↓: TLT 반등 기대, Duration 확대');
-    else implParts.push('10Y ' + tnx.toFixed(2) + '%: 중기채(IEF) + 크레딧(LQD) 균형');
-
-    // 환율 전략
-    if (dxy && dxy >= 107) implParts.push('강달러: EM 비중↓, 달러 자산 유지');
-    if (krw && krw >= 1450) implParts.push('원화 약세 극단: 역사적으로 환노출 관리가 우선시되던 환율대(지시 아님)');
-    else if (krw && krw >= 1350) implParts.push('원화 약세: 수출주(삼성/현대차) 환율 수혜');
-
-    // 신용 전략 — HYG 달러 가격 대신 FRED HY OAS(bp) 실측 사용 (P576/P713 계열)
-    if (hyOasOk && hyOasBp > 500) implParts.push('HY OAS ' + Math.round(hyOasBp) + 'bp(위기 구간): 투자등급 중심, 하이일드 비중 축소 검토');
-    else if (hyOasOk && hyOasBp > 400) implParts.push('HY OAS ' + Math.round(hyOasBp) + 'bp(주의 구간): 크레딧 스프레드 확대 관측');
-
-    // 금 전략
-    var goldP = ld['GC=F'] ? ld['GC=F'].price : null;
-    if (goldP && goldP > 2200 && dxy && dxy > 105) implParts.push('금+달러 동반 강세 = 극단 불확실성. 안전자산 피난 수요');
-
-    if (implParts.length === 0) implParts.push('균형 포트폴리오 유지');
-    implEl.textContent = implParts.join(' | ') + '.';
-  }
-
-  // Update risk pill
-  var pill = document.getElementById('fxbond-risk-pill');
-  if (pill && dxy && tnx) {
-    if (dxy >= 107 || tnx >= 5.0) { pill.className = 'status-pill sp-risk-off'; pill.textContent = ' 관측 · 높은 달러·금리 수준'; }
-    else if (dxy >= 104 || tnx >= 4.5) { pill.className = 'status-pill sp-risk-off'; pill.textContent = ' 관측 · 달러·금리 수준 확인'; }
-    else if (dxy >= 100) { pill.className = 'status-pill sp-neutral'; pill.textContent = ' 관측 · 달러·금리 모니터링'; }
-    else { pill.className = 'status-pill sp-neutral'; pill.textContent = ' 관측 · 달러·금리 수준'; }
-  }
-
-  // Update inversion badge
-  var invBadge = document.getElementById('yc-inversion-badge');
-  if (invBadge && tnx && irx) {
-    var s = tnx - irx;
-    if (s < -0.2) { invBadge.textContent = ' 깊은 역전 · 경기침체 경고'; invBadge.style.background = 'rgba(177,58,48,0.15)'; invBadge.style.color = 'var(--data-red)'; }
-    else if (s < 0) { invBadge.textContent = '역전 지속 · 주의'; invBadge.style.color = 'var(--data-amber)'; }
-    else if (s < 0.3) { invBadge.textContent = ' 역전 해소 중 · 위험 구간'; invBadge.style.color = 'var(--data-amber)'; }
-    else { invBadge.textContent = ' 정상 곡선 · 안정'; invBadge.style.background = 'rgba(34,117,76,0.12)'; invBadge.style.color = 'var(--data-green)'; }
-  }
-}
-
-// Enhanced updateFxBondPage — v42.2: initYieldCurveChart 제거 (fxbond 페이지에 캔버스 없음, macro 페이지 전용)
-var _origUpdateFxBond = updateFxBondPage;
-updateFxBondPage = function() {
-  _origUpdateFxBond();
-  try { generateFxBondCommentary(); } catch(e) { _aioLog('warn', 'render', 'FXBond commentary error: ' + (e && e.message || e)); }
-  try { updateCrossAssetMatrix(); } catch(e) { _aioLog('warn', 'render', 'CAM error: ' + (e && e.message || e)); }
-};
 
 // v48.50: Cross-Asset Matrix — 4축 정렬 판정 (FX × Yield × Credit)
 function updateCrossAssetMatrix() {
@@ -22410,7 +22167,7 @@ _aioPageBus.register('html-fundamental-init-shown', 'aio:pageShown', function(e)
   }
   if (e.detail === 'fxbond') {
     setTimeout(function() {
-      try { updateFxBondPage(); updateFxDynamicComments(); } catch(e) {}
+      try { updateFxBondPage(); } catch(e) {}
       try { if (typeof loadFxBondTrendCharts === 'function') loadFxBondTrendCharts(); } catch(e) {}
     }, 200);
   }
@@ -24760,7 +24517,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.7" defer></script>
+<script src="./js/aio-glossary.js?v=53.10" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -28606,6 +28363,10 @@ _aioPageBus.register('html-ai-panel-shown', 'aio:pageShown', function(e) {
 });
 });
 </script>
+
+<!-- AR-01~06: native ESM architecture observer. It is progressive enhancement;
+     the legacy shell remains the rollback owner until route cutover. -->
+<script type="module" src="./src/app/bootstrap.js"></script>
 
 </body>
 </html>

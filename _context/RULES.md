@@ -2,10 +2,34 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
-target_version: v53.7
+target_version: v53.10
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R346. Legacy event adapters must normalize the actual EventTarget and payload shape at the boundary (v53.9, P729)
+
+**Rule**: A compatibility observer must subscribe to the same `EventTarget` that emits the legacy event and normalize its real `CustomEvent.detail` shape before routing or state projection. Do not assume that a browser event dispatched on `document` bubbles to `window`, or that a legacy string payload is an object envelope.
+
+**Required**: The adapter owns target selection and string/object detail normalization. The route lifecycle gate must exercise one legacy event, a mount, a dispose, and a route round-trip in Chromium. A failed observer must leave the legacy shell as the rollback owner.
+
+**Validation**: `scripts/ci-architecture-browser-check.mjs` verifies `document`-targeted `aio:pageShown` string detail, sentiment mount/dispose, offline blocked state, and sentiment→home→sentiment round-trip with zero unexpected browser errors.
+
+## R345. 고빈도 데이터 batch는 Store 기록과 DOM 반영을 분리하고 전역 scan·rewrite를 batch당 한 번만 수행한다 (v53.9, P728)
+
+**Rule**: quote처럼 여러 레코드를 한 묶음으로 적용하는 경로에서 각 `Store.set()`이 전체 문서를 스캔하지 않는다. 레코드별 단계는 검증·저장·특수 파생값만 처리하고, 공통 `data-live-*` DOM 반영과 lineage annotation은 batch 마지막 canonical binder가 한 번 소유한다. 단건 스트림 갱신은 symbol-target selector만 사용한다.
+
+**Required**: 동일 이벤트 안에서 `[data-live-price]`/`[data-live-chg]` 전체 rewrite가 둘 이상 존재하지 않게 한다. 퇴역 UI 소비자를 위한 네트워크 fanout은 sink 삭제와 함께 scheduler에서 제거하고, runtime audit은 삭제된 DOM 존재 여부가 아니라 현재 canonical evidence의 값·시각·실패 상태를 검사한다.
+
+**Validation**: `ci-runtime-contract-check.mjs`가 `PriceStore.set(..., { deferDomAnnotation:true })`, 중복 bulk rewrite 부재, target annotation의 `data-live-field` 포함, `fetchKrDynamicData()`의 `fetchKrInvestorTop10` 미호출, KR evidence audit 계약을 이진 검증한다. headless T383/T863과 critical routes에서 console/page error 0을 확인한다.
+
+## R344. 퇴역 UI의 렌더 경로와 주기 작업은 canonical owner 하나만 남기고 실행 가능한 게이트로 고정한다 (v53.8, P727)
+
+**Rule**: HTML에서 제거된 DOM sink를 조회하는 renderer·wrapper·event hook은 조용한 no-op이라도 남기지 않는다. 현재 UI에 남은 일부 상태 갱신은 별도 legacy wrapper가 아니라 해당 페이지의 canonical updater에 합친다. 반복 작업은 이름 있는 `_aioTimerRegistry` 경로만 사용하며, registry가 없을 때 raw `setInterval`로 우회하지 않는다.
+
+**Required**: UI 리디자인 시 구 DOM ID뿐 아니라 `getElementById`/`querySelector` sink, 함수 선언, 모든 호출부, wrapper, 이벤트 등록을 저장소 전체에서 함께 제거한다. 남겨야 하는 출력은 현재 DOM ID와 canonical updater 사이의 직접 경로로 옮긴다. 주기 작업은 `_aioRegisterTimer(name, fn, ms)`를 통해 중복 등록 시 이전 timer가 정리되도록 한다.
+
+**Validation**: `ci-runtime-contract-check.mjs`가 `updateFxDynamicComments`/`generateFxBondCommentary` 선언과 `fx-dc-*`/`bond-dc-*` DOM 조회 0건, `updateFxBondPage()`의 현재 상태 배지·Cross-Asset Matrix 직접 갱신, `aio-chat.js`의 raw `setInterval` 0건을 이진 검증한다. 변경 후 fxbond route와 headless 전체 테스트에서 console/page error 0을 확인한다.
 
 ## R343. 신용 판정은 HYG 등 듀레이션 오염 가격이 아니라 FRED HY OAS(bp) 실측만 사용하고, 결측 시 null 사전 차단으로 0을 방지한다 (v53.7, P726)
 

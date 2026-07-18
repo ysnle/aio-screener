@@ -237,7 +237,7 @@ check('briefing summary F&G reads canonical currentness envelope', /getCanonical
 check('KR candle chart auto-loads from canvas and avoids zero-baseline compression', /krCandleCanvas/.test(html) && /loadKrCandleChart\(krCode \|\| '005930'\)/.test(html) && /beginAtZero:\s*false/.test(html) && /suggestedMin:\s*ySuggestedMin/.test(html) && /suggestedMax:\s*ySuggestedMax/.test(html));
 check('headless tests cover all-theme detail and route redirect regressions', /T860 theme_detail_all_themes_no_throw_v5227/.test(tests) && /T861 theme_detail_route_redirect_v5227/.test(tests));
 check('proxy layer rejects HTML block pages for JSON endpoints before caching success', /_aioProxyUrlExpectsJson/.test(data) && /_aioValidateProxyResponse/.test(data) && /aioProxyBlockedHtml/.test(data) && /proxy returned HTML for JSON endpoint/.test(data));
-check('KR supply failure state clears waiting UI instead of leaving 수신 대기', /function _showKrSupplyFailureState/.test(html) && /kr-investor-top10-date/.test(html) && /\/로딩 중\|수신 대기\//.test(html) && /T863 kr_supply_failure_state_clears_waiting_v5228/.test(tests));
+check('KR supply failure state clears canonical evidence and retired investor fanout is not scheduled', /function _showKrSupplyFailureState[\s\S]{0,180}?_krCurrentSupplyEvidence\s*=\s*null/.test(html) && /T863_kr_retired_investor_fanout_not_scheduled/.test(tests));
 check('Cloudflare worker handles Naver JSON endpoints with browser-like headers and HTML block guard', /targetExpectsJson/.test(worker) && /m\.stock\.naver\.com/.test(worker) && /Upstream returned HTML block page for JSON endpoint/.test(worker) && /Referer = 'https:\/\/m\.stock\.naver\.com\/'/.test(worker));
 check('viewport matrix CI script covers 22 routes, four viewport widths, topbar clipping, and SVG text geometry', /ci-viewport-matrix-check\.mjs/.test(read('.github/workflows/ci.yml')) && /const ROUTES = \[/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /mobile390/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 check('proxy registry ranks active proxies by success-rate score, not only static order', /okCount/.test(data) && /failCount/.test(data) && /getScore:\s*function/.test(data) && /self\.getScore\(b\)\s*-\s*self\.getScore\(a\)/.test(data));
@@ -693,6 +693,24 @@ check('R340/P712: synthetic market-series formulas are absent from decision path
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
   /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core) && /_breadthSeriesReferenceAsOf\s*=\s*null/.test(ui) && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
+check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink while live status stays in the canonical updater',
+  !/function\s+(?:updateFxDynamicComments|generateFxBondCommentary)\s*\(/.test(html) &&
+  !/(?:getElementById|querySelector)\(['"](?:fx-dc-|bond-dc-)/.test(html) &&
+  /function\s+updateFxBondPage\([\s\S]{0,9000}?fxbond-risk-pill[\s\S]{0,3000}?yc-inversion-badge[\s\S]{0,3000}?updateCrossAssetMatrix\(\)/.test(html));
+check('R344/P727: alert polling has no unregistered raw interval fallback',
+  /_aioRegisterTimer\('alerts-check'/.test(chat) && !/\bsetInterval\s*\(/.test(chat));
+check('R345/P728: quote batches defer per-symbol lineage scans and keep one canonical DOM bind',
+  /set\(sym, price, pct, source, opts\)/.test(core) &&
+  /!opts\.deferDomAnnotation/.test(core) &&
+  /PriceStore\.set\(q\.symbol, price, pct,[^\n]+deferDomAnnotation:\s*true/.test(data) &&
+  !/Bulk update ALL data-live-price/.test(data));
+check('R345/P728: targeted lineage annotation covers data-live-field without a document-wide selector',
+  /if \(target\) \{[\s\S]{0,700}?data-live-field\^=/.test(core) &&
+  /getAttribute\('data-live-field'\)/.test(core));
+check('R345/P728: retired KR investor ranking fanout is not scheduled and the runtime audit follows evidence',
+  !/async function fetchKrDynamicData\(\)[\s\S]{0,900}?fetchKrInvestorTop10/.test(data) &&
+  /evidenceAvailable:\s*valid/.test(html) &&
+  !/missing-kr-supply-target/.test(html));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

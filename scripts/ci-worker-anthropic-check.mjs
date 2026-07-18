@@ -90,6 +90,10 @@ async function main() {
     process.exit(1);
   }
   console.log('Worker /anthropic security check OK: kill-switch, server-side Origin enforcement, optional app-token, dedicated rate limit, KV fail-closed, and body-size cap all verified against the real handler.');
+  // The mocked Worker requests can leave undici handles alive after the final
+  // assertion. CI must terminate after the gate has emitted its result rather
+  // than waiting indefinitely on provider-side resources.
+  process.exit(0);
 }
 
 main();

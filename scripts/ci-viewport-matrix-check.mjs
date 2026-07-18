@@ -14,6 +14,7 @@ const PORT = Number(process.env.CI_VIEWPORT_PORT || 8892);
 const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const SCREENSHOTS = process.env.AIO_VIEWPORT_SCREENSHOTS === '1';
 const FULL_INIT = process.env.AIO_VIEWPORT_FULL_INIT === '1';
+const VIEWPORT_FILTER = new Set(String(process.env.AIO_VIEWPORT_NAMES || '').split(',').map((v) => v.trim()).filter(Boolean));
 const OUT_DIR = resolve(root, '_artifacts', 'viewport-matrix');
 
 // v53.7 (P725): KR 전용 5라우트 퇴역 — 콘텐츠는 themes/macro/technical의 통합 섹션(라우트 방문으로 함께 검사됨)
@@ -28,7 +29,9 @@ const VIEWPORTS = [
   { name: 'tablet768', width: 768, height: 1024 },
   { name: 'laptop1024', width: 1024, height: 768 },
   { name: 'desktop1440', width: 1440, height: 900 },
-];
+].filter((viewport) => !VIEWPORT_FILTER.size || VIEWPORT_FILTER.has(viewport.name));
+
+if (!VIEWPORTS.length) throw new Error('AIO_VIEWPORT_NAMES did not match a known viewport');
 
 function startServer() {
   return new Promise((resolvePromise, reject) => {

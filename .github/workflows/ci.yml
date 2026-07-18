@@ -82,6 +82,12 @@ jobs:
             node --check "$f"
           done
 
+      - name: Native ESM architecture contract (AR-00~06)
+        run: |
+          set -e
+          find src -name '*.js' -print0 | xargs -0 -n1 node --check
+          node scripts/ci-architecture-contract-check.mjs
+
       - name: 버전 동기화 검증 (R1 7곳 + 캐시버스터 6곳)
         run: node scripts/ci-version-check.mjs
 
@@ -164,6 +170,9 @@ jobs:
 
       - name: Enforce boot interaction performance budget
         run: node scripts/ci-boot-interaction-check.mjs
+
+      - name: Architecture ESM browser lifecycle contract (AR-01~06)
+        run: node scripts/ci-architecture-browser-check.mjs
 
   # v52.5x/WO-4: was report-only (continue-on-error: true, default FULL_INIT=0 — only swapped
   # .active classes, never called showPage()/rendered charts/fired events). CODEX-COMPREHENSIVE-
@@ -326,9 +335,10 @@ jobs:
       - name: Stage public site (explicit artifact allowlist)
         run: |
           set -e
-          mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/public-data"
+          mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/src" "$RUNNER_TEMP/pages-dist/public-data"
           cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json "$RUNNER_TEMP/pages-dist/"
           cp js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js js/aio-glossary.js "$RUNNER_TEMP/pages-dist/js/"
+          rsync -a src/ "$RUNNER_TEMP/pages-dist/src/"
           rsync -a public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
 
       - name: Setup Pages

@@ -2,10 +2,10 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
-latest_version: v53.7
-latest_P_number: P726
-next_P_number: P727
-total_entries: 501 (P1~P726, 결번 존재 — 상세 20건 + 압축 원장)
+latest_version: v53.10
+latest_P_number: P730
+next_P_number: P731
+total_entries: 505 (P1~P730, 결번 존재 — 상세 24건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -53,7 +53,43 @@ total_entries: 501 (P1~P726, 결번 존재 — 상세 20건 + 압축 원장)
 
 ---
 
-# 상세 엔트리 (P704~P726 · v52.89~v53.7)
+# 상세 엔트리 (P704~P728 · v52.89~v53.9)
+
+## P730 - v53.10 - Worker 보안 게이트가 PASS 출력 후 Node 프로세스를 종료하지 않았다
+- **motivation**: 전체 CI 게이트를 실제 종료 code까지 확인하는 과정에서 `ci-worker-anthropic-check.mjs`가 성공 문구를 출력한 뒤에도 세션을 유지했다.
+- **symptom/reproduction**: `node scripts/ci-worker-anthropic-check.mjs`가 모든 assertion PASS 문구를 출력하지만 process가 자연 종료되지 않아 CI step이 hang될 수 있었다. 외부 provider가 아니라 mock Worker 요청 뒤 남은 undici handle이 원인 후보였다.
+- **root_cause**: async `main()` 성공 경로가 결과를 출력한 뒤 명시적으로 종료하지 않았고, 테스트가 만든 비동기/네트워크 리소스의 event-loop 생존을 gate가 보장하지 않았다.
+- **fix**: 성공 출력 직후 `process.exit(0)`을 호출해 모든 검증이 await된 뒤 gate가 결정적으로 종료되도록 했다. 실패 경로의 `process.exit(1)`는 유지했다.
+- **violated_rule**: CI/QA 실행은 PASS 문구뿐 아니라 종료 code와 종료 시점까지 검증해야 한다는 실행 gate 원칙.
+- **prevention**: 모든 standalone CI contract script는 성공·실패 양쪽에서 유한 시간 안에 종료하고, 테스트 후 `exit code 0/1`을 확인한다.
+- **verification**: 수정 후 동일 명령을 subprocess로 실행해 PASS 출력과 exit code 0을 확인했으며, 기존 전체 정적/브라우저 gate와 architecture gate는 계속 PASS했다.
+
+## P729 - v53.9 - ESM 호환 observer가 legacy pageShown 이벤트를 수신하지 못했다
+- **motivation**: AR-01~06 첫 ESM vertical slice를 실제 legacy shell과 연결하면서 route lifecycle 계약을 Chromium에서 검증했다.
+- **symptom/reproduction**: 브라우저에서 새 `AIO_ARCH`는 부팅됐지만 `showPage('sentiment')` 후 `page-sentiment[data-aio-architecture-route]`가 생성되지 않고 `router.active()`가 비어 있었다. 새 observer가 `window`에 이벤트를 듣고, `event.detail`을 객체로만 읽는 상태에서 `document`가 발사한 문자열 detail을 놓쳤다.
+- **root_cause**: legacy `_firePageShown()`은 `document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: id }))`를 사용한다. 호환 facade와 lifecycle router가 실제 EventTarget과 payload shape를 계약으로 정규화하지 않아 producer-consumer event boundary가 단절됐다.
+- **fix**: `src/legacy/compatibility-facade.js`가 `document`를 event target으로 선택하고, `src/app/router.js`/`src/app/bootstrap.js`가 문자열 또는 객체 detail을 모두 route ID로 정규화하도록 수정했다. `ci-architecture-browser-check.mjs`에 offline 부팅·sentiment mount·home dispose·sentiment 재진입 회귀 여정을 추가했다.
+- **violated_rule**: R346(legacy event adapter는 실제 EventTarget과 payload shape를 boundary에서 정규화해야 함).
+- **prevention**: 신규 compatibility adapter는 이벤트 emitter 검색(`dispatchEvent`)과 listener target을 함께 확인하고, 실제 `detail` shape를 Chromium fixture에서 검증한다. observer가 실패해도 legacy shell을 소유권자로 유지한다.
+- **verification**: Playwright 로컬 서버·외부망 차단에서 `AIO_ARCH` 부팅, 결측 sentiment의 `blocked` 상태, sentiment→home→sentiment route 왕복과 dispose/mount를 확인했고 예상 밖 browser error 0건. 기존 headless 1101/1101 PASS 및 architecture contract PASS.
+
+## P728 - v53.9 - quote batch가 종목마다 전역 DOM을 스캔하고 퇴역 KR 표가 네트워크 fanout을 남겼다
+- **motivation**: 1차가 fxbond 고아 경로에 한정됐음을 명확히 한 뒤, 2차로 전체 부팅·DOM·이벤트·데이터 갱신 경로를 다시 계측했다.
+- **symptom/reproduction**: `applyLiveQuotes()`는 각 quote의 `PriceStore.set()`마다 7,843-node 문서에서 lineage selector를 전수 조회한 뒤, per-symbol price/chg 반영, 전체 price/chg bulk rewrite, `applyLiveDataToDom()` 전체 bind를 연속 실행했다. 또한 v53.7 KR 전용 페이지 삭제 후에도 `fetchKrDynamicData()`가 더 이상 존재하지 않는 투자자 TOP10 표를 위해 최대 24개 Naver 종목 요청을 실행했다. 구 KR runtime audit은 삭제된 5개 DOM을 missing issue로 보고했다.
+- **root_cause**: Store의 단건 안정성 로직과 batch renderer의 책임이 분리되지 않았고, 후속 canonical binder가 추가된 뒤 이전 bulk pass를 제거하지 않았다. KR 페이지 통합은 route·DOM을 제거했지만 공유 loader·audit 소비자 계약까지 수직 정리하지 못했다.
+- **fix**: batch 내부 `PriceStore.set()`은 DOM annotation을 defer하고 마지막 `applyLiveDataToDom()` 1회가 공통 DOM·lineage를 소유하게 했다. 중복 bulk rewrite 2개를 삭제하고, 단건 annotation은 symbol-target selector 및 `data-live-field`를 지원하게 했다. 공유 KR loader에서 `fetchKrInvestorTop10()` 호출을 제거하고 runtime audit을 `_krCurrentSupplyEvidence`의 유효성·나이 기반으로 전환했다.
+- **violated_rule**: R344의 퇴역 소비자 수직 제거 범위에 scheduler/network fanout과 runtime audit을 끝까지 포함하지 못했고, 고빈도 batch에 canonical DOM owner가 없었다.
+- **prevention**: R345와 runtime contract에 batch defer·중복 bulk 부재·target lineage·퇴역 fanout 미호출·evidence audit을 고정했다. headless T383/T863도 삭제된 DOM 계약이 아니라 현재 evidence 계약을 검사한다.
+- **verification**: JS 문법, 정적 15종(runtime/structural/doc-currency 포함), `git diff --check`를 통과했다(data-lineage FAIL 0, 기존 SEC 93/655=14.2% WARN 1). 로컬 Chromium은 headless 1101/1101, boot FCP 1556ms·route 1162ms·max long task 611ms, critical10 10/10, accessibility 17/17, FULL_INIT viewport 68/68을 4개 shard로 검증(overflow/tinyText/jsErrors 0), portfolio vault 8/8을 통과했다. 커밋·배포는 수행하지 않았다.
+
+## P727 - v53.8 - 퇴역 fxbond 해설 경로가 무효 DOM 조회와 비등록 timer 폴백을 남겼다
+- **motivation**: 성능·품질 우선 리팩터링에서 P726이 부수 발견으로 남긴 fxbond 고아 코드와 QC10 timer lifecycle을 실제 실행 경로 기준으로 닫았다.
+- **symptom/reproduction**: `fx-dc-*`/`bond-dc-*` 8개 sink는 HTML에 없는데 `updateFxDynamicComments()`와 `generateFxBondCommentary()`가 fxbond pageShown과 `aio:liveQuotes`마다 실행됐다. pageShown은 첫 함수를 중복 호출해 진입당 무효 DOM 조회 24회, quote 갱신당 16회를 만들었다. `aio-chat.js` 알림 폴링도 registry 부재 시 이름 없는 raw `setInterval`을 생성했다.
+- **root_cause**: v52.71 리디자인이 HTML만 `cam-*`/`carry-*`로 교체하고 구 함수·호출·wrapper를 수직 제거하지 않았다. `generateFxBondCommentary()` 안의 살아 있는 두 상태 배지 때문에 함수 전체가 필요한 것처럼 보였고, canonical `updateFxBondPage()`와 legacy wrapper가 병존했다. timer도 core-before-chat 로드 계약이 있는데 불필요한 fallback을 남겼다.
+- **fix**: 두 고아 함수와 모든 호출·monkey-patch wrapper를 제거했다. 살아 있는 `fxbond-risk-pill`, `yc-inversion-badge`, `updateCrossAssetMatrix()` 갱신은 `updateFxBondPage()`에 직접 통합했다. 알림 polling은 `_aioRegisterTimer('alerts-check', ...)`만 사용한다.
+- **violated_rule**: R341의 퇴역 경로 완전 제거와 QA QC10의 timer registry 원칙을 구현 경로 끝까지 적용하지 못했다.
+- **prevention**: R344와 runtime contract에 고아 함수/DOM sink 부재, canonical updater 직접 연결, raw interval 부재를 이진 게이트로 추가했다. UI 교체 시 DOM만이 아니라 선언→호출→wrapper→event hook을 한 번에 grep한다.
+- **verification**: JS 6모듈과 변경 MJS 문법, 정적 15종 게이트, 고아 함수·sink·raw interval 0건을 확인했다. 로컬 Chromium은 headless 1101/1101, boot FCP 504ms·route 153ms, critical10 10/10, accessibility 17/17, FULL_INIT viewport 68/68(overflow/tinyText/jsErrors 0), portfolio vault 8/8을 통과했다. 커밋·배포는 수행하지 않았다.
 
 ## P726 - v53.7 - HYG 달러 가격 임계 신용 판정이 5번째 표면까지 잔존했고, 그중 하나는 대상 DOM 자체가 없는 고아 코드였다
 

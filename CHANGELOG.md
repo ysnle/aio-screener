@@ -1,3 +1,21 @@
+## v53.10 (2026-07-18)
+- **AR-00~06 ESM architecture foundation**: added native `src/` contracts for platform gateways, command store, typed evidence/freshness/lineage, pure sentiment calculations, route lifecycle/dispose, AI evidence policy, and the single legacy compatibility facade. The first sentiment vertical slice is exposed as a read-only `window.AIO_ARCH` migration projection without replacing the legacy shell.
+- **AR-07/08 safety contracts**: added fail-closed market snapshot validation (incomplete published coverage is rejected), inferred numeric claim blocking, app/data/evidence revision manifest, Pages allowlist + service-worker ESM parity, and blocking architecture contract/browser lifecycle gates.
+- **P729/R346**: fixed the ESM observer's legacy event boundary by listening on `document` and normalizing string/object `aio:pageShown` details. Chromium regression coverage verifies offline blocked sentiment and sentiment→home→sentiment mount/dispose with zero unexpected browser errors.
+- **P730**: made the Worker security contract gate terminate deterministically after all awaited assertions pass, preventing a successful CI step from hanging on residual mock-provider handles.
+- R1 7곳 v53.10
+
+## v53.9 (2026-07-18)
+- P728/R345 2차 성능·품질 리팩터링: `applyLiveQuotes()`가 quote마다 실행하던 전역 lineage scan을 batch 마지막 canonical DOM bind 1회로 축소하고, 같은 `data-live-price`/`data-live-chg` 전체를 다시 쓰던 중복 pass를 제거했다. 단건 Store 갱신은 symbol-target selector만 사용하며 `data-live-field` lineage도 포함한다.
+- v53.7에서 KR 전용 페이지가 퇴역했는데도 공유 KR 로더가 삭제된 투자자 TOP10 표를 위해 최대 24개 Naver 종목 요청을 실행하던 경로를 스케줄에서 제거했다. KR 수급 runtime audit은 삭제된 DOM 존재 여부 대신 canonical `_krCurrentSupplyEvidence`의 가용성·나이를 검사한다.
+- runtime contract와 headless T383/T863을 새 batch·KR evidence 계약으로 갱신했다. viewport runner는 `AIO_VIEWPORT_NAMES`로 메모리 제약 환경에서 동일 68조합을 shard 검증할 수 있게 했다.
+- R1 7곳 v53.9
+
+## v53.8 (2026-07-18)
+- P727/R344: v52.71 fxbond 리디자인 뒤 남아 있던 `updateFxDynamicComments()`/`generateFxBondCommentary()`와 `fx-dc-*`/`bond-dc-*` 고아 sink를 제거했다. 살아 있는 `fxbond-risk-pill`/`yc-inversion-badge`/Cross-Asset Matrix 갱신은 `updateFxBondPage()` 단일 경로로 통합해 페이지 진입당 24회, quote 갱신당 16회의 무효 DOM 조회를 없앴다.
+- 알림 폴링은 `_aioRegisterTimer('alerts-check', ...)`만 사용하도록 정리해 레지스트리 밖 raw `setInterval` 폴백을 제거했다. runtime contract에 고아 함수·sink·중복 경로 부재와 timer registry 사용을 이진 게이트로 추가했다.
+- R1 7곳 v53.8
+
 ## v53.7 (2026-07-17)
 - **P725 한국장 5페이지 → 기존 분석 페이지 통합 (사용자 지시)**: 사용 빈도가 낮고 용량·코드만 차지하던 KR 전용 5페이지를 정리 — ① kr-home·kr-supply **완전 삭제**(수급 데이터는 B1 블록으로 원래 자동수집 불가), ② kr-themes→themes, kr-macro→macro, kr-technical→technical에 **접힌 "한국 시장" 통합 섹션**(`kr-integrated-*` details, 기존 `aio-page-advanced-toggle` 패턴)으로 요소 id 보존 이관. DOM 약 950줄 순삭감(index.html 총 -846줄).
 - 라우팅: NAV_ROUTE 19→14, ROUTE_REGISTRY.REMOVED에 5라우트 등록+canonical 리다이렉트, `_hashAlias`로 구 해시(#kr-home 등)를 대상 페이지로 리다이렉트(실브라우저 확인). `expectedRoutePageCount` 22→17. getRouteIAAudit은 REMOVED를 "canonical 있음+DOM 없음"으로 검사하게 확장.

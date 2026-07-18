@@ -13717,18 +13717,14 @@ window.fetchKrDailyCandles = fetchKrDailyCandles;
 // v52.7 P605/R280: 이 선언이 index.html 인라인 스크립트의 동명 함수(VKOSPI 포함 6종 fetch)를
 // defer 로드 순서상 항상 덮어써 왔음 — VKOSPI 실시간 fetch가 영구 미실행이었던 근본원인.
 // fetchVkospiDynamic만 최소 복구(다른 5종은 정확성 미검증 상태로 범위 밖에 남김 — BUG-POSTMORTEM P605 참조).
-// v52.19 P605 후속: 나머지 5종을 개별 실엔드포인트 검증 — fetchKrTradingVolume/fetchKrShortSelling/
-// fetchKrBreadthData는 실제 KOSPI/KOSDAQ `basic` 응답에 파싱 대상 필드(accumulatedTradingValue/
-// advanceCount/shortSellingRatio 등) 자체가 없음을 실측 확인, fetchKrWeeklySupply는 호출 엔드포인트가
-// HTML 에러 페이지를 반환(소멸)함을 확인 — 4종은 index.html의 죽은 정의째로 삭제. fetchKrInvestorTop10만
-// 실엔드포인트(stock/{code}/trend) 응답 필드가 정확히 일치함을 확인해 여기 복구.
+// v53.9 P728: KR 전용 페이지 퇴역 후 개별 종목 투자자 TOP10 sink도 사라졌다.
+// 최대 24개 Naver 요청만 남은 fetchKrInvestorTop10은 공유 KR 로더에서 제거한다.
 async function fetchKrDynamicData() {
   const results = await Promise.allSettled([
     typeof fetchAllBokData === 'function' ? fetchAllBokData() : Promise.resolve(null),
     typeof fetchAllKosisData === 'function' ? fetchAllKosisData() : Promise.resolve(null),
     typeof fetchKrNaverQuotes === 'function' ? fetchKrNaverQuotes() : Promise.resolve(null),
-    typeof fetchVkospiDynamic === 'function' ? fetchVkospiDynamic() : Promise.resolve(null),
-    typeof fetchKrInvestorTop10 === 'function' ? fetchKrInvestorTop10() : Promise.resolve(null)
+    typeof fetchVkospiDynamic === 'function' ? fetchVkospiDynamic() : Promise.resolve(null)
   ]);
   return results;
 }
@@ -15241,7 +15237,8 @@ function applyLiveQuotes(quotes) {
         return;
       }
     }
-    const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo');
+    // v53.9 P728: 아래 canonical batch DOM pass가 lineage annotation을 소유한다.
+    const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo', { deferDomAnnotation: true });
     if (!accepted) return;
     if (q.symbol === '^VVIX' && window.DATA_SNAPSHOT) {
       window.DATA_SNAPSHOT.vvix = price;
@@ -15635,60 +15632,8 @@ function applyLiveQuotes(quotes) {
   const tsEl = document.getElementById('live-quote-ts');
   if (tsEl) tsEl.textContent = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
 
-  // ── Bulk update ALL data-live-price / data-live-chg elements ──
-  var _ld = window._liveData || {};
-  document.querySelectorAll('[data-live-price]').forEach(function(el) {
-    var sym = el.getAttribute('data-live-price');
-    var d = _ld[sym];
-    if (d && d.price != null && !isNaN(d.price)) {
-      var fmt = d.price >= 1000 ? d.price.toLocaleString(undefined, {maximumFractionDigits:0}) :
-                d.price >= 10 ? d.price.toFixed(2) : d.price.toFixed(4);
-      // v38.3: P24 일반 보호 — children 있는 복합 요소는 전용 업데이트에 위임
-      if (el.children.length > 0) {
-        var _pp = el.querySelector('.pill-price') || el.querySelector('.kr-etf-price');
-        if (_pp) _pp.textContent = fmt;
-      } else { el.textContent = fmt; }
-      var ds = (window._dataSource && window._dataSource[sym]) || d || {};
-      var contract = null;
-      try {
-        contract = ds.metric && ds.metric.contract ? ds.metric.contract :
-          (window.AIO_OPERATIONAL_DATA_CONTRACT ? window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric({ source: ds.source || d.source || 'unknown', ts: ds.ts || d.ts, policyKey: ds.policyKey || 'quote' }) : null);
-      } catch(_bulkContract) {}
-      el.setAttribute('data-source-kind', contract && contract.sourceKind ? contract.sourceKind : 'unknown');
-      el.setAttribute('data-operational-use', contract && contract.allowedUse ? 'decision' : 'reference-only');
-      el.setAttribute('data-source-label', ds.source || d.source || 'unknown');
-      if (ds.ts || d.ts) el.setAttribute('data-source-ts', String(ds.ts || d.ts));
-    }
-  });
-  document.querySelectorAll('[data-live-chg]').forEach(function(el) {
-    var sym = el.getAttribute('data-live-chg');
-    var d = _ld[sym];
-    if (d) {
-      var ds = (window._dataSource && window._dataSource[sym]) || d || {};
-      var contract = null;
-      try {
-        contract = ds.metric && ds.metric.contract ? ds.metric.contract :
-          (window.AIO_OPERATIONAL_DATA_CONTRACT ? window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric({ source: ds.source || d.source || 'unknown', ts: ds.ts || d.ts, policyKey: d.pct != null && !isNaN(d.pct) ? (ds.policyKey || 'quote') : 'quote_change_missing' }) : null);
-      } catch(_bulkChgContract) {}
-      if (d.pct != null && !isNaN(d.pct)) {
-        var pctStr = (d.pct >= 0 ? '+' : '') + d.pct.toFixed(2) + '%';
-        el.textContent = pctStr;
-        if (el.classList) {
-          el.classList.remove('pos', 'neg');
-          el.classList.add(d.pct >= 0 ? 'pos' : 'neg');
-        } else {
-          el.className = d.pct >= 0 ? 'pnl pos' : 'pnl neg';
-        }
-        el.setAttribute('data-source-kind', contract && contract.sourceKind ? contract.sourceKind : 'unknown');
-        el.setAttribute('data-operational-use', contract && contract.allowedUse ? 'decision' : 'reference-only');
-      } else {
-        el.setAttribute('data-source-kind', 'unavailable');
-        el.setAttribute('data-operational-use', 'reference-only');
-      }
-      el.setAttribute('data-source-label', ds.source || d.source || 'unknown');
-      if (ds.ts || d.ts) el.setAttribute('data-source-ts', String(ds.ts || d.ts));
-    }
-  });
+  // v53.9 P728: per-symbol 반영 뒤의 두 번째 전체 price/chg rewrite를 제거한다.
+  // data-live-field와 기존 sink 보정은 아래 canonical applyLiveDataToDom 1회가 담당한다.
   try {
     if (window.AIO && typeof window.AIO.applyLiveDataToDom === 'function') {
       window.AIO.applyLiveDataToDom({ reason: 'applyLiveQuotes', force: true });

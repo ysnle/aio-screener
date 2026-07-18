@@ -17853,7 +17853,8 @@ const PriceStore = {
   _sessionStart: Date.now(),
 
   /** 시세 데이터 저장 (검증 후) */
-  set(sym, price, pct, source) {
+  set(sym, price, pct, source, opts) {
+    opts = opts || {};
     // v46.4: symbol 유효성 검증
     if (!sym || typeof sym !== 'string' || sym.trim() === '') {
       this._reject(sym, price, source, 'invalid_symbol', '심볼 빈값/비문자열');
@@ -17893,7 +17894,7 @@ const PriceStore = {
     window._quoteTimestamps[sym] = ts;
     window._dataSource = window._dataSource || {};
     window._dataSource[sym] = { source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing, policyKey: 'quote', metric: metric };
-    if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
+    if (!opts.deferDomAnnotation && window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
       window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });
     }
     return true;
@@ -18091,14 +18092,21 @@ window.AIO = window.AIO || {};
 window.AIO.annotateLiveDataSinks = function(root, opts) {
   root = root || document;
   opts = opts || {};
-  var selector = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-kr],[data-snap],canvas,[data-threshold-key],[data-threshold-table],[data-runtime-state],[data-score-scale],[data-scenario-key],[data-cycle-phase]';
-  var target = opts.symbol || null;
+  var selector = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-live-kr],[data-snap],canvas,[data-threshold-key],[data-threshold-table],[data-runtime-state],[data-score-scale],[data-scenario-key],[data-cycle-phase]';
+  var target = opts.symbol ? String(opts.symbol).trim().toUpperCase() : null;
+  if (target) {
+    var escapedTarget = typeof CSS !== 'undefined' && CSS.escape
+      ? CSS.escape(target)
+      : target.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    selector = '[data-live-price="' + escapedTarget + '"],[data-live-chg="' + escapedTarget + '"],[data-live-pct="' + escapedTarget + '"],[data-live-field^="' + escapedTarget + ':"],[data-live-kr="' + escapedTarget + '"]';
+  }
   var touched = 0;
   function keyFor(el) {
     return el && (
       el.getAttribute('data-live-price') ||
       el.getAttribute('data-live-chg') ||
       el.getAttribute('data-live-pct') ||
+      String(el.getAttribute('data-live-field') || '').split(':')[0] ||
       el.getAttribute('data-live-kr') ||
       el.getAttribute('data-snap') ||
       el.getAttribute('data-threshold-key') ||
@@ -18183,8 +18191,8 @@ if (typeof document !== 'undefined') {
           records.forEach(function(record) {
             Array.prototype.slice.call(record.addedNodes || []).forEach(function(node) {
               if (hasNewSink || !node || node.nodeType !== 1) return;
-              if ((node.matches && node.matches('[data-live-price],[data-live-chg],[data-live-pct],[data-live-kr],[data-snap]')) ||
-                  (node.querySelector && node.querySelector('[data-live-price],[data-live-chg],[data-live-pct],[data-live-kr],[data-snap]'))) {
+              if ((node.matches && node.matches('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-live-kr],[data-snap]')) ||
+                  (node.querySelector && node.querySelector('[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-live-kr],[data-snap]'))) {
                 hasNewSink = true;
               }
             });
@@ -19822,7 +19830,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.7';
+const APP_VERSION = 'v53.10';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════

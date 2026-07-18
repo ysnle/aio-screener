@@ -1,30 +1,89 @@
-> **v53.7 (P725) 주의**: 한국장 5페이지(kr-home/kr-supply/kr-themes/kr-macro/kr-technical) DOM이 삭제·이관되어 index.html이 약 846줄 순감소했다. 아래 라인 범위는 v53.7 이전 기준 — KR 페이지 이후 구간은 어긋나 있으므로 실제 수정 전 grep으로 재확인할 것(±500줄 재스캔은 후속 세션 이관).
+> **v53.10 (P729) 현행**: v53.7 KR 5페이지 통합, v53.8~v53.9 성능 리팩터링, v53.10 ESM architecture slice 뒤 파일 크기·핵심 anchor를 재측정했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` 전면 구조 재측정)
-last_verified: 2026-07-16
+last_verified: 2026-07-18
 confidence: high
-target_version: v53.4
+target_version: v53.10
 target_file: index.html + js/*.js
-target_lines: index.html 29095 + js modules 64444
+target_lines: index.html 28375 + js modules 64207
 ---
 
-## Current machine-verified file-size table (v53.4, 2026-07-16)
+## Current machine-verified file-size table (v53.10, 2026-07-18)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 29,095 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,681 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 17,853 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-ui.js` | 4,681 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 6,079 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 8,836 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 28,375 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,569 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 17,798 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 4,585 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 6,084 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 8,857 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
 
 > The historical v52.66 table below is retained for audit context. Use this current
 > file-size table first, then confirm any detailed line anchor with `rg -n` before editing.
 
-# AIO v53.4 CODE-MAP
+# AIO v53.10 CODE-MAP
+
+## v53.8 authoritative rescan (2026-07-18)
+
+The tables in this subsection supersede older detailed line snapshots retained below for audit history.
+
+### Shell/script boundaries
+
+| Range | Content |
+|------:|---------|
+| 46~5261 | main CSS |
+| 5262~12128 | body shell + 17 route DOM (inline islands 5272~5304, 7071~7092, 8098~8104) |
+| 12129~12133 | Chart.js, DOMPurify, Lightweight Charts CDN |
+| 12134~12204 | CDN failure fallback |
+| 12211~12213 | `aio-core/data/ui` defer loaders (`?v=53.8`) |
+| 12216~14717 | inline runtime |
+| 14719 | `js/aio-chat.js?v=53.8` defer loader |
+| 14721~16345, 16347~20041, 20042~24269, 24312~24510 | inline runtime blocks |
+| 24521 | `js/aio-glossary.js?v=53.8` defer loader |
+| 24524~27574 | inline runtime/SW registration |
+| 27612~27643 | footer support CSS |
+| 27648~28366 | final inline runtime |
+
+### Active route DOM starts (17)
+
+| id | line |
+|----|-----:|
+| `page-home` | 5635 |
+| `page-signal` | 5890 |
+| `page-breadth` | 6609 |
+| `page-sentiment` | 6873 |
+| `page-briefing` | 7057 |
+| `page-technical` | 7371 |
+| `page-macro` | 8028 |
+| `page-fxbond` | 8785 |
+| `page-fundamental` | 9478 |
+| `page-themes` | 9810 |
+| `page-theme-detail` | 10155 |
+| `page-portfolio` | 10283 |
+| `page-ticker` | 10746 |
+| `page-market-news` | 11046 |
+| `page-options` | 11183 |
+| `page-screener` | 11221 |
+| `page-guide` | 11423 |
+
+### Current high-value runtime anchors
+
+| Symbol | Location |
+|--------|----------|
+| `updateFxBondPage` | `index.html:21312` |
+| `APP_VERSION` | `js/aio-core.js:19833` |
+| `AIO_MANUAL_REFERENCE` / `DATA_SNAPSHOT` | `js/aio-core.js:20784` / `20813` |
+| `applyDataSnapshot` | `js/aio-core.js:21329` |
+| `computeTradingScore` | `js/aio-core.js:21824` |
+| `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js:23547` |
+| `destroyPageCharts` / `showPage` | `js/aio-core.js:24983` / `25758` |
+| `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
+| `_aioApplyServerScreener` / `_aioComputeFactorRanks` | `js/aio-data.js:15837` / `15990` |
+| `initSentimentPage` / `initBreadthPage` | `js/aio-ui.js:217` / `475` |
+| `CHAT_CONTEXTS` / `chatSend` | `js/aio-chat.js:418` / `4282` |
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.
@@ -334,3 +393,4 @@ target_lines: index.html 29095 + js modules 64444
 - `.claude/commands`와 `.claude/hooks`는 **2026-05-18(커밋 09d2200) 이후로 GitHub-tracked** — 구버전 CODE-MAP의 "GitHub-tracked checkout에는 없다" 서술은 stale였음(정정 — `_context/CLAUDE.md` 2026-07-02 재작성판 참조).
 - 큰 구조 변경 뒤에는 이 파일의 line 번호를 반드시 재스캔한다. **다음 재스캔 트리거**: index.html 또는 js 모듈 어느 한 파일이라도 ±500줄 변경 시, 또는 3개월 경과 시(자동 staleness 방지).
 - **2026-07-06 targeted correction (P626, `_context/FABLE-ARCH-DIAGNOSIS-2026-07-06.md` Phase 0-4)**: 이 파일 자체가 v51.90 스캔 기준으로 "미해결"이라 적어둔 진단 C1(RSI)이 실제로는 v51.91에 이미 해소됐음을 실측 확인(§3 표 2곳 + §5 구조적 이슈 목록 정정) — 진단 문서의 "미해결" 표기는 스캔 시점 스냅샷이며, 해소 커밋이 그 표기를 갱신하지 않으면 이렇게 낡는다는 실사례. **주의**: 이번 정정은 C1/C3 문구 3곳 + `fetchKrDynamicData`/orphan 5함수 삭제(index.html -296줄, §2/§3의 관련 line 번호는 미재확인) 타깃 수정만이며, 전체 재스캔이 아니다. 헤더의 `target_version: v51.90`은 실제 v52.19 대비 29버전 stale — ±500줄 트리거는 이번 삭제(-296줄) 단독으론 미충족하나 다음 대규모 변경 전 전체 재스캔 권장.
+> **v53.8 (P727) 재스캔 완료**: v53.7의 KR 5페이지 통합과 v53.8의 fxbond 고아 렌더 경로 제거를 반영해 파일 크기, script/style 경계, 17-route DOM 시작점, 핵심 runtime anchor를 다시 측정했다. 세부 함수 line은 편집 전 `rg -n`으로 최종 확인한다.

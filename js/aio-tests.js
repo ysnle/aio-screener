@@ -1749,19 +1749,19 @@
       !gex && !!document.getElementById('page-options'),
       gex ? 'use=' + gex.getAttribute('data-operational-use') : 'gex-removed');
 
-    _assert('T383_kr_supply_fallback_and_runtime_audit',
-      typeof _renderKrWeeklySupplyFallback === 'function' && window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit === 'function',
-      'weeklyFallback=' + typeof _renderKrWeeklySupplyFallback);
+    _assert('T383_kr_supply_evidence_runtime_audit',
+      window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit === 'function' && 'evidenceAvailable' in window.AIO.getKrSupplyRuntimeAudit(),
+      'audit=' + (window.AIO && typeof window.AIO.getKrSupplyRuntimeAudit));
 
     var fetchProxySrc383 = (typeof fetchViaProxy === 'function') ? fetchViaProxy.toString() : '';
     _assert('T862 proxy_json_html_block_detection_v5228',
       typeof _aioProxyUrlExpectsJson === 'function' && typeof _aioProxyResponseLooksHtml === 'function' && /_aioValidateProxyResponse/.test(fetchProxySrc383) && /aioProxyBlockedHtml/.test(fetchProxySrc383),
       'fetchViaProxy=' + !!fetchProxySrc383);
 
-    var invFbSrc383 = (typeof _renderInvestorFallback === 'function') ? _renderInvestorFallback.toString() : '';
-    _assert('T863 kr_supply_failure_state_clears_waiting_v5228',
-      typeof _showKrSupplyFailureState === 'function' && /수신 대기/.test(invFbSrc383) && /kr-investor-top10-date/.test(_showKrSupplyFailureState.toString()),
-      'failureState=' + typeof _showKrSupplyFailureState);
+    var krDynamicSrc383 = (typeof fetchKrDynamicData === 'function') ? fetchKrDynamicData.toString() : '';
+    _assert('T863_kr_retired_investor_fanout_not_scheduled',
+      typeof _showKrSupplyFailureState === 'function' && /_krCurrentSupplyEvidence\s*=\s*null/.test(_showKrSupplyFailureState.toString()) && !/fetchKrInvestorTop10/.test(krDynamicSrc383),
+      'dynamic=' + krDynamicSrc383.slice(0, 180));
 
     var ops = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
     _assert('T384_autoops_contract_and_kr_runtime_axes',

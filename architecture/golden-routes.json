@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "source": "_context/ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md",
+  "routes": [
+    "home",
+    "signal",
+    "breadth",
+    "sentiment",
+    "briefing",
+    "technical",
+    "macro",
+    "fxbond",
+    "themes",
+    "theme-detail",
+    "ticker",
+    "fundamental",
+    "options",
+    "portfolio",
+    "market-news",
+    "screener",
+    "guide"
+  ],
+  "firstVerticalSlice": "sentiment",
+  "requiredLifecycle": ["mount", "dispose"],
+  "requiredEvidenceFields": [
+    "evidenceId",
+    "metric",
+    "value",
+    "unit",
+    "sourceKind",
+    "observedAt",
+    "fetchedAt",
+    "status",
+    "allowedUse"
+  ]
+}

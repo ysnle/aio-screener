@@ -3,8 +3,8 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
 version: v4.1
-checklist_version: v53.7
-latest_P_covered: P726
+checklist_version: v53.10
+latest_P_covered: P730
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---
@@ -45,9 +45,12 @@ ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
 | 포트폴리오 Vault E2E | `node scripts/ci-portfolio-vault-e2e.mjs` | PFE2-01~08 PASS |
 | 접근성 매트릭스 | `node scripts/ci-accessibility-matrix-check.mjs` | 17 routes pass · consoleErrors 0 |
 
-### 최근 실측 기준선 (2026-07-18, v53.7, P726 HYG/null-guard 수정 후 재측정)
+### 최근 실측 기준선 (2026-07-18, v53.9, P729 ESM architecture slice + P728 2차 성능·품질 리팩터링 후 재측정)
 
-정적 15종 전부 PASS(단 lineage WARN 1 = SEC 커버리지 91/655) · 헤드리스 1101/1101 · boot route 586ms · critical10 10/10 · a11y 17/17 · viewport 68/68 overflow 0px · vault E2E PASS. 로컬 Playwright(uncommitted 워킹트리, 외부망 차단)로 fxbond/home 페이지 HY OAS 렌더링 결측·정상 양쪽 상태 직접 확인(console/page error 0, net::ERR_FAILED는 의도적 차단).
+정적 15종 전부 PASS(data-lineage WARN 1: SEC 93/655=14.2%) · 헤드리스 1101/1101 · boot FCP 1556ms/route 1162ms/max long task 611ms · critical10 10/10(consoleErrors 0) · a11y 17/17(consoleErrors 0) · FULL_INIT viewport 68/68(4개 viewport shard, overflow 0px, tinyText 0, jsErrors 0) · vault E2E 8/8 PASS. 부팅 수치는 단일 로컬 실행의 변동값이므로 P728의 인과 성능 향상 근거로 사용하지 않는다. 로컬 Chromium은 외부망 차단 상태로 실행했으며 live Pages/Worker/provider 응답은 이 기준선에 포함하지 않는다.
+
+추가 AR gate: `ci-architecture-contract-check.mjs` PASS(17 routes, legacy coupling baseline no increase) · `ci-architecture-browser-check.mjs` PASS(ESM boot, blocked sentiment, document-targeted pageShown, sentiment→home→sentiment dispose/mount, unexpected browser errors 0).
+Standalone worker security gate also exits deterministically after PASS (`ci-worker-anthropic-check.mjs`, exit code 0).
 
 ---
 
@@ -56,7 +59,9 @@ ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
 - [x] **HYG 달러 가격 임계 신용 판정** — 2026-07-18 P726에서 5개 표면 전부 FRED HY OAS(`window._hySpreadBp`)로 일원화 완료(`_tempLive`/`updateRiskMonitor`/`generateFxBondCommentary`/`_aioRenderCarryUnwindRisk`/AI 채팅 fxbond 컨텍스트). Playwright 실측(missing+populated 양쪽 상태)으로 검증. **부수 발견(미해결)**: `generateFxBondCommentary()`의 대상 DOM(`#bond-dc-credit` 등 `bond-dc-*`/`fx-dc-*` 9개 id)이 v52.71 컴프 리디자인 이후 HTML에서 전부 제거된 고아 코드 — 로직은 고쳤지만 현재 화면에 렌더되지 않음(R341 대상, 아래 신규 항목 참조).
 - [x] **`Number.isFinite(Number(...))` null→0 통과 가능성** — 2026-07-18 P726에서 18곳 전수 개별 판정, 14곳 실버그로 확인·수정(가장 심각: `calcKrHealthScore`가 자신의 R340 준수 주석과 모순, `updateWSAnalysis`가 결측 시 가짜 Stage 4 발화, 2s10s 브릿지가 10Y값을 스프레드로 오기록). 4곳은 이미 안전(`valid()` 헬퍼, T683/T241/T187)해 미수정.
 - [x] **R309 양쪽-빈 삼항 잔재** — js/aio-data.js:3503 FRED YoY "+" 부호 복원. T765 하드코딩 기대값도 함께 수정(자기 자신이 버그를 정답으로 단언하던 사례).
-- [ ] **신규: `updateFxDynamicComments()`/`generateFxBondCommentary()` 고아 코드 (2026-07-18 발견)** — fxbond 페이지의 구 "FX/Bond Dynamic Commentary" 위젯(DXY/KRW/JPY/CNY/커브/10Y/크레딧/투자시사점 8개 텍스트 블록)이 v52.71 아이보리 컴프 리디자인 때 대상 HTML이 `cam-*`/`carry-*` 구조로 전량 대체되며 매 페이지 진입·라이브 갱신마다 두 함수가 계속 실행되지만 전부 조용히 no-op. R341 원칙(퇴역 UI는 JS 수직 경로까지 완전 제거)에 따라 두 함수·호출부·주석을 삭제하거나, 컴프에 아직 없는 정보(FX 코멘터리·투자 시사점)라면 `cam-*` 구조에 재통합할지 결정 필요 — 별도 세션 스코프.
+- [x] **`updateFxDynamicComments()`/`generateFxBondCommentary()` 고아 코드** — 2026-07-18 P727에서 구 함수·sink·호출·wrapper를 제거했다. 현재 DOM에 남은 `fxbond-risk-pill`/`yc-inversion-badge`/Cross-Asset Matrix는 `updateFxBondPage()` 단일 경로에 통합했고 runtime contract가 회귀를 차단한다. pageShown당 무효 DOM 조회 24회, quote 갱신당 16회 제거.
+- [x] **quote batch 전역 DOM 중복·퇴역 KR investor fanout** — 2026-07-18 P728에서 종목별 전역 lineage scan을 batch 마지막 1회로 defer하고, 전체 price/chg 중복 rewrite를 제거했다. 단건 갱신은 symbol-target annotation을 사용한다. 삭제된 KR 투자자 TOP10 표용 최대 24개 요청은 공유 로더에서 제거했고, runtime audit은 canonical 수급 evidence를 검사한다.
+- [x] **AR-01~06 ESM compatibility observer** — 2026-07-18 P729에서 typed store/evidence/freshness/domain/AI policy/lifecycle router와 sentiment 첫 vertical slice를 연결했다. `document` target의 문자열 `aio:pageShown` payload를 실제 Chromium에서 검증하고 route 왕복 dispose/mount를 blocking gate로 고정했다. 전체 legacy cutover는 AR-09 잔여로 `MIGRATION_IN_PROGRESS`를 유지한다.
 - [ ] SEC fundamentals 누적 커버리지 80% 도달(현재 91/655=13.9%)과 screener universe 갱신 — 외부 Actions 실행/시간 필요 (P708/P710 계열).
 - [ ] AI 채팅 라이브 실문답 재검증 (P629/P645) — Worker 서버키 또는 개인키 필요. "분산 설계 안내문"의 억제 개수가 0이 아닌 실값 표시 확인.
 - [ ] GitHub Pages/Worker 라이브 AI 응답·실제 모델 출력 품질·live provider 데이터 권리/legal 승인·multi-user 검증 — WP-AI 시리즈(P690~P701) 공통 미검증 잔여.

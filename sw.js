@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v53.7';
-const SW_BUILD = '2026-07-17T19:28:00+09:00';
+const SW_VERSION = 'v53.10';
+const SW_BUILD = '2026-07-18T22:11:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -22,6 +22,28 @@ const SHELL_ASSETS = [
   './js/aio-ui.js',
   './js/aio-chat.js',
   './js/aio-glossary.js',
+  './src/app/bootstrap.js',
+  './src/app/lifecycle.js',
+  './src/app/router.js',
+  './src/app/routes.js',
+  './src/ai/context-builder.js',
+  './src/ai/policy.js',
+  './src/data/contracts/evidence.js',
+  './src/data/contracts/market-snapshot.js',
+  './src/data/contracts/revision.js',
+  './src/data/evidence-store.js',
+  './src/data/quality/freshness.js',
+  './src/data/quality/lineage.js',
+  './src/domain/sentiment/metrics.js',
+  './src/legacy/compatibility-facade.js',
+  './src/platform/clock.js',
+  './src/platform/http.js',
+  './src/platform/sanitizer.js',
+  './src/platform/storage.js',
+  './src/platform/telemetry.js',
+  './src/state/store.js',
+  './src/ui/pages/legacy-observer.js',
+  './src/ui/pages/sentiment.js',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
   'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js',
   'https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js'
