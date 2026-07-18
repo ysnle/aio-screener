@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-17T19:37:54.227Z",
+ "generatedAt": "2026-07-18T03:39:56.822Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 92,
+ "stored": 93,
  "attempted": 24,
  "updated": 1,
  "failures": [
@@ -105,7 +105,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 563,
+ "nextRefreshCandidates": 562,
  "data": {
   "A": {
    "symbol": "A",
@@ -2912,6 +2912,34 @@
    "revGrowth": 14.1,
    "margin": 20.9,
    "roe": 20.3
+  },
+  "CDW": {
+   "symbol": "CDW",
+   "cik": "0001402057",
+   "entityName": "CDW CORP",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-20",
+   "fetchedAt": "2026-07-18T03:39:56.673Z",
+   "form": "10-K",
+   "accession": "0001402057-26-000011",
+   "revenue": 22424100000,
+   "netIncome": 1066600000,
+   "equity": 2606100000,
+   "sharesOutstanding": 128993588,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 6.8,
+   "margin": 4.8,
+   "roe": 40.9
   }
  }
 }
