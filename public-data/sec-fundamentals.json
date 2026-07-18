@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-18T08:14:31.177Z",
+ "generatedAt": "2026-07-18T13:55:09.933Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 94,
+ "stored": 95,
  "attempted": 24,
  "updated": 1,
  "failures": [
@@ -105,7 +105,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 561,
+ "nextRefreshCandidates": 560,
  "data": {
   "A": {
    "symbol": "A",
@@ -2968,6 +2968,34 @@
    "revGrowth": -7.1,
    "margin": -12.2,
    "roe": -26.1
+  },
+  "CEG": {
+   "symbol": "CEG",
+   "cik": "0001868275",
+   "entityName": "CONSTELLATION ENERGY CORPORATION",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-24",
+   "fetchedAt": "2026-07-18T13:55:09.783Z",
+   "form": "10-K",
+   "accession": "0001868275-26-000032",
+   "revenue": 22663000000,
+   "netIncome": 2319000000,
+   "equity": 14853000000,
+   "sharesOutstanding": 361990335,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 19.5,
+   "margin": 10.2,
+   "roe": 15.6
   }
  }
 }
