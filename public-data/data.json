@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-18T11:18:22.846Z",
+  "generatedAt": "2026-07-18T12:38:58.225Z",
   "source": "github-actions",
   "symbolsOk": 77,
   "symbolsFail": 0,
@@ -23,7 +23,7 @@
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-18T11:18:20.414Z",
+  "blsAttemptedAt": "2026-07-18T12:38:55.799Z",
   "blsLastSuccessfulAt": "2026-07-18T01:06:21.087Z",
   "newsOk": true,
   "newsCount": 40,
@@ -35,10 +35,10 @@
   "newsNextRefresh": "2026-07-18T23:00:00.000Z",
   "serverNewsScored": true,
   "newsScoreMin": 36,
-  "newsScoreMax": 63,
+  "newsScoreMax": 64,
   "putCallOk": true,
   "putCallAsOf": "2026-07-17",
-  "elapsedMs": 2509,
+  "elapsedMs": 2505,
   "schema": 1,
   "marketAnalysisOk": true,
   "fmpHasKey": false,
@@ -94,7 +94,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-18T01:06:21.087Z",
    "lastSuccessfulAt": "2026-07-18T01:06:21.087Z",
-   "attemptedAt": "2026-07-18T11:18:20.414Z",
+   "attemptedAt": "2026-07-18T12:38:55.799Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -292,13 +292,29 @@
   "indexPutCall": 0.98,
   "equityPutCall": 0.73,
   "asOf": "2026-07-17",
-  "fetchedAt": "2026-07-18T11:18:21.046Z",
+  "fetchedAt": "2026-07-18T12:38:56.372Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
   "allowedUse": "decision-with-daily-delay"
  },
  "news": [
+  {
+   "title": "Gold Falls 3.4% This Week as U.S.-Iran Conflict Revives Inflation Concerns - Investors King",
+   "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQekxNMVduYll2Um1SYm1WMnFNTUpCWU5DWGhYcVJucUF0U2J1VEd6N21HNzItcVZxemtESmVuS0RhdDNiUXh5N0hIQndwZFpzVGM5ZFRmUWpPM0FudHFvMXZ6RmxQWkpKVzhsX2Y2b2dQaWNBYUF2S2NwbENEN09CTVJoY1h2QTFqTGh4NzZ5NF93cmkyODEwdUU0QXp1TF80WThXcGdtQTRZX0Nhc1hn0gG0AUFVX3lxTE40WDUwX1VZbWtvUk4zNEdXYi1WOERuYmZWTVEzNnVTVkhLQVpKc0hoQWpuRjl4UkkzWUJLbmVtMTZER0cwdnNYMDlKRGFSeVRQUFRkREpGak5heW9hSXRlZEJ6dW91dmlSRDBwTmNrZUt3cDJpVVBMWTVlQ1pUTk9ZRTNCSHpndG05eE5LT0hBdnBUYnYtMFpNU1R6NTZqMkNKZ1ZiNUdyanFWc2Z1RE1LNEdkTA?oc=5",
+   "source": "Investors King",
+   "pubDate": "Fri, 17 Jul 2026 06:43:19 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 64,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | geopolitics-energy+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-16T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-17T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
+  },
   {
    "title": "Nasdaq, S&P 500 Futures Slide As Chip Stocks Tumble, Iran Tensions Fuel Risk-Off Mood: Why NFLX, NBIS, SPCX, TSLA, DJT, SLS Are In Focus - TradingView",
    "link": "https://news.google.com/rss/articles/CBMilwJBVV95cUxNbUFZdm92aHJ0Nmp1ZEVfem9EQXNuSUFOYnA3Y0xYcmtHdEtDR19tQnQyZjY4M254NHlwNjF3c3ZiT2NxNFFETVJFYUFUamlPM3FKaGFlc2xjN1hweDNfTkcxdWVfcXZuYmZGR09QQm4ybkxLendJRjJXZmtBTk4tb0hlc3U4dUtaaC03dlFZV1BsT3FRbl9md1VfYkJ6M1ctQkNQY09xZkszS0RfMGdrOU5SNmFKZ1M2d1hKdmFENmlYLVpOdV9fdXdVa0h3UkFNWnZVN1R2cjgtUC1MenBEUDUxOUpDQVRKVFRrS3VKNGtMdUhLOGYzWmlHa0U2YXRndktxMXBRcGpGczRZUnpuQXVCQWprZnc?oc=5",
@@ -636,6 +652,22 @@
    "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
   },
   {
+   "title": "Markets will find out next week how firm $4,000 is as a floor for gold - KITCO",
+   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPZUFCck41MWM4QkJwOFdoUHFPeFNRUUUtcUVhb0l5M3ZCSloyalBVWFlLMVNvQ09VdWRtMGFYdXRFNF9fb3ZWai1waEJKZk5hTTdhWVJTYWM3V0ZXemRjNjhfeE5Hc0h3cmR0SXJuU2h3YlFZbGczbG11YWlGUmVwdERwZFd1TjhBQTRHa0NZTzY0NlkyZEc1NXRxbUYxN0hwODF2UA?oc=5",
+   "source": "KITCO",
+   "pubDate": "Fri, 17 Jul 2026 21:15:54 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-16T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-17T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
+  },
+  {
    "title": "Oil prices heading for weekly surge as U.S., Iran exchange strikes - Oil & Gas 360",
    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOUU5NNDEya3pCTS1Ob2IxdDB1bnNDNGhqOXJRN256UkpjamRwOWZaWVAzdThsZGdod0E5UUFWNVRneEc0cmlJX2VvWUg5LVhqY3VMbDhpcnN4ZzlhMnlORWNlZi1SYXN1LW8yUXdqeU54YjZQQVpTWi1XQ3pNeU10TU9DMlpLLXg4SXFyakt5c24wNE45MV9na2t3?oc=5",
    "source": "Oil & Gas 360",
@@ -656,22 +688,6 @@
    "link": "https://news.google.com/rss/articles/CBMingJBVV95cUxNWERKdzM4UURvejlVMmluNHVDX0ZNT1ZRTmxlVjJ6NnRuRmU1RFBhNmphUm9IVHhNZ2sydmJJdHZiVGdTajZtaG9MVF94RFA0eVNVVGp1N1oxM01VdFZWYnJCUE4yNUxFcTVWcWp2VjlDYXhhRlI5dWE4TmU0VEFjRlhCUjAwUGpOQ1VqM0pPZTdBTkIwYy1PaFlySmxNbjdwUXR1QTh6a1JqZjIzeDdLcHJocV9fUWg2SjVkcUNkNnBndTdUVmI4UE44Y3I1WnFMYVA3YVQ0bWNwZ0Z3RFU2MTlNRnF4T3VHdHpRNHFMVnVBc3daSXhnV01oSWhZODgwNlNoUHZzeldReDV2VFZwRVhRNEoxa1FHNXJSZGtn?oc=5",
    "source": "The Times of India",
    "pubDate": "Fri, 17 Jul 2026 12:29:00 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-16T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-17T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
-  },
-  {
-   "title": "Oil prices surge 12% on Iran Kuwait attack and Red Sea threat - qz.com",
-   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE1wLTZaa3JPbDI2SlhSNFgzSy03X3R3Q3hPTy0xUE5ndkdJcHV3cWVPNGwxNGFZbTdINFB1Z3FxSm9IajR5cFJKMWJvbl84aTBsTnM3S0swaFM1dGExX1ZWdUI4ZG9hNC1XM05TNlVtQmFLSTJKYWl1T29jSmVabEk?oc=5",
-   "source": "qz.com",
-   "pubDate": "Fri, 17 Jul 2026 12:25:52 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 3,
@@ -922,28 +938,12 @@
    "newsCycleStart": "2026-07-16T23:00:00.000Z",
    "newsCycleEnd": "2026-07-17T23:00:00.000Z",
    "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
-  },
-  {
-   "title": "Gold Falls Below $4,000! Bank of America Urges 'Buy the Dip' but Warns 'Pullback May Not Have Bottomed Yet' - Moomoo",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPRlJpaFY1aU5oZUkwdUl2eFYyQUZVa0JibjhLZUdRTy1NalZFczc1YWpYLXkybmVwZGhwZ2szZVNaRTRUOUszX2c1M0ZsT1ZSbGZ0YkJpOGdJS3hJTkl5MG1VSk1aVFVxcjBjYVFPakp2WFpVTmhSS1ZKNnRUY2E1UUtGMmZYRVB4M0xnY2RjQ3ZOdDd4OFl1dQ?oc=5",
-   "source": "Moomoo",
-   "pubDate": "Fri, 17 Jul 2026 02:49:02 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 36,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-16T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-17T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-17 08:00 KST ~ 2026-07-18 08:00 KST"
   }
  ],
  "marketAnalysis": {
-  "full": "## 현재 시장 분석\n\n**글로벌 위험회피 심리가 확산되며 증시 선물 하락과 유가 급등이 동시에 나타나는 복합 리스크 장세가 전개되고 있다.**\n\n① **변동성/심리** — Fear & Greed Index가 37로 '공포' 구간에 위치하며, AI·반도체 대형주 중심의 매도세가 나스닥 및 S&P 500 선물 하락을 주도하고 있어 투자 심리가 위축된 상태다.\n\n② **거시/금리** — CPI 3.5%로 인플레이션이 여전히 목표치를 상회하는 가운데, 연준 기준금리는 3.63%를 유지 중이며 Fed 의장 워시(Warsh)가 금리 경로를 명확히 제시하지 않아 정책 불확실성이 지속되고 있다. NFP 57(만 명)은 고용 둔화 신호로 해석될 수 있어 거시 경제 방향성 논쟁이 이어지고 있다.\n\n③ **주도 뉴스/리스크** — 미국·이란 간 군사적 긴장 고조로 이란의 쿠웨이트 인프라 공격 및 홍해 봉쇄 위협이 부각되며 유가가 급등세를 보이고 있으며, 에너지 가격 상승이 인플레이션 재점화 우려와 맞물려 시장의 핵심 리스크 요인으로 작용하고 있다.",
+  "full": "## 현재 시장 분석\n\n**미·이란 갈등 재점화로 위험자산 회피 심리가 강화되며 글로벌 시장이 전반적인 하방 압력에 직면해 있다.**\n\n① **변동성/심리** — Fear & Greed 지수가 37(공포 구간)을 기록하며 투자 심리가 위축된 상태로, 나스닥·S&P500 선물이 동반 하락하고 반도체·AI 관련주 중심의 매도세가 심화되고 있다.\n\n② **거시/금리** — CPI 3.5%로 인플레이션이 여전히 목표치를 상회하는 가운데, 연준 기준금리 3.63% 수준에서 Warsh 의장이 금리 경로를 불명확하게 유지하며 정책 불확실성이 지속되고 있으며, NFP 57(단위 확인 필요) 수준의 고용 지표와 관세 불안도 시장에 추가 부담으로 작용하고 있다.\n\n③ **주도 뉴스/리스크** — 이란의 쿠웨이트 수자원·전력 시설 공격 및 홍해 봉쇄 위협으로 유가가 상승 압력을 받는 반면, 금은 주간 기준 3.4% 하락하는 복합적 흐름이 나타나고 있으며, 지정학적 리스크가 인플레이션 재점화 우려와 맞물려 시장의 핵심 변수로 부상하고 있다.",
   "oneLine": "## 현재 시장 분석",
-  "generatedAt": "2026-07-18T11:18:33.202Z",
+  "generatedAt": "2026-07-18T12:39:09.210Z",
   "model": "claude-sonnet-4-6"
  }
 }
