@@ -14,8 +14,8 @@
 | CLAUDE.md | 이 파일: 구조, hooks, skills, 복리 루프 | 구조 또는 워크플로 변경 시 |
 | WORKFLOW-GOVERNANCE.md | Agent preflight, postmortem-to-gate, skill/self-operation closure contract | Workflow/skill/CI 게이트 변경 시 |
 | RULES.md | 마스터 룰 R1~R268 | 새 규칙/패턴 발견 시 |
-| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P581 (R25 재발 추적) | 버그 수정 시 |
-| QA-CHECKLIST.md | QA 14단계 체크리스트 | /qa 발견 시 |
+| BUG-POSTMORTEM.md | 버그 사후 분석 P1~P724 — 상세 19건(P704+) + 압축 원장·반복 클래스 표 (R25 재발 추적, 2026-07-18 통합) | 버그 수정 시 |
+| QA-CHECKLIST.md | QA 체크리스트 v4.0 — 게이트 실행 절차·QC1~10·열린 백로그·버전 원장 압축 (2026-07-18 통합) | /qa 발견 시 |
 | KNOWLEDGE-BASE.md | 기술 인사이트 축적 (R26) | 인사이트 발견 시 |
 | CODE-MAP.md | index.html + js 모듈 line 범위 맵 | 리팩토링 ±500줄 |
 | INDEX.md | 지식 베이스 인덱스 + 배포 baseline (R24) | /knowledge-lint L6, _context 문서 추가/제거 시 |

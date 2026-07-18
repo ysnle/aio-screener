@@ -1,8 +1,7 @@
 {
   "note": "WO-0/P659: control character (mojibake) baseline. 새 파일에 제어문자가 생기거나 기존 건수가 늘면 ci-control-char-check.mjs가 실패한다. 이 파일에 없는 잔여분은 git 히스토리에 깨끗한 선행 버전이 없어 (애초에 손상된 채로 커밋됨) 문자 단위 재구성이 불가능하다고 판단한 항목이다.",
-  "updated": "2026-07-10",
+  "updated": "2026-07-18",
   "counts": {
-    "CHANGELOG.md": 1039,
-    "_context/BUG-POSTMORTEM.md": 1114
+    "CHANGELOG.md": 1039
   }
 }
