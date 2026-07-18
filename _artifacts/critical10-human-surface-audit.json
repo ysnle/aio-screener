@@ -1,5 +1,5 @@
 {
-  "version": "v53.10",
+  "version": "v53.11",
   "viewport": {
     "width": 1024,
     "height": 768
@@ -9,7 +9,7 @@
       "routeId": "home",
       "status": "warn",
       "focusableCount": 14,
-      "pageTitle": "시장 현황 v53.10",
+      "pageTitle": "시장 현황 v53.11",
       "audit": {
         "status": "warn",
         "hierarchy": {
@@ -36,10 +36,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:06.686Z"
+          "generatedAt": "2026-07-18T14:08:37.775Z"
         },
         "accessibility": {
           "status": "warn",
@@ -109,9 +109,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:06.688Z"
+          "generatedAt": "2026-07-18T14:08:37.777Z"
         },
-        "generatedAt": "2026-07-18T13:18:06.688Z"
+        "generatedAt": "2026-07-18T14:08:37.777Z"
       },
       "tabSequence": [
         {
@@ -291,10 +291,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:07.274Z"
+          "generatedAt": "2026-07-18T14:08:38.829Z"
         },
         "accessibility": {
           "status": "ok",
@@ -317,9 +317,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:07.276Z"
+          "generatedAt": "2026-07-18T14:08:38.830Z"
         },
-        "generatedAt": "2026-07-18T13:18:07.276Z"
+        "generatedAt": "2026-07-18T14:08:38.830Z"
       },
       "tabSequence": [
         {
@@ -356,12 +356,6 @@
           "tag": "BUTTON",
           "id": "",
           "name": "투자 심리 → F&G · VIX · AAII",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "scroll-top-btn",
-          "name": "맨 위로 스크롤",
           "tabindex": ""
         },
         {
@@ -465,6 +459,12 @@
           "id": "",
           "name": "사용 설명서",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
         }
       ]
     },
@@ -499,10 +499,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:08.107Z"
+          "generatedAt": "2026-07-18T14:08:41.374Z"
         },
         "accessibility": {
           "status": "ok",
@@ -525,9 +525,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:08.108Z"
+          "generatedAt": "2026-07-18T14:08:41.374Z"
         },
-        "generatedAt": "2026-07-18T13:18:08.108Z"
+        "generatedAt": "2026-07-18T14:08:41.374Z"
       },
       "tabSequence": [
         {
@@ -707,10 +707,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:11.733Z"
+          "generatedAt": "2026-07-18T14:08:41.857Z"
         },
         "accessibility": {
           "status": "ok",
@@ -733,9 +733,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:11.734Z"
+          "generatedAt": "2026-07-18T14:08:41.858Z"
         },
-        "generatedAt": "2026-07-18T13:18:11.734Z"
+        "generatedAt": "2026-07-18T14:08:41.858Z"
       },
       "tabSequence": [
         {
@@ -887,7 +887,7 @@
     {
       "routeId": "briefing",
       "status": "ok",
-      "focusableCount": 3,
+      "focusableCount": 5,
       "pageTitle": "오늘의 브리핑",
       "audit": {
         "status": "ok",
@@ -915,10 +915,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:12.866Z"
+          "generatedAt": "2026-07-18T14:08:42.451Z"
         },
         "accessibility": {
           "status": "ok",
@@ -941,15 +941,15 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:12.869Z"
+          "generatedAt": "2026-07-18T14:08:42.452Z"
         },
-        "generatedAt": "2026-07-18T13:18:12.869Z"
+        "generatedAt": "2026-07-18T14:08:42.452Z"
       },
       "tabSequence": [
         {
           "tag": "SPAN",
           "id": "",
-          "name": "$MSFT",
+          "name": "$INTC",
           "tabindex": "0"
         },
         {
@@ -965,10 +965,10 @@
           "tabindex": "0"
         },
         {
-          "tag": "BUTTON",
-          "id": "briefing-news-more",
-          "name": "전체 뉴스 보기 ▼",
-          "tabindex": ""
+          "tag": "SPAN",
+          "id": "",
+          "name": "$INTC",
+          "tabindex": "0"
         },
         {
           "tag": "BUTTON",
@@ -1095,7 +1095,7 @@
     {
       "routeId": "technical",
       "status": "ok",
-      "focusableCount": 5,
+      "focusableCount": 4,
       "pageTitle": "차트 · 기술 분석",
       "audit": {
         "status": "ok",
@@ -1123,10 +1123,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:15.578Z"
+          "generatedAt": "2026-07-18T14:08:43.046Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1149,9 +1149,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:15.597Z"
+          "generatedAt": "2026-07-18T14:08:43.048Z"
         },
-        "generatedAt": "2026-07-18T13:18:15.597Z"
+        "generatedAt": "2026-07-18T14:08:43.048Z"
       },
       "tabSequence": [
         {
@@ -1331,10 +1331,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:18.161Z"
+          "generatedAt": "2026-07-18T14:08:44.014Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1357,9 +1357,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:18.163Z"
+          "generatedAt": "2026-07-18T14:08:44.014Z"
         },
-        "generatedAt": "2026-07-18T13:18:18.163Z"
+        "generatedAt": "2026-07-18T14:08:44.014Z"
       },
       "tabSequence": [
         {
@@ -1539,10 +1539,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:18.960Z"
+          "generatedAt": "2026-07-18T14:08:44.372Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1565,9 +1565,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:18.960Z"
+          "generatedAt": "2026-07-18T14:08:44.372Z"
         },
-        "generatedAt": "2026-07-18T13:18:18.960Z"
+        "generatedAt": "2026-07-18T14:08:44.372Z"
       },
       "tabSequence": [
         {
@@ -1719,7 +1719,7 @@
     {
       "routeId": "fundamental",
       "status": "warn",
-      "focusableCount": 6,
+      "focusableCount": 2,
       "pageTitle": "기업 분석",
       "audit": {
         "status": "warn",
@@ -1747,10 +1747,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:19.544Z"
+          "generatedAt": "2026-07-18T14:08:44.891Z"
         },
         "accessibility": {
           "status": "warn",
@@ -1784,9 +1784,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:19.546Z"
+          "generatedAt": "2026-07-18T14:08:44.893Z"
         },
-        "generatedAt": "2026-07-18T13:18:19.546Z"
+        "generatedAt": "2026-07-18T14:08:44.893Z"
       },
       "tabSequence": [
         {
@@ -1806,18 +1806,6 @@
           "id": "",
           "name": "NVDA",
           "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "포트폴리오에 추가",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "차트 분석",
-          "tabindex": ""
         },
         {
           "tag": "BUTTON",
@@ -1932,6 +1920,18 @@
           "id": "",
           "name": "기업 분석",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "퀀트 스크리너",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
         }
       ]
     },
@@ -1966,10 +1966,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신신뢰도 35% 낮음 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(11/13): S&P 500 price, SPY price/benchmark, VIX risk state, credit proxy 외 7개현재 결과로 AI 분석"
+              "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-18T13:18:21.061Z"
+          "generatedAt": "2026-07-18T14:08:45.600Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1992,9 +1992,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-18T13:18:21.072Z"
+          "generatedAt": "2026-07-18T14:08:45.604Z"
         },
-        "generatedAt": "2026-07-18T13:18:21.072Z"
+        "generatedAt": "2026-07-18T14:08:45.604Z"
       },
       "tabSequence": [
         {
@@ -2145,6 +2145,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-07-18T13:18:04.551Z",
+  "generatedAt": "2026-07-18T14:08:35.032Z",
   "status": "pass"
 }

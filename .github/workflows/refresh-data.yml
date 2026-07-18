@@ -42,7 +42,7 @@ jobs:
 
       - name: Pipeline status summary
         run: |
-          node - <<'NODE'
+          node --input-type=module - <<'NODE'
           const fs = require('fs');
           try {
             const d = JSON.parse(fs.readFileSync('public-data/data.json', 'utf8'));
@@ -84,6 +84,10 @@ jobs:
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
           git add public-data/data.json public-data/history.json
+          [ -f public-data/market-snapshot.json ] && git add public-data/market-snapshot.json || true
+          [ -f public-data/market-snapshot-status.json ] && git add public-data/market-snapshot-status.json || true
+           [ -f public-data/operations-status.json ] && git add public-data/operations-status.json || true
+           [ -f public-data/reconciliation-status.json ] && git add public-data/reconciliation-status.json || true
           [ -f public-data/screener.json ] && git add public-data/screener.json || true
           [ -f public-data/telegram-digest.json ] && git add public-data/telegram-digest.json || true
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true

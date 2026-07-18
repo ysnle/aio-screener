@@ -68,9 +68,10 @@ const modules = await Promise.all([
   import(pathToFileURL(path.join(root, 'src/data/contracts/revision.js'))),
   import(pathToFileURL(path.join(root, 'src/data/quality/lineage.js'))),
   import(pathToFileURL(path.join(root, 'src/data/contracts/market-snapshot.js'))),
-  import(pathToFileURL(path.join(root, 'src/ai/policy.js')))
+  import(pathToFileURL(path.join(root, 'src/ai/policy.js'))),
+  import(pathToFileURL(path.join(root, 'src/ai/inference.js')))
 ]);
-const [{ createEvidence, validateEvidence }, { createEvidenceStore }, { deriveSentimentSummary }, { createStore }, { createRevisionManifest, validateRevisionManifest }, { createLineageRecord, validateLineageRecord }, { createMarketSnapshot, validateMarketSnapshot }, { evaluateClaim }] = modules;
+const [{ createEvidence, validateEvidence }, { createEvidenceStore }, { deriveSentimentSummary }, { createStore }, { createRevisionManifest, validateRevisionManifest }, { createLineageRecord, validateLineageRecord }, { createMarketSnapshot, validateMarketSnapshot }, { evaluateClaim }, { createInferredClaim, validateInferredClaim, evaluateInferredClaim }] = modules;
 const evidence = createEvidence({ metric: 'fearGreed', value: 42, unit: 'score', sourceKind: 'fixture', observedAt: '2026-07-18T00:00:00Z', fetchedAt: '2026-07-18T00:00:01Z', status: 'live' });
 if (!validateEvidence(evidence).ok || evidence.allowedUse !== 'decision') fail('live evidence contract failed');
 const store = createEvidenceStore();
@@ -87,6 +88,9 @@ if (!validateMarketSnapshot(unavailableSnapshot).ok) fail('failed market snapsho
 const partialPublished = createMarketSnapshot({ status: 'published', attemptedAt: '2026-07-18T00:00:00Z', lastSuccessfulAt: '2026-07-17T00:00:00Z', source: 'fixture', coverage: { required: 16, observed: 15 } });
 if (validateMarketSnapshot(partialPublished).ok) fail('partial published market snapshot must be rejected');
 if (evaluateClaim({ evidence, claimType: 'numeric', sourceClass: 'INFERRED' }).allowed) fail('inferred numeric claim must be blocked');
+const inferred = createInferredClaim({ metricId: 'market.risk', direction: 'mixed', confidence: 'high', sourceUrls: ['https://example.com/a', 'https://example.com/b'], observedWindow: { start: '2026-07-17T00:00:00Z', end: '2026-07-18T00:00:00Z' } });
+if (!validateInferredClaim(inferred).ok || !evaluateInferredClaim(inferred).allowed) fail('web-search inference contract failed');
+if (validateInferredClaim({ ...inferred, currentValue: 42 }).ok) fail('exact numeric search value must be blocked');
 const commandStore = createStore({ initialState: { value: 0 }, reducer: (state, action) => action.type === 'inc' ? { value: state.value + 1 } : state });
 commandStore.dispatch({ type: 'inc' });
 if (commandStore.getState().value !== 1) fail('state command contract failed');

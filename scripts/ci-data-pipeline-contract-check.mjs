@@ -13,10 +13,10 @@ const check = (label, condition, detail = '') => {
 };
 const extractNodeHeredocs = (text) => {
   const blocks = [];
-  const re = /node - <<'NODE'\r?\n([\s\S]*?)\r?\n\s*NODE/g;
+  const re = /node(\s+--input-type=module)? - <<'NODE'\r?\n([\s\S]*?)\r?\n\s*NODE/g;
   let match;
   while ((match = re.exec(text))) {
-    blocks.push(match[1].replace(/^\s{10}/gm, ''));
+    blocks.push({ source: match[2].replace(/^\s{10}/gm, ''), module: Boolean(match[1]) });
   }
   return blocks;
 };
@@ -24,11 +24,13 @@ const checkNodeHeredocSyntax = (label, text) => {
   const blocks = extractNodeHeredocs(text);
   check(`${label} has Node heredoc blocks`, blocks.length > 0);
   blocks.forEach((block, index) => {
-    try {
-      new Function('require', 'process', block);
-    } catch (error) {
-      check(`${label} Node heredoc ${index + 1} parses`, false, error.message);
+    if (block.module) {
+      const result = spawnSync(process.execPath, ['--input-type=module', '--check'], { input: block.source, encoding: 'utf8' });
+      check(`${label} Node heredoc ${index + 1} parses`, result.status === 0, (result.stderr || '').trim());
+      return;
     }
+    try { new Function('require', 'process', block.source); }
+    catch (error) { check(`${label} Node heredoc ${index + 1} parses`, false, error.message); }
   });
 };
 // P584/R265/C1: extract a top-level `function NAME(...) { ... }` by brace-depth counting (not a

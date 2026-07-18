@@ -1,3 +1,12 @@
+## v53.11 (2026-07-18)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- AR-07 Batch 0: Tier 0 16종 canonical market snapshot/status artifact와 fail-closed LKG publish contract 추가.
+- AR-07 Batch 1/4: Cloudflare Cron/KV/R2 Worker preflight, operations status, 22-category source reconciliation artifact와 watchdog/CI 계약 추가. 미설정 Cloudflare/권리/soak은 `OPERATOR_REQUIRED`로 유지.
+- AR-06: WebSearch inferred claim을 방향·범위·신뢰도·출처·관측창으로 분리하고 exact current numeric sink를 차단.
+- AR-09 진행: typed lifecycle router가 호환 `showPage` facade와 `AIO_ARCH.navigate`를 통해 전체 route 진입을 소유하고, 레거시 렌더러는 명시적 migration owner로 남김.
+- P731/P732: inferred-claim null/camelCase sink 검증과 ESM workflow heredoc parser를 수정하고 각각 blocking contract fixture로 고정.
+- R1 7개 v53.11
+
 ## v53.10 (2026-07-18)
 - **AR-00~06 ESM architecture foundation**: added native `src/` contracts for platform gateways, command store, typed evidence/freshness/lineage, pure sentiment calculations, route lifecycle/dispose, AI evidence policy, and the single legacy compatibility facade. The first sentiment vertical slice is exposed as a read-only `window.AIO_ARCH` migration projection without replacing the legacy shell.
 - **AR-07/08 safety contracts**: added fail-closed market snapshot validation (incomplete published coverage is rejected), inferred numeric claim blocking, app/data/evidence revision manifest, Pages allowlist + service-worker ESM parity, and blocking architecture contract/browser lifecycle gates.

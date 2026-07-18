@@ -1,0 +1,59 @@
+name: Deploy fast data plane
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require Cloudflare operating configuration
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          KV_ID: ${{ secrets.AIO_QUOTES_KV_ID }}
+          R2_BUCKET: ${{ secrets.AIO_QUOTES_R2_BUCKET }}
+        run: |
+          set -euo pipefail
+          for pair in "CLOUDFLARE_API_TOKEN=$CF_TOKEN" "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT" "AIO_QUOTES_KV_ID=$KV_ID" "AIO_QUOTES_R2_BUCKET=$R2_BUCKET"; do
+            name="${pair%%=*}"; value="${pair#*=}"
+            if [ -z "$value" ]; then echo "::error::operator_required: $name is not configured"; exit 1; fi
+          done
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Wrangler
+        run: npm install --global wrangler@4
+
+      - name: Render deployment config
+        env:
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          KV_ID: ${{ secrets.AIO_QUOTES_KV_ID }}
+          R2_BUCKET: ${{ secrets.AIO_QUOTES_R2_BUCKET }}
+        run: |
+          set -euo pipefail
+          sed -e "s/__AIO_QUOTES_KV_ID__/${KV_ID}/" -e "s/__AIO_QUOTES_R2_BUCKET__/${R2_BUCKET}/" worker/wrangler.example.toml > worker/wrangler.toml
+
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: wrangler deploy --config worker/wrangler.toml
+
+      - name: Smoke check fast plane
+        env:
+          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "$FAST_QUOTES_URL" ]; then echo "::error::operator_required: repository variable AIO_FAST_QUOTES_URL is missing"; exit 1; fi
+          curl --fail --silent --show-error "$FAST_QUOTES_URL/health" | tee /tmp/aio-fast-health.json
+          node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('/tmp/aio-fast-health.json')); if(!h.ok||h.coverage?.tier0Observed<h.coverage?.tier0Required) process.exit(1)"

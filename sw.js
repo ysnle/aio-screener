@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v53.10';
-const SW_BUILD = '2026-07-18T22:11:00+09:00';
+const SW_VERSION = 'v53.11';
+const SW_BUILD = '2026-07-18T23:00:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -27,15 +27,20 @@ const SHELL_ASSETS = [
   './src/app/router.js',
   './src/app/routes.js',
   './src/ai/context-builder.js',
+  './src/ai/inference.js',
   './src/ai/policy.js',
   './src/data/contracts/evidence.js',
   './src/data/contracts/market-snapshot.js',
+  './src/data/contracts/operations.js',
+  './src/data/contracts/reconciliation.js',
   './src/data/contracts/revision.js',
   './src/data/evidence-store.js',
+  './src/data/market-snapshot-loader.js',
   './src/data/quality/freshness.js',
   './src/data/quality/lineage.js',
   './src/domain/sentiment/metrics.js',
   './src/legacy/compatibility-facade.js',
+  './src/legacy/market-snapshot-bridge.js',
   './src/platform/clock.js',
   './src/platform/http.js',
   './src/platform/sanitizer.js',
@@ -51,6 +56,7 @@ const SHELL_ASSETS = [
 
 // API/데이터 URL 패턴 — Network-First + 캐시 폴백
 const DATA_URL_PATTERNS = [
+  /\/public-data\/(?:market-snapshot|market-snapshot-status|operations-status|reconciliation-status)\.json(?:\?|$)/,
   /query[12]\.finance\.yahoo\.com/,      // Yahoo Finance
   /api\.coingecko\.com/,                  // CoinGecko
   /fredgraph\.csv|fredapi/,               // FRED

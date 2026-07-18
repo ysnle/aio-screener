@@ -40,10 +40,13 @@ try {
 
   const boot = await page.evaluate(() => ({
     status: window.AIO_ARCH.status,
+    navigationInstalled: window.showPage?.__aioArchitectureNavigation === true,
+    hasNavigate: typeof window.AIO_ARCH.navigate === 'function',
     summaryBlocked: window.AIO_ARCH.getSentimentSummary().blocked,
     state: window.AIO_ARCH.getState()
   }));
   if (boot.status !== 'MIGRATION_IN_PROGRESS') throw new Error(`unexpected architecture status: ${boot.status}`);
+  if (!boot.navigationInstalled || !boot.hasNavigate) throw new Error(`typed navigation facade not installed: ${JSON.stringify(boot)}`);
   if (!boot.summaryBlocked) throw new Error('offline sentiment must remain blocked');
 
   await page.evaluate(() => window.showPage('sentiment'));
@@ -55,7 +58,7 @@ try {
   }));
   if (sentimentRoute.active !== 'sentiment' || sentimentRoute.state !== 'blocked') throw new Error(`sentiment lifecycle failed: ${JSON.stringify(sentimentRoute)}`);
 
-  await page.evaluate(() => window.showPage('home'));
+  await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => !document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute);
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');

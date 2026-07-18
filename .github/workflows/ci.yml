@@ -88,6 +88,21 @@ jobs:
           find src -name '*.js' -print0 | xargs -0 -n1 node --check
           node scripts/ci-architecture-contract-check.mjs
 
+      - name: Canonical market snapshot contract (AR-07 Batch 0)
+        run: node scripts/ci-market-snapshot-contract-check.mjs
+
+      - name: Cloudflare fast data plane contract (AR-07 Batch 1)
+        run: node scripts/ci-data-plane-contract-check.mjs
+
+      - name: Operations status and reconciliation contract (AR-07/08)
+        run: node scripts/ci-operations-status-check.mjs
+
+      - name: 22-category source reconciliation contract (AR-07 Batch 4)
+        run: node scripts/ci-reconciliation-contract-check.mjs
+
+      - name: WebSearch inference claim contract (AR-06)
+        run: node scripts/ci-inference-contract-check.mjs
+
       - name: 버전 동기화 검증 (R1 7곳 + 캐시버스터 6곳)
         run: node scripts/ci-version-check.mjs
 

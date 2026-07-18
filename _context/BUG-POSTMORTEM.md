@@ -2,10 +2,10 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
-latest_version: v53.10
-latest_P_number: P730
-next_P_number: P731
-total_entries: 505 (P1~P730, 결번 존재 — 상세 24건 + 압축 원장)
+latest_version: v53.11
+latest_P_number: P732
+next_P_number: P733
+total_entries: 507 (P1~P732, 결번 존재 — 상세 26건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -54,6 +54,24 @@ total_entries: 505 (P1~P730, 결번 존재 — 상세 24건 + 압축 원장)
 ---
 
 # 상세 엔트리 (P704~P728 · v52.89~v53.9)
+
+## P731 - v53.11 - WebSearch inferred-claim validator가 optional range와 camelCase numeric sink를 처리하지 못했다
+- **motivation**: AR-06 WebSearch claim contract를 fixture로 실행하면서 검색 결과를 숫자형 current claim으로 승격시키지 않는 경계를 blocking gate로 추가했다.
+- **symptom/reproduction**: `range`가 생략된 claim이 `null.min` 접근으로 예외를 냈고, validator의 underscore 중심 정규식이 `currentValue`를 exact numeric field로 차단하지 못했다.
+- **root_cause**: 선택 필드 정규화가 `undefined` 기본값만 처리했고, 금지 필드 탐지가 camelCase를 계약 키로 열거하지 않았다.
+- **fix**: null-safe range normalizer와 명시적 `value/currentValue/exactValue/numericValue` 금지 키 집합을 추가했다. valid two-source/high-confidence, one-source rejection, numeric sink rejection을 CI fixture로 고정했다.
+- **violated_rule**: R347의 inferred claim fail-closed contract.
+- **prevention**: optional input은 null과 undefined 양쪽을 fixture로 검증하고, security/claim sink 키는 naming convention 정규식만으로 판정하지 않는다.
+- **verification**: `ci-inference-contract-check.mjs`, `ci-architecture-contract-check.mjs`, Chromium architecture browser check PASS.
+
+## P732 - v53.11 - data-watchdog와 refresh workflow의 ESM heredoc가 CommonJS parser/runtime에 남아 있었다
+- **motivation**: AR-07 snapshot/operations/reconciliation checks를 workflow에 추가한 뒤 실제 `ci-data-pipeline-contract-check.mjs`를 실행했다.
+- **symptom/reproduction**: `node - <<'NODE'` heredoc 안의 `import fs from 'node:fs'`가 local contract parser에서 `Cannot use import statement outside a module`로 실패했고, GitHub runner에서도 동일한 command shape가 실행될 수 있었다.
+- **root_cause**: workflow command와 CI heredoc syntax checker가 module mode를 별도 계약으로 취급하지 않았다.
+- **fix**: import를 포함한 refresh/watchdog heredoc를 `node --input-type=module -`로 통일하고, CI checker가 module heredoc를 Node `--check`로 검사하도록 수정했다.
+- **violated_rule**: workflow syntax gate는 실제 실행 mode와 같은 parser를 사용해야 한다는 운영 계약.
+- **prevention**: 모든 workflow heredoc는 import/top-level await 유무에 맞는 module mode를 명시하고, syntax gate가 command flag를 보존한다.
+- **verification**: `ci-control-char-check.mjs`, `ci-data-pipeline-contract-check.mjs`, full `.mjs` syntax sweep PASS.
 
 ## P730 - v53.10 - Worker 보안 게이트가 PASS 출력 후 Node 프로세스를 종료하지 않았다
 - **motivation**: 전체 CI 게이트를 실제 종료 code까지 확인하는 과정에서 `ci-worker-anthropic-check.mjs`가 성공 문구를 출력한 뒤에도 세션을 유지했다.

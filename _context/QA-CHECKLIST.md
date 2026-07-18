@@ -3,8 +3,8 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
 version: v4.1
-checklist_version: v53.10
-latest_P_covered: P730
+checklist_version: v53.11
+latest_P_covered: P732
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---
@@ -45,11 +45,13 @@ ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
 | 포트폴리오 Vault E2E | `node scripts/ci-portfolio-vault-e2e.mjs` | PFE2-01~08 PASS |
 | 접근성 매트릭스 | `node scripts/ci-accessibility-matrix-check.mjs` | 17 routes pass · consoleErrors 0 |
 
-### 최근 실측 기준선 (2026-07-18, v53.9, P729 ESM architecture slice + P728 2차 성능·품질 리팩터링 후 재측정)
+### 최근 실측 기준선 (2026-07-18, v53.11, AR-07 data plane + AR-06 inference + typed navigation facade)
 
 정적 15종 전부 PASS(data-lineage WARN 1: SEC 93/655=14.2%) · 헤드리스 1101/1101 · boot FCP 1556ms/route 1162ms/max long task 611ms · critical10 10/10(consoleErrors 0) · a11y 17/17(consoleErrors 0) · FULL_INIT viewport 68/68(4개 viewport shard, overflow 0px, tinyText 0, jsErrors 0) · vault E2E 8/8 PASS. 부팅 수치는 단일 로컬 실행의 변동값이므로 P728의 인과 성능 향상 근거로 사용하지 않는다. 로컬 Chromium은 외부망 차단 상태로 실행했으며 live Pages/Worker/provider 응답은 이 기준선에 포함하지 않는다.
 
 추가 AR gate: `ci-architecture-contract-check.mjs` PASS(17 routes, legacy coupling baseline no increase) · `ci-architecture-browser-check.mjs` PASS(ESM boot, blocked sentiment, document-targeted pageShown, sentiment→home→sentiment dispose/mount, unexpected browser errors 0).
+
+AR-07/06 추가 로컬 계약: Tier 0 market snapshot 16/16 published fixture PASS · Worker Cron/KV/R2 contract PASS · operations status `OPERATOR_REQUIRED`/durable `CURRENT` 명시 · 22-category reconciliation `MATCH 3 / PARTIAL 13 / BLOCKED 6` · WebSearch inferred claim high-confidence two-source gate PASS · typed `showPage`/`AIO_ARCH.navigate` facade Chromium PASS. Cloudflare credentials/resource IDs와 7-day soak은 외부 운영자 대기 상태다.
 Standalone worker security gate also exits deterministically after PASS (`ci-worker-anthropic-check.mjs`, exit code 0).
 
 ---

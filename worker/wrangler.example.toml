@@ -1,0 +1,20 @@
+name = "aio-screener-data-plane"
+main = "data-plane.js"
+compatibility_date = "2026-07-18"
+workers_dev = true
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+ALLOWED_ORIGINS = "https://ysnle.github.io"
+
+[[kv_namespaces]]
+binding = "AIO_QUOTES_KV"
+id = "__AIO_QUOTES_KV_ID__"
+
+[[r2_buckets]]
+binding = "AIO_QUOTES_BUCKET"
+bucket_name = "__AIO_QUOTES_R2_BUCKET__"
+
+# Set with `wrangler secret put AIO_CRON_SECRET`; never commit the value.

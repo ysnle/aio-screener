@@ -7,6 +7,20 @@ target_version: v53.10
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R348. Workflow heredocs must declare the same Node module mode that their source syntax requires (v53.11, P732)
+
+**Rule**: A workflow heredoc containing `import` or top-level `await` is an ESM program. The command must use `node --input-type=module -`, and the CI syntax checker must parse it with the same mode. A CommonJS `new Function` check is not sufficient evidence for an ESM heredoc.
+
+**Validation**: `ci-data-pipeline-contract-check.mjs` and `ci-control-char-check.mjs` must parse refresh/watchdog workflow heredocs.
+
+## R347. Durable and fast data planes must expose independent revisions and fail closed until operator SLO evidence exists (v53.11, AR-07)
+
+**Rule**: A GitHub Actions durable artifact is not proof that an independent fast plane, provider rights, or a 7-day freshness SLO exists. Canonical snapshots must retain the last known good revision on failed attempts, while Worker/Cron/KV/R2 health, provider rights, coverage, reconciliation, and soak status remain explicit `CURRENT`, `PARTIAL`, `BLOCKED`, or `OPERATOR_REQUIRED` states.
+
+**Required**: Keep `market-snapshot.json`, `market-snapshot-status.json`, `operations-status.json`, and `reconciliation-status.json` revisioned and validated. Never overwrite a last-known-good snapshot with an incomplete publish, never promote a WebSearch inference to an exact current numeric value, and never report `VERIFIED_LIVE` without external scheduler/resource and soak evidence.
+
+**Validation**: `ci-market-snapshot-contract-check.mjs`, `ci-data-plane-contract-check.mjs`, `ci-operations-status-check.mjs`, `ci-reconciliation-contract-check.mjs`, `ci-inference-contract-check.mjs`, and the live data-watchdog checks.
+
 ## R346. Legacy event adapters must normalize the actual EventTarget and payload shape at the boundary (v53.9, P729)
 
 **Rule**: A compatibility observer must subscribe to the same `EventTarget` that emits the legacy event and normalize its real `CustomEvent.detail` shape before routing or state projection. Do not assume that a browser event dispatched on `document` bubbles to `window`, or that a legacy string payload is an object envelope.

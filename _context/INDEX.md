@@ -42,7 +42,7 @@ target_version: version.json
 
 > **Current correction (2026-07-15 v52.93 local)**: `INSTITUTIONAL-HANDOFF-RECONCILIATION-2026-07-15.md` is the current gap/overlap ledger and executable handoff contract. It now fixes the dirty-checkout/artifact baseline, operator configuration boundary, Batch 0~6 order, WP-0~14 file-level task cards, 22-route data-completeness targets, cross-page metric identity, BLS keyless design, verification evidence levels, and commit/Actions/live/rollback procedure. The screener's independent 6-hour workflow is still local-only until commit/push; SEC collection and quote artifact lineage remain live-unverified. PUBLIC remains NO-GO.
 
-> **Current correction (2026-07-18 v53.10)**: AR-00~06 ESM foundations and the sentiment first vertical slice are implemented locally behind a read-only compatibility facade. AR-07 fail-closed market snapshot validation and AR-08 Pages/SW/revision parity gates are wired. Local architecture contract and Chromium lifecycle checks pass; independent fast-data scheduling, provider rights/SLO, full route cutover, live certification, commit/push/deploy remain separate gates.
+> **Current correction (2026-07-18 v53.11)**: AR-00~06 ESM foundations, sentiment vertical slice, WebSearch inferred-claim gate, typed navigation facade, AR-07 canonical 16/16 snapshot/LKG contract, Worker preflight, operations status, and 22-category reconciliation are implemented locally. Cloudflare credentials/resource IDs, rights, 7-day fast-plane SLO, full route renderer cutover, live certification, and final commit/Pages deployment remain explicit gates.
 
 # _context Index
 

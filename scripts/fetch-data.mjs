@@ -16,6 +16,9 @@ import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runBacktest as runTradingScoreBacktest } from './backtest-trading-score.mjs';
+import { publishMarketSnapshot } from './build-market-snapshot.mjs';
+import { writeOperationsStatus } from './build-operations-status.mjs';
+import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
@@ -25,7 +28,7 @@ const SEC_FUNDAMENTALS_OUT = `${__dir}/../public-data/sec-fundamentals.json`;
 // ── 수집 심볼 (v1 핵심셋). 더 넣으려면 배열에 추가만 하면 됨 (배치 처리 자동) ──
 const SYMBOLS = [
   // 미국·글로벌 지수
-  '^GSPC','^IXIC','^DJI','^RUT','^VIX','^VVIX','^FTSE','^N225','^HSI',
+  '^GSPC','^IXIC','^DJI','^RUT','^VIX','^VIX3M','^VVIX','^FTSE','^N225','^HSI',
   // 금리 (Yahoo: ^TNX=10Y, ^TYX=30Y, ^FVX=5Y, ^IRX=13주)
   '^TNX','^TYX','^FVX','^IRX',
   // 원자재·환율 (v50.40: GBPUSD/CNY/AUDUSD 추가 — fxbond 페이지 "—" unavailable 해소, 클라이언트 LIVE_SYMBOLS와 정합)
@@ -62,6 +65,7 @@ const FRED_SERIES = {
   housingStarts: { id: 'HOUST',          kind: 'level', scale: 0.001 }, // 천 단위→백만 단위 (DATA_SNAPSHOT.housingStarts는 1.47M 형태)
   retailSales:   { id: 'RSAFS',          kind: 'mom_pct' },             // 소매판매 MoM% (레벨 $ 시리즈에서 파생)
   usWageGrowth:  { id: 'CES0500000003',  kind: 'yoy' },                 // 시간당 평균임금 YoY%
+  hyOAS:         { id: 'BAMLH0A0HYM2',   kind: 'level', scale: 1 },     // FRED percent; UI converts to bp at the renderer boundary
 };
 
 // BLS Public Data API v1 is a separate official observation path from FRED.
@@ -1751,6 +1755,18 @@ async function main() {
     throw new Error(`CORE_QUOTE_COVERAGE_FAILED:${quotes.length}/${SYMBOLS.length}; existing data.json preserved`);
   }
 
+  // AR-07 Batch 0: publish the bounded Tier 0 fallback independently of the
+  // public data.json quote policy. A failed Tier 0 gate retains the previous
+  // snapshot and records the failed attempt in its status sidecar.
+  const marketSnapshotInfo = await publishMarketSnapshot({
+    quotes,
+    attemptedAt: data.meta.generatedAt,
+    source: 'github-actions:fetch-data'
+  });
+  data.meta.marketSnapshotPublished = !!marketSnapshotInfo.published;
+  data.meta.marketSnapshotCoverage = marketSnapshotInfo.coverage;
+  data.meta.marketSnapshotRevision = marketSnapshotInfo.snapshot.revision;
+
   await mkdir(dirname(OUT), { recursive: true });
   // P715 (사용자 결정 "클라이언트 직접 fetch 전환"): 공개 data.json에서 종목별 시세 재배포를
   // 중단한다 — quotes는 내부 파생(히스토리 append·분석 프롬프트·건강도 카운트)에만 사용하고
@@ -1809,6 +1825,8 @@ async function main() {
     data.meta.secFundamentalsCount = scrInfo.secFundamentalsCount || 0;
     data.meta.fundamentalCoveragePct = scrInfo.fundamentalCoveragePct || 0;
   }
+  const reconciliationStatus = await writeReconciliationStatus({ marketSnapshot: marketSnapshotInfo.snapshot });
+  await writeOperationsStatus({ data, marketSnapshot: marketSnapshotInfo.snapshot, reconciliation: reconciliationStatus });
 
   // scrInfo 반영 후 data.json 재기록 (fmpHasKey 등 meta 업데이트) — P719: 반드시 스트립 경유
   await writeFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));

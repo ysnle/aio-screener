@@ -1,15 +1,15 @@
-> **v53.10 (P729) 현행**: v53.7 KR 5페이지 통합, v53.8~v53.9 성능 리팩터링, v53.10 ESM architecture slice 뒤 파일 크기·핵심 anchor를 재측정했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+> **v53.11 (AR-07/AR-06/AR-09 진행) 현행**: v53.7 KR 5페이지 통합, v53.8~v53.9 성능 리팩터링, v53.10 ESM architecture slice, v53.11 data-plane/inference/navigation contracts 뒤 파일 크기·핵심 anchor를 재측정한다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` 전면 구조 재측정)
 last_verified: 2026-07-18
 confidence: high
-target_version: v53.10
-target_file: index.html + js/*.js
+target_version: v53.11
+target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: index.html 28375 + js modules 64207
 ---
 
-## Current machine-verified file-size table (v53.10, 2026-07-18)
+## Current machine-verified file-size table (v53.11, 2026-07-18)
 
 | File | Lines | Verification |
 |------|------:|--------------|
@@ -24,7 +24,16 @@ target_lines: index.html 28375 + js modules 64207
 > The historical v52.66 table below is retained for audit context. Use this current
 > file-size table first, then confirm any detailed line anchor with `rg -n` before editing.
 
-# AIO v53.10 CODE-MAP
+# AIO v53.11 CODE-MAP
+
+## Native ESM and data-plane additions (v53.11)
+
+| Area | Files | Contract |
+|---|---|---|
+| AR-06 inference | `src/ai/inference.js`, `src/ai/policy.js` | direction/range/confidence/sourceCount/sourceUrls/observedWindow; exact current numeric search values blocked |
+| AR-07 canonical data | `src/data/contracts/market-snapshot.js`, `src/data/market-snapshot-loader.js`, `src/data/contracts/operations.js`, `src/data/contracts/reconciliation.js` | Tier 0/LKG/operations/22-category reconciliation |
+| AR-07 producer | `scripts/build-market-snapshot.mjs`, `scripts/build-operations-status.mjs`, `scripts/build-reconciliation-status.mjs`, `worker/data-plane.js` | durable publish + independent fast-plane preflight |
+| AR-09 boundary | `src/legacy/compatibility-facade.js`, `src/app/bootstrap.js`, `scripts/ci-architecture-browser-check.mjs` | typed navigation facade and lifecycle ownership during migration |
 
 ## v53.8 authoritative rescan (2026-07-18)
 

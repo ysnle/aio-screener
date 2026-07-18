@@ -3,7 +3,7 @@ verified_by: Codex (repository-wide static architecture review and current audit
 last_verified: 2026-07-18
 confidence: high
 auto_refresh: false
-target_version: v53.10
+target_version: v53.11
 status: IMPLEMENTED_LOCAL_PARTIAL
 scope: whole-system architecture
 ---
@@ -498,7 +498,7 @@ AR-00 -> AR-01 -> AR-02 -> AR-03
 
 ## 16. 2026-07-18 로컬 구현 상태
 
-v53.10에서 AR-00~06의 실행 가능한 ESM 기반 계약을 추가하고 첫 `sentiment`
+v53.11에서 AR-00~06의 실행 가능한 ESM 기반 계약을 추가하고 첫 `sentiment`
 vertical slice를 legacy shell에 연결했다. AR-00 golden route/baseline/ADR,
 platform gateways, typed store/evidence/freshness/lineage, pure sentiment
 domain, lifecycle router, AI evidence policy, compatibility facade를 `src/`에
@@ -509,7 +509,20 @@ parity gate를 연결했다.
 
 로컬에서 확인한 것은 ESM boot, offline blocked sentiment, document-targeted
 `aio:pageShown` string detail, sentiment→home→sentiment dispose/mount,
-legacy coupling baseline no increase다. Cloudflare 독립 스케줄러/KV·R2,
-공급자 권리·키, 7일 SLO, 전 데이터 plane의 live backstop과 AR-09 legacy
-cutover는 외부 운영 설정과 대규모 route migration이 필요해 아직
-`VERIFIED_LIVE`/전체 재구축 완료로 승격하지 않는다.
+legacy coupling baseline no increase다. WebSearch inferred claim contract와 typed
+`showPage`/`AIO_ARCH.navigate` navigation facade도 추가했다. Cloudflare 독립
+스케줄러/KV·R2 credentials/resource IDs, 공급자 권리·키, 7일 SLO, 전 데이터
+plane의 live backstop과 AR-09 full native renderer cutover는 외부 운영 설정과
+대규모 route migration이 필요해 아직 `VERIFIED_LIVE`/전체 재구축 완료로
+승격하지 않는다.
+
+## 17. 2026-07-18 v53.11 실행 산출물
+
+- `public-data/market-snapshot.json`: Tier 0 16/16 canonical quote evidence, published only on complete coverage.
+- `public-data/market-snapshot-status.json`: failed attempt와 retained last-known-good revision을 별도 기록.
+- `worker/data-plane.js` + `worker/wrangler.example.toml`: 5-minute Cron, KV current pointer, R2 revision/LKG, authenticated admin run, `/health`/`/quotes` contract. Repository에는 Cloudflare credentials/resource IDs가 없어 deploy는 manual preflight로 남겼다.
+- `public-data/operations-status.json`: durable `CURRENT`, fast `OPERATOR_REQUIRED`, provider rights와 SEC coverage blocker, route ownership을 공개 상태로 기록.
+- `public-data/reconciliation-status.json`: 22 categories = `MATCH 3 / PARTIAL 13 / BLOCKED 6`.
+- `src/ai/inference.js`: WebSearch claims are direction/range/confidence/sourceCount/sourceUrls/observedWindow only; exact current numeric fields are rejected and HIGH requires two sources.
+- `src/legacy/compatibility-facade.js`: typed lifecycle router owns navigation entry through an explicitly marked compatibility facade; legacy renderer remains the declared owner for 16 routes, so AR-09 is not falsely marked complete.
+- Local gates passed: architecture contract/browser, inference, market snapshot, data plane, operations, reconciliation, workflow YAML/control-character checks. Full CI/browser matrix and Pages/live checks remain to be run after the final versioned commit.
