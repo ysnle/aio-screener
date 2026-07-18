@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-18T06:21:19.150Z",
-  "attemptedAt": "2026-07-18T06:21:19.150Z",
-  "lastSuccessfulAt": "2026-07-18T06:21:19.150Z",
+  "generatedAt": "2026-07-18T08:27:22.123Z",
+  "attemptedAt": "2026-07-18T08:27:22.123Z",
+  "lastSuccessfulAt": "2026-07-18T08:27:22.123Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-04T06:21:16.058Z",
-  "until": "2026-07-18T06:21:16.058Z",
+  "since": "2026-07-04T08:27:17.642Z",
+  "until": "2026-07-18T08:27:17.642Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,12 +13,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 192,
-      "freshCount": 31,
-      "eligibleTextCount": 30,
+      "count": 195,
+      "freshCount": 33,
+      "eligibleTextCount": 32,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 23677
+      "lastPostId": 23680
     },
     {
       "channel": "insidertracking",
@@ -45,9 +45,46 @@
       "lastPostId": 19145
     }
   ],
-  "count": 579,
-  "retainedItemCount": 390,
+  "count": 582,
+  "retainedItemCount": 388,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/23680",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-18T08:21:43.000Z",
+      "localDateKst": "2026-07-18",
+      "score": 35,
+      "tags": [
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23679",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-18T06:41:30.000Z",
+      "localDateKst": "2026-07-18",
+      "score": 53,
+      "tags": [
+        "power",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23678",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-18T06:27:08.000Z",
+      "localDateKst": "2026-07-18",
+      "score": 50,
+      "tags": [
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23677",
       "channel": "aetherjapanresearch",
@@ -1087,7 +1124,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23637",
@@ -8822,28 +8859,28 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 579,
-    "eligibleTextCount": 64,
-    "mediaOnlyCount": 515,
+    "observedCount": 582,
+    "eligibleTextCount": 66,
+    "mediaOnlyCount": 516,
     "highSignalCount": 299,
-    "broadSignalCount": 477,
+    "broadSignalCount": 479,
     "selectedRawCount": 366,
-    "selectedRawCoveragePct": 571.9,
+    "selectedRawCoveragePct": 554.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "japan": 24,
+    "power": 152,
+    "ai-policy": 70,
     "macro": 285,
     "semi": 374,
     "kr-market": 118,
     "flows": 18,
-    "japan": 22,
     "geo": 139,
     "equity": 119,
     "earnings": 92,
     "healthcare": 18,
-    "ai-policy": 69,
     "optical": 18,
-    "power": 151,
     "media-only": 6,
     "credit": 26,
     "market-note": 50,
@@ -8947,12 +8984,12 @@
   "themes": [
     "Semiconductors/Memory (374 posts in current window): BofA) Kimi K3 출시와 컴퓨팅 경쟁 1. 새로운 중국 오픈 웨이트 모델 문샷(Moonshot)이 100만 토큰 컨텍스트 윈도우를 갖춘 2.8조 파라미터 규모의 대형 전문가 혼합(Mixture of Experts, MoE) 모델인 Kimi K3를 공개했습니다. 규모 확대 압박을 받는 미국 연구소들: 중국...",
     "Macro/Rates (285 posts in current window): BofA) Kimi K3 출시와 컴퓨팅 경쟁 1. 새로운 중국 오픈 웨이트 모델 문샷(Moonshot)이 100만 토큰 컨텍스트 윈도우를 갖춘 2.8조 파라미터 규모의 대형 전문가 혼합(Mixture of Experts, MoE) 모델인 Kimi K3를 공개했습니다. 규모 확대 압박을 받는 미국 연구소들: 중국...",
-    "AI Power/Grid (151 posts in current window): 레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다. 하이퍼스케일·클라우드 사업자의 지출은 견조하며, 인플레이션에 힘입은 기업 지출도 이를 뒷받침하고 있습니다....",
+    "AI Power/Grid (152 posts in current window): 레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다. 하이퍼스케일·클라우드 사업자의 지출은 견조하며, 인플레이션에 힘입은 기업 지출도 이를 뒷받침하고 있습니다....",
     "Geopolitics (139 posts in current window): 레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다. 하이퍼스케일·클라우드 사업자의 지출은 견조하며, 인플레이션에 힘입은 기업 지출도 이를 뒷받침하고 있습니다....",
     "Equity/Analyst (119 posts in current window): 레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다. 하이퍼스케일·클라우드 사업자의 지출은 견조하며, 인플레이션에 힘입은 기업 지출도 이를 뒷받침하고 있습니다....",
     "Korea Market (118 posts in current window): 2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상...",
     "Earnings/Corporate (92 posts in current window): 레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다. 하이퍼스케일·클라우드 사업자의 지출은 견조하며, 인플레이션에 힘입은 기업 지출도 이를 뒷받침하고 있습니다....",
-    "AI Policy/Export Controls (69 posts in current window): BofA) Kimi K3 출시와 컴퓨팅 경쟁 1. 새로운 중국 오픈 웨이트 모델 문샷(Moonshot)이 100만 토큰 컨텍스트 윈도우를 갖춘 2.8조 파라미터 규모의 대형 전문가 혼합(Mixture of Experts, MoE) 모델인 Kimi K3를 공개했습니다. 규모 확대 압박을 받는 미국 연구소들: 중국..."
+    "AI Policy/Export Controls (70 posts in current window): BofA) Kimi K3 출시와 컴퓨팅 경쟁 1. 새로운 중국 오픈 웨이트 모델 문샷(Moonshot)이 100만 토큰 컨텍스트 윈도우를 갖춘 2.8조 파라미터 규모의 대형 전문가 혼합(Mixture of Experts, MoE) 모델인 Kimi K3를 공개했습니다. 규모 확대 압박을 받는 미국 연구소들: 중국..."
   ],
   "catalysts": [
     {
@@ -9068,7 +9105,7 @@
       "topics": [
         "power"
       ],
-      "count": 151,
+      "count": 152,
       "focus": "레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다. 하이퍼스케일·클라우드 사업자의 지출은 견조하며, 인플레이션에 힘입은 기업 지출도 이를 뒷받침하고 있습니다...."
     },
     {
@@ -9077,7 +9114,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 69,
+      "count": 70,
       "focus": "BofA) Kimi K3 출시와 컴퓨팅 경쟁 1. 새로운 중국 오픈 웨이트 모델 문샷(Moonshot)이 100만 토큰 컨텍스트 윈도우를 갖춘 2.8조 파라미터 규모의 대형 전문가 혼합(Mixture of Experts, MoE) 모델인 Kimi K3를 공개했습니다. 규모 확대 압박을 받는 미국 연구소들: 중국..."
     },
     {
@@ -9131,7 +9168,7 @@
       "topics": [
         "japan"
       ],
-      "count": 22,
+      "count": 24,
       "focus": "Market Summary - 2026년 7월 18일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다 산불 연기로 인한 대기오염 책임을 캐나다에 묻고 기존 관세에 추가 비용을 반영하겠다고..."
     },
     {
@@ -10438,6 +10475,35 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/23679",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23679",
+      "datetime": "2026-07-18T06:41:30.000Z",
+      "localDateKst": "2026-07-18",
+      "tags": [
+        "power",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 53,
+      "hasText": true,
+      "summary": "SemiAnalysis가 오라클의 스타게이트 사이트와 블룸에너지에 대한 대규모 지연 경고를 전한 스레드입니다. 뉴멕시코주에 위치한 오라클의 프로젝트 주피터(Project Jupiter)는 블룸에너지 연료전지를..."
+    },
+    {
+      "id": "aetherjapanresearch/23678",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23678",
+      "datetime": "2026-07-18T06:27:08.000Z",
+      "localDateKst": "2026-07-18",
+      "tags": [
+        "ai-policy"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": "중국 문샷의 Kimi K3 모델이 Arena 프런트엔드 코드 랭킹에서 갑자기 1위에 오르며 세계적인 주목을 받고 있지만, 이 모델이 앤스로픽의 클로드(Claude)로부터 증류(distillation)되었음을..."
+    },
     {
       "id": "aetherjapanresearch/23676",
       "channel": "aetherjapanresearch",
@@ -16523,35 +16589,6 @@
       ],
       "score": 97,
       "summary": "📊 Deutsche Bank | Meta; 「Buyers of Capacity」 (2026.7.9) ■ 핵심 요약 언론 보도에 따르면 메타는 데이터센터 용량을 2027년까지 14GW로 두 배 확대하고, 자체..."
-    },
-    {
-      "id": "aetherjapanresearch/23456",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23456",
-      "datetime": "2026-07-10T10:27:27.000Z",
-      "localDateKst": "2026-07-10",
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 65,
-      "summary": "JP모건 일본 퀀트 전략 (2026년 7월 10일 / Masanari Takada) 핵심 요지 AI 반도체·메모리 관련주에서 조정이 나타나고 토큰 비용이 하락하는 가운데, JP모건 QDS팀은 AI..."
-    },
-    {
-      "id": "aetherjapanresearch/23455",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23455",
-      "datetime": "2026-07-10T10:12:03.000Z",
-      "localDateKst": "2026-07-10",
-      "tags": [
-        "macro",
-        "geo",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 79,
-      "summary": "JP모건) 일본 채권시장 위클리; JGB(일본 국채) 시장의 잠재적 버팀목으로서의 GPIF(공적연금; 일본의 연기금) 1. 정부의 재정 기조에 대한 우려와 BoJ의 추가 금리 인상을 억제하려는 정부의 노력이..."
     },
     {
       "id": "bornlupin/19005",
