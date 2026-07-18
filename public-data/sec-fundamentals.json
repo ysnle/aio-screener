@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-18T13:55:09.933Z",
+ "generatedAt": "2026-07-18T19:38:15.373Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 95,
+ "stored": 96,
  "attempted": 24,
  "updated": 1,
  "failures": [
@@ -105,7 +105,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 560,
+ "nextRefreshCandidates": 559,
  "data": {
   "A": {
    "symbol": "A",
@@ -2996,6 +2996,34 @@
    "revGrowth": 19.5,
    "margin": 10.2,
    "roe": 15.6
+  },
+  "CELH": {
+   "symbol": "CELH",
+   "cik": "0001341766",
+   "entityName": "CELSIUS HOLDINGS, INC.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-03-02",
+   "fetchedAt": "2026-07-18T19:38:15.223Z",
+   "form": "10-K",
+   "accession": "0001341766-26-000024",
+   "revenue": 2515269000,
+   "netIncome": 107999000,
+   "equity": 1181467000,
+   "sharesOutstanding": 256975993,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 85.5,
+   "margin": 4.3,
+   "roe": 9.1
   }
  }
 }
