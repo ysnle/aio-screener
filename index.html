@@ -14983,7 +14983,7 @@ function updateSRLevels() {
   let ld = window._liveData || {};
   var spx = ld['^GSPC'];
   var container = document.getElementById('sr-levels-container');
-  if (!spx || !Number.isFinite(Number(spx.price))) {
+  if (!spx || spx.price == null || !Number.isFinite(Number(spx.price))) {
     if (container) container.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">현재 지수 또는 OHLCV 원천 미수신 — 지지·저항을 산출하지 않습니다.</div>';
     return;
   }
@@ -14991,7 +14991,7 @@ function updateSRLevels() {
 
   // 지지·저항은 현재가의 임의 라운드값이 아니라, 관측 시각이 확인된 OHLCV/이동평균이 있을 때만 표시한다.
   var maTs = Number(window._spxMATs);
-  var hasCurrentOhlcv = Number.isFinite(maTs) && Date.now() - maTs <= 96 * 60 * 60 * 1000 && window._spxMA && Number.isFinite(Number(window._spxMA[50])) && Number.isFinite(Number(window._spxMA[200]));
+  var hasCurrentOhlcv = Number.isFinite(maTs) && Date.now() - maTs <= 96 * 60 * 60 * 1000 && window._spxMA && window._spxMA[50] != null && Number.isFinite(Number(window._spxMA[50])) && window._spxMA[200] != null && Number.isFinite(Number(window._spxMA[200]));
   if (!hasCurrentOhlcv) {
     if (container) container.innerHTML = '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;padding:8px 0;">현재 지수 ' + price.toLocaleString() + ' · OHLCV·이동평균 원천 미수신 — 임의 라운드값을 지지·저항으로 표시하지 않고 판정을 보류합니다.</div>';
     return;
@@ -16022,9 +16022,12 @@ function computeEconomicTemperature() {
     var n = Number(row.price);
     return isFinite(n) ? n : null;
   }
+  // P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격 대신 FRED HY OAS(bp) 실측만 사용.
+  //   HYG 가격은 듀레이션(금리) 노출이 섞여 있어 신용 레벨 판정에 부적합(Weinstein/MTF와 동일 원칙).
+  var hyOasBp = Number(window._hySpreadBp);
   var inputs = {
     VIX:_tempLive('^VIX'), TNX:_tempLive('^TNX'), FVX:_tempLive('^FVX'),
-    WTI:_tempLive('CL=F'), DXY:_tempLive('DX-Y.NYB'), HYG:_tempLive('HYG')
+    WTI:_tempLive('CL=F'), DXY:_tempLive('DX-Y.NYB'), 'HY OAS':isFinite(hyOasBp) ? hyOasBp : null
   };
   var missing = Object.keys(inputs).filter(function(key) { return inputs[key] == null; });
   if (missing.length) {
@@ -16043,14 +16046,15 @@ function computeEconomicTemperature() {
     return null;
   }
   var vix = inputs.VIX, tnx = inputs.TNX, fvx = inputs.FVX;
-  var wti = inputs.WTI, dxy = inputs.DXY, hyg = inputs.HYG;
+  var wti = inputs.WTI, dxy = inputs.DXY;
+  hyOasBp = inputs['HY OAS'];
 
   // Calculate component scores (0-100 each)
   var vixScore = Math.max(0, Math.min(100, (30 - vix) * 2 + 50));  // Lower VIX = higher score
   var curveScore = (tnx - fvx) > 0.3 ? 70 : (tnx - fvx) > -0.1 ? 50 : 30;
   var oilScore = wti > 100 ? 20 : wti > 90 ? 40 : wti > 70 ? 60 : 80;
   var dxyScore = dxy > 108 ? 30 : dxy > 104 ? 50 : dxy < 100 ? 70 : 55;
-  var creditScore = hyg > 88 ? 60 : hyg > 86 ? 50 : 40;  // Higher HYG = better
+  var creditScore = hyOasBp < 350 ? 60 : hyOasBp < 450 ? 50 : 40;  // Lower HY OAS(bp) = better credit
 
   // Weighted average: VIX 30%, Curve 25%, Oil 20%, DXY 15%, Credit 10%
   var temp = (vixScore * 0.30 + curveScore * 0.25 + oilScore * 0.20 + dxyScore * 0.15 + creditScore * 0.10);
@@ -16065,7 +16069,7 @@ function computeEconomicTemperature() {
   else if (tripleHawkCount >= 2) temp = Math.max(10, temp - 5);
 
   // VIX-신용스프레드 동조: 둘 다 악화 = 시스템 리스크 → 추가 페널티
-  if (vix > 30 && hyg < 78) temp = Math.max(5, temp - 8); // 주식+신용 동시 스트레스
+  if (vix > 30 && hyOasBp > 450) temp = Math.max(5, temp - 8); // 주식+신용 동시 스트레스
 
   // 유가↑ + 커브 역전 = 스태그플레이션 최악 시나리오 → 강한 페널티
   if (wti > 100 && (tnx - fvx) < -0.1) temp = Math.max(5, temp - 10);
@@ -16098,7 +16102,7 @@ function computeEconomicTemperature() {
 
   if (narrativeEl) {
     var narrative = '';
-    var _details = 'VIX ' + vix.toFixed(1) + '(' + vixScore + '점) · 금리곡선 ' + (tnx-fvx>0?'+':'') + (tnx-fvx).toFixed(2) + '%(' + curveScore + '점) · WTI $' + wti.toFixed(0) + '(' + oilScore + '점) · DXY ' + dxy.toFixed(1) + '(' + dxyScore + '점) · HYG $' + hyg.toFixed(1) + '(' + creditScore + '점)';
+    var _details = 'VIX ' + vix.toFixed(1) + '(' + vixScore + '점) · 금리곡선 ' + (tnx-fvx>0?'+':'') + (tnx-fvx).toFixed(2) + '%(' + curveScore + '점) · WTI $' + wti.toFixed(0) + '(' + oilScore + '점) · DXY ' + dxy.toFixed(1) + '(' + dxyScore + '점) · HY OAS ' + Math.round(hyOasBp) + 'bp(' + creditScore + '점)';
     if (temp >= 85) {
       narrative = '<b>과열 경고 (' + temp + '점)</b> — VIX↓금리↓유가↓달러↓ 전부 낙관적입니다. 역사적으로 이런 "완벽한 조건"은 3~6개월 내 조정이 찾아온 사례가 많습니다. <b>지금이 수익 실현 적기</b>입니다. 모두가 기분 좋을 때가 가장 위험합니다. 포트폴리오의 20~30%를 현금화하고, 방어주 비중을 늘리세요.<br><span style="font-size:11px;color:var(--text-muted);">산출: ' + _details + '</span>';
     } else if (temp >= 70) {
@@ -16376,7 +16380,7 @@ window.AIO.evaluateKrThemeQuoteCoverage = function(ld, themeMap) {
       var weight = Number(row.w) > 0 ? Number(row.w) : 0;
       requiredWeight += weight;
       var d = ld[krTickerToYahoo(row.code)];
-      if (d && Number.isFinite(Number(d.pct))) { seenWeight += weight; seenCount++; }
+      if (d && d.pct != null && Number.isFinite(Number(d.pct))) { seenWeight += weight; seenCount++; }
     });
     totalWeight += requiredWeight;
     observedWeight += seenWeight;
@@ -20484,15 +20488,19 @@ function updateRiskMonitor() {
     if (rmDxyBar) { rmDxyBar.style.width = Math.min(100, ((dxy-90)/30)*100) + '%'; rmDxyBar.style.background = dxyColor; }
   }
 
-  // HYG
-  var hyg = ld['HYG'] ? ld['HYG'].price : null;
+  // HY 신용스프레드 — P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격 대신 FRED HY OAS(bp) 실측만 사용
+  var hyOasBp = Number(window._hySpreadBp);
+  var hyOasOk = isFinite(hyOasBp);
   var rmHygStatus = document.getElementById('rm-hyg-status');
   var rmHygBar = document.getElementById('rm-hyg-bar');
-  if (hyg !== null) {
-    var hygColor = hyg > 78 ? 'var(--data-green)' : hyg > 75 ? 'var(--data-amber)' : 'var(--data-red)';
-    var hygLabel = hyg > 78 ? '안정' : hyg > 75 ? '주의' : 'HY 스트레스';
+  if (hyOasOk) {
+    var hygColor = hyOasBp < 350 ? 'var(--data-green)' : hyOasBp < 450 ? 'var(--data-amber)' : 'var(--data-red)';
+    var hygLabel = hyOasBp < 350 ? '안정' : hyOasBp < 450 ? '주의' : 'HY 스트레스';
     if (rmHygStatus) { rmHygStatus.textContent = hygLabel; rmHygStatus.style.color = hygColor; }
-    if (rmHygBar) { rmHygBar.style.width = Math.min(100, ((hyg-70)/20)*100) + '%'; rmHygBar.style.background = hygColor; }
+    if (rmHygBar) { rmHygBar.style.width = Math.min(100, Math.max(0, ((650-hyOasBp)/400)*100)) + '%'; rmHygBar.style.background = hygColor; }
+  } else {
+    if (rmHygStatus) { rmHygStatus.textContent = '미수신'; rmHygStatus.style.color = 'var(--text-muted)'; }
+    if (rmHygBar) { rmHygBar.style.width = '0%'; }
   }
 
   // TNX
@@ -20546,12 +20554,13 @@ function updateRiskMonitor() {
     window._aioRenderValueSlot(rmRspStatus, 'pending', null, { text: '수신 대기', reason: 'RSP 또는 SPY 라이브 시세 미수신' });
   }
 
-  // Risk Composite (v14: VIX 50% + HYG 25% + TNX 25% 복합 가중치)
+  // Risk Composite (v14: VIX 50% + HY OAS 25% + TNX 25% 복합 가중치)
   // VIX: 0점(=10) ~ 40(=70) 선형 맵
   var riskComposite = 31;
   if (vix !== null) {
     var vixC  = Math.min(70, Math.max(10, Math.round((vix / 40) * 60 + 10)));
-    var hygC  = hyg !== null ? Math.min(70, Math.max(10, Math.round((1 - (hyg - 70) / 15) * 60 + 10))) : vixC;
+    // P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격 대신 FRED HY OAS(bp) 실측 — 300bp(양호)~550bp(위기) 선형 맵
+    var hygC  = hyOasOk ? Math.min(70, Math.max(10, Math.round(((hyOasBp - 300) / 250) * 60 + 10))) : vixC;
     var tnxC  = tnx !== null ? Math.min(70, Math.max(10, Math.round(((tnx - 2) / 4) * 60 + 10))) : vixC;
     riskComposite = Math.round(vixC * 0.5 + hygC * 0.25 + tnxC * 0.25);
   }
@@ -21732,13 +21741,19 @@ function generateFxBondCommentary() {
     else tnxEl.textContent = '미 10Y ' + tnx.toFixed(2) + '% — 4.0% 미만 구간의 금리 수준 관측.';
   }
 
+  // P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격 대신 FRED HY OAS(bp) 실측만 사용 — 이 블록이
+  // updateFxDynamicComments()의 동일 element(#bond-dc-credit) 갱신 직후 실행돼 항상 덮어쓰던 이중 표면.
   var creditEl = document.getElementById('bond-dc-credit');
-  var hyg = ld['HYG'] ? ld['HYG'].price : null;
-  var lqd = ld['LQD'] ? ld['LQD'].price : null;
-  if (creditEl && hyg) {
-    if (hyg < 75) creditEl.textContent = 'HYG $' + hyg.toFixed(1) + ' — 신용 위기 경보! 하이일드 스프레드 급등. 기업 부도 위험 ↑. 리스크오프 전면전. 안전자산(국채·금) 피신 권고.';
-    else if (hyg < 78) creditEl.textContent = 'HYG $' + hyg.toFixed(1) + ' — 주의. 크레딧 스프레드 확대 중. 고위험 채권 시장 스트레스 감지. HYG+LQD 동반 하락 시 광범위 신용 이벤트 우려.';
-    else creditEl.textContent = 'HYG $' + hyg.toFixed(1) + ' — 안정적. 크레딧 시장 정상 범위. 기업 부도율 낮음. 하이일드 채권 캐리(이자 수익) 매력 유지.';
+  var hyOasBp = Number(window._hySpreadBp);
+  var hyOasOk = isFinite(hyOasBp);
+  if (creditEl) {
+    if (!hyOasOk) {
+      creditEl.textContent = 'HY OAS 판정 보류 — FRED BAMLH0A0HYM2 현재 관측값 미수신';
+      creditEl.style.color = 'var(--text-muted)';
+    } else if (hyOasBp > 500) creditEl.textContent = 'HY OAS ' + Math.round(hyOasBp) + 'bp — 신용스프레드 급등 구간. 기업 부도 위험 프리미엄 상승 관측.';
+    else if (hyOasBp > 400) creditEl.textContent = 'HY OAS ' + Math.round(hyOasBp) + 'bp — 신용스프레드 확대 구간. 크레딧 시장 불안정 관측.';
+    else if (hyOasBp > 350) creditEl.textContent = 'HY OAS ' + Math.round(hyOasBp) + 'bp — 신용스프레드 중간 구간.';
+    else creditEl.textContent = 'HY OAS ' + Math.round(hyOasBp) + 'bp — 신용스프레드 타이트 구간. 현재 부도 위험 프리미엄은 낮은 수준.';
   }
 
   var implEl = document.getElementById('bond-dc-implication');
@@ -21764,9 +21779,9 @@ function generateFxBondCommentary() {
     if (krw && krw >= 1450) implParts.push('원화 약세 극단: 역사적으로 환노출 관리가 우선시되던 환율대(지시 아님)');
     else if (krw && krw >= 1350) implParts.push('원화 약세: 수출주(삼성/현대차) 환율 수혜');
 
-    // 신용 전략
-    if (hyg && hyg < 75) implParts.push('HY 위기: 투자등급(LQD)만, 정크본드 회피');
-    else if (hyg && hyg < 78) implParts.push('HY 주의: 크레딧 스프레드 확대, 신용 리스크 관리');
+    // 신용 전략 — HYG 달러 가격 대신 FRED HY OAS(bp) 실측 사용 (P576/P713 계열)
+    if (hyOasOk && hyOasBp > 500) implParts.push('HY OAS ' + Math.round(hyOasBp) + 'bp(위기 구간): 투자등급 중심, 하이일드 비중 축소 검토');
+    else if (hyOasOk && hyOasBp > 400) implParts.push('HY OAS ' + Math.round(hyOasBp) + 'bp(주의 구간): 크레딧 스프레드 확대 관측');
 
     // 금 전략
     var goldP = ld['GC=F'] ? ld['GC=F'].price : null;
@@ -26534,10 +26549,10 @@ function calcKrHealthScore() {
   var score = 50; // 기본값
 
   // P712/R340: 결측을 0 또는 오래된 월간 스냅샷으로 중립화하지 않는다.
-  var kospiLive = ld['^KS11'] && Number.isFinite(Number(ld['^KS11'].pct));
-  var kosdaqLive = ld['^KQ11'] && Number.isFinite(Number(ld['^KQ11'].pct));
+  var kospiLive = ld['^KS11'] && ld['^KS11'].pct != null && Number.isFinite(Number(ld['^KS11'].pct));
+  var kosdaqLive = ld['^KQ11'] && ld['^KQ11'].pct != null && Number.isFinite(Number(ld['^KQ11'].pct));
   var vkospiLive = typeof _vkospiLastOkTs !== 'undefined' && _vkospiLastOkTs && (Date.now() - _vkospiLastOkTs < 86400000) && !(typeof _vkospiIsFailedState === 'function' && _vkospiIsFailedState());
-  var supplyLive = window._krCurrentSupplyEvidence && (Date.now() - window._krCurrentSupplyEvidence.observedAt < 86400000) && Number.isFinite(Number(window._krCurrentSupplyEvidence.foreignNet));
+  var supplyLive = window._krCurrentSupplyEvidence && (Date.now() - window._krCurrentSupplyEvidence.observedAt < 86400000) && window._krCurrentSupplyEvidence.foreignNet != null && Number.isFinite(Number(window._krCurrentSupplyEvidence.foreignNet));
   var currentInputs = [kospiLive, kosdaqLive, vkospiLive, supplyLive].filter(Boolean).length;
   if (currentInputs < 4) {
     var missing = [];

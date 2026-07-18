@@ -3500,7 +3500,7 @@ function applyFredToUI(data) {
     const e = data[seriesId];
     if (!e || typeof e.yoy !== 'number' || !isFinite(e.yoy)) return;
     const yoy = e.yoy;
-    _updSnap(snapKey, function(){ return (yoy >= 0 ? '' : '') + yoy.toFixed(1) + '%'; });
+    _updSnap(snapKey, function(){ return (yoy >= 0 ? '+' : '') + yoy.toFixed(1) + '%'; });
   }
   _fredYoYSnap('CPIAUCSL', 'cpi');        // 비교표 호환 (US CPI YoY)
   _fredYoYSnap('CPIAUCSL', 'cpi-yoy');    // 전용 카드
@@ -16306,7 +16306,7 @@ function _syncYahooToFred() {
 
   // DGS10 실시간 → 10Y-2Y 스프레드 자동 갱신
   const tnx = ld['^TNX'];
-  if (tnx && tnx.price > 0 && !fd['T10Y2Y'] && Number.isFinite(Number(window._live2Y))) {
+  if (tnx && tnx.price > 0 && !fd['T10Y2Y'] && window._live2Y != null && Number.isFinite(Number(window._live2Y))) {
     const y10 = tnx.price;
     const y2 = Number(window._live2Y);
     const spread10y2y = y10 - y2;
@@ -17425,16 +17425,17 @@ function _aioRenderCarryUnwindRisk() {
   var jpy = Number(ld['JPY=X'] && ld['JPY=X'].price);
   var vix = Number(ld['^VIX'] && ld['^VIX'].price);
   var tnx = Number(ld['^TNX'] && ld['^TNX'].price);
-  var hyg = Number(ld['HYG'] && ld['HYG'].price);
+  // P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격("가격 프록시" 자체 라벨) 대신 FRED HY OAS(bp) 실측 사용
+  var hyOasBp = Number(window._hySpreadBp);
   // DATA_SNAPSHOT의 BOJ 정책금리는 수동 확인 필드이며 fieldTS(60일)로 별도 검증된다.
   var bojRate = Number(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.bojRate);
-  var inputsComplete = [jpy, vix, tnx, hyg, bojRate].every(Number.isFinite);
+  var inputsComplete = [jpy, vix, tnx, hyOasBp, bojRate].every(Number.isFinite);
   if (!inputsComplete) {
     var missing = [];
     if (!Number.isFinite(jpy)) missing.push('USD/JPY');
     if (!Number.isFinite(vix)) missing.push('VIX');
     if (!Number.isFinite(tnx)) missing.push('미 10Y');
-    if (!Number.isFinite(hyg)) missing.push('HYG');
+    if (!Number.isFinite(hyOasBp)) missing.push('HY OAS');
     if (!Number.isFinite(bojRate)) missing.push('BOJ 정책금리');
     var missingText = '관측 프록시 보류 — 현재 입력 미수신: ' + missing.join(' · ');
     var e;
@@ -17442,7 +17443,7 @@ function _aioRenderCarryUnwindRisk() {
     e = document.getElementById('carry-vix-risk');   if (e) e.textContent = Number.isFinite(vix) ? 'VIX ' + vix.toFixed(1) : '—';
     e = document.getElementById('carry-rate-diff');  if (e) e.textContent = '—';
     e = document.getElementById('carry-rate-risk');  if (e) e.textContent = '미일 금리차 산출 보류';
-    e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = Number.isFinite(hyg) ? 'HYG $' + hyg.toFixed(1) : '—';
+    e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = Number.isFinite(hyOasBp) ? 'HY OAS ' + Math.round(hyOasBp) + 'bp' : '—';
     e = document.getElementById('carry-score-bar');  if (e) { e.style.width = '0%'; e.style.background = 'var(--text-muted)'; }
     e = document.getElementById('carry-score-text'); if (e) e.textContent = '—';
     e = document.getElementById('carry-verdict');    if (e) e.textContent = missingText;
@@ -17460,8 +17461,8 @@ function _aioRenderCarryUnwindRisk() {
   if (vix > 30) score += 30; else if (vix > 22) score += 20; else if (vix > 15) score += 10; else score += 5;
   // 미일 정책금리 차: 수준 관측
   if (rateDiff < 2.5) score += 20; else if (rateDiff < 3.5) score += 10; else score += 5;
-  // HYG: 크레딧 스프레드 확대 시 리스크-오프 연동
-  if (hyg < 78) score += 15; else if (hyg < 82) score += 8; else score += 3;
+  // HY OAS: 크레딧 스프레드 확대 시 리스크-오프 연동 (bp 상승 = 위험 가산)
+  if (hyOasBp > 450) score += 15; else if (hyOasBp > 350) score += 8; else score += 3;
   score = Math.min(100, score);
 
   // 이 지표는 포지션·옵션·당국조치 데이터를 포함하지 않는 단순 관측 프록시다.
@@ -17470,8 +17471,8 @@ function _aioRenderCarryUnwindRisk() {
   var jpyRisk  = 'USD/JPY ' + jpy.toFixed(1) + ' (수준 관측)';
   var vixRisk  = 'VIX ' + vix.toFixed(1) + ' (변동성 관측)';
   var rateRisk = '미일 정책금리 차 ' + rateDiff.toFixed(1) + '%p (BOJ 수동 확인값 기준)';
-  var hygRisk  = 'HYG $' + hyg.toFixed(1) + ' (가격 프록시; HY OAS 아님)';
-  var verdict = '관측 프록시 ' + score + '/100 — USD/JPY·VIX·미일 정책금리 차·HYG의 단순 규칙값입니다. 엔캐리 포지션 규모, 당국 조치, 청산 확률 및 자산가격 방향은 이 값만으로 판단하지 않습니다.';
+  var hygRisk  = 'HY OAS ' + Math.round(hyOasBp) + 'bp';
+  var verdict = '관측 프록시 ' + score + '/100 — USD/JPY·VIX·미일 정책금리 차·HY OAS의 단순 규칙값입니다. 엔캐리 포지션 규모, 당국 조치, 청산 확률 및 자산가격 방향은 이 값만으로 판단하지 않습니다.';
 
   var e;
   e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = jpyRisk;

@@ -1556,9 +1556,13 @@ function _fetchDomainContextForChat(ctxId) {
     } else if (ctxId === 'fxbond') {
       var dxy = liveNum('DX-Y.NYB', 'price'); if (dxy == null) dxy = num(pick('dxy'));
       var hyg = liveNum('HYG', 'price');
+      // P576/P713 계열 표면(2026-07-18): AI 컨텍스트는 HYG 달러 가격 대신 FRED HY OAS(bp) 실측을 우선 인용 —
+      // HYG 가격은 듀레이션(금리) 노출이 섞여 있어 AI가 신용 레벨로 오인용할 위험이 있음.
+      var hyOasBpChat = Number(window._hySpreadBp);
       if (dxy != null) lines.push('• 달러(DXY): ' + dxy.toFixed(2) + (dxy >= 100 ? ' (강세권·EM 압박)' : ' (약세권·원자재/EM 우호)'));
       if (tnx != null || twoY != null) lines.push('• 미 국채: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spread != null ? ' · 2s10s ' + (spread >= 0 ? '+' : '') + (spread * 100).toFixed(0) + 'bp' + (spread < 0 ? ' (역전)' : '') : ''));
-      if (hyg != null) lines.push('• 크레딧(HYG): ' + hyg.toFixed(2) + ' — 하락 시 HY 스프레드 확대(리스크오프 신호)');
+      if (isFinite(hyOasBpChat)) lines.push('• 크레딧(HY OAS): ' + Math.round(hyOasBpChat) + 'bp' + (hyg != null ? ' · HYG $' + hyg.toFixed(2) + '(참고 가격)' : ''));
+      else if (hyg != null) lines.push('• 크레딧(HYG 가격, OAS 미수신): ' + hyg.toFixed(2) + ' — 절대 스프레드 수준 아님, 방향 참고만');
       var kr3 = num(pick('krBond3y','kr-bond-3y','krBond3Y')), kr10 = num(pick('krBond10y','kr-bond-10y','krBond10Y'));
       if (kr3 != null || kr10 != null) lines.push('• 한국 금리(스냅샷): ' + (kr3 != null ? '3Y ' + kr3 + '%' : '') + (kr10 != null ? (kr3 != null ? ' · ' : '') + '10Y ' + kr10 + '%' : ''));
       try { if (window.AIO && typeof window.AIO.computeCrossAssetCorrelation === 'function') { var ca = window.AIO.computeCrossAssetCorrelation(); if (ca && (ca.regime || ca.verdict)) lines.push('• Cross-Asset 레짐: ' + (ca.regime || ca.verdict)); } } catch(_) {}

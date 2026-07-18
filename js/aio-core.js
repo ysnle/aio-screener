@@ -1065,7 +1065,7 @@ window.AIO.getDecisionEvidenceBundle = function(opts) {
     var sourceKind = status === 'verified_current' ? 'LIVE' : status === 'stale_live' ? 'LIVE' : status === 'snapshot_reference' ? 'SNAPSHOT' : 'MISSING';
     var typedStatus = status === 'verified_current' ? 'ok' : status === 'unavailable' ? 'missing' : status === 'stale_live' ? 'stale' : 'reference';
     var evidenceId = 'ev-trading-input-' + String(row.id || 'unknown').replace(/[^a-z0-9_-]/gi, '-') + '-' + status;
-    var asOf = Number.isFinite(Number(row.ageMin)) ? new Date(Date.now() - Number(row.ageMin) * 60000).toISOString() : null;
+    var asOf = row.ageMin != null && Number.isFinite(Number(row.ageMin)) ? new Date(Date.now() - Number(row.ageMin) * 60000).toISOString() : null;
     var provenance = window.AIO.createTypedEvidence({
       key:'trading-input:' + row.id,
       evidenceId:evidenceId,
@@ -3202,7 +3202,7 @@ if (typeof document !== 'undefined') {
       var rationaleEl = document.getElementById('cycle-dynamic-rationale');
       if (phaseEl) phaseEl.textContent = cycle.phase;
       var cycleInputs = cycle.inputs || {};
-      if (inputsEl) inputsEl.textContent = 'VIX ' + window._aioSafeFixed(cycleInputs.vix, 1, '—') + ' · Breadth50 ' + (Number.isFinite(Number(cycleInputs.breadth50)) ? Number(cycleInputs.breadth50) + '%' : '—') + ' · 2s10s ' + window._aioSafeFixed(cycleInputs.yield2s10s, 2, '0.00') + ' · SPX ' + (cycleInputs.spxTrend || '—');
+      if (inputsEl) inputsEl.textContent = 'VIX ' + window._aioSafeFixed(cycleInputs.vix, 1, '—') + ' · Breadth50 ' + (cycleInputs.breadth50 != null && Number.isFinite(Number(cycleInputs.breadth50)) ? Number(cycleInputs.breadth50) + '%' : '—') + ' · 2s10s ' + window._aioSafeFixed(cycleInputs.yield2s10s, 2, '0.00') + ' · SPX ' + (cycleInputs.spxTrend || '—');
       if (rationaleEl) rationaleEl.textContent = '근거: ' + cycle.rationale.join(' · ');
     } catch(_e) { /* themes 페이지 진입 동적 사이클 실패 — 정적 진단으로 폴백 */ }
   };
@@ -15711,8 +15711,8 @@ window.AIO.normalizeExternalSourceState = function(input) {
     unavailable:{ label: '외부 수집 실패', allowedUse: 'none', usable: false }
   }[status];
   return { status: status, label: policy.label, allowedUse: policy.allowedUse, usable: policy.usable,
-    count: Number.isFinite(Number(x.count)) ? Number(x.count) : null,
-    expected: Number.isFinite(Number(x.expected)) ? Number(x.expected) : null,
+    count: x.count != null && Number.isFinite(Number(x.count)) ? Number(x.count) : null,
+    expected: x.expected != null && Number.isFinite(Number(x.expected)) ? Number(x.expected) : null,
     reason: x.reason || x.message || null };
 };
 window.AIO.setExternalSourceState = function(source, input, detail) {
@@ -21299,7 +21299,7 @@ window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {
   var sma50 = Number(b.sma50 != null ? b.sma50 : b.above50);
   var ageMs = Number.isFinite(ts) ? Date.now() - ts : Infinity;
   var available = Number.isFinite(sma5) && Number.isFinite(sma20) && Number.isFinite(sma50) && ageMs >= 0 && ageMs <= maxAge;
-  return { available: available, sma5: available ? sma5 : null, sma20: available ? sma20 : null, sma50: available ? sma50 : null, advances: available && Number.isFinite(Number(b.advances)) ? Number(b.advances) : null, declines: available && Number.isFinite(Number(b.declines)) ? Number(b.declines) : null, advanceRatio: available && Number.isFinite(Number(b.advanceRatio)) ? Number(b.advanceRatio) : null, coveragePct: available && Number.isFinite(Number(b.coveragePct)) ? Number(b.coveragePct) : null, eligible: available && Number.isFinite(Number(b.eligible)) ? Number(b.eligible) : null, ts: Number.isFinite(ts) ? ts : null, ageMs: ageMs, source: available ? (b.source || 'breadth-live-producer') : null, reason: available ? null : '현재 timestamp·출처가 있는 5/20/50일선 breadth 원천 미수신' };
+  return { available: available, sma5: available ? sma5 : null, sma20: available ? sma20 : null, sma50: available ? sma50 : null, advances: available && b.advances != null && Number.isFinite(Number(b.advances)) ? Number(b.advances) : null, declines: available && b.declines != null && Number.isFinite(Number(b.declines)) ? Number(b.declines) : null, advanceRatio: available && b.advanceRatio != null && Number.isFinite(Number(b.advanceRatio)) ? Number(b.advanceRatio) : null, coveragePct: available && b.coveragePct != null && Number.isFinite(Number(b.coveragePct)) ? Number(b.coveragePct) : null, eligible: available && b.eligible != null && Number.isFinite(Number(b.eligible)) ? Number(b.eligible) : null, ts: Number.isFinite(ts) ? ts : null, ageMs: ageMs, source: available ? (b.source || 'breadth-live-producer') : null, reason: available ? null : '현재 timestamp·출처가 있는 5/20/50일선 breadth 원천 미수신' };
 };
 window._aioSyncBreadth50Readout = function() {
   var ev = window.AIO.getCurrentBreadthEvidence();
@@ -21873,7 +21873,7 @@ function computeTradingScore(mode) {
   else               momScore = 25;  // Extreme Fear — 역발상 반등 여지
 
   // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
-  const maCurrent = !!(window._spxMA && Number.isFinite(Number(window._spxMA[50])) && Number.isFinite(Number(window._spxMA[200])) && Number.isFinite(Number(window._spxMATs)) && (Date.now() - Number(window._spxMATs)) <= 4 * 24 * 60 * 60 * 1000);
+  const maCurrent = !!(window._spxMA && window._spxMA[50] != null && Number.isFinite(Number(window._spxMA[50])) && window._spxMA[200] != null && Number.isFinite(Number(window._spxMA[200])) && Number.isFinite(Number(window._spxMATs)) && (Date.now() - Number(window._spxMATs)) <= 4 * 24 * 60 * 60 * 1000);
   const spx200ma = maCurrent ? Number(window._spxMA[200]) : null;
   const spx50ma  = maCurrent ? Number(window._spxMA[50]) : null;
   const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');

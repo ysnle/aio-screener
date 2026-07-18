@@ -320,7 +320,7 @@ function updateWSAnalysis() {
   var breadth = (typeof window._breadth200 === 'number') ? window._breadth200 :
                 (typeof window._breadth20 === 'number') ? window._breadth20 :
                 ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma : null);
-  if (!Number.isFinite(Number(breadth))) {
+  if (breadth == null || !Number.isFinite(Number(breadth))) {
     el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">시장 폭 실측값 미수신 — Stage 판정 보류</div>';
     return;
   }

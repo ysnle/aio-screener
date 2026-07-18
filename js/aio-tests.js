@@ -5434,7 +5434,7 @@
         _fredFn({ 'PCEPI': { value: 125.4, prevValue: 125.1, yoy: 2.5, date: '2026-05-30' },
                   'PAYEMS': { value: 159200, prevValue: 159053, date: '2026-06-05' } });
         var _afterPce = _snapTxt('pce-yoy'), _afterNfp = _snapTxt('nfp');
-        t765ok = (_afterPce === '2.5%') && (_afterNfp === '+147K');
+        t765ok = (_afterPce === '+2.5%') && (_afterNfp === '+147K');
         t765detail = 'before=' + _before + ' afterPce=' + _afterPce + ' afterNfp=' + _afterNfp;
         // 폴백 복원 (다른 테스트 영향 방지)
         if (typeof applyDataSnapshot === 'function') { try { applyDataSnapshot(); } catch(_) {} }

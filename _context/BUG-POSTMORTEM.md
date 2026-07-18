@@ -3,9 +3,9 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
 latest_version: v53.7
-latest_P_number: P724
-next_P_number: P726
-total_entries: 500 (P1~P724, 결번 존재 — 상세 19건 + 압축 원장)
+latest_P_number: P726
+next_P_number: P727
+total_entries: 501 (P1~P726, 결번 존재 — 상세 20건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -27,7 +27,7 @@ total_entries: 500 (P1~P724, 결번 존재 — 상세 19건 + 압축 원장)
 | 관측 시점 리터럴 부패 (달력 회전·시장값 회전·데이터 상태 영구 단언) | P604 P627 P713(T884) P715('1,508') P720('5/5') P722 | R279 계열. `grep "=== '20"` 스윕, 감사 토큰에 비숫자 컨텍스트 의무 |
 | fail-closed 위반 (결측·정적·합성값의 현재 판정 승격) | P635 P649 P706 P712 P713 P717 P718 | R340~R342, ci-static-data-contract 22카테고리 |
 | 매매 지시·과신 라벨 발화 (정적 UI 포함) | P490 P512 P535 P714 P720 | P714 관측형 전환 + 지시 문형 grep |
-| HYG 달러 가격 임계로 신용 판정 | P576 P713 P714 + **2026-07-18 잔존 3함수 확인(미수정, 아래 참조)** | R341 승격 대상 — `grep -E "hyg\s*[<>]"` |
+| HYG 달러 가격 임계로 신용 판정 | P576 P713 P714 P726(5표면 전부 해소) | **R343 승격 완료** — `grep -E "hyg\s*[<>]"` QA §0/§4 상시 편입 |
 | silent fail (실패를 삼키고 정상처럼 보임) | P352 P410 P415 P523 P546 P565 P707 | 실패 상태 명시 렌더 + lineage 게이트 |
 | XSS/이스케이프 누락 | P433~P438 P558 P566 P567 | escHtml/safeHtml 스윕, runtime contract |
 | 일괄 치환·스윕 부작용 (sed/이모지 제거가 코드 파괴) | PR-P135 P678 P680 | R309 — 스윕 후 빈 버튼·양쪽-빈 삼항 전수 검색 |
@@ -53,7 +53,28 @@ total_entries: 500 (P1~P724, 결번 존재 — 상세 19건 + 압축 원장)
 
 ---
 
-# 상세 엔트리 (P704~P724 · v52.89~v53.6)
+# 상세 엔트리 (P704~P726 · v52.89~v53.7)
+
+## P726 - v53.7 - HYG 달러 가격 임계 신용 판정이 5번째 표면까지 잔존했고, 그중 하나는 대상 DOM 자체가 없는 고아 코드였다
+
+- **motivation**: 직전 QA 문서 통합 세션에서 열린 항목으로 남겨둔 "HYG 달러 가격 임계 신용 판정 3함수 잔존"(P576/P713/P714 클래스)을 실제로 수정하기 위해 재확인.
+- **symptom/reproduction**: 최초 식별된 3곳(`_tempLive`/`computeEconomicTemperature`, `updateRiskMonitor`, `generateFxBondCommentary`) 수정 후 저장소 전체를 `grep -nE "hyg\s*[<>]=?\s*[0-9]{2}"`로 재스윕한 결과 4번째(`js/aio-data.js`의 `_aioRenderCarryUnwindRisk`, 엔캐리 언와인드 리스크 프록시)와 5번째(`js/aio-chat.js`의 fxbond AI 채팅 컨텍스트) 표면을 추가로 발견. 5곳 모두 수정 후 Playwright로 로컬 서버(uncommitted 워킹트리)를 직접 열어 실측한 결과, `generateFxBondCommentary()`가 쓰는 `#bond-dc-credit`/`#bond-dc-implication`/`#bond-dc-curve`/`#bond-dc-10y`/`fx-dc-*` DOM이 index.html 어디에도 존재하지 않음을 확인 — 이 함수와 형제 함수 `updateFxDynamicComments()`는 매 fxbond 페이지 진입·라이브 갱신마다 실행되지만 전부 조용히 no-op이었다.
+- **root_cause**: (1) `computeTradingScore`(P576)와 Weinstein/MTF(P713)만 HY OAS로 수정되고, 동일 신용지표를 별도로 재계산하는 4개 함수(경제 온도계·Risk Monitor 위젯+Composite 서브스코어·FX/Bond 해설·엔캐리 프록시)와 AI 채팅 컨텍스트 1곳이 R25 "동일 지표 소비 표면 grep 전수" 원칙 없이 개별 수정되며 누락됨 — 매 회 "3곳 다 고쳤다"는 판단이 반복적으로 틀렸던 이유. (2) `generateFxBondCommentary()`의 대상 DOM은 v52.71 아이보리 컴프 리디자인(index.html:8826 주석 "기존 cam-*/carry-jpy 재사용")이 `bond-dc-*`/`fx-dc-*` 위젯을 `cam-*`/`carry-*` 구조로 완전히 대체하면서 HTML만 교체되고 구 JS 함수·호출부는 제거되지 않은 R341급 고아 코드 — 코드 리딩만으로는 "이중 표면이 라이브에서 어느 쪽이 이기는가"를 실제와 다르게 추론했다(둘 다 dead였음, 실측 전에는 몰랐음).
+- **fix**: 5개 표면 전부 `window._hySpreadBp`(FRED HY OAS bp) 단일 소스로 전환, 임계값은 기존 Weinstein/MTF와 동일한 350/450/550bp로 통일. `generateFxBondCommentary()`의 "안전자산 피신 권고" 등 처방형 문구는 관측형으로 전환(P714 원칙). `Risk Monitor`의 `#rm-hyg-bar`는 `((650-oasBp)/400)*100` 역방향 맵으로 재계산(낮은 bp=안정=풀바 유지, 기존 시각 관례 보존). 이 과정에서 발견한 R309 잔재(`js/aio-data.js:3503`, FRED YoY 카드 "+" 부호 소실)와 `Number.isFinite(Number(x))`형 null→0 통과 취약점 18곳(그중 14곳 실버그로 판정)도 같은 세션에서 함께 닫음(각각 별도 root_cause — 상세는 이 항목 하단 병기).
+- **violated_rule**: R25(이중/다중 표면 grep 전수 없이 "고쳤다" 선언 — 3회 이상 반복돼 R341 승격 대상), R341(퇴역 UI의 JS 수직 경로 미제거).
+- **prevention**: HYG 관련 재발 방지는 QA-CHECKLIST에 `grep -E "hyg\s*[<>]"` 전수 스윕을 상시 항목으로 편입(완료). 코드 리딩만으로 "어느 표면이 라이브에서 이기는가"를 판단하지 않고, DOM 타겟 존재 여부를 실브라우저(Playwright, 외부망 차단+mock 데이터 주입)로 직접 확인하는 절차를 표준화 — 이번 건에서 실제로 오판을 잡아냈다.
+- **verification**: JS 문법 6모듈 전체 통과, 정적 게이트 15종 전체 PASS. 로컬 Playwright(uncommitted 워킹트리, 외부망 차단)로 (a) 결측 상태에서 `온도계="—"`/`rm-hyg-status="미수신"`/`carry-hyg-risk="—"` 정상 표시, (b) `window._hySpreadBp=387`(주의 구간) 주입 후 재호출 시 `rm-hyg-status="주의"`·`rm-hyg-bar="65.75%"`(공식 검산 일치)·`temp-score="60"`(내역에 "HY OAS 387bp(50점)" 정상 표기)·`carry-verdict`에 HY OAS 반영 확인, (c) console/page error 0(net::ERR_FAILED는 의도적 외부망 차단에 의한 것). 헤드리스 `AIO.runTests()`는 이번 수정이 유발한 T765(FRED YoY 카드 텍스트 하드코딩 기대값)를 잡아내 함께 수정 — 1101/1101 PASS. 배포·커밋은 사용자 지시 전 미수행.
+
+### 병기 — 같은 세션 부수 수정 (Number.isFinite(Number()) null→0, R309)
+
+- **calcKrHealthScore**(index.html): 함수 3줄 위 자신의 주석("P712/R340: 결측을 0으로 중립화하지 않는다")과 직접 모순 — KOSPI/KOSDAQ pct가 null이면 `Number(null)=0`이 `isFinite` 통과해 "라이브 수신됨"으로 오판정, `kospiPct=0`이 `-1<0` 버킷에 걸려 실제로 -5점을 만들어냈다(가장 심각한 사례).
+- **updateWSAnalysis**(js/aio-ui.js): `!Number.isFinite(Number(breadth))` 부정 가드가 null을 통과시켜 "판정 보류" 대신 breadth=0 취급으로 Weinstein Stage 최하단(약세) 판정과 조언 문구를 발화— 자기 자신의 에러 메시지("Stage 판정 보류")를 무력화.
+- **fetchYFChart 2s10s 브릿지**(js/aio-data.js:16309): `window._live2Y` null 시 `y2=0`이 되어 `spread10y2y = y10 - 0 = 10년물 그 자체`(예: +430bp)가 스프레드로 오기록될 수 있었음 — 커브 역전 판정을 오염시킬 수 있는 경로.
+- **evaluateKrThemeQuoteCoverage**(index.html): `d.pct` null인 종목을 "관측됨"으로 카운트해 커버리지 게이트(0.6/0.7 임계) 자체를 무력화할 수 있었음.
+- 나머지 9곳(SR Levels, 사이클 입력 표시, evidence bundle asOf, external-source-state count/expected, breadth advances/declines 등)은 개별적으로 낮거나 중간 심각도 — 상세는 diff 참조. 4곳(`js/aio-core.js:20923`의 `valid()` 헬퍼, `js/aio-tests.js` T683/T241/T187)은 이미 `== null ||` 사전 차단이 있어 안전 — 수정 불필요로 확인 후 유지.
+- **prevention**: `Number.isFinite(Number(v))` 단독 사용 금지 — `v != null && Number.isFinite(Number(v))` 또는 `typeof v === 'number' && isFinite(v)`(P715 원칙과 동일 클래스). 검출: `grep -n "Number.isFinite(Number(" index.html js/*.js` 후 인접 `!= null`/`== null` 부재 여부 개별 확인.
+
+## P704~P724 (v52.89~v53.6) — 이하 상세 엔트리
 
 ## P724 - v53.6 - Yahoo v7 quote의 52주/거래량 확장 필드를 _liveData에 쓰는 코드가 저장소에 0곳 — 이를 1순위 소스로 읽는 UI가 영구 결측이었다
 
