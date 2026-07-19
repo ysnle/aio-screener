@@ -29,7 +29,7 @@ scope: rebuild integrity remediation + ARX 재진입
 
 `scripts/build-operations-status.mjs:43-48`이 `nativeOwner` 17개 route 전체·`legacyOwner: 0`·`cutoverStatus: 'NATIVE_ROUTES_LOCAL'`을 **리터럴 배열로 하드코딩**한다. `architecture/retirement-manifest.json`도 `nativeRoutes` 17개·`legacyRouteOwners: []`를 선언한다. 실행 계획 §1("Renderer가 legacy면 legacy owner") · §5("다섯 칸 중 하나라도 legacy면 nativeOwner 집계 금지") 및 R352 위반.
 
-실측 소유권(§2 진실표): renderer native는 최대 4(briefing/guide/market-news/sentiment), data native 0, chart native 1(sentiment), narrative native 0~1(재실측 필요). 5칸 기준 `nativeOwner`는 **0**이어야 한다. 직전 정직 기록은 실행 계획 §2 checkpoint의 `nativeRendererOwner=4 / legacyOwner=13`이었다.
+실측 소유권(§2 진실표): renderer native는 **2**(guide/sentiment — 2차 스윕에서 market-news/briefing의 legacy writer 잔존 확정, F-03), data native 0, chart native 1(sentiment), narrative native 0~1(재실측 필요). 5칸 기준 `nativeOwner`는 **0**이어야 한다. 직전 기록(실행 계획 §2 checkpoint `nativeRendererOwner=4 / legacyOwner=13`)조차 과대였다.
 
 ### F-02 — 게이트 역전: 게이트가 실측을 검증하지 않고 선언을 강제 (P0)
 
@@ -48,8 +48,14 @@ renderer owner가 legacy인 13개 route에 추가된 얇은 native 모듈(`src/u
 | `score-gauge-val` | `aio-core.js` `refreshSignalDashboard` (0~100 정수) | `analysis.js:18` (toy 모델 -1~1 `toFixed(2)`) | "62" vs "0.33" 경합 |
 | `home-hero-total` | `aio-data.js:16414` | `analysis.js:13` (`availableInputs`) | 의미 다름 |
 | `ticker-hero-price` 등 ticker-* | `aio-core.js:25740` 일대 | `entity.js:24-36` | 데이터 경로 다름 |
+| `screener-results-body`·`screener-result-count` | `aio-data.js:1974/1977/2013` (22컬럼 innerHTML) | `screener.js:16-37` (5컬럼 replaceChildren) | **테이블 전체 경합 — native가 이기면 22컬럼 테이블에 5컬럼 행** |
+| `pf-positions-tbody`·`pf-total-value`·`pf-total-pnl` | `aio-ui.js:1161`(liveEls) 등 | `portfolio.js:13-47` (5컬럼 행) | 동일 계열 |
+| `live-news-feed` | `aio-data.js:11033/11128/12716/12748/13199` | `news.js:74-87` replaceChildren | **market-news도 실제로는 경합** — "legacy list renderer 삭제" 주장과 달리 5곳 잔존 |
+| `briefing-live-news-list` | `aio-core.js:3573/3601/25313/25364` + `aio-data.js:11549/11710` | `news.js` | **briefing도 경합** — 6곳 잔존 |
 
 도달 경로 확정: facade(`compatibility-facade.js:157-161`)가 legacy `showPage` 실행 **후** `router.transition`을 호출 → native mount가 나중에 실행되고, 이후 `aio:liveQuotes`/`aio:refresh:done`/모든 store dispatch마다 native가 재렌더(`analysis.js:40-45`)한다. 마지막 writer가 이기는 경합이며 AG-03(단일 writer)·실행 계획 §3 금지("legacy fetch/writer를 둔 채 병렬 추가") 위반. **native 모듈의 데이터가 6줄짜리 toy 도메인 산출이므로, 이기는 쪽이 native면 품질이 후퇴한다.**
+
+news/screener/portfolio 컨테이너 경합 확정에 따라 "renderer native 4(briefing/guide/market-news/sentiment)"도 과대다. **대응 legacy writer가 실제 0인 진짜 renderer cutover는 guide·sentiment 2개뿐이며, market-news/briefing은 CONTESTED다.**
 
 ### F-04 — 항진(tautological) 도메인 parity 게이트 (P1)
 
@@ -76,6 +82,16 @@ F-01~F-03은 각각 "게이트 회귀"에 해당하나 BUG-POSTMORTEM에 P번호
 - lifecycle router는 `start()` 시 초기 route를 mount하지 않는다(`router.js:40-44`) — 첫 `aio:pageShown` 의존. legacy boot가 초기 showPage를 호출하므로 현재는 동작하나, ARX-15(shell cutover)에서 명시 초기 mount로 바꿔야 함.
 - `installNavigation`은 showPage 몽키패치다(`compatibility-facade.js:157`) — 계획 §5.4가 금지한 패턴의 승인된 임시 예외임을 재확인. ARX-16 종료 대상.
 - store 초기화 실패 시 `JSON.parse(JSON.stringify())` fallback은 `Date`/`NaN`을 소실시킨다 — evidence `observedAt`을 string으로만 유지하는 현 계약을 깨지 말 것.
+- `market-snapshot` 계약이 `value <= 0`을 invalid로 판정(`contracts/market-snapshot.js:124`) — 금리·스프레드 계열이 0/음수가 되는 국면(ZIRP 등)에서 정당한 관측이 차단된다. Tier 0 확장 전에 단위별 유효범위로 교체.
+- ci.yml 내부 주석(170~176행 "deploy needs에서 제외")이 실제 구성(341행 `needs`에 headless-tests 포함)과 상충 — 주석 정리 대상.
+
+### F-10 — 신규 vault 무암호화 (P1, ARX-14 착수 전 필수 인지)
+
+`src/storage/vault.js`의 `createPrivacyVault`는 **consent 게이트 + versioned envelope일 뿐 암호화가 없다**(평문 `aio:vault:portfolio` 키 저장). 레거시 포트폴리오 Vault는 AES-256이다. 현재는 bootstrap이 이 vault를 read 전용으로만 배선해 실해가 없지만, ARX-14(storage 이관)에서 이 모듈로 포트폴리오 write를 옮기면 **암호화 후퇴**가 된다. ARX-14 인수 기준에 "신규 vault의 at-rest 암호화가 레거시와 동등 이상(WebCrypto AES-GCM 등) + 기존 암호문 마이그레이션"을 추가해야 한다.
+
+### F-11 — Trading Score 3중 구현과 백테스트 드리프트 (P1, RM-03 직접 근거)
+
+Trading Score가 세 벌 존재한다: ① 라이브 `computeTradingScore`(`aio-core.js:21671~`, 증거 게이팅·TTL 캐시·역U자 모멘텀을 갖춘 실모델) ② `scripts/backtest-trading-score.mjs:35`의 **"v52.1 기준 로직/가중치/임계값 그대로 복사"** 재구현(파일 스스로 명시; 이후 라이브가 v53.x로 진화해도 사본은 자동 추적 안 됨 — parity는 과거 scratchpad 단위테스트 1회뿐, 상시 게이트 아님) ③ `src/domain/signal/decision.js`의 무관한 3입력 toy. RM-03의 추출이 완료되면 ①②③이 단일 모듈 소비로 수렴해야 하며, backtest 스크립트의 사본 함수 삭제를 RM-03 DELETE-LEDGER에 포함한다.
 
 ## 2. Route 소유권 진실표 (RM-00 재실측의 초기 가설)
 
@@ -84,7 +100,7 @@ RM-00은 이 표를 **선언이 아니라 재실측으로 확정**한 뒤 `archi
 | 칸 | native 실측(가설) | 근거 |
 |---|---|---|
 | lifecycleOwner | 17 (조건부) | `PAGES` init 전부 null(`aio-core.js:25058~`), ESM router가 mount/dispose 소유. 단 showPage 본체(DOM show/hide·hash)는 legacy — "lifecycle=init/dispose 소유"로 정의를 명시하고 기록할 것 |
-| rendererOwner | 4 — briefing/guide/market-news/sentiment | 이 4개만 대응 legacy renderer 삭제 이력 존재(CHANGELOG v53.15). 나머지 13은 legacy renderer 생존 + thin native 병존(F-03) |
+| rendererOwner | **2 — guide/sentiment** | 이 2개만 대응 legacy writer 실측 0. market-news/briefing은 CHANGELOG의 "legacy list renderer 삭제" 주장과 달리 `live-news-feed` 5곳·`briefing-live-news-list` 6곳의 legacy writer 잔존으로 CONTESTED(F-03). 나머지 13은 legacy renderer 생존 + thin native 병존 |
 | dataOwner | 0 (sentiment는 IN_PROGRESS) | 모든 provider가 facade legacy projection을 read(`bootstrap.js:138-163`); directFetch 42→42 |
 | chartOwner | 1 — sentiment | `sentiment.js`만 차트 소유. 나머지 차트는 legacy |
 | narrativeOwner | 0~1 재실측 | ARX-01 카드와 §2 checkpoint가 상충 — sentiment 서술문 writer를 실측으로 판정 |
@@ -123,7 +139,9 @@ burn-down 기준선(v53.16): `explicitWindowWrites=1094 / directFetch=42 / direc
 4. 정적 게이트 신설 `AG-DOM-WRITER`: `src/ui/pages/*`가 쓰는 id와 `js/*`가 쓰는 id의 교집합 0을 `ci-architecture-contract-check.mjs`에 추가(향후 route cutover 시 route-owners.json 갱신과 함께 교집합 허용 목록 이동).
 5. 브라우저 게이트 확장: home 로드 후 `score-gauge-val` 텍스트가 정수(0~100) 형식인지, `home-trading-signal`이 한국어 라벨인지 assert.
 
-DELETE-LEDGER(최소): `analysis.js:13-24`의 contested setText 전부, `entity.js:24-36` 중 contested, market/themes/portfolio/screener 동일 기준. 인수: 교집합 0 + §8.1 전체 PASS + 실브라우저에서 home/signal 한국어 라벨·정수 점수 유지.
+6. **테이블·리스트 컨테이너 3종의 route별 결정**: screener/portfolio/market-news·briefing은 thin native가 콘텐츠 컨테이너(`screener-results-body`, `pf-positions-tbody`, `live-news-feed`, `briefing-live-news-list`)를 통째로 다시 그린다. 기본 권고 — **해당 route의 native 콘텐츠 렌더를 mount에서 제거**(dataset 스탬프만 유지)하고 legacy 소유를 명시 복원. 진짜 cutover(레거시 5~6곳 writer 삭제)는 해당 ARX route 패킷에서 수행하고, 이 배치에서 어중간한 병존은 금지.
+
+DELETE-LEDGER(최소): `analysis.js:13-24`의 contested setText 전부, `entity.js:24-36` 중 contested, market/themes 동일 기준, screener/portfolio/news의 콘텐츠 컨테이너 렌더 호출부. 인수: 교집합 0 + §8.1 전체 PASS + 실브라우저에서 home/signal 한국어 라벨·정수 점수 유지 + screener/portfolio 테이블 컬럼 수 정상.
 
 ### RM-02 — store·이벤트 성능 계약 (P1, W5 진입 전 필수)
 
@@ -140,13 +158,14 @@ DELETE-LEDGER(최소): `analysis.js:13-24`의 contested setText 전부, `entity.
 2. 이후 순서: F&G 합성 → RRG(rsRatio/rsMomentum) → Weinstein/MTF. 각각 같은 패턴.
 3. 기존 toy 모듈 처리: 추출본이 들어서는 시점에 해당 toy 모델 삭제(예: `signal/decision.js`의 3입력 점수). UI가 소비 중이면 RM-01 이후라 소비처가 없어야 정상.
 4. `ci-domain-module-smoke-check`를 실 parity(덤프 대조)로 교체하고 이름을 되돌림.
+5. **백테스트 사본 수렴(F-11)**: `backtest-trading-score.mjs`·`backtest-trading-score-longrun.mjs`의 복사된 서브스코어 함수를 삭제하고 추출된 `src/domain/signal/trading-score.js`를 import — 라이브/백테스트/native가 단일 구현을 소비. 사본 삭제를 DELETE-LEDGER에 기록.
 
 ### RM-04 — 배치 규율 복원 (P0, RM-00과 병합 가능)
 
 1. 실행 계획 checkpoint의 "full §8.1 deferred …" 서술 삭제 → "매 배치 §8.1 전체 실행" 복원.
 2. 세션 카드 없는 배치 금지 재확인. "한 세션 한 패킷" 재확인.
-3. 이번 4커밋(`b7bce36`~`9462404`)의 push 경위를 사용자에게 확인 — "자동 배포/커밋 금지" 규칙과의 정합 판정은 운영자 몫. 무단이었다면 WORKFLOW-GOVERNANCE에 push 게이트 추가 검토.
-4. RM-00의 정정으로 공개 artifact(ops-status 등)가 바뀌므로, **배포(재게시) 여부는 사용자 지시 대기**로 명시.
+3. ~~push 경위 확인~~ → **해소(2026-07-19)**: 사용자가 해당 배포를 직접 지시했다고 확인함. 거버넌스 위반 아님. 단, "완료 선언과 게이트 조정이 같은 배치에서 일어나면 배포 전 원장 재검증"을 WORKFLOW-GOVERNANCE 점검 항목으로 추가 검토.
+4. RM-00의 정정으로 공개 artifact(ops-status 등)가 바뀌므로, **정정본 배포(재게시) 여부는 사용자 지시 대기**로 명시.
 
 ### RM-05 — 게이트 실효성 보강 (P2)
 
@@ -181,11 +200,15 @@ RM-00 + RM-04 (원장·게이트·규율 — 1세션)
 5. F-01~F-03의 P번호와 "진척 인플레이션" 반복 클래스가 BUG-POSTMORTEM에 존재한다.
 6. 이후 모든 상태 승격이 route-owners.json 파생값으로만 이뤄진다.
 
-## 6. 이 감사의 커버리지와 미검증 고지
+## 6. 이 감사의 커버리지와 미검증 고지 (2026-07-19 2차 스윕 후 최종)
 
-- 검증함(정적 실측): 문서 위계 전체, src/ 96파일 전수 열거+주요 40여 파일 정독, bootstrap 배선(index.html:28375), 게이트 스크립트 6종 정독, 카운터 재측정(문서 수치와 일치 확인), legacy는 표적 정독(PAGES/showPage/hero·signal writer/computeTradingScore 위치)과 grep 전수.
-- 검증하지 않음: index.html 28K줄·aio-core 26K줄·aio-chat 6K줄의 라인 단위 전수, live 사이트의 v53.16 반영 상태, Cloudflare fast plane, provider rights, 장시간 soak, AI 레거시 내부 품질(→ AI-CHAT-INSTITUTIONAL-AUDIT), 알고리즘의 금융적 타당성 재검증(구조만 판정).
-- 이 문서의 판정이 이후 실측과 다르면 실측을 우선하고 이 문서를 정정한다.
+**전문 정독(라인 단위 100%)**: `src/**` 96/96 파일 · `sw.js` · `worker/data-plane.js` · 게이트 스크립트(architecture-contract/browser/retirement/operations/domain-parity) · `architecture/*.json` 매니페스트 · CODE-MAP(실측 대조 일치) · 관련 핸드오프/ADR 문서 전체.
+
+**구조 단위 검증(앵커 정독 + 계통 스윕)**: `index.html` — head/CSP 부재/SRI/preload, `<script>` 전수 열거(외부 8 + inline 11 + module 1, CODE-MAP 주장과 일치) · `aio-core.js` — showPage(:25570)/PAGES(:25058)/computeTradingScore(:21671~) 정독, TimerRegistry 채택(raw setInterval 1건뿐) · `aio-data.js` — 스케줄러/뉴스·screener 렌더러/contested writer 라인 확정 · `aio-chat.js` — CHAT_CONTEXTS/BYOK Anthropic·Perplexity 엔드포인트/innerHTML sink 위치 · `aio-ui.js`/`aio-tests.js`/`aio-glossary.js` 구조 · workflows 3종(cron·push 하드닝·watchdog 게이트) · `fetch-data.mjs` 구조(quote 검증 tolerance·KST 사이클) · backtest 스크립트(사본 확인) · 위험 클래스 전수 grep: eval/new Function/document.write **0건**, DOMPurify 사용처(core 9·chat 3·index 4), localStorage 키 인벤토리, 외부 호스트 인벤토리(FMP·allorigins·rsshub·yahoo·corsproxy 상위 — 서드파티 CORS 프록시 의존은 기존 문서의 SPOF 지적과 일치).
+
+**여전히 검증하지 않음(정적으로 불가능하거나 범위 밖)**: 4대 레거시 번들 92K줄의 문자 그대로 전 라인(위험 중심 표적+스윕으로 대체), live 사이트의 v53.16 실반영·런타임 거동(이중 writer 경합의 실제 승자 포함 — 정적 근거로는 native 후행 실행이 우세하나 실브라우저 확인 필요), Cloudflare fast plane 실배포, provider rights, 장시간 heap/listener soak, AI 응답 품질(→ AI-CHAT-INSTITUTIONAL-AUDIT), 알고리즘의 금융적 타당성 자체(산식 구조만 판정).
+
+이 문서의 판정이 이후 실측과 다르면 실측을 우선하고 이 문서를 정정한다.
 
 ## 7. 금지 목록
 
