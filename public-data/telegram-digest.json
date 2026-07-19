@@ -1,53 +1,130 @@
 {
-  "generatedAt": "2026-07-19T13:54:01.409Z",
-  "attemptedAt": "2026-07-19T13:54:01.409Z",
-  "lastSuccessfulAt": "2026-07-19T13:54:01.409Z",
+  "generatedAt": "2026-07-19T15:15:44.112Z",
+  "attemptedAt": "2026-07-19T15:15:44.112Z",
+  "lastSuccessfulAt": "2026-07-19T15:15:44.112Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-05T13:53:56.339Z",
-  "until": "2026-07-19T13:53:56.339Z",
+  "since": "2026-07-05T15:15:38.841Z",
+  "until": "2026-07-19T15:15:38.841Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 221,
-      "freshCount": 38,
-      "eligibleTextCount": 38,
-      "selectedCount": 122,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
+      "selectedCount": 121,
       "error": null,
       "lastPostId": 23707
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 256,
-      "freshCount": 15,
-      "eligibleTextCount": 15,
+      "count": 258,
+      "freshCount": 30,
+      "eligibleTextCount": 30,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 58629
+      "lastPostId": 58631
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 157,
+      "count": 160,
       "freshCount": 40,
       "eligibleTextCount": 40,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 19157
+      "lastPostId": 19160
     }
   ],
-  "count": 634,
-  "retainedItemCount": 400,
+  "count": 639,
+  "retainedItemCount": 399,
   "observedItems": [
+    {
+      "id": "bornlupin/19160",
+      "channel": "bornlupin",
+      "datetime": "2026-07-19T15:05:50.000Z",
+      "localDateKst": "2026-07-20",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58631",
+      "channel": "insidertracking",
+      "datetime": "2026-07-19T14:52:22.000Z",
+      "localDateKst": "2026-07-19",
+      "score": 50,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58630",
+      "channel": "insidertracking",
+      "datetime": "2026-07-19T14:50:34.000Z",
+      "localDateKst": "2026-07-19",
+      "score": 83,
+      "tags": [
+        "geo",
+        "semi",
+        "power",
+        "kr-market",
+        "flows",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19159",
+      "channel": "bornlupin",
+      "datetime": "2026-07-19T14:47:52.000Z",
+      "localDateKst": "2026-07-19",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "META",
+        "AMZN"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19158",
+      "channel": "bornlupin",
+      "datetime": "2026-07-19T14:17:44.000Z",
+      "localDateKst": "2026-07-19",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19157",
       "channel": "bornlupin",
@@ -573,7 +650,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23686",
@@ -590,7 +667,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19148",
@@ -615,7 +692,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23684",
@@ -627,7 +704,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58617",
@@ -770,7 +847,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23682",
@@ -782,7 +859,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23681",
@@ -796,7 +873,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19147",
@@ -840,7 +917,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23679",
@@ -853,7 +930,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23678",
@@ -865,7 +942,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23677",
@@ -877,7 +954,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23676",
@@ -894,7 +971,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23675",
@@ -913,7 +990,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23674",
@@ -926,7 +1003,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23673",
@@ -942,7 +1019,7 @@
         "AAPL",
         "BE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23672",
@@ -955,7 +1032,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23669",
@@ -973,7 +1050,7 @@
         "GOOG",
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23668",
@@ -1002,7 +1079,7 @@
         "AAOI",
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23667",
@@ -1105,7 +1182,7 @@
       "tickers": [
         "MET"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58607",
@@ -1117,7 +1194,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58606",
@@ -1129,7 +1206,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58602",
@@ -1141,7 +1218,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58601",
@@ -1165,7 +1242,7 @@
         "MU",
         "RKLB"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58600",
@@ -1177,7 +1254,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58599",
@@ -1214,7 +1291,7 @@
         "RDDT",
         "QQQ"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58597",
@@ -1226,7 +1303,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58596",
@@ -1242,7 +1319,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58595",
@@ -1257,7 +1334,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58593",
@@ -1269,7 +1346,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58592",
@@ -1281,7 +1358,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58588",
@@ -1293,7 +1370,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58587",
@@ -4042,7 +4119,7 @@
         "CRWV",
         "SNDK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58456",
@@ -4430,7 +4507,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19118",
@@ -4442,7 +4519,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58413",
@@ -9615,48 +9692,48 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 634,
-    "eligibleTextCount": 93,
-    "mediaOnlyCount": 541,
-    "highSignalCount": 322,
-    "broadSignalCount": 509,
-    "selectedRawCount": 364,
-    "selectedRawCoveragePct": 391.4,
+    "observedCount": 639,
+    "eligibleTextCount": 90,
+    "mediaOnlyCount": 549,
+    "highSignalCount": 324,
+    "broadSignalCount": 512,
+    "selectedRawCount": 363,
+    "selectedRawCoveragePct": 403.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 307,
-    "semi": 397,
-    "earnings": 107,
-    "japan": 28,
-    "geo": 150,
-    "ai-policy": 80,
-    "power": 157,
-    "market-note": 64,
+    "market-note": 65,
+    "geo": 154,
+    "semi": 399,
+    "power": 158,
+    "kr-market": 126,
+    "flows": 22,
+    "japan": 30,
+    "macro": 308,
+    "ai-policy": 81,
+    "equity": 125,
+    "earnings": 108,
     "optical": 19,
-    "equity": 124,
     "healthcare": 21,
-    "kr-market": 125,
-    "flows": 21,
     "insider": 8,
     "media-only": 6,
     "credit": 26,
     "crypto": 4
   },
   "tickerCounts": {
+    "NVDA": 45,
+    "MSFT": 23,
+    "GOOG": 39,
+    "META": 48,
+    "AMZN": 40,
     "BE": 16,
-    "NVDA": 44,
     "005930.KS": 18,
     "000660.KS": 30,
-    "GOOG": 38,
     "BABA": 1,
     "TSM": 101,
     "AMD": 34,
-    "META": 47,
     "AVGO": 31,
-    "AMZN": 39,
     "035420.KS": 13,
-    "MSFT": 22,
     "MRVL": 7,
     "ORCL": 13,
     "RKLB": 9,
@@ -9740,20 +9817,20 @@
     "MTSI": 1
   },
   "themes": [
-    "Semiconductors/Memory (397 posts in current window): 미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년...",
-    "Macro/Rates (307 posts in current window): 미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년...",
-    "AI Power/Grid (157 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순 논리 확산 · AI는 아직 초반이라는 장기 Bull DD 증가 · Sovereign AI, AI 경쟁은...",
-    "Geopolitics (150 posts in current window): 레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다. 하이퍼스케일·클라우드 사업자의 지출은 견조하며, 인플레이션에 힘입은 기업 지출도 이를 뒷받침하고 있습니다....",
-    "Korea Market (125 posts in current window): 2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상...",
-    "Equity/Analyst (124 posts in current window): 미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년...",
-    "Earnings/Corporate (107 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순 논리 확산 · AI는 아직 초반이라는 장기 Bull DD 증가 · Sovereign AI, AI 경쟁은...",
-    "AI Policy/Export Controls (80 posts in current window): 미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+    "Semiconductors/Memory (399 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "Macro/Rates (308 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "AI Power/Grid (158 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순 논리 확산 · AI는 아직 초반이라는 장기 Bull DD 증가 · Sovereign AI, AI 경쟁은...",
+    "Geopolitics (154 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "Korea Market (126 posts in current window): 2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상...",
+    "Equity/Analyst (125 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "Earnings/Corporate (108 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "AI Policy/Export Controls (81 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
   ],
   "catalysts": [
     {
       "key": "TSM",
       "count": 101,
-      "text": "BofA) Kimi K3 출시와 컴퓨팅 경쟁 1. 새로운 중국 오픈 웨이트 모델 문샷(Moonshot)이 100만 토큰 컨텍스트 윈도우를 갖춘 2.8조 파라미터 규모의 대형 전문가 혼합(Mixture of Experts, MoE) 모델인 Kimi K3를 공개했습니다. 규모 확대 압박을 받는 미국 연구소들: 중국..."
+      "text": "BofA) Kimi K3 출시와 컴퓨팅 경쟁 1. 새로운 중국 오픈 웨이트 모델 문샷(Moonshot)이 100만 토큰 컨텍스트 윈도우를 갖춘 2.8조 파라미터 규모의 대형 전문가 혼합(Mixture of..."
     },
     {
       "key": "MU",
@@ -9762,23 +9839,23 @@
     },
     {
       "key": "META",
-      "count": 47,
-      "text": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+      "count": 48,
+      "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "key": "NVDA",
-      "count": 44,
-      "text": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+      "count": 45,
+      "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "key": "AMZN",
-      "count": 39,
-      "text": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+      "count": 40,
+      "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "key": "GOOG",
-      "count": 38,
-      "text": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+      "count": 39,
+      "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "key": "AMD",
@@ -9802,8 +9879,8 @@
     },
     {
       "key": "MSFT",
-      "count": 22,
-      "text": "Pre-Market Summary - 2026년 7월 16일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 2024년 12월부터 이란에 억류됐던 미국인 석방을 확인하며 이란의 선의의 조치를..."
+      "count": 23,
+      "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "key": "005930.KS",
@@ -9818,8 +9895,8 @@
       "topics": [
         "macro"
       ],
-      "count": 307,
-      "focus": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+      "count": 308,
+      "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "id": "geo",
@@ -9827,8 +9904,8 @@
       "topics": [
         "geo"
       ],
-      "count": 150,
-      "focus": "레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다. 하이퍼스케일·클라우드 사업자의 지출은 견조하며, 인플레이션에 힘입은 기업 지출도 이를 뒷받침하고 있습니다...."
+      "count": 154,
+      "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "id": "credit",
@@ -9845,8 +9922,8 @@
       "topics": [
         "semi"
       ],
-      "count": 397,
-      "focus": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+      "count": 399,
+      "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "id": "optical",
@@ -9863,7 +9940,7 @@
       "topics": [
         "power"
       ],
-      "count": 157,
+      "count": 158,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순 논리 확산 · AI는 아직 초반이라는 장기 Bull DD 증가 · Sovereign AI, AI 경쟁은..."
     },
     {
@@ -9872,8 +9949,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 80,
-      "focus": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+      "count": 81,
+      "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "id": "kr-market",
@@ -9881,7 +9958,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 125,
+      "count": 126,
       "focus": "2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상..."
     },
     {
@@ -9890,8 +9967,8 @@
       "topics": [
         "equity"
       ],
-      "count": 124,
-      "focus": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU 출하량은 2026년에 3,500만 대에 도달하고, 2027년에는 5,000만 대까지 늘어나 전년..."
+      "count": 125,
+      "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "id": "crypto",
@@ -9908,8 +9985,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 107,
-      "focus": "미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순 논리 확산 · AI는 아직 초반이라는 장기 Bull DD 증가 · Sovereign AI, AI 경쟁은..."
+      "count": 108,
+      "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "id": "healthcare",
@@ -9926,8 +10003,8 @@
       "topics": [
         "japan"
       ],
-      "count": 28,
-      "focus": "Market Summary - 2026년 7월 18일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다 산불 연기로 인한 대기오염 책임을 캐나다에 묻고 기존 관세에 추가 비용을 반영하겠다고..."
+      "count": 30,
+      "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
       "id": "flows",
@@ -9935,7 +10012,7 @@
       "topics": [
         "flows"
       ],
-      "count": 21,
+      "count": 22,
       "focus": "JP모건) 일본 퀀트 전략 \"CTA가 로스컷 모드 돌입 - 정말 포지션 조정만인가\" (요약) 보고서의 핵심은 반도체주 매도세가 멈추지 않으면서 닛케이평균이 CTA의 매도 트리거 수준인 64,600을 하향..."
     },
     {
@@ -9953,8 +10030,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 64,
-      "focus": "'여혐 인플루언서' 테이트 형제 미국서 체포…성범죄 59건 | 연합뉴스 이들이 받는 범죄 혐의는 성폭행, 인신매매, 성매매 알선, 아동 음란물 등 59건으로 늘었다. 앤드루가 42건, 테이트는 17건이다. 성범죄 59건은 뭐하는 미친새끼야"
+      "count": 65,
+      "focus": "Kimi 사용자 분들께: ​컴퓨팅 자원 부족 및 멤버십 신규 가입 일시 중단에 관한 안내 ​존경하는 Kimi 사용자 여러분께, ​Kimi K3 출시 이후, 저희는 예상치를 훨씬 뛰어넘는 큰 성원을 받았으나, 동시에 전혀 예상치 못한 컴퓨팅 자원(연산력) 부족이라는 도전에 직면하게 되었습니다 . 지난 48시간 동안..."
     }
   ],
   "pageMap": {
@@ -10181,6 +10258,32 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "bornlupin/19159",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19159",
+      "datetime": "2026-07-19T14:47:52.000Z",
+      "localDateKst": "2026-07-19",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "META",
+        "AMZN"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음..."
+    },
     {
       "id": "aetherjapanresearch/23698",
       "channel": "aetherjapanresearch",
@@ -11221,31 +11324,68 @@
       ],
       "score": 100,
       "summary": "JP모건) The Compute Must Flow: 프로젝트 파이낸스 101 & 하이퍼스케일러 등급 조정 *회사채 이야기입니다. 2년 전만 해도 IG 테크 섹터는 크레딧 투자자들이 안전성과 스프레드 안정성을..."
-    },
-    {
-      "id": "aetherjapanresearch/23352",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23352",
-      "datetime": "2026-07-08T05:59:29.000Z",
-      "localDateKst": "2026-07-08",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [
-        "GOOG",
-        "META",
-        "AMZN",
-        "MU"
-      ],
-      "score": 100,
-      "summary": "BofA) Internet/e-Commerce; 인터넷 capex 추정치 상향: 인터넷 capex, 용량, 그리고 수익화에 대한 고찰(7월 7일) BofA는 인터넷 하이퍼스케일러 주식의 최대 쟁점이 여전히..."
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/58631",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58631",
+      "datetime": "2026-07-19T14:52:22.000Z",
+      "localDateKst": "2026-07-19",
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 7월 19일 (08시~23시 30분 기준) 📍 트럼프 발언 · 트럼프, 공화당에 러시아 제재 법안에 이란 포함 촉구 📍 이란·호르무즈 대응 · 미국..."
+    },
+    {
+      "id": "insidertracking/58630",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58630",
+      "datetime": "2026-07-19T14:50:34.000Z",
+      "localDateKst": "2026-07-19",
+      "tags": [
+        "geo",
+        "semi",
+        "power",
+        "kr-market",
+        "flows",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 83,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 19일 (08시~23시 30분) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미 중부사령부는 7월 18일 밤 이란을 상대로 추가 공습을 실시해 해안 감시시설,..."
+    },
+    {
+      "id": "bornlupin/19159",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19159",
+      "datetime": "2026-07-19T14:47:52.000Z",
+      "localDateKst": "2026-07-19",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "META",
+        "AMZN"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음..."
+    },
     {
       "id": "bornlupin/19157",
       "channel": "bornlupin",
@@ -15852,22 +15992,6 @@
       "summary": "🚨 경제 지표 발표 🚨 ━━━━━━━━━━━━━━━ 🟢 미국 소비자물가지수 (MoM) (Consumer Price Index MoM, 6월) ㆍ실제치(Actual): -0.4%..."
     },
     {
-      "id": "insidertracking/58286",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58286",
-      "datetime": "2026-07-14T12:44:59.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
-      ],
-      "tickers": [],
-      "score": 87,
-      "summary": "2026년 7월 14일 프리마켓 주요 뉴스 (19시~22시 기준) 미국 증시는 대형 은행주의 강한 실적과 IBM의 예비 실적 충격이 동시에 반영되며 금융주 강세와 소프트웨어 약세가 뚜렷하게 분리되는 흐름...."
-    },
-    {
       "id": "aetherjapanresearch/23573",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23573",
@@ -16001,21 +16125,6 @@
       ],
       "score": 91,
       "summary": "기술주 월간 요약 (Tech Monthly Wrap Up) 시장 흐름: \"과열(Sizzling)\" \"되돌림(Unwind)\" \"다지기(Consolidation)\" SOX(필라델피아 반도체 지수)와 기술주들이..."
-    },
-    {
-      "id": "insidertracking/58285",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58285",
-      "datetime": "2026-07-14T09:43:57.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 51,
-      "summary": "삼성전자가 자체 2나노(2nm) 공정 기술을 적용한 테슬라 AI5 칩의 양산에 돌입할 예정. 삼성전자 파운드리 사업부의 제임스 김 수석 엔지니어는 \"테슬라-삼성 AI5 칩이 생산 단계에 진입했으며, 최신..."
     },
     {
       "id": "bornlupin/19085",
@@ -17506,22 +17615,6 @@
       ],
       "score": 89,
       "summary": "SK그룹 최태원 회장- 블룸버그 인터뷰 1. 미국 ADR 상장 및 자본 시장 진출의 의미 상장 시기(Why Now): 최태원 회장은 약 15년 전 하이닉스를 인수한 이후 미국 자본 시장 진출을 오랜 시간..."
-    },
-    {
-      "id": "bornlupin/19015",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19015",
-      "datetime": "2026-07-10T23:05:34.000Z",
-      "localDateKst": "2026-07-11",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 78,
-      "summary": "다음주 일정 13일: TSMC 6월 매출 , OPEC 원유시장 보고서 14일: 미국 6월 CPI, 연준 반기 의회 보고-케빈워시(~15일), 중국 6월 무역수지, CITI, 골드만삭스, JP모건, BofA,..."
     }
   ]
 }
