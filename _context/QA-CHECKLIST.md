@@ -2,9 +2,17 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
+
+## Current ARX-09~16 checkpoint (2026-07-19)
+
+Native route ownership is locally complete for all 17 routes (`legacyOwner=0`,
+`observerOwner=0`). Entity, portfolio, screener, analysis, domain, AI,
+storage, release, and retirement contracts are wired. Historical burn-down
+lines below remain audit history; full §8.1 gates run only after the packet
+sequence is complete.
 version: v4.1
-checklist_version: v53.14
-latest_P_covered: P735
+checklist_version: v53.15
+latest_P_covered: P736
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---
@@ -62,11 +70,41 @@ ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
 - [x] Operations/reconciliation remain explicit: `OPERATOR_REQUIRED`; counts `MATCH 3 / PARTIAL 14 / BLOCKED 5`
 - [ ] Cloudflare fast-plane credentials/resource IDs and 7-day 99% soak; provider rights and SEC 80% coverage remain external blockers
 
+## 2026-07-19 v53.15 architecture ownership cutover evidence (P736/R352)
+
+- [x] Sentiment lifecycle, native renderer, and fail-closed badge are ESM-owned; producer input remains explicitly behind the read-only compatibility adapter
+- [x] Retired legacy `PAGES.sentiment.init`, duplicate sentiment badge writer, and `aio-data.js` `window.showPage` monkeypatch
+- [x] Legacy coupling burn-down: prior lifecycle batch 1110→1109 plus ARX-01 renderer batch 1109→1100; ARX-02/03 cleanup reduces explicit global writes 1100→1097 and HTML sinks 420→418; direct fetch 42 and storage 189 remain
+- [x] Follow-up checkpoint: current static counters are explicit global writes 1094, direct fetch 42, direct storage 189, and HTML sinks 416; full regression remains deferred until all architecture packets complete
+- [x] Architecture gate blocks burn-down regression, retired-pattern return, and release-manifest/version drift
+- [x] Operations ownership records native lifecycle/renderer owners `['briefing','guide','market-news','sentiment']`; `legacyOwner=13` and `nativeOwner=[]` remain explicit while data/narrative ownership is still legacy
+- [x] Cross-session execution contract covers 14 layers, all 17 routes, ARX-00~16 dependency waves, pre-edit DELETE-LEDGER, five owner dimensions, and AC-01~15 final acceptance
+- [x] `ci-architecture-contract-check.mjs` blocks removal/drift of the execution plan's layer, route, session-card, deletion-ledger, ownership, and final-acceptance structure
+- [x] Regression: static/data/security contracts 22종, headless 1101/1101, Critical-10 10/10, a11y 17/17, viewport 68/68, Vault 8/8 PASS
+- [x] Boot budget: FCP 952ms, first route 552ms, max long task 421ms (single local run; 성능 인과 주장에는 미사용)
+- [ ] AR-09 full renderer/data-writer cutover remains open; do not report architecture rebuild complete
+
+## 2026-07-19 ARX-01 sentiment renderer cutover
+
+## 2026-07-19 ARX-09~16 local cutover
+
+- [x] Entity, portfolio, screener, and analysis slices use native command/provider/selector boundaries.
+- [x] Pure domain model versions and live/backtest parity fixture added.
+- [x] AI context/retrieval/provider/web-search/response envelopes added with evidence traceability gates.
+- [x] Versioned repository, privacy vault, migration/rollback fixture, release asset manifest, and retirement contract added.
+- [ ] Full §8.1 browser/runtime/accessibility/regression gates are intentionally run only after every packet is applied.
+
+- [x] `src/ui/pages/sentiment.js` owns sentiment cards, blocked/observed state, F&G/VIX/PutCall/HY/AAII projection rendering, VIX charts, and resource-bag disposal.
+- [x] Removed `initSentimentPage`, sentiment chart registry/helpers, data chart back-reference, facade sentiment mount map, and tests that asserted retired symbols.
+- [x] Native renderer reads store/evidence state only; producer input remains explicitly legacy/read-only until ARX-02.
+- [x] Operations ownership now separates `nativeRendererOwner=['sentiment']` from `legacyOwner=16`; `nativeOwner=[]` remains correct while data owner is legacy.
+- [x] Static/module syntax and retired-symbol scan completed; full §8.1 regression and browser gates deferred until all architecture packets are complete per execution instruction.
+
 ### 최근 실측 기준선 (2026-07-19, v53.13, AR-07 data plane + AR-06 inference + typed navigation facade)
 
 정적 15종 전부 PASS(data-lineage WARN 1: SEC 93/655=14.2%) · 헤드리스 1101/1101 · boot FCP 1556ms/route 1162ms/max long task 611ms · critical10 10/10(consoleErrors 0) · a11y 17/17(consoleErrors 0) · FULL_INIT viewport 68/68(4개 viewport shard, overflow 0px, tinyText 0, jsErrors 0) · vault E2E 8/8 PASS. 부팅 수치는 단일 로컬 실행의 변동값이므로 P728의 인과 성능 향상 근거로 사용하지 않는다. 로컬 Chromium은 외부망 차단 상태로 실행했으며 live Pages/Worker/provider 응답은 이 기준선에 포함하지 않는다.
 
-추가 AR gate: `ci-architecture-contract-check.mjs` PASS(17 routes, legacy coupling baseline no increase) · `ci-architecture-browser-check.mjs` PASS(ESM boot, blocked sentiment, document-targeted pageShown, sentiment→home→sentiment dispose/mount, unexpected browser errors 0).
+추가 AR gate(v53.15): `ci-architecture-contract-check.mjs`는 17 routes, explicit global writes ≤1109, 퇴역 legacy 패턴, release revision parity를 차단한다. `ci-architecture-browser-check.mjs`는 ESM boot, blocked sentiment, router/store route 일치, ESM badge writer, sentiment→home→sentiment dispose/mount, unexpected browser errors 0을 검증한다.
 
 AR-07/06 추가 로컬 계약: Tier 0 market snapshot 16/16 published fixture PASS · Worker Cron/KV/R2 contract PASS · operations status `OPERATOR_REQUIRED`/durable `CURRENT` 명시 · 22-category reconciliation `MATCH 3 / PARTIAL 13 / BLOCKED 6` · WebSearch inferred claim high-confidence two-source gate PASS · typed `showPage`/`AIO_ARCH.navigate` facade Chromium PASS. Cloudflare credentials/resource IDs와 7-day soak은 외부 운영자 대기 상태다.
 Standalone worker security gate also exits deterministically after PASS (`ci-worker-anthropic-check.mjs`, exit code 0).
@@ -80,7 +118,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [x] **R309 양쪽-빈 삼항 잔재** — js/aio-data.js:3503 FRED YoY "+" 부호 복원. T765 하드코딩 기대값도 함께 수정(자기 자신이 버그를 정답으로 단언하던 사례).
 - [x] **`updateFxDynamicComments()`/`generateFxBondCommentary()` 고아 코드** — 2026-07-18 P727에서 구 함수·sink·호출·wrapper를 제거했다. 현재 DOM에 남은 `fxbond-risk-pill`/`yc-inversion-badge`/Cross-Asset Matrix는 `updateFxBondPage()` 단일 경로에 통합했고 runtime contract가 회귀를 차단한다. pageShown당 무효 DOM 조회 24회, quote 갱신당 16회 제거.
 - [x] **quote batch 전역 DOM 중복·퇴역 KR investor fanout** — 2026-07-18 P728에서 종목별 전역 lineage scan을 batch 마지막 1회로 defer하고, 전체 price/chg 중복 rewrite를 제거했다. 단건 갱신은 symbol-target annotation을 사용한다. 삭제된 KR 투자자 TOP10 표용 최대 24개 요청은 공유 로더에서 제거했고, runtime audit은 canonical 수급 evidence를 검사한다.
-- [x] **AR-01~06 ESM compatibility observer** — 2026-07-18 P729에서 typed store/evidence/freshness/domain/AI policy/lifecycle router와 sentiment 첫 vertical slice를 연결했다. `document` target의 문자열 `aio:pageShown` payload를 실제 Chromium에서 검증하고 route 왕복 dispose/mount를 blocking gate로 고정했다. 전체 legacy cutover는 AR-09 잔여로 `MIGRATION_IN_PROGRESS`를 유지한다.
+- [x] **AR-01~06 ESM sentiment lifecycle cutover** — P729 scaffold 이후 P736에서 sentiment lifecycle·badge writer를 ESM 소유로 이전하고 legacy init/badge writer/data `showPage` monkeypatch를 제거했다. renderer는 compatibility facade 뒤 legacy이므로 native renderer 0/17, 전체 AR-09는 `MIGRATION_IN_PROGRESS`다.
 - [ ] SEC fundamentals 누적 커버리지 80% 도달(현재 91/655=13.9%)과 screener universe 갱신 — 외부 Actions 실행/시간 필요 (P708/P710 계열).
 - [ ] AI 채팅 라이브 실문답 재검증 (P629/P645) — Worker 서버키 또는 개인키 필요. "분산 설계 안내문"의 억제 개수가 0이 아닌 실값 표시 확인.
 - [ ] GitHub Pages/Worker 라이브 AI 응답·실제 모델 출력 품질·live provider 데이터 권리/legal 승인·multi-user 검증 — WP-AI 시리즈(P690~P701) 공통 미검증 잔여.

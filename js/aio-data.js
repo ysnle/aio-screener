@@ -3285,7 +3285,7 @@ async function fetchFredSeries(seriesId, limit = 30) {
 //   + PAYEMS(비농업고용), M2SL(M2 통화량), DCOILWTICO(WTI 유가), MORTGAGE30US(30년 모기지)
 //   → macro 페이지 + 브리핑 AI 프롬프트에서 활용 가능
 const FRED_SERIES = {
-  'BAMLH0A0HYM2': { name: 'HY Spread', el: 'hy-live-val', unit: 'bp' }, // multiplier 제거 (사문화 필드)
+  'BAMLH0A0HYM2': { name: 'HY Spread', unit: 'bp' }, // multiplier 제거 (사문화 필드)
   'T10Y2Y':       { name: '10Y-2Y Spread', el: null, unit: '%' },
   'T10Y3M':       { name: '10Y-3M Spread', el: null, unit: '%' },
   'DGS2':         { name: '2Y Treasury', el: null, unit: '%' },
@@ -3471,13 +3471,6 @@ function applyFredToUI(data) {
   if (data['BAMLH0A0HYM2']) {
     const spread = data['BAMLH0A0HYM2'].value;
     const bp = Math.round(spread * 100);
-    const el = document.getElementById('hy-live-val');
-    if (el) {
-      el.textContent = '+' + bp + 'bp';
-      el.style.color = bp < 300 ? '#00e5a0' : bp < 450 ? '#ffa31a' : '#ff5b50';
-    }
-    const sub = document.getElementById('hy-live-date');
-    if (sub) sub.textContent = _fredSourceLabel(data['BAMLH0A0HYM2']);
     // v48.72: data-snap="hy-spread" 자동 바인딩 (Phase 7)
     _updSnap('hy-spread', function(){ return '+' + bp + 'bp'; });
   }
@@ -4013,7 +4006,7 @@ async function fetchSentimentHistory() {
       }).slice(-30); // last 30 days
 
       window._vixHistory = vixHistory;
-      updateSentimentChart('vix', vixHistory);
+      document.dispatchEvent(new CustomEvent('aio:historyLoaded', { detail: { metric: 'vix', source: 'legacy-projection' } }));
       console.log('[AIO v20] VIX history loaded:', vixHistory.length, 'days');
     } else {
       _aioLog('warn', 'chart', 'VIX chart: insufficient data points');
@@ -4023,23 +4016,6 @@ async function fetchSentimentHistory() {
     _aioLog('warn', 'fetch', 'VIX history fetch failed: ' + e.message);
     showDataError('VIX', 'VIX 히스토리 수신 실패 — 정적 차트 데이터 사용 중', 'warn');
   }
-}
-
-function updateSentimentChart(type, data) {
-  if (!window.sentPageCharts) return;
-  const chart = window.sentPageCharts[type];
-  if (!chart) return;
-  try {
-    var labels = data.map(d => d.date);
-    var values = data.map(d => d.value);
-    // v30.11: 차트 업데이트 전 게이트 검증
-    var canvasId = type + '-chart'; // 'vix-chart', 'naaim-chart' etc.
-    var gated = chartDataGate(canvasId, labels, [values], { chartName: type.toUpperCase(), minPoints: 3 });
-    if (!gated) return; // 폴백 UI 표시됨
-    chart.data.labels = gated.labels;
-    chart.data.datasets[0].data = gated.datasets[0];
-    chart.update('none');
-  } catch(e) { _aioLog('warn', 'chart', 'Chart update error: ' + (e && e.message || e)); }
 }
 
 // ═══ 9. 데이터 갱신 스케줄러 (중앙 관리) ═══════════════════════
@@ -5492,6 +5468,17 @@ async function _aioLoadServerData() {
           sourceKind: 'official-series',
           allowedUse: 'reference-until-freshness-gate'
         };
+        try {
+          if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
+            window.AIO_ARCH.ingestSentiment({
+              hySpread: _serverHySpreadBp,
+              hySpreadSourceKind: 'delayed',
+              hySpreadSource: 'github-actions:FRED',
+              hySpreadDate: d.macro._asOf_hyOAS || d.meta.generatedAt || null,
+              now: new Date().toISOString()
+            });
+          }
+        } catch (_) {}
         _serverMacroApplied++;
       }
       // BLS stays a separate official evidence family. It is projected into
@@ -5552,7 +5539,6 @@ async function _aioLoadServerData() {
       if (typeof _applyFearGreedScore === 'function') {
         _applyFearGreedScore({ score: d.fearGreed.score, sourceKind: 'delayed', sourceLabel: 'cnn-via-github-actions', sourceTs: d.fearGreed.asOf || d.meta.generatedAt, operationalUse: 'reference-only' });
       }
-      window._lastFG = d.fearGreed.score;
       // v51.66: _fieldTs.fearGreed — Fear & Greed 마지막 적용 시각 기록
       if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
         window.DATA_SNAPSHOT._fieldTs.fearGreed = d.fearGreed.asOf || d.meta.generatedAt || new Date().toISOString();
@@ -5798,7 +5784,6 @@ function _aioRenderDeltas() {
 
   // 2) Fear & Greed 전일 delta (서버 CNN API previousScore 기반)
   _aioSetDeltaEl('home-fg-delta',      snap._fearGreedDelta,  _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
-  _aioSetDeltaEl('sentiment-fg-delta', snap._fearGreedDelta,  _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
 
   // 3) 트레이딩 스코어 전일 delta (localStorage)
   if (prev && typeof prev.tradingScore === 'number') {
@@ -13114,6 +13099,7 @@ async function fetchAllNews(forceRefresh = false) {
   _briefingCacheKey = null;
   renderBriefingFeed(newsCache);
   var _newsSummary = _aioUpdateNewsSummaryFromItems(newsCache, { kind: 'direct', generatedAt: new Date().toISOString() });
+  document.dispatchEvent(new CustomEvent('aio:newsUpdated', { detail: { count: newsCache.length, source: 'fetchAllNews' } }));
 
   // v21: 자동 한국어 번역 — 상위 6건 즉시, 나머지는 renderFeed 내 IntersectionObserver로 lazy 처리
   autoTranslateNews(newsCache.slice(0, 6)).catch(e => _aioLog('warn', 'translate', '자동 번역 에러: ' + (e && e.message || e)));
@@ -15637,10 +15623,6 @@ function applyLiveQuotes(quotes) {
       vixPctCell.setAttribute('data-source-ts', _vixTs);
     }
     document.querySelectorAll('[data-vix-badge]').forEach(el => el.textContent = 'VIX ' + _vixFixed(vp, 2, '—'));
-    const vixLabel = document.getElementById('vix-live-label');
-    if (vixLabel) { vixLabel.textContent = lvl; vixLabel.style.color = col; }
-    const vixLiveVal = document.getElementById('vix-live-val');
-    if (vixLiveVal) vixLiveVal.style.color = col;
     // ── Options 페이지 VIX %ile 동적 업데이트 (v14: 하드코딩 90.9%ile 제거) ──
     const optVixPct = vixToPercentile(vp);
     const optVixLbl = vixRegime(vp).label;
@@ -16642,10 +16624,12 @@ function refreshHomeDashboard() {
   }
 }
 
-// Hook into page activation
-const originalShowPage = window.showPage;
-window.showPage = function(pageId, ...args) {
-  const result = originalShowPage.call(this, pageId, ...args);
+// v53.15: page activation은 canonical aio:pageShown 이벤트만 구독한다.
+// showPage 몽키패치는 typed navigation facade와 소유권이 충돌하므로 퇴역한다.
+_aioPageBus.register('data-page-activation', 'aio:pageShown', function(e) {
+  const detail = e && e.detail;
+  const pageId = typeof detail === 'string' ? detail : detail && (detail.pageId || detail.route || detail.id);
+  if (!pageId) return;
   if (pageId === 'home') {
     setTimeout(refreshHomeDashboard, 100);
   }
@@ -16698,8 +16682,7 @@ window.showPage = function(pageId, ...args) {
       } catch(_){}
     }, 150);
   }
-  return result;
-};
+});
 
 // Update on live quote refresh
 // v48.99: _aioPageBus 마이그 (P179)
@@ -16724,40 +16707,10 @@ _aioPageBus.register('tg-feed-on-page-shown', 'aio:pageShown', function(e) {
 
 // ── 시장 심리 지표 (Market Sentiment) ────────────────────────────────
 
-// Fear & Greed 게이지 바늘 업데이트 (score 0-100)
-function fgUpdateNeedle(score) {
-  const rad = (180 - score * 1.8) * Math.PI / 180;
-  const x = (120 + 80 * Math.cos(rad)).toFixed(2);
-  const y = (120 - 80 * Math.sin(rad)).toFixed(2);
-  const needle = document.getElementById('fg-needle');
-  if (needle) {
-    needle.setAttribute('x1', '120'); needle.setAttribute('y1', '120');
-    needle.setAttribute('x2', x); needle.setAttribute('y2', y);
-  }
-}
-
-// F&G rating → color
-function fgColor(score) {
-  if (score < 25)  return '#dc2626';
-  if (score < 45)  return '#ffa31a';
-  if (score < 55)  return '#7b8599';
-  if (score < 75)  return '#86efac';
-  return '#16a34a';
-}
-
-function fgRating(score) {
-  if (score < 25)  return '극단적 공포 (Extreme Fear)';
-  if (score < 45)  return '공포 (Fear)';
-  if (score < 55)  return '중립 (Neutral)';
-  if (score < 75)  return '탐욕 (Greed)';
-  return '극단적 탐욕 (Extreme Greed)';
-}
-
 // CNN Fear & Greed 실시간 Fetch
 // v49.64 Codex L11347~11381 패턴 통합 (P331/P334): F&G 점수+출처 메타 단일 책임 함수
-// 5 호출점(live/proxy/snapshot/historical/error) 의 DOM/lineage 갱신을 한 곳에서 처리.
-// 의도: applyMarketCurrentnessGuard가 `data-operational-use` + `data-source-kind` + `data-source-label`을
-// 페이지 sink 별로 정합 검증할 수 있도록 일관된 메타데이터 부여.
+// 5 호출점(live/proxy/snapshot/historical/error)의 compatibility projection/event 갱신을 한 곳에서 처리.
+// sentiment 페이지 표시와 evidence 정합성은 native renderer/orchestrator가 소유한다.
 function _applyFearGreedScore(opts) {
   opts = opts || {};
   var score      = opts.score;
@@ -16774,53 +16727,26 @@ function _applyFearGreedScore(opts) {
       freshnessClock: sourceKind === 'delayed' ? 'observation' : 'fetch', normalizedSourceTs: isFinite(_fgTsNum) ? _fgTsNum : null
     };
   }
-  var badge      = document.getElementById('fg-live-badge');
-  var big        = document.getElementById('fg-score-big');
-  var val        = document.getElementById('fg-score-val');
-  var rat        = document.getElementById('fg-rating-text');
-  var homeFG     = document.getElementById('home-fg-score');
-  var fgRef      = document.getElementById('fg-historical-ref');
-  var fgLink     = document.getElementById('fg-signal-link');
-  var col        = (typeof fgColor === 'function' && score != null) ? fgColor(score) : null;
   if (score != null && isFinite(score)) {
-    if (big)    { big.textContent = score; if (col) big.style.color = col; }
-    // P570/R261: this "single responsibility" updater's own header comment claims it handles
-    // all F&G DOM sinks in one place, but #fg-score-val (the "점수: X/100" line right below
-    // #fg-score-big on the sentiment page) was missing from that list — it stayed frozen at
-    // its static HTML placeholder forever while the big number correctly updated live,
-    // producing two different F&G numbers on the same card.
-    if (val)    { val.textContent = score; if (col) val.style.color = col; }
-    if (rat && typeof fgRating === 'function') { rat.textContent = fgRating(score); if (col) rat.style.color = col; }
-    if (homeFG) { homeFG.textContent = score; if (col) homeFG.style.color = col; }
-    if (typeof fgUpdateNeedle === 'function') fgUpdateNeedle(score);
-    if (fgRef) {
-      if (score <= 15) fgRef.textContent = '참고: 과거 F&G 15↓ 구간에서 6~12개월 후 수익률이 양(+)이었던 사례가 다수';
-      else if (score >= 85) fgRef.textContent = '참고: 과거 F&G 85+ 구간에서 3~6개월 후 조정이 발생한 사례가 다수';
-      else fgRef.textContent = '';
-    }
-    if (fgLink) fgLink.style.display = (score <= 25 || score >= 75) ? 'block' : 'none';
+    window._lastFG = Number(score);
+    try {
+      if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
+        window.AIO_ARCH.ingestSentiment({
+          fearGreed: Number(score),
+          fearGreedSourceKind: sourceKind,
+          fearGreedSource: sourceLabel,
+          fearGreedObservedAt: sourceTs,
+          now: new Date().toISOString()
+        });
+      }
+    } catch (_) {}
+    document.dispatchEvent(new CustomEvent('aio:sentimentUpdated', { detail: { metric: 'fearGreed', sourceKind: sourceKind, sourceLabel: sourceLabel, operationalUse: operationalUse } }));
   }
-  if (badge) {
-    badge.textContent = opts.badgeText || (sourceKind === 'live' ? '실시간 · CNN API' : sourceKind === 'proxy' ? '실시간 (프록시)' : sourceKind === 'delayed' ? '지연 · 서버 스냅샷' : sourceKind === 'snapshot' ? '참고용 스냅샷 (매매 판단 제외)' : '데이터 미수신');
-    badge.style.color = sourceKind === 'live' ? '#00e5a0' : sourceKind === 'proxy' ? '#ffa31a' : sourceKind === 'delayed' ? '#ffa31a' : '#7b8599';
-    badge.setAttribute('data-operational-use', operationalUse);
-    badge.setAttribute('data-source-kind', sourceKind);
-    badge.setAttribute('data-source-label', sourceLabel);
-    badge.setAttribute('data-source-ts', sourceTs);
-  }
-  // sink 정합 — big/home FG도 동일 lineage 부여 (R114 가시 sink 보호)
-  [big, val, homeFG, rat].forEach(function(el) {
-    if (!el) return;
-    el.setAttribute('data-operational-use', operationalUse);
-    el.setAttribute('data-source-kind', sourceKind);
-    el.setAttribute('data-source-label', sourceLabel);
-  });
   return { score: score, sourceKind: sourceKind, sourceLabel: sourceLabel, operationalUse: operationalUse };
 }
 window._applyFearGreedScore = _applyFearGreedScore;
 
 async function fetchFearGreed() {
-  const badge = document.getElementById('fg-live-badge');
   const url   = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata';
   try {
     const resp = await fetchWithTimeout(url, { headers: { 'Accept': 'application/json' } }, 6000);
@@ -16829,9 +16755,6 @@ async function fetchFearGreed() {
     const fg   = data.fear_and_greed;
     if (!fg) throw new Error('no data');
     const score = Math.round(fg.score);
-    const prev  = data.fear_and_greed_historical?.data;
-    // Update score
-    window._lastFG = score;
     // v48.0: CNN F&G 7개 서브컴포넌트 저장 — "왜 공포인가?" 설명용 + AI 프롬프트 품질 향상
     // CNN API가 제공: market_momentum_sp500, market_momentum_sp125, stock_price_strength,
     //                  stock_price_breadth, put_call_options, market_volatility_vix,
@@ -16846,39 +16769,10 @@ async function fetchFearGreed() {
       if (Object.keys(_sub).length > 0) {
         window._fgComponents = _sub;
         window._fgComponents._updated = Date.now();
-        // v48.1: 서브컴포넌트 카드 UI 즉시 렌더 (sentiment 페이지 활성 시)
-        if (typeof _renderFGComponents === 'function') setTimeout(_renderFGComponents, 0);
       }
     } catch(subErr) { /* 서브컴포넌트는 옵셔널 — 실패해도 메인 score 갱신은 성공 */ }
     // v49.64 P334: 단일 helper로 sink + lineage 메타 일괄 적용 (live 경로)
     _applyFearGreedScore({ score: score, sourceKind: 'live', sourceLabel: 'cnn-fear-greed-api', sourceTs: fg.timestamp || data.timestamp || new Date().toISOString(), operationalUse: 'decision' });
-    // Historical
-    if (prev && prev.length >= 4) {
-      const h1 = document.getElementById('fg-h1');
-      if (h1) {
-        const prevScore = Math.round(prev[prev.length-2]?.y ?? prev[prev.length-2]?.x ?? 0);
-        // y = score, x = timestamp — 값이 1000 이상이면 timestamp이므로 무시
-        if (prevScore > 0 && prevScore <= 100) {
-          h1.textContent = '전일: ' + prevScore + '점';
-          // v52.42 (P657/EF-15): sentiment-fg-delta/home-fg-delta는 서버 스냅샷 필드
-          // (DATA_SNAPSHOT._fearGreedDelta, /data-refresh 시점 기준)로 델타를 그려 이 방금 가져온
-          // "전일: N점" 라이브 값과 다른 시점의 전일치를 참조할 수 있었다("전일 47, 오늘 47인데 델타
-          // +5" 같은 모순) — 지금 막 받은 CNN 라이브 전일값으로 두 delta 표면을 덮어써 같은 화면 안
-          // "전일" 문구와 델타 숫자가 항상 같은 기준을 쓰게 한다(R283: 동일 화면 중복 지표는 동일 소스).
-          try {
-            if (typeof _aioSetDeltaEl === 'function' && typeof _AIO_DELTA_POLARITY !== 'undefined') {
-              var _fgLiveDelta = score - prevScore;
-              _aioSetDeltaEl('sentiment-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0 });
-              _aioSetDeltaEl('home-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0 });
-            }
-          } catch(_fgDeltaErr) {}
-        } else {
-          var _fgFallbackMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-          var _fbScore = _fgFallbackMetric && _fgFallbackMetric.value != null ? _fgFallbackMetric.value : 35;
-          h1.textContent = _fbScore <= 25 ? '극단 공포 구간' : _fbScore <= 45 ? '공포 구간' : _fbScore <= 55 ? '중립 구간' : _fbScore <= 75 ? '탐욕 구간' : '극단 탐욕 구간';
-        }
-      }
-    }
     return true;
   } catch(e) {
     // Try CORS proxy
@@ -16950,123 +16844,6 @@ async function autoUpdateMA() {
 // v30.11: T7 _maAutoInterval 삭제 — REFRESH_SCHEDULE.maUpdate(6h)로 통합. 초기 5s 실행은 유지.
 setTimeout(autoUpdateMA, 5000);
 
-// v48.1: CNN F&G 9개 서브컴포넌트 카드 렌더 — "왜 이 수준인가?" 설명
-function _renderFGComponents() {
-  var widget = document.getElementById('fg-components-widget');
-  var grid = document.getElementById('fg-components-grid');
-  if (!widget || !grid || !window._fgComponents) return;
-  var labels = {
-    market_momentum_sp500: 'S&P500 모멘텀',
-    market_momentum_sp125: 'S&P500 125일',
-    stock_price_strength: '52주 신고가/저가',
-    stock_price_breadth: '시장 폭 (McClellan)',
-    put_call_options: 'Put/Call 비율',
-    market_volatility_vix: 'VIX 50일 대비',
-    market_volatility_vix_50: 'VIX 50일선',
-    junk_bond_demand: '정크본드 수요',
-    safe_haven_demand: '안전자산 수요'
-  };
-  var descriptions = {
-    market_momentum_sp500: '125일 이평선 대비',
-    stock_price_strength: '신고가 vs 신저가',
-    stock_price_breadth: '상승/하락 거래량 (NYSE)',
-    put_call_options: '5일 평균',
-    market_volatility_vix: 'VIX 현재 vs 50일 평균',
-    market_volatility_vix_50: 'VIX 장기 평균',
-    junk_bond_demand: 'HY - IG 스프레드',
-    safe_haven_demand: '주식 vs 채권 20일 수익률'
-  };
-  var html = '';
-  var order = ['market_momentum_sp500','stock_price_strength','stock_price_breadth','put_call_options','market_volatility_vix','junk_bond_demand','safe_haven_demand','market_momentum_sp125','market_volatility_vix_50'];
-  order.forEach(function(k) {
-    var c = window._fgComponents[k];
-    if (!c || c.score == null) return;
-    var score = c.score;
-    var rating = c.rating || '';
-    var color = score <= 25 ? '#ef4444' : score <= 45 ? '#ff5b50' : score <= 55 ? '#ffa31a' : score <= 75 ? '#34d399' : '#10b981';
-    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:7px 9px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + labels[k] + '</div>' +
-      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:2px;">' +
-      '<span style="font-size:16px;font-weight:800;color:' + color + ';font-family:var(--font-mono);">' + score + '</span>' +
-      (rating ? '<span style="font-size:11px;color:' + color + ';font-weight:600;">' + rating + '</span>' : '') +
-      '</div>' +
-      (descriptions[k] ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + descriptions[k] + '</div>' : '') +
-      '</div>';
-  });
-  if (html) {
-    grid.innerHTML = html;
-    widget.style.display = 'block';
-  }
-}
-// sentiment 페이지 진입 시 재렌더 (이미 _fgComponents 있으면 즉시 표시)
-// v48.99: _aioPageBus 마이그 (P179)
-_aioPageBus.register('data-sentiment-fg-shown', 'aio:pageShown', function(e) {
-  if (e && e.detail === 'sentiment' && window._fgComponents) {
-    setTimeout(_renderFGComponents, 100);
-  }
-  // v48.10: sentiment 페이지 진입 시 크립토 온도계도 렌더
-  if (e && e.detail === 'sentiment' && window._cgGlobal) {
-    setTimeout(_renderCryptoTempo, 100);
-  }
-});
-
-// v48.10: 크립토 시장 온도계 렌더 — sentiment 페이지 F&G 카드 하단에 표시
-//   BTC 도미넌스는 위험자산 선호도의 선행 지표 (도미넌스↑ = 알트에서 BTC로 피신 = 공포)
-//   24h 시총 변동 = 크립토 전체 심리 방향
-function _renderCryptoTempo() {
-  var widget = document.getElementById('crypto-tempo-widget');
-  var grid = document.getElementById('crypto-tempo-grid');
-  if (!widget || !grid || !window._cgGlobal) return;
-  var g = window._cgGlobal;
-  var html = '';
-  function card(label, value, sub, color) {
-    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:3px;padding:7px 9px;">' +
-      '<div style="font-size:11px;color:var(--text-muted);font-weight:600;">' + label + '</div>' +
-      '<div style="font-size:15px;font-weight:800;color:' + (color || 'var(--text-primary)') + ';font-family:var(--font-mono);margin-top:2px;">' + value + '</div>' +
-      (sub ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + sub + '</div>' : '') +
-      '</div>';
-  }
-  // BTC 도미넌스 (40~50% 중립, 50%+ 알트 약세·공포, 40%- 알트시즌·탐욕)
-  if (g.btcDominance != null) {
-    var bd = g.btcDominance;
-    var bdSub = bd >= 55 ? '알트 약세 · BTC 피신 신호' : bd >= 48 ? '중립 상단' : bd >= 42 ? '중립 하단' : '알트시즌 임박';
-    var bdColor = bd >= 55 ? '#ff5b50' : bd >= 48 ? '#ffa31a' : bd >= 42 ? '#00e5a0' : '#00bcd4';
-    html += card('BTC 도미넌스', bd.toFixed(1) + '%', bdSub, bdColor);
-  }
-  // ETH 도미넌스
-  if (g.ethDominance != null) {
-    html += card('ETH 도미넌스', g.ethDominance.toFixed(1) + '%', 'Ethereum 점유', 'var(--text-primary)');
-  }
-  // 전체 시총
-  if (g.totalMarketCapUSD) {
-    var mc = g.totalMarketCapUSD;
-    var mcStr = mc >= 1e12 ? '$' + (mc/1e12).toFixed(2) + 'T' : '$' + (mc/1e9).toFixed(0) + 'B';
-    html += card('전체 시총', mcStr, '활성 코인 ' + (g.activeCryptocurrencies||'-') + '개');
-  }
-  // 24h 변동
-  if (g.mcapChange24hPct != null) {
-    var pc = g.mcapChange24hPct;
-    var pcColor = pc >= 3 ? '#10b981' : pc >= 0 ? '#00e5a0' : pc >= -3 ? '#ffa31a' : '#ff5b50';
-    html += card('24h 시총 변동', (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%', pc >= 0 ? '상승' : '하락', pcColor);
-  }
-  // 24h 거래량
-  if (g.totalVolume24hUSD) {
-    var v = g.totalVolume24hUSD;
-    var vStr = v >= 1e12 ? '$' + (v/1e12).toFixed(2) + 'T' : '$' + (v/1e9).toFixed(0) + 'B';
-    html += card('24h 거래량', vStr, '시장 ' + (g.markets||'-') + '개');
-  }
-  if (html) {
-    grid.innerHTML = html;
-    widget.style.display = 'block';
-  }
-}
-// fetchLiveQuotes 성공 시 _cgGlobal 세팅되면 자동 렌더 훅 (최초 데이터 수신 직후)
-// v48.99: _aioPageBus 마이그 (P179)
-_aioPageBus.register('data-sentiment-crypto-shown', 'aio:pageShown', function(e) {
-  if (e && e.detail === 'sentiment') setTimeout(_renderCryptoTempo, 300);
-});
-
-
 // ── HY Credit Spread auto-fetch via FRED (free, no API key needed) ───
 function _aioPickNumber(row, keys) {
   row = row || {};
@@ -17099,7 +16876,7 @@ function _aioUpdatePutCallDom(payload) {
     ? window.AIO.makeOperationalMetric('putCallRatioTotal', pcr, sourceKind, asOf, sourceLabel, { domain: 'options' })
     : { name: 'putCallRatioTotal', value: pcr, sourceKind: sourceKind, sourceLabel: sourceLabel, ts: asOf, allowedUse: sourceKind === 'live' };
 
-  ['pc-score-big', 'regime-pcr', 'opt-pcr-val', 'opt-pcr-val-secondary'].forEach(function(id) {
+  ['regime-pcr', 'opt-pcr-val', 'opt-pcr-val-secondary'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     el.textContent = text;
@@ -17143,23 +16920,23 @@ function _aioUpdatePutCallDom(payload) {
     metric: metric,
     tone: tone
   });
+  try {
+    if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
+      window.AIO_ARCH.ingestSentiment({
+        putCall: pcr,
+        putCallSourceKind: sourceKind,
+        putCallSource: sourceLabel,
+        putCallObservedAt: asOf,
+        now: new Date().toISOString()
+      });
+    }
+  } catch (_) {}
 
-  var badge = document.getElementById('pc-live-badge');
-  if (badge) {
-    badge.textContent = metric.allowedUse ? (sourceKind === 'delayed' ? '지연 시세 · CBOE' : '실시간 · CBOE') : '스냅샷 · 참고';
-    badge.style.color = metric.allowedUse ? '#00e5a0' : '#7b8599';
-    badge.setAttribute('data-source-kind', sourceKind);
-    badge.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
-  }
-
-  var pct = Math.min(100, Math.max(0, (pcr - 0.4) / 0.8 * 100));
-  var needle = document.getElementById('pc-needle-pos');
-  if (needle) needle.style.left = pct.toFixed(1) + '%';
+  document.dispatchEvent(new CustomEvent('aio:sentimentUpdated', { detail: { metric: 'putCall', sourceKind: sourceKind, sourceLabel: sourceLabel } }));
   return true;
 }
 
 async function fetchPutCall() {
-  const badge = document.getElementById('pc-live-badge');
   var serverPayload = window._lastPutCallPayload;
   if (serverPayload && serverPayload.sourceLabel === 'Cboe Daily Market Statistics' && serverPayload.asOf) {
     var serverAgeDays = (Date.now() - new Date(serverPayload.asOf).getTime()) / 86400000;
@@ -17201,9 +16978,6 @@ async function fetchPutCall() {
         asOf: (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._snapshotDate) || new Date().toISOString(),
         staleReason: e && e.message || 'CBOE unavailable'
       });
-    } else if (badge) {
-      badge.textContent = 'CBOE unavailable';
-      badge.style.color = '#7b8599';
     }
     if (window.AIO && window.AIO.recordDataQualityIssue) {
       window.AIO.recordDataQualityIssue({
@@ -17269,65 +17043,32 @@ async function fetchHYSpread() {
     const spreadBp = Math.round(spread * 100); // FRED stores as %, convert to bps
     hyLastFetch = Date.now();
 
-    // v51.88 P576/R266: 실측 OAS를 소비 가능한 전역 + DATA_SNAPSHOT 에 저장.
-    //   이전에는 DOM/차트에만 써서 computeTradingScore 가 이 실측값을 못 보고
-    //   듀레이션 오염된 (100-HYG)*15bp 근사를 우선 사용했다 (금리 상승만으로
-    //   가짜 신용 스트레스 감점 발생). 측정값이 있으면 근사보다 항상 우선한다.
+    // v51.88 P576/R266: 실측 OAS를 compatibility projection + DATA_SNAPSHOT에 저장.
+    //   native sentiment orchestrator가 이 projection을 evidence/store로 승격하고,
+    //   computeTradingScore도 실측값을 근사값보다 우선 사용한다.
     window._hySpreadBp = spreadBp;
     window._hySpreadDate = date;
     try { if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.hySpread = spreadBp; } catch(_) {}
+    try {
+      if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
+        window.AIO_ARCH.ingestSentiment({
+          hySpread: spreadBp,
+          hySpreadSourceKind: 'fred',
+          hySpreadSource: 'FRED BAMLH0A0HYM2',
+          hySpreadDate: date,
+          now: new Date().toISOString()
+        });
+      }
+    } catch (_) {}
     // v52.49/WO-6: 다른 fetch 함수들과 동일하게 중앙 freshness 레지스트리에 기록 —
     // 이전에는 모듈 로컬 hyLastFetch(6h 캐시 게이트 전용)만 있어 getTradingDecisionInputEvidence()가
     // HY 스프레드의 신선도를 전혀 알 수 없었다.
     if (typeof window._markFetch === 'function') window._markFetch('hySpread');
-
-    // Update display
-    const hyVal = document.getElementById('hy-live-val');
-    const hyDate = document.getElementById('hy-live-date');
-    const hyBadge = document.getElementById('hy-live-badge');
-    if (hyVal) hyVal.textContent = spreadBp + 'bp';
-    if (hyDate) hyDate.textContent = date;
-    if (hyBadge) {
-      hyBadge.textContent = 'FRED LIVE';
-      hyBadge.style.background = 'var(--data-green-soft)';
-      hyBadge.style.color = '#00e5a0';
-    }
-
-    // Update chart data if chart exists
-    const hyChart = window.sentPageCharts?.['hy'];
-    if (hyChart) {
-      const ds = hyChart.data.datasets[0];
-      ds.data[ds.data.length - 1] = spreadBp; // update latest point
-      hyChart.update('none');
-    }
-
-    // Update signal badge based on level
-    const signalEl = document.getElementById('hy-signal-badge');
-    if (signalEl) {
-      const caution = spreadBp > 400;
-      signalEl.textContent = caution ? 'SHORT' : spreadBp < 300 ? 'LONG' : 'CAUTION';
-      signalEl.style.background = caution ? 'var(--data-red-mid)' : 'var(--data-green-mid)';
-      signalEl.style.color = caution ? 'var(--red)' : '#00e5a0';
-    }
+    document.dispatchEvent(new CustomEvent('aio:sentimentUpdated', { detail: { metric: 'hySpread', sourceKind: 'fred', sourceLabel: 'FRED BAMLH0A0HYM2' } }));
 
     console.log('[AIO] HY Spread FRED:', spreadBp + 'bp (' + date + ')');
   } catch(e) {
     _aioLog('warn', 'fetch', 'HY Spread fetch 실패: ' + e.message);
-    // v48.27 (QA-1): 폴백 복귀 + 배지 갱신 — 사용자가 데이터 신선도 인지 가능
-    try {
-      var _hyValEl = document.getElementById('hy-live-val');
-      var _hyDateEl = document.getElementById('hy-live-date');
-      var _hyBadgeEl = document.getElementById('hy-live-badge');
-      var _hySignalEl = document.getElementById('hy-signal-badge');
-      if (_hyValEl) _hyValEl.textContent = '—';
-      if (_hyDateEl) _hyDateEl.textContent = 'FRED 관측값 미수신';
-      if (_hyBadgeEl) {
-        _hyBadgeEl.textContent = '판정 보류';
-        _hyBadgeEl.style.background = 'var(--data-muted-soft)';
-        _hyBadgeEl.style.color = '#7b8599';
-      }
-      if (_hySignalEl) _hySignalEl.textContent = '현재 OAS 미수신';
-    } catch(_){}
   }
 }
 

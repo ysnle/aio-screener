@@ -1,3 +1,20 @@
+## v53.15 (2026-07-19)
+- ARX-09~16 local cutover: entity, portfolio, screener, analysis, pure domain, AI envelope, privacy vault, release manifest, and 17-route retirement contracts are now wired through native ESM boundaries.
+- Added domain parity, storage migration, release-manifest, and compatibility-retirement CI contracts; live provider rights and fast-plane soak remain operator-required.
+- P736/R352: architecture migration을 scaffold 존재가 아니라 실행 소유권 이전과 legacy burn-down으로 판정하도록 바꿨다.
+- Sentiment lifecycle·fail-closed badge writer를 ESM route로 이전하고 legacy init hook·중복 badge writer를 삭제했다. legacy renderer는 compatibility facade 뒤에 명시적으로 남겼다.
+- ARX-01: `src/ui/pages/sentiment.js`가 sentiment 카드·상태·VIX/기간구조 차트·복합 판단과 resource bag lifecycle을 실제 소유하도록 cutover했다. legacy chart registry/init·facade mount·data chart back-reference를 삭제했고 explicit global writes를 1109→1100으로 줄였다. 데이터 producer는 ARX-02까지 read-only adapter로 남긴다.
+- ARX-02 진행: sentiment provider/normalize/orchestrator와 `data/sentiment` evidence/state dispatch를 연결하고, VIX legacy narrative/chart·F&G/HY sentiment-page 직접 sink 및 dead F&G/crypto HTML renderer를 삭제해 explicit global writes 1100→1098, HTML sink 420→418로 줄였다. 전체 producer gateway 전환 전까지 data owner는 legacy로 유지한다.
+- ARX-03 진행: sentiment state slice·selector·application command를 추가해 reducer가 `data/sentiment`를 명시적으로 소비하도록 하고, native renderer·AI summary가 DOM 대신 canonical state selector를 읽도록 연결했다. 중복 server F&G global projection도 제거했다.
+- ARX-02/guide follow-up: legacy F&G/Put-Call/HY producers now notify the canonical `AIO_ARCH.ingestSentiment` gateway; guide search/jump is wired through `src/ui/pages/guide.js`. The current static counters are explicit global writes 1094 and HTML sinks 416; ARX-02 is locally closed while ARX-04 and ARX-05 remain pending packet-wide verification.
+- ARX-05/06 implementation: guide, market-news, and briefing routes now have native ESM lifecycle/render modules with DOM-safe text-node rendering, local news filters, refresh handling, and producer refresh events. Operations ownership records four native renderer routes while data/narrative ownership remains migration-in-progress.
+- ARX-07 preparation: macro/fxbond/breadth now share a normalized `data/market` quote/metric state slice and selector-backed key-card updates, with the market snapshot bridge emitting a sync event. Full chart/domain route ownership remains pending.
+- ARX-08 preparation: RRG/theme sources now flow through a normalized `data/themes` state slice and selector-backed quadrant/theme-detail cards. Full RRG chart ownership and theme-domain parity remain pending.
+- `aio-data.js`의 `window.showPage` monkeypatch를 page bus 등록으로 교체해 explicit global writes를 1110→1109로 줄였다. Store가 `route/changed`를 소비하도록 연결했다.
+- Architecture gate에 burn-down 상한·퇴역 패턴·release revision parity를, Chromium gate에 router/store route 및 ESM badge 결과를 추가했다. 운영 상태는 lifecycle owner와 renderer owner를 분리한다.
+- 전체 재구축을 다른 세션에서 배치별로 실행할 수 있도록 14계층·17 route·ARX-00~16 dependency wave·DELETE-LEDGER·최종 AC-01~15 인수 기준을 갖춘 실행 핸드오프를 추가하고 architecture gate에 필수 구조를 연결했다.
+- R1 7곳 v53.15
+
 ## v53.14 (2026-07-19)
 - P735 / AR-07 Batch 0: `history.json` 369행의 3,535개 numeric field에 `observedAt/fetchedAt/source/allowedUse` provenance를 보존하고, 1년 백필·휴장일 explicit carry-forward와 blocking field-time contract를 추가했다.
 - AR-07 Batch 0/2: FRED macro last-known-good merge를 추가해 키/series 실패가 공식 관측값을 삭제하지 않게 했고, durable FRED HY OAS를 server-data UI success path에 연결했다.

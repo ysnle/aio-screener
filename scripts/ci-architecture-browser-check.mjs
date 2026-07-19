@@ -53,17 +53,47 @@ try {
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   const sentimentRoute = await page.evaluate(() => ({
     active: window.AIO_ARCH.router.active(),
+    storeRoute: window.AIO_ARCH.getState().route,
     state: document.getElementById('sent-overall-badge')?.dataset.aioArchitectureState,
-    evidenceId: document.getElementById('sent-overall-badge')?.dataset.aioEvidenceId || null
+    renderer: document.getElementById('page-sentiment')?.dataset.aioArchitectureRenderer,
+    evidenceId: document.getElementById('sent-overall-badge')?.dataset.aioEvidenceId || null,
+    badgeText: document.getElementById('sent-overall-badge')?.textContent || ''
   }));
-  if (sentimentRoute.active !== 'sentiment' || sentimentRoute.state !== 'blocked') throw new Error(`sentiment lifecycle failed: ${JSON.stringify(sentimentRoute)}`);
+  if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || sentimentRoute.state !== 'blocked' || sentimentRoute.renderer !== 'native' || sentimentRoute.badgeText !== '심리: 판정 보류') throw new Error(`sentiment lifecycle failed: ${JSON.stringify(sentimentRoute)}`);
+
+  await page.evaluate(() => window.AIO_ARCH.navigate('guide'));
+  await page.waitForFunction(() => document.getElementById('page-guide')?.dataset.aioArchitectureRoute === 'guide');
+  const guideRoute = await page.evaluate(() => {
+    const input = document.getElementById('guide-search-input');
+    input.value = 'VCP';
+    document.querySelector('[data-action="_aioGuideSearchTrigger"]')?.click();
+    const result = document.getElementById('guide-search-result');
+    return {
+      active: window.AIO_ARCH.router.active(),
+      renderer: document.getElementById('page-guide')?.dataset.aioArchitectureRenderer,
+      visible: result?.style.display === 'block',
+      resultButtons: result?.querySelectorAll('button[data-guide-target]').length || 0
+    };
+  });
+  if (guideRoute.active !== 'guide' || guideRoute.renderer !== 'native' || !guideRoute.visible || guideRoute.resultButtons < 1) throw new Error(`guide lifecycle/search failed: ${JSON.stringify(guideRoute)}`);
+
+  await page.evaluate(() => window.AIO_ARCH.navigate('market-news'));
+  await page.waitForFunction(() => document.getElementById('page-market-news')?.dataset.aioArchitectureRoute === 'market-news');
+  await page.evaluate(() => window.AIO_ARCH.navigate('briefing'));
+  await page.waitForFunction(() => document.getElementById('page-briefing')?.dataset.aioArchitectureRoute === 'briefing');
+  const contentRoutes = await page.evaluate(() => ({
+    active: window.AIO_ARCH.router.active(),
+    marketRenderer: document.getElementById('page-market-news')?.dataset.aioArchitectureRenderer || null,
+    briefingRenderer: document.getElementById('page-briefing')?.dataset.aioArchitectureRenderer || null
+  }));
+  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== null || contentRoutes.briefingRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify(contentRoutes)}`);
 
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => !document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute);
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, boot, sentimentRoute, routeRoundTrip: true, browserErrors: 0 }));
+  console.log(JSON.stringify({ ok: true, boot, sentimentRoute, guideRoute, contentRoutes, routeRoundTrip: true, browserErrors: 0 }));
 } finally {
   await browser.close();
   server.kill();

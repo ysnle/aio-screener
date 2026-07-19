@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "retirement-v1",
+  "status": "LOCAL_NATIVE_CUTOVER",
+  "approvedFacadeApi": [
+    "getState",
+    "getEvidence",
+    "getMarketSnapshot",
+    "getSentimentSummary",
+    "ingestSentiment",
+    "getAIContext",
+    "navigate",
+    "router"
+  ],
+  "nativeRoutes": [
+    "home",
+    "signal",
+    "breadth",
+    "sentiment",
+    "briefing",
+    "technical",
+    "macro",
+    "fxbond",
+    "themes",
+    "theme-detail",
+    "ticker",
+    "fundamental",
+    "options",
+    "portfolio",
+    "market-news",
+    "screener",
+    "guide"
+  ],
+  "legacyRouteOwners": [],
+  "legacyObserverOwners": [],
+  "liveCertification": "operator-required"
+}

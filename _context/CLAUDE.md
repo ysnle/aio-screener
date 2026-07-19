@@ -4,10 +4,10 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v53.14
+- **현재 버전**: v53.15
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (38개 활성, 2026-07-18 갱신)
+## _context/ 문서 (39개 활성, 2026-07-19 갱신)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -48,6 +48,7 @@
 | INSTITUTIONAL-HANDOFF-RECONCILIATION-2026-07-15.md | 기관급 데이터 핸드오프 WP-0~14와 무료 데이터 대체 계획의 구현·중복·누락 대조 원장 | WP 상태, 무료 공급자 연결, 잔여 외부 의존성 또는 공개 판정 변경 시 |
 | AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md | 중요 시세 자동 최신화 보장 계층 + 22개 영역별 직접/AI WebSearch/시장·뉴스 피드 우회안 + QG/AR 실행 게이트 | 공급자·스케줄러·SLO·추론 정책·22개 영역 상태 변경 시 |
 | ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md | 전체 12개 구조면 진단 + TypeScript/ESM/단일 상태·증거·생명주기 기반 목표 + AR-00~09 근본 재구축 원장 | 아키텍처 ADR·계층 경계·AR 패킷·legacy burn-down 변경 시 |
+| ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md | 다른 세션용 14계층·17 route·ARX-00~16 실행 원장 + DELETE-LEDGER·owner/burn-down·최종 인수 기준 | 계층/route owner, wave, 삭제 대상, gate, 재구축 상태 변경 시 |
 | WO7-GLOBAL-INVENTORY-2026-07-10.md | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7 Packet 1 — 전역 read/write baseline 실측 + timer/chart/page-lifecycle 어댑터 기존재 확인 + 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.

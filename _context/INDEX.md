@@ -1,6 +1,6 @@
 ---
 verified_by: Codex (repository/gates/Chrome live/GitHub Actions 실측)
-last_verified: 2026-07-14
+last_verified: 2026-07-19
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -44,6 +44,8 @@ target_version: version.json
 
 > **Current correction (2026-07-18 v53.11)**: AR-00~06 ESM foundations, sentiment vertical slice, WebSearch inferred-claim gate, typed navigation facade, AR-07 canonical 16/16 snapshot/LKG contract, Worker preflight, operations status, and 22-category reconciliation are implemented locally. Cloudflare credentials/resource IDs, rights, 7-day fast-plane SLO, full route renderer cutover, live certification, and final commit/Pages deployment remain explicit gates.
 
+> **Current correction (2026-07-19 v53.15)**: `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md` is the active cross-session execution ledger beneath the architecture handoff. It separates 14 layers and five owner dimensions per route, defines ARX-00~16 dependency waves, requires a pre-edit DELETE-LEDGER and monotonic burn-down, and fixes the next packet to sentiment renderer ownership. Current truth remains native lifecycle 1/17, native renderer 0/17, legacy renderer 17/17; full rebuild is not complete.
+
 # _context Index
 
 This folder is the active project knowledge base for AIO. It should describe the current GitHub-deployed structure first, then local Claude worktree exceptions only when they affect routing.
@@ -69,6 +71,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `INSTITUTIONAL-HANDOFF-RECONCILIATION-2026-07-15.md` | 기관급 데이터 핸드오프 WP-0~14의 구현·중복·누락 대조 원장 + 다른 모델용 파일/Batch/페이지/게이트/배포·롤백 실행 계약 | WP 상태, 실행 순서, 무료 공급자 연결, 페이지 데이터 계약, 잔여 외부 의존성 또는 공개 판정 변경 시 |
 | `AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md` | 2026-07-18 실측 공백 기준 중요 시세 자동화 보장 계층, 22개 영역별 직접·WebSearch·뉴스 우회안, QG/AR 실행 게이트 | quote 공급자·스케줄러·freshness SLO·추론 정책·22개 영역 상태 변경 시 |
 | `ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md` | 전체 12개 구조면 진단, 유지/교체/폐기 경계, TypeScript+ESM 기반 목표 구조, AR-00~09 점진 재구축·legacy 종료 원장 | 아키텍처 ADR·계층 경계·AR 패킷·legacy burn-down 변경 시 |
+| `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md` | 다른 세션용 전체 재구축 실행 원장: 14계층·17 route·ARX-00~16·DELETE-LEDGER·owner/burn-down/최종 인수 기준 | 계층/route owner, 실행 wave, 삭제 대상, gate 또는 재구축 상태 변경 시 |
 | `GATE-BASELINE-2026-06-04.md` | v50.4 evidence deployment gate + unit-test 실측 기준선 (env-dependent vs code-internal 분리) | 게이트/테스트 재측정, 운영 baseline 추가 시 |
 | `GATE-BASELINE-2026-07-03.md` | v51.91→v51.96 헤드리스 CI 테스트(`ci-headless-tests.mjs`) 실측 (894/921→896/921 pass, T776/T686 실제 해소로 27→25건 skip-list) — Phase 2 [B5] + 전체 /data-refresh 산출물 | skip-list 갱신, 헤드리스 테스트 재측정 시 |
 | `CHAT-DATA-AUDIT-2026-06-04.md` | v50.8 AI 채팅 데이터 출처 전수 감사 baseline (fetch 파이프라인·시장맥락 주입·재사용·dead code 실측) | 채팅 데이터 경로/컨텍스트 변경 시 |
@@ -91,7 +94,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `WO7-GLOBAL-INVENTORY-2026-07-10.md` | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7("점진적 구조 격리") Packet 1 — 전역 read/write baseline 실측(innerHTML 395·전역쓰기 1,318·localStorage direct 146 vs safeLS 8) + timer/chart/page-lifecycle 어댑터 기존재 확인(진짜 갭은 채택률) + snapshot/storage adapter 전면화 등 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 38개 versioned/new `_context/*.md` 활성(2026-07-18 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 39개 versioned/new `_context/*.md` 활성(2026-07-19 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 

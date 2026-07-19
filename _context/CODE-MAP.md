@@ -13,12 +13,16 @@ target_lines: index.html 28375 + js modules 64207
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 28,375 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,569 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 17,798 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-ui.js` | 4,585 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 28,381 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,399 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 17,569 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 4,257 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-chat.js` | 6,084 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 8,857 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 8,823 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `src/ui/pages/guide.js` | 113 | native guide search/jump lifecycle module |
+| `src/ui/pages/news.js` | 171 | native market-news/briefing renderer, filters, refresh lifecycle |
+| `src/ui/pages/market.js` | 72 | normalized market selector slice for macro/fxbond/breadth |
+| `src/ui/pages/themes.js` | 62 | normalized RRG/theme selector slice for themes/theme-detail |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
 
 > The historical v52.66 table below is retained for audit context. Use this current
@@ -26,13 +30,29 @@ target_lines: index.html 28375 + js modules 64207
 
 # AIO v53.11 CODE-MAP
 
+### ARX-09~16 native boundary additions (2026-07-19)
+
+`src/state/{slices,selectors}` contains entity, portfolio, screener, and
+analysis slices. Their commands/providers/normalizers/orchestrators live under
+`src/app/commands` and `src/data/{providers,normalize,orchestrators}`.
+Pure models are under `src/domain/{market,macro,technical,portfolio,screener,news,signal,home}`;
+AI contracts are under `src/ai/{context,retrieval,provider,websearch,response}`;
+privacy/release/retirement contracts are `src/storage/*` and
+`architecture/{asset-manifest,retirement-manifest}.json`.
+
 ## Native ESM and data-plane additions (v53.11)
+
+| ARX-06 news state/writer | `src/state/slices/news.js`, `src/state/selectors/news.js`, `src/app/commands/news.js`, `src/data/providers/news.js`, `src/data/normalize/news.js`, `src/data/orchestrators/news.js` | producer cache -> normalized `data/news` state -> native market-news/briefing renderer |
+| ARX-07 market slice | `src/state/slices/market.js`, `src/state/selectors/market.js`, `src/data/providers/market.js`, `src/data/normalize/market.js`, `src/data/orchestrators/market.js`, `src/ui/pages/market.js` | legacy quote/snapshot read model -> normalized market state -> macro/fxbond/breadth slice renderer |
+| ARX-08 themes slice | `src/state/slices/themes.js`, `src/state/selectors/themes.js`, `src/data/providers/themes.js`, `src/data/normalize/themes.js`, `src/data/orchestrators/themes.js`, `src/ui/pages/themes.js` | RRG/theme read model -> normalized theme state -> native quadrant/detail slice |
 
 | Area | Files | Contract |
 |---|---|---|
 | AR-06 inference | `src/ai/inference.js`, `src/ai/policy.js` | direction/range/confidence/sourceCount/sourceUrls/observedWindow; exact current numeric search values blocked |
 | AR-07 canonical data | `src/data/contracts/market-snapshot.js`, `src/data/market-snapshot-loader.js`, `src/data/contracts/operations.js`, `src/data/contracts/reconciliation.js` | Tier 0/LKG/operations/22-category reconciliation |
 | AR-07 producer | `scripts/build-market-snapshot.mjs`, `scripts/build-operations-status.mjs`, `scripts/build-reconciliation-status.mjs`, `worker/data-plane.js` | durable publish + independent fast-plane preflight |
+| ARX-03 state boundary | `src/state/slices/sentiment.js`, `src/state/selectors/sentiment.js`, `src/app/commands/sentiment.js` | typed `data/sentiment` reducer, selector-only UI reads, command-owned dispatch |
+| ARX-02 data writer | `src/data/providers/sentiment.js`, `src/data/normalize/sentiment.js`, `src/data/orchestrators/sentiment.js` | provider → normalize → freshness/evidence → state command |
 | AR-09 boundary | `src/legacy/compatibility-facade.js`, `src/app/bootstrap.js`, `scripts/ci-architecture-browser-check.mjs` | typed navigation facade and lifecycle ownership during migration |
 
 ## v53.8 authoritative rescan (2026-07-18)
@@ -91,7 +111,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `destroyPageCharts` / `showPage` | `js/aio-core.js:24983` / `25758` |
 | `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
 | `_aioApplyServerScreener` / `_aioComputeFactorRanks` | `js/aio-data.js:15837` / `15990` |
-| `initSentimentPage` / `initBreadthPage` | `js/aio-ui.js:217` / `475` |
+| `initBreadthPage` / native sentiment page | `js/aio-ui.js:172` / `src/ui/pages/sentiment.js:243` |
 | `CHAT_CONTEXTS` / `chatSend` | `js/aio-chat.js:418` / `4282` |
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
@@ -121,11 +141,11 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | 파일 | 줄 수 | 역할 |
 |------|------:|------|
 | `index.html` | 29,095 | HTML shell, CSS, 22개 route DOM, 초기화용 inline 블록, 외부 모듈 로드 |
-| `js/aio-core.js` | 26,681 | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, 매매 알고리즘 핵심 |
-| `js/aio-data.js` | 17,853 | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, identity-only 스크리너 |
-| `js/aio-ui.js` | 4,681 | 활성 차트/렌더러, sentiment UI, LLM quota UI, 교육 레이어 |
-| `js/aio-chat.js` | 6,079 | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
-| `js/aio-tests.js` | 8,836 | CI/로컬 브라우저 회귀 테스트 전용. Pages·service worker 배포 대상에서 제외 |
+| `js/aio-core.js` | 26,563 | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, 매매 알고리즘 핵심 |
+| `js/aio-data.js` | 17,805 | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, identity-only 스크리너 |
+| `js/aio-ui.js` | 4,257 | 활성 차트/렌더러, breadth UI, LLM quota UI, 교육 레이어 (sentiment renderer는 `src/ui/pages/sentiment.js`) |
+| `js/aio-chat.js` | 6,084 | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
+| `js/aio-tests.js` | 8,840 | CI/로컬 브라우저 회귀 테스트 전용. Pages·service worker 배포 대상에서 제외 |
 | `js/aio-glossary.js` | 314 | 용어사전 검색/렌더 |
 
 ---
@@ -321,28 +341,22 @@ The tables in this subsection supersede older detailed line snapshots retained b
 
 | 항목 | line | 비고 |
 |------|-----:|------|
-| `_refreshSentimentChartData` | 14 | VIX/HYG 동적 차트 |
-| `_SENT_COMMON` | 59 | sentiment chart data |
-| `_initSentVixChart` | 184 | VIX chart |
-| `_initSentNaaimChart` | 262 | NAAIM chart |
-| `_initSentIIChart` | 342 | Investors Intelligence |
-| `_initSentHYChart` | 403 | HY OAS chart |
-| `initSentimentPage` | 464 | sentiment init |
-| `initBreadthPage` | 847 | breadth init |
-| `LLM_MODELS` | 1551 | Claude 모델 설정(haiku-4-5/sonnet-4-6, 2026-07 기준 유효) |
-| `LLM_BUDGET` | 1702 | 예산/쿼터 |
-| `updateQuotaBadge` | 1779 | LLM UI 동기화 |
-| `ghPollOnce` | 1973 | GitHub version polling |
-| `globalRefresh` | 2274 | 전체 새로고침 |
-| `renderSellPressurePanel` / `renderExitPlanPanel` | 2857 / 2867 | Institutional Technical Brief 렌더러 |
-| `_renderFundHeader` | 3948 | 기업 분석 헤더 렌더(aio-chat.js가 로드순서로 역참조) |
-| `_renderFundFinancials` | 4077 | 재무/애널리스트/SEC Frames |
-| `_renderFundEarnings` | 4745 | 어닝 일정/서프라이즈 |
-| `_renderFundNews` | 4801 | Finnhub 기업 뉴스 |
-| `AIO_PAGE_FUNDAMENTALS` | 5264 | v52.39 P654: 페이지별 기초 교육 레이어 콘텐츠(20페이지 × concept/why/how/action/terms) |
-| `_aioRenderPageFundamentals` | 5688 | v52.39 P654: 위 레지스트리 렌더러, `aio:pageShown`에 전역 배선(`ui-page-fundamentals` 키) |
+| `initBreadthPage` | 172 | breadth init |
+| `LLM_MODELS` | 351 | Claude 모델 설정(haiku-4-5/sonnet-4-6, 2026-07 기준 유효) |
+| `LLM_BUDGET` | 483 | 예산/쿼터 |
+| `updateQuotaBadge` | 540 | LLM UI 동기화 |
+| `ghPollOnce` | 751 | GitHub version polling |
+| `globalRefresh` | 1036 | 전체 새로고침 |
+| `renderSellPressurePanel` / `renderExitPlanPanel` | 1493 / 1503 | Institutional Technical Brief 렌더러 |
+| `_renderFundHeader` | 2625 | 기업 분석 헤더 렌더(aio-chat.js가 로드순서로 역참조) |
+| `_renderFundFinancials` | 2770 | 재무/애널리스트/SEC Frames |
+| `_renderFundEarnings` | 3438 | 어닝 일정/서프라이즈 |
+| `_renderFundNews` | 3494 | Finnhub 기업 뉴스 |
+| `AIO_PAGE_FUNDAMENTALS` | 3933 | v52.39 P654: 페이지별 기초 교육 레이어 콘텐츠 |
 
 > v52.39: 이 파일이 5,259→5,723줄로 성장(P654, +464줄) — 다음 ±500줄 트리거 근접. 대규모 신규 추가 전 재스캔 검토.
+
+`src/ui/pages/sentiment.js`가 sentiment 카드·상태·차트와 resource bag lifecycle을 소유한다. `js/aio-ui.js`에는 sentiment legacy renderer/init/chart registry를 두지 않는다.
 
 ### `js/aio-chat.js`
 

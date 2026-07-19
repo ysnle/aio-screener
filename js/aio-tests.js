@@ -2054,11 +2054,6 @@
 
   // v49.63 통합 (Codex v49.61): 8 라이브 DOM 회귀 테스트
   function _testV4963CodexFullIntegration() {
-    // T455: sentiment fallback 함수 정의 (Chart.js 미로드 시 8 canvas polyfill)
-    _assert('T455 sentiment_chart_fallback_defined: _drawSentimentFallbackLine + _renderSentimentCanvasFallbackCharts 함수 정의',
-      typeof window._drawSentimentFallbackLine === 'function' && typeof window._renderSentimentCanvasFallbackCharts === 'function',
-      'draw=' + typeof window._drawSentimentFallbackLine + ' render=' + typeof window._renderSentimentCanvasFallbackCharts);
-
     // T456: FRED 폴백 함수 — _renderFredCharts source에 _drawAllFredFallback 호출
     var fredSrc = (typeof _renderFredCharts === 'function') ? _renderFredCharts.toString() : '';
     _assert('T456 fred_chart_has_no_synthetic_series_fallback', typeof window._renderFredCharts === 'function' && !/fallbackSeries|FRED_FALLBACK/.test(window._renderFredCharts.toString()), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
@@ -2083,21 +2078,10 @@
       coherent,
       'v20=' + v20 + ' overheat=' + isOverheat);
 
-    // T459: sentiment initSentimentPage Chart.js undefined 가드
-    var initSrc = (typeof initSentimentPage === 'function') ? initSentimentPage.toString() : '';
-    _assert('T459 sentiment_init_guard: initSentimentPage에서 Chart.js undefined 시 _renderSentimentCanvasFallbackCharts 호출',
-      /typeof\s+Chart\s*===\s*['"]undefined['"]/.test(initSrc) && /_renderSentimentCanvasFallbackCharts/.test(initSrc),
-      'undefined check + fallback render');
-
     // T460: ensureVisibleCanvasFallbacks 통합 (v49.62 패턴)
     _assert('T460 ensure_visible_canvas_fallbacks: AIO.ensureVisibleCanvasFallbacks 정의 (v49.62 통합)',
       typeof (window.AIO && window.AIO.ensureVisibleCanvasFallbacks) === 'function',
       typeof (window.AIO && window.AIO.ensureVisibleCanvasFallbacks));
-
-    // T461: sentiment fallback render 시 data-source-kind="unavailable" 마킹
-    _assert('T461 sentiment_fallback_reference_marker: _drawSentimentFallbackLine source에 data-source-kind 설정',
-      typeof window._drawSentimentFallbackLine === 'function' && /data-source-kind/.test(window._drawSentimentFallbackLine.toString()),
-      'reference-only marker check');
 
     // T462: APP_VERSION === 'v49.65' (v49.65 17 perspectives completion)
     _assert('T462 app_version_v4965_17_perspectives_or_higher: APP_VERSION >= "v49.65"',
@@ -3721,7 +3705,6 @@
       weeklySrc690.indexOf('currentCount <') >= 0 && weeklySrc690.indexOf('.some(') >= 0 && weeklySrc690.indexOf('.every(') < 0,
       weeklySrc690.slice(0, 120));
 
-    var sentSrc690 = (typeof initSentimentCharts === 'function') ? initSentimentCharts.toString() : '';
     var breadthSrc690 = (typeof initBreadthPage === 'function') ? initBreadthPage.toString() : '';
     _assert('T694 sentiment_and_breadth_scaffolds_allow_explicit_unavailable', DATA_SNAPSHOT.aaiiBear == null && DATA_SNAPSHOT.breadth200sma == null, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
@@ -7459,23 +7442,6 @@
 
   // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/16) 회귀 게이트
   function _testV5242Batch3Efficacy() {
-    // T879 (EF-06): VIX 기간구조 시드값은 'na'+"(정적)", 라이브값은 'value' 상태로 시각 구분되는지
-    try {
-      if (typeof window._aioRenderVixTermRegime === 'function' && document.getElementById('vix-term-regime-text')) {
-        var savedLd879 = window._liveData;
-        window._liveData = { '^VIX': { price: 16.24 } }; // 9D/3M/6M은 결측 → snapshot 시드로 폴백
-        document.querySelectorAll('#page-sentiment [data-live-price="^VIX9D"],#page-sentiment [data-live-price="^VIX3M"],#page-sentiment [data-live-price="^VIX6M"]').forEach(function(el){ el.textContent = '—'; el.removeAttribute('data-value-state'); });
-        window._aioRenderVixTermRegime();
-        var v9dEl879 = document.querySelector('#page-sentiment [data-live-price="^VIX9D"]');
-        window._liveData = savedLd879;
-        var state879 = v9dEl879 ? v9dEl879.getAttribute('data-value-state') : null;
-        _assert('T879 vix_term_seed_visual_distinction_v5242 (EF-06): VIX9D가 라이브 미수신+시드 폴백 상태일 때 data-value-state="na"(시각 구분)로 렌더, state="value"로 라이브인 척하지 않음',
-          state879 === 'na', 'state=' + state879 + ' text=' + (v9dEl879 && v9dEl879.textContent));
-      } else {
-        _assert('T879 vix_term_seed_visual_distinction_v5242 (EF-06)', false, 'fn or element missing');
-      }
-    } catch (e879) { _assert('T879 vix_term_seed_visual_distinction_v5242 (EF-06)', false, 'threw: ' + (e879 && e879.message)); }
-
     // T880 (EF-07→v53.7 P725): kr-home 수급 카드 퇴역 — 실패 상태 헬퍼가 잔존해도 예외 없이 no-op이어야 함
     try {
       var fn880 = window._showKrSupplyFailureState || (typeof _showKrSupplyFailureState === 'function' ? _showKrSupplyFailureState : null);
@@ -8637,7 +8603,7 @@
       !!mcSrc && mcSrc.indexOf('500 * abv50') < 0 && mcSrc.indexOf('adHistory') >= 0,
       'updateMcClellanUI proxy=' + (mcSrc.indexOf('500 * abv50') >= 0));
 
-    var sentimentSrc = typeof _refreshSentimentChartData === 'function' ? String(_refreshSentimentChartData) : '';
+    var sentimentSrc = typeof fetchHYSpread === 'function' ? String(fetchHYSpread) : '';
     _assert('T1032 hy_oas_official_only: HYG price cannot be converted to OAS with a synthetic formula',
       !!sentimentSrc && sentimentSrc.indexOf('(85 - p)') < 0 && sentimentSrc.indexOf('BAMLH0A0HYM2') >= 0,
       'HYG-to-OAS formula=' + (sentimentSrc.indexOf('(85 - p)') >= 0));

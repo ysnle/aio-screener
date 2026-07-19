@@ -8,6 +8,14 @@ const status = JSON.parse(fs.readFileSync(path.join(root, 'public-data/operation
 const validation = validateOperationsStatus(status);
 if (!validation.ok) throw new Error(`[operations-status] ${validation.errors.join(',')}`);
 if (status.planes.fast.status !== 'OPERATOR_REQUIRED' && status.planes.fast.status !== 'CURRENT') throw new Error('[operations-status] fast plane status is not explicit');
-if (status.routes.nativeOwner.length < 1 || status.routes.legacyOwner + status.routes.nativeOwner.length !== status.routes.supported) throw new Error('[operations-status] route ownership does not reconcile');
+const requiredNativeRoutes = ['briefing', 'guide', 'market-news', 'sentiment'];
+if (requiredNativeRoutes.some((route) => !status.routes.nativeLifecycleOwner?.includes(route))) throw new Error('[operations-status] required native lifecycle cutover is not recorded');
+const nativeRendererOwner = status.routes.nativeRendererOwner || [];
+const nativeOwner = status.routes.nativeOwner || [];
+if (status.routes.legacyOwner + nativeRendererOwner.length !== status.routes.supported) throw new Error('[operations-status] renderer ownership does not reconcile');
+if (status.routes.legacyOwner + nativeOwner.length > status.routes.supported) throw new Error('[operations-status] complete ownership exceeds supported routes');
+if (nativeOwner.some((route) => !nativeRendererOwner.includes(route))) throw new Error('[operations-status] complete native owner must also own the renderer');
+if (nativeRendererOwner.some((route) => typeof route !== 'string' || route.length === 0)) throw new Error('[operations-status] native renderer owner entry is invalid');
+if (requiredNativeRoutes.some((route) => !nativeRendererOwner.includes(route))) throw new Error('[operations-status] required native renderer owner is not recorded');
 if (status.overall === 'VERIFIED_LIVE') throw new Error('[operations-status] invalid unsupported overall status');
 console.log(JSON.stringify({ ok: true, overall: status.overall, durable: status.planes.durable.status, fast: status.planes.fast.status, blockers: status.blockers }));

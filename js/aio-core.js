@@ -2373,8 +2373,9 @@ window._aioRefreshActionPlan = function() {
       var ld = window._liveData || {};
       vixVal = (ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price
                    : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-      var fgEl = document.getElementById('fg-score-big');
-      fgVal = fgEl ? parseInt(fgEl.textContent) : NaN;
+      var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+      fgVal = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : Number(window._lastFG);
+      if (!Number.isFinite(fgVal)) fgVal = window.DATA_SNAPSHOT ? Number(window.DATA_SNAPSHOT.fg) : NaN;
       var breadthEv = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
       var breadth50Val = breadthEv.available ? breadthEv.sma50 : NaN;
       plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal, breadth50: breadth50Val });
@@ -2833,67 +2834,6 @@ if (typeof document !== 'undefined') {
   setTimeout(window._aioRenderSignalRegime, 5000);
 }
 
-// v48.58: Guide 페이지 점프 + 검색 (18K줄 탐색성 개선, TOC)
-window._aioGuideJump = function(targetId) {
-  var el = document.getElementById(targetId);
-  if (el) {
-    var chapter = el.closest && el.closest('details.aio-guide-chapter');
-    if (chapter) chapter.open = true;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // 펼쳐진 상태로
-    if (el.classList && !el.classList.contains('is-open')) el.classList.add('is-open');
-  } else {
-    // 근사 매칭
-    var keyword = (targetId || '').replace(/^guide-/, '');
-    window._aioGuideSearch(keyword);
-  }
-};
-window._aioGuideSearchTrigger = function() {
-  var inp = document.getElementById('guide-search-input');
-  if (inp && inp.value) window._aioGuideSearch(inp.value);
-};
-window._aioGuideSearch = function(keyword) {
-  var result = document.getElementById('guide-search-result');
-  if (!result) return;
-  keyword = (keyword || '').trim().toLowerCase();
-  if (!keyword) { result.style.display = 'none'; return; }
-  var guidePage = document.getElementById('page-guide');
-  if (!guidePage) return;
-  // guide 페이지 내 모든 텍스트 노드 중 match
-  var matches = [];
-  var walker = document.createTreeWalker(guidePage, NodeFilter.SHOW_TEXT);
-  var node;
-  while ((node = walker.nextNode())) {
-    var text = (node.nodeValue || '').toLowerCase();
-    if (text.indexOf(keyword) >= 0 && text.trim().length > 2) {
-      var parent = node.parentElement;
-      if (!parent) continue;
-      // 상위 섹션 제목 찾기
-      var section = parent.closest('.explain-section, .aio-explain, [id]');
-      if (section && matches.length < 10 && !matches.some(function(m){ return m.el === section; })) {
-        matches.push({ el: section, text: node.nodeValue.trim().slice(0, 80) });
-      }
-    }
-  }
-  if (matches.length === 0) {
-    result.innerHTML = '<span style="color:var(--data-amber);">"' + escHtml(keyword) + '" 검색 결과 없음</span>';
-    result.style.display = 'block';
-    return;
-  }
-  var escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  var html = '<span style="color:var(--data-green);font-weight:700;">' + matches.length + '건 발견 — 클릭하여 이동:</span>';
-  matches.forEach(function(m, i) {
-    var labelEl = m.el.querySelector('.explain-label, .aio-explain-trigger-label span:last-child, h2, h3');
-    var label = labelEl ? labelEl.textContent.trim().slice(0, 60) : ('결과 ' + (i+1));
-    var ref = 'guide-match-' + i;
-    m.el.id = m.el.id || ref;
-    var safeText = escHtml(m.text).replace(new RegExp(escapedKeyword, 'gi'), function(mt){return '<mark style="background:var(--data-amber);color:#001018;padding:0 2px;">'+escHtml(mt)+'</mark>';});
-    html += '<div style="margin-top:4px;padding:4px 8px;background:var(--surface-3);border-radius:4px;cursor:pointer;" data-action="_aioGuideJump" data-arg="' + escHtml(m.el.id) + '"><strong style="color:var(--data-cyan);">' + escHtml(label) + '</strong> <span style="color:var(--text-muted);margin-left:6px;">' + safeText + '…</span></div>';
-  });
-  result.innerHTML = html;
-  result.style.display = 'block';
-};
-
 // v48.58: options 페이지 선물 흐름 판정 (ES/NQ/YM/RTY 4지수 동행/분산)
 window._aioRenderFuturesFlow = function() {
   var el = document.getElementById('futures-flow-text');
@@ -2940,106 +2880,7 @@ if (typeof document !== 'undefined') {
   });
 }
 
-// v48.58: VIX Term Structure 기간구조 판정 (sentiment 페이지)
-window._aioRenderVixTermRegime = function() {
-  var el = document.getElementById('vix-term-regime-text');
-  if (!el) return;
-  var ld = window._liveData || {};
-  // v50.15 (사용자 지적: 기간구조 산정 불가): ^VIX9D/^VIX3M/^VIX6M live 부재 시 DATA_SNAPSHOT 폴백 사용
-  var _snap = window.DATA_SNAPSHOT || {};
-  var v9d = ld['^VIX9D'] ? ld['^VIX9D'].price : (_snap.vix9d != null ? _snap.vix9d : null);
-  var v30 = ld['^VIX'] ? ld['^VIX'].price : (_snap.vix != null ? _snap.vix : null);
-  var v3m = ld['^VIX3M'] ? ld['^VIX3M'].price : (_snap.vix3m != null ? _snap.vix3m : null);
-  var v6m = ld['^VIX6M'] ? ld['^VIX6M'].price : (_snap.vix6m != null ? _snap.vix6m : null);
-  [['^VIX9D', v9d], ['^VIX3M', v3m], ['^VIX6M', v6m]].forEach(function(pair) {
-    var slot = document.querySelector('#page-sentiment [data-live-price="' + pair[0] + '"]');
-    var liveRow = ld[pair[0]];
-    if (!slot) return;
-    if (liveRow && liveRow.price != null) window._aioRenderValueSlot(slot, 'value', Number(liveRow.price).toFixed(2), { reason:'live term observation' });
-    else window._aioRenderValueSlot(slot, 'na', null, { text: pair[1] == null ? '—' : Number(pair[1]).toFixed(2) + ' (참고)', reason:'live term observation unavailable' });
-  });
-  if (!v30) { window._aioRenderValueSlot(el, 'pending', null, { text: 'VIX 데이터 수신 대기', reason: '30D VIX live/snapshot 모두 미수신' }); return; }
-  var available = [v9d, v30, v3m, v6m].filter(function(v){ return v != null; });
-  if (available.length < 2) { window._aioRenderValueSlot(el, 'failed', null, { text: '기간구조 산정 불가 — 수신 만기 부족', reason: 'VIX 만기 데이터 2개 미만' }); return; }
-  // FABLE-LIVE-AUDIT-2026-07-07 C3/Phase L1 (Verdict Gate): v30(^VIX)은 거의 항상 live인 반면
-  // v9d/v3m은 truth-block/미fetch 시 DATA_SNAPSHOT 시드로 폴백된다(예: vix9d 시드 18.80, v50.39 시대값).
-  // 시드는 갱신되지 않으므로 "live v30 vs 시드 v9d" 비교는 시장이 아니라 시드-노후화의 함수가 되어
-  // 실제로는 콘탱고인데도 백워데이션(패닉)으로 오판정하는 사례가 실측됨. live 소스일 때만 방향성 판정.
-  var v9dLive = !!(ld['^VIX9D'] && ld['^VIX9D'].price != null);
-  var v3mLive = !!(ld['^VIX3M'] && ld['^VIX3M'].price != null);
-  var v6mLive = !!(ld['^VIX6M'] && ld['^VIX6M'].price != null);
-  // v52.42 (P657/EF-06): 위 forEach는 시드 폴백값을 state:'value'로 렌더해 라이브 30D VIX와 시각적으로
-  // 구분이 안 됐다("숫자는 배지로 충분"은 배지가 실제로 안 보이면 무의미 — R282 각주). live 여부에 따라
-  // 'value'(라이브) vs 'na'+"(정적)" 텍스트(시드)로 분기해 인접한 숫자들 사이에도 시각 구분을 준다.
-  [['^VIX9D', v9d, v9dLive], ['^VIX3M', v3m, v3mLive], ['^VIX6M', v6m, v6mLive]].forEach(function(p) {
-    try {
-      var c = document.querySelector('#page-sentiment [data-live-price="' + p[0] + '"]');
-      if (!c || p[1] == null) return;
-      var t = (c.textContent || '').trim();
-      if (t !== '—' && t !== '' && t !== '-') return;
-      if (p[2]) {
-        window._aioRenderValueSlot(c, 'value', Number(p[1]).toFixed(2), { color: c.style.color });
-      } else {
-        window._aioRenderValueSlot(c, 'na', null, { text: Number(p[1]).toFixed(2) + ' (정적)', color: 'var(--text-muted)', reason: '라이브 미수신 — DATA_SNAPSHOT 시드값(참고용, 실시간 아님)' });
-      }
-    } catch (_vc) {}
-  });
-  // 정상(콘탱고): 단기<장기. 역전(백워데이션): 단기>장기.
-  var diff30_3m = (v3m != null) ? (v3m - v30) : 0;
-  var diff9d_30 = (v9d != null && v30 != null) ? (v30 - v9d) : 0;
-  var regime, color;
-  if (v9dLive && v9d > v30 * 1.02) { regime = '백워데이션 (패닉 신호) — VIX9D > VIX, 즉각적 공포 우세. 역사적으로 1~2주 내 바닥 반등 가능.'; color = 'var(--data-red)'; }
-  else if (v3mLive && diff30_3m < -1) { regime = '백워데이션 (조정 경보) — VIX > VIX3M. 중기 우려 누적, 포지션 방어 고려.'; color = 'var(--data-amber)'; }
-  else if (v3mLive && diff30_3m < 1 && diff30_3m > -1) { regime = '평탄화 — 콘탱고 붕괴 직전. 변동성 확대 가능, 헤지 강화 시점.'; color = 'var(--data-amber)'; }
-  else if (v9dLive || v3mLive) { regime = '정상 콘탱고 — 단기&lt;장기, 시장 안정 국면. 위험자산 비중 유지 가능.'; color = 'var(--data-green)'; }
-  else { regime = '9D/3M 기간구조 라이브 미수신 — 시드값만으로는 방향 판정 보류(참고: 30D VIX ' + v30.toFixed(2) + ')'; color = 'var(--text-muted)'; }
-  window._aioRenderValueSlot(el, (v9dLive || v3mLive) ? 'value' : 'na', regime.replace(/&lt;/g, '<'), { color: color, reason: (v9dLive || v3mLive) ? 'live term input available' : 'live term input unavailable; verdict withheld' });
-  // 색상 업데이트
-  var wrap = el.parentElement;
-  if (wrap) wrap.style.borderLeftColor = color;
-  var strong = wrap && wrap.querySelector('strong');
-  if (strong) strong.style.color = color;
-  // v48.71: 스파클라인 차트 (9D·1M·3M·6M 기간구조 곡선)
-  var canv = document.getElementById('vix-term-chart');
-  if (canv && typeof Chart !== 'undefined') {
-    var pts = [
-      { x: '9D', y: v9d }, { x: '1M', y: v30 }, { x: '3M', y: v3m }, { x: '6M', y: v6m }
-    ].filter(function(p){ return p.y != null; });
-    if (pts.length >= 2) {
-      var ptLabels = pts.map(function(p){ return p.x; });
-      var ptData = pts.map(function(p){ return p.y; });
-      // v52.72: 구 다크테마 잔재(네온 hex + 흰색 반투명 눈금) 교체 — 아이보리(밝은) 배경에서 흰색 눈금은
-      // 사실상 비가시 상태였음. getComputedStyle로 실제 토큰 값 해석(canvas는 var() cascade 미지원).
-      var _cs = getComputedStyle(document.documentElement);
-      var _muted = _cs.getPropertyValue('--text-muted').trim() || '#8a8271';
-      var _gridC = _cs.getPropertyValue('--border-subtle').trim() || 'rgba(0,0,0,0.08)';
-      var chartColor = (ptData[ptData.length-1] > ptData[0]) ? (_cs.getPropertyValue('--data-green').trim() || '#22754c') : (_cs.getPropertyValue('--data-red').trim() || '#b13a30');
-      if (window._vixTermChart) { try { window._vixTermChart.destroy(); } catch(e){} delete window._vixTermChart; }
-      window._vixTermChart = new Chart(canv, {
-        type: 'line',
-        data: { labels: ptLabels, datasets: [{ data: ptData, borderColor: chartColor, backgroundColor: chartColor + '22', borderWidth: 2, pointRadius: 4, pointBackgroundColor: chartColor, fill: true, tension: 0.3 }] },
-        options: {
-          responsive: true, maintainAspectRatio: false, animation: false,
-          plugins: { legend: { display: false }, tooltip: { enabled: true, callbacks: { label: function(ctx){ return window._aioSafeFixed(ctx && ctx.parsed && ctx.parsed.y, 2, '—'); } } } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: _muted, font: { size: 9 } } },
-            y: { grid: { color: _gridC }, ticks: { color: _muted, font: { size: 9 }, maxTicksLimit: 4 } }
-          }
-        }
-      });
-    }
-  }
-};
-// v48.99: _aioPageBus 마이그 (P178)
 if (typeof document !== 'undefined') {
-  _aioPageBus.register('core-sentiment-live', 'aio:liveQuotes', function(){
-    var sent = document.getElementById('page-sentiment');
-    if (sent && sent.classList.contains('active')) window._aioRenderVixTermRegime();
-  });
-  _aioPageBus.register('core-sentiment-shown', 'aio:pageShown', function(e){
-    if (e.detail === 'sentiment') setTimeout(window._aioRenderVixTermRegime, 300);
-  });
-
   // v49.29 E6 적용: options 페이지 ACTION_RULES 기반 옵션 전략 추천
   // v50.7: named 함수로 추출 — pageShown + aio:liveQuotes(보이는 페이지) 양쪽에서 호출.
   window._aioRenderOptionsRec = function() {
@@ -3053,7 +2894,9 @@ if (typeof document !== 'undefined') {
       } else {
         var ld = window._liveData || {};
         vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-        fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
+        var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+        fgVal = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : Number(window._lastFG);
+        if (!Number.isFinite(fgVal)) fgVal = window.DATA_SNAPSHOT ? Number(window.DATA_SNAPSHOT.fg) : NaN;
       }
       var pos = window.AIO_ACTION_RULES.positionSizing.getRule(vixVal);
       var sent = window.AIO_ACTION_RULES.sentimentAction.getRule(fgVal);
@@ -3094,7 +2937,9 @@ if (typeof document !== 'undefined') {
       } else {
         var ld = window._liveData || {};
         vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
-        fgVal = parseInt((document.getElementById('fg-score-big') || {}).textContent) || NaN;
+        var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
+        fgVal = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : Number(window._lastFG);
+        if (!Number.isFinite(fgVal)) fgVal = window.DATA_SNAPSHOT ? Number(window.DATA_SNAPSHOT.fg) : NaN;
         plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal });
       }
       var posEl = document.getElementById('briefing-action-position');
@@ -3323,7 +3168,6 @@ if (typeof document !== 'undefined') {
   window.AIO_PAGE_NARRATIVE_RENDERERS = {
     signal:    function(){ window._aioRenderSignalRegime && window._aioRenderSignalRegime(); window._aioRenderSignalScenario && window._aioRenderSignalScenario(); },
     breadth:   function(){ window._aioRenderBreadthConsensus && window._aioRenderBreadthConsensus(); },
-    sentiment: function(){ window._aioRenderVixTermRegime && window._aioRenderVixTermRegime(); },
     options:   function(){ window._aioRenderOptionsRec && window._aioRenderOptionsRec(); },
     briefing:  function(){ window._aioRenderBriefingDigest && window._aioRenderBriefingDigest(); },
     themes:    function(){ window._aioRenderThemesCycle && window._aioRenderThemesCycle(); },
@@ -9005,9 +8849,9 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
         { id: 'sentiment-conclusion-bar', order:  3, topic: '페이지 결론 바 (_renderConclusionBar)',  lines: 'L5695~5696' },
         { id: 'sentiment-header',         order:  4, topic: '헤더 + sent-overall-badge',             lines: 'L5698~5715' },
         { id: 'sentiment-guide-cards',    order:  5, topic: '심리 지표 가이드 3 카드',                lines: 'L5717~5734' },
-        { id: 'sentiment-fg-gauge',       order:  6, topic: 'F&G Gauge + fg-needle SVG',             lines: 'L5737~5781' },
-        { id: 'sentiment-vix-chart',      order:  7, topic: 'VIX 차트',                              lines: 'L5785~5792' },
-        { id: 'sentiment-vix-term',       order:  8, topic: 'VIX Term Structure',                    lines: 'L5794~5832' },
+ { id: 'sentiment-fg-gauge',       order:  6, topic: 'F&G Gauge + fg-needle SVG',             lines: 'src/ui/pages/sentiment.js' },
+ { id: 'sentiment-vix-chart',      order:  7, topic: 'VIX 차트',                              lines: 'src/ui/pages/sentiment.js' },
+ { id: 'sentiment-vix-term',       order:  8, topic: 'VIX Term Structure',                    lines: 'src/ui/pages/sentiment.js' },
         { id: 'sentiment-naaim-ii',       order:  9, topic: 'NAAIM + II 차트',                       lines: 'L5835~5843' },
         { id: 'sentiment-hy-aaii-pc',     order: 10, topic: 'HY/AAII/Put-Call 3 카드',               lines: 'L5848~5891' },
         { id: 'sentiment-news-chart',     order: 11, topic: '뉴스 감성 차트',                        lines: 'L5893~5910' },
@@ -9017,10 +8861,10 @@ window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = {
       findings: [
         // verify-only (agent false alarm 차단)
         { sub: 'sentiment-conclusion-bar', axis: '정합성', severity: 'ok', note: '_renderConclusionBar(\'sentiment-conclusion-bar\', ...) 범용 함수 index.html L22898 호출 — agent "_aioRenderSentimentConclusion 미구현" 클레임 false alarm', verifiedIn: 'v49.42 (P294 패턴 verify)' },
-        { sub: 'sentiment-header',         axis: '정확성', severity: 'ok', note: 'sent-overall-badge 갱신 aio-ui.js L1912 — false alarm', verifiedIn: 'v49.42' },
-        { sub: 'sentiment-analysis-text',  axis: '정확성', severity: 'ok', note: 'sent-analysis-text 갱신 index.html L21059 — false alarm', verifiedIn: 'v49.42' },
-        { sub: 'sentiment-fg-gauge',       axis: '직관성', severity: 'ok', note: 'fg-needle SVG 갱신 aio-data.js L11215 — false alarm (정적 아님)', verifiedIn: 'v49.42' },
-        { sub: 'sentiment-hy-aaii-pc',     axis: '정확성', severity: 'ok', note: 'pc-needle-pos 갱신 aio-data.js L11507 — false alarm', verifiedIn: 'v49.42' }
+ { sub: 'sentiment-header',         axis: '정확성', severity: 'ok', note: 'sent-overall-badge는 src/ui/pages/sentiment.js native renderer가 갱신', verifiedIn: 'v53.15/ARX-01' },
+ { sub: 'sentiment-analysis-text',  axis: '정확성', severity: 'ok', note: 'sent-analysis-text는 src/ui/pages/sentiment.js native renderer가 갱신', verifiedIn: 'v53.15/ARX-01' },
+ { sub: 'sentiment-fg-gauge',       axis: '직관성', severity: 'ok', note: 'fg-needle SVG는 src/ui/pages/sentiment.js native renderer가 evidence/state에서 갱신', verifiedIn: 'v53.15/ARX-01' },
+ { sub: 'sentiment-hy-aaii-pc',     axis: '정확성', severity: 'ok', note: 'pc-needle-pos와 HY/AAII 카드는 src/ui/pages/sentiment.js native renderer가 갱신', verifiedIn: 'v53.15/ARX-01' }
       ],
       note: 'v49.42 1차+2차 통합 — agent 보고 12개 중 진짜 issue 0건. sentiment 페이지 인프라 완성도 우수.'
     },
@@ -16376,7 +16220,7 @@ window.AIO.assertXssEscapeCoverageAudit = function() {
     // (2) 주요 chat/render 함수들 toString 후 scan
     var fnNames = [
       'openChatHistory', 'renderKrIssues', 'analyzeKrIndex', 'analyzeKrTickerDeep',
-      'chatRenderChips', 'updateAIPanelContext', '_aioGuideSearch',
+      'chatRenderChips', 'updateAIPanelContext',
       'renderPortfolio', 'renderHomeFeed', 'renderBriefingFeed', 'renderFeed'
     ];
     var found = [];
@@ -18362,7 +18206,7 @@ try { window.AIO.stores.price = window.PriceStore || null; window.AIO.stores.new
 // API 차이: lightweight-charts는 container div 필요(canvas 아님) + 시계열 {time, value} 형식
 // ─────────────────────────────────────────────────────────────────
 window.AIO.charts = {
-  // 인스턴스 관리 (Chart.js의 sentPageCharts와 별개)
+  // 인스턴스 관리 (native sentiment renderer의 resource bag과 별개)
   _lwc: {},  // lightweight-charts 인스턴스 pool
 
   /** lightweight-charts time series 생성 헬퍼
@@ -18519,7 +18363,7 @@ window.AIO.charts = {
     poll();
   },
 
-  /** v48.24: Chart.js API 호환성 래퍼 — sentPageCharts 등 기존 코드가 destroy/resize 호출해도 작동
+  /** v48.24: Chart.js API 호환성 래퍼 — legacy chart consumers가 destroy/resize 호출해도 작동
    * @param {Object} lwcResult - createLineChart/createMultiLineChart 반환 객체
    * @param {Element} [hiddenCanvas] - 숨긴 canvas 요소 (복원용)
    * @param {Element} [lwcContainer] - LWC 컨테이너 div (제거용)
@@ -19830,7 +19674,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.14';
+const APP_VERSION = 'v53.15';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -21895,7 +21739,7 @@ function computeTradingScore(mode) {
   let trendScore = maCurrent ? trendCalcScore : null;
 
   // 4. Breadth Score (20%) — % above 20 SMA (변수명 _breadth200은 레거시, 실제 20SMA above %)
-  // window._breadth200 is updated by initSentimentCharts() → bpSPX20[last] 캐싱;
+  // window._breadth200 is updated by the breadth renderer → bpSPX20[last] 캐싱;
   // fallback to _fb.breadth200 if not yet available.
   // v50.19: _breadth200(레거시 20SMA명) 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백으로 시정
   const breadthEvidence = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
@@ -24986,12 +24830,6 @@ function destroyPageCharts(pageId) {
     if (window._pageState && typeof window._pageState.reset === 'function') {
       try { window._pageState.reset(pageId); } catch(e) {}
     }
-    if (pageId === 'sentiment') {
-      Object.values(sentPageCharts).forEach(c => { try { c.destroy(); } catch(e){} });
-      Object.keys(sentPageCharts).forEach(k => delete sentPageCharts[k]);
-      sentPageInitialized = false;
-      sentChartsInitialized = false;
-    }
     if (pageId === 'breadth') {
       // v30.10: canvas mouseleave 핸들러도 제거
       ['bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart'].forEach(function(cid) {
@@ -25216,46 +25054,25 @@ window._pageState = window._pageState || (function() {
 // showPage · popstate 핸들러의 복제된 if-분기 전체를 이 테이블이 대체
 window.PAGES = {
   'home':           { label: '홈 대시보드',     init: null,                                          chatCtx: null },
-  'signal':         { label: '매매 시그널',     init: function() { if (typeof initSignalDashboard === 'function') _safePageInitGlobal('signal', initSignalDashboard); }, chatCtx: 'signal' },
-  'breadth':        { label: '시장 폭',          init: function() { _lazyInitChartPage('breadth', 'bp-ad-ratio-chart', function() { if (typeof initBreadthPage === 'function') _safePageInitGlobal('breadth', initBreadthPage); if (typeof updateRallyQualityVerdict === 'function') setTimeout(updateRallyQualityVerdict, 500); }); }, chatCtx: null },
-  'sentiment':      { label: '투자 심리',        init: function() { if (typeof initSentimentPage === 'function') _safePageInitGlobal('sentiment', initSentimentPage); }, chatCtx: null },  // v48.22: initSentimentPage 내부에서 4개 차트 개별 _lazyInit 호출 (이중 래핑 제거)
-  'briefing':       { label: '데일리 브리핑',    init: function() { _initBriefingPage(); }, chatCtx: 'briefing' },
-  'technical':      { label: '차트·기술',        init: function() { _safePageInitGlobal('technical', _initTechnicalPage); }, chatCtx: 'technical' },
-  'macro':          { label: '거시경제',         init: function() { _safePageInitGlobal('macro', _initMacroPage); }, chatCtx: 'macro' },
-  'fxbond':         { label: '환율·채권',        init: function() { if (typeof updateFxBondPage === 'function') _safePageInitGlobal('fxbond', updateFxBondPage); /* v50.16: fxbond 자체 yield curve init — 이전엔 macro에서만 호출돼 koreaCurveChart "수집 대기" 멈춤 */ setTimeout(function(){ if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart('koreaCurveChart'); } catch(e) {} } }, 200); }, chatCtx: 'fxbond' },
-  'fundamental':    { label: '기업 분석',        init: function() { _safePageInitGlobal('fundamental', _initFundamentalPage); }, chatCtx: 'fundamental' },
-  'themes':         { label: '테마/섹터',        init: function() {
-                       _initThemePerfTable('themes');
-                       if (window._aioOpenThemeDetailOnThemes) {
-                         var themeId = window._aioOpenThemeDetailOnThemes;
-                         window._aioOpenThemeDetailOnThemes = null;
-                         setTimeout(function() {
-                           try { if (typeof window.showThemeDetail === 'function') window.showThemeDetail(themeId); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'theme-detail redirect: ' + (e && e.message || e)); }
-                         }, 350);
-                       }
-                     }, chatCtx: 'themes' },
-  'theme-detail':   { label: '테마 상세',        init: function() { _initThemePerfTable('theme-detail'); }, chatCtx: 'theme-detail' },
+  'signal':         { label: '매매 시그널',     init: null, chatCtx: 'signal' },
+  'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
+  'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
+  'briefing':       { label: '데일리 브리핑',    init: null, chatCtx: 'briefing' },
+  'technical':      { label: '차트·기술',        init: null, chatCtx: 'technical' },
+  'macro':          { label: '거시경제',         init: null, chatCtx: 'macro' },
+  'fxbond':         { label: '환율·채권',        init: null, chatCtx: 'fxbond' },
+  'fundamental':    { label: '기업 분석',        init: null, chatCtx: 'fundamental' },
+  'themes':         { label: '테마/섹터',        init: null, chatCtx: 'themes' },
+  'theme-detail':   { label: '테마 상세',        init: null, chatCtx: 'theme-detail' },
   'portfolio':      { label: '포트폴리오',       init: null, chatCtx: 'portfolio' },
-  'ticker':         { label: '티커 상세',        init: function() {
-                       // v48.27 (QA-6): 직접 URL #ticker 진입 시 안내 카드 표시 (분석은 사용자 입력 후 트리거)
-                       try {
-                         var pg = document.getElementById('page-ticker');
-                         if (!pg) return;
-                         // 이미 분석 결과가 렌더된 경우 손대지 않음
-                         if (pg.querySelector('.ticker-analysis-result, [data-ticker-loaded]')) return;
-                         // 인풋 박스 포커스 + 안내 토스트
-                         var input = document.getElementById('ticker-analysis-input');
-                         if (input) { try { input.focus(); } catch(_){} }
-                         if (typeof showToast === 'function') showToast('티커를 입력하면 심층 분석을 시작합니다.');
-                       } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'ticker init: ' + (e && e.message || e)); }
-                     }, chatCtx: null },
-  'market-news':    { label: '시장 뉴스',        init: function() { _initMarketNewsPage(); }, chatCtx: null },
-  'options':        { label: '옵션 분석',        init: function() { _safePageInitGlobal('options', _initOptionsPage); }, chatCtx: null },
+  'ticker':         { label: '티커 상세',        init: null, chatCtx: null },
+  'market-news':    { label: '시장 뉴스',        init: null, chatCtx: null },
+  'options':        { label: '옵션 분석',        init: null, chatCtx: null },
   // v53.7 (P725): kr-home/kr-supply/kr-themes/kr-macro/kr-technical 라우트 퇴역 —
   // 콘텐츠는 themes/macro/technical의 "한국 시장" 통합 섹션으로 이관(요소 id 보존),
   // 구 해시는 showPage의 _hashAlias가 리다이렉트. KR 매크로 배지는 macro init에서 호출.
-  'guide':          { label: '사용 설명서',      init: function() { _aioPolishRemainingPages('guide'); }, chatCtx: null },
-  'screener':       { label: '퀀트 스크리너',    init: function() { try { if (typeof _aioInitScreenerFilters === 'function') _aioInitScreenerFilters(); if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'screener init: ' + (e && e.message || e)); } }, chatCtx: 'screener' }  // v50.53 2A: 전용 퀀트 스크리너
+  'guide':          { label: '사용 설명서',      init: null, chatCtx: null },
+  'screener':       { label: '퀀트 스크리너',    init: null, chatCtx: 'screener' }
 };
 
 // v52.59/H2-08: one route IA registry shared by contracts, PAGES, navigation,
@@ -25347,7 +25164,7 @@ window._aioRenderKrMacroFreshnessBadges = function() {
 };
 
 // v48.15 (P2-A): PAGES.init 지원 헬퍼 함수들 — showPage/popstate에서 추출된 단일 진실 원천
-function _initTechnicalPage() {
+var _initTechnicalPage = function() {
   if (typeof computeMarketHealth === 'function') {
     try {
       var h = computeMarketHealth();
@@ -25381,7 +25198,7 @@ function _initTechnicalPage() {
   }
 }
 
-function _initMacroPage() {
+var _initMacroPage = function() {
   // storyline/달력은 즉시 (텍스트 — 초기 로드 가벼움)
   if (typeof generateMacroStoryline === 'function') { try { generateMacroStoryline(); } catch(e) {} }
   if (typeof renderEconCalendar === 'function') { try { renderEconCalendar(); } catch(e) {} }
@@ -25399,7 +25216,7 @@ function _initMacroPage() {
   });
 }
 
-function _initFundamentalPage() {
+var _initFundamentalPage = function() {
   if (typeof initFundamentalCards === 'function') { try { initFundamentalCards(); } catch(e) {} }
   if (typeof _fundRecentSearches === 'function') { try { _fundRecentSearches(); } catch(e) {} }
   // v52.88 P703: 시안 3f의 기본 상태는 NVDA 분석 결과다. 세션 최초 진입에 한해
@@ -25418,7 +25235,7 @@ function _initFundamentalPage() {
 
 // v52.89 P704: 13면 시안의 조용한 정보 위계를 가이드·용어사전·한국 5면으로 확장한다.
 // 기존 데이터/액션 DOM은 그대로 재사용하고, 보조 섹션만 명시적 탐색 단계로 묶는다.
-function _aioPolishRemainingPages(pageId) {
+var _aioPolishRemainingPages = function(pageId) {
   var page = document.getElementById('page-' + pageId);
   if (!page || page.dataset.aioRemainingPolished === '1') return;
   page.dataset.aioRemainingPolished = '1';
@@ -25479,21 +25296,13 @@ window._aioEnsureKrThemeProgressive = function() {
   }
 };
 
-function _initOptionsPage() {
+var _initOptionsPage = function() {
   if (typeof initOptionsPage === 'function') {
     try { initOptionsPage(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'init', 'Options init error: ' + (e && e.message || e)); }
   }
 }
 
-function _initMarketNewsPage() {
-  if (typeof newsCache !== 'undefined' && newsCache.length > 0 && typeof renderFeed === 'function') {
-    renderFeed(newsCache);
-  } else if (typeof fetchAllNews === 'function') {
-    setTimeout(function(){ try { fetchAllNews().catch(function(){}); } catch(e){} }, 600);
-  }
-}
-
-function _initBriefingPage() {
+var _initBriefingPage = function() {
   if (typeof renderBriefingFeed === 'function') {
     if (typeof newsCache !== 'undefined' && newsCache.length > 0) {
       renderBriefingFeed(newsCache);
@@ -25697,7 +25506,7 @@ function _aioRenderBriefingMarketAnalysis() {
 }
 
 // themes/theme-detail/kr-themes 공통: 성과 테이블 lazy-init (IntersectionObserver)
-function _initThemePerfTable(pageId) {
+var _initThemePerfTable = function(pageId) {
   if (typeof _updatePerfTable !== 'function') return;
   var perfTarget = document.querySelector('[data-perf-ytd]');
   if (perfTarget && typeof _lazyInit === 'function') {
@@ -25722,7 +25531,7 @@ function _lazyInitChartPage(pageId, canvasId, initFn) {
 }
 
 // v48.14: safeInit 글로벌 노출 (PAGES 라우터가 사용)
-function _safePageInitGlobal(pageId, fn) {
+var _safePageInitGlobal = function(pageId, fn) {
   try {
     var done = false;
     var run = function() { if (!done) { done = true; fn(); } };

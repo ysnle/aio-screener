@@ -1,38 +1,104 @@
 import { createClock } from '../platform/clock.js';
 import { createHttpClient } from '../platform/http.js';
 import { createStore } from '../state/store.js';
+import { createInitialSentimentState, sentimentReducer, SENTIMENT_DATA_CLEAR, SENTIMENT_DATA_SET } from '../state/slices/sentiment.js';
+import { createInitialNewsState, newsReducer, NEWS_DATA_CLEAR, NEWS_DATA_SET } from '../state/slices/news.js';
+import { createInitialMarketState, marketReducer, MARKET_DATA_CLEAR, MARKET_DATA_SET } from '../state/slices/market.js';
+import { createInitialThemesState, themesReducer, THEMES_DATA_CLEAR, THEMES_DATA_SET } from '../state/slices/themes.js';
+import { createInitialEntityState, entityReducer, ENTITY_DATA_CLEAR, ENTITY_DATA_SET } from '../state/slices/entity.js';
+import { createInitialPortfolioState, portfolioReducer, PORTFOLIO_DATA_CLEAR, PORTFOLIO_DATA_SET } from '../state/slices/portfolio.js';
+import { createInitialScreenerState, screenerReducer, SCREENER_DATA_CLEAR, SCREENER_DATA_SET } from '../state/slices/screener.js';
+import { createSentimentCommands } from './commands/sentiment.js';
+import { createNewsCommands } from './commands/news.js';
+import { createMarketCommands } from './commands/market.js';
+import { createThemesCommands } from './commands/themes.js';
+import { createEntityCommands } from './commands/entity.js';
+import { createPortfolioCommands } from './commands/portfolio.js';
+import { createScreenerCommands } from './commands/screener.js';
+import { selectSentimentSummary } from '../state/selectors/sentiment.js';
 import { createEvidenceStore } from '../data/evidence-store.js';
 import { createEvidence } from '../data/contracts/evidence.js';
-import { applyFreshness } from '../data/quality/freshness.js';
 import { createMarketSnapshotLoader } from '../data/market-snapshot-loader.js';
+import { createSentimentProvider } from '../data/providers/sentiment.js';
+import { createSentimentOrchestrator } from '../data/orchestrators/sentiment.js';
+import { createNewsProvider } from '../data/providers/news.js';
+import { createNewsOrchestrator } from '../data/orchestrators/news.js';
+import { createMarketProvider } from '../data/providers/market.js';
+import { createMarketOrchestrator } from '../data/orchestrators/market.js';
+import { createThemesProvider } from '../data/providers/themes.js';
+import { createThemesOrchestrator } from '../data/orchestrators/themes.js';
+import { createEntityProvider } from '../data/providers/entity.js';
+import { createEntityOrchestrator } from '../data/orchestrators/entity.js';
+import { createPortfolioProvider } from '../data/providers/portfolio.js';
+import { createPortfolioOrchestrator } from '../data/orchestrators/portfolio.js';
+import { createScreenerProvider } from '../data/providers/screener.js';
+import { createScreenerOrchestrator } from '../data/orchestrators/screener.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
-import { deriveSentimentSummary } from '../domain/sentiment/metrics.js';
+import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
 import { createRouteRegistry } from './router.js';
 import { createLifecycleRouter } from './router.js';
-import { createLegacyObserverPage } from '../ui/pages/legacy-observer.js';
+import { createGuidePage } from '../ui/pages/guide.js';
+import { createNewsPage } from '../ui/pages/news.js';
+import { createMarketSlicePage } from '../ui/pages/market.js';
+import { createThemesPage } from '../ui/pages/themes.js';
 import { createSentimentPage } from '../ui/pages/sentiment.js';
+import { createEntityPage } from '../ui/pages/entity.js';
+import { createPortfolioPage } from '../ui/pages/portfolio.js';
+import { createScreenerPage } from '../ui/pages/screener.js';
+import { createAnalysisPage } from '../ui/pages/analysis.js';
+import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALYSIS_DATA_SET } from '../state/slices/analysis.js';
+import { createAnalysisCommands } from './commands/analysis.js';
+import { createAnalysisProvider } from '../data/providers/analysis.js';
+import { createAnalysisOrchestrator } from '../data/orchestrators/analysis.js';
+import { createStorageGateway } from '../platform/storage.js';
+import { createPrivacyVault } from '../storage/vault.js';
 import { createLegacyFacade, exposeArchitecture } from '../legacy/compatibility-facade.js';
 import { applyMarketSnapshotToLegacy } from '../legacy/market-snapshot-bridge.js';
 import { ROUTE_IDS } from './routes.js';
 
-export const ARCHITECTURE_VERSION = 'AR-01~06.v1';
+export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
 function reducer(state, action) {
-  if (action.type === 'legacy/sentiment') return { ...state, sentiment: { ...action.payload } };
+  if (action.type === SENTIMENT_DATA_SET || action.type === SENTIMENT_DATA_CLEAR) {
+    return { ...state, sentiment: sentimentReducer(state.sentiment, action) };
+  }
+  if (action.type === NEWS_DATA_SET || action.type === NEWS_DATA_CLEAR) {
+    return { ...state, news: newsReducer(state.news, action) };
+  }
+  if (action.type === MARKET_DATA_SET || action.type === MARKET_DATA_CLEAR) {
+    return { ...state, market: marketReducer(state.market, action) };
+  }
+  if (action.type === THEMES_DATA_SET || action.type === THEMES_DATA_CLEAR) {
+    return { ...state, themes: themesReducer(state.themes, action) };
+  }
+  if (action.type === ENTITY_DATA_SET || action.type === ENTITY_DATA_CLEAR) {
+    return { ...state, entity: entityReducer(state.entity, action) };
+  }
+  if (action.type === PORTFOLIO_DATA_SET || action.type === PORTFOLIO_DATA_CLEAR) {
+    return { ...state, portfolio: portfolioReducer(state.portfolio, action) };
+  }
+  if (action.type === SCREENER_DATA_SET || action.type === SCREENER_DATA_CLEAR) {
+    return { ...state, screener: screenerReducer(state.screener, action) };
+  }
+  if (action.type === ANALYSIS_DATA_SET || action.type === ANALYSIS_DATA_CLEAR) {
+    return { ...state, analysis: analysisReducer(state.analysis, action) };
+  }
   if (action.type === 'market/snapshot') return { ...state, marketSnapshot: action.payload };
+  if (action.type === 'route/changed') return { ...state, route: action.payload };
   return state;
 }
 
 export function createAIOArchitecture({ root = globalThis, documentRef = root.document, now = () => Date.now(), fetchImpl = root.fetch } = {}) {
   const clock = createClock(now);
   const evidenceStore = createEvidenceStore();
-  const store = createStore({ initialState: { sentiment: {}, route: null, marketSnapshot: null }, reducer });
+  const store = createStore({ initialState: { sentiment: createInitialSentimentState(), news: createInitialNewsState(), market: createInitialMarketState(), themes: createInitialThemesState(), entity: createInitialEntityState(), portfolio: createInitialPortfolioState(), screener: createInitialScreenerState(), analysis: createInitialAnalysisState(), route: null, marketSnapshot: null }, reducer });
   const eventTarget = documentRef || root;
   const legacy = createLegacyFacade(root, eventTarget);
   const httpClient = createHttpClient({ fetchImpl, clock });
   const snapshotLoader = createMarketSnapshotLoader({ httpClient, clock });
   let marketSnapshot = null;
   const snapshotEvidence = new Map();
+  const aiRetriever = createEvidenceRetriever({ evidenceStore });
 
   function ingestSnapshotEvidence(snapshot) {
     snapshotEvidence.clear();
@@ -69,49 +135,77 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     }
   }
 
-  function syncLegacySentiment() {
-    const raw = legacy.readSentiment();
-    const sentiment = { ...raw };
-    const observedAt = raw.now;
-    const fields = [
-      ['fearGreed', raw.fearGreed, 'score'],
-      ['vix9d', raw.vix9d, 'index'],
-      ['vix', raw.vix, 'index'],
-      ['vix3m', raw.vix3m, 'index'],
-      ['vix6m', raw.vix6m, 'index']
-    ];
-    for (const [metric, value, unit] of fields) {
-      const snapshot = snapshotEvidence.get(metric);
-      if (snapshot) {
-        sentiment[metric] = snapshot.value;
-        continue;
-      }
-      const status = value == null ? 'missing' : 'live';
-      const entry = applyFreshness({
-        metric,
-        value,
-        unit,
-        sourceKind: value == null ? 'unavailable' : 'legacy-projection',
-        source: value == null ? 'legacy-projection' : 'legacy-runtime',
-        observedAt: value == null ? null : observedAt,
-        fetchedAt: observedAt,
-        lastSuccessfulAt: value == null ? null : observedAt,
-        status
-      }, { now: clock.now(), maxAgeMs: 120_000 });
-      if (entry.status === 'missing') continue;
-      evidenceStore.ingest(entry);
-    }
-    store.dispatch({ type: 'legacy/sentiment', payload: sentiment });
-    return sentiment;
-  }
+  const sentimentProvider = createSentimentProvider({ read: legacy.readSentiment, now: clock.now });
+  const sentimentCommands = createSentimentCommands({ store });
+  const syncSentiment = createSentimentOrchestrator({ provider: sentimentProvider, evidenceStore, store, commands: sentimentCommands, snapshotEvidence, clock });
+  const ingestSentiment = (patch = {}) => syncSentiment.sync(patch);
+  const newsProvider = createNewsProvider({ read: () => root?._allNewsItems || root?.newsCache || [], now: clock.now });
+  const newsCommands = createNewsCommands({ store });
+  const syncNews = createNewsOrchestrator({ provider: newsProvider, commands: newsCommands });
+  const marketCommands = createMarketCommands({ store });
+  const syncMarket = createMarketOrchestrator({ provider: createMarketProvider({ read: legacy.readMarket }), commands: marketCommands });
+  const themesCommands = createThemesCommands({ store });
+  const syncThemes = createThemesOrchestrator({ provider: createThemesProvider({ read: legacy.readThemes }), commands: themesCommands });
+  const entityCommands = createEntityCommands({ store });
+  const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: legacy.readEntity }), commands: entityCommands });
+  const portfolioCommands = createPortfolioCommands({ store });
+  const portfolioStorage = createStorageGateway({ storage: root?.localStorage, prefix: 'aio' });
+  const portfolioVault = createPrivacyVault({ storage: portfolioStorage, key: 'portfolio', consent: () => root?._portfolioVaultConsent === true });
+  const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: legacy.readPortfolio, repository: portfolioVault }), commands: portfolioCommands });
+  const screenerCommands = createScreenerCommands({ store });
+  const syncScreener = createScreenerOrchestrator({ provider: createScreenerProvider({ read: legacy.readScreener }), commands: screenerCommands });
+  const analysisCommands = createAnalysisCommands({ store });
+  const syncAnalysis = createAnalysisOrchestrator({ provider: createAnalysisProvider({ read: legacy.readAnalysis }), commands: analysisCommands });
 
-  const modules = Object.fromEntries(ROUTE_IDS.map((route) => [route, createLegacyObserverPage(route, { documentRef })]));
-  modules.sentiment = createSentimentPage({ documentRef, evidenceStore, store });
+  const modules = {};
+  modules.guide = createGuidePage({ documentRef });
+  modules['market-news'] = createNewsPage({ root, documentRef, store, route: 'market-news' });
+  modules.briefing = createNewsPage({ root, documentRef, store, route: 'briefing' });
+  modules.macro = createMarketSlicePage({ documentRef, store, route: 'macro' });
+  modules.fxbond = createMarketSlicePage({ documentRef, store, route: 'fxbond' });
+  modules.breadth = createMarketSlicePage({ documentRef, store, route: 'breadth' });
+  modules.themes = createThemesPage({ documentRef, store, route: 'themes' });
+  modules['theme-detail'] = createThemesPage({ documentRef, store, route: 'theme-detail' });
+  modules.sentiment = createSentimentPage({ documentRef, evidenceStore, store, chartFactory: () => root?.Chart });
+  modules.ticker = createEntityPage({ documentRef, store, route: 'ticker' });
+  modules.fundamental = createEntityPage({ documentRef, store, route: 'fundamental' });
+  modules.options = createEntityPage({ documentRef, store, route: 'options' });
+  modules.portfolio = createPortfolioPage({ documentRef, store });
+  modules.screener = createScreenerPage({ documentRef, store });
+  modules.home = createAnalysisPage({ documentRef, store, route: 'home' });
+  modules.signal = createAnalysisPage({ documentRef, store, route: 'signal' });
+  modules.technical = createAnalysisPage({ documentRef, store, route: 'technical' });
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock } });
 
   function start() {
-    syncLegacySentiment();
-    const stopQuotes = legacy.on('aio:liveQuotes', syncLegacySentiment);
+    syncSentiment.sync();
+    syncNews.sync();
+    syncMarket.sync();
+    syncThemes.sync();
+    syncEntity.sync();
+    syncPortfolio.sync();
+    syncScreener.sync();
+    syncAnalysis.sync();
+    const stopQuotes = legacy.on('aio:liveQuotes', syncSentiment.sync);
+    const stopRefresh = legacy.on('aio:refresh:done', syncSentiment.sync);
+    const stopHistory = legacy.on('aio:historyLoaded', syncSentiment.sync);
+    const stopSentiment = legacy.on('aio:sentimentUpdated', syncSentiment.sync);
+    const stopNews = legacy.on('aio:newsUpdated', syncNews.sync);
+    const stopMarketQuotes = legacy.on('aio:liveQuotes', syncMarket.sync);
+    const stopMarketRefresh = legacy.on('aio:refresh:done', syncMarket.sync);
+    const stopMarketSnapshot = legacy.on('aio:marketSnapshot', syncMarket.sync);
+    const stopThemesQuotes = legacy.on('aio:liveQuotes', syncThemes.sync);
+    const stopThemesRefresh = legacy.on('aio:refresh:done', syncThemes.sync);
+    const stopEntityQuotes = legacy.on('aio:liveQuotes', syncEntity.sync);
+    const stopEntityRefresh = legacy.on('aio:refresh:done', syncEntity.sync);
+    const stopEntityShown = legacy.on('aio:pageShown', syncEntity.sync);
+    const stopPortfolioQuotes = legacy.on('aio:liveQuotes', syncPortfolio.sync);
+    const stopPortfolioShown = legacy.on('aio:pageShown', syncPortfolio.sync);
+    const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreener.sync);
+    const stopScreenerShown = legacy.on('aio:pageShown', syncScreener.sync);
+    const stopAnalysisQuotes = legacy.on('aio:liveQuotes', syncAnalysis.sync);
+    const stopAnalysisRefresh = legacy.on('aio:refresh:done', syncAnalysis.sync);
+    const stopAnalysisShown = legacy.on('aio:pageShown', syncAnalysis.sync);
     const stopShown = legacy.on('aio:pageShown', (event) => {
       const detail = event?.detail;
       const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
@@ -131,7 +225,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         ingestSnapshotEvidence(marketSnapshot);
         store.dispatch({ type: 'market/snapshot', payload: marketSnapshot });
         applyMarketSnapshotToLegacy(root, marketSnapshot);
-        syncLegacySentiment();
+        syncSentiment.sync();
       }
       return result;
     }).catch((error) => ({ ok: false, error: error?.message || 'snapshot_loader_failed' }));
@@ -140,6 +234,25 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       clearTimeout(navigationRetryTimer);
       navigation.restore();
       stopQuotes();
+      stopRefresh();
+      stopHistory();
+      stopSentiment();
+      stopNews();
+      stopMarketQuotes();
+      stopMarketRefresh();
+      stopMarketSnapshot();
+      stopThemesQuotes();
+      stopThemesRefresh();
+      stopEntityQuotes();
+      stopEntityRefresh();
+      stopEntityShown();
+      stopPortfolioQuotes();
+      stopPortfolioShown();
+      stopScreenerRefresh();
+      stopScreenerShown();
+      stopAnalysisQuotes();
+      stopAnalysisRefresh();
+      stopAnalysisShown();
       stopShown();
       router.dispose();
       evidenceStore.clear();
@@ -156,8 +269,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     getState: () => store.getState(),
     getEvidence: (metric) => metric ? evidenceStore.get(metric) : evidenceStore.snapshot(),
     getMarketSnapshot: () => marketSnapshot,
-    getSentimentSummary: () => deriveSentimentSummary(store.getState().sentiment),
-    getAIContext: (metrics = ['fearGreed', 'vix']) => buildEvidenceContext({ evidenceStore, metrics })
+    getSentimentSummary: () => selectSentimentSummary(store.getState()),
+    ingestSentiment,
+    getAIContext: (metrics = ['fearGreed', 'vix']) => buildEvidenceContext({ evidenceStore, metrics, retriever: aiRetriever })
     ,navigate: (route, ...args) => legacy.navigate(route, ...args)
   };
   exposeArchitecture(root, api);

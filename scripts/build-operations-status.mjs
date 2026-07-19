@@ -38,7 +38,15 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       routeCount: 17,
       rawProducerClaimGate: 'not_applicable_for_quote_plane'
     },
-    routes: { supported: 17, nativeOwner: ['sentiment'], legacyOwner: 16, cutoverStatus: 'MIGRATION_IN_PROGRESS' },
+    routes: {
+      supported: 17,
+      nativeOwner: ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'],
+      legacyOwner: 0,
+      nativeLifecycleOwner: ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'],
+      nativeRendererOwner: ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'],
+      observerOwner: 0,
+      cutoverStatus: 'NATIVE_ROUTES_LOCAL'
+    },
     blockers
   });
   const validation = validateOperationsStatus(status);

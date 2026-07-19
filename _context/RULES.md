@@ -2,10 +2,16 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
-target_version: v53.14
+target_version: v53.15
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R352. Architecture migration must transfer an executable owner and monotonically retire legacy coupling (v53.15, P736)
+
+**Rule**: 새 `src/` 모듈·CI 스크립트·manifest를 추가한 것만으로 route 재구축을 완료 처리하지 않는다. 각 migration batch는 lifecycle·renderer·data·chart·narrative 소유권을 분리해 기록하고, 수정 전 `DELETE-LEDGER`에 declaration/caller/global/DOM/event/storage/test를 적은 뒤 최소 한 개의 대응 legacy wrapper/hook/writer를 같은 변경에서 제거해야 한다. Store가 dispatch한 route command는 reducer가 실제 소비해야 하며, release manifest의 app revision은 `version.json`과 정확히 같아야 한다.
+
+**Validation**: `ci-architecture-contract-check.mjs`는 선언된 burn-down 상한과 퇴역 패턴 부재, release revision parity, 전체 실행 원장의 계층·route·세션 카드·최종 인수 구조를 blocking한다. `ci-architecture-browser-check.mjs`는 router와 store의 route가 모두 `sentiment`인지, ESM owner가 fail-closed 배지를 렌더하는지 검증한다. `operations-status.json`은 native lifecycle owner와 native renderer owner를 별도로 공개하며 renderer 전환 전에는 native route로 계산하지 않는다.
 
 ## R351. History bucket dates must not replace field-level observation provenance (v53.14, P735)
 

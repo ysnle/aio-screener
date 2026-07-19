@@ -3,9 +3,18 @@ verified_by: Codex (repository-wide static architecture review and current audit
 last_verified: 2026-07-19
 confidence: high
 auto_refresh: false
-target_version: v53.13
+target_version: v53.15
 status: IMPLEMENTED_LOCAL_PARTIAL
 scope: whole-system architecture
+
+## 2026-07-19 ARX-09~16 local implementation checkpoint
+
+Entity, portfolio, screener, analysis, pure domain, AI, privacy vault, release,
+and retirement boundaries are implemented in native ESM. All 17 route modules
+are registered without legacy observer ownership. External provider rights,
+fast-plane credentials/soak, and browser/live certification remain explicit
+operator gates; the user-requested full validation batch is deferred until the
+packet sequence is complete.
 ---
 
 # AIO Screener 구조 개편·근본 재구축 핸드오프
@@ -450,11 +459,12 @@ AR-00 -> AR-01 -> AR-02 -> AR-03
 ## 14. 관련 문서 위계
 
 1. **이 문서** — 전체 시스템 목표 아키텍처와 재구축 순서의 상위 SSOT
-2. `AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md` — AR-07 데이터 plane 하위 실행계획
-3. `AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md` — AR-06 AI 위험·검증 기준선
-4. `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` — 과거 전체 시스템 증거 원장
-5. `WO7-GLOBAL-INVENTORY-2026-07-10.md` — 전역 격리 baseline
-6. `CODE-MAP.md`, `RULES.md`, `QA-CHECKLIST.md` — 실제 수정·검증 규칙
+2. `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md` — 다른 세션용 계층·route·삭제 원장·배치 실행 계약
+3. `AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md` — AR-07 데이터 plane 하위 실행계획
+4. `AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md` — AR-06 AI 위험·검증 기준선
+5. `CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md` — 과거 전체 시스템 증거 원장
+6. `WO7-GLOBAL-INVENTORY-2026-07-10.md` — 전역 격리 baseline
+7. `CODE-MAP.md`, `RULES.md`, `QA-CHECKLIST.md` — 실제 수정·검증 규칙
 
 하위 문서와 충돌하면 최신 코드 실측과 이 문서의 계층 경계를 우선하되, 데이터 source/rights/freshness 세부 기준은 데이터 핸드오프를 따른다.
 
@@ -529,3 +539,25 @@ plane의 live backstop과 AR-09 full native renderer cutover는 외부 운영 �
 - Refresh run `29670719055` succeeded with `news 31` and created data commit `313b7db`; downstream CI run `29670732380` passed validate, 22-category/static and lineage gates, headless tests, all-route accessibility, viewport 68/68, Critical-10, Vault E2E, and GitHub Pages deploy.
 - Live invariant check passed at `https://ysnle.github.io/aio-screener` with version `v53.13`; live `data.json` reports `symbolsOk=78`, `newsCount=31`, generated at `2026-07-19T02:46:57.844Z`.
 - Release boundary remains explicit: AR-07 fast plane is `OPERATOR_REQUIRED` pending Cloudflare credentials/provider rights/7-day SLO, and AR-09 remains partial because the legacy renderer still owns the declared route set. Do not promote either to full verified completion.
+
+## 18. 2026-07-19 v53.15 실제 소유권 이전 1차 배치
+
+v53.11~v53.14의 기반 작업은 필요한 scaffold였지만, "legacy coupling baseline no increase"만으로는 구조 개편의 진척을 증명하지 못했다. v53.15부터 migration batch의 완료 기준을 신규 파일 수가 아니라 **실행 소유권 이전 + 대응 legacy 삭제 + 단조 burn-down**으로 바꾼다.
+
+직전 배치에서 sentiment의 route lifecycle과 fail-closed 상태 배지는 `src/ui/pages/sentiment.js`가 소유하기 시작했다. 기존 `PAGES.sentiment.init`과 `js/aio-ui.js`의 중복 badge writer를 제거했고, `js/aio-data.js`의 `window.showPage` monkeypatch도 기존 page bus subscriber로 교체해 explicit global writes를 1110에서 1109로 감소시켰다.
+
+`route/changed`가 Store reducer에서 소비되도록 연결해 router와 state route가 일치한다. Architecture contract는 explicit global writes ≤1109, 제거된 init/badge/monkeypatch의 재등장 금지, `release-manifest.appRevision === version.json.version`을 blocking한다. Chromium contract는 sentiment의 router/store route, `심리: 판정 보류` 배지, route 왕복 dispose/mount를 확인한다.
+
+운영 공개 상태도 소유권을 분리한다: `nativeLifecycleOwner=['sentiment']`, `nativeRendererOwner=[]`, `legacyOwner=17`. 따라서 이것은 AR-09 완료가 아니라 첫 lifecycle 배치였다.
+
+이전 배치의 로컬 검증은 architecture/operations/version/release 및 데이터·보안·문서 계약 22종 PASS, headless 1101/1101, architecture Chromium browserErrors 0, Critical-10 10/10, a11y 17/17, viewport 68/68(overflow 0px·tinyText 0·jsErrors 0), Vault 8/8이었다. 이 증거는 이후 패킷의 완료 근거로 재사용하지 않는다.
+
+## 19. 2026-07-19 ARX-01 sentiment renderer cutover
+
+ARX-01에서 `src/ui/pages/sentiment.js`가 sentiment의 카드·상태·VIX/기간구조 차트·복합 판단·resource bag lifecycle을 실제로 소유하도록 전환했다. 렌더러는 store/evidence selector와 주입된 Chart constructor만 읽으며 fetch·storage·legacy global에 직접 접근하지 않는다. Chart.js가 없거나 시계열이 비어 있으면 동일 모듈의 bounded canvas fallback/blocked marker로 종료한다.
+
+같은 배치에서 `js/aio-ui.js`의 `initSentimentPage`, 전용 chart helper/registry/fallback, `js/aio-core.js`의 sentiment chart cleanup, `js/aio-data.js`의 chart back-reference, `compatibility-facade`의 sentiment mount map과 삭제 함수 전용 테스트를 제거했다. 데이터 producer 자체는 ARX-02 전까지 facade read-only adapter로 남기고, 상태 동기화는 `putCall`·`hySpread`·AAII·VIX history까지 포함해 native selector가 소비한다.
+
+Burn-down은 explicit global writes `1109→1094`, direct fetch `42→42`, direct storage `189→189`, HTML sink `420→416`이다. `nativeRendererOwner=['briefing','guide','market-news','sentiment']`, `legacyOwner=13`, `nativeOwner=[]`로 공개했고, data owner가 아직 legacy이므로 상태는 `MIGRATION_IN_PROGRESS`다. 전체 §8.1 회귀와 Chromium 증거는 모든 ARX 패킷 완료 후 일괄 실행한다. provider rights·Cloudflare fast plane·7-day soak·live evidence는 여전히 미검증이다.
+
+ARX-02는 다음 수직 단계로 착수했다. `src/data/providers/sentiment.js` → `src/data/normalize/sentiment.js` → `src/data/orchestrators/sentiment.js` 경계를 추가하고 bootstrap의 sentiment sync를 `data/sentiment` 단일 dispatch/evidence writer로 이동했다. F&G/HY의 sentiment-page 직접 sink와 dead F&G/crypto HTML renderer를 제거했고 legacy producer가 `AIO_ARCH.ingestSentiment`를 통해 canonical writer에 통지하도록 연결했으며, ARX-02는 `VERIFIED_LOCAL`로 닫고 ARX-04 platform adoption과 ARX-05/06 route owner를 다음 packet으로 이관했다. data owner와 narrative owner는 아직 native로 승격하지 않는다.

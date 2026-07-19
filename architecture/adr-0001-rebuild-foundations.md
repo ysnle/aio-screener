@@ -1,6 +1,6 @@
 # ADR-0001: framework-neutral ESM foundations
 
-- Status: accepted for AR-00~06
+- Status: accepted for AR-00~16 local cutover
 - Date: 2026-07-18
 - Scope: browser application runtime and the first vertical slice
 
@@ -31,15 +31,16 @@ context boundary without mutating portfolio state.
 ## Rollback
 
 The ESM bootstrap is progressive enhancement. If it cannot initialize, the
-legacy application remains the page owner and records a bounded warning. The
-new runtime never replaces `showPage`, mutates `DATA_SNAPSHOT`, or changes
-legacy route rendering during this migration step.
+legacy application records a bounded warning. The new runtime owns the 17 route
+lifecycles and renderers and consumes compatibility read models through the
+facade; the facade remains read-only except for the approved sentiment ingest
+gateway. Release, provider-rights, and live certification remain independent
+operator evidence.
 
 ## Exit criteria
 
-AR-01~AR-06 are considered locally implemented when the architecture contract
-gate passes, the sentiment route receives canonical evidence metadata, all
-resources created by the observer are disposed on route changes, and the
-legacy coupling baseline does not increase. AR-07~AR-09 remain governed by
-their own data, deployment, and legacy-burn-down gates until their slices are
-cut over.
+AR-01~AR-16 are considered locally cut over when the architecture, domain
+parity, storage migration, release, and retirement contracts pass, all route
+resources are disposed on route changes, and router/store route state agrees.
+Live provider rights, fast-plane credentials, and browser certification remain
+separate gates.

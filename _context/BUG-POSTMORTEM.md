@@ -2,10 +2,10 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
-latest_version: v53.14
-latest_P_number: P735
-next_P_number: P736
-total_entries: 509 (P1~P735, 결번 존재 — 상세 28건 + 압축 원장)
+latest_version: v53.15
+latest_P_number: P737
+next_P_number: P738
+total_entries: 511 (P1~P737, 결번 존재 — 상세 30건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -81,6 +81,24 @@ total_entries: 509 (P1~P735, 결번 존재 — 상세 28건 + 압축 원장)
 - **violated_rule**: R351 및 R332/R340 계열(QG-06/QG-09/QG-11/QG-12).
 - **prevention**: refresh/CI에서 field-time·LKG·AI scale 계약을 blocking 실행하고, data.json `fredHasKey/fredFetchOk`와 `marketAnalysisSemanticOk`를 별도 상태로 유지한다. Fast plane, provider rights, SEC coverage는 운영자 승인 전 `OPERATOR_REQUIRED/PARTIAL`로 둔다.
 - **verification**: `ci-history-field-time-contract-check` PASS(369 rows, 3535/3535 numeric fields), `ci-static-data-contract` 22/22 PASS, Tier-0 snapshot 16/16 PASS, pipeline/lineage/reconciliation/operations contracts PASS. 로컬 외부 네트워크 제한 실행은 quote coverage fail-closed로 LKG를 보존했고, 권한 승인 실행은 78/78 quotes와 history backfill을 완료했다. 7-day fast-plane soak/provider rights는 미검증.
+
+## P736 - v53.15 - architecture scaffold가 실제 legacy 소유권 이전 없이 완료처럼 보였다
+- **motivation**: 사용자가 CI/MJS와 신규 파일은 계속 늘지만 `index.html`/기존 JS의 제거가 거의 없는 점을 지적해, AR-09 진행 여부를 실행 소유권과 삭제 증거로 재판정했다.
+- **symptom/reproduction**: 기존 architecture gate는 global/fetch/storage/HTML sink 카운터가 baseline과 같아도 통과했고, `operations-status.json`은 legacy renderer를 쓰는 sentiment를 native owner로 집계했다. Browser에서 router active route는 sentiment였지만 Store route는 `null`이었다. legacy `PAGES.sentiment.init`, UI badge writer, `aio-data.js`의 `window.showPage` monkeypatch가 동시에 남았고 release manifest는 v53.11에 고정돼 있었다.
+- **root_cause**: 최초 구현이 observer/scaffold 존재와 실제 renderer/lifecycle ownership을 구분하지 않았다. 계약도 "증가 금지"만 검사해 legacy 부채의 감소를 요구하지 않았고, command bus dispatch와 reducer 소비를 end-to-end로 단언하지 않았다.
+- **fix**: sentiment lifecycle과 fail-closed badge writer를 ESM route로 이전하고 legacy init hook·badge writer를 제거했다. data page activation은 전역 `showPage` 재정의 대신 기존 page bus 등록으로 교체해 explicit global writer를 1110→1109로 줄였다. reducer에 `route/changed`를 연결하고, compatibility facade를 legacy renderer 호출의 단일 경계로 만들었다. release parity·퇴역 패턴·burn-down 상한을 architecture gate에, router/store route·badge 결과를 Chromium gate에 추가했다. 운영 상태는 native lifecycle과 native renderer를 분리했다.
+- **violated_rule**: R352 및 R73/P239의 "인프라만 추가하고 소비·소유 경로 미연결" 클래스.
+- **prevention**: `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md`의 세션 카드와 DELETE-LEDGER를 사용한다. 이후 route batch도 lifecycle/renderer/data/chart/narrative 소유권을 각각 선언하고 최소 한 legacy 경로를 삭제한다. 동일 카운터 유지로는 완료 처리하지 않으며, renderer가 legacy면 route 전체를 native로 집계하지 않는다.
+- **verification**: architecture contract PASS(explicit global writes 1109, 퇴역 3패턴 부재, release revision parity), Chromium architecture PASS(router/store route=`sentiment`, `심리: 판정 보류`, 왕복 dispose/mount, browserErrors 0). 정적·데이터·보안 계약 22종, headless 1101/1101, Critical-10 10/10, a11y 17/17, viewport 68/68(overflow/tinyText/jsErrors 0), Vault 8/8도 PASS했다. 전체 AR-09는 renderer 17개와 나머지 legacy coupling이 남아 `MIGRATION_IN_PROGRESS`다.
+
+## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
+- **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.
+- **symptom/reproduction**: `ci-architecture-browser-check.mjs` raised `Cannot set properties of undefined (setting 'labels')` when a chart instance existed without a mutable `data`/dataset shape.
+- **root_cause**: The renderer assumed every chart adapter exposed the full mutable Chart.js dataset contract.
+- **fix**: Guard the existing chart update path and recreate/fallback when the instance is incomplete; the overall sentiment badge also remains fail-closed when VIX term structure is unavailable.
+- **violated_rule**: R3 postmortem requirement and the resource/chart lifecycle contract.
+- **prevention**: Chart update contracts must test both complete and incomplete adapters before mutating data.
+- **verification**: Browser architecture gate rerun after the patch; remaining full-suite result is recorded in the current task handoff.
 
 ## P733 - v53.12 - refresh-data ESM summary에 CommonJS require가 남아 있었다
 - **motivation**: P732 이후 workflow heredoc의 실제 실행 경로까지 검증해 자동 data commit 회귀를 닫는다.
