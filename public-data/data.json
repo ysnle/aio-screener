@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-19T11:00:54.976Z",
+  "generatedAt": "2026-07-19T12:06:34.885Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -25,7 +25,7 @@
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-19T11:00:03.568Z",
+  "blsAttemptedAt": "2026-07-19T12:06:31.917Z",
   "blsLastSuccessfulAt": "2026-07-19T02:35:22.450Z",
   "newsOk": true,
   "newsCount": 37,
@@ -40,7 +40,7 @@
   "newsScoreMax": 62,
   "putCallOk": true,
   "putCallAsOf": "2026-07-17",
-  "elapsedMs": 51480,
+  "elapsedMs": 3043,
   "schema": 1,
   "marketAnalysisOk": true,
   "marketAnalysisSemanticOk": true,
@@ -50,7 +50,7 @@
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-07-19T11:00:54.976Z:a4b6f65c",
+  "marketSnapshotRevision": "market-snapshot:2026-07-19T12:06:34.885Z:6a14235c",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 98,
@@ -106,7 +106,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-19T02:35:22.450Z",
    "lastSuccessfulAt": "2026-07-19T02:35:22.450Z",
-   "attemptedAt": "2026-07-19T11:00:03.568Z",
+   "attemptedAt": "2026-07-19T12:06:31.917Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -306,7 +306,7 @@
   "indexPutCall": 0.98,
   "equityPutCall": 0.73,
   "asOf": "2026-07-17",
-  "fetchedAt": "2026-07-19T11:00:04.875Z",
+  "fetchedAt": "2026-07-19T12:06:32.619Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -554,22 +554,6 @@
    "newsCycleLabel": "2026-07-18 08:00 KST ~ 2026-07-19 08:00 KST"
   },
   {
-   "title": "Iran Gas Shock Forces Half of Americans to Cut Food and Medical Spending - Tech Times",
-   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQd2dDeEN1emdVU2JHY2hCR3BlWjhYVTdTbGcyMUVSU29FekdZTnQ4Vm9wNGdPaVdUN2xIU1pkckhWbWNFc3RURmtXLUFJTE9QZWI0Z1lscGZVU1pGcXlCS2VKZ1c2cW5zbEtzWmhYSjVxYVg4ZkNkLXRjWklWV1FjT1B6RU5CLUR6NDdnMVVRTkl1Z3VqRy1vM3ZVX0l4WTgtV01iTWo1RXhWUG1TZlRPbklBb3lnaTVK?oc=5",
-   "source": "Tech Times",
-   "pubDate": "Sat, 18 Jul 2026 16:28:39 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - US markets",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-17T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-18T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-18 08:00 KST ~ 2026-07-19 08:00 KST"
-  },
-  {
    "title": "Trump may have to choose between an endless quagmire and ceding the Strait of Hormuz to Iran - Fortune",
    "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOY0xOejBoWEpnYkFsOVNFdmFLWWl3cVlnOFQ3bldfejgyRXNrODBPRGZEM0ZHY29GMTdReHZ0dlBjbEZBVG5kU3dubDV1cGljNE1KNGNUT0dRdWVUdVJTcmJCcWdESVJ5dlVrLV9zQW1lczJUSVBYYlRqaU5vYndyZDVxal9oRkQwVXQxR2Z4Y28?oc=5",
    "source": "Fortune",
@@ -612,6 +596,22 @@
    "score": 41,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13",
    "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-17T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-18T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-18 08:00 KST ~ 2026-07-19 08:00 KST"
+  },
+  {
+   "title": "Take-Two Stock Prediction: Can GTA 6 Push TTWO Above $250 Again? - TradingKey",
+   "link": "https://news.google.com/rss/articles/CBMiigJBVV95cUxNMjdQQVlhSDFpeHlCdjJvUXhYaklxeW5ISVhVbGdtZ1drZnJUcEJFQ3RHWWt6bkd1V25GMnY3T1FYNDBPMTlleVJac0FvTHd1TTNaeENkeVZ1elhDbzBwa2gwRWMwRUxJUnVDZFBtYTNuYkNBT0tuck1SQlVBc0RpT292TEpicUF6dDJmOWp2azRNaHlvaFFYR1h5VXhYdkd0WHhoLWllMTJTRkpYUGk1aWZ2UEU5SUhXcGR5aWFHc0diRE1WTndtQjM0NWttSWoyUmdhVkF4eDJxbkNIQnlQSWRzcGtfSmxRSnlqbW9GYTNJOUVibTVqOVJmMDdvaE90ai01anpobEdFZw?oc=5",
+   "source": "TradingKey",
+   "pubDate": "Sat, 18 Jul 2026 22:05:13 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 40,
+   "selectionReason": "base+20 | source-tier3+2 | recency+18",
+   "feedSource": "Google News - Analyst/Earnings",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-17T23:00:00.000Z",
    "newsCycleEnd": "2026-07-18T23:00:00.000Z",
@@ -907,9 +907,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**미국 인플레이션 3.5%, 고용 부진(57천명) 속 이란 유화 뉴스로 변동성 확대 중.**\n\n① **변동성/심리**: 선물물가지수 37(Fear & Greed) 수준에서 혼조 움직임을 보이며, 트럼프 이란 휴전 발언으로 인한 지정학적 불확실성이 시장 심리를 흔들고 있습니다.\n\n② **거시/금리**: CPI 3.5%와 Fed 금리 3.63% 수준에서 금리 경로에 대한 재평가가 진행 중이며, 약한 고용(NFP 57천명)은 경기 둔화 신호로 작용하고 있습니다.\n\n③ **주도 뉴스/리스크**: 이란 급유출로 유가 상승 추세가 인플레이션 우려를 자극하는 반면, AI 칩(NVDA, AMAT, MU) 관련주 강세와 테크 실적 시즌(알파벳, 마이크론)이 주도권을 놓고 경합하는 양상입니다.",
+  "full": "# 현재 시장 분석\n\n**미국 인플레이션(CPI 3.5%) 상승 우려 속 AI 칩 수급 쏠림이 시장을 양분하고 있습니다.**\n\n① 미국 선물시장이 혼조를 보이며 변동성이 높아진 상태로, 투자자들의 심리가 경기 부양과 인플레이션 우려 사이에서 흔들리고 있습니다. ② CPI 3.5%와 연방기금금리 3.63% 상황에서 유가 상승(이란 유량 공급 중단)이 물가 재상승 리스크를 부채질하고 있습니다. ③ AI 칩 관련주(NVDA 등)의 낙폭 심화 vs. 메모리 칩(Micron HBM 2026년까지 전량 판매) 강세로 섹터 내 쏠림이 심각하며, 주요 테크 기업 어닝 시즌(Alphabet, Applied Materials 등)이 연준의 금리 결정을 좌우할 관전 포인트입니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-07-19T11:00:59.292Z",
+  "generatedAt": "2026-07-19T12:06:40.368Z",
   "model": "claude-haiku-4-5",
   "semanticStatus": "verified",
   "semanticIssues": []
