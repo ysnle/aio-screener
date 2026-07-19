@@ -11,8 +11,8 @@ storage, release, and retirement contracts are wired. Historical burn-down
 lines below remain audit history; full §8.1 gates run only after the packet
 sequence is complete.
 version: v4.1
-checklist_version: v53.15
-latest_P_covered: P738
+checklist_version: v53.16
+latest_P_covered: P739
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---
@@ -94,6 +94,7 @@ ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
 - [x] Versioned repository, privacy vault, migration/rollback fixture, release asset manifest, and retirement contract added.
 - [ ] Full §8.1 browser/runtime/accessibility/regression gates are intentionally run only after every packet is applied.
 - [x] P738 runtime contract gate accepts native theme/sentiment ownership, tests the native VIX blocked state, and protects live CNN F&G delta precedence over snapshot repaint.
+- [x] P739 deferred browser gates: hidden F&G/VIX projections stay synchronized, explicit sentiment patches beat snapshot evidence, native narrative registry includes sentiment, and `theme-detail` opens its canonical inline panel.
 
 - [x] `src/ui/pages/sentiment.js` owns sentiment cards, blocked/observed state, F&G/VIX/PutCall/HY/AAII projection rendering, VIX charts, and resource-bag disposal.
 - [x] Removed `initSentimentPage`, sentiment chart registry/helpers, data chart back-reference, facade sentiment mount map, and tests that asserted retired symbols.

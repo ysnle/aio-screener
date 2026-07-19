@@ -11,7 +11,8 @@ export function createSentimentOrchestrator({ provider, evidenceStore, store, co
     for (const field of sentimentFieldDefinitions()) {
       const value = sentiment[field.metric];
       const snapshot = snapshotEvidence?.get?.(field.metric);
-      if (snapshot) {
+      const hasProvidedValue = Object.prototype.hasOwnProperty.call(provided, field.metric);
+      if (snapshot && !hasProvidedValue) {
         sentiment[field.metric] = snapshot.value;
         continue;
       }

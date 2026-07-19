@@ -41,7 +41,7 @@ import { createGuidePage } from '../ui/pages/guide.js';
 import { createNewsPage } from '../ui/pages/news.js';
 import { createMarketSlicePage } from '../ui/pages/market.js';
 import { createThemesPage } from '../ui/pages/themes.js';
-import { createSentimentPage } from '../ui/pages/sentiment.js';
+import { createSentimentPage, renderSentimentSummaryProjection } from '../ui/pages/sentiment.js';
 import { createEntityPage } from '../ui/pages/entity.js';
 import { createPortfolioPage } from '../ui/pages/portfolio.js';
 import { createScreenerPage } from '../ui/pages/screener.js';
@@ -138,7 +138,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const sentimentProvider = createSentimentProvider({ read: legacy.readSentiment, now: clock.now });
   const sentimentCommands = createSentimentCommands({ store });
   const syncSentiment = createSentimentOrchestrator({ provider: sentimentProvider, evidenceStore, store, commands: sentimentCommands, snapshotEvidence, clock });
-  const ingestSentiment = (patch = {}) => syncSentiment.sync(patch);
+  const syncSentimentProjection = (patch = null) => {
+    const result = syncSentiment.sync(patch);
+    renderSentimentSummaryProjection(documentRef, selectSentimentSummary(store.getState()));
+    return result;
+  };
+  const ingestSentiment = (patch = {}) => syncSentimentProjection(patch);
   const newsProvider = createNewsProvider({ read: () => root?._allNewsItems || root?.newsCache || [], now: clock.now });
   const newsCommands = createNewsCommands({ store });
   const syncNews = createNewsOrchestrator({ provider: newsProvider, commands: newsCommands });
@@ -178,7 +183,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock } });
 
   function start() {
-    syncSentiment.sync();
+    syncSentimentProjection();
     syncNews.sync();
     syncMarket.sync();
     syncThemes.sync();
@@ -186,10 +191,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     syncPortfolio.sync();
     syncScreener.sync();
     syncAnalysis.sync();
-    const stopQuotes = legacy.on('aio:liveQuotes', syncSentiment.sync);
-    const stopRefresh = legacy.on('aio:refresh:done', syncSentiment.sync);
-    const stopHistory = legacy.on('aio:historyLoaded', syncSentiment.sync);
-    const stopSentiment = legacy.on('aio:sentimentUpdated', syncSentiment.sync);
+    const stopQuotes = legacy.on('aio:liveQuotes', syncSentimentProjection);
+    const stopRefresh = legacy.on('aio:refresh:done', syncSentimentProjection);
+    const stopHistory = legacy.on('aio:historyLoaded', syncSentimentProjection);
+    const stopSentiment = legacy.on('aio:sentimentUpdated', syncSentimentProjection);
     const stopNews = legacy.on('aio:newsUpdated', syncNews.sync);
     const stopMarketQuotes = legacy.on('aio:liveQuotes', syncMarket.sync);
     const stopMarketRefresh = legacy.on('aio:refresh:done', syncMarket.sync);
@@ -225,7 +230,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         ingestSnapshotEvidence(marketSnapshot);
         store.dispatch({ type: 'market/snapshot', payload: marketSnapshot });
         applyMarketSnapshotToLegacy(root, marketSnapshot);
-        syncSentiment.sync();
+        syncSentimentProjection();
       }
       return result;
     }).catch((error) => ({ ok: false, error: error?.message || 'snapshot_loader_failed' }));

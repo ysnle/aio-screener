@@ -2,7 +2,7 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
-target_version: v53.15
+target_version: v53.16
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -14,6 +14,8 @@ target_version: v53.15
 **Validation**: `ci-architecture-contract-check.mjs`는 선언된 burn-down 상한과 퇴역 패턴 부재, release revision parity, 전체 실행 원장의 계층·route·세션 카드·최종 인수 구조를 blocking한다. `ci-architecture-browser-check.mjs`는 router와 store의 route가 모두 `sentiment`인지, ESM owner가 fail-closed 배지를 렌더하는지 검증한다. `operations-status.json`은 native lifecycle owner와 native renderer owner를 별도로 공개하며 renderer 전환 전에는 native route로 계산하지 않는다.
 
 **P738 reinforcement**: Runtime contract checks must accept the current native ESM owner and its compatibility boundary when a route is cut over; retired legacy declaration/call-site markers must not remain deploy blockers. The same gate must still assert the native fail-closed state and source-specific freshness behavior.
+
+**P739 reinforcement**: Native route cutovers must keep hidden compatibility sinks synchronized, allow explicit live/provider patches to override snapshot evidence, register the native route in shared narrative refresh boundaries, and make every derived-route redirect consume its semantic pending selection before the route-settle gate runs.
 
 ## R351. History bucket dates must not replace field-level observation provenance (v53.14, P735)
 

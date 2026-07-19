@@ -30,6 +30,18 @@ function setText(documentRef, id, value) {
   return element;
 }
 
+// Hidden cross-page score sinks still need the canonical state immediately;
+// the full sentiment route renderer remains responsible for the active page.
+export function renderSentimentSummaryProjection(documentRef, summary) {
+  const score = summary?.fearGreed?.score;
+  const scoreText = formatNumber(score, 0);
+  setText(documentRef, 'home-fg-score', scoreText);
+  setText(documentRef, 'fg-score-big', scoreText);
+  setText(documentRef, 'fg-score-val', scoreText);
+  setText(documentRef, 'fg-rating-text', summary?.fearGreed?.label || '판정 보류');
+  setText(documentRef, 'vix-term-regime-text', summary?.vixTermStructure?.regime || '판정 보류');
+}
+
 function setAttribute(element, name, value) {
   if (!element) return;
   if (value == null || value === '') element.removeAttribute(name);
@@ -195,6 +207,7 @@ function renderCanvasStates(documentRef, state, chartFactory, charts, bag) {
 function renderSentiment(documentRef, state, evidenceStore, chartFactory, charts, bag) {
   const sentiment = state || {};
   const summary = deriveSentimentSummary(sentiment);
+  renderSentimentSummaryProjection(documentRef, summary);
   const getEvidence = (metric) => evidenceStore?.get?.(metric) || null;
   const badge = documentRef?.getElementById('sent-overall-badge');
   const presentation = badgePresentation(summary);

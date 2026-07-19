@@ -2,10 +2,10 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
-latest_version: v53.15
-latest_P_number: P738
-next_P_number: P739
-total_entries: 512 (P1~P738, 결번 존재 — 상세 30건 + 압축 원장)
+latest_version: v53.16
+latest_P_number: P739
+next_P_number: P740
+total_entries: 513 (P1~P739, 결번 존재 — 상세 30건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -99,6 +99,15 @@ total_entries: 512 (P1~P738, 결번 존재 — 상세 30건 + 압축 원장)
 - **violated_rule**: R3 postmortem requirement, R352 architecture ownership parity, and the deploy-gate contract.
 - **prevention**: Every route cutover must update its structural/runtime contract in the same change, and live delta renderers must retain source-specific session state instead of rereading a stale snapshot field.
 - **verification**: Targeted runtime contract and syntax checks are required before the next push; full local suite was not rerun per user instruction.
+
+## P739 - v53.16 - deferred CI gates exposed stale cross-page projections and an inert derived route
+- **motivation**: Restore the deployment gate after the runtime-contract fix exposed the next blocking browser regressions.
+- **symptom/reproduction**: GitHub Actions reported `T189` F&G mismatch (`home=37`, `sent=18`), `T769` missing the `sentiment` narrative registry entry, `T879` stale VIX term text, and all four `theme-detail` viewport combinations timed out waiting for the inline detail panel.
+- **root_cause**: The native sentiment route only rendered while mounted, so hidden compatibility sinks retained old text; snapshot evidence overrode explicit runtime patches; native sentiment was omitted from the legacy narrative registry; and `showPage('theme-detail')` recorded a pending theme without consuming it.
+- **fix**: Added a canonical sentiment summary projection for cross-page sinks, gave explicit provider patches precedence over snapshot evidence, registered the native sentiment narrative boundary, and consumed the pending theme-detail selection by opening the canonical inline panel after route transition.
+- **violated_rule**: R3 postmortem requirement, R352 native ownership parity, and the route-settle/deploy-gate contract.
+- **prevention**: Every native cutover must test both active and hidden DOM projections, explicit live-patch precedence, derived-route semantic readiness, and registry completeness before Pages deployment.
+- **verification**: Targeted browser probe passed for synchronized F&G/VIX blocked state, seven narrative registry entries, and `theme-detail → themes` panel activation; syntax and diff checks passed. Full local suite was not rerun per user instruction.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.

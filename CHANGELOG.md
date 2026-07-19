@@ -1,3 +1,7 @@
+## v53.16 (2026-07-19)
+- P739: fixed deferred deployment-gate regressions by synchronizing hidden sentiment projections, preserving explicit live sentiment patches over snapshot evidence, registering the native sentiment narrative boundary, and opening the canonical inline theme-detail panel on derived-route navigation.
+- R1 7곳 v53.16
+
 ## v53.15 (2026-07-19)
 - ARX-09~16 local cutover: entity, portfolio, screener, analysis, pure domain, AI envelope, privacy vault, release manifest, and 17-route retirement contracts are now wired through native ESM boundaries.
 - P738: aligned the runtime contract gate with native theme/sentiment ownership and preserved live CNN Fear & Greed previous-day deltas so Pages deployment is not blocked by retired legacy markers.

@@ -3171,7 +3171,10 @@ if (typeof document !== 'undefined') {
     options:   function(){ window._aioRenderOptionsRec && window._aioRenderOptionsRec(); },
     briefing:  function(){ window._aioRenderBriefingDigest && window._aioRenderBriefingDigest(); },
     themes:    function(){ window._aioRenderThemesCycle && window._aioRenderThemesCycle(); },
-    macro:     function(){ window._aioRenderMacroScenario && window._aioRenderMacroScenario(); }
+    macro:     function(){ window._aioRenderMacroScenario && window._aioRenderMacroScenario(); },
+    // Native sentiment owns the full page render; its store/event projection
+    // is already refreshed by the architecture bootstrap on live updates.
+    sentiment: function(){ return true; }
   };
   var _aioNarrThrottle = {};
   window.AIO.refreshActivePageNarratives = function(reason) {
@@ -19674,7 +19677,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.15';
+const APP_VERSION = 'v53.16';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -25565,6 +25568,7 @@ function _firePageShown(id, source) {
 }
 
 function showPage(id, navEl) {
+  var _themeDetailRouteRequested = id === 'theme-detail';
   // v34.5: 해시 별칭 매핑 — 잘못된 해시로 진입 시 올바른 페이지로 리다이렉트
   // v53.7 (P725): KR 전용 5페이지 퇴역 — 구 해시/링크는 통합 섹션이 있는 페이지로 리다이렉트
   var _hashAlias = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'macro', 'kr-theme': 'themes', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical' };
@@ -25629,6 +25633,13 @@ function showPage(id, navEl) {
   if (window.PAGES && window.PAGES[id] && typeof window.PAGES[id].init === 'function') {
     try { window.PAGES[id].init(); }
     catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'page-init', 'showPage ' + id + ': ' + e.message); }
+  }
+  if (_themeDetailRouteRequested) {
+    try {
+      var themeId = window._aioOpenThemeDetailOnThemes || window._currentThemeId;
+      if (themeId && typeof window.showThemeDetail === 'function') window.showThemeDetail(themeId);
+      delete window._aioOpenThemeDetailOnThemes;
+    } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'page-init', 'theme-detail inline panel: ' + (e && e.message || e)); }
   }
 }
 window.showPage = showPage;
