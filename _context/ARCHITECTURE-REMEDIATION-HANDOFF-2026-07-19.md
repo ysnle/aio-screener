@@ -42,7 +42,15 @@ RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 이어서 
 - BUG-POSTMORTEM P741.
 - 진짜 legacy 삭제(ARX cutover)는 아직 없음 — 이번 배치는 native의 경합 쓰기만 제거했다(삭제 방향은 legacy→유지, native→삭제).
 
-**남은 항목**: RM-02(store clone 성능) · RM-03(도메인 추출) · RM-05(게이트 보강) · RM-06(ARX 재진입 지침, RM-00/01/04 완료로 선행조건 충족).
+**RM-02** (같은 세션 이어서 실행):
+- `src/state/store.js`: dispatch당 clone 2회+구독자당 1회 제거. 1000행 screener fixture 벤치 — 구 설계 p95 7.49ms(300 표본) → 신 설계 p95 0.044~0.111ms. `devMode`(기본 false) 옵션에서만 deep-freeze로 불변 강제.
+- `architecture/adr-0002-vite-typescript-and-state-access.md` 신설 — Vite/TS 본 결정은 여전히 보류, "부록"으로 getState()/selectors 결정만 기록(`getStateUnsafe` 전체 rename은 기각 — 근거 문서화).
+- `src/state/memoize.js` 신설(`createSelector`, `subscribeToSlice`) + `sentiment.js`에 실배선(관련 없는 dispatch로 인한 차트 재그리기 제거).
+- `bootstrap.js`의 `aio:liveQuotes` 6개 개별 리스너 → 마이크로태스크 coalescing 단일 리스너 1개.
+- `ci-architecture-contract-check.mjs`에 1000행 screener dispatch+notify p95≤5ms 성능 게이트 추가(구 설계 회귀 시 7.49ms로 실패 확인).
+- BUG-POSTMORTEM P742.
+
+**남은 항목**: RM-03(도메인 추출) · RM-05(게이트 보강) · RM-06(ARX 재진입 지침, RM-00/01/04 완료로 선행조건 충족).
 
 ## 1. 실측 발견 원장 (F-01~F-09)
 
@@ -290,4 +298,30 @@ Browser evidence: `ci-architecture-browser-check.mjs` PASS — home `score-gauge
 Live evidence: 없음 — 커밋(로컬)만 사용자 지시, 배포는 미지시.
 Unverified/blockers: 진짜 ARX cutover(legacy 삭제 + native 단독 소유) 15개 route 전부 미착수 — 이번 배치는 "native가 legacy를 침범하지 않는다"만 확정했다. macro FRED 5개 id의 완전 비활성 코드는 native 쪽만 제거했고 legacy 쪽 해당 기능 부재 자체는 별도 버그(이번 스코프 아님, 데이터 획득 갭으로 알려진 이슈와 연결 가능성 — 후속 세션 검토 권고). themes/theme-detail의 rrg-quadrant-cards 콘텐츠(카드 목록 자체, 상태 텍스트 제외)에 대한 legacy 쓰기 라인 번호는 aio-core.js:22646 한 곳만 확인, 더 있을 가능성은 낮지만 100% 전수는 아님.
 Status: VERIFIED_LOCAL (RM-01 스코프 한정 — AG-DOM-WRITER PASS로 §5 항목 2 "contested DOM writer 0"는 이번 배치가 정의한 범위 내에서 충족. 진짜 legacy 삭제가 없으므로 route별 rendererOwner는 여전히 legacy 15/guide+sentiment 2 그대로)
+```
+
+### 세션 카드 — RM-02 (같은 세션, RM-01 직후 이어서 실행)
+
+```text
+Packet: RM-02
+Checkout/HEAD/version/liveRevision: RM-01이 69a1fa5로 커밋된 상태에서 이어서 시작 / v53.16 / live revision 미확인(배포 없음)
+Scope route/metric/layer: store·이벤트 성능 계약 — src/state/store.js, src/state/memoize.js(신규), src/app/bootstrap.js, src/ui/pages/sentiment.js, scripts/ci-architecture-contract-check.mjs, architecture/adr-0002-*.md(신규), sw.js
+Owner before: dispatch당 전체 state clone 2회 + 구독자당 1회(1000행 screener fixture p95=7.49ms). aio:liveQuotes 6개 독립 리스너(조정 없음). 성능 게이트 부재.
+Owner after: clone 0회(reducer 스프레드 신뢰, devMode에서만 deep-freeze). aio:liveQuotes 1개 coalesced 리스너. sentiment.js는 자기 slice 참조 변경 시에만 재렌더. 1000행 fixture p95=0.044~0.111ms. 성능 게이트 상시화(5ms 예산).
+Files read: src/state/store.js, src/state/slices/*.js(reducer 스프레드 계약 확인), src/app/bootstrap.js 전체, src/ui/pages/sentiment.js, architecture/adr-0001-rebuild-foundations.md(기존 ADR 관례 확인), _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md §4(ADR-0002 예약 확인)
+Files changed: src/state/store.js · src/state/memoize.js(신규) · src/app/bootstrap.js · src/ui/pages/sentiment.js · scripts/ci-architecture-contract-check.mjs · architecture/adr-0002-vite-typescript-and-state-access.md(신규) · sw.js(신규 파일 precache 등록) · _context/BUG-POSTMORTEM.md · CHANGELOG.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(이 문서)
+DELETE-LEDGER before edit:
+  - declaration: store.js의 `clone()` 함수와 그 3곳 호출부(getState 1·dispatch 2) 전체 삭제, `deepFreeze()`로 교체(devMode 조건부)
+  - callers: bootstrap.js의 `stopMarketQuotes`/`stopThemesQuotes`/`stopEntityQuotes`/`stopPortfolioQuotes`/`stopAnalysisQuotes` 5개 변수 선언 및 대응 `legacy.on('aio:liveQuotes', ...)` 호출 5건 삭제(1개 coalesced 리스너로 통합), stop() cleanup에서 대응 5개 호출 제거
+  - global writer: 해당 없음
+  - DOM/chart/narrative sink: 해당 없음(이 배치는 store 내부 성능 계약, DOM 쓰기 변경 없음)
+  - event/timer/storage: aio:liveQuotes 리스너 등록 개수만 6→1로 감소, 다른 이벤트(refresh:done/pageShown/marketSnapshot 등)는 스코프 외로 유지(명시된 범위만 처리)
+  - tests/docs: 없음(기존 테스트가 새 설계로도 그대로 통과함을 §8.1로 확인)
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 legacy 카운터 무변경(1094/42/189/416, 이 배치는 legacy 파일 비대상). 신규 성능 카운터: perfScreenerDispatchP95Ms 벤치 없음(신설)→0.044ms.
+New compatibility introduced and retirement packet: `createStore({ devMode })` 신규 옵션(기본 false, 하위 호환 — 기존 모든 호출부가 옵션 생략 시 이전과 동일하게 동작). 별도 retirement 불필요(옵션 추가는 호환 깨짐 없음).
+Local gates: §8.1 전체(11개, 신규 성능 게이트 포함) PASS + headless 1098/1098 + critical10 10/10 + a11y 17/17 + viewport(FULL_INIT) 68/68 + Portfolio Vault E2E + boot-interaction(exit 0) + knowledge-lint 0 warning + ux-default-path(3846/3846) + 나머지 static 계약(market-snapshot/data-plane/inference/reconciliation/data-lineage/data-pipeline/static-data/history-field-time/storage-migration/release-manifest) 전부 PASS.
+Browser evidence: `ci-architecture-browser-check.mjs` PASS — sentiment/guide/content route 기존 검증 불변, home surface(정수 점수+한국어 라벨) 불변, browserErrors 0. sentiment.js가 subscribeToSlice로 전환된 뒤에도 render 결과 동일함을 확인(뱃지·차트·score 텍스트 불변).
+Live evidence: 없음 — 커밋(로컬)만, 배포는 미지시.
+Unverified/blockers: `devMode` deep-freeze 자체를 실행하는 전용 테스트가 아직 없음(ADR-0002 부록의 consequences에 후속 과제로 기록) — 현재는 `devMode` 미사용(기본 false)이라 freeze 경로 자체가 어떤 실행 경로에서도 아직 실제로 실행되지 않는다. RM-02 item3의 범위를 aio:liveQuotes 6개로만 한정했고 refresh:done(5개)·pageShown(5개)은 동일 패턴이 남아있음(다음 성능 패킷 후보로 기록, 이번 배치 스코프 아님).
+Status: VERIFIED_LOCAL (RM-02 스코프 한정 — W5 진입의 선행 조건이었던 성능 계약·게이트가 갖춰짐. refresh:done/pageShown coalescing과 devMode freeze 실사용은 후속 과제)
 ```

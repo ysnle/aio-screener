@@ -58,6 +58,20 @@ import { ROUTE_IDS } from './routes.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
+// RM-02: collapses repeated same-tick event firings into a single trailing
+// microtask flush instead of running `fn` once per firing.
+function coalesceMicrotask(fn) {
+  let scheduled = false;
+  return (...args) => {
+    if (scheduled) return;
+    scheduled = true;
+    queueMicrotask(() => {
+      scheduled = false;
+      fn(...args);
+    });
+  };
+}
+
 function reducer(state, action) {
   if (action.type === SENTIMENT_DATA_SET || action.type === SENTIMENT_DATA_CLEAR) {
     return { ...state, sentiment: sentimentReducer(state.sentiment, action) };
@@ -191,24 +205,32 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     syncPortfolio.sync();
     syncScreener.sync();
     syncAnalysis.sync();
-    const stopQuotes = legacy.on('aio:liveQuotes', syncSentimentProjection);
+    // RM-02: aio:liveQuotes previously ran 6 independent listeners (one dispatch each,
+    // any of which could be redundant if quotes ticked again before the previous
+    // dispatch's subscribers finished reacting). Coalesce them into one microtask-
+    // batched flush: repeated aio:liveQuotes firings before the microtask runs collapse
+    // into a single pass over all 6 syncs instead of one pass per firing.
+    const flushLiveQuoteSyncs = coalesceMicrotask(() => {
+      syncSentimentProjection();
+      syncMarket.sync();
+      syncThemes.sync();
+      syncEntity.sync();
+      syncPortfolio.sync();
+      syncAnalysis.sync();
+    });
+    const stopQuotes = legacy.on('aio:liveQuotes', flushLiveQuoteSyncs);
     const stopRefresh = legacy.on('aio:refresh:done', syncSentimentProjection);
     const stopHistory = legacy.on('aio:historyLoaded', syncSentimentProjection);
     const stopSentiment = legacy.on('aio:sentimentUpdated', syncSentimentProjection);
     const stopNews = legacy.on('aio:newsUpdated', syncNews.sync);
-    const stopMarketQuotes = legacy.on('aio:liveQuotes', syncMarket.sync);
     const stopMarketRefresh = legacy.on('aio:refresh:done', syncMarket.sync);
     const stopMarketSnapshot = legacy.on('aio:marketSnapshot', syncMarket.sync);
-    const stopThemesQuotes = legacy.on('aio:liveQuotes', syncThemes.sync);
     const stopThemesRefresh = legacy.on('aio:refresh:done', syncThemes.sync);
-    const stopEntityQuotes = legacy.on('aio:liveQuotes', syncEntity.sync);
     const stopEntityRefresh = legacy.on('aio:refresh:done', syncEntity.sync);
     const stopEntityShown = legacy.on('aio:pageShown', syncEntity.sync);
-    const stopPortfolioQuotes = legacy.on('aio:liveQuotes', syncPortfolio.sync);
     const stopPortfolioShown = legacy.on('aio:pageShown', syncPortfolio.sync);
     const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreener.sync);
     const stopScreenerShown = legacy.on('aio:pageShown', syncScreener.sync);
-    const stopAnalysisQuotes = legacy.on('aio:liveQuotes', syncAnalysis.sync);
     const stopAnalysisRefresh = legacy.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', syncAnalysis.sync);
     const stopShown = legacy.on('aio:pageShown', (event) => {
@@ -243,19 +265,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopHistory();
       stopSentiment();
       stopNews();
-      stopMarketQuotes();
       stopMarketRefresh();
       stopMarketSnapshot();
-      stopThemesQuotes();
       stopThemesRefresh();
-      stopEntityQuotes();
       stopEntityRefresh();
       stopEntityShown();
-      stopPortfolioQuotes();
       stopPortfolioShown();
       stopScreenerRefresh();
       stopScreenerShown();
-      stopAnalysisQuotes();
       stopAnalysisRefresh();
       stopAnalysisShown();
       stopShown();

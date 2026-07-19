@@ -1,6 +1,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { deriveSentimentSummary } from '../../domain/sentiment/metrics.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
+import { subscribeToSlice } from '../../state/memoize.js';
 
 const SENTIMENT_CANVAS_IDS = Object.freeze([
   'vix-term-chart', 'vix-chart', 'naaim-chart', 'ii-chart', 'hy-chart',
@@ -287,14 +288,20 @@ export function createSentimentPage({ documentRef, evidenceStore, store, chartFa
         root.dataset.aioArchitectureRenderer = 'native';
       }
       const render = () => renderSentiment(documentRef, selectSentimentValues(store?.getState?.() || {}), evidenceStore, chartFactory, charts, bag);
-      const unsubscribe = store?.subscribe?.(render);
-      if (unsubscribe) bag.add(unsubscribe);
+      // RM-02: subscribe to the sentiment slice reference, not every dispatch — a
+      // portfolio/screener/news/etc. dispatch leaves state.sentiment's reference
+      // unchanged (every reducer is spread-based), so it no longer triggers a
+      // sentiment re-render/chart redraw it has no data for.
+      if (store) {
+        bag.add(subscribeToSlice(store, (state) => state.sentiment, render));
+      } else {
+        render();
+      }
       const eventTargets = [...new Set([documentRef, documentRef?.defaultView].filter(Boolean))];
       ['aio:refresh:done', 'aio:historyLoaded', 'aio:sentimentUpdated'].forEach((eventName) => eventTargets.forEach((eventTarget) => {
         eventTarget.addEventListener?.(eventName, render);
         bag.add(() => eventTarget.removeEventListener?.(eventName, render));
       }));
-      render();
       return () => {
         bag.dispose();
         if (root?.dataset.aioArchitectureRoute === 'sentiment') delete root.dataset.aioArchitectureRoute;

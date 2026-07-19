@@ -3,9 +3,9 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
 latest_version: v53.16
-latest_P_number: P741
-next_P_number: P742
-total_entries: 515 (P1~P741, 결번 존재 — 상세 32건 + 압축 원장)
+latest_P_number: P742
+next_P_number: P743
+total_entries: 516 (P1~P742, 결번 존재 — 상세 33건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -127,6 +127,15 @@ total_entries: 515 (P1~P741, 결번 존재 — 상세 32건 + 압축 원장)
 - **violated_rule**: R352, F-03(이중 DOM writer), AG-03(단일 writer 원칙), R3(즉시 postmortem 필요).
 - **prevention**: `AG-DOM-WRITER`가 매 배치 native/legacy id 교집합을 강제하므로 향후 재발 시 CI가 즉시 차단한다. `route-owners.json`의 `legacySymbolsMustBeAbsent`/`domWriterIntersectionAllowlist`가 단일 소스이며, 새 예외는 반드시 근거(파일:라인)와 함께 이 파일에 먼저 기록한다. 클릭 위임을 가로채는 새 native 핸들러는 `stopPropagation` 추가 전에 동일 `data-action` 이름의 legacy 전역 함수 존재 여부를 먼저 확인한다.
 - **verification**: `ci-architecture-contract-check.mjs`(AG-DOM-WRITER 포함)·`ci-retirement-contract.mjs`·`ci-operations-status-check.mjs`·`ci-architecture-browser-check.mjs`(신규 home surface·contentRoutes 검증 포함)·headless 1098/1098·critical10 10/10·a11y 17/17·knowledge-lint 0 warning 전부 PASS. `git diff --check` 클린.
+
+## P742 - v53.16 - RM-02: store cloned full state twice per dispatch plus once per subscriber, no O(1) scaling path for screener/portfolio
+- **motivation**: F-05(`ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md`)가 RM-02를 "W5(screener/portfolio slice 이관) 진입 전 필수"로 지정했다 — 846행 screener·다수 OHLCV 이력을 store로 옮기기 전에 dispatch 비용을 실측·교정해야 한다.
+- **symptom/reproduction**: `src/state/store.js`의 `dispatch()`가 `clone(state)`(reducer 입력)·`clone(next)`(커밋) 2회에 더해 `listeners.forEach(listener => listener(getState()))`에서 구독자당 1회씩 `clone`을 호출했다(`structuredClone`/JSON 폴백). 1000행 screener fixture + 구독자 5개로 벤치한 결과 p95=7.49ms(300회 표본) — 60fps 프레임 예산(16.67ms)의 45%를 dispatch 하나가 소비했다. `bootstrap.js`는 `aio:liveQuotes` 1개 이벤트에 6개 독립 orchestrator(`sync()`)를 배선해 시세 틱 1건마다 최대 6회 dispatch(각각 위 clone 비용 포함)가 발생했다.
+- **root_cause**: 최초 store 구현이 "구독자가 실수로 state를 mutate할 수 있다"는 우려를 매 read/write clone으로 방어했으나, 모든 reducer(`src/state/slices/*.js`)가 이미 스프레드 기반 구조 공유를 보장하므로 불필요한 방어였다. `bootstrap.js`도 orchestrator를 이벤트당 개별 등록해 동일 이벤트의 반복 발화를 조정(coalesce)하지 않았다.
+- **fix**: `store.js`의 `getState()`/`dispatch()`/구독자 통지에서 clone을 전부 제거하고, `devMode` 옵션(기본 false)에서만 커밋 후 `deepFreeze`로 불변을 강제하도록 재작성(ADR-0002 부록에 `getStateUnsafe`/selectors-only 대안을 기각 사유와 함께 기록). `src/state/memoize.js` 신설(`createSelector`: 입력 참조 동등성 메모이제이션, `subscribeToSlice`: 관련 slice 참조가 바뀔 때만 리스너 호출) — `sentiment.js`에 실제로 배선해 무관한 dispatch(예: portfolio/screener)로 인한 불필요한 차트 재그리기를 제거했다. `bootstrap.js`의 `aio:liveQuotes` 6개 개별 리스너를 마이크로태스크 단위로 coalesce하는 단일 리스너 1개로 교체(같은 tick 내 반복 발화는 1회로 합쳐짐). `ci-architecture-contract-check.mjs`에 1000행 screener dispatch+notify p95 성능 게이트(5ms 예산, 구 clone 설계 회귀 시 7.49ms로 초과·확인됨) 추가.
+- **violated_rule**: F-05(신설 규칙 후보 — 상태 store 클론 예산 부재), R352(W5 선행 조건 미충족 상태로 대형 slice 이관 금지).
+- **prevention**: 새 성능 게이트가 매 배치 1000행 screener dispatch p95 ≤ 5ms를 강제하므로 clone 재도입 시 CI가 즉시 차단한다(구 설계는 7.49ms로 이 게이트를 실패시킴을 확인). reducer가 스프레드 기반 구조 공유를 깨는 변경(예: 직접 mutate)을 하면 `devMode` deep-freeze가 즉시 TypeError로 노출되도록 페이지/테스트 하네스에서 `devMode:true`로 실행하는 경로를 추가하는 것을 후속 과제로 남긴다(이번 배치는 기본값 false만 배선).
+- **verification**: `node scripts/ci-architecture-contract-check.mjs`(perfScreenerDispatchP95Ms=0.044ms, PASS) 포함 §8.1 전체, headless 1098/1098, `ci-architecture-browser-check.mjs`(browserErrors 0, sentiment 재검증 정상), critical10 10/10, a11y 17/17, portfolio vault E2E, knowledge-lint 0 warning 전부 PASS.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.

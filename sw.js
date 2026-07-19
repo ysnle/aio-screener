@@ -95,6 +95,7 @@ const SHELL_ASSETS = [
   './src/storage/vault.js',
   './src/storage/migrations.js',
   './src/state/store.js',
+  './src/state/memoize.js',
   './src/state/slices/sentiment.js',
   './src/state/slices/news.js',
   './src/state/slices/market.js',
