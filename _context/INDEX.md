@@ -46,6 +46,8 @@ target_version: version.json
 
 > **Current correction (2026-07-19 v53.15)**: `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md` is the active cross-session execution ledger beneath the architecture handoff. It separates 14 layers and five owner dimensions per route, defines ARX-00~16 dependency waves, requires a pre-edit DELETE-LEDGER and monotonic burn-down, and fixes the next packet to sentiment renderer ownership. Current truth remains native lifecycle 1/17, native renderer 0/17, legacy renderer 17/17; full rebuild is not complete.
 
+> **Current correction (2026-07-19 v53.16 audit)**: the `b7bce36`→`9462404` batch declared all 17 routes native (`operations-status.json` `legacyOwner: 0`, retirement manifest `nativeRoutes` 17) but the ownership lists are hardcoded in `build-operations-status.mjs:43-48`, the retirement/ops gates enforce the declaration instead of verifying deletion, thin native renderers double-write legacy-owned DOM nodes (`home-trading-signal`, `score-gauge-val` 등), and the domain parity gate is tautological. Measured truth: renderer native ≤4, data native 0, burn-down 1094/42/189/416 (fetch/storage unchanged). `ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` (RM-00~06) is the mandatory remediation ledger before any new ARX packet.
+
 # _context Index
 
 This folder is the active project knowledge base for AIO. It should describe the current GitHub-deployed structure first, then local Claude worktree exceptions only when they affect routing.
@@ -72,6 +74,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md` | 2026-07-18 실측 공백 기준 중요 시세 자동화 보장 계층, 22개 영역별 직접·WebSearch·뉴스 우회안, QG/AR 실행 게이트 | quote 공급자·스케줄러·freshness SLO·추론 정책·22개 영역 상태 변경 시 |
 | `ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md` | 전체 12개 구조면 진단, 유지/교체/폐기 경계, TypeScript+ESM 기반 목표 구조, AR-00~09 점진 재구축·legacy 종료 원장 | 아키텍처 ADR·계층 경계·AR 패킷·legacy burn-down 변경 시 |
 | `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md` | 다른 세션용 전체 재구축 실행 원장: 14계층·17 route·ARX-00~16·DELETE-LEDGER·owner/burn-down/최종 인수 기준 | 계층/route owner, 실행 wave, 삭제 대상, gate 또는 재구축 상태 변경 시 |
+| `ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` | v53.16 배치의 진척 회계 훼손 실측(F-01~F-09: 소유권 하드코딩·게이트 역전·이중 DOM writer·항진 parity) + RM-00~06 복구 패킷 — 신규 ARX 착수 전 필수 선행 원장 | RM 패킷 상태, route-owners.json, 게이트 로직, 소유권 실측 변경 시 |
 | `GATE-BASELINE-2026-06-04.md` | v50.4 evidence deployment gate + unit-test 실측 기준선 (env-dependent vs code-internal 분리) | 게이트/테스트 재측정, 운영 baseline 추가 시 |
 | `GATE-BASELINE-2026-07-03.md` | v51.91→v51.96 헤드리스 CI 테스트(`ci-headless-tests.mjs`) 실측 (894/921→896/921 pass, T776/T686 실제 해소로 27→25건 skip-list) — Phase 2 [B5] + 전체 /data-refresh 산출물 | skip-list 갱신, 헤드리스 테스트 재측정 시 |
 | `CHAT-DATA-AUDIT-2026-06-04.md` | v50.8 AI 채팅 데이터 출처 전수 감사 baseline (fetch 파이프라인·시장맥락 주입·재사용·dead code 실측) | 채팅 데이터 경로/컨텍스트 변경 시 |
