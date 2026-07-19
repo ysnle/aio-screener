@@ -115,6 +115,22 @@ async function _fetchRss(url, timeoutMs) {
   } catch (e) { clearTimeout(to); throw e; }
 }
 
+// P734: Google News RSS can transiently serve a cached window with no items in
+// the completed 08:00 KST cycle. Retry the feed and then broaden only the
+// provider query window; the caller still filters every item back to the
+// canonical 24-hour cycle, so stale articles are never promoted as current.
+async function _fetchRssWithRetry(url, timeoutMs, attempts = 2) {
+  let lastError;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    try { return await _fetchRss(url, timeoutMs); }
+    catch (error) {
+      lastError = error;
+      if (attempt + 1 < attempts) await new Promise(resolve => setTimeout(resolve, 350 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
+
 // v50.24/WO-1: Yahoo는 두 호스트(query1/query2)를 운영하고 차단/레이트리밋이 호스트마다 다르게
 // 걸리는 경우가 잦다. GitHub Actions 러너 IP가 한 호스트에서 막혀도 다른 호스트로 폴백 → 전량 실패
 // (= data.json 미갱신)를 줄인다. 2 호스트 × 2 시도 = 최대 4회. 그래도 다 실패하면 throw(해당 심볼만).
@@ -703,7 +719,17 @@ async function fetchNews() {
   for (const feed of NEWS_FEEDS) {
     const isKr = feed.country === 'kr';
     try {
-      const parsed = _parseRssXml(await _fetchRss(feed.url, 12000), { limit: 20, titleLen: 200, needLink: true });
+      const feedUrls = [feed.url, feed.url.replace(/when%3A2d/i, 'when%3A7d')];
+      let parsed = [];
+      for (const feedUrl of feedUrls) {
+        const candidate = _parseRssXml(await _fetchRssWithRetry(feedUrl, 12000), { limit: 20, titleLen: 200, needLink: true });
+        parsed = candidate;
+        const hasCurrent = candidate.some(p => {
+          const ts = p.ts;
+          return isFinite(ts) && ts >= cycle.startMs && ts < cycle.endMs;
+        });
+        if (hasCurrent || feedUrl === feedUrls[feedUrls.length - 1]) break;
+      }
       for (const p of parsed) {
         const t = p.ts;
         if (!isFinite(t) || t < cycle.startMs || t >= cycle.endMs) continue;

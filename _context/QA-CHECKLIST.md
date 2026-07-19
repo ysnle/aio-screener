@@ -3,8 +3,8 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
 version: v4.1
-checklist_version: v53.12
-latest_P_covered: P733
+checklist_version: v53.13
+latest_P_covered: P734
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---

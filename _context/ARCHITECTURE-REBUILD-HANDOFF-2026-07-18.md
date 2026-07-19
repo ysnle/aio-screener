@@ -3,7 +3,7 @@ verified_by: Codex (repository-wide static architecture review and current audit
 last_verified: 2026-07-18
 confidence: high
 auto_refresh: false
-target_version: v53.12
+target_version: v53.13
 status: IMPLEMENTED_LOCAL_PARTIAL
 scope: whole-system architecture
 ---
@@ -496,7 +496,7 @@ AR-00 -> AR-01 -> AR-02 -> AR-03
 4. raw AI 산출물과 사용자 공개문 모두 같은 claim validator를 통과해야 한다. client가 차단했더라도 producer가 잘못된 수치를 생성하면 품질 게이트는 실패다.
 5. 배포본과 로컬본의 revision이 다르면 live 검증 상태를 로컬 완료 상태로 승격하지 않는다.
 
-## 16. 2026-07-19 로컬 구현 상태 (v53.12)
+## 16. 2026-07-19 로컬 구현 상태 (v53.13)
 
 v53.11에서 AR-00~06의 실행 가능한 ESM 기반 계약을 추가하고 첫 `sentiment`
 vertical slice를 legacy shell에 연결했다. AR-00 golden route/baseline/ADR,
@@ -516,7 +516,7 @@ plane의 live backstop과 AR-09 full native renderer cutover는 외부 운영 �
 대규모 route migration이 필요해 아직 `VERIFIED_LIVE`/전체 재구축 완료로
 승격하지 않는다.
 
-## 17. 2026-07-19 v53.12 실행 산출물
+## 17. 2026-07-19 v53.13 실행 산출물
 
 - `public-data/market-snapshot.json`: Tier 0 16/16 canonical quote evidence, published only on complete coverage.
 - `public-data/market-snapshot-status.json`: failed attempt와 retained last-known-good revision을 별도 기록.

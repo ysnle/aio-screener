@@ -7,6 +7,12 @@ target_version: v53.10
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R350. Protected portfolio reloads and RSS backstops must fail closed at the visible boundary (v53.13, P734)
+
+**Rule**: An encrypted portfolio must render its lock screen after a hard reload before any sensitive data surface is shown. News RSS retries may broaden only the provider query window; every item must still pass the canonical completed 08:00 KST cycle filter, and stale headlines must not be promoted as current.
+
+**Validation**: `ci-portfolio-vault-e2e.mjs` must pass `reload_requires_unlock`; `ci-data-pipeline-contract-check.mjs` must assert RSS retry/backstop wiring and canonical cycle filtering.
+
 ## R349. Workflow module heredocs require an ESM runtime-import contract (v53.12, P733)
 
 **Rule**: A workflow heredoc run with `node --input-type=module -` must use ESM imports throughout; do not leave `require()` in module-mode code.

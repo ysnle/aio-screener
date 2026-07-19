@@ -1,3 +1,10 @@
+## v53.13 (2026-07-19)
+- P734: fixed the encrypted Portfolio Vault reload gate so a hard reload visibly returns to the lock screen.
+- Added RSS retry plus a 7-day provider backstop that still filters every article through the canonical completed 08:00 KST cycle.
+- The contract check now protects the news retry/backstop path; CI and Pages evidence follows the next deployment.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.13
+
 ## v53.12 (2026-07-19)
 - P733: fixed the refresh-data ESM summary runtime failure (`require('fs')` to `import fs from 'node:fs'`) and added a module-heredoc regression contract.
 - Refresh recovery and live deployment evidence are tracked in the architecture handoff.

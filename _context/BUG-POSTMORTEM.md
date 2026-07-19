@@ -1,11 +1,11 @@
 ---
 verified_by: agent (Fable 5)
-last_verified: 2026-07-18
+last_verified: 2026-07-19
 confidence: high
-latest_version: v53.12
-latest_P_number: P733
-next_P_number: P734
-total_entries: 507 (P1~P732, 결번 존재 — 상세 26건 + 압축 원장)
+latest_version: v53.13
+latest_P_number: P734
+next_P_number: P735
+total_entries: 508 (P1~P733, 결번 존재 — 상세 27건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -63,6 +63,15 @@ total_entries: 507 (P1~P732, 결번 존재 — 상세 26건 + 압축 원장)
 - **violated_rule**: R347의 inferred claim fail-closed contract.
 - **prevention**: optional input은 null과 undefined 양쪽을 fixture로 검증하고, security/claim sink 키는 naming convention 정규식만으로 판정하지 않는다.
 - **verification**: `ci-inference-contract-check.mjs`, `ci-architecture-contract-check.mjs`, Chromium architecture browser check PASS.
+
+## P734 - v53.13 - reload 후 Portfolio Vault 잠금 화면과 RSS news backstop이 회귀했다
+- **motivation**: v53.12 배포 후 실제 downstream CI에서 보호 데이터 경계와 뉴스 freshness gate를 끝까지 닫는다.
+- **symptom/reproduction**: `ci-portfolio-vault-e2e.mjs`의 `PFE2-05 reload_requires_unlock`가 `false`였고, refresh run `29670423595`는 `news=0`을 발행해 후속 CI `29670464804`의 22-category news gate를 실패시켰다.
+- **root_cause**: hard reload 뒤 `renderPortfolio()`가 초기 active route에서 재호출되지 않아 `isPortfolioLocked()`는 true여도 lock surface가 `display:none`으로 남았다. RSS fetch는 단일 시도와 `when:2d` provider window에만 의존했다.
+- **fix**: active portfolio route의 DOMContentLoaded 초기 렌더를 보강하고, RSS fetch retry와 `when:7d` provider backstop을 추가하되 canonical 08:00 KST cycle filtering을 유지했다.
+- **violated_rule**: R350.
+- **prevention**: Vault E2E reload gate와 data-pipeline RSS contract를 blocking checks로 유지한다.
+- **verification**: local Vault E2E 8/8 PASS, data pipeline contract PASS, `node --check scripts/fetch-data.mjs` PASS. Downstream CI/Pages evidence follows deployment.
 
 ## P733 - v53.12 - refresh-data ESM summary에 CommonJS require가 남아 있었다
 - **motivation**: P732 이후 workflow heredoc의 실제 실행 경로까지 검증해 자동 data commit 회귀를 닫는다.
