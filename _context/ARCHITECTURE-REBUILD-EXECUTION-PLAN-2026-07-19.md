@@ -255,6 +255,7 @@ Status: DESIGNED|BASELINED|IN_PROGRESS|VERIFIED_LOCAL|VERIFIED_LIVE|RETIRED
 
 ```powershell
 node scripts/ci-architecture-contract-check.mjs
+node scripts/ci-esm-core-unit-check.mjs
 node scripts/ci-architecture-browser-check.mjs
 node scripts/ci-operations-status-check.mjs
 node scripts/ci-version-check.mjs

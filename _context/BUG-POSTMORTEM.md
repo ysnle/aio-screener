@@ -3,9 +3,9 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
 latest_version: v53.16
-latest_P_number: P743
-next_P_number: P744
-total_entries: 517 (P1~P743, 결번 존재 — 상세 34건 + 압축 원장)
+latest_P_number: P744
+next_P_number: P745
+total_entries: 518 (P1~P744, 결번 존재 — 상세 35건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -145,6 +145,15 @@ total_entries: 517 (P1~P743, 결번 존재 — 상세 34건 + 압축 원장)
 - **violated_rule**: R352(단일 구현 이전 시 소비측만이 아니라 노출측 계약까지 전수 갱신), F-11, AG-LEGACY(사본 삭제).
 - **prevention**: 새 cross-module 브릿지 API를 추가할 때 "소비하는 곳"과 "노출/필터링하는 곳"이 분리된 계약인지 먼저 확인하고, 반드시 실브라우저 게이트(정적 golden fixture 대조만으로는 배선 문제를 못 잡음)로 종단 간 검증한다. "그대로 복사"라고 주석 단 사본은 향후 라이브 변경을 추적하지 못하므로, 그런 사본을 발견하면 그 자리에서 즉시 단일 구현으로 수렴하는 것을 표준 절차로 삼는다.
 - **verification**: `node scripts/ci-domain-parity-check.mjs`(7개 골든 fixture 전부 일치) + `ci-architecture-browser-check.mjs`(수정 전 `"null*"` 재현 확인 → 수정 후 `"52*"` 정상 확인) + `ci-runtime-contract-check.mjs` + `ci-semantic-review-check.mjs` + §8.1 전체 + headless 1098/1098 전부 PASS. `node scripts/backtest-trading-score.mjs` 실행해 `public-data/score-backtest-history.json` 재생성 확인(표본 극히 작아 `statisticallyMeaningful:false` 그대로).
+
+## P744 - v53.16 - RM-05: 3개 native page 모듈이 lifecycle dataset 마커를 빠뜨렸고(RM-01 잔여 결함), 브라우저 게이트가 이를 놓치고 있었다
+- **motivation**: RM-05 item 2(`_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md`)가 요구한 "native route 전체의 A→B→A 왕복 리소스 누수 assert"를 `ci-architecture-browser-check.mjs`에 추가하는 과정에서 실제 실행해 발견했다.
+- **symptom/reproduction**: 17개 route 전체를 순회하며 각 route의 `page-{route}` 요소에 `dataset.aioArchitectureRoute === route`가 설정되길 기다리는 `page.waitForFunction`이 `ticker`/`fundamental`/`options`(entity.js)·`macro`/`fxbond`/`breadth`(market.js)·`themes`/`theme-detail`(themes.js) 8개 route에서 30초 타임아웃됐다. RM-01이 이 3개 모듈에 `dataset.aioArchitectureSlice`/`aioArchitectureStatus`는 배선했지만 `aioArchitectureRoute`(lifecycle 소유 마커)는 빠뜨렸다 — analysis.js/portfolio.js/screener.js/news.js/guide.js/sentiment.js 6개 모듈만 정상 배선돼 있었다.
+- **root_cause**: RM-01에서 6개 파일을 먼저 패턴화한 뒤 나머지 3개를 "같은 패턴"으로 작성하며 `aioArchitectureRoute` 한 줄을 각각 누락했다. 기존 §8.1 브라우저 게이트는 sentiment/guide/market-news/briefing/home 5개 route만 왕복해 이 3개 모듈(macro/fxbond/breadth/themes/theme-detail/ticker/fundamental/options)을 아예 방문하지 않았으므로 지금까지 발견되지 않았다.
+- **fix**: entity.js·market.js·themes.js 3개 파일에 `dataset.aioArchitectureRoute = route`(mount 시)와 대응 dispose 정리(unmount 시)를 추가. 이제 17개 route 전부가 동일한 lifecycle 마커 계약을 지킨다. `ci-architecture-browser-check.mjs`에 17-route 2랩 왕복(canvas count·legacy 타이머 레지스트리 크기를 랩1 종료 시점 vs 랩2 종료 시점으로 비교 — 랩0 대비 비교는 "첫 방문 시 신규 타이머 등록"이라는 정상 동작을 오탐하므로 랩1↔랩2 비교로 설계) + `[AIO:api] <name>: warn → error` 일반화 필터(macro/fxbond 등 새로 방문한 route의 API 헬스 트래커 이관 허용) 추가. `scripts/ci-esm-core-unit-check.mjs` 신설(store/router/lifecycle/evidence-store/facade 5개 ESM 코어 모듈 격리 unit 계약, ci.yml에 배선). `architecture/route-owners.json`에 AG-DOM-WRITER 허용목록 이관 절차 명시.
+- **violated_rule**: R352(패턴 반복 시에도 각 파일 전수 확인 필요), AG-RESOURCE(A→B→A 자원 누수 assert 원칙, 이번에 실질적으로 처음 다中 route에 적용됨).
+- **prevention**: 새 게이트가 이제 17개 route 전부의 lifecycle 마커를 매 배치 확인하므로 동일 누락이 재발하면 즉시 차단된다. "같은 패턴으로 작성" 시에도 각 파일을 실행 경로로 한 번은 검증하는 습관 — 이번에도 3/9(entity/market/themes)에서만 누락돼 "패턴 복사가 항상 완벽하지 않다"는 근거가 하나 더 쌓였다.
+- **verification**: `ci-architecture-browser-check.mjs`(17-route 2랩 canvas 42=42, 타이머 11=11, browserErrors 0) + `ci-esm-core-unit-check.mjs`(5개 모듈 전부 PASS) + §8.1 전체 + headless 1098/1098 + critical10/a11y/knowledge-lint 전부 PASS.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.

@@ -27,7 +27,11 @@ try {
   const page = await browser.newPage();
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
-    if (message.type() === 'error' && !/net::ERR_FAILED/.test(message.text()) && !/^\[AIO:api\] proxy-primary: warn → error/.test(message.text())) errors.push(message.text());
+    // RM-05: the 17-route round trip visits routes (macro/fxbond/etc.) the original smaller test
+    // sequence never reached, each with their own [AIO:api] health tracker that escalates
+    // warn→error after enough blocked-network attempts — expected and harmless offline, matching
+    // the existing proxy-primary allowance generalized to any tracked API name.
+    if (message.type() === 'error' && !/net::ERR_FAILED/.test(message.text()) && !/^\[AIO:api\] [\w-]+: warn → error/.test(message.text())) errors.push(message.text());
   });
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -92,6 +96,34 @@ try {
   }));
   if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== null || contentRoutes.briefingRenderer !== null || contentRoutes.briefingSlice !== 'news') throw new Error(`content route lifecycle failed: ${JSON.stringify(contentRoutes)}`);
 
+  // RM-05 item 2: two full 17-route A→B→...→A laps, asserting no resource accumulation between
+  // lap 1 and lap 2. Two laps (not one before/after snapshot) because window._aioTimerRegistry
+  // legitimately grows on first-ever visit to a route that registers a named recurring timer —
+  // that is expected, not a leak. Only growth on the SECOND lap (every route already visited
+  // once) is a genuine signal. Deliberately observable-proxy based (canvas count for the
+  // chart-owning route, the legacy named-timer registry size, and browserErrors) rather than a
+  // full listener census — Chromium has no production-safe "list all listeners" API; CDP's
+  // getEventListeners would work but adds a real maintenance cost this gate does not yet justify.
+  const ROUTE_IDS_FOR_ROUNDTRIP = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'];
+  async function traverseAllRoutes() {
+    for (const route of ROUTE_IDS_FOR_ROUNDTRIP) {
+      await page.evaluate((r) => window.AIO_ARCH.navigate(r), route);
+      await page.waitForFunction((r) => document.getElementById(`page-${r}`)?.dataset.aioArchitectureRoute === r, route);
+    }
+  }
+  const snapshot = () => page.evaluate(() => ({
+    canvases: document.querySelectorAll('canvas').length,
+    timers: window._aioTimerRegistry ? Object.keys(window._aioTimerRegistry).length : null
+  }));
+  await traverseAllRoutes();
+  const afterLap1 = await snapshot();
+  await traverseAllRoutes();
+  const afterLap2 = await snapshot();
+  if (errors.length) throw new Error(`browser errors during 17-route round trip: ${errors.join(' | ')}`);
+  if (afterLap2.canvases !== afterLap1.canvases) throw new Error(`canvas count changed between lap 1 and lap 2 of the full route round trip: ${afterLap1.canvases} -> ${afterLap2.canvases}`);
+  if (afterLap1.timers != null && afterLap2.timers != null && afterLap2.timers > afterLap1.timers) throw new Error(`legacy timer registry grew between lap 1 and lap 2 of the full route round trip: ${afterLap1.timers} -> ${afterLap2.timers}`);
+  const roundTripEvidence = { routes: ROUTE_IDS_FOR_ROUNDTRIP.length, afterLap1, afterLap2 };
+
   // RM-01 AG-DOM-WRITER browser evidence: home must show the legacy-rendered Korean 5-band label
   // and 0-100 integer score, never the retired native toy model's English action word or -1..1
   // decimal (analysis.js no longer writes either id, so this also proves legacy alone renders them
@@ -114,7 +146,7 @@ try {
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, boot, sentimentRoute, guideRoute, contentRoutes, homeSurface, routeRoundTrip: true, browserErrors: 0 }));
+  console.log(JSON.stringify({ ok: true, boot, sentimentRoute, guideRoute, contentRoutes, homeSurface, roundTripEvidence, routeRoundTrip: true, browserErrors: 0 }));
 } finally {
   await browser.close();
   server.kill();

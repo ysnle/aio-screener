@@ -14,8 +14,10 @@ export function createMarketSlicePage({ documentRef, route } = {}) {
       const bag = createResourceBag();
       const page = documentRef?.getElementById(`page-${route}`);
       if (!page) return () => bag.dispose();
+      page.dataset.aioArchitectureRoute = route;
       page.dataset.aioArchitectureSlice = 'market';
       bag.add(() => {
+        if (page.dataset.aioArchitectureRoute === route) delete page.dataset.aioArchitectureRoute;
         if (page.dataset.aioArchitectureSlice === 'market') delete page.dataset.aioArchitectureSlice;
       });
       return () => bag.dispose();

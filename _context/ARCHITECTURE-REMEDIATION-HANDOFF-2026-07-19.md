@@ -59,7 +59,13 @@ RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 이어서 
 
 **RM-03 미해결(의도적 보류)**: item 3(`signal/decision.js`의 3입력 toy 모델 삭제)은 `src/data/normalize/analysis.js`가 여전히 `deriveSignalDecision(...)`의 `.status`를 소비 중이라 보류했다 — RM-01이 DOM 렌더는 끊었지만 데이터 파이프라인 자체는 안 끊었다. 삭제하려면 `normalizeAnalysis`의 signal 유도 로직을 무엇으로 대체할지(예: `computeTradingScoreModel` 결과를 signal 슬라이스에 매핑) 별도 설계 결정이 필요하며, 실시간 사용자 상태에 영향을 주는 변경이라 이번 세션 스코프를 벗어난다고 판단해 보류했다. 후속 세션 과제로 명시.
 
-**남은 항목**: RM-03 item 2·3(F&G/RRG/Weinstein 추출, signal toy 모델 정리) · RM-05(게이트 보강) · RM-06(ARX 재진입 지침, RM-00/01/04 완료로 선행조건 충족).
+**RM-05** (같은 세션 이어서 실행):
+- item 1(AG-DOM-WRITER 상시화)·item 4(ops-status 이원화 방지)는 RM-01/RM-00에서 이미 구현됨 — 재확인만 하고 `route-owners.json`에 route cutover 시 허용목록 이관 절차를 명시.
+- item 2: `ci-architecture-browser-check.mjs`에 17-route 전체 2랩 왕복 리소스 누수 검증 추가(canvas 수·legacy 타이머 레지스트리 크기가 랩1↔랩2 사이 불변). 이 작업 중 **entity.js/market.js/themes.js 3개 모듈이 RM-01에서 `aioArchitectureRoute` lifecycle 마커를 빠뜨린 잔여 결함을 발견·수정**(9개 route 30초 타임아웃 — 기존 게이트는 5개 route만 방문해 못 잡았음).
+- item 3: `scripts/ci-esm-core-unit-check.mjs` 신설 — store/router/lifecycle/evidence-store/facade 5개 ESM 코어를 route 배선과 독립적으로 격리 unit 검증, ci.yml 배선.
+- BUG-POSTMORTEM P744.
+
+**남은 항목**: RM-03 item 2·3(F&G/RRG/Weinstein 추출, signal toy 모델 정리) · RM-06(ARX 재진입 지침, RM-00/01/04 완료로 선행조건 충족 — 이번 세션에서 RM-02/03/05도 추가로 완료됨).
 
 ## 1. 실측 발견 원장 (F-01~F-09)
 
@@ -361,4 +367,25 @@ Browser evidence: `ci-architecture-browser-check.mjs` — **1차 실행에서 �
 Live evidence: 없음 — 커밋(로컬)만, 배포는 미지시.
 Unverified/blockers: RM-03 item 2(F&G 합성·RRG·Weinstein/MTF 추출) 전부 미착수. item 3(`signal/decision.js` toy 모델 삭제)은 `normalizeAnalysis`의 실 소비 때문에 의도적 보류 — 삭제 시 signal 슬라이스 유도 로직을 무엇으로 대체할지 별도 설계 결정 필요(위 미해결 항목 참조). `backtest-trading-score-longrun.mjs`의 percentile 기반 `calcTrendScoreRel` 등은 의도적으로 별개 방법론이라 그대로 유지 — 향후 세션이 이를 "미수렴 드리프트"로 오인하지 않도록 주의.
 Status: VERIFIED_LOCAL (RM-03 item 1·5 스코프 한정 — item 2·3 잔존, "RM-03 완료"로 승격하지 않음)
+```
+
+### 세션 카드 — RM-05 (같은 세션, RM-03 직후 이어서 실행)
+
+```text
+Packet: RM-05
+Checkout/HEAD/version/liveRevision: RM-03이 9293bd4로 커밋된 상태에서 이어서 시작 / v53.16 / live revision 미확인(배포 없음)
+Scope route/metric/layer: 게이트 실효성 보강 — scripts/ci-architecture-browser-check.mjs, scripts/ci-esm-core-unit-check.mjs(신규), src/ui/pages/{entity,market,themes}.js, architecture/route-owners.json, .github/workflows/ci.yml, 실행계획 §8.1
+Owner before: AG-DOM-WRITER는 이미 상시(RM-01), ops-status 이원화 방지도 이미 상시(RM-00) — 문서화만 부재. 브라우저 게이트는 5개 route만 왕복(sentiment/guide/market-news/briefing/home), 나머지 12개 route는 실행 경로 검증 이력 없음. ESM 코어 5개 모듈은 통합 스모크(ci-architecture-contract-check)로만 간접 검증, 격리 unit 테스트 없음.
+Owner after: 브라우저 게이트가 17개 route 전부를 2랩 왕복하며 canvas/타이머 누수를 검증. ESM 코어 5개 모듈 격리 unit 계약 39개 assertion 신설. route-owners.json에 AG-DOM-WRITER 허용목록 이관 절차 명시.
+Files read: src/app/lifecycle.js, src/app/router.js, src/data/evidence-store.js, src/data/contracts/evidence.js, src/legacy/compatibility-facade.js(재독), src/ui/pages/{entity,market,themes}.js(재독, 결함 발견)
+Files changed: scripts/ci-architecture-browser-check.mjs · src/ui/pages/entity.js · src/ui/pages/market.js · src/ui/pages/themes.js · architecture/route-owners.json · .github/workflows/ci.yml · _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md(§8.1) · _context/BUG-POSTMORTEM.md · CHANGELOG.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(이 문서)
+Files added: scripts/ci-esm-core-unit-check.mjs
+DELETE-LEDGER before edit: 해당 없음(이 배치는 신규 게이트/테스트 추가 + 3개 파일의 누락된 dataset 속성 1줄씩 추가 — 삭제 대상 없음, 정상. RM-01/03과 달리 이 배치의 목적 자체가 "검증 강화"이며 legacy burn-down이 목표가 아님)
+Burn-down before/after: 4개 legacy 카운터 무변화(1094/42/189/416) — 대상 아님.
+New compatibility introduced and retirement packet: 없음. `dataset.aioArchitectureRoute` 추가는 새 계약이 아니라 기존 6개 모듈이 이미 지키던 계약을 나머지 3개 모듈로 확장한 것(일관성 수정).
+Local gates: §8.1 전체(12개, ci-esm-core-unit-check 포함) + ci-retirement-contract + ci-domain-parity-check + ci-operations-status-check 전부 PASS. headless 1098/1098. critical10/a11y/knowledge-lint PASS.
+Browser evidence: `ci-architecture-browser-check.mjs` — **수정 전 9개 route에서 30초 타임아웃 재현**(entity/market/themes 누락 확인) → 수정 후 17-route 2랩 왕복 PASS(canvas 42=42, 타이머 11=11 랩1↔랩2 동일, browserErrors 0).
+Live evidence: 없음 — 커밋(로컬)만, 배포는 미지시.
+Unverified/blockers: 리소스 누수 검증은 canvas/legacy-timer-registry라는 관측 가능한 대리 지표 기반이며 CDP `getEventListeners` 기반 완전한 리스너 전수 조사는 아님(문서화된 의도적 스코프 축소). ESM 코어 unit 테스트는 "최소"(minimal) 수준(5개 모듈 × 평균 7~8개 assertion)이며 모든 edge case를 다루지 않음.
+Status: VERIFIED_LOCAL (RM-05 item 1·2·3·4 전부 완료 — RM-00~05 중 유일하게 "완료"로 승격 가능한 패킷. RM-03 item 2·3만 미해결로 남음)
 ```

@@ -11,6 +11,7 @@ function render({ documentRef, store, route }) {
   const state = selectEntityState(store.getState());
   const routeNode = documentRef?.getElementById(`page-${route}`);
   if (routeNode) {
+    routeNode.dataset.aioArchitectureRoute = route;
     routeNode.dataset.aioArchitectureSlice = 'entity';
     routeNode.dataset.aioArchitectureStatus = state?.status || 'unavailable';
   }
@@ -32,6 +33,7 @@ export function createEntityPage({ documentRef, store, route = 'ticker' } = {}) 
       bag.add(() => eventTarget?.removeEventListener?.('aio:refresh:done', refresh));
       const routeNode = documentRef?.getElementById(`page-${route}`);
       bag.add(() => {
+        if (routeNode?.dataset.aioArchitectureRoute === route) delete routeNode.dataset.aioArchitectureRoute;
         if (routeNode?.dataset.aioArchitectureSlice === 'entity') delete routeNode.dataset.aioArchitectureSlice;
       });
       return () => bag.dispose();

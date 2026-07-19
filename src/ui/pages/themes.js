@@ -12,8 +12,10 @@ export function createThemesPage({ documentRef, route = 'themes' } = {}) {
       const bag = createResourceBag();
       const page = documentRef?.getElementById(`page-${route}`);
       if (!page) return () => bag.dispose();
+      page.dataset.aioArchitectureRoute = route;
       page.dataset.aioArchitectureSlice = 'themes';
       bag.add(() => {
+        if (page.dataset.aioArchitectureRoute === route) delete page.dataset.aioArchitectureRoute;
         if (page.dataset.aioArchitectureSlice === 'themes') delete page.dataset.aioArchitectureSlice;
       });
       return () => bag.dispose();
