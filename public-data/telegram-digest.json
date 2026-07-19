@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-19T21:07:40.747Z",
-  "attemptedAt": "2026-07-19T21:07:40.747Z",
-  "lastSuccessfulAt": "2026-07-19T21:07:40.747Z",
+  "generatedAt": "2026-07-19T22:09:35.865Z",
+  "attemptedAt": "2026-07-19T22:09:35.865Z",
+  "lastSuccessfulAt": "2026-07-19T22:09:35.865Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-05T21:07:37.278Z",
-  "until": "2026-07-19T21:07:37.278Z",
+  "since": "2026-07-05T22:09:29.847Z",
+  "until": "2026-07-19T22:09:29.847Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -22,15 +22,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 258,
-      "freshCount": 15,
-      "eligibleTextCount": 15,
+      "count": 262,
+      "freshCount": 32,
+      "eligibleTextCount": 32,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 58631
+      "lastPostId": 58635
     },
     {
       "channel": "bornlupin",
@@ -45,9 +45,58 @@
       "lastPostId": 19160
     }
   ],
-  "count": 639,
-  "retainedItemCount": 385,
+  "count": 643,
+  "retainedItemCount": 395,
   "observedItems": [
+    {
+      "id": "insidertracking/58635",
+      "channel": "insidertracking",
+      "datetime": "2026-07-19T21:45:00.000Z",
+      "localDateKst": "2026-07-20",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58634",
+      "channel": "insidertracking",
+      "datetime": "2026-07-19T21:37:27.000Z",
+      "localDateKst": "2026-07-20",
+      "score": 58,
+      "tags": [
+        "geo",
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58633",
+      "channel": "insidertracking",
+      "datetime": "2026-07-19T21:34:00.000Z",
+      "localDateKst": "2026-07-20",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58632",
+      "channel": "insidertracking",
+      "datetime": "2026-07-19T21:33:29.000Z",
+      "localDateKst": "2026-07-20",
+      "score": 35,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19160",
       "channel": "bornlupin",
@@ -835,7 +884,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23683",
@@ -1168,7 +1217,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58608",
@@ -1182,7 +1231,7 @@
       "tickers": [
         "MET"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58607",
@@ -1194,7 +1243,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58606",
@@ -1206,7 +1255,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58602",
@@ -1218,7 +1267,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58601",
@@ -1242,7 +1291,7 @@
         "MU",
         "RKLB"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58600",
@@ -1254,7 +1303,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58599",
@@ -1291,7 +1340,7 @@
         "RDDT",
         "QQQ"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58597",
@@ -1303,7 +1352,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58596",
@@ -1319,7 +1368,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58595",
@@ -1334,7 +1383,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58593",
@@ -1346,7 +1395,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58592",
@@ -9692,27 +9741,27 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 639,
-    "eligibleTextCount": 55,
-    "mediaOnlyCount": 584,
+    "observedCount": 643,
+    "eligibleTextCount": 72,
+    "mediaOnlyCount": 571,
     "highSignalCount": 324,
-    "broadSignalCount": 512,
+    "broadSignalCount": 513,
     "selectedRawCount": 363,
-    "selectedRawCoveragePct": 660,
+    "selectedRawCoveragePct": 504.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 65,
-    "geo": 154,
+    "market-note": 66,
+    "geo": 155,
+    "power": 159,
+    "macro": 309,
+    "earnings": 109,
     "semi": 399,
-    "power": 158,
     "kr-market": 126,
     "flows": 22,
     "japan": 30,
-    "macro": 308,
     "ai-policy": 81,
     "equity": 125,
-    "earnings": 108,
     "optical": 19,
     "healthcare": 21,
     "insider": 8,
@@ -9818,12 +9867,12 @@
   },
   "themes": [
     "Semiconductors/Memory (399 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
-    "Macro/Rates (308 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
-    "AI Power/Grid (158 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순 논리 확산 · AI는 아직 초반이라는 장기 Bull DD 증가 · Sovereign AI, AI 경쟁은...",
-    "Geopolitics (154 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "Macro/Rates (309 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "AI Power/Grid (159 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순 논리 확산 · AI는 아직 초반이라는 장기 Bull DD 증가 · Sovereign AI, AI 경쟁은...",
+    "Geopolitics (155 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
     "Korea Market (126 posts in current window): 2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상...",
     "Equity/Analyst (125 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
-    "Earnings/Corporate (108 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "Earnings/Corporate (109 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
     "AI Policy/Export Controls (81 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
   ],
   "catalysts": [
@@ -9895,7 +9944,7 @@
       "topics": [
         "macro"
       ],
-      "count": 308,
+      "count": 309,
       "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -9904,7 +9953,7 @@
       "topics": [
         "geo"
       ],
-      "count": 154,
+      "count": 155,
       "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -9940,7 +9989,7 @@
       "topics": [
         "power"
       ],
-      "count": 158,
+      "count": 159,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순 논리 확산 · AI는 아직 초반이라는 장기 Bull DD 증가 · Sovereign AI, AI 경쟁은..."
     },
     {
@@ -9985,7 +10034,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 108,
+      "count": 109,
       "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -10030,7 +10079,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 65,
+      "count": 66,
       "focus": "Kimi 사용자 분들께: ​컴퓨팅 자원 부족 및 멤버십 신규 가입 일시 중단에 관한 안내 ​존경하는 Kimi 사용자 여러분께, ​Kimi K3 출시 이후, 저희는 예상치를 훨씬 뛰어넘는 큰 성원을 받았으나, 동시에 전혀 예상치 못한 컴퓨팅 자원(연산력) 부족이라는 도전에 직면하게 되었습니다 . 지난 48시간 동안..."
     }
   ],
@@ -11327,6 +11376,21 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/58634",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58634",
+      "datetime": "2026-07-19T21:37:27.000Z",
+      "localDateKst": "2026-07-20",
+      "tags": [
+        "geo",
+        "power"
+      ],
+      "tickers": [],
+      "score": 58,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 20일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 국무장관 루비오는 레바논 대통령 조제프 아운과 회담을 갖고 3자 협력 프레임워크 이행 상황을 점검...."
+    },
     {
       "id": "insidertracking/58631",
       "channel": "insidertracking",
@@ -15976,20 +16040,6 @@
       ],
       "score": 99,
       "summary": "프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NXTC (+294.50%) Avere Therapeutics와 합병해 경구용 IL-23 치료제 개발을 추진. TSEM (+19.99%) 일본..."
-    },
-    {
-      "id": "insidertracking/58288",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58288",
-      "datetime": "2026-07-14T12:48:24.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 69,
-      "summary": "🚨 경제 지표 발표 🚨 ━━━━━━━━━━━━━━━ 🟢 미국 소비자물가지수 (MoM) (Consumer Price Index MoM, 6월) ㆍ실제치(Actual): -0.4%..."
     },
     {
       "id": "aetherjapanresearch/23573",
