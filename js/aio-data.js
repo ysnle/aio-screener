@@ -5767,6 +5767,21 @@ function _aioSetDeltaEl(id, delta, polarity, opts) {
   el.style.cssText = 'display:inline;font-size:10px;font-family:var(--font-mono);margin-left:4px;';
 }
 
+// v53.15/P738: use the just-fetched CNN previous-day score for the current
+// session and prevent a later snapshot repaint from overwriting that delta.
+var _fgLiveDelta = null;
+function _aioRenderLiveFearGreedDelta(score, previousScore) {
+  var current = Number(score);
+  var previous = Number(previousScore);
+  _fgLiveDelta = Number.isFinite(current) && Number.isFinite(previous)
+    ? Math.round(current) - Math.round(previous)
+    : null;
+  _aioSetDeltaEl('sentiment-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0 });
+  _aioSetDeltaEl('home-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0 });
+  return _fgLiveDelta;
+}
+window._aioRenderLiveFearGreedDelta = _aioRenderLiveFearGreedDelta;
+
 // 통합 delta 렌더러 — 서버데이터 로드 후 + live quotes 갱신 후 호출
 function _aioRenderDeltas() {
   var snap = window.DATA_SNAPSHOT || {};
@@ -5783,7 +5798,9 @@ function _aioRenderDeltas() {
   _aioSetDeltaEl('fed-rate-delta',     snap._fedRateDelta,    _AIO_DELTA_POLARITY.fedRate,      { suffix: 'pp', decimals: 2 });
 
   // 2) Fear & Greed 전일 delta (서버 CNN API previousScore 기반)
-  _aioSetDeltaEl('home-fg-delta',      snap._fearGreedDelta,  _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
+  var _fgDeltaForRender = _fgLiveDelta != null ? _fgLiveDelta : snap._fearGreedDelta;
+  _aioSetDeltaEl('sentiment-fg-delta', _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
+  _aioSetDeltaEl('home-fg-delta',      _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
 
   // 3) 트레이딩 스코어 전일 delta (localStorage)
   if (prev && typeof prev.tradingScore === 'number') {
@@ -16755,6 +16772,7 @@ async function fetchFearGreed() {
     const fg   = data.fear_and_greed;
     if (!fg) throw new Error('no data');
     const score = Math.round(fg.score);
+    _aioRenderLiveFearGreedDelta(score, fg.previous_close);
     // v48.0: CNN F&G 7개 서브컴포넌트 저장 — "왜 공포인가?" 설명용 + AI 프롬프트 품질 향상
     // CNN API가 제공: market_momentum_sp500, market_momentum_sp125, stock_price_strength,
     //                  stock_price_breadth, put_call_options, market_volatility_vix,
@@ -16785,6 +16803,7 @@ async function fetchFearGreed() {
       const fg2   = data2.fear_and_greed;
       if (fg2) {
         const score2 = Math.round(fg2.score);
+        _aioRenderLiveFearGreedDelta(score2, fg2.previous_close);
         // v49.64 P334: helper 통합 (proxy 경로)
         _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', sourceTs: fg2.timestamp || data2.timestamp || new Date().toISOString(), operationalUse: 'decision' });
       }
@@ -16903,7 +16922,7 @@ function _aioUpdatePutCallDom(payload) {
   if (detail) {
     var mode = metric.allowedUse ? '현재 의사결정 사용 가능' : '참고용 표시';
     // v50.14 R206: 내부 소스 식별자(DATA_SNAPSHOT)를 사용자 친화 라벨로 표시
-    var srcDisplay = sourceLabel === 'DATA_SNAPSHOT' ? '정적 스냅샷' : sourceLabel;
+    var srcDisplay = sourceLabel === 'DATA_SNAPSHOT' ? '스냅샷 · 참고' : sourceLabel;
     var parts = ['CBOE Total P/C ' + text, tone.narrative, srcDisplay + ' · ' + mode];
     if (payload.equityPutCall != null) parts.push('Equity P/C ' + Number(payload.equityPutCall).toFixed(2));
     detail.textContent = parts.join(' · ');

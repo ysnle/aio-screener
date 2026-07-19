@@ -7442,6 +7442,24 @@
 
   // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/16) 회귀 게이트
   function _testV5242Batch3Efficacy() {
+    // T879 (EF-06): the native sentiment summary must expose an explicit
+    // blocked term-structure state when one or more VIX points are missing.
+    try {
+      var arch879 = window.AIO_ARCH || window.__AIO_ARCH_RUNTIME__;
+      var summary879 = arch879 && typeof arch879.getSentimentSummary === 'function' ? arch879.getSentimentSummary() : null;
+      var term879 = summary879 && summary879.vixTermStructure;
+      var termText879 = document.getElementById('vix-term-regime-text');
+      var points879 = term879 && term879.points;
+      var shape879 = !!term879 && typeof term879.blocked === 'boolean' && points879 &&
+        Object.prototype.hasOwnProperty.call(points879, 'short') &&
+        Object.prototype.hasOwnProperty.call(points879, 'spot') &&
+        Object.prototype.hasOwnProperty.call(points879, 'medium') &&
+        Object.prototype.hasOwnProperty.call(points879, 'long');
+      var state879 = term879 && term879.blocked ? !!summary879.blocked && (!termText879 || /판정 보류/.test(termText879.textContent || '')) : !!summary879 && summary879.blocked === false;
+      _assert('T879 vix_term_structure_native_na_state_v5242 (EF-06): missing VIX term points remain explicitly blocked',
+        !!shape879 && !!state879, 'summary=' + JSON.stringify(summary879));
+    } catch (e879) { _assert('T879 vix_term_structure_native_na_state_v5242 (EF-06)', false, 'threw: ' + (e879 && e879.message)); }
+
     // T880 (EF-07→v53.7 P725): kr-home 수급 카드 퇴역 — 실패 상태 헬퍼가 잔존해도 예외 없이 no-op이어야 함
     try {
       var fn880 = window._showKrSupplyFailureState || (typeof _showKrSupplyFailureState === 'function' ? _showKrSupplyFailureState : null);

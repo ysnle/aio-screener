@@ -1,5 +1,6 @@
 ## v53.15 (2026-07-19)
 - ARX-09~16 local cutover: entity, portfolio, screener, analysis, pure domain, AI envelope, privacy vault, release manifest, and 17-route retirement contracts are now wired through native ESM boundaries.
+- P738: aligned the runtime contract gate with native theme/sentiment ownership and preserved live CNN Fear & Greed previous-day deltas so Pages deployment is not blocked by retired legacy markers.
 - Added domain parity, storage migration, release-manifest, and compatibility-retirement CI contracts; live provider rights and fast-plane soak remain operator-required.
 - P736/R352: architecture migration을 scaffold 존재가 아니라 실행 소유권 이전과 legacy burn-down으로 판정하도록 바꿨다.
 - Sentiment lifecycle·fail-closed badge writer를 ESM route로 이전하고 legacy init hook·중복 badge writer를 삭제했다. legacy renderer는 compatibility facade 뒤에 명시적으로 남겼다.

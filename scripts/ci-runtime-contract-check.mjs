@@ -21,6 +21,10 @@ const data = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
+const bootstrap = read('src/app/bootstrap.js');
+const sentimentPage = read('src/ui/pages/sentiment.js');
+const sentimentDomain = read('src/domain/sentiment/metrics.js');
+const themesPage = read('src/ui/pages/themes.js');
 const glossary = read('js/aio-glossary.js');
 const fetchData = read('scripts/fetch-data.mjs');
 const telegramFetcher = read('scripts/fetch-telegram-digest.mjs');
@@ -232,7 +236,9 @@ check('scenario sum renderers guard missing sum before toFixed', !/sumCheck\.sum
 check('Chart tooltip callbacks guard missing parsed.y before toFixed', !/ctx\.parsed\.y\.toFixed\(/.test(core));
 check('home dashboard VIX default path guards missing live price before toFixed', !/vix\.price\?\.toFixed\(/.test(data) && !/vp\.toFixed\(2\)/.test(data));
 check('theme detail deep analysis filters finite pct values before toFixed', /topV\s*=\s*-Infinity/.test(html) && /botV\s*=\s*Infinity/.test(html) && /pctVal\s*=\s*d\s*&&\s*_themeFinitePct\(d\.pct\)/.test(html) && /_themeSafeFixed\(topV,\s*2/.test(html));
-check('theme-detail route resolves to themes inline detail surface', /id === 'theme-detail'/.test(core) && /_aioOpenThemeDetailOnThemes/.test(core) && /showThemeDetail\(themeId\)/.test(core));
+check('theme-detail route resolves to themes inline detail surface',
+  (/id === 'theme-detail'/.test(core) && /_aioOpenThemeDetailOnThemes/.test(core) && /showThemeDetail\(themeId\)/.test(core))
+  || (/createThemesPage/.test(themesPage) && /createThemesPage\(\{[^}]*route:\s*'theme-detail'/.test(bootstrap) && /aioArchitectureSlice/.test(themesPage)));
 check('briefing summary F&G reads canonical currentness envelope', /getCanonicalMetric\('fg'\)/.test(data) && /var fgMetric/.test(data));
 check('KR candle chart auto-loads from canvas and avoids zero-baseline compression', /krCandleCanvas/.test(html) && /loadKrCandleChart\(krCode \|\| '005930'\)/.test(html) && /beginAtZero:\s*false/.test(html) && /suggestedMin:\s*ySuggestedMin/.test(html) && /suggestedMax:\s*ySuggestedMax/.test(html));
 check('headless tests cover all-theme detail and route redirect regressions', /T860 theme_detail_all_themes_no_throw_v5227/.test(tests) && /T861 theme_detail_route_redirect_v5227/.test(tests));
@@ -243,7 +249,13 @@ check('viewport matrix CI script covers 22 routes, four viewport widths, topbar 
 check('proxy registry ranks active proxies by success-rate score, not only static order', /okCount/.test(data) && /failCount/.test(data) && /getScore:\s*function/.test(data) && /self\.getScore\(b\)\s*-\s*self\.getScore\(a\)/.test(data));
 check('quote count labels distinguish client live quotes from server snapshot quotes', /클라 시세/.test(data) && /서버 스냅샷 시세/.test(data));
 check('viewport matrix detects duplicate news and briefing cards by word-bag key', /wordBagKey/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /duplicateCardCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /market-news\|briefing/.test(read('scripts/ci-viewport-matrix-check.mjs')));
-check('value slot renderer encodes value/pending/failed/na states and touched market-pulse/VIX term surfaces', /_aioRenderValueSlot/.test(core) && /data-value-state/.test(core) && /state === 'failed'/.test(core) && /state === 'na'/.test(core) && /_aioRenderValueSlot\(elM/.test(html) && /_aioRenderValueSlot\(el,\s*\(v9dLive \|\| v3mLive\)/.test(core));
+check('value slot renderer encodes value/pending/failed/na states and touched market-pulse/VIX term surfaces', (() => {
+  const valueSlotBase = core.includes('_aioRenderValueSlot') && core.includes('data-value-state') && core.includes("state === 'failed'") && core.includes("state === 'na'");
+  const legacyTouched = html.includes('_aioRenderValueSlot(elM') && core.includes('_aioRenderValueSlot(el, (v9dLive || v3mLive)');
+  const nativeTouched = sentimentPage.includes('renderCanvasStates') && sentimentPage.includes('state.vix9d, state.vix, state.vix3m, state.vix6m')
+    && sentimentPage.includes('setMetric(documentRef') && sentimentPage.includes('^VIX9D') && sentimentPage.includes('sentiment.vix3m') && sentimentPage.includes('sentiment.vix6m');
+  return (valueSlotBase && legacyTouched) || (valueSlotBase && nativeTouched);
+})());
 check('briefing decision summary F&G uses canonical currentness source, not dead snap fields', (data.match(/getCanonicalMetric\('fg'\)/g) || []).length >= 2 && !/snap\.fg\.value|snap\.fearGreed/.test(data) && /T867 briefing_decision_summary_fg_canonical_v5234/.test(tests));
 check('VKOSPI failure state is surfaced after repeated failures and calcKrHealthScore does not overwrite it', /function _showVkospiFailureState/.test(html) && /function _vkospiIsFailedState/.test(html) && /_vkospiIsFailedState\(\)/.test(html.slice(html.indexOf('function calcKrHealthScore'), html.indexOf('function calcKrHealthScore') + 4000)) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
 check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_chatApiKey\)/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(html) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
@@ -387,8 +399,8 @@ check('home details and duplicate operational feeds are absent from the default 
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /_scrVisibleLimit\s*=\s*12/.test(data) && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 check('briefing news wall is capped and can be explicitly expanded', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && /_aioCapBriefingNews/.test(core) && /_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
-check('fundamental comp enters through the existing NVDA analysis pipeline', /function _initFundamentalPage\(\)[\s\S]{0,900}aioDefaultCompany[\s\S]{0,500}fundamentalSearch/.test(core));
-check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', /function _aioPolishRemainingPages\(pageId\)/.test(core) && /aio-guide-chapter/.test(core) && /aio-theme-progressive/.test(core) && /aio-comp-secondary-feed/.test(html));
+check('fundamental comp enters through the existing NVDA analysis pipeline', /(?:(?:function\s+_initFundamentalPage\(\))|(?:(?:var|let|const)\s+_initFundamentalPage\s*=\s*function\(\)))[\s\S]{0,900}aioDefaultCompany[\s\S]{0,500}fundamentalSearch/.test(core));
+check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', /(?:(?:function\s+_aioPolishRemainingPages\(pageId\))|(?:(?:var|let|const)\s+_aioPolishRemainingPages\s*=\s*function\(pageId\)))/.test(core) && /aio-guide-chapter/.test(core) && /aio-theme-progressive/.test(core) && /aio-comp-secondary-feed/.test(html));
 check('route terminology separates 20 user surfaces from 22 internal QA routes', /NAV_ROUTE:\s*\[[^\]]+\]/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\['options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
 check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#kr-integrated-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
 check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(html) && /class="aio-glossary-term"/.test(html) && /GLOSSARY\.length/.test(html));
@@ -429,7 +441,9 @@ check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (l
 check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19)', /_testV5241Batch2Efficacy/.test(tests) && /T874/.test(tests) && /T875/.test(tests) && /T876/.test(tests) && /T877/.test(tests) && /T878/.test(tests));
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/15/16) structural gates
-check('EF-06: VIX term-structure seed fallback values render a distinguishable na state instead of the same value state as a live number', /_aioRenderVixTermRegime/.test(core) && /\(정적\)/.test(core) && /라이브 미수신 — DATA_SNAPSHOT 시드값/.test(core));
+check('EF-06: VIX term-structure seed fallback values render a distinguishable na state instead of the same value state as a live number',
+  (/_aioRenderVixTermRegime/.test(core) && /\(정적\)/.test(core) && /라이브 미수신 — DATA_SNAPSHOT 시드값/.test(core))
+  || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && sentimentDomain.includes('points: { short, spot, medium, long }') && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
 check('EF-07: kr-home supply title dates are overridden to an honest fallback label when the failure state renders, instead of coexisting with a confident "N/D 기준" date next to the failure warning', /_showKrSupplyFailureState/.test(html) && /#page-kr-home \.kr-supply-title/.test(html) && /폴백 데이터/.test(html));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /window\._aioSafeSourceLabel\(n\.source\)/.test(core));
 check('EF-15: Fear & Greed delta surfaces are recomputed from the just-fetched CNN previous-day score instead of only a possibly stale server snapshot field', /_fgLiveDelta/.test(data) && /_aioSetDeltaEl\('sentiment-fg-delta', _fgLiveDelta/.test(data) && /_aioSetDeltaEl\('home-fg-delta', _fgLiveDelta/.test(data));
@@ -692,7 +706,9 @@ check('R340/P712: semantic market-integrity tests cover curve exactness and KR m
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
-  /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core) && /_breadthSeriesReferenceAsOf\s*=\s*null/.test(ui) && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
+  /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
+  && (/_breadthSeriesReferenceAsOf\s*=\s*null/.test(ui) || (/getCurrentBreadthEvidence/.test(ui) && /if\s*\(!currentBreadth\.available\)/.test(ui) && /현재 원천 미수신/.test(ui)))
+  && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
 check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink while live status stays in the canonical updater',
   !/function\s+(?:updateFxDynamicComments|generateFxBondCommentary)\s*\(/.test(html) &&
   !/(?:getElementById|querySelector)\(['"](?:fx-dc-|bond-dc-)/.test(html) &&

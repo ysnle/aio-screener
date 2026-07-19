@@ -13,6 +13,8 @@ target_version: v53.15
 
 **Validation**: `ci-architecture-contract-check.mjs`는 선언된 burn-down 상한과 퇴역 패턴 부재, release revision parity, 전체 실행 원장의 계층·route·세션 카드·최종 인수 구조를 blocking한다. `ci-architecture-browser-check.mjs`는 router와 store의 route가 모두 `sentiment`인지, ESM owner가 fail-closed 배지를 렌더하는지 검증한다. `operations-status.json`은 native lifecycle owner와 native renderer owner를 별도로 공개하며 renderer 전환 전에는 native route로 계산하지 않는다.
 
+**P738 reinforcement**: Runtime contract checks must accept the current native ESM owner and its compatibility boundary when a route is cut over; retired legacy declaration/call-site markers must not remain deploy blockers. The same gate must still assert the native fail-closed state and source-specific freshness behavior.
+
 ## R351. History bucket dates must not replace field-level observation provenance (v53.14, P735)
 
 **Rule**: `history.json`의 행 `date`는 기존 차트 호환용 calendar bucket일 뿐, 각 값의 관측시각이 아니다. 숫자 입력은 `fieldMeta[field]`에 `observedAt`, `fetchedAt`, `lastSuccessfulAt`, `source`, `sourceKind`, `allowedUse`를 보유해야 하며 휴장일 carry-forward는 이전 관측값·`reference-only`·관계 상태를 명시한다. FRED/AI/HY OAS 공급 실패는 LKG 값 삭제·새 관측 승격·raw AI 발행으로 이어지면 안 된다.

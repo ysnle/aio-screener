@@ -3,9 +3,9 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
 latest_version: v53.15
-latest_P_number: P737
-next_P_number: P738
-total_entries: 511 (P1~P737, 결번 존재 — 상세 30건 + 압축 원장)
+latest_P_number: P738
+next_P_number: P739
+total_entries: 512 (P1~P738, 결번 존재 — 상세 30건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -90,6 +90,15 @@ total_entries: 511 (P1~P737, 결번 존재 — 상세 30건 + 압축 원장)
 - **violated_rule**: R352 및 R73/P239의 "인프라만 추가하고 소비·소유 경로 미연결" 클래스.
 - **prevention**: `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md`의 세션 카드와 DELETE-LEDGER를 사용한다. 이후 route batch도 lifecycle/renderer/data/chart/narrative 소유권을 각각 선언하고 최소 한 legacy 경로를 삭제한다. 동일 카운터 유지로는 완료 처리하지 않으며, renderer가 legacy면 route 전체를 native로 집계하지 않는다.
 - **verification**: architecture contract PASS(explicit global writes 1109, 퇴역 3패턴 부재, release revision parity), Chromium architecture PASS(router/store route=`sentiment`, `심리: 판정 보류`, 왕복 dispose/mount, browserErrors 0). 정적·데이터·보안 계약 22종, headless 1101/1101, Critical-10 10/10, a11y 17/17, viewport 68/68(overflow/tinyText/jsErrors 0), Vault 8/8도 PASS했다. 전체 AR-09는 renderer 17개와 나머지 legacy coupling이 남아 `MIGRATION_IN_PROGRESS`다.
+
+## P738 - v53.15 - native cutover left the runtime contract gate on retired legacy markers
+- **motivation**: The Pages deployment gate failed after the ARX-09~16 native route cutover was pushed.
+- **symptom/reproduction**: GitHub Actions `validate` failed `ci-runtime-contract-check.mjs` on nine checks, so the dependent Pages `deploy` job was skipped.
+- **root_cause**: Several runtime checks encoded legacy function declarations, inline theme-detail ownership, legacy VIX/value-slot call sites, and retired breadth markers instead of accepting the new native ESM owners. The F&G delta path also trusted `DATA_SNAPSHOT._fearGreedDelta` after a live CNN fetch instead of preserving the just-fetched `previous_close` delta.
+- **fix**: Updated the runtime contract to recognize native theme/sentiment ownership and timestamped breadth evidence; added native Batch-3 regression coverage; and added a live CNN previous-day delta renderer that updates both F&G surfaces without snapshot overwrite.
+- **violated_rule**: R3 postmortem requirement, R352 architecture ownership parity, and the deploy-gate contract.
+- **prevention**: Every route cutover must update its structural/runtime contract in the same change, and live delta renderers must retain source-specific session state instead of rereading a stale snapshot field.
+- **verification**: Targeted runtime contract and syntax checks are required before the next push; full local suite was not rerun per user instruction.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.
