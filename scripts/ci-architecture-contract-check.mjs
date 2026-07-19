@@ -49,6 +49,7 @@ for (const [layer, patterns] of Object.entries(forbiddenByLayer)) {
 }
 
 const baseline = JSON.parse(read('architecture/baseline.json'));
+const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const legacyFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js'];
 const aggregate = legacyFiles.map((file) => read(file)).join('\n');
 const count = (pattern) => (aggregate.match(pattern) || []).length;
@@ -87,8 +88,18 @@ if (burnDown.retiredSentimentLegacyInitHook && !/'sentiment':\s*\{[^\n]*init:\s*
 if (burnDown.retiredSentimentLegacyBadgeWriter && /badge\.textContent\s*=\s*'심리:/.test(uiSource)) {
   fail('sentiment legacy badge writer returned');
 }
-for (const pattern of ['initSentimentPage', 'sentPageCharts', '_refreshSentimentChartData', '_initSentVixChart']) {
-  if (aggregate.includes(pattern)) fail(`retired sentiment renderer symbol returned: ${pattern}`);
+// R352/F-01 ratchet: legacy symbols that must be absent are declared once in route-owners.json
+// (the single ownership source of truth) and enforced for every renderer-native route here,
+// instead of a hardcoded per-route array that can silently drift out of sync (F-02).
+for (const [route, symbols] of Object.entries(routeOwners.legacySymbolsMustBeAbsent || {})) {
+  for (const symbol of symbols) {
+    if (aggregate.includes(symbol)) fail(`retired legacy symbol returned for native renderer route ${route}: ${symbol}`);
+  }
+}
+for (const [route, patterns] of Object.entries(routeOwners.legacySymbolPatternsMustBeAbsent || {})) {
+  for (const pattern of patterns) {
+    if (new RegExp(pattern).test(aggregate)) fail(`retired legacy pattern returned for native renderer route ${route}: ${pattern}`);
+  }
 }
 for (const marker of ['createResourceBag', "dataset.aioArchitectureRenderer = 'native'", 'renderSentiment']) {
   if (!sentimentPageSource.includes(marker)) fail(`native sentiment renderer marker missing: ${marker}`);

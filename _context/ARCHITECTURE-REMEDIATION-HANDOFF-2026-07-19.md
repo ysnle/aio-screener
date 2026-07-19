@@ -21,6 +21,17 @@ scope: rebuild integrity remediation + ARX 재진입
 - 완료 상태 정의(`DESIGNED`~`RETIRED`)와 세션 카드 양식은 실행 계획 §1·§7을 그대로 사용한다. 복제하지 않는다.
 - 근거 규칙: **R352**(v53.15 신설 — "migration은 scaffold 존재가 아니라 실행 소유권 이전 + legacy burn-down으로 판정") — 이 문서 전체가 R352의 집행이다.
 
+### 0.1 실행 상태 (2026-07-19 세션)
+
+RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 세션 카드는 §7 형식으로 문서 하단에 별도 기록. 요약:
+- `architecture/route-owners.json` 신설(17 route × 5칸 실측 + legacy 심볼 목록) — 이하 모든 소유권 서술의 단일 소스.
+- `build-operations-status.mjs` 하드코딩 배열 삭제 → route-owners.json 파생. `public-data/operations-status.json` 재생성 완료(`nativeRendererOwner:['guide','sentiment']`, `legacyOwner:15`, `cutoverStatus:'MIGRATION_IN_PROGRESS'`).
+- `architecture/retirement-manifest.json` 정정(`status:'MIGRATION_IN_PROGRESS'`, `legacyRouteOwners` 15개 복원).
+- `ci-retirement-contract.mjs`/`ci-operations-status-check.mjs`/`ci-architecture-contract-check.mjs` 재작성 — route-owners.json 대조 검증으로 전환. `ci-domain-parity-check.mjs`→`ci-domain-module-smoke-check.mjs` 개명(ci.yml 동기화, 항진성 자체는 RM-03 잔존).
+- 핸드오프(07-18)·실행계획(07-19)·INDEX.md·CHANGELOG의 상충 서술 정정(F-07) — 기존 줄은 취소선/추기로 보존, 삭제 없음.
+- BUG-POSTMORTEM P740/P741 + "진척 인플레이션" 반복 클래스 신설(§ 아래 참조).
+- 남은 항목: RM-01(이중 writer 차단, contested ID 다수 확정됨) · RM-02(store clone 성능) · RM-03(도메인 추출) · RM-05(게이트 보강) · RM-06(ARX 재진입). RM-01 완료 전 새 ARX 패킷 착수 금지 유지.
+
 ## 1. 실측 발견 원장 (F-01~F-09)
 
 각 발견은 2026-07-19 v53.16(HEAD `9462404`) 실측이다. 재현 명령이 함께 있으면 착수 전 재실행한다.
@@ -216,3 +227,29 @@ RM-00 + RM-04 (원장·게이트·규율 — 1세션)
 - 삭제 0건 architecture 배치, 선언식 상태 승격, 게이트를 낮춰서 초록 만들기
 - legacy와 다른 산식의 병렬 도입(도메인은 추출만)
 - 사용자 명시 지시 없는 커밋·푸시·배포
+
+## 8. 세션 로그 (실행 계획 §7 양식)
+
+```text
+Packet: RM-00+RM-04
+Checkout/HEAD/version/liveRevision: d147a76 (d147a7648a15899e3020b041a11cdc01af55c927) / v53.16 / live revision 미확인(이번 세션 배포 없음)
+Scope route/metric/layer: 17-route 소유권 회계 전체(route-owners.json 신설) + 4개 게이트 재작성 + 배치 규율 문서 정정. 특정 route 렌더러 작업 아님(RM-01 스코프 아님).
+Owner before: lifecycle 선언 17/17(하드코딩) / renderer 선언 17/17(하드코딩, 실측 2/17) / data 선언 불명 / chart 선언 불명 / narrative 선언 불명
+Owner after:  lifecycle 실측 17/17 / renderer 실측 2/17(guide, sentiment) / data 실측 0/17 / chart 실측 1/17(sentiment) / narrative 실측 1/17(sentiment) — route-owners.json이 이후 유일한 소스
+Files read: RULES.md(R352/R3/R25), BUG-POSTMORTEM.md(반복 클래스 표·최신 P), ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md 전문, ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md 앞부분, CODE-MAP.md, bootstrap.js/router.js/routes.js/legacy-observer.js/compatibility-facade.js, src/ui/pages/{guide,sentiment,analysis,entity,market,themes,portfolio,screener,news}.js 전문, src/state/store.js, src/data/contracts/operations.js, 4개 대상 게이트 원본, retirement-manifest.json/baseline.json/golden-routes.json/release-manifest.json, js/aio-core.js·aio-data.js·aio-ui.js 내 contested id 교차 grep 다수
+Files changed: architecture/route-owners.json(신규) · architecture/retirement-manifest.json · public-data/operations-status.json · scripts/build-operations-status.mjs · scripts/ci-architecture-contract-check.mjs · scripts/ci-retirement-contract.mjs · scripts/ci-operations-status-check.mjs · scripts/ci-domain-parity-check.mjs→ci-domain-module-smoke-check.mjs(rename) · .github/workflows/ci.yml · _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md · _context/ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(이 문서) · _context/INDEX.md · _context/WORKFLOW-GOVERNANCE.md · _context/BUG-POSTMORTEM.md · CHANGELOG.md
+DELETE-LEDGER before edit:
+  - declaration: `build-operations-status.mjs:43-48` 하드코딩 배열(`nativeOwner`/`legacyOwner`/`nativeLifecycleOwner`/`nativeRendererOwner`/`cutoverStatus` 리터럴) — 삭제 후 route-owners.json 파생으로 교체
+  - callers: 없음(리터럴 자체가 대상, 별도 호출부 없음)
+  - global writer: 해당 없음 — 이 패킷은 회계/게이트 패킷이며 route DOM writer 변경 없음
+  - DOM/chart/narrative sink: 해당 없음(RM-01 스코프로 이월, route-owners.json에 contested id 목록으로 인계)
+  - event/timer/storage: 해당 없음
+  - tests/docs: `ci-retirement-contract.mjs`의 "17개 아니면 실패" 하드 조건, `ci-operations-status-check.mjs`의 `requiredNativeRoutes` 하드코딩 배열, 실행계획/핸드오프의 "all 17 native"·"validation deferred" 서술 — 전부 실측 검증 또는 취소선 정정으로 교체(문서는 삭제 아닌 취소선+추기)
+Burn-down before/after: explicitWindowWrites 1094→1094 · directFetch 42→42 · directStorage 189→189 · htmlSinks 416→416 (무변경 — 이 패킷은 legacy 코드 삭제가 대상이 아니며 정상. RM-01/02/03에서 감소 예정). 유일한 실질 변화는 `operations-status.json`의 `nativeRendererOwner` 17→2 — "감소"가 아니라 하드코딩 제거로 인한 정직화.
+New compatibility introduced and retirement packet: 없음(신규 호환 계층 도입 없음). `retirement-manifest.json`의 `schemaVersion`을 v1→v2로 올리고 `nativeRoutes` 단일 필드를 `nativeLifecycleRoutes`/`nativeRendererRoutes`로 분리했다 — 소비자는 `ci-retirement-contract.mjs` 하나뿐이며 같은 배치에서 갱신했다.
+Local gates: §8.1 전체(11개) PASS. 추가로 `ci-retirement-contract.mjs`/`ci-domain-module-smoke-check.mjs` 및 나머지 `ci-*.mjs` 20종 전부 PASS(`ci-live-invariant-check.mjs`만 의도적 제외 — 라이브 사이트 네트워크 의존이라 로컬 전용 회계 패킷과 무관, WORKFLOW-GOVERNANCE 기존 지침에 따름). headless 1098/1098, critical10 10/10, a11y 17/17, viewport(FULL_INIT) 68/68(worstOverflow 0px·jsErrors 0), Portfolio Vault E2E 8케이스 PASS, knowledge-lint 0 warning, data-lineage 15 PASS/1 WARN(사전 존재하던 SEC 커버리지 이슈, 이번 변경과 무관).
+Browser evidence: `ci-architecture-browser-check.mjs` PASS — router/store route 둘 다 `sentiment`, badge `심리: 판정 보류`, guide native(`resultButtons` 정상), routeRoundTrip true, browserErrors 0.
+Live evidence: 없음 — 커밋·푸시·배포 없음(사용자 명시 지시 대기, RM-04 §4). `public-data/operations-status.json` 재생성은 로컬 파일 변경일 뿐 배포 아님.
+Unverified/blockers: RM-01(이중 DOM writer 제거) 미착수 — contested id는 `route-owners.json`에 route별로 문서화·인계 완료. RM-02(store clone 성능)·RM-03(도메인 추출·항진 게이트 실질화)·RM-05(게이트 보강) 전부 미착수. `themes`/`theme-detail`의 일부 contested id(`rrg-quadrant-cards`, `theme-detail-title`)와 sentiment의 cross-page sink(`home-fg-score`)는 RM-01에서 확정 필요(route-owners.json `openItems` 참조).
+Status: VERIFIED_LOCAL (RM-00+RM-04 스코프 한정 — §5 전체 인수 기준의 항목 2·3은 RM-01/RM-03 완료 전까지 미충족이며 의도된 상태)
+```

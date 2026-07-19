@@ -1,6 +1,7 @@
 {
-  "schemaVersion": "retirement-v1",
-  "status": "LOCAL_NATIVE_CUTOVER",
+  "schemaVersion": "retirement-v2",
+  "status": "MIGRATION_IN_PROGRESS",
+  "routeOwnersManifest": "architecture/route-owners.json",
   "approvedFacadeApi": [
     "getState",
     "getEvidence",
@@ -11,7 +12,7 @@
     "navigate",
     "router"
   ],
-  "nativeRoutes": [
+  "nativeLifecycleRoutes": [
     "home",
     "signal",
     "breadth",
@@ -30,7 +31,27 @@
     "screener",
     "guide"
   ],
-  "legacyRouteOwners": [],
+  "nativeRendererRoutes": [
+    "sentiment",
+    "guide"
+  ],
+  "legacyRouteOwners": [
+    "home",
+    "signal",
+    "breadth",
+    "briefing",
+    "technical",
+    "macro",
+    "fxbond",
+    "themes",
+    "theme-detail",
+    "ticker",
+    "fundamental",
+    "options",
+    "portfolio",
+    "market-news",
+    "screener"
+  ],
   "legacyObserverOwners": [],
   "liveCertification": "operator-required"
 }

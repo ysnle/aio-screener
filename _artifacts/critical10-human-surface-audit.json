@@ -1,5 +1,5 @@
 {
-  "version": "v53.15",
+  "version": "v53.16",
   "viewport": {
     "width": 1024,
     "height": 768
@@ -9,7 +9,7 @@
       "routeId": "home",
       "status": "warn",
       "focusableCount": 14,
-      "pageTitle": "시장 현황 v53.15",
+      "pageTitle": "시장 현황 v53.16",
       "audit": {
         "status": "warn",
         "hierarchy": {
@@ -39,7 +39,7 @@
               "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:53.451Z"
+          "generatedAt": "2026-07-19T11:34:44.776Z"
         },
         "accessibility": {
           "status": "warn",
@@ -109,9 +109,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:53.453Z"
+          "generatedAt": "2026-07-19T11:34:44.777Z"
         },
-        "generatedAt": "2026-07-19T04:24:53.453Z"
+        "generatedAt": "2026-07-19T11:34:44.777Z"
       },
       "tabSequence": [
         {
@@ -294,7 +294,7 @@
               "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:54.189Z"
+          "generatedAt": "2026-07-19T11:34:45.338Z"
         },
         "accessibility": {
           "status": "ok",
@@ -317,9 +317,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:54.190Z"
+          "generatedAt": "2026-07-19T11:34:45.338Z"
         },
-        "generatedAt": "2026-07-19T04:24:54.190Z"
+        "generatedAt": "2026-07-19T11:34:45.338Z"
       },
       "tabSequence": [
         {
@@ -502,7 +502,7 @@
               "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:54.733Z"
+          "generatedAt": "2026-07-19T11:34:45.822Z"
         },
         "accessibility": {
           "status": "ok",
@@ -525,9 +525,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:54.733Z"
+          "generatedAt": "2026-07-19T11:34:45.822Z"
         },
-        "generatedAt": "2026-07-19T04:24:54.733Z"
+        "generatedAt": "2026-07-19T11:34:45.822Z"
       },
       "tabSequence": [
         {
@@ -710,7 +710,7 @@
               "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:55.148Z"
+          "generatedAt": "2026-07-19T11:34:46.224Z"
         },
         "accessibility": {
           "status": "ok",
@@ -733,9 +733,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:55.149Z"
+          "generatedAt": "2026-07-19T11:34:46.225Z"
         },
-        "generatedAt": "2026-07-19T04:24:55.149Z"
+        "generatedAt": "2026-07-19T11:34:46.225Z"
       },
       "tabSequence": [
         {
@@ -886,11 +886,11 @@
     },
     {
       "routeId": "briefing",
-      "status": "ok",
-      "focusableCount": 5,
+      "status": "warn",
+      "focusableCount": 10,
       "pageTitle": "오늘의 브리핑",
       "audit": {
-        "status": "ok",
+        "status": "warn",
         "hierarchy": {
           "status": "ok",
           "pagesChecked": 1,
@@ -918,62 +918,157 @@
               "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:56.127Z"
+          "generatedAt": "2026-07-19T11:34:46.954Z"
         },
         "accessibility": {
-          "status": "ok",
+          "status": "warn",
           "pagesChecked": 1,
           "issueCount": 0,
-          "warningCount": 0,
+          "warningCount": 1,
           "blockers": [],
-          "warnings": [],
+          "warnings": [
+            "small-targets:9"
+          ],
           "pages": [
             {
               "pageId": "briefing",
               "pageExists": true,
               "active": true,
               "blockers": [],
-              "warnings": [],
+              "warnings": [
+                "small-targets:9"
+              ],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
-              "smallTargets": [],
+              "smallTargets": [
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 380,
+                  "height": 16
+                },
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 411,
+                  "height": 16
+                },
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 522,
+                  "height": 16
+                },
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 651,
+                  "height": 16
+                },
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 454,
+                  "height": 16
+                },
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 412,
+                  "height": 16
+                },
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 365,
+                  "height": 16
+                },
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 464,
+                  "height": 16
+                },
+                {
+                  "id": "",
+                  "selector": "#page-briefing article.news-item-card > div > div.news-item-headline > a",
+                  "width": 522,
+                  "height": 16
+                }
+              ],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:56.127Z"
+          "generatedAt": "2026-07-19T11:34:46.954Z"
         },
-        "generatedAt": "2026-07-19T04:24:56.127Z"
+        "generatedAt": "2026-07-19T11:34:46.954Z"
       },
       "tabSequence": [
         {
-          "tag": "SPAN",
+          "tag": "A",
           "id": "",
-          "name": "$NVDA",
-          "tabindex": "0"
+          "name": "Iran Rushed Out $6 Billion of Oil During Brief Truce With U.S. - WSJ",
+          "tabindex": ""
         },
         {
-          "tag": "SPAN",
+          "tag": "A",
           "id": "",
-          "name": "$MU",
-          "tabindex": "0"
+          "name": "The sell-off for AI stars worsens, while oil prices keep jumping - AP News",
+          "tabindex": ""
         },
         {
-          "tag": "SPAN",
+          "tag": "A",
           "id": "",
-          "name": "$NVDA",
-          "tabindex": "0"
+          "name": "Alphabet earnings test AI capex, steer Korea chip stocks this week - CHOSUNBIZ - Chosunbiz",
+          "tabindex": ""
         },
         {
-          "tag": "SPAN",
+          "tag": "A",
           "id": "",
-          "name": "$MU",
-          "tabindex": "0"
+          "name": "Micron’s HBM Is Sold Out Through 2026 and Data Centre Revenue Grew 150% — Is MU a Buy at $914? - Tra",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "Gold (XAUUSD) Price Forecast: Gold Rally Stalls as Oil Fuels Fed Fears - FXEmpire",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "Nvidia, Micron lead 4 cash-rich stocks with rising profit forecasts - Invezz",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "13 claims we've investigated involving Strait of Hormuz - Snopes",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "What to expect after the US reimposes naval blockade on Iran’s ports? - Al Jazeera",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "ASML Stock Slips Despite Record Guidance and a Wall of Analyst Upgrades - ad-hoc-news.de",
+          "tabindex": ""
         },
         {
           "tag": "BUTTON",
           "id": "",
           "name": "과거 참고 펼치기 ▼",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
           "tabindex": ""
         },
         {
@@ -1053,42 +1148,6 @@
           "id": "",
           "name": "테마 · 트렌드",
           "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "포트폴리오",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "기업 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "퀀트 스크리너",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "사용 설명서",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "용어 사전",
-          "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "sidebar-theme-btn",
-          "name": "라이트 모드",
-          "tabindex": ""
         }
       ]
     },
@@ -1126,7 +1185,7 @@
               "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:56.533Z"
+          "generatedAt": "2026-07-19T11:34:48.359Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1149,9 +1208,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:56.538Z"
+          "generatedAt": "2026-07-19T11:34:48.362Z"
         },
-        "generatedAt": "2026-07-19T04:24:56.538Z"
+        "generatedAt": "2026-07-19T11:34:48.362Z"
       },
       "tabSequence": [
         {
@@ -1334,7 +1393,7 @@
               "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:56.916Z"
+          "generatedAt": "2026-07-19T11:34:49.264Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1357,9 +1416,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:56.917Z"
+          "generatedAt": "2026-07-19T11:34:49.265Z"
         },
-        "generatedAt": "2026-07-19T04:24:56.917Z"
+        "generatedAt": "2026-07-19T11:34:49.265Z"
       },
       "tabSequence": [
         {
@@ -1542,7 +1601,7 @@
               "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:57.331Z"
+          "generatedAt": "2026-07-19T11:34:49.640Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1565,9 +1624,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:57.331Z"
+          "generatedAt": "2026-07-19T11:34:49.640Z"
         },
-        "generatedAt": "2026-07-19T04:24:57.331Z"
+        "generatedAt": "2026-07-19T11:34:49.640Z"
       },
       "tabSequence": [
         {
@@ -1719,7 +1778,7 @@
     {
       "routeId": "fundamental",
       "status": "warn",
-      "focusableCount": 8,
+      "focusableCount": 2,
       "pageTitle": "기업 분석",
       "audit": {
         "status": "warn",
@@ -1750,7 +1809,7 @@
               "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:57.715Z"
+          "generatedAt": "2026-07-19T11:34:50.168Z"
         },
         "accessibility": {
           "status": "warn",
@@ -1784,9 +1843,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:57.717Z"
+          "generatedAt": "2026-07-19T11:34:50.169Z"
         },
-        "generatedAt": "2026-07-19T04:24:57.717Z"
+        "generatedAt": "2026-07-19T11:34:50.169Z"
       },
       "tabSequence": [
         {
@@ -1799,42 +1858,6 @@
           "tag": "BUTTON",
           "id": "",
           "name": "기업 분석",
-          "tabindex": ""
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "NVDA",
-          "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "포트폴리오에 추가",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "차트 분석",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "개요",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "재무 상세",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "외부 정보",
           "tabindex": ""
         },
         {
@@ -1932,6 +1955,42 @@
           "id": "",
           "name": "퀀트 스크리너",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "사용 설명서",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-theme-btn",
+          "name": "라이트 모드",
+          "tabindex": ""
+        },
+        {
+          "tag": "INPUT",
+          "id": "gh-repo-url",
+          "name": "username/repo-name",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "설정",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "llm-switch-track",
+          "name": "AI 도우미 전환",
+          "tabindex": "0"
         }
       ]
     },
@@ -1969,7 +2028,7 @@
               "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 52/100) 데이터: 스냅샷신뢰도 66% 보통 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
             }
           ],
-          "generatedAt": "2026-07-19T04:24:58.094Z"
+          "generatedAt": "2026-07-19T11:34:50.760Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1992,9 +2051,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-07-19T04:24:58.105Z"
+          "generatedAt": "2026-07-19T11:34:50.764Z"
         },
-        "generatedAt": "2026-07-19T04:24:58.105Z"
+        "generatedAt": "2026-07-19T11:34:50.764Z"
       },
       "tabSequence": [
         {
@@ -2145,6 +2204,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-07-19T04:24:51.756Z",
+  "generatedAt": "2026-07-19T11:34:43.401Z",
   "status": "pass"
 }

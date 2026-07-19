@@ -3,9 +3,9 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
 latest_version: v53.16
-latest_P_number: P739
-next_P_number: P740
-total_entries: 513 (P1~P739, 결번 존재 — 상세 30건 + 압축 원장)
+latest_P_number: P740
+next_P_number: P741
+total_entries: 514 (P1~P740, 결번 존재 — 상세 31건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -22,6 +22,7 @@ total_entries: 513 (P1~P739, 결번 존재 — 상세 30건 + 압축 원장)
 
 | 클래스 | 대표 P | 상태/게이트 |
 |--------|--------|------------|
+| 진척 인플레이션 (실행 소유권 이전 없이 선언식 상태 승격 — scaffold/신규 파일 수를 완료로 오인) | P736 P740 | **R352 승격 완료** — `architecture/route-owners.json` 대조 검증(ci-retirement-contract/ci-operations-status-check), "게이트는 선언이 아니라 실측을 검증" 원칙 |
 | 이중 표면·그림자 구현 드리프트 (동일 판정의 중복 구현 중 한쪽만 수정) | P276 P492 P605 P606 P625 P713 P719 | ci-structural(그림자 선언), "동일 지표 소비 표면 grep 전수" 원칙 |
 | 생산자-소비자 파이프 단절 (인프라·필드만 만들고 소비 경로 미연결) | P239 P548 P652 P664 P721 P724 | "읽기 코드 존재≠필드 존재 — 쓰기 지점 grep 실증" 원칙 |
 | 관측 시점 리터럴 부패 (달력 회전·시장값 회전·데이터 상태 영구 단언) | P604 P627 P713(T884) P715('1,508') P720('5/5') P722 | R279 계열. `grep "=== '20"` 스윕, 감사 토큰에 비숫자 컨텍스트 의무 |
@@ -108,6 +109,15 @@ total_entries: 513 (P1~P739, 결번 존재 — 상세 30건 + 압축 원장)
 - **violated_rule**: R3 postmortem requirement, R352 native ownership parity, and the route-settle/deploy-gate contract.
 - **prevention**: Every native cutover must test both active and hidden DOM projections, explicit live-patch precedence, derived-route semantic readiness, and registry completeness before Pages deployment.
 - **verification**: Targeted browser probe passed for synchronized F&G/VIX blocked state, seven narrative registry entries, and `theme-detail → themes` panel activation; syntax and diff checks passed. Full local suite was not rerun per user instruction.
+
+## P740 - v53.16 - 소유권 회계 하드코딩과 게이트 역전으로 이중 DOM writer 경합이 "17/17 native"로 은폐됨
+- **motivation**: 2026-07-19 18:20~19:23 배치(`b7bce36`→`9462404`)가 ARX-09~16을 완료로 선언하고 origin/main 배포까지 마쳤으나, 신규 파일/게이트는 계속 늘어도 `index.html`/js 삭제가 거의 없다는 재지적으로 `ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` 전수 재감사와 RM-00~06 복구 패킷 실행을 요청받았다.
+- **symptom/reproduction**: `node scripts/ci-retirement-contract.mjs`·`ci-operations-status-check.mjs`는 PASS했지만, `scripts/build-operations-status.mjs:43-48`이 `nativeOwner`/`nativeRendererOwner`에 17개 route 전체를 리터럴 배열로 하드코딩하고 `legacyOwner: 0`을 고정해 게이트가 검증하는 대상 자체가 선언값이었다(`ci-retirement-contract.mjs:12`의 "17개 아니면 실패", `ci-operations-status-check.mjs:15`의 `legacyOwner + nativeRendererOwner.length === supported` 항등식도 같은 구조). 실제로는 `src/ui/pages/{analysis,entity,market,portfolio,screener}.js` thin native 모듈이 legacy가 여전히 쓰는 동일 DOM(`home-trading-signal`, `score-gauge-val`, `screener-results-body`, `pf-positions-tbody`, `live-news-feed` 5곳, `briefing-live-news-list` 6곳 등)에 경합 렌더링 중이었다 — 특히 screener 테이블은 legacy가 22컬럼 innerHTML을, native가 5컬럼 replaceChildren을 쓰고 있어 native가 이기면 테이블이 무너지는 사용자 가시 회귀였다. `ci-domain-parity-check.mjs`는 같은 fixture로 같은 함수를 두 번 호출해 비교하는 항진 게이트였다.
+- **root_cause**: (1) route 소유권의 단일 소스가 코드 실측이 아니라 손으로 쓴 리터럴 배열이었다. (2) 대응 게이트들이 "선언값이 특정 형태를 만족하는가"만 검증하고 "그 선언이 실제 코드와 일치하는가"는 검증하지 않는 자기 증명 구조였다. (3) route cutover 배치가 DELETE-LEDGER 없이 legacy renderer를 남긴 채 native 모듈을 병렬 추가했다 — R352가 막으려던 패턴이 R352 제정 바로 다음 배치에서 재발했다. (4) 상위 handoff·실행계획·operations-status.json 세 문서가 서로 다른 소유권 수치(17/0, 4/13, 0/17)를 동시에 주장해 어느 것도 단독으로 신뢰할 수 없었다(F-07).
+- **fix**: `architecture/route-owners.json` 신설 — 17 route × 5칸(lifecycle/renderer/data/chart/narrative) 소유권을 코드 재실측(`bootstrap.js` 모듈 배선, `PAGES` init 리터럴, contested DOM id 교차 grep)으로 채운 단일 소스. `build-operations-status.mjs`를 이 파일에서 파생하도록 재작성(하드코딩 배열 삭제, `cutoverStatus: 'MIGRATION_IN_PROGRESS'`). `architecture/retirement-manifest.json`을 `status: MIGRATION_IN_PROGRESS`·실측 `legacyRouteOwners`(15개)로 정정. `ci-retirement-contract.mjs`/`ci-operations-status-check.mjs`/`ci-architecture-contract-check.mjs`를 route-owners.json 대조 검증으로 재작성(선언 강제 제거, renderer-native route의 legacy 심볼 부재 검사 추가). `ci-domain-parity-check.mjs`→`ci-domain-module-smoke-check.mjs` 개명(ci.yml 동기화)으로 이름이 실제로 하지 않는 검증(parity)을 주장하지 않도록 정정했다(실제 parity 구현은 RM-03 별도 패킷). 상충하던 3개 문서(핸드오프 07-18/실행계획 07-19/INDEX.md)의 서술을 취소선+정정 추기로 통일(기존 줄 삭제 없음).
+- **violated_rule**: R352(migration은 실행 소유권 이전으로 판정), R25(반복 클래스 추적 — "진척 인플레이션" 신규 클래스의 2번째 사례), R3(F-01~F-03이 발생 당시 즉시 postmortem되지 않음, 이번에 소급 기록).
+- **prevention**: `architecture/route-owners.json`을 소유권의 유일한 소스로 고정 — 운영 상태·retirement manifest·CI 게이트가 전부 이 파일을 읽어 대조하며, 이후 어떤 상태 승격도 이 파일의 파생값으로만 이뤄진다. 반복 클래스 표에 "진척 인플레이션" 신설(위 표). RM-01에서 이번에 확정한 contested DOM id의 legacy writer 제거를 이어서 수행한다.
+- **verification**: `node scripts/ci-architecture-contract-check.mjs`, `ci-retirement-contract.mjs`, `ci-operations-status-check.mjs`, `ci-domain-module-smoke-check.mjs` 전부 정직한 실측값 기준으로 PASS(`nativeRendererOwner:["sentiment","guide"]`, `legacyOwner:15`, `nativeOwner:[]`). `public-data/operations-status.json` 재생성 확인. 나머지 §8.1 게이트는 같은 세션에서 이어서 실행(세션 카드 별도 기록).
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.

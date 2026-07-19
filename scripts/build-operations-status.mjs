@@ -2,9 +2,32 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
 
 export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.json', import.meta.url);
+const ROUTE_OWNERS_PATH = new URL('../architecture/route-owners.json', import.meta.url);
+
+export async function readRouteOwners() {
+  return JSON.parse(await readFile(ROUTE_OWNERS_PATH, 'utf8'));
+}
+
+export function deriveRouteOwnership(routeOwners) {
+  const routes = routeOwners?.routes || {};
+  const routeIds = Object.keys(routes);
+  const columns = Object.keys(routeOwners?.columnDefinitions || {});
+  const nativeLifecycleOwner = routeIds.filter((route) => routes[route].lifecycleOwner === 'native');
+  const nativeRendererOwner = routeIds.filter((route) => routes[route].rendererOwner === 'native');
+  const nativeOwner = routeIds.filter((route) => columns.every((column) => routes[route][column] === 'native'));
+  return {
+    supported: routeIds.length,
+    nativeLifecycleOwner,
+    nativeRendererOwner,
+    nativeOwner,
+    legacyOwner: routeIds.length - nativeRendererOwner.length
+  };
+}
 
 export async function writeOperationsStatus({ data, marketSnapshot, reconciliation, now = new Date().toISOString() } = {}) {
   const version = JSON.parse(await readFile(new URL('../version.json', import.meta.url), 'utf8'));
+  const routeOwners = await readRouteOwners();
+  const ownership = deriveRouteOwnership(routeOwners);
   const snapshot = marketSnapshot || {};
   const coverage = snapshot.coverage || { tier0Required: 0, tier0Observed: 0 };
   const durableOk = snapshot.status === 'published' && coverage.tier0Observed === coverage.tier0Required && coverage.tier0Required > 0;
@@ -35,17 +58,20 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       categoryCount: reconciliation?.categories?.length || 0,
       overall: reconciliation?.overall || 'BLOCKED',
       counts: reconciliation?.counts || {},
-      routeCount: 17,
+      routeCount: ownership.supported,
       rawProducerClaimGate: 'not_applicable_for_quote_plane'
     },
     routes: {
-      supported: 17,
-      nativeOwner: ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'],
-      legacyOwner: 0,
-      nativeLifecycleOwner: ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'],
-      nativeRendererOwner: ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'],
+      supported: ownership.supported,
+      nativeOwner: ownership.nativeOwner,
+      legacyOwner: ownership.legacyOwner,
+      nativeLifecycleOwner: ownership.nativeLifecycleOwner,
+      nativeRendererOwner: ownership.nativeRendererOwner,
+      // Verified 2026-07-19 (RM-00): bootstrap.js registers a dedicated module for all 17 ROUTE_IDS,
+      // so createLegacyObserverPage/defaultPage() is never reached. Re-derive if that ever changes.
       observerOwner: 0,
-      cutoverStatus: 'NATIVE_ROUTES_LOCAL'
+      cutoverStatus: 'MIGRATION_IN_PROGRESS',
+      routeOwnersManifest: 'architecture/route-owners.json'
     },
     blockers
   });

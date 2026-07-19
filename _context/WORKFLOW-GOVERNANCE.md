@@ -90,6 +90,18 @@ Every recurring failure must end in at least one enforceable mechanism:
 
 Notes alone do not count as prevention.
 
+## Declaration-And-Gate-Adjustment Rule (added 2026-07-19, RM-04)
+
+A batch that both (a) declares a migration/route/feature complete and (b) edits the gate that checks that same completion is the highest-risk combination in this repo: the gate can be quietly loosened to match the declaration instead of the declaration being held to the gate. This exact pattern produced P736 and recurred one batch later as P740 (`_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md`, R352).
+
+When a change set does both in the same batch:
+
+1. Before requesting or acting on a commit/push/deploy, re-derive the declared counts/lists from source independently of the gate just edited (grep/read the actual files — do not treat the gate's own PASS output as the only evidence).
+2. State explicitly in the final answer which specific counts were re-derived and how, not just "gate passed."
+3. If the re-derivation disagrees with the declaration, fix the declaration — never loosen the gate further to make the disagreement go away.
+
+This does not change who authorizes a push (still the user, per session, as always) — it changes what evidence the agent must already hold before treating a declaration as ready for that decision.
+
 ## Standing Invariant Rule
 
 The postmortem-to-gate mechanisms above (`ci-*-contract-check.mjs`, `js/aio-tests.js`) all read the local working tree. They prove the *repository* is correct at commit time. They cannot prove the *deployed* site is still serving that same correct state a week later with zero commits in between — GitHub Pages/CDN caching, a partial deploy, or operator-side config (e.g. a Cloudflare Worker revision) can all drift independently of source. P638/C1 (deployed Worker route older than the repo's) and P572/R263 (data commits landing while `[skip ci]` silently stopped the Pages deploy from ever publishing them) are both cases where every source gate was green while the live site was wrong — nothing in the files those gates read had changed, so nothing could have failed.

@@ -7,7 +7,26 @@ target_version: v53.15
 status: IMPLEMENTED_LOCAL_PARTIAL
 scope: whole-system architecture
 
-## 2026-07-19 ARX-09~16 local implementation checkpoint
+## 2026-07-19 RM-00 correction (supersedes the checkpoint below — do not re-declare from the block below)
+
+"All 17 route modules are registered without legacy observer ownership" is a
+lifecycle/scaffold fact, not a renderer-ownership fact, and the ARX-09~16
+checkpoint below did not distinguish the two. Re-measured directly against
+source (RM-00, new `architecture/route-owners.json`, 2026-07-19): lifecycle
+owner is native for 17/17 routes, but renderer owner is native for only 2/17
+(guide, sentiment) — the other 15, including market-news/briefing which an
+earlier checkpoint also mis-declared native, still have a live legacy renderer
+writing the same DOM nodes a thin native module also writes
+(`home-trading-signal`, `score-gauge-val`, `screener-results-body`,
+`pf-positions-tbody`, `live-news-feed`, `briefing-live-news-list`, etc.). Data
+owner is native for 0/17. "The user-requested full validation batch is
+deferred until the packet sequence is complete" is also retracted: every
+batch runs the full local gate set, no deferrals (RM-04). See
+`_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` (RM-00~06,
+findings F-01~F-11) for the complete ledger; RM-00/RM-01/RM-04 must close
+before any new ARX packet starts.
+
+## 2026-07-19 ARX-09~16 local implementation checkpoint (superseded by the RM-00 correction above, retained for history)
 
 Entity, portfolio, screener, analysis, pure domain, AI, privacy vault, release,
 and retirement boundaries are implemented in native ESM. All 17 route modules

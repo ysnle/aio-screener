@@ -88,8 +88,8 @@ jobs:
           find src -name '*.js' -print0 | xargs -0 -n1 node --check
           node scripts/ci-architecture-contract-check.mjs
 
-      - name: Domain live/backtest parity contract (ARX-12)
-        run: node scripts/ci-domain-parity-check.mjs
+      - name: Domain module smoke contract (ARX-12 — live/backtest parity pending RM-03)
+        run: node scripts/ci-domain-module-smoke-check.mjs
 
       - name: Storage migration and privacy vault contract (ARX-14)
         run: node scripts/ci-storage-migration-check.mjs

@@ -8,7 +8,23 @@ status: DESIGNED_EXECUTABLE
 parent: ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md
 scope: whole-system architecture execution
 
-## Current ARX-09~16 checkpoint (2026-07-19)
+## 2026-07-19 RM-00 correction (supersedes the checkpoint below — do not re-declare from the block below)
+
+"All 17 route lifecycle/renderer modules are registered natively" conflated
+lifecycle scaffold ownership with renderer ownership. Re-measured directly
+against source (RM-00, new `architecture/route-owners.json`): lifecycleOwner
+is native for 17/17 routes; rendererOwner is native for only 2/17 (guide,
+sentiment) — market-news and briefing were also mis-declared native here and
+in `operations-status.json` despite 5-6 live legacy writers still targeting
+`live-news-feed`/`briefing-live-news-list`; dataOwner is native for 0/17;
+chartOwner/narrativeOwner are native only for sentiment (1/17 each). "Full
+§8.1 validation deferred until this packet sequence is complete" is retracted
+(RM-04) — every batch below runs the complete §8.1 list, with no deferral.
+See `_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` (RM-00~06,
+F-01~F-11) for the full ledger. RM-00/RM-01/RM-04 must close before any new
+ARX packet in §4/§5 below starts.
+
+## Current ARX-09~16 checkpoint (2026-07-19) — superseded by the RM-00 correction above, retained for history
 
 The local implementation now includes entity, portfolio, screener, analysis,
 pure domain, AI, privacy vault, release, and retirement boundaries. All 17
@@ -63,7 +79,7 @@ deferred until this packet sequence is complete, then runs as one batch.
 | L12 | 운영·워크플로 | durable plane CURRENT, fast plane OPERATOR_REQUIRED, reconciliation PARTIAL | 독립 fast/durable plane + SLO/rights ledger | `IN_PROGRESS` | Cloudflare 설정·권리·7일 soak 없이는 VERIFIED_LIVE 금지 |
 | L13 | 문서·거버넌스 | 상위 handoff/ADR/RULES/QA 존재, 과거 진단서 다수 | architecture/ADR/runbook + 이 실행 원장 | `IN_PROGRESS` | 배치마다 owner/deletion/status 갱신, 종료 시 과거 handoff archive |
 
-2026-07-19 ARX-01~06 진행 후 실측 burn-down은 `explicitWindowWrites=1094`, `directFetch=42`, `directStorage=189`, `htmlSinks=416`이다. 운영 공개 상태는 `nativeLifecycleOwner=['briefing','guide','market-news','sentiment']`, `nativeRendererOwner=['briefing','guide','market-news','sentiment']`, `legacyOwner=13`, `nativeOwner=[]`이다.
+2026-07-19 ARX-01~06 진행 후 실측 burn-down은 `explicitWindowWrites=1094`, `directFetch=42`, `directStorage=189`, `htmlSinks=416`이다. **RM-00 정정(2026-07-19)**: 아래 문장은 당시 `operations-status.json`의 (하드코딩이었던) 선언을 그대로 인용한 것으로 부정확했다. `architecture/route-owners.json` 실측 기준 운영 공개 상태는 `nativeLifecycleOwner`=17개 전체, `nativeRendererOwner=['guide','sentiment']`(2개뿐 — market-news/briefing은 `live-news-feed`/`briefing-live-news-list`에 legacy writer 5~6곳이 남아 CONTESTED), `legacyOwner=15`, `nativeOwner=[]`이다. ~~운영 공개 상태는 `nativeLifecycleOwner=['briefing','guide','market-news','sentiment']`, `nativeRendererOwner=['briefing','guide','market-news','sentiment']`, `legacyOwner=13`, `nativeOwner=[]`이다.~~(원문 보존, 취소선)
 
 ### 2.1 확인 깊이
 
@@ -303,7 +319,7 @@ git diff --check
 
 검증되지 않음:
 
-- native renderer 17개 중 어느 것도 완료되지 않음
+- native renderer 17개 중 15개 미완료(**RM-00 정정**: 원문은 "어느 것도 완료되지 않음"이라 적었으나 이는 sentiment의 §11 세션 카드 자체의 "renderer native" 판정과 상충하는 오기였다 — 실측은 guide·sentiment 2개 완료, market-news/briefing을 포함한 나머지 15개는 legacy renderer가 살아있는 채로 thin native 모듈과 동일 DOM을 경합 중이다. 상세: `architecture/route-owners.json`, `_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` F-03/F-07)
 - direct fetch/storage/HTML sink의 전체 gateway 전환
 - `index.html` runtime island와 legacy bundle 제거
 - 모든 domain의 pure/live-backtest parity
@@ -346,7 +362,7 @@ Status: VERIFIED_LOCAL (ARX-04 platform adoption remains)
 
 ARX-04 platform boundary is active for new ESM code: HTTP, storage, sanitizer, clock, and telemetry gateways are the only approved platform contracts; the sentiment, guide, and news native modules contain no direct fetch/storage/HTML sink.
 
-Operations owner state is `nativeLifecycleOwner=['briefing','guide','market-news','sentiment']`, `nativeRendererOwner=['briefing','guide','market-news','sentiment']`, `legacyOwner=13`, and `nativeOwner=[]`; data and narrative ownership remain legacy until their later packets.
+**RM-00 correction (2026-07-19)**: the sentence below re-asserted the same hardcoded declaration `operations-status.json` was shipping at the time and was not independently measured. Re-measured against `architecture/route-owners.json`: operations owner state is `nativeLifecycleOwner`=all 17 routes, `nativeRendererOwner=['guide','sentiment']` only (market-news/briefing still have 5-6 live legacy writers into `live-news-feed`/`briefing-live-news-list` and remain CONTESTED, not native), `legacyOwner=15`, and `nativeOwner=[]`; data, chart, and narrative ownership remain legacy except sentiment's chart/narrative. ~~Operations owner state is `nativeLifecycleOwner=['briefing','guide','market-news','sentiment']`, `nativeRendererOwner=['briefing','guide','market-news','sentiment']`, `legacyOwner=13`, and `nativeOwner=[]`; data and narrative ownership remain legacy until their later packets.~~(원문 보존, 취소선)
 
 The current measured counters are `explicitWindowWrites=1094`, `directFetch=42`, `directStorage=189`, and `htmlSinks=416`. Legacy sentiment producers now notify the canonical `AIO_ARCH.ingestSentiment` evidence/state writer for F&G, Put/Call, and HY updates. ARX-02 and ARX-04 are locally closed for the new ESM slice. Guide, market-news, and briefing now have native route modules plus a `data/news` state writer. ARX-07/08 now have shared normalized market/theme states consumed by macro/fxbond/breadth/themes/theme-detail slice renderers; full route ownership remains pending. ARX-09~16 remains active for entity, domain, AI, storage, release, and retirement work. Full §8.1 validation remains deferred until all packets are finished.
 

@@ -1,6 +1,7 @@
 ## v53.16 (2026-07-19)
 - P739: fixed deferred deployment-gate regressions by synchronizing hidden sentiment projections, preserving explicit live sentiment patches over snapshot evidence, registering the native sentiment narrative boundary, and opening the canonical inline theme-detail panel on derived-route navigation.
 - R1 7곳 v53.16
+- **정정 (RM-00, 같은 날 2차 배치)**: 위 배치가 `build-operations-status.mjs`의 route 소유권을 하드코딩 배열로 선언(`nativeOwner` 17/17, `legacyOwner: 0`)했고 대응 게이트(`ci-retirement-contract.mjs`, `ci-operations-status-check.mjs`)가 그 선언을 검증 없이 강제했다. 실측(RM-00, `architecture/route-owners.json` 신설)은 renderer native 2(guide/sentiment)뿐이며 나머지 15개 route는 legacy renderer가 살아있는 채로 thin native 모듈이 동일 DOM(`home-trading-signal`/`score-gauge-val`/`screener-results-body`/`pf-positions-tbody`/`live-news-feed`/`briefing-live-news-list` 등)에 경합 기록 중이었다(F-01~F-03). `architecture/retirement-manifest.json`·`public-data/operations-status.json`을 실측값으로 정정하고 4개 게이트를 선언 강제에서 실측 검증으로 재작성했다. 상세: `_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md`(RM-00~06), `_context/BUG-POSTMORTEM.md` P740+.
 
 ## v53.15 (2026-07-19)
 - ARX-09~16 local cutover: entity, portfolio, screener, analysis, pure domain, AI envelope, privacy vault, release manifest, and 17-route retirement contracts are now wired through native ESM boundaries.
