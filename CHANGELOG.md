@@ -1,3 +1,9 @@
+## v53.12 (2026-07-19)
+- P733: fixed the refresh-data ESM summary runtime failure (`require('fs')` to `import fs from 'node:fs'`) and added a module-heredoc regression contract.
+- Refresh recovery and live deployment evidence are tracked in the architecture handoff.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.12
+
 ## v53.11 (2026-07-18)
 - <!-- 변경 내용을 이곳에 기록하세요 -->
 - AR-07 Batch 0: Tier 0 16종 canonical market snapshot/status artifact와 fail-closed LKG publish contract 추가.

@@ -2,9 +2,9 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
-latest_version: v53.11
-latest_P_number: P732
-next_P_number: P733
+latest_version: v53.12
+latest_P_number: P733
+next_P_number: P734
 total_entries: 507 (P1~P732, 결번 존재 — 상세 26건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
@@ -63,6 +63,15 @@ total_entries: 507 (P1~P732, 결번 존재 — 상세 26건 + 압축 원장)
 - **violated_rule**: R347의 inferred claim fail-closed contract.
 - **prevention**: optional input은 null과 undefined 양쪽을 fixture로 검증하고, security/claim sink 키는 naming convention 정규식만으로 판정하지 않는다.
 - **verification**: `ci-inference-contract-check.mjs`, `ci-architecture-contract-check.mjs`, Chromium architecture browser check PASS.
+
+## P733 - v53.12 - refresh-data ESM summary에 CommonJS require가 남아 있었다
+- **motivation**: P732 이후 workflow heredoc의 실제 실행 경로까지 검증해 자동 data commit 회귀를 닫는다.
+- **symptom/reproduction**: refresh run `29668165189`는 quote 78/78 수집 후 `Pipeline status summary`에서 `ReferenceError: require is not defined`로 실패했고, watchdog run `29666589823`는 public-data stale을 보고했다.
+- **root_cause**: `refresh-data.yml`가 `node --input-type=module -`로 실행하면서 `const fs = require('fs')`를 사용했다. summary 실패로 data commit 단계가 skip되었다.
+- **fix**: `import fs from 'node:fs'`로 교체하고 module heredoc 내부 `require()`를 거부하는 data-pipeline contract gate를 추가했다.
+- **violated_rule**: R348/R349.
+- **prevention**: local workflow contract/control-character check 후 수동 refresh가 commit step까지 도달하는지 확인한다.
+- **verification**: local contract/control-character checks PASS; downstream workflow evidence is recorded after deployment.
 
 ## P732 - v53.11 - data-watchdog와 refresh workflow의 ESM heredoc가 CommonJS parser/runtime에 남아 있었다
 - **motivation**: AR-07 snapshot/operations/reconciliation checks를 workflow에 추가한 뒤 실제 `ci-data-pipeline-contract-check.mjs`를 실행했다.

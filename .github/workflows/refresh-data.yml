@@ -43,7 +43,7 @@ jobs:
       - name: Pipeline status summary
         run: |
           node --input-type=module - <<'NODE'
-          const fs = require('fs');
+          import fs from 'node:fs';
           try {
             const d = JSON.parse(fs.readFileSync('public-data/data.json', 'utf8'));
             const m = d.meta || {};

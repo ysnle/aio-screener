@@ -7,6 +7,12 @@ target_version: v53.10
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R349. Workflow module heredocs require an ESM runtime-import contract (v53.12, P733)
+
+**Rule**: A workflow heredoc run with `node --input-type=module -` must use ESM imports throughout; do not leave `require()` in module-mode code.
+
+**Validation**: `ci-data-pipeline-contract-check.mjs` rejects `require()` in module heredocs and checks the refresh summary's `node:fs` import.
+
 ## R348. Workflow heredocs must declare the same Node module mode that their source syntax requires (v53.11, P732)
 
 **Rule**: A workflow heredoc containing `import` or top-level `await` is an ESM program. The command must use `node --input-type=module -`, and the CI syntax checker must parse it with the same mode. A CommonJS `new Function` check is not sufficient evidence for an ESM heredoc.

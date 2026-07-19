@@ -25,6 +25,7 @@ const checkNodeHeredocSyntax = (label, text) => {
   check(`${label} has Node heredoc blocks`, blocks.length > 0);
   blocks.forEach((block, index) => {
     if (block.module) {
+      check(`${label} Node heredoc ${index + 1} uses ESM imports, not CommonJS require`, !/\brequire\s*\(/.test(block.source), 'module heredocs must use import statements');
       const result = spawnSync(process.execPath, ['--input-type=module', '--check'], { input: block.source, encoding: 'utf8' });
       check(`${label} Node heredoc ${index + 1} parses`, result.status === 0, (result.stderr || '').trim());
       return;
@@ -81,6 +82,7 @@ check('screener refresh is an independent six-hour validated publish job', /cron
 check('screener workflow default automation uses only free SEC path', /fetch-sec-fundamentals\.mjs/.test(screenerRefresh) && /SEC_USER_AGENT/.test(screenerRefresh) && /sec-fundamentals\.json/.test(screenerRefresh) && !/FMP_API_KEY/.test(screenerRefresh));
 check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(read('scripts/fetch-data.mjs')) && exists('scripts/backtest-trading-score.mjs'));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
+check('refresh workflow module summary uses ESM fs import', /node --input-type=module - <<'NODE'[\s\S]*import fs from 'node:fs';/.test(refresh) && !/node --input-type=module - <<'NODE'[\s\S]*const fs = require\(/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
 check('watchdog checks data and telegram freshness', /data\.json meta\.generatedAt/.test(watchdog) && /telegram-digest\.json generatedAt/.test(watchdog));
