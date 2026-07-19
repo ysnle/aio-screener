@@ -25,6 +25,7 @@ const bootstrap = read('src/app/bootstrap.js');
 const sentimentPage = read('src/ui/pages/sentiment.js');
 const sentimentDomain = read('src/domain/sentiment/metrics.js');
 const themesPage = read('src/ui/pages/themes.js');
+const tradingScoreDomain = read('src/domain/signal/trading-score.js');
 const glossary = read('js/aio-glossary.js');
 const fetchData = read('scripts/fetch-data.mjs');
 const telegramFetcher = read('scripts/fetch-telegram-digest.mjs');
@@ -121,7 +122,12 @@ check('data-action accessibility normalizer is installed', /_aioNormalizeDataAct
 // it is the literal return expression.
 // v51.98/Phase 3 [A3]: computeTradingScore/classifyMarketRegime/getScoreAdvice moved from index.html
 // inline to js/aio-core.js (P594) — these three checks now search `core`, not `html`.
-check('computeTradingScore returns both total and score aliases for legacy consumers', /function\s+computeTradingScore/.test(core) && /\{\s*total\s*,\s*score\s*:\s*total/.test(core));
+// RM-03 (2026-07-19): the alias-producing literal moved into
+// src/domain/signal/trading-score.js's computeTradingScoreModel (single-implementation
+// extraction); js/aio-core.js's wrapper now merges the model's result via Object.assign instead of
+// writing the `{ total, score: total` shape itself, so this checks the domain module (where the
+// shape now genuinely lives) plus proof the legacy wrapper actually calls into it.
+check('computeTradingScore returns both total and score aliases for legacy consumers', /function\s+computeTradingScore/.test(core) && /AIO_ARCH\.computeTradingScoreModel/.test(core) && /\{\s*total\s*,\s*score\s*:\s*total/.test(tradingScoreDomain));
 // v51.98/Phase 3 [A3]: this used to search the whole `html`, where "breadth200...: 75)" only ever
 // appeared (if at all) inside classifyMarketRegime itself. `core` is a much bigger file with
 // unrelated breadth200 code elsewhere (e.g. a coincidental "...: 75)" ~150 chars after an

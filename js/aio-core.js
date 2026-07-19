@@ -21698,152 +21698,59 @@ function computeTradingScore(mode) {
   const oilPrice = _clamp(_ldSafe('CL=F','price'), 0, 300);
   var _fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg', { maxAgeMs: 4 * 60 * 60 * 1000 }) : null;
   const fg    = _clamp(_fgMetric && _fgMetric.allowedUse ? _fgMetric.value : null, 0, 100);
-  const rsp   = _closingVal('RSP');
-  const spy   = _closingVal('SPY');
 
-  // 1. Volatility Score (25%) — lower VIX is better for trading
-  let volScore = null;
-  if (vix == null)    volScore = null;
-  else if (vix < 15)  volScore = 90;
-  else if (vix < 18)  volScore = 78;
-  else if (vix < 22)  volScore = 62;
-  else if (vix < 27)  volScore = 42;
-  else if (vix < 35)  volScore = 22;
-  else                volScore = 8;
-
-  // Day trading: elevated volatility is slightly better
-  if (mode === 'day' && volScore != null) {
-    if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
-  }
-
-  // 2. Momentum Score (25%) — Fear&Greed as proxy (v46.9: CNN 표준 25/45/55/75 통일)
-  let momScore = null;
-  // v50.19: F&G 모멘텀 곡선 역U자화 — 극단 탐욕(≥75)은 과매수/모멘텀 소진 위험으로 fade(이전 85=최대치는 home 역발상 "차익실현"과 정면 모순).
-  // 건강한 탐욕(55~75)이 피크. 극단 공포(<25)는 역발상 반등 여지로 바닥값 소폭 상향(15→25). signal=추세추종 / home=극단 역발상이 같은 방향으로 수렴.
-  if (fg == null)    momScore = null;
-  else if (fg >= 75) momScore = 66;  // Extreme Greed — 과매수, 추격 위험 (피크 아님)
-  else if (fg >= 55) momScore = 74;  // Greed — 건강한 모멘텀 피크
-  else if (fg >= 45) momScore = 52;  // Neutral
-  else if (fg >= 25) momScore = 34;  // Fear
-  else               momScore = 25;  // Extreme Fear — 역발상 반등 여지
-
-  // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
+  // 3. Trend Score inputs — SPX vs estimated MAs (종가 기준)
   const maCurrent = !!(window._spxMA && window._spxMA[50] != null && Number.isFinite(Number(window._spxMA[50])) && window._spxMA[200] != null && Number.isFinite(Number(window._spxMA[200])) && Number.isFinite(Number(window._spxMATs)) && (Date.now() - Number(window._spxMATs)) <= 4 * 24 * 60 * 60 * 1000);
   const spx200ma = maCurrent ? Number(window._spxMA[200]) : null;
   const spx50ma  = maCurrent ? Number(window._spxMA[50]) : null;
   const spxPrice = _closingVal('^GSPC') || _ldSafe('^GSPC','price');
-  let trendCalcScore = null;
-  if (!spxPrice || !spx50ma || !spx200ma) trendCalcScore = null;
-  else if (spxPrice > spx50ma * 1.02)     trendCalcScore = 82;
-  else if (spxPrice > spx50ma)       trendCalcScore = 68;
-  else if (spxPrice > spx200ma)      trendCalcScore = 50;
-  else if (spxPrice > spx200ma*0.97) trendCalcScore = 32;
-  else                               trendCalcScore = 15;
-  let trendScore = maCurrent ? trendCalcScore : null;
 
-  // 4. Breadth Score (20%) — % above 20 SMA (변수명 _breadth200은 레거시, 실제 20SMA above %)
+  // 4. Breadth Score inputs — % above 20 SMA (변수명 _breadth200은 레거시, 실제 20SMA above %)
   // window._breadth200 is updated by the breadth renderer → bpSPX20[last] 캐싱;
   // fallback to _fb.breadth200 if not yet available.
-  // v50.19: _breadth200(레거시 20SMA명) 미로딩 시 기본 75(낙관 편향) → _breadth20/snapshot(57) 폴백으로 시정
   const breadthEvidence = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
   const breadth200 = breadthEvidence.available ? breadthEvidence.sma20 : null;
-  let breadthCalcScore = null;
-  if (breadth200 != null && breadth200 > 70)      breadthCalcScore = 88;
-  else if (breadth200 != null && breadth200 > 55) breadthCalcScore = 72;
-  else if (breadth200 != null && breadth200 > 40) breadthCalcScore = 52;
-  else if (breadth200 != null && breadth200 > 25) breadthCalcScore = 28;
-  else if (breadth200 != null)                    breadthCalcScore = 12;
-  let breadthScore = breadthEvidence.available ? breadthCalcScore : null;
 
-  // 5. Macro Score (10%) — 기저 55, 누진 감점 (DXY>110이면 -12-8=-20 의도적 누진)
-  let macroScore = dxy != null && tnx != null && vvix != null ? 55 : null;
-  if (macroScore != null && dxy > 107) macroScore -= 12;  // DXY 강세 1단계
-  if (macroScore != null && dxy > 110) macroScore -= 8;   // DXY 극단 강세 2단계 (누진)
-  if (macroScore != null && tnx > 4.5) macroScore -= 10;
-  // P714: `hyg < 76`(HYG 달러 가격 고정 임계) 제거 — 아래 v51.88 블록 주석이 스스로 설명하듯
-  // HYG 가격은 금리 듀레이션(~3.8y)에 오염돼 신용 레벨 판정에 부적합하고, 신용 스트레스는
-  // 이미 하단의 FRED HY OAS(bp) 실측 전용 감점 블록이 담당한다(이중 계상 겸 오염 제거).
-  if (macroScore != null && fg != null && fg < 20) macroScore -= 5;
-  if (macroScore != null && vvix > 110) macroScore -= 8;
-  if (macroScore != null) macroScore = Math.max(10, Math.min(90, macroScore));
-
-  // v20+: Put/Call ratio 보정
+  // v20+: Put/Call ratio — verified-current gate only
   const pcr = _verifiedDecisionValue('pcr-putcall', window._putCallRatio);
-  if (pcr != null && momScore != null && pcr > 1.3) { momScore = Math.max(5, momScore - 8); }
-  else if (pcr != null && momScore != null && pcr > 1.1) { momScore = Math.max(5, momScore - 4); }
 
   // AAII is weekly reference-only data. It is displayed for context but never changes a
   // current trading score without an independent current-evidence path.
 
-  // v39.2: 교차변수 보정 — 복합 리스크 시 추가 감점
-  var crossRiskCount = 0;
-  if (vix != null && vix > 25) crossRiskCount++;
-  if (dxy != null && dxy > 107) crossRiskCount++;
-  if (tnx != null && tnx > 4.5) crossRiskCount++;
-  if (oilPrice != null && oilPrice > 100) crossRiskCount++;
-  if (crossRiskCount >= 3 && macroScore != null) macroScore = Math.max(10, macroScore - 10);
-
-  // v39.2: 추세-시장폭 다이버전스 보너스/패널티
-  if (trendScore != null && breadthScore != null && trendScore > 65 && breadthScore < 30) {
-    // 지수는 올라가는데 시장폭은 악화 = 위험한 상승 (소수 주도)
-    trendScore = Math.max(10, trendScore - 10);
-    trendCalcScore = trendScore;
-  } else if (trendScore != null && breadthScore != null && trendScore < 35 && breadthScore > 55) {
-    // 지수는 눌려있지만 시장폭 회복 중 = 바닥 다지기 신호
-    breadthScore = Math.min(90, breadthScore + 8);
-    breadthCalcScore = breadthScore;
-  }
-
-  // v20: Credit Stress 보정 (HY Spread 기반)
-  var weightedComponents = [
-    { value:volScore, weight:25 }, { value:momScore, weight:25 },
-    { value:trendCalcScore, weight:20 }, { value:breadthCalcScore, weight:20 },
-    { value:macroScore, weight:10 }
-  ];
-  var availableWeight = weightedComponents.reduce(function(sum, row) { return sum + (row.value == null ? 0 : row.weight); }, 0);
-  let compositeScore = availableWeight ? Math.round(weightedComponents.reduce(function(sum, row) {
-    return sum + (row.value == null ? 0 : row.value * row.weight);
-  }, 0) / availableWeight) : null;
-
   // v51.88 P576/R266: 신용 스트레스 입력 우선순위 — 측정값 > 근사.
   //   1순위 window._hySpreadBp (fetchHYSpread 가 FRED BAMLH0A0HYM2 실측 OAS 저장, 6h 갱신)
-  //   2순위 DATA_SNAPSHOT.hySpread (서버/시드 실측값)
-  //   3순위 (100-HYG)*15bp 근사 — HYG 가격은 금리 듀레이션(~3.8y)에 오염돼 금리 100bp 상승만으로
-  //          가짜 +45bp "스프레드 확대"를 만든다. 실측이 전혀 없을 때만 최후 폴백.
+  //   2순위 DATA_SNAPSHOT.hySpread (서버/시드 실측값). 3순위 근사 폴백은 P714/R343로 제거됨.
   var hyBp = _verifiedDecisionValue('hy-spread-bp', window._hySpreadBp);
-  if (compositeScore != null && hyBp != null && hyBp > 500) compositeScore -= 15;
-  else if (compositeScore != null && hyBp != null && hyBp > 400) compositeScore -= 8;
-  else if (compositeScore != null && hyBp != null && hyBp > 350) compositeScore -= 3;
 
-  // v20: 지정학 위험 보정 (v37.1: 유가 실시간 — 선물 24시간 거래)
-  if (compositeScore != null && oilPrice != null && oilPrice > 100) compositeScore -= 10;
-  else if (compositeScore != null && oilPrice != null && oilPrice > 90) compositeScore -= 5;
-
-  // ── v20: 뉴스 감성 보정 ──────────────────────────────────────
+  // ── v20: 뉴스 감성/리스크 — 실패 시 두 보정 모두 건너뜀(모델에 null/[]로 전달) ──
+  let newsSentimentScore = null;
+  let newsRiskSignals = [];
   try {
-    const newsSent = computeNewsSentimentScore();
-    if (compositeScore != null && newsSent.score < 30) compositeScore -= 8;
-    else if (compositeScore != null && newsSent.score > 70) compositeScore += 5;
-
-    // 뉴스 리스크 시그널 반영
-    const newsRisks = computeNewsRiskSignals();
-    if (compositeScore != null) newsRisks.forEach(r => { compositeScore += r.impact; });
+    newsSentimentScore = computeNewsSentimentScore().score;
+    newsRiskSignals = computeNewsRiskSignals();
   } catch(e) { _aioLog('warn', 'render', 'News sentiment integration error: ' + (e && e.message || e)); }
 
-  // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
-  const total = compositeScore == null ? null : Math.max(5, Math.min(100, compositeScore));
+  // RM-03: single-implementation call — scoring formula lives in
+  // src/domain/signal/trading-score.js (computeTradingScoreModel), exposed via
+  // window.AIO_ARCH so this legacy wrapper and any native consumer share one model.
+  var _modelFn = window.AIO_ARCH && typeof window.AIO_ARCH.computeTradingScoreModel === 'function' ? window.AIO_ARCH.computeTradingScoreModel : null;
+  var modelResult = _modelFn ? _modelFn({
+    mode: mode, vix: vix, vvix: vvix, dxy: dxy, tnx: tnx, oilPrice: oilPrice, fg: fg,
+    maCurrent: maCurrent, spx200ma: spx200ma, spx50ma: spx50ma, spxPrice: spxPrice,
+    breadthAvailable: !!breadthEvidence.available, breadth200: breadth200,
+    pcr: pcr, hyBp: hyBp, newsSentimentScore: newsSentimentScore, newsRiskSignals: newsRiskSignals
+  }) : {
+    // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
+    // mirrors the model's own all-missing shape instead of duplicating the scoring formula here.
+    total: null, score: null, volScore: null, momScore: null, trendScore: null, breadthScore: null, macroScore: null,
+    componentCoveragePct: 0, componentMissing: ['volatility','momentum','trend','breadth','macro'], partial: true
+  };
 
   var evidenceAudit = (window.AIO && window.AIO.getTradingDecisionInputEvidence) ? window.AIO.getTradingDecisionInputEvidence() : null;
   var provenanceBundle = (window.AIO && window.AIO.getDecisionEvidenceBundle) ? window.AIO.getDecisionEvidenceBundle() : null;
-  var componentMissing = [];
-  if (volScore == null) componentMissing.push('volatility');
-  if (momScore == null) componentMissing.push('momentum');
-  if (!maCurrent) componentMissing.push('trend');
-  if (!breadthEvidence.available) componentMissing.push('breadth');
-  if (macroScore == null) componentMissing.push('macro');
-  var _result = { total, score: total, volScore, momScore, trendScore, breadthScore, macroScore, componentCoveragePct: availableWeight, componentMissing: componentMissing, partial: availableWeight < 100, neutralizedMissing: [], evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit,
+  var _result = Object.assign({}, modelResult, { neutralizedMissing: [], evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit,
     fgEvidenceStatus: _fgMetric ? _fgMetric.status : 'UNAVAILABLE', fgEvidenceAllowedUse: !!(_fgMetric && _fgMetric.allowedUse),
-    evidenceId: provenanceBundle && provenanceBundle.bundleId || '', provenanceBundle: provenanceBundle };
+    evidenceId: provenanceBundle && provenanceBundle.bundleId || '', provenanceBundle: provenanceBundle });
   window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now() };
   return _result;
 }

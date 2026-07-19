@@ -214,7 +214,8 @@ export function exposeArchitecture(root, api) {
       ingestSentiment: api.ingestSentiment,
       getAIContext: api.getAIContext,
       navigate: api.navigate,
-      router: api.router
+      router: api.router,
+      computeTradingScoreModel: api.computeTradingScoreModel
     })
   });
 }

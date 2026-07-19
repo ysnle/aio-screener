@@ -2,10 +2,20 @@
 // scripts/backtest-trading-score.mjs — Phase 3 [C3] validation harness (P599)
 //
 // 왜: computeTradingScore(js/aio-core.js, 홈 화면 중심 지표)는 어떤 백테스트/IC/적중률 검증도
-//     없다(Fable 진단 C3). 이 스크립트는 그 5개 서브스코어 계단함수를 순수 함수로 재구현해
-//     public-data/history.json(일별 시장 스냅샷)에 대해 매일 재구성 점수 vs forward 5/21일
-//     SPX 수익률을 계산·누적한다. scripts/fetch-data.mjs의 updateBacktestHistory()(P586, 팩터
-//     IC 시계열 누적)와 동일한 날짜별 upsert + 캡 패턴.
+//     없다(Fable 진단 C3). 이 스크립트는 public-data/history.json(일별 시장 스냅샷)에 대해 매일
+//     재구성 점수 vs forward 5/21일 SPX 수익률을 계산·누적한다. scripts/fetch-data.mjs의
+//     updateBacktestHistory()(P586, 팩터 IC 시계열 누적)와 동일한 날짜별 upsert + 캡 패턴.
+//
+// RM-03 (2026-07-19): this file used to keep its own "v52.1 기준 — 로직/가중치/임계값 그대로
+// 복사" copy of the 5 sub-score functions. That copy had already drifted from the live formula in
+// three ways the copy-paste comment did not track (F-11): a stale neutral-50 trend fallback where
+// live now returns null/missing, a `hyg<76` HYG-dollar-price credit-stress channel live removed
+// (P714/R343) that this file was still double-counting alongside its own separate bp
+// approximation, and an aaiiBear breadth-floor adjustment with no live counterpart at all.
+// reconstructScore() now calls the single extracted src/domain/signal/trading-score.js model
+// instead (R352: extraction is code motion, not a parallel model) — see that file's own comment
+// for the full parity story and architecture/fixtures/trading-score-golden.json /
+// scripts/ci-domain-parity-check.mjs for the standing parity gate.
 //
 // 중요한 데이터 제약(실측, 2026-07-04): history.json 201일 중 momScore의 유일한 입력인 fg
 // (Fear&Greed)는 24일치뿐이고 전부 최근 2026-06-10~07-03 구간 — forward 21일 수익률 확인
@@ -20,6 +30,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
@@ -32,124 +43,47 @@ function argValue(name, fallback = null) {
 const HISTORY_PATH = argValue('history', `${__dir}/../public-data/history.json`);
 const OUT_PATH = argValue('out', `${__dir}/../public-data/score-backtest-history.json`);
 
-// ── 순수 함수 재구현 (js/aio-core.js computeTradingScore, v52.1 기준 — 로직/가중치/임계값 그대로 복사) ──
-// 라이브 코드와의 정합성은 이 파일과 짝을 이루는 격리 유닛테스트(scratchpad)로 검증했음 — 여기서는
-// 재튜닝하지 않는다(Phase 3 C3는 검증 인프라 구축이지 알고리즘 변경이 아님).
-
 const CLAMP = (v, lo, hi) => Math.max(lo, Math.min(hi, Number.isFinite(v) ? v : lo));
 
-// 1. Volatility Score (25%)
-export function calcVolScore(vix, mode) {
-  vix = CLAMP(vix, 5, 150);
-  let volScore;
-  if (vix < 15) volScore = 90;
-  else if (vix < 18) volScore = 78;
-  else if (vix < 22) volScore = 62;
-  else if (vix < 27) volScore = 42;
-  else if (vix < 35) volScore = 22;
-  else volScore = 8;
-  if (mode === 'day' && vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
-  return volScore;
-}
-
-// 2. Momentum Score (25%) — F&G proxy
-export function calcMomScore(fg) {
-  fg = CLAMP(fg, 0, 100);
-  if (fg >= 75) return 66;
-  if (fg >= 55) return 74;
-  if (fg >= 45) return 52;
-  if (fg >= 25) return 34;
-  return 25;
-}
-
-// 3. Trend Score (20%) — SPX vs 50/200MA. 200MA 데이터 부족 시 중립(50) — 라이브 코드와 동일 폴백.
-export function calcTrendScore(spxPrice, spx50ma, spx200ma) {
-  if (!spxPrice || !spx50ma || !spx200ma) return 50;
-  if (spxPrice > spx50ma * 1.02) return 82;
-  if (spxPrice > spx50ma) return 68;
-  if (spxPrice > spx200ma) return 50;
-  if (spxPrice > spx200ma * 0.97) return 32;
-  return 15;
-}
-
-// 4. Breadth Score (20%) — history.json에 breadth 데이터 없음 → 항상 중립 폴백(57)으로 호출됨
-export function calcBreadthScore(breadth200) {
-  if (breadth200 > 70) return 88;
-  if (breadth200 > 55) return 72;
-  if (breadth200 > 40) return 52;
-  if (breadth200 > 25) return 28;
-  return 12;
-}
-
-// 5. Macro Score (10%)
-export function calcMacroScore(dxy, tnx, hyg, fg, vvix) {
-  let macroScore = 55;
-  if (dxy > 107) macroScore -= 12;
-  if (dxy > 110) macroScore -= 8;
-  if (tnx > 4.5) macroScore -= 10;
-  if (hyg < 76) macroScore -= 12;
-  if (fg < 20) macroScore -= 5;
-  if (vvix > 110) macroScore -= 8;
-  return Math.max(10, Math.min(90, macroScore));
-}
-
-// 전체 조합 — 재현 가능한 입력만 사용. breadth200/pcr/aaiiBear/hyg는 history.json에 없어 라이브
-// 코드 자신의 "실시간 미수신" 폴백 상수 그대로 사용(근사가 아니라 이미 존재하는 코드 경로 재현).
-// 뉴스감성 보정은 과거 뉴스 데이터가 없어 완전히 생략(0 기여, 임의 대입 금지).
-// v52.49/WO-2 longrun: hyg는 이제 선택적 override를 받는다 — 기본값 78은 그대로라 기존 호출부
+// 전체 조합 — 재현 가능한 입력만 사용. breadth200/pcr는 history.json에 구조적으로 없다(가끔
+// 결측이 아니라 이 데이터소스 자체에 필드가 없음). RM-03 이전에는 라이브의 옛(v52.1) "실시간
+// 미수신" 폴백 상수(57/0.95)를 재현한다고 문서화돼 있었지만, 그 폴백 상수 자체가 F-11이 찾은
+// 드리프트였다 — 라이브의 현재 동작(모델의 fail-closed null/false)에 맞춰 정직하게 정렬한다.
+// 결과적으로 componentCoveragePct가 100→80(초기 200MA 트레일링 미형성 구간은 더 낮게)으로
+// 낮아지고 재구성 점수도 소폭 이동한다. 의도된 정정이며 버그 아님(재현이 아니라 정렬).
+// 뉴스감성 보정은 과거 뉴스 데이터가 없어 완전히 생략(모델에 null/[] 전달 — "실패 시 두 보정
+// 모두 건너뜀"과 같은 경로).
+// hyg(HYG 종가, 달러)는 선택적 override를 받는다 — 기본값 78은 그대로라 기존 호출부
 // (fetch-data.mjs의 30분 cron 프로덕션 하네스, history.json 기반 단기 재구성)는 동작 무변화.
 // 장기(수년) 백테스트 스크립트만 실제 과거 HYG 종가를 넘겨 신용 스트레스 보정을 상수 대신
-// 진짜 값으로 재현할 수 있다 — 포뮬러 자체를 두 파일에 복제하지 않기 위한 최소 확장(R280 회피).
+// 진짜 값으로 재현할 수 있다. hyg(달러)→hyBp(bp) 근사는 그대로 유지(포뮬러가 아니라 이 데이터
+// 소스만의 입력 변환이므로 R352 대상 아님) — 다만 이제 모델의 hyBp 파라미터 하나로만 들어간다.
 export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50ma, spx200ma, mode, hyg: hygOverride }) {
-  vix = CLAMP(vix, 5, 150);
-  vvix = CLAMP(vvix ?? 100, 50, 250);
-  dxy = CLAMP(dxy ?? 104, 80, 130);
-  tnx = CLAMP(tnx ?? 4.3, 0, 8);
+  const clampedVix = CLAMP(vix, 5, 150);
+  const clampedVvix = CLAMP(vvix ?? 100, 50, 250);
+  const clampedDxy = CLAMP(dxy ?? 104, 80, 130);
+  const clampedTnx = CLAMP(tnx ?? 4.3, 0, 8);
   const oilPrice = CLAMP(wti ?? 0, 0, 300);
-  fg = CLAMP(fg, 0, 100);
-  const breadth200 = 57;  // history.json에 없음 — 라이브 코드 폴백 상수(_fb.breadth200 없을 때)
-  const pcr = 0.95;       // history.json에 없음 — 라이브 코드 폴백 상수
-  const aaiiBear = 50;    // history.json에 없음 — 라이브 코드 폴백 상수
+  const clampedFg = CLAMP(fg, 0, 100);
   const hyg = (typeof hygOverride === 'number' && isFinite(hygOverride)) ? hygOverride : 78;
-
-  let volScore = calcVolScore(vix, mode);
-  let momScore = calcMomScore(fg);
-  let trendScore = calcTrendScore(spxPrice, spx50ma, spx200ma);
-  let breadthScore = calcBreadthScore(breadth200);
-  let macroScore = calcMacroScore(dxy, tnx, hyg, fg, vvix);
-
-  if (pcr > 1.3) momScore = Math.max(5, momScore - 8);
-  else if (pcr > 1.1) momScore = Math.max(5, momScore - 4);
-
-  if (aaiiBear > 55) breadthScore = Math.max(breadthScore, 20);
-
-  let crossRiskCount = 0;
-  if (vix > 25) crossRiskCount++;
-  if (dxy > 107) crossRiskCount++;
-  if (tnx > 4.5) crossRiskCount++;
-  if (oilPrice > 100) crossRiskCount++;
-  if (crossRiskCount >= 3) macroScore = Math.max(10, macroScore - 10);
-
-  if (trendScore > 65 && breadthScore < 30) trendScore = Math.max(10, trendScore - 10);
-  else if (trendScore < 35 && breadthScore > 55) breadthScore = Math.min(90, breadthScore + 8);
-
-  let compositeScore = Math.round(
-    volScore * 0.25 + momScore * 0.25 + trendScore * 0.20 + breadthScore * 0.20 + macroScore * 0.10
-  );
-
-  // credit-stress 보정 — history.json에 hyg 없어 3순위(최종) 폴백만 재현 가능
   const hyBp = (hyg > 0 && hyg < 90) ? Math.round((100 - hyg) * 15) : 0;
-  if (hyBp > 500) compositeScore -= 15;
-  else if (hyBp > 400) compositeScore -= 8;
-  else if (hyBp > 350) compositeScore -= 3;
+  const maCurrent = spx50ma != null && spx200ma != null;
 
-  if (oilPrice > 100) compositeScore -= 10;
-  else if (oilPrice > 90) compositeScore -= 5;
+  const model = computeTradingScoreModel({
+    mode,
+    vix: clampedVix, vvix: clampedVvix, dxy: clampedDxy, tnx: clampedTnx, oilPrice, fg: clampedFg,
+    maCurrent, spx200ma: maCurrent ? spx200ma : null, spx50ma: maCurrent ? spx50ma : null, spxPrice,
+    breadthAvailable: false, breadth200: null,
+    pcr: null,
+    hyBp: hyBp > 0 ? hyBp : null,
+    newsSentimentScore: null, newsRiskSignals: []
+  });
 
-  // 뉴스감성 보정: 생략(0) — history.json에 과거 뉴스 데이터 없음
-
-  const total = Math.max(5, Math.min(100, compositeScore));
-  return { total, volScore, momScore, trendScore, breadthScore, macroScore };
+  return {
+    total: model.total, volScore: model.volScore, momScore: model.momScore,
+    trendScore: model.trendScore, breadthScore: model.breadthScore, macroScore: model.macroScore,
+    componentMissing: model.componentMissing, componentCoveragePct: model.componentCoveragePct
+  };
 }
 
 // ── history.json → 거래일(spx 존재)만 필터링, forward return + trailing MA 계산 ──
@@ -196,8 +130,9 @@ export async function runBacktest(historyPath, outPath) {
         vix: typeof d.vix === 'number', dxy: typeof d.dxy === 'number', tnx: typeof d.tnx === 'number',
         wti: typeof d.wti === 'number', vvix: typeof d.vvix === 'number',
         trend200maAvailable: spx200ma != null,
-        breadthPcrAaiiHygFellBackToNeutral: true, // history.json에 이 4개는 아예 없음 — 항상 참
+        breadthPcrFellBackToUnavailable: true, // history.json에 이 필드들은 아예 없음 — 항상 참(RM-03: 중립 근사가 아니라 정직한 미수신)
         newsSentimentOmitted: true,
+        componentCoveragePct: result.componentCoveragePct,
       },
     });
   }
@@ -233,7 +168,7 @@ export async function runBacktest(historyPath, outPath) {
 
   const output = {
     generatedAt: new Date().toISOString(),
-    note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. breadth/pcr/aaiiBear/hyg/뉴스감성은 history.json에 없어 라이브 코드의 실시간-미수신 폴백 상수(또는 완전 생략)를 사용 — 근사가 아니라 이미 존재하는 코드 경로 재현. 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 "검증 결과"가 아니라 "누적 진행 상황"으로 취급할 것.',
+    note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 "검증 결과"가 아니라 "누적 진행 상황"으로 취급할 것.',
     summary: { n5d: corr5d.n, corr5d: corr5d.rho, n21d: corr21d.n, corr21d: corr21d.rho, statisticallyMeaningful: corr5d.n >= 30 && corr21d.n >= 30 },
     records: merged,
   };

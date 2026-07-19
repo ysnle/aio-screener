@@ -18,6 +18,7 @@ import { createScreenerCommands } from './commands/screener.js';
 import { selectSentimentSummary } from '../state/selectors/sentiment.js';
 import { createEvidenceStore } from '../data/evidence-store.js';
 import { createEvidence } from '../data/contracts/evidence.js';
+import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { createMarketSnapshotLoader } from '../data/market-snapshot-loader.js';
 import { createSentimentProvider } from '../data/providers/sentiment.js';
 import { createSentimentOrchestrator } from '../data/orchestrators/sentiment.js';
@@ -295,6 +296,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ingestSentiment,
     getAIContext: (metrics = ['fearGreed', 'vix']) => buildEvidenceContext({ evidenceStore, metrics, retriever: aiRetriever })
     ,navigate: (route, ...args) => legacy.navigate(route, ...args)
+    // RM-03: single-implementation trading-score model. js/aio-core.js's computeTradingScore
+    // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy
+    // and native must not diverge into two different models).
+    ,computeTradingScoreModel
   };
   exposeArchitecture(root, api);
   return Object.freeze({ ...api, store, evidenceStore });

@@ -17,6 +17,7 @@ const html = read('index.html');
 const core = read('js/aio-core.js');
 const tests = read('js/aio-tests.js');
 const runtimeGate = read('scripts/ci-runtime-contract-check.mjs');
+const tradingScoreDomain = read('src/domain/signal/trading-score.js');
 const rules = read('_context/RULES.md');
 const qa = read('_context/QA-CHECKLIST.md');
 const postmortem = read('_context/BUG-POSTMORTEM.md');
@@ -52,7 +53,11 @@ check('runtime contract gate references semantic review', /ci-semantic-review-ch
 // js/aio-core.js (P594) — these now search `core`, not `html`. The breadth200 check is additionally
 // scoped to classifyMarketRegime's own body (not a free-floating search across all of `core`,
 // which is large enough to contain an unrelated coincidental "breadth200...: 75)" match elsewhere).
-check('trading score semantic gate is present', /computeTradingScore returns both total and score/.test(runtimeGate) && /\{\s*total\s*,\s*score\s*:\s*total/.test(core));
+// RM-03 (2026-07-19): the alias-producing literal moved into
+// src/domain/signal/trading-score.js's computeTradingScoreModel (single-implementation
+// extraction) — checks the domain module (where the shape now genuinely lives) plus proof the
+// legacy wrapper in `core` actually delegates to it.
+check('trading score semantic gate is present', /computeTradingScore returns both total and score/.test(runtimeGate) && /AIO_ARCH\.computeTradingScoreModel/.test(core) && /\{\s*total\s*,\s*score\s*:\s*total/.test(tradingScoreDomain));
 const _semanticRegimeIdx = core.search(/function\s+classifyMarketRegime/);
 const _semanticRegimeBody = _semanticRegimeIdx >= 0 ? core.slice(_semanticRegimeIdx, _semanticRegimeIdx + 1500) : '';
 check('breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && _semanticRegimeIdx >= 0 && !/breadth200[\s\S]{0,220}:\s*75\)/.test(_semanticRegimeBody));

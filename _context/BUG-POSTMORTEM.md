@@ -3,9 +3,9 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
 latest_version: v53.16
-latest_P_number: P742
-next_P_number: P743
-total_entries: 516 (P1~P742, 결번 존재 — 상세 33건 + 압축 원장)
+latest_P_number: P743
+next_P_number: P744
+total_entries: 517 (P1~P743, 결번 존재 — 상세 34건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -24,7 +24,7 @@ total_entries: 516 (P1~P742, 결번 존재 — 상세 33건 + 압축 원장)
 |--------|--------|------------|
 | 진척 인플레이션 (실행 소유권 이전 없이 선언식 상태 승격 — scaffold/신규 파일 수를 완료로 오인) | P736 P740 | **R352 승격 완료** — `architecture/route-owners.json` 대조 검증(ci-retirement-contract/ci-operations-status-check), "게이트는 선언이 아니라 실측을 검증" 원칙 |
 | 이중 표면·그림자 구현 드리프트 (동일 판정의 중복 구현 중 한쪽만 수정) | P276 P492 P605 P606 P625 P713 P719 P741 | ci-structural(그림자 선언), "동일 지표 소비 표면 grep 전수" 원칙, **AG-DOM-WRITER 신설**(P741, native/legacy id 교집합 0) |
-| 생산자-소비자 파이프 단절 (인프라·필드만 만들고 소비 경로 미연결) | P239 P548 P652 P664 P721 P724 | "읽기 코드 존재≠필드 존재 — 쓰기 지점 grep 실증" 원칙 |
+| 생산자-소비자 파이프 단절 (인프라·필드만 만들고 소비 경로 미연결) | P239 P548 P652 P664 P721 P724 P743 | "읽기 코드 존재≠필드 존재 — 쓰기 지점 grep 실증" 원칙. P743: cross-module 브릿지 API는 "소비 측"과 "노출/필터링 측"이 분리된 별도 계약일 수 있음 — 실브라우저 게이트로 종단 간 확인 필수 |
 | 관측 시점 리터럴 부패 (달력 회전·시장값 회전·데이터 상태 영구 단언) | P604 P627 P713(T884) P715('1,508') P720('5/5') P722 | R279 계열. `grep "=== '20"` 스윕, 감사 토큰에 비숫자 컨텍스트 의무 |
 | fail-closed 위반 (결측·정적·합성값의 현재 판정 승격) | P635 P649 P706 P712 P713 P717 P718 | R340~R342, ci-static-data-contract 22카테고리 |
 | 매매 지시·과신 라벨 발화 (정적 UI 포함) | P490 P512 P535 P714 P720 | P714 관측형 전환 + 지시 문형 grep |
@@ -136,6 +136,15 @@ total_entries: 516 (P1~P742, 결번 존재 — 상세 33건 + 압축 원장)
 - **violated_rule**: F-05(신설 규칙 후보 — 상태 store 클론 예산 부재), R352(W5 선행 조건 미충족 상태로 대형 slice 이관 금지).
 - **prevention**: 새 성능 게이트가 매 배치 1000행 screener dispatch p95 ≤ 5ms를 강제하므로 clone 재도입 시 CI가 즉시 차단한다(구 설계는 7.49ms로 이 게이트를 실패시킴을 확인). reducer가 스프레드 기반 구조 공유를 깨는 변경(예: 직접 mutate)을 하면 `devMode` deep-freeze가 즉시 TypeError로 노출되도록 페이지/테스트 하네스에서 `devMode:true`로 실행하는 경로를 추가하는 것을 후속 과제로 남긴다(이번 배치는 기본값 false만 배선).
 - **verification**: `node scripts/ci-architecture-contract-check.mjs`(perfScreenerDispatchP95Ms=0.044ms, PASS) 포함 §8.1 전체, headless 1098/1098, `ci-architecture-browser-check.mjs`(browserErrors 0, sentiment 재검증 정상), critical10 10/10, a11y 17/17, portfolio vault E2E, knowledge-lint 0 warning 전부 PASS.
+
+## P743 - v53.16 - RM-03: computeTradingScore extraction, and exposeArchitecture's hardcoded allowlist silently dropped the new bridge function from every real browser
+- **motivation**: F-11(`ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md`)가 지목한 Trading Score 3중 구현(라이브/백테스트 사본/toy 도메인)을 단일 구현으로 수렴하는 RM-03 item 1·5를 실행했다.
+- **symptom/reproduction**: (1) 추출 자체: `js/aio-core.js:21671`의 `computeTradingScore`(vol/momentum/trend/breadth/macro 5서브스코어 + day모드/pcr/교차리스크/추세-시장폭다이버전스/신용/유가/뉴스 7보정, TTL 20s 캐시)를 `src/domain/signal/trading-score.js`(`computeTradingScoreModel`, 순수 함수)로 이관했다. 헤드리스로 legacy 함수를 7개 시나리오(강세/약세/데이터없음/부분결측/day모드/위험한 랠리 다이버전스/바닥 다이버전스)에서 실행해 골든 fixture(`architecture/fixtures/trading-score-golden.json`)를 생성했다. (2) **배선 버그(실사용자 영향 가능성 확인)**: `computeTradingScoreModel`을 `src/app/bootstrap.js`의 `api` 객체에 추가했으나, `src/legacy/compatibility-facade.js`의 `exposeArchitecture()`가 `window.AIO_ARCH`에 노출할 필드를 하드코딩된 명시적 목록(status/version/getState/getEvidence/getMarketSnapshot/getSentimentSummary/ingestSentiment/getAIContext/navigate/router)으로 **cherry-pick**하는 구조라는 걸 놓쳐, `computeTradingScoreModel`이 그 목록에 없어 실제 `window.AIO_ARCH`에서는 조용히 빠졌다. 결과적으로 `computeTradingScore`의 레거시 래퍼가 `window.AIO_ARCH.computeTradingScoreModel`을 찾지 못해 매 호출마다 전부-null fail-closed 폴백을 탔다 — 헤드리스 브라우저 게이트(`ci-architecture-browser-check.mjs`)의 home 화면 검증에서 `score-gauge-val`이 `"null*"`로 나타나 발견했다(골든 fixture 대조 parity 게이트는 `computeTradingScoreModel`을 직접 호출하므로 이 배선 문제를 잡지 못함 — 별도 브라우저 증거가 필요했던 이유). (3) 백테스트 수렴 중 발견한 추가 드리프트: `scripts/backtest-trading-score.mjs`가 "v52.1 그대로 복사"라 자칭했지만 실제로는 (a) trend 결측 시 라이브는 null인데 사본은 중립 50 폴백, (b) 라이브가 P714/R343로 제거한 HYG 달러가격 `hyg<76` 임계를 사본은 여전히 보유해 별도의 bp 근사와 이중 계상, (c) 라이브에 대응이 전혀 없는 aaiiBear breadth 상향 조정을 사본만 보유 — 3가지 모두 드리프트였다.
+- **root_cause**: (1) 배선 버그: 새 API 필드를 소비 측(`bootstrap.js`)에만 추가하고, 노출 측(`exposeArchitecture`)의 별도 allowlist를 갱신하지 않았다 — 두 파일이 "같은 api 객체"를 공유한다고 착각했지만 실제로는 `exposeArchitecture`가 필드를 재열거하는 별도 계약이었다. (2) 백테스트 드리프트: F-11이 이미 지목한 대로, "그대로 복사"라는 주석이 있는 사본은 라이브가 v52.1에서 v53.x로 진화해도 자동으로 따라가지 않는다는 사실 자체가 원인.
+- **fix**: `exposeArchitecture()`에 `computeTradingScoreModel: api.computeTradingScoreModel` 한 줄 추가. `computeTradingScore` 레거시 래퍼는 입력 수집만 유지하고 `window.AIO_ARCH.computeTradingScoreModel`을 호출하도록 재작성(모델 실패 시 전부-null fail-closed 폴백 유지, 포뮬러 사본은 만들지 않음). `backtest-trading-score.mjs`의 5개 서브스코어 함수를 삭제하고 동일 모델을 호출하도록 재작성 — trend/breadth/pcr는 라이브의 정직한 null/false 결측 처리에 맞춰 정렬(예전 중립 상수 근사 제거), hyg→hyBp 근사는 이 데이터소스 고유의 입력 변환으로 유지, aaiiBear는 완전 삭제. `backtest-trading-score-longrun.mjs`는 `reconstructScore`를 그대로 import하므로 별도 수정 없이 자동 수렴(단, 그 파일 자체의 percentile 기반 `calcTrendScoreRel` 등은 10년 다중 regime 비교를 위한 의도적으로 별개인 방법론이라 그대로 유지). `ci-domain-parity-check.mjs`(구 `ci-domain-module-smoke-check.mjs`)에 골든 fixture 대조 실 parity 검증을 추가하고 이름을 원복. `ci-runtime-contract-check.mjs`/`ci-semantic-review-check.mjs`의 "`{ total, score: total` 리터럴이 `core`에 있어야 한다" 게이트 2건이 추출로 깨진 것을 도메인 모듈을 함께 검사하도록 정정.
+- **violated_rule**: R352(단일 구현 이전 시 소비측만이 아니라 노출측 계약까지 전수 갱신), F-11, AG-LEGACY(사본 삭제).
+- **prevention**: 새 cross-module 브릿지 API를 추가할 때 "소비하는 곳"과 "노출/필터링하는 곳"이 분리된 계약인지 먼저 확인하고, 반드시 실브라우저 게이트(정적 golden fixture 대조만으로는 배선 문제를 못 잡음)로 종단 간 검증한다. "그대로 복사"라고 주석 단 사본은 향후 라이브 변경을 추적하지 못하므로, 그런 사본을 발견하면 그 자리에서 즉시 단일 구현으로 수렴하는 것을 표준 절차로 삼는다.
+- **verification**: `node scripts/ci-domain-parity-check.mjs`(7개 골든 fixture 전부 일치) + `ci-architecture-browser-check.mjs`(수정 전 `"null*"` 재현 확인 → 수정 후 `"52*"` 정상 확인) + `ci-runtime-contract-check.mjs` + `ci-semantic-review-check.mjs` + §8.1 전체 + headless 1098/1098 전부 PASS. `node scripts/backtest-trading-score.mjs` 실행해 `public-data/score-backtest-history.json` 재생성 확인(표본 극히 작아 `statisticallyMeaningful:false` 그대로).
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.

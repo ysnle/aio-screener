@@ -50,7 +50,16 @@ RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 이어서 
 - `ci-architecture-contract-check.mjs`에 1000행 screener dispatch+notify p95≤5ms 성능 게이트 추가(구 설계 회귀 시 7.49ms로 실패 확인).
 - BUG-POSTMORTEM P742.
 
-**남은 항목**: RM-03(도메인 추출) · RM-05(게이트 보강) · RM-06(ARX 재진입 지침, RM-00/01/04 완료로 선행조건 충족).
+**RM-03** (같은 세션 이어서 실행, item 1·5만 — item 2·3은 아래 미해결 항목 참조):
+- `computeTradingScore`(`js/aio-core.js:21671`, 5서브스코어+7보정+TTL 20s 캐시)를 `src/domain/signal/trading-score.js`(`computeTradingScoreModel`, 순수 함수)로 추출. 헤드리스 7시나리오 골든 fixture(`architecture/fixtures/trading-score-golden.json`, `scripts/dump-trading-score-fixtures.mjs`로 생성)와 완전 일치 확인.
+- **배선 버그 발견·수정**: `compatibility-facade.js`의 `exposeArchitecture()`가 `window.AIO_ARCH` 노출 필드를 하드코딩 allowlist로 cherry-pick — 새 브릿지 함수가 그 목록에 없어 실브라우저에서 조용히 누락(골든 fixture 대조로는 못 잡고 `ci-architecture-browser-check.mjs`의 home 화면 검증에서 발견, score가 "null*"로 표시됨). 한 줄 추가로 수정.
+- `scripts/backtest-trading-score.mjs`의 5개 서브스코어 사본 삭제 → 같은 모델 호출로 수렴. 그 과정에서 사본이 라이브와 이미 3가지로 드리프트돼 있었음을 확인(trend null-vs-50 폴백, 라이브가 제거한 HYG 달러가격 임계 잔존, 존재하지 않는 aaiiBear 보정) — F-11이 정확히 예견한 현상.
+- `ci-domain-parity-check.mjs`(구 `ci-domain-module-smoke-check.mjs`) 실 parity 추가 + 이름 원복. market/macro/portfolio/screener/news/technical 5종은 여전히 smoke-only(RM-03 item 2, 이번 배치 범위 아님).
+- BUG-POSTMORTEM P743.
+
+**RM-03 미해결(의도적 보류)**: item 3(`signal/decision.js`의 3입력 toy 모델 삭제)은 `src/data/normalize/analysis.js`가 여전히 `deriveSignalDecision(...)`의 `.status`를 소비 중이라 보류했다 — RM-01이 DOM 렌더는 끊었지만 데이터 파이프라인 자체는 안 끊었다. 삭제하려면 `normalizeAnalysis`의 signal 유도 로직을 무엇으로 대체할지(예: `computeTradingScoreModel` 결과를 signal 슬라이스에 매핑) 별도 설계 결정이 필요하며, 실시간 사용자 상태에 영향을 주는 변경이라 이번 세션 스코프를 벗어난다고 판단해 보류했다. 후속 세션 과제로 명시.
+
+**남은 항목**: RM-03 item 2·3(F&G/RRG/Weinstein 추출, signal toy 모델 정리) · RM-05(게이트 보강) · RM-06(ARX 재진입 지침, RM-00/01/04 완료로 선행조건 충족).
 
 ## 1. 실측 발견 원장 (F-01~F-09)
 
@@ -324,4 +333,32 @@ Browser evidence: `ci-architecture-browser-check.mjs` PASS — sentiment/guide/c
 Live evidence: 없음 — 커밋(로컬)만, 배포는 미지시.
 Unverified/blockers: `devMode` deep-freeze 자체를 실행하는 전용 테스트가 아직 없음(ADR-0002 부록의 consequences에 후속 과제로 기록) — 현재는 `devMode` 미사용(기본 false)이라 freeze 경로 자체가 어떤 실행 경로에서도 아직 실제로 실행되지 않는다. RM-02 item3의 범위를 aio:liveQuotes 6개로만 한정했고 refresh:done(5개)·pageShown(5개)은 동일 패턴이 남아있음(다음 성능 패킷 후보로 기록, 이번 배치 스코프 아님).
 Status: VERIFIED_LOCAL (RM-02 스코프 한정 — W5 진입의 선행 조건이었던 성능 계약·게이트가 갖춰짐. refresh:done/pageShown coalescing과 devMode freeze 실사용은 후속 과제)
+```
+
+### 세션 카드 — RM-03 (같은 세션, RM-02 직후 이어서 실행, item 1·5만)
+
+```text
+Packet: RM-03 (item 1 computeTradingScore 추출 + item 5 백테스트 수렴만; item 2 F&G/RRG/Weinstein와 item 3 toy 모델 삭제는 미착수·의도적 보류)
+Checkout/HEAD/version/liveRevision: RM-02가 e031a88로 커밋된 상태에서 이어서 시작 / v53.16 / live revision 미확인(배포 없음)
+Scope route/metric/layer: 도메인 추출 — js/aio-core.js:computeTradingScore, src/domain/signal/trading-score.js(신규), src/app/bootstrap.js, src/legacy/compatibility-facade.js, scripts/backtest-trading-score.mjs, scripts/ci-domain-parity-check.mjs(rename), scripts/ci-runtime-contract-check.mjs, scripts/ci-semantic-review-check.mjs
+Owner before: 매매 점수 포뮬러가 3벌(라이브 aio-core.js / 백테스트 사본 scripts/backtest-trading-score.mjs / signal toy 도메인 src/domain/signal/decision.js) 존재, 서로 독립적으로 드리프트
+Owner after: 라이브+백테스트가 `src/domain/signal/trading-score.js` 단일 구현을 소비(F-11 목표의 2/3 벌 수렴). toy 도메인(3번째 벌)은 미해결로 명시 이월 — "수렴 완료"로 오표기하지 않음.
+Files read: js/aio-core.js:21671~21849(computeTradingScore 전문), src/app/bootstrap.js 전문, src/legacy/compatibility-facade.js 전문, scripts/backtest-trading-score.mjs·backtest-trading-score-longrun.mjs 전문, src/domain/signal/decision.js, src/data/normalize/analysis.js(toy 모델 소비처 확인), scripts/ci-domain-module-smoke-check.mjs, scripts/ci-runtime-contract-check.mjs·ci-semantic-review-check.mjs(관련 체크만)
+Files changed: js/aio-core.js · src/app/bootstrap.js · src/legacy/compatibility-facade.js · scripts/backtest-trading-score.mjs · scripts/ci-runtime-contract-check.mjs · scripts/ci-semantic-review-check.mjs · sw.js · .github/workflows/ci.yml · public-data/score-backtest-history.json(재생성) · _context/BUG-POSTMORTEM.md · CHANGELOG.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(이 문서)
+Files added: src/domain/signal/trading-score.js · scripts/dump-trading-score-fixtures.mjs · architecture/fixtures/trading-score-golden.json
+Files renamed: scripts/ci-domain-module-smoke-check.mjs → scripts/ci-domain-parity-check.mjs
+DELETE-LEDGER before edit:
+  - declaration: js/aio-core.js의 computeTradingScore 내부 5개 서브스코어 계산 블록(volScore/momScore/trendCalcScore/breadthCalcScore/macroScore 계단함수) — 도메인 모듈로 이관, 래퍼에는 입력 수집만 남김. scripts/backtest-trading-score.mjs의 calcVolScore/calcMomScore/calcTrendScore/calcBreadthScore/calcMacroScore 5개 함수 전체 삭제.
+  - callers: 없음(함수 호출부는 그대로, 내부 구현만 위임)
+  - global writer: 해당 없음
+  - DOM/chart/narrative sink: 해당 없음(도메인 계층 작업, DOM 무관)
+  - event/timer/storage: 해당 없음
+  - tests/docs: ci-runtime-contract-check.mjs·ci-semantic-review-check.mjs의 "`{ total, score: total`가 core에 있어야 한다" 하드 검증 2건을 도메인 모듈 검사로 정정. ci-domain-module-smoke-check.mjs → ci-domain-parity-check.mjs 개명 + ci.yml 갱신.
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 legacy 카운터 무변화(1094/42/189/416) — 이 배치는 알고리즘 이관이며 legacy DOM/global 삭제 대상 아님. 실질 변화: Trading Score 구현체 3벌→2벌(라이브+백테스트 수렴, toy 도메인 잔존).
+New compatibility introduced and retirement packet: `window.AIO_ARCH.computeTradingScoreModel` 신규 브릿지(단일 구현 소비 경로) — retirement 대상 아님(영구 계약). `architecture/fixtures/trading-score-golden.json`은 향후 F&G/RRG/Weinstein 추출 시 동일 패턴(헤드리스 덤프→순수 함수 추출→parity 대조)의 참조 사례로 유지.
+Local gates: §8.1 전체(11개, 성능 게이트 포함) + ci-retirement-contract + ci-domain-parity-check(골든 7종 전부 일치) + ci-runtime-contract-check + ci-semantic-review-check 전부 PASS. headless 1098/1098. Portfolio Vault E2E, knowledge-lint 0 warning.
+Browser evidence: `ci-architecture-browser-check.mjs` — **1차 실행에서 회귀 발견**(`scoreGaugeVal:"null*"`, `hasModelFn:false` — exposeArchitecture 배선 누락), 원인 진단 후 수정, **재실행 PASS**(`scoreGaugeVal:"52*"`, browserErrors 0). 이 발견 자체가 "골든 fixture parity만으로는 cross-module 배선 문제를 잡지 못한다"는 근거.
+Live evidence: 없음 — 커밋(로컬)만, 배포는 미지시.
+Unverified/blockers: RM-03 item 2(F&G 합성·RRG·Weinstein/MTF 추출) 전부 미착수. item 3(`signal/decision.js` toy 모델 삭제)은 `normalizeAnalysis`의 실 소비 때문에 의도적 보류 — 삭제 시 signal 슬라이스 유도 로직을 무엇으로 대체할지 별도 설계 결정 필요(위 미해결 항목 참조). `backtest-trading-score-longrun.mjs`의 percentile 기반 `calcTrendScoreRel` 등은 의도적으로 별개 방법론이라 그대로 유지 — 향후 세션이 이를 "미수렴 드리프트"로 오인하지 않도록 주의.
+Status: VERIFIED_LOCAL (RM-03 item 1·5 스코프 한정 — item 2·3 잔존, "RM-03 완료"로 승격하지 않음)
 ```
