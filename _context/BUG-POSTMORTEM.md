@@ -3,9 +3,9 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
 latest_version: v53.16
-latest_P_number: P740
-next_P_number: P741
-total_entries: 514 (P1~P740, 결번 존재 — 상세 31건 + 압축 원장)
+latest_P_number: P741
+next_P_number: P742
+total_entries: 515 (P1~P741, 결번 존재 — 상세 32건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -23,7 +23,7 @@ total_entries: 514 (P1~P740, 결번 존재 — 상세 31건 + 압축 원장)
 | 클래스 | 대표 P | 상태/게이트 |
 |--------|--------|------------|
 | 진척 인플레이션 (실행 소유권 이전 없이 선언식 상태 승격 — scaffold/신규 파일 수를 완료로 오인) | P736 P740 | **R352 승격 완료** — `architecture/route-owners.json` 대조 검증(ci-retirement-contract/ci-operations-status-check), "게이트는 선언이 아니라 실측을 검증" 원칙 |
-| 이중 표면·그림자 구현 드리프트 (동일 판정의 중복 구현 중 한쪽만 수정) | P276 P492 P605 P606 P625 P713 P719 | ci-structural(그림자 선언), "동일 지표 소비 표면 grep 전수" 원칙 |
+| 이중 표면·그림자 구현 드리프트 (동일 판정의 중복 구현 중 한쪽만 수정) | P276 P492 P605 P606 P625 P713 P719 P741 | ci-structural(그림자 선언), "동일 지표 소비 표면 grep 전수" 원칙, **AG-DOM-WRITER 신설**(P741, native/legacy id 교집합 0) |
 | 생산자-소비자 파이프 단절 (인프라·필드만 만들고 소비 경로 미연결) | P239 P548 P652 P664 P721 P724 | "읽기 코드 존재≠필드 존재 — 쓰기 지점 grep 실증" 원칙 |
 | 관측 시점 리터럴 부패 (달력 회전·시장값 회전·데이터 상태 영구 단언) | P604 P627 P713(T884) P715('1,508') P720('5/5') P722 | R279 계열. `grep "=== '20"` 스윕, 감사 토큰에 비숫자 컨텍스트 의무 |
 | fail-closed 위반 (결측·정적·합성값의 현재 판정 승격) | P635 P649 P706 P712 P713 P717 P718 | R340~R342, ci-static-data-contract 22카테고리 |
@@ -118,6 +118,15 @@ total_entries: 514 (P1~P740, 결번 존재 — 상세 31건 + 압축 원장)
 - **violated_rule**: R352(migration은 실행 소유권 이전으로 판정), R25(반복 클래스 추적 — "진척 인플레이션" 신규 클래스의 2번째 사례), R3(F-01~F-03이 발생 당시 즉시 postmortem되지 않음, 이번에 소급 기록).
 - **prevention**: `architecture/route-owners.json`을 소유권의 유일한 소스로 고정 — 운영 상태·retirement manifest·CI 게이트가 전부 이 파일을 읽어 대조하며, 이후 어떤 상태 승격도 이 파일의 파생값으로만 이뤄진다. 반복 클래스 표에 "진척 인플레이션" 신설(위 표). RM-01에서 이번에 확정한 contested DOM id의 legacy writer 제거를 이어서 수행한다.
 - **verification**: `node scripts/ci-architecture-contract-check.mjs`, `ci-retirement-contract.mjs`, `ci-operations-status-check.mjs`, `ci-domain-module-smoke-check.mjs` 전부 정직한 실측값 기준으로 PASS(`nativeRendererOwner:["sentiment","guide"]`, `legacyOwner:15`, `nativeOwner:[]`). `public-data/operations-status.json` 재생성 확인. 나머지 §8.1 게이트는 같은 세션에서 이어서 실행(세션 카드 별도 기록).
+
+## P741 - v53.16 - RM-01: thin native page modules double-wrote legacy-owned DOM and silently blocked legacy click delegation
+- **motivation**: RM-00(P740)이 소유권 회계는 정정했으나 F-03이 지목한 실제 이중 DOM writer 자체는 RM-01로 이월했다. `_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` RM-01 절차대로 contested id 전수 재측정 후 제거를 실행했다.
+- **symptom/reproduction**: `src/ui/pages/{analysis,entity,market,themes,portfolio,screener,news}.js` 7개 모듈이 legacy가 여전히 쓰는 DOM id에 native `setText`/`replaceChildren`을 걸어 두고 있었다. 전수 cross-grep 결과 analysis.js 12개 id 전부(`home-hero-*`, `home-trading-signal`, `score-gauge-val`, `score-decision-*`, `tech-*`, `health-score-display`), entity.js 13개 id 전부(`ticker-hero-*`, `ticker-m-*`, `fund-analysis-text`, `opt-pcr-val-secondary`, `ticker-candle/entry-symbol`), themes.js 3개 id 전부(`rrg-quadrant-cards`, `rrg-chart-status`, `theme-detail-title`), portfolio.js 10개 id(`pf-*`, `pf-positions-tbody`), screener.js 5개 id(`screener-*`), news.js 컨테이너 2종(`live-news-feed` 5곳·`briefing-live-news-list` 6곳 legacy writer) + 카운트 4개 id가 CONTESTED로 확인됐다. market.js는 `[data-live-price]`/`[data-live-chg]`(legacy 25곳) 및 breadth 3개 id가 CONTESTED였고, macro FRED 5개 id(`macro-fedRate` 등)는 index.html에 해당 id 자체가 존재하지 않아 계약과 무관하게 항상 no-op이었다(별개 발견 — 경합이 아니라 완전 비활성 코드). 추가로 news.js의 필터/새로고침 클릭 핸들러가 `event.stopPropagation()`을 호출해 legacy의 `data-action` 델리게이터(`filterNewsByCountry`/`setNewsSortMode`/`_aioFetchAllNewsForce` 등 `js/aio-data.js`에 실존)가 클릭을 아예 수신하지 못하게 막고 있었다 — DOM 쓰기 경합과 별개인, 숨겨진 이벤트 위임 차단 회귀. sentiment 자체도 재검증 결과 `sent-analysis-text`가 legacy의 활성 함수(`_generateSentimentAnalysis`, `js/aio-data.js:16811/16819/16825`에서 `setTimeout`으로 지연 호출 — 직접 호출문(`func()`) 검색으로는 발견되지 않는 간접 호출이라 P736/P738/P739 검증에서 누락됨)와 경합 중이었다.
+- **root_cause**: 이전 route cutover 배치가 "legacy 소유 노드에 native가 쓰지 않는다"는 불변식을 세우지 않고 native 모듈을 병렬로 추가했다(F-03, R352 위반). 클릭 핸들러는 `stopPropagation`을 범용 위임 차단 목적이 아니라 "route 내부에서만 처리"용으로 넣었으나 legacy가 이미 같은 `data-action`을 전역 위임으로 처리 중인 경우까지 함께 막는 부작용을 검토하지 않았다. sentiment 검증은 `함수명()` 리터럴 호출만 grep해 `setTimeout(함수명, ms)` 형태의 간접 호출을 놓쳤다.
+- **fix**: analysis/entity/market/themes/portfolio/screener/news 7개 모듈에서 legacy와 경합하는 모든 content 쓰기를 삭제하고 route dataset 스탬프(`aioArchitectureRoute`/`aioArchitectureSlice`/`aioArchitectureStatus`)만 남겼다. market.js의 macro FRED 비활성 코드도 함께 제거(같은 함수 내 경합 코드와 비경합 죽은 코드를 섞어 두지 않기 위해). news.js의 `onClick`/`onRefresh` 핸들러(및 `stopPropagation`/`preventDefault`)를 완전히 제거해 legacy data-action 위임이 다시 정상 동작하도록 복원했다. sentiment.js에서 `home-fg-score`(→ legacy 단독 소유 복원)와 `sent-analysis-text`(→ legacy의 더 정교한 캐피출레이션/디커플링/클러스터 분석이 단독 소유) 쓰기를 삭제하고, `fg-score-big`/`pc-score-big`은 legacy가 읽기 전용으로 의존하는 정당한 관계임을 확인해 유지했다. `architecture/route-owners.json`에 `domWriterIntersectionAllowlist`(읽기 전용 예외)를 신설하고 `AG-DOM-WRITER` 정적 게이트를 `ci-architecture-contract-check.mjs`에 추가(native/legacy id 교집합 0을 매 배치 강제, page-* 컨테이너 id는 구조적 앵커로 제외). `ci-architecture-browser-check.mjs`에 home 로드 후 `score-gauge-val` 정수(0~100, legacy `*` 접미 허용) 및 `home-trading-signal` 한국어 라벨 검증과 market-news/briefing의 `aioArchitectureRenderer` non-native 확인을 추가했다.
+- **violated_rule**: R352, F-03(이중 DOM writer), AG-03(단일 writer 원칙), R3(즉시 postmortem 필요).
+- **prevention**: `AG-DOM-WRITER`가 매 배치 native/legacy id 교집합을 강제하므로 향후 재발 시 CI가 즉시 차단한다. `route-owners.json`의 `legacySymbolsMustBeAbsent`/`domWriterIntersectionAllowlist`가 단일 소스이며, 새 예외는 반드시 근거(파일:라인)와 함께 이 파일에 먼저 기록한다. 클릭 위임을 가로채는 새 native 핸들러는 `stopPropagation` 추가 전에 동일 `data-action` 이름의 legacy 전역 함수 존재 여부를 먼저 확인한다.
+- **verification**: `ci-architecture-contract-check.mjs`(AG-DOM-WRITER 포함)·`ci-retirement-contract.mjs`·`ci-operations-status-check.mjs`·`ci-architecture-browser-check.mjs`(신규 home surface·contentRoutes 검증 포함)·headless 1098/1098·critical10 10/10·a11y 17/17·knowledge-lint 0 warning 전부 PASS. `git diff --check` 클린.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.

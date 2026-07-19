@@ -3,12 +3,21 @@
   "generatedAt": "2026-07-19",
   "sourceHandoff": "_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md#RM-00",
   "method": "Re-measured directly against v53.16 HEAD source (bootstrap.js module wiring, router.js transition, PAGES init literals, cross-grep of native writer ids against js/*.js and index.html). Not copied from prior declarations.",
+  "rm01Note": "RM-01 (2026-07-19) deleted every native setText/textContent write this file's contestedIds/legacyWriterEvidence originally documented as a live race (per RM-01 §2 default action: delete native, keep legacy). Those fields are kept as a historical DELETE-LEDGER record of what was found and removed, not a claim that the race is still live — for the 15 rendererOwner='legacy' routes, native no longer writes any of these ids at all. The real ARX cutover (deleting the *legacy* writer so native can take sole ownership) remains future per-route work; see route-owners.json openItems and the execution plan's ARX-05..11 packets.",
   "columnDefinitions": {
     "lifecycleOwner": "who mounts/disposes the route (native = ESM router transition owns it; PAGES[route].init is null)",
     "rendererOwner": "who owns the visible DOM content nodes for this route with no competing writer",
     "dataOwner": "who owns the fetch/normalize pipeline (native = independent of legacy.read* projection)",
     "chartOwner": "who owns chart/canvas instance lifecycle for this route",
     "narrativeOwner": "who generates the route's prose/summary text"
+  },
+  "domWriterIntersectionAllowlist": [
+    "fg-score-big",
+    "pc-score-big"
+  ],
+  "domWriterIntersectionAllowlistNotes": {
+    "fg-score-big": "js/aio-data.js's dormant-until-deferred _generateSentimentAnalysis (called via setTimeout from js/aio-data.js:16811/16819/16825) only READS this via getElementById+textContent to build its analysis text; sentiment.js is the sole WRITER. Legitimate read dependency, not a write race.",
+    "pc-score-big": "Same function/relationship as fg-score-big — read-only legacy consumer, sentiment.js is the sole writer."
   },
   "routes": {
     "home": {
@@ -33,11 +42,11 @@
       "notes": "ID-level DELETE-LEDGER sweep for this writer is RM-01 scope; contest direction confirmed, exact legacy line not pinpointed in RM-00."
     },
     "sentiment": {
-      "lifecycleOwner": "native", "rendererOwner": "native", "dataOwner": "legacy", "chartOwner": "native", "narrativeOwner": "native",
+      "lifecycleOwner": "native", "rendererOwner": "native", "dataOwner": "legacy", "chartOwner": "native", "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/sentiment.js (createSentimentPage)",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "Own-page renderer/chart/narrative verified clean (P736/P738/P739). dataOwner remains legacy: sentimentProvider reads via legacy.readSentiment (facade over root._liveData/DATA_SNAPSHOT), so directFetch is still 0 native. OPEN ITEM: renderSentimentSummaryProjection() cross-page-writes home-fg-score, which js/aio-data.js:16609 ALSO writes — this specific shared id is CONTESTED even though sentiment's own page ids are not. Flagged for RM-01 (F-09)."
+      "notes": "RM-01 (2026-07-19) found and closed two contests this route's earlier 'fully clean' verification (P736/P738/P739) missed: (1) renderSentimentSummaryProjection() cross-page-wrote home-fg-score, which js/aio-data.js:16609 also writes — removed the native write, legacy keeps that cross-page id. (2) sent-analysis-text was written by both this module and an ACTIVE legacy function (index.html `_generateSentimentAnalysis`, deferred via setTimeout from js/aio-data.js:16811/16819/16825 — materially richer capitulation/decoupling/cluster analysis) — removed the native write per the RM-01 default action, so narrativeOwner is now honestly 'legacy', not 'native'. fg-score-big/pc-score-big are a legitimate exception: legacy's function only READS them (to build its analysis) and this module remains the sole writer (route-owners.json domWriterIntersectionAllowlist). dataOwner remains legacy: sentimentProvider reads via legacy.readSentiment (facade over root._liveData/DATA_SNAPSHOT)."
     },
     "briefing": {
       "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
@@ -141,8 +150,8 @@
     "dataNativeRoutes": [],
     "chartNative": 1,
     "chartNativeRoutes": ["sentiment"],
-    "narrativeNative": 1,
-    "narrativeNativeRoutes": ["sentiment"],
+    "narrativeNative": 0,
+    "narrativeNativeRoutes": [],
     "fullNativeOwner": []
   },
   "legacySymbolsMustBeAbsent": {
@@ -161,8 +170,10 @@
     "sentiment": ["badge\\.textContent\\s*=\\s*'심리:"]
   },
   "openItems": [
-    "F-09/RM-01: renderSentimentSummaryProjection cross-page-writes home-fg-score/fg-score-big/fg-score-val/fg-rating-text/vix-term-regime-text. js/aio-data.js:16609 independently writes home-fg-score — contested. This does not change sentiment's own-page rendererOwner=native verdict but must be resolved before the cross-page ids can be called clean.",
-    "themes/theme-detail: rrg-quadrant-cards and theme-detail-title contest status not conclusively grepped either direction in RM-00; RM-01's planned exhaustive sweep (grep -ohE over src/ui/pages/{analysis,entity,market,themes,portfolio,screener}.js) will settle this.",
-    "macro/fxbond per-metric-id legacy writer lines (macro-fedRate etc.) not individually pinpointed; contest direction (legacy still writes [data-live-price]/[data-live-chg]) is confirmed via 25 aggregate occurrences in js/aio-data.js."
+    "RESOLVED (RM-01): home-fg-score cross-page sink — removed from sentiment.js's renderSentimentSummaryProjection; js/aio-data.js:16609 is the sole writer.",
+    "RESOLVED (RM-01): themes/theme-detail — exhaustive grep confirmed all 3 ids (rrg-quadrant-cards js/aio-core.js:22646, rrg-chart-status :22674/:22715/:22841, theme-detail-title :23469) are live legacy writers; native content removed from themes.js entirely.",
+    "RESOLVED (RM-01): macro/fxbond quotes ([data-live-price]/[data-live-chg]) confirmed contested (25 occurrences in js/aio-data.js) and removed from market.js. Macro FRED metric ids (macro-fedRate/macro-cpi/macro-coreCpi/macro-corePce/macro-nfp) turned out not to exist in index.html at all — market.js's renderMetric() for macro was writing to a nonexistent element and had zero effect either way; removed anyway for consistency (RM-01 does not leave inert dead-write code lying around next to genuinely-contested code in the same function).",
+    "RESOLVED (RM-01): sentiment's sent-analysis-text was ALSO contested (active legacy function `_generateSentimentAnalysis`, deferred via setTimeout from js/aio-data.js:16811/16819/16825 — this route's earlier P736/P738/P739 'fully clean' verification missed it since the call is indirect, not a literal `_generateSentimentAnalysis()` invocation). Removed native's write; narrativeOwner for sentiment is now honestly 'legacy'.",
+    "OPEN (not RM-01 scope): market.js's renderQuote/renderMetric and analysis/entity/portfolio/screener/news's stripped setText calls are DELETED, not migrated — the real ARX cutover for each of these 15 routes (deleting the *legacy* writer and giving native sole ownership) remains future work per the execution plan's per-route packets (ARX-05..11)."
   ]
 }

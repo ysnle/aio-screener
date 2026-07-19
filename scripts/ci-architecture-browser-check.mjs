@@ -83,17 +83,38 @@ try {
   await page.waitForFunction(() => document.getElementById('page-briefing')?.dataset.aioArchitectureRoute === 'briefing');
   const contentRoutes = await page.evaluate(() => ({
     active: window.AIO_ARCH.router.active(),
+    // RM-01: market-news/briefing are contested containers (route-owners.json rendererOwner=legacy)
+    // — news.js must NOT claim aioArchitectureRenderer='native' for either, only the honest
+    // aioArchitectureSlice='news' marker that says the module is mounted without owning content.
     marketRenderer: document.getElementById('page-market-news')?.dataset.aioArchitectureRenderer || null,
-    briefingRenderer: document.getElementById('page-briefing')?.dataset.aioArchitectureRenderer || null
+    briefingRenderer: document.getElementById('page-briefing')?.dataset.aioArchitectureRenderer || null,
+    briefingSlice: document.getElementById('page-briefing')?.dataset.aioArchitectureSlice || null
   }));
-  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== null || contentRoutes.briefingRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify(contentRoutes)}`);
+  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== null || contentRoutes.briefingRenderer !== null || contentRoutes.briefingSlice !== 'news') throw new Error(`content route lifecycle failed: ${JSON.stringify(contentRoutes)}`);
 
+  // RM-01 AG-DOM-WRITER browser evidence: home must show the legacy-rendered Korean 5-band label
+  // and 0-100 integer score, never the retired native toy model's English action word or -1..1
+  // decimal (analysis.js no longer writes either id, so this also proves legacy alone renders them
+  // without a native competitor silently winning the last-writer-wins race).
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
-  await page.waitForFunction(() => !document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute);
+  await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
+  const homeSurface = await page.evaluate(() => ({
+    scoreGaugeVal: document.getElementById('score-gauge-val')?.textContent ?? null,
+    tradingSignal: document.getElementById('home-trading-signal')?.textContent ?? null
+  }));
+  const placeholderPattern = /^(—|-|• • •|)$/;
+  const retiredDecimalPattern = /^-?\d*\.\d+$/;
+  const retiredEnglishActionPattern = /^(WATCH|HOLD|REDUCE|BUY|SELL)$/i;
+  const koreanPattern = /[가-힣]/;
+  if (retiredDecimalPattern.test(homeSurface.scoreGaugeVal || '')) throw new Error(`score-gauge-val regressed to retired native decimal format: ${JSON.stringify(homeSurface)}`);
+  if (!placeholderPattern.test(homeSurface.scoreGaugeVal || '') && !/^\d{1,3}\*?$/.test(homeSurface.scoreGaugeVal || '')) throw new Error(`score-gauge-val is neither a placeholder nor an integer 0-100 (legacy may append '*' for an estimated/stale annotation): ${JSON.stringify(homeSurface)}`);
+  if (retiredEnglishActionPattern.test(homeSurface.tradingSignal || '')) throw new Error(`home-trading-signal regressed to retired native English action word: ${JSON.stringify(homeSurface)}`);
+  if (!placeholderPattern.test(homeSurface.tradingSignal || '') && !koreanPattern.test(homeSurface.tradingSignal || '')) throw new Error(`home-trading-signal is neither a placeholder nor a Korean label: ${JSON.stringify(homeSurface)}`);
+
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, boot, sentimentRoute, guideRoute, contentRoutes, routeRoundTrip: true, browserErrors: 0 }));
+  console.log(JSON.stringify({ ok: true, boot, sentimentRoute, guideRoute, contentRoutes, homeSurface, routeRoundTrip: true, browserErrors: 0 }));
 } finally {
   await browser.close();
   server.kill();

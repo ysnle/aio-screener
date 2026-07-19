@@ -1,54 +1,20 @@
 import { createResourceBag } from '../../app/lifecycle.js';
-import { selectPortfolioState, selectPortfolioHoldings, selectPortfolioTotals } from '../../state/selectors/portfolio.js';
+import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 
-function setText(documentRef, id, value, fallback = '—') {
-  const node = documentRef?.getElementById(id);
-  if (node) node.textContent = value == null || value === '' ? fallback : String(value);
-}
-
-function money(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? `$${value.toLocaleString('en-US', { maximumFractionDigits: 2 })}` : '—';
-}
-
+// RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
+// replaceChildren() the pf-positions-tbody table with a 5-column row, while legacy
+// (js/aio-ui.js liveEls + an inline index.html script at :12742/:12928-:12952) kept writing the
+// same ids/table with the real column set. That is the highest-severity contested container in
+// F-03/route-owners.json: whichever writer runs last wins the race, and native losing means the
+// table silently shrinks. Content ownership stays legacy until portfolio gets its real ARX
+// cutover (behind RM-09 storage/vault work); this module only stamps portfolio state
+// availability.
 function render({ documentRef, store }) {
   const state = selectPortfolioState(store.getState());
-  const holdings = selectPortfolioHoldings(store.getState());
-  const totals = selectPortfolioTotals(store.getState()) || {};
-  setText(documentRef, 'pf-total-value', money(totals.totalValue));
-  setText(documentRef, 'pf-holding-count', `${holdings.length} 종목`);
-  setText(documentRef, 'pf-daily-chg', money(totals.dailyChange));
-  setText(documentRef, 'pf-daily-pct', totals.dailyPct == null ? '—' : `${totals.dailyPct}%`);
-  setText(documentRef, 'pf-total-pnl', money(totals.pnl));
-  setText(documentRef, 'pf-total-pnl-pct', totals.pnlPct == null ? '—' : `${totals.pnlPct}%`);
-  setText(documentRef, 'pf-cash-hero', money(state?.cash));
-  setText(documentRef, 'pf-cash-pct-hero', totals.cashPct == null ? '—' : `${totals.cashPct}%`);
-  setText(documentRef, 'pf-exposure-current', `현재 노출 ${totals.exposurePct == null ? '—' : `${totals.exposurePct}%`}`);
-  const body = documentRef?.getElementById('pf-positions-tbody');
-  if (body) {
-    body.replaceChildren();
-    if (!holdings.length) {
-      const row = documentRef.createElement('tr');
-      const cell = documentRef.createElement('td');
-      cell.colSpan = 10;
-      cell.textContent = state?.privacy === 'consent-required' ? '명시적 동의 후 포트폴리오를 표시합니다.' : '보유 종목 데이터가 없습니다.';
-      row.append(cell);
-      body.append(row);
-    } else {
-      holdings.slice(0, 100).forEach((holding) => {
-        const row = documentRef.createElement('tr');
-        [holding.symbol, holding.shares, holding.price, holding.value, holding.weight].forEach((value) => {
-          const cell = documentRef.createElement('td');
-          cell.textContent = value == null ? '—' : String(value);
-          row.append(cell);
-        });
-        body.append(row);
-      });
-    }
-  }
   const page = documentRef?.getElementById('page-portfolio');
   if (page) {
     page.dataset.aioArchitectureRoute = 'portfolio';
-    page.dataset.aioArchitectureRenderer = 'native';
+    page.dataset.aioArchitectureSlice = 'portfolio';
     page.dataset.aioArchitectureStatus = state?.status || 'unavailable';
   }
 }
@@ -64,6 +30,10 @@ export function createPortfolioPage({ documentRef, store } = {}) {
       const eventTarget = documentRef || globalThis;
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));
+      const page = documentRef?.getElementById('page-portfolio');
+      bag.add(() => {
+        if (page?.dataset.aioArchitectureSlice === 'portfolio') delete page.dataset.aioArchitectureSlice;
+      });
       return () => bag.dispose();
     }
   };

@@ -105,10 +105,45 @@ for (const marker of ['createResourceBag', "dataset.aioArchitectureRenderer = 'n
   if (!sentimentPageSource.includes(marker)) fail(`native sentiment renderer marker missing: ${marker}`);
 }
 for (const [name, source, markers] of [
-  ['guide', guidePageSource, ['createResourceBag', "dataset.aioArchitectureRenderer = 'native'", 'searchGuide']],
-  ['news', newsPageSource, ['createResourceBag', "dataset.aioArchitectureRenderer = 'native'", 'renderStories']]
+  ['guide', guidePageSource, ['createResourceBag', "dataset.aioArchitectureRenderer = 'native'", 'searchGuide']]
 ]) {
   for (const marker of markers) if (!source.includes(marker)) fail(`native ${name} renderer marker missing: ${marker}`);
+}
+// RM-01: news.js is no longer a content renderer for market-news/briefing (contested container,
+// route-owners.json rendererOwner=legacy) — it must not re-claim the retired renderer marker or
+// re-import the retired content-rendering helper.
+if (newsPageSource.includes("dataset.aioArchitectureRenderer = 'native'")) fail('news.js re-claimed a native renderer marker it does not own (rendererOwner is legacy per route-owners.json)');
+if (newsPageSource.includes('renderStories')) fail('news.js content-rendering helper (renderStories) returned after RM-01 removed it');
+
+// AG-DOM-WRITER (RM-01): src/ui/pages/* may only write ids/helpers that no legacy file also
+// writes. This is deliberately id-based (getElementById + the setText/text(documentRef, id, …)
+// helper idiom every page module uses) rather than a full DOM-write AST analysis; attribute-selector
+// writes (e.g. sentiment's `[data-live-price="^VIX9D"]`) are a known gap for a future gate.
+// page-* route container ids are excluded: both native (dataset stamping) and legacy (show/hide)
+// legitimately locate the same container element without that being a content-write race.
+function extractWrittenIds(source) {
+  const ids = new Set();
+  const directPattern = /getElementById\(\s*['"]([a-z][a-z0-9-]+)['"]\s*\)/g;
+  const helperPattern = /\b(?:setText|text)\(\s*documentRef\s*,\s*['"]([a-z][a-z0-9-]+)['"]/g;
+  for (const pattern of [directPattern, helperPattern]) {
+    let match;
+    while ((match = pattern.exec(source))) if (!match[1].startsWith('page-')) ids.add(match[1]);
+  }
+  return ids;
+}
+const nativePagesDir = path.join(root, 'src/ui/pages');
+const nativeWrittenIds = new Map();
+for (const file of fs.readdirSync(nativePagesDir).filter((entry) => entry.endsWith('.js'))) {
+  for (const id of extractWrittenIds(read(path.join('src/ui/pages', file)))) {
+    if (!nativeWrittenIds.has(id)) nativeWrittenIds.set(id, file);
+  }
+}
+const legacyWrittenIds = new Set();
+for (const file of legacyFiles) for (const id of extractWrittenIds(read(file))) legacyWrittenIds.add(id);
+const domWriterAllowlist = new Set(routeOwners.domWriterIntersectionAllowlist || []);
+const domWriterIntersection = [...nativeWrittenIds.keys()].filter((id) => legacyWrittenIds.has(id) && !domWriterAllowlist.has(id));
+if (domWriterIntersection.length) {
+  fail(`AG-DOM-WRITER: native/legacy id intersection is not empty: ${domWriterIntersection.map((id) => `${id} (${nativeWrittenIds.get(id)})`).join(', ')}`);
 }
 
 const modules = await Promise.all([

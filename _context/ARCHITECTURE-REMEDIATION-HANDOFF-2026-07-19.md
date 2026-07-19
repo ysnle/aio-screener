@@ -23,14 +23,26 @@ scope: rebuild integrity remediation + ARX 재진입
 
 ### 0.1 실행 상태 (2026-07-19 세션)
 
-RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 세션 카드는 §7 형식으로 문서 하단에 별도 기록. 요약:
+RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 이어서 같은 세션에서 RM-01도 완료(사용자 지시로 "커밋만 하고 남은 항목 순차 진행"). 세션 카드는 §7 형식으로 문서 하단에 별도 기록. 요약:
+
+**RM-00+RM-04**:
 - `architecture/route-owners.json` 신설(17 route × 5칸 실측 + legacy 심볼 목록) — 이하 모든 소유권 서술의 단일 소스.
 - `build-operations-status.mjs` 하드코딩 배열 삭제 → route-owners.json 파생. `public-data/operations-status.json` 재생성 완료(`nativeRendererOwner:['guide','sentiment']`, `legacyOwner:15`, `cutoverStatus:'MIGRATION_IN_PROGRESS'`).
 - `architecture/retirement-manifest.json` 정정(`status:'MIGRATION_IN_PROGRESS'`, `legacyRouteOwners` 15개 복원).
 - `ci-retirement-contract.mjs`/`ci-operations-status-check.mjs`/`ci-architecture-contract-check.mjs` 재작성 — route-owners.json 대조 검증으로 전환. `ci-domain-parity-check.mjs`→`ci-domain-module-smoke-check.mjs` 개명(ci.yml 동기화, 항진성 자체는 RM-03 잔존).
 - 핸드오프(07-18)·실행계획(07-19)·INDEX.md·CHANGELOG의 상충 서술 정정(F-07) — 기존 줄은 취소선/추기로 보존, 삭제 없음.
-- BUG-POSTMORTEM P740/P741 + "진척 인플레이션" 반복 클래스 신설(§ 아래 참조).
-- 남은 항목: RM-01(이중 writer 차단, contested ID 다수 확정됨) · RM-02(store clone 성능) · RM-03(도메인 추출) · RM-05(게이트 보강) · RM-06(ARX 재진입). RM-01 완료 전 새 ARX 패킷 착수 금지 유지.
+- BUG-POSTMORTEM P740 + "진척 인플레이션" 반복 클래스 신설.
+
+**RM-01** (같은 세션 이어서 실행):
+- contested id 전수 재측정: analysis/entity/themes 100% contested(12/13/3개 id 전부), market(quote+breadth contested, macro FRED 5개 id는 index.html에 아예 존재하지 않아 경합이 아니라 완전 비활성 코드로 판정), portfolio/screener/news 컨테이너 전부 contested.
+- `src/ui/pages/{analysis,entity,market,themes,portfolio,screener,news}.js` 7개 모듈에서 contested content 쓰기 전부 삭제, dataset 스탬프만 유지.
+- 추가 발견 2건(RM-00에서 놓쳤던 것): (1) news.js가 `stopPropagation()`으로 legacy `data-action` 클릭 위임을 차단 중이었음(별도 삭제) — DOM 쓰기 경합과 무관한 숨은 회귀. (2) sentiment.js의 `home-fg-score`·`sent-analysis-text`도 실제로 legacy와 경합 중이었음(`sent-analysis-text`의 legacy 소유자는 `setTimeout` 간접 호출이라 P736/738/739의 직접-호출 grep에 안 걸렸음) — 삭제 완료, narrativeOwner를 `native`→`legacy`로 정정.
+- `AG-DOM-WRITER` 정적 게이트 신설(`ci-architecture-contract-check.mjs`) + `domWriterIntersectionAllowlist`(fg-score-big/pc-score-big, legacy가 읽기 전용으로 의존) 신설.
+- `ci-architecture-browser-check.mjs`에 home `score-gauge-val` 정수·`home-trading-signal` 한국어 라벨·market-news/briefing non-native 검증 추가.
+- BUG-POSTMORTEM P741.
+- 진짜 legacy 삭제(ARX cutover)는 아직 없음 — 이번 배치는 native의 경합 쓰기만 제거했다(삭제 방향은 legacy→유지, native→삭제).
+
+**남은 항목**: RM-02(store clone 성능) · RM-03(도메인 추출) · RM-05(게이트 보강) · RM-06(ARX 재진입 지침, RM-00/01/04 완료로 선행조건 충족).
 
 ## 1. 실측 발견 원장 (F-01~F-09)
 
@@ -252,4 +264,30 @@ Browser evidence: `ci-architecture-browser-check.mjs` PASS — router/store rout
 Live evidence: 없음 — 커밋·푸시·배포 없음(사용자 명시 지시 대기, RM-04 §4). `public-data/operations-status.json` 재생성은 로컬 파일 변경일 뿐 배포 아님.
 Unverified/blockers: RM-01(이중 DOM writer 제거) 미착수 — contested id는 `route-owners.json`에 route별로 문서화·인계 완료. RM-02(store clone 성능)·RM-03(도메인 추출·항진 게이트 실질화)·RM-05(게이트 보강) 전부 미착수. `themes`/`theme-detail`의 일부 contested id(`rrg-quadrant-cards`, `theme-detail-title`)와 sentiment의 cross-page sink(`home-fg-score`)는 RM-01에서 확정 필요(route-owners.json `openItems` 참조).
 Status: VERIFIED_LOCAL (RM-00+RM-04 스코프 한정 — §5 전체 인수 기준의 항목 2·3은 RM-01/RM-03 완료 전까지 미충족이며 의도된 상태)
+```
+
+### 세션 카드 — RM-01 (같은 세션, RM-00+RM-04 직후 이어서 실행)
+
+```text
+Packet: RM-01
+Checkout/HEAD/version/liveRevision: RM-00+RM-04가 auto-commit-on-stop 훅으로 806013b에 이미 커밋된 상태에서 이어서 시작 / v53.16 / live revision 미확인(배포 없음)
+Scope route/metric/layer: 이중 DOM writer 차단 — src/ui/pages/{analysis,entity,market,themes,portfolio,screener,news,sentiment}.js 8개 모듈, ci-architecture-contract-check.mjs, ci-architecture-browser-check.mjs, architecture/route-owners.json
+Owner before: rendererOwner 15개 route가 legacy renderer 생존 + native가 동일 DOM에 경합 쓰기(문서화된 contested) / sentiment는 own-page 대부분 native이나 home-fg-score·sent-analysis-text 2개 id 미발견 경합 잔존
+Owner after:  rendererOwner 분류 자체는 불변(여전히 legacy 15 / native 2 — 진짜 cutover는 이 배치 스코프 아님), 단 native의 경합 쓰기 0건으로 실측 정정. sentiment의 narrativeOwner는 native→legacy로 하향 정정(sent-analysis-text 삭제로).
+Files read: route-owners.json 전체, src/ui/pages/{analysis,entity,market,themes,portfolio,screener,news,sentiment,guide}.js 전체 재독, js/aio-core.js·aio-data.js·aio-ui.js·index.html의 40+ id cross-grep, src/app/bootstrap.js(모듈 배선 재확인)
+Files changed: src/ui/pages/{analysis,entity,market,themes,portfolio,screener,news,sentiment}.js(8개) · scripts/ci-architecture-contract-check.mjs · scripts/ci-architecture-browser-check.mjs · architecture/route-owners.json · _context/BUG-POSTMORTEM.md · CHANGELOG.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(이 문서)
+DELETE-LEDGER before edit:
+  - declaration: analysis.js 12개 setText, entity.js 13개 text(), market.js의 renderQuote/renderMetric 전체(+ 미사용 ROUTE_QUOTES/ROUTE_METRICS/format), themes.js의 renderThemes/createThemeCard 전체, portfolio.js 10개 setText+테이블 렌더, screener.js 5개 setText+테이블 렌더, news.js의 renderStories/createStory/sourceItems/displayTitle/displaySummary/safeHref/createModel 전체, sentiment.js의 home-fg-score(1줄)·sent-analysis-text(1개 setText) — 총 8개 파일
+  - callers: news.js의 onClick(필터 4종+refresh)/onRefresh 핸들러와 그 addEventListener 등록·해제 전체(더 이상 렌더할 콘텐츠가 없어 상호작용 로직도 함께 제거)
+  - global writer: 해당 없음(native 쪽 로컬 DOM 쓰기 삭제이지 전역 변수 아님)
+  - DOM/chart/narrative sink: 위 declaration과 동일 — 이 배치의 핵심 삭제 대상
+  - event/timer/storage: news.js의 aio:newsUpdated/aio:refresh:done/aio:serverDataLoaded 리스너는 유지(대신 dataset 상태만 갱신), click 리스너만 제거
+  - tests/docs: `ci-architecture-contract-check.mjs`의 news.js `renderStories`/`aioArchitectureRenderer='native'` 마커 요구 삭제, `ci-architecture-browser-check.mjs`의 `briefingRenderer !== 'native'` 기대값을 `=== null` + `aioArchitectureSlice==='news'`로 정정
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 legacy 카운터 전부 무변경(1094/42/189/416) — 이 배치는 legacy 파일을 건드리지 않음(native 쪽 경합 쓰기만 삭제). src/ui/pages 순증감은 258 insertions(+)/540 deletions(-)(net -282줄) — 진짜 legacy burn-down이 아니라 native 쪽 정리임을 명시.
+New compatibility introduced and retirement packet: 없음. `route-owners.json`에 `domWriterIntersectionAllowlist`(fg-score-big/pc-score-big, 근거 명시) 신설 — 유일하게 남기기로 한 "교집합"이며 legacy 읽기 전용 의존 관계로 문서화됨.
+Local gates: §8.1 전체(11개) PASS(AG-DOM-WRITER 포함 재실행) + headless 1098/1098 + critical10 10/10 + a11y 17/17 + viewport(FULL_INIT) 68/68 + knowledge-lint 0 warning + Portfolio Vault E2E 8/8 + ux-default-path(div 3846/3846) + doc-currency(±500줄 트리거 미충족) 전부 PASS.
+Browser evidence: `ci-architecture-browser-check.mjs` PASS — home `score-gauge-val`="52*"(정수+legacy stale 표기 허용 패턴), `home-trading-signal`="중립 · 관망"(한국어), market-news/briefing `aioArchitectureRenderer=null`+`aioArchitectureSlice='news'`, sentiment/guide 기존 검증 불변, browserErrors 0.
+Live evidence: 없음 — 커밋(로컬)만 사용자 지시, 배포는 미지시.
+Unverified/blockers: 진짜 ARX cutover(legacy 삭제 + native 단독 소유) 15개 route 전부 미착수 — 이번 배치는 "native가 legacy를 침범하지 않는다"만 확정했다. macro FRED 5개 id의 완전 비활성 코드는 native 쪽만 제거했고 legacy 쪽 해당 기능 부재 자체는 별도 버그(이번 스코프 아님, 데이터 획득 갭으로 알려진 이슈와 연결 가능성 — 후속 세션 검토 권고). themes/theme-detail의 rrg-quadrant-cards 콘텐츠(카드 목록 자체, 상태 텍스트 제외)에 대한 legacy 쓰기 라인 번호는 aio-core.js:22646 한 곳만 확인, 더 있을 가능성은 낮지만 100% 전수는 아님.
+Status: VERIFIED_LOCAL (RM-01 스코프 한정 — AG-DOM-WRITER PASS로 §5 항목 2 "contested DOM writer 0"는 이번 배치가 정의한 범위 내에서 충족. 진짜 legacy 삭제가 없으므로 route별 rendererOwner는 여전히 legacy 15/guide+sentiment 2 그대로)
 ```

@@ -32,10 +32,15 @@ function setText(documentRef, id, value) {
 
 // Hidden cross-page score sinks still need the canonical state immediately;
 // the full sentiment route renderer remains responsible for the active page.
+// RM-01 (2026-07-19): home-fg-score is excluded here — js/aio-data.js:16609 is a live legacy
+// writer for that id (home page hero), so writing it from sentiment's cross-page projection is a
+// contested double-write (F-09/route-owners.json openItems). fg-score-big/fg-score-val/
+// fg-rating-text/vix-term-regime-text remain native-only: they live on the sentiment page itself
+// and no active legacy code writes them (the only other candidate, index.html's
+// _generateSentimentAnalysis/_updateSentimentActionGuides, only reads them and has zero callers).
 export function renderSentimentSummaryProjection(documentRef, summary) {
   const score = summary?.fearGreed?.score;
   const scoreText = formatNumber(score, 0);
-  setText(documentRef, 'home-fg-score', scoreText);
   setText(documentRef, 'fg-score-big', scoreText);
   setText(documentRef, 'fg-score-val', scoreText);
   setText(documentRef, 'fg-rating-text', summary?.fearGreed?.label || '판정 보류');
@@ -260,9 +265,13 @@ function renderSentiment(documentRef, state, evidenceStore, chartFactory, charts
   const pcBadge = setText(documentRef, 'pc-live-badge', pcEvidence?.allowedUse === 'decision' ? '● 현재 관측' : '● 참고값 · 판정 제외');
   [pcScore, pcPosition, pcBadge].forEach((element) => annotate(element, pcEvidence));
 
-  setText(documentRef, 'sent-analysis-text', summary.blocked
-    ? '심리 지표 일부가 미수신이거나 참고값이어서 현재 종합 판정을 보류합니다. F&G·VIX·Put/Call·HY OAS의 관측 시점을 함께 확인하세요.'
-    : `${summary.state}. 심리는 방향을 단독 확정하지 않는 보조 지표이며, 관측값의 시점과 사용 가능 범위를 함께 확인합니다.`);
+  // RM-01 (2026-07-19): sent-analysis-text is NOT written here — js/aio-data.js:16811/16819/16825
+  // defer an active legacy function (index.html `_generateSentimentAnalysis`, v38.4~v38.8) that
+  // reads fg-score-big/pc-score-big (which this module does write) and renders a materially
+  // richer capitulation/decoupling/sentiment-cluster analysis into sent-analysis-text. This was a
+  // genuine contested write this route's earlier "fully clean" verification (P736/P738/P739)
+  // missed; removing native's simpler placeholder here is the RM-01 default action (delete
+  // native, not legacy) applied consistently with every other contested id in this batch.
   renderCanvasStates(documentRef, sentiment, chartFactory, charts, bag);
 }
 
