@@ -1,15 +1,15 @@
 {
   "schemaVersion": "operations-status-v1",
-  "generatedAt": "2026-07-19T02:36:34.708Z",
-  "appRevision": "v53.12",
-  "dataRevision": "market-snapshot:2026-07-19T02:36:31.722Z:27e1cc4f",
+  "generatedAt": "2026-07-19T02:47:08.440Z",
+  "appRevision": "v53.13",
+  "dataRevision": "market-snapshot:2026-07-19T02:46:57.844Z:6eedeccc",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
     "durable": {
       "status": "CURRENT",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-07-19T02:36:31.722Z",
+      "lastSuccessfulAt": "2026-07-19T02:46:57.844Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -32,19 +32,19 @@
     "browser": {
       "status": "CURRENT",
       "source": "static-pages+service-worker",
-      "revision": "v53.12"
+      "revision": "v53.13"
     }
   },
   "providers": {
     "yahoo": {
       "rights": "REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-07-19T02:36:31.722Z"
+      "lastFetchAt": "2026-07-19T02:46:57.844Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "use": "official-series",
-      "lastFetchAt": "2026-07-19T02:36:31.722Z"
+      "lastFetchAt": "2026-07-19T02:46:57.844Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -55,7 +55,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-07-19T02:36:31.722Z:27e1cc4f",
+      "artifact": "market-snapshot:2026-07-19T02:46:57.844Z:6eedeccc",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
