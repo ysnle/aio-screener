@@ -1,10 +1,10 @@
 ---
-verified_by: Claude Fable 5 (repository-wide structural audit; 발견마다 파일:라인 증거 인용)
+verified_by: Claude Fable 5 (repository-wide structural audit; 발견마다 파일:라인 증거 인용); RM-00~05 실행 Claude Sonnet 5
 last_verified: 2026-07-19
 confidence: high
 auto_refresh: false
 target_version: v53.16
-status: DESIGNED_EXECUTABLE
+status: RM-00~05_COMPLETE_ARX_REENTRY_READY
 parent: ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md
 sibling: ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md
 scope: rebuild integrity remediation + ARX 재진입
@@ -65,7 +65,15 @@ RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 이어서 
 - item 3: `scripts/ci-esm-core-unit-check.mjs` 신설 — store/router/lifecycle/evidence-store/facade 5개 ESM 코어를 route 배선과 독립적으로 격리 unit 검증, ci.yml 배선.
 - BUG-POSTMORTEM P744.
 
-**남은 항목**: RM-03 item 2·3(F&G/RRG/Weinstein 추출, signal toy 모델 정리) · RM-06(ARX 재진입 지침, RM-00/01/04 완료로 선행조건 충족 — 이번 세션에서 RM-02/03/05도 추가로 완료됨).
+**RM-06** (ARX 재진입 지침 — "작업"이 아니라 다음 세션을 위한 선언·지침이므로 여기서 ARX 패킷 자체는 착수하지 않음, §7 금지 목록 유지):
+- RM-00·RM-01·RM-04(P0 선행조건) 전부 완료. **추가로 RM-02·RM-03(item 1·5)·RM-05도 같은 세션에서 완료** — 사용자가 "남은 항목 순차 진행"을 명시 지시했기 때문. RM-03 item 2·3만 명시적으로 미해결 이월.
+- **재진입점**: 실행계획 §4 파동 W2(ARX-03 commands/selectors, ARX-04 platform/storage/sanitizer 채택)부터. route 순서는 실행계획 §5 유지(guide/sentiment 이후 다음은 market-news+briefing 진짜 cutover, 그다음 macro+fxbond+breadth 순).
+- **작업량 전제**: sentiment 템플릿 기준 route당 실작업량 ≈ 600~800줄 신규(UI 200~350 + data 4파일 + slice/selector/commands) + 대응 legacy 수백~수천 줄 삭제. 17 route 전체로는 신규 약 1만 줄·삭제 수만 줄 잔존 — "하루 만에 전체 등록" 판정 불가를 다시 확인.
+- **진척의 유일한 지표**: `route-owners.json`의 5칸(lifecycle/renderer/data/chart/narrative) native 개수 증가 + `architecture/baseline.json` 4개 카운터(explicitWindowWrites/directFetch/directStorage/htmlSinks)의 단조 감소. 신규 파일 수·마커·dataset 스탬프(`aioArchitectureRoute`/`Slice`/`Renderer`)는 진척이 아니다(R352, F-01의 교훈 반복 확인).
+- **screener/portfolio 이관 선행조건**: RM-02(store 성능)가 완료됐으므로(1000행 fixture p95=0.04ms) 이제 대형 slice 이관(W5)의 성능 전제는 충족. 단 W5 자체는 W2~W4 완료 후 순서.
+- **현재 실측 요약**(다음 세션 시작 시 재확인 없이 신뢰하지 말 것 — `node scripts/ci-retirement-contract.mjs`로 재확인): lifecycle native 17/17, renderer native 2/17(guide, sentiment), data native 0/17, chart native 1/17(sentiment), narrative native 0/17(RM-01에서 sentiment도 legacy로 재분류됨). `architecture/baseline.json`: explicitWindowWrites=1094, directFetch=42, directStorage=189, htmlSinks=416(전부 RM-00~05 시작 시점과 동일 — 이 배치들은 legacy 삭제가 목표가 아니었음, 정상).
+
+**남은 항목(다음 세션)**: RM-03 item 2·3(F&G/RRG/Weinstein 도메인 추출, `signal/decision.js` toy 모델 정리 — `normalizeAnalysis` 소비처 재설계 필요) · RM-06 재진입 이후 ARX-03/04(W2) 착수.
 
 ## 1. 실측 발견 원장 (F-01~F-09)
 
@@ -237,14 +245,16 @@ RM-00 + RM-04 (원장·게이트·규율 — 1세션)
           -> RM-06: ARX W2 재진입 (실행 계획 §4 파동 복귀)
 ```
 
-## 5. 문서 전체 인수 기준
+## 5. 문서 전체 인수 기준 (2026-07-19 RM-00~05 완료 시점 판정)
 
-1. ops-status·retirement-manifest·route-owners.json·handoff·실행 계획·INDEX가 **동일한 실측 소유권**을 서술한다.
-2. contested DOM writer 0 (AG-DOM-WRITER PASS).
-3. 항진 게이트 0 — parity는 legacy 덤프 대조다.
-4. 그 정직한 상태로 §8.1 전체 + ci.yml 전체가 PASS다(게이트를 낮춰서가 아니라 검증을 바꿔서).
-5. F-01~F-03의 P번호와 "진척 인플레이션" 반복 클래스가 BUG-POSTMORTEM에 존재한다.
-6. 이후 모든 상태 승격이 route-owners.json 파생값으로만 이뤄진다.
+1. **충족**: ops-status·retirement-manifest·route-owners.json·handoff·실행 계획·INDEX가 동일한 실측 소유권(lifecycle 17, renderer 2, data 0, chart 1, narrative 1)을 서술한다.
+2. **충족**: contested DOM writer 0 (AG-DOM-WRITER PASS, RM-01). 단 이는 "native가 legacy를 침범하지 않는다"는 뜻이며, "legacy가 삭제되고 native가 단독 소유"라는 뜻이 아니다(§2 baseline 4카운터 무변화가 그 증거).
+3. **부분 충족**: RM-03이 `computeTradingScoreModel` 1건에 한해 legacy 덤프 대조 실 parity를 달성했다. `scripts/ci-domain-parity-check.mjs`의 원래 7개 모델(market/macro/portfolio/screener/news/technical/signal)은 **여전히 항진**(같은 fixture로 같은 함수 2회 호출) — "항진 게이트 0"은 아직 미충족이며, RM-03 item 2(F&G/RRG/Weinstein)가 이어서 줄여야 한다.
+4. **충족**: 그 정직한 상태로 §8.1 전체(12개, RM-05에서 ci-esm-core-unit-check 추가) + ci.yml 전체가 PASS(게이트를 낮춰서가 아니라 검증을 바꿔서 — RM-00의 원칙 유지).
+5. **충족**: F-01~F-03의 P번호(P740/P741)와 "진척 인플레이션" 반복 클래스가 BUG-POSTMORTEM에 존재한다. P742(RM-02)·P743(RM-03)·P744(RM-05)도 같은 규율로 추가 기록됨.
+6. **충족**: 이후 모든 상태 승격이 route-owners.json 파생값으로만 이뤄지도록 게이트가 강제한다(RM-00의 cross-validation).
+
+**요약**: 6개 기준 중 5개 충족, 1개(항진 게이트) 부분 충족. "전체 재구축 완료"가 아니라 "회계·게이트 무결성 복구 완료 + ARX 재진입 준비 완료"로 정확히 스코프를 한정한다.
 
 ## 6. 이 감사의 커버리지와 미검증 고지 (2026-07-19 2차 스윕 후 최종)
 
@@ -262,6 +272,8 @@ RM-00 + RM-04 (원장·게이트·규율 — 1세션)
 - 삭제 0건 architecture 배치, 선언식 상태 승격, 게이트를 낮춰서 초록 만들기
 - legacy와 다른 산식의 병렬 도입(도메인은 추출만)
 - 사용자 명시 지시 없는 커밋·푸시·배포
+
+**2026-07-19 갱신**: RM-00/01/02/03(item 1·5)/04/05가 같은 세션에서 완료되어 "RM 완료 전 ARX 착수 금지" 조항의 전제(RM 미완료)는 더 이상 성립하지 않는다. 그러나 이것이 "따라서 이어서 ARX-03/04를 자동 착수하라"는 뜻은 아니다 — RM-06(§0.1)이 명시하듯 ARX 재진입은 route당 600~800줄 신규+수백~수천 줄 삭제 규모의 별도 다세션 작업이며, 착수 여부·시점은 사용자 지시를 받는다. 나머지 3개 금지 항목(삭제 0건 배치, legacy와 다른 산식 병렬 도입, 무단 커밋·푸시·배포)은 RM 완료 여부와 무관하게 계속 유효하다.
 
 ## 8. 세션 로그 (실행 계획 §7 양식)
 
