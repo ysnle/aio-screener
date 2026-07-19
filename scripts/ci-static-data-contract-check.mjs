@@ -89,7 +89,7 @@ const categories = [
   ['kr-breadth', hasNumber(kr.above20) && kr.coveragePct >= 85, 'screener artifact'],
   ['breadth-history', /시계열 미수신/.test(ui + core), 'explicit unavailable'],
   ['treasury-curve', ['fedRate'].some((k) => hasNumber(macro[k])) && /getUsTreasuryCurveEvidence/.test(core), 'FRED/runtime evidence'],
-  ['hy-oas', /hyOAS:null/.test(snapshot), 'explicit unavailable unless FRED runtime'],
+  ['hy-oas', (hasNumber(macro.hyOAS) && /_serverHySpreadBp|_hySpreadBp/.test(dataCode)) || /hyOAS:null/.test(snapshot), 'FRED server artifact or explicit unavailable'],
   ['cpi-pce', hasNumber(macro.cpi) && hasNumber(macro.pce), 'FRED/BLS artifact'],
   ['employment-wages', hasNumber(macro.unemployment) && hasNumber(macro.usWageGrowth), 'FRED/BLS artifact'],
   ['retail-housing-ism', hasNumber(macro.retailSales) && hasNumber(macro.housingStarts) && /ism-mfg/.test(core), 'artifact + official calendar'],

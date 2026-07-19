@@ -1,3 +1,10 @@
+## v53.14 (2026-07-19)
+- P735 / AR-07 Batch 0: `history.json` 369행의 3,535개 numeric field에 `observedAt/fetchedAt/source/allowedUse` provenance를 보존하고, 1년 백필·휴장일 explicit carry-forward와 blocking field-time contract를 추가했다.
+- AR-07 Batch 0/2: FRED macro last-known-good merge를 추가해 키/series 실패가 공식 관측값을 삭제하지 않게 했고, durable FRED HY OAS를 server-data UI success path에 연결했다.
+- AR-07 Batch 3: 서버 marketAnalysis는 NFP 천명 단위 semantic gate를 통과한 결과만 publish하며, NFP 10배 오류 fixture를 CI에 고정했다. 현재 로컬에서는 `marketAnalysisSemanticOk=false`로 안전한 template fallback을 사용한다.
+- `ci-history-field-time-contract.mjs`를 CI blocking gate로 등록. 7-day Cloudflare fast-plane soak/provider rights/SEC coverage는 여전히 `OPERATOR_REQUIRED/PARTIAL`이다.
+- R1 7곳 v53.14
+
 ## v53.13 (2026-07-19)
 - P734: fixed the encrypted Portfolio Vault reload gate so a hard reload visibly returns to the lock screen.
 - Added RSS retry plus a 7-day provider backstop that still filters every article through the canonical completed 08:00 KST cycle.

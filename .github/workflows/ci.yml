@@ -91,6 +91,9 @@ jobs:
       - name: Canonical market snapshot contract (AR-07 Batch 0)
         run: node scripts/ci-market-snapshot-contract-check.mjs
 
+      - name: Field-level history and AI scale contract (AR-07 Batch 0/3)
+        run: node scripts/ci-history-field-time-contract-check.mjs
+
       - name: Cloudflare fast data plane contract (AR-07 Batch 1)
         run: node scripts/ci-data-plane-contract-check.mjs
 

@@ -15,7 +15,7 @@ const CATEGORY_STATUS = Object.freeze([
   ['kr-breadth', 'PARTIAL', 'Korean breadth is available from the AIO universe; field-level historical reconciliation is pending.'],
   ['breadth-history', 'BLOCKED', 'Daily breadth history and McClellan A/D producer are not yet durable.'],
   ['treasury-curve', 'PARTIAL', 'Official series and runtime curve are present, but all series point-level reconciliation is pending.'],
-  ['hy-oas', 'BLOCKED', 'FRED HY OAS server ingest is not yet in the published UI success path.'],
+  ['hy-oas', 'PARTIAL', 'FRED HY OAS is now published by the durable artifact and applied by the server-data UI path; direct browser freshness and provider-rights evidence remain separate.'],
   ['cpi-pce', 'MATCH', 'BLS/BEA reference values are represented in the current data contract.'],
   ['employment-wages', 'MATCH', 'Employment and wage reference values are represented with official-source metadata.'],
   ['retail-housing-ism', 'PARTIAL', 'Retail/housing inputs exist; ISM release-aware direct adapter is not complete.'],

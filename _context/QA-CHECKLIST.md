@@ -3,8 +3,8 @@ verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
 version: v4.1
-checklist_version: v53.13
-latest_P_covered: P734
+checklist_version: v53.14
+latest_P_covered: P735
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---
@@ -26,6 +26,7 @@ latest_P_covered: P734
 ```
 ci-control-char-check      ci-worker-anthropic-check   ci-version-check
 ci-release-revision-check  ci-data-lineage-audit       ci-static-data-contract-check
+ci-history-field-time-contract-check
 ci-structural-check        ci-ux-default-path-check    ci-runtime-contract-check
 ci-data-pipeline-contract-check  ci-semantic-review-check  ci-workflow-compaction-check
 ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
@@ -52,6 +53,14 @@ ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
 - [x] Refresh run `29670719055`: `news 31`, public-data commit `313b7db`
 - [x] Downstream CI `29670732380`: validate, headless, route accessibility, viewport 68/68, Critical-10, Vault, Pages deploy
 - [x] Live invariant: `v53.13`, `symbolsOk=78`, `newsCount=31`
+
+## 2026-07-19 v53.14 data-reliability execution evidence (P735)
+
+- [x] `ci-history-field-time-contract.mjs`: 369 rows, 3,535/3,535 numeric fields with field-level evidence; NFP 10x fixture PASS
+- [x] `ci-static-data-contract.mjs`: 22/22 PASS; canonical Tier-0 market snapshot 16/16 PASS
+- [x] FRED LKG merge, durable HY OAS server-data projection, and AI semantic publish gate wired
+- [x] Operations/reconciliation remain explicit: `OPERATOR_REQUIRED`; counts `MATCH 3 / PARTIAL 14 / BLOCKED 5`
+- [ ] Cloudflare fast-plane credentials/resource IDs and 7-day 99% soak; provider rights and SEC 80% coverage remain external blockers
 
 ### 최근 실측 기준선 (2026-07-19, v53.13, AR-07 data plane + AR-06 inference + typed navigation facade)
 

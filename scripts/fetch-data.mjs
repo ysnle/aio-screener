@@ -325,6 +325,19 @@ async function fetchFred(key) {
   return out;
 }
 
+// AR-07 Batch 0/QG-06: a missing FRED key or a transient series failure must
+// not erase a usable last-known-good macro payload. The original observation
+// dates remain on each field and the meta status still says the new fetch did
+// not succeed, so this is never presented as a fresh observation.
+export function mergeMacroLastKnownGood(current, previous) {
+  if (!previous || typeof previous !== 'object') return current || {};
+  const merged = { ...previous, ...(current || {}) };
+  const failed = new Set([...(Array.isArray(previous._failedSeries) ? previous._failedSeries : []), ...(Array.isArray(current?._failedSeries) ? current._failedSeries : [])]);
+  merged._failedSeries = [...failed];
+  merged._lastKnownGoodAt = previous._lastKnownGoodAt || previous._asOf_hyOAS || null;
+  return merged;
+}
+
 // ── CNN Fear & Greed (봇차단 우회용 브라우저 유사 헤더) ──
 async function fetchFearGreed() {
   const headers = {
@@ -827,6 +840,7 @@ async function fetchHistory(symbol, range = '6mo') {
       const ts = res?.timestamp;
       const q0 = res?.indicators?.quote?.[0];
       const closes = q0?.close;
+      const fetchedAt = new Date().toISOString();
       // v51.91 P587/R265/C6: Yahoo's chart endpoint already returns a parallel
       // indicators.adjclose[0].adjclose series (split+dividend adjusted, no extra query param
       // needed — verified by direct fetch, not assumed) alongside the raw OHLCV. Expose it as
@@ -846,12 +860,13 @@ async function fetchHistory(symbol, range = '6mo') {
         out.push({
           date: new Date(ts[i] * 1000).toISOString().slice(0, 10),
           observedAt: new Date(ts[i] * 1000).toISOString(),
-          close: round(c, 2),
-          adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : round(c, 2),
-          high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : round(c, 2),
-          low:    typeof l === 'number' && isFinite(l) ? round(l, 2)    : round(c, 2),
-          volume: typeof v === 'number' && isFinite(v) ? Math.round(v)  : 0,
-        });
+           close: round(c, 2),
+           adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : round(c, 2),
+           high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : round(c, 2),
+           low:    typeof l === 'number' && isFinite(l) ? round(l, 2)    : round(c, 2),
+           volume: typeof v === 'number' && isFinite(v) ? Math.round(v)  : 0,
+           fetchedAt,
+         });
       }
       return out;
     } catch (e) { /* 호스트 폴백 */ }
@@ -867,31 +882,80 @@ const HIST_SYMBOLS = {
   '^KS11': 'kospi', '^KQ11': 'kosdaq', 'BTC-USD': 'btc',
 };
 const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','fg'];
+const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
 
-// v50.52 B4: 6개월 일별 종가로 history.json 과거 일자 시드(멱등 — 이미 있는 date 보존).
+// v53.14/AR-07 Batch 0: history.json은 행의 공통 date만으로 관측시각을 대표하지 않는다.
+// 각 수치에 source/observedAt/fetchedAt/allowedUse를 보존해 미국·한국·24/7 자산의
+// 거래일·수집일을 섞지 않는다. 기존 숫자 필드는 하위 호환으로 유지한다.
 async function backfillHistory(hist) {
-  const have = new Set(hist.map(h => h && h.date));
   const byDate = {};
   const syms = Object.keys(HIST_SYMBOLS);
-  const results = await mapLimit(syms, 4, async (sym) => ({ sym, rows: await fetchHistory(sym, '6mo') }));
+  const results = await mapLimit(syms, 4, async (sym) => ({ sym, rows: await fetchHistory(sym, '1y') }));
   for (const r of results) {
     if (!r || r.__error || !Array.isArray(r.rows)) continue;
     const field = HIST_SYMBOLS[r.sym];
     for (const row of r.rows) {
       if (!byDate[row.date]) byDate[row.date] = { date: row.date };
       byDate[row.date][field] = row.close;
+      byDate[row.date].fieldMeta = byDate[row.date].fieldMeta || {};
+      byDate[row.date].fieldMeta[field] = {
+        observedAt: row.observedAt || null,
+        fetchedAt: row.fetchedAt || null,
+        lastSuccessfulAt: row.fetchedAt || null,
+        source: 'Yahoo chart',
+        sourceKind: 'delayed-eod',
+        allowedUse: 'research-history',
+      };
     }
   }
   let added = 0;
   for (const date of Object.keys(byDate)) {
-    if (have.has(date)) continue;                 // 기존(라이브) 레코드 보존
-    const base = { date };
+    const existing = hist.find(h => h && h.date === date);
+    if (existing) {
+      for (const f of HIST_FIELDS) {
+        if (byDate[date][f] != null) existing[f] = byDate[date][f];
+      }
+      existing.fieldMeta = { ...(existing.fieldMeta || {}), ...(byDate[date].fieldMeta || {}) };
+      continue;
+    }
+    const base = { date, fieldMeta: byDate[date].fieldMeta || {} };
     for (const f of HIST_FIELDS) base[f] = (byDate[date][f] != null ? byDate[date][f] : null);
     hist.push(base);
     added++;
   }
   hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   return { hist, added };
+}
+
+// Weekend/holiday rows can legitimately repeat the previous observed close.
+// Carry the earlier evidence forward explicitly instead of pretending that the
+// market observed a new value on the calendar bucket date.
+function carryForwardHistoryEvidence(hist) {
+  const rows = [...hist].sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    row.fieldMeta = row.fieldMeta || {};
+    for (const field of HIST_MARKET_FIELDS) {
+      if (typeof row[field] !== 'number' || row.fieldMeta[field]?.observedAt) continue;
+      for (let j = i - 1; j >= 0; j--) {
+        const prior = rows[j];
+        const priorMeta = prior?.fieldMeta?.[field];
+        if (typeof prior?.[field] !== 'number' || !priorMeta?.observedAt) continue;
+        // The old common-date record may contain an unverified weekend value.
+        // Replace it with the last observed close before carrying the evidence;
+        // the relation is explicit and downgraded to reference-only.
+        row[field] = prior[field];
+        row.fieldMeta[field] = {
+          ...priorMeta,
+          allowedUse: 'reference-only',
+          observationRelation: 'carried-forward',
+          carriedFrom: prior.date,
+        };
+        break;
+      }
+    }
+  }
+  return hist;
 }
 
 // ── WO-7 (ops): 일별 히스토리 축적 (public-data/history.json) ──
@@ -908,7 +972,34 @@ async function updateHistory(data) {
       console.warn('[fetch-data] history: 핵심 심볼(SPX/VIX) 없음 — 히스토리 갱신 스킵');
       return null;
     }
-    const today = new Date().toISOString().slice(0, 10); // UTC 일자
+    const fetchedAt = data.meta?.generatedAt || new Date().toISOString();
+    const fieldMeta = {};
+    const historyMeta = (field, quote, fallback = {}) => ({
+      observedAt: quote?.observedAt || fallback.observedAt || null,
+      fetchedAt: quote?.fetchedAt || fetchedAt,
+      lastSuccessfulAt: quote?.fetchedAt || fetchedAt,
+      source: quote?.source || fallback.source || 'Yahoo chart',
+      sourceKind: quote?.sourceTier || fallback.sourceKind || 'public-information-service',
+      allowedUse: quote?.allowedUse || fallback.allowedUse || 'reference',
+      marketSession: quote?.marketSession || quote?.marketState || fallback.marketSession || null,
+    });
+    const bySymQuote = {};
+    for (const q of data.quotes || []) bySymQuote[q.symbol] = q;
+    for (const [sym, field] of Object.entries(HIST_SYMBOLS)) {
+      const q = bySymQuote[sym];
+      if (pick(sym) !== null) fieldMeta[field] = historyMeta(field, q);
+    }
+    if (typeof data.fearGreed?.score === 'number') {
+      const rawAsOf = data.fearGreed.asOf;
+      const asOfMs = typeof rawAsOf === 'number' ? (rawAsOf < 1e12 ? rawAsOf * 1000 : rawAsOf) : Date.parse(rawAsOf || '');
+      fieldMeta.fg = historyMeta('fg', null, {
+        observedAt: Number.isFinite(asOfMs) ? new Date(asOfMs).toISOString() : null,
+        source: data.fearGreed._source || 'CNN Fear & Greed',
+        sourceKind: 'public-api',
+        allowedUse: 'reference',
+      });
+    }
+    const today = new Date(fetchedAt).toISOString().slice(0, 10); // UTC 일자 bucket; fieldMeta is authoritative
     const rec = {
       date: today,
       spx: pick('^GSPC'), nasdaq: pick('^IXIC'), dow: pick('^DJI'), rut: pick('^RUT'),
@@ -916,16 +1007,19 @@ async function updateHistory(data) {
       dxy: pick('DX-Y.NYB'), wti: pick('CL=F'), gold: pick('GC=F'),
       kospi: pick('^KS11'), kosdaq: pick('^KQ11'), btc: pick('BTC-USD'),
       fg: (data.fearGreed && typeof data.fearGreed.score === 'number') ? data.fearGreed.score : null,
+      fieldMeta,
     };
     let hist = [];
     try { const raw = JSON.parse(await readFile(HIST, 'utf8')); if (Array.isArray(raw)) hist = raw; } catch { /* 최초 실행 */ }
     // v50.52 B4: 최초/얇을 때(또는 BACKFILL=1) 6개월 일별 종가로 과거 시드 — 차트 대기 제거(멱등).
     let backfilled = 0;
-    if (hist.length < 60 || process.env.BACKFILL === '1') {
+    const needsFieldMeta = hist.some(row => HIST_MARKET_FIELDS.some(field => typeof row?.[field] === 'number' && !row?.fieldMeta?.[field]?.observedAt));
+    if (hist.length < 60 || process.env.BACKFILL === '1' || needsFieldMeta) {
       try { const bf = await backfillHistory(hist); hist = bf.hist; backfilled = bf.added; } catch (e) { console.warn('[fetch-data] backfill 실패(무시):', e && e.message || e); }
     }
+    hist = carryForwardHistoryEvidence(hist);
     const idx = hist.findIndex(h => h && h.date === today);
-    if (idx >= 0) hist[idx] = rec; else hist.push(rec);          // 같은 날 = upsert(종가 수렴)
+    if (idx >= 0) hist[idx] = { ...hist[idx], ...rec, fieldMeta: { ...(hist[idx].fieldMeta || {}), ...fieldMeta } }; else hist.push(rec); // 같은 날 = upsert
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
     await writeFile(HIST, JSON.stringify(hist));
@@ -1610,6 +1704,26 @@ export async function enrichScreener() {
   return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError, secFundamentalsOk: secResult.ok > 0, secFundamentalsCount: secResult.ok, fundamentalCount, fundamentalCoveragePct };
 }
 
+export function validateMarketAnalysisText(text, data) {
+  const issues = [];
+  const value = Number(data?.macro?.nfp);
+  const body = String(text || '').trim();
+  if (!body) issues.push('empty');
+  // PAYEMS delta is stored in thousands. A model may mention NFP without a
+  // number, but if it writes one, reject the known 10x forms before publish.
+  if (Number.isFinite(value) && /NFP|nonfarm|비농업|고용/i.test(body)) {
+    const abs = Math.abs(value);
+    const fmt = (n) => String(Math.round(n * 100) / 100).replace(/\.0+$/, '');
+    const wrongTenThousand = new RegExp(`\\b${fmt(abs)}\\s*만(?:명)?`, 'i');
+    const wrongThousands = new RegExp(`\\b${fmt(abs * 10)}\\s*(?:천|k)\\b`, 'i');
+    const wrongPersons = new RegExp(`\\b${fmt(abs * 10000).replace('.', '[.,]?')}\\s*명?\\b`, 'i');
+    if (wrongTenThousand.test(body) || wrongThousands.test(body) || wrongPersons.test(body)) {
+      issues.push('nfp-scale-mismatch');
+    }
+  }
+  return { ok: issues.length === 0, issues };
+}
+
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
 //   raw fetch 사용 — Action에 anthropic SDK 의존성 미추가. best-effort: 실패해도 data.json은 정상(클라가 템플릿 합성으로 폴백).
 //   Haiku 4.5(최저가). 수집한 시세/매크로/F&G/뉴스 헤드라인으로 간결 프롬프트 → 4~5줄 한국어 분석.
@@ -1620,10 +1734,16 @@ async function genMarketAnalysis(data) {
     const q = {};
     (data.quotes || []).forEach(x => { if (x && x.symbol) q[x.symbol] = x.price; });
     const heads = (data.news || []).slice(0, 8).map(n => '- ' + (n.title || '')).join('\n');
+    const nfp = Number(data.macro?.nfp);
+    const nfpUnit = data.macro?._bls?.series?.nonfarmPayroll?.unit || 'thousands';
+    const nfpObservedAt = data.macro?._bls?.series?.nonfarmPayroll?.observedAt || data.macro?._asOf_nfp || '—';
+    const nfpContext = Number.isFinite(nfp)
+      ? `NFP MoM ${nfp} ${nfpUnit} persons (${nfp * 1000}명; observedAt ${nfpObservedAt}; ${nfp}천명을 ${nfp}만명으로 쓰지 말 것)`
+      : `NFP ${data.macro?.nfp ?? '—'} ${nfpUnit} persons (observedAt ${nfpObservedAt})`;
     const ctx = [
       `SPX ${q['^GSPC'] ?? '—'} VIX ${q['^VIX'] ?? '—'} 10Y ${q['^TNX'] ?? '—'} DXY ${q['DX-Y.NYB'] ?? '—'} WTI ${q['CL=F'] ?? '—'} Gold ${q['GC=F'] ?? '—'} KOSPI ${q['^KS11'] ?? '—'}`,
       `F&G ${data.fearGreed?.score ?? '—'}`,
-      `CPI ${data.macro?.cpi ?? '—'} FedRate ${data.macro?.fedRate ?? '—'} NFP ${data.macro?.nfp ?? '—'}`,
+      `CPI ${data.macro?.cpi ?? '—'} FedRate ${data.macro?.fedRate ?? '—'} ${nfpContext}`,
       `최근 뉴스 헤드라인:\n${heads || '없음'}`,
     ].join('\n');
     const prompt = `다음 실시간 시장 데이터로 "현재 시장 분석"을 한국어 4~5줄로 작성하라. 객관적·간결·투자 조언 단정 금지. 수치는 위 데이터만 인용(추측 금지). 형식: 한 줄 요약 + ①변동성/심리 ②거시/금리 ③주도 뉴스/리스크.\n\n${ctx}`;
@@ -1647,9 +1767,14 @@ async function genMarketAnalysis(data) {
     const j = await r.json();
     const text = (j.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
     if (!text) return null;
+    const semantic = validateMarketAnalysisText(text, data);
+    if (!semantic.ok) {
+      console.warn(`[fetch-data] LLM 분석 semantic gate 차단: ${semantic.issues.join(',')}`);
+      return null;
+    }
     const oneLine = text.split('\n').map(s => s.trim()).filter(Boolean)[0] || text.slice(0, 120);
     console.log(`[fetch-data] LLM 분석 생성: ${model}${escalate ? ' (승격: VIX/위기뉴스)' : ' (기본)'}`);
-    return { full: text, oneLine, generatedAt: new Date().toISOString(), model };
+    return { full: text, oneLine, generatedAt: new Date().toISOString(), model, semanticStatus: 'verified', semanticIssues: [] };
   } catch (e) { console.warn('[fetch-data] LLM 분석 생성 예외(템플릿 폴백):', e && e.message); return null; }
 }
 
@@ -1658,12 +1783,14 @@ async function main() {
   console.log(`[fetch-data] ${SYMBOLS.length} 심볼 + FRED + F&G 수집 시작`);
 
   let previousBls = null;
+  let previousMacro = null;
   try {
     const previous = JSON.parse(await readFile(OUT, 'utf8'));
     previousBls = previous && previous.macro && previous.macro._bls || null;
+    previousMacro = previous && previous.macro || null;
   } catch (_) {}
 
-  const [quotesRaw, macro, fearGreed, news, putCall, bls] = await Promise.all([
+  const [quotesRaw, macroRaw, fearGreed, news, putCall, bls] = await Promise.all([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
     fetchFearGreed(),
@@ -1671,6 +1798,7 @@ async function main() {
     fetchCboePutCall(),
     fetchBlsSeries(previousBls),
   ]);
+  const macro = mergeMacroLastKnownGood(macroRaw, previousMacro);
   Object.assign(macro, bls.values || {});
   macro._bls = bls;
 
@@ -1730,6 +1858,8 @@ async function main() {
       fredHasKey,
       fredFetchOk,
       fredOk,
+      fredLkgUsed: !fredHasKey && !!previousMacro,
+      fredLkgSource: !fredHasKey && previousMacro ? 'previous-public-data-macro' : null,
       macroKeyCount: macroKeys.length,
        fredFailedSeries,
       blsStatus: bls.status,
@@ -1762,8 +1892,14 @@ async function main() {
 
   // v50.48/Phase 4: 선택적 서버 LLM 분석문 (키 있을 때만; 실패해도 data.json 정상 — 클라 템플릿 폴백)
   const marketAnalysis = await genMarketAnalysis(data);
-  if (marketAnalysis) { data.marketAnalysis = marketAnalysis; data.meta.marketAnalysisOk = true; }
-  else { data.meta.marketAnalysisOk = false; }
+  if (marketAnalysis) {
+    data.marketAnalysis = marketAnalysis;
+    data.meta.marketAnalysisOk = true;
+    data.meta.marketAnalysisSemanticOk = true;
+  } else {
+    data.meta.marketAnalysisOk = false;
+    data.meta.marketAnalysisSemanticOk = false;
+  }
 
   if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');
   if (!fredHasKey) console.warn('[fetch-data] 경고: FRED_API_KEY GitHub Secret 미등록 — 매크로 서버갱신 비활성. 클라이언트 aio_fred_key로 브릿지 가능.');

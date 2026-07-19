@@ -2,10 +2,10 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-19
 confidence: high
-latest_version: v53.13
-latest_P_number: P734
-next_P_number: P735
-total_entries: 508 (P1~P733, 결번 존재 — 상세 27건 + 압축 원장)
+latest_version: v53.14
+latest_P_number: P735
+next_P_number: P736
+total_entries: 509 (P1~P735, 결번 존재 — 상세 28건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -72,6 +72,15 @@ total_entries: 508 (P1~P733, 결번 존재 — 상세 27건 + 압축 원장)
 - **violated_rule**: R350.
 - **prevention**: Vault E2E reload gate와 data-pipeline RSS contract를 blocking checks로 유지한다.
 - **verification**: local Vault E2E 8/8 PASS, data pipeline contract PASS, `node --check scripts/fetch-data.mjs` PASS. Downstream CI/Pages evidence follows deployment.
+
+## P735 - v53.14 - 데이터 히스토리의 공통 날짜와 LKG/AI/HY OAS 경계가 분리되지 않았다
+- **motivation**: AUTOMATED-DATA-RELIABILITY-HANDOFF의 Batch 0/2/3을 실제 산출물 계약으로 닫고, 수집 실패가 기존 공식 매크로·히스토리·AI 문장을 조용히 훼손하지 않게 한다.
+- **symptom/reproduction**: `history.json`은 369개 행에 숫자는 있었지만 field별 `observedAt/source/allowedUse`가 없어 미국·한국·암호화폐의 휴장일/24·7 관측을 공통 `date`로 오표기했다. 로컬 FRED 키가 없을 때 새 실행이 이전 FRED macro 값을 제거했고, HY OAS는 브라우저 fetch 성공에 의존했으며, raw marketAnalysis는 NFP 10배 단위 문장을 생성할 수 있었다.
+- **root_cause**: `updateHistory()`가 행 단위 숫자만 저장하고 백필의 관측 메타를 버렸다. fetch 실패 시 FRED LKG merge가 없었고, server-data loader가 `macro.hyOAS`를 `window._hySpreadBp`로 투영하지 않았다. `genMarketAnalysis()`는 typed semantic gate 없이 raw text를 반환했다.
+- **fix**: 1년 Yahoo history 백필에 field-level evidence를 보존하고 휴장일은 이전 관측값을 `carried-forward/reference-only`로 명시했다. `mergeMacroLastKnownGood()`로 누락 series를 보존하되 fetch 실패 상태를 유지하고, durable HY OAS를 server UI success path에 연결했다. `validateMarketAnalysisText()`와 `ci-history-field-time-contract-check.mjs`에 NFP 단위 fixture를 추가하고 semantic gate 통과분만 발행한다.
+- **violated_rule**: R351 및 R332/R340 계열(QG-06/QG-09/QG-11/QG-12).
+- **prevention**: refresh/CI에서 field-time·LKG·AI scale 계약을 blocking 실행하고, data.json `fredHasKey/fredFetchOk`와 `marketAnalysisSemanticOk`를 별도 상태로 유지한다. Fast plane, provider rights, SEC coverage는 운영자 승인 전 `OPERATOR_REQUIRED/PARTIAL`로 둔다.
+- **verification**: `ci-history-field-time-contract-check` PASS(369 rows, 3535/3535 numeric fields), `ci-static-data-contract` 22/22 PASS, Tier-0 snapshot 16/16 PASS, pipeline/lineage/reconciliation/operations contracts PASS. 로컬 외부 네트워크 제한 실행은 quote coverage fail-closed로 LKG를 보존했고, 권한 승인 실행은 78/78 quotes와 history backfill을 완료했다. 7-day fast-plane soak/provider rights는 미검증.
 
 ## P733 - v53.12 - refresh-data ESM summary에 CommonJS require가 남아 있었다
 - **motivation**: P732 이후 workflow heredoc의 실제 실행 경로까지 검증해 자동 data commit 회귀를 닫는다.

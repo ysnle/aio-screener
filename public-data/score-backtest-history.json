@@ -1,25 +1,25 @@
 {
- "generatedAt": "2026-07-19T02:47:08.433Z",
+ "generatedAt": "2026-07-19T03:25:17.028Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. breadth/pcr/aaiiBear/hyg/뉴스감성은 history.json에 없어 라이브 코드의 실시간-미수신 폴백 상수(또는 완전 생략)를 사용 — 근사가 아니라 이미 존재하는 코드 경로 재현. 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 \"검증 결과\"가 아니라 \"누적 진행 상황\"으로 취급할 것.",
  "summary": {
   "n5d": 35,
-  "corr5d": -0.439,
+  "corr5d": -0.48,
   "n21d": 19,
-  "corr21d": -0.539,
+  "corr21d": -0.849,
   "statisticallyMeaningful": false
  },
  "records": [
   {
    "date": "2026-06-10",
-   "reconstructedScore": 43,
+   "reconstructedScore": 47,
    "subScores": {
     "vol": 42,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
-   "fwd5dReturn": 2.263247919702659,
+   "fwd5dReturn": 3.9534938124312844,
    "fwd21dReturn": 2.9756474138536007,
    "dataCompleteness": {
     "vix": true,
@@ -27,22 +27,22 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-11",
-   "reconstructedScore": 54,
+   "reconstructedScore": 60,
    "subScores": {
     "vol": 62,
     "mom": 34,
-    "trend": 50,
+    "trend": 82,
     "breadth": 72,
     "macro": 55
    },
-   "fwd5dReturn": 2.163693655924155,
+   "fwd5dReturn": 1.5829760761667797,
    "fwd21dReturn": 1.2028183871360318,
    "dataCompleteness": {
     "vix": true,
@@ -50,18 +50,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-12",
-   "reconstructedScore": 58,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 82,
     "breadth": 72,
     "macro": 55
    },
@@ -73,18 +73,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-13",
-   "reconstructedScore": 58,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 82,
     "breadth": 72,
     "macro": 55
    },
@@ -96,18 +96,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-14",
-   "reconstructedScore": 58,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 82,
     "breadth": 72,
     "macro": 55
    },
@@ -119,64 +119,64 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-15",
-   "reconstructedScore": 58,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 82,
     "breadth": 72,
     "macro": 55
    },
-   "fwd5dReturn": 0.9300998727033435,
-   "fwd21dReturn": 1.4259647498607306,
+   "fwd5dReturn": -0.710986737337328,
+   "fwd21dReturn": -0.22318444221759653,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-16",
-   "reconstructedScore": 58,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 82,
     "breadth": 72,
     "macro": 55
    },
-   "fwd5dReturn": -0.710986737337328,
-   "fwd21dReturn": -0.6677000750566844,
+   "fwd5dReturn": -0.14338301370593085,
+   "fwd21dReturn": -0.09984889533838791,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-17",
-   "reconstructedScore": 54,
+   "reconstructedScore": 58,
    "subScores": {
     "vol": 62,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -188,18 +188,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-18",
-   "reconstructedScore": 58,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 82,
     "breadth": 72,
     "macro": 55
    },
@@ -211,18 +211,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-19",
-   "reconstructedScore": 58,
+   "reconstructedScore": 64,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 82,
     "breadth": 72,
     "macro": 55
    },
@@ -234,18 +234,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-20",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -257,18 +257,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-21",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -280,18 +280,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-22",
-   "reconstructedScore": 57,
+   "reconstructedScore": 61,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -303,7 +303,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -326,7 +326,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -349,7 +349,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -372,7 +372,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -395,7 +395,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -418,7 +418,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -441,18 +441,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-29",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -464,18 +464,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-06-30",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -487,18 +487,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-01",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -510,18 +510,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-02",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -533,18 +533,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-03",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -556,18 +556,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-04",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -579,18 +579,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-05",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -602,18 +602,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-06",
-   "reconstructedScore": 58,
+   "reconstructedScore": 62,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 55
    },
@@ -625,18 +625,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-07",
-   "reconstructedScore": 57,
+   "reconstructedScore": 61,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -648,18 +648,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-08",
-   "reconstructedScore": 57,
+   "reconstructedScore": 61,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -671,18 +671,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-09",
-   "reconstructedScore": 61,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 78,
     "mom": 52,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -694,18 +694,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-10",
-   "reconstructedScore": 61,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 78,
     "mom": 52,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -717,18 +717,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-11",
-   "reconstructedScore": 61,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 78,
     "mom": 52,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -740,18 +740,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-12",
-   "reconstructedScore": 61,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 78,
     "mom": 52,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -763,18 +763,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-13",
-   "reconstructedScore": 57,
+   "reconstructedScore": 61,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -786,18 +786,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-14",
-   "reconstructedScore": 57,
+   "reconstructedScore": 61,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -809,18 +809,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-15",
-   "reconstructedScore": 61,
+   "reconstructedScore": 65,
    "subScores": {
     "vol": 78,
     "mom": 52,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -832,18 +832,18 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
   },
   {
    "date": "2026-07-16",
-   "reconstructedScore": 57,
+   "reconstructedScore": 61,
    "subScores": {
     "vol": 78,
     "mom": 34,
-    "trend": 50,
+    "trend": 68,
     "breadth": 72,
     "macro": 45
    },
@@ -855,7 +855,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -878,7 +878,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -901,7 +901,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }
@@ -924,7 +924,7 @@
     "tnx": true,
     "wti": true,
     "vvix": true,
-    "trend200maAvailable": false,
+    "trend200maAvailable": true,
     "breadthPcrAaiiHygFellBackToNeutral": true,
     "newsSentimentOmitted": true
    }

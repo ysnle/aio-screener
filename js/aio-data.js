@@ -5467,6 +5467,33 @@ async function _aioLoadServerData() {
           window.DATA_SNAPSHOT['_' + k + 'Delta'] = d.macro[k + 'Delta'];
         }
       });
+      // AR-07 Batch 2: the durable FRED HY OAS value is the primary published
+      // success path. Do not wait for the browser's CORS/proxy fetch and never
+      // derive OAS from HYG's dollar price (duration-contaminated proxy).
+      if (typeof d.macro.hyOAS === 'number' && isFinite(d.macro.hyOAS)) {
+        var _serverHySpreadBp = Math.round(d.macro.hyOAS * 100);
+        Object.assign(window, {
+          _hySpreadBp: _serverHySpreadBp,
+          _hySpreadDate: d.macro._asOf_hyOAS || null,
+          _hySpreadSource: 'github-actions:FRED'
+        });
+        Object.assign(window.DATA_SNAPSHOT, {
+          hyOAS: d.macro.hyOAS,
+          hySpread: _serverHySpreadBp,
+          _hySpreadSource: 'fred-server-artifact'
+        });
+        if (window.DATA_SNAPSHOT._fieldTs) window.DATA_SNAPSHOT._fieldTs.hySpread = d.meta.generatedAt || new Date().toISOString();
+        if (window._serverDataMeta) window._serverDataMeta.hyOAS = {
+          value: d.macro.hyOAS,
+          valueBp: _serverHySpreadBp,
+          observedAt: d.macro._asOf_hyOAS || null,
+          fetchedAt: d.meta.generatedAt || null,
+          source: 'FRED BAMLH0A0HYM2 via GitHub Actions',
+          sourceKind: 'official-series',
+          allowedUse: 'reference-until-freshness-gate'
+        };
+        _serverMacroApplied++;
+      }
       // BLS stays a separate official evidence family. It is projected into
       // namespaced snapshot fields and never silently replaces the FRED values
       // above; the typed series retains observation/release/fetch semantics.
@@ -6483,7 +6510,8 @@ async function _aioLoadHistory() {
 }
 window._aioLoadHistory = _aioLoadHistory;
 
-// field별 [{date, value}] 시계열 — 유효 포인트가 minPoints 이상일 때만 반환(아니면 null → 시드 폴백)
+// field별 [{date, value, observedAt, source}] 시계열 — date는 기존 차트 호환용
+// bucket이고, fieldMeta.observedAt/source가 실제 관측 provenance다.
 function _aioHistorySeries(field, minPoints) {
   try {
     var arr = window._aioHistory;
@@ -6491,7 +6519,10 @@ function _aioHistorySeries(field, minPoints) {
     var out = [];
     for (var i = 0; i < arr.length; i++) {
       var v = arr[i] && arr[i][field];
-      if (typeof v === 'number' && isFinite(v)) out.push({ date: arr[i].date, value: v });
+      if (typeof v === 'number' && isFinite(v)) {
+        var meta = arr[i] && arr[i].fieldMeta && arr[i].fieldMeta[field] || {};
+        out.push({ date: arr[i].date, value: v, observedAt: meta.observedAt || null, source: meta.source || null, sourceKind: meta.sourceKind || null });
+      }
     }
     return out.length >= (minPoints || 20) ? out : null;
   } catch (e) { return null; }

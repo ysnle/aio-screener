@@ -2,10 +2,16 @@
 verified_by: agent (Fable 5)
 last_verified: 2026-07-18
 confidence: high
-target_version: v53.10
+target_version: v53.14
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R351. History bucket dates must not replace field-level observation provenance (v53.14, P735)
+
+**Rule**: `history.json`의 행 `date`는 기존 차트 호환용 calendar bucket일 뿐, 각 값의 관측시각이 아니다. 숫자 입력은 `fieldMeta[field]`에 `observedAt`, `fetchedAt`, `lastSuccessfulAt`, `source`, `sourceKind`, `allowedUse`를 보유해야 하며 휴장일 carry-forward는 이전 관측값·`reference-only`·관계 상태를 명시한다. FRED/AI/HY OAS 공급 실패는 LKG 값 삭제·새 관측 승격·raw AI 발행으로 이어지면 안 된다.
+
+**Validation**: `ci-history-field-time-contract-check.mjs`는 모든 numeric history field의 field-level evidence와 NFP 10배 fixture를 검증한다. `fetch-data.mjs`의 FRED LKG merge, `js/aio-data.js`의 durable HY OAS projection, `marketAnalysisSemanticOk` fail-closed 상태를 함께 확인한다.
 
 ## R350. Protected portfolio reloads and RSS backstops must fail closed at the visible boundary (v53.13, P734)
 

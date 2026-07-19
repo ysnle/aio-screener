@@ -1,10 +1,10 @@
 ---
 verified_by: Codex (repository, live artifacts, GitHub Actions, official and direct-source spot checks)
-last_verified: 2026-07-18
+last_verified: 2026-07-19
 confidence: high
-auto_refresh: false
-target_version: v53.9
-status: DESIGNED_WITH_RUNTIME_AUDIT
+auto_refresh: durable-actions-partial; fast-plane-operator-required
+target_version: v53.14
+status: PARTIAL_WITH_EXECUTED_GATES
 ---
 
 # 자동 데이터 신뢰성·대체 추론 구조 핸드오프
@@ -443,3 +443,21 @@ Cloudflare Cron을 새로 쓰기 어렵다면 외부 cron이 `repository_dispatc
 | QG-14 Route coverage | 14 사용자 페이지와 3 조건부 route의 required producer/text/chart 상태가 모두 기록됨 |
 
 이번 1:1 대조의 최종 판정은 `PARTIAL/FAIL`이다. 대표 핵심값은 다수 일치했지만 field-level 시간 오표기, HY OAS 전달 공백, 여러 시계열 미검증, raw AI NFP 단위 오류가 있어 “전수 1:1 대조 완료” 또는 “자동 최신화 보장”으로 승격할 수 없다.
+
+## 13. 2026-07-19 실행 보정 및 현재 상태 (v53.14 / P735)
+
+이 문서의 과거 §12 표는 v53.11 시점의 1:1 대조 기록이다. 이후 이번 실행에서 다음 변경을 실제 코드·산출물·CI 계약으로 반영했다.
+
+| 항목 | 현재 실행 결과 | 판정 |
+|---|---|---|
+| Batch 0 history field time | `history.json` 369행, numeric field 3,535/3,535가 `observedAt/fetchedAt/lastSuccessfulAt/source/sourceKind/allowedUse` 보유. 휴장일 값은 `carried-forward/reference-only`로 명시 | PASS |
+| Batch 0 LKG | FRED 키/series 실패 시 이전 macro 값과 관측일을 보존하고 `fredHasKey/fredFetchOk/fredLkgUsed`를 분리 | PASS |
+| Batch 0 Tier 0 | canonical market snapshot 16/16, incomplete fixture fail-closed | PASS |
+| Batch 2 HY OAS | FRED `BAMLH0A0HYM2` durable artifact → `window._hySpreadBp`/`DATA_SNAPSHOT.hySpread` server UI path 연결. provider rights/direct freshness는 별도 | PARTIAL |
+| Batch 3 AI | NFP `thousands` context와 10x semantic fixture를 추가. 검증 실패 문장은 publish하지 않으며 현재 local key 없음은 `marketAnalysisSemanticOk=false` | PASS (local) |
+| 22-category reconciliation | MATCH 3 / PARTIAL 14 / BLOCKED 5 | PARTIAL |
+| Fast plane / SLO | Cloudflare endpoint/resource/credentials 없음, observed soak 0/7일 | OPERATOR_REQUIRED |
+
+재현 게이트: `node scripts/ci-history-field-time-contract-check.mjs`, `ci-static-data-contract-check.mjs`, `ci-market-snapshot-contract-check.mjs`, `ci-data-lineage-audit.mjs`, `ci-data-pipeline-contract-check.mjs`, `ci-operations-status-check.mjs`, `ci-reconciliation-contract-check.mjs`는 현재 체크아웃에서 PASS한다. 외부 권한 없는 실행은 quote coverage를 fail-closed하고 기존 LKG를 보존했으며, 승인된 외부 연결 실행은 78/78 quote와 1년 history backfill을 완료했다.
+
+따라서 현재 전체 AR-07 acceptance는 `PARTIAL`이다. Cloudflare Fast plane 7-day 99% soak, Yahoo/FRED/SEC/한국 데이터 provider rights, AAII/NAAIM/II·VKOSPI·공식 breadth history 등은 운영자 결정/외부 권한 없이 완료로 보고하지 않는다.

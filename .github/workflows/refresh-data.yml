@@ -58,6 +58,7 @@ jobs:
               `| Fear&Greed | ${m.fearGreedOk ? 'OK' : 'WARN'} | ${d.fearGreed && d.fearGreed.score != null ? d.fearGreed.score : 'n/a'} |`,
               `| Cboe Put/Call | ${m.putCallOk ? 'OK (delayed)' : 'WARN'} | ${d.putCall && d.putCall.totalPutCall != null ? d.putCall.totalPutCall + ' · ' + (d.putCall.asOf || 'date n/a') : 'n/a'} |`,
               `| FRED Secret | ${m.fredHasKey ? (m.fredFailedSeries && m.fredFailedSeries.length ? 'WARN' : 'OK') : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'}${m.fredFailedSeries && m.fredFailedSeries.length ? ' · failed: ' + m.fredFailedSeries.join(',') : ''} |`,
+              `| FRED LKG | ${m.fredLkgUsed ? 'REFERENCE' : 'N/A'} | source=${m.fredLkgSource || 'none'} · original observation dates retained |`,
               `| BLS official | ${m.blsStatus === 'ok' || m.blsStatus === 'cached-fresh' ? 'OK' : m.blsStatus === 'partial' ? 'PARTIAL' : 'WARN'} | status=${m.blsStatus || 'unavailable'} series=${m.blsSeriesCount || 0}/6 failed=${(m.blsFailedSeries || []).join(',') || 'none'} lastSuccessfulAt=${m.blsLastSuccessfulAt || 'none'} |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
               `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'ANTHROPIC_API_KEY missing or generation failed'} |`,
