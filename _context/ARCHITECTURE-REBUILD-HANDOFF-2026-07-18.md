@@ -1,6 +1,6 @@
 ---
 verified_by: Codex (repository-wide static architecture review and current audit reconciliation)
-last_verified: 2026-07-18
+last_verified: 2026-07-19
 confidence: high
 auto_refresh: false
 target_version: v53.13
@@ -525,4 +525,7 @@ plane의 live backstop과 AR-09 full native renderer cutover는 외부 운영 �
 - `public-data/reconciliation-status.json`: 22 categories = `MATCH 3 / PARTIAL 13 / BLOCKED 6`.
 - `src/ai/inference.js`: WebSearch claims are direction/range/confidence/sourceCount/sourceUrls/observedWindow only; exact current numeric fields are rejected and HIGH requires two sources.
 - `src/legacy/compatibility-facade.js`: typed lifecycle router owns navigation entry through an explicitly marked compatibility facade; legacy renderer remains the declared owner for 16 routes, so AR-09 is not falsely marked complete.
-- Local gates passed: architecture contract/browser, inference, market snapshot, data plane, operations, reconciliation, workflow YAML/control-character checks. Full CI/browser matrix and Pages/live checks remain to be run after the final versioned commit.
+- Local gates passed: architecture contract/browser, inference, market snapshot, data plane, operations, reconciliation, workflow YAML/control-character checks. v53.13 local Vault E2E is 8/8 PASS and the RSS retry/backstop contract is PASS.
+- Refresh run `29670719055` succeeded with `news 31` and created data commit `313b7db`; downstream CI run `29670732380` passed validate, 22-category/static and lineage gates, headless tests, all-route accessibility, viewport 68/68, Critical-10, Vault E2E, and GitHub Pages deploy.
+- Live invariant check passed at `https://ysnle.github.io/aio-screener` with version `v53.13`; live `data.json` reports `symbolsOk=78`, `newsCount=31`, generated at `2026-07-19T02:46:57.844Z`.
+- Release boundary remains explicit: AR-07 fast plane is `OPERATOR_REQUIRED` pending Cloudflare credentials/provider rights/7-day SLO, and AR-09 remains partial because the legacy renderer still owns the declared route set. Do not promote either to full verified completion.

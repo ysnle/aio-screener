@@ -45,7 +45,15 @@ ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
 | 포트폴리오 Vault E2E | `node scripts/ci-portfolio-vault-e2e.mjs` | PFE2-01~08 PASS |
 | 접근성 매트릭스 | `node scripts/ci-accessibility-matrix-check.mjs` | 17 routes pass · consoleErrors 0 |
 
-### 최근 실측 기준선 (2026-07-18, v53.11, AR-07 data plane + AR-06 inference + typed navigation facade)
+## 2026-07-19 v53.13 최종 릴리스 증거 (P734)
+
+- [x] Local Portfolio Vault E2E 8/8, including `reload_requires_unlock`
+- [x] RSS retry/backstop data-pipeline contract and `fetch-data.mjs` syntax
+- [x] Refresh run `29670719055`: `news 31`, public-data commit `313b7db`
+- [x] Downstream CI `29670732380`: validate, headless, route accessibility, viewport 68/68, Critical-10, Vault, Pages deploy
+- [x] Live invariant: `v53.13`, `symbolsOk=78`, `newsCount=31`
+
+### 최근 실측 기준선 (2026-07-19, v53.13, AR-07 data plane + AR-06 inference + typed navigation facade)
 
 정적 15종 전부 PASS(data-lineage WARN 1: SEC 93/655=14.2%) · 헤드리스 1101/1101 · boot FCP 1556ms/route 1162ms/max long task 611ms · critical10 10/10(consoleErrors 0) · a11y 17/17(consoleErrors 0) · FULL_INIT viewport 68/68(4개 viewport shard, overflow 0px, tinyText 0, jsErrors 0) · vault E2E 8/8 PASS. 부팅 수치는 단일 로컬 실행의 변동값이므로 P728의 인과 성능 향상 근거로 사용하지 않는다. 로컬 Chromium은 외부망 차단 상태로 실행했으며 live Pages/Worker/provider 응답은 이 기준선에 포함하지 않는다.
 
