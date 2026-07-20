@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-20T04:12:18.581Z",
+ "generatedAt": "2026-07-20T09:40:00.248Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 101,
+ "stored": 102,
  "attempted": 24,
  "updated": 1,
  "failures": [
@@ -105,7 +105,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 554,
+ "nextRefreshCandidates": 553,
  "data": {
   "A": {
    "symbol": "A",
@@ -3164,6 +3164,34 @@
    "revGrowth": 11.2,
    "margin": 2.2,
    "roe": 14.2
+  },
+  "CIEN": {
+   "symbol": "CIEN",
+   "cik": "0000936395",
+   "entityName": "Ciena Corp",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-11-01",
+   "filedAt": "2025-12-12",
+   "fetchedAt": "2026-07-20T09:40:00.098Z",
+   "form": "10-K",
+   "accession": "0001628280-25-056698",
+   "revenue": 4769507000,
+   "netIncome": 123338000,
+   "equity": 2172761000,
+   "sharesOutstanding": 140854735,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 18.8,
+   "margin": 2.6,
+   "roe": 5.7
   }
  }
 }
