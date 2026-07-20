@@ -1,11 +1,11 @@
 ---
-verified_by: agent (Fable 5)
-last_verified: 2026-07-19
+verified_by: agent (Claude Sonnet 5)
+last_verified: 2026-07-20
 confidence: high
 latest_version: v53.16
-latest_P_number: P744
-next_P_number: P745
-total_entries: 518 (P1~P744, 결번 존재 — 상세 35건 + 압축 원장)
+latest_P_number: P747
+next_P_number: P748
+total_entries: 521 (P1~P747, 결번 존재 — 상세 38건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -23,7 +23,7 @@ total_entries: 518 (P1~P744, 결번 존재 — 상세 35건 + 압축 원장)
 | 클래스 | 대표 P | 상태/게이트 |
 |--------|--------|------------|
 | 진척 인플레이션 (실행 소유권 이전 없이 선언식 상태 승격 — scaffold/신규 파일 수를 완료로 오인) | P736 P740 | **R352 승격 완료** — `architecture/route-owners.json` 대조 검증(ci-retirement-contract/ci-operations-status-check), "게이트는 선언이 아니라 실측을 검증" 원칙 |
-| 이중 표면·그림자 구현 드리프트 (동일 판정의 중복 구현 중 한쪽만 수정) | P276 P492 P605 P606 P625 P713 P719 P741 | ci-structural(그림자 선언), "동일 지표 소비 표면 grep 전수" 원칙, **AG-DOM-WRITER 신설**(P741, native/legacy id 교집합 0) |
+| 이중 표면·그림자 구현 드리프트 (동일 판정의 중복 구현 중 한쪽만 수정) | P276 P492 P605 P606 P625 P713 P719 P741 P745 | ci-structural(그림자 선언), "동일 지표 소비 표면 grep 전수" 원칙, **AG-DOM-WRITER 신설**(P741, native/legacy id 교집합 0). P745: sloppy-mode 함수 재대입(`name = function(){}`)이 앞선 `function name(){}` 선언을 이름만 재사용해 완전히 덮어쓰는 패턴도 "이중 구현"의 한 형태 — grep으로 동일 이름 재선언/재대입 여부를 확인할 것 |
 | 생산자-소비자 파이프 단절 (인프라·필드만 만들고 소비 경로 미연결) | P239 P548 P652 P664 P721 P724 P743 | "읽기 코드 존재≠필드 존재 — 쓰기 지점 grep 실증" 원칙. P743: cross-module 브릿지 API는 "소비 측"과 "노출/필터링 측"이 분리된 별도 계약일 수 있음 — 실브라우저 게이트로 종단 간 확인 필수 |
 | 관측 시점 리터럴 부패 (달력 회전·시장값 회전·데이터 상태 영구 단언) | P604 P627 P713(T884) P715('1,508') P720('5/5') P722 | R279 계열. `grep "=== '20"` 스윕, 감사 토큰에 비숫자 컨텍스트 의무 |
 | fail-closed 위반 (결측·정적·합성값의 현재 판정 승격) | P635 P649 P706 P712 P713 P717 P718 | R340~R342, ci-static-data-contract 22카테고리 |
@@ -49,7 +49,7 @@ total_entries: 518 (P1~P744, 결번 존재 — 상세 35건 + 압축 원장)
 
 **잔존 발견 (미수정 — QA-CHECKLIST 열린 항목으로 이관)**:
 1. **HYG 달러 임계 신용 판정 3함수 잔존** — `_tempLive`(index.html ~16053/16068: `hyg>88?60:...`, `vix>30&&hyg<78`), `updateRiskMonitor`(~20492: 78/75 밴드 라벨), `generateFxBondCommentary`(~21739: `hyg<75` → "안전자산 피신 권고" **처방형 문구 포함**). P576/P713/P714가 3회 수정한 클래스의 4번째 표면 — P713 스윕이 computeTradingScore/Weinstein/MTF 경로만 커버. R341 승격 및 FRED HY OAS 일원화 필요.
-2. **`Number.isFinite(Number(...))` 18곳 잔존** — P715 함정 패턴(`Number(null)===0`). null 선차단·파싱 목적 사용은 안전하나 index.html 14986/14994/16379/26537 등 ~5곳은 null→0 통과 가능성 미분석(개별 판정 필요).
+2. **`Number.isFinite(Number(...))` 18곳 잔존** — P715 함정 패턴(`Number(null)===0`). null 선차단·파싱 목적 사용은 안전하나 index.html 14986/14994/16379/26537 등 ~5곳은 null→0 통과 가능성 미분석(개별 판정 필요). **2026-07-20(P747) 재발**: `src/data/normalize/screener.js`의 `rank` 필드가 동일 패턴으로 null→0 오염 — src/ 신규 ESM 코드도 예외가 아님을 확인, 수정 완료.
 3. **R309 양쪽-빈 삼항 1건** — js/aio-data.js:3503 `(yoy >= 0 ? '' : '')` — 이모지 스윕 잔재, 양수 부호 표기만 소실(cosmetic).
 
 ---
@@ -154,6 +154,33 @@ total_entries: 518 (P1~P744, 결번 존재 — 상세 35건 + 압축 원장)
 - **violated_rule**: R352(패턴 반복 시에도 각 파일 전수 확인 필요), AG-RESOURCE(A→B→A 자원 누수 assert 원칙, 이번에 실질적으로 처음 다中 route에 적용됨).
 - **prevention**: 새 게이트가 이제 17개 route 전부의 lifecycle 마커를 매 배치 확인하므로 동일 누락이 재발하면 즉시 차단된다. "같은 패턴으로 작성" 시에도 각 파일을 실행 경로로 한 번은 검증하는 습관 — 이번에도 3/9(entity/market/themes)에서만 누락돼 "패턴 복사가 항상 완벽하지 않다"는 근거가 하나 더 쌓였다.
 - **verification**: `ci-architecture-browser-check.mjs`(17-route 2랩 canvas 42=42, 타이머 11=11, browserErrors 0) + `ci-esm-core-unit-check.mjs`(5개 모듈 전부 PASS) + §8.1 전체 + headless 1098/1098 + critical10/a11y/knowledge-lint 전부 PASS.
+
+## P745 - v53.16 - RM-03 item 2: RRG(rsRatio/rsMomentum)·Weinstein/MTF 도메인 추출을 완료하고 F&G 합성 전제 오류를 확정했다
+- **motivation**: RM-03 item 1(P743)이 `computeTradingScore`만 수렴시키고 item 2(F&G 합성→RRG→Weinstein/MTF)를 명시적으로 미착수 이월했다(`_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` §0.1). 이번 세션은 그 이월분을 이어서 실행했다.
+- **symptom/reproduction**: 세 대상을 각각 재실측하니 handoff의 원래 전제(F-11: "F&G 합성 → RRG → Weinstein/MTF, 각각 같은 패턴")와 실제 코드가 달랐다. (1) F&G: `fetchFearGreed`/`_applyFearGreedScore`(js/aio-data.js)는 CNN이 이미 계산한 합성 점수를 그대로 fetch만 할 뿐, sub-indicator(시장모멘텀·주가강도·풋콜비율·정크본드수요 등)로부터 로컬 합성하는 코드는 전수 grep(safe-haven/junk-bond/priceStrength/synthesize 키워드)으로도 0건 — "F&G 합성 추출"은 애초에 추출 대상이 존재하지 않았다. (2) RRG: `calcLiveRS`/`classifyRRG`(index.html:22474~22521)는 단일하고 명확한 실구현이었다. (3) Weinstein/MTF: `updateWeinsteinStage`/`updateMTF`가 index.html에 각각 두 벌씩 존재했다 — `function updateWeinsteinStage(){}`/`function updateMTF(){}` 선언(구 라이브 시세 기반 복합점수 모델)과, 그 뒤 sloppy-mode 재대입 `updateWeinsteinStage = function(snapshot){}`/`updateMTF = function(snapshot){}`(P712/R340이 도입한 신 OHLCV 기반 모델)가 이름을 무조건 덮어써, 구현이 앞쪽은 어떤 호출 경로로도 도달 불가능한 완전 사문(死文)이었다(전체 호출부 교차 grep으로 검증 — 두 호출부 모두 스크립트 최초 실행이 끝난 뒤에야 실행되는 이벤트 핸들러/비동기 함수 안에 있어 재대입이 항상 먼저 끝나 있었다).
+- **root_cause**: 원 handoff(F-11)가 실제 코드를 라인 단위로 재확인하지 않고 세운 계획이었다 — F&G는 애초에 합성 로직이 없었고, Weinstein/MTF는 "하나의 살아있는 함수"가 아니라 "죽은 구현 + 살아있는 구현"의 쌍이었다(R340/P712가 교체할 때 이름만 재사용하고 구버전을 삭제하지 않아 sloppy-mode 재대입으로 우연히 안전했을 뿐).
+- **fix**: RRG의 순수 수학(RS-Ratio/RS-Momentum 계산 + 사분면 분류)을 `src/domain/themes/rrg.js`(`computeRelativeRotation`/`classifyRRG`)로 이관하고 legacy `calcLiveRS`는 `window.AIO_ARCH.computeRelativeRotation` 호출 + fail-closed 폴백으로 축소. Weinstein의 MA-스택/스테이지 분류(`shortBull`~`stageEstimate`)를 `src/domain/technical/stage.js`(`classifyMovingAverageStructure`)로, MTF의 일간/주간/중기 추세 분류를 같은 파일의 `deriveMultiTimeframeView`로 이관 — `calcTechnicalSnapshot`(js/aio-core.js)과 `updateMTF`(index.html)는 각각 이 도메인 함수를 호출하도록 재작성(한국어 라벨·색상 매핑은 legacy에 존치, RM-03 item 1과 동일 경계). `src/app/bootstrap.js`의 `api` 객체와 `src/legacy/compatibility-facade.js`의 `exposeArchitecture()` 양쪽에 신규 함수 3개를 함께 등록(P743이 발견한 "소비측만 갱신, 노출측 allowlist 누락" 배선 버그의 재발 방지 절차를 그대로 적용). 사문화된 구 Weinstein/MTF 복합점수 함수 2벌(index.html, 총 376줄, `_spy_ath` localStorage 조회 포함)을 삭제 — burn-down: `explicitWindowWrites` 1094→1088, `directStorage` 189→187, `htmlSinks` 416→410(`architecture/baseline.json` 갱신).
+- **violated_rule**: R352(추출=동일 산식 이동 — 이번엔 반대로 "새 모델이 아니라 애초에 추출 대상 없음"을 실측으로 확정), F-11(원 계획의 전제 오류), R3.
+- **prevention**: 향후 "X를 추출한다"는 계획은 착수 전 반드시 grep으로 (a) 정말 그 산식이 코드에 존재하는지, (b) 이름이 겹치는 구현이 여러 벌(특히 sloppy-mode 재대입 패턴 `name = function(){}`)은 아닌지 확인한다. cross-module 브릿지 함수 추가 시 `bootstrap.js` api 객체와 `compatibility-facade.js` exposeArchitecture() 양쪽을 같은 diff에서 갱신하는 것을 표준 절차로 삼는다(P743 이후 두 번째 준수 사례).
+- **verification**: `node scripts/dump-rrg-fixtures.mjs`/`dump-weinstein-mtf-fixtures.mjs`(git stash로 추출 전 커밋 상태를 일시 복원한 뒤 실행, 8개 실전 시나리오씩)로 골든 fixture를 생성하고 `ci-domain-parity-check.mjs`에 실 parity 검증을 추가 — 전부 일치. §8.1 전체(viewport FULL_INIT 68/68·browserErrors 0·canvas 42=42·timer 11=11 왕복 포함) + headless 1098/1098 + critical10/a11y/portfolio-vault-e2e/knowledge-lint 등 나머지 25종 게이트 전부 PASS.
+
+## P746 - v53.16 - breadth 페이지의 Weinstein 요약 배지 두 곳이 리디자인 이후 어느 라이브 코드로도 갱신되지 않는 영구 플레이스홀더였다 (발견·부분 정리, 근본 수정은 이월)
+- **motivation**: P745의 사문 코드 삭제 작업 중 삭제 대상의 종속성을 추적하다가 별도의 두 가지 고아 DOM 표면을 발견했다.
+- **symptom/reproduction**: (1) `js/aio-ui.js`의 `updateWSAnalysis()`(breadth 페이지 전용, 20SMA 폭 기반 1-factor stage 판정)가 `document.getElementById('ws-analysis')`에 썼는데, 이 id는 실제로는 **technical 페이지**의 DOM(index.html 7480~7485대)에만 존재한다 — breadth 페이지 자체에는 `ws-analysis`/`ws-stage1~4` id가 없다. breadth 페이지가 활성일 때 이 함수가 실행돼도 breadth 페이지 사용자에게는 아무 효과가 없었고, technical 페이지가 나중에 자기 `aio:pageShown`으로 정상 값을 다시 쓸 때까지 아주 짧은 순간 잘못된 내용이 남아있을 수 있는 부작용만 있었다. (2) breadth 페이지 자신의 실제 Weinstein 표면(`breadth-stage-summary` span, "Stan Weinstein 30주선" 섹션 헤더 아래)과 technical 페이지의 옛 복합 MTF 위젯이 쓰던 `mtf-verdict-text`(정적 기본값 "분석 대기 중…")는 **P745가 삭제한 사문 코드 두 벌(구 `updateWeinsteinStage`/`updateMTF`)이 유일한 writer였다** — 즉 이 두 표면은 P745의 삭제 이전부터 이미 라이브 경로로는 절대 갱신되지 않는 영구 플레이스홀더였다(그 writer가 이미 죽어 있었으므로). P745의 삭제는 이 상태를 악화시키지 않았다(이미 도달 불가능했던 코드를 지운 것뿐)지만, 명시적으로 "고쳤다"고 오표기하지 않기 위해 별도로 기록한다.
+- **root_cause**: R340/P712(Weinstein/MTF를 라이브 시세 기반 근사에서 OHLCV 기반 관측치로 교체)가 새 구현으로 함수 이름은 그대로 재사용했지만, 새 구현이 쓰는 DOM 표면(`ws-analysis`/`ws-stage1~4`, technical 페이지 전용)이 구 구현이 쓰던 DOM 표면(breadth 페이지의 `breadth-stage-summary`, technical 페이지의 `mtf-verdict-text`)과 정확히 일치하지 않았다 — 교체 당시 "이 함수가 실제로 어느 페이지의 어느 id에 쓰는가"를 전수 대조하지 않아 일부 표면이 조용히 고아가 됐다.
+- **fix(이번 세션 범위)**: `updateWSAnalysis()`와 그 호출부 2곳(js/aio-ui.js의 `initBreadthPage`, index.html의 breadth `aio:liveQuotes` 분기)을 삭제 — 다른 페이지 DOM에 쓰는 부작용을 제거했다(순수 burn-down, 어떤 사용자 가시 표면도 이 삭제로 나빠지지 않음: 삭제 전에도 breadth 페이지에는 이 함수의 효과가 보이지 않았다). `breadth-stage-summary`/`mtf-verdict-text` 자체를 다시 살아있는 데이터로 채우는 작업은 **하지 않았다** — breadth 페이지에 technical 페이지와 같은 SPY 기준 Weinstein/MTF를 그대로 노출할지, 아니면 breadth 페이지 고유의 시장폭 기반 판정을 유지·재설계할지는 제품 결정이 필요해 이번 아키텍처 회계 패킷의 범위를 벗어난다고 판단했다.
+- **violated_rule**: 해당 없음(신규 회귀 아님 — 발견된 상태가 사문화 이전부터 이미 고아였음). R3 취지에 따라 발견 즉시 기록.
+- **prevention**: 함수 이름을 재사용하며 구현을 교체할 때(R340류 패턴), 새 구현이 실제로 쓰는 DOM id 집합과 구 구현이 쓰던 DOM id 집합을 diff로 대조해 빠지는 표면이 없는지 확인하는 절차를 권고한다.
+- **verification**: `grep -n "breadth-stage-summary\|mtf-verdict-text"` — 두 id 모두 현재 코드베이스에 다른 writer가 없음을 확인(정적 기본 텍스트만 존재). `ci-architecture-browser-check.mjs`(17-route 왕복, canvas/timer 델타 0) PASS로 삭제가 새 누수나 콘솔 에러를 만들지 않았음을 확인. 남은 작업(두 표면에 무엇을 채울지 결정)은 QA-CHECKLIST 열린 백로그로 이관.
+
+## P747 - v53.16 - ARX-03/04 재진입: 8개 domain의 command/reducer 경계는 이미 클린했고, ARX-04 "closed" 선언은 미실측이었다 — screener provider 첫 실 fetch 확보 중 rank null→0 오염 발견
+- **motivation**: RM-06(2026-07-19)이 ARX 재진입점을 실행계획 §4 W2(ARX-03 commands/selectors, ARX-04 platform 채택)로 지정했고, 사용자가 2026-07-20 세션에서 착수를 명시 지시했다.
+- **symptom/reproduction**: (1) ARX-03 재측정: `src/ui/pages/*.js` 8개 모듈 전수 grep 결과 `store.dispatch`/`commands.` 호출이 **0건**(전부 selector 기반 순수 렌더) — DOM→state 금지 기준을 선언이 아니라 실측으로 확인. `src/state/slices/*.js` 8개 모두 SET/CLEAR 액션 쌍이 일관되고 derived-state 중복이 없음. (2) ARX-04 재측정: 실행 계획 368행이 "ARX-02 and ARX-04 are locally closed for the new ESM slice"라고 선언했지만, `src/data/providers/*.js` 8개 전수 grep 결과 `fetch(`/`httpClient` 참조가 **0건** — 전부 `legacy.readX()`(legacy global 프로젝션)이었다. 유일한 실 fetch 선례는 provider 계층이 아니라 AR-07의 `src/data/market-snapshot-loader.js`(durable snapshot 전용, `applyMarketSnapshotToLegacy`로 legacy에 read-only/reference-only 브릿지)뿐이었다. (3) screener provider를 이 선례를 따라 `public-data/screener.json`을 `platform/http.js`로 직접 fetch하도록 재작성하는 과정에서, 기존 `src/data/normalize/screener.js`의 `rank: Number.isFinite(Number(row?.rank)) ? Number(row.rank) : null`이 `row.rank === null`일 때 `Number(null) === 0`이 `Number.isFinite`를 통과해 **`rank: null`이 `rank: 0`으로 오염**되는 것을 실브라우저 상태 덤프(`state.screener.rows[0].rank`)에서 발견했다 — P715가 이미 지목한 패턴(`Number.isFinite(Number(...))` null→0 함정)의 재발이었다.
+- **root_cause**: (1)(2) 실행계획의 "closed" 선언은 RM-00이 지목한 것과 같은 유형의 미실측 서술이었다 — sentiment의 ARX-01/02 작업(F&G/HY/PutCall을 canonical evidence writer로 연결)을 "ARX-04 platform boundary is active"로 일반화했지만, 실제로는 provider 계층(fetch)이 아니라 legacy notify 경로였다. (3) `normalizeScreener`는 지금까지 smoke-test 픽스처(F-04, 실 데이터 아님)만 소비했고 그 픽스처는 `rank`가 항상 숫자이거나 `undefined`였지, 명시적 `null`을 준 적이 없어 이 결함이 한 번도 발현되지 않았다 — 내가 만든 새 provider가 정직하게 `rank: null`을 반환하면서 처음으로 이 코드 경로가 실행됐다.
+- **fix**: `src/data/providers/screener.js` 재작성 — `httpClient.requestJson('./public-data/screener.json')`으로 직접 fetch, 7일 초과 staleness gate(legacy `_aioApplyServerScreener`와 동일 정책) 적용, `score`/`rank`/`sector`/`name`은 `screener.json`에 없는 필드이므로 legacy의 `_aioComputeFactorRanks` 랭킹 산식을 추측·복제하지 않고 명시적으로 null 유지(R352). `src/data/normalize/screener.js`의 `rank`/`score`를 파일에 이미 있던 `finite()` 헬퍼로 통일해 null→0 오염을 제거하고 price/rsi/ret1m/ret3m/ret6m 필드를 보존하도록 확장. `src/data/orchestrators/screener.js`를 async로 전환(fetch가 진짜 비동기가 됐으므로). `bootstrap.js`의 screener provider 배선을 `read: legacy.readScreener` → `httpClient`로 교체(additive — legacy의 자체 fetch·`SCREENER_DB` 병합·`legacy.readScreener` 자체는 삭제하지 않음, native screener 렌더가 아직 이 slice를 전혀 소비하지 않아 legacy 삭제는 이번 배치 스코프 밖).
+- **violated_rule**: F-01~F-03류(미실측 완료 선언), P715 반복 클래스(`Number.isFinite(Number(...))` null→0), R352(랭킹 산식은 추측 복제 금지 — null로 정직하게 유지).
+- **prevention**: "X가 closed/adopted됐다"는 서술은 재진입 세션마다 grep으로 재확인한다(이번에 실행계획 368행에 취소선 없이 정정 각주를 추가). smoke-test 픽스처만 거친 normalize 함수가 실 데이터 경로에 처음 연결될 때는 null/undefined/0 경계값을 반드시 별도로 넣어 재검증한다 — "테스트를 통과했다"가 "실 데이터로 검증했다"를 의미하지 않는다.
+- **verification**: `ci-architecture-browser-check.mjs`의 실 상태 덤프로 수정 전(`rank:0` 오염 재현) → 수정 후(`rank:null`, `rowCount:846`, `rsi`/`ret1m`/`ret3m`/`ret6m` 실값 확인) 양쪽을 직접 캡처. §8.1 핵심 12개 + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e + ci-boot-interaction + ci-ux-default-path + ci-knowledge-lint + ci-doc-currency 전부 PASS. headless 1098/1098.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.

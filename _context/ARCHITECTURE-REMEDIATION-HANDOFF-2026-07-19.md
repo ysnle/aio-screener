@@ -1,10 +1,10 @@
 ---
-verified_by: Claude Fable 5 (repository-wide structural audit; 발견마다 파일:라인 증거 인용); RM-00~05 실행 Claude Sonnet 5
-last_verified: 2026-07-19
+verified_by: Claude Fable 5 (repository-wide structural audit; 발견마다 파일:라인 증거 인용); RM-00~05 실행 Claude Sonnet 5; RM-03 item 2 실행 Claude Sonnet 5
+last_verified: 2026-07-20
 confidence: high
 auto_refresh: false
 target_version: v53.16
-status: RM-00~05_COMPLETE_ARX_REENTRY_READY
+status: RM-00~05_COMPLETE_RM-03-ITEM2_COMPLETE_ARX_REENTRY_READY
 parent: ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md
 sibling: ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md
 scope: rebuild integrity remediation + ARX 재진입
@@ -57,7 +57,17 @@ RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 이어서 
 - `ci-domain-parity-check.mjs`(구 `ci-domain-module-smoke-check.mjs`) 실 parity 추가 + 이름 원복. market/macro/portfolio/screener/news/technical 5종은 여전히 smoke-only(RM-03 item 2, 이번 배치 범위 아님).
 - BUG-POSTMORTEM P743.
 
-**RM-03 미해결(의도적 보류)**: item 3(`signal/decision.js`의 3입력 toy 모델 삭제)은 `src/data/normalize/analysis.js`가 여전히 `deriveSignalDecision(...)`의 `.status`를 소비 중이라 보류했다 — RM-01이 DOM 렌더는 끊었지만 데이터 파이프라인 자체는 안 끊었다. 삭제하려면 `normalizeAnalysis`의 signal 유도 로직을 무엇으로 대체할지(예: `computeTradingScoreModel` 결과를 signal 슬라이스에 매핑) 별도 설계 결정이 필요하며, 실시간 사용자 상태에 영향을 주는 변경이라 이번 세션 스코프를 벗어난다고 판단해 보류했다. 후속 세션 과제로 명시.
+**RM-03 미해결(의도적 보류, 2026-07-19 시점)**: item 3(`signal/decision.js`의 3입력 toy 모델 삭제)은 `src/data/normalize/analysis.js`가 여전히 `deriveSignalDecision(...)`의 `.status`를 소비 중이라 보류했다 — RM-01이 DOM 렌더는 끊었지만 데이터 파이프라인 자체는 안 끊었다. 삭제하려면 `normalizeAnalysis`의 signal 유도 로직을 무엇으로 대체할지(예: `computeTradingScoreModel` 결과를 signal 슬라이스에 매핑) 별도 설계 결정이 필요하며, 실시간 사용자 상태에 영향을 주는 변경이라 이번 세션 스코프를 벗어난다고 판단해 보류했다. 후속 세션 과제로 명시.
+
+**RM-03 item 2 (다음 세션, 2026-07-20, P745/P746)**: F&G 합성·RRG·Weinstein/MTF를 재실측 기반으로 완료했다.
+- **F&G**: 전수 grep(CNN 7-factor 방법론 키워드 safe-haven/junk-bond/priceStrength/synthesize 전부 0건) 결과 로컬 합성 로직 자체가 존재하지 않음을 확인 — `fetchFearGreed`는 CNN이 이미 계산한 값을 그대로 받는다. "F&G 합성 추출"은 원 handoff(F-11)의 전제 오류였고, 대상이 없으므로 추출할 것도 없다.
+- **RRG**: `calcLiveRS`/`classifyRRG`(index.html)의 RS-Ratio/RS-Momentum 계산과 사분면 분류를 `src/domain/themes/rrg.js`(`computeRelativeRotation`)로 이관. legacy는 `window.AIO_ARCH.computeRelativeRotation` 호출 + fail-closed 폴백으로 축소.
+- **Weinstein/MTF**: MA-스택/스테이지 분류(`shortBull`~`stageEstimate`, 원래 `calcTechnicalSnapshot` 내부)를 `src/domain/technical/stage.js`(`classifyMovingAverageStructure`)로, MTF의 일간/주간/중기 추세 분류를 같은 파일의 `deriveMultiTimeframeView`로 이관.
+- **부수 발견 1(중요)**: index.html에 Weinstein(`updateWeinsteinStage`)·MTF(`updateMTF`) 각각 구현이 두 벌 존재했다 — `function name(){}` 선언(구 라이브 시세 기반 복합점수 모델) 뒤에 sloppy-mode 재대입 `name = function(snapshot){}`(P712/R340의 신 OHLCV 기반 모델)가 있어, 앞선 구현은 어떤 호출 경로로도 도달 불가능한 완전 사문(死文)이었다(376줄, `_spy_ath` localStorage 조회 포함). 실행 계획·핸드오프가 "RRG/Weinstein/MTF 추출"을 computeTradingScore와 "같은 패턴"으로 가정했던 전제 자체가 부정확했다는 뜻 — 실제로는 추출 전에 먼저 사문 코드부터 걷어내야 했다.
+- **부수 발견 2**: breadth 페이지의 `updateWSAnalysis()`(js/aio-ui.js)가 자기 페이지가 아니라 technical 페이지의 DOM(`ws-analysis`)에 쓰고 있던 고아 함수임을 확인해 삭제. `breadth-stage-summary`(breadth 페이지)·`mtf-verdict-text`(technical 페이지)는 위 사문 코드가 유일한 writer였다는 것도 확인 — 즉 이 두 표면은 이번 삭제 이전부터 이미 라이브로는 절대 갱신되지 않는 영구 플레이스홀더였다. 무엇을 채울지는 제품 결정이 필요해 이번 배치에서는 고치지 않고 명시 이월(QA-CHECKLIST 열린 백로그).
+- **parity**: RRG/Weinstein/MTF 모두 `git stash`로 추출 전 커밋 상태를 일시 복원해 legacy에서 직접 헤드리스 덤프(`scripts/dump-rrg-fixtures.mjs`, `dump-weinstein-mtf-fixtures.mjs`, 8개 시나리오씩)한 골든 fixture와 완전 일치를 `ci-domain-parity-check.mjs`에서 확인. `bootstrap.js` api 객체와 `compatibility-facade.js`의 `exposeArchitecture()` 양쪽에 신규 함수를 함께 등록해 P743이 발견한 "노출측 allowlist 누락" 배선 버그의 재발을 피했다(브라우저 게이트도 별도로 PASS 확인).
+- **item 3 재확인**: `deriveSignalDecision`의 toy 출력은 `src/ui/pages/analysis.js`(RM-01 이후)가 `.status`만 읽고 `.action`/`.score`/`.reasons`는 어디서도 읽지 않음을 소비처 전수 grep으로 재확인 — 즉 이 toy 모델은 현재 화면에 어떤 잘못된 값도 노출하지 않는다. 그러나 올바른 대체(`computeTradingScoreModel`의 0~100 점수를 action/label로 매핑)는 `normalizeAnalysis`에 vix/vvix/dxy/tnx/oilPrice/pcr/hyBp/newsSentimentScore/newsRiskSignals를 새로 threading해야 하는 작업이며, 이는 실행 계획 §4의 ARX-11(technical+signal+home orchestration, W4/W5/W7 선행 필요)이 이미 계획해 둔 별도 파동이다. 이번 세션은 그 사실을 실측으로 확정하는 데 그치고 조기·부분적인 매핑을 임의로 만들지 않았다(레거시와 다른 산식의 병렬 도입 금지 원칙과 동일한 이유로, "일부만 미리 연결"도 같은 리스크).
+- 상세: `_context/BUG-POSTMORTEM.md` P745(추출)·P746(고아 DOM 발견).
 
 **RM-05** (같은 세션 이어서 실행):
 - item 1(AG-DOM-WRITER 상시화)·item 4(ops-status 이원화 방지)는 RM-01/RM-00에서 이미 구현됨 — 재확인만 하고 `route-owners.json`에 route cutover 시 허용목록 이관 절차를 명시.
@@ -65,15 +75,17 @@ RM-00 + RM-04 완료(같은 세션 병합 실행, §3 권장 방식). 이어서 
 - item 3: `scripts/ci-esm-core-unit-check.mjs` 신설 — store/router/lifecycle/evidence-store/facade 5개 ESM 코어를 route 배선과 독립적으로 격리 unit 검증, ci.yml 배선.
 - BUG-POSTMORTEM P744.
 
-**RM-06** (ARX 재진입 지침 — "작업"이 아니라 다음 세션을 위한 선언·지침이므로 여기서 ARX 패킷 자체는 착수하지 않음, §7 금지 목록 유지):
-- RM-00·RM-01·RM-04(P0 선행조건) 전부 완료. **추가로 RM-02·RM-03(item 1·5)·RM-05도 같은 세션에서 완료** — 사용자가 "남은 항목 순차 진행"을 명시 지시했기 때문. RM-03 item 2·3만 명시적으로 미해결 이월.
+**RM-06** (ARX 재진입 지침 — 2026-07-19 작성 시점엔 "다음 세션을 위한 선언"이었으나, 2026-07-20 같은 세션에서 사용자가 ARX-03/04 착수를 명시 지시해 실제로 재진입했다. 이하 원문은 지침으로서 보존하고, 실제 착수 결과는 새 하위 항목으로 추가):
+- RM-00·RM-01·RM-04(P0 선행조건) 전부 완료. RM-02·RM-03(item 1·5)·RM-05도 같은 세션에서 완료. **2026-07-20 세션에서 RM-03 item 2도 완료**(F&G는 대상 없음으로 확정, RRG·Weinstein/MTF는 실 parity로 추출). item 3은 "별도 설계 결정 필요"가 아니라 "ARX-11 스코프임을 실측으로 확정, 조기 부분 구현은 하지 않음"으로 상태를 정정 — RM-03 전체가 이제 의도적으로 스코프를 좁힌 상태로 완결됐다(§0.1 RM-03 item 2 블록 참조).
 - **재진입점**: 실행계획 §4 파동 W2(ARX-03 commands/selectors, ARX-04 platform/storage/sanitizer 채택)부터. route 순서는 실행계획 §5 유지(guide/sentiment 이후 다음은 market-news+briefing 진짜 cutover, 그다음 macro+fxbond+breadth 순).
 - **작업량 전제**: sentiment 템플릿 기준 route당 실작업량 ≈ 600~800줄 신규(UI 200~350 + data 4파일 + slice/selector/commands) + 대응 legacy 수백~수천 줄 삭제. 17 route 전체로는 신규 약 1만 줄·삭제 수만 줄 잔존 — "하루 만에 전체 등록" 판정 불가를 다시 확인.
 - **진척의 유일한 지표**: `route-owners.json`의 5칸(lifecycle/renderer/data/chart/narrative) native 개수 증가 + `architecture/baseline.json` 4개 카운터(explicitWindowWrites/directFetch/directStorage/htmlSinks)의 단조 감소. 신규 파일 수·마커·dataset 스탬프(`aioArchitectureRoute`/`Slice`/`Renderer`)는 진척이 아니다(R352, F-01의 교훈 반복 확인).
 - **screener/portfolio 이관 선행조건**: RM-02(store 성능)가 완료됐으므로(1000행 fixture p95=0.04ms) 이제 대형 slice 이관(W5)의 성능 전제는 충족. 단 W5 자체는 W2~W4 완료 후 순서.
-- **현재 실측 요약**(다음 세션 시작 시 재확인 없이 신뢰하지 말 것 — `node scripts/ci-retirement-contract.mjs`로 재확인): lifecycle native 17/17, renderer native 2/17(guide, sentiment), data native 0/17, chart native 1/17(sentiment), narrative native 0/17(RM-01에서 sentiment도 legacy로 재분류됨). `architecture/baseline.json`: explicitWindowWrites=1094, directFetch=42, directStorage=189, htmlSinks=416(전부 RM-00~05 시작 시점과 동일 — 이 배치들은 legacy 삭제가 목표가 아니었음, 정상).
+- **현재 실측 요약**(다음 세션 시작 시 재확인 없이 신뢰하지 말 것 — `node scripts/ci-retirement-contract.mjs`로 재확인): lifecycle native 17/17, renderer native 2/17(guide, sentiment), data native 0/17, chart native 1/17(sentiment), narrative native 0/17(RM-01에서 sentiment도 legacy로 재분류됨) — **RM-03 item 2는 도메인 계층 작업이라 이 5칸은 불변**(route ownership이 목표가 아니었음, 정상). `architecture/baseline.json`(2026-07-20 갱신): explicitWindowWrites=1088(1094→1088), directFetch=42(불변), directStorage=187(189→187), htmlSinks=410(416→410) — RM-03 item 2가 삭제한 사문 Weinstein/MTF 복합점수 코드(376줄, innerHTML 6곳·localStorage 2곳 포함)만큼 처음으로 실질 감소했다. `ci-domain-parity-check.mjs`의 실 parity 대상은 이제 3개(trading-score/RRG/Weinstein-MTF) — 원래 항진이던 7개(market/macro/portfolio/screener/news/technical/signal) 중 어느 것도 이번 배치로 줄지 않았다(RRG·Weinstein/MTF는 그 7개 목록에 없던 별도 추가 항목).
 
-**남은 항목(다음 세션)**: RM-03 item 2·3(F&G/RRG/Weinstein 도메인 추출, `signal/decision.js` toy 모델 정리 — `normalizeAnalysis` 소비처 재설계 필요) · RM-06 재진입 이후 ARX-03/04(W2) 착수.
+**RM-06 실제 착수 (같은 날 2026-07-20, 사용자 지시, P747)**: ARX-03을 8개 domain 전수 재측정해 command/reducer 경계가 이미 클린함을 확인(UI dispatch 0건, 승격은 아님 — legacy가 여전히 렌더를 소유). ARX-04는 실행 계획이 "closed"로 선언했던 것과 달리(F-01~F-03류 미실측 서술이었음, 실행계획 문서에 취소선 없이 정정 각주 추가) 8개 provider 중 실 fetch를 쓰는 곳이 0개였음을 확인 — screener provider를 AR-07의 market-snapshot.json 로더 선례를 따라 `public-data/screener.json`을 `platform/http.js`로 실제 fetch하도록 재작성(846행 실수신, legacy fetch·SCREENER_DB 병합은 additive 유지). 그 과정에서 `normalizeScreener`의 `rank` 필드가 P715류 null→0 오염 버그였음을 실브라우저 상태 덤프로 발견·수정. 상세 세션 카드: `_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md`(실행계획 문서가 ARX 세션 카드의 정식 위치이므로 이 원장에는 요약만 유지).
+
+**남은 항목(다음 세션)**: (1) `breadth-stage-summary`/`mtf-verdict-text` 두 표면에 무엇을 채울지 제품 결정(P746) — QA-CHECKLIST 열린 백로그. (2) RM-03 item 3의 실제 구현은 ARX-11(W4/W5/W7 선행) 스코프로 확정. (3) `ci-domain-parity-check.mjs`의 나머지 7개 smoke-only 모델(market/macro/portfolio/screener/news/technical/signal)의 실 parity화. (4) ARX-04: 나머지 7개 domain provider의 실 fetch 전환(각각 legacy fetch 함수·데이터 형태가 전부 달라 domain별 개별 조사 필요 — sentiment/news/market은 특히 여러 legacy fetch 함수가 얽혀 있어 screener보다 훨씬 큼), screener의 in-flight fetch abort-on-dispose 보강, `_aioComputeFactorRanks` 랭킹 산식 도메인 추출(현재 native screener slice의 score/rank는 항상 null). (5) ARX-04 완료 판정은 "첫 slice의 legacy fetch/DOM writer 실제 삭제"가 있어야 하며, 이번 배치는 추가식이라 그 기준 미충족 — 다음 세션이 screener를 마저 cutover(legacy 삭제)할지, 다른 domain으로 넘어갈지는 사용자 판단 필요.
 
 ## 1. 실측 발견 원장 (F-01~F-09)
 
@@ -146,6 +158,15 @@ F-01~F-03은 각각 "게이트 회귀"에 해당하나 BUG-POSTMORTEM에 P번호
 ### F-11 — Trading Score 3중 구현과 백테스트 드리프트 (P1, RM-03 직접 근거)
 
 Trading Score가 세 벌 존재한다: ① 라이브 `computeTradingScore`(`aio-core.js:21671~`, 증거 게이팅·TTL 캐시·역U자 모멘텀을 갖춘 실모델) ② `scripts/backtest-trading-score.mjs:35`의 **"v52.1 기준 로직/가중치/임계값 그대로 복사"** 재구현(파일 스스로 명시; 이후 라이브가 v53.x로 진화해도 사본은 자동 추적 안 됨 — parity는 과거 scratchpad 단위테스트 1회뿐, 상시 게이트 아님) ③ `src/domain/signal/decision.js`의 무관한 3입력 toy. RM-03의 추출이 완료되면 ①②③이 단일 모듈 소비로 수렴해야 하며, backtest 스크립트의 사본 함수 삭제를 RM-03 DELETE-LEDGER에 포함한다.
+
+### F-12 — F&G는 로컬 합성 대상이 없고, Weinstein/MTF는 legacy 자체가 이미 사문+실구현의 이중 상태였다 (P1, RM-03 item 2 직접 근거, 2026-07-20 실측)
+
+F-11이 세운 "F&G 합성 → RRG → Weinstein/MTF, 각각 같은 패턴(추출=동일 산식 이동)"이라는 계획은 두 지점에서 실제 코드와 달랐다.
+
+1. **F&G 합성 로직 자체가 존재하지 않는다.** `fetchFearGreed`/`_applyFearGreedScore`(`js/aio-data.js:16766~16824`)는 CNN이 이미 계산한 점수를 그대로 fetch한다. CNN의 7-factor 방법론(market momentum/stock price strength/stock price breadth/put-call options/junk bond demand/market volatility/safe haven demand) 키워드로 `js/*.js`·`index.html` 전수 grep해도 로컬 합성 코드는 0건이다. `src/domain/sentiment/metrics.js`의 `fearGreedBand`/`deriveSentimentSummary`는 이미 존재하는 점수를 밴드·라벨로 바꾸는 로직일 뿐, "합성"이 아니다(그리고 이미 이전 세션에 추출돼 있었다). 결론: F&G는 RM-03 item 2의 추출 대상에서 제외한다 — 대상이 없기 때문이다.
+2. **`updateWeinsteinStage`/`updateMTF`가 index.html에 각각 두 벌 존재했다.** 먼저 `function updateWeinsteinStage(){}`(구, 라이브 시세·breadth·HY·섹터 로테이션 기반 복합점수, localStorage `_spy_ath` 사용)가 선언되고, 그 뒤(비-strict 모드 스크립트) `updateWeinsteinStage = function(snapshot){}`(P712/R340이 도입한 신 OHLCV 기반 fail-closed 모델)가 같은 전역 이름에 **재대입**돼 앞쪽을 완전히 덮어썼다. `updateMTF`도 동일 패턴(구 4-factor 가중점수 모델 vs 신 OHLCV 기반 모델). 재대입이 최초 스크립트 실행 중 무조건 일어나고, 두 함수의 모든 호출부는 그 이후에만(이벤트 핸들러·비동기 콜백 내부) 실행되므로 구 구현은 어떤 경로로도 도달 불가능한 완전 사문(死文)이었다 — 하지만 이름과 시그니처가 같아 정적 코드 리딩만으로는 "두 벌 중 어느 쪽이 사는지" 즉시 드러나지 않는다(전체 참조 교차 grep + 실행 순서 추론이 필요했음).
+
+이 두 발견 모두 "F-11의 계획을 실행하기 전에 대상 코드를 라인 단위로 재확인해야 한다"는 R352/F-01의 교훈이 도메인 추출 계획 자체에도 적용됨을 보여준다. 부수적으로 breadth 페이지의 `updateWSAnalysis()`(`js/aio-ui.js`)가 자기 페이지가 아닌 technical 페이지의 DOM(`ws-analysis`)에 쓰던 고아 함수였고, `breadth-stage-summary`/`mtf-verdict-text` 두 표면은 위 사문 구현이 유일한 writer라 이미 라이브로는 절대 갱신되지 않는 상태였음도 함께 발견됐다(P746, 제품 결정 필요해 이번 배치 미해결로 이관).
 
 ## 2. Route 소유권 진실표 (RM-00 재실측의 초기 가설)
 
@@ -245,16 +266,16 @@ RM-00 + RM-04 (원장·게이트·규율 — 1세션)
           -> RM-06: ARX W2 재진입 (실행 계획 §4 파동 복귀)
 ```
 
-## 5. 문서 전체 인수 기준 (2026-07-19 RM-00~05 완료 시점 판정)
+## 5. 문서 전체 인수 기준 (2026-07-19 RM-00~05 완료 시점 판정, 2026-07-20 RM-03 item 2 갱신)
 
-1. **충족**: ops-status·retirement-manifest·route-owners.json·handoff·실행 계획·INDEX가 동일한 실측 소유권(lifecycle 17, renderer 2, data 0, chart 1, narrative 1)을 서술한다.
-2. **충족**: contested DOM writer 0 (AG-DOM-WRITER PASS, RM-01). 단 이는 "native가 legacy를 침범하지 않는다"는 뜻이며, "legacy가 삭제되고 native가 단독 소유"라는 뜻이 아니다(§2 baseline 4카운터 무변화가 그 증거).
-3. **부분 충족**: RM-03이 `computeTradingScoreModel` 1건에 한해 legacy 덤프 대조 실 parity를 달성했다. `scripts/ci-domain-parity-check.mjs`의 원래 7개 모델(market/macro/portfolio/screener/news/technical/signal)은 **여전히 항진**(같은 fixture로 같은 함수 2회 호출) — "항진 게이트 0"은 아직 미충족이며, RM-03 item 2(F&G/RRG/Weinstein)가 이어서 줄여야 한다.
-4. **충족**: 그 정직한 상태로 §8.1 전체(12개, RM-05에서 ci-esm-core-unit-check 추가) + ci.yml 전체가 PASS(게이트를 낮춰서가 아니라 검증을 바꿔서 — RM-00의 원칙 유지).
-5. **충족**: F-01~F-03의 P번호(P740/P741)와 "진척 인플레이션" 반복 클래스가 BUG-POSTMORTEM에 존재한다. P742(RM-02)·P743(RM-03)·P744(RM-05)도 같은 규율로 추가 기록됨.
+1. **충족**: ops-status·retirement-manifest·route-owners.json·handoff·실행 계획·INDEX가 동일한 실측 소유권(lifecycle 17, renderer 2, data 0, chart 1, narrative 1)을 서술한다. RM-03 item 2는 도메인 계층 작업이라 이 5칸을 바꾸지 않았다(2026-07-20 재확인).
+2. **충족**: contested DOM writer 0 (AG-DOM-WRITER PASS, RM-01). 단 이는 "native가 legacy를 침범하지 않는다"는 뜻이며, "legacy가 삭제되고 native가 단독 소유"라는 뜻이 아니다. §2 baseline 4카운터는 RM-00~05 동안 무변화였으나 RM-03 item 2(2026-07-20)에서 처음 실질 감소했다(1094/42/189/416 → 1088/42/187/410) — 단 이 감소는 "native가 legacy 소유를 인수해서"가 아니라 "완전히 사문화된 legacy 코드를 삭제해서"이며, contested DOM writer 0이라는 결론 자체는 바뀌지 않는다.
+3. **부분 충족**: RM-03 item 1이 `computeTradingScoreModel`, item 2(2026-07-20)가 `computeRelativeRotation`/`classifyMovingAverageStructure`/`deriveMultiTimeframeView`까지 legacy 덤프 대조 실 parity를 달성했다(`ci-domain-parity-check.mjs`, RRG/Weinstein-MTF 각 8개 fixture 전부 일치). 단 이 셋은 `ci-domain-parity-check.mjs`가 원래 항진으로 지목했던 7개 모델(market/macro/portfolio/screener/news/technical/signal) 목록에 없던 별도 추가 항목이었다 — 그 7개는 이번 배치로 **하나도 줄지 않았고 여전히 항진**이다. "항진 게이트 0"은 미충족이며, F&G는 이번 세션에서 "로컬 합성 로직 자체가 없음"으로 확정돼 대상에서 제외됐다(추출할 항진 게이트가 애초에 없음).
+4. **충족**: 그 정직한 상태로 §8.1 전체(12개, RM-05에서 ci-esm-core-unit-check 추가) + ci.yml 전체가 PASS(게이트를 낮춰서가 아니라 검증을 바꿔서 — RM-00의 원칙 유지). RM-03 item 2도 동일 원칙으로 §8.1 + 확장 25종 게이트 전부 재실행·PASS(세션 카드 참조).
+5. **충족**: F-01~F-03의 P번호(P740/P741)와 "진척 인플레이션" 반복 클래스가 BUG-POSTMORTEM에 존재한다. P742(RM-02)·P743(RM-03 item 1)·P744(RM-05)·P745(RM-03 item 2)·P746(고아 DOM 발견)도 같은 규율로 추가 기록됨.
 6. **충족**: 이후 모든 상태 승격이 route-owners.json 파생값으로만 이뤄지도록 게이트가 강제한다(RM-00의 cross-validation).
 
-**요약**: 6개 기준 중 5개 충족, 1개(항진 게이트) 부분 충족. "전체 재구축 완료"가 아니라 "회계·게이트 무결성 복구 완료 + ARX 재진입 준비 완료"로 정확히 스코프를 한정한다.
+**요약**: 6개 기준 중 5개 충족, 1개(항진 게이트) 부분 충족 — RM-03 item 2로 실 parity 대상이 1개→3개로 늘었으나 원래 지목된 7개 항진 모델 자체는 그대로 남아 있다. "전체 재구축 완료"가 아니라 "회계·게이트 무결성 복구 완료 + ARX 재진입 준비 완료"로 정확히 스코프를 한정한다.
 
 ## 6. 이 감사의 커버리지와 미검증 고지 (2026-07-19 2차 스윕 후 최종)
 
@@ -400,4 +421,31 @@ Browser evidence: `ci-architecture-browser-check.mjs` — **수정 전 9개 rout
 Live evidence: 없음 — 커밋(로컬)만, 배포는 미지시.
 Unverified/blockers: 리소스 누수 검증은 canvas/legacy-timer-registry라는 관측 가능한 대리 지표 기반이며 CDP `getEventListeners` 기반 완전한 리스너 전수 조사는 아님(문서화된 의도적 스코프 축소). ESM 코어 unit 테스트는 "최소"(minimal) 수준(5개 모듈 × 평균 7~8개 assertion)이며 모든 edge case를 다루지 않음.
 Status: VERIFIED_LOCAL (RM-05 item 1·2·3·4 전부 완료 — RM-00~05 중 유일하게 "완료"로 승격 가능한 패킷. RM-03 item 2·3만 미해결로 남음)
+```
+
+### 세션 카드 — RM-03 item 2 (다음 세션, 2026-07-20)
+
+```text
+Packet: RM-03 item 2 (F&G 합성 유무 확정 + RRG/Weinstein/MTF 도메인 추출) — item 3은 소비처 재확인 및 ARX-11 이관 확정만, 구현 없음
+Checkout/HEAD/version/liveRevision: RM-06이 70927bb로 커밋된 상태에서 이어서 시작 / v53.16(버전 미변경 — RM-00~06과 동일 관례) / live revision 미확인(배포 없음)
+Scope route/metric/layer: 도메인 추출 — index.html:calcLiveRS/classifyRRG/updateWeinsteinStage(구)/updateMTF(구·신), js/aio-core.js:calcTechnicalSnapshot, js/aio-ui.js:updateWSAnalysis, src/domain/themes/rrg.js(신규), src/domain/technical/stage.js(신규), src/app/bootstrap.js, src/legacy/compatibility-facade.js, scripts/ci-domain-parity-check.mjs, scripts/dump-rrg-fixtures.mjs(신규), scripts/dump-weinstein-mtf-fixtures.mjs(신규)
+Owner before: RRG 산식(calcLiveRS 내부)·Weinstein/MTF 산식(calcTechnicalSnapshot·updateMTF 내부)이 전부 legacy 단일 구현(단 Weinstein/MTF는 legacy 자체가 사문 구현 1벌 + 실구현 1벌의 이중 상태였음, 아래 참조). F&G는 로컬 산식 자체가 없음(CNN fetch-only).
+Owner after: RRG 순수 수학이 src/domain/themes/rrg.js(computeRelativeRotation)로, Weinstein MA-스택/스테이지·MTF 추세 분류가 src/domain/technical/stage.js(classifyMovingAverageStructure/deriveMultiTimeframeView)로 이관 — legacy 3개 함수(calcLiveRS/calcTechnicalSnapshot/updateMTF)는 window.AIO_ARCH 호출 + fail-closed 폴백으로 축소. route ownership(lifecycle/renderer/data/chart/narrative 5칸)은 도메인 계층 작업이라 불변.
+Files read: index.html의 calcLiveRS/classifyRRG/updateWeinsteinStage(양쪽 정의)/updateMTF(양쪽 정의)/renderRRGQuadrantCards 전체, js/aio-core.js의 calcTechnicalSnapshot 전체(19021~19657)·getTradingDecisionLogicAudit, js/aio-ui.js의 updateWSAnalysis/initBreadthPage/updateBreadthBars, js/aio-data.js의 fetchFearGreed/_applyFearGreedScore 및 F&G 관련 전 참조, src/domain/{sentiment/metrics,signal/trading-score,home/summary,market/model}.js, src/data/normalize/analysis.js, src/app/bootstrap.js, src/legacy/compatibility-facade.js, scripts/dump-trading-score-fixtures.mjs(패턴 참고), scripts/ci-domain-parity-check.mjs, _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md 전문
+Files changed: index.html · js/aio-core.js · js/aio-ui.js · src/app/bootstrap.js · src/legacy/compatibility-facade.js · sw.js · scripts/ci-domain-parity-check.mjs · architecture/baseline.json · _context/CODE-MAP.md · _context/BUG-POSTMORTEM.md · CHANGELOG.md · _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md(이 문서)
+Files added: src/domain/themes/rrg.js · src/domain/technical/stage.js · scripts/dump-rrg-fixtures.mjs · scripts/dump-weinstein-mtf-fixtures.mjs · architecture/fixtures/rrg-golden.json · architecture/fixtures/weinstein-mtf-golden.json
+DELETE-LEDGER before edit:
+  - declaration: index.html의 구 `function updateWeinsteinStage(){}`(15051~15269, 218줄)·구 `function updateMTF(){}`(15271~15424, 158줄) 전체 — sloppy-mode 재대입으로 어떤 호출 경로로도 도달 불가능함을 전체 참조 교차 grep으로 확인 후 통삭제(376줄). js/aio-ui.js의 `updateWSAnalysis()`(자기 페이지가 아닌 technical 페이지 DOM에 쓰던 고아 함수) 전체 삭제.
+  - callers: js/aio-ui.js의 `initBreadthPage()` 끝의 `updateWSAnalysis()` 호출 1곳, index.html의 breadth `aio:liveQuotes` 분기 `if(breadthPage...){updateWSAnalysis();}` 블록 전체 삭제.
+  - global writer: 해당 없음(도메인 계층 이관, 전역 변수 삭제 아님)
+  - DOM/chart/narrative sink: 구 updateWeinsteinStage의 `ws-stage1~4`/`ws-analysis` innerHTML/style 쓰기, 구 updateMTF의 `mtf-analysis`/`mtf-verdict-text` innerHTML 쓰기, updateWSAnalysis의 `ws-analysis` innerHTML 쓰기 — 전부 위 함수 삭제와 함께 제거(모두 사문/고아였으므로 가시 회귀 없음)
+  - event/timer/storage: 구 updateWeinsteinStage의 `localStorage.getItem/setItem('_spy_ath')` 2곳 삭제(→ directStorage 189→187)
+  - tests/docs: 없음(해당 사문/고아 함수를 직접 검증하는 테스트 없었음 — js/aio-tests.js에 `updateWSAnalysis`/`classifyRRG` 참조 0건 사전 확인)
+Burn-down before/after: explicitWindowWrites 1094→1088 · directFetch 42→42(불변) · directStorage 189→187 · htmlSinks 416→410. `architecture/baseline.json` 갱신(explicitWindowWritesMax 1109→1088로 재래칫). RM-00~05는 이 4개 카운터가 전부 불변이었음 — RM-03 item 2가 이 연작 최초로 실질 legacy 삭제를 기록했다.
+New compatibility introduced and retirement packet: `window.AIO_ARCH.computeRelativeRotation`/`classifyMovingAverageStructure`/`deriveMultiTimeframeView` 3개 신규 브릿지(단일 구현 소비 경로, P743 트레이딩스코어와 동일 패턴) — retirement 대상 아님(영구 계약). bootstrap.js api 객체와 compatibility-facade.js exposeArchitecture() 양쪽에 같은 배치에서 등록(P743 배선 버그 재발 방지 절차 적용).
+Local gates: §8.1 핵심 12개 전부 PASS(viewport FULL_INIT 68/68·worstOverflow 0px·jsErrors 0 포함) + ci-domain-parity-check(RRG 8 fixture·Weinstein/MTF 8 fixture 전부 실 parity 일치) + ci-retirement-contract·ci-operations-status-check·ci-doc-currency(index.html -406줄 드리프트 감지했으나 ±500 임계 이내)·ci-knowledge-lint·ci-portfolio-vault-e2e(8/8)·ci-boot-interaction·ci-ux-default-path(div 3831/3831)·ci-data-lineage(1 WARN=SEC coverage, 기존·무관)·나머지 static 계약(market-snapshot/data-plane/inference/reconciliation/data-pipeline/static-data/history-field-time/storage-migration/release-manifest/release-revision/control-char/second-pass-baseline/skill-contract/workflow-compaction/worker-anthropic) 전부 PASS. headless 1098/1098.
+Browser evidence: `ci-architecture-browser-check.mjs` PASS — routeRoundTrip true, canvases 42=42, timers 11=11(랩1↔랩2 동일), browserErrors 0. sentiment/guide/home 기존 검증 불변.
+Live evidence: 없음 — 커밋(로컬) 여부도 사용자 지시 대기, 배포는 미지시.
+Unverified/blockers: `breadth-stage-summary`/`mtf-verdict-text` 두 표면을 무엇으로 채울지 제품 결정 미해결(P746, QA-CHECKLIST 이관 권고). Weinstein STAGE_3_TOPPING 분기(fullBull && sma50Rising===false)는 골든 fixture 8종 중 어느 것도 명중시키지 못했다 — 다른 5개 stageEstimate 분기·null 입력 분기는 실측 확인했으나 이 분기는 코드 대조(문자 단위 transcription 검증)로만 검증됨, 다음 세션에서 이 분기를 명중시키는 fixture를 추가하면 커버리지를 완성할 수 있음. `ci-domain-parity-check.mjs`의 원래 7개 smoke-only 모델(market/macro/portfolio/screener/news/technical/signal)은 이번 배치로 줄지 않음.
+Status: VERIFIED_LOCAL (RM-03 item 2 스코프 한정 — RM-03 전체가 이제 "item 1·2·5 완료 + item 3 의도적 스코프 확정(ARX-11 이관)"으로 완결. §5 전체 인수 기준 항목 3은 여전히 "부분 충족"이나 실 parity 대상이 1개→3개로 늘었다는 의미로 갱신)
 ```

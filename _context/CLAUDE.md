@@ -49,7 +49,7 @@
 | AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md | 중요 시세 자동 최신화 보장 계층 + 22개 영역별 직접/AI WebSearch/시장·뉴스 피드 우회안 + QG/AR 실행 게이트 | 공급자·스케줄러·SLO·추론 정책·22개 영역 상태 변경 시 |
 | ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md | 전체 12개 구조면 진단 + TypeScript/ESM/단일 상태·증거·생명주기 기반 목표 + AR-00~09 근본 재구축 원장 | 아키텍처 ADR·계층 경계·AR 패킷·legacy burn-down 변경 시 |
 | ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md | 다른 세션용 14계층·17 route·ARX-00~16 실행 원장 + DELETE-LEDGER·owner/burn-down·최종 인수 기준 | 계층/route owner, wave, 삭제 대상, gate, 재구축 상태 변경 시 |
-| ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md | v53.16 진척 회계 훼손 실측(F-01~F-09) + RM-00~06 복구 패킷 — ARX 재진입 전 필수 선행 원장 | RM 패킷 상태·route-owners·게이트 로직·소유권 실측 변경 시 |
+| ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md | v53.16 진척 회계 훼손 실측(F-01~F-12) + RM-00~06 복구 패킷 — ARX 재진입 전 필수 선행 원장. RM-00~05 + RM-03 item 2(F&G/RRG/Weinstein-MTF) 완료, item 3은 ARX-11 이관 확정 | RM 패킷 상태·route-owners·게이트 로직·소유권 실측 변경 시 |
 | WO7-GLOBAL-INVENTORY-2026-07-10.md | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7 Packet 1 — 전역 read/write baseline 실측 + timer/chart/page-lifecycle 어댑터 기존재 확인 + 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.

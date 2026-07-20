@@ -19,6 +19,8 @@ import { selectSentimentSummary } from '../state/selectors/sentiment.js';
 import { createEvidenceStore } from '../data/evidence-store.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
+import { computeRelativeRotation } from '../domain/themes/rrg.js';
+import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
 import { createMarketSnapshotLoader } from '../data/market-snapshot-loader.js';
 import { createSentimentProvider } from '../data/providers/sentiment.js';
 import { createSentimentOrchestrator } from '../data/orchestrators/sentiment.js';
@@ -173,7 +175,13 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const portfolioVault = createPrivacyVault({ storage: portfolioStorage, key: 'portfolio', consent: () => root?._portfolioVaultConsent === true });
   const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: legacy.readPortfolio, repository: portfolioVault }), commands: portfolioCommands });
   const screenerCommands = createScreenerCommands({ store });
-  const syncScreener = createScreenerOrchestrator({ provider: createScreenerProvider({ read: legacy.readScreener }), commands: screenerCommands });
+  // ARX-04 first slice: screener's provider fetches public-data/screener.json directly through
+  // the platform httpClient gateway instead of projecting legacy's SCREENER_DB global — see
+  // src/data/providers/screener.js. This is additive (legacy's own fetch/_aioApplyServerScreener
+  // and SCREENER_DB stay exactly as they were); nothing currently renders from this native slice
+  // (RM-01 stripped src/ui/pages/screener.js down to a dataset marker), so there is no blast
+  // radius to the live screener page.
+  const syncScreener = createScreenerOrchestrator({ provider: createScreenerProvider({ httpClient }), commands: screenerCommands });
   const analysisCommands = createAnalysisCommands({ store });
   const syncAnalysis = createAnalysisOrchestrator({ provider: createAnalysisProvider({ read: legacy.readAnalysis }), commands: analysisCommands });
 
@@ -300,6 +308,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy
     // and native must not diverge into two different models).
     ,computeTradingScoreModel
+    // RM-03 item 2: same single-implementation pattern for RRG (index.html:calcLiveRS) and
+    // Weinstein/MTF (js/aio-core.js:calcTechnicalSnapshot, index.html:updateMTF).
+    ,computeRelativeRotation
+    ,classifyMovingAverageStructure
+    ,deriveMultiTimeframeView
   };
   exposeArchitecture(root, api);
   return Object.freeze({ ...api, store, evidenceStore });

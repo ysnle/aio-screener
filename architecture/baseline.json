@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19",
+  "generatedAt": "2026-07-20",
   "version": "v53.16",
   "scope": [
     "index.html",
@@ -8,14 +8,17 @@
     "js/aio-ui.js",
     "js/aio-chat.js"
   ],
-  "explicitWindowWrites": 1094,
+  "explicitWindowWrites": 1088,
   "directFetch": 42,
-  "directStorage": 189,
-  "htmlSinks": 416,
+  "directStorage": 187,
+  "htmlSinks": 410,
   "burnDown": {
-    "explicitWindowWritesMax": 1109,
+    "explicitWindowWritesMax": 1088,
     "retiredDataShowPageMonkeyPatch": true,
     "retiredSentimentLegacyInitHook": true,
-    "retiredSentimentLegacyBadgeWriter": true
+    "retiredSentimentLegacyBadgeWriter": true,
+    "retiredWeinsteinCompositeDeadCode": true,
+    "retiredMtfCompositeDeadCode": true,
+    "retiredOrphanedBreadthWsAnalysisWriter": true
   }
 }

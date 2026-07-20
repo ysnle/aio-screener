@@ -9,17 +9,24 @@ import { deriveNewsClaim } from '../src/domain/news/claims.js';
 import { deriveTechnicalModel } from '../src/domain/technical/indicators.js';
 import { deriveSignalDecision } from '../src/domain/signal/decision.js';
 import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
+import { computeRelativeRotation } from '../src/domain/themes/rrg.js';
+import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../src/domain/technical/stage.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fail = (message) => { throw new Error(`[domain-parity] ${message}`); };
 
-// RM-03: trading-score has REAL parity below (extracted model vs a golden dump of the
-// unmodified legacy js/aio-core.js:computeTradingScore, captured by
-// scripts/dump-trading-score-fixtures.mjs before extraction). The other domains below remain
+// RM-03: trading-score, RRG, and Weinstein/MTF have REAL parity below (extracted models vs
+// golden dumps of the unmodified legacy functions, captured by scripts/dump-trading-score-
+// fixtures.mjs / dump-rrg-fixtures.mjs / dump-weinstein-mtf-fixtures.mjs before each extraction).
+// The other domains below (market/macro/portfolio/screener/news/technical/signal) remain
 // smoke-only (F-04): the "live"/"backtest" objects call the same function twice with the same
 // fixture, which can only catch an import/crash regression, not a real live/backtest divergence.
-// Extracting each one for real parity is RM-03 item 2 (F&G synthesis, RRG, Weinstein/MTF), not
-// done in this batch — do not read a PASS here as those models having real parity.
+// RM-03 item 2 measured that F&G has no local synthesis to extract (the score is fetched
+// pre-computed from CNN, never derived from sub-indicators in this codebase — see
+// _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md F-12) and that signal/decision.js's
+// toy model has zero live consumers beyond `.status` (proper replacement is ARX-11's scope, not a
+// small patch — see the same handoff, RM-03 item 3 note). Do not read this PASS as the remaining
+// smoke-only domains having real parity.
 const inputVersion = 'fixture-input.v1';
 const live = {
   market: deriveMarketModel({ quotes: { SPY: { value: 500, pct: 1 } }, inputVersion }),
@@ -107,4 +114,50 @@ for (const fixture of golden.fixtures) {
   }
 }
 
-console.log(JSON.stringify({ ok: true, inputVersion, models: Object.fromEntries(Object.entries(live).map(([key, value]) => [key, value.modelVersion])), tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion } }));
+// ── REAL parity: computeRelativeRotation vs golden legacy dump (calcLiveRS/classifyRRG) ──────
+const rrgGoldenPath = path.join(root, 'architecture/fixtures/rrg-golden.json');
+const rrgGolden = JSON.parse(readFileSync(rrgGoldenPath, 'utf8'));
+if (!Array.isArray(rrgGolden.fixtures) || rrgGolden.fixtures.length < 5) fail('rrg golden fixture missing or too small — re-run scripts/dump-rrg-fixtures.mjs');
+for (const fixture of rrgGolden.fixtures) {
+  const { history, benchmarkHistory, hasQuote, hasBenchmarkQuote } = fixture.inputs;
+  const extracted = computeRelativeRotation({ history, benchmarkHistory, hasQuote, hasBenchmarkQuote });
+  for (const field of ['rsRatio', 'rsMom', 'quadrant', 'reason']) {
+    if (extracted[field] !== fixture.legacyOutput[field]) {
+      fail(`RRG_PARITY_MISMATCH:${fixture.name}.${field} extracted=${JSON.stringify(extracted[field])} golden=${JSON.stringify(fixture.legacyOutput[field])}`);
+    }
+  }
+}
+
+// ── REAL parity: classifyMovingAverageStructure/deriveMultiTimeframeView vs golden legacy dump
+// (calcTechnicalSnapshot/updateMTF) ───────────────────────────────────────────────────────────
+const stageGoldenPath = path.join(root, 'architecture/fixtures/weinstein-mtf-golden.json');
+const stageGolden = JSON.parse(readFileSync(stageGoldenPath, 'utf8'));
+if (!Array.isArray(stageGolden.fixtures) || stageGolden.fixtures.length < 5) fail('weinstein-mtf golden fixture missing or too small — re-run scripts/dump-weinstein-mtf-fixtures.mjs');
+const STAGE_FIELDS = ['shortMAState', 'longMAState', 'fullMAState', 'maStackScore', 'sma50Rising', 'trendState', 'stageEstimate'];
+const MTF_DAILY_LABELS = { up: '상승', down: '하락', neutral: '중립', pending: '판정 보류' };
+const MTF_TREND_LABELS = { up: '상승', down: '하락', mixed: '혼조', pending: '판정 보류' };
+for (const fixture of stageGolden.fixtures) {
+  const snap = fixture.snapshot;
+  if (!snap.ok) continue;
+  const extractedStage = classifyMovingAverageStructure({
+    sma5: snap.sma5, sma10: snap.sma10, sma20: snap.sma20, sma50: snap.sma50, sma100: snap.sma100, sma200: snap.sma200,
+    sma50Prior: fixture.sma50Prior, lastClose: snap.price
+  });
+  for (const field of STAGE_FIELDS) {
+    if (extractedStage[field] !== snap[field]) {
+      fail(`STAGE_PARITY_MISMATCH:${fixture.name}.${field} extracted=${JSON.stringify(extractedStage[field])} golden=${JSON.stringify(snap[field])}`);
+    }
+  }
+  if (fixture.mtf && fixture.mtf.available) {
+    const extractedMtf = deriveMultiTimeframeView(snap);
+    const goldenRows = fixture.mtf.rows;
+    const labelPairs = [[MTF_DAILY_LABELS[extractedMtf.daily], goldenRows[0], 'daily'], [MTF_TREND_LABELS[extractedMtf.weekly], goldenRows[1], 'weekly'], [MTF_TREND_LABELS[extractedMtf.medium], goldenRows[2], 'medium']];
+    for (const [extractedLabel, goldenRow, axis] of labelPairs) {
+      if ((extractedLabel || '판정 보류') !== goldenRow.value) {
+        fail(`MTF_PARITY_MISMATCH:${fixture.name}.${axis} extracted=${extractedLabel} golden=${goldenRow.value}`);
+      }
+    }
+  }
+}
+
+console.log(JSON.stringify({ ok: true, inputVersion, models: Object.fromEntries(Object.entries(live).map(([key, value]) => [key, value.modelVersion])), tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length } }));

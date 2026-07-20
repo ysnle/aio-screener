@@ -6,42 +6,6 @@
 // ║  주의: MODULE 1/2의 함수 호출은 모두 이벤트/타이머 콜백 내부 (즉시 호출 X) ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 // AAII Chart.js stacked bar + P/C sparkline
-// ── Weinstein Stage Analysis Update ──────────────────────────────────
-function updateWSAnalysis() {
-  var el = document.getElementById('ws-analysis');
-  if (!el) return;
-  var ld = window._liveData || {};
-  var spy = ld['SPY'], rsp = ld['RSP'];
-
-  var spyPct = spy ? (spy.pct != null ? spy.pct : 0) : 0;
-  var breadth = (typeof window._breadth200 === 'number') ? window._breadth200 :
-                (typeof window._breadth20 === 'number') ? window._breadth20 :
-                ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.breadth20sma != null) ? DATA_SNAPSHOT.breadth20sma : null);
-  if (breadth == null || !Number.isFinite(Number(breadth))) {
-    el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">시장 폭 실측값 미수신 — Stage 판정 보류</div>';
-    return;
-  }
-
-  var stage, color, advice;
-  if (breadth > 65 && spyPct > 0) {
-    stage = 'Stage 2 (상승)'; color = '#00e5a0';
-    advice = '건강한 상승 추세. 강한 RS 종목 매수 유지. 추세 추종 전략 유효.';
-  } else if (breadth > 45 && breadth <= 65) {
-    stage = 'Stage 3 (천장 형성)'; color = '#ffa31a';
-    advice = '시장 폭 축소 중. 이익 실현 고려. 손절선 타이트하게 관리. 신규 매수 축소.';
-  } else if (breadth > 25 && breadth <= 45) {
-    stage = 'Stage 4 (하락)'; color = '#ff5b50';
-    advice = '약세 시장. 현금 비중 확대. 방어 섹터(유틸·헬스케어) 위주. 공격적 매수 자제.';
-  } else {
-    stage = 'Stage 1 (바닥 형성)'; color = '#00bcd4';
-    advice = '극단적 약세 후 바닥 탐색 중. 역발상 매수 기회 탐색. 소량 분할 매수 고려.';
-  }
-
-  el.innerHTML = '<div style="margin-bottom:8px;"><span style="font-size:15px;font-weight:700;color:' + color + ';">' + stage + '</span></div>' +
-    '<div style="color:#a0aab8;font-size:13px;line-height:1.5;">' + advice + '</div>' +
-    '<div style="margin-top:8px;font-size:11px;color:#7e8a9e;">20일선 위 종목: ' + Number(breadth).toFixed(1) + '% | SPY 일간: ' + spyPct.toFixed(2) + '%</div>';
-}
-
 // ── Market Breadth 전용 페이지 Charts ─────────────────────────────────
 let bpChartsInitialized = false;
 const bpChartInstances = {};
@@ -230,7 +194,6 @@ function initBreadthPage(forceReinit) {
     priceCanvas.setAttribute('title','S&P 500 히스토리 미수신');
   }
   bpChartsInitialized = true;
-  updateWSAnalysis();
 }
 
 function _aioGetKstDateParts(input) {

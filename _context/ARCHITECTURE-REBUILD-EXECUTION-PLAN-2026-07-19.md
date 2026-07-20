@@ -66,9 +66,9 @@ deferred until this packet sequence is complete, then runs as one batch.
 |---|---|---|---|---|---|
 | L00 | 앱 셸·부트 | `index.html` 28,381줄, runtime inline script 11개, legacy defer bundle + ESM bootstrap | `src/app/bootstrap` + build/static shell | `IN_PROGRESS` | inline runtime 11→0, shell에는 metadata/mount/accessibility만 남김 |
 | L01 | 라우터·생명주기 | legacy `showPage/PAGES/PageBus`, ESM router 병존; sentiment lifecycle만 ESM | typed route registry와 page resource bag | `IN_PROGRESS` | route별 init hook·wrapper 삭제, mount/dispose 단일 호출자, 왕복 resource 증가 0 |
-| L02 | 명령·상태·selector | `AIO.state`, `_liveData`, `DATA_SNAPSHOT`, DOM, 여러 Store 병존; ESM state는 sentiment/snapshot 일부 | typed commands + canonical slices + selectors | `IN_PROGRESS` | DOM→state 금지, metric별 writer 1개, legacy projection read-only |
+| L02 | 명령·상태·selector | `AIO.state`, `_liveData`, `DATA_SNAPSHOT`, DOM, 여러 Store 병존; ESM state는 sentiment/snapshot 일부 | typed commands + canonical slices + selectors | `IN_PROGRESS` (ARX-03 재측정 2026-07-20: command/reducer 경계 자체는 8개 domain 전부 클린 — UI dispatch 0건, SET/CLEAR 쌍 일관, derived-state 중복 0. legacy `AIO.state`/`_liveData`/`DATA_SNAPSHOT`가 여전히 렌더를 소유하므로 층 전체를 VERIFIED_LOCAL로 승격하지 않음 — 아래 ARX-03/04 세션 카드 참조) | DOM→state 금지, metric별 writer 1개, legacy projection read-only |
 | L03 | 저장소·캐시 | Vault/safeLS와 직접 Web Storage 189건 병존 | versioned repository + storage/vault gateway | `DESIGNED` | gateway 밖 direct storage 0, migration/rollback fixture |
-| L04 | 데이터 provider·orchestration | direct fetch 42건, legacy producer가 DOM·global도 갱신; snapshot/evidence 계약 일부 존재 | provider adapter→normalize→quality→evidence ingest | `IN_PROGRESS` | 첫 slice direct fetch/global/DOM writer 삭제, 실패 시 LKG 보존 |
+| L04 | 데이터 provider·orchestration | direct fetch 42건, legacy producer가 DOM·global도 갱신; snapshot/evidence 계약 일부 존재 | provider adapter→normalize→quality→evidence ingest | `IN_PROGRESS` (ARX-04 첫 실제착수 2026-07-20: screener provider가 `public-data/screener.json`을 `platform/http.js` 게이트웨이로 실제 fetch — market-snapshot.json 선례와 동일 패턴. legacy fetch 42건은 무변화(추가식, 대체 아님) — "첫 slice fetch 삭제" 인수 기준은 아직 미충족, 아래 세션 카드 참조) | 첫 slice direct fetch/global/DOM writer 삭제, 실패 시 LKG 보존 |
 | L05 | Evidence·freshness·lineage | typed evidence와 field-time 계약 존재하지만 legacy DOM audit/전역 projection 병존 | canonical EvidenceStore와 ingest ledger | `IN_PROGRESS` | UI·chart·AI evidence ID 동일, DOM에서 evidence 생성 0 |
 | L06 | 금융 domain·quant | 대다수 계산이 `aio-core/data/ui`에서 전역·DOM과 결합; sentiment pure module만 존재 | pure domain services + model/input version | `IN_PROGRESS` | live/backtest fixture parity, missing/zero/neutral/stale 분리 |
 | L07 | UI·component·chart·narrative | native renderer 1/17, HTML sink 418건, 거대 상주 DOM | route-local page/component/chart modules | `IN_PROGRESS` | sentiment native renderer 후 16개 legacy renderer·HTML writer·chart init 삭제 |
@@ -369,4 +369,34 @@ The current measured counters are `explicitWindowWrites=1094`, `directFetch=42`,
 
 후속 진행 중인 ARX-02/03은 provider·normalize·orchestrator와 state slice/selector/command 경계를 연결하고 VIX legacy narrative/chart hook, F&G/HY/PutCall의 일부 legacy DOM sink, dead F&G/crypto HTML renderer, renderer 전용 T879, 중복 snapshot projection을 삭제했다. legacy producer의 전체 gateway 전환과 남은 cross-route writer 검증이 남아 있으므로 ARX-02는 완료로 표시하지 않는다.
 
+**정정 (2026-07-20, ARX-03/04 재진입 실측)**: 위 368행의 "ARX-02 and ARX-04 are locally closed for the new ESM slice"는 실측되지 않은 서술이었다. 2026-07-20 재측정 결과 ARX-04(HTTP 게이트웨이 실채택)는 sentiment 포함 8개 domain provider 중 **0개**가 `platform/http.js`를 사용했다 — 전부 `legacy.readX()` projection이었다(유일한 예외는 이 재진입 이전부터 있던 AR-07의 `market-snapshot.json` 로더, provider 계층이 아니라 별도의 durable-snapshot 경로). "closed"는 F-01~F-03류의 미실측 선언이었음을 기록하고, 아래 ARX-03/04 세션 카드가 실측 기반 정정이다.
+
 커밋·푸시·배포는 사용자의 명시 지시가 있을 때만 수행한다.
+
+---
+
+## 세션 카드 — ARX-03 검증 + ARX-04 첫 실착수 (2026-07-20, RM-06 재진입 첫 패킷)
+
+```text
+Packet: ARX-03(검증만, 코드 변경 없음) + ARX-04 첫 슬라이스(screener provider 실 fetch)
+Checkout/HEAD/version/liveRevision: RM-03 item 2(같은 세션, 미커밋)에 이어서 시작 / v53.16(버전 미변경) / live revision 미확인(배포 없음)
+Scope route/metric/layer: ARX-03 — src/state/slices/*.js·src/app/commands/*.js·src/ui/pages/*.js 8개 domain 전수 재검증(코드 변경 없음). ARX-04 — src/data/providers/screener.js·src/data/normalize/screener.js·src/data/orchestrators/screener.js·src/app/bootstrap.js(screener 배선만)
+Owner before: ARX-03 — 선언상 IN_PROGRESS(재측정 없음). ARX-04 — 선언상 "locally closed"(368행, 미실측). 실측: screener provider는 `legacy.readScreener`(SCREENER_DB projection) 사용, 직접 fetch 0.
+Owner after: ARX-03 — IN_PROGRESS 유지(정직한 재확인, 승격 아님): command/reducer 경계는 8개 domain 전부 클린함을 실측 확인(증거 아래). ARX-04 — screener provider가 `public-data/screener.json`을 `platform/http.js`(`httpClient.requestJson`)로 직접 fetch(846행 실수신 확인). legacy fetch(`js/aio-data.js:5613`)·`SCREENER_DB` 병합(`_aioApplyServerScreener`)은 그대로 유지(additive, 대체 아님) — screener route의 dataOwner는 여전히 legacy(native 렌더가 아직 이 데이터를 쓰지 않음, RM-01이 dataset 마커만 남겨둔 상태 그대로).
+Files read: src/state/slices/{sentiment,news,market,themes,entity,portfolio,screener,analysis}.js 전체, src/app/commands/*.js 8개, src/ui/pages/*.js 8개(dispatch 패턴 확인), src/data/providers/*.js 8개(fetch 패턴 확인), src/platform/http.js, src/data/market-snapshot-loader.js(선례), src/legacy/market-snapshot-bridge.js(선례), src/legacy/compatibility-facade.js의 readScreener/readMarket/readAnalysis, js/aio-data.js의 screener.json fetch 블록(5610~5630)·`_aioApplyServerScreener`(15865~) 전문, public-data/screener.json 실제 구조
+Files changed: src/data/providers/screener.js(재작성) · src/data/normalize/screener.js(fetch 필드 5종 추가 + rank/score null-coercion 버그 수정) · src/data/orchestrators/screener.js(async 전환) · src/app/bootstrap.js(screener provider 배선)
+DELETE-LEDGER before edit:
+  - declaration: 해당 없음(이 배치는 순수 추가 — screener provider의 `read` 콜백 파라미터를 `httpClient`로 교체했을 뿐 legacy 함수는 삭제하지 않음, additive 설계를 의도적으로 선택했기 때문)
+  - callers: `bootstrap.js`의 `createScreenerProvider({ read: legacy.readScreener })` → `createScreenerProvider({ httpClient })` 1곳 변경. `legacy.readScreener` 자체는 facade에 그대로 남음(다른 7개 domain의 대응 함수와 대칭성 유지 목적, 호출자 0곳이지만 유해하지 않아 이번 배치 삭제 대상에서 제외 — 다음 세션 판단 필요 시 참고)
+  - global writer: 해당 없음
+  - DOM/chart/narrative sink: 해당 없음(native screener 콘텐츠는 여전히 렌더되지 않음 — RM-01 dataset 마커 상태 불변)
+  - event/timer/storage: 해당 없음(fetch 실패/컴포넌트 dispose 시 in-flight 요청 취소는 이번 배치 스코프 밖으로 명시 — 아래 Unverified 참조)
+  - tests/docs: 없음
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 legacy 카운터 무변화(1088/42/187/410, RM-03 item 2 종료 시점과 동일) — legacy screener fetch를 삭제하지 않았으므로 정상.
+New compatibility introduced and retirement packet: 없음(신규 legacy 프로젝션 아님 — 반대로 legacy 프로젝션 1개를 실 fetch로 교체). retirement 대상 아님.
+Local gates: §8.1 핵심 12개 전부 PASS(viewport FULL_INIT 68/68 포함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e(8/8) + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-knowledge-lint + ci-doc-currency 전부 PASS. headless 1098/1098.
+Browser evidence: `ci-architecture-browser-check.mjs` 상태 덤프에서 `state.screener` 실측 — 수정 전(rank 버그 포함) `{status:"current", rowCount:846, sample:{rank:0, ...}}`(rank가 null이어야 하는데 0으로 오염), 수정 후 `{status:"current", rowCount:846, sample:{rank:null, rsi:48.2, ret1m:-2.22, ...}}`. browserErrors 0.
+Live evidence: 없음 — 커밋(로컬) 여부도 사용자 지시 대기, 배포는 미지시.
+Unverified/blockers: (1) in-flight fetch 도중 architecture dispose 시 AbortController로 취소하는 로직 없음 — 현재 native screener slice는 어떤 UI도 소비하지 않아 실해는 없지만(무해한 stale write), 향후 screener route 실 cutover 전에는 추가해야 함. (2) `score`/`rank`/`sector`/`name`은 `public-data/screener.json`에 없는 필드라 항상 null — 진짜 값을 채우려면 legacy의 `_aioComputeFactorRanks`(js/aio-data.js:15905, 7-factor 랭킹)를 도메인으로 추출해야 하며, 이는 CODE-MAP이 이미 지목한 서버 4-factor와의 기존 불일치(진단 C2)까지 함께 해결해야 하는 별도 작업 — 이번 배치에서 임의로 근사하지 않음(R352). (3) legacy의 `_aioApplyServerScreener`/`fetch(screener.json)` 자체 삭제(진짜 cutover)는 native screener route 렌더링이 실제로 이 slice를 소비하게 될 때(향후 W5 ARX-10) 진행 — 지금 삭제하면 `SCREENER_DB`를 직접 읽는 수십 곳의 legacy 함수가 전부 결측 상태가 됨.
+Status: VERIFIED_LOCAL (ARX-03 재검증 스코프 한정 — 층 전체 승격 아님. ARX-04는 8개 domain 중 1개(screener)의 provider adapter 단계만 IN_PROGRESS→첫 실 fetch 확보, "첫 slice fetch/DOM writer 삭제" 인수 기준은 legacy 삭제가 없어 아직 미충족. 나머지 7개 domain·legacy cutover는 후속 세션)
+```

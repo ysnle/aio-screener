@@ -215,7 +215,10 @@ export function exposeArchitecture(root, api) {
       getAIContext: api.getAIContext,
       navigate: api.navigate,
       router: api.router,
-      computeTradingScoreModel: api.computeTradingScoreModel
+      computeTradingScoreModel: api.computeTradingScoreModel,
+      computeRelativeRotation: api.computeRelativeRotation,
+      classifyMovingAverageStructure: api.classifyMovingAverageStructure,
+      deriveMultiTimeframeView: api.deriveMultiTimeframeView
     })
   });
 }

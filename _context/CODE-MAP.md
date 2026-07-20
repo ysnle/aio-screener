@@ -102,7 +102,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 
 | Symbol | Location |
 |--------|----------|
-| `updateFxBondPage` | `index.html:21312` |
+| `updateFxBondPage` | `index.html:20942` |
 | `APP_VERSION` | `js/aio-core.js:19833` |
 | `AIO_MANUAL_REFERENCE` / `DATA_SNAPSHOT` | `js/aio-core.js:20784` / `20813` |
 | `applyDataSnapshot` | `js/aio-core.js:21329` |

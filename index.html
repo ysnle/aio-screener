@@ -15047,382 +15047,6 @@ function updateSRLevels() {
   if (container) container.innerHTML = html;
 }
 
-// ── Weinstein Stage Analysis ──
-function updateWeinsteinStage() {
-  let ld = window._liveData || {};
-  var spy = ld['SPY'];
-  if (!spy) return;
-
-  var chg = (spy.pct != null ? spy.pct : 0);
-  var spyPrice = spy.price || _ldSafe('SPY','price');
-  var vix = _ldSafe('^VIX','price');
-  var vixChg = ld['^VIX'] ? (ld['^VIX'].pct != null ? ld['^VIX'].pct : 0) : 0;
-  var tnx = _ldSafe('^TNX','price');
-  var fvx = _ldSafe('^FVX','price');
-  var hygPrice = _ldSafe('HYG','price');
-  var hygChg = ld['HYG'] ? (ld['HYG'].pct != null ? ld['HYG'].pct : 0) : 0;
-  // P713: 시장폭은 현재 관측 evidence만 사용한다. 임의 폴백(28/57)이나 정적 시드로
-  // Stage를 판정하지 않는다 — 필수 입력(50SMA 폭) 미수신이면 판정 자체를 보류(fail-closed).
-  var _wsBreadthEv = (window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function') ? window.AIO.getCurrentBreadthEvidence() : { available:false };
-  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
-                   (typeof window._breadth20 === 'number') ? window._breadth20 :
-                   (_wsBreadthEv.available ? _wsBreadthEv.sma20 : null);
-  var breadthData = window._breadthLiveData || {};
-  var abv50 = breadthData.abv50 != null ? breadthData.abv50 :
-              (_wsBreadthEv.available ? _wsBreadthEv.sma50 : null);
-  if (abv50 == null || !isFinite(abv50)) {
-    var _wsPending = document.getElementById('ws-analysis');
-    if (_wsPending) _wsPending.innerHTML = '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;">판정 보류 — 시장폭(50SMA Above %) 현재 관측값 미수신. 임의 폴백값으로 Stage를 판정하지 않습니다.</div>';
-    return;
-  }
-
-  // ── 복합 지표 점수 계산 (가중 합산) ──
-  // 각 지표는 -2(강한 약세) ~ +2(강한 강세)로 점수화
-  var scores = [];
-  var scoreDetails = [];
-
-  // 1. SPY 가격 위치 추정 (ATH 대비 하락폭으로 200일 MA 위/아래 추정)
-  //    SPY ATH 근처 → Stage 2/3, ATH -10% 이하 → Stage 1/4
-  // v41.8: 동적 ATH 추적 (localStorage) — 하드코딩 640은 최소 바닥값
-  var _storedATH = (window._spxATH && spyPrice) ? window._spxATH / (window._spxATH > 1000 ? 10 : 1) : (spyPrice || 0);
-  try { _storedATH = parseFloat(localStorage.getItem('_spy_ath') || String(_storedATH || spyPrice || 0)) || _storedATH; } catch(e) {}
-  var spyATH = Math.max(spyPrice || 0, _storedATH || 0);
-  var spyAthEvidence = window._spxATH ? 'ohlcv-index-ath' : (_storedATH && _storedATH > spyPrice ? 'local-storage-reference' : 'live-price-estimated-ath');
-  try { if (spyPrice > _storedATH) localStorage.setItem('_spy_ath', String(spyPrice)); } catch(e) {}
-  var drawdown = ((spyPrice - spyATH) / spyATH) * 100;
-  var priceScore = 0;
-  if (drawdown > -2) { priceScore = 2; scoreDetails.push('ATH 근접('+drawdown.toFixed(1)+'%) → 강세'); }
-  else if (drawdown > -5) { priceScore = 1; scoreDetails.push('ATH -5% 이내 → 약한 강세'); }
-  else if (drawdown > -10) { priceScore = -0.5; scoreDetails.push('ATH -10% 이내 → 약한 약세'); }
-  else if (drawdown > -20) { priceScore = -1.5; scoreDetails.push('ATH -20% 이내 → 약세(조정)'); }
-  else { priceScore = -2; scoreDetails.push('ATH -20%+ → 베어마켓'); }
-  if (spyAthEvidence !== 'ohlcv-index-ath') scoreDetails.push('ATH evidence: ' + spyAthEvidence + ' (reference-only)');
-  scores.push({ name: '가격 위치', val: priceScore, weight: 2.5 });
-
-  // 2. 시장폭 (Breadth) — 50일선 above % + 20일선 above % (breadth200은 레거시 변수명, 실제 20일선 데이터)
-  var breadthScore = 0;
-  if (abv50 > 70) { breadthScore = 2; scoreDetails.push('50SMA Above '+abv50+'% → 광범위 상승'); }
-  else if (abv50 > 55) { breadthScore = 1; scoreDetails.push('50SMA Above '+abv50+'% → 보통 참여'); }
-  else if (abv50 > 40) { breadthScore = 0; scoreDetails.push('50SMA Above '+abv50+'% → 분열'); }
-  else if (abv50 > 25) { breadthScore = -1; scoreDetails.push('50SMA Above '+abv50+'% → 약세 참여'); }
-  else { breadthScore = -2; scoreDetails.push('50SMA Above '+abv50+'% → 광범위 하락'); }
-  // 20일선 보조 (단기 시장 폭) — 미수신이면 보조 보정을 생략(임의값 대체 금지)
-  if (breadth200 != null && isFinite(breadth200)) {
-    if (breadth200 > 65) breadthScore += 0.5;
-    else if (breadth200 < 30) breadthScore -= 0.5;
-  } else { scoreDetails.push('20SMA 폭 미수신 — 보조 보정 제외'); }
-  scores.push({ name: '시장폭', val: breadthScore, weight: 2.0 });
-
-  // 3. VIX 레벨 + 추세
-  var vixScore = 0;
-  if (vix < 15) { vixScore = 2; scoreDetails.push('VIX '+vix.toFixed(1)+' → 극도의 안정'); }
-  else if (vix < 20) { vixScore = 1; scoreDetails.push('VIX '+vix.toFixed(1)+' → 안정'); }
-  else if (vix < 25) { vixScore = 0; scoreDetails.push('VIX '+vix.toFixed(1)+' → 보통'); }
-  else if (vix < 32) { vixScore = -1; scoreDetails.push('VIX '+vix.toFixed(1)+' → 불안'); }
-  else { vixScore = -2; scoreDetails.push('VIX '+vix.toFixed(1)+' → 공포'); }
-  // VIX 추세 보정
-  if (vixChg > 15) vixScore -= 0.5;
-  else if (vixChg < -10) vixScore += 0.5;
-  scores.push({ name: 'VIX', val: vixScore, weight: 1.5 });
-
-  // 4. 신용 환경 — FRED HY OAS(bp) 관측값만 사용 (P713). HYG 달러 가격 고정 밴드는
-  //    금리 레짐에 따라 기계적으로 이동하므로 신용 레벨 판정에 쓰지 않는다.
-  //    OAS 미수신이면 이 축을 제외하고 가중 평균이 자동 재정규화된다.
-  var hyBpWs = Number(window._hySpreadBp);
-  if (isFinite(hyBpWs)) {
-    var hyScore = 0;
-    if (hyBpWs < 350) { hyScore = 1.5; scoreDetails.push('HY OAS '+Math.round(hyBpWs)+'bp → 신용 양호'); }
-    else if (hyBpWs < 450) { hyScore = 0; scoreDetails.push('HY OAS '+Math.round(hyBpWs)+'bp → 신용 보통'); }
-    else if (hyBpWs < 550) { hyScore = -1; scoreDetails.push('HY OAS '+Math.round(hyBpWs)+'bp → 신용 주의'); }
-    else { hyScore = -2; scoreDetails.push('HY OAS '+Math.round(hyBpWs)+'bp → 신용 위기'); }
-    // HYG 가격 '방향'은 단기 신용 심리 보조 신호로만 유지 (레벨 판정 아님)
-    if (hygChg < -0.5) hyScore -= 0.5;
-    else if (hygChg > 0.3) hyScore += 0.3;
-    scores.push({ name: 'HY 스프레드', val: hyScore, weight: 1.5 });
-  } else {
-    scoreDetails.push('HY OAS(FRED) 미수신 — 신용 축 제외(가중 재정규화)');
-  }
-
-  // 5. 섹터 리더십 (방어주 vs 성장주)
-  var defETFs = ['XLP','XLU','XLV'];
-  var offETFs = ['XLK','XLY','XLF'];
-  var defAvg = 0, offAvg = 0, defCnt = 0, offCnt = 0;
-  defETFs.forEach(function(t) { if (ld[t] && ld[t].pct != null) { defAvg += ld[t].pct; defCnt++; } });
-  offETFs.forEach(function(t) { if (ld[t] && ld[t].pct != null) { offAvg += ld[t].pct; offCnt++; } });
-  defAvg = defCnt > 0 ? defAvg / defCnt : 0;
-  offAvg = offCnt > 0 ? offAvg / offCnt : 0;
-  var sectorDiff = offAvg - defAvg; // 양수 = 성장주 리드, 음수 = 방어주 리드
-  var sectorScore = 0;
-  if (sectorDiff > 0.5) { sectorScore = 1.5; scoreDetails.push('성장주 리드(+'+sectorDiff.toFixed(2)+'%p) → 위험선호'); }
-  else if (sectorDiff > -0.2) { sectorScore = 0.5; scoreDetails.push('섹터 균형'); }
-  else if (sectorDiff > -0.8) { sectorScore = -0.5; scoreDetails.push('방어주 리드('+sectorDiff.toFixed(2)+'%p) → 위험회피'); }
-  else { sectorScore = -1.5; scoreDetails.push('방어주 압도('+sectorDiff.toFixed(2)+'%p) → 후기 사이클'); }
-  scores.push({ name: '섹터 리더십', val: sectorScore, weight: 1.5 });
-
-  // 6. 금리 곡선 (10Y - 5Y 스프레드)
-  var yieldSpread = tnx - fvx;
-  var yieldScore = 0;
-  if (yieldSpread > 0.3) { yieldScore = 1; scoreDetails.push('수익률곡선 정상(+'+yieldSpread.toFixed(2)+'%)'); }
-  else if (yieldSpread > -0.1) { yieldScore = 0; scoreDetails.push('수익률곡선 평탄화'); }
-  else { yieldScore = -1; scoreDetails.push('수익률곡선 역전('+yieldSpread.toFixed(2)+'%)'); }
-  scores.push({ name: '금리 곡선', val: yieldScore, weight: 1.0 });
-
-  // ── 가중 합산 ──
-  var totalWeight = 0, totalScore = 0;
-  scores.forEach(function(s) { totalScore += s.val * s.weight; totalWeight += s.weight; });
-  var composite = totalScore / totalWeight; // -2 ~ +2 범위
-
-  // ── Stage 판정 (composite 점수 기반) ──
-  var stage, stageDesc, stageColor;
-  if (composite > 0.8) {
-    stage = 2; stageDesc = '상승 추세 (Advance)';
-    stageColor = 'var(--data-green)';
-  } else if (composite > 0.2) {
-    stage = 2; stageDesc = '약한 상승 추세';
-    stageColor = '#22754c';
-  } else if (composite > -0.3 && vix < 25 && abv50 > 35) {
-    stage = 3; stageDesc = '천장 형성 / 분배';
-    stageColor = '#57513f';
-  } else if (composite > -0.3) {
-    stage = 1; stageDesc = '바닥 다지기 (Basing)';
-    stageColor = 'var(--data-cyan)';
-  } else if (composite > -1.0) {
-    stage = 3; stageDesc = '천장 붕괴 / 분배 가속';
-    stageColor = 'var(--data-amber)';
-  } else if (composite <= -1.0 && abv50 < 35) {
-    stage = 4; stageDesc = '하락 추세 (Decline)';
-    stageColor = 'var(--data-red)';
-  } else if (composite <= -1.0) {
-    stage = 1; stageDesc = '바닥 다지기 (매도 클라이맥스)';
-    stageColor = 'var(--data-cyan)';
-  } else {
-    stage = 3; stageDesc = '천장 / 분배';
-    stageColor = '#57513f';
-  }
-
-  // ── Highlight active stage ── v52.69: 시안 3c는 색-알파 틴트 대신 중립 배경(#f2eee6 상당)+굵은 라벨로
-  // 활성 단계를 표시 — 기존 stageColor+'15'/'40' 연결은 stageColor가 'var(--x)' 문자열일 때
-  // 'var(--x)15' 같은 무효 CSS를 만들어 배경 틴트가 조용히 실패하는 문제가 있었음(hex 리터럴일 때만 우연히 유효).
-  for (var i = 1; i <= 4; i++) {
-    var el = document.getElementById('ws-stage' + i);
-    if (el) {
-      var numEl = el.querySelector('span:nth-child(1)'), lbl = el.querySelector('span:nth-child(2)');
-      if (i === stage) {
-        el.style.background = 'var(--surface-2)';
-        el.style.borderRadius = '6px';
-        el.style.margin = '0 -12px';
-        el.style.paddingLeft = '12px';
-        el.style.paddingRight = '12px';
-        if (numEl) { numEl.style.color = 'var(--text-primary)'; numEl.style.fontWeight = '600'; }
-        if (lbl) { lbl.style.color = 'var(--text-primary)'; lbl.style.fontWeight = '600'; lbl.textContent = lbl.textContent.replace(' — 현재', '') + ' — 현재'; }
-      } else {
-        el.style.background = 'transparent';
-        el.style.margin = '0';
-        el.style.paddingLeft = '0';
-        el.style.paddingRight = '0';
-        if (numEl) { numEl.style.color = ''; numEl.style.fontWeight = ''; }
-        if (lbl) { lbl.style.color = ''; lbl.style.fontWeight = ''; lbl.textContent = lbl.textContent.replace(' — 현재', ''); }
-      }
-    }
-  }
-
-  // ── Analysis text ──
-  var analysis = document.getElementById('ws-analysis');
-  if (analysis) {
-    var strategyMap = {
-      1: '<b>바닥 다지기 단계</b> — 하락이 멈추고 매도 에너지가 소진되는 구간입니다. 아직 매수 신호가 아닙니다!<br>' +
-         '<b>특징:</b> 주가 횡보, 거래량 감소, VIX가 고점에서 하락 시작, 시장폭 극단적 약세에서 서서히 회복.<br>' +
-         '<b>관찰 포인트:</b> ①VIX 30+ 스파이크 후 하락 반전 ②시장폭(50SMA Above%)이 20%대에서 반등 시작 ③HYG 가격 안정(하락 멈춤) ④성장주가 방어주 대비 하락폭 축소<br>' +
-         '<b>전략:</b> 30주(150일) 이동평균선이 수평 → 상향 전환하고, 주가가 이를 돌파할 때까지 "인내"가 최고의 전략입니다. 역사적으로 2009년 3월, 2020년 3월이 이 구간이었습니다.',
-      2: '<b>상승 추세 단계</b> — Weinstein 프레임워크가 추세 추종에 가장 우호적으로 분류하는 구간입니다.<br>' +
-         '<b>특징:</b> 주가가 150일 MA 위에서 상승, 시장폭 확산(50%+), VIX 안정(20 이하), 성장주가 방어주를 리드, 신용 스프레드 축소.<br>' +
-         '<b>추세 지속 조건:</b> ①시장폭(50SMA Above) 55% 이상 유지 ②VIX 25 미만 유지 ③HYG 강세 유지 ④섹터 로테이션이 성장주 중심<br>' +
-         '<b>원 프레임워크의 교과서적 대응:</b> 풀백에서 보유 지속, 50일선 이탈 시 비중 축소. CTA/자동매매도 "매수 모드" → 상승 자기강화 구간. VIX 20 이하 + 금리 안정 + 달러 약세 = 3중 순풍.',
-      3: '<b>천장 형성 / 분배 단계</b> — 스마트 머니가 빠져나가는 구간입니다. 경계를 높이세요!<br>' +
-         '<b>특징:</b> 주가 변동성 확대, 시장폭 악화(지수↑이지만 상승 종목↓), 방어 섹터 아웃퍼폼, VIX 20~30 구간에서 진동, HY 스프레드 서서히 확대.<br>' +
-         '<b>경고 신호:</b> ①VIX-S&P 디커플링(주가↑+VIX↑) ②방어 섹터(유틸·필수소비) 아웃퍼폼 ③HYG 가격 하락 시작 ④50SMA Above %가 50% 아래로 하락<br>' +
-         '<b>원 프레임워크의 교과서적 대응:</b> 신규 진입 자제·이익 보호, 30주선 하향 이탈 시 축소. 역사적으로 2000년 초, 2007년 하반기가 이 구간이었습니다.',
-      4: '<b>하락 추세 단계</b> — Weinstein 프레임워크가 신규 매수 회피·현금 확보 구간으로 분류하는 단계입니다.<br>' +
-         '<b>특징:</b> 주가가 150일 MA 아래에서 하락, 시장폭 극단적 약세(30% 미만), VIX 30+, 신용 스프레드 급확대, 방어주도 하락하기 시작.<br>' +
-         '<b>반등 함정(Dead Cat Bounce) 경고:</b> 하락 추세에서 +3~5% 반등은 흔합니다. VIX가 여전히 25+ 이고 시장폭이 회복되지 않으면 반등에 속지 마세요!<br>' +
-         '<b>원 프레임워크의 교과서적 대응:</b> 현금 비중 확대, Stage 1 확인(바닥 다지기)까지 관망. <b>이벤트 vs 순환적 하락 구별:</b> VIX 급등+금리 안정=이벤트성(단기), 금리 커브 악화+고금리=순환적(장기). 하락의 성격에 따라 대응이 다릅니다.'
-    };
-
-    // 점수 상세 표시
-    var scoreBar = '<div style="margin:8px 0 6px;padding:6px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:3px;">' +
-      '<div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">복합 점수: <span style="color:' + stageColor + ';font-size:13px;">' + composite.toFixed(2) + '</span> <span style="font-size:11px;color:var(--text-muted);">(-2.0 강한 약세 ~ +2.0 강한 강세)</span></div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:3px;">';
-    scores.forEach(function(s) {
-      var sColor = s.val > 0.5 ? 'var(--data-green)' : s.val > -0.5 ? 'var(--data-amber)' : 'var(--data-red)';
-      scoreBar += '<span style="font-size:11px;padding:1px 5px;border-radius:3px;background:' + sColor + '15;color:' + sColor + ';border:1px solid ' + sColor + '30;">' + s.name + ' ' + (s.val > 0 ? '+' : '') + s.val.toFixed(1) + '</span>';
-    });
-    scoreBar += '</div></div>';
-
-    var disclaimer = '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;padding:6px;background:rgba(33,29,22,0.05);border-radius:4px;line-height:1.6;">' +
-      'Weinstein Stage는 일간 변동이 아닌 주간~월간 추세 기반 분석입니다. 본 판정은 현재 사용 가능한 지표(가격 위치, 시장폭, VIX, 신용 스프레드, 섹터 리더십, 금리 곡선)를 조합한 <b>근사 추정</b>이며, 이 조합 점수의 예측력은 통계적으로 검증되지 않았습니다. 단계별 대응은 Weinstein 원 프레임워크의 기술이지 매매 지시가 아닙니다. 정확한 Stage 분석은 주간 차트의 30주 이동평균선을 참고하세요.</div>';
-
-    analysis.innerHTML = '<div style="font-weight:700;color:' + stageColor + ';margin-bottom:4px;">현재: ' + stage + '단계 — ' + stageDesc + '</div>' +
-      scoreBar +
-      '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;">' + strategyMap[stage] + '</div>' +
-      disclaimer;
-  }
-}
-
-// ── Multi-Timeframe Analysis ──
-function updateMTF() {
-  let ld = window._liveData || {};
-  var spy = ld['SPY'];
-  if (!spy) return;
-  var chg = (spy.pct != null ? spy.pct : 0);
-  var vix = _ldSafe('^VIX','price');
-  var vixChg = ld['^VIX'] ? (ld['^VIX'].pct != null ? ld['^VIX'].pct : 0) : 0;
-  var tnx = _ldSafe('^TNX','price');
-  var fvx = _ldSafe('^FVX','price');
-  var hygPrice = _ldSafe('HYG','price');
-  var hygChg = ld['HYG'] ? (ld['HYG'].pct != null ? ld['HYG'].pct : 0) : 0;
-  // P713: MTF도 시장폭은 현재 관측 evidence만 사용 — 임의 폴백(28/57)·정적 시드 금지.
-  var _mtfBreadthEv = (window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function') ? window.AIO.getCurrentBreadthEvidence() : { available:false };
-  var breadthData = window._breadthLiveData || {};
-  var abv50 = breadthData.abv50 != null ? breadthData.abv50 :
-              (_mtfBreadthEv.available ? _mtfBreadthEv.sma50 : null);
-  var breadth200 = (typeof window._breadth200 === 'number') ? window._breadth200 :
-                   (typeof window._breadth20 === 'number') ? window._breadth20 :
-                   (_mtfBreadthEv.available ? _mtfBreadthEv.sma20 : null);
-  var rsp = ld['RSP'];
-  var rspChg = rsp ? (rsp.pct != null ? rsp.pct : 0) : chg;
-
-  // ── 일간(Daily): SPY 등락률 + VIX 방향 + 시장폭 일일 변화 ──
-  var dailyScore = 0;
-  var dailyFactors = [];
-  if (chg > 0.5) { dailyScore += 1.5; dailyFactors.push('SPY +'+ chg.toFixed(2)+'%'); }
-  else if (chg > 0) { dailyScore += 0.5; dailyFactors.push('SPY +'+ chg.toFixed(2)+'%'); }
-  else if (chg > -0.5) { dailyScore -= 0.5; dailyFactors.push('SPY '+ chg.toFixed(2)+'%'); }
-  else { dailyScore -= 1.5; dailyFactors.push('SPY '+ chg.toFixed(2)+'%'); }
-  // VIX 방향 보정
-  if (vixChg < -5) { dailyScore += 0.5; dailyFactors.push('VIX 하락'); }
-  else if (vixChg > 10) { dailyScore -= 0.5; dailyFactors.push('VIX 급등'); }
-  var dailyTrend = dailyScore > 0.3 ? '순풍' : dailyScore < -0.3 ? '역풍' : '중립';
-  var dailyColor = dailyScore > 0.3 ? 'var(--data-green)' : dailyScore < -0.3 ? 'var(--data-red)' : 'var(--data-amber)';
-
-  // ── 주간(Weekly): 5SMA above%(→ abv50 proxy) + RSP vs SPY(시장폭 단기) ──
-  var weeklyScore = 0;
-  var weeklyFactors = [];
-  // 50SMA Above %를 단기 시장폭 proxy로 사용
-  if (abv50 == null || !isFinite(abv50)) { weeklyFactors.push('시장폭 미수신 — 축 제외'); }
-  else if (abv50 > 65) { weeklyScore += 1.5; weeklyFactors.push('50SMA Above '+abv50+'%'); }
-  else if (abv50 > 50) { weeklyScore += 0.5; weeklyFactors.push('50SMA Above '+abv50+'%'); }
-  else if (abv50 > 35) { weeklyScore -= 0.5; weeklyFactors.push('50SMA Above '+abv50+'%'); }
-  else { weeklyScore -= 1.5; weeklyFactors.push('50SMA Above '+abv50+'%'); }
-  // RSP vs SPY 스프레드 (광범위 참여도)
-  var rspSpread = rspChg - chg;
-  if (rspSpread > 0.3) { weeklyScore += 0.5; weeklyFactors.push('RSP 리드(광범위 상승)'); }
-  else if (rspSpread < -0.5) { weeklyScore -= 0.5; weeklyFactors.push('소수 대형주 주도'); }
-  var weeklyTrend = weeklyScore > 0.3 ? '순풍' : weeklyScore < -0.3 ? '역풍' : '중립';
-  var weeklyColor = weeklyScore > 0.3 ? 'var(--data-green)' : weeklyScore < -0.3 ? 'var(--data-red)' : 'var(--data-amber)';
-
-  // ── 월간(Monthly): 시장 폭 + HYG(신용) + VIX 레벨 ── (breadth200은 레거시 변수명, 실제 20일선 시장 폭)
-  var monthlyScore = 0;
-  var monthlyFactors = [];
-  if (breadth200 == null || !isFinite(breadth200)) { monthlyFactors.push('시장 폭 미수신 — 축 제외'); }
-  else if (breadth200 > 60) { monthlyScore += 1.5; monthlyFactors.push('시장 폭 '+breadth200.toFixed(0)+'%'); }
-  else if (breadth200 > 40) { monthlyScore += 0.5; monthlyFactors.push('시장 폭 '+breadth200.toFixed(0)+'%'); }
-  else if (breadth200 > 25) { monthlyScore -= 0.5; monthlyFactors.push('시장 폭 '+breadth200.toFixed(0)+'%'); }
-  else { monthlyScore -= 1.5; monthlyFactors.push('시장 폭 '+breadth200.toFixed(0)+'%'); }
-  // 신용 환경 — FRED HY OAS 관측값만 사용 (P713: HYG 달러 고정 밴드 판정 제거)
-  var hyBpMtf = Number(window._hySpreadBp);
-  if (isFinite(hyBpMtf)) {
-    if (hyBpMtf < 350) { monthlyScore += 0.5; monthlyFactors.push('HY OAS '+Math.round(hyBpMtf)+'bp(양호)'); }
-    else if (hyBpMtf > 450) { monthlyScore -= 1; monthlyFactors.push('HY OAS '+Math.round(hyBpMtf)+'bp(위험)'); }
-  } else { monthlyFactors.push('HY OAS 미수신 — 신용 축 제외'); }
-  // VIX 레벨 (월간 레짐)
-  if (vix > 30) { monthlyScore -= 0.5; monthlyFactors.push('VIX '+vix.toFixed(1)+'(공포)'); }
-  else if (vix < 18) { monthlyScore += 0.5; monthlyFactors.push('VIX '+vix.toFixed(1)+'(안정)'); }
-  var monthlyTrend = monthlyScore > 0.3 ? '순풍' : monthlyScore < -0.3 ? '역풍' : '중립';
-  var monthlyColor = monthlyScore > 0.3 ? 'var(--data-green)' : monthlyScore < -0.3 ? 'var(--data-red)' : 'var(--data-amber)';
-
-  // ── 분기(Quarterly): 금리 곡선 + VIX 장기 레벨 + 경제 체감 온도 ──
-  var qtrScore = 0;
-  var qtrFactors = [];
-  // 수익률 곡선 (10Y - 5Y)
-  var yieldSpread = tnx - fvx;
-  if (yieldSpread > 0.3) { qtrScore += 1; qtrFactors.push('금리곡선 정상(+'+yieldSpread.toFixed(2)+'%)'); }
-  else if (yieldSpread > -0.1) { qtrScore += 0; qtrFactors.push('금리곡선 평탄화'); }
-  else { qtrScore -= 1; qtrFactors.push('금리곡선 역전('+yieldSpread.toFixed(2)+'%)'); }
-  // VIX 장기 레짐
-  if (vix < 20) { qtrScore += 1; qtrFactors.push('저변동성 레짐'); }
-  else if (vix > 28) { qtrScore -= 1; qtrFactors.push('고변동성 레짐'); }
-  // 경제 체감 온도 (HYG + 시장폭 복합)
-  var macroTemp = (hygPrice > 78 ? 1 : hygPrice > 74 ? 0 : -1) + (breadth200 > 50 ? 1 : breadth200 > 30 ? 0 : -1);
-  if (macroTemp >= 1) { qtrScore += 0.5; qtrFactors.push('경제 체감 양호'); }
-  else if (macroTemp <= -1) { qtrScore -= 0.5; qtrFactors.push('경제 체감 부진'); }
-  var qtrTrend = qtrScore > 0.3 ? '순풍' : qtrScore < -0.3 ? '역풍' : '중립';
-  var qtrColor = qtrScore > 0.3 ? 'var(--data-green)' : qtrScore < -0.3 ? 'var(--data-red)' : 'var(--data-amber)';
-
-  var timeframes = [
-    { label: '일간', en: 'Daily', trend: dailyTrend, color: dailyColor, detail: dailyFactors.join(' · '), score: dailyScore },
-    { label: '주간', en: 'Weekly', trend: weeklyTrend, color: weeklyColor, detail: weeklyFactors.join(' · '), score: weeklyScore },
-    { label: '월간', en: 'Monthly', trend: monthlyTrend, color: monthlyColor, detail: monthlyFactors.join(' · '), score: monthlyScore },
-    { label: '분기', en: 'Quarterly', trend: qtrTrend, color: qtrColor, detail: qtrFactors.join(' · '), score: qtrScore }
-  ];
-
-  var html = '';
-  var bullCount = 0, bearCount = 0;
-  timeframes.forEach(function(tf, idx) {
-    if (tf.trend === '순풍') bullCount++;
-    if (tf.trend === '역풍') bearCount++;
-    var dot = tf.trend === '순풍' ? '<span class="sd sd-g"></span>' : tf.trend === '역풍' ? '<span class="sd sd-r"></span>' : '<span class="sd sd-y"></span>';
-    var windLabel = tf.trend === '순풍' ? '상승' : tf.trend === '역풍' ? '하락' : '중립';
-    var borderStyle = idx < timeframes.length - 1 ? 'border-right:1px solid var(--border-subtle);' : '';
-    html += '<div style="padding:16px 18px;' + borderStyle + '">' +
-      '<div style="font-size:12px;color:var(--text-dim);margin-bottom:5px;">' + tf.label + '</div>' +
-      '<div style="font-size:14px;font-weight:600;color:' + tf.color + ';display:flex;align-items:center;gap:6px;">' + dot + windLabel + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;">' + tf.detail + '</div>' +
-    '</div>';
-  });
-
-  var container = document.getElementById('mtf-analysis');
-  if (container) container.innerHTML = html;
-
-  // ── Verdict ──
-  var verdict = document.getElementById('mtf-verdict-text');
-  if (verdict) {
-    var verdictText, verdictColor, ctaText;
-    // 혼합 신호 감지 (단기↑ + 장기↓ 또는 반대)
-    var shortBull = (dailyTrend === '순풍' || weeklyTrend === '순풍');
-    var longBear = (monthlyTrend === '역풍' || qtrTrend === '역풍');
-    var shortBear = (dailyTrend === '역풍' || weeklyTrend === '역풍');
-    var longBull = (monthlyTrend === '순풍' || qtrTrend === '순풍');
-    var isMixed = (shortBull && longBear) || (shortBear && longBull);
-
-    if (bullCount >= 3) {
-      verdictText = ' <b>종합 관측: 강세 정렬 ('+bullCount+'/4 순풍)</b> — 다수 타임프레임이 순풍. 역사적으로 추세 추종 프레임워크가 우호적으로 서술하던 정렬입니다(예측 아님).';
-      verdictColor = 'var(--data-green)';
-      ctaText = '<b>프레임워크 참고:</b> 추세 추종 관행상 풀백 구간이 주목되던 정렬. CTA/자동매매의 매수 모드로 상승이 자기강화되는 경향이 서술됩니다.';
-    } else if (bearCount >= 3) {
-      verdictText = ' <b>종합 관측: 약세 정렬 ('+bearCount+'/4 역풍)</b> — 대부분 타임프레임이 역풍. 역사적으로 위험 관리가 우선시되던 정렬입니다.';
-      verdictColor = 'var(--data-red)';
-      ctaText = ' <b>프레임워크 참고:</b> 약세 정렬에서의 반등은 지속성이 낮았다고 서술됩니다. 전 타임프레임 순풍 전환 여부가 관찰 포인트.';
-    } else {
-      verdictText = ' <b>종합 관측: 혼조 (순풍 '+bullCount+' / 역풍 '+bearCount+')</b> — 타임프레임 간 엇갈림 구간.';
-      verdictColor = 'var(--data-amber)';
-      ctaText = ' <b>프레임워크 참고:</b> 방향 미정렬 구간은 역사적으로 성과 편차가 컸다고 서술됩니다. 정렬 여부가 관찰 포인트.';
-    }
-
-    var mixedWarning = '';
-    if (isMixed) {
-      mixedWarning = '<div style="margin-top:6px;padding:5px 8px;background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);border-radius:3px;font-size:11px;color:var(--data-amber);line-height:1.6;">' +
-        '<b>혼합 신호 경고:</b> 단기와 장기 타임프레임이 반대 방향입니다. ' +
-        (shortBull && longBear ? '단기 상승이지만 장기 하락 추세 → 반등에 주의! 랠리가 단기 트레이딩 기회일 수 있으나, 장기 역풍을 잊지 마세요.' : '단기 하락이지만 장기 상승 추세 → 일시적 풀백일 가능성. 장기 추세가 건재하다면 매수 기회일 수 있습니다.') +
-        '</div>';
-    }
-
-    verdict.innerHTML = '<div style="color:' + verdictColor + ';line-height:1.7;">' + verdictText + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.6;">' + ctaText + '</div>' +
-      mixedWarning +
-      '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;"><b>팁:</b> 순풍 = 해당 타임프레임의 복수 지표가 상승을 가리킴. 역풍 = 복수 지표가 하락을 가리킴. 4개 타임프레임이 모두 같은 방향일 때 가장 높은 확신으로 매매하세요!</div>';
-  }
-}
-
 // ── Native 캔들 차트 (US) — v52.69 아이보리 3c: TradingView 위젯을 details로 보존하고
 // kr-technical의 loadKrCandleChart() 캔들 시뮬레이션 패턴(Chart.js bar-type)을 SPY/QQQ/개별 종목에 재적용.
 // 매물대(volume profile) 히스토그램은 신규 알고리즘이 필요해 범위 밖으로 명시 제외 — 대신 표준 시간축 거래량 바 사용.
@@ -16245,14 +15869,18 @@ updateMTF = function(snapshot) {
     root.innerHTML = '<div style="grid-column:1/-1;padding:16px 18px;color:var(--text-muted);font-size:12px;">멀티타임프레임 판정 보류 · 관측 OHLCV 미수신</div>';
     return { available: false };
   }
-  var daily = snap.dayGainPct > 0.15 ? '상승' : snap.dayGainPct < -0.15 ? '하락' : '중립';
+  // RM-03 item 2: single-implementation call — daily/weekly/medium trend classification lives in
+  // src/domain/technical/stage.js (deriveMultiTimeframeView), exposed via window.AIO_ARCH so this
+  // legacy renderer and any native consumer share one model (R352/F-03: no parallel formula).
+  var _mtfFn = window.AIO_ARCH && typeof window.AIO_ARCH.deriveMultiTimeframeView === 'function' ? window.AIO_ARCH.deriveMultiTimeframeView : null;
+  var view = _mtfFn ? _mtfFn(snap) : { available: true, daily: 'pending', weekly: 'pending', medium: 'pending' };
   var weeklyRaw = snap.weeklyCtx && snap.weeklyCtx.wTrend;
-  var weekly = /UP|BULL|상승/i.test(String(weeklyRaw || '')) ? '상승' : /DOWN|BEAR|하락/i.test(String(weeklyRaw || '')) ? '하락' : weeklyRaw ? '혼조' : '판정 보류';
-  var medium = snap.bars >= 200 ? (snap.longMAState.indexOf('BULL') >= 0 ? '상승' : snap.longMAState.indexOf('BEAR') >= 0 ? '하락' : '혼조') : '판정 보류';
+  var DAILY_LABELS = { up: '상승', down: '하락', neutral: '중립', pending: '판정 보류' };
+  var TREND_LABELS = { up: '상승', down: '하락', mixed: '혼조', pending: '판정 보류' };
   var rows = [
-    { label: '일간', value: daily, detail: '관측 일간 수익률 ' + snap.dayGainPct.toFixed(2) + '%' },
-    { label: '주간', value: weekly, detail: weeklyRaw ? '주봉 집계 ' + weeklyRaw : '주봉 집계 부족' },
-    { label: '중기', value: medium, detail: snap.bars >= 200 ? snap.longMAState : '200거래일 미만' },
+    { label: '일간', value: DAILY_LABELS[view.daily] || '판정 보류', detail: '관측 일간 수익률 ' + snap.dayGainPct.toFixed(2) + '%' },
+    { label: '주간', value: TREND_LABELS[view.weekly] || '판정 보류', detail: weeklyRaw ? '주봉 집계 ' + weeklyRaw : '주봉 집계 부족' },
+    { label: '중기', value: TREND_LABELS[view.medium] || '판정 보류', detail: snap.bars >= 200 ? snap.longMAState : '200거래일 미만' },
     { label: '분기', value: '판정 보류', detail: '분기 시계열·분기 추세 근거 미수신' }
   ];
   root.innerHTML = rows.map(function(row, idx) {
@@ -16331,10 +15959,6 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
     renderYieldCurve();
     computeEconomicTemperature();
     _aioSyncMacroLiveSpxMini();
-  }
-  var breadthPage = document.getElementById('page-breadth');
-  if (breadthPage && breadthPage.classList.contains('active')) {
-    updateWSAnalysis();
   }
 });
 });
@@ -22478,46 +22102,16 @@ function calcLiveRS(sym) {
   // P721: 일봉 종가 시계열(hydrateRRGDailyHistory)이 있으면 라이브 틱 존재와 무관하게 판정한다
   // — RRG는 일봉 기반 지표이며, 종전의 틱 선행 게이트는 시세 지연 환경에서 히스토리가 있어도
   // 전면 보류시키는 불필요한 결합이었다. 틱 기반 레거시 경로만 라이브 시세를 요구한다.
-  var histDaily = _priceHistory[sym];
-  var spyHistDaily = _priceHistory['SPY'];
-  var hasHist = histDaily && histDaily.length > 20 && spyHistDaily && spyHistDaily.length > 20;
-  if (!hasHist && (!d || !spy)) return { rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'quote_missing' };
-
-  // v27.2: 누적 히스토리 기반 RS 계산 (충분한 데이터 + 유의미한 분산 필요)
-  var hist = _priceHistory[sym];
-  var spyHist = _priceHistory['SPY'];
-  if (hist && hist.length > 20 && spyHist && spyHist.length > 20) {
-    var n = Math.min(hist.length, spyHist.length);
-    var rs_vals = [];
-    for (var i = 0; i < n; i++) {
-      if (spyHist[i] > 0) rs_vals.push(hist[i] / spyHist[i]);
-    }
-    if (rs_vals.length >= 10) {
-      var rs_latest = rs_vals[rs_vals.length - 1];
-      var rs_avg = rs_vals.reduce(function(a,b){return a+b;},0) / rs_vals.length;
-      var rsRatio = rs_avg > 0 ? 100 * rs_latest / rs_avg : 100;
-      // Momentum = rate of change of RS_Ratio
-      var mid = Math.floor(rs_vals.length / 2);
-      var rs_mid = rs_vals[mid] || rs_vals[0];
-      var rs_mid_avg = rs_vals.slice(0, mid+1).reduce(function(a,b){return a+b;},0) / (mid+1);
-      var rsMid = rs_mid_avg > 0 ? 100 * rs_mid / rs_mid_avg : 100;
-      var rsMom = rsMid > 0 ? 100 * rsRatio / rsMid : 100;
-      return classifyRRG(rsRatio, rsMom);
-    }
+  // RM-03 item 2: single-implementation call — RRG math (RS-Ratio/RS-Momentum/quadrant) lives in
+  // src/domain/themes/rrg.js (computeRelativeRotation), exposed via window.AIO_ARCH so this legacy
+  // wrapper and any native consumer share one model (R352/F-03: no parallel formula here).
+  var _rrgFn = window.AIO_ARCH && typeof window.AIO_ARCH.computeRelativeRotation === 'function' ? window.AIO_ARCH.computeRelativeRotation : null;
+  if (_rrgFn) {
+    return _rrgFn({ history: _priceHistory[sym] || null, benchmarkHistory: _priceHistory['SPY'] || null, hasQuote: !!d, hasBenchmarkQuote: !!spy });
   }
-
-  // 실제 상대가격 히스토리가 부족하면 사분면을 보류한다. 정적 섹터 시드·당일 등락률로 대체하지 않는다.
-  return { rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'relative_history_lt_20' };
-
-}
-
-function classifyRRG(rsRatio, rsMom) {
-  var q;
-  if (rsRatio >= 100 && rsMom >= 100) q = 'Leading';
-  else if (rsRatio < 100 && rsMom >= 100) q = 'Improving';
-  else if (rsRatio >= 100 && rsMom < 100) q = 'Weakening';
-  else q = 'Lagging';
-  return { rsRatio: rsRatio, rsMom: rsMom, quadrant: q };
+  // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
+  // mirrors the model's own "insufficient data" shape instead of duplicating the RRG formula here.
+  return { rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'quote_missing' };
 }
 
 // ══════════════════════════════════════════════════════════════════

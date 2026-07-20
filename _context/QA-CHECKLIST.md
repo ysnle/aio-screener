@@ -126,6 +126,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [ ] GitHub Pages/Worker 라이브 AI 응답·실제 모델 출력 품질·live provider 데이터 권리/legal 승인·multi-user 검증 — WP-AI 시리즈(P690~P701) 공통 미검증 잔여.
 - [ ] 키보드/스크린리더 실사(자동화 불가), 장시간 리소스 누수 계측 — DEFERRED-BLOCKS B9.
 - [ ] technical 페이지 통합 KR 캔들(구 kr-technical): 존재하지 않는 종목코드 입력 시 `Naver 시세 수신 실패` 폴백 문구 실브라우저 확인 — 코드 경로는 존재(index.html:27046), 실조작 미확인.
+- [ ] **breadth 페이지 `breadth-stage-summary`·technical 페이지 `mtf-verdict-text` 영구 플레이스홀더** (P746, 2026-07-20) — 두 표면 모두 정적 기본 텍스트("OHLCV 근거 미수신"/"분석 대기 중…")에서 갱신된 적이 없다. 유일한 writer였던 구 `updateWeinsteinStage`/`updateMTF` 복합점수 구현이 R340/P712 교체 이후 이미 사문화돼 있었고(RM-03 item 2에서 삭제), breadth 페이지의 `updateWSAnalysis()`는 애초에 자기 페이지가 아닌 technical 페이지 DOM(`ws-analysis`)에 쓰고 있어 breadth 사용자에게 도달한 적이 없다(같은 배치에서 삭제). **제품 결정 필요**: breadth 페이지에 technical 페이지와 같은 SPY 기준 Weinstein/MTF 요약을 그대로 노출할지, breadth 고유의 시장폭 기반 판정으로 재설계할지 정한 뒤 구현.
 
 ---
 

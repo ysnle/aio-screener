@@ -85,6 +85,8 @@ const SHELL_ASSETS = [
   './src/domain/signal/decision.js',
   './src/domain/signal/trading-score.js',
   './src/domain/technical/indicators.js',
+  './src/domain/technical/stage.js',
+  './src/domain/themes/rrg.js',
   './src/legacy/compatibility-facade.js',
   './src/legacy/market-snapshot-bridge.js',
   './src/platform/clock.js',

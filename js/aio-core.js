@@ -19045,14 +19045,16 @@ function calcTechnicalSnapshot(ohlcv) {
   var dist20Pct = sma20 ? ((last.close - sma20) / sma20) * 100 : null;
   var dist20Adr = adr20Pct && dist20Pct !== null ? dist20Pct / adr20Pct : null;
   var bbReentry = !!(prevBB20 && bb20 && prev.close > prevBB20.upper && last.close <= bb20.upper);
-  var shortBull = !!(sma5 && sma10 && sma20 && sma5 > sma10 && sma10 > sma20);
-  var shortBear = !!(sma5 && sma10 && sma20 && sma5 < sma10 && sma10 < sma20);
-  var longBull = !!(sma50 && sma100 && sma200 && sma50 > sma100 && sma100 > sma200);
-  var longBear = !!(sma50 && sma100 && sma200 && sma50 < sma100 && sma100 < sma200);
-  var fullBull = !!(shortBull && sma20 && sma50 && sma20 > sma50 && longBull);
-  var fullBear = !!(shortBear && sma20 && sma50 && sma20 < sma50 && longBear);
+  // RM-03 item 2: single-implementation call — MA-stack/stage classification lives in
+  // src/domain/technical/stage.js (classifyMovingAverageStructure), exposed via window.AIO_ARCH so
+  // this legacy function and any native consumer share one model (R352/F-03: no parallel formula).
   var sma50_5d = closes.length >= 55 ? _calcSMA(closes.slice(0, -5), 50) : null;
-  var sma50Rising = (sma50 && sma50_5d) ? sma50 > sma50_5d : null;
+  var _stageFn = window.AIO_ARCH && typeof window.AIO_ARCH.classifyMovingAverageStructure === 'function' ? window.AIO_ARCH.classifyMovingAverageStructure : null;
+  var maStructure = _stageFn ? _stageFn({ sma5: sma5, sma10: sma10, sma20: sma20, sma50: sma50, sma100: sma100, sma200: sma200, sma50Prior: sma50_5d, lastClose: last.close }) : {
+    // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
+    // mirrors the model's own "insufficient data" shape instead of duplicating the formula here.
+    shortMAState: 'SHORT_MIXED', longMAState: 'LONG_MIXED', fullMAState: 'PARTIAL_STACK', maStackScore: 0, sma50Rising: null, trendState: 'MIXED', stageEstimate: 'STAGE_1_OR_3_TRANSITION'
+  };
   var rvol20 = _calcRVOL(volumes, 20);
   var vcp = bars.length >= 60 ? _calcVCP(bars, { sma50: sma50, sma200: sma200, rvol20: rvol20 }) : { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
   var prior20High = highs.length > 1 ? _calcRecentLevel(highs.slice(0, -1), 20, Math.max) : null;
@@ -19078,13 +19080,13 @@ function calcTechnicalSnapshot(ohlcv) {
     recentHigh20: _calcRecentLevel(highs, 20, Math.max), recentLow20: _calcRecentLevel(lows, 20, Math.min),
     recentHigh50: _calcRecentLevel(highs, 50, Math.max), recentLow50: _calcRecentLevel(lows, 50, Math.min),
     prevLow: prev.low, prevHigh: prev.high,
-    shortMAState: shortBull ? 'SHORT_BULL_STACK_5_10_20' : shortBear ? 'SHORT_BEAR_STACK_5_10_20' : 'SHORT_MIXED',
-    longMAState: longBull ? 'LONG_BULL_STACK_50_100_200' : longBear ? 'LONG_BEAR_STACK_50_100_200' : 'LONG_MIXED',
-    fullMAState: fullBull ? 'FULL_BULL_STACK_5_10_20_50_100_200' : fullBear ? 'FULL_BEAR_STACK_5_10_20_50_100_200' : 'PARTIAL_STACK',
-    maStackScore: (shortBull ? 25 : shortBear ? 0 : 10) + (longBull ? 35 : longBear ? 0 : 15) + (fullBull ? 25 : fullBear ? 0 : 8) + ((sma50 && last.close >= sma50) ? 8 : 0) + ((sma200 && last.close >= sma200) ? 7 : 0),
-    sma50Rising: sma50Rising,
-    trendState: fullBull && sma50Rising !== false ? 'UPTREND' : fullBull && sma50Rising === false ? 'TOPPING' : fullBear ? 'DOWNTREND' : sma50 && last.close < sma50 ? 'TREND_DAMAGED' : 'MIXED',
-    stageEstimate: fullBull && sma50Rising !== false ? 'STAGE_2_ADVANCE' : fullBull && sma50Rising === false ? 'STAGE_3_TOPPING' : fullBear ? 'STAGE_4_DECLINE' : sma50 && last.close < sma50 ? 'STAGE_4_OR_BASE_REPAIR' : 'STAGE_1_OR_3_TRANSITION',
+    shortMAState: maStructure.shortMAState,
+    longMAState: maStructure.longMAState,
+    fullMAState: maStructure.fullMAState,
+    maStackScore: maStructure.maStackScore,
+    sma50Rising: maStructure.sma50Rising,
+    trendState: maStructure.trendState,
+    stageEstimate: maStructure.stageEstimate,
     vcp: vcp, vcpScore: vcp.vcpScore, vcpStage: vcp.vcpStage, vcpPivot: vcp.pivotLevel || null,
     fib: fib, fibNearest: fib && fib.nearest ? fib.nearest : null,
     volProfile: volProfile, poc: volProfile && volProfile.poc ? volProfile.poc.mid : null,
