@@ -1,13 +1,13 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-19T19:38:02.919Z",
+ "generatedAt": "2026-07-20T04:12:18.581Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 100,
+ "stored": 101,
  "attempted": 24,
  "updated": 1,
  "failures": [
@@ -105,7 +105,7 @@
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 555,
+ "nextRefreshCandidates": 554,
  "data": {
   "A": {
    "symbol": "A",
@@ -3136,6 +3136,34 @@
    "revGrowth": -0.6,
    "margin": 9.1,
    "roe": 24.3
+  },
+  "CI": {
+   "symbol": "CI",
+   "cik": "0001739940",
+   "entityName": "The Cigna Group",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-26",
+   "fetchedAt": "2026-07-20T04:12:18.431Z",
+   "form": "10-K",
+   "accession": "0001739940-26-000006",
+   "revenue": 274900000000,
+   "netIncome": 5957000000,
+   "equity": 41874000000,
+   "sharesOutstanding": 263528277,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 11.2,
+   "margin": 2.2,
+   "roe": 14.2
   }
  }
 }
