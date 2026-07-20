@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-20T19:06:45.267Z",
-  "attemptedAt": "2026-07-20T19:06:45.267Z",
-  "lastSuccessfulAt": "2026-07-20T19:06:45.267Z",
+  "generatedAt": "2026-07-20T20:40:59.926Z",
+  "attemptedAt": "2026-07-20T20:40:59.926Z",
+  "lastSuccessfulAt": "2026-07-20T20:40:59.926Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-06T19:06:41.757Z",
-  "until": "2026-07-20T19:06:41.757Z",
+  "since": "2026-07-06T20:40:55.646Z",
+  "until": "2026-07-20T20:40:55.646Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -22,15 +22,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 306,
-      "freshCount": 20,
-      "eligibleTextCount": 17,
-      "selectedCount": 122,
+      "count": 309,
+      "freshCount": 36,
+      "eligibleTextCount": 33,
+      "selectedCount": 120,
       "error": null,
-      "lastPostId": 58686
+      "lastPostId": 58689
     },
     {
       "channel": "bornlupin",
@@ -45,9 +45,70 @@
       "lastPostId": 19180
     }
   ],
-  "count": 732,
-  "retainedItemCount": 391,
+  "count": 735,
+  "retainedItemCount": 402,
   "observedItems": [
+    {
+      "id": "insidertracking/58689",
+      "channel": "insidertracking",
+      "datetime": "2026-07-20T20:39:01.000Z",
+      "localDateKst": "2026-07-21",
+      "score": 70,
+      "tags": [
+        "macro",
+        "geo",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58688",
+      "channel": "insidertracking",
+      "datetime": "2026-07-20T20:37:46.000Z",
+      "localDateKst": "2026-07-21",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58687",
+      "channel": "insidertracking",
+      "datetime": "2026-07-20T20:36:34.000Z",
+      "localDateKst": "2026-07-21",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "earnings",
+        "flows",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "META"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23740",
       "channel": "aetherjapanresearch",
@@ -743,7 +804,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58664",
@@ -755,7 +816,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58663",
@@ -768,7 +829,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58661",
@@ -780,7 +841,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58660",
@@ -793,7 +854,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23718",
@@ -817,7 +878,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58658",
@@ -829,7 +890,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58657",
@@ -844,7 +905,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58656",
@@ -856,7 +917,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58655",
@@ -889,7 +950,7 @@
         "CVS",
         "PNC"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58654",
@@ -911,7 +972,7 @@
         "SNDK",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23717",
@@ -951,7 +1012,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58648",
@@ -969,7 +1030,7 @@
         "000660.KS",
         "SNDK"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23716",
@@ -11029,46 +11090,46 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 732,
-    "eligibleTextCount": 54,
-    "mediaOnlyCount": 678,
-    "highSignalCount": 358,
-    "broadSignalCount": 562,
-    "selectedRawCount": 368,
-    "selectedRawCoveragePct": 681.5,
+    "observedCount": 735,
+    "eligibleTextCount": 70,
+    "mediaOnlyCount": 665,
+    "highSignalCount": 361,
+    "broadSignalCount": 565,
+    "selectedRawCount": 366,
+    "selectedRawCoveragePct": 522.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "earnings": 143,
-    "macro": 334,
-    "geo": 171,
-    "semi": 442,
-    "flows": 38,
-    "equity": 131,
+    "macro": 337,
+    "geo": 174,
+    "kr-market": 144,
+    "flows": 40,
+    "semi": 444,
+    "power": 174,
+    "ai-policy": 95,
+    "japan": 35,
+    "equity": 132,
+    "earnings": 144,
     "insider": 12,
-    "power": 172,
-    "ai-policy": 93,
     "healthcare": 29,
-    "japan": 33,
     "media-only": 9,
     "market-note": 77,
-    "kr-market": 142,
     "credit": 28,
     "optical": 19,
     "crypto": 4
   },
   "tickerCounts": {
-    "MSFT": 25,
+    "AMD": 37,
+    "MSFT": 27,
+    "GOOG": 44,
+    "META": 50,
     "NVDA": 47,
-    "AMD": 35,
-    "META": 49,
     "AVGO": 35,
     "AMZN": 43,
     "MU": 61,
     "MRVL": 9,
     "LITE": 6,
     "TSM": 107,
-    "GOOG": 43,
     "INTC": 9,
     "035420.KS": 16,
     "MS": 1,
@@ -11165,14 +11226,14 @@
     "MTSI": 1
   },
   "themes": [
-    "Semiconductors/Memory (442 posts in current window): 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고...",
-    "Macro/Rates (334 posts in current window): 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고...",
-    "AI Power/Grid (172 posts in current window): 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고...",
-    "Geopolitics (171 posts in current window): JP모건) 미국 주식 전략; 하이퍼스케일러 vs AI 하드웨어, AI 캐펙스와 수익화, 모멘텀 언와인드, 2분기 실적 (7/20) ■ 핵심 논지: AI 사이클은 여전히 유효 이번 실적 시즌의 핵심 테마는...",
-    "Earnings/Corporate (143 posts in current window): 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고...",
-    "Korea Market (142 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 20일 (07시~16시) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미국은 9일 연속 이란 공습을 실시하며 군 지휘시설, 방공망, 해안 감시시설 및 해상...",
-    "Equity/Analyst (131 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 20일 (07시~16시) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미국은 9일 연속 이란 공습을 실시하며 군 지휘시설, 방공망, 해안 감시시설 및 해상...",
-    "AI Policy/Export Controls (93 posts in current window): 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고..."
+    "Semiconductors/Memory (444 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)...",
+    "Macro/Rates (337 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)...",
+    "Geopolitics (174 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)...",
+    "AI Power/Grid (174 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)...",
+    "Korea Market (144 posts in current window): Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될...",
+    "Earnings/Corporate (144 posts in current window): Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될...",
+    "Equity/Analyst (132 posts in current window): Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될...",
+    "AI Policy/Export Controls (95 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
   ],
   "catalysts": [
     {
@@ -11187,8 +11248,8 @@
     },
     {
       "key": "META",
-      "count": 49,
-      "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음..."
+      "count": 50,
+      "text": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될..."
     },
     {
       "key": "NVDA",
@@ -11196,14 +11257,14 @@
       "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음..."
     },
     {
+      "key": "GOOG",
+      "count": 44,
+      "text": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될..."
+    },
+    {
       "key": "AMZN",
       "count": 43,
       "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음..."
-    },
-    {
-      "key": "GOOG",
-      "count": 43,
-      "text": "JP모건) 미국 주식 전략; 하이퍼스케일러 vs AI 하드웨어, AI 캐펙스와 수익화, 모멘텀 언와인드, 2분기 실적 (7/20) ■ 핵심 논지: AI 사이클은 여전히 유효 이번 실적 시즌의 핵심 테마는..."
     },
     {
       "key": "000660.KS",
@@ -11212,8 +11273,8 @@
     },
     {
       "key": "AMD",
-      "count": 35,
-      "text": "미즈호 증권(Mizuho Securities), CPU 및 GPU 시장 분석 보고서 1. CPU 및 GPU 시장 전망 시장 예측 및 성장 * 출하량 성장 (Shipment Growth): 전 세계 서버 CPU..."
+      "count": 37,
+      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
     },
     {
       "key": "AVGO",
@@ -11222,8 +11283,8 @@
     },
     {
       "key": "MSFT",
-      "count": 25,
-      "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음..."
+      "count": 27,
+      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
     },
     {
       "key": "AAPL",
@@ -11243,8 +11304,8 @@
       "topics": [
         "macro"
       ],
-      "count": 334,
-      "focus": "프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고..."
+      "count": 337,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
     },
     {
       "id": "geo",
@@ -11252,8 +11313,8 @@
       "topics": [
         "geo"
       ],
-      "count": 171,
-      "focus": "JP모건) 미국 주식 전략; 하이퍼스케일러 vs AI 하드웨어, AI 캐펙스와 수익화, 모멘텀 언와인드, 2분기 실적 (7/20) ■ 핵심 논지: AI 사이클은 여전히 유효 이번 실적 시즌의 핵심 테마는..."
+      "count": 174,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
     },
     {
       "id": "credit",
@@ -11270,8 +11331,8 @@
       "topics": [
         "semi"
       ],
-      "count": 442,
-      "focus": "프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고..."
+      "count": 444,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
     },
     {
       "id": "optical",
@@ -11288,8 +11349,8 @@
       "topics": [
         "power"
       ],
-      "count": 172,
-      "focus": "프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고..."
+      "count": 174,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
     },
     {
       "id": "ai-policy",
@@ -11297,8 +11358,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 93,
-      "focus": "프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고..."
+      "count": 95,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
     },
     {
       "id": "kr-market",
@@ -11306,8 +11367,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 142,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 20일 (07시~16시) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미국은 9일 연속 이란 공습을 실시하며 군 지휘시설, 방공망, 해안 감시시설 및 해상..."
+      "count": 144,
+      "focus": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될..."
     },
     {
       "id": "equity",
@@ -11315,8 +11376,8 @@
       "topics": [
         "equity"
       ],
-      "count": 131,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 20일 (07시~16시) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미국은 9일 연속 이란 공습을 실시하며 군 지휘시설, 방공망, 해안 감시시설 및 해상..."
+      "count": 132,
+      "focus": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될..."
     },
     {
       "id": "crypto",
@@ -11333,8 +11394,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 143,
-      "focus": "프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 AMC (+15.52%) EPS와 매출이 시장 예상치를 상회. HUT (+15.70%) 1GW 규모 AI 캠퍼스 상용화를 완료하고 352MW 임대 계약 및 196억 달러 규모 장기 계약을 확보. NNBR (+14.94%) 무기 부품 위탁생산을 확대하고..."
+      "count": 144,
+      "focus": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될..."
     },
     {
       "id": "healthcare",
@@ -11351,8 +11412,8 @@
       "topics": [
         "japan"
       ],
-      "count": 33,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 20일 (07시~16시) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미국은 9일 연속 이란 공습을 실시하며 군 지휘시설, 방공망, 해안 감시시설 및 해상..."
+      "count": 35,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼 인플레이션 압력이 완화되는 모습이라고 발표. • 미국 정부는 레바논에서 첫 번째 시범구역(Pilot Zone)..."
     },
     {
       "id": "flows",
@@ -11360,8 +11421,8 @@
       "topics": [
         "flows"
       ],
-      "count": 38,
-      "focus": "JP모건) 미국 주식 전략; 하이퍼스케일러 vs AI 하드웨어, AI 캐펙스와 수익화, 모멘텀 언와인드, 2분기 실적 (7/20) ■ 핵심 논지: AI 사이클은 여전히 유효 이번 실적 시즌의 핵심 테마는..."
+      "count": 40,
+      "focus": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act 추진을 요구. · 트럼프 대통령은 이란이 미군 사망에 대한 대가를 치를 것이며 군사작전은 필요 시까지 계속될..."
     },
     {
       "id": "insider",
@@ -11606,6 +11667,56 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/58688",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58688",
+      "datetime": "2026-07-20T20:37:46.000Z",
+      "localDateKst": "2026-07-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼..."
+    },
+    {
+      "id": "insidertracking/58687",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58687",
+      "datetime": "2026-07-20T20:36:34.000Z",
+      "localDateKst": "2026-07-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "earnings",
+        "flows",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "META"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act..."
+    },
     {
       "id": "insidertracking/58684",
       "channel": "insidertracking",
@@ -12393,58 +12504,6 @@
       "summary": "JPMorgan PC·서버 보고서 요약 (2026.7.15, Albert Hung 외) \"Inference extends the general server upcycle, PCs still fragile\"..."
     },
     {
-      "id": "insidertracking/58310",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58310",
-      "datetime": "2026-07-14T21:00:30.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power",
-        "kr-market",
-        "equity",
-        "crypto"
-      ],
-      "tickers": [
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AVGO",
-        "AMZN",
-        "MU",
-        "TSM",
-        "MRVL",
-        "LITE",
-        "ORCL",
-        "BE",
-        "RKLB"
-      ],
-      "score": 100,
-      "summary": "2026년 7월 14일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.61%) 2위: Circle Internet..."
-    },
-    {
-      "id": "insidertracking/58306",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58306",
-      "datetime": "2026-07-14T20:50:38.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power"
-      ],
-      "tickers": [
-        "MU",
-        "ORCL",
-        "BE"
-      ],
-      "score": 100,
-      "summary": "미국 레딧 게시물 분석 (2026년 7월 15일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리 · 3M 달러 풀포트(MUU full port) 인증 등장 · \"메모리 없이는 AI도..."
-    },
-    {
       "id": "aetherjapanresearch/23545",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23545",
@@ -12683,6 +12742,73 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/58689",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58689",
+      "datetime": "2026-07-20T20:39:01.000Z",
+      "localDateKst": "2026-07-21",
+      "tags": [
+        "macro",
+        "geo",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 70,
+      "hasText": true,
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 7월 21일 📍 트럼프 발언 · 트럼프, 하원 공화당 의원들에게 예산결의안 찬성 투표 촉구 · 트럼프, Save America Act 추진을 위한 첫..."
+    },
+    {
+      "id": "insidertracking/58688",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58688",
+      "datetime": "2026-07-20T20:37:46.000Z",
+      "localDateKst": "2026-07-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼..."
+    },
+    {
+      "id": "insidertracking/58687",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58687",
+      "datetime": "2026-07-20T20:36:34.000Z",
+      "localDateKst": "2026-07-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "earnings",
+        "flows",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "META"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act..."
+    },
     {
       "id": "aetherjapanresearch/23739",
       "channel": "aetherjapanresearch",
@@ -17927,47 +18053,6 @@
       "tickers": [],
       "score": 52,
       "summary": "SK하이닉스 ADR +27.29% 마감"
-    },
-    {
-      "id": "insidertracking/58333",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58333",
-      "datetime": "2026-07-14T21:51:20.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 57,
-      "summary": "SK하이닉스 ADR. 공모일 이후 최소 10일간 블랙아웃인 ADR 인수단(BofA, Citi, Goldman Sachs, J.P.Morgan)을 제외하고 투자의견이 하나씩 업데이트 중."
-    },
-    {
-      "id": "insidertracking/58329",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58329",
-      "datetime": "2026-07-14T21:39:28.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 65,
-      "summary": "케빈 워시 발언 정리 - 2026년 7월 15일 > 구독자님 요청 📍 물가·인플레이션 · 경제 성장의 기반을 더 폭넓게 만들기를 원한다고 발언 · 인플레이션 상승은 제한되기를 원한다고 발언 · \"인플레이션은..."
-    },
-    {
-      "id": "insidertracking/58323",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58323",
-      "datetime": "2026-07-14T21:17:06.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "tickers": [],
-      "score": 53,
-      "summary": "젤렌스키 우크라이나 대통령은 러시아가 매우 강력한 탄도미사일을 보유하고 있으며, 조만간 사거리 5,000km급 탄도미사일을 발사할 수 있게 될 것이라며 \"시간문제일 뿐\"이라고 밝힘. 젤렌스키 대통령의 주요..."
     },
     {
       "id": "bornlupin/19094",
