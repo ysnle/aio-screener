@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-20T17:08:08.004Z",
+  "generatedAt": "2026-07-20T19:06:36.707Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -22,13 +22,13 @@
   "fredLkgSource": null,
   "macroKeyCount": 27,
   "fredFailedSeries": [],
-  "blsStatus": "ok",
+  "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-20T17:07:55.204Z",
+  "blsAttemptedAt": "2026-07-20T19:06:33.659Z",
   "blsLastSuccessfulAt": "2026-07-20T17:07:55.204Z",
   "newsOk": true,
-  "newsCount": 21,
+  "newsCount": 20,
   "newsSourceCount": 8,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-07-18T23:00:00.000Z",
@@ -40,7 +40,7 @@
   "newsScoreMax": 62,
   "putCallOk": true,
   "putCallAsOf": "2026-07-17",
-  "elapsedMs": 12874,
+  "elapsedMs": 3121,
   "schema": 1,
   "marketAnalysisOk": true,
   "marketAnalysisSemanticOk": true,
@@ -50,7 +50,7 @@
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-07-20T17:08:08.004Z:d771c349",
+  "marketSnapshotRevision": "market-snapshot:2026-07-20T19:06:36.707Z:255ddc3e",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 102,
@@ -106,9 +106,9 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-20T17:07:55.204Z",
    "lastSuccessfulAt": "2026-07-20T17:07:55.204Z",
-   "attemptedAt": "2026-07-20T17:07:55.204Z",
+   "attemptedAt": "2026-07-20T19:06:33.659Z",
    "releaseAt": null,
-   "status": "ok",
+   "status": "cached-fresh",
    "series": {
     "cpi": {
      "metricId": "cpi",
@@ -287,16 +287,17 @@
    },
    "failures": [],
    "allowedUse": "macro-evidence-with-observation-date",
-   "decisionUse": false
+   "decisionUse": false,
+   "cacheHit": true
   },
   "_failedSeries": [],
   "_lastKnownGoodAt": "2026-07-16"
  },
  "fearGreed": {
-  "score": 39,
+  "score": 38,
   "rating": "fear",
   "_source": "cnn",
-  "asOf": "2026-07-20T17:02:45+00:00",
+  "asOf": "2026-07-20T19:02:48+00:00",
   "previousScore": 37,
   "previousWeek": 41
  },
@@ -305,7 +306,7 @@
   "indexPutCall": 0.98,
   "equityPutCall": 0.73,
   "asOf": "2026-07-17",
-  "fetchedAt": "2026-07-20T17:07:56.637Z",
+  "fetchedAt": "2026-07-20T19:06:35.763Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -473,22 +474,6 @@
    "newsCycleLabel": "2026-07-19 08:00 KST ~ 2026-07-20 08:00 KST"
   },
   {
-   "title": "SanDisk Is Up 509% YTD After a 251% Revenue Beat - Is the Pullback to $1,382 a Buying Opportunity? - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxOWDVGZVNwNnZDSHFmRjRwcWJWTFg5TzBSaUZFR0dqdHh4aFdtSzdyak5aZ2p0RG1OMFhlb3JtOEttQm5INUFKNXNYdmZ4UlozVHU0cmpwYnZVQ2ZUM2V4US1kbjhRM3ljRVFKcjZMc0FqYTY5T2RReGJHYnREMHR0c2ZmdEdrWE5Dc0t3UTBxQTNhUTc4dDdTZ0t4M3hrR09HQXM1aVM4NF9PcTVOZEdobmFjdlk1S0tqcUxPMkE5b2RRcEM3ZWc5SHVQSkN5SlVXX1RtUmp4Z0tPWTlseklRT196OHhyWjByc2pNUGs4NTZOQUU?oc=5",
-   "source": "TradingKey",
-   "pubDate": "Sun, 19 Jul 2026 14:24:40 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 38,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
-   "feedSource": "Google News - Analyst/Earnings",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-18T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-19T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-19 08:00 KST ~ 2026-07-20 08:00 KST"
-  },
-  {
    "title": "Why Netflix Stock Just Hit a 52-Week Low After Q2 Earnings - Memeburn",
    "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPeU15YmplTFZ5bHd0YWswaFRSUFo0MEhLYWZGV09PWVBFZ0FqTy1uTkVkaUh2N1VURXlGdjhDOUF4X2llT0UtM3N1ZlJlZmI5bDF4YlpRQnpHdkdURnBGTWRpQ3lfTGZyMlRNUFE2dkhORVpQWElsQWkyengzeGpvdjhLQlA4V1E?oc=5",
    "source": "Memeburn",
@@ -650,9 +635,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**한 줄 요약:** 유가 16% 급등과 인플레이션 우려 속 기술주 실적이 시장 방향을 결정하는 분기점 국면\n\n① **변동성/심리** — Fear & Greed 39로 중립 수준이나, 코스피의 '검은 월요일' 경고와 유가 급등이 투심을 압박하는 중\n\n② **거시/금리** — 연방기금금리 3.63%, CPI 3.5% 상황에서 Fed의 인플레이션 대응 입장이 강조되며, 달러 강세가 금값 방향성을 제약 중\n\n③ **주도 뉴스/리스크** — 이란 우려로 유발된 유가 급등이 인플레이션 리스크를 재점화하는 한편, 반도체(SK하이닉스) 및 기술주(마이크론, 알파벳) 실적이 글로벌 주가지수의 상승/하락을 결정하는 상황",
+  "full": "# 현재 시장 분석\n\n**글로벌 증시는 유가 급등과 인플레이션 우려 속 수익성 개선 신호로 방향성을 모색 중입니다.**\n\n① **변동성/심리**: 유가 16% 급등으로 변동성이 확대되고 있으며, 반도체·기술주 실적 개선(마이크론 Q3 강세, 매스코 상향)이 긍정 심리를 제공하는 한편 코스피는 'Black Monday' 경고와 SK하이닉스 실적 주목으로 불안정성을 보이고 있습니다.\n\n② **거시/금리**: 연방기금금리 3.63%, 10년물 수익률 기준 중립 기조 지속되는 가운데, 인플레이션(CPI 3.5%)과 유가 변동성으로 금리 경로 불확실성이 증대되고 있습니다.\n\n③ **주도 뉴스/리스크**: 이란 우려에 따른 유가 급등이 인플레이션 리스크로 작용하는 가운데, 알파벳 실적 결과와 SK하이닉스 수익성 판단이 증시 방향성을 결정할 핵심 변수이며, Fed 수장의 기조 발언이 금융시장 심리에 영향을 주고 있습니다.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-07-20T17:08:12.371Z",
+  "generatedAt": "2026-07-20T19:06:41.662Z",
   "model": "claude-haiku-4-5",
   "semanticStatus": "verified",
   "semanticIssues": []
