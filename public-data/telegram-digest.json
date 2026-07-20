@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-20T00:13:05.705Z",
-  "attemptedAt": "2026-07-20T00:13:05.705Z",
-  "lastSuccessfulAt": "2026-07-20T00:13:05.705Z",
+  "generatedAt": "2026-07-20T04:06:07.801Z",
+  "attemptedAt": "2026-07-20T04:06:07.801Z",
+  "lastSuccessfulAt": "2026-07-20T04:06:07.801Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-06T00:13:00.468Z",
-  "until": "2026-07-20T00:13:00.468Z",
+  "since": "2026-07-06T04:06:03.146Z",
+  "until": "2026-07-20T04:06:03.146Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,12 +13,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 226,
+      "count": 227,
       "freshCount": 40,
       "eligibleTextCount": 40,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 23712
+      "lastPostId": 23713
     },
     {
       "channel": "insidertracking",
@@ -37,17 +37,65 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 167,
+      "count": 169,
       "freshCount": 40,
       "eligibleTextCount": 40,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 19167
+      "lastPostId": 19169
     }
   ],
-  "count": 655,
-  "retainedItemCount": 403,
+  "count": 658,
+  "retainedItemCount": 400,
   "observedItems": [
+    {
+      "id": "bornlupin/19169",
+      "channel": "bornlupin",
+      "datetime": "2026-07-20T03:22:44.000Z",
+      "localDateKst": "2026-07-20",
+      "score": 83,
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23713",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-20T00:31:15.000Z",
+      "localDateKst": "2026-07-20",
+      "score": 59,
+      "tags": [
+        "macro",
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19168",
+      "channel": "bornlupin",
+      "datetime": "2026-07-20T00:25:16.000Z",
+      "localDateKst": "2026-07-20",
+      "score": 73,
+      "tags": [
+        "semi",
+        "power",
+        "flows"
+      ],
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23712",
       "channel": "aetherjapanresearch",
@@ -1250,7 +1298,7 @@
         "AAPL",
         "BE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23672",
@@ -3796,7 +3844,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19128",
@@ -3811,7 +3859,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58481",
@@ -9923,43 +9971,43 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 655,
+    "observedCount": 658,
     "eligibleTextCount": 95,
-    "mediaOnlyCount": 560,
-    "highSignalCount": 331,
-    "broadSignalCount": 523,
+    "mediaOnlyCount": 563,
+    "highSignalCount": 333,
+    "broadSignalCount": 526,
     "selectedRawCount": 365,
     "selectedRawCoveragePct": 384.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "macro": 315,
+    "semi": 412,
+    "ai-policy": 82,
+    "equity": 127,
+    "earnings": 116,
+    "power": 165,
+    "flows": 28,
     "market-note": 68,
-    "macro": 313,
-    "semi": 409,
-    "earnings": 115,
-    "power": 164,
-    "flows": 27,
     "optical": 20,
-    "equity": 126,
     "healthcare": 22,
     "geo": 155,
     "kr-market": 126,
     "japan": 30,
-    "ai-policy": 81,
     "insider": 8,
     "media-only": 6,
     "credit": 26,
     "crypto": 4
   },
   "tickerCounts": {
+    "GOOG": 40,
+    "005930.KS": 21,
+    "000660.KS": 33,
     "TSM": 105,
     "META": 49,
-    "005930.KS": 20,
-    "000660.KS": 32,
     "086280.KS": 1,
     "NVDA": 45,
     "MSFT": 23,
-    "GOOG": 39,
     "AMZN": 40,
     "BE": 16,
     "BABA": 1,
@@ -10049,14 +10097,14 @@
     "MTSI": 1
   },
   "themes": [
-    "Semiconductors/Memory (409 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
-    "Macro/Rates (313 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
-    "AI Power/Grid (164 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순...",
+    "Semiconductors/Memory (412 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "Macro/Rates (315 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "AI Power/Grid (165 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순...",
     "Geopolitics (155 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
-    "Equity/Analyst (126 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "Equity/Analyst (127 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
     "Korea Market (126 posts in current window): 2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상...",
-    "Earnings/Corporate (115 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
-    "AI Policy/Export Controls (81 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
+    "Earnings/Corporate (116 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은...",
+    "AI Policy/Export Controls (82 posts in current window): 1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
   ],
   "catalysts": [
     {
@@ -10080,13 +10128,13 @@
       "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
-      "key": "AMZN",
+      "key": "GOOG",
       "count": 40,
       "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
-      "key": "GOOG",
-      "count": 39,
+      "key": "AMZN",
+      "count": 40,
       "text": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -10096,7 +10144,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 32,
+      "count": 33,
       "text": "Market Summary - 2026년 7월 18일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다 산불 연기로 인한 대기오염 책임을 캐나다에 묻고 기존 관세에 추가 비용을 반영하겠다고..."
     },
     {
@@ -10116,7 +10164,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 20,
+      "count": 21,
       "text": "2026년 7월 16일 프리마켓 뉴스 미국 증시는 대형 실적과 핵심 경제지표를 앞두고 관망세 속에서 출발 준비. 미국 선물과 유럽 증시는 보합권에서 움직이는 가운데 국제유가는 소폭 하락. 시장의 관심은..."
     }
   ],
@@ -10127,7 +10175,7 @@
       "topics": [
         "macro"
       ],
-      "count": 313,
+      "count": 315,
       "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -10154,7 +10202,7 @@
       "topics": [
         "semi"
       ],
-      "count": 409,
+      "count": 412,
       "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -10172,7 +10220,7 @@
       "topics": [
         "power"
       ],
-      "count": 164,
+      "count": 165,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순..."
     },
     {
@@ -10181,7 +10229,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 81,
+      "count": 82,
       "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -10199,7 +10247,7 @@
       "topics": [
         "equity"
       ],
-      "count": 126,
+      "count": 127,
       "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -10217,7 +10265,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 115,
+      "count": 116,
       "focus": "1. 현재 시장은 Microsoft, Meta, Amazon, Google 같은 하이퍼스케일러의 CAPEX 증가에만 관심이 집중되어 있지만 소버린AI는 급성장 중이며 수요 주체가 이미 다변화되었음 (NVIDIA의 FY2027 1분기 결과: 하이퍼스케일 매출은 380억 달러, 전분기 대비 12% 증가 ACIE 매출은..."
     },
     {
@@ -10244,7 +10292,7 @@
       "topics": [
         "flows"
       ],
-      "count": 27,
+      "count": 28,
       "focus": "JP모건) 일본 퀀트 전략 \"CTA가 로스컷 모드 돌입 - 정말 포지션 조정만인가\" (요약) 보고서의 핵심은 반도체주 매도세가 멈추지 않으면서 닛케이평균이 CTA의 매도 트리거 수준인 64,600을 하향..."
     },
     {
@@ -11559,6 +11607,60 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19169",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19169",
+      "datetime": "2026-07-20T03:22:44.000Z",
+      "localDateKst": "2026-07-20",
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 83,
+      "hasText": true,
+      "summary": "Kimi K3가 보여준 ‘제본스의 역설’…효율이 높아질수록 칩·메모리 수요는 오히려 증가할 수 있다 문샷AI가 공개한 Kimi K3는 2.8조개 파라미터, 100만 토큰 컨텍스트, 장기 AI 에이전트 작업을..."
+    },
+    {
+      "id": "aetherjapanresearch/23713",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23713",
+      "datetime": "2026-07-20T00:31:15.000Z",
+      "localDateKst": "2026-07-20",
+      "tags": [
+        "macro",
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 59,
+      "hasText": true,
+      "summary": "폭스콘, 스페이스X AI 서버 대규모 수주… 관련 사업 모멘텀 예상보다 강할 전망 폭스콘이 또 하나의 AI 대형 수주를 확보하며, 처음으로 스페이스X(SpaceX)의 AI 서버 위탁생산 주문을 따냈습니다...."
+    },
+    {
+      "id": "bornlupin/19168",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19168",
+      "datetime": "2026-07-20T00:25:16.000Z",
+      "localDateKst": "2026-07-20",
+      "tags": [
+        "semi",
+        "power",
+        "flows"
+      ],
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 73,
+      "hasText": true,
+      "summary": "\"메모리 반도체 공급과잉 아직 아니다…2035년까지 수요가 공급 앞서\" DS증권 \"호남 팹 역시 2035년 이전까지 유의미한 공급 기여 없어\" 메모리 반도체 업체들의 공격적인 설비투자 발표에도 불구하고 D램..."
+    },
     {
       "id": "bornlupin/19167",
       "channel": "bornlupin",
@@ -17755,38 +17857,6 @@
       "summary": "한은 \"반도체 수요 증가보다 공급 확대 더뎌\"…고점론 일축"
     },
     {
-      "id": "bornlupin/19030",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19030",
-      "datetime": "2026-07-12T14:11:05.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "AAPL"
-      ],
-      "score": 51,
-      "summary": "블룸버그 Mark Gurman M7 울트라(Ultra)는 최대 1.5테라바이트의 메모리를 지원하도록 설계되었습니다. 이는 M5 울트라에 계획된 용량의 두 배에 달합니다. 하지만 애플(Apple)이 최종적으로..."
-    },
-    {
-      "id": "bornlupin/19028",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19028",
-      "datetime": "2026-07-12T13:27:41.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "geo",
-        "semi",
-        "optical"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 79,
-      "summary": "Rubin 지연(Delay), CPO MISS 루머에 대하여 1. Rubin 지연(Delay) 관련 Rubin의 현재 프로덕션 릴리스(Production Release)는 7월 하순으로 확정되었으며, 생산..."
-    },
-    {
       "id": "aetherjapanresearch/23494",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23494",
@@ -17843,21 +17913,6 @@
       "tickers": [],
       "score": 59,
       "summary": "디지타임스 보고서에 따르면 AI 수요 급증과 구조적인 생산능력 병목 영향으로 차세대 HBM4 가격이 2026년 하반기 1,000비트당 2달러 수준에서 4~5달러 이상으로 상승할 가능성이 제기됨. HBM4 가격..."
-    },
-    {
-      "id": "aetherjapanresearch/23490",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23490",
-      "datetime": "2026-07-12T09:03:22.000Z",
-      "localDateKst": "2026-07-12",
-      "tags": [
-        "semi",
-        "power",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 68,
-      "summary": "[단독]LG전자, 엔비디아 ‘AI 서버 랙’ 만든다 12일 반도체 업계에 따르면 LG전자 생산기술원(PRI)이 상반기 엔비디아 ‘베라루빈’ 기반 컴퓨트 트레이 규격에 맞춘 AI 서버 랙 시제품 개발을..."
     }
   ]
 }
