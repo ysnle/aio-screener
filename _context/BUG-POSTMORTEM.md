@@ -3,9 +3,9 @@ verified_by: agent (Claude Sonnet 5)
 last_verified: 2026-07-20
 confidence: high
 latest_version: v53.16
-latest_P_number: P748
-next_P_number: P749
-total_entries: 522 (P1~P748, 결번 존재 — 상세 39건 + 압축 원장)
+latest_P_number: P749
+next_P_number: P750
+total_entries: 523 (P1~P749, 결번 존재 — 상세 40건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -190,6 +190,15 @@ total_entries: 522 (P1~P748, 결번 존재 — 상세 39건 + 압축 원장)
 - **violated_rule**: 해당 없음.
 - **prevention**: ARX-04 domain 확장 순서를 정할 때 "native 렌더가 실제로 그 slice를 소비하는가"를 최우선 기준으로 삼는다(sentiment처럼 이미 라이브 렌더 중인 route는 데이터 소스 교체 자체가 사용자 가시 회귀 리스크). 후보 legacy 필드를 교체하기 전에 그 필드가 실제로 언제 채워지는지(대입 지점 전수 grep) 확인 — "필드가 존재한다"가 "항상 채워진다"를 의미하지 않는다(이번엔 반대로 유리하게 작용했지만, 반대 방향 오판도 가능했다).
 - **verification**: 실 Chromium에서 `window._currentTickerId='A'`(SEC 데이터셋에 있는 심볼) 설정 후 `aio:pageShown` 발화 → `state.entity.fundamentals`에 revenue/netIncome/margin/pe 등 실값 확인. 커버되지 않는 심볼(`ZZZZNOTREAL`)은 `fundamentals:null`로 안전하게 폴백(크래시 없음) 확인. §8.1 핵심 12개(viewport FULL_INIT 68/68 포함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-knowledge-lint + ci-doc-currency 전부 PASS. headless 1098/1098. `ci-architecture-browser-check.mjs`(17-route 왕복) browserErrors 0.
+
+## P749 - v53.16 - RM-03 계속: news 감성점수·리스크신호를 순수 도메인으로 추출 — Fable 어드바이저 검토 후 착수, 첫 시도에서 KST 사이클 fixture 시각 설계 결함을 스스로 발견·수정
+- **motivation**: P748(entity) 이후 사용자가 "위험/복잡한 남은 작업에 대해 Fable에게 조언을 구하자"고 제안했다. `model: fable`로 general-purpose 에이전트를 read-only 어드바이저로 소환해 RM-03 잔여 7개 smoke-only 도메인 모델과 ARX-04 확장 방향을 평가받았다. Fable은 (1) sentiment ARX-04는 `market-snapshot.json`에 VIX/VIX3M이 실제로 존재함에도 세션이 이를 조사에서 놓쳤음을 지적했으나 — VIX9D/VIX6M 결측·신선도 강등·provenance 3원천 분열 때문에 결론(보류)은 그대로 유지된다고 확인했고, (2) RM-03 잔여 7개 중 news(`computeNewsSentimentScore`/`computeNewsRiskSignals`, `js/aio-data.js:12184`/`12219`)가 가장 쉽고 가치가 높다고 추천했다(trading-score의 입력이라 이미 간접 검증된 영역). 사용자가 이 추천을 승인해 착수했다.
+- **symptom/reproduction**: 두 함수와 그 하위 헬퍼(`getSentimentFromText`·`filterByAge`·`filterByKst0800NewsCycle`→`_getBriefingWindowKST`, 전부 `js/aio-data.js`)를 전문 정독한 뒤 순수 함수로 옮겼다. 첫 골든 fixture 덤프에서 **자체 설계 결함을 발견**했다: `computeNewsRiskSignals`는 `filterByKst0800NewsCycle`(KST 08:00 앵커의 "완료된 직전 24시간" 창)로 필터링하는데, 초안 fixture의 `pubDate`를 `FIXED_NOW - 2h`로 설정해 그 창의 바깥(창은 대략 `[now-28h, now-4h)`)에 떨어져 있었다 — 결과적으로 geo/energy/credit/earnings 리스크 시나리오가 전부 빈 배열(`[]`)만 덤프됐다. `FIXED_NOW - 15h`로 재조정해 재덤프하니 geo(high/mid)·energy(high)·credit(high)·earnings(positive) 5개 분기가 실제로 트리거됨을 확인했다.
+- **root_cause**: (1)~(2)는 버그가 아니라 어드바이저 자문의 정상 산출물(기록용). (3) fixture 설계 시 KST 08:00 앵커 창의 경계를 계산 없이 "대충 최근"으로 가정했다 — 골든 덤프 패턴은 "예측이 아니라 실측을 기록"하는 방식이라 이 결함이 파이프라인을 깨뜨리지는 않았지만(빈 배열도 유효한 실측치), 리스크 신호 분기에 대한 실질적 커버리지를 상실할 뻔했다.
+- **fix**: `src/domain/news/scoring.js` 신설 — `classifyNewsTextStance`(bull/bear 키워드 스코어링)·`briefingWindowKST`·`computeNewsSentimentScore`·`computeNewsRiskSignals`를 순수 함수로 이관(`now`를 명시 매개변수로 받아 `Date.now()` 암묵 의존 제거). `js/aio-data.js`의 두 legacy 래퍼는 `newsCache` 폴백만 유지한 채 `window.AIO_ARCH`를 호출하도록 축소(P743/P745와 동일하게 `bootstrap.js` api 객체·`compatibility-facade.js` exposeArchitecture() 양쪽에 동시 등록). `scripts/dump-news-scoring-fixtures.mjs` 신설 — Playwright `addInitScript`로 브라우저의 `Date`를 고정 시각으로 오버라이드해 시간 의존 필터링을 재현 가능하게 만들고, 8개 시나리오(빈 목록·24h 초과 stale·강세·지정학+신용+에너지 복합 약세·실적시즌 긍정·중립 혼합·pubDate 결측·geo mid 경계)를 `git stash`로 추출 전 커밋 상태에서 덤프. `ci-domain-parity-check.mjs`에 실 parity 블록 추가(감성점수 7필드 + 리스크신호 배열 길이·필드별 대조).
+- **violated_rule**: 해당 없음(자체 발견·자체 수정, 배포 전 커밋되지 않은 로컬 작업 중 확인됨).
+- **prevention**: 시간창 기반 필터를 쓰는 golden fixture를 설계할 때는 창 경계를 직접 계산(또는 로그 출력)해 테스트 아이템의 타임스탬프가 의도한 창 안/밖에 확실히 들어가는지 먼저 확인한다 — "대충 최근/오래된"이라는 직관에 의존하지 않는다. cross-module 브릿지 함수는 bootstrap.js api 객체와 compatibility-facade.js exposeArchitecture() 양쪽에 같은 diff로 등록하는 절차를 3번째로 준수(P743/P745 패턴 고착).
+- **verification**: `node scripts/dump-news-scoring-fixtures.mjs`(8 fixture, KST 창 안 타임스탬프로 재덤프 후 geo/energy/credit/earnings 신호 실트리거 확인) → `ci-domain-parity-check.mjs`(감성점수+리스크신호 8 fixture 전부 일치) PASS. §8.1 핵심 12개(viewport FULL_INIT 68/68) + ci-retirement-contract + ci-portfolio-vault-e2e + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-knowledge-lint + ci-doc-currency 전부 PASS. headless 1098/1098. `ci-architecture-browser-check.mjs` browserErrors 0.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.

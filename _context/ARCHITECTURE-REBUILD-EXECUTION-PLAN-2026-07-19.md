@@ -420,3 +420,30 @@ Live evidence: 없음 — 커밋 여부·배포 모두 사용자 지시 대기.
 Unverified/blockers: (1) `.quote`/`.options`는 이번 슬라이스 범위 밖 — quote는 라이브 시세 파이어호스 의존이라 market domain과 함께 별도 검토 필요, options는 legacy 자체도 AI 컨텍스트 경로 외엔 거의 채워지지 않아 우선순위 낮음. (2) FMP API가 활성화되면(`fmpHasKey:true`) 현재 SEC-only 펀더멘털이 legacy의 FMP+SEC 혼합 결과와 달라질 수 있음 — 지금은 `fmpHasKey:false`라 SEC가 사실상 유일한 실소스라 문제 없지만, FMP 키가 추가되는 시점에 재검토 필요. (3) SEC 커버리지가 98/655(15%)로 낮음 — 이 슬라이스는 커버리지를 개선하지 않으며(생산자 측 문제, WP-7/P708 계열), 대부분의 티커는 여전히 fundamentals:null.
 Status: VERIFIED_LOCAL (ARX-04 entity 슬라이스 한정 — quote/options/legacy fetch 삭제는 범위 밖)
 ```
+
+## 세션 카드 — RM-03 계속: news 감성점수·리스크신호 실 parity 추출 (2026-07-20, Fable 어드바이저 검토 후)
+
+```text
+Packet: RM-03 (item 2 이후 계속) — computeNewsSentimentScore/computeNewsRiskSignals 도메인 추출
+Checkout/HEAD/version/liveRevision: entity 세션 카드(087b5e5 커밋됨)에 이어서, `model: fable` read-only 어드바이저 자문(코드 변경 없음) 후 시작 / v53.16(버전 미변경) / live revision 미확인
+Scope route/metric/layer: js/aio-data.js(computeNewsSentimentScore/computeNewsRiskSignals 래퍼만) · src/domain/news/scoring.js(신규) · src/app/bootstrap.js · src/legacy/compatibility-facade.js · scripts/ci-domain-parity-check.mjs
+Owner before: 두 함수가 legacy 단일 구현(`getSentimentFromText`/`filterByAge`/`filterByKst0800NewsCycle` 헬퍼 포함, 전부 `js/aio-data.js`). `ci-domain-parity-check.mjs`의 news 항목은 `deriveNewsClaim`(단일기사 claim 검증, 별개 함수) smoke-only.
+Owner after: `classifyNewsTextStance`/`briefingWindowKST`/`computeNewsSentimentScore`/`computeNewsRiskSignals`가 `src/domain/news/scoring.js` 순수 함수로 이관, `now`를 명시 매개변수화(legacy는 암묵적 `Date.now()`). legacy 래퍼 2개는 `newsCache` 폴백 유지한 채 `window.AIO_ARCH` 호출로 축소. `deriveNewsClaim`은 그대로 별개 smoke-only(대상 아님, 혼동 방지 주석 추가).
+Files read: js/aio-data.js의 computeNewsSentimentScore(12184~12216)·computeNewsRiskSignals(12218~12261)·getSentimentFromText(9194~9210)·filterByAge(8677~8685)·filterByKst0800NewsCycle(8687~8696)·_getBriefingWindowKST(11436~11465, 도달불가 사문 코드 잔존 확인·이번 배치 대상 아님) 전문, 3개 실 호출부(aio-core.js:21731-21732, aio-data.js:6035/6050/13126) 전수 grep, src/domain/news/claims.js(별개 확인)
+Files changed: js/aio-data.js · src/app/bootstrap.js · src/legacy/compatibility-facade.js · sw.js · scripts/ci-domain-parity-check.mjs
+Files added: src/domain/news/scoring.js · scripts/dump-news-scoring-fixtures.mjs · architecture/fixtures/news-scoring-golden.json
+DELETE-LEDGER before edit:
+  - declaration: computeNewsSentimentScore/computeNewsRiskSignals 함수 본문 전체(계산 로직) — 래퍼에는 `newsCache` 폴백 선택과 브릿지 호출만 남김
+  - callers: 없음(3개 호출부 시그니처 불변 — `items` 인자 또는 무인자 호출 모두 동일하게 동작)
+  - global writer: 해당 없음
+  - DOM/chart/narrative sink: 해당 없음(순수 계산 이관, 두 함수 모두 원래 DOM 미접촉)
+  - event/timer/storage: 해당 없음
+  - tests/docs: 없음(두 함수를 직접 검증하는 legacy 전용 테스트 없었음, 사전 확인)
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 legacy 카운터 무변화(1088/42/187/410) — 이 배치는 순수 계산 이관이며 DOM/global/storage 삭제 대상 아님.
+New compatibility introduced and retirement packet: `window.AIO_ARCH.computeNewsSentimentScore`/`computeNewsRiskSignals` 신규 브릿지(단일 구현 소비 경로, P743/P745와 동일 패턴) — retirement 대상 아님.
+Local gates: §8.1 핵심 12개 전부 PASS(viewport FULL_INIT 68/68 포함) + ci-domain-parity-check(news 감성점수 7필드·리스크신호 배열 8 fixture 전부 일치) + ci-retirement-contract + ci-portfolio-vault-e2e + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-knowledge-lint + ci-doc-currency 전부 PASS. headless 1098/1098.
+Browser evidence: `ci-architecture-browser-check.mjs`(17-route 왕복) browserErrors 0, 기존 route 검증 불변.
+Live evidence: 없음 — 커밋·배포 모두 사용자 지시 대기.
+Unverified/blockers: (1) `_getBriefingWindowKST`의 원문(11452행 이후, `return` 뒤 도달불가 사문 코드)은 이번 배치에서 발견만 하고 삭제하지 않음(범위 밖 — 별도 소소한 burn-down 후보로 QA-CHECKLIST에 추가 고려). (2) fixture 8개가 geo(high/mid)·energy(high)·credit(high)·earnings(positive) 5개 리스크 분기는 실측했으나 earnings(negative) 분기는 미포함 — 다음 fixture 확장 시 추가 권장(낮은 우선순위, 로직은 positive와 대칭이라 위험 낮음). (3) Fable 자문이 지적한 시나리오(sentiment 재검토, screener-ranking의 C2 불일치, market/macro의 "toy 퇴역 가능성")는 이번 배치 범위 밖 — 다음 세션 후보로 이월.
+Status: VERIFIED_LOCAL (news 도메인 슬라이스 한정 — RM-03 잔여 스코프는 market/macro/portfolio/screener-ranking/technical, signal은 ARX-11로 별도)
+```

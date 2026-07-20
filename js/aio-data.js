@@ -12181,83 +12181,23 @@ function getTimeAgo(date) {
 }
 
 /* ── 뉴스→시그널 통합: 뉴스 감성 집계 ─────────────────────── */
+// RM-03 (continued): single-implementation calls — scoring formulas live in
+// src/domain/news/scoring.js (computeNewsSentimentScore/computeNewsRiskSignals), exposed via
+// window.AIO_ARCH so these legacy wrappers and any native consumer share one model (R352/F-03).
 function computeNewsSentimentScore(items) {
   var sourceItems = Array.isArray(items) ? items : newsCache;
-  if (!sourceItems || sourceItems.length === 0) return { score: 50, label: '뉴스 없음', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
-
-  const recent = filterByAge(sourceItems, 24); // 24시간 이내
-  if (recent.length === 0) return { score: 50, label: '데이터 부족', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
-
-  let bullCount = 0, bearCount = 0, total = recent.length;
-  recent.forEach(item => {
-    const sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
-    if (sent === 'bull') bullCount++;
-    else if (sent === 'bear' || sent === 'warn') bearCount++;
-  });
-
-  // Bull ratio: 0 (all bear) ~ 100 (all bull)
-  const bullRatio = Math.round((bullCount / total) * 100);
-  const bearRatio = Math.round((bearCount / total) * 100);
-  const sentimentScore = Math.round(50 + (bullCount - bearCount) / total * 50);
-
-  let label;
-  if (sentimentScore >= 70) label = '강한 낙관';
-  else if (sentimentScore >= 55) label = '약한 낙관';
-  else if (sentimentScore >= 45) label = '중립';
-  else if (sentimentScore >= 30) label = '약한 비관';
-  else label = '강한 비관';
-
-  return {
-    score: Math.max(0, Math.min(100, sentimentScore)),
-    label,
-    bullCount, bearCount, total,
-    bullRatio, bearRatio
-  };
+  var _fn = window.AIO_ARCH && typeof window.AIO_ARCH.computeNewsSentimentScore === 'function' ? window.AIO_ARCH.computeNewsSentimentScore : null;
+  if (_fn) return _fn({ items: sourceItems || [], now: Date.now() });
+  // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted.
+  return { score: 50, label: '뉴스 없음', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
 }
 
 /* ── 뉴스→시그널 통합: 매크로 리스크 집계 ──────────────────── */
 function computeNewsRiskSignals(items) {
   var sourceItems = Array.isArray(items) ? items : newsCache;
-  if (!sourceItems) return [];
-
-  const recent = typeof filterByKst0800NewsCycle === 'function'
-    ? filterByKst0800NewsCycle(sourceItems)
-    : filterByAge(sourceItems, 24);
-  const riskSignals = [];
-
-  // 지정학 리스크 카운트
-  const geoNews = recent.filter(i => i.topic === 'geo');
-  if (geoNews.length >= 5) {
-    riskSignals.push({ type: 'geo', level: 'high', label: '지정학 리스크 고조 (' + geoNews.length + '건)', impact: -10 });
-  } else if (geoNews.length >= 2) {
-    riskSignals.push({ type: 'geo', level: 'mid', label: '지정학 이슈 존재 (' + geoNews.length + '건)', impact: -5 });
-  }
-
-  // 에너지 위기 신호
-  const energyBear = recent.filter(i => i.topic === 'energy' && getSentimentFromText(i.title) === 'bear');
-  if (energyBear.length >= 3) {
-    riskSignals.push({ type: 'energy', level: 'high', label: '에너지 위기 신호 (' + energyBear.length + '건)', impact: -8 });
-  }
-
-  // 금융 스트레스 신호
-  const creditStress = recent.filter(i => {
-    const t = (i.title || '').toLowerCase();
-    return t.includes('credit') || t.includes('default') || t.includes('spread') || t.includes('부도') || t.includes('신용');
-  });
-  if (creditStress.length >= 3) {
-    riskSignals.push({ type: 'credit', level: 'high', label: '신용 스트레스 신호', impact: -12 });
-  }
-
-  // 실적 시즌 서프라이즈 방향
-  const earningsBull = recent.filter(i => i.topic === 'earnings' && getSentimentFromText(i.title) === 'bull');
-  const earningsBear = recent.filter(i => i.topic === 'earnings' && getSentimentFromText(i.title) === 'bear');
-  if (earningsBull.length > earningsBear.length + 3) {
-    riskSignals.push({ type: 'earnings', level: 'positive', label: '실적 시즌 긍정적', impact: +8 });
-  } else if (earningsBear.length > earningsBull.length + 3) {
-    riskSignals.push({ type: 'earnings', level: 'negative', label: '실적 시즌 부진', impact: -8 });
-  }
-
-  return riskSignals;
+  var _fn = window.AIO_ARCH && typeof window.AIO_ARCH.computeNewsRiskSignals === 'function' ? window.AIO_ARCH.computeNewsRiskSignals : null;
+  if (_fn) return _fn({ items: sourceItems || [], now: Date.now() });
+  return [];
 }
 
 // ── 상태 ────────────────────────────────────────────────────────

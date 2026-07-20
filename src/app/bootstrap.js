@@ -21,6 +21,7 @@ import { createEvidence } from '../data/contracts/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
+import { computeNewsSentimentScore, computeNewsRiskSignals } from '../domain/news/scoring.js';
 import { createMarketSnapshotLoader } from '../data/market-snapshot-loader.js';
 import { createSentimentProvider } from '../data/providers/sentiment.js';
 import { createSentimentOrchestrator } from '../data/orchestrators/sentiment.js';
@@ -315,6 +316,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,computeRelativeRotation
     ,classifyMovingAverageStructure
     ,deriveMultiTimeframeView
+    ,computeNewsSentimentScore
+    ,computeNewsRiskSignals
   };
   exposeArchitecture(root, api);
   return Object.freeze({ ...api, store, evidenceStore });

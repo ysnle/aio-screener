@@ -218,7 +218,9 @@ export function exposeArchitecture(root, api) {
       computeTradingScoreModel: api.computeTradingScoreModel,
       computeRelativeRotation: api.computeRelativeRotation,
       classifyMovingAverageStructure: api.classifyMovingAverageStructure,
-      deriveMultiTimeframeView: api.deriveMultiTimeframeView
+      deriveMultiTimeframeView: api.deriveMultiTimeframeView,
+      computeNewsSentimentScore: api.computeNewsSentimentScore,
+      computeNewsRiskSignals: api.computeNewsRiskSignals
     })
   });
 }

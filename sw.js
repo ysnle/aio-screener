@@ -80,6 +80,7 @@ const SHELL_ASSETS = [
   './src/domain/macro/model.js',
   './src/domain/market/model.js',
   './src/domain/news/claims.js',
+  './src/domain/news/scoring.js',
   './src/domain/portfolio/risk.js',
   './src/domain/screener/ranking.js',
   './src/domain/signal/decision.js',
