@@ -1,15 +1,15 @@
 {
   "schemaVersion": "operations-status-v1",
-  "generatedAt": "2026-07-20T04:06:03.084Z",
+  "generatedAt": "2026-07-20T07:30:28.460Z",
   "appRevision": "v53.16",
-  "dataRevision": "market-snapshot:2026-07-20T04:05:51.656Z:eb96fc93",
+  "dataRevision": "market-snapshot:2026-07-20T07:30:24.001Z:e79cf804",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
     "durable": {
       "status": "CURRENT",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-07-20T04:05:51.656Z",
+      "lastSuccessfulAt": "2026-07-20T07:30:24.001Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -39,23 +39,23 @@
     "yahoo": {
       "rights": "REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-07-20T04:05:51.656Z"
+      "lastFetchAt": "2026-07-20T07:30:24.001Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "use": "official-series",
-      "lastFetchAt": "2026-07-20T04:05:51.656Z"
+      "lastFetchAt": "2026-07-20T07:30:24.001Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
       "use": "filing-evidence",
-      "coveragePct": 13.8
+      "coveragePct": 13.9
     }
   },
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-07-20T04:05:51.656Z:eb96fc93",
+      "artifact": "market-snapshot:2026-07-20T07:30:24.001Z:e79cf804",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
