@@ -68,7 +68,7 @@ deferred until this packet sequence is complete, then runs as one batch.
 | L01 | 라우터·생명주기 | legacy `showPage/PAGES/PageBus`, ESM router 병존; sentiment lifecycle만 ESM | typed route registry와 page resource bag | `IN_PROGRESS` | route별 init hook·wrapper 삭제, mount/dispose 단일 호출자, 왕복 resource 증가 0 |
 | L02 | 명령·상태·selector | `AIO.state`, `_liveData`, `DATA_SNAPSHOT`, DOM, 여러 Store 병존; ESM state는 sentiment/snapshot 일부 | typed commands + canonical slices + selectors | `IN_PROGRESS` (ARX-03 재측정 2026-07-20: command/reducer 경계 자체는 8개 domain 전부 클린 — UI dispatch 0건, SET/CLEAR 쌍 일관, derived-state 중복 0. legacy `AIO.state`/`_liveData`/`DATA_SNAPSHOT`가 여전히 렌더를 소유하므로 층 전체를 VERIFIED_LOCAL로 승격하지 않음 — 아래 ARX-03/04 세션 카드 참조) | DOM→state 금지, metric별 writer 1개, legacy projection read-only |
 | L03 | 저장소·캐시 | Vault/safeLS와 직접 Web Storage 189건 병존 | versioned repository + storage/vault gateway | `DESIGNED` | gateway 밖 direct storage 0, migration/rollback fixture |
-| L04 | 데이터 provider·orchestration | direct fetch 42건, legacy producer가 DOM·global도 갱신; snapshot/evidence 계약 일부 존재 | provider adapter→normalize→quality→evidence ingest | `IN_PROGRESS` (ARX-04 첫 실제착수 2026-07-20: screener provider가 `public-data/screener.json`을 `platform/http.js` 게이트웨이로 실제 fetch — market-snapshot.json 선례와 동일 패턴. legacy fetch 42건은 무변화(추가식, 대체 아님) — "첫 slice fetch 삭제" 인수 기준은 아직 미충족, 아래 세션 카드 참조) | 첫 slice direct fetch/global/DOM writer 삭제, 실패 시 LKG 보존 |
+| L04 | 데이터 provider·orchestration | direct fetch 42건, legacy producer가 DOM·global도 갱신; snapshot/evidence 계약 일부 존재 | provider adapter→normalize→quality→evidence ingest | `IN_PROGRESS` (ARX-04 2026-07-20: screener·entity 2개 provider가 각각 `public-data/screener.json`·`sec-fundamentals.json`을 `platform/http.js` 게이트웨이로 실제 fetch — market-snapshot.json 선례와 동일 패턴, 둘 다 native 렌더 소비자가 없어(RM-01 dataset-marker-only) 블러스트 반경 0인 route만 선택. sentiment는 ARX-01로 이미 라이브 렌더 중이라 데이터 소스 교체 시 사용자 가시 회귀 위험이 있어 의도적으로 보류(아래 참조). legacy fetch 42건은 무변화(추가식, 대체 아님) — "첫 slice fetch 삭제" 인수 기준은 아직 미충족, 아래 세션 카드 참조) | 첫 slice direct fetch/global/DOM writer 삭제, 실패 시 LKG 보존 |
 | L05 | Evidence·freshness·lineage | typed evidence와 field-time 계약 존재하지만 legacy DOM audit/전역 projection 병존 | canonical EvidenceStore와 ingest ledger | `IN_PROGRESS` | UI·chart·AI evidence ID 동일, DOM에서 evidence 생성 0 |
 | L06 | 금융 domain·quant | 대다수 계산이 `aio-core/data/ui`에서 전역·DOM과 결합; sentiment pure module만 존재 | pure domain services + model/input version | `IN_PROGRESS` | live/backtest fixture parity, missing/zero/neutral/stale 분리 |
 | L07 | UI·component·chart·narrative | native renderer 1/17, HTML sink 418건, 거대 상주 DOM | route-local page/component/chart modules | `IN_PROGRESS` | sentiment native renderer 후 16개 legacy renderer·HTML writer·chart init 삭제 |
@@ -399,4 +399,24 @@ Browser evidence: `ci-architecture-browser-check.mjs` 상태 덤프에서 `state
 Live evidence: 없음 — 커밋(로컬) 여부도 사용자 지시 대기, 배포는 미지시.
 Unverified/blockers: (1) in-flight fetch 도중 architecture dispose 시 AbortController로 취소하는 로직 없음 — 현재 native screener slice는 어떤 UI도 소비하지 않아 실해는 없지만(무해한 stale write), 향후 screener route 실 cutover 전에는 추가해야 함. (2) `score`/`rank`/`sector`/`name`은 `public-data/screener.json`에 없는 필드라 항상 null — 진짜 값을 채우려면 legacy의 `_aioComputeFactorRanks`(js/aio-data.js:15905, 7-factor 랭킹)를 도메인으로 추출해야 하며, 이는 CODE-MAP이 이미 지목한 서버 4-factor와의 기존 불일치(진단 C2)까지 함께 해결해야 하는 별도 작업 — 이번 배치에서 임의로 근사하지 않음(R352). (3) legacy의 `_aioApplyServerScreener`/`fetch(screener.json)` 자체 삭제(진짜 cutover)는 native screener route 렌더링이 실제로 이 slice를 소비하게 될 때(향후 W5 ARX-10) 진행 — 지금 삭제하면 `SCREENER_DB`를 직접 읽는 수십 곳의 legacy 함수가 전부 결측 상태가 됨.
 Status: VERIFIED_LOCAL (ARX-03 재검증 스코프 한정 — 층 전체 승격 아님. ARX-04는 8개 domain 중 1개(screener)의 provider adapter 단계만 IN_PROGRESS→첫 실 fetch 확보, "첫 slice fetch/DOM writer 삭제" 인수 기준은 legacy 삭제가 없어 아직 미충족. 나머지 7개 domain·legacy cutover는 후속 세션)
+```
+
+## 세션 카드 — ARX-04 두 번째 슬라이스: entity 펀더멘털 실 fetch (2026-07-20, 같은 세션)
+
+```text
+Packet: ARX-04 entity(ticker) provider — sec-fundamentals.json 실 fetch
+Checkout/HEAD/version/liveRevision: ARX-03/04 screener 세션 카드(같은 세션, 미커밋 상태였다가 이후 auto-commit-on-stop 훅으로 fd7b52a에 커밋됨)에 이어서 시작 / v53.16(버전 미변경) / live revision 미확인
+Scope route/metric/layer: src/data/providers/entity.js · src/data/orchestrators/entity.js · src/app/bootstrap.js(entity 배선만)
+Owner before: entity provider가 `legacy.readEntity`(→ `root._fundAnalysisData`, `root._optionsAnalysisData/_optionsData`, `root._liveData[id]`) projection만 사용. `_fundAnalysisData`는 js/aio-chat.js(AI 티커분석 경로)에서만 대입 — 일반 페이지 탐색에서는 항상 null이었음을 grep으로 확인.
+Owner after: entity provider가 `public-data/sec-fundamentals.json`을 `platform/http.js`로 직접 fetch해 `.fundamentals`를 채움(symbol 조회, provider 수명 동안 캐시). `.id`/`.quote`/`.options`는 legacy projection 유지 — 이번 슬라이스 범위 밖.
+Files read: src/data/providers/entity.js·normalize/entity.js·orchestrators/entity.js, src/legacy/compatibility-facade.js의 readEntity, js/aio-chat.js의 `_fundAnalysisData` 대입 지점 3곳 전문, public-data/sec-fundamentals.json 실제 구조(98/655 SEC 커버리지)
+Files changed: src/data/providers/entity.js(재작성) · src/data/orchestrators/entity.js(async 전환) · src/app/bootstrap.js(entity provider 배선에 httpClient 추가)
+DELETE-LEDGER before edit: 해당 없음(순수 추가 — legacy `readEntity`/`_fundAnalysisData` 소비는 그대로 유지, quote/options 필드는 손대지 않음)
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 legacy 카운터 무변화(1088/42/187/410) — legacy fetch를 삭제하지 않았으므로 정상.
+New compatibility introduced and retirement packet: 없음.
+Local gates: §8.1 핵심 12개 전부 PASS(viewport FULL_INIT 68/68 포함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-knowledge-lint + ci-doc-currency 전부 PASS. headless 1098/1098.
+Browser evidence: 실 Chromium 애드훅 검증(임시 스크립트, 실행 후 삭제) — `window._currentTickerId='A'` 설정 → `aio:pageShown` 발화 → `state.entity.fundamentals`에 AGILENT TECHNOLOGIES 실제 SEC 데이터(revenue 6,948,000,000 등) 확인. `ZZZZNOTREAL`(미존재 심볼)은 `fundamentals:null`로 안전 폴백, 크래시 없음. `ci-architecture-browser-check.mjs`(17-route 왕복) browserErrors 0.
+Live evidence: 없음 — 커밋 여부·배포 모두 사용자 지시 대기.
+Unverified/blockers: (1) `.quote`/`.options`는 이번 슬라이스 범위 밖 — quote는 라이브 시세 파이어호스 의존이라 market domain과 함께 별도 검토 필요, options는 legacy 자체도 AI 컨텍스트 경로 외엔 거의 채워지지 않아 우선순위 낮음. (2) FMP API가 활성화되면(`fmpHasKey:true`) 현재 SEC-only 펀더멘털이 legacy의 FMP+SEC 혼합 결과와 달라질 수 있음 — 지금은 `fmpHasKey:false`라 SEC가 사실상 유일한 실소스라 문제 없지만, FMP 키가 추가되는 시점에 재검토 필요. (3) SEC 커버리지가 98/655(15%)로 낮음 — 이 슬라이스는 커버리지를 개선하지 않으며(생산자 측 문제, WP-7/P708 계열), 대부분의 티커는 여전히 fundamentals:null.
+Status: VERIFIED_LOCAL (ARX-04 entity 슬라이스 한정 — quote/options/legacy fetch 삭제는 범위 밖)
 ```

@@ -169,7 +169,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const themesCommands = createThemesCommands({ store });
   const syncThemes = createThemesOrchestrator({ provider: createThemesProvider({ read: legacy.readThemes }), commands: themesCommands });
   const entityCommands = createEntityCommands({ store });
-  const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: legacy.readEntity }), commands: entityCommands });
+  // ARX-04: entity's fundamentals now come from a real fetch (public-data/sec-fundamentals.json)
+  // — see src/data/providers/entity.js. id/quote/options remain legacy.readEntity projections.
+  const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: legacy.readEntity, httpClient }), commands: entityCommands });
   const portfolioCommands = createPortfolioCommands({ store });
   const portfolioStorage = createStorageGateway({ storage: root?.localStorage, prefix: 'aio' });
   const portfolioVault = createPrivacyVault({ storage: portfolioStorage, key: 'portfolio', consent: () => root?._portfolioVaultConsent === true });

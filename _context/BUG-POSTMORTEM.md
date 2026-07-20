@@ -3,9 +3,9 @@ verified_by: agent (Claude Sonnet 5)
 last_verified: 2026-07-20
 confidence: high
 latest_version: v53.16
-latest_P_number: P747
-next_P_number: P748
-total_entries: 521 (P1~P747, 결번 존재 — 상세 38건 + 압축 원장)
+latest_P_number: P748
+next_P_number: P749
+total_entries: 522 (P1~P748, 결번 존재 — 상세 39건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -181,6 +181,15 @@ total_entries: 521 (P1~P747, 결번 존재 — 상세 38건 + 압축 원장)
 - **violated_rule**: F-01~F-03류(미실측 완료 선언), P715 반복 클래스(`Number.isFinite(Number(...))` null→0), R352(랭킹 산식은 추측 복제 금지 — null로 정직하게 유지).
 - **prevention**: "X가 closed/adopted됐다"는 서술은 재진입 세션마다 grep으로 재확인한다(이번에 실행계획 368행에 취소선 없이 정정 각주를 추가). smoke-test 픽스처만 거친 normalize 함수가 실 데이터 경로에 처음 연결될 때는 null/undefined/0 경계값을 반드시 별도로 넣어 재검증한다 — "테스트를 통과했다"가 "실 데이터로 검증했다"를 의미하지 않는다.
 - **verification**: `ci-architecture-browser-check.mjs`의 실 상태 덤프로 수정 전(`rank:0` 오염 재현) → 수정 후(`rank:null`, `rowCount:846`, `rsi`/`ret1m`/`ret3m`/`ret6m` 실값 확인) 양쪽을 직접 캡처. §8.1 핵심 12개 + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e + ci-boot-interaction + ci-ux-default-path + ci-knowledge-lint + ci-doc-currency 전부 PASS. headless 1098/1098.
+
+## P748 - v53.16 - ARX-04 두 번째 슬라이스: entity(ticker) provider가 SEC 펀더멘털을 실 fetch — sentiment는 라이브 렌더 회귀 위험으로 보류
+- **motivation**: P747(screener) 직후 사용자가 ARX-04를 다음 domain으로 확장하라고 지시했다. sentiment를 다음 대상으로 검토하던 중, screener/entity/themes는 RM-01이 native 렌더를 dataset-marker-only로 축소해 블러스트 반경이 0이었던 반면 **sentiment는 ARX-01로 이미 실제 라이브 렌더링 중**이라 데이터 소스 교체가 사용자 가시 회귀로 이어질 수 있음을 발견했다(VIX가 후보 artifact에 없고, F&G/PutCall/HY의 세밀한 provenance 라벨을 정확히 재현해야 함). 사용자에게 확인한 결과 entity(ticker/fundamental/options route)로 방향을 바꿨다 — screener와 동일하게 native 렌더 소비자가 0인 안전한 route다.
+- **symptom/reproduction**: `src/data/providers/entity.js`는 `legacy.readEntity`(→ `root._fundAnalysisData`) projection만 사용했다. `root._fundAnalysisData`를 전수 grep한 결과 **`js/aio-chat.js`에서만 대입**되고 있었다 — AI 채팅이 티커 분석을 수행할 때만 채워지는 필드였고, 일반 페이지 탐색에서는 항상 `null`이었다(aio-data.js/aio-core.js 어디에도 대입 지점 없음). 즉 entity slice의 `.fundamentals`는 현재도 사실상 거의 항상 비어 있었다 — 실 fetch로 교체해도 "기존 동작을 깨는" 리스크가 없는, screener보다도 더 안전한 상황이었다.
+- **root_cause**: 해당 없음(버그 수정 아님, ARX-04 신규 채택 — 이 항목은 발견·설계 근거 기록용).
+- **fix**: `src/data/providers/entity.js` 재작성 — `httpClient.requestJson('./public-data/sec-fundamentals.json')`로 실 fetch(provider 수명 동안 1회 캐시, 동시 호출 시 같은 in-flight Promise 공유로 중복 fetch 방지), symbol로 조회해 `.fundamentals`를 채움. `id`/`quote`/`options`는 여전히 `legacy.readEntity` projection 유지(이번 슬라이스 범위 밖 — options는 AI 컨텍스트 수집 경로가 없어 legacy 자체도 드묾, quote는 라이브 시세 파이어호스라 별도 후속 과제). `src/data/orchestrators/entity.js`를 async로 전환. `bootstrap.js`의 entity provider 배선에 `httpClient` 추가.
+- **violated_rule**: 해당 없음.
+- **prevention**: ARX-04 domain 확장 순서를 정할 때 "native 렌더가 실제로 그 slice를 소비하는가"를 최우선 기준으로 삼는다(sentiment처럼 이미 라이브 렌더 중인 route는 데이터 소스 교체 자체가 사용자 가시 회귀 리스크). 후보 legacy 필드를 교체하기 전에 그 필드가 실제로 언제 채워지는지(대입 지점 전수 grep) 확인 — "필드가 존재한다"가 "항상 채워진다"를 의미하지 않는다(이번엔 반대로 유리하게 작용했지만, 반대 방향 오판도 가능했다).
+- **verification**: 실 Chromium에서 `window._currentTickerId='A'`(SEC 데이터셋에 있는 심볼) 설정 후 `aio:pageShown` 발화 → `state.entity.fundamentals`에 revenue/netIncome/margin/pe 등 실값 확인. 커버되지 않는 심볼(`ZZZZNOTREAL`)은 `fundamentals:null`로 안전하게 폴백(크래시 없음) 확인. §8.1 핵심 12개(viewport FULL_INIT 68/68 포함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-knowledge-lint + ci-doc-currency 전부 PASS. headless 1098/1098. `ci-architecture-browser-check.mjs`(17-route 왕복) browserErrors 0.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.
