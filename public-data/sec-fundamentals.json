@@ -1,15 +1,15 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-19T08:40:04.334Z",
+ "generatedAt": "2026-07-20T20:02:13.223Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
- "stored": 98,
+ "stored": 102,
  "attempted": 24,
- "updated": 1,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AMP",
@@ -102,10 +102,14 @@
   {
    "symbol": "CCJ",
    "reason": "no comparable annual US-GAAP revenue/net-income facts"
+  },
+  {
+   "symbol": "CINF",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts"
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 557,
+ "nextRefreshCandidates": 553,
  "data": {
   "A": {
    "symbol": "A",
@@ -3080,6 +3084,118 @@
    "revGrowth": 1.6,
    "margin": 11.9,
    "roe": 33.2
+  },
+  "CHRW": {
+   "symbol": "CHRW",
+   "cik": "0001043277",
+   "entityName": "C.H. ROBINSON WORLDWIDE, INC.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-13",
+   "fetchedAt": "2026-07-19T13:58:20.300Z",
+   "form": "10-K",
+   "accession": "0001043277-26-000009",
+   "revenue": 16232763000,
+   "netIncome": 587081000,
+   "equity": 1845647000,
+   "sharesOutstanding": 118620833,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": -8.4,
+   "margin": 3.6,
+   "roe": 31.8
+  },
+  "CHTR": {
+   "symbol": "CHTR",
+   "cik": "0001091667",
+   "entityName": "Charter Communications, Inc.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-01-30",
+   "fetchedAt": "2026-07-19T19:38:02.769Z",
+   "form": "10-K",
+   "accession": "0001091667-26-000017",
+   "revenue": 54774000000,
+   "netIncome": 4987000000,
+   "equity": 20519000000,
+   "sharesOutstanding": 112438828,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": -0.6,
+   "margin": 9.1,
+   "roe": 24.3
+  },
+  "CI": {
+   "symbol": "CI",
+   "cik": "0001739940",
+   "entityName": "The Cigna Group",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-26",
+   "fetchedAt": "2026-07-20T04:12:18.431Z",
+   "form": "10-K",
+   "accession": "0001739940-26-000006",
+   "revenue": 274900000000,
+   "netIncome": 5957000000,
+   "equity": 41874000000,
+   "sharesOutstanding": 263528277,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 11.2,
+   "margin": 2.2,
+   "roe": 14.2
+  },
+  "CIEN": {
+   "symbol": "CIEN",
+   "cik": "0000936395",
+   "entityName": "Ciena Corp",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-11-01",
+   "filedAt": "2025-12-12",
+   "fetchedAt": "2026-07-20T09:40:00.098Z",
+   "form": "10-K",
+   "accession": "0001628280-25-056698",
+   "revenue": 4769507000,
+   "netIncome": 123338000,
+   "equity": 2172761000,
+   "sharesOutstanding": 140854735,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": 18.8,
+   "margin": 2.6,
+   "roe": 5.7
   }
  }
 }
