@@ -110,7 +110,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js:23547` |
 | `destroyPageCharts` / `showPage` | `js/aio-core.js:24983` / `25758` |
 | `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
-| `_aioApplyServerScreener` / `_aioComputeFactorRanks` | `js/aio-data.js:15837` / `15990` |
+| `_aioApplyServerScreener` / `_aioComputeFactorRanks` | `js/aio-data.js:15794` / `15947` |
 | `initBreadthPage` / native sentiment page | `js/aio-ui.js:172` / `src/ui/pages/sentiment.js:243` |
 | `CHAT_CONTEXTS` / `chatSend` | `js/aio-chat.js:418` / `4282` |
 
@@ -328,14 +328,23 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `renderBriefingFeed` | 11101 | 브리핑 뉴스 렌더 |
 | `vixToPercentile` | 14286 | VIX percentile 로그 외삽 |
 | `toggleSignalMode` | 16184 | signal UI mode state |
-| `_aioFactorWeights` | 15829 | 레짐 적응 팩터 가중(7팩터 NEUTRAL/RISK_OFF/RISK_ON lerp) |
-| `_aioComputeFactorRanks` | 15905 (export: 16029) | 멀티팩터 랭킹(7팩터). 서버 `backtestFactors`(fetch-data.mjs:703, 4팩터)와 불일치(진단 C2) |
+| `_aioFactorWeights` | 15871 | 레짐 적응 팩터 가중(7팩터 NEUTRAL/RISK_OFF/RISK_ON lerp) |
+| `_aioComputeFactorRanks` | 15947 (export: 16082) | 멀티팩터 랭킹(7팩터). 서버 `backtestFactors`(fetch-data.mjs:1173, 4팩터)와 의도적으로 다른 4팩터 서브셋만 검증(불일치 아님 — fetch-data.mjs:1177~1197 docstring이 사유 명시: size는 과거 발행주식수 데이터 없음, value/quality는 FMP TTM 스냅샷이라 과거 시점 채점 시 look-ahead bias. `COMP_W` 4개 가중치는 라이브 NEUTRAL의 해당 서브셋을 합=1로 재정규화한 값과 2026-07-21 기준 정확히 일치 확인 — 단 하드코딩 리터럴이라 향후 라이브 가중치 변경 시 무통보 drift 위험(P584/C1류)) |
 | `_aioBuildDiversifiedRecommendationRows` | 17286 | 넓은 종목 추천용 분산 후보군(R211) |
 | `_aioRunScreenerQuery` | 17352 | 자연어 스크리너/추천 후보 생성 |
 | `_formatScreenerResultPrompt` | 17486 | 스크리너/균형 추천 후보 프롬프트 |
 
-> `_aioFactorWeights`/`_aioComputeFactorRanks`는 v50.60 CODE-MAP 좌표(15829/15905)를 그대로 이관했으나 이번
-> 재스캔에서 정밀 재확인을 못 했다 — **작업 전 반드시 `grep -n "_aioComputeFactorRanks\s*=" js/aio-data.js`로 확정**.
+> 2026-07-21 재확인(직접 grep, ARX 재진입 세션): `_aioFactorWeights`/`_aioComputeFactorRanks` 좌표를 15871/15947(export
+> 16082)으로 정정했다 — 이전 좌표(15829/15905, v50.60 이관)는 여러 세대에 걸쳐 재확인 없이 그대로 옮겨 다녀 자기모순
+> 상태로 방치돼 있었다(`_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` RM-06 §0.1이 지목). **진단 C2 재평가(같은 날, Fable
+> 어드바이저 교차검증)**: "라이브·서버 모델 불일치"라는 기존 서술 자체가 부정확했다 — fetch-data.mjs의 4팩터 서브셋 검증은
+> v51.91/P586에서 이미 의도적으로 결정된 것이고(docstring에 사유 명시), 그 4개 가중치가 라이브 NEUTRAL 서브셋 재정규화값과
+> 여전히 일치함을 직접 계산으로 확인했다 — 즉 "어느 산식이 정본인가"는 이미 답이 나와 있는 질문이며 새 제품 결정이 필요 없다.
+> 남은 진짜 작업은 두 가지뿐이고 둘 다 제품 결정과 무관하다: (1) `_aioComputeFactorRanks`(7팩터 전체) 자체가 아직 `src/domain/`으로
+> 추출되지 않아 screener provider의 `score`/`rank`가 항상 null인 상태(ARX-04 P747 참조, trading-score/RRG/Weinstein과 같은 패턴으로
+> 추출 가능 — 별도 세션 규모 작업), (2) `COMP_W` 하드코딩 리터럴을 라이브 가중치에서 파생시키는 drift-guard(현재는 우연히 일치,
+> 강제되지 않음). 이 좌표 재확인 자체도 이번 세션의 `_getBriefingWindowKST` 사문 코드 13줄 삭제로 라인이 밀린 뒤 재측정한 값이다
+> (Fable이 최초 커밋 전 상태로 계산했던 1차 정정을 다시 잡아냄 — 좌표 정정 작업은 코드 삭제 순서 이후에 마지막으로 재확인할 것).
 
 ### `js/aio-ui.js`
 
@@ -389,8 +398,8 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | 데이터 진실성/교차소스 | `js/aio-core.js:20535~20807` |
 | DATA_SNAPSHOT 갱신 | `js/aio-core.js:18620~18898`, freshness/pipeline audit 18108~18440 |
 | 뉴스 선별/렌더 | `js/aio-data.js:8404~10900` |
-| RSI/기술지표 (서버·클라 이중 구현, 공식은 v51.91에 단일화됨 — 진단 C1 해소) | 서버 `scripts/fetch-data.mjs:695`(Wilder) = 클라 `js/aio-core.js:16586`(Wilder) — 파라미터 드리프트만 잔여 감시 대상 |
-| 팩터 랭킹/백테스트 (라이브·서버 모델 불일치 — 진단 C2) | 라이브 `js/aio-data.js` `_aioComputeFactorRanks`(재확인 필요) vs 서버 `scripts/fetch-data.mjs:703` `backtestFactors` |
+| RSI/기술지표 (서버·클라 이중 구현, 공식은 v51.91에 단일화됨 — 진단 C1 해소) | 서버 `scripts/fetch-data.mjs:1082`(`_rsi14`, Wilder) = 클라 `js/aio-core.js:18612`(`_calcRSILast`, Wilder) — 파라미터 드리프트만 잔여 감시 대상 (좌표 2026-07-21 재확인) |
+| 팩터 랭킹/백테스트 (진단 C2 — "불일치"가 아니라 v51.91/P586에서 결정된 의도적 4팩터 서브셋 검증, 2026-07-21 재평가) | 라이브 `js/aio-data.js:15947` `_aioComputeFactorRanks`(7팩터, 아직 `src/domain/` 미추출) vs 서버 `scripts/fetch-data.mjs:1173` `backtestFactors`(모멘텀/추세/저변동/kalman 4팩터만 — size/value/quality는 look-ahead bias·데이터 부재로 의도적 제외, docstring 명시) |
 | 페이지 전환/init 가드 | `js/aio-core.js:22841~23313`(destroyPageCharts/showPage), 각 page init 함수 |
 | sentiment/breadth 차트 | `js/aio-ui.js:14~900` |
 | LLM 모델/쿼터 | `js/aio-ui.js:1551~1780` |

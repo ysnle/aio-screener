@@ -220,7 +220,8 @@ export function exposeArchitecture(root, api) {
       classifyMovingAverageStructure: api.classifyMovingAverageStructure,
       deriveMultiTimeframeView: api.deriveMultiTimeframeView,
       computeNewsSentimentScore: api.computeNewsSentimentScore,
-      computeNewsRiskSignals: api.computeNewsRiskSignals
+      computeNewsRiskSignals: api.computeNewsRiskSignals,
+      classifyBreadthParticipation: api.classifyBreadthParticipation
     })
   });
 }

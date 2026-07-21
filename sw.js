@@ -78,6 +78,7 @@ const SHELL_ASSETS = [
   './src/domain/sentiment/metrics.js',
   './src/domain/home/summary.js',
   './src/domain/macro/model.js',
+  './src/domain/market/breadth.js',
   './src/domain/market/model.js',
   './src/domain/news/claims.js',
   './src/domain/news/scoring.js',

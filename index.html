@@ -6711,8 +6711,8 @@ button[data-filter-active="true"] {
           <span id="breadth-signal-val" style="font-size:13.5px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</span>
         </div>
         <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);">
-          <span style="font-size:13px;color:var(--text-secondary);">Weinstein Stage</span>
-          <span id="breadth-stage-summary" style="font-size:13.5px;font-weight:600;color:var(--text-muted);">— <span style="font-weight:500;color:var(--text-dim);">OHLCV 근거 미수신</span></span>
+          <span style="font-size:13px;color:var(--text-secondary);">시장 참여도</span>
+          <span id="breadth-stage-summary" style="font-size:13.5px;font-weight:600;color:var(--text-muted);">— 20·50일선 breadth 미수신</span>
         </div>
         <div style="display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);">
           <span style="font-size:13px;color:var(--text-secondary);">McClellan Summation</span>
@@ -15864,9 +15864,11 @@ updateWeinsteinStage = function(snapshot) {
 updateMTF = function(snapshot) {
   var snap = snapshot || (window._aioTechnicalPageSnapshot && window._aioTechnicalPageSnapshot.snapshot) || null;
   var root = document.getElementById('mtf-analysis');
+  var verdictEl = document.getElementById('mtf-verdict-text');
   if (!root) return;
   if (!snap || !snap.ok) {
     root.innerHTML = '<div style="grid-column:1/-1;padding:16px 18px;color:var(--text-muted);font-size:12px;">멀티타임프레임 판정 보류 · 관측 OHLCV 미수신</div>';
+    if (verdictEl) { verdictEl.style.color = 'var(--text-muted)'; verdictEl.textContent = '멀티타임프레임 판정 보류 · 관측 OHLCV 미수신'; }
     return { available: false };
   }
   // RM-03 item 2: single-implementation call — daily/weekly/medium trend classification lives in
@@ -15887,6 +15889,36 @@ updateMTF = function(snapshot) {
     var color = row.value === '상승' ? 'var(--data-green)' : row.value === '하락' ? 'var(--data-red)' : 'var(--text-muted)';
     return '<div style="padding:16px 18px;' + (idx < rows.length - 1 ? 'border-right:1px solid var(--border-subtle);' : '') + '"><div style="font-size:12px;color:var(--text-dim);margin-bottom:5px;">' + row.label + '</div><div style="font-size:14px;font-weight:600;color:' + color + ';">' + row.value + '</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;">' + row.detail + '</div></div>';
   }).join('');
+  // P746 후속(2026-07-21, 사용자 결정): mtf-verdict-text는 위 mtf-analysis 4열과 별개 위젯이지만
+  // 데이터 소스는 새로 만들지 않는다 — 같은 view(daily/weekly/medium)에서 짧은 한줄 요약만 뽑는다.
+  // quarterly는 deriveMultiTimeframeView가 항상 'pending'만 반환하므로(분기 시계열 미구현) 요약에서 제외.
+  if (verdictEl) {
+    var verdictText, verdictColor;
+    // medium(중기)은 200거래일 미만이면 항상 'pending'(classifyMediumTrend) — 바로 위 Weinstein
+    // Stage 위젯이 같은 200거래일 기준으로 판정을 보류하는 것과 동일한 문턱을 맞춘다. 일간·주간만
+    // 있고 중기가 없는 상태로 "정렬" 문구를 내보내면 이 페이지의 다른 위젯과 다른 신뢰 기준을 쓰는
+    // 셈이라 일부러 통일했다.
+    if (view.medium === 'pending') {
+      verdictText = '판정에 필요한 관측 데이터가 부족합니다(200거래일 이상 OHLCV 필요 — Weinstein Stage와 동일 기준).';
+      verdictColor = 'var(--text-muted)';
+    } else {
+      var mtfDims = [view.daily, view.weekly, view.medium];
+      var mtfUp = mtfDims.filter(function(d) { return d === 'up'; }).length;
+      var mtfDown = mtfDims.filter(function(d) { return d === 'down'; }).length;
+      if (mtfUp === mtfDims.length) {
+        verdictText = '일간·주간·중기 추세가 모두 상승으로 정렬되어 있습니다.';
+        verdictColor = 'var(--data-green)';
+      } else if (mtfDown === mtfDims.length) {
+        verdictText = '일간·주간·중기 추세가 모두 하락으로 정렬되어 있습니다.';
+        verdictColor = 'var(--data-red)';
+      } else {
+        verdictText = '시간대별 추세가 엇갈립니다(일간·주간·중기 방향이 일치하지 않음) — 방향성이 확인되기 전까지 보수적 접근을 권장합니다.';
+        verdictColor = 'var(--data-amber)';
+      }
+    }
+    verdictEl.style.color = verdictColor;
+    verdictEl.textContent = verdictText;
+  }
   return { available: true, asOf: snap.time, rows: rows };
 };
 

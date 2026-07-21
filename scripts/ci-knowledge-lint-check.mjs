@@ -29,8 +29,14 @@ const warn = (label, condition, detail = '') => {
 // Include non-ignored, untracked documents so the lint is useful before staging/commit.
 // The previous tracked-only query falsely reported a correctly indexed new document as
 // "no longer git-tracked" during the exact local-edit window this gate is meant to cover.
-const trackedFiles = execSync('git ls-files --cached --others --exclude-standard -- "_context/*.md"', { cwd: root, encoding: 'utf8' })
-  .split('\n')
+// -z (NUL-separated, unquoted) avoids git's default core.quotepath behavior, which wraps any
+// path containing a space or non-ASCII byte in double quotes with octal escapes (e.g. a stray
+// untracked "…- 복사본.md" file would otherwise come back as the literal 4-character-escaped
+// string `"_context/… \353\263\265….md"` — the plain .replace(/^_context\//, '') below wouldn't
+// strip that leading quote, so join('_context', file) later would double-prefix the path and
+// readFileSync would throw ENOENT on a path that never existed, crashing the whole gate).
+const trackedFiles = execSync('git ls-files -z --cached --others --exclude-standard -- "_context/*.md"', { cwd: root, encoding: 'utf8' })
+  .split('\0')
   .filter(Boolean)
   .map((p) => p.replace(/^_context\//, ''));
 const trackedSet = new Set(trackedFiles);

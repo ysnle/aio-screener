@@ -1,6 +1,6 @@
 ---
-verified_by: Codex (v53.15 repository, contracts, and Chromium evidence)
-last_verified: 2026-07-19
+verified_by: Codex (v53.15 repository, contracts, and Chromium evidence); session cards appended through 2026-07-21 by Claude Sonnet 5 (see _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md for the authoritative current status/owner ledger per this doc's own precedence note above)
+last_verified: 2026-07-21
 confidence: high
 auto_refresh: false
 target_version: v53.15
@@ -446,4 +446,57 @@ Browser evidence: `ci-architecture-browser-check.mjs`(17-route 왕복) browserEr
 Live evidence: 없음 — 커밋·배포 모두 사용자 지시 대기.
 Unverified/blockers: (1) `_getBriefingWindowKST`의 원문(11452행 이후, `return` 뒤 도달불가 사문 코드)은 이번 배치에서 발견만 하고 삭제하지 않음(범위 밖 — 별도 소소한 burn-down 후보로 QA-CHECKLIST에 추가 고려). (2) fixture 8개가 geo(high/mid)·energy(high)·credit(high)·earnings(positive) 5개 리스크 분기는 실측했으나 earnings(negative) 분기는 미포함 — 다음 fixture 확장 시 추가 권장(낮은 우선순위, 로직은 positive와 대칭이라 위험 낮음). (3) Fable 자문이 지적한 시나리오(sentiment 재검토, screener-ranking의 C2 불일치, market/macro의 "toy 퇴역 가능성")는 이번 배치 범위 밖 — 다음 세션 후보로 이월.
 Status: VERIFIED_LOCAL (news 도메인 슬라이스 한정 — RM-03 잔여 스코프는 market/macro/portfolio/screener-ranking/technical, signal은 ARX-11로 별도)
+```
+
+## 세션 카드 — RM-06 계속: Fable 자문(news ARX-04 평가 + orchestrator staleness 수정) + C2 재평가 (2026-07-21)
+
+```text
+Packet: ARX-04 news 평가(N/A 확정, 코드 변경 없음) + orchestrator 동시성 수정(screener/entity) + CODE-MAP/C2 문서 정정
+Checkout/HEAD/version/liveRevision: news 세션 카드(bdf98ae 커밋됨)에 이어서, `model: fable` read-only 어드바이저 1차 자문 후 시작 / v53.16(버전 미변경) / live revision 미확인
+Scope route/metric/layer: src/data/orchestrators/{screener,entity}.js · src/app/bootstrap.js(stop() 배선만) · scripts/ci-esm-core-unit-check.mjs(신규 테스트) · _context/CODE-MAP.md · js/aio-data.js(사문 코드 삭제) · scripts/ci-knowledge-lint-check.mjs(무관한 버그 수정)
+Owner before: news provider — read() 프로젝션만(legacy `_allNewsItems`/`newsCache`). screener/entity orchestrator — resolve 순서 보장 없음(오래된 fetch가 새 fetch를 덮어쓸 수 있는 잠재 race, 실사용자 영향은 0 — native 렌더 소비자 없음).
+Owner after: news — dataOwner legacy 유지로 확정(N/A, deferred TODO 아님). screener/entity orchestrator — 세대 카운터 가드로 오래된 resolve 무시 + dispose()로 영구 무시, bootstrap.js stop()에 배선. CODE-MAP.md의 `_aioComputeFactorRanks` 좌표·C2 진단 서술 정정.
+Files read: js/aio-data.js의 _serverNewsBackstop/_aioApplyNewsBackstop 전문(5561-5564/6075-6081/13003-13013), src/app/router.js(dispose 범위 재확인), src/platform/http.js(signal 배선 확인), src/data/providers/{screener,entity}.js(캐싱 유무 대조), fetch-data.mjs:1173-1197(backtestFactors docstring 전문), js/aio-data.js:15871(_aioFactorWeights)/15947(_aioComputeFactorRanks) 재확인
+Files changed: src/data/orchestrators/screener.js · src/data/orchestrators/entity.js · src/app/bootstrap.js · scripts/ci-esm-core-unit-check.mjs · _context/CODE-MAP.md · js/aio-data.js(_getBriefingWindowKST 사문 13줄 삭제) · scripts/ci-knowledge-lint-check.mjs
+DELETE-LEDGER before edit:
+  - declaration: js/aio-data.js의 `_getBriefingWindowKST` `return` 문 뒤 도달불가 13줄(P749가 발견만 하고 미착수했던 것)
+  - callers: 없음(사문 코드라 호출부 자체가 없음)
+  - global writer: 해당 없음
+  - DOM/chart/narrative sink: 해당 없음
+  - event/timer/storage: 해당 없음
+  - tests/docs: CODE-MAP.md의 자기모순 좌표(15829/15905/16029 등) 정정, "라이브·서버 모델 불일치" 서술을 "의도적 서브셋 검증"으로 정정
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 카운터 무변화(1088/42/187/410) — 사문 코드 삭제분(13줄)은 window write/fetch/storage/HTML sink를 하나도 포함하지 않아 카운터에 반영되지 않음(정상, 순수 로컬 변수 계산 코드였음).
+New compatibility introduced and retirement packet: 없음(orchestrator 변경은 내부 동시성 로직, 신규 전역/프로젝션 아님).
+Local gates: §8.1 핵심 12개 전부 PASS(viewport FULL_INIT 68/68 포함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e(8/8) + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-doc-currency 전부 PASS. headless 1098/1098. ci-esm-core-unit-check에 orchestrator staleness 8개 시나리오(겹치는 호출 2×2 + dispose 2×2) 신규 추가·PASS.
+Browser evidence: `ci-architecture-browser-check.mjs`(17-route 왕복) browserErrors 0.
+Live evidence: 없음 — 커밋·배포 모두 사용자 지시 대기.
+Unverified/blockers: `src/platform/http.js`의 `signal: options.signal || controller.signal`(외부 signal 전달 시 내부 timeout-abort 무력화)는 Fable이 지적했으나 현재 아무 호출부도 signal을 넘기지 않아 휴면 상태 — 손대지 않고 QA-CHECKLIST 후속 후보로만 기록. market/macro의 "toy 퇴역 가능성"(Fable 1차 자문)은 이번 세션에서 재확인하지 않음(1차 자문 그대로 유효 취급).
+Status: VERIFIED_LOCAL (orchestrator 동시성 수정 + 문서 정정 스코프 한정 — news는 "평가 후 미착수 확정"이라 provider 코드 변경 없음)
+```
+
+## 세션 카드 — RM-06 계속: P746 완전 해소(mtf-verdict-text 배선 + breadth 참여도 분류기 신설, Fable 2차 자문) (2026-07-21, 같은 세션)
+
+```text
+Packet: P746 후속 — technical mtf-verdict-text 배선(사용자 결정: 같은 라이브 데이터) + breadth-stage-summary 신규 설계(사용자 결정: breadth 고유 재설계, `model: fable` 2차 어드바이저 자문 후 구현)
+Checkout/HEAD/version/liveRevision: 위 orchestrator 세션 카드에 이어서 시작 / v53.16(버전 미변경) / live revision 미확인
+Scope route/metric/layer: index.html(updateMTF·breadth 섹션 라벨) · src/domain/market/breadth.js(신규) · src/app/bootstrap.js · src/legacy/compatibility-facade.js · js/aio-ui.js(updateBreadthBars) · sw.js(precache) · architecture/baseline.json · scripts/ci-esm-core-unit-check.mjs
+Owner before: mtf-verdict-text — 정적 "분석 대기 중…"(구 updateMTF가 유일한 writer였으나 P745에서 사문 코드로 삭제됨). breadth-stage-summary — 정적 "OHLCV 근거 미수신", "Weinstein Stage" 섹션 라벨(오해 소지 — 다일 이력이 없어 추세국면 판정 불가능한데 "Stage"라는 이름을 쓰고 있었음).
+Owner after: mtf-verdict-text — `updateMTF()` 안에서 이미 계산 중인 `deriveMultiTimeframeView` 결과(daily/weekly/medium)로 한줄 요약, medium이 200거래일 미만이면 Weinstein Stage 위젯과 동일 문턱으로 fail-closed(신규 데이터 소스 없음). breadth-stage-summary — `src/domain/market/breadth.js`의 `classifyBreadthParticipation`(level×direction 2축, "Stage" 아님)로 배선, 섹션 라벨을 "시장 참여도"로 변경.
+Files read: index.html의 updateWeinsteinStage/updateMTF 전문(15827-15891)·breadth 섹션 마크업(6697-6724), js/aio-ui.js의 updateBreadthBars/updateBreadthUI/updateRallyQualityVerdict 전문(1-135, 3948-3972), js/aio-data.js의 _aioGetPrevDeltaRef/_aioRenderDeltas 전문(5695-5830)·_breadthLiveData 대입부(15725-15749), src/domain/technical/stage.js(재사용 여부 검토), public-data/history.json 구조, architecture/reconciliation-status.json
+Files changed: index.html · js/aio-ui.js · src/app/bootstrap.js · src/legacy/compatibility-facade.js · sw.js · architecture/baseline.json · scripts/ci-esm-core-unit-check.mjs
+Files added: src/domain/market/breadth.js
+DELETE-LEDGER before edit:
+  - declaration: 해당 없음(신규 기능 — 두 표면 모두 이전에 writer가 없었으므로 삭제 대상 없음)
+  - callers: 해당 없음
+  - global writer: 해당 없음
+  - DOM/chart/narrative sink: `updateBreadthBars()`의 `breadth-stage-summary` fail-closed 리셋 경로를 `.innerHTML=`에서 `.textContent=`로 교체(요청 대상은 아니었으나 같은 줄을 만지는 김에 안전한 쪽으로 — htmlSinks 410→409)
+  - event/timer/storage: 해당 없음
+  - tests/docs: index.html의 "Weinstein Stage" 섹션 라벨과 `breadth-diag-text`의 "Weinstein Stage… 판정을 보류합니다" 문장을 새 동작에 맞게 정정
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage 3개 카운터 무변화(1088/42/187). htmlSinks 410→409(신규 순감소, `architecture/baseline.json` 갱신). 신규 도메인 파일이 domain-layer 정적 경계 검사(`ci-architecture-contract-check.mjs`의 `forbiddenByLayer.domain`)에서 주석 내 리터럴 "localStorage" 문자열 때문에 오탐 실패했던 것을 발견 — 코드가 아닌 주석이었지만 정규식이 구분하지 못해 문구를 "device-persisted"로 재작성해 해소.
+New compatibility introduced and retirement packet: `window.AIO_ARCH.classifyBreadthParticipation` 신규 브릿지(단일 구현 소비 경로, P743/P745/P749와 동일 패턴) — retirement 대상 아님. `bootstrap.js`/`compatibility-facade.js` 양쪽에 동시 등록(배선 누락 재발 방지 절차 4번째 준수).
+Local gates: §8.1 핵심 12개 전부 PASS(viewport FULL_INIT 68/68·worstOverflow 0px·jsErrors 0 포함) + ci-domain-parity-check + ci-retirement-contract + ci-portfolio-vault-e2e(8/8) + ci-boot-interaction + ci-ux-default-path(3831/3831) + ci-doc-currency 전부 PASS. headless 1098/1098. ci-esm-core-unit-check에 classifyBreadthParticipation 7개 시나리오 신규 추가·PASS(broad+rising/narrow 2분기/neutral+flat/delta없음→null/sma5Delta대체/필수입력결측).
+Browser evidence: 실 Chromium 애드훅 검증 2건(각각 임시 스크립트, 실행 후 삭제) — (1) mtf-verdict-text: 상승/하락/혼조/데이터부족 4개 OHLCV 시나리오로 `calcTechnicalSnapshot`+`updateMTF` 실행, 텍스트·색상 기대값과 일치. (2) breadth-stage-summary: `window._breadthLiveData`+`localStorage.aio_delta_prev` 4개 시나리오(미수신/broad+rising/narrow+falling/neutral-무delta) 주입 후 `updateBreadthBars()` 실행, 텍스트·색상·`breadth-diag-text` 문장 전부 일치. `ci-architecture-browser-check.mjs`(17-route 왕복) browserErrors 0.
+Live evidence: 없음 — 커밋·배포 모두 사용자 지시 대기.
+Unverified/blockers: 진짜 추세인지형 breadth stage(다일 이력 기반)는 `history.json`에 일별 breadth를 영속화하는 별도 `/data-refresh` 성격 작업이 선행돼야 함(Fable이 명시적으로 "지금 만들지 말라"고 권고, 이번 세션 범위 밖). direction 판정에 쓰는 1스텝 delta는 localStorage 단일 슬롯(브라우저별·일별 초기화)이라 첫 방문·캐시 삭제 시 항상 null로 폴백(설계상 의도, 조작 안 함).
+Status: VERIFIED_LOCAL (P746 완전 해소 — mtf-verdict-text·breadth-stage-summary 양쪽 모두 정적 플레이스홀더에서 라이브 배선으로 전환)
 ```

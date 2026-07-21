@@ -6,6 +6,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 // realistic wiring (route modules, providers, orchestrators); this file tests each module's OWN
 // contract in isolation, independent of any specific route or provider, so a regression in one
 // module's basic behavior is traceable without the noise of the full integration fixture.
+// 2026-07-21 (Fable-advisor review, ARX-04 follow-up): added the screener/entity orchestrators'
+// generation-counter staleness guard here too — it's a core correctness contract (not route- or
+// provider-specific: it's tested against fake providers) of exactly the kind this file exists for.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fail = (message) => { throw new Error(`[esm-core-unit] ${message}`); };
 const load = (rel) => import(pathToFileURL(path.join(root, rel)));
@@ -138,4 +141,100 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (fakeRoot.AIO_ARCH?.version !== 'test.v1' || fakeRoot.AIO_ARCH?.status !== 'MIGRATION_IN_PROGRESS') fail('facade: exposeArchitecture did not expose the expected fields onto root.AIO_ARCH');
 }
 
-console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade'] }));
+// ── data/orchestrators/screener.js ──────────────────────────────────────────────────────────
+{
+  const { createScreenerOrchestrator } = await load('src/data/orchestrators/screener.js');
+  const deferred = () => { let resolve; const promise = new Promise((r) => { resolve = r; }); return { promise, resolve }; };
+
+  {
+    const calls = [];
+    const commands = { setData: (payload) => calls.push(payload) };
+    const pending = [];
+    const provider = { readCurrent: () => { const d = deferred(); pending.push(d); return d.promise; } };
+    const orchestrator = createScreenerOrchestrator({ provider, commands });
+    const first = orchestrator.sync();
+    const second = orchestrator.sync();
+    if (pending.length !== 2) fail('screener orchestrator: two overlapping sync() calls did not each invoke provider.readCurrent()');
+    pending[1].resolve({ rows: [{ symbol: 'NEW', score: 2 }], status: 'current', updatedAt: 'second' });
+    const secondResult = await second;
+    if (!secondResult || calls.length !== 1 || calls[0].rows[0].symbol !== 'NEW') fail('screener orchestrator: the newer sync() call did not apply its result');
+    pending[0].resolve({ rows: [{ symbol: 'OLD', score: 1 }], status: 'current', updatedAt: 'first' });
+    const firstResult = await first;
+    if (firstResult !== null) fail('screener orchestrator: an older sync() call resolving after a newer one must return null (superseded), not its normalized data');
+    if (calls.length !== 1 || calls[0].rows[0].symbol !== 'NEW') fail('screener orchestrator: a stale older resolution must not overwrite the newer applied state');
+  }
+  {
+    const calls = [];
+    const commands = { setData: (payload) => calls.push(payload) };
+    const d = deferred();
+    const provider = { readCurrent: () => d.promise };
+    const orchestrator = createScreenerOrchestrator({ provider, commands });
+    const inFlight = orchestrator.sync();
+    orchestrator.dispose();
+    d.resolve({ rows: [{ symbol: 'AFTER-DISPOSE', score: 1 }], status: 'current', updatedAt: 'x' });
+    const result = await inFlight;
+    if (result !== null || calls.length !== 0) fail('screener orchestrator: dispose() did not suppress an in-flight resolution');
+  }
+}
+
+// ── data/orchestrators/entity.js ────────────────────────────────────────────────────────────
+{
+  const { createEntityOrchestrator } = await load('src/data/orchestrators/entity.js');
+  const deferred = () => { let resolve; const promise = new Promise((r) => { resolve = r; }); return { promise, resolve }; };
+
+  {
+    const calls = [];
+    const commands = { setData: (payload) => calls.push(payload) };
+    const pending = [];
+    const provider = { readCurrent: () => { const d = deferred(); pending.push(d); return d.promise; } };
+    const orchestrator = createEntityOrchestrator({ provider, commands });
+    const first = orchestrator.sync();
+    const second = orchestrator.sync();
+    if (pending.length !== 2) fail('entity orchestrator: two overlapping sync() calls did not each invoke provider.readCurrent()');
+    pending[1].resolve({ id: 'NEW', updatedAt: 'second' });
+    const secondResult = await second;
+    if (!secondResult || calls.length !== 1 || calls[0].id !== 'NEW') fail('entity orchestrator: the newer sync() call did not apply its result');
+    pending[0].resolve({ id: 'OLD', updatedAt: 'first' });
+    const firstResult = await first;
+    if (firstResult !== null) fail('entity orchestrator: an older sync() call resolving after a newer one must return null (superseded)');
+    if (calls.length !== 1 || calls[0].id !== 'NEW') fail('entity orchestrator: a stale older resolution must not overwrite the newer applied state');
+  }
+  {
+    const calls = [];
+    const commands = { setData: (payload) => calls.push(payload) };
+    const d = deferred();
+    const provider = { readCurrent: () => d.promise };
+    const orchestrator = createEntityOrchestrator({ provider, commands });
+    const inFlight = orchestrator.sync();
+    orchestrator.dispose();
+    d.resolve({ id: 'AFTER-DISPOSE', updatedAt: 'x' });
+    const result = await inFlight;
+    if (result !== null || calls.length !== 0) fail('entity orchestrator: dispose() did not suppress an in-flight resolution');
+  }
+}
+
+// ── domain/market/breadth.js ────────────────────────────────────────────────────────────────
+// Not a legacy extraction (no prior implementation existed for this classifier — P746 follow-up,
+// Fable-advisor design, 2026-07-21), so there is no legacy golden fixture to dump/compare against
+// the way ci-domain-parity-check.mjs verifies trading-score/RRG/Weinstein-MTF/news-scoring. Hand-
+// written expected outputs against the documented thresholds instead, same as this file's other
+// sections.
+{
+  const { classifyBreadthParticipation } = await load('src/domain/market/breadth.js');
+  const broad = classifyBreadthParticipation({ sma20: 65, sma50: 60, sma20Delta: 3 });
+  if (!broad.available || broad.level !== 'broad' || broad.direction !== 'rising') fail(`breadth: 65/60 sma20/50 with +3pp delta should classify broad+rising, got ${JSON.stringify(broad)}`);
+  const narrow = classifyBreadthParticipation({ sma20: 30, sma50: 40, sma20Delta: -5 });
+  if (!narrow.available || narrow.level !== 'narrow' || narrow.direction !== 'falling') fail(`breadth: sma20=30 (<=35) with -5pp delta should classify narrow+falling, got ${JSON.stringify(narrow)}`);
+  const narrowByCombo = classifyBreadthParticipation({ sma20: 45, sma50: 40 });
+  if (!narrowByCombo.available || narrowByCombo.level !== 'narrow') fail(`breadth: sma20=45(<50) and sma50=40(<45) should classify narrow via the combo branch, got ${JSON.stringify(narrowByCombo)}`);
+  const neutralFlat = classifyBreadthParticipation({ sma20: 50, sma50: 50, sma20Delta: 0.5 });
+  if (!neutralFlat.available || neutralFlat.level !== 'neutral' || neutralFlat.direction !== 'flat') fail(`breadth: 50/50 with +0.5pp (within +-2pp band) should classify neutral+flat, got ${JSON.stringify(neutralFlat)}`);
+  const noDelta = classifyBreadthParticipation({ sma20: 50, sma50: 50 });
+  if (!noDelta.available || noDelta.direction !== null) fail(`breadth: no delta input must yield direction:null, not a fabricated value — got ${JSON.stringify(noDelta)}`);
+  const tiebreak = classifyBreadthParticipation({ sma20: 50, sma50: 50, sma5Delta: 4 });
+  if (tiebreak.direction !== 'rising') fail(`breadth: sma5Delta must be used as a fallback direction signal when sma20Delta is absent, got ${JSON.stringify(tiebreak)}`);
+  const unavailable = classifyBreadthParticipation({ sma20: null, sma50: 60 });
+  if (unavailable.available !== false || unavailable.level !== null) fail(`breadth: a missing required input (sma20) must fail closed to available:false, not guess a level — got ${JSON.stringify(unavailable)}`);
+}
+
+console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth'] }));

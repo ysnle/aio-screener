@@ -47,7 +47,7 @@ function updateBreadthBars() {
     [['breadth-header-badge','판정 보류'],['breadth-diag-signal','판정 보류'],['breadth-5sma-big','—'],['breadth-20sma-big','—'],['breadth-50sma-big','—'],['breadth-5sma-label',pendingText],['breadth-20sma-label',pendingText],['breadth-50sma-label',pendingText],['breadth-5sma-freshness',pendingText],['breadth-20sma-freshness',pendingText],['breadth-50sma-freshness',pendingText],['breadth-advance-ratio','—'],['breadth-signal-val','—']].forEach(function(p){ var el=document.getElementById(p[0]); if(el){ el.textContent=p[1]; el.style.color='var(--text-muted)'; } });
     ['breadth-5sma-bar','breadth-20sma-bar','breadth-50sma-bar','bb-5sma-bar','bb-20sma-bar','bb-50sma-bar'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.width='0%'; });
     var stageEl = document.getElementById('breadth-stage-summary');
-    if (stageEl) stageEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">OHLCV 근거 미수신</span>';
+    if (stageEl) { stageEl.textContent = '— 20·50일선 breadth 미수신'; stageEl.style.color = 'var(--text-muted)'; }
     var mcEl = document.getElementById('breadth-mcclellan-summary');
     if (mcEl) { mcEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">A/D 시계열 미수신</span>'; mcEl.setAttribute('data-mcclellan-signal','unavailable'); }
     var diagEl = document.getElementById('breadth-diag-text');
@@ -64,8 +64,32 @@ function updateBreadthBars() {
   if (breadthHeader) { breadthHeader.textContent = '현재 관측'; breadthHeader.style.color = 'var(--data-green)'; }
   var breadthDiagSignal = document.getElementById('breadth-diag-signal');
   if (breadthDiagSignal) { breadthDiagSignal.textContent = diagSummary; breadthDiagSignal.style.color = 'var(--text-primary)'; }
+  // P746 후속(2026-07-21, Fable 어드바이저 2차 설계): breadth-stage-summary는 다일 breadth 이력이
+  // 전혀 없어(history.json에 breadth 필드 자체가 없음 — reconciliation-status.json도 이 항목을
+  // "BLOCKED"로 이미 기록 중) Weinstein류 추세국면 "Stage"를 만들 수 없다는 결론에 따라, 오늘
+  // 시점의 참여 수준(level: broad/neutral/narrow) + 가능하면 1스텝 delta 방향만 정직하게 표시한다
+  // (delta 없으면 방향 생략, 조작하지 않음). 그래서 UI 라벨도 "Weinstein Stage"에서 "시장 참여도"로
+  // 바꿨다(index.html) — 아래 로직은 그 이름에 맞는 산식이다.
+  var stageSummaryEl = document.getElementById('breadth-stage-summary');
+  if (stageSummaryEl) {
+    var prevDeltaRef = (typeof _aioGetPrevDeltaRef === 'function') ? _aioGetPrevDeltaRef() : null;
+    var sma20Delta = (prevDeltaRef && typeof currentBreadth.sma20 === 'number' && typeof prevDeltaRef.breadth20sma === 'number') ? currentBreadth.sma20 - prevDeltaRef.breadth20sma : null;
+    var sma5Delta = (prevDeltaRef && typeof currentBreadth.sma5 === 'number' && typeof prevDeltaRef.breadth5sma === 'number') ? currentBreadth.sma5 - prevDeltaRef.breadth5sma : null;
+    var participationFn = window.AIO_ARCH && typeof window.AIO_ARCH.classifyBreadthParticipation === 'function' ? window.AIO_ARCH.classifyBreadthParticipation : null;
+    var participation = participationFn ? participationFn({ sma20: currentBreadth.sma20, sma50: currentBreadth.sma50, sma20Delta: sma20Delta, sma5Delta: sma5Delta }) : { available: false };
+    if (!participation.available) {
+      stageSummaryEl.textContent = '— 20·50일선 breadth 미수신';
+      stageSummaryEl.style.color = 'var(--text-muted)';
+    } else {
+      var LEVEL_LABEL = { broad: '광범위 참여', neutral: '중립', narrow: '쏠림 장세' };
+      var LEVEL_COLOR = { broad: 'var(--data-green)', neutral: 'var(--data-amber)', narrow: 'var(--data-red)' };
+      var DIRECTION_SUFFIX = { rising: ' · 확대', falling: ' · 위축', flat: ' · 보합' };
+      stageSummaryEl.textContent = LEVEL_LABEL[participation.level] + (participation.direction ? DIRECTION_SUFFIX[participation.direction] : '');
+      stageSummaryEl.style.color = LEVEL_COLOR[participation.level];
+    }
+  }
   var breadthDiagText = document.getElementById('breadth-diag-text');
-  if (breadthDiagText) breadthDiagText.textContent = diagSummary + ' · ' + (currentBreadth.source || 'AIO screener universe') + '의 현재 관측입니다. Weinstein Stage와 McClellan은 각각 OHLCV·A/D 시계열이 없어 별도 판정을 보류합니다.';
+  if (breadthDiagText) breadthDiagText.textContent = diagSummary + ' · ' + (currentBreadth.source || 'AIO screener universe') + '의 현재 관측입니다. 시장 참여도는 오늘 수준(추세국면 아님), McClellan은 A/D 시계열이 없어 판정을 보류합니다.';
   var breadthAdvance = document.getElementById('breadth-advance-ratio');
   if (breadthAdvance) breadthAdvance.textContent = currentBreadth.advanceRatio != null ? (currentBreadth.advanceRatio * 100).toFixed(1) + '%' : '—';
   var breadthSignal = document.getElementById('breadth-signal-val');

@@ -11449,19 +11449,6 @@ function _getBriefingWindowKST() {
     endAnchorDate: new Date(endMs),
     policy: 'kst-0800-completed-24h'
   };
-  var now = new Date();
-  // 오늘 8AM KST를 UTC로 계산
-  var todayAnchor = new Date(now);
-  todayAnchor.setUTCHours(8 - 9, 0, 0, 0); // 8AM KST = 23:00 UTC (전날)
-  if (todayAnchor.getTime() > now.getTime()) {
-    // 아직 오늘 8AM KST 안 됨 → 어제 8AM이 앵커
-    todayAnchor.setDate(todayAnchor.getDate() - 1);
-  }
-  var windowStart = todayAnchor.getTime();
-  var windowEnd = windowStart + 24 * 3600000;
-  // 다음 갱신 시각
-  var nextRefresh = new Date(windowEnd);
-  return { start: windowStart, end: windowEnd, nextRefresh: nextRefresh, anchorDate: todayAnchor };
 }
 
 // 브리핑 캐시 키: 앵커 날짜 기반

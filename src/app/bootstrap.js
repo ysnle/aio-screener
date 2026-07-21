@@ -22,6 +22,7 @@ import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals } from '../domain/news/scoring.js';
+import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { createMarketSnapshotLoader } from '../data/market-snapshot-loader.js';
 import { createSentimentProvider } from '../data/providers/sentiment.js';
 import { createSentimentOrchestrator } from '../data/orchestrators/sentiment.js';
@@ -289,6 +290,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisShown();
       stopShown();
       router.dispose();
+      // Fable-advisor review (2026-07-21): drop any in-flight screener/entity fetch resolution
+      // permanently once the app is torn down — see the generation-counter guard in those two
+      // orchestrators for the (more common) case of a newer sync() superseding an older one.
+      syncScreener.dispose();
+      syncEntity.dispose();
       evidenceStore.clear();
       snapshotEvidence.clear();
     };
@@ -318,6 +324,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,deriveMultiTimeframeView
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
+    // P746 follow-up (2026-07-21, Fable-advisor design): breadth page's own participation
+    // classifier — deliberately NOT reusing classifyMovingAverageStructure (single-symbol price MA
+    // stack, categorically different input) or the RSP/SPY-ratio breadth-signal-val logic.
+    ,classifyBreadthParticipation
   };
   exposeArchitecture(root, api);
   return Object.freeze({ ...api, store, evidenceStore });

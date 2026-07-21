@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-20",
+  "generatedAt": "2026-07-21",
   "version": "v53.16",
   "scope": [
     "index.html",
@@ -11,7 +11,7 @@
   "explicitWindowWrites": 1088,
   "directFetch": 42,
   "directStorage": 187,
-  "htmlSinks": 410,
+  "htmlSinks": 409,
   "burnDown": {
     "explicitWindowWritesMax": 1088,
     "retiredDataShowPageMonkeyPatch": true,
@@ -19,6 +19,7 @@
     "retiredSentimentLegacyBadgeWriter": true,
     "retiredWeinsteinCompositeDeadCode": true,
     "retiredMtfCompositeDeadCode": true,
-    "retiredOrphanedBreadthWsAnalysisWriter": true
+    "retiredOrphanedBreadthWsAnalysisWriter": true,
+    "retiredBreadthStageSummaryInnerHtmlReset": true
   }
 }
