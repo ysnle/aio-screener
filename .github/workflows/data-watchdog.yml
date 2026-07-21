@@ -208,5 +208,12 @@ jobs:
       # silently regressed a fixed contract (cachebuster/version mismatch, a cross-file
       # function shadow re-introduced only in what's served, not in the repo) surfaces
       # without waiting for the next commit/PR to trigger ci.yml.
+      # 2026-07-21/P754: this step must not depend on the fast-plane step's outcome — that step
+      # deliberately fails until an operator configures AIO_FAST_QUOTES_URL (still unconfigured,
+      # tracked as a known blocker), which was silently skipping this entirely unrelated live-
+      # invariant check on every scheduled run since default GHA step ordering skips subsequent
+      # steps after any failure. if: !cancelled() restores this step's own documented intent
+      # (independent of any other check's status) without weakening what it actually asserts.
       - name: Check LIVE standing invariants (R290)
+        if: ${{ !cancelled() }}
         run: node scripts/ci-live-invariant-check.mjs
