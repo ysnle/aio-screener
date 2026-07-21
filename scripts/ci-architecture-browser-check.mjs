@@ -104,6 +104,15 @@ try {
   // chart-owning route, the legacy named-timer registry size, and browserErrors) rather than a
   // full listener census — Chromium has no production-safe "list all listeners" API; CDP's
   // getEventListeners would work but adds a real maintenance cost this gate does not yet justify.
+  // 2026-07-21: root-caused an intermittent false positive here — js/aio-data.js:6630 calls
+  // startDataScheduler() (which registers the 'dataStatus' timer) via a flat, non-jittered
+  // setTimeout(fn, 15000) at boot, decoupled from route navigation entirely. If the two laps'
+  // combined wall-clock time happens to straddle that 15s mark, 'dataStatus' appears "new" between
+  // the lap1 and lap2 snapshots even though no route was involved — not a leak, a boot-timing race
+  // in this gate's own measurement window. Waiting for that one boot-delayed timer to exist before
+  // lap 1 starts makes both snapshots observe a stable post-boot state, which is what this
+  // assertion was always supposed to compare.
+  await page.waitForFunction(() => window._aioTimerRegistry && 'dataStatus' in window._aioTimerRegistry, { timeout: 20000 });
   const ROUTE_IDS_FOR_ROUNDTRIP = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'];
   async function traverseAllRoutes() {
     for (const route of ROUTE_IDS_FOR_ROUNDTRIP) {
