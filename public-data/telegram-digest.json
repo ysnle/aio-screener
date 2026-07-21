@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-21T22:37:17.366Z",
-  "attemptedAt": "2026-07-21T22:37:17.366Z",
-  "lastSuccessfulAt": "2026-07-21T22:37:17.366Z",
+  "generatedAt": "2026-07-21T23:42:32.789Z",
+  "attemptedAt": "2026-07-21T23:42:32.789Z",
+  "lastSuccessfulAt": "2026-07-21T23:42:32.789Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-07T22:37:13.751Z",
-  "until": "2026-07-21T22:37:13.751Z",
+  "since": "2026-07-07T23:42:27.899Z",
+  "until": "2026-07-21T23:42:27.899Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,41 +13,258 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 282,
+      "count": 285,
       "freshCount": 37,
       "eligibleTextCount": 37,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 23780
+      "lastPostId": 23783
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 447,
+      "count": 455,
       "freshCount": 37,
-      "eligibleTextCount": 37,
+      "eligibleTextCount": 35,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 58844
+      "lastPostId": 58853
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 217,
-      "freshCount": 34,
-      "eligibleTextCount": 34,
+      "count": 221,
+      "freshCount": 36,
+      "eligibleTextCount": 36,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 19224
+      "lastPostId": 19228
     }
   ],
-  "count": 946,
-  "retainedItemCount": 418,
+  "count": 961,
+  "retainedItemCount": 419,
   "observedItems": [
+    {
+      "id": "bornlupin/19228",
+      "channel": "bornlupin",
+      "datetime": "2026-07-21T23:39:06.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 93,
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "ORCL",
+        "INTC"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23783",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-21T23:38:22.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 95,
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "AVGO",
+        "MTK"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58853",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T23:37:38.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23782",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-21T23:34:52.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 77,
+      "tags": [
+        "macro",
+        "power",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "META"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58852",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T23:32:30.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58851",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T23:27:13.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 47,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19227",
+      "channel": "bornlupin",
+      "datetime": "2026-07-21T23:21:32.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 47,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19226",
+      "channel": "bornlupin",
+      "datetime": "2026-07-21T23:16:18.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 99,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "META"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58850",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T23:13:37.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "bornlupin/19225",
+      "channel": "bornlupin",
+      "datetime": "2026-07-21T23:11:52.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 61,
+      "tags": [
+        "macro",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "SMCI"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58849",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T23:07:07.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58848",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T23:05:05.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "insidertracking/58846",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T22:55:13.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 52,
+      "tags": [
+        "macro",
+        "healthcare"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23781",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-21T22:52:10.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 44,
+      "tags": [
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "SMCI"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58845",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T22:44:06.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19224",
       "channel": "bornlupin",
@@ -572,7 +789,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58811",
@@ -584,7 +801,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58810",
@@ -596,7 +813,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58809",
@@ -617,7 +834,7 @@
         "MSFT",
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58808",
@@ -637,7 +854,7 @@
         "VTR",
         "ADM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58807",
@@ -649,7 +866,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58806",
@@ -661,7 +878,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58805",
@@ -673,7 +890,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58804",
@@ -2342,7 +2559,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23749",
@@ -2380,7 +2597,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19183",
@@ -2483,7 +2700,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19181",
@@ -2547,7 +2764,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23741",
@@ -2561,7 +2778,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58728",
@@ -14080,43 +14297,49 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 946,
+    "observedCount": 961,
     "eligibleTextCount": 108,
-    "mediaOnlyCount": 838,
-    "highSignalCount": 414,
-    "broadSignalCount": 675,
+    "mediaOnlyCount": 853,
+    "highSignalCount": 418,
+    "broadSignalCount": 681,
     "selectedRawCount": 369,
     "selectedRawCoveragePct": 341.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 399,
-    "semi": 520,
-    "power": 210,
-    "earnings": 185,
-    "market-note": 121,
+    "macro": 405,
+    "semi": 525,
+    "power": 213,
+    "optical": 24,
+    "equity": 147,
+    "earnings": 190,
+    "healthcare": 43,
+    "geo": 226,
+    "market-note": 123,
+    "ai-policy": 125,
+    "media-only": 16,
     "kr-market": 177,
-    "ai-policy": 124,
     "flows": 59,
-    "geo": 224,
     "japan": 51,
     "insider": 20,
-    "optical": 23,
-    "equity": 142,
     "credit": 32,
-    "healthcare": 41,
-    "media-only": 14,
     "crypto": 4
   },
   "tickerCounts": {
+    "NVDA": 55,
+    "AMD": 48,
+    "ORCL": 17,
+    "INTC": 11,
+    "AVGO": 40,
+    "MTK": 1,
+    "META": 56,
+    "SMCI": 9,
     "035420.KS": 21,
     "005930.KS": 32,
     "000660.KS": 50,
-    "AMD": 46,
     "GM": 1,
     "MSFT": 35,
     "NOC": 1,
-    "META": 54,
     "TSM": 116,
     "LITE": 8,
     "BE": 17,
@@ -14137,8 +14360,6 @@
     "AMZN": 49,
     "MU": 67,
     "MRVL": 11,
-    "ORCL": 16,
-    "SMCI": 7,
     "SNDK": 5,
     "BX": 1,
     "WELL": 3,
@@ -14148,7 +14369,6 @@
     "MPC": 3,
     "VTR": 1,
     "ADM": 2,
-    "NVDA": 53,
     "AAPL": 30,
     "TSLA": 3,
     "CRWD": 3,
@@ -14157,12 +14377,10 @@
     "CRM": 1,
     "ZS": 1,
     "WDAY": 1,
-    "INTC": 10,
     "009150.KS": 5,
     "NBIS": 1,
     "BABA": 2,
     "WDC": 3,
-    "AVGO": 39,
     "AAOI": 5,
     "GOOGL": 4,
     "LLY": 2,
@@ -14237,14 +14455,14 @@
     "MTSI": 1
   },
   "themes": [
-    "Semiconductors/Memory (520 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히...",
-    "Macro/Rates (399 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히...",
-    "Geopolitics (224 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히...",
-    "AI Power/Grid (210 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히...",
-    "Earnings/Corporate (185 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히...",
+    "Semiconductors/Memory (525 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반...",
+    "Macro/Rates (405 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반...",
+    "Geopolitics (226 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반...",
+    "AI Power/Grid (213 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반...",
+    "Earnings/Corporate (190 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반...",
     "Korea Market (177 posts in current window): Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 이번 주 수십 개 국가를 대상으로 10% 신규 관세를 발표할 예정이라고 FT가 보도. ·...",
-    "Equity/Analyst (142 posts in current window): Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 이번 주 수십 개 국가를 대상으로 10% 신규 관세를 발표할 예정이라고 FT가 보도. ·...",
-    "AI Policy/Export Controls (124 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+    "Equity/Analyst (147 posts in current window): Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 이번 주 수십 개 국가를 대상으로 10% 신규 관세를 발표할 예정이라고 FT가 보도. ·...",
+    "AI Policy/Export Controls (125 posts in current window): 2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
   ],
   "catalysts": [
     {
@@ -14258,18 +14476,18 @@
       "text": "Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 이번 주 수십 개 국가를 대상으로 10% 신규 관세를 발표할 예정이라고 FT가 보도. ·..."
     },
     {
-      "key": "GOOG",
-      "count": 56,
-      "text": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
-    },
-    {
       "key": "META",
-      "count": 54,
+      "count": 56,
       "text": "Citi) 7월 AI 모델 랭킹: 중국 오픈웨이트 모델의 부상, 양자화, 그리고 AI 모델의 범용화 CITI의 견해 AI 모델 개발 경쟁이 가열되고 있으며 점점 더 다면적으로 전개되고 있습니다. 벤치마크 경쟁에서는 중국 Moonshot AI의 Kimi K3가 초기 프론티어 모델들과 대등한 성능을 보여줄 수..."
     },
     {
+      "key": "GOOG",
+      "count": 56,
+      "text": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
+    },
+    {
       "key": "NVDA",
-      "count": 53,
+      "count": 55,
       "text": "Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 이번 주 수십 개 국가를 대상으로 10% 신규 관세를 발표할 예정이라고 FT가 보도. ·..."
     },
     {
@@ -14284,18 +14502,18 @@
     },
     {
       "key": "AMD",
-      "count": 46,
+      "count": 48,
       "text": "Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 이번 주 수십 개 국가를 대상으로 10% 신규 관세를 발표할 예정이라고 FT가 보도. ·..."
     },
     {
       "key": "AVGO",
-      "count": 39,
+      "count": 40,
       "text": "JP모건 APAC 테크주 코멘트 SEC: 투자자들의 가장 큰 반론은 여전히 포지셔닝입니다. Mixo는 ETF 언와인드의 75%가 진행되어 180억 달러 규모에 달했고, 헤지펀드 디레버리징도 절반 이상 진행된 것으로 추정합니다. 레버리지 ETF는 500억 달러 정점에서 현재 260억 달러로 축소되었으며, JPM..."
     },
     {
       "key": "MSFT",
       "count": 35,
-      "text": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+      "text": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
     },
     {
       "key": "005930.KS",
@@ -14315,8 +14533,8 @@
       "topics": [
         "macro"
       ],
-      "count": 399,
-      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+      "count": 405,
+      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
     },
     {
       "id": "geo",
@@ -14324,8 +14542,8 @@
       "topics": [
         "geo"
       ],
-      "count": 224,
-      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+      "count": 226,
+      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
     },
     {
       "id": "credit",
@@ -14342,8 +14560,8 @@
       "topics": [
         "semi"
       ],
-      "count": 520,
-      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+      "count": 525,
+      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
     },
     {
       "id": "optical",
@@ -14351,7 +14569,7 @@
       "topics": [
         "optical"
       ],
-      "count": 23,
+      "count": 24,
       "focus": "2026년 7월 20일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (58.73%) 2위: PROSHARES ULTRAPRO..."
     },
     {
@@ -14360,8 +14578,8 @@
       "topics": [
         "power"
       ],
-      "count": 210,
-      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+      "count": 213,
+      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
     },
     {
       "id": "ai-policy",
@@ -14369,8 +14587,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 124,
-      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+      "count": 125,
+      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
     },
     {
       "id": "kr-market",
@@ -14387,7 +14605,7 @@
       "topics": [
         "equity"
       ],
-      "count": 142,
+      "count": 147,
       "focus": "Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 이번 주 수십 개 국가를 대상으로 10% 신규 관세를 발표할 예정이라고 FT가 보도. ·..."
     },
     {
@@ -14405,8 +14623,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 185,
-      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+      "count": 190,
+      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
     },
     {
       "id": "healthcare",
@@ -14414,7 +14632,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 41,
+      "count": 43,
       "focus": "Citi) 7월 AI 모델 랭킹: 중국 오픈웨이트 모델의 부상, 양자화, 그리고 AI 모델의 범용화 CITI의 견해 AI 모델 개발 경쟁이 가열되고 있으며 점점 더 다면적으로 전개되고 있습니다. 벤치마크 경쟁에서는 중국 Moonshot AI의 Kimi K3가 초기 프론티어 모델들과 대등한 성능을 보여줄 수..."
     },
     {
@@ -14424,7 +14642,7 @@
         "japan"
       ],
       "count": 51,
-      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반 강세 마감. 특히 필라델피아 반도체지수는 5% 이상 급등하며 최근 조정 이후 AI 투자 사이클이 여전히..."
+      "focus": "2026년 7월 22일 미국 증시 브리핑 미국 증시는 중동 지정학 리스크 확대에도 AI와 반도체 중심의 강한 매수세가 시장을 주도하며 상승 마감. 나스닥은 1% 이상 상승했고 S&P500과 다우지수도 동반..."
     },
     {
       "id": "flows",
@@ -14450,7 +14668,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 121,
+      "count": 123,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -15813,6 +16031,124 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19228",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19228",
+      "datetime": "2026-07-21T23:39:06.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "ORCL",
+        "INTC"
+      ],
+      "score": 93,
+      "hasText": true,
+      "summary": "엔비디아(Nvidia), 차세대 AI CPU '베라(Vera)' 상세 공개… AMD·인텔에 도전장 새로운 전장 개척 : GPU 시장을 지배해온 엔비디아가 자체 데이터센터용 CPU '베라(Vera)'의 세부..."
+    },
+    {
+      "id": "aetherjapanresearch/23783",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23783",
+      "datetime": "2026-07-21T23:38:22.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "AVGO",
+        "MTK"
+      ],
+      "score": 95,
+      "hasText": true,
+      "summary": "JP모건) MediaTek 2Q 프리뷰; 강한 ASIC와 약한 스마트폰 수요 예상 투자의견은 비중확대(OW)이며, 2027년 6월 목표주가는 NT&#036;5,300입니다. JPMorgan은 7월 31일..."
+    },
+    {
+      "id": "aetherjapanresearch/23782",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23782",
+      "datetime": "2026-07-21T23:34:52.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "power",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "META"
+      ],
+      "score": 77,
+      "hasText": true,
+      "summary": "웰스파고) Meta Platforms, Inc. CapEx 추정치 상향 및 캐파(용량) 재판매 매출 반영; EPS 상향. TP&#036;835 당사의 견해 2027년 캐파 순증 전망을 7GW로 상향하고 GW당..."
+    },
+    {
+      "id": "bornlupin/19226",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19226",
+      "datetime": "2026-07-21T23:16:18.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "META"
+      ],
+      "score": 99,
+      "hasText": true,
+      "summary": "Jeff Pu, AMD 분석 리포트 목표주가 상향: &#036;640 로 상향 (2027년 예상 EPS의 45배 또는 2028년 예상 EPS의 32배 적용) EPS 상향 조정: 2026년/2027년 예상..."
+    },
+    {
+      "id": "bornlupin/19225",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19225",
+      "datetime": "2026-07-21T23:11:52.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "SMCI"
+      ],
+      "score": 61,
+      "hasText": true,
+      "summary": "슈퍼마이크로, 견조한 마진 및 600억 달러 수주 달성 발표(시간외 +18.3%) 슈퍼마이크로컴퓨터(SMCI) 실적 전망 및 수주 호조 신규 수주 폭증 : 4분기에만 600억 달러(약 83조 원) 이상의 신규..."
+    },
+    {
+      "id": "insidertracking/58846",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58846",
+      "datetime": "2026-07-21T22:55:13.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "healthcare"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 2026년 8월..."
+    },
     {
       "id": "bornlupin/19224",
       "channel": "bornlupin",
@@ -20894,21 +21230,6 @@
       "summary": "JP모건) TSMC 2026년 2분기 First Take: FY26 매출 가이던스와 캐펙스(capex)에서 상승 여력; 매출총이익률(GM)은 시장 기대치를 소폭 하회 우리의 First Take: TSMC의..."
     },
     {
-      "id": "insidertracking/58541",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58541",
-      "datetime": "2026-07-16T12:02:53.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "tickers": [],
-      "score": 53,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 이란이 미국이 자국의 전력 인프라를 공격할 경우 후티 반군을 통해 바브엘만데브 해협 봉쇄에 나설 수 있다는 경고를 전달한 것으로 전해짐...."
-    },
-    {
       "id": "bornlupin/19137",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19137",
@@ -22284,36 +22605,6 @@
       "summary": "JP모건: 한국 변동성, 높지만 점차 억제되는 국면 (7/14) JP모건은 한국이 아시아에서 가장 쏠림이 심한 AI 하드웨어 익스포저 시장이라고 평가했습니다. 강한 AI 메모리 수요, 레버리지 ETF 활동,..."
     },
     {
-      "id": "aetherjapanresearch/23569",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23569",
-      "datetime": "2026-07-14T11:52:51.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 77,
-      "summary": "&#036;IBM이 내부 기대치를 하회하는 잠정 2분기 실적을 발표했습니다. 메인프레임과 소프트웨어 매출이 실망스러웠으며, 대형 거래들이 예상했던 일정 내에 성사되지 못했습니다. CEO는 \"이번 분기에 우리는..."
-    },
-    {
-      "id": "aetherjapanresearch/23566",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23566",
-      "datetime": "2026-07-14T10:51:29.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi",
-        "power"
-      ],
-      "tickers": [],
-      "score": 77,
-      "summary": "FT) 딥시크, 첫 라운드 마감 한 달 만에 신규 자금 조달 검토 이례적으로 빠른 자본 투입 속도는 중국 AI 스타트업이 인프라 구축에 나서는 가운데 나온 것입니다 중국의 대표적 AI 연구소인..."
-    },
-    {
       "id": "bornlupin/19086",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19086",
@@ -22411,51 +22702,6 @@
       "tickers": [],
       "score": 65,
       "summary": "[메리츠증권 반도체/디스플레이 김선우] 반도체: 하나만 알고 둘은 모른다 [엉뚱한 방향으로 오인한 시장. 얻는 게 있으니 주는 게 있다. 착각 금물] - 시장에 몰이해로 유발된 나비효과가 반도체 업종 주가를..."
-    },
-    {
-      "id": "bornlupin/19078",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19078",
-      "datetime": "2026-07-14T05:04:09.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 65,
-      "summary": "SK하이닉스, 한국 여당의 자금 조달 규제 완화 추진으로 수혜 전망 규제 완화 추진: 더불어민주당은 SK하이닉스가 외부 투자자와 합작하여 신규 반도체 공장(팹)을 설립할 수 있도록 관련 법 개정을 제안..."
-    },
-    {
-      "id": "bornlupin/19077",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19077",
-      "datetime": "2026-07-14T04:47:14.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 91,
-      "summary": "BofA, 마이크론(Micron, &#036;MU ) , 목표 주가 1,550달러, '매수(Buy)' 투자의견, 최선호주(Top stock pick)로 선정 업계가 장기 계약 및 보다 예측 가능한 가격 구조로..."
-    },
-    {
-      "id": "bornlupin/19076",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19076",
-      "datetime": "2026-07-14T02:53:59.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 64,
-      "summary": "AI 붐에 힘입어 중국의 수출입 예상치 상회하며 급증 6월 중국의 수출과 수입 증가율이 시장의 모든 예상치를 뛰어넘었습니다. 주요 원인: AI 데이터 센터 구동에 필요한 하드웨어에 대한 전 세계적인 수요..."
     }
   ]
 }
