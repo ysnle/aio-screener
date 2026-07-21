@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-21T21:33:30.810Z",
+  "generatedAt": "2026-07-21T22:37:08.353Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -25,7 +25,7 @@
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-21T21:33:27.935Z",
+  "blsAttemptedAt": "2026-07-21T22:37:05.320Z",
   "blsLastSuccessfulAt": "2026-07-21T18:40:41.880Z",
   "newsOk": true,
   "newsCount": 40,
@@ -40,7 +40,7 @@
   "newsScoreMax": 70,
   "putCallOk": true,
   "putCallAsOf": "2026-07-20",
-  "elapsedMs": 2949,
+  "elapsedMs": 3109,
   "schema": 1,
   "marketAnalysisOk": true,
   "marketAnalysisSemanticOk": true,
@@ -50,7 +50,7 @@
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-07-21T21:33:30.810Z:d21b3efc",
+  "marketSnapshotRevision": "market-snapshot:2026-07-21T22:37:08.353Z:a00d7359",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 102,
@@ -106,7 +106,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-21T18:40:41.880Z",
    "lastSuccessfulAt": "2026-07-21T18:40:41.880Z",
-   "attemptedAt": "2026-07-21T21:33:27.935Z",
+   "attemptedAt": "2026-07-21T22:37:05.320Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -297,7 +297,7 @@
   "score": 41,
   "rating": "fear",
   "_source": "cnn",
-  "asOf": "2026-07-21T21:17:23+00:00",
+  "asOf": "2026-07-21T22:17:26+00:00",
   "previousScore": 38,
   "previousWeek": 41
  },
@@ -306,7 +306,7 @@
   "indexPutCall": 1.07,
   "equityPutCall": 0.66,
   "asOf": "2026-07-20",
-  "fetchedAt": "2026-07-21T21:33:28.771Z",
+  "fetchedAt": "2026-07-21T22:37:05.915Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -618,22 +618,6 @@
    "newsCycleLabel": "2026-07-20 08:00 KST ~ 2026-07-21 08:00 KST"
   },
   {
-   "title": "ServiceNow gets bearish call before major earnings test - thestreet.com",
-   "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQdWZVLWc4NDVJcm5vRXVmRV8wYnZfSXZuT1BkRkFnUkpUM0lrWk1OX1lYSlpzUUg0MUxpTXQ1dEFyYzVBWXlMRkIwM0Q1Z0NPR3k4SVlNX1ZGSTBPb2JHOWRITXVkNU5Lb2dfS24zbmlvRTNmOTBLUnUyNXE1NXZ6ZTc4OVZTUzlOTHo5dVFJcm1jN0pDdG1YOUxHajJMbHpL?oc=5",
-   "source": "thestreet.com",
-   "pubDate": "Mon, 20 Jul 2026 20:37:00 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 44,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
-   "feedSource": "Google News - Analyst/Earnings",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-19T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-20T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-20 08:00 KST ~ 2026-07-21 08:00 KST"
-  },
-  {
    "title": "Boomers Are Quietly Loading Up on These Super-High-Yield Dividend Kings for Reliable Passive Income - 24/7 Wall St.",
    "link": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOZG9hTk10T0gtVlB1ZWlvcEdTQllvWUhQWmFCMnlfc19JZjdGY0duNl9wd3B5WUtYSm9GQjJVa0R2YmpyR3ZJSlZBTjRDSHgzNGRRU1BKTnY2VzFsYkJYLU0zOGNZdTRGcHVmNnZBc1JScUtwVVFIYmRFZ1ZyTDJhODFfUm1QV1pVNkYxZkZTNnZfNUNtM1hqRk05cnJ1eF85NHoyeGo4VTE4bmgxY3E0dUpULVpQRzFCZHFYYUNDZVNyTkRUMkplUFlkWVEwVmc1Q0JDUU0zcEZrdjA?oc=5",
    "source": "24/7 Wall St.",
@@ -714,10 +698,26 @@
    "newsCycleLabel": "2026-07-20 08:00 KST ~ 2026-07-21 08:00 KST"
   },
   {
-   "title": "Benchmark reiterates Buy on Abbott Labs stock, cites guidance raise - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxPbGE0RjlKQkhTazk1SUNpREllUGk0R21wMmItOURWN2ZQeUh5U3ZSMHNwS0ZQVEZfa0tXMEs5QUE0clo4RktzRE53UW84N1p4Slc2Tk9CSk1NWmU5d2d5N0pEcy1fVXpxVU9fUFRtd2h1RFZSSWpuR1VkWUxGSG5MTXdjdS0yWFJRb0kyY2RTOFRlaTVFYTBTX3hOSmpqdi1OM1dEa2toSFFNYVNqVE1ESDVoUUdLUTNEOGlVWWNFTXZoR1YwUEZMY1l3UGlXV3M?oc=5",
-   "source": "Investing.com",
-   "pubDate": "Mon, 20 Jul 2026 12:13:00 GMT",
+   "title": "ServiceNow (NYSE:NOW) Earnings – Focus on Backlog Surpasses $3.92 Billion Revenue Benchmark - TechStock²",
+   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNeDdMZjJob19wMmdxY1RncHJDRElKZHdxb3otb19VUUxiZUtlVTV0eUNGdWdocHNMSHVEMExpcW80X0FFYllFSzRVZUtfU2VMNEJIRXJDZkhrWmgwenNUU1NPeVozTXhSd0k0bjZsemVYUWxRZnI3blNnNXA4cFhVX0ZYbDYxSXBPVS01Q290SXl4VFNxR3AwaTI4TDJTUjJBQTQtSTRELWhiUQ?oc=5",
+   "source": "TechStock²",
+   "pubDate": "Mon, 20 Jul 2026 15:37:49 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 38,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
+   "feedSource": "Google News - Analyst/Earnings",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-19T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-20T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-20 08:00 KST ~ 2026-07-21 08:00 KST"
+  },
+  {
+   "title": "Benchmark reiterates Buy on Abbott Labs stock, cites guidance raise - Investing.com UK",
+   "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxNaDlhNUhteXd1a0s0QU1HOTh4WnFWb1M3V2ZUeG1PUUM3S1VnZWdKYzlDSGEtNjVWU2tfaDh5bVdIZU5BOVFWNjF0a0k2elkwZHNUYkxJLVZ2d2gtRUJTbVZYcG8teTJqS1NOdXpJLV9wZ3c5Y0lOMjZPSUQ0YWhlcE9qN1g5bTlwLU56ekNuN0lKeUhyLV9JYnVIdzNZUWRRcjFjTzRjOVducHpLWGpsdG5HLTZsMTA0cldrZG9zS002SlR6ZkNLb0ptRlZwYkhQeC1VeDJn?oc=5",
+   "source": "Investing.com UK",
+   "pubDate": "Mon, 20 Jul 2026 13:44:13 GMT",
    "topic": "analyst",
    "country": "us",
    "tier": 3,
@@ -890,6 +890,22 @@
    "newsCycleLabel": "2026-07-20 08:00 KST ~ 2026-07-21 08:00 KST"
   },
   {
+   "title": "Oil Markets on Edge as Houthi Rebels Threaten Shipping in the Middle East - The New York Times",
+   "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE5MeFQyNVhlZUM4ZDhibTI3V2I4MjZlOEhZRWF4Nm1XT3RMNm9yaDVZdy1qaWFQVWVxUDAzcHpQV05qbFpiaURhRnRXT0hwNmQ3LV96R1ZLZ1pDWTROc2NmbGpRLUJvbVhuV0d2NHd4cDNxR2ZUSldwWnZ3?oc=5",
+   "source": "The New York Times",
+   "pubDate": "Mon, 20 Jul 2026 20:28:00 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 34,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-19T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-20T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-20 08:00 KST ~ 2026-07-21 08:00 KST"
+  },
+  {
    "title": "3 UK AI Stocks With Growth Forecasts And Lower P E Ratios - simplywall.st",
    "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOYkFCTlAxeW1QQmNLbVRnUERKa1hLRC1jN2tSeC1INWIzTFpqdFdIbXhaRG1fZTBlaHkwVDFMTUZxQi03TnEyU1pHMGhnOF9pNng5YXBlN1JQYXRkUUFhbzZEOXVrMzRPQWt1NjNGVHNlYWQ2c1ZFUC1nQ0V1WlRIckJzRVRtbDFFN1NBVTQ0eDg1WnZqT215NndaQkQwZzZBa1J1VUpsemhBaUdGZDZvYXJaa2piTEcxanIxQ3ZUOXFLWVVqLUZF0gHMAUFVX3lxTE1xQ3l1SWxwU2hzRHhRS2tKTmF5UGZQeS1UUWF6TFY5WUhnSnpNamtGQkNxYk1ndi1Gb2RzcUdzNmxlSGdXMG5LR1ROcUtBOFk1M1BvSFlLUlJyUG9fT19vM3Blb1lxeXYzQlVMdnZLNEFTOWU5YWdWZ2hFN0czdU12ZUVNQ0hIaVdzZXpNejZmaWNzdWlCcXRBOXFRblRWdFhOdEl6c2dkRVJQQlByNUY2S2dGWFhHMk9SLTVVOVNMMFlGM21ZWHBWNU5GRQ?oc=5",
    "source": "simplywall.st",
@@ -936,28 +952,12 @@
    "newsCycleStart": "2026-07-19T23:00:00.000Z",
    "newsCycleEnd": "2026-07-20T23:00:00.000Z",
    "newsCycleLabel": "2026-07-20 08:00 KST ~ 2026-07-21 08:00 KST"
-  },
-  {
-   "title": "Goldman Sachs Warns on AI’s Debt Tsunami — Is This the End of the AI Boom? - AOL.com",
-   "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE9seEtTTExKclh3X0RGV3dZblQ5X1l2LXNxVFVOc0ZfMWJkQ05PS05yVUQtVzlxR3Jya3FWdzFpNHYwbGROLXFGQXdiYnhKQzh3STc1Zi1fT3RjYzJxVVJWbTFHMGxRZHNFUlgxSXdfRWhDeDlLeDdTQXltUQ?oc=5",
-   "source": "AOL.com",
-   "pubDate": "Mon, 20 Jul 2026 14:38:48 GMT",
-   "topic": "credit",
-   "country": "global",
-   "tier": 3,
-   "score": 28,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6",
-   "feedSource": "Google News - Credit/Funding",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-19T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-20T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-20 08:00 KST ~ 2026-07-21 08:00 KST"
   }
  ],
  "marketAnalysis": {
-  "full": "**현재 시장 분석**\n\n경제 지표와 지정학적 불확실성 속에서 시장이 혼조세를 보이고 있습니다.\n\n①**변동성/심리**: Fear & Greed 지수 41로 공포 심리가 우세하며, 기술주 부진(Netflix 약세, 칩 종목 낙폭)이 심리 악화를 주도하고 있습니다.\n\n②**거시/금리**: NFP 57천 명으로 노동시장 둔화 신호가 나타났으며, 연방기금 금리 3.63%와 10년물 금리 수준에서 금리 인상 전망으로 인한 불확실성이 지속되고 있습니다.\n\n③**주도 뉴스/리스크**: 미국-이란 긴장과 홍해 봉쇄로 유가(WTI) 상승 압력이 있으며, 금값도 지정학적 리스크와 금리 기대 간 등락을 거듭하고 있습니다. AI/데이터센터 기업들의 과잉 부채 확대(기술주 CDS 상승)와 지가이드 부실이 단기 테크 랠리를 제약하는 중입니다.",
-  "oneLine": "**현재 시장 분석**",
-  "generatedAt": "2026-07-21T21:33:35.797Z",
+  "full": "# 현재 시장 분석\n\n**기술주 부진과 지정학적 긴장이 시장을 압박하는 가운데, 인플레이션 불확실성이 심화되는 국면.**\n\n① **변동성/심리**: VIX 41로 상승하며 시장 불안심리가 고조된 상태. Netflix 가이던스 부진과 칩 종목 낙폭 확대로 기술주 중심 조정이 심화 중.\n\n② **거시/금리**: CPI 3.5%로 여전히 상승 압력 유지 중이며, 연방기금금리 3.63% 수준에서 금리 인상 가능성에 대한 시장 불확실성 존재. 금과 달러의 방향성 엇갈림이 심화.\n\n③ **주도 뉴스/리스크**: 미-이란 긴장과 홍해 봉쇄로 유가 변동성 확대 중이고, 오라클 등 대형 기술주의 신용스프레드 확대로 차입 비용 상승 압력 가시화. AI·데이터센터 수익성 기대와 실적 부진이 충돌하는 양극화 국면.",
+  "oneLine": "# 현재 시장 분석",
+  "generatedAt": "2026-07-21T22:37:13.655Z",
   "model": "claude-haiku-4-5",
   "semanticStatus": "verified",
   "semanticIssues": []
