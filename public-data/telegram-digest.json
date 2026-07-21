@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-21T09:16:32.115Z",
-  "attemptedAt": "2026-07-21T09:16:32.115Z",
-  "lastSuccessfulAt": "2026-07-21T09:16:32.115Z",
+  "generatedAt": "2026-07-21T11:20:22.116Z",
+  "attemptedAt": "2026-07-21T11:20:22.116Z",
+  "lastSuccessfulAt": "2026-07-21T11:20:22.116Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-07T09:16:27.216Z",
-  "until": "2026-07-21T09:16:27.216Z",
+  "since": "2026-07-07T11:20:17.169Z",
+  "until": "2026-07-21T11:20:17.169Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,41 +13,94 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 267,
+      "count": 268,
       "freshCount": 37,
       "eligibleTextCount": 37,
-      "selectedCount": 123,
+      "selectedCount": 124,
       "error": null,
-      "lastPostId": 23763
+      "lastPostId": 23764
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 384,
-      "freshCount": 35,
-      "eligibleTextCount": 34,
+      "count": 385,
+      "freshCount": 34,
+      "eligibleTextCount": 32,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 58777
+      "lastPostId": 58779
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 206,
-      "freshCount": 38,
-      "eligibleTextCount": 38,
+      "count": 208,
+      "freshCount": 34,
+      "eligibleTextCount": 34,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 19213
+      "lastPostId": 19215
     }
   ],
-  "count": 857,
-  "retainedItemCount": 421,
+  "count": 861,
+  "retainedItemCount": 410,
   "observedItems": [
+    {
+      "id": "bornlupin/19215",
+      "channel": "bornlupin",
+      "datetime": "2026-07-21T10:21:17.000Z",
+      "localDateKst": "2026-07-21",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19214",
+      "channel": "bornlupin",
+      "datetime": "2026-07-21T10:16:29.000Z",
+      "localDateKst": "2026-07-21",
+      "score": 61,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "MU"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23764",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-21T10:07:39.000Z",
+      "localDateKst": "2026-07-21",
+      "score": 56,
+      "tags": [
+        "semi",
+        "japan"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58779",
+      "channel": "insidertracking",
+      "datetime": "2026-07-21T09:23:49.000Z",
+      "localDateKst": "2026-07-21",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
     {
       "id": "insidertracking/58777",
       "channel": "insidertracking",
@@ -939,7 +992,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23752",
@@ -1010,7 +1063,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19186",
@@ -2221,7 +2274,7 @@
       "tickers": [
         "MS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23721",
@@ -2408,7 +2461,7 @@
         "TSM",
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58669",
@@ -2437,7 +2490,7 @@
         "NVDA",
         "AVGO"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23719",
@@ -2704,7 +2757,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58653",
@@ -2849,7 +2902,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58640",
@@ -2957,7 +3010,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19169",
@@ -2973,7 +3026,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23713",
@@ -12795,20 +12848,21 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 857,
-    "eligibleTextCount": 109,
-    "mediaOnlyCount": 748,
+    "observedCount": 861,
+    "eligibleTextCount": 103,
+    "mediaOnlyCount": 758,
     "highSignalCount": 391,
-    "broadSignalCount": 626,
-    "selectedRawCount": 369,
-    "selectedRawCoveragePct": 338.5,
+    "broadSignalCount": 628,
+    "selectedRawCount": 370,
+    "selectedRawCoveragePct": 359.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "geo": 201,
+    "semi": 495,
+    "japan": 43,
+    "media-only": 13,
     "market-note": 102,
-    "geo": 200,
-    "semi": 493,
-    "japan": 42,
     "kr-market": 166,
     "flows": 53,
     "macro": 367,
@@ -12816,7 +12870,6 @@
     "earnings": 166,
     "optical": 21,
     "credit": 30,
-    "media-only": 12,
     "ai-policy": 110,
     "healthcare": 38,
     "insider": 16,
@@ -12824,7 +12877,8 @@
     "crypto": 4
   },
   "tickerCounts": {
-    "TSM": 112,
+    "MU": 65,
+    "TSM": 113,
     "AAPL": 28,
     "005930.KS": 28,
     "000660.KS": 46,
@@ -12836,7 +12890,6 @@
     "GOOG": 51,
     "AMD": 43,
     "035420.KS": 20,
-    "MU": 64,
     "WDC": 3,
     "META": 52,
     "AVGO": 39,
@@ -12938,9 +12991,9 @@
     "MTSI": 1
   },
   "themes": [
-    "Semiconductors/Memory (493 posts in current window): Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·...",
+    "Semiconductors/Memory (495 posts in current window): Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·...",
     "Macro/Rates (367 posts in current window): Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·...",
-    "Geopolitics (200 posts in current window): Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·...",
+    "Geopolitics (201 posts in current window): Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·...",
     "AI Power/Grid (196 posts in current window): JP모건 APAC 테크주 코멘트 SEC: 투자자들의 가장 큰 반론은 여전히 포지셔닝입니다. Mixo는 ETF 언와인드의 75%가 진행되어 180억 달러 규모에 달했고, 헤지펀드 디레버리징도 절반 이상 진행된 것으로 추정합니다. 레버리지 ETF는 500억 달러 정점에서 현재 260억 달러로 축소되었으며, JPM...",
     "Korea Market (166 posts in current window): Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·...",
     "Earnings/Corporate (166 posts in current window): Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·...",
@@ -12950,12 +13003,12 @@
   "catalysts": [
     {
       "key": "TSM",
-      "count": 112,
+      "count": 113,
       "text": "JP모건 APAC 테크주 코멘트 SEC: 투자자들의 가장 큰 반론은 여전히 포지셔닝입니다. Mixo는 ETF 언와인드의 75%가 진행되어 180억 달러 규모에 달했고, 헤지펀드 디레버리징도 절반 이상 진행된 것으로 추정합니다. 레버리지 ETF는 500억 달러 정점에서 현재 260억 달러로 축소되었으며, JPM..."
     },
     {
       "key": "MU",
-      "count": 64,
+      "count": 65,
       "text": "미국 레딧 게시물 분석 (2026년 7월 21일 00:00~06:00 기준) > 🤖 GOOGL - 실적 앞둔 AI 대장 논쟁 · \"시장 반응이 과했다\" 분위기 확산 · Gemini 지연보다 클라우드 성장에..."
     },
     {
@@ -13025,7 +13078,7 @@
       "topics": [
         "geo"
       ],
-      "count": 200,
+      "count": 201,
       "focus": "Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·..."
     },
     {
@@ -13043,7 +13096,7 @@
       "topics": [
         "semi"
       ],
-      "count": 493,
+      "count": 495,
       "focus": "Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·..."
     },
     {
@@ -13124,7 +13177,7 @@
       "topics": [
         "japan"
       ],
-      "count": 42,
+      "count": 43,
       "focus": "Pre-Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다산 다수 품목에 8월 19일부터 추가 50% 관세를 부과한다고 발표했으며 에너지·비료(포타시)·핵심 광물은 제외. · 미국은 캐나다의 주류·유제품 차별 정책을 관세 부과 근거로 제시. ·..."
     },
     {
@@ -14499,6 +14552,39 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19214",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19214",
+      "datetime": "2026-07-21T10:16:29.000Z",
+      "localDateKst": "2026-07-21",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "MU"
+      ],
+      "score": 61,
+      "hasText": true,
+      "summary": "BofA, 마이크론( &#036;MU)을 자사의 최우수 투자 아이디어 모음인 ‘US 1 리스트’에 신규 편입"
+    },
+    {
+      "id": "aetherjapanresearch/23764",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23764",
+      "datetime": "2026-07-21T10:07:39.000Z",
+      "localDateKst": "2026-07-21",
+      "tags": [
+        "semi",
+        "japan"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 56,
+      "hasText": true,
+      "summary": "[단독] TSMC, 가격 인상 최대 10% 예정 - 기본 인상률 5~10% 논의 중 - 2~7나노 첨단 공정에는 10~15% 프리미엄 - 12~28나노 성숙 공정은 최대 10% - 가격 협상 지난 6월 시작해..."
+    },
     {
       "id": "insidertracking/58775",
       "channel": "insidertracking",
@@ -20953,24 +21039,6 @@
       "summary": "JP모건) 메모리/한국 테크 및 지주회사에 대한 아시아 투자자 마케팅 피드백 지난주 홍콩에서 50명 이상의 투자자들과 미팅을 진행했습니다. 본 노트에서는 투자자들의 주요 관심 영역과 피드백을 짚어보고,..."
     },
     {
-      "id": "aetherjapanresearch/23540",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23540",
-      "datetime": "2026-07-13T23:35:44.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "kr-market"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 100,
-      "summary": "12. 한국의 AI 메가 투자 계획에 대해서는 엇갈린 시각, 잠재적으로 더 높은 capex 지출로 인해 메모리 SPE에 대해서는 보다 긍정적인 편향. 투자자들은 대체로 3조 달러 이상 규모의 한국 AI 메가..."
-    },
-    {
       "id": "bornlupin/19071",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19071",
@@ -21028,20 +21096,6 @@
       ],
       "score": 91,
       "summary": "아시아 투자자 주요 피드백 : 반도체 사이클의 견고한 지속성과 중장기 신뢰 확인 (JPM) 1. 중장기 메모리 펀더멘탈에 대한 투자자들의 확신 • 미팅에 참여한 50여 명의 아시아 투자자들은 최근의 단기적인..."
-    },
-    {
-      "id": "bornlupin/19065",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19065",
-      "datetime": "2026-07-13T22:09:13.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "geo",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 67,
-      "summary": "SemiAnalysis) 남들이 두려워할 때 탐욕스러워져라\": SK하이닉스의 DRAM 가격 책정 및 실적은 여전히 견조하다 ​ ​ 하이닉스 DRAM 실적, 2026년 2분기 및 그 이후에도 견조할 전망..."
     }
   ]
 }
