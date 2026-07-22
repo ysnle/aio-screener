@@ -1,22 +1,22 @@
 {
-  "generatedAt": "2026-07-22T22:44:22.535Z",
-  "attemptedAt": "2026-07-22T22:44:22.535Z",
-  "lastSuccessfulAt": "2026-07-22T22:44:22.535Z",
+  "generatedAt": "2026-07-22T23:44:04.023Z",
+  "attemptedAt": "2026-07-22T23:44:04.023Z",
+  "lastSuccessfulAt": "2026-07-22T23:44:04.023Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-08T22:44:17.586Z",
-  "until": "2026-07-22T22:44:17.586Z",
+  "since": "2026-07-08T23:43:59.865Z",
+  "until": "2026-07-22T23:43:59.865Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 314,
-      "freshCount": 36,
-      "eligibleTextCount": 36,
-      "selectedCount": 126,
+      "count": 312,
+      "freshCount": 18,
+      "eligibleTextCount": 18,
+      "selectedCount": 124,
       "error": null,
       "lastPostId": 23822
     },
@@ -25,29 +25,147 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 570,
+      "count": 574,
       "freshCount": 39,
       "eligibleTextCount": 38,
-      "selectedCount": 123,
+      "selectedCount": 124,
       "error": null,
-      "lastPostId": 58979
+      "lastPostId": 58983
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 250,
-      "freshCount": 18,
-      "eligibleTextCount": 18,
+      "count": 251,
+      "freshCount": 38,
+      "eligibleTextCount": 38,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19260
+      "lastPostId": 19263
     }
   ],
-  "count": 1134,
-  "retainedItemCount": 416,
+  "count": 1137,
+  "retainedItemCount": 414,
   "observedItems": [
+    {
+      "id": "bornlupin/19263",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T23:40:13.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "equity",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "MU",
+        "TSM",
+        "BAC",
+        "WFC",
+        "BCS",
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58983",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T23:39:32.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58982",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T23:34:56.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 95,
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO",
+        "GOOGL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19262",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T23:34:51.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 68,
+      "tags": [
+        "macro",
+        "semi",
+        "healthcare"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19261",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T23:22:12.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO",
+        "GOOGL",
+        "BX"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58981",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T23:18:11.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58980",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T23:07:38.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23822",
       "channel": "aetherjapanresearch",
@@ -723,7 +841,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58941",
@@ -735,7 +853,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58940",
@@ -752,7 +870,7 @@
         "GOOG",
         "GOOGL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58939",
@@ -764,7 +882,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58938",
@@ -1679,7 +1797,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23801",
@@ -1693,7 +1811,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58897",
@@ -1825,7 +1943,7 @@
         "000660.KS",
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19239",
@@ -1837,7 +1955,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58887",
@@ -1861,7 +1979,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58886",
@@ -1934,7 +2052,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23799",
@@ -1953,7 +2071,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23798",
@@ -1965,7 +2083,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58880",
@@ -2004,7 +2122,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58878",
@@ -2063,7 +2181,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23794",
@@ -2082,7 +2200,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58876",
@@ -2120,7 +2238,7 @@
         "COHR",
         "MTSI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58875",
@@ -2150,7 +2268,7 @@
       "tickers": [
         "MSFT"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23791",
@@ -2166,7 +2284,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23790",
@@ -2178,7 +2296,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58874",
@@ -2209,7 +2327,7 @@
         "GOOG",
         "016360.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19235",
@@ -2224,7 +2342,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23789",
@@ -2241,7 +2359,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58873",
@@ -2340,7 +2458,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58866",
@@ -2405,7 +2523,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19233",
@@ -2417,7 +2535,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58862",
@@ -2441,7 +2559,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58861",
@@ -2493,7 +2611,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58856",
@@ -2529,7 +2647,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58854",
@@ -2553,7 +2671,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19231",
@@ -2566,7 +2684,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19230",
@@ -2579,7 +2697,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19229",
@@ -2591,7 +2709,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23784",
@@ -2608,7 +2726,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19228",
@@ -2627,7 +2745,7 @@
         "ORCL",
         "INTC"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23783",
@@ -2647,7 +2765,7 @@
         "AVGO",
         "MTK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58853",
@@ -2712,7 +2830,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19226",
@@ -2733,7 +2851,7 @@
         "AMD",
         "META"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58850",
@@ -2761,7 +2879,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58849",
@@ -2840,7 +2958,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58844",
@@ -16659,114 +16777,57 @@
         "ORCL"
       ],
       "hasText": false
-    },
-    {
-      "id": "bornlupin/18974",
-      "channel": "bornlupin",
-      "datetime": "2026-07-08T23:42:29.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 55,
-      "tags": [
-        "semi",
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/18973",
-      "channel": "bornlupin",
-      "datetime": "2026-07-08T23:39:31.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 73,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23384",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-08T23:29:38.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 75,
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "AMD",
-        "AVGO"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23383",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-08T23:26:18.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 87,
-      "tags": [
-        "semi",
-        "optical",
-        "power",
-        "equity"
-      ],
-      "tickers": [
-        "NVDA",
-        "META",
-        "MU"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1134,
-    "eligibleTextCount": 92,
-    "mediaOnlyCount": 1042,
-    "highSignalCount": 462,
+    "observedCount": 1137,
+    "eligibleTextCount": 94,
+    "mediaOnlyCount": 1043,
+    "highSignalCount": 463,
     "broadSignalCount": 760,
-    "selectedRawCount": 369,
-    "selectedRawCoveragePct": 401.1,
+    "selectedRawCount": 368,
+    "selectedRawCoveragePct": 391.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "macro": 461,
+    "semi": 573,
+    "power": 242,
+    "equity": 155,
+    "flows": 73,
+    "healthcare": 52,
+    "market-note": 176,
+    "ai-policy": 152,
+    "earnings": 238,
     "geo": 251,
-    "market-note": 173,
-    "macro": 458,
-    "semi": 574,
-    "optical": 25,
-    "power": 241,
+    "optical": 24,
     "kr-market": 202,
-    "equity": 156,
-    "flows": 72,
-    "ai-policy": 150,
-    "earnings": 236,
     "media-only": 18,
     "insider": 27,
     "japan": 59,
-    "healthcare": 48,
     "credit": 37,
     "crypto": 5
   },
   "tickerCounts": {
-    "MSFT": 38,
-    "GOOG": 72,
-    "META": 58,
     "MU": 66,
-    "TSM": 119,
+    "TSM": 120,
+    "BAC": 2,
+    "WFC": 3,
+    "BCS": 2,
+    "005930.KS": 34,
+    "GOOG": 74,
+    "AVGO": 44,
+    "GOOGL": 13,
+    "BX": 2,
+    "MSFT": 38,
+    "META": 57,
     "MRVL": 12,
     "LITE": 13,
     "ORCL": 17,
     "000660.KS": 57,
-    "GOOGL": 11,
     "TSLA": 5,
     "INTC": 16,
     "ISRG": 3,
@@ -16776,11 +16837,10 @@
     "C": 1,
     "QQQ": 4,
     "SOXX": 1,
-    "AVGO": 43,
-    "NVDA": 66,
+    "NVDA": 65,
     "PEP": 1,
     "PFE": 1,
-    "AMD": 55,
+    "AMD": 54,
     "BE": 19,
     "GEV": 5,
     "TRV": 3,
@@ -16800,11 +16860,9 @@
     "AAPL": 30,
     "SMCI": 14,
     "CVX": 1,
-    "WFC": 2,
     "COIN": 1,
     "035420.KS": 27,
     "QCOM": 4,
-    "005930.KS": 33,
     "RKLB": 14,
     "CRWV": 2,
     "COHR": 5,
@@ -16824,7 +16882,6 @@
     "CMI": 1,
     "STT": 2,
     "SNDK": 4,
-    "BX": 1,
     "WELL": 3,
     "CRWD": 3,
     "FTNT": 1,
@@ -16849,7 +16906,6 @@
     "MFC": 1,
     "MS": 1,
     "MRK": 2,
-    "BAC": 1,
     "SBUX": 1,
     "UNP": 2,
     "PLD": 1,
@@ -16885,7 +16941,6 @@
     "GD": 1,
     "ABT": 1,
     "TROW": 1,
-    "BCS": 1,
     "012330.KS": 1,
     "ETSY": 1,
     "HPE": 1,
@@ -16897,39 +16952,39 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (574 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK...",
-    "Macro/Rates (458 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "Semiconductors/Memory (573 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):...",
+    "Macro/Rates (461 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):...",
     "Geopolitics (251 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
-    "AI Power/Grid (241 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK...",
-    "Earnings/Corporate (236 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "AI Power/Grid (242 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):...",
+    "Earnings/Corporate (238 posts in current window): 구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에...",
     "Korea Market (202 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK...",
-    "Market Notes (173 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
-    "Equity/Analyst (156 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+    "Market Notes (176 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Equity/Analyst (155 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 119,
-      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+      "count": 120,
+      "text": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "key": "GOOG",
-      "count": 72,
-      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+      "count": 74,
+      "text": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에..."
     },
     {
       "key": "MU",
       "count": 66,
-      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+      "text": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "key": "NVDA",
-      "count": 66,
+      "count": 65,
       "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
     },
     {
       "key": "META",
-      "count": 58,
+      "count": 57,
       "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
@@ -16939,7 +16994,7 @@
     },
     {
       "key": "AMD",
-      "count": 55,
+      "count": 54,
       "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
@@ -16949,8 +17004,8 @@
     },
     {
       "key": "AVGO",
-      "count": 43,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지..."
+      "count": 44,
+      "text": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에..."
     },
     {
       "key": "MSFT",
@@ -16959,8 +17014,8 @@
     },
     {
       "key": "005930.KS",
-      "count": 33,
-      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
+      "count": 34,
+      "text": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "key": "AAPL",
@@ -16975,8 +17030,8 @@
       "topics": [
         "macro"
       ],
-      "count": 458,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+      "count": 461,
+      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "id": "geo",
@@ -17002,8 +17057,8 @@
       "topics": [
         "semi"
       ],
-      "count": 574,
-      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+      "count": 573,
+      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "id": "optical",
@@ -17011,7 +17066,7 @@
       "topics": [
         "optical"
       ],
-      "count": 25,
+      "count": 24,
       "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
@@ -17020,8 +17075,8 @@
       "topics": [
         "power"
       ],
-      "count": 241,
-      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+      "count": 242,
+      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "id": "ai-policy",
@@ -17029,8 +17084,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 150,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+      "count": 152,
+      "focus": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에..."
     },
     {
       "id": "kr-market",
@@ -17047,8 +17102,8 @@
       "topics": [
         "equity"
       ],
-      "count": 156,
-      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+      "count": 155,
+      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "id": "crypto",
@@ -17065,8 +17120,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 236,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+      "count": 238,
+      "focus": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에..."
     },
     {
       "id": "healthcare",
@@ -17074,8 +17129,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 48,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+      "count": 52,
+      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "id": "japan",
@@ -17092,8 +17147,8 @@
       "topics": [
         "flows"
       ],
-      "count": 72,
-      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+      "count": 73,
+      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "id": "insider",
@@ -17110,7 +17165,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 173,
+      "count": 176,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -17338,6 +17393,56 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "bornlupin/19263",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19263",
+      "datetime": "2026-07-22T23:40:13.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "equity",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "MU",
+        "TSM",
+        "BAC",
+        "WFC",
+        "BCS",
+        "005930.KS"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체..."
+    },
+    {
+      "id": "bornlupin/19261",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19261",
+      "datetime": "2026-07-22T23:22:12.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO",
+        "GOOGL",
+        "BX"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는..."
+    },
     {
       "id": "insidertracking/58976",
       "channel": "insidertracking",
@@ -18449,49 +18554,99 @@
       ],
       "score": 100,
       "summary": "모건스탠리) 하이퍼스케일러 Capex, '28년 1.4조 달러 전망 모건스탠리는 GW당 구축 비용 상향과 선행 컴퓨트 용량 전망 확대를 반영해 하이퍼스케일러 5개사(GOOGL, AMZN, MSFT, META,..."
-    },
+    }
+  ],
+  "broadItems": [
     {
-      "id": "aetherjapanresearch/23541",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23541",
-      "datetime": "2026-07-13T23:49:22.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi",
-        "power"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "TSM"
-      ],
-      "score": 100,
-      "summary": "JP모건) TSMC; 2Q26 매출은 가이던스 상단 도달; GM은 상회할 가능성 TSMC의 6월 매출은 4,430억 대만달러로 MoM 6%, YoY 68% 증가했습니다. 2Q26 잠정 매출은 1조 2,700억..."
-    },
-    {
-      "id": "aetherjapanresearch/23539",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23539",
-      "datetime": "2026-07-13T23:35:44.000Z",
-      "localDateKst": "2026-07-14",
+      "id": "bornlupin/19263",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19263",
+      "datetime": "2026-07-22T23:40:13.000Z",
+      "localDateKst": "2026-07-23",
       "tags": [
         "macro",
         "semi",
         "power",
-        "ai-policy"
+        "equity",
+        "flows",
+        "healthcare"
       ],
       "tickers": [
-        "NVDA",
-        "AVGO",
-        "AMZN",
-        "MU"
+        "MU",
+        "TSM",
+        "BAC",
+        "WFC",
+        "BCS",
+        "005930.KS"
       ],
       "score": 100,
-      "summary": "JP모건) 메모리/한국 테크 및 지주회사에 대한 아시아 투자자 마케팅 피드백 지난주 홍콩에서 50명 이상의 투자자들과 미팅을 진행했습니다. 본 노트에서는 투자자들의 주요 관심 영역과 피드백을 짚어보고,..."
-    }
-  ],
-  "broadItems": [
+      "hasText": true,
+      "summary": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체..."
+    },
+    {
+      "id": "insidertracking/58982",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58982",
+      "datetime": "2026-07-22T23:34:56.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO",
+        "GOOGL"
+      ],
+      "score": 95,
+      "hasText": true,
+      "summary": "알파벳(Alphabet) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 견조한 매출 성장. 2분기 연결 매출은 1,198억달러로 전년 대비 24% 증가. Google Services는 약 15%,..."
+    },
+    {
+      "id": "bornlupin/19262",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19262",
+      "datetime": "2026-07-22T23:34:51.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi",
+        "healthcare"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 68,
+      "hasText": true,
+      "summary": "테슬라 2026년 2분기 어닝콜 중 일론 머스크 – 마이크론 물량 배정 감사 발언 \"마이크론에도 감사를 표하고 싶습니다 . 마이크론이 테슬라에 메모리 물량을 배정해 주기로 했고, 향후 수년간 테슬라를 위한..."
+    },
+    {
+      "id": "bornlupin/19261",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19261",
+      "datetime": "2026-07-22T23:22:12.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO",
+        "GOOGL",
+        "BX"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는..."
+    },
     {
       "id": "insidertracking/58978",
       "channel": "insidertracking",
@@ -23008,28 +23163,6 @@
       "summary": "JP모건) 미국 주식 전략; 하이퍼스케일러 vs AI 하드웨어, AI 캐펙스와 수익화, 모멘텀 언와인드, 2분기 실적 (7/20) ■ 핵심 논지: AI 사이클은 여전히 유효 이번 실적 시즌의 핵심 테마는..."
     },
     {
-      "id": "insidertracking/58636",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58636",
-      "datetime": "2026-07-20T07:20:38.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "kr-market",
-        "equity",
-        "japan"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 20일 (07시~16시) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미국은 9일 연속 이란 공습을 실시하며 군 지휘시설, 방공망, 해안 감시시설 및 해상..."
-    },
-    {
       "id": "bornlupin/19170",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19170",
@@ -25091,56 +25224,6 @@
       "score": 71,
       "hasText": true,
       "summary": "BofA , ASML, 투자의견 매수 유지, 목표주가 2,022 EUR 강력한 어닝 서프라이즈, 가이드라인 상향 및 생산 능력 확대 계획 더 강력해진 IBM(장비 유지보수 서비스) 매출 및 마진이 견인한..."
-    },
-    {
-      "id": "bornlupin/19110",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19110",
-      "datetime": "2026-07-15T06:00:02.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "ASML 2026년 2분기(Q2) 실적 1. ASML 실적 전망을 상향한 이유 CEO 크리스토프 푸케는 이번 전망 상향이 두 가지 요인의 조합이라고 설명했습니다. 첫 번째는 고객들의 지속적으로 강한..."
-    },
-    {
-      "id": "bornlupin/19109",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19109",
-      "datetime": "2026-07-15T05:20:01.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "semi",
-        "insider",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "ASML 2026년 2분기(Q2) 실적 매출액: 93.3억 유로 (시장 예상치: 88.5억 유로) 매출총이익률(Gross Margin): 54.0% (시장 예상치: 52%) 순이익: 29.18억 유로 (시장..."
-    },
-    {
-      "id": "bornlupin/19108",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19108",
-      "datetime": "2026-07-15T04:46:31.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [
-        "AEHR"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "[메리츠증권 전기전자/IT부품 양승수] 안녕하세요, 메리츠증권 양승수입니다. 전일 Aehr Test Systems(AEHR)이 FY2026 4분기 실적 발표 이후 시간외 거래에서 30% 이상 급등한 것과..."
     }
   ]
 }
