@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-22T17:41:21.808Z",
+  "generatedAt": "2026-07-22T18:47:35.478Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -25,10 +25,10 @@
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-22T17:41:18.732Z",
+  "blsAttemptedAt": "2026-07-22T18:47:32.514Z",
   "blsLastSuccessfulAt": "2026-07-22T07:22:33.499Z",
   "newsOk": true,
-  "newsCount": 36,
+  "newsCount": 38,
   "newsSourceCount": 8,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-07-20T23:00:00.000Z",
@@ -40,7 +40,7 @@
   "newsScoreMax": 66,
   "putCallOk": true,
   "putCallAsOf": "2026-07-21",
-  "elapsedMs": 3150,
+  "elapsedMs": 3036,
   "schema": 1,
   "marketAnalysisOk": true,
   "marketAnalysisSemanticOk": true,
@@ -50,7 +50,7 @@
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-07-22T17:41:21.808Z:134f0cb8",
+  "marketSnapshotRevision": "market-snapshot:2026-07-22T18:47:35.478Z:805f6f8e",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 102,
@@ -106,7 +106,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-22T07:22:33.499Z",
    "lastSuccessfulAt": "2026-07-22T07:22:33.499Z",
-   "attemptedAt": "2026-07-22T17:41:18.732Z",
+   "attemptedAt": "2026-07-22T18:47:32.514Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -294,10 +294,10 @@
   "_lastKnownGoodAt": "2026-07-16"
  },
  "fearGreed": {
-  "score": 44,
+  "score": 43,
   "rating": "fear",
   "_source": "cnn",
-  "asOf": "2026-07-22T17:37:41+00:00",
+  "asOf": "2026-07-22T18:41:44+00:00",
   "previousScore": 41,
   "previousWeek": 41
  },
@@ -306,7 +306,7 @@
   "indexPutCall": 1,
   "equityPutCall": 0.65,
   "asOf": "2026-07-21",
-  "fetchedAt": "2026-07-22T17:41:19.635Z",
+  "fetchedAt": "2026-07-22T18:47:33.111Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -554,22 +554,6 @@
    "newsCycleLabel": "2026-07-21 08:00 KST ~ 2026-07-22 08:00 KST"
   },
   {
-   "title": "3M shares jump on Q2 earnings beat, raised guidance - Proactive financial news",
-   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPck5ydDNKcGh5TEpmU2NVTlpWSFdhbm1WM1liRWRrSkNIclRFWHU3eWZzZ2hnOWM3T2xNMVI0TVV5RzctelhWZ0I4TUZYdWF3dmRWYk80Y1dNVlZKbnB6TVh3NHVDYkxKSHJZU01jVU1oWFA3UG5lNXBDZFdpME9vV1NoUTQzZW84RFFNRkpyaWY5NkpybU5QYjhVY0ZJU1E4OWFkdWtsTlo1LXhORlc0Uk5rcGYwWHl4WUlmVTRn?oc=5",
-   "source": "Proactive financial news",
-   "pubDate": "Tue, 21 Jul 2026 10:03:00 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 38,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-20T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-21T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-21 08:00 KST ~ 2026-07-22 08:00 KST"
-  },
-  {
    "title": "IQE shares surge as AI demand lifts guidance and prompts broker upgrades - Proactive financial news",
    "link": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxPUlNWX05QUlA4anpKQ01JeDE3aEVvRnRCXzVyaF9DeTBqUElfSHMtR3BNRVBDa3VqUC1EempIeUpHVUo1UHY1VjNlRXBRYVQ1MlBZOVRZRXFyX25YajNFQWNjRGMtbkpaWjBhOEs3R3JXS2JoVC0xRnZOS3pORGNHZWxkVURTZnVXOXFPWGlKbmZEZUNOMXR2dlg2NzJjTXpsMWlISHlzcUthZVdNQVFDcWR1eWdXRllfMFJxc05IRk1BVzhmbVVTSkczZkd4MWFweWNXOTE0MWJEQms?oc=5",
    "source": "Proactive financial news",
@@ -730,6 +714,22 @@
    "newsCycleLabel": "2026-07-21 08:00 KST ~ 2026-07-22 08:00 KST"
   },
   {
+   "title": "U.S. Stocks Turn Higher; Nasdaq Gains 1.32% - bloomingbit",
+   "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE1ESm52OVZESm9zX3NaVFMtN19KT0lnazE2SGZQMWhKQTlGN3FCOXZvQWhISHVNUmFzNjJ6UmVmbmw5RDBBQmZWY1BZZnoxRGw4STROSQ?oc=5",
+   "source": "bloomingbit",
+   "pubDate": "Tue, 21 Jul 2026 16:46:28 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 28,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-20T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-21T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-21 08:00 KST ~ 2026-07-22 08:00 KST"
+  },
+  {
    "title": "Jamie Dimon says he wouldn’t buy stocks or Treasurys at current prices - Fox Business",
    "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNN1l4UmxXOGJFbUpIbmYtZGJCUlV2WGJlcW11SXBOX3RuM2wxY18weDdiMmJjSVVfT2JlSEc4SEhaODFlcUt5OEF6Y3N0SERiWmpiZ3k5RlFGUzVnYmZoNktfNjZFYU5TWjFTYmpNWU5RQktnTC1aVUExQWpRRzRoWm5vX0pGTWpHV3BITC00NU9Qd2VTbUpYaGN2YzhHQXNI0gGmAUFVX3lxTE1kSXpVbUhkaTc0RWVuN3J4WUFzakthZm9tZFB1MUxONXp2MGxMTW9WdkNlTnh1eUVBLXV0bWdMYTJKR0hCek80dkdxRmMxakFveEFtejMxV2xRUzFXaGdySWpNZS1nWDFlU1dZWTBydjVlTkJqaVZCYnppTWxxUHEtQmswYXZlUVBoQkhDQUx6TWl3MGxSS1JzSm5qOGZJbTVFVkxYa2c?oc=5",
    "source": "Fox Business",
@@ -794,6 +794,22 @@
    "newsCycleLabel": "2026-07-21 08:00 KST ~ 2026-07-22 08:00 KST"
   },
   {
+   "title": "Jamie Dimon Says He Wouldn't Buy Stocks or Treasurys at These Prices - Startup Fortune",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPbmdkd1NaTEpaVUxqQkg0Z2U2S3lLeng3LU5DNmdERk5BcFZOamZseWFGRkN0YmVtT0w4Z0RvX0pHWFJldUtwMk9YdWFHWjJXLVNzb2dlczB5dlFUakRmdklXU3d3YUJCOWJLbkJaX1NfZF92TGFteTdUWF9CU2tJengwY1Rxc3RlY1ZYa1hqYWZDMUpycU1aMk1uOA?oc=5",
+   "source": "Startup Fortune",
+   "pubDate": "Tue, 21 Jul 2026 10:29:39 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 28,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-20T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-21T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-21 08:00 KST ~ 2026-07-22 08:00 KST"
+  },
+  {
    "title": "The Credit Market Lens: Rich Spreads, Cheap Treasuries, And An Incomplete Explanation - Seeking Alpha",
    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPZ1J2czF4MHVmTU8wcG5SSHV5VU5lME12ZFBLc0JCWEh6Z09hR1ZGX0hPTUpiZFVYemlVR05YQlQwSmFTRnIxaGVkOEhQcXViQUlsNzN6N09GS3JjWGhaNG56NU4tNmNqN0NnQ2R0OGV6S1V4Smd0eUcwamNjSWtIYnBjLWJNSGVoZ2M0NkVBOWhHVlF0SmpfU3Y4djJ6ampzRnlIbW9ncXMtZ0NXTlh6ajRB?oc=5",
    "source": "Seeking Alpha",
@@ -820,6 +836,22 @@
    "score": 28,
    "selectionReason": "base+20 | source-tier3+2 | recency+6",
    "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-20T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-21T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-21 08:00 KST ~ 2026-07-22 08:00 KST"
+  },
+  {
+   "title": "Intel cuts data center jobs despite strong growth ahead of Q2 results - MSN",
+   "link": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxNSDkyVUpPWDl1ZGJfcktKXzVPVVdOemtCd0syQ3ZUdkdaZkwwRW1QSkJrdkgzOE1NZkE0UEx3b3JzeDFVcEF5N1Yyb3ZJbkhDWXB5VUpCb05TRS1fWFFZczl3R1ZOaE02bVA1WHk5d2ZrTTgzQTNlTGhVNU9WelFDR1FCSDBnbE4xZ0FFMEZLZ2dqUFBpR05tVGQtczdobHJrbzN5dFJiUWJCZnZ2OGhES1lhUlJaUU45MUFXRmZVa21lVld1Z3gxb2NFa3NmRnY2OVJWeFo4S2x1RTI3ZzRjR2NQMlVhMExkcEM0UmdpVUw?oc=5",
+   "source": "MSN",
+   "pubDate": "Tue, 21 Jul 2026 04:36:05 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 4,
+   "score": 23,
+   "selectionReason": "base+20 | source-tier4-8 | recency+6 | ai-semis+13 | low-quality-source-8",
+   "feedSource": "Google News - AI/Semis",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-20T23:00:00.000Z",
    "newsCycleEnd": "2026-07-21T23:00:00.000Z",
@@ -891,9 +923,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "# 현재 시장 분석\n\n**주식은 AI 실적과 휴전 기대감에 지지되나, 경제 신호와 지정학적 리스크 사이 줄타기 중**\n\n① **변동성/심리**: VIX 44(Fear & Greed)로 불안심리가 존재하나, 칩 종목 부활과 나스닥 선행으로 위험자산에 대한 선별적 수요가 나타나는 상태입니다.\n\n② **거시/금리**: 연방기금율 3.63%, CPI 3.5%로 금리-인플레이션 환경이 교착 중이며, 미 국채 수익률이 현 수준을 유지하면서 금리 방향성이 불명확합니다.\n\n③ **주도 뉴스/리스크**: 반도체(ASML 가이던스, 마이크론) 실적 개선과 GM의 2026년 전망 상향이 긍정 신호인 반면, 홍해 후티 위협이 유가 및 인플레이션 재상승 변수로 작용하고 있습니다. 금은 $4,060 이상으로 상승하며 안전자산 선호를 드러냅니다.",
+  "full": "# 현재 시장 분석\n\n**시장 개요:** 금값 상승($4,060 이상)과 유가 약세 속 AI 및 반도체 주도로 주식 반등, 채권 수익률 안정세 지속.\n\n① **변동성·심리** - Fear&Greed 지수 43(중립~약한 공포)으로 투자심리 회복 중. 반도체 강세(ASML 긍정 평가, GM 실적 상향)가 낙폭 회복 주도.\n\n② **거시·금리** - 연방기금선물금리 3.63%, 10년물 수익률 안정. NFP 월간증가 57천명(2026년 6월)으로 고용 모멘텀 약화 신호, 금값 상승(통화 약세 또는 경기 불안 시사) 동반.\n\n③ **주도 뉴스·리스크** - 휴전 기대감과 AI 실적이 긍정 요인이나, 홍해 후티 위협 재개로 유가·인플레이션 재상승 리스크 존재. 달러 약세 심화 가능성 주시 필요.",
   "oneLine": "# 현재 시장 분석",
-  "generatedAt": "2026-07-22T17:41:26.498Z",
+  "generatedAt": "2026-07-22T18:47:40.058Z",
   "model": "claude-haiku-4-5",
   "semanticStatus": "verified",
   "semanticIssues": []
