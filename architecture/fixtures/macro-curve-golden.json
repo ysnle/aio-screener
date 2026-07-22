@@ -1,0 +1,266 @@
+{
+  "generatedAt": "2026-07-21T04:12:17.260Z",
+  "sourceFunction": "js/aio-core.js:window.AIO.getUsTreasuryCurveEvidence",
+  "fixtures": [
+    {
+      "name": "all_sources_present_fred_spread_wins",
+      "inputs": {
+        "liveData": {
+          "^IRX": {
+            "price": 5.1
+          },
+          "^FVX": {
+            "price": 4.5
+          },
+          "^TNX": {
+            "price": 4.4
+          },
+          "^TYX": {
+            "price": 4.6
+          }
+        },
+        "live2Y": 4.2,
+        "live10Y": null,
+        "live30Y": null,
+        "fredData": {
+          "DGS3MO": {
+            "value": 5.05
+          },
+          "DGS2": {
+            "value": 4.15
+          },
+          "DGS5": {
+            "value": 4.45
+          },
+          "DGS10": {
+            "value": 4.38
+          },
+          "DGS30": {
+            "value": 4.58
+          },
+          "T10Y2Y": {
+            "value": 0.23
+          }
+        },
+        "snapshot": {}
+      },
+      "legacyOutput": {
+        "modelVersion": "treasury-curve.v1",
+        "inputVersion": "unknown",
+        "threeM": 5.1,
+        "twoY": 4.2,
+        "fiveY": 4.5,
+        "tenY": 4.4,
+        "thirtyY": 4.6,
+        "spread2s10s": 0.23,
+        "available": true,
+        "complete": true,
+        "source": "FRED T10Y2Y",
+        "asOf": null
+      }
+    },
+    {
+      "name": "no_fred_t10y2y_falls_back_to_live_derived",
+      "inputs": {
+        "liveData": {
+          "^TNX": {
+            "price": 4.4
+          }
+        },
+        "live2Y": 4.1,
+        "live10Y": null,
+        "live30Y": null,
+        "fredData": {},
+        "snapshot": {}
+      },
+      "legacyOutput": {
+        "modelVersion": "treasury-curve.v1",
+        "inputVersion": "unknown",
+        "threeM": null,
+        "twoY": 4.1,
+        "fiveY": null,
+        "tenY": 4.4,
+        "thirtyY": null,
+        "spread2s10s": 0.3,
+        "available": true,
+        "complete": false,
+        "source": "live maturities",
+        "asOf": null
+      }
+    },
+    {
+      "name": "no_live_no_fred_spread_falls_back_to_snapshot",
+      "inputs": {
+        "liveData": {},
+        "live2Y": null,
+        "live10Y": null,
+        "live30Y": null,
+        "fredData": {},
+        "snapshot": {
+          "t10y2y": 0.19,
+          "tnx": 4.3,
+          "irx": 5,
+          "fvx": 4.4,
+          "tyx": 4.55
+        }
+      },
+      "legacyOutput": {
+        "modelVersion": "treasury-curve.v1",
+        "inputVersion": "unknown",
+        "threeM": 5,
+        "twoY": null,
+        "fiveY": 4.4,
+        "tenY": 4.3,
+        "thirtyY": 4.55,
+        "spread2s10s": 0.19,
+        "available": true,
+        "complete": false,
+        "source": "server snapshot",
+        "asOf": null
+      }
+    },
+    {
+      "name": "twoY_and_tenY_present_no_direct_spread_source",
+      "inputs": {
+        "liveData": {},
+        "live2Y": null,
+        "live10Y": null,
+        "live30Y": null,
+        "fredData": {
+          "DGS2": {
+            "value": 4.3
+          },
+          "DGS10": {
+            "value": 4.5
+          }
+        },
+        "snapshot": {}
+      },
+      "legacyOutput": {
+        "modelVersion": "treasury-curve.v1",
+        "inputVersion": "unknown",
+        "threeM": null,
+        "twoY": 4.3,
+        "fiveY": null,
+        "tenY": 4.5,
+        "thirtyY": null,
+        "spread2s10s": 0.2,
+        "available": true,
+        "complete": false,
+        "source": "live/FRED maturities",
+        "asOf": null
+      }
+    },
+    {
+      "name": "nothing_available",
+      "inputs": {
+        "liveData": {},
+        "live2Y": null,
+        "live10Y": null,
+        "live30Y": null,
+        "fredData": {},
+        "snapshot": {}
+      },
+      "legacyOutput": {
+        "modelVersion": "treasury-curve.v1",
+        "inputVersion": "unknown",
+        "threeM": null,
+        "twoY": null,
+        "fiveY": null,
+        "tenY": null,
+        "thirtyY": null,
+        "spread2s10s": null,
+        "available": false,
+        "complete": false,
+        "source": "partial",
+        "asOf": null
+      }
+    },
+    {
+      "name": "out_of_range_values_clamped_to_null",
+      "inputs": {
+        "liveData": {
+          "^TNX": {
+            "price": 999
+          },
+          "^IRX": {
+            "price": -50
+          }
+        },
+        "live2Y": 4.1,
+        "live10Y": null,
+        "live30Y": null,
+        "fredData": {
+          "DGS2": {
+            "value": 4.15
+          }
+        },
+        "snapshot": {}
+      },
+      "legacyOutput": {
+        "modelVersion": "treasury-curve.v1",
+        "inputVersion": "unknown",
+        "threeM": null,
+        "twoY": 4.1,
+        "fiveY": null,
+        "tenY": null,
+        "thirtyY": null,
+        "spread2s10s": null,
+        "available": false,
+        "complete": false,
+        "source": "partial",
+        "asOf": null
+      }
+    },
+    {
+      "name": "partial_only_twoY_no_tenY_anywhere",
+      "inputs": {
+        "liveData": {},
+        "live2Y": 4,
+        "live10Y": null,
+        "live30Y": null,
+        "fredData": {},
+        "snapshot": {}
+      },
+      "legacyOutput": {
+        "modelVersion": "treasury-curve.v1",
+        "inputVersion": "unknown",
+        "threeM": null,
+        "twoY": 4,
+        "fiveY": null,
+        "tenY": null,
+        "thirtyY": null,
+        "spread2s10s": null,
+        "available": false,
+        "complete": false,
+        "source": "partial",
+        "asOf": null
+      }
+    },
+    {
+      "name": "live10Y_and_live30Y_used_as_tenY_thirtyY_fallback",
+      "inputs": {
+        "liveData": {},
+        "live2Y": 4.05,
+        "live10Y": 4.42,
+        "live30Y": 4.6,
+        "fredData": {},
+        "snapshot": {}
+      },
+      "legacyOutput": {
+        "modelVersion": "treasury-curve.v1",
+        "inputVersion": "unknown",
+        "threeM": null,
+        "twoY": 4.05,
+        "fiveY": null,
+        "tenY": 4.42,
+        "thirtyY": 4.6,
+        "spread2s10s": 0.37,
+        "available": false,
+        "complete": false,
+        "source": "partial",
+        "asOf": null
+      }
+    }
+  ]
+}

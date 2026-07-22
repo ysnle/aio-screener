@@ -22,7 +22,10 @@ const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
 const bootstrap = read('src/app/bootstrap.js');
+const screenerProvider = read('src/data/providers/screener.js');
 const sentimentPage = read('src/ui/pages/sentiment.js');
+const screenerPage = read('src/ui/pages/screener.js');
+const newsPage = read('src/ui/pages/news.js');
 const sentimentDomain = read('src/domain/sentiment/metrics.js');
 const themesPage = read('src/ui/pages/themes.js');
 const tradingScoreDomain = read('src/domain/signal/trading-score.js');
@@ -80,6 +83,15 @@ check('share readiness audit exists', /getShareReadinessAudit/.test(core));
 check('deployment gate includes runtime contract', /runtimeContract/.test(core) && /runtime contract/.test(core));
 check('tests cover runtime/share gate', /T844 v5079_runtime_contract_share_gate/.test(tests));
 check('Telegram digest applies latest items into SCREENER_DB memo', /function\s+_aioApplyTelegramDigestToScreenerDb/.test(data) && /_aioApplyTelegramDigestToScreenerDb\(raw,\s*merged\)/.test(data));
+check('non-route screener consumers use the canonical native read boundary', /function\s+_aioGetCanonicalScreenerRows/.test(data) && /getScreenerRows:\s*\(\)\s*=>/.test(bootstrap) && /_aioGetCanonicalScreenerRows\(\)/.test(runtimeBundle));
+check('P768: native screener is the sole runtime artifact fetch and legacy receives metadata/breadth only', /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(bootstrap) && /getScreenerState/.test(bootstrap) && /breadth:\s*artifact\.breadth/.test(screenerProvider) && !/fetch\([^\n]*screener\.json/.test(data) && !/_aioApplyServerScreener/.test(data));
+const canonicalScreenerConsumerNames = ['_aioExtractRecentRecommendationTickers', '_detectSectorQuery', '_aioRunScreenerQuery', '_aioMakerCheckerVerify'];
+for (const name of canonicalScreenerConsumerNames) {
+  const start = data.indexOf(`function ${name}`);
+  const end = data.indexOf(`window.${name}`, start);
+  const body = start >= 0 && end > start ? data.slice(start, end) : '';
+  check(`${name} reads canonical screener rows`, body.includes('_aioGetCanonicalScreenerRows()') && !/typeof\s+SCREENER_DB/.test(body), 'legacy static row read remains in consumer body');
+}
 check('Telegram memo overlay is exposed through audit', /_aioTelegramMemoOverlayAudit/.test(data) && /memoOverlay/.test(data) && /getTelegramPipelineAudit/.test(data));
 check('Telegram dynamic artifact replaces static narrative and exposes honest coverage', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /pipelineNote:\s*String\(raw\.pipelineNote/.test(data) && /coverage:\s*raw\.coverage/.test(data));
 check('Telegram page coverage audit spans all 17 routes (v53.7 P725)', /getTelegramPageCoverageAudit/.test(data) && /requiredPageCount/.test(data) && /'portfolio':\s*\[/.test(data) && /'ticker':\s*\[/.test(data) && /'screener':\s*\[/.test(data) && /'kr-macro':\s*\[/.test(data) && /'guide':\s*\[\]/.test(data));
@@ -399,7 +411,7 @@ check('retired page fundamentals renderer is fully removed', !/_aioRenderPageFun
 check('page fundamentals no longer marks or injects page DOM', !/data-aio-fund-done/.test(ui) && !/className\s*=\s*'aio-page-advanced-toggle aio-fund'/.test(ui));
 check('13 comp routes hide advanced legacy blocks by default and expose them in developer mode only', /#page-home \.aio-page-advanced-toggle[\s\S]{0,1800}display:none !important/.test(html) && /body\.aio-dev-mode #page-home \.aio-page-advanced-toggle[\s\S]{0,1800}display:block !important/.test(html));
 check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holdings-table-section"/.test(html) && /id="pf-risk-section"/.test(html) && /id="pf-entry-section"/.test(html) && /_aioTogglePortfolioEntry/.test(html));
-check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /_retText\(r\.ret1m\)/.test(data) && /_retText\(r\.ret6m\)/.test(data));
+check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
 check('runtime-injected decision headers and related-news strips stay out of the 13-route default surface', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && /#page-signal > \.aio-page-news-strip[\s\S]{0,1200}display:none !important/.test(html));
 check('home details and duplicate operational feeds are absent from the default surface', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && /#tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /_scrVisibleLimit\s*=\s*12/.test(data) && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
@@ -473,7 +485,7 @@ check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Ba
 // v52.44 (P659): B8 Cloudflare Worker anycast 403(forbidden) auto-retry mitigation
 check('B8: shared _aioFetchClaudeWithRetry helper exists with a server-key gate, a 403 status check, and Anthropic-native forbidden-shape detection before retrying', /async function _aioFetchClaudeWithRetry\(url, fetchOpts, serverKey, maxRetries\)/.test(chat) && /serverKey\s*&&\s*res\.status\s*===\s*403/.test(chat) && /_peek\.error\.type\s*===\s*'forbidden'/.test(chat));
 check('B8: callClaude routes both its initial request and its 400-beta-header fallback retry through the shared helper instead of a bare fetch to the Worker/Anthropic endpoint', (chat.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length === 2);
-check('B8: both aio-data.js Claude call sites (news translation batch + AI briefing generation) route through the shared retry helper with a defensive typeof fallback to bare fetch', (data.match(/_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/g) || []).length === 2);
+check('B8: the remaining aio-data.js Claude translation call site routes through the shared retry helper with a defensive typeof fallback; the retired briefing call site is absent', (data.match(/_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/g) || []).length === 1 && !/function\s+_generateAIBriefing\b/.test(data));
 check('headless tests cover the B8 Worker-retry mitigation', /_testV5244WorkerAnycastRetry/.test(tests) && /T887/.test(tests) && /T888/.test(tests) && /T889/.test(tests) && /T890/.test(tests));
 
 // v52.45 (P660): CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10 WO-0 — workflow YAML corruption gate wiring
@@ -494,7 +506,7 @@ check('headless tests cover the WO-1A portfolio vault contract', /_testV5246Port
 // scripts/ci-worker-anthropic-check.mjs (a real handler-invocation test, not just a static contract).
 check('WO-1B: _aioAppToken() helper exists and is exposed for cross-file reuse', /function _aioAppToken\(\)/.test(chat) && /window\._aioAppToken = _aioAppToken/.test(chat));
 check('WO-1B: callClaude() sends the app token header specifically on the server-key (Worker) branch, not the direct-personal-key branch', /_claudeHeaders\['X-AIO-App-Token'\] = _aioAppToken\(\)/.test(chat));
-check('WO-1B: both aio-data.js Claude call sites (translation + briefing) send the app token when server-key routed, with a defensive typeof fallback', (data.match(/'X-AIO-App-Token':\s*\(typeof _aioAppToken === 'function' \? _aioAppToken\(\) : ''\)/g) || []).length === 2);
+check('WO-1B: the remaining aio-data.js Claude translation call sends the app token when server-key routed; the retired briefing call site is absent', (data.match(/'X-AIO-App-Token':\s*\(typeof _aioAppToken === 'function' \? _aioAppToken\(\) : ''\)/g) || []).length === 1 && !/function\s+_generateAIBriefing\b/.test(data));
 check('WO-1B: cloudflare-worker-proxy.js enforces server-side Origin allowlist, an optional app-token check, a dedicated /anthropic rate limit, and KV fail-closed on the daily cap', /ALLOWED_ORIGINS\.includes\(_normalizedOrigin\)/.test(worker) && /env\.AIO_APP_TOKEN/.test(worker) && /ANTHROPIC_RATE_LIMIT/.test(worker) && /서버 키 모드 일시 비활성화/.test(worker) && /ANTHROPIC_KILL_SWITCH/.test(worker));
 check('WO-1B: CORS preflight allows the new X-AIO-App-Token header (otherwise browsers block it before the Worker ever sees it)', /Access-Control-Allow-Headers['"]?:\s*'[^']*X-AIO-App-Token/.test(worker));
 
@@ -606,7 +618,7 @@ check('WP-AI0: regression fixtures cover action block, educational pass, strong 
 check('WP-AI1: shared request envelope records pipeline, validator, block-policy versions and bounded audit metadata', /_AIO_AI_PIPELINE_VERSION/.test(chat) && /_aioCreateAIRequestObject/.test(chat) && /_aioBeginAIRequestAttempt/.test(chat) && /_aioRunAIResponsePipeline/.test(chat) && /getAIResponsePipelineAudit/.test(chat));
 check('WP-AI1: embedded retry reuses one completion callback contract and request object', /var _pageOnChunk = function/.test(chat) && /var _pageOnDone = function/.test(chat) && /callClaude\(systemPrompt, state\.messages, _pageOnChunk, _pageOnDone/.test(chat) && /_aioBeginAIRequestAttempt\(_pageAIRequest, nextModel\)/.test(chat));
 check('WP-AI1: unified retry reuses one completion callback contract and request object', /var _uniOnChunk = function/.test(html) && /var _uniOnDone = function/.test(html) && /callClaude\(sysPrompt, state\.messages, _uniOnChunk, _uniOnDone/.test(html) && /_aioBeginAIRequestAttempt\(_uniAIRequest, nextModel\)/.test(html));
-check('WP-AI1: translation and briefing use the same response pipeline and fail closed to local/deterministic fallback', /_translationRequest/.test(data) && /_aioRunAIResponsePipeline/.test(data) && /auto-translation/.test(data) && /_briefingRequest/.test(data) && /auto-briefing/.test(data) && /AI response pipeline unavailable/.test(data));
+check('WP-AI1: translation uses the shared response pipeline and fails closed to local/deterministic fallback while briefing is owned by the native news renderer', /_translationRequest/.test(data) && /_aioRunAIResponsePipeline/.test(data) && /auto-translation/.test(data) && /AI response pipeline unavailable/.test(data) && /route === 'briefing'/.test(newsPage) && /buildNewsSurfaceModel/.test(newsPage) && !/_briefingRequest/.test(data));
 check('WP-AI1: briefing route is defined in the unified context map and regression tests cover all entry points', /briefing:\s*_aioCreateEvidenceContext/.test(chat) && /T937/.test(tests) && /T938/.test(tests) && /T939/.test(tests) && /T940/.test(tests));
 
 // v52.77 (WP-AI2): typed claim schema and fail-closed claim/evidence validation.

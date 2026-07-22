@@ -77,6 +77,9 @@ const bootstrapSource = read('src/app/bootstrap.js');
 const sentimentPageSource = read('src/ui/pages/sentiment.js');
 const guidePageSource = read('src/ui/pages/guide.js');
 const newsPageSource = read('src/ui/pages/news.js');
+const marketPageSource = read('src/ui/pages/market.js');
+const entityPageSource = read('src/ui/pages/entity.js');
+const portfolioPageSource = read('src/ui/pages/portfolio.js');
 if (!bootstrapSource.includes('const ingestSentiment') || !bootstrapSource.includes('ingestSentiment,')) fail('sentiment canonical ingest gateway missing');
 if (!dataSource.includes('AIO_ARCH.ingestSentiment')) fail('legacy sentiment producer gateway notification missing');
 if (burnDown.retiredDataShowPageMonkeyPatch && (/const originalShowPage\s*=\s*window\.showPage/.test(dataSource) || /window\.showPage\s*=\s*function\s*\(pageId/.test(dataSource))) {
@@ -96,6 +99,11 @@ for (const [route, symbols] of Object.entries(routeOwners.legacySymbolsMustBeAbs
     if (aggregate.includes(symbol)) fail(`retired legacy symbol returned for native renderer route ${route}: ${symbol}`);
   }
 }
+for (const [route, symbols] of Object.entries(routeOwners.retiredLegacySymbolsMustBeAbsent || {})) {
+  for (const symbol of symbols) {
+    if (aggregate.includes(symbol)) fail(`retired legacy symbol returned for derived route ${route}: ${symbol}`);
+  }
+}
 for (const [route, patterns] of Object.entries(routeOwners.legacySymbolPatternsMustBeAbsent || {})) {
   for (const pattern of patterns) {
     if (new RegExp(pattern).test(aggregate)) fail(`retired legacy pattern returned for native renderer route ${route}: ${pattern}`);
@@ -109,11 +117,36 @@ for (const [name, source, markers] of [
 ]) {
   for (const marker of markers) if (!source.includes(marker)) fail(`native ${name} renderer marker missing: ${marker}`);
 }
-// RM-01: news.js is no longer a content renderer for market-news/briefing (contested container,
-// route-owners.json rendererOwner=legacy) — it must not re-claim the retired renderer marker or
-// re-import the retired content-rendering helper.
-if (newsPageSource.includes("dataset.aioArchitectureRenderer = 'native'")) fail('news.js re-claimed a native renderer marker it does not own (rendererOwner is legacy per route-owners.json)');
+// P770: news.js owns the primary market-news and briefing feed renderers; secondary AI digest
+// content remains a compatibility/narrative boundary.
+if (!newsPageSource.includes("page.dataset.aioArchitectureRenderer = 'native'")) fail('news.js native market-news renderer marker missing');
+if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fail('news.js native feed marker missing');
+if (!newsPageSource.includes("container.dataset.aioBriefingRenderer = 'native'")) fail('news.js native briefing feed marker missing');
 if (newsPageSource.includes('renderStories')) fail('news.js content-rendering helper (renderStories) returned after RM-01 removed it');
+// P771: market.js owns macro primary quote/FRED metric sinks. The legacy global passes must
+// retain an explicit native-element fence so a later refresh cannot win by last-writer timing.
+if (!marketPageSource.includes("page.dataset.aioArchitectureRenderer = 'native'") || !marketPageSource.includes('renderLiveQuotes') || !marketPageSource.includes('renderSnapshotMetrics')) fail('market.js native macro primary renderer marker missing');
+if (!marketPageSource.includes("page.dataset.aioFxbondRenderer = 'native'") || !marketPageSource.includes('renderFxbond')) fail('market.js native fxbond primary renderer marker missing');
+if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('_aioIsNativeMacroElement(el)') || !dataSource.includes('function _aioIsNativeFxbondElement')) fail('legacy macro/fxbond native-element writer fence missing');
+if (!read('index.html').includes("el.closest('#page-fxbond[data-aio-architecture-renderer=\"native\"]')")) fail('legacy inline MOVE snapshot writer fence missing');
+if (!marketPageSource.includes("page.dataset.aioBreadthRenderer = 'native'") || !marketPageSource.includes('renderBreadth')) fail('market.js native breadth primary renderer marker missing');
+if (!dataSource.includes('function _aioIsNativeBreadthElement') || !dataSource.includes('_aioIsNativeBreadthElement(el)') || !uiSource.includes('_aioIsNativeBreadthElement(el)') || !coreSource.includes('#page-breadth[data-aio-architecture-renderer="native"]')) fail('legacy breadth native-element writer fence missing');
+// P777/P778/P779: entity.js owns the ticker hero, bounded options replacement metrics, and the
+// bounded fundamental SEC source-status surface. Fundamental report and ticker secondary surfaces
+// stay legacy until their own packets.
+for (const marker of ['renderTickerHero', "route === 'ticker'", "routeNode.dataset.aioArchitectureRenderer = 'native'"]) {
+  if (!entityPageSource.includes(marker)) fail(`native ticker hero renderer marker missing: ${marker}`);
+}
+for (const marker of ['renderOptions', "route === 'options'", 'opt-vix-val-secondary', 'opt-pcr-val-secondary', 'opt-skew-val-secondary']) {
+  if (!entityPageSource.includes(marker)) fail(`native options renderer marker missing: ${marker}`);
+}
+for (const marker of ['renderFundamentalStatus', "route === 'fundamental'", 'fund-data-status', 'data-source-kind']) {
+  if (!entityPageSource.includes(marker)) fail(`native fundamental status renderer marker missing: ${marker}`);
+}
+for (const marker of ['renderPortfolioStatus', 'pf-analysis-status', "page.dataset.aioArchitectureRenderer = 'native'"]) {
+  if (!portfolioPageSource.includes(marker)) fail(`native portfolio status renderer marker missing: ${marker}`);
+}
+if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !coreSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !read('index.html').includes('_aioIsNativeMacroElement(el)')) fail('legacy options native-element writer fence missing');
 
 // AG-DOM-WRITER (RM-01): src/ui/pages/* may only write ids/helpers that no legacy file also
 // writes. This is deliberately id-based (getElementById + the setText/text(documentRef, id, …)

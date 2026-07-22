@@ -7,6 +7,11 @@
 // corrections, order of operations) is transcribed unchanged — this is code motion, not a new
 // model (R352/F-03: legacy and native must not diverge into two different formulas).
 export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v1';
+export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
+
+function finiteNumber(value) {
+  return value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value);
+}
 
 /**
  * @param {object} input
@@ -147,4 +152,36 @@ export function computeTradingScoreModel(input = {}) {
     componentMissing,
     partial: availableWeight < 100
   };
+}
+
+/**
+ * Convert the canonical market-environment score into the analysis signal
+ * envelope. This is intentionally descriptive (WATCH/WAIT/REDUCE), not a
+ * security-specific buy/sell prediction.
+ */
+export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion = 'unknown' } = {}) {
+  const total = finiteNumber(score?.total ?? score?.score);
+  const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
+  if (total == null) {
+    return Object.freeze({
+      modelVersion: SIGNAL_DECISION_MODEL_VERSION,
+      inputVersion,
+      status: 'blocked',
+      action: 'WAIT',
+      score: null,
+      reasons: missing.length ? ['required-input-missing', ...missing.map((key) => `missing:${key}`)] : ['required-input-missing']
+    });
+  }
+  const action = total >= 60 ? 'WATCH' : total <= 30 ? 'REDUCE' : 'WAIT';
+  const band = total >= 60 ? 'favorable' : total <= 30 ? 'defensive' : 'neutral';
+  const reasons = [`trading-score-band:${band}`];
+  if (missing.length) reasons.push(...missing.map((key) => `missing:${key}`));
+  return Object.freeze({
+    modelVersion: SIGNAL_DECISION_MODEL_VERSION,
+    inputVersion,
+    status: score?.partial ? 'partial' : 'current',
+    action,
+    score: total,
+    reasons
+  });
 }

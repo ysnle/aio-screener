@@ -1,17 +1,14 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { deriveMarketModel } from '../src/domain/market/model.js';
-import { deriveMacroModel } from '../src/domain/macro/model.js';
-import { derivePortfolioRisk } from '../src/domain/portfolio/risk.js';
-import { deriveScreenerRanking } from '../src/domain/screener/ranking.js';
-import { deriveNewsClaim } from '../src/domain/news/claims.js';
-import { deriveTechnicalModel } from '../src/domain/technical/indicators.js';
-import { deriveSignalDecision } from '../src/domain/signal/decision.js';
 import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
+import { deriveSignalDecisionFromTradingScore } from '../src/domain/signal/trading-score.js';
 import { computeRelativeRotation } from '../src/domain/themes/rrg.js';
-import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../src/domain/technical/stage.js';
+import { classifyMovingAverageStructure, deriveMultiTimeframeView, deriveTechnicalStageFromOhlcv } from '../src/domain/technical/stage.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals } from '../src/domain/news/scoring.js';
+import { deriveTreasuryCurveEvidence } from '../src/domain/macro/treasury-curve.js';
+import { deriveConcentrationRisk } from '../src/domain/portfolio/concentration.js';
+import { computeFactorRanks } from '../src/domain/screener/factor-ranks.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fail = (message) => { throw new Error(`[domain-parity] ${message}`); };
@@ -19,39 +16,46 @@ const fail = (message) => { throw new Error(`[domain-parity] ${message}`); };
 // RM-03: trading-score, RRG, Weinstein/MTF, and news scoring/risk-signals have REAL parity below
 // (extracted models vs golden dumps of the unmodified legacy functions, captured by
 // scripts/dump-trading-score-fixtures.mjs / dump-rrg-fixtures.mjs / dump-weinstein-mtf-
-// fixtures.mjs / dump-news-scoring-fixtures.mjs before each extraction). `deriveNewsClaim`
-// (single-article claim shape, src/domain/news/claims.js) is a DIFFERENT, still smoke-only model
-// from the news scoring/risk-signal aggregate functions above — don't conflate the two "news"
-// entries. The other domains below (market/macro/portfolio/screener/technical/signal) remain
-// smoke-only (F-04): the "live"/"backtest" objects call the same function twice with the same
-// fixture, which can only catch an import/crash regression, not a real live/backtest divergence.
-// RM-03 item 2 measured that F&G has no local synthesis to extract (the score is fetched
-// pre-computed from CNN, never derived from sub-indicators in this codebase — see
-// _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md F-12) and that signal/decision.js's
-// toy model has zero live consumers beyond `.status` (proper replacement is ARX-11's scope, not a
-// small patch — see the same handoff, RM-03 item 3 note). Do not read this PASS as the remaining
-// smoke-only domains having real parity.
+// fixtures.mjs / dump-news-scoring-fixtures.mjs before each extraction).
+// 2026-07-21/P755: `deriveNewsClaim` (src/domain/news/claims.js, single-article title/source/url
+// shape) is RETIRED — grep confirmed zero real callers anywhere in src/ or scripts/ beyond this
+// smoke fixture, no corresponding legacy formula existed (it wasn't a stand-in for the real news
+// scoring/risk-signal functions above, which were already extracted separately in P749), and
+// _context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md:430-431 already documented it as
+// out-of-scope. Deleted per R352 rather than left as unreferenced dead code.
+// 2026-07-21/P756: `deriveTechnicalModel` (src/domain/technical/indicators.js) is RETIRED — it was
+// an independently-invented MA20/50 toy with no legacy formula behind it, superseded by
+// deriveTechnicalStageFromOhlcv (src/domain/technical/stage.js), which composes real closes-derived
+// SMAs with the already-extracted, already-parity-verified classifyMovingAverageStructure below.
+// It's no longer part of this file's smoke set (real assertions live in
+// scripts/ci-esm-core-unit-check.mjs instead, matching how the breadth-participation classifier is
+// covered) — normalizeAnalysis's real caller now uses it directly.
+// 2026-07-21/P757: `deriveMacroModel` (src/domain/macro/model.js) is RETIRED — zero real callers,
+// no legacy formula behind its twoYear/tenYear slope-only shape. Superseded by
+// deriveTreasuryCurveEvidence (src/domain/macro/treasury-curve.js) below, extracted for real from
+// js/aio-core.js:window.AIO.getUsTreasuryCurveEvidence with a golden-fixture dump (see
+// architecture/fixtures/macro-curve-golden.json) — the first REAL parity for the "macro" domain.
+// 2026-07-21/P758: `derivePortfolioRisk` (src/domain/portfolio/risk.js) is RETIRED — zero real
+// callers, and its 20%/40% concentration bands were unrelated to legacy's actual 10%/15%/25%
+// concentrationPenalty tiers. Superseded by deriveConcentrationRisk (src/domain/portfolio/
+// concentration.js), extracted for real from js/aio-core.js's calcPortfolioTechnicalRisk/
+// calcPositionTechnicalRisk (concentration slice only, not the full sell-pressure/heatScore
+// model) — see architecture/fixtures/portfolio-concentration-golden.json.
+// P761 retired the market and screener smoke models: both had zero real callers and no
+// corresponding legacy formula. Market uses the canonical snapshot/quote state directly, and
+// screener uses the extracted factor-ranks model. The remaining signal decision is still
+// smoke-only until ARX-11 replaces it with the real trading-score-derived orchestration. The
+// old same-fixture "live"/"backtest" comparison could only catch an import/crash regression, not
+// a real divergence, so it must not be used as evidence of parity. RM-03 item 2 measured that
+// F&G has no local synthesis to extract (the score is fetched pre-computed from CNN, never derived
+// from sub-indicators in this codebase — see _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md
+// F-12) and that the signal toy had zero live consumers beyond `.status`. P762/ARX-11 now maps the
+// canonical trading-score model into the signal envelope; the model-version assertion below is a
+// smoke guard for that mapping, while the trading-score golden fixtures provide the real formula
+// parity. Do not read this mapping check as an independent signal prediction backtest.
 const inputVersion = 'fixture-input.v1';
-const live = {
-  market: deriveMarketModel({ quotes: { SPY: { value: 500, pct: 1 } }, inputVersion }),
-  macro: deriveMacroModel({ metrics: { twoYear: 4.2, tenYear: 4.4 }, inputVersion }),
-  portfolio: derivePortfolioRisk({ holdings: [{ value: 600 }, { value: 400 }], inputVersion }),
-  screener: deriveScreenerRanking({ rows: [{ symbol: 'AAA', score: 90 }, { symbol: 'BBB', score: 70 }], inputVersion }),
-  news: deriveNewsClaim({ title: 'Fixture headline', source: 'fixture', url: 'https://example.com', inputVersion }),
-  technical: deriveTechnicalModel({ symbol: 'SPY', ohlcv: Array.from({ length: 50 }, (_, index) => ({ close: 450 + index })), inputVersion })
-};
-const backtest = {
-  market: deriveMarketModel({ quotes: { SPY: { value: 500, pct: 1 } }, inputVersion }),
-  macro: deriveMacroModel({ metrics: { twoYear: 4.2, tenYear: 4.4 }, inputVersion }),
-  portfolio: derivePortfolioRisk({ holdings: [{ value: 600 }, { value: 400 }], inputVersion }),
-  screener: deriveScreenerRanking({ rows: [{ symbol: 'AAA', score: 90 }, { symbol: 'BBB', score: 70 }], inputVersion }),
-  news: deriveNewsClaim({ title: 'Fixture headline', source: 'fixture', url: 'https://example.com', inputVersion }),
-  technical: deriveTechnicalModel({ symbol: 'SPY', ohlcv: Array.from({ length: 50 }, (_, index) => ({ close: 450 + index })), inputVersion })
-};
-for (const key of Object.keys(live)) {
-  if (live[key].modelVersion !== backtest[key].modelVersion || live[key].inputVersion !== backtest[key].inputVersion) fail(`PARITY_VERSION_MISMATCH:${key}`);
-}
-const signal = deriveSignalDecision({ technical: live.technical.indicators, sentiment: { fearGreed: 40 }, market: { breadthAdvanceRatio: 1.1 }, inputVersion });
+const signalScore = computeTradingScoreModel({ mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, fg: 50, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, pcr: 1, hyBp: 300, newsSentimentScore: 50, newsRiskSignals: [] });
+const signal = deriveSignalDecisionFromTradingScore({ score: signalScore, inputVersion });
 if (signal.status === 'blocked' || !signal.modelVersion) fail('PARITY_SIGNAL_BLOCKED');
 
 // ── REAL parity: computeTradingScoreModel vs golden legacy dump ──────────────────────────────
@@ -190,4 +194,110 @@ for (const fixture of newsGolden.fixtures) {
   }
 }
 
-console.log(JSON.stringify({ ok: true, inputVersion, models: Object.fromEntries(Object.entries(live).map(([key, value]) => [key, value.modelVersion])), tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsScoringParity: { fixtures: newsGolden.fixtures.length } }));
+// ── REAL parity: deriveTreasuryCurveEvidence vs golden legacy dump (getUsTreasuryCurveEvidence) ──
+const macroCurveGoldenPath = path.join(root, 'architecture/fixtures/macro-curve-golden.json');
+const macroCurveGolden = JSON.parse(readFileSync(macroCurveGoldenPath, 'utf8'));
+if (!Array.isArray(macroCurveGolden.fixtures) || macroCurveGolden.fixtures.length < 5) fail('macro-curve golden fixture missing or too small — re-run scripts/dump-macro-curve-fixtures.mjs');
+const CURVE_FIELDS = ['threeM', 'twoY', 'fiveY', 'tenY', 'thirtyY', 'spread2s10s', 'available', 'complete', 'source'];
+for (const fixture of macroCurveGolden.fixtures) {
+  const s = fixture.inputs;
+  const extracted = deriveTreasuryCurveEvidence({
+    live: { irx: s.liveData?.['^IRX']?.price ?? null, twoY: s.live2Y ?? null, fvx: s.liveData?.['^FVX']?.price ?? null, tnx: s.liveData?.['^TNX']?.price ?? null, tenYRaw: s.live10Y ?? null, tyx: s.liveData?.['^TYX']?.price ?? null, thirtyYRaw: s.live30Y ?? null },
+    fred: { dgs3mo: s.fredData?.DGS3MO?.value ?? null, dgs2: s.fredData?.DGS2?.value ?? null, dgs5: s.fredData?.DGS5?.value ?? null, dgs10: s.fredData?.DGS10?.value ?? null, dgs30: s.fredData?.DGS30?.value ?? null, t10y2y: s.fredData?.T10Y2Y?.value ?? null },
+    snapshot: { irx: s.snapshot?.irx ?? null, fvx: s.snapshot?.fvx ?? null, tnx: s.snapshot?.tnx ?? null, tyx: s.snapshot?.tyx ?? null, t10y2y: s.snapshot?.t10y2y ?? null }
+  });
+  for (const field of CURVE_FIELDS) {
+    if (extracted[field] !== fixture.legacyOutput[field]) {
+      fail(`MACRO_CURVE_PARITY_MISMATCH:${fixture.name}.${field} extracted=${JSON.stringify(extracted[field])} golden=${JSON.stringify(fixture.legacyOutput[field])}`);
+    }
+  }
+}
+
+// ── REAL parity: deriveConcentrationRisk vs golden legacy dump (calcPortfolioTechnicalRisk,
+// concentration slice only — sellPressure isolated to 0 via empty-ohlcv riskItems in the dump) ──
+const portfolioGoldenPath = path.join(root, 'architecture/fixtures/portfolio-concentration-golden.json');
+const portfolioGolden = JSON.parse(readFileSync(portfolioGoldenPath, 'utf8'));
+if (!Array.isArray(portfolioGolden.fixtures) || portfolioGolden.fixtures.length < 5) fail('portfolio-concentration golden fixture missing or too small — re-run scripts/dump-portfolio-concentration-fixtures.mjs');
+for (const fixture of portfolioGolden.fixtures) {
+  const { positions, context } = fixture.inputs;
+  const extracted = deriveConcentrationRisk({ positions, totalValue: context?.totalValue ?? null });
+  const goldenTopWeight = fixture.legacyOutput.topWeightPct ?? 0;
+  if (Math.abs((extracted.topWeightPct || 0) - goldenTopWeight) > 1e-9) {
+    fail(`PORTFOLIO_CONCENTRATION_PARITY_MISMATCH:${fixture.name}.topWeightPct extracted=${extracted.topWeightPct} golden=${goldenTopWeight}`);
+  }
+  const goldenItems = fixture.legacyOutput.items || [];
+  if (extracted.items.length !== goldenItems.length) {
+    fail(`PORTFOLIO_CONCENTRATION_PARITY_MISMATCH:${fixture.name}.items.length extracted=${extracted.items.length} golden=${goldenItems.length}`);
+  }
+  for (let i = 0; i < goldenItems.length; i++) {
+    if (Math.abs(extracted.items[i].weightPct - goldenItems[i].weightPct) > 1e-9) {
+      fail(`PORTFOLIO_CONCENTRATION_PARITY_MISMATCH:${fixture.name}.items[${i}].weightPct extracted=${extracted.items[i].weightPct} golden=${goldenItems[i].weightPct}`);
+    }
+    // sellPressure is isolated to score:0 in the dump (empty-ohlcv riskItems), so the legacy
+    // item's own .score IS exactly its concentrationPenalty for every fixture here.
+    if (extracted.items[i].concentrationPenalty !== goldenItems[i].score) {
+      fail(`PORTFOLIO_CONCENTRATION_PARITY_MISMATCH:${fixture.name}.items[${i}].concentrationPenalty extracted=${extracted.items[i].concentrationPenalty} golden(item.score)=${goldenItems[i].score}`);
+    }
+  }
+}
+
+// ── REAL parity: computeFactorRanks vs golden legacy dump (_aioComputeFactorRanks) ───────────────
+// 6 fixtures: 5 synthetic (multi-sector/blend-fallback/size-inactive/value-quality-inactive/NaN-
+// mixed) + 1 real currently-loaded SCREENER_DB snapshot (873 rows) — the latter hits legacy's
+// items.length<5 early-return (this offline test harness blocks the network enrichment fetch that
+// populates ret1m/ret3m on the real seed data), so it only asserts the fail-closed shape, not row
+// computation; the 5 synthetic fixtures carry the real per-row/per-global parity coverage.
+const factorRanksGoldenPath = path.join(root, 'architecture/fixtures/factor-ranks-golden.json');
+const factorRanksGolden = JSON.parse(readFileSync(factorRanksGoldenPath, 'utf8'));
+if (!Array.isArray(factorRanksGolden.fixtures) || factorRanksGolden.fixtures.length < 5) fail('factor-ranks golden fixture missing or too small — re-run scripts/dump-factor-ranks-fixtures.mjs');
+for (const fixture of factorRanksGolden.fixtures) {
+  const { rows, serverScreener } = fixture.inputs;
+  const extracted = computeFactorRanks({
+    rows,
+    // every fixture ran with window.AIO.marketState unset -> legacy _aioFactorWeights(null) still
+    // resolves the real NEUTRAL constant (not this module's own "_aioFactorWeights is unavailable"
+    // fallback, which is a DIFFERENT, deliberately-not-invoked-here literal) -> use the dumped
+    // activeFactorWeights, exactly what the real wrapper would pass through after calling legacy
+    // _aioFactorWeights() itself.
+    weights: fixture.legacyOutput.activeFactorWeights,
+    regimeLabel: '중립 → 균형 가중',
+    fundamentalCoveragePct: Number(serverScreener?.fundamentalCoveragePct || 0),
+    fmpOk: !!serverScreener?.fmpOk,
+    now: Date.parse(factorRanksGolden.generatedAt)
+  });
+  if (fixture.legacyOutput.summary === null) {
+    if (extracted.available !== false) fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name} legacy returned null (insufficient items) but extracted.available=${extracted.available}`);
+    continue;
+  }
+  if (extracted.ranked !== fixture.legacyOutput.summary.ranked) fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name}.ranked extracted=${extracted.ranked} golden=${fixture.legacyOutput.summary.ranked}`);
+  const extractedFactors = [...extracted.activeFactors].sort();
+  const goldenFactors = [...(fixture.legacyOutput.activeFactors || [])].sort();
+  if (JSON.stringify(extractedFactors) !== JSON.stringify(goldenFactors)) fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name}.activeFactors extracted=${JSON.stringify(extractedFactors)} golden=${JSON.stringify(goldenFactors)}`);
+  for (const key of ['size', 'value', 'quality']) {
+    if (extracted.inactiveFactorReasons[key] !== (fixture.legacyOutput.inactiveFactorReasons || {})[key]) {
+      fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name}.inactiveFactorReasons.${key} extracted=${JSON.stringify(extracted.inactiveFactorReasons[key])} golden=${JSON.stringify((fixture.legacyOutput.inactiveFactorReasons || {})[key])}`);
+    }
+  }
+  const goldenRowsBySym = new Map((fixture.legacyOutput.rows || []).map((row) => [row.sym, row]));
+  if (extracted.rows.length !== goldenRowsBySym.size) fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name}.rows.length extracted=${extracted.rows.length} golden=${goldenRowsBySym.size}`);
+  for (const row of extracted.rows) {
+    const goldenRow = goldenRowsBySym.get(row.sym);
+    if (!goldenRow) fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name} extracted row sym=${row.sym} missing from golden`);
+    if (row.rank !== goldenRow.rank || row.quantSignal !== goldenRow.quantSignal) {
+      fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name}.rows[sym=${row.sym}] rank/quantSignal extracted=${row.rank}/${row.quantSignal} golden=${goldenRow.rank}/${goldenRow.quantSignal}`);
+    }
+    if (Math.abs(row._compositeZ - goldenRow._compositeZ) > 1e-9) {
+      fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name}.rows[sym=${row.sym}]._compositeZ extracted=${row._compositeZ} golden=${goldenRow._compositeZ}`);
+    }
+    for (const key of extracted.activeFactors) {
+      if (row.factorScores[key] !== goldenRow.factorScores[key]) {
+        fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name}.rows[sym=${row.sym}].factorScores.${key} extracted=${row.factorScores[key]} golden=${goldenRow.factorScores[key]}`);
+      }
+      if (Math.abs((row['_z_' + key] || 0) - (goldenRow['_z_' + key] || 0)) > 1e-9) {
+        fail(`FACTOR_RANKS_PARITY_MISMATCH:${fixture.name}.rows[sym=${row.sym}]._z_${key} extracted=${row['_z_' + key]} golden=${goldenRow['_z_' + key]}`);
+      }
+    }
+  }
+}
+
+console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsScoringParity: { fixtures: newsGolden.fixtures.length }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length } }));

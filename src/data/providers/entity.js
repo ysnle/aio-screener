@@ -24,6 +24,7 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
       const fetchedFundamentals = id && table[id] ? { ...table[id] } : null;
       return Object.freeze({
         id,
+        name: value.name || id,
         quote: value.quote || null,
         fundamentals: fetchedFundamentals || value.fundamentals || null,
         options: value.options || null,

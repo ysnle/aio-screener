@@ -63,6 +63,10 @@ const core = read('js/aio-core.js');
 const data = read('js/aio-data.js');
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
+const screenerPage = read('src/ui/pages/screener.js');
+const screenerProvider = read('src/data/providers/screener.js');
+const newsPage = read('src/ui/pages/news.js');
+const marketPage = read('src/ui/pages/market.js');
 const html = read('index.html');
 const qa = read('_context/QA-CHECKLIST.md');
 const rules = read('_context/RULES.md');
@@ -224,7 +228,7 @@ check('BLS direct adapter is keyless, bounded, cadence-gated, and merged as type
 // rather than implying the full live composite rank is validated.
 check('server backtest discloses its excluded factors and fixed weight regime', /excludedFactors/.test(fetchData) && /weightRegime:\s*'NEUTRAL'/.test(fetchData) && /excludedFactorsReason/.test(fetchData));
 check('server backtest accumulates an IC time series artifact', /updateBacktestHistory/.test(fetchData) && /public-data\/backtest-history\.json/.test(fetchData));
-check('client backtest panel surfaces the excluded-factors/weight-regime disclosure, not a blanket "validated" claim', /bt\.excludedFactors/.test(data) && /bt\.weightRegime/.test(data) && !/종합 랭크가 검증 기반/.test(data));
+check('client backtest panel surfaces the excluded-factors/weight-regime disclosure, not a blanket "validated" claim', /backtest\.excludedFactors/.test(screenerPage) && /backtest\.weightRegime/.test(screenerPage) && /실시간 적응형 종합 랭크 검증 아님/.test(screenerPage) && !/종합 랭크가 검증 기반/.test(data + screenerPage));
 
 // P587/R265/C6: dividend-unadjusted close systematically understates momentum/trend for
 // high-yield names (measured: KO 6m return understated by 1.56pp raw vs adjusted). Factor/backtest
@@ -324,10 +328,10 @@ check('telegram digest regenerates narrative and all-page routing from current a
 check('telegram ticker extraction expands through SCREENER_DB aliases', /loadScreenerAliases/.test(fetchTelegram) && /SCREENER_ALIASES/.test(fetchTelegram) && /screener alias load failed/.test(fetchTelegram));
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));
-check('app applies quotes, macro, F&G, news, telegram, LLM, screener', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyServerScreener/.test(data));
+check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener metadata', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(data));
 check('app gates and applies screener breadth with observation time and coverage', /_aioApplyScreenerBreadth/.test(data) && /breadthScreener/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data));
 check('quant readiness blocks trading claims until model parity and predictive validation pass', /getQuantReadinessAudit/.test(data) && /liveModelParity/.test(data) && /predictiveValidation/.test(data) && /research-relative-ranking-only/.test(data) && /매매 신호 아님/.test(data));
-check('app only merges versioned log-scale Kalman screener fields', /f\.kalmanScale\s*===\s*'log_pct_day'/.test(data) && /sd\.backtest\.kalmanScale\s*===\s*'log_pct_day'/.test(data) && /legacy_kalman_scale/.test(data) && /kalmanVelConf/.test(data) && /kalmanInnovZ/.test(data));
+check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && /legacy_kalman_scale/.test(data));
 check('app exposes public-data operational meta', /window\._serverDataMeta/.test(data) && /fredHasKey/.test(data) && /marketAnalysisOk/.test(data) && /telegramMemoOverlay/.test(data));
 check('core data pipeline audit exposes publicData', /getDataPipelineAudit/.test(core) && /publicData/.test(core) && /server FRED_API_KEY not configured/.test(core) && /server LLM market analysis unavailable/.test(core));
 check('operational health includes data pipeline', /getOperationalHealth/.test(core) && /dataPipeline/.test(core));
@@ -336,12 +340,16 @@ check('chat consumes news context and screener memo', /_buildNewsContext/.test(c
 check('news Korean translation and local insight fallback are wired', /_aioBuildNewsLocalKoreanInsight/.test(data) && /_aioGetNewsTranslation/.test(data) && /ko_explain/.test(data) && /getNewsTranslationQualityAudit/.test(data));
 check('news Korean rewrite brief is wired to market news surface', /_aioBuildNewsKoreanRewriteBrief/.test(data) && /_aioRenderNewsKoreanRewriteBrief/.test(data) && /ko_rewrite/.test(data) && /ko_section/.test(data) && /ko_market/.test(data) && /news-korean-rewrite-brief/.test(read('index.html')));
 check('market news visible fallback avoids raw English titles', /_aioBuildNewsVisibleFallbackTitle/.test(data) && !/\[EN\]\s*'\s*\+/.test(data) && !/\[번역 중\]\s*'\s*\+\s*\(item\.title/.test(data));
-check('market news rewrite surface consumes server/RSS items before Telegram fallback', /_aioRenderMarketNewsRewriteSurfaces/.test(data) && /_aioRenderNewsKoreanRewriteBrief\(items \|\| \[\], 'news-korean-rewrite-brief'\)/.test(data));
+check('market news native surface consumes normalized server/RSS items before Telegram fallback', /buildNewsSurfaceModel/.test(newsPage) && /selectNewsItems/.test(newsPage) && /_aioApplyNewsBackstop/.test(data) && /_aioApplyTelegramDigestToScreenerDb/.test(data) && /news-korean-rewrite-brief/.test(read('index.html')));
 check('news selection audit exposes score criteria and surface eligibility', /getNewsSelectionAudit/.test(data) && /scoreBuckets/.test(data) && /scoreReasons/.test(data) && /homeEligible/.test(data) && /marketNewsEligible/.test(data) && /unverified=-8/.test(data));
 check('server news backstop preserves score tier and news-cycle metadata', /newsCycleStart/.test(data) && /newsCycleEnd/.test(data) && /serverCycleTrusted/.test(data) && /isFinite\(Number\(n\.score\)\)/.test(data));
 check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /filterByKst0800NewsCycle/.test(data) && /newsCycle:\s*cycleWindow/.test(data));
 check('market-news UI labels match KST 08:00 completed 24h contract', /08:00 KST 완료 24h/.test(marketNewsHtml) && /08:00~08:00 KST 완료 24h/.test(marketNewsHtml) && !/최근 48시간|48시간 이내|필터:\s*48시간/.test(marketNewsHtml));
-check('market-news empty state uses 24h completed-cycle wording', /08:00 KST 완료 24h/.test(newsEmptyBlock) && !/최근 48시간/.test(newsEmptyBlock));
+check('market-news empty state uses 24h completed-cycle wording', /08:00 KST 완료 24h/.test(newsPage) && !/48.?\uC2DC\uAC04/.test(newsPage));
+check('briefing primary feed has a native owner and no legacy primary DOM writer', /route === 'briefing'/.test(newsPage) && /briefing-live-news-list/.test(newsPage) && /briefing-24h-count/.test(newsPage) && /briefing-24h-ts/.test(newsPage) && /aioBriefingRenderer/.test(newsPage) && !/briefing-live-news-list/.test(core) && !/briefing-live-news-list/.test(data));
+check('macro primary quote/FRED surface has a native owner and legacy writers fence native elements', /renderLiveQuotes/.test(marketPage) && /renderSnapshotMetrics/.test(marketPage) && /aioMacroRenderer/.test(marketPage) && /_aioIsNativeMacroElement/.test(data) && /_aioIsNativeMacroElement\(el\)/.test(data) && /closest\('#page-macro\[data-aio-architecture-renderer="native"\]'\)/.test(data) && /closest\('#page-macro\[data-aio-architecture-renderer="native"\]'\)/.test(core));
+check('fxbond primary quote/MOVE surface has a native owner and legacy writers fence native elements', /renderFxbond/.test(marketPage) && /aioFxbondRenderer/.test(marketPage) && /function _aioIsNativeFxbondElement/.test(data) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(data) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(core) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(html));
+check('breadth primary current-metric surface has a native artifact owner and legacy writers fence native elements', /renderBreadth/.test(marketPage) && /aioBreadthRenderer/.test(marketPage) && /getScreenerState/.test(marketPage) && /function _aioIsNativeBreadthElement/.test(data) && /_aioIsNativeBreadthElement\(el\)/.test(data) && /_aioIsNativeBreadthElement\(el\)/.test(read('js/aio-ui.js')) && /page-breadth\[data-aio-architecture-renderer="native"\]/.test(core));
 check('news consumers do not directly reuse rolling 48h newsCache filters', !/filterByAge\(newsCache,\s*48\)/.test(data) && !/48시간 이내 한국 관련 뉴스|뉴스 피드 자동 추출[\s\S]{0,80}48시간/.test(html));
 check('chat consumes Korean news translation context', /_aioGetNewsTranslation/.test(chat) && /ko_rewrite/.test(chat) && /ko_market/.test(chat) && /ko_explain/.test(chat) && /ko_impact/.test(chat) && /ko_action/.test(chat));
 check('Telegram digest reaches SCREENER_DB memo', /_aioApplyTelegramDigestToScreenerDb/.test(data) && /_telegramMemoOverlay/.test(data) && /memoOverlay/.test(data));

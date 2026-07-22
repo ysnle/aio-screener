@@ -23,6 +23,10 @@ import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
+import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
+import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
+import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
+import { deriveFactorWeights } from '../domain/screener/factor-weights.js';
 import { createMarketSnapshotLoader } from '../data/market-snapshot-loader.js';
 import { createSentimentProvider } from '../data/providers/sentiment.js';
 import { createSentimentOrchestrator } from '../data/orchestrators/sentiment.js';
@@ -179,13 +183,21 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const portfolioVault = createPrivacyVault({ storage: portfolioStorage, key: 'portfolio', consent: () => root?._portfolioVaultConsent === true });
   const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: legacy.readPortfolio, repository: portfolioVault }), commands: portfolioCommands });
   const screenerCommands = createScreenerCommands({ store });
-  // ARX-04 first slice: screener's provider fetches public-data/screener.json directly through
-  // the platform httpClient gateway instead of projecting legacy's SCREENER_DB global — see
-  // src/data/providers/screener.js. This is additive (legacy's own fetch/_aioApplyServerScreener
-  // and SCREENER_DB stay exactly as they were); nothing currently renders from this native slice
-  // (RM-01 stripped src/ui/pages/screener.js down to a dataset marker), so there is no blast
-  // radius to the live screener page.
-  const syncScreener = createScreenerOrchestrator({ provider: createScreenerProvider({ httpClient }), commands: screenerCommands });
+  // ARX-10: the native provider/orchestrator feeds the native screener renderer from the
+  // published artifact + identity universe. Legacy SCREENER_DB/profile/watchlist helpers remain
+  // compatibility boundaries for non-cut-over consumers; the native route does not read legacy
+  // DOM projections.
+  const syncScreener = createScreenerOrchestrator({
+    provider: createScreenerProvider({ httpClient, readLiveData: () => root?._liveData || {} }),
+    commands: screenerCommands,
+    ranker: computeFactorRanks,
+    rankingContext: () => {
+      const profileKey = typeof root?._aioGetActiveProfile === 'function' ? root._aioGetActiveProfile() : 'balanced';
+      const profile = profileKey && root?.AIO_TRADER_PROFILES ? root.AIO_TRADER_PROFILES[profileKey] : null;
+      const resolved = deriveFactorWeights({ marketState: root?.AIO?.marketState || null, profile: profileKey === 'balanced' ? null : profile });
+      return { weights: resolved?.weights || null, regimeLabel: resolved?.regimeLabel || null, now: clock.now() };
+    }
+  });
   const analysisCommands = createAnalysisCommands({ store });
   const syncAnalysis = createAnalysisOrchestrator({ provider: createAnalysisProvider({ read: legacy.readAnalysis }), commands: analysisCommands });
 
@@ -203,11 +215,33 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules.fundamental = createEntityPage({ documentRef, store, route: 'fundamental' });
   modules.options = createEntityPage({ documentRef, store, route: 'options' });
   modules.portfolio = createPortfolioPage({ documentRef, store });
-  modules.screener = createScreenerPage({ documentRef, store });
+  modules.screener = createScreenerPage({
+    documentRef,
+    store,
+    root,
+    readLiveData: () => root?._liveData || {},
+    readWatchlist: () => root?._aioWatchlistGet?.() || [],
+    readAliases: () => root?.SCR_KEYWORD_ALIASES || {},
+    onTicker: (symbol) => {
+      if (typeof root?._aioScreenerTicker === 'function') return root._aioScreenerTicker(symbol);
+      return root?.showTicker?.(symbol);
+    },
+    onWatchlistToggle: (symbol) => root?._aioWLToggle?.(symbol),
+    onProfileChange: (profile) => profile ? syncScreenerData() : null
+  });
   modules.home = createAnalysisPage({ documentRef, store, route: 'home' });
   modules.signal = createAnalysisPage({ documentRef, store, route: 'signal' });
   modules.technical = createAnalysisPage({ documentRef, store, route: 'technical' });
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock } });
+
+  function syncScreenerData() {
+    return syncScreener.sync().then((result) => {
+      if (result) {
+        eventTarget.dispatchEvent(new CustomEvent('aio:nativeScreenerReady', { detail: result }));
+      }
+      return result;
+    });
+  }
 
   function start() {
     syncSentimentProjection();
@@ -216,7 +250,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     syncThemes.sync();
     syncEntity.sync();
     syncPortfolio.sync();
-    syncScreener.sync();
+    syncScreenerData();
     syncAnalysis.sync();
     // RM-02: aio:liveQuotes previously ran 6 independent listeners (one dispatch each,
     // any of which could be redundant if quotes ticked again before the previous
@@ -239,11 +273,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopMarketRefresh = legacy.on('aio:refresh:done', syncMarket.sync);
     const stopMarketSnapshot = legacy.on('aio:marketSnapshot', syncMarket.sync);
     const stopThemesRefresh = legacy.on('aio:refresh:done', syncThemes.sync);
+    const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
     const stopEntityRefresh = legacy.on('aio:refresh:done', syncEntity.sync);
     const stopEntityShown = legacy.on('aio:pageShown', syncEntity.sync);
     const stopPortfolioShown = legacy.on('aio:pageShown', syncPortfolio.sync);
-    const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreener.sync);
-    const stopScreenerShown = legacy.on('aio:pageShown', syncScreener.sync);
+    const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreenerData);
+    const stopScreenerShown = legacy.on('aio:pageShown', syncScreenerData);
     const stopAnalysisRefresh = legacy.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', syncAnalysis.sync);
     const stopShown = legacy.on('aio:pageShown', (event) => {
@@ -281,6 +316,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopMarketRefresh();
       stopMarketSnapshot();
       stopThemesRefresh();
+      stopThemesHistory();
       stopEntityRefresh();
       stopEntityShown();
       stopPortfolioShown();
@@ -307,6 +343,26 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     start,
     router,
     getState: () => store.getState(),
+    getScreenerState: () => store.getState()?.screener || null,
+    // ARX-16 compatibility read boundary: non-route consumers may read the
+    // canonical native screener rows without reaching into the store shape.
+    // Legacy rows only fill fields the native artifact does not publish yet.
+    getScreenerRows: () => {
+      const nativeRows = store.getState()?.screener?.rows;
+      const legacyRows = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : [];
+      if (!Array.isArray(nativeRows) || nativeRows.length === 0) return legacyRows;
+      const legacyBySymbol = new Map(legacyRows.map((row) => [String(row?.sym || row?.symbol || '').toUpperCase(), row]));
+      return nativeRows.map((row) => {
+        const legacy = legacyBySymbol.get(String(row?.sym || row?.symbol || '').toUpperCase()) || {};
+        const merged = { ...row };
+        for (const key of Object.keys(legacy)) {
+          if (merged[key] == null || (key === 'factorScores' && Object.keys(merged[key] || {}).length === 0)) {
+            merged[key] = legacy[key];
+          }
+        }
+        return merged;
+      });
+    },
     getEvidence: (metric) => metric ? evidenceStore.get(metric) : evidenceStore.snapshot(),
     getMarketSnapshot: () => marketSnapshot,
     getSentimentSummary: () => selectSentimentSummary(store.getState()),
@@ -328,6 +384,23 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // classifier — deliberately NOT reusing classifyMovingAverageStructure (single-symbol price MA
     // stack, categorically different input) or the RSP/SPY-ratio breadth-signal-val logic.
     ,classifyBreadthParticipation
+    // RM-03 continued (2026-07-21, P757): single-implementation treasury-curve/2s10s model —
+    // js/aio-core.js's getUsTreasuryCurveEvidence wrapper calls this instead of keeping its own
+    // copy of the multi-source fallback formula (R352/F-03).
+    ,deriveTreasuryCurveEvidence
+    // RM-03 continued (2026-07-21, P758): concentration-risk slice of calcPortfolioTechnicalRisk/
+    // calcPositionTechnicalRisk. concentrationPenaltyForWeight is the single-implementation tier
+    // ladder js/aio-core.js's calcPositionTechnicalRisk now calls instead of its own copy;
+    // deriveConcentrationRisk is exposed for future portfolio-route native consumers (not yet
+    // wired to any UI — the portfolio orchestrator's data source is the encrypted Vault, a
+    // different shape than this slice's positions/OHLCV-derived risk model).
+    ,deriveConcentrationRisk
+    ,concentrationPenaltyForWeight
+    // RM-03 continued (2026-07-21, P759): the legacy screener ranking wrapper resolves its
+    // existing profile/regime inputs and projects this pure model back onto SCREENER_DB; native
+    // consumers can use the same implementation without importing legacy globals (R352/F-03).
+    ,computeFactorRanks
+    ,deriveFactorWeights
   };
   exposeArchitecture(root, api);
   return Object.freeze({ ...api, store, evidenceStore });

@@ -1,8 +1,8 @@
 ---
-verified_by: agent (Fable 5)
-last_verified: 2026-07-18
+verified_by: agent (Fable 5) + Codex P761-P780 verification
+last_verified: 2026-07-22
 confidence: high
-target_version: v53.16
+target_version: v53.17
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -16,6 +16,40 @@ target_version: v53.16
 **P738 reinforcement**: Runtime contract checks must accept the current native ESM owner and its compatibility boundary when a route is cut over; retired legacy declaration/call-site markers must not remain deploy blockers. The same gate must still assert the native fail-closed state and source-specific freshness behavior.
 
 **P739 reinforcement**: Native route cutovers must keep hidden compatibility sinks synchronized, allow explicit live/provider patches to override snapshot evidence, register the native route in shared narrative refresh boundaries, and make every derived-route redirect consume its semantic pending selection before the route-settle gate runs.
+
+**P759 reinforcement**: Domain extraction must remove the executable legacy formula in the same batch; a pure module plus a parity fixture is not enough. The compatibility wrapper may retain only explicit input resolution and legacy projection, and the new domain module must be registered in bootstrap, facade, and service-worker assets before the batch is marked `VERIFIED_LOCAL`.
+
+**P760 reinforcement**: A native route cutover is incomplete while a legacy DOM writer or retired action helper remains in the aggregate. Transfer renderer/state ownership, delete the competing writer/call sites, update route ownership and retirement ledgers, then rerun browser and headless gates. Compatibility storage/data projections may remain only when their non-route consumers are documented.
+
+**P763/P764 reinforcement**: Compatibility wrappers may resolve storage, profile, identity, and memo inputs, but deterministic model math must live in one pure domain owner. Non-route consumers must read canonical native state through an explicit boundary; legacy projections may remain only as documented enrichment or pipeline SSOT until their consumers are migrated.
+
+**P765 reinforcement**: Native renderer counts must be re-derived from route ownership before accepting a cutover. Once a route is counted native, AG-DOM-WRITER must include deferred compatibility callbacks and their call sites; removing a visible table/action writer is insufficient if a legacy readiness/status writer still targets the same node.
+
+**P768 reinforcement**: When a native provider/orchestrator becomes the runtime owner of an artifact, legacy loaders must not fetch the same artifact or bulk-project its rows into a compatibility DB. Keep only an explicit metadata/breadth bridge plus documented identity/memo overlays, and enforce the single-fetch boundary with a source-level contract and browser/headless verification.
+
+**P769 reinforcement**: A route renderer cutover must remove every legacy writer for its primary container, including loading/error/count/progressive paths. Filter and translation handlers may remain only as explicit input or invalidation compatibility boundaries, and the native marker must be asserted by the browser gate before the next route cutover begins.
+
+**P770 reinforcement**: A complex content route may retain secondary narrative/AI compatibility producers only when the primary feed container, count, timestamp, loading/error, and reveal controls have one native owner. Legacy AI generation may dispatch invalidation or publish an adapter result, but it must not write the primary container directly.
+
+**P771 reinforcement**: A bounded native metric surface must fence every legacy global writer that can reach the same native route subtree. For macro, the native module owns primary live quote and FRED snapshot sinks; legacy quote/snapshot/FRED/BOK/KOSIS passes may continue serving secondary compatibility surfaces only when they explicitly skip `#page-macro[data-aio-architecture-renderer="native"]`. Curve/chart/event-freshness/narrative ids must remain listed as legacy secondary boundaries until their own writer packet is complete.
+
+**P772 reinforcement**: The same bounded-surface rule applies when a shared market module owns a second route. For fxbond, `market.js` owns every primary `[data-live-price]`, `[data-live-chg]`, and `[data-snap="move"]` sink; legacy global quote/snapshot passes must skip `#page-fxbond[data-aio-architecture-renderer="native"]`. Risk pills, spread/carry narrative, and trend/yield-curve charts remain secondary legacy boundaries until their own writer packet is complete.
+
+**P773 reinforcement**: For breadth, `market.js` owns the current timestamped screener-artifact 5/20/50SMA cards, their bar/freshness readouts, and the canonical advance-ratio sink. Prefer `AIO_ARCH.getScreenerState().metadata.breadth.segments.us`; use `AIO.getCurrentBreadthEvidence()` only as a compatibility fallback. Legacy snapshot/init/bar/advance writers must skip `#page-breadth[data-aio-architecture-renderer="native"]` primary elements. Do not promote absent multi-day breadth history, McClellan/RSP-SPY narrative, or historical charts into the native primary owner without a separate evidence and writer packet.
+
+**P774 reinforcement**: Completing a native content cutover also requires retiring declaration-only legacy functions and only-dependent helpers left after caller/writer removal. Update structural and browser/headless contracts in the same packet so a retired native owner is asserted as absent rather than preserved as a false compatibility requirement.
+
+**P775 reinforcement**: A bounded themes cutover may claim only the RRG quadrant cards and rotation-read surface backed by normalized theme state. Keep the RRG chart/canvas status and `theme-detail` as explicit secondary legacy boundaries until their own writer/data packets are complete; never promote static seed values or unavailable relative-strength data into the native primary owner.
+
+**P776 reinforcement**: A canonical redirect or derived inline view must be measured at runtime before assigning it a route owner. Retire an unreachable declaration only after a repository-wide caller search, and record the live inline writer as the remaining boundary; add a dedicated retirement assertion so the dead declaration cannot return.
+
+**P777 reinforcement**: Stable DOM IDs are part of a native route contract. Shared accessibility or normalization passes must preserve explicit IDs used by native primary sinks and generate fallback label IDs only when no explicit ID exists; browser/AG-DOM-WRITER checks must cover the resulting sink identity and values.
+
+**P778 reinforcement**: A bounded native replacement-metric surface must declare its source/provenance fields in the normalized state and fence every shared quote/snapshot/PCR writer that can reach the same subtree. A page explicitly lacking an options-chain provider may transfer only current VIX/PCR/SKEW reference metrics; no legacy chain/chart/narrative scaffolding may be implied by the native marker.
+
+**P779 reinforcement**: A fundamental route may transfer only an independently owned SEC availability/source badge when the normalized artifact has explicit coverage/provenance. The full report must remain legacy-owned while SEC coverage and SEC/FMP/Yahoo/Finnhub asynchronous writers are unresolved; the native marker must not imply that the report, charts, or AI narrative have been cut over.
+
+**P780 reinforcement**: A portfolio route may transfer an independently owned readiness/status sink from the native slice without claiming Vault/CRUD/table/risk/chart ownership. Contested holdings and totals writers must remain legacy until consent, mutation, and storage boundaries are reconciled; the status sink must fail closed and expose its operational-use lineage.
 
 ## R351. History bucket dates must not replace field-level observation provenance (v53.14, P735)
 

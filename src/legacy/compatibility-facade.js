@@ -70,7 +70,10 @@ function readMarket(root) {
 
 function readThemes(root) {
   const live = root?._liveData || {};
-  const sources = [root?.RRG_SECTORS, root?.RRG_SUBSECTORS, root?.ALL_RRG_ETFS].filter(Array.isArray).flat();
+  const sources = [
+    ...(Array.isArray(root?.RRG_SECTORS) ? root.RRG_SECTORS.map((item) => ({ ...item, view: 'sectors' })) : []),
+    ...(Array.isArray(root?.RRG_SUBSECTORS) ? root.RRG_SUBSECTORS.map((item) => ({ ...item, view: 'subsectors' })) : [])
+  ];
   const seen = new Set();
   const items = sources.filter((item) => {
     const id = String(item?.id || item?.sym || item?.symbol || '');
@@ -79,15 +82,31 @@ function readThemes(root) {
     return true;
   }).map((item) => {
     const symbol = String(item?.sym || item?.symbol || item?.id || '');
+    const history = root?._priceHistory?.[symbol] || null;
+    const benchmarkHistory = root?._priceHistory?.SPY || null;
+    const rotation = typeof root?.AIO_ARCH?.computeRelativeRotation === 'function'
+      ? root.AIO_ARCH.computeRelativeRotation({
+          history,
+          benchmarkHistory,
+          hasQuote: !!live[symbol],
+          hasBenchmarkQuote: !!live.SPY
+        })
+      : null;
+    const dailyPct = live[symbol]?.pct ?? (
+      Array.isArray(history) && history.length > 1 && Number(history[history.length - 2]) > 0
+        ? ((Number(history[history.length - 1]) / Number(history[history.length - 2])) - 1) * 100
+        : null
+    );
     return {
       id: String(item?.id || symbol),
       symbol,
       label: item?.name || item?.label || symbol,
-      pct: finite(live[symbol]?.pct),
-      rsRatio: finite(item?.rsRatio),
-      rsMomentum: finite(item?.rsMomentum),
-      quadrant: item?.quadrant || 'neutral',
-      source: item?.source || 'legacy-rrg'
+      pct: finite(dailyPct),
+      rsRatio: finite(rotation?.rsRatio ?? item?.rsRatio),
+      rsMomentum: finite(rotation?.rsMom ?? item?.rsMomentum),
+      quadrant: rotation?.quadrant || item?.quadrant || 'neutral',
+      view: item?.view || 'sectors',
+      source: rotation?.modelVersion ? `legacy-rrg:${rotation.modelVersion}` : (item?.source || 'legacy-rrg')
     };
   });
   return Object.freeze({ items, selectedId: root?._currentThemeId || null, updatedAt: new Date().toISOString() });
@@ -104,9 +123,35 @@ function readEntity(root) {
     observedAt: liveQuote.observedAt || liveQuote.timestamp || liveQuote.lastUpdated || null,
     source: liveQuote.source || 'legacy-live-data'
   } : null;
-  const options = root?._optionsAnalysisData || root?._optionsData || null;
+  const legacyOptions = root?._optionsAnalysisData || root?._optionsData || null;
+  const optionQuote = (symbol) => {
+    const row = live[symbol] || {};
+    const value = finite(row.price);
+    return {
+      value,
+      pct: finite(row.pct),
+      observedAt: row.observedAt || row.timestamp || row.lastUpdated || null,
+      source: row.source || 'legacy-live-data',
+      sourceKind: value == null ? 'unavailable' : 'live'
+    };
+  };
+  const pcrPayload = root?._lastPutCallPayload || {};
+  const snapshot = root?.DATA_SNAPSHOT || {};
+  const pcrValue = finite(root?._putCallRatio) ?? finite(pcrPayload.totalPutCall) ?? finite(snapshot.pcr);
+  const options = {
+    ...(legacyOptions ? clone(legacyOptions) : {}),
+    vix: optionQuote('^VIX'),
+    pcr: {
+      value: pcrValue,
+      observedAt: pcrPayload.asOf || pcrPayload.tradeDate || snapshot._snapshotDate || snapshot._updated || null,
+      source: pcrPayload.sourceLabel || (pcrValue == null ? 'unavailable' : 'DATA_SNAPSHOT'),
+      sourceKind: pcrValue == null ? 'unavailable' : (pcrPayload.sourceKind || (root?._putCallRatio != null ? 'delayed' : 'snapshot'))
+    },
+    skew: optionQuote('^SKEW')
+  };
   return Object.freeze({
     id,
+    name: id ? String(root?._currentTickerName || id) : null,
     quote,
     fundamentals: fundamentals ? clone(fundamentals) : null,
     options: options ? clone(options) : null,
@@ -122,9 +167,70 @@ function readPortfolio(root) {
 }
 
 function readScreener(root) {
-  const rows = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : Array.isArray(root?._aioScreenerRows) ? root._aioScreenerRows : [];
+  const nativeRows = typeof root?.AIO_ARCH?.getScreenerRows === 'function' ? root.AIO_ARCH.getScreenerRows() : null;
+  const rows = Array.isArray(nativeRows) && nativeRows.length
+    ? nativeRows
+    : Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : Array.isArray(root?._aioScreenerRows) ? root._aioScreenerRows : [];
   const metadata = root?._serverDataMeta?.screener || root?._aioScreenerLoadState || {};
   return Object.freeze({ rows: clone(rows), revision: metadata.revision || metadata.generatedAt || null, updatedAt: metadata.asOf || metadata.generatedAt || new Date().toISOString() });
+}
+
+function readTradingScoreInputs(root) {
+  const live = root?._liveData || {};
+  const snapshot = root?.DATA_SNAPSHOT || {};
+  const freshnessPolicy = root?.FRESHNESS_POLICY?.static_snapshot || {};
+  const hardStaleMs = Number(freshnessPolicy.hardStaleMs) || 7 * 24 * 60 * 60 * 1000;
+  const snapshotTs = Date.parse(String(snapshot._updated || snapshot._snapshotDate || ''));
+  const snapshotUsable = Number.isFinite(snapshotTs) && Date.now() - snapshotTs <= hardStaleMs;
+  const snapshotKeys = { '^VIX': 'vix', '^VVIX': 'vvix', '^GSPC': 'spx', '^TNX': 'tnx', 'DX-Y.NYB': 'dxy', 'CL=F': 'wti' };
+  const quote = (symbol) => {
+    const liveValue = finite(live[symbol]?.price);
+    if (liveValue != null) return liveValue;
+    const snapshotValue = finite(snapshot[snapshotKeys[symbol]]);
+    return snapshotUsable ? snapshotValue : null;
+  };
+  const closing = (symbol) => {
+    const row = live[symbol];
+    if (row) return finite(row.chartPreviousClose) ?? finite(row.previousClose) ?? finite(row.price);
+    return quote(symbol);
+  };
+  const evidence = typeof root?.AIO?.getTradingDecisionInputEvidence === 'function'
+    ? root.AIO.getTradingDecisionInputEvidence()
+    : null;
+  const verified = (id) => {
+    const row = Array.isArray(evidence?.rows) ? evidence.rows.find((candidate) => candidate.id === id) : null;
+    return row?.status === 'verified_current' ? finite(row.value) : null;
+  };
+  const canonicalFg = typeof root?.AIO?.getCanonicalMetric === 'function' ? root.AIO.getCanonicalMetric('fg') : null;
+  const breadth = typeof root?.AIO?.getCurrentBreadthEvidence === 'function' ? root.AIO.getCurrentBreadthEvidence() : null;
+  const ma = root?._spxMA || {};
+  const maTs = finite(root?._spxMATs);
+  const maCurrent = ma[50] != null && ma[200] != null && maTs != null && Date.now() - maTs <= 4 * 24 * 60 * 60 * 1000;
+  let newsSentimentScore = null;
+  let newsRiskSignals = [];
+  try {
+    if (typeof root?.computeNewsSentimentScore === 'function') newsSentimentScore = finite(root.computeNewsSentimentScore()?.score);
+    if (typeof root?.computeNewsRiskSignals === 'function') newsRiskSignals = root.computeNewsRiskSignals() || [];
+  } catch (_) {}
+  return Object.freeze({
+    mode: 'swing',
+    vix: quote('^VIX'),
+    vvix: quote('^VVIX'),
+    dxy: quote('DX-Y.NYB'),
+    tnx: quote('^TNX'),
+    oilPrice: quote('CL=F'),
+    fg: canonicalFg?.allowedUse ? finite(canonicalFg.value) : null,
+    maCurrent,
+    spx200ma: maCurrent ? finite(ma[200]) : null,
+    spx50ma: maCurrent ? finite(ma[50]) : null,
+    spxPrice: closing('^GSPC'),
+    breadthAvailable: !!breadth?.available,
+    breadth200: breadth?.available ? finite(breadth.sma20) : null,
+    pcr: verified('pcr-putcall'),
+    hyBp: verified('hy-spread-bp'),
+    newsSentimentScore,
+    newsRiskSignals
+  });
 }
 
 function readAnalysis(root) {
@@ -138,6 +244,7 @@ function readAnalysis(root) {
     technical: { symbol: id, ohlcv: clone(technicalHistory) },
     sentiment: { fearGreed: sentiment.fearGreed, vix: sentiment.vix },
     market: market.metrics,
+    tradingScoreInputs: readTradingScoreInputs(root),
     newsCount: Array.isArray(root?._allNewsItems) ? root._allNewsItems.length : 0,
     updatedAt: new Date().toISOString()
   });
@@ -208,6 +315,8 @@ export function exposeArchitecture(root, api) {
       status: 'MIGRATION_IN_PROGRESS',
       version: api.version,
        getState: api.getState,
+       getScreenerRows: api.getScreenerRows,
+       getScreenerState: api.getScreenerState,
        getEvidence: api.getEvidence,
        getMarketSnapshot: api.getMarketSnapshot,
       getSentimentSummary: api.getSentimentSummary,
@@ -221,7 +330,12 @@ export function exposeArchitecture(root, api) {
       deriveMultiTimeframeView: api.deriveMultiTimeframeView,
       computeNewsSentimentScore: api.computeNewsSentimentScore,
       computeNewsRiskSignals: api.computeNewsRiskSignals,
-      classifyBreadthParticipation: api.classifyBreadthParticipation
+      classifyBreadthParticipation: api.classifyBreadthParticipation,
+      deriveTreasuryCurveEvidence: api.deriveTreasuryCurveEvidence,
+      deriveConcentrationRisk: api.deriveConcentrationRisk,
+      concentrationPenaltyForWeight: api.concentrationPenaltyForWeight,
+      computeFactorRanks: api.computeFactorRanks,
+      deriveFactorWeights: api.deriveFactorWeights
     })
   });
 }

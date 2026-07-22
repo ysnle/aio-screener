@@ -11,6 +11,7 @@ export function normalizeThemes(raw = {}) {
     rsRatio: finite(item?.rsRatio),
     rsMomentum: finite(item?.rsMomentum),
     quadrant: String(item?.quadrant || 'neutral'),
+    view: String(item?.view || 'sectors'),
     source: String(item?.source || 'themes-provider')
   }));
   return Object.freeze({ items: Object.freeze(items), selectedId: raw.selectedId || null, updatedAt: raw.updatedAt || new Date().toISOString() });

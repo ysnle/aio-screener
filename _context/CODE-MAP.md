@@ -1,28 +1,35 @@
-> **v53.11 (AR-07/AR-06/AR-09 진행) 현행**: v53.7 KR 5페이지 통합, v53.8~v53.9 성능 리팩터링, v53.10 ESM architecture slice, v53.11 data-plane/inference/navigation contracts 뒤 파일 크기·핵심 anchor를 재측정한다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+> **v53.17 (P761~P778 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P760 domain/route work, ARX-11 signal replacement, factor-weight extraction, ARX-16 screener read migration, missed screener readiness writer retirement, remaining non-route screener helper migration, native data-pipeline contract repair, native single-fetch metadata bridge, market-news/briefing primary feeds, bounded market/themes/entity surfaces, and the options replacement-metric cutover까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` 전면 구조 재측정)
-last_verified: 2026-07-18
+verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P780 update
+current_override: P780 bounded portfolio readiness/status surface; full portfolio Vault/CRUD/table/risk/chart remains legacy-owned; P779 fundamental SEC status boundary remains in force
+last_verified: 2026-07-22
 confidence: high
-target_version: v53.11
+target_version: v53.17
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
-target_lines: index.html 28375 + js modules 64207
+target_lines: refreshed after P779 gate
+current_checkpoint: P780 bounded portfolio readiness/status surface verified; market.js owns macro/fxbond/breadth primary metric sinks; native renderer routes 13/17, legacy renderer routes 4/17
 ---
 
-## Current machine-verified file-size table (v53.11, 2026-07-18)
+## Current machine-verified file-size table (v53.17, 2026-07-22)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 28,381 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,399 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 17,569 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-ui.js` | 4,257 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 6,084 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 8,823 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 28,012 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,218 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 15,753 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 4,253 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 6,086 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 8,835 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 113 | native guide search/jump lifecycle module |
-| `src/ui/pages/news.js` | 171 | native market-news/briefing renderer, filters, refresh lifecycle |
-| `src/ui/pages/market.js` | 72 | normalized market selector slice for macro/fxbond/breadth |
-| `src/ui/pages/themes.js` | 62 | normalized RRG/theme selector slice for themes/theme-detail |
+| `src/ui/pages/screener.js` | 517 | native screener table/filter/profile/watchlist/position renderer |
+| `src/data/providers/screener.js` | 143 | screener artifact + identity-universe provider |
+| `src/data/normalize/screener.js` | 63 | screener row/metadata normalization |
+| `src/data/orchestrators/screener.js` | 57 | screener state orchestration + factor-rank wiring |
+| `src/ui/pages/news.js` | 286 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
+| `src/ui/pages/market.js` | 303 | native macro/fxbond/breadth primary metric renderers; native screener-metadata breadth fallback |
+| `src/ui/pages/themes.js` | 126 | native bounded RRG quadrant/rotation-read renderer; chart/status and theme-detail secondary boundaries |
+| `src/ui/pages/entity.js` | 112 | native bounded ticker hero, fundamental SEC status, and options replacement-metric renderer; fundamental report and ticker secondary surfaces remain legacy |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
 
 > The historical v52.66 table below is retained for audit context. Use this current
@@ -40,11 +47,52 @@ AI contracts are under `src/ai/{context,retrieval,provider,websearch,response}`;
 privacy/release/retirement contracts are `src/storage/*` and
 `architecture/{asset-manifest,retirement-manifest}.json`.
 
+### RM-03 P755~P759 domain owners (2026-07-22)
+
+`src/domain/macro/treasury-curve.js`, `src/domain/portfolio/concentration.js`,
+`src/domain/screener/factor-ranks.js`, and `src/domain/technical/stage.js` own
+the extracted pure formulas. Their legacy callers retain only explicit input
+resolution and compatibility projection; `src/domain/{macro/model,news/claims,portfolio/risk,technical/indicators}.js`
+are retired. `ci-domain-parity-check.mjs` covers five factor-ranks fixtures,
+including a real 873-row screener capture.
+
+### ARX-10 P760 native screener cutover (2026-07-22)
+
+`src/data/providers/screener.js` now joins `public-data/screener.json` with
+`public-data/screener-universe.json`; normalization and orchestration feed the
+canonical `computeFactorRanks` model into `data/screener` state. The native
+`src/ui/pages/screener.js` owns the 22-column table, readiness/KPIs, filters,
+tabs, factor/backtest panels, profile, watchlist, and position controls.
+`js/aio-data.js` and `js/aio-core.js` retain only documented compatibility
+storage/projection boundaries for non-cut-over consumers. Route ownership is
+now lifecycle/renderer/data native for screener; chart/narrative remain legacy
+or not applicable. Use `rg -n` before further edits because ARX-10 retired
+legacy screener helpers and shifted all downstream anchors.
+
+### P761-P780 continuation (2026-07-22)
+
+- `src/domain/signal/trading-score.js` owns the `signal-from-trading-score.v1` decision envelope; `src/domain/signal/decision.js`, `src/domain/market/model.js`, and `src/domain/screener/ranking.js` are retired.
+- `src/domain/screener/factor-weights.js` owns neutral/risk-on/risk-off/profile weight resolution. `js/aio-data.js:_aioFactorWeights` is a storage/profile bridge only.
+- `src/app/bootstrap.js:getScreenerRows` is the native screener read API. `_aioGetCanonicalScreenerRows()` is the legacy compatibility adapter used by portfolio, ticker, fundamental, chat, watchlist, and audit consumers.
+- `SCREENER_DB` remains the curated identity/memo and legacy data-pipeline compatibility boundary. Its direct non-route reads and runtime factor projection were retired; remaining work is to migrate the identity/memo producers and remove the remaining compatibility surface when their consumers are cut over.
+- P765 removed the missed legacy `_aioRenderQuantReadiness` DOM writer/call and registered the retired symbol in `screener.legacySymbolsMustBeAbsent`; native screener now owns `screener-readiness-note` without an AG-DOM-WRITER exception.
+- P766 moved the remaining non-route screener helper readers and the compatibility facade to the canonical native row API; `SCREENER_DB` is now a fallback/enrichment boundary for the still-open data pipeline only.
+- P767 synchronized the data-pipeline contract with the native backtest disclosure and fail-closed quant-readiness audit after the retired legacy readiness renderer was removed.
+- P768 made the native provider/orchestrator the sole runtime `screener.json` fetch owner, added `getScreenerState()`/`aio:nativeScreenerReady`, preserved breadth in native metadata, and removed `_aioApplyServerScreener` bulk factor projection. The legacy bridge now updates metadata/breadth only; identity/memo and Telegram overlays remain explicit compatibility producers.
+- P769 made the native `news.js` module the sole primary `market-news` feed DOM owner, removed legacy `renderFeed()` plus direct feed loading/error/count/progressive writers, and retained filter/translation handlers only as explicit invalidation/input compatibility boundaries. Briefing and its secondary rewrite surface remain open.
+- P770 made the same native module the sole primary `briefing` feed DOM owner for `briefing-live-news-list`, count, completed 08:00 KST timestamp, and reveal control. P771 transferred the bounded `macro` primary quote/FRED metric surface to `market.js`; P772 transferred the `fxbond` primary live quote/MOVE snapshot surface; P773 transferred the bounded `breadth` current 5/20/50SMA cards and advance-ratio surface using native screener metadata first, with explicit legacy fallback fences. Secondary curve/chart/risk/narrative ids remain explicit legacy boundaries. Route renderer ownership is 8/17.
+- P774 removed declaration-only legacy news/briefing/screener functions and only-dependent sparkline helpers after the primary-feed cutovers; P775 transferred only the themes RRG quadrant cards and rotation-read surface to native `themes.js`. RRG chart/status and `theme-detail` remain explicitly legacy-owned secondary boundaries. Route renderer ownership is 9/17.
+- P776 confirmed `theme-detail` is a canonical derived inline view: `showPage('theme-detail')` redirects to `themes` and `showThemeDetail()` owns the live inline panel. The unreferenced static-page `renderPageThemeDetail()` declaration was removed and its absence is asserted by the derived-route retirement contract.
+- P777 transferred only the ticker hero primary surface to `entity.js` and removed the four primary writes from `showTicker()`; fundamentals/options and ticker overview/candle/entry surfaces remain explicit legacy boundaries. The shared accessibility initializer now preserves explicit title IDs, preventing `ticker-hero-name` from being rewritten as `page-ticker-label`.
+- P778 transferred only the options replacement-metric values (VIX/PCR/SKEW) to `entity.js` from normalized evidence, fenced shared quote/snapshot/PCR writers, and removed the direct legacy PCR ID writer. The options page remains explicitly reference-only without an options-chain/Greeks provider; native renderer ownership is now 11/17 and legacy renderer ownership 6/17.
+- P779 transferred only the fundamental SEC annual-data availability/source badge (`fund-data-status`) to `entity.js` from normalized `sec-fundamentals.json` evidence. The full SEC/FMP/Yahoo/Finnhub report, charts, and AI narrative remain legacy-owned; native renderer ownership is now 12/17 and legacy renderer ownership 5/17.
+- P780 transferred only the portfolio readiness/status text (`pf-analysis-status`) to `portfolio.js` from the native portfolio slice. The encrypted Vault/CRUD/table/totals/prices/risk/chart surfaces remain legacy-owned; native renderer ownership is now 13/17 and legacy renderer ownership 4/17.
+
 ## Native ESM and data-plane additions (v53.11)
 
 | ARX-06 news state/writer | `src/state/slices/news.js`, `src/state/selectors/news.js`, `src/app/commands/news.js`, `src/data/providers/news.js`, `src/data/normalize/news.js`, `src/data/orchestrators/news.js` | producer cache -> normalized `data/news` state -> native market-news/briefing renderer |
 | ARX-07 market slice | `src/state/slices/market.js`, `src/state/selectors/market.js`, `src/data/providers/market.js`, `src/data/normalize/market.js`, `src/data/orchestrators/market.js`, `src/ui/pages/market.js` | legacy quote/snapshot read model -> normalized market state -> macro/fxbond/breadth slice renderer |
-| ARX-08 themes slice | `src/state/slices/themes.js`, `src/state/selectors/themes.js`, `src/data/providers/themes.js`, `src/data/normalize/themes.js`, `src/data/orchestrators/themes.js`, `src/ui/pages/themes.js` | RRG/theme read model -> normalized theme state -> native quadrant/detail slice |
+| ARX-08 themes slice | `src/state/slices/themes.js`, `src/state/selectors/themes.js`, `src/data/providers/themes.js`, `src/data/normalize/themes.js`, `src/data/orchestrators/themes.js`, `src/ui/pages/themes.js` | RRG/theme read model -> normalized theme state -> bounded native quadrant/rotation-read surface; chart/status and detail remain legacy |
 
 | Area | Files | Contract |
 |---|---|---|
@@ -110,7 +158,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js:23547` |
 | `destroyPageCharts` / `showPage` | `js/aio-core.js:24983` / `25758` |
 | `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
-| `_aioApplyServerScreener` / `_aioComputeFactorRanks` | `js/aio-data.js:15794` / `15947` |
+| `_aioApplyNativeScreenerState` / `_aioComputeFactorRanks` | `js/aio-data.js:4864` / `15357` |
 | `initBreadthPage` / native sentiment page | `js/aio-ui.js:172` / `src/ui/pages/sentiment.js:243` |
 | `CHAT_CONTEXTS` / `chatSend` | `js/aio-chat.js:418` / `4282` |
 
@@ -206,7 +254,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | 대상 | 위치 |
 |------|------|
 | `SCREENER_DB_META` / identity-only `SCREENER_DB` | `js/aio-data.js:10`, `js/aio-data.js:16` |
-| 서버 screener 런타임 병합 | `js/aio-data.js:15893` (`_aioApplyServerScreener`) |
+| native screener metadata/breadth bridge | `js/aio-data.js:4864` (`_aioApplyNativeScreenerState`) |
 | static seed orphan 감사 | `js/aio-core.js:9789` (`getStaticSeedFallbackAudit`) |
 | cell-level data lineage 감사 | `js/aio-core.js:16665` (`getDataLineageAudit`) |
 | `APP_VERSION` | `js/aio-core.js:19929` |
@@ -328,11 +376,13 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `renderBriefingFeed` | 11101 | 브리핑 뉴스 렌더 |
 | `vixToPercentile` | 14286 | VIX percentile 로그 외삽 |
 | `toggleSignalMode` | 16184 | signal UI mode state |
-| `_aioFactorWeights` | 15871 | 레짐 적응 팩터 가중(7팩터 NEUTRAL/RISK_OFF/RISK_ON lerp) |
-| `_aioComputeFactorRanks` | 15947 (export: 16082) | 멀티팩터 랭킹(7팩터). 서버 `backtestFactors`(fetch-data.mjs:1173, 4팩터)와 의도적으로 다른 4팩터 서브셋만 검증(불일치 아님 — fetch-data.mjs:1177~1197 docstring이 사유 명시: size는 과거 발행주식수 데이터 없음, value/quality는 FMP TTM 스냅샷이라 과거 시점 채점 시 look-ahead bias. `COMP_W` 4개 가중치는 라이브 NEUTRAL의 해당 서브셋을 합=1로 재정규화한 값과 2026-07-21 기준 정확히 일치 확인 — 단 하드코딩 리터럴이라 향후 라이브 가중치 변경 시 무통보 drift 위험(P584/C1류)) |
-| `_aioBuildDiversifiedRecommendationRows` | 17286 | 넓은 종목 추천용 분산 후보군(R211) |
-| `_aioRunScreenerQuery` | 17352 | 자연어 스크리너/추천 후보 생성 |
-| `_formatScreenerResultPrompt` | 17486 | 스크리너/균형 추천 후보 프롬프트 |
+| `_aioFactorWeights` | 15342 | storage/profile 입력을 pure `factor-weights.v1`에 연결하는 호환 브릿지 |
+| `_aioComputeFactorRanks` | 15357 (wrapper; export: 15397) | legacy 호출용 hidden input/weight 해석과 SCREENER_DB 호환 projection만 수행. 계산 owner는 `src/domain/screener/factor-ranks.js:105`; native route는 state에 직접 rank를 보유 |
+> P763 correction: deterministic factor-weight math moved to `src/domain/screener/factor-weights.js`; `_aioFactorWeights` now resolves compatibility inputs and bridges the pure result only.
+| `computeFactorRanks` | `src/domain/screener/factor-ranks.js:105` | 순수 7팩터 랭킹: 섹터 z-score·winsorize·활성 factor·percentile rank. global/DOM/storage 접근 없음 |
+| `_aioBuildDiversifiedRecommendationRows` | 16558 | 넓은 종목 추천용 분산 후보군(R211) |
+| `_aioRunScreenerQuery` | 16631 | 자연어 스크리너/추천 후보 생성 |
+| `_formatScreenerResultPrompt` | 16767 | 스크리너/균형 추천 후보 프롬프트 |
 
 > 2026-07-21 재확인(직접 grep, ARX 재진입 세션): `_aioFactorWeights`/`_aioComputeFactorRanks` 좌표를 15871/15947(export
 > 16082)으로 정정했다 — 이전 좌표(15829/15905, v50.60 이관)는 여러 세대에 걸쳐 재확인 없이 그대로 옮겨 다녀 자기모순
@@ -340,10 +390,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 > 어드바이저 교차검증)**: "라이브·서버 모델 불일치"라는 기존 서술 자체가 부정확했다 — fetch-data.mjs의 4팩터 서브셋 검증은
 > v51.91/P586에서 이미 의도적으로 결정된 것이고(docstring에 사유 명시), 그 4개 가중치가 라이브 NEUTRAL 서브셋 재정규화값과
 > 여전히 일치함을 직접 계산으로 확인했다 — 즉 "어느 산식이 정본인가"는 이미 답이 나와 있는 질문이며 새 제품 결정이 필요 없다.
-> 남은 진짜 작업은 두 가지뿐이고 둘 다 제품 결정과 무관하다: (1) `_aioComputeFactorRanks`(7팩터 전체) 자체가 아직 `src/domain/`으로
-> 추출되지 않아 screener provider의 `score`/`rank`가 항상 null인 상태(ARX-04 P747 참조, trading-score/RRG/Weinstein과 같은 패턴으로
-> 추출 가능 — 별도 세션 규모 작업), (2) `COMP_W` 하드코딩 리터럴을 라이브 가중치에서 파생시키는 drift-guard(현재는 우연히 일치,
-> 강제되지 않음). 이 좌표 재확인 자체도 이번 세션의 `_getBriefingWindowKST` 사문 코드 13줄 삭제로 라인이 밀린 뒤 재측정한 값이다
+> P759에서 `_aioComputeFactorRanks` 7팩터 계산 자체는 `src/domain/screener/factor-ranks.js`로 추출됐고 legacy wrapper는 projection만 남겼다. P760/ARX-10에서 native provider가 screener artifact와 identity universe를 결합하고 native orchestrator가 `computeFactorRanks`를 호출하도록 승격했으므로 native screener state의 rank는 더 이상 구조적으로 null이 아니다. `_aioFactorWeights` browser profile/regime dependency와 non-cut-over compatibility projection은 후속 retirement 범위로 남겼다.
 > (Fable이 최초 커밋 전 상태로 계산했던 1차 정정을 다시 잡아냄 — 좌표 정정 작업은 코드 삭제 순서 이후에 마지막으로 재확인할 것).
 
 ### `js/aio-ui.js`
@@ -399,7 +446,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | DATA_SNAPSHOT 갱신 | `js/aio-core.js:18620~18898`, freshness/pipeline audit 18108~18440 |
 | 뉴스 선별/렌더 | `js/aio-data.js:8404~10900` |
 | RSI/기술지표 (서버·클라 이중 구현, 공식은 v51.91에 단일화됨 — 진단 C1 해소) | 서버 `scripts/fetch-data.mjs:1082`(`_rsi14`, Wilder) = 클라 `js/aio-core.js:18612`(`_calcRSILast`, Wilder) — 파라미터 드리프트만 잔여 감시 대상 (좌표 2026-07-21 재확인) |
-| 팩터 랭킹/백테스트 (진단 C2 — "불일치"가 아니라 v51.91/P586에서 결정된 의도적 4팩터 서브셋 검증, 2026-07-21 재평가) | 라이브 `js/aio-data.js:15947` `_aioComputeFactorRanks`(7팩터, 아직 `src/domain/` 미추출) vs 서버 `scripts/fetch-data.mjs:1173` `backtestFactors`(모멘텀/추세/저변동/kalman 4팩터만 — size/value/quality는 look-ahead bias·데이터 부재로 의도적 제외, docstring 명시) |
+| 팩터 랭킹/백테스트 (진단 C2 — 의도적 live 7팩터 vs server 4팩터 서브셋, P759 domain 추출 완료) | `src/domain/screener/factor-ranks.js:105` `computeFactorRanks` → legacy `js/aio-data.js:15947` projection; 서버 `scripts/fetch-data.mjs:1173` `backtestFactors`는 look-ahead/data-coverage 사유로 모멘텀/추세/저변동/kalman 4팩터만 사용 |
 | 페이지 전환/init 가드 | `js/aio-core.js:22841~23313`(destroyPageCharts/showPage), 각 page init 함수 |
 | sentiment/breadth 차트 | `js/aio-ui.js:14~900` |
 | LLM 모델/쿼터 | `js/aio-ui.js:1551~1780` |

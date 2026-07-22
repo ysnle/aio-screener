@@ -53,6 +53,11 @@ for (const [route, symbols] of Object.entries(routeOwners.legacySymbolsMustBeAbs
     if (legacyAggregate.includes(symbol)) fail(`retired legacy symbol returned for native renderer route ${route}: ${symbol}`);
   }
 }
+for (const [route, symbols] of Object.entries(routeOwners.retiredLegacySymbolsMustBeAbsent || {})) {
+  for (const symbol of symbols) {
+    if (legacyAggregate.includes(symbol)) fail(`retired legacy symbol returned for derived route ${route}: ${symbol}`);
+  }
+}
 for (const [route, patterns] of Object.entries(routeOwners.legacySymbolPatternsMustBeAbsent || {})) {
   for (const pattern of patterns) {
     if (new RegExp(pattern).test(legacyAggregate)) fail(`retired legacy pattern returned for native renderer route ${route}: ${pattern}`);

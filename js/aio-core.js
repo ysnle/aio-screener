@@ -2098,15 +2098,6 @@ window._aioRetryNews = function() {
 };
 window._aioScreenerTicker = function(sym) {
   if (typeof window.prevPage !== 'undefined') window.prevPage = 'screener';
-  // v51.39: 종목 클릭 시 포지션 사이저에 심볼 자동 주입 (패널 열려있으면 업데이트)
-  try {
-    var ps = document.getElementById('scr-position-sizer');
-    if (ps && ps.classList.contains('active')) {
-      var symEl = document.getElementById('ps-sym');
-      if (symEl) symEl.textContent = sym;
-      if (typeof window._aioCalcPositionSize === 'function') window._aioCalcPositionSize();
-    }
-  } catch(_) {}
   if (typeof window.showTicker === 'function') window.showTicker(sym);
 };
 window._aioPortfolioTicker = function(sym) {
@@ -2471,7 +2462,8 @@ window._aioFillEntryFromTicker = function() {
   if (emaEl && !emaEl.value) emaEl.value = (live.price * 0.99).toFixed(2);
   var rsiEl = document.getElementById('eq-rsi');
   if (rsiEl && !rsiEl.value) {
-    var scr = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB.find(function(r){return r.sym===sym;}) : null;
+    var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+    var scr = scrRows.find(function(r){return r.sym===sym;}) || null;
     if (scr && scr.rsi != null) rsiEl.value = scr.rsi;
   }
 };
@@ -3569,43 +3561,14 @@ if (typeof document !== 'undefined') {
   // v50.33: 브리핑 뉴스 벽(40건·~5900px) 캡 — 렌더 로직(카테고리 그룹)은 그대로 두고 표현 레벨에서
   // 기본 높이를 제한 + 페이드 + "전체 N건 보기" 토글. 디제스트가 Top3를 이미 주므로 "핵심만"에 부합.
   window._aioCapBriefingNews = function(){
-    try {
-      var list = document.getElementById('briefing-live-news-list');
-      if (!list) return;
-      var CAP = 820;
-      if (list.scrollHeight <= CAP + 200) { // 짧으면 캡 불필요
-        list.style.maxHeight = ''; list.style.overflow = '';
-        var ex0 = document.getElementById('briefing-news-more'); if (ex0) ex0.style.display = 'none';
-        return;
-      }
-      list.dataset.aioCapped = '1';
-      list.classList.remove('is-expanded');
-      list.style.maxHeight = CAP + 'px';
-      list.style.overflow = 'hidden';
-      list.style.position = 'relative';
-      if (!document.getElementById('briefing-news-more')) {
-        var toggle = document.createElement('button');
-        toggle.id = 'briefing-news-more';
-        toggle.className = 'aio-btn-table';
-        toggle.style.cssText = 'display:block;width:100%;margin:8px 0 4px;font-size:12px;font-weight:700;';
-        toggle.textContent = '전체 뉴스 보기 ▼';
-        toggle.addEventListener('click', function(){
-          window._aioToggleBriefingNews(toggle);
-        });
-        list.insertAdjacentElement('afterend', toggle);
-      }
-      document.getElementById('briefing-news-more') && (document.getElementById('briefing-news-more').style.display = '');
-    } catch(_){}
+    // P770: native news.js owns briefing list height/reveal state.
+    if (typeof window._aioNotifyNewsSurfaceInvalidated === "function") window._aioNotifyNewsSurfaceInvalidated("briefing-reveal-input");
   };
   window._aioToggleBriefingNews = function(el) {
-    var list = document.getElementById('briefing-live-news-list');
-    if (!list) return;
-    var expanded = list.classList.toggle('is-expanded');
-    list.style.maxHeight = expanded ? 'none' : '820px';
-    list.style.overflow = expanded ? 'visible' : 'hidden';
-    if (el) el.textContent = expanded ? '핵심만 보기 ▲' : '전체 뉴스 보기 ▼';
+    // P770: retained action adapter; native news.js owns the actual toggle DOM.
+    if (typeof window._aioNotifyNewsSurfaceInvalidated === "function") window._aioNotifyNewsSurfaceInvalidated("briefing-reveal-input");
+    return el || null;
   };
-
   // v50.32 (항목4) 빈 결론 박스 금지: 상단에 올린 결론/판단 박스가 placeholder("수신 대기" 등)면 그 박스를
   // 숨겨 빈 결론이 prime 영역을 차지하지 않게. 데이터 도착 후 렌더러가 채우면 다시 표시(토글, 멱등).
   // (결론바·디제스트 등 항상 채워지는 것은 대상 아님 — 데이터 의존 보조 판단 박스만.)
@@ -7922,7 +7885,7 @@ window.AIO.assertTickerRegistryCompleteness = function() {
     registered[t.toUpperCase()] = true;
   });
   try {
-    (window.SCREENER_DB || []).forEach(function(r) {
+    (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).forEach(function(r) {
       if (r && r.sym) registered[String(r.sym).toUpperCase()] = true;
     });
   } catch(_) {}
@@ -8121,7 +8084,7 @@ window.AIO.getThemeTrendDeepAudit = function() {
   function registryMap() {
     var out = {};
     try {
-      (window.SCREENER_DB || []).forEach(function(r) {
+      (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).forEach(function(r) {
         if (r && r.sym) out[String(r.sym).toUpperCase()] = r;
       });
     } catch(_) {}
@@ -8150,7 +8113,7 @@ window.AIO.getThemeTrendDeepAudit = function() {
       var m = sym.match(/^(\d{6})\.(KS|KQ)$/);
       if (m && !out[m[1]]) out[m[1]] = sym;
     }
-    try { (window.SCREENER_DB || []).forEach(function(r) { add(r && r.sym); }); } catch(_) {}
+    try { (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).forEach(function(r) { add(r && r.sym); }); } catch(_) {}
     try { (window.KR_SUB_THEMES || []).forEach(function(t) { (t.tickers || []).forEach(add); (t.leaders || []).forEach(add); Object.keys(t.weights || {}).forEach(add); }); } catch(_) {}
     return out;
   }
@@ -8333,7 +8296,7 @@ window.AIO.getThemeCompositionLogicAudit = function() {
     sym = String(sym || '').toUpperCase();
     if (!sym) return false;
     if (isKnownMarketProxy(sym)) return true;
-    try { if ((window.SCREENER_DB || []).some(function(r) { return r && String(r.sym || '').toUpperCase() === sym && (r.name || r.memo || r.sector); })) return true; } catch(_) {}
+    try { if ((typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).some(function(r) { return r && String(r.sym || '').toUpperCase() === sym && (r.name || r.memo || r.sector); })) return true; } catch(_) {}
     try {
       var reg = window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries;
       if (reg && reg[sym] && !(window.AIO.isTickerRegistryPlaceholder && window.AIO.isTickerRegistryPlaceholder(sym, reg[sym]))) return true;
@@ -8466,8 +8429,8 @@ window.AIO.getThemeSymbolExplainability = function(symbol) {
   var registry = null;
   try {
     if (window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries) registry = window.AIO_TICKER_NAME_REGISTRY.entries[target] || null;
-    if (!registry && window.SCREENER_DB) {
-      (window.SCREENER_DB || []).some(function(r) {
+    if (!registry && typeof _aioGetCanonicalScreenerRows === 'function') {
+      _aioGetCanonicalScreenerRows().some(function(r) {
         if (r && String(r.sym || '').toUpperCase() === target) {
           registry = r;
           return true;
@@ -9687,7 +9650,7 @@ window.AIO.computeFcfYield = async function(ticker) {
   // 메타데이터 폴백 — Wikipedia / SCREENER_DB
   if (!mcap) {
     var dbRow = null;
-    try { dbRow = (window.SCREENER_DB || []).find(function(r){ return r.sym === ticker; }); } catch(_) {}
+    try { dbRow = (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).find(function(r){ return r.sym === ticker; }); } catch(_) {}
     if (dbRow && dbRow.mcap) mcap = Number(dbRow.mcap) * 1e9;  // mcap field in B → $
   }
   // FCF: Naver overview 또는 FMP (key 의존) — 미가용 시 estimated
@@ -9763,7 +9726,7 @@ window.AIO.computeEvEbitda = async function(ticker) {
   // Peer comparison: SCREENER_DB 같은 sector 평균 (간이)
   var peerAvg = null;
   try {
-    var db = window.SCREENER_DB || [];
+    var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
     var row = db.find(function(r){ return r.sym === ticker; });
     if (row && row.sector) {
       var peers = db.filter(function(r){ return r.sector === row.sector && r.sym !== ticker; });
@@ -9790,7 +9753,7 @@ window.AIO.computeMacroBeta = function(ticker, opts) {
   if (!ticker) return null;
   ticker = ticker.toUpperCase().trim();
   // 섹터 기반 휴리스틱 베타 — 실제 회귀는 historical 가격 데이터 필요 (v49.37+)
-  var db = window.SCREENER_DB || [];
+  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var row = db.find && db.find(function(r){ return r.sym === ticker; });
   if (!row) return { ticker: ticker, available: false, reason: 'SCREENER_DB에 sector 미등록' };
   // sector → typical macro beta (휴리스틱)
@@ -9835,7 +9798,7 @@ window.AIO.computeMoatScore = async function(ticker) {
   if (!ticker) return null;
   ticker = ticker.toUpperCase().trim();
   // SCREENER_DB row — 기본 지표 (gmPct/opMarginPct/fcfMarginPct/rndPct 등)
-  var db = window.SCREENER_DB || [];
+  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var row = db.find && db.find(function(r){ return r.sym === ticker; });
   if (!row) {
     return { ticker: ticker, available: false, reason: 'SCREENER_DB 미등록 — Moat 자동 채점 불가' };
@@ -9965,7 +9928,7 @@ window.AIO.computeTAMEstimate = async function(ticker) {
     }
   } catch(_secErr) {}
   // 소스 2: SCREENER_DB.memo에서 "TAM:" 패턴 grep
-  var db = window.SCREENER_DB || [];
+  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var row = db.find && db.find(function(r){ return r.sym === ticker; });
   if (row && row.memo) {
     var tamMatch = String(row.memo).match(/TAM[:\s]*\$?([\d,.\sBTM조억]+)/i);
@@ -10273,7 +10236,7 @@ window.AIO.fetchPlatformEcosystem = async function(ticker) {
   var indicators = [];
   var score = 0;
   // 소스 1: SCREENER_DB.memo 키워드 grep
-  var db = window.SCREENER_DB || [];
+  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var entry = Array.isArray(db) ? db.find(function(r){ return r && r.sym === ticker; }) : db[ticker];
   var memo = entry && entry.memo || '';
   var platformKws = ['ecosystem', 'platform', 'developer', 'marketplace', 'network effect', '생태계', '플랫폼', 'API', 'SDK', '개발자', '구독'];
@@ -10772,9 +10735,9 @@ window.AIO.getAnalysisFrameworkCoverageAudit = function() {
 // 사용자 정직 질의 4건 시정: (1) 커버리지 (2) MEMO 활용 (3) 없는 종목 fallback (4) 오래된 데이터
 // ─────────────────────────────────────────────────────────────────
 window.AIO.assertMemoCoverageAudit = function() {
-  var db = window.SCREENER_DB;
+  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var reg = window.AIO_TICKER_NAME_REGISTRY;
-  if (!db) return { status: 'error', issues: ['SCREENER_DB undefined'] };
+  if (!db.length) return { status: 'error', issues: ['screener rows unavailable'] };
   var dbArray = Array.isArray(db) ? db : Object.keys(db).map(function(k) { return db[k]; });
   var totalRows = dbArray.length;
   var withMemo = 0, withoutMemo = 0, totalLen = 0;
@@ -14496,7 +14459,7 @@ function _aioResolveKrThemeSymbol(raw) {
   if (!/^\d{6}$/.test(raw)) return raw;
   try {
     var found = null;
-    (window.SCREENER_DB || []).some(function(r) {
+    (typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : []).some(function(r) {
       var sym = r && String(r.sym || '').toUpperCase();
       if (sym && sym.indexOf(raw + '.') === 0) {
         found = sym;
@@ -16302,7 +16265,7 @@ window.AIO.assertKrTickerMappingAudit = function() {
   try {
     var conflicts = [];
     var checked = 0;
-    var screenerDB = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : (window.SCREENER_DB || []);
+    var screenerDB = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
     var nameReg = (window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries) || {};
     var krStockDB = window.KR_STOCK_DB || {};
     var nameAliases = {
@@ -19617,7 +19580,11 @@ function calcPositionTechnicalRisk(position, ohlcvOrSnapshot, portfolioContext) 
   var totalValue = Number(portfolioContext.totalValue || 0);
   var weightPct = totalValue > 0 ? (value / totalValue) * 100 : Number(position.weightPct || 0);
   var pnlPct = cost > 0 && px > 0 ? ((px - cost) / cost) * 100 : null;
-  var concentrationPenalty = weightPct >= 25 ? 18 : weightPct >= 15 ? 10 : weightPct >= 10 ? 5 : 0;
+  // RM-03 continued (2026-07-21, P758): single-implementation call — the concentration-penalty
+  // tier ladder lives in src/domain/portfolio/concentration.js (concentrationPenaltyForWeight),
+  // exposed via window.AIO_ARCH (R352/F-03: no parallel formula).
+  var _concFn = window.AIO_ARCH && typeof window.AIO_ARCH.concentrationPenaltyForWeight === 'function' ? window.AIO_ARCH.concentrationPenaltyForWeight : null;
+  var concentrationPenalty = _concFn ? _concFn(weightPct) : (weightPct >= 25 ? 18 : weightPct >= 15 ? 10 : weightPct >= 10 ? 5 : 0);
   var score = Math.max(0, Math.min(100, Math.round((sellPressure.score || 0) + concentrationPenalty)));
   var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 58 ? 'TRIM_50' : score >= 38 ? 'TRIM_25_33' : score >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
   var flags = (sellPressure.flags || []).slice();
@@ -20589,8 +20556,9 @@ window._aioMemoStaleInfo = function(memo, opts) {
 
 // v48.37: SCREENER_DB 특정 심볼 memo staleness 조회
 window._aioStockStaleInfo = function(sym) {
-  if (!Array.isArray(window.SCREENER_DB)) return null;
-  var entry = window.SCREENER_DB.find(function(r) { return r.sym === sym; });
+  var screenerRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+  if (!Array.isArray(screenerRows)) return null;
+  var entry = screenerRows.find(function(r) { return r.sym === sym; });
   if (!entry) return null;
   // _asOf 필드 우선 (v48.37+ 수동 지정), memo 파싱 폴백
   if (entry._asOf) {
@@ -20743,36 +20711,35 @@ window.AIO_STATIC_DATA_POLICY = Object.freeze({
 // 5Y(^FVX)*0.95를 2Y로 합성하거나 ^TNX를 tnx2y에 덮어써 2s10s를 왜곡했다.
 // 현재값 우선순위는 live/FRED -> 명시적 snapshot이며, 관측치가 없으면 null로 닫는다.
 window.AIO = window.AIO || {};
+// RM-03 continued (2026-07-21, P757): single-implementation call — the multi-source fallback
+// formula (per-field priority: live quote -> raw live variable -> FRED -> server snapshot, plus
+// the source/available classification) lives in src/domain/macro/treasury-curve.js
+// (deriveTreasuryCurveEvidence), exposed via window.AIO_ARCH so this legacy function and any
+// native consumer share one model (R352/F-03: no parallel formula). This wrapper only collects
+// the raw inputs from window globals — it no longer computes anything itself.
 window.AIO.getUsTreasuryCurveEvidence = function() {
   var ld = window._liveData || {};
   var fd = window._fredData || {};
   var snap = window.DATA_SNAPSHOT || {};
-  function n(v) {
-    if (v == null || v === '') return null;
-    v = Number(v);
-    return isFinite(v) && v > -5 && v < 25 ? v : null;
+  var asOf = (snap._fieldTs && snap._fieldTs.macro_fred) || snap._marketDataUpdated || snap._updated || null;
+  var _curveFn = window.AIO_ARCH && typeof window.AIO_ARCH.deriveTreasuryCurveEvidence === 'function' ? window.AIO_ARCH.deriveTreasuryCurveEvidence : null;
+  if (!_curveFn) {
+    // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
+    // mirrors the model's own "nothing available" shape instead of duplicating the formula here.
+    return { threeM: null, twoY: null, fiveY: null, tenY: null, thirtyY: null, spread2s10s: null, available: false, complete: false, source: 'partial', asOf: asOf };
   }
-  function live(sym) { return n(ld[sym] && ld[sym].price); }
-  function fred(id) { return n(fd[id] && fd[id].value); }
-  function first(values) { for (var i = 0; i < values.length; i++) if (values[i] != null) return values[i]; return null; }
-  var threeM = first([live('^IRX'), fred('DGS3MO'), n(snap.irx)]);
-  var twoY = first([n(window._live2Y), fred('DGS2')]);
-  var fiveY = first([live('^FVX'), fred('DGS5'), n(snap.fvx)]);
-  var tenY = first([live('^TNX'), n(window._live10Y), fred('DGS10'), n(snap.tnx)]);
-  var thirtyY = first([live('^TYX'), n(window._live30Y), fred('DGS30'), n(snap.tyx)]);
-  var liveDerivedSpread = n(window._live2Y) != null && live('^TNX') != null ? Number((live('^TNX') - n(window._live2Y)).toFixed(2)) : null;
-  var directSpread = first([fred('T10Y2Y'), liveDerivedSpread, n(snap.t10y2y)]);
-  var spread = directSpread != null ? directSpread : ((twoY != null && tenY != null) ? Number((tenY - twoY).toFixed(2)) : null);
-  var source = fred('T10Y2Y') != null ? 'FRED T10Y2Y' : (liveDerivedSpread != null ? 'live maturities' : (n(snap.t10y2y) != null ? 'server snapshot' : ((n(window._live2Y) != null || fred('DGS2') != null) && (live('^TNX') != null || fred('DGS10') != null) ? 'live/FRED maturities' : 'partial')));
-  var available = spread != null && (source !== 'partial');
-  return {
-    threeM: threeM, twoY: twoY, fiveY: fiveY, tenY: tenY, thirtyY: thirtyY,
-    spread2s10s: spread,
-    available: available,
-    complete: [threeM, twoY, fiveY, tenY, thirtyY].every(function(v) { return v != null; }),
-    source: source,
-    asOf: (snap._fieldTs && snap._fieldTs.macro_fred) || snap._marketDataUpdated || snap._updated || null
-  };
+  return _curveFn({
+    live: {
+      irx: ld['^IRX'] && ld['^IRX'].price, twoY: window._live2Y, fvx: ld['^FVX'] && ld['^FVX'].price,
+      tnx: ld['^TNX'] && ld['^TNX'].price, tenYRaw: window._live10Y, tyx: ld['^TYX'] && ld['^TYX'].price, thirtyYRaw: window._live30Y
+    },
+    fred: {
+      dgs3mo: fd.DGS3MO && fd.DGS3MO.value, dgs2: fd.DGS2 && fd.DGS2.value, dgs5: fd.DGS5 && fd.DGS5.value,
+      dgs10: fd.DGS10 && fd.DGS10.value, dgs30: fd.DGS30 && fd.DGS30.value, t10y2y: fd.T10Y2Y && fd.T10Y2Y.value
+    },
+    snapshot: { irx: snap.irx, fvx: snap.fvx, tnx: snap.tnx, tyx: snap.tyx, t10y2y: snap.t10y2y },
+    asOf: asOf
+  });
 };
 
 const _snap = {
@@ -21164,11 +21131,11 @@ window._aioSyncBreadth50Readout = function() {
   var b50Bar = document.getElementById('breadth-50sma-bar');
   var b50Read = document.getElementById('breadth-50sma-readout');
   if (b50r == null || isNaN(b50r)) {
-    if (b50Bar) b50Bar.style.width = '0%';
+    if (b50Bar && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(b50Bar))) b50Bar.style.width = '0%';
     if (b50Read) b50Read.textContent = '현재 breadth 원천 미수신 · 판단 보류';
     return;
   }
-  if (b50Bar) b50Bar.style.width = b50r + '%';
+  if (b50Bar && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(b50Bar))) b50Bar.style.width = b50r + '%';
   if (b50Read) {
     var strength = b50r >= 60 ? '건강한 상승 구간' : (b50r >= 50 ? '50% 상회(약)' : '50% 미탈환');
     b50Read.textContent = '50일선 ' + Math.round(b50r) + '% — ' + strength + '. 60% 돌파 시 건강한 상승장 확인. 미너비니 바닥 2단계(리테스트) 관찰 구간.';
@@ -21295,6 +21262,7 @@ function applyDataSnapshot() {
     document.querySelectorAll('[data-snap]').forEach(function(el) {
       var key = el.getAttribute('data-snap');
       if (!key) return;
+    if (el.closest && (el.closest('#page-macro[data-aio-architecture-renderer="native"]') || el.closest('#page-fxbond[data-aio-architecture-renderer="native"]') || el.closest('#page-breadth[data-aio-architecture-renderer="native"]') || el.closest('#page-options[data-aio-architecture-renderer="native"]'))) return;
       try {
         var val = map[key];
         if (val !== undefined) { el.textContent = String(val); _snapApplied++; }
@@ -25215,21 +25183,7 @@ var _initOptionsPage = function() {
 }
 
 var _initBriefingPage = function() {
-  if (typeof renderBriefingFeed === 'function') {
-    if (typeof newsCache !== 'undefined' && newsCache.length > 0) {
-      renderBriefingFeed(newsCache);
-    } else {
-      var _bc = document.getElementById('briefing-live-news-list');
-      var _hasContent = _bc && (_bc.querySelector('.briefing-section') || _bc.querySelector('.ai-briefing-content'));
-      if (!_hasContent && typeof fetchAllNews === 'function') {
-        setTimeout(function() {
-          if (typeof isFetching === 'undefined' || !isFetching) {
-            fetchAllNews().then(function(){ renderBriefingFeed(newsCache); }).catch(function(e){ if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'Briefing fetch error: ' + (e && e.message || e)); });
-          }
-        }, 600);
-      }
-    }
-  }
+  if (typeof _aioNotifyNewsSurfaceInvalidated === "function") _aioNotifyNewsSurfaceInvalidated("briefing-page-input");
   var brBadge = document.getElementById('briefing-regime-badge');
   if (brBadge && typeof classifyMarketRegime === 'function') {
     try {
@@ -25270,22 +25224,7 @@ var _initBriefingPage = function() {
     }
   } catch(_) {}
   setTimeout(function() {
-    var bc = document.getElementById('briefing-live-news-list');
-    if (!bc) return;
-    if (bc.querySelector('.briefing-section') || bc.querySelector('.ai-briefing-content')) return;
-    if (bc.innerHTML.indexOf('불러오는 중') !== -1 || bc.innerHTML.indexOf('로딩') !== -1 || bc.innerHTML.indexOf('AI 브리핑 생성 중') !== -1) {
-      var items = window._allNewsItems || (typeof newsCache !== 'undefined' ? newsCache : []) || [];
-      if (items.length > 0) {
-        if (typeof _briefingCacheKey !== 'undefined') _briefingCacheKey = null;
-        renderBriefingFeed(items);
-        if (typeof _aioLog === 'function') _aioLog('info', 'render', '브리핑 타임아웃 렌더: ' + items.length + '건');
-      } else {
-        bc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:11px;">' +
-          '뉴스 수신 시간 초과 — 네트워크 상태를 확인하세요.<br>' +
-          '<button data-action="_aioBriefingRetry" style="background:var(--data-cyan-soft);border:1px solid var(--data-cyan-dim);color:#60a5fa;font-size:10px;padding:4px 12px;border-radius:3px;cursor:pointer;margin-top:8px;font-weight:600;">↻ 다시 시도</button>' +
-          '</div>';
-      }
-    }
+    if (typeof _aioNotifyNewsSurfaceInvalidated === "function") _aioNotifyNewsSurfaceInvalidated("briefing-timeout-input");
   }, 45000);
   try { _aioRenderBriefingMarketAnalysis(); } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'render', 'briefing market-analysis: ' + (e && e.message || e)); }
 }
@@ -25621,35 +25560,14 @@ function showTicker(tkr) {
   // v49.58 R106: 채팅 컨텍스트가 활성 종목 라이브 가격을 자동 주입하도록 전역 마커
   // CHAT_CONTEXTS['ticker'].system() / CHAT_CONTEXTS.fundamental.system()이 읽음
   window._currentTickerId = tkr;
+  window._currentTickerName = (tickerData[tkr] && tickerData[tkr].name) || tkr;
   const d = tickerData[tkr] || {name:tkr, value:'—', action:'hold'};
-  /* ── 동적 시세: _liveData에서 실시간 가격/변동률 가져오기 ── */
-  var ld = window._liveData || {};
-  var live = ld[tkr];
-  var livePriceNum = live ? Number(live.price) : NaN;
-  var livePct = live ? Number(live.pct) : NaN;
-  var livePrice = Number.isFinite(livePriceNum) ? '$' + window._aioSafeFixed(livePriceNum, 2, '—') : '—';
-  var chgStr = Number.isFinite(livePct) ? ((livePct >= 0 ? '▲ +' : '▼ ') + window._aioSafeFixed(Math.abs(livePct), 2, '—') + '%') : '—';
-  var chgCls = Number.isFinite(livePct) ? (livePct >= 0 ? 'up' : 'down') : '';
-  var _tdn = document.getElementById('ticker-hero-name');
-  if (_tdn) _tdn.textContent = tkr;
   // v48.47: 캔들/진입 섹션 심볼 라벨 동기화 + 자동 감지
   var _tcs = document.getElementById('ticker-candle-symbol');
   if (_tcs) _tcs.textContent = tkr;
   var _tes = document.getElementById('ticker-entry-symbol');
   if (_tes) _tes.textContent = tkr;
   try { if (typeof window._aioDetectTickerPattern === 'function') window._aioDetectTickerPattern(); } catch(_){}
-  var _thf = document.getElementById('ticker-hero-fullname');
-  if (_thf) _thf.textContent = d.name;
-  // v41.9: Naver 한국어명 비동기 보강
-  if (_thf && !tkr.endsWith('.KS')) {
-    fetchNaverUSData(tkr, false).then(function(nv) {
-      if (nv && nv.nameKr && _thf) _thf.textContent = d.name + ' (' + nv.nameKr + ')';
-    }).catch(function(){});
-  }
-  var _thp = document.getElementById('ticker-hero-price');
-  if (_thp) _thp.textContent = livePrice;
-  var chgEl = document.getElementById('ticker-hero-chg');
-  if (chgEl) { chgEl.textContent = chgStr; chgEl.className = 'ticker-chg-big ' + chgCls; }
   // v52.16 P5f/P620: pnlEl.textContent 대입이 자식 span(#ticker-hero-value)을 통째로 파괴해
   // 바로 다음 줄의 _thv 갱신이 이후 영구 무력화(getElementById가 null)되던 버그 — span은
   // 건드리지 않고 그 안의 텍스트만 갱신하도록 순서 변경.
@@ -25703,7 +25621,8 @@ function showTicker(tkr) {
   // ── 진입 적합성 판단 (Jeff Sun CFTe Hard Rules 기반) ──
   var ecDiv = document.getElementById('ticker-entry-check');
   if (ecDiv) {
-    var scrEntry = SCREENER_DB.find(function(r) { return r.sym === tkr; });
+    var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+    var scrEntry = scrRows.find(function(r) { return r.sym === tkr; });
     var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
     var checks = [];
     var pass = 0;
@@ -25784,7 +25703,8 @@ function showTicker(tkr) {
   try {
     var mvEl = document.getElementById('ticker-mv-strip');
     if (mvEl) {
-      var sd77 = typeof SCREENER_DB !== 'undefined' ? SCREENER_DB.find(function(r){ return r.sym === tkr; }) : null;
+      var sdRows77 = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+      var sd77 = sdRows77.find(function(r){ return r.sym === tkr; }) || null;
       if (sd77) {
         var rk77 = typeof sd77.rank === 'number' ? sd77.rank : null;
         var g77 = rk77 != null ? (rk77 >= 80 ? 'A' : rk77 >= 65 ? 'B' : rk77 >= 50 ? 'C' : rk77 >= 35 ? 'D' : 'F') : '—';

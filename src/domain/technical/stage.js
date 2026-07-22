@@ -75,3 +75,55 @@ export function deriveMultiTimeframeView(snapshot) {
     quarterly: 'pending'
   });
 }
+
+// 2026-07-21/P756: sma(closes, period) replicates js/aio-core.js:_calcSMA exactly (simple average
+// of the last `period` finite values, null if fewer than `period` are available) — not a legacy
+// extraction (that function is one small piece of the much larger, still-legacy
+// calcTechnicalSnapshot, which also computes ATR/RSI/MACD/Bollinger/VCP/Fibonacci/volume-profile
+// and is out of scope here), but a faithful reimplementation of an unambiguous, single-definition
+// arithmetic primitive (mean of N values) — not a "parallel model" in the R352 sense that rule
+// guards against (that rule is about competing SCORING formulas with judgment calls, not about
+// which of two files computes an average the same way).
+function sma(closes, period) {
+  if (!Array.isArray(closes) || closes.length < period || period <= 0) return null;
+  let sum = 0;
+  for (let i = closes.length - period; i < closes.length; i++) sum += closes[i];
+  return sum / period;
+}
+
+/**
+ * OHLCV -> MA-stack/stage classification, composed from the already-extracted, already-parity-
+ * verified classifyMovingAverageStructure (this function only supplies its inputs from raw
+ * closes). Replaces the toy `deriveTechnicalModel` (src/domain/technical/indicators.js, retired
+ * P756) as normalizeAnalysis's technical model — that toy was independently invented and had no
+ * legacy formula behind it at all (confirmed by repo-wide grep before retiring it), whereas this
+ * reuses the real classification legacy's own calcTechnicalSnapshot depends on.
+ * @param {object} input
+ * @param {string|null} input.symbol
+ * @param {Array<{close:number}>} input.ohlcv  daily bars, oldest first (same shape the legacy
+ *   provider already supplies via compatibility-facade.js readAnalysis)
+ * @param {string} input.inputVersion
+ */
+export function deriveTechnicalStageFromOhlcv({ symbol = null, ohlcv = [], inputVersion = 'unknown' } = {}) {
+  const closes = (Array.isArray(ohlcv) ? ohlcv : [])
+    .map((point) => { const value = Number(point?.close); return Number.isFinite(value) ? value : null; })
+    .filter((value) => value != null);
+  const sma5 = sma(closes, 5), sma10 = sma(closes, 10), sma20 = sma(closes, 20), sma50 = sma(closes, 50), sma100 = sma(closes, 100), sma200 = sma(closes, 200);
+  // mirrors calcTechnicalSnapshot's sma50_5d probe (SMA50 five bars ago, for the sma50Rising signal)
+  const sma50Prior = closes.length >= 55 ? sma(closes.slice(0, -5), 50) : null;
+  const current = closes.at(-1) ?? null;
+  const previous = closes.at(-2) ?? null;
+  const changePct = current != null && previous ? ((current - previous) / previous) * 100 : null;
+  const structure = classifyMovingAverageStructure({ sma5, sma10, sma20, sma50, sma100, sma200, sma50Prior, lastClose: current });
+  const trend = structure.trendState === 'UPTREND' ? 'above-ma20' : structure.trendState === 'DOWNTREND' ? 'below-ma20' : null;
+  const status = closes.length < 2 ? 'unavailable' : closes.length >= 200 ? 'current' : 'partial';
+  return Object.freeze({
+    modelVersion: STAGE_MODEL_VERSION,
+    inputVersion,
+    symbol: symbol ? String(symbol).toUpperCase() : null,
+    status,
+    indicators: Object.freeze({ current, changePct, ma20: sma20, ma50: sma50, trend }),
+    structure,
+    observedCount: closes.length
+  });
+}

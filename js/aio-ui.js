@@ -44,8 +44,8 @@ function updateBreadthBars() {
   var currentBreadth = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
   if (!currentBreadth.available) {
     var pendingText = '현재 원천 미수신';
-    [['breadth-header-badge','판정 보류'],['breadth-diag-signal','판정 보류'],['breadth-5sma-big','—'],['breadth-20sma-big','—'],['breadth-50sma-big','—'],['breadth-5sma-label',pendingText],['breadth-20sma-label',pendingText],['breadth-50sma-label',pendingText],['breadth-5sma-freshness',pendingText],['breadth-20sma-freshness',pendingText],['breadth-50sma-freshness',pendingText],['breadth-advance-ratio','—'],['breadth-signal-val','—']].forEach(function(p){ var el=document.getElementById(p[0]); if(el){ el.textContent=p[1]; el.style.color='var(--text-muted)'; } });
-    ['breadth-5sma-bar','breadth-20sma-bar','breadth-50sma-bar','bb-5sma-bar','bb-20sma-bar','bb-50sma-bar'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.width='0%'; });
+    [['breadth-header-badge','판정 보류'],['breadth-diag-signal','판정 보류'],['breadth-5sma-big','—'],['breadth-20sma-big','—'],['breadth-50sma-big','—'],['breadth-5sma-label',pendingText],['breadth-20sma-label',pendingText],['breadth-50sma-label',pendingText],['breadth-5sma-freshness',pendingText],['breadth-20sma-freshness',pendingText],['breadth-50sma-freshness',pendingText],['breadth-advance-ratio','—'],['breadth-signal-val','—']].forEach(function(p){ var el=document.getElementById(p[0]); if(el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))){ el.textContent=p[1]; el.style.color='var(--text-muted)'; } });
+    ['breadth-5sma-bar','breadth-20sma-bar','breadth-50sma-bar','bb-5sma-bar','bb-20sma-bar','bb-50sma-bar'].forEach(function(id){ var el=document.getElementById(id); if(el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) el.style.width='0%'; });
     var stageEl = document.getElementById('breadth-stage-summary');
     if (stageEl) { stageEl.textContent = '— 20·50일선 breadth 미수신'; stageEl.style.color = 'var(--text-muted)'; }
     var mcEl = document.getElementById('breadth-mcclellan-summary');
@@ -148,7 +148,7 @@ function updateBreadthBars() {
   [ ['bp-ndx5-val', window._breadthNDX5], ['bp-ndx20-val', window._breadthNDX20], ['bp-ndx50-val', window._breadthNDX50] ]
     .forEach(function(p) {
       var el = document.getElementById(p[0]);
-      if (el && p[1] != null) { el.textContent = p[1] + '%'; el.style.color = _bbColor(p[1]); }
+      if (el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el)) && p[1] != null) { el.textContent = p[1] + '%'; el.style.color = _bbColor(p[1]); }
     });
   // v50.17→v52.40: breadth 페이지 50SMA 막대(width) + 해석 readout 동적 갱신.
   // P562/R253이 큰 숫자·막대·readout을 DATA_SNAPSHOT.breadth50sma 단일 소스로 통일했던 로직을
@@ -171,7 +171,10 @@ function initBreadthPage(forceReinit) {
     window._breadthSeries = window._breadthLabels = null;
     updateBreadthBars();
     ['breadth-5sma','breadth-20sma','breadth-50sma'].forEach(function(key) {
-      document.querySelectorAll('[data-snap="' + key + '"]').forEach(function(el) { el.textContent = '—'; });
+      document.querySelectorAll('[data-snap="' + key + '"]').forEach(function(el) {
+        if (typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el)) return;
+        el.textContent = '—';
+      });
     });
   } else {
     window._breadth5 = evidence.sma5;
@@ -179,14 +182,14 @@ function initBreadthPage(forceReinit) {
     window._breadth50 = evidence.sma50;
     [['breadth-5sma-label',evidence.sma5,false],['breadth-20sma-label',evidence.sma20,true],['breadth-50sma-label',evidence.sma50,false]].forEach(function(p) {
       var el = document.getElementById(p[0]);
-      if (!el) return;
+      if (!el || (typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) return;
       el.textContent = p[2] ? _bb20smaLbl(p[1]) : _bbLbl(p[1]);
       el.style.color = p[2] ? _bb20smaColor(p[1]) : _bbColor(p[1]);
     });
     var asOf = evidence.ts ? new Date(evidence.ts).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit'}) : '현재';
     ['breadth-5sma-freshness','breadth-20sma-freshness','breadth-50sma-freshness'].forEach(function(id) {
       var el = document.getElementById(id);
-      if (el) el.textContent = '관측: ' + asOf + ' · ' + (evidence.source || 'AIO screener universe');
+      if (el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) el.textContent = '관측: ' + asOf + ' · ' + (evidence.source || 'AIO screener universe');
     });
     updateBreadthBars();
     if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
@@ -1112,8 +1115,12 @@ document.addEventListener('DOMContentLoaded', function() {
     var title = pg.querySelector('.page-title');
     if (title) {
       var labelId = pg.id + '-label';
-      title.id = labelId;
-      pg.setAttribute('aria-labelledby', labelId);
+      // Preserve stable semantic IDs used by native route renderers (for
+      // example #ticker-hero-name). Generate the page fallback only when the
+      // title did not already provide an explicit ID.
+      var resolvedLabelId = title.id || labelId;
+      if (!title.id) title.id = resolvedLabelId;
+      pg.setAttribute('aria-labelledby', resolvedLabelId);
     }
   });
 
@@ -2344,7 +2351,8 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
       var ts = snap._snapshotDate || snap.ts;
       if (ts) ageMin = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);
     } catch (e) {}
-    var scrLen = (typeof SCREENER_DB !== 'undefined' && SCREENER_DB) ? SCREENER_DB.length : 0;
+    var scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+    var scrLen = Array.isArray(scrRows) ? scrRows.length : 0;
     return {
       fg: fg,
       telegramOk: !!(window._telegramDigest),
@@ -2415,7 +2423,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     } catch (e) {}
     if (!pf.length) return { sectors: [] };
     var live = window._liveData || {};
-    var db = (typeof SCREENER_DB !== 'undefined') ? SCREENER_DB : [];
+    var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
     var sMap = {};
     pf.forEach(function (entry) {
       var sym = (entry.sym || '').toUpperCase();
@@ -2545,9 +2553,10 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
   // ── Phase 3: AI 채팅 자동 시각화 ─────────────────────────────
   // 토픽 감지(q + response text) → 가장 관련 높은 다이어그램 반환 {type, data, label}
   function _findRow(sym) {
-    if (typeof SCREENER_DB === 'undefined') return null;
-    for (var i = 0; i < SCREENER_DB.length; i++) {
-      if (SCREENER_DB[i].sym === sym) return SCREENER_DB[i];
+    var rows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+    if (!Array.isArray(rows)) return null;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].sym === sym) return rows[i];
     }
     return null;
   }

@@ -2574,7 +2574,7 @@ function _formatDeepComparePrompt(tickers, deepData) {
 // 공급원 → 소비자 흐름:
 //   newsCache(aio-data.js fetchNews 24h) → _buildNewsContext → LLM 시스템 프롬프트
 //   AIO_TELEGRAM_WEEKLY_DIGEST → _buildTelegramContext → 동일 파이프라인
-//   screener.json newsMemo → _aioApplyServerScreener → _formatScreenerResultPrompt
+//   native screener state + identity/memo boundary → _formatScreenerResultPrompt
 //
 // _CTX_TOPIC_MAP: 페이지ID → topic 배열. _buildNewsContext가 newsCache를 topic 필터로 선별.
 //   topic 값은 aio-data.js fetchNews의 item.topics 배열과 일치해야 함(계약 지점).
@@ -3851,7 +3851,7 @@ window._aioParseMemoFreshness = _aioParseMemoFreshness;
 // v49.71 P378 R135: SCREENER_DB ticker row 자동 조회 + memo + 신선도 라벨 반환
 function _aioGetMemoForTicker(ticker) {
   if (!ticker) return null;
-  var db = window.SCREENER_DB || [];
+  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
   var row = Array.isArray(db) ? db.find(function(r) { return r && r.sym === ticker; }) : (db[ticker] || null);
   if (!row || !row.memo) {
     return { ticker: ticker, hasMemo: false, fallback: 'SCREENER_DB 미등록 또는 memo 부재 — SEC/Wikipedia/Naver 폴백 의존 (dataConfidence:medium)' };
@@ -5799,7 +5799,8 @@ async function fundamentalSearch() {
     if (_chatInpC) _chatInpC.value = ticker + ' 종합 기업 분석해줘. 17개 관점과 데이터 가용성 매트릭스 적용.';
     try {
       if (typeof window._aioRenderFundamentalRadar === 'function') {
-        var _scrRowC = (window.SCREENER_DB || []).find(function(r){ return r.sym === ticker; });
+        var _scrRowsC = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+        var _scrRowC = _scrRowsC.find(function(r){ return r.sym === ticker; }) || null;
         window._aioRenderFundamentalRadar(ticker, _scrRowC || null);
       }
     } catch(_) {}
@@ -6030,7 +6031,8 @@ async function fundamentalSearch() {
   _renderFundSources(collected);
   try {
     if (typeof window._aioRenderFundamentalRadar === 'function') {
-      var _scrRow = (window.SCREENER_DB || []).find(function(r){ return r.sym === ticker; });
+      var _scrRows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
+      var _scrRow = _scrRows.find(function(r){ return r.sym === ticker; }) || null;
       window._aioRenderFundamentalRadar(ticker, _scrRow || null);
     }
   } catch(_) {}

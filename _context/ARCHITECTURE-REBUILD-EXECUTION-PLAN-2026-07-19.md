@@ -1,12 +1,30 @@
 ---
-verified_by: Codex (v53.15 repository, contracts, and Chromium evidence); session cards appended through 2026-07-21 by Claude Sonnet 5 (see _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md for the authoritative current status/owner ledger per this doc's own precedence note above)
-last_verified: 2026-07-21
+verified_by: Codex (v53.17 repository, contracts, and Chromium evidence); session cards through 2026-07-22 (P780; see _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md for the authoritative current status/owner ledger per this doc's own precedence note above)
+last_verified: 2026-07-22
 confidence: high
 auto_refresh: false
-target_version: v53.15
+target_version: v53.17
 status: DESIGNED_EXECUTABLE
 parent: ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md
 scope: whole-system architecture execution
+
+## Current verified checkpoint (P771, 2026-07-22)
+
+Working tree: dirty `main` / HEAD `dc8043f` / v53.17 / no deployment.
+Ownership: lifecycle native 17/17; renderer native 6/17 (`guide`, `sentiment`, `screener`, `market-news`, `briefing`, and bounded `macro` primary metrics); legacy renderer 11; data native 1/17 (`screener`); chart native 1/17 (`sentiment`); narrative native 0/17.
+P771 transfers macro primary live quote/FRED snapshot sinks to `src/ui/pages/market.js`. Legacy quote/snapshot/FRED/BOK/KOSIS passes explicitly fence native macro elements. Macro curve/chart/event-freshness/narrative ids remain documented secondary legacy boundaries.
+Measured counters: `explicitWindowWrites/directFetch/directStorage/htmlSinks = 1071/41/186/385`.
+Local Chromium evidence: 17-route two-lap round trip; macro native live sinks 41 and snapshot sinks 46; browserErrors 0. Remaining: 11 legacy renderer owners, macro secondary/route data-chart-narrative ownership, identity/memo retirement, and operator-required rights/deployment/seven-day soak.
+
+## Current verified checkpoint (P772, 2026-07-22)
+
+P772 transfers the fxbond primary live quote and MOVE snapshot surfaces to `src/ui/pages/market.js`; the shared legacy quote/snapshot passes now fence both native market subtrees. Ownership is lifecycle native 17/17, renderer native 7/17, renderer legacy 10/17, data native 1/17, chart native 1/17, and narrative native 0/17.
+Measured counters remain `explicitWindowWrites/directFetch/directStorage/htmlSinks = 1071/41/186/385`. Chromium evidence covers native fxbond live/MOVE sinks plus the 17-route two-lap round trip with browserErrors 0. Risk, spread/carry narrative, and trend/yield-curve chart ids remain secondary legacy boundaries; operator rights/deployment/seven-day soak remain pending.
+
+## Current verified checkpoint (P780, 2026-07-22)
+
+P780 transfers only the portfolio readiness/status text (`pf-analysis-status`) to native `portfolio.js` from the native portfolio slice. The encrypted Vault/CRUD path, holdings table, totals/prices, risk metrics, AI workbench, and charts remain explicitly legacy-owned until RM-09 storage/vault and writer reconciliation. P779's fundamental SEC status boundary, P778's options replacement-metric boundary, P777's ticker ID preservation, and P776's derived-route cleanup remain in force. Ownership is lifecycle native 17/17, renderer native 13/17, renderer legacy 4/17, data native 2/17 (`screener`, `breadth`), chart native 1/17, and narrative native 0/17.
+Measured counters remain `explicitWindowWrites/directFetch/directStorage/htmlSinks = 1081/40/186/377`. Chromium asserts portfolio native status sink 1/1 with the empty-state text, fundamental native status 1/1 with `● SEC 연간 데이터` and `official-regulator` lineage for AAPL, options native primary sinks 3/3, browserErrors 0, and the 17-route two-lap resource snapshot remains 42 canvases / 12 timers; headless remains `1098/1098 PASS`. Operator rights/deployment/seven-day soak remain pending.
 
 ## 2026-07-19 RM-00 correction (supersedes the checkpoint below — do not re-declare from the block below)
 
@@ -43,7 +61,7 @@ deferred until this packet sequence is complete, then runs as one batch.
 2. 대응 legacy owner/writer/hook/fetch/storage/HTML sink가 삭제된다.
 3. 삭제와 소유권이 계약·브라우저 게이트로 다시 돌아오지 못하게 고정된다.
 
-현재 checkout은 `main` HEAD `644c105`, 작업 버전은 `v53.15`이며 v53.15 변경은 아직 커밋·배포되지 않은 상태에서 작성됐다. 새 세션은 이 상태를 사실로 가정하지 말고 반드시 `git status --short`, `git rev-parse --short HEAD`, `version.json`을 다시 읽는다.
+현재 checkout은 `main` HEAD `dc8043f`, 작업 버전은 `v53.17`이다. P755~P770 변경은 현재 워크트리에 미커밋 상태이며 배포되지 않았다. 새 세션은 이 상태를 사실로 가정하지 말고 반드시 `git status --short`, `git rev-parse --short HEAD`, `version.json`을 다시 읽는다.
 
 ## 1. 완료 상태 정의
 
@@ -133,6 +151,30 @@ W0 ownership baseline (v53.15 완료)
       -> W9 storage/privacy cutover
   -> W10 shell/build/SW/release cutover
   -> W11 legacy zero + live certification + document archive
+```
+
+## Session card — P770 ARX-06 briefing primary feed renderer cutover (2026-07-22)
+```text
+Packet: P770 — make briefing-live-news-list a native primary feed surface after the P769 market-news transfer.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment
+Owner transition: native news.js owns briefing canonical selection, safe cards/category groups, count, completed 08:00 KST timestamp, and reveal control; the hidden secondary briefing-digest remains legacy narrative compatibility.
+Delete ledger: removed direct legacy briefing list loading/timeout/empty/error/count/timestamp/reveal writers and replaced render/AI/cap/toggle DOM paths with invalidation/input adapters.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1070/41/186/385; renderer native 5/17, data native 1/17, legacy renderer 12.
+Local evidence: syntax, runtime, data-pipeline, ESM, domain parity, architecture, retirement, operations, Chromium routeRoundTrip with briefing native/feed markers and browserErrors 0, headless 1098/1098 PASS.
+Remaining: twelve route renderer/data-owner cutovers, route data/chart/narrative ownership, identity/memo retirement, and operator-required rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (P770 complete; no commit/deploy performed)
+```
+
+## Session card — P769 ARX-06 market-news primary feed renderer cutover (2026-07-22)
+```text
+Packet: P769 — transfer the primary market-news primary feed DOM owner to native news.js.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment
+Owner transition: src/ui/pages/news.js owns live-news-feed, count, progressive summary, empty state, and category cards from canonical news state; route data/chart/narrative ownership remains legacy.
+Delete ledger: removed legacy renderFeed() declaration/callers and direct primary-feed loading/error/count/progressive writers; legacy filter/translation functions now notify native invalidation only.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1068/41/186/393.
+Local evidence: syntax, runtime, data-pipeline, ESM, domain parity, architecture, retirement, operations, Chromium routeRoundTrip/browserErrors 0, and headless 1098/1098 PASS.
+Remaining: briefing/content cutover, 13 route renderer owners, identity/memo retirement, and operator-required rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (P769 complete; no commit/deploy performed)
 ```
 
 | Wave | 실행 패킷 | 선행 조건 | 완료 증거 |
@@ -499,4 +541,210 @@ Browser evidence: 실 Chromium 애드훅 검증 2건(각각 임시 스크립트,
 Live evidence: 없음 — 커밋·배포 모두 사용자 지시 대기.
 Unverified/blockers: 진짜 추세인지형 breadth stage(다일 이력 기반)는 `history.json`에 일별 breadth를 영속화하는 별도 `/data-refresh` 성격 작업이 선행돼야 함(Fable이 명시적으로 "지금 만들지 말라"고 권고, 이번 세션 범위 밖). direction 판정에 쓰는 1스텝 delta는 localStorage 단일 슬롯(브라우저별·일별 초기화)이라 첫 방문·캐시 삭제 시 항상 null로 폴백(설계상 의도, 조작 안 함).
 Status: VERIFIED_LOCAL (P746 완전 해소 — mtf-verdict-text·breadth-stage-summary 양쪽 모두 정적 플레이스홀더에서 라이브 배선으로 전환)
+```
+
+## 세션 카드 — RM-03 계속: P755~P759 잔여 smoke-only 정리와 스크리너 팩터 랭킹 실 배선 (2026-07-22)
+
+```text
+Packet: RM-03 계속(P755~P759) — news claim toy 퇴역, technical/macro/portfolio 실 산식 전환, screener factor-ranks 추출·legacy projection 배선
+Checkout/HEAD/version/liveRevision: main `dc8043f`에서 재개 / v53.17 / live revision 미확인(배포 없음), P755~P759 현재 워크트리 미커밋
+Scope route/metric/layer: ci-domain-parity-check.mjs 잔여 smoke-only 모델 · src/domain/{technical/stage,macro/treasury-curve,portfolio/concentration,screener/factor-ranks}.js · js/aio-data.js의 _aioComputeFactorRanks/getUsTreasuryCurveEvidence/calcPositionTechnicalRisk · src/data/normalize/analysis.js · src/app/bootstrap.js · src/legacy/compatibility-facade.js · sw.js · ESM/parity fixture·dump 게이트
+Owner before: `deriveNewsClaim`, `deriveTechnicalModel`, `deriveMacroModel`, `derivePortfolioRisk`는 독립 발명된 toy 모델이었고, `_aioComputeFactorRanks`는 js/aio-data.js에 7팩터 계산 본문이 단독 존재했다.
+Owner after: news claim toy는 실 호출처·대응 legacy 산식이 없어 삭제. technical은 SMA 스택+기존 parity 검증 stage 분류를 `deriveTechnicalStageFromOhlcv`로 재배선. macro는 다중소스 2s10s 곡선을 `deriveTreasuryCurveEvidence`로, portfolio는 실제 10/15/25% concentration penalty 슬라이스를 `deriveConcentrationRisk`로 이관. screener는 `computeFactorRanks`가 순수 구현을 소유하고 legacy wrapper는 기존 hidden input/weight를 해석해 `SCREENER_DB`에 결과만 projection한다.
+Files changed: js/aio-core.js · js/aio-data.js · src/data/normalize/analysis.js · src/data/providers/screener.js · src/domain/technical/stage.js · src/app/bootstrap.js · src/legacy/compatibility-facade.js · scripts/ci-domain-parity-check.mjs · scripts/ci-esm-core-unit-check.mjs · sw.js · CHANGELOG.md · _context/BUG-POSTMORTEM.md
+Files added: src/domain/{macro/treasury-curve,portfolio/concentration,screener/factor-ranks}.js · scripts/dump-{macro-curve,portfolio-concentration,factor-ranks}-fixtures.mjs · architecture/fixtures/{macro-curve,portfolio-concentration,factor-ranks}-golden.json
+Files retired: src/domain/{macro/model,news/claims,portfolio/risk,technical/indicators}.js
+DELETE-LEDGER before edit:
+  - declaration: four toy model declarations 삭제; _aioComputeFactorRanks의 135줄 legacy formula 본문을 pure domain으로 이관; macro/portfolio legacy wrapper의 계산 본문을 입력 수집+브릿지로 축소.
+  - callers: deriveNewsClaim 0곳, deriveMacroModel/derivePortfolioRisk 0곳을 전수 확인 후 삭제; normalizeAnalysis의 deriveTechnicalModel 호출은 deriveTechnicalStageFromOhlcv로 교체; _aioComputeFactorRanks 호출부 시그니처는 유지.
+  - global writer: factor-ranks wrapper만 기존 호환 대상인 SCREENER_DB row와 _aioActiveFactor* 상태를 projection; 새 domain은 global/window/DOM/storage에 접근하지 않음.
+  - DOM/chart/event/storage: factor-ranks·technical·macro·concentration 추출 자체의 새 sink 없음. calcPositionTechnicalRisk의 concentration penalty는 window.AIO_ARCH 단일 구현 호출로 교체.
+  - tests/docs/asset: parity·ESM unit·dump fixture·bootstrap/facade allowlist·SW precache·CHANGELOG/BUG-POSTMORTEM을 같은 배치에 동기화.
+Burn-down before/after: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1088/42/187/409 (P746 이후 현재 게이트 재측정; P755~P759는 대부분 domain 추출이라 추가 sink 감소는 없음).
+New compatibility introduced and retirement packet: `window.AIO_ARCH.{deriveTreasuryCurveEvidence,deriveConcentrationRisk,concentrationPenaltyForWeight,computeFactorRanks}` 신규 영구 브릿지; legacy는 계산 소유자가 아니며 retirement 대상이 아니다. `factor-ranks.js`는 SW SHELL_ASSETS에도 등록.
+Local gates: ci-domain-parity-check PASS(Trading Score 7·RRG 8·Weinstein/MTF 8·news 8·macro 8·portfolio 8·factor-ranks 5 fixtures) · ci-esm-core-unit-check PASS · architecture-contract/retirement/runtime/release-manifest/release-revision/version/static-data/knowledge-lint PASS · ci-headless-tests exit 0.
+Browser evidence: dump-factor-ranks-fixtures.mjs 실 Chromium PASS(5 fixtures, 실제 SCREENER_DB 873행); ci-architecture-browser-check PASS(17-route round-trip, canvas 42→42, timer 12→12, browserErrors 0).
+Live evidence: 없음 — 현재 워크트리 미커밋·미배포.
+Unverified/blockers: native screener provider/renderer는 아직 raw artifact 소비 단계라 native state의 rank는 null이며, 실제 screener route cutover·legacy fetch/SCREENER_DB 삭제는 ARX-10 범위다. `_aioFactorWeights`의 browser profile/regime dependency는 P759에서 legacy boundary로 의도적으로 유지. ci-domain-parity의 market/screener toy/signal 3개는 여전히 smoke-only이며 signal 대체는 ARX-11 스코프다.
+Status: VERIFIED_LOCAL (P755~P759 스코프 — RM-03의 실 parity 대상 확대 및 toy 정리 완료. 전체 route ownership/ARX-04 legacy cutover/실배포는 미완료)
+```
+
+## Session card — ARX-10/P760 native screener route cutover (2026-07-22)
+```text
+Packet: ARX-10/P760 — screener native provider/state/renderer cutover and legacy DOM writer retirement
+Scope: artifact+identity-universe provider join, canonical factor-rank wiring, native 22-column renderer, filter/tab/profile/watchlist/position/backtest controls, and legacy screen writer/action retirement.
+Owner transition: screener lifecycle native → lifecycle/renderer/data native; chart and narrative remain legacy/not applicable. `SCREENER_DB`, profile, and watchlist storage compatibility remains only for non-cut-over consumers.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1071/42/186/400; renderer native 3/17, data native 1/17, legacy owner 14.
+Local evidence: architecture/retirement/operations/runtime/domain parity/ESM unit/release/version/static-data/knowledge-lint/browser gates pass; headless 1098/1098 PASS and browserErrors 0.
+Unverified/blockers: live provider rights, deployment, and seven-day soak remain operator-required. Legacy compatibility retirement and ARX-11 signal replacement are subsequent work.
+Status: VERIFIED_LOCAL (ARX-10 route cutover complete; live certification/deploy intentionally not done)
+```
+
+## Session card — P761/P762/P763/P764/P765 continuation (2026-07-22)
+```text
+Packet: P761/P762/P763/P764/P765 — smoke-only retirement, ARX-11 signal replacement, factor-weight extraction, ARX-16 screener compatibility read migration, and missed screener readiness writer retirement
+Scope: retired uncalled market/screener smoke domains; mapped analysis signal from canonical Trading Score; extracted pure factor-weight resolver; rewired non-route screener readers to the native read boundary.
+Owner transition: market/model.js and screener/ranking.js retired; signal modelVersion is signal-from-trading-score.v1; factor weights are factor-weights.v1; AIO_ARCH.getScreenerRows() is the compatibility read API.
+Compatibility rule: SCREENER_DB remains only for identity/memo enrichment and the legacy data pipeline. It is not a direct read dependency of portfolio, ticker, fundamental, chat, watchlist, UI audit, or ticker overview consumers.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1069/42/186/399.
+Local evidence: syntax, ESM unit, domain parity, runtime, architecture, browser route round-trip, and headless 1098/1098 PASS.
+Remaining: identity/memo compatibility producers and route-by-route ARX-16 owner burn-down remain; live rights, deployment, and seven-day soak remain operator-required.
+Status: VERIFIED_LOCAL (P761-P765 complete; no commit/deploy performed)
+```
+## Session card — P766 ARX-16 canonical screener helper migration (2026-07-22)
+```text
+Packet: P766 — non-route screener helper reads now prefer the native canonical row boundary.
+Owner transition: recent-recommendation extraction, sector lookup, natural-language query, Maker/Checker verification, and compatibility-facade readScreener now use AIO_ARCH.getScreenerRows() through _aioGetCanonicalScreenerRows().
+Compatibility rule: SCREENER_DB remains a fallback/enrichment source for identity/memo and the still-open data pipeline; direct consumer bypasses are contract-blocked.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1068/41/186/399.
+Local evidence: syntax, runtime, data-pipeline, ESM, architecture, browser route round-trip, and headless 1098/1098 PASS.
+Remaining: identity/memo compatibility producers and route-by-route ARX-16 owner burn-down; live rights, deployment, and seven-day soak remain operator-required.
+Status: VERIFIED_LOCAL (P766 complete; no commit/deploy performed)
+```
+## Session card — P767 native screener data-pipeline contract repair (2026-07-22)
+```text
+Packet: P767 — synchronize the data-pipeline gate with native screener backtest disclosure and fail-closed quant readiness.
+Owner transition: src/ui/pages/screener.js owns the backtest disclosure; js/aio-data.js owns the quant-readiness audit; the CI gate checks both current owners.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1068/41/186/399.
+Local evidence: syntax, data-pipeline, doc-currency, runtime, architecture, browser route round-trip, and headless 1098/1098 PASS.
+Remaining: native single-fetch bridge is closed; identity/memo compatibility producers and route-by-route legacy owner burn-down remain; live rights, deployment, and seven-day soak remain operator-required.
+Status: VERIFIED_LOCAL (P767 complete; no commit/deploy performed)
+```
+
+## Session card — P768 ARX-16 native screener single-fetch bridge (2026-07-22)
+```text
+Packet: P768 — remove the duplicate legacy screener artifact fetch and SCREENER_DB factor-row projection.
+Owner transition: src/data/providers/screener.js + orchestrator own artifact rows/ranks; bootstrap getScreenerState()/aio:nativeScreenerReady is the compatibility handoff; js/aio-data.js keeps metadata/breadth audit updates only.
+Compatibility rule: curated identity/memo and Telegram overlays remain explicit compatibility producers; no runtime legacy factor fetch or bulk row projection remains.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1068/41/186/399.
+Local evidence: syntax, runtime/data-pipeline, ESM, domain parity, architecture, Chromium 17-route round-trip with browserErrors 0, and headless 1098/1098 PASS; doc currency and diff check PASS.
+Remaining: route-by-route legacy renderer/data-owner burn-down, identity/memo producer retirement, and operator-required rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (no commit/deploy performed)
+```
+
+## Session card — P769/P770/P771 route primary-surface continuation (2026-07-22)
+```text
+Packet: P769/P770/P771 — market-news primary feed, briefing primary feed, and bounded macro primary metric renderer cutovers.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment.
+Owner transition: native news.js owns the primary market-news and briefing feed surfaces; native market.js owns macro primary live quote/FRED snapshot sinks. Secondary AI narrative, macro curve/chart/event-freshness/narrative ids, and route data ownership remain explicit legacy boundaries.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1071/41/186/385; lifecycle native 17/17; renderer native 6/17; legacy renderer 11.
+Local evidence: architecture/data-pipeline/retirement/operations/runtime/ESM/domain parity/release/version/static-data/knowledge-lint contracts pass; Chromium 17-route two-lap round trip passes with macro live 41/41 and snapshot 46/46 native sinks, browserErrors 0; headless 1098/1098 PASS.
+Remaining: eleven legacy renderer owners, route data/chart/narrative ownership, macro secondary boundaries, identity/memo retirement, and operator-required rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (P771 complete; no commit/deploy performed)
+```
+
+## Session card — P772 ARX-07 fxbond primary metric renderer cutover (2026-07-22)
+```text
+Packet: P772 — transfer fxbond primary live quote and MOVE snapshot sinks to native market.js.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment.
+Owner transition: market.js owns #page-fxbond [data-live-price], [data-live-chg], and [data-snap="move"]; risk, spread/carry narrative, and chart ownership remain legacy secondary boundaries.
+Delete/fence ledger: added native fxbond marker and guarded shared applyLiveDataToDom/applyLiveQuotes/applyDataSnapshot paths from native fxbond elements.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1071/41/186/385; renderer native 7/17, legacy renderer 10/17.
+Local evidence: syntax, runtime, data-pipeline, ESM, domain parity, architecture, retirement, operations, Chromium fxbond native primary markers, browserErrors 0, and headless 1098/1098 PASS.
+Remaining: fxbond risk/spread/carry/chart secondary boundaries, ten legacy renderer routes, route data/chart/narrative ownership, identity/memo retirement, and operator-required rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (P772 complete; no commit/deploy performed)
+```
+
+## Session card — P773 ARX-07 breadth primary current-metric renderer cutover (2026-07-22)
+```text
+Packet: P773 — transfer the breadth current 5/20/50SMA cards, bars/freshness, and canonical advance-ratio sink to native market.js.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment.
+Owner transition: market.js owns the four primary current-metric sinks; native screener metadata is preferred through AIO_ARCH.getScreenerState(), with AIO.getCurrentBreadthEvidence() retained only as a compatibility fallback. Chart history and stage/diagnostic/McClellan/RSP-SPY narrative remain legacy secondary boundaries.
+Delete/fence ledger: added the native breadth marker and fenced applyDataSnapshot, _aioSyncBreadth50Readout, updateBreadthBars/initBreadthPage, and updateBreadthUI from the native primary breadth elements; exposed getScreenerState through the compatibility facade so the native artifact metadata is reachable by the route renderer.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1082/41/186/385; lifecycle native 17/17; renderer native 8/17; renderer legacy 9/17; data native 2/17.
+Local evidence: syntax, architecture, data-pipeline, retirement, operations, Chromium breadth native primary markers and values 35/47/55% plus 34.8% advance ratio with browserErrors 0, 17-route two-lap round trip, and headless 1098/1098 PASS.
+Remaining: breadth historical chart/stage/diagnostic secondary boundaries, nine legacy renderer routes, route chart/narrative/identity/memo retirement, and operator-required rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (P773 complete; no commit/deploy performed)
+```
+
+## Session card — P780 bounded portfolio readiness/status native surface (2026-07-22)
+```text
+Packet: P780 — transfer only the independently owned portfolio readiness/status sink to native portfolio.js while the encrypted Vault/CRUD/table/risk/chart writer boundary remains legacy.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment.
+Owner transition: portfolio.js owns #page-portfolio #pf-analysis-status from the native portfolio slice; encrypted Vault consent, CRUD, holdings table, totals/prices, risk metrics, AI workbench, and charts remain legacy-owned.
+Delete/fence ledger: no competing legacy writer for pf-analysis-status was found. The native renderer writes fail-closed empty/unavailable state or the current position-count readiness text with source-kind/source-label/operational-use/observed-at lineage; it no longer rewrites the contested holdings table.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1081/40/186/377; lifecycle native 17/17; renderer native 13/17; renderer legacy 4/17; data native 2/17.
+Local evidence: portfolio syntax, architecture, retirement, operations, Chromium portfolio native status sink 1/1, fundamental 1/1, options 3/3, 17-route two-lap resources 42→42 canvases / 12→12 timers, browserErrors 0, and headless 1098/1098 PASS.
+Remaining: portfolio full Vault/CRUD/table/risk/chart surface, fundamental full report, four legacy renderer routes, native-route secondary chart/data/narrative boundaries, identity/memo retirement, live invariant/provider rights, Cloudflare credentials/7-day soak, and deployment.
+Status: VERIFIED_LOCAL (P780 bounded portfolio status complete; no commit/deploy performed)
+```
+
+## Session card — P779 bounded fundamental SEC status native surface (2026-07-22)
+```text
+Packet: P779 — transfer only the fundamental SEC annual-data availability/source badge to native entity.js after confirming the full report still has multiple legacy async writers and low SEC coverage.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment.
+Owner transition: entity.js owns #page-fundamental #fund-data-status from normalized sec-fundamentals.json evidence; the full multi-source report, report sections, charts, and AI narrative remain legacy-owned.
+Delete/fence ledger: no competing writer for fund-data-status was found; the native renderer adds text/source-kind/source-label/observed-at lineage and fail-closed unavailable state. No full-report legacy function was deleted because SEC/FMP/Yahoo/Finnhub async ownership and 14.1% SEC coverage are unresolved.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1081/40/186/377; lifecycle native 17/17; renderer native 12/17; renderer legacy 5/17; data native 2/17.
+Local evidence: entity syntax, architecture, retirement, operations, Chromium fundamental native status sink 1/1 (`● SEC 연간 데이터`, `official-regulator`), options 3/3, 17-route two-lap resources 42→42 canvases / 12→12 timers, browserErrors 0, and headless 1098/1098 PASS.
+Remaining: fundamental full report/coverage, five legacy renderer routes, native-route secondary chart/data/narrative boundaries, identity/memo retirement, live invariant/provider rights, Cloudflare credentials/7-day soak, and deployment.
+Status: VERIFIED_LOCAL (P779 bounded fundamental status complete; no commit/deploy performed)
+```
+
+## Session card — P778 bounded options replacement-metric native surface (2026-07-22)
+
+Packet: P778 — transfer only the current options replacement metrics (VIX/PCR/SKEW) to native `entity.js` after confirming the route is an explicit no-options-chain/reference-only stub.
+
+Owner transition: `src/ui/pages/entity.js` owns `opt-vix-val-secondary`, `opt-pcr-val-secondary`, and `opt-skew-val-secondary` from normalized entity options evidence. Options-chain/Greeks/chart/narrative scaffolding remains legacy/reference-only.
+
+Delete/fence ledger: `compatibility-facade.readEntity()` now projects VIX/PCR/SKEW value/sourceKind/observedAt into `entity.options`; the native renderer writes the three sinks with textContent and reference-only lineage; shared quote/snapshot/PCR writers fence the native options subtree; the old direct PCR ID writer is removed.
+
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1081/40/186/377; lifecycle native 17/17; renderer native 11/17; renderer legacy 6/17; data native 2/17.
+
+Local evidence: syntax, architecture, retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, Chromium options native primary sinks 3/3 with browserErrors 0, 17-route two-lap canvases 42→42/timers 12→12, and headless 1098/1098 PASS.
+
+Remaining: fundamental route, other six legacy renderer routes, chart/narrative/identity/memo retirement, live invariant/provider rights, Cloudflare credentials/7-day soak, and deployment.
+
+Status: VERIFIED_LOCAL (P778 complete; no commit/deploy performed)
+
+## Session card — P777 bounded ticker hero native surface and explicit title-ID preservation (2026-07-22)
+
+Packet: P777 — transfer only the ticker hero primary surface to native `entity.js`, then close the shared accessibility ID collision found by Chromium.
+
+Owner transition: `src/ui/pages/entity.js` owns `ticker-hero-name`, `ticker-hero-fullname`, `ticker-hero-price`, and `ticker-hero-chg` from normalized entity state. Fundamentals/options and ticker overview/candle/entry surfaces remain legacy secondary boundaries.
+
+Delete/test ledger: `showTicker()` no longer writes the four primary hero sinks. The shared `.page-title` accessibility initializer preserves explicit IDs and generates `page-*-label` only when a title has no explicit ID. Route and retirement manifests count ticker as native renderer-owned.
+
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1081/40/186/377; lifecycle native 17/17; renderer native 10/17; renderer legacy 7/17; data native 2/17.
+
+Local evidence: syntax, architecture, retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, Chromium ticker primary sinks 4/4 (`AAPL / Apple Inc. / — / —`), browserErrors 0, 17-route two-lap canvases 42→42/timers 12→12, and headless 1098/1098 PASS.
+
+Remaining: ticker fundamentals/options and secondary surfaces, seven legacy renderer routes, chart/narrative/identity/memo retirement, live invariant/provider rights, Cloudflare credentials/soak, and deployment.
+
+Status: VERIFIED_LOCAL (P777 complete; no commit/deploy performed)
+
+## Session card — P776 theme-detail derived-route declaration retirement (2026-07-22)
+```text
+Packet: P776 — confirm theme-detail canonical redirect/inline ownership and retire its unreachable static-page renderer declaration.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment.
+Owner transition: none claimed; themes.js retains the bounded RRG primary owner, while showThemeDetail() remains the legacy inline detail panel after theme-detail -> themes canonicalization.
+Delete/test ledger: removed the standalone renderPageThemeDetail() declaration and its inline-panel call, corrected theme-detail route-owner evidence to theme-detail-panel/showThemeDetail, and added retiredLegacySymbolsMustBeAbsent contract coverage.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1080/40/186/377; lifecycle native 17/17; renderer native 9/17; renderer legacy 8/17; data native 2/17.
+Local evidence: repository-wide caller search, syntax, architecture, retirement, operations, doc-currency, and headless 1098/1098 PASS; the existing Chromium 17-route round trip remains browserErrors 0.
+Remaining: live inline detail panel composition, quote/data/narrative migration, other legacy route ownership, and operator-required provider rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (P776 complete; no commit/deploy performed)
+```
+
+## Session card — P775 bounded themes RRG primary surface cutover (2026-07-22)
+```text
+Packet: P775 — transfer only themes RRG quadrant cards and rotation-read primary surfaces to native themes.js.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment.
+Owner transition: src/ui/pages/themes.js now owns #rrg-quadrant-cards and #rrg-rotation-read from normalized theme state; RRG chart/canvas status and theme-detail remain legacy secondary boundaries.
+Delete/test ledger: removed legacy renderRRGQuadrantCards(), added view/history invalidation events, normalized RRG view/relative-rotation data, and asserted native theme primary sink counts in the Chromium contract.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1080/40/186/380; lifecycle native 17/17; renderer native 9/17; renderer legacy 8/17; data native 2/17.
+Local evidence: architecture, retirement, operations, structural, doc-currency, Chromium 17-route two-lap (`themesRenderer:native`, primary sinks 2/2, browserErrors 0), and headless 1098/1098 PASS.
+Remaining: theme-detail and other route-by-route legacy renderer/data/chart/narrative ownership, identity/memo retirement, and operator-required provider rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (P775 complete; no commit/deploy performed)
+```
+
+## Session card — P774 declaration-only legacy cleanup (2026-07-22)
+```text
+Packet: P774 — retire declaration-only news/briefing/screener functions and only-dependent sparkline helpers left after the P769/P770 primary-feed cutovers.
+Checkout/HEAD/version/liveRevision: dirty main worktree / HEAD dc8043f / v53.17 / no deployment.
+Owner transition: native news.js remains the sole primary market-news/briefing feed renderer; the removed legacy declarations are no longer runtime owners. Native market.js remains the owner of macro/fxbond/breadth primary metric sinks.
+Delete/test ledger: removed declaration-only legacy functions and dependent sparkline blocks; updated T890/T940 so the retired briefing helper is expected to be absent and the native response pipeline is the valid contract.
+Burn-down: explicitWindowWrites/directFetch/directStorage/htmlSinks = 1082/41/186/385; lifecycle native 17/17; renderer native 8/17; renderer legacy 9/17; data native 2/17.
+Local evidence: structural, control-character, architecture, data-pipeline, retirement, runtime, doc-currency, Chromium 17-route two-lap, and headless 1098/1098 PASS.
+Remaining: themes/theme-detail and other route-by-route legacy renderer/data/chart/narrative ownership, identity/memo retirement, and operator-required provider rights/deployment/seven-day soak.
+Status: VERIFIED_LOCAL (P774 complete; no commit/deploy performed)
 ```

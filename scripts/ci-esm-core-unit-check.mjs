@@ -9,6 +9,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 // 2026-07-21 (Fable-advisor review, ARX-04 follow-up): added the screener/entity orchestrators'
 // generation-counter staleness guard here too — it's a core correctness contract (not route- or
 // provider-specific: it's tested against fake providers) of exactly the kind this file exists for.
+// 2026-07-22/ARX-11: signal now consumes the extracted trading-score model; its score-to-action
+// envelope is covered below so the retired three-input toy cannot return as a parallel owner.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fail = (message) => { throw new Error(`[esm-core-unit] ${message}`); };
 const load = (rel) => import(pathToFileURL(path.join(root, rel)));
@@ -46,6 +48,17 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   threw = false;
   try { store.subscribe('not-a-function'); } catch (_) { threw = true; }
   if (!threw) fail('store: subscribe accepted a non-function listener');
+}
+
+// ── domain/screener/factor-weights.js ─────────────────────────────────────────────────────────
+{
+  const { deriveFactorWeights } = await load('src/domain/screener/factor-weights.js');
+  const neutral = deriveFactorWeights();
+  if (neutral.weights.momentum !== 0.27 || neutral.weights.lowvol !== 0.16 || neutral.regimeLabel !== '중립 → 균형 가중') fail(`factor-weights: neutral drifted, got ${JSON.stringify(neutral)}`);
+  const defensive = deriveFactorWeights({ marketState: { riskScore: 65 } });
+  if (defensive.weights.lowvol <= neutral.weights.lowvol || defensive.weights.momentum >= neutral.weights.momentum || !defensive.regimeLabel.includes('위험회피')) fail(`factor-weights: risk-off tilt missing, got ${JSON.stringify(defensive)}`);
+  const profile = deriveFactorWeights({ profile: { label: '테스트', desc: '직접 가중', weights: { momentum: 2, trend: 1 } } });
+  if (Math.abs(profile.weights.momentum - (2 / 3)) > 1e-12 || profile.weights.trend !== (1 / 3) || !profile.regimeLabel.includes('테스트')) fail(`factor-weights: profile normalization drifted, got ${JSON.stringify(profile)}`);
 }
 
 // ── lifecycle.js (createResourceBag) ────────────────────────────────────────────────────────
@@ -237,4 +250,103 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (unavailable.available !== false || unavailable.level !== null) fail(`breadth: a missing required input (sma20) must fail closed to available:false, not guess a level — got ${JSON.stringify(unavailable)}`);
 }
 
-console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth'] }));
+// ── domain/signal/trading-score.js: signal envelope ──────────────────────────────────────────
+{
+  const { computeTradingScoreModel, deriveSignalDecisionFromTradingScore } = await load('src/domain/signal/trading-score.js');
+  const score = computeTradingScoreModel({ mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, fg: 50, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, pcr: 1, hyBp: 300, newsSentimentScore: 50, newsRiskSignals: [] });
+  const signal = deriveSignalDecisionFromTradingScore({ score, inputVersion: 'unit.v1' });
+  if (signal.modelVersion !== 'signal-from-trading-score.v1' || signal.score !== score.total || signal.action !== 'WATCH' || signal.status !== 'current') fail(`signal: canonical trading-score mapping drifted, got ${JSON.stringify(signal)}`);
+  const blocked = deriveSignalDecisionFromTradingScore({ score: computeTradingScoreModel({}), inputVersion: 'unit.v1' });
+  if (blocked.status !== 'blocked' || blocked.action !== 'WAIT' || blocked.score !== null) fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
+}
+
+// ── domain/technical/stage.js: deriveTechnicalStageFromOhlcv ───────────────────────────────────
+// 2026-07-21/P756: replaces the retired deriveTechnicalModel toy (src/domain/technical/
+// indicators.js, had no legacy formula behind it) as normalizeAnalysis's real technical model. Not
+// a legacy-dump golden fixture (there's no single legacy function this extracts from — it composes
+// a faithful SMA reimplementation with the already-parity-verified classifyMovingAverageStructure),
+// so hand-written expected outputs against the documented status/trend thresholds instead.
+{
+  const { deriveTechnicalStageFromOhlcv } = await load('src/domain/technical/stage.js');
+  const bars = (n, closeFn) => Array.from({ length: n }, (_, index) => ({ close: closeFn(index) }));
+
+  const unavailable = deriveTechnicalStageFromOhlcv({ symbol: 'spy', ohlcv: bars(1, () => 100) });
+  if (unavailable.status !== 'unavailable' || unavailable.symbol !== 'SPY') fail(`technical-stage: 1 bar must be status:unavailable with an uppercased symbol, got ${JSON.stringify(unavailable)}`);
+
+  const partial = deriveTechnicalStageFromOhlcv({ symbol: 'spy', ohlcv: bars(60, (i) => 100 + i) });
+  if (partial.status !== 'partial' || partial.indicators.ma20 == null || partial.indicators.ma50 == null) fail(`technical-stage: 60 rising bars (<200) must be status:partial with ma20/ma50 present, got ${JSON.stringify(partial)}`);
+
+  const uptrend = deriveTechnicalStageFromOhlcv({ symbol: 'spy', ohlcv: bars(220, (i) => 100 + i * 0.5) });
+  if (uptrend.status !== 'current' || uptrend.indicators.trend !== 'above-ma20' || uptrend.structure.stageEstimate !== 'STAGE_2_ADVANCE') fail(`technical-stage: 220 steadily rising bars must be status:current, trend:above-ma20, STAGE_2_ADVANCE, got ${JSON.stringify(uptrend)}`);
+
+  const downtrend = deriveTechnicalStageFromOhlcv({ symbol: 'spy', ohlcv: bars(220, (i) => 210 - i * 0.5) });
+  if (downtrend.indicators.trend !== 'below-ma20' || downtrend.structure.stageEstimate !== 'STAGE_4_DECLINE') fail(`technical-stage: 220 steadily falling bars must be trend:below-ma20, STAGE_4_DECLINE, got ${JSON.stringify(downtrend)}`);
+
+  const noInput = deriveTechnicalStageFromOhlcv({});
+  if (noInput.status !== 'unavailable' || noInput.symbol !== null || noInput.observedCount !== 0) fail(`technical-stage: no input must fail closed to unavailable/null/0, not throw or guess, got ${JSON.stringify(noInput)}`);
+}
+
+// ── domain/screener/factor-ranks.js: computeFactorRanks NaN/missing/tie handling ───────────────
+// 2026-07-21/P759: the golden-fixture parity in ci-domain-parity-check.mjs cannot exercise genuine
+// NaN inputs — NaN silently becomes JSON `null` (typeof 'object') across the fixture file's
+// save/reload round trip, which would corrupt the very eligibility check this is meant to test.
+// Verified here instead as direct in-memory assertions (no serialization involved), alongside two
+// other legacy subtleties Fable's design review flagged: sparse factorScores/_z_* keys, and stable
+// (no-tiebreaker) sort ordering for exactly-tied composite scores.
+{
+  const { computeFactorRanks } = await load('src/domain/screener/factor-ranks.js');
+  const baseRow = (sym, sector, seed, includeKalman = true) => ({
+    sym, sector, ret1m: seed, ret3m: seed * 0.8, ret6m: seed * 0.5, pctSma50: seed, pctSma200: seed * 0.6, vol: 20 - seed,
+    ...(includeKalman ? { kalmanVelConf: seed / 10 } : {})
+  });
+
+  // NaN row must count as eligible (has a typeof 'number' ret1m/ret3m, even though the value
+  // itself is NaN) but must not corrupt the sector's mean/stddev used for the OTHER rows' z-scores.
+  {
+    const cleanRows = [1, 2, 3, 4, 5, 6].map((seed) => baseRow('S' + seed, 'Tech', seed));
+    const withNaN = [...cleanRows, { sym: 'NANROW', sector: 'Tech', ret1m: NaN, ret3m: NaN, ret6m: NaN, pctSma50: NaN, pctSma200: NaN, vol: NaN, kalmanVelConf: NaN }];
+    const withoutNaN = computeFactorRanks({ rows: cleanRows, now: 0 });
+    const withNaNResult = computeFactorRanks({ rows: withNaN, now: 0 });
+    if (withNaNResult.ranked !== 7) fail(`factor-ranks: a NaN-valued row must still count as eligible (typeof NaN === 'number'), got ranked=${withNaNResult.ranked}`);
+    const nanRowResult = withNaNResult.rows.find((r) => r.sym === 'NANROW');
+    if (!nanRowResult || nanRowResult._z_momentum !== 0) fail(`factor-ranks: a NaN row's own z-score must be winz-guarded to 0, not NaN, got ${JSON.stringify(nanRowResult)}`);
+    const s1Before = withoutNaN.rows.find((r) => r.sym === 'S1');
+    const s1After = withNaNResult.rows.find((r) => r.sym === 'S1');
+    if (Math.abs(s1Before._compositeZ - s1After._compositeZ) > 1e-9) fail(`factor-ranks: adding a NaN row must not change other rows' z-scores (stats collection must exclude it) — S1 _compositeZ ${s1Before._compositeZ} vs ${s1After._compositeZ}`);
+  }
+
+  // A row with neither ret1m nor ret3m present must be excluded entirely (not just zeroed).
+  {
+    const rows = [1, 2, 3, 4, 5].map((seed) => baseRow('S' + seed, 'Tech', seed));
+    rows.push({ sym: 'NOELIGIBLE', sector: 'Tech', vol: 10 });
+    const result = computeFactorRanks({ rows, now: 0 });
+    if (result.ranked !== 5 || result.rows.some((r) => r.sym === 'NOELIGIBLE')) fail(`factor-ranks: a row with no ret1m/ret3m must be excluded from items entirely, got ranked=${result.ranked}, syms=${JSON.stringify(result.rows.map((r) => r.sym))}`);
+  }
+
+  // Fewer than 5 eligible rows must fail closed to available:false (matches legacy's early return).
+  {
+    const result = computeFactorRanks({ rows: [1, 2, 3].map((seed) => baseRow('S' + seed, 'Tech', seed)), now: 0 });
+    if (result.available !== false || result.ranked !== 0) fail(`factor-ranks: fewer than 5 eligible rows must fail closed, got ${JSON.stringify(result)}`);
+  }
+
+  // Inactive factors (fundamentals below coverage threshold, no value/quality/kalman data at all)
+  // must be entirely ABSENT from factorScores/activeFactors, not present with a null/0 placeholder.
+  {
+    const result = computeFactorRanks({ rows: [1, 2, 3, 4, 5, 6].map((seed) => baseRow('S' + seed, 'Tech', seed, false)), fundamentalCoveragePct: 0, fmpOk: false, now: 0 });
+    if (result.activeFactors.includes('value') || result.activeFactors.includes('quality') || result.activeFactors.includes('kalman')) fail(`factor-ranks: value/quality/kalman must be inactive with no fundamental/kalman data, got activeFactors=${JSON.stringify(result.activeFactors)}`);
+    if ('value' in result.rows[0].factorScores || 'quality' in result.rows[0].factorScores) fail(`factor-ranks: inactive factor keys must be entirely absent from factorScores (sparse), not present as null/0 — got ${JSON.stringify(result.rows[0].factorScores)}`);
+  }
+
+  // Exactly-tied composite scores must keep the input array's order (stable sort, no tiebreaker).
+  {
+    const tiedRows = [1, 2, 3, 4, 5, 6].map((seed) => baseRow('S' + seed, 'Tech', seed));
+    const identicalPair = [{ ...tiedRows[0], sym: 'TIE_A' }, { ...tiedRows[0], sym: 'TIE_B' }];
+    const result = computeFactorRanks({ rows: [...tiedRows.slice(1), ...identicalPair], now: 0 });
+    const tieA = result.rows.find((r) => r.sym === 'TIE_A');
+    const tieB = result.rows.find((r) => r.sym === 'TIE_B');
+    if (tieA._compositeZ !== tieB._compositeZ) fail(`factor-ranks: test setup expected identical composite scores for the tie check, got ${tieA._compositeZ} vs ${tieB._compositeZ}`);
+    if (tieA.rank > tieB.rank) fail(`factor-ranks: tied rows must keep input order (TIE_A before TIE_B) via a stable sort with no added tiebreaker, got ranks ${tieA.rank}/${tieB.rank}`);
+  }
+}
+
+console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks'] }));

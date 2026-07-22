@@ -1,11 +1,12 @@
 ---
-verified_by: agent (Claude Sonnet 5)
-last_verified: 2026-07-20
+verified_by: agent (Claude Sonnet 5) + Codex P761-P780 verification
+last_verified: 2026-07-22
 confidence: high
-latest_version: v53.16
-latest_P_number: P749
-next_P_number: P750
-total_entries: 523 (P1~P749, 결번 존재 — 상세 40건 + 압축 원장)
+latest_version: v53.17
+latest_P_number: P780
+next_P_number: P781
+current_checkpoint: P780 bounded portfolio readiness/status cutover verified locally; four legacy renderer routes, full portfolio/fundamental surfaces, and options-chain/detail boundaries remain open
+total_entries: 540 (P1~P775, 결번 존재 — 상세 56건 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -235,6 +236,114 @@ total_entries: 523 (P1~P749, 결번 존재 — 상세 40건 + 압축 원장)
 - **violated_rule**: 해당 없음(신규 발견 — 이 정확한 타이밍 경계에 걸린 것은 이번이 처음으로 보인다).
 - **prevention**: 왕복/누수 검증 게이트에서 "N바퀴 다 돌면 안정된다"고 가정하는 리소스가 있으면, 그 리소스가 정말 라우트에 묶여 있는지 아니면 부팅 후 고정 지연(`setTimeout(fn, 상수)`)에 묶여 있는지 코드에서 직접 확인한다 — 후자라면 왕복 시작 전에 그 리소스의 존재를 명시적으로 기다려야 왕복 시간의 자연스러운 변동(데이터 크기, 머신 성능 등)에 흔들리지 않는다.
 - **verification**: 수정 전 3회 연속 재현 → 수정 후 3회 연속 PASS. §8.1 핵심 12개 전부 재실행 PASS, headless 1098/1098.
+
+## P754 - v53.17 - Data freshness watchdog의 R290 라이브 불변식 스텝이 무관한 fast-plane 실패 뒤에서 매번 조용히 skip되고 있었다
+- **motivation**: 사용자가 v53.17 배포 직후 "Data freshness watchdog" 실패 원인을 확인해달라고 요청. 표면적 로그(`operator_required: AIO_FAST_QUOTES_URL is not configured`)만 보고 "기존에 알려진 항목"이라 답했던 것을 `gh run view --json jobs`로 스텝별로 재확인.
+- **symptom/reproduction**: 8개 스텝 중 "Check public-data freshness/canonical market snapshot/operations status/22-category reconciliation/LIVE site freshness"는 전부 success, "Check independent fast quote plane"만 failure(예상대로), 그런데 바로 다음 "Check LIVE standing invariants (R290)"이 **skipped**였다.
+- **root_cause**: `.github/workflows/data-watchdog.yml`에 `if:` 조건이 어디에도 없어 GHA 기본 동작(앞 스텝 실패 시 뒤 스텝 자동 skip)이 그대로 적용됐다. R290 스텝 자체의 헤더 주석은 "다른 체크와 무관하게, 커밋이 ci.yml을 안 돌려도 매 스케줄마다 독립적으로 검증돼야 한다"고 명시하는데, fast-plane 스텝이 `AIO_FAST_QUOTES_URL` 미설정으로 매 스케줄마다 실패하는 한(운영자 결정 대기, 이 문제 자체는 아님) R290은 단 한 번도 실제로 실행되지 않고 있었다 — 배포 직후 캐시버스터/버전 정합성처럼 R290이 잡기로 설계된 회귀가 있어도 감지되지 않는 사각지대였다.
+- **fix**: R290 스텝에 `if: ${{ !cancelled() }}`를 추가 — job이 취소되지 않는 한 앞 스텝 성공/실패와 무관하게 항상 실행되도록 복원. fast-plane 스텝 자체의 실패 판정(운영자 결정 대기 상태 보고)은 그대로 유지, R290이 검증하는 내용도 변경 없음 — 실행 여부만 고쳤다. 수동 `gh workflow run` 트리거로 R290이 실제로 success 표시되는 것을 실행 로그에서 확인.
+- **violated_rule**: 해당 없음(신규 발견).
+- **prevention**: 여러 스텝을 가진 워크플로에 "이 스텝은 앞 스텝과 무관하게 항상 돌아야 한다"는 주석이 있으면, 그 주석이 실제 `if:` 조건으로 뒷받침되는지 점검한다 — 주석만으로는 GHA의 기본 skip 동작을 막지 못한다. 표면적 실패 로그 한 줄만 보고 "기존에 알려진 항목"이라 답하기 전에, 사용자가 명시적으로 원인을 다시 물으면 스텝별 분해까지 확인한다.
+- **verification**: 수정 전/후 모두 수동 트리거로 실제 실행 확인 — 수정 전 R290 skipped, 수정 후 R290 success(fast-plane 스텝은 여전히 예상대로 failure). §8.1 관련 없음(워크플로 파일만 변경).
+
+## P755~P758 - v53.17 - RM-03 계속: `ci-domain-parity-check.mjs`의 잔여 smoke-only 토이 4종 중 3종을 실 legacy 산식으로 교체, 1종은 완전 퇴역
+- **motivation**: 사용자가 "남은 작업 순차적으로 계속 진행"을 지시. Explore 에이전트에게 남은 5개 smoke-only 도메인 모델(market/macro/portfolio/technical/news-claim) 각각에 실제 대응하는 legacy 산식이 있는지, 있다면 그 산식이 실제로 다른 곳에서 소비되고 있는지 전수 조사를 위임했다.
+- **symptom/reproduction(조사 결과)**: (1) `deriveNewsClaim`(news/claims.js) — legacy 산식 자체가 없고 실 호출처도 0곳, 이미 이전 세션에서 "대상 아님"으로 명시 이월됐던 것. (2) `deriveTechnicalModel`(technical/indicators.js) — legacy 산식 없이 독립 발명된 MA20/50 토이인데, **`src/data/normalize/analysis.js:6`에 실제로 라이브 배선돼 있었다**(다른 4개 토이와 달리 유일하게 실 소비처가 있는 경우). (3) `deriveMacroModel`(macro/model.js) — 실 호출처 0곳, 그러나 `js/aio-core.js:20746` `window.AIO.getUsTreasuryCurveEvidence()`라는 진짜 2s10s 수익률곡선 산식이 별도로 존재(다중소스 폴백 체인 포함). (4) `derivePortfolioRisk`(portfolio/risk.js) — 실 호출처 0곳, 20%/40% 구간이라는 발명된 밴드였는데 `js/aio-core.js:19628` `calcPortfolioTechnicalRisk`의 실제 10%/15%/25% concentrationPenalty 티어와 무관했다.
+- **root_cause**: 토이 4종 모두 F-04가 지목한 "항진 스모크 테스트"였고, 그중 3종(technical/macro/portfolio)은 대응하는 진짜 legacy 산식이 있었음에도 그 산식과 무관하게 독자적으로 발명돼 있었다 — 추출이 아니라 창작이었다.
+- **fix**: (1) `deriveNewsClaim` 삭제(순수 퇴역, R352). (2) `src/domain/technical/stage.js`에 `deriveTechnicalStageFromOhlcv` 신설 — `_calcSMA`(js/aio-core.js:18561)를 충실히 재구현한 SMA 스택 계산 + 이미 실 parity 검증된 `classifyMovingAverageStructure`를 합성(legacy `calcTechnicalSnapshot`에서 통째로 추출한 것은 아님 — 그 함수는 ATR/RSI/MACD/볼린저/VCP/피보나치까지 포괄하는 훨씬 큰 함수라 SMA 스택 부분만 분리). `normalizeAnalysis`가 이 함수를 쓰도록 재배선. 실 Chromium에서 AAPL 합성 OHLCV로 `state.analysis.technical`이 올바르게 채워지는 것 확인(symbol/status/trend/stageEstimate 전부 기대값). (3) `src/domain/macro/treasury-curve.js`에 `deriveTreasuryCurveEvidence` 신설 — `getUsTreasuryCurveEvidence`를 골든 fixture 8개(dump-macro-curve-fixtures.mjs)로 실 parity 추출, legacy는 입력 수집 후 브릿지 호출하는 얇은 래퍼로 축소. 필드별 폴백 우선순위(twoY는 snapshot 폴백이 아예 없음 등)와 `source`/`available` 판정이 모든 필드 해석 경로를 인식하지 않는다는 두 가지 비직관적 legacy 동작을 그대로 보존(정리하지 않음). (4) `src/domain/portfolio/concentration.js`에 `deriveConcentrationRisk`/`concentrationPenaltyForWeight` 신설 — `calcPortfolioTechnicalRisk`/`calcPositionTechnicalRisk`의 concentration 슬라이스만 골든 fixture 8개(dump-portfolio-concentration-fixtures.mjs)로 실 parity 추출(sellPressure/heatScore 전체는 범위 밖 — 별도 규모의 작업). legacy의 concentrationPenalty 티어 삼항식 한 줄을 브릿지 호출로 교체. 4개 파일 전부 `bootstrap.js`·`compatibility-facade.js` 양쪽에 동시 등록(P743 이후 5번째 준수).
+- **violated_rule**: 해당 없음(신규 추출/퇴역).
+- **prevention**: "toy 모델을 실 추출로 바꿀지 퇴역시킬지" 판단은 "실 호출처가 있는가"와 "대응 legacy 산식이 존재하는가"를 **독립적으로** 확인해야 한다 — 이번에 technical만 유일하게 둘 다 "그렇다"였고 나머지는 조합이 갈렸다(산식 있음+호출처 없음 2건, 산식 없음+호출처 없음 1건). 하나만 확인하고 판단하면 틀린다.
+- **verification**: 각 추출마다 골든 fixture parity(`ci-domain-parity-check.mjs`) + rewiring 대상은 재작성 전/후 실 브라우저 덤프 비교(모든 필드 100% 일치) + §8.1 핵심 게이트 + headless 1098/1098 + `ci-architecture-browser-check.mjs`(17-route 왕복) browserErrors 0 — 4개 추출/퇴역 전부 동일 절차로 확인. `ci-architecture-contract-check.mjs`의 도메인 경계 정적 검사가 주석 내 리터럴 "window."/"document." 문자열까지 매치하는 것도 재확인(breadth.js 때와 같은 패턴, 문구만 재조정).
+
+## P768 - v53.17 - legacy screener fetch and factor projection duplicated the native artifact owner
+- **motivation**: P766 completed the canonical row-read migration and P767 repaired the native readiness/data-pipeline contract, so the remaining runtime duplicate was safe to remove.
+- **symptom/reproduction**: Native `src/data/providers/screener.js` fetched and ranked the published artifact, while `_aioLoadServerData` fetched `public-data/screener.json` again and `_aioApplyServerScreener` bulk-mutated `SCREENER_DB`; freshness, breadth, and quant-audit globals could therefore be sourced from a second pipeline.
+- **root_cause**: ARX-10 initially preserved the legacy fetch/projection as an additive compatibility path. After native route cutover, its remaining responsibility was metadata/breadth compatibility, but no explicit bridge existed.
+- **fix**: Added `getScreenerState()` and `aio:nativeScreenerReady` to the bootstrap API, preserved artifact breadth in native provider metadata, added `_aioApplyNativeScreenerState()` as a metadata/breadth-only bridge, removed the duplicate legacy fetch and `_aioApplyServerScreener` factor-row projection, and updated runtime/data-pipeline gates to enforce the single-fetch contract.
+- **violated_rule**: R352/R3/P768 — native data ownership must remove duplicate runtime producers while retaining only documented identity/memo compatibility boundaries.
+- **prevention**: `ci-runtime-contract-check.mjs` fails if the legacy artifact fetch/projection returns; `ci-data-pipeline-contract-check.mjs` checks the native provider’s versioned Kalman/backtest contract; browser/headless gates exercise the native state bridge.
+- **verification**: `node --check` for changed modules, runtime/data-pipeline/ESM/domain/architecture contracts PASS; architecture counters `1068/41/186/399`; Chromium 17-route round-trip `routeRoundTrip:true`, `browserErrors:0`; headless `1098/1098 PASS`; doc currency and `git diff --check` PASS.
+
+## P767 - v53.17 - the data-pipeline gate still described a retired screener readiness surface
+- **motivation**: The P766 full-gate run exposed a contract regression immediately after P765 removed the legacy readiness renderer.
+- **symptom/reproduction**: `ci-data-pipeline-contract-check.mjs` failed its backtest disclosure and quant-readiness assertions because they searched the retired `js/aio-data.js` surface and an obsolete Korean label.
+- **root_cause**: The native screener renderer/audit had become the owner, but the data-pipeline gate was not migrated with the route cutover.
+- **fix**: Added native backtest disclosure for excluded factors/fixed regime, exposed an explicit fail-closed quant-readiness disclosure, and updated the gate to inspect `src/ui/pages/screener.js` plus the current audit contract.
+- **violated_rule**: R352/R3 — a gate must verify the current owner and cannot preserve retired-surface assumptions.
+- **prevention**: Route cutovers must update data-pipeline contracts in the same packet; native owner source files are now read directly by the disclosure check.
+- **verification**: `node --check` for changed JS, `ci-data-pipeline-contract-check.mjs`, and `ci-doc-currency-check.mjs` PASS.
+
+## P766 - v53.17 - non-route screener queries still bypassed the canonical native rows
+- **motivation**: P764 established `AIO_ARCH.getScreenerRows()` for non-route consumers, but the final query and verification helpers still had direct `SCREENER_DB` reads.
+- **symptom/reproduction**: A refreshed native screener state could differ from the rows used by natural-language screening, Maker/Checker verification, sector lookup, and recent-recommendation extraction.
+- **root_cause**: The route cutover migrated the main readers but missed four helper bodies and the legacy facade's `readScreener` path.
+- **fix**: Routed those consumers through `_aioGetCanonicalScreenerRows()` and made the facade prefer `AIO_ARCH.getScreenerRows()`, retaining the static DB only as the documented compatibility fallback/enrichment source.
+- **violated_rule**: R352/R3 — a compatibility boundary is not complete while downstream consumers can bypass it.
+- **prevention**: `ci-runtime-contract-check.mjs` now scopes the four helper bodies and fails if they reintroduce direct `SCREENER_DB` reads.
+- **verification**: `node --check js/aio-data.js`, `ci-runtime-contract-check.mjs`, and `ci-esm-core-unit-check.mjs` PASS; full architecture/browser/headless gates are required before this packet is marked complete.
+
+## P765 - v53.17 - native screener readiness node still had a legacy DOM writer after ARX-10
+- **motivation**: Promoting `route-owners.json` to the measured native renderer count of 3 (guide/sentiment/screener) correctly activated the AG-DOM-WRITER check for screener.
+- **symptom/reproduction**: `node scripts/ci-architecture-contract-check.mjs` failed with `native/legacy id intersection is not empty: screener-readiness-note (screener.js)`. The native page wrote the readiness note with `textContent`, while `_aioRenderQuantReadiness` in `js/aio-data.js` wrote the same node with `innerHTML` after the legacy screener fetch.
+- **root_cause**: ARX-10 retired the visible screener table/action writers but missed this deferred readiness writer and its call site; the stale path stayed hidden while the route ledger still reported only two native renderers.
+- **fix**: Removed the legacy readiness render function and invocation, and added `_aioRenderQuantReadiness` to `screener.legacySymbolsMustBeAbsent` so reintroduction is blocked by the architecture contract.
+- **violated_rule**: R352/R3 (native ownership must move with competing writers removed and recorded).
+- **prevention**: Every native renderer promotion must run AG-DOM-WRITER with the measured renderer count and inventory deferred compatibility calls, not only named table/action helpers.
+- **verification**: AG-DOM-WRITER/architecture contract PASS (`1069/42/186/399`, screener dispatch p95 `0.069ms`), runtime/domain/retirement contracts PASS, 17-route browser round-trip PASS with `browserErrors: 0`, and headless `1098/1098 PASS`.
+
+## P764 - v53.17 - ARX-16 screener compatibility consumers bypassed the canonical native read boundary
+- **motivation**: The ARX-10 route cutover made native screener state authoritative for the visible route, but portfolio, ticker, fundamental, chat, watchlist, and audit helpers still read `SCREENER_DB` directly.
+- **symptom/reproduction**: A later artifact refresh could update native rows while non-route summaries continued reading the legacy projection, creating two observable read paths.
+- **root_cause**: The route cutover had no stable compatibility accessor for non-route consumers; deleting the legacy database was unsafe because curated memo and identity fields remain required by the data pipeline.
+- **fix**: Added `AIO_ARCH.getScreenerRows()` and `_aioGetCanonicalScreenerRows()`. Migrated non-route consumers to the boundary; legacy rows only fill fields absent from the native artifact, while the legacy DB remains an explicit identity/memo and pipeline boundary.
+- **violated_rule**: R352 (single executable read owner and explicit compatibility boundary).
+- **prevention**: Every route cutover must inventory non-route consumers and provide a canonical read API before legacy projections are retired.
+- **verification**: `ci-runtime-contract-check`, architecture counters 1071/42/186/400, syntax checks, browser round-trip, and headless 1098/1098 PASS.
+
+## P763 - v53.17 - factor-weight regime math remained embedded in the legacy wrapper
+- **motivation**: P759 extracted factor ranking but left deterministic regime/profile weight math in `_aioFactorWeights`, so native and compatibility paths did not share one pure owner.
+- **symptom/reproduction**: Native ranking needed the legacy wrapper to resolve neutral/risk-on/risk-off weights even though the resolver itself had no browser side effects.
+- **root_cause**: Profile storage lookup and deterministic weight calculation were coupled in one legacy function.
+- **fix**: Added `src/domain/screener/factor-weights.js`; native bootstrap calls the pure resolver directly, while the legacy wrapper only resolves profile/storage inputs and bridges the result.
+- **violated_rule**: R352 (deterministic model math must have one executable owner).
+- **prevention**: Extract pure regime/profile math before migrating any consumer; compatibility wrappers may translate inputs but may not retain formulas.
+- **verification**: ESM unit, domain parity, architecture/runtime, browser, and headless gates PASS.
+
+## P762 - v53.17 - analysis signal still depended on the retired three-input toy model
+- **motivation**: ARX-11 required the visible signal envelope to be derived from the canonical Trading Score rather than a disconnected VIX/VVIX/DXY toy mapping.
+- **symptom/reproduction**: `normalizeAnalysis` imported `deriveSignalDecision` from `src/domain/signal/decision.js`, while the real Trading Score inputs were collected only by the legacy runtime.
+- **root_cause**: Compatibility input collection and native analysis normalization were not threaded together.
+- **fix**: `readAnalysis` now exposes `tradingScoreInputs`; normalization computes the canonical Trading Score and maps it with `deriveSignalDecisionFromTradingScore`. The retired decision module and service-worker asset were removed.
+- **violated_rule**: R352/R3.
+- **prevention**: Signal changes require a model-version assertion and a native-to-legacy input lineage check before retirement.
+- **verification**: signal unit/parity, browser route round-trip with browserErrors 0, and headless 1098/1098 PASS.
+
+## P761 - v53.17 - market/screener parity smoke modules had no executable product owner
+- **motivation**: RM-03 parity still preserved `market/model.js` and `screener/ranking.js` even though both had no runtime callers.
+- **symptom/reproduction**: Only the parity script imported the modules; the live market snapshot and factor-rank pipeline did not.
+- **root_cause**: Scaffold smoke models were being mistaken for product parity evidence.
+- **fix**: Deleted both modules, removed their service-worker assets and fake same-fixture parity block, and retained only executable canonical owners.
+- **violated_rule**: R352/R3.
+- **prevention**: A domain smoke row must list a live caller and a legacy formula inventory before it is retained.
+- **verification**: symbol search, domain parity, ESM, retirement, architecture, browser, and headless gates PASS.
+
+## P760 - v53.17 - ARX-10 native screener cutover left a legacy test/DOM ownership boundary stale
+- **motivation**: P759 extracted factor ranking; the native screener could now consume canonical state, so the route’s legacy DOM writers had to be retired before ownership could be promoted.
+- **symptom/reproduction**: route-owners still measured screener as legacy; legacy render/helper functions and T822 referenced the removed backtest/action surface. The first headless rerun exposed T822 as 1097/1098.
+- **root_cause**: native state/renderer work and legacy retirement/test migration were staged separately; ownership ledger and a browser test still described the pre-cutover surface.
+- **fix**: native provider joins artifact+universe, orchestrator ranks rows, native renderer owns the complete 22-column screen and controls, legacy DOM writers/helpers were deleted, compatibility profile/watchlist/SCREENER_DB boundaries documented, T822/runtime contract updated.
+- **violated_rule**: R352/R3 (executable ownership and postmortem record must move with migration).
+- **prevention**: every route cutover must update renderer/data owner ledgers, delete legacy writer/action symbols, migrate test expectations, and rerun browser + headless gates before status promotion.
+- **verification**: architecture counters 1071/42/186/400; architecture/retirement/operations/runtime/domain parity/ESM unit passed; browser route round-trip passed with browserErrors 0; headless 1098/1098 PASS.
+
+## P759 - v53.17 - RM-03 계속: `_aioComputeFactorRanks`의 legacy 단일 구현이 parity fixture만으로는 유지되지 않고 있었다
+- **motivation**: P755~P758 후 남은 smoke-only 중 screener-ranking은 제품 결정이 아니라 실제 7팩터 legacy 산식 추출 대상이었다. `_aioComputeFactorRanks`(js/aio-data.js)는 실 호출부가 여러 곳이고 SCREENER_DB/chat/table 결과를 직접 변이하므로, 계산 본문을 남겨둔 채 fixture만 추가하면 R352의 단일 owner 조건을 충족하지 못한다.
+- **symptom/reproduction(조사 결과)**: `src/domain/screener/factor-ranks.js`와 5개 golden fixture/실행 스크립트가 먼저 존재했지만 legacy `_aioComputeFactorRanks`가 여전히 135줄 계산 본문을 소유했고 새 pure module은 실제 브라우저 호출 경로에 연결되지 않았다. 초기 ESM unit에서 테스트 helper가 칼만 필드를 포함한 채 “칼만 데이터 없음”을 검사해 false failure도 드러났다.
+- **root_cause**: legacy 함수가 hidden global(`SCREENER_DB`, `_aioServerScreener`, `_aioFactorWeights`, `window.AIO.marketState`)·행 변이·호환 전역 projection을 계산 로직과 한 함수에 섞어 두어, domain 추출과 compatibility projection의 경계가 없었다. 또한 구조 게이트는 domain 주석의 `localStorage` 문자열도 금지 패턴으로 오인한다.
+- **fix**: `computeFactorRanks`를 pure domain owner로 등록하고 legacy 함수는 입력 해석·결과 projection만 수행하도록 축소. `bootstrap.js`와 `compatibility-facade.js` 양쪽 expose allowlist, `sw.js` SHELL_ASSETS를 동기화. ESM unit helper는 칼만 필드 없는 행을 별도로 만들어 inactive-factor assertion을 실제 조건과 일치시켰고, domain 주석은 구조 게이트와 충돌하지 않게 추상화했다.
+- **violated_rule**: R352(추출 모듈만 추가하고 실행 가능한 legacy owner를 남기는 위험을 같은 배치에서 제거해야 함).
+- **prevention**: domain extraction batch는 (1) pure module import, (2) compatibility facade exposure, (3) 실제 legacy caller rewiring, (4) SW/release asset 등록, (5) golden parity와 browser route 검증을 모두 완료하기 전 VERIFIED_LOCAL로 승격하지 않는다. domain boundary 게이트가 주석까지 검사하므로 금지 토큰을 설명문에 그대로 쓰지 않는다.
+- **verification**: `ci-domain-parity-check.mjs` PASS(factor-ranks 5 fixture), `ci-esm-core-unit-check.mjs` PASS(NaN/missing/inactive/tie), architecture/retirement/runtime/release/version/static-data/knowledge-lint PASS, factor-ranks Chromium dump PASS(실제 873행), `ci-architecture-browser-check.mjs` PASS(17-route 2-lap, browserErrors 0), `ci-headless-tests.mjs` exit 0.
 
 ## P737 - v53.15 - native sentiment chart update path dereferenced an incomplete Chart instance
 - **motivation**: The deferred browser gate exercised the new sentiment renderer after canonical state updates.
@@ -707,3 +816,123 @@ total_entries: 523 (P1~P749, 결번 존재 — 상세 40건 + 압축 원장)
 - P106~P110 UX 실전성 (결론 바·fb-estimated) · P126~P131 아키텍처 감사 (DOM 폴백 불일치·이벤트 중복 dispatch·prompt() 금지·스트리밍 truncation·프록시 cooldown)
 - PR-P132~P138 예방적 리팩토링 — onclick 인라인 253건 제거·staleness 감지·sed 치환 범위(3회 재발)·주장-실체 불일치 Hook·canvas CSS var
 - P139 scroll-chaining 전 페이지 스크롤 불가 · P140~P143 CDN SRI(R34)·setInterval ID(R9)·R15 재발·_lastFetch 키 불일치 · P144 포트폴리오 벤치마크 커버리지
+
+### P769 — market-news primary feed owner transfer (2026-07-22)
+
+- motivation: The native news module existed, but the primary market-news feed was still attributed to legacy ownership in the retirement and operations artifacts.
+- symptom/reproduction: renderFeed() and legacy loading/error/count/progressive writers could continue targeting live-news-feed while src/ui/pages/news.js rendered the same route.
+- root_cause: The earlier RM-01 DOM intersection cleanup removed native competing writes but did not complete the legacy primary-feed writer transfer or update the derived ownership artifacts.
+- fix: src/ui/pages/news.js now owns the primary feed DOM from canonical news state; legacy filter/type/sort/translation paths only update explicit inputs or dispatch aio:newsSurfaceInvalidated. Removed renderFeed() and the legacy primary-feed writers; updated route, retirement, and operations ledgers.
+- violated_rule: R352 / AG-DOM-WRITER — a renderer cutover must transfer the executable owner and retire all primary-container writers.
+- prevention: Keep native markers, legacy-symbol absence, source-level invalidation boundaries, and Chromium route assertions in the architecture/data-pipeline/retirement gates. Briefing remains a separate next cutover.
+- verification: node --check, architecture, data-pipeline, runtime, ESM, domain parity, retirement, operations, Chromium 17-route round-trip (browserErrors:0), and headless 1098/1098 PASS.
+
+### P770 — briefing primary feed owner transfer (2026-07-22)
+
+- motivation: P769 transferred market-news, but briefing still had multiple legacy primary-feed writers and was the remaining contested news container.
+- symptom/reproduction: legacy initialization and timeout paths could write briefing-live-news-list, counts, timestamp, empty/error states, and reveal controls while the native news module was mounted.
+- root_cause: briefing combined a deterministic news wall, AI fallback, digest, and cap/toggle helpers in separate legacy hooks; route lifecycle ownership had been mistaken for primary content ownership.
+- fix: native news.js now renders the briefing model into the primary list with safe DOM nodes, completed 08:00 KST semantics, count/timestamp, and reveal control. Legacy render/AI/cap/toggle paths now dispatch invalidation or retain secondary narrative compatibility without primary DOM writes.
+- violated_rule: R352 / AG-DOM-WRITER — complex content routes still require one primary container owner and a complete delete ledger.
+- prevention: route-specific native/feed markers, legacy symbol absence, zero primary briefing IDs in legacy bundles, retirement/operations reconciliation, and Chromium assertions are required before the next route cutover.
+- verification: syntax, runtime, architecture, data-pipeline, retirement, operations, Chromium briefingRenderer/native feed marker with browserErrors 0, and headless 1098/1098 PASS.
+
+### P771 — macro primary metric surface had native/legacy last-writer risk (2026-07-22)
+
+- motivation: ARX-07 required a real macro renderer transfer, but the route contained 41 live quote/snapshot sinks whose global legacy passes still wrote after the thin native market slice mounted.
+- symptom/reproduction: a native renderer could display a macro value and then be overwritten by `applyLiveDataToDom`, `applyLiveQuotes`, `applyDataSnapshot`, FRED, BOK, or KOSIS callbacks; the risk was timing-dependent and invisible in a static route marker.
+- root_cause: lifecycle ownership had been treated as renderer ownership, while quote/FRED projection remained document-global. The original macro module only stamped route metadata and did not render the existing primary metric surface.
+- fix: `src/ui/pages/market.js` now renders macro primary `[data-live-price]`, `[data-live-chg]`, and FRED-backed `[data-snap]` sinks from the existing compatibility inputs. Added a native macro marker and explicit legacy-element fence across quote/snapshot/FRED/BOK/KOSIS writers. Curve/chart/event-freshness/narrative ids remain documented secondary legacy boundaries.
+- violated_rule: R352 / P770 reinforcement — a native primary surface requires one executable owner and explicit fencing of every legacy writer that can reach that subtree.
+- prevention: architecture/data-pipeline contracts require the native macro renderer markers and legacy fence; Chromium asserts 41 live and 46 snapshot sinks under the native marker, plus zero browser errors on the 17-route two-lap round trip.
+- verification: syntax, architecture, data-pipeline, retirement, operations, Chromium (`macroRenderer:native`, `macroPrimaryRenderer:native`, browserErrors 0), runtime/ESM/domain/static/release/version/doc/knowledge contracts, and headless 1098/1098 PASS.
+
+### P772 — fxbond primary metric surface had native/legacy last-writer risk (2026-07-22)
+
+- motivation: ARX-07 continued the market route sequence after macro, and fxbond still exposed shared live quote and MOVE snapshot sinks under a legacy renderer while `market.js` owned only the lifecycle marker.
+- symptom/reproduction: route navigation could mount the native market slice while legacy quote/snapshot passes and `applyDataSnapshot` continued rewriting fxbond `[data-live-*]` and `[data-snap="move"]` elements; chart and risk writers were separate secondary paths.
+- root_cause: the shared market module was route-aware only for macro, and the legacy fence was scoped to `#page-macro`, leaving the fxbond subtree outside the single-writer boundary.
+- fix: `src/ui/pages/market.js` now renders fxbond live quotes and MOVE from existing compatibility inputs, adds the native fxbond marker, and shares the guarded market-element fence. Legacy quote/snapshot passes skip native fxbond elements; risk, spread/carry narrative, and chart ids remain explicit secondary boundaries.
+- violated_rule: R352 / P771 reinforcement — every native primary metric surface requires one executable owner and an explicit fence for every legacy writer reaching the same route subtree.
+- prevention: architecture/data-pipeline contracts require the fxbond renderer/fence markers; Chromium asserts native fxbond live/MOVE sinks during the route sequence and the full 17-route two-lap pass.
+- verification: node --check, architecture, data-pipeline, retirement, operations, Chromium fxbond native markers/live/MOVE sinks with browserErrors 0, runtime/ESM/domain/static/release/version/doc/knowledge contracts, and headless 1098/1098 PASS.
+
+### P773 — breadth primary current-metric surface had a native/legacy writer and artifact-access gap (2026-07-22)
+
+- motivation: ARX-07 route sequencing reached breadth after macro/fxbond, but its current 5/20/50SMA cards and advance ratio were still written by legacy snapshot/init/bar functions while the native market slice only owned lifecycle.
+- symptom/reproduction: mounting the native breadth route could leave the primary cards exposed to `applyDataSnapshot`, `_aioSyncBreadth50Readout`, `updateBreadthBars`, `initBreadthPage`, or `updateBreadthUI`; the first browser probe also showed the native route rendering `—` because `AIO_ARCH` did not expose the native screener state metadata.
+- root_cause: breadth primary ownership was not separated from secondary stage/diagnostic/chart paths, and the compatibility facade exported native screener rows but not the metadata state containing the timestamped breadth artifact.
+- fix: `src/ui/pages/market.js` now owns the four primary current-metric sinks, prefers `AIO_ARCH.getScreenerState().metadata.breadth.segments.us`, and falls back to the legacy evidence helper only when necessary. Added the native breadth fence to snapshot/bar/init/advance writers and exposed `getScreenerState` through `src/legacy/compatibility-facade.js`.
+- violated_rule: R352 / P772 reinforcement — a bounded native surface requires one executable owner, an evidence-reachable input, and explicit fencing of every legacy writer reaching the same subtree.
+- prevention: route-owner, retirement, data-pipeline, and Chromium contracts assert the breadth native marker, four primary sinks, artifact-state access, and legacy fences; secondary chart/diagnostic/narrative ids remain listed until their own packet.
+- verification: syntax, architecture, data-pipeline, retirement, operations, Chromium breadth values `35%/47%/55%/34.8%`, browserErrors 0, 17-route two-lap round trip, and headless 1098/1098 PASS.
+
+### P774 — declaration-only legacy cleanup after native feed cutovers (2026-07-22)
+
+- motivation: P769/P770 removed the live primary-feed writers, but declaration-only news/briefing/screener functions and only-dependent sparkline helpers remained in runtime files; structural CI and the briefing retirement tests still treated part of that retired surface as active.
+- symptom/reproduction: `ci-structural-check.mjs` reported declaration-only named functions; the first post-cleanup headless run was `1096/1098` because T890/T940 still expected the retired `_generateAIBriefing` symbol and pipeline writer.
+- root_cause: legacy caller/writer removal and declaration retirement were completed in separate passes, while tests encoded the pre-retirement presence of the briefing helper instead of the native owner boundary.
+- fix: removed declaration-only news/briefing/screener functions and only-dependent sparkline blocks, removed the dead inline screener analysis helper, and updated T890/T940 to assert native briefing ownership with an absent legacy function accepted as the retired state.
+- violated_rule: R352 / R3 — a completed native cutover must retire declaration-only legacy surfaces and keep structural/browser contracts aligned with the delete ledger.
+- prevention: every route cutover now closes named-function declarations, dependent helpers, and test expectations in one retirement packet; structural CI and headless tests are required before the next route packet.
+- verification: `node --check` for touched runtime modules, structural/control-character/architecture/data-pipeline/retirement/runtime gates, Chromium 17-route two-lap round trip with browserErrors 0 and native breadth values `35%/47%/55%/34.8%`, and headless `1098/1098 PASS`; live invariant fetch remains unverified because the deployed site was unreachable in this environment.
+
+### P776 — theme-detail derived-route declaration retirement (2026-07-22)
+
+- motivation: the route ledger treated `theme-detail` as a separate legacy route, but the runtime canonical contract redirects it to `themes` and opens an inline panel; an old static-page renderer declaration remained in the file without a caller.
+- symptom/reproduction: repository-wide search found `renderPageThemeDetail()` with one call from `showThemeDetail()` plus a stale placeholder comment; `showPage('theme-detail')` explicitly canonicalized to `themes`, where `showThemeDetail()` owns `#theme-detail-panel`.
+- root_cause: the former standalone detail page was retained after the inline-panel migration, while the inline caller still invoked its obsolete static-page renderer and route ownership was tracked at a different abstraction level.
+- fix: removed the standalone `renderPageThemeDetail()` function and its inline-panel call, corrected `theme-detail` route-owner evidence to the live inline panel, and added `retiredLegacySymbolsMustBeAbsent` checks to architecture/retirement contracts.
+- violated_rule: R352 / R3 — route ownership must follow executable runtime behavior, and dead compatibility declarations must not remain after their canonical route is retired.
+- prevention: derived routes now require an explicit canonical redirect and live inline-writer record; dead derived-route declarations receive a dedicated absence assertion rather than being folded into native-route symbol checks.
+- verification: syntax, architecture (`explicitWindowWrites/directFetch/directStorage/htmlSinks = 1080/40/186/377`), retirement, operations, doc-currency, and headless `1098/1098 PASS`; existing Chromium 17-route two-lap evidence remains `browserErrors:0`; live invariant fetch and operator rights/soak remain unverified.
+
+### P780 — bounded portfolio readiness/status native surface (2026-07-22)
+
+- motivation: the portfolio route had a native slice and encrypted Vault orchestration, but its page module was correctly marker-only because the holdings table, totals, prices, CRUD, risk, and chart surfaces had active legacy writers. One independent readiness/status sink could be transferred safely without touching those contested surfaces.
+- symptom/reproduction: `#pf-analysis-status` remained a static "포트폴리오 등록 후 자동 계산됩니다." message even when the native portfolio slice changed; route ownership still classified the entire renderer as legacy because the previous native module's table rewrite was unsafe.
+- root_cause: the earlier native portfolio renderer conflated slice availability with ownership of the full table. Its `replaceChildren()` 5-column fallback could race the legacy 9-column table, while no writer audit had isolated the status sink as an independently owned surface.
+- fix: `src/ui/pages/portfolio.js` now owns only `#pf-analysis-status`, emitting fail-closed empty/unavailable state or position-count readiness text with source-kind/source-label/operational-use/observed-at lineage. It no longer rewrites the contested holdings table. Route owners/retirement/operations/browser contracts count only this bounded surface as native.
+- violated_rule: R352 / P780 reinforcement — portfolio readiness may be native only as a bounded status surface; Vault consent, mutations, legacy table/totals, risk, and chart owners must remain explicit until reconciled.
+- prevention: before the portfolio ARX/RM-09 cutover, inventory every CRUD, storage, quote, risk, AI, and chart writer separately; keep native readiness fail-closed and never let a status marker imply encrypted storage or full portfolio ownership.
+- verification: portfolio syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, Chromium portfolio status sink `1/1` with browserErrors `0`, 17-route resources `42→42 / 12→12`, and headless `1098/1098 PASS`; full Vault/CRUD/table/risk/chart ownership, live invariant, rights, soak, and deployment remain open.
+
+### P779 — bounded fundamental SEC status native surface (2026-07-22)
+
+- motivation: the fundamental route already had a native entity provider fetching normalized `sec-fundamentals.json`, but the route still exposed a static `fund-data-status` badge with no source/coverage lineage and the full report had multiple legacy asynchronous writers.
+- symptom/reproduction: the browser route could load the native entity state while `#fund-data-status` remained a generic `● DATA 확인` badge; SEC coverage was only 14.1% and the full report still combined SEC/FMP/Yahoo/Finnhub data through `fundamentalSearch()` and `_renderFund*` functions.
+- root_cause: the provider/normalizer boundary and the fundamental report writer boundary were not the same ownership problem. Claiming the full report native would create a partial-data and last-writer migration, while leaving the unowned availability badge implied stronger freshness than the artifact guarantees.
+- fix: `src/ui/pages/entity.js` now owns only `#fund-data-status`, deriving fail-closed availability and `official-regulator`/`SEC EDGAR companyfacts` lineage from normalized fundamentals. The full report, charts, and narrative remain explicitly legacy-owned; route owners and retirement ledgers count only this bounded status surface as native.
+- violated_rule: R352 / P779 reinforcement — a fundamental route may transfer an independently owned provenance/status surface only when the normalized artifact carries explicit coverage; a bounded native marker must not imply full report ownership or coverage.
+- prevention: before a fundamental report cutover, reconcile SEC coverage, provider rights, async cancellation, and every `_renderFund*`/`fundamentalSearch` writer. Keep a separate status surface with source-kind and observed-at attributes until that packet is complete.
+- verification: entity syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, Chromium fundamental status sink `1/1` (`● SEC 연간 데이터`, `official-regulator`) with browserErrors `0`, 17-route resources `42→42 / 12→12`, and headless `1098/1098 PASS`; full report ownership, live invariant, rights, soak, and deployment remain open.
+
+### P778 — bounded options replacement-metric native surface (2026-07-22)
+
+- motivation: the options route was an explicit no-options-chain stub, but its three current replacement metrics still had no native renderer owner and the shared quote/snapshot/PCR passes could overwrite a future bounded surface.
+- symptom/reproduction: `#page-options` exposed VIX, PCR, and SKEW sinks through generic `data-live-*`/`data-snap` paths; `_aioUpdatePutCallDom()` directly included `opt-pcr-val-secondary`, while `applyLiveDataToDom()` and `applyDataSnapshot()` had no options-native fence.
+- root_cause: the entity compatibility projection carried only an unused legacy options blob, so the route module had no normalized VIX/PCR/SKEW evidence shape and could not claim a writer boundary without creating a last-writer race.
+- fix: `compatibility-facade.readEntity()` now projects VIX/PCR/SKEW value/sourceKind/observedAt into `entity.options`; `entity.js` owns the three explicit replacement-metric IDs with reference-only lineage; shared quote/snapshot/PCR paths fence the native options subtree; the legacy direct PCR ID writer is removed. The page remains explicitly no-options-chain/reference-only.
+- violated_rule: R352 / P778 reinforcement — a native bounded metric surface must transfer source/provenance with the normalized state, fence every shared writer reaching the subtree, and never imply an unavailable options-chain provider.
+- prevention: every metric cutover must inventory generic attribute writers as well as direct ID writers, give the native sinks stable IDs, assert raw/native sink parity in Chromium, and keep provider/operational use visible on the DOM.
+- verification: touched-module syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, Chromium options native primary sinks `3/3` with browserErrors `0` and 17-route resources `42→42 / 12→12`, and headless `1098/1098 PASS`; options-chain/provider rights, live invariant, soak, and deployment remain operator-required.
+
+### P777 — bounded ticker hero native surface and explicit title-ID preservation (2026-07-22)
+
+- motivation: ARX-04 continued from the native entity provider, and the ticker route still had a legacy-owned hero even though the normalized entity state was available. The first Chromium cutover probe also exposed a shared accessibility initializer that rewrote the explicit ticker hero ID.
+- symptom/reproduction: after `showTicker('AAPL')`, entity state was current and the route marker was native, but `#ticker-hero-name` was absent from the DOM while the other three primary sinks rendered. At `DOMContentLoaded`, the generic `.page-title` accessibility pass had renamed the original `ticker-hero-name` node to `page-ticker-label`.
+- root_cause: native route sink identity was treated as a presentation detail by the pre-existing accessibility initializer (`title.id = pageId + '-label'`), so a stable ID required by the route contract was overwritten before the native renderer ran. The P777 cutover also needed to remove the legacy primary writes from `showTicker()` without touching secondary ticker surfaces.
+- fix: `src/ui/pages/entity.js` now owns only the four bounded ticker hero sinks from normalized entity state; `showTicker()` retains secondary overview/candle/entry/P&L writes but no longer writes the primary hero. `js/aio-ui.js` now preserves an explicit `.page-title` ID and generates a fallback label only when no ID exists. Route/retirement/browser contracts assert ticker native ownership and primary sink identity.
+- violated_rule: R352 / P777 reinforcement — stable native sink IDs are executable route contracts; shared accessibility/normalization passes must not rewrite them, and a bounded cutover must remove the competing primary writers while documenting secondary boundaries.
+- prevention: include shared initializers in every native sink identity audit; assert both DOM presence and values in Chromium, keep the explicit-ID behavior in the headless suite, and retain an allowlisted read-only exception only for legacy consumers that read the native sink text.
+- verification: `node --check` touched modules, architecture `1081/40/186/377`, retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, Chromium ticker primary sinks `4/4` (`AAPL / Apple Inc. / — / —`) with `browserErrors:0` and 17-route canvases/timers `42→42 / 12→12`, and headless `1098/1098 PASS`; live invariant fetch/provider rights/Cloudflare soak/deployment remain unverified.
+
+### P775 — bounded themes RRG primary surface cutover (2026-07-22)
+
+- motivation: `themes` had a native lifecycle scaffold but its primary RRG quadrant/rotation-read surface was still marked legacy, while the old card renderer mixed static RRG arrays with live/history reads.
+- symptom/reproduction: route owners classified `themes` as legacy renderer/data/chart/narrative; `renderRRGQuadrantCards()` wrote the primary cards and rotation read, and browser evidence could not distinguish the primary surface from the secondary RRG chart/status boundary.
+- root_cause: the theme state bridge exposed raw legacy arrays without a normalized view/relative-rotation model, so the native module was intentionally marker-only and legacy remained the effective DOM owner.
+- fix: normalized `view`, bridged RRG items through `computeRelativeRotation` when evidence exists, implemented safe DOM rendering for the two bounded primary surfaces, routed view/history invalidation events through the native module, and retired the legacy card renderer. Chart/canvas status and `theme-detail` were left as explicit secondary boundaries.
+- violated_rule: R352 / R3 — renderer ownership must follow actual writer evidence, and unavailable/static theme values must remain fail-closed rather than being promoted as current native data.
+- prevention: every theme cutover must list primary versus chart/detail surfaces separately, assert the native sink count in Chromium, and keep a no-data browser case visible (`quadrantCount:0`) instead of seeding a fabricated quadrant.
+- verification: syntax, architecture, retirement, operations, structural, doc-currency, Chromium 17-route two-lap (`themesRenderer:native`, primary sinks `2/2`, browserErrors `0`), and headless `1098/1098 PASS`; live invariant fetch remains unverified because the deployed site was unreachable in this environment.

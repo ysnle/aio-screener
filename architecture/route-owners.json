@@ -1,8 +1,8 @@
 {
   "schemaVersion": "route-owners-v1",
-  "generatedAt": "2026-07-19",
+  "generatedAt": "2026-07-22",
   "sourceHandoff": "_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md#RM-00",
-  "method": "Re-measured directly against v53.16 HEAD source (bootstrap.js module wiring, router.js transition, PAGES init literals, cross-grep of native writer ids against js/*.js and index.html). Not copied from prior declarations.",
+  "method": "Re-measured directly against the v53.17/P780 working tree (bootstrap.js module wiring, router.js transition, PAGES init literals, cross-grep of native writer ids against js/*.js and index.html, including market-news/briefing feed markers, macro/fxbond/breadth/themes primary surface markers, explicit legacy writer fences, the themes chart/detail boundary, the ticker hero entity boundary, the fundamental SEC status boundary, the portfolio readiness boundary, and the options replacement-metric boundary). Not copied from prior declarations.",
   "rm01Note": "RM-01 (2026-07-19) deleted every native setText/textContent write this file's contestedIds/legacyWriterEvidence originally documented as a live race (per RM-01 §2 default action: delete native, keep legacy). Those fields are kept as a historical DELETE-LEDGER record of what was found and removed, not a claim that the race is still live — for the 15 rendererOwner='legacy' routes, native no longer writes any of these ids at all. The real ARX cutover (deleting the *legacy* writer so native can take sole ownership) remains future per-route work; see route-owners.json openItems and the execution plan's ARX-05..11 packets.",
   "rm05AgDomWriterProcedure": "AG-DOM-WRITER (scripts/ci-architecture-contract-check.mjs) asserts the intersection of ids written by src/ui/pages/*.js and ids written by js/*.js+index.html is empty, except entries in domWriterIntersectionAllowlist below. Procedure for a real future route cutover (deleting the *legacy* writer so native takes sole ownership of a currently-legacy-owned id): (1) delete the legacy writer line(s) named in that route's legacyWriterEvidence array in this file; (2) re-add the native setText/textContent write for that id in the route's src/ui/pages/*.js module; (3) update that route's rendererOwner to 'native' and move its ids from contestedIds to a cleared state in this file; (4) if the id is also referenced by routeOwners.legacySymbolsMustBeAbsent for ANY renderer-native route (i.e. legacy code must never reintroduce a writer for it), add it there. Do NOT add a newly-cut-over id to domWriterIntersectionAllowlist — that list is exclusively for ids where legacy legitimately READS (not writes) a value native owns (see fg-score-big/pc-score-big below); an allowlist entry for a genuine two-way content race would defeat the gate's purpose.",
   "columnDefinitions": {
@@ -14,127 +14,341 @@
   },
   "domWriterIntersectionAllowlist": [
     "fg-score-big",
-    "pc-score-big"
+    "pc-score-big",
+    "ticker-hero-name"
   ],
   "domWriterIntersectionAllowlistNotes": {
     "fg-score-big": "js/aio-data.js's dormant-until-deferred _generateSentimentAnalysis (called via setTimeout from js/aio-data.js:16811/16819/16825) only READS this via getElementById+textContent to build its analysis text; sentiment.js is the sole WRITER. Legitimate read dependency, not a write race.",
-    "pc-score-big": "Same function/relationship as fg-score-big — read-only legacy consumer, sentiment.js is the sole writer."
+    "pc-score-big": "Same function/relationship as fg-score-big — read-only legacy consumer, sentiment.js is the sole writer.",
+    "ticker-hero-name": "js/aio-core.js:_aioDetectTickerPattern and _aioFillEntryFromTicker read textContent only; entity.js is the sole writer after P777."
   },
   "routes": {
     "home": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "legacy",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=home)",
-      "contestedIds": ["home-hero-total", "home-hero-headline", "home-hero-desc", "home-trading-signal", "home-quality-score", "score-gauge-val", "score-decision-badge", "score-decision-sub", "home-fg-score"],
-      "legacyWriterEvidence": ["js/aio-data.js:16414 (#home-hero-total)", "js/aio-data.js:16500 (#home-trading-signal)", "js/aio-ui.js:1161 (liveEls incl. score-gauge-val)", "js/aio-data.js:16609 (#home-fg-score, cross-page sink from sentiment)"],
+      "contestedIds": [
+        "home-hero-total",
+        "home-hero-headline",
+        "home-hero-desc",
+        "home-trading-signal",
+        "home-quality-score",
+        "score-gauge-val",
+        "score-decision-badge",
+        "score-decision-sub",
+        "home-fg-score"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-data.js:16414 (#home-hero-total)",
+        "js/aio-data.js:16500 (#home-trading-signal)",
+        "js/aio-ui.js:1161 (liveEls incl. score-gauge-val)",
+        "js/aio-data.js:16609 (#home-fg-score, cross-page sink from sentiment)"
+      ],
       "notes": "analysis.js render() is not route-conditioned: mounting for home/signal/technical each unconditionally writes all three routes' DOM ids in the same call."
     },
     "signal": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "legacy",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=signal)",
-      "contestedIds": ["score-gauge-val", "score-decision-badge", "score-decision-sub"],
-      "legacyWriterEvidence": ["js/aio-ui.js:1161 (liveEls incl. score-gauge-val)"],
+      "contestedIds": [
+        "score-gauge-val",
+        "score-decision-badge",
+        "score-decision-sub"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-ui.js:1161 (liveEls incl. score-gauge-val)"
+      ],
       "notes": "Shares analysis.js render() with home/technical; see home.notes."
     },
     "breadth": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "native",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=breadth)",
-      "contestedIds": ["breadth-5sma-big", "breadth-20sma-big", "breadth-50sma-big"],
-      "legacyWriterEvidence": ["js/aio-ui.js (breadth big-number renderer; js/aio-tests.js:8662-8663 asserts fail-closed literal ['breadth-5sma-big','—'] against this source, indirect confirmation of live legacy writer)"],
-      "notes": "ID-level DELETE-LEDGER sweep for this writer is RM-01 scope; contest direction confirmed, exact legacy line not pinpointed in RM-00."
+      "nativePrimarySurface": [
+        "#page-breadth [data-snap=\"breadth-5sma\"]",
+        "#page-breadth [data-snap=\"breadth-20sma\"]",
+        "#page-breadth [data-snap=\"breadth-50sma\"]",
+        "#breadth-advance-ratio"
+      ],
+      "p773Boundary": "market.js owns the three current 5/20/50SMA breadth cards, their bar/freshness readouts, and canonical advance ratio; stage/diagnostic/McClellan/RSP-SPY narrative plus historical chart canvases remain legacy secondary boundaries.",
+      "contestedIds": [
+        "breadth-signal-val",
+        "breadth-stage-summary",
+        "breadth-mcclellan-summary",
+        "breadth-diag-text",
+        "breadth-diag-signal",
+        "bp-price-chart",
+        "bp-ad-ratio-chart",
+        "bp-5ma-chart",
+        "bp-20ma-chart",
+        "bp-50ma-chart"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-ui.js: updateBreadthBars/initBreadthPage primary card fallback writers fence native breadth elements; secondary stage/diagnostic/chart writers remain legacy",
+        "js/aio-data.js: updateBreadthUI breadth-advance-ratio writer fences native breadth element; RSP/SPY breadth-signal remains secondary"
+      ],
+      "notes": "P773 transfers only the current canonical breadth metric surface. market.js reads the native screener artifact metadata first and retains the legacy breadth evidence helper as a compatibility fallback. The source remains research/reference-only; no multi-day breadth history or official exchange breadth is promoted."
     },
     "sentiment": {
-      "lifecycleOwner": "native", "rendererOwner": "native", "dataOwner": "legacy", "chartOwner": "native", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "native",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/sentiment.js (createSentimentPage)",
       "contestedIds": [],
       "legacyWriterEvidence": [],
       "notes": "RM-01 (2026-07-19) found and closed two contests this route's earlier 'fully clean' verification (P736/P738/P739) missed: (1) renderSentimentSummaryProjection() cross-page-wrote home-fg-score, which js/aio-data.js:16609 also writes — removed the native write, legacy keeps that cross-page id. (2) sent-analysis-text was written by both this module and an ACTIVE legacy function (index.html `_generateSentimentAnalysis`, deferred via setTimeout from js/aio-data.js:16811/16819/16825 — materially richer capitulation/decoupling/cluster analysis) — removed the native write per the RM-01 default action, so narrativeOwner is now honestly 'legacy', not 'native'. fg-score-big/pc-score-big are a legitimate exception: legacy's function only READS them (to build its analysis) and this module remains the sole writer (route-owners.json domWriterIntersectionAllowlist). dataOwner remains legacy: sentimentProvider reads via legacy.readSentiment (facade over root._liveData/DATA_SNAPSHOT)."
     },
     "briefing": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=briefing)",
-      "contestedIds": ["briefing-live-news-list"],
-      "legacyWriterEvidence": ["js/aio-core.js:3573", "js/aio-core.js:3601", "js/aio-core.js:25313", "js/aio-core.js:25364", "js/aio-data.js:11549", "js/aio-data.js:11710"],
-      "notes": "6 legacy writers confirmed live for the same container the native module replaceChildren()s. Was previously mis-declared native renderer in stale checkpoints; corrected here per handoff F-03/F-07."
+      "contestedIds": [],
+      "legacyWriterEvidence": [],
+      "notes": "P770: native news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, and reveal control from canonical news state. Legacy AI digest and model/translation producers remain compatibility/narrative boundaries; no legacy primary-feed DOM writer remains."
     },
     "technical": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "legacy",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=technical)",
-      "contestedIds": ["tech-candle-meta", "tech-candle-title", "tech-health-pill", "health-score-display"],
-      "legacyWriterEvidence": ["js/aio-core.js:25174 (#health-score-display)"],
+      "contestedIds": [
+        "tech-candle-meta",
+        "tech-candle-title",
+        "tech-health-pill",
+        "health-score-display"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-core.js:25174 (#health-score-display)"
+      ],
       "notes": "Candlestick chart remains legacy Lightweight Charts; analysis.js does not manage any chart instance. Shares analysis.js render() with home/signal."
     },
     "macro": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=macro)",
-      "contestedIds": ["[data-live-price=…]", "[data-live-chg=…]", "macro-fedRate", "macro-cpi", "macro-coreCpi", "macro-corePce", "macro-nfp"],
-      "legacyWriterEvidence": ["js/aio-data.js: 25 occurrences of data-live-price/data-live-chg attribute writers"],
-      "notes": "market.js renderQuote() targets the same [data-live-price]/[data-live-chg] selector legacy already writes. Exact per-id legacy line sweep is RM-01 scope."
+      "nativePrimarySurface": [
+        "#page-macro [data-live-price]",
+        "#page-macro [data-live-chg]",
+        "#page-macro primary [data-snap] metrics"
+      ],
+      "contestedIds": [
+        "macro-fed-meaning",
+        "macro-2y-value",
+        "macro-2y-source",
+        "macro-spread-value",
+        "macro-spread-meaning",
+        "curve-status",
+        "curve-meaning",
+        "spread-status"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-core.js: _aioApplyEventFreshnessGate writes macro-fed-meaning/fomc as an event-freshness secondary surface",
+        "js/aio-data.js: yield-curve and secondary macro chart/narrative writers remain legacy-owned"
+      ],
+      "notes": "P771 transfers the macro primary quote and FRED metric sinks to market.js. Legacy applyLiveDataToDom/applyLiveQuotes/applyDataSnapshot/FRED snapshot writers skip native macro elements. Yield-curve status/chart and event-freshness narrative remain explicit legacy secondary boundaries for a later ARX packet."
     },
     "fxbond": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=fxbond)",
-      "contestedIds": ["[data-live-price=…]", "[data-live-chg=…]"],
-      "legacyWriterEvidence": ["js/aio-data.js: 25 occurrences of data-live-price/data-live-chg attribute writers (shared with macro)"],
-      "notes": "Two chart widgets remain legacy-owned; market.js has no chart handling."
+      "nativePrimarySurface": [
+        "#page-fxbond [data-live-price]",
+        "#page-fxbond [data-live-chg]",
+        "#page-fxbond [data-snap=\"move\"]"
+      ],
+      "p772Boundary": "market.js owns primary FX/bond live quote and MOVE snapshot sinks; risk, spread/carry narrative, and chart ids remain legacy secondary boundaries behind the native marker.",
+      "contestedIds": [
+        "fxbond-risk-pill",
+        "cam-verdict-text",
+        "carry-score-text",
+        "carry-risk-level",
+        "carry-score-bar",
+        "carry-verdict",
+        "fxbond-tnx-trend",
+        "fxbond-jpy-trend",
+        "koreaCurveChart",
+        "yc-chart-status"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-data.js: shared live quote/snapshot passes fence native fxbond elements",
+        "index.html: updateFxBondPage/updateCrossAssetMatrix own secondary risk, spread, and narrative ids",
+        "index.html: loadFxBondTrendCharts/initYieldCurveChart own legacy chart canvases"
+      ],
+      "notes": "P772 transfers primary live quote and MOVE snapshot sinks to market.js. Risk, spread/carry narrative, and two chart widgets remain explicit legacy secondary boundaries."
     },
     "themes": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/themes.js (createThemesPage route=themes)",
-      "contestedIds": ["rrg-chart-status"],
-      "legacyWriterEvidence": ["js/aio-core.js:1696 (rrg-canvas message/status registry keyed to 'rrg-chart-status')"],
-      "notes": "rrg-quadrant-cards content ownership not conclusively grepped either direction in RM-00 — full sweep deferred to RM-01 step 1 (grep -ohE over src/ui/pages/themes.js)."
+      "contestedIds": [
+        "rrg-chart-status"
+      ],
+      "legacyWriterEvidence": [
+        "index.html:drawRRG writes rrg-canvas and rrg-chart-status as the explicit secondary chart surface"
+      ],
+      "notes": "P775 transfers the RRG quadrant cards and rotation read to native themes.js. The canvas and chart-status remain legacy chart ownership; theme-detail remains a separate legacy renderer route.",
+      "nativePrimarySurface": [
+        "#page-themes #rrg-quadrant-cards",
+        "#page-themes #rrg-rotation-read"
+      ]
     },
     "theme-detail": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "legacy",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/themes.js (createThemesPage route=theme-detail, separate instance)",
-      "contestedIds": ["theme-detail-title"],
-      "legacyWriterEvidence": [],
-      "notes": "Separate createThemesPage() instance from themes route but same module file. theme-detail-title legacy contest not found in this pass; do not treat as cleared — unverified, not confirmed-clean. RM-01 sweep required before reclassifying."
+      "contestedIds": [
+        "theme-detail-panel"
+      ],
+      "legacyWriterEvidence": [
+        "index.html:showThemeDetail (inline #theme-detail-panel renderer after canonical theme-detail -> themes redirect)"
+      ],
+      "notes": "theme-detail is a derived inline view, not a separate user route: showPage('theme-detail') redirects to themes and opens the legacy showThemeDetail panel. The dead renderPageThemeDetail() declaration and static page-theme-detail title writer were retired in P776; the live inline panel remains legacy-owned until its own data/render packet."
     },
     "ticker": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=ticker)",
-      "contestedIds": ["ticker-hero-name", "ticker-hero-price", "ticker-hero-chg"],
-      "legacyWriterEvidence": ["js/aio-core.js:25724 (#ticker-hero-name)", "js/aio-core.js:25740 (#ticker-hero-price)", "js/aio-core.js:25742 (#ticker-hero-chg)"],
-      "notes": "entity.js render() is also not route-conditioned: the same call writes ticker-hero-*, fund-analysis-text, and opt-pcr-val-secondary regardless of which of ticker/fundamental/options triggered the mount."
+      "nativePrimarySurface": [
+        "#page-ticker #ticker-hero-name",
+        "#page-ticker #ticker-hero-fullname",
+        "#page-ticker #ticker-hero-price",
+        "#page-ticker #ticker-hero-chg"
+      ],
+      "contestedIds": [
+        "ticker-candle-symbol",
+        "ticker-entry-symbol",
+        "ticker-hero-ext",
+        "ticker-hero-pnl",
+        "ticker-hero-value"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-core.js:showTicker keeps ticker-candle-symbol/ticker-entry-symbol and ticker overview/action/P&L secondary writers",
+        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer"
+      ],
+      "p777Boundary": "entity.js owns only the ticker hero identity/name/price/change primary surface from the normalized entity state. Fundamental/options routes and ticker secondary overview/candle/entry/P&L surfaces remain legacy."
     },
     "fundamental": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=fundamental)",
-      "contestedIds": ["fund-analysis-text"],
-      "legacyWriterEvidence": ["js/aio-core.js:22594 (fund-analysis-text registered page-contract surface id; actual textContent writers are aio-ui.js _renderFundHeader/_renderFundFinancials/_renderFundEarnings/_renderFundNews and aio-chat.js fundamentalSearch per CODE-MAP)"],
-      "notes": "Shares entity.js render() with ticker/options; see ticker.notes."
+      "nativePrimarySurface": [
+        "#page-fundamental #fund-data-status"
+      ],
+      "contestedIds": [
+        "fund-analysis-text"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-core.js:22594 (fund-analysis-text registered page-contract surface id; actual textContent writers are aio-ui.js _renderFundHeader/_renderFundFinancials/_renderFundEarnings/_renderFundNews and aio-chat.js fundamentalSearch per CODE-MAP)"
+      ],
+      "p779Boundary": "entity.js owns only the SEC annual-data availability/source badge from the normalized sec-fundamentals artifact. The multi-source fundamental report (SEC/FMP/Yahoo/Finnhub), report sections, charts, AI narrative, and fund-analysis-text remain legacy-owned until provider coverage and async writer ownership are reconciled.",
+      "notes": "Shares entity.js render() with ticker/options; this is a bounded status-surface cutover, not a full fundamental-report cutover."
     },
     "options": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=options)",
-      "contestedIds": ["opt-pcr-val-secondary"],
-      "legacyWriterEvidence": ["js/aio-data.js:16898 (forEach(['regime-pcr','opt-pcr-val','opt-pcr-val-secondary']))"],
-      "notes": "Shares entity.js render() with ticker/fundamental; see ticker.notes."
+      "nativePrimarySurface": [
+        "#page-options #opt-vix-val-secondary",
+        "#page-options #opt-pcr-val-secondary",
+        "#page-options #opt-skew-val-secondary"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-data.js: _aioIsNativeMacroElement fences generic live quote/PCR writers when the options page is native",
+        "js/aio-core.js: applyDataSnapshot skips data-snap sinks under the native options page",
+        "index.html: initOptionsPage PCR fallback skips native options elements"
+      ],
+      "p778Boundary": "entity.js owns only the three current replacement-metric values (VIX/PCR/SKEW) from the normalized entity options projection. The page is explicitly not an options-chain source: explanatory copy, old IV/VVIX/GEX/narrative handlers, and any future chain/chart surface remain legacy/reference-only.",
+      "contestedIds": [],
+      "notes": "Shares entity.js render() with ticker/fundamental; options renderer cutover is bounded to the three current replacement-metric sinks."
     },
     "portfolio": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/portfolio.js (createPortfolioPage)",
-      "contestedIds": ["pf-positions-tbody", "pf-total-value", "pf-total-pnl"],
-      "legacyWriterEvidence": ["index.html:10654 (static <tbody id=\"pf-positions-tbody\">)", "index.html:12742 (inline script writer for #pf-positions-tbody)", "js/aio-ui.js:1161 (liveEls incl. pf-total-value, pf-total-pnl)"],
-      "notes": "Native portfolio.js rewrites the table with replaceChildren() using a 5-column row (symbol/shares/price/value/weight); legacy empty-state colSpan=10 in the native module's own fallback row is residual evidence the legacy table has more columns than the native replacement produces."
+      "nativePrimarySurface": [
+        "#page-portfolio #pf-analysis-status"
+      ],
+      "contestedIds": [
+        "pf-positions-tbody",
+        "pf-total-value",
+        "pf-total-pnl"
+      ],
+      "legacyWriterEvidence": [
+        "index.html:10654 (static <tbody id=\"pf-positions-tbody\">)",
+        "index.html:12742 (inline script writer for #pf-positions-tbody)",
+        "js/aio-ui.js:1161 (liveEls incl. pf-total-value, pf-total-pnl)"
+      ],
+      "p780Boundary": "portfolio.js owns only the independent pf-analysis-status readiness text from the native portfolio slice. The encrypted Vault/CRUD path, holdings table, totals/prices, risk metrics, AI workbench, and charts remain legacy-owned until RM-09 storage/vault and writer reconciliation.",
+      "notes": "The native module no longer rewrites the contested table; pf-analysis-status has no competing legacy writer and is the only P780 content surface counted native."
     },
     "market-news": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=market-news)",
-      "contestedIds": ["live-news-feed"],
-      "legacyWriterEvidence": ["js/aio-data.js:11033", "js/aio-data.js:11128", "js/aio-data.js:12716", "js/aio-data.js:12748", "js/aio-data.js:13199"],
-      "notes": "5 legacy writers confirmed live for the same container the native module replaceChildren()s. Was previously mis-declared native renderer in stale checkpoints; corrected here per handoff F-03/F-07."
+      "contestedIds": [],
+      "legacyWriterEvidence": [],
+      "notes": "P769/P770: native news.js owns the primary live-news-feed and briefing-live-news-list DOM, counts, completed 08:00 KST empty states/timestamps, and reveal controls from canonical news state. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet."
     },
     "screener": {
-      "lifecycleOwner": "native", "rendererOwner": "legacy", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "native",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/screener.js (createScreenerPage)",
-      "contestedIds": ["screener-results-body", "screener-result-count"],
-      "legacyWriterEvidence": ["js/aio-data.js:1974 (innerHTML, 22-column colSpan fallback)", "js/aio-data.js:1977 (#screener-result-count)", "js/aio-data.js:2013"],
-      "notes": "Native screener.js replaceChildren()s a 5-column row (rank/symbol/name/sector/score) into a table legacy fills with 22 columns via innerHTML — highest-severity contest: if native wins the race, visible column count regresses from 22 to 5."
+      "contestedIds": [],
+      "legacyWriterEvidence": [],
+      "notes": "ARX-10/ARX-16: screener.js is the sole visible DOM owner and the native provider/orchestrator owns the canonical screener state and single artifact fetch. Non-route readers use AIO_ARCH.getScreenerRows() through the compatibility boundary; legacy profile/watchlist storage and identity/memo overlays remain as explicit compatibility producers."
     },
     "guide": {
-      "lifecycleOwner": "native", "rendererOwner": "native", "dataOwner": "legacy", "chartOwner": "legacy", "narrativeOwner": "legacy",
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "legacy",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/guide.js (createGuidePage)",
       "contestedIds": [],
       "legacyWriterEvidence": [],
@@ -144,13 +358,37 @@
   "counts": {
     "totalRoutes": 17,
     "lifecycleNative": 17,
-    "rendererNative": 2,
-    "rendererNativeRoutes": ["guide", "sentiment"],
-    "rendererLegacyRoutes": ["home", "signal", "breadth", "briefing", "technical", "macro", "fxbond", "themes", "theme-detail", "ticker", "fundamental", "options", "portfolio", "market-news", "screener"],
-    "dataNative": 0,
-    "dataNativeRoutes": [],
+    "rendererNative": 10,
+    "rendererNativeRoutes": [
+      "guide",
+      "sentiment",
+      "screener",
+      "market-news",
+      "briefing",
+      "macro",
+      "fxbond",
+      "breadth",
+      "themes",
+      "ticker"
+    ],
+    "rendererLegacyRoutes": [
+      "home",
+      "signal",
+      "technical",
+      "theme-detail",
+      "fundamental",
+      "options",
+      "portfolio"
+    ],
+    "dataNative": 2,
+    "dataNativeRoutes": [
+      "screener",
+      "breadth"
+    ],
     "chartNative": 1,
-    "chartNativeRoutes": ["sentiment"],
+    "chartNativeRoutes": [
+      "sentiment"
+    ],
     "narrativeNative": 0,
     "narrativeNativeRoutes": [],
     "fullNativeOwner": []
@@ -165,16 +403,52 @@
     "guide": [
       "function _aioGuideSearchTrigger",
       "function _aioGuideJump"
+    ],
+    "screener": [
+      "_aioRenderQuantReadiness",
+      "_aioInitScreenerFilters",
+      "_aioToggleAdvFilters",
+      "_aioScreenerToggleColumns",
+      "_aioResetAdvFilters",
+      "_aioEntryTiming",
+      "_aioCalcPositionSize",
+      "_aioRenderFactorTab",
+      "_aioScreenerTab",
+      "_aioScreenerSort",
+      "_aioScreenerLoadMore",
+      "_aioRenderScreenerBacktest"
+    ],
+    "market-news": [
+      "function renderFeed"
+    ],
+    "briefing": [
+      "function renderBriefingFeed"
+    ],
+    "themes": [
+      "function renderRRGQuadrantCards"
+    ]
+  },
+  "retiredLegacySymbolsMustBeAbsent": {
+    "theme-detail": [
+      "function renderPageThemeDetail"
     ]
   },
   "legacySymbolPatternsMustBeAbsent": {
-    "sentiment": ["badge\\.textContent\\s*=\\s*'심리:"]
+    "sentiment": [
+      "badge\\.textContent\\s*=\\s*'심리:"
+    ]
   },
   "openItems": [
     "RESOLVED (RM-01): home-fg-score cross-page sink — removed from sentiment.js's renderSentimentSummaryProjection; js/aio-data.js:16609 is the sole writer.",
-    "RESOLVED (RM-01): themes/theme-detail — exhaustive grep confirmed all 3 ids (rrg-quadrant-cards js/aio-core.js:22646, rrg-chart-status :22674/:22715/:22841, theme-detail-title :23469) are live legacy writers; native content removed from themes.js entirely.",
-    "RESOLVED (RM-01): macro/fxbond quotes ([data-live-price]/[data-live-chg]) confirmed contested (25 occurrences in js/aio-data.js) and removed from market.js. Macro FRED metric ids (macro-fedRate/macro-cpi/macro-coreCpi/macro-corePce/macro-nfp) turned out not to exist in index.html at all — market.js's renderMetric() for macro was writing to a nonexistent element and had zero effect either way; removed anyway for consistency (RM-01 does not leave inert dead-write code lying around next to genuinely-contested code in the same function).",
+    "RESOLVED (P775): themes RRG quadrant cards and rotation-read are now native primary surfaces; rrg-chart-status/rrg-canvas remain legacy chart boundaries and theme-detail remains a separate legacy renderer route.",
+    "RESOLVED (P771): macro primary quote and FRED metric sinks now have a native market.js renderer; legacy global quote/snapshot passes explicitly skip native macro elements. Secondary curve/event-freshness/chart/narrative ids remain listed as contested until a later ARX packet.",
+    "RESOLVED (P772): fxbond primary live quote and MOVE snapshot sinks now have a native market.js renderer; legacy global quote/snapshot passes explicitly skip native fxbond elements. Risk, spread/carry narrative, and chart ids remain listed as secondary boundaries.",
+    "RESOLVED (P773): breadth current 5/20/50SMA cards and canonical advance-ratio sink now have a native market.js renderer; legacy snapshot, init, bar, and advance-ratio writers explicitly fence native breadth elements. Stage/diagnostic/McClellan/RSP-SPY narrative and historical chart ids remain secondary boundaries.",
     "RESOLVED (RM-01): sentiment's sent-analysis-text was ALSO contested (active legacy function `_generateSentimentAnalysis`, deferred via setTimeout from js/aio-data.js:16811/16819/16825 — this route's earlier P736/P738/P739 'fully clean' verification missed it since the call is indirect, not a literal `_generateSentimentAnalysis()` invocation). Removed native's write; narrativeOwner for sentiment is now honestly 'legacy'.",
-    "OPEN (not RM-01 scope): market.js's renderQuote/renderMetric and analysis/entity/portfolio/screener/news's stripped setText calls are DELETED, not migrated — the real ARX cutover for each of these 15 routes (deleting the *legacy* writer and giving native sole ownership) remains future work per the execution plan's per-route packets (ARX-05..11)."
+    "RESOLVED (P777): ticker hero identity/name/price/change is now native from normalized entity state; ticker secondary overview/candle/entry/P&L plus fundamental/options remain explicitly legacy-owned.",
+    "RESOLVED (P778): options replacement-metric VIX/PCR/SKEW sinks are now native from the normalized entity options projection; generic quote/snapshot/PCR writers are fenced, while options-chain/narrative/chart surfaces remain legacy/reference-only.",
+    "RESOLVED (P779): the fundamental SEC annual-data availability/source badge is now native from normalized sec-fundamentals evidence; the full multi-source report remains explicitly legacy-owned because coverage and async writer ownership are not reconciled.",
+    "RESOLVED (P780): portfolio pf-analysis-status readiness text is now native from the portfolio slice; the encrypted Vault/CRUD/table/risk/chart surfaces remain explicitly legacy-owned.",
+    "OPEN (ARX scope): four legacy renderer routes remain, plus the fundamental full report, portfolio full surface, and native-route secondary chart/data/narrative boundaries. Each next packet must delete or fence the legacy writer before expanding native ownership."
   ]
 }

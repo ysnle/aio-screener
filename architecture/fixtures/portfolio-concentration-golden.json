@@ -1,0 +1,1389 @@
+{
+  "generatedAt": "2026-07-21T04:19:27.896Z",
+  "sourceFunction": "js/aio-core.js:calcPortfolioTechnicalRisk (topWeightPct/items[].weightPct+concentrationPenalty slice only)",
+  "fixtures": [
+    {
+      "name": "empty_portfolio",
+      "inputs": {
+        "positions": [],
+        "context": {}
+      },
+      "legacyOutput": {
+        "state": "EMPTY",
+        "heatScore": 0,
+        "action": "HOLD_CORE",
+        "items": []
+      }
+    },
+    {
+      "name": "single_position_no_concentration_penalty",
+      "inputs": {
+        "positions": [
+          {
+            "ticker": "AAA",
+            "qty": 10,
+            "price": 50
+          }
+        ],
+        "context": {}
+      },
+      "legacyOutput": {
+        "state": "PORTFOLIO_HEAT_NORMAL",
+        "heatScore": 34,
+        "action": "NO_ADD_RAISE_STOP",
+        "items": [
+          {
+            "ticker": "AAA",
+            "score": 18,
+            "action": "NO_ADD_RAISE_STOP",
+            "weightPct": 100,
+            "pnlPct": null,
+            "value": 500,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_100PCT"
+            ],
+            "dataQuality": null
+          }
+        ],
+        "totalValue": 500,
+        "topWeightPct": 100,
+        "avgSellPressure": 18,
+        "maxSellPressure": 18
+      }
+    },
+    {
+      "name": "two_even_positions_below_10pct_each",
+      "inputs": {
+        "positions": [
+          {
+            "ticker": "T0",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T1",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T2",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T3",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T4",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T5",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T6",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T7",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T8",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T9",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T10",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T11",
+            "qty": 1,
+            "price": 100
+          }
+        ],
+        "context": {}
+      },
+      "legacyOutput": {
+        "state": "PORTFOLIO_HEAT_NORMAL",
+        "heatScore": 3,
+        "action": "HOLD_CORE",
+        "items": [
+          {
+            "ticker": "T0",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T1",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T2",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T3",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T4",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T5",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T6",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T7",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T8",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T9",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T10",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T11",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 8.333333333333332,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          }
+        ],
+        "totalValue": 1200,
+        "topWeightPct": 8.333333333333332,
+        "avgSellPressure": 0,
+        "maxSellPressure": 0
+      }
+    },
+    {
+      "name": "one_position_15pct_tier",
+      "inputs": {
+        "positions": [
+          {
+            "ticker": "BIG",
+            "qty": 15,
+            "price": 100
+          },
+          {
+            "ticker": "T0",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T1",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T2",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T3",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T4",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T5",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T6",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T7",
+            "qty": 1,
+            "price": 100
+          }
+        ],
+        "context": {}
+      },
+      "legacyOutput": {
+        "state": "PORTFOLIO_HEAT_NORMAL",
+        "heatScore": 27,
+        "action": "NO_ADD_RAISE_STOP",
+        "items": [
+          {
+            "ticker": "BIG",
+            "score": 18,
+            "action": "NO_ADD_RAISE_STOP",
+            "weightPct": 65.21739130434783,
+            "pnlPct": null,
+            "value": 1500,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_65PCT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T0",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 4.3478260869565215,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T1",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 4.3478260869565215,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T2",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 4.3478260869565215,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T3",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 4.3478260869565215,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T4",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 4.3478260869565215,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T5",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 4.3478260869565215,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T6",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 4.3478260869565215,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T7",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 4.3478260869565215,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          }
+        ],
+        "totalValue": 2300,
+        "topWeightPct": 65.21739130434783,
+        "avgSellPressure": 2,
+        "maxSellPressure": 18
+      }
+    },
+    {
+      "name": "one_position_25pct_extreme_tier",
+      "inputs": {
+        "positions": [
+          {
+            "ticker": "HUGE",
+            "qty": 30,
+            "price": 100
+          },
+          {
+            "ticker": "T0",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T1",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T2",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T3",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T4",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T5",
+            "qty": 1,
+            "price": 100
+          },
+          {
+            "ticker": "T6",
+            "qty": 1,
+            "price": 100
+          }
+        ],
+        "context": {}
+      },
+      "legacyOutput": {
+        "state": "PORTFOLIO_HEAT_NORMAL",
+        "heatScore": 27,
+        "action": "NO_ADD_RAISE_STOP",
+        "items": [
+          {
+            "ticker": "HUGE",
+            "score": 18,
+            "action": "NO_ADD_RAISE_STOP",
+            "weightPct": 81.08108108108108,
+            "pnlPct": null,
+            "value": 3000,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_81PCT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T0",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 2.7027027027027026,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T1",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 2.7027027027027026,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T2",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 2.7027027027027026,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T3",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 2.7027027027027026,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T4",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 2.7027027027027026,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T5",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 2.7027027027027026,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "T6",
+            "score": 0,
+            "action": "HOLD_CORE",
+            "weightPct": 2.7027027027027026,
+            "pnlPct": null,
+            "value": 100,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT"
+            ],
+            "dataQuality": null
+          }
+        ],
+        "totalValue": 3700,
+        "topWeightPct": 81.08108108108108,
+        "avgSellPressure": 2.25,
+        "maxSellPressure": 18
+      }
+    },
+    {
+      "name": "explicit_total_value_overrides_computed",
+      "inputs": {
+        "positions": [
+          {
+            "ticker": "AAA",
+            "qty": 10,
+            "price": 50,
+            "value": 500
+          }
+        ],
+        "context": {
+          "totalValue": 2000
+        }
+      },
+      "legacyOutput": {
+        "state": "PORTFOLIO_HEAT_NORMAL",
+        "heatScore": 24,
+        "action": "NO_ADD_RAISE_STOP",
+        "items": [
+          {
+            "ticker": "AAA",
+            "score": 18,
+            "action": "NO_ADD_RAISE_STOP",
+            "weightPct": 25,
+            "pnlPct": null,
+            "value": 500,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_25PCT"
+            ],
+            "dataQuality": null
+          }
+        ],
+        "totalValue": 2000,
+        "topWeightPct": 25,
+        "avgSellPressure": 18,
+        "maxSellPressure": 18
+      }
+    },
+    {
+      "name": "position_weightPct_fallback_when_no_totalValue",
+      "inputs": {
+        "positions": [
+          {
+            "ticker": "AAA",
+            "qty": 0,
+            "price": 0,
+            "weightPct": 30
+          }
+        ],
+        "context": {}
+      },
+      "legacyOutput": {
+        "state": "PORTFOLIO_HEAT_NORMAL",
+        "heatScore": 26,
+        "action": "NO_ADD_RAISE_STOP",
+        "items": [
+          {
+            "ticker": "AAA",
+            "score": 18,
+            "action": "NO_ADD_RAISE_STOP",
+            "weightPct": 30,
+            "pnlPct": null,
+            "value": 0,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_30PCT"
+            ],
+            "dataQuality": null
+          }
+        ],
+        "totalValue": 0,
+        "topWeightPct": 30,
+        "avgSellPressure": 18,
+        "maxSellPressure": 18
+      }
+    },
+    {
+      "name": "boundary_exactly_10_15_25_pct",
+      "inputs": {
+        "positions": [
+          {
+            "ticker": "A",
+            "qty": 10,
+            "price": 1
+          },
+          {
+            "ticker": "B",
+            "qty": 15,
+            "price": 1
+          },
+          {
+            "ticker": "C",
+            "qty": 25,
+            "price": 1
+          },
+          {
+            "ticker": "D",
+            "qty": 50,
+            "price": 1
+          }
+        ],
+        "context": {}
+      },
+      "legacyOutput": {
+        "state": "PORTFOLIO_HEAT_NORMAL",
+        "heatScore": 32,
+        "action": "NO_ADD_RAISE_STOP",
+        "items": [
+          {
+            "ticker": "A",
+            "score": 5,
+            "action": "HOLD_CORE",
+            "weightPct": 10,
+            "pnlPct": null,
+            "value": 10,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_10PCT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "B",
+            "score": 10,
+            "action": "HOLD_CORE",
+            "weightPct": 15,
+            "pnlPct": null,
+            "value": 15,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_15PCT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "C",
+            "score": 18,
+            "action": "NO_ADD_RAISE_STOP",
+            "weightPct": 25,
+            "pnlPct": null,
+            "value": 25,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_25PCT"
+            ],
+            "dataQuality": null
+          },
+          {
+            "ticker": "D",
+            "score": 18,
+            "action": "NO_ADD_RAISE_STOP",
+            "weightPct": 50,
+            "pnlPct": null,
+            "value": 50,
+            "snapshot": {
+              "ok": false,
+              "reason": "insufficient_ohlcv",
+              "bars": 0
+            },
+            "sellPressure": {
+              "score": 0,
+              "action": "HOLD_CORE",
+              "flags": [
+                "DATA_INSUFFICIENT"
+              ],
+              "snapshot": {
+                "ok": false,
+                "reason": "insufficient_ohlcv",
+                "bars": 0
+              }
+            },
+            "flags": [
+              "DATA_INSUFFICIENT",
+              "POSITION_CONCENTRATION_50PCT"
+            ],
+            "dataQuality": null
+          }
+        ],
+        "totalValue": 100,
+        "topWeightPct": 50,
+        "avgSellPressure": 12.75,
+        "maxSellPressure": 18
+      }
+    }
+  ]
+}

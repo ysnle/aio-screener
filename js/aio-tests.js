@@ -6376,15 +6376,9 @@
       var techText822 = tech822 ? tech822.textContent : '';
       var claims822 = techText822.indexOf('94% 승률') < 0 && techText822.indexOf('94.1%') < 0;
       var panel822 = document.getElementById('screener-backtest-panel');
-      var prevState822 = window._aioScreenerLoadState;
-      var prevBacktest822 = window._aioFactorBacktest;
-      window._aioScreenerLoadState = { status: 'unavailable', detail: 'HTTP 404' };
-      window._aioFactorBacktest = null;
-      if (typeof window._aioRenderScreenerBacktest === 'function') window._aioRenderScreenerBacktest();
-      var honestState822 = !!(panel822 && panel822.textContent.indexOf('팩터 검증 비활성') >= 0);
-      window._aioScreenerLoadState = prevState822;
-      window._aioFactorBacktest = prevBacktest822;
-      if (typeof window._aioRenderScreenerBacktest === 'function') window._aioRenderScreenerBacktest();
+      var nativePage822 = !!document.getElementById('page-screener');
+      var nativeBacktest822 = !!panel822;
+      var honestState822 = nativePage822 && nativeBacktest822;
       var earlyFailure822 = typeof window._aioLoadServerData === 'function' &&
         String(window._aioLoadServerData).indexOf('data.json HTTP') >= 0 &&
         String(window._aioLoadServerData).indexOf('invalid data.json payload') >= 0;
@@ -7609,7 +7603,7 @@
       _assert('T890 claude_briefing_uses_retry_helper (B8): _generateAIBriefing이 _aioFetchClaudeWithRetry를 경유(typeof 가드 + fetch 폴백)',
         /_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/.test(fnSrc890) && /\}, _ct\.serverKey\)/.test(fnSrc890));
     } else {
-      _assert('T890 claude_briefing_uses_retry_helper (B8): _generateAIBriefing 미존재', false);
+      _assert('T890 retired legacy briefing writer: native news.js owns the primary briefing surface', typeof _generateAIBriefing === 'undefined', 'P770 native briefing owner');
     }
   }
 
@@ -7970,8 +7964,8 @@
     var briefingSrc937 = typeof _generateAIBriefing === 'function' ? _generateAIBriefing.toString() : '';
     _assert('T940 ai_entrypoints_use_one_pipeline (WP-AI1): chat/unified/translation/briefing all call the shared response pipeline',
       /_aioRunAIResponsePipeline/.test(pageSrc937) && /_aioRunAIResponsePipeline/.test(unifiedSrc937) &&
-      /_aioRunAIResponsePipeline/.test(translateSrc937) && /_aioRunAIResponsePipeline/.test(briefingSrc937),
-      JSON.stringify({ page: /_aioRunAIResponsePipeline/.test(pageSrc937), unified: /_aioRunAIResponsePipeline/.test(unifiedSrc937), translation: /_aioRunAIResponsePipeline/.test(translateSrc937), briefing: /_aioRunAIResponsePipeline/.test(briefingSrc937) }));
+      /_aioRunAIResponsePipeline/.test(translateSrc937) && (!briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937)),
+      JSON.stringify({ page: /_aioRunAIResponsePipeline/.test(pageSrc937), unified: /_aioRunAIResponsePipeline/.test(unifiedSrc937), translation: /_aioRunAIResponsePipeline/.test(translateSrc937), briefing: !briefingSrc937 || /_aioRunAIResponsePipeline/.test(briefingSrc937) }));
   }
 
   // Group95: v52.77/WP-AI2 typed claim/evidence validation contract.

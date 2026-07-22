@@ -2,7 +2,7 @@ export const SCREENER_DATA_SET = 'data/screener';
 export const SCREENER_DATA_CLEAR = 'data/screener/clear';
 
 export function createInitialScreenerState() {
-  return Object.freeze({ status: 'unavailable', rows: [], filters: {}, revision: null, updatedAt: null });
+  return Object.freeze({ status: 'unavailable', rows: [], filters: {}, metadata: {}, revision: null, updatedAt: null });
 }
 
 export function createScreenerDataAction(payload = {}, meta = {}) {
@@ -16,6 +16,7 @@ export function screenerReducer(state = createInitialScreenerState(), action = {
       status: payload.status || (Array.isArray(payload.rows) ? 'current' : 'unavailable'),
       rows: Array.isArray(payload.rows) ? payload.rows.map((row) => ({ ...row })) : [],
       filters: payload.filters && typeof payload.filters === 'object' ? { ...payload.filters } : {},
+      metadata: payload.metadata && typeof payload.metadata === 'object' ? { ...payload.metadata } : {},
       revision: payload.revision || null,
       updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null
     };
