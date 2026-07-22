@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-22T20:32:00.114Z",
-  "attemptedAt": "2026-07-22T20:32:00.114Z",
-  "lastSuccessfulAt": "2026-07-22T20:32:00.114Z",
+  "generatedAt": "2026-07-22T21:45:13.559Z",
+  "attemptedAt": "2026-07-22T21:45:13.559Z",
+  "lastSuccessfulAt": "2026-07-22T21:45:13.559Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-08T20:31:55.534Z",
-  "until": "2026-07-22T20:31:55.534Z",
+  "since": "2026-07-08T21:45:09.533Z",
+  "until": "2026-07-22T21:45:09.533Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -22,32 +22,288 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 550,
-      "freshCount": 58,
-      "eligibleTextCount": 57,
+      "count": 562,
+      "freshCount": 39,
+      "eligibleTextCount": 39,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 58958
+      "lastPostId": 58971
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 243,
-      "freshCount": 39,
-      "eligibleTextCount": 39,
+      "count": 250,
+      "freshCount": 38,
+      "eligibleTextCount": 38,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19252
+      "lastPostId": 19260
     }
   ],
-  "count": 1105,
-  "retainedItemCount": 438,
+  "count": 1124,
+  "retainedItemCount": 416,
   "observedItems": [
+    {
+      "id": "insidertracking/58971",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:34:43.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58969",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:32:21.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19260",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T21:31:44.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 67,
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [
+        "INTC",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58968",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:30:18.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58967",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:29:08.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19259",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T21:26:38.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "INTC"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58966",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:15:04.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 47,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58965",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:12:14.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19258",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T21:04:07.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 55,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19257",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T21:02:18.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 47,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19256",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T21:00:59.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 99,
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "NVDA",
+        "GOOG",
+        "AVGO",
+        "LITE",
+        "GOOGL",
+        "PEP",
+        "INTC",
+        "PFE"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58964",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:00:52.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58963",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:59:55.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19255",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T20:48:07.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 53,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG",
+        "GOOGL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58962",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:37:44.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19253",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T20:35:46.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 66,
+      "tags": [
+        "macro",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58961",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:35:42.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58960",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:35:03.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58959",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:31:59.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/58958",
       "channel": "insidertracking",
@@ -488,7 +744,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58929",
@@ -500,7 +756,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58928",
@@ -522,7 +778,7 @@
         "AMD",
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58927",
@@ -534,7 +790,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58926",
@@ -546,7 +802,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58925",
@@ -564,7 +820,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58924",
@@ -586,7 +842,7 @@
         "NVDA",
         "AMD"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58923",
@@ -617,7 +873,7 @@
         "WFC",
         "COIN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23820",
@@ -856,7 +1112,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58920",
@@ -875,7 +1131,7 @@
         "SMCI",
         "RKLB"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23809",
@@ -939,7 +1195,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58918",
@@ -951,7 +1207,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23807",
@@ -976,7 +1232,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19242",
@@ -1007,7 +1263,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58914",
@@ -1019,7 +1275,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58913",
@@ -1031,7 +1287,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58912",
@@ -1048,7 +1304,7 @@
       "tickers": [
         "PM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58911",
@@ -1060,7 +1316,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58910",
@@ -1072,7 +1328,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58909",
@@ -1099,7 +1355,7 @@
         "GOOGL",
         "CRWV"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23805",
@@ -1130,7 +1386,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23804",
@@ -1157,7 +1413,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58906",
@@ -1171,7 +1427,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58905",
@@ -1183,7 +1439,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58904",
@@ -1195,7 +1451,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58903",
@@ -1208,7 +1464,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58902",
@@ -1220,7 +1476,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58900",
@@ -1232,7 +1488,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23803",
@@ -1258,7 +1514,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23802",
@@ -1300,7 +1556,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58896",
@@ -2690,7 +2946,7 @@
       "tickers": [
         "AMD"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58828",
@@ -3330,7 +3586,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19218",
@@ -3348,7 +3604,7 @@
         "GOOG",
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23765",
@@ -3382,7 +3638,7 @@
         "NVDA",
         "MSFT"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58799",
@@ -3593,7 +3849,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58785",
@@ -3685,7 +3941,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19214",
@@ -3699,7 +3955,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23764",
@@ -3808,7 +4064,7 @@
         "AAPL",
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19212",
@@ -16321,38 +16577,45 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1105,
-    "eligibleTextCount": 114,
-    "mediaOnlyCount": 991,
-    "highSignalCount": 457,
-    "broadSignalCount": 751,
+    "observedCount": 1124,
+    "eligibleTextCount": 95,
+    "mediaOnlyCount": 1029,
+    "highSignalCount": 460,
+    "broadSignalCount": 757,
     "selectedRawCount": 370,
-    "selectedRawCoveragePct": 324.6,
+    "selectedRawCoveragePct": 389.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "geo": 247,
+    "market-note": 169,
+    "macro": 457,
+    "semi": 573,
+    "ai-policy": 149,
+    "equity": 155,
+    "earnings": 235,
+    "geo": 249,
     "kr-market": 201,
-    "macro": 452,
-    "market-note": 161,
-    "semi": 569,
     "power": 239,
-    "ai-policy": 147,
-    "earnings": 231,
     "flows": 70,
     "insider": 27,
     "japan": 59,
     "healthcare": 48,
     "credit": 37,
-    "equity": 154,
     "crypto": 5,
     "media-only": 17,
     "optical": 24
   },
   "tickerCounts": {
-    "GOOG": 66,
+    "INTC": 15,
+    "000660.KS": 56,
+    "GOOG": 70,
+    "NVDA": 66,
+    "AVGO": 42,
+    "LITE": 12,
+    "GOOGL": 10,
+    "PEP": 1,
+    "PFE": 1,
     "AMD": 55,
-    "GOOGL": 8,
     "TSLA": 4,
     "BE": 19,
     "GEV": 5,
@@ -16370,7 +16633,6 @@
     "ING": 1,
     "ADM": 3,
     "AMZN": 52,
-    "NVDA": 65,
     "AAPL": 30,
     "SMCI": 14,
     "CVX": 1,
@@ -16380,16 +16642,12 @@
     "035420.KS": 27,
     "QCOM": 4,
     "005930.KS": 33,
-    "LITE": 11,
     "RKLB": 14,
     "MSFT": 37,
-    "AVGO": 41,
     "MU": 65,
     "CRWV": 2,
     "COHR": 5,
-    "000660.KS": 55,
     "T": 1,
-    "INTC": 12,
     "BA": 2,
     "MTSI": 1,
     "016360.KS": 2,
@@ -16486,14 +16744,14 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (569 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
-    "Macro/Rates (452 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
-    "Geopolitics (247 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
-    "AI Power/Grid (239 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
-    "Earnings/Corporate (231 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
-    "Korea Market (201 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. 이란의 공격으로 미군 피해가 발생할 경우 큰 대가를 치르게 될 것이라고 강조. •...",
-    "Market Notes (161 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
-    "Equity/Analyst (154 posts in current window): Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
+    "Semiconductors/Memory (573 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "Macro/Rates (457 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "Geopolitics (249 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "AI Power/Grid (239 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "Earnings/Corporate (235 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "Korea Market (201 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를...",
+    "Market Notes (169 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Equity/Analyst (155 posts in current window): Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
   ],
   "catalysts": [
     {
@@ -16503,18 +16761,18 @@
     },
     {
       "key": "GOOG",
-      "count": 66,
-      "text": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
+      "count": 70,
+      "text": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
     },
     {
       "key": "NVDA",
-      "count": 65,
-      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. 이란의 공격으로 미군 피해가 발생할 경우 큰 대가를 치르게 될 것이라고 강조. •..."
+      "count": 66,
+      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
     },
     {
       "key": "MU",
       "count": 65,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
+      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지..."
     },
     {
       "key": "META",
@@ -16522,29 +16780,29 @@
       "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
-      "key": "AMD",
-      "count": 55,
-      "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "key": "000660.KS",
+      "count": 56,
+      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
-      "key": "000660.KS",
+      "key": "AMD",
       "count": 55,
-      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
+      "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "key": "AMZN",
       "count": 52,
-      "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "key": "AVGO",
-      "count": 41,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
+      "count": 42,
+      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지..."
     },
     {
       "key": "MSFT",
       "count": 37,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
+      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지..."
     },
     {
       "key": "005930.KS",
@@ -16554,7 +16812,7 @@
     {
       "key": "AAPL",
       "count": 30,
-      "text": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
+      "text": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
     }
   ],
   "categories": [
@@ -16564,8 +16822,8 @@
       "topics": [
         "macro"
       ],
-      "count": 452,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "count": 457,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "id": "geo",
@@ -16573,8 +16831,8 @@
       "topics": [
         "geo"
       ],
-      "count": 247,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "count": 249,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "id": "credit",
@@ -16583,7 +16841,7 @@
         "credit"
       ],
       "count": 37,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "id": "semi",
@@ -16591,8 +16849,8 @@
       "topics": [
         "semi"
       ],
-      "count": 569,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "count": 573,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "id": "optical",
@@ -16610,7 +16868,7 @@
         "power"
       ],
       "count": 239,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "id": "ai-policy",
@@ -16618,8 +16876,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 147,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "count": 149,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "id": "kr-market",
@@ -16628,7 +16886,7 @@
         "kr-market"
       ],
       "count": 201,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. 이란의 공격으로 미군 피해가 발생할 경우 큰 대가를 치르게 될 것이라고 강조. •..."
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
     },
     {
       "id": "equity",
@@ -16636,8 +16894,8 @@
       "topics": [
         "equity"
       ],
-      "count": 154,
-      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
+      "count": 155,
+      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
     },
     {
       "id": "crypto",
@@ -16646,7 +16904,7 @@
         "crypto"
       ],
       "count": 5,
-      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
+      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
     },
     {
       "id": "earnings",
@@ -16654,8 +16912,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 231,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "count": 235,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "id": "healthcare",
@@ -16664,7 +16922,7 @@
         "healthcare"
       ],
       "count": 48,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "id": "japan",
@@ -16682,7 +16940,7 @@
         "flows"
       ],
       "count": 70,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. 이란의 공격으로 미군 피해가 발생할 경우 큰 대가를 치르게 될 것이라고 강조. •..."
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
     },
     {
       "id": "insider",
@@ -16691,7 +16949,7 @@
         "insider"
       ],
       "count": 27,
-      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
+      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
     },
     {
       "id": "market-note",
@@ -16699,7 +16957,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 161,
+      "count": 169,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -18071,6 +18329,116 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19260",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19260",
+      "datetime": "2026-07-22T21:31:44.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [
+        "INTC",
+        "000660.KS"
+      ],
+      "score": 67,
+      "hasText": true,
+      "summary": "[단독] 인텔, 오하이오 반도체 공장 '운영 파트너' 모색 주요 내용: 착공 지연과 차질을 겪어온 미국 오하이오주 메모리 생산 팹(Fab) 프로젝트에 대해, 인텔이 공장을 매각하는 대신 운영을 함께할 파트너..."
+    },
+    {
+      "id": "bornlupin/19259",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19259",
+      "datetime": "2026-07-22T21:26:38.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "INTC"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "인텔, 오하이오 반도체 공장 파트너십 검토… SK하이닉스도 후보군에 포함 수요일 세마포르(Semafor) 보도에 따르면, 인텔(Intel)은 오하이오주 반도체 제조 공장의 운영을 지원할 파트너를 모색하고..."
+    },
+    {
+      "id": "bornlupin/19258",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19258",
+      "datetime": "2026-07-22T21:04:07.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 55,
+      "hasText": true,
+      "summary": "알파벳, 연간 설비투자(CapEx) 전망치 1,950억~2,050억 달러로 상향 (기존 1,800억~1,900억 달러 / 시장 예상치 1,864억 달러) 2027 회계연도(FY27) 설비투자 '상당히' 증가할..."
+    },
+    {
+      "id": "bornlupin/19256",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19256",
+      "datetime": "2026-07-22T21:00:59.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "NVDA",
+        "GOOG",
+        "AVGO",
+        "LITE",
+        "GOOGL",
+        "PEP",
+        "INTC",
+        "PFE"
+      ],
+      "score": 99,
+      "hasText": true,
+      "summary": "구글 2026년 2분기 어닝콜 - 순다르 피차이 CEO 발언 1. 주요 재무 및 실적 하이라이트 알파벳 전체 매출 : 전년 동기 대비 24% 증가 하며 강력한 성장세 기록 검색 및 기타 매출 : 전년 동기..."
+    },
+    {
+      "id": "bornlupin/19255",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19255",
+      "datetime": "2026-07-22T20:48:07.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG",
+        "GOOGL"
+      ],
+      "score": 53,
+      "hasText": true,
+      "summary": "Evercore ISI, 알파벳 (Alphabet , &#036;GOOGL ) 실적 코멘트 알파벳의 2분기 실적은 대부분의 주요 부문에서 시장 예상치를 상회했습니다. 총매출 : &#036;119.8B (전년..."
+    },
+    {
+      "id": "bornlupin/19253",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19253",
+      "datetime": "2026-07-22T20:35:46.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 66,
+      "hasText": true,
+      "summary": "구글 클라우드 2분기 실적: &#036;24.77B (전망치: &#036;22.46B) 매출 247.68억 달러로 전년 대비 82% 성장했는데, 전년 동기 성장률이 +32%였던 점을 감안하면 극적인 가 속..."
+    },
     {
       "id": "bornlupin/19252",
       "channel": "bornlupin",
@@ -24582,112 +24950,6 @@
       "score": 81,
       "hasText": true,
       "summary": "[메리츠증권 전기전자/IT부품 양승수] 안녕하세요, 메리츠증권 양승수입니다. 전일 Aehr Test Systems(AEHR)이 FY2026 4분기 실적 발표 이후 시간외 거래에서 30% 이상 급등한 것과..."
-    },
-    {
-      "id": "bornlupin/19106",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19106",
-      "datetime": "2026-07-15T01:48:24.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "equity"
-      ],
-      "tickers": [
-        "005930.KS",
-        "000660.KS",
-        "035420.KS"
-      ],
-      "score": 84,
-      "hasText": true,
-      "summary": "[단독] 삼성, 美 ADR 공식 부인했지만…물밑 검토 착수 삼성전자가 내부적으로 미국 ADR(미국주식예탁증서) 발행 시나리오를 검토하며 실무 절차까지 점검한 것으로 파악됐다. 공식적으로는 검토설을 부인했지만..."
-    },
-    {
-      "id": "bornlupin/19105",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19105",
-      "datetime": "2026-07-15T01:35:54.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 64,
-      "hasText": true,
-      "summary": "대만 메모리 반도체 부문이 지난 2026년 6월에 엄청난 실적을 거두었습니다. (mom +6.4%, yoy +288.3%) 대만 반도체 공급망 전체에서도 단연 눈에 띄는 압도적인 성장세입니다. 총 매출:..."
-    },
-    {
-      "id": "bornlupin/19104",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19104",
-      "datetime": "2026-07-15T01:07:49.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "Aehr Test Systems는 이번 분기에 전년 동기 대비 430% 증가한 8,100만 달러의 수주 잔고(backlog)를 기록했다고 발표했습니다. \"당사의 웨이퍼 레벨 및 패키지 레벨..."
-    },
-    {
-      "id": "bornlupin/19103",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19103",
-      "datetime": "2026-07-15T00:39:28.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "equity"
-      ],
-      "tickers": [
-        "AAPL",
-        "GOOG",
-        "META",
-        "TSLA"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "&#036;AEHR 어닝콜 중 구글(Google)과 메타(Meta)를 비롯해 백서 등을 통해 요구 사항을 확인할 수 있는 애플(Apple), 그리고 확실히 테슬라(Tesla)에 이르기까지 모든..."
-    },
-    {
-      "id": "bornlupin/19102",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19102",
-      "datetime": "2026-07-15T00:27:20.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "power",
-        "kr-market",
-        "earnings"
-      ],
-      "tickers": [
-        "035420.KS",
-        "028260.KS"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": "2026.07.15 09:19:13 기업명: 지엔씨에너지(시가총액: 4,869억) A119850 보고서명: 단일판매ㆍ공급계약체결 계약상대 : 삼성물산 주식회사 계약내용 : 용인덕성AI데이터센터 발전기 공급지역..."
-    },
-    {
-      "id": "bornlupin/19101",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19101",
-      "datetime": "2026-07-14T23:56:26.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "semi",
-        "kr-market",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 60,
-      "hasText": true,
-      "summary": "📮 [메리츠 투자전략 황수욱] 2026.7.15 시장이 추세 반등한다면 (자료) 어제 전략공감에서 이례적인 시장 밸류에이션의 저점 이유로 1) 이익에 대한 신뢰 문제, 2) 수급 우려를 들었습니다. 당사는..."
     }
   ]
 }
