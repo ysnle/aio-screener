@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-22T18:47:43.227Z",
-  "attemptedAt": "2026-07-22T18:47:43.227Z",
-  "lastSuccessfulAt": "2026-07-22T18:47:43.227Z",
+  "generatedAt": "2026-07-22T20:32:00.114Z",
+  "attemptedAt": "2026-07-22T20:32:00.114Z",
+  "lastSuccessfulAt": "2026-07-22T20:32:00.114Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-08T18:47:40.154Z",
-  "until": "2026-07-22T18:47:40.154Z",
+  "since": "2026-07-08T20:31:55.534Z",
+  "until": "2026-07-22T20:31:55.534Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -22,32 +22,603 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 3,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 515,
-      "freshCount": 20,
-      "eligibleTextCount": 19,
-      "selectedCount": 125,
+      "count": 550,
+      "freshCount": 58,
+      "eligibleTextCount": 57,
+      "selectedCount": 124,
       "error": null,
-      "lastPostId": 58922
+      "lastPostId": 58958
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 239,
-      "freshCount": 20,
-      "eligibleTextCount": 20,
+      "count": 243,
+      "freshCount": 39,
+      "eligibleTextCount": 39,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19247
+      "lastPostId": 19252
     }
   ],
-  "count": 1066,
-  "retainedItemCount": 394,
+  "count": 1105,
+  "retainedItemCount": 438,
   "observedItems": [
+    {
+      "id": "insidertracking/58958",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:31:07.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58957",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:29:47.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 43,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19252",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T20:29:32.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 64,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58955",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:29:09.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58954",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:27:29.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58953",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:26:10.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58952",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:23:39.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 52,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58951",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:23:04.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 70,
+      "tags": [
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58950",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:22:36.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 57,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19250",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T20:22:36.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 56,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58949",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:21:19.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58948",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:20:03.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 64,
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58947",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:18:19.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 57,
+      "tags": [
+        "macro",
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58946",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:18:10.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58945",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:16:14.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19249",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T20:16:13.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 72,
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58944",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:14:31.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 57,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19248",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T20:13:42.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 91,
+      "tags": [
+        "macro",
+        "ai-policy",
+        "kr-market",
+        "insider",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "GOOG",
+        "GOOGL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58943",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:13:20.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 89,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "TSLA"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58942",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:07:12.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 52,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58941",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:06:09.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58940",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:05:20.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 79,
+      "tags": [
+        "power",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG",
+        "GOOGL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58939",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:03:52.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58938",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:03:24.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 47,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58937",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T20:01:48.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58936",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:57:57.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 57,
+      "tags": [
+        "macro",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58935",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:57:06.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 81,
+      "tags": [
+        "macro",
+        "power",
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [
+        "BE",
+        "GEV"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58934",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:54:11.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58933",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:51:34.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58932",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:51:13.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58931",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:49:09.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 60,
+      "tags": [
+        "healthcare"
+      ],
+      "tickers": [
+        "TRV",
+        "PM",
+        "PRU",
+        "CVS",
+        "PSX",
+        "VLO",
+        "MPC",
+        "CTVA",
+        "ED",
+        "VTR",
+        "HSBC",
+        "ING",
+        "ADM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58930",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:47:12.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 48,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58929",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:46:20.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 40,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58928",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:43:40.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 100,
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "AMD",
+        "AMZN"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58927",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:41:29.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58926",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:40:46.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58925",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:38:08.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 97,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "insider",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58924",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:36:55.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 100,
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58923",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T19:36:27.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "crypto",
+        "insider",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "AAPL",
+        "GOOG",
+        "AMZN",
+        "SMCI",
+        "CVX",
+        "WFC",
+        "COIN"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23820",
       "channel": "aetherjapanresearch",
@@ -661,7 +1232,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23803",
@@ -687,7 +1258,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23802",
@@ -729,7 +1300,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58896",
@@ -1734,7 +2305,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19226",
@@ -1755,7 +2326,7 @@
         "AMD",
         "META"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58850",
@@ -1783,7 +2354,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58849",
@@ -1862,7 +2433,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58844",
@@ -1914,7 +2485,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19222",
@@ -1928,7 +2499,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58843",
@@ -2007,7 +2578,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58838",
@@ -2119,7 +2690,7 @@
       "tickers": [
         "AMD"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58828",
@@ -2759,7 +3330,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19218",
@@ -2777,7 +3348,7 @@
         "GOOG",
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23765",
@@ -2811,7 +3382,7 @@
         "NVDA",
         "MSFT"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58799",
@@ -3022,7 +3593,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58785",
@@ -3114,7 +3685,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19214",
@@ -3128,7 +3699,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23764",
@@ -3237,7 +3808,7 @@
         "AAPL",
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19212",
@@ -15750,58 +16321,74 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1066,
-    "eligibleTextCount": 57,
-    "mediaOnlyCount": 1009,
-    "highSignalCount": 447,
-    "broadSignalCount": 731,
-    "selectedRawCount": 371,
-    "selectedRawCoveragePct": 650.9,
+    "observedCount": 1105,
+    "eligibleTextCount": 114,
+    "mediaOnlyCount": 991,
+    "highSignalCount": 457,
+    "broadSignalCount": 751,
+    "selectedRawCount": 370,
+    "selectedRawCoveragePct": 324.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "credit": 35,
-    "macro": 437,
-    "power": 231,
-    "insider": 24,
-    "earnings": 219,
-    "ai-policy": 139,
-    "market-note": 151,
-    "semi": 560,
-    "equity": 153,
-    "kr-market": 193,
-    "healthcare": 46,
+    "geo": 247,
+    "kr-market": 201,
+    "macro": 452,
+    "market-note": 161,
+    "semi": 569,
+    "power": 239,
+    "ai-policy": 147,
+    "earnings": 231,
+    "flows": 70,
+    "insider": 27,
+    "japan": 59,
+    "healthcare": 48,
+    "credit": 37,
+    "equity": 154,
+    "crypto": 5,
     "media-only": 17,
-    "geo": 239,
-    "flows": 65,
-    "japan": 58,
-    "optical": 24,
-    "crypto": 4
+    "optical": 24
   },
   "tickerCounts": {
-    "GEV": 4,
-    "AMD": 51,
+    "GOOG": 66,
+    "AMD": 55,
+    "GOOGL": 8,
+    "TSLA": 4,
+    "BE": 19,
+    "GEV": 5,
+    "TRV": 3,
+    "PM": 4,
+    "PRU": 2,
+    "CVS": 4,
+    "PSX": 4,
+    "VLO": 4,
+    "MPC": 4,
+    "CTVA": 1,
+    "ED": 1,
+    "VTR": 2,
+    "HSBC": 1,
+    "ING": 1,
+    "ADM": 3,
+    "AMZN": 52,
+    "NVDA": 65,
+    "AAPL": 30,
+    "SMCI": 14,
+    "CVX": 1,
+    "WFC": 2,
+    "COIN": 1,
     "META": 57,
-    "BE": 18,
     "035420.KS": 27,
     "QCOM": 4,
     "005930.KS": 33,
-    "AMZN": 50,
-    "GOOG": 60,
     "LITE": 11,
-    "GOOGL": 6,
-    "NVDA": 63,
-    "SMCI": 13,
     "RKLB": 14,
     "MSFT": 37,
-    "PM": 3,
     "AVGO": 41,
     "MU": 65,
     "CRWV": 2,
     "COHR": 5,
     "000660.KS": 55,
     "T": 1,
-    "AAPL": 29,
     "INTC": 12,
     "BA": 2,
     "MTSI": 1,
@@ -15826,13 +16413,6 @@
     "SNDK": 4,
     "BX": 1,
     "WELL": 3,
-    "CVS": 3,
-    "PSX": 3,
-    "VLO": 3,
-    "MPC": 3,
-    "VTR": 1,
-    "ADM": 2,
-    "TSLA": 3,
     "CRWD": 3,
     "FTNT": 1,
     "GTLB": 1,
@@ -15852,7 +16432,6 @@
     "NET": 3,
     "LNG": 2,
     "XLK": 1,
-    "TRV": 2,
     "EA": 3,
     "TRGP": 2,
     "MFC": 1,
@@ -15866,7 +16445,6 @@
     "SPG": 1,
     "AFL": 1,
     "MET": 3,
-    "PRU": 1,
     "MNST": 2,
     "PNC": 2,
     "086280.KS": 1,
@@ -15896,7 +16474,6 @@
     "GD": 1,
     "ABT": 1,
     "TROW": 1,
-    "WFC": 1,
     "BCS": 1,
     "012330.KS": 1,
     "ETSY": 1,
@@ -15909,14 +16486,14 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (560 posts in current window): Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5...",
-    "Macro/Rates (437 posts in current window): Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5...",
-    "Geopolitics (239 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
-    "AI Power/Grid (231 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
-    "Earnings/Corporate (219 posts in current window): Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5...",
-    "Korea Market (193 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·...",
-    "Equity/Analyst (153 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·...",
-    "Market Notes (151 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
+    "Semiconductors/Memory (569 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
+    "Macro/Rates (452 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
+    "Geopolitics (247 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
+    "AI Power/Grid (239 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
+    "Earnings/Corporate (231 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로...",
+    "Korea Market (201 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. 이란의 공격으로 미군 피해가 발생할 경우 큰 대가를 치르게 될 것이라고 강조. •...",
+    "Market Notes (161 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Equity/Analyst (154 posts in current window): Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
   ],
   "catalysts": [
     {
@@ -15925,19 +16502,19 @@
       "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 (14시 30분~21:00 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국과 중국은 오는 9월 시진핑 주석 방미를 앞두고 인공지능(AI) 협의를..."
     },
     {
-      "key": "MU",
-      "count": 65,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
+      "key": "GOOG",
+      "count": 66,
+      "text": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
     },
     {
       "key": "NVDA",
-      "count": 63,
-      "text": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
+      "count": 65,
+      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. 이란의 공격으로 미군 피해가 발생할 경우 큰 대가를 치르게 될 것이라고 강조. •..."
     },
     {
-      "key": "GOOG",
-      "count": 60,
-      "text": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
+      "key": "MU",
+      "count": 65,
+      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
     },
     {
       "key": "META",
@@ -15945,19 +16522,19 @@
       "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
+      "key": "AMD",
+      "count": 55,
+      "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
+    },
+    {
       "key": "000660.KS",
       "count": 55,
       "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
-      "key": "AMD",
-      "count": 51,
-      "text": "Susquehanna: 반도체 슈퍼사이클 가속, AI 저변 확대 (Semis Super-Cycle Accelerating, AI Broadening / 2026.7.21) 2분기 실적은 전반적으로 완만한..."
-    },
-    {
       "key": "AMZN",
-      "count": 50,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
+      "count": 52,
+      "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "key": "AVGO",
@@ -15976,8 +16553,8 @@
     },
     {
       "key": "AAPL",
-      "count": 29,
-      "text": "Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 이번 주 수십 개 국가를 대상으로 10% 신규 관세를 발표할 예정이라고 FT가 보도. ·..."
+      "count": 30,
+      "text": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
     }
   ],
   "categories": [
@@ -15987,8 +16564,8 @@
       "topics": [
         "macro"
       ],
-      "count": 437,
-      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
+      "count": 452,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "id": "geo",
@@ -15996,8 +16573,8 @@
       "topics": [
         "geo"
       ],
-      "count": 239,
-      "focus": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
+      "count": 247,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "id": "credit",
@@ -16005,8 +16582,8 @@
       "topics": [
         "credit"
       ],
-      "count": 35,
-      "focus": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
+      "count": 37,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "id": "semi",
@@ -16014,8 +16591,8 @@
       "topics": [
         "semi"
       ],
-      "count": 560,
-      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
+      "count": 569,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "id": "optical",
@@ -16032,8 +16609,8 @@
       "topics": [
         "power"
       ],
-      "count": 231,
-      "focus": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
+      "count": 239,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "id": "ai-policy",
@@ -16041,8 +16618,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 139,
-      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
+      "count": 147,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "id": "kr-market",
@@ -16050,8 +16627,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 193,
-      "focus": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
+      "count": 201,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. 이란의 공격으로 미군 피해가 발생할 경우 큰 대가를 치르게 될 것이라고 강조. •..."
     },
     {
       "id": "equity",
@@ -16059,8 +16636,8 @@
       "topics": [
         "equity"
       ],
-      "count": 153,
-      "focus": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
+      "count": 154,
+      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
     },
     {
       "id": "crypto",
@@ -16068,8 +16645,8 @@
       "topics": [
         "crypto"
       ],
-      "count": 4,
-      "focus": "Market Summary - 2026년 7월 18일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다 산불 연기로 인한 대기오염 책임을 캐나다에 묻고 기존 관세에 추가 비용을 반영하겠다고..."
+      "count": 5,
+      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
     },
     {
       "id": "earnings",
@@ -16077,8 +16654,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 219,
-      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
+      "count": 231,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "id": "healthcare",
@@ -16086,8 +16663,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 46,
-      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
+      "count": 48,
+      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는 양상. 대형 기술주가 숨 고르기에 들어간 반면 AI 인프라, 데이터센터, 전력, 원전, 서버 관련 종목으로..."
     },
     {
       "id": "japan",
@@ -16095,7 +16672,7 @@
       "topics": [
         "japan"
       ],
-      "count": 58,
+      "count": 59,
       "focus": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
@@ -16104,8 +16681,8 @@
       "topics": [
         "flows"
       ],
-      "count": 65,
-      "focus": "Susquehanna: 반도체 슈퍼사이클 가속, AI 저변 확대 (Semis Super-Cycle Accelerating, AI Broadening / 2026.7.21) 2분기 실적은 전반적으로 완만한..."
+      "count": 70,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. 이란의 공격으로 미군 피해가 발생할 경우 큰 대가를 치르게 될 것이라고 강조. •..."
     },
     {
       "id": "insider",
@@ -16113,8 +16690,8 @@
       "topics": [
         "insider"
       ],
-      "count": 24,
-      "focus": "BofA) 메모리 강세론, 그리고 \"오픈소스\"가 TAM을 확장하는 이유 (2026.7.20, Vivek Arya 외) [핵심 요지] 7월 16일 출시된 Kimi K3 등 중국 오픈소스 모델의 최신 릴리스는..."
+      "count": 27,
+      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각 타격하겠다고 경고. · 트럼프 대통령, 이란이 미군 사망 및 선박 공격의 책임을 지게 될 것이며 큰 대가를..."
     },
     {
       "id": "market-note",
@@ -16122,7 +16699,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 151,
+      "count": 161,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -16350,6 +16927,87 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/58928",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58928",
+      "datetime": "2026-07-22T19:43:40.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "AMD",
+        "AMZN"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+    },
+    {
+      "id": "insidertracking/58924",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58924",
+      "datetime": "2026-07-22T19:36:55.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
+    },
+    {
+      "id": "insidertracking/58923",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58923",
+      "datetime": "2026-07-22T19:36:27.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "crypto",
+        "insider",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "AAPL",
+        "GOOG",
+        "AMZN",
+        "SMCI",
+        "CVX",
+        "WFC",
+        "COIN"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
+    },
     {
       "id": "aetherjapanresearch/23811",
       "channel": "aetherjapanresearch",
@@ -17148,32 +17806,6 @@
       "summary": "Market Summary - 2026년 7월 18일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다 산불 연기로 인한 대기오염 책임을 캐나다에 묻고 기존 관세에 추가 비용을 반영하겠다고..."
     },
     {
-      "id": "insidertracking/58576",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58576",
-      "datetime": "2026-07-17T13:17:11.000Z",
-      "localDateKst": "2026-07-17",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "insider",
-        "earnings",
-        "healthcare",
-        "japan"
-      ],
-      "tickers": [
-        "AAPL",
-        "AMZN"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 7월 17일 프리마켓 뉴스 > 오늘 하루 전체 미국 증시는 반도체와 AI 섹터 중심의 글로벌 위험자산 조정 압력이 지속되는 가운데 지정학 리스크와 인플레이션 우려가 동시에 부각되는 흐름. 미국..."
-    },
-    {
       "id": "aetherjapanresearch/23658",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23658",
@@ -17221,68 +17853,6 @@
       "score": 100,
       "hasText": true,
       "summary": "JP모건) TSMC 2Q26 실적 리뷰: AI 수요 확신 상승, 이에 상응하는 공격적 capex — 목표주가 NT&#036;3,200으로 상향 (Overweight 유지) JP모건은 TSMC 2Q26 실적..."
-    },
-    {
-      "id": "insidertracking/58556",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58556",
-      "datetime": "2026-07-16T21:06:41.000Z",
-      "localDateKst": "2026-07-17",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "insider",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "AAPL",
-        "GOOG",
-        "MU",
-        "TSM",
-        "INTC",
-        "QCOM",
-        "WDC"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 7월 17일 미국 증시 브리핑 미국 증시는 견조한 경제지표에도 반도체와 AI 대형주 차익실현이 이어지며 업종별 순환매가 강화되는 흐름. 골드만삭스는 소매판매가 예상에 부합하고 필라델피아 연은..."
-    },
-    {
-      "id": "insidertracking/58547",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58547",
-      "datetime": "2026-07-16T20:54:02.000Z",
-      "localDateKst": "2026-07-17",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "crypto",
-        "earnings",
-        "japan"
-      ],
-      "tickers": [
-        "NVDA",
-        "AAPL",
-        "GOOG",
-        "V",
-        "MRK",
-        "NFLX",
-        "VZ",
-        "BLK",
-        "ISRG",
-        "GD",
-        "ABT",
-        "TROW"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "Market Summary - 2026년 7월 17일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 상원의원들과 암호화폐 CLARITY 법안 추진 논의 예정. · 백악관, 이란이 미국과 협상을..."
     },
     {
       "id": "aetherjapanresearch/23621",
@@ -17501,6 +18071,388 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19252",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19252",
+      "datetime": "2026-07-22T20:29:32.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 64,
+      "hasText": true,
+      "summary": "알파벳 &#036;GOOGL 2026년 2분기 설비투자(CapEx) 449억 2,000만 달러 / &#036;44.92B (전망치: &#036;44.1B) 전년 동기 대비 +100%"
+    },
+    {
+      "id": "insidertracking/58952",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58952",
+      "datetime": "2026-07-22T20:23:39.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "삼성전자가 런던에서 열린 갤럭시 언팩 행사에서 갤럭시 워치 울트라2와 갤럭시 워치9를 공개. 갤럭시 워치 울트라2는 여행객과 운동선수, 아웃도어 활동을 즐기는 사용자를 겨냥한 모델로, 티타늄 케이스와..."
+    },
+    {
+      "id": "insidertracking/58951",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58951",
+      "datetime": "2026-07-22T20:23:04.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [],
+      "score": 70,
+      "hasText": true,
+      "summary": "삼성전자가 런던에서 열린 갤럭시 언팩 행사에서 스마트 안경 '삼성 스마트 글래스'를 공식 공개. 삼성은 젠틀몬스터와 워비파커와 협업해 디자인을 개발했으며, 기술과 스타일을 결합한 제품이라고 소개. 삼성 스마트..."
+    },
+    {
+      "id": "insidertracking/58950",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58950",
+      "datetime": "2026-07-22T20:22:36.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "삼성전자가 런던에서 열린 갤럭시 언팩 행사에서 플래그십 폴더블 스마트폰 갤럭시 Z 폴드8 울트라를 공개. 갤럭시 Z 폴드8 울트라는 6.5인치 외부 디스플레이와 거의 정사각형 형태의 8인치 내부 디스플레이를..."
+    },
+    {
+      "id": "bornlupin/19250",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19250",
+      "datetime": "2026-07-22T20:22:36.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 56,
+      "hasText": true,
+      "summary": "&#036;GOOGL 구글 2분기 클라우드 매출이 전년 대비 82% 증가한 248억 달러를 기록 가속화 진행중&#33;"
+    },
+    {
+      "id": "insidertracking/58948",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58948",
+      "datetime": "2026-07-22T20:20:03.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "score": 64,
+      "hasText": true,
+      "summary": "AMD와 앤트로픽이 최대 2GW 규모 AMD Instinct MI450 GPU 구축을 위한 전략적 파트너십 체결."
+    },
+    {
+      "id": "insidertracking/58947",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58947",
+      "datetime": "2026-07-22T20:18:19.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "ai-policy"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "OpenAI가 2030년 연산 인프라 지출 전망을 6,000억 달러에서 7,500억 달러로 상향."
+    },
+    {
+      "id": "bornlupin/19249",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19249",
+      "datetime": "2026-07-22T20:16:13.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 72,
+      "hasText": true,
+      "summary": "알파벳 &#036;GOOGL 2026년 2분기 설비투자(CapEx): 449억 2,000만 달러 / &#036;44.92B (전망치: &#036;44.1B) ; 전년 동기 대비 +100% 구글 클라우드:..."
+    },
+    {
+      "id": "insidertracking/58944",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58944",
+      "datetime": "2026-07-22T20:14:31.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "IBM 2026년 2분기 실적 요약 📍 실적 · 매출 171억6,000만 달러(예상 175억2,000만 달러 하회) · 영업 EPS 2.93달러(전년 2.80달러, 예상치 상회) · 소프트웨어 매출..."
+    },
+    {
+      "id": "bornlupin/19248",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19248",
+      "datetime": "2026-07-22T20:13:42.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "ai-policy",
+        "kr-market",
+        "insider",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "GOOG",
+        "GOOGL"
+      ],
+      "score": 91,
+      "hasText": true,
+      "summary": "알파벳 &#036;GOOGL 2026년 2분기 실적 ( 시간외 +1.4%) 공시된 지분 평가이익 영향을 제외한 EPS: 약 &#036;2.85 (전망치: &#036;2.90) 매출: 1,198억 달러 /..."
+    },
+    {
+      "id": "insidertracking/58943",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58943",
+      "datetime": "2026-07-22T20:13:20.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "TSLA"
+      ],
+      "score": 89,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 테슬라 2026년 2분기 실적 요약 📍 실적 · 매출 282억3,600만 달러(+26% YoY) · 자동차 매출 205억1,600만..."
+    },
+    {
+      "id": "insidertracking/58942",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58942",
+      "datetime": "2026-07-22T20:07:12.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 테슬라 2026년 2분기 실적 발표. • 조정 주당순이익(EPS) 0.33달러, 시장 예상치 0.51달러 하회. • 매출 282억4,000만 달러, 시장 예상치..."
+    },
+    {
+      "id": "insidertracking/58940",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58940",
+      "datetime": "2026-07-22T20:05:20.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "power",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG",
+        "GOOGL"
+      ],
+      "score": 79,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 알파벳(Alphabet) 2026년 2분기 실적 요약 📍 실적 • 매출 &#036;119.8B (YoY +24%) • 영업이익..."
+    },
+    {
+      "id": "insidertracking/58936",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58936",
+      "datetime": "2026-07-22T19:57:57.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "필립모리스 인터내셔널(PMI) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 견조한 실적 성장. 2분기 유기적 순매출은 약 8% 증가했으며 조정 영업이익은 두 자릿수 성장 기록. 조정 EPS는..."
+    },
+    {
+      "id": "insidertracking/58935",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58935",
+      "datetime": "2026-07-22T19:57:06.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "power",
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [
+        "BE",
+        "GEV"
+      ],
+      "score": 81,
+      "hasText": true,
+      "summary": "GE 버노바(GE Vernova) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 기록적인 수주와 잉여현금흐름. 2분기 신규 수주는 242억달러로 전년 대비 88% 증가했으며 수주잔고는 1,760억달러로..."
+    },
+    {
+      "id": "insidertracking/58931",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58931",
+      "datetime": "2026-07-22T19:49:09.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "healthcare"
+      ],
+      "tickers": [
+        "TRV",
+        "PM",
+        "PRU",
+        "CVS",
+        "PSX",
+        "VLO",
+        "MPC",
+        "CTVA",
+        "ED",
+        "VTR",
+        "HSBC",
+        "ING",
+        "ADM"
+      ],
+      "score": 60,
+      "hasText": true,
+      "summary": "52주 신고가 · 10x Genomics · Aegon · Apogee Therapeutics · Archer-Daniels-Midland · Arrowhead Pharmaceuticals ·..."
+    },
+    {
+      "id": "insidertracking/58928",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58928",
+      "datetime": "2026-07-22T19:43:40.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "AMD",
+        "AMZN"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+    },
+    {
+      "id": "insidertracking/58925",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58925",
+      "datetime": "2026-07-22T19:38:08.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "insider",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 97,
+      "hasText": true,
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 7월 23일 📍 트럼프 대이란 경고 · 트럼프 \"이란이 호르무즈 해협에서 선박을 공격할 때마다 미국은 이란의 교량 또는 발전소 1곳을 폭격할 것\" 발언 ·..."
+    },
+    {
+      "id": "insidertracking/58924",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58924",
+      "datetime": "2026-07-22T19:36:55.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
+    },
+    {
+      "id": "insidertracking/58923",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58923",
+      "datetime": "2026-07-22T19:36:27.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "equity",
+        "crypto",
+        "insider",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "AAPL",
+        "GOOG",
+        "AMZN",
+        "SMCI",
+        "CVX",
+        "WFC",
+        "COIN"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
+    },
     {
       "id": "aetherjapanresearch/23820",
       "channel": "aetherjapanresearch",
@@ -21750,25 +22702,6 @@
       "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 7월 19일 (08시~23시 30분 기준) 📍 트럼프 발언 · 트럼프, 공화당에 러시아 제재 법안에 이란 포함 촉구 📍 이란·호르무즈 대응 · 미국..."
     },
     {
-      "id": "insidertracking/58630",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58630",
-      "datetime": "2026-07-19T14:50:34.000Z",
-      "localDateKst": "2026-07-19",
-      "tags": [
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "flows",
-        "japan"
-      ],
-      "tickers": [],
-      "score": 83,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 19일 (08시~23시 30분) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미 중부사령부는 7월 18일 밤 이란을 상대로 추가 공습을 실시해 해안 감시시설,..."
-    },
-    {
       "id": "bornlupin/19159",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19159",
@@ -22095,35 +23028,6 @@
       "summary": "이노라이트. 2019년 알리바바 이후 홍콩 최대 IPO 예상 ========================= ~ 2026년 7월 17일, 세계 광모듈 1위 기업 이노라이트(InnoLight, 中际旭创)가..."
     },
     {
-      "id": "insidertracking/58623",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58623",
-      "datetime": "2026-07-18T22:43:59.000Z",
-      "localDateKst": "2026-07-19",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "미국 중부사령부(CENTCOM)는 7월 17일 요르단에서 미군과 연합군이 이란의 탄도미사일 및 드론 공격에 대응하는 과정에서 미군 장병 2명이 전사했으며, 1명은 현재 실종 상태라고 발표. 미군 장병 4명은..."
-    },
-    {
-      "id": "insidertracking/58618",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58618",
-      "datetime": "2026-07-18T22:39:41.000Z",
-      "localDateKst": "2026-07-19",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 50,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 19일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 트럼프 행정부는 불법 이민자의 금융서비스 이용을 제한하는 디뱅킹 정책을 추진한다고 발표. • 미..."
-    },
-    {
       "id": "aetherjapanresearch/23687",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23687",
@@ -22201,137 +23105,6 @@
       "score": 57,
       "hasText": true,
       "summary": "Citi) 키옥시아 (285A.T); 미국 특허 소송 배심원 평결의 시사점 Citi의 견해 키옥시아는 7월 17일 미국 소송에서 배심원단이 특허 침해 책임을 인정하고 2억 2,900만 달러(371억 엔)의..."
-    },
-    {
-      "id": "insidertracking/58617",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58617",
-      "datetime": "2026-07-18T13:49:57.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "flows"
-      ],
-      "tickers": [
-        "MSFT",
-        "GOOG",
-        "META",
-        "AMZN",
-        "TSM",
-        "MRVL",
-        "ORCL",
-        "RKLB",
-        "000660.KS",
-        "GOOGL",
-        "CAT",
-        "INTC",
-        "PANW",
-        "AMAT",
-        "LRCX",
-        "IONQ",
-        "GLW",
-        "RDDT",
-        "NET",
-        "MSTR"
-      ],
-      "score": 93,
-      "hasText": true,
-      "summary": "2026년 7월 3주차 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/13 ~ 2026/07/17 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
-    },
-    {
-      "id": "insidertracking/58616",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58616",
-      "datetime": "2026-07-18T13:40:06.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 69,
-      "hasText": true,
-      "summary": "미국이 인공지능(AI) 반도체 호황으로 막대한 수익을 거둔 한국 반도체 기업들의 '초과이익' 일부를 미국도 가져가야 한다는 입장을 제기했다고 코리아타임즈가 보도. 보도에 따르면 지난 6월 열린 회의에서 릭..."
-    },
-    {
-      "id": "insidertracking/58615",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58615",
-      "datetime": "2026-07-18T13:39:55.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "japan"
-      ],
-      "tickers": [],
-      "score": 67,
-      "hasText": true,
-      "summary": "일본 메모리 반도체 기업 키옥시아가 컴퓨터 메모리 기술 특허를 침해한 혐의로 위성통신 기업 비아샛에 2억2,900만 달러를 배상하라는 평결이 미국 텍사스주 웨이코 배심원단에서 내려짐. 배심원단은 키옥시아의..."
-    },
-    {
-      "id": "insidertracking/58614",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58614",
-      "datetime": "2026-07-18T13:39:54.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 72,
-      "hasText": true,
-      "summary": "엔비디아 최고경영자(CEO) 젠슨 황의 가죽 재킷이 소더비 경매에서 96만 달러에 낙찰. 지난 금요일 열린 소더비 경매에서는 젠슨 황의 서명이 담긴 재킷이 출품됐으며, 총 65차례의 입찰 끝에 최초 예상가인..."
-    },
-    {
-      "id": "insidertracking/58613",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58613",
-      "datetime": "2026-07-18T13:34:31.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "META",
-        "AMZN",
-        "LLY"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "미국 레딧 게시물 분석 (2026년 7월 18일 06:00~22:30 기준) > 💾 AI 인프라 - NVDA · 전력 · 반도체 · \"AI 투자 어렵게 생각하지 마라.\" · GPU와 전력만 사면 된다는 단순..."
-    },
-    {
-      "id": "insidertracking/58611",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58611",
-      "datetime": "2026-07-18T13:26:20.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "japan"
-      ],
-      "tickers": [],
-      "score": 82,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 18일 (오전 7시~22시30분 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국은 이란을 상대로 7일 연속 공습을 실시했으며 혁명수비대 시설, 해상..."
     },
     {
       "id": "bornlupin/19147",
@@ -22593,158 +23366,6 @@
       "score": 93,
       "hasText": true,
       "summary": "모건스탠리 미장 시황 랩: 이번 주 내내 기술주 섹터는 AI 관련 여러 악재(촉매제)들이 겹치면서 기존 포지션 청산(디레버리징) 압력을 지속적으로 받았습니다. 하지만 금요일에는 분위기가 반전되는 신호들이..."
-    },
-    {
-      "id": "insidertracking/58602",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58602",
-      "datetime": "2026-07-17T22:08:36.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "닉스ADR, 마이크론, 스페이스X 투자자 근황 > 0.1%라도 수익보는 투자자 기준 버거닉스 6% 마이크론 17% 스페이스X 전원 손실상태 > 이거 어떻게 보는지 문의 많이 주시던데, webull 어플 설치후..."
-    },
-    {
-      "id": "insidertracking/58601",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58601",
-      "datetime": "2026-07-17T22:02:34.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "semi",
-        "ai-policy",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "NVDA",
-        "AAPL",
-        "GOOG",
-        "META",
-        "AMZN",
-        "MU",
-        "RKLB"
-      ],
-      "score": 94,
-      "hasText": true,
-      "summary": "미국 레딧 게시물 분석 (2026년 7월 18일 00:00~06:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"MU Rally?\" 토론 지속 · 140K MU YOLO 등장 · 하락에도..."
-    },
-    {
-      "id": "insidertracking/58599",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58599",
-      "datetime": "2026-07-17T21:58:01.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "semi",
-        "power",
-        "kr-market",
-        "equity",
-        "flows"
-      ],
-      "tickers": [
-        "MSFT",
-        "GOOG",
-        "META",
-        "AMZN",
-        "MU",
-        "ORCL",
-        "RKLB",
-        "000660.KS",
-        "GOOGL",
-        "TSLA",
-        "NFLX",
-        "INTC",
-        "PANW",
-        "CRWD",
-        "AMAT",
-        "LRCX",
-        "DDOG",
-        "IONQ",
-        "RDDT",
-        "QQQ"
-      ],
-      "score": 93,
-      "hasText": true,
-      "summary": "2026년 7월 17일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (60.88%) 2위: SK HYNIX INC SPON..."
-    },
-    {
-      "id": "insidertracking/58596",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58596",
-      "datetime": "2026-07-17T21:50:41.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "semi",
-        "ai-policy"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "score": 83,
-      "hasText": true,
-      "summary": "애플이 시가총액 약 4조9,000억 달러를 기록하며 엔비디아를 바짝 추격, 세계 시가총액 1위 기업 자리를 놓고 경쟁이 격화. 로이터에 따르면 투자자들이 인공지능(AI) 성장 전망과 대형 기술기업들의 새로운..."
-    },
-    {
-      "id": "insidertracking/58595",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58595",
-      "datetime": "2026-07-17T21:48:30.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "semi",
-        "power"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "TSMC가 1.4나노미터 공정 A14 개발이 계획대로 순조롭게 진행되고 있으며, 동일한 개발 단계의 N2(2나노미터) 공정보다 더 빠른 진척을 보이고 있다고 발표. 웨이저자 TSMC CEO는 투자자 설명회에서..."
-    },
-    {
-      "id": "insidertracking/58593",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58593",
-      "datetime": "2026-07-17T21:48:23.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "삼성전자의 차세대 폴더블 스마트폰 갤럭시 Z 폴드8의 디자인과 주요 사양이 유출됨. 유명 IT 유출자 에반 블래스는 7월 22일 공식 공개를 앞두고 갤럭시 Z 폴드8 이미지를 공개했으며, 갤럭시 Z 플립8과..."
-    },
-    {
-      "id": "insidertracking/58587",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58587",
-      "datetime": "2026-07-17T21:33:38.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "AMZN",
-        "RKLB"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상..."
     },
     {
       "id": "aetherjapanresearch/23664",
@@ -24067,81 +24688,6 @@
       "score": 60,
       "hasText": true,
       "summary": "📮 [메리츠 투자전략 황수욱] 2026.7.15 시장이 추세 반등한다면 (자료) 어제 전략공감에서 이례적인 시장 밸류에이션의 저점 이유로 1) 이익에 대한 신뢰 문제, 2) 수급 우려를 들었습니다. 당사는..."
-    },
-    {
-      "id": "bornlupin/19099",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19099",
-      "datetime": "2026-07-14T23:43:44.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "semi",
-        "equity",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [
-        "META",
-        "005930.KS",
-        "000660.KS",
-        "009150.KS"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "HSBC \"아시아 메모리 반도체 고점 우려는 시기상조\" (낙관론 유지) HSBC는 투자자들의 반도체 사이클 고점 우려가 너무 이르다고 지적하며, 아시아 메모리 반도체 제조사에 대한 긍정적인 전망을 유지..."
-    },
-    {
-      "id": "bornlupin/19098",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19098",
-      "datetime": "2026-07-14T23:32:53.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "geo",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "NVDA"
-      ],
-      "score": 71,
-      "hasText": true,
-      "summary": "미 무역 관료 \"엔비디아 H200 AI 칩, 중국에 극소량 수출 시작\" 미국 고위 관료가 엔비디아의 H200 AI 칩이 중국과 홍콩으로 수출되기 시작했으나, 그 물량은 매우 적다고 밝혔습니다. 이는 중국행..."
-    },
-    {
-      "id": "bornlupin/19097",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19097",
-      "datetime": "2026-07-14T23:19:35.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [
-        "AEHR"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "에어 테스트 시스템즈(Aehr Test Systems, &#036;AEHR ) 2026 회계연도 4분기 어닝콜 1. 실적 전망 및 제품 구성 (Craig-Hallum) Q. 2027 회계연도 매출..."
-    },
-    {
-      "id": "bornlupin/19096",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19096",
-      "datetime": "2026-07-14T23:13:11.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power"
-      ],
-      "tickers": [],
-      "score": 77,
-      "summary": "에어 테스트 시스템즈(Aehr Test Systems, &#036;AEHR ) 2026 회계연도 4분기 실적 (시간외 +27.25%) EPS 0.11달러 (예상-0.01달러) 매출액 1,884만 달러 (예상..."
     }
   ]
 }
