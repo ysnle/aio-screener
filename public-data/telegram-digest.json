@@ -1,53 +1,204 @@
 {
-  "generatedAt": "2026-07-22T21:45:13.559Z",
-  "attemptedAt": "2026-07-22T21:45:13.559Z",
-  "lastSuccessfulAt": "2026-07-22T21:45:13.559Z",
+  "generatedAt": "2026-07-22T22:44:22.535Z",
+  "attemptedAt": "2026-07-22T22:44:22.535Z",
+  "lastSuccessfulAt": "2026-07-22T22:44:22.535Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-08T21:45:09.533Z",
-  "until": "2026-07-22T21:45:09.533Z",
+  "since": "2026-07-08T22:44:17.586Z",
+  "until": "2026-07-22T22:44:17.586Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 312,
-      "freshCount": 18,
-      "eligibleTextCount": 18,
+      "count": 314,
+      "freshCount": 36,
+      "eligibleTextCount": 36,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 23820
+      "lastPostId": 23822
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 562,
+      "count": 570,
       "freshCount": 39,
-      "eligibleTextCount": 39,
-      "selectedCount": 124,
+      "eligibleTextCount": 38,
+      "selectedCount": 123,
       "error": null,
-      "lastPostId": 58971
+      "lastPostId": 58979
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 250,
-      "freshCount": 38,
-      "eligibleTextCount": 38,
+      "freshCount": 18,
+      "eligibleTextCount": 18,
       "selectedCount": 120,
       "error": null,
       "lastPostId": 19260
     }
   ],
-  "count": 1124,
+  "count": 1134,
   "retainedItemCount": 416,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/23822",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T22:36:16.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58979",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T22:34:34.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58978",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T22:33:12.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 52,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58977",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T22:29:47.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58976",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T22:28:04.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 100,
+      "tags": [
+        "semi",
+        "optical",
+        "power",
+        "kr-market",
+        "equity",
+        "flows"
+      ],
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "META",
+        "MU",
+        "TSM",
+        "MRVL",
+        "LITE",
+        "ORCL",
+        "000660.KS",
+        "GOOGL",
+        "TSLA",
+        "INTC",
+        "ISRG",
+        "IONQ",
+        "RDDT",
+        "MSTR",
+        "C",
+        "QQQ",
+        "SOXX"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58975",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T22:19:28.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58974",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T22:16:09.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23821",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T22:04:43.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 79,
+      "tags": [
+        "power",
+        "ai-policy",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58973",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:57:27.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58972",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T21:54:49.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
     {
       "id": "insidertracking/58971",
       "channel": "insidertracking",
@@ -626,7 +777,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58937",
@@ -638,7 +789,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58936",
@@ -652,7 +803,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58935",
@@ -670,7 +821,7 @@
         "BE",
         "GEV"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58934",
@@ -682,7 +833,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58933",
@@ -694,7 +845,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58932",
@@ -706,7 +857,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58931",
@@ -732,7 +883,7 @@
         "ING",
         "ADM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58930",
@@ -1674,7 +1825,7 @@
         "000660.KS",
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19239",
@@ -1686,7 +1837,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58887",
@@ -1710,7 +1861,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58886",
@@ -1783,7 +1934,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23799",
@@ -1802,7 +1953,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23798",
@@ -1814,7 +1965,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58880",
@@ -1853,7 +2004,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58878",
@@ -1912,7 +2063,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23794",
@@ -1931,7 +2082,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58876",
@@ -1969,7 +2120,7 @@
         "COHR",
         "MTSI"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58875",
@@ -1999,7 +2150,7 @@
       "tickers": [
         "MSFT"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23791",
@@ -2015,7 +2166,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23790",
@@ -2027,7 +2178,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58874",
@@ -2058,7 +2209,7 @@
         "GOOG",
         "016360.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19235",
@@ -2073,7 +2224,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23789",
@@ -2090,7 +2241,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58873",
@@ -2189,7 +2340,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58866",
@@ -2254,7 +2405,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19233",
@@ -2266,7 +2417,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58862",
@@ -2290,7 +2441,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58861",
@@ -2342,7 +2493,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58856",
@@ -2378,7 +2529,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58854",
@@ -2402,7 +2553,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19231",
@@ -2415,7 +2566,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19230",
@@ -2428,7 +2579,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19229",
@@ -2440,7 +2591,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23784",
@@ -2457,7 +2608,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19228",
@@ -2476,7 +2627,7 @@
         "ORCL",
         "INTC"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23783",
@@ -2496,7 +2647,7 @@
         "AVGO",
         "MTK"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58853",
@@ -2561,7 +2712,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19226",
@@ -2582,7 +2733,7 @@
         "AMD",
         "META"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58850",
@@ -2610,7 +2761,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58849",
@@ -2689,7 +2840,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58844",
@@ -2741,7 +2892,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19222",
@@ -2755,7 +2906,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58843",
@@ -2834,7 +2985,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58838",
@@ -16577,46 +16728,59 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1124,
-    "eligibleTextCount": 95,
-    "mediaOnlyCount": 1029,
-    "highSignalCount": 460,
-    "broadSignalCount": 757,
-    "selectedRawCount": 370,
-    "selectedRawCoveragePct": 389.5,
+    "observedCount": 1134,
+    "eligibleTextCount": 92,
+    "mediaOnlyCount": 1042,
+    "highSignalCount": 462,
+    "broadSignalCount": 760,
+    "selectedRawCount": 369,
+    "selectedRawCoveragePct": 401.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 169,
-    "macro": 457,
-    "semi": 573,
-    "ai-policy": 149,
-    "equity": 155,
-    "earnings": 235,
-    "geo": 249,
-    "kr-market": 201,
-    "power": 239,
-    "flows": 70,
+    "geo": 251,
+    "market-note": 173,
+    "macro": 458,
+    "semi": 574,
+    "optical": 25,
+    "power": 241,
+    "kr-market": 202,
+    "equity": 156,
+    "flows": 72,
+    "ai-policy": 150,
+    "earnings": 236,
+    "media-only": 18,
     "insider": 27,
     "japan": 59,
     "healthcare": 48,
     "credit": 37,
-    "crypto": 5,
-    "media-only": 17,
-    "optical": 24
+    "crypto": 5
   },
   "tickerCounts": {
-    "INTC": 15,
-    "000660.KS": 56,
-    "GOOG": 70,
+    "MSFT": 38,
+    "GOOG": 72,
+    "META": 58,
+    "MU": 66,
+    "TSM": 119,
+    "MRVL": 12,
+    "LITE": 13,
+    "ORCL": 17,
+    "000660.KS": 57,
+    "GOOGL": 11,
+    "TSLA": 5,
+    "INTC": 16,
+    "ISRG": 3,
+    "IONQ": 7,
+    "RDDT": 5,
+    "MSTR": 3,
+    "C": 1,
+    "QQQ": 4,
+    "SOXX": 1,
+    "AVGO": 43,
     "NVDA": 66,
-    "AVGO": 42,
-    "LITE": 12,
-    "GOOGL": 10,
     "PEP": 1,
     "PFE": 1,
     "AMD": 55,
-    "TSLA": 4,
     "BE": 19,
     "GEV": 5,
     "TRV": 3,
@@ -16638,36 +16802,27 @@
     "CVX": 1,
     "WFC": 2,
     "COIN": 1,
-    "META": 57,
     "035420.KS": 27,
     "QCOM": 4,
     "005930.KS": 33,
     "RKLB": 14,
-    "MSFT": 37,
-    "MU": 65,
     "CRWV": 2,
     "COHR": 5,
     "T": 1,
     "BA": 2,
     "MTSI": 1,
     "016360.KS": 2,
-    "TSM": 118,
-    "ORCL": 16,
     "MTK": 1,
     "GM": 1,
     "NOC": 1,
     "NFLX": 3,
-    "ISRG": 2,
     "SNPS": 1,
-    "IONQ": 6,
     "ASTS": 2,
     "VIAV": 1,
     "RIVN": 1,
     "SATL": 1,
     "CMI": 1,
     "STT": 2,
-    "QQQ": 3,
-    "MRVL": 11,
     "SNDK": 4,
     "BX": 1,
     "WELL": 3,
@@ -16686,7 +16841,6 @@
     "GS": 1,
     "PANW": 4,
     "SMR": 1,
-    "RDDT": 4,
     "NET": 3,
     "LNG": 2,
     "XLK": 1,
@@ -16710,7 +16864,6 @@
     "AMAT": 3,
     "LRCX": 2,
     "GLW": 2,
-    "MSTR": 2,
     "ALAB": 2,
     "DDOG": 1,
     "6981.T": 2,
@@ -16744,25 +16897,30 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (573 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
-    "Macro/Rates (457 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
-    "Geopolitics (249 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
-    "AI Power/Grid (239 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
-    "Earnings/Corporate (235 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
-    "Korea Market (201 posts in current window): 🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를...",
-    "Market Notes (169 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
-    "Equity/Analyst (155 posts in current window): Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
+    "Semiconductors/Memory (574 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK...",
+    "Macro/Rates (458 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "Geopolitics (251 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "AI Power/Grid (241 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK...",
+    "Earnings/Corporate (236 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
+    "Korea Market (202 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK...",
+    "Market Notes (173 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Equity/Analyst (156 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 118,
-      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 (14시 30분~21:00 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국과 중국은 오는 9월 시진핑 주석 방미를 앞두고 인공지능(AI) 협의를..."
+      "count": 119,
+      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "key": "GOOG",
-      "count": 70,
-      "text": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
+      "count": 72,
+      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+    },
+    {
+      "key": "MU",
+      "count": 66,
+      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "key": "NVDA",
@@ -16770,19 +16928,14 @@
       "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
     },
     {
-      "key": "MU",
-      "count": 65,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지..."
-    },
-    {
       "key": "META",
-      "count": 57,
-      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
+      "count": 58,
+      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "key": "000660.KS",
-      "count": 56,
-      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
+      "count": 57,
+      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "key": "AMD",
@@ -16796,13 +16949,13 @@
     },
     {
       "key": "AVGO",
-      "count": 42,
+      "count": 43,
       "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지..."
     },
     {
       "key": "MSFT",
-      "count": 37,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지..."
+      "count": 38,
+      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "key": "005930.KS",
@@ -16822,7 +16975,7 @@
       "topics": [
         "macro"
       ],
-      "count": 457,
+      "count": 458,
       "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
@@ -16831,7 +16984,7 @@
       "topics": [
         "geo"
       ],
-      "count": 249,
+      "count": 251,
       "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
@@ -16849,8 +17002,8 @@
       "topics": [
         "semi"
       ],
-      "count": 573,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+      "count": 574,
+      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "id": "optical",
@@ -16858,8 +17011,8 @@
       "topics": [
         "optical"
       ],
-      "count": 24,
-      "focus": "Susquehanna: 반도체 슈퍼사이클 가속, AI 저변 확대 (Semis Super-Cycle Accelerating, AI Broadening / 2026.7.21) 2분기 실적은 전반적으로 완만한..."
+      "count": 25,
+      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "id": "power",
@@ -16867,8 +17020,8 @@
       "topics": [
         "power"
       ],
-      "count": 239,
-      "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+      "count": 241,
+      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "id": "ai-policy",
@@ -16876,7 +17029,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 149,
+      "count": 150,
       "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
@@ -16885,8 +17038,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 201,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
+      "count": 202,
+      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "id": "equity",
@@ -16894,8 +17047,8 @@
       "topics": [
         "equity"
       ],
-      "count": 155,
-      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
+      "count": 156,
+      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "id": "crypto",
@@ -16912,7 +17065,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 235,
+      "count": 236,
       "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
@@ -16939,8 +17092,8 @@
       "topics": [
         "flows"
       ],
-      "count": 70,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
+      "count": 72,
+      "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
       "id": "insider",
@@ -16957,7 +17110,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 169,
+      "count": 173,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -17185,6 +17338,45 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/58976",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58976",
+      "datetime": "2026-07-22T22:28:04.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi",
+        "optical",
+        "power",
+        "kr-market",
+        "equity",
+        "flows"
+      ],
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "META",
+        "MU",
+        "TSM",
+        "MRVL",
+        "LITE",
+        "ORCL",
+        "000660.KS",
+        "GOOGL",
+        "TSLA",
+        "INTC",
+        "ISRG",
+        "IONQ",
+        "RDDT",
+        "MSTR",
+        "C",
+        "QQQ",
+        "SOXX"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위:..."
+    },
     {
       "id": "insidertracking/58928",
       "channel": "insidertracking",
@@ -18035,35 +18227,6 @@
       "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 18일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 7월 미시간대 소비자심리지수 잠정치는 54.4로 시장 예상치를 상회. 1년 기대 인플레이션은 4.2%로..."
     },
     {
-      "id": "insidertracking/58581",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58581",
-      "datetime": "2026-07-17T21:20:28.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "crypto",
-        "japan"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "AAPL",
-        "META",
-        "TSM",
-        "BA",
-        "000660.KS"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "Market Summary - 2026년 7월 18일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 캐나다 산불 연기로 인한 대기오염 책임을 캐나다에 묻고 기존 관세에 추가 비용을 반영하겠다고..."
-    },
-    {
       "id": "aetherjapanresearch/23658",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23658",
@@ -18329,6 +18492,79 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/58978",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58978",
+      "datetime": "2026-07-22T22:33:12.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 미국 하원이 약 1조2,000억 달러 규모의 국방수권법(NDAA)을 통과. 이번 법안은 국방 지출을 기존 대비 약 30% 증액하는 내용을 담고 있음."
+    },
+    {
+      "id": "insidertracking/58976",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58976",
+      "datetime": "2026-07-22T22:28:04.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi",
+        "optical",
+        "power",
+        "kr-market",
+        "equity",
+        "flows"
+      ],
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "META",
+        "MU",
+        "TSM",
+        "MRVL",
+        "LITE",
+        "ORCL",
+        "000660.KS",
+        "GOOGL",
+        "TSLA",
+        "INTC",
+        "ISRG",
+        "IONQ",
+        "RDDT",
+        "MSTR",
+        "C",
+        "QQQ",
+        "SOXX"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위:..."
+    },
+    {
+      "id": "aetherjapanresearch/23821",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23821",
+      "datetime": "2026-07-22T22:04:43.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "power",
+        "ai-policy",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO"
+      ],
+      "score": 79,
+      "hasText": true,
+      "summary": "구글 2Q26 어닝콜 &#036;GOOGL 가이던스 CAPEX &#036;180B~&#036;190B→&#036;195B~&#036;205B(est. &#036;187B) 상향. 클라우드 수주잔고가..."
+    },
     {
       "id": "bornlupin/19260",
       "channel": "bornlupin",
@@ -23041,35 +23277,6 @@
       "summary": "메모리 3분기 계약가 두 자릿수 상승 AI 서버 수요가 지속해서 치솟으면서 HBM이 기존 전통 DRAM의 생산 능력을 잠식하고 있습니다. 이로 인한 메모리 공급 부족 사태는 2028년까지 이어질 것 으로..."
     },
     {
-      "id": "insidertracking/58634",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58634",
-      "datetime": "2026-07-19T21:37:27.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "tickers": [],
-      "score": 58,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 20일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 국무장관 루비오는 레바논 대통령 조제프 아운과 회담을 갖고 3자 협력 프레임워크 이행 상황을 점검...."
-    },
-    {
-      "id": "insidertracking/58631",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58631",
-      "datetime": "2026-07-19T14:52:22.000Z",
-      "localDateKst": "2026-07-19",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 50,
-      "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 7월 19일 (08시~23시 30분 기준) 📍 트럼프 발언 · 트럼프, 공화당에 러시아 제재 법안에 이란 포함 촉구 📍 이란·호르무즈 대응 · 미국..."
-    },
-    {
       "id": "bornlupin/19159",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19159",
@@ -24675,22 +24882,6 @@
       "score": 74,
       "hasText": true,
       "summary": "블룸버그) 앤트로픽, 초대형 상장 임박에 IPO 투자자 미팅 계획 소식통에 따르면 상장을 주관하는 은행들이 향후 몇 주 내에 투자자들과 클로드(Claude) 챗봇 제조사 간의 미팅을 잡고 있으며, 앤트로픽은..."
-    },
-    {
-      "id": "aetherjapanresearch/23604",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23604",
-      "datetime": "2026-07-15T23:45:58.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 79,
-      "hasText": true,
-      "summary": "JP모건) ASML; 2027년, 2028년에 대한 최종 결론은 아직 나오지 않았습니다. 회사는 추정치를 다시 상향할 수 있습니다. 비중확대(OW) 의견을 유지합니다. TP &#036;2400 투자자들은..."
     },
     {
       "id": "bornlupin/19123",
