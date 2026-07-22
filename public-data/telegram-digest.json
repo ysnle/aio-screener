@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-22T12:03:43.342Z",
-  "attemptedAt": "2026-07-22T12:03:43.342Z",
-  "lastSuccessfulAt": "2026-07-22T12:03:43.342Z",
+  "generatedAt": "2026-07-22T14:22:41.249Z",
+  "attemptedAt": "2026-07-22T14:22:41.249Z",
+  "lastSuccessfulAt": "2026-07-22T14:22:41.249Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-08T12:03:38.413Z",
-  "until": "2026-07-22T12:03:38.413Z",
+  "since": "2026-07-08T14:22:36.978Z",
+  "until": "2026-07-22T14:22:36.978Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,41 +13,304 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 303,
-      "freshCount": 36,
-      "eligibleTextCount": 36,
+      "count": 308,
+      "freshCount": 39,
+      "eligibleTextCount": 39,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 23807
+      "lastPostId": 23815
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 511,
+      "count": 515,
       "freshCount": 37,
-      "eligibleTextCount": 37,
+      "eligibleTextCount": 36,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 58918
+      "lastPostId": 58922
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 234,
+      "count": 239,
       "freshCount": 40,
       "eligibleTextCount": 40,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19242
+      "lastPostId": 19247
     }
   ],
-  "count": 1048,
-  "retainedItemCount": 422,
+  "count": 1062,
+  "retainedItemCount": 430,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/23815",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T13:50:59.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23814",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T13:45:08.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19247",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T13:20:37.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 35,
+      "tags": [
+        "equity"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23813",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T13:17:09.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 77,
+      "tags": [
+        "power",
+        "kr-market"
+      ],
+      "tickers": [
+        "BE",
+        "035420.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19246",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T13:16:03.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 76,
+      "tags": [
+        "semi",
+        "power",
+        "kr-market"
+      ],
+      "tickers": [
+        "QCOM",
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23812",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T13:15:09.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 74,
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "AMZN"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19245",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T13:07:29.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 65,
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23811",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T12:47:36.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "LITE",
+        "GOOGL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23810",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T12:45:16.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 86,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19244",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T12:42:44.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 90,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58922",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T12:22:38.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "insidertracking/58921",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T12:22:30.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 50,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58920",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T12:22:15.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 75,
+      "tags": [
+        "macro",
+        "geo",
+        "equity",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [
+        "SMCI",
+        "RKLB"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23809",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T12:17:41.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 77,
+      "tags": [
+        "semi",
+        "equity",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "META",
+        "AMZN"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23808",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T12:15:03.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 57,
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19243",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T12:14:19.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 90,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58919",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T12:13:14.000Z",
+      "localDateKst": "2026-07-22",
+      "score": 45,
+      "tags": [
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/58918",
       "channel": "insidertracking",
@@ -720,7 +983,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58877",
@@ -750,7 +1013,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19237",
@@ -794,7 +1057,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23793",
@@ -832,7 +1095,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23792",
@@ -2316,7 +2579,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23772",
@@ -2337,7 +2600,7 @@
         "GOOG",
         "META"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23770",
@@ -2354,7 +2617,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23769",
@@ -2372,7 +2635,7 @@
       "tickers": [
         "AMD"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23768",
@@ -2400,7 +2663,7 @@
         "ZS",
         "WDAY"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23767",
@@ -3263,7 +3526,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19206",
@@ -3279,7 +3542,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19205",
@@ -3291,7 +3554,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23758",
@@ -3326,7 +3589,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19203",
@@ -3339,7 +3602,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23757",
@@ -15422,120 +15685,72 @@
         "MU"
       ],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23379",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-08T14:11:51.000Z",
-      "localDateKst": "2026-07-08",
-      "score": 61,
-      "tags": [
-        "geo",
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "NVDA"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23378",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-08T14:06:22.000Z",
-      "localDateKst": "2026-07-08",
-      "score": 57,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23373",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-08T12:09:42.000Z",
-      "localDateKst": "2026-07-08",
-      "score": 100,
-      "tags": [
-        "geo",
-        "semi",
-        "power",
-        "equity"
-      ],
-      "tickers": [
-        "MSFT",
-        "META",
-        "AMZN",
-        "ORCL"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1048,
-    "eligibleTextCount": 113,
-    "mediaOnlyCount": 935,
-    "highSignalCount": 436,
-    "broadSignalCount": 719,
+    "observedCount": 1062,
+    "eligibleTextCount": 115,
+    "mediaOnlyCount": 947,
+    "highSignalCount": 445,
+    "broadSignalCount": 728,
     "selectedRawCount": 371,
-    "selectedRawCoveragePct": 328.3,
+    "selectedRawCoveragePct": 322.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "kr-market": 190,
-    "power": 224,
-    "earnings": 213,
-    "market-note": 148,
-    "macro": 429,
-    "geo": 240,
-    "semi": 554,
-    "ai-policy": 131,
+    "market-note": 150,
+    "equity": 152,
+    "power": 230,
+    "kr-market": 193,
+    "semi": 559,
+    "macro": 435,
+    "ai-policy": 138,
+    "earnings": 218,
+    "healthcare": 46,
+    "media-only": 17,
+    "geo": 239,
+    "insider": 23,
+    "flows": 65,
     "japan": 58,
-    "equity": 150,
-    "insider": 22,
-    "flows": 63,
-    "healthcare": 44,
     "credit": 34,
     "optical": 24,
-    "media-only": 16,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 62,
-    "PM": 3,
+    "BE": 18,
+    "035420.KS": 27,
+    "QCOM": 4,
+    "005930.KS": 33,
+    "AMZN": 50,
+    "GOOG": 60,
+    "LITE": 11,
+    "GOOGL": 6,
+    "AMD": 50,
+    "NVDA": 63,
+    "SMCI": 13,
+    "RKLB": 14,
     "MSFT": 37,
-    "GOOG": 58,
+    "META": 56,
+    "PM": 3,
     "AVGO": 41,
-    "AMZN": 49,
     "MU": 65,
-    "SMCI": 12,
-    "GOOGL": 5,
     "CRWV": 2,
-    "LITE": 10,
     "COHR": 5,
     "000660.KS": 55,
-    "035420.KS": 26,
     "T": 1,
     "AAPL": 29,
-    "META": 56,
-    "RKLB": 13,
     "INTC": 12,
     "BA": 2,
-    "005930.KS": 32,
-    "AMD": 48,
     "MTSI": 1,
     "016360.KS": 2,
     "TSM": 118,
-    "ORCL": 17,
+    "ORCL": 16,
     "MTK": 1,
     "GM": 1,
     "NOC": 1,
-    "BE": 17,
     "NFLX": 3,
     "ISRG": 2,
     "SNPS": 1,
@@ -15609,7 +15824,6 @@
     "6600.T": 2,
     "CRDO": 1,
     "DELL": 1,
-    "QCOM": 3,
     "UNH": 1,
     "ABNB": 1,
     "HUM": 1,
@@ -15636,14 +15850,14 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (554 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
-    "Macro/Rates (429 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
-    "Geopolitics (240 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
-    "AI Power/Grid (224 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
-    "Earnings/Corporate (213 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
-    "Korea Market (190 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·...",
-    "Equity/Analyst (150 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·...",
-    "Market Notes (148 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
+    "Semiconductors/Memory (559 posts in current window): Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5...",
+    "Macro/Rates (435 posts in current window): Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5...",
+    "Geopolitics (239 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
+    "AI Power/Grid (230 posts in current window): 엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를...",
+    "Earnings/Corporate (218 posts in current window): Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5...",
+    "Korea Market (193 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·...",
+    "Equity/Analyst (152 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·...",
+    "Market Notes (150 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
   ],
   "catalysts": [
     {
@@ -15658,32 +15872,32 @@
     },
     {
       "key": "NVDA",
-      "count": 62,
+      "count": 63,
       "text": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
     },
     {
       "key": "GOOG",
-      "count": 58,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
+      "count": 60,
+      "text": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
     },
     {
       "key": "META",
       "count": 56,
-      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년 100%, 이후 200% 관세 적용. · 특허·브랜드 의약품은 기존 정책 유지, 미국 내 생산 확대 유도...."
+      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
       "key": "000660.KS",
       "count": 55,
-      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년 100%, 이후 200% 관세 적용. · 특허·브랜드 의약품은 기존 정책 유지, 미국 내 생산 확대 유도...."
+      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
       "key": "AMZN",
-      "count": 49,
+      "count": 50,
       "text": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
     },
     {
       "key": "AMD",
-      "count": 48,
+      "count": 50,
       "text": "Susquehanna: 반도체 슈퍼사이클 가속, AI 저변 확대 (Semis Super-Cycle Accelerating, AI Broadening / 2026.7.21) 2분기 실적은 전반적으로 완만한 상회를, 3분기 가이던스 역시 업사이클 가속과 가격 인상 효과에 힘입어 상회를 예상합니다. AI 인프라 공급망이..."
     },
     {
@@ -15698,8 +15912,8 @@
     },
     {
       "key": "005930.KS",
-      "count": 32,
-      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년 100%, 이후 200% 관세 적용. · 특허·브랜드 의약품은 기존 정책 유지, 미국 내 생산 확대 유도...."
+      "count": 33,
+      "text": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
       "key": "AAPL",
@@ -15714,8 +15928,8 @@
       "topics": [
         "macro"
       ],
-      "count": 429,
-      "focus": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
+      "count": 435,
+      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
     },
     {
       "id": "geo",
@@ -15723,7 +15937,7 @@
       "topics": [
         "geo"
       ],
-      "count": 240,
+      "count": 239,
       "focus": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
     },
     {
@@ -15733,7 +15947,7 @@
         "credit"
       ],
       "count": 34,
-      "focus": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년 100%, 이후 200% 관세 적용. · 특허·브랜드 의약품은 기존 정책 유지, 미국 내 생산 확대 유도...."
+      "focus": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
       "id": "semi",
@@ -15741,8 +15955,8 @@
       "topics": [
         "semi"
       ],
-      "count": 554,
-      "focus": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
+      "count": 559,
+      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
     },
     {
       "id": "optical",
@@ -15759,7 +15973,7 @@
       "topics": [
         "power"
       ],
-      "count": 224,
+      "count": 230,
       "focus": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
     },
     {
@@ -15768,8 +15982,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 131,
-      "focus": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
+      "count": 138,
+      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
     },
     {
       "id": "kr-market",
@@ -15777,7 +15991,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 190,
+      "count": 193,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
     },
     {
@@ -15786,7 +16000,7 @@
       "topics": [
         "equity"
       ],
-      "count": 150,
+      "count": 152,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 22일 06:00~20:00 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"어제 개미 다 털었다\" 분위기 · 오늘 하락은 bull trap인지 조정인지 의견 충돌 · GOOG CapEx만 강하면 다시 달린다는 기대 · \"메모리는 결국 moon\" 서사 유지 ·..."
     },
     {
@@ -15804,8 +16018,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 213,
-      "focus": "엔비디아 젠슨 황 CEO, 중국 AI 모델 제재·금지 움직임에 반대 엔비디아(Nvidia)의 젠슨 황(Jensen Huang) CEO가 엑시오스(Axios)와의 단독 인터뷰에서 중국의 오픈소스 AI 모델(Moonshot AI의 Kimi K3 등)에 대한 미국 정부의 제재 및 금지 움직임에 대해 강력한 반대 의사 를..."
+      "count": 218,
+      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
     },
     {
       "id": "healthcare",
@@ -15813,8 +16027,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 44,
-      "focus": "Citi) 7월 AI 모델 랭킹: 중국 오픈웨이트 모델의 부상, 양자화, 그리고 AI 모델의 범용화 CITI의 견해 AI 모델 개발 경쟁이 가열되고 있으며 점점 더 다면적으로 전개되고 있습니다. 벤치마크 경쟁에서는 중국 Moonshot AI의 Kimi K3가 초기 프론티어 모델들과 대등한 성능을 보여줄 수..."
+      "count": 46,
+      "focus": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가 &#036;347.15) 애널리스트: Andrew Boone, CFA 구글은 7월 21일 Gemini 3.6과 3.5..."
     },
     {
       "id": "japan",
@@ -15823,7 +16037,7 @@
         "japan"
       ],
       "count": 58,
-      "focus": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년 100%, 이후 200% 관세 적용. · 특허·브랜드 의약품은 기존 정책 유지, 미국 내 생산 확대 유도...."
+      "focus": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
       "id": "flows",
@@ -15831,7 +16045,7 @@
       "topics": [
         "flows"
       ],
-      "count": 63,
+      "count": 65,
       "focus": "Susquehanna: 반도체 슈퍼사이클 가속, AI 저변 확대 (Semis Super-Cycle Accelerating, AI Broadening / 2026.7.21) 2분기 실적은 전반적으로 완만한 상회를, 3분기 가이던스 역시 업사이클 가속과 가격 인상 효과에 힘입어 상회를 예상합니다. AI 인프라 공급망이..."
     },
     {
@@ -15840,7 +16054,7 @@
       "topics": [
         "insider"
       ],
-      "count": 22,
+      "count": 23,
       "focus": "BofA) 메모리 강세론, 그리고 \"오픈소스\"가 TAM을 확장하는 이유 (2026.7.20, Vivek Arya 외) [핵심 요지] 7월 16일 출시된 Kimi K3 등 중국 오픈소스 모델의 최신 릴리스는 메모리/마이크론(MU) 강세론을 오히려 강화한다는 판단입니다. 서구 모델 대비 최대 5~350배 저렴한 중국..."
     },
     {
@@ -15849,7 +16063,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 148,
+      "count": 150,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -16077,6 +16291,28 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "aetherjapanresearch/23811",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23811",
+      "datetime": "2026-07-22T12:47:36.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "LITE",
+        "GOOGL"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가..."
+    },
     {
       "id": "bornlupin/19242",
       "channel": "bornlupin",
@@ -17203,27 +17439,236 @@
       ],
       "score": 100,
       "summary": "JP모건) 메모리/한국 테크 및 지주회사에 대한 아시아 투자자 마케팅 피드백 지난주 홍콩에서 50명 이상의 투자자들과 미팅을 진행했습니다. 본 노트에서는 투자자들의 주요 관심 영역과 피드백을 짚어보고,..."
+    }
+  ],
+  "broadItems": [
+    {
+      "id": "aetherjapanresearch/23813",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23813",
+      "datetime": "2026-07-22T13:17:09.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "power",
+        "kr-market"
+      ],
+      "tickers": [
+        "BE",
+        "035420.KS"
+      ],
+      "score": 77,
+      "hasText": true,
+      "summary": "GE버노바 어닝콜 정리 &#036;GEV - 딘스티커 캐파 분기당 3GW 수준이었던 출하량을 3분기부터 분기당 5GW(연 20GW)로 상향. 2027년에는 주문해놓은 부품(터빈 블레이드 등)을 수령함에 따라..."
     },
     {
-      "id": "aetherjapanresearch/23540",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23540",
-      "datetime": "2026-07-13T23:35:44.000Z",
-      "localDateKst": "2026-07-14",
+      "id": "bornlupin/19246",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19246",
+      "datetime": "2026-07-22T13:16:03.000Z",
+      "localDateKst": "2026-07-22",
       "tags": [
-        "macro",
         "semi",
         "power",
         "kr-market"
       ],
       "tickers": [
-        "MU"
+        "QCOM",
+        "005930.KS"
+      ],
+      "score": 76,
+      "hasText": true,
+      "summary": "퀄컴-삼성 파트너십 확장 발표 퀄컴(Qualcomm)과 삼성전자가 장기적인 기술 협력을 대폭 강화하여, 스마트폰부터 스마트워치, 지능형 안경(스마트 글래스)에 이르는 차세대 갤럭시 제품군 전반에..."
+    },
+    {
+      "id": "aetherjapanresearch/23812",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23812",
+      "datetime": "2026-07-22T13:15:09.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "AMZN"
+      ],
+      "score": 74,
+      "hasText": true,
+      "summary": "WSJ) 오픈AI의 계획된 클라우드 지출, 컴퓨팅 확충 가속화로 7,500억 달러에 도달 오픈AI가 2030년까지의 컴퓨팅 파워 지출 전망치를 기존 약 6,000억 달러에서 약 7,500억 달러로..."
+    },
+    {
+      "id": "bornlupin/19245",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19245",
+      "datetime": "2026-07-22T13:07:29.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [],
+      "score": 65,
+      "hasText": true,
+      "summary": "오픈AI, 컴퓨팅 확장 박차에 따라 클라우드 지출 계획 7,500억 달러로 확대 AI 거대 기업, 조지아 데이터센터 신규 프로젝트에 200억 달러 투입 결정 및 일론 머스크의 컴퓨팅 구축 설계자 영입..."
+    },
+    {
+      "id": "aetherjapanresearch/23811",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23811",
+      "datetime": "2026-07-22T12:47:36.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "LITE",
+        "GOOGL"
       ],
       "score": 100,
-      "summary": "12. 한국의 AI 메가 투자 계획에 대해서는 엇갈린 시각, 잠재적으로 더 높은 capex 지출로 인해 메모리 SPE에 대해서는 보다 긍정적인 편향. 투자자들은 대체로 3조 달러 이상 규모의 한국 AI 메가..."
-    }
-  ],
-  "broadItems": [
+      "hasText": true,
+      "summary": "Citizens JMP 증권) Alphabet(GOOGL) 기업 업데이트 (2026년 7월 21일) 투자의견 Market Outperform 유지, 목표주가 &#036;515 유지 (현재가..."
+    },
+    {
+      "id": "aetherjapanresearch/23810",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23810",
+      "datetime": "2026-07-22T12:45:16.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "score": 86,
+      "hasText": true,
+      "summary": "AMD & 앤트로픽 반도체칩/투자 합의 체결 • AMD는 앤트로픽에 50억달러 투자 • 앤트로픽은 2GW 규모 AMD 차세대 반도체칩 구매..."
+    },
+    {
+      "id": "bornlupin/19244",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19244",
+      "datetime": "2026-07-22T12:42:44.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "score": 90,
+      "hasText": true,
+      "summary": "AMD와 앤스로픽, 대형 AI 칩 공급 및 투자 계약 체결 2기가와트(GW) 규모의 계약에는 수백억 달러 상당의 칩 공급이 포함되며, AMD는 앤스로픽에 최대 50억 달러를 투자할 계획이다...."
+    },
+    {
+      "id": "insidertracking/58921",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58921",
+      "datetime": "2026-07-22T12:22:30.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": "📢 공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 크립토, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게..."
+    },
+    {
+      "id": "insidertracking/58920",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/58920",
+      "datetime": "2026-07-22T12:22:15.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "geo",
+        "equity",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [
+        "SMCI",
+        "RKLB"
+      ],
+      "score": 75,
+      "hasText": true,
+      "summary": "프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 ARWR (+18.22%) Plozasiran이 중성지방 임상 3상 주요 평가변수를 충족. FNWD (+17.50%) FFBC가 Finward를..."
+    },
+    {
+      "id": "aetherjapanresearch/23809",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23809",
+      "datetime": "2026-07-22T12:17:41.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "semi",
+        "equity",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "META",
+        "AMZN"
+      ],
+      "score": 77,
+      "hasText": true,
+      "summary": "JP모건 장전 코멘트 실적 발표에서 주목해야 할 것: 시장은 무엇보다도 두 가지를 주시할 것입니다. 캐펙스 가이던스와 수익화 관련 언급입니다. 지난 노트에서 언급했듯이, 논쟁은 \"캐펙스 규모가 얼마나..."
+    },
+    {
+      "id": "aetherjapanresearch/23808",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23808",
+      "datetime": "2026-07-22T12:15:03.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "JP모건) 실적전 코멘트; 노키아(비중확대) 노키아 주가는 광통신 업종 대부분과 함께 고점 대비 약 35% 하락했으나, 투자자들에게 핵심 질문은 펀더멘털 측면에서 변한 것이 있는지 여부입니다. 제 견해로는 그..."
+    },
+    {
+      "id": "bornlupin/19243",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19243",
+      "datetime": "2026-07-22T12:14:19.000Z",
+      "localDateKst": "2026-07-22",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "kr-market",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [],
+      "score": 90,
+      "hasText": true,
+      "summary": "백악관, 과학 연구를 위한 AI 국가 프로젝트 ‘제네시스 미션’에 50억 달러 이상 투입 발표 1. 개요 및 핵심 마이클 크라치오스(Michael Kratsios) 백악관 과학기술정책실(OSTP) 실장은..."
+    },
     {
       "id": "bornlupin/19242",
       "channel": "bornlupin",
@@ -22190,38 +22635,6 @@
       "summary": "2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상..."
     },
     {
-      "id": "insidertracking/58586",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58586",
-      "datetime": "2026-07-17T21:29:38.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "6월 물가 지표는 정말 엄청난 소식이다&#33; 물가는 6년여 만에 한 달 기준으로 가장 큰 폭으로 하락했다. 6월 소비자물가지수(CPI)는 블룸버그가 조사한 경제학자 67명 전원의 전망치를 밑돌았다...."
-    },
-    {
-      "id": "insidertracking/58585",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58585",
-      "datetime": "2026-07-17T21:29:20.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "semi",
-        "healthcare"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 수십 년 동안 형편없는 정치인들은 미국의 산업 기반이 해외로 빠져나가도록 방치했다. 그들의 무역 정책은 기업들이 가장 싼 노동력을 찾아 아시아..."
-    },
-    {
       "id": "aetherjapanresearch/23664",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23664",
@@ -23306,39 +23719,6 @@
       "summary": "Investing.com ) 젠슨 황, Vera Rubin 양산 중이라 밝히며 지연 보도 일축 블룸버그에 따르면, 엔비디아(NASDAQ:NVDA) CEO 젠슨 황은 회사의 차세대 Vera Rubin AI..."
     },
     {
-      "id": "aetherjapanresearch/23600",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23600",
-      "datetime": "2026-07-15T13:01:24.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [
-        "GOOG"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "버핏, 버크셔의 알파벳 주식 매수 \"내가 직접 지시했다\" 고백 ㅡ B - 워런 버핏은 버크셔 해서웨이가 집행한 구글 모회사 알파벳 투자를 자신이 직접 결정하고 개시했다고 밝혔습니다. 후계자인 그레그 아벨과의..."
-    },
-    {
-      "id": "aetherjapanresearch/23599",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23599",
-      "datetime": "2026-07-15T13:00:59.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [
-        "MSFT"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": "Citi) Microsoft 4분기 Copilot 강세 예상; FY27에는 자본적지출(Capex) 증가하나 더 나은 수익률로 가는 경로 확보. TP &#036;570(기준 &#036;620) CITI의 견해..."
-    },
-    {
       "id": "bornlupin/19118",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19118",
@@ -23403,82 +23783,6 @@
       "score": 77,
       "hasText": true,
       "summary": "대만 반도체 파운드리 기업 파워칩(PSMC)의 가격 인상 1. 주요 제품 가격 대폭 인상 DRAM 가격 45% 인상: 이번 달부터 DRAM 가격을 45% 인상합니다. 반도체 공급 부족 현상은 내년까지 이어질..."
-    },
-    {
-      "id": "aetherjapanresearch/23597",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23597",
-      "datetime": "2026-07-15T12:18:42.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "credit",
-        "macro",
-        "equity"
-      ],
-      "tickers": [],
-      "score": 89,
-      "hasText": true,
-      "summary": "FT) 스페이스X 채권 수익률, 정크 등급을 향해 로켓처럼 치솟다 채권 보유자들 생각은 아무도 안 하는 겁니까? 스페이스X 채권이 발행 후 한 달도 안 되는 사이에 심각한 부진에 빠졌다는 내용입니다. 적자..."
-    },
-    {
-      "id": "aetherjapanresearch/23596",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23596",
-      "datetime": "2026-07-15T12:13:35.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "AVGO",
-        "INTC"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "Citi) Intel 프리뷰: 투자자들의 관심은 파운드리 고객사와 CPU 수요에 집중 CITI의 견해 인텔은 7월 23일 장 마감 후 실적을 발표합니다. 우리의 2Q26 매출/EPS 전망치는 144억..."
-    },
-    {
-      "id": "aetherjapanresearch/23595",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23595",
-      "datetime": "2026-07-15T12:05:50.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "semi",
-        "equity",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 67,
-      "hasText": true,
-      "summary": "Citi) ASML; 수요 강화, 2026년 강세, 2027년 생산능력 확대되나 시장 기대치 하회, 2028년 상회. TP EUR 1675 CITI의 견해 ASML은 강한 수요를 목격하고 있으며, 특히 사이클..."
-    },
-    {
-      "id": "aetherjapanresearch/23593",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23593",
-      "datetime": "2026-07-15T12:00:46.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "META"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "Needham) AI 클라우드 인프라: 가격 동향과 신규 진입자, CRWV·IREN·코로케이션 종목에 미치는 영향 (7/14) 네오클라우드 및 코로케이션 종목은 월간 기준 부진한 흐름을 보이고 있으며,..."
     },
     {
       "id": "bornlupin/19114",
@@ -23779,67 +24083,6 @@
       "tickers": [],
       "score": 77,
       "summary": "에어 테스트 시스템즈(Aehr Test Systems, &#036;AEHR ) 2026 회계연도 4분기 실적 (시간외 +27.25%) EPS 0.11달러 (예상-0.01달러) 매출액 1,884만 달러 (예상..."
-    },
-    {
-      "id": "bornlupin/19094",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19094",
-      "datetime": "2026-07-14T20:34:58.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 64,
-      "summary": "* SKHY, 전일대비 +27.3% 폭등한 193.9달러 기록 (SK하이닉스 본주 환산 주가 2,887,566원/주) - 당사가 전일 발간 자료 '반도체: 하나만 알고 둘은 모른다'를 통해 주장한 바와 같이,..."
-    },
-    {
-      "id": "bornlupin/19093",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19093",
-      "datetime": "2026-07-14T13:08:11.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 63,
-      "summary": "키뱅크(KeyBanc)는 마이크론(Micron, &#036;MU)에 대한 투자의견을 '비중확대(overweight)'로 유지, 목표주가를 1,600달러에서 1,750달러로 상향"
-    },
-    {
-      "id": "bornlupin/19092",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19092",
-      "datetime": "2026-07-14T13:02:47.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "MU",
-        "000660.KS"
-      ],
-      "score": 85,
-      "summary": "바클레이즈(Barclays), SK하이닉스(SK hynix, &#036;SKHY ), 커버리지를 개시, 투자 의견을 '비중 확대(Overweight)', 목표 주가 330달러 목표 멀티플 및 밸류에이션:..."
-    },
-    {
-      "id": "bornlupin/19091",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19091",
-      "datetime": "2026-07-14T12:54:45.000Z",
-      "localDateKst": "2026-07-14",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "summary": "닉 티미라오스 6월 CPI에서는 전반적으로 물가가 둔화된 모습이 나타났습니다. 근원 상품(Core goods)은 -0.09%를 기록하며 2개월 연속 하락했습니다. 주거비(Housing)는 0.12% 상승하는..."
     }
   ]
 }
