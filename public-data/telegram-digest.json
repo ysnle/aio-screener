@@ -1,53 +1,228 @@
 {
-  "generatedAt": "2026-07-22T23:44:04.023Z",
-  "attemptedAt": "2026-07-22T23:44:04.023Z",
-  "lastSuccessfulAt": "2026-07-22T23:44:04.023Z",
+  "generatedAt": "2026-07-23T01:15:24.385Z",
+  "attemptedAt": "2026-07-23T01:15:24.385Z",
+  "lastSuccessfulAt": "2026-07-23T01:15:24.385Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-08T23:43:59.865Z",
-  "until": "2026-07-22T23:43:59.865Z",
+  "since": "2026-07-09T01:15:19.346Z",
+  "until": "2026-07-23T01:15:19.346Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 312,
-      "freshCount": 18,
-      "eligibleTextCount": 18,
-      "selectedCount": 124,
+      "count": 313,
+      "freshCount": 36,
+      "eligibleTextCount": 36,
+      "selectedCount": 123,
       "error": null,
-      "lastPostId": 23822
+      "lastPostId": 23826
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 574,
+      "count": 577,
       "freshCount": 39,
-      "eligibleTextCount": 38,
+      "eligibleTextCount": 37,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 58983
+      "lastPostId": 58986
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 251,
+      "count": 254,
       "freshCount": 38,
       "eligibleTextCount": 38,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19263
+      "lastPostId": 19268
     }
   ],
-  "count": 1137,
-  "retainedItemCount": 414,
+  "count": 1144,
+  "retainedItemCount": 426,
   "observedItems": [
+    {
+      "id": "bornlupin/19268",
+      "channel": "bornlupin",
+      "datetime": "2026-07-23T01:04:18.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 59,
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58986",
+      "channel": "insidertracking",
+      "datetime": "2026-07-23T00:53:48.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "aetherjapanresearch/23826",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-23T00:18:32.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23825",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-23T00:17:18.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23824",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-23T00:16:20.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19267",
+      "channel": "bornlupin",
+      "datetime": "2026-07-23T00:14:38.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 53,
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58985",
+      "channel": "insidertracking",
+      "datetime": "2026-07-23T00:10:33.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19266",
+      "channel": "bornlupin",
+      "datetime": "2026-07-23T00:07:59.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 56,
+      "tags": [
+        "semi",
+        "flows",
+        "japan"
+      ],
+      "tickers": [
+        "MU"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19265",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T23:59:52.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 56,
+      "tags": [
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [
+        "035420.KS",
+        "009150.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/58984",
+      "channel": "insidertracking",
+      "datetime": "2026-07-22T23:56:04.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 47,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [
+        "035420.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19264",
+      "channel": "bornlupin",
+      "datetime": "2026-07-22T23:55:22.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 65,
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23823",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-22T23:46:16.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 89,
+      "tags": [
+        "macro",
+        "power",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO",
+        "LITE",
+        "COHR"
+      ],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19263",
       "channel": "bornlupin",
@@ -762,7 +937,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19249",
@@ -791,7 +966,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19248",
@@ -828,7 +1003,7 @@
       "tickers": [
         "TSLA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58942",
@@ -1797,7 +1972,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23801",
@@ -1811,7 +1986,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58897",
@@ -2052,7 +2227,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23799",
@@ -2071,7 +2246,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23798",
@@ -2083,7 +2258,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58880",
@@ -2122,7 +2297,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58878",
@@ -2200,7 +2375,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58876",
@@ -2238,7 +2413,7 @@
         "COHR",
         "MTSI"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58875",
@@ -2268,7 +2443,7 @@
       "tickers": [
         "MSFT"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23791",
@@ -2284,7 +2459,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23790",
@@ -2296,7 +2471,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58874",
@@ -2359,7 +2534,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58873",
@@ -2458,7 +2633,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58866",
@@ -2559,7 +2734,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/58861",
@@ -2745,7 +2920,7 @@
         "ORCL",
         "INTC"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23783",
@@ -2830,7 +3005,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19226",
@@ -2851,7 +3026,7 @@
         "AMD",
         "META"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58850",
@@ -2879,7 +3054,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58849",
@@ -2958,7 +3133,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58844",
@@ -16697,137 +16872,61 @@
         "6600.T"
       ],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23387",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-09T01:12:12.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 75,
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "MU",
-        "000660.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23386",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-09T00:30:55.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 51,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23385",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-09T00:30:45.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 59,
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "MU",
-        "005930.KS",
-        "000660.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/18976",
-      "channel": "bornlupin",
-      "datetime": "2026-07-09T00:06:28.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 59,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/18975",
-      "channel": "bornlupin",
-      "datetime": "2026-07-08T23:53:13.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 100,
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "TSM",
-        "ORCL"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1137,
-    "eligibleTextCount": 94,
-    "mediaOnlyCount": 1043,
-    "highSignalCount": 463,
-    "broadSignalCount": 760,
-    "selectedRawCount": 368,
-    "selectedRawCoveragePct": 391.5,
+    "observedCount": 1144,
+    "eligibleTextCount": 111,
+    "mediaOnlyCount": 1033,
+    "highSignalCount": 464,
+    "broadSignalCount": 762,
+    "selectedRawCount": 367,
+    "selectedRawCoveragePct": 330.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 461,
-    "semi": 573,
-    "power": 242,
-    "equity": 155,
-    "flows": 73,
-    "healthcare": 52,
-    "market-note": 176,
-    "ai-policy": 152,
-    "earnings": 238,
+    "macro": 462,
+    "semi": 572,
+    "media-only": 19,
+    "market-note": 178,
+    "ai-policy": 153,
+    "equity": 154,
+    "earnings": 243,
+    "flows": 75,
+    "power": 244,
+    "japan": 60,
+    "kr-market": 204,
+    "healthcare": 53,
     "geo": 251,
     "optical": 24,
-    "kr-market": 202,
-    "media-only": 18,
     "insider": 27,
-    "japan": 59,
     "credit": 37,
     "crypto": 5
   },
   "tickerCounts": {
-    "MU": 66,
-    "TSM": 120,
+    "MSFT": 39,
+    "GOOG": 76,
+    "AMZN": 53,
+    "MU": 64,
+    "035420.KS": 29,
+    "009150.KS": 6,
+    "AVGO": 45,
+    "LITE": 14,
+    "COHR": 6,
+    "TSM": 119,
     "BAC": 2,
     "WFC": 3,
     "BCS": 2,
-    "005930.KS": 34,
-    "GOOG": 74,
-    "AVGO": 44,
+    "005930.KS": 33,
     "GOOGL": 13,
     "BX": 2,
-    "MSFT": 38,
     "META": 57,
     "MRVL": 12,
-    "LITE": 13,
-    "ORCL": 17,
-    "000660.KS": 57,
+    "ORCL": 16,
+    "000660.KS": 55,
     "TSLA": 5,
     "INTC": 16,
     "ISRG": 3,
@@ -16837,10 +16936,10 @@
     "C": 1,
     "QQQ": 4,
     "SOXX": 1,
-    "NVDA": 65,
+    "NVDA": 64,
     "PEP": 1,
     "PFE": 1,
-    "AMD": 54,
+    "AMD": 53,
     "BE": 19,
     "GEV": 5,
     "TRV": 3,
@@ -16856,16 +16955,13 @@
     "HSBC": 1,
     "ING": 1,
     "ADM": 3,
-    "AMZN": 52,
     "AAPL": 30,
     "SMCI": 14,
     "CVX": 1,
     "COIN": 1,
-    "035420.KS": 27,
     "QCOM": 4,
     "RKLB": 14,
     "CRWV": 2,
-    "COHR": 5,
     "T": 1,
     "BA": 2,
     "MTSI": 1,
@@ -16889,7 +16985,6 @@
     "CRM": 1,
     "ZS": 1,
     "WDAY": 1,
-    "009150.KS": 5,
     "NBIS": 1,
     "BABA": 2,
     "WDC": 3,
@@ -16952,34 +17047,34 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (573 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):...",
-    "Macro/Rates (461 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):...",
+    "Semiconductors/Memory (572 posts in current window): BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q...",
+    "Macro/Rates (462 posts in current window): BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q...",
     "Geopolitics (251 posts in current window): 2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는...",
-    "AI Power/Grid (242 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):...",
-    "Earnings/Corporate (238 posts in current window): 구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에...",
-    "Korea Market (202 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK...",
-    "Market Notes (176 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
-    "Equity/Analyst (155 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
+    "AI Power/Grid (244 posts in current window): 테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):...",
+    "Earnings/Corporate (243 posts in current window): BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q...",
+    "Korea Market (204 posts in current window): 2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK...",
+    "Market Notes (178 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Equity/Analyst (154 posts in current window): BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 120,
+      "count": 119,
       "text": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "key": "GOOG",
-      "count": 74,
-      "text": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에..."
+      "count": 76,
+      "text": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
       "key": "MU",
-      "count": 66,
+      "count": 64,
       "text": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
       "key": "NVDA",
-      "count": 65,
+      "count": 64,
       "text": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 이란이 호르무즈 해협에서 선박을 공격할 경우 교량과 발전소를 포함한 이란 핵심 인프라를..."
     },
     {
@@ -16989,32 +17084,32 @@
     },
     {
       "key": "000660.KS",
-      "count": 57,
+      "count": 55,
       "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
-      "key": "AMD",
-      "count": 54,
-      "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
+      "key": "AMZN",
+      "count": 53,
+      "text": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
-      "key": "AMZN",
-      "count": 52,
+      "key": "AMD",
+      "count": 53,
       "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "key": "AVGO",
-      "count": 44,
+      "count": 45,
       "text": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에..."
     },
     {
       "key": "MSFT",
-      "count": 38,
-      "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
+      "count": 39,
+      "text": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
       "key": "005930.KS",
-      "count": 34,
+      "count": 33,
       "text": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
@@ -17030,8 +17125,8 @@
       "topics": [
         "macro"
       ],
-      "count": 461,
-      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
+      "count": 462,
+      "focus": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
       "id": "geo",
@@ -17057,8 +17152,8 @@
       "topics": [
         "semi"
       ],
-      "count": 573,
-      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
+      "count": 572,
+      "focus": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
       "id": "optical",
@@ -17075,7 +17170,7 @@
       "topics": [
         "power"
       ],
-      "count": 242,
+      "count": 244,
       "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
@@ -17084,8 +17179,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 152,
-      "focus": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에..."
+      "count": 153,
+      "focus": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
       "id": "kr-market",
@@ -17093,7 +17188,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 202,
+      "count": 204,
       "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
@@ -17102,8 +17197,8 @@
       "topics": [
         "equity"
       ],
-      "count": 155,
-      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
+      "count": 154,
+      "focus": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
       "id": "crypto",
@@ -17120,8 +17215,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 238,
-      "focus": "구글 ( Alphabet , &#036;GOOGL ), 2026년 2분기 어닝 콜 Q&A 세션 중 Q) 생성형 AI의 ROIC 기회 및 시점 생성형 AI 제품과 도구가 시장에 출시되고 투자가 계속 늘어나는 상황에서, 1년 전과 비교하여 전체 생성형 AI의 ROIC(투자자본수익률) 기회 규모와 수익 가시화 시점에..."
+      "count": 243,
+      "focus": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
       "id": "healthcare",
@@ -17129,7 +17224,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 52,
+      "count": 53,
       "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
     },
     {
@@ -17138,7 +17233,7 @@
       "topics": [
         "japan"
       ],
-      "count": 59,
+      "count": 60,
       "focus": "Pre-Market Summary - 2026년 7월 22일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 제네릭 의약품 관세 정책 발표. 2026년 8월부터 2년간 무관세 유지 후 2028년..."
     },
     {
@@ -17147,8 +17242,8 @@
       "topics": [
         "flows"
       ],
-      "count": 73,
-      "focus": "테슬라 2026년 2분기 어닝콜 Q&A 세션 Q1. 옵티머스 공급망 구축 및 외부 파트너 투자 현황 질문 (Truist - Andrew): 옵티머스 양산을 위해 미국 내 제조 시설을 함께 구축할 외부 공급업체 파트너십이나 자본 효율적 투자 계획이 있는가? 답변 (Elon Musk & Karn Budhiraj):..."
+      "count": 75,
+      "focus": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) | 목표주가(PO): 310.00달러 | 현재주가: 249.99달러 2Q 프리뷰: AWS 성장률을 2Q..."
     },
     {
       "id": "insider",
@@ -17165,7 +17260,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 176,
+      "count": 178,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -17393,6 +17488,29 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "aetherjapanresearch/23825",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23825",
+      "datetime": "2026-07-23T00:17:18.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) |..."
+    },
     {
       "id": "bornlupin/19263",
       "channel": "bornlupin",
@@ -18532,31 +18650,136 @@
       "score": 100,
       "hasText": true,
       "summary": "JPMorgan PC·서버 보고서 요약 (2026.7.15, Albert Hung 외) \"Inference extends the general server upcycle, PCs still fragile\"..."
+    }
+  ],
+  "broadItems": [
+    {
+      "id": "bornlupin/19268",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19268",
+      "datetime": "2026-07-23T01:04:18.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [],
+      "score": 59,
+      "hasText": true,
+      "summary": "마이크론 - 어제 누군가 다음주 만기 콜옵션을 무려 1억달러 어치 매수"
     },
     {
-      "id": "aetherjapanresearch/23545",
+      "id": "aetherjapanresearch/23825",
       "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23545",
-      "datetime": "2026-07-14T02:32:07.000Z",
-      "localDateKst": "2026-07-14",
+      "url": "https://t.me/aetherjapanresearch/23825",
+      "datetime": "2026-07-23T00:17:18.000Z",
+      "localDateKst": "2026-07-23",
       "tags": [
         "macro",
         "semi",
-        "power",
-        "equity"
+        "ai-policy",
+        "equity",
+        "earnings",
+        "flows"
       ],
       "tickers": [
         "MSFT",
         "GOOG",
-        "META",
-        "AVGO",
         "AMZN"
       ],
       "score": 100,
-      "summary": "모건스탠리) 하이퍼스케일러 Capex, '28년 1.4조 달러 전망 모건스탠리는 GW당 구축 비용 상향과 선행 컴퓨트 용량 전망 확대를 반영해 하이퍼스케일러 5개사(GOOGL, AMZN, MSFT, META,..."
-    }
-  ],
-  "broadItems": [
+      "hasText": true,
+      "summary": "BofA) 아마존 2Q 프리뷰: 2Q AWS 추정치 상향, 3Q 가이던스는 프라임데이 비교 기준(comp)으로 인해 시장 컨센서스를 상하로 아우를(bracket) 것으로 예상 투자의견 유지: 매수(BUY) |..."
+    },
+    {
+      "id": "bornlupin/19267",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19267",
+      "datetime": "2026-07-23T00:14:38.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 53,
+      "hasText": true,
+      "summary": "[NH/백준기] 스몰캡 - 지엔씨에너지 [NH/스몰캡(목진원)] [지엔씨에너지] ★국내 데이터센터 확대 핵심 수혜주 ■국내 비상발전기 1위, AIDC 확산에 따른 구조적 수혜 전망 동사는 국내 1위 비상발전기..."
+    },
+    {
+      "id": "bornlupin/19266",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19266",
+      "datetime": "2026-07-23T00:07:59.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi",
+        "flows",
+        "japan"
+      ],
+      "tickers": [
+        "MU"
+      ],
+      "score": 56,
+      "hasText": true,
+      "summary": "AI 열풍에 따른 메모리 반도체 가격 급등… 완성차 업체, 차량 가격 인상 검토 반도체 기업들의 AI 집중으로 수급 불안이 가중되자, 미국·일본 완성차 업체들의 반도체 확보전 치열 제조 원가 상승과 신차 가격..."
+    },
+    {
+      "id": "bornlupin/19265",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19265",
+      "datetime": "2026-07-22T23:59:52.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [
+        "035420.KS",
+        "009150.KS"
+      ],
+      "score": 56,
+      "hasText": true,
+      "summary": "2026.07.23 08:58:23 기업명: 삼성전기(시가총액: 100조 4,630억) A009150 보고서명: 단일판매ㆍ공급계약체결 계약상대 : 글로벌 대형기업 계약내용 : ( 기타 판매ㆍ공급계약 )..."
+    },
+    {
+      "id": "bornlupin/19264",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19264",
+      "datetime": "2026-07-22T23:55:22.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 65,
+      "hasText": true,
+      "summary": "금일 구글 실적발표 이후 여러 반응에 대한 해석 1) 시외 주가 반응, 아쉬움? - 실적발표 이후 구글 주가는 현재 -2~-3% 하락, 마이크론 주가는 +2~3% 상승 중입니다 - 하드웨어 입장에서 좋은..."
+    },
+    {
+      "id": "aetherjapanresearch/23823",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23823",
+      "datetime": "2026-07-22T23:46:16.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "power",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG",
+        "AVGO",
+        "LITE",
+        "COHR"
+      ],
+      "score": 89,
+      "hasText": true,
+      "summary": "JP모건) 클라우드 설비투자(Capex) 총정리: GOOGL, 강세 성격의 설비투자 신호와 함께 C2Q26 실적 시즌의 포문을 열다 알파벳은 미국 4대 하이퍼스케일러 중 처음으로 C2Q26 실적을 발표했으며,..."
+    },
     {
       "id": "bornlupin/19263",
       "channel": "bornlupin",
@@ -24968,20 +25191,6 @@
       "summary": "어떻게 회전율이 2400% ㄷㄷㄷ"
     },
     {
-      "id": "aetherjapanresearch/23607",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23607",
-      "datetime": "2026-07-16T00:50:40.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "한국은행 기준금리 2.76%. 25bp 인상했습니다."
-    },
-    {
       "id": "bornlupin/19124",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19124",
@@ -24997,24 +25206,6 @@
       "score": 79,
       "hasText": true,
       "summary": "앤트로픽, IPO를 앞두고 은행 신용한도를 수십억 달러 확대하기 위한 협상 진행 소식통에 따르면, 앤스로픽은 올해 예정된 기업공개(IPO)를 앞두고 자금 확보력을 높이기 위해 은행들과 수십억 달러 규모의..."
-    },
-    {
-      "id": "aetherjapanresearch/23605",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23605",
-      "datetime": "2026-07-15T23:56:05.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "macro",
-        "semi",
-        "ai-policy",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 74,
-      "hasText": true,
-      "summary": "블룸버그) 앤트로픽, 초대형 상장 임박에 IPO 투자자 미팅 계획 소식통에 따르면 상장을 주관하는 은행들이 향후 몇 주 내에 투자자들과 클로드(Claude) 챗봇 제조사 간의 미팅을 잡고 있으며, 앤트로픽은..."
     },
     {
       "id": "bornlupin/19123",
@@ -25138,92 +25329,6 @@
       "score": 61,
       "hasText": true,
       "summary": "SK하이닉스 나스닥 안착에...젠슨 황 “매우 기쁘다” 공개 호평 AI 생태계 확대 자신감 표명 해석 16일 日 정부와 AI 협력 발표 예고 젠슨 황 엔비디아 최고경영자(CEO)가 미국 나스닥에 상장한..."
-    },
-    {
-      "id": "bornlupin/19115",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19115",
-      "datetime": "2026-07-15T12:19:39.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 77,
-      "hasText": true,
-      "summary": "대만 반도체 파운드리 기업 파워칩(PSMC)의 가격 인상 1. 주요 제품 가격 대폭 인상 DRAM 가격 45% 인상: 이번 달부터 DRAM 가격을 45% 인상합니다. 반도체 공급 부족 현상은 내년까지 이어질..."
-    },
-    {
-      "id": "bornlupin/19114",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19114",
-      "datetime": "2026-07-15T11:59:09.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "AMD"
-      ],
-      "score": 78,
-      "hasText": true,
-      "summary": "1. 로젠블랫, AMD, 목표 주가를 490달러에서 665달러로 상향, '매수(Buy)' 투자의견을 유지, 반도체 분야 최선호(long) 종목으로 선정 AMD의 에픽(EPYC) 서버 매출이 전년 대비 70%..."
-    },
-    {
-      "id": "bornlupin/19113",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19113",
-      "datetime": "2026-07-15T11:55:36.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "미즈호(Mizuho), 마이크론 (Micron, &#036;MU ) 목표 주가 &#036;1,375, '아웃퍼폼(Outperform)' 등급, 최선호주(top picks) 선정 메모리 수요가 2027년까지..."
-    },
-    {
-      "id": "bornlupin/19112",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19112",
-      "datetime": "2026-07-15T08:40:56.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 69,
-      "hasText": true,
-      "summary": "반도체 장비 매출 강세, SEMI \"5년 연속 성장해 2028년 2,295억 달러 달성 전망\" 국제반도체장비재료협회(SEMI)는 인공지능(AI)의 강력한 수요가 반도체 제조 투자를 이끌면서, 전 세계 반도체..."
-    },
-    {
-      "id": "bornlupin/19111",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19111",
-      "datetime": "2026-07-15T08:13:39.000Z",
-      "localDateKst": "2026-07-15",
-      "tags": [
-        "semi",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "INTC"
-      ],
-      "score": 71,
-      "hasText": true,
-      "summary": "BofA , ASML, 투자의견 매수 유지, 목표주가 2,022 EUR 강력한 어닝 서프라이즈, 가이드라인 상향 및 생산 능력 확대 계획 더 강력해진 IBM(장비 유지보수 서비스) 매출 및 마진이 견인한..."
     }
   ]
 }
