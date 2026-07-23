@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-23T04:37:50.147Z",
-  "attemptedAt": "2026-07-23T04:37:50.147Z",
-  "lastSuccessfulAt": "2026-07-23T04:37:50.147Z",
+  "generatedAt": "2026-07-23T07:20:03.985Z",
+  "attemptedAt": "2026-07-23T07:20:03.985Z",
+  "lastSuccessfulAt": "2026-07-23T07:20:03.985Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-09T04:37:45.585Z",
-  "until": "2026-07-23T04:37:45.585Z",
+  "since": "2026-07-09T07:19:59.541Z",
+  "until": "2026-07-23T07:19:59.541Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -18,36 +18,223 @@
       "eligibleTextCount": 35,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 23829
+      "lastPostId": 23832
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 590,
+      "count": 596,
       "freshCount": 40,
       "eligibleTextCount": 39,
-      "selectedCount": 123,
+      "selectedCount": 122,
       "error": null,
-      "lastPostId": 58999
+      "lastPostId": 59005
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 260,
+      "count": 259,
       "freshCount": 38,
-      "eligibleTextCount": 38,
+      "eligibleTextCount": 37,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 19274
+      "lastPostId": 19278
     }
   ],
-  "count": 1164,
-  "retainedItemCount": 428,
+  "count": 1169,
+  "retainedItemCount": 419,
   "observedItems": [
+    {
+      "id": "insidertracking/59005",
+      "channel": "insidertracking",
+      "datetime": "2026-07-23T07:08:27.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59004",
+      "channel": "insidertracking",
+      "datetime": "2026-07-23T07:08:09.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59003",
+      "channel": "insidertracking",
+      "datetime": "2026-07-23T07:07:57.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59002",
+      "channel": "insidertracking",
+      "datetime": "2026-07-23T07:07:47.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 47,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23832",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-23T06:15:00.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 79,
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19278",
+      "channel": "bornlupin",
+      "datetime": "2026-07-23T05:25:11.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 48,
+      "tags": [
+        "power",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59001",
+      "channel": "insidertracking",
+      "datetime": "2026-07-23T05:19:36.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 96,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59000",
+      "channel": "insidertracking",
+      "datetime": "2026-07-23T05:18:09.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "insider",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23831",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-23T05:12:06.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 45,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23830",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-23T05:06:15.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 61,
+      "tags": [
+        "optical",
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19277",
+      "channel": "bornlupin",
+      "datetime": "2026-07-23T04:50:54.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 53,
+      "tags": [
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19276",
+      "channel": "bornlupin",
+      "datetime": "2026-07-23T04:43:51.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "bornlupin/19275",
+      "channel": "bornlupin",
+      "datetime": "2026-07-23T04:43:25.000Z",
+      "localDateKst": "2026-07-23",
+      "score": 67,
+      "tags": [
+        "geo",
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [
+        "035420.KS"
+      ],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19274",
       "channel": "bornlupin",
@@ -976,7 +1163,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19255",
@@ -1003,7 +1190,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19253",
@@ -1031,7 +1218,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58960",
@@ -1043,7 +1230,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58959",
@@ -1055,7 +1242,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58958",
@@ -1067,7 +1254,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58957",
@@ -2463,7 +2650,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58886",
@@ -2665,7 +2852,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23794",
@@ -2752,7 +2939,7 @@
       "tickers": [
         "MSFT"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23791",
@@ -2768,7 +2955,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23790",
@@ -2780,7 +2967,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58874",
@@ -2811,7 +2998,7 @@
         "GOOG",
         "016360.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19235",
@@ -2826,7 +3013,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23789",
@@ -17046,176 +17233,58 @@
         "BE"
       ],
       "hasText": false
-    },
-    {
-      "id": "bornlupin/18981",
-      "channel": "bornlupin",
-      "datetime": "2026-07-09T07:18:23.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 77,
-      "tags": [
-        "macro",
-        "power",
-        "kr-market"
-      ],
-      "tickers": [
-        "BE"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23404",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-09T07:08:14.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 84,
-      "tags": [
-        "credit",
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/18980",
-      "channel": "bornlupin",
-      "datetime": "2026-07-09T06:56:12.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 75,
-      "tags": [
-        "geo",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/18979",
-      "channel": "bornlupin",
-      "datetime": "2026-07-09T06:14:58.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 50,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/18978",
-      "channel": "bornlupin",
-      "datetime": "2026-07-09T06:11:33.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 72,
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "TSM",
-        "005930.KS",
-        "009150.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/18977",
-      "channel": "bornlupin",
-      "datetime": "2026-07-09T05:29:03.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 80,
-      "tags": [
-        "macro",
-        "semi",
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23396",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-09T04:53:16.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 58,
-      "tags": [
-        "kr-market",
-        "equity"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23395",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-09T04:52:50.000Z",
-      "localDateKst": "2026-07-09",
-      "score": 93,
-      "tags": [
-        "geo",
-        "semi",
-        "power",
-        "equity"
-      ],
-      "tickers": [
-        "MU",
-        "TSM"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1164,
-    "eligibleTextCount": 112,
-    "mediaOnlyCount": 1052,
-    "highSignalCount": 470,
-    "broadSignalCount": 774,
-    "selectedRawCount": 366,
-    "selectedRawCoveragePct": 326.8,
+    "observedCount": 1169,
+    "eligibleTextCount": 111,
+    "mediaOnlyCount": 1058,
+    "highSignalCount": 468,
+    "broadSignalCount": 772,
+    "selectedRawCount": 365,
+    "selectedRawCoveragePct": 328.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "power": 250,
-    "earnings": 250,
-    "geo": 258,
-    "ai-policy": 158,
-    "kr-market": 210,
-    "market-note": 182,
+    "market-note": 185,
+    "semi": 575,
     "macro": 467,
-    "semi": 576,
-    "flows": 79,
-    "healthcare": 54,
+    "power": 251,
+    "ai-policy": 161,
     "equity": 155,
-    "japan": 61,
-    "media-only": 19,
-    "optical": 24,
-    "insider": 27,
-    "credit": 37,
+    "earnings": 256,
+    "healthcare": 55,
+    "geo": 257,
+    "japan": 63,
+    "insider": 28,
+    "optical": 25,
+    "kr-market": 208,
+    "media-only": 20,
+    "flows": 79,
+    "credit": 36,
     "crypto": 5
   },
   "tickerCounts": {
-    "035420.KS": 31,
+    "GOOG": 79,
+    "AMD": 56,
+    "035420.KS": 32,
     "032640.KS": 1,
-    "AMD": 54,
     "INTC": 17,
     "NVDA": 65,
-    "MU": 64,
-    "TSM": 120,
+    "MU": 63,
+    "TSM": 118,
     "TSLA": 6,
-    "005930.KS": 34,
+    "005930.KS": 33,
     "CFLT": 1,
     "TXN": 1,
     "025560.KS": 1,
-    "GOOG": 77,
     "T": 2,
     "MSFT": 39,
     "AMZN": 53,
-    "009150.KS": 6,
+    "009150.KS": 5,
     "AVGO": 45,
     "LITE": 14,
     "COHR": 6,
@@ -17237,7 +17306,7 @@
     "SOXX": 1,
     "PEP": 1,
     "PFE": 1,
-    "BE": 19,
+    "BE": 18,
     "GEV": 5,
     "TRV": 3,
     "PM": 4,
@@ -17343,25 +17412,25 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (576 posts in current window): 테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화...",
-    "Macro/Rates (467 posts in current window): 테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화...",
-    "Geopolitics (258 posts in current window): 테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화...",
-    "AI Power/Grid (250 posts in current window): 테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화...",
-    "Earnings/Corporate (250 posts in current window): 테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화...",
-    "Korea Market (210 posts in current window): 테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화...",
-    "Market Notes (182 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
-    "AI Policy/Export Controls (158 posts in current window): JP모건 APAC테마(7월 23일) (1) 구글, 시간외 -3%… 강한 AI 수요에도 FCF/설비투자 압박 심화. 2Q 성장은 강했으며, 매출은 전년 대비 +24% 증가한 1,200억 달러, 가장 중요한 클라우드 매출은 전년 대비 +82% 증가한 248억 달러를 기록했습니다. 후자는 바이사이드의 성장 전망치인 전년..."
+    "Semiconductors/Memory (575 posts in current window): Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를...",
+    "Macro/Rates (467 posts in current window): Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를...",
+    "Geopolitics (257 posts in current window): Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를...",
+    "Earnings/Corporate (256 posts in current window): Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를...",
+    "AI Power/Grid (251 posts in current window): 테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화...",
+    "Korea Market (208 posts in current window): 테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화...",
+    "Market Notes (185 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "AI Policy/Export Controls (161 posts in current window): Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 120,
+      "count": 118,
       "text": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
     },
     {
       "key": "GOOG",
-      "count": 77,
-      "text": "JP모건 APAC테마(7월 23일) (1) 구글, 시간외 -3%… 강한 AI 수요에도 FCF/설비투자 압박 심화. 2Q 성장은 강했으며, 매출은 전년 대비 +24% 증가한 1,200억 달러, 가장 중요한 클라우드 매출은 전년 대비 +82% 증가한 248억 달러를 기록했습니다. 후자는 바이사이드의 성장 전망치인 전년..."
+      "count": 79,
+      "text": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
     },
     {
       "key": "NVDA",
@@ -17370,7 +17439,7 @@
     },
     {
       "key": "MU",
-      "count": 64,
+      "count": 63,
       "text": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
     },
     {
@@ -17379,14 +17448,14 @@
       "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
+      "key": "AMD",
+      "count": 56,
+      "text": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
+    },
+    {
       "key": "000660.KS",
       "count": 55,
       "text": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
-    },
-    {
-      "key": "AMD",
-      "count": 54,
-      "text": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
       "key": "AMZN",
@@ -17405,12 +17474,12 @@
     },
     {
       "key": "005930.KS",
-      "count": 34,
+      "count": 33,
       "text": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
     },
     {
       "key": "035420.KS",
-      "count": 31,
+      "count": 32,
       "text": "[데이터센터 인뎁스, 하나증권 AI/디지털자산/인터넷/게임 이준호] AI/인터넷 x 유틸리티 x 건설 x 미래산업 콜라보 '데크크(Data center Creator Crew)' 리포트: ✅ AI/인터넷: 2030년 AI DC 수요 전망, 풀스택 AI 서비스 제공자 추천 국내 데이터센터 시장은 국내 소재의 제조..."
     }
   ],
@@ -17422,7 +17491,7 @@
         "macro"
       ],
       "count": 467,
-      "focus": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
+      "focus": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
     },
     {
       "id": "geo",
@@ -17430,8 +17499,8 @@
       "topics": [
         "geo"
       ],
-      "count": 258,
-      "focus": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
+      "count": 257,
+      "focus": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
     },
     {
       "id": "credit",
@@ -17439,7 +17508,7 @@
       "topics": [
         "credit"
       ],
-      "count": 37,
+      "count": 36,
       "focus": "2026년 7월 23일 미국 증시 브리핑 미국 증시는 장 마감 후 예정된 알파벳과 테슬라 실적 발표를 앞두고 관망 심리가 우세한 가운데 AI 인프라 투자 확대와 중동 지정학 리스크가 동시에 시장을 주도하는..."
     },
     {
@@ -17448,8 +17517,8 @@
       "topics": [
         "semi"
       ],
-      "count": 576,
-      "focus": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
+      "count": 575,
+      "focus": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
     },
     {
       "id": "optical",
@@ -17457,7 +17526,7 @@
       "topics": [
         "optical"
       ],
-      "count": 24,
+      "count": 25,
       "focus": "2026년 7월 22일 서학개미 순매수 미국 주식 TOP 50 1위: PROSHARES ULTRAPRO QQQ ETF (12.02%) 2위: META PLATFORMS INC CL A (9.96%) 3위: SNDSK CRP ORD WI (6.36%) 4위: MICROSOFT CORP (6.13%) 5위: SK..."
     },
     {
@@ -17466,7 +17535,7 @@
       "topics": [
         "power"
       ],
-      "count": 250,
+      "count": 251,
       "focus": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
     },
     {
@@ -17475,8 +17544,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 158,
-      "focus": "JP모건 APAC테마(7월 23일) (1) 구글, 시간외 -3%… 강한 AI 수요에도 FCF/설비투자 압박 심화. 2Q 성장은 강했으며, 매출은 전년 대비 +24% 증가한 1,200억 달러, 가장 중요한 클라우드 매출은 전년 대비 +82% 증가한 248억 달러를 기록했습니다. 후자는 바이사이드의 성장 전망치인 전년..."
+      "count": 161,
+      "focus": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
     },
     {
       "id": "kr-market",
@@ -17484,7 +17553,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 210,
+      "count": 208,
       "focus": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
     },
     {
@@ -17511,8 +17580,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 250,
-      "focus": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
+      "count": 256,
+      "focus": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
     },
     {
       "id": "healthcare",
@@ -17520,7 +17589,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 54,
+      "count": 55,
       "focus": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며 글로벌 판매가 확대. Model Y가 핵심 성장 동력으로 자리매김하며 매출 성장 견인. • FSD 수익화..."
     },
     {
@@ -17529,8 +17598,8 @@
       "topics": [
         "japan"
       ],
-      "count": 61,
-      "focus": "JP모건 APAC테마(7월 23일) (1) 구글, 시간외 -3%… 강한 AI 수요에도 FCF/설비투자 압박 심화. 2Q 성장은 강했으며, 매출은 전년 대비 +24% 증가한 1,200억 달러, 가장 중요한 클라우드 매출은 전년 대비 +82% 증가한 248억 달러를 기록했습니다. 후자는 바이사이드의 성장 전망치인 전년..."
+      "count": 63,
+      "focus": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
     },
     {
       "id": "flows",
@@ -17547,8 +17616,8 @@
       "topics": [
         "insider"
       ],
-      "count": 27,
-      "focus": "Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 호르무즈 해협에서 선박을 공격할 경우 교량·발전소를 포함한 이란 핵심 인프라를 즉각..."
+      "count": 28,
+      "focus": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이 의회의 내부자거래 금지 법안을 통과. · 트럼프 대통령은 호르무즈 해협이 봉쇄될 경우 이란의 교량과 발전소를..."
     },
     {
       "id": "market-note",
@@ -17556,7 +17625,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 182,
+      "count": 185,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -17784,6 +17853,29 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/59000",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59000",
+      "datetime": "2026-07-23T05:18:09.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "insider",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "GOOG"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이..."
+    },
     {
       "id": "insidertracking/58992",
       "channel": "insidertracking",
@@ -18752,30 +18844,6 @@
       "summary": "레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다...."
     },
     {
-      "id": "insidertracking/58587",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58587",
-      "datetime": "2026-07-17T21:33:38.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "AMZN",
-        "RKLB"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 7월 18일 미국 증시 브리핑 S&P500은 1% 하락, 나스닥100은 1.5% 가까이 하락한 가운데 AI와 반도체 중심의 성장주 조정이 이어졌으며, 필라델피아 반도체지수는 고점 대비 20% 이상..."
-    },
-    {
       "id": "aetherjapanresearch/23658",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23658",
@@ -18952,6 +19020,119 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/23832",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23832",
+      "datetime": "2026-07-23T06:15:00.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 79,
+      "hasText": true,
+      "summary": "Stifel: 알파벳 실적 시사점 - AI 인프라 부족 지속, 제3자 캐파 필요성 확대 요약 알파벳(GOOGL, &#036;342.09, 투자의견 Suspended)은 강력한 2분기 실적을 발표했으며, 구글..."
+    },
+    {
+      "id": "insidertracking/59001",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59001",
+      "datetime": "2026-07-23T05:19:36.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "score": 96,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 23일 (새벽 5시~오후 2시 30분 기준) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 미군은 12일 연속 이란 군사시설 공습을 실시했다고 발표. 이번 공격은..."
+    },
+    {
+      "id": "insidertracking/59000",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59000",
+      "datetime": "2026-07-23T05:18:09.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "insider",
+        "earnings",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "GOOG"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Pre-Market Summary - 2026년 7월 23일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미국 하원이 이란 군사작전 예산 최대 730억 달러를 포함한 공화당 예산안을 통과. · 미국 하원이..."
+    },
+    {
+      "id": "aetherjapanresearch/23830",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23830",
+      "datetime": "2026-07-23T05:06:15.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "optical",
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 61,
+      "hasText": true,
+      "summary": "노키아(Nokia Corporation) 2026년 2분기 및 상반기 실적 보고서 AI 및 클라우드 수요 증가에 힘입은 견조한 2분기 * 2분기 순매출은 고정환율 기준 전년 대비 9% 성장(보고 기준..."
+    },
+    {
+      "id": "bornlupin/19277",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19277",
+      "datetime": "2026-07-23T04:50:54.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "power"
+      ],
+      "tickers": [],
+      "score": 53,
+      "hasText": true,
+      "summary": "중국, 2030년까지 재생에너지 소비 53% 확대 목표 중국은 향후 5년에 걸쳐 재생에너지 소비를 53% 늘리고, 간헐적인 풍력 및 태양광 에너지를 보다 신뢰할 수 있는 전력원으로 전환하는 것을 목표 로 하고..."
+    },
+    {
+      "id": "bornlupin/19275",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19275",
+      "datetime": "2026-07-23T04:43:25.000Z",
+      "localDateKst": "2026-07-23",
+      "tags": [
+        "geo",
+        "kr-market",
+        "earnings"
+      ],
+      "tickers": [
+        "035420.KS"
+      ],
+      "score": 67,
+      "hasText": true,
+      "summary": "삼성E&A, 2분기 영업익 2731억으로 전년比 51.0%↑… '연간 목표 달성' 청신호 2분기 매출 2조 6093억원, 순이익 1825억원 달성 화공·첨단산업·뉴에너지 3원 체제 고른 성장 이어가 수주잔고..."
+    },
     {
       "id": "bornlupin/19274",
       "channel": "bornlupin",
@@ -23719,30 +23900,6 @@
       "summary": "52주 신고가 (지난주 토요일 종가 기준) · Aflac · Altria · Apple · Archer-Daniels-Midland · Bank of America · Bank of Montreal ·..."
     },
     {
-      "id": "insidertracking/58654",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58654",
-      "datetime": "2026-07-20T08:59:03.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "GOOG",
-        "MU",
-        "SNDK",
-        "000660.KS"
-      ],
-      "score": 98,
-      "hasText": true,
-      "summary": "미국 레딧 게시물 분석 (2026년 7월 20일 기준) > 💾 MU / SanDisk / DRAM - AI 메모리 · \"반도체 조정 끝났다\" 분위기 확산 · MU·SanDisk 7월 말까지 반등한다는 DD..."
-    },
-    {
       "id": "aetherjapanresearch/23717",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23717",
@@ -23772,21 +23929,6 @@
       "score": 52,
       "hasText": true,
       "summary": "[메리츠증권 전기전자/IT부품 양승수] ▶ 대덕전자, 신규시설투자 등 공시 - 투자구분: 신규시설투자 / 반도체용 제품 생산 설비 및 부대 시설 투자 - 투자목적: 반도체 시장 수요 증가에 대응하기 위한 생산..."
-    },
-    {
-      "id": "insidertracking/58653",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58653",
-      "datetime": "2026-07-20T08:22:51.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "환 트레이더들은 美 투자 환경이 크게 악화될 가능성을 여전히 낮게 보고 있는 것으로 추정 - 달러 변동성 헤지 비용이 올해 최저 수준까지 하락 ([그림 1] 파란색): 연준 정책 경로와 중동 지정학 리스크..."
     },
     {
       "id": "aetherjapanresearch/23714",
@@ -25544,48 +25686,6 @@
       "summary": "CXMT 투자설명서 분석) 메모리 반도체 사이클의 서사는 지금 어디쯤 와 있는가? 중국 최대의 DRAM 제조사인 창신메모리(창신과기, CXMT)가 295억 위안(약 5조 5천억 원) 규모의 IPO를 통해..."
     },
     {
-      "id": "aetherjapanresearch/23611",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23611",
-      "datetime": "2026-07-16T01:35:03.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "semi",
-        "optical",
-        "power",
-        "equity",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [
-        "MU",
-        "TSM",
-        "6981.T",
-        "005930.KS"
-      ],
-      "score": 91,
-      "hasText": true,
-      "summary": "JP모건) APAC 테크 코멘트2 Lasertec: 시장이 TSMC에서의 ASML EUV : Lasertec EUV Actinic Mask Inspection 4:1 물림 비율(tie-ratio)을 연관 짓는..."
-    },
-    {
-      "id": "aetherjapanresearch/23610",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23610",
-      "datetime": "2026-07-16T01:18:14.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "semi",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 79,
-      "hasText": true,
-      "summary": "JP모건 APAC 테크 코멘트 큰 그림… AI 캐펙스(capex) 관련주들, 단기 방향성을 찾지 못하고 고전 테크 진영에서는… 반도체(Semis)가 단기 방향성을 찾지 못하고 계속 고전하고 있습니다. 밤사이..."
-    },
-    {
       "id": "bornlupin/19124",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19124",
@@ -25601,39 +25701,6 @@
       "score": 79,
       "hasText": true,
       "summary": "앤트로픽, IPO를 앞두고 은행 신용한도를 수십억 달러 확대하기 위한 협상 진행 소식통에 따르면, 앤스로픽은 올해 예정된 기업공개(IPO)를 앞두고 자금 확보력을 높이기 위해 은행들과 수십억 달러 규모의..."
-    },
-    {
-      "id": "bornlupin/19123",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19123",
-      "datetime": "2026-07-15T23:31:58.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "ASML의 2026년 2분기 어닝콜 중 메모리 관련 1. 메모리 부문 매출 비중 및 성장 전망 2분기 매출 비중 : 2026년 2분기 순 시스템 매출(EUR 6.6 billion) 중 메모리 부문이 49%를..."
-    },
-    {
-      "id": "bornlupin/19122",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19122",
-      "datetime": "2026-07-15T23:13:53.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": "칩 리드타임 연장의 일상화: 클라우드 AI의 생산 능력 독점과 대만 공급망으로의 가격 인상 전이 최근 AI 서버 수요 폭증으로 반도체 칩 인도 기간(리드타임)이 늘어나는 현상이 새로운 일상이 되었습니다. 이..."
     }
   ]
 }
