@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-24T07:18:44.559Z",
-  "attemptedAt": "2026-07-24T07:18:44.559Z",
-  "lastSuccessfulAt": "2026-07-24T07:18:44.559Z",
+  "generatedAt": "2026-07-24T10:01:32.724Z",
+  "attemptedAt": "2026-07-24T10:01:32.724Z",
+  "lastSuccessfulAt": "2026-07-24T10:01:32.724Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-10T07:18:40.290Z",
-  "until": "2026-07-24T07:18:40.290Z",
+  "since": "2026-07-10T10:01:28.865Z",
+  "until": "2026-07-24T10:01:28.865Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,41 +13,246 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 347,
+      "count": 351,
       "freshCount": 39,
       "eligibleTextCount": 39,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 23892
+      "lastPostId": 23896
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 696,
-      "freshCount": 40,
-      "eligibleTextCount": 37,
-      "selectedCount": 126,
+      "count": 703,
+      "freshCount": 37,
+      "eligibleTextCount": 36,
+      "selectedCount": 125,
       "error": null,
-      "lastPostId": 59109
+      "lastPostId": 59119
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 259,
-      "freshCount": 38,
-      "eligibleTextCount": 37,
+      "count": 260,
+      "freshCount": 39,
+      "eligibleTextCount": 38,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19292
+      "lastPostId": 19295
     }
   ],
-  "count": 1302,
-  "retainedItemCount": 434,
+  "count": 1314,
+  "retainedItemCount": 428,
   "observedItems": [
+    {
+      "id": "insidertracking/59119",
+      "channel": "insidertracking",
+      "datetime": "2026-07-24T09:40:19.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 35,
+      "tags": [
+        "healthcare"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59116",
+      "channel": "insidertracking",
+      "datetime": "2026-07-24T09:39:48.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59115",
+      "channel": "insidertracking",
+      "datetime": "2026-07-24T09:24:20.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 47,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23896",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-24T09:20:39.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 47,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19295",
+      "channel": "bornlupin",
+      "datetime": "2026-07-24T08:58:41.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 95,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23895",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-24T08:57:57.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23894",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-24T08:55:43.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23893",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-24T08:53:55.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19294",
+      "channel": "bornlupin",
+      "datetime": "2026-07-24T08:52:44.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "META",
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19293",
+      "channel": "bornlupin",
+      "datetime": "2026-07-24T08:47:32.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 72,
+      "tags": [
+        "semi",
+        "kr-market"
+      ],
+      "tickers": [
+        "AMD",
+        "005930.KS",
+        "035420.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59114",
+      "channel": "insidertracking",
+      "datetime": "2026-07-24T08:20:06.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 89,
+      "tags": [
+        "credit",
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59113",
+      "channel": "insidertracking",
+      "datetime": "2026-07-24T08:14:18.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59112",
+      "channel": "insidertracking",
+      "datetime": "2026-07-24T07:57:33.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 43,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59110",
+      "channel": "insidertracking",
+      "datetime": "2026-07-24T07:44:30.000Z",
+      "localDateKst": "2026-07-24",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "AXP",
+        "VZ",
+        "NEE",
+        "HCA",
+        "CHTR"
+      ],
+      "hasText": true
+    },
     {
       "id": "insidertracking/59109",
       "channel": "insidertracking",
@@ -1097,7 +1302,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59081",
@@ -1150,7 +1355,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23855",
@@ -1167,7 +1372,7 @@
       "tickers": [
         "INTC"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59078",
@@ -1179,7 +1384,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19281",
@@ -1204,7 +1409,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59076",
@@ -1217,7 +1422,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59075",
@@ -1241,7 +1446,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59073",
@@ -1253,7 +1458,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59072",
@@ -1277,7 +1482,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59070",
@@ -1289,7 +1494,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59069",
@@ -1301,7 +1506,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59068",
@@ -1743,7 +1948,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23852",
@@ -3610,7 +3815,7 @@
         "GOOG",
         "GOOGL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58962",
@@ -3638,7 +3843,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/58961",
@@ -19058,76 +19263,55 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "bornlupin/19005",
-      "channel": "bornlupin",
-      "datetime": "2026-07-10T08:12:19.000Z",
-      "localDateKst": "2026-07-10",
-      "score": 77,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19004",
-      "channel": "bornlupin",
-      "datetime": "2026-07-10T07:54:05.000Z",
-      "localDateKst": "2026-07-10",
-      "score": 93,
-      "tags": [
-        "macro",
-        "semi",
-        "power"
-      ],
-      "tickers": [
-        "TSM",
-        "BE"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1302,
+    "observedCount": 1314,
     "eligibleTextCount": 113,
-    "mediaOnlyCount": 1189,
-    "highSignalCount": 487,
-    "broadSignalCount": 807,
-    "selectedRawCount": 367,
-    "selectedRawCoveragePct": 324.8,
+    "mediaOnlyCount": 1201,
+    "highSignalCount": 490,
+    "broadSignalCount": 811,
+    "selectedRawCount": 366,
+    "selectedRawCoveragePct": 323.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 234,
-    "semi": 597,
-    "macro": 505,
-    "geo": 286,
-    "power": 275,
-    "ai-policy": 169,
-    "kr-market": 222,
-    "equity": 156,
-    "earnings": 293,
-    "japan": 71,
+    "healthcare": 69,
+    "market-note": 238,
+    "semi": 602,
+    "macro": 507,
+    "power": 276,
+    "equity": 158,
+    "earnings": 296,
+    "ai-policy": 171,
+    "kr-market": 225,
+    "credit": 37,
+    "geo": 288,
+    "japan": 72,
     "flows": 95,
     "insider": 29,
-    "credit": 36,
-    "healthcare": 67,
     "optical": 25,
     "media-only": 24,
     "crypto": 6
   },
   "tickerCounts": {
+    "AMD": 71,
+    "MSFT": 40,
+    "META": 54,
+    "TSM": 117,
+    "005930.KS": 37,
+    "035420.KS": 37,
+    "AXP": 1,
+    "VZ": 2,
+    "NEE": 1,
+    "HCA": 1,
+    "CHTR": 1,
     "NVDA": 71,
-    "AMD": 67,
     "AAPL": 30,
     "GOOG": 90,
-    "META": 53,
     "GOOGL": 18,
     "TSLA": 11,
     "GS": 2,
@@ -19135,13 +19319,10 @@
     "LMT": 1,
     "AMKR": 1,
     "MS": 2,
-    "TSM": 117,
     "066570.KS": 2,
     "AVGO": 48,
     "AMZN": 56,
-    "BE": 19,
-    "005930.KS": 36,
-    "035420.KS": 36,
+    "BE": 18,
     "000660.KS": 64,
     "096770.KS": 2,
     "017670.KS": 3,
@@ -19173,7 +19354,6 @@
     "ILMN": 1,
     "CNI": 1,
     "ADM": 4,
-    "MSFT": 39,
     "267260.KS": 1,
     "032640.KS": 2,
     "CFLT": 1,
@@ -19263,7 +19443,6 @@
     "MTB": 1,
     "CPAY": 1,
     "V": 1,
-    "VZ": 1,
     "BLK": 1,
     "ABT": 1,
     "TROW": 1,
@@ -19278,20 +19457,20 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (597 posts in current window): Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초...",
-    "Macro/Rates (505 posts in current window): Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초...",
-    "Earnings/Corporate (293 posts in current window): Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초...",
-    "Geopolitics (286 posts in current window): Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초...",
-    "AI Power/Grid (275 posts in current window): Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초...",
-    "Market Notes (234 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
-    "Korea Market (222 posts in current window): Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초...",
-    "AI Policy/Export Controls (169 posts in current window): Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+    "Semiconductors/Memory (602 posts in current window): UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할...",
+    "Macro/Rates (507 posts in current window): UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할...",
+    "Earnings/Corporate (296 posts in current window): UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할...",
+    "Geopolitics (288 posts in current window): 2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동 리스크로 확대됐던 인플레이션 우려 일부 완화. 시장의 핵심 변수는 미국 7월 S&P 글로벌 제조업·서비스업...",
+    "AI Power/Grid (276 posts in current window): UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할...",
+    "Market Notes (238 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Korea Market (225 posts in current window): 2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동 리스크로 확대됐던 인플레이션 우려 일부 완화. 시장의 핵심 변수는 미국 7월 S&P 글로벌 제조업·서비스업...",
+    "AI Policy/Export Controls (171 posts in current window): UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
   ],
   "catalysts": [
     {
       "key": "TSM",
       "count": 117,
-      "text": "엔비디아(NVIDIA) CEO 젠슨 황 Axios 인터뷰 중 젠슨 황이 말하는 AI 종말론자들이 틀린 이유 -글로벌 반도체 산업 규모는 향후 10년에 걸쳐 현재의 5배에서 10배 이상 커져야 함 -최소 5년 내 버블 붕괴 가능성이 희박: 물리적 제약 1. 컴퓨팅 플랫폼 대전환과 CapEx 패러다임의 변화 - 과거..."
+      "text": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "key": "GOOG",
@@ -19299,13 +19478,13 @@
       "text": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
     },
     {
-      "key": "NVDA",
+      "key": "AMD",
       "count": 71,
-      "text": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "text": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
-      "key": "AMD",
-      "count": 67,
+      "key": "NVDA",
+      "count": 71,
       "text": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
     },
     {
@@ -19325,8 +19504,8 @@
     },
     {
       "key": "META",
-      "count": 53,
-      "text": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 54,
+      "text": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "key": "AVGO",
@@ -19335,17 +19514,17 @@
     },
     {
       "key": "MSFT",
-      "count": 39,
-      "text": "Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란에 대한 역대 최대 규모 공격 검토 중이라고 밝히며 최종 결정이 임박했다고 언급. ·..."
+      "count": 40,
+      "text": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "key": "005930.KS",
-      "count": 36,
+      "count": 37,
       "text": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며..."
     },
     {
       "key": "035420.KS",
-      "count": 36,
+      "count": 37,
       "text": "[데이터센터 인뎁스, 하나증권 AI/디지털자산/인터넷/게임 이준호] AI/인터넷 x 유틸리티 x 건설 x 미래산업 콜라보 '데크크(Data center Creator Crew)' 리포트: ✅ AI/인터넷: 2030년 AI DC 수요 전망, 풀스택 AI 서비스 제공자 추천 국내 데이터센터 시장은 국내 소재의 제조..."
     }
   ],
@@ -19356,8 +19535,8 @@
       "topics": [
         "macro"
       ],
-      "count": 505,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 507,
+      "focus": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "id": "geo",
@@ -19365,8 +19544,8 @@
       "topics": [
         "geo"
       ],
-      "count": 286,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 288,
+      "focus": "2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동 리스크로 확대됐던 인플레이션 우려 일부 완화. 시장의 핵심 변수는 미국 7월 S&P 글로벌 제조업·서비스업..."
     },
     {
       "id": "credit",
@@ -19374,7 +19553,7 @@
       "topics": [
         "credit"
       ],
-      "count": 36,
+      "count": 37,
       "focus": "JP모건) 인텔(INTC) - 14A 확약 확정, 캐펙스 변곡점 진입, 공급은 여전히 부족 (Underweight 유지, 목표주가 &#036;45 → &#036;85 상향, 2026.7.24) JP모건은 인텔의 2분기 호실적과 3분기 가이던스 상회를 반영해 추정치를 대폭 상향하고 목표주가를 Dec-26 기준..."
     },
     {
@@ -19383,8 +19562,8 @@
       "topics": [
         "semi"
       ],
-      "count": 597,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 602,
+      "focus": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "id": "optical",
@@ -19401,8 +19580,8 @@
       "topics": [
         "power"
       ],
-      "count": 275,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 276,
+      "focus": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "id": "ai-policy",
@@ -19410,8 +19589,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 169,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 171,
+      "focus": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "id": "kr-market",
@@ -19419,8 +19598,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 222,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 225,
+      "focus": "2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동 리스크로 확대됐던 인플레이션 우려 일부 완화. 시장의 핵심 변수는 미국 7월 S&P 글로벌 제조업·서비스업..."
     },
     {
       "id": "equity",
@@ -19428,8 +19607,8 @@
       "topics": [
         "equity"
       ],
-      "count": 156,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 158,
+      "focus": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "id": "crypto",
@@ -19446,8 +19625,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 293,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 296,
+      "focus": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할 수 있습니다.\" 서버 CPU 성장 및 GPU 가격 경쟁력 확보: \"당사는 서버 CPU 매출이 빠르게 성장할..."
     },
     {
       "id": "healthcare",
@@ -19455,8 +19634,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 67,
-      "focus": "JP모건) 인텔(INTC) - 14A 확약 확정, 캐펙스 변곡점 진입, 공급은 여전히 부족 (Underweight 유지, 목표주가 &#036;45 → &#036;85 상향, 2026.7.24) JP모건은 인텔의 2분기 호실적과 3분기 가이던스 상회를 반영해 추정치를 대폭 상향하고 목표주가를 Dec-26 기준..."
+      "count": 69,
+      "focus": "2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동 리스크로 확대됐던 인플레이션 우려 일부 완화. 시장의 핵심 변수는 미국 7월 S&P 글로벌 제조업·서비스업..."
     },
     {
       "id": "japan",
@@ -19464,8 +19643,8 @@
       "topics": [
         "japan"
       ],
-      "count": 71,
-      "focus": "Pre-Market Summary - 2026년 7월 24일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 강제노동 방지를 이유로 약 60개국 대상 새로운 Section 301 관세 발표. · 강제노동 금지 제도를 시행하는 국가는 10%, 미흡한 국가는 12.5% 관세 적용. · 인도는 당초..."
+      "count": 72,
+      "focus": "2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동 리스크로 확대됐던 인플레이션 우려 일부 완화. 시장의 핵심 변수는 미국 7월 S&P 글로벌 제조업·서비스업..."
     },
     {
       "id": "flows",
@@ -19491,7 +19670,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 234,
+      "count": 238,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -19719,6 +19898,58 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "bornlupin/19294",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19294",
+      "datetime": "2026-07-24T08:52:44.000Z",
+      "localDateKst": "2026-07-24",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "META",
+        "TSM"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할..."
+    },
+    {
+      "id": "insidertracking/59110",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59110",
+      "datetime": "2026-07-24T07:44:30.000Z",
+      "localDateKst": "2026-07-24",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "AXP",
+        "VZ",
+        "NEE",
+        "HCA",
+        "CHTR"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동..."
+    },
     {
       "id": "insidertracking/59107",
       "channel": "insidertracking",
@@ -20676,34 +20907,6 @@
       "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 21일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 캐나다의 6월 소비자물가 상승률이 2.8%로 둔화되며 시장 예상치를 하회. 근원 물가도 함께 둔화돼..."
     },
     {
-      "id": "insidertracking/58687",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58687",
-      "datetime": "2026-07-20T20:36:34.000Z",
-      "localDateKst": "2026-07-21",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows",
-        "japan"
-      ],
-      "tickers": [
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "META"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "Market Summary - 2026년 7월 21일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령이 공화당에 예산결의안 통과를 촉구하며 국방비, 농업 지원, Save America Act..."
-    },
-    {
       "id": "aetherjapanresearch/23714",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23714",
@@ -20857,35 +21060,130 @@
       "score": 100,
       "hasText": true,
       "summary": "레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다...."
-    },
+    }
+  ],
+  "broadItems": [
     {
-      "id": "aetherjapanresearch/23658",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23658",
-      "datetime": "2026-07-17T12:43:04.000Z",
-      "localDateKst": "2026-07-17",
+      "id": "bornlupin/19295",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19295",
+      "datetime": "2026-07-24T08:58:41.000Z",
+      "localDateKst": "2026-07-24",
       "tags": [
         "macro",
         "semi",
         "power",
         "equity",
-        "earnings",
-        "japan"
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 95,
+      "hasText": true,
+      "summary": "BofA , 인텔( &#036;INTC ), '매수(Buy)' 투자의견과 목표주가 160달러를 유지 \"인텔(INTC)의 2분기 어닝 비트 및 가이던스 상향(beat/raise) 실적 발표는 당사의 매수..."
+    },
+    {
+      "id": "aetherjapanresearch/23893",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23893",
+      "datetime": "2026-07-24T08:53:55.000Z",
+      "localDateKst": "2026-07-24",
+      "tags": [
+        "semi"
       ],
       "tickers": [
-        "TSM",
-        "6981.T",
-        "GEV",
-        "009150.KS",
-        "298040.KS",
-        "066570.KS"
+        "AMD"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "AMD “삼성과 HBM4 본계약 임박” 리사 수 AMD 최고경영자(CEO)는 23일(현지 시간) 미국 샌프란시스코에서 열린 ‘AMD 어드밴싱 AI 2026’ 행사 중 기자와 만나 삼성전자와 HBM4 우선 공급..."
+    },
+    {
+      "id": "bornlupin/19294",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19294",
+      "datetime": "2026-07-24T08:52:44.000Z",
+      "localDateKst": "2026-07-24",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings"
+      ],
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "META",
+        "TSM"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi) 차세대 AI 데이터센터를 위한 800VDC 아키텍처 (2026.7.17) 1. 핵심 요지 Citi는 GPU 랙 전력밀도가 1MW에 근접함에 따라 800VDC가 2030년 글로벌 신규 데이터센터..."
-    }
-  ],
-  "broadItems": [
+      "summary": "UBS, AMD 목표주가 &#036;700에서 &#036;730로 상향, 투자의견 '매수(Buy)' 2028년 EPS 30달러 육박 가능성: \"2028년(CY28)까지 주당순이익(EPS)이 30달러에 육박할..."
+    },
+    {
+      "id": "bornlupin/19293",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19293",
+      "datetime": "2026-07-24T08:47:32.000Z",
+      "localDateKst": "2026-07-24",
+      "tags": [
+        "semi",
+        "kr-market"
+      ],
+      "tickers": [
+        "AMD",
+        "005930.KS",
+        "035420.KS"
+      ],
+      "score": 72,
+      "hasText": true,
+      "summary": "단독) AMD 신무기 공개한 날…“삼성과 HBM4 본계약 임박” AI 서버 랙 ‘헬리오스’ 양산 발표 삼성, 파운드리 수장 등 美 급파 추가 공급 계약 위해 막바지 논의 엔비디아와 함께 인공지능(AI) 인프라..."
+    },
+    {
+      "id": "insidertracking/59114",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59114",
+      "datetime": "2026-07-24T08:20:06.000Z",
+      "localDateKst": "2026-07-24",
+      "tags": [
+        "credit",
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "score": 89,
+      "hasText": true,
+      "summary": "연준, 금리 결정 앞두고 커지는 불확실성…워시 의장의 첫 시험대 미국 연방준비제도(Fed)가 7월 28~29일 열리는 통화정책회의를 앞두고 수년 만에 가장 예측하기 어려운 국면에 들어섬. 중동 분쟁에 따른..."
+    },
+    {
+      "id": "insidertracking/59110",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59110",
+      "datetime": "2026-07-24T07:44:30.000Z",
+      "localDateKst": "2026-07-24",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "AXP",
+        "VZ",
+        "NEE",
+        "HCA",
+        "CHTR"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동..."
+    },
     {
       "id": "insidertracking/59107",
       "channel": "insidertracking",
@@ -25649,34 +25947,6 @@
       "summary": "\"K증시 폭락 주범은 레버리지…코스피 1만2500 간다\" JP모건 \"한국 증시 급락, 레버리지 ETF 영향…청산 75% 진행\" \"디레버리징 상당 부분 마무리\" \"외국인 매도 압력 완화\" \"코스피 목표..."
     },
     {
-      "id": "insidertracking/58764",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58764",
-      "datetime": "2026-07-21T07:19:11.000Z",
-      "localDateKst": "2026-07-21",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "인도의 ‘바퀴벌레 운동’ 확산…청년 분노가 모디 정부 최대 정치 변수로 인도에서 이른바 '바퀴벌레(Cockroach) 운동' 이 빠르게 확산하며 나렌드라 모디 정부 출범 이후 가장 큰 청년 시위로 번지고..."
-    },
-    {
-      "id": "insidertracking/58763",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58763",
-      "datetime": "2026-07-21T07:17:44.000Z",
-      "localDateKst": "2026-07-21",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 62,
-      "hasText": true,
-      "summary": "Citi 반도체 설문조사 1. 반도체 지금 상황이 어떤거 같니? 1) 매수 / 매도세 과도: 45% 2) 보유 / 확신이 설 때까지 대기: 35% 3) 매도 / 추가 하락 여지: 20% 2. 무엇을 가장 먼저..."
-    },
-    {
       "id": "aetherjapanresearch/23762",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23762",
@@ -27398,37 +27668,6 @@
       "summary": "BofA) Kimi K3 출시와 컴퓨팅 경쟁 1. 새로운 중국 오픈 웨이트 모델 문샷(Moonshot)이 100만 토큰 컨텍스트 윈도우를 갖춘 2.8조 파라미터 규모의 대형 전문가 혼합(Mixture of..."
     },
     {
-      "id": "aetherjapanresearch/23668",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23668",
-      "datetime": "2026-07-18T03:30:45.000Z",
-      "localDateKst": "2026-07-18",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "optical",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "AMD",
-        "AVGO",
-        "TSM",
-        "ALAB",
-        "LITE",
-        "COHR",
-        "AAOI",
-        "SMCI"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "레이몬드제임스) 데이터 인프라 산업 2Q26 프리뷰: 수요는 견조, 논쟁은 진화 (2026.7.16) [총평] 레이몬드제임스는 데이터 인프라 업종의 2분기 실적이 기대치에 부합하거나 상회할 것으로 전망합니다...."
-    },
-    {
       "id": "bornlupin/19145",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19145",
@@ -27513,61 +27752,6 @@
       "score": 73,
       "hasText": true,
       "summary": "최태원 “현재 AI ‘4살짜리 아이’ 수준… 메모리 계속 필요” AI포럼서 구조적 수요 증가 강조 SK하닉 주가 관련 “우상향할 것” 최태원 대한상공회의소 회장이 SK하이닉스 주가와 관련해 “ 메모리는 계속..."
-    },
-    {
-      "id": "bornlupin/19139",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19139",
-      "datetime": "2026-07-16T13:35:37.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "semi",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "WFC",
-        "BCS"
-      ],
-      "score": 70,
-      "hasText": true,
-      "summary": "ASML( &#036;ASML )- 2분기 실적 발표 이후 애널리스트들의 목표주가 상향 아거스(Argus): 목표가 &#036;1,700에서 &#036;2,100로 상향 – 매수(Buy) RBC 캐피탈(RBC..."
-    },
-    {
-      "id": "bornlupin/19138",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19138",
-      "datetime": "2026-07-16T13:26:35.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "MU",
-        "QCOM",
-        "012330.KS"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": "마이크론, 전략적 고객 계약(SCA)을 통한 자동차 생태계 공급망 강화 스마트·커넥티드 차량의 메모리 및 스토리지 수요 급증에 대응하기 위한 협력 마이크론 테크놀로지가 글로벌 자동차 산업을 선도하는 주요 티어..."
-    },
-    {
-      "id": "bornlupin/19137",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19137",
-      "datetime": "2026-07-16T12:00:12.000Z",
-      "localDateKst": "2026-07-16",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [
-        "AVGO",
-        "AMZN"
-      ],
-      "score": 83,
-      "hasText": true,
-      "summary": "Citi, 구글, 메타, 아마존의 2027년 자본지출(Capex) 규모가 8,000억 달러를 넘어설 것으로 전망 1. 대규모 자본지출(Capex) 상향과 잉여현금흐름(FCF) 적자 전환 합산 자본지출..."
     }
   ]
 }
