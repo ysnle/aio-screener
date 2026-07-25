@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-25T09:12:45.424Z",
-  "attemptedAt": "2026-07-25T09:12:45.424Z",
-  "lastSuccessfulAt": "2026-07-25T09:12:45.424Z",
+  "generatedAt": "2026-07-25T10:45:21.607Z",
+  "attemptedAt": "2026-07-25T10:45:21.607Z",
+  "lastSuccessfulAt": "2026-07-25T10:45:21.607Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-11T09:12:41.193Z",
-  "until": "2026-07-25T09:12:41.193Z",
+  "since": "2026-07-11T10:45:17.180Z",
+  "until": "2026-07-25T10:45:17.180Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,41 +13,166 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 362,
+      "count": 364,
       "freshCount": 37,
       "eligibleTextCount": 37,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 23922
+      "lastPostId": 23924
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 787,
+      "count": 790,
       "freshCount": 36,
       "eligibleTextCount": 36,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 59213
+      "lastPostId": 59216
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 262,
-      "freshCount": 20,
-      "eligibleTextCount": 20,
+      "count": 266,
+      "freshCount": 39,
+      "eligibleTextCount": 38,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 19311
+      "lastPostId": 19315
     }
   ],
-  "count": 1411,
-  "retainedItemCount": 419,
+  "count": 1420,
+  "retainedItemCount": 422,
   "observedItems": [
+    {
+      "id": "insidertracking/59216",
+      "channel": "insidertracking",
+      "datetime": "2026-07-25T10:18:01.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 44,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "AAPL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23924",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-25T10:17:35.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 44,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "AAPL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23923",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-25T10:00:39.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 52,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59215",
+      "channel": "insidertracking",
+      "datetime": "2026-07-25T09:55:42.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19315",
+      "channel": "bornlupin",
+      "datetime": "2026-07-25T09:50:04.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 89,
+      "tags": [
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19314",
+      "channel": "bornlupin",
+      "datetime": "2026-07-25T09:41:10.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 45,
+      "tags": [
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59214",
+      "channel": "insidertracking",
+      "datetime": "2026-07-25T09:39:50.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19313",
+      "channel": "bornlupin",
+      "datetime": "2026-07-25T09:30:28.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 56,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19312",
+      "channel": "bornlupin",
+      "datetime": "2026-07-25T09:24:32.000Z",
+      "localDateKst": "2026-07-25",
+      "score": 76,
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/23922",
       "channel": "aetherjapanresearch",
@@ -632,7 +757,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59172",
@@ -650,7 +775,7 @@
         "NVDA",
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19308",
@@ -674,7 +799,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19307",
@@ -2226,7 +2351,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23884",
@@ -2238,7 +2363,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23882",
@@ -2252,7 +2377,7 @@
       "tickers": [
         "066570.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23881",
@@ -2399,7 +2524,7 @@
         "TSM",
         "BE"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23875",
@@ -2829,7 +2954,7 @@
         "META",
         "T"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19286",
@@ -2844,7 +2969,7 @@
       "tickers": [
         "AMD"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19285",
@@ -2860,7 +2985,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19284",
@@ -2881,7 +3006,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23859",
@@ -2960,7 +3085,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19282",
@@ -2976,7 +3101,7 @@
         "AMD",
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59083",
@@ -3123,7 +3248,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59077",
@@ -3565,7 +3690,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59045",
@@ -4247,7 +4372,7 @@
       "tickers": [
         "017670.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23835",
@@ -4490,7 +4615,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59001",
@@ -4568,7 +4693,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19276",
@@ -4596,7 +4721,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19274",
@@ -20611,26 +20736,26 @@
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1411,
-    "eligibleTextCount": 93,
-    "mediaOnlyCount": 1318,
-    "highSignalCount": 502,
-    "broadSignalCount": 845,
+    "observedCount": 1420,
+    "eligibleTextCount": 111,
+    "mediaOnlyCount": 1309,
+    "highSignalCount": 504,
+    "broadSignalCount": 849,
     "selectedRawCount": 364,
-    "selectedRawCoveragePct": 391.4,
+    "selectedRawCoveragePct": 327.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 532,
-    "semi": 629,
-    "power": 288,
-    "earnings": 313,
+    "market-note": 275,
+    "macro": 534,
+    "earnings": 315,
+    "geo": 304,
+    "semi": 632,
+    "power": 290,
+    "ai-policy": 178,
+    "japan": 78,
     "healthcare": 76,
     "flows": 100,
-    "geo": 303,
-    "japan": 77,
-    "market-note": 272,
-    "ai-policy": 176,
     "insider": 30,
     "kr-market": 229,
     "equity": 158,
@@ -20640,18 +20765,18 @@
     "crypto": 6
   },
   "tickerCounts": {
+    "AAPL": 33,
+    "GOOG": 95,
+    "005930.KS": 50,
     "NVDA": 77,
     "AMD": 79,
     "AVGO": 47,
     "TSM": 116,
-    "005930.KS": 48,
     "000660.KS": 72,
     "017670.KS": 5,
-    "AAPL": 31,
     "MU": 62,
     "035420.KS": 40,
     "MSFT": 42,
-    "GOOG": 94,
     "META": 55,
     "BE": 19,
     "RKLB": 17,
@@ -20807,14 +20932,14 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (629 posts in current window): Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로...",
-    "Macro/Rates (532 posts in current window): Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로...",
-    "Earnings/Corporate (313 posts in current window): Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로...",
-    "Geopolitics (303 posts in current window): 2026년 7월 25일 미국 증시 브리핑 미국 증시는 기술주 약세에도 불구하고 에너지와 경기민감 업종 강세가 이를 상쇄하며 업종 순환매가 이어지는 모습. 기술주가 S&P500 내 유일한 약세 섹터로 마감한...",
-    "AI Power/Grid (288 posts in current window): Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로...",
-    "Market Notes (272 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Semiconductors/Memory (632 posts in current window): Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로...",
+    "Macro/Rates (534 posts in current window): Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로...",
+    "Earnings/Corporate (315 posts in current window): Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로...",
+    "Geopolitics (304 posts in current window): 2026년 7월 25일 미국 증시 브리핑 미국 증시는 기술주 약세에도 불구하고 에너지와 경기민감 업종 강세가 이를 상쇄하며 업종 순환매가 이어지는 모습. 기술주가 S&P500 내 유일한 약세 섹터로 마감한...",
+    "AI Power/Grid (290 posts in current window): Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로...",
+    "Market Notes (275 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
     "Korea Market (229 posts in current window): * AI Summit in SF - 샌프란 AI 써밋 행사가 이제 시작합니다. - 현장에서는 엔비디아-SK/SK하이닉스의 5,000억달러 이상 규모의 (USD500bn-plus) 2GW AIDC/AI Factory 투자 및 AI메모리 LTA 계획이 발표되고 있습니다....",
-    "AI Policy/Export Controls (176 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 25일 00:00~08:30 기준) > 💾 MU / HBM / 메모리 · \"AI 병목은 결국 메모리\" 서사 유지 · MU는 여전히 AI 수혜주로 자주 언급 · HBM..."
+    "AI Policy/Export Controls (178 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 25일 00:00~08:30 기준) > 💾 MU / HBM / 메모리 · \"AI 병목은 결국 메모리\" 서사 유지 · MU는 여전히 AI 수혜주로 자주 언급 · HBM..."
   ],
   "catalysts": [
     {
@@ -20824,7 +20949,7 @@
     },
     {
       "key": "GOOG",
-      "count": 94,
+      "count": 95,
       "text": "2026년 7월 24일 서학개미 순매수 미국 주식 TOP 50 1위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (17.43%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -20859,7 +20984,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 48,
+      "count": 50,
       "text": "2026년 7월 25일 미국 증시 브리핑 미국 증시는 기술주 약세에도 불구하고 에너지와 경기민감 업종 강세가 이를 상쇄하며 업종 순환매가 이어지는 모습. 기술주가 S&P500 내 유일한 약세 섹터로 마감한..."
     },
     {
@@ -20885,7 +21010,7 @@
       "topics": [
         "macro"
       ],
-      "count": 532,
+      "count": 534,
       "focus": "Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로..."
     },
     {
@@ -20894,7 +21019,7 @@
       "topics": [
         "geo"
       ],
-      "count": 303,
+      "count": 304,
       "focus": "2026년 7월 25일 미국 증시 브리핑 미국 증시는 기술주 약세에도 불구하고 에너지와 경기민감 업종 강세가 이를 상쇄하며 업종 순환매가 이어지는 모습. 기술주가 S&P500 내 유일한 약세 섹터로 마감한..."
     },
     {
@@ -20912,7 +21037,7 @@
       "topics": [
         "semi"
       ],
-      "count": 629,
+      "count": 632,
       "focus": "Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로..."
     },
     {
@@ -20930,7 +21055,7 @@
       "topics": [
         "power"
       ],
-      "count": 288,
+      "count": 290,
       "focus": "Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로..."
     },
     {
@@ -20939,7 +21064,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 176,
+      "count": 178,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 25일 00:00~08:30 기준) > 💾 MU / HBM / 메모리 · \"AI 병목은 결국 메모리\" 서사 유지 · MU는 여전히 AI 수혜주로 자주 언급 · HBM..."
     },
     {
@@ -20975,7 +21100,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 313,
+      "count": 315,
       "focus": "Citi) 여름철 매도세; 펀더멘털은 유효; 반도체보다 반도체 장비 선호 Citi는 유가 급등과 채권 금리 상승, AI 지출 우려로 촉발된 SOX 지수의 조정을 매수 기회로 판단하며, 펀더멘털은 훼손되지 않았다고 보고 있습니다. 최종 시장별로는 데이터센터가 반도체 TAM의 34%를 차지하는 최강 시장으로..."
     },
     {
@@ -20993,7 +21118,7 @@
       "topics": [
         "japan"
       ],
-      "count": 77,
+      "count": 78,
       "focus": "2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동..."
     },
     {
@@ -21020,7 +21145,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 272,
+      "count": 275,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -22418,6 +22543,74 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/23923",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23923",
+      "datetime": "2026-07-25T10:00:39.000Z",
+      "localDateKst": "2026-07-25",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "HSBC, 스페이스X 목표가 115달러 제시…현 주가보다 낮아 HSBC는 기업에 보낸 보고서에서 \"기업을 평가할 때 분석가들은 때로는 지주회사 구조, 사업 간 비효율, 위험 등을 이유로 할인을 적용하기도..."
+    },
+    {
+      "id": "bornlupin/19315",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19315",
+      "datetime": "2026-07-25T09:50:04.000Z",
+      "localDateKst": "2026-07-25",
+      "tags": [
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 89,
+      "hasText": true,
+      "summary": "Citi, AI 트래커: 강력해지는 AI 모델, 한계에 다다른 칩과 전력 AI 산업의 투자수익률(ROI)이 모델 자체에서 인프라 레이어로 빠르게 이동 하고 있습니다. 차세대 AI 경쟁의 핵심은 단순한 '연산력..."
+    },
+    {
+      "id": "bornlupin/19313",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19313",
+      "datetime": "2026-07-25T09:30:28.000Z",
+      "localDateKst": "2026-07-25",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 56,
+      "hasText": true,
+      "summary": "이재용·올트먼, 오픈AI 본사서 만난다…HBM·파운드리 협력 논의 25일 오픈AI 본사서 협력 방안 논의 예정 삼성 업무 전반 AI 도입 방안도 언급될듯 작년 10월 삼성전자-오픈AI, 전략적 파트너십 맺어..."
+    },
+    {
+      "id": "bornlupin/19312",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19312",
+      "datetime": "2026-07-25T09:24:32.000Z",
+      "localDateKst": "2026-07-25",
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 76,
+      "hasText": true,
+      "summary": "삼성전자, 브로드컴과 292조원 규모 반도체 파운드리·메모리 협력 삼성전자가 브로드컴과 2000억달러(약 292조원) 규모 반도체 협력을 추진한다. 고대역폭메모리(HBM) 등 인공지능(AI) 메모리뿐만 아니라..."
+    },
     {
       "id": "aetherjapanresearch/23922",
       "channel": "aetherjapanresearch",
@@ -28975,59 +29168,6 @@
       "summary": "[SK증권 반도체 한동희] 안녕하세요, SK증권 한동희입니다. ‘과거’ Peak-out 지표인 P 상승률 둔화, LTA 본질과 효과, 코어위브의 Put option에 대한 해석 자료입니다. 과거의 모습과는..."
     },
     {
-      "id": "bornlupin/19154",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19154",
-      "datetime": "2026-07-19T12:16:38.000Z",
-      "localDateKst": "2026-07-19",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "[SK증권 반도체 한동희] 안녕하세요, SK증권 한동희입니다. ‘과거’ Peak-out 지표인 P 상승률 둔화, LTA 본질과 효과, 코어위브의 Put option에 대한 해석 자료입니다. 과거의 모습과는..."
-    },
-    {
-      "id": "bornlupin/19153",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19153",
-      "datetime": "2026-07-19T12:11:54.000Z",
-      "localDateKst": "2026-07-19",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 79,
-      "hasText": true,
-      "summary": "최태원 “반도체 확보 엄청 로비… 내년 수요 최소 50~60% 늘 것” 최태원 대한상공회의소 회장(SK그룹 회장·사진)은 “내년 메모리반도체 수요가 올해보다 최소 50~60% 늘어날 것”이라며..."
-    },
-    {
-      "id": "bornlupin/19152",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19152",
-      "datetime": "2026-07-19T11:38:41.000Z",
-      "localDateKst": "2026-07-19",
-      "tags": [
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [
-        "GOOG"
-      ],
-      "score": 54,
-      "hasText": true,
-      "summary": "주요 생성형 AI 웹사이트의 상반기 전년 대비(YoY) 트래픽 성장 ChatGPT.com (+17.40% 성장) Gemini.google.com (+516.83% 성장) Claude.ai (+584.52%..."
-    },
-    {
       "id": "aetherjapanresearch/23705",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23705",
@@ -29103,26 +29243,6 @@
       "score": 83,
       "hasText": true,
       "summary": "최태원 “미국에도 하이닉스 공장 고려...공급 늘려 메모리 가격 낮춰야” 최태원 SK그룹 회장이 15일 제주에서 열린 대한상의 하계 포럼 기자간담회에서 밝힌 반도체 시장 관련 발언을 요약하면 다음과 같습니다...."
-    },
-    {
-      "id": "aetherjapanresearch/23688",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23688",
-      "datetime": "2026-07-19T01:50:11.000Z",
-      "localDateKst": "2026-07-19",
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "equity",
-        "flows"
-      ],
-      "tickers": [
-        "035420.KS"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "이노라이트. 2019년 알리바바 이후 홍콩 최대 IPO 예상 ========================= ~ 2026년 7월 17일, 세계 광모듈 1위 기업 이노라이트(InnoLight, 中际旭创)가..."
     }
   ]
 }
