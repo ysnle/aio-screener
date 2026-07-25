@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-25T01:13:04.993Z",
+  "generatedAt": "2026-07-25T04:29:21.213Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -22,10 +22,10 @@
   "fredLkgSource": null,
   "macroKeyCount": 27,
   "fredFailedSeries": [],
-  "blsStatus": "ok",
+  "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-25T01:13:01.717Z",
+  "blsAttemptedAt": "2026-07-25T04:29:18.338Z",
   "blsLastSuccessfulAt": "2026-07-25T01:13:01.717Z",
   "newsOk": true,
   "newsCount": 40,
@@ -39,8 +39,8 @@
   "newsScoreMin": 36,
   "newsScoreMax": 64,
   "putCallOk": true,
-  "putCallAsOf": "2026-07-23",
-  "elapsedMs": 3350,
+  "putCallAsOf": "2026-07-24",
+  "elapsedMs": 2948,
   "schema": 1,
   "marketAnalysisOk": true,
   "marketAnalysisSemanticOk": true,
@@ -50,7 +50,7 @@
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-07-25T01:13:04.993Z:bc9506a0",
+  "marketSnapshotRevision": "market-snapshot:2026-07-25T04:29:21.213Z:975fc7b7",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 102,
@@ -106,9 +106,9 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-25T01:13:01.717Z",
    "lastSuccessfulAt": "2026-07-25T01:13:01.717Z",
-   "attemptedAt": "2026-07-25T01:13:01.717Z",
+   "attemptedAt": "2026-07-25T04:29:18.338Z",
    "releaseAt": null,
-   "status": "ok",
+   "status": "cached-fresh",
    "series": {
     "cpi": {
      "metricId": "cpi",
@@ -287,7 +287,8 @@
    },
    "failures": [],
    "allowedUse": "macro-evidence-with-observation-date",
-   "decisionUse": false
+   "decisionUse": false,
+   "cacheHit": true
   },
   "_failedSeries": [],
   "_lastKnownGoodAt": "2026-07-16"
@@ -301,11 +302,11 @@
   "previousWeek": 37
  },
  "putCall": {
-  "totalPutCall": 0.88,
-  "indexPutCall": 0.86,
-  "equityPutCall": 0.61,
-  "asOf": "2026-07-23",
-  "fetchedAt": "2026-07-25T01:13:02.585Z",
+  "totalPutCall": 0.99,
+  "indexPutCall": 1.08,
+  "equityPutCall": 0.79,
+  "asOf": "2026-07-24",
+  "fetchedAt": "2026-07-25T04:29:20.336Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -649,22 +650,6 @@
    "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
   },
   {
-   "title": "Intel stock jumps as AI driven earnings beat lifts guidance and spending outlook - AD HOC NEWS",
-   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNekZFQ2dUTFJBbTIzYXFnVUU3Tm1SVWZSYmM2TFd0dllQRmd1ZWJMbGw5cENtSnhXVnZJWXlHZXEwcWZWTG1LUWYtMkhDV0pmZi1XbEhGYlhqZ2dHTGFJeng3a204Z2ZVamJrcVpiRnBWRHBPV1E4NlVtbmxXQlIxb2VuOHRadmVTbEJuZmh2RWtpdl9xOE13UjEtYnp6UHU4eko4dENqRVg3ME8xeHRHWk51VXFudFBldjdLSENtWktHWkpBYURGekx5MA?oc=5",
-   "source": "AD HOC NEWS",
-   "pubDate": "Fri, 24 Jul 2026 19:06:13 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 44,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-23T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-24T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
-  },
-  {
    "title": "China is winning the war in the Middle East, and gold and the dollar will start to feel it, strategist says - MarketWatch",
    "link": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxNek1VQS1wSTFBQUw1N2RzeG9oZjlxRkRWWmoyMTBmeG1nVnE4TThlSnNJbWpIMjZxQWhVRVYtWHNLMHlHazhOcks1RW01ZFJpc3RIdDRxbXRnal9JQ3RkQjZITW8wZ0ViZ0NVVkQ3ZkZma3hSUnNUX2psWVQ1b3BIQXRVX2JGeF9BR1hXak4xRnpwX3g5Nmkwbi1tM3RhWkI0UmNPaVRsY0l0REhqeFVkVTB0S0s4RXQ2bDdIRVZ0OXQ0em9pOGUwVkVFM01NN2xuVmw2UWlUVVh4V3FEMDItUmpR?oc=5",
    "source": "MarketWatch",
@@ -745,7 +730,7 @@
    "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
   },
   {
-   "title": "Treasury Yield Breakout Raises S&P 500 Risks As Trump Weighs 'Massive' Attack - Investor's Business Daily",
+   "title": "Bond Yield Breakout Raises Market Risk As Trump Weighs Attack - Investor's Business Daily",
    "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNTy0zNWJISE14WDVpcG4wOFk3OEdFempNOVhUcm1fOFZYNjN5SzZWU3YydGlVd282OERxS0pUbHEzUjd2TzE4RUtYbDVnWUtpakNva3RGWnhqaFR5d0dYS2kwRHBuZU5vVW1ENXFKdkN1MkY3TkMtYmpQMVluNnZMY2tuejNPVW5oUDNPVQ?oc=5",
    "source": "Investor's Business Daily",
    "pubDate": "Fri, 24 Jul 2026 15:26:00 GMT",
@@ -809,22 +794,6 @@
    "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
   },
   {
-   "title": "As oil soars, experts watch Red Sea tankers for clarity on Houthi blockade - Al Jazeera",
-   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQZHRWUzBiZTY0SGluMDR3YWwxWFR5RjFtR2dSS2dCd0p6TElfSmtMWVQxZm41Rjl4R0dDZlZONHM3RlF6NUNXVWFQdTBFNUhqalFpMEdLSnVJTk01Rk5ockpvdXYwblFXa0lKSUFGekRuNFBrZkJBOVh5RVlLZE12X0NrQlpmMVNnbUZzMV9MQzhFWGxZajZROWo5TnprbFJqaHlOWVdBblRvOXhGWWM5TU56Z3RMUVJI0gG-AUFVX3lxTE5iUXVfSmsyN0tBSUhFTG9vai1iR0ItY0NKS0dHd0tfb1lBSE5HWlJkMVBtUkVVc2I1N3lYOXBuQjNtck9wUkE2eGZUa1ZLT1lvYXFSblVtYUpybGV5bHpjWEl0N2hsRzBfalp6ZjB5Rk1Wd0Q2c1lGekNrdmVRd0gtRWVMel9VWF9FTnI4WTIxbi0tQTRianFUQ0RLRVFtN3l3Qk9Ibk11NlM2dW9iX2EySkE4M21pYmRIcHlvUVE?oc=5",
-   "source": "Al Jazeera",
-   "pubDate": "Fri, 24 Jul 2026 03:36:35 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-23T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-24T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
-  },
-  {
    "title": "NextEra Energy Q2 Profit Tops Forecasts as AI Data Center Demand Swells Renewable Backlog to 35.1 GW - finance.biggo.com",
    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9xV0o3bUtIMFhtSzJHTHAwVmVMSzIwX1Y3WVVoc0dqaU55YWJGaGF0dGoxenF4X1hiWVFkcExaT1RWT1hhZlFwZnhmRG5oVVdwSm14ZXgtdDhUZndQaGRCU0gxMlcxbWoxbVZCMFZrbERYVDRSOHc?oc=5",
    "source": "finance.biggo.com",
@@ -857,6 +826,38 @@
    "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
   },
   {
+   "title": "Moody’s Warns AI Capex Tsunami Threatens Big Tech Credit Quality - finance.biggo.com",
+   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9hOU9hSjh0cnpqMVJQYzFsM21ybDNtRWtFWDNaaW1yUXJKRW56eGMyRnBwcHR5UGZLeGZLUmRLd0xqRjJocENzWTNIQUk5enJ2eUg3SnlkUUNwMUZFS2MyajRiZUlLSlVCYnV3YmloYnpiOE1OTUE?oc=5",
+   "source": "finance.biggo.com",
+   "pubDate": "Fri, 24 Jul 2026 22:25:00 GMT",
+   "topic": "credit",
+   "country": "global",
+   "tier": 3,
+   "score": 40,
+   "selectionReason": "base+20 | source-tier3+2 | recency+18",
+   "feedSource": "Google News - Credit/Funding",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-23T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-24T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
+  },
+  {
+   "title": "GEV Stock Drops On Q2 Earnings Miss – CEO Raises Guidance, Says Data Center Orders Have Already Doubled 2025 Total - Stocktwits",
+   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOdDV2LXpGOThFcWFDcGowdHRnZU0tb1ZwemZGVU1nODNHX2U1OU9iQjEwdmNzdm5NVVJ5WjBOZlIwT21wMEZtTkFkQ1RMcjd5X0VoelJQV2toNndkUmJ1OXBYTTlPdF90UU5HM1RSMVBUaTBYYnF0dTdrVlZxdllraTI0N1pNWC14dDdwVG5Ub2JDUTl1OWRqNWRkMTdCQkVRZ0xReFBGMktMWC1oemVRWUctcGx0SmFCa1I1UkN3TG96X0lxa2R3?oc=5",
+   "source": "Stocktwits",
+   "pubDate": "Fri, 24 Jul 2026 17:20:09 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 4,
+   "score": 39,
+   "selectionReason": "base+20 | source-tier4-8 | recency+12 | ai-semis+13 | earnings-guidance+10 | low-quality-source-8",
+   "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-23T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-24T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
+  },
+  {
    "title": "Digital Realty Trust Soars After Big Earnings Beat And Guidance Hike - StocksToTrade",
    "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQSTJpX3hQVlpmY3JXSndYcnVzekl4RTV6aDFBRmZqck9PTEZOSG1jaHNtbEVhWExnLWl0Nm5RbTNaTVoyTmJFclQxOGliTF9XX1pmZmFjZ2RVUUlzMl95SHFXZ2Y4YTNodkhfRF9uYVVlREFfeDBOR01JSmZEc1QzajFfeGg?oc=5",
    "source": "StocksToTrade",
@@ -867,6 +868,22 @@
    "score": 38,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
    "feedSource": "Google News - AI/Semis",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-23T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-24T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
+  },
+  {
+   "title": "Roper Technologies Stock Climbs 5% As Company Raises Full Year Profit Guidance - TIKR.com",
+   "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQeUZfczVCclM4ZmVlSmpBQ2lyRW9yQVZzaUxOTUpOM3FiMk9aZHk2N3dNcUNnNzhnZnJHdWVBU0NpU1BaSlVKRHdnS2RVT3JEc0JzbzdCZUlTcW0xUkV6d3AwbGd1V1p6bG9mSTFjTEZFbTc1eXExeGRjbE5WZnlwMndjaXBlaGYtZlRiYlMwM0hOQzFvUW1la3FGd2hRV1R2ZllEelhQM3BBcFkzZGE0?oc=5",
+   "source": "TIKR.com",
+   "pubDate": "Fri, 24 Jul 2026 13:23:10 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 38,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
+   "feedSource": "Google News - Analyst/Earnings",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-23T23:00:00.000Z",
    "newsCycleEnd": "2026-07-24T23:00:00.000Z",
@@ -893,22 +910,6 @@
    "link": "https://news.google.com/rss/articles/CBMigwJBVV95cUxNSGJRY0lPcjFBUUhhS2hRUTRRbnRCWmc4VXd2NDJxTmNzaUxYa2FFdHhESkMzdUM1VnZpd0Vkb1I1R0NMVng4NDBKRDgxN1pqckt6QjZucUhWY1RYSlJ5SzdBTUJCTS1HckpwYUxzZUx6dHZiU3NReUpobTJ5dXNfU0lWUkFvYjltX1NYd1ZXaVE3aHl0SlFNT0M5WjlETlJOYWhGTVAzeGt4aGZzS210X3pfWWs2akVBVDZMTnZjWlFYMHpfUEZDNExCQnU4ZEUtQVNzMG1IT2ZJa2lWYmY0UGNXUWl6aU1qeF95OVl6VWxPeHlmTjRXM1dlN3FWMVhkeTlJ?oc=5",
    "source": "The Economic Times",
    "pubDate": "Fri, 24 Jul 2026 07:33:05 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 38,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-23T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-24T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-24 08:00 KST ~ 2026-07-25 08:00 KST"
-  },
-  {
-   "title": "Earnings blowout sends stock surging after hours – has Intel finally turned the corner? - odaily.news",
-   "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9Hb1F3VXpoNmZqdFU0V3FGV254OEVlWk5HOGNVaWlobVhtS2tEX2hWY1MxRkhHaV91YTJ2YWhsLVRwN1p1c01ZZWdQNE5BcUE2?oc=5",
-   "source": "odaily.news",
-   "pubDate": "Fri, 24 Jul 2026 04:05:35 GMT",
    "topic": "semi",
    "country": "us",
    "tier": 3,
@@ -954,9 +955,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "## 현재 시장 분석\n\n**[한 줄 요약]** 공포·탐욕 지수 39(공포 구간)로 투자심리가 위축된 가운데, 미 국채 10년물 금리가 연중 최고치에 근접하며 연준의 추가 금리 인상 기대가 시장 전반에 부담을 주고 있다.\n\n**① 변동성·심리** — Fear & Greed 지수가 39로 '공포' 영역에 머물고 있으며, 연준 회의 및 주요 기업 실적 발표를 앞두고 주식시장 전반의 관망심리가 짙어진 상태다.\n\n**② 거시·금리** — CPI 3.5%, 현 기준금리 3.63%, 5월 NFP +5.7만 명(전월 대비)으로 고용 둔화가 확인되었음에도, 시장은 이르면 다음 주 연준의 추가 금리 인상 가능성을 반영 중이며 국채 금리 상승이 위험자산 전반의 밸류에이션 부담으로 작용하고 있다.\n\n**③ 주도 뉴스·리스크** — 홍해·호르무즈·흑해 등 다중 전선의 유조선 공격으로 에너지 공급 불안이 고조된 반면, 미·이란 간 협상 재개 보도로 유가 상승 압력이 일부 완화되는 교차 흐름이 나타나고 있으며, Moody's가 아마존·메타·알파벳 등",
+  "full": "## 현재 시장 분석\n\n**[한 줄 요약]** 연준 금리 인상 기대와 지정학적 리스크가 겹치며 금융시장 전반에 불확실성이 고조되고 있다.\n\n**① 변동성·심리** Fear & Greed 지수가 39(공포 구간)를 기록하며 투자 심리가 위축된 상태이고, 연준의 조기 금리 인상 가능성이 시장 경계감을 높이고 있다.\n\n**② 거시·금리** CPI 3.5%, 연방기금금리 3.63%, 5월 NFP 5만 7천 명(전월 대비)으로 고용 증가세가 둔화된 가운데, 미국 10년물 국채 금리가 연중 최고치에 근접하며 주식 밸류에이션 부담이 커지고 있다.\n\n**③ 주도 뉴스·리스크** 홍해·호르무즈·흑해 등 복수의 해상 분쟁 전선에서 유조선 공격이 동시 확산되어 에너지 공급 차질 우려가 부각되는 반면, 미·이란 간 협상 재개 가능성 보도로 유가 상승 압력이 일부 상쇄되는 상충 구도가 나타나고 있다. 아울러 Moody's가 아마존·메타·알파벳 등 빅테크의 AI 설비 투자 급증을 신용도 위협 요인으로 경고해 기술주 리스크도 주목된다.",
   "oneLine": "## 현재 시장 분석",
-  "generatedAt": "2026-07-25T01:13:16.159Z",
+  "generatedAt": "2026-07-25T04:29:32.535Z",
   "model": "claude-sonnet-4-6",
   "semanticStatus": "verified",
   "semanticIssues": []
