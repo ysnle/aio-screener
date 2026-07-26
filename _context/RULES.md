@@ -103,6 +103,12 @@ target_version: v53.23
 
 **Validation**: `ci-ux-default-path-check.mjs` enforces the global live-region ceiling; `ci-accessibility-matrix-check.mjs` verifies all 17 routes with zero console errors.
 
+## R373. Derived routes must replay through their canonical mount in compatibility navigation (v53.38, P826)
+
+**Rule**: When a legacy navigation call canonicalizes a derived view such as `theme-detail` to an inline owner page such as `themes`, the architecture compatibility facade must replay the canonical route. Replaying the raw derived route after the legacy call can dispose the native owner mount and hide the derived surface.
+
+**Validation**: `ci-viewport-matrix-check.mjs` with `AIO_VIEWPORT_FULL_INIT=1` must settle `theme-detail` with its canonical `themes` panel visible across all viewports; architecture browser coverage must retain the native theme-detail surfaces and zero browser errors.
+
 ## R367. Theme-detail benchmark narrative must use normalized theme/benchmark evidence and fence the legacy section (v53.30, P795)
 
 **Rule**: The theme-detail benchmark narrative must be rendered by the native child `#theme-detail-native-benchmark` from normalized theme performance and the selected ETF/composite-base quote evidence. Missing either side must fail closed to `시세 대기`; the legacy benchmark section must be fenced, while theme insights, chart, and data ownership stay separately bounded.

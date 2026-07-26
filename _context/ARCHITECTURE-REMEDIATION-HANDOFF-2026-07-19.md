@@ -1,26 +1,26 @@
 ---
 verified_by: Claude Fable 5 (repository-wide structural audit; 발견마다 ?�일:?�인 증거 ?�용); RM-00~06/P755~P758 ?�행 Claude Sonnet 5; P759~P785 �??�재 ?��?�?Codex
 last_verified: 2026-07-26
-  current_packet: P821-P825 home quality/technical candle cutovers, validation hardening, native currentness guard, and live-region reduction; remaining contested surfaces are chart/time-series/Vault boundaries
+  current_packet: P826 derived-route compatibility canonicalization after P821-P825 cutovers; remaining contested surfaces are chart/time-series/Vault boundaries
   verification_note: Codex P761-P795 prior route cutovers plus derived ownership accounting, active SW controller diagnostics, snapshot-first degraded quote operation, bounded technical health ownership, bounded signal hero ownership, bounded home aggregate ownership, and bounded theme-detail summary/composition/leader/temperature/spread/breadth-health/subtheme-gap/benchmark ownership
 confidence: high
 auto_refresh: false
-  target_version: v53.37
-  current_update: P821-P825 implemented and verified locally; intermediate release is being fully validated before commit/deployment
+  target_version: v53.38
+  current_update: P826 implemented and locally fully verified; commit/deployment is now the remaining authorized release action
 
-## Current generated preflight (P825, 2026-07-26)
+## Current generated preflight (P826, 2026-07-26)
 
 <!-- GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs -->
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `992a691`
-- working_tree: `clean / committed local changes`
-- application_version: `v53.37`
+- git_head: `333ef18`
+- working_tree: `dirty / uncommitted local changes`
+- application_version: `v53.38`
 - deployment: `not performed in this task`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
 
-## Current verified checkpoint (P821-P825, 2026-07-26)
+## Current verified checkpoint (P826, 2026-07-26)
 
 P821 makes the home quality meter/score/label native and fail-closed. The legacy block that displayed `tradingScore` under the Quality title was removed because it did not implement the five-input quality definition documented by the card. P822 makes the technical candle title/meta native from normalized analysis input; the legacy chart retains canvas and indicator lifecycle only.
 
@@ -28,7 +28,7 @@ P823 hardens the remaining legacy theme-detail deep-analysis comparison against 
 
 P824 makes the shared currentness sanitizer skip native renderer-owned narrative sinks and updates no-live theme/carry regression contracts to the current Korean fail-closed states. Headless remains `1102/1102 PASS`.
 
-P825 reduces accessibility announcement noise by keeping only the theme-detail summary as an `aria-live` region; subordinate native panels remain dynamically visible without independent screen-reader announcements. UX, accessibility, and viewport gates pass.
+P825 reduces accessibility announcement noise by keeping only the theme-detail summary as an `aria-live` region; subordinate native panels remain dynamically visible without independent screen-reader announcements. P826 fixes the derived-route compatibility replay: after `showPage('theme-detail')` canonicalizes to `themes`, the architecture facade now replays the canonical route instead of disposing the native themes mount. Full local release verification passes: architecture contract/browser, FULL_INIT viewport `68/68`, headless `1102/1102`, UX, accessibility, critical10, portfolio Vault, boot interaction, SA-02~04, static/data/runtime contracts, and syntax checks. Data lineage remains `15 PASS / 1 WARN` because SEC fundamentals coverage is `15.6%` and remains an operator/provider limitation.
 
 The local architecture contract and Chromium route check pass with current counters `1087/39/186/373`, home quality native `— / 판정 보류`, technical candle metadata native, 17 routes, `42` canvases, `12` timers, and `browserErrors: 0`. Remaining contested surfaces are breadth stage/McClellan/historical charts (7), fxbond trend/curve charts (3), ticker extension/P&L/value (3), and the encrypted portfolio positions table (1). These remain separate packets because their canonical time-series, portfolio, or Vault contracts are not yet complete.
 

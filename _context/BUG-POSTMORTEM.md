@@ -2,17 +2,18 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P795 verification
 last_verified: 2026-07-26
 confidence: high
-latest_version: v53.37
-latest_P_number: P825
-next_P_number: P826
-current_checkpoint: P821-P825 home quality/technical candle cutovers, validation hardening, native currentness guard, and live-region reduction; architecture/browser contracts verified locally; operator fast plane/rights/soak remain open
+latest_version: v53.38
+latest_P_number: P826
+next_P_number: P827
+current_checkpoint: P826 derived-route compatibility canonicalization after P821-P825 home quality/technical candle cutovers, validation hardening, native currentness guard, and live-region reduction; full release verification in progress; operator fast plane/rights/soak remain open
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
 p823_entry: "The remaining legacy theme-detail deep-analysis comparison now filters non-finite constituent percentages before comparison/formatting, and the retirement manifest is synchronized with the 17/17 native renderer ledger. Runtime and retirement contracts pass."
 p824_entry: "The shared currentness sanitizer now skips native renderer-owned narrative sinks; no-live theme/carry regression tests accept the current Korean fail-closed states without allowing fabricated scores. Headless passes 1102/1102."
 p825_entry: "Theme-detail keeps one summary aria-live region and removes redundant live announcements from eight subordinate native panels. UX, accessibility, and viewport gates pass."
-total_entries: 585 (P1~P825, 결번 존재 — 상세 + 압축 원장)
+p826_entry: "The architecture compatibility facade now replays derived theme-detail navigation through the canonical themes route, preventing the inline native detail mount from being disposed during FULL_INIT viewport traversal. Full local release verification passes, including architecture/browser and FULL_INIT 68/68."
+total_entries: 586 (P1~P826, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---

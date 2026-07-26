@@ -3,8 +3,8 @@
 last_verified: 2026-07-26
 confidence: high
 auto_refresh: false
-  target_version: v53.37
-  current_packet: P821-P825 home quality/technical candle cutovers, validation hardening, native currentness guard, and live-region reduction
+  target_version: v53.38
+  current_packet: P826 derived-route compatibility canonicalization after P821-P825 cutovers
 status: DESIGNED_EXECUTABLE
 parent: ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md
 scope: whole-system architecture execution
@@ -43,19 +43,19 @@ The bounded handoff sequence is complete in the local v53.19 worktree. SA-01 sha
 
 The current preflight is local `main` HEAD `02ec6bc`, v53.19, dirty/uncommitted, and not deployed. Operator credentials/rights, commit/push/deploy approval, and seven-day soak remain open.
 
-## Current generated preflight (P825, 2026-07-26)
+## Current generated preflight (P826, 2026-07-26)
 
 <!-- GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs -->
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `992a691`
-- working_tree: `clean / committed local changes`
-- application_version: `v53.37`
+- git_head: `333ef18`
+- working_tree: `dirty / uncommitted local changes`
+- application_version: `v53.38`
 - deployment: `not performed in this task`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
 
-## Current verified checkpoint (P821-P825, 2026-07-26)
+## Current verified checkpoint (P826, 2026-07-26)
 
 P821 closes the home quality meter as a native fail-closed surface and removes the misleading legacy Trading Score reuse. P822 closes only the technical candle title/meta text; the candle/volume canvases and indicator calculations remain legacy-owned.
 
@@ -63,7 +63,7 @@ P823 hardens the remaining legacy theme-detail deep-analysis comparison against 
 
 P824 makes the shared currentness sanitizer skip native renderer-owned narrative sinks and updates no-live theme/carry regression contracts to the current Korean fail-closed states. Headless remains `1102/1102 PASS`.
 
-P825 reduces accessibility announcement noise by keeping only the theme-detail summary as an `aria-live` region; subordinate native panels remain dynamically visible without independent screen-reader announcements. UX, accessibility, and viewport gates pass.
+P825 reduces accessibility announcement noise by keeping only the theme-detail summary as an `aria-live` region; subordinate native panels remain dynamically visible without independent screen-reader announcements. P826 fixes the derived-route compatibility replay so `theme-detail` remains an inline `themes` mount during FULL_INIT traversal. Full local release verification passes: architecture contract/browser, FULL_INIT viewport `68/68`, headless `1102/1102`, UX, accessibility, critical10, portfolio Vault, boot interaction, SA-02~04, static/data/runtime contracts, and syntax checks. Data lineage remains `15 PASS / 1 WARN` because SEC fundamentals coverage is `15.6%` and remains an operator/provider limitation.
 
 Current local gates: architecture contract PASS, architecture Chromium PASS, counters `1087/39/186/373`, 17-route round trip, `42` canvases, `12` timers, and `browserErrors: 0`. Remaining code scope is 14 contested surfaces across breadth (7), fxbond (3), ticker (3), and portfolio Vault/table (1); operator fast-plane/provider-rights/soak gates remain external.
 

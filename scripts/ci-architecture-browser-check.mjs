@@ -428,7 +428,20 @@ try {
   async function traverseAllRoutes() {
     for (const route of ROUTE_IDS_FOR_ROUNDTRIP) {
       await page.evaluate((r) => window.AIO_ARCH.navigate(r), route);
-      await page.waitForFunction((r) => document.getElementById(`page-${r}`)?.dataset.aioArchitectureRoute === r, route);
+      // P826: theme-detail is a derived inline surface whose canonical owner is
+      // the themes page. The compatibility facade intentionally replays that
+      // canonical route, so the round-trip wait must assert the owner mount and
+      // the visible native detail panel rather than the retired standalone page.
+      const canonicalRoute = route === 'theme-detail' ? 'themes' : route;
+      await page.waitForFunction((r) => document.getElementById(`page-${r}`)?.dataset.aioArchitectureRoute === r, canonicalRoute);
+      if (route === 'theme-detail') {
+        await page.waitForFunction(() => {
+          const panel = document.getElementById('theme-detail-panel');
+          const summary = document.getElementById('theme-detail-native-summary');
+          return !!panel && panel.style.display !== 'none' && !!panel.dataset.currentTheme
+            && !!summary && !summary.hidden && (summary.textContent || '').trim().length > 40;
+        });
+      }
     }
   }
   const snapshot = () => page.evaluate(() => ({

@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex P761-P795 verification
 last_verified: 2026-07-26
 confidence: high
 
-## Current architecture checkpoint (2026-07-26, v53.37)
+## Current architecture checkpoint (2026-07-26, v53.38)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (16/17), and native data ownership is screener/breadth (2/17).
@@ -13,9 +13,9 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.37
-latest_P_covered: P825
-current_P825_checkpoint: home quality meter native fail-closed; technical candle title/meta native; non-finite theme-detail deep-analysis guard; native currentness sanitizer guard; reduced aria-live regions; renderer native 17/17; counters 1087/39/186/373; architecture/Chromium/headless/UX/accessibility/viewport gates pass before full intermediate-release QA
+checklist_version: v53.38
+latest_P_covered: P826
+current_P826_checkpoint: derived theme-detail route replays through canonical themes navigation and preserves the native inline detail mount; P821-P825 ownership and fail-closed/accessibility gates remain in force; full intermediate-release QA passes locally (FULL_INIT 68/68, headless 1102/1102, architecture/browser, UX, accessibility, critical10, Vault, SA-02~04)
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---

@@ -332,7 +332,13 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
     originalShowPage = candidate;
     const facade = function architectureShowPage(pageId, ...args) {
       const result = originalShowPage.apply(this, [pageId, ...args]);
-      router?.transition?.(pageId, { source: 'architecture-navigation', args });
+      // P826: showPage('theme-detail') canonicalizes the derived panel to the
+      // themes page before emitting aio:pageShown.  Replaying the raw route
+      // here would immediately dispose the themes mount and leave the inline
+      // native detail panel hidden. Keep the compatibility transition on the
+      // same canonical route as the legacy navigation call.
+      const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[pageId] || pageId;
+      router?.transition?.(canonicalRoute, { source: 'architecture-navigation', args });
       return result;
     };
     Object.defineProperty(facade, '__aioArchitectureNavigation', { value: true, enumerable: false });

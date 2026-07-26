@@ -1,14 +1,14 @@
-> **v53.37 (P761~P825 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, and P825 live-region reduction까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+> **v53.38 (P761~P826 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, and P826 derived-route compatibility canonicalization까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P825 update
-current_override: P821 home quality fail-closed, P822 technical candle metadata, P823 finite theme-detail comparison hardening, P824 native currentness guard, and P825 live-region reduction plus P795 theme-detail bounded native summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; P780 bounded portfolio surface remains in force
+verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P826 update
+current_override: P821 home quality fail-closed, P822 technical candle metadata, P823 finite theme-detail comparison hardening, P824 native currentness guard, P825 live-region reduction, and P826 derived-route compatibility canonicalization plus P795 theme-detail bounded native summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; P780 bounded portfolio surface remains in force
 last_verified: 2026-07-26
 confidence: high
-target_version: v53.37
+target_version: v53.38
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P795 gate
-current_checkpoint: P821-P825 verified locally; home quality is native fail-closed, technical candle title/meta are native, theme-detail comparison formatting is finite-safe, native currentness sanitization respects ownership, live-region announcements are bounded, and native renderer routes are 17/17; remaining contested surfaces are breadth/fxbond/ticker/portfolio boundaries
+current_checkpoint: P826 full local verification complete; derived theme-detail navigation preserves the canonical themes native mount, while home quality is native fail-closed, technical candle title/meta are native, theme-detail comparison formatting is finite-safe, native currentness sanitization respects ownership, live-region announcements are bounded, and native renderer routes are 17/17; remaining contested surfaces are breadth/fxbond/ticker/portfolio boundaries
 ---
 
 ## Current machine-verified file-size table (v53.30, 2026-07-26)

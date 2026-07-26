@@ -1,3 +1,7 @@
+## v53.38 (2026-07-26)
+- **P826 / derived-route navigation canonicalization**: the architecture compatibility facade now replays `theme-detail` through its canonical `themes` route, preserving the native inline detail mount during FULL_INIT viewport traversal.
+- R1 7곳 v53.38
+
 ## v53.37 (2026-07-26)
 - **P825 / accessibility live-region reduction**: theme-detail keeps one summary `aria-live` region and removes redundant live announcements from eight subordinate native panels; UX, accessibility, and viewport gates pass.
 - **P825 / accessibility live-region reduction**: theme-detail keeps one summary `aria-live` region and removes redundant live announcements from eight subordinate native panels; UX, accessibility, and viewport gates pass.
