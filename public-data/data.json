@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-26T17:44:28.524Z",
+  "generatedAt": "2026-07-26T18:44:26.723Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -25,7 +25,7 @@
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-26T17:44:25.662Z",
+  "blsAttemptedAt": "2026-07-26T18:44:23.900Z",
   "blsLastSuccessfulAt": "2026-07-26T16:36:18.745Z",
   "newsOk": true,
   "newsCount": 40,
@@ -37,10 +37,10 @@
   "newsNextRefresh": "2026-07-26T23:00:00.000Z",
   "serverNewsScored": true,
   "newsScoreMin": 28,
-  "newsScoreMax": 57,
+  "newsScoreMax": 65,
   "putCallOk": true,
   "putCallAsOf": "2026-07-24",
-  "elapsedMs": 2936,
+  "elapsedMs": 2896,
   "schema": 1,
   "marketAnalysisOk": true,
   "marketAnalysisSemanticOk": true,
@@ -50,7 +50,7 @@
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-07-26T17:44:28.524Z:cdd07add",
+  "marketSnapshotRevision": "market-snapshot:2026-07-26T18:44:26.723Z:623ed3cf",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 102,
@@ -106,7 +106,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-26T16:36:18.745Z",
    "lastSuccessfulAt": "2026-07-26T16:36:18.745Z",
-   "attemptedAt": "2026-07-26T17:44:25.662Z",
+   "attemptedAt": "2026-07-26T18:44:23.900Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -306,13 +306,29 @@
   "indexPutCall": 1.08,
   "equityPutCall": 0.79,
   "asOf": "2026-07-24",
-  "fetchedAt": "2026-07-26T17:44:26.384Z",
+  "fetchedAt": "2026-07-26T18:44:24.682Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
   "allowedUse": "decision-with-daily-delay"
  },
  "news": [
+  {
+   "title": "S&P 500, Nasdaq, Dow Futures Mixed As Markets Digest Trump’s Iran Ceasefire Remarks, Hot Inflation — Why NVDA, WOK, RCAT, SLS, RVI Are In Focus - Stocktwits",
+   "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQbzNRZ2hua05Sbk5pbHhnRFkydEFQejk1OG0xQlh2S0FqV211MGpqdVZ0VkZTUjRVT3NKRE5BVDVWMFF3ajBmRTl3MDFtN2RTRHo5WVY3WE1jSlM5b0luSFBmYkN5ZThEMWFUVU5OYzV4cDQ2eG9SbG9EbDlBaGRRZ0hxOEFIRlFLN1pndDE4azN5dW5RQ2VvX3lBUHFtZUlLeUpUNlNPRWFLdVhVLXZCNndGZ2pPRk5ocHUxTUVpU05vb1FL?oc=5",
+   "source": "Stocktwits",
+   "pubDate": "Sat, 25 Jul 2026 21:48:41 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 4,
+   "score": 65,
+   "selectionReason": "base+20 | source-tier4-8 | recency+12 | macro-rates+14 | geopolitics-energy+14 | ai-semis+13 | mega-cap+8",
+   "feedSource": "Google News - US markets",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-07-24T23:00:00.000Z",
+   "newsCycleEnd": "2026-07-25T23:00:00.000Z",
+   "newsCycleLabel": "2026-07-25 08:00 KST ~ 2026-07-26 08:00 KST"
+  },
   {
    "title": "Applied Materials (AMAT) Earnings Preview: AI Chip Demand, Capital Expenditure Trends, & Trade Setups - In Progress - TradingKey",
    "link": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxOcHQ4N2xNRi1FZEFSUnBVM3V1U0tGM1FjMmRCcWR5cFdYLUNhQ29QT2JQcE4wMDBBRUdoSzJ4LWpmTjJJVzFpb3NydHJIRXFsSEFlbHhrNElVX0pJQUkteFJreTdGQ3lvYWVTQUdjZFM5UDMySnY4U21xTTBhVjZXUXZHNUN6SDFxemxwVWJDTTdfei1DWlJVeHVFVjFDemM4V0JIUlhHM3I5alBCWW9zYV9OZGdlQjAzZS1WUGpUOHVNSFgwZ2tvRmdmcHlVcXlCb0Z2NjB6NnQ2VjQ0SE5UYlFEZ0F6SU5PZk1KQQ?oc=5",
@@ -372,22 +388,6 @@
    "score": 56,
    "selectionReason": "base+20 | source-tier1+16 | recency+6 | geopolitics-energy+14",
    "feedSource": "Google News - Geopolitics/Energy",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-07-24T23:00:00.000Z",
-   "newsCycleEnd": "2026-07-25T23:00:00.000Z",
-   "newsCycleLabel": "2026-07-25 08:00 KST ~ 2026-07-26 08:00 KST"
-  },
-  {
-   "title": "Did Vertiv’s Expanded AI Cooling Builds And Higher EPS Guidance Just Shift Vertiv Holdings Co's (VRT) Investment Narrative? - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNYUxad3p6cE12ZUNQRC1vSVV2Z2FxU0U4T2N1MjJxN2FLQ3lPODd1WGdFQlg4M2k5eDBieVR2X0VSUjJTU0JnZzVMeXF0a3A5MlY5WFllbXNfcWNaVEg5RC1DTFdKYUVVV0VqUmNwLVg0aWtHWlhYNTFhZERORUp0TnBraWI2MjkxLUFFLWpHcXVTUk5MVkFsOVFn?oc=5",
-   "source": "Yahoo Finance",
-   "pubDate": "Sat, 25 Jul 2026 18:08:52 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 2,
-   "score": 51,
-   "selectionReason": "base+20 | source-tier2+9 | recency+12 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-07-24T23:00:00.000Z",
    "newsCycleEnd": "2026-07-25T23:00:00.000Z",
@@ -955,9 +955,9 @@
   }
  ],
  "marketAnalysis": {
-  "full": "## 현재 시장 분석\n\n**[한 줄 요약]** 공포·탐욕지수 39(공포 영역)로 투자심리가 위축된 가운데, AI 인프라 수요 기대감과 금·유가의 엇갈린 흐름이 시장의 방향성 탐색을 이어가고 있다.\n\n**① 변동성·심리** — 공포·탐욕지수가 39로 '공포' 구간에 머물며 시장 참가자들의 위험 회피 성향이 지속되고 있다. 주요 지수 및 VIX 수치는 미제공 상태로 구체적 변동성 수준은 확인되지 않는다.\n\n**② 거시·금리** — CPI 3.5%로 물가가 여전히 Fed 목표를 상회하며, 연방기금금리는 3.63%를 유지 중이다. 5월 NFP는 전월 대비 5만 7천 명 증가에 그쳐 고용 둔화 신호를 나타냈고, 다음 주 FOMC 결정을 앞두고 미국채 금리 향방에 시장의 시선이 집중되어 있다.\n\n**③ 주도 뉴스·리스크** — Applied Materials·Vertiv·Intel 등 AI 인프라 관련 기업들의 실적 기대감이 반도체·장비 섹터를 주도하는 한편, 미·이란 전쟁 종전 협상 보도로 유가가 하락 압력을 받고 있다. 금은 달러 강세에도 4,",
+  "full": "## 현재 시장 분석\n\n**【한 줄 요약】** 트럼프의 이란 휴전 발언과 뜨거운 인플레이션(CPI 3.5%) 사이에서 미 증시 선물이 혼조세를 보이며, 다음 주 FOMC를 앞두고 관망 심리가 짙어지고 있다.\n\n**① 변동성·심리** — 공포탐욕지수(F&G)가 39로 '공포' 구간에 머물러 있어 투자 심리가 위축된 상태이며, 뉴욕 증시 선물은 방향성을 잡지 못하고 혼조 흐름을 이어가고 있다.\n\n**② 거시·금리** — CPI 3.5%로 물가 압력이 여전한 가운데 연방기금금리는 3.63% 수준이며, 최근 NFP는 57,000명(2026년 6월 기준)으로 고용 증가세가 둔화된 점이 Fed의 통화정책 경로에 불확실성을 더하고 있다. 금은 달러 강세에도 불구하고 미국 국채 금리 하락에 힘입어 4,000달러 선을 방어 중이다.\n\n**③ 주도 뉴스·리스크** — AI 인프라 투자 확대 기대 속에 AMAT·Intel 등 반도체·장비주가 주목받고 있으며, 이란 관련 지정학적 긴장 완화 기대로 유가는 하락 압력을 받고 있다. FOMC",
   "oneLine": "## 현재 시장 분석",
-  "generatedAt": "2026-07-26T17:44:39.436Z",
+  "generatedAt": "2026-07-26T18:44:37.637Z",
   "model": "claude-sonnet-4-6",
   "semanticStatus": "verified",
   "semanticIssues": []
