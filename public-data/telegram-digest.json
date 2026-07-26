@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-26T22:13:42.498Z",
-  "attemptedAt": "2026-07-26T22:13:42.498Z",
-  "lastSuccessfulAt": "2026-07-26T22:13:42.498Z",
+  "generatedAt": "2026-07-26T23:13:29.631Z",
+  "attemptedAt": "2026-07-26T23:13:29.631Z",
+  "lastSuccessfulAt": "2026-07-26T23:13:29.631Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-12T22:13:39.003Z",
-  "until": "2026-07-26T22:13:39.003Z",
+  "since": "2026-07-12T23:13:25.698Z",
+  "until": "2026-07-26T23:13:25.698Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,7 +13,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 381,
+      "count": 380,
       "freshCount": 16,
       "eligibleTextCount": 16,
       "selectedCount": 120,
@@ -25,12 +25,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 884,
+      "count": 890,
       "freshCount": 35,
-      "eligibleTextCount": 34,
-      "selectedCount": 125,
+      "eligibleTextCount": 33,
+      "selectedCount": 126,
       "error": null,
-      "lastPostId": 59333
+      "lastPostId": 59340
     },
     {
       "channel": "bornlupin",
@@ -45,9 +45,85 @@
       "lastPostId": 19331
     }
   ],
-  "count": 1544,
-  "retainedItemCount": 407,
+  "count": 1549,
+  "retainedItemCount": 409,
   "observedItems": [
+    {
+      "id": "insidertracking/59340",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T23:12:40.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59339",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T23:06:54.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 51,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [
+        "006800.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59338",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T23:05:55.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59337",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T23:01:49.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "insidertracking/59336",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T22:28:03.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 75,
+      "tags": [
+        "macro",
+        "geo",
+        "kr-market"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59335",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T22:23:19.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 52,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/59333",
       "channel": "insidertracking",
@@ -432,7 +508,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59299",
@@ -451,7 +527,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23955",
@@ -475,7 +551,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23954",
@@ -501,7 +577,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19331",
@@ -525,7 +601,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59295",
@@ -537,7 +613,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19330",
@@ -22407,41 +22483,28 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23497",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-12T22:14:20.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 55,
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1544,
-    "eligibleTextCount": 70,
-    "mediaOnlyCount": 1474,
-    "highSignalCount": 525,
-    "broadSignalCount": 887,
-    "selectedRawCount": 365,
-    "selectedRawCoveragePct": 521.4,
+    "observedCount": 1549,
+    "eligibleTextCount": 69,
+    "mediaOnlyCount": 1480,
+    "highSignalCount": 526,
+    "broadSignalCount": 889,
+    "selectedRawCount": 366,
+    "selectedRawCoveragePct": 530.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "market-note": 329,
+    "macro": 560,
+    "media-only": 28,
+    "geo": 333,
     "kr-market": 236,
-    "market-note": 327,
-    "media-only": 27,
-    "geo": 332,
-    "macro": 557,
-    "semi": 654,
+    "semi": 653,
     "equity": 171,
     "power": 302,
     "earnings": 328,
@@ -22455,6 +22518,7 @@
     "crypto": 6
   },
   "tickerCounts": {
+    "006800.KS": 1,
     "NVDA": 80,
     "AMD": 88,
     "GOOG": 95,
@@ -22633,14 +22697,14 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (654 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세...",
-    "Macro/Rates (557 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세...",
-    "Geopolitics (332 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세...",
+    "Semiconductors/Memory (653 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세...",
+    "Macro/Rates (560 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세...",
+    "Geopolitics (333 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세...",
+    "Market Notes (329 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
     "Earnings/Corporate (328 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM...",
-    "Market Notes (327 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
     "AI Power/Grid (302 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
     "Korea Market (236 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세...",
-    "AI Policy/Export Controls (182 posts in current window): Market Summary - 2026년 7월 27일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란과의 협상에 시간을 주기 위해 대이란 공습을 일시 중단. · 미국과 이란은 중재국을 통한 메시지 교환과 외교 협상을 지속. · CNN, JD 밴스 부통령과 댄 케인 합참의장이 전쟁 확대와 미국..."
+    "AI Policy/Export Controls (182 posts in current window): Market Summary - 2026년 7월 27일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란과의 협상에 시간을 주기 위해 대이란 공습을 일시 중단. · 미국과 이란은 중재국을 통한..."
   ],
   "catalysts": [
     {
@@ -22711,7 +22775,7 @@
       "topics": [
         "macro"
       ],
-      "count": 557,
+      "count": 560,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세..."
     },
     {
@@ -22720,7 +22784,7 @@
       "topics": [
         "geo"
       ],
-      "count": 332,
+      "count": 333,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세..."
     },
     {
@@ -22738,7 +22802,7 @@
       "topics": [
         "semi"
       ],
-      "count": 654,
+      "count": 653,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세..."
     },
     {
@@ -22766,7 +22830,7 @@
         "ai-policy"
       ],
       "count": 182,
-      "focus": "Market Summary - 2026년 7월 27일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란과의 협상에 시간을 주기 위해 대이란 공습을 일시 중단. · 미국과 이란은 중재국을 통한 메시지 교환과 외교 협상을 지속. · CNN, JD 밴스 부통령과 댄 케인 합참의장이 전쟁 확대와 미국..."
+      "focus": "Market Summary - 2026년 7월 27일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란과의 협상에 시간을 주기 위해 대이란 공습을 일시 중단. · 미국과 이란은 중재국을 통한..."
     },
     {
       "id": "kr-market",
@@ -22820,7 +22884,7 @@
         "japan"
       ],
       "count": 86,
-      "focus": "Market Summary - 2026년 7월 27일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란과의 협상에 시간을 주기 위해 대이란 공습을 일시 중단. · 미국과 이란은 중재국을 통한 메시지 교환과 외교 협상을 지속. · CNN, JD 밴스 부통령과 댄 케인 합참의장이 전쟁 확대와 미국..."
+      "focus": "Market Summary - 2026년 7월 27일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란과의 협상에 시간을 주기 위해 대이란 공습을 일시 중단. · 미국과 이란은 중재국을 통한..."
     },
     {
       "id": "flows",
@@ -22846,7 +22910,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 327,
+      "count": 329,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -24228,6 +24292,52 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/59339",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59339",
+      "datetime": "2026-07-26T23:06:54.000Z",
+      "localDateKst": "2026-07-27",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [
+        "006800.KS"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "안녕하세요, 미래에셋증권 민지희 입니다. 출산휴가를 마치고 지난 주 복직했습니다. 경제 담당 정형기 위원과 함께 부지런히 마켓 업데이트 하도록 하겠습니다. 이번주에는 8월 월간전망과 7월 FOMC 자료로..."
+    },
+    {
+      "id": "insidertracking/59336",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59336",
+      "datetime": "2026-07-26T22:28:03.000Z",
+      "localDateKst": "2026-07-27",
+      "tags": [
+        "macro",
+        "geo",
+        "kr-market"
+      ],
+      "tickers": [],
+      "score": 75,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 국제유가가 미국과 이란의 상호 공격 중단으로 중동 공급 차질 우려가 완화되면서 주초 큰 폭의 하락세를 보임. 미국이 주말 동안 이란에 대한 공습을 중단하고, 이란도 보복 공격을..."
+    },
+    {
+      "id": "insidertracking/59335",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59335",
+      "datetime": "2026-07-26T22:23:19.000Z",
+      "localDateKst": "2026-07-27",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "미 연준의 7월 FOMC에서 기준금리를 동결할 확률은 63.7%, 25bp 인상 확률은 36.3%로 CME 페드워치에서 집계. 9월 FOMC 기준으로는 금리 동결 확률 19.6%, 누적 25bp 인상 확률..."
+    },
     {
       "id": "insidertracking/59323",
       "channel": "insidertracking",
@@ -28283,69 +28393,6 @@
       "score": 61,
       "hasText": true,
       "summary": "블룸버그에 따르면 마이클 크라치오스 백악관 과학기술보좌관이 중국 인공지능 기업 문샷(Moonshot)이 미국의 AI 모델과 태국에서 확보한 엔비디아 GB300 칩을 부적절하게 사용해 Kimi K3 시스템을..."
-    },
-    {
-      "id": "insidertracking/58992",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58992",
-      "datetime": "2026-07-23T02:50:00.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "MU",
-        "TSM",
-        "TSLA",
-        "005930.KS"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "테슬라(Tesla) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 역대 최대 2분기 차량 인도 실적. 미주 지역은 전분기 대비 60%, 아시아·태평양은 27%, 유럽·중동·아프리카는 12% 성장하며..."
-    },
-    {
-      "id": "insidertracking/58991",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58991",
-      "datetime": "2026-07-23T02:16:25.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "kr-market",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [
-        "CFLT"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "IBM FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 반복 매출 기반 소프트웨어 성장 지속. 전체 소프트웨어 매출의 약 80%가 반복 매출(Recurring Revenue)로 구성. 연간..."
-    },
-    {
-      "id": "insidertracking/58990",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58990",
-      "datetime": "2026-07-23T02:15:35.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [
-        "TXN"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "텍사스 인스트루먼트(Texas Instruments) FY2026 2분기 어닝콜 요약 🟢 긍정 요인: • 견조한 매출과 수익성 개선. 2분기 매출은 55억달러로 전분기 대비 13%, 전년 대비 23% 증가...."
     },
     {
       "id": "aetherjapanresearch/23829",
