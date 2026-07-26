@@ -52,6 +52,21 @@ try {
   if (boot.status !== 'MIGRATION_IN_PROGRESS') throw new Error(`unexpected architecture status: ${boot.status}`);
   if (!boot.navigationInstalled || !boot.hasNavigate) throw new Error(`typed navigation facade not installed: ${JSON.stringify(boot)}`);
   if (!boot.summaryBlocked) throw new Error('offline sentiment must remain blocked');
+  await page.waitForFunction(() => {
+    const el = document.getElementById('live-quote-ts-topbar');
+    return el?.textContent?.includes('기준 시세');
+  }, { timeout: 15000 });
+  const quoteTopbar = await page.evaluate(() => {
+    const el = document.getElementById('live-quote-ts-topbar');
+    return {
+      text: el?.textContent || '',
+      className: el?.className || '',
+      title: el?.getAttribute('title') || ''
+    };
+  });
+  if (!/기준 시세.+\(16개\)/.test(quoteTopbar.text) || !/\bfb-static\b/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title)) {
+    throw new Error(`snapshot quote topbar must stay reference-only while external providers are blocked: ${JSON.stringify(quoteTopbar)}`);
+  }
 
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
@@ -97,14 +112,43 @@ try {
     rawSnapSinkCount: document.querySelectorAll('#page-macro [data-snap]').length,
     nativeLiveSinkCount: document.querySelectorAll('#page-macro[data-aio-architecture-renderer="native"] [data-live-price], #page-macro[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     primarySnapSinkCount: document.querySelectorAll('#page-macro[data-aio-architecture-renderer="native"] [data-snap]').length,
+    twoYearRenderer: document.getElementById('macro-2y-value')?.dataset.aioMacroTwoYearRenderer || null,
+    twoYearValue: document.getElementById('macro-2y-value')?.textContent || '',
+    spreadRenderer: document.getElementById('macro-spread-value')?.dataset.aioMacroSpreadRenderer || null,
+    spreadValue: document.getElementById('macro-spread-value')?.textContent || '',
+    spreadMeaning: document.getElementById('macro-spread-meaning')?.textContent || '',
+    spreadStatusRenderer: document.getElementById('spread-status')?.dataset.aioMacroSpreadRenderer || null,
+    curveRenderer: document.getElementById('curve-status')?.dataset.aioMacroCurveRenderer || null,
+    curveStatus: document.getElementById('curve-status')?.textContent || '',
+    curveMeaning: document.getElementById('curve-meaning')?.textContent || '',
+    fedMeaningRenderer: document.getElementById('macro-fed-meaning')?.dataset.aioMacroFedMeaningRenderer || null,
+    fedMeaningText: document.getElementById('macro-fed-meaning')?.textContent || '',
     htmlHasLiveAttr: document.getElementById('page-macro')?.innerHTML.includes('data-live-price') || false
   }));
+  if (macroRoute.twoYearRenderer !== 'native' || !macroRoute.twoYearValue.trim() || macroRoute.spreadRenderer !== 'native' || macroRoute.spreadStatusRenderer !== 'native' || !macroRoute.spreadValue.trim() || !macroRoute.spreadMeaning.trim() || macroRoute.curveRenderer !== 'native' || !macroRoute.curveStatus.trim() || !macroRoute.curveMeaning.trim() || macroRoute.fedMeaningRenderer !== 'native' || !macroRoute.fedMeaningText.trim()) throw new Error(`macro secondary surface failed: ${JSON.stringify(macroRoute)}`);
+
   await page.evaluate(() => window.AIO_ARCH.navigate('fxbond'));
   await page.waitForFunction(() => document.getElementById('page-fxbond')?.dataset.aioArchitectureRoute === 'fxbond');
   const fxbondRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-fxbond'),
     renderer: document.getElementById('page-fxbond')?.dataset.aioArchitectureRenderer || null,
     fxbondRenderer: document.getElementById('page-fxbond')?.dataset.aioFxbondRenderer || null,
+    riskRenderer: document.getElementById('fxbond-risk-pill')?.dataset.aioFxbondRiskRenderer || null,
+    riskText: document.getElementById('fxbond-risk-pill')?.textContent || '',
+    curveRenderer: document.getElementById('yc-inversion-badge')?.dataset.aioFxbondCurveRenderer || null,
+    curveText: document.getElementById('yc-inversion-badge')?.textContent || '',
+    carryRenderer: document.getElementById('carry-risk-level')?.dataset.aioFxbondCarryRenderer || null,
+    carryText: document.getElementById('carry-risk-level')?.textContent || '',
+    carryScoreRenderer: document.getElementById('carry-score-text')?.dataset.aioFxbondCarryScoreRenderer || null,
+    carryScoreText: document.getElementById('carry-score-text')?.textContent || '',
+    carryScoreBar: document.getElementById('carry-score-bar')?.style.width || '',
+    carryVerdict: document.getElementById('carry-verdict')?.textContent || '',
+    camRenderer: document.getElementById('cam-verdict-text')?.dataset.aioFxbondCamRenderer || null,
+    camText: document.getElementById('cam-verdict-text')?.textContent || '',
+    curveStatusRenderer: document.getElementById('yc-chart-status')?.dataset.aioFxbondCurveStatusRenderer || null,
+    curveStatusText: document.getElementById('yc-chart-status')?.textContent || '',
+    twoYearRenderer: document.getElementById('yc-2y-track')?.dataset.aioFxbondTwoYearRenderer || null,
+    twoYearText: document.getElementById('yc-2y-track')?.textContent || '',
     rawLiveSinkCount: document.querySelectorAll('#page-fxbond [data-live-price], #page-fxbond [data-live-chg]').length,
     nativeLiveSinkCount: document.querySelectorAll('#page-fxbond[data-aio-architecture-renderer="native"] [data-live-price], #page-fxbond[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     rawMoveSinkCount: document.querySelectorAll('#page-fxbond [data-snap="move"]').length,
@@ -116,6 +160,11 @@ try {
     pageExists: !!document.getElementById('page-breadth'),
     renderer: document.getElementById('page-breadth')?.dataset.aioArchitectureRenderer || null,
     breadthRenderer: document.getElementById('page-breadth')?.dataset.aioBreadthRenderer || null,
+    signalRenderer: document.getElementById('breadth-signal-val')?.dataset.aioBreadthSignalRenderer || null,
+    signalText: document.getElementById('breadth-signal-val')?.textContent || '',
+    diagnosticRenderer: document.getElementById('breadth-diag-text')?.dataset.aioBreadthDiagnosticRenderer || null,
+    diagnosticSignal: document.getElementById('breadth-diag-signal')?.textContent || '',
+    diagnosticText: document.getElementById('breadth-diag-text')?.textContent || '',
     rawPrimarySinkCount: document.querySelectorAll('#page-breadth [data-snap="breadth-5sma"], #page-breadth [data-snap="breadth-20sma"], #page-breadth [data-snap="breadth-50sma"], #page-breadth #breadth-advance-ratio').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-breadth[data-aio-architecture-renderer="native"] [data-snap="breadth-5sma"], #page-breadth[data-aio-architecture-renderer="native"] [data-snap="breadth-20sma"], #page-breadth[data-aio-architecture-renderer="native"] [data-snap="breadth-50sma"], #page-breadth[data-aio-architecture-renderer="native"] #breadth-advance-ratio').length,
     primaryValues: ['breadth-5sma-big', 'breadth-20sma-big', 'breadth-50sma-big', 'breadth-advance-ratio'].map((id) => document.getElementById(id)?.textContent || null)
@@ -126,10 +175,73 @@ try {
     pageExists: !!document.getElementById('page-themes'),
     renderer: document.getElementById('page-themes')?.dataset.aioArchitectureRenderer || null,
     themesRenderer: document.getElementById('rrg-quadrant-cards')?.dataset.aioThemesRenderer || null,
+    rrgStatusRenderer: document.getElementById('rrg-chart-status')?.dataset.aioRrgStatusRenderer || null,
+    rrgStatusText: document.getElementById('rrg-chart-status')?.textContent || '',
+    rrgChartRenderer: document.getElementById('rrg-canvas')?.dataset.aioRrgChartRenderer || null,
+    rrgCanvasSize: [document.getElementById('rrg-canvas')?.width || 0, document.getElementById('rrg-canvas')?.height || 0],
+    cycleRenderer: document.getElementById('theme-cycle-pill')?.dataset.aioThemeCycleRenderer || null,
+    cycleText: document.getElementById('theme-cycle-pill')?.textContent || '',
+    performanceNarrativeRenderer: document.getElementById('sector-perf-analysis')?.dataset.aioThemePerformanceRenderer || null,
+    performanceNarrativeText: document.getElementById('sector-perf-analysis')?.textContent || '',
     rawPrimarySinkCount: document.querySelectorAll('#page-themes #rrg-quadrant-cards, #page-themes #rrg-rotation-read').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-themes[data-aio-architecture-renderer="native"] #rrg-quadrant-cards[data-aio-themes-renderer="native"], #page-themes[data-aio-architecture-renderer="native"] #rrg-rotation-read').length,
     quadrantCount: document.querySelectorAll('#page-themes #rrg-quadrant-cards [data-theme-quadrant]').length
   }));
+  await page.evaluate(() => window.showThemeDetail?.(window.THEME_MAP?.[0]?.id || 'defense'));
+  const themeDetailInvocation = await page.evaluate(() => ({
+    showThemeDetailType: typeof window.showThemeDetail,
+    themeMapFirst: window.THEME_MAP?.[0]?.id || null,
+    panelDisplay: document.getElementById('theme-detail-panel')?.style.display || null,
+    panelRenderer: document.getElementById('theme-detail-panel')?.dataset.aioThemeDetailPanelRenderer || null,
+    hostHidden: document.getElementById('theme-detail-native-summary')?.hidden ?? null,
+    stateSelectedId: window.AIO_ARCH?.getState?.()?.themes?.selectedId || null,
+    stateDetail: window.AIO_ARCH?.getState?.()?.themes?.selectedDetail || null
+  }));
+  if (themesRoute.renderer !== 'native' || themesRoute.themesRenderer !== 'native' || themesRoute.rrgStatusRenderer !== 'native' || !themesRoute.rrgStatusText.trim() || themesRoute.rrgChartRenderer !== 'native' || themesRoute.rrgCanvasSize[0] < 300 || themesRoute.rrgCanvasSize[1] < 180 || themesRoute.cycleRenderer !== 'native' || !themesRoute.cycleText.trim() || themesRoute.performanceNarrativeRenderer !== 'native' || !themesRoute.performanceNarrativeText.trim() || themesRoute.nativePrimarySinkCount !== themesRoute.rawPrimarySinkCount) throw new Error(`themes native primary/chart/status/cycle/narrative boundary failed: ${JSON.stringify(themesRoute)}`);
+  if (themeDetailInvocation.showThemeDetailType !== 'function') throw new Error(`theme-detail invocation unavailable: ${JSON.stringify(themeDetailInvocation)}`);
+  if (themeDetailInvocation.panelDisplay !== 'block' || themeDetailInvocation.panelRenderer !== 'native') throw new Error(`theme-detail native panel state did not open: ${JSON.stringify(themeDetailInvocation)}`);
+  if (themeDetailInvocation.hostHidden !== false) throw new Error(`theme-detail native summary did not open: ${JSON.stringify(themeDetailInvocation)}`);
+  await page.waitForFunction(() => {
+    const host = document.getElementById('theme-detail-native-summary');
+    return host && !host.hidden && host.textContent.trim().length > 0;
+  });
+  const themeDetailRoute = await page.evaluate(() => ({
+    panelExists: !!document.getElementById('theme-detail-panel'),
+    panelRenderer: document.getElementById('theme-detail-panel')?.dataset.aioThemeDetailPanelRenderer || null,
+    panelDisplay: document.getElementById('theme-detail-panel')?.style.display || null,
+    nativeSummaryExists: !!document.getElementById('theme-detail-native-summary'),
+    nativeSummaryHidden: document.getElementById('theme-detail-native-summary')?.hidden ?? true,
+    nativeSummaryText: document.getElementById('theme-detail-native-summary')?.textContent || '',
+    nativeCompositionExists: !!document.getElementById('theme-detail-native-composition'),
+    nativeCompositionHidden: document.getElementById('theme-detail-native-composition')?.hidden ?? true,
+    nativeCompositionText: document.getElementById('theme-detail-native-composition')?.textContent || '',
+    nativeLeadersExists: !!document.getElementById('theme-detail-native-leaders'),
+    nativeLeadersHidden: document.getElementById('theme-detail-native-leaders')?.hidden ?? true,
+    nativeLeaderCardCount: document.querySelectorAll('#theme-detail-native-leaders [data-action="showTicker"]').length,
+    nativeTemperatureExists: !!document.getElementById('theme-detail-native-temperature'),
+    nativeTemperatureHidden: document.getElementById('theme-detail-native-temperature')?.hidden ?? true,
+    nativeTemperatureText: document.getElementById('theme-detail-native-temperature')?.textContent || '',
+    nativeSpreadExists: !!document.getElementById('theme-detail-native-spread'),
+    nativeSpreadHidden: document.getElementById('theme-detail-native-spread')?.hidden ?? true,
+    nativeSpreadText: document.getElementById('theme-detail-native-spread')?.textContent || '',
+    nativeBreadthHealthExists: !!document.getElementById('theme-detail-native-breadth-health'),
+    nativeBreadthHealthHidden: document.getElementById('theme-detail-native-breadth-health')?.hidden ?? true,
+    nativeBreadthHealthText: document.getElementById('theme-detail-native-breadth-health')?.textContent || '',
+    nativeSubthemeGapExists: !!document.getElementById('theme-detail-native-subtheme-gap'),
+    nativeSubthemeGapHidden: document.getElementById('theme-detail-native-subtheme-gap')?.hidden ?? true,
+    nativeSubthemeGapText: document.getElementById('theme-detail-native-subtheme-gap')?.textContent || '',
+    nativeBenchmarkExists: !!document.getElementById('theme-detail-native-benchmark'),
+    nativeBenchmarkHidden: document.getElementById('theme-detail-native-benchmark')?.hidden ?? true,
+    nativeBenchmarkText: document.getElementById('theme-detail-native-benchmark')?.textContent || '',
+    nativeInsightsExists: !!document.getElementById('theme-detail-native-insights'),
+    nativeInsightsHidden: document.getElementById('theme-detail-native-insights')?.hidden ?? true,
+    nativeInsightsText: document.getElementById('theme-detail-native-insights')?.textContent || '',
+    legacyContentExists: !!document.getElementById('theme-detail-legacy-content'),
+    legacyContentEmpty: (document.getElementById('theme-detail-legacy-content')?.textContent || '').trim().length === 0,
+    renderer: document.getElementById('page-themes')?.dataset.aioArchitectureRenderer || null
+  }));
+  if (!themeDetailRoute.panelExists || themeDetailRoute.panelRenderer !== 'native' || themeDetailRoute.panelDisplay !== 'block' || !themeDetailRoute.nativeSummaryExists || themeDetailRoute.nativeSummaryHidden || !themeDetailRoute.nativeCompositionExists || themeDetailRoute.nativeCompositionHidden || !themeDetailRoute.nativeCompositionText.trim() || !themeDetailRoute.nativeLeadersExists || themeDetailRoute.nativeLeadersHidden || themeDetailRoute.nativeLeaderCardCount < 1 || !themeDetailRoute.nativeTemperatureExists || themeDetailRoute.nativeTemperatureHidden || !themeDetailRoute.nativeTemperatureText.trim() || !themeDetailRoute.nativeSpreadExists || themeDetailRoute.nativeSpreadHidden || !themeDetailRoute.nativeSpreadText.trim() || !themeDetailRoute.nativeBreadthHealthExists || themeDetailRoute.nativeBreadthHealthHidden || !themeDetailRoute.nativeBreadthHealthText.trim() || !themeDetailRoute.nativeSubthemeGapExists || themeDetailRoute.nativeSubthemeGapHidden || !themeDetailRoute.nativeSubthemeGapText.trim() || !themeDetailRoute.nativeBenchmarkExists || themeDetailRoute.nativeBenchmarkHidden || !themeDetailRoute.nativeBenchmarkText.trim() || !themeDetailRoute.nativeInsightsExists || themeDetailRoute.nativeInsightsHidden || !themeDetailRoute.nativeInsightsText.trim() || !themeDetailRoute.legacyContentExists || !themeDetailRoute.legacyContentEmpty || themeDetailRoute.renderer !== 'native') throw new Error(`theme-detail native panel/summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark/insights/retired-legacy boundary failed: ${JSON.stringify(themeDetailRoute)}`);
+  await page.evaluate(() => window.closeThemeDetail?.());
   await page.evaluate(() => window.showTicker('AAPL'));
   await page.waitForFunction(() => document.getElementById('page-ticker')?.dataset.aioArchitectureRoute === 'ticker');
   await page.waitForFunction(() => document.getElementById('ticker-hero-name')?.textContent === 'AAPL', { timeout: 10000 });
@@ -138,7 +250,10 @@ try {
     renderer: document.getElementById('page-ticker')?.dataset.aioArchitectureRenderer || null,
     rawPrimarySinkCount: document.querySelectorAll('#page-ticker #ticker-hero-name, #page-ticker #ticker-hero-fullname, #page-ticker #ticker-hero-price, #page-ticker #ticker-hero-chg').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-ticker[data-aio-architecture-renderer="native"] #ticker-hero-name, #page-ticker[data-aio-architecture-renderer="native"] #ticker-hero-fullname, #page-ticker[data-aio-architecture-renderer="native"] #ticker-hero-price, #page-ticker[data-aio-architecture-renderer="native"] #ticker-hero-chg').length,
-    primaryValues: ['ticker-hero-name', 'ticker-hero-fullname', 'ticker-hero-price', 'ticker-hero-chg'].map((id) => document.getElementById(id)?.textContent || null)
+    primaryValues: ['ticker-hero-name', 'ticker-hero-fullname', 'ticker-hero-price', 'ticker-hero-chg'].map((id) => document.getElementById(id)?.textContent || null),
+    symbolRenderer: document.getElementById('ticker-candle-symbol')?.dataset.aioTickerSymbolRenderer || null,
+    candleSymbol: document.getElementById('ticker-candle-symbol')?.textContent || '',
+    entrySymbol: document.getElementById('ticker-entry-symbol')?.textContent || ''
   }));
   await page.evaluate(() => window.AIO_ARCH.navigate('options'));
   await page.waitForFunction(() => document.getElementById('page-options')?.dataset.aioArchitectureRoute === 'options');
@@ -157,21 +272,109 @@ try {
     rawPrimarySinkCount: document.querySelectorAll('#page-fundamental #fund-data-status').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-fundamental[data-aio-architecture-renderer="native"] #fund-data-status').length,
     statusValue: document.getElementById('fund-data-status')?.textContent || null,
-    sourceKind: document.getElementById('fund-data-status')?.getAttribute('data-source-kind') || null
+    sourceKind: document.getElementById('fund-data-status')?.getAttribute('data-source-kind') || null,
+    summaryRenderer: document.getElementById('fund-analysis-text')?.dataset.aioFundamentalSummaryRenderer || null,
+    summaryText: document.getElementById('fund-analysis-text')?.textContent || null,
+    summarySourceKind: document.getElementById('fund-analysis-text')?.getAttribute('data-source-kind') || null
   }));
   await page.evaluate(() => window.AIO_ARCH.navigate('portfolio'));
   await page.waitForFunction(() => document.getElementById('page-portfolio')?.dataset.aioArchitectureRoute === 'portfolio');
   const portfolioRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-portfolio'),
     renderer: document.getElementById('page-portfolio')?.dataset.aioArchitectureRenderer || null,
+    heroRenderer: document.getElementById('pf-total-value')?.dataset.aioPortfolioHeroRenderer || null,
+    heroValue: document.getElementById('pf-total-value')?.textContent || '',
+    heroPnl: document.getElementById('pf-total-pnl')?.textContent || '',
     rawPrimarySinkCount: document.querySelectorAll('#page-portfolio #pf-analysis-status').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-portfolio[data-aio-architecture-renderer="native"] #pf-analysis-status').length,
     statusValue: document.getElementById('pf-analysis-status')?.textContent || null,
     sourceKind: document.getElementById('pf-analysis-status')?.getAttribute('data-source-kind') || null
   }));
+  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim()) throw new Error(`portfolio hero native surface failed: ${JSON.stringify(portfolioRoute)}`);
+  await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
+  await page.waitForFunction(() => document.getElementById('page-technical')?.dataset.aioArchitectureRoute === 'technical');
+  const technicalRoute = await page.evaluate(() => {
+    const primarySelectors = '#tech-health-pill, #health-score-display, #health-grade-display, #health-regime-display, #hc-spy-bar, #hc-qqq-bar, #hc-vix-bar, #ind-pressure-fill, #ind-buyrisk-fill, #ind-trend-fill, #health-interpretation';
+    const score = document.getElementById('health-score-display');
+    const before = score?.textContent || '';
+    if (score) score.textContent = 'NATIVE-FENCE';
+    window.computeMarketHealth?.();
+    const fenceValue = score?.textContent || '';
+    if (score) score.textContent = before;
+    return {
+      pageExists: !!document.getElementById('page-technical'),
+      renderer: document.getElementById('page-technical')?.dataset.aioArchitectureRenderer || null,
+      technicalRenderer: document.getElementById('page-technical')?.dataset.aioTechnicalRenderer || null,
+      rawPrimarySinkCount: document.querySelectorAll(`#page-technical ${primarySelectors}`).length,
+      nativePrimarySinkCount: document.querySelectorAll(`#page-technical[data-aio-architecture-renderer="native"] ${primarySelectors}`).length,
+      score: before,
+      grade: document.getElementById('health-grade-display')?.textContent || '',
+      regime: document.getElementById('health-regime-display')?.textContent || '',
+      candleMetaRenderer: document.getElementById('tech-candle-meta')?.dataset.aioTechnicalCandleMetaRenderer || null,
+      candleTitle: document.getElementById('tech-candle-title')?.textContent || '',
+      candleMeta: document.getElementById('tech-candle-meta')?.textContent || '',
+      fenceValue
+    };
+  });
+  if (technicalRoute.renderer !== 'native' || technicalRoute.technicalRenderer !== 'native' || technicalRoute.rawPrimarySinkCount !== 11 || technicalRoute.nativePrimarySinkCount !== 11 || !technicalRoute.score.trim() || !technicalRoute.grade.trim() || !technicalRoute.regime.trim() || technicalRoute.candleMetaRenderer !== 'native' || !technicalRoute.candleTitle.trim() || !technicalRoute.candleMeta.trim() || technicalRoute.fenceValue !== 'NATIVE-FENCE') throw new Error(`technical health/candle-meta native surface/fence failed: ${JSON.stringify(technicalRoute)}`);
+  await page.evaluate(() => window.AIO_ARCH.navigate('signal'));
+  await page.waitForFunction(() => document.getElementById('page-signal')?.dataset.aioArchitectureRoute === 'signal');
+  const signalRoute = await page.evaluate(() => {
+    const primarySelectors = '#score-gauge-val, #score-decision-badge, #score-decision-sub';
+    const score = document.getElementById('score-gauge-val');
+    const badge = document.getElementById('score-decision-badge');
+    const sub = document.getElementById('score-decision-sub');
+    const before = { score: score?.textContent || '', badge: badge?.textContent || '', sub: sub?.textContent || '' };
+    if (score) score.textContent = 'NATIVE-FENCE';
+    if (badge) badge.textContent = 'NATIVE-FENCE';
+    if (sub) sub.textContent = 'NATIVE-FENCE';
+    window.refreshSignalDashboard?.();
+    const fenceValue = { score: score?.textContent || '', badge: badge?.textContent || '', sub: sub?.textContent || '' };
+    if (score) score.textContent = before.score;
+    if (badge) badge.textContent = before.badge;
+    if (sub) sub.textContent = before.sub;
+    return {
+      pageExists: !!document.getElementById('page-signal'),
+      renderer: document.getElementById('page-signal')?.dataset.aioArchitectureRenderer || null,
+      signalRenderer: document.getElementById('page-signal')?.dataset.aioSignalRenderer || null,
+      rawPrimarySinkCount: document.querySelectorAll(`#page-signal ${primarySelectors}`).length,
+      nativePrimarySinkCount: document.querySelectorAll(`#page-signal[data-aio-architecture-renderer="native"] ${primarySelectors}`).length,
+      score: before.score,
+      badge: before.badge,
+      fenceValue
+    };
+  });
+  if (signalRoute.renderer !== 'native' || signalRoute.signalRenderer !== 'native' || signalRoute.rawPrimarySinkCount !== 3 || signalRoute.nativePrimarySinkCount !== 3 || Object.values(signalRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`signal native hero/fence failed: ${JSON.stringify(signalRoute)}`);
+  await page.evaluate(() => window.AIO_ARCH.navigate('home'));
+  await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
+  const homeRoute = await page.evaluate(() => {
+    const primarySelectors = '#home-hero-total, #home-hero-headline, #home-hero-desc, #home-trading-signal';
+    const ids = ['home-hero-total', 'home-hero-headline', 'home-hero-desc', 'home-trading-signal'];
+    const before = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)?.textContent || '']));
+    ids.forEach((id) => { const element = document.getElementById(id); if (element) element.textContent = 'NATIVE-FENCE'; });
+    window._aioRenderHomeHero?.();
+    window.refreshHomeDashboard?.();
+    const fenceValue = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)?.textContent || '']));
+    ids.forEach((id) => { const element = document.getElementById(id); if (element) element.textContent = before[id]; });
+    return {
+      pageExists: !!document.getElementById('page-home'),
+      renderer: document.getElementById('page-home')?.dataset.aioArchitectureRenderer || null,
+      homeRenderer: document.getElementById('page-home')?.dataset.aioHomeRenderer || null,
+      rawPrimarySinkCount: document.querySelectorAll(`#page-home ${primarySelectors}`).length,
+      nativePrimarySinkCount: document.querySelectorAll(`#page-home[data-aio-architecture-renderer="native"] ${primarySelectors}`).length,
+      fearGreedRenderer: document.getElementById('home-fg-score')?.dataset.aioHomeFearGreedRenderer || null,
+      fearGreedScore: document.getElementById('home-fg-score')?.textContent || '',
+      qualityRenderer: document.getElementById('home-quality-score')?.dataset.aioHomeQualityRenderer || null,
+      qualityScore: document.getElementById('home-quality-score')?.textContent || '',
+      qualityLabel: document.getElementById('home-quality-label')?.textContent || '',
+      values: before,
+      fenceValue
+    };
+  });
+  if (homeRoute.renderer !== 'native' || homeRoute.homeRenderer !== 'native' || homeRoute.rawPrimarySinkCount !== 4 || homeRoute.nativePrimarySinkCount !== 4 || homeRoute.fearGreedRenderer !== 'native' || !homeRoute.fearGreedScore.trim() || homeRoute.qualityRenderer !== 'native' || !homeRoute.qualityScore.trim() || !homeRoute.qualityLabel.trim() || Object.values(homeRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`home native summary/Fear & Greed/quality/fence failed: ${JSON.stringify(homeRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('briefing'));
   await page.waitForFunction(() => document.getElementById('page-briefing')?.dataset.aioArchitectureRoute === 'briefing');
-  const contentRoutes = await page.evaluate(({ market, macro, fxbond, breadth, themes, ticker, options, fundamental, portfolio }) => ({
+  const contentRoutes = await page.evaluate(({ market, macro, fxbond, breadth, themes, themeDetail, ticker, options, fundamental, portfolio, technical, signal, home }) => ({
     active: window.AIO_ARCH.router.active(),
     // P770: market-news and briefing must expose native primary-feed markers; secondary AI digest
     // content remains a compatibility/narrative boundary.
@@ -186,14 +389,23 @@ try {
     fxbondPrimaryRenderer: fxbond.fxbondRenderer,
     breadthRenderer: breadth.renderer,
     breadthPrimaryRenderer: breadth.breadthRenderer,
+    technicalRenderer: technical.renderer,
+    technicalPrimaryRenderer: technical.technicalRenderer,
     themesRenderer: themes.renderer,
     themesPrimaryRenderer: themes.themesRenderer,
+    themeDetailNativeSummary: themeDetail.nativeSummaryExists && !themeDetail.nativeSummaryHidden,
     tickerRenderer: ticker.renderer,
     optionsRenderer: options.renderer,
     fundamentalRenderer: fundamental.renderer,
     portfolioRenderer: portfolio.renderer
-  }), { market: marketRoute, macro: macroRoute, fxbond: fxbondRoute, breadth: breadthRoute, themes: themesRoute, ticker: tickerRoute, options: optionsRoute, fundamental: fundamentalRoute, portfolio: portfolioRoute });
-  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.breadthPrimaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || contentRoutes.tickerRenderer !== 'native' || contentRoutes.optionsRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || macroRoute.primarySnapSinkCount < 1 || fxbondRoute.nativeLiveSinkCount < 1 || fxbondRoute.nativeMoveSinkCount < 1 || breadthRoute.rawPrimarySinkCount < 1 || breadthRoute.nativePrimarySinkCount !== breadthRoute.rawPrimarySinkCount || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || optionsRoute.rawPrimarySinkCount !== 3 || optionsRoute.nativePrimarySinkCount !== 3 || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1) throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, themesRoute, tickerRoute, optionsRoute, fundamentalRoute, portfolioRoute })}`);
+    ,signalRenderer: signal.renderer
+    ,signalHeroRenderer: signal.signalRenderer
+    ,homeRenderer: home.renderer
+    ,homeSummaryRenderer: home.homeRenderer
+  }), { market: marketRoute, macro: macroRoute, fxbond: fxbondRoute, breadth: breadthRoute, themes: themesRoute, themeDetail: themeDetailRoute, ticker: tickerRoute, options: optionsRoute, fundamental: fundamentalRoute, portfolio: portfolioRoute, technical: technicalRoute, signal: signalRoute, home: homeRoute });
+  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.breadthPrimaryRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.optionsRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || macroRoute.primarySnapSinkCount < 1 || macroRoute.fedMeaningRenderer !== 'native' || !macroRoute.fedMeaningText.trim() || fxbondRoute.nativeLiveSinkCount < 1 || fxbondRoute.nativeMoveSinkCount < 1 || fxbondRoute.riskRenderer !== 'native' || !fxbondRoute.riskText.trim() || breadthRoute.rawPrimarySinkCount < 1 || breadthRoute.nativePrimarySinkCount !== breadthRoute.rawPrimarySinkCount || breadthRoute.signalRenderer !== 'native' || !breadthRoute.signalText.trim() || breadthRoute.diagnosticRenderer !== 'native' || !breadthRoute.diagnosticSignal.trim() || !breadthRoute.diagnosticText.trim() || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.symbolRenderer !== 'native' || !tickerRoute.candleSymbol.trim() || !tickerRoute.entrySymbol.trim() || optionsRoute.rawPrimarySinkCount !== 3 || optionsRoute.nativePrimarySinkCount !== 3 || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.summaryRenderer !== 'native' || !fundamentalRoute.summaryText.trim() || !fundamentalRoute.summarySourceKind || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1) throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRoute, fundamentalRoute, portfolioRoute })}`);
+
+  if (fxbondRoute.curveRenderer !== 'native' || !fxbondRoute.curveText.trim() || fxbondRoute.carryRenderer !== 'native' || !fxbondRoute.carryText.trim() || fxbondRoute.carryScoreRenderer !== 'native' || !fxbondRoute.carryScoreText.trim() || !fxbondRoute.carryScoreBar.trim() || !fxbondRoute.carryVerdict.trim() || fxbondRoute.camRenderer !== 'native' || !fxbondRoute.camText.trim() || fxbondRoute.curveStatusRenderer !== 'native' || !fxbondRoute.curveStatusText.trim() || fxbondRoute.twoYearRenderer !== 'native' || !fxbondRoute.twoYearText.trim()) throw new Error(`fxbond secondary surface failed: ${JSON.stringify(fxbondRoute)}`);
 
   // RM-05 item 2: two full 17-route A→B→...→A laps, asserting no resource accumulation between
   // lap 1 and lap 2. Two laps (not one before/after snapshot) because window._aioTimerRegistry
@@ -232,29 +444,26 @@ try {
   if (afterLap1.timers != null && afterLap2.timers != null && afterLap2.timers > afterLap1.timers) throw new Error(`legacy timer registry grew between lap 1 and lap 2 of the full route round trip: ${afterLap1.timers} -> ${afterLap2.timers}`);
   const roundTripEvidence = { routes: ROUTE_IDS_FOR_ROUNDTRIP.length, afterLap1, afterLap2 };
 
-  // RM-01 AG-DOM-WRITER browser evidence: home must show the legacy-rendered Korean 5-band label
-  // and 0-100 integer score, never the retired native toy model's English action word or -1..1
-  // decimal (analysis.js no longer writes either id, so this also proves legacy alone renders them
-  // without a native competitor silently winning the last-writer-wins race).
+  // P787 browser evidence: the home summary remains native after a complete route round trip.
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
   const homeSurface = await page.evaluate(() => ({
-    scoreGaugeVal: document.getElementById('score-gauge-val')?.textContent ?? null,
+    renderer: document.getElementById('page-home')?.dataset.aioArchitectureRenderer || null,
+    homeRenderer: document.getElementById('page-home')?.dataset.aioHomeRenderer || null,
+    heroTotal: document.getElementById('home-hero-total')?.textContent ?? null,
+    headline: document.getElementById('home-hero-headline')?.textContent ?? null,
     tradingSignal: document.getElementById('home-trading-signal')?.textContent ?? null
   }));
   const placeholderPattern = /^(—|-|• • •|)$/;
-  const retiredDecimalPattern = /^-?\d*\.\d+$/;
-  const retiredEnglishActionPattern = /^(WATCH|HOLD|REDUCE|BUY|SELL)$/i;
   const koreanPattern = /[가-힣]/;
-  if (retiredDecimalPattern.test(homeSurface.scoreGaugeVal || '')) throw new Error(`score-gauge-val regressed to retired native decimal format: ${JSON.stringify(homeSurface)}`);
-  if (!placeholderPattern.test(homeSurface.scoreGaugeVal || '') && !/^\d{1,3}\*?$/.test(homeSurface.scoreGaugeVal || '')) throw new Error(`score-gauge-val is neither a placeholder nor an integer 0-100 (legacy may append '*' for an estimated/stale annotation): ${JSON.stringify(homeSurface)}`);
-  if (retiredEnglishActionPattern.test(homeSurface.tradingSignal || '')) throw new Error(`home-trading-signal regressed to retired native English action word: ${JSON.stringify(homeSurface)}`);
+  if (homeSurface.renderer !== 'native' || homeSurface.homeRenderer !== 'native') throw new Error(`home renderer marker regressed after round trip: ${JSON.stringify(homeSurface)}`);
+  if (!placeholderPattern.test(homeSurface.heroTotal || '') && !/^\d{1,3}\*?$/.test(homeSurface.heroTotal || '')) throw new Error(`home hero score is neither a placeholder nor an integer 0-100: ${JSON.stringify(homeSurface)}`);
   if (!placeholderPattern.test(homeSurface.tradingSignal || '') && !koreanPattern.test(homeSurface.tradingSignal || '')) throw new Error(`home-trading-signal is neither a placeholder nor a Korean label: ${JSON.stringify(homeSurface)}`);
 
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, boot, sentimentRoute, guideRoute, contentRoutes, macroRoute, fxbondRoute, breadthRoute, themesRoute, tickerRoute, optionsRoute, fundamentalRoute, portfolioRoute, homeSurface, roundTripEvidence, routeRoundTrip: true, browserErrors: 0 }));
+  console.log(JSON.stringify({ ok: true, boot, quoteTopbar, sentimentRoute, guideRoute, contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRoute, fundamentalRoute, portfolioRoute, homeSurface, roundTripEvidence, routeRoundTrip: true, browserErrors: 0 }));
 } finally {
   await browser.close();
   server.kill();

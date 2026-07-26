@@ -23,6 +23,7 @@ import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
+import { computeMarketHealth } from '../domain/market/health.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
@@ -173,7 +174,23 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const marketCommands = createMarketCommands({ store });
   const syncMarket = createMarketOrchestrator({ provider: createMarketProvider({ read: legacy.readMarket }), commands: marketCommands });
   const themesCommands = createThemesCommands({ store });
-  const syncThemes = createThemesOrchestrator({ provider: createThemesProvider({ read: legacy.readThemes }), commands: themesCommands });
+  // P800: themes data is assembled by the native provider from explicit runtime inputs;
+  // legacy.readThemes remains a compatibility facade for non-cut-over consumers only.
+  const syncThemes = createThemesOrchestrator({
+    provider: createThemesProvider({
+      readLiveData: () => root?._liveData || {},
+      readHistory: () => root?._priceHistory || {},
+      readDefinitions: () => ({
+        sectors: root?.RRG_SECTORS,
+        subsectors: root?.RRG_SUBSECTORS,
+        themes: root?.THEME_MAP,
+        insights: root?.THEME_INSIGHTS
+      }),
+      readSelectedId: () => root?._currentThemeId || null,
+      now: clock.now
+    }),
+    commands: themesCommands
+  });
   const entityCommands = createEntityCommands({ store });
   // ARX-04: entity's fundamentals now come from a real fetch (public-data/sec-fundamentals.json)
   // — see src/data/providers/entity.js. id/quote/options remain legacy.readEntity projections.
@@ -274,6 +291,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopMarketSnapshot = legacy.on('aio:marketSnapshot', syncMarket.sync);
     const stopThemesRefresh = legacy.on('aio:refresh:done', syncThemes.sync);
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
+    const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
     const stopEntityRefresh = legacy.on('aio:refresh:done', syncEntity.sync);
     const stopEntityShown = legacy.on('aio:pageShown', syncEntity.sync);
     const stopPortfolioShown = legacy.on('aio:pageShown', syncPortfolio.sync);
@@ -317,6 +335,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopMarketSnapshot();
       stopThemesRefresh();
       stopThemesHistory();
+      stopThemeDetail();
       stopEntityRefresh();
       stopEntityShown();
       stopPortfolioShown();
@@ -401,6 +420,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // consumers can use the same implementation without importing legacy globals (R352/F-03).
     ,computeFactorRanks
     ,deriveFactorWeights
+    // P785: single pure market-health model for the technical primary surface; the legacy
+    // computeMarketHealth wrapper consumes this API and only renders when the native fence is absent.
+    ,computeMarketHealth
   };
   exposeArchitecture(root, api);
   return Object.freeze({ ...api, store, evidenceStore });

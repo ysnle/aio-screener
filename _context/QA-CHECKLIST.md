@@ -1,21 +1,21 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P780 verification
-last_verified: 2026-07-22
+verified_by: agent (Fable 5) + Codex P761-P795 verification
+last_verified: 2026-07-26
 confidence: high
 
-## Current architecture checkpoint (2026-07-22, v53.17)
+## Current architecture checkpoint (2026-07-26, v53.37)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
-  guide/sentiment/screener/market-news/briefing/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (13/17), and native data ownership is screener/breadth (2/17).
+  home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (16/17), and native data ownership is screener/breadth (2/17).
 RM-03 P755~P763 extracted/retired the documented toy domains, replaced the signal
 toy with the Trading Score envelope, and made factor weights pure. ARX-10 gives
 screener sole native DOM/state ownership; ARX-16 migrates non-route consumers through
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
-version: v4.1
-checklist_version: v53.17
-latest_P_covered: P780
-current_P780_checkpoint: bounded portfolio readiness/status surface verified; renderer native 13/17, legacy 4/17; counters 1081/40/186/377
+version: v4.2
+checklist_version: v53.37
+latest_P_covered: P825
+current_P825_checkpoint: home quality meter native fail-closed; technical candle title/meta native; non-finite theme-detail deep-analysis guard; native currentness sanitizer guard; reduced aria-live regions; renderer native 17/17; counters 1087/39/186/373; architecture/Chromium/headless/UX/accessibility/viewport gates pass before full intermediate-release QA
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---
@@ -25,6 +25,104 @@ current_P780_checkpoint: bounded portfolio readiness/status surface verified; re
 > **핵심 원칙**: 코드 수정 → "고쳤다" 선언 금지. **게이트/브라우저에서 직접 확인한 증거**가 있어야 완료.
 > 반복 요청 분석 최다 빈도 #1: "코드 고쳤다면서 브라우저에서 안 되잖아" — 이 체크리스트의 존재 이유.
 > 테스트 그린만으로 안심 금지 — assert되지 않는 경로의 버그(P678 클래스)는 스위트가 못 잡는다.
+
+## P781~P783 중간점검 회귀 체크
+
+- [ ] `route-owners.json.routes`에서 재계산한 5차원 owner counts/native/legacy/full-native가 파일 요약과 정확히 일치한다.
+- [ ] old SW controller 응답 후 `controllerchange`가 발생하면 화면의 SW 버전과 mismatch 경고가 새 controller 응답으로 갱신된다.
+- [ ] 외부 quote 네트워크 차단 + published snapshot 16/16에서 topbar가 `기준 시세`, `fb-static`, 실제 observed-at/count를 표시하며 live로 승격하지 않는다.
+- [ ] proxy circuit open + snapshot 가용 시 Stooq/Yahoo rescue가 재호출되지 않고 `fetchLiveQuotes` 내부 self-retry가 등록되지 않는다.
+- [ ] 일부 `live:` quote만 수신하고 core coverage가 부족하면 `일부 실시간`으로 표시한다.
+- [ ] 서버 FRED/HY artifact 성공 상태에서는 부팅 중 브라우저 FRED/HY proxy fallback을 호출하지 않는다.
+
+## P784 SA bounded packet 회귀 체크
+
+- [x] SA-01: Yahoo chart caller uses `fetchViaProxy`/`_PROXY_REGISTRY`; direct chart proxy array is absent and invalid payloads count as failures.
+- [x] SA-01: deterministic three-failure cooldown and later success restoration pass in headless `T1041`; headless result `1102/1102 PASS`.
+- [x] SA-02: external quote hosts blocked twice; same-origin snapshot applies 16 reference sources and topbar remains `기준 시세` + `fb-static`; `fetchLiveQuotes._failCount` does not self-retry.
+- [x] SA-03: old controller → one `controllerchange` → current version re-query; exactly two version queries, one change, no navigation loop.
+- [x] SA-04: server FRED/HY success produces zero browser FRED/HY requests; quote request count `83` stays below the documented ceiling `100`.
+- [x] SA-05: current generated preflight matches HEAD/version and all historical checkout/deployment claims are explicitly labeled.
+
+## P785 ARX-11 bounded technical health 회귀 체크
+
+- [x] 순수 `market-health.v1` 모델이 SPY/QQQ/VIX 필수 입력 결측을 `score:null`·`판정 보류`로 fail-closed 처리한다.
+- [x] bullish/defensive/neutral threshold fixture가 score/grade/regime/bar 결과를 고정한다.
+- [x] `technical` native renderer가 health primary sink 11/11을 렌더하고 `data-aio-technical-renderer="native"`를 기록한다.
+- [x] legacy `computeMarketHealth()` 및 `_initTechnicalPage()` 직접 호출이 native health surface를 덮어쓰지 않는다(`NATIVE-FENCE`).
+- [x] 촛대·RSI/MACD·Weinstein/MTF·내러티브는 legacy secondary boundary로 원장에 남아 있다.
+
+## P786 ARX-11 bounded signal hero 회귀 체크
+
+- [x] `signal-presentation.v1`가 canonical `trading-score.v1`에서 5-tier 한국어 판정문을 파생하고 machine action envelope와 분리한다.
+- [x] 필수 입력 결측/부분 입력은 `판정 보류`와 `—`/`*` 표시로 fail-closed 처리한다.
+- [x] `signal` native renderer가 `score-gauge-val`, `score-decision-badge`, `score-decision-sub` 3/3을 렌더하고 native marker를 기록한다.
+- [x] legacy `refreshSignalDashboard()`가 native signal marker 아래 3개 primary sink를 덮어쓰지 않는다(`NATIVE-FENCE`).
+- [x] signal canvas/factor bars/execution-window/risk-monitor/timestamp/narrative 및 home summary는 별도 legacy secondary 경계로 유지된다.
+
+## P787 ARX-11 bounded home aggregate 회귀 체크
+
+- [x] `home` native renderer가 canonical `signal-presentation.v1`에서 `home-hero-total`, `home-hero-headline`, `home-hero-desc`, `home-trading-signal` 4/4를 렌더링한다.
+- [x] missing/partial score는 홈 summary에서 `—`/`*`와 판정 보류 문구로 fail-closed 표시된다.
+- [x] `data-aio-home-renderer="native"` marker가 route mount/dispose와 함께 설정·해제된다.
+- [x] legacy `_aioRenderHomeHero()` 및 `refreshHomeDashboard()`가 native marker 아래 네 primary sink를 덮어쓰지 않는다(`NATIVE-FENCE`).
+- [x] quality meter, Fear & Greed, regime, factor detail, chart, narrative는 P787 범위 밖의 legacy secondary boundary로 유지된다.
+
+## P788 derived theme-detail summary 회귀 체크
+
+- [x] `theme-detail` canonical redirect remains an inline panel on `themes`; no separate static route renderer is reintroduced.
+- [x] `#theme-detail-native-summary` renders selected label, performance/source status, and representative leaders through `themes.js` with textContent/DOM APIs.
+- [x] `showThemeDetail()` writes only `#theme-detail-legacy-content`; subtheme, breadth, deep-analysis, chart, and narrative surfaces remain explicitly legacy-owned.
+- [x] Chromium asserts native summary visible + legacy body populated, 17-route two-lap resources `42` canvases / `12` timers, and browserErrors `0`.
+
+## P789 theme-detail composition/breadth regression check
+
+- [x] `#theme-detail-native-composition` renders subtheme composition, constituent chips, and breadth from the explicit selection payload using safe DOM APIs.
+- [x] quote evidence and breadth are fail-closed to `시세 대기` when sufficient constituent price coverage is unavailable; no unavailable live value is promoted.
+- [x] `showThemeDetail()` no longer emits the legacy subtheme/breadth DOM; detailed leader cards and deep-analysis narrative remain the declared legacy boundary.
+- [x] Architecture contract and Chromium assert native summary/composition visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+
+## P790 theme-detail detailed leaders regression check
+
+- [x] `#theme-detail-native-leaders` renders the detailed leader-card grid, price, and change values from normalized quote evidence using safe DOM APIs.
+- [x] Missing leader quote values remain `가격 대기`/`등락률 대기`; the native surface does not infer unavailable prices.
+- [x] `showThemeDetail()` no longer emits the legacy leader-card block; deep-analysis narrative remains the declared legacy boundary.
+- [x] Architecture contract and Chromium assert native summary/composition/leaders visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+
+## P791 theme-detail temperature narrative regression check
+
+- [x] `#theme-detail-native-temperature` renders the canonical theme-temperature diagnosis from the normalized selected performance.
+- [x] Missing performance remains `시세 대기`; the native narrative does not manufacture a temperature class.
+- [x] The legacy deep-analysis temperature section is fenced while spread, breadth-health, benchmark, and remaining narrative sections stay separately declared.
+- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+
+## P792 theme-detail performance-spread narrative regression check
+
+- [x] `#theme-detail-native-spread` renders leader performance spread and strongest/weakest constituent readout from normalized quote evidence.
+- [x] Fewer than two quote changes remain `시세 대기`; no spread or ranking is inferred from missing values.
+- [x] The legacy performance-spread section is fenced while breadth-health, subtheme gap, benchmark, and remaining narrative sections stay separately declared.
+- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature/spread visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+
+## P793 theme-detail breadth-health narrative regression check
+
+- [x] `#theme-detail-native-breadth-health` renders the breadth-based theme health interpretation from normalized detail evidence.
+- [x] Missing breadth/quote coverage remains `시세 대기`; no health classification is inferred from unavailable values.
+- [x] The legacy breadth-health section is fenced while subtheme gap, benchmark, and remaining narrative sections stay separately declared.
+- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature/spread/breadth-health visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+
+## P794 theme-detail subtheme-gap narrative regression check
+
+- [x] `#theme-detail-native-subtheme-gap` renders strongest/weakest subtheme performance and the gap from normalized subtheme quote evidence.
+- [x] Fewer than two observed subtheme performances remain `시세 대기`; no gap or ranking is inferred from missing values.
+- [x] The legacy subtheme-gap section is fenced while benchmark and remaining narrative sections stay separately declared.
+- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+
+## P795 theme-detail benchmark narrative regression check
+
+- [x] `#theme-detail-native-benchmark` renders selected-theme versus ETF/composite-base performance from normalized theme and benchmark quote evidence.
+- [x] Missing theme/benchmark performance remains `시세 대기`; no relative comparison is inferred from unavailable values.
+- [x] The legacy benchmark section is fenced while theme insights, chart, and data sections stay separately declared.
+- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
 
 ---
 

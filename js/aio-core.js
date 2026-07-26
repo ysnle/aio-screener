@@ -4164,20 +4164,56 @@ window._aioUpdateFreshness = function() {
 // v48.99: _aioPageBus 마이그 (P178)
 if (typeof document !== 'undefined') {
   _aioPageBus.register('core-freshness', 'aio:liveQuotes', function(){ window._aioUpdateFreshness(); });
+  function _aioRenderMarketSnapshotTopbar(meta) {
+    try {
+      meta = meta || {};
+      var tb = document.getElementById('live-quote-ts-topbar');
+      if (!tb || !(Number(meta.count) > 0)) return false;
+      var observed = meta.latestObservedAt ? new Date(meta.latestObservedAt) : null;
+      var asOf = observed && isFinite(observed.getTime())
+        ? observed.toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : '시각 확인 중';
+      tb.textContent = '● 기준 시세 ' + asOf + ' (' + Number(meta.count) + '개)';
+      tb.className = 'freshness-badge fb-static';
+      tb.setAttribute('title', '실시간 시세가 아닌 동일 출처 기준 스냅샷 · 의사결정 참고 전용');
+      return true;
+    } catch (_) { return false; }
+  }
+  function _aioRenderQuoteTopbar(opts) {
+    try {
+      opts = opts || {};
+      if (opts.forceSnapshot) return _aioRenderMarketSnapshotTopbar(opts.snapshot);
+      var tb = document.getElementById('live-quote-ts-topbar');
+      if (!tb) return false;
+      var ld = window._liveData || {};
+      var liveCount = 0;
+      for (var k in ld) {
+        var row = ld[k];
+        var source = row && String(row.source || '');
+        if (row && row.price != null && source.indexOf('live:') === 0) liveCount++;
+      }
+      if (liveCount > 0) {
+        var partial = opts.coreCoverageOk === false;
+        tb.textContent = '● ' + (partial ? '일부 실시간 ' : '실시간 ')
+          + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+          + ' (' + liveCount + '개)';
+        tb.className = 'freshness-badge ' + (partial ? 'fb-static' : 'fb-live');
+        tb.setAttribute('title', (partial ? '핵심 시장 커버리지 일부 미수신 · ' : '최근 실시간 시세 수신 · ') + liveCount + '개 종목');
+        return true;
+      }
+      return false;
+    } catch (_) { return false; }
+  }
+  _aioPageBus.register('core-snapshot-topbar', 'aio:marketSnapshot', function(e) {
+    _aioRenderMarketSnapshotTopbar(e && e.detail);
+  });
+  _aioPageBus.register('core-quote-topbar', 'aio:quoteTopbar', function(e) {
+    _aioRenderQuoteTopbar(e && e.detail);
+  });
   // v50.16 (사용자 지적: 라이브 로드됐는데 topbar "시세 연결 중..." 고정): aio:liveQuotes(라이브 fetch마다)에서
   //   live-quote-ts-topbar를 robust 갱신. 기존 fetchLiveQuotes 내부 hook이 일부 라이브 경로에서 누락되던 것 보강.
   _aioPageBus.register('core-topbar-ts', 'aio:liveQuotes', function(){
-    try {
-      var tb = document.getElementById('live-quote-ts-topbar');
-      if (!tb) return;
-      var ld = window._liveData || {};
-      var cnt = 0; for (var k in ld) { if (ld[k] && ld[k].price != null) cnt++; }
-      if (cnt > 0) {
-        tb.textContent = '● 시세 ' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ' (' + cnt + '개)';
-        tb.className = 'freshness-badge fb-live';
-        tb.setAttribute('title', '최근 source 확인 시세 수신 · ' + cnt + '개 종목');
-      }
-    } catch (_) {}
+    try { _aioRenderQuoteTopbar(); } catch (_) {}
   });
   // v48.91: 타이머 레지스트리 등록
   window._aioFreshnessTimer = _aioRegisterTimer('freshness', function(){ window._aioUpdateFreshness(); }, 30 * 1000);
@@ -4662,7 +4698,7 @@ window.AIO.getPageEvidenceState = function(pageId, proposedKind) {
 // legitimately disagree even within the cache window — this is the same P553 bug class,
 // recurring wherever a page's own mode differs from the header's. Keeping the mapping here
 // means the header always asks for the SAME score the page itself is already showing.
-var AIO_PAGE_SCORE_MODE = { signal: 'swing', ticker: 'swing' };
+var AIO_PAGE_SCORE_MODE = { home: 'swing', signal: 'swing', ticker: 'swing' };
 
 function _aioDefaultDecision(pageId) {
   var snap = window.DATA_SNAPSHOT || {};
@@ -6286,7 +6322,7 @@ window._aioApplyEventFreshnessGate = function() {
       cp2.textContent = claimPrefix + 'Fed 3.50-3.75% · ' + fomcLabel + (fomcDate ? ' ' + fomcDate : '') + ': ' + fomcResult.slice(0, 50) + ' · 다음 확인: ' + fomcNextCP.slice(0, 40);
     }
     var fed = document.getElementById('macro-fed-meaning');
-    if (fed) {
+    if (fed && fed.dataset.aioMacroFedMeaningRenderer !== 'native') {
       fed.setAttribute('data-source-kind', claim.allowedUse ? 'SNAPSHOT' : 'REFERENCE');
       fed.setAttribute('data-as-of', fomcDate);
       fed.setAttribute('data-claim-state', claim.status);
@@ -19646,7 +19682,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.17';
+const APP_VERSION = 'v53.37';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -24574,13 +24610,14 @@ window.AIO.applyMarketCurrentnessGuard = function(opts) {
       return {
         el: el,
         visible: opts.includeHidden === true || !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length)),
+        native: !!(el && Object.keys(el.dataset || {}).some(function(key) { return /renderer$/i.test(key) && el.dataset[key] === 'native'; })),
         txt: String(el && el.textContent || '').replace(/\s+/g, ' ').trim(),
         hasUse: !!(el && el.getAttribute('data-operational-use'))
       };
     });
     narrativeRows.forEach(function(row) {
       var el = row.el;
-      if (!el || !row.visible) return;
+      if (!el || !row.visible || row.native) return;
       var txt = row.txt;
       if (/로딩 중|데이터 로딩|수신 대기|계산중/.test(txt)) {
         el.setAttribute('data-operational-use', 'reference-only');
@@ -24802,8 +24839,8 @@ function destroyPageCharts(pageId) {
     }
     // v42.4: themes 페이지 RRG canvas 클리어 (잔상 방지)
     if (pageId === 'themes') {
-      var rrgCanvas = document.getElementById('rrg-canvas');
-      if (rrgCanvas) { var ctx2d = rrgCanvas.getContext && rrgCanvas.getContext('2d'); if (ctx2d) ctx2d.clearRect(0, 0, rrgCanvas.width, rrgCanvas.height); }
+      var rrgCanvas = document.querySelector('[id="rrg-canvas"]');
+      if (rrgCanvas && rrgCanvas.dataset.aioRrgChartRenderer !== 'native') { var ctx2d = rrgCanvas.getContext && rrgCanvas.getContext('2d'); if (ctx2d) ctx2d.clearRect(0, 0, rrgCanvas.width, rrgCanvas.height); }
       if (window._rrgRetry) window._rrgRetry = 0;
     }
   } catch(e) { _aioLog('warn', 'chart', 'destroyPageCharts error: ' + (e && e.message || e)); }
@@ -25048,16 +25085,21 @@ var _initTechnicalPage = function() {
   if (typeof computeMarketHealth === 'function') {
     try {
       var h = computeMarketHealth();
-      var hd = document.getElementById('health-score-display');
-      var hg = document.getElementById('health-grade-display');
-      var hr = document.getElementById('health-regime-display');
-      if (h && h.score > 0) {
-        if (hd) hd.textContent = h.score;
-        if (hg) { hg.textContent = h.grade; hg.style.color = h.score >= 60 ? '#00e5a0' : h.score >= 40 ? '#ffa31a' : '#ff5b50'; }
-        if (hr) hr.textContent = h.regime || '';
-      } else {
-        if (hd) hd.textContent = '대기';
-        if (hg) { hg.textContent = '시세 수신 중…'; hg.style.color = 'var(--text-muted)'; }
+      // P785: analysis.js owns the technical market-health primary surface. Keep this
+      // compatibility initializer for non-native fallback pages only.
+      var nativeTechnicalHealth = typeof window._aioIsNativeTechnicalHealth === 'function' && window._aioIsNativeTechnicalHealth();
+      if (!nativeTechnicalHealth) {
+        var hd = document.querySelector('#health-score-display');
+        var hg = document.querySelector('#health-grade-display');
+        var hr = document.querySelector('#health-regime-display');
+        if (h && h.score > 0) {
+          if (hd) hd.textContent = h.score;
+          if (hg) { hg.textContent = h.grade; hg.style.color = h.score >= 60 ? '#00e5a0' : h.score >= 40 ? '#ffa31a' : '#ff5b50'; }
+          if (hr) hr.textContent = h.regime || '';
+        } else {
+          if (hd) hd.textContent = '대기';
+          if (hg) { hg.textContent = '시세 수신 중…'; hg.style.color = 'var(--text-muted)'; }
+        }
       }
     } catch(e) {}
   }
@@ -25564,9 +25606,9 @@ function showTicker(tkr) {
   const d = tickerData[tkr] || {name:tkr, value:'—', action:'hold'};
   // v48.47: 캔들/진입 섹션 심볼 라벨 동기화 + 자동 감지
   var _tcs = document.getElementById('ticker-candle-symbol');
-  if (_tcs) _tcs.textContent = tkr;
+  if (_tcs && _tcs.dataset.aioTickerSymbolRenderer !== 'native') _tcs.textContent = tkr;
   var _tes = document.getElementById('ticker-entry-symbol');
-  if (_tes) _tes.textContent = tkr;
+  if (_tes && _tes.dataset.aioTickerSymbolRenderer !== 'native') _tes.textContent = tkr;
   try { if (typeof window._aioDetectTickerPattern === 'function') window._aioDetectTickerPattern(); } catch(_){}
   // v52.16 P5f/P620: pnlEl.textContent 대입이 자식 span(#ticker-hero-value)을 통째로 파괴해
   // 바로 다음 줄의 _thv 갱신이 이후 영구 무력화(getElementById가 null)되던 버그 — span은

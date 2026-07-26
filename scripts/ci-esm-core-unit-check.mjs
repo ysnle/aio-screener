@@ -250,14 +250,40 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (unavailable.available !== false || unavailable.level !== null) fail(`breadth: a missing required input (sma20) must fail closed to available:false, not guess a level — got ${JSON.stringify(unavailable)}`);
 }
 
+// ── domain/market/health.js (P785: technical primary surface model) ─────────────────────────
+{
+  const { computeMarketHealth, MARKET_HEALTH_MODEL_VERSION } = await load('src/domain/market/health.js');
+  const unavailable = computeMarketHealth({ quotes: { SPY: { pct: 1 }, QQQ: { pct: 1 } } });
+  if (unavailable.available || unavailable.modelVersion !== MARKET_HEALTH_MODEL_VERSION || unavailable.score !== null || !unavailable.missing.includes('VIX')) fail(`market-health: missing VIX must fail closed, got ${JSON.stringify(unavailable)}`);
+  const bullish = computeMarketHealth({
+    quotes: {
+      SPY: { pct: 1.5, price: 550 }, QQQ: { pct: 1.2, price: 480 }, '^VIX': { price: 14 },
+      AAPL: { pct: 1 }, MSFT: { pct: 1 }, GOOGL: { pct: 1 }, AMZN: { pct: 1 }, NVDA: { pct: 1 }, META: { pct: 1 }, TSLA: { pct: 1 },
+      XLK: { pct: 1 }, XLF: { pct: 1 }, XLE: { pct: 1 }, XLV: { pct: 1 }, XLI: { pct: 1 }, XLY: { pct: 1 }
+    },
+    spxMA: { 50: 500, 200: 450 },
+    spxATH: 560
+  });
+  if (!bullish.available || bullish.score !== 100 || bullish.grade !== 'A+' || bullish.bars.trend !== 85 || bullish.inputs.leaderTotal !== 7) fail(`market-health: bullish thresholds drifted, got ${JSON.stringify(bullish)}`);
+  const defensive = computeMarketHealth({ quotes: { SPY: { pct: -2, price: 400 }, QQQ: { pct: -2 }, '^VIX': { price: 35 } }, spxMA: { 50: 450, 200: 500 } });
+  if (!defensive.available || defensive.score !== 4 || defensive.grade !== 'F' || defensive.regime !== '극심한 약세') fail(`market-health: defensive thresholds drifted, got ${JSON.stringify(defensive)}`);
+  const neutral = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
+  if (!neutral.available || neutral.score !== 42 || neutral.grade !== 'C' || neutral.bars.spy !== 50 || neutral.bars.qqq !== 50) fail(`market-health: neutral baseline drifted, got ${JSON.stringify(neutral)}`);
+}
+
 // ── domain/signal/trading-score.js: signal envelope ──────────────────────────────────────────
 {
-  const { computeTradingScoreModel, deriveSignalDecisionFromTradingScore } = await load('src/domain/signal/trading-score.js');
+  const { computeTradingScoreModel, deriveSignalDecisionFromTradingScore, deriveTradingScoreDecisionPresentation, SIGNAL_PRESENTATION_MODEL_VERSION } = await load('src/domain/signal/trading-score.js');
   const score = computeTradingScoreModel({ mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, fg: 50, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, pcr: 1, hyBp: 300, newsSentimentScore: 50, newsRiskSignals: [] });
   const signal = deriveSignalDecisionFromTradingScore({ score, inputVersion: 'unit.v1' });
   if (signal.modelVersion !== 'signal-from-trading-score.v1' || signal.score !== score.total || signal.action !== 'WATCH' || signal.status !== 'current') fail(`signal: canonical trading-score mapping drifted, got ${JSON.stringify(signal)}`);
+  if (signal.presentation?.modelVersion !== SIGNAL_PRESENTATION_MODEL_VERSION || signal.presentation?.status !== 'current' || signal.presentation?.action !== 'WATCH') fail(`signal: presentation envelope missing or drifted, got ${JSON.stringify(signal.presentation)}`);
+  const favorable = deriveTradingScoreDecisionPresentation({ score: { total: 75, partial: false }, inputVersion: 'unit.v1' });
+  if (favorable.tier !== 'favorable' || favorable.decision !== '환경 우호 — 종목별 근거 별도 확인' || favorable.displayScore !== '75') fail(`signal: favorable five-tier presentation drifted, got ${JSON.stringify(favorable)}`);
+  const partial = deriveTradingScoreDecisionPresentation({ score: { total: 43, partial: true, componentMissing: ['trend'] }, inputVersion: 'unit.v1' });
+  if (partial.status !== 'partial' || partial.displayScore !== '43*' || partial.tier !== 'partial') fail(`signal: partial presentation must remain fail-closed/annotated, got ${JSON.stringify(partial)}`);
   const blocked = deriveSignalDecisionFromTradingScore({ score: computeTradingScoreModel({}), inputVersion: 'unit.v1' });
-  if (blocked.status !== 'blocked' || blocked.action !== 'WAIT' || blocked.score !== null) fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
+  if (blocked.status !== 'blocked' || blocked.action !== 'WAIT' || blocked.score !== null || blocked.presentation?.status !== 'blocked' || blocked.presentation?.displayScore !== '—') fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
 }
 
 // ── domain/technical/stage.js: deriveTechnicalStageFromOhlcv ───────────────────────────────────

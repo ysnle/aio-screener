@@ -1,7 +1,7 @@
 {
   "schemaVersion": "operations-status-v1",
   "generatedAt": "2026-07-26T11:09:09.769Z",
-  "appRevision": "v53.17",
+  "appRevision": "v53.37",
   "dataRevision": "market-snapshot:2026-07-26T11:09:00.516Z:06751e7a",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -32,7 +32,7 @@
     "browser": {
       "status": "CURRENT",
       "source": "static-pages+service-worker",
-      "revision": "v53.17"
+      "revision": "v53.37"
     }
   },
   "providers": {
@@ -42,7 +42,7 @@
       "lastFetchAt": "2026-07-26T11:09:00.516Z"
     },
     "fred": {
-      "rights": "REVIEW_REQUIRED",
+      "rights": "OPERATOR_REQUIRED",
       "use": "official-series",
       "lastFetchAt": "2026-07-26T11:09:00.516Z"
     },
@@ -73,7 +73,7 @@
   "routes": {
     "supported": 17,
     "nativeOwner": [],
-    "legacyOwner": 4,
+    "legacyOwner": 0,
     "nativeLifecycleOwner": [
       "home",
       "signal",
@@ -94,12 +94,16 @@
       "guide"
     ],
     "nativeRendererOwner": [
+      "home",
+      "signal",
       "breadth",
       "sentiment",
       "briefing",
+      "technical",
       "macro",
       "fxbond",
       "themes",
+      "theme-detail",
       "ticker",
       "fundamental",
       "options",

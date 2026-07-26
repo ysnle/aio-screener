@@ -2016,13 +2016,14 @@ const _PROXY_REGISTRY = {
     if (p) { p.fails = 0; p.okCount = (p.okCount || 0) + 1; p.lastOk = Date.now(); p.disabled = false; p.cooldownLevel = 0; } // v48.14: backoff 리셋
     if (typeof _reportApiOk === 'function') _reportApiOk('proxy-primary', id + ' 성공');
   },
-  markFail: function(id) {
+  markFail: function(id, reason) {
     var p = this.list.find(function(x){ return x.id === id; });
     if (p) {
       p.fails++;
       p.failCount = (p.failCount || 0) + 1;
       p.lastFail = Date.now();
-      if (p.fails >= 5) {
+      // P784/SA-01: three consecutive chart-proxy failures open cooldown.
+      if (p.fails >= 3) {
         p.disabled = true;
         // v48.14 (W13): exponential backoff + jitter — 60s → 120s → 240s → 480s → max 1800s
         p.cooldownLevel = (p.cooldownLevel || 0) + 1;
@@ -2135,6 +2136,15 @@ async function fetchViaProxy(url, timeout) {
       var r = await fetchWithTimeout(proxy.mkUrl(url), {}, timeout);
       if (r.ok) {
         var validated = await _aioValidateProxyResponse(url, r, opts);
+        var payload = opts.parseJson
+          ? (validated.jsonReady ? validated.json : await r.clone().json())
+          : opts.parseText
+            ? await r.clone().text()
+            : r;
+        if (typeof opts.accept === 'function' && !opts.accept(payload)) {
+          _PROXY_REGISTRY.markFail(proxy.id, 'invalid-payload');
+          continue;
+        }
         _PROXY_REGISTRY.markOk(proxy.id);
         // 성공 응답 캐시 (stale 폴백용) — 민감 URL은 저장 안 함
         if (cacheKey) {
@@ -2145,8 +2155,8 @@ async function fetchViaProxy(url, timeout) {
             }).catch(function() {});
           } catch(e) {}
         }
-        if (opts.parseJson) return validated.jsonReady ? validated.json : await r.json();
-        if (opts.parseText) return await r.text();
+        if (opts.parseJson) return payload;
+        if (opts.parseText) return payload;
         return r;
       }
       _PROXY_REGISTRY.markFail(proxy.id, r.status);
@@ -2166,8 +2176,15 @@ async function fetchViaProxy(url, timeout) {
         if (typeof _aioLog === 'function') _aioLog('warn', 'proxy', 'stale-cache 폴백 (' + Math.round(ageH*60) + '분 전) for ' + url.substring(0, 80));
         window._aioProxyStaleSince = window._aioProxyStaleSince || Date.now();
         window._aioProxyStaleAgeMin = Math.round(ageH * 60);
-        if (opts.parseJson) return JSON.parse(parsed.body);
-        if (opts.parseText) return parsed.body;
+        if (opts.parseJson) {
+          var cachedPayload = JSON.parse(parsed.body);
+          if (typeof opts.accept === 'function' && !opts.accept(cachedPayload)) throw new Error('stale-cache payload rejected');
+          return cachedPayload;
+        }
+        if (opts.parseText) {
+          if (typeof opts.accept === 'function' && !opts.accept(parsed.body)) throw new Error('stale-cache payload rejected');
+          return parsed.body;
+        }
         return new Response(parsed.body, { status: 200, statusText: 'OK (stale-cache)', headers: { 'X-AIO-Stale': Math.round(ageH*60) + 'min', 'X-AIO-Source': 'stale-cache' } });
       }
     }
@@ -3023,9 +3040,9 @@ function applyFredToUI(data) {
   if (data['DGS2']) {
     var rate2yVal = data['DGS2'].value;
     var yc2yEl = document.getElementById('yc-2y');
-    if (yc2yEl) { yc2yEl.textContent = rate2yVal.toFixed(2) + '%'; yc2yEl.style.color = rate2yVal > 4.5 ? '#ff5b50' : rate2yVal > 4.0 ? '#ffa31a' : '#00e5a0'; }
+    if (yc2yEl && yc2yEl.dataset.aioFxbondTwoYearRenderer !== 'native') { yc2yEl.textContent = rate2yVal.toFixed(2) + '%'; yc2yEl.style.color = rate2yVal > 4.5 ? '#ff5b50' : rate2yVal > 4.0 ? '#ffa31a' : '#00e5a0'; }
     var yc2yTrack = document.getElementById('yc-2y-track');
-    if (yc2yTrack) { yc2yTrack.textContent = rate2yVal.toFixed(2) + '%'; yc2yTrack.style.color = rate2yVal > 4.5 ? '#ff5b50' : rate2yVal > 4.0 ? '#ffa31a' : '#00e5a0'; }
+    if (yc2yTrack && yc2yTrack.dataset.aioFxbondTwoYearRenderer !== 'native') { yc2yTrack.textContent = rate2yVal.toFixed(2) + '%'; yc2yTrack.style.color = rate2yVal > 4.5 ? '#ff5b50' : rate2yVal > 4.0 ? '#ffa31a' : '#00e5a0'; }
   }
 
   // v35.8: DXY 1개월 변화율 동적 연결 (Yahoo DX-Y.NYB에서 계산)
@@ -3357,8 +3374,8 @@ function updateBreadthUI(data) {
     }
   }
   if (data.breadthSignal !== undefined) {
-    const el = document.getElementById('breadth-signal-val');
-    if (el) {
+    const el = document.querySelector('[id="breadth-signal-val"]');
+    if (el && el.dataset.aioBreadthSignalRenderer !== 'native') {
       const txt = data.breadthSignal > 0.5 ? '광범위 상승' : data.breadthSignal > -0.5 ? '중립' : '쏠림 장세';
       el.textContent = txt;
       el.style.color = data.breadthSignal > 0.5 ? 'var(--data-green)' : data.breadthSignal > -0.5 ? 'var(--data-amber)' : 'var(--data-red)';
@@ -4584,8 +4601,8 @@ function updateDataStatus() {
   if (swBadge) el.innerHTML += swBadge;
 }
 
-// SW 버전을 비동기로 한 번만 조회 (updateDataStatus 툴팁에 표시)
-(function _querySWVersion() {
+// 현재 controller의 SW 버전을 비동기로 조회하고 controller 전환마다 재확인한다.
+function _querySWVersion() {
   if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
     setTimeout(_querySWVersion, 3000);
     return;
@@ -4596,11 +4613,26 @@ function updateDataStatus() {
       if (e.data && e.data.version) {
         window._aioSWVersion = e.data.version;
         window._aioSWCheckedAt = Date.now();
+        updateDataStatus();
       }
     };
     navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' }, [mc.port2]);
   } catch(e) {}
-})();
+}
+if (navigator.serviceWorker && navigator.serviceWorker.addEventListener) {
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    window._aioSWVersion = '';
+    window._aioSWMismatchLogged = '';
+    _querySWVersion();
+  });
+}
+_querySWVersion();
+let _aioMarketSnapshotMeta = null;
+try {
+  window.addEventListener('aio:marketSnapshot', function(e) {
+    _aioMarketSnapshotMeta = e && e.detail ? e.detail : null;
+  });
+} catch (_) {}
 
 // Apply technical indicators to UI
 function applyTechIndicators(data) {
@@ -4830,6 +4862,8 @@ try {
   });
 } catch (_) {}
 
+let _aioServerMacroReady = false;
+let _aioServerHyReady = false;
 async function _aioLoadServerData() {
   window._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
   try {
@@ -4994,6 +5028,8 @@ async function _aioLoadServerData() {
     if (_serverMacroApplied > 0 && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
       window.DATA_SNAPSHOT._fieldTs.macro_fred = d.meta.generatedAt || new Date().toISOString();
     }
+    _aioServerMacroReady = !!(d.meta.fredFetchOk && _serverMacroApplied > 0);
+    _aioServerHyReady = !!(window._serverDataMeta && window._serverDataMeta.hyOAS);
     // v50.78: 서버 FRED 공백(fredHasKey=false 또는 fredFetchOk=false) + 클라이언트 키 있으면 자동 브릿지.
     // GitHub Actions Secret에 FRED_API_KEY 미등록이어도 사용자 브라우저 키(aio_fred_key)로 매크로 갱신.
     if (_serverMacroApplied === 0 && !d.meta.fredFetchOk) {
@@ -6027,7 +6063,16 @@ async function initV20DataEngine() {
 
   // Phase 2: Fast APIs (2-5s) — CoinGecko, Exchange Rate
   setTimeout(async () => {
-    try { if (typeof fetchLiveQuotes === 'function') await fetchLiveQuotes(); }
+    try {
+      var architectureReady = window.__AIO_ARCH_RUNTIME__ && window.__AIO_ARCH_RUNTIME__.ready;
+      if (architectureReady && typeof architectureReady.then === 'function') {
+        await Promise.race([
+          architectureReady,
+          new Promise(function(resolve) { setTimeout(resolve, 8000); })
+        ]);
+      }
+      if (typeof fetchLiveQuotes === 'function') await fetchLiveQuotes();
+    }
     catch(e) { showDataError('시세', '실시간 시세 수신 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-quote','Phase2 실패'); }
   }, 500);
 
@@ -6044,8 +6089,8 @@ async function initV20DataEngine() {
   // Phase 4: Heavy APIs (5-15s) — FRED, Breadth, News
   setTimeout(async () => {
     try {
-      var fredResult = await fetchAllFredData();
-      if (fredResult && Object.keys(fredResult).length > 0) {
+      var fredResult = _aioServerMacroReady ? { source: 'server-artifact' } : await fetchAllFredData();
+      if (_aioServerMacroReady || (fredResult && Object.keys(fredResult).length > 0)) {
         if(typeof _reportApiOk==='function') _reportApiOk('fred','FRED 로딩 성공');
         if(typeof window._markFetch==='function') window._markFetch('fred');
       } else {
@@ -6053,6 +6098,9 @@ async function initV20DataEngine() {
       }
     }
     catch(e) { showDataError('FRED', 'FRED 매크로 데이터 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fred','FRED 실패'); }
+    try {
+      if (!_aioServerHyReady && typeof fetchHYSpread === 'function') await fetchHYSpread();
+    } catch(e) { showDataError('HY OAS', 'HY 스프레드 수신 실패', 'warn'); }
     try { await fetchBreadthData(); if(typeof window._markFetch==='function') window._markFetch('breadth'); }
     catch(e) { showDataError('시장폭', 'Breadth 데이터 수신 실패', 'warn'); }
     try { await fetchSentimentHistory(); if(typeof _reportApiOk==='function') _reportApiOk('yahoo-chart','VIX 차트 성공'); if(typeof window._markFetch==='function') window._markFetch('vixHistory'); }
@@ -12781,6 +12829,7 @@ async function fetchLiveQuotes(requestedSymbols) {
   // - 중간 갱신: 핵심 그룹(처음 2개) 완료 후 즉시 화면 반영
   let yfCount = 0;
   let groupFailStreak = 0;
+  let quoteProxyCircuitOpen = false;
   const CRITICAL_GROUPS = 6; // v38.4: 첫 6그룹 핵심 (지수·원자재·달러·금리·대형주·섹터ETF)
   const MAX_GROUP_FAILS = 3; // 연속 3그룹 전부 실패 → 프록시 죽음 판정
 
@@ -12800,6 +12849,7 @@ async function fetchLiveQuotes(requestedSymbols) {
 
     // 프록시 죽음 판정 후: 핵심 그룹 이후는 스킵
     if (groupFailStreak >= MAX_GROUP_FAILS && gi >= CRITICAL_GROUPS) {
+      quoteProxyCircuitOpen = true;
       _aioLog('warn', 'fetch', '프록시 연속 실패 — 나머지 ' + (PRIORITY_SYMS.length - gi) + '개 그룹 스킵');
       showDataError('시세', '일부 종목 갱신 실패 — 프록시 불안정', 'warn');
       break;
@@ -12875,7 +12925,8 @@ async function fetchLiveQuotes(requestedSymbols) {
     });
   });
 
-  if (usMissing.length > 0) {
+  const hasMarketSnapshotFallback = !!(_aioMarketSnapshotMeta && Number(_aioMarketSnapshotMeta.count) > 0);
+  if (usMissing.length > 0 && !(quoteProxyCircuitOpen && hasMarketSnapshotFallback)) {
     // 배치: 최대 30개씩 + 구분 쿼리
     var stBatches = [];
     for (var si = 0; si < usMissing.length; si += 30) {
@@ -12958,8 +13009,10 @@ async function fetchLiveQuotes(requestedSymbols) {
 
   try {
     var _coreRescueSyms = (window.AIO && window.AIO.CORE_LIVE_SYMBOLS) || ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','DX-Y.NYB','^KS11','^KQ11'];
-    await _fetchQuoteRescue(_coreRescueSyms, 'core', _coreRescueSyms.length);
-    await _fetchQuoteRescue(_requestedQuoteSyms, 'requested-dom', 120);
+    if (!(quoteProxyCircuitOpen && hasMarketSnapshotFallback)) {
+      await _fetchQuoteRescue(_coreRescueSyms, 'core', _coreRescueSyms.length);
+      await _fetchQuoteRescue(_requestedQuoteSyms, 'requested-dom', 120);
+    }
   } catch(e) {
     if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'quote rescue failed: ' + (e && e.message || e));
   }
@@ -12991,10 +13044,14 @@ async function fetchLiveQuotes(requestedSymbols) {
     try { window.dispatchEvent(new CustomEvent('aio:liveDataReceived', { detail: { count: allQuotes.length, liveCoverage: liveCoverage, coreCoverageOk: coreCoverageOk } })); } catch(_e){}
     if (!coreCoverageOk) updateDataStatusError('warn', 'API connected but core market coverage is partial - fallback still active');
     const lqTs = document.getElementById('live-quote-ts');
-    if (lqTs) lqTs.textContent = '시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' 갱신 (' + allQuotes.length + '개)';
+    if (lqTs) lqTs.textContent = '클라 시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' 갱신 (' + allQuotes.length + '개)';
     // v49.37 P282: live-quote-ts-topbar 동시 갱신 (영구 placeholder 잔존 차단)
     const lqTsTop = document.getElementById('live-quote-ts-topbar');
-    if (lqTsTop) { lqTsTop.textContent = '● 클라 시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (' + allQuotes.length + '개)'; lqTsTop.className = 'freshness-badge fb-live'; }
+    try { document.dispatchEvent(new CustomEvent('aio:quoteTopbar', { detail: { coreCoverageOk: coreCoverageOk } })); } catch(_topbarEvent) {}
+    if (lqTsTop && !lqTsTop.textContent) {
+      lqTsTop.textContent = '● ' + (coreCoverageOk ? '실시간 ' : '일부 실시간 ') + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (' + allQuotes.length + '개)';
+      lqTsTop.className = 'freshness-badge ' + (coreCoverageOk ? 'fb-live' : 'fb-static');
+    }
     try {
       if (window.AIO && typeof window.AIO.scheduleMarketCurrentnessGuard === 'function') window.AIO.scheduleMarketCurrentnessGuard(250, 'live-quotes');
       else if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') window.AIO.applyMarketCurrentnessGuard({ reason: 'live-quotes' });
@@ -13002,15 +13059,23 @@ async function fetchLiveQuotes(requestedSymbols) {
   } else {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount||0) + 1;
     // v46.4: 지수적 백오프 (선형 30×N → 지수 15×2^N, 최대 300초)
-    const wait = Math.min(300, 15 * Math.pow(2, fetchLiveQuotes._failCount - 1));
+    const usingSnapshotFallback = !!(_aioMarketSnapshotMeta && Number(_aioMarketSnapshotMeta.count) > 0);
+    const wait = usingSnapshotFallback ? 180 : Math.min(300, 15 * Math.pow(2, fetchLiveQuotes._failCount - 1));
     const lqTs = document.getElementById('live-quote-ts');
-    if (lqTs) lqTs.textContent = wait + '초 후 재시도...';
+    if (lqTs) lqTs.textContent = usingSnapshotFallback ? '기준 스냅샷 사용 · 중앙 갱신 주기 대기' : wait + '초 후 재시도...';
     // v49.37 P282: live-quote-ts-topbar 동시 갱신 (실패 상태)
     const lqTsTopErr = document.getElementById('live-quote-ts-topbar');
-    if (lqTsTopErr) { lqTsTopErr.textContent = '⚠ ' + wait + '초 후 재시도'; lqTsTopErr.className = 'freshness-badge fb-static'; }
-    updateDataStatusError('error', 'API 연결 실패 — ' + wait + '초 후 재시도');
+    if (usingSnapshotFallback) {
+      try { document.dispatchEvent(new CustomEvent('aio:marketSnapshot', { detail: _aioMarketSnapshotMeta })); } catch(_snapshotTopbarEvent) {}
+    } else if (lqTsTopErr) {
+      lqTsTopErr.textContent = '⚠ ' + wait + '초 후 재시도';
+      lqTsTopErr.className = 'freshness-badge fb-static';
+    }
+    updateDataStatusError(usingSnapshotFallback ? 'warn' : 'error', usingSnapshotFallback
+      ? '실시간 시세 미수신 · 기준 스냅샷 사용 · 중앙 갱신 주기 대기'
+      : 'API 연결 실패 — ' + wait + '초 후 재시도');
     if (typeof _reportApiError === 'function') _reportApiError('yahoo-quote', '연결 실패 (시도 ' + fetchLiveQuotes._failCount + ')');
-    setTimeout(fetchLiveQuotes, wait * 1000);
+    if (!usingSnapshotFallback) setTimeout(fetchLiveQuotes, wait * 1000);
   }
   } catch (e) {
     fetchLiveQuotes._failCount = (fetchLiveQuotes._failCount || 0) + 1;
@@ -14571,10 +14636,17 @@ function refreshSignal() {
 
 // ═══ HOME PAGE DASHBOARD REFRESH ═══════════════════════════════════
 // v52.65 아이보리 리디자인 1b: 종합 거래 점수 히어로 (레거시 _aioDiagram score-breakdown/market-regime
-// 원형게이지+2x2쿼드런트 완전 대체). computeTradingScore()를 직접 호출해 실데이터로 60px 스코어+판단문+5개 하위점수를 구성.
+// 원형게이지+2x2쿼드런트 완전 대체). P787 transfers the four score/decision summary sinks to
+// the native analysis renderer; factor details, quality meter, and other home surfaces remain legacy.
+function _aioIsNativeHomeSummaryElement(el) {
+  try { return !!(el && el.closest && el.closest('#page-home[data-aio-home-renderer="native"]')); } catch(_) { return false; }
+}
+window._aioIsNativeHomeSummaryElement = _aioIsNativeHomeSummaryElement;
+
 function _aioRenderHomeHero() {
-  var totalEl = document.getElementById('home-hero-total');
+  var totalEl = document.querySelector('#home-hero-total');
   if (!totalEl) return;
+  var nativeSummary = _aioIsNativeHomeSummaryElement(totalEl);
   var sc = {};
   try { sc = (typeof computeTradingScore === 'function') ? computeTradingScore() : {}; } catch(_) { sc = {}; }
   var total = Math.round(sc.total != null ? sc.total : (window._tradingScore != null ? window._tradingScore : 50));
@@ -14591,11 +14663,13 @@ function _aioRenderHomeHero() {
   var spxPct = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? Number(ld['^GSPC'].pct) : null;
   var spxTxt = spxPct != null ? ('S&P ' + (spxPct >= 0 ? '+' : '') + spxPct.toFixed(2) + '%') : '지수 방향 확인 중';
 
-  totalEl.textContent = String(total) + (sc.partial ? '*' : '');
-  var headEl = document.getElementById('home-hero-headline');
-  if (headEl) headEl.textContent = band.label;
-  var descEl = document.getElementById('home-hero-desc');
-  if (descEl) descEl.textContent = spxTxt + ' · ' + vixTxt + '. ' + band.action;
+  if (!nativeSummary) {
+    totalEl.textContent = String(total) + (sc.partial ? '*' : '');
+    var headEl = document.querySelector('#home-hero-headline');
+    if (headEl) headEl.textContent = band.label;
+    var descEl = document.querySelector('#home-hero-desc');
+    if (descEl) descEl.textContent = spxTxt + ' · ' + vixTxt + '. ' + band.action;
+  }
 
   var compEl = document.getElementById('home-hero-components');
   if (compEl) {
@@ -14659,9 +14733,9 @@ function refreshHomeDashboard() {
   // (aio:liveQuotes vs aio:marketStateUpdated)에서 독립 갱신되어 같은 화면에 다른 점수가
   // 동시에 보이던 문제 — 게이지가 갱신되는 시점에 헤더도 항상 함께 강제 재렌더해 절대 어긋나지 않게 한다.
   try { if (typeof window._aioRenderPageDecisionHeader === 'function') window._aioRenderPageDecisionHeader('home'); } catch(_) {}
-  const signalEl = document.getElementById('home-trading-signal');
+  const signalEl = document.querySelector('#home-trading-signal');
   const explanEl = document.getElementById('home-trading-explanation');
-  if (signalEl) {
+  if (signalEl && !_aioIsNativeHomeSummaryElement(signalEl)) {
     // v50.50 [UX] 결론바·범례와 동일 5밴드 척도로 정렬 — 이전 YES/CAUTION/NO(>70/>50) 임계가 결론바(75/60/45/30)와
     //   모순(같은 62점이 카드 'CAUTION' vs 결론바 '선별매수')이라 사용자 혼란. 동일 라벨/임계로 통일.
     var sc = tradingScore;
@@ -14680,28 +14754,6 @@ function refreshHomeDashboard() {
     } else {
       signalEl.textContent = '위험 · 방어'; signalEl.style.color = '#ff5b50';
       if (explanEl) explanEl.textContent = '극단 약세 구간 · 역사적으로 방어적 운용이 우선시되던 환경.' + (sc <= 25 ? ' 참고: 과거 유사 극단에서 이후 수익률이 높았던 사례가 있으나 보장이 아닙니다.' : '');
-    }
-  }
-
-  // Market Quality Meter
-  const qualityEl = document.getElementById('home-quality-meter');
-  const qualityScoreEl = document.getElementById('home-quality-score');
-  const qualityLabelEl = document.getElementById('home-quality-label');
-  if (qualityEl && qualityScoreEl) {
-    qualityScoreEl.textContent = Math.round(tradingScore);
-    qualityScoreEl.style.color = tradingScore > 55 ? '#00e5a0' : tradingScore > 35 ? '#ffa31a' : '#ff5b50';
-    const meterBar = qualityEl.querySelector('div');
-    if (meterBar) {
-      meterBar.style.width = tradingScore + '%';
-      const meterColor = tradingScore > 75 ? '#00e5a0' : tradingScore > 55 ? '#4ade80' : tradingScore > 40 ? '#ffa31a' : tradingScore > 25 ? '#ffa31a' : '#ef4444';
-      meterBar.style.background = meterColor;
-    }
-    if (qualityLabelEl) {
-      if (tradingScore > 75) { qualityLabelEl.textContent = '우수 (Excellent)'; qualityLabelEl.style.color = '#00e5a0'; }
-      else if (tradingScore > 55) { qualityLabelEl.textContent = '양호 (Good)'; qualityLabelEl.style.color = '#4ade80'; }
-      else if (tradingScore > 35) { qualityLabelEl.textContent = '중립 (Neutral)'; qualityLabelEl.style.color = '#ffa31a'; }
-      else if (tradingScore > 25) { qualityLabelEl.textContent = '악화 (Poor)'; qualityLabelEl.style.color = '#ffa31a'; }
-      else { qualityLabelEl.textContent = '위험 (Danger)'; qualityLabelEl.style.color = '#ef4444'; }
     }
   }
 
@@ -14768,9 +14820,9 @@ function refreshHomeDashboard() {
   }
 
   // Fear & Greed
-  const fgScoreEl = document.getElementById('home-fg-score');
+  const fgScoreEl = document.querySelector('[id="home-fg-score"]');
   const fgLabelEl = document.getElementById('home-fg-label');
-  if (fgScoreEl) {
+  if (fgScoreEl && fgScoreEl.dataset.aioHomeFearGreedRenderer !== 'native') {
     fgScoreEl.textContent = Math.round(fg);
     const fgColor = fg <= 25 ? '#dc2626' : fg <= 45 ? '#ffa31a' : fg <= 55 ? '#7b8599' : fg <= 75 ? '#86efac' : '#16a34a';
     fgScoreEl.style.color = fgColor;
@@ -15344,10 +15396,7 @@ function _aioRenderCarryUnwindRisk() {
     e = document.getElementById('carry-rate-diff');  if (e) e.textContent = '—';
     e = document.getElementById('carry-rate-risk');  if (e) e.textContent = '미일 금리차 산출 보류';
     e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = Number.isFinite(hyOasBp) ? 'HY OAS ' + Math.round(hyOasBp) + 'bp' : '—';
-    e = document.getElementById('carry-score-bar');  if (e) { e.style.width = '0%'; e.style.background = 'var(--text-muted)'; }
-    e = document.getElementById('carry-score-text'); if (e) e.textContent = '—';
-    e = document.getElementById('carry-verdict');    if (e) e.textContent = missingText;
-    e = document.getElementById('carry-risk-level'); if (e) { e.textContent = '보류'; e.style.color = 'var(--text-muted)'; }
+    e = document.getElementById('carry-risk-level'); if (e && e.dataset.aioFxbondCarryRenderer !== 'native') { e.textContent = '보류'; e.style.color = 'var(--text-muted)'; }
     return;
   }
 
@@ -15380,10 +15429,7 @@ function _aioRenderCarryUnwindRisk() {
   e = document.getElementById('carry-rate-diff');  if (e) e.textContent = rateDiff.toFixed(1) + '%p';
   e = document.getElementById('carry-rate-risk');  if (e) e.textContent = rateRisk;
   e = document.getElementById('carry-hyg-risk');   if (e) e.textContent = hygRisk;
-  e = document.getElementById('carry-score-bar');  if (e) { e.style.width = score + '%'; e.style.background = riskColor; }
-  e = document.getElementById('carry-score-text'); if (e) e.textContent = score;
-  e = document.getElementById('carry-verdict');    if (e) e.textContent = verdict;
-  e = document.getElementById('carry-risk-level'); if (e) { e.textContent = riskLevel; e.style.color = riskColor; }
+  e = document.getElementById('carry-risk-level'); if (e && e.dataset.aioFxbondCarryRenderer !== 'native') { e.textContent = riskLevel; e.style.color = riskColor; }
 }
 window._aioRenderCarryUnwindRisk = _aioRenderCarryUnwindRisk;
 // v52.41 (P656/EF-08): 라이브 실측(Chrome MCP, v52.34)으로 확인한 진짜 원인 — 이 함수 자체는

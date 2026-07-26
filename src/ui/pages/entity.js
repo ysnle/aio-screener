@@ -23,6 +23,18 @@ function renderTickerHero(documentRef, state) {
   if (change) change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
 }
 
+function renderTickerSecondarySymbols(documentRef, state) {
+  const symbol = state?.id || '—';
+  ['ticker-candle-symbol', 'ticker-entry-symbol'].forEach((id) => {
+    const element = setText(documentRef, id, symbol);
+    if (!element) return;
+    element.dataset.aioTickerSymbolRenderer = 'native';
+    element.setAttribute('data-source-kind', state?.id ? 'entity-state' : 'unavailable');
+    element.setAttribute('data-source-label', state?.id ? 'normalized entity state' : 'entity unavailable');
+    element.setAttribute('data-operational-use', 'reference-only');
+  });
+}
+
 function formatOptionMetric(metric) {
   const value = finite(metric?.value);
   return value == null ? '—' : value.toFixed(2);
@@ -64,14 +76,58 @@ function renderFundamentalStatus(documentRef, state) {
   else element.removeAttribute('data-observed-at');
 }
 
+function formatFundamentalNumber(value) {
+  const number = finite(value);
+  return number == null ? null : number.toLocaleString('en-US', { maximumFractionDigits: 2 });
+}
+
+function renderFundamentalSummary(documentRef, state) {
+  const element = documentRef?.getElementById('fund-analysis-text');
+  if (!element) return;
+  const fundamentals = state?.fundamentals;
+  const coverage = Array.isArray(fundamentals?.coverage)
+    ? fundamentals.coverage.filter((field) => typeof field === 'string')
+    : [];
+  const available = coverage.length > 0;
+  const facts = [];
+  if (coverage.includes('revenue')) {
+    const revenue = formatFundamentalNumber(fundamentals?.revenue);
+    if (revenue != null) facts.push(`매출 ${revenue}`);
+  }
+  if (coverage.includes('netIncome')) {
+    const netIncome = formatFundamentalNumber(fundamentals?.netIncome);
+    if (netIncome != null) facts.push(`순이익 ${netIncome}`);
+  }
+  if (coverage.includes('margin')) {
+    const margin = formatFundamentalNumber(fundamentals?.margin);
+    if (margin != null) facts.push(`마진 ${margin}%`);
+  }
+  if (coverage.includes('pe')) {
+    const pe = formatFundamentalNumber(fundamentals?.pe);
+    if (pe != null) facts.push(`P/E ${pe}`);
+  }
+  const period = fundamentals?.periodType || 'FY';
+  const observedAt = fundamentals?.observedAt || '기준일 미상';
+  element.textContent = available
+    ? `SEC ${period} 데이터 ${coverage.length}개 항목 확인 · 기준일 ${observedAt}${facts.length ? ` · ${facts.join(' · ')}` : ''}`
+    : 'SEC 연간 재무 데이터 수신 대기 · 해석 보류';
+  element.dataset.aioFundamentalSummaryRenderer = 'native';
+  element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
+  element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
+  element.setAttribute('data-operational-use', 'reference-only');
+  if (available && fundamentals?.observedAt) element.setAttribute('data-observed-at', fundamentals.observedAt);
+  else element.removeAttribute('data-observed-at');
+}
+
 // RM-01 (2026-07-19): every id this module used to write (ticker-m-*,
 // fund-analysis-text, opt-pcr-val-secondary, ticker-candle-symbol, ticker-entry-symbol) has a
 // live legacy writer in js/aio-core.js/aio-data.js or an inline index.html script
 // (route-owners.json legacyWriterEvidence). P777 transfers only the ticker hero
-// name/fullname/price/change primary surface; secondary ticker overview/candle/entry surfaces remain legacy.
+// name/fullname/price/change primary surface; P817 transfers ticker candle/entry symbol labels.
 // P778 transfers only the three options replacement-metric values; P779 transfers only the
-// SEC annual-data availability/source badge on fundamental. Options-chain, report, chart, and
-// narrative scaffolding remain legacy-owned.
+// SEC annual-data availability/source badge on fundamental. P815 transfers only the bounded
+// SEC-derived summary line; options-chain, report sections, charts, and AI narrative remain
+// legacy-owned.
 function render({ documentRef, store, route }) {
   const state = selectEntityState(store.getState());
   const routeNode = documentRef?.getElementById(`page-${route}`);
@@ -81,9 +137,15 @@ function render({ documentRef, store, route }) {
     routeNode.dataset.aioArchitectureStatus = state?.status || 'unavailable';
     if (route === 'ticker' || route === 'options' || route === 'fundamental') routeNode.dataset.aioArchitectureRenderer = 'native';
   }
-  if (route === 'ticker') renderTickerHero(documentRef, state);
+  if (route === 'ticker') {
+    renderTickerHero(documentRef, state);
+    renderTickerSecondarySymbols(documentRef, state);
+  }
   if (route === 'options') renderOptions(documentRef, state);
-  if (route === 'fundamental') renderFundamentalStatus(documentRef, state);
+  if (route === 'fundamental') {
+    renderFundamentalStatus(documentRef, state);
+    renderFundamentalSummary(documentRef, state);
+  }
 }
 
 export function createEntityPage({ documentRef, store, route = 'ticker' } = {}) {
@@ -100,6 +162,22 @@ export function createEntityPage({ documentRef, store, route = 'ticker' } = {}) 
         eventTarget?.addEventListener?.(eventName, refresh);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, refresh));
       });
+      if (route === 'fundamental') {
+        const summary = documentRef?.getElementById('fund-analysis-text');
+        if (summary) summary.dataset.aioFundamentalSummaryRenderer = 'native';
+        bag.add(() => {
+          if (summary?.dataset.aioFundamentalSummaryRenderer === 'native') delete summary.dataset.aioFundamentalSummaryRenderer;
+        });
+      }
+      if (route === 'ticker') {
+        ['ticker-candle-symbol', 'ticker-entry-symbol'].forEach((id) => {
+          const element = documentRef?.getElementById(id);
+          if (element) element.dataset.aioTickerSymbolRenderer = 'native';
+          bag.add(() => {
+            if (element?.dataset.aioTickerSymbolRenderer === 'native') delete element.dataset.aioTickerSymbolRenderer;
+          });
+        });
+      }
       const routeNode = documentRef?.getElementById(`page-${route}`);
       bag.add(() => {
         if (routeNode?.dataset.aioArchitectureRenderer === 'native') delete routeNode.dataset.aioArchitectureRenderer;

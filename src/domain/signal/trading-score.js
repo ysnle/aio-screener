@@ -8,6 +8,7 @@
 // model (R352/F-03: legacy and native must not diverge into two different formulas).
 export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v1';
 export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
+export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v1';
 
 function finiteNumber(value) {
   return value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value);
@@ -162,6 +163,7 @@ export function computeTradingScoreModel(input = {}) {
 export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion = 'unknown' } = {}) {
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
+  const presentation = deriveTradingScoreDecisionPresentation({ score, inputVersion });
   if (total == null) {
     return Object.freeze({
       modelVersion: SIGNAL_DECISION_MODEL_VERSION,
@@ -169,7 +171,8 @@ export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion 
       status: 'blocked',
       action: 'WAIT',
       score: null,
-      reasons: missing.length ? ['required-input-missing', ...missing.map((key) => `missing:${key}`)] : ['required-input-missing']
+      reasons: missing.length ? ['required-input-missing', ...missing.map((key) => `missing:${key}`)] : ['required-input-missing'],
+      presentation
     });
   }
   const action = total >= 60 ? 'WATCH' : total <= 30 ? 'REDUCE' : 'WAIT';
@@ -182,6 +185,84 @@ export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion 
     status: score?.partial ? 'partial' : 'current',
     action,
     score: total,
-    reasons
+    reasons,
+    presentation
+  });
+}
+
+/**
+ * The visible signal hero uses a five-tier Korean explanation while the
+ * machine-facing envelope above intentionally stays at the coarser
+ * WATCH/WAIT/REDUCE action level. Keeping that distinction explicit prevents
+ * the legacy wording from becoming a second scoring implementation.
+ */
+export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersion = 'unknown' } = {}) {
+  const total = finiteNumber(score?.total ?? score?.score);
+  const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
+  const reasons = missing.map((key) => `missing:${key}`);
+  if (total == null) {
+    return Object.freeze({
+      modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
+      inputVersion,
+      status: 'blocked',
+      tier: 'blocked',
+      action: 'WAIT',
+      score: null,
+      displayScore: '—',
+      decision: '판정 보류 — 필수 입력 미수신',
+      description: `필수 구성요소(${missing.join(', ') || '시장 환경'})가 없어 현재 판단을 산출하지 않습니다.`,
+      reasons: ['required-input-missing', ...reasons]
+    });
+  }
+
+  const partial = score?.partial === true;
+  if (partial) {
+    return Object.freeze({
+      modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
+      inputVersion,
+      status: 'partial',
+      tier: 'partial',
+      action: 'WAIT',
+      score: total,
+      displayScore: `${total}*`,
+      decision: '판정 보류 — 부분 데이터 점수',
+      description: `미수신 구성요소(${missing.join(', ') || '일부 입력'})를 제외한 부분 점수입니다. 현재 진입 판단에는 사용하지 않습니다.`,
+      reasons: ['partial-inputs', ...reasons]
+    });
+  }
+
+  const bands = total >= 75
+    ? {
+        tier: 'favorable', action: 'WATCH', decision: '환경 우호 — 종목별 근거 별도 확인',
+        description: '현재 시장 입력 조합이 우호적입니다. 점수는 예측 신호가 아니며 종목별 거래량·손익비·무효화 가격을 별도로 확인하세요.'
+      }
+    : total >= 60
+      ? {
+          tier: 'constructive', action: 'WATCH', decision: '환경 양호 — 단독 진입 신호 아님',
+          description: '현재 시장 여건은 양호합니다. 점수는 예측 신호가 아니므로 점수 단독으로 진입하지 말고 종목·거래량·손익비를 확인하세요.'
+        }
+      : total >= 45
+        ? {
+            tier: 'neutral', action: 'WAIT', decision: '중립 — 관망 우선',
+            description: '시장 신호가 혼재된 환경입니다. 점수는 예측 신호가 아니므로 진입·비중 결정은 종목별 근거와 본인 리스크 한도로 판단하세요.'
+          }
+        : total >= 30
+          ? {
+              tier: 'caution', action: 'REDUCE', decision: '주의 — 비중 축소 검토',
+              description: '리스크 증가. 기존 포지션의 방어선, 현금 비중, 헤지 조건을 점검하세요.'
+            }
+          : {
+              tier: 'defensive', action: 'REDUCE', decision: '위험 — 방어 우선',
+              description: '극단 리스크. 신규 진입을 중단하고 현금·헤지·VIX 추적을 우선하세요.'
+            };
+
+  return Object.freeze({
+    modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
+    inputVersion,
+    status: 'current',
+    ...bands,
+    score: total,
+    displayScore: String(total),
+    reasons: [`trading-score-tier:${bands.tier}`]
   });
 }

@@ -1,12 +1,18 @@
 ---
-verified_by: agent (Claude Sonnet 5) + Codex P761-P780 verification
-last_verified: 2026-07-22
+verified_by: agent (Claude Sonnet 5) + Codex P761-P795 verification
+last_verified: 2026-07-26
 confidence: high
-latest_version: v53.17
-latest_P_number: P780
-next_P_number: P781
-current_checkpoint: P780 bounded portfolio readiness/status cutover verified locally; four legacy renderer routes, full portfolio/fundamental surfaces, and options-chain/detail boundaries remain open
-total_entries: 540 (P1~P775, 결번 존재 — 상세 56건 + 압축 원장)
+latest_version: v53.37
+latest_P_number: P825
+next_P_number: P826
+current_checkpoint: P821-P825 home quality/technical candle cutovers, validation hardening, native currentness guard, and live-region reduction; architecture/browser contracts verified locally; operator fast plane/rights/soak remain open
+p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
+p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
+p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
+p823_entry: "The remaining legacy theme-detail deep-analysis comparison now filters non-finite constituent percentages before comparison/formatting, and the retirement manifest is synchronized with the 17/17 native renderer ledger. Runtime and retirement contracts pass."
+p824_entry: "The shared currentness sanitizer now skips native renderer-owned narrative sinks; no-live theme/carry regression tests accept the current Korean fail-closed states without allowing fabricated scores. Headless passes 1102/1102."
+p825_entry: "Theme-detail keeps one summary aria-live region and removes redundant live announcements from eight subordinate native panels. UX, accessibility, and viewport gates pass."
+total_entries: 585 (P1~P825, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
@@ -18,6 +24,75 @@ total_entries: 540 (P1~P775, 결번 존재 — 상세 56건 + 압축 원장)
 - **3회 반복 클래스는 RULES.md 승격** (R25). 아래 "반복 버그 클래스" 표에서 재발 횟수를 추적한다.
 - **압축 원장 항목의 상세**: git 히스토리 참조 (`git log --oneline -- _context/BUG-POSTMORTEM.md` → 2026-07-18 이전 리비전).
 - 코드 확인 없이 추측으로 원인을 단정하지 않는다. "고쳤다" 선언은 브라우저/게이트 증거가 있어야 한다.
+
+## P781 - v53.18 - route별 소유권과 요약 counts가 서로 다른 renderer 진척을 보고했다
+
+- **motivation**: 아키텍처 중간 점검에서 route 17개의 실제 `rendererOwner`를 재계산해 핸드오프·운영 상태·CI 회계의 신뢰도를 확인했다.
+- **symptom/reproduction**: `architecture/route-owners.json.routes`는 renderer native 13/17이었지만 같은 파일의 `counts.rendererNative`와 native/legacy 목록은 이전 10/17 상태에 머물렀다.
+- **root_cause**: route 선언과 요약 counts/list를 사람이 각각 갱신했고, CI가 각 route에서 요약값을 독립 재계산하지 않았다.
+- **fix**: counts/list를 현재 route 선언 순서로 동기화하고, architecture contract가 lifecycle/renderer/data/chart/narrative와 full-native 목록을 route에서 재계산해 수·구성·순서 드리프트를 blocking하도록 했다.
+- **violated_rule**: R352의 실행 소유권 실측 원칙.
+- **prevention**: route별 선언만 편집하고 모든 파생 요약은 CI 재계산값과 정확히 일치해야 한다.
+- **verification**: architecture contract PASS(17 routes, renderer 13/17), operations status contract PASS, syntax/diff checks PASS.
+
+## P782 - v53.18 - 새 서비스워커 활성화 뒤에도 최초 controller 버전이 화면에 고정됐다
+
+- **motivation**: 라이브에서 앱 v53.17과 SW v53.7 불일치 경고가 장시간 유지된 원인을 캐시·등록·controller 전환 경로로 분리 진단했다.
+- **symptom/reproduction**: `sw.js`는 이미 `skipWaiting()`/`clients.claim()`을 실행하지만 클라이언트는 부팅 중 현재 controller에 `GET_VERSION`을 한 번만 보내고, 이후 `controllerchange`를 관찰하지 않았다.
+- **root_cause**: 실제 활성화 전환과 진단값 재조회가 분리됐고, 등록 로그도 “다음 새로고침”이라고 실제 동작과 다르게 설명했다.
+- **fix**: `controllerchange`에서 SW 버전·mismatch 상태를 초기화하고 재조회하며, 등록에 `updateViaCache:'none'`/`reg.update()`를 적용하고 전환 로그를 실제 activate/claim 계약에 맞췄다.
+- **violated_rule**: R5/R47의 버전·캐시 일치와 관측 가능성 원칙.
+- **prevention**: 설치 버전이 아니라 현재 controller 응답만 표시하며 controller 교체를 회귀 계약으로 고정한다.
+- **verification**: JS syntax, runtime contract, version contract, Chromium boot/architecture checks PASS.
+
+## P785 - v53.20 - 기술 페이지 시장 건강도 1차 표면이 native state/renderer와 레거시 writer 경계를 갖지 못했다
+
+- **motivation**: ARX-11 순차 전환에서 `technical` route의 가장 먼저 검증 가능한 시장 건강도 표면을 native state/renderer로 넘기고, 이후 signal toy mapping과 섞이지 않는 bounded packet을 닫는다.
+- **symptom/reproduction**: `src/ui/pages/analysis.js`는 analysis 상태 마커만 기록했고, `index.html`의 `computeMarketHealth()`와 `js/aio-core.js` 초기화가 같은 기술 건강도 DOM을 직접 작성했다. 계산/상태/렌더 owner가 분리되지 않아 native 전환 시 last-writer-wins 회귀 가능성이 있었다.
+- **root_cause**: 시장 건강도 계산식이 inline legacy 함수에만 존재했고, compatibility facade가 technical snapshot에 health projection을 제공하지 않았으며, native route에는 primary surface writer fence가 없었다.
+- **fix**: 순수 `src/domain/market/health.js`(`market-health.v1`)를 단일 계산 owner로 추출하고 facade/bootstrap/normalize 경로에 배선했다. `analysis.js`가 11개 health primary sink를 fail-closed로 렌더하며, legacy inline/core writer는 `data-aio-technical-renderer="native"` 펜스 아래에서 동작하지 않는다. 촛대/RSI/MACD/Weinstein/MTF/내러티브는 legacy secondary로 유지했다.
+- **violated_rule**: R352 단일 실행 소유권·실측 renderer ownership 원칙과 R357 native bounded-surface writer fence 원칙.
+- **prevention**: 순수 model version/threshold unit gate, architecture contract의 model/fence marker, Chromium 11/11 native sink 및 `NATIVE-FENCE` 직접 회귀 assertion을 CI에 고정한다.
+- **verification**: `node scripts/ci-esm-core-unit-check.mjs` PASS, `ci-architecture-contract-check.mjs` PASS(`1085/39/186/375`), `ci-architecture-browser-check.mjs` PASS(technical primary `11/11`, browserErrors `0`, 17-route round trip).
+
+## P786 - v53.21 - signal 핵심 판정 hero가 canonical Trading Score와 별도 legacy writer 경계를 갖지 못했다
+
+- **motivation**: P785가 technical health primary surface를 닫은 다음 ARX-11 순서에 따라 signal route의 score/decision hero를 동일 Trading Score 입력 계약 위에서 native owner로 넘기고 home·secondary widgets와 경계를 분리한다.
+- **symptom/reproduction**: `normalizeAnalysis`에는 Trading Score 기반 signal envelope가 있었지만 `analysis.js`는 signal DOM을 쓰지 않았고, `index.html:refreshSignalDashboard()`가 score/decision 3개 sink를 직접 갱신했다. native 전환을 시도하면 3-band toy/action 표현과 실제 5-tier 한국어 legacy 표현이 충돌할 수 있었다.
+- **root_cause**: machine-facing `WATCH/WAIT/REDUCE` envelope와 사용자-facing 5-tier decision wording이 하나의 명시적 presentation contract로 분리되지 않았고, legacy signal writer fence가 없었다.
+- **fix**: `signal-presentation.v1` pure mapping을 `src/domain/signal/trading-score.js`에 추가하고 normalize state의 `signal.presentation`으로 배선했다. `analysis.js`가 `score-gauge-val`, `score-decision-badge`, `score-decision-sub` 3개를 fail-closed/native 렌더하며 `refreshSignalDashboard()`는 native marker가 있을 때 해당 3개를 건너뛴다. canvas/factor bars/execution window/risk monitor/timestamp/narrative 및 home summary는 legacy secondary로 유지했다.
+- **violated_rule**: R352 단일 실행 소유권·실측 renderer ownership 원칙 및 R357 native bounded-surface writer fence 원칙.
+- **prevention**: presentation model version/partial fixture, architecture contract marker, Chromium native sink `3/3`, and direct `NATIVE-FENCE` regression assertion.
+- **verification**: `ci-esm-core-unit-check.mjs` PASS, `ci-architecture-contract-check.mjs` PASS(`1086/39/186/375`), `ci-architecture-browser-check.mjs` PASS(signal primary `3/3`, browserErrors `0`, 17-route round trip).
+
+## P787 - v53.22 - home aggregate score/decision summary가 signal presentation과 별도 native writer 경계를 갖지 못했다
+- **motivation**: P786 signal hero cutover 다음 ARX-11 순서에 따라 홈의 aggregate score/decision summary를 동일 canonical Trading Score presentation 위에서 native owner로 넘기고, quality meter와 상세/secondary surface는 분리한다.
+- **symptom/reproduction**: home의 `analysis.js` lifecycle/state module은 이미 mounted 되었지만 `home-hero-total`, `home-hero-headline`, `home-hero-desc`, `home-trading-signal`은 `js/aio-data.js`의 legacy refresh가 직접 갱신했다. native가 같은 sink를 쓰면 last-writer-wins 경합과 signal/home wording drift가 발생할 수 있었다.
+- **root_cause**: 홈 summary가 normalized `signal.presentation`을 소비하지 않고 legacy `computeTradingScore()` 및 분산된 5-band 문구를 다시 계산했으며, home route용 legacy writer fence가 없었다.
+- **fix**: `analysis.js`가 canonical `signal-presentation.v1`의 score/decision/description을 네 개 home sink에 fail-closed로 렌더링하고 `data-aio-home-renderer="native"`를 표시한다. `_aioRenderHomeHero()`와 `refreshHomeDashboard()`는 native marker 아래 네 sink를 건너뛰고 factor/quality/F&G/regime/detail surface만 계속 호환 렌더링한다.
+- **violated_rule**: R352 단일 실행 소유권·renderer ownership 회계, R358 canonical presentation/fence, 신규 R359 home bounded aggregate fence.
+- **prevention**: unit presentation fixtures, architecture contract markers, route-owner counts, and Chromium home `4/4` plus direct `NATIVE-FENCE` assertions.
+- **verification**: version/runtime/structural/architecture/unit/headless (`1102/1102`)/boot/viewport FULL_INIT (`68/68`)/accessibility/critical10/portfolio/SA-02~04 full validation PASS; architecture browser home `4/4` with browserErrors `0`; live invariant reads deployed v53.17 because no deployment occurred. Data-lineage SEC coverage and operator fast-plane/rights/deployment/soak remain external blockers.
+
+## P784 - v53.19 - Yahoo chart caller가 shared proxy health registry를 우회해 실패 health를 학습하지 못했다
+
+- **motivation**: SA-01 acceptance required chart-specific Yahoo proxy attempts to participate in the existing cooldown/health path rather than silently creating a separate retry surface.
+- **symptom/reproduction**: the final inline `_fetchYahooChartData` built a direct proxy array and called `fetch` without `_PROXY_REGISTRY.markOk/markFail`; repeated chart failures therefore did not lower proxy health. The existing shared `fetchViaProxy` path also accepted structurally valid but non-chart payloads unless the caller supplied an acceptance predicate.
+- **root_cause**: the chart caller predated the shared proxy registry and retained a private failover chain. Health accounting was centralized, but the caller was not.
+- **fix**: route the chart caller through `fetchViaProxy(baseUrl, { parseJson, accept })`; mark invalid chart payloads as failures; open cooldown after three consecutive registry failures; clear failure state on valid success. Add SA-01 deterministic headless coverage plus SA-02/SA-03/SA-04 Playwright fixtures and CI wiring.
+- **violated_rule**: R356 (shared proxy health path), with R352 single execution ownership reinforcement.
+- **prevention**: runtime contract rejects direct chart proxy arrays and missing payload validation. The headless fixture proves three-failure cooldown, one recovery schedule, and score restoration; outage/SW/boot fixtures remain repeatable and external-success independent.
+- **verification**: runtime contract PASS; headless `1102/1102 PASS`; SA-02 two runs PASS with snapshot sources `16`, reference topbar, stable failure count; SA-03 PASS with exactly one controllerchange and two version queries; SA-04 PASS with server FRED/HY calls `0` and quote requests `83/100`; final full validation remains required after documentation synchronization.
+
+## P783 - v53.18 - 정상 기준 스냅샷이 있어도 topbar는 연결 중이었고 client proxy 실패가 중복 fanout을 만들었다
+
+- **motivation**: same-origin Tier-0 snapshot 16/16이 발행된 상태에서도 라이브 화면이 `시세 연결 중...`과 대량 CORS/proxy 경고를 보인 원인을 데이터-plane 우선순위와 재시도 소유권으로 추적했다.
+- **symptom/reproduction**: snapshot bridge는 16개 reference 값을 적용했지만 `aio:marketSnapshot`의 count/as-of를 topbar가 소비하지 않았다. Yahoo 3그룹 연속 실패 후 120그룹을 스킵해도 Stooq와 Yahoo rescue가 같은 장애 transport를 다시 호출했고, 함수 내부 backoff와 중앙 3분 scheduler가 이중 재시도를 소유했다. 서버 FRED/HY가 정상이어도 부팅 직후 브라우저 fallback이 중복 실행됐다.
+- **root_cause**: durable same-origin snapshot/server artifact가 UI 준비 상태와 outage circuit의 입력이 아니었고, `aio:liveQuotes`가 snapshot projection까지 live count로 셌으며 초기 fetch 소유자가 UI와 data engine에 중복돼 있었다. 최초 수정의 브라우저 검증에서는 bridge가 `window`에만 이벤트를 발화하고 기존 PageBus는 `document`를 구독하는 EventTarget 불일치도 추가로 드러났다.
+- **fix**: snapshot event에 latest observed-at/sourceKind를 넣고 `document`/`window` 소비 경계를 모두 연결해 `fb-static` 기준 시세 상태를 별도 렌더한다. live count는 `live:` provenance만 세며 core coverage가 부족하면 “일부 실시간”으로 강등한다. architecture snapshot ready를 최대 8초 기다린 뒤 client enrichment를 한 번 시작하고, proxy circuit open + snapshot 가용 시 Stooq/rescue를 생략한다. snapshot 사용 중에는 함수 내부 self-retry를 제거해 중앙 3분 scheduler만 남기고, 서버 FRED/HY 성공 시 브라우저 fallback을 생략한다.
+- **violated_rule**: R341/R342의 fail-closed provenance, R352의 단일 실행 소유권.
+- **prevention**: same-origin durable artifact는 초기 UI readiness의 1순위이며 client fetch는 제한된 enrichment다. reference/snapshot은 live 배지·현재 시각으로 승격하지 않고, outage의 재시도 owner는 하나만 둔다.
+- **verification**: runtime/architecture contracts, JS syntax, market-snapshot contract, Chromium architecture/boot/headless checks PASS; 외부 provider 성공과 7-day soak은 operator-required로 유지.
 
 ## 반복 버그 클래스 (재발 추적 — R25 승격 원장)
 
@@ -936,3 +1011,83 @@ total_entries: 540 (P1~P775, 결번 존재 — 상세 56건 + 압축 원장)
 - violated_rule: R352 / R3 — renderer ownership must follow actual writer evidence, and unavailable/static theme values must remain fail-closed rather than being promoted as current native data.
 - prevention: every theme cutover must list primary versus chart/detail surfaces separately, assert the native sink count in Chromium, and keep a no-data browser case visible (`quadrantCount:0`) instead of seeding a fabricated quadrant.
 - verification: syntax, architecture, retirement, operations, structural, doc-currency, Chromium 17-route two-lap (`themesRenderer:native`, primary sinks `2/2`, browserErrors `0`), and headless `1098/1098 PASS`; live invariant fetch remains unverified because the deployed site was unreachable in this environment.
+
+### P788 — bounded theme-detail native summary and isolated legacy detail body (2026-07-26)
+
+- motivation: `theme-detail` is a derived inline view opened from `themes`, so a safe packet must separate the selected-theme summary from the full legacy detail body rather than claim full route ownership prematurely.
+- symptom/reproduction: `showThemeDetail()` previously replaced the whole `#theme-detail-panel` contents, leaving no stable child boundary for a native summary and no explicit selection event contract for the native themes slice.
+- root_cause: P776 retired the unreachable static-page renderer, but the live inline panel still combined selection, summary, subtheme composition, breadth, deep-analysis narrative, and chart/data consumers in one legacy container.
+- fix: added selected-detail normalization/state projection, `aio:themeDetailShown`/`aio:themeDetailClosed` events, native `#theme-detail-native-summary`, and legacy `#theme-detail-legacy-content`. The native summary uses safe DOM APIs for label/performance/source/representative leaders; the detailed body remains legacy-owned.
+- violated_rule: R352 single execution ownership, R359 bounded primary-surface discipline, and R360 derived theme-detail event/child boundary.
+- prevention: architecture contract checks native/legacy writer intersections; Chromium checks native summary visibility plus populated legacy body and the 17-route resource round trip; full detail/chart/data/narrative ownership remains a declared follow-up packet.
+- verification: ESM unit PASS, architecture contract PASS (`1087/39/186/375`), architecture browser PASS with theme-detail summary/legacy-body evidence, `42` canvases, `12` timers, and browserErrors `0`; local v53.23 remains uncommitted and undeployed.
+
+### P789 — bounded theme-detail composition/breadth native surface (2026-07-26)
+
+- motivation: after P788, the derived theme-detail panel still emitted the subtheme composition and breadth readout from the large legacy `innerHTML` writer, so the native summary boundary did not cover the next independently movable surface.
+- symptom/reproduction: selecting a theme populated subtheme cards and the breadth line only inside `#theme-detail-legacy-content`; the native module had no normalized quote evidence or dedicated child for this composition surface.
+- root_cause: the event payload carried structural detail but not the quote snapshot, breadth result, or subtheme weights needed for a safe native render; the legacy writer also bundled the transferred composition into the same HTML string as the remaining deep narrative.
+- fix: normalized `breadth`, quote evidence, and subtheme weights; extended `aio:themeDetailShown` with those fields; added safe DOM rendering in `themes.js` for `#theme-detail-native-composition`; removed the legacy subtheme/breadth DOM emission while retaining detailed leader cards and deep-analysis narrative as explicit legacy boundaries.
+- violated_rule: R361 / R360 — a derived composition cutover must use an explicit event/child boundary, fail closed when quote coverage is insufficient, and fence the transferred legacy writer before claiming the bounded surface.
+- prevention: every follow-up theme-detail packet must add a dedicated child, normalize its evidence shape, assert native/legacy writer intersection and visible fail-closed behavior, and keep deep narrative/chart/data ownership separate until independently reconciled.
+- verification: touched-module syntax, architecture contract PASS with normalized quote/breadth fixtures, Chromium theme-detail summary/composition/legacy-body evidence, `42` canvases, `12` timers, and browserErrors `0`; local v53.24 remains uncommitted and undeployed.
+
+### P790 — bounded theme-detail detailed-leader native surface (2026-07-26)
+
+- motivation: after P789, the derived theme-detail panel still generated the detailed leader-card grid from the legacy HTML writer even though the selection event already carried the normalized leader quote evidence.
+- symptom/reproduction: selecting a theme showed leader cards with prices and changes only inside `#theme-detail-legacy-content`; there was no dedicated native owner or fail-closed display for missing leader quotes.
+- root_cause: the P788/P789 native children were intentionally scoped to summary and composition, while the legacy function kept the leader-card block bundled with the same detail string; the event payload had not yet been consumed by a leader-specific renderer.
+- fix: added safe DOM rendering in `themes.js` for `#theme-detail-native-leaders`, wired selection/close/dispose lifecycle, and removed the legacy leader-card HTML block. The native cards preserve ticker navigation and show `가격 대기`/`등락률 대기` when quote evidence is absent; deep-analysis narrative remains legacy-owned.
+- violated_rule: R362 / R361 — a transferred leader surface needs one native writer, explicit normalized quote evidence, and a legacy writer fence before native ownership is recorded.
+- prevention: each remaining theme-detail packet must use a dedicated child and explicit event payload, assert missing-data behavior in Chromium, and keep narrative/chart/data surfaces separately declared.
+- verification: touched-module syntax, architecture contract PASS, Chromium theme-detail summary/composition/leaders evidence with `11` native leader cards, `42` canvases, `12` timers, and browserErrors `0`; local v53.25 remains uncommitted and undeployed.
+
+### P791 — bounded theme-detail temperature narrative native surface (2026-07-26)
+
+- motivation: the first dynamic section of `_buildThemeDeepAnalysis()` still wrote the theme-temperature diagnosis from the legacy HTML string even after the native summary/composition/leader cutovers.
+- symptom/reproduction: selecting a theme left temperature wording inside the legacy deep-analysis body, with no dedicated native surface or explicit unavailable-performance behavior.
+- root_cause: P788-P790 intentionally stopped before dynamic narrative ownership; the event payload already contained the canonical selected-theme performance, but no native renderer consumed it for the temperature section.
+- fix: added safe DOM rendering in `themes.js` for `#theme-detail-native-temperature`, removed the corresponding legacy temperature section, and kept performance-spread, breadth-health, benchmark, and remaining deep narrative sections legacy-owned.
+- violated_rule: R363 / R362 — dynamic narrative must derive from normalized canonical input, fail closed when missing, and fence the exact legacy section before native ownership is recorded.
+- prevention: narrative packets must identify the exact source model and section boundary, assert unavailable behavior in Chromium, and never transfer adjacent legacy narrative/chart/data surfaces implicitly.
+- verification: touched-module syntax, architecture contract PASS, Chromium theme-detail summary/composition/leaders/temperature evidence with fail-closed `시세 대기`, `42` canvases, `12` timers, and browserErrors `0`; local v53.26 remains uncommitted and undeployed.
+
+### P792 — bounded theme-detail performance-spread native surface (2026-07-26)
+
+- motivation: the second dynamic deep-analysis section still generated leader performance spread and strongest/weakest constituent commentary in the legacy HTML writer after the native leader cards had been transferred.
+- symptom/reproduction: selecting a theme left the spread narrative inside the legacy deep-analysis body, and there was no native surface that could state when fewer than two constituent changes were observed.
+- root_cause: P790 owned leader cards but intentionally did not move the derived comparison narrative; the native module had the normalized quote payload but no isolated spread renderer.
+- fix: added safe DOM rendering in `themes.js` for `#theme-detail-native-spread`, ranking only observed quote changes and returning `시세 대기` below the two-observation threshold; removed the legacy spread section while retaining breadth-health and later narrative sections.
+- violated_rule: R364 / R363 — ranking narrative must use observed canonical evidence, fail closed with insufficient coverage, and fence the exact legacy section before native ownership is recorded.
+- prevention: every derived comparison must define its minimum evidence count, keep ranking deterministic, and add a native/legacy boundary plus browser assertion before moving to the next narrative section.
+- verification: touched-module syntax, architecture contract PASS, Chromium theme-detail summary/composition/leaders/temperature/spread evidence with insufficient-quote text, `42` canvases, `12` timers, and browserErrors `0`; local v53.27 remains uncommitted and undeployed.
+
+### P793 — bounded theme-detail breadth-health native surface (2026-07-26)
+
+- motivation: the third dynamic deep-analysis section still generated breadth-health interpretation in the legacy HTML writer after the native composition surface already exposed normalized breadth.
+- symptom/reproduction: selecting a theme left the breadth-health narrative inside the legacy deep-analysis body, with no dedicated native surface or explicit unavailable-breadth behavior.
+- root_cause: P789 transferred the breadth value for composition but intentionally left its interpretation bundled in `_buildThemeDeepAnalysis()`; no native renderer consumed the normalized breadth for a health classification.
+- fix: added safe DOM rendering in `themes.js` for `#theme-detail-native-breadth-health`, derived from normalized `detail.breadth` with fail-closed `시세 대기` behavior; removed the legacy breadth-health section while retaining subtheme gap, benchmark, and remaining narrative sections.
+- violated_rule: R365 / R364 — breadth-health narrative must use normalized canonical evidence, fail closed when coverage is missing, and fence the exact legacy section before native ownership is recorded.
+- prevention: each narrative packet must identify its evidence field and threshold policy, add a dedicated native child and browser assertion, and preserve adjacent narrative/chart/data boundaries as separate work.
+- verification: touched-module syntax, architecture contract PASS, Chromium theme-detail summary/composition/leaders/temperature/spread/breadth-health evidence with fail-closed text, `42` canvases, `12` timers, and browserErrors `0`; local v53.28 remains uncommitted and undeployed.
+
+### P794 — bounded theme-detail subtheme-gap native surface (2026-07-26)
+
+- motivation: the remaining subtheme comparison in `_buildThemeDeepAnalysis()` still generated strongest/weakest subtheme commentary from the legacy HTML writer after native composition had exposed the normalized subtheme structure.
+- symptom/reproduction: selecting a theme left subtheme performance-gap wording inside the legacy deep-analysis body, with no dedicated native surface or explicit insufficient-subtheme-coverage behavior.
+- root_cause: P789 transferred subtheme composition and breadth but intentionally left its derived gap narrative bundled with later legacy sections; the native module had normalized subtheme quote evidence but no dedicated comparison renderer.
+- fix: added safe DOM rendering in `themes.js` for `#theme-detail-native-subtheme-gap`, ranking only observed subtheme composite performances and returning `시세 대기` below the two-subtheme threshold; removed the legacy subtheme-gap section while retaining benchmark and remaining narrative sections.
+- violated_rule: R366 / R365 — subtheme-gap narrative must use normalized canonical evidence, fail closed when coverage is missing, and fence the exact legacy section before native ownership is recorded.
+- prevention: every grouped comparison must define its minimum observed-group count, derive all rows from one normalized payload, add native/legacy boundary assertions, and keep adjacent benchmark/chart/data ownership separate.
+- verification: touched-module syntax, architecture contract PASS, Chromium theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap evidence with insufficient-quote text, `42` canvases, `12` timers, and browserErrors `0`; local v53.29 remains uncommitted and undeployed.
+
+### P795 — bounded theme-detail benchmark native surface (2026-07-26)
+
+- motivation: the remaining ETF/composite-base comparison in `_buildThemeDeepAnalysis()` still emitted relative-performance commentary from the legacy HTML writer after the native theme-detail performance and quote evidence boundaries were established.
+- symptom/reproduction: selecting a theme left benchmark comparison wording inside the legacy deep-analysis body, with no dedicated native surface or explicit behavior when theme or benchmark performance was unavailable.
+- root_cause: P788-P794 moved the derived summary and comparison sections one at a time but intentionally left the benchmark section bundled with theme insights; normalized detail also did not yet preserve `compositeBase` for the native comparison.
+- fix: added normalized `compositeBase` and event payload preservation, added safe DOM rendering in `themes.js` for `#theme-detail-native-benchmark`, and removed the legacy benchmark section. Missing theme/benchmark quote evidence returns `시세 대기`.
+- violated_rule: R367 / R366 — benchmark narrative must use normalized canonical evidence, fail closed when either side is missing, and fence the exact legacy section before native ownership is recorded.
+- prevention: every relative comparison must name its canonical numerator/benchmark fields, preserve all required identifiers in the normalized event payload, assert missing evidence in Chromium, and keep insight/chart/data ownership separate.
+- verification: touched-module syntax, architecture contract PASS, Chromium theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark evidence with fail-closed text, `42` canvases, `12` timers, and browserErrors `0`; local v53.30 remains uncommitted and undeployed.

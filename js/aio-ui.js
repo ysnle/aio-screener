@@ -51,7 +51,7 @@ function updateBreadthBars() {
     var mcEl = document.getElementById('breadth-mcclellan-summary');
     if (mcEl) { mcEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">A/D 시계열 미수신</span>'; mcEl.setAttribute('data-mcclellan-signal','unavailable'); }
     var diagEl = document.getElementById('breadth-diag-text');
-    if (diagEl) diagEl.textContent = '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다.';
+    if (diagEl && diagEl.dataset.aioBreadthDiagnosticRenderer !== 'native') diagEl.textContent = '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다.';
     if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
     return;
   }
@@ -63,7 +63,7 @@ function updateBreadthBars() {
   var breadthHeader = document.getElementById('breadth-header-badge');
   if (breadthHeader) { breadthHeader.textContent = '현재 관측'; breadthHeader.style.color = 'var(--data-green)'; }
   var breadthDiagSignal = document.getElementById('breadth-diag-signal');
-  if (breadthDiagSignal) { breadthDiagSignal.textContent = diagSummary; breadthDiagSignal.style.color = 'var(--text-primary)'; }
+  if (breadthDiagSignal && breadthDiagSignal.dataset.aioBreadthDiagnosticRenderer !== 'native') { breadthDiagSignal.textContent = diagSummary; breadthDiagSignal.style.color = 'var(--text-primary)'; }
   // P746 후속(2026-07-21, Fable 어드바이저 2차 설계): breadth-stage-summary는 다일 breadth 이력이
   // 전혀 없어(history.json에 breadth 필드 자체가 없음 — reconciliation-status.json도 이 항목을
   // "BLOCKED"로 이미 기록 중) Weinstein류 추세국면 "Stage"를 만들 수 없다는 결론에 따라, 오늘
@@ -89,7 +89,7 @@ function updateBreadthBars() {
     }
   }
   var breadthDiagText = document.getElementById('breadth-diag-text');
-  if (breadthDiagText) breadthDiagText.textContent = diagSummary + ' · ' + (currentBreadth.source || 'AIO screener universe') + '의 현재 관측입니다. 시장 참여도는 오늘 수준(추세국면 아님), McClellan은 A/D 시계열이 없어 판정을 보류합니다.';
+  if (breadthDiagText && breadthDiagText.dataset.aioBreadthDiagnosticRenderer !== 'native') breadthDiagText.textContent = diagSummary + ' · ' + (currentBreadth.source || 'AIO screener universe') + '의 현재 관측입니다. 시장 참여도는 오늘 수준(추세국면 아님), McClellan은 A/D 시계열이 없어 판정을 보류합니다.';
   var breadthAdvance = document.getElementById('breadth-advance-ratio');
   if (breadthAdvance) breadthAdvance.textContent = currentBreadth.advanceRatio != null ? (currentBreadth.advanceRatio * 100).toFixed(1) + '%' : '—';
   var breadthSignal = document.getElementById('breadth-signal-val');
@@ -293,8 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
   // v52.55/H3-A: 스냅샷을 _lastFG에 복사하지 않는다. 현재값과 참고값을
   // getCanonicalMetric()이 구분해야 점수/설명/배지가 같은 provenance를 소비한다.
-  // 실시간 시세 (성공 시 기본값 교체)
-  fetchLiveQuotes();
+  // 실시간 시세는 initV20DataEngine이 서버 artifact와 architecture snapshot
+  // preflight를 끝낸 뒤 한 번만 시작한다.
   // v20: Adaptive refresh - slow down if repeatedly failing
   let _quoteFailCount = 0;
   const _origFetchQuotes = fetchLiveQuotes;
@@ -315,9 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(function() {
     try { if (typeof fetchAllNews === 'function') { var p = fetchAllNews(false); if (p && p.catch) p.catch(function(){}); } } catch(e){}
   }, 3000);
-  try { fetchFearGreed().catch(function(){}); } catch(e) {}
-  fetchPutCall(); // 1분마다 시세 갱신
-  fetchHYSpread(); // FRED HY Spread (6시간 캐시)
+  // sentiment/HY 초기 fetch도 initV20DataEngine의 서버 우선 phase가 단독 소유한다.
   // v30.11: T3 _hySpreadInterval 삭제 — REFRESH_SCHEDULE.hySpread가 6h 지터 포함 단일 경로
 
   // Trading Signal 45초 자동 갱신 타이머 (페이지가 활성일 때 경과 시간 카운터 시작)
@@ -1152,11 +1150,13 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // 8. aria-live 영역 설정 (동적 업데이트 알림)
-  var liveEls = ['score-gauge-val', 'pf-total-value', 'pf-total-pnl'];
+  var liveEls = ['pf-total-value', 'pf-total-pnl'];
   liveEls.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.setAttribute('aria-live', 'polite');
   });
+  var signalScoreEl = document.querySelector('#score-gauge-val');
+  if (signalScoreEl) signalScoreEl.setAttribute('aria-live', 'polite');
 
   // 9~23: 모든 DOM이 구성된 뒤 실행 (AI 패널/모달이 이 스크립트 뒤에 위치)
   setTimeout(function() {
@@ -1261,10 +1261,15 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // 21. v41.2: 동적 영역 aria-live 확장 (뉴스 티커, 상태 패널, 트레이딩 스코어)
-  ['snapshot-stale-warning','data-status-panel','home-risk-regime-badge','score-decision-sub'].forEach(function(id) {
+  ['snapshot-stale-warning','data-status-panel','home-risk-regime-badge'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el && !el.getAttribute('aria-live')) { el.setAttribute('aria-live', 'polite'); el.setAttribute('aria-atomic', 'true'); }
   });
+  var signalDecisionSub = document.querySelector('#score-decision-sub');
+  if (signalDecisionSub && !signalDecisionSub.getAttribute('aria-live')) {
+    signalDecisionSub.setAttribute('aria-live', 'polite');
+    signalDecisionSub.setAttribute('aria-atomic', 'true');
+  }
 
   // 22. v41.2: 모달 포커스 트랩 (dialog 열릴 때 내부에 포커스 가둠)
   document.querySelectorAll('[role="dialog"]').forEach(function(dlg) {

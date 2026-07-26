@@ -32,26 +32,25 @@
     "guide"
   ],
   "nativeRendererRoutes": [
+    "home",
+    "breadth",
     "sentiment",
-    "guide",
-    "screener",
-    "market-news",
     "briefing",
+    "technical",
     "macro",
     "fxbond",
-    "breadth",
     "themes",
+    "theme-detail",
     "ticker",
     "fundamental",
     "options",
-    "portfolio"
+    "portfolio",
+    "market-news",
+    "screener",
+    "guide",
+    "signal"
   ],
-  "legacyRouteOwners": [
-    "home",
-    "signal",
-    "technical",
-    "theme-detail"
-  ],
+  "legacyRouteOwners": [],
   "legacyObserverOwners": [],
   "liveCertification": "operator-required"
 }

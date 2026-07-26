@@ -24,8 +24,22 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot) {
       delayed: true
     })) applied += 1;
   }
+  const observedTimes = (snapshot.quotes || [])
+    .map((quote) => Date.parse(quote?.observedAt || quote?.fetchedAt || ''))
+    .filter(Number.isFinite);
+  const latestObservedAt = observedTimes.length
+    ? new Date(Math.max(...observedTimes)).toISOString()
+    : (snapshot.generatedAt || null);
+  const detail = Object.freeze({
+    revision: snapshot.revision,
+    count: applied,
+    generatedAt: snapshot.generatedAt || null,
+    latestObservedAt,
+    sourceKind: 'REFERENCE'
+  });
   try {
-    root.dispatchEvent?.(new CustomEvent('aio:marketSnapshot', { detail: { revision: snapshot.revision, count: applied } }));
+    root.document?.dispatchEvent?.(new CustomEvent('aio:marketSnapshot', { detail }));
+    root.dispatchEvent?.(new CustomEvent('aio:marketSnapshot', { detail }));
   } catch (_) {}
-  return Object.freeze({ applied, skipped: false, revision: snapshot.revision });
+  return Object.freeze({ applied, skipped: false, revision: snapshot.revision, latestObservedAt });
 }

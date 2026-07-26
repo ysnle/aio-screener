@@ -1,11 +1,131 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P780 verification
-last_verified: 2026-07-22
+verified_by: agent (Fable 5) + Codex P761-P788 verification
+last_verified: 2026-07-26
 confidence: high
-target_version: v53.17
+target_version: v53.23
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R356. Yahoo chart proxy는 공통 health registry를 통해서만 실행해야 한다 (v53.19, P784)
+
+**Rule**: Yahoo chart proxy attempts must use `_PROXY_REGISTRY` through `fetchViaProxy`; direct proxy arrays in chart-specific callers are prohibited. Invalid chart payloads count as proxy failures, three consecutive failures open cooldown, and a later valid response clears the proxy health state. This packet does not change price-validation bands or add a new public proxy.
+
+**Validation**: `ci-runtime-contract-check.mjs` blocks direct chart proxy fanout and missing invalid-payload accounting. Headless `T1041` proves three-failure cooldown, scheduled recovery, and later success score restoration; the SA-02 outage fixture proves snapshot-backed degraded operation remains reference-only.
+
+## R357. Native bounded technical surfaces must have one pure model and an explicit legacy writer fence (v53.20, P785)
+
+**Rule**: A technical route may transfer a primary health surface only when its formula is owned by one pure domain model, normalized state carries that model output, the native renderer owns the declared sinks, and every compatibility initializer that can reach those sinks explicitly skips them while the native marker is active. Secondary chart/indicator/stage/narrative surfaces must remain separately declared until their own writer packet is complete.
+
+**Validation**: `ci-esm-core-unit-check.mjs` covers missing-input fail-closed and bullish/defensive threshold fixtures; `ci-architecture-contract-check.mjs` requires `market-health.v1`, native technical renderer markers, and both compatibility fences; `ci-architecture-browser-check.mjs` requires technical primary sink `11/11`, native marker parity, and the `NATIVE-FENCE` last-writer regression assertion.
+
+## R358. Signal primary text must derive from one Trading Score model and fence the legacy dashboard writer (v53.21, P786)
+
+**Rule**: The signal score/decision hero may be transferred only when its user-facing wording is an explicit presentation model layered on the canonical `trading-score.v1` result, with machine action (`WATCH`/`WAIT`/`REDUCE`) kept separate. A native signal renderer must own the declared score/decision sinks and `refreshSignalDashboard()` must skip them behind the native marker; canvas, factor bars, execution-window, risk-monitor, timestamp, narrative, and home summary remain separate boundaries until independently cut over.
+
+**Validation**: `ci-esm-core-unit-check.mjs` covers full/partial/missing score presentation; `ci-architecture-contract-check.mjs` requires `signal-presentation.v1`, native signal markers, and the legacy fence; `ci-architecture-browser-check.mjs` requires signal primary sink `3/3` and direct `NATIVE-FENCE` protection.
+
+## R359. Home aggregate primary text must reuse signal presentation and fence legacy summary writers (v53.22, P787)
+
+**Rule**: The home aggregate may transfer only the declared score/decision summary sinks. It must consume `signal-presentation.v1` from normalized analysis state rather than recomputing score thresholds or wording. Quality meter, Fear & Greed, regime, factor detail, chart, and narrative remain separate legacy boundaries until independently reconciled. Every legacy home summary writer must skip the four native sinks while `data-aio-home-renderer="native"` is active.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires the home renderer/fence markers and the derived route-owner count; `ci-architecture-browser-check.mjs` requires home native sink `4/4`, route marker parity, and direct `NATIVE-FENCE` protection.
+
+## R360. Derived theme-detail summary must use an explicit event/child boundary (v53.23, P788)
+
+**Rule**: A derived inline panel may add a native summary only when the selection enters through an explicit `aio:themeDetailShown` boundary, the native module owns a dedicated child surface, and the legacy body writes to a separate child container. Do not classify the full `theme-detail` panel as native until composition, chart/data, and narrative writers are independently reconciled.
+
+**Validation**: `ci-architecture-contract-check.mjs` must keep native/legacy writer intersections empty; `ci-architecture-browser-check.mjs` requires `#theme-detail-native-summary` visible with `#theme-detail-legacy-content` populated and the full 17-route resource round trip stable.
+
+## R361. Theme-detail composition/breadth must use normalized quote evidence and a fenced legacy writer (v53.24, P789)
+
+**Rule**: A derived theme-detail composition packet may move subtheme composition, constituent chips, and breadth only into a dedicated native child fed by the explicit selection event and normalized quote evidence. Missing price coverage must remain `시세 대기`; the legacy writer must stop emitting the transferred subtheme/breadth DOM before the native boundary is recorded. Detailed leader cards and deep-analysis narrative remain separate legacy boundaries until independently reconciled.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `renderThemeDetailComposition`, the native composition child, normalized quote/breadth fixtures, and the legacy composition fence; `ci-architecture-browser-check.mjs` requires the native summary/composition children visible with the legacy body populated and the 17-route resource round trip stable.
+
+## R362. Theme-detail leader cards must have one native writer and fail-closed quote display (v53.25, P790)
+
+**Rule**: Detailed theme leaders may move to native ownership only through a dedicated child fed by the normalized selection quote payload. Price and change must remain explicitly unavailable when evidence is missing; the legacy leader-card DOM writer must be fenced before the boundary is recorded. Deep-analysis narrative and chart/data surfaces remain separate until their own ownership packets are complete.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `renderThemeDetailLeaders`, the native leader child, and the P790 legacy fence; `ci-architecture-browser-check.mjs` requires at least one native leader card alongside visible summary/composition children, populated legacy body, and stable 17-route resource counts.
+
+## R363. Theme-detail temperature narrative must derive from canonical performance and fence the legacy section (v53.26, P791)
+
+**Rule**: The theme-temperature diagnosis may move to native only when it derives directly from the normalized selected-theme performance, uses an explicit child, and displays `시세 대기` when performance is unavailable. The corresponding legacy deep-analysis section must be removed/fenced; spread, breadth-health, benchmark, and other narrative sections remain separate boundaries.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `renderThemeDetailTemperature`, the native temperature child, and the P791 legacy fence; `ci-architecture-browser-check.mjs` requires visible summary/composition/leaders/temperature children, populated legacy body, fail-closed temperature text, and stable 17-route resources.
+
+## R364. Theme-detail performance spread must rank only observed quote changes (v53.27, P792)
+
+**Rule**: The leader performance-spread narrative may move to native only when it uses the normalized quote payload, requires at least two observed constituent changes, and keeps missing values fail-closed. The legacy spread section must be fenced; breadth-health, subtheme gap, benchmark, and remaining narrative remain separate boundaries.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `renderThemeDetailSpread`, the native spread child, and the P792 legacy fence; `ci-architecture-browser-check.mjs` requires visible summary/composition/leaders/temperature/spread children, explicit insufficient-quote text, populated legacy body, and stable 17-route resources.
+
+## R365. Theme-detail breadth-health narrative must use normalized breadth and fence the legacy section (v53.28, P793)
+
+**Rule**: The theme-detail breadth-health narrative must be rendered by the native child `#theme-detail-native-breadth-health` from normalized `detail.breadth`. Missing quote coverage must fail closed to `시세 대기`; the legacy breadth-health section must be fenced, while subtheme gap, benchmark comparison, and remaining deep narrative stay separately bounded.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `renderThemeDetailBreadthHealth`, the native breadth-health child, and the P793 legacy fence; `ci-architecture-browser-check.mjs` requires visible summary/composition/leaders/temperature/spread/breadth-health children, explicit insufficient-quote text, populated legacy body, and stable 17-route resources.
+
+## R366. Theme-detail subtheme-gap narrative must use normalized subtheme quote evidence and fence the legacy section (v53.29, P794)
+
+**Rule**: The theme-detail subtheme-gap narrative must be rendered by the native child `#theme-detail-native-subtheme-gap` from normalized `detail.subThemes` and quote evidence. Fewer than two observed subtheme performances must fail closed to `시세 대기`; the legacy subtheme-gap section must be fenced, while benchmark comparison and remaining deep narrative stay separately bounded.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `renderThemeDetailSubthemeGap`, the native subtheme-gap child, and the P794 legacy fence; `ci-architecture-browser-check.mjs` requires visible summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap children, explicit insufficient-quote text, populated legacy body, and stable 17-route resources.
+
+## R368. Home Quality must not reuse Trading Score and must fail closed without canonical inputs (v53.34, P821)
+
+**Rule**: If the five-input Quality model is not present in canonical state, do not fill the Quality card with an inferred or reused score. Native analysis owns the complete card and displays `— / 판정 보류`; the legacy Trading Score-as-Quality writer stays removed.
+
+**Validation**: `ci-architecture-contract-check.mjs` blocks the legacy quality writer and `ci-architecture-browser-check.mjs` requires the native marker plus a non-empty fail-closed state.
+
+## R369. Technical candle text and legacy canvas lifecycle must remain separate (v53.34, P822)
+
+**Rule**: Technical candle title/meta text comes only from normalized analysis input and stays waiting when OHLCV is absent. Legacy chart code retains canvas/indicator lifecycle but must not write the same text sinks.
+
+**Validation**: the architecture contract checks legacy writer deletion and native markers; Chromium checks native title/meta state and the stable 17-route resource round trip.
+
+## R370. Theme-detail comparison formatters must reject non-finite quote percentages (v53.35, P823)
+
+**Rule**: Any legacy or native theme-detail comparison that ranks or formats constituent quote percentages must first normalize and filter finite numeric values. Sentinel extrema must not reach `toFixed()` or user-visible output.
+
+**Validation**: `ci-runtime-contract-check.mjs` requires the finite percentage guard, explicit finite extrema, and safe formatting for the theme-detail deep-analysis comparison.
+
+## R371. Shared currentness sanitizers must not rewrite native renderer-owned narrative sinks (v53.36, P824)
+
+**Rule**: Cross-cutting stale/loading text normalization may annotate legacy or unowned narrative sinks, but must leave elements marked with a native renderer ownership marker untouched. Native route renderers remain the sole writer of their owned text.
+
+**Validation**: `ci-headless-tests.mjs`, `ci-architecture-browser-check.mjs`, and route ownership contracts must preserve native fail-closed text after currentness normalization.
+
+## R372. Dynamic detail panels must keep aria-live announcements intentionally scarce (v53.37, P825)
+
+**Rule**: A multi-panel native detail surface must expose at most one coordinated `aria-live` summary unless each additional region represents an independent user action. Sibling panels rendered in one update must not create screen-reader announcement storms.
+
+**Validation**: `ci-ux-default-path-check.mjs` enforces the global live-region ceiling; `ci-accessibility-matrix-check.mjs` verifies all 17 routes with zero console errors.
+
+## R367. Theme-detail benchmark narrative must use normalized theme/benchmark evidence and fence the legacy section (v53.30, P795)
+
+**Rule**: The theme-detail benchmark narrative must be rendered by the native child `#theme-detail-native-benchmark` from normalized theme performance and the selected ETF/composite-base quote evidence. Missing either side must fail closed to `시세 대기`; the legacy benchmark section must be fenced, while theme insights, chart, and data ownership stay separately bounded.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `renderThemeDetailBenchmark`, the native benchmark child, and the P795 legacy fence; `ci-architecture-browser-check.mjs` requires visible summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark children, explicit insufficient-quote text, populated legacy body, and stable 17-route resources.
+
+## R355. Durable snapshot은 reference readiness이며 client live enrichment의 outage gate다 (v53.18, P783)
+
+**Rule**: published same-origin market snapshot은 부팅 시 먼저 적용하고 `sourceKind=REFERENCE`, 관측시각, `fb-static`을 유지한다. `_liveData`에 투영돼도 `live:` provenance가 아니면 실시간 개수·현재 시각 배지로 세지 않는다. snapshot이 가용한 상태에서 public proxy가 연속 실패하면 동일 transport의 Stooq/Yahoo rescue fanout을 중단하고, 재시도는 중앙 refresh scheduler 하나만 소유한다. 서버 FRED/HY artifact가 freshness/성공 gate를 통과하면 브라우저 fallback을 중복 호출하지 않는다.
+
+**Validation**: runtime contract는 snapshot event metadata, reference topbar, proxy circuit, 내부 self-retry 부재, architecture-ready 대기, 서버 macro/HY 중복 억제를 blocking한다. 브라우저 QA는 외부망 차단 상태에서 기준 시세 표시와 `fb-static`을 확인한다.
+
+## R354. 서비스워커 버전 표시는 현재 controller 전환을 따라야 한다 (v53.18, P782)
+
+**Rule**: SW 설치/대기 버전을 활성 controller로 오인하지 않는다. `controllerchange`마다 `GET_VERSION`을 다시 실행하고 mismatch 진단을 재평가한다. SW 등록은 script cache를 우회해 update를 확인하되 자동 reload loop를 만들지 않는다.
+
+**Validation**: runtime contract는 `controllerchange`, active-version requery, `updateViaCache:'none'`, explicit update check를 요구한다.
+
+## R353. route ownership 요약은 route별 선언에서 재계산한다 (v53.18, P781)
+
+**Rule**: `architecture/route-owners.json`의 counts/native/legacy/full-native 요약을 독립 사실로 수동 관리하지 않는다. route 17개의 5차원 owner 선언에서 재계산한 값·순서와 하나라도 다르면 migration 진척을 인정하지 않는다.
+
+**Validation**: `ci-architecture-contract-check.mjs`가 lifecycle/renderer/data/chart/narrative와 full-native 목록의 누락·추가·순서 드리프트를 blocking한다.
 
 ## R352. Architecture migration must transfer an executable owner and monotonically retire legacy coupling (v53.15, P736)
 

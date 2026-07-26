@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.17 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.37 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5642,7 +5642,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.17</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.37</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -10051,6 +10051,16 @@ button[data-filter-active="true"] {
       <!-- 테마 상세 패널 -->
       <div id="theme-detail-panel" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px;margin-top:12px;position:relative;">
         <button data-action="closeThemeDetail" class="btn-close" aria-label="닫기"></button>
+        <div id="theme-detail-native-summary" data-aio-theme-detail-surface="native" aria-live="polite" hidden></div>
+        <div id="theme-detail-native-composition" data-aio-theme-detail-surface="native-composition" hidden></div>
+        <div id="theme-detail-native-leaders" data-aio-theme-detail-surface="native-leaders" hidden></div>
+        <div id="theme-detail-native-temperature" data-aio-theme-detail-surface="native-temperature" hidden></div>
+        <div id="theme-detail-native-spread" data-aio-theme-detail-surface="native-spread" hidden></div>
+        <div id="theme-detail-native-breadth-health" data-aio-theme-detail-surface="native-breadth-health" hidden></div>
+        <div id="theme-detail-native-subtheme-gap" data-aio-theme-detail-surface="native-subtheme-gap" hidden></div>
+        <div id="theme-detail-native-benchmark" data-aio-theme-detail-surface="native-benchmark" hidden></div>
+        <div id="theme-detail-native-insights" data-aio-theme-detail-surface="native-insights" hidden></div>
+        <div id="theme-detail-legacy-content"></div>
       </div>
     </div>
     </div><!-- /aio-section 테마히트맵 -->
@@ -12207,9 +12217,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.17" defer></script>
-  <script src="./js/aio-data.js?v=53.17" defer></script>
-  <script src="./js/aio-ui.js?v=53.17" defer></script>
+  <script src="./js/aio-core.js?v=53.37" defer></script>
+  <script src="./js/aio-data.js?v=53.37" defer></script>
+  <script src="./js/aio-ui.js?v=53.37" defer></script>
 
 
   <script>
@@ -12924,13 +12934,9 @@ function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDaily
   const sign = n => n >= 0 ? '+' : '-';
   const color = n => n >= 0 ? 'var(--green)' : 'var(--red)';
 
-  const tvEl = document.getElementById('pf-total-value');
-  if (tvEl) tvEl.textContent = fmt(totalAssets);
   const hcEl = document.getElementById('pf-holding-count');
   if (hcEl) hcEl.textContent = positions.length + ' 종목';
 
-  const pnlEl = document.getElementById('pf-total-pnl');
-  if (pnlEl) { pnlEl.textContent = sign(totalPnl) + fmt(totalPnl); pnlEl.style.color = color(totalPnl); }
   const pnlPctEl = document.getElementById('pf-total-pnl-pct');
   if (pnlPctEl) { pnlPctEl.textContent = sign(totalPnl) + Math.abs(totalPnlPct).toFixed(1) + '%'; pnlPctEl.style.color = color(totalPnl); }
 
@@ -14723,7 +14729,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.17" defer></script>
+<script src="./js/aio-chat.js?v=53.37" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -14762,178 +14768,57 @@ function renderOfficialFutureCalendar() {
 }
 document.addEventListener('DOMContentLoaded', renderOfficialFutureCalendar);
 
-// ── Market Health Score (screener_pro compute_market_health 방법론) ──
-function computeMarketHealth() {
-  // v37.1: 주가(SPY/QQQ)=종가 기준, 시장 환경(VIX)=실시간
-  let ld = window._liveData || {};
-  var healthMissing = [];
-  if (!ld['SPY'] || ld['SPY'].pct == null || !isFinite(Number(ld['SPY'].pct))) healthMissing.push('SPY 등락률');
-  if (!ld['QQQ'] || ld['QQQ'].pct == null || !isFinite(Number(ld['QQQ'].pct))) healthMissing.push('QQQ 등락률');
-  if (!ld['^VIX'] || ld['^VIX'].price == null || !isFinite(Number(ld['^VIX'].price))) healthMissing.push('VIX');
-  if (healthMissing.length) {
-    var unavailable = document.getElementById('health-score-display');
-    if (unavailable) unavailable.textContent = '—';
-    unavailable = document.getElementById('health-grade-display');
-    if (unavailable) { unavailable.textContent = '판정 보류'; unavailable.style.color = 'var(--text-muted)'; }
-    unavailable = document.getElementById('health-regime-display');
-    if (unavailable) { unavailable.textContent = '필수 현재값 미수신'; unavailable.style.color = 'var(--text-muted)'; }
-    unavailable = document.getElementById('tech-health-pill');
-    if (unavailable) { unavailable.textContent = '시장 건강도 판정 보류'; unavailable.className = 'status-pill sp-neutral'; }
-    unavailable = document.getElementById('health-interpretation');
-    if (unavailable) unavailable.innerHTML = '<div class="dc-title">시장 건강도 판정 보류</div><div style="font-size:12px;color:var(--text-muted);line-height:1.7;">필수 현재 입력 미수신: ' + healthMissing.join(', ') + '. 결측값을 0%·중립값으로 대체하지 않습니다.</div>';
-    return { available: false, score: null, grade: '—', regime: '판정 보류', missing: healthMissing };
-  }
+// ── Market Health Score compatibility wrapper ──
+// P785: the formula lives in src/domain/market/health.js. This wrapper preserves the
+// legacy callable API for entry-check consumers but never writes the technical primary
+// surface while the native route renderer owns it.
+function _aioIsNativeTechnicalHealth() {
+  var page = document.getElementById('page-technical');
+  return !!(page && page.dataset.aioTechnicalRenderer === 'native');
+}
+window._aioIsNativeTechnicalHealth = _aioIsNativeTechnicalHealth;
 
-  var score = 50; // base
-  var details = [];
+function _aioLegacyHealthElement(id) {
+  return document.querySelector('#' + id);
+}
 
-  // SPY component (종가 기준 pct)
-  var spyChg = Number(ld['SPY'].pct);
-  if (spyChg > 1) { score += 10; details.push('SPY 강세 +' + spyChg.toFixed(1) + '%'); }
-  else if (spyChg > 0.05) { score += 5; details.push('SPY 소폭 양봉'); }
-  else if (spyChg >= -0.05) { /* 보합: 감점 없음 */ details.push('SPY 보합'); }
-  else if (spyChg > -1) { score -= 5; details.push('SPY 소폭 음봉'); }
-  else { score -= 10; details.push('SPY 약세 ' + spyChg.toFixed(1) + '%'); }
-
-  // QQQ component (종가 기준 pct)
-  var qqqChg = Number(ld['QQQ'].pct);
-  if (qqqChg > 1) { score += 8; details.push('QQQ 강세'); }
-  else if (qqqChg > 0) { score += 4; }
-  else if (qqqChg > -1) { score -= 4; }
-  else { score -= 8; details.push('QQQ 약세'); }
-
-  // VIX adjustment (실시간 — 공포 지수는 현재 값이 중요)
-  var vp = Number(ld['^VIX'].price);
-  if (vp < 15) { score += 12; details.push('VIX ' + vp.toFixed(1) + ' 안정'); }
-  else if (vp < 20) { score += 6; details.push('VIX ' + vp.toFixed(1) + ' 보통'); }
-  else if (vp < 25) { score -= 4; details.push('VIX ' + vp.toFixed(1) + ' 주의'); }
-  else if (vp < 30) { score -= 10; details.push('VIX ' + vp.toFixed(1) + ' 경고'); }
-  else { score -= 18; details.push('VIX ' + vp.toFixed(1) + ' 공포!'); }
-
-  // M7 Leadership check
-  var m7 = ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'];
-  var m7Up = 0, m7Total = 0;
-  m7.forEach(function(t) {
-    var d = ld[t];
-    if (d) { m7Total++; if ((d.pct != null ? d.pct : 0) > 0) m7Up++; }
-  });
-  if (m7Total > 0) {
-    var m7Ratio = m7Up / m7Total;
-    if (m7Ratio >= 0.7) { score += 8; details.push('M7 ' + m7Up + '/' + m7Total + ' 상승 (강한 리더십)'); }
-    else if (m7Ratio >= 0.4) { score += 2; }
-    else { score -= 6; details.push('M7 ' + m7Up + '/' + m7Total + ' 상승 (약한 리더십)'); }
-  }
-
-  // v46.2: MA 크로스오버 감지 (골든/데스 크로스)
-  var ma50 = window._spxMA && window._spxMA[50] ? window._spxMA[50] : null;
-  var ma200 = window._spxMA && window._spxMA[200] ? window._spxMA[200] : null;
-  var spyPrice = (ld['SPY'] && ld['SPY'].price) ? ld['SPY'].price : _ldSafe('SPY','price');
-  if (ma50 && ma200 && spyPrice) {
-    if (ma50 > ma200 && spyPrice > ma50) {
-      score += 8; details.push('골든 크로스 (50MA>' + Math.round(ma50) + ' > 200MA>' + Math.round(ma200) + ') + 가격 위');
-    } else if (ma50 > ma200 && spyPrice < ma50) {
-      score += 2; details.push('50MA 위 200MA, 가격 50MA 하회 — 조정 구간');
-    } else if (ma50 < ma200 && spyPrice < ma50) {
-      score -= 10; details.push('데스 크로스 (50MA<200MA) + 가격 아래 — 위험');
-    } else if (ma50 < ma200 && spyPrice > ma50) {
-      score -= 3; details.push('데스 크로스이나 가격 반등 시도 중');
-    }
-    // ATH 대비 위치
-    var ath = window._spxATH;
-    if (ath && spyPrice) {
-      var athDist = ((spyPrice - ath) / ath * 100);
-      if (athDist > -2) { details.push('ATH 근접 (' + athDist.toFixed(1) + '%)'); }
-      else if (athDist < -10) { score -= 5; details.push('ATH 대비 ' + athDist.toFixed(1) + '% — 조정 구간'); }
-    }
-  }
-
-  // Breadth from sector ETFs
-  var sectorETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
-  var secUp = 0, secTot = 0;
-  sectorETFs.forEach(function(t) {
-    var d = ld[t];
-    if (d) { secTot++; if ((d.pct != null ? d.pct : 0) > 0) secUp++; }
-  });
-  if (secTot > 5) {
-    var brdth = secUp / secTot;
-    if (brdth >= 0.8) { score += 6; details.push('섹터 ' + secUp + '/' + secTot + ' 상승 (광범위)'); }
-    else if (brdth >= 0.5) { score += 2; }
-    else if (brdth < 0.3) { score -= 6; details.push('섹터 ' + secUp + '/' + secTot + ' 상승 (취약)'); }
-  }
-
-  score = Math.max(0, Math.min(100, score));
-
-  // Grade
-  var grade, regime, gradeColor;
-  if (score >= 80) { grade = 'A+'; regime = '강한 상승장'; gradeColor = 'var(--data-green)'; }
-  else if (score >= 65) { grade = 'A'; regime = '상승 추세'; gradeColor = 'var(--data-green)'; }
-  else if (score >= 50) { grade = 'B'; regime = '중립/혼조'; gradeColor = 'var(--data-amber)'; }
-  else if (score >= 35) { grade = 'C'; regime = '약세 주의'; gradeColor = '#57513f'; }
-  else if (score >= 20) { grade = 'D'; regime = '약세장'; gradeColor = 'var(--data-red)'; }
-  else { grade = 'F'; regime = '극심한 약세'; gradeColor = 'var(--data-red)'; }
-
-  // Update DOM
-  var el;
-  el = document.getElementById('health-score-display');
-  if (el) { el.textContent = score; el.style.color = gradeColor; }
-  el = document.getElementById('health-grade-display');
-  if (el) { el.textContent = grade; el.style.color = gradeColor; }
-  el = document.getElementById('health-regime-display');
-  if (el) { el.textContent = regime; el.style.color = gradeColor; }
-  // v50.76: 수평 바 업데이트 (SPY/QQQ: 중앙=0%, VIX: 10→0% 40→100%)
-  (function() {
-    var spyW = Math.min(100, Math.max(0, 50 + spyChg * 10));
-    var qqqW = Math.min(100, Math.max(0, 50 + qqqChg * 10));
-    var vixW = Math.min(100, Math.max(0, (vp - 10) / 30 * 100));
-    var spyCol = spyChg >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-    var qqqCol = qqqChg >= 0 ? 'var(--data-green)' : 'var(--data-red)';
-    var vixCol = vp < 20 ? 'var(--data-green)' : vp < 25 ? 'var(--data-amber)' : 'var(--data-red)';
-    var sb = document.getElementById('hc-spy-bar'); if (sb) { sb.style.width = spyW + '%'; sb.style.background = spyCol; }
-    var qb = document.getElementById('hc-qqq-bar'); if (qb) { qb.style.width = qqqW + '%'; qb.style.background = qqqCol; }
-    var vb = document.getElementById('hc-vix-bar'); if (vb) { vb.style.width = vixW + '%'; vb.style.background = vixCol; }
-  })();
-  // v50.77: Minervini-style indicator strips (Pressure / Buy Risk / Trend Phase)
-  (function() {
-    var vixLvl = vp || 20;
-    var pressureW = Math.min(100, Math.max(0, (vixLvl - 10) / 30 * 100));
-    var pressureCol = vixLvl < 20 ? 'var(--data-green)' : vixLvl < 25 ? 'var(--data-amber)' : vixLvl < 30 ? '#57513f' : 'var(--data-red)';
-    var buyRiskW = Math.max(0, 100 - pressureW);
-    var buyRiskCol = buyRiskW > 60 ? 'var(--data-green)' : buyRiskW > 40 ? 'var(--data-amber)' : 'var(--data-red)';
-    var trendW = (ma50 && ma200 && spyPrice) ? (ma50 > ma200 && spyPrice > ma50 ? 85 : ma50 > ma200 ? 60 : spyPrice > ma50 ? 40 : 20) : 50;
-    var trendCol = trendW >= 70 ? 'var(--data-cyan)' : trendW >= 50 ? 'var(--data-amber)' : 'var(--data-red)';
-    var pf = document.getElementById('ind-pressure-fill'); if (pf) { pf.style.width = pressureW + '%'; pf.style.background = pressureCol; }
-    var bf = document.getElementById('ind-buyrisk-fill'); if (bf) { bf.style.width = buyRiskW + '%'; bf.style.background = buyRiskCol; }
-    var tf = document.getElementById('ind-trend-fill'); if (tf) { tf.style.width = trendW + '%'; tf.style.background = trendCol; }
-  })();
-  el = document.getElementById('tech-health-pill');
+function _aioRenderLegacyMarketHealth(model) {
+  var color = model.score >= 65 ? 'var(--data-green)' : model.score >= 50 ? 'var(--data-amber)' : model.score >= 35 ? '#57513f' : 'var(--data-red)';
+  var el = _aioLegacyHealthElement('health-score-display');
+  if (el) { el.textContent = model.score; el.style.color = color; }
+  el = _aioLegacyHealthElement('health-grade-display');
+  if (el) { el.textContent = model.grade; el.style.color = color; }
+  el = _aioLegacyHealthElement('health-regime-display');
+  if (el) { el.textContent = model.regime; el.style.color = color; }
+  var ld = window._liveData || {};
+  var spyPct = Number(ld.SPY && ld.SPY.pct);
+  var qqqPct = Number(ld.QQQ && ld.QQQ.pct);
+  var vix = Number(ld['^VIX'] && ld['^VIX'].price);
+  var bars = model.bars || {};
+  var sb = _aioLegacyHealthElement('hc-spy-bar'); if (sb) { sb.style.width = (bars.spy || 0) + '%'; sb.style.background = spyPct >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
+  var qb = _aioLegacyHealthElement('hc-qqq-bar'); if (qb) { qb.style.width = (bars.qqq || 0) + '%'; qb.style.background = qqqPct >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
+  var vb = _aioLegacyHealthElement('hc-vix-bar'); if (vb) { vb.style.width = (bars.vix || 0) + '%'; vb.style.background = vix < 20 ? 'var(--data-green)' : vix < 25 ? 'var(--data-amber)' : 'var(--data-red)'; }
+  var pf = _aioLegacyHealthElement('ind-pressure-fill'); if (pf) { pf.style.width = (bars.pressure || 0) + '%'; pf.style.background = vix < 20 ? 'var(--data-green)' : vix < 25 ? 'var(--data-amber)' : 'var(--data-red)'; }
+  var bf = _aioLegacyHealthElement('ind-buyrisk-fill'); if (bf) { bf.style.width = (bars.buyRisk || 0) + '%'; bf.style.background = bars.buyRisk > 60 ? 'var(--data-green)' : bars.buyRisk > 40 ? 'var(--data-amber)' : 'var(--data-red)'; }
+  var tf = _aioLegacyHealthElement('ind-trend-fill'); if (tf) { tf.style.width = (bars.trend || 0) + '%'; tf.style.background = bars.trend >= 70 ? 'var(--data-cyan)' : bars.trend >= 50 ? 'var(--data-amber)' : 'var(--data-red)'; }
+  el = _aioLegacyHealthElement('tech-health-pill');
+  if (el) { el.textContent = model.grade + ' ' + model.regime; el.className = 'status-pill ' + (model.score >= 50 ? 'sp-risk-on' : 'sp-risk-off'); }
+  el = _aioLegacyHealthElement('health-interpretation');
   if (el) {
-    el.textContent = grade + ' ' + regime;
-    el.className = 'status-pill ' + (score >= 50 ? 'sp-risk-on' : 'sp-risk-off');
-  }
-
-  // Health interpretation
-  el = document.getElementById('health-interpretation');
-  if (el) {
-    var interpHTML = '<div class="dc-title">시장 건강 진단 결과</div>' +
-      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">' +
-      '<b style="color:' + gradeColor + ';">점수 ' + score + '/100 (' + grade + ')</b> — ' + regime + '<br>';
-    details.forEach(function(d) { interpHTML += '• ' + d + '<br>'; });
     var compositeScore = null;
-    try {
-      if (typeof computeTradingScore === 'function') compositeScore = Number(computeTradingScore().total);
-      else if (window._tradingScore != null) compositeScore = Number(window._tradingScore);
-    } catch(_) {}
-    if (score >= 65) {
-      interpHTML += '<br><b>전략:</b> 기술 환경은 우호적입니다. 단독 매수 신호가 아니며 시그널 점수 60+와 시장폭 확산 확인 후 분할 접근.';
-      if (isFinite(compositeScore) && compositeScore < 60) interpHTML += ' 현재 종합 시그널 ' + Math.round(compositeScore) + '/100과 충돌하므로 신규 진입은 관망 우선.';
-    }
-    else if (score >= 40) interpHTML += '<br><b>전략:</b> 선별적 매매. 섹터 로테이션과 종합 시그널을 확인하고 포지션 사이즈 축소 고려.';
-    else interpHTML += '<br><b>전략:</b> 방어적 자세. 현금비중 확대, 손절 타이트, 반등 시 매도 고려.';
-    interpHTML += '</div>';
-    el.innerHTML = interpHTML;
+    try { if (typeof computeTradingScore === 'function') compositeScore = Number(computeTradingScore().total); else if (window._tradingScore != null) compositeScore = Number(window._tradingScore); } catch(_) {}
+    var strategy = model.score >= 65 ? '기술 환경은 우호적입니다. 단독 매수 신호가 아니며 시그널 점수 60+와 시장폭 확산 확인 후 분할 접근.' : model.score >= 40 ? '선별적 매매. 섹터 로테이션과 종합 시그널을 확인하고 포지션 사이즈 축소 고려.' : '방어적 자세. 현금비중 확대, 손절 타이트, 반등 시 매도 고려.';
+    var conflict = model.score >= 65 && isFinite(compositeScore) && compositeScore < 60 ? ' 현재 종합 시그널 ' + Math.round(compositeScore) + '/100과 충돌하므로 신규 진입은 관망 우선.' : '';
+    el.textContent = '시장 건강 진단 결과\n점수 ' + model.score + '/100 (' + model.grade + ') — ' + model.regime + '\n' + (model.details || []).join(' · ') + '\n\n전략: ' + strategy + conflict;
   }
+}
 
-  return { score: score, grade: grade, regime: regime };
+function computeMarketHealth(options) {
+  var model = window.AIO_ARCH && typeof window.AIO_ARCH.computeMarketHealth === 'function'
+    ? window.AIO_ARCH.computeMarketHealth({ quotes: window._liveData || {}, spxMA: window._spxMA || {}, spxATH: window._spxATH })
+    : { available: false, score: null, grade: '—', regime: '판정 보류', missing: ['아키텍처 모델'] };
+  if (!_aioIsNativeTechnicalHealth() && (!options || options.render !== false) && model.available) _aioRenderLegacyMarketHealth(model);
+  return model;
 }
 
 // ── Technical Indicators Table (S&P 500) ──
@@ -15067,11 +14952,7 @@ async function loadTechCandleChart(symbol) {
   window._aioTechCurrentSymbol = symbol;
   var priceCvs = document.getElementById('tech-candle-chart');
   var volCvs = document.getElementById('tech-candle-volume');
-  var titleEl = document.getElementById('tech-candle-title');
-  var metaEl = document.getElementById('tech-candle-meta');
   if (!priceCvs || !volCvs) return;
-  if (titleEl) titleEl.textContent = symbol + ' 일봉 캔들 · 이동평균';
-  if (metaEl) metaEl.textContent = '수신 중…';
   priceCvs.setAttribute('aria-label', symbol + ' 일봉 캔들 및 이동평균 차트');
   volCvs.setAttribute('aria-label', symbol + ' 일별 거래량 차트');
 
@@ -15096,7 +14977,6 @@ async function loadTechCandleChart(symbol) {
       _showChartFallback(priceCvs, symbol + ' 일봉 차트', '데이터 수신 실패 — 잠시 후 다시 시도하거나 종목코드를 확인하세요');
     }
     volCvs.style.display = 'none';
-    if (metaEl) metaEl.textContent = '데이터 수신 실패';
     return;
   }
   priceCvs.style.display = 'block'; volCvs.style.display = 'block';
@@ -15189,7 +15069,6 @@ async function loadTechCandleChart(symbol) {
   }
 
   var last = candles[candles.length - 1];
-  if (metaEl) metaEl.textContent = last.time + ' 종가 ' + last.close.toFixed(2) + ' · 최근 ' + candles.length + '거래일';
 }
 window.loadTechCandleChart = loadTechCandleChart;
 function _aioTechSymSwitch(sym) { loadTechCandleChart(sym); }
@@ -15546,12 +15425,8 @@ function renderYieldCurve() {
   if (!curve.complete) {
     var missing = [];
     [['3M',irx],['2Y',y2],['5Y',fvx],['10Y',tnx],['30Y',tyx]].forEach(function(pair) { if (pair[1] == null) missing.push(pair[0]); });
-    var blockedStatus = document.getElementById('curve-status');
-    var blockedMeaning = document.getElementById('curve-meaning');
     var blockedSpread = document.getElementById('spread-status');
-    if (blockedStatus) blockedStatus.textContent = '곡선 데이터 불완전';
-    if (blockedMeaning) blockedMeaning.textContent = '필수 만기 미수신: ' + missing.join(', ') + '. 결측 만기를 합성하지 않고 판정을 보류합니다.';
-    if (blockedSpread) { blockedSpread.textContent = '— (10Y - 2Y)'; blockedSpread.style.color = 'var(--text-muted)'; }
+    if (blockedSpread && blockedSpread.dataset.aioMacroSpreadRenderer !== 'native') { blockedSpread.textContent = '— (10Y - 2Y)'; blockedSpread.style.color = 'var(--text-muted)'; }
     return;
   }
 
@@ -15617,31 +15492,10 @@ function renderYieldCurve() {
     }
   });
 
-  // Update status
   var spread = curve.spread2s10s;
-  var statusEl = document.getElementById('curve-status');
-  var meaningEl = document.getElementById('curve-meaning');
   var spreadEl = document.getElementById('spread-status');
-
-  if (spread == null) {
-    if (statusEl) statusEl.textContent = '판정 보류';
-    if (meaningEl) meaningEl.textContent = '공식 2s10s 관측치가 없어 해석을 보류합니다.';
-    if (spreadEl) spreadEl.style.color = 'var(--text-muted)';
-  } else if (spread < -0.1) {
-    if (statusEl) statusEl.textContent = ' 역전 곡선';
-    if (meaningEl) meaningEl.textContent = '경기침체 경고! 단기 금리가 장기보다 높다는 건 "지금이 미래보다 위험하다"는 뜻. 역사적으로 역전 후 6~18개월 내 침체 발생 사례 다수. 단, 역전이 "해소"되기 시작할 때(불스티프닝)가 진짜 위험의 시작 — 침체 직전 신호입니다.';
-    if (spreadEl) spreadEl.style.color = 'var(--data-red)';
-  } else if (spread < 0.3) {
-    if (statusEl) statusEl.textContent = '평탄 곡선';
-    if (meaningEl) meaningEl.textContent = '불안정 구간. 곡선이 평탄해진다는 건 시장이 "미래가 지금만큼 좋을지 확신 못한다"는 뜻. 성장주와 금리 민감주(부동산·유틸) 밸류에이션에 압력. 곡선 방향(평탄→역전 vs 평탄→정상) 추이가 핵심.';
-    if (spreadEl) spreadEl.style.color = 'var(--data-amber)';
-  } else {
-    if (statusEl) statusEl.textContent = '양(+)의 곡선';
-    if (meaningEl) meaningEl.textContent = '10Y가 2Y보다 높습니다. 양(+)의 기울기 자체는 경기 호조나 위험자산 매수를 보장하지 않습니다. 단기금리 하락형 불스티프닝인지 장기금리 상승형 베어스티프닝인지, HY 스프레드·고용·PMI와 함께 확인하세요.';
-    if (spreadEl) spreadEl.style.color = 'var(--data-amber)';
-  }
-
-  if (spreadEl) spreadEl.textContent = spread == null ? '— (10Y - 2Y)' : (spread >= 0 ? '+' : '') + spread.toFixed(2) + '%p (10Y - 2Y)';
+  var nativeSpread = spreadEl && spreadEl.dataset.aioMacroSpreadRenderer === 'native';
+  if (!nativeSpread && spreadEl) spreadEl.textContent = spread == null ? '— (10Y - 2Y)' : (spread >= 0 ? '+' : '') + spread.toFixed(2) + '%p (10Y - 2Y)';
 }
 
 // ── Compute Economic Temperature ──
@@ -19328,15 +19182,19 @@ function _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank) {
 }
 
 // ── 7) 펀더멘털 분석 ──
-function _generateFundamentalAnalysis(fallback, ld) {
-  var el = document.getElementById('fund-analysis-text'); if (!el) return;
+ var _generateFundamentalAnalysis = function(fallback, ld) {
+  // P815: the bounded SEC-derived summary is now rendered by src/ui/pages/entity.js.
+  // Keep this legacy compatibility entry point inert so the former aggregate report
+  // cannot race the native fundamental surface.
+  return;
+  var el = null;
   if (!fallback || Object.keys(fallback).length === 0) { el.textContent = '기업 데이터 대기 중...'; return; }
   var h = '', items = [];
   for (var sym in fallback) {
     var fb = fallback[sym], d = ld[sym];
     var chg = d ? (d.pct != null ? d.pct : 0) : 0;
     items.push({ sym: sym, pe: fb.pe, roe: fb.roe, eps: fb.eps, epsGrowth: fb.epsGrowth, mcap: fb.mcap, sector: fb.sector, signal: fb.signal, chg: chg });
-  }
+ };
   // PE 분포
   var pes = items.filter(function(i) { return i.pe > 0; });
   var avgPe = pes.length > 0 ? pes.reduce(function(s, i) { return s + i.pe; }, 0) / pes.length : 0;
@@ -19542,8 +19400,8 @@ function _generateFundamentalAnalysis(fallback, ld) {
   } else h += '<br><b>【시장 환경】</b> 필수 입력 미수신으로 점수 산출 보류.';
   h += '<br>';
 
-  el.innerHTML = h || '펀더멘털 데이터 대기 중...';
-}
+  void h;
+ };
 
   </script>
   <script>
@@ -20496,6 +20354,12 @@ function initSignalDashboard() {
   if (typeof fetchLiveQuotes === 'function') fetchLiveQuotes();
 }
 
+function _aioIsNativeSignalHero() {
+  var page = document.getElementById('page-signal');
+  return !!(page && page.dataset && page.dataset.aioSignalRenderer === 'native');
+}
+window._aioIsNativeSignalHero = _aioIsNativeSignalHero;
+
 function refreshSignalDashboard() {
   var mode = _signalMode;
   var scores = computeTradingScore(mode);
@@ -20532,12 +20396,17 @@ function refreshSignalDashboard() {
   // Update gauge
   drawScoreGauge('score-gauge-canvas', total, decColor);
   // v52.65 아이보리 2a: 히어로 스코어/판단문은 시안처럼 항상 잉크색 텍스트 — decColor는 캔버스 게이지(숨김)에만 사용
-  var gv = document.getElementById('score-gauge-val');
-  if (gv) { gv.textContent = total + (scores.partial ? '*' : ''); }
-  var badge = document.getElementById('score-decision-badge');
-  if (badge) { badge.textContent = decision; }
-  var dsub = document.getElementById('score-decision-sub');
-  if (dsub) { dsub.textContent = decSub; }
+  // P786: analysis.js owns the three signal decision hero sinks. Keep this
+  // function as a compatibility/secondary renderer, but never let it win a
+  // native signal render through last-writer-wins ordering.
+  if (!_aioIsNativeSignalHero()) {
+    var gv = document.querySelector('#score-gauge-val');
+    if (gv) { gv.textContent = total + (scores.partial ? '*' : ''); }
+    var badge = document.querySelector('#score-decision-badge');
+    if (badge) { badge.textContent = decision; }
+    var dsub = document.querySelector('#score-decision-sub');
+    if (dsub) { dsub.textContent = decSub; }
+  }
   var ts = document.getElementById('score-ts');
   if (ts) ts.textContent = '갱신: ' + new Date().toLocaleTimeString('ko-KR');
   var lr = document.getElementById('sig-last-refresh');
@@ -20908,14 +20777,14 @@ function updateFxBondPage() {
   var tnxLive = ld['^TNX'] && ld['^TNX'].price != null && isFinite(Number(ld['^TNX'].price)) ? Number(ld['^TNX'].price) : null;
   var irxLive = ld['^IRX'] && ld['^IRX'].price != null && isFinite(Number(ld['^IRX'].price)) ? Number(ld['^IRX'].price) : null;
   var pill = document.getElementById('fxbond-risk-pill');
-  if (pill && dxyLive != null && tnxLive != null) {
+  if (pill && pill.dataset.aioFxbondRiskRenderer !== 'native' && dxyLive != null && tnxLive != null) {
     if (dxyLive >= 107 || tnxLive >= 5.0) { pill.className = 'status-pill sp-risk-off'; pill.textContent = ' 관측 · 높은 달러·금리 수준'; }
     else if (dxyLive >= 104 || tnxLive >= 4.5) { pill.className = 'status-pill sp-risk-off'; pill.textContent = ' 관측 · 달러·금리 수준 확인'; }
     else if (dxyLive >= 100) { pill.className = 'status-pill sp-neutral'; pill.textContent = ' 관측 · 달러·금리 모니터링'; }
     else { pill.className = 'status-pill sp-neutral'; pill.textContent = ' 관측 · 달러·금리 수준'; }
   }
   var invBadge = document.getElementById('yc-inversion-badge');
-  if (invBadge && tnxLive != null && irxLive != null) {
+  if (invBadge && invBadge.dataset.aioFxbondCurveRenderer !== 'native' && tnxLive != null && irxLive != null) {
     var live3m10y = tnxLive - irxLive;
     if (live3m10y < -0.2) { invBadge.textContent = ' 깊은 역전 · 경기침체 경고'; invBadge.style.background = 'rgba(177,58,48,0.15)'; invBadge.style.color = 'var(--data-red)'; }
     else if (live3m10y < 0) { invBadge.textContent = '역전 지속 · 주의'; invBadge.style.color = 'var(--data-amber)'; }
@@ -21079,12 +20948,6 @@ function initYieldCurveChart(targetId) {
     }
   });
 
-  var st = document.getElementById('yc-chart-status');
-  if (st) {
-    st.textContent = isInverted ? '역전 감지' : '정상 곡선';
-    st.style.color = isInverted ? 'var(--data-red)' : 'var(--data-green)';
-  }
-
 }
 
 // v48.50: Cross-Asset Matrix — 4축 정렬 판정 (FX × Yield × Credit)
@@ -21141,23 +21004,8 @@ function updateCrossAssetMatrix() {
     else { hygSigEl.textContent = '관측: HYG 가격 보합 · OAS 별도 확인'; hygSigEl.style.color = 'var(--text-muted)'; }
   }
 
-  // 통합 판정
-  var verdictEl = document.getElementById('cam-verdict-text');
-  if (verdictEl) {
-    var bullScore = 0, bearScore = 0, available = 0;
-    if (dxyPct != null) { available++; if (dxyPct <= -0.3) bullScore++; else if (dxyPct >= 0.3) bearScore++; }
-    if (y10Val != null) { available++; if (y10Val <= 3.5) bullScore++; else if (y10Val >= 4.7) bearScore++; }
-    if (hygPct != null) { available++; if (hygPct >= 0.3) bullScore++; else if (hygPct <= -0.3) bearScore++; }
-    if (spreadBp != null) { available++; if (spreadBp >= 20) bullScore++; else if (spreadBp < -20) bearScore++; }
-    var txt;
-    if (available === 0) txt = '데이터 부족 — 시세 로딩 대기';
-    else if (bullScore >= 3) txt = '위험선호 성격 관측 우세 (' + bullScore + '/' + available + ') — 비중 신호가 아니며 OAS·실적·수급 확인 필요';
-    else if (bearScore >= 3) txt = '위험회피 성격 관측 우세 (' + bearScore + '/' + available + ') — 자산배분 지시가 아니며 원인·지속성 확인 필요';
-    else if (bullScore > bearScore) txt = '상승 입력이 더 많음 (' + bullScore + '/' + available + ') — 방향·비중 신호가 아니며 단일 축 과잉 해석 금지';
-    else if (bearScore > bullScore) txt = '하락 입력이 더 많음 (' + bearScore + '/' + available + ') — 방향·비중 신호가 아니며 원인 교차 확인';
-    else txt = '입력 혼조 — 방향·비중을 단독 판정하지 않음';
-    verdictEl.textContent = txt;
-  }
+  // P813: cam-verdict-text is owned by native market.js; the remaining matrix
+  // signal cells stay legacy-owned for their separate quote/prose boundaries.
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -21275,7 +21123,6 @@ async function initFundamentalCards() {
   loadEarningsSurprises();
   loadEarningsCalendar();
   // v37.8: 동적 펀더멘털 분석
-  if (typeof _generateFundamentalAnalysis === 'function') _generateFundamentalAnalysis(FUND_FALLBACK, window._liveData || {});
   } catch(e) { _aioLog('warn', 'fund', 'initFundamentalCards error: ' + e.message); }
 }
 
@@ -22120,21 +21967,23 @@ function setRRGView(mode, btn) {
 // 기존 calcLiveRS()/classifyRRG() 재사용, 신규 알고리즘 없음 ──
 function drawRRG() {
   if (!window._rrgRetry) window._rrgRetry = 0;
+  // P799: native themes owns the RRG canvas from normalized quadrant evidence.
+  if (document.querySelector('[id="rrg-canvas"]')?.dataset.aioRrgChartRenderer === 'native') return;
   let ld = window._liveData || {};
   // v45.5: SPY가 없으면 시드 기반 RRG 그리기 불가 → 로딩 상태 표시 + 짧은 재시도
   if (!ld['SPY']) {
-    var stWait = document.getElementById('rrg-chart-status');
-    if (stWait) stWait.textContent = '시세 수신 대기... (' + Object.keys(ld).length + '개 수신)';
+    var stWait = document.querySelector('[id="rrg-chart-status"]');
+    if (stWait && stWait.dataset.aioRrgStatusRenderer !== 'native') stWait.textContent = '시세 수신 대기... (' + Object.keys(ld).length + '개 수신)';
     window._rrgRetry++;
     if (window._rrgRetry < 40) { // 최대 20초 (500ms x 40)
       setTimeout(drawRRG, 500);
     } else {
-      if (stWait) stWait.textContent = '시세 연결 지연 — 잠시 후 자동 갱신됩니다';
+      if (stWait && stWait.dataset.aioRrgStatusRenderer !== 'native') stWait.textContent = '시세 연결 지연 — 잠시 후 자동 갱신됩니다';
     }
     return;
   }
   window._rrgRetry = 0;
-  var canvas = document.getElementById('rrg-canvas');
+  var canvas = document.querySelector('[id="rrg-canvas"]');
   if (!canvas) return;
   // v30.13d: 컨테이너 기반 동적 캔버스 크기 — 비율 왜곡 방지
   var containerW = canvas.parentElement ? canvas.parentElement.clientWidth - 8 : 900;
@@ -22249,8 +22098,9 @@ function drawRRG() {
   });
 
   // RRG 분면 분포 표시
-  var st = document.getElementById('rrg-chart-status');
-  if (st) {
+  var st = document.querySelector('[id="rrg-chart-status"]');
+  // P798: RRG chart-status is owned by the native themes state projection; the canvas remains legacy.
+  if (st && st.dataset.aioRrgStatusRenderer !== 'native') {
     var lc = quadrantCounts.Leading||0, ic = quadrantCounts.Improving||0;
     var wc = quadrantCounts.Weakening||0, lac = quadrantCounts.Lagging||0;
     var txt = spy ? 'SPY $' + spy.toFixed(2) + ' | ' : '';
@@ -22519,8 +22369,9 @@ function renderSectorPerfBars() {
 }
 
 function generateSectorAnalysis(sectors) {
-  var el = document.getElementById('sector-perf-analysis');
-  if (!el || !sectors || sectors.length === 0) return; // v46.9: 빈 배열 방어
+  var el = document.querySelector('[id="sector-perf-analysis"]');
+  // P802: normalized themes owns the bounded sector-performance narrative.
+  if (!el || el.dataset.aioThemePerformanceRenderer === 'native' || !sectors || sectors.length === 0) return; // v46.9: 빈 배열 방어
   var validSectors = sectors.filter(function(s) { return s && s.chg != null && isFinite(s.chg); });
   if (validSectors.length === 0) {
     el.innerHTML = '섹터 시세가 아직 최신으로 수신되지 않았습니다. 정적 fallback 수익률은 현재 랭킹/판단에 쓰지 않습니다.';
@@ -22678,8 +22529,9 @@ function generateSectorAnalysis(sectors) {
   // v52.7 P606/R276: 섹터 리더십(defCount/cycCount) 독립 집계 대신 _aioRenderThemesCycle과 동일한
   // 단일 사이클 소스(marketState.cycleFull → getCycleFromMacro)를 읽어 본문 "동적 사이클 판정"과의
   // 모순(예: 칩 "Late Cycle" vs 본문 "Mid Cycle")을 구조적으로 제거.
-  var pill = document.getElementById('theme-cycle-pill');
-  if (pill) {
+  var pill = document.querySelector('[id="theme-cycle-pill"]');
+  // P801: the RRG-derived cycle pill is native; legacy sector prose must not overwrite it.
+  if (pill && pill.dataset.aioThemeCycleRenderer !== 'native') {
     var _rrgEvidenceCount = RRG_SECTORS.filter(function(sec) {
       var read = calcLiveRS(sec.sym);
       return read && read.quadrant !== 'unknown' && read.rsRatio !== null && read.rsMom !== null;
@@ -22790,6 +22642,7 @@ function showThemeDetail(themeId) {
   var theme = THEME_MAP[idx];
   var container = document.getElementById('theme-detail-panel');
   if (!container) return;
+  var legacyContainer = document.getElementById('theme-detail-legacy-content') || container;
   let ld = window._liveData || {};
 
   var perf = getThemePerf(theme);
@@ -22807,174 +22660,91 @@ function showThemeDetail(themeId) {
     '</div>' +
   '</div>';
 
-  // 대장주 하이라이트
-  html += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">대장주 (Leader Tickers)</div>';
-  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
-  theme.leaderHighlight.forEach(function(t) {
-    var d = ld[t];
-    var hasData = d && d.price != null && d.pct != null;
-    var tChg = hasData ? d.pct : null;
-    var tPrice = hasData ? d.price : null;
-    var tColor = tChg === null ? 'var(--text-muted)' : (tChg >= 0 ? 'var(--data-green)' : 'var(--data-red)');
-    var pctStr = tChg === null ? '—' : ((tChg >= 0 ? '+' : '') + tChg.toFixed(2) + '%');
-    html += '<div style="background:var(--surface-2);border:1px solid var(--surface-5);border-radius:3px;padding:6px 8px;min-width:70px;cursor:pointer;" data-action="showTicker" data-arg="' + t + '" title="' + t + ' 상세 분석 →">' +
-      '<div style="font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--accent);">' + t + ' <span style="font-size:10px;opacity:0.6;">↗</span></div>' +
-      '<div style="font-size:12px;font-family:var(--font-mono);color:' + tColor + ';">' +
-        (tPrice != null ? '$' + tPrice.toFixed(2) : '—') +
-        ' <span style="font-size:11px;">' + pctStr + '</span>' +
-      '</div>' +
-    '</div>';
-  });
-  html += '</div>';
+  // P790: detailed leader cards are owned by the native child surface.
 
-  // 서브테마
-  if (theme.subThemes && theme.subThemes.length > 0) {
-    html += '<div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;"> 서브테마 상세</div>';
-    theme.subThemes.forEach(function(sub) {
-      var subPerf = calcCompositePerf(sub.tickers, sub.weights);
-      var subHasPerf = _themeFinitePct(subPerf.chgPct);
-      var subColor = subHasPerf ? (subPerf.chgPct >= 0 ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-      html += '<div style="background:var(--surface-1);border:1px solid var(--surface-4);border-radius:3px;padding:8px;margin-bottom:6px;">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
-          '<span style="font-size:13px;font-weight:700;">' + sub.name + (sub.etf ? ' <span style="color:var(--text-muted);font-size:11px;">' + sub.etf + '</span>' : '') + '</span>' +
-          '<span style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + subColor + ';">' + _themeFmtPct(subPerf.chgPct, 2, 'LIVE REQUIRED') + '</span>' +
-        '</div>' +
-        '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
-      sub.tickers.forEach(function(t) {
-        var d = ld[t];
-        var hasD = d && d.price != null && d.pct != null;
-        var tc = hasD ? d.pct : null;
-        var tcol = tc === null ? 'var(--text-muted)' : (tc >= 0 ? 'var(--data-green)' : 'var(--data-red)');
-        var tcStr = tc === null ? '—' : ((tc>=0?'+':'') + tc.toFixed(1) + '%');
-        html += '<span style="font-size:11px;font-family:var(--font-mono);color:' + tcol + ';background:var(--surface-1);padding:2px 6px;border-radius:3px;cursor:pointer;" data-action="showTicker" data-arg="' + t + '" title="' + t + ' 분석">' + t + ' ' + tcStr + '</span>';
-      });
-      html += '</div></div>';
-    });
-  }
-
-  // 브레드스
+  // P789: sub-theme composition and breadth are owned by the native child surface.
   var breadth = calcSectorBreadth(theme.leaders);
-  html += '<div style="margin-top:8px;font-size:11px;color:var(--text-muted);">브레드스(양봉비율): <b style="color:' + (breadth>50?'var(--data-green)':'var(--data-red)') + '">' + breadth + '%</b> (' + theme.leaders.length + '종목 기준)</div>';
 
-  // ── 심층 분석 섹션 ──
-  html += _buildThemeDeepAnalysis(theme, perf, breadth, ld);
-
-  container.innerHTML = html;
-  container.style.display = 'block';
-  container.dataset.currentTheme = themeId;
+  // P797: all visible theme-detail content is owned by the native child surfaces.
+  legacyContainer.replaceChildren();
   window._currentThemeId = themeId;
+  try {
+    document.dispatchEvent(new CustomEvent('aio:themeDetailShown', { detail: {
+      themeId: themeId,
+      themeDetail: {
+        id: String(theme.id || themeId),
+        label: String(theme.nameKr || theme.name || theme.id || themeId),
+         etf: theme.etf || null,
+         compositeBase: theme.compositeBase || null,
+         insight: (function() {
+           var insight = THEME_INSIGHTS[theme.id] || {};
+           return {
+             macro: insight.macro || '',
+             paradox: insight.paradox || '',
+             chainEffect: insight.chainEffect || '',
+             sentiment: insight.sentiment || '',
+             breakSignals: Array.isArray(insight.breakSignals) ? insight.breakSignals.slice() : []
+           };
+         }()),
+        pct: _themeFinitePct(perf.chgPct) ? Number(perf.chgPct) : null,
+        breadth: _themeFinitePct(breadth) ? Number(breadth) : null,
+        source: perf.source || 'quote-missing',
+        leaders: Array.isArray(theme.leaders) ? theme.leaders.slice() : [],
+        leaderHighlight: Array.isArray(theme.leaderHighlight) ? theme.leaderHighlight.slice() : [],
+        quotes: (function() {
+          var symbols = [];
+          var addSymbol = function(symbol) { if (symbol && symbols.indexOf(symbol) < 0) symbols.push(symbol); };
+          addSymbol(theme.etf);
+          addSymbol(theme.compositeBase);
+          (theme.leaders || []).forEach(addSymbol);
+          (theme.leaderHighlight || []).forEach(addSymbol);
+          (theme.subThemes || []).forEach(function(sub) {
+            addSymbol(sub && sub.etf);
+            (sub && sub.tickers || []).forEach(addSymbol);
+          });
+          return symbols.reduce(function(out, symbol) {
+            var quote = ld[symbol] || {};
+            out[symbol] = {
+              price: quote.price != null && isFinite(Number(quote.price)) ? Number(quote.price) : null,
+              pct: quote.pct != null && isFinite(Number(quote.pct)) ? Number(quote.pct) : null
+            };
+            return out;
+          }, {});
+        }()),
+        subThemes: Array.isArray(theme.subThemes) ? theme.subThemes.map(function(sub) {
+          return {
+            name: sub && sub.name,
+            tickers: Array.isArray(sub && sub.tickers) ? sub.tickers.slice() : [],
+            etf: sub && sub.etf || null,
+            weights: sub && sub.weights && typeof sub.weights === 'object' ? Object.assign({}, sub.weights) : null
+          };
+        }) : []
+      }
+    } }));
+  } catch(_) {}
   try {
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (container.scrollIntoView) container.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   } catch(_) {}
 }
 
-// ═══ 미국 테마 심층 분석 생성 ═══
-function _buildThemeDeepAnalysis(theme, perf, breadth, ld) {
+// P797: retired legacy theme-detail deep-analysis writer.
+ var _retiredThemeDeepAnalysis = function(theme, perf, breadth, ld) {
   var h = '<div style="margin-top:14px;padding:14px;background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;">';
   h += '<div style="font-size:13px;font-weight:900;color:var(--accent);margin-bottom:10px;">심층 분석</div>';
   var sections = [];
 
-  // 1) 테마 온도 진단
-  var hasPct = _themeFinitePct(perf && perf.chgPct);
-  var pct = hasPct ? Number(perf.chgPct) : 0; // R15
-  var tempDiag = '';
-  if (!hasPct) tempDiag = '<b>Live data required</b> - this theme detail is connected, but current quotes for its constituents have not loaded yet. Use the composition/weights below and refresh data before reading momentum.';
-  if (pct >= 3) tempDiag = '<b>매우 강세</b> — 시장 전체에서 가장 주목받는 테마 중 하나입니다. 단기 과열 가능성도 체크해야 합니다.';
-  else if (pct >= 1) tempDiag = '<b>강세</b> — 모멘텀이 살아있습니다. 기관·헤지펀드 자금이 유입되고 있을 가능성이 높습니다.';
-  else if (pct >= 0) tempDiag = ' <b>보합</b> — 방향성 탐색 중입니다. 시장이 이 테마에 대해 확신을 갖지 못하고 있습니다.';
-  else if (pct >= -2) tempDiag = '<b>약세</b> — 차익실현 또는 로테이션 매도가 나오고 있습니다. 펀더멘털 훼손인지 일시적 조정인지 구분이 필요합니다.';
-  else tempDiag = ' <b>급락</b> — 시장에서 외면받고 있는 테마입니다. 구조적 문제가 있는지 확인하세요.';
-  if (!hasPct) tempDiag = '<b>Live data required</b> - this theme detail is connected, but current quotes for its constituents have not loaded yet. Use the composition/weights below and refresh data before reading momentum.';
-  sections.push(tempDiag);
+  // P791: theme temperature is owned by the native child surface.
 
-  // 2) 종목 간 퍼포먼스 격차 분석
-  var pcts = [], topTk = null, topV = -Infinity, botTk = null, botV = Infinity;
-  theme.leaders.forEach(function(t) {
-    var d = ld[t];
-    var pctVal = d && _themeFinitePct(d.pct) ? Number(d.pct) : null;
-    if (pctVal !== null) {
-      pcts.push({ t: t, p: pctVal });
-      if (pctVal > topV) { topV = pctVal; topTk = t; }
-      if (pctVal < botV) { botV = pctVal; botTk = t; }
-    }
-  });
-  if (pcts.length >= 2) {
-    var spread = topV - botV;
-    var spreadDiag = '';
-    if (spread > 5) spreadDiag = '종목 간 등락 편차가 <b>' + _themeSafeFixed(spread, 1) + '%p</b>로 매우 큽니다. 테마 내에서도 승자와 패자가 명확히 갈리고 있으며, 옥석 가리기(stock picking)가 중요한 구간입니다.';
-    else if (spread > 2) spreadDiag = '종목 간 편차 <b>' + _themeSafeFixed(spread, 1) + '%p</b> — 적절한 수준입니다. 테마 전반이 비슷하게 움직이고 있어 ETF 접근도 유효합니다.';
-    else spreadDiag = '종목 간 편차 <b>' + _themeSafeFixed(spread, 1) + '%p</b>로 매우 좁습니다. 테마 전체가 동일 재료에 반응하고 있으며, ETF 매매가 효율적입니다.';
-    sections.push('' + spreadDiag);
-    if (topTk && botTk) {
-      sections.push(' <b>최강 종목:</b> ' + topTk + ' (' + (topV>=0?'+':'') + _themeSafeFixed(topV, 2) + '%) — 테마 리더로서 시장 관심 집중');
-      sections.push(' <b>최약 종목:</b> ' + botTk + ' (' + (botV>=0?'+':'') + _themeSafeFixed(botV, 2) + '%) — 개별 악재 또는 밸류에이션 부담 가능성');
-    }
-  }
+  // P792: leader performance spread is owned by the native child surface.
 
-  // 3) 브레드스 기반 건강도
-  if (breadth >= 70) sections.push(' <b>테마 건강도 우수</b> — 상승 종목 비율 ' + breadth + '%. 광범위한 매수세가 테마 전체를 떠받치고 있어 추세 지속 가능성이 높습니다.');
-  else if (breadth >= 50) sections.push(' <b>테마 건강도 보통</b> — 상승 종목 ' + breadth + '%. 일부 종목만 이끌고 있어 선별 투자가 필요합니다.');
-  else sections.push('<b>테마 건강도 취약</b> — 상승 종목 ' + breadth + '%. 대다수 종목이 하락 중이며, 테마 모멘텀이 약화되고 있습니다. 추격 매수 자제가 권장됩니다.');
+  // P793: breadth-health narrative is owned by the native child surface.
 
-  // 4) 서브테마 간 비교 — v38.3: 부모 theme.weights에서 서브테마 ticker별 비중 추출
-  if (theme.subThemes && theme.subThemes.length >= 2) {
-    var subPerfs = [];
-    theme.subThemes.forEach(function(sub) {
-      // 서브테마 자체 weights가 없으면 부모 테마 weights에서 해당 ticker만 추출
-      var subW = sub.weights;
-      if (!subW && theme.weights) {
-        subW = {};
-        sub.tickers.forEach(function(t) { if (theme.weights[t]) subW[t] = theme.weights[t]; });
-        if (Object.keys(subW).length === 0) subW = null;
-      }
-      var sp = calcCompositePerf(sub.tickers, subW);
-      if (_themeFinitePct(sp.chgPct)) subPerfs.push({ name: sub.name, pct: Number(sp.chgPct) });
-    });
-    subPerfs.sort(function(a,b) { return b.pct - a.pct; });
-    var bestSub = subPerfs[0], worstSub = subPerfs[subPerfs.length - 1];
-    if (subPerfs.length >= 2 && bestSub && worstSub && bestSub.name !== worstSub.name) {
-      var subGap = bestSub.pct - worstSub.pct;
-      if (subGap > 1) {
-        sections.push(' <b>서브테마 격차:</b> "' + bestSub.name + '"(' + (bestSub.pct>=0?'+':'') + bestSub.pct.toFixed(2) + '%)이 "' + worstSub.name + '"(' + (worstSub.pct>=0?'+':'') + worstSub.pct.toFixed(2) + '%) 대비 ' + subGap.toFixed(1) + '%p 우세. 자금이 서브테마 내에서도 로테이션되고 있습니다.');
-      }
-    }
-  }
+  // P794: the subtheme-gap narrative is owned by the native child surface.
 
-  // 5) ETF vs 개별주 비교 — v38.3: compositeBase 벤치마크도 지원
-  if (theme.etf) {
-    var etfD = ld[theme.etf];
-    if (etfD && etfD.pct !== undefined) {
-      var etfP = etfD.pct;
-      if (Math.abs(pct - etfP) > 0.5) {
-        var diff = pct - etfP;
-        sections.push('<b>ETF(' + theme.etf + ') 대비:</b> 대장주 평균이 ETF보다 ' + (diff>0?'+':'') + diff.toFixed(2) + '%p ' + (diff>0?'높음':'낮음') + ' — ' + (diff>0?'대장주가 ETF를 이끌고 있어 강한 모멘텀 신호':'소형주/후발주가 더 강해 ETF가 과소 반영 중'));
-      }
-    }
-  } else if (theme.compositeBase) {
-    var cbD = ld[theme.compositeBase];
-    if (cbD && cbD.pct !== undefined) {
-      var cbP = cbD.pct;
-      if (Math.abs(pct - cbP) > 0.5) {
-        var cbDiff = pct - cbP;
-        sections.push('<b>벤치마크(' + theme.compositeBase + ') 대비:</b> 가중평균이 벤치마크보다 ' + (cbDiff>0?'+':'') + cbDiff.toFixed(2) + '%p ' + (cbDiff>0?'높음':'낮음') + ' — ' + (cbDiff>0?'구성종목이 벤치마크를 아웃퍼폼':'구성종목이 벤치마크에 비해 부진'));
-      }
-    }
-  }
+  // P795: benchmark comparison is owned by the native child surface.
 
-  // 6) v38.3: 레퍼런스 기반 테마 맞춤 인사이트
-  var ti = THEME_INSIGHTS[theme.id];
-  if (ti) {
-    sections.push('');
-    sections.push(' <b>테마 인사이트</b>');
-    if (ti.macro) sections.push('<b>매크로 조건:</b> ' + ti.macro);
-    if (ti.paradox) sections.push(' <b>역설:</b> ' + ti.paradox);
-    if (ti.chainEffect) sections.push(' <b>연쇄 효과:</b> ' + ti.chainEffect);
-    if (ti.sentiment) sections.push('<b>센티멘트 함정:</b> ' + ti.sentiment);
-    if (ti.breakSignals && ti.breakSignals.length) {
-      sections.push('<b>깨지는 신호:</b> ' + ti.breakSignals.map(function(s,i){return (i+1)+') '+s;}).join(' · '));
-    }
-  }
+  // P796: theme-specific insight narrative is owned by the native child surface.
 
   h += sections.map(function(s) {
     if (!s) return '<hr style="border:none;border-top:1px solid var(--surface-4);margin:6px 0;">';
@@ -22982,11 +22752,11 @@ function _buildThemeDeepAnalysis(theme, perf, breadth, ld) {
   }).join('');
   h += '</div>';
   return h;
-}
+ };
 
 function closeThemeDetail() {
   var p = document.getElementById('theme-detail-panel');
-  if (p) p.style.display = 'none';
+  try { document.dispatchEvent(new CustomEvent('aio:themeDetailClosed')); } catch(_) {}
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -23033,8 +22803,10 @@ function showSubThemeDetail(subThemeId) {
   // 종목별 데이터 수집 및 정렬
   var tickerData = st.tickers.map(function(t) {
     var d = ld[t];
-    var hasData = d && d.price != null && d.pct != null;
-    return { ticker: t, price: hasData ? d.price : null, pct: hasData ? d.pct : null, hasData: hasData };
+    var pctVal = d && _themeFinitePct(d.pct);
+    var priceVal = d && d.price != null && isFinite(Number(d.price));
+    var hasData = Boolean(pctVal && priceVal);
+    return { ticker: t, price: hasData ? Number(d.price) : null, pct: hasData ? Number(d.pct) : null, hasData: hasData };
   });
   tickerData.sort(function(a,b) {
     if (!a.hasData && !b.hasData) return 0;
@@ -23109,7 +22881,7 @@ function showSubThemeDetail(subThemeId) {
   else sections.push(' <b>급락</b> — 시장에서 외면받는 테마. 구조적 문제(규제, 기술 대체, 수요 감소)가 있는지 반드시 확인하세요. 역발상 진입 시 리스크 관리가 필수.');
 
   // 2) 종목 간 격차
-  var topTk = null, topV = -999, botTk = null, botV = 999;
+  var topTk = null, topV = -Infinity, botTk = null, botV = Infinity;
   tickerData.forEach(function(td) {
     if (!td.hasData) return;
     if (td.pct > topV) { topV = td.pct; topTk = td.ticker; }
@@ -23120,8 +22892,8 @@ function showSubThemeDetail(subThemeId) {
     if (spread > 5) sections.push('종목 간 등락 편차 <b>' + spread.toFixed(1) + '%p</b> — 매우 큼. 테마 내에서 승자/패자가 명확히 갈리고 있어 개별 종목 선정(stock picking)이 핵심입니다. ETF 매매보다 핵심 대장주에 집중하세요.');
     else if (spread > 2) sections.push('종목 간 편차 <b>' + spread.toFixed(1) + '%p</b> — 적절. 테마 전반이 비슷하게 움직이고 있어 ETF 접근도 유효합니다.');
     else sections.push('종목 간 편차 <b>' + spread.toFixed(1) + '%p</b> — 매우 좁음. 테마 전체가 동일 재료에 반응 중. ETF 매매가 가장 효율적입니다.');
-    sections.push(' <b>최강:</b> ' + topTk + ' (' + (topV>=0?'+':'') + topV.toFixed(2) + '%) — 테마 리더, 시장 관심 집중');
-    sections.push(' <b>최약:</b> ' + botTk + ' (' + (botV>=0?'+':'') + botV.toFixed(2) + '%) — 개별 악재 또는 밸류에이션 부담 가능');
+    sections.push(' <b>최강:</b> ' + topTk + ' (' + (topV>=0?'+':'') + _themeSafeFixed(topV, 2, '—') + '%) — 테마 리더, 시장 관심 집중');
+    sections.push(' <b>최약:</b> ' + botTk + ' (' + (botV>=0?'+':'') + _themeSafeFixed(botV, 2, '—') + '%) — 개별 악재 또는 밸류에이션 부담 가능');
   }
 
   // 3) 비중 분석 (weights가 있는 경우)
@@ -23860,7 +23632,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.17" defer></script>
+<script src="./js/aio-glossary.js?v=53.37" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -24945,38 +24717,38 @@ async function _updatePerfTable(forceTickers) {
 
 async function _fetchYahooChartData(ticker, range) {
   range = range || '1y';
-  var cfWorker = _getApiKey('aio_cf_worker_url') || '';
   var baseUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?interval=1d&range=' + range;
-
-  var proxies = cfWorker ? [cfWorker + '?url=' + encodeURIComponent(baseUrl)] : [];
-  proxies.push('https://corsproxy.io/?' + encodeURIComponent(baseUrl));
-  proxies.push('https://api.allorigins.win/get?url=' + encodeURIComponent(baseUrl));
   // v52.41 (P656/EF-19 부가): 라이브 네트워크 실측(kr-technical, KS11/KQ11/005930.KS 전부)에서
   // corsproxy.io·allorigins.win이 반복 503을 낸 반면 codetabs.com은 성공하는 것을 확인 — 이 함수가
   // 쓰는 3-proxy 체인에 없던 후보를 추가(다른 호출부의 dynamicTickerLookup은 이미 codetabs 포함).
-  proxies.push('https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(baseUrl));
-
-  for (var i = 0; i < proxies.length; i++) {
-    try {
-      var _ac = new AbortController(); var _tid = setTimeout(function() { _ac.abort(); }, T.FETCH_TIMEOUT);
-      var response = await fetch(proxies[i], { signal: _ac.signal }); clearTimeout(_tid);
-      if (!response.ok) continue;
-      var json = await response.json();
-      if (json.contents && typeof json.contents === 'string') json = JSON.parse(json.contents);
-      var result = json.chart && json.chart.result ? json.chart.result[0] : null;
-      if (result && result.timestamp && result.indicators) {
-        var timestamps = result.timestamp || [];
-        var quote = result.indicators.quote ? result.indicators.quote[0] : {};
-        var opens = quote.open || [];
-        var highs = quote.high || [];
-        var lows = quote.low || [];
-        var closes = quote.close || [];
-        var volumes = quote.volume || [];
-        return { timestamps: timestamps, opens: opens, highs: highs, lows: lows, closes: closes, volumes: volumes };
-      }
-    } catch(e) { _aioLog('warn', 'fetch', '_fetchYahooChartData proxy failed: ' + e.message); }
+  if (typeof fetchViaProxy !== 'function') {
+    _aioLog('warn', 'fetch', 'Yahoo chart proxy registry unavailable');
+    return null;
   }
-  return null;
+  try {
+    var json = await fetchViaProxy(baseUrl, {
+      parseJson: true,
+      timeout: T.FETCH_TIMEOUT,
+      accept: function(payload) {
+        var candidate = payload && payload.chart && payload.chart.result && payload.chart.result[0];
+        return !!(candidate && Array.isArray(candidate.timestamp) && candidate.indicators && candidate.indicators.quote);
+      }
+    });
+    var result = json && json.chart && json.chart.result ? json.chart.result[0] : null;
+    if (!result) return null;
+    var quote = result.indicators.quote ? result.indicators.quote[0] : {};
+    return {
+      timestamps: result.timestamp || [],
+      opens: quote.open || [],
+      highs: quote.high || [],
+      lows: quote.low || [],
+      closes: quote.close || [],
+      volumes: quote.volume || []
+    };
+  } catch(e) {
+    _aioLog('warn', 'fetch', '_fetchYahooChartData proxy registry failed: ' + (e && e.message || e));
+    return null;
+  }
 }
 
 // Main comprehensive analysis function
@@ -26780,8 +26552,9 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
         return;
       }
     } catch(_e) {}
-    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
       if (typeof _aioLog === 'function') _aioLog('info', 'sw', 'SW registered, scope=' + (reg.scope || '/'));
+      try { reg.update(); } catch(_updateErr) {}
       // 업데이트 감지
       if (reg.addEventListener) {
         reg.addEventListener('updatefound', function() {
@@ -26789,8 +26562,8 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
           if (!nw) return;
           nw.addEventListener('statechange', function() {
             if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-              // 새 SW 설치 완료 — 다음 로드에서 활성화됨
-              if (typeof _aioLog === 'function') _aioLog('info', 'sw', '새 버전 설치됨 — 다음 새로고침 시 적용');
+              // sw.js install의 skipWaiting + activate의 clients.claim이 현재 탭을 전환한다.
+              if (typeof _aioLog === 'function') _aioLog('info', 'sw', '새 버전 설치됨 — 활성 controller 전환 대기');
             }
           });
         });

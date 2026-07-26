@@ -2,7 +2,7 @@ export const THEMES_DATA_SET = 'data/themes';
 export const THEMES_DATA_CLEAR = 'data/themes/clear';
 
 export function createInitialThemesState() {
-  return Object.freeze({ items: [], selectedId: null, updatedAt: null });
+  return Object.freeze({ items: [], selectedId: null, selectedDetail: null, updatedAt: null });
 }
 
 export function createThemesDataAction(payload = {}, meta = {}) {
@@ -15,6 +15,7 @@ export function themesReducer(state = createInitialThemesState(), action = {}) {
     return {
       items: Array.isArray(payload.items) ? payload.items.slice() : [],
       selectedId: payload.selectedId || state.selectedId || null,
+      selectedDetail: payload.selectedDetail || state.selectedDetail || null,
       updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null
     };
   }

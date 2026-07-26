@@ -265,7 +265,10 @@ check('KR supply failure state clears canonical evidence and retired investor fa
 check('Cloudflare worker handles Naver JSON endpoints with browser-like headers and HTML block guard', /targetExpectsJson/.test(worker) && /m\.stock\.naver\.com/.test(worker) && /Upstream returned HTML block page for JSON endpoint/.test(worker) && /Referer = 'https:\/\/m\.stock\.naver\.com\/'/.test(worker));
 check('viewport matrix CI script covers 22 routes, four viewport widths, topbar clipping, and SVG text geometry', /ci-viewport-matrix-check\.mjs/.test(read('.github/workflows/ci.yml')) && /const ROUTES = \[/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /mobile390/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 check('proxy registry ranks active proxies by success-rate score, not only static order', /okCount/.test(data) && /failCount/.test(data) && /getScore:\s*function/.test(data) && /self\.getScore\(b\)\s*-\s*self\.getScore\(a\)/.test(data));
-check('quote count labels distinguish client live quotes from server snapshot quotes', /클라 시세/.test(data) && /서버 스냅샷 시세/.test(data));
+check('quote count labels distinguish live quotes from reference snapshot quotes',
+  /일부 실시간/.test(core + data) &&
+  /기준 시세/.test(core) &&
+  /freshness-badge fb-static/.test(core));
 check('viewport matrix detects duplicate news and briefing cards by word-bag key', /wordBagKey/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /duplicateCardCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /market-news\|briefing/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 check('value slot renderer encodes value/pending/failed/na states and touched market-pulse/VIX term surfaces', (() => {
   const valueSlotBase = core.includes('_aioRenderValueSlot') && core.includes('data-value-state') && core.includes("state === 'failed'") && core.includes("state === 'na'");
@@ -745,6 +748,43 @@ check('R345/P728: retired KR investor ranking fanout is not scheduled and the ru
   !/async function fetchKrDynamicData\(\)[\s\S]{0,900}?fetchKrInvestorTop10/.test(data) &&
   /evidenceAvailable:\s*valid/.test(html) &&
   !/missing-kr-supply-target/.test(html));
+check('P782: service-worker controller changes re-query the active version instead of preserving a stale mismatch',
+  /serviceWorker\.addEventListener\('controllerchange'/.test(data) &&
+  /window\._aioSWVersion\s*=\s*''/.test(data) &&
+  /updateViaCache:\s*'none'/.test(html) &&
+  /reg\.update\(\)/.test(html));
+check('P783: reference snapshot metadata drives an explicit non-live topbar state',
+  /latestObservedAt/.test(read('src/legacy/market-snapshot-bridge.js')) &&
+  /sourceKind:\s*'REFERENCE'/.test(read('src/legacy/market-snapshot-bridge.js')) &&
+  /root\.document\?\.dispatchEvent/.test(read('src/legacy/market-snapshot-bridge.js')) &&
+  /_aioRenderMarketSnapshotTopbar/.test(core) &&
+  /실시간 시세가 아닌 동일 출처 기준 스냅샷/.test(core));
+check('P783: a dead client quote proxy preserves snapshot fallback and bounds retry fanout',
+  /quoteProxyCircuitOpen/.test(data) &&
+  /quoteProxyCircuitOpen && hasMarketSnapshotFallback/.test(data) &&
+  /if \(!usingSnapshotFallback\) setTimeout\(fetchLiveQuotes/.test(data) &&
+  /기준 스냅샷 사용 · 중앙 갱신 주기 대기/.test(data));
+check('P783: boot waits for the same-origin snapshot and server macro/HY success suppresses duplicate browser fallbacks',
+  !/실시간 시세 \(성공 시 기본값 교체\)[\s\S]{0,80}fetchLiveQuotes\(\)/.test(ui) &&
+  /__AIO_ARCH_RUNTIME__/.test(data) &&
+  /_aioServerMacroReady/.test(data) &&
+  /!_aioServerHyReady/.test(data));
+check('P783: blocked-external-network Chromium gate asserts the reference-only snapshot topbar',
+  read('scripts/ci-architecture-browser-check.mjs').includes('/기준 시세.+\\(16개\\)/') &&
+  /snapshot quote topbar must stay reference-only/.test(read('scripts/ci-architecture-browser-check.mjs')));
+
+check('P784/SA-01: Yahoo chart requests use the shared proxy registry health path', (() => {
+  const start = html.indexOf('async function _fetchYahooChartData(ticker, range)');
+  const end = html.indexOf('// Main comprehensive analysis function', start);
+  const chartSource = start >= 0 && end > start ? html.slice(start, end) : '';
+  return /fetchViaProxy\(baseUrl/.test(chartSource)
+    && /accept:\s*function/.test(chartSource)
+    && !/proxies\.push|fetch\(proxies/.test(chartSource);
+})());
+check('P784/SA-01: proxy registry opens cooldown after three failures and rejects invalid chart payloads',
+  /p\.fails\s*>=\s*3/.test(data)
+    && /markFail\(proxy\.id, ['"]invalid-payload['"]\)/.test(data)
+    && /typeof opts\.accept === ['"]function['"]/.test(data));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

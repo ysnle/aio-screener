@@ -1,26 +1,26 @@
-> **v53.17 (P761~P778 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P760 domain/route work, ARX-11 signal replacement, factor-weight extraction, ARX-16 screener read migration, missed screener readiness writer retirement, remaining non-route screener helper migration, native data-pipeline contract repair, native single-fetch metadata bridge, market-news/briefing primary feeds, bounded market/themes/entity surfaces, and the options replacement-metric cutover까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+> **v53.37 (P761~P825 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, and P825 live-region reduction까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P780 update
-current_override: P780 bounded portfolio readiness/status surface; full portfolio Vault/CRUD/table/risk/chart remains legacy-owned; P779 fundamental SEC status boundary remains in force
-last_verified: 2026-07-22
+verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P825 update
+current_override: P821 home quality fail-closed, P822 technical candle metadata, P823 finite theme-detail comparison hardening, P824 native currentness guard, and P825 live-region reduction plus P795 theme-detail bounded native summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; P780 bounded portfolio surface remains in force
+last_verified: 2026-07-26
 confidence: high
-target_version: v53.17
+target_version: v53.37
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
-target_lines: refreshed after P779 gate
-current_checkpoint: P780 bounded portfolio readiness/status surface verified; market.js owns macro/fxbond/breadth primary metric sinks; native renderer routes 13/17, legacy renderer routes 4/17
+target_lines: refreshed after P795 gate
+current_checkpoint: P821-P825 verified locally; home quality is native fail-closed, technical candle title/meta are native, theme-detail comparison formatting is finite-safe, native currentness sanitization respects ownership, live-region announcements are bounded, and native renderer routes are 17/17; remaining contested surfaces are breadth/fxbond/ticker/portfolio boundaries
 ---
 
-## Current machine-verified file-size table (v53.17, 2026-07-22)
+## Current machine-verified file-size table (v53.30, 2026-07-26)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 28,012 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,218 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 15,753 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-ui.js` | 4,253 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 27,541 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,259 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 15,829 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 4,258 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-chat.js` | 6,086 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 8,835 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 8,866 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 113 | native guide search/jump lifecycle module |
 | `src/ui/pages/screener.js` | 517 | native screener table/filter/profile/watchlist/position renderer |
 | `src/data/providers/screener.js` | 143 | screener artifact + identity-universe provider |
@@ -28,7 +28,7 @@ current_checkpoint: P780 bounded portfolio readiness/status surface verified; ma
 | `src/data/orchestrators/screener.js` | 57 | screener state orchestration + factor-rank wiring |
 | `src/ui/pages/news.js` | 286 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
 | `src/ui/pages/market.js` | 303 | native macro/fxbond/breadth primary metric renderers; native screener-metadata breadth fallback |
-| `src/ui/pages/themes.js` | 126 | native bounded RRG quadrant/rotation-read renderer; chart/status and theme-detail secondary boundaries |
+| `src/ui/pages/themes.js` | 600 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; chart/status and theme-insights secondary boundaries |
 | `src/ui/pages/entity.js` | 112 | native bounded ticker hero, fundamental SEC status, and options replacement-metric renderer; fundamental report and ticker secondary surfaces remain legacy |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
 
@@ -87,6 +87,16 @@ legacy screener helpers and shifted all downstream anchors.
 - P778 transferred only the options replacement-metric values (VIX/PCR/SKEW) to `entity.js` from normalized evidence, fenced shared quote/snapshot/PCR writers, and removed the direct legacy PCR ID writer. The options page remains explicitly reference-only without an options-chain/Greeks provider; native renderer ownership is now 11/17 and legacy renderer ownership 6/17.
 - P779 transferred only the fundamental SEC annual-data availability/source badge (`fund-data-status`) to `entity.js` from normalized `sec-fundamentals.json` evidence. The full SEC/FMP/Yahoo/Finnhub report, charts, and AI narrative remain legacy-owned; native renderer ownership is now 12/17 and legacy renderer ownership 5/17.
 - P780 transferred only the portfolio readiness/status text (`pf-analysis-status`) to `portfolio.js` from the native portfolio slice. The encrypted Vault/CRUD/table/totals/prices/risk/chart surfaces remain legacy-owned; native renderer ownership is now 13/17 and legacy renderer ownership 4/17.
+- P786 transferred only the signal score/decision hero (`score-gauge-val`, `score-decision-badge`, `score-decision-sub`) to `analysis.js` from `signal-presentation.v1`; the legacy signal canvas/factor/execution/risk/timestamp/narrative widgets and home summary remain explicit secondary boundaries. Native renderer ownership is now 15/17 and legacy renderer ownership 2/17.
+- P787 transferred only the home score/decision aggregate (`home-hero-total`, `home-hero-headline`, `home-hero-desc`, `home-trading-signal`) to `analysis.js` from the same `signal-presentation.v1`; quality meter, Fear & Greed, regime, factor detail, chart, and narrative remain explicit legacy secondary boundaries. Native renderer ownership is now 16/17 and legacy renderer ownership 1/17.
+- P788 added a bounded native theme-detail summary (`#theme-detail-native-summary`) fed by the explicit selection event, while `showThemeDetail()` writes the legacy body only to `#theme-detail-legacy-content`. Full detail composition, breadth, deep-analysis narrative, chart, and data ownership remain explicitly open; renderer ownership remains 16/17 native and 1/17 legacy.
+- P789 moved theme-detail subtheme composition, constituent chips, and fail-closed breadth into `#theme-detail-native-composition` with normalized quote evidence; the legacy subtheme/breadth DOM writer is fenced while detailed leader cards and deep-analysis narrative remain explicit legacy boundaries.
+- P790 moved theme-detail detailed leader cards, price, and change into `#theme-detail-native-leaders`; the legacy leader-card writer is fenced while deep-analysis narrative and chart/data surfaces remain explicit secondary boundaries.
+- P791 moved the first dynamic theme-temperature diagnosis into `#theme-detail-native-temperature`; performance-spread, breadth-health, benchmark, deep narrative, chart, and data sections remain separate legacy boundaries.
+- P792 moved leader performance spread and strongest/weakest constituent readout into `#theme-detail-native-spread`; breadth-health, subtheme gap, benchmark, deep narrative, chart, and data sections remain separate legacy boundaries.
+- P793 moved the breadth-health interpretation into `#theme-detail-native-breadth-health`; subtheme gap, benchmark, deep narrative, chart, and data sections remain separate legacy boundaries.
+- P794 moved the subtheme performance gap into `#theme-detail-native-subtheme-gap`; benchmark, deep narrative, chart, and data sections remain separate legacy boundaries.
+- P795 moved the selected-theme versus ETF/composite-base comparison into `#theme-detail-native-benchmark`; theme insights, chart, and data sections remain separate legacy boundaries.
 
 ## Native ESM and data-plane additions (v53.11)
 

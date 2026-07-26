@@ -10,3 +10,7 @@ export function selectThemesItems(state) {
 export function selectSelectedThemeId(state) {
   return selectThemesState(state)?.selectedId || null;
 }
+
+export function selectSelectedThemeDetail(state) {
+  return selectThemesState(state)?.selectedDetail || null;
+}

@@ -207,6 +207,15 @@ jobs:
       - name: Architecture ESM browser lifecycle contract (AR-01~06)
         run: node scripts/ci-architecture-browser-check.mjs
 
+      - name: SA-02 external outage snapshot fixture (P784)
+        run: node scripts/ci-sa-02-outage-browser-fixture.mjs
+
+      - name: SA-03 service-worker controllerchange fixture (P784)
+        run: node scripts/ci-sa-03-sw-controller-fixture.mjs
+
+      - name: SA-04 boot network budget fixture (P784)
+        run: node scripts/ci-sa-04-boot-network-budget.mjs
+
   # v52.5x/WO-4: was report-only (continue-on-error: true, default FULL_INIT=0 — only swapped
   # .active classes, never called showPage()/rendered charts/fired events). CODEX-COMPREHENSIVE-
   # DIAGNOSIS-2026-07-10.md WO-4 flagged this as a real init QA gap (F-02): default 88/88 PASS was

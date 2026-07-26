@@ -1,3 +1,110 @@
+## v53.37 (2026-07-26)
+- **P825 / accessibility live-region reduction**: theme-detail keeps one summary `aria-live` region and removes redundant live announcements from eight subordinate native panels; UX, accessibility, and viewport gates pass.
+- **P825 / accessibility live-region reduction**: theme-detail keeps one summary `aria-live` region and removes redundant live announcements from eight subordinate native panels; UX, accessibility, and viewport gates pass.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.37
+
+## v53.36 (2026-07-26)
+- **P824 / native currentness guard**: the shared narrative sanitizer now leaves native renderer-owned text untouched, and no-live theme/carry regression tests accept the current Korean fail-closed states without permitting fabricated scores.
+- **P824 / native currentness guard**: the shared narrative sanitizer now leaves native renderer-owned text untouched, and no-live theme/carry regression tests accept the current Korean fail-closed states without permitting fabricated scores.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.36
+
+## v53.35 (2026-07-26)
+- **P823 / validation hardening**: theme-detail deep analysis now filters non-finite constituent percentages before comparison/formatting, and the retirement manifest records all 17 native renderer routes with no legacy route owner.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.35
+
+## v53.34 (2026-07-26)
+- **P821 / home quality fail-closed cutover**: native analysis now owns the complete home quality meter and removes the misleading legacy reuse of Trading Score under the Quality title; missing canonical five-input evidence stays `— / 판정 보류`.
+- **P822 / technical candle metadata cutover**: native analysis now owns the technical candle title/meta from normalized input; legacy chart code retains canvas/indicator lifecycle without overwriting those text sinks.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.34
+
+## v53.33 (2026-07-26)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.33
+
+## v53.32 (2026-07-26)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.32
+
+## v53.31 (2026-07-26)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.31
+
+## v53.30 (2026-07-26)
+- **P795 / bounded theme-detail benchmark narrative**: moved selected-theme versus ETF/composite-base comparison into `#theme-detail-native-benchmark` from normalized theme and benchmark quote evidence, with fail-closed missing coverage.
+- Removed the corresponding legacy benchmark writer; theme insights, chart, and data surfaces remain separately bounded.
+- R1 7곳 v53.30
+
+## v53.29 (2026-07-26)
+- **P794 / bounded theme-detail subtheme-gap narrative**: moved the strongest/weakest subtheme performance comparison into `#theme-detail-native-subtheme-gap` from normalized subtheme quote evidence, with fail-closed insufficient coverage.
+- Removed the corresponding legacy subtheme-gap writer; benchmark comparison and remaining deep narrative stay separately bounded.
+- R1 7곳 v53.29
+
+## v53.28 (2026-07-26)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.28
+
+## v53.27 (2026-07-26)
+- **P792 / bounded theme-detail performance spread**: moved the leader performance-gap narrative plus strongest/weakest constituent readout into `#theme-detail-native-spread`, with fail-closed behavior until at least two quote changes are available.
+- Removed the corresponding legacy spread writer; breadth-health, subtheme gap, benchmark comparison, and remaining deep narrative stay separately bounded.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.27
+
+## v53.26 (2026-07-26)
+- **P791 / bounded theme-detail temperature narrative**: moved the canonical selected-theme temperature diagnosis into `#theme-detail-native-temperature`, with explicit `시세 대기` behavior when performance is unavailable.
+- Fenced the first dynamic deep-analysis section from the legacy writer while preserving performance-spread, breadth-health, benchmark, narrative, chart, and data sections as separately declared boundaries.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.26
+
+## v53.25 (2026-07-26)
+- **P790 / bounded theme-detail leaders**: moved the detailed leader-card grid, price, and change surfaces into the native `themes.js` child `#theme-detail-native-leaders`, using the normalized selection quote payload and safe DOM APIs.
+- Fenced the legacy leader-card writer while preserving deep-analysis narrative as the remaining explicit legacy body; architecture contract and Chromium now assert summary/composition/leaders plus legacy-body coexistence.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.25
+
+## v53.24 (2026-07-26)
+- **P789 / bounded theme-detail composition**: moved subtheme composition, constituent chips, and the fail-closed breadth readout into the native `themes.js` child `#theme-detail-native-composition`, fed by normalized quote evidence from the explicit selection event.
+- Fenced the legacy subtheme/breadth DOM writer while retaining detailed leader cards and deep-analysis narrative in `#theme-detail-legacy-content`; architecture contract and Chromium now assert the native summary/composition plus legacy-body boundary.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.24
+
+## v53.23 (2026-07-26)
+- **P788 / bounded theme-detail summary**: added a native `themes.js` summary surface for the derived inline theme-detail panel (`#theme-detail-native-summary`) covering selected label, performance/source status, and representative leaders. The legacy detail body remains in `#theme-detail-legacy-content` with subtheme, breadth, narrative, chart, and data ownership explicitly bounded.
+- Added the `aio:themeDetailShown`/`aio:themeDetailClosed` boundary and Chromium coverage proving the native summary and legacy body coexist without a competing writer. Renderer accounting remains 16/17 native and 1/17 legacy; local v53.23 remains uncommitted and undeployed.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.23
+
+## v53.22 (2026-07-26)
+- **P787 / ARX-11 bounded home aggregate**: transferred the home score/decision summary (`home-hero-total`, `home-hero-headline`, `home-hero-desc`, `home-trading-signal`) to the native analysis renderer using the canonical `signal-presentation.v1` envelope. The quality meter, Fear & Greed, regime, factor detail, chart, and narrative remain explicit legacy boundaries.
+- Added a home native marker and legacy writer fence, plus architecture-contract and Chromium `4/4` native-sink / `NATIVE-FENCE` assertions. Renderer ownership is now 16/17 native and 1/17 legacy; commit and deployment were not performed.
+- R1 7곳 v53.22
+
+## v53.21 (2026-07-25)
+- **P786 / ARX-11 bounded signal hero**: added the pure `signal-presentation.v1` mapping on top of the canonical Trading Score, preserving the existing five-tier Korean decision wording while keeping the machine action envelope (`WATCH`/`WAIT`/`REDUCE`) separate. `analysis.js` now owns `score-gauge-val`, `score-decision-badge`, and `score-decision-sub` with fail-closed partial/missing-input states.
+- Fenced `refreshSignalDashboard()` from those three native sinks while retaining its canvas, factor bars, execution-window, risk-monitor, timestamp, and narrative secondary boundaries. Added architecture-contract and Chromium `3/3` native-sink plus `NATIVE-FENCE` assertions. Renderer ownership is now 15/17 native and 2/17 legacy.
+- R1 7곳 v53.21
+
+## v53.20 (2026-07-25)
+- **P785 / ARX-11 bounded technical surface**: extracted the single `market-health.v1` domain model and transferred the technical page's health score/grade/regime, three health bars, three indicator strips, status pill, and interpretation to the native analysis renderer. Legacy compatibility writers remain available only behind the native technical fence; candlestick, RSI/MACD, Weinstein/MTF, and narrative surfaces remain explicit secondary boundaries.
+- Added unit, architecture-contract, and Chromium assertions for fail-closed missing inputs, model thresholds, native sink ownership, and legacy writer fencing. Renderer ownership is now 14/17 native and 3/17 legacy.
+- R1 7곳 v53.20
+
+## v53.19 (2026-07-25)
+- **P784 / SA-01~SA-04**: Yahoo chart requests now use the shared proxy health registry with three-failure cooldown, invalid-payload failure accounting, and success recovery. Added deterministic SA-01 headless coverage, the twice-run external-outage snapshot fixture (16/16 reference values and stable retry state), the controllerchange/version re-query fixture, and the boot network budget fixture (server FRED/HY fallback calls `0`, quote request ceiling `100`, observed `83`).
+- **SA-05 handoff currency**: historical HEAD/version/deployment claims are explicitly labeled as historical evidence, while current preflight state is recorded in a generated current block. Runtime, browser, headless, document-currency, and knowledge-lint gates remain required before commit/deploy.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.19
+
+## v53.18 (2026-07-25)
+- **P781 / ownership accounting**: synchronized route-owner summary counts/lists with all 17 per-route declarations and made the architecture contract independently derive every lifecycle/renderer/data/chart/narrative and full-native summary. Renderer ownership remains honestly 13/17 native, 4/17 legacy.
+- **P782 / service worker diagnostics**: active SW version now follows `controllerchange`, registration checks the worker script without HTTP cache reuse, and the update log matches the existing `skipWaiting()`/`clients.claim()` transition instead of requiring a fictitious extra refresh.
+- **P783 / snapshot-first degraded operation**: published same-origin market snapshot metadata now drives an explicit reference-only topbar with observed time/count. Live badges count only `live:` provenance and disclose partial core coverage. Boot waits for architecture snapshot readiness, removes the duplicate UI-owned initial quote/sentiment/HY calls, opens a quote proxy circuit after bounded failures, skips repeated Stooq/Yahoo rescue when a snapshot is available, leaves retries to the central 3-minute scheduler, and suppresses browser FRED/HY fallback when the server artifact already succeeded.
+- Added runtime/architecture regression gates and updated handoff packets; operator fast-plane credentials, provider rights, deployment, and seven-day soak remain intentionally pending.
+- R1 7곳 v53.18
+
 ## v53.17 (2026-07-22)
 - **P780 / ARX-09**: transferred only the portfolio readiness/status sink (`pf-analysis-status`) to native `portfolio.js` from the canonical portfolio slice. Chromium confirms native sink `1/1` and the empty-state message; Vault consent, CRUD, holdings table, totals/prices, risk metrics, AI workbench, and charts remain explicit legacy boundaries. Renderer ownership is now 13/17 native and 4/17 legacy; headless remains `1098/1098 PASS`.
 - **P779 / ARX-04**: transferred only the fundamental SEC annual-data availability/source badge (`fund-data-status`) to native `entity.js` from normalized `sec-fundamentals.json` evidence. Chromium confirms a native 1/1 sink with `official-regulator` lineage for AAPL; the full SEC/FMP/Yahoo/Finnhub report, charts, AI narrative, and low-coverage expansion remain explicit legacy/operator boundaries. Renderer ownership is now 12/17 native and 5/17 legacy; headless remains `1098/1098 PASS`.

@@ -596,6 +596,37 @@
 
   // ─── Group 13: 인프라 복원력 (T80~T81) ──────────────────────────────────
   function _testInfraResilience() {
+    // T1041 / P784 SA-01: Yahoo chart attempts share the registry's
+    // three-failure cooldown and a later success restores proxy health.
+    if (typeof _PROXY_REGISTRY !== 'undefined' && Array.isArray(_PROXY_REGISTRY.list)) {
+      var originalProxyList1041 = _PROXY_REGISTRY.list;
+      var testProxy1041 = { id: '__aio_sa01__', tier: 9, fails: 0, okCount: 0, failCount: 0, lastOk: 0, lastFail: 0, disabled: false };
+      var originalSetTimeout1041 = window.setTimeout;
+      var scheduled1041 = 0;
+      _PROXY_REGISTRY.list = originalProxyList1041.concat([testProxy1041]);
+      try {
+        window.setTimeout = function() { scheduled1041++; return 0; };
+        _PROXY_REGISTRY.markFail(testProxy1041.id, 'fixture');
+        _PROXY_REGISTRY.markFail(testProxy1041.id, 'fixture');
+        _PROXY_REGISTRY.markFail(testProxy1041.id, 'fixture');
+        var failedScore1041 = _PROXY_REGISTRY.getScore(testProxy1041);
+        _assert('T1041 proxy_registry_three_failures_open', testProxy1041.disabled === true && testProxy1041.fails === 3);
+        _PROXY_REGISTRY.markOk(testProxy1041.id);
+        _assert('T1041 proxy_registry_success_restores_health', testProxy1041.disabled === false && testProxy1041.fails === 0 && _PROXY_REGISTRY.getScore(testProxy1041) > failedScore1041);
+        _assert('T1041 proxy_registry_cooldown_is_scheduled', scheduled1041 === 1);
+      } finally {
+        window.setTimeout = originalSetTimeout1041;
+        _PROXY_REGISTRY.list = originalProxyList1041;
+      }
+      var chartSource1041 = typeof window._fetchYahooChartData === 'function' ? window._fetchYahooChartData.toString() : '';
+      _assert('T1041 yahoo_chart_uses_registry_health_path', /fetchViaProxy\(/.test(chartSource1041) && !/proxies\.push/.test(chartSource1041));
+    } else {
+      _assert('T1041 proxy_registry_three_failures_open (skip)', true);
+      _assert('T1041 proxy_registry_success_restores_health (skip)', true);
+      _assert('T1041 proxy_registry_cooldown_is_scheduled (skip)', true);
+      _assert('T1041 yahoo_chart_uses_registry_health_path (skip)', true);
+    }
+
     // T80: proxy_failover_codetabs — _aioProxyChain Circuit Breaker 상태 관리
     if (window._aioProxyChain && window._aioProxyChain._health !== undefined) {
       var pc = window._aioProxyChain;
@@ -3262,7 +3293,7 @@
         if (firstTheme) {
           window.showThemeDetail(firstTheme);
           var themePanel = document.getElementById('theme-detail-panel');
-          themeOk = !!(themePanel && themePanel.style.display !== 'none' && themePanel.textContent.indexOf('LIVE REQUIRED') >= 0);
+          themeOk = !!(themePanel && themePanel.style.display !== 'none' && (/LIVE REQUIRED|시세 대기|판정 보류/.test(themePanel.textContent || '')));
         }
       }
       if (typeof window.showSubThemeDetail === 'function') {
@@ -3270,7 +3301,7 @@
         if (firstSub) {
           window.showSubThemeDetail(firstSub);
           var subPanel = document.getElementById('sub-theme-detail-panel');
-          subOk = !!(subPanel && subPanel.style.display !== 'none' && subPanel.textContent.indexOf('LIVE REQUIRED') >= 0);
+        subOk = !!(subPanel && subPanel.style.display !== 'none' && (/LIVE REQUIRED|시세 대기|판정 보류/.test(subPanel.textContent || '')));
         }
       }
     } catch(eThemeNoLive) {
@@ -7365,7 +7396,7 @@
         window._aioRenderCarryUnwindRisk();
         var scoreEl874 = document.getElementById('carry-score-text');
         var verdictEl874 = document.getElementById('carry-verdict');
-        var held874 = scoreEl874 && scoreEl874.textContent === '—' && verdictEl874 && verdictEl874.textContent.indexOf('보류') >= 0;
+        var held874 = scoreEl874 && scoreEl874.textContent === '—' && verdictEl874 && /(보류|판단 제외|수신 지연)/.test(verdictEl874.textContent || '');
         window._liveData = savedLive874;
         window._aioRenderCarryUnwindRisk();
         _assert('T874 carry_unwind_holds_without_live_inputs_v5298 (P712): 라이브 입력 결측 시 하드코딩 수치 대신 프록시를 보류',

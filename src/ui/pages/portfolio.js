@@ -7,8 +7,9 @@ import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 // same ids/table with the real column set. That is the highest-severity contested container in
 // F-03/route-owners.json: whichever writer runs last wins the race, and native losing means the
 // table silently shrinks. P780 transfers only the independently owned pf-analysis-status
-// readiness text; table, totals, prices, CRUD, risk, and chart surfaces remain legacy until the
-// real ARX/RM-09 storage/vault cutover.
+// readiness text; table, prices, CRUD, risk, and chart surfaces remain legacy until the
+// real ARX/RM-09 storage/vault cutover. P810 adds a bounded native hero projection
+// for total value and total P/L; the legacy summary writer is fenced from those two sinks.
 function renderPortfolioStatus(documentRef, state) {
   const element = documentRef?.getElementById('pf-analysis-status');
   if (!element) return;
@@ -24,6 +25,47 @@ function renderPortfolioStatus(documentRef, state) {
   else element.removeAttribute('data-observed-at');
 }
 
+function finite(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function formatMoney(value) {
+  return value == null ? '—' : `$${Math.abs(value).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+}
+
+function renderPortfolioHero(documentRef, state) {
+  const valueElement = documentRef?.getElementById('pf-total-value');
+  const pnlElement = documentRef?.getElementById('pf-total-pnl');
+  if (!valueElement && !pnlElement) return;
+  const totals = state?.totals && typeof state.totals === 'object' ? state.totals : {};
+  const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
+  const holdingValue = holdings.reduce((sum, holding) => sum + (finite(holding?.value) ?? 0), 0);
+  const cash = finite(state?.cash) ?? 0;
+  const totalValue = finite(totals.totalAssets ?? totals.totalValue ?? totals.value) ?? (holdingValue + cash || null);
+  const holdingCost = holdings.reduce((sum, holding) => {
+    const shares = finite(holding?.shares);
+    const avgCost = finite(holding?.avgCost);
+    return sum + (shares != null && avgCost != null ? shares * avgCost : 0);
+  }, 0);
+  const totalPnl = finite(totals.totalPnl ?? totals.pnl ?? totals.profitLoss) ?? (holdingValue - holdingCost || null);
+  if (valueElement) {
+    valueElement.textContent = formatMoney(totalValue);
+    valueElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
+    valueElement.setAttribute('data-source-kind', totalValue == null ? 'unavailable' : 'portfolio-state');
+    valueElement.setAttribute('data-source-label', totalValue == null ? 'portfolio-value-unavailable' : 'native-portfolio-totals');
+    valueElement.setAttribute('data-operational-use', 'reference-only');
+  }
+  if (pnlElement) {
+    pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl)}`;
+    pnlElement.style.color = totalPnl == null ? 'var(--text-dim)' : totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+    pnlElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
+    pnlElement.setAttribute('data-source-kind', totalPnl == null ? 'unavailable' : 'portfolio-state');
+    pnlElement.setAttribute('data-source-label', totalPnl == null ? 'portfolio-pnl-unavailable' : 'native-portfolio-totals');
+    pnlElement.setAttribute('data-operational-use', 'reference-only');
+  }
+}
+
 function render({ documentRef, store }) {
   const state = selectPortfolioState(store.getState());
   const page = documentRef?.getElementById('page-portfolio');
@@ -33,6 +75,7 @@ function render({ documentRef, store }) {
     page.dataset.aioArchitectureStatus = state?.status || 'unavailable';
     page.dataset.aioArchitectureRenderer = 'native';
   }
+  renderPortfolioHero(documentRef, state);
   renderPortfolioStatus(documentRef, state);
 }
 
@@ -48,7 +91,15 @@ export function createPortfolioPage({ documentRef, store } = {}) {
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));
       const page = documentRef?.getElementById('page-portfolio');
+      ['pf-total-value', 'pf-total-pnl'].forEach((id) => {
+        const element = documentRef?.getElementById(id);
+        if (element) element.setAttribute('data-aio-portfolio-hero-renderer', 'native');
+      });
       bag.add(() => {
+        ['pf-total-value', 'pf-total-pnl'].forEach((id) => {
+          const element = documentRef?.getElementById(id);
+          if (element?.dataset.aioPortfolioHeroRenderer === 'native') delete element.dataset.aioPortfolioHeroRenderer;
+        });
         if (page?.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (page?.dataset.aioArchitectureSlice === 'portfolio') delete page.dataset.aioArchitectureSlice;
       });

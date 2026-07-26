@@ -160,11 +160,219 @@ function renderSnapshotMetrics(root, page) {
 function renderMacro(root, page) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
+  const twoYear = finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value);
+  const tenYear = quoteValue(root, '^TNX')?.price;
+  const twoYearNode = page.querySelector('#macro-2y-value');
+  const twoYearSourceNode = page.querySelector('#macro-2y-source');
+  writeText(twoYearNode, Number.isFinite(twoYear) ? `${twoYear.toFixed(2)}%` : '—');
+  writeText(twoYearSourceNode, Number.isFinite(twoYear) ? 'FRED DGS2 · 기준금리 참고' : 'FRED DGS2 수신 대기');
+  [twoYearNode, twoYearSourceNode].forEach((node) => {
+    if (!node) return;
+    node.dataset.aioMacroTwoYearRenderer = 'native';
+    writeLineage(node, Number.isFinite(twoYear) ? 'fred' : 'unavailable', Number.isFinite(twoYear) ? 'FRED:DGS2' : 'FRED:DGS2 unavailable');
+  });
+  const spreadValueNode = page.querySelector('#macro-spread-value');
+  const spreadMeaningNode = page.querySelector('#macro-spread-meaning');
+  const spreadStatusNode = page.querySelector('#spread-status');
+  const available = Number.isFinite(twoYear) && Number.isFinite(tenYear);
+  const spread = available ? tenYear - twoYear : null;
+  const valueText = spread == null ? '—' : `${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%p`;
+  const meaningText = spread == null
+    ? '판정 보류 · 2Y·10Y 관측값 미수신'
+    : spread < -0.1 ? '역전 · 경기침체 경고 구간' : spread < 0.3 ? '평탄 · 방향성 확인 필요' : '정상 기울기 · 단독 매수 신호 아님';
+  writeText(spreadValueNode, valueText);
+  writeText(spreadMeaningNode, meaningText);
+  writeText(spreadStatusNode, spread == null ? '2s10s: —' : `2s10s: ${valueText}`);
+  [spreadValueNode, spreadMeaningNode, spreadStatusNode].forEach((node) => {
+    if (!node) return;
+    node.dataset.aioMacroSpreadRenderer = 'native';
+    writeLineage(node, available ? 'live' : 'unavailable', available ? 'live:^TNX+DGS2' : 'yield-curve evidence unavailable');
+  });
+  const curveStatusNode = page.querySelector('#curve-status');
+  const curveMeaningNode = page.querySelector('#curve-meaning');
+  const curveAvailable = Number.isFinite(twoYear) && Number.isFinite(tenYear);
+  const curveSpread = curveAvailable ? tenYear - twoYear : null;
+  const curveStatus = curveSpread == null
+    ? '판정 보류'
+    : curveSpread < -0.1 ? '역전 곡선' : curveSpread < 0.3 ? '평탄 곡선' : '양(+)의 곡선';
+  const curveMeaning = curveSpread == null
+    ? '판정 보류 · 2Y·10Y 관측값 미수신'
+    : curveSpread < -0.1 ? '2s10s 역전 · 경기·신용 위험을 함께 확인합니다.'
+      : curveSpread < 0.3 ? '2s10s 평탄 · 곡선 방향성 확인이 필요합니다.'
+        : '10Y > 2Y · 정상 양(+) 기울기입니다.';
+  writeText(curveStatusNode, curveStatus);
+  writeText(curveMeaningNode, curveMeaning);
+  [curveStatusNode, curveMeaningNode].forEach((node) => {
+    if (!node) return;
+    node.dataset.aioMacroCurveRenderer = 'native';
+    writeLineage(node, curveAvailable ? 'live' : 'unavailable', curveAvailable ? 'live:^TNX+DGS2' : 'yield-curve evidence unavailable');
+  });
+  const fedMeaningNode = page.querySelector('#macro-fed-meaning');
+  const fedMetric = readSnapshotMetric(root, 'fed-rate');
+  const fomc = root?.AIO_EVENT_FRESHNESS_REGISTRY?.fomc;
+  const fomcText = fomc?.eventDate ? `FOMC ${fomc.eventDate} 결과 확인` : 'FOMC 일정·결과 대기';
+  const fedMeaning = fedMetric
+    ? `Fed ${formatSnapshotMetric('fed-rate', fedMetric)} · ${fomcText}`
+    : `Fed 기준금리 수신 대기 · ${fomcText}`;
+  writeText(fedMeaningNode, fedMeaning);
+  if (fedMeaningNode) {
+    fedMeaningNode.dataset.aioMacroFedMeaningRenderer = 'native';
+    writeLineage(fedMeaningNode, fedMetric ? 'fred' : 'unavailable', fedMetric?.source || 'FEDFUNDS unavailable');
+  }
 }
 
 function renderFxbond(root, page) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
+  const twoYear = finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value);
+  ['#yc-2y', '#yc-2y-track'].forEach((selector) => {
+    const node = page.querySelector(selector);
+    if (!node) return;
+    writeText(node, Number.isFinite(twoYear) ? `${twoYear.toFixed(2)}%` : '—');
+    node.dataset.aioFxbondTwoYearRenderer = 'native';
+    node.style.color = Number.isFinite(twoYear)
+      ? (twoYear > 4.5 ? 'var(--data-red)' : twoYear > 4 ? 'var(--data-amber)' : 'var(--data-green)')
+      : 'var(--text-muted)';
+    writeLineage(node, Number.isFinite(twoYear) ? 'fred' : 'unavailable', Number.isFinite(twoYear) ? 'FRED:DGS2' : 'FRED:DGS2 unavailable');
+  });
+  const riskNode = page.querySelector('#fxbond-risk-pill');
+  const dxy = quoteValue(root, 'DX-Y.NYB')?.price;
+  const tnx = quoteValue(root, '^TNX')?.price;
+  const hasEvidence = Number.isFinite(dxy) && Number.isFinite(tnx);
+  let riskText = '판정 보류 · 달러·금리 입력 미수신';
+  let riskClass = 'status-pill sp-neutral';
+  if (hasEvidence) {
+    if (dxy >= 107 || tnx >= 5) {
+      riskText = '관측 · 높은 달러·금리 수준';
+      riskClass = 'status-pill sp-risk-off';
+    } else if (dxy >= 104 || tnx >= 4.5) {
+      riskText = '관측 · 달러·금리 수준 확인';
+      riskClass = 'status-pill sp-risk-off';
+    } else if (dxy >= 100) {
+      riskText = '관측 · 달러·금리 모니터링';
+    } else {
+      riskText = '관측 · 달러·금리 수준';
+    }
+  }
+  writeText(riskNode, riskText);
+  if (riskNode) {
+    riskNode.className = riskClass;
+    riskNode.dataset.aioFxbondRiskRenderer = 'native';
+    writeLineage(riskNode, hasEvidence ? 'live' : 'unavailable', hasEvidence ? 'live:DX-Y.NYB+^TNX' : 'fxbond evidence unavailable');
+  }
+  const inversionNode = page.querySelector('#yc-inversion-badge');
+  const irx = quoteValue(root, '^IRX')?.price;
+  const curveEvidence = Number.isFinite(tnx) && Number.isFinite(irx);
+  let inversionText = '판정 보류 · 3개월·10년 금리 입력 미수신';
+  let inversionColor = 'var(--text-muted)';
+  let inversionBackground = 'rgba(33,29,22,0.06)';
+  if (curveEvidence) {
+    const spread = tnx - irx;
+    if (spread < -0.2) {
+      inversionText = '깊은 역전 · 경기침체 경고';
+      inversionColor = 'var(--data-red)';
+      inversionBackground = 'rgba(177,58,48,0.15)';
+    } else if (spread < 0) {
+      inversionText = '역전 지속 · 주의';
+      inversionColor = 'var(--data-amber)';
+      inversionBackground = 'rgba(177,58,48,0.08)';
+    } else if (spread < 0.3) {
+      inversionText = '역전 해소 중 · 위험 구간';
+      inversionColor = 'var(--data-amber)';
+      inversionBackground = 'rgba(177,58,48,0.08)';
+    } else {
+      inversionText = '정상 곡선 · 안정';
+      inversionColor = 'var(--data-green)';
+      inversionBackground = 'rgba(34,117,76,0.12)';
+    }
+  }
+  writeText(inversionNode, inversionText);
+  if (inversionNode) {
+    inversionNode.dataset.aioFxbondCurveRenderer = 'native';
+    inversionNode.style.background = inversionBackground;
+    inversionNode.style.color = inversionColor;
+    writeLineage(inversionNode, curveEvidence ? 'live' : 'unavailable', curveEvidence ? 'live:^TNX-^IRX' : 'yield-curve evidence unavailable');
+  }
+  const carryNode = page.querySelector('#carry-risk-level');
+  const carryScoreNode = page.querySelector('#carry-score-text');
+  const carryBarNode = page.querySelector('#carry-score-bar');
+  const carryVerdictNode = page.querySelector('#carry-verdict');
+  const jpy = quoteValue(root, 'JPY=X')?.price;
+  const vix = quoteValue(root, '^VIX')?.price;
+  const bojRate = finite(root?._bokData?.bokRate?.value);
+  const hyOasBp = finite(root?._hySpreadBp) ?? finite(root?._fredData?.BAMLH0A0HYM2?.value) * 100;
+  const carryEvidence = [jpy, vix, tnx, bojRate, hyOasBp].every((value) => Number.isFinite(value));
+  let carryText = '보류';
+  let carryColor = 'var(--text-muted)';
+  let carryScore = null;
+  let carryVerdict = '판정 보류 · USD/JPY·VIX·미일 정책금리·HY OAS 입력 미수신';
+  if (carryEvidence) {
+    const rateDiff = tnx - bojRate;
+    let score = 0;
+    score += jpy > 158 ? 35 : jpy > 152 ? 25 : jpy > 145 ? 15 : 30;
+    score += vix > 30 ? 30 : vix > 22 ? 20 : vix > 15 ? 10 : 5;
+    score += rateDiff < 2.5 ? 20 : rateDiff < 3.5 ? 10 : 5;
+    score += hyOasBp > 450 ? 15 : hyOasBp > 350 ? 8 : 3;
+    score = Math.min(100, score);
+    carryScore = score;
+    carryText = score >= 70 ? '높음' : score >= 45 ? '주의' : '참고';
+    carryColor = score >= 70 ? 'var(--data-red)' : score >= 45 ? 'var(--data-amber)' : 'var(--data-green)';
+    carryVerdict = `관측 프록시 ${carryScore}/100 · 방향·비중 신호가 아니며 원인과 지속성을 교차 확인합니다.`;
+  }
+  writeText(carryNode, carryText);
+  if (carryNode) {
+    carryNode.dataset.aioFxbondCarryRenderer = 'native';
+    carryNode.style.color = carryColor;
+    writeLineage(carryNode, carryEvidence ? 'live' : 'unavailable', carryEvidence ? 'live:JPY+^VIX+^TNX+BOK+FRED-HY-OAS' : 'carry proxy evidence unavailable');
+  }
+  writeText(carryScoreNode, carryScore == null ? '—' : String(carryScore));
+  if (carryBarNode) {
+    carryBarNode.style.width = `${carryScore == null ? 0 : carryScore}%`;
+    carryBarNode.style.background = carryScore == null ? 'var(--text-muted)' : carryColor;
+    carryBarNode.dataset.aioFxbondCarryScoreRenderer = 'native';
+    writeLineage(carryBarNode, carryEvidence ? 'live' : 'unavailable', carryEvidence ? 'live:JPY+^VIX+^TNX+BOK+FRED-HY-OAS' : 'carry proxy evidence unavailable');
+  }
+  writeText(carryVerdictNode, carryVerdict);
+  [carryScoreNode, carryVerdictNode].forEach((node) => {
+    if (!node) return;
+    node.dataset.aioFxbondCarryScoreRenderer = 'native';
+    writeLineage(node, carryEvidence ? 'live' : 'unavailable', carryEvidence ? 'live:JPY+^VIX+^TNX+BOK+FRED-HY-OAS' : 'carry proxy evidence unavailable');
+  });
+  const camNode = page.querySelector('#cam-verdict-text');
+  const dxyPct = quoteValue(root, 'DX-Y.NYB')?.pct;
+  const hygPct = quoteValue(root, 'HYG')?.pct;
+  const camSpread = Number.isFinite(twoYear) && Number.isFinite(tnx) ? tnx - twoYear : null;
+  const camAvailable = [dxyPct, tnx, hygPct, camSpread].every((value) => Number.isFinite(value));
+  let camText = '판정 보류 · DXY·10Y·HYG·2Y 입력 미수신';
+  if (camAvailable) {
+    let bullScore = 0;
+    let bearScore = 0;
+    let available = 0;
+    if (dxyPct != null) { available++; if (dxyPct <= -0.3) bullScore++; else if (dxyPct >= 0.3) bearScore++; }
+    if (tnx != null) { available++; if (tnx <= 3.5) bullScore++; else if (tnx >= 4.7) bearScore++; }
+    if (hygPct != null) { available++; if (hygPct >= 0.3) bullScore++; else if (hygPct <= -0.3) bearScore++; }
+    if (camSpread != null) { available++; if (camSpread >= 0.2) bullScore++; else if (camSpread < -0.2) bearScore++; }
+    if (bullScore >= 3) camText = `위험선호 성격 관측 우세 (${bullScore}/${available}) · 방향·비중 신호 아님`;
+    else if (bearScore >= 3) camText = `위험회피 성격 관측 우세 (${bearScore}/${available}) · 원인·지속성 확인 필요`;
+    else if (bullScore > bearScore) camText = `상승 입력이 더 많음 (${bullScore}/${available}) · 단일 축 과잉 해석 금지`;
+    else if (bearScore > bullScore) camText = `하락 입력이 더 많음 (${bearScore}/${available}) · 교차 확인 필요`;
+    else camText = '입력 혼조 · 방향·비중을 단독 판정하지 않음';
+  }
+  writeText(camNode, camText);
+  if (camNode) {
+    camNode.dataset.aioFxbondCamRenderer = 'native';
+    writeLineage(camNode, camAvailable ? 'live' : 'unavailable', camAvailable ? 'live:DX-Y.NYB+^TNX+HYG+DGS2' : 'cross-asset evidence unavailable');
+  }
+  const chartStatusNode = page.querySelector('#yc-chart-status');
+  const chartStatus = !curveEvidence
+    ? '수익률 곡선 대기'
+    : tnx - irx < 0 ? '역전 감지' : '정상 곡선';
+  writeText(chartStatusNode, chartStatus);
+  if (chartStatusNode) {
+    chartStatusNode.style.color = !curveEvidence ? 'var(--text-muted)' : tnx - irx < 0 ? 'var(--data-red)' : 'var(--data-green)';
+    chartStatusNode.dataset.aioFxbondCurveStatusRenderer = 'native';
+    writeLineage(chartStatusNode, curveEvidence ? 'live' : 'unavailable', curveEvidence ? 'live:^TNX-^IRX' : 'yield-curve evidence unavailable');
+  }
 }
 
 function breadthEvidence(root) {
@@ -242,6 +450,7 @@ function renderBreadth(root, page) {
     if (freshnessNode) freshnessNode.style.color = value == null ? 'var(--text-muted)' : 'var(--text-dim)';
   });
   const advanceNode = page.querySelector('#breadth-advance-ratio');
+  const signalNode = page.querySelector('#breadth-signal-val');
   const ratio = evidence.available ? Number(evidence.advanceRatio) : null;
   writeText(advanceNode, Number.isFinite(ratio) ? `${(ratio * 100).toFixed(1)}%` : '—');
   if (advanceNode) {
@@ -250,6 +459,33 @@ function renderBreadth(root, page) {
       : 'var(--text-muted)';
     writeLineage(advanceNode, sourceKind, source);
   }
+  const signalText = Number.isFinite(ratio)
+    ? (ratio > 0.55 ? '광범위 상승' : ratio > 0.45 ? '중립' : '쏠림 장세')
+    : '시장 폭 시그널 보류 · A/D 입력 미수신';
+  writeText(signalNode, signalText);
+  if (signalNode) {
+    signalNode.dataset.aioBreadthSignalRenderer = 'native';
+    signalNode.style.color = Number.isFinite(ratio)
+      ? (ratio > 0.55 ? 'var(--data-green)' : ratio > 0.45 ? 'var(--data-amber)' : 'var(--data-red)')
+      : 'var(--text-muted)';
+    writeLineage(signalNode, sourceKind, source);
+  }
+  const diagnosticSignalNode = page.querySelector('#breadth-diag-signal');
+  const diagnosticTextNode = page.querySelector('#breadth-diag-text');
+  const diagnosticSignal = evidence.available
+    ? `5/20/50일선 상회 ${Math.round(evidence.sma5)}/${Math.round(evidence.sma20)}/${Math.round(evidence.sma50)}%`
+    : '판정 보류';
+  const diagnosticText = evidence.available
+    ? `${diagnosticSignal} · ${source}의 현재 관측입니다. 시장 참여도는 오늘 수준(추세국면 아님), McClellan은 A/D 시계열이 없어 판정을 보류합니다.`
+    : '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다.';
+  writeText(diagnosticSignalNode, diagnosticSignal);
+  writeText(diagnosticTextNode, diagnosticText);
+  [diagnosticSignalNode, diagnosticTextNode].forEach((node) => {
+    if (!node) return;
+    node.dataset.aioBreadthDiagnosticRenderer = 'native';
+    node.style.color = evidence.available ? 'var(--text-primary)' : 'var(--text-muted)';
+    writeLineage(node, sourceKind, source);
+  });
 }
 
 export function createMarketSlicePage({ root = globalThis, documentRef, store, route } = {}) {
@@ -264,14 +500,52 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       if (route === 'macro') {
         page.dataset.aioArchitectureRenderer = 'native';
         page.dataset.aioMacroRenderer = 'native';
+        ['#macro-2y-value', '#macro-2y-source'].forEach((selector) => {
+          const node = page.querySelector(selector);
+          if (node) node.dataset.aioMacroTwoYearRenderer = 'native';
+        });
+        ['#macro-spread-value', '#macro-spread-meaning', '#spread-status'].forEach((selector) => {
+          const node = page.querySelector(selector);
+          if (node) node.dataset.aioMacroSpreadRenderer = 'native';
+        });
+        ['#curve-status', '#curve-meaning'].forEach((selector) => {
+          const node = page.querySelector(selector);
+          if (node) node.dataset.aioMacroCurveRenderer = 'native';
+        });
+        const fedMeaningNode = page.querySelector('#macro-fed-meaning');
+        if (fedMeaningNode) fedMeaningNode.dataset.aioMacroFedMeaningRenderer = 'native';
       }
       if (route === 'fxbond') {
         page.dataset.aioArchitectureRenderer = 'native';
         page.dataset.aioFxbondRenderer = 'native';
+        const inversionNode = page.querySelector('#yc-inversion-badge');
+        if (inversionNode) inversionNode.dataset.aioFxbondCurveRenderer = 'native';
+        const carryNode = page.querySelector('#carry-risk-level');
+        if (carryNode) carryNode.dataset.aioFxbondCarryRenderer = 'native';
+        ['#carry-score-text', '#carry-score-bar', '#carry-verdict'].forEach((selector) => {
+          const node = page.querySelector(selector);
+          if (node) node.dataset.aioFxbondCarryScoreRenderer = 'native';
+        });
+        const camNode = page.querySelector('#cam-verdict-text');
+        if (camNode) camNode.dataset.aioFxbondCamRenderer = 'native';
+        const chartStatusNode = page.querySelector('#yc-chart-status');
+        if (chartStatusNode) chartStatusNode.dataset.aioFxbondCurveStatusRenderer = 'native';
+        ['#yc-2y', '#yc-2y-track'].forEach((selector) => {
+          const node = page.querySelector(selector);
+          if (node) node.dataset.aioFxbondTwoYearRenderer = 'native';
+        });
+        const riskNode = page.querySelector('#fxbond-risk-pill');
+        if (riskNode) riskNode.dataset.aioFxbondRiskRenderer = 'native';
       }
       if (route === 'breadth') {
         page.dataset.aioArchitectureRenderer = 'native';
         page.dataset.aioBreadthRenderer = 'native';
+        const signalNode = page.querySelector('#breadth-signal-val');
+        if (signalNode) signalNode.dataset.aioBreadthSignalRenderer = 'native';
+        ['#breadth-diag-signal', '#breadth-diag-text'].forEach((selector) => {
+          const node = page.querySelector(selector);
+          if (node) node.dataset.aioBreadthDiagnosticRenderer = 'native';
+        });
       }
       const renderNow = () => {
         if (route === 'macro') renderMacro(root, page);
@@ -291,10 +565,56 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         if (page.dataset.aioArchitectureSlice === 'market') delete page.dataset.aioArchitectureSlice;
         if (route === 'macro' && page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (route === 'macro' && page.dataset.aioMacroRenderer === 'native') delete page.dataset.aioMacroRenderer;
+        if (route === 'macro') {
+          ['#macro-2y-value', '#macro-2y-source'].forEach((selector) => {
+            const node = page.querySelector(selector);
+            if (node?.dataset.aioMacroTwoYearRenderer === 'native') delete node.dataset.aioMacroTwoYearRenderer;
+          });
+          ['#macro-spread-value', '#macro-spread-meaning', '#spread-status'].forEach((selector) => {
+            const node = page.querySelector(selector);
+            if (node?.dataset.aioMacroSpreadRenderer === 'native') delete node.dataset.aioMacroSpreadRenderer;
+          });
+          ['#curve-status', '#curve-meaning'].forEach((selector) => {
+            const node = page.querySelector(selector);
+            if (node?.dataset.aioMacroCurveRenderer === 'native') delete node.dataset.aioMacroCurveRenderer;
+          });
+          const fedMeaningNode = page.querySelector('#macro-fed-meaning');
+          if (fedMeaningNode?.dataset.aioMacroFedMeaningRenderer === 'native') delete fedMeaningNode.dataset.aioMacroFedMeaningRenderer;
+        }
         if (route === 'fxbond' && page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (route === 'fxbond' && page.dataset.aioFxbondRenderer === 'native') delete page.dataset.aioFxbondRenderer;
+        const inversionNode = page.querySelector('#yc-inversion-badge');
+        if (route === 'fxbond' && inversionNode?.dataset.aioFxbondCurveRenderer === 'native') delete inversionNode.dataset.aioFxbondCurveRenderer;
+        const carryNode = page.querySelector('#carry-risk-level');
+        if (route === 'fxbond' && carryNode?.dataset.aioFxbondCarryRenderer === 'native') delete carryNode.dataset.aioFxbondCarryRenderer;
+        if (route === 'fxbond') {
+          ['#carry-score-text', '#carry-score-bar', '#carry-verdict'].forEach((selector) => {
+            const node = page.querySelector(selector);
+            if (node?.dataset.aioFxbondCarryScoreRenderer === 'native') delete node.dataset.aioFxbondCarryScoreRenderer;
+          });
+          const camNode = page.querySelector('#cam-verdict-text');
+          if (camNode?.dataset.aioFxbondCamRenderer === 'native') delete camNode.dataset.aioFxbondCamRenderer;
+          const chartStatusNode = page.querySelector('#yc-chart-status');
+          if (chartStatusNode?.dataset.aioFxbondCurveStatusRenderer === 'native') delete chartStatusNode.dataset.aioFxbondCurveStatusRenderer;
+        }
+        if (route === 'fxbond') {
+          ['#yc-2y', '#yc-2y-track'].forEach((selector) => {
+            const node = page.querySelector(selector);
+            if (node?.dataset.aioFxbondTwoYearRenderer === 'native') delete node.dataset.aioFxbondTwoYearRenderer;
+          });
+        }
+        const riskNode = page.querySelector('#fxbond-risk-pill');
+        if (route === 'fxbond' && riskNode?.dataset.aioFxbondRiskRenderer === 'native') delete riskNode.dataset.aioFxbondRiskRenderer;
         if (route === 'breadth' && page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (route === 'breadth' && page.dataset.aioBreadthRenderer === 'native') delete page.dataset.aioBreadthRenderer;
+        if (route === 'breadth') {
+          ['#breadth-diag-signal', '#breadth-diag-text'].forEach((selector) => {
+            const node = page.querySelector(selector);
+            if (node?.dataset.aioBreadthDiagnosticRenderer === 'native') delete node.dataset.aioBreadthDiagnosticRenderer;
+          });
+        }
+        const signalNode = page.querySelector('#breadth-signal-val');
+        if (route === 'breadth' && signalNode?.dataset.aioBreadthSignalRenderer === 'native') delete signalNode.dataset.aioBreadthSignalRenderer;
       });
       return () => bag.dispose();
     }
