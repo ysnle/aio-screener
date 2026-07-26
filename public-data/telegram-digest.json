@@ -1,36 +1,36 @@
 {
-  "generatedAt": "2026-07-26T12:17:08.185Z",
-  "attemptedAt": "2026-07-26T12:17:08.185Z",
-  "lastSuccessfulAt": "2026-07-26T12:17:08.185Z",
+  "generatedAt": "2026-07-26T14:02:41.684Z",
+  "attemptedAt": "2026-07-26T14:02:41.684Z",
+  "lastSuccessfulAt": "2026-07-26T14:02:41.684Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-12T12:17:04.202Z",
-  "until": "2026-07-26T12:17:04.202Z",
+  "since": "2026-07-12T14:02:34.648Z",
+  "until": "2026-07-26T14:02:34.648Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 380,
-      "freshCount": 16,
-      "eligibleTextCount": 16,
+      "freshCount": 34,
+      "eligibleTextCount": 34,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 23953
+      "lastPostId": 23954
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 857,
+      "count": 860,
       "freshCount": 39,
       "eligibleTextCount": 38,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 59294
+      "lastPostId": 59298
     },
     {
       "channel": "bornlupin",
@@ -38,16 +38,108 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 280,
-      "freshCount": 39,
-      "eligibleTextCount": 39,
+      "freshCount": 40,
+      "eligibleTextCount": 40,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19329
+      "lastPostId": 19331
     }
   ],
-  "count": 1517,
-  "retainedItemCount": 413,
+  "count": 1520,
+  "retainedItemCount": 422,
   "observedItems": [
+    {
+      "id": "insidertracking/59298",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T13:55:53.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23954",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-26T13:44:30.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 65,
+      "tags": [
+        "semi",
+        "power",
+        "healthcare"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59297",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T13:40:19.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19331",
+      "channel": "bornlupin",
+      "datetime": "2026-07-26T13:36:14.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59296",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T13:12:03.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59295",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T12:26:28.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19330",
+      "channel": "bornlupin",
+      "datetime": "2026-07-26T12:20:12.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 79,
+      "tags": [
+        "semi",
+        "equity",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19329",
       "channel": "bornlupin",
@@ -816,7 +908,7 @@
         "VLO",
         "MPC"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59257",
@@ -835,7 +927,7 @@
         "WDC",
         "TEL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59256",
@@ -859,7 +951,7 @@
         "SNDK",
         "WDC"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59253",
@@ -924,7 +1016,7 @@
         "LRCX",
         "TXN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59252",
@@ -1345,7 +1437,7 @@
       "tickers": [
         "BE"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59229",
@@ -1487,7 +1579,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23930",
@@ -1511,7 +1603,7 @@
         "GOOGL",
         "BCS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23929",
@@ -1523,7 +1615,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23928",
@@ -1539,7 +1631,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23927",
@@ -1551,7 +1643,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59219",
@@ -1596,7 +1688,7 @@
         "NVDA",
         "AMD"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23925",
@@ -1616,7 +1708,7 @@
         "AMD",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59216",
@@ -1644,7 +1736,7 @@
       "tickers": [
         "AAPL"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23923",
@@ -1657,7 +1749,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59215",
@@ -1762,7 +1854,7 @@
         "AVGO",
         "TSM"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23920",
@@ -1775,7 +1867,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59213",
@@ -1820,7 +1912,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59211",
@@ -1890,7 +1982,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23917",
@@ -1902,7 +1994,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23916",
@@ -1917,7 +2009,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23915",
@@ -1929,7 +2021,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59205",
@@ -3921,7 +4013,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23884",
@@ -22025,118 +22117,53 @@
         "AAPL"
       ],
       "hasText": false
-    },
-    {
-      "id": "bornlupin/19028",
-      "channel": "bornlupin",
-      "datetime": "2026-07-12T13:27:41.000Z",
-      "localDateKst": "2026-07-12",
-      "score": 79,
-      "tags": [
-        "geo",
-        "semi",
-        "optical"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19025",
-      "channel": "bornlupin",
-      "datetime": "2026-07-12T12:56:53.000Z",
-      "localDateKst": "2026-07-12",
-      "score": 100,
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "equity"
-      ],
-      "tickers": [
-        "NVDA",
-        "AAPL",
-        "META",
-        "AVGO",
-        "MU",
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23494",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-12T12:20:20.000Z",
-      "localDateKst": "2026-07-12",
-      "score": 61,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "NVDA"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58106",
-      "channel": "insidertracking",
-      "datetime": "2026-07-12T12:20:09.000Z",
-      "localDateKst": "2026-07-12",
-      "score": 57,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1517,
-    "eligibleTextCount": 93,
-    "mediaOnlyCount": 1424,
+    "observedCount": 1520,
+    "eligibleTextCount": 112,
+    "mediaOnlyCount": 1408,
     "highSignalCount": 522,
-    "broadSignalCount": 888,
+    "broadSignalCount": 886,
     "selectedRawCount": 366,
-    "selectedRawCoveragePct": 393.5,
+    "selectedRawCoveragePct": 326.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 556,
-    "semi": 653,
-    "power": 301,
+    "market-note": 310,
+    "semi": 652,
+    "power": 302,
+    "healthcare": 82,
+    "geo": 329,
+    "equity": 170,
+    "flows": 109,
+    "macro": 554,
     "ai-policy": 181,
-    "kr-market": 235,
-    "flows": 108,
-    "geo": 330,
+    "kr-market": 234,
     "japan": 83,
     "media-only": 26,
-    "market-note": 306,
     "earnings": 325,
-    "healthcare": 81,
-    "equity": 170,
     "credit": 38,
     "insider": 30,
-    "optical": 25,
+    "optical": 24,
     "crypto": 6
   },
   "tickerCounts": {
-    "NVDA": 80,
-    "AVGO": 51,
+    "NVDA": 79,
+    "005930.KS": 53,
+    "000660.KS": 81,
+    "AVGO": 50,
     "BE": 22,
-    "000660.KS": 80,
     "CRWV": 4,
     "035420.KS": 41,
-    "TSM": 119,
-    "005930.KS": 52,
+    "TSM": 117,
     "AMD": 87,
     "MSFT": 43,
     "GOOG": 95,
-    "META": 59,
+    "META": 58,
     "AMZN": 55,
     "AAOI": 5,
     "ORCL": 19,
@@ -22151,7 +22178,7 @@
     "RDDT": 8,
     "NET": 5,
     "MSTR": 6,
-    "MU": 67,
+    "MU": 66,
     "HON": 1,
     "ASX": 1,
     "LUNR": 1,
@@ -22159,7 +22186,7 @@
     "FLY": 1,
     "VOYG": 1,
     "KRMN": 1,
-    "AAPL": 37,
+    "AAPL": 36,
     "SMCI": 17,
     "WFC": 5,
     "PSX": 5,
@@ -22303,19 +22330,19 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (653 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
-    "Macro/Rates (556 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
-    "Geopolitics (330 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM...",
+    "Semiconductors/Memory (652 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
+    "Macro/Rates (554 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
+    "Geopolitics (329 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM...",
     "Earnings/Corporate (325 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM...",
-    "Market Notes (306 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
-    "AI Power/Grid (301 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
-    "Korea Market (235 posts in current window): [데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효...",
+    "Market Notes (310 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "AI Power/Grid (302 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
+    "Korea Market (234 posts in current window): [데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효...",
     "AI Policy/Export Controls (181 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 119,
+      "count": 117,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (12.61%) 3위:..."
     },
     {
@@ -22329,23 +22356,23 @@
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (12.61%) 3위:..."
     },
     {
-      "key": "NVDA",
-      "count": 80,
+      "key": "000660.KS",
+      "count": 81,
       "text": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
-      "key": "000660.KS",
-      "count": 80,
+      "key": "NVDA",
+      "count": 79,
       "text": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
       "key": "MU",
-      "count": 67,
+      "count": 66,
       "text": "미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM..."
     },
     {
       "key": "META",
-      "count": 59,
+      "count": 58,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (12.61%) 3위:..."
     },
     {
@@ -22355,12 +22382,12 @@
     },
     {
       "key": "005930.KS",
-      "count": 52,
+      "count": 53,
       "text": "2026년 7월 25일 미국 증시 브리핑 미국 증시는 기술주 약세에도 불구하고 에너지와 경기민감 업종 강세가 이를 상쇄하며 업종 순환매가 이어지는 모습. 기술주가 S&P500 내 유일한 약세 섹터로 마감한..."
     },
     {
       "key": "AVGO",
-      "count": 51,
+      "count": 50,
       "text": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
@@ -22381,7 +22408,7 @@
       "topics": [
         "macro"
       ],
-      "count": 556,
+      "count": 554,
       "focus": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
@@ -22390,7 +22417,7 @@
       "topics": [
         "geo"
       ],
-      "count": 330,
+      "count": 329,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM..."
     },
     {
@@ -22400,7 +22427,7 @@
         "credit"
       ],
       "count": 38,
-      "focus": "📌 Barclays — Alphabet (GOOGL): Unpacking TPU-As-A-Service Overweight 유지, 목표주가 425달러 (현재가 317.69달러, 상승여력 +33.8%) 핵심..."
+      "focus": "📌 Barclays — Alphabet (GOOGL): Unpacking TPU-As-A-Service Overweight 유지, 목표주가 425달러 (현재가 317.69달러, 상승여력 +33.8%) 핵심 요지 구글이 자사 데이터센터 담장 밖으로 AI 용량을 확장하는 새로운 경제 모델, 이른바..."
     },
     {
       "id": "semi",
@@ -22408,7 +22435,7 @@
       "topics": [
         "semi"
       ],
-      "count": 653,
+      "count": 652,
       "focus": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
@@ -22417,7 +22444,7 @@
       "topics": [
         "optical"
       ],
-      "count": 25,
+      "count": 24,
       "focus": "2026년 7월 24일 서학개미 순매수 미국 주식 TOP 50 1위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (17.43%) 2위: ALPHABET INC CL A..."
     },
     {
@@ -22426,7 +22453,7 @@
       "topics": [
         "power"
       ],
-      "count": 301,
+      "count": 302,
       "focus": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
@@ -22444,7 +22471,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 235,
+      "count": 234,
       "focus": "[데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효..."
     },
     {
@@ -22480,8 +22507,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 81,
-      "focus": "📌 Barclays — Alphabet (GOOGL): Unpacking TPU-As-A-Service Overweight 유지, 목표주가 425달러 (현재가 317.69달러, 상승여력 +33.8%) 핵심..."
+      "count": 82,
+      "focus": "📌 Barclays — Alphabet (GOOGL): Unpacking TPU-As-A-Service Overweight 유지, 목표주가 425달러 (현재가 317.69달러, 상승여력 +33.8%) 핵심 요지 구글이 자사 데이터센터 담장 밖으로 AI 용량을 확장하는 새로운 경제 모델, 이른바..."
     },
     {
       "id": "japan",
@@ -22498,7 +22525,7 @@
       "topics": [
         "flows"
       ],
-      "count": 108,
+      "count": 109,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (12.61%) 3위:..."
     },
     {
@@ -22516,7 +22543,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 306,
+      "count": 310,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -23909,6 +23936,42 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/23954",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23954",
+      "datetime": "2026-07-26T13:44:30.000Z",
+      "localDateKst": "2026-07-26",
+      "tags": [
+        "semi",
+        "power",
+        "healthcare"
+      ],
+      "tickers": [],
+      "score": 65,
+      "hasText": true,
+      "summary": "씨티는 7월 23일 상하이에서 열린 MiniMax의 셀사이드 애널리스트 미팅 내용을 정리하며 매수/고위험 의견을 유지했습니다. 옌쥔제 회장 겸 CEO와 Yun Yeyi COO는 산업 환경, 전략 방향, 인프라..."
+    },
+    {
+      "id": "bornlupin/19330",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19330",
+      "datetime": "2026-07-26T12:20:12.000Z",
+      "localDateKst": "2026-07-26",
+      "tags": [
+        "semi",
+        "equity",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 79,
+      "hasText": true,
+      "summary": "씨티(Citi), 메모리 반도체 '피크아웃' 우려 일축… 삼성전자·SK하이닉스 '매수' 유지\" 최근 한국 메모리 반도체 기업들의 주가 하락이 근거 없는 우려에 의한 과도한 조정이라 보며, 삼성전자와..."
+    },
     {
       "id": "bornlupin/19329",
       "channel": "bornlupin",
@@ -30384,23 +30447,6 @@
       "summary": "\"키미 모델, 메모리 대규모 추가 수요 유발 전망\" \"K3모델 스펙은 메모리 집약형 하드웨어 수요를 창출해\" 반복적인 모델 호출과 상당한 추론 용량 필요해 고성능 메모리 필수 중국의 인공지능(AI) 스타트업..."
     },
     {
-      "id": "aetherjapanresearch/23720",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23720",
-      "datetime": "2026-07-20T11:43:39.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 77,
-      "hasText": true,
-      "summary": "IREN, 28억달러 규모 AI 클라우드 신규 계약 체결 : 주요 AI 개발사들과 총계약가치 28억달러 규모의 다년 클라우드 서비스 계약 신규 체결 : 신규 계약을 반영해 ‘26년 말 AI 클라우드 ARR..."
-    },
-    {
       "id": "bornlupin/19175",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19175",
@@ -30558,24 +30604,6 @@
       "score": 52,
       "hasText": true,
       "summary": "틈새시장의 필수 수요가 SLC 낸드 가격을 약 10배 끌어올려…대만 메모리 업체, 추가 상승 기회 공략 2026년 하반기에 접어들면서 메모리 제품별 가격 상승 폭에는 차이가 나타나고 있지만, 전반적으로는..."
-    },
-    {
-      "id": "bornlupin/19165",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19165",
-      "datetime": "2026-07-19T23:26:05.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 77,
-      "hasText": true,
-      "summary": "폭스콘, 스페이스X AI 서버 대규모 수주…예상치 뛰어넘는 성장 동력 확보 대만 폭스콘이 스페이스X의 AI 서버 위탁생산 주문을 처음으로 따내며 대규모 수주에 성공했습니다 . 일론 머스크 스페이스X CEO가..."
     }
   ]
 }
