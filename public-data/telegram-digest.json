@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-26T11:09:14.425Z",
-  "attemptedAt": "2026-07-26T11:09:14.425Z",
-  "lastSuccessfulAt": "2026-07-26T11:09:14.425Z",
+  "generatedAt": "2026-07-26T12:17:08.185Z",
+  "attemptedAt": "2026-07-26T12:17:08.185Z",
+  "lastSuccessfulAt": "2026-07-26T12:17:08.185Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-12T11:09:09.819Z",
-  "until": "2026-07-26T11:09:09.819Z",
+  "since": "2026-07-12T12:17:04.202Z",
+  "until": "2026-07-26T12:17:04.202Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,10 +13,10 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 383,
+      "count": 380,
       "freshCount": 16,
       "eligibleTextCount": 16,
-      "selectedCount": 121,
+      "selectedCount": 120,
       "error": null,
       "lastPostId": 23953
     },
@@ -25,29 +25,103 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 854,
-      "freshCount": 40,
-      "eligibleTextCount": 40,
+      "count": 857,
+      "freshCount": 39,
+      "eligibleTextCount": 38,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 59290
+      "lastPostId": 59294
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 279,
+      "count": 280,
       "freshCount": 39,
       "eligibleTextCount": 39,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19328
+      "lastPostId": 19329
     }
   ],
-  "count": 1516,
-  "retainedItemCount": 414,
+  "count": 1517,
+  "retainedItemCount": 413,
   "observedItems": [
+    {
+      "id": "bornlupin/19329",
+      "channel": "bornlupin",
+      "datetime": "2026-07-26T12:03:55.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [
+        "NVDA",
+        "AVGO",
+        "BE",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59294",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T11:56:56.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 55,
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59293",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T11:47:30.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 87,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "kr-market",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59292",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T11:19:41.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "insidertracking/59291",
+      "channel": "insidertracking",
+      "datetime": "2026-07-26T11:12:22.000Z",
+      "localDateKst": "2026-07-26",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/59290",
       "channel": "insidertracking",
@@ -807,7 +881,7 @@
         "WDC",
         "TER"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59254",
@@ -831,7 +905,7 @@
         "TXN",
         "ON"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59255",
@@ -862,7 +936,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59251",
@@ -874,7 +948,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59250",
@@ -886,7 +960,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59249",
@@ -4020,7 +4094,7 @@
         "TSM",
         "BE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23875",
@@ -22016,104 +22090,49 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23493",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-12T12:13:40.000Z",
-      "localDateKst": "2026-07-12",
-      "score": 67,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23492",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-12T11:44:49.000Z",
-      "localDateKst": "2026-07-12",
-      "score": 66,
-      "tags": [
-        "geo",
-        "semi"
-      ],
-      "tickers": [
-        "NVDA"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23491",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-12T11:32:54.000Z",
-      "localDateKst": "2026-07-12",
-      "score": 59,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58104",
-      "channel": "insidertracking",
-      "datetime": "2026-07-12T11:23:36.000Z",
-      "localDateKst": "2026-07-12",
-      "score": 96,
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "kr-market"
-      ],
-      "tickers": [
-        "MRVL"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1516,
-    "eligibleTextCount": 95,
-    "mediaOnlyCount": 1421,
-    "highSignalCount": 523,
-    "broadSignalCount": 889,
-    "selectedRawCount": 367,
-    "selectedRawCoveragePct": 386.3,
+    "observedCount": 1517,
+    "eligibleTextCount": 93,
+    "mediaOnlyCount": 1424,
+    "highSignalCount": 522,
+    "broadSignalCount": 888,
+    "selectedRawCount": 366,
+    "selectedRawCoveragePct": 393.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 555,
-    "geo": 331,
-    "market-note": 305,
-    "semi": 655,
-    "power": 300,
-    "kr-market": 234,
-    "japan": 82,
+    "macro": 556,
+    "semi": 653,
+    "power": 301,
+    "ai-policy": 181,
+    "kr-market": 235,
+    "flows": 108,
+    "geo": 330,
+    "japan": 83,
+    "media-only": 26,
+    "market-note": 306,
     "earnings": 325,
     "healthcare": 81,
-    "flows": 107,
     "equity": 170,
-    "ai-policy": 181,
     "credit": 38,
     "insider": 30,
     "optical": 25,
-    "media-only": 25,
     "crypto": 6
   },
   "tickerCounts": {
+    "NVDA": 80,
+    "AVGO": 51,
+    "BE": 22,
+    "000660.KS": 80,
     "CRWV": 4,
     "035420.KS": 41,
     "TSM": 119,
     "005930.KS": 52,
-    "000660.KS": 79,
     "AMD": 87,
     "MSFT": 43,
     "GOOG": 95,
@@ -22150,7 +22169,6 @@
     "HPE": 3,
     "WDC": 8,
     "TEL": 1,
-    "AVGO": 50,
     "INTC": 28,
     "QCOM": 9,
     "ANET": 1,
@@ -22159,11 +22177,9 @@
     "LRCX": 6,
     "TXN": 4,
     "TER": 2,
-    "NVDA": 80,
     "NXPI": 1,
     "ON": 1,
     "TSLA": 13,
-    "BE": 21,
     "017670.KS": 6,
     "BCS": 3,
     "ISRG": 4,
@@ -22172,7 +22188,7 @@
     "GEV": 8,
     "STT": 3,
     "QQQ": 6,
-    "MRVL": 14,
+    "MRVL": 13,
     "LITE": 15,
     "PLTR": 2,
     "NOW": 1,
@@ -22287,14 +22303,14 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (655 posts in current window): [데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효...",
-    "Macro/Rates (555 posts in current window): [데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효...",
-    "Geopolitics (331 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM...",
+    "Semiconductors/Memory (653 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
+    "Macro/Rates (556 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
+    "Geopolitics (330 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM...",
     "Earnings/Corporate (325 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM...",
-    "Market Notes (305 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
-    "AI Power/Grid (300 posts in current window): [데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효...",
-    "Korea Market (234 posts in current window): [데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효...",
-    "AI Policy/Export Controls (181 posts in current window): 📌 Barclays — Alphabet (GOOGL): Unpacking TPU-As-A-Service Overweight 유지, 목표주가 425달러 (현재가 317.69달러, 상승여력 +33.8%) 핵심..."
+    "Market Notes (306 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "AI Power/Grid (301 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는...",
+    "Korea Market (235 posts in current window): [데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효...",
+    "AI Policy/Export Controls (181 posts in current window): AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
   ],
   "catalysts": [
     {
@@ -22315,12 +22331,12 @@
     {
       "key": "NVDA",
       "count": 80,
-      "text": "BofA) AMD AI 이벤트: 2조 달러로 확대되는 TAM 속에서 설득력 있는 풀스택·랙 스케일 공급업체. TP &#036;620 2조 달러 AI TAM에서 차선의(next-best) AI 벤더로 자리매김..."
+      "text": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
       "key": "000660.KS",
-      "count": 79,
-      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (12.61%) 3위:..."
+      "count": 80,
+      "text": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
       "key": "MU",
@@ -22344,8 +22360,8 @@
     },
     {
       "key": "AVGO",
-      "count": 50,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM..."
+      "count": 51,
+      "text": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
       "key": "MSFT",
@@ -22365,8 +22381,8 @@
       "topics": [
         "macro"
       ],
-      "count": 555,
-      "focus": "[데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효..."
+      "count": 556,
+      "focus": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
       "id": "geo",
@@ -22374,7 +22390,7 @@
       "topics": [
         "geo"
       ],
-      "count": 331,
+      "count": 330,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 26일 00:00~07:00 기준) > 💾 MU / DRAM / SK하이닉스 - AI 메모리 · \"DRAM 언제 바닥 찍냐\" 반복 · FOMC 앞두고 DRAM..."
     },
     {
@@ -22392,8 +22408,8 @@
       "topics": [
         "semi"
       ],
-      "count": 655,
-      "focus": "[데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효..."
+      "count": 653,
+      "focus": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
       "id": "optical",
@@ -22410,8 +22426,8 @@
       "topics": [
         "power"
       ],
-      "count": 300,
-      "focus": "[데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효..."
+      "count": 301,
+      "focus": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
       "id": "ai-policy",
@@ -22420,7 +22436,7 @@
         "ai-policy"
       ],
       "count": 181,
-      "focus": "📌 Barclays — Alphabet (GOOGL): Unpacking TPU-As-A-Service Overweight 유지, 목표주가 425달러 (현재가 317.69달러, 상승여력 +33.8%) 핵심..."
+      "focus": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
     },
     {
       "id": "kr-market",
@@ -22428,7 +22444,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 234,
+      "count": 235,
       "focus": "[데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효..."
     },
     {
@@ -22473,7 +22489,7 @@
       "topics": [
         "japan"
       ],
-      "count": 82,
+      "count": 83,
       "focus": "2026년 7월 24일 프리마켓 브리핑 미국 주가지수 선물은 상승세로 출발하며 전일 기술주 조정 이후 반등 시도 진행. 유럽 증시 역시 동반 강세 흐름이며 WTI와 브렌트유는 약 2% 하락하면서 최근 중동..."
     },
     {
@@ -22482,7 +22498,7 @@
       "topics": [
         "flows"
       ],
-      "count": 107,
+      "count": 108,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (12.61%) 3위:..."
     },
     {
@@ -22500,7 +22516,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 305,
+      "count": 306,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -22728,6 +22744,28 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "bornlupin/19329",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19329",
+      "datetime": "2026-07-26T12:03:55.000Z",
+      "localDateKst": "2026-07-26",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [
+        "NVDA",
+        "AVGO",
+        "BE",
+        "000660.KS"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ①..."
+    },
     {
       "id": "bornlupin/19326",
       "channel": "bornlupin",
@@ -23868,35 +23906,65 @@
       "score": 100,
       "hasText": true,
       "summary": "JP모건 APAC 테크주 코멘트 SEC: 투자자들의 가장 큰 반론은 여전히 포지셔닝입니다. Mixo는 ETF 언와인드의 75%가 진행되어 180억 달러 규모에 달했고, 헤지펀드 디레버리징도 절반 이상 진행된..."
-    },
-    {
-      "id": "aetherjapanresearch/23714",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23714",
-      "datetime": "2026-07-20T07:21:36.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "insider",
-        "earnings",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [
-        "GOOG",
-        "AVGO"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "JP모건) 미국 주식 전략; 하이퍼스케일러 vs AI 하드웨어, AI 캐펙스와 수익화, 모멘텀 언와인드, 2분기 실적 (7/20) ■ 핵심 논지: AI 사이클은 여전히 유효 이번 실적 시즌의 핵심 테마는..."
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19329",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19329",
+      "datetime": "2026-07-26T12:03:55.000Z",
+      "localDateKst": "2026-07-26",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "tickers": [
+        "NVDA",
+        "AVGO",
+        "BE",
+        "000660.KS"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ①..."
+    },
+    {
+      "id": "insidertracking/59294",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59294",
+      "datetime": "2026-07-26T11:56:56.000Z",
+      "localDateKst": "2026-07-26",
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 55,
+      "hasText": true,
+      "summary": "코인텔레그래프에 따르면 KB국민은행이 오는 8월 JP모건의 블록체인 플랫폼 '키넥시스(Kinexys)' 기반의 기업용 국경 간 결제 서비스를 출시할 예정. 해당 서비스는 수출입 기업을 대상으로 하며, 초기에는..."
+    },
+    {
+      "id": "insidertracking/59293",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59293",
+      "datetime": "2026-07-26T11:47:30.000Z",
+      "localDateKst": "2026-07-26",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "kr-market",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 87,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 26일 (07시~21시 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 당분간 이란에 대한 대규모 군사작전 확대를 보류하고 해상 봉쇄는..."
+    },
     {
       "id": "insidertracking/59290",
       "channel": "insidertracking",
@@ -28353,21 +28421,6 @@
       "summary": "알파벳 &#036;GOOGL 2026년 2분기 설비투자(CapEx): 449억 2,000만 달러 / &#036;44.92B (전망치: &#036;44.1B) ; 전년 동기 대비 +100% 구글 클라우드:..."
     },
     {
-      "id": "insidertracking/58944",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58944",
-      "datetime": "2026-07-22T20:14:31.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "IBM 2026년 2분기 실적 요약 📍 실적 · 매출 171억6,000만 달러(예상 175억2,000만 달러 하회) · 영업 EPS 2.93달러(전년 2.80달러, 예상치 상회) · 소프트웨어 매출..."
-    },
-    {
       "id": "bornlupin/19248",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19248",
@@ -28388,25 +28441,6 @@
       "score": 91,
       "hasText": true,
       "summary": "알파벳 &#036;GOOGL 2026년 2분기 실적 ( 시간외 +1.4%) 공시된 지분 평가이익 영향을 제외한 EPS: 약 &#036;2.85 (전망치: &#036;2.90) 매출: 1,198억 달러 /..."
-    },
-    {
-      "id": "insidertracking/58943",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/58943",
-      "datetime": "2026-07-22T20:13:20.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [
-        "TSLA"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 테슬라 2026년 2분기 실적 요약 📍 실적 · 매출 282억3,600만 달러(+26% YoY) · 자동차 매출 205억1,600만..."
     },
     {
       "id": "aetherjapanresearch/23820",
@@ -30542,21 +30576,6 @@
       "score": 77,
       "hasText": true,
       "summary": "폭스콘, 스페이스X AI 서버 대규모 수주…예상치 뛰어넘는 성장 동력 확보 대만 폭스콘이 스페이스X의 AI 서버 위탁생산 주문을 처음으로 따내며 대규모 수주에 성공했습니다 . 일론 머스크 스페이스X CEO가..."
-    },
-    {
-      "id": "bornlupin/19164",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19164",
-      "datetime": "2026-07-19T23:19:56.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "semi",
-        "power"
-      ],
-      "tickers": [],
-      "score": 55,
-      "hasText": true,
-      "summary": "ADATA 천리바이 회장: 향후 10년간 전 세계에서 가장 부족할 두 가지 자원은 '전력'과 '메모리'가 될 것 글로벌 수요는 시장의 상상을 초월, 향후 10년간 메모리 공급 부족 전망 하반기에도 메모리..."
     }
   ]
 }
