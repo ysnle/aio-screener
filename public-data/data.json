@@ -42,8 +42,8 @@
   "putCallAsOf": "2026-07-24",
   "elapsedMs": 2955,
   "schema": 1,
-  "marketAnalysisOk": true,
-  "marketAnalysisSemanticOk": true,
+  "marketAnalysisOk": false,
+  "marketAnalysisSemanticOk": false,
   "marketSnapshotPublished": true,
   "marketSnapshotCoverage": {
    "required": 16,
@@ -863,7 +863,8 @@
   "oneLine": "# 현재 시장 분석",
   "generatedAt": "2026-07-27T11:39:47.339Z",
   "model": "claude-haiku-4-5",
-  "semanticStatus": "verified",
-  "semanticIssues": []
+  "semanticStatus": "blocked-unverified",
+  "semanticIssues": ["metric-evidence-missing", "metric-identity-not-verifiable"],
+  "metricEvidence": []
  }
 }

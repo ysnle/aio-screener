@@ -698,6 +698,9 @@ function scoreServerNewsItem(item) {
   score = Math.max(0, Math.min(100, Math.round(score)));
   return { score, selectionReason: reasons.slice(0, 7).join(' | ') };
 }
+function serverNewsSourceTierLabel(tier) {
+  return ({ 1: 'official-or-wire', 2: 'reputable-secondary', 3: 'aggregator-or-trade', 4: 'low-quality' })[Number(tier)] || 'unknown';
+}
 function _decodeNewsEntities(s) {
   return String(s || '')
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
@@ -776,6 +779,11 @@ async function fetchNews() {
       pubDate: it.pubDate, topic: it.topic, country: it.country,
       tier: it.tier, score: it.score, selectionReason: it.selectionReason,
       feedSource: it.feedSource,
+      sourceTierLabel: serverNewsSourceTierLabel(it.tier),
+      contentDepth: 'headline-only',
+      eventTime: isFinite(it.ts) && it.ts > 0 ? new Date(it.ts).toISOString() : null,
+      eventTimeKind: 'published',
+      independenceKey: String(it.source || it.feedSource || '').trim().toLowerCase() || null,
       newsCyclePolicy: it.newsCyclePolicy,
       newsCycleStart: it.newsCycleStart,
       newsCycleEnd: it.newsCycleEnd,
@@ -1704,11 +1712,109 @@ export async function enrichScreener() {
   return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError, secFundamentalsOk: secResult.ok > 0, secFundamentalsCount: secResult.ok, fundamentalCount, fundamentalCoveragePct };
 }
 
+const MARKET_ANALYSIS_QUOTE_DEFS = [
+  { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
+  { symbol: '^VIX', metricId: 'market.vix', label: 'VIX', unit: 'index', aliases: [] },
+  { symbol: '^TNX', metricId: 'market.us10y', label: '10Y', unit: 'index', aliases: ['US 10Y', 'Treasury'] },
+  { symbol: 'DX-Y.NYB', metricId: 'market.dxy', label: 'DXY', unit: 'index', aliases: [] },
+  { symbol: 'CL=F', metricId: 'market.wti', label: 'WTI', unit: 'USD/barrel', aliases: ['oil'] },
+  { symbol: 'GC=F', metricId: 'market.gold', label: 'Gold', unit: 'USD/oz', aliases: [] },
+  { symbol: '^KS11', metricId: 'market.kospi', label: 'KOSPI', unit: 'index', aliases: [] },
+];
+const MARKET_ANALYSIS_MACRO_DEFS = [
+  { key: 'cpi', metricId: 'macro.cpi', label: 'CPI', unit: 'percent', aliases: [] },
+  { key: 'fedRate', metricId: 'macro.fed-rate', label: 'FedRate', unit: 'percent', aliases: ['Fed rate', 'Fed funds'] },
+  { key: 'nfp', metricId: 'macro.nfp-mom', label: 'NFP', unit: 'thousands', aliases: ['nonfarm payroll'] },
+];
+
+function _validIsoDate(value) {
+  return value && Number.isFinite(new Date(value).getTime()) ? new Date(value).toISOString() : null;
+}
+
+export function buildMarketAnalysisEvidence(data) {
+  const evidence = [];
+  const quotes = new Map((data?.quotes || []).filter(row => row && row.symbol).map(row => [row.symbol, row]));
+  for (const def of MARKET_ANALYSIS_QUOTE_DEFS) {
+    const row = quotes.get(def.symbol);
+    const value = Number(row?.regularMarketPrice);
+    const asOf = _validIsoDate(row?.observedAt || row?.fetchedAt);
+    if (!Number.isFinite(value) || !asOf || !row?.source) continue;
+    evidence.push({
+      evidenceId: `market-analysis:${def.symbol}:${asOf}`,
+      metricId: def.metricId,
+      label: def.label,
+      value,
+      unit: def.unit,
+      asOf,
+      source: row.source,
+      sourceTier: row.sourceTier || 'unknown',
+      allowedUse: row.allowedUse || 'reference-only',
+    });
+  }
+  const macro = data?.macro || {};
+  for (const def of MARKET_ANALYSIS_MACRO_DEFS) {
+    const bls = macro._bls?.series?.[def.key];
+    const value = Number(macro[def.key]);
+    const blsMatchesValue = bls?.status === 'ok' && Number.isFinite(Number(bls.value)) && Number(bls.value) === value;
+    const asOf = _validIsoDate(blsMatchesValue ? bls.observedAt : macro[`_asOf_${def.key}`]);
+    const source = blsMatchesValue ? bls.source : (macro._source === 'fred' ? 'FRED' : null);
+    if (!Number.isFinite(value) || !asOf || !source) continue;
+    evidence.push({
+      evidenceId: `market-analysis:${def.metricId}:${asOf}`,
+      metricId: def.metricId,
+      label: def.label,
+      value,
+      unit: def.unit,
+      asOf,
+      source,
+      sourceTier: blsMatchesValue ? (bls.sourceKind || 'official-primary') : 'official-primary',
+      allowedUse: blsMatchesValue ? (bls.allowedUse || 'macro-evidence-with-observation-date') : 'macro-evidence-with-observation-date',
+    });
+  }
+  const fgValue = Number(data?.fearGreed?.score);
+  const fgAsOf = _validIsoDate(data?.fearGreed?.asOf);
+  if (Number.isFinite(fgValue) && fgAsOf && data?.fearGreed?._source) {
+    evidence.push({
+      evidenceId: `market-analysis:fear-greed:${fgAsOf}`,
+      metricId: 'sentiment.fear-greed',
+      label: 'Fear&Greed',
+      value: fgValue,
+      unit: 'score',
+      asOf: fgAsOf,
+      source: data.fearGreed._source,
+      sourceTier: 'public-api',
+      allowedUse: 'reference-only',
+    });
+  }
+  return evidence;
+}
+
+function _analysisNumberAfterLabel(body, labels) {
+  const escaped = labels.map(label => String(label).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const match = body.match(new RegExp(`(?:${escaped})[^\\d-]{0,18}(-?\\d[\\d,.]*)`, 'i'));
+  if (!match) return null;
+  const value = Number(String(match[1]).replace(/,/g, ''));
+  return Number.isFinite(value) ? value : null;
+}
+
 export function validateMarketAnalysisText(text, data) {
   const issues = [];
   const value = Number(data?.macro?.nfp);
   const body = String(text || '').trim();
+  const metricEvidence = buildMarketAnalysisEvidence(data);
   if (!body) issues.push('empty');
+  if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
+  if (/(?:VIX[\s\S]{0,60}(?:Fear\s*&?\s*Greed|fear\s+and\s+greed)|(?:Fear\s*&?\s*Greed|fear\s+and\s+greed)[\s\S]{0,60}VIX)/i.test(body)) {
+    issues.push('metric-identity-mismatch:vix-vs-fear-greed');
+  }
+  for (const def of [...MARKET_ANALYSIS_QUOTE_DEFS, ...MARKET_ANALYSIS_MACRO_DEFS]) {
+    const row = metricEvidence.find(item => item.metricId === def.metricId);
+    if (!row) continue;
+    const mentioned = _analysisNumberAfterLabel(body, [def.label, ...(def.aliases || [])]);
+    if (mentioned == null) continue;
+    const tolerance = Math.max(def.unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(row.value)) * 0.05);
+    if (Math.abs(mentioned - Number(row.value)) > tolerance) issues.push(`metric-value-mismatch:${def.metricId}`);
+  }
   // PAYEMS delta is stored in thousands. A model may mention NFP without a
   // number, but if it writes one, reject the known 10x forms before publish.
   if (Number.isFinite(value) && /NFP|nonfarm|비농업|고용/i.test(body)) {
@@ -1721,7 +1827,14 @@ export function validateMarketAnalysisText(text, data) {
       issues.push('nfp-scale-mismatch');
     }
   }
-  return { ok: issues.length === 0, issues };
+  const nfpMention = _analysisNumberAfterLabel(body, ['NFP', 'nonfarm payroll']);
+  if (Number.isFinite(value) && Number.isFinite(nfpMention) && Math.abs(nfpMention) > Math.max(1, Math.abs(value)) * 100) {
+    issues.push('nfp-scale-mismatch');
+  }
+  const causalClaim = /\b(?:because|due to|driven by|led by|after|following|amid|risk|supports?|weakened|strengthened)\b/i.test(body);
+  const causalEvidence = (data?.news || []).filter(row => row && row.title && row.source && row.link && _validIsoDate(row.eventTime || row.pubDate));
+  if (causalClaim && causalEvidence.length === 0) issues.push('causal-evidence-missing');
+  return { ok: issues.length === 0, issues: Array.from(new Set(issues)), metricEvidence, causalEvidenceCount: causalEvidence.length };
 }
 
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
@@ -1729,11 +1842,17 @@ export function validateMarketAnalysisText(text, data) {
 //   Haiku 4.5(최저가). 수집한 시세/매크로/F&G/뉴스 헤드라인으로 간결 프롬프트 → 4~5줄 한국어 분석.
 async function genMarketAnalysis(data) {
   const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return null; // 키 없으면 스킵 — 클라이언트 템플릿이 처리
   try {
+    const metricEvidence = buildMarketAnalysisEvidence(data);
+    if (metricEvidence.length < 2) {
+      console.warn('[fetch-data] LLM market analysis blocked: insufficient typed metric evidence');
+      return null;
+    }
+  if (!key) return null; // 키 없으면 스킵 — 클라이언트 템플릿이 처리
     const q = {};
-    (data.quotes || []).forEach(x => { if (x && x.symbol) q[x.symbol] = x.price; });
-    const heads = (data.news || []).slice(0, 8).map(n => '- ' + (n.title || '')).join('\n');
+    (data.quotes || []).forEach(x => { if (x && x.symbol) q[x.symbol] = x.regularMarketPrice ?? x.price; });
+    const heads = (data.news || []).slice(0, 8).map(n => '- ' + (n.title || '') + ' [' + (n.source || 'unknown') + ' | ' + (n.eventTime || n.pubDate || 'unknown') + ']').join('\n');
+    const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.metricId} label=${row.label} value=${row.value} unit=${row.unit} asOf=${row.asOf} source=${row.source}`).join('\n');
     const nfp = Number(data.macro?.nfp);
     const nfpUnit = data.macro?._bls?.series?.nonfarmPayroll?.unit || 'thousands';
     const nfpObservedAt = data.macro?._bls?.series?.nonfarmPayroll?.observedAt || data.macro?._asOf_nfp || '—';
@@ -1754,12 +1873,13 @@ async function genMarketAnalysis(data) {
     const force = (process.env.LLM_MARKET_ANALYSIS_MODEL || '').toLowerCase() === 'sonnet';
     const escalate = force || (isFinite(vix) && vix >= 25) || crisisNews;
     const model = escalate ? 'claude-sonnet-4-6' : 'claude-haiku-4-5';
+    const enforcedPrompt = prompt + '\n\nTyped metric evidence (mandatory):\n' + evidenceLines + '\nVIX and Fear&Greed are distinct metrics. Preserve metric identity, unit, scale, asOf, and source for every numeric or causal claim.';
     const ac = new AbortController();
     const to = setTimeout(() => ac.abort(), 20000);
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model, max_tokens: 500, messages: [{ role: 'user', content: prompt }] }),
+      body: JSON.stringify({ model, max_tokens: 500, messages: [{ role: 'user', content: enforcedPrompt }] }),
       signal: ac.signal,
     });
     clearTimeout(to);
@@ -1774,7 +1894,7 @@ async function genMarketAnalysis(data) {
     }
     const oneLine = text.split('\n').map(s => s.trim()).filter(Boolean)[0] || text.slice(0, 120);
     console.log(`[fetch-data] LLM 분석 생성: ${model}${escalate ? ' (승격: VIX/위기뉴스)' : ' (기본)'}`);
-    return { full: text, oneLine, generatedAt: new Date().toISOString(), model, semanticStatus: 'verified', semanticIssues: [] };
+    return { full: text, oneLine, generatedAt: new Date().toISOString(), model, semanticStatus: 'verified', semanticIssues: [], metricEvidence: semantic.metricEvidence, causalEvidenceCount: semantic.causalEvidenceCount };
   } catch (e) { console.warn('[fetch-data] LLM 분석 생성 예외(템플릿 폴백):', e && e.message); return null; }
 }
 
@@ -1895,10 +2015,12 @@ async function main() {
   if (marketAnalysis) {
     data.marketAnalysis = marketAnalysis;
     data.meta.marketAnalysisOk = true;
-    data.meta.marketAnalysisSemanticOk = true;
+    data.meta.marketAnalysisSemanticOk = marketAnalysis.semanticStatus === 'verified' && Array.isArray(marketAnalysis.metricEvidence) && marketAnalysis.metricEvidence.length >= 2 && (!marketAnalysis.semanticIssues || marketAnalysis.semanticIssues.length === 0);
+    data.meta.marketAnalysisEvidenceCount = Array.isArray(marketAnalysis.metricEvidence) ? marketAnalysis.metricEvidence.length : 0;
   } else {
     data.meta.marketAnalysisOk = false;
     data.meta.marketAnalysisSemanticOk = false;
+    data.meta.marketAnalysisEvidenceCount = 0;
   }
 
   if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');

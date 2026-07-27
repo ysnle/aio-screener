@@ -2,11 +2,11 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
 last_verified: 2026-07-27
 confidence: high
-latest_version: v53.53
-latest_P_number: P845
-next_P_number: P846
+latest_version: v53.54
+latest_P_number: P847
+next_P_number: P848
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P845 early-route navigation TDZ remediation; deterministic local and post-push remote verification are complete, while live provider/Worker checks remain separate operator/runtime checks
+current_checkpoint: P847 typed market-analysis evidence and API/source/pipeline lineage hardening; local contracts/browser checks are in progress, while live provider/Worker checks remain separate operator/runtime checks
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -18,6 +18,26 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P847 - v53.54 - server market analysis trusted untyped semantic metadata and source lineage was incomplete
+
+- **motivation**: direct API/source/pipeline audit found that current-sensitive market prose could be treated as verified from `semanticStatus`/metadata alone, while the generated prompt read `x.price` even though the quote producer emits `regularMarketPrice`.
+- **symptom/reproduction**: the deployed artifact contained `VIX 39(Fear&Greed)` and a non-informative `oneLine`, with no metric identity/value/unit/asOf/source evidence. News rows also lacked explicit content depth/event time/independence metadata, and screener validation did not report mixed revisions or field-level fundamental lineage.
+- **root_cause**: producer, artifact, and browser publish gates did not share a typed evidence contract; source tier and observation lineage were partly implicit and the LLM context used a stale field name.
+- **fix**: added typed market-analysis evidence construction/validation, VIX-vs-Fear&Greed and numeric/scale/causal gates, fail-closed client publication, news lineage fields, screener mixed-revision/field-coverage checks, and corrected the prompt to use `regularMarketPrice`.
+- **violated_rule**: current-sensitive automated prose must be evidence-bound; source tier, content depth, event time, and artifact revision must be explicit before downstream use.
+- **prevention**: CI contracts assert producer/browser/validator alignment; public artifacts without typed evidence are explicitly blocked-unverified rather than silently rendered.
+- **verification**: targeted contract and syntax checks plus full local release verification are required after this patch. Real provider keys, Worker health/quota/origin, external rights, and low-spec performance remain operator-gated.
+
+## P846 - v53.54 - deferred core compatibility exports shadowed Claude key save and route functions
+
+- **motivation**: the deployed v53.53 site reported API-key storage/readback failure and then routed AI chat to the shared Worker even after a personal key was entered.
+- **symptom/reproduction**: with the deployed script order, `js/aio-core.js` ran after the inline Claude chat block. Its `window.getApiKey(name)` replaced the Claude no-argument getter, and its `window.setApiKey(name, value)` replaced the one-argument async saver. Chromium reproduced a key physically present in `localStorage` while `saveSidebarApiKey()` received no `{ ok }` result and `getApiKey()` returned empty.
+- **root_cause**: two independently named global compatibility APIs had incompatible arity and return contracts; the v53.53 `defer` ordering made the collision deterministic after page load.
+- **fix**: `js/aio-core.js` now overloads the legacy exports: no-argument `getApiKey()` resolves `aio_claude_api_key`, one-argument `setApiKey(key)` delegates to `_aioSaveCredential()` and returns its Promise/readback result, while explicit provider-key calls retain their prior behavior. The AI reliability contract now guards both overloads.
+- **violated_rule**: R389 credential persistence must be readback-proven; R390 route readiness must not confuse an available personal key with a missing shared Worker route.
+- **prevention**: any global compatibility export that shares a name with an inline or module entrypoint must document and test its arity/return contract; adding or changing `defer`/script order requires a browser save-and-route smoke test.
+- **verification**: local static server + Chromium after a fresh context: `saveSidebarApiKey()` returned `READY_PLAINTEXT`, localStorage write/readback matched, no-argument and explicit key getters matched, UI masking applied, and `_aioClaudeTarget()` selected the personal API route. AI reliability, data/pipeline, lineage, market snapshot, reconciliation, operations, semantic, static-data, inference, history-field, release-revision, and version contracts passed. Live real-key/Worker/provider-rights checks remain operator-gated.
 
 ## P845 - v53.53 - early compatibility-facade navigation could read lexical prevPage before initialization
 

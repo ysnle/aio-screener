@@ -5083,10 +5083,20 @@ async function _aioLoadServerData() {
     // public sink. A future typed/semantic producer must opt in explicitly.
     window._serverMarketAnalysis = null;
     if (d.marketAnalysis && (d.marketAnalysis.full || d.marketAnalysis.oneLine)) {
+      var _serverMarketMetricEvidence = Array.isArray(d.marketAnalysis.metricEvidence) ? d.marketAnalysis.metricEvidence : [];
+      var _serverMarketMetricEvidenceValid = _serverMarketMetricEvidence.length >= 2 && _serverMarketMetricEvidence.every(function(row) {
+        return row && row.metricId && row.unit && row.source && row.asOf && isFinite(Number(row.value)) && !isNaN(new Date(row.asOf).getTime());
+      });
+      var _serverMarketSemanticIssues = Array.isArray(d.marketAnalysis.semanticIssues) ? d.marketAnalysis.semanticIssues : [];
+      var _serverMarketSemanticContract = d.marketAnalysis.semanticStatus === 'verified'
+        && _serverMarketSemanticIssues.length === 0
+        && _serverMarketMetricEvidenceValid;
       var _serverMarketPublishAudit = window.AIO && typeof window.AIO.validateAIAutomatedPublish === 'function'
-        ? window.AIO.validateAIAutomatedPublish({ entrypoint: 'market-analysis', text: d.marketAnalysis.full || d.marketAnalysis.oneLine, currentSensitive: true, requiresStructuredClaims: false, evidence: [] })
+        ? window.AIO.validateAIAutomatedPublish({ entrypoint: 'market-analysis', text: d.marketAnalysis.full || d.marketAnalysis.oneLine, currentSensitive: true, requiresStructuredClaims: false, evidence: _serverMarketMetricEvidence })
         : { blocked: false, sourceLabel: 'AI_GENERATED' };
-      var _serverMarketAnalysisVerified = (d.meta.marketAnalysisSemanticOk === true || d.marketAnalysis.semanticStatus === 'verified' || d.marketAnalysis.status === 'verified') && !_serverMarketPublishAudit.blocked;
+      // P846/P847: metadata alone must never certify current-sensitive prose. The
+      // producer must supply typed metric identity/value/unit/asOf/source evidence.
+      var _serverMarketAnalysisVerified = _serverMarketSemanticContract && !_serverMarketPublishAudit.blocked;
       var _serverMarketAnalysisGeneratedAt = d.marketAnalysis.generatedAt || d.meta.generatedAt;
       var _serverMarketAnalysisSource = d.marketAnalysis.source || d.marketAnalysis.model || 'github-actions-market-analysis';
       if (_serverMarketAnalysisVerified) {
@@ -5106,7 +5116,8 @@ async function _aioLoadServerData() {
           generatedAt: _serverMarketAnalysisGeneratedAt,
           source: _serverMarketAnalysisSource,
           fullLength: String(d.marketAnalysis.full || d.marketAnalysis.oneLine || '').length,
-          reason: _serverMarketAnalysisVerified ? null : (_serverMarketPublishAudit.blocked ? 'automated-publish-gate' : 'semantic-gate-required'),
+          metricEvidenceCount: _serverMarketMetricEvidence.length,
+          reason: _serverMarketAnalysisVerified ? null : (_serverMarketPublishAudit.blocked ? 'automated-publish-gate' : (_serverMarketMetricEvidenceValid ? 'semantic-gate-required' : 'metric-evidence-required')),
           publishAudit: _serverMarketPublishAudit,
           fallback: 'AIO.synthesizeMarketAnalysis'
         };

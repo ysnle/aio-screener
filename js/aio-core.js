@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.53';
+const APP_VERSION = 'v53.54';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1263,16 +1263,40 @@ window._aioMaskKey = function(raw) {
   if (s.length < 8) return '****';
   return '****-' + s.slice(-4);
 };
-// getApiKey(storageKey) — 평문 또는 복호화된 키 반환
+// getApiKey(storageKey) — 평문 또는 복호화된 키 반환.
+//
+// v53.54/P846: index.html의 Claude 채팅 호환 함수도 같은 legacy global
+// 이름(getApiKey())을 사용한다.  defer 외부 스크립트는 inline chat block보다
+// 늦게 실행되므로 이 export가 inline 함수를 덮어쓸 수 있다.  인자를 생략한
+// legacy 호출은 Claude 키를 반환하고, 명시된 storageKey 호출은 기존 provider
+// 조회 계약을 유지해 두 실행 순서를 모두 안전하게 지원한다.
 window.getApiKey = function(name) {
-  try { return (typeof safeLSGetSync === 'function') ? safeLSGetSync(name, '') : ''; } catch(e) { return ''; }
+  try {
+    var keyName = (name == null || name === '') ? 'aio_claude_api_key' : name;
+    if ((name == null || name === '') && typeof _AioVault !== 'undefined' && _AioVault._claudeKeyRuntime) {
+      return _AioVault._claudeKeyRuntime;
+    }
+    return (typeof _getApiKey === 'function') ? (_getApiKey(keyName) || '') :
+      ((typeof safeLSGetSync === 'function') ? safeLSGetSync(keyName, '') : '');
+  } catch(e) { return ''; }
 };
-// setApiKey(storageKey, value) — 저장소에 저장 (Vault 암호화 우선)
+// setApiKey(storageKey, value) — 저장소에 저장 (Vault 암호화 우선).
+// 인자 1개 legacy 호출은 Claude 전용 setApiKey(key) 호환 경로로 위임하고
+// Promise를 반환해 saveSidebarApiKey()의 결과/readback 검증을 보존한다.
 window.setApiKey = function(name, value) {
+  if (arguments.length < 2) {
+    return (typeof _aioSaveCredential === 'function')
+      ? _aioSaveCredential('aio_claude_api_key', name == null ? '' : name)
+      : Promise.resolve({ ok: false, state: 'KEYSTORE_UNAVAILABLE' });
+  }
   try {
     if (typeof safeLSSet === 'function') { safeLSSet(name, value); }
     else { (window.localStorage || window.sessionStorage).setItem(name, value); }
-  } catch(e) { if (typeof _aioLog === 'function') _aioLog('warn', 'apikey', 'setApiKey fail: ' + (e && e.message)); }
+    return { ok: true, key: name };
+  } catch(e) {
+    if (typeof _aioLog === 'function') _aioLog('warn', 'apikey', 'setApiKey fail: ' + (e && e.message));
+    return { ok: false, key: name, state: 'PERSISTENCE_FAILED', error: e && e.message || 'write_failed' };
+  }
 };
 
 // ═══ v48.95: _wordHit — 유니코드 단어경계 키워드 매칭 ══════════════════════

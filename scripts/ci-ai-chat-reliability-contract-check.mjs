@@ -12,6 +12,7 @@ const check = (label, condition) => { if (!condition) errors.push(label); };
 
 const core = read('js/aio-core.js');
 const chat = read('js/aio-chat.js');
+const data = read('js/aio-data.js');
 const html = read('index.html');
 const worker = read('cloudflare-worker-proxy.js');
 const config = json('public-config.json');
@@ -26,8 +27,11 @@ check('safeLS throws on write failure', /async function safeLS\([\s\S]{0,1800}th
 check('credential save performs readback', core.includes('persistence_readback_mismatch') && core.includes('safeLSGet(lsKey, \'\')'));
 check('credential save has no plaintext fallback', !/safeLS[\s\S]{0,120}localStorage\.setItem\(lsKey/.test(core));
 check('sidebar save waits for result', html.includes('const result = await setApiKey(key);') && html.includes('if (!result || !result.ok)'));
+check('legacy getApiKey overload preserves Claude no-arg route', core.includes("var keyName = (name == null || name === '') ? 'aio_claude_api_key' : name") && core.includes("_AioVault._claudeKeyRuntime"));
+check('legacy setApiKey overload returns credential result', core.includes("if (arguments.length < 2)") && core.includes("_aioSaveCredential('aio_claude_api_key'") && core.includes("Promise.resolve({ ok: false, state: 'KEYSTORE_UNAVAILABLE' })"));
 check('route readiness is explicit', chat.includes("reason: 'NO_ROUTE'") && chat.includes('WORKER_NOT_READY'));
 check('public config is personal-key default', config.schemaVersion === 'ai-public-config.v1' && config.ai?.workerUrl === null && config.ai?.serverMode === 'explicit-opt-in');
+check('server market prose requires typed evidence before client publish', data.includes('_serverMarketMetricEvidenceValid') && data.includes('metric-evidence-required') && data.includes('_serverMarketSemanticContract'));
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
 check('Worker rolls back failed quota reservations', worker.includes('releaseAnthropicQuota') && worker.includes('quotaReserved'));
 check('Worker exposes effective token cap', worker.includes("'X-AIO-Max-Tokens'"));

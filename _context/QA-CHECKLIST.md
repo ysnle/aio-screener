@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-27
 confidence: high
 
-## Current architecture checkpoint (2026-07-27, v53.53)
+## Current architecture checkpoint (2026-07-27, v53.54)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
@@ -13,9 +13,26 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.53
-latest_P_covered: P845
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P845 early-route TDZ remediation passes the complete deterministic local verification suite, with post-push remote CI and provider/live Worker verification still separate
+checklist_version: v53.54
+latest_P_covered: P847
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846 credential-route collision and P847 typed market-analysis/source lineage gates are locally verified, with post-push remote CI and provider/live Worker verification still separate
+
+## P847 API/source/pipeline evidence hardening (2026-07-27, v53.54)
+
+- [x] Server market-analysis output requires at least two typed metric evidence rows with identity, numeric value, unit, observation time, and source before client publication.
+- [x] VIX/Fear&Greed identity conflation, metric numeric mismatches, NFP scale mismatches, and unsupported causal claims are fail-closed in the producer validator.
+- [x] Server news rows expose source-tier label, headline-only content depth, published event time, and source independence key.
+- [x] Screener validation reports mixed revisions and field-level fundamental coverage while requiring source/model/observation lineage for every fundamental row.
+- [x] Existing public market prose without typed evidence is marked blocked-unverified; the browser publish gate independently rejects it.
+- [ ] Real API secrets, Worker health/quota/origin, external provider rights, and low-spec performance remain operator/runtime checks.
+
+## P846 deployed API-key save and Claude route regression (2026-07-27, v53.54)
+
+- [x] Reproduced the deployed symptom with the final deferred script order: the key could be physically written while the Claude save function received no explicit result and the no-argument getter returned empty.
+- [x] `window.getApiKey()` and `window.setApiKey(key)` preserve the Claude compatibility contract after `js/aio-core.js` loads; explicit provider-key calls remain supported.
+- [x] Local Chromium fresh-context smoke proves `READY_PLAINTEXT`, write/readback equality, no-argument/explicit getter equality, masked input, and personal Claude route selection.
+- [x] AI reliability contract includes the overload regression gate; API/data/source/pipeline contract baseline passes.
+- [ ] Real Claude key, public Worker health/quota/origin, external provider auth/rights, and low-spec performance remain operator-required.
 
 ## P845 early compatibility-facade navigation (2026-07-27, v53.53)
 

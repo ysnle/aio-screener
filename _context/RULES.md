@@ -1594,3 +1594,15 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: Legacy route entrypoints callable by the native compatibility facade must not directly read or write top-level lexical state that may still be in its temporal dead zone during classic-script initialization.
 
 **Validation**: `showPage()`/`showTicker()` must use the initialized `AIO.state` or window shim for early navigation, and the Critical-10, Portfolio Vault, and accessibility browser contracts must remain green.
+
+## R393. Compatibility exports must preserve global call contracts (v53.54, P846)
+
+**Rule**: A classic/deferred script must not shadow an existing global entrypoint with a different arity or return contract. When a legacy name is shared, its overload must preserve the no-argument/one-argument Claude path and the explicit provider-key path, including an explicit async persistence result.
+
+**Validation**: `window.getApiKey`/`window.setApiKey`, `_aioSaveCredential`, the sidebar save flow, and `scripts/ci-ai-chat-reliability-contract-check.mjs` must cover both call shapes; a Chromium smoke must prove storage/readback, masking, and personal-route selection after the final deferred script executes.
+
+## R394. Current-sensitive server prose requires typed metric and source evidence (v53.54, P847)
+
+**Rule**: Automated market analysis must not become public verified prose from status metadata alone. Each current-sensitive numeric/causal analysis must carry typed metric identity, value, unit, observation time, source, and supporting news/source lineage; VIX and Fear&Greed remain separate metrics. Screener revisions and fundamentals must expose their observation/source/model lineage.
+
+**Validation**: `buildMarketAnalysisEvidence`/`validateMarketAnalysisText`, `js/aio-data.js` metric-evidence publish gate, news lineage fields, `scripts/validate-screener-artifact.mjs`, and the data-pipeline contract must fail closed when evidence is missing or inconsistent.
