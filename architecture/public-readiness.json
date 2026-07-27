@@ -1,6 +1,6 @@
 {
   "schemaVersion": "public-readiness-v1",
-  "appRevision": "v53.51",
+  "appRevision": "v53.52",
   "currentStage": "RESEARCH_BETA_CONDITIONAL",
   "nextStage": "PUBLIC_BETA",
   "criteria": [
@@ -10,7 +10,7 @@
     { "id": "route-matrix", "status": "PASS", "evidence": "ci-viewport-matrix-check.mjs" },
     { "id": "route-soak", "status": "PASS", "evidence": "ci-route-soak-check.mjs; _artifacts/route-soak-report.json" },
     { "id": "thirty-day-slo", "status": "OPERATOR_REQUIRED", "evidence": "architecture/operations-slo.json" },
-    { "id": "live-revision", "status": "PASS", "evidence": "ci-live-invariant-check.mjs; public URL served v53.51 after commit 65f6912" },
+    { "id": "live-revision", "status": "OPERATOR_REQUIRED", "evidence": "awaiting live v53.52 Pages revision after push d2f36e0" },
     { "id": "edge-security-headers", "status": "OPERATOR_REQUIRED", "evidence": "_headers; GitHub Pages edge enforcement must be confirmed" },
     { "id": "provider-rights", "status": "REVIEW_REQUIRED", "evidence": "public-data/operations-status.json" },
     { "id": "fred-success-branch", "status": "PASS", "evidence": "SA-04 passed in GitHub Actions run 30260095694; snapshot has fredHasKey:true/fredFetchOk:true/fredOk:true" }

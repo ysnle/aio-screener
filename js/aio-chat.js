@@ -835,7 +835,7 @@ async function _aioEnsureClaudeRoute(apiKey) {
 window._aioEnsureClaudeRoute = _aioEnsureClaudeRoute;
 window._aioRouteNotice = function(reason) {
   return ({
-    NO_ROUTE: 'AI 라우트가 없습니다. Claude 개인 키를 저장하거나 운영자가 공개 Worker를 명시적으로 연결해야 합니다.',
+    NO_ROUTE: 'AI 라우트가 없습니다. Claude 개인 키를 저장하거나 운영자가 공개 Worker를 명시적으로 연결해야 합니다. 브리핑/번역은 운영자 서버키 가능 여부를 Worker health 확인 후에만 표시합니다.',
     VAULT_LOCKED: 'Claude 키가 Vault에 잠겨 있습니다. 사이드바에서 PIN으로 잠금 해제한 뒤 다시 시도하세요.',
     WORKER_NOT_READY: '공유 AI Worker가 준비되지 않았습니다. 운영자 설정·키·쿼터·허용 Origin을 확인하세요.',
     RATE_LIMIT: 'AI 요청 한도에 도달했습니다. 잠시 후 다시 시도하세요.',
@@ -4501,6 +4501,7 @@ async function chatSend(ctxId) {
   // v29: API 키 확인 먼저 (횟수 차감 전에 체크)
   // v49.59 P329 R109: 키 미입력 시 사이드바 input 강조 + inline alert 강화
   var _chatApiKey = getApiKey();
+  // Shared route contract: 브리핑/번역은 운영자 서버키 가능 여부를 Worker health로만 확정한다.
   var _chatRoute = typeof _aioEnsureClaudeRoute === 'function'
     ? await _aioEnsureClaudeRoute(_chatApiKey)
     : { ok: typeof _aioHasClaudeRoute === 'function' ? _aioHasClaudeRoute(_chatApiKey) : !!_chatApiKey, reason: 'NO_ROUTE' };

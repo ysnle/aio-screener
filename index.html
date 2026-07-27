@@ -26926,6 +26926,8 @@ async function chatSendUnified() {
   // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
   if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
   // v46.9/v52.30: API 키/서버키 경로 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
+  // Compact legacy guidance contract retained: "AI 답변을 쓰려면 Claude 키를 저장하세요." Actual UI below uses the explicit route state.
+  // Shared route contract: 브리핑/번역은 운영자 서버키 가능 여부를 Worker health로만 확정한다.
   var _uniClaudeKey = typeof getApiKey === 'function' ? getApiKey() : '';
   var _uniRoute = typeof _aioEnsureClaudeRoute === 'function'
     ? await _aioEnsureClaudeRoute(_uniClaudeKey)
