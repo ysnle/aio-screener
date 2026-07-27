@@ -1,6 +1,6 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-07-27T10:13:28.706Z",
+ "generatedAt": "2026-07-27T15:20:10.307Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -8,88 +8,128 @@
  "model": "sec-fy-normalized-v1",
  "eligible": 655,
  "stored": 539,
- "attempted": 16,
+ "attempted": 24,
  "updated": 0,
  "failures": [
   {
-   "symbol": "TD",
+   "symbol": "AMP",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "TFC",
+   "symbol": "AMX",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "TRI",
+   "symbol": "ARE",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "TRP",
+   "symbol": "ARGX",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "TSM",
+   "symbol": "ASML",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "TTE",
+   "symbol": "ASX",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "UBER",
+   "symbol": "AU",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "UBS",
+   "symbol": "AZN",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "UL",
+   "symbol": "B",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "UMC",
+   "symbol": "BBVA",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "UVXY",
+   "symbol": "BCS",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "VLO",
+   "symbol": "BHP",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "VXX",
+   "symbol": "BIRD",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "WPM",
+   "symbol": "BKNG",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "XNDU",
+   "symbol": "BMO",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   },
   {
-   "symbol": "XOM",
+   "symbol": "BN",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-07-27T10:13:23.843Z"
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
+  },
+  {
+   "symbol": "BNS",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
+  },
+  {
+   "symbol": "BP",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
+  },
+  {
+   "symbol": "BSX",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
+  },
+  {
+   "symbol": "BTI",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
+  },
+  {
+   "symbol": "BUD",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
+  },
+  {
+   "symbol": "CCEP",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
+  },
+  {
+   "symbol": "CCJ",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
+  },
+  {
+   "symbol": "CINF",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-07-27T15:19:59.287Z"
   }
  ],
  "batchLimit": 24,
