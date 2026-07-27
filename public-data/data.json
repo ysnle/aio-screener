@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-07-27T19:56:37.749Z",
+  "generatedAt": "2026-07-27T21:30:23.163Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -22,10 +22,10 @@
   "fredLkgSource": null,
   "macroKeyCount": 27,
   "fredFailedSeries": [],
-  "blsStatus": "ok",
+  "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-07-27T19:56:33.729Z",
+  "blsAttemptedAt": "2026-07-27T21:29:59.926Z",
   "blsLastSuccessfulAt": "2026-07-27T19:56:33.729Z",
   "newsOk": true,
   "newsCount": 17,
@@ -40,18 +40,18 @@
   "newsScoreMax": 50,
   "putCallOk": true,
   "putCallAsOf": "2026-07-24",
-  "elapsedMs": 4092,
+  "elapsedMs": 23295,
   "schema": 1,
-  "marketAnalysisOk": true,
-  "marketAnalysisSemanticOk": true,
-  "marketAnalysisEvidenceCount": 11,
+  "marketAnalysisOk": false,
+  "marketAnalysisSemanticOk": false,
+  "marketAnalysisEvidenceCount": 0,
   "marketSnapshotPublished": true,
   "marketSnapshotCoverage": {
    "required": 16,
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-07-27T19:56:37.749Z:2db66b97",
+  "marketSnapshotRevision": "market-snapshot:2026-07-27T21:30:23.163Z:c51f1dfe",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 539,
@@ -107,9 +107,9 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-07-27T19:56:33.729Z",
    "lastSuccessfulAt": "2026-07-27T19:56:33.729Z",
-   "attemptedAt": "2026-07-27T19:56:33.729Z",
+   "attemptedAt": "2026-07-27T21:29:59.926Z",
    "releaseAt": null,
-   "status": "ok",
+   "status": "cached-fresh",
    "series": {
     "cpi": {
      "metricId": "cpi",
@@ -288,7 +288,8 @@
    },
    "failures": [],
    "allowedUse": "macro-evidence-with-observation-date",
-   "decisionUse": false
+   "decisionUse": false,
+   "cacheHit": true
   },
   "_failedSeries": [],
   "_lastKnownGoodAt": "2026-07-16"
@@ -297,7 +298,7 @@
   "score": 40,
   "rating": "fear",
   "_source": "cnn",
-  "asOf": "2026-07-27T19:55:14+00:00",
+  "asOf": "2026-07-27T21:10:19+00:00",
   "previousScore": 39,
   "previousWeek": 38
  },
@@ -306,7 +307,7 @@
   "indexPutCall": 1.08,
   "equityPutCall": 0.79,
   "asOf": "2026-07-24",
-  "fetchedAt": "2026-07-27T19:56:34.803Z",
+  "fetchedAt": "2026-07-27T21:30:00.739Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -670,137 +671,5 @@
    "newsCycleEnd": "2026-07-26T23:00:00.000Z",
    "newsCycleLabel": "2026-07-26 08:00 KST ~ 2026-07-27 08:00 KST"
   }
- ],
- "marketAnalysis": {
-  "full": "**한 줄 요약:**\nSPX 7413.91에서 인플레이션 우려와 연준 정책 기대 사이 혼조장세를 보이며, VIX 18.81·공포탐욕지수 40으로 중립적 심리가 지배적입니다.\n\n①**변동성/심리:** VIX 18.81과 공포탐욕지수 40은 시장 불안감이 제한적임을 시사하나, Netflix 가이던스 부진과 칩 종목 낙폭 확대로 기술주 중심 조정이 진행 중입니다.\n\n②**거시/금리:** CPI 3.5%, 기준금리 3.63%, 10년물 4.641%로 인플레이션이 여전히 과제이며, 연준 의장 워시의 발언 기대와 달러약세(DXY 101.498) 속에서 금리 경로에 대한 불확실성이 강화되고 있습니다.\n\n③**주도 뉴스/리스크:** 연준 정책회의 앞두고 금(4089.2달러)은 4100달러 상회 상승세를 보이며, 유·수익률 약세 속 리스크자산 회피 신호가 나타나고 있습니다. 6월 NFP 57천명 증가로 노동시장 약세도 가시화되어 있습니다.",
-  "oneLine": "**한 줄 요약:**",
-  "generatedAt": "2026-07-27T19:56:44.785Z",
-  "model": "claude-haiku-4-5",
-  "semanticStatus": "verified",
-  "semanticIssues": [],
-  "metricEvidence": [
-   {
-    "evidenceId": "market-analysis:^GSPC:2026-07-27T19:56:32.000Z",
-    "metricId": "market.spx",
-    "label": "SPX",
-    "value": 7413.91,
-    "unit": "index",
-    "asOf": "2026-07-27T19:56:32.000Z",
-    "source": "Yahoo chart",
-    "sourceTier": "public-information-service",
-    "allowedUse": "current-with-session-and-delay-gate"
-   },
-   {
-    "evidenceId": "market-analysis:^VIX:2026-07-27T19:41:31.000Z",
-    "metricId": "market.vix",
-    "label": "VIX",
-    "value": 18.81,
-    "unit": "index",
-    "asOf": "2026-07-27T19:41:31.000Z",
-    "source": "Yahoo chart",
-    "sourceTier": "public-information-service",
-    "allowedUse": "current-with-session-and-delay-gate"
-   },
-   {
-    "evidenceId": "market-analysis:^TNX:2026-07-27T18:59:52.000Z",
-    "metricId": "market.us10y",
-    "label": "10Y",
-    "value": 4.641,
-    "unit": "index",
-    "asOf": "2026-07-27T18:59:52.000Z",
-    "source": "Yahoo chart",
-    "sourceTier": "public-information-service",
-    "allowedUse": "current-with-session-and-delay-gate"
-   },
-   {
-    "evidenceId": "market-analysis:DX-Y.NYB:2026-07-27T19:46:32.000Z",
-    "metricId": "market.dxy",
-    "label": "DXY",
-    "value": 101.498,
-    "unit": "index",
-    "asOf": "2026-07-27T19:46:32.000Z",
-    "source": "Yahoo chart",
-    "sourceTier": "public-information-service",
-    "allowedUse": "current-with-session-and-delay-gate"
-   },
-   {
-    "evidenceId": "market-analysis:CL=F:2026-07-27T19:46:23.000Z",
-    "metricId": "market.wti",
-    "label": "WTI",
-    "value": 82.23,
-    "unit": "USD/barrel",
-    "asOf": "2026-07-27T19:46:23.000Z",
-    "source": "Yahoo chart",
-    "sourceTier": "public-information-service",
-    "allowedUse": "current-with-session-and-delay-gate"
-   },
-   {
-    "evidenceId": "market-analysis:GC=F:2026-07-27T19:46:31.000Z",
-    "metricId": "market.gold",
-    "label": "Gold",
-    "value": 4089.2,
-    "unit": "USD/oz",
-    "asOf": "2026-07-27T19:46:31.000Z",
-    "source": "Yahoo chart",
-    "sourceTier": "public-information-service",
-    "allowedUse": "current-with-session-and-delay-gate"
-   },
-   {
-    "evidenceId": "market-analysis:^KS11:2026-07-27T09:05:30.000Z",
-    "metricId": "market.kospi",
-    "label": "KOSPI",
-    "value": 6755.75,
-    "unit": "index",
-    "asOf": "2026-07-27T09:05:30.000Z",
-    "source": "Yahoo chart",
-    "sourceTier": "public-information-service",
-    "allowedUse": "current-with-session-and-delay-gate"
-   },
-   {
-    "evidenceId": "market-analysis:macro.cpi:2026-06-01T00:00:00.000Z",
-    "metricId": "macro.cpi",
-    "label": "CPI",
-    "value": 3.5,
-    "unit": "percent",
-    "asOf": "2026-06-01T00:00:00.000Z",
-    "source": "BLS Public Data API v1",
-    "sourceTier": "official-primary",
-    "allowedUse": "macro-evidence-with-observation-date"
-   },
-   {
-    "evidenceId": "market-analysis:macro.fed-rate:2026-06-01T00:00:00.000Z",
-    "metricId": "macro.fed-rate",
-    "label": "FedRate",
-    "value": 3.63,
-    "unit": "percent",
-    "asOf": "2026-06-01T00:00:00.000Z",
-    "source": "FRED",
-    "sourceTier": "official-primary",
-    "allowedUse": "macro-evidence-with-observation-date"
-   },
-   {
-    "evidenceId": "market-analysis:macro.nfp-mom:2026-06-01T00:00:00.000Z",
-    "metricId": "macro.nfp-mom",
-    "label": "NFP",
-    "value": 57,
-    "unit": "thousands",
-    "asOf": "2026-06-01T00:00:00.000Z",
-    "source": "FRED",
-    "sourceTier": "official-primary",
-    "allowedUse": "macro-evidence-with-observation-date"
-   },
-   {
-    "evidenceId": "market-analysis:fear-greed:2026-07-27T19:55:14.000Z",
-    "metricId": "sentiment.fear-greed",
-    "label": "Fear&Greed",
-    "value": 40,
-    "unit": "score",
-    "asOf": "2026-07-27T19:55:14.000Z",
-    "source": "cnn",
-    "sourceTier": "public-api",
-    "allowedUse": "reference-only"
-   }
-  ],
-  "causalEvidenceCount": 17
- }
+ ]
 }
