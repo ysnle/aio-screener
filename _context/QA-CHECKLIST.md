@@ -21,7 +21,7 @@ current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext I
 
 - [x] `showPage()` and `showTicker()` no longer directly read the TDZ-prone lexical `prevPage` during early module/classic-script initialization.
 - [x] Route state remains synchronized through `AIO.state` and the existing window compatibility shim.
-- [ ] Remote browser rerun after the fix — pending the post-push CI run.
+- [x] Remote browser rerun after the fix — CI `30266668940` passed all gated jobs and deployed Pages.
 - [x] Deterministic local browser/UI suite — headless `1102/1102`, viewport `68/68`, accessibility `17/17`, Critical-10, Portfolio Vault `PFE2-01~09`, boot, architecture browser, vertical slices, route soak, SA-02, SA-03, and SA-04 all passed.
 
 ## P844 API/AI chat reliability remediation (2026-07-27, v53.52)
