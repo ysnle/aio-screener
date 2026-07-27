@@ -1,3 +1,8 @@
+## v53.46 (2026-07-27)
+- **P837 / fast-plane deployment smoke bootstrap handling**: added propagation retries and an explicit initial-empty-KV acceptance state so a freshly deployed Worker is not misreported as failed before its first scheduled snapshot; malformed, partial, or unreachable responses still fail the smoke step.
+- The Worker remains operationally pending until the first scheduled publish and the required 7-day soak complete.
+- R1 7곳 v53.46
+
 ## v53.45 (2026-07-27)
 - **P836 / full data refresh and SEC candidate-rotation fix**: refreshed 78/78 market symbols, macro/F&G/news/history artifacts, and the 14-day Telegram digest; regenerated the 845-symbol screener artifact from the current SEC file.
 - SEC fundamentals now store 539/655 eligible symbols (82.3% source coverage), with 539/725 screener-eligible rows (74.3% display coverage). Missing filings remain unavailable; no synthetic values were inserted.

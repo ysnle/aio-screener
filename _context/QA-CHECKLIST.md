@@ -1,5 +1,5 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P836 verification
+verified_by: agent (Fable 5) + Codex P761-P837 verification
 last_verified: 2026-07-27
 confidence: high
 
@@ -13,9 +13,16 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.45
-latest_P_covered: P836
-current_P836_checkpoint: full data refresh completed with 539/655 SEC source coverage and 539/725 screener display coverage; full verification was intentionally not rerun per operator request; live certification, operator rights/soak, and provider-rights review remain separate
+checklist_version: v53.46
+latest_P_covered: P837
+current_P837_checkpoint: fast-plane smoke distinguishes propagation and initial-empty-KV bootstrap from malformed/partial responses; first scheduled publish and 7-day soak remain separate; full verification was intentionally not rerun per operator request
+
+## P837 Fast-plane deploy smoke bootstrap (2026-07-27, v53.46)
+
+- [x] Smoke retries transient 404 propagation before evaluating `/health`.
+- [x] Complete current coverage passes; explicit empty-KV bootstrap is accepted only as `operator_required`.
+- [x] Non-bootstrap 503, malformed payload, partial coverage, and unreachable endpoint remain blocking.
+- [ ] First scheduled KV publish and 7-day soak remain operator-side; full browser/accessibility/performance suite intentionally not rerun.
 
 ## P836 Full data refresh (2026-07-27, v53.45)
 

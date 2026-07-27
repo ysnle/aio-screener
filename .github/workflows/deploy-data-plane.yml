@@ -53,5 +53,15 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "$FAST_QUOTES_URL" ]; then echo "::error::operator_required: repository variable AIO_FAST_QUOTES_URL is missing"; exit 1; fi
-          curl --fail --silent --show-error "$FAST_QUOTES_URL/health" | tee /tmp/aio-fast-health.json
-          node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('/tmp/aio-fast-health.json')); if(!h.ok||h.coverage?.tier0Observed<h.coverage?.tier0Required) process.exit(1)"
+          health_status=""
+          for attempt in $(seq 1 10); do
+            health_status="$(curl --silent --show-error --output /tmp/aio-fast-health.json --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
+            if [ "$health_status" = "200" ] || [ "$health_status" = "503" ]; then break; fi
+            sleep 3
+          done
+          if [ "$health_status" != "200" ] && [ "$health_status" != "503" ]; then
+            echo "::error::fast_plane_unreachable: HTTP $health_status after propagation retry"
+            exit 1
+          fi
+          cat /tmp/aio-fast-health.json
+          node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('/tmp/aio-fast-health.json')); const complete=h.ok&&h.coverage?.tier0Observed>=h.coverage?.tier0Required; const bootstrap=!h.ok&&h.heartbeat===null&&h.revision===null; if(!complete&&!bootstrap) process.exit(1); if(bootstrap) console.warn('operator_required: Worker is deployed; first scheduled KV snapshot has not been published yet')"

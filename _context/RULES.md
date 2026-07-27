@@ -1512,3 +1512,9 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Required**: Prioritize never-failed candidates, use a bounded retry cooldown, expose an explicit operator override for deliberate retries, and never synthesize missing filing facts. Rebuild dependent screener coverage after the SEC artifact changes.
 
 **Validation**: `scripts/fetch-sec-fundamentals.mjs`, `public-data/sec-fundamentals.json`, `public-data/screener.json`, and `public-data/operations-status.json` must expose source-labelled counts and freshness.
+
+## R380. Fast-plane deploy smoke must distinguish bootstrap from failure (v53.46, P837)
+
+**Rule**: A newly deployed KV-only Worker may have no `quotes:current` snapshot until its first scheduled run. Deployment smoke must retry transient endpoint propagation, accept only the explicit empty-KV bootstrap shape as `operator_required`, and continue blocking malformed, partial, unreachable, or non-bootstrap failed states.
+
+**Validation**: `.github/workflows/deploy-data-plane.yml` must keep the `/health` retry, complete-coverage gate, and bootstrap-shape gate synchronized with `worker/data-plane.js`.
