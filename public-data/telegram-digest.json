@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-27T00:13:22.109Z",
-  "attemptedAt": "2026-07-27T00:13:22.109Z",
-  "lastSuccessfulAt": "2026-07-27T00:13:22.109Z",
+  "generatedAt": "2026-07-27T04:03:43.315Z",
+  "attemptedAt": "2026-07-27T04:03:43.315Z",
+  "lastSuccessfulAt": "2026-07-27T04:03:43.315Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-13T00:13:18.945Z",
-  "until": "2026-07-27T00:13:18.945Z",
+  "since": "2026-07-13T04:03:38.256Z",
+  "until": "2026-07-27T04:03:38.256Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,41 +13,297 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 380,
-      "freshCount": 34,
-      "eligibleTextCount": 34,
+      "count": 377,
+      "freshCount": 35,
+      "eligibleTextCount": 33,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 23956
+      "lastPostId": 23959
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 901,
-      "freshCount": 37,
+      "count": 912,
+      "freshCount": 38,
       "eligibleTextCount": 34,
       "selectedCount": 127,
       "error": null,
-      "lastPostId": 59351
+      "lastPostId": 59370
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 279,
+      "count": 275,
       "freshCount": 39,
       "eligibleTextCount": 39,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19338
+      "lastPostId": 19339
     }
   ],
-  "count": 1560,
-  "retainedItemCount": 429,
+  "count": 1564,
+  "retainedItemCount": 426,
   "observedItems": [
+    {
+      "id": "insidertracking/59370",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T03:46:42.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 75,
+      "tags": [
+        "semi",
+        "ai-policy",
+        "healthcare"
+      ],
+      "tickers": [
+        "TSM",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59369",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T03:18:25.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59368",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T03:16:12.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59367",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T03:15:13.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59366",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T03:05:43.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59365",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T03:00:47.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 57,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19339",
+      "channel": "bornlupin",
+      "datetime": "2026-07-27T02:37:03.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 80,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "flows"
+      ],
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59364",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T02:24:20.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59363",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T02:00:23.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 20,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59362",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T01:49:26.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59361",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T01:44:51.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59359",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T01:42:30.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 43,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59358",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T01:24:03.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23959",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-27T01:19:07.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "insidertracking/59357",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T01:18:00.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 43,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59356",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T01:17:11.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "aetherjapanresearch/23958",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-27T01:10:03.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 56,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/23957",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-07-27T01:05:26.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "insidertracking/59354",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T00:48:37.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 47,
+      "tags": [
+        "semi",
+        "equity"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59352",
+      "channel": "insidertracking",
+      "datetime": "2026-07-27T00:40:08.000Z",
+      "localDateKst": "2026-07-27",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/59351",
       "channel": "insidertracking",
@@ -451,7 +707,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59326",
@@ -463,7 +719,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59325",
@@ -475,7 +731,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59324",
@@ -487,7 +743,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59323",
@@ -508,7 +764,7 @@
         "GOOG",
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59322",
@@ -520,7 +776,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59321",
@@ -536,7 +792,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59320",
@@ -548,7 +804,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59319",
@@ -560,7 +816,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59318",
@@ -572,7 +828,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59317",
@@ -584,7 +840,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59315",
@@ -596,7 +852,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59314",
@@ -608,7 +864,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59313",
@@ -620,7 +876,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59312",
@@ -632,7 +888,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59311",
@@ -2732,7 +2988,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23917",
@@ -2744,7 +3000,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/23916",
@@ -4115,7 +4371,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19297",
@@ -22402,294 +22658,59 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/58165",
-      "channel": "insidertracking",
-      "datetime": "2026-07-13T04:02:31.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 64,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58163",
-      "channel": "insidertracking",
-      "datetime": "2026-07-13T03:07:28.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 53,
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58162",
-      "channel": "insidertracking",
-      "datetime": "2026-07-13T03:06:02.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 52,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23509",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-13T03:05:22.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 91,
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23508",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-13T02:53:01.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 70,
-      "tags": [
-        "geo",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19043",
-      "channel": "bornlupin",
-      "datetime": "2026-07-13T02:46:57.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 65,
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19042",
-      "channel": "bornlupin",
-      "datetime": "2026-07-13T02:44:55.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 81,
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23507",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-13T02:41:21.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "AVGO"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19041",
-      "channel": "bornlupin",
-      "datetime": "2026-07-13T02:01:22.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 92,
-      "tags": [
-        "macro",
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "META",
-        "AVGO",
-        "AMZN",
-        "MU",
-        "ORCL"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58156",
-      "channel": "insidertracking",
-      "datetime": "2026-07-13T01:54:46.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 64,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19040",
-      "channel": "bornlupin",
-      "datetime": "2026-07-13T01:32:58.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 52,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23503",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-13T01:21:25.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 99,
-      "tags": [
-        "credit",
-        "macro",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [
-        "ORCL"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58152",
-      "channel": "insidertracking",
-      "datetime": "2026-07-13T01:04:26.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 52,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23501",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-13T00:59:01.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 69,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19037",
-      "channel": "bornlupin",
-      "datetime": "2026-07-13T00:25:36.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 52,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23500",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-13T00:16:22.000Z",
-      "localDateKst": "2026-07-13",
-      "score": 76,
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1560,
-    "eligibleTextCount": 107,
-    "mediaOnlyCount": 1453,
-    "highSignalCount": 528,
-    "broadSignalCount": 893,
+    "observedCount": 1564,
+    "eligibleTextCount": 106,
+    "mediaOnlyCount": 1458,
+    "highSignalCount": 521,
+    "broadSignalCount": 882,
     "selectedRawCount": 367,
-    "selectedRawCoveragePct": 343,
+    "selectedRawCoveragePct": 346.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 333,
-    "semi": 657,
-    "kr-market": 238,
+    "semi": 651,
+    "ai-policy": 185,
+    "healthcare": 83,
+    "geo": 332,
+    "market-note": 341,
+    "macro": 554,
+    "power": 304,
+    "flows": 110,
+    "kr-market": 235,
+    "media-only": 32,
     "equity": 173,
     "earnings": 332,
-    "macro": 564,
-    "geo": 334,
-    "power": 306,
-    "ai-policy": 185,
     "japan": 88,
-    "media-only": 29,
-    "healthcare": 82,
-    "flows": 109,
-    "credit": 38,
+    "credit": 36,
     "insider": 30,
     "optical": 24,
     "crypto": 6
   },
   "tickerCounts": {
-    "000660.KS": 84,
-    "AMD": 88,
-    "005930.KS": 55,
+    "TSM": 112,
+    "000660.KS": 87,
+    "005930.KS": 56,
+    "NVDA": 81,
+    "AMD": 87,
     "INTC": 29,
-    "NVDA": 82,
     "006800.KS": 1,
-    "GOOG": 95,
-    "MU": 65,
-    "AMZN": 54,
-    "AVGO": 49,
+    "GOOG": 94,
+    "MU": 64,
+    "AMZN": 53,
+    "AVGO": 47,
     "BE": 22,
     "CRWV": 4,
     "035420.KS": 41,
-    "TSM": 114,
-    "MSFT": 42,
-    "META": 57,
+    "MSFT": 41,
+    "META": 56,
     "AAOI": 5,
-    "ORCL": 19,
+    "ORCL": 17,
     "RKLB": 17,
     "GOOGL": 22,
     "CAT": 3,
@@ -22851,75 +22872,75 @@
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (657 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
-    "Macro/Rates (564 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
-    "Geopolitics (334 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
-    "Market Notes (333 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Semiconductors/Memory (651 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
+    "Macro/Rates (554 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
+    "Market Notes (341 posts in current window): BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지",
+    "Geopolitics (332 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
     "Earnings/Corporate (332 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
-    "AI Power/Grid (306 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
-    "Korea Market (238 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
+    "AI Power/Grid (304 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
+    "Korea Market (235 posts in current window): [메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에...",
     "AI Policy/Export Controls (185 posts in current window): Market Summary - 2026년 7월 27일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란과의 협상에 시간을 주기 위해 대이란 공습을 일시 중단. · 미국과 이란은 중재국을 통한..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 114,
+      "count": 112,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위:..."
     },
     {
       "key": "GOOG",
-      "count": 95,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세..."
-    },
-    {
-      "key": "AMD",
-      "count": 88,
-      "text": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
+      "count": 94,
+      "text": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져..."
     },
     {
       "key": "000660.KS",
-      "count": 84,
+      "count": 87,
+      "text": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
+    },
+    {
+      "key": "AMD",
+      "count": 87,
       "text": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
     },
     {
       "key": "NVDA",
-      "count": 82,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세..."
+      "count": 81,
+      "text": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져..."
     },
     {
       "key": "MU",
-      "count": 65,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져 관심 집중 · 옵션 말고도 레버리지 베팅 수단 증가 · \"AI 끝났다\"보다 \"아직 더 간다\" 분위기 우세..."
-    },
-    {
-      "key": "META",
-      "count": 57,
-      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위:..."
+      "count": 64,
+      "text": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져..."
     },
     {
       "key": "005930.KS",
-      "count": 55,
+      "count": 56,
       "text": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
     },
     {
+      "key": "META",
+      "count": 56,
+      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위:..."
+    },
+    {
       "key": "AMZN",
-      "count": 54,
+      "count": 53,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위:..."
     },
     {
       "key": "AVGO",
-      "count": 49,
+      "count": 47,
       "text": "AI의 메모리 문제 팻 겔싱어 (Pat Gelsinger): 전 인텔 CEO 김호식 : SK하이닉스 부사장 1. AI 메모리 병목 현상(Memory Wall)의 3가지 원인 (팻 겔싱어 전 인텔 CEO) ① 탐욕스러운 AI 수요 (Insatiable Demand) AI 모델이 지능화될수록 생성되는..."
-    },
-    {
-      "key": "MSFT",
-      "count": 42,
-      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위:..."
     },
     {
       "key": "035420.KS",
       "count": 41,
       "text": "[데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스 「데크크(Data center Creator Crew)」에서 2030년까지 추가로 필요한 국내 AI DC 유효..."
+    },
+    {
+      "key": "MSFT",
+      "count": 41,
+      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위:..."
     }
   ],
   "categories": [
@@ -22929,7 +22950,7 @@
       "topics": [
         "macro"
       ],
-      "count": 564,
+      "count": 554,
       "focus": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
     },
     {
@@ -22938,7 +22959,7 @@
       "topics": [
         "geo"
       ],
-      "count": 334,
+      "count": 332,
       "focus": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
     },
     {
@@ -22947,7 +22968,7 @@
       "topics": [
         "credit"
       ],
-      "count": 38,
+      "count": 36,
       "focus": "📌 Barclays — Alphabet (GOOGL): Unpacking TPU-As-A-Service Overweight 유지, 목표주가 425달러 (현재가 317.69달러, 상승여력 +33.8%) 핵심 요지 구글이 자사 데이터센터 담장 밖으로 AI 용량을 확장하는 새로운 경제 모델, 이른바..."
     },
     {
@@ -22956,7 +22977,7 @@
       "topics": [
         "semi"
       ],
-      "count": 657,
+      "count": 651,
       "focus": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
     },
     {
@@ -22974,7 +22995,7 @@
       "topics": [
         "power"
       ],
-      "count": 306,
+      "count": 304,
       "focus": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
     },
     {
@@ -22992,7 +23013,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 238,
+      "count": 235,
       "focus": "[메리츠증권 반도체/디스플레이 김선우] 메리츠 인뎁스 보고서: 지능제조업 - AI DC 투자 트렌드: 확산. 1) 현금 기반 → 레버리지(부채) 기반. 2) 투자 주체는 빅테크 →非빅테크 다주체로, 3) 지역도 미국 → 非미국으로 확산 - AI 기업들은 사용처, 입지조건을 고려해 유럽, 아태 지역 데이터센터에..."
     },
     {
@@ -23028,7 +23049,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 82,
+      "count": 83,
       "focus": "📌 Barclays — Alphabet (GOOGL): Unpacking TPU-As-A-Service Overweight 유지, 목표주가 425달러 (현재가 317.69달러, 상승여력 +33.8%) 핵심 요지 구글이 자사 데이터센터 담장 밖으로 AI 용량을 확장하는 새로운 경제 모델, 이른바..."
     },
     {
@@ -23046,7 +23067,7 @@
       "topics": [
         "flows"
       ],
-      "count": 109,
+      "count": 110,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/24 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (24.36%) 2위:..."
     },
     {
@@ -23064,7 +23085,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 333,
+      "count": 341,
       "focus": "BofA- 전 세계 토큰 사용량은 2025년 이후 주당 평균 +6%, 2026년 이후 주당 평균 +9% 증가 했으며, 2026년 7월 기준 중국 모델이 전체 토큰의 약 70%를 차지"
     }
   ],
@@ -24441,6 +24462,91 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/59370",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59370",
+      "datetime": "2026-07-27T03:46:42.000Z",
+      "localDateKst": "2026-07-27",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "healthcare"
+      ],
+      "tickers": [
+        "TSM",
+        "000660.KS"
+      ],
+      "score": 75,
+      "hasText": true,
+      "summary": "월스트리트저널의 시장 칼럼니스트 제임스 매킨토시는 SK하이닉스 ADR이 미국 증시에 상장된 이후 한국 본주 대비 ADR 프리미엄이 16~51%까지 확대됐다며, 이는 AI 관련 투자 과열과 메모리 반도체 종목에..."
+    },
+    {
+      "id": "insidertracking/59365",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59365",
+      "datetime": "2026-07-27T03:00:47.000Z",
+      "localDateKst": "2026-07-27",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "뱅크오브아메리카는 투자심리를 나타내는 불앤베어(Bull & Bear) 지표가 지난주 9.5에서 9.6으로 상승하며, 코로나19 팬데믹 이후 증시 반등이 정점을 기록했던 2021년 이후 최고치를 기록했다고..."
+    },
+    {
+      "id": "bornlupin/19339",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19339",
+      "datetime": "2026-07-27T02:37:03.000Z",
+      "localDateKst": "2026-07-27",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "flows"
+      ],
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 80,
+      "hasText": true,
+      "summary": "대만 메모리 모듈 업체 에이팩서(Apacer)의 장자쿤 CEO가 밝힌 메모리 시장 수급 불균형 현황 및 전망 1. 메모리 시장의 '비싸고 부족한' 기조 지속 AI 투자 열풍이 식지 않는 한, DRAM 및..."
+    },
+    {
+      "id": "insidertracking/59358",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59358",
+      "datetime": "2026-07-27T01:24:03.000Z",
+      "localDateKst": "2026-07-27",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "엔비디아가 차세대 CPU와 GPU 설계 개발에 Vera 프로세서를 활용해 설계 속도를 높이고 있다고 공식 블로그를 통해 발표. 엔비디아는 CPU, GPU, 인공지능 시스템이 점점 복잡해짐에 따라 설계..."
+    },
+    {
+      "id": "aetherjapanresearch/23958",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/23958",
+      "datetime": "2026-07-27T01:10:03.000Z",
+      "localDateKst": "2026-07-27",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "score": 56,
+      "hasText": true,
+      "summary": "SK하이닉스, 키옥시아 엑시트로 40조원 영업외이익 전망 2Q26 영업외이익 41.6조원으로 추정됨. 지난 2018년 동사는 베인컴패니와 키옥시아 (전 도시바메모리)에 3.9조원의 전략적 투자 단행 (SPC1..."
+    },
     {
       "id": "bornlupin/19338",
       "channel": "bornlupin",
@@ -28404,65 +28510,6 @@
       "summary": "SK Hynix's 51% Arbitrage Trade Stymied by Strict Conversion Cap (7/23) - 전 세계에서 가장 매력적인 차익거래 기회 가운데 하나로 꼽히던 거래가 앞으로도..."
     },
     {
-      "id": "insidertracking/59012",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59012",
-      "datetime": "2026-07-23T08:30:40.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "005930.KS",
-        "267260.KS",
-        "032640.KS"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "삼성전자에서 촉발된 파업이 한국 산업계 전반으로 확산하는 양상. 지난 5월 메모리 반도체 생산 직원들의 파업 이후 해당 직원들은 올해 말 1인당 40만 달러 이상 규모의 성과급을 받을 권리를 확보. 이러한..."
-    },
-    {
-      "id": "insidertracking/59011",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59011",
-      "datetime": "2026-07-23T08:29:25.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ SK하이닉스 ADR이 미국 증시 프리마켓에서 5% 이상 상승. 한국예탁결제원은 SK하이닉스의 한국 상장 주식을 미국예탁증서(ADR)로 전환할 수..."
-    },
-    {
-      "id": "insidertracking/59007",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59007",
-      "datetime": "2026-07-23T08:00:04.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy",
-        "earnings",
-        "japan"
-      ],
-      "tickers": [
-        "AMD",
-        "AMZN"
-      ],
-      "score": 97,
-      "hasText": true,
-      "summary": "2026년 7월 23일 프리마켓 브리핑 미국 증시는 중동 지정학 리스크 확대로 위험자산 선호가 약화된 가운데 프리마켓에서 하락 압력이 우세한 모습. 유럽 증시 역시 일제히 약세 출발하며 ECB 통화정책회의와..."
-    },
-    {
       "id": "aetherjapanresearch/23834",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23834",
@@ -30975,27 +31022,6 @@
       "summary": "Citi) 디스코(Disco, 6146.T) ; 닛케이 실적 예고 기사 (2026년 7월): 서프라이즈 없음, 실적 발표를 앞둔 SPE 업체들의 현황 씨티의 견해 닛케이는 7월 17일 일본시간 16시 온라인..."
     },
     {
-      "id": "aetherjapanresearch/23726",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/23726",
-      "datetime": "2026-07-20T12:07:50.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market",
-        "insider",
-        "earnings"
-      ],
-      "tickers": [
-        "INTC"
-      ],
-      "score": 91,
-      "hasText": true,
-      "summary": "JP모건 장전 코멘트 미국: 테크/모멘텀이 발판을 찾으려 시도하는 가운데 선물은 상승하고 있습니다. 당사의 애널리스트 두브라브코(Dubravko)와 미슬라브(Mislav)는 최신 노트에서 반도체의 상승 여력을..."
-    },
-    {
       "id": "bornlupin/19177",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19177",
@@ -31071,20 +31097,6 @@
       "score": 73,
       "hasText": true,
       "summary": "모건스탠리: \"미국 메모리 주식의 매도세가 매력적인 진입 시점을 만들고 있다.\" \"이번 메모리 사이클은 데이터 센터의 강세만이 유일한 동인이라는 점에서 이례적입니다. 이는 지난 4월에 보았듯이 다른 부문에서..."
-    },
-    {
-      "id": "bornlupin/19172",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19172",
-      "datetime": "2026-07-20T08:24:29.000Z",
-      "localDateKst": "2026-07-20",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "[메리츠증권 전기전자/IT부품 양승수] ▶ 대덕전자, 신규시설투자 등 공시 - 투자구분: 신규시설투자 / 반도체용 제품 생산 설비 및 부대 시설 투자 - 투자목적: 반도체 시장 수요 증가에 대응하기 위한 생산..."
     }
   ]
 }
