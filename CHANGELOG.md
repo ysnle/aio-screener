@@ -1,3 +1,30 @@
+## v53.51 (2026-07-27)
+- **P842 / Wave 4 content and education boundary**: added a versioned capability manifest and executable Guide claim audit, rewrote stale real-time/AI/translation/RRG/Stage/sentiment/macro/action wording into source-aware observation and checklist language, and added strict referrer metadata.
+- **P843 / Wave 5 operations and public-readiness boundary**: added the 17-route visual-state matrix, operations SLO/readiness manifests, blocking three-lap route soak with entity round-trip and canvas-growth evidence, SHA-pinned Actions with lockfile installs, compatible security headers, and conservative operator-gated public-beta criteria. Local route soak passes with zero browser errors; SA-04/live headers/30-day SLO/provider-rights remain operator-required.
+- R1 7곳 v53.51
+
+## v53.50 (2026-07-27)
+- **P841 / Wave 3 vertical slice boundary**: added an executable 10-slice registry for the planned route pairs, mounted route-scoped slice markers and live completeness state, exposed the contract through `AIO_ARCH`, and added CI/browser gates for direct surface, required-producer mapping, blocked-network states, mobile controls, and leave/re-entry. Boundary verification passes all local gates; SA-04 remains operator-required until a public snapshot with FRED/HY success is available.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.50
+
+## v53.49 (2026-07-27)
+- **P840 / W1-04, W1-05, W2-05 completion**: added SEC current/aged/historical freshness with fail-closed decision eligibility, blocked ticker action narratives when ticker/quote/market-health evidence is missing, and introduced a versioned Vault KDF envelope with legacy decrypt/re-encrypt migration. Targeted gates and PFE2-09 pass.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.49
+
+## v53.48 (2026-07-27)
+- **P839 / W2 route, chart, and key-resource remediation**: added abortable route/entity scopes and late-result guards, centralized native Chart.js replacement/disposal with a 480px canvas cap, and retired automatic plaintext API-key IndexedDB backup/recovery while preserving explicit JSON export/import.
+- Added executable scope/chart lifecycle contracts and a static runtime contract that rejects the legacy `aio-keys-backup` open/read/write UI path. Wave 2 local verification passed all available gates; SA-04 remains operator-required because the public snapshot has no FRED key.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.48
+
+## v53.47 (2026-07-27)
+- **P838 / W1 decision-evidence boundary**: normalized `allowedUse` to `decision` / `reference` / `none`, added purpose-specific evidence selectors and completeness reporting, and made Trading Score consume only fresh, numeric decision evidence with fail-closed coverage blocking.
+- Added executable ESM contracts for alias normalization, display/decision separation, last-known-value access, completeness, and reference-only Trading Score blocking. Wave 1 local verification passed all available gates; SA-04 remains operator-required because the public snapshot has no FRED key.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.47
+
 ## v53.46 (2026-07-27)
 - **P837 / fast-plane deployment smoke bootstrap handling**: added propagation retries and an explicit initial-empty-KV acceptance state so a freshly deployed Worker is not misreported as failed before its first scheduled snapshot; malformed, partial, or unreachable responses still fail the smoke step.
 - The Worker remains operationally pending until the first scheduled publish and the required 7-day soak complete.

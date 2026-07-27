@@ -26,3 +26,81 @@ export function createResourceBag() {
 
   return Object.freeze({ add, dispose, size: () => disposers.size });
 }
+
+function chartFor(entry) {
+  return entry?.chart && typeof entry.chart.destroy === 'function' ? entry.chart : entry;
+}
+
+function canvasFor(entry) {
+  return entry?.canvas || chartFor(entry)?.canvas || null;
+}
+
+export function createChartRegistry({ maxCanvasHeight = 480 } = {}) {
+  const entries = new Map();
+  const originalMaxHeights = new Map();
+  let disposed = false;
+
+  function restoreCanvas(id, entry) {
+    const canvas = canvasFor(entry);
+    if (!canvas) return;
+    const original = originalMaxHeights.get(id);
+    if (original != null && canvas.style) canvas.style.maxHeight = original;
+    if (canvas.dataset?.aioChartRegistry === id) delete canvas.dataset.aioChartRegistry;
+    originalMaxHeights.delete(id);
+  }
+
+  function deleteEntry(id) {
+    const entry = entries.get(id);
+    if (!entry) return false;
+    entries.delete(id);
+    restoreCanvas(id, entry);
+    return true;
+  }
+
+  function destroy(id) {
+    const entry = entries.get(id);
+    if (!entry) return false;
+    deleteEntry(id);
+    try { chartFor(entry)?.destroy?.(); } catch (_) {}
+    return true;
+  }
+
+  function set(id, entry) {
+    if (disposed) {
+      try { chartFor(entry)?.destroy?.(); } catch (_) {}
+      return registry;
+    }
+    destroy(id);
+    entries.set(id, entry);
+    const canvas = canvasFor(entry);
+    if (canvas?.style) {
+      originalMaxHeights.set(id, canvas.style.maxHeight || '');
+      if (Number.isFinite(maxCanvasHeight) && maxCanvasHeight > 0) canvas.style.maxHeight = `${maxCanvasHeight}px`;
+      if (canvas.dataset) canvas.dataset.aioChartRegistry = id;
+    }
+    return registry;
+  }
+
+  function clear() {
+    [...entries.keys()].forEach(destroy);
+  }
+
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    clear();
+  }
+
+  const registry = Object.freeze({
+    get: (id) => entries.get(id),
+    set,
+    delete: deleteEntry,
+    destroy,
+    clear,
+    dispose,
+    forEach: (callback) => entries.forEach(callback),
+    size: () => entries.size,
+    get disposed() { return disposed; }
+  });
+  return registry;
+}

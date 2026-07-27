@@ -1,9 +1,9 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P837 verification
+verified_by: agent (Fable 5) + Codex P761-P843 verification
 last_verified: 2026-07-27
 confidence: high
 
-## Current architecture checkpoint (2026-07-27, v53.45)
+## Current architecture checkpoint (2026-07-27, v53.51)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
@@ -13,9 +13,62 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.46
-latest_P_covered: P837
-current_P837_checkpoint: fast-plane smoke distinguishes propagation and initial-empty-KV bootstrap from malformed/partial responses; first scheduled publish and 7-day soak remain separate; full verification was intentionally not rerun per operator request
+checklist_version: v53.51
+latest_P_covered: P843
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P842 Wave 4 claim boundary and P843 Wave 5 route/operations gates pass except operator-required live criteria
+
+## P843 Wave 5 route soak, operations, and public-readiness boundary (2026-07-27, v53.51)
+
+- [x] `architecture/visual-state-matrix.json` covers all 17 routes and loaded/reference/blocked/stale-reference/empty states with required surfaces.
+- [x] `architecture/operations-slo.json` declares bounded settle, error, chart-growth, canvas, cross-page, and failure-alert targets; public readiness remains conservative and operator-gated.
+- [x] All GitHub Actions refs are full commit SHA pinned; CI uses `npm ci`; Wrangler is exact-versioned; `_headers` is allowlisted and staged for compatible static hosts.
+- [x] Three-lap route soak passes all 17 routes with one visible page, stable 42-canvas maximum, zero non-expected browser errors, and AAPL→MSFT→AAPL entity re-entry.
+- [x] Final all-work browser boundary passes headless `1102/1102`, boot, architecture/browser `17/17`, vertical slices `10/10`, SA-02/SA-03, viewport `68/68`, Critical-10, Vault PFE2-01~09, and accessibility `17/17`.
+- [ ] Live deployed revision, edge header enforcement, 30-day automation SLO, provider rights, and SA-04 remain operator-required.
+
+## P842 Wave 4 capability/content boundary (2026-07-27, v53.51)
+
+- [x] `wave4.capability.v1` manifest covers nine capabilities with status, evidence, allowed wording, and forbidden claims.
+- [x] Guide has nine executable capability markers and the browser audit reports `pass`.
+- [x] Guide/metadata copy no longer overclaims real-time, automatic translation, AI-backed behavior, RRG/Stage certainty, one-way macro causality, or direct trading instructions.
+- [x] Capability static fixtures reject forbidden wording and architecture/browser Guide assertions pass.
+
+## P841 Wave 3 vertical slice boundary (2026-07-27, v53.50)
+
+- [x] Ten ordered slice contracts cover all 17 routes without duplicate or missing route membership.
+- [x] Router scopes expose slice id/order/routes/required data, and active page nodes expose slice marker plus live completeness state.
+- [x] Static contract verifies native lifecycle ownership, canonical page completeness, and CI wiring.
+- [x] Chromium gate covers direct route surface, required producer mapping, blocked external network, mobile controls, and leave/re-entry for 10/10 slices.
+- [x] Wave 3 boundary suite passes: static workflow, headless `1102/1102`, boot interaction, architecture/browser 17-route, vertical-slice browser `10/10`, SA-02, SA-03, viewport `68/68`, Critical-10, Vault PFE2-01~09, and accessibility `17/17`.
+- [ ] SA-04 boot-network-budget remains operator-required while the public snapshot has `fredHasKey:false` / `fredFetchOk:false`; the FRED/HY success branch was not locally executable.
+
+## P840 W1-04/W1-05/W2-05 freshness, narrative, and KDF remediation (2026-07-27, v53.49)
+
+- [x] `sec-report.v2` classifies SEC observations as current, aged, historical, or unknown and blocks decision eligibility for stale/reference-only facts.
+- [x] Ticker decision narratives fail closed when the entity, finite quote, or market-health evidence is missing.
+- [x] Vault writes use the versioned v2 envelope/KDF; legacy v1 ciphertext decrypts with the legacy KDF and is re-encrypted through `safeLS`.
+- [x] Targeted syntax, ESM, runtime-contract, architecture-contract, and Vault Chromium PFE2-09 checks pass.
+- [x] Wave 1·2 full gates pass: headless 1102/1102, architecture/browser 17-route with browserErrors 0, FULL_INIT 68/68, Critical-10, Vault PFE2-01~09, accessibility, and SA-02/SA-03.
+- [ ] SA-04 remains operator-required while the public snapshot has `fredHasKey:false` / `fredFetchOk:false`; this is an external precondition, not a Wave 1·2 code failure.
+
+## P839 W2 Scope/chart/key-resource remediation (2026-07-27, v53.48)
+
+- [x] Route scope exposes `mountId`, normalized `entityId`, abort signal, `isCurrent`, and disposal; changed tickers remount and identical route/entity transitions no-op.
+- [x] Entity and screener async providers/orchestrators pass abort signals and reject late scope results.
+- [x] Native Chart.js pages use a replaceable route registry with disposal and 480px canvas max-height ownership.
+- [x] Automatic plaintext API-key IndexedDB mirror/open/read/recovery is retired; legacy database deletion and explicit export/import policy are wired.
+- [x] Targeted ESM, runtime-contract, storage, syntax, and diff checks pass.
+- [x] Wave 2 static/runtime, headless 1102/1102, architecture/browser 17-route, FULL_INIT viewport 68/68, Critical-10, Vault PFE2-01~08, accessibility 17/17, and SA-02/SA-03 verification.
+- [ ] SA-04 boot-network-budget: operator-required until a snapshot with `fredFetchOk:true` and `hyOAS` is available; current public snapshot remains `fredHasKey:false` / `fredFetchOk:false`.
+
+## P838 W1 Decision-evidence boundary (2026-07-27, v53.47)
+
+- [x] `allowedUse` aliases normalize fail-closed to `decision`, `reference`, or `none`.
+- [x] Display and last-known selectors can retain research context without exposing it to decision consumers.
+- [x] Trading Score blocks reference-only or insufficient-coverage inputs and preserves component-level missing evidence.
+- [x] ESM selector/model fixtures and module syntax checks pass.
+- [x] Wave 1 static/runtime, headless 1102/1102, architecture/browser 17-route, FULL_INIT viewport 68/68, Critical-10, Vault PFE2-01~08, accessibility 17/17, and SA-02/SA-03 verification.
+- [ ] SA-04 boot-network-budget: operator-required until a snapshot with `fredFetchOk:true` and `hyOAS` is available; current public snapshot is explicitly `fredHasKey:false` / `fredFetchOk:false`.
 
 ## P837 Fast-plane deploy smoke bootstrap (2026-07-27, v53.46)
 
@@ -70,7 +123,7 @@ current_P837_checkpoint: fast-plane smoke distinguishes propagation and initial-
 
 ## P832 fundamental SEC core report surface (2026-07-27, v53.41)
 
-- [x] `sec-report.v1` projects official SEC annual-fact filing identity, period/submission metadata, coverage, and finite observed metrics.
+- [x] `sec-report.v2` projects official SEC annual-fact filing identity, period/submission metadata, coverage, finite observed metrics, and freshness state.
 - [x] `entity.js` owns the native `fund-native-sec-report` child with source/provenance markers and unavailable states for missing facts.
 - [x] Multi-source legacy report sections (peer/news/external, charts, and AI narrative) remain explicitly separate and are not presented as official SEC evidence.
 - [ ] Architecture browser/full release QA and SEC coverage expansion remain pending.

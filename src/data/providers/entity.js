@@ -7,20 +7,20 @@
 export function createEntityProvider({ read = () => ({}), httpClient, fundamentalsUrl = './public-data/sec-fundamentals.json' } = {}) {
   let fundamentalsTablePromise = null; // fetched once per provider lifetime; sec-fundamentals.json refreshes daily server-side
 
-  function loadFundamentalsTable() {
+  function loadFundamentalsTable({ signal } = {}) {
     if (fundamentalsTablePromise) return fundamentalsTablePromise;
     if (!httpClient || typeof httpClient.requestJson !== 'function') return (fundamentalsTablePromise = Promise.resolve({}));
-    fundamentalsTablePromise = httpClient.requestJson(fundamentalsUrl, { cache: 'no-store' }).then((response) => {
+    fundamentalsTablePromise = httpClient.requestJson(fundamentalsUrl, { cache: 'no-store', signal }).then((response) => {
       return response.ok && response.data && typeof response.data.data === 'object' ? response.data.data : {};
     });
     return fundamentalsTablePromise;
   }
 
   return Object.freeze({
-    async readCurrent() {
+    async readCurrent({ signal } = {}) {
       const value = read() || {};
       const id = value.id ? String(value.id).toUpperCase() : null;
-      const table = await loadFundamentalsTable();
+      const table = await loadFundamentalsTable({ signal });
       const fetchedFundamentals = id && table[id] ? { ...table[id] } : null;
       return Object.freeze({
         id,

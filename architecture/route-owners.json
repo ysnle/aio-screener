@@ -355,7 +355,7 @@
       ],
       "p779Boundary": "entity.js owns the SEC annual-data availability/source badge from the normalized sec-fundamentals artifact.",
       "p815Boundary": "entity.js now owns only the bounded SEC-derived fund-analysis-text summary line from normalized fundamentals; the former inline aggregate report is inert and the multi-source report sections, charts, and AI narrative remain legacy-owned.",
-      "p832Boundary": "entity.js now additionally owns the bounded SEC annual-fact core report from sec-report.v1: filing identity, period/submission metadata, coverage count, and finite observed metrics. The multi-source report sections, peer/news/external panels, charts, and AI narrative remain legacy-owned.",
+        "p832Boundary": "entity.js now additionally owns the bounded SEC annual-fact core report from sec-report.v2: filing identity, period/submission metadata, coverage count, finite observed metrics, and explicit freshness state. The multi-source report sections, peer/news/external panels, charts, and AI narrative remain legacy-owned.",
       "notes": "Shares entity.js render() with ticker/options; P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover."
     },
     "options": {
@@ -587,7 +587,7 @@
     "RESOLVED (P829): ticker after-hours and portfolio P&L hero sinks are native from live/entity/portfolio evidence with explicit no-position and unavailable states.",
   "RESOLVED (P830): the nine-column portfolio holdings table is native from the Vault-backed normalized portfolio slice; legacy CRUD actions remain delegated through safe data-action buttons.",
   "RESOLVED (P831): portfolio holding count, P/L/day, cash, VIX exposure, and sector allocation are native from portfolio-surface.v1; legacy summary/sector writers are deleted and risk/history/AI remain separate.",
-  "RESOLVED (P832): fundamental official SEC annual-fact filing identity, metadata, coverage, and finite metrics are native from sec-report.v1; mixed-source report sections/charts/AI remain separate.",
+  "RESOLVED (P832): fundamental official SEC annual-fact filing identity, metadata, coverage, finite metrics, and freshness state are native from sec-report.v2; mixed-source report sections/charts/AI remain separate.",
     "RESOLVED (P820): home-fg-score is native from the normalized sentiment slice with reference-only lineage; the legacy score writer is fenced while home-fg-label remains legacy-owned.",
     "RESOLVED (P821): home quality meter/score/label are native fail-closed surfaces; the legacy block that displayed tradingScore as Quality is fenced until a canonical five-input quality model is available.",
     "RESOLVED (P822): technical candle title/meta are native from normalized analysis input with a fail-closed waiting state; the legacy chart retains canvas/indicator lifecycle only.",

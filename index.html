@@ -7,18 +7,19 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.46 — 올인원 투자 터미널</title>
-  <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
+  <title>AIO Screener v53.51 — 올인원 투자 터미널</title>
+  <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
-  <meta property="og:description" content="실시간 시장 분석, 매매 시그널, 섹터 RRG, Fear&Greed, 포트폴리오 관리. AI 기반 무료 투자 대시보드.">
+  <meta property="og:description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 RRG, Fear&Greed, 포트폴리오 관리. AI 교육·리서치 보조 대시보드.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ysnle.github.io/aio-screener/">
   <meta property="og:image" content="https://ysnle.github.io/aio-screener/og-image.svg">
   <link rel="canonical" href="https://ysnle.github.io/aio-screener/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AIO Screener — 올인원 투자 터미널">
-  <meta name="twitter:description" content="실시간 시장 분석, 매매 시그널, 섹터 RRG, Fear&Greed, 포트폴리오 관리.">
+  <meta name="twitter:description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 RRG, Fear&Greed, 포트폴리오 관리.">
   <meta name="twitter:image" content="https://ysnle.github.io/aio-screener/og-image.svg">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%230a0e14'/><text x='50' y='58' text-anchor='middle' font-family='Inter,sans-serif' font-weight='800' font-size='42' fill='%235ba8ff'>AIO</text></svg>" type="image/svg+xml">
   <!-- v49.43 P310 hotfix: manifest.json 참조 제거 — GitHub UI에서 manifest.json 삭제됨 (29af1f3). PWA 비활성. -->
@@ -5565,9 +5566,8 @@ button[data-filter-active="true"] {
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(33,29,22,0.15);display:flex;gap:4px;flex-wrap:wrap;">
               <button class="aio-key-backup-menu" data-action="_aioExportKeys" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(34,117,76,0.12);border:1px solid rgba(34,117,76,0.3);color:var(--data-green);border-radius:3px;cursor:pointer;" title="모든 API 키를 JSON 파일로 다운로드">백업</button>
               <button class="aio-key-restore-menu" data-action="_aioImportKeysPrompt" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(33,29,22,0.12);border:1px solid rgba(33,29,22,0.3);color:var(--data-purple);border-radius:3px;cursor:pointer;" title="JSON 파일에서 키 복원">복원</button>
-              <button class="aio-key-recover-menu" data-action="_aioRecoverKeys" style="flex:1;font-size:10px;padding:4px 6px;background:rgba(33,29,22,0.12);border:1px solid rgba(33,29,22,0.3);color:var(--data-amber);border-radius:3px;cursor:pointer;" title="IndexedDB 자동 백업에서 복원">자동</button>
             </div>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.4;">캐시 클리어 시 키 손실 방지 — 키 입력 후 1회 백업 권장</div>
+             <div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.4;">자동 브라우저 백업 없음 — 암호화 Vault 또는 명시 백업 파일을 사용하세요</div>
           </div>
 
         </div>
@@ -5642,7 +5642,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.46</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.51</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -11453,6 +11453,25 @@ button[data-filter-active="true"] {
     </div>
   </details>
 
+  <!-- Wave 4: every guide claim is tied to a capability and an observable
+       evidence boundary. The native guide module audits these markers on mount. -->
+  <section id="guide-capability-manifest" class="aio-widget" data-aio-capability-manifest="wave4.capability.v1" aria-labelledby="guide-capability-title" style="border-left:3px solid var(--data-cyan);margin:10px 0 14px;padding:12px 14px;">
+    <div id="guide-capability-title" class="widget-title">기능 범위와 문구 정책</div>
+    <div style="font-size:10px;color:var(--text-secondary);line-height:1.6;margin-bottom:8px;">아래 상태는 기능의 약속 범위입니다. 수치·뉴스·AI 답변은 기준시각, 출처, 신선도와 결측 상태를 확인하고, 행동은 관측·확인 체크리스트로만 정리합니다.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px;">
+      <div data-aio-capability-claim data-capability="quote-currentness" data-claim-mode="conditional"><b>시세 현재성</b><br>source-aware 시세 참고 · observedAt/freshness 확인</div>
+      <div data-aio-capability-claim data-capability="translation" data-claim-mode="optional"><b>뉴스 번역</b><br>선택적 AI 번역 보강 · 원문 우선</div>
+      <div data-aio-capability-claim data-capability="ai-analysis" data-claim-mode="optional"><b>AI 분석</b><br>교육·리서치 보조 · 매매 지시 없음</div>
+      <div data-aio-capability-claim data-capability="rrg" data-claim-mode="reference"><b>RRG</b><br>상대강도 로테이션 참고 분류 · 일봉 이력 확인</div>
+      <div data-aio-capability-claim data-capability="stage" data-claim-mode="conditional"><b>Stage</b><br>Weinstein 방식 추세 단계 참고 · OHLCV 필요</div>
+      <div data-aio-capability-claim data-capability="news-sentiment" data-claim-mode="reference"><b>뉴스 감성</b><br>휴리스틱 점수 참고 · 원문·날짜 확인</div>
+      <div data-aio-capability-claim data-capability="market-health" data-claim-mode="reference"><b>시장 점수</b><br>시장 환경 설명 지표 · 매매 승인 아님</div>
+      <div data-aio-capability-claim data-capability="macro-causality" data-claim-mode="reference"><b>금리·물가·역전·공포</b><br>관측된 관계와 확인 항목 · 단선 인과 아님</div>
+      <div data-aio-capability-claim data-capability="decision-checklist" data-claim-mode="observation"><b>행동 안내</b><br>관측·확인·무효화 체크리스트</div>
+    </div>
+    <div id="guide-capability-status" data-aio-capability-status="pending" style="margin-top:8px;color:var(--text-muted);">기능 범위 검증 대기</div>
+  </section>
+
   <!-- v48.58: Guide 페이지 내비게이션 (TOC + 검색) — 18K줄 탐색성 개선 -->
   <div class="aio-section">
   <div class="aio-section-hd"><span class="aio-section-label">빠른 이동</span></div>
@@ -11493,18 +11512,18 @@ button[data-filter-active="true"] {
           <ul>
             <li><strong>1. 오늘의 브리핑</strong> — 전일 이벤트 + Action Item 5개 확인 (5분)</li>
             <li><strong>2. 홈 대시보드 KPI</strong> — SPX/NASDAQ/VIX/F&amp;G 수치 읽기 (1분)</li>
-            <li><strong>3. 매매 신호</strong> — 20점 스코어 확인 (75+ = 매수우호 · 45- = 주의)</li>
+            <li><strong>3. 매매 신호</strong> — 20점 환경 스코어 참고 (75+ = 우호적 입력 · 45- = 주의)</li>
             <li><strong>4. 시장 품질 + 국면</strong> — Broad/Narrow · UPTREND/TOPPING/DOWN/BOTTOM 확인</li>
             <li><strong>5. 매크로</strong> — CPI/NFP/FOMC 일정 + Yield Curve (역전 여부)</li>
             <li><strong>6. 센티먼트</strong> — F&amp;G + AAII + Put/Call 극단값 체크</li>
             <li><strong>7. 시장 폭</strong> — % Above 50MA + Divergence 탐지</li>
-            <li><strong>8. 섹터 로테이션 (RRG)</strong> — Leading 사분면 섹터 선별</li>
+            <li><strong>8. 섹터 로테이션 (RRG)</strong> — 상대강도·모멘텀 사분면 분류 확인</li>
             <li><strong>9. 기업 분석</strong> — 17개 관점 통과 여부 + F-Score</li>
             <li><strong>10. 포트폴리오</strong> — 2% 룰 사이즈 · ATR 스톱 · Pyramiding</li>
           </ul>
           <div class="explain-callout">
             <strong>Value Chain</strong>: 연준 정책 → 금리 → DXY → 유동성 → 위험자산 Flow → 지수 → 섹터 → 개별주.
-            <br>이 흐름 중 한 단계라도 이탈 = 포지션 재검토 신호.
+            <br>이 연결은 관측 프레임이며, 각 단계의 기준시각·출처·반대 증거를 함께 확인합니다.
           </div>
         </div>
       </div>
@@ -11593,7 +11612,7 @@ button[data-filter-active="true"] {
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 화면 확인만으로 시장 분위기 30초 파악.<br>
           <b>주요 정보:</b> 거래 적합도(0~100), VIX, F&G, SPY/QQQ/DIA, 뉴스, 브리핑<br>
-          <b>유의사항:</b> 점수 45 미만 = 관망. 빨간 배너 = 신규 매수 금지.
+           <b>유의사항:</b> 점수 45 미만은 입력과 시장 환경을 다시 확인할 상태입니다. 빨간 배너도 매매 지시가 아니라 확인 항목입니다.
         </div>
       </div>
 
@@ -11612,8 +11631,8 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">시장 폭 (BREADTH)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 시장 건강도 대시보드. 이평선 위 종목 비율 차트 제공.<br>
-          <b>핵심:</b> 200일선 위 비율 70%+=강세장, 30%-=약세장. 비율↓+지수↑=위험.<br>
-          <b>Weinstein:</b> Stage 2 초입=매수 타이밍, Stage 3~4=방어 전환.
+          <b>핵심:</b> 200일선 위 비율 70% 이상/30% 이하를 참여 폭 관찰 기준으로 봅니다. 비율↓+지수↑는 괴리 확인 항목입니다.<br>
+          <b>Weinstein:</b> Stage 2·3·4는 OHLCV 기반 추세 단계 참고 분류이며, 단독 매매 신호가 아닙니다.
         </div>
       </div>
 
@@ -11622,8 +11641,8 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--data-amber);margin-bottom:6px;"> 센티먼트 (SENTIMENT)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> VIX/P-C비율/AAII/NAAIM/크레딧 종합 심리 측정.<br>
-          <b>역발상:</b> 극단 공포(VIX 30+, F&G 20-)=역사적 매수 기회.<br>
-          <b>유의사항:</b> 극단 공포 구간 → 분할 매수(3~5회)로 리스크 분산.
+          <b>관찰:</b> 극단 공포(VIX 30+, F&G 20-)는 과거 사례와 현재 유동성·시장폭을 함께 확인할 구간입니다.<br>
+          <b>유의사항:</b> 극단값에서는 기준시각, 신선도, 포지션 노출, 무효화 조건을 체크리스트로 기록합니다.
         </div>
       </div>
 
@@ -11654,7 +11673,7 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">매크로 (MACRO)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> GDP/CPI/금리/PMI + 경기 사이클 큰 그림 파악.<br>
-          <b>핵심:</b> Fed 금리가 핵심. 인상기=방어, 인하기=공격.<br>
+          <b>핵심:</b> Fed 금리와 성장·물가·유동성의 동시 변화를 관찰합니다. 인상기/인하기의 시장 반응은 국면에 따라 달라질 수 있습니다.<br>
           <b>학습 팁:</b> AI 채팅에 경기 사이클/CPI 영향 등 질문.
         </div>
       </div>
@@ -11664,8 +11683,8 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">환율·채권 (FX & BOND)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> DXY, USD/KRW, 국채 수익률(2Y/10Y/30Y), 수익률 곡선 표시.<br>
-          <b>핵심:</b> 환율·채권 = 주식 선행지표. 10Y 급등=주식↓, 곡선 역전=침체 신호.<br>
-          <b>유의사항:</b> DXY↑=신흥국↓ 미국대형주↔. 원/달러 환율 함께 확인.
+          <b>핵심:</b> 환율·채권은 주식과 함께 관찰하는 위험 선호 맥락입니다. 10Y 변화와 곡선 역전은 성장·물가·신용 자료와 교차 확인합니다.<br>
+          <b>유의사항:</b> DXY·원/달러·미국 대형주 움직임의 방향과 기준시각을 각각 확인합니다.
         </div>
       </div>
 
@@ -11676,7 +11695,7 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--data-green);margin-bottom:6px;">포트폴리오 (PORTFOLIO)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 보유 종목 입력 → 수익률/섹터 배분/도넛 차트 자동 표시.<br>
-          <b>방법:</b> "종목 추가" → 매수가/수량 입력 → 실시간 수익률 계산.<br>
+           <b>방법:</b> "종목 추가" → 매수가/수량 입력 → source-aware 현재성 상태가 있는 수익률 계산.<br>
           <b>유의사항:</b> localStorage 저장 -- 기기 간 동기화 안 됨. 별도 백업 권장.
         </div>
       </div>
@@ -11706,7 +11725,7 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">테마 (THEMES)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 테마별 ETF/종목 성과 + 히트맵으로 강세 테마 파악.<br>
-          <b>RRG:</b> 4사분면(선도/개선/약화/후행) 시각화. 우상단=가장 강한 섹터.<br>
+           <b>RRG:</b> 4사분면(선도/개선/약화/후행) 상대강도 로테이션 참고 분류. 우상단도 매매 승인이나 확정 순위가 아닙니다.<br>
           <b>유의사항:</b> 테마 집중 금물 -- 트렌드 변화 시 급락 위험. 분산 필수.
         </div>
       </div>
@@ -11715,8 +11734,8 @@ button[data-filter-active="true"] {
       <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:12px;margin-bottom:10px;">
         <div style="font-size:12px;font-weight:800;color:var(--text-primary);margin-bottom:6px;">시장 뉴스 (MARKET NEWS)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 50+소스 실시간 뉴스. 시간/중요도 정렬 + 국가/토픽 필터.<br>
-          <b>AI 번역:</b> 선택 기능을 켜면 한국어 번역과 티커 해석을 보강합니다.<br>
+           <b>사용법:</b> 50+ 소스의 source-aware 뉴스. 시간/중요도 정렬 + 국가/토픽 필터.<br>
+           <b>AI 번역:</b> 선택 기능을 켜면 원문을 유지한 채 한국어 번역과 티커 해석을 보강할 수 있습니다.<br>
           <b>유의사항:</b> 뉴스 즉시 매매 위험 -- 큰 흐름 파악용으로 활용.
         </div>
       </div>
@@ -11727,8 +11746,8 @@ button[data-filter-active="true"] {
       <div style="background:rgba(33,29,22,0.05);border:1px solid rgba(33,29,22,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
         <div style="font-size:12px;font-weight:800;color:var(--data-purple);margin-bottom:6px;"> 한국 시장 (KR-HOME / KR-SUPPLY / KR-THEMES / KR-MACRO)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> KOSPI/KOSDAQ + 외국인·기관 수급 + 테마 + 매크로 제공.<br>
-          <b>수급:</b> 외인+기관 동반매수=강상승, 동반매도=위험 신호.<br>
+           <b>사용법:</b> KOSPI/KOSDAQ + 외국인·기관 수급 + 테마 + 매크로 관측 묶음.<br>
+           <b>수급:</b> 외인·기관 동반 움직임은 방향과 기간을 함께 기록하는 관찰 항목입니다.<br>
           <b>유의사항:</b> 장 마감 후 갱신(정적 데이터). 장중 실시간과 차이 있음.
         </div>
       </div>
@@ -11871,9 +11890,9 @@ button[data-filter-active="true"] {
           <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:5px;">1. 돌파 셋업 (Breakout)</div>
           <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
             <strong>조건:</strong> 1~3개월 내 30~100%+ 선행 상승 → 10/20MA 서핑하며 저점상승(Higher Lows) → 캔들범위 수축(Tight Range) → 거래량 동반 박스 상단 돌파<br>
-            <strong>진입:</strong> 박스 상단 돌파 초기 OR Opening Range High(1m/5m/60m 봉 고점)<br>
-            <strong>손절:</strong> 진입 당일 저가 (ATR 이내여야 유효)<br>
-            <strong>청산:</strong> 3~5일 후 1/3~1/2 익절 → 손절 본전 이동 → 나머지는 10일선 종가 이탈까지 보유
+             <strong>관측 체크:</strong> 박스 상단 돌파 초기와 Opening Range High(1m/5m/60m 봉 고점)의 일치 여부<br>
+             <strong>무효화 기준 후보:</strong> 관찰 당일 저가와 ATR 대비 변동폭<br>
+             <strong>관리 시나리오 예시:</strong> 3~5일 후 변동성·거래량·10일선 종가 이탈을 기록하고 사전에 정한 계획과 비교
           </div>
         </div>
         <div style="background:var(--surface-2);border:1px solid rgba(33,29,22,0.25);border-radius:4px;padding:10px;">
@@ -11881,17 +11900,17 @@ button[data-filter-active="true"] {
           <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
             <strong>조건:</strong> 예상 못한 호재(어닝 서프라이즈·분기 매출 급등·신규 계약)로 10%+ 갭업, 첫 15~30분 평균 거래량 소화<br>
             <strong>필터:</strong> 어닝 YoY 중간~세 자릿수 성장 + 컨센 대폭 상회 + 직전 3~6개월 횡보(진짜 서프라이즈)<br>
-            <strong>진입:</strong> Opening Range High 돌파<br>
-            <strong>손절:</strong> 당일 저가. 이후 10/20일선 추세 추종
+             <strong>관측 체크:</strong> Opening Range High 돌파와 실적 서프라이즈의 원문·기준일 일치 여부<br>
+             <strong>무효화 기준 후보:</strong> 당일 저가와 이후 10/20일선 이탈 여부
           </div>
         </div>
         <div style="background:var(--surface-2);border:1px solid rgba(177,58,48,0.25);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:5px;">3. 파라볼릭 숏 (Parabolic Short)</div>
           <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
             <strong>조건(숏):</strong> 대형주 수일~수주 내 50~100%+, 소형주 300~1000%+ 급등 후 3~5일+ 연속 상승<br>
-            <strong>진입:</strong> 첫 음봉 or VWAP 이탈 후 Opening Range Low<br>
-            <strong>손절:</strong> 당일 고가 or VWAP 재돌파<br>
-            <strong>목표:</strong> 10/20일선 복귀, 기대 손익비 5~10R<br>
+             <strong>관측 체크:</strong> 첫 음봉·VWAP 이탈·Opening Range Low의 동시 여부<br>
+             <strong>무효화 기준 후보:</strong> 당일 고가 또는 VWAP 재돌파<br>
+             <strong>관측 목표 예시:</strong> 10/20일선 복귀 여부와 변동폭을 사후 기록. 기대 손익비를 보장하지 않음<br>
             <span style="color:var(--data-red);font-weight:700;">초보자 금지 — 계좌 $1M 이상 수익 경험 후 접근 권장</span>
           </div>
         </div>
@@ -11903,19 +11922,19 @@ button[data-filter-active="true"] {
         <div style="background:var(--surface-2);border:1px solid rgba(33,29,22,0.2);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">VCP (Volatility Contraction Pattern)</div>
           <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
-            선행 큰 조정 → 고점·저점 범위가 단계적으로 줄어드는 수축 패턴(예: 25%→15%→8%→5%). 거래량도 함께 감소 → 마지막 수축 후 거래량 폭발적 돌파 시 진입. 손절: 피벗 포인트 하단
+             선행 큰 조정 → 고점·저점 범위가 단계적으로 줄어드는 수축 패턴(예: 25%→15%→8%→5%). 거래량도 함께 감소하는지 관찰하고, 마지막 수축 뒤 돌파·피벗 하단 이탈 여부를 체크합니다.
           </div>
         </div>
         <div style="background:var(--surface-2);border:1px solid rgba(33,29,22,0.2);border-radius:4px;padding:10px;">
-          <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">Triple Barrel 매수 신호</div>
+           <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">Triple Barrel 동시 관측</div>
           <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
-            3개 독립 지표가 동시 발화: Minervini Pressure(추세 압력) + Buy Risk Colors(진입 위험도 최저) + TPR(Timing Price Range 최상단). RPR 80+·ER 80+·SR 80+이면 더 강력. 6/25 LLY $1,208 Triple Barrel 발화 사례
+             3개 독립 지표의 동시 상태를 관찰: Minervini Pressure(추세 압력) + Buy Risk Colors(진입 위험도 참고) + TPR(Timing Price Range 최상단). RPR 80+·ER 80+·SR 80+는 추가 확인 항목이며 결과를 보장하지 않습니다.
           </div>
         </div>
         <div style="background:var(--surface-2);border:1px solid rgba(33,29,22,0.2);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">SEPA 기준 (Specific Entry Point Analysis)</div>
           <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
-            ① 주가 ≥ 200MA ② 200MA 상향 ③ 150MA > 200MA ④ 50MA > 150/200MA ⑤ 주가 > 50MA ⑥ 52주 저점 대비 +25%+ ⑦ 52주 고점 대비 -25% 이내. 5개 이상 충족 시 Stage 2 진입 확인
+             ① 주가 ≥ 200MA ② 200MA 상향 ③ 150MA > 200MA ④ 50MA > 150/200MA ⑤ 주가 > 50MA ⑥ 52주 저점 대비 +25%+ ⑦ 52주 고점 대비 -25% 이내. 5개 이상이면 Stage 2 조건 충족 여부를 확인하되 단독 결론으로 사용하지 않습니다.
           </div>
         </div>
       </div>
@@ -11939,7 +11958,7 @@ button[data-filter-active="true"] {
           <strong>스캔 루틴:</strong> 장마감 후 1M/3M/6M 상위 1~7% 스캔 → ADR 5%+ → 50종목 이내 압축 → 10/20/50MA 지지 + Higher Lows + Tight Range 확인
         </div>
         <div class="aio-info-box" style="font-size:10px;">
-          <strong>실적 전 주의:</strong> 어닝 발표 2~3일 전 신규 진입 금지. 갭다운 리스크로 손절가 의미 소멸 가능. EP 셋업은 발표 '이후' 반응을 거래
+           <strong>실적 전 주의:</strong> 어닝 발표 2~3일 전에는 갭다운·유동성 리스크와 무효화 계획을 먼저 확인합니다. EP 셋업은 발표 '이후' 반응을 관찰
         </div>
       </div>
     </div>
@@ -11968,8 +11987,8 @@ button[data-filter-active="true"] {
         <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
           <span style="font-size:16px;flex-shrink:0;"></span>
           <div>
-            <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">손절선과 포지션 사이징을 지키세요</div>
-            <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">매수 전 반드시 손절가(−7~10%)를 정하세요. 한 종목에 총 자산의 3~5% 이상 넣지 마세요. 이것만 지켜도 큰 손실을 막을 수 있습니다.</div>
+             <div style="font-size:11px;font-weight:700;color:var(--data-amber);margin-bottom:2px;">무효화 기준과 포지션 노출을 기록하세요</div>
+             <div style="font-size:10px;color:var(--text-secondary);line-height:1.5;">포지션을 검토하기 전에 변동성에 맞는 무효화 기준 후보와 노출 한도를 기록하세요. 특정 비율이 손실을 막는다고 보장하지 않으며, 계획과 실제 변동을 사후 비교합니다.</div>
           </div>
         </div>
         <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:rgba(33,29,22,0.06);border:1px solid rgba(33,29,22,0.15);border-radius:3px;">
@@ -12080,10 +12099,10 @@ button[data-filter-active="true"] {
       <div style="background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
         <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:6px;"> 경제·금리의 기초</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>중앙은행(Fed)의 역할:</b> 기준금리를 올리거나 내려 경제를 조절합니다. 금리↑ → 대출 비용↑ → 기업 투자↓ → 주가↓. 금리↓ → 반대 효과.<br>
-          <b>인플레이션:</b> 물가가 오르는 현상. CPI(소비자물가지수)로 측정. 적정 수준은 연 2%. 이를 넘으면 Fed가 금리를 올려 억제합니다.<br>
-          <b>경기 사이클:</b> 확장기 → 과열기 → 침체기 → 회복기가 반복됩니다. 각 단계에서 유리한 자산/섹터가 다릅니다. 현재 경기 위치를 파악하는 것이 핵심입니다.<br>
-          <b>GDP와 고용:</b> GDP 성장률은 경제 건강의 바로미터. 비농업 고용(NFP)은 매월 첫째 금요일 발표되며 시장에 큰 영향을 줍니다.
+          <b>중앙은행(Fed)의 역할:</b> 기준금리를 조정해 경제 여건에 대응합니다. 금리·대출 비용·기업 투자·주가의 연결은 국면과 기대에 따라 달라지므로 각 지표의 기준일을 함께 확인합니다.<br>
+          <b>인플레이션:</b> 물가가 오르는 현상. CPI(소비자물가지수)로 측정합니다. 목표와 실제 수치, 정책 기대, 공급 요인을 구분해 관찰합니다.<br>
+          <b>경기 사이클:</b> 확장기 → 과열기 → 침체기 → 회복기를 하나의 설명 틀로 사용합니다. 자산·섹터 반응은 고정되지 않으므로 현재 지표와 반대 증거를 함께 기록합니다.<br>
+          <b>GDP와 고용:</b> GDP 성장률과 비농업 고용(NFP)은 경제 상태를 설명하는 관측값입니다. 발표일·수정치·시장 기대와 실제 반응을 구분합니다.
         </div>
       </div>
 
@@ -12091,9 +12110,9 @@ button[data-filter-active="true"] {
         <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:6px;">외환(FX)의 기초</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>달러 인덱스(DXY):</b> 유로, 엔, 파운드 등 6개 통화 대비 달러 가치. DXY↑=달러 강세. 100 이상이면 달러가 강한 상태.<br>
-          <b>원/달러 환율:</b> 환율 1,300원이면 $1=₩1,300. 환율↑(원화 약세)=수출기업 유리, 수입/원자재 비쌈. 한국 투자자가 미국 주식 투자 시 환율 변동도 수익에 영향.<br>
-          <b>캐리 트레이드:</b> 저금리 국가에서 빌려 고금리 국가에 투자. 갑자기 역전되면(엔 캐리 청산) 글로벌 시장 급변동 원인이 됩니다.<br>
-          <b>안전자산:</b> 불안할 때 달러/엔/금으로 자금이 이동합니다. 달러와 금이 동시에 오르면 극심한 불안 신호입니다.
+          <b>원/달러 환율:</b> 환율 1,300원이면 $1=₩1,300. 환율↑는 원화 약세를 뜻하며 수출·수입·원자재·해외자산의 서로 다른 노출을 나눠 확인합니다.<br>
+          <b>캐리 트레이드:</b> 저금리 국가에서 빌려 고금리 국가에 투자하는 구조입니다. 되감기 구간은 환율·금리·변동성 자료를 함께 관찰합니다.<br>
+          <b>안전자산:</b> 불안 구간의 달러·엔·금 움직임은 위험 선호를 확인하는 참고 항목입니다. 동시 상승도 원인과 기간을 별도로 확인합니다.
         </div>
       </div>
 
@@ -12101,8 +12120,8 @@ button[data-filter-active="true"] {
         <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:6px;">채권의 기초</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>채권 가격과 수익률은 반비례:</b> 수익률↑=채권 가격↓. 채권을 팔면 수익률이 오르고, 채권을 사면 수익률이 내립니다.<br>
-          <b>수익률 곡선:</b> 정상: 장기물(10Y) > 단기물(2Y). 역전: 단기물 > 장기물 → 역사적으로 6~18개월 후 경기침체 확률 높음.<br>
-          <b>신용 스프레드:</b> 회사채 수익률 - 국채 수익률 = 기업 부도 위험도. 스프레드 확대=기업 건전성 우려=주식에 부정적.<br>
+          <b>수익률 곡선:</b> 정상: 장기물(10Y) &gt; 단기물(2Y). 역전은 과거 경기 국면과 함께 연구된 참고 신호이며, 시차·오탐·현재 데이터 상태를 별도로 확인합니다.<br>
+          <b>신용 스프레드:</b> 회사채 수익률 - 국채 수익률은 신용 위험 선호를 관찰하는 지표입니다. 확대 시 원인·등급·기간과 주식 반응을 교차 확인합니다.<br>
           <b>MOVE 지수:</b> 채권 시장의 VIX. MOVE↑=금리 변동 큼=불확실성 높음. 주식보다 채권이 먼저 움직이는 경우가 많습니다.
         </div>
       </div>
@@ -12224,9 +12243,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.46" defer></script>
-  <script src="./js/aio-data.js?v=53.46" defer></script>
-  <script src="./js/aio-ui.js?v=53.46" defer></script>
+  <script src="./js/aio-core.js?v=53.51" defer></script>
+  <script src="./js/aio-data.js?v=53.51" defer></script>
+  <script src="./js/aio-ui.js?v=53.51" defer></script>
 
 
   <script>
@@ -14708,7 +14727,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.46" defer></script>
+<script src="./js/aio-chat.js?v=53.51" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23561,7 +23580,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.46" defer></script>
+<script src="./js/aio-glossary.js?v=53.51" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

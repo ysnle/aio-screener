@@ -29,6 +29,8 @@ const newsPage = read('src/ui/pages/news.js');
 const sentimentDomain = read('src/domain/sentiment/metrics.js');
 const themesPage = read('src/ui/pages/themes.js');
 const tradingScoreDomain = read('src/domain/signal/trading-score.js');
+const secReportDomain = read('src/domain/fundamental/sec-report.js');
+const entityPage = read('src/ui/pages/entity.js');
 const glossary = read('js/aio-glossary.js');
 const fetchData = read('scripts/fetch-data.mjs');
 const telegramFetcher = read('scripts/fetch-telegram-digest.mjs');
@@ -514,7 +516,7 @@ check('headless tests cover the B8 Worker-retry mitigation', /_testV5244WorkerAn
 
 // v52.45 (P660): CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10 WO-0 — workflow YAML corruption gate wiring
 check('P660: package.json declares js-yaml as a devDependency (needed for real workflow YAML parsing, not just control-character regex)', /"js-yaml"\s*:/.test(packageJson));
-check('P660: ci.yml runs npm install before the new control-character/workflow-YAML gate, and actually invokes it in the validate job', /npm install/.test(ciWorkflow) && /ci-control-char-check\.mjs/.test(ciWorkflow));
+check('P660/P843: ci.yml installs the lockfile before the control-character/workflow-YAML gate and actually invokes it in the validate job', /npm ci\s+--no-audit\s+--no-fund/.test(ciWorkflow) && /ci-control-char-check\.mjs/.test(ciWorkflow));
 check('P660: control-char-baseline.json exists and records the known pre-existing mojibake count (regression-only gate, not a silent pass)', exists('_context/control-char-baseline.json'));
 
 // v52.46 (P661/R294/WO-1A): portfolio data now shares the real _AioVault (AES-GCM-256+PBKDF2) with API keys,
@@ -524,6 +526,9 @@ check('WO-1A: renderPortfolio() is the real lock gate (checks isPortfolioLocked(
 check('WO-1A: unlockPortfolio() detects a wrong PIN via a null decrypt result (AES-GCM auth failure) rather than the old plaintext input.value===pin comparison', /const dec = await _AioVault\.decrypt\(raw\)/.test(html) && /dec === null/.test(html) && !/input\.value === pin\)/.test(html));
 check('WO-1A: opting out of portfolio vault protection does not remove the shared aio_vault_salt (other encrypted API keys must stay intact)', /PF_VAULT_OPTOUT_KEY/.test(html) && !/removeItem\('aio_vault_salt'\)/.test(html));
 check('headless tests cover the WO-1A portfolio vault contract', /_testV5246PortfolioVault/.test(tests) && /T891/.test(tests) && /T892/.test(tests) && /T893/.test(tests) && /T894/.test(tests) && /T895/.test(tests));
+
+// v53.47 (P838/W2-04): plaintext API-key IndexedDB mirror retired; explicit export/import remains user-initiated.
+check('P838: automatic plaintext API-key IndexedDB backup is retired without reopening the legacy database, and its UI entrypoint is removed', /automatic_plaintext_idb_backup_retired/.test(core) && !/indexedDB\.open\(['"]aio-keys-backup/.test(core) && !/store\.put\(\{\s*snapshot:/.test(core) && !/aio-key-recover-menu/.test(visibleHtml));
 
 // v52.47 (P662/WO-1B): Anthropic proxy auth/cost-boundary hardening — client side sends the shared
 // app token when routed through the Worker; the Worker's own behavior is verified separately by
@@ -609,7 +614,7 @@ check('headless tests cover H3-G element lineage and H3-H/I surface contracts', 
 check('H3-F/H3-H: breadth route blocks synthetic chart fallbacks and uses history artifacts only', /data-operational-use/.test(ui) && /_aioHistorySeries\(['"]spx/.test(ui) && !/Chart\.register/.test(ui) && /T918 breadth_chart_runtime_only_contract/.test(tests));
 check('H3-H/I: the real Chromium human-surface audit is wired as a deploy dependency', exists('scripts/ci-critical10-human-surface-check.mjs') && /ci-critical10-human-surface-check\.mjs/.test(ciWorkflow) && /needs:\s*\[[^\]]*human-surface/.test(ciWorkflow));
 check('H2-04: one normalized AI error contract is shared by browser AI surfaces and Worker failures', /normalizeAiError/.test(core) && /_aioChatError/.test(chat) && /_aioSetLastAiError/.test(data) && /aioAiError/.test(worker) && /T919/.test(tests) && /T920/.test(tests));
-check('H2-05: portfolio Vault has a blocking deterministic Chromium E2E covering PIN, reload, wrong/correct PIN, migration, opt-out, and input boundary', exists('scripts/ci-portfolio-vault-e2e.mjs') && /ci-portfolio-vault-e2e\.mjs/.test(ciWorkflow) && /portfolio-vault/.test(ciWorkflow) && /PFE2-01/.test(read('scripts/ci-portfolio-vault-e2e.mjs')) && /PFE2-08/.test(read('scripts/ci-portfolio-vault-e2e.mjs')));
+check('H2-05: portfolio Vault has a blocking deterministic Chromium E2E covering PIN, reload, wrong/correct PIN, KDF migration, opt-out, and input boundary', exists('scripts/ci-portfolio-vault-e2e.mjs') && /ci-portfolio-vault-e2e\.mjs/.test(ciWorkflow) && /portfolio-vault/.test(ciWorkflow) && /PFE2-01/.test(read('scripts/ci-portfolio-vault-e2e.mjs')) && /PFE2-08/.test(read('scripts/ci-portfolio-vault-e2e.mjs')) && /PFE2-09/.test(read('scripts/ci-portfolio-vault-e2e.mjs')));
 check('H2-06: Pages deploy stages an explicit public artifact allowlist and exposes policy/metadata endpoints', exists('public-artifact-manifest.json') && exists('robots.txt') && exists('sitemap.xml') && /canonical/.test(html) && /og:image/.test(html) && /twitter:image/.test(html) && /explicit artifact allowlist/.test(ciWorkflow) && /public-artifact-manifest\.json/.test(ciWorkflow) && /guide-public-policy/.test(html));
 check('H2-07: content truth audit removes retired feedback guidance, protects one inquiry path, and labels KR snapshot context', /getContentTruthAudit/.test(core) && /guide-public-policy/.test(html) && !/dydyd007@naver\.com/.test(html + '\n' + ui) && /T922/.test(tests) && /T923/.test(tests));
 check('H2-08: route IA registry classifies 19 NAV_ROUTE + 2 DERIVED_VIEW + 1 REFERENCE and audits PAGES/contracts/history/hash', /AIO_ROUTE_REGISTRY/.test(core) && /getRouteIAAudit/.test(core) && /NAV_ROUTE/.test(core) && /DERIVED_VIEW/.test(core) && /T924/.test(tests) && /T925/.test(tests));
@@ -806,6 +811,28 @@ check('P784/SA-01: proxy registry opens cooldown after three failures and reject
   /p\.fails\s*>=\s*3/.test(data)
     && /markFail\(proxy\.id, ['"]invalid-payload['"]\)/.test(data)
     && /typeof opts\.accept === ['"]function['"]/.test(data));
+
+check('W1-04: SEC annual facts expose versioned freshness and fail-closed decision eligibility',
+  secReportDomain.includes("SEC_REPORT_MODEL_VERSION = 'sec-report.v2'")
+    && /currentMaxAgeDays:\s*400/.test(secReportDomain)
+    && /agedMaxAgeDays:\s*730/.test(secReportDomain)
+    && /state:\s*'historical'/.test(secReportDomain)
+    && /decisionEligible:\s*status === 'current'/.test(secReportDomain)
+    && /data-freshness-state/.test(entityPage));
+check('W1-05: ticker action narrative fails closed without entity quote and market-health evidence',
+  /pageId === 'ticker'/.test(core)
+    && /_tickerGateMissing/.test(core)
+    && /computeMarketHealth\(\{ render: false \}\)/.test(core)
+    && /_tickerGateBlocked/.test(core)
+    && /d\.decisionBlocked = _scoreBlocked \|\| _tickerGateBlocked/.test(core));
+check('W2-05: Vault envelope has versioned KDF plus legacy decrypt and re-encrypt migration',
+  /AIO_VAULT_KDF_VERSION\s*=\s*2/.test(core)
+    && /AIO_VAULT_KDF_ITERATIONS\s*=\s*310000/.test(core)
+    && /AIO_VAULT_LEGACY_KDF_ITERATIONS\s*=\s*100000/.test(core)
+    && /AIO_VAULT_V2_MAGIC/.test(core)
+    && /_legacyDerivedKey/.test(core)
+    && /_lastDecryptVersion/.test(core)
+    && /if \(_AioVault\._lastDecryptVersion === 1\) await safeLS/.test(core));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

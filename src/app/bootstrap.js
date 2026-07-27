@@ -18,6 +18,7 @@ import { createScreenerCommands } from './commands/screener.js';
 import { selectSentimentSummary } from '../state/selectors/sentiment.js';
 import { createEvidenceStore } from '../data/evidence-store.js';
 import { createEvidence } from '../data/contracts/evidence.js';
+import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
@@ -65,6 +66,8 @@ import { createPrivacyVault } from '../storage/vault.js';
 import { createLegacyFacade, exposeArchitecture } from '../legacy/compatibility-facade.js';
 import { applyMarketSnapshotToLegacy } from '../legacy/market-snapshot-bridge.js';
 import { ROUTE_IDS } from './routes.js';
+import { VERTICAL_SLICE_CONTRACTS, auditVerticalSliceContracts, getVerticalSliceContract } from './vertical-slices.js';
+import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, auditCapabilityClaims } from '../domain/content/capability-manifest.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
@@ -249,10 +252,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules.home = createAnalysisPage({ documentRef, store, route: 'home' });
   modules.signal = createAnalysisPage({ documentRef, store, route: 'signal' });
   modules.technical = createAnalysisPage({ documentRef, store, route: 'technical' });
-  const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock } });
+  const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock, documentRef, runtimeRoot: root } });
 
-  function syncScreenerData() {
-    return syncScreener.sync().then((result) => {
+  function syncScreenerData({ scope = router.activeScope() } = {}) {
+    return syncScreener.sync({ scope }).then((result) => {
       if (result) {
         eventTarget.dispatchEvent(new CustomEvent('aio:nativeScreenerReady', { detail: result }));
       }
@@ -293,11 +296,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
     const stopEntityRefresh = legacy.on('aio:refresh:done', syncEntity.sync);
-    const stopEntityShown = legacy.on('aio:pageShown', syncEntity.sync);
+    const deferCurrentScope = (sync) => () => queueMicrotask(() => sync({ scope: router.activeScope() }));
+    const stopEntityShown = legacy.on('aio:pageShown', deferCurrentScope(syncEntity.sync));
     const stopPortfolioShown = legacy.on('aio:pageShown', syncPortfolio.sync);
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
     const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreenerData);
-    const stopScreenerShown = legacy.on('aio:pageShown', syncScreenerData);
+    const stopScreenerShown = legacy.on('aio:pageShown', deferCurrentScope(syncScreenerData));
     const stopAnalysisRefresh = legacy.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', syncAnalysis.sync);
     const stopShown = legacy.on('aio:pageShown', (event) => {
@@ -385,6 +389,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       });
     },
     getEvidence: (metric) => metric ? evidenceStore.get(metric) : evidenceStore.snapshot(),
+    selectForDecision: (source, metric) => selectForDecision(source || evidenceStore.snapshot(), metric),
+    selectForDisplay: (source, metric) => selectForDisplay(source || evidenceStore.snapshot(), metric),
+    selectLastKnown: (source, metric) => selectLastKnown(source || evidenceStore.snapshot(), metric),
+    selectCompleteness: (source, requiredMetrics, purpose) => selectCompleteness(source || evidenceStore.snapshot(), requiredMetrics, purpose),
     getMarketSnapshot: () => marketSnapshot,
     getSentimentSummary: () => selectSentimentSummary(store.getState()),
     ingestSentiment,
@@ -425,6 +433,13 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // P785: single pure market-health model for the technical primary surface; the legacy
     // computeMarketHealth wrapper consumes this API and only renders when the native fence is absent.
     ,computeMarketHealth
+    ,getVerticalSliceContract: (route) => getVerticalSliceContract(route)
+    ,getVerticalSliceContracts: () => VERTICAL_SLICE_CONTRACTS.slice()
+    ,auditVerticalSliceContracts: (routes = ROUTE_IDS) => auditVerticalSliceContracts(routes)
+    ,capabilityManifestVersion: CAPABILITY_MANIFEST_VERSION
+    ,getCapability: (id) => getCapability(id)
+    ,getCapabilityManifest: () => getCapabilityManifest()
+    ,auditCapabilityClaims: (options = {}) => auditCapabilityClaims({ documentRef, ...options })
   };
   exposeArchitecture(root, api);
   return Object.freeze({ ...api, store, evidenceStore });

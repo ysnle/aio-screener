@@ -1,0 +1,76 @@
+{
+  "ok": true,
+  "routes": 17,
+  "laps": 3,
+  "lapReports": [
+    {
+      "lap": 1,
+      "last": {
+        "route": "guide",
+        "active": "guide",
+        "visiblePages": [
+          "page-guide"
+        ],
+        "marker": "vs10-guide",
+        "state": "loaded",
+        "charts": 0,
+        "canvases": 42,
+        "entityId": null
+      },
+      "maxCharts": 0,
+      "maxCanvases": 42
+    },
+    {
+      "lap": 2,
+      "last": {
+        "route": "guide",
+        "active": "guide",
+        "visiblePages": [
+          "page-guide"
+        ],
+        "marker": "vs10-guide",
+        "state": "loaded",
+        "charts": 0,
+        "canvases": 42,
+        "entityId": null
+      },
+      "maxCharts": 0,
+      "maxCanvases": 42
+    },
+    {
+      "lap": 3,
+      "last": {
+        "route": "guide",
+        "active": "guide",
+        "visiblePages": [
+          "page-guide"
+        ],
+        "marker": "vs10-guide",
+        "state": "loaded",
+        "charts": 0,
+        "canvases": 42,
+        "entityId": null
+      },
+      "maxCharts": 0,
+      "maxCanvases": 42
+    }
+  ],
+  "errors": [],
+  "entityRoundTrip": {
+    "sequence": [
+      {
+        "entityId": "AAPL",
+        "mountId": 49
+      },
+      {
+        "entityId": "MSFT",
+        "mountId": 50
+      },
+      {
+        "entityId": "AAPL",
+        "mountId": 51
+      }
+    ],
+    "active": "ticker"
+  }
+}

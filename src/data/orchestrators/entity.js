@@ -12,11 +12,12 @@ export function createEntityOrchestrator({ provider, commands } = {}) {
   // the previous ticker's data. Same generation-counter guard as the screener orchestrator.
   let generation = 0;
   let disposed = false;
-  async function sync() {
+  async function sync({ scope } = {}) {
     const thisGeneration = ++generation;
-    const raw = await provider.readCurrent();
-    if (disposed || thisGeneration !== generation) return null;
+    const raw = await provider.readCurrent({ signal: scope?.signal });
+    if (disposed || thisGeneration !== generation || (scope && !scope.isCurrent())) return null;
     const normalized = normalizeEntity(raw);
+    if (scope && !scope.isCurrent()) return null;
     commands.setData({ ...normalized, status: normalized.id ? 'current' : 'unavailable' }, { updatedAt: normalized.updatedAt });
     return normalized;
   }

@@ -119,7 +119,7 @@ target_version: v53.23
 
 **Rule**: A fundamental route may present an official SEC report only through one pure projection that preserves filing identity, period/submission dates, coverage, source kind, and finite observed values. Missing facts remain unavailable; they must not be inferred from FMP/Yahoo/news data. Peer comparison, external news, charts, and AI narrative remain separately labelled boundaries until their own evidence and writers are reconciled.
 
-**Validation**: `ci-architecture-contract-check.mjs` requires `sec-report.v1` and native report markers; `ci-architecture-browser-check.mjs` requires the native report/model/metadata markers and zero browser errors; fixtures cover empty, partial, and complete SEC records.
+**Validation**: `ci-architecture-contract-check.mjs` requires `sec-report.v2` and native report markers; `ci-architecture-browser-check.mjs` requires the native report/model/metadata markers and zero browser errors; fixtures cover empty, partial, complete, and stale SEC records.
 
 ## R367. Theme-detail benchmark narrative must use normalized theme/benchmark evidence and fence the legacy section (v53.30, P795)
 
@@ -1518,3 +1518,55 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: A newly deployed KV-only Worker may have no `quotes:current` snapshot until its first scheduled run. Deployment smoke must retry transient endpoint propagation, accept only the explicit empty-KV bootstrap shape as `operator_required`, and continue blocking malformed, partial, unreachable, or non-bootstrap failed states.
 
 **Validation**: `.github/workflows/deploy-data-plane.yml` must keep the `/health` retry, complete-coverage gate, and bootstrap-shape gate synchronized with `worker/data-plane.js`.
+
+## R381. Decision models must consume normalized decision evidence (v53.47, P838)
+
+**Rule**: Values marked `reference` or `none` must never contribute to a trading, health, ranking, or other decision score, even when a numeric value is present in a legacy payload.
+
+**Required**: Normalize historical boolean/descriptive aliases to `decision` / `reference` / `none`; use a purpose-specific decision selector requiring fresh/live status and finite numeric values; keep reference values available to display and research paths; fail closed when required decision coverage is below the model threshold.
+
+**Validation**: `src/data/contracts/evidence.js`, `src/data/selectors/evidence.js`, `src/domain/signal/trading-score.js`, `src/legacy/compatibility-facade.js`, `js/aio-core.js`, and `scripts/ci-esm-core-unit-check.mjs` must retain the reference-only blocking fixture and selector contract.
+
+## R382. Route resources and sensitive-key persistence must be scope-owned (v53.48, P839)
+
+**Rule**: A route/entity mount must invalidate its previous async and chart resources on transition, and API keys must not be automatically mirrored in plaintext IndexedDB.
+
+**Required**: Pass an abortable route scope into route modules and async providers; guard late results with `isCurrent`; register Chart.js instances in a replaceable/disposable registry with a bounded canvas surface; retire legacy plaintext IDB open/read/write/recovery paths and leave only explicit user export/import or encrypted Vault storage.
+
+**Validation**: `src/app/router.js`, `src/app/lifecycle.js`, `src/data/orchestrators/{entity,screener}.js`, `src/data/providers/{entity,screener}.js`, `src/ui/pages/{market,sentiment}.js`, `js/aio-core.js`, `index.html`, and `scripts/ci-runtime-contract-check.mjs` must retain the scope/chart/IDB contracts.
+
+## R383. Ticker action narratives require entity evidence (v53.49, P840)
+
+**Rule**: The ticker route must not emit `WATCH`, entry, or other action language when the selected entity, its finite quote, or market-health evidence is missing. Market-level score context may remain descriptive, but it cannot substitute for entity evidence.
+
+**Validation**: `_aioDefaultDecision('ticker')` must apply an explicit entity/quote/health gate, set `decisionBlocked`, and return a fail-closed action; the runtime contract must retain the missing-evidence fixture markers.
+
+## R384. Vault ciphertext must be versioned and migrate legacy KDF values (v53.49, P840)
+
+**Rule**: Every new Vault ciphertext must carry an explicit envelope version and use the current KDF parameters. Legacy ciphertext must remain decryptable during migration, then be re-encrypted through the current `safeLS` path; no plaintext key copy is permitted.
+
+**Validation**: `_AioVault` must expose v2 envelope/KDF markers, retain the v1 KDF for decrypt only, and `safeLSGet` must re-encrypt legacy values. `ci-portfolio-vault-e2e.mjs` PFE2-09 must prove legacy decrypt plus v2 re-encryption.
+
+## R385. Vertical slices must be executable route contracts (v53.50, P841)
+
+**Rule**: The ten Wave 3 slices must cover every route exactly once, bind lifecycle scope to the canonical page completeness contract, and expose direct-entry, blocked-network, mobile-control, and leave/re-entry evidence. A renderer marker alone is not slice completion.
+
+**Validation**: `src/app/vertical-slices.js`, router slice markers, `ci-vertical-slice-contract-check.mjs`, and `ci-vertical-slice-browser-check.mjs` must remain synchronized; the browser gate must pass all ten slices before the Wave 3 packet is closed.
+
+## R386. Route/resource stability must be proven by a repeated blocking soak (v53.51, P843)
+
+**Rule**: A route can be considered operationally stable only after repeated traversal proves one visible route surface, bounded chart/canvas resources, zero unexpected browser errors, and entity A→B→A re-entry without stale scope writes.
+
+**Validation**: `scripts/ci-route-soak-check.mjs` must run the 17-route order for three laps, emit `_artifacts/route-soak-report.json`, and remain a blocking step in `.github/workflows/ci.yml`; expected offline provider warnings may be filtered only by explicit pattern.
+
+## R387. Operational and public-readiness claims must remain revisioned and operator-explicit (v53.51, P843)
+
+**Rule**: Repository evidence, live certification, and operator review are separate states. A local pass must not imply live revision, edge-header enforcement, provider rights, or a 30-day SLO; public-beta readiness stays blocked until those criteria are observed and closed.
+
+**Validation**: `architecture/visual-state-matrix.json`, `architecture/operations-slo.json`, `architecture/public-readiness.json`, `public-data/operations-status.json`, `_headers`, and `scripts/ci-operations-contract-check.mjs` must share the current revision and explicit operator-required posture.
+
+## R388. Capability claims must be manifest-backed and fail closed (v53.51, P842)
+
+**Rule**: Guide, metadata, and education copy must not imply current/live/automatic/AI-backed behavior or direct action beyond the declared capability status, evidence, and wording constraints.
+
+**Validation**: `src/domain/content/capability-manifest.js`, Guide claim markers/audit, `scripts/ci-capability-claim-contract-check.mjs`, and the architecture/browser Guide assertions must reject forbidden-claim fixtures and report a passing manifest audit.

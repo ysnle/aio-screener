@@ -31,10 +31,10 @@ export function createScreenerProvider({
   const STALE_AFTER_DAYS = 7;
 
   return Object.freeze({
-    async readCurrent() {
+    async readCurrent({ signal } = {}) {
       const [artifactResponse, universeResponse] = await Promise.all([
-        httpClient.requestJson(url, { cache: 'no-store' }),
-        httpClient.requestJson(universeUrl, { cache: 'no-store' })
+        httpClient.requestJson(url, { cache: 'no-store', signal }),
+        httpClient.requestJson(universeUrl, { cache: 'no-store', signal })
       ]);
       const now = typeof clock.now === 'function' ? clock.now() : Date.now();
       const artifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'

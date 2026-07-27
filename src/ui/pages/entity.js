@@ -186,6 +186,8 @@ function markSecReportElement(element, report) {
   element.setAttribute('data-source-kind', report.status === 'current' ? report.sourceKind : 'unavailable');
   element.setAttribute('data-source-label', report.status === 'current' ? report.source : 'sec-fundamentals.json');
   element.setAttribute('data-operational-use', 'reference-only');
+  element.setAttribute('data-freshness-state', report.freshness?.state || 'unknown');
+  element.setAttribute('data-decision-eligible', report.decisionEligible === true ? 'true' : 'false');
   if (report.observedAt) element.setAttribute('data-observed-at', report.observedAt);
   else element.removeAttribute('data-observed-at');
 }
@@ -209,10 +211,12 @@ function renderFundamentalReport(documentRef, page, state) {
   if (title) title.textContent = report.entityName || report.symbol ? `SEC 기본 보고 · ${report.entityName || report.symbol}` : 'SEC 기본 보고';
   if (meta) {
     meta.textContent = report.status === 'current'
-      ? `${report.form || 'Annual filing'} · 기준일 ${report.observedAt || '—'} · 제출일 ${report.filedAt || '—'}${report.accession ? ` · ${report.accession}` : ''}`
+      ? `${report.form || 'Annual filing'} · 기준일 ${report.observedAt || '—'} · 신선도 ${report.freshness?.state || 'unknown'}${report.freshness?.ageDays != null ? ` (${report.freshness.ageDays}일)` : ''} · 제출일 ${report.filedAt || '—'}${report.accession ? ` · ${report.accession}` : ''}`
       : 'SEC EDGAR 연간 데이터 수신 대기 · 값이 없는 항목은 추정하지 않습니다';
   }
-  if (coverage) coverage.textContent = report.status === 'current' ? `관측 항목 ${report.coverage.length}개 · ${report.source}` : '관측 항목 없음';
+  if (coverage) coverage.textContent = report.status === 'current'
+    ? `관측 항목 ${report.coverage.length}개 · ${report.source} · ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`
+    : '관측 항목 없음';
   if (!grid) return;
   grid.replaceChildren();
   if (report.metrics.length === 0) {

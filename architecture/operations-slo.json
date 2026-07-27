@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "operations-slo-v1",
+  "appRevision": "v53.51",
+  "generatedAt": "2026-07-27T19:10:00+09:00",
+  "targets": {
+    "artifactSuccessRate30d": 0.995,
+    "watchdogSuccessRate30d": 0.995,
+    "consecutiveFailureAlertAt": 2,
+    "cachedScreenSettleMs": 3000,
+    "degradedScreenSettleMs": 8000,
+    "routeWriteAfterLeave": 0,
+    "browserUncaughtErrors": 0,
+    "chartInstanceGrowthAfterSoak": 0,
+    "canvasOverflow": 0,
+    "crossPageMetricMismatch": 0
+  },
+  "localBoundary": {
+    "routeSoak": { "status": "pass", "script": "scripts/ci-route-soak-check.mjs", "laps": 3, "routes": 17, "report": "_artifacts/route-soak-report.json", "browserErrors": 0, "maxCanvases": 42, "entityRoundTrip": "AAPL>MSFT>AAPL" },
+    "visualStateMatrix": { "status": "contracted", "manifest": "architecture/visual-state-matrix.json" },
+    "revisionInvariant": { "status": "contracted", "script": "scripts/ci-release-revision-check.mjs" },
+    "securityHeaders": { "status": "edge-required", "manifest": "_headers" }
+  },
+  "certification": {
+    "thirtyDaySlo": "not-certified",
+    "liveRevision": "operator-required",
+    "publicBeta": "blocked",
+    "reason": "Local gates cannot prove 30-day automation history, live Pages revision, provider rights, or edge header enforcement."
+  }
+}

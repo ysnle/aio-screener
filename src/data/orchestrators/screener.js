@@ -12,11 +12,12 @@ export function createScreenerOrchestrator({ provider, commands, ranker = null, 
   // call; dispose() drops every in-flight resolution permanently (for bootstrap teardown/tests).
   let generation = 0;
   let disposed = false;
-  async function sync() {
+  async function sync({ scope } = {}) {
     const thisGeneration = ++generation;
-    const raw = await provider.readCurrent();
-    if (disposed || thisGeneration !== generation) return null;
+    const raw = await provider.readCurrent({ signal: scope?.signal });
+    if (disposed || thisGeneration !== generation || (scope && !scope.isCurrent())) return null;
     const normalized = normalizeScreener(raw);
+    if (scope && !scope.isCurrent()) return null;
     const context = rankingContext?.() || {};
     const ranking = typeof ranker === 'function' ? ranker({
       rows: normalized.rows,

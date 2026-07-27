@@ -1,35 +1,35 @@
-> **v53.46 (P761~P837 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, P826 derived-route compatibility canonicalization, P827~P830 secondary surface closure, P831 portfolio summary, P832 SEC report, P833 KV-only fast quote deployment, P834 AI infrastructure reference integration, P835 chart/behavior/communication protocols, P836 data refresh pipeline correction, and P837 fast-plane smoke bootstrap handling까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+> **v53.51 (P761~P843 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, P826 derived-route compatibility canonicalization, P827~P830 secondary surface closure, P831 portfolio summary, P832 SEC report, P833 KV-only fast quote deployment, P834 AI infrastructure reference integration, P835 chart/behavior/communication protocols, P836 data refresh pipeline correction, P837 fast-plane smoke bootstrap handling, P838~P841 evidence/lifecycle/freshness/slice contracts, P842 capability claim boundary, P843 operations/soak/readiness boundary까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P834 update
-current_override: P834 AI infrastructure cycle reference integration after P833 KV-only fast quote deployment; broader mixed-source fundamental, portfolio risk/history/AI, and route data/chart/narrative boundaries remain explicit legacy/open
+verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P843 update
+current_override: P843 operations/route-soak/public-readiness boundary after P842 capability claim remediation; live revision, edge enforcement, provider rights, 30-day SLO, and SA-04 remain explicit operator gates
   last_verified: 2026-07-27
 confidence: high
-  target_version: v53.46
+  target_version: v53.51
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
-target_lines: refreshed after P795 gate
-  current_checkpoint: P834 reference integration is source-labelled and runtime-safe; P833 fast quote Worker deploy contract remains KV-only without R2; native renderer routes are 17/17, while mixed-source fundamental, portfolio risk/history/AI, and route data/chart/narrative boundaries remain explicitly separate
+target_lines: refreshed after P843 gate
+  current_checkpoint: P843 route soak, visual state, SLO, SHA/lockfile, header, and public-readiness contracts pass locally; native lifecycle/renderer routes are 17/17, while live certification remains operator-required
 ---
 
-## Current machine-verified file-size table (v53.46, 2026-07-27)
+## Current machine-verified file-size table (v53.51, 2026-07-27)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 27,418 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,262 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 27,437 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,289 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-data.js` | 15,809 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,262 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 6,173 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 6,196 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-tests.js` | 8,871 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `src/ui/pages/guide.js` | 113 | native guide search/jump lifecycle module |
+| `src/ui/pages/guide.js` | 130 | native guide search/jump/capability lifecycle module |
 | `src/ui/pages/screener.js` | 517 | native screener table/filter/profile/watchlist/position renderer |
 | `src/data/providers/screener.js` | 143 | screener artifact + identity-universe provider |
 | `src/data/normalize/screener.js` | 63 | screener row/metadata normalization |
-| `src/data/orchestrators/screener.js` | 57 | screener state orchestration + factor-rank wiring |
-| `src/ui/pages/news.js` | 286 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
-| `src/ui/pages/market.js` | 303 | native macro/fxbond/breadth primary metric renderers; native screener-metadata breadth fallback |
-| `src/ui/pages/themes.js` | 600 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; chart/status and theme-insights secondary boundaries |
-| `src/ui/pages/entity.js` | 112 | native ticker hero/activity, options metrics, fundamental SEC status/summary, and `sec-report.v1` core report renderer; mixed-source report remains legacy |
+| `src/data/orchestrators/screener.js` | 58 | screener state orchestration + factor-rank wiring |
+| `src/ui/pages/news.js` | 285 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
+| `src/ui/pages/market.js` | 794 | native macro/fxbond/breadth primary metric renderers; native screener-metadata breadth fallback |
+| `src/ui/pages/themes.js` | 861 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; chart/status and theme-insights secondary boundaries |
+| `src/ui/pages/entity.js` | 331 | native ticker hero/activity, options metrics, fundamental SEC status/summary, and `sec-report.v2` core report renderer with freshness state; mixed-source report remains legacy |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
 
 > The historical v52.66 table below is retained for audit context. Use this current
@@ -101,7 +101,7 @@ legacy screener helpers and shifted all downstream anchors.
 ### P831~P832 bounded secondary ownership (2026-07-27)
 
 - `src/domain/portfolio/surface.js` owns the finite-safe portfolio summary/allocation/exposure derivation; `src/ui/pages/portfolio.js` owns its DOM sinks and `sw.js` publishes the module. Portfolio risk cards, history charts, AI workbench, and narrative remain separate.
-- `src/domain/fundamental/sec-report.js` owns the official SEC annual-fact projection; `src/ui/pages/entity.js` owns the filing metadata/coverage/metric child surface. Mixed-source fundamental report sections, charts, and AI narrative remain separate.
+- `src/domain/fundamental/sec-report.js` owns the official SEC annual-fact projection and freshness classification; `src/ui/pages/entity.js` owns the filing metadata/coverage/metric child surface. Mixed-source fundamental report sections, charts, and AI narrative remain separate.
 
 ## Native ESM and data-plane additions (v53.11)
 

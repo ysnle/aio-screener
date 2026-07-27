@@ -10,6 +10,44 @@ export const EVIDENCE_STATUS = Object.freeze([
 
 export const EVIDENCE_ALLOWED_USE = Object.freeze(['decision', 'reference', 'none']);
 
+const ALLOWED_USE_ALIASES = new Map([
+  ['decision', 'decision'],
+  ['true', 'decision'],
+  ['trading', 'decision'],
+  ['verified-current-only', 'decision'],
+  ['current-with-session-and-delay-gate', 'decision'],
+  ['decision-with-daily-delay', 'decision'],
+  ['reference', 'reference'],
+  ['reference-only', 'reference'],
+  ['reference-only-unless-promoted-by-evidence', 'reference'],
+  ['reference-until-freshness-gate', 'reference'],
+  ['research/reference', 'reference'],
+  ['research-history', 'reference'],
+  ['research-relative-ranking-only', 'reference'],
+  ['false', 'reference'],
+  ['none', 'none'],
+  ['blocked', 'none'],
+  ['unavailable', 'none'],
+  ['null', 'none']
+]);
+
+/**
+ * Normalize the historical boolean/descriptive forms used by the legacy
+ * shell into the three-value evidence contract. Unknown values fail closed.
+ * Adapters should call this before creating or exposing evidence; selectors
+ * can therefore rely on a single enum instead of interpreting provider text.
+ */
+export function normalizeAllowedUse(value, fallback = 'none') {
+  if (EVIDENCE_ALLOWED_USE.includes(value)) return value;
+  if (typeof value === 'boolean') return value ? 'decision' : 'reference';
+  const key = String(value ?? '').trim().toLowerCase();
+  if (ALLOWED_USE_ALIASES.has(key)) return ALLOWED_USE_ALIASES.get(key);
+  if (/^reference(?:-|\s|$)|^research(?:-|\/|\s|$)/.test(key)) return 'reference';
+  if (/none|blocked|missing|unavailable|failed|invalid/.test(key)) return 'none';
+  if (/decision|trading|current|live|fresh/.test(key)) return 'decision';
+  return EVIDENCE_ALLOWED_USE.includes(fallback) ? fallback : 'none';
+}
+
 function stableHash(value) {
   const input = JSON.stringify(value);
   let hash = 2166136261;
@@ -39,7 +77,7 @@ export function createEvidence(input = {}) {
     fetchedAt: input.fetchedAt || null,
     lastSuccessfulAt: input.lastSuccessfulAt || null,
     status,
-    allowedUse: input.allowedUse || allowedUseForStatus(status),
+    allowedUse: normalizeAllowedUse(input.allowedUse, allowedUseForStatus(status)),
     freshnessMs: Number.isFinite(input.freshnessMs) ? input.freshnessMs : null,
     metadata: input.metadata && typeof input.metadata === 'object' ? { ...input.metadata } : {}
   };

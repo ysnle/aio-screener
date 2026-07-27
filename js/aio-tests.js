@@ -2033,12 +2033,12 @@
     _assert('T418 web_search_toggle_dom: #aio-web-search-toggle 체크박스 존재',
       !!wsToggle && wsToggle.tagName === 'INPUT', wsToggle ? 'type=' + wsToggle.type : 'missing');
 
-    // T419: 키 백업/복원/자동 메뉴 DOM 존재
+    // T419/P839: explicit key backup/restore remain; plaintext IndexedDB auto-recovery is retired
     var backupBtn = document.querySelector('.aio-key-backup-menu');
     var restoreBtn = document.querySelector('.aio-key-restore-menu');
     var recoverBtn = document.querySelector('.aio-key-recover-menu');
-    _assert('T419 key_backup_menu_dom: 백업/복원/자동 3 버튼 존재',
-      !!backupBtn && !!restoreBtn && !!recoverBtn, 'backup=' + !!backupBtn + ' restore=' + !!restoreBtn + ' recover=' + !!recoverBtn);
+    _assert('T419 key_backup_menu_dom: 명시적 백업/복원만 존재하고 자동 복구는 제거됨',
+      !!backupBtn && !!restoreBtn && !recoverBtn, 'backup=' + !!backupBtn + ' restore=' + !!restoreBtn + ' recover=' + !!recoverBtn);
 
     // T420: AAII spread -7.3 → "중정도 비관" (P196 fix — 임계값 -10 → -5)
     var aaiiLabel = '—';

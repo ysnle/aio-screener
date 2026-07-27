@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "public-readiness-v1",
+  "appRevision": "v53.51",
+  "currentStage": "RESEARCH_BETA_CONDITIONAL",
+  "nextStage": "PUBLIC_BETA",
+  "criteria": [
+    { "id": "fail-closed", "status": "PASS", "evidence": "Wave 1·2·3 contracts and SA-02/03" },
+    { "id": "source-and-constraint-labels", "status": "PASS", "evidence": "vertical slice completeness + capability manifest" },
+    { "id": "privacy-p0", "status": "PASS", "evidence": "versioned Vault and plaintext IndexedDB backup retirement" },
+    { "id": "route-matrix", "status": "PASS", "evidence": "ci-viewport-matrix-check.mjs" },
+    { "id": "route-soak", "status": "PASS", "evidence": "ci-route-soak-check.mjs; _artifacts/route-soak-report.json" },
+    { "id": "thirty-day-slo", "status": "OPERATOR_REQUIRED", "evidence": "architecture/operations-slo.json" },
+    { "id": "live-revision", "status": "OPERATOR_REQUIRED", "evidence": "ci-live-invariant-check.mjs" },
+    { "id": "edge-security-headers", "status": "OPERATOR_REQUIRED", "evidence": "_headers; GitHub Pages edge enforcement must be confirmed" },
+    { "id": "provider-rights", "status": "REVIEW_REQUIRED", "evidence": "public-data/operations-status.json" },
+    { "id": "fred-success-branch", "status": "OPERATOR_REQUIRED", "evidence": "SA-04; public snapshot has fredHasKey:false/fredFetchOk:false" }
+  ],
+  "publicBetaDecision": "BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE"
+}

@@ -1,4 +1,4 @@
-import { createResourceBag } from '../../app/lifecycle.js';
+import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { deriveSentimentSummary } from '../../domain/sentiment/metrics.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { subscribeToSlice } from '../../state/memoize.js';
@@ -281,7 +281,8 @@ export function createSentimentPage({ documentRef, evidenceStore, store, chartFa
     route: 'sentiment',
     mount() {
       const bag = createResourceBag();
-      const charts = new Map();
+      const charts = createChartRegistry({ maxCanvasHeight: 480 });
+      bag.add(charts.dispose);
       const root = documentRef?.getElementById('page-sentiment');
       if (root) {
         root.dataset.aioArchitectureRoute = 'sentiment';

@@ -1,4 +1,5 @@
 import { computeMarketHealth } from '../domain/market/health.js';
+import { normalizeAllowedUse } from '../data/contracts/evidence.js';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -271,6 +272,39 @@ function readPortfolio(root) {
   }
 }
 
+function runtimeEvidenceStatus(status, value) {
+  if (status === 'verified_current') return 'live';
+  if (status === 'snapshot_reference') return 'snapshot';
+  if (status === 'stale_live') return 'stale';
+  return value == null ? 'missing' : 'failed';
+}
+
+function runtimeEvidence(metric, value, row = {}) {
+  const normalizedValue = finite(value);
+  const status = runtimeEvidenceStatus(row.status, normalizedValue);
+  return Object.freeze({
+    evidenceId: row.id || metric,
+    metric,
+    value: normalizedValue,
+    unit: row.unit || 'unitless',
+    sourceKind: row.source || 'legacy-runtime',
+    source: row.source || 'legacy-runtime',
+    observedAt: row.observedAt || null,
+    fetchedAt: row.fetchedAt || null,
+    status,
+    allowedUse: normalizeAllowedUse(status === 'live' ? 'decision' : status === 'snapshot' || status === 'stale' ? 'reference' : 'none')
+  });
+}
+
+function tradingEvidenceRows(root) {
+  try {
+    const audit = root?.AIO?.getTradingDecisionInputEvidence?.();
+    return new Map((audit?.rows || []).map((row) => [row.id, row]));
+  } catch (_) {
+    return new Map();
+  }
+}
+
 function readScreener(root) {
   const nativeRows = typeof root?.AIO_ARCH?.getScreenerRows === 'function' ? root.AIO_ARCH.getScreenerRows() : null;
   const rows = Array.isArray(nativeRows) && nativeRows.length
@@ -299,11 +333,9 @@ function readTradingScoreInputs(root) {
     if (row) return finite(row.chartPreviousClose) ?? finite(row.previousClose) ?? finite(row.price);
     return quote(symbol);
   };
-  const evidence = typeof root?.AIO?.getTradingDecisionInputEvidence === 'function'
-    ? root.AIO.getTradingDecisionInputEvidence()
-    : null;
+  const evidenceRows = tradingEvidenceRows(root);
   const verified = (id) => {
-    const row = Array.isArray(evidence?.rows) ? evidence.rows.find((candidate) => candidate.id === id) : null;
+    const row = evidenceRows.get(id);
     return row?.status === 'verified_current' ? finite(row.value) : null;
   };
   const canonicalFg = typeof root?.AIO?.getCanonicalMetric === 'function' ? root.AIO.getCanonicalMetric('fg') : null;
@@ -317,6 +349,20 @@ function readTradingScoreInputs(root) {
     if (typeof root?.computeNewsSentimentScore === 'function') newsSentimentScore = finite(root.computeNewsSentimentScore()?.score);
     if (typeof root?.computeNewsRiskSignals === 'function') newsRiskSignals = root.computeNewsRiskSignals() || [];
   } catch (_) {}
+  const decisionEvidence = {
+    vix: runtimeEvidence('vix', evidenceRows.get('vix-price')?.value ?? quote('^VIX'), evidenceRows.get('vix-price')),
+    vvix: runtimeEvidence('vvix', evidenceRows.get('vvix-price')?.value ?? quote('^VVIX'), evidenceRows.get('vvix-price')),
+    dxy: runtimeEvidence('dxy', evidenceRows.get('dxy-dollar')?.value ?? quote('DX-Y.NYB'), evidenceRows.get('dxy-dollar')),
+    tnx: runtimeEvidence('tnx', evidenceRows.get('tnx-yield')?.value ?? quote('^TNX'), evidenceRows.get('tnx-yield')),
+    oilPrice: runtimeEvidence('oilPrice', evidenceRows.get('oil-price')?.value ?? quote('CL=F'), evidenceRows.get('oil-price')),
+    fg: runtimeEvidence('fg', canonicalFg?.value, evidenceRows.get('fg-sentiment')),
+    spxPrice: runtimeEvidence('spxPrice', closing('^GSPC'), { id: 'spx-price', status: closing('^GSPC') != null ? 'verified_current' : 'unavailable', source: 'legacy-runtime' }),
+    spx50ma: runtimeEvidence('spx50ma', maCurrent ? ma[50] : null, { id: 'spx-50ma', status: maCurrent ? 'verified_current' : 'unavailable', source: 'legacy-ohlcv' }),
+    spx200ma: runtimeEvidence('spx200ma', maCurrent ? ma[200] : null, { id: 'spx-200ma', status: maCurrent ? 'verified_current' : 'unavailable', source: 'legacy-ohlcv' }),
+    breadth200: runtimeEvidence('breadth200', breadth?.available ? breadth.sma20 : null, evidenceRows.get('breadth200-participation')),
+    pcr: runtimeEvidence('pcr', verified('pcr-putcall'), evidenceRows.get('pcr-putcall')),
+    hyBp: runtimeEvidence('hyBp', verified('hy-spread-bp'), evidenceRows.get('hy-spread-bp'))
+  };
   return Object.freeze({
     mode: 'swing',
     vix: quote('^VIX'),
@@ -324,7 +370,7 @@ function readTradingScoreInputs(root) {
     dxy: quote('DX-Y.NYB'),
     tnx: quote('^TNX'),
     oilPrice: quote('CL=F'),
-    fg: canonicalFg?.allowedUse ? finite(canonicalFg.value) : null,
+    fg: decisionEvidence.fg.allowedUse === 'decision' ? finite(decisionEvidence.fg.value) : null,
     maCurrent,
     spx200ma: maCurrent ? finite(ma[200]) : null,
     spx50ma: maCurrent ? finite(ma[50]) : null,
@@ -334,7 +380,8 @@ function readTradingScoreInputs(root) {
     pcr: verified('pcr-putcall'),
     hyBp: verified('hy-spread-bp'),
     newsSentimentScore,
-    newsRiskSignals
+    newsRiskSignals,
+    decisionEvidence
   });
 }
 
@@ -434,6 +481,10 @@ export function exposeArchitecture(root, api) {
        getScreenerRows: api.getScreenerRows,
        getScreenerState: api.getScreenerState,
        getEvidence: api.getEvidence,
+       selectForDecision: api.selectForDecision,
+       selectForDisplay: api.selectForDisplay,
+       selectLastKnown: api.selectLastKnown,
+       selectCompleteness: api.selectCompleteness,
        getMarketSnapshot: api.getMarketSnapshot,
       getSentimentSummary: api.getSentimentSummary,
       ingestSentiment: api.ingestSentiment,
@@ -452,7 +503,14 @@ export function exposeArchitecture(root, api) {
       concentrationPenaltyForWeight: api.concentrationPenaltyForWeight,
       computeFactorRanks: api.computeFactorRanks,
       deriveFactorWeights: api.deriveFactorWeights
-      ,computeMarketHealth: api.computeMarketHealth
-    })
+       ,computeMarketHealth: api.computeMarketHealth
+       ,getVerticalSliceContract: api.getVerticalSliceContract
+       ,getVerticalSliceContracts: api.getVerticalSliceContracts
+       ,auditVerticalSliceContracts: api.auditVerticalSliceContracts
+       ,capabilityManifestVersion: api.capabilityManifestVersion
+       ,getCapability: api.getCapability
+       ,getCapabilityManifest: api.getCapabilityManifest
+       ,auditCapabilityClaims: api.auditCapabilityClaims
+     })
   });
 }

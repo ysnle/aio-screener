@@ -48,17 +48,17 @@ jobs:
       # of its own (FABLE-LIVE-AUDIT-2026-07-04.md P0). head_branch (= main) checks out the
       # branch's actual current head at checkout time, i.e. the commit this run is really about.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
       - name: Install CI script dependencies (js-yaml)
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Workflow YAML + control character checks (WO-0/P660)
         run: node scripts/ci-control-char-check.mjs
@@ -87,6 +87,9 @@ jobs:
           set -e
           find src -name '*.js' -print0 | xargs -0 -n1 node --check
           node scripts/ci-architecture-contract-check.mjs
+          node scripts/ci-vertical-slice-contract-check.mjs
+          node scripts/ci-capability-claim-contract-check.mjs
+          node scripts/ci-operations-contract-check.mjs
 
       - name: ESM core unit contracts (RM-05 — store/router/lifecycle/evidence-store/facade in isolation)
         run: node scripts/ci-esm-core-unit-check.mjs
@@ -184,18 +187,18 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
       - name: Install Playwright
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Run AIO.runTests() headlessly
@@ -206,6 +209,12 @@ jobs:
 
       - name: Architecture ESM browser lifecycle contract (AR-01~06)
         run: node scripts/ci-architecture-browser-check.mjs
+
+      - name: Wave 3 vertical slice browser contract
+        run: node scripts/ci-vertical-slice-browser-check.mjs
+
+      - name: Wave 5 route soak and lifecycle leak contract
+        run: node scripts/ci-route-soak-check.mjs
 
       - name: SA-02 external outage snapshot fixture (P784)
         run: node scripts/ci-sa-02-outage-browser-fixture.mjs
@@ -231,18 +240,18 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
       - name: Install Playwright
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Run route x viewport surface matrix (FULL_INIT)
@@ -261,18 +270,18 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
       - name: Install Playwright
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Run Critical-10 human surface audit
@@ -290,18 +299,18 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
       - name: Install Playwright
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Run portfolio Vault E2E
@@ -318,18 +327,18 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
       - name: Install Playwright
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Run all-route accessibility matrix
@@ -367,7 +376,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
 
@@ -378,22 +387,22 @@ jobs:
         run: |
           set -e
           mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/src" "$RUNNER_TEMP/pages-dist/public-data"
-          cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json "$RUNNER_TEMP/pages-dist/"
+           cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json _headers "$RUNNER_TEMP/pages-dist/"
           cp js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js js/aio-glossary.js "$RUNNER_TEMP/pages-dist/js/"
           rsync -a src/ "$RUNNER_TEMP/pages-dist/src/"
           rsync -a public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: ${{ runner.temp }}/pages-dist
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
         continue-on-error: true
 
       # P600-followup: `actions/deploy-pages` intermittently fails with "Deployment failed,
@@ -412,7 +421,7 @@ jobs:
       - name: Deploy to GitHub Pages (retry)
         id: deployment_retry
         if: steps.deployment.outcome == 'failure'
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
 
       - name: Fail if both deploy attempts failed
         if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome != 'success'

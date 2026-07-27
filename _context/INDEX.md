@@ -1,6 +1,6 @@
 ---
 verified_by: Codex (repository/gates/Chrome live/GitHub Actions 실측)
-last_verified: 2026-07-19
+last_verified: 2026-07-27
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -52,6 +52,8 @@ target_version: version.json
 
 > **Current correction (2026-07-19, same session continued)**: RM-01/RM-02/RM-03(item 1·5)/RM-05 were also completed in the same session (user directive to work through the remaining items sequentially), not left open as the line above still says at the time it was written. RM-01 deleted every contested native DOM write (route-owners.json rendererOwner stays legacy for 15 routes — native no longer competes with legacy for any of their ids). RM-02 removed store.js's per-dispatch clone (1000-row fixture p95 7.49ms→0.04ms). RM-03 extracted `computeTradingScore` into `src/domain/signal/trading-score.js` with real golden-fixture parity (`ci-domain-parity-check.mjs`, renamed back from the smoke-check name) and converged `scripts/backtest-trading-score.mjs` onto it — the other 7 models in that file remain tautological (RM-03 item 2 未着手). RM-05 added a 17-route two-lap resource-leak browser check (which found and fixed a real RM-01 gap: entity.js/market.js/themes.js never set the `aioArchitectureRoute` lifecycle marker) and `scripts/ci-esm-core-unit-check.mjs`. BUG-POSTMORTEM P742/P743/P744. `_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` §5 now scores 5/6 acceptance criteria met (only "0 tautological gates" remains partial). No commit/push/deploy beyond local commits the user did not explicitly request beyond "commit"; ARX-03/04 (W2) re-entry itself was not started — that is next-session scope per RM-06.
 
+> **Current correction (2026-07-27 v53.46 independent audit/design)**: `AIO-STRUCTURAL-REMEDIATION-MASTERPLAN-2026-07-27.md` is the current planning SSOT for the next structural remediation. It consolidates a fresh 17-route live-browser/code/data/Actions audit, user-persona requirements, P0~P3 issue ledger, target Evidence→Selector→Domain→ViewModel→Renderer architecture, all-route required data/chart/text contracts, orphan-element prevention, security and soak/SLO gates, and expert/sub-agent work boundaries. It is `DESIGN_ONLY`; no implementation, version bump, commit, or deployment is claimed. The two 2026-07-19 architecture handoff documents contain thousands of U+FFFD replacement characters and must be treated as damaged historical material until restored.
+
 # _context Index
 
 This folder is the active project knowledge base for AIO. It should describe the current GitHub-deployed structure first, then local Claude worktree exceptions only when they affect routing.
@@ -79,6 +81,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md` | 전체 12개 구조면 진단, 유지/교체/폐기 경계, TypeScript+ESM 기반 목표 구조, AR-00~09 점진 재구축·legacy 종료 원장 | 아키텍처 ADR·계층 경계·AR 패킷·legacy burn-down 변경 시 |
 | `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md` | 다른 세션용 전체 재구축 실행 원장: 14계층·17 route·ARX-00~16·DELETE-LEDGER·owner/burn-down/최종 인수 기준 | 계층/route owner, 실행 wave, 삭제 대상, gate 또는 재구축 상태 변경 시 |
 | `ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` | v53.16 배치의 진척 회계 훼손 실측(F-01~F-09: 소유권 하드코딩·게이트 역전·이중 DOM writer·항진 parity) + RM-00~06 복구 패킷 — 신규 ARX 착수 전 필수 선행 원장 | RM 패킷 상태, route-owners.json, 게이트 로직, 소유권 실측 변경 시 |
+| `AIO-STRUCTURAL-REMEDIATION-MASTERPLAN-2026-07-27.md` | v53.46 독립 진단 기반 구조 개편 기획 SSOT: 설계 의도·사용자 관점·P0~P3 전체 이슈·목표 아키텍처·17 route 필수 데이터/차트/텍스트·고아 방지·보안·운영 SLO·작업 Wave/게이트 | 구조 개편 우선순위, page contract, route owner, evidence/selector, 보안·운영 gate 또는 공개 판정 변경 시 |
 | `GATE-BASELINE-2026-06-04.md` | v50.4 evidence deployment gate + unit-test 실측 기준선 (env-dependent vs code-internal 분리) | 게이트/테스트 재측정, 운영 baseline 추가 시 |
 | `GATE-BASELINE-2026-07-03.md` | v51.91→v51.96 헤드리스 CI 테스트(`ci-headless-tests.mjs`) 실측 (894/921→896/921 pass, T776/T686 실제 해소로 27→25건 skip-list) — Phase 2 [B5] + 전체 /data-refresh 산출물 | skip-list 갱신, 헤드리스 테스트 재측정 시 |
 | `CHAT-DATA-AUDIT-2026-06-04.md` | v50.8 AI 채팅 데이터 출처 전수 감사 baseline (fetch 파이프라인·시장맥락 주입·재사용·dead code 실측) | 채팅 데이터 경로/컨텍스트 변경 시 |
@@ -101,7 +104,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `WO7-GLOBAL-INVENTORY-2026-07-10.md` | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7("점진적 구조 격리") Packet 1 — 전역 read/write baseline 실측(innerHTML 395·전역쓰기 1,318·localStorage direct 146 vs safeLS 8) + timer/chart/page-lifecycle 어댑터 기존재 확인(진짜 갭은 채택률) + snapshot/storage adapter 전면화 등 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 39개 versioned/new `_context/*.md` 활성(2026-07-19 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 41개 versioned/new `_context/*.md` 활성(2026-07-27 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 

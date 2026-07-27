@@ -3,27 +3,32 @@
     {
       "id": "PFE2-01 new_user_no_pin",
       "ok": true,
-      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":161},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
+      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":165},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
     },
     {
       "id": "PFE2-02 pin_encrypts_storage",
       "ok": true,
-      "detail": "{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":161}"
+      "detail": "{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":165}"
     },
     {
       "id": "PFE2-03 lock_and_wrong_pin_rejected",
       "ok": true,
-      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":161},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
+      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":165},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
     },
     {
       "id": "PFE2-04 correct_pin_restores_data",
       "ok": true,
-      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":161},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
+      "detail": "{\"afterPin\":{\"initialUnlocked\":true,\"encrypted\":true,\"hasSalt\":true,\"beforePinPlain\":true,\"storedLength\":165},\"lockedAfterLock\":true,\"wrongPinRejected\":true,\"correctPinRestored\":true}"
     },
     {
       "id": "PFE2-05 reload_requires_unlock",
       "ok": true,
       "detail": "true"
+    },
+    {
+      "id": "PFE2-09 legacy_kdf_decrypts_and_reencrypts_v2",
+      "ok": true,
+      "detail": "{\"legacyValueRestored\":true,\"reencryptedV2\":true,\"decryptVersion\":1}"
     },
     {
       "id": "PFE2-06 legacy_plaintext_migrates",

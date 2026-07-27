@@ -17,7 +17,9 @@ const load = (rel) => import(pathToFileURL(path.join(root, rel)));
 
 const { createStore } = await load('src/state/store.js');
 const { createRouteRegistry, createLifecycleRouter } = await load('src/app/router.js');
-const { createResourceBag } = await load('src/app/lifecycle.js');
+const { ROUTE_IDS } = await load('src/app/routes.js');
+const { getVerticalSliceContract, auditVerticalSliceContracts } = await load('src/app/vertical-slices.js');
+const { createResourceBag, createChartRegistry } = await load('src/app/lifecycle.js');
 const { createEvidenceStore } = await load('src/data/evidence-store.js');
 const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compatibility-facade.js');
 
@@ -86,15 +88,30 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (disposeOfThrowingBagThrew) fail('lifecycle: one disposer throwing must not stop dispose() or propagate (other resources must still be released)');
 }
 
+// ── lifecycle.js (route-owned chart registry) ────────────────────────────────────────────────
+{
+  const canvas = { style: { maxHeight: '' }, dataset: {} };
+  let firstDestroyed = 0;
+  let secondDestroyed = 0;
+  const registry = createChartRegistry({ maxCanvasHeight: 320 });
+  registry.set('trend', { chart: { destroy: () => { firstDestroyed += 1; } }, canvas });
+  if (registry.size() !== 1 || canvas.style.maxHeight !== '320px' || canvas.dataset.aioChartRegistry !== 'trend') fail('chart-registry: first chart was not registered and bounded');
+  registry.set('trend', { chart: { destroy: () => { secondDestroyed += 1; } }, canvas });
+  if (firstDestroyed !== 1 || registry.size() !== 1) fail('chart-registry: replacing a chart did not destroy the previous instance exactly once');
+  registry.dispose();
+  if (secondDestroyed !== 1 || registry.size() !== 0 || canvas.style.maxHeight !== '' || canvas.dataset.aioChartRegistry) fail('chart-registry: dispose did not destroy, clear, and restore the canvas ownership marker');
+}
+
 // ── router.js ────────────────────────────────────────────────────────────────────────────────
 {
   const mountLog = [];
   const disposeLog = [];
+  const scopeLog = [];
   const makePage = (route) => ({
     route,
-    mount: () => { mountLog.push(route); return () => disposeLog.push(route); }
+    mount: ({ scope }) => { scopeLog.push(scope); mountLog.push(route); return () => disposeLog.push(route); }
   });
-  const registry = createRouteRegistry({ modules: { home: makePage('home'), signal: makePage('signal') } });
+  const registry = createRouteRegistry({ modules: { home: makePage('home'), signal: makePage('signal'), ticker: makePage('ticker') } });
   if (typeof registry.home?.mount !== 'function') fail('router: createRouteRegistry did not wire the provided home module');
   if (typeof registry.guide?.mount !== 'function') fail('router: createRouteRegistry did not fall back to a default page for an unprovided registered route id');
   const target = new EventTarget();
@@ -102,14 +119,25 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   const started = router.start();
   target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: 'home' }));
   if (started.active() !== 'home' || mountLog.join(',') !== 'home') fail('router: pageShown event did not transition into the home route');
+  if (scopeLog[0]?.sliceId !== 'vs01-home-signal' || !scopeLog[0]?.requiredData.includes('quotes')) fail('router: home scope did not expose its vertical slice contract');
   target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: 'home' }));
   if (mountLog.join(',') !== 'home') fail('router: transitioning to the already-active route must be a no-op, not remount');
   target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: 'signal' }));
   if (started.active() !== 'signal' || disposeLog.join(',') !== 'home' || mountLog.join(',') !== 'home,signal') fail('router: transitioning away must dispose the previous route before mounting the next');
+  const signalScope = scopeLog[1];
+  if (!signalScope || signalScope.mountId !== 2 || signalScope.routeId !== 'signal' || signalScope.isCurrent() !== true) fail('router: active route scope did not expose route identity/currentness');
+  target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: { pageId: 'ticker', args: ['nvda'] } }));
+  const firstTickerScope = scopeLog[2];
+  if (firstTickerScope?.entityId !== 'NVDA' || !signalScope.signal?.aborted || signalScope.isCurrent()) fail('router: route transition did not abort and invalidate the previous scope or normalize entity identity');
+  target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: { pageId: 'ticker', args: ['msft'] } }));
+  const secondTickerScope = scopeLog[3];
+  if (secondTickerScope?.entityId !== 'MSFT' || secondTickerScope?.sliceId !== 'vs02-technical-ticker' || !firstTickerScope.signal?.aborted || firstTickerScope.isCurrent() || mountLog.join(',') !== 'home,signal,ticker,ticker') fail('router: ticker/entity scope did not remount for a changed entity');
+  target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: { pageId: 'ticker', args: ['msft'] } }));
+  if (scopeLog.length !== 4) fail('router: identical route/entity transition must remain a no-op');
   target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: 'not-a-real-route' }));
-  if (started.active() !== 'signal') fail('router: an unknown route id must not change the active route');
+  if (started.active() !== 'ticker') fail('router: an unknown route id must not change the active route');
   started.dispose();
-  if (disposeLog.join(',') !== 'home,signal') fail('router: router.dispose() must dispose the currently active route');
+  if (disposeLog.join(',') !== 'home,signal,ticker,ticker') fail('router: router.dispose() must dispose the currently active route');
   if (started.active() !== null) fail('router: active() must be null after dispose()');
   let missingRootThrew = false;
   try { createLifecycleRouter({ root: null, registry }); } catch (_) { missingRootThrew = true; }
@@ -128,6 +156,50 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (!invalidThrew) fail('evidence-store: ingest accepted an evidence input with no metric and no value on a status that requires one');
   store.clear();
   if (store.get('fearGreed') !== null || Object.keys(store.snapshot()).length !== 0) fail('evidence-store: clear() did not empty the store');
+}
+
+// ── W1-01/W1-02: one allowedUse enum and decision-only selectors ─────────────────────────────
+{
+  const { createEvidence, normalizeAllowedUse } = await load('src/data/contracts/evidence.js');
+  const { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } = await load('src/data/selectors/evidence.js');
+  if (normalizeAllowedUse(true) !== 'decision' || normalizeAllowedUse('reference-only') !== 'reference' || normalizeAllowedUse('unknown-provider-state') !== 'none') {
+    fail('truth-boundary: legacy allowedUse aliases must normalize to decision/reference/none and unknown values must fail closed');
+  }
+  const evidence = {
+    live: createEvidence({ metric: 'live', value: 1, status: 'live', allowedUse: true }),
+    snapshot: createEvidence({ metric: 'snapshot', value: 2, status: 'snapshot', allowedUse: 'reference-only' }),
+    stale: createEvidence({ metric: 'stale', value: 3, status: 'stale', allowedUse: 'reference' }),
+    missing: createEvidence({ metric: 'missing', value: null, status: 'missing', allowedUse: false })
+  };
+  if (selectForDecision(evidence, 'live')?.value !== 1 || selectForDecision(evidence, 'snapshot') !== null || selectForDecision(evidence, 'stale') !== null) {
+    fail('truth-boundary: decision selector admitted reference/stale evidence');
+  }
+  if (selectForDisplay(evidence, 'snapshot')?.value !== 2 || selectLastKnown(evidence, 'stale')?.value !== 3) {
+    fail('truth-boundary: display/LKG selectors did not preserve reference evidence');
+  }
+  const completeness = selectCompleteness(evidence, ['live', 'snapshot', 'missing']);
+  if (completeness.available !== 1 || Math.abs(completeness.coveragePct - (100 / 3)) > 1e-9 || completeness.missing.join(',') !== 'snapshot,missing') {
+    fail(`truth-boundary: completeness contract drifted: ${JSON.stringify(completeness)}`);
+  }
+}
+
+// ── vertical-slices.js ───────────────────────────────────────────────────────────────────────
+{
+  const audit = auditVerticalSliceContracts(ROUTE_IDS);
+  if (!audit.ok || audit.sliceCount !== 10 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical-slices: registry coverage drifted: ${JSON.stringify(audit)}`);
+  if (getVerticalSliceContract('page-theme-detail')?.id !== 'vs04-themes-detail' || getVerticalSliceContract('missing')) fail('vertical-slices: route lookup did not normalize page ids or reject unknown routes');
+}
+
+// ── W1-03: Trading Score reference input must fail closed ───────────────────────────────────
+{
+  const { computeTradingScoreModel } = await load('src/domain/signal/trading-score.js');
+  const decision = (value) => ({ value, status: 'live', allowedUse: 'decision' });
+  const reference = (value) => ({ value, status: 'snapshot', allowedUse: 'reference' });
+  const full = { vix: decision(18), vvix: decision(90), dxy: decision(100), tnx: decision(3.5), oilPrice: decision(80), fg: decision(50), spx200ma: decision(450), spx50ma: decision(480), spxPrice: decision(500), breadth200: decision(60), pcr: decision(1), hyBp: decision(300) };
+  const valid = computeTradingScoreModel({ decisionEvidence: full });
+  if (valid.total == null || valid.decisionBlocked || valid.componentCoveragePct !== 100) fail(`truth-boundary: full decision evidence should produce a current score: ${JSON.stringify(valid)}`);
+  const blocked = computeTradingScoreModel({ decisionEvidence: { ...full, fg: reference(50) } });
+  if (blocked.total !== null || !blocked.decisionBlocked || !blocked.componentMissing.includes('momentum')) fail(`truth-boundary: reference F&G must not drive Trading Score: ${JSON.stringify(blocked)}`);
 }
 
 // ── compatibility-facade.js ──────────────────────────────────────────────────────────────────
@@ -388,9 +460,13 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
 {
   const { deriveSecReport } = await load('src/domain/fundamental/sec-report.js');
   const report = deriveSecReport({ symbol: 'AAPL', entityName: 'Apple', form: '10-K', coverage: ['revenue', 'margin', 'pe'], revenue: 100, margin: 25, pe: 30, sourceTier: 'official-regulator' });
-  if (report.modelVersion !== 'sec-report.v1' || report.status !== 'current' || report.metrics.length !== 3 || report.sourceKind !== 'official-regulator') fail(`sec-report: complete official record drifted, got ${JSON.stringify(report)}`);
+  if (report.modelVersion !== 'sec-report.v2' || report.status !== 'current' || report.metrics.length !== 3 || report.sourceKind !== 'official-regulator' || report.freshness.state !== 'unknown' || report.decisionEligible !== false) fail(`sec-report: complete official record drifted, got ${JSON.stringify(report)}`);
   const missing = deriveSecReport({ coverage: ['revenue'], revenue: null });
   if (missing.status !== 'unavailable' || missing.metrics.length !== 0) fail(`sec-report: null fact must remain unavailable, got ${JSON.stringify(missing)}`);
+  const recent = deriveSecReport({ symbol: 'NVDA', coverage: ['revenue'], revenue: 10, observedAt: new Date().toISOString(), allowedUse: 'decision' });
+  if (recent.freshness.state !== 'current' || recent.decisionEligible !== true) fail(`sec-report: current filing freshness drifted, got ${JSON.stringify(recent)}`);
+  const old = deriveSecReport({ symbol: 'NVDA', coverage: ['revenue'], revenue: 10, observedAt: '2022-01-01', allowedUse: 'decision' });
+  if (old.freshness.state !== 'historical' || old.freshness.ageDays == null || old.decisionEligible !== false) fail(`sec-report: historical filing must fail closed, got ${JSON.stringify(old)}`);
 }
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/portfolio/surface', 'domain/fundamental/sec-report'] }));

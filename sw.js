@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v53.46';
-const SW_BUILD = '2026-07-27T16:30:00+09:00';
+const SW_VERSION = 'v53.51';
+const SW_BUILD = '2026-07-27T19:40:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -34,6 +34,7 @@ const SHELL_ASSETS = [
   './src/app/lifecycle.js',
   './src/app/router.js',
   './src/app/routes.js',
+  './src/app/vertical-slices.js',
   './src/ai/context-builder.js',
   './src/ai/inference.js',
   './src/ai/policy.js',
@@ -43,6 +44,7 @@ const SHELL_ASSETS = [
   './src/ai/retrieval/evidence.js',
   './src/ai/websearch/claims.js',
   './src/data/contracts/evidence.js',
+  './src/data/selectors/evidence.js',
   './src/data/contracts/market-snapshot.js',
   './src/data/contracts/operations.js',
   './src/data/contracts/reconciliation.js',
@@ -89,6 +91,7 @@ const SHELL_ASSETS = [
   './src/domain/signal/trading-score.js',
   './src/domain/technical/stage.js',
   './src/domain/themes/rrg.js',
+  './src/domain/content/capability-manifest.js',
   './src/legacy/compatibility-facade.js',
   './src/legacy/market-snapshot-bridge.js',
   './src/platform/clock.js',

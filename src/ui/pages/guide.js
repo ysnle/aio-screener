@@ -1,4 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { CAPABILITY_MANIFEST_VERSION, auditCapabilityClaims } from '../../domain/content/capability-manifest.js';
 
 function closestAction(element, selector) {
   return element?.closest?.(selector) || null;
@@ -78,6 +79,16 @@ export function createGuidePage({ documentRef } = {}) {
       if (!guidePage) return () => bag.dispose();
       guidePage.dataset.aioArchitectureRoute = 'guide';
       guidePage.dataset.aioArchitectureRenderer = 'native';
+      guidePage.dataset.aioCapabilityManifest = CAPABILITY_MANIFEST_VERSION;
+      const capabilityAudit = auditCapabilityClaims({ documentRef: guidePage });
+      guidePage.dataset.aioCapabilityAudit = capabilityAudit.ok ? 'pass' : 'blocked';
+      const capabilityStatus = documentRef?.getElementById('guide-capability-status');
+      if (capabilityStatus) {
+        capabilityStatus.dataset.aioCapabilityStatus = capabilityAudit.ok ? 'pass' : 'blocked';
+        capabilityStatus.textContent = capabilityAudit.ok
+          ? `기능 범위 검증 통과 · ${capabilityAudit.checkedCount}/${capabilityAudit.capabilityCount} 항목`
+          : `기능 범위 확인 필요 · ${capabilityAudit.issues.length}건`;
+      }
       const jump = (targetId) => {
         const target = documentRef.getElementById(targetId);
         if (!target) return searchGuide(documentRef, guidePage, result, String(targetId || '').replace(/^guide-/, ''), jump);
@@ -106,6 +117,12 @@ export function createGuidePage({ documentRef } = {}) {
       bag.add(() => {
         if (guidePage.dataset.aioArchitectureRoute === 'guide') delete guidePage.dataset.aioArchitectureRoute;
         if (guidePage.dataset.aioArchitectureRenderer === 'native') delete guidePage.dataset.aioArchitectureRenderer;
+        delete guidePage.dataset.aioCapabilityManifest;
+        delete guidePage.dataset.aioCapabilityAudit;
+        if (capabilityStatus) {
+          delete capabilityStatus.dataset.aioCapabilityStatus;
+          capabilityStatus.textContent = '기능 범위 검증 대기';
+        }
       });
       return () => bag.dispose();
     }

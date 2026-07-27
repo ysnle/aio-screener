@@ -4873,10 +4873,29 @@ function _aioDefaultDecision(pageId) {
     }
     // v53.7 (P725): KR 전용 5페이지 결론 항목 제거 — 통합 섹션은 대상 페이지(themes/macro/technical) 결론을 따름
   };
+  // W1-05: ticker narrative must fail closed when the selected entity, quote,
+  // or market-health evidence is absent. A market score alone is not a
+  // security-specific action signal.
+  var _tickerGateMissing = [];
+  var _tickerGateBlocked = false;
+  if (pageId === 'ticker') {
+    var _tickerGateId = window._currentTickerId || window._currentTickerSym || (typeof _currentTickerSym !== 'undefined' ? _currentTickerSym : '');
+    var _tickerGateQuote = _tickerGateId && window._liveData ? window._liveData[String(_tickerGateId).toUpperCase()] : null;
+    var _tickerGateHealth = typeof computeMarketHealth === 'function' ? computeMarketHealth({ render: false }) : null;
+    if (!_tickerGateId) _tickerGateMissing.push('ticker');
+    if (!_tickerGateQuote || !Number.isFinite(Number(_tickerGateQuote.price))) _tickerGateMissing.push('quote');
+    if (!_tickerGateHealth || _tickerGateHealth.available !== true || !Number.isFinite(Number(_tickerGateHealth.score))) _tickerGateMissing.push('market-health');
+    _tickerGateBlocked = _tickerGateMissing.length > 0;
+  }
   // H3-C: quorum 미달이면 수치 밴드가 있어도 현재 행동 결론을 생성하지 않는다.
   if (_scoreBlocked && map[pageId]) {
     map[pageId].decision = '판단 보류 · 핵심 입력 부족 (스코어 ' + Math.round(_sc) + '/100)';
     map[pageId].action = '핵심 시장 데이터가 부족하거나 오래되었습니다. 입력을 새로고침한 뒤 진입·축소·헤지 결론을 다시 확인하세요.';
+  }
+  if (_tickerGateBlocked && map[pageId]) {
+    map[pageId].decision = '판단 보류 · 티커 근거 부족';
+    map[pageId].action = '현재 티커의 시세·시장 건강도 근거가 확보되기 전에는 WATCH/진입 행동을 생성하지 않습니다.';
+    map[pageId].caveat = '필수 티커 근거 미수신: ' + _tickerGateMissing.join(', ');
   }
   var d = map[pageId] || {
     title: '현재 판단',
@@ -4885,7 +4904,7 @@ function _aioDefaultDecision(pageId) {
     action: '상단 판단을 본 뒤 필요한 상세 섹션만 펼쳐 확인한다.'
   };
   d.pageId = pageId;
-  d.decisionBlocked = _scoreBlocked;
+  d.decisionBlocked = _scoreBlocked || _tickerGateBlocked;
   d.sourceKind = d.sourceKind || sourceKind || 'SNAPSHOT';
   d.asOf = _aioDecisionAsOf(d.sourceKind);
   d.confidence = _aioDecisionConfidence(d.sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84);
@@ -15761,14 +15780,22 @@ async function _retryAllFailedApis() {
 }
 
 // ═══ v30.11 Task 12: API 키 암호화 (AioVault + safeLS) ═════════════
+// W2-05: versioned Vault envelope. v1 used PBKDF2-SHA256/100k and stored
+// [iv12|salt16|ciphertext]. v2 raises the KDF cost and prefixes a 4-byte
+// envelope marker so legacy values can be decrypted once and re-encrypted.
+const AIO_VAULT_KDF_VERSION = 2;
+const AIO_VAULT_KDF_ITERATIONS = 310000;
+const AIO_VAULT_LEGACY_KDF_ITERATIONS = 100000;
+const AIO_VAULT_V2_MAGIC = [0x41, 0x49, 0x4f, AIO_VAULT_KDF_VERSION];
 const _AioVault = {
-  _pin: null, _derivedKey: null, _salt: null, _publicMode: false,
+  _pin: null, _derivedKey: null, _legacyDerivedKey: null, _salt: null, _publicMode: false,
+  _lastDecryptVersion: null,
 
-  async deriveKey(pin, salt) {
+  async deriveKey(pin, salt, iterations = AIO_VAULT_KDF_ITERATIONS) {
     var enc = new TextEncoder();
     var km = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
     return crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+      { name: 'PBKDF2', salt: salt, iterations: iterations, hash: 'SHA-256' },
       km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
     );
   },
@@ -15778,20 +15805,25 @@ const _AioVault = {
     var enc = new TextEncoder();
     var iv = crypto.getRandomValues(new Uint8Array(12));
     var ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, this._derivedKey, enc.encode(plaintext));
-    var buf = new Uint8Array(12 + 16 + ct.byteLength);
-    buf.set(iv, 0); buf.set(this._salt, 12); buf.set(new Uint8Array(ct), 28);
+    var buf = new Uint8Array(4 + 12 + 16 + ct.byteLength);
+    buf.set(AIO_VAULT_V2_MAGIC, 0); buf.set(iv, 4); buf.set(this._salt, 16); buf.set(new Uint8Array(ct), 32);
     return 'aio_enc::' + btoa(String.fromCharCode.apply(null, buf));
   },
 
   async decrypt(stored) {
     if (!stored || !stored.startsWith('aio_enc::')) return stored;
-    if (!this._derivedKey) return null;
+    this._lastDecryptVersion = null;
     try {
       var raw = atob(stored.slice(9));
       var buf = new Uint8Array(raw.length);
       for (var i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
-      var iv = buf.slice(0, 12), ct = buf.slice(28);
-      var dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, this._derivedKey, ct);
+      var isV2 = buf.length >= 36 && AIO_VAULT_V2_MAGIC.every(function(value, index) { return buf[index] === value; });
+      var key = isV2 ? this._derivedKey : this._legacyDerivedKey;
+      if (!key) return null;
+      var iv = isV2 ? buf.slice(4, 16) : buf.slice(0, 12);
+      var ct = isV2 ? buf.slice(32) : buf.slice(28);
+      var dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ct);
+      this._lastDecryptVersion = isV2 ? AIO_VAULT_KDF_VERSION : 1;
       return new TextDecoder().decode(dec);
     } catch(e) { return null; }
   },
@@ -15808,14 +15840,15 @@ const _AioVault = {
         localStorage.setItem('aio_vault_salt', btoa(String.fromCharCode.apply(null, this._salt)));
       } catch(e) { _aioLog('warn', 'vault', 'salt 저장 실패 (개인정보 보호 모드?): ' + e.message); }
     }
-    this._derivedKey = await this.deriveKey(pin, this._salt);
+    this._derivedKey = await this.deriveKey(pin, this._salt, AIO_VAULT_KDF_ITERATIONS);
+    this._legacyDerivedKey = await this.deriveKey(pin, this._salt, AIO_VAULT_LEGACY_KDF_ITERATIONS);
     return true;
   },
 
   isUnlocked: function() { return !!this._derivedKey; },
   enablePublicMode: function() { this._publicMode = true; },
   // v47.9: lock 시 모든 런타임 캐시 초기화 (Claude 단일 필드 → 통합 객체)
-  lock: function() { this._pin = null; this._derivedKey = null; this._claudeKeyRuntime = ''; this._keyRuntime = {}; },
+  lock: function() { this._pin = null; this._derivedKey = null; this._legacyDerivedKey = null; this._lastDecryptVersion = null; this._claudeKeyRuntime = ''; this._keyRuntime = {}; },
   getStorage: function() { return this._publicMode ? sessionStorage : localStorage; },
   // v47.7: Claude API 키 런타임 메모리 캐시 (Vault 잠금 해제 시 복호화 결과 저장, getApiKey에서 우선 참조)
   _claudeKeyRuntime: '',
@@ -15854,7 +15887,10 @@ async function safeLSGet(key, def) {
     var raw = storage.getItem(key);
     if (!raw) return def || '';
     if (raw.startsWith('aio_enc::') && _AioVault.isUnlocked()) {
-      return (await _AioVault.decrypt(raw)) || def || '';
+      var decrypted = await _AioVault.decrypt(raw);
+      if (decrypted == null) return def || '';
+      if (_AioVault._lastDecryptVersion === 1) await safeLS(key, decrypted);
+      return decrypted;
     }
     return raw;
   } catch(e) { _aioLog('warn', 'vault', 'safeLSGet error: ' + e.message); return def || ''; }
@@ -15989,8 +16025,6 @@ function _saveApiKey(lsKey, inputId, btnEl) {
     setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK);
     // CORS 프록시 레지스트리 재초기화 (CF Worker URL 변경 시)
     if (lsKey === 'aio_cf_worker_url' && typeof _PROXY_REGISTRY !== 'undefined') _PROXY_REGISTRY.init();
-    // v49.45 P312: IndexedDB 자동 mirror (캐시 클리어와 별도 저장소 — 키 손실 방어 2차)
-    try { if (typeof window._aioAutoBackupKeys === 'function') window._aioAutoBackupKeys(); } catch(_e) {}
   }).catch(function() {
     // 폴백: 평문 저장 + 런타임 캐시 동기화
     localStorage.setItem(lsKey, val);
@@ -15998,8 +16032,6 @@ function _saveApiKey(lsKey, inputId, btnEl) {
     if (el) { el.value = val ? '••••••••' : ''; el.dataset.secretStored = val ? 'true' : ''; }
     btnEl.textContent = '✓';
     setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK);
-    // v49.45 P312: 폴백 경로에서도 IndexedDB mirror 보장
-    try { if (typeof window._aioAutoBackupKeys === 'function') window._aioAutoBackupKeys(); } catch(_e) {}
   });
 }
 
@@ -16011,47 +16043,27 @@ function _saveApiKey(lsKey, inputId, btnEl) {
 //   (3) Export JSON 파일 — 사용자가 명시 백업 (마스킹 옵션)
 
 // IndexedDB 백업 helper
-window._aioIdbBackupKeys = async function(snapshot) {
-  return new Promise(function(resolve) {
-    try {
-      var req = indexedDB.open('aio-keys-backup', 1);
-      req.onupgradeneeded = function(e) {
-        var db = e.target.result;
-        if (!db.objectStoreNames.contains('keys')) db.createObjectStore('keys');
-      };
-      req.onsuccess = function(e) {
-        var db = e.target.result;
-        var tx = db.transaction('keys', 'readwrite');
-        var store = tx.objectStore('keys');
-        store.put({ snapshot: snapshot, ts: Date.now() }, 'latest');
-        tx.oncomplete = function() { db.close(); resolve(true); };
-        tx.onerror = function() { db.close(); resolve(false); };
-      };
-      req.onerror = function() { resolve(false); };
-    } catch(e) { resolve(false); }
-  });
+window._aioIdbBackupKeys = async function() {
+  return { ok: false, retired: true, reason: 'automatic_plaintext_idb_backup_retired' };
 };
 
 window._aioIdbRestoreKeys = async function() {
+  return null;
+};
+
+// P838: retire the legacy plaintext mirror without opening or recreating its database.
+window._aioRetirePlaintextIdbBackup = function() {
+  if (!window.indexedDB || typeof window.indexedDB.deleteDatabase !== 'function') return Promise.resolve(false);
   return new Promise(function(resolve) {
     try {
-      var req = indexedDB.open('aio-keys-backup', 1);
-      req.onupgradeneeded = function(e) {
-        var db = e.target.result;
-        if (!db.objectStoreNames.contains('keys')) db.createObjectStore('keys');
-      };
-      req.onsuccess = function(e) {
-        var db = e.target.result;
-        var tx = db.transaction('keys', 'readonly');
-        var store = tx.objectStore('keys');
-        var getReq = store.get('latest');
-        getReq.onsuccess = function() { db.close(); resolve(getReq.result || null); };
-        getReq.onerror = function() { db.close(); resolve(null); };
-      };
-      req.onerror = function() { resolve(null); };
-    } catch(e) { resolve(null); }
+      var req = window.indexedDB.deleteDatabase('aio-keys-backup');
+      req.onsuccess = function() { resolve(true); };
+      req.onerror = function() { resolve(false); };
+      req.onblocked = function() { resolve(false); };
+    } catch(e) { resolve(false); }
   });
 };
+try { window._aioRetirePlaintextIdbBackup(); } catch(_e) {}
 
 // 현재 모든 API 키 snapshot 수집 (평문 또는 cache 복호화 값)
 window._aioCollectKeySnapshot = function() {
@@ -16069,10 +16081,7 @@ window._aioCollectKeySnapshot = function() {
 // `_saveApiKey` 호출 시 IndexedDB도 동시 mirror (자동 백업)
 // → 사용자가 명시 호출 없이도 캐시 클리어와 별도 저장소에 보존
 window._aioAutoBackupKeys = function() {
-  var snap = window._aioCollectKeySnapshot();
-  if (Object.keys(snap).length > 0) {
-    window._aioIdbBackupKeys(snap); // 비동기 fire-and-forget
-  }
+  return { ok: false, retired: true, reason: 'automatic_plaintext_idb_backup_retired' };
 };
 
 // 사용자 명시 export — JSON 파일 다운로드
@@ -16113,35 +16122,14 @@ window.AIO.importApiKeys = async function(jsonString) {
       if (window._AioVault && window._AioVault._keyRuntime) window._AioVault._keyRuntime[k] = obj.keys[k];
       imported++;
     }
-    // 자동 백업도 즉시 갱신
-    window._aioAutoBackupKeys();
     return { ok: true, imported: imported, source: obj.exportedAt };
   } catch(e) { return { ok: false, error: e && e.message }; }
 };
 
 // IndexedDB에서 자동 복원 — localStorage 비어있고 IDB 백업이 있으면 사용자에게 알림
 window.AIO.recoverApiKeysFromIdb = async function() {
-  var current = window._aioCollectKeySnapshot();
-  if (Object.keys(current).length > 0) return { recovered: 0, reason: 'localStorage already has keys', current: Object.keys(current).length };
-  var idb = await window._aioIdbRestoreKeys();
-  if (!idb || !idb.snapshot) return { recovered: 0, reason: 'no IDB backup' };
-  var imported = 0;
-  for (var k in idb.snapshot) {
-    if (typeof safeLS === 'function') await safeLS(k, idb.snapshot[k]);
-    else localStorage.setItem(k, idb.snapshot[k]);
-    if (window._AioVault && window._AioVault._keyRuntime) window._AioVault._keyRuntime[k] = idb.snapshot[k];
-    imported++;
-  }
-  return { recovered: imported, idbTs: new Date(idb.ts).toISOString() };
+  return { recovered: 0, retired: true, reason: 'automatic_plaintext_idb_backup_retired' };
 };
-
-// 자동 백업 트리거 — 페이지 로드 후 5초, 그 후 5분마다
-setTimeout(function() {
-  try { window._aioAutoBackupKeys(); } catch(_e) {}
-  window._aioRegisterTimer('autoBackup', function() {
-    try { window._aioAutoBackupKeys(); } catch(_e) {}
-  }, 5 * 60 * 1000);
-}, 5000);
 
 // ─────────────────────────────────────────────────────────────────
 // v49.83 P447/R176: _aioBuildSparklineSvg — 종목 30일 mini sparkline SVG (기관급 직관성)
@@ -19684,7 +19672,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.46';
+const APP_VERSION = 'v53.51';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -21742,22 +21730,61 @@ function computeTradingScore(mode) {
   // src/domain/signal/trading-score.js (computeTradingScoreModel), exposed via
   // window.AIO_ARCH so this legacy wrapper and any native consumer share one model.
   var _modelFn = window.AIO_ARCH && typeof window.AIO_ARCH.computeTradingScoreModel === 'function' ? window.AIO_ARCH.computeTradingScoreModel : null;
+  // W1-02/W1-03: the score receives the selector's decision-only envelope,
+  // never a raw snapshot/reference value. Missing or stale rows remain null.
+  var _decisionRows = {};
+  try {
+    var _scoreAudit = window.AIO && typeof window.AIO.getTradingDecisionInputEvidence === 'function'
+      ? window.AIO.getTradingDecisionInputEvidence() : null;
+    (_scoreAudit && _scoreAudit.rows || []).forEach(function(row) { _decisionRows[row.id] = row; });
+  } catch(_) {}
+  var _scoreEvidence = function(key, id, value, source) {
+    var row = _decisionRows[id] || {};
+    var status = row.status === 'verified_current' ? 'live' : row.status === 'snapshot_reference' ? 'snapshot' : row.status === 'stale_live' ? 'stale' : 'missing';
+    var candidate = row.value != null ? row.value : value;
+    return { metric:key, value: candidate == null || !isFinite(Number(candidate)) ? null : Number(candidate), status:status,
+      allowedUse: status === 'live' ? 'decision' : status === 'snapshot' || status === 'stale' ? 'reference' : 'none',
+      source: row.source || source || 'legacy-runtime', observedAt: row.observedAt || null };
+  };
+  var _rawScoreEvidence = {
+    vix: _scoreEvidence('vix', 'vix-price', vix, 'legacy-live-data'),
+    vvix: _scoreEvidence('vvix', 'vvix-price', vvix, 'legacy-live-data'),
+    dxy: _scoreEvidence('dxy', 'dxy-dollar', dxy, 'legacy-live-data'),
+    tnx: _scoreEvidence('tnx', 'tnx-yield', tnx, 'legacy-live-data'),
+    oilPrice: _scoreEvidence('oilPrice', 'oil-price', oilPrice, 'legacy-live-data'),
+    fg: _scoreEvidence('fg', 'fg-sentiment', fg, 'legacy-sentiment'),
+    spxPrice: _scoreEvidence('spxPrice', 'spx-price', spxPrice, 'legacy-live-data'),
+    spx50ma: _scoreEvidence('spx50ma', 'spx-50ma', spx50ma, 'legacy-ohlcv'),
+    spx200ma: _scoreEvidence('spx200ma', 'spx-200ma', spx200ma, 'legacy-ohlcv'),
+    breadth200: _scoreEvidence('breadth200', 'breadth200-participation', breadth200, 'legacy-breadth'),
+    pcr: _scoreEvidence('pcr', 'pcr-putcall', pcr, 'legacy-options'),
+    hyBp: _scoreEvidence('hyBp', 'hy-spread-bp', hyBp, 'legacy-credit')
+  };
+  var _selectDecision = window.AIO_ARCH && typeof window.AIO_ARCH.selectForDecision === 'function'
+    ? window.AIO_ARCH.selectForDecision : function(source, key) {
+        var value = source && source[key];
+        return value && value.allowedUse === 'decision' && (value.status === 'live' || value.status === 'fresh') ? value : null;
+      };
+  var _decisionEvidence = {};
+  Object.keys(_rawScoreEvidence).forEach(function(key) { _decisionEvidence[key] = _selectDecision(_rawScoreEvidence, key); });
   var modelResult = _modelFn ? _modelFn({
     mode: mode, vix: vix, vvix: vvix, dxy: dxy, tnx: tnx, oilPrice: oilPrice, fg: fg,
     maCurrent: maCurrent, spx200ma: spx200ma, spx50ma: spx50ma, spxPrice: spxPrice,
     breadthAvailable: !!breadthEvidence.available, breadth200: breadth200,
-    pcr: pcr, hyBp: hyBp, newsSentimentScore: newsSentimentScore, newsRiskSignals: newsRiskSignals
+    pcr: pcr, hyBp: hyBp, newsSentimentScore: newsSentimentScore, newsRiskSignals: newsRiskSignals,
+    decisionEvidence: _decisionEvidence
   }) : {
     // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
     // mirrors the model's own all-missing shape instead of duplicating the scoring formula here.
     total: null, score: null, volScore: null, momScore: null, trendScore: null, breadthScore: null, macroScore: null,
-    componentCoveragePct: 0, componentMissing: ['volatility','momentum','trend','breadth','macro'], partial: true
+    componentCoveragePct: 0, componentMissing: ['volatility','momentum','trend','breadth','macro'], partial: true,
+    decisionBlocked: true, decisionCoverageThreshold: 80
   };
 
   var evidenceAudit = (window.AIO && window.AIO.getTradingDecisionInputEvidence) ? window.AIO.getTradingDecisionInputEvidence() : null;
   var provenanceBundle = (window.AIO && window.AIO.getDecisionEvidenceBundle) ? window.AIO.getDecisionEvidenceBundle() : null;
   var _result = Object.assign({}, modelResult, { neutralizedMissing: [], evidenceStatus: evidenceAudit && evidenceAudit.status || 'unknown', evidenceAudit: evidenceAudit,
-    fgEvidenceStatus: _fgMetric ? _fgMetric.status : 'UNAVAILABLE', fgEvidenceAllowedUse: !!(_fgMetric && _fgMetric.allowedUse),
+    fgEvidenceStatus: _fgMetric ? _fgMetric.status : 'UNAVAILABLE', fgEvidenceAllowedUse: _fgMetric ? (_fgMetric.allowedUse === 'decision' ? 'decision' : 'reference') : 'none',
     evidenceId: provenanceBundle && provenanceBundle.bundleId || '', provenanceBundle: provenanceBundle });
   window._aioScoreCache[_cacheKey] = { result: _result, ts: Date.now() };
   return _result;

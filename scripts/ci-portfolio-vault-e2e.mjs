@@ -84,6 +84,33 @@ async function main() {
     const reloadLocked = await page.evaluate(() => { window.showPage('portfolio'); return window.isPortfolioLocked() && (document.getElementById('pf-lock-screen') || {}).style?.display !== 'none'; });
     check('PFE2-05 reload_requires_unlock', reloadLocked, String(reloadLocked));
 
+    const kdfMigration = await page.evaluate(async () => {
+      document.getElementById('pf-pin-input').value = '2468';
+      await window.unlockPortfolio();
+      const legacyKey = await _AioVault.deriveKey('2468', _AioVault._salt, 100000);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const plaintext = 'legacy-kdf-fixture';
+      const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, legacyKey, new TextEncoder().encode(plaintext));
+      const payload = new Uint8Array(12 + 16 + encrypted.byteLength);
+      payload.set(iv, 0);
+      payload.set(_AioVault._salt, 12);
+      payload.set(new Uint8Array(encrypted), 28);
+      localStorage.setItem('aio_claude_api_key', 'aio_enc::' + btoa(String.fromCharCode.apply(null, payload)));
+      _AioVault.lock();
+      window.showPage('portfolio');
+      document.getElementById('pf-pin-input').value = '2468';
+      await window.unlockPortfolio();
+      await new Promise((resolve) => setTimeout(resolve, 180));
+      const raw = localStorage.getItem('aio_claude_api_key') || '';
+      const decoded = raw.startsWith('aio_enc::') ? atob(raw.slice(9)) : '';
+      return {
+        legacyValueRestored: _AioVault._keyRuntime?.aio_claude_api_key === plaintext,
+        reencryptedV2: decoded.charCodeAt(0) === 0x41 && decoded.charCodeAt(1) === 0x49 && decoded.charCodeAt(2) === 0x4f && decoded.charCodeAt(3) === 2,
+        decryptVersion: _AioVault._lastDecryptVersion
+      };
+    });
+    check('PFE2-09 legacy_kdf_decrypts_and_reencrypts_v2', kdfMigration.legacyValueRestored && kdfMigration.reencryptedV2, JSON.stringify(kdfMigration));
+
     const migration = await page.evaluate(async () => {
       _AioVault.lock();
       localStorage.clear();

@@ -1,4 +1,4 @@
-import { createResourceBag } from '../../app/lifecycle.js';
+import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 
 function finite(value) {
   const number = Number(value);
@@ -643,7 +643,8 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
     route,
     mount() {
       const bag = createResourceBag();
-      const charts = new Map();
+      const charts = createChartRegistry({ maxCanvasHeight: 480 });
+      bag.add(charts.dispose);
       const page = documentRef?.getElementById(`page-${route}`);
       if (!page) return () => bag.dispose();
       page.dataset.aioArchitectureRoute = route;
@@ -718,8 +719,6 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });
       bag.add(() => {
-        charts.forEach((entry) => { try { entry.chart?.destroy?.(); } catch (_) {} });
-        charts.clear();
         if (page.dataset.aioArchitectureRoute === route) delete page.dataset.aioArchitectureRoute;
         if (page.dataset.aioArchitectureSlice === 'market') delete page.dataset.aioArchitectureSlice;
         if (route === 'macro' && page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;

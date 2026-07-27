@@ -1,12 +1,12 @@
 ---
-verified_by: agent (Claude Sonnet 5) + Codex P761-P837 verification
+verified_by: agent (Claude Sonnet 5) + Codex P761-P843 verification
 last_verified: 2026-07-27
 confidence: high
-latest_version: v53.46
-latest_P_number: P837
-next_P_number: P838
+latest_version: v53.51
+latest_P_number: P843
+next_P_number: P844
 current_total_entries: 597 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P837 fast-plane smoke bootstrap handling; full verification was intentionally not rerun per operator request, with first scheduled publish, live certification, operator rights/soak, and provider-rights review remaining open
+current_checkpoint: P843 Wave 5 route soak/operations/public-readiness boundary; local gates pass, live revision/headers/30-day SLO/provider rights/SA-04 remain operator-required
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -18,6 +18,70 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P843 - v53.51 - route soak, operational posture, and public readiness lacked executable repository gates
+
+- **motivation**: the masterplan requires repeated 17-route use, visual state coverage, revision invariants, SLO targets, action pinning, security headers, and an explicit beta/public decision rather than a short static CI success.
+- **symptom/reproduction**: route traversal and public readiness were documented separately; workflow dependencies used mutable action tags/install semantics; no single local contract reconciled the visual-state matrix, SLO posture, security-header artifact, and public readiness decision.
+- **root_cause**: operational acceptance criteria were prose-only and live/operator conditions were not explicitly separated from deterministic repository evidence.
+- **fix**: added the 17-route three-lap route soak with AAPL→MSFT→AAPL entity re-entry, route/canvas/error evidence, visual-state/SLO/readiness manifests, SHA-pinned Actions, `npm ci` workflow installs, compatible `_headers`, and conservative operator-gated public-beta criteria.
+- **violated_rule**: R386 requires repeated route/resource behavior to be a blocking executable gate; R387 requires operational/public claims to be revisioned, source-labelled, and explicit about operator-only certification.
+- **prevention**: future public-readiness changes must update the manifests and contract script together; live headers, provider rights, 30-day SLO, and deployed revision must remain operator-required until observed from the live edge.
+- **verification**: `ci-operations-contract-check.mjs` passes with 6 workflows/25 SHA-pinned actions, 17 routes, 5 states, and v53.51 revision coherence. `ci-route-soak-check.mjs` passes 17 routes × 3 laps with browserErrors 0, max canvas count 42 unchanged, and AAPL→MSFT→AAPL. Final browser boundary passes headless `1102/1102`, boot, architecture/browser `17/17`, vertical slices `10/10`, viewport `68/68`, Critical-10, Vault PFE2-01~09, accessibility `17/17`, and SA-02/SA-03. SA-04 reproduces the expected timeout because the public snapshot lacks `fredFetchOk:true`/`hyOAS`; live edge/header enforcement, provider rights, and 30-day SLO remain operator-required.
+
+## P842 - v53.51 - Guide copy and capability claims lacked one executable content boundary
+
+- **motivation**: the masterplan requires “real-time”, AI, translation, RRG, Stage, sentiment, macro-causality, and action wording to match actual capability and evidence scope.
+- **symptom/reproduction**: Guide and metadata language could imply live/current/automatic/AI-backed behavior beyond the source-aware runtime contract, and no machine-readable claim inventory could prevent regression.
+- **root_cause**: capability status and wording constraints were distributed across prose without a versioned manifest or DOM-level audit.
+- **fix**: added `wave4.capability.v1`, nine capability records with allowed wording/forbidden claims, Guide claim markers/audit, source-aware educational copy, action-checklist wording, and strict referrer metadata.
+- **violated_rule**: R388 requires capability claims to be manifest-backed and to fail closed when wording exceeds the available evidence or implementation.
+- **prevention**: future Guide/metadata claim changes must add a manifest row or use an existing status/mode and pass the static fixture plus Guide browser audit.
+- **verification**: syntax, capability contract, architecture contract, and architecture/browser Guide assertions pass; nine capability rows and nine Guide markers audit as `pass`.
+
+## P841 - v53.50 - ten planned page slices lacked one executable route/data/state boundary
+
+- **motivation**: the masterplan sequences the 17 routes into ten vertical slices, but lifecycle markers, required producer intent, page completeness states, and leave/re-entry evidence were not represented by one executable contract.
+- **symptom/reproduction**: route modules had native renderer markers and the legacy `AIO_PAGE_CONTRACTS` had producer requirements, but a reviewer could not verify the planned slice pairing, direct surface, blocked-network state, mobile controls, and re-entry behavior from one gate.
+- **root_cause**: slice sequencing was documented in the plan only; router scopes and page completeness were not linked to that sequence.
+- **fix**: added `src/app/vertical-slices.js`, exposed slice lookup/audit through `AIO_ARCH`, mounted route-scoped slice/order/required-data/state markers, and added static plus Chromium gates covering all ten slices under external-network outage conditions.
+- **violated_rule**: R385 requires each vertical slice to have one lifecycle/data/renderer/chart/narrative acceptance contract and an executable route boundary.
+- **prevention**: future route work must extend the registry and its acceptance gate before declaring a slice complete; route owners must remain native lifecycle-owned and page completeness must stay in the canonical contract path.
+- **verification**: Wave 3 boundary verification passes for the full static workflow, headless `1102/1102`, boot interaction, architecture/browser 17-route with `browserErrors 0`, vertical-slice browser `10/10`, SA-02, SA-03, viewport `68/68`, Critical-10, Vault PFE2-01~09, and accessibility `17/17`. SA-04 remains operator-required because the checked-in public snapshot reports `fredHasKey:false` / `fredFetchOk:false`, so the FRED/HY success branch cannot be exercised locally. No commit or deployment was performed.
+
+## P840 - v53.49 - stale SEC facts, entity-free ticker actions, and unversioned Vault ciphertext needed explicit boundaries
+
+## P840 - v53.49 - stale SEC facts, entity-free ticker actions, and unversioned Vault ciphertext needed explicit boundaries
+
+- **motivation**: the remediation plan requires dated SEC facts to disclose freshness, ticker narratives to require entity evidence before producing action language, and Vault ciphertext to support a stronger KDF without abandoning existing user data.
+- **symptom/reproduction**: SEC reports with metrics were always labelled `current` even when the filing was historical; the ticker decision map could produce WATCH/action wording without a selected quote or market-health result; and the Vault envelope had no version marker, so future KDF changes had no safe migration path.
+- **root_cause**: report availability, evidence freshness, narrative gating, and encryption compatibility were represented as implicit flags rather than versioned contracts.
+- **fix**: added `sec-report.v2` current/aged/historical/unknown freshness with fail-closed decision eligibility, added a ticker entity/quote/market-health action gate, and added a v2 Vault envelope using PBKDF2-SHA256/310000 with legacy 100000-iteration decrypt plus safeLS re-encryption migration.
+- **violated_rule**: R381 evidence purpose/freshness separation, R383 action narratives require entity evidence, and R384 versioned KDF migration must preserve legacy decrypt while writing only the current envelope.
+- **prevention**: SEC fixtures must include recent and historical observations; ticker action tests must cover missing entity/quote/health; every future Vault envelope must carry an explicit version marker and a legacy migration fixture.
+- **verification**: targeted syntax, ESM, runtime-contract, architecture-contract, and portfolio Vault Chromium checks pass; PFE2-09 proves a legacy encrypted key is decrypted and re-encrypted with the v2 header. Wave 1·2 full verification also passes headless 1102/1102, architecture/browser 17-route with browserErrors 0, FULL_INIT 68/68, Critical-10, Vault PFE2-01~09, accessibility, and SA-02/SA-03. SA-04 remains operator-required because the public snapshot reports `fredHasKey:false` and `fredFetchOk:false`.
+
+## P839 - v53.48 - route transitions and chart/key resources could outlive their owning surface
+
+## P839 - v53.48 - route transitions and chart/key resources could outlive their owning surface
+
+- **motivation**: the structural remediation requires route/entity transitions to invalidate stale async work, Chart.js instances to have one bounded owner, and API-key storage to avoid an automatic plaintext IndexedDB mirror.
+- **symptom/reproduction**: same-route ticker changes could reuse a mount without an entity identity, in-flight entity/screener results had no route-scope signal, chart registries were local unbounded Maps, and `_aioAutoBackupKeys` stored raw key snapshots in `aio-keys-backup`.
+- **root_cause**: lifecycle scope, chart ownership, and sensitive-key backup policy were represented by separate ad-hoc paths without a shared disposal/retirement contract.
+- **fix**: added abortable route scopes with `mountId`, normalized `entityId`, `isCurrent`, and disposal; passed scope signals through entity/screener providers and orchestrators; added a bounded chart registry with replacement/disposal/canvas-height ownership; retired IndexedDB open/read/write/recovery for API keys, deleted the legacy database, removed its UI entrypoint, and retained explicit JSON export/import.
+- **violated_rule**: R382 requires route-owned async/chart resources to stop at scope disposal and forbids automatic plaintext API-key persistence outside the encrypted Vault or explicit user export.
+- **prevention**: route modules must receive and honor `scope`, async providers must pass `signal` and guard `isCurrent`, Chart.js instances must register with the route registry, and storage contracts must statically reject the retired IDB mirror patterns.
+- **verification**: W2 static contracts, syntax, headless 1102/1102, architecture/browser 17-route, FULL_INIT viewport 68/68, Critical-10, Vault PFE2-01~08, accessibility 17/17, and SA-02/SA-03 all pass. SA-04 remains operator-required because the checked-in public snapshot reports `fredHasKey:false` and `fredFetchOk:false`.
+
+## P838 - v53.47 - reference evidence could enter Trading Score through mixed allowedUse paths
+
+- **motivation**: the structural remediation requires reference material to remain visible for research while preventing it from contributing to live decision scores.
+- **symptom/reproduction**: legacy boolean and descriptive `allowedUse` values could travel through compatibility paths without one canonical interpretation; a reference-only momentum input could therefore remain numerically present while the Trading Score model treated the row as usable.
+- **root_cause**: evidence status and purpose were not enforced at a single selector boundary, and the score model accepted raw values without a decision-purpose completeness gate.
+- **fix**: added fail-closed `normalizeAllowedUse`, purpose-specific display/decision/last-known selectors and completeness reporting, routed compatibility and core score inputs through decision evidence, and blocked the composite score when decision coverage is below the 80% threshold.
+- **violated_rule**: R381 requires decision models to consume only normalized, fresh decision evidence and to preserve reference values outside the decision path.
+- **prevention**: all new decision consumers must call `selectForDecision` or an equivalent contract, retain `allowedUse` in evidence rows, and add a fixture proving that reference-only values remain displayable but cannot affect the decision output.
+- **verification**: all W1 static contracts, headless 1102/1102, architecture/browser 17-route, FULL_INIT viewport 68/68, Critical-10, Vault PFE2-01~08, accessibility 17/17, and SA-02/SA-03 gates pass. SA-04 remains operator-required because the checked-in public snapshot reports `fredHasKey:false` and `fredFetchOk:false`; no W1 code path caused that precondition failure.
 
 ## P837 - v53.46 - deploy smoke treated a freshly deployed empty KV as a Worker failure
 
@@ -42,7 +106,7 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 - **motivation**: the route ledger treated the fundamental page as native for status and one summary line, but the official SEC annual-fact identity, filing metadata, coverage, and core metric values were still only implicit in the legacy report flow.
 - **symptom/reproduction**: browsing to `fundamental` could show a SEC status/summary while the visible report container remained dependent on legacy multi-source generation. Missing SEC fields had no dedicated native report state or provenance boundary.
 - **root_cause**: normalized entity fundamentals preserved the raw SEC record, but no pure report projection or dedicated native child surface owned its presentation. The broad report mixed official SEC facts with FMP/Yahoo/news/chart/AI inputs.
-- **fix**: added `sec-report.v1`, a finite-safe official-SEC projection for filing identity, period/submission metadata, coverage, and observed metrics; rendered it with DOM-safe native nodes and explicit source/operational-use metadata. Peer/news/external sections, charts, and AI narrative remain separately legacy-owned.
+- **fix**: added `sec-report.v2`, a finite-safe official-SEC projection for filing identity, period/submission metadata, coverage, observed metrics, and current/aged/historical freshness; rendered it with DOM-safe native nodes and explicit source/operational-use metadata. Peer/news/external sections, charts, and AI narrative remain separately legacy-owned.
 - **violated_rule**: R352 single executable owner and R306 typed provenance for official regulator evidence.
 - **prevention**: architecture contract/browser gates require the SEC model/version and native report markers; missing facts render as waiting/unavailable and never as inferred values.
 - **verification**: JS syntax, SEC report model fixture, and architecture contract pass; browser/full release QA remain pending for the final code sequence.

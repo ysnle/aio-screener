@@ -36,7 +36,30 @@ function finiteNumber(value) {
  * @param {Array<{impact:number}>} input.newsRiskSignals  empty array means "skip" (same reason)
  */
 export function computeTradingScoreModel(input = {}) {
-  const { mode, vix, vvix, dxy, tnx, oilPrice, fg, maCurrent, spx200ma, spx50ma, spxPrice, breadthAvailable, breadth200, pcr, hyBp, newsSentimentScore, newsRiskSignals } = input;
+  const { mode, newsSentimentScore, newsRiskSignals } = input;
+  const hasDecisionEvidence = !!input && input.decisionEvidence && typeof input.decisionEvidence === 'object';
+  const decisionValue = (key, fallback) => {
+    if (!hasDecisionEvidence) return finiteNumber(fallback);
+    const evidence = input.decisionEvidence[key];
+    if (!evidence || evidence.allowedUse !== 'decision' || !['live', 'fresh'].includes(evidence.status)) return null;
+    return finiteNumber(evidence.value);
+  };
+  const vix = decisionValue('vix', input.vix);
+  const vvix = decisionValue('vvix', input.vvix);
+  const dxy = decisionValue('dxy', input.dxy);
+  const tnx = decisionValue('tnx', input.tnx);
+  const oilPrice = decisionValue('oilPrice', input.oilPrice);
+  const fg = decisionValue('fg', input.fg);
+  const spx200ma = decisionValue('spx200ma', input.spx200ma);
+  const spx50ma = decisionValue('spx50ma', input.spx50ma);
+  const spxPrice = decisionValue('spxPrice', input.spxPrice);
+  const pcr = decisionValue('pcr', input.pcr);
+  const hyBp = decisionValue('hyBp', input.hyBp);
+  const breadth200 = decisionValue('breadth200', input.breadth200);
+  const maCurrent = hasDecisionEvidence
+    ? !!(decisionValue('spx200ma', input.spx200ma) != null && decisionValue('spx50ma', input.spx50ma) != null && decisionValue('spxPrice', input.spxPrice) != null)
+    : input.maCurrent === true;
+  const breadthAvailable = hasDecisionEvidence ? breadth200 != null : input.breadthAvailable === true;
 
   // 1. Volatility Score (25%) — lower VIX is better for trading
   let volScore = null;
@@ -116,7 +139,11 @@ export function computeTradingScoreModel(input = {}) {
     { value: macroScore, weight: 10 }
   ];
   const availableWeight = weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.weight), 0);
-  let compositeScore = availableWeight ? Math.round(weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.value * row.weight), 0) / availableWeight) : null;
+  const rawCompositeScore = availableWeight ? Math.round(weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.value * row.weight), 0) / availableWeight) : null;
+  const decisionCoverageThreshold = Number.isFinite(Number(input.decisionCoverageThreshold))
+    ? Math.max(0, Math.min(100, Number(input.decisionCoverageThreshold)))
+    : hasDecisionEvidence ? 80 : 0;
+  let compositeScore = hasDecisionEvidence && availableWeight < decisionCoverageThreshold ? null : rawCompositeScore;
 
   // Credit Stress 보정 (HY Spread bp, 실측 우선)
   if (compositeScore != null && hyBp != null && hyBp > 500) compositeScore -= 15;
@@ -151,7 +178,11 @@ export function computeTradingScoreModel(input = {}) {
     volScore, momScore, trendScore, breadthScore, macroScore,
     componentCoveragePct: availableWeight,
     componentMissing,
-    partial: availableWeight < 100
+    partial: availableWeight < 100,
+    decisionBlocked: hasDecisionEvidence && total == null,
+    decisionCoverageThreshold,
+    rawCompositeScore,
+    componentEvidence: hasDecisionEvidence ? Object.freeze({ ...input.decisionEvidence }) : null
   };
 }
 
