@@ -832,11 +832,7 @@ async function _aioEnsureClaudeRoute(apiKey) {
     return failed;
   }
 }
-Object.defineProperty(window, '_aioEnsureClaudeRoute', {
-  value: _aioEnsureClaudeRoute,
-  configurable: true,
-  writable: true
-});
+// The top-level function declaration already provides the legacy window export.
 Object.defineProperty(window, '_aioRouteNotice', {
   value: function(reason) {
   return ({

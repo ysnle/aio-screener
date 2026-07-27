@@ -15991,11 +15991,7 @@ function _aioRefreshProviderStatuses() {
   }
   return snapshot;
 }
-Object.defineProperty(window, '_aioRefreshProviderStatuses', {
-  value: _aioRefreshProviderStatuses,
-  configurable: true,
-  writable: true
-});
+// The top-level function declaration already provides the legacy window export.
 window.addEventListener('aio:providerStatus', _aioRefreshProviderStatuses);
 window.addEventListener('aio:publicConfig', _aioRefreshProviderStatuses);
 

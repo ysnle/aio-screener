@@ -15,14 +15,14 @@ identity/memo and pipeline compatibility producers remain separately tracked. Li
 version: v4.2
 checklist_version: v53.53
 latest_P_covered: P845
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P845 early-route TDZ remediation is pushed for remote browser re-run while provider/live Worker verification remains intentionally skipped
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P845 early-route TDZ remediation passes the complete deterministic local verification suite, with post-push remote CI and provider/live Worker verification still separate
 
 ## P845 early compatibility-facade navigation (2026-07-27, v53.53)
 
 - [x] `showPage()` and `showTicker()` no longer directly read the TDZ-prone lexical `prevPage` during early module/classic-script initialization.
 - [x] Route state remains synchronized through `AIO.state` and the existing window compatibility shim.
-- [ ] Remote browser rerun after the fix — pending at the time of this record.
-- [ ] Local browser/UI smoke — not run per urgent user instruction.
+- [ ] Remote browser rerun after the fix — pending the post-push CI run.
+- [x] Deterministic local browser/UI suite — headless `1102/1102`, viewport `68/68`, accessibility `17/17`, Critical-10, Portfolio Vault `PFE2-01~09`, boot, architecture browser, vertical slices, route soak, SA-02, SA-03, and SA-04 all passed.
 
 ## P844 API/AI chat reliability remediation (2026-07-27, v53.52)
 

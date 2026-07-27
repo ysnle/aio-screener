@@ -6,7 +6,7 @@ latest_version: v53.53
 latest_P_number: P845
 next_P_number: P846
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P845 early-route navigation TDZ remediation; local browser/provider/live Worker verification remains intentionally restricted by the urgent instruction
+current_checkpoint: P845 early-route navigation TDZ remediation; deterministic local verification is complete, while live provider/Worker and the post-push remote run remain separate operator/runtime checks
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -27,7 +27,7 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 - **fix**: route transitions now read the initialized `AIO.state`/window shim and write through the safe window state path, avoiding the TDZ while preserving the existing compatibility API.
 - **violated_rule**: R392 requires legacy compatibility entrypoints to remain safe during module/classic-script initialization races.
 - **prevention**: early route calls must not directly touch top-level lexical state whose declaration has not completed; the browser route gates remain the executable regression contract.
-- **verification**: the first remote rerun identified the failure; the fix is pushed for the next remote CI run. Local browser and full test execution were not run per the urgent user instruction.
+- **verification**: local static contracts passed `30/30`; Chromium gates passed headless `1102/1102`, viewport `68/68`, accessibility `17/17`, Critical-10 (`10` routes, `0` console errors), Portfolio Vault `PFE2-01~09`, boot interaction, architecture browser, vertical slices (`10/10`), route soak (`17 routes × 3 laps`, entity AAPL→MSFT→AAPL, browserErrors `0`), SA-02, SA-03, and SA-04. The post-push remote CI run remains required before the deployment claim is closed; live provider/Worker, real-key, rights, golden-accuracy, and low-spec performance checks remain operator-gated.
 
 ## P844 - v53.52 - AI credential persistence, route readiness, and control-plane states were optimistic or conflated
 
