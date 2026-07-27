@@ -832,8 +832,13 @@ async function _aioEnsureClaudeRoute(apiKey) {
     return failed;
   }
 }
-window._aioEnsureClaudeRoute = _aioEnsureClaudeRoute;
-window._aioRouteNotice = function(reason) {
+Object.defineProperty(window, '_aioEnsureClaudeRoute', {
+  value: _aioEnsureClaudeRoute,
+  configurable: true,
+  writable: true
+});
+Object.defineProperty(window, '_aioRouteNotice', {
+  value: function(reason) {
   return ({
     NO_ROUTE: 'AI 라우트가 없습니다. Claude 개인 키를 저장하거나 운영자가 공개 Worker를 명시적으로 연결해야 합니다. 브리핑/번역은 운영자 서버키 가능 여부를 Worker health 확인 후에만 표시합니다.',
     VAULT_LOCKED: 'Claude 키가 Vault에 잠겨 있습니다. 사이드바에서 PIN으로 잠금 해제한 뒤 다시 시도하세요.',
@@ -841,7 +846,10 @@ window._aioRouteNotice = function(reason) {
     RATE_LIMIT: 'AI 요청 한도에 도달했습니다. 잠시 후 다시 시도하세요.',
     AUTH_FAILED: 'AI 인증에 실패했습니다. 키 형식과 공급자 권한을 확인하세요.'
   })[reason] || 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.';
-};
+  },
+  configurable: true,
+  writable: true
+});
 
 // v52.44 B8: Cloudflare Workers 무료 플랜은 리전 고정이 불가해 anycast 라우팅이 요청마다 다른 엣지
 // 데이터센터를 탈 수 있다 — 그중 홍콩(HKG) 경유 요청을 Anthropic이 정책상 403(forbidden)으로 거부하는

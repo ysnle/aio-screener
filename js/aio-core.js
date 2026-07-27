@@ -15874,7 +15874,11 @@ var _AIO_PROVIDER_REGISTRY = [
 ];
 var _AIO_PROVIDER_BY_KEY = {};
 _AIO_PROVIDER_REGISTRY.forEach(function(provider) { _AIO_PROVIDER_BY_KEY[provider.credentialKey] = provider; });
-window.AIO_PROVIDER_REGISTRY = _AIO_PROVIDER_REGISTRY;
+Object.defineProperty(window, 'AIO_PROVIDER_REGISTRY', {
+  value: _AIO_PROVIDER_REGISTRY,
+  configurable: true,
+  writable: true
+});
 window.AIO = window.AIO || {};
 window.AIO.getProviderDefinition = function(idOrKey) {
   return _AIO_PROVIDER_REGISTRY.find(function(p) { return p.id === idOrKey || p.credentialKey === idOrKey; }) || null;
@@ -15925,12 +15929,22 @@ function _aioValidateCredential(key, value) {
 // explicitly configured Worker, but it never contains a provider credential.
 // The default is deliberately personal-key-only until an operator publishes a
 // real Worker URL and readiness policy.
-window.AIO_PUBLIC_CONFIG = window.AIO_PUBLIC_CONFIG || {
-  schemaVersion: 'ai-public-config.v1',
-  appRevision: window.APP_VERSION || null,
-  ai: { chatPolicy: 'personal-or-explicit-worker', workerUrl: null, serverMode: 'explicit-opt-in', healthPath: '/health' },
-  privacy: { clientKeysStayBrowserLocal: true, networkTransmission: 'provider-or-explicit-worker' }
-};
+function _aioSetPublicConfig(value) {
+  Object.defineProperty(window, 'AIO_PUBLIC_CONFIG', {
+    value: value,
+    configurable: true,
+    writable: true
+  });
+  return value;
+}
+if (!window.AIO_PUBLIC_CONFIG) {
+  _aioSetPublicConfig({
+    schemaVersion: 'ai-public-config.v1',
+    appRevision: window.APP_VERSION || null,
+    ai: { chatPolicy: 'personal-or-explicit-worker', workerUrl: null, serverMode: 'explicit-opt-in', healthPath: '/health' },
+    privacy: { clientKeysStayBrowserLocal: true, networkTransmission: 'provider-or-explicit-worker' }
+  });
+}
 window.AIO.loadPublicConfig = async function() {
   var current = window.AIO_PUBLIC_CONFIG || {};
   if (current._loaded) return current;
@@ -15945,13 +15959,13 @@ window.AIO.loadPublicConfig = async function() {
     if (workerUrl && !/^https:\/\/[^\s]+$/i.test(workerUrl)) workerUrl = '';
     cfg.ai = Object.assign({ chatPolicy: 'personal-or-explicit-worker', workerUrl: null, serverMode: 'explicit-opt-in', healthPath: '/health' }, cfg.ai || {}, { workerUrl: workerUrl || null });
     cfg._loaded = true;
-    window.AIO_PUBLIC_CONFIG = cfg;
+    _aioSetPublicConfig(cfg);
     try { window.dispatchEvent(new CustomEvent('aio:publicConfig', { detail: cfg })); } catch(_) {}
     return cfg;
   } catch (e) {
     current._loaded = true;
     current._error = e && e.message || 'public_config_unavailable';
-    window.AIO_PUBLIC_CONFIG = current;
+    _aioSetPublicConfig(current);
     return current;
   }
 };
@@ -15975,7 +15989,11 @@ function _aioRefreshProviderStatuses() {
   }
   return snapshot;
 }
-window._aioRefreshProviderStatuses = _aioRefreshProviderStatuses;
+Object.defineProperty(window, '_aioRefreshProviderStatuses', {
+  value: _aioRefreshProviderStatuses,
+  configurable: true,
+  writable: true
+});
 window.addEventListener('aio:providerStatus', _aioRefreshProviderStatuses);
 window.addEventListener('aio:publicConfig', _aioRefreshProviderStatuses);
 
