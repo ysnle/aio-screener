@@ -25707,7 +25707,7 @@ function showPage(id, navEl) {
       history.pushState({ page: id }, '', '#' + id);
     }
   } catch(e) { /* sandboxed iframe — history API not available */ }
-  try { window.prevPage = id; } catch(_) {}
+  try { Reflect.set(window, 'prevPage', id); } catch(_) {}
   if (window.AIO && window.AIO.state) window.AIO.state.prevPage = id; // v49.1 P184
   // v42.1: 마켓 펄스 바 — home에서는 숨기고 나머지 페이지에서 표시
   var _mpBar = document.getElementById('market-pulse-bar');
