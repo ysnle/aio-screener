@@ -2,11 +2,11 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
 last_verified: 2026-07-27
 confidence: high
-latest_version: v53.52
-latest_P_number: P844
-next_P_number: P845
+latest_version: v53.53
+latest_P_number: P845
+next_P_number: P846
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P844 API/AI chat reliability remediation; local browser/provider/live Worker verification intentionally not run, CI contract will be the executable follow-up gate
+current_checkpoint: P845 early-route navigation TDZ remediation; local browser/provider/live Worker verification remains intentionally restricted by the urgent instruction
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -18,6 +18,16 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P845 - v53.53 - early compatibility-facade navigation could read lexical prevPage before initialization
+
+- **motivation**: remote browser gates exposed a race in which native compatibility-facade navigation could run before the legacy script initialized its `let prevPage` binding.
+- **symptom/reproduction**: Critical-10, Portfolio Vault, and all-route accessibility runs failed with `ReferenceError: Cannot access 'prevPage' before initialization` from `showPage()`.
+- **root_cause**: `showPage()` and `showTicker()` directly read/write a top-level lexical shim while the ESM compatibility facade can invoke them during legacy script initialization.
+- **fix**: route transitions now read the initialized `AIO.state`/window shim and write through the safe window state path, avoiding the TDZ while preserving the existing compatibility API.
+- **violated_rule**: R392 requires legacy compatibility entrypoints to remain safe during module/classic-script initialization races.
+- **prevention**: early route calls must not directly touch top-level lexical state whose declaration has not completed; the browser route gates remain the executable regression contract.
+- **verification**: the first remote rerun identified the failure; the fix is pushed for the next remote CI run. Local browser and full test execution were not run per the urgent user instruction.
 
 ## P844 - v53.52 - AI credential persistence, route readiness, and control-plane states were optimistic or conflated
 

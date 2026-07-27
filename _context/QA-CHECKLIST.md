@@ -1,9 +1,9 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P844 static implementation record
+verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-27
 confidence: high
 
-## Current architecture checkpoint (2026-07-27, v53.52)
+## Current architecture checkpoint (2026-07-27, v53.53)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
@@ -13,9 +13,16 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.52
-latest_P_covered: P844
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P844 AI reliability contracts are implemented locally but browser/provider/live Worker verification was intentionally skipped
+checklist_version: v53.53
+latest_P_covered: P845
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P845 early-route TDZ remediation is pushed for remote browser re-run while provider/live Worker verification remains intentionally skipped
+
+## P845 early compatibility-facade navigation (2026-07-27, v53.53)
+
+- [x] `showPage()` and `showTicker()` no longer directly read the TDZ-prone lexical `prevPage` during early module/classic-script initialization.
+- [x] Route state remains synchronized through `AIO.state` and the existing window compatibility shim.
+- [ ] Remote browser rerun after the fix — pending at the time of this record.
+- [ ] Local browser/UI smoke — not run per urgent user instruction.
 
 ## P844 API/AI chat reliability remediation (2026-07-27, v53.52)
 

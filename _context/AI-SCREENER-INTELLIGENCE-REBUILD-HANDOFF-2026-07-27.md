@@ -10,6 +10,7 @@ confidence: high for code, artifacts, routing rules, and the reproduced server-g
 evidence_scope: current repository, deployed no-route chat behavior, public-data artifacts, GitHub Actions-generated market analysis, current AI/Anthropic architecture documentation, financial QA benchmark papers
 depends_on:
   - API-AI-CHAT-RELIABILITY-REMEDIATION-HANDOFF-2026-07-27.md
+  - WEB-RESEARCH-CRITICAL-DATA-REMEDIATION-HANDOFF-2026-07-27.md
   - AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md
   - AIO-STRUCTURAL-REMEDIATION-MASTERPLAN-2026-07-27.md
 ---
@@ -52,6 +53,8 @@ depends_on:
    F&G 범주 오분류와 인과 추정이 `semanticStatus=verified`를 통과했다.
 8. **답변 다양성은 표현의 무작위성이 아니라 질문 적합성으로 관리돼야 하는데 현재는 prompt 문장과 추천 티커 감점에 치우쳐 있다.**
 9. **공개 채팅 경로가 없으므로 실제 대화형 답변 품질은 아직 인증할 수 없다.**
+10. **Web Research는 구현돼 있지만 검색 필요성·실행 가능성·검색 성공·claim 인용이 하나의 계약으로 묶여 있지 않다.** 검색 키가 없거나 호출이 실패하면 최신·원인 질문도 일반 답변으로 계속될 수 있고, 정의된 Deep Search는 실제 전송 경로에 연결되지 않았다.
+11. **핵심 데이터의 단일 coverage 숫자가 질문별 답변 가능성을 과대 표시한다.** 현재 screener 상단 관측일과 845개 행의 관측일이 혼재하고, 펀더멘털 74.3%는 PER/PBR·최신 filing·필드별 완전성을 뜻하지 않는다.
 
 현재 공개 판정:
 
@@ -1090,3 +1093,21 @@ FinanceBench와 FinQA가 보여 주는 핵심 교훈은 금융 QA에서 긴 컨�
 - [ ] 최종 full 4,440 benchmark 1회 통과
 
 이 조건을 충족하기 전에는 “높은 품질의 최신 AI 주식 스크리너 답변을 제공한다”고 공개적으로 확정하지 않는다.
+
+## 16. Web Research·핵심 데이터 보강 계약
+
+Web Research와 핵심 데이터의 상세 재감사·스키마·우선순위·인수 조건은 `WEB-RESEARCH-CRITICAL-DATA-REMEDIATION-HANDOFF-2026-07-27.md`를 이 문서의 강제 실행 부속 계약으로 사용한다.
+
+핵심 변경점:
+
+1. 검색 필요성은 API 키 유무가 아니라 `ResearchDecision`으로 먼저 결정한다.
+2. `OUT_OF_SCOPE_RESEARCH`, `RESEARCH_REQUIRED_BUT_UNAVAILABLE`, `BLOCKED_ROUTE`를 first-class 상태로 둔다.
+3. 복합 질문은 premise·공식 자료·사건·대안 가설 subquery로 실제 분해한다.
+4. 검색 결과는 문자열 요약이 아니라 `EvidenceDocument/EvidenceChunk`로 정규화하고 ClaimLedger에 결속한다.
+5. 검색 실패·quota·tool error·사용자 opt-out 상태에서는 current/causal claim을 fail-closed한다.
+6. snapshot 16/16, screener 845/870, fundamental 74.3% 같은 단일 숫자를 답변 준비 완료로 사용하지 않는다.
+7. `availability × field coverage × freshness × session × authority × PIT × conflict × rights × allowedUse × question fit`으로 Answerability를 계산한다.
+8. 현재 artifact의 mixed observedAt, session `UNKNOWN`, 낮은 PER/PBR coverage, 오래된 SEC period, Tier 3/4 중심 뉴스, 서버 AI metric 혼동을 P0로 처리한다.
+9. 답변 화면에는 사용 데이터·기준시각·검색 상태·누락·판정 범위를 사용자에게 보이는 데이터 캡슐로 표시한다.
+
+이 부속 계약과 본문의 QuestionPlan→Evidence Graph→ClaimLedger 구조는 선택 관계가 아니다. Research 결과와 durable data 모두 같은 Evidence·Claim validator를 통과해야 한다.

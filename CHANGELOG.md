@@ -1,3 +1,9 @@
+## v53.53 (2026-07-27)
+- **P845 / early route initialization race**: made legacy `showPage()`/`showTicker()` safe when the native compatibility facade invokes them before the lexical `prevPage` shim is initialized; route state still flows through the existing `AIO.state`/window compatibility contract.
+- Remote CI had exposed the TDZ through Critical-10, Portfolio Vault, and accessibility browser jobs; the fix is queued for a fresh remote run. Local full verification remains intentionally skipped per urgent instruction.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.53
+
 ## v53.52 (2026-07-27)
 - **P844 / API-AI chat reliability**: unified provider credential persistence with format validation and write/readback results, added BOK/KOSIS coverage, separated storage/auth/connection status, and removed optimistic/plaintext fallback behavior.
 - **P844 / AI route and Worker contract**: added explicit personal-key/Worker routing, public non-secret config, `NO_ROUTE`/`VAULT_LOCKED`/`WORKER_NOT_READY` states, Worker `/health`, effective token-cap reporting, and quota rollback on failed upstream requests.

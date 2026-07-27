@@ -19840,7 +19840,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.52';
+const APP_VERSION = 'v53.53';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -25681,8 +25681,11 @@ function showPage(id, navEl) {
     }
   } catch(_markerErr) {}
   // v30.10: 이전 페이지 차트 정리 (메모리 누수 방지)
-  if (typeof prevPage !== 'undefined' && prevPage && prevPage !== id) {
-    destroyPageCharts(prevPage);
+  // P845: native compatibility-facade가 legacy script의 let 초기화보다 먼저
+  // 호출될 수 있으므로 TDZ의 lexical prevPage를 직접 읽지 않는다.
+  var _previousPage = (window.AIO && window.AIO.state && window.AIO.state.prevPage) || (typeof window.prevPage !== 'undefined' ? window.prevPage : '');
+  if (_previousPage && _previousPage !== id) {
+    destroyPageCharts(_previousPage);
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const pg = document.getElementById('page-'+id);
@@ -25704,7 +25707,7 @@ function showPage(id, navEl) {
       history.pushState({ page: id }, '', '#' + id);
     }
   } catch(e) { /* sandboxed iframe — history API not available */ }
-  prevPage = id;
+  try { window.prevPage = id; } catch(_) {}
   if (window.AIO && window.AIO.state) window.AIO.state.prevPage = id; // v49.1 P184
   // v42.1: 마켓 펄스 바 — home에서는 숨기고 나머지 페이지에서 표시
   var _mpBar = document.getElementById('market-pulse-bar');
@@ -25844,11 +25847,12 @@ function showTicker(tkr) {
       el.setAttribute('tabindex', el.getAttribute('tabindex') || '0');
     });
   }
-  if(prevPage === 'themes' || prevPage === 'theme-detail') {
+  var _tickerPreviousPage = (window.AIO && window.AIO.state && window.AIO.state.prevPage) || (typeof window.prevPage !== 'undefined' ? window.prevPage : '');
+  if(_tickerPreviousPage === 'themes' || _tickerPreviousPage === 'theme-detail') {
     backBtn.textContent = '← 테마 분석';
     parentEl.textContent = '테마 분석';
     setTickerNavTarget('themes');
-  } else if(prevPage === 'fundamental') {
+  } else if(_tickerPreviousPage === 'fundamental') {
     backBtn.textContent = '← 펀더멘탈';
     parentEl.textContent = '펀더멘탈';
     setTickerNavTarget('fundamental');

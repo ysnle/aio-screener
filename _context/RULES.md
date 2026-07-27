@@ -1588,3 +1588,9 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: Operations status must separately report secret configured, workflow wired, last call succeeded, data current, and licensed for use; durable scheduled analysis and browser/public chat are separate capabilities.
 
 **Validation**: `scripts/build-operations-status.mjs`, `public-data/operations-status.json`, `architecture/operations-slo.json`, and `scripts/ci-ai-chat-reliability-contract-check.mjs` must preserve the separate fields and explicit operator-required states.
+
+## R392. Compatibility entrypoints must be safe during initialization races (v53.53, P845)
+
+**Rule**: Legacy route entrypoints callable by the native compatibility facade must not directly read or write top-level lexical state that may still be in its temporal dead zone during classic-script initialization.
+
+**Validation**: `showPage()`/`showTicker()` must use the initialized `AIO.state` or window shim for early navigation, and the Critical-10, Portfolio Vault, and accessibility browser contracts must remain green.

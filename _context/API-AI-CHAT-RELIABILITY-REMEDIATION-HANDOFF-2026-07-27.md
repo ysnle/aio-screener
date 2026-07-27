@@ -920,3 +920,77 @@ FRED
 이 범위는 막연한 “미확인”이 아니다. 각 항목의 차단 조건과 다음 인증 방법이 특정되어 있다. 현재 증거만으로 확정 가능한 결론은 다음과 같다.
 
 > 데이터 자동화의 핵심 서버 경로는 실제 작동하지만 완전하지 않고, 공개 AI 채팅 경로는 실제로 열려 있지 않다. 초기 로딩 지연은 저사양 장비에서 더 심해지지만 원인은 장비만이 아니라 과도한 초기 코드·DOM·요청·상태 표현을 포함한 앱 구조에도 있다.
+
+## 12. Web Research·핵심 데이터 추가 재감사
+
+상세 실행 계약은 `WEB-RESEARCH-CRITICAL-DATA-REMEDIATION-HANDOFF-2026-07-27.md`를 따른다. 이 절은 API/Worker/운영 관점의 필수 연결점만 요약한다.
+
+### 12.1 경로 존재와 Research 준비 완료를 분리
+
+현재 AI route readiness만으로 Web Research readiness를 증명할 수 없다.
+
+```text
+ChatRouteReady
+WebSearchToolReady
+ExternalSearchProviderReady
+PrimarySourceAdaptersReady
+CitationPipelineReady
+```
+
+각 상태는 별도로 운영해야 한다.
+
+- 개인 Claude 키가 유효해도 조직·모델·tool 설정에 따라 native search가 실패할 수 있다.
+- Worker `/anthropic`이 동작해도 web-search tool을 실제로 지원·호출·인용하는지는 별도 probe가 필요하다.
+- Perplexity/Google 키가 저장돼도 인증·quota·검색 결과 품질은 별도 상태다.
+- 검색 호출 실패 후 일반 답변을 계속 생성하는 현재 경로는 최신·원인 질문에서 fail-open이다.
+
+### 12.2 Worker health 확장
+
+비밀을 노출하지 않고 최소 다음을 제공한다.
+
+```text
+ai:
+  chatReady
+  model
+  maxTokens
+webResearch:
+  nativeToolConfigured
+  nativeToolVersion
+  modelSupported
+  quotaReady
+  lastProbeStatus
+  lastSuccessfulAt
+```
+
+외부 개인키 검색은 브라우저 진단 상태로 분리한다.
+
+```text
+perplexity: MISSING | LOCKED | SAVED_UNVERIFIED | READY | AUTH_FAILED | RATE_LIMITED
+googleCse:  MISSING | PARTIAL_CONFIG | SAVED_UNVERIFIED | READY | AUTH_FAILED | RATE_LIMITED
+```
+
+### 12.3 운영 artifact의 새 필수 지표
+
+- screener 행별 `observedAt` 분포와 mixed revision
+- market snapshot의 session `UNKNOWN` 수
+- previous-close expected와 unexpected stale 수
+- 필드별 fundamental coverage
+- freshness-weighted filing coverage
+- 뉴스 source-tier·content-depth 분포
+- 검색 provider·tool별 최근 성공과 오류
+- required research 실패 후 차단된 claim 수
+- claim-source binding 통과율
+
+단순 `16/16`, `845/870`, `74.3%`, `웹검색 ✓`는 운영 준비 완료 지표로 사용하지 않는다.
+
+### 12.4 추가 P0
+
+| ID | 이슈 | 완료 기준 |
+|---|---|---|
+| API-P0-07 | 필수 Web Research가 키·route 부재로 조용히 미실행 | `RESEARCH_REQUIRED_BUT_UNAVAILABLE` 및 current/causal claim 차단 |
+| API-P0-08 | 검색 실패 후 일반 답변 진행 | 필수 검색 실패가 Answerability를 낮추고 사용자에게 표시 |
+| API-P0-09 | AI/검색 readiness 혼합 | Chat·native tool·external provider·citation readiness 분리 |
+| API-P0-10 | 단일 데이터 coverage가 준비 완료로 오인 | 질문별 다차원 DataReadiness와 field/freshness/session 공개 |
+| API-P0-11 | 서버 AI metric 혼동도 semantic verified 통과 | metric identity·value·unit·asOf·source·causal claim validator |
+
+이 P0와 기존 공개 Chat route·KeyStore P0는 병렬로 닫되, 실제 모델 품질 인증은 두 경로와 데이터 readiness가 모두 열린 뒤 수행한다.
