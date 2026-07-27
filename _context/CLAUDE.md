@@ -52,6 +52,7 @@
 | ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md | v53.16 진척 회계 훼손 실측(F-01~F-12) + RM-00~06 복구 패킷 — ARX 재진입 전 필수 선행 원장. RM-00~05 + RM-03 item 2(F&G/RRG/Weinstein-MTF) 완료, item 3은 ARX-11 이관 확정 | RM 패킷 상태·route-owners·게이트 로직·소유권 실측 변경 시 |
 | AIO-STRUCTURAL-REMEDIATION-MASTERPLAN-2026-07-27.md | v53.46 독립 진단 기반 구조 개편 기획 SSOT: 사용자 의도·P0~P3 원장·목표 아키텍처·17 route 필수 데이터/차트/텍스트·고아 방지·보안·운영 SLO·작업 Wave와 게이트. DESIGN_ONLY이며 구현 완료를 뜻하지 않음 | 구조 개편 우선순위, page contract, route owner, evidence/selector, 보안·운영 gate 또는 공개 판정 변경 시 |
 | API-AI-CHAT-RELIABILITY-REMEDIATION-HANDOFF-2026-07-27.md | v53.51 라이브·Actions·공개 Worker·부팅 실측 기반 API/AI/자동화/성능 집중 진단. 공개 채팅 경로, 키 저장 신뢰성, provider wiring, 초기 요청·DOM·long task·저사양 gate와 Wave별 실행 계약 포함. DESIGN_ONLY | API 키·Worker·AI gateway·공급자 health·부팅 성능·캐시·요청 예산·답변 정확도 또는 공개 운영 판정 변경 시 |
+| AI-SCREENER-INTELLIGENCE-REBUILD-HANDOFF-2026-07-27.md | v53.52 저장소/v53.51 라이브 기준 실제 사용자 질문 routing·공개 데이터·서버 Claude 생성문 실증 기반 AI 전체 재구축 설계. legacy giant prompt와 policy 우회, 연구 랭킹 추천 승격을 제거하고 QuestionPlan·tools·Evidence Graph·ClaimLedger·도메인 분석·4,440 fixture benchmark로 전환. DESIGN_ONLY | AI 질문 해석, 원인·전망·추천·섹터·기업·차트·매크로·FX 로직, structured output/tool use, 품질·다양성·최신성·확장성 또는 live model benchmark 변경 시 |
 | WO7-GLOBAL-INVENTORY-2026-07-10.md | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7 Packet 1 — 전역 read/write baseline 실측 + timer/chart/page-lifecycle 어댑터 기존재 확인 + 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.
