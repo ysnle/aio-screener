@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-07-27T13:59:07.015Z",
+ "generatedAt": "2026-07-27T16:34:30.819Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 \"검증 결과\"가 아니라 \"누적 진행 상황\"으로 취급할 것.",
  "summary": {
   "n5d": 43,
-  "corr5d": -0.337,
+  "corr5d": -0.338,
   "n21d": 27,
   "corr21d": -0.692,
   "statisticallyMeaningful": false
@@ -644,7 +644,7 @@
     "macro": 55
    },
    "fwd5dReturn": 0.5036199341154748,
-   "fwd21dReturn": -1.242465933348642,
+   "fwd21dReturn": -1.6903639569455353,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1027,7 +1027,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -0.7358353691711956,
+   "fwd5dReturn": -1.1860311296499728,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
