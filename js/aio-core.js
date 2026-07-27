@@ -19840,7 +19840,9 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.53';
+// P845: classic-script consumers can run before this assignment during ESM
+// compatibility bootstrap; var keeps guarded early reads outside the TDZ.
+var APP_VERSION = 'v53.53';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -24871,7 +24873,9 @@ if (typeof document !== 'undefined') {
   }
 }
 
-const breadcrumbMap = {
+// P845: showPage can be called by the compatibility facade before this map is
+// initialized, so the early route path must not observe a lexical TDZ.
+var breadcrumbMap = {
   home: ['AIO','대시보드'], themes: ['AIO','테마 분석'],
   'kr-home': ['AIO','한국장 홈'], 'kr-supply': ['AIO','수급 분석'],
   'kr-themes': ['AIO','국내 테마'], 'kr-macro': ['AIO','한국 매크로'], 'kr-technical': ['AIO','차트·기술 분석 (KR)'],
@@ -25698,7 +25702,7 @@ function showPage(id, navEl) {
       if (n.dataset && n.dataset.arg === id) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
     });
   }
-  const parts = breadcrumbMap[id] || ['AIO', id];
+  const parts = (breadcrumbMap && breadcrumbMap[id]) || ['AIO', id];
   setBreadcrumb(parts);
   // Browser history — enables native back/forward (skipped if sandboxed or popstate)
   // v49.1 P187: _aioInPopstate 플래그로 popstate 핸들러 내부에서 pushState 호출 방지
