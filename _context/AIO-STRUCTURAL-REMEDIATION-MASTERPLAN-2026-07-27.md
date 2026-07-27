@@ -1174,9 +1174,9 @@ Wave 안의 Packet마다 이 전체 검증을 반복하지 않는다.
 | P840 / W1-04·W1-05·W2-05 | SEC freshness v2, ticker action gate, versioned Vault KDF 및 legacy migration 적용 | Wave 1·2 전체 검증 통과: headless 1102/1102, 17-route/browserErrors 0, FULL_INIT 68/68, Critical-10, PFE2-01~09, accessibility, SA-02/SA-03; SA-04 operator-required |
 | P841 / Wave 3 | 10개 vertical slice registry, route marker/state, direct-entry·outage·mobile·re-entry browser gate 적용 | Wave 3 경계 검증 통과: static, headless 1102/1102, boot, 17-route architecture/browser, slice 10/10, SA-02/03, viewport 68/68, Critical-10, Vault PFE2-01~09, accessibility; SA-04는 FRED 키 없는 public snapshot으로 operator-required |
 | P842 / Wave 4 | capability manifest, Guide claim audit, 정직한 콘텐츠·교육 문구와 referrer metadata 적용 | capability static/browser gate 통과: 9 capabilities, 9 Guide markers, forbidden-claim fixture 차단, Guide audit pass |
-| P843 / Wave 5 | route soak, visual-state/SLO/readiness manifest, SHA pin·npm ci, security headers, conservative public gate 적용 | route soak 17 routes × 3 laps, browserErrors 0, max canvas 42 불변, AAPL→MSFT→AAPL 통과; final browser boundary headless 1102/1102, viewport 68/68, Critical-10, Vault, accessibility, SA-02/03 pass; live revision·edge header·30-day SLO·provider rights·SA-04는 operator-required |
+| P843 / Wave 5 | route soak, visual-state/SLO/readiness manifest, SHA pin·npm ci, security headers, conservative public gate 적용 | route soak 17 routes × 3 laps, browserErrors 0, max canvas 42 불변, AAPL→MSFT→AAPL 통과; final GitHub Actions boundary headless 1102/1102, viewport 68/68, Critical-10, Vault, accessibility, SA-02/03/04 pass; commit `65f6912` deployed to `main`, live v53.51 invariant verified; edge header·30-day SLO·provider rights remain operator-required |
 
-작업 규칙에 따라 Packet 단위에서는 영향 범위 검증만 수행하고, Wave 또는 전체 구현 경계에서 전체 검증을 실행했다. v53.51 기준 로컬 구현·전체 검증은 완료되었고, 사용자 요청에 따른 커밋·배포와 live/operator 인증만 후속 단계로 남긴다.
+작업 규칙에 따라 Packet 단위에서는 영향 범위 검증만 수행하고, Wave 또는 전체 구현 경계에서 전체 검증을 실행했다. v53.51 기준 로컬 구현·전체 검증·커밋·`main` 병합·GitHub Pages 배포와 live revision/SA-04 검증까지 완료했다. 30-day SLO, edge header enforcement, provider rights는 별도 운영자 인증 항목으로 남긴다.
 
 ## 20. 17개 route 라이브 관측 원장
 

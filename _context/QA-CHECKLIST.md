@@ -1,5 +1,5 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P843 verification
+verified_by: agent (Fable 5) + Codex P761-P843 + post-deploy verification
 last_verified: 2026-07-27
 confidence: high
 
@@ -15,7 +15,7 @@ identity/memo and pipeline compatibility producers remain separately tracked. Li
 version: v4.2
 checklist_version: v53.51
 latest_P_covered: P843
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P842 Wave 4 claim boundary and P843 Wave 5 route/operations gates pass except operator-required live criteria
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P842 Wave 4 and P843 Wave 5 gates pass, live v53.51 and SA-04 are verified, and only external operator criteria remain
 
 ## P843 Wave 5 route soak, operations, and public-readiness boundary (2026-07-27, v53.51)
 
@@ -24,7 +24,9 @@ current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext I
 - [x] All GitHub Actions refs are full commit SHA pinned; CI uses `npm ci`; Wrangler is exact-versioned; `_headers` is allowlisted and staged for compatible static hosts.
 - [x] Three-lap route soak passes all 17 routes with one visible page, stable 42-canvas maximum, zero non-expected browser errors, and AAPL→MSFT→AAPL entity re-entry.
 - [x] Final all-work browser boundary passes headless `1102/1102`, boot, architecture/browser `17/17`, vertical slices `10/10`, SA-02/SA-03, viewport `68/68`, Critical-10, Vault PFE2-01~09, and accessibility `17/17`.
-- [ ] Live deployed revision, edge header enforcement, 30-day automation SLO, provider rights, and SA-04 remain operator-required.
+- [x] Live deployed revision v53.51 is served by the public URL and `ci-live-invariant-check.mjs` passes after commit `65f6912`.
+- [x] SA-04 boot-network-budget passes in GitHub Actions run `30260095694` with `fredHasKey:true`, `fredFetchOk:true`, and `fredOk:true`.
+- [ ] Edge header enforcement, 30-day automation SLO, and provider rights remain operator-required.
 
 ## P842 Wave 4 capability/content boundary (2026-07-27, v53.51)
 
