@@ -1,9 +1,9 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P843 + post-deploy verification
+verified_by: agent (Fable 5) + Codex P761-P844 static implementation record
 last_verified: 2026-07-27
 confidence: high
 
-## Current architecture checkpoint (2026-07-27, v53.51)
+## Current architecture checkpoint (2026-07-27, v53.52)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
@@ -13,9 +13,22 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.51
-latest_P_covered: P843
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P842 Wave 4 and P843 Wave 5 gates pass, live v53.51 and SA-04 are verified, and only external operator criteria remain
+checklist_version: v53.52
+latest_P_covered: P844
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P844 AI reliability contracts are implemented locally but browser/provider/live Worker verification was intentionally skipped
+
+## P844 API/AI chat reliability remediation (2026-07-27, v53.52)
+
+- [x] Provider registry covers Claude, RSS2JSON, BOK, KOSIS, and Worker; sensitive-key restore/export paths use the same inventory.
+- [x] Credential writes return explicit results, validate format, perform readback, and do not use the removed plaintext fallback.
+- [x] UI separates storage, authentication, and connection state; “saved” is not shown before persistence confirmation.
+- [x] Public AI config defaults to personal-key or explicitly configured Worker; no real Worker URL or secret was invented.
+- [x] Shared route readiness distinguishes `NO_ROUTE`, `VAULT_LOCKED`, and `WORKER_NOT_READY`; Worker exposes metadata-only `/health`, effective token cap, and failed-request quota rollback.
+- [x] Operations status separates secret configured, workflow wired, last call succeeded, data current, and licensed for use; scheduled analysis and public chat are separate.
+- [x] Performance measurements and targets are recorded in `architecture/operations-slo.json`; this change does not claim the targets are met.
+- [ ] Local browser/UI smoke and reload/delete persistence matrix — **not run per urgent user instruction**.
+- [ ] Real Claude key, public Worker URL/KV/Origin, provider auth/rights, golden corpus accuracy, and low-spec performance — **not run; operator authorization/fixtures required**.
+- [ ] Remote CI execution of the new static reliability contract — **not run in this turn; will run through the pushed workflow**.
 
 ## P843 Wave 5 route soak, operations, and public-readiness boundary (2026-07-27, v53.51)
 

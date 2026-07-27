@@ -1,12 +1,12 @@
 ---
-verified_by: agent (Claude Sonnet 5) + Codex P761-P843 verification
+verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
 last_verified: 2026-07-27
 confidence: high
-latest_version: v53.51
-latest_P_number: P843
-next_P_number: P844
-current_total_entries: 597 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P843 Wave 5 route soak/operations/public-readiness boundary; local gates pass, live revision/headers/30-day SLO/provider rights/SA-04 remain operator-required
+latest_version: v53.52
+latest_P_number: P844
+next_P_number: P845
+current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P844 API/AI chat reliability remediation; local browser/provider/live Worker verification intentionally not run, CI contract will be the executable follow-up gate
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -18,6 +18,16 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P844 - v53.52 - AI credential persistence, route readiness, and control-plane states were optimistic or conflated
+
+- **motivation**: the handoff requires AI chat to be usable only when a real route is ready, credential persistence is proven, and scheduled analysis is not mistaken for public chat capability.
+- **symptom/reproduction**: the UI could say an API key was saved before `safeLS` completed or was read back; Claude and extension keys used different storage paths; BOK/KOSIS were omitted from restore/backup inventory; the public site had no default Worker route or readiness probe; Worker quota reservations were not rolled back after failed upstream requests; operations status did not separate secret configuration, workflow wiring, last success, freshness, and licensing.
+- **root_cause**: storage, authentication, connection, data freshness, and rights were represented as one optimistic “saved/available” path, while the public AI route and scheduled data plane had no shared explicit control-plane contract.
+- **fix**: added the provider credential registry and readback-based `_aioSaveCredential` path, explicit storage states and provider status UI, BOK/KOSIS registry/restore/export coverage, public non-secret AI config, route readiness/error classification, Worker `/health`, effective token-cap header, quota rollback, operations readiness fields, performance targets/measurements, and `ci-ai-chat-reliability-contract-check.mjs` wired into CI.
+- **violated_rule**: R389 requires one credential registry with write/readback proof and no optimistic/plaintext fallback; R390 requires explicit AI route readiness/error states; R391 requires scheduled analysis and public chat plus five operational readiness dimensions to remain separate.
+- **prevention**: future credential or AI route changes must update the registry, UI status, public config/Worker health contract, operations-status artifact, and the CI reliability contract together. Real keys, Worker secrets, provider rights, and low-spec performance must remain explicitly unverified until an authorized operator run closes them.
+- **verification**: local browser, provider calls, public Worker, golden corpus, and performance re-run were **not run per urgent user instruction**. The repository contains the executable static CI contract, but this turn does not claim that its remote run, live route, or model accuracy passed.
 
 ## P843 - v53.51 - route soak, operational posture, and public readiness lacked executable repository gates
 

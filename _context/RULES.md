@@ -1570,3 +1570,21 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: Guide, metadata, and education copy must not imply current/live/automatic/AI-backed behavior or direct action beyond the declared capability status, evidence, and wording constraints.
 
 **Validation**: `src/domain/content/capability-manifest.js`, Guide claim markers/audit, `scripts/ci-capability-claim-contract-check.mjs`, and the architecture/browser Guide assertions must reject forbidden-claim fixtures and report a passing manifest audit.
+
+## R389. Credential persistence must be registry-backed and readback-proven (v53.52, P844)
+
+**Rule**: Provider credentials must use one registry and one save/remove path that returns an explicit result, validates format, performs write/readback verification, and never falls back to an unverified plaintext write or optimistic “saved” UI.
+
+**Validation**: `_AIO_PROVIDER_REGISTRY`, `_aioSaveCredential`, `safeLS`, provider restore/export paths, and `scripts/ci-ai-chat-reliability-contract-check.mjs` must remain synchronized; storage state must stay separate from authentication and connection state.
+
+## R390. AI route readiness must be explicit and fail closed (v53.52, P844)
+
+**Rule**: Chat, briefing, translation, and market-analysis entrypoints must resolve through the shared route contract and distinguish personal-key, no-route, Vault-locked, Worker-not-ready, rate-limit, authentication, and timeout states. A scheduled server analysis success must never imply public chat readiness.
+
+**Validation**: `public-config.json`, `_aioEnsureClaudeRoute`, Worker `/health`, the response contract, and the AI reliability CI contract must reject an unconfigured or unhealthy shared route without inventing an operator/server-key capability.
+
+## R391. AI/data operations must expose five readiness dimensions (v53.52, P844)
+
+**Rule**: Operations status must separately report secret configured, workflow wired, last call succeeded, data current, and licensed for use; durable scheduled analysis and browser/public chat are separate capabilities.
+
+**Validation**: `scripts/build-operations-status.mjs`, `public-data/operations-status.json`, `architecture/operations-slo.json`, and `scripts/ci-ai-chat-reliability-contract-check.mjs` must preserve the separate fields and explicit operator-required states.

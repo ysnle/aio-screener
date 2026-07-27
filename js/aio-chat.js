@@ -773,12 +773,16 @@ function chatShowLoading(ctxId) {
 //   (키는 Cloudflare 시크릿). 개인 키가 있으면 개인 키 직접 호출 우선(존중). 기본=직접(무회귀).
 function _aioClaudeTarget(apiKey) {
   try {
-    var wurl = (typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '').trim().replace(/\/+$/, '');
+    var localWorker = (typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '').trim().replace(/\/+$/, '');
+    var publicCfg = window.AIO && typeof window.AIO.getPublicConfig === 'function' ? window.AIO.getPublicConfig() : null;
+    var publicWorker = publicCfg && publicCfg.ai && typeof publicCfg.ai.workerUrl === 'string' ? publicCfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
+    var wurl = localWorker || publicWorker;
     var serverMode = false;
     try { serverMode = localStorage.getItem('aio_claude_server_mode') === '1'; } catch(_) {}
-    if (wurl && (serverMode || !apiKey)) return { url: wurl + '/anthropic', serverKey: true };
+    if (publicWorker && publicCfg.ai.serverMode === 'shared-worker') serverMode = true;
+    if (wurl && (serverMode || !apiKey)) return { url: wurl + '/anthropic', healthUrl: wurl + ((publicCfg && publicCfg.ai && publicCfg.ai.healthPath) || '/health'), workerUrl: wurl, serverKey: true, source: localWorker ? 'local-config' : 'public-config' };
   } catch(_) {}
-  return { url: 'https://api.anthropic.com/v1/messages', serverKey: false };
+  return { url: 'https://api.anthropic.com/v1/messages', serverKey: false, source: 'personal-key' };
 }
 window._aioClaudeTarget = _aioClaudeTarget;
 
@@ -794,6 +798,50 @@ function _aioHasClaudeRoute(apiKey) {
   return !!(apiKey || (target && target.serverKey));
 }
 window._aioHasClaudeRoute = _aioHasClaudeRoute;
+
+var _aioWorkerHealthCache = window._aioWorkerHealthCache || {};
+async function _aioEnsureClaudeRoute(apiKey) {
+  if (window.AIO && typeof window.AIO.loadPublicConfig === 'function') await window.AIO.loadPublicConfig();
+  var target = _aioClaudeTarget(apiKey);
+  if (apiKey) {
+    if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_claude_api_key', { authentication: 'CONFIGURED', connection: 'NOT_CHECKED' });
+    return { ok: true, target: target, reason: 'PERSONAL_KEY' };
+  }
+  if (!target || !target.serverKey) {
+    var locked = typeof _aioProviderStatusForKey === 'function' && _aioProviderStatusForKey('aio_claude_api_key').storage === 'LOCKED';
+    return { ok: false, reason: locked ? 'VAULT_LOCKED' : 'NO_ROUTE', target: target };
+  }
+  var now = Date.now();
+  var cached = _aioWorkerHealthCache[target.workerUrl];
+  if (cached && now - cached.checkedAt < 30000) return cached;
+  try {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function() { ctrl.abort(); }, 2500);
+    var response = await fetch(target.healthUrl, { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal });
+    clearTimeout(timer);
+    var payload = await response.json().catch(function() { return null; });
+    var ready = response.ok && !!(payload && payload.ai && payload.ai.ready === true);
+    var result = { ok: ready, reason: ready ? 'SHARED_WORKER' : 'WORKER_NOT_READY', target: target, checkedAt: now, health: payload };
+    _aioWorkerHealthCache[target.workerUrl] = result;
+    if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_cf_worker_url', { connection: ready ? 'READY' : 'NOT_READY', lastError: ready ? null : result.reason });
+    return result;
+  } catch (e) {
+    var failed = { ok: false, reason: 'WORKER_NOT_READY', target: target, checkedAt: now, error: e && e.message || 'health_failed' };
+    _aioWorkerHealthCache[target.workerUrl] = failed;
+    if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_cf_worker_url', { connection: 'NOT_READY', lastError: failed.error });
+    return failed;
+  }
+}
+window._aioEnsureClaudeRoute = _aioEnsureClaudeRoute;
+window._aioRouteNotice = function(reason) {
+  return ({
+    NO_ROUTE: 'AI 라우트가 없습니다. Claude 개인 키를 저장하거나 운영자가 공개 Worker를 명시적으로 연결해야 합니다.',
+    VAULT_LOCKED: 'Claude 키가 Vault에 잠겨 있습니다. 사이드바에서 PIN으로 잠금 해제한 뒤 다시 시도하세요.',
+    WORKER_NOT_READY: '공유 AI Worker가 준비되지 않았습니다. 운영자 설정·키·쿼터·허용 Origin을 확인하세요.',
+    RATE_LIMIT: 'AI 요청 한도에 도달했습니다. 잠시 후 다시 시도하세요.',
+    AUTH_FAILED: 'AI 인증에 실패했습니다. 키 형식과 공급자 권한을 확인하세요.'
+  })[reason] || 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.';
+};
 
 // v52.44 B8: Cloudflare Workers 무료 플랜은 리전 고정이 불가해 anycast 라우팅이 요청마다 다른 엣지
 // 데이터센터를 탈 수 있다 — 그중 홍콩(HKG) 경유 요청을 Anthropic이 정책상 403(forbidden)으로 거부하는
@@ -831,10 +879,11 @@ function _aioChatError(error, status) {
 
 async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   var apiKey = getApiKey();
-  var _claudeTarget = _aioClaudeTarget(apiKey);   // v50.52 B5: 서버 키 모드면 개인 키 불요
-  if (!apiKey && !_claudeTarget.serverKey) {
-    var missingCreds = _aioChatError({ message: 'Claude API key missing', status: 401 });
-    onError(missingCreds.displayMessage || (missingCreds.userMessage + ' ' + missingCreds.nextAction));
+  var routeState = await _aioEnsureClaudeRoute(apiKey);
+  var _claudeTarget = routeState.target || _aioClaudeTarget(apiKey);   // v50.52 B5: 서버 키 모드면 개인 키 불요
+  if (!routeState.ok) {
+    var missingCreds = _aioChatError({ message: routeState.reason, status: routeState.reason === 'NO_ROUTE' || routeState.reason === 'VAULT_LOCKED' ? 401 : 503 });
+    onError(window._aioRouteNotice(routeState.reason) || missingCreds.displayMessage || (missingCreds.userMessage + ' ' + missingCreds.nextAction));
     return;
   }
   opts = opts || {};
@@ -4452,11 +4501,13 @@ async function chatSend(ctxId) {
   // v29: API 키 확인 먼저 (횟수 차감 전에 체크)
   // v49.59 P329 R109: 키 미입력 시 사이드바 input 강조 + inline alert 강화
   var _chatApiKey = getApiKey();
-  var _chatHasClaudeRoute = typeof _aioHasClaudeRoute === 'function' ? _aioHasClaudeRoute(_chatApiKey) : !!_chatApiKey;
-  if (!_chatHasClaudeRoute) {
+  var _chatRoute = typeof _aioEnsureClaudeRoute === 'function'
+    ? await _aioEnsureClaudeRoute(_chatApiKey)
+    : { ok: typeof _aioHasClaudeRoute === 'function' ? _aioHasClaudeRoute(_chatApiKey) : !!_chatApiKey, reason: 'NO_ROUTE' };
+  if (!_chatRoute.ok) {
     chatAppendMsg(ctxId, 'ai', '<div style="color:#f87171;padding:8px 12px;background:rgba(248,113,113,0.1);border-left:3px solid #f87171;border-radius:4px;">' +
-      '<b>⚠ AI 채팅 키 필요</b><br>' +
-      'AI 답변을 쓰려면 Claude 키를 저장하세요. 브리핑/번역은 운영자 서버키 가능, 채팅은 개인키 또는 Worker 서버키 모드 필요.<br>' +
+      '<b>⚠ AI 라우트 확인 필요</b><br>' +
+      (typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_chatRoute.reason) : 'Claude 개인 키 또는 명시된 Worker 라우트가 필요합니다.') + '<br>' +
       '사이드바 → "Claude API 키" 입력란에 <code>sk-ant-...</code> 형식 키 입력 후 저장하세요.<br>' +
       '<a href="https://console.anthropic.com" target="_blank" style="color:#00d4ff;">→ console.anthropic.com에서 무료 발급 ($5 크레딧)</a>' +
       '</div>');

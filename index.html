@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.51 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.52 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -5406,7 +5406,8 @@ button[data-filter-active="true"] {
               title="Anthropic Claude API 키 입력 후 저장">
             <button class="llm-key-save" data-action="saveSidebarApiKey">저장</button>
           </div>
-          <div style="font-size:11px;color:var(--yellow);line-height:1.4;padding:2px 0;">개인 PC에서만 저장하세요.</div>
+          <div style="font-size:11px;color:var(--yellow);line-height:1.4;padding:2px 0;">개인 PC에서만 저장하세요. 키는 브라우저에 저장되며 요청 시 선택한 공급자 또는 명시된 Worker로 전송됩니다.</div>
+          <div id="claude-key-status" role="status" aria-live="polite" style="font-size:10px;color:var(--text-muted);line-height:1.4;padding:1px 0;">저장: 확인 안 됨 · 인증: 확인 안 됨 · 연결: 확인 안 됨</div>
 
           <!-- 모델 선택 + 할당량 패널 -->
           <div class="llm-quota-panel">
@@ -5474,6 +5475,8 @@ button[data-filter-active="true"] {
             </div>
             <div style="display:block;">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">선택 API입니다. 키가 없으면 가능한 무료/캐시 데이터로 표시합니다.</div>
+              <div id="provider-status-summary" role="status" aria-live="polite" style="font-size:10px;color:var(--text-muted);line-height:1.4;margin-bottom:4px;">저장 확인 0개 · 인증/연결은 별도 확인 · 데이터 최신성/사용 권한과 분리됨</div>
+              <button data-action="_aioRefreshProviderStatuses" style="width:100%;margin-bottom:5px;background:rgba(33,29,22,0.12);border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:3px 6px;border-radius:3px;cursor:pointer;">공급자 상태 새로고침</button>
               <div class="llm-key-row" style="margin-bottom:3px;">
                 <input type="password" id="aio_av_key_input" class="llm-key-input" placeholder="Alpha Vantage (선택 · 시장 폭)" title="alphavantage.co 무료 25회/일 · 선택적 (미설정 시 RSP/SPY 비율로 폴백)" style="font-size:11px;">
                 <button class="llm-key-save" data-action="_saveApiKey" data-arg="aio_av_key" data-arg2="aio_av_key_input" data-pass-el="1">저장</button>
@@ -5642,7 +5645,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.51</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.52</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12243,9 +12246,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.51" defer></script>
-  <script src="./js/aio-data.js?v=53.51" defer></script>
-  <script src="./js/aio-ui.js?v=53.51" defer></script>
+  <script src="./js/aio-core.js?v=53.52" defer></script>
+  <script src="./js/aio-data.js?v=53.52" defer></script>
+  <script src="./js/aio-ui.js?v=53.52" defer></script>
 
 
   <script>
@@ -12275,9 +12278,13 @@ function getApiKey() {
   if (typeof _AioVault !== 'undefined' && _AioVault._claudeKeyRuntime && _isValidApiKey(_AioVault._claudeKeyRuntime)) {
     return _AioVault._claudeKeyRuntime;
   }
-  const raw = localStorage.getItem(CLAUDE_KEY_LS) || '';
+  const raw = typeof _getApiKey === 'function' ? (_getApiKey(CLAUDE_KEY_LS) || '') : (localStorage.getItem(CLAUDE_KEY_LS) || '');
+  if (!raw && typeof _aioProviderStatusForKey === 'function') {
+    var _claudeState = _aioProviderStatusForKey(CLAUDE_KEY_LS);
+    if (_claudeState.storage === 'LOCKED') _aioLog('warn', 'vault', 'Claude API 키가 Vault에 암호화되어 있음. 사이드바에서 PIN 입력으로 잠금 해제 필요.');
+  }
   // v47.7: 암호화된 키 감지 — Vault PIN 입력 필요
-  if (raw.startsWith('aio_enc::')) {
+  if (raw && raw.startsWith('aio_enc::')) {
     _aioLog('warn', 'vault', 'Claude API 키가 Vault에 암호화되어 있음. 사이드바에서 PIN 입력으로 잠금 해제 필요.');
     return '';
   }
@@ -12289,38 +12296,30 @@ function getApiKey() {
   }
   return clean;
 }
-function setApiKey(key) {
+async function setApiKey(key) {
   try {
     const clean = _sanitizeApiKey(key);
     if (!clean) {
-      localStorage.removeItem(CLAUDE_KEY_LS);
-      if (typeof _AioVault !== 'undefined') _AioVault._claudeKeyRuntime = '';  // v47.7
-      return;
+      return typeof _aioSaveCredential === 'function'
+        ? await _aioSaveCredential(CLAUDE_KEY_LS, '')
+        : { ok: false, state: 'KEYSTORE_UNAVAILABLE' };
     }
     // v29: 마스킹된 키 저장 방지
     if (!_isValidApiKey(clean)) {
       _aioLog('warn', 'vault', '유효하지 않은 API 키 — 저장 거부: ' + clean.slice(0, 15) + '...');
-      return;
+      return { ok: false, state: 'INVALID_FORMAT' };
     }
-    // v47.7: Vault 잠금 해제 상태면 암호화 저장(safeLS), 아니면 평문 저장
-    if (typeof _AioVault !== 'undefined' && _AioVault.isUnlocked() && typeof safeLS === 'function') {
-      safeLS(CLAUDE_KEY_LS, clean).catch(function(e) {
-        _aioLog('warn', 'vault', 'safeLS 실패 — 평문 폴백: ' + (e && e.message || e));
-        try { localStorage.setItem(CLAUDE_KEY_LS, clean); } catch(_) {}
-      });
-      _AioVault._claudeKeyRuntime = clean;
-    } else {
-      try { localStorage.setItem(CLAUDE_KEY_LS, clean); } catch(e) {}
-      if (typeof _AioVault !== 'undefined') _AioVault._claudeKeyRuntime = clean;
-    }
+    return typeof _aioSaveCredential === 'function'
+      ? await _aioSaveCredential(CLAUDE_KEY_LS, clean)
+      : { ok: false, state: 'KEYSTORE_UNAVAILABLE' };
   } catch(e) {
     _aioLog('warn', 'vault', 'localStorage 저장 실패 (Safari 개인정보 보호 모드?): ' + (e && e.message || e));
-    showToast('API 키 저장에 실패했습니다.\nSafari 개인정보 보호 모드에서는 데이터가 저장되지 않습니다.\n일반 모드 Chrome 사용을 권장합니다.');
+    return { ok: false, state: 'PERSISTENCE_FAILED', error: e && e.message || e };
   }
 }
 
 // ── 사이드바 API 키 저장/로드 ──────────────────────────────
-function saveSidebarApiKey() {
+async function saveSidebarApiKey() {
   const input = document.getElementById('sidebar-api-key');
   if (!input) return;
   const key = input.value.trim();
@@ -12331,7 +12330,11 @@ function saveSidebarApiKey() {
     input.focus();
     return;
   }
-  setApiKey(key);
+  const result = await setApiKey(key);
+  if (!result || !result.ok) {
+    showToast('API 키 저장에 실패했습니다.\n브라우저 저장소 쓰기·재읽기를 확인하지 못했습니다.');
+    return result;
+  }
   // 저장 피드백
   const btn = input.nextElementSibling;
   if (btn) {
@@ -12341,8 +12344,9 @@ function saveSidebarApiKey() {
     setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, T.UI_FEEDBACK);
   }
   // 부분 문자열도 접근성 트리에 남기지 않는다.
-  if (key) { input.value = '••••••••'; input.dataset.secretStored = 'true'; }
-  else input.value = '';
+  if (key) { input.value = '••••••••'; input.dataset.secretStored = 'true'; input.setAttribute('aria-label', 'Claude API 키 · 저장됨'); }
+  else { input.value = ''; input.dataset.secretStored = ''; input.setAttribute('aria-label', 'Claude API 키 · 미저장'); }
+  return result;
 }
 
 function loadSidebarApiKey() {
@@ -12351,14 +12355,16 @@ function loadSidebarApiKey() {
   const key = getApiKey();
   if (key) { input.value = '••••••••'; input.dataset.secretStored = 'true'; }
 }
-function saveRss2jsonKey() {
+async function saveRss2jsonKey() {
   const inp = document.getElementById('rss2json-api-key');
   if (!inp) return;
   const key = inp.value.trim();
-  try { if (key) localStorage.setItem('aio_rss2json_key', key); else localStorage.removeItem('aio_rss2json_key'); } catch(e) {}
   const btn = inp.nextElementSibling;
-  if (btn) { const o = btn.textContent; btn.textContent = ''; setTimeout(()=>btn.textContent=o,T.UI_FEEDBACK); }
+  const result = typeof _saveApiKey === 'function' ? await _saveApiKey('aio_rss2json_key', 'rss2json-api-key', btn) : { ok: false, state: 'KEYSTORE_UNAVAILABLE' };
+  if (!result.ok) { showToast('RSS2JSON 키 저장에 실패했습니다.'); return result; }
   if (key) { inp.value = '••••••••'; inp.dataset.secretStored = 'true'; }
+  else { inp.value = ''; inp.dataset.secretStored = ''; }
+  return result;
 }
 function loadRss2jsonKey() {
   const inp = document.getElementById('rss2json-api-key');
@@ -12485,7 +12491,7 @@ function savePortfolioData(positions) {
       else localStorage.setItem(PF_STORAGE_KEY, json);
     } catch(e) {}
   } else {
-    safeLS(PF_STORAGE_KEY, json); // fire-and-forget — unlock 상태면 암호화, 아니면 평문(safeLS 기존 계약)
+    safeLS(PF_STORAGE_KEY, json).catch(function(e) { _aioLog('warn', 'portfolio', '저장 확인 실패: ' + (e && e.message || e)); });
   }
   try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {}
 }
@@ -14727,7 +14733,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.51" defer></script>
+<script src="./js/aio-chat.js?v=53.52" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23580,7 +23586,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.51" defer></script>
+<script src="./js/aio-glossary.js?v=53.52" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -26921,9 +26927,11 @@ async function chatSendUnified() {
   if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
   // v46.9/v52.30: API 키/서버키 경로 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
   var _uniClaudeKey = typeof getApiKey === 'function' ? getApiKey() : '';
-  var _uniHasClaudeRoute = typeof _aioHasClaudeRoute === 'function' ? _aioHasClaudeRoute(_uniClaudeKey) : !!_uniClaudeKey;
-  if (!_uniHasClaudeRoute) {
-    _appendAIMsg('ai', 'AI 답변을 쓰려면 Claude 키를 저장하세요. 브리핑/번역은 운영자 서버키 가능, 채팅은 개인키 또는 Worker 서버키 모드 필요.');
+  var _uniRoute = typeof _aioEnsureClaudeRoute === 'function'
+    ? await _aioEnsureClaudeRoute(_uniClaudeKey)
+    : { ok: typeof _aioHasClaudeRoute === 'function' ? _aioHasClaudeRoute(_uniClaudeKey) : !!_uniClaudeKey, reason: 'NO_ROUTE' };
+  if (!_uniRoute.ok) {
+    _appendAIMsg('ai', typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'Claude 개인 키 또는 명시된 Worker 라우트가 필요합니다.');
     return;
   }
   // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수

@@ -10,6 +10,7 @@ export function createOperationsStatus(input = {}) {
     evidenceRevision: String(input.evidenceRevision || 'unknown'),
     overall: OPERATIONS_STATUS.includes(input.overall) ? input.overall : 'UNKNOWN',
     planes: input.planes && typeof input.planes === 'object' ? Object.freeze({ ...input.planes }) : Object.freeze({}),
+    ai: input.ai && typeof input.ai === 'object' ? Object.freeze({ ...input.ai }) : Object.freeze({}),
     providers: input.providers && typeof input.providers === 'object' ? Object.freeze({ ...input.providers }) : Object.freeze({}),
     reconciliation: input.reconciliation && typeof input.reconciliation === 'object' ? Object.freeze({ ...input.reconciliation }) : Object.freeze({}),
     routes: input.routes && typeof input.routes === 'object' ? Object.freeze({ ...input.routes }) : Object.freeze({}),

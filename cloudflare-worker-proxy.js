@@ -231,6 +231,37 @@ function errorResponse(message, status = 400, origin = '', aiContext = null) {
 // 403을 반환하는 사례가 있다(레포/시크릿 문제 아님, `_context/DEFERRED-BLOCKS.md` B8). 이 Worker
 // 코드로는 우회 불가 — 클라이언트(`js/aio-chat.js` `_aioFetchClaudeWithRetry`)가 같은 403 forbidden
 // 포맷일 때만 즉시 재시도해 다른(정상) 엣지로 재라우팅되길 기대하는 완화책을 이미 구현 중(v52.44).
+// Public readiness is metadata-only: it reveals whether the Worker can serve
+// AI traffic, never the secret itself or its value.
+function healthResponse(origin, env, method = 'GET') {
+  const configured = !!(env && env.ANTHROPIC_API_KEY);
+  const quotaConfigured = !!(env && env.AIO_QUOTA && typeof env.AIO_QUOTA.get === 'function' && typeof env.AIO_QUOTA.put === 'function');
+  const killSwitch = !!(env && env.ANTHROPIC_KILL_SWITCH === '1');
+  const ready = configured && quotaConfigured && !killSwitch;
+  const payload = {
+    schemaVersion: 'aio-worker-health.v1',
+    ok: true,
+    service: 'aio-screener-worker',
+    revision: env && env.AIO_APP_REVISION ? String(env.AIO_APP_REVISION) : null,
+    ai: { configured, quotaConfigured, killSwitch, ready, maxTokens: parseInt((env && env.ANTHROPIC_MAX_TOKENS) || '1500', 10) },
+    dataProxy: { ready: true }
+  };
+  return new Response(method === 'HEAD' ? null : JSON.stringify(payload), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin), ...SECURITY_HEADERS, 'Cache-Control': 'no-store', 'X-AIO-Proxy': 'cloudflare-worker-health' }
+  });
+}
+
+async function releaseAnthropicQuota(env, dayKey) {
+  if (!env || !env.AIO_QUOTA || !dayKey) return;
+  try {
+    const current = parseInt((await env.AIO_QUOTA.get(dayKey)) || '0', 10);
+    if (current > 0) await env.AIO_QUOTA.put(dayKey, String(current - 1), { expirationTtl: 172800 });
+  } catch (_) {
+    // Best effort only; the next request remains protected by the daily cap.
+  }
+}
+
 async function handleAnthropic(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin) });
   const aiError = { source: 'worker-anthropic' };
@@ -263,18 +294,20 @@ async function handleAnthropic(request, env, origin) {
 
   // 일일 호출 캡 — v52.47부터 KV 필수(fail-closed). 미바인딩이면 무제한 비용 노출 상태로
   // 조용히 통과시키는 대신 서버 키 모드 자체를 비활성화한다(개인 키 입력 경로는 영향 없음).
-  if (!env.AIO_QUOTA || typeof env.AIO_QUOTA.get !== 'function') {
+  if (!env.AIO_QUOTA || typeof env.AIO_QUOTA.get !== 'function' || typeof env.AIO_QUOTA.put !== 'function') {
     return errorResponse('서버 키 모드 일시 비활성화(용량 캐핑 미설정) — 개인 Claude 키를 입력하세요', 503, origin, aiError);
   }
   const DAILY_CAP = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
+  let quotaDayKey = '';
+  let quotaReserved = false;
   try {
-    const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
-    const cur = parseInt((await env.AIO_QUOTA.get(dayKey)) || '0', 10);
+    quotaDayKey = 'claude:' + new Date().toISOString().slice(0, 10);
+    const cur = parseInt((await env.AIO_QUOTA.get(quotaDayKey)) || '0', 10);
     if (cur >= DAILY_CAP) return errorResponse('일일 AI 사용 한도 초과 — 잠시 후 다시 시도하거나 개인 Claude 키를 입력하세요', 429, origin, aiError);
-    await env.AIO_QUOTA.put(dayKey, String(cur + 1), { expirationTtl: 172800 });
+    await env.AIO_QUOTA.put(quotaDayKey, String(cur + 1), { expirationTtl: 172800 });
+    quotaReserved = true;
   } catch (e) {
-    // KV put/get 자체의 일시 오류(바인딩은 있으나 호출 실패) — 캡을 무의미하게 만들지 않기 위해
-    // 여기서는 요청을 막지 않고 통과시킨다(바인딩 자체가 없는 경우와는 다름 — 그건 위에서 이미 차단).
+    return errorResponse('AI quota unavailable', 503, origin, aiError);
   }
 
   // Body 크기 상한(WO-1B) — 기존엔 요청 크기 제한이 전혀 없어 비정상적으로 큰 입력(=입력 토큰
@@ -282,11 +315,20 @@ async function handleAnthropic(request, env, origin) {
   // 200KB면 정상 트래픽엔 절대 안 걸리면서 악의적 대용량 payload는 차단하는 여유 있는 상한.
   const MAX_BODY_BYTES = 200 * 1024;
   let _bodyText;
-  try { _bodyText = await request.text(); } catch { return errorResponse('Failed to read request body', 400, origin, aiError); }
-  if (_bodyText.length > MAX_BODY_BYTES) return errorResponse('Request body too large', 413, origin, aiError);
+  try { _bodyText = await request.text(); } catch {
+    if (quotaReserved) await releaseAnthropicQuota(env, quotaDayKey);
+    return errorResponse('Failed to read request body', 400, origin, aiError);
+  }
+  if (_bodyText.length > MAX_BODY_BYTES) {
+    if (quotaReserved) await releaseAnthropicQuota(env, quotaDayKey);
+    return errorResponse('Request body too large', 413, origin, aiError);
+  }
 
   let body;
-  try { body = JSON.parse(_bodyText); } catch { return errorResponse('Invalid JSON body', 400, origin, aiError); }
+  try { body = JSON.parse(_bodyText); } catch {
+    if (quotaReserved) await releaseAnthropicQuota(env, quotaDayKey);
+    return errorResponse('Invalid JSON body', 400, origin, aiError);
+  }
   // 모델 allowlist: haiku/sonnet만 (opus 차단 — 비용 폭주 방지)
   if (!/^claude-(haiku|sonnet)/.test(String(body.model || ''))) body.model = 'claude-haiku-4-5';
   // max_tokens 상한 (공유 키 비용 한계)
@@ -304,6 +346,7 @@ async function handleAnthropic(request, env, origin) {
     });
     clearTimeout(to);
     // 본문 스트림 그대로 파이프(스트리밍 SSE/일반 JSON 모두 보존) + CORS
+    if (upstream.status >= 400 && quotaReserved) await releaseAnthropicQuota(env, quotaDayKey);
     return new Response(upstream.body, {
       status: upstream.status,
       headers: {
@@ -311,9 +354,11 @@ async function handleAnthropic(request, env, origin) {
         ...getCorsHeaders(origin),
         ...SECURITY_HEADERS,
         'X-AIO-Proxy': 'cloudflare-worker-anthropic',
+        'X-AIO-Max-Tokens': String(MAX_TOK),
       },
     });
   } catch (e) {
+    if (quotaReserved) await releaseAnthropicQuota(env, quotaDayKey);
     return errorResponse(e.name === 'AbortError' ? 'Claude timeout' : 'Claude upstream error', 502, origin, aiError);
   }
 }
@@ -323,6 +368,12 @@ export default {
   async fetch(request, env) {
     const requestOrigin = request.headers.get('Origin') || '';
     const _u = new URL(request.url);
+
+    if (_u.pathname === '/health') {
+      if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin) });
+      if (request.method !== 'GET' && request.method !== 'HEAD') return errorResponse('GET required for /health', 405, requestOrigin);
+      return healthResponse(requestOrigin, env, request.method);
+    }
 
     // v50.52 B5: Claude 서버 키 프록시 라우트 (POST /anthropic). 데이터 프록시(GET ?url=)보다 먼저 분기.
     if (_u.pathname === '/anthropic' || _u.searchParams.get('anthropic') === '1') {

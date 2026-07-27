@@ -145,6 +145,9 @@ jobs:
       - name: Runtime contract checks
         run: node scripts/ci-runtime-contract-check.mjs
 
+      - name: AI chat reliability and route contract (P844)
+        run: node scripts/ci-ai-chat-reliability-contract-check.mjs
+
       - name: Data pipeline contract checks
         run: node scripts/ci-data-pipeline-contract-check.mjs
 
@@ -387,7 +390,7 @@ jobs:
         run: |
           set -e
           mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/src" "$RUNNER_TEMP/pages-dist/public-data"
-           cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json _headers "$RUNNER_TEMP/pages-dist/"
+          cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json public-config.json _headers "$RUNNER_TEMP/pages-dist/"
           cp js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js js/aio-glossary.js "$RUNNER_TEMP/pages-dist/js/"
           rsync -a src/ "$RUNNER_TEMP/pages-dist/src/"
           rsync -a public-data/ "$RUNNER_TEMP/pages-dist/public-data/"

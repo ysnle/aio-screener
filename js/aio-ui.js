@@ -638,6 +638,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ['aio_google_cse_key', 'aio_google_cse_key_input'],
     ['aio_google_cse_cx', 'aio_google_cse_cx_input'],
     ['aio_newsdata_key', 'aio_newsdata_key_input'],
+    ['aio_bok_key', 'aio_bok_key_input'],
+    ['aio_kosis_key', 'aio_kosis_key_input'],
     ['aio_cf_worker_url', 'aio_cf_worker_input']
   ];
   _keyMap.forEach(function(pair) {
@@ -651,6 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // v30.11: Vault 상태 배지 초기화
   if (typeof _updateVaultStatus === 'function') _updateVaultStatus();
+  if (typeof _aioRefreshProviderStatuses === 'function') _aioRefreshProviderStatuses();
   // Auto-reset check every minute (for midnight rollover)
   // v48.91: 타이머 레지스트리 등록
   window._quotaBadgeInterval = _aioRegisterTimer('quotaBadge', updateQuotaBadge, T.COOLDOWN);

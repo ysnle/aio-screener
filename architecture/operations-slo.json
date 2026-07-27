@@ -1,6 +1,6 @@
 {
   "schemaVersion": "operations-slo-v1",
-  "appRevision": "v53.51",
+  "appRevision": "v53.52",
   "generatedAt": "2026-07-27T19:10:00+09:00",
   "targets": {
     "artifactSuccessRate30d": 0.995,
@@ -12,7 +12,31 @@
     "browserUncaughtErrors": 0,
     "chartInstanceGrowthAfterSoak": 0,
     "canvasOverflow": 0,
-    "crossPageMetricMismatch": 0
+    "crossPageMetricMismatch": 0,
+    "bootPerformance": {
+      "initialExternalRequestsMax": 25,
+      "initialQuoteRequestsMax": 16,
+      "domNodesMax": 2500,
+      "decodedJsMbMax": 1.5,
+      "maxLongTaskMs": 200,
+      "totalLongTaskMs": 1000,
+      "noDataWaitMessageWithinMs": 10000
+    }
+  },
+  "latestMeasuredBoot": {
+    "fcpMs": 1644,
+    "dclMs": 694,
+    "loadMs": 2685,
+    "maxLongTaskMs": 867,
+    "totalLongTaskMs": 3662,
+    "longTaskCount": 19,
+    "domNodes": 6938,
+    "routeMs": 900,
+    "wallMs": 8112,
+    "totalExternalRequests": 209,
+    "quoteRequests": 83,
+    "quoteRequestCeiling": 100,
+    "status": "MEASURED_NOT_TARGET_COMPLIANT"
   },
   "localBoundary": {
     "routeSoak": { "status": "pass", "script": "scripts/ci-route-soak-check.mjs", "laps": 3, "routes": 17, "report": "_artifacts/route-soak-report.json", "browserErrors": 0, "maxCanvases": 42, "entityRoundTrip": "AAPL>MSFT>AAPL" },

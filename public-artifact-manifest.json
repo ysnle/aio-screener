@@ -11,6 +11,7 @@
     "sitemap.xml",
     "_headers",
     "public-artifact-manifest.json",
+    "public-config.json",
     "js/aio-core.js",
     "js/aio-data.js",
     "js/aio-ui.js",
@@ -43,7 +44,7 @@
     "package*.json"
   ],
   "dataHandling": {
-    "portfolioAndApiKeys": "browser-local; never intentionally uploaded by the static app",
+    "portfolioAndApiKeys": "portfolio stays browser-local; API keys stay in browser storage and are transmitted only to the selected provider or an explicitly configured Worker for the requested call",
     "publicData": "public-data contains published snapshots, research references, and derived artifacts; do not place secrets or personal data there",
     "contact": "https://github.com/ysnle/aio-screener/issues",
     "termsAndDisclaimer": "guide-public-policy section in index.html"

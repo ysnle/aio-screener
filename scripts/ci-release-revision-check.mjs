@@ -19,7 +19,7 @@ const sha256 = value => createHash('sha256').update(value).digest('hex');
 const requiredFiles = [
   'version.json', 'index.html', 'sw.js', 'js/aio-core.js', 'js/aio-data.js',
   'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-glossary.js', 'cloudflare-worker-proxy.js',
-  'public-data/data.json', 'public-data/screener.json', 'public-artifact-manifest.json',
+  'public-data/data.json', 'public-data/screener.json', 'public-artifact-manifest.json', 'public-config.json',
   '.github/workflows/ci.yml'
 ];
 requiredFiles.forEach(file => check(`${file} exists`, existsSync(path(file))));
@@ -33,6 +33,7 @@ if (!errors.length) {
   const data = json('public-data/data.json');
   const screener = json('public-data/screener.json');
   const allowlist = json('public-artifact-manifest.json');
+  const publicConfig = json('public-config.json');
   const ciWorkflow = text('.github/workflows/ci.yml');
   const appVersion = core.match(/const APP_VERSION\s*=\s*['"]([^'"]+)['"]/)?.[1];
   const swVersion = sw.match(/const SW_VERSION\s*=\s*['"]([^'"]+)['"]/)?.[1];
@@ -56,16 +57,19 @@ if (!errors.length) {
   check('HTML version badge exposes the same version', html.includes(`id="app-version-badge">${version.version}</span>`));
   check('data artifact has generatedAt', Boolean(data.meta?.generatedAt));
   check('screener artifact has asOf and research-only contract', Boolean(screener.asOf) && screener.rankingContract?.tradingSignal === false && screener.rankingContract?.allowedUse === 'research-relative-ranking-only');
+  check('public AI config is non-secret and explicit', publicConfig.schemaVersion === 'ai-public-config.v1' && publicConfig.ai?.serverMode === 'explicit-opt-in' && !publicConfig.ai?.workerUrl);
   const publicRuntimeScripts = ['js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-glossary.js'];
   check('Pages allowlist includes only runtime/data artifacts', Array.isArray(allowlist.publicRootAllowlist)
     && allowlist.publicRootAllowlist.includes('index.html')
     && allowlist.publicRootAllowlist.includes('public-data/*.json')
+    && allowlist.publicRootAllowlist.includes('public-config.json')
     && publicRuntimeScripts.every(file => allowlist.publicRootAllowlist.includes(file))
     && !allowlist.publicRootAllowlist.includes('js/*.js')
     && !allowlist.publicRootAllowlist.includes('js/aio-tests.js'));
   check('Pages allowlist excludes the browser test bundle', Array.isArray(allowlist.excludedFromPagesArtifact) && allowlist.excludedFromPagesArtifact.includes('js/aio-tests.js') && !sw.includes('./js/aio-tests.js'));
   check('service worker caches every runtime script and no test bundle', publicRuntimeScripts.every(file => sw.includes(`./${file}`)) && !sw.includes('./js/aio-tests.js'));
   check('Pages staging copies the explicit runtime list', publicRuntimeScripts.every(file => ciWorkflow.includes(file)) && !ciWorkflow.includes('rsync -a js/'));
+  check('Pages staging copies public AI config', ciWorkflow.includes('public-config.json'));
   check('Pages allowlist excludes Worker source', Array.isArray(allowlist.excludedFromPagesArtifact) && allowlist.excludedFromPagesArtifact.includes('cloudflare-worker-proxy.js'));
   check('release revision has all source hashes', Object.values(release).every(value => value !== null && value !== undefined && value !== ''));
   console.log(JSON.stringify(release, null, 2));

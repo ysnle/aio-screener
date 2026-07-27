@@ -58,9 +58,19 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     evidenceRevision: 'evidence-contract:v1+inferred-claim:v1+reconciliation:v1',
     overall: durableOk ? 'OPERATOR_REQUIRED' : 'BLOCKED',
     planes: {
-      durable: { status: durableOk ? 'CURRENT' : 'BLOCKED', source: 'github-actions', lastSuccessfulAt: snapshot.lastSuccessfulAt || null, coverage },
-      fast: { status: 'OPERATOR_REQUIRED', scheduler: 'cloudflare-cron', endpoint: 'not-configured', soak: { requiredDays: 7, observedDays: 0, targetSuccessRate: 0.99 } },
+      durable: {
+        status: durableOk ? 'CURRENT' : 'BLOCKED', source: 'github-actions', lastSuccessfulAt: snapshot.lastSuccessfulAt || null, coverage,
+        readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: 'CURRENT', lastCallSucceeded: durableOk ? 'CURRENT' : 'BLOCKED', dataCurrent: durableOk ? 'CURRENT' : 'BLOCKED', licensedForUse: 'REVIEW_REQUIRED' }
+      },
+      fast: {
+        status: 'OPERATOR_REQUIRED', scheduler: 'cloudflare-cron', endpoint: 'not-configured', soak: { requiredDays: 7, observedDays: 0, targetSuccessRate: 0.99 },
+        readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: 'OPERATOR_REQUIRED', lastCallSucceeded: 'UNKNOWN', dataCurrent: 'UNKNOWN', licensedForUse: 'REVIEW_REQUIRED' }
+      },
       browser: { status: 'CURRENT', source: 'static-pages+service-worker', revision: version.version }
+    },
+    ai: {
+      scheduledAnalysis: { status: durableOk ? 'CURRENT' : 'BLOCKED', source: 'github-actions', lastCallSucceeded: durableOk ? 'CURRENT' : 'BLOCKED' },
+      publicChat: { status: 'NO_ROUTE', personalKey: 'EXPLICIT_USER_CONFIG', sharedWorker: 'NOT_CONFIGURED', scheduledAnalysisDoesNotImplyChat: true }
     },
     providers: {
       yahoo: { rights: 'REVIEW_REQUIRED', use: 'reference', lastFetchAt: data?.meta?.generatedAt || null },

@@ -1,3 +1,9 @@
+## v53.52 (2026-07-27)
+- **P844 / API-AI chat reliability**: unified provider credential persistence with format validation and write/readback results, added BOK/KOSIS coverage, separated storage/auth/connection status, and removed optimistic/plaintext fallback behavior.
+- **P844 / AI route and Worker contract**: added explicit personal-key/Worker routing, public non-secret config, `NO_ROUTE`/`VAULT_LOCKED`/`WORKER_NOT_READY` states, Worker `/health`, effective token-cap reporting, and quota rollback on failed upstream requests.
+- **P844 / operations boundary**: separated scheduled analysis from public chat and added five readiness dimensions plus measured boot/performance targets. Local browser, provider, live Worker, golden-accuracy, and low-spec performance verification were intentionally not run per urgent instruction.
+- R1 7곳 v53.52
+
 ## v53.51 (2026-07-27)
 - **P842 / Wave 4 content and education boundary**: added a versioned capability manifest and executable Guide claim audit, rewrote stale real-time/AI/translation/RRG/Stage/sentiment/macro/action wording into source-aware observation and checklist language, and added strict referrer metadata.
 - **P843 / Wave 5 operations and public-readiness boundary**: added the 17-route visual-state matrix, operations SLO/readiness manifests, blocking three-lap route soak with entity round-trip and canvas-growth evidence, SHA-pinned Actions with lockfile installs, compatible security headers, and conservative operator-gated public-beta criteria. GitHub Actions run `30260095694` passed all gates including SA-04; commit `65f6912` is deployed and live v53.51 revision coherence is verified. Edge headers, 30-day SLO, and provider-rights review remain operator-required.

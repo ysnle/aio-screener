@@ -15856,6 +15856,129 @@ const _AioVault = {
   _keyRuntime: {}
 };
 
+// v53.52 API-AI reliability: provider credential registry is the single source
+// for storage, masking, export/import, and status inventory. Runtime health and
+// authentication are deliberately separate from browser persistence.
+var _AIO_PROVIDER_REGISTRY = [
+  { id: 'claude', label: 'Claude AI', credentialKey: 'aio_claude_api_key', inputId: 'sidebar-api-key', kind: 'ai', format: 'anthropic' },
+  { id: 'rss2json', label: 'RSS2JSON', credentialKey: 'aio_rss2json_key', inputId: 'rss2json-api-key', kind: 'news', format: 'opaque' },
+  { id: 'alpha-vantage', label: 'Alpha Vantage', credentialKey: 'aio_av_key', inputId: 'aio_av_key_input', kind: 'market', format: 'opaque' },
+  { id: 'finnhub', label: 'Finnhub', credentialKey: 'aio_finnhub_key', inputId: 'aio_finnhub_key_input', kind: 'market', format: 'opaque' },
+  { id: 'fred', label: 'FRED', credentialKey: 'aio_fred_key', inputId: 'aio_fred_key_input', kind: 'macro', format: 'opaque' },
+  { id: 'twelve-data', label: 'Twelve Data', credentialKey: 'aio_td_key', inputId: 'aio_td_key_input', kind: 'market', format: 'opaque' },
+  { id: 'fmp', label: 'FMP', credentialKey: 'aio_fmp_key', inputId: 'aio_fmp_key_input', kind: 'fundamental', format: 'opaque' },
+  { id: 'newsdata', label: 'NewsData.io', credentialKey: 'aio_newsdata_key', inputId: 'aio_newsdata_key_input', kind: 'news', format: 'opaque' },
+  { id: 'bok', label: 'BOK ECOS', credentialKey: 'aio_bok_key', inputId: 'aio_bok_key_input', kind: 'macro', format: 'opaque' },
+  { id: 'kosis', label: 'KOSIS', credentialKey: 'aio_kosis_key', inputId: 'aio_kosis_key_input', kind: 'macro', format: 'opaque' },
+  { id: 'cloudflare-worker', label: 'CF Worker', credentialKey: 'aio_cf_worker_url', inputId: 'aio_cf_worker_input', kind: 'worker', format: 'url' }
+];
+var _AIO_PROVIDER_BY_KEY = {};
+_AIO_PROVIDER_REGISTRY.forEach(function(provider) { _AIO_PROVIDER_BY_KEY[provider.credentialKey] = provider; });
+window.AIO_PROVIDER_REGISTRY = _AIO_PROVIDER_REGISTRY;
+window.AIO = window.AIO || {};
+window.AIO.getProviderDefinition = function(idOrKey) {
+  return _AIO_PROVIDER_REGISTRY.find(function(p) { return p.id === idOrKey || p.credentialKey === idOrKey; }) || null;
+};
+var _AIO_PROVIDER_STATUS = {};
+function _aioProviderDefinition(key) { return _AIO_PROVIDER_BY_KEY[key] || null; }
+function _aioProviderStatusForKey(key) {
+  var def = _aioProviderDefinition(key);
+  var runtime = _AioVault && _AioVault._keyRuntime && _AioVault._keyRuntime[key];
+  var raw = '';
+  try { raw = (_AioVault && _AioVault.getStorage ? _AioVault.getStorage() : localStorage).getItem(key) || ''; } catch(_) {}
+  var storage = runtime || raw ? (raw.indexOf('aio_enc::') === 0 ? (_AioVault.isUnlocked() ? 'READY_ENCRYPTED' : 'LOCKED') : (_AioVault._publicMode ? 'READY_SESSION' : 'READY_PLAINTEXT')) : 'MISSING';
+  var state = _AIO_PROVIDER_STATUS[key] || {};
+  return Object.assign({
+    id: def ? def.id : key,
+    label: def ? def.label : key,
+    credentialKey: key,
+    storage: storage,
+    authentication: 'NOT_CHECKED',
+    connection: 'NOT_CHECKED',
+    lastSuccessAt: null,
+    lastError: null
+  }, state);
+}
+window.AIO.getProviderStatus = function(idOrKey) {
+  var def = window.AIO.getProviderDefinition(idOrKey);
+  return _aioProviderStatusForKey(def ? def.credentialKey : idOrKey);
+};
+window.AIO.updateProviderStatus = function(key, patch) {
+  if (!key) return window.AIO.getProviderStatus(key);
+  _AIO_PROVIDER_STATUS[key] = Object.assign({}, _AIO_PROVIDER_STATUS[key] || {}, patch || {});
+  var status = _aioProviderStatusForKey(key);
+  try { window.dispatchEvent(new CustomEvent('aio:providerStatus', { detail: status })); } catch(_) {}
+  return status;
+};
+window.AIO.getProviderStatusSnapshot = function() {
+  return _AIO_PROVIDER_REGISTRY.reduce(function(out, provider) { out[provider.id] = _aioProviderStatusForKey(provider.credentialKey); return out; }, {});
+};
+function _aioValidateCredential(key, value) {
+  var def = _aioProviderDefinition(key);
+  if (!value) return { ok: true };
+  if (def && def.format === 'anthropic' && !/^sk-ant-[\x20-\x7E]{32,}$/.test(value)) return { ok: false, reason: 'INVALID_FORMAT' };
+  if (def && def.format === 'url' && !/^https?:\/\/[^\s]+$/i.test(value)) return { ok: false, reason: 'INVALID_FORMAT' };
+  return { ok: true };
+}
+
+// Public configuration is non-secret policy metadata. It may advertise an
+// explicitly configured Worker, but it never contains a provider credential.
+// The default is deliberately personal-key-only until an operator publishes a
+// real Worker URL and readiness policy.
+window.AIO_PUBLIC_CONFIG = window.AIO_PUBLIC_CONFIG || {
+  schemaVersion: 'ai-public-config.v1',
+  appRevision: window.APP_VERSION || null,
+  ai: { chatPolicy: 'personal-or-explicit-worker', workerUrl: null, serverMode: 'explicit-opt-in', healthPath: '/health' },
+  privacy: { clientKeysStayBrowserLocal: true, networkTransmission: 'provider-or-explicit-worker' }
+};
+window.AIO.loadPublicConfig = async function() {
+  var current = window.AIO_PUBLIC_CONFIG || {};
+  if (current._loaded) return current;
+  try {
+    var url = new URL('public-config.json', document.baseURI);
+    url.searchParams.set('rev', window.APP_VERSION || Date.now().toString());
+    var res = await fetch(url.toString(), { cache: 'no-store', credentials: 'omit' });
+    if (!res.ok) throw new Error('public_config_' + res.status);
+    var cfg = await res.json();
+    if (!cfg || cfg.schemaVersion !== 'ai-public-config.v1') throw new Error('public_config_schema');
+    var workerUrl = cfg.ai && typeof cfg.ai.workerUrl === 'string' ? cfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
+    if (workerUrl && !/^https:\/\/[^\s]+$/i.test(workerUrl)) workerUrl = '';
+    cfg.ai = Object.assign({ chatPolicy: 'personal-or-explicit-worker', workerUrl: null, serverMode: 'explicit-opt-in', healthPath: '/health' }, cfg.ai || {}, { workerUrl: workerUrl || null });
+    cfg._loaded = true;
+    window.AIO_PUBLIC_CONFIG = cfg;
+    try { window.dispatchEvent(new CustomEvent('aio:publicConfig', { detail: cfg })); } catch(_) {}
+    return cfg;
+  } catch (e) {
+    current._loaded = true;
+    current._error = e && e.message || 'public_config_unavailable';
+    window.AIO_PUBLIC_CONFIG = current;
+    return current;
+  }
+};
+window.AIO.getPublicConfig = function() { return window.AIO_PUBLIC_CONFIG || null; };
+
+function _aioRefreshProviderStatuses() {
+  var snapshot = window.AIO.getProviderStatusSnapshot();
+  var claude = snapshot.claude || {};
+  var storageLabel = {
+    MISSING: '미저장', READY_PLAINTEXT: '저장됨', READY_SESSION: '탭 세션 저장됨',
+    READY_ENCRYPTED: '암호화 저장됨', LOCKED: 'Vault 잠김', INVALID_FORMAT: '형식 오류',
+    STORAGE_DENIED: '저장소 거부', PERSISTENCE_FAILED: '저장 확인 실패'
+  }[claude.storage] || '확인 안 됨';
+  var keyStatus = document.getElementById('claude-key-status');
+  if (keyStatus) keyStatus.textContent = '저장: ' + storageLabel + ' · 인증: ' + (claude.authentication || '확인 안 됨') + ' · 연결: ' + (claude.connection || '확인 안 됨');
+  var summary = document.getElementById('provider-status-summary');
+  if (summary) {
+    var values = Object.keys(snapshot).map(function(id) { return snapshot[id]; });
+    var configured = values.filter(function(s) { return s.storage && s.storage.indexOf('READY') === 0; }).length;
+    summary.textContent = '저장 확인 ' + configured + '개 · 인증/연결은 별도 확인 · 데이터 최신성/사용 권한과 분리됨';
+  }
+  return snapshot;
+}
+window._aioRefreshProviderStatuses = _aioRefreshProviderStatuses;
+window.addEventListener('aio:providerStatus', _aioRefreshProviderStatuses);
+window.addEventListener('aio:publicConfig', _aioRefreshProviderStatuses);
+
 // 암호화 대상 키 목록
 // v52.46 WO-1A/P661/R294: 'aio_portfolio_data' 추가 — UI가 "PIN 설정 후 AES-256 암호화"라고
 // 명시했으나 실제로는 이 Set과 무관한 별도 평문 경로였다(Codex P0-2). Vault가 unlock 상태일 때만
@@ -15863,7 +15986,7 @@ const _AioVault = {
 const _AIO_SENSITIVE_KEYS = new Set([
   'aio_claude_api_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fmp_key',
   'aio_perplexity_key', 'aio_google_cse_key', 'aio_google_cse_cx',
-  'aio_fred_key', 'aio_td_key', 'aio_newsdata_key', 'aio_rss2json_key', 'aio_cf_worker_url',
+  'aio_fred_key', 'aio_td_key', 'aio_newsdata_key', 'aio_rss2json_key', 'aio_bok_key', 'aio_kosis_key', 'aio_cf_worker_url',
   'aio_portfolio_data'
 ]);
 
@@ -15871,13 +15994,20 @@ const _AIO_SENSITIVE_KEYS = new Set([
 async function safeLS(key, value) {
   try {
     var storage = _AioVault.getStorage();
-    if (value == null || value === '') { storage.removeItem(key); return; } // v46.9: 0/false falsy 함정 방지
+    if (value == null || value === '') { storage.removeItem(key); return { ok: true, key: key, removed: true, encrypted: false }; } // v46.9: 0/false falsy 함정 방지
+    var encrypted = false;
     if (_AIO_SENSITIVE_KEYS.has(key) && _AioVault.isUnlocked()) {
       storage.setItem(key, await _AioVault.encrypt(value));
+      encrypted = true;
     } else {
       storage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
     }
-  } catch(e) { _aioLog('warn', 'vault', 'safeLS error: ' + e.message); }
+    if ((storage.getItem(key) || '') === '') throw new Error('write_readback_empty');
+    return { ok: true, key: key, removed: false, encrypted: encrypted, storage: _AioVault._publicMode ? 'sessionStorage' : 'localStorage' };
+  } catch(e) {
+    _aioLog('warn', 'vault', 'safeLS error: ' + e.message);
+    throw e;
+  }
 }
 
 // 비동기 읽기 (복호화)
@@ -15976,6 +16106,32 @@ function _getApiKey(lsKey) {
   } catch(e) { return ''; }
 }
 
+async function _aioSaveCredential(lsKey, value) {
+  var clean = value == null ? '' : String(value).trim();
+  var format = _aioValidateCredential(lsKey, clean);
+  if (!format.ok) return { ok: false, key: lsKey, state: format.reason || 'INVALID_FORMAT' };
+  try {
+    var result = await safeLS(lsKey, clean);
+    var readBack = await safeLSGet(lsKey, '');
+    if (clean && readBack !== clean) throw new Error('persistence_readback_mismatch');
+    if (!clean && readBack) throw new Error('remove_readback_present');
+    if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
+    if (clean) _AioVault._keyRuntime[lsKey] = clean;
+    else delete _AioVault._keyRuntime[lsKey];
+    if (lsKey === 'aio_claude_api_key') _AioVault._claudeKeyRuntime = clean;
+    var status = window.AIO.updateProviderStatus(lsKey, {
+      storage: clean ? (result.encrypted ? 'READY_ENCRYPTED' : (_AioVault._publicMode ? 'READY_SESSION' : 'READY_PLAINTEXT')) : 'MISSING',
+      authentication: 'NOT_CHECKED',
+      connection: 'NOT_CHECKED',
+      lastError: null
+    });
+    return { ok: true, key: lsKey, state: clean ? status.storage : 'MISSING', status: status };
+  } catch(e) {
+    window.AIO.updateProviderStatus(lsKey, { storage: 'PERSISTENCE_FAILED', lastError: e && e.message || 'write_failed' });
+    return { ok: false, key: lsKey, state: 'PERSISTENCE_FAILED', error: e && e.message || 'write_failed' };
+  }
+}
+
 // 마이그레이션: 평문 → 암호화 (PIN 설정 후 호출)
 async function _migrateToEncrypted() {
   try {
@@ -16002,37 +16158,29 @@ async function _migrateToEncrypted() {
 
 // v30.11: API 키 저장 헬퍼 (인라인 onclick → safeLS 비동기 브릿지)
 // v47.9: 저장 시 _AioVault._keyRuntime에도 즉시 동기화 — fetcher가 새 키를 바로 사용 가능
-function _saveApiKey(lsKey, inputId, btnEl) {
+async function _saveApiKey(lsKey, inputId, btnEl) {
   var el = document.getElementById(inputId);
   var val = el ? el.value : '';
   // v47.9: 마스킹된 값("abcd...xyz1") 저장 방지 — 사용자가 input에 입력한 원본만 허용
   if (val && ((val.indexOf('...') !== -1 && val.length < 30) || val === '••••••••')) {
     _aioLog('warn', 'vault', '마스킹된 값 저장 거부: ' + lsKey);
-    btnEl.textContent = '×';
-    setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK || 1500);
-    return;
+    if (btnEl) { btnEl.textContent = '×'; setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK || 1500); }
+    return { ok: false, key: lsKey, state: 'INVALID_FORMAT' };
   }
-  safeLS(lsKey, val).then(function() {
-    // v47.9: 런타임 캐시 동기화 — Vault 활성 상태면 저장하는 값이 새 기준
-    if (_AioVault && _AioVault._keyRuntime) {
-      if (val) _AioVault._keyRuntime[lsKey] = val;
-      else delete _AioVault._keyRuntime[lsKey];
-    }
-    // v47.9: Claude 키는 _claudeKeyRuntime 레거시 필드도 동기화
-    if (lsKey === 'aio_claude_api_key' && _AioVault) _AioVault._claudeKeyRuntime = val || '';
-    if (el) { el.value = val ? '••••••••' : ''; el.dataset.secretStored = val ? 'true' : ''; }
-    btnEl.textContent = '✓';
-    setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK);
-    // CORS 프록시 레지스트리 재초기화 (CF Worker URL 변경 시)
-    if (lsKey === 'aio_cf_worker_url' && typeof _PROXY_REGISTRY !== 'undefined') _PROXY_REGISTRY.init();
-  }).catch(function() {
-    // 폴백: 평문 저장 + 런타임 캐시 동기화
-    localStorage.setItem(lsKey, val);
-    if (_AioVault && _AioVault._keyRuntime) { if (val) _AioVault._keyRuntime[lsKey] = val; else delete _AioVault._keyRuntime[lsKey]; }
-    if (el) { el.value = val ? '••••••••' : ''; el.dataset.secretStored = val ? 'true' : ''; }
-    btnEl.textContent = '✓';
-    setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK);
-  });
+  var result = await _aioSaveCredential(lsKey, val);
+  if (!result.ok) {
+    if (el) { el.dataset.secretStored = ''; el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + ' · 저장 실패'); }
+    if (btnEl) { btnEl.textContent = '실패'; setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK); }
+    return result;
+  }
+  if (el) {
+    el.value = val ? '••••••••' : '';
+    el.dataset.secretStored = val ? 'true' : '';
+    el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + (val ? ' · 저장됨' : ' · 미저장'));
+  }
+  if (btnEl) { btnEl.textContent = val ? '저장됨' : '삭제됨'; setTimeout(function(){ btnEl.textContent = '저장'; }, T.UI_FEEDBACK); }
+  if (lsKey === 'aio_cf_worker_url' && typeof _PROXY_REGISTRY !== 'undefined') _PROXY_REGISTRY.init();
+  return result;
 }
 
 // ═══ v49.45 P312 신규: API 키 백업/복원 + IndexedDB 이중화 (R100) ═══════════
@@ -16070,7 +16218,7 @@ window._aioCollectKeySnapshot = function() {
   var snap = {};
   var keys = (typeof _AIO_SENSITIVE_KEYS !== 'undefined') ? Array.from(_AIO_SENSITIVE_KEYS) :
     ['aio_claude_api_key','aio_av_key','aio_finnhub_key','aio_fmp_key','aio_perplexity_key',
-     'aio_google_cse_key','aio_google_cse_cx','aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_cf_worker_url'];
+     'aio_google_cse_key','aio_google_cse_cx','aio_fred_key','aio_td_key','aio_newsdata_key','aio_rss2json_key','aio_bok_key','aio_kosis_key','aio_cf_worker_url'];
   keys.forEach(function(k) {
     var v = (typeof _getApiKey === 'function') ? _getApiKey(k) : (localStorage.getItem(k) || '');
     if (v) snap[k] = v;
@@ -16117,9 +16265,9 @@ window.AIO.importApiKeys = async function(jsonString) {
     if (obj.masked) return { ok: false, error: '마스킹된 백업은 복원 불가 — 원본 백업 필요' };
     var imported = 0;
     for (var k in obj.keys) {
-      if (typeof safeLS === 'function') await safeLS(k, obj.keys[k]);
-      else localStorage.setItem(k, obj.keys[k]);
-      if (window._AioVault && window._AioVault._keyRuntime) window._AioVault._keyRuntime[k] = obj.keys[k];
+      if (!_aioProviderDefinition(k)) continue;
+      var saveResult = await _aioSaveCredential(k, obj.keys[k]);
+      if (!saveResult.ok) return { ok: false, error: k + ':' + saveResult.state };
       imported++;
     }
     return { ok: true, imported: imported, source: obj.exportedAt };
@@ -17540,6 +17688,8 @@ async function _restoreDecryptedKeys() {
       ['aio_google_cse_cx', 'aio_google_cse_cx_input'],
       ['aio_newsdata_key', 'aio_newsdata_key_input'],
       ['aio_rss2json_key', 'aio_rss2json_key_input'],  // v47.9: 기존 누락 보강
+      ['aio_bok_key', 'aio_bok_key_input'],
+      ['aio_kosis_key', 'aio_kosis_key_input'],
       ['aio_cf_worker_url', 'aio_cf_worker_input']
     ];
     // v47.9: 통합 런타임 캐시 초기화
@@ -19672,7 +19822,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.51';
+const APP_VERSION = 'v53.52';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
