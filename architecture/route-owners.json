@@ -79,7 +79,7 @@
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
-      "chartOwner": "legacy",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=breadth)",
       "nativePrimarySurface": [
@@ -91,25 +91,24 @@
       "nativeSecondarySurface": [
         "#page-breadth #breadth-signal-val",
         "#page-breadth #breadth-diag-signal",
-        "#page-breadth #breadth-diag-text"
+        "#page-breadth #breadth-diag-text",
+        "#page-breadth #breadth-stage-summary",
+        "#page-breadth #breadth-mcclellan-summary",
+        "#page-breadth #bp-price-chart",
+        "#page-breadth #bp-ad-ratio-chart",
+        "#page-breadth #bp-5ma-chart",
+        "#page-breadth #bp-20ma-chart",
+        "#page-breadth #bp-50ma-chart"
       ],
       "p773Boundary": "market.js owns the three current 5/20/50SMA breadth cards, their bar/freshness readouts, and canonical advance ratio; stage/diagnostic/McClellan/RSP-SPY narrative plus historical chart canvases remain legacy secondary boundaries.",
       "p803Boundary": "market.js owns the bounded breadth signal label from the normalized advance ratio with an explicit fail-closed state; the legacy RSP/SPY signal writer is fenced from this element.",
-      "p819Boundary": "market.js owns the bounded breadth diagnostic signal/text from the normalized current 5/20/50SMA and advance-ratio evidence; Stage, McClellan, and historical chart surfaces remain legacy because multi-day A/D history is unavailable.",
-      "contestedIds": [
-        "breadth-stage-summary",
-        "breadth-mcclellan-summary",
-        "bp-price-chart",
-        "bp-ad-ratio-chart",
-        "bp-5ma-chart",
-        "bp-20ma-chart",
-        "bp-50ma-chart"
-      ],
+      "p819Boundary": "market.js owns the bounded breadth diagnostic signal/text from the normalized current 5/20/50SMA and advance-ratio evidence; P827 also transfers the participation/McClellan status and all five chart lifecycle surfaces, with unavailable history remaining explicitly blocked.",
+      "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-ui.js: updateBreadthBars/initBreadthPage primary card fallback writers fence native breadth elements; diagnostic signal/text writers skip aioBreadthDiagnosticRenderer while stage/McClellan/chart writers remain legacy",
+        "js/aio-ui.js: updateBreadthBars/initBreadthPage primary card, stage, McClellan, and chart fallback writers fence native breadth elements",
         "js/aio-data.js: updateBreadthUI breadth-advance-ratio writer fences native breadth element; its RSP/SPY breadth-signal writer is fenced by aioBreadthSignalRenderer"
       ],
-      "notes": "P803 extends P773 to the bounded breadth signal label and P819 adds the current-evidence diagnostic signal/text. market.js reads the native screener artifact metadata first and retains the legacy breadth evidence helper as a compatibility fallback. Stage/McClellan narrative and historical charts remain legacy. The source remains research/reference-only; no multi-day breadth history or official exchange breadth is promoted."
+      "notes": "P803 extends P773 to the bounded breadth signal label, P819 adds the current-evidence diagnostic signal/text, and P827 transfers stage/McClellan status plus five chart lifecycles. market.js reads the native screener artifact metadata first and retains the legacy breadth evidence helper as a compatibility fallback. Missing multi-day breadth history remains blocked; no synthetic breadth series is promoted."
     },
     "sentiment": {
       "lifecycleOwner": "native",
@@ -203,7 +202,7 @@
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "legacy",
-      "chartOwner": "legacy",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=fxbond)",
       "nativePrimarySurface": [
@@ -221,27 +220,26 @@
         "#page-fxbond #cam-verdict-text",
         "#page-fxbond #yc-chart-status",
         "#page-fxbond #yc-2y",
-        "#page-fxbond #yc-2y-track"
+        "#page-fxbond #yc-2y-track",
+        "#page-fxbond #fxbond-tnx-trend",
+        "#page-fxbond #fxbond-jpy-trend",
+        "#page-fxbond #koreaCurveChart"
       ],
-      "p772Boundary": "market.js owns primary FX/bond live quote and MOVE snapshot sinks; risk, spread/carry narrative, and chart ids remain legacy secondary boundaries behind the native marker.",
+      "p772Boundary": "market.js owns primary FX/bond live quote and MOVE snapshot sinks; P828 also owns the three FX/bond chart lifecycles and keeps missing history fail-closed.",
       "p804Boundary": "market.js owns the bounded fxbond-risk-pill status from DXY and US 10Y quote evidence with an explicit fail-closed state; the legacy updater is fenced.",
       "p805Boundary": "market.js owns the bounded 3M/10Y yield-curve inversion badge from quote evidence with an explicit fail-closed state; the legacy curve updater is fenced.",
       "p807Boundary": "market.js owns the bounded carry-risk-level label only when JPY, VIX, 10Y, BOK rate, and HY OAS evidence are complete; otherwise it remains explicitly pending and the legacy proxy is fenced.",
       "p809Boundary": "market.js owns the FX/bond 2Y readouts from explicit DGS2 evidence with a pending fallback; the legacy DGS2 writer is fenced.",
       "p812Boundary": "market.js owns the bounded carry score, bar, and verdict from the same complete JPY/VIX/10Y/BOK/HY OAS evidence; otherwise all three fail closed and the legacy score writers are deleted.",
-      "contestedIds": [
-        "fxbond-tnx-trend",
-        "fxbond-jpy-trend",
-        "koreaCurveChart"
-      ],
+      "contestedIds": [],
       "legacyWriterEvidence": [
         "js/aio-data.js: shared live quote/snapshot passes fence native fxbond elements",
         "index.html: updateFxBondPage/updateCrossAssetMatrix own secondary risk, spread, and narrative ids; P812/P813 carry and CAM verdict writers were deleted",
         "index.html: loadFxBondTrendCharts/initYieldCurveChart own legacy chart canvases"
       ],
       "p813Boundary": "market.js owns the bounded CAM verdict from DXY, 10Y, HYG, and 2Y evidence with a fail-closed label; other cross-asset signal cells and chart surfaces remain legacy-owned.",
-      "p814Boundary": "market.js owns the bounded yc-chart-status label from explicit 3M/10Y curve evidence with a fail-closed state; chart canvas ownership remains legacy.",
-      "notes": "P814 extends P772/P804 only to the fxbond risk/carry/CAM/curve-status bounded labels and score surface. Other risk-derived cross-asset signal cells and two chart widgets remain explicit legacy secondary boundaries."
+      "p814Boundary": "market.js owns the bounded yc-chart-status label from explicit 3M/10Y curve evidence with a fail-closed state; P828 transfers the TNX/JPY trend and current Treasury curve canvases with source-labelled blocked fallbacks.",
+      "notes": "P814 extends P772/P804 only to the fxbond risk/carry/CAM/curve-status bounded labels and score surface. P828 transfers chart lifecycle ownership; JPY history or incomplete curve evidence remains visibly unavailable rather than inferred."
     },
     "themes": {
       "lifecycleOwner": "native",
@@ -321,19 +319,18 @@
       ],
       "nativeSecondarySurface": [
         "#page-ticker #ticker-candle-symbol",
-        "#page-ticker #ticker-entry-symbol"
+        "#page-ticker #ticker-entry-symbol",
+        "#page-ticker #ticker-hero-ext",
+        "#page-ticker #ticker-hero-pnl",
+        "#page-ticker #ticker-hero-value"
       ],
-      "contestedIds": [
-        "ticker-hero-ext",
-        "ticker-hero-pnl",
-        "ticker-hero-value"
-      ],
+      "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-core.js:showTicker retains compatibility action/overview/P&L writers; candle/entry symbol writes skip native-marked sinks after P817",
-        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer"
+        "js/aio-core.js:showTicker retains compatibility action/overview writers; P829 fences its P&L writes behind aioTickerPnlRenderer",
+        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer"
       ],
       "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
-      "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; ticker overview/action/P&L and after-hours surfaces remain legacy."
+      "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing."
     },
     "fundamental": {
       "lifecycleOwner": "native",
@@ -346,14 +343,20 @@
         "#page-fundamental #fund-data-status"
       ],
       "nativeSecondarySurface": [
-        "#page-fundamental #fund-analysis-text"
+        "#page-fundamental #fund-analysis-text",
+        "#page-fundamental #fund-native-sec-report",
+        "#page-fundamental #fund-native-sec-title",
+        "#page-fundamental #fund-native-sec-meta",
+        "#page-fundamental #fund-native-sec-coverage",
+        "#page-fundamental #fund-native-sec-grid"
       ],
       "legacyWriterEvidence": [
         "index.html:_generateFundamentalAnalysis (former aggregate report entry point is inert after P815; multi-source report sections and AI narrative remain legacy-owned)"
       ],
       "p779Boundary": "entity.js owns the SEC annual-data availability/source badge from the normalized sec-fundamentals artifact.",
       "p815Boundary": "entity.js now owns only the bounded SEC-derived fund-analysis-text summary line from normalized fundamentals; the former inline aggregate report is inert and the multi-source report sections, charts, and AI narrative remain legacy-owned.",
-      "notes": "Shares entity.js render() with ticker/options; this is a bounded summary cutover, not a full fundamental-report cutover."
+      "p832Boundary": "entity.js now additionally owns the bounded SEC annual-fact core report from sec-report.v1: filing identity, period/submission metadata, coverage count, and finite observed metrics. The multi-source report sections, peer/news/external panels, charts, and AI narrative remain legacy-owned.",
+      "notes": "Shares entity.js render() with ticker/options; P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover."
     },
     "options": {
       "lifecycleOwner": "native",
@@ -388,20 +391,30 @@
       ],
       "nativeSecondarySurface": [
         "#page-portfolio #pf-total-value",
-        "#page-portfolio #pf-total-pnl"
+        "#page-portfolio #pf-total-pnl",
+        "#page-portfolio #pf-positions-tbody",
+        "#page-portfolio #pf-holding-count",
+        "#page-portfolio #pf-total-pnl-pct",
+        "#page-portfolio #pf-daily-chg",
+        "#page-portfolio #pf-daily-pct",
+        "#page-portfolio #pf-cash-hero",
+        "#page-portfolio #pf-cash-pct-hero",
+        "#page-portfolio #pf-exposure-rule",
+        "#page-portfolio #pf-exposure-current",
+        "#page-portfolio #pf-sector-breakdown"
       ],
-      "contestedIds": [
-        "pf-positions-tbody"
-      ],
+      "contestedIds": [],
       "legacyWriterEvidence": [
         "index.html:10654 (static <tbody id=\"pf-positions-tbody\">)",
         "index.html:12742 (inline script writer for #pf-positions-tbody)",
-        "index.html:12937/12943 (updatePortfolioSummary total-value/P&L writers deleted for P810 cutover)",
+        "index.html:12939-12963 (updatePortfolioSummary summary/cash/exposure writers deleted for P831 cutover)",
+        "index.html:19592-19741 (legacy sector breakdown writers deleted for P831 cutover)",
         "js/aio-ui.js:1153 (aria-live only for pf-total-value/pf-total-pnl)"
       ],
-      "p780Boundary": "portfolio.js owns the independent pf-analysis-status readiness text from the native portfolio slice. The encrypted Vault/CRUD path, holdings table, prices, risk metrics, AI workbench, and charts remain legacy-owned until RM-09 storage/vault and writer reconciliation.",
+      "p780Boundary": "portfolio.js owns the independent pf-analysis-status readiness text from the native portfolio slice. P830 additionally transfers the encrypted Vault-backed holdings table while prices, risk metrics, AI workbench, and charts remain legacy-owned.",
       "p810Boundary": "portfolio.js owns only the bounded total-value and total-P/L hero projection from normalized portfolio totals/holdings with a fail-closed pending display; the legacy summary writer remains active for the other portfolio cards and its two competing hero writes were deleted for cutover.",
-      "notes": "The native module owns pf-analysis-status plus the bounded total-value/P&L hero. The native renderer does not rewrite the contested table; encrypted Vault/CRUD, holdings table, prices, risk metrics, AI workbench, and charts remain legacy-owned."
+      "p831Boundary": "portfolio.js owns the deterministic holding count, P/L and daily change, cash, VIX exposure rule/current exposure, and sector allocation projection from portfolio-state plus live quote evidence. Missing values remain unavailable; legacy summary/sector writers are fenced. Risk cards, benchmark/holding charts, AI workbench, and narrative remain legacy-owned.",
+      "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table, and the deterministic summary/allocation/exposure surface. Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics, AI workbench, charts, and narrative remain separately legacy-owned."
     },
     "market-news": {
       "lifecycleOwner": "native",
@@ -468,9 +481,11 @@
       "theme-detail",
       "screener"
     ],
-    "chartNative": 2,
+    "chartNative": 4,
     "chartNativeRoutes": [
+      "breadth",
       "sentiment",
+      "fxbond",
       "themes"
     ],
     "narrativeNative": 1,
@@ -566,10 +581,16 @@
     "RESOLVED (P816): macro macro-fed-meaning is native from the Fed rate snapshot plus the event registry with a bounded context line; the legacy event-freshness writer is fenced from the native sink.",
     "RESOLVED (P817): ticker-candle-symbol and ticker-entry-symbol are native from normalized entity id; showTicker retains compatibility behavior but skips both native-marked sinks.",
     "RESOLVED (P818): theme-detail-panel display/current-theme state is native from the themes lifecycle event; showThemeDetail/closeThemeDetail retain compatibility selection/event behavior but skip native panel writes.",
-    "RESOLVED (P819): breadth-diag-signal and breadth-diag-text are native from current normalized breadth evidence with a fail-closed diagnostic; Stage, McClellan, and historical charts remain explicitly legacy-owned.",
+    "RESOLVED (P819): breadth-diag-signal and breadth-diag-text are native from current normalized breadth evidence with a fail-closed diagnostic.",
+    "RESOLVED (P827): breadth participation/McClellan status and all five breadth chart lifecycles are native; missing breadth history remains blocked and no synthetic series is rendered.",
+    "RESOLVED (P828): fxbond TNX/JPY trend and Treasury curve chart lifecycles are native; TNX uses server history, while missing JPY/curve evidence remains visibly unavailable.",
+    "RESOLVED (P829): ticker after-hours and portfolio P&L hero sinks are native from live/entity/portfolio evidence with explicit no-position and unavailable states.",
+  "RESOLVED (P830): the nine-column portfolio holdings table is native from the Vault-backed normalized portfolio slice; legacy CRUD actions remain delegated through safe data-action buttons.",
+  "RESOLVED (P831): portfolio holding count, P/L/day, cash, VIX exposure, and sector allocation are native from portfolio-surface.v1; legacy summary/sector writers are deleted and risk/history/AI remain separate.",
+  "RESOLVED (P832): fundamental official SEC annual-fact filing identity, metadata, coverage, and finite metrics are native from sec-report.v1; mixed-source report sections/charts/AI remain separate.",
     "RESOLVED (P820): home-fg-score is native from the normalized sentiment slice with reference-only lineage; the legacy score writer is fenced while home-fg-label remains legacy-owned.",
     "RESOLVED (P821): home quality meter/score/label are native fail-closed surfaces; the legacy block that displayed tradingScore as Quality is fenced until a canonical five-input quality model is available.",
     "RESOLVED (P822): technical candle title/meta are native from normalized analysis input with a fail-closed waiting state; the legacy chart retains canvas/indicator lifecycle only.",
-    "OPEN (ARX scope): fundamental full report, portfolio full surface, and native-route secondary chart/data/narrative boundaries remain; each next packet must delete or fence the legacy writer before expanding native ownership."
+  "OPEN (ARX scope): mixed-source fundamental report sections, portfolio risk/history/AI surfaces, and native-route secondary chart/data/narrative boundaries remain intentionally separate; each future packet must delete or fence the legacy writer before expanding native ownership."
   ]
 }

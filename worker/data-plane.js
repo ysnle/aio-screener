@@ -105,11 +105,7 @@ async function fetchYahooQuote(instrument, now = Date.now()) {
 }
 
 async function readLatest(env) {
-  const fromKv = await env?.AIO_QUOTES_KV?.get?.('quotes:current', 'json');
-  if (fromKv) return fromKv;
-  const object = await env?.AIO_QUOTES_BUCKET?.get?.('latest.json');
-  if (!object) return null;
-  try { return await object.json(); } catch (_) { return null; }
+  return await env?.AIO_QUOTES_KV?.get?.('quotes:current', 'json') || null;
 }
 
 async function writeHeartbeat(env, payload) {
@@ -152,8 +148,6 @@ export async function publishQuotes({ env, now = Date.now() } = {}) {
 
   const body = JSON.stringify(snapshot);
   await env.AIO_QUOTES_KV.put('quotes:current', body, { expirationTtl: 7 * 24 * 60 * 60 });
-  if (env.AIO_QUOTES_BUCKET?.put) await env.AIO_QUOTES_BUCKET.put(`quotes/${snapshot.revision}.json`, body, { httpMetadata: { contentType: 'application/json' } });
-  if (env.AIO_QUOTES_BUCKET?.put) await env.AIO_QUOTES_BUCKET.put('latest.json', body, { httpMetadata: { contentType: 'application/json' } });
   const heartbeat = { schemaVersion: 'fast-quotes-heartbeat-v1', attemptedAt, publishedAt: attemptedAt, status: 'published', coverage, revision: snapshot.revision, consecutiveMisses: 0 };
   await writeHeartbeat(env, heartbeat);
   return Object.freeze({ ok: true, published: true, snapshot, heartbeat });

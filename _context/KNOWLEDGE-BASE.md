@@ -905,3 +905,37 @@ INTC DCAI 2026E +22% YoY, 서버 두 자릿수 성장 2027 지속 전망.
 
 **3. 대량 치환 후 구조적 무결성은 텍스트 내용과 무관한 불변량으로 검증한다**
 - 라인 단위 문자열 치환을 수천 건 적용한 뒤, "## v버전" 헤더 개수나 "## P번호" 헤더 개수처럼 텍스트 내용과 무관하게 파일 전체에서 셀 수 있는 구조적 불변량이 치환 전후 정확히 일치하는지 확인한다. 이 프로젝트에서는 두 파일 모두 헤더 개수가 정확히 보존됐음을 확인해 "일부 항목이 통째로 사라지거나 중복되지 않았다"는 확신을 얻었다 — diff의 순수 삽입/삭제 라인 수 비교(±1줄 같은 사소한 오차)만으로는 이 확신을 주지 못한다.
+### TM-X. AI 인프라 사이클: Capex 시차 가설 vs 재투자 함정 + Memory P vs Neocloud Q·Capital [2026-07-20]
+> 출처: 사용자 제공 미국시장 정밀 분석 텍스트, Google Q2 capex 논쟁문, 메모리/네오클라우드 9-part thread, KOSPI/EWY 및 미국 지수 차트 8장, X 링크 9건. 구현: `AIO_AI_INFRA_CYCLE_REFERENCE`, `CHAT_CONTEXTS`, `SCREENER_DB` ticker memo, `MACRO_KW`/`TECH_KW`, `public-data/user-research-digest.json`. `sourceKind=REFERENCE`; 수치·차트 레벨·외부 링크 본문은 현재값으로 승격하지 않는다.
+
+**1. 두 가설을 동시에 유지한다**
+- **Capex-lag/illusion 가설**: 수요·계약·backlog가 이미 확인된 상태에서 TPU/GPU 재고·용량 선투입과 매출 인식 사이의 시차가 FCF를 먼저 누른다. 판정 질문은 backlog가 매출로 변환되는 속도가 비용·감가상각을 앞서는지다.
+- **Reinvestment-trap 가설**: GPU/TPU의 경제적 수명이 짧고 frontier-model 경쟁이 재투자를 생존 조건으로 만든다면, capex 이후의 수확기가 오지 않거나 감가상각·차입비용 산이 수익화를 계속 압박한다. 동시다발 hyperscaler 증설은 공급과잉·가격하락의 꼬리위험을 만든다.
+- 숫자(예: backlog, capex, hyperscaler 합산 전망)는 모두 사용자가 제공한 당시 참고값이며, SEC/기업 공시·실적·채권시장 데이터로 재확인하기 전까지 `REFERENCE`로만 남긴다.
+
+**2. 분석 모델을 둘로 분리한다**
+- **Memory = P game**: ASP/가격 상승률의 변화, 이익 추정치, 배수 압축/확장을 함께 본다. 낮은 PER은 싸다는 뜻일 수도 있지만 사이클 이익 붕괴를 선반영한 경고일 수도 있다.
+- **Neocloud = Q·capital game**: Q(가동률·물량)가 하락하는 compute/token 가격을 이기는 동안 rental yield − funding cost − GPU depreciation − lease burden 스프레드가 유지되는지 본다. CoreWeave/Nebius/IREN은 같은 AI 인프라가 아니라 서로 다른 Q·spread·capital 조합으로 비교한다.
+
+**3. 2026-07-20 시계열을 읽는 순서**
+- 당일 반도체 반등은 1주/1개월 낙폭과 분리하고, 거래량·실적·가이던스·breadth가 뒤따르는지 확인한다. 일봉 반등만으로 바닥 확정하지 않는다.
+- 지수는 SPY/QQQ와 RSP/IWM/IJH/QQEW를 함께 놓고, 상위 기술주 지지와 시장 내부 확장을 분리한다. AIO의 최신 `screener.json` breadth는 공식 거래소 breadth가 아닌 AIO 유니버스 연구값으로 라벨링한다.
+- KOSPI/EWY 차트는 120일선·피보나치·추세지지에 대한 반응을 보여주는 참고 도식이다. V자/이중바닥·지지선 가격을 단정하지 말고 종가·거래량·추가 flow로 확인한다.
+- 미국 지수 차트는 채널·추세선·리테스트·oscillator를 위험지도처럼 읽는다. 패턴명보다 failed retest, 거래량, 상대강도, breadth의 동시성을 우선한다.
+
+**4. 판정 게이트(Q1~Q5)**
+- `Q1`: capex 증가율이 revenue 증가율 아래로 내려오는가?
+- `Q2`: backlog/계약 매출 인식이 depreciation·funding 비용보다 빠른가?
+- `Q3`: memory P의 가격/이익/배수와 neocloud Q의 가동률/스프레드/자본을 분리 측정했는가?
+- `Q4`: breadth 약화가 VIX·real yield·HY OAS·유가와 결합해 systemic deleveraging으로 번지는가, 아니면 credit가 안정된 selective rotation인가?
+- `Q5`: power/cooling/optics/network/storage와 Korea/EWY leadership이 AI 수요·수익화·자금조달을 실제로 확인하는가?
+
+**5. 운영 반영 원칙**
+- 현재 AI 답변은 `AIO_AI_INFRA_CYCLE_REFERENCE`를 framework로만 주입하고, 현재 수치·판정은 `LIVE/SNAPSHOT/official` evidence에서만 만든다.
+- `GOOGL`, `MU`, `AMD`, `CRWV`, `NBIS`, `IREN`, `SNDK`에는 `[2026-07-20 REFERENCE]` memo를 붙였지만, memo freshness와 최신 SEC/실적/news를 함께 표시한다.
+- R2/Worker와 같은 운영 endpoint는 자료의 분석 근거와 분리한다. Worker health/soak은 배포 운영 gate이며 이 자료의 주장에 대한 검증으로 간주하지 않는다.
+
+**6. 차트 판독과 행동 대응을 분리해 재사용한다**
+- 차트는 `시장 맥락 → 추세/이동평균 → 구조적 지지·저항/채널·confluence → reclaim/failed retest → 거래량·breadth·상대강도·credit/volatility → oscillator → 무효화·다음 관찰창` 순서로 읽는다. 패턴명이나 한 개 캔들만으로 반전/바닥을 확정하지 않는다.
+- 행동은 `wait → probe → hold → protect` 상태로 표현한다. wait는 좁은 breadth·저거래량 반등에서 추격하지 않고, probe는 독립 확인이 2개 이상일 때 가설을 단계적으로 시험하며, hold는 수익화·스프레드·자금조달이 함께 유지될 때 조건부 유지하고, protect는 breadth·VIX·HY OAS·실질금리·유가 스트레스 또는 계약/조달 훼손 시 레버리지와 노출을 재평가한다.
+- 모든 답변은 `결론/국면 → 관측 evidence → reference evidence → 추론 → 변화/불변/누락 → 확인·무효화·시간창` 순서를 지킨다. 실행·비중은 자동화하지 않고 사용자 mandate에 남긴다.

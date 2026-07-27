@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.38 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.45 — 올인원 투자 터미널</title>
   <meta name="description" content="실시간 시장 분석, 매매 시그널, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 기반 올인원 투자 터미널.">
   <meta name="theme-color" content="#f7f4ee">
   <meta property="og:title" content="AIO Screener — 올인원 투자 터미널">
@@ -5642,7 +5642,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.38</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.45</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -9490,6 +9490,13 @@ button[data-filter-active="true"] {
     <span id="fund-data-status" class="freshness-badge fb-live">● DATA 확인</span>
   </div>
 
+  <div id="fund-native-sec-report" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:14px;">
+    <div id="fund-native-sec-title" style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:5px;">SEC 기본 보고</div>
+    <div id="fund-native-sec-meta" style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:8px;">SEC EDGAR 연간 데이터 수신 대기</div>
+    <div id="fund-native-sec-coverage" style="font-size:10px;color:var(--text-secondary);margin-bottom:10px;">관측 항목 없음</div>
+    <div id="fund-native-sec-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;"></div>
+  </div>
+
   <!-- v50.82: 시각화 패널 (factor-radar) — 티커 검색 후 동적 렌더 -->
   <div id="vis-fundamental" class="aio-vis-panel is-single" style="display:none;">
     <div class="aio-vis-card"><div class="aio-vis-card-title">팩터 레이더 (종목 분석)</div><div id="vis-fundamental-radar"></div></div>
@@ -12217,9 +12224,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.38" defer></script>
-  <script src="./js/aio-data.js?v=53.38" defer></script>
-  <script src="./js/aio-ui.js?v=53.38" defer></script>
+  <script src="./js/aio-core.js?v=53.45" defer></script>
+  <script src="./js/aio-data.js?v=53.45" defer></script>
+  <script src="./js/aio-ui.js?v=53.45" defer></script>
 
 
   <script>
@@ -12461,6 +12468,7 @@ function savePortfolioData(positions) {
   } else {
     safeLS(PF_STORAGE_KEY, json); // fire-and-forget — unlock 상태면 암호화, 아니면 평문(safeLS 기존 계약)
   }
+  try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {}
 }
 
 // PIN Lock — v52.46: 독자 PIN 저장을 폐기하고 공유 _AioVault 상태를 단일 진실 원천으로 사용
@@ -12750,6 +12758,7 @@ function renderPortfolio() {
   let ld = window._liveData || {};
   const tbody = document.getElementById('pf-positions-tbody');
   if (!tbody) return;
+  var _nativePortfolioTable = tbody.dataset.aioPortfolioTableRenderer === 'native';
   var _pfEmpty = positions.length === 0;
   var _pfMain = document.getElementById('pf-main');
   if (_pfMain) _pfMain.classList.toggle('is-empty', _pfEmpty);
@@ -12763,7 +12772,7 @@ function renderPortfolio() {
 
   if (positions.length === 0) {
     // v48.3: 빈 상태 안내 강화 — 폰트 크기 상향 + 명확한 3단계 가이드
-    tbody.innerHTML = '<tr class="pf-empty-state"><td colspan="9" style="padding:28px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
+    if (!_nativePortfolioTable) tbody.innerHTML = '<tr class="pf-empty-state"><td colspan="9" style="padding:28px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.8;">' +
       '<div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;">포트폴리오가 비어 있습니다</div>' +
       '<div><b style="color:var(--text-primary);">티커 · 수량 · 매수 단가</b>를 입력하면 보유 현황과 리스크 분석이 시작됩니다.</div>' +
       '<button class="aio-btn-table primary" data-action="_aioTogglePortfolioEntry" style="margin-top:10px;min-height:36px;padding:7px 16px;">첫 종목 추가</button>' +
@@ -12815,10 +12824,10 @@ function renderPortfolio() {
       </td>
     </tr>`;
   });
-  tbody.innerHTML = rows.join('');
+  if (!_nativePortfolioTable) tbody.innerHTML = rows.join('');
 
   // Update weights
-  positions.forEach(p => {
+  if (!_nativePortfolioTable) positions.forEach(p => {
     const live = ld[p.ticker];
     const val = (live ? live.price : p.cost) * p.qty;
     const wt = totalValue > 0 ? (val / totalValue * 100).toFixed(1) : 0;
@@ -12929,36 +12938,6 @@ function updatePortfolioSummary(positions, ld, totalValue, totalCost, totalDaily
   const totalPnl = totalValue - totalCost;
   const totalPnlPct = totalCost > 0 ? (totalPnl / totalCost * 100) : 0;
   const dailyPct = totalAssets > 0 ? (totalDailyChg / totalAssets * 100) : 0;
-
-  const fmt = n => '$' + Math.abs(n).toLocaleString('en', {maximumFractionDigits: 0});
-  const sign = n => n >= 0 ? '+' : '-';
-  const color = n => n >= 0 ? 'var(--green)' : 'var(--red)';
-
-  const hcEl = document.getElementById('pf-holding-count');
-  if (hcEl) hcEl.textContent = positions.length + ' 종목';
-
-  const pnlPctEl = document.getElementById('pf-total-pnl-pct');
-  if (pnlPctEl) { pnlPctEl.textContent = sign(totalPnl) + Math.abs(totalPnlPct).toFixed(1) + '%'; pnlPctEl.style.color = color(totalPnl); }
-
-  const dcEl = document.getElementById('pf-daily-chg');
-  if (dcEl) { dcEl.textContent = sign(totalDailyChg) + fmt(totalDailyChg); dcEl.style.color = color(totalDailyChg); }
-  const dpEl = document.getElementById('pf-daily-pct');
-  if (dpEl) { dpEl.textContent = sign(dailyPct) + Math.abs(dailyPct).toFixed(2) + '% today'; dpEl.style.color = color(dailyPct); }
-
-  const cashEl = document.getElementById('pf-cash-hero');
-  if (cashEl) cashEl.textContent = fmt(cashValue);
-  const cashPctEl = document.getElementById('pf-cash-pct-hero');
-  if (cashPctEl) cashPctEl.textContent = (totalAssets > 0 ? cashValue / totalAssets * 100 : 0).toFixed(1) + '%';
-  var vix = ld && ld['^VIX'] && isFinite(ld['^VIX'].price) ? Number(ld['^VIX'].price) : null;
-  var exposureCap = vix == null ? null : vix < 15 ? 100 : vix < 20 ? 80 : vix < 25 ? 50 : vix < 30 ? 30 : 15;
-  var exposurePct = totalAssets > 0 ? totalValue / totalAssets * 100 : 0;
-  var exposureRuleEl = document.getElementById('pf-exposure-rule');
-  if (exposureRuleEl) exposureRuleEl.textContent = exposureCap == null ? 'VIX 확인 중' : 'VIX ' + vix.toFixed(1) + ' · 최대 ' + exposureCap + '%';
-  var exposureCurrentEl = document.getElementById('pf-exposure-current');
-  if (exposureCurrentEl) {
-    exposureCurrentEl.textContent = '현재 노출 ' + exposurePct.toFixed(1) + '%' + (exposureCap != null && exposurePct > exposureCap ? ' · 축소 필요' : '');
-    exposureCurrentEl.style.color = exposureCap != null && exposurePct > exposureCap ? 'var(--data-red)' : 'var(--text-dim)';
-  }
 
   // Allocation summary
   const alloc = {};
@@ -14729,7 +14708,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.38" defer></script>
+<script src="./js/aio-chat.js?v=53.45" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -19586,33 +19565,7 @@ function drawPortfolioDonut() {
     legendEl.innerHTML = lh;
   }
 
-  // v40.4: 섹터 브레이크다운 바 차트 (도넛 옆 or 아래)
-  var sectorEl = document.getElementById('pf-sector-breakdown');
-  if (sectorEl && items.length > 0) {
-    var sectorMap = {};
-    items.forEach(function(it) {
-      var sec = it.sector || 'Unknown';
-      if (!sectorMap[sec]) sectorMap[sec] = 0;
-      sectorMap[sec] += it.pct;
-    });
-    var secs = Object.keys(sectorMap).map(function(k) { return { name: k, pct: sectorMap[k] }; });
-    secs.sort(function(a, b) { return b.pct - a.pct; });
-    var sh = '';
-    secs.forEach(function(s) {
-      var col = SECTOR_COLORS[s.name] || '#8a8271';
-      var barW = Math.round(s.pct * 100);
-      var shortName = s.name === 'Technology' ? '테크' : s.name === 'Healthcare' ? '헬스' : s.name === 'Financial Services' ? '금융' : s.name === 'Consumer Cyclical' ? '임의소비' : s.name === 'Energy' ? '에너지' : s.name === 'Industrials' ? '산업재' : s.name === 'Consumer Defensive' ? '필수소비' : s.name === 'Communication Services' ? '통신' : s.name === 'Utilities' ? '유틸' : s.name === 'Real Estate' ? '리츠' : s.name === 'Basic Materials' ? '소재' : s.name === 'CASH' ? '현금' : s.name;
-      // v48.3: 섹터 라벨 8px→11px, 바 높이 10px→14px, 수치 8px→12px 상향
-      sh += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">';
-      sh += '<span style="width:56px;font-size:11px;color:var(--text-secondary);text-align:right;flex-shrink:0;font-weight:600;">' + shortName + '</span>';
-      sh += '<div style="flex:1;height:14px;background:var(--surface-3);border-radius:4px;overflow:hidden;">';
-      sh += '<div style="height:100%;width:' + barW + '%;background:' + col + ';border-radius:4px;transition:width 0.5s;"></div>';
-      sh += '</div>';
-      sh += '<span style="width:42px;font-size:12px;font-family:var(--font-mono);color:' + col + ';font-weight:700;text-align:right;">' + (s.pct * 100).toFixed(0) + '%</span>';
-      sh += '</div>';
-    });
-    sectorEl.innerHTML = sh;
-  }
+  // P831: sector allocation is owned by src/ui/pages/portfolio.js.
 }
 
 // v40.4: 포지션 기반 도넛 차트 (portfolio-donut과 별도)
@@ -19637,8 +19590,6 @@ function drawPositionDonut() {
     ctx.fillText('비중이 표시됩니다', cx, cy + 12);
     var legendEl = document.getElementById('pf-donut-legend');
     if (legendEl) legendEl.innerHTML = '';
-    var sectorEl = document.getElementById('pf-sector-breakdown');
-    if (sectorEl) sectorEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:4px 0;">포지션을 추가하면 섹터별 비중이 표시됩니다</div>';
     return;
   }
 
@@ -19712,32 +19663,7 @@ function drawPositionDonut() {
     legendEl.innerHTML = lh;
   }
 
-  // Sector breakdown
-  var sectorEl = document.getElementById('pf-sector-breakdown');
-  if (sectorEl) {
-    var sectorMap = {};
-    items.forEach(function(it) {
-      var sec = it.sector || 'Unknown';
-      if (!sectorMap[sec]) sectorMap[sec] = 0;
-      sectorMap[sec] += it.pct;
-    });
-    var secs = Object.keys(sectorMap).map(function(k) { return { name: k, pct: sectorMap[k] }; });
-    secs.sort(function(a, b) { return b.pct - a.pct; });
-    var sh = '';
-    secs.forEach(function(s) {
-      var col = SECTOR_COLORS[s.name] || '#8a8271';
-      var barW = Math.round(s.pct * 100);
-      var shortName = s.name === 'Technology' ? '테크' : s.name === 'Healthcare' ? '헬스' : s.name === 'Financial Services' ? '금융' : s.name === 'Consumer Cyclical' ? '임의소비' : s.name === 'Energy' ? '에너지' : s.name === 'Industrials' ? '산업재' : s.name === 'Consumer Defensive' ? '필수소비' : s.name === 'Communication Services' ? '통신' : s.name === 'Utilities' ? '유틸' : s.name === 'Real Estate' ? '리츠' : s.name === 'Basic Materials' ? '소재' : s.name === 'CASH' ? '현금' : s.name;
-      sh += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">';
-      sh += '<span style="width:44px;font-size:11px;color:var(--text-muted);text-align:right;flex-shrink:0;">' + shortName + '</span>';
-      sh += '<div style="flex:1;height:12px;background:var(--surface-3);border-radius:3px;overflow:hidden;">';
-      sh += '<div style="height:100%;width:' + barW + '%;background:' + col + ';border-radius:3px;transition:width 0.5s;"></div>';
-      sh += '</div>';
-      sh += '<span style="width:36px;font-size:11px;font-family:var(--font-mono);color:' + col + ';font-weight:700;text-align:right;">' + (s.pct * 100).toFixed(0) + '%</span>';
-      sh += '</div>';
-    });
-    sectorEl.innerHTML = sh;
-  }
+  // P831: sector allocation is owned by src/ui/pages/portfolio.js.
 }
 
 // v40.4: 현금 포지션 저장
@@ -20798,6 +20724,8 @@ function updateFxBondPage() {
 // ── 10Y금리·엔화 3개월 추이 미니 라인차트 — v52.71 아이보리 3e: 시안 구조(단일 지표 히스토리,
 // 만기별 수익률곡선과는 다른 차트 종류라 신규 작성 — fetchOHLCVWithFallback 재사용, 별도 알고리즘 없음) ──
 async function loadFxBondTrendCharts() {
+  var nativeFxbondPage = document.getElementById('page-fxbond');
+  if (nativeFxbondPage && nativeFxbondPage.dataset.aioFxbondRenderer === 'native') return;
   var tnxCvs = document.getElementById('fxbond-tnx-trend');
   var jpyCvs = document.getElementById('fxbond-jpy-trend');
   if (!tnxCvs && !jpyCvs) return;
@@ -20858,6 +20786,7 @@ function initYieldCurveChart(targetId) {
           : (document.querySelector('#page-fxbond.active') ? document.getElementById('koreaCurveChart')
              : (document.getElementById('yieldCurveChart') || document.getElementById('koreaCurveChart')));
   if (!ctx || typeof Chart === 'undefined') return;
+  if (ctx.id === 'koreaCurveChart' && ctx.dataset.aioFxbondChartRenderer === 'native') return;
   var _cid = ctx.id;
   if (_ycCharts[_cid]) { try { _ycCharts[_cid].destroy(); } catch(e){} _ycCharts[_cid] = null; }
 
@@ -23632,7 +23561,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.38" defer></script>
+<script src="./js/aio-glossary.js?v=53.45" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

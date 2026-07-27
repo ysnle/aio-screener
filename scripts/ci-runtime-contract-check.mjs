@@ -226,6 +226,27 @@ check(
     && /software to semi rotation/.test(data)
 );
 check(
+  'AI infrastructure cycle reference is centralized, source-labelled, and injected into chat contexts',
+  /AIO_AI_INFRA_CYCLE_REFERENCE/.test(chat)
+    && /sourceKind:\s*'REFERENCE'/.test(chat)
+    && /ai-infrastructure-cycle/.test(chat)
+    && /Q1/.test(chat)
+    && /Q5/.test(chat)
+    && /memory-p-game/.test(chat)
+    && /neocloud-q-capital-game/.test(chat)
+    && /_aioAIInfraCycleContext/.test(chat)
+    && /referenceFrameworks/.test(chat)
+    && /Runtime comparison/.test(chat)
+);
+check(
+  'AI infrastructure reference includes chart protocol, behavior playbook, and communication contract',
+  /chartReadingProtocol/.test(chat)
+    && /behaviorPlaybook/.test(chat)
+    && /communicationContract/.test(chat)
+    && /Chart-reading protocol/.test(chat)
+    && /Behavior playbook/.test(chat)
+);
+check(
   'current AI contexts use runtime evidence instead of embedded capex narratives',
   /function _aioCreateEvidenceContext/.test(chat)
     && /현재 검증된 런타임 관측치만 사용합니다/.test(chat)

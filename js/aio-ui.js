@@ -47,9 +47,9 @@ function updateBreadthBars() {
     [['breadth-header-badge','판정 보류'],['breadth-diag-signal','판정 보류'],['breadth-5sma-big','—'],['breadth-20sma-big','—'],['breadth-50sma-big','—'],['breadth-5sma-label',pendingText],['breadth-20sma-label',pendingText],['breadth-50sma-label',pendingText],['breadth-5sma-freshness',pendingText],['breadth-20sma-freshness',pendingText],['breadth-50sma-freshness',pendingText],['breadth-advance-ratio','—'],['breadth-signal-val','—']].forEach(function(p){ var el=document.getElementById(p[0]); if(el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))){ el.textContent=p[1]; el.style.color='var(--text-muted)'; } });
     ['breadth-5sma-bar','breadth-20sma-bar','breadth-50sma-bar','bb-5sma-bar','bb-20sma-bar','bb-50sma-bar'].forEach(function(id){ var el=document.getElementById(id); if(el && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el))) el.style.width='0%'; });
     var stageEl = document.getElementById('breadth-stage-summary');
-    if (stageEl) { stageEl.textContent = '— 20·50일선 breadth 미수신'; stageEl.style.color = 'var(--text-muted)'; }
+    if (stageEl && stageEl.dataset.aioBreadthStageRenderer !== 'native') { stageEl.textContent = '— 20·50일선 breadth 미수신'; stageEl.style.color = 'var(--text-muted)'; }
     var mcEl = document.getElementById('breadth-mcclellan-summary');
-    if (mcEl) { mcEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">A/D 시계열 미수신</span>'; mcEl.setAttribute('data-mcclellan-signal','unavailable'); }
+    if (mcEl && mcEl.dataset.aioBreadthMcclellanRenderer !== 'native') { mcEl.innerHTML = '— <span style="font-weight:500;color:var(--text-dim);">A/D 시계열 미수신</span>'; mcEl.setAttribute('data-mcclellan-signal','unavailable'); }
     var diagEl = document.getElementById('breadth-diag-text');
     if (diagEl && diagEl.dataset.aioBreadthDiagnosticRenderer !== 'native') diagEl.textContent = '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다.';
     if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
@@ -71,7 +71,7 @@ function updateBreadthBars() {
   // (delta 없으면 방향 생략, 조작하지 않음). 그래서 UI 라벨도 "Weinstein Stage"에서 "시장 참여도"로
   // 바꿨다(index.html) — 아래 로직은 그 이름에 맞는 산식이다.
   var stageSummaryEl = document.getElementById('breadth-stage-summary');
-  if (stageSummaryEl) {
+  if (stageSummaryEl && stageSummaryEl.dataset.aioBreadthStageRenderer !== 'native') {
     var prevDeltaRef = (typeof _aioGetPrevDeltaRef === 'function') ? _aioGetPrevDeltaRef() : null;
     var sma20Delta = (prevDeltaRef && typeof currentBreadth.sma20 === 'number' && typeof prevDeltaRef.breadth20sma === 'number') ? currentBreadth.sma20 - prevDeltaRef.breadth20sma : null;
     var sma5Delta = (prevDeltaRef && typeof currentBreadth.sma5 === 'number' && typeof prevDeltaRef.breadth5sma === 'number') ? currentBreadth.sma5 - prevDeltaRef.breadth5sma : null;
@@ -91,9 +91,9 @@ function updateBreadthBars() {
   var breadthDiagText = document.getElementById('breadth-diag-text');
   if (breadthDiagText && breadthDiagText.dataset.aioBreadthDiagnosticRenderer !== 'native') breadthDiagText.textContent = diagSummary + ' · ' + (currentBreadth.source || 'AIO screener universe') + '의 현재 관측입니다. 시장 참여도는 오늘 수준(추세국면 아님), McClellan은 A/D 시계열이 없어 판정을 보류합니다.';
   var breadthAdvance = document.getElementById('breadth-advance-ratio');
-  if (breadthAdvance) breadthAdvance.textContent = currentBreadth.advanceRatio != null ? (currentBreadth.advanceRatio * 100).toFixed(1) + '%' : '—';
+  if (breadthAdvance && breadthAdvance.dataset.aioBreadthSignalRenderer !== 'native') breadthAdvance.textContent = currentBreadth.advanceRatio != null ? (currentBreadth.advanceRatio * 100).toFixed(1) + '%' : '—';
   var breadthSignal = document.getElementById('breadth-signal-val');
-  if (breadthSignal) breadthSignal.textContent = '현재 5/20/50SMA 관측 · 방향 예측 아님';
+  if (breadthSignal && breadthSignal.dataset.aioBreadthSignalRenderer !== 'native') breadthSignal.textContent = '현재 5/20/50SMA 관측 · 방향 예측 아님';
   function _bbRegime(v) {
     if (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime) {
       var reg = NARRATIVE_ENGINE.getBreadthRegime(v);
@@ -195,17 +195,21 @@ function initBreadthPage(forceReinit) {
     if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
   }
 
-  Object.keys(bpChartInstances).forEach(function(k) { try { bpChartInstances[k].destroy(); } catch(_) {} delete bpChartInstances[k]; });
+  var nativeBreadthPage = document.getElementById('page-breadth');
+  var nativeBreadthCharts = !!(nativeBreadthPage && nativeBreadthPage.dataset.aioArchitectureRenderer === 'native');
+  if (!nativeBreadthCharts) Object.keys(bpChartInstances).forEach(function(k) { try { bpChartInstances[k].destroy(); } catch(_) {} delete bpChartInstances[k]; });
   ['bp-ad-ratio-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart'].forEach(function(id) {
     var canvas = document.getElementById(id);
     if (!canvas) return;
+    if (canvas.dataset.aioBreadthChartRenderer === 'native') return;
     canvas.setAttribute('data-source-kind','unavailable');
     canvas.setAttribute('data-operational-use','blocked');
     canvas.setAttribute('title','브레드쓰 과거 시계열 미수신 — 현재 단면값만 표시');
   });
-  window._breadthSeries = window._breadthLabels = null;
+  if (!nativeBreadthCharts) window._breadthSeries = window._breadthLabels = null;
 
   var priceCanvas = document.getElementById('bp-price-chart');
+  if (priceCanvas && priceCanvas.dataset.aioBreadthChartRenderer === 'native') { bpChartsInitialized = true; return; }
   var spxSeries = typeof _aioHistorySeries === 'function' ? _aioHistorySeries('spx', 5) : null;
   if (priceCanvas && spxSeries && typeof Chart === 'function') {
     var rows = spxSeries.slice(-60);

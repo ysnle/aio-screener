@@ -228,10 +228,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules.themes = createThemesPage({ documentRef, store, route: 'themes' });
   modules['theme-detail'] = createThemesPage({ documentRef, store, route: 'theme-detail' });
   modules.sentiment = createSentimentPage({ documentRef, evidenceStore, store, chartFactory: () => root?.Chart });
-  modules.ticker = createEntityPage({ documentRef, store, route: 'ticker' });
-  modules.fundamental = createEntityPage({ documentRef, store, route: 'fundamental' });
-  modules.options = createEntityPage({ documentRef, store, route: 'options' });
-  modules.portfolio = createPortfolioPage({ documentRef, store });
+  modules.ticker = createEntityPage({ root, documentRef, store, route: 'ticker' });
+  modules.fundamental = createEntityPage({ root, documentRef, store, route: 'fundamental' });
+  modules.options = createEntityPage({ root, documentRef, store, route: 'options' });
+  modules.portfolio = createPortfolioPage({ root, documentRef, store });
   modules.screener = createScreenerPage({
     documentRef,
     store,
@@ -295,6 +295,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopEntityRefresh = legacy.on('aio:refresh:done', syncEntity.sync);
     const stopEntityShown = legacy.on('aio:pageShown', syncEntity.sync);
     const stopPortfolioShown = legacy.on('aio:pageShown', syncPortfolio.sync);
+    const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
     const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreenerData);
     const stopScreenerShown = legacy.on('aio:pageShown', syncScreenerData);
     const stopAnalysisRefresh = legacy.on('aio:refresh:done', syncAnalysis.sync);
@@ -339,6 +340,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopEntityRefresh();
       stopEntityShown();
       stopPortfolioShown();
+      stopPortfolioChanged();
       stopScreenerRefresh();
       stopScreenerShown();
       stopAnalysisRefresh();

@@ -281,6 +281,46 @@ for (const marker of ['renderPortfolioHero', 'pf-total-value', 'pf-total-pnl', '
   if (!portfolioPageSource.includes(marker)) fail(`native portfolio hero renderer marker missing: ${marker}`);
 }
 if (read('index.html').includes("document.getElementById('pf-total-value')") || read('index.html').includes("document.getElementById('pf-total-pnl')")) fail('legacy portfolio hero writer returned after P810 cutover');
+// P827: breadth stage/McClellan status and all five breadth chart lifecycles are native.
+if (routeOwners.routes?.breadth?.chartOwner !== 'native' || (routeOwners.routes?.breadth?.contestedIds || []).length) fail('breadth secondary chart ownership remains contested');
+for (const marker of ['renderNativeHistoryChart', 'aioBreadthChartRenderer', 'aioBreadthStageRenderer', 'aioBreadthMcclellanRenderer']) {
+  if (!marketPageSource.includes(marker)) fail(`native breadth secondary marker missing: ${marker}`);
+}
+if (!uiSource.includes('aioBreadthStageRenderer') || !uiSource.includes('aioBreadthMcclellanRenderer') || !uiSource.includes('aioBreadthChartRenderer')) fail('legacy breadth secondary writer fence missing');
+if (!coreSource.includes('aioBreadthChartRenderer') || !coreSource.includes('dataset.aioBreadthChartRenderer === \'native\'')) fail('legacy breadth canvas fallback fence missing');
+// P828: fxbond trend and current curve chart lifecycles are native, with source-labelled
+// unavailable states instead of fabricated fallback values.
+if (routeOwners.routes?.fxbond?.chartOwner !== 'native' || (routeOwners.routes?.fxbond?.contestedIds || []).length) fail('fxbond chart ownership remains contested');
+for (const marker of ['renderNativeHistoryChart', 'renderNativeCurveChart', 'aioFxbondChartRenderer']) {
+  if (!marketPageSource.includes(marker)) fail(`native fxbond chart marker missing: ${marker}`);
+}
+if (!indexHtmlSource.includes('nativeFxbondPage') || !indexHtmlSource.includes("ctx.dataset.aioFxbondChartRenderer === 'native'")) fail('legacy fxbond chart writer fence missing');
+// P829: entity.js owns extended-session and portfolio P&L hero sinks; compatibility writers
+// remain available for action/overview behavior but cannot overwrite native-marked nodes.
+for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value', 'aioTickerExtensionRenderer', 'aioTickerPnlRenderer']) {
+  if (!entityPageSource.includes(marker)) fail(`native ticker activity marker missing: ${marker}`);
+}
+if (!coreSource.includes('aioTickerPnlRenderer') || !dataSource.includes('aioTickerExtensionRenderer')) fail('legacy ticker activity writer fence missing');
+// P832: entity.js owns a bounded SEC annual-fact report from one pure model. The broader
+// multi-source report/charts/AI narrative remain legacy boundaries until independently cut over.
+for (const marker of ['deriveSecReport', 'renderFundamentalReport', 'fund-native-sec-report', 'fund-native-sec-grid', 'aioSecReportRenderer']) {
+  if (!entityPageSource.includes(marker) && !indexHtmlSource.includes(marker)) fail(`native SEC report marker missing: ${marker}`);
+}
+if (!read('src/domain/fundamental/sec-report.js').includes('SEC_REPORT_MODEL_VERSION')) fail('SEC report model missing');
+// P830: the Vault-backed nine-column portfolio table is native; legacy renderPortfolio may
+// continue updating adjacent risk/summary surfaces but must skip the native tbody.
+for (const marker of ['renderPortfolioTable', 'pf-positions-tbody', 'aioPortfolioTableRenderer']) {
+  if (!portfolioPageSource.includes(marker)) fail(`native portfolio table marker missing: ${marker}`);
+}
+if (!indexHtmlSource.includes('_nativePortfolioTable') || !indexHtmlSource.includes('aio:portfolioChanged') || !read('src/legacy/compatibility-facade.js').includes('getPortfolioData')) fail('legacy portfolio table/Vault boundary missing');
+// P831: portfolio.js owns the deterministic summary/cash/exposure/sector projection. The
+// legacy summary and sector writers remain compatibility paths but must consult the native
+// surface marker before touching those ids.
+for (const marker of ['derivePortfolioSurface', 'renderPortfolioSurface', 'pf-holding-count', 'pf-sector-breakdown', 'aioPortfolioSurfaceRenderer']) {
+  if (!portfolioPageSource.includes(marker)) fail(`native portfolio surface marker missing: ${marker}`);
+}
+if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_SURFACE_MODEL_VERSION')) fail('portfolio surface model missing');
+if (indexHtmlSource.includes("document.getElementById('pf-holding-count')") || indexHtmlSource.includes("document.getElementById('pf-sector-breakdown')") || !indexHtmlSource.includes('P831: sector allocation is owned by src/ui/pages/portfolio.js.')) fail('legacy portfolio surface writer retirement missing');
 if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !coreSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !read('index.html').includes('_aioIsNativeMacroElement(el)')) fail('legacy options native-element writer fence missing');
 // P785: technical owns only the market-health primary surface. The pure model is the single
 // formula owner; both legacy compatibility entry points must consult the native technical fence.

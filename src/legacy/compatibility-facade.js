@@ -227,7 +227,48 @@ function readPortfolio(root) {
   try {
     if (typeof root?.getPortfolioState === 'function') return clone(root.getPortfolioState()) || {};
   } catch (_) {}
-  return clone(root?._portfolioState || root?._portfolioData || { holdings: [], privacy: 'opt-in' }) || {};
+  const existing = root?._portfolioState || root?._portfolioData;
+  if (existing && (Array.isArray(existing.holdings) || existing.totals)) return clone(existing) || {};
+  try {
+    const positions = typeof root?.getPortfolioData === 'function' ? root.getPortfolioData() : [];
+    const liveData = root?._liveData || {};
+    const holdings = Array.isArray(positions) ? positions.map((position) => {
+      const symbol = String(position?.ticker || position?.symbol || position?.sym || '').toUpperCase();
+      const shares = Number(position?.qty ?? position?.shares);
+      const avgCost = Number(position?.cost ?? position?.avgCost);
+      const live = liveData[symbol] || {};
+      const price = Number(live.price ?? live.regularMarketPrice);
+      const dailyPct = Number(live.pct ?? live.regularMarketChangePercent);
+      const validShares = Number.isFinite(shares) ? shares : null;
+      const validAvgCost = Number.isFinite(avgCost) ? avgCost : null;
+      const validPrice = Number.isFinite(price) && price > 0 ? price : null;
+      return {
+        symbol,
+        shares: validShares,
+        avgCost: validAvgCost,
+        price: validPrice,
+        value: validPrice != null && validShares != null ? validPrice * validShares : null,
+        dailyPct: Number.isFinite(dailyPct) ? dailyPct : null,
+        sector: position?.sector ? String(position.sector) : null,
+        target: Number.isFinite(Number(position?.target)) ? Number(position.target) : null,
+        memo: position?.memo ? String(position.memo) : '',
+        addedAt: position?.addedAt || null,
+        updatedAt: position?.updatedAt || null,
+        source: validPrice != null ? 'legacy-vault+live-quote' : 'legacy-vault'
+      };
+    }).filter((holding) => holding.symbol) : [];
+    const totalValue = holdings.reduce((sum, holding) => sum + (Number.isFinite(holding.value) ? holding.value : 0), 0);
+    const totalCost = holdings.reduce((sum, holding) => sum + (Number.isFinite(holding.shares) && Number.isFinite(holding.avgCost) ? holding.shares * holding.avgCost : 0), 0);
+    let cash = null;
+    try {
+      const storedCash = Number(root?.localStorage?.getItem?.('aio_portfolio_cash'));
+      cash = Number.isFinite(storedCash) && storedCash >= 0 ? storedCash : null;
+    } catch (_) {}
+    const dailyChange = holdings.reduce((sum, holding) => sum + (Number.isFinite(holding.value) && Number.isFinite(holding.dailyPct) ? holding.value * holding.dailyPct / 100 : 0), 0);
+    return { holdings, cash, totals: { totalValue: totalValue || null, totalAssets: totalValue + (cash || 0) || null, totalCost: totalCost || null, totalPnl: totalValue && totalCost ? totalValue - totalCost : null, dailyChange: dailyChange || null }, privacy: 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: new Date().toISOString() };
+  } catch (_) {
+    return { holdings: [], privacy: 'opt-in', status: 'unavailable' };
+  }
 }
 
 function readScreener(root) {

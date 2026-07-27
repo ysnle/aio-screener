@@ -1,21 +1,72 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P795 verification
-last_verified: 2026-07-26
+verified_by: agent (Fable 5) + Codex P761-P836 verification
+last_verified: 2026-07-27
 confidence: high
 
-## Current architecture checkpoint (2026-07-26, v53.38)
+## Current architecture checkpoint (2026-07-27, v53.45)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
-  home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (16/17), and native data ownership is screener/breadth (2/17).
+  home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
 RM-03 P755~P763 extracted/retired the documented toy domains, replaced the signal
 toy with the Trading Score envelope, and made factor weights pure. ARX-10 gives
 screener sole native DOM/state ownership; ARX-16 migrates non-route consumers through
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.38
-latest_P_covered: P826
-current_P826_checkpoint: derived theme-detail route replays through canonical themes navigation and preserves the native inline detail mount; P821-P825 ownership and fail-closed/accessibility gates remain in force; full intermediate-release QA passes locally (FULL_INIT 68/68, headless 1102/1102, architecture/browser, UX, accessibility, critical10, Vault, SA-02~04)
+checklist_version: v53.45
+latest_P_covered: P836
+current_P836_checkpoint: full data refresh completed with 539/655 SEC source coverage and 539/725 screener display coverage; full verification was intentionally not rerun per operator request; live certification, operator rights/soak, and provider-rights review remain separate
+
+## P836 Full data refresh (2026-07-27, v53.45)
+
+- [x] Market refresh completed: 78/78 symbols, 42 macro keys, F&G 39, news 40, 377-day history update.
+- [x] Public Telegram digest refreshed for 3 channels over the requested 14-day window.
+- [x] SEC fundamentals and 845-symbol screener artifacts regenerated; source coverage is 539/655 (82.3%) and screener display coverage is 539/725 (74.3%).
+- [ ] Full browser, accessibility, performance, and end-to-end verification intentionally not rerun per operator request.
+
+## P835 Reference analysis protocol completion (2026-07-27, v53.44)
+
+- [x] Chart-reading protocol separates context, trend, structure, retest, participation, momentum, and invalidation.
+- [x] Wait/probe/hold/protect behavior playbook and verdict/evidence/missing-data communication contract are attached to the source-labelled AI infrastructure framework.
+- [x] No supplied number, chart level, X claim, or Worker claim is promoted to live decision evidence; automatic order/sizing behavior remains blocked.
+
+## P834 AI infrastructure cycle reference integration (2026-07-27, v53.43)
+
+- [x] `AIO_AI_INFRA_CYCLE_REFERENCE` is `sourceKind=REFERENCE`, includes Q1-Q5, and separates capex-lag/reinvestment-trap from memory P and neocloud Q/capital lenses.
+- [x] `CHAT_CONTEXTS` injects the framework without promoting supplied figures, chart levels, or X/Worker claims to live evidence; runtime macro/breadth comparison is source-aware and fail-closed.
+- [x] GOOGL/MU/AMD/CRWV/NBIS/IREN/SNDK carry dated reference memos; MACRO/TECH keyword additions are >=3 characters and the research digest records the supplied time series plus eight visual observations.
+- [x] JSON/JS syntax, runtime contract, knowledge integration, and diff checks pass; final local QA passes headless 1102/1102, architecture 17-route/browserErrors 0, viewport 68/68, accessibility 17/17, critical10 10/10, Vault PFE2-01~08, boot, and SA-02~04.
+
+## P833 KV-only fast quote plane (2026-07-27, v53.42)
+
+- [x] R2 subscription, R2 bucket binding, and `AIO_QUOTES_R2_BUCKET` are removed from the deploy path; only Cloudflare token, account ID, and KV namespace ID are required.
+- [x] Worker reads/writes `quotes:current` and `quotes:heartbeat` through KV only; missing KV remains fail-closed and retains the last-known-good KV state.
+- [x] `AIO_FAST_QUOTES_URL` remains a public repository variable containing only the deployed fast quote Worker base URL; deploy smoke checks `/health` and requires Tier0 16/16.
+- [x] KV-only data-plane contract (including KV `/health` fixture), workflow YAML, syntax, and full local browser/viewport/accessibility/critical10/Vault smoke verification pass; live Worker smoke and seven-day soak remain operator-required.
+
+## P827~P830 current secondary-surface closure (2026-07-27, v53.39)
+
+- [x] Breadth participation and McClellan status are native, fail-closed, and fenced from legacy writers; all five breadth charts have native lifecycle markers and unavailable-history handling.
+- [x] FX-bond TNX/JPY trend and current Treasury curve charts are native, source-labelled, and fail closed when history/current tenor evidence is missing.
+- [x] Ticker extended-session and portfolio P&L/value surfaces are native; no holding, missing quote, and hidden extended-session states are explicit.
+- [x] Portfolio holdings table is native DOM-safe rendering from the normalized Vault-backed state, with nine columns, textContent values, and delegated CRUD/chart actions.
+- [x] Architecture contract/browser and Vault E2E PFE2-01~08 pass; current browser evidence is 17 routes, 42 canvases, 12 timers, and browserErrors 0.
+- [ ] Data lineage full-green remains blocked by `data.json` freshness (14.1h > 12h); the refresh attempt failed closed at `CORE_QUOTE_COVERAGE_FAILED:0/78` and preserved the last-known-good artifact.
+- [ ] Cloudflare credentials/7-day soak, provider rights, and SEC `SEC_USER_AGENT`/coverage expansion remain operator-required; no live certification is inferred.
+
+## P831 portfolio deterministic summary surface (2026-07-27, v53.40)
+
+- [x] `portfolio-surface.v1` derives holding count, P/L/day, cash, VIX exposure, and sector allocation from normalized state plus quote evidence with finite-safe unavailable states.
+- [x] `portfolio.js` owns the declared summary/allocation/exposure ids with DOM-safe rendering and provenance markers; risk cards, charts, AI workbench, and narrative remain separate legacy boundaries.
+- [x] Legacy `updatePortfolioSummary()` and both sector writers consult the native surface fence before writing transferred ids.
+- [ ] Architecture contract/browser, full headless/viewport/accessibility/critical-10, and release manifest revalidation remain pending after the complete code sequence.
+
+## P832 fundamental SEC core report surface (2026-07-27, v53.41)
+
+- [x] `sec-report.v1` projects official SEC annual-fact filing identity, period/submission metadata, coverage, and finite observed metrics.
+- [x] `entity.js` owns the native `fund-native-sec-report` child with source/provenance markers and unavailable states for missing facts.
+- [x] Multi-source legacy report sections (peer/news/external, charts, and AI narrative) remain explicitly separate and are not presented as official SEC evidence.
+- [ ] Architecture browser/full release QA and SEC coverage expansion remain pending.
 # 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
 # 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
 ---

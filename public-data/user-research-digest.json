@@ -1,6 +1,6 @@
 {
-  "version": "v50.73",
-  "generatedAt": "2026-06-18T00:00:00+09:00",
+  "version": "v53.43",
+  "generatedAt": "2026-07-27T15:30:00+09:00",
   "sourceKind": "REFERENCE",
   "description": "User supplied X threads and UI/UX screenshots normalized for AIO Screener page and AI-context integration. These are design/framework references, not live market data.",
   "items": [
@@ -106,6 +106,98 @@
         "signals": ["report card", "key number emphasis", "7-chart financials", "Minervini overlay"],
         "risks": ["image looks authoritative while data is stale"],
         "automationHint": "Every generated visual must show sourceKind and asOf."
+      }
+    },
+    {
+      "id": "ai-infrastructure-cycle-20260720",
+      "title": "AI infrastructure cycle: capex-lag illusion versus reinvestment trap; memory P versus neocloud Q-capital",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-07-20",
+      "sourceFiles": [
+        "2026-07-20-US-market-analysis-pasted-text.txt",
+        "user-supplied-clipboard-images-1-8"
+      ],
+      "urls": [
+        "https://aio-screener-data-plane.zmfhd007.workers.dev",
+        "https://x.com/JhonbermanS4/status/2081195257568608574",
+        "https://x.com/JhonbermanS4/status/2080423549349892459",
+        "https://x.com/tmmrwseoul/status/2080370789790937413",
+        "https://x.com/Semicon_player/status/2079588462135833006",
+        "https://x.com/JhonbermanS4/status/2079556008695968194",
+        "https://x.com/NURadu_/status/2057456573522575824",
+        "https://x.com/Trader_Jesse_/status/2078813297059811596",
+        "https://x.com/Trader_Jesse_/status/2077711606591762797"
+      ],
+      "categories": ["macro", "technical", "breadth", "fundamental", "themes", "screener", "ticker", "fxbond", "kr-market"],
+      "pageTargets": ["home", "briefing", "macro", "fxbond", "technical", "signal", "breadth", "sentiment", "themes", "theme-detail", "fundamental", "screener", "ticker", "portfolio", "options", "kr-home", "kr-supply", "kr-themes", "kr-macro", "kr-tech", "kr-technical"],
+      "extraction": {
+        "thesis": "Two hypotheses must stay live: AI capex may be a cash-flow timing lag before contracted cloud/TPU revenue, or it may be a structural trap where depreciation, recurring frontier-model reinvestment, and simultaneous hyperscaler capacity create a permanent capital treadmill.",
+        "paradigm": "Memory is a P/ASP-and-multiple cycle; neocloud is a Q/utilization, rental-spread, depreciation, and capital-access cycle.",
+        "signals": ["capex revenue crossover", "cloud backlog conversion", "depreciation wall", "memory price momentum", "token deflation", "rental yield spread", "funding runway", "market breadth", "real yield pressure", "oil inflation pass-through", "forced deleveraging", "multiple compression"],
+        "risks": ["capex growth remains above revenue growth", "backlog does not convert before depreciation rises", "compute/token prices fall faster than Q grows", "lease or debt funding closes", "narrow mega-cap stability masks weak breadth", "oil and real yields reprice duration", "Korea/semiconductor support fails on volume"],
+        "automationHint": "For every AI-infrastructure answer, separate memory P from neocloud Q-capital; compare the 2026-07-20 reference window with the latest time series; then list confirmation, invalidation, and missing evidence. Never use this item as a live quote or current fundamental block."
+      },
+      "framework": {
+        "Q1": "Capex lag or structural trap?",
+        "Q2": "Memory P/ASP/multiple versus neocloud Q/spread/capital is the decision-model change.",
+        "Q3": "Capex/revenue, backlog/depreciation, price/margin, utilization/spread, funding/credit, breadth/rates/oil are the key variables.",
+        "Q4": "Demand drives capacity spending; spending becomes depreciation and funding needs; falling compute prices compress spread; breadth and credit decide contagion.",
+        "Q5": "Power, cooling, optics, networking, storage, energy inflation, Korea/EWY, and index internals are adjacent spillovers.",
+        "chartReadingProtocol": [
+          "Compare cap-weighted leadership with equal-weight, small-cap, sector, and cross-market participation.",
+          "Classify trend, moving-average slope, larger-timeframe location, support/resistance, channel, and confluence.",
+          "Prioritize reclaim or failed-retest acceptance over the first touch or a single candle.",
+          "Confirm with volume, breadth, relative strength, volatility, credit, and oscillator context; finish with invalidation and next observation window."
+        ],
+        "behaviorPlaybook": [
+          {"mode": "wait", "when": "breadth is narrow or rebound lacks volume", "response": "do not chase; preserve optionality and identify missing evidence"},
+          {"mode": "probe", "when": "breadth, earnings/revisions, and price/volume reclaim provide at least two independent confirmations", "response": "treat as a staged hypothesis test; execution and sizing remain user-controlled"},
+          {"mode": "hold", "when": "backlog/demand improves while depreciation, rental spread, funding, and credit remain contained", "response": "maintain the thesis conditionally and monitor the next checkpoint"},
+          {"mode": "protect", "when": "breadth deterioration combines with VIX/HY OAS/real-yield/oil stress or funding/contract breaks", "response": "reduce leverage and reassess exposure against the mandate"}
+        ],
+        "communicationContract": [
+          "verdict and regime first",
+          "separate observed, reference, and inferred evidence",
+          "state changed/unchanged/missing evidence",
+          "close with confirmation, invalidation, horizon, and next check"
+        ]
+      },
+      "referenceTimeSeries": {
+        "valueStatus": "user-supplied-reference-only; not a DATA_SNAPSHOT decision input",
+        "breadth": {
+          "asOf": "2026-07-20",
+          "advancerPct": 32.4,
+          "medianReturnPct": -0.66,
+          "relativeDayPct": {"SPY": -0.15, "QQQ": 0.1, "RSP": -0.47, "IWM": -0.57, "IJH": -0.79, "QQEW": 0.3}
+        },
+        "semiconductor": {
+          "asOf": "2026-07-20",
+          "oneDayPct": {"SMH": 0.41, "SOXX": 0.45, "FTXL": 0.72, "AMD": 1.58, "SNDK": 2.67, "SOXL": 1.09},
+          "oneWeekPct": {"SMH": -4.57, "SOXX": -5.32, "FTXL": -5.48, "SOXL": -17.19},
+          "oneMonthPct": {"SMH": -10.44, "SOXX": -12.6, "FTXL": -15.67, "SOXL": -41.44}
+        },
+        "macroAndRisk": {
+          "asOf": "2026-07-20",
+          "ratesPct": {"US2Y": 4.21, "US10Y": 4.6, "US30Y": 5.11, "US10YReal": 2.35, "US10YBreakeven": 2.25},
+          "energy": {"Brent": 89.22, "WTI": 83.23, "BNO1mPct": 13.41, "USO1mPct": 9.88},
+          "risk": {"VIX": 18.65, "VIX9D": 17.78, "VIX3M": 20.4, "VVIX": 102.82, "HY_OAS": 2.73, "FINRA_marginDebt": 1.502}
+        },
+        "monitoringWindows": ["2026-07-20 reference close", "next earnings reactions", "2027 H1 backlog recognition versus depreciation", "2027+ reinvestment and funding cycle"]
+      },
+      "visualEvidence": [
+        {"id": "image-1", "observation": "Framework card contrasts memory P/price-multiple mechanics with neocloud Q/capital mechanics.", "notRuntimeLevel": true},
+        {"id": "image-2", "observation": "Neocloud scorecard compares CoreWeave, Nebius, and IREN across Q/utilization, spread, and capital/financing dimensions.", "notRuntimeLevel": true},
+        {"id": "image-3", "observation": "KOSPI long-horizon chart shows a pullback testing a rising moving-average/trend support cluster.", "notRuntimeLevel": true},
+        {"id": "image-4", "observation": "EWY chart shows a pullback/rebound around a Fibonacci/support zone with volume context.", "notRuntimeLevel": true},
+        {"id": "image-5", "observation": "Long-horizon index chart shows a broad descending structure and a recent bounce attempt; pattern is a risk map, not a forecast.", "notRuntimeLevel": true},
+        {"id": "image-6", "observation": "Long-horizon index chart shows a rising support structure, recent pullback, and oscillator panel; require reclaim and participation.", "notRuntimeLevel": true},
+        {"id": "image-7", "observation": "Index chart shows a descending channel/resistance structure and oscillator weakness; failed retest matters more than a single candle.", "notRuntimeLevel": true},
+        {"id": "image-8", "observation": "Index chart shows a long rising channel with a pullback near structural support and oscillator context.", "notRuntimeLevel": true}
+      ],
+      "accessNotes": {
+        "xLinks": "X pages were not independently readable in the execution environment; user-provided text/images were used as the reference extraction.",
+        "worker": "Worker root/health was not independently verified from this environment; URL is retained as an operator endpoint reference only.",
+        "chartNumbers": "OCR from the screenshots was not promoted; exact values come only from the supplied text block and remain reference-only."
       }
     }
   ]

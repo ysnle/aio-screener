@@ -1,3 +1,42 @@
+## v53.45 (2026-07-27)
+- **P836 / full data refresh and SEC candidate-rotation fix**: refreshed 78/78 market symbols, macro/F&G/news/history artifacts, and the 14-day Telegram digest; regenerated the 845-symbol screener artifact from the current SEC file.
+- SEC fundamentals now store 539/655 eligible symbols (82.3% source coverage), with 539/725 screener-eligible rows (74.3% display coverage). Missing filings remain unavailable; no synthetic values were inserted.
+- Fixed SEC refresh starvation by prioritizing never-failed candidates and applying a failure cooldown; `SEC_RETRY_FAILED=1` remains available for deliberate manual retries.
+- R1 7곳 v53.45
+
+## v53.44 (2026-07-27)
+- **P835 / reference analysis protocol completion**: added reusable chart-reading sequence, wait/probe/hold/protect behavior playbook, and verdict-to-invalidation communication contract to the AI infrastructure reference framework and research digest.
+- Kept all supplied figures, chart levels, X material, and Worker claims source-labelled as `REFERENCE`; no automatic order or live decision promotion was added.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.44
+
+## v53.43 (2026-07-27)
+- **P834 / AI infrastructure cycle reference integration**: added a source-labelled Q1-Q5 framework covering capex-lag versus reinvestment-trap, memory P/ASP/multiple versus neocloud Q/spread/capital, and breadth/rates/credit/oil confirmation. The framework is injected into `CHAT_CONTEXTS` as REFERENCE-only and dynamically cross-checked against available runtime evidence.
+- Added `[2026-07-20 REFERENCE]` memos for GOOGL, MU, AMD, CRWV, NBIS, IREN, and SNDK; added related MACRO/TECH keywords; and recorded the supplied time series plus all eight visual observations in `public-data/user-research-digest.json` without promoting them to live decision inputs.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.43
+
+## v53.42 (2026-07-27)
+- **P833 / KV-only fast quote plane**: removed the R2 bucket binding, R2 secret requirement, and R2 writes from the Cloudflare fast data plane. The Worker now stores the current snapshot and heartbeat in KV only; the deploy contract requires only Cloudflare token, account ID, and KV namespace ID.
+- R2 remains an optional future durability extension; no card registration or R2 subscription is required for this deployment path.
+- R1 7곳 v53.42
+
+## v53.41 (2026-07-27)
+- **P832 / fundamental SEC core report**: native fundamental now renders official SEC annual-fact filing identity, metadata, coverage, and finite observed metrics through `sec-report.v1`.
+- Mixed-source peer/news/external sections, charts, and AI narrative remain explicitly separate from the official SEC evidence surface.
+
+## v53.40 (2026-07-27)
+- **P831 / portfolio deterministic summary cutover**: native portfolio now owns holding count, P/L/day, cash, VIX exposure, and sector allocation from `portfolio-surface.v1`, with finite-safe unavailable states and provenance markers.
+- Legacy portfolio summary and sector writers are fenced for the transferred ids; risk cards, charts, AI workbench, and narrative remain explicitly separate.
+
+## v53.39 (2026-07-27)
+- **P827 / breadth secondary cutover**: native breadth now owns participation/McClellan status and all five chart lifecycles; missing multi-day history remains explicitly unavailable and no synthetic series is rendered.
+- **P828 / FX-bond chart cutover**: native FX-bond owns TNX/JPY history and the current Treasury curve with source-labelled blocked states when evidence is incomplete.
+- **P829 / ticker activity cutover**: native ticker owns portfolio P&L and extended-session activity with no-position/unavailable fail-closed states.
+- **P830 / portfolio Vault/table cutover**: native portfolio owns the safe DOM-built nine-column Vault-backed holdings table; legacy CRUD actions remain delegated through fenced compatibility buttons.
+- Full local verification: architecture contract/browser, Vault E2E 8/8, headless, viewport 68/68, accessibility, critical-10, boot, SA-02~04, and static/runtime/data contracts pass. Data lineage remains blocked by stale `data.json` and warns on SEC 102/655 (15.6%) coverage.
+- External operations remain open: Cloudflare fast-plane credentials/7-day soak, provider-rights review, and SEC `SEC_USER_AGENT` configuration/coverage expansion.
+
 ## v53.38 (2026-07-26)
 - **P826 / derived-route navigation canonicalization**: the architecture compatibility facade now replays `theme-detail` through its canonical `themes` route, preserving the native inline detail mount during FULL_INIT viewport traversal.
 - R1 7곳 v53.38

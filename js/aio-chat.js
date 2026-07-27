@@ -382,9 +382,118 @@ function _aioTacticalTraderFrameworkContext(ctxId, q) {
 }
 if (typeof window !== 'undefined') window._aioTacticalTraderFrameworkContext = _aioTacticalTraderFrameworkContext;
 
+// v53.43 / integrate 2026-07-20: the user supplied AI-infrastructure material is
+// stored as a durable REFERENCE framework. It is deliberately separated from
+// live values so the two competing capex theses can guide questions without
+// turning an essay, screenshot, or X link into current market data.
+var AIO_AI_INFRA_CYCLE_REFERENCE = {
+  id: 'ai-infrastructure-cycle-20260720',
+  version: 'v53.43',
+  sourceKind: 'REFERENCE',
+  asOf: '2026-07-20',
+  sourceLabel: 'User-supplied market analysis, essay, X links, and chart images',
+  handling: 'Use as a reusable debate and monitoring framework only. Exact historical figures, chart levels, and external-link claims require current/official evidence before they can affect a decision.',
+  questions: [
+    { id: 'Q1', label: 'Capex lag or structural trap?', meaning: 'Is current AI capex cash outflow mainly a timing gap before contracted revenue, or does depreciation and recurring reinvestment prevent a durable harvest period?' },
+    { id: 'Q2', label: 'What changed in the market model?', meaning: 'Memory behaves as a P/ASP-and-multiple cycle, while neocloud behaves as a Q/utilization, spread, depreciation, and capital-access cycle.' },
+    { id: 'Q3', label: 'Which variables decide the debate?', meaning: 'Track capex growth versus revenue growth, backlog conversion versus depreciation, price/margin momentum, utilization and rental spread, funding runway, credit spreads, breadth, and real yields.' },
+    { id: 'Q4', label: 'What is the transmission mechanism?', meaning: 'Demand and backlog drive capacity spending; spending becomes depreciation and financing needs; falling compute/token prices can compress spread; breadth, rates, and credit decide whether the shock stays selective or becomes systemic.' },
+    { id: 'Q5', label: 'Where do spillovers appear?', meaning: 'Power, cooling, optics, networking, storage, energy inflation, Korea/EWY semiconductor leadership, and index breadth can confirm or weaken the AI-infrastructure thesis.' }
+  ],
+  lenses: [
+    { id: 'memory-p-game', label: 'Memory = P game', meaning: 'Price/ASP acceleration and the multiple matter; a low P/E is not automatically cheap for a cyclical memory producer.' },
+    { id: 'neocloud-q-capital-game', label: 'Neocloud = Q·capital game', meaning: 'Quantity/utilization must outrun falling rental prices while funding cost, GPU depreciation, lease obligations, and runway remain survivable.' },
+    { id: 'breadth-confirmation', label: 'Narrow index stability is not broad stabilization', meaning: 'Separate mega-cap support from market-wide participation using advance ratio, equal-weight/benchmark relative strength, moving-average breadth, volume, VIX term structure, and credit spreads.' }
+  ],
+  chartReadingProtocol: [
+    'Context: compare cap-weighted leadership with equal-weight, small-cap, sector, and cross-market participation before reading a single pattern.',
+    'Trend: classify higher-high/higher-low, lower-high/lower-low, moving-average slope, and location inside the larger time-series structure.',
+    'Structure: mark support, resistance, channel, Fibonacci/confluence, and the level that would invalidate the visible setup.',
+    'Retest: a reclaim or failed retest matters more than the first touch; require price acceptance rather than a single wick or candle.',
+    'Participation: confirm with volume, advance ratio, breadth above moving averages, relative strength, and credit/volatility context.',
+    'Momentum: use RSI/oscillator divergence as context, never as a standalone reversal signal.',
+    'Decision: finish with confirmation, invalidation, missing evidence, and the next observation window.'
+  ],
+  behaviorPlaybook: [
+    { id: 'wait', trigger: 'Breadth remains narrow, a rebound lacks volume, or the reference thesis cannot be reconciled with current evidence.', response: 'Do not chase; preserve optionality and identify the missing observation.' },
+    { id: 'probe', trigger: 'At least two independent confirmations align: breadth expansion, earnings/estimate improvement, and price/volume reclaim.', response: 'Treat as a staged hypothesis test only; sizing and execution remain user-controlled, never an automatic order.' },
+    { id: 'hold', trigger: 'Backlog conversion or demand evidence improves while depreciation, rental spread, funding, and credit remain contained.', response: 'Maintain the thesis conditionally and monitor the next earnings, utilization, and financing checkpoints.' },
+    { id: 'protect', trigger: 'VIX/HY OAS/real yields/oil stress combine with breadth deterioration, capex cuts, contract breaks, or funding blockage.', response: 'Reduce leverage and reassess exposure according to the user mandate; state the invalidation rather than rationalizing the thesis.' }
+  ],
+  communicationContract: [
+    'Lead with the verdict and regime, then separate observed evidence, reference evidence, and inference.',
+    'State what changed, what did not change, what would change the view, and what evidence is missing.',
+    'Close with confirmation, invalidation, time horizon, and the next check instead of a pattern-only conclusion.'
+  ],
+  invalidation: [
+    'Capex growth stays above revenue growth while backlog conversion fails to accelerate.',
+    'Depreciation and financing costs rise faster than revenue or rental spread.',
+    'Broad participation deteriorates together with VIX, HY OAS, real yields, or oil-inflation pressure.',
+    'Neocloud contracts, funding access, or utilization fail before Q can offset price deflation.'
+  ]
+};
+
+function _aioAIInfraCycleContext(ctxId, q) {
+  try {
+    var relevant = {
+      home:1, briefing:1, macro:1, fxbond:1, technical:1, signal:1, breadth:1,
+      sentiment:1, themes:1, 'theme-detail':1, fundamental:1, screener:1,
+      ticker:1, portfolio:1, options:1, 'market-news':1,
+      'kr-home':1, 'kr-supply':1, 'kr-themes':1, 'kr-macro':1, 'kr-tech':1, 'kr-technical':1
+    };
+    var ask = String(q || '').toLowerCase();
+    var hit = /capex|depreciation|neocloud|coreweave|nebius|iren|memory|dram|hbm|gpu|tpu|breadth|kospi|ewy|soxx|smh|oil|real yield|credit|backlog|utilization|funding|multiple/.test(ask);
+    if (!relevant[ctxId] && !hit) return '';
+    var f = AIO_AI_INFRA_CYCLE_REFERENCE;
+    var lines = [
+      '\n\n[User-supplied AI infrastructure cycle framework | sourceKind=' + f.sourceKind + ' | asOf=' + f.asOf + ']',
+      'This is a durable REFERENCE framework, not a live quote/fundamental block. Do not promote its figures, chart levels, scenario dates, or external-link claims to current facts.',
+      'Source handling: the supplied essay, X links, and eight chart images were read as reference material; current claims must be reconciled with injected LIVE/SNAPSHOT/official evidence.'
+    ];
+    f.questions.forEach(function(item) { lines.push('- ' + item.id + ' ' + item.label + ': ' + item.meaning); });
+    f.lenses.forEach(function(item) { lines.push('- Lens ' + item.label + ': ' + item.meaning); });
+    lines.push('Chart-reading protocol: ' + f.chartReadingProtocol.join(' → '));
+    lines.push('Behavior playbook: ' + f.behaviorPlaybook.map(function(item) { return item.id + '=' + item.trigger + ' => ' + item.response; }).join(' | '));
+    lines.push('Communication contract: ' + f.communicationContract.join(' | '));
+    lines.push('Required cross-check: compare the 2026-07-20 reference window with the latest available time series, then state what changed, what did not change, and which evidence is still missing.');
+    lines.push('Required answer split: (1) memory P/ASP/multiple, (2) neocloud Q/spread/capital, (3) capex/backlog/depreciation, (4) breadth/rates/credit/oil, (5) confirmation and invalidation conditions.');
+    lines.push('Do not infer a bottom from one-day rebound, a low P/E, a backlog headline, or a chart pattern alone.');
+
+    var root = typeof window !== 'undefined' ? window : {};
+    var snap = root.DATA_SNAPSHOT || {};
+    var live = {};
+    try { live = typeof _liveSnap === 'function' ? (_liveSnap() || {}) : {}; } catch(_) { live = {}; }
+    var finite = function(v) { return typeof v === 'number' && isFinite(v); };
+    var pick = function(a, b) { return finite(a) ? a : (finite(b) ? b : null); };
+    var obs = [];
+    var vix = pick(live.vix, snap.vix);
+    var tnx = pick(live.tnx, snap.tnx);
+    var hy = pick(snap.hyOAS, root._hySpreadBp != null ? Number(root._hySpreadBp) / 100 : null);
+    var wti = pick(snap.wti, root._liveData && root._liveData['CL=F'] ? Number(root._liveData['CL=F'].price) : null);
+    var breadth = root._breadthLiveData || null;
+    var asOf = snap._updated || snap._marketDataUpdated || null;
+    if (finite(vix)) obs.push('VIX=' + vix + (snap._fieldTs && snap._fieldTs.vix ? ' @' + snap._fieldTs.vix : ''));
+    if (finite(tnx)) obs.push('US10Y=' + tnx + '%');
+    if (finite(hy)) obs.push('HY OAS=' + hy + '%');
+    if (finite(wti)) obs.push('WTI=' + wti);
+    if (breadth && finite(breadth.advanceRatio)) obs.push('AIO US advance ratio=' + Math.round(breadth.advanceRatio * 1000) / 10 + '% @' + (breadth.observedAt || 'unknown'));
+    if (breadth && finite(breadth.sma20) && finite(breadth.sma50) && finite(breadth.above200)) obs.push('breadth above 20/50/200=' + breadth.sma20 + '/' + breadth.sma50 + '/' + breadth.above200 + '%');
+    lines.push(obs.length ? 'Runtime comparison (source-aware only): ' + obs.join(' · ') + (asOf ? ' · artifact=' + asOf : '') : 'Runtime comparison: current macro/breadth evidence is not injected; do not fill the gap with the reference figures.');
+    lines.push('Reference invalidation checklist: ' + f.invalidation.join(' | '));
+    return lines.join('\n');
+  } catch(_) { return ''; }
+}
+if (typeof window !== 'undefined') {
+  window.AIO_AI_INFRA_CYCLE_REFERENCE = AIO_AI_INFRA_CYCLE_REFERENCE;
+  window._aioAIInfraCycleContext = _aioAIInfraCycleContext;
+  window.AIO = window.AIO || {};
+  window.AIO.getAIInfraCycleReference = function() { return AIO_AI_INFRA_CYCLE_REFERENCE; };
+}
+
 function _aioCreateEvidenceContext(title, focus) {
   return {
     title: title,
+    referenceFrameworks: ['ai-infrastructure-cycle'],
     system: function() {
       var snap = typeof _liveSnap === 'function' ? _liveSnap() : {};
       var lines = [
@@ -409,8 +518,9 @@ function _aioCreateEvidenceContext(title, focus) {
         lines.push('HARD STOP: 시세 미수신 상태에서는 가격 인용·진입가·목표가 계산을 하지 않습니다.');
       }
       var framework = typeof _getV48IntegratedContext === 'function' ? _getV48IntegratedContext(focus) : '';
+      var aiInfra = typeof _aioAIInfraCycleContext === 'function' ? _aioAIInfraCycleContext(focus) : '';
       var rules = typeof _getChatRules === 'function' ? _getChatRules() : '';
-      return lines.join('\n') + framework + rules;
+      return lines.join('\n') + framework + aiInfra + rules;
     }
   };
 }

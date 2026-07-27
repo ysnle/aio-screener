@@ -375,4 +375,22 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   }
 }
 
-console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks'] }));
+// ── domain/portfolio/surface.js + domain/fundamental/sec-report.js ─────────────────────────────
+// P831/P832: deterministic native secondary projections must preserve null/unavailable inputs,
+// finite quote derivation, and official-SEC provenance rather than converting missing facts to 0.
+{
+  const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
+  const empty = derivePortfolioSurface({ state: { status: 'unavailable', holdings: [], cash: null }, liveData: {}, vix: null });
+  if (empty.status !== 'unavailable' || empty.dailyChange !== null || empty.exposureCap !== null || empty.sectorBreakdown.length !== 0) fail(`portfolio-surface: empty input must remain unavailable, got ${JSON.stringify(empty)}`);
+  const live = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, sector: 'Technology' }], cash: 50 }, liveData: { ABC: { price: 12, pct: 2 } }, vix: 22 });
+  if (live.modelVersion !== 'portfolio-surface.v1' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || live.exposureCap !== 50 || live.sectorBreakdown.length !== 2) fail(`portfolio-surface: live/cash derivation drifted, got ${JSON.stringify(live)}`);
+}
+{
+  const { deriveSecReport } = await load('src/domain/fundamental/sec-report.js');
+  const report = deriveSecReport({ symbol: 'AAPL', entityName: 'Apple', form: '10-K', coverage: ['revenue', 'margin', 'pe'], revenue: 100, margin: 25, pe: 30, sourceTier: 'official-regulator' });
+  if (report.modelVersion !== 'sec-report.v1' || report.status !== 'current' || report.metrics.length !== 3 || report.sourceKind !== 'official-regulator') fail(`sec-report: complete official record drifted, got ${JSON.stringify(report)}`);
+  const missing = deriveSecReport({ coverage: ['revenue'], revenue: null });
+  if (missing.status !== 'unavailable' || missing.metrics.length !== 0) fail(`sec-report: null fact must remain unavailable, got ${JSON.stringify(missing)}`);
+}
+
+console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/portfolio/surface', 'domain/fundamental/sec-report'] }));

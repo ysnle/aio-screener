@@ -109,6 +109,18 @@ target_version: v53.23
 
 **Validation**: `ci-viewport-matrix-check.mjs` with `AIO_VIEWPORT_FULL_INIT=1` must settle `theme-detail` with its canonical `themes` panel visible across all viewports; architecture browser coverage must retain the native theme-detail surfaces and zero browser errors.
 
+## R374. Portfolio summary cutovers must transfer the pure model and fence every legacy writer (v53.40, P831)
+
+**Rule**: A portfolio summary/allocation/exposure surface may move to native ownership only when one finite-safe domain model derives its values from normalized Vault state plus explicitly labelled quote evidence. Missing value, change, cash, VIX, or sector evidence must remain unavailable rather than become zero. Every inline summary or sector writer that can reach a transferred id must consult the native surface marker; risk cards, history charts, AI workbench, and narrative remain separate boundaries until their own input and writer packets are complete.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `portfolio-surface.v1`, native summary markers, and legacy fences; `ci-architecture-browser-check.mjs` requires the portfolio surface/model markers and native count/sector/exposure markers; unit fixtures must cover empty, cash-only, missing-quote, and finite live-quote cases.
+
+## R375. Official SEC report surfaces must use one finite-safe projection and keep mixed-source sections separate (v53.41, P832)
+
+**Rule**: A fundamental route may present an official SEC report only through one pure projection that preserves filing identity, period/submission dates, coverage, source kind, and finite observed values. Missing facts remain unavailable; they must not be inferred from FMP/Yahoo/news data. Peer comparison, external news, charts, and AI narrative remain separately labelled boundaries until their own evidence and writers are reconciled.
+
+**Validation**: `ci-architecture-contract-check.mjs` requires `sec-report.v1` and native report markers; `ci-architecture-browser-check.mjs` requires the native report/model/metadata markers and zero browser errors; fixtures cover empty, partial, and complete SEC records.
+
 ## R367. Theme-detail benchmark narrative must use normalized theme/benchmark evidence and fence the legacy section (v53.30, P795)
 
 **Rule**: The theme-detail benchmark narrative must be rendered by the native child `#theme-detail-native-benchmark` from normalized theme performance and the selected ETF/composite-base quote evidence. Missing either side must fail closed to `시세 대기`; the legacy benchmark section must be fenced, while theme insights, chart, and data ownership stay separately bounded.
@@ -1471,3 +1483,32 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Required**: 무료 공식 원천을 우선하고 무료 동등 경로가 없으면 reference/education으로 제한한다. 운영자 이메일·무료 키·승인이 필요한 원천은 `operator_configuration_required`로 fail-closed 처리한다. 공용 CORS proxy/CDN 실패가 더 최신인 공식 서버 artifact를 snapshot으로 되돌리지 못하게 한다.
 
 **Validation**: `refresh-screener.yml`, `validate-screener-artifact.mjs`, SEC companyfacts 정규화 fixture, Cboe 공식 페이지 parser fixture/live probe, 종목별 `observedAt/sourceKind/allowedUse`, runtime/data-pipeline contract.
+## R376. Cloudflare fast quote plane의 R2는 승인된 optional durability layer이며 KV-only 배포에서는 R2 binding/secret을 요구하지 않는다 (v53.42, P833)
+
+**Rule**: 운영자가 카드 등록 없이 fast quote plane을 사용하기로 선택한 경우 Worker는 KV의 `quotes:current`와 `quotes:heartbeat`만으로 동작해야 한다. 배포 preflight는 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `AIO_QUOTES_KV_ID`만 요구하며 `AIO_QUOTES_R2_BUCKET`, R2 binding, R2 write/fallback을 암묵적으로 재도입하지 않는다. R2 durability는 별도 승인된 작업에서만 추가한다.
+
+**Validation**: `scripts/ci-data-plane-contract-check.mjs`, workflow YAML/control-character check, Worker syntax check, `/health` Tier0 16/16 smoke check.
+
+## R377. 사용자 제공 시장자료는 하나의 REFERENCE 프레임으로 통합하되 현재성 수치와 분리한다 (v53.43, P834)
+
+**Rule**: `/integrate`가 시장 텍스트, 외부 링크, 차트 이미지, 티커 프레임을 반영할 때는 `sourceKind=REFERENCE`, `asOf`, 원문/이미지 식별자, Q1~Q5 추출, 시계열 상태를 보존한다. capex·backlog·가격·차트 레벨·외부 endpoint 상태는 `DATA_SNAPSHOT` 또는 live decision input으로 승격하지 않는다. `CHAT_CONTEXTS`에는 재사용 가능한 판정 프레임만 주입하고 현재 수치는 LIVE/SNAPSHOT/official evidence에서만 재계산한다.
+
+**Required**: ticker memo에는 날짜 헤더를 포함하고, memory P/ASP/multiple과 neocloud Q/spread/capital을 분리하며, breadth·금리·신용·유가의 교차확인을 요구한다. 차트는 구조·리테스트·거래량·무효화 조건으로 추출하고 OCR이 불확실한 숫자는 폐기한다.
+
+**Validation**: `public-data/user-research-digest.json`, `AIO_AI_INFRA_CYCLE_REFERENCE`, `_aioAIInfraCycleContext`, `ci-runtime-contract-check.mjs`, `ci-knowledge-lint-check.mjs`, memo freshness tests, and full static/runtime/browser QA.
+
+## R378. Reference market material must expose reusable chart, behavior, and communication protocols (v53.44, P835)
+
+**Rule**: A source-labelled market-material integration is incomplete if it stores only thesis prose and raw observations. It must also define a chart-reading sequence, non-automated response states, and an answer contract that separates observed evidence, reference evidence, inference, confirmation, invalidation, and missing data.
+
+**Required**: Keep chart levels and supplied figures as `REFERENCE`; use `wait`/`probe`/`hold`/`protect` as conditional behavior states; leave execution and sizing user-controlled; close analysis with the next observation window.
+
+**Validation**: `AIO_AI_INFRA_CYCLE_REFERENCE.chartReadingProtocol`, `.behaviorPlaybook`, `.communicationContract`, the research digest framework, and the Knowledge Base section must remain synchronized.
+
+## R379. SEC refresh queues must rotate untried candidates before retrying known failures (v53.45, P836)
+
+**Rule**: An SEC fundamentals refresh must not let repeatedly unavailable symbols starve eligible symbols that have never been attempted. Failed attempts must retain timestamps, be cooled down by default, and remain explicitly unavailable until an official source succeeds.
+
+**Required**: Prioritize never-failed candidates, use a bounded retry cooldown, expose an explicit operator override for deliberate retries, and never synthesize missing filing facts. Rebuild dependent screener coverage after the SEC artifact changes.
+
+**Validation**: `scripts/fetch-sec-fundamentals.mjs`, `public-data/sec-fundamentals.json`, `public-data/screener.json`, and `public-data/operations-status.json` must expose source-labelled counts and freshness.

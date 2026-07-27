@@ -34,9 +34,9 @@ const workingTreeClean = execFileSync('git', ['status', '--short'], { cwd: root,
 // be mistaken for the current checkout/version/deployment status.
 for (const docPath of ['_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md', '_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md']) {
   const doc = read(docPath);
-  const blockMatch = doc.match(/## Current generated preflight \(P826, 2026-07-26\)[\s\S]*?(?=\n## |\n# |$)/);
+  const blockMatch = doc.match(/## Current generated preflight \(P\d+, \d{4}-\d{2}-\d{2}\)[\s\S]*?(?=\n## |\n# |$)/);
   if (!blockMatch) {
-    warnings.push(`${docPath} is missing the generated P826 current preflight block`);
+    warnings.push(`${docPath} is missing the generated current preflight block`);
     continue;
   }
   const block = blockMatch[0];

@@ -1,26 +1,26 @@
-> **v53.38 (P761~P826 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, and P826 derived-route compatibility canonicalization까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+> **v53.45 (P761~P836 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, P826 derived-route compatibility canonicalization, P827~P830 secondary surface closure, P831 portfolio summary, P832 SEC report, P833 KV-only fast quote deployment, P834 AI infrastructure reference integration, P835 chart/behavior/communication protocols, and P836 data refresh pipeline correction까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P826 update
-current_override: P821 home quality fail-closed, P822 technical candle metadata, P823 finite theme-detail comparison hardening, P824 native currentness guard, P825 live-region reduction, and P826 derived-route compatibility canonicalization plus P795 theme-detail bounded native summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; P780 bounded portfolio surface remains in force
-last_verified: 2026-07-26
+verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P834 update
+current_override: P834 AI infrastructure cycle reference integration after P833 KV-only fast quote deployment; broader mixed-source fundamental, portfolio risk/history/AI, and route data/chart/narrative boundaries remain explicit legacy/open
+  last_verified: 2026-07-27
 confidence: high
-target_version: v53.38
+  target_version: v53.45
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P795 gate
-current_checkpoint: P826 full local verification complete; derived theme-detail navigation preserves the canonical themes native mount, while home quality is native fail-closed, technical candle title/meta are native, theme-detail comparison formatting is finite-safe, native currentness sanitization respects ownership, live-region announcements are bounded, and native renderer routes are 17/17; remaining contested surfaces are breadth/fxbond/ticker/portfolio boundaries
+  current_checkpoint: P834 reference integration is source-labelled and runtime-safe; P833 fast quote Worker deploy contract remains KV-only without R2; native renderer routes are 17/17, while mixed-source fundamental, portfolio risk/history/AI, and route data/chart/narrative boundaries remain explicitly separate
 ---
 
-## Current machine-verified file-size table (v53.30, 2026-07-26)
+## Current machine-verified file-size table (v53.45, 2026-07-27)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 27,541 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,259 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 15,829 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-ui.js` | 4,258 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 6,086 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 8,866 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 27,418 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,262 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 15,809 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 4,262 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 6,173 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 8,871 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 113 | native guide search/jump lifecycle module |
 | `src/ui/pages/screener.js` | 517 | native screener table/filter/profile/watchlist/position renderer |
 | `src/data/providers/screener.js` | 143 | screener artifact + identity-universe provider |
@@ -29,7 +29,7 @@ current_checkpoint: P826 full local verification complete; derived theme-detail 
 | `src/ui/pages/news.js` | 286 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
 | `src/ui/pages/market.js` | 303 | native macro/fxbond/breadth primary metric renderers; native screener-metadata breadth fallback |
 | `src/ui/pages/themes.js` | 600 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; chart/status and theme-insights secondary boundaries |
-| `src/ui/pages/entity.js` | 112 | native bounded ticker hero, fundamental SEC status, and options replacement-metric renderer; fundamental report and ticker secondary surfaces remain legacy |
+| `src/ui/pages/entity.js` | 112 | native ticker hero/activity, options metrics, fundamental SEC status/summary, and `sec-report.v1` core report renderer; mixed-source report remains legacy |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
 
 > The historical v52.66 table below is retained for audit context. Use this current
@@ -97,6 +97,11 @@ legacy screener helpers and shifted all downstream anchors.
 - P793 moved the breadth-health interpretation into `#theme-detail-native-breadth-health`; subtheme gap, benchmark, deep narrative, chart, and data sections remain separate legacy boundaries.
 - P794 moved the subtheme performance gap into `#theme-detail-native-subtheme-gap`; benchmark, deep narrative, chart, and data sections remain separate legacy boundaries.
 - P795 moved the selected-theme versus ETF/composite-base comparison into `#theme-detail-native-benchmark`; theme insights, chart, and data sections remain separate legacy boundaries.
+
+### P831~P832 bounded secondary ownership (2026-07-27)
+
+- `src/domain/portfolio/surface.js` owns the finite-safe portfolio summary/allocation/exposure derivation; `src/ui/pages/portfolio.js` owns its DOM sinks and `sw.js` publishes the module. Portfolio risk cards, history charts, AI workbench, and narrative remain separate.
+- `src/domain/fundamental/sec-report.js` owns the official SEC annual-fact projection; `src/ui/pages/entity.js` owns the filing metadata/coverage/metric child surface. Mixed-source fundamental report sections, charts, and AI narrative remain separate.
 
 ## Native ESM and data-plane additions (v53.11)
 
@@ -483,3 +488,4 @@ The tables in this subsection supersede older detailed line snapshots retained b
 - 큰 구조 변경 뒤에는 이 파일의 line 번호를 반드시 재스캔한다. **다음 재스캔 트리거**: index.html 또는 js 모듈 어느 한 파일이라도 ±500줄 변경 시, 또는 3개월 경과 시(자동 staleness 방지).
 - **2026-07-06 targeted correction (P626, `_context/FABLE-ARCH-DIAGNOSIS-2026-07-06.md` Phase 0-4)**: 이 파일 자체가 v51.90 스캔 기준으로 "미해결"이라 적어둔 진단 C1(RSI)이 실제로는 v51.91에 이미 해소됐음을 실측 확인(§3 표 2곳 + §5 구조적 이슈 목록 정정) — 진단 문서의 "미해결" 표기는 스캔 시점 스냅샷이며, 해소 커밋이 그 표기를 갱신하지 않으면 이렇게 낡는다는 실사례. **주의**: 이번 정정은 C1/C3 문구 3곳 + `fetchKrDynamicData`/orphan 5함수 삭제(index.html -296줄, §2/§3의 관련 line 번호는 미재확인) 타깃 수정만이며, 전체 재스캔이 아니다. 헤더의 `target_version: v51.90`은 실제 v52.19 대비 29버전 stale — ±500줄 트리거는 이번 삭제(-296줄) 단독으론 미충족하나 다음 대규모 변경 전 전체 재스캔 권장.
 > **v53.8 (P727) 재스캔 완료**: v53.7의 KR 5페이지 통합과 v53.8의 fxbond 고아 렌더 경로 제거를 반영해 파일 크기, script/style 경계, 17-route DOM 시작점, 핵심 runtime anchor를 다시 측정했다. 세부 함수 line은 편집 전 `rg -n`으로 최종 확인한다.
+> **v53.45 (P836 current packet)**: reference analysis protocols remain source-labelled as REFERENCE, and the SEC refresh now rotates untried candidates before cooled-down retries; dependent screener coverage was regenerated.

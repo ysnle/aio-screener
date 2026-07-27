@@ -157,6 +157,124 @@ function renderSnapshotMetrics(root, page) {
   });
 }
 
+function historyRows(root, field) {
+  try {
+    const rows = typeof root?._aioHistorySeries === 'function' ? root._aioHistorySeries(field, 5) : [];
+    return Array.isArray(rows)
+      ? rows.map((row) => ({
+        date: String(row?.date || row?.time || '').slice(0, 10),
+        value: finite(row?.value ?? row?.close),
+        sourceKind: row?.sourceKind || 'server-history',
+        source: row?.source || `public-data/history.json:${field}`
+      })).filter((row) => row.date && row.value != null)
+      : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function destroyNativeChart(charts, id) {
+  const entry = charts?.get(id);
+  if (!entry) return;
+  try { entry.chart?.destroy?.(); } catch (_) {}
+  charts.delete(id);
+}
+
+function setCanvasState(canvas, { rendererKey, sourceKind, sourceLabel, operationalUse, title }) {
+  if (!canvas) return;
+  if (rendererKey) canvas.dataset[rendererKey] = 'native';
+  canvas.setAttribute('data-source-kind', sourceKind);
+  canvas.setAttribute('data-source-label', sourceLabel);
+  canvas.setAttribute('data-operational-use', operationalUse);
+  if (title) canvas.setAttribute('title', title);
+}
+
+function renderNativeHistoryChart(root, page, charts, { id, field, label, rendererKey, unavailableLabel }) {
+  const canvas = page.querySelector(`#${id}`);
+  if (!canvas) return;
+  const rows = historyRows(root, field);
+  const ChartConstructor = root?.Chart;
+  if (rows.length < 2 || typeof ChartConstructor !== 'function') {
+    destroyNativeChart(charts, id);
+    setCanvasState(canvas, { rendererKey, sourceKind: 'unavailable', sourceLabel: `history:${field}:unavailable`, operationalUse: 'blocked', title: unavailableLabel });
+    canvas.__rendered = 'native';
+    return;
+  }
+  const signature = rows.map((row) => `${row.date}:${row.value}`).join('|');
+  if (charts.get(id)?.signature === signature) return;
+  destroyNativeChart(charts, id);
+  let chart;
+  try {
+    chart = new ChartConstructor(canvas, {
+      type: 'line',
+      data: {
+        labels: rows.map((row) => row.date.slice(5).replace('-', '/')),
+        datasets: [{ label, data: rows.map((row) => row.value), borderColor: '#4aa3df', backgroundColor: 'transparent', borderWidth: 1.8, pointRadius: 0, tension: 0.15, fill: false }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 5 }, grid: { display: false } },
+          y: { ticks: { maxTicksLimit: 4 }, grid: { color: 'rgba(33,29,22,0.08)' } }
+        },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { title: (items) => rows[items[0]?.dataIndex]?.date || '' } } }
+      }
+    });
+  } catch (_) {
+    setCanvasState(canvas, { rendererKey, sourceKind: 'unavailable', sourceLabel: `history:${field}:chart-runtime-failed`, operationalUse: 'blocked', title: unavailableLabel });
+    canvas.__rendered = 'native';
+    return;
+  }
+  charts.set(id, { chart, signature });
+  canvas.__rendered = 'chartjs';
+  setCanvasState(canvas, { rendererKey, sourceKind: rows[rows.length - 1].sourceKind, sourceLabel: rows[rows.length - 1].source, operationalUse: 'reference-only', title: `${label} · source: ${rows[rows.length - 1].source}` });
+}
+
+function renderNativeCurveChart(root, page, charts) {
+  const canvas = page.querySelector('#koreaCurveChart');
+  if (!canvas) return;
+  const values = [
+    ['3M', quoteValue(root, '^IRX')?.price],
+    ['2Y', finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value)],
+    ['5Y', quoteValue(root, '^FVX')?.price],
+    ['10Y', quoteValue(root, '^TNX')?.price],
+    ['30Y', quoteValue(root, '^TYX')?.price]
+  ];
+  if (!values.every(([, value]) => Number.isFinite(value)) || typeof root?.Chart !== 'function') {
+    destroyNativeChart(charts, 'koreaCurveChart');
+    setCanvasState(canvas, { rendererKey: 'aioFxbondChartRenderer', sourceKind: 'unavailable', sourceLabel: 'yield-curve:current-evidence-unavailable', operationalUse: 'blocked', title: '수익률 곡선 현재 관측값 미수신' });
+    canvas.__rendered = 'native';
+    return;
+  }
+  const signature = values.map(([, value]) => value).join('|');
+  if (charts.get('koreaCurveChart')?.signature === signature) return;
+  destroyNativeChart(charts, 'koreaCurveChart');
+  let chart;
+  try {
+    chart = new root.Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: values.map(([label]) => label),
+        datasets: [{ label: 'US Treasury yield (%)', data: values.map(([, value]) => value), borderColor: '#4aa3df', backgroundColor: 'rgba(74,163,223,0.12)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#4aa3df', fill: true, tension: 0.2 }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => `${Number(context.parsed.y).toFixed(2)}%` } } },
+        scales: { x: { ticks: { maxTicksLimit: 5 } }, y: { ticks: { maxTicksLimit: 5, callback: (value) => `${Number(value).toFixed(1)}%` } } }
+      }
+    });
+  } catch (_) {
+    setCanvasState(canvas, { rendererKey: 'aioFxbondChartRenderer', sourceKind: 'unavailable', sourceLabel: 'yield-curve:chart-runtime-failed', operationalUse: 'blocked', title: '수익률 곡선 차트 런타임 보류' });
+    canvas.__rendered = 'native';
+    return;
+  }
+  charts.set('koreaCurveChart', { chart, signature });
+  canvas.__rendered = 'chartjs';
+  setCanvasState(canvas, { rendererKey: 'aioFxbondChartRenderer', sourceKind: 'live', sourceLabel: 'live:^IRX+DGS2+^FVX+^TNX+^TYX', operationalUse: 'reference-only', title: 'US Treasury yield curve · current observed evidence' });
+}
+
 function renderMacro(root, page) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
@@ -221,7 +339,7 @@ function renderMacro(root, page) {
   }
 }
 
-function renderFxbond(root, page) {
+function renderFxbond(root, page, charts) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
   const twoYear = finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value);
@@ -373,6 +491,21 @@ function renderFxbond(root, page) {
     chartStatusNode.dataset.aioFxbondCurveStatusRenderer = 'native';
     writeLineage(chartStatusNode, curveEvidence ? 'live' : 'unavailable', curveEvidence ? 'live:^TNX-^IRX' : 'yield-curve evidence unavailable');
   }
+  renderNativeHistoryChart(root, page, charts, {
+    id: 'fxbond-tnx-trend',
+    field: 'tnx',
+    label: '10Y Treasury',
+    rendererKey: 'aioFxbondChartRenderer',
+    unavailableLabel: '미 10년물 공식 히스토리 미수신'
+  });
+  renderNativeHistoryChart(root, page, charts, {
+    id: 'fxbond-jpy-trend',
+    field: 'jpy',
+    label: 'USD/JPY',
+    rendererKey: 'aioFxbondChartRenderer',
+    unavailableLabel: 'USD/JPY 공식 히스토리 미수신'
+  });
+  renderNativeCurveChart(root, page, charts);
 }
 
 function breadthEvidence(root) {
@@ -486,6 +619,23 @@ function renderBreadth(root, page) {
     node.style.color = evidence.available ? 'var(--text-primary)' : 'var(--text-muted)';
     writeLineage(node, sourceKind, source);
   });
+  const stageNode = page.querySelector('#breadth-stage-summary');
+  const participation = evidence.available && typeof root?.AIO_ARCH?.classifyBreadthParticipation === 'function'
+    ? root.AIO_ARCH.classifyBreadthParticipation({ sma20: evidence.sma20, sma50: evidence.sma50 })
+    : { available: false };
+  writeText(stageNode, participation.available ? `${participation.level}${participation.direction ? ` · ${participation.direction}` : ''}` : '현재 참여도 미수신');
+  if (stageNode) {
+    stageNode.dataset.aioBreadthStageRenderer = 'native';
+    stageNode.style.color = participation.available ? 'var(--text-primary)' : 'var(--text-muted)';
+    writeLineage(stageNode, participation.available ? sourceKind : 'unavailable', participation.available ? source : 'breadth participation unavailable');
+  }
+  const mcclellanNode = page.querySelector('#breadth-mcclellan-summary');
+  writeText(mcclellanNode, 'A/D 시계열 미수신 · 판단 보류');
+  if (mcclellanNode) {
+    mcclellanNode.dataset.aioBreadthMcclellanRenderer = 'native';
+    mcclellanNode.setAttribute('data-mcclellan-signal', 'unavailable');
+    writeLineage(mcclellanNode, 'unavailable', 'breadth A/D history unavailable');
+  }
 }
 
 export function createMarketSlicePage({ root = globalThis, documentRef, store, route } = {}) {
@@ -493,6 +643,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
     route,
     mount() {
       const bag = createResourceBag();
+      const charts = new Map();
       const page = documentRef?.getElementById(`page-${route}`);
       if (!page) return () => bag.dispose();
       page.dataset.aioArchitectureRoute = route;
@@ -536,6 +687,9 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         });
         const riskNode = page.querySelector('#fxbond-risk-pill');
         if (riskNode) riskNode.dataset.aioFxbondRiskRenderer = 'native';
+        page.querySelectorAll('#fxbond-tnx-trend, #fxbond-jpy-trend, #koreaCurveChart').forEach((canvas) => {
+          canvas.dataset.aioFxbondChartRenderer = 'native';
+        });
       }
       if (route === 'breadth') {
         page.dataset.aioArchitectureRenderer = 'native';
@@ -546,10 +700,13 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
           const node = page.querySelector(selector);
           if (node) node.dataset.aioBreadthDiagnosticRenderer = 'native';
         });
+        page.querySelectorAll('#bp-price-chart, #bp-ad-ratio-chart, #bp-5ma-chart, #bp-20ma-chart, #bp-50ma-chart').forEach((canvas) => {
+          canvas.dataset.aioBreadthChartRenderer = 'native';
+        });
       }
       const renderNow = () => {
         if (route === 'macro') renderMacro(root, page);
-        if (route === 'fxbond') renderFxbond(root, page);
+        if (route === 'fxbond') renderFxbond(root, page, charts);
         if (route === 'breadth') renderBreadth(root, page);
       };
       renderNow();
@@ -561,6 +718,8 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });
       bag.add(() => {
+        charts.forEach((entry) => { try { entry.chart?.destroy?.(); } catch (_) {} });
+        charts.clear();
         if (page.dataset.aioArchitectureRoute === route) delete page.dataset.aioArchitectureRoute;
         if (page.dataset.aioArchitectureSlice === 'market') delete page.dataset.aioArchitectureSlice;
         if (route === 'macro' && page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
@@ -605,6 +764,10 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         }
         const riskNode = page.querySelector('#fxbond-risk-pill');
         if (route === 'fxbond' && riskNode?.dataset.aioFxbondRiskRenderer === 'native') delete riskNode.dataset.aioFxbondRiskRenderer;
+        if (route === 'fxbond') page.querySelectorAll('#fxbond-tnx-trend, #fxbond-jpy-trend, #koreaCurveChart').forEach((canvas) => {
+          if (canvas.dataset.aioFxbondChartRenderer === 'native') delete canvas.dataset.aioFxbondChartRenderer;
+          if (canvas.__rendered === 'native' || canvas.__rendered === 'chartjs') delete canvas.__rendered;
+        });
         if (route === 'breadth' && page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (route === 'breadth' && page.dataset.aioBreadthRenderer === 'native') delete page.dataset.aioBreadthRenderer;
         if (route === 'breadth') {
@@ -615,6 +778,16 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         }
         const signalNode = page.querySelector('#breadth-signal-val');
         if (route === 'breadth' && signalNode?.dataset.aioBreadthSignalRenderer === 'native') delete signalNode.dataset.aioBreadthSignalRenderer;
+        if (route === 'breadth') {
+          const stageNode = page.querySelector('#breadth-stage-summary');
+          const mcclellanNode = page.querySelector('#breadth-mcclellan-summary');
+          if (stageNode?.dataset.aioBreadthStageRenderer === 'native') delete stageNode.dataset.aioBreadthStageRenderer;
+          if (mcclellanNode?.dataset.aioBreadthMcclellanRenderer === 'native') delete mcclellanNode.dataset.aioBreadthMcclellanRenderer;
+          page.querySelectorAll('#bp-price-chart, #bp-ad-ratio-chart, #bp-5ma-chart, #bp-20ma-chart, #bp-50ma-chart').forEach((canvas) => {
+            if (canvas.dataset.aioBreadthChartRenderer === 'native') delete canvas.dataset.aioBreadthChartRenderer;
+            if (canvas.__rendered === 'native' || canvas.__rendered === 'chartjs') delete canvas.__rendered;
+          });
+        }
       });
       return () => bag.dispose();
     }

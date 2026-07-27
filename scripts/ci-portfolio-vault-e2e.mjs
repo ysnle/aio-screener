@@ -103,9 +103,9 @@ async function main() {
       window.savePortfolioData([{ sym: 'XSS', qty: 1, cost: 10, memo: '<img src=x onerror=alert(1)>' }]);
       window.showPortfolioMain();
       const raw = localStorage.getItem('aio_portfolio_data') || '';
-      const html = document.getElementById('pf-main')?.innerHTML || '';
+      const text = document.getElementById('pf-main')?.textContent || '';
       const parsed = JSON.parse(raw);
-      return { optOutPlain: raw.startsWith('['), rawRoundTrip: parsed[0]?.memo === '<img src=x onerror=alert(1)>', domHasExecutableHandler: document.querySelectorAll('#pf-main img,[onerror]').length > 0, escapedTextVisible: html.includes('&lt;img') };
+      return { optOutPlain: raw.startsWith('['), rawRoundTrip: parsed[0]?.memo === '<img src=x onerror=alert(1)>', domHasExecutableHandler: document.querySelectorAll('#pf-main img,[onerror]').length > 0, escapedTextVisible: text.includes('<img src=x onerror=alert(1)>') };
     });
     check('PFE2-07 opt_out_is_explicit_plaintext', boundary.optOutPlain && boundary.rawRoundTrip, JSON.stringify(boundary));
     check('PFE2-08 portfolio_input_boundary', !boundary.domHasExecutableHandler && boundary.escapedTextVisible, JSON.stringify(boundary));

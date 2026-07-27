@@ -1,10 +1,10 @@
 ---
-  verified_by: Codex (v53.30 local repository, contracts, and Chromium evidence); session cards through 2026-07-26 (P795; see _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md for the authoritative current status/owner ledger)
-last_verified: 2026-07-26
+  verified_by: Codex (v53.43 local repository, contracts, full Chromium/viewport/accessibility evidence); P827-P834 current packet (see _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md for the authoritative current status/owner ledger)
+ last_verified: 2026-07-27
 confidence: high
 auto_refresh: false
-  target_version: v53.38
-  current_packet: P826 derived-route compatibility canonicalization after P821-P825 cutovers
+  target_version: v53.43
+  current_packet: P834 AI infrastructure reference integration after P833 KV-only fast quote deployment, P832 fundamental SEC core report, P831 portfolio deterministic summary cutover, and P827-P830 secondary closure
 status: DESIGNED_EXECUTABLE
 parent: ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md
 scope: whole-system architecture execution
@@ -49,11 +49,17 @@ The current preflight is local `main` HEAD `02ec6bc`, v53.19, dirty/uncommitted,
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `4aa197a`
-- working_tree: `clean / committed local changes`
-- application_version: `v53.38`
-- deployment: `v53.38 GitHub Pages deployment passed; live invariant confirmed`
+- git_head: `7397133`
+- working_tree: `dirty / uncommitted local changes`
+- application_version: `v53.43`
+- deployment: `not deployed; live invariant fetch unavailable in current environment`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
+
+## Current verified checkpoint (P830, 2026-07-27)
+
+P827 closes breadth participation/McClellan and all five breadth chart lifecycles with explicit unavailable history. P828 closes the three FX-bond chart lifecycles with source-labelled TNX history, JPY-history blocking, and current Treasury-curve blocking when tenor evidence is incomplete. P829 closes ticker extended-session and portfolio P&L/value sinks with no-position and unavailable states. P830 closes the Vault-backed nine-column portfolio holdings table using safe DOM construction and compatibility action buttons.
+
+Current local ownership is lifecycle native 17/17, renderer native 17/17, data native 2/17, chart native 4/17, narrative native 1/17; measured counters are `1087/39/186/373`. Architecture contract/browser, Vault E2E 8/8, headless, FULL_INIT viewport 68/68, accessibility, critical10, boot, SA-02~04, and static/runtime/data contracts pass. Data-lineage is the sole local gate failure because `data.json` is 14.1h old; the refresh attempt preserved last-known-good after `CORE_QUOTE_COVERAGE_FAILED:0/78`. SEC remains 102/655 (15.6%), while Cloudflare fast-plane credentials/soak and provider rights remain external blockers.
 
 ## Current verified checkpoint (P826, 2026-07-26)
 

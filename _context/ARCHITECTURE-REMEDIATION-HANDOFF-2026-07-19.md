@@ -1,24 +1,30 @@
 ---
 verified_by: Claude Fable 5 (repository-wide structural audit; 발견마다 ?�일:?�인 증거 ?�용); RM-00~06/P755~P758 ?�행 Claude Sonnet 5; P759~P785 �??�재 ?��?�?Codex
-last_verified: 2026-07-26
-  current_packet: P826 derived-route compatibility canonicalization after P821-P825 cutovers; remaining contested surfaces are chart/time-series/Vault boundaries
-  verification_note: Codex P761-P795 prior route cutovers plus derived ownership accounting, active SW controller diagnostics, snapshot-first degraded quote operation, bounded technical health ownership, bounded signal hero ownership, bounded home aggregate ownership, and bounded theme-detail summary/composition/leader/temperature/spread/breadth-health/subtheme-gap/benchmark ownership
+ last_verified: 2026-07-27
+  current_packet: P834 AI infrastructure reference integration after P833 KV-only fast quote plane, P832 official SEC core report, and P827-P831 surface closures; R2 is an optional durability extension, not a deployment prerequisite
+  verification_note: Codex P761-P834 route cutovers plus AI infrastructure reference integration, derived ownership accounting, active SW controller diagnostics, snapshot-first degraded quote operation, bounded technical health ownership, bounded signal/home/theme-detail ownership, breadth/fx-bond chart lifecycle ownership, ticker activity ownership, Vault-backed portfolio table ownership, portfolio surface model, SEC report model, and KV-only fast-plane deployment contract; live certification remains operator-dependent
 confidence: high
 auto_refresh: false
-  target_version: v53.38
-  current_update: P826 implemented, fully verified locally, committed/pushed, and deployed; live invariant confirms v53.38
+  target_version: v53.43
+  current_update: P833 implemented and locally verified; commit/deploy remains intentionally held because external operations are still unverified
 
-## Current generated preflight (P826, 2026-07-26)
+## Current generated preflight (P834, 2026-07-27)
 
 <!-- GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs -->
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `4aa197a`
-- working_tree: `clean / committed local changes`
-- application_version: `v53.38`
-- deployment: `v53.38 GitHub Pages deployment passed; live invariant confirmed`
+- git_head: `7397133`
+- working_tree: `dirty / uncommitted local changes`
+- application_version: `v53.43`
+- deployment: `not deployed; live invariant fetch unavailable in current environment`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
+
+## Current verified checkpoint (P834, 2026-07-27)
+
+P827~P830 close the 14 declared code surfaces: breadth (7), FX-bond (3), ticker (3), and portfolio Vault/table (1). P831 adds the deterministic portfolio summary/allocation/exposure surface, P832 adds the official SEC core report, and P833 removes the optional R2 dependency from the fast quote deployment path so KV-only operation needs no card/R2 subscription. The route ledger remains lifecycle/renderer 17/17, chart ownership 4 routes, with no contested IDs for these packets. Existing browser evidence covers native markers for all secondary surfaces, 17-route two-lap round trip, 42 canvases, 12 timers, and browserErrors 0; P833's KV-only worker/workflow contract, runtime KV `/health` fixture, syntax, YAML, version, release, and local browser gates all pass. Portfolio Vault PFE2-01~08 remains PASS, including plaintext opt-out XSS text boundary and native table synchronization.
+
+External status remains explicit and unverified: operations-status is `OPERATOR_REQUIRED`, Cloudflare fast endpoint is `not-configured` with 0/7 soak days, Yahoo/FRED/SEC rights are `REVIEW_REQUIRED`, SEC artifact coverage is 102/655 (15.6%), and `SEC_USER_AGENT` is not configured. The local data refresh failed closed at 0/78 core quotes and preserved `data.json`; `ci-data-lineage-audit` therefore has one freshness FAIL plus SEC/Telegram WARNs. No live deployment or provider-rights approval is claimed.
 
 ## Current verified checkpoint (P826, 2026-07-26)
 

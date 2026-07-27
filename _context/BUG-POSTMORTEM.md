@@ -1,11 +1,12 @@
 ---
-verified_by: agent (Claude Sonnet 5) + Codex P761-P795 verification
-last_verified: 2026-07-26
+verified_by: agent (Claude Sonnet 5) + Codex P761-P836 verification
+last_verified: 2026-07-27
 confidence: high
-latest_version: v53.38
-latest_P_number: P826
-next_P_number: P827
-current_checkpoint: P826 derived-route compatibility canonicalization after P821-P825 home quality/technical candle cutovers, validation hardening, native currentness guard, and live-region reduction; full release verification in progress; operator fast plane/rights/soak remain open
+latest_version: v53.45
+latest_P_number: P836
+next_P_number: P837
+current_total_entries: 596 (P1~P836, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P836 full data refresh and SEC candidate-rotation fix; full verification was intentionally not rerun per operator request, with live certification, operator fast plane/rights/soak, and provider-rights review remaining open
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -13,10 +14,68 @@ p823_entry: "The remaining legacy theme-detail deep-analysis comparison now filt
 p824_entry: "The shared currentness sanitizer now skips native renderer-owned narrative sinks; no-live theme/carry regression tests accept the current Korean fail-closed states without allowing fabricated scores. Headless passes 1102/1102."
 p825_entry: "Theme-detail keeps one summary aria-live region and removes redundant live announcements from eight subordinate native panels. UX, accessibility, and viewport gates pass."
 p826_entry: "The architecture compatibility facade now replays derived theme-detail navigation through the canonical themes route, preventing the inline native detail mount from being disposed during FULL_INIT viewport traversal. Full local release verification passes, including architecture/browser and FULL_INIT 68/68."
-total_entries: 586 (P1~P826, 결번 존재 — 상세 + 압축 원장)
+total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P836 - v53.45 - SEC refresh repeatedly retried failures and starved untried candidates
+
+- **motivation**: the requested data refresh had to expand SEC coverage rather than repeatedly spending each batch on the same unavailable filings.
+- **symptom/reproduction**: batch refreshes plateaued at 464/655 because failed symbols remained ahead of never-attempted symbols in the due queue; repeated runs produced no new coverage.
+- **root_cause**: target selection treated all due candidates equally and did not persist a failure cooldown or prioritize candidates with no prior attempt.
+- **fix**: added persisted failure timestamps, a 24-hour retry cooldown, never-failed-first ordering, and the explicit `SEC_RETRY_FAILED=1` override for deliberate manual retries. Regenerated the SEC artifact and screener output with 539/655 stored coverage.
+- **violated_rule**: R379 data refresh must rotate eligible candidates and preserve unavailable states instead of fabricating values.
+- **verification**: refresh output recorded 539/655 (82.3%) SEC source coverage and 539/725 (74.3%) screener display coverage; full browser/test verification was intentionally not rerun per operator instruction.
+
+## P832 - v53.41 - fundamental page had only a summary line while the official SEC report boundary remained implicit
+
+- **motivation**: the route ledger treated the fundamental page as native for status and one summary line, but the official SEC annual-fact identity, filing metadata, coverage, and core metric values were still only implicit in the legacy report flow.
+- **symptom/reproduction**: browsing to `fundamental` could show a SEC status/summary while the visible report container remained dependent on legacy multi-source generation. Missing SEC fields had no dedicated native report state or provenance boundary.
+- **root_cause**: normalized entity fundamentals preserved the raw SEC record, but no pure report projection or dedicated native child surface owned its presentation. The broad report mixed official SEC facts with FMP/Yahoo/news/chart/AI inputs.
+- **fix**: added `sec-report.v1`, a finite-safe official-SEC projection for filing identity, period/submission metadata, coverage, and observed metrics; rendered it with DOM-safe native nodes and explicit source/operational-use metadata. Peer/news/external sections, charts, and AI narrative remain separately legacy-owned.
+- **violated_rule**: R352 single executable owner and R306 typed provenance for official regulator evidence.
+- **prevention**: architecture contract/browser gates require the SEC model/version and native report markers; missing facts render as waiting/unavailable and never as inferred values.
+- **verification**: JS syntax, SEC report model fixture, and architecture contract pass; browser/full release QA remain pending for the final code sequence.
+
+## P835 - v53.44 - supplied market materials needed reusable chart, behavior, and communication protocols
+
+- **motivation**: the prior integration preserved the framework, time series, and visual observations, but chart technique, response behavior, and answer delivery were implicit rather than reusable contracts.
+- **symptom/reproduction**: a context could discuss capex, memory P, neocloud Q/capital, and breadth without consistently walking through trend/structure/retest/participation or closing with confirmation, invalidation, and next observation.
+- **root_cause**: the material extraction had Q1-Q5 and invalidation fields but no explicit chart-reading protocol, behavior state machine, or communication contract.
+- **fix**: added `chartReadingProtocol`, `behaviorPlaybook` (`wait`/`probe`/`hold`/`protect`), and `communicationContract` to `AIO_AI_INFRA_CYCLE_REFERENCE`, chat injection, the research digest, and the Knowledge Base. The playbook remains non-automated and user-controlled.
+- **violated_rule**: R26 knowledge feedback, R219 semantic review, and the current-evidence/reference separation contract.
+- **prevention**: future material integrations must convert visual technique and action logic into source-labelled, fail-closed reusable fields without promoting supplied values to live evidence.
+- **verification**: syntax/runtime checks were intentionally not rerun because the operator requested commit/deploy only; version synchronization and deployment follow-up remain separate.
+
+## P834 - v53.43 - supplied AI infrastructure materials needed a durable framework without contaminating live evidence
+
+- **motivation**: the user supplied a market-analysis text, competing Google capex theses, memory/neocloud framework, Korea/US index notes, external links, and eight chart images and requested structured integration including time-series context.
+- **symptom/reproduction**: the existing app had tactical and research-digest plumbing, but no single Q1-Q5 framework for capex timing versus reinvestment risk or for memory P versus neocloud Q/capital; raw reference figures could be mistaken for current evidence if copied into live prompts.
+- **root_cause**: reference extraction, ticker memo compatibility, keyword detection, and current runtime evidence were not connected under one source-labelled contract for this material packet.
+- **fix**: added `AIO_AI_INFRA_CYCLE_REFERENCE` and `_aioAIInfraCycleContext()` to the chat context path, dated reference memos for seven affected tickers, new macro/technical keywords, a digest item containing the supplied time series and eight visual observations, and a knowledge-base section. Runtime comparison reads only source-aware injected values and fails closed when absent.
+- **violated_rule**: R26 knowledge feedback, R135 memo freshness, R219 semantic review, and the current-evidence/reference separation contract.
+- **prevention**: future integrations must preserve `sourceKind=REFERENCE`, `asOf`, source URLs/files, visual observations, Q1-Q5 extraction, and an executable contract check; no supplied figure or chart level may enter `DATA_SNAPSHOT` as a live decision input.
+- **verification**: JS/JSON syntax, runtime contract, diff check, knowledge-lint, static/data/runtime pipeline, headless 1102/1102, architecture 17-route/browserErrors 0, viewport 68/68, accessibility 17/17, critical-10 10/10, portfolio Vault PFE2-01~08, boot, and SA-02~04 pass locally for v53.43; X content and Worker live health remain explicitly unverified from this environment.
+
+## P833 - v53.42 - fast quote deployment required an R2 subscription although KV is sufficient for the current snapshot path
+
+- **motivation**: the operator declined R2 card registration and requested the fast quote plane to run on the Cloudflare Free/KV path.
+- **symptom/reproduction**: `Deploy fast data plane` failed closed when `AIO_QUOTES_R2_BUCKET` was absent, even though the Worker reads/writes `quotes:current` and `quotes:heartbeat` in KV and its R2 operations were optional at runtime.
+- **root_cause**: the deployment template and preflight treated the optional R2 durability layer as mandatory, creating an unnecessary billing/setup gate.
+- **fix**: removed the R2 binding and R2 writes/fallback from the KV-only Worker, reduced the deploy preflight to `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and `AIO_QUOTES_KV_ID`, and strengthened the data-plane contract to reject R2 reintroduction in this packet.
+- **prevention**: keep primary KV availability, heartbeat/LKG retention, and the explicit `AIO_FAST_QUOTES_URL` smoke check as blocking contracts; add R2 only through a separately approved durability packet.
+- **verification**: KV-only contract with runtime `/health` fixture, Worker syntax, workflow YAML/control-character parse, version/release/operations contracts, full headless 1102/1102, architecture browser 17-route with browserErrors 0, viewport 68/68, accessibility 17/17, critical10 10/10, Vault PFE2-01~08, boot, and SA-02~04 pass locally. Live Worker deploy, `/health` smoke, provider rights, and seven-day soak remain operator-required.
+
+## P831 - v53.40 - portfolio summary/allocation had no single deterministic owner after Vault/table cutover
+
+- **motivation**: P830 transferred the Vault-backed holdings table, but the portfolio summary, cash, VIX exposure, and sector allocation still had independent inline writers. The remaining surface was therefore vulnerable to last-writer drift and continued to show legacy zero placeholders when canonical values were unavailable.
+- **symptom/reproduction**: `src/ui/pages/portfolio.js` owned the table while `updatePortfolioSummary()` and both position-donut paths in `index.html` continued writing the same summary/allocation ids. A portfolio with no live quote could be rendered as `0`/`0.0%` instead of an explicit unavailable state.
+- **root_cause**: portfolio state normalization did not preserve daily quote percentage/sector evidence, the compatibility fallback did not expose cash, and no pure model owned the cross-card derivation. The P830 table fence did not cover the adjacent summary surface.
+- **fix**: added `portfolio-surface.v1` as a finite-safe domain model; preserved daily percentage, sector, cash, and total fields through normalization/facade; added native DOM-safe rendering for holding count, P/L/day, cash, VIX exposure, and sector allocation; and fenced the corresponding legacy summary/sector writers. Risk cards, charts, AI workbench, and narrative remain explicitly legacy-owned until their own inputs and writer boundaries are reconciled.
+- **violated_rule**: R352 single executable owner and R357 bounded native surface with an explicit legacy writer fence.
+- **prevention**: architecture contract requires the model, native markers, and compatibility fences; Chromium requires the portfolio surface marker/model version plus native holding-count, sector, and exposure markers. Missing values remain `—`/waiting rather than fabricated zeroes.
+- **verification**: JS syntax and portfolio model checks pass so far; architecture contract/browser and full release QA remain pending until the remaining code packets are complete.
 
 ## 문서 관리 원칙
 

@@ -1729,6 +1729,7 @@ window._aioClearAllTimers = function() {
     Array.prototype.slice.call(page.querySelectorAll('canvas')).forEach(function(canvas) {
       var preset = presets[canvas.id];
       if (!preset) return;
+      if (canvas.dataset.aioBreadthChartRenderer === 'native' || canvas.dataset.aioFxbondChartRenderer === 'native') return;
       if (!isBlank(canvas)) {
         markFallbackCanvas(canvas);
         return;
@@ -2615,6 +2616,7 @@ window._aioBreadthCanvasRender = function() {
   ids.forEach(function(id) {
     var cv = document.getElementById(id);
     if (!cv || !cv.getContext) return;
+    if (cv.dataset.aioBreadthChartRenderer === 'native') return;
     // 이미 Chart.js로 렌더링되었으면 skip
     if (cv.__rendered && cv.__rendered === 'chartjs') return;
     var ctx = cv.getContext('2d');
@@ -19682,7 +19684,7 @@ window.calcDataQuality = calcDataQuality;
 window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
 window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
-const APP_VERSION = 'v53.38';
+const APP_VERSION = 'v53.45';
 window.AIO.version = APP_VERSION;
 
 // ═══ v48.97: AIO.diag — 운영 진단 API (P2-6 / P2-8) ════════════════════════
@@ -24747,7 +24749,7 @@ function destroyPageCharts(pageId) {
     if (window._pageState && typeof window._pageState.reset === 'function') {
       try { window._pageState.reset(pageId); } catch(e) {}
     }
-    if (pageId === 'breadth') {
+    if (pageId === 'breadth' && document.getElementById('page-breadth')?.dataset.aioArchitectureRenderer !== 'native') {
       // v30.10: canvas mouseleave 핸들러도 제거
       ['bp-price-chart','bp-5ma-chart','bp-20ma-chart','bp-50ma-chart'].forEach(function(cid) {
         var cvs = document.getElementById(cid);
@@ -24757,7 +24759,7 @@ function destroyPageCharts(pageId) {
       Object.keys(bpChartInstances).forEach(k => delete bpChartInstances[k]);
       bpChartsInitialized = false;
     }
-    if (pageId === 'fxbond') {
+    if (pageId === 'fxbond' && document.getElementById('page-fxbond')?.dataset.aioArchitectureRenderer !== 'native') {
       if (window._yieldCurveChart) { window._yieldCurveChart.destroy(); window._yieldCurveChart = null; }
       if (typeof _ycChart !== 'undefined' && _ycChart) { _ycChart.destroy(); _ycChart = null; }
     }
@@ -25616,8 +25618,8 @@ function showTicker(tkr) {
   var pnlEl = document.getElementById('ticker-hero-pnl');
   var _thv = document.getElementById('ticker-hero-value');
   var hasPosition = d.value !== '—';
-  if (_thv) _thv.textContent = hasPosition ? d.value : '내 포트폴리오 외 종목';
-  if (pnlEl) pnlEl.className = 'pnl' + (hasPosition ? ' pos' : '');
+  if (_thv && _thv.dataset.aioTickerPnlRenderer !== 'native') _thv.textContent = hasPosition ? d.value : '내 포트폴리오 외 종목';
+  if (pnlEl && pnlEl.dataset.aioTickerPnlRenderer !== 'native') pnlEl.className = 'pnl' + (hasPosition ? ' pos' : '');
   var ab = document.getElementById('ticker-action-btn');
   if (ab) { ab.textContent = actionLabels[d.action] || d.action; ab.className = 'action-btn ' + (actionClasses[d.action]||'neutral'); }
   // v53.6: 종목 개요(밸리AI 참조) — TV 대형 차트 + 가격/테마/팩터 좌측 레일 (index.html 정의)

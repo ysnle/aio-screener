@@ -20,7 +20,7 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   { sym:'NVDA', name:'NVIDIA', sector:'Technology', index:'SP500' },
   { sym:'AAPL', name:'Apple', sector:'Technology', index:'SP500' },
-  { sym:'GOOGL', name:'Alphabet', sector:'Technology', index:'SP500' },
+  { sym:'GOOGL', name:'Alphabet', sector:'Technology', index:'SP500', memo:'[2026-07-20 REFERENCE] Google AI capex debate: backlog/recognition lag versus D&A/reinvestment trap; verify cloud backlog, capex/revenue crossover, FCF and debt capacity with filings.' },
   { sym:'MSFT', name:'Microsoft', sector:'Technology', index:'SP500' },
   { sym:'AMZN', name:'Amazon', sector:'Technology', index:'SP500' },
   { sym:'META', name:'Meta Platforms', sector:'Technology', index:'SP500' },
@@ -43,7 +43,7 @@ var SCREENER_DB = [
   { sym:'MRK', name:'Merck', sector:'Healthcare', index:'DOW30' },
   { sym:'CRM', name:'Salesforce', sector:'Technology', index:'DOW30' },
   { sym:'CVX', name:'Chevron', sector:'Energy', index:'DOW30' },
-  { sym:'AMD', name:'Advanced Micro Devices', sector:'Technology', index:'SP500' },
+  { sym:'AMD', name:'Advanced Micro Devices', sector:'Technology', index:'SP500', memo:'[2026-07-20 REFERENCE] Semi stabilization requires earnings and estimate confirmation; separate a low-volume rebound from durable demand, margin and breadth recovery.' },
   { sym:'NFLX', name:'Netflix', sector:'Communication Services', index:'SP500' },
   { sym:'PEP', name:'PepsiCo', sector:'Consumer Defensive', index:'SP500' },
   { sym:'KO', name:'Coca-Cola', sector:'Consumer Defensive', index:'DOW30' },
@@ -55,7 +55,7 @@ var SCREENER_DB = [
   { sym:'CSCO', name:'Cisco Systems', sector:'Technology', index:'DOW30' },
   { sym:'DIS', name:'Walt Disney', sector:'Communication Services', index:'DOW30' },
   { sym:'PLTR', name:'Palantir', sector:'Technology', index:'SP500' },
-  { sym:'MU', name:'Micron Technology', sector:'Technology', index:'SP500' },
+  { sym:'MU', name:'Micron Technology', sector:'Technology', index:'SP500', memo:'[2026-07-20 REFERENCE] Memory is a P game: ASP acceleration and earnings multiple matter; low P/E can precede cycle rollover. Verify price momentum, estimates and DRAM/HBM supply.' },
   { sym:'CAT', name:'Caterpillar', sector:'Industrials', index:'DOW30' },
   { sym:'RTX', name:'Raytheon Tech', sector:'Industrials', index:'SP500' },
   { sym:'GS', name:'Goldman Sachs', sector:'Financials', index:'DOW30' },
@@ -153,9 +153,9 @@ var SCREENER_DB = [
   { sym:'QUBT', name:'Quantum Computing', sector:'Technology', index:'RUSSELL2000' },
   { sym:'CAVA', name:'CAVA Group', sector:'Consumer', index:'RUSSELL2000' },
   { sym:'SOUN', name:'SoundHound AI', sector:'Technology', index:'RUSSELL2000' },
-  { sym:'CRWV', name:'CoreWeave', sector:'Technology', index:'NASDAQ100' },
-  { sym:'NBIS', name:'Nebius Group', sector:'Technology', index:'NASDAQ100' },
-  { sym:'IREN', name:'IREN Limited', sector:'Technology', index:'RUSSELL2000' },
+  { sym:'CRWV', name:'CoreWeave', sector:'Technology', index:'NASDAQ100', memo:'[2026-07-20 REFERENCE] Neocloud is a Q·capital game: utilization/backlog versus rental yield, funding cost, GPU depreciation and leases; verify spread, runway and debt.' },
+  { sym:'NBIS', name:'Nebius Group', sector:'Technology', index:'NASDAQ100', memo:'[2026-07-20 REFERENCE] Neocloud comparison lens: profitability/balance-sheet quality versus utilization execution. Verify current Q, pricing spread, cash runway and contract evidence.' },
+  { sym:'IREN', name:'IREN Limited', sector:'Technology', index:'RUSSELL2000', memo:'[2026-07-20 REFERENCE] Neocloud comparison lens: power-cost advantage and contract funding can create optionality, but early revenue and financing execution remain the kill switches.' },
   { sym:'CORZ', name:'Core Scientific', sector:'Technology', index:'NASDAQ' },
   { sym:'BIRD', name:'Allbirds', sector:'Consumer', index:'RUSSELL2000' },
   { sym:'DM', name:'Desktop Metal', sector:'Technology', index:'RUSSELL2000' },
@@ -362,7 +362,7 @@ var SCREENER_DB = [
   { sym:'NEM', name:'Newmont Corp', sector:'Materials', index:'SP500' },
   { sym:'SO', name:'Southern Company', sector:'Utilities', index:'SP500' },
   { sym:'CMCSA', name:'Comcast', sector:'Communication Services', index:'SP500' },
-  { sym:'SNDK', name:'SanDisk', sector:'Technology', index:'SP500' },
+  { sym:'SNDK', name:'SanDisk', sector:'Technology', index:'SP500', memo:'[2026-07-20 REFERENCE] AI memory/storage belongs to the P-game lens: pricing momentum, mix and multiple compression must be checked against inference demand and supply.' },
   { sym:'WDC', name:'Western Digital', sector:'Technology', index:'SP500' },
   { sym:'HWM', name:'Howmet Aerospace', sector:'Industrials', index:'SP500' },
   { sym:'EQIX', name:'Equinix', sector:'Real Estate', index:'SP500' },
@@ -6296,6 +6296,11 @@ const MACRO_KW = [
   'AI capex funding','AI infrastructure funding','capital funding pulse','LQD YTM','LQD yield',
   'investment grade OAS','IG OAS','ICE BofA OAS','corporate OAS','HY OAS','credit downgrade',
   'MAGS ETF','Hartnett','recession recognition','sticky inflation','inflation persistence',
+  // v53.43 (integrate 2026-07-20): AI infrastructure cycle / funding and breadth debate.
+  'capex revenue crossover','depreciation wall','capital intensity','capacity digestion',
+  'funding runway','AI infrastructure cycle','oil inflation pass-through','forced deleveraging',
+  'margin debt','energy inflation impulse','hyperscaler debt capacity','cloud backlog conversion',
+  'multiple compression','supply bottleneck narrative','overbuild risk',
 
   'CPI','PCE','GDP','GDPNow','inflation','deflation','recession','stagflation',
   'tariff','trade war','sanction','export ban','supply chain',
@@ -6774,6 +6779,9 @@ const TECH_KW = [
   'GPU rental','GPU shortage','compute rental','GPU rental index',
   'neocloud','CoreWeave','Nebius','GPU subletting',
   'DRAM price','NAND price','memory price','fixed price','contract price',
+  // v53.43 (integrate 2026-07-20): P-game versus Q/capital-game lenses.
+  'token deflation','memory price momentum','neocloud funding','GPU depreciation',
+  'rental yield spread','capital runway','capex intensity','frontier model capex',
   'long-term agreement','floor price','prepayment','memory supercycle',
   'GPU 렌탈','GPU 부족','컴퓨트 렌탈','네오클라우드',
   '고정가','렌탈 가격','선지급','최소가격','메모리 슈퍼사이클',
@@ -13994,7 +14002,7 @@ function applyLiveQuotes(quotes) {
     if (q.extPrice && q.extSession) {
       // ticker-hero (기업분석 페이지)의 시간외 표시 전용 영역
       var _extHeroEl = document.getElementById('ticker-hero-ext');
-      if (_extHeroEl && _currentTickerSym === q.symbol) {
+      if (_extHeroEl && _extHeroEl.dataset.aioTickerExtensionRenderer !== 'native' && _currentTickerSym === q.symbol) {
         var _usS = (typeof _getUsSession === 'function') ? _getUsSession() : 'open';
         var extPctVal = q.extPct != null ? q.extPct : null;
         var extLabel = q.extSession === 'pre' ? 'Pre' : 'After';

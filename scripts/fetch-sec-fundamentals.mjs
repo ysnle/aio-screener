@@ -18,6 +18,7 @@ const SEC_TICKERS_URL = 'https://www.sec.gov/files/company_tickers_exchange.json
 const SEC_FACTS_BASE = 'https://data.sec.gov/api/xbrl/companyfacts/CIK';
 const DEFAULT_BATCH_LIMIT = 24;
 const REFRESH_AFTER_MS = 28 * 86400000;
+const FAILURE_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 const USER_AGENT = process.env.SEC_USER_AGENT || '';
 
 function round(n, digits = 2) {
@@ -211,15 +212,30 @@ export async function refreshSecFundamentals() {
   const now = Date.now();
   const limit = Math.max(1, Math.min(100, Number(process.env.SEC_BATCH_LIMIT) || DEFAULT_BATCH_LIMIT));
   const force = process.env.SEC_REFRESH === '1';
+  const retryFailedNow = process.env.SEC_RETRY_FAILED === '1';
+  const previousFailureAt = new Map((previous.failures || []).map(row => [
+    row && row.symbol,
+    row && (row.attemptedAt || row.failedAt || previous.generatedAt || null)
+  ]));
   const targets = eligible
-    .map(symbol => ({ symbol, fetchedAt: previous.data && previous.data[symbol] && previous.data[symbol].fetchedAt }))
-    .filter(row => force || !row.fetchedAt || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS)
-    .sort((a, b) => String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
+    .map(symbol => ({
+      symbol,
+      fetchedAt: previous.data && previous.data[symbol] && previous.data[symbol].fetchedAt,
+      lastFailureAt: previousFailureAt.get(symbol) || null
+    }))
+    .filter(row => {
+      if (force) return true;
+      const dataDue = !row.fetchedAt || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
+      const retryDue = retryFailedNow || !row.lastFailureAt || now - new Date(row.lastFailureAt).getTime() >= FAILURE_RETRY_AFTER_MS;
+      return dataDue && retryDue;
+    })
+    .sort((a, b) => Number(Boolean(a.lastFailureAt)) - Number(Boolean(b.lastFailureAt)) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
     .slice(0, limit);
 
   const data = { ...(previous.data || {}) };
   const failures = [];
   let updated = 0;
+  const attemptedAt = new Date(now).toISOString();
   for (const target of targets) {
     const meta = tickerMap.get(tickerKey(target.symbol));
     try {
@@ -230,7 +246,7 @@ export async function refreshSecFundamentals() {
       data[target.symbol] = normalized;
       updated++;
     } catch (error) {
-      failures.push({ symbol: target.symbol, reason: String(error && error.message || error) });
+      failures.push({ symbol: target.symbol, reason: String(error && error.message || error), attemptedAt });
     }
     await new Promise(resolve => setTimeout(resolve, 150));
   }

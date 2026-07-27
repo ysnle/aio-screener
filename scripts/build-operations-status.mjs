@@ -3,6 +3,7 @@ import { createOperationsStatus, validateOperationsStatus } from '../src/data/co
 
 export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.json', import.meta.url);
 const ROUTE_OWNERS_PATH = new URL('../architecture/route-owners.json', import.meta.url);
+const SEC_FUNDAMENTALS_PATH = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 
 export async function readRouteOwners() {
   return JSON.parse(await readFile(ROUTE_OWNERS_PATH, 'utf8'));
@@ -24,9 +25,23 @@ export function deriveRouteOwnership(routeOwners) {
   };
 }
 
-export async function writeOperationsStatus({ data, marketSnapshot, reconciliation, now = new Date().toISOString() } = {}) {
+export function deriveSecCoverage(secFundamentals, fallbackPct = 0) {
+  const eligible = Number(secFundamentals?.eligible);
+  const stored = Number(secFundamentals?.stored ?? Object.keys(secFundamentals?.data || {}).length);
+  if (Number.isFinite(eligible) && eligible > 0 && Number.isFinite(stored)) {
+    return { stored, eligible, coveragePct: Math.round(stored / eligible * 1000) / 10 };
+  }
+  return { stored: null, eligible: null, coveragePct: Number(fallbackPct) || 0 };
+}
+
+export async function writeOperationsStatus({ data, marketSnapshot, reconciliation, secFundamentals, now = new Date().toISOString() } = {}) {
   const version = JSON.parse(await readFile(new URL('../version.json', import.meta.url), 'utf8'));
   const routeOwners = await readRouteOwners();
+  let sec = secFundamentals;
+  if (!sec) {
+    try { sec = JSON.parse(await readFile(SEC_FUNDAMENTALS_PATH, 'utf8')); } catch (_) { sec = null; }
+  }
+  const secCoverage = deriveSecCoverage(sec, data?.meta?.fundamentalCoveragePct);
   const ownership = deriveRouteOwnership(routeOwners);
   const snapshot = marketSnapshot || {};
   const coverage = snapshot.coverage || { tier0Required: 0, tier0Observed: 0 };
@@ -35,7 +50,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
   blockers.push('fast_plane_cloudflare_credentials_and_soak_required');
   blockers.push('provider_rights_review_required');
-  if (Number(data?.meta?.fundamentalCoveragePct || 0) < 80) blockers.push('sec_fundamentals_coverage_below_80_percent');
+  if (secCoverage.coveragePct < 80) blockers.push('sec_fundamentals_coverage_below_80_percent');
   const status = createOperationsStatus({
     generatedAt: now,
     appRevision: version.version,
@@ -50,7 +65,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     providers: {
       yahoo: { rights: 'REVIEW_REQUIRED', use: 'reference', lastFetchAt: data?.meta?.generatedAt || null },
       fred: { rights: process.env.FRED_API_KEY ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', use: 'official-series', lastFetchAt: data?.meta?.generatedAt || null },
-      sec: { rights: 'REVIEW_REQUIRED', use: 'filing-evidence', coveragePct: Number(data?.meta?.fundamentalCoveragePct || 0) }
+      sec: { rights: 'REVIEW_REQUIRED', use: 'filing-evidence', coveragePct: secCoverage.coveragePct, stored: secCoverage.stored, eligible: secCoverage.eligible }
     },
     reconciliation: {
       tier0: { status: durableOk ? 'MATCH' : 'BLOCKED', artifact: snapshot.revision || null, uiEvidence: durableOk ? 'same-revision-contract' : null, observedAtComplete: durableOk },
