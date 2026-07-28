@@ -1,25 +1,25 @@
-> **v53.51 (P761~P843 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, P826 derived-route compatibility canonicalization, P827~P830 secondary surface closure, P831 portfolio summary, P832 SEC report, P833 KV-only fast quote deployment, P834 AI infrastructure reference integration, P835 chart/behavior/communication protocols, P836 data refresh pipeline correction, P837 fast-plane smoke bootstrap handling, P838~P841 evidence/lifecycle/freshness/slice contracts, P842 capability claim boundary, P843 operations/soak/readiness boundary까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+> **v53.55 (P761~P849 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, P826 derived-route compatibility canonicalization, P827~P830 secondary surface closure, P831 portfolio summary, P832 SEC report, P833 KV-only fast quote deployment, P834 AI infrastructure reference integration, P835 chart/behavior/communication protocols, P836 data refresh pipeline correction, P837 fast-plane smoke bootstrap handling, P838~P841 evidence/lifecycle/freshness/slice contracts, P842 capability claim boundary, P843 operations/soak/readiness boundary, P846 credential compatibility, P847 typed data evidence, P848 AI QuestionPlan/ClaimLedger/causal boundaries, P849 domain/evaluation/operations contracts까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P843 update
-current_override: P843 operations/route-soak/public-readiness boundary after P842 capability claim remediation; live revision, edge enforcement, provider rights, 30-day SLO, and SA-04 remain explicit operator gates
-  last_verified: 2026-07-27
+verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P849 update
+current_override: P849 AI intelligence domain/evaluation/operations contract boundary on top of P843 operations/route-soak/public-readiness; live revision, edge enforcement, provider rights, model benchmark, and SA-04 remain explicit operator gates
+  last_verified: 2026-07-28
 confidence: high
-  target_version: v53.51
+  target_version: v53.55
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P843 gate
-  current_checkpoint: P843 route soak, visual state, SLO, SHA/lockfile, header, and public-readiness contracts pass locally; native lifecycle/renderer routes are 17/17, while live certification remains operator-required
+  current_checkpoint: P849 AIQ-0~4 contracts plus AIQ-5/6 benchmark/operations scaffolds pass locally; native lifecycle/renderer routes are 17/17, while live model/Worker certification remains operator-required
 ---
 
-## Current machine-verified file-size table (v53.51, 2026-07-27)
+## Current machine-verified file-size table (v53.55, 2026-07-28)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 27,437 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,289 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 15,809 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-ui.js` | 4,262 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 6,196 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 27,473 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,486 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 15,823 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 4,265 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 6,302 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-tests.js` | 8,871 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 130 | native guide search/jump/capability lifecycle module |
 | `src/ui/pages/screener.js` | 517 | native screener table/filter/profile/watchlist/position renderer |
@@ -31,6 +31,25 @@ target_lines: refreshed after P843 gate
 | `src/ui/pages/themes.js` | 861 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; chart/status and theme-insights secondary boundaries |
 | `src/ui/pages/entity.js` | 331 | native ticker hero/activity, options metrics, fundamental SEC status/summary, and `sec-report.v2` core report renderer with freshness state; mixed-source report remains legacy |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
+
+| `src/ai/intent/taxonomy.js` | 83 | AIQ-1 typed intent taxonomy/routing |
+| `src/ai/entity/resolver.js` | 51 | AIQ-1 entity alias/ticker resolution |
+| `src/ai/time/market-session.js` | 47 | AIQ-1 current-question market session evidence |
+| `src/ai/evidence/graph.js` | 28 | AIQ-2 evidence graph/completeness boundary |
+| `src/ai/analysis/causal.js` | 24 | AIQ-4 temporal/cross-asset causal attribution primitive |
+| `src/ai/policy/suitability.js` | 10 | AIQ-2 action/suitability permission boundary |
+| `src/ai/orchestrator/question-planner.js` | 72 | AIQ-1 typed intent/entity/time/evidence plan |
+| `src/ai/orchestrator/answer-orchestrator.js` | 39 | AIQ-0 single chat dispatch boundary |
+| `src/ai/orchestrator/capability-planner.js` | 22 | AIQ-2 read-only capability selection |
+| `src/ai/response/claim-ledger.js` | 81 | AIQ-3 AnswerPlan/ClaimLedger validation |
+| `src/ai/response/renderer.js` | 21 | AIQ-3 deterministic response projection |
+| `src/ai/analysis/sector.js` | 33 | AIQ-4 sector decomposition/breadth engine |
+| `src/ai/analysis/company.js` | 30 | AIQ-4 company quality/valuation engine |
+| `src/ai/analysis/technical.js` | 27 | AIQ-4 technical condition engine |
+| `src/ai/analysis/macro-fx.js` | 22 | AIQ-4 macro/FX transmission engine |
+| `src/ai/analysis/registry.js` | 20 | AIQ-4 intent-to-domain analysis registry |
+| `src/ai/eval/benchmark.js` | 33 | AIQ-5 pinned benchmark manifest/corpus contract |
+| `src/ai/operations/control-plane.js` | 20 | AIQ-6 canary/feedback/drift/rollback contract |
 
 > The historical v52.66 table below is retained for audit context. Use this current
 > file-size table first, then confirm any detailed line anchor with `rg -n` before editing.

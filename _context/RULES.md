@@ -1606,3 +1606,39 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: Automated market analysis must not become public verified prose from status metadata alone. Each current-sensitive numeric/causal analysis must carry typed metric identity, value, unit, observation time, source, and supporting news/source lineage; VIX and Fear&Greed remain separate metrics. Screener revisions and fundamentals must expose their observation/source/model lineage.
 
 **Validation**: `buildMarketAnalysisEvidence`/`validateMarketAnalysisText`, `js/aio-data.js` metric-evidence publish gate, news lineage fields, `scripts/validate-screener-artifact.mjs`, and the data-pipeline contract must fail closed when evidence is missing or inconsistent.
+
+## R395. AI questions must enter through one typed QuestionPlan/Orchestrator (v53.55, P848)
+
+**Rule**: Per-page and unified chat may retain legacy UI/provider code only as guarded compatibility adapters. Intent, entity, timeframe, current-sensitivity, required evidence, capability selection, and dispatch ownership must start in the single ESM AI orchestrator.
+
+**Validation**: `src/ai/orchestrator/{question-planner,capability-planner,answer-orchestrator}.js`, `src/ai/intent/taxonomy.js`, both chat entrypoints, `AIO_ARCH.getAIOrchestrator`, and `scripts/ci-ai-intelligence-contract-check.mjs` must retain the seven representative routing cases and guarded adapter marker.
+
+## R396. Current-sensitive AI answers require MarketSessionEvidence and strict AnswerPlan/ClaimLedger (v53.55, P848)
+
+**Rule**: A current-sensitive numeric answer cannot be displayed from free-form model text. It requires a typed session evidence record and a valid `answer-plan.v1`/`claim-ledger.v1` with value, unit, asOf, source, and evidence IDs for numeric claims; unknown session state must remain explicit.
+
+**Validation**: `src/ai/time/market-session.js`, `src/ai/response/claim-ledger.js`, `js/aio-chat.js`, the shared response pipeline, and the AI intelligence contract must fail closed for missing session/structured claims and pass typed open/unknown fixtures.
+
+## R397. Research-relative rankings must not become confirmed recommendations (v53.55, P848)
+
+**Rule**: Screener rank thresholds are research-relative evidence only. They must preserve `allowedUse: research-relative-ranking-only`, producer `observedAt`, and an explicit blocked operational-use state; `CONFIRMED` is not a valid verdict.
+
+**Validation**: `_aioMakerCheckerVerify`, `_formatScreenerResultPrompt`, the maker-checker renderer, and `scripts/ci-ai-intelligence-contract-check.mjs` must reject `CONFIRMED` and avoid browser-generation timestamps.
+
+## R398. AI post-processing must inherit the response policy (v53.55, P848)
+
+**Rule**: If the shared AI response gate blocks or cannot validate a response, recommendation, chart, scenario, and other generated cards must not reintroduce actionable meaning from the original query.
+
+**Validation**: both chat `onDone` paths must check the shared action gate before post-processing; the AI intelligence contract and runtime/headless tests must retain the blocked-response card fence.
+
+## R399. Domain analysis engines must be deterministic and evidence-bounded (v53.55, P849)
+
+**Rule**: Sector, company, technical, macro, and FX analysis may calculate only from supplied typed inputs. Missing or partial evidence must remain `insufficient`/`partial`; engines must not invent current values, causal certainty, or probability claims.
+
+**Validation**: `src/ai/analysis/{sector,company,technical,macro-fx,registry}.js` and the AI intelligence contract must cover ready, partial, and insufficient fixtures.
+
+## R400. Model benchmark and operations status must not be overstated (v53.55, P849)
+
+**Rule**: A routing corpus score is not live model quality. Reproducible benchmark status requires pinned snapshot/model/prompt/retriever/validator revisions, and production canary/feedback/drift/rollback status remains operator-required until external runtime evidence exists.
+
+**Validation**: `src/ai/eval/benchmark.js`, `src/ai/operations/control-plane.js`, and the AI intelligence contract must preserve the explicit operator gate.

@@ -15741,8 +15741,10 @@ function _aioRunScreenerQuery(query, opts) {
 }
 window._aioRunScreenerQuery = _aioRunScreenerQuery;
 
-// v51.30 Maker-Checker 패턴: AI 추천 종목을 퀀트 팩터로 독립 검증 (RohOnChain Loop Engineering)
-// 입력: 티커 배열 / 출력: [{sym, verdict, rank, quantSignal, reasons}] or null
+// AIQ-P0-05: ranking is a research-relative candidate signal, not a recommendation
+// verifier. Preserve the ranking/allowed-use evidence while preventing a heuristic
+// from being promoted into a decision claim.
+// 입력: 티커 배열 / 출력: [{sym, verdict, rank, quantSignal, reasons, allowedUse}] or null
 function _aioMakerCheckerVerify(tickers) {
   try {
     if (!Array.isArray(tickers) || !tickers.length) return null;
@@ -15759,10 +15761,11 @@ function _aioMakerCheckerVerify(tickers) {
       for (var i = 0; i < db.length; i++) { if (db[i].sym === s) { row = db[i]; break; } }
       if (!row || typeof row.rank !== 'number') return;
       var rank = row.rank, qs = row.quantSignal || null;
-      var verdict = rank >= 60 ? 'CONFIRMED' : rank >= 40 ? 'CAUTION' : 'REJECTED';
-      var reasons = ['랭크 ' + rank];
-      if (qs) reasons.push(qs);
-      results.push({ sym: s, verdict: verdict, rank: rank, quantSignal: qs, reasons: reasons });
+       var verdict = rank >= 60 ? 'RESEARCH_CANDIDATE' : rank >= 40 ? 'CAUTION' : 'REJECTED';
+       var reasons = ['랭크 ' + rank];
+       if (qs) reasons.push(qs);
+       results.push({ sym: s, verdict: verdict, rank: rank, quantSignal: qs, reasons: reasons,
+         allowedUse: 'research-relative-ranking-only', operationalUse: 'blocked', observedAt: window._aioFactorRanksAsOf || null });
     });
     return results.length ? results : null;
   } catch(e) { return null; }
@@ -15773,14 +15776,14 @@ function _formatScreenerResultPrompt(result) {
   if (!result || !result.matched || !result.rows || !result.rows.length) return '';
   var _f = function(v, d) { return v != null && !isNaN(v) ? Number(v).toFixed(d || 1) : 'N/A'; };
   var _pct = function(v) { return v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%' : 'N/A'; };
-  var ts = '';
-  try { var n = new Date(); var p = function(x) { return String(x).padStart(2, '0'); }; ts = n.getFullYear() + '-' + p(n.getMonth() + 1) + '-' + p(n.getDate()) + ' ' + p(n.getHours()) + ':' + p(n.getMinutes()) + ' KST'; } catch(_) {}
+   // AIQ-P0-06: never replace producer observation time with browser generation time.
+   var ts = result.observedAt || result.asOf || window._aioFactorRanksAsOf || '관측시각 미확인';
   var lines = [];
   var isDiversified = result.mode === 'diversified-recommendation';
   lines.push('═══════════════════════════════════════════════════');
   lines.push(isDiversified ? '【균형 추천 후보 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 실시간 필터링】');
   lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)');
-  lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 기준 ' + ts);
+   lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 생산자 관측시각 ' + ts);
   var fAsOf = (typeof window !== 'undefined' && window._aioFactorRanksAsOf) ? window._aioFactorRanksAsOf.slice(0,10) : null;
   lines.push('퀀트 랭크(0~100, 높을수록 우수) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
   if (isDiversified) {

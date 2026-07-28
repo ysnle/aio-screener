@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.54 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.55 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -5645,7 +5645,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.54</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.55</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12246,9 +12246,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.54" defer></script>
-  <script src="./js/aio-data.js?v=53.54" defer></script>
-  <script src="./js/aio-ui.js?v=53.54" defer></script>
+  <script src="./js/aio-core.js?v=53.55" defer></script>
+  <script src="./js/aio-data.js?v=53.55" defer></script>
+  <script src="./js/aio-ui.js?v=53.55" defer></script>
 
 
   <script>
@@ -14733,7 +14733,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.54" defer></script>
+<script src="./js/aio-chat.js?v=53.55" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23586,7 +23586,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.54" defer></script>
+<script src="./js/aio-glossary.js?v=53.55" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -26900,7 +26900,7 @@ function _appendAIMsg(role, html, id) {
   return bubble;
 }
 
-async function chatSendUnified() {
+async function chatSendUnified(_aioDispatchOptions) {
   console.log('[AIO] chatSendUnified 시작, ctx:', _aiCurrentCtx);
   if (!_aiCurrentCtx) { _aioLog('warn', 'debug', '_aiCurrentCtx null'); return; }
   var ctx = (window.CHAT_CONTEXTS || {})[_aiCurrentCtx];
@@ -26923,6 +26923,23 @@ async function chatSendUnified() {
   if (!inp) { _aioLog('warn', 'debug', 'ai-panel-inp 없음'); return; }
   var q = inp.value.trim();
   if (!q) return;
+  // AIQ-0/AIQ-1: unified chat uses the same ESM QuestionPlan/Orchestrator as
+  // per-page chat. The guarded callback retains only the legacy UI/provider adapter.
+  if (!(_aioDispatchOptions && _aioDispatchOptions._aioOrchestrated === true) &&
+      window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function') {
+    var _aioUnifiedOrchestrator = window.AIO_ARCH.getAIOrchestrator();
+    if (_aioUnifiedOrchestrator && typeof _aioUnifiedOrchestrator.execute === 'function') {
+      return _aioUnifiedOrchestrator.execute({
+        query: q,
+        route: _aiCurrentCtx,
+        surface: 'unified-chat',
+        legacyRunner: function(questionPlan) {
+          window['_aioActiveQuestionPlan'] = questionPlan;
+          return chatSendUnified({ _aioOrchestrated: true });
+        }
+      });
+    }
+  }
   // v46.4: 입력 길이 제한 (10000자) — API 비용 + 메모리 보호
   if (q.length > 10000) { q = q.slice(0, 10000); inp.value = q; }
   // v46.9/v52.30: API 키/서버키 경로 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
@@ -27323,6 +27340,15 @@ async function chatSendUnified() {
       _bubbleParent.appendChild(badgeEl);
       if (typeof _aioAppendAIPublicDisclosure === 'function') {
         _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate });
+      }
+
+      // AIQ-P0-04: blocked model text cannot be followed by an actionable card or
+      // visualization generated from the original question.
+      if (_publicGate && _publicGate.blocked === true) {
+        state.messages.push({ role: 'assistant', content: visible });
+        if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
+        if (typeof chatRenderChips === 'function') chatRenderChips(ctxId, extractChips(visible));
+        return;
       }
 
       // v46.10: 데이터 신뢰도 배지

@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-27
 confidence: high
 
-## Current architecture checkpoint (2026-07-27, v53.54)
+## Current architecture checkpoint (2026-07-28, v53.55)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
@@ -13,9 +13,29 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.54
-latest_P_covered: P847
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846 credential-route collision and P847 typed market-analysis/source lineage gates are locally verified, with post-push remote CI and provider/live Worker verification still separate
+checklist_version: v53.55
+latest_P_covered: P849
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846/P847/P848/P849 intelligence contracts are locally verified, with post-push remote CI and provider/live Worker/model verification still separate
+
+## P849 AIQ-4 domain engines and AIQ-5/6 operator contracts (2026-07-28, v53.55)
+
+- [x] Sector decomposition returns breadth, leaders/laggards, source, observed time, and evidence IDs only from supplied constituents.
+- [x] Company quality/valuation, technical conditions, and macro/FX transmission engines fail closed or stay partial when inputs/evidence are missing.
+- [x] Routing corpus evaluation reports measured accuracy without claiming live model quality.
+- [x] Benchmark manifest requires snapshot, model, prompt, retriever, and validator revisions before reproducible status.
+- [x] Operations control plane records canary, feedback, drift, and rollback events with an explicit operator-required status.
+- [ ] Public Worker, real model benchmark, blind review, cost/latency SLO, and post-deploy live certification remain operator/runtime checks.
+
+## P848 AIQ-0~3 intelligence rebuild (2026-07-28, v53.55)
+
+- [x] Seven representative questions route through typed intent/entity/time plans: market status, sector, FX cause, outlook, screening, entity analysis, and education.
+- [x] Current-sensitive plans carry `MarketSessionEvidence`; unknown session state remains unknown and is never promoted to open/closed by inference.
+- [x] Per-page and unified chat enter through the single ESM AI orchestrator; legacy code is only the guarded UI/provider adapter.
+- [x] Capability plan, EvidenceGraph/causal attribution, strict `AnswerPlan/ClaimLedger`, and deterministic renderer modules are present and precached.
+- [x] Current numeric free-form responses fail closed without a valid AnswerPlan/ClaimLedger; blocked responses cannot append recommendation/chart post-processing cards.
+- [x] Screener rank output is research-relative only, uses `RESEARCH_CANDIDATE` rather than `CONFIRMED`, and displays producer observation time rather than browser generation time.
+- [x] Numeric probability claims are blocked unless an explicit calibrated model contract is supplied.
+- [ ] Actual paid-model structured-output quality, Worker/public route, provider rights, and post-deploy live/browser certification remain operator/runtime checks.
 
 ## P847 API/source/pipeline evidence hardening (2026-07-27, v53.54)
 

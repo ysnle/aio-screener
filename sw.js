@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v53.54';
-const SW_BUILD = '2026-07-27T21:58:00+09:00';
+const SW_VERSION = 'v53.55';
+const SW_BUILD = '2026-07-28T10:24:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -36,12 +36,30 @@ const SHELL_ASSETS = [
   './src/app/routes.js',
   './src/app/vertical-slices.js',
   './src/ai/context-builder.js',
+  './src/ai/analysis/causal.js',
+  './src/ai/analysis/sector.js',
+  './src/ai/analysis/company.js',
+  './src/ai/analysis/technical.js',
+  './src/ai/analysis/macro-fx.js',
+  './src/ai/analysis/registry.js',
+  './src/ai/eval/benchmark.js',
+  './src/ai/operations/control-plane.js',
+  './src/ai/entity/resolver.js',
+  './src/ai/evidence/graph.js',
   './src/ai/inference.js',
+  './src/ai/intent/taxonomy.js',
+  './src/ai/orchestrator/answer-orchestrator.js',
+  './src/ai/orchestrator/capability-planner.js',
+  './src/ai/orchestrator/question-planner.js',
   './src/ai/policy.js',
+  './src/ai/policy/suitability.js',
   './src/ai/context/manifest.js',
   './src/ai/provider/adapter.js',
+  './src/ai/response/claim-ledger.js',
+  './src/ai/response/renderer.js',
   './src/ai/response/envelope.js',
   './src/ai/retrieval/evidence.js',
+  './src/ai/time/market-session.js',
   './src/ai/websearch/claims.js',
   './src/data/contracts/evidence.js',
   './src/data/selectors/evidence.js',

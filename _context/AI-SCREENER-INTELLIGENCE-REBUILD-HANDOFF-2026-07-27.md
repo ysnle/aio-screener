@@ -1,10 +1,13 @@
 ---
 verified_by: Codex
 last_verified: 2026-07-27
-repository_version: v53.52
-deployed_live_reference_version: v53.51
-status: DESIGN_ONLY
-implementation_authorized: false
+repository_version: v53.55
+deployed_live_reference_version: v53.54
+status: IMPLEMENTED_LOCAL_AIQ_0_3
+implementation_authorized: true
+implementation_progress:
+  completed_local: AIQ-0 through AIQ-4 plus AIQ-5/6 benchmark and operations contract scaffolds
+  pending: AIQ-5 live model benchmark, public Worker, blind review, and AIQ-6 production/operator validation
 project_skills_used: none
 confidence: high for code, artifacts, routing rules, and the reproduced server-generated analysis; blocked for paid live conversational model benchmark because the public chat route is unavailable
 evidence_scope: current repository, deployed no-route chat behavior, public-data artifacts, GitHub Actions-generated market analysis, current AI/Anthropic architecture documentation, financial QA benchmark papers

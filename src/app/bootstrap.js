@@ -46,6 +46,7 @@ import { createScreenerProvider } from '../data/providers/screener.js';
 import { createScreenerOrchestrator } from '../data/orchestrators/screener.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
+import { createAIAnswerOrchestrator } from '../ai/orchestrator/answer-orchestrator.js';
 import { createRouteRegistry } from './router.js';
 import { createLifecycleRouter } from './router.js';
 import { createGuidePage } from '../ui/pages/guide.js';
@@ -126,6 +127,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   let marketSnapshot = null;
   const snapshotEvidence = new Map();
   const aiRetriever = createEvidenceRetriever({ evidenceStore });
+  // AIQ-0/AIQ-1: the legacy chat surfaces remain UI adapters, while planning and
+  // dispatch ownership lives in one ESM orchestrator. This is deliberately created
+  // beside the canonical evidence store so future tool adapters can consume the same
+  // state without creating a second chat path.
+  const aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now() });
 
   function ingestSnapshotEvidence(snapshot) {
     snapshotEvidence.clear();
@@ -397,6 +403,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     getSentimentSummary: () => selectSentimentSummary(store.getState()),
     ingestSentiment,
     getAIContext: (metrics = ['fearGreed', 'vix']) => buildEvidenceContext({ evidenceStore, metrics, retriever: aiRetriever })
+    ,getAIOrchestrator: () => aiOrchestrator
+    ,planAIQuestion: (input = {}) => aiOrchestrator.plan(input)
+     ,executeAIQuestion: (input = {}) => aiOrchestrator.execute(input)
+     ,analyzeAIQuestion: (questionPlan, inputs = {}) => aiOrchestrator.analyze(questionPlan, inputs)
+     ,parseAIAnswerPlan: (text, options = {}) => aiOrchestrator.parseAnswerPlanText(text, options)
     ,navigate: (route, ...args) => legacy.navigate(route, ...args)
     // RM-03: single-implementation trading-score model. js/aio-core.js's computeTradingScore
     // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy

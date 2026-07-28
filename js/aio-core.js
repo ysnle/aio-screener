@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.54';
+const APP_VERSION = 'v53.55';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -5986,7 +5986,9 @@ window.AIO.evaluateAIActionPermission = function(options) {
     return { version: _AIO_AI_CONDUCT_VERSION, status: 'blocked', permission: 'deny', blocked: true, reasons: ['evidence-action-permission'], safeText: 'AI 안전 모드\n\n현재성 근거가 없거나 오래된/REFERENCE 자료만으로 개인화된 매매 지침을 제공하지 않습니다. 기준시각과 원문을 직접 재확인하세요.' };
   }
   var probabilityClaim = /(?:확률|가능성|probability|likelihood).{0,24}(?:\d{1,3}\s*%|\d{1,3}\s*퍼센트)/i.test(text);
-  if (probabilityClaim && !rows.length && options.calibrated !== true) {
+  // AIQ-P0-08: the presence of generic evidence does not calibrate a probability.
+  // Only an explicit provider/model calibration contract may authorize a numeric probability.
+  if (probabilityClaim && options.calibrated !== true) {
     return { version: _AIO_AI_CONDUCT_VERSION, status: 'blocked', permission: 'deny', blocked: true, reasons: ['uncalibrated-probability'], safeText: 'AI 안전 모드\n\n근거와 보정 기준이 없는 확률 수치는 표시하지 않습니다.' };
   }
   return { version: _AIO_AI_CONDUCT_VERSION, status: 'allowed', permission: directAction ? 'conditional' : 'educational', blocked: false, reasons: [], conduct: conduct || null, conductAudit: conductAudit, actionLike: _aioAIIsActionLike(combined), personalized: personalized, evidence: { count: rows.length, hasLive: hasLiveEvidence, referenceOnly: explicitReference } };

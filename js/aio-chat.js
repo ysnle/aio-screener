@@ -31,6 +31,7 @@ function _aioCreateAIRequestObject(entrypoint, meta) {
     ? window.AIO.createAIConversationState({ sessionId: meta.sessionId, route: meta.route || meta.ctxId, ctxId: meta.ctxId, entityKey: meta.entityKey }) : null;
   if (conversation && window.AIO && typeof window.AIO.beginAIConversationTurn === 'function') conversation = window.AIO.beginAIConversationTurn(conversation, { requestId: requestId, route: meta.route || meta.ctxId, entityKey: meta.entityKey });
   var idempotencyKey = meta.idempotencyKey || requestId;
+  var questionPlan = meta.questionPlan || (typeof window !== 'undefined' && window._aioActiveQuestionPlan) || null;
   var isolationKey = (window.AIO && typeof window.AIO.buildAIIsolationCacheKey === 'function')
     ? window.AIO.buildAIIsolationCacheKey({ tenantId: meta.tenantId || meta.tenantKey, sessionId: conversation && conversation.sessionId, route: conversation && conversation.route || meta.route || meta.ctxId, entityKey: conversation && conversation.entityKey || meta.entityKey, evidence: meta.evidence || [], model: meta.model, promptVersion: meta.promptVersion }) : null;
   var request = {
@@ -53,7 +54,8 @@ function _aioCreateAIRequestObject(entrypoint, meta) {
     idempotencyKey: idempotencyKey,
     isolationKey: isolationKey,
     promptVersion: meta.promptVersion || null,
-    sampling: meta.sampling || null
+    sampling: meta.sampling || null,
+    questionPlan: questionPlan
   };
   if (window.AIO && typeof window.AIO.beginAIIdempotentRequest === 'function') window.AIO.beginAIIdempotentRequest(idempotencyKey, { requestId: requestId });
   return request;
@@ -108,16 +110,21 @@ function _aioRecordAIResponseManifest(result) {
 function _aioRunAIResponsePipeline(rawText, meta) {
   meta = meta || {};
   var request = meta.request || _aioCreateAIRequestObject(meta.entrypoint, meta);
+  var questionPlan = meta.questionPlan || request.questionPlan || (typeof window !== 'undefined' && window._aioActiveQuestionPlan) || null;
+  var currentSensitive = meta.currentSensitive === true || !!(questionPlan && questionPlan.currentSensitive === true);
   if (typeof window !== 'undefined' && request && request.requestId) window._aioActiveAIRequestId = request.requestId;
   var visible = String(rawText == null ? '' : rawText);
   if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
+  var answerPlanAudit = (typeof window !== 'undefined' && window.AIO_ARCH && typeof window.AIO_ARCH.parseAIAnswerPlan === 'function')
+    ? window.AIO_ARCH.parseAIAnswerPlan(visible, { questionPlan: questionPlan, currentSensitive: currentSensitive })
+    : { status: 'unavailable', plan: null, audit: { ok: false, errors: ['orchestrator-unavailable'] } };
   var gate = (typeof _aioApplyAIActionGate === 'function')
     ? _aioApplyAIActionGate(visible, meta)
     : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', reasons: ['validator-unavailable'] };
   var claimAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.validateAIResponseClaims === 'function')
     ? window.AIO.validateAIResponseClaims(visible, {
       evidence: meta.evidence || [],
-      currentSensitive: meta.currentSensitive === true
+      currentSensitive: currentSensitive
     })
      : { status: 'unavailable', blocked: false, claims: [], validCount: 0, issues: [] };
   var conductAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.evaluateAIActionPermission === 'function')
@@ -135,7 +142,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       entrypoint: meta.entrypoint || request.entrypoint,
       text: visible,
       evidence: meta.evidence || [],
-      currentSensitive: meta.currentSensitive === true,
+       currentSensitive: currentSensitive,
       requiresStructuredClaims: meta.requiresStructuredClaims === true
     }) : null;
   var conversationAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.isCurrentAIResponse === 'function' && request.conversationState)
@@ -172,11 +179,22 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       reasons: (gate.reasons || []).concat(['typed-claim-validation'])
     };
   }
-  // P714: typed-claim 게이트의 옵트인 공백 완화 — 모델이 claim envelope를 아예 제출하지
-  // 않으면(status 'not-structured') 검증 자체가 스킵된다. 차단하면 대화형 응답 대부분이
-  // 막히므로, 현재성 표현+숫자를 담은 비구조 응답에는 "자동 검증 미통과" 고지를 비차단으로
-  // 덧붙여 사용자가 검증된 수치와 구별할 수 있게 한다.
-  if (gate.blocked !== true && claimAudit && claimAudit.status === 'not-structured' &&
+  // AIQ-P0-03/P0-12: current-sensitive numeric output is fail-closed unless the
+  // strict AnswerPlan/ClaimLedger and MarketSessionEvidence contracts are present.
+  // Non-current educational prose keeps the legacy disclosure-only behavior.
+  if (currentSensitive && (!questionPlan || !questionPlan.sessionEvidence || !questionPlan.sessionEvidence.observedAt)) {
+    gate = {
+      blocked: true,
+      text: 'AI 베타 안전 모드\n\n시장 세션 근거가 없어 현재성 답변을 표시하지 않습니다. 장중/장외 상태와 기준시각을 먼저 확인하세요.',
+      reasons: (gate.reasons || []).concat(['market-session-evidence-required'])
+    };
+  } else if (gate.blocked !== true && currentSensitive && /\d/.test(visible) && answerPlanAudit.status !== 'valid') {
+    gate = {
+      blocked: true,
+      text: 'AI 베타 안전 모드\n\n현재성 수치가 strict AnswerPlan/ClaimLedger 검증을 통과하지 못해 표시하지 않습니다. 조건·근거·기준시각을 다시 확인하세요.',
+      reasons: (gate.reasons || []).concat(['answer-plan-required'])
+    };
+  } else if (gate.blocked !== true && claimAudit && claimAudit.status === 'not-structured' &&
       /(현재|지금|오늘|현시점|방금|as of)/i.test(visible) && /\d/.test(visible)) {
     gate = Object.assign({}, gate, {
       text: gate.text + '\n\n※ 이 답변의 수치는 typed-claim 자동 검증을 거치지 않았습니다(모델이 claim envelope 미제출). 기준시각과 원문을 직접 확인하세요.',
@@ -204,7 +222,9 @@ function _aioRunAIResponsePipeline(rawText, meta) {
     evidenceStatus: meta.evidenceStatus || null,
     asOf: meta.asOf || null,
     retrievalAudit: meta.retrievalAudit || null,
-    contextBudgetAudit: meta.contextBudgetAudit || null
+    contextBudgetAudit: meta.contextBudgetAudit || null,
+    questionPlan: questionPlan,
+    answerPlanAudit: answerPlanAudit
   };
   if (meta.record !== false) _aioRecordAIResponseManifest(result);
   return result;
@@ -215,7 +235,8 @@ function _aioPublicAIActionPolicyPrompt() {
     '이 AI는 "AI 베타 · 교육/리서치 보조"이며 독립 투자자문·검증 시스템·실시간 주문 도구가 아니다.\n' +
     '현재 답변에서는 구체적인 매수·매도·진입·청산 지시, 가격 목표/손절가, 포트폴리오 비중·수량·포지션을 권고하거나 지시하지 마라.\n' +
     '대신 조건, 데이터의 한계, 위험요인, 확인해야 할 원문과 재검증 절차를 설명하라. 현재성 주장은 주입된 근거 블록만 사용하고 기준시각과 Evidence 상태를 명시하라.\n' +
-    '수치·출처·기준시각이 없거나 Evidence가 확인되지 않으면 "확인 필요"로 답하고, 학습 기억이나 정적 문구를 현재 사실처럼 보완하지 마라.\n';
+    '수치·출처·기준시각이 없거나 Evidence가 확인되지 않으면 "확인 필요"로 답하고, 학습 기억이나 정적 문구를 현재 사실처럼 보완하지 마라.\n' +
+    '보정(calibration) 모델 ID와 검증된 calibration 메타데이터가 주입되지 않은 경우 Bull/Base/Bear·상승/하락 확률을 숫자(%)로 만들거나 추정하지 마라. 확률 대신 조건·반대 가설·확인할 신호를 제시하라.\n';
 }
 
 // v52.77/WP-AI2: append the typed-claim contract to the shared prompt so every
@@ -2304,7 +2325,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       _mktHeader = '【현재 시장 환경 (v49.68 자동 헤더 · 기준일: ' + _nowStamp + ')】\n' +
         '• **SPX**: ' + _spx + ' · **VIX**: ' + _vixEmoji + ' ' + _vix + ' (' + _regime + ') · **10Y**: ' + _tnx + '% · **F&G**: ' + _fgEmoji + ' ' + _fg + ' (' + _fgLabel + ') · **트레이딩 스코어**: ' + _scoreEmoji + ' ' + _score + '/100\n' +
         (_forceScenarioAnswer
-          ? '⚠️ **답변 가이드 (R122/R127/R128)**: 매매 판단·전망·추천 질문이면 위 시장 환경을 연결하고, **Bull (X%) / Base (Y%) / Bear (Z%)** 3 시나리오와 확신도를 제시하라. 데이터 출처 [Source · 기준일]과 필요한 시각 단서 🔴🟡🟢를 사용한다. 기관급 프레임은 도움이 될 때 1~2개만 인용한다.\n\n'
+          ? '⚠️ **답변 가이드 (R122/R127/R128)**: 매매 판단·전망·추천 질문이면 위 시장 환경을 연결하고, **Bull/Base/Bear** 3 시나리오의 트리거·반대 가설·무효화 조건을 제시하라. 보정(calibration) 모델 ID가 주입된 경우에만 확률 숫자를 표시하고, 그 외에는 확률을 만들지 마라. 데이터 출처 [Source · 기준일]과 필요한 시각 단서 🔴🟡🟢를 사용한다. 기관급 프레임은 도움이 될 때 1~2개만 인용한다.\n\n'
           : 'ℹ️ **답변 가이드 (R122/R128)**: 단순 사실·용어·요약 질문이면 시장 환경은 배경으로만 짧게 쓰고, Bull/Base/Bear·기관 프레임을 강제하지 말라. 질문에 바로 답하고 필요한 출처·기준일만 붙인다.\n\n');
     }
   } catch(_hdrErr) {}
@@ -4442,7 +4463,7 @@ window._aioChatFreshnessInfo = function() {
   return { todayStr: todayStr, ldAgeMin: ldAgeMin, liveStatus: liveStatus, snapAge: snapAge };
 };
 
-async function chatSend(ctxId) {
+async function chatSend(ctxId, _aioDispatchOptions) {
   // v49.77 P410 R153: chatSend silent return 5+ 경로 모두 사용자 피드백 (사용자 좌절 시정)
   // 사용자 발견 — home 채팅 안 됨 등 silent fail 경험. 모든 early return에 toast/inline 안내.
   var ctx = CHAT_CONTEXTS[ctxId];
@@ -4476,6 +4497,24 @@ async function chatSend(ctxId) {
       inp.focus();
     } catch(_) {}
     return;
+  }
+  // AIQ-0/AIQ-1: chatSend is a compatibility UI adapter. Question planning and
+  // dispatch ownership lives in the single ESM orchestrator; the guarded second
+  // call is the legacy renderer/provider adapter and cannot re-enter planning.
+  if (!(_aioDispatchOptions && _aioDispatchOptions._aioOrchestrated === true) &&
+      window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function') {
+    var _aioQuestionOrchestrator = window.AIO_ARCH.getAIOrchestrator();
+    if (_aioQuestionOrchestrator && typeof _aioQuestionOrchestrator.execute === 'function') {
+      return _aioQuestionOrchestrator.execute({
+        query: q,
+        route: ctxId,
+        surface: 'per-page-chat',
+        legacyRunner: function(questionPlan) {
+          window['_aioActiveQuestionPlan'] = questionPlan;
+          return chatSend(ctxId, { _aioOrchestrated: true });
+        }
+      });
+    }
   }
   // v49.78 C4 P419: state.streaming atomic lock — 동시 클릭 race condition 차단
   // 기존 L4335 streaming=true 설정까지 60줄+ 거리 → 빠른 더블 클릭 시 race window 존재
@@ -4799,6 +4838,7 @@ async function chatSend(ctxId) {
       _dataVerify += '넓은 추천 질문에서는 특정 한 섹터·한 기업으로 몰아가지 말고 최소 3개 섹터 관점으로 나눠 답하라. CEG/전력/AVGO가 후보군에 있더라도 반복 추천 방지 규칙을 우선 적용하라. [주가 추이] 블록이 없어도 후보군의 3M·RSI·퀀트 랭크는 스크리너 근거로 사용할 수 있다.\n';
     }
     _dataVerify += '\n';
+    _dataVerify += '\n[AIO INTELLIGENCE SAFETY CONTRACT]\nFor current-sensitive claims, use only an observedAt timestamp, source, and evidence IDs from the QuestionPlan. Do not emit Bull/Base/Bear probability percentages unless a calibrated model ID and calibration metadata are present; otherwise compare scenarios by triggers, alternatives, and invalidation signals.\n';
   } else if (detectedTickers.length === 0) {
     // v50.37 트랙3: 일반·교육·비종목 질문 유연성 — 개념·전략·시장 해석은 충실히, 시점성 수치만 주의
     _dataVerify += '\n【일반·교육 질문 유연성 규칙】\n이 질문은 특정 종목을 지목하지 않았다. 개념·투자 전략·시장 해석·용어·교육성 질문에는 너의 일반 지식 + 아래 주입된 현재 시장 맥락(VIX·F&G·지수·매크로)을 활용해 충실하고 구체적으로 답하라(일반 개념 설명을 막지 마라). 다만 (a) 특정 종목의 현재 주가·시총·목표가·실적 수치, (b) 학습 커트오프 이후의 날짜·사건·발표는 주입된 데이터에 없으면 단정하지 말고 "현재 데이터 미확인"이라 밝혀라.\n\n';
@@ -4998,6 +5038,16 @@ async function chatSend(ctxId) {
         aiBubble.parentNode.appendChild(badgeEl);
         if (typeof _aioAppendAIPublicDisclosure === 'function') {
           _aioAppendAIPublicDisclosure(aiBubble.parentNode, { ctxId: ctxId, tickers: detectedTickers, freshness: chatFreshPreflight, actionGate: _publicGate });
+        }
+
+        // AIQ-P0-04: a blocked answer must not regain actionable meaning through
+        // recommendation/chart/post-processing cards. Keep only the gated text and
+        // disclosure; all secondary cards are derived from an allowed response.
+        if (_publicGate && _publicGate.blocked === true) {
+          state.messages.push({ role: 'assistant', content: visible });
+          saveChatEntry(ctxId, q, visible);
+          chatRenderChips(ctxId, extractChips(visible));
+          return;
         }
 
         // v49.77 P413 R155: 데이터 ✗ 시 답변 위 액션 버튼 배너 자동 삽입
@@ -5434,8 +5484,8 @@ async function chatSend(ctxId) {
               var _mcHTML = '<div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Maker-Checker · 퀀트 검증</div>';
               _mcHTML += '<div style="display:flex;flex-wrap:wrap;gap:5px;">';
               _mcr.forEach(function(r) {
-                var col = r.verdict === 'CONFIRMED' ? '#22c55e' : r.verdict === 'CAUTION' ? '#f59e0b' : '#ef4444';
-                var icon = r.verdict === 'CONFIRMED' ? '✓' : r.verdict === 'CAUTION' ? '⚠' : '✗';
+                var col = r.verdict === 'RESEARCH_CANDIDATE' ? '#60a5fa' : r.verdict === 'CAUTION' ? '#f59e0b' : '#ef4444';
+                var icon = r.verdict === 'RESEARCH_CANDIDATE' ? '◌' : r.verdict === 'CAUTION' ? '⚠' : '✗';
                 _mcHTML += '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:' + col + '18;border:1px solid ' + col + '44;border-radius:12px;font-size:11px;">' +
                   '<span style="color:' + col + ';font-weight:700;">' + icon + '</span>' +
                   '<b style="color:var(--text-primary);">' + escHtml(r.sym) + '</b>' +

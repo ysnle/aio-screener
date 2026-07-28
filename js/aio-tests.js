@@ -2887,7 +2887,7 @@
       // ranks while others have them, which would still indicate a real bug).
       var dbHasAnyRank858 = (typeof SCREENER_DB !== 'undefined' && Array.isArray(SCREENER_DB)) ? SCREENER_DB.some(function(r) { return r && typeof r.rank === 'number'; }) : false;
       var verdictShapeOk858 = r858broad && r858broad.length > 0 && r858broad.every(function(row) {
-        return row && typeof row.verdict === 'string' && ['CONFIRMED','CAUTION','REJECTED'].indexOf(row.verdict) >= 0 &&
+        return row && typeof row.verdict === 'string' && ['RESEARCH_CANDIDATE','CAUTION','REJECTED'].indexOf(row.verdict) >= 0 &&
           typeof row.rank === 'number' && Array.isArray(row.reasons);
       });
       var verdictOk858 = verdictShapeOk858 || (r858broad === null && !dbHasAnyRank858);

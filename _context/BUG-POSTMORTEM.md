@@ -2,11 +2,11 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
 last_verified: 2026-07-27
 confidence: high
-latest_version: v53.54
-latest_P_number: P847
-next_P_number: P848
+latest_version: v53.55
+latest_P_number: P849
+next_P_number: P850
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P847 typed market-analysis evidence and API/source/pipeline lineage hardening; local contracts/browser checks are in progress, while live provider/Worker checks remain separate operator/runtime checks
+current_checkpoint: P849 AIQ-0~4 intelligence contracts plus AIQ-5/6 benchmark/operations scaffolds; local contracts are wired, while live model quality/Worker certification remain separate operator/runtime checks
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -18,6 +18,26 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P849 - v53.55 - domain analysis, benchmark, and operations contracts lacked executable boundaries
+
+- **motivation**: the intelligence rebuild requires deterministic domain calculations and explicit gates before live model/Worker certification.
+- **symptom/reproduction**: sector, company, technical, macro/FX, benchmark, and operations concerns had no typed executable contract in `src/ai`.
+- **root_cause**: the first AIQ-0~3 boundary stopped before domain analysis and external evaluation/operations interfaces.
+- **fix**: added evidence-bounded domain engines, a registry, reproducible benchmark manifest/corpus scoring, and an operator-required canary/feedback/drift/rollback control plane.
+- **violated_rule**: no domain conclusion or model-quality claim may be emitted without supplied evidence and pinned evaluation inputs.
+- **prevention**: `scripts/ci-ai-intelligence-contract-check.mjs` covers AIQ-4 fixtures and explicit benchmark/operator gates; live model/Worker certification remains unchecked until external fixtures exist.
+- **verification**: changed-module syntax, AI intelligence, architecture, release manifest, and release revision contracts pass locally.
+
+## P848 - v53.55 - AI chat intelligence path bypassed typed planning and research ranking was presented as confirmation
+
+- **motivation**: the intelligence rebuild audit found that the ESM AI contracts were not the entrypoint owner, current-sensitive questions had no typed market-session plan, and free-form model text plus post-processing could bypass the intended evidence/policy boundary.
+- **symptom/reproduction**: per-page and unified chat entered the legacy prompt/provider path directly; `CONFIRMED` was emitted from a relative rank threshold; screener prompt time used browser generation time; uncalibrated scenario percentages were requested even when no calibrated model was connected.
+- **root_cause**: planning, capability selection, claim validation, and renderer policy were represented by parallel contracts rather than one executable orchestration boundary.
+- **fix**: added `QuestionPlan`, intent/entity/session resolution, capability planning, EvidenceGraph/causal attribution, strict `AnswerPlan/ClaimLedger` parsing/validation, deterministic rendering, guarded orchestration adapters for both chat surfaces, fail-closed current-sensitive numeric output, producer-observed screener time, and `RESEARCH_CANDIDATE` with explicit research-only use.
+- **violated_rule**: current-sensitive AI output must be evidence-bound and a research-relative ranking must never be promoted into a verified recommendation.
+- **prevention**: `scripts/ci-ai-intelligence-contract-check.mjs` covers seven representative questions, session unknown/open states, uncalibrated probabilities, temporal/cross-asset causal evidence, orchestrator dispatch, verdict vocabulary, and producer observation time; CI runs it in the ESM validation stage.
+- **verification**: changed-module syntax, ESM unit, AI intelligence contract, AI chat reliability, inference, runtime, structural, and architecture contracts pass locally. Live provider/model-quality and post-deploy browser certification remain separate follow-up gates.
 
 ## P847 - v53.54 - server market analysis trusted untyped semantic metadata and source lineage was incomplete
 

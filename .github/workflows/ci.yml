@@ -94,6 +94,9 @@ jobs:
       - name: ESM core unit contracts (RM-05 — store/router/lifecycle/evidence-store/facade in isolation)
         run: node scripts/ci-esm-core-unit-check.mjs
 
+      - name: AI Screener intelligence contract (AIQ-0/AIQ-1)
+        run: node scripts/ci-ai-intelligence-contract-check.mjs
+
       - name: Domain live/backtest parity contract (ARX-12 — trading-score real, others smoke pending RM-03 item 2)
         run: node scripts/ci-domain-parity-check.mjs
 

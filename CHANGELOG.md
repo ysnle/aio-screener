@@ -1,3 +1,11 @@
+## v53.55 (2026-07-28)
+- **AIQ-0/AIQ-1 intelligence rebuild — local implementation**: added the ESM QuestionPlan/intent/entity/market-session orchestrator and routed both per-page and unified chat through it as guarded legacy UI/provider adapters.
+- **AIQ-2/AIQ-3 safety boundary**: added capability planning, EvidenceGraph/causal attribution, strict AnswerPlan/ClaimLedger parsing/validation, deterministic rendering, and fail-closed current-sensitive numeric output when MarketSessionEvidence or the structured answer contract is missing.
+- Removed the misleading screener `CONFIRMED` verdict; ranking output now remains `RESEARCH_CANDIDATE` with `research-relative-ranking-only` and producer observation time. Blocked AI responses no longer receive recommendation/chart post-processing cards.
+- Added `scripts/ci-ai-intelligence-contract-check.mjs` and wired representative routing, session, probability, causal, source-time, and single-orchestrator checks into CI.
+- Added AIQ-4 deterministic domain engines for sector decomposition, company quality/valuation, technical conditions, and macro/FX transmission; AIQ-5 benchmark manifest/corpus scoring and AIQ-6 canary/feedback/drift/rollback control-plane contracts remain operator-gated for real model/Worker certification.
+- R1 7곳 v53.55
+
 ## v53.54 (2026-07-27)
 - **P846 / deployed API-key save and chat route regression**: fixed the `defer`-order global collision where `js/aio-core.js` overwrote the inline Claude `getApiKey()`/`setApiKey()` functions. The compatibility exports now support both provider-key calls and Claude no-argument/one-argument calls, return the credential readback result, and keep the runtime key available to chat.
 - Reproduced with the local static server and Chromium: before the fix the browser wrote the key but `saveSidebarApiKey()` received no result and `getApiKey()` returned an empty value; after the fix the result is `READY_PLAINTEXT`, storage/readback, no-argument key lookup, explicit lookup, masking, and personal Claude routing all pass. Added the regression assertions to the AI reliability contract.
