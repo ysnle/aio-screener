@@ -11,6 +11,10 @@ import { buildTechnicalConditions } from '../src/ai/analysis/technical.js';
 import { buildMacroFxTransmission } from '../src/ai/analysis/macro-fx.js';
 import { createBenchmarkManifest, evaluateRoutingCorpus, assertBenchmarkReady } from '../src/ai/eval/benchmark.js';
 import { createAIControlPlane } from '../src/ai/operations/control-plane.js';
+import { createResearchDecision, validateResearchDecision } from '../src/ai/research/decision.js';
+import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
+import { createEvidenceDocument, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
+import { createResearchCapability, validateResearchCapability } from '../src/ai/research/capability.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -72,6 +76,22 @@ const controlPlane = createAIControlPlane({ now: () => '2026-07-28T12:00:00Z' })
 controlPlane.recordCanary({ release: 'v53.55' });
 check('operations-control-plane', controlPlane.status().eventCount === 1 && controlPlane.status().operatorRequired === true);
 
+const conceptPlan = createQuestionPlan({ query: 'What is a bond yield?', route: 'macro', now: '2026-07-28T12:00:00Z' });
+check('research-concept-does-not-force-search', conceptPlan.researchDecision?.requirement === 'NOT_NEEDED' && conceptPlan.researchPlan?.subQueries?.length === 0);
+check('research-concept-contract', validateResearchDecision(conceptPlan.researchDecision).ok && validateResearchPlan(conceptPlan.researchPlan).ok);
+const causalPlan = createQuestionPlan({ query: 'Why did semiconductor stocks fall today?', route: 'home', now: '2026-07-28T12:00:00Z' });
+check('research-causal-is-required', causalPlan.researchDecision?.requirement === 'REQUIRED' && causalPlan.researchDecision.causalSensitive === true && causalPlan.researchPlan.subQueries.length >= 2);
+check('research-causal-tool-is-required', causalPlan.requiredTools.includes('web-research'));
+const outOfScopePlan = createQuestionPlan({ query: 'What is the latest weather in Seoul today?', route: 'home', now: '2026-07-28T12:00:00Z' });
+check('research-out-of-scope-is-explicit', outOfScopePlan.researchDecision?.outOfScope === true && outOfScopePlan.researchDecision.questionClass === 'OUT_OF_SCOPE_RESEARCH');
+const disabledDecision = createResearchDecision({ questionPlan: causalPlan, userOptOut: true, now: '2026-07-28T12:00:00Z' });
+check('research-optout-fails-closed', disabledDecision.requirement === 'REQUIRED' && disabledDecision.failureMode === 'REQUIRED_BUT_DISABLED' && validateResearchDecision(disabledDecision).ok);
+const evidenceDocument = createEvidenceDocument({ canonicalUrl: 'https://sec.gov/Archives/edgar/data/1/filing.htm', title: 'Official filing', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE' });
+const evidence = normalizeSearchResults([{ url: evidenceDocument.canonicalUrl, title: evidenceDocument.title, content: 'filing evidence', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE', sourceTier: 'PRIMARY_OFFICIAL', primaryOrSecondary: 'PRIMARY' }]);
+check('research-evidence-claim-binding', validateClaimEvidenceBinding({ evidenceIds: [evidence.documents[0].documentId] }, evidence, { currentSensitive: true, minimumIndependentSources: 1, minimumPrimarySources: 1 }).ok);
+const capability = createResearchCapability({ provider: 'claude-native', routeReady: 'READY', authReady: 'READY', toolReady: 'READY', quotaReady: 'READY', originReady: 'READY', supportsCitations: true, supportsFullContent: true, supportsDomainControl: false, checkedAt: '2026-07-28T12:00:00Z' });
+check('research-capability-separates-chat', capability.status === 'READY' && capability.chatReadiness === 'SEPARATE_CAPABILITY' && validateResearchCapability(capability).ok);
+
 const chat = read('js/aio-chat.js');
 const data = read('js/aio-data.js');
 const core = read('js/aio-core.js');
@@ -81,6 +101,12 @@ check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test
 check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data) && /RESEARCH_CANDIDATE/.test(data) && /research-relative-ranking-only/.test(data));
 check('producer-observed-time', /producer observation time/.test(data) && /관측시각 미확인/.test(data));
 check('probability-policy-is-strict', /calibrated !== true/.test(core) && /보정\(calibration\).*확률/.test(chat));
+
+check('research-decision-is-key-independent', /createResearchDecision/.test(read('src/ai/research/decision.js')) && /provider keys,[\s\S]*deliberately not read/i.test(read('src/ai/research/decision.js')));
+check('research-plan-is-wired-to-chat', /_aiResearchPlanSearch/.test(chat) && /researchPlan/.test(chat) && /RESEARCH_RESULTS_EMPTY/.test(chat));
+check('research-capability-is-separate', /getAIResearchCapability/.test(bootstrap) && /validateAIResearchCapability/.test(bootstrap) && /chatReadiness/.test(read('src/ai/research/capability.js')));
+check('research-native-tool-errors-are-promoted', /web_search_tool_result_error/.test(chat) && /_aioLastClaudeResearchError/.test(chat));
+check('deep-search-has-no-fixed-year', !/(latest news earnings|policy outlook|geopolitical risk latest|investment trend latest) 2026/.test(chat));
 
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);

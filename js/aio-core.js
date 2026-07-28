@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.55';
+const APP_VERSION = 'v53.56';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -8068,6 +8068,7 @@ window.AIO.getWebSearchAudit = function() {
   var hasPerplexity = false;
   var hasGoogleKey = false;
   var hasGoogleCx = false;
+  var routeState = window._aioLastClaudeRouteState || null;
   try {
     if (typeof _getApiKey === 'function') {
       hasPerplexity = !!_getApiKey('aio_perplexity_key');
@@ -8089,6 +8090,21 @@ window.AIO.getWebSearchAudit = function() {
     googleCseCxConfigured: hasGoogleCx,
     googleCseReady: hasGoogleKey && hasGoogleCx,
     externalSearchReady: hasPerplexity || (hasGoogleKey && hasGoogleCx),
+    // Chat route and Research route are separate capabilities. A configured
+    // personal Chat key does not certify external/native Web Research.
+    chatReadiness: routeState ? (routeState.ok ? 'READY' : routeState.reason || 'NOT_READY') : 'NOT_CHECKED',
+    researchReadiness: (hasPerplexity || (hasGoogleKey && hasGoogleCx)) ? 'EXTERNAL_PROVIDER_READY' : routeState && routeState.reason === 'SHARED_WORKER' ? 'NATIVE_TOOL_ROUTE_READY' : 'NOT_READY',
+    researchCapability: {
+      provider: hasPerplexity ? 'perplexity' : hasGoogleKey && hasGoogleCx ? 'google-cse' : routeState && routeState.reason === 'SHARED_WORKER' ? 'claude-native' : 'none',
+      routeReady: routeState ? (routeState.ok ? 'READY' : 'NOT_READY') : 'UNKNOWN',
+      authReady: hasPerplexity || (hasGoogleKey && hasGoogleCx) || !!(routeState && routeState.ok) ? 'READY' : 'UNKNOWN',
+      toolReady: routeState && routeState.reason === 'SHARED_WORKER' ? 'READY' : hasPerplexity || (hasGoogleKey && hasGoogleCx) ? 'READY' : 'UNKNOWN',
+      quotaReady: 'UNKNOWN',
+      supportsCitations: !!(hasPerplexity || (hasGoogleKey && hasGoogleCx) || (routeState && routeState.reason === 'SHARED_WORKER')),
+      supportsFullContent: !!(hasPerplexity || (routeState && routeState.reason === 'SHARED_WORKER')),
+      supportsDomainControl: !!(hasPerplexity || (hasGoogleKey && hasGoogleCx)),
+      checkedAt: new Date().toISOString()
+    },
     note: '사용자 비활성화: localStorage.setItem("aio_web_search_enabled","off"). 활성화 되돌리기: removeItem 또는 "on"',
     generatedAt: new Date().toISOString()
   };

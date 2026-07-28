@@ -139,6 +139,9 @@ jobs:
       - name: Static and hardcoded data contract (22 categories)
         run: node scripts/ci-static-data-contract-check.mjs
 
+      - name: Data refresh 22-category freshness and session audit
+        run: node scripts/ci-data-refresh-audit.mjs
+
       - name: Structural regression checks
         run: node scripts/ci-structural-check.mjs
 

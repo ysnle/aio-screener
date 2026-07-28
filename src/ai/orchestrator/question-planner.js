@@ -3,6 +3,8 @@ import { resolveEntities } from '../entity/resolver.js';
 import { createMarketSessionEvidence, resolveQuestionTime } from '../time/market-session.js';
 import { evaluateQuestionActionPermission } from '../policy/suitability.js';
 import { createCapabilityPlan } from './capability-planner.js';
+import { createResearchDecision } from '../research/decision.js';
+import { createResearchPlan } from '../research/plan.js';
 
 export const AI_QUESTION_PLAN_VERSION = 'question-plan.v1';
 
@@ -36,7 +38,7 @@ function premise(query, currentSensitive) {
   return Object.freeze({ status: assertions.length ? 'needs-verification' : 'none', assertions: Object.freeze(assertions), currentSensitive });
 }
 
-export function createQuestionPlan({ query = '', route = null, now = new Date(), root = globalThis, sessionSchedule = null, userLevel = null } = {}) {
+export function createQuestionPlan({ query = '', route = null, now = new Date(), root = globalThis, sessionSchedule = null, userLevel = null, researchOptOut = false } = {}) {
   const normalized = String(query || '').trim();
   const intent = classifyQuestionIntent(normalized, { route });
   const entities = resolveEntities(normalized, { root, route });
@@ -67,6 +69,11 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     sessionEvidence,
     generatedAt: new Date(now).toISOString()
   };
+  plan.researchDecision = createResearchDecision({ questionPlan: plan, userOptOut: researchOptOut, now });
+  plan.researchPlan = createResearchPlan({ questionPlan: plan, decision: plan.researchDecision, now });
+  if (plan.researchDecision.requirement === 'REQUIRED') {
+    plan.requiredTools = Object.freeze([...new Set([...plan.requiredTools, 'web-research'])]);
+  }
   plan.capabilityPlan = createCapabilityPlan(plan);
   return Object.freeze(plan);
 }

@@ -2,9 +2,9 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
 last_verified: 2026-07-27
 confidence: high
-latest_version: v53.55
-latest_P_number: P849
-next_P_number: P850
+latest_version: v53.56
+latest_P_number: P850
+next_P_number: P851
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
 current_checkpoint: P849 AIQ-0~4 intelligence contracts plus AIQ-5/6 benchmark/operations scaffolds; local contracts are wired, while live model quality/Worker certification remain separate operator/runtime checks
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
@@ -18,6 +18,16 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P850 - v53.56 - Web Research and market-session readiness were conflated with provider/data presence
+
+- **motivation**: the Web Research/data handoff required current and causal questions to be evidence-bound even when provider keys, Worker health, quotas, or source rights were unavailable.
+- **symptom/reproduction**: search necessity was coupled to provider availability; multi-query results were flattened; native HTTP 200 tool errors could look successful; public market artifacts exposed `UNKNOWN` sessions; durable data rows could be mistaken for current evidence.
+- **root_cause**: question policy, provider capability, source evidence, and market-session state had no single typed boundary, so a present value or configured route could be over-read as research readiness.
+- **fix**: added `ResearchDecision`, `ResearchPlan`, `EvidenceDocument`/`EvidenceChunk`, and `ResearchCapability`; wired the plan into chat; preserved sub-query/source metadata; promoted native tool failures; made current claims fail closed; derived explicit market-session states; and added the 22-category data refresh audit plus session fixtures.
+- **violated_rule**: R401; current/causal claims require the decision's source floors and runtime capability, while closed/delayed data must remain explicitly bounded.
+- **prevention**: keep requirement decisions key-independent, keep capability readiness separate, reject snippet-only current evidence, include plan/session boundaries in search cache keys, and fail CI on published `UNKNOWN` sessions or structural data-audit failures.
+- **verification**: research, AI intelligence, market snapshot, data refresh, data pipeline, runtime, and touched-module syntax contracts pass locally; live provider keys, Worker health, quota, origin, rights, and post-deploy browser checks remain operator/runtime gates.
 
 ## P849 - v53.55 - domain analysis, benchmark, and operations contracts lacked executable boundaries
 

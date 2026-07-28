@@ -1,7 +1,7 @@
 {
   "schemaVersion": "operations-status-v1",
-  "generatedAt": "2026-07-28T01:08:09.300Z",
-  "appRevision": "v53.55",
+  "generatedAt": "2026-07-28T02:26:20.693Z",
+  "appRevision": "v53.56",
   "dataRevision": "market-snapshot:2026-07-28T01:08:04.827Z:ca246973",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -46,7 +46,7 @@
     "browser": {
       "status": "CURRENT",
       "source": "static-pages+service-worker",
-      "revision": "v53.54"
+      "revision": "v53.56"
     }
   },
   "ai": {
@@ -69,7 +69,7 @@
       "lastFetchAt": "2026-07-28T01:08:04.827Z"
     },
     "fred": {
-      "rights": "REVIEW_REQUIRED",
+      "rights": "OPERATOR_REQUIRED",
       "use": "official-series",
       "lastFetchAt": "2026-07-28T01:08:04.827Z"
     },

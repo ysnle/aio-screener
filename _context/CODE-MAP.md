@@ -1,25 +1,25 @@
 > **v53.55 (P761~P849 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, P826 derived-route compatibility canonicalization, P827~P830 secondary surface closure, P831 portfolio summary, P832 SEC report, P833 KV-only fast quote deployment, P834 AI infrastructure reference integration, P835 chart/behavior/communication protocols, P836 data refresh pipeline correction, P837 fast-plane smoke bootstrap handling, P838~P841 evidence/lifecycle/freshness/slice contracts, P842 capability claim boundary, P843 operations/soak/readiness boundary, P846 credential compatibility, P847 typed data evidence, P848 AI QuestionPlan/ClaimLedger/causal boundaries, P849 domain/evaluation/operations contracts까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P849 update
+verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P850 update
 current_override: P849 AI intelligence domain/evaluation/operations contract boundary on top of P843 operations/route-soak/public-readiness; live revision, edge enforcement, provider rights, model benchmark, and SA-04 remain explicit operator gates
   last_verified: 2026-07-28
 confidence: high
-  target_version: v53.55
+  target_version: v53.56
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P843 gate
   current_checkpoint: P849 AIQ-0~4 contracts plus AIQ-5/6 benchmark/operations scaffolds pass locally; native lifecycle/renderer routes are 17/17, while live model/Worker certification remains operator-required
 ---
 
-## Current machine-verified file-size table (v53.55, 2026-07-28)
+## Current machine-verified file-size table (v53.56, 2026-07-28)
 
 | File | Lines | Verification |
 |------|------:|--------------|
 | `index.html` | 27,473 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,486 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,502 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-data.js` | 15,823 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,265 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 6,302 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 6,449 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-tests.js` | 8,871 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 130 | native guide search/jump/capability lifecycle module |
 | `src/ui/pages/screener.js` | 517 | native screener table/filter/profile/watchlist/position renderer |
@@ -185,7 +185,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | Symbol | Location |
 |--------|----------|
 | `updateFxBondPage` | `index.html:20942` |
-| `APP_VERSION` | `js/aio-core.js:19833` |
+| `APP_VERSION` | `js/aio-core.js:2` |
 | `AIO_MANUAL_REFERENCE` / `DATA_SNAPSHOT` | `js/aio-core.js:20784` / `20813` |
 | `applyDataSnapshot` | `js/aio-core.js:21329` |
 | `computeTradingScore` | `js/aio-core.js:21824` |
@@ -194,7 +194,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:13732` / `15186` |
 | `_aioApplyNativeScreenerState` / `_aioComputeFactorRanks` | `js/aio-data.js:4864` / `15357` |
 | `initBreadthPage` / native sentiment page | `js/aio-ui.js:172` / `src/ui/pages/sentiment.js:243` |
-| `CHAT_CONTEXTS` / `chatSend` | `js/aio-chat.js:418` / `4282` |
+| `CHAT_CONTEXTS` / `chatSend` | `js/aio-chat.js:549` / `4576` |
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.

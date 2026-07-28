@@ -21,13 +21,65 @@ function iso(value) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
-function quoteQuality(raw, nowMs) {
+function zoneParts(value, timeZone) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(value));
+    const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return { weekday: map.weekday, hour: Number(map.hour), minute: Number(map.minute) };
+  } catch (_) { return null; }
+}
+
+function minuteOfDay(parts) { return parts ? parts.hour * 60 + parts.minute : null; }
+
+function isWeekday(weekday) { return !['Sat', 'Sun'].includes(weekday); }
+
+/**
+ * Convert provider-specific marketState values and the observed timestamp
+ * into a user-facing session contract. A fresh fetch is not automatically a
+ * current observation: a prior close during a closed session is expected,
+ * while an old value during an open session is unexpected stale data.
+ */
+export function deriveMarketSession({ instrumentId, observedAt, providerSession = null, now = Date.now() } = {}) {
+  const symbol = String(instrumentId || '');
+  const observedMs = Date.parse(observedAt || '');
+  if (!Number.isFinite(observedMs)) return 'SOURCE_UNAVAILABLE';
+  const ageMs = Math.max(0, Number(now) - observedMs);
+  const provider = String(providerSession || '').toUpperCase();
+  if (provider === 'PRE') return 'PREMARKET';
+  if (provider === 'POST' || provider === 'POSTPOST') return 'AFTER_HOURS';
+  if (provider === 'REGULAR') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : 'DELAYED_IN_SESSION';
+  if (provider === 'CLOSED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+
+  if (/-USD$/i.test(symbol)) return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
+  const isKorea = /^\^(KS11|KQ11)$/.test(symbol);
+  const isUsSession = /^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)$/.test(symbol);
+  const observedLocal = zoneParts(observedMs, isKorea ? 'Asia/Seoul' : 'America/New_York');
+  const nowLocal = zoneParts(Number(now), isKorea ? 'Asia/Seoul' : 'America/New_York');
+  const openMinutes = isKorea ? 9 * 60 : 9 * 60 + 30;
+  const closeMinutes = isKorea ? 15 * 60 + 30 : 16 * 60;
+  const nowMinute = minuteOfDay(nowLocal);
+  const observedMinute = minuteOfDay(observedLocal);
+  if ((isKorea || isUsSession) && isWeekday(nowLocal?.weekday)) {
+    if (nowMinute != null && nowMinute >= openMinutes && nowMinute < closeMinutes) {
+      if (observedLocal && isWeekday(observedLocal.weekday) && observedMinute != null && observedMinute >= openMinutes && observedMinute < closeMinutes) {
+        return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
+      }
+      return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+    }
+    return ageMs <= 24 * 60 * 60 * 1000 ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+  }
+  // FX, index futures, and commodities are treated as continuously quoted,
+  // but still carry a delay gate rather than being labelled current forever.
+  return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
+}
+
+function quoteQuality(raw, nowMs, session = null) {
   const observedMs = Date.parse(raw?.observedAt || '');
   if (!Number.isFinite(observedMs)) return 'UNAVAILABLE';
   const ageMs = Math.max(0, nowMs - observedMs);
-  const session = String(raw.marketSession || raw.marketState || '').toUpperCase();
-  if (session === 'REGULAR' && ageMs <= 10 * 60 * 1000) return 'CURRENT';
-  if (session === 'CLOSED' && ageMs <= 24 * 60 * 60 * 1000) return 'CLOSED_CURRENT';
+  if (session === 'CURRENT_SESSION' && ageMs <= 10 * 60 * 1000) return 'CURRENT';
+  if (session === 'DELAYED_IN_SESSION' && ageMs <= 2 * 60 * 60 * 1000) return 'DELAYED';
+  if (['PREVIOUS_CLOSE_EXPECTED', 'MARKET_CLOSED', 'PREMARKET', 'AFTER_HOURS'].includes(session) && ageMs <= 24 * 60 * 60 * 1000) return 'CLOSED_CURRENT';
   if (ageMs <= 2 * 60 * 60 * 1000) return 'DELAYED';
   if (ageMs <= 7 * 24 * 60 * 60 * 1000) return 'STALE';
   return 'STALE';
@@ -42,7 +94,8 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
     if (!Number.isFinite(value) || value <= 0) return null;
     const observedAt = iso(raw.observedAt || raw.regularMarketTime && new Date(Number(raw.regularMarketTime) * 1000));
     const fetchedAt = iso(raw.fetchedAt) || iso(attemptedAt);
-    const quality = quoteQuality(raw, now);
+    const session = deriveMarketSession({ instrumentId: instrument.instrumentId, observedAt, providerSession: raw.marketSession || raw.marketState, now });
+    const quality = quoteQuality(raw, now, session);
     return {
       evidenceId: `${instrument.metricId}:${stableHash({ value, observedAt, source })}`,
       metricId: instrument.metricId,
@@ -58,9 +111,9 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       observedAt,
       fetchedAt,
       lastSuccessfulAt: observedAt || fetchedAt,
-      session: String(raw.marketSession || raw.marketState || 'UNKNOWN'),
+      session,
       quality,
-      allowedUse: 'reference',
+      allowedUse: ['CURRENT_SESSION', 'DELAYED_IN_SESSION'].includes(session) ? 'current-with-session-and-delay-gate' : 'reference-only',
       delayedByMs: Number.isFinite(Number(raw.delayedByMs)) ? Number(raw.delayedByMs) : null,
       venue: raw.venue || raw.fullExchangeName || null
     };

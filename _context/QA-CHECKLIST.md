@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-27
 confidence: high
 
-## Current architecture checkpoint (2026-07-28, v53.55)
+## Current architecture checkpoint (2026-07-28, v53.56)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
@@ -13,9 +13,20 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.55
-latest_P_covered: P849
+checklist_version: v53.56
+latest_P_covered: P850
 current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846/P847/P848/P849 intelligence contracts are locally verified, with post-push remote CI and provider/live Worker/model verification still separate
+
+## P850 Web Research, source evidence, and market-session closure (2026-07-28, v53.56)
+
+- [x] Question planning creates a key-independent `ResearchDecision`; concept questions remain `NOT_NEEDED`, while current/causal/out-of-scope questions become explicit `REQUIRED` plans.
+- [x] Research sub-queries preserve query IDs, purposes, source URLs, independent-source counts, primary-source counts, and snippet-only restrictions; required claims fail closed when the evidence floor is not met.
+- [x] Chat readiness and Research readiness are separate; Worker route, personal key, external provider, citation, quota, and origin states are not silently merged.
+- [x] Claude native Web Research tool errors inside HTTP 200 streams are promoted to explicit research failure states.
+- [x] Search cache keys include the current date and research plan/session boundary; deep-search helper queries contain no fixed year.
+- [x] Tier 0 market snapshot sessions contain no published `UNKNOWN`; closed, delayed, current, stale, and unavailable states remain typed.
+- [x] The 22-category data refresh audit and structural Tier 0/session gate are wired into CI; blocked/licensing gaps remain explicit `SKIPPED` or operator-required states.
+- [ ] Real provider/Worker health, quota, allowed Origin, content rights, and post-deploy browser certification remain operator/runtime checks.
 
 ## P849 AIQ-4 domain engines and AIQ-5/6 operator contracts (2026-07-28, v53.55)
 

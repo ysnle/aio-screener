@@ -1642,3 +1642,9 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: A routing corpus score is not live model quality. Reproducible benchmark status requires pinned snapshot/model/prompt/retriever/validator revisions, and production canary/feedback/drift/rollback status remains operator-required until external runtime evidence exists.
 
 **Validation**: `src/ai/eval/benchmark.js`, `src/ai/operations/control-plane.js`, and the AI intelligence contract must preserve the explicit operator gate.
+
+## R401. Research requirement and research capability must remain separate (v53.56, P850)
+
+**Rule**: A question's `ResearchDecision` must be determined from the question and evidence policy, independently of provider keys, quota, Worker health, or user opt-out. Runtime `ResearchCapability` must separately report route, auth, tool, quota, origin, citation, and content-depth readiness; required research must fail closed when those conditions are not met.
+
+**Validation**: `src/ai/research/{decision,plan,evidence,capability}.js`, the chat Research Plan adapter, `getWebSearchAudit`, `scripts/ci-ai-intelligence-contract-check.mjs`, and `scripts/ci-data-refresh-audit.mjs` must preserve typed source floors, explicit unavailable states, and zero published `UNKNOWN` market sessions.

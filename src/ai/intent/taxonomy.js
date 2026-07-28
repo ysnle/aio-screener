@@ -68,7 +68,11 @@ export function classifyQuestionIntent(query, context = {}) {
   if (!ranked.length) ranked.push({ intent: 'UNKNOWN', score: 0 });
   const primary = ranked[0].intent;
   const actionRequested = ACTION_PATTERN.test(text);
-  const currentSensitive = CURRENT_PATTERN.test(text) || ['MARKET_STATUS', 'MARKET_CAUSAL', 'OUTLOOK', 'ENTITY_FACT', 'FX_ANALYSIS', 'MACRO_ANALYSIS'].includes(primary);
+  // Domain intent alone is not proof that a question asks for a current fact.
+  // For example, "채권 금리가 뭐야?" is a static concept explanation even
+  // though it routes through MACRO_ANALYSIS. Currentness comes from explicit
+  // time language or a market-status/causal intent.
+  const currentSensitive = CURRENT_PATTERN.test(text) || ['MARKET_STATUS', 'MARKET_CAUSAL'].includes(primary);
   const requestedDepth = /깊이|심층|자세히|deep|detailed/i.test(text) ? 'deep' : /간단|짧게|요약|brief/i.test(text) ? 'brief' : 'standard';
   return Object.freeze({
     taxonomyVersion: AI_INTENT_TAXONOMY_VERSION,

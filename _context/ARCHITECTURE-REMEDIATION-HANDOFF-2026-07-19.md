@@ -8,15 +8,15 @@ auto_refresh: false
   target_version: v53.43
   current_update: P833 implemented and locally verified; commit/deploy remains intentionally held because external operations are still unverified
 
-## Current generated preflight (P834, 2026-07-27)
+## Current generated preflight (P850, 2026-07-28)
 
 <!-- GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs -->
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `7397133`
+- git_head: `63d8e4b`
 - working_tree: `dirty / uncommitted local changes`
-- application_version: `v53.43`
+- application_version: `v53.56`
 - deployment: `not deployed; live invariant fetch unavailable in current environment`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
 

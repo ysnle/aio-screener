@@ -406,8 +406,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,getAIOrchestrator: () => aiOrchestrator
     ,planAIQuestion: (input = {}) => aiOrchestrator.plan(input)
      ,executeAIQuestion: (input = {}) => aiOrchestrator.execute(input)
-     ,analyzeAIQuestion: (questionPlan, inputs = {}) => aiOrchestrator.analyze(questionPlan, inputs)
-     ,parseAIAnswerPlan: (text, options = {}) => aiOrchestrator.parseAnswerPlanText(text, options)
+      ,analyzeAIQuestion: (questionPlan, inputs = {}) => aiOrchestrator.analyze(questionPlan, inputs)
+      ,validateAIResearch: (questionPlan = null) => aiOrchestrator.validateResearch(questionPlan || aiOrchestrator.getLastPlan())
+      ,getAIResearchCapability: (input = {}) => aiOrchestrator.getResearchCapability(input)
+      ,validateAIResearchCapability: (capability = null) => aiOrchestrator.validateResearchCapability(capability)
+      ,parseAIAnswerPlan: (text, options = {}) => aiOrchestrator.parseAnswerPlanText(text, options)
     ,navigate: (route, ...args) => legacy.navigate(route, ...args)
     // RM-03: single-implementation trading-score model. js/aio-core.js's computeTradingScore
     // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy

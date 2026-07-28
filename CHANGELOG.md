@@ -1,3 +1,10 @@
+## v53.56 (2026-07-28)
+- **P850 / Web Research decision and capability boundary**: added key-independent `ResearchDecision`/`ResearchPlan`, typed `EvidenceDocument`/`EvidenceChunk`, separate `ResearchCapability`, source floors, snippet-only restrictions, and fail-closed current/causal claims.
+- **P850 / chat and provider path**: wired multi-query Research Plan execution, preserved sub-query/source metadata, promoted native HTTP 200 tool errors, separated Chat/Research readiness, bounded search cache by date/plan/session, and removed fixed-year deep-search queries.
+- **P850 / data plane**: derived explicit market session states, removed published `UNKNOWN` Tier 0 sessions, added the 22-category data refresh audit, and wired structural data/session gates into CI.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.56
+
 ## v53.55 (2026-07-28)
 - **AIQ-0/AIQ-1 intelligence rebuild — local implementation**: added the ESM QuestionPlan/intent/entity/market-session orchestrator and routed both per-page and unified chat through it as guarded legacy UI/provider adapters.
 - **AIQ-2/AIQ-3 safety boundary**: added capability planning, EvidenceGraph/causal attribution, strict AnswerPlan/ClaimLedger parsing/validation, deterministic rendering, and fail-closed current-sensitive numeric output when MarketSessionEvidence or the structured answer contract is missing.

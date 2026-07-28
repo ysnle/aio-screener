@@ -43,15 +43,15 @@ The bounded handoff sequence is complete in the local v53.19 worktree. SA-01 sha
 
 The current preflight is local `main` HEAD `02ec6bc`, v53.19, dirty/uncommitted, and not deployed. Operator credentials/rights, commit/push/deploy approval, and seven-day soak remain open.
 
-## Current generated preflight (P826, 2026-07-26)
+## Current generated preflight (P850, 2026-07-28)
 
 <!-- GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs -->
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `7397133`
+- git_head: `63d8e4b`
 - working_tree: `dirty / uncommitted local changes`
-- application_version: `v53.43`
+- application_version: `v53.56`
 - deployment: `not deployed; live invariant fetch unavailable in current environment`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
 

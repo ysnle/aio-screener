@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateMarketSnapshot, tier0Coverage } from '../src/data/contracts/market-snapshot.js';
-import { buildMarketSnapshot } from './build-market-snapshot.mjs';
+import { buildMarketSnapshot, deriveMarketSession } from './build-market-snapshot.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
@@ -16,6 +16,18 @@ const coverage = tier0Coverage(published.quotes);
 if (coverage.observed !== coverage.required) fail(`Tier 0 coverage ${coverage.observed}/${coverage.required}`);
 if (published.coverage?.tier0Observed !== coverage.observed) fail('coverage sidecar does not match quote rows');
 if (published.quotes.length !== TIER_0_INSTRUMENTS.length) fail('bounded artifact must contain exactly the Tier 0 allowlist');
+if (published.quotes.some((quote) => !quote.session || quote.session === 'UNKNOWN')) fail('published artifact contains unknown market session');
+
+const sessionFixtures = [
+  ['^GSPC', '2026-07-28T22:00:00.000Z', '2026-07-28T22:05:00.000Z', 'MARKET_CLOSED'],
+  ['^KS11', '2026-07-28T01:55:00.000Z', '2026-07-28T02:00:00.000Z', 'CURRENT_SESSION'],
+  ['KRW=X', '2026-07-28T01:59:00.000Z', '2026-07-28T02:00:00.000Z', 'CURRENT_SESSION'],
+  ['BTC-USD', '2026-07-28T01:00:00.000Z', '2026-07-28T03:00:00.000Z', 'DELAYED_IN_SESSION']
+];
+for (const [instrumentId, observedAt, now, expected] of sessionFixtures) {
+  const actual = deriveMarketSession({ instrumentId, observedAt, now: Date.parse(now) });
+  if (actual !== expected) fail(`${instrumentId} session fixture expected ${expected}, got ${actual}`);
+}
 
 const attemptedAt = '2026-07-18T00:00:00.000Z';
 const fixtureQuotes = TIER_0_INSTRUMENTS.map((instrument, index) => ({

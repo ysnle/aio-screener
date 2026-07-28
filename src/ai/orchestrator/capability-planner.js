@@ -4,7 +4,7 @@ const TOOL_BY_EVIDENCE = Object.freeze({
   'market-session': 'marketSession', 'market-snapshot': 'market', 'sector-constituents': 'sector', breadth: 'sector',
   'entity-quote': 'entity', fundamentals: 'entity', filing: 'entity', technical: 'technical', macro: 'macro',
   'fx-quote': 'market', rates: 'macro', 'cross-asset': 'macro', screener: 'screener', news: 'news',
-  portfolio: 'portfolio', 'portfolio-consent': 'portfolio'
+  portfolio: 'portfolio', 'portfolio-consent': 'portfolio', 'web-research': 'webResearch'
 });
 
 export function createCapabilityPlan(questionPlan = {}) {

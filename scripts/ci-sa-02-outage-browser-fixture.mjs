@@ -30,7 +30,10 @@ async function runOnce(browser, run) {
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.showPage === 'function', { timeout: 30000 });
   await page.waitForFunction(() => document.getElementById('live-quote-ts-topbar')?.textContent?.includes('기준 시세'), { timeout: 30000 });
-  await new Promise((resolvePromise) => setTimeout(resolvePromise, 1200));
+  // The first outage fallback request is intentionally asynchronous. Sample
+  // after the initial retry window so the fixture compares stable fallback
+  // state rather than racing the first fail-count increment.
+  await new Promise((resolvePromise) => setTimeout(resolvePromise, 2600));
   const early = await page.evaluate(() => {
     const sources = Object.values(window._dataSource || {});
     return {
