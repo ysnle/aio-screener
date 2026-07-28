@@ -1,22 +1,15 @@
 {
   "schemaVersion": "operations-status-v1",
-  "generatedAt": "2026-07-27T11:39:47.378Z",
+  "generatedAt": "2026-07-28T01:08:09.300Z",
   "appRevision": "v53.55",
-  "dataRevision": "market-snapshot:2026-07-27T11:39:41.855Z:6db043cf",
+  "dataRevision": "market-snapshot:2026-07-28T01:08:04.827Z:ca246973",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
     "durable": {
       "status": "CURRENT",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-07-27T11:39:41.855Z",
-      "readiness": {
-        "secretConfigured": "OPERATOR_REQUIRED",
-        "workflowWired": "CURRENT",
-        "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
-        "licensedForUse": "REVIEW_REQUIRED"
-      },
+      "lastSuccessfulAt": "2026-07-28T01:08:04.827Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -24,6 +17,13 @@
         "tier0Observed": 16,
         "tier1Required": 0,
         "tier1Observed": 0
+      },
+      "readiness": {
+        "secretConfigured": "OPERATOR_REQUIRED",
+        "workflowWired": "CURRENT",
+        "lastCallSucceeded": "CURRENT",
+        "dataCurrent": "CURRENT",
+        "licensedForUse": "REVIEW_REQUIRED"
       }
     },
     "fast": {
@@ -46,7 +46,7 @@
     "browser": {
       "status": "CURRENT",
       "source": "static-pages+service-worker",
-      "revision": "v53.53"
+      "revision": "v53.54"
     }
   },
   "ai": {
@@ -66,12 +66,12 @@
     "yahoo": {
       "rights": "REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-07-27T11:39:41.855Z"
+      "lastFetchAt": "2026-07-28T01:08:04.827Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "use": "official-series",
-      "lastFetchAt": "2026-07-27T11:39:41.855Z"
+      "lastFetchAt": "2026-07-28T01:08:04.827Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -84,7 +84,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-07-27T11:39:41.855Z:6db043cf",
+      "artifact": "market-snapshot:2026-07-28T01:08:04.827Z:ca246973",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
