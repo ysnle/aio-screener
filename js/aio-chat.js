@@ -529,8 +529,13 @@ function _aioBuildAIClaimEvidenceRegistry(rows) {
     (lines.length ? lines.join('\n') : 'none') + '\n' +
     'rule: For current-sensitive numeric claims, use exactly one matching evidenceId from this registry and preserve its metric/value/unit/scale/asOf/source. If no matching row exists, say 확인 필요 and do not invent a current number. This rule does not restrict general education or framework explanations.\n';
 }
-window._aioBuildAIClaimEvidenceRegistry = _aioBuildAIClaimEvidenceRegistry;
 if (typeof window !== 'undefined') {
+  if (typeof window._aioBuildAIClaimEvidenceRegistry !== 'function') {
+    Object.defineProperty(window, '_aioBuildAIClaimEvidenceRegistry', {
+      value: _aioBuildAIClaimEvidenceRegistry,
+      configurable: true
+    });
+  }
   window.AIO_AI_INFRA_CYCLE_REFERENCE = AIO_AI_INFRA_CYCLE_REFERENCE;
   window._aioAIInfraCycleContext = _aioAIInfraCycleContext;
   window.AIO = window.AIO || {};
