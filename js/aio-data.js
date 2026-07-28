@@ -4447,9 +4447,10 @@ window.AIO.getChatAnswerFreshnessAudit = function(scope) {
       if (!cross && window.AIO && typeof window.AIO.getCrossSourceQuoteValidation === 'function') cross = window.AIO.getCrossSourceQuoteValidation(t);
     } catch(_crossAudit) {}
     var quoteOk = !!(live && live.price && ageMs <= 2 * 60 * 1000 && (!truth || truth.decisionUse === true));
-    return {
+    var row = {
       ticker: t,
       hasLivePrice: !!(live && live.price),
+      price: live && live.price != null ? live.price : null,
       quoteAgeMs: isFinite(ageMs) ? ageMs : null,
       quoteAgeSec: isFinite(ageMs) ? Math.round(ageMs / 1000) : null,
       source: live && live.source || '',
@@ -4461,6 +4462,9 @@ window.AIO.getChatAnswerFreshnessAudit = function(scope) {
       decisionUse: !truth || truth.decisionUse === true,
       status: quoteOk ? 'ok' : (truth && truth.status === 'blocked' ? 'blocked' : 'refresh_required')
     };
+    return window.AIO && typeof window.AIO.normalizeAIChatEvidenceRow === 'function'
+      ? window.AIO.normalizeAIChatEvidenceRow(row)
+      : row;
   });
   var staleQuotes = quoteRows.filter(function(r) { return r.status !== 'ok'; });
   var fundCache = {};

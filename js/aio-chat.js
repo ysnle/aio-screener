@@ -504,6 +504,32 @@ function _aioAIInfraCycleContext(ctxId, q) {
     return lines.join('\n');
   } catch(_) { return ''; }
 }
+
+// v53.57/WP-AI2: give the model the same typed evidence identity that the
+// final response validator receives. This narrows only current numeric claims;
+// educational and framework answers remain free-form.
+function _aioBuildAIClaimEvidenceRegistry(rows) {
+  var list = Array.isArray(rows) ? rows : [];
+  var lines = list.map(function(row) {
+    var item = (window.AIO && typeof window.AIO.normalizeAIChatEvidenceRow === 'function')
+      ? window.AIO.normalizeAIChatEvidenceRow(row)
+      : (row || {});
+    if (!item.evidenceId) return '';
+    return '- evidenceId=' + String(item.evidenceId).slice(0, 120) +
+      ' metric=' + String(item.metric || item.ticker || 'unknown').slice(0, 40) +
+      ' value=' + (item.value == null ? 'unknown' : String(item.value).slice(0, 40)) +
+      ' unit=' + String(item.unit || 'unknown').slice(0, 24) +
+      ' scale=' + String(item.scale || 'raw').slice(0, 24) +
+      ' asOf=' + String(item.asOf || 'unknown').slice(0, 40) +
+      ' source=' + String(item.source || 'unknown').slice(0, 80) +
+      ' sourceKind=' + String(item.sourceKind || 'MISSING').slice(0, 24) +
+      ' status=' + String(item.status || item.truthStatus || 'unknown').slice(0, 24);
+  }).filter(Boolean);
+  return '\n\n[AI_TYPED_EVIDENCE_REGISTRY v1]\n' +
+    (lines.length ? lines.join('\n') : 'none') + '\n' +
+    'rule: For current-sensitive numeric claims, use exactly one matching evidenceId from this registry and preserve its metric/value/unit/scale/asOf/source. If no matching row exists, say 확인 필요 and do not invent a current number. This rule does not restrict general education or framework explanations.\n';
+}
+window._aioBuildAIClaimEvidenceRegistry = _aioBuildAIClaimEvidenceRegistry;
 if (typeof window !== 'undefined') {
   window.AIO_AI_INFRA_CYCLE_REFERENCE = AIO_AI_INFRA_CYCLE_REFERENCE;
   window._aioAIInfraCycleContext = _aioAIInfraCycleContext;
@@ -4931,6 +4957,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     systemPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v50.0]\n' +
       'status=' + (chatFreshPreflight.status || 'unknown') + ' strict=' + !!chatFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
       'quotes=' + (_cfRows || 'not available') + '\n' +
+      _aioBuildAIClaimEvidenceRegistry(_cfAfter.quoteRows || []) +
       'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt or EvidenceStore verified/current items. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, source-mismatched, or EvidenceStore-blocked after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment. Say "현재 검증 데이터 없음" for blocked current claims.\n';
   }
 

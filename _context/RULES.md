@@ -1648,3 +1648,9 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: A question's `ResearchDecision` must be determined from the question and evidence policy, independently of provider keys, quota, Worker health, or user opt-out. Runtime `ResearchCapability` must separately report route, auth, tool, quota, origin, citation, and content-depth readiness; required research must fail closed when those conditions are not met.
 
 **Validation**: `src/ai/research/{decision,plan,evidence,capability}.js`, the chat Research Plan adapter, `getWebSearchAudit`, `scripts/ci-ai-intelligence-contract-check.mjs`, and `scripts/ci-data-refresh-audit.mjs` must preserve typed source floors, explicit unavailable states, and zero published `UNKNOWN` market sessions.
+
+## R402. Chat quote evidence must cross the typed-claim boundary without lossy field mapping (v53.57, P851)
+
+**Rule**: Per-page and unified chat may keep broad educational/framework answers available, but any current numeric quote claim must receive one normalized evidence row with metric, value, unit, scale, asOf, source, sourceKind, status, and evidenceId. Adapter field names such as `price` must not be passed directly to the typed validator.
+
+**Validation**: `normalizeAIChatEvidenceRow`, `getChatAnswerFreshnessAudit`, `getChatEvidenceContext`, the shared typed evidence registry prompt, and T950-T952 in `js/aio-tests.js` must prove valid quote claims pass, the model sees the exact evidence id, and blocked/stale evidence remains fail-closed.

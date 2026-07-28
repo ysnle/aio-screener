@@ -2,11 +2,11 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
 last_verified: 2026-07-27
 confidence: high
-latest_version: v53.56
-latest_P_number: P850
-next_P_number: P851
+latest_version: v53.57
+latest_P_number: P851
+next_P_number: P852
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P849 AIQ-0~4 intelligence contracts plus AIQ-5/6 benchmark/operations scaffolds; local contracts are wired, while live model quality/Worker certification remain separate operator/runtime checks
+current_checkpoint: P851 typed chat evidence normalization; local contracts are wired, while live model quality/Worker certification remain separate operator/runtime checks
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -18,6 +18,16 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P851 - v53.57 - chat quote evidence was not normalized to the typed claim contract
+
+- **motivation**: users saw the typed claim safety message for ordinary current quote questions even when the chat freshness preflight had a valid quote row.
+- **symptom/reproduction**: the response pipeline received `after.quoteRows` with `price`, `source`, and `asOf`, while the typed validator compared `evidence.value`, `unit`, `scale`, and the exact evidence id. A model claim could therefore be valid in meaning but fail with an evidence/unit mismatch.
+- **root_cause**: the freshness producer and claim validator used different evidence field names, and the prompt did not expose the exact evidence registry needed for the model to bind its claim.
+- **fix**: added the shared `normalizeAIChatEvidenceRow` adapter, wired it into both freshness/evidence producers, injected one typed evidence registry into per-page and unified prompts, and preserved fail-closed handling for blocked/stale/mismatched evidence.
+- **violated_rule**: R396/R402; current numeric claims remain typed and evidence-bound, but valid chat quote rows must reach the validator in the same schema.
+- **prevention**: T950 verifies normalized quote rows pass a valid current claim; T951 verifies the prompt registry; T952 verifies blocked rows remain blocked.
+- **verification**: `node --check` passed for core/data/chat/tests; version, structural, runtime, AI intelligence, AI reliability, and headless browser gates passed; headless result is `1105/1105 PASS`. Live provider/model output, Worker health, quota, origin, and external rights remain operator/runtime checks.
 
 ## P850 - v53.56 - Web Research and market-session readiness were conflated with provider/data presence
 

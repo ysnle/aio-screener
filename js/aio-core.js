@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.56';
+const APP_VERSION = 'v53.57';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -349,6 +349,48 @@ window.AIO.createTypedClaim = function(input) {
   };
 };
 
+// v53.57/WP-AI2: chat freshness rows historically exposed `price` and a
+// ticker-shaped id while the claim validator consumed typed `value`/`unit`/
+// `scale` evidence. Normalize the adapter at the shared boundary so valid
+// current quote claims are not rejected merely because they came from chat.
+window.AIO.normalizeAIChatEvidenceRow = function(input) {
+  input = input || {};
+  var ticker = String(input.ticker || input.symbol || '').trim().toUpperCase();
+  var rawValue = input.value != null ? input.value : input.price;
+  var source = String(input.source || input.sourceLabel || '').trim();
+  var asOf = input.asOf || input.quoteAsOf || input.sourceTs || input.fetchedAt || input.generatedAt || null;
+  var evidenceId = String(input.evidenceId || (ticker ? 'ev-chat-quote-' + ticker.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')).slice(0, 160);
+  var statusText = String(input.status || input.truthStatus || '').toLowerCase();
+  var status = input.status || (/(blocked|missing|refresh_required|stale|mismatch|invalid)/.test(statusText) ? 'blocked' : (rawValue == null ? 'missing' : 'ok'));
+  var normalized = Object.assign({}, input, {
+    metric: input.metric || input.key || input.ticker || input.symbol || '',
+    value: rawValue,
+    unit: input.unit || input.units || (input.price != null ? 'currency' : ''),
+    scale: input.scale || 'raw',
+    direction: input.direction || 'unknown',
+    asOf: asOf,
+    source: source,
+    sourceKind: input.sourceKind || (source ? 'LIVE' : 'MISSING'),
+    evidenceId: evidenceId,
+    status: status
+  });
+  var claim = window.AIO.createTypedClaim(normalized);
+  return Object.assign({}, input, normalized, {
+    schemaVersion: claim.schemaVersion,
+    metric: claim.metric,
+    value: claim.value,
+    unit: claim.unit,
+    scale: claim.scale,
+    direction: claim.direction,
+    asOf: claim.asOf,
+    source: claim.source,
+    sourceKind: claim.sourceKind,
+    evidenceId: claim.evidenceId,
+    status: claim.status,
+    currentSensitive: claim.currentSensitive
+  });
+};
+
 function _aioClaimEvidenceList(evidence) {
   if (Array.isArray(evidence)) return evidence;
   if (!evidence || typeof evidence !== 'object') return [];
@@ -385,6 +427,8 @@ window.AIO.validateTypedClaim = function(claimInput, evidenceInput, opts) {
     if (claim.evidenceId) issues.push('evidence-cardinality');
   } else if (matching.length === 1) {
     var evidence = matching[0];
+    var evidenceStatus = String(evidence.status || evidence.truthStatus || '').toLowerCase();
+    if (/(blocked|missing|refresh_required|stale|mismatch|invalid)/.test(evidenceStatus)) issues.push('evidence-not-current');
     var evidenceMetric = _aioClaimMetric(evidence.metric || evidence.key || evidence.ticker || evidence.id);
     var evidenceUnit = _aioClaimUnit(evidence.unit || evidence.units);
     var evidenceScale = String(evidence.scale || 'raw').toLowerCase();
@@ -8643,7 +8687,7 @@ window.AIO.getChatEvidenceContext = function(opts) {
   tickers.forEach(function(t) {
     var q = live[t];
     var truth = window.AIO && window.AIO.evaluateDataTruth ? window.AIO.evaluateDataTruth(t, q, { requireDecisionUse: true }) : null;
-    quoteRows.push({
+    var row = {
       ticker: t,
       hasQuote: !!(q && q.price),
       price: q && q.price || null,
@@ -8651,7 +8695,8 @@ window.AIO.getChatEvidenceContext = function(opts) {
       truthStatus: truth && truth.status || (q && q.price ? 'unverified' : 'missing'),
       evidenceId: q && q.price ? ('ev-chat-quote-' + t.toLowerCase().replace(/[^a-z0-9]+/g, '-')) : '',
       decisionUse: !!(truth && truth.status === 'verified')
-    });
+    };
+    quoteRows.push(window.AIO.normalizeAIChatEvidenceRow ? window.AIO.normalizeAIChatEvidenceRow(row) : row);
   });
   var blocked = quoteRows.filter(function(r) { return !r.hasQuote || r.truthStatus === 'blocked' || r.decisionUse === false; });
   return {

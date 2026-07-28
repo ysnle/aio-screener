@@ -608,6 +608,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - 페이지·문서 가로 overflow 0px (viewport 게이트가 상시 차단)
 
 ### 3-4. AI 채팅 (per-page + unified 공통)
+- P851/R402: 현재 시세 claim은 `price` adapter를 typed `value`/`unit`/`scale`/`asOf`/`source`/`evidenceId`로 정규화한 뒤 검증한다. 개념·교육·framework 질문은 이 gate로 불필요하게 차단하지 않는다.
 - 입력→전송→스트리밍 표시→후속질문 칩 생성·클릭 동작 · API 키 없으면 안내(무한 로딩 금지)
 - 페이지 컨텍스트 정합: 각 페이지 질문 시 해당 페이지 실데이터 인용(학습 데이터 가격 인용 금지)
 - 응답 완료 후 DOM 구조: `.acp-msg.ai` 안에 `.acp-bubble` 존재 · 직접 자식 ≤5 · scrollWidth ≤ offsetWidth (v34.1 가로 렌더링 클래스)

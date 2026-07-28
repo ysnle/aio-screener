@@ -1,3 +1,9 @@
+## v53.57 (2026-07-28)
+- **P851 / AI chat typed-evidence false blocking**: normalized chat freshness quote rows into the shared typed `value`/`unit`/`scale`/`asOf`/`source`/`evidenceId` contract before claim validation, so valid current quote claims are no longer rejected because the adapter only exposed `price`.
+- Added one evidence registry prompt for per-page and unified chat. Current numeric claims must still bind to one matching evidence row; general education, concepts, and framework explanations remain available without this restriction.
+- Blocked/stale/mismatched chat evidence remains fail-closed, with T950-T952 regression coverage.
+- R1 7-way v53.57
+
 ## v53.56 (2026-07-28)
 - **P850 / Web Research decision and capability boundary**: added key-independent `ResearchDecision`/`ResearchPlan`, typed `EvidenceDocument`/`EvidenceChunk`, separate `ResearchCapability`, source floors, snippet-only restrictions, and fail-closed current/causal claims.
 - **P850 / chat and provider path**: wired multi-query Research Plan execution, preserved sub-query/source metadata, promoted native HTTP 200 tool errors, separated Chat/Research readiness, bounded search cache by date/plan/session, and removed fixed-year deep-search queries.

@@ -8080,6 +8080,34 @@
     _assert('T949 ai_pipeline_attaches_claim_audit_and_blocks_invalid_claim (WP-AI2): shared pipeline owns typed validation',
       pipeline949 && pipeline949.blocked === true && pipeline949.claimAudit && pipeline949.claimAudit.blocked === true &&
       pipeline949.reasons.indexOf('typed-claim-validation') >= 0, JSON.stringify(pipeline949));
+
+    var chatQuote950 = window.AIO.normalizeAIChatEvidenceRow({
+      ticker: 'AAPL', price: 197.25, asOf: now941, source: 'Yahoo',
+      truthStatus: 'verified', status: 'ok', evidenceId: 'ev-chat-quote-aapl'
+    });
+    var chatClaim950 = window.AIO.createTypedClaim({
+      claimId: 'aapl-price', metric: 'AAPL', value: 197.25, unit: 'USD', scale: 'raw',
+      direction: 'unknown', asOf: now941, source: 'Yahoo', sourceKind: 'LIVE', evidenceId: chatQuote950.evidenceId
+    });
+    var chatValid950 = window.AIO.validateTypedClaim(chatClaim950, [chatQuote950], { currentSensitive: true });
+    _assert('T950 chat_quote_evidence_normalization (WP-AI2): price/source/asOf rows become typed value/unit/scale evidence without false blocking',
+      chatQuote950 && chatQuote950.value === 197.25 && chatQuote950.unit === 'currency' && chatQuote950.scale === 'raw' &&
+      chatValid950 && chatValid950.blocked === false, JSON.stringify({ row: chatQuote950, audit: chatValid950 }));
+
+    var registry950 = typeof window._aioBuildAIClaimEvidenceRegistry === 'function'
+      ? window._aioBuildAIClaimEvidenceRegistry([chatQuote950]) : '';
+    _assert('T951 chat_typed_evidence_registry_prompt (WP-AI2): model receives exact evidence identity and broad-question carveout',
+      registry950.indexOf('evidenceId=ev-chat-quote-aapl') >= 0 && registry950.indexOf('value=197.25') >= 0 &&
+      registry950.indexOf('general education or framework explanations') >= 0, registry950);
+
+    var blockedEvidence951 = window.AIO.normalizeAIChatEvidenceRow({
+      ticker: 'AAPL', price: 197.25, asOf: now941, source: 'Yahoo',
+      truthStatus: 'blocked', status: 'blocked', evidenceId: 'ev-chat-quote-aapl'
+    });
+    var blockedAudit951 = window.AIO.validateTypedClaim(chatClaim950, [blockedEvidence951], { currentSensitive: true });
+    _assert('T952 blocked_chat_evidence_remains_fail_closed (WP-AI2): blocked quote rows cannot certify current claims',
+      blockedAudit951 && blockedAudit951.blocked === true && blockedAudit951.issues.indexOf('evidence-not-current') >= 0,
+      JSON.stringify(blockedAudit951));
   }
 
   // Group96: v52.78/WP-AI3 intent retrieval and deterministic context budget.
