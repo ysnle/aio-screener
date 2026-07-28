@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-28T19:53:28.435Z",
-  "attemptedAt": "2026-07-28T19:53:28.435Z",
-  "lastSuccessfulAt": "2026-07-28T19:53:28.435Z",
+  "generatedAt": "2026-07-28T21:32:33.117Z",
+  "attemptedAt": "2026-07-28T21:32:33.117Z",
+  "lastSuccessfulAt": "2026-07-28T21:32:33.117Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-14T19:53:24.536Z",
-  "until": "2026-07-28T19:53:24.536Z",
+  "since": "2026-07-14T21:32:28.186Z",
+  "until": "2026-07-28T21:32:28.186Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -22,32 +22,637 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 3,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1010,
-      "freshCount": 35,
-      "eligibleTextCount": 35,
-      "selectedCount": 125,
+      "count": 1034,
+      "freshCount": 56,
+      "eligibleTextCount": 56,
+      "selectedCount": 123,
       "error": null,
-      "lastPostId": 59532
+      "lastPostId": 59573
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 259,
-      "freshCount": 19,
-      "eligibleTextCount": 19,
+      "count": 263,
+      "freshCount": 38,
+      "eligibleTextCount": 38,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19366
+      "lastPostId": 19371
     }
   ],
-  "count": 1699,
-  "retainedItemCount": 401,
+  "count": 1727,
+  "retainedItemCount": 430,
   "observedItems": [
+    {
+      "id": "bornlupin/19371",
+      "channel": "bornlupin",
+      "datetime": "2026-07-28T21:07:13.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 79,
+      "tags": [
+        "geo",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19370",
+      "channel": "bornlupin",
+      "datetime": "2026-07-28T20:57:07.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 69,
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "TER"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59573",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:54:37.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59572",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:54:12.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59571",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:52:48.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59569",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:51:52.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59568",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:49:52.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59567",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:47:03.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19369",
+      "channel": "bornlupin",
+      "datetime": "2026-07-28T20:46:49.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 65,
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59565",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:44:36.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59563",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:43:47.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59562",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:42:29.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59561",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:40:59.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59560",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:40:25.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 57,
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59559",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:39:43.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 59,
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59558",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:38:31.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 81,
+      "tags": [
+        "macro",
+        "semi",
+        "kr-market",
+        "equity"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59557",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:38:02.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 60,
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59556",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:35:58.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59555",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:34:14.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59553",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:32:46.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 35,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59552",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:29:52.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 43,
+      "tags": [
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59551",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:29:29.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 47,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59550",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:28:38.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 43,
+      "tags": [
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59549",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:26:48.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59548",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:24:27.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59547",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:23:44.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 45,
+      "tags": [
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59546",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:21:54.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 73,
+      "tags": [
+        "macro",
+        "power",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19368",
+      "channel": "bornlupin",
+      "datetime": "2026-07-28T20:19:07.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 67,
+      "tags": [
+        "macro",
+        "geo",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59545",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:18:31.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 69,
+      "tags": [
+        "macro",
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "BE"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59544",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:15:21.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 85,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "equity",
+        "insider"
+      ],
+      "tickers": [
+        "NVDA",
+        "SMCI"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19367",
+      "channel": "bornlupin",
+      "datetime": "2026-07-28T20:14:02.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 57,
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "BE"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59543",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:13:26.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "AMD",
+        "GOOG",
+        "MU",
+        "ALAB",
+        "ORCL",
+        "BE",
+        "000660.KS",
+        "GOOGL",
+        "LLY",
+        "PEP",
+        "GS",
+        "INTC",
+        "NKE",
+        "NEE",
+        "IONQ",
+        "AMKR",
+        "SMR",
+        "RDDT",
+        "MSTR",
+        "QQQ"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59542",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:10:21.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 52,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59541",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:07:21.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 59,
+      "tags": [
+        "macro",
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "BE"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59540",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:06:47.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 47,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59539",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:05:35.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 48,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59538",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:04:01.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59537",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:02:48.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "AAPL",
+        "GOOG",
+        "AVGO"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59536",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:01:38.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59535",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T20:01:00.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59534",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T19:59:27.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 65,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "AAPL",
+        "JPM",
+        "V",
+        "JNJ",
+        "ABBV",
+        "MRK",
+        "KO",
+        "AMGN",
+        "TRV",
+        "GD",
+        "GM",
+        "ABNB",
+        "PM",
+        "BMY",
+        "SPG",
+        "WELL",
+        "AFL",
+        "MET",
+        "MO",
+        "ROST"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59533",
+      "channel": "insidertracking",
+      "datetime": "2026-07-28T19:57:41.000Z",
+      "localDateKst": "2026-07-29",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/59532",
       "channel": "insidertracking",
@@ -748,7 +1353,7 @@
       "tickers": [
         "KO"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59510",
@@ -760,7 +1365,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59509",
@@ -772,7 +1377,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59508",
@@ -784,7 +1389,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59507",
@@ -796,7 +1401,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59506",
@@ -808,7 +1413,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24031",
@@ -833,7 +1438,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59504",
@@ -847,7 +1452,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59503",
@@ -859,7 +1464,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59502",
@@ -873,7 +1478,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59501",
@@ -885,7 +1490,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59500",
@@ -897,7 +1502,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59495",
@@ -909,7 +1514,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59494",
@@ -921,7 +1526,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59492",
@@ -933,7 +1538,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24030",
@@ -1001,7 +1606,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59490",
@@ -2927,7 +3532,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/23982",
@@ -3035,7 +3640,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59395",
@@ -3080,7 +3685,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59393",
@@ -3265,7 +3870,7 @@
         "005930.KS",
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59386",
@@ -3527,7 +4132,7 @@
       "tickers": [
         "025560.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59379",
@@ -3621,7 +4226,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59374",
@@ -3654,7 +4259,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59373",
@@ -3773,7 +4378,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59364",
@@ -3987,7 +4592,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59348",
@@ -4013,7 +4618,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59347",
@@ -4049,7 +4654,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59346",
@@ -4116,7 +4721,7 @@
       "tickers": [
         "INTC"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59343",
@@ -4163,7 +4768,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59341",
@@ -4191,7 +4796,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59340",
@@ -24293,326 +24898,114 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/58323",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T21:17:06.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 53,
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58316",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T21:05:52.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 56,
-      "tags": [
-        "power",
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58311",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T21:01:22.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 87,
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58310",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T21:00:30.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 100,
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power",
-        "kr-market",
-        "equity",
-        "crypto"
-      ],
-      "tickers": [
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AVGO",
-        "AMZN",
-        "MU",
-        "TSM",
-        "MRVL",
-        "LITE",
-        "ORCL",
-        "BE",
-        "RKLB"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58307",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:55:42.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 52,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58306",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:50:38.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power"
-      ],
-      "tickers": [
-        "MU",
-        "ORCL",
-        "BE"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58305",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:46:58.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [
-        "GOOG"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58304",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:45:02.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 74,
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58303",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:42:07.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 52,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58299",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:37:46.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 67,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19094",
-      "channel": "bornlupin",
-      "datetime": "2026-07-14T20:34:58.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 64,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58296",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:34:41.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58297",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:34:41.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 67,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58295",
-      "channel": "insidertracking",
-      "datetime": "2026-07-14T20:34:40.000Z",
-      "localDateKst": "2026-07-15",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [
-        "NVDA",
-        "AAPL",
-        "META"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1699,
-    "eligibleTextCount": 69,
-    "mediaOnlyCount": 1630,
-    "highSignalCount": 515,
-    "broadSignalCount": 886,
-    "selectedRawCount": 365,
-    "selectedRawCoveragePct": 529,
+    "observedCount": 1727,
+    "eligibleTextCount": 109,
+    "mediaOnlyCount": 1618,
+    "highSignalCount": 517,
+    "broadSignalCount": 889,
+    "selectedRawCount": 363,
+    "selectedRawCoveragePct": 333,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 561,
-    "geo": 338,
-    "power": 317,
+    "geo": 342,
     "semi": 663,
-    "ai-policy": 199,
-    "japan": 120,
-    "equity": 171,
-    "crypto": 8,
-    "earnings": 393,
+    "power": 322,
+    "earnings": 404,
+    "market-note": 419,
+    "macro": 568,
     "kr-market": 236,
-    "flows": 126,
-    "media-only": 38,
-    "market-note": 410,
-    "healthcare": 98,
+    "equity": 169,
+    "ai-policy": 197,
+    "insider": 35,
+    "flows": 127,
+    "healthcare": 100,
     "optical": 21,
-    "credit": 44,
-    "insider": 33
+    "japan": 120,
+    "crypto": 7,
+    "media-only": 38,
+    "credit": 40
   },
   "tickerCounts": {
-    "TSM": 110,
-    "NVDA": 88,
-    "AMD": 90,
-    "AAPL": 40,
-    "MSFT": 41,
+    "NVDA": 89,
+    "TER": 3,
+    "AMD": 91,
+    "BE": 23,
+    "SMCI": 17,
     "GOOG": 97,
-    "META": 50,
-    "AMZN": 53,
-    "V": 2,
-    "JNJ": 1,
-    "KO": 2,
+    "MU": 53,
+    "ALAB": 2,
+    "ORCL": 15,
+    "000660.KS": 99,
+    "GOOGL": 24,
+    "LLY": 3,
+    "PEP": 2,
+    "GS": 7,
+    "INTC": 33,
+    "NKE": 2,
+    "NEE": 2,
+    "IONQ": 13,
+    "AMKR": 2,
+    "SMR": 2,
+    "RDDT": 9,
+    "MSTR": 7,
+    "QQQ": 8,
+    "AAPL": 41,
+    "AVGO": 47,
+    "JPM": 3,
+    "V": 3,
+    "JNJ": 2,
+    "ABBV": 2,
+    "MRK": 4,
+    "KO": 3,
+    "AMGN": 1,
+    "TRV": 7,
+    "GD": 5,
+    "GM": 2,
+    "ABNB": 2,
+    "PM": 5,
+    "BMY": 2,
+    "SPG": 2,
+    "WELL": 6,
+    "AFL": 3,
+    "MET": 5,
+    "MO": 1,
+    "ROST": 2,
+    "TSM": 109,
+    "MSFT": 40,
+    "META": 49,
+    "AMZN": 52,
     "BLK": 2,
     "MS": 3,
     "005930.KS": 71,
     "SBUX": 2,
-    "LITE": 15,
+    "LITE": 14,
     "BA": 4,
     "PYPL": 1,
     "HLT": 1,
     "RCL": 1,
     "035420.KS": 48,
-    "AVGO": 47,
-    "MRVL": 14,
+    "MRVL": 13,
     "ADBE": 1,
-    "SMCI": 16,
     "009150.KS": 5,
-    "000660.KS": 99,
     "016360.KS": 3,
     "CMI": 2,
     "GSAT": 1,
-    "MU": 54,
     "AAOI": 4,
-    "ORCL": 16,
-    "BE": 21,
-    "GOOGL": 23,
     "TSLA": 15,
-    "GS": 6,
-    "INTC": 32,
     "NOW": 2,
-    "IONQ": 12,
     "GEV": 9,
     "WDC": 9,
     "ILMN": 2,
-    "QQQ": 7,
-    "JPM": 2,
-    "ABBV": 1,
-    "MRK": 3,
     "BAC": 4,
-    "TRV": 6,
-    "GD": 4,
-    "BMY": 1,
-    "AFL": 2,
-    "MET": 4,
     "PRU": 3,
     "HWM": 2,
-    "ROST": 1,
     "ALL": 2,
     "CPAY": 2,
     "VTR": 5,
@@ -24620,7 +25013,7 @@
     "KIM": 1,
     "FRT": 1,
     "INCY": 1,
-    "RKLB": 18,
+    "RKLB": 17,
     "IT": 1,
     "AZN": 1,
     "025560.KS": 2,
@@ -24637,9 +25030,7 @@
     "PANW": 6,
     "AMAT": 7,
     "JOBY": 2,
-    "RDDT": 8,
     "NET": 5,
-    "MSTR": 6,
     "ASX": 1,
     "LUNR": 1,
     "RDW": 1,
@@ -24659,7 +25050,6 @@
     "ARM": 2,
     "LRCX": 6,
     "TXN": 4,
-    "TER": 2,
     "NXPI": 1,
     "ON": 1,
     "017670.KS": 6,
@@ -24670,7 +25060,6 @@
     "STT": 3,
     "SOXX": 2,
     "TRGP": 4,
-    "WELL": 5,
     "HSBC": 2,
     "MFC": 2,
     "CNI": 2,
@@ -24678,11 +25067,9 @@
     "VZ": 3,
     "BKR": 1,
     "AXP": 1,
-    "NEE": 1,
     "HCA": 1,
     "CHTR": 1,
     "LMT": 1,
-    "AMKR": 1,
     "066570.KS": 2,
     "T": 3,
     "CRDO": 2,
@@ -24699,9 +25086,7 @@
     "COHR": 4,
     "BX": 2,
     "C": 1,
-    "PEP": 1,
     "PFE": 1,
-    "PM": 4,
     "CVS": 4,
     "ED": 1,
     "ING": 1,
@@ -24709,7 +25094,6 @@
     "COIN": 1,
     "MTSI": 1,
     "MTK": 1,
-    "GM": 1,
     "NOC": 1,
     "NFLX": 3,
     "RIVN": 1,
@@ -24722,24 +25106,19 @@
     "WDAY": 1,
     "NBIS": 1,
     "BABA": 2,
-    "LLY": 2,
-    "SMR": 1,
     "LNG": 2,
     "XLK": 1,
     "EA": 3,
     "PLD": 1,
-    "SPG": 1,
     "MNST": 2,
     "PNC": 2,
     "086280.KS": 1,
     "GLW": 2,
-    "ALAB": 1,
     "DDOG": 1,
     "6981.T": 2,
     "298040.KS": 1,
     "6600.T": 1,
     "UNH": 1,
-    "ABNB": 1,
     "HUM": 1,
     "D": 1,
     "FITB": 1,
@@ -24748,46 +25127,45 @@
     "TROW": 1,
     "012330.KS": 1,
     "ETSY": 1,
-    "NKE": 1,
     "8035.T": 1,
     "6702.T": 1,
     "AEHR": 2,
     "028260.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (663 posts in current window): Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시...",
-    "Macro/Rates (561 posts in current window): Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시...",
-    "Market Notes (410 posts in current window): 애플, 세계최초로 시가총액 &#036;5T 돌파",
-    "Earnings/Corporate (393 posts in current window): Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시...",
-    "Geopolitics (338 posts in current window): Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시...",
-    "AI Power/Grid (317 posts in current window): Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시...",
-    "Korea Market (236 posts in current window): JPM 시장 정보; 주식 및 매크로 내러티브 어제 시장은 장 초반의 상승 움직임을 지켜내지 못했습니다. S&P 500 선물은 최대 1%까지 상승했고 장중 대략 1.5% 범위에서 거래된 뒤 +1bp로...",
-    "AI Policy/Export Controls (199 posts in current window): Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+    "Semiconductors/Memory (663 posts in current window): 2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION...",
+    "Macro/Rates (568 posts in current window): 2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION...",
+    "Market Notes (419 posts in current window): 52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb · Coca-Cola · Corteva · General Dynamics · General Motors ·...",
+    "Earnings/Corporate (404 posts in current window): 2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION...",
+    "Geopolitics (342 posts in current window): 2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에 진입한 반면, 동일가중 S&P500과 가치주 ETF는 사상 최고치를 경신하며 시장 내부에서는 AI 대형주...",
+    "AI Power/Grid (322 posts in current window): 2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION...",
+    "Korea Market (236 posts in current window): 2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION...",
+    "AI Policy/Export Controls (197 posts in current window): 2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에 진입한 반면, 동일가중 S&P500과 가치주 ETF는 사상 최고치를 경신하며 시장 내부에서는 AI 대형주..."
   ],
   "catalysts": [
     {
       "key": "TSM",
-      "count": 110,
+      "count": 109,
       "text": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
     },
     {
       "key": "000660.KS",
       "count": 99,
-      "text": "한국 증시 급락 여파로 홍콩 증시에 상장된 메모리 반도체 관련 종목도 일제히 급락. 남방자산운용의 2배 레버리지 SK하이닉스 ETF는 21% 이상 급락했고, 2배 레버리지 삼성전자 ETF는 17% 이상 하락...."
+      "text": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "key": "GOOG",
       "count": 97,
-      "text": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "text": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "key": "AMD",
-      "count": 90,
-      "text": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "count": 91,
+      "text": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "key": "NVDA",
-      "count": 88,
+      "count": 89,
       "text": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
     },
     {
@@ -24797,17 +25175,17 @@
     },
     {
       "key": "MU",
-      "count": 54,
-      "text": "미국 레딧 게시물 분석 (2026년 7월 27일 00:00~06:00 기준) > 🧠 NVDA / MU / AMD - AI 반도체 · 여전히 AI가 메인 플레이 · MU·NVDA·AMD 선물까지 거래 가능해져..."
+      "count": 53,
+      "text": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "key": "AMZN",
-      "count": 53,
+      "count": 52,
       "text": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
     },
     {
       "key": "META",
-      "count": 50,
+      "count": 49,
       "text": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
     },
     {
@@ -24818,12 +25196,12 @@
     {
       "key": "AVGO",
       "count": 47,
-      "text": "프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 FBRX (+39.90%) Argenx가 Forte Biosciences를 인수하기로 합의. ELME (+8.72%) 주당..."
+      "text": "2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에 진입한 반면, 동일가중 S&P500과 가치주 ETF는 사상 최고치를 경신하며 시장 내부에서는 AI 대형주..."
     },
     {
-      "key": "MSFT",
+      "key": "AAPL",
       "count": 41,
-      "text": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "text": "2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에 진입한 반면, 동일가중 S&P500과 가치주 ETF는 사상 최고치를 경신하며 시장 내부에서는 AI 대형주..."
     }
   ],
   "categories": [
@@ -24833,8 +25211,8 @@
       "topics": [
         "macro"
       ],
-      "count": 561,
-      "focus": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "count": 568,
+      "focus": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "id": "geo",
@@ -24842,8 +25220,8 @@
       "topics": [
         "geo"
       ],
-      "count": 338,
-      "focus": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "count": 342,
+      "focus": "2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에 진입한 반면, 동일가중 S&P500과 가치주 ETF는 사상 최고치를 경신하며 시장 내부에서는 AI 대형주..."
     },
     {
       "id": "credit",
@@ -24851,7 +25229,7 @@
       "topics": [
         "credit"
       ],
-      "count": 44,
+      "count": 40,
       "focus": "2026년 7월 28일 프리마켓 브리핑 미국 선물은 연방공개시장위원회(FOMC)와 빅테크 실적 발표를 앞두고 위험자산 선호가 약화되는 가운데 반도체 업종 중심의 차익실현이 글로벌 증시로 확산되는 흐름. 나스닥..."
     },
     {
@@ -24861,7 +25239,7 @@
         "semi"
       ],
       "count": 663,
-      "focus": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "focus": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "id": "optical",
@@ -24870,7 +25248,7 @@
         "optical"
       ],
       "count": 21,
-      "focus": "2026년 7월 24일 서학개미 순매수 미국 주식 TOP 50 1위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (17.43%) 2위: ALPHABET INC CL A..."
+      "focus": "2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에 진입한 반면, 동일가중 S&P500과 가치주 ETF는 사상 최고치를 경신하며 시장 내부에서는 AI 대형주..."
     },
     {
       "id": "power",
@@ -24878,8 +25256,8 @@
       "topics": [
         "power"
       ],
-      "count": 317,
-      "focus": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "count": 322,
+      "focus": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "id": "ai-policy",
@@ -24887,8 +25265,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 199,
-      "focus": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "count": 197,
+      "focus": "2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에 진입한 반면, 동일가중 S&P500과 가치주 ETF는 사상 최고치를 경신하며 시장 내부에서는 AI 대형주..."
     },
     {
       "id": "kr-market",
@@ -24897,7 +25275,7 @@
         "kr-market"
       ],
       "count": 236,
-      "focus": "JPM 시장 정보; 주식 및 매크로 내러티브 어제 시장은 장 초반의 상승 움직임을 지켜내지 못했습니다. S&P 500 선물은 최대 1%까지 상승했고 장중 대략 1.5% 범위에서 거래된 뒤 +1bp로..."
+      "focus": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "id": "equity",
@@ -24905,7 +25283,7 @@
       "topics": [
         "equity"
       ],
-      "count": 171,
+      "count": 169,
       "focus": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
     },
     {
@@ -24914,7 +25292,7 @@
       "topics": [
         "crypto"
       ],
-      "count": 8,
+      "count": 7,
       "focus": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
     },
     {
@@ -24923,8 +25301,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 393,
-      "focus": "Market Summary - 2026년 7월 29일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 이란이 핵무기를 보유하지 않을 것이라는 점을 사실상 수용했지만 공식 합의가 필요하다고 강조. · 트럼프 대통령, 합의가 무산될 경우 이란 핵시설(Pickaxe Mountain)과 핵심 인프라를 다시..."
+      "count": 404,
+      "focus": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "id": "healthcare",
@@ -24932,8 +25310,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 98,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 28일 (새벽 5시~오후 2시 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 상원은 젤렌스키 우크라이나 대통령 방미 일정에 맞춰 대러시아 추가 제재..."
+      "count": 100,
+      "focus": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "id": "japan",
@@ -24950,8 +25328,8 @@
       "topics": [
         "flows"
       ],
-      "count": 126,
-      "focus": "JP모건 APAC테마; 테크주 매도세 오늘도 기술주는 잔혹한 장세였으며, 특히 반도체가 그러했습니다. 한국 반도체 -14%, 일본 반도체 -12%, 대만 반도체 -9%였습니다. 몇 주 전 25년 2분기의..."
+      "count": 127,
+      "focus": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A (5.30%) 3위: PROSHARES ULTRAPRO QQQ ETF (4.79%) 4위: DIREXION..."
     },
     {
       "id": "insider",
@@ -24959,7 +25337,7 @@
       "topics": [
         "insider"
       ],
-      "count": 33,
+      "count": 35,
       "focus": "Market Summary - 2026년 7월 28일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 상원에 SAVE AMERICA ACT 통과 전까지 휴회하지 말 것을 촉구하며 필리버스터 폐지..."
     },
     {
@@ -24968,8 +25346,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 410,
-      "focus": "애플, 세계최초로 시가총액 &#036;5T 돌파"
+      "count": 419,
+      "focus": "52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb · Coca-Cola · Corteva · General Dynamics · General Motors ·..."
     }
   ],
   "pageMap": {
@@ -25196,6 +25574,72 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/59543",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59543",
+      "datetime": "2026-07-28T20:13:26.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "AMD",
+        "GOOG",
+        "MU",
+        "ALAB",
+        "ORCL",
+        "BE",
+        "000660.KS",
+        "GOOGL",
+        "LLY",
+        "PEP",
+        "GS",
+        "INTC",
+        "NKE",
+        "NEE",
+        "IONQ",
+        "AMKR",
+        "SMR",
+        "RDDT",
+        "MSTR",
+        "QQQ"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A..."
+    },
+    {
+      "id": "insidertracking/59537",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59537",
+      "datetime": "2026-07-28T20:02:48.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "AAPL",
+        "GOOG",
+        "AVGO"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에..."
+    },
     {
       "id": "insidertracking/59530",
       "channel": "insidertracking",
@@ -25969,61 +26413,6 @@
       "summary": "2026년 7월 25일 미국 증시 브리핑 미국 증시는 기술주 약세에도 불구하고 에너지와 경기민감 업종 강세가 이를 상쇄하며 업종 순환매가 이어지는 모습. 기술주가 S&P500 내 유일한 약세 섹터로 마감한..."
     },
     {
-      "id": "insidertracking/59135",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59135",
-      "datetime": "2026-07-24T23:06:15.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "NVDA",
-        "AAPL",
-        "MSFT",
-        "GOOG",
-        "META",
-        "AMZN",
-        "ORCL",
-        "PLTR",
-        "INTC",
-        "QCOM",
-        "VZ",
-        "BKR"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "Market Summary - 2026년 7월 25일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, EU의 Apple·Google·Meta·Amazon 등에 대한 과징금을 이유로 EU 대상..."
-    },
-    {
-      "id": "insidertracking/59127",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59127",
-      "datetime": "2026-07-24T11:32:49.000Z",
-      "localDateKst": "2026-07-24",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "GOOG",
-        "META",
-        "AMZN",
-        "MU"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "미국 레딧 게시물 분석 (2026년 7월 24일 05:30~20:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"RAM 가격 2배면 MU 안 살 이유가 없다\" 분위기 · AI 메모리 부족..."
-    },
-    {
       "id": "bornlupin/19294",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19294",
@@ -26324,6 +26713,344 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19371",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19371",
+      "datetime": "2026-07-28T21:07:13.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "geo",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "NVDA"
+      ],
+      "score": 79,
+      "hasText": true,
+      "summary": "미 트럼프 행정부, AI 공급망 보호 위해 중국산 신규 로봇 및 인버터 수입 금지 1. 주요 조치 사항 신규 규제 발표: 미 연방통신위원회(FCC)는 중국산 신규 휴머노이드(인간형) 및 사족보행 로봇, 그리고..."
+    },
+    {
+      "id": "bornlupin/19370",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19370",
+      "datetime": "2026-07-28T20:57:07.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "TER"
+      ],
+      "score": 69,
+      "hasText": true,
+      "summary": "TERADYNE, &#036;TER 2026년 2분기 실적( 시간외 +13%) 매출액 (Revenue): &#036;13.3억 / 약 1조 8,300억 원 (예상치 &#036;12.2억) YoY +104%..."
+    },
+    {
+      "id": "bornlupin/19369",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19369",
+      "datetime": "2026-07-28T20:46:49.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "tickers": [],
+      "score": 65,
+      "hasText": true,
+      "summary": "씨게이트( SEAGATE TECHNOLOGY, &#036;STX ) 2026 회계연도 4분기 HDD 엑사바이트 출하 218EB , YoY +34%, QoQ +9% 이 중 약 90%가 데이터센터향 니어라인..."
+    },
+    {
+      "id": "insidertracking/59560",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59560",
+      "datetime": "2026-07-28T20:40:25.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "최근 미국의 관세 관련 소식에 대해 \"이번에는 아무도 크게 주목하지 않았다. 지난해 시장의 핵심 이슈였던 무역전쟁이 이번에는 시장에서 거의 반응을 이끌어내지 못했다\"고 평가. 출처: 블룸버그"
+    },
+    {
+      "id": "insidertracking/59559",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59559",
+      "datetime": "2026-07-28T20:39:43.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [],
+      "score": 59,
+      "hasText": true,
+      "summary": "아시아 반도체주가 '관세 해방의 날(Liberation Day)' 이후 최악의 하루를 기록. 출처: 블룸버그"
+    },
+    {
+      "id": "insidertracking/59558",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59558",
+      "datetime": "2026-07-28T20:38:31.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "semi",
+        "kr-market",
+        "equity"
+      ],
+      "tickers": [
+        "AMD"
+      ],
+      "score": 81,
+      "hasText": true,
+      "summary": "블룸버그에 따르면 중국의 반도체 기술 진전과 인공지능(AI) 투자 수익성에 대한 우려가 커지면서 글로벌 반도체주 매도세가 2022년 이후 가장 큰 폭으로 확대. 인텔, AMD, 샌디스크, 웨스턴디지털,..."
+    },
+    {
+      "id": "insidertracking/59557",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59557",
+      "datetime": "2026-07-28T20:38:02.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "tickers": [],
+      "score": 60,
+      "hasText": true,
+      "summary": "SK하이닉스가 차세대 저전력 메모리인 LPDDR6 양산을 2026년 하반기부터 시작할 예정이라고 한국 매체 헤럴드가 보도. 앞서 시험 및 시범 생산이 3월 완료되면서 상반기 양산 전망이 제기됐으나, 실제..."
+    },
+    {
+      "id": "insidertracking/59546",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59546",
+      "datetime": "2026-07-28T20:21:54.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "power",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 73,
+      "hasText": true,
+      "summary": "Seagate Technology 2026 회계연도 4분기 실적 요약 (심화편) 📍 실적 · 매출 36억2,900만달러, 전년 대비 48.5% 증가 · GAAP 매출총이익률 52.3%, 전년 37.4% 대비..."
+    },
+    {
+      "id": "bornlupin/19368",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19368",
+      "datetime": "2026-07-28T20:19:07.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "geo",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 67,
+      "hasText": true,
+      "summary": "씨게이트 테크놀로지(Seagate Technology, &#036;STX ) 2026 회계연도 4분기 실적 (시간외 +8%) 매출(Revenue): 36억 3,000만 달러 (예상치: 34억 9,000만..."
+    },
+    {
+      "id": "insidertracking/59545",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59545",
+      "datetime": "2026-07-28T20:18:31.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "BE"
+      ],
+      "score": 69,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ Bloom Energy 2026년 2분기 실적 요약 (심화편) 📍 실적 · 매출 10억6,540만달러, 전년 대비 165.5% 증가 · 제품 매출 9억3,540만달러, 전년..."
+    },
+    {
+      "id": "insidertracking/59544",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59544",
+      "datetime": "2026-07-28T20:15:21.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "equity",
+        "insider"
+      ],
+      "tickers": [
+        "NVDA",
+        "SMCI"
+      ],
+      "score": 85,
+      "hasText": true,
+      "summary": "미국 레딧 게시물 분석 (2026년 7월 29일 00:00~05:30 기준) > 💾 SMCI - AI 서버 / 숏스퀴즈 · \"P/E 14면 말도 안 되는 할인\" · AI 랙 주문잔고 600억 달러 강조 ·..."
+    },
+    {
+      "id": "bornlupin/19367",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19367",
+      "datetime": "2026-07-28T20:14:02.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "BE"
+      ],
+      "score": 57,
+      "hasText": true,
+      "summary": "블룸 에너지(Bloom Energy, &#036;BE ) 2026년 2분기 실적 (시간외 +7%) 매출액: &#036;10.7억 (예상치: &#036;8.276억) | 전년 동기 대비(YoY) +166% 조정..."
+    },
+    {
+      "id": "insidertracking/59543",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59543",
+      "datetime": "2026-07-28T20:13:26.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "AMD",
+        "GOOG",
+        "MU",
+        "ALAB",
+        "ORCL",
+        "BE",
+        "000660.KS",
+        "GOOGL",
+        "LLY",
+        "PEP",
+        "GS",
+        "INTC",
+        "NKE",
+        "NEE",
+        "IONQ",
+        "AMKR",
+        "SMR",
+        "RDDT",
+        "MSTR",
+        "QQQ"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 28일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (65.74%) 2위: ALPHABET INC CL A..."
+    },
+    {
+      "id": "insidertracking/59542",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59542",
+      "datetime": "2026-07-28T20:10:21.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "Ford 2026년 2분기 실적 요약 📍 실적 · 조정 EPS 0.42달러 (시장 예상 0.36달러) · Ford Blue 매출 261억달러 (시장 예상 256억8,000만달러) · Ford Pro 매출..."
+    },
+    {
+      "id": "insidertracking/59541",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59541",
+      "datetime": "2026-07-28T20:07:21.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "power",
+        "earnings"
+      ],
+      "tickers": [
+        "BE"
+      ],
+      "score": 59,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ Bloom Energy 2026년 2분기 실적 요약 📍 실적 · 매출 10억7,000만달러 (시장 예상 8억3,870만달러) · 조정 EPS 0.78달러 (시장 예상..."
+    },
+    {
+      "id": "insidertracking/59537",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59537",
+      "datetime": "2026-07-28T20:02:48.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "optical",
+        "power",
+        "ai-policy",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "AAPL",
+        "GOOG",
+        "AVGO"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 7월 29일 미국 증시 브리핑 미국 증시는 기술주 중심의 차익실현이 이어지는 가운데 경기방어주와 가치주로의 순환매가 확대되는 모습. 나스닥100은 고점 대비 10% 하락하며 기술적 조정 국면에..."
+    },
+    {
+      "id": "insidertracking/59534",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59534",
+      "datetime": "2026-07-28T19:59:27.000Z",
+      "localDateKst": "2026-07-29",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [
+        "AAPL",
+        "JPM",
+        "V",
+        "JNJ",
+        "ABBV",
+        "MRK",
+        "KO",
+        "AMGN",
+        "TRV",
+        "GD",
+        "GM",
+        "ABNB",
+        "PM",
+        "BMY",
+        "SPG",
+        "WELL",
+        "AFL",
+        "MET",
+        "MO",
+        "ROST"
+      ],
+      "score": 65,
+      "hasText": true,
+      "summary": "52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·..."
+    },
     {
       "id": "insidertracking/59532",
       "channel": "insidertracking",
@@ -30231,27 +30958,6 @@
       "summary": "Citi) 현실 점검: 타이트한 재고와 강력한 KV 캐시 수요로 메모리 업사이클은 유효 CITI의 견해 한국 메모리 주식은 중국 스마트폰 수요 약화와 NAND 채널 재고 증가에 따른 DRAM/NAND 사이클의..."
     },
     {
-      "id": "insidertracking/59213",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59213",
-      "datetime": "2026-07-25T08:40:59.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "japan"
-      ],
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ],
-      "score": 90,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 7월 25일 (오전 8시~오후 6시 기준) ━━━━━━━━━━━━━━ 🇺🇸 북미 • 도널드 트럼프 대통령은 베냐민 네타냐후 이스라엘 총리가 다음 주 워싱턴을..."
-    },
-    {
       "id": "aetherjapanresearch/23919",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/23919",
@@ -30266,41 +30972,6 @@
       "score": 51,
       "hasText": true,
       "summary": "삼성전자-브로드컴 파운드리 협력 내용 파운드리 분야에서는 브로드컴의 차세대 고속 데이터 통신용 반도체 솔루션에 2nm 이하 첨단 파운드리 공정을 적용 또 2nm 공정 기반 첨단 패키징 기술을 통해..."
-    },
-    {
-      "id": "insidertracking/59208",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59208",
-      "datetime": "2026-07-25T05:02:23.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [
-        "005930.KS",
-        "000660.KS",
-        "017670.KS"
-      ],
-      "score": 99,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 한국 기업의 미국 투자·협력 관련 정리 - 2026년 7월 25일 📍 엔비디아·SK그룹 AI 프로젝트 · 엔비디아와 SK그룹, 5,000억 달러 이상 규모 AI 프로젝트 추진..."
-    },
-    {
-      "id": "insidertracking/59207",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59207",
-      "datetime": "2026-07-25T04:59:08.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "ai-policy"
-      ],
-      "tickers": [],
-      "score": 50,
-      "hasText": true,
-      "summary": "미국 실리콘밸리의 스타트업 약 200곳이 새로 출범한 '소형 기술 협회(Small Tech Association)'를 통해 트럼프 대통령에게 공동 서한을 보내, 미국 기업의 중국 인공지능(AI) 모델 접근을..."
     },
     {
       "id": "aetherjapanresearch/23918",
@@ -30337,52 +31008,6 @@
       "summary": "삼성전자·브로드컴, 5년간 2,000억 달러 규모 첨단 메모리 반도체-파운드리 거래에 대한 양해각서 체결: 한국 대통령실 보좌관"
     },
     {
-      "id": "insidertracking/59205",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59205",
-      "datetime": "2026-07-25T04:11:16.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 62,
-      "hasText": true,
-      "summary": "💬 💬 💬 💬 💬 💬 주식 채널 2위 달성 및 감사의 말씀 안녕하세요, 구독자님들. 주말 잘 보내고 계신가요? 금일 기준으로 미국 주식 인사이더는 한국인이 운영하는 주식 텔레그램 채널 2위를..."
-    },
-    {
-      "id": "insidertracking/59203",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59203",
-      "datetime": "2026-07-25T03:32:05.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "AMD"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "AMD가 완전 오픈소스 혼합 전문가(MoE) 대규모 언어모델 '인스텔라-MoE(Instella-MoE)' 공개. 인스텔라-MoE는 총 160억 개의 매개변수를 갖추고 있으며, 토큰당 28억 개의 매개변수만..."
-    },
-    {
-      "id": "insidertracking/59197",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59197",
-      "datetime": "2026-07-25T02:18:06.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "tickers": [],
-      "score": 53,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 트럼프 대통령, 백악관 출입기자협회(WHCA) 만찬에서 이란 상황과 관련해 \"이란은 매우 잘 진행되고 있다. 가짜 뉴스를 믿지 말라\"고 발언. 이어 \"우리는 이란을 매우 강하게..."
-    },
-    {
       "id": "bornlupin/19311",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19311",
@@ -30399,51 +31024,6 @@
       "summary": "엔비디아 공식 계정 지금은 한국의 황금기입니다. NVIDIA는 반도체, 프론티어 AI, 피지컬 AI 및 로보틱스, AI 팩토리에 이르기까지 K-AI 비전을 발전시키기 위해 정부, 산업계, 글로벌 기술 분야의..."
     },
     {
-      "id": "insidertracking/59191",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59191",
-      "datetime": "2026-07-25T01:24:29.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "AAPL",
-        "MU"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 월스트리트저널(WSJ)에 따르면 애플이 미국 외 지역에서 판매되는 자사 기기에 중국 메모리 업체 창신메모리(CXMT)와 양쯔메모리(YMTC) 칩을 사용할 수 있도록 미국 정부를..."
-    },
-    {
-      "id": "insidertracking/59188",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59188",
-      "datetime": "2026-07-25T01:17:23.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "금일 종가기준, 하이닉스 ADR 0.1%라도 수익 보는 사람은 7% 나머지 93%는 손실중."
-    },
-    {
-      "id": "insidertracking/59186",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59186",
-      "datetime": "2026-07-25T01:15:30.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "금일 종가기준, 마이크론 0.1%라도 수익보는 사람은 34% 나머지 66%는 손실중."
-    },
-    {
       "id": "bornlupin/19310",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19310",
@@ -30458,51 +31038,6 @@
       "score": 51,
       "hasText": true,
       "summary": "앤스로픽 CEO: 삼성전자 및 SK하이닉스와 공급 계약 체결"
-    },
-    {
-      "id": "insidertracking/59181",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59181",
-      "datetime": "2026-07-25T00:59:06.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "macro",
-        "insider"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "미국 기업 내부자들 주식 매도세 강화 요약: 미국 기업 임원들이 2026년 상반기에 회사 주식 776억 달러어치를 매도했으며, 이는 전년 대비 20% 증가한 수치로 2021년 이후 가장 높은 상반기 총액을..."
-    },
-    {
-      "id": "insidertracking/59176",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59176",
-      "datetime": "2026-07-25T00:36:47.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "macro",
-        "power"
-      ],
-      "tickers": [],
-      "score": 63,
-      "hasText": true,
-      "summary": "7월 25일 무디스는 보고서를 통해 글로벌 빅테크들의 AI 인프라 투자 확대가 대형 클라우드 서비스 기업들의 잉여현금흐름(FCF)을 잠식하고 재무상태표 부담을 키우고 있다고 분석. 향후 투자자들은 대규모 AI..."
-    },
-    {
-      "id": "insidertracking/59175",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59175",
-      "datetime": "2026-07-25T00:36:09.000Z",
-      "localDateKst": "2026-07-25",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 앤트로픽 최고경영자(CEO)가 삼성전자와 SK하이닉스와 공급 계약을 체결했다고 발표. 7月25日，Anthropic首席执行官表示已与三星电子及SK海力士签署供应协议。"
     },
     {
       "id": "bornlupin/19306",
@@ -32798,91 +33333,6 @@
       "score": 85,
       "hasText": true,
       "summary": "AI 스토리지 수요 추가 확대: 엔비디아 CMX, 내년 1억 TB 이상 NAND 소비 전망…삼성은 이미 공급 개시 엔비디아의 차세대 AI 서버용 저장장치 CMX(Context Memory Storage)..."
-    },
-    {
-      "id": "bornlupin/19212",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19212",
-      "datetime": "2026-07-21T08:35:15.000Z",
-      "localDateKst": "2026-07-21",
-      "tags": [
-        "semi",
-        "optical",
-        "japan"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": "TSMC, 2027년부터 반도체 위탁생산 가격 최대 10% 인상 파운드리 가격 인상: TSMC는 2027년부터 최첨단 공정 및 성숙 공정 전반에 걸쳐 반도체 제조 가격을 최대 10% 인상할 계획입니다. 인상..."
-    },
-    {
-      "id": "bornlupin/19211",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19211",
-      "datetime": "2026-07-21T08:32:12.000Z",
-      "localDateKst": "2026-07-21",
-      "tags": [
-        "credit",
-        "semi"
-      ],
-      "tickers": [
-        "005930.KS"
-      ],
-      "score": 63,
-      "hasText": true,
-      "summary": "S&P, 삼성전자 신용등급 전망 '긍정적' 상향… 'AA-/A-1+' 등급 유지"
-    },
-    {
-      "id": "bornlupin/19210",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19210",
-      "datetime": "2026-07-21T07:21:57.000Z",
-      "localDateKst": "2026-07-21",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 62,
-      "hasText": true,
-      "summary": "Citi 반도체 설문조사 1. 반도체 지금 상황이 어떤거 같니? 1) 매수 / 매도세 과도: 45% 2) 보유 / 확신이 설 때까지 대기: 35% 3) 매도 / 추가 하락 여지: 20% 2. 무엇을 가장 먼저..."
-    },
-    {
-      "id": "bornlupin/19209",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19209",
-      "datetime": "2026-07-21T07:19:34.000Z",
-      "localDateKst": "2026-07-21",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [],
-      "score": 85,
-      "hasText": true,
-      "summary": "\"K증시 폭락 주범은 레버리지…코스피 1만2500 간다\" JP모건 \"한국 증시 급락, 레버리지 ETF 영향…청산 75% 진행\" \"디레버리징 상당 부분 마무리\" \"외국인 매도 압력 완화\" \"코스피 목표..."
-    },
-    {
-      "id": "bornlupin/19207",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19207",
-      "datetime": "2026-07-21T04:42:15.000Z",
-      "localDateKst": "2026-07-21",
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 72,
-      "hasText": true,
-      "summary": "블룸버그) 한국의 7월 초순 수출, AI 호조에 힘입어 7월 역대 최고치 기록 인공지능(AI) 기반의 반도체 수요가 한국 경제를 견인함에 따라, 한국의 7월 초순 수출이 견조한 성장세를 이어갔습니다. 화요일..."
     }
   ]
 }
