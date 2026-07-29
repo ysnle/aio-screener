@@ -492,6 +492,28 @@ function getLLMState() {
   return document.getElementById('llm-switch-track')?.classList.contains('on') ?? true;
 }
 
+// v53.59 P855: quota is not capability.  The UI must not advertise available
+// calls when neither a personal key nor a healthy shared Worker route exists.
+function getLLMRouteReadiness() {
+  var personalKey = '';
+  try { personalKey = typeof _getApiKey === 'function' ? String(_getApiKey('aio_claude_api_key') || '').trim() : ''; } catch (_) {}
+  if (personalKey) return { ready: true, reason: 'PERSONAL_KEY', label: '개인 키 준비' };
+  var cfg = window.AIO && typeof window.AIO.getPublicConfig === 'function' ? window.AIO.getPublicConfig() : (window.AIO_PUBLIC_CONFIG || null);
+  var publicWorker = cfg && cfg.ai && typeof cfg.ai.workerUrl === 'string' ? cfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
+  var localWorker = '';
+  try { localWorker = typeof _getApiKey === 'function' ? String(_getApiKey('aio_cf_worker_url') || '').trim().replace(/\/+$/, '') : ''; } catch (_) {}
+  var workerUrl = localWorker || publicWorker;
+  if (!workerUrl) return { ready: false, reason: 'NO_ROUTE', label: '라우트 없음' };
+  var health = window._aioLastClaudeRouteState;
+  if (health && health.target && health.target.workerUrl === workerUrl && health.ok === true) {
+    return { ready: true, reason: 'SHARED_WORKER', label: '공유 Worker 준비' };
+  }
+  if (health && health.target && health.target.workerUrl === workerUrl && health.reason === 'WORKER_NOT_READY') {
+    return { ready: false, reason: 'WORKER_NOT_READY', label: 'Worker 준비 안 됨' };
+  }
+  return { ready: false, reason: 'WORKER_NOT_CHECKED', label: 'Worker 확인 필요' };
+}
+
 function getQuota() {
   const today = _aioGetKstDateParts(new Date()).isoDate;
   let stored;
@@ -543,6 +565,19 @@ function updateQuotaBadge() {
   const isOn = getLLMState();
   const dailyLimit = calcDailyLimit();
   const model = getModelConfig();
+  const route = getLLMRouteReadiness();
+
+  if (isOn && !route.ready) {
+    if (track) track.classList.remove('on');
+    if (swLabel) { swLabel.textContent = route.label; swLabel.className = 'llm-switch-label'; }
+    if (capEl) capEl.textContent = '—';
+    if (remEl) { remEl.textContent = '—'; remEl.className = 'llm-quota-val empty'; }
+    if (progEl) { progEl.style.width = '0%'; progEl.className = 'llm-prog-fill empty'; }
+    if (badge) badge.textContent = route.reason === 'NO_ROUTE' ? 'NO ROUTE' : '확인 필요';
+    if (costEl) costEl.textContent = route.reason === 'NO_ROUTE' ? '개인 Claude 키 또는 운영자 공유 Worker가 필요합니다.' : '공유 Worker 상태 확인 후 사용할 수 있습니다.';
+    if (hdrBadge) { hdrBadge.textContent = 'AI · ' + route.label; hdrBadge.style.color = 'var(--text-muted)'; hdrBadge.style.borderColor = 'var(--border)'; hdrBadge.style.background = 'var(--surface-3)'; }
+    return;
+  }
 
   if (track)   { track.classList.toggle('on', isOn); }
   if (swLabel) { swLabel.textContent = isOn ? 'ON' : 'OFF'; swLabel.className = 'llm-switch-label' + (isOn ? ' on' : ''); }
@@ -2467,6 +2502,11 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
 
   function _aioRenderPageDiagram(pid) {
     try {
+      // The architecture bootstrap owns the home/signal decision surfaces.  The
+      // legacy compatibility diagrams for those routes are hidden and would
+      // otherwise perform a full score/canvas render before the native mount,
+      // creating a duplicate first-paint workload and last-writer race.
+      if ((pid === 'home' || pid === 'signal') && window.__AIO_ARCH_RUNTIME__) return;
       switch (pid) {
         case 'home':
           // v52.65: vis-home-score/vis-home-regime(원형게이지+2x2쿼드런트) DOM 제거 —

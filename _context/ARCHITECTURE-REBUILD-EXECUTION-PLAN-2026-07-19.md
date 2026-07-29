@@ -1,10 +1,10 @@
 ---
   verified_by: Codex (v53.43 local repository, contracts, full Chromium/viewport/accessibility evidence); P827-P834 current packet (see _context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md for the authoritative current status/owner ledger)
- last_verified: 2026-07-27
+ last_verified: 2026-07-29
 confidence: high
 auto_refresh: false
-  target_version: v53.43
-  current_packet: P834 AI infrastructure reference integration after P833 KV-only fast quote deployment, P832 fundamental SEC core report, P831 portfolio deterministic summary cutover, and P827-P830 secondary closure
+  target_version: v53.62
+  current_packet: P858 boot critical-path ownership after P853-P857 quote, UI, route, release, security-boundary, and readiness/SLO remediation
 status: DESIGNED_EXECUTABLE
 parent: ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md
 scope: whole-system architecture execution
@@ -43,15 +43,15 @@ The bounded handoff sequence is complete in the local v53.19 worktree. SA-01 sha
 
 The current preflight is local `main` HEAD `02ec6bc`, v53.19, dirty/uncommitted, and not deployed. Operator credentials/rights, commit/push/deploy approval, and seven-day soak remain open.
 
-## Current generated preflight (P850, 2026-07-28)
+## Current generated preflight (P857, 2026-07-29)
 
 <!-- GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs -->
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `63d8e4b`
+- git_head: `e479a7a`
 - working_tree: `dirty / uncommitted local changes`
-- application_version: `v53.56`
+- application_version: `v53.62`
 - deployment: `not deployed; live invariant fetch unavailable in current environment`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
 

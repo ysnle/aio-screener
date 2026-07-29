@@ -1,9 +1,9 @@
 ---
 verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
-last_verified: 2026-07-27
+last_verified: 2026-07-29
 confidence: high
 
-## Current architecture checkpoint (2026-07-29, v53.58)
+## Current architecture checkpoint (2026-07-29, v53.62)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
@@ -13,9 +13,9 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.58
-latest_P_covered: P852
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846/P847/P848/P849/P850/P851/P852 intelligence and evidence contracts are locally verified after the full post-push suite, with provider/live Worker/model verification still separate
+checklist_version: v53.62
+latest_P_covered: P858
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846/P847/P848/P849/P850/P851/P852/P853/P854/P855/P856/P857/P858 contracts are locally verified after the full local suite, with provider/live Worker/model/edge verification still separate
 
 ## P852 Web Research, session, provenance, concurrency, and accessibility closure (v53.58)
 
@@ -27,6 +27,24 @@ current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext I
 - [x] Mobile interactive target sizing is enforced at 26px minimum for the audited controls; accessibility CI blocks any remaining small target.
 - [ ] Architecture migration remains `MIGRATION_IN_PROGRESS` for native data/chart/narrative ownership; no completion claim is allowed until the remaining route owners are independently cut over.
 - [ ] Public beta remains blocked on operator criteria: fast-plane endpoint/7-day soak, provider rights, edge headers, 30-day SLO, Worker route, quota/origin, and live model certification.
+
+## P853~P857 quote atomicity, presentation, route readiness, release parity, and SLO gate (v53.60)
+
+- [x] Per-symbol quote selection uses one producer revision for price, change, percent, previous close, observation time, and source; cumulative arrays cannot last-writer-wins across providers.
+- [x] KRX price/change/previous-close is unavailable rather than mixed when the selected envelope lacks a previous close; the displayed percent equals the selected envelope's price/previous-close calculation.
+- [x] Signal degraded/partial score surfaces contain no literal `null`, `undefined`, or internal sentinel; secondary strips show `—` and `입력 대기` consistently with the primary verdict.
+- [x] AI quota/capacity is hidden or marked unavailable until a personal key or healthy shared Worker route is verified; `NO_ROUTE` is not rendered as `AI ON`.
+- [x] Asset/release/operations `dataRevision` values exactly equal the published market-snapshot revision.
+- [x] `_headers` includes CSP and compatible security headers; live response header enforcement remains an explicit operator gate until observed on the deployed edge.
+- [x] Public readiness exposes `boot-performance=BLOCKED` when the latest measured long-task SLO is non-compliant, and the operations contract enforces this parity.
+
+## P858 boot critical path and measured SLO closure (v53.62)
+
+- [x] Translation and news enrichment remain visible through source/local fallback states and queue external enrichment until the post-boot phase.
+- [x] Native decision surfaces do not pay duplicate compatibility diagram/score rendering when the architecture runtime owns the route.
+- [x] `aio:serverDataLoaded` and initial market-state narrative work are staged after the 2s interactive observation window.
+- [x] Boot interaction gate records the 2s window, request counts, active-route DOM, and long-task totals; three sequential runs satisfy all local targets.
+- [ ] Live edge enforcement, Fast-plane credentials/7-day soak, provider rights, Worker route, and 30-day certification remain operator/runtime checks.
 
 ## P850 Web Research, source evidence, and market-session closure (2026-07-28, v53.56)
 

@@ -23,17 +23,24 @@ async function fetchText(path) {
   return r.text();
 }
 
+async function fetchResponse(path) {
+  const r = await fetch(`${BASE}/${path}`, { headers: { 'cache-control': 'no-cache' } });
+  if (!r.ok) throw new Error(`${path} HTTP ${r.status}`);
+  return r;
+}
+
 async function main() {
-  let html, core, data, ui, chat, glossary, versionJson;
+  let html, core, data, ui, chat, glossary, versionJson, indexResponse;
   try {
-    [html, core, data, ui, chat, glossary] = await Promise.all([
-      fetchText('index.html'),
+    [indexResponse, core, data, ui, chat, glossary] = await Promise.all([
+      fetchResponse('index.html'),
       fetchText('js/aio-core.js'),
       fetchText('js/aio-data.js'),
       fetchText('js/aio-ui.js'),
       fetchText('js/aio-chat.js'),
       fetchText('js/aio-glossary.js'),
     ]);
+    html = await indexResponse.text();
     versionJson = JSON.parse(await fetchText('version.json'));
   } catch (e) {
     console.error(`live-invariant-check: could not fetch deployed site — ${e.message}`);
@@ -52,6 +59,22 @@ async function main() {
     staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum),
     `version.json=${version}, found busters=${staticBusters.join(',') || 'none'}`
   );
+
+  // Predicate 3: compatible edge headers must be present on the actual live
+  // response, not only in the repository's _headers declaration. GitHub Pages
+  // commonly serves _headers as a static file, so this intentionally exposes
+  // the operator/edge deployment gap instead of treating the declaration as
+  // proof of enforcement.
+  const requiredLiveHeaders = {
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'permissions-policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+    'content-security-policy': 'frame-ancestors \'none\''
+  };
+  for (const [name, expected] of Object.entries(requiredLiveHeaders)) {
+    const actual = indexResponse.headers.get(name) || '';
+    check(`live response header ${name}`, actual.toLowerCase().includes(expected.toLowerCase()), `observed=${actual || 'missing'}`);
+  }
 
   // Predicate 2 (P605/R280 class): re-run the exact same cross-file top-level function
   // shadow-declaration scan that ci-structural-check.mjs runs locally, against the LIVE

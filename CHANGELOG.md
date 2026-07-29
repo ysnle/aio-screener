@@ -1,3 +1,29 @@
+## v53.62 (2026-07-29)
+- **P858 / boot critical path**: deferred translation/news enrichment and duplicate market-state/narrative work beyond the 2s interactive budget; provider quote fan-out remains owned by the central phase coordinator; route transitions avoid broad page invalidation.
+- **Boot SLO verification**: three sequential Chromium runs pass initial external requests `12/25`, initial quote requests `0/16`, max long task `103-113ms/200ms`, total long task `542-558ms/1000ms`, active-route DOM `724/2500`.
+- **Release posture**: local boot/route/data gates are target-compliant; live edge headers, Fast-plane credentials/soak, provider rights, and public beta remain operator-gated.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.62
+
+## v53.61 (2026-07-29)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.61
+
+## v53.60 (2026-07-29)
+- **P857 / readiness/SLO parity**: public readiness now mirrors the measured boot-performance decision, and the operations contract blocks release when max/total long-task targets are not met.
+- **Release gate status**: local route, accessibility, security-contract, and data-contract gates pass; commit/deploy remains held on the measured boot SLO and live edge headers.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.60
+
+## v53.59 (2026-07-29)
+- **P853 / atomic quote envelope**: cumulative multi-provider quote refreshes now select one normalized producer revision per symbol before PriceStore, snapshot, _liveData, or DOM writes. KRX Naver price/change/previous-close fields cannot be mixed with Yahoo revisions, and incomplete index changes fail closed.
+- **P854 / Signal degraded UI**: null/undefined scores no longer leak into secondary metric strips; the user sees `—` and `입력 대기` consistently with the primary pending verdict.
+- **P855 / AI route-aware quota**: quota and ON state now require a personal key or a healthy shared Worker route; `NO_ROUTE` and Worker-not-ready states are displayed as unavailable.
+- **P856 / release data parity**: asset/release/operations manifests are synchronized to the published market snapshot revision, with exact parity contracts and CSP added to the compatible edge header manifest.
+- **Release gate status**: local surface gates pass, but public release remains blocked while the latest boot request/long-task SLO (91/25 initial external, 57/16 quote, 384ms max, 2,538ms total) and live edge security headers are not compliant/observed.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.59
+
 ## v53.58 (2026-07-29)
 - **P852 / unified AI research boundary**: unified and per-page chat now share one ResearchPlan/evidence-floor gate, with explicit request-bound QuestionPlan envelopes and fail-closed current/causal output when primary/independent/snippet-free evidence is missing.
 - **P852 / market/data provenance**: KR aliases/indices resolve to the correct market session; unknown/unverified sessions fail closed; snapshot/legacy quote storage preserves observation/fetch/session/venue/previous-close lineage; missing sentiment observation time is no longer stamped with `now`.

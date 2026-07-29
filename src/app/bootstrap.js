@@ -270,14 +270,32 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   }
 
   function start() {
+    // P858: the legacy snapshot/DOM shell already provides the first paint.
+    // Keep only the small decision-state projections on the critical path;
+    // news/entity/themes/portfolio/screener hydration is staged after the
+    // interactive boot window so large normalization passes cannot become a
+    // single long task before the user can navigate.
     syncSentimentProjection();
-    syncNews.sync();
     syncMarket.sync();
-    syncThemes.sync();
-    syncEntity.sync();
-    syncPortfolio.sync();
-    syncScreenerData();
     syncAnalysis.sync();
+    const deferredStartupSyncs = [
+      () => syncNews.sync(),
+      () => syncThemes.sync(),
+      () => syncEntity.sync(),
+      () => syncPortfolio.sync(),
+      () => syncScreenerData()
+    ];
+    let deferredStartupIndex = 0;
+    const runDeferredStartupSync = () => {
+      const task = deferredStartupSyncs[deferredStartupIndex++];
+      if (!task) return;
+      try {
+        const result = task();
+        if (result && typeof result.catch === 'function') result.catch(() => {});
+      } catch (_) {}
+      setTimeout(runDeferredStartupSync, 0);
+    };
+    setTimeout(runDeferredStartupSync, 2300);
     // RM-02: aio:liveQuotes previously ran 6 independent listeners (one dispatch each,
     // any of which could be redundant if quotes ticked again before the previous
     // dispatch's subscribers finished reacting). Coalesce them into one microtask-

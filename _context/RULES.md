@@ -1,8 +1,8 @@
 ---
 verified_by: agent (Fable 5) + Codex P761-P788 verification
-last_verified: 2026-07-26
+last_verified: 2026-07-29
 confidence: high
-target_version: v53.23
+target_version: v53.62
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -1678,3 +1678,25 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: Any audited mobile interactive target below 24px is a release failure unless it is removed or given a measured hit-area exception recorded in the audit. WARN-only target findings are not acceptable.
 
 **Validation**: `ci-accessibility-matrix-check.mjs` fails when `smallTargetCount > 0` and the mobile stylesheet enforces the minimum target size for route controls.
+
+## R407. Quote price/change/previous-close fields must share one producer revision (v53.59, P853)
+
+A quote is an atomic envelope. Do not apply a price, percentage, delta, previous close, observation time, or source field independently from a cumulative multi-producer array. Select one normalized producer revision per symbol before writing PriceStore, DATA_SNAPSHOT, _liveData, or DOM. KRX index percentages require the same envelope's previous close; otherwise render unavailable.
+
+## R408. AI quota must not imply route capability (v53.59, P855)
+
+The AI quota/capacity UI may show available calls only when a personal credential or a healthy shared Worker route is present. `NO_ROUTE`, `WORKER_NOT_READY`, and `WORKER_NOT_CHECKED` are unavailable/readiness states, not quota states.
+
+## R409. Release data revisions must match the published snapshot (v53.59, P856)
+
+`architecture/asset-manifest.json`, `architecture/release-manifest.json`, and `public-data/operations-status.json` must all equal `public-data/market-snapshot.json.revision`. Presence-only revision checks are insufficient for rollback and release traceability.
+
+## R410. Public readiness must mirror measured boot-performance status (v53.60, P857)
+
+When `architecture/operations-slo.json.latestMeasuredBoot.status` is not `TARGET_COMPLIANT`, `architecture/public-readiness.json` must expose `boot-performance: BLOCKED` and `ci-operations-contract-check.mjs` must fail the release gate. Do not relax the measurement window or SLO target merely to convert a non-compliant result into a pass.
+
+## R411. Secondary producers must declare a post-boot phase boundary (v53.62, P858)
+
+**Rule**: Translation, news enrichment, compatibility diagrams, market-state narrative synthesis, pixel-level fallbacks, and other non-critical producers must not execute synchronously inside the first 2s interactive boot or native route transition. They must render a local/unavailable state first and release work through the central phase scheduler or an explicit post-boot queue. Native route ownership must fence duplicate legacy writers before deferred work is scheduled.
+
+**Validation**: `ci-boot-interaction-check.mjs` measures the explicit 2s observation window and enforces request/long-task budgets; `ci-operations-contract-check.mjs` rejects a release unless the recorded boot is `TARGET_COMPLIANT`; architecture/browser and route-soak gates verify the deferred surfaces still settle after navigation.

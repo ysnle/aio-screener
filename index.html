@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.58 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.62 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -5312,7 +5312,7 @@ button[data-filter-active="true"] {
   <!-- v34.9: 다크/라이트 테마 토글 -->
   <button class="theme-toggle-btn" id="theme-toggle" data-action="toggleTheme" title="다크/라이트 테마 전환" aria-label="테마 전환"></button>
   <a href="#main-content" class="skip-link">메인 콘텐츠로 건너뛰기</a>
-  <div class="mobile-overlay" id="mobile-overlay" data-action="closeMobileMenu"></div>
+  <div class="mobile-overlay" id="mobile-overlay" data-action="closeMobileMenu" role="button" tabindex="0" aria-label="모바일 메뉴 닫기"></div>
   <div class="app">
     <nav class="sidebar" aria-label="메인 네비게이션">
       <div class="logo">
@@ -5401,7 +5401,7 @@ button[data-filter-active="true"] {
               <div id="llm-switch-track" class="llm-switch-track on" data-action="toggleLLM" title="AI 어시스턴트 ON/OFF">
                 <div class="llm-switch-thumb"></div>
               </div>
-              <span id="llm-switch-label" class="llm-switch-label on">ON</span>
+              <span id="llm-switch-label" class="llm-switch-label">라우트 확인 중</span>
             </div>
           </div>
 
@@ -5425,11 +5425,11 @@ button[data-filter-active="true"] {
             </div>
             <div class="llm-quota-row">
               <span class="llm-quota-lbl">일일 가능</span>
-              <span id="llm-daily-cap" class="llm-quota-val">58회</span>
+              <span id="llm-daily-cap" class="llm-quota-val">—</span>
             </div>
             <div class="llm-quota-row">
               <span class="llm-quota-lbl">남은 횟수</span>
-              <span id="llm-remaining" class="llm-quota-val green">58회</span>
+              <span id="llm-remaining" class="llm-quota-val">—</span>
             </div>
             <div class="llm-prog-bg">
               <div id="llm-prog-fill" class="llm-prog-fill" style="width:0%"></div>
@@ -5651,7 +5651,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.58</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.62</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12252,9 +12252,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.58" defer></script>
-  <script src="./js/aio-data.js?v=53.58" defer></script>
-  <script src="./js/aio-ui.js?v=53.58" defer></script>
+  <script src="./js/aio-core.js?v=53.62" defer></script>
+  <script src="./js/aio-data.js?v=53.62" defer></script>
+  <script src="./js/aio-ui.js?v=53.62" defer></script>
 
 
   <script>
@@ -14739,7 +14739,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.58" defer></script>
+<script src="./js/aio-chat.js?v=53.62" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -16196,7 +16196,7 @@ function renderKrThemeCardsFromMap() {
   if (window.AIO && typeof window.AIO.registerLiveSymbolsFromDom === 'function') {
     addedLiveSymbols = window.AIO.registerLiveSymbolsFromDom(container, { reason: 'kr-theme-render' });
   }
-  if (addedLiveSymbols > 0 && typeof fetchLiveQuotes === 'function' && !window._aioQuoteInFlight) {
+  if (addedLiveSymbols > 0 && typeof fetchLiveQuotes === 'function' && typeof _aioBootPhase !== 'undefined' && _aioBootPhase.quoteReady === true && !window._aioQuoteInFlight) {
     setTimeout(function() { fetchLiveQuotes(window._aioQuoteRequestSymbols || []); }, 50);
   }
 
@@ -20321,13 +20321,15 @@ function refreshSignalDashboard() {
   var mode = _signalMode;
   var scores = computeTradingScore(mode);
   var total = scores.total;
+  var totalFinite = typeof total === 'number' && isFinite(total);
+  var displayTotal = totalFinite ? Math.round(total) : null;
 
   // Decision — 5-tier system
   var decision, decColor, decBg, decSub;
-  if (scores.partial) {
-    decision = '판정 보류 — 부분 데이터 점수';
+  if (!totalFinite || scores.partial) {
+    decision = !totalFinite ? '판정 보류 — 필수 입력 미수신' : '판정 보류 — 부분 데이터 점수';
     decColor = 'var(--text-muted)'; decBg = 'transparent';
-    decSub = '미수신 구성요소(' + (scores.componentMissing || []).join(', ') + ')는 중립값으로만 계산했습니다. 현재 진입 판단에는 사용하지 않습니다.';
+    decSub = !totalFinite ? '필수 시장 입력이 없어 점수와 실행 판단을 표시하지 않습니다.' : '미수신 구성요소(' + (scores.componentMissing || []).join(', ') + ')는 중립값으로만 계산했습니다. 현재 진입 판단에는 사용하지 않습니다.';
   } else if (total >= 75) {
     decision = '환경 우호 — 종목별 근거 별도 확인';
     decColor = '#22754c'; decBg = 'rgba(34,117,76,0.15)';
@@ -20350,15 +20352,18 @@ function refreshSignalDashboard() {
     decSub = '극단 리스크. 신규 진입 중단, 현금·헤지·VIX 추적 우선.';
   }
 
-  // Update gauge
-  drawScoreGauge('score-gauge-canvas', total, decColor);
+  // Update the compatibility canvas only when the legacy hero owns the surface.
+  // The native analysis renderer owns the visible score sinks; drawing its hidden
+  // 110px canvas on every route/quote refresh was an avoidable first-paint cost.
+  var _nativeSignalHero = _aioIsNativeSignalHero();
+  if (!_nativeSignalHero) drawScoreGauge('score-gauge-canvas', totalFinite ? displayTotal : null, decColor);
   // v52.65 아이보리 2a: 히어로 스코어/판단문은 시안처럼 항상 잉크색 텍스트 — decColor는 캔버스 게이지(숨김)에만 사용
   // P786: analysis.js owns the three signal decision hero sinks. Keep this
   // function as a compatibility/secondary renderer, but never let it win a
   // native signal render through last-writer-wins ordering.
-  if (!_aioIsNativeSignalHero()) {
+  if (!_nativeSignalHero) {
     var gv = document.querySelector('#score-gauge-val');
-    if (gv) { gv.textContent = total + (scores.partial ? '*' : ''); }
+    if (gv) { gv.textContent = totalFinite ? displayTotal + (scores.partial ? '*' : '') : '—'; }
     var badge = document.querySelector('#score-decision-badge');
     if (badge) { badge.textContent = decision; }
     var dsub = document.querySelector('#score-decision-sub');
@@ -20438,10 +20443,10 @@ function refreshSignalDashboard() {
       // v52.7 P607/R261: window._fearGreedValue phantom global 시정 — window._lastFG로 전환 (aio-core.js:23234 동일 수정)
       var _fg77m = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
       var fg77 = _fg77m && _fg77m.value != null ? _fg77m.value : null;
-      var ts77 = total;
+      var ts77 = totalFinite ? displayTotal : null;
       var vixCol77 = vixVal < 20 ? 'var(--data-green)' : vixVal < 25 ? 'var(--data-amber)' : 'var(--data-red)';
       var fgCol77 = fg77 != null ? (fg77 >= 60 ? 'var(--data-green)' : fg77 >= 40 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
-      var tsGrade77 = ts77 >= 75 ? 'A' : ts77 >= 60 ? 'B' : ts77 >= 45 ? 'C' : ts77 >= 30 ? 'D' : 'F';
+      var tsGrade77 = ts77 == null ? '—' : ts77 >= 75 ? 'A' : ts77 >= 60 ? 'B' : ts77 >= 45 ? 'C' : ts77 >= 30 ? 'D' : 'F';
       var m7Up77 = 0, m7Tot77 = 0;
       ['AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'].forEach(function(t){ var d = ld77[t]; if(d){m7Tot77++;if(d.pct != null && d.pct > 0)m7Up77++;} });
       var m7Col77 = m7Tot77 > 0 ? (m7Up77/m7Tot77 >= 0.7 ? 'var(--data-green)' : m7Up77/m7Tot77 >= 0.4 ? 'var(--data-amber)' : 'var(--data-red)') : 'var(--text-muted)';
@@ -20453,14 +20458,15 @@ function refreshSignalDashboard() {
         '<span class="mv-pill"><span class="mv-pill-lbl">F&amp;G</span><span style="color:' + fgCol77 + ';">' + (fg77 != null ? fg77 : '—') + '</span></span>' +
         '<span class="mv-pill"><span class="mv-pill-lbl">SPY</span><span style="color:' + spyCol77 + ';">' + spyStr77 + '</span></span>' +
         '<span class="mv-pill-sep"></span>' +
-        '<span class="mv-pill"><span class="mv-pill-lbl">SCORE</span><span style="color:var(--data-cyan);font-weight:900;">' + ts77 + '</span></span>' +
-        '<span class="mv-pill"><span class="mv-pill-lbl">TPR</span><span class="mv-grade mv-grade-' + tsGrade77 + '">' + tsGrade77 + '</span></span>' +
+         '<span class="mv-pill"><span class="mv-pill-lbl">SCORE</span><span style="color:' + (ts77 == null ? 'var(--text-muted)' : 'var(--data-cyan)') + ';font-weight:900;">' + (ts77 == null ? '—' : ts77) + '</span></span>' +
+         '<span class="mv-pill"><span class="mv-pill-lbl">TPR</span><span class="mv-grade mv-grade-' + tsGrade77 + '">' + tsGrade77 + '</span></span>' +
         '<span class="mv-pill-sep"></span>' +
         '<span class="mv-pill"><span class="mv-pill-lbl">M7</span><span style="color:' + m7Col77 + ';">' + m7Up77 + '/' + m7Tot77 + '</span></span>';
     }
     if (phaseEl) {
       var phaseClass77, phaseText77;
-      if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '● 환경 우호'; }
+       if (!totalFinite) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 입력 대기'; }
+       else if (total >= 75) { phaseClass77 = 'mv-phase-sepa'; phaseText77 = '● 환경 우호'; }
       else if (total >= 60) { phaseClass77 = 'mv-phase-ready'; phaseText77 = '● 환경 양호'; }
       else if (total >= 45) { phaseClass77 = 'mv-phase-alert'; phaseText77 = '○ 중립'; }
       else { phaseClass77 = 'mv-phase-avoid'; phaseText77 = '주의'; }
@@ -23592,7 +23598,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.58" defer></script>
+<script src="./js/aio-glossary.js?v=53.62" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -23723,6 +23729,10 @@ function closeMobileMenu() {
 // Close mobile menu when a nav item is clicked
 document.querySelectorAll('.nav-item').forEach(function(n) {
   n.addEventListener('click', closeMobileMenu);
+});
+var mobileOverlay = document.getElementById('mobile-overlay');
+if (mobileOverlay) mobileOverlay.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); closeMobileMenu(); }
 });
 
 // ═══ v30.11: 모바일 키보드 가림 방지 (visualViewport API) ═══

@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.58';
+const APP_VERSION = 'v53.62';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1831,7 +1831,11 @@ window._aioClearAllTimers = function() {
   };
   _aioPageBus.register('core-visible-canvas-fallbacks', 'aio:pageShown', function(e) {
     var id = e && e.detail;
-    [600, 1600, 3500, 7000].forEach(function(delay) {
+    // P858: pixel-level fallback inspection is diagnostic, not interactive
+    // boot work. Running it at 600/1600ms created 200ms+ long tasks while
+    // native page surfaces were already painting. Start after the 2s budget
+    // and keep later retries for data arriving after the first paint.
+    [2600, 4000, 6000, 9000].forEach(function(delay) {
       setTimeout(function() {
         try { if (window.AIO && typeof window.AIO.ensureVisibleCanvasFallbacks === 'function') window.AIO.ensureVisibleCanvasFallbacks(id); } catch(_) {}
       }, delay);
@@ -4048,8 +4052,11 @@ if (typeof document !== 'undefined') {
 
   if (typeof window !== 'undefined') {
     if (window._aioPageBus && window._aioPageBus.register) {
-      window._aioPageBus.register('core-page-news-strip', 'aio:pageShown', function(e){ var pid = e && e.detail; if (pid) setTimeout(function(){ window._aioRenderPageNewsStrip(pid); }, 150); });
-      window._aioPageBus.register('core-briefing-digest', 'aio:pageShown', function(e){ if ((e && e.detail) === 'briefing') { setTimeout(window._aioRenderBriefingDigest, 120); setTimeout(window._aioCapBriefingNews, 800); } });
+      // P858: news strips/digest are secondary narrative enrichment. Native
+      // route surfaces already paint the decision state, so release these
+      // DOM-heavy projections after the interactive boot budget.
+      window._aioPageBus.register('core-page-news-strip', 'aio:pageShown', function(e){ var pid = e && e.detail; if (pid) setTimeout(function(){ window._aioRenderPageNewsStrip(pid); }, 2300); });
+      window._aioPageBus.register('core-briefing-digest', 'aio:pageShown', function(e){ if ((e && e.detail) === 'briefing') { setTimeout(window._aioRenderBriefingDigest, 2300); setTimeout(window._aioCapBriefingNews, 3000); } });
       window._aioPageBus.register('core-briefing-digest-live', 'aio:liveQuotes', function(){
         var p = document.getElementById('page-briefing');
         if (p && p.classList.contains('active')) { window._aioRenderBriefingDigest(); setTimeout(window._aioCapBriefingNews, 200); }
@@ -4060,7 +4067,7 @@ if (typeof document !== 'undefined') {
       window._aioPageBus.register('core-market-state-live', 'aio:liveQuotes', function(){ window._aioScheduleMarketState(300); });
       window._aioPageBus.register('core-market-state-page', 'aio:pageShown', function(){ window._aioScheduleMarketState(200); });
     }
-    window.addEventListener('aio:serverDataLoaded', function(){ try { window._aioScheduleMarketState(100); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} });
+    window.addEventListener('aio:serverDataLoaded', function(){ try { setTimeout(function(){ window._aioScheduleMarketState(100); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); }, 2300); } catch(_){} });
     window.addEventListener('aio:newsUpdated', function(){ try { window._aioScheduleMarketState(100); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} });  // v50.41/42/47: 뉴스 갱신 → marketState + 스트립 + 분석 합성
     // v50.42/43/44: 단일 두뇌 갱신 → 소비자 동기화. 선순환 전파 단계.
     //   드리프트 배너·결론 가드·뉴스 스트립·home Action Item(v43) + breadth/themes/briefing/options 페이지 렌더러(v44).
@@ -4081,7 +4088,7 @@ if (typeof document !== 'undefined') {
         window._aioRenderActivePageNewsStrip();
       } catch(_){}
     });
-    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 1200);
+    setTimeout(function(){ try { window.AIO.computeMarketState(); window._aioReorderCoreSections(); window._aioRenderBriefingDigest(); window._aioGuardEmptyVerdicts(); window._aioRenderActivePageNewsStrip(); if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_){} }, 2300);
     setTimeout(function(){ try { window._aioGuardEmptyVerdicts(); } catch(_){} }, 3000);
   }
 })();
@@ -25809,16 +25816,20 @@ function showPage(id, navEl) {
   if (_previousPage && _previousPage !== id) {
     destroyPageCharts(_previousPage);
   }
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const pg = document.getElementById('page-'+id);
+  // P858: route transitions previously invalidated every page subtree on each
+  // navigation. Only the current active page needs the class mutation; this
+  // avoids a full-document style/layout pass on the 17-route shell.
+  const previousActivePage = document.querySelector('.page.active');
+  if (previousActivePage && previousActivePage !== pg) previousActivePage.classList.remove('active');
   if(pg) pg.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); n.removeAttribute('aria-current'); });
+  const previousActiveNav = document.querySelector('.nav-item.active');
+  if (previousActiveNav) { previousActiveNav.classList.remove('active'); previousActiveNav.removeAttribute('aria-current'); }
   if(navEl) { navEl.classList.add('active'); navEl.setAttribute('aria-current', 'page'); }
   else {
     // v48.57: onclick 0건(v48.32+) 대응 — data-arg 기반으로 전환
-    document.querySelectorAll('.nav-item').forEach(function(n){
-      if (n.dataset && n.dataset.arg === id) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
-    });
+    var matchingNav = document.querySelector('.nav-item[data-arg="' + String(id).replace(/"/g, '\\"') + '"]');
+    if (matchingNav) { matchingNav.classList.add('active'); matchingNav.setAttribute('aria-current', 'page'); }
   }
   const parts = (breadcrumbMap && breadcrumbMap[id]) || ['AIO', id];
   setBreadcrumb(parts);

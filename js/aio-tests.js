@@ -6470,6 +6470,39 @@
     } catch(e) { t823detail = 'ERR:' + e.message; }
     _assert('T823 v5056_kst_kr_index_contract: KST weekday/date and KR previous-close sinks stay synchronized', t823ok, t823detail);
 
+    // v53.59 P853: duplicate producers must be reduced to one atomic quote
+    // envelope; KRX Naver price/change/previous-close cannot be mixed with a
+    // Yahoo revision from the same cumulative refresh array.
+    var t853ok = false, t853detail = '';
+    try {
+      var atomic853 = typeof _aioSelectAtomicQuotes === 'function' ? _aioSelectAtomicQuotes([
+        { symbol:'^KS11', regularMarketPrice:6755.75, regularMarketPreviousClose:6755.75, regularMarketChange:0, regularMarketChangePercent:0, _source:'live:yahoo-v7-batch', observedAt:'2026-07-29T09:00:00Z' },
+        { symbol:'^KS11', regularMarketPrice:5663.24, regularMarketPreviousClose:6023.66, regularMarketChange:-360.42, regularMarketChangePercent:-5.98, _source:'live:naver', observedAt:'2026-07-29T09:12:00Z' }
+      ], Date.parse('2026-07-29T09:12:00Z')) : [];
+      var q853 = atomic853 && atomic853.filter(function(q){ return q.symbol === '^KS11'; })[0];
+      var expectedPct853 = q853 ? (q853.regularMarketPrice - q853.regularMarketPreviousClose) / q853.regularMarketPreviousClose * 100 : NaN;
+      t853ok = !!(q853 && q853._source === 'live:naver' && Math.abs(q853.regularMarketPrice - 5663.24) < 0.001 &&
+        Math.abs(q853.regularMarketChangePercent - expectedPct853) < 0.011 && q853.regularMarketPreviousClose === 6023.66 &&
+        q853._atomicRevision.indexOf('live:naver|') === 0);
+      t853detail = JSON.stringify({ source:q853 && q853._source, price:q853 && q853.regularMarketPrice, previousClose:q853 && q853.regularMarketPreviousClose, pct:q853 && q853.regularMarketChangePercent, expectedPct:expectedPct853, revision:q853 && q853._atomicRevision });
+    } catch(e) { t853detail = 'ERR:' + e.message; }
+    _assert('T853 v5359_atomic_quote_envelope: same-producer price/change/previous-close selection', t853ok, t853detail);
+
+    var t854ok = false, t854detail = '';
+    try {
+      var originalCompute854 = window.computeTradingScore;
+      window.computeTradingScore = function() { return { total:null, partial:true, componentMissing:['trend'], volScore:null, momScore:null, trendScore:null, breadthScore:null, macroScore:null }; };
+      if (typeof window.refreshSignalDashboard === 'function') window.refreshSignalDashboard();
+      var strip854 = document.getElementById('signal-mv-strip');
+      var scoreValue854 = strip854 ? strip854.textContent : '';
+      var phaseValue854 = (document.getElementById('signal-phase-label') || {}).textContent || '';
+      t854ok = !!strip854 && scoreValue854.indexOf('null') < 0 && scoreValue854.indexOf('undefined') < 0 && phaseValue854.indexOf('입력 대기') >= 0;
+      t854detail = JSON.stringify({ text:scoreValue854.slice(0, 300), phase:phaseValue854, ok:t854ok });
+      window.computeTradingScore = originalCompute854;
+      if (typeof window.refreshSignalDashboard === 'function') window.refreshSignalDashboard();
+    } catch(e) { t854detail = 'ERR:' + e.message; }
+    _assert('T854 v5359_signal_secondary_renderer_fail_closed: null score never reaches user-visible strip', t854ok, t854detail);
+
     var t824ok = false, t824detail = '';
     try {
       var compositeLeak824 = document.querySelectorAll('.kr-etf-card[data-live-price],.kr-screen-card[data-live-price]').length;

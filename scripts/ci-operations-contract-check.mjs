@@ -24,6 +24,7 @@ const visual = json('architecture/visual-state-matrix.json');
 const slo = json('architecture/operations-slo.json');
 const readiness = json('architecture/public-readiness.json');
 const operations = json('public-data/operations-status.json');
+const snapshot = json('public-data/market-snapshot.json');
 const allowlist = json('public-artifact-manifest.json');
 const ci = read('.github/workflows/ci.yml');
 const headers = read('_headers');
@@ -39,7 +40,8 @@ const requiredHeaders = [
   'X-Content-Type-Options: nosniff',
   'Referrer-Policy: strict-origin-when-cross-origin',
   'X-Frame-Options: DENY',
-  'Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()'
+  'Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()',
+  'Content-Security-Policy: default-src \'self\';'
 ];
 
 check('version format', /^v\d+\.\d{1,2}$/.test(version), version);
@@ -48,6 +50,7 @@ for (const file of ['architecture/asset-manifest.json', 'architecture/release-ma
 }
 check('asset manifest worker revision', json('architecture/asset-manifest.json').workerRevision === `sw:${version}`);
 check('release manifest worker revision', json('architecture/release-manifest.json').workerRevision === `sw:${version}`);
+check('release/asset/operations data revision coherence', [json('architecture/asset-manifest.json').dataRevision, json('architecture/release-manifest.json').dataRevision, operations.dataRevision].every((value) => value === snapshot.revision), `${snapshot.revision}`);
 
 check('vertical slice route coverage', sameSet(declaredSliceRoutes, routeIds), `${declaredSliceRoutes.length} != ${routeIds.length}`);
 check('visual matrix route coverage', sameSet(visual.routes, routeIds));
@@ -74,6 +77,8 @@ check('route soak topology', slo.localBoundary?.routeSoak?.laps === 3 && slo.loc
 check('security header gate is explicit', slo.localBoundary?.securityHeaders?.status === 'edge-required' && slo.localBoundary?.securityHeaders?.manifest === '_headers');
 check('public readiness decision is conservative', readiness.publicBetaDecision === 'BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE');
 check('public readiness route soak mirror', readiness.criteria?.find((criterion) => criterion.id === 'route-soak')?.status === (slo.localBoundary?.routeSoak?.status === 'pass' ? 'PASS' : 'PENDING_LOCAL_GATE'));
+check('public readiness boot-performance mirror', readiness.criteria?.find((criterion) => criterion.id === 'boot-performance')?.status === (slo.latestMeasuredBoot?.status === 'TARGET_COMPLIANT' ? 'PASS' : 'BLOCKED'));
+check('latest boot measurement is target-compliant before release', slo.latestMeasuredBoot?.status === 'TARGET_COMPLIANT', `status=${slo.latestMeasuredBoot?.status || 'missing'}`);
 
 for (const header of requiredHeaders) check(`security header ${header}`, headers.includes(header));
 check('Pages allowlist includes _headers', allowlist.publicRootAllowlist?.includes('_headers'));

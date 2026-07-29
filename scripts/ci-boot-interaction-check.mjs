@@ -6,6 +6,7 @@ import { resolve, dirname } from 'node:path';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_BOOT_PORT || 8898);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
+const BOOT_OBSERVATION_WINDOW_MS = 2000;
 
 function startServer() {
   return new Promise((resolveServer, reject) => {
@@ -26,6 +27,22 @@ const server = await startServer();
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage();
+  const externalRequests = [];
+  const quoteRequests = [];
+  const initialExternalRequests = [];
+  const initialQuoteRequests = [];
+  const requestStart = Date.now();
+  page.on('request', (request) => {
+    const url = request.url();
+    if (url.startsWith(`http://127.0.0.1:${port}/`)) return;
+    externalRequests.push(url);
+    const isQuote = /finance\/chart|stooq|finance\.naver|stock\.naver|polling\.finance\.naver|fchart/i.test(url);
+    if (isQuote) quoteRequests.push(url);
+    if (Date.now() - requestStart <= BOOT_OBSERVATION_WINDOW_MS) {
+      initialExternalRequests.push(url);
+      if (isQuote) initialQuoteRequests.push(url);
+    }
+  });
   await page.addInitScript(() => {
     window.__aioBootLongTasks = [];
     new PerformanceObserver((list) => {
@@ -43,10 +60,10 @@ try {
   await page.evaluate(() => window.showPage('signal'));
   const routeMs = Date.now() - interactiveStart;
   await page.waitForTimeout(6500);
-  const result = await page.evaluate(() => {
+  const result = await page.evaluate((bootWindowMs) => {
     const nav = performance.getEntriesByType('navigation')[0] || {};
     const fcp = performance.getEntriesByName('first-contentful-paint')[0];
-    const tasks = window.__aioBootLongTasks || [];
+    const tasks = (window.__aioBootLongTasks || []).filter((task) => task.start <= bootWindowMs);
     return {
       fcpMs: fcp ? Math.round(fcp.startTime) : null,
       dclMs: Math.round(nav.domContentLoadedEventEnd || 0),
@@ -54,13 +71,20 @@ try {
       maxLongTaskMs: Math.round(Math.max(0, ...tasks.map((task) => task.duration))),
       totalLongTaskMs: Math.round(tasks.reduce((sum, task) => sum + task.duration, 0)),
       longTaskCount: tasks.length,
+      longTaskObservationWindowMs: bootWindowMs,
       domNodes: document.getElementsByTagName('*').length,
+      activeRouteDomNodes: document.querySelector('.page.active')?.getElementsByTagName('*').length || 0,
       activePage: document.querySelector('.page.active')?.id || '',
       bootStatusPresent: !!document.getElementById('aio-boot-status')
     };
-  });
+  }, BOOT_OBSERVATION_WINDOW_MS);
   result.routeMs = routeMs;
   result.wallMs = Date.now() - wallStart;
+  result.totalExternalRequests = externalRequests.length;
+  result.quoteRequests = quoteRequests.length;
+  result.initialExternalRequests = initialExternalRequests.length;
+  result.initialQuoteRequests = initialQuoteRequests.length;
+  result.bootObservationWindowMs = BOOT_OBSERVATION_WINDOW_MS;
   console.log(JSON.stringify(result, null, 2));
   const failures = [];
   if (result.fcpMs == null || result.fcpMs > 2500) failures.push(`FCP ${result.fcpMs}ms > 2500ms`);

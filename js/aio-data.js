@@ -3804,6 +3804,10 @@ window._aioIsWeeklyNewsExpiring = _aioIsWeeklyNewsExpiring;
 function _aioRefreshPageData(pageId) {
   try {
     if (_schedulerPaused) return;
+    // During the initial snapshot/server-data window, the central phase
+    // coordinator owns quote/sentiment/breadth work. Avoid a duplicate
+    // on-enter provider fan-out before the quote phase is ready.
+    if (_aioBootPhase.quoteReady === false) return;
     _assignRefreshScheduleFunctions();
     var profile = _aioGetRefreshProfile(pageId);
     var keys = (profile && profile.tasks && profile.tasks.length) ? profile.tasks : AIO_PAGE_REFRESH_MAP[pageId];
@@ -6046,7 +6050,21 @@ window.AIO.getHistoryDataAudit = function() {
   };
 };
 
+// P858: phase state stays in one boot-coordinator object so the legacy surface
+// does not grow additional window-owned write points for a timing concern.
+var _aioBootPhase = (typeof window !== 'undefined' && window._aioBootPhase) || {
+  quoteReady: false,
+  translationReady: false
+};
+
 async function initV20DataEngine() {
+  // The boot coordinator is the sole owner of the first live-data fetch.
+  // Page-on-enter refreshes must not race it with a second provider fan-out.
+  _aioBootPhase.quoteReady = false;
+  // P858: translation is deliberately outside the 0-2s interactive boot
+  // budget. Source-language/local fallback text remains visible until this
+  // enrichment phase is released.
+  _aioBootPhase.translationReady = false;
   console.log('[AIO v20] ═══════════════════════════════════════');
   console.log('[AIO v20] Data Engine v20 초기화 시작');
   // v50.23: 서버 데이터(data.json) 먼저 적용 — 프록시 실패와 무관하게 즉시 신선한 화면
@@ -6076,9 +6094,19 @@ async function initV20DataEngine() {
     }
   }).catch(function() {});
 
-  // Phase 2: Fast APIs (2-5s) — CoinGecko, Exchange Rate
+  // Phase 2: Fast APIs (2-5s) — CoinGecko, Exchange Rate, and live quote rescue.
+  // P858: the previous 500ms timer contradicted this phase boundary and pushed
+  // every provider into the boot request window. Keep snapshot/server data as
+  // the first paint source, then start external quote work after the 2s boot
+  // budget so request and long-task SLOs measure the actual interactive boot.
+  _aioBootPhase.quoteReady = false;
+  setTimeout(function() {
+    _aioBootPhase.translationReady = true;
+    _aioReleaseDeferredNewsTranslation();
+  }, 2300);
   setTimeout(async () => {
     try {
+      _aioBootPhase.quoteReady = true;
       var architectureReady = window.__AIO_ARCH_RUNTIME__ && window.__AIO_ARCH_RUNTIME__.ready;
       if (architectureReady && typeof architectureReady.then === 'function') {
         await Promise.race([
@@ -6089,7 +6117,7 @@ async function initV20DataEngine() {
       if (typeof fetchLiveQuotes === 'function') await fetchLiveQuotes();
     }
     catch(e) { showDataError('시세', '실시간 시세 수신 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-quote','Phase2 실패'); }
-  }, 500);
+  }, 2500);
 
   // Phase 3: Sentiment APIs (3-8s)
   setTimeout(async () => {
@@ -8788,6 +8816,29 @@ function setNewsSortMode(mode, el) {
    ══════════════════════════════════════════════════════════════════ */
 const _translationCache = new Map(); // normalizedKey -> { ko_title, ko_desc, ko_summary, ko_explain, ko_impact, ko_action, tickers, _failed }
 let _translationInProgress = false;
+// P858: translation is a non-critical enrichment plane. Keep it out of the
+// interactive boot window and release one deduplicated batch after the first
+// live-data phase. The visible news surface still renders source-language
+// titles/local fallbacks while this queue is held.
+const _translationDeferredItems = new Map();
+
+function _aioQueueDeferredNewsTranslation(items) {
+  if (!Array.isArray(items)) return;
+  items.forEach(function(item) {
+    if (!item || !item.title) return;
+    var key = _tcKey(item.title);
+    if (key && !_translationDeferredItems.has(key)) _translationDeferredItems.set(key, item);
+  });
+}
+
+function _aioReleaseDeferredNewsTranslation() {
+  if (!_translationDeferredItems.size || typeof autoTranslateNews !== 'function') return;
+  var items = Array.from(_translationDeferredItems.values());
+  _translationDeferredItems.clear();
+  setTimeout(function() {
+    try { autoTranslateNews(items).catch(function(){}); } catch(_) {}
+  }, 0);
+}
 
 // v27.3: 캐시 키 정규화 — 공백/대소문자/특수문자 차이로 인한 lookup 실패 방지
 function _tcKey(title) {
@@ -9345,6 +9396,10 @@ function _aioGetNewsTranslation(item) {
 }
 
 async function freeTranslateNews(items) {
+  if (_aioBootPhase.translationReady === false) {
+    _aioQueueDeferredNewsTranslation(items);
+    return;
+  }
   var statusEl = document.getElementById('translate-status');
   if (statusEl) statusEl.innerHTML = '번역 준비 중...';
 
@@ -9490,6 +9545,10 @@ async function freeTranslateNews(items) {
 
 /* ── v27.2: 뉴스 fetch 후 자동 번역 + 해석 + 티커 추출 ────────── */
 async function autoTranslateNews(items) {
+  if (_aioBootPhase.translationReady === false) {
+    _aioQueueDeferredNewsTranslation(items);
+    return;
+  }
   const apiKey = getApiKey();
   // v50.53 2C: 서버 키 모드(CF Worker) 지원 — 개인 키 없어도 Worker 경유. 둘 다 없으면 무료 번역.
   const _ct = (typeof _aioClaudeTarget === 'function') ? _aioClaudeTarget(apiKey) : { url: 'https://api.anthropic.com/v1/messages', serverKey: false };
@@ -13710,6 +13769,107 @@ window.AIO.repairPageLiveDataBinding = async function(opts) {
   return { status: audit.status, applied: first, audit: audit, generatedAt: new Date().toISOString() };
 };
 
+// v53.59 P853: quote fields are an atomic producer envelope.  A price, change,
+// percent, previous close, observation time, and source must be selected from
+// the same producer revision before any store or DOM mutation happens.  The
+// caller intentionally passes the cumulative quote array many times during a
+// staged refresh; selecting here prevents an older Yahoo field from being
+// merged with a newer Naver field on a later pass.
+function _aioNormalizeAtomicQuote(input, now) {
+  if (!input || !input.symbol) return null;
+  var symbol = String(input.symbol).trim().toUpperCase();
+  var price = Number(input.regularMarketPrice);
+  if (!isFinite(price) || price <= 0) return null;
+  var source = String(input._source || 'live:yahoo');
+  var previous = Number(input.regularMarketPreviousClose || input.chartPreviousClose);
+  if (!isFinite(previous) || previous <= 0) previous = null;
+  var change = Number(input.regularMarketChange);
+  if (!isFinite(change)) change = previous != null ? price - previous : null;
+  var pct = Number(input.regularMarketChangePercent);
+  if (!isFinite(pct)) pct = previous != null && isFinite(change) ? (change / previous) * 100 : null;
+  if (previous != null) {
+    var derivedPct = (price - previous) / previous * 100;
+    // A producer is allowed to round its displayed percentage, but not to
+    // disagree materially with its own price/previous-close pair.  Recompute
+    // the derived field and record the correction instead of publishing a
+    // mathematically inconsistent envelope.
+    if (!isFinite(pct) || Math.abs(pct - derivedPct) > 0.25) {
+      pct = derivedPct;
+      input._atomicPctCorrected = true;
+    }
+    change = price - previous;
+  }
+  var observedRaw = input.observedAt || input.regularMarketTime || input.postMarketTime || input.preMarketTime || null;
+  var observedMs = typeof observedRaw === 'string' ? new Date(observedRaw).getTime() : Number(observedRaw);
+  if (isFinite(observedMs) && observedMs > 0 && observedMs < 1e12) observedMs *= 1000;
+  if (!isFinite(observedMs) || observedMs <= 0) observedMs = null;
+  var fetchedRaw = input.fetchedAt || now || Date.now();
+  var fetchedMs = typeof fetchedRaw === 'string' ? new Date(fetchedRaw).getTime() : Number(fetchedRaw);
+  if (!isFinite(fetchedMs) || fetchedMs <= 0) fetchedMs = now || Date.now();
+  var isKrIndex = symbol === '^KS11' || symbol === '^KQ11';
+  // KRX index change is decision-grade only when the same envelope carries a
+  // previous close.  A lone price must never inherit a prior provider's pct.
+  if (isKrIndex && previous == null) {
+    pct = null;
+    change = null;
+  }
+  var completeness = (previous != null ? 4 : 1) + (pct != null ? 2 : 0) + (change != null ? 1 : 0);
+  return Object.assign({}, input, {
+    symbol: symbol,
+    regularMarketPrice: price,
+    regularMarketPreviousClose: previous,
+    chartPreviousClose: previous,
+    regularMarketChange: change,
+    regularMarketChangePercent: pct,
+    _source: source,
+    _atomicRevision: source + '|' + (observedMs || fetchedMs) + '|' + price + '|' + (previous == null ? 'na' : previous),
+    _atomicObservedAt: observedMs ? new Date(observedMs).toISOString() : null,
+    _atomicFetchedAt: new Date(fetchedMs).toISOString(),
+    _atomicCompleteness: completeness
+  });
+}
+
+function _aioAtomicSourceRank(symbol, source) {
+  var s = String(source || '').toLowerCase();
+  var kr = symbol === '^KS11' || symbol === '^KQ11' || /\.(ks|kq)$/.test(symbol);
+  if (kr) {
+    if (s === 'live:naver') return 100;
+    if (s.indexOf('live:naver-') === 0) return 90;
+    if (s.indexOf('live:yahoo') === 0) return 30;
+    if (s.indexOf('live:stooq') === 0) return 20;
+  }
+  if (s === 'live:yahoo-v7-batch') return 100;
+  if (s === 'live:yahoo-direct') return 95;
+  if (s === 'live:yahoo-proxy') return 90;
+  if (s.indexOf('live:yahoo') === 0) return 85;
+  if (s.indexOf('live:coingecko') === 0) return 85;
+  if (s.indexOf('live:stooq') === 0) return 50;
+  return 10;
+}
+
+function _aioSelectAtomicQuotes(quotes, now) {
+  var selected = new Map();
+  (Array.isArray(quotes) ? quotes : []).forEach(function(input) {
+    var candidate = _aioNormalizeAtomicQuote(input, now);
+    if (!candidate) return;
+    var current = selected.get(candidate.symbol);
+    if (!current) {
+      selected.set(candidate.symbol, candidate);
+      return;
+    }
+    var rank = _aioAtomicSourceRank(candidate.symbol, candidate._source);
+    var currentRank = _aioAtomicSourceRank(current.symbol, current._source);
+    var candidateScore = rank * 100 + candidate._atomicCompleteness;
+    var currentScore = currentRank * 100 + current._atomicCompleteness;
+    var candidateFresh = Date.parse(candidate._atomicObservedAt || candidate._atomicFetchedAt) || 0;
+    var currentFresh = Date.parse(current._atomicObservedAt || current._atomicFetchedAt) || 0;
+    if (candidateScore > currentScore || (candidateScore === currentScore && candidateFresh >= currentFresh)) {
+      selected.set(candidate.symbol, candidate);
+    }
+  });
+  return Array.from(selected.values());
+}
+
 function applyLiveQuotes(quotes) {
   if (!Array.isArray(quotes)) return;
   window._liveData = window._liveData || {};
@@ -13718,6 +13878,7 @@ function applyLiveQuotes(quotes) {
   // v30.11: 데이터 출처 추적 — 'live:yahoo' | 'live:coingecko' | 'fx:open.er-api' | 'snapshot'
   window._dataSource = window._dataSource || {};
   const now = Date.now();
+  const atomicQuotes = _aioSelectAtomicQuotes(quotes, now);
   // v51.61: Yahoo symbol → [DATA_SNAPSHOT priceKey, pctKey] 매핑
   // data-live-price와 data-snap이 항상 동일 시각의 데이터를 표시하기 위한 구조적 브릿지
   var _LIVE_SNAP_MAP = {
@@ -13742,7 +13903,7 @@ function applyLiveQuotes(quotes) {
     'SI=F':     ['silver',   'silverPct']
   };
 
-  quotes.forEach(q => {
+  atomicQuotes.forEach(q => {
     const rawPct = q.regularMarketChangePercent;
     const hasPct = (typeof rawPct === 'number' && isFinite(rawPct));
     const pct   = hasPct ? rawPct : null;
@@ -13781,7 +13942,10 @@ function applyLiveQuotes(quotes) {
       if (Object.prototype.hasOwnProperty.call(window.DATA_SNAPSHOT._fallback, _lsm[0])) {
         window.DATA_SNAPSHOT._fallback[_lsm[0]] = price;
       }
-      if (_lsm[1] && hasPct) window.DATA_SNAPSHOT[_lsm[1]] = parseFloat(pct.toFixed(2));
+       // Never retain an older snapshot percentage beside a newer live price.
+       // Missing live change is explicitly unavailable until the same producer
+       // supplies a complete envelope again.
+       if (_lsm[1]) window.DATA_SNAPSHOT[_lsm[1]] = hasPct ? parseFloat(pct.toFixed(2)) : null;
       if (q.symbol === 'KRW=X') window.DATA_SNAPSHOT.krwRound = Math.round(price);
       if (q.symbol === 'GC=F' && hasPct) window.DATA_SNAPSHOT.goldWeeklyPct = parseFloat(pct.toFixed(2));
       // FABLE-LIVE-AUDIT-2026-07-07 C5/L2-2: 이 forEach는 Yahoo/Naver 등 여러 소스의 동일 심볼 quote를
@@ -13795,6 +13959,9 @@ function applyLiveQuotes(quotes) {
         if (_ksPrev > 0 && (_ksIsNaver || !window.DATA_SNAPSHOT._kospiPrevFromNaver)) {
           window.DATA_SNAPSHOT.kospiPrev = _ksPrev;
           if (_ksIsNaver) window.DATA_SNAPSHOT._kospiPrevFromNaver = true;
+        } else if (!_ksPrev) {
+          window.DATA_SNAPSHOT.kospiPrev = null;
+          window.DATA_SNAPSHOT._kospiPrevFromNaver = false;
         }
       }
       if (q.symbol === '^KQ11') {
@@ -13803,6 +13970,9 @@ function applyLiveQuotes(quotes) {
         if (_kqPrev > 0 && (_kqIsNaver || !window.DATA_SNAPSHOT._kosdaqPrevFromNaver)) {
           window.DATA_SNAPSHOT.kosdaqPrev = _kqPrev;
           if (_kqIsNaver) window.DATA_SNAPSHOT._kosdaqPrevFromNaver = true;
+        } else if (!_kqPrev) {
+          window.DATA_SNAPSHOT.kosdaqPrev = null;
+          window.DATA_SNAPSHOT._kosdaqPrevFromNaver = false;
         }
       }
     }
@@ -13839,6 +14009,16 @@ function applyLiveQuotes(quotes) {
     var _parsedObsMs = typeof _rawObsTs === 'string' ? new Date(_rawObsTs).getTime() : Number(_rawObsTs);
     var _obsMs = _parsedObsMs ? (_parsedObsMs < 1e12 ? _parsedObsMs * 1000 : _parsedObsMs) : null;
     window._liveData[q.symbol] = window._liveData[q.symbol] || {};
+    Object.assign(window._liveData[q.symbol], { quoteEnvelope: {
+      revision: q._atomicRevision,
+      source: q._source,
+      price: price,
+      change: isFinite(q.regularMarketChange) ? q.regularMarketChange : null,
+      pct: hasPct ? pct : null,
+      previousClose: isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null,
+      observedAt: q._atomicObservedAt,
+      fetchedAt: q._atomicFetchedAt
+    } });
     if (_obsMs && isFinite(_obsMs)) window._liveData[q.symbol].observedAt = new Date(_obsMs).toISOString();
     if (q.marketState) window._liveData[q.symbol].marketState = q.marketState;
     if (q.exchangeTimezoneName) window._liveData[q.symbol].exchangeTimezoneName = q.exchangeTimezoneName;
@@ -13861,7 +14041,7 @@ function applyLiveQuotes(quotes) {
       pctMissing: !hasPct,
       policyKey: 'quote',
       metric: _storedMetric || null,
-      previousClose: q.regularMarketPreviousClose || q.chartPreviousClose || null,
+      previousClose: isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null,
       rawQuoteTs: _rawObsTs,
       observedAt: _obsMs && isFinite(_obsMs) ? new Date(_obsMs).toISOString() : null,
       marketState: q.marketState || null,
@@ -14090,7 +14270,7 @@ function applyLiveQuotes(quotes) {
     }
   });
   // VIX 별도 처리 — v45.6: _liveData/DATA_SNAPSHOT 폴백 추가
-  var vixQ = quotes.find(q => q.symbol === '^VIX');
+  var vixQ = atomicQuotes.find(q => q.symbol === '^VIX');
   if (!vixQ) {
     var _vld = (window._liveData || {})['^VIX'];
     if (_vld && _vld.price > 0) vixQ = { symbol: '^VIX', regularMarketPrice: _vld.price };
@@ -14348,9 +14528,14 @@ function _aioApplyScreenerBreadth(sd) {
     if (typeof window._aioSyncBreadth50Readout === 'function') window._aioSyncBreadth50Readout();
     if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
     if (typeof updateBreadthBars === 'function') updateBreadthBars();
-    if (typeof refreshSignalDashboard === 'function') refreshSignalDashboard();
+    // Native analysis owns the visible home/signal decision surfaces.  The
+    // breadth producer still updates its canonical store, but must not trigger
+    // a full legacy signal repaint across the 7k-node document during boot.
+    var _nativeAnalysisRuntime = !!(window.__AIO_ARCH_RUNTIME__ && document &&
+      document.querySelector('#page-signal[data-aio-architecture-renderer="native"], #page-home[data-aio-architecture-renderer="native"]'));
+    if (!_nativeAnalysisRuntime && typeof refreshSignalDashboard === 'function') refreshSignalDashboard();
     if (typeof updateEntryChecklist === 'function') updateEntryChecklist();
-    if (typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
+    if (!_nativeAnalysisRuntime && typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
     if (typeof updateKrBreadth === 'function') updateKrBreadth();
   } catch(_) {}
   return true;

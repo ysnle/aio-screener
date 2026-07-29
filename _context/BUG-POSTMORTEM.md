@@ -1,12 +1,20 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
-last_verified: 2026-07-27
+last_verified: 2026-07-29
 confidence: high
-latest_version: v53.58
-latest_P_number: P852
-next_P_number: P853
+latest_version: v53.62
+latest_P_number: P858
+next_P_number: P859
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P852 unified ResearchPlan/evidence/session/provenance boundary closure; migration and live/provider certification remain separate operator/runtime checks
+current_checkpoint: P858 boot critical-path ownership and measured SLO closure on top of P857 readiness parity; native ownership migration and live/provider/edge certification remain separate operator/runtime checks
+
+## P858 - v53.62 - boot critical-path ownership and measured SLO closure
+
+- **motivation**: three-run Chromium measurements showed that initial request counts were corrected but 200ms+ tasks still appeared during the first 2 seconds. Secondary translation/news enrichment, market-state narrative recomputation, and compatibility rendering shared the critical path with the native decision surface.
+- **root_cause**: `aio:serverDataLoaded` and page-enter handlers synchronously rendered digest/news/market-state consumers, while translation and provider scheduling could be triggered before the central quote phase. Compatibility paths also invalidated large DOM subtrees during navigation.
+- **fix**: added a translation readiness queue released after the boot boundary; deferred server-data narrative/news work and market-state recomputation to the post-boot phase; staged non-critical native hydration; reduced route class mutations to the active page/nav; preserved native signal/home ownership fences; moved pixel-level fallback retries beyond the interactive window.
+- **prevention**: `ci-boot-interaction-check.mjs` records an explicit 2s observation window and request/long-task budgets; `operations-slo.json` requires `TARGET_COMPLIANT` before release; future secondary producers must declare a phase boundary instead of attaching synchronous work to `aio:pageShown`/`aio:serverDataLoaded`.
+- **verification**: three sequential runs passed with initial external `12`, initial quote `0`, max long task `103-113ms`, total long task `542-558ms`, active-route DOM `724`, and no boot errors. Full suite and live edge/provider gates remain separate until executed.
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -18,6 +26,48 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P853 - v53.59 - 누적 quote 배열이 서로 다른 생산자 리비전을 한 화면에 혼합
+
+- **motivation**: 라이브 KOSPI 화면에서 현재 가격과 등락률이 같은 관측값에서 나오지 않는 것을 확인했다.
+- **symptom/reproduction**: 가격 `5,663.24`와 `-16.17%`가 표시됐지만 같은 시점의 Naver 응답은 전일 대비 `-360.42`, `-5.98%`였다. `5,663.24 / 6,755.75 - 1`과 화면 등락률이 일치했다.
+- **root_cause**: `fetchLiveQuotes()`가 누적 `allQuotes`를 단계별로 반복 적용했고, `applyLiveQuotes()`가 심볼별 producer revision을 먼저 선택하지 않았다. KRX 가격·전일종가·등락률이 source identity와 함께 원자적으로 보존되지 않았다.
+- **fix**: 심볼별 atomic quote envelope 정규화, KRX Naver producer 우선 선택, 동일 envelope 내부 가격/전일종가/등락률 재계산 및 불완전 KRX 등락률 차단, `_liveData.quoteEnvelope` lineage 저장을 추가했다.
+- **violated_rule**: R407. 동일 지표의 가격·변화·전일 기준·관측시각은 단일 producer revision에서만 함께 렌더링한다.
+- **prevention**: `_aioSelectAtomicQuotes()`와 T853 원자성 회귀 테스트가 누적 배열의 source 혼합을 차단한다.
+- **verification**: node syntax와 T853 fixture 검증 후 전체 브라우저/라이브 검증을 수행한다.
+
+## P854 - v53.59 - 실패 안전 점수가 보조 UI에 null로 노출
+
+- **motivation**: 주 판정은 입력 미수신을 보류로 표시했지만 Signal 보조 strip에는 내부 `null`이 남아 있었다.
+- **root_cause**: `scores.total`을 유한값 검사 없이 문자열 템플릿에 직렬화했고, 등급·phase도 null 비교 결과를 그대로 사용했다.
+- **fix**: 유한 점수 여부를 공통 판정하고, 점수·등급·phase를 `—`/`입력 대기`로 렌더링하도록 수정했다.
+- **prevention**: T854가 null/undefined 및 개발 내부값의 사용자 표면 유입을 차단한다.
+- **verification**: Signal null fixture와 전체 human-surface/headless 검증.
+
+## P855 - v53.59 - AI quota 배지가 실제 AI route readiness를 과장
+
+- **motivation**: public chat route가 `NO_ROUTE`인데도 사이드바가 `AI ON`과 잔여 호출 수를 표시했다.
+- **root_cause**: quota 계산과 route/Worker readiness가 서로 독립적으로 렌더링됐다.
+- **fix**: 개인 키 또는 건강한 공유 Worker가 없으면 toggle/quota를 `라우트 없음` 또는 `확인 필요`로 표시하고 호출 가능 횟수를 노출하지 않도록 했다.
+- **violated_rule**: R408. quota는 capability가 아니며 route readiness가 확인된 경우에만 사용 가능 상태를 표시한다.
+- **prevention**: `getLLMRouteReadiness()`를 단일 UI readiness 경계로 사용한다.
+
+## P856 - v53.59 - release manifest가 published market snapshot 리비전과 분리
+
+- **motivation**: release/asset manifest는 7월 27일 데이터 리비전을 가리키고 operations status는 7월 29일 리비전을 가리켰다.
+- **root_cause**: manifest 계약이 `dataRevision`의 존재만 검사하고 published snapshot과의 일치를 검사하지 않았다.
+- **fix**: asset/release/operations manifest를 현재 snapshot revision에 동기화하고 release/operations 계약에 exact revision parity 검사를 추가했다.
+- **prevention**: 데이터 산출물 갱신 시 manifest parity가 깨지면 CI가 실패한다.
+- **verification**: `ci-release-manifest-contract.mjs`, `ci-operations-contract-check.mjs` revision/header predicates, full local Chromium surface suite, and live invariant checks were run. Local UI/data gates pass; release remains blocked by measured boot long-task SLO noncompliance and missing live edge header enforcement.
+
+## P857 - v53.60 - public readiness가 부트 성능 차단 상태를 반영하지 않음
+
+- **motivation**: readiness manifest는 route/data/edge/operator criteria를 보유했지만 최신 부트 성능 측정의 차단 상태를 사용자-facing release decision과 구조적으로 연결하지 않았다.
+- **root_cause**: `latestMeasuredBoot.status`와 readiness criteria 사이에 parity predicate가 없어서 운영 계약이 성능 미달을 독립적으로 설명하지 못했다.
+- **fix**: `boot-performance` readiness criterion을 추가하고 `ci-operations-contract-check.mjs`가 target-compliant 여부와 readiness 상태를 함께 검증하도록 연결했다. v53.60으로 전 파일 버전을 동기화했다.
+- **prevention**: 부트 성능 측정이 target 미달이면 readiness는 `BLOCKED`를 유지하고 운영 계약은 실패해야 하며, 측정 창과 목표를 완화해 통과시키지 않는다.
+- **verification**: latest local boot 측정은 `initialExternalRequests=91/25`, `initialQuoteRequests=57/16`, `maxLongTaskMs=384/200`, `totalLongTaskMs=2538/1000`으로 차단 상태를 재현하며, route/viewport/a11y/headless/data/release 게이트는 별도로 PASS한다.
 
 ## P852 - v53.58 - unified chat and legacy evidence paths could bypass the typed research/session boundary
 
