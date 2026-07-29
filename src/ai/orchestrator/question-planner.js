@@ -1,6 +1,6 @@
 import { classifyQuestionIntent } from '../intent/taxonomy.js';
 import { resolveEntities } from '../entity/resolver.js';
-import { createMarketSessionEvidence, resolveQuestionTime } from '../time/market-session.js';
+import { createMarketSessionEvidence, resolveMarketSessionSchedule, resolveQuestionTime } from '../time/market-session.js';
 import { evaluateQuestionActionPermission } from '../policy/suitability.js';
 import { createCapabilityPlan } from './capability-planner.js';
 import { createResearchDecision } from '../research/decision.js';
@@ -45,7 +45,13 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
   const time = resolveQuestionTime(normalized, now);
   const currentSensitive = intent.currentSensitive || time.currentSensitive;
   const requiredEvidence = [...(REQUIRED_BY_INTENT[intent.primary] || [])];
-  const sessionEvidence = currentSensitive ? createMarketSessionEvidence({ now, schedule: sessionSchedule, market: 'US' }) : null;
+  const market = entities.entities.some((entity) => entity.market === 'KR') ? 'KR' : 'US';
+  const sessionScheduleResolved = currentSensitive
+    ? resolveMarketSessionSchedule({ market, now, root, supplied: sessionSchedule })
+    : null;
+  const sessionEvidence = currentSensitive
+    ? createMarketSessionEvidence({ now, schedule: sessionScheduleResolved, market })
+    : null;
   if (currentSensitive && !requiredEvidence.includes('market-session')) requiredEvidence.unshift('market-session');
   const plan = {
     schemaVersion: AI_QUESTION_PLAN_VERSION,
@@ -54,7 +60,7 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     route: route || null,
     intent,
     entities,
-    market: entities.entities.some((entity) => entity.market === 'KR') ? 'KR' : 'US',
+    market,
     timeframe: time.timeframe,
     requestedDepth: intent.requestedDepth,
     userLevel: userLevel || 'unspecified',

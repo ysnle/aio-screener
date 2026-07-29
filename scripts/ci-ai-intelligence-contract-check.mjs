@@ -37,9 +37,11 @@ for (const [query, expected] of cases) {
 }
 
 const unknownSession = createMarketSessionEvidence({ market: 'US', now: '2026-07-28T12:00:00Z' });
-check('market-session-unknown-is-not-open', unknownSession.status === 'unknown' && unknownSession.isOpen === null && validateMarketSessionEvidence(unknownSession).ok);
+check('market-session-unknown-is-not-open', unknownSession.status === 'unknown' && unknownSession.isOpen === null && validateMarketSessionEvidence(unknownSession).ok === false);
 const openSession = createMarketSessionEvidence({ market: 'US', now: '2026-07-28T12:00:00Z', schedule: { status: 'open', session: 'regular', source: 'test' } });
 check('market-session-typed-open', openSession.status === 'open' && openSession.isOpen === true && openSession.verified === true);
+const krPlan = createQuestionPlan({ query: '005930.KS 오늘 어때?', route: 'home', root: { _getKrxSession: () => 'open' }, now: '2026-07-28T12:00:00Z' });
+check('market-session-uses-resolved-market', krPlan.market === 'KR' && krPlan.sessionEvidence?.market === 'KR' && krPlan.sessionEvidence?.status === 'open' && krPlan.sessionEvidence?.verified === true);
 
 const invalidProbabilityPlan = createAnswerPlan({
   summary: 'invalid probability',
@@ -107,6 +109,12 @@ check('research-plan-is-wired-to-chat', /_aiResearchPlanSearch/.test(chat) && /r
 check('research-capability-is-separate', /getAIResearchCapability/.test(bootstrap) && /validateAIResearchCapability/.test(bootstrap) && /chatReadiness/.test(read('src/ai/research/capability.js')));
 check('research-native-tool-errors-are-promoted', /web_search_tool_result_error/.test(chat) && /_aioLastClaudeResearchError/.test(chat));
 check('deep-search-has-no-fixed-year', !/(latest news earnings|policy outlook|geopolitical risk latest|investment trend latest) 2026/.test(chat));
+check('research-gate-shared-by-both-surfaces', /_aioEvaluateAIResearchGate/.test(chat) && /_aioEvaluateAIResearchGate/.test(read('index.html')) && /_aiResearchPlanSearch/.test(read('index.html')));
+check('request-plan-is-explicit-not-global', !chat.includes('_aioActiveQuestionPlan') && !read('index.html').includes('_aioActiveQuestionPlan') && chat.includes('questionPlan: questionPlan') && read('index.html').includes('questionPlan: _uniQuestionPlan'));
+check('research-partial-results-preserve-query-index', /settled\.map\(function\(row, index\)/.test(chat) && /specs\[item\.index\]\.queryId/.test(chat));
+check('fred-official-host-is-correct', chat.includes('fred\\.stlouisfed\\.org'));
+check('quote-provenance-is-persisted', core.includes('observedAt: observedAt') && core.includes('fetchedAt: fetchedAt') && core.includes('marketState: provenanceOpts.marketState'));
+check('sentiment-does-not-stamp-missing-observation-now', !/raw\[field\.observedAt\]\s*\|\|\s*raw\.now/.test(read('src/data/orchestrators/sentiment.js')));
 
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);

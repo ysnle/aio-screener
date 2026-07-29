@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.57';
+const APP_VERSION = 'v53.58';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -17965,7 +17965,14 @@ const PriceStore = {
     }
     const ts = Date.now();
     var metric = (typeof makeMetric === 'function') ? makeMetric(price, source || 'unknown', ts, 'quote', { pct: pct, pctMissing: pctMissing }) : null;
-    this._data[sym] = { price, pct, source: source || 'unknown', ts: ts, stale: false, pctMissing: pctMissing, metric: metric, quality: metric };
+    this._data[sym] = {
+      price, pct, source: source || 'unknown', ts: ts, stale: false, pctMissing: pctMissing, metric: metric, quality: metric,
+      observedAt: opts.observedAt || null,
+      fetchedAt: opts.fetchedAt || null,
+      marketState: opts.marketState || null,
+      venue: opts.venue || null,
+      regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null
+    };
     this._prev[sym] = price;
     this._stats.accepted++;
     window._liveData = window._liveData || {};
@@ -17977,12 +17984,21 @@ const PriceStore = {
       stale: false,
       pctMissing: pctMissing,
       metric: metric,
-      quality: metric
+      quality: metric,
+      observedAt: opts.observedAt || null,
+      fetchedAt: opts.fetchedAt || null,
+      marketState: opts.marketState || null,
+      venue: opts.venue || null,
+      regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null
     });
     window._quoteTimestamps = window._quoteTimestamps || {};
     window._quoteTimestamps[sym] = ts;
     window._dataSource = window._dataSource || {};
-    window._dataSource[sym] = { source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing, policyKey: 'quote', metric: metric };
+    window._dataSource[sym] = {
+      source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing, policyKey: 'quote', metric: metric,
+      observedAt: opts.observedAt || null, fetchedAt: opts.fetchedAt || null,
+      marketState: opts.marketState || null, venue: opts.venue || null
+    };
     if (!opts.deferDomAnnotation && window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
       window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });
     }
@@ -18327,8 +18343,19 @@ window._aioSetLiveData = function(sym, data, meta) {
       });
     }
   } catch(_crossRecordSetLive) {}
+  var observedAt = data.observedAt || data.regularMarketTime || data.timestamp || data.lastUpdated || meta.observedAt || null;
+  if (typeof observedAt === 'number' && observedAt > 0 && observedAt < 1e12) observedAt = new Date(observedAt * 1000).toISOString();
+  var fetchedAt = data.fetchedAt || meta.fetchedAt || null;
+  var provenanceOpts = {
+    observedAt: observedAt,
+    fetchedAt: fetchedAt,
+    marketState: data.marketState || data.marketSession || meta.marketState || null,
+    venue: data.venue || meta.venue || null,
+    regularMarketPreviousClose: data.regularMarketPreviousClose || data.chartPreviousClose || data.previousClose || meta.previousClose || null,
+    previousClose: data.previousClose || meta.previousClose || null
+  };
   if (source.indexOf('live:') === 0 && !meta.bypassPriceStore && window.PriceStore && typeof window.PriceStore.set === 'function') {
-    return window.PriceStore.set(sym, price, pct, source);
+    return window.PriceStore.set(sym, price, pct, source, provenanceOpts);
   }
   var operationalQuoteSource = window.AIO && typeof window.AIO.isOperationalQuoteSource === 'function'
     ? window.AIO.isOperationalQuoteSource(source)
@@ -18345,10 +18372,19 @@ window._aioSetLiveData = function(sym, data, meta) {
     stale: metric ? metric.stale : !!meta.stale,
     pctMissing: pct == null || !isFinite(Number(pct)),
     metric: metric,
-    quality: metric
+    quality: metric,
+    observedAt: observedAt,
+    fetchedAt: fetchedAt,
+    marketState: provenanceOpts.marketState,
+    venue: provenanceOpts.venue,
+    regularMarketPreviousClose: provenanceOpts.regularMarketPreviousClose
   });
   window._dataSource = window._dataSource || {};
-  window._dataSource[sym] = { source: source, ts: metric ? metric.ts : ts, pctMissing: pct == null || !isFinite(Number(pct)), policyKey: policyKey, metric: metric, reason: meta.reason || null };
+  window._dataSource[sym] = {
+    source: source, ts: metric ? metric.ts : ts, pctMissing: pct == null || !isFinite(Number(pct)), policyKey: policyKey, metric: metric,
+    reason: meta.reason || null, observedAt: observedAt, fetchedAt: fetchedAt,
+    marketState: provenanceOpts.marketState, venue: provenanceOpts.venue
+  };
   if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
     window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });
   }

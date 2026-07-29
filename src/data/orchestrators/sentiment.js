@@ -18,7 +18,7 @@ export function createSentimentOrchestrator({ provider, evidenceStore, store, co
       }
       const sourceKind = raw[`${field.metric}SourceKind`] || field.sourceKind;
       const source = raw[`${field.metric}Source`] || sourceKind;
-      const observedAt = field.observedAt === 'now' ? raw.now : raw[field.observedAt] || raw.now;
+      const observedAt = field.observedAt === 'now' ? raw.now : (field.observedAt ? raw[field.observedAt] || null : null);
       const referenceOnly = sourceKind === 'snapshot' || sourceKind === 'delayed' || sourceKind === 'reference';
       const status = value == null ? 'missing' : sourceKind === 'snapshot' ? 'snapshot' : 'live';
       const input = {

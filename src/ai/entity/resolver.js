@@ -5,7 +5,9 @@ const ALIASES = Object.freeze({
   테슬라: 'TSLA', tesla: 'TSLA', 아마존: 'AMZN', amazon: 'AMZN', 구글: 'GOOGL', 알파벳: 'GOOGL', alphabet: 'GOOGL',
   메타: 'META', meta: 'META', 브로드컴: 'AVGO', broadcom: 'AVGO', 팔란티어: 'PLTR', palantir: 'PLTR',
   반도체: 'SMH', semiconductor: 'SMH', 소프트웨어: 'IGV', software: 'IGV', 나스닥: '^IXIC', nasdaq: '^IXIC',
-  에스앤피: '^GSPC', 's&p': '^GSPC', sp500: '^GSPC', 달러인덱스: 'DX-Y.NYB', dxy: 'DX-Y.NYB'
+  에스앤피: '^GSPC', 's&p': '^GSPC', sp500: '^GSPC', 달러인덱스: 'DX-Y.NYB', dxy: 'DX-Y.NYB',
+  삼성전자: '005930.KS', sk하이닉스: '000660.KS', 현대차: '005380.KS',
+  코스피: '^KS11', 코스닥: '^KQ11', krx: '^KS11'
 });
 
 function text(value) { return String(value == null ? '' : value).trim(); }
@@ -23,7 +25,8 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
   const add = (symbol, alias = null, kind = 'ticker') => {
     const normalized = text(symbol).toUpperCase();
     if (!normalized || found.has(normalized)) return;
-    found.set(normalized, { symbol: normalized, alias: alias || normalized, kind, market: /\.KS$|\.KQ$/.test(normalized) ? 'KR' : normalized.startsWith('^') ? 'INDEX' : 'US' });
+    const isKr = /\.KS$|\.KQ$/.test(normalized) || /^\^(?:KS11|KQ11)$/i.test(normalized);
+    found.set(normalized, { symbol: normalized, alias: alias || normalized, kind, market: isKr ? 'KR' : normalized.startsWith('^') ? 'INDEX' : 'US' });
   };
   const tickerPattern = /\b(?:[A-Z]{1,6}(?:\.(?:KS|KQ|T|TW|HK))?|\^?[A-Z]{2,6}|\d{6}\.(?:KS|KQ))\b/g;
   (source.match(tickerPattern) || []).forEach((symbol) => {

@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-27
 confidence: high
 
-## Current architecture checkpoint (2026-07-28, v53.56)
+## Current architecture checkpoint (2026-07-29, v53.58)
 
 Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
   home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
@@ -13,9 +13,20 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.56
-latest_P_covered: P850
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846/P847/P848/P849 intelligence contracts are locally verified, with post-push remote CI and provider/live Worker/model verification still separate
+checklist_version: v53.58
+latest_P_covered: P852
+current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846/P847/P848/P849/P850/P851/P852 intelligence and evidence contracts are locally verified after the full post-push suite, with provider/live Worker/model verification still separate
+
+## P852 Web Research, session, provenance, concurrency, and accessibility closure (v53.58)
+
+- [x] Per-page and unified chat pass the same immutable `questionPlan` through the request envelope; no mutable global plan is used for request creation or response validation.
+- [x] REQUIRED ResearchPlan questions use one shared evidence-floor gate across external and native citations; missing primary/independent/snippet-free evidence fails closed.
+- [x] KR aliases/indices resolve to `market: KR`; runtime session schedules are typed and unknown/unverified sessions cannot satisfy the current-sensitive response gate.
+- [x] Snapshot/legacy quote storage preserves `observedAt`, `fetchedAt`, `marketState`, `venue`, and previous-close provenance; missing observation time is not replaced with `raw.now`.
+- [x] `Promise.allSettled` Research sub-results preserve source query identity after partial failures; FRED `.org` is classified as official and Google snippet depth is per document.
+- [x] Mobile interactive target sizing is enforced at 26px minimum for the audited controls; accessibility CI blocks any remaining small target.
+- [ ] Architecture migration remains `MIGRATION_IN_PROGRESS` for native data/chart/narrative ownership; no completion claim is allowed until the remaining route owners are independently cut over.
+- [ ] Public beta remains blocked on operator criteria: fast-plane endpoint/7-day soak, provider rights, edge headers, 30-day SLO, Worker route, quota/origin, and live model certification.
 
 ## P850 Web Research, source evidence, and market-session closure (2026-07-28, v53.56)
 

@@ -15,7 +15,6 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
   const plan = (input = {}) => {
     const questionPlan = createQuestionPlan({ ...input, root, now: input.now || now() });
     lastPlan = questionPlan;
-    if (root) root._aioActiveQuestionPlan = questionPlan;
     audit.push({ queryId: questionPlan.queryId, route: questionPlan.route, intent: questionPlan.intent.primary, research: questionPlan.researchDecision?.requirement || 'UNKNOWN', generatedAt: questionPlan.generatedAt });
     if (audit.length > 100) audit.splice(0, audit.length - 100);
     return questionPlan;

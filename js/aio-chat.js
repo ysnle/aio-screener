@@ -31,7 +31,7 @@ function _aioCreateAIRequestObject(entrypoint, meta) {
     ? window.AIO.createAIConversationState({ sessionId: meta.sessionId, route: meta.route || meta.ctxId, ctxId: meta.ctxId, entityKey: meta.entityKey }) : null;
   if (conversation && window.AIO && typeof window.AIO.beginAIConversationTurn === 'function') conversation = window.AIO.beginAIConversationTurn(conversation, { requestId: requestId, route: meta.route || meta.ctxId, entityKey: meta.entityKey });
   var idempotencyKey = meta.idempotencyKey || requestId;
-  var questionPlan = meta.questionPlan || (typeof window !== 'undefined' && window._aioActiveQuestionPlan) || null;
+  var questionPlan = meta.questionPlan || null;
   var isolationKey = (window.AIO && typeof window.AIO.buildAIIsolationCacheKey === 'function')
     ? window.AIO.buildAIIsolationCacheKey({ tenantId: meta.tenantId || meta.tenantKey, sessionId: conversation && conversation.sessionId, route: conversation && conversation.route || meta.route || meta.ctxId, entityKey: conversation && conversation.entityKey || meta.entityKey, evidence: meta.evidence || [], model: meta.model, promptVersion: meta.promptVersion }) : null;
   var request = {
@@ -59,6 +59,86 @@ function _aioCreateAIRequestObject(entrypoint, meta) {
   };
   if (window.AIO && typeof window.AIO.beginAIIdempotentRequest === 'function') window.AIO.beginAIIdempotentRequest(idempotencyKey, { requestId: requestId });
   return request;
+}
+
+// v53.58/P852: one research evidence floor for both chat surfaces. Native
+// Claude citations are normalized into the same host/source contract as the
+// external ResearchPlan adapter; a citation count alone is never sufficient.
+function _aioBuildResearchEvidenceDocuments(citations) {
+  var officialSuffixes = [
+    'sec.gov', 'bls.gov', 'bea.gov', 'federalreserve.gov', 'fred.stlouisfed.org',
+    'cboe.com', 'bok.or.kr', 'kosis.kr', 'nasdaq.com'
+  ];
+  var rows = [];
+  var seen = {};
+  (Array.isArray(citations) ? citations : []).forEach(function(item, index) {
+    var url = typeof item === 'string' ? item : item && item.url;
+    if (!url) return;
+    var host = '';
+    try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch(_) { host = String(url); }
+    if (!host || seen[host + '|' + url]) return;
+    seen[host + '|' + url] = true;
+    var primary = officialSuffixes.some(function(suffix) { return host === suffix || host.endsWith('.' + suffix); });
+    rows.push({
+      documentId: 'web:' + index + ':' + host,
+      canonicalUrl: String(url),
+      publisher: host,
+      sourceTier: primary ? 'PRIMARY_OFFICIAL' : 'SECONDARY',
+      primaryOrSecondary: primary ? 'PRIMARY' : 'SECONDARY',
+      contentDepth: 'EXCERPT',
+      allowedUse: 'research-reference'
+    });
+  });
+  return rows;
+}
+
+function _aioEvaluateAIResearchGate(input) {
+  input = input || {};
+  var plan = input.questionPlan || {};
+  var decision = plan.researchDecision || {};
+  var required = input.required === true || decision.requirement === 'REQUIRED';
+  if (!required) return { required: false, ready: true, reason: 'research-not-required', evidenceDocuments: [] };
+  var stop = plan.researchPlan && plan.researchPlan.stopConditions || {};
+  var external = input.externalResult && input.externalResult.researchEvidence;
+  var externalDocs = external && Array.isArray(external.evidenceDocuments) ? external.evidenceDocuments : [];
+  var externalCitations = input.externalResult && Array.isArray(input.externalResult.citations) ? input.externalResult.citations : [];
+  var nativeCitations = input.nativeCitations || [];
+  var nativeDocs = _aioBuildResearchEvidenceDocuments(nativeCitations);
+  var meetsFloor = function(docs, citations, requireCurrentClaims) {
+    var independent = new Set(docs.map(function(doc) { return String(doc.publisher || '').toLowerCase(); }).filter(Boolean)).size;
+    var primary = docs.filter(function(doc) { return doc.primaryOrSecondary === 'PRIMARY' || doc.sourceTier === 'PRIMARY_OFFICIAL'; }).length;
+    var snippetFree = docs.length > 0 && docs.every(function(doc) { return doc.contentDepth !== 'SNIPPET'; });
+    return citations.length > 0 && docs.length > 0 && snippetFree && independent >= Number(stop.minimumIndependentSources || 0) && primary >= Number(stop.minimumPrimarySources || 0) && (!requireCurrentClaims || external.currentClaimsAllowed === true);
+  };
+  var externalReady = !!external && meetsFloor(externalDocs, externalCitations, true);
+  var nativeReady = meetsFloor(nativeDocs, nativeCitations, false);
+  var ready = externalReady || nativeReady;
+  var docs = externalReady ? externalDocs : nativeReady ? nativeDocs : (externalDocs.length ? externalDocs : nativeDocs);
+  var citations = externalReady ? externalCitations : nativeReady ? nativeCitations : (externalCitations.length ? externalCitations : nativeCitations);
+  var independent = new Set(docs.map(function(doc) { return String(doc.publisher || '').toLowerCase(); }).filter(Boolean)).size;
+  var primary = docs.filter(function(doc) { return doc.primaryOrSecondary === 'PRIMARY' || doc.sourceTier === 'PRIMARY_OFFICIAL'; }).length;
+  var currentClaimsAllowed = externalReady ? true : false;
+  return {
+    required: true,
+    ready: ready,
+    reason: ready ? 'research-evidence-floor-met' : (input.error ? 'research-provider-error' : 'research-evidence-floor-not-met'),
+    evidenceDocuments: docs,
+    citationCount: citations.length,
+    independentSourceCount: independent,
+    primarySourceCount: primary,
+    currentClaimsAllowed: currentClaimsAllowed
+  };
+}
+
+if (typeof window !== 'undefined') {
+  var _researchEvidenceDescriptor = Object.getOwnPropertyDescriptor(window, '_aioBuildResearchEvidenceDocuments');
+  if (!_researchEvidenceDescriptor || _researchEvidenceDescriptor.configurable) {
+    Object.defineProperty(window, '_aioBuildResearchEvidenceDocuments', { value: _aioBuildResearchEvidenceDocuments, configurable: true });
+  }
+  var _researchGateDescriptor = Object.getOwnPropertyDescriptor(window, '_aioEvaluateAIResearchGate');
+  if (!_researchGateDescriptor || _researchGateDescriptor.configurable) {
+    Object.defineProperty(window, '_aioEvaluateAIResearchGate', { value: _aioEvaluateAIResearchGate, configurable: true });
+  }
 }
 
 function _aioBeginAIRequestAttempt(request, model) {
@@ -110,8 +190,9 @@ function _aioRecordAIResponseManifest(result) {
 function _aioRunAIResponsePipeline(rawText, meta) {
   meta = meta || {};
   var request = meta.request || _aioCreateAIRequestObject(meta.entrypoint, meta);
-  var questionPlan = meta.questionPlan || request.questionPlan || (typeof window !== 'undefined' && window._aioActiveQuestionPlan) || null;
+  var questionPlan = meta.questionPlan || request.questionPlan || null;
   var currentSensitive = meta.currentSensitive === true || !!(questionPlan && questionPlan.currentSensitive === true);
+  var researchRequired = meta.researchRequired === true || !!(questionPlan && questionPlan.researchDecision && questionPlan.researchDecision.requirement === 'REQUIRED');
   if (typeof window !== 'undefined' && request && request.requestId) window._aioActiveAIRequestId = request.requestId;
   var visible = String(rawText == null ? '' : rawText);
   if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
@@ -182,7 +263,9 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   // AIQ-P0-03/P0-12: current-sensitive numeric output is fail-closed unless the
   // strict AnswerPlan/ClaimLedger and MarketSessionEvidence contracts are present.
   // Non-current educational prose keeps the legacy disclosure-only behavior.
-  if (currentSensitive && (!questionPlan || !questionPlan.sessionEvidence || !questionPlan.sessionEvidence.observedAt)) {
+  var sessionEvidence = questionPlan && questionPlan.sessionEvidence;
+  var sessionReady = !!(sessionEvidence && sessionEvidence.verified === true && sessionEvidence.observedAt && /^(open|closed|pre|post)$/.test(sessionEvidence.status));
+  if (currentSensitive && !sessionReady) {
     gate = {
       blocked: true,
       text: 'AI 베타 안전 모드\n\n시장 세션 근거가 없어 현재성 답변을 표시하지 않습니다. 장중/장외 상태와 기준시각을 먼저 확인하세요.',
@@ -200,6 +283,13 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       text: gate.text + '\n\n※ 이 답변의 수치는 typed-claim 자동 검증을 거치지 않았습니다(모델이 claim envelope 미제출). 기준시각과 원문을 직접 확인하세요.',
       unverifiedNumericNotice: true
     });
+  }
+  if (researchRequired && (!meta.researchGate || meta.researchGate.ready !== true)) {
+    gate = {
+      blocked: true,
+      text: 'AI 베타 안전 모드\n\nResearchPlan의 공식·독립 출처 기준을 충족하지 못해 현재성·원인 주장을 표시하지 않습니다. 검색 결과와 기준시각을 확인하세요.',
+      reasons: (gate.reasons || []).concat(['research-evidence-floor-required'])
+    };
   }
   var result = {
     request: request,
@@ -3374,7 +3464,7 @@ function _needsWebSearch(query, ctxId) {
 // 휴리스틱: 최근/오늘/뉴스/발표/실적/M&A/breaking 관련 질문일 때만 tool enable.
 // 비용 가드: max_uses:3 + 사용자 토글 (localStorage.aio_web_search_enabled = 'off')
 // ─────────────────────────────────────────────────────────────────
-function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers) {
+function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers, questionPlan) {
   if (!query) return false;
   window._aioWebSearchCapped = false;
   // 사용자 명시 opt-out
@@ -3387,7 +3477,7 @@ function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers) {
   // current/causal question is REQUIRED and no external provider is ready,
   // native Claude search is the only eligible fallback; optional heuristics
   // must not silently downgrade it to a memory-only answer.
-  var _activeResearchDecision = window._aioActiveQuestionPlan && window._aioActiveQuestionPlan.researchDecision;
+  var _activeResearchDecision = questionPlan && questionPlan.researchDecision;
   var _researchRequired = _activeResearchDecision && _activeResearchDecision.requirement === 'REQUIRED' && !_activeResearchDecision.userOptOut;
   if (_researchRequired) _want = true;
   var _hasTicker = Array.isArray(detectedTickers) && detectedTickers.length > 0;
@@ -3659,8 +3749,10 @@ async function _aiResearchPlanSearch(researchPlan) {
   var settled = await Promise.allSettled(specs.map(function(spec) {
     return _aiWebSearch(spec.query, { locale: spec.locale, allowedDomains: spec.allowedDomains, recency: spec.recency, planId: researchPlan.planId, session: researchPlan.eventWindow && researchPlan.eventWindow.asOf });
   }));
-  var fulfilled = settled.filter(function(row) { return row.status === 'fulfilled' && row.value && row.value.answer; }).map(function(row, index) {
-    return { queryId: specs[index].queryId, purpose: specs[index].purpose, result: row.value };
+  var fulfilled = settled.map(function(row, index) { return { row: row, index: index }; }).filter(function(item) {
+    return item.row.status === 'fulfilled' && item.row.value && item.row.value.answer;
+  }).map(function(item) {
+    return { queryId: specs[item.index].queryId, purpose: specs[item.index].purpose, result: item.row.value };
   });
   if (!fulfilled.length) {
     var noResults = new Error('RESEARCH_RESULTS_EMPTY: 모든 Research sub-query가 실패했습니다.');
@@ -3673,14 +3765,14 @@ async function _aiResearchPlanSearch(researchPlan) {
     (result.citations || []).forEach(function(url) { if (url && citations.indexOf(url) < 0) citations.push(url); });
     return '[' + item.queryId + '|' + item.purpose + ']\n' + result.answer;
   }).join('\n\n');
-  var officialHost = /(^|\.)((sec|cboe|bls|bea|fred\.stlouisfed|federalreserve|bok|kosis)\.gov|cboe\.com|bok\.or\.kr|kosis\.kr)$/i;
+  var officialHost = /(^|\.)((sec|bls|bea|federalreserve)\.gov|fred\.stlouisfed\.org|cboe\.com|bok\.or\.kr|kosis\.kr|nasdaq\.com)$/i;
   var sourceHosts = {};
   var evidenceDocuments = citations.slice(0, 12).map(function(url, index) {
     var host = '';
     try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch(_) { host = String(url || ''); }
     sourceHosts[host] = true;
     var primary = officialHost.test(host);
-    var snippetOnly = fulfilled.some(function(item) { return item.result.engine === 'google'; });
+    var snippetOnly = fulfilled.some(function(item) { return item.result.engine === 'google' && (item.result.citations || []).indexOf(url) >= 0; });
     return {
       documentId: 'web:' + index + ':' + host,
       canonicalUrl: url,
@@ -4629,6 +4721,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   }
 
   var q = inp.value.trim();
+  var _aioQuestionPlan = (_aioDispatchOptions && _aioDispatchOptions.questionPlan) || null;
   if (!q) {
     // 빈 입력 — inline 미세 안내 (toast는 spam되므로 input border 강조만)
     try {
@@ -4651,8 +4744,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         route: ctxId,
         surface: 'per-page-chat',
         legacyRunner: function(questionPlan) {
-          window['_aioActiveQuestionPlan'] = questionPlan;
-          return chatSend(ctxId, { _aioOrchestrated: true });
+          return chatSend(ctxId, { _aioOrchestrated: true, questionPlan: questionPlan });
         }
       });
     }
@@ -4839,7 +4931,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   // v36.2: 웹검색 — 최신 정보가 필요한 질문이면 자동 검색 (Perplexity > Google 폴백)
   var webSearchResult = null;
   var webSearchStr = '';
-  var _activeQuestionPlanForResearch = window._aioActiveQuestionPlan || {};
+  var _activeQuestionPlanForResearch = _aioQuestionPlan || {};
   var _researchDecisionForChat = _activeQuestionPlanForResearch.researchDecision || null;
   var _researchPlanForChat = _activeQuestionPlanForResearch.researchPlan || null;
   var _researchRequiredForChat = !!(_researchDecisionForChat && _researchDecisionForChat.requirement === 'REQUIRED');
@@ -5103,7 +5195,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   // v49.57 P318: Claude web_search 조건부 활성화 휴리스틱 평가
   var _useClaudeWebSearch = false;
   try {
-    _useClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers);
+    _useClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _aioQuestionPlan);
   } catch(_wsErr) { _useClaudeWebSearch = false; }
   if (_researchRequiredForChat && !_researchDecisionForChat.userOptOut && (!_hasExternalResearchProvider || _researchFailureForChat)) _useClaudeWebSearch = true;
   if (_useClaudeWebSearch) {
@@ -5131,7 +5223,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 
   // v52.76/WP-AI1: one request object survives initial call and retries.
   var _pageAIRequest = typeof _aioCreateAIRequestObject === 'function'
-    ? _aioCreateAIRequestObject('per-page-chat', { ctxId: ctxId, query: q, model: selectedModelKey })
+     ? _aioCreateAIRequestObject('per-page-chat', { ctxId: ctxId, query: q, model: selectedModelKey, questionPlan: _aioQuestionPlan })
     : null;
   if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_pageAIRequest, selectedModelKey);
 
@@ -5145,7 +5237,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         aiBubble = chatAppendMsg(ctxId, 'ai', '', 'chat-' + ctxId + '-streaming');
       }
       var _pageChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
-         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'partial', record: false })
+         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'partial', record: false })
         : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
       var visible = _pageChunkResult.text;
       // Native web_search citations arrive after text deltas. Do not stream a
@@ -5185,20 +5277,18 @@ async function chatSend(ctxId, _aioDispatchOptions) {
       if (loadEl) { var loadWrap = loadEl.closest('.acp-msg') || loadEl.parentNode; if (loadWrap && loadWrap.parentNode) loadWrap.parentNode.removeChild(loadWrap); }
 
       var streamEl = document.getElementById('chat-' + ctxId + '-streaming');
+      var _pageResearchGate = typeof _aioEvaluateAIResearchGate === 'function'
+        ? _aioEvaluateAIResearchGate({ questionPlan: _aioQuestionPlan, required: _researchRequiredForChat, externalResult: webSearchResult, nativeCitations: _useClaudeWebSearch ? (window._aioLastClaudeCitations || []) : [], error: webSearchResult ? null : (_researchFailureForChat || window._aioLastClaudeResearchError) })
+        : { required: _researchRequiredForChat, ready: !_researchRequiredForChat, reason: 'research-gate-unavailable' };
       var _pageDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
-         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'complete' })
+         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, researchGate: _pageResearchGate, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'complete' })
         : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
       var visible = _pageDoneResult.text;
-      var _claudeResearchCitations = (window._aioLastClaudeCitations || []);
-      var _nativeResearchReady = !!(_useClaudeWebSearch && _claudeResearchCitations.length > 0 && !window._aioLastClaudeResearchError);
-      var _externalEvidence = webSearchResult && webSearchResult.researchEvidence;
-      var _externalResearchReady = !!(webSearchResult && Array.isArray(webSearchResult.citations) && webSearchResult.citations.length > 0 &&
-        (!_researchRequiredForChat || (_externalEvidence && _externalEvidence.currentClaimsAllowed === true)));
-      var _researchEvidenceReady = _externalResearchReady || _nativeResearchReady;
+      var _researchEvidenceReady = !_researchRequiredForChat || _pageResearchGate.ready;
       var _publicGate = _pageDoneResult.actionGate;
       if (_researchRequiredForChat && !_researchEvidenceReady) {
         visible = 'Web Research를 완료하지 못해 현재성·원인 주장을 표시하지 않습니다. ' +
-          ((_researchFailureForChat && _researchFailureForChat.message) || window._aioLastClaudeResearchError || '공식·독립 출처를 확인할 수 없습니다.') +
+          ((_researchFailureForChat && _researchFailureForChat.message) || window._aioLastClaudeResearchError || _pageResearchGate.reason || '공식·독립 출처를 확인할 수 없습니다.') +
           '\n\n검색 공급자 키, Worker의 Research capability, quota, 허용 Origin을 확인한 뒤 다시 시도하세요.';
         _publicGate = { blocked: true, reason: (_researchFailureForChat && _researchFailureForChat.code) || 'RESEARCH_REQUIRED_BUT_UNAVAILABLE' };
       }

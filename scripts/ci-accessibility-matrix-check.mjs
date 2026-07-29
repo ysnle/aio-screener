@@ -61,7 +61,7 @@ async function main() {
       }, routeKey);
       result.routes.push(audit);
     }
-    result.status = result.routes.some((r) => !r.active || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length) || result.consoleErrors.length ? 'fail' : 'pass';
+    result.status = result.routes.some((r) => !r.active || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length || r.smallTargetCount > 0) || result.consoleErrors.length ? 'fail' : 'pass';
   } catch (error) {
     result.status = 'fail';
     result.error = error.stack || error.message;

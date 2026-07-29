@@ -1,3 +1,10 @@
+## v53.58 (2026-07-29)
+- **P852 / unified AI research boundary**: unified and per-page chat now share one ResearchPlan/evidence-floor gate, with explicit request-bound QuestionPlan envelopes and fail-closed current/causal output when primary/independent/snippet-free evidence is missing.
+- **P852 / market/data provenance**: KR aliases/indices resolve to the correct market session; unknown/unverified sessions fail closed; snapshot/legacy quote storage preserves observation/fetch/session/venue/previous-close lineage; missing sentiment observation time is no longer stamped with `now`.
+- **P852 / reliability and accessibility**: partial Research results retain sub-query identity after failures, FRED `.org` is official, Google snippet depth is per document, and mobile accessibility target warnings are release-blocking with a 26px control minimum.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.58
+
 ## v53.57 (2026-07-28)
 - **P851 / AI chat typed-evidence false blocking**: normalized chat freshness quote rows into the shared typed `value`/`unit`/`scale`/`asOf`/`source`/`evidenceId` contract before claim validation, so valid current quote claims are no longer rejected because the adapter only exposed `price`.
 - Added one evidence registry prompt for per-page and unified chat. Current numeric claims must still bind to one matching evidence row; general education, concepts, and framework explanations remain available without this restriction.

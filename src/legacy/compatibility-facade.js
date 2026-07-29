@@ -13,6 +13,16 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+// Quote timestamps are a shared compatibility boundary for every legacy
+// projection.  Keep the snapshot-only `ts` fallback explicit so a live quote
+// without an observation timestamp is never presented as current.
+function readQuoteObservedAt(live, symbol) {
+  const row = live?.[symbol] || {};
+  return row.observedAt || row.timestamp || row.lastUpdated
+    || (String(row.source || '').startsWith('snapshot:') ? row.ts : null)
+    || null;
+}
+
 function readLegacy(root) {
   const live = root?._liveData || {};
   const snapshot = root?.DATA_SNAPSHOT || {};
@@ -20,7 +30,6 @@ function readLegacy(root) {
   const fgMeta = root?._lastFGMeta || {};
   const fg = finite(canonicalFg?.value) ?? finite(root?._lastFG) ?? finite(snapshot.fg);
   const quote = (symbol) => finite(live[symbol]?.price);
-  const quoteObservedAt = (symbol) => live[symbol]?.observedAt || live[symbol]?.timestamp || live[symbol]?.lastUpdated || null;
   const payload = root?._lastPutCallPayload || {};
   const vixHistory = Array.isArray(root?._vixHistory) ? root._vixHistory.slice(-30).map((point) => ({
     date: point?.date || null,
@@ -32,13 +41,13 @@ function readLegacy(root) {
     fearGreedSource: canonicalFg?.source || canonicalFg?.sourceLabel || fgMeta.sourceLabel || 'DATA_SNAPSHOT:fear-greed',
     fearGreedObservedAt: canonicalFg?.asOf || canonicalFg?.observedAt || fgMeta.sourceTs || snapshot._updated || snapshot._snapshotDate || null,
     vix9d: quote('^VIX9D'),
-    vix9dObservedAt: quoteObservedAt('^VIX9D'),
+    vix9dObservedAt: readQuoteObservedAt(live, '^VIX9D'),
     vix: quote('^VIX'),
-    vixObservedAt: quoteObservedAt('^VIX'),
+    vixObservedAt: readQuoteObservedAt(live, '^VIX'),
     vix3m: quote('^VIX3M'),
-    vix3mObservedAt: quoteObservedAt('^VIX3M'),
+    vix3mObservedAt: readQuoteObservedAt(live, '^VIX3M'),
     vix6m: quote('^VIX6M'),
-    vix6mObservedAt: quoteObservedAt('^VIX6M'),
+    vix6mObservedAt: readQuoteObservedAt(live, '^VIX6M'),
     putCall: finite(root?._putCallRatio) ?? finite(payload.totalPutCall) ?? finite(snapshot.pcr),
     putCallSourceKind: payload.sourceKind || (root?._putCallRatio != null ? 'delayed' : 'snapshot'),
     putCallSource: payload.sourceLabel || (root?._putCallRatio != null ? 'CBOE options volume daily' : 'DATA_SNAPSHOT'),
@@ -61,7 +70,7 @@ function readMarket(root) {
   const quotes = Object.fromEntries(symbols.map((symbol) => [symbol, {
     value: finite(live[symbol]?.price),
     pct: finite(live[symbol]?.pct),
-    observedAt: live[symbol]?.observedAt || live[symbol]?.timestamp || live[symbol]?.lastUpdated || null,
+    observedAt: readQuoteObservedAt(live, symbol),
     source: live[symbol]?.source || 'legacy-live-data'
   }]));
   const metrics = {};
@@ -185,7 +194,7 @@ function readEntity(root) {
   const quote = id ? {
     value: finite(liveQuote.price),
     pct: finite(liveQuote.pct),
-    observedAt: liveQuote.observedAt || liveQuote.timestamp || liveQuote.lastUpdated || null,
+    observedAt: liveQuote.observedAt || liveQuote.timestamp || liveQuote.lastUpdated || (String(liveQuote.source || '').startsWith('snapshot:') ? liveQuote.ts : null) || null,
     source: liveQuote.source || 'legacy-live-data'
   } : null;
   const legacyOptions = root?._optionsAnalysisData || root?._optionsData || null;
@@ -195,7 +204,7 @@ function readEntity(root) {
     return {
       value,
       pct: finite(row.pct),
-      observedAt: row.observedAt || row.timestamp || row.lastUpdated || null,
+      observedAt: row.observedAt || row.timestamp || row.lastUpdated || (String(row.source || '').startsWith('snapshot:') ? row.ts : null) || null,
       source: row.source || 'legacy-live-data',
       sourceKind: value == null ? 'unavailable' : 'live'
     };

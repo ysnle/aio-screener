@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.57 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.58 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -5028,6 +5028,12 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #glossary-body .aio-glossary-item { padding:15px 0 !important; }
 #glossary-body .aio-glossary-term { color:var(--text-primary) !important; font-family:var(--font-display); font-size:15px !important; }
 @media (max-width:720px) {
+  /* WCAG 2.5.8: every mobile interactive target gets a measurable 24px
+     minimum.  Components with a larger visual target keep their own padding. */
+  button, [role="button"], a[href], input, select, textarea { min-height:26px; }
+  .q-chip, .chip, .news-sort-btn, .news-type-tab, .kr-tab, .kr-sector-tab { min-height:26px; display:inline-flex; align-items:center; }
+  #page-guide a[href^="https://github.com/"] { min-height:26px; display:inline-flex; align-items:center; }
+  #aio-first-visit-onboarding button { min-height:32px; }
   #glossary-modal > div { width:calc(100% - 20px) !important; max-height:92vh !important; }
   #glossary-modal > div > div:first-child, #glossary-body { padding-left:16px !important; padding-right:16px !important; }
   .aio-comp-secondary > summary, .aio-guide-chapter > summary { font-size:14px; }
@@ -5645,7 +5651,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.57</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.58</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12246,9 +12252,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.57" defer></script>
-  <script src="./js/aio-data.js?v=53.57" defer></script>
-  <script src="./js/aio-ui.js?v=53.57" defer></script>
+  <script src="./js/aio-core.js?v=53.58" defer></script>
+  <script src="./js/aio-data.js?v=53.58" defer></script>
+  <script src="./js/aio-ui.js?v=53.58" defer></script>
 
 
   <script>
@@ -14733,7 +14739,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.57" defer></script>
+<script src="./js/aio-chat.js?v=53.58" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23586,7 +23592,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.57" defer></script>
+<script src="./js/aio-glossary.js?v=53.58" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -26617,7 +26623,9 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
     closeBtn.type = 'button';
     closeBtn.setAttribute('aria-label', '시작 안내 닫기');
     closeBtn.textContent = '✕';
-    closeBtn.style.cssText = 'flex-shrink:0;align-self:flex-start;font-size:14px;color:var(--text-muted,#8a8471);background:none;border:none;cursor:pointer;padding:2px 6px;';
+    // Keep the dismiss affordance keyboard/touch reachable even though the
+    // visual glyph is intentionally compact (WCAG 2.5.8 target floor).
+    closeBtn.style.cssText = 'flex-shrink:0;align-self:flex-start;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-muted,#8a8471);background:none;border:none;cursor:pointer;padding:2px 6px;';
     closeBtn.addEventListener('click', dismissOnboarding);
     card.appendChild(txt);
     card.appendChild(btnWrap);
@@ -26923,6 +26931,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (!inp) { _aioLog('warn', 'debug', 'ai-panel-inp 없음'); return; }
   var q = inp.value.trim();
   if (!q) return;
+  var _uniQuestionPlan = (_aioDispatchOptions && _aioDispatchOptions.questionPlan) || null;
   // AIQ-0/AIQ-1: unified chat uses the same ESM QuestionPlan/Orchestrator as
   // per-page chat. The guarded callback retains only the legacy UI/provider adapter.
   if (!(_aioDispatchOptions && _aioDispatchOptions._aioOrchestrated === true) &&
@@ -26934,8 +26943,7 @@ async function chatSendUnified(_aioDispatchOptions) {
         route: _aiCurrentCtx,
         surface: 'unified-chat',
         legacyRunner: function(questionPlan) {
-          window['_aioActiveQuestionPlan'] = questionPlan;
-          return chatSendUnified({ _aioOrchestrated: true });
+          return chatSendUnified({ _aioOrchestrated: true, questionPlan: questionPlan });
         }
       });
     }
@@ -27101,15 +27109,29 @@ async function chatSendUnified(_aioDispatchOptions) {
       }
     }
 
-    // 5. 웹검색 — Deep Search 자동 트리거 (12s 타임아웃)
-    if (typeof _needsWebSearch === 'function' && typeof _aiWebSearch === 'function') {
+    // 5. 웹검색 — ResearchPlan을 통합 패널에도 적용한다. REQUIRED 질문은
+    // 휴리스틱 검색으로 강등하지 않고 sub-query별 provenance를 보존한다.
+    var _uniResearchDecision = _uniQuestionPlan && _uniQuestionPlan.researchDecision || null;
+    var _uniResearchPlan = _uniQuestionPlan && _uniQuestionPlan.researchPlan || null;
+    var _uniResearchRequired = !!(_uniResearchDecision && _uniResearchDecision.requirement === 'REQUIRED');
+    var _uniResearchFailure = null;
+    if (_uniResearchRequired && _uniResearchDecision.userOptOut) {
+      _uniResearchFailure = { code: 'DISABLED_BY_USER', message: '사용자가 웹 리서치를 비활성화했습니다.' };
+    } else if (_uniResearchRequired && _uniResearchPlan && typeof _aiResearchPlanSearch === 'function') {
+      try {
+        var _uniPlanResult = await _withTimeout(_aiResearchPlanSearch(_uniResearchPlan), 12000, 'research-plan');
+        if (_uniPlanResult && typeof _formatSearchForPrompt === 'function') {
+          var _uniPlanBlock = _formatSearchForPrompt(_uniPlanResult);
+          if (_uniPlanBlock && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') _uniPlanBlock = window.AIO.buildAIUntrustedBlock('WEB_SEARCH', _uniPlanBlock);
+          sysPrompt += _uniPlanBlock; _uniWebResult = _uniPlanResult;
+        }
+      } catch(re) { _uniResearchFailure = { code: re.code || 'RESEARCH_PROVIDER_ERROR', message: re.message || 'research_failed' }; }
+    } else if (!_uniResearchRequired && typeof _needsWebSearch === 'function' && typeof _aiWebSearch === 'function') {
       var searchQuery = _needsWebSearch(q, ctxId);
       if (searchQuery) {
         try {
-          // 복합 질문(50자+ 또는 티커+맥락) → Deep Search
           var isComplex = q.length > 50 || (detectedTickers.length > 0 && /전망|분석|비교|어때|어떻|최근|상황/.test(q));
           var webResult;
-          // v46.9: DeepSearch 예외 시 일반 검색 폴백 보장 (개별 try-catch)
           if (isComplex && typeof _aiDeepSearch === 'function') {
             try { webResult = await _withTimeout(_aiDeepSearch(q, ctxId), 12000, 'deepsearch'); } catch(de) { _aioLog('warn', 'fetch', 'DeepSearch 실패/타임아웃: ' + de.message); }
           }
@@ -27121,7 +27143,7 @@ async function chatSendUnified(_aioDispatchOptions) {
             if (_uniWebBlock && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') _uniWebBlock = window.AIO.buildAIUntrustedBlock('WEB_SEARCH', _uniWebBlock);
             sysPrompt += _uniWebBlock; _uniWebResult = webResult;
           }
-        } catch(e) {}
+        } catch(e) { _uniResearchFailure = { code: 'RESEARCH_PROVIDER_ERROR', message: e.message || 'research_failed' }; }
       }
     }
 
@@ -27256,8 +27278,9 @@ async function chatSendUnified(_aioDispatchOptions) {
   var modelOpts = { modelKey: selectedModelKey, maxTokens: (_uniDeepData) ? 16000 : undefined };
   var _uniUseClaudeWebSearch = false;
   try {
-    _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers);
+    _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _uniQuestionPlan);
   } catch(_uniWsErr) { _uniUseClaudeWebSearch = false; }
+  if (_uniResearchRequired && _uniResearchFailure && _uniResearchFailure.code === 'DISABLED_BY_USER') _uniUseClaudeWebSearch = false;
   if (_uniUseClaudeWebSearch) {
     _appendAIMsg('ai', '<div style="font-size:11px;color:#211d16;padding:4px 8px;background:rgba(33,29,22,0.08);border-radius:4px;margin-bottom:4px;">Claude 라이브 웹검색 활성화 — 최신/정성 정보 보강 중(max 3회)</div>');
     sysPrompt += '\n\n【웹 리서치 지시 (통합 AI 패널)】\n공급망·밸류체인·TAM/시장규모·경쟁구조·기술해자·13F·사업구조·경영진 전략처럼 최신 확인이 필요한 정성 분석은 web_search 결과를 우선하라. 확인하지 못한 항목은 "확인 불가"로 남기고, 학습데이터 기반 추측을 금지한다.';
@@ -27296,7 +27319,7 @@ async function chatSendUnified(_aioDispatchOptions) {
 
   // v52.76/WP-AI1: one request object survives initial call and retries.
   var _uniAIRequest = typeof _aioCreateAIRequestObject === 'function'
-    ? _aioCreateAIRequestObject('unified-chat', { ctxId: ctxId, query: q, model: selectedModelKey })
+    ? _aioCreateAIRequestObject('unified-chat', { ctxId: ctxId, query: q, model: selectedModelKey, questionPlan: _uniQuestionPlan })
     : null;
   if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, selectedModelKey);
 
@@ -27306,7 +27329,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
     var _uniChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
-       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: (_uniFreshPreflight && _uniFreshPreflight.after && _uniFreshPreflight.after.quoteRows) || [], retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, streamPhase: 'partial', record: false })
+       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: (_uniFreshPreflight && _uniFreshPreflight.after && _uniFreshPreflight.after.quoteRows) || [], retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, streamPhase: 'partial', record: false })
       : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = _uniChunkResult.text;
     if (aiBubble) aiBubble.innerHTML = renderMarkdownLight(visible) + '<span style="color:var(--accent);animation:blink 0.7s infinite;">|</span>';
@@ -27322,11 +27345,18 @@ async function chatSendUnified(_aioDispatchOptions) {
     var loadEl = document.getElementById('ai-panel-loading');
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     var streamEl = document.getElementById('ai-panel-streaming');
+    var _uniResearchGate = typeof _aioEvaluateAIResearchGate === 'function'
+      ? _aioEvaluateAIResearchGate({ questionPlan: _uniQuestionPlan, required: _uniResearchRequired, externalResult: _uniWebResult, nativeCitations: _uniUseClaudeWebSearch ? (window._aioLastClaudeCitations || []) : [], error: _uniWebResult ? null : (_uniResearchFailure || window._aioLastClaudeResearchError) })
+      : { required: _uniResearchRequired, ready: !_uniResearchRequired, reason: 'research-gate-unavailable' };
     var _uniDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
-       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: (_uniFreshPreflight && _uniFreshPreflight.after && _uniFreshPreflight.after.quoteRows) || [], retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, streamPhase: 'complete' })
+       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: (_uniFreshPreflight && _uniFreshPreflight.after && _uniFreshPreflight.after.quoteRows) || [], retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, streamPhase: 'complete' })
       : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = _uniDoneResult.text;
     var _publicGate = _uniDoneResult.actionGate;
+    if (_uniResearchRequired && !_uniResearchGate.ready) {
+      visible = 'Web Research를 완료하지 못해 현재성·원인 주장을 표시하지 않습니다. ' + (_uniResearchFailure && _uniResearchFailure.message || _uniResearchGate.reason || '공식·독립 출처를 확인할 수 없습니다.') + '\n\n검색 공급자 키, Worker Research capability, quota, 허용 Origin을 확인한 뒤 다시 시도하세요.';
+      _publicGate = { blocked: true, reason: _uniResearchFailure && _uniResearchFailure.code || 'RESEARCH_REQUIRED_BUT_UNAVAILABLE' };
+    }
     if (streamEl) { streamEl.id = ''; streamEl.querySelector('.ai-bubble').innerHTML = renderMarkdownLight(visible); }
     else if (!aiBubble) { _appendAIMsg('ai', renderMarkdownLight(visible)); }
     state.messages.push({ role: 'assistant', content: visible });

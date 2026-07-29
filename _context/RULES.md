@@ -1654,3 +1654,27 @@ For the rest of the repo (docs, scripts, source `.md`/`.js`/`.json`), the same c
 **Rule**: Per-page and unified chat may keep broad educational/framework answers available, but any current numeric quote claim must receive one normalized evidence row with metric, value, unit, scale, asOf, source, sourceKind, status, and evidenceId. Adapter field names such as `price` must not be passed directly to the typed validator.
 
 **Validation**: `normalizeAIChatEvidenceRow`, `getChatAnswerFreshnessAudit`, `getChatEvidenceContext`, the shared typed evidence registry prompt, and T950-T952 in `js/aio-tests.js` must prove valid quote claims pass, the model sees the exact evidence id, and blocked/stale evidence remains fail-closed.
+
+## R403. ResearchDecision/ResearchPlan must be the same evidence gate for every chat surface (v53.58, P852)
+
+**Rule**: Per-page and unified chat may use different UI/provider adapters, but REQUIRED current/causal questions must execute the same ResearchPlan and pass the same primary/independent/snippet-free evidence floor before output is publishable. Citation count or a provider route alone is never sufficient.
+
+**Validation**: the AI intelligence contract checks both surfaces for `_aioEvaluateAIResearchGate`, ResearchPlan dispatch, and fail-closed floor wiring; browser gates must not expose current/causal output while the gate is unresolved.
+
+## R404. Question plans and observation provenance are request-bound (v53.58, P852)
+
+**Rule**: An asynchronous chat request must carry its immutable QuestionPlan in its own request envelope; mutable global plan state is forbidden as a source of truth. Quote/snapshot storage must preserve producer observation/fetch/session/venue/previous-close fields, and missing observation time must remain missing rather than being stamped with ingestion/current time.
+
+**Validation**: static AI/runtime contracts reject `_aioActiveQuestionPlan` reads, require explicit request plans and provenance fields, and verify the sentiment orchestrator does not fall back to `raw.now` for non-`now` fields.
+
+## R405. Partial research results retain their original sub-query identity (v53.58, P852)
+
+**Rule**: `Promise.allSettled` result normalization must retain each fulfilled row's original index before joining `queryId`, purpose, source tier, and content depth. Official host classification must include the canonical FRED `.org` host, and snippet depth must be per document.
+
+**Validation**: AI intelligence CI checks the index-preserving normalization and FRED/snippet provenance markers; research output remains `PARTIAL_RESULTS` when any sub-query fails.
+
+## R406. Accessibility target warnings are blocking (v53.58, P852)
+
+**Rule**: Any audited mobile interactive target below 24px is a release failure unless it is removed or given a measured hit-area exception recorded in the audit. WARN-only target findings are not acceptable.
+
+**Validation**: `ci-accessibility-matrix-check.mjs` fails when `smallTargetCount > 0` and the mobile stylesheet enforces the minimum target size for route controls.

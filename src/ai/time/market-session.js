@@ -37,11 +37,39 @@ export function createMarketSessionEvidence({ market = 'US', now = new Date(), o
   });
 }
 
+export function resolveMarketSessionSchedule({ market = 'US', now = new Date(), root = globalThis, supplied = null } = {}) {
+  const normalize = (candidate) => {
+    if (!candidate || typeof candidate !== 'object') return null;
+    const status = candidate.status === 'after' ? 'post' : candidate.status === 'futures_only' ? 'closed' : candidate.status;
+    return ['open', 'closed', 'pre', 'post'].includes(status) ? { ...candidate, status } : null;
+  };
+  const suppliedNormalized = normalize(supplied);
+  if (suppliedNormalized) return suppliedNormalized;
+  const state = root?.AIO?.marketSession || root?.AIO?.marketState?.sessionEvidence;
+  const stateNormalized = normalize(state);
+  if (stateNormalized) return stateNormalized;
+  const getter = String(market).toUpperCase() === 'KR' ? root?._getKrxSession : root?._getUsSession;
+  if (typeof getter !== 'function') return null;
+  let raw = null;
+  try { raw = getter.call(root); } catch (_) { return null; }
+  const status = raw === 'after' ? 'post' : raw === 'futures_only' ? 'closed' : raw;
+  if (!['open', 'closed', 'pre', 'post'].includes(status)) return null;
+  return {
+    status,
+    session: status === 'post' ? 'after-hours' : status === 'pre' ? 'pre-market' : status === 'open' ? 'regular' : 'closed',
+    observedAt: new Date(now).toISOString(),
+    source: 'runtime-session-clock',
+    sourceKind: 'runtime-session-clock',
+    allowedUse: 'current-session'
+  };
+}
+
 export function validateMarketSessionEvidence(evidence) {
   const errors = [];
   if (!evidence || evidence.schemaVersion !== AI_MARKET_SESSION_VERSION) errors.push('schema_version_invalid');
   if (!['open', 'closed', 'pre', 'post', 'unknown'].includes(evidence?.status)) errors.push('status_invalid');
   if (!evidence?.observedAt || !iso(evidence.observedAt)) errors.push('observed_at_missing');
   if (evidence?.status === 'unknown' && evidence?.verified === true) errors.push('unknown_cannot_be_verified');
+  if (evidence?.verified !== true) errors.push('session_not_verified');
   return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
 }

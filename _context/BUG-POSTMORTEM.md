@@ -2,11 +2,11 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
 last_verified: 2026-07-27
 confidence: high
-latest_version: v53.57
-latest_P_number: P851
-next_P_number: P852
+latest_version: v53.58
+latest_P_number: P852
+next_P_number: P853
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P851 typed chat evidence normalization; local contracts are wired, while live model quality/Worker certification remain separate operator/runtime checks
+current_checkpoint: P852 unified ResearchPlan/evidence/session/provenance boundary closure; migration and live/provider certification remain separate operator/runtime checks
 p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
 p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
 p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
@@ -18,6 +18,16 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---
+
+## P852 - v53.58 - unified chat and legacy evidence paths could bypass the typed research/session boundary
+
+- **motivation**: the deep audit found that the unified chat still used a legacy web-search heuristic, both surfaces read a mutable global question plan after asynchronous preparation, and quote/snapshot provenance was dropped before compatibility and sentiment consumers evaluated freshness.
+- **symptom/reproduction**: concurrent page/unified requests could bind the later plan to the earlier request; `005930.KS 오늘 어때?` was planned as a US session; an unknown session with only `observedAt` passed the response gate; a rejected first Research sub-query shifted the second query's `queryId`; FRED URLs were classified as secondary; snapshot `observedAt`/`marketState`/`venue` fields disappeared in `_liveData`; mobile controls and the GitHub Issues link were below the 24px target contract.
+- **root_cause**: orchestration, research execution, response gating, storage provenance, and accessibility measurement were represented by parallel compatibility paths rather than one request-bound contract. Missing observation time was also treated as “now” by the sentiment adapter.
+- **fix**: unified and per-page chat now pass an immutable `questionPlan` through the request envelope, execute the same ResearchPlan adapter, and call one source-floor gate for external/native citations before current/causal output. Market detection resolves KR aliases/indices and uses a typed runtime session schedule; unknown/unverified sessions fail closed. `_aioSetLiveData`/`PriceStore`/compatibility/sentiment preserve observation/fetch/session/venue/previous-close provenance without stamping missing values. Research partial results retain original indexes, FRED `.org` is official, and snippet depth is per result. Mobile target sizing is enforced and small targets block the accessibility matrix.
+- **violated_rule**: R395/R396/R401/R402; current or causal claims must not bypass ResearchDecision/Plan, MarketSessionEvidence, or typed source evidence, and data lineage must not be inferred from ingestion time.
+- **prevention**: executable AI-intelligence checks cover KR session resolution, explicit request-plan binding, shared research gate wiring, partial-result index preservation, FRED classification, provenance persistence, and missing-observation handling; accessibility CI treats any small target as a failure. Keep architecture migration explicitly `MIGRATION_IN_PROGRESS` until remaining native data/chart/narrative ownership is transferred and independently gated.
+- **verification**: run the complete static, ESM, browser, route, accessibility, data-lineage, version, and live-invariant suite after the patch and after deployment. Provider keys, Worker health/quota/origin, rights review, 30-day SLO, fast-plane soak, and real-model quality remain operator/runtime gates.
 
 ## P851 - v53.57 - chat quote evidence was not normalized to the typed claim contract
 
