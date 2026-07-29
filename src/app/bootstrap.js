@@ -44,6 +44,7 @@ import { createPortfolioProvider } from '../data/providers/portfolio.js';
 import { createPortfolioOrchestrator } from '../data/orchestrators/portfolio.js';
 import { createScreenerProvider } from '../data/providers/screener.js';
 import { createScreenerOrchestrator } from '../data/orchestrators/screener.js';
+import { createRuntimeReaders } from '../data/runtime-readers.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
 import { createAIAnswerOrchestrator } from '../ai/orchestrator/answer-orchestrator.js';
@@ -123,6 +124,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const eventTarget = documentRef || root;
   const legacy = createLegacyFacade(root, eventTarget);
   const httpClient = createHttpClient({ fetchImpl, clock });
+  // Native data ownership is explicit: route providers read the runtime through
+  // the data-layer readers, not through legacy.read* projections.  The legacy
+  // facade remains available only for compatibility actions and navigation.
+  const runtimeReaders = createRuntimeReaders({ root, now: clock.now });
   const snapshotLoader = createMarketSnapshotLoader({ httpClient, clock });
   let marketSnapshot = null;
   const snapshotEvidence = new Map();
@@ -168,7 +173,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     }
   }
 
-  const sentimentProvider = createSentimentProvider({ read: legacy.readSentiment, now: clock.now });
+  const sentimentProvider = createSentimentProvider({ read: runtimeReaders.readSentiment, now: clock.now });
   const sentimentCommands = createSentimentCommands({ store });
   const syncSentiment = createSentimentOrchestrator({ provider: sentimentProvider, evidenceStore, store, commands: sentimentCommands, snapshotEvidence, clock });
   const syncSentimentProjection = (patch = null) => {
@@ -177,11 +182,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     return result;
   };
   const ingestSentiment = (patch = {}) => syncSentimentProjection(patch);
-  const newsProvider = createNewsProvider({ read: () => root?._allNewsItems || root?.newsCache || [], now: clock.now });
+  const newsProvider = createNewsProvider({ read: runtimeReaders.readNews, now: clock.now });
   const newsCommands = createNewsCommands({ store });
   const syncNews = createNewsOrchestrator({ provider: newsProvider, commands: newsCommands });
   const marketCommands = createMarketCommands({ store });
-  const syncMarket = createMarketOrchestrator({ provider: createMarketProvider({ read: legacy.readMarket }), commands: marketCommands });
+  const syncMarket = createMarketOrchestrator({ provider: createMarketProvider({ read: runtimeReaders.readMarket }), commands: marketCommands });
   const themesCommands = createThemesCommands({ store });
   // P800: themes data is assembled by the native provider from explicit runtime inputs;
   // legacy.readThemes remains a compatibility facade for non-cut-over consumers only.
@@ -203,11 +208,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const entityCommands = createEntityCommands({ store });
   // ARX-04: entity's fundamentals now come from a real fetch (public-data/sec-fundamentals.json)
   // — see src/data/providers/entity.js. id/quote/options remain legacy.readEntity projections.
-  const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: legacy.readEntity, httpClient }), commands: entityCommands });
+  const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: runtimeReaders.readEntity, httpClient }), commands: entityCommands });
   const portfolioCommands = createPortfolioCommands({ store });
   const portfolioStorage = createStorageGateway({ storage: root?.localStorage, prefix: 'aio' });
   const portfolioVault = createPrivacyVault({ storage: portfolioStorage, key: 'portfolio', consent: () => root?._portfolioVaultConsent === true });
-  const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: legacy.readPortfolio, repository: portfolioVault }), commands: portfolioCommands });
+  const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: runtimeReaders.readPortfolio, repository: portfolioVault }), commands: portfolioCommands });
   const screenerCommands = createScreenerCommands({ store });
   // ARX-10: the native provider/orchestrator feeds the native screener renderer from the
   // published artifact + identity universe. Legacy SCREENER_DB/profile/watchlist helpers remain
@@ -225,7 +230,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     }
   });
   const analysisCommands = createAnalysisCommands({ store });
-  const syncAnalysis = createAnalysisOrchestrator({ provider: createAnalysisProvider({ read: legacy.readAnalysis }), commands: analysisCommands });
+  const syncAnalysis = createAnalysisOrchestrator({ provider: createAnalysisProvider({ read: runtimeReaders.readAnalysis }), commands: analysisCommands });
 
   const modules = {};
   modules.guide = createGuidePage({ documentRef });
@@ -255,9 +260,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     onWatchlistToggle: (symbol) => root?._aioWLToggle?.(symbol),
     onProfileChange: (profile) => profile ? syncScreenerData() : null
   });
-  modules.home = createAnalysisPage({ documentRef, store, route: 'home' });
-  modules.signal = createAnalysisPage({ documentRef, store, route: 'signal' });
-  modules.technical = createAnalysisPage({ documentRef, store, route: 'technical' });
+  modules.home = createAnalysisPage({ root, documentRef, store, route: 'home' });
+  modules.signal = createAnalysisPage({ root, documentRef, store, route: 'signal' });
+  modules.technical = createAnalysisPage({ root, documentRef, store, route: 'technical' });
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock, documentRef, runtimeRoot: root } });
 
   function syncScreenerData({ scope = router.activeScope() } = {}) {

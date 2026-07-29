@@ -16,19 +16,27 @@
     "fg-score-big",
     "pc-score-big",
     "ticker-hero-name",
-    "theme-detail-panel"
+    "theme-detail-panel",
+    "tech-candle-chart",
+    "tech-candle-volume",
+    "ticker-price-chart",
+    "pf-position-donut"
   ],
   "domWriterIntersectionAllowlistNotes": {
     "fg-score-big": "js/aio-data.js's dormant-until-deferred _generateSentimentAnalysis (called via setTimeout from js/aio-data.js:16811/16819/16825) only READS this via getElementById+textContent to build its analysis text; sentiment.js is the sole WRITER. Legitimate read dependency, not a write race.",
     "pc-score-big": "Same function/relationship as fg-score-big — read-only legacy consumer, sentiment.js is the sole writer.",
     "ticker-hero-name": "js/aio-core.js:_aioDetectTickerPattern and _aioFillEntryFromTicker read textContent only; entity.js is the sole writer after P777.",
     "theme-detail-panel": "After P818, themes.js is the sole panel display/current-theme writer; index.html showThemeDetail/closeThemeDetail only read the panel to retain selection/event compatibility. Legitimate read dependency, not a write race."
+    ,"tech-candle-chart": "P833: analysis.js owns the native technical price chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker.",
+    "tech-candle-volume": "P833: analysis.js owns the native technical volume chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker."
+    ,"ticker-price-chart": "P834: entity.js owns the native ticker price chart; index.html loadTickerChart is fenced by the mounted native ticker chart marker."
+    ,"pf-position-donut": "P835: portfolio.js owns the native holding-allocation chart; index.html drawPositionDonut is fenced by the mounted native portfolio chart marker."
   },
   "routes": {
     "home": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=home)",
@@ -59,7 +67,7 @@
     "signal": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=signal)",
@@ -113,18 +121,18 @@
     "sentiment": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/sentiment.js (createSentimentPage)",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "RM-01 (2026-07-19) found and closed two contests this route's earlier 'fully clean' verification (P736/P738/P739) missed: (1) renderSentimentSummaryProjection() cross-page-wrote home-fg-score, which js/aio-data.js:16609 also writes — removed the native write, legacy keeps that cross-page id. (2) sent-analysis-text was written by both this module and an ACTIVE legacy function (index.html `_generateSentimentAnalysis`, deferred via setTimeout from js/aio-data.js:16811/16819/16825 — materially richer capitulation/decoupling/cluster analysis) — removed the native write per the RM-01 default action, so narrativeOwner is now honestly 'legacy', not 'native'. fg-score-big/pc-score-big are a legitimate exception: legacy's function only READS them (to build its analysis) and this module remains the sole writer (route-owners.json domWriterIntersectionAllowlist). dataOwner remains legacy: sentimentProvider reads via legacy.readSentiment (facade over root._liveData/DATA_SNAPSHOT)."
+      "notes": "RM-01 (2026-07-19) found and closed two contests this route's earlier 'fully clean' verification (P736/P738/P739) missed: (1) renderSentimentSummaryProjection() cross-page-wrote home-fg-score, which js/aio-data.js:16609 also writes — removed the native write, legacy keeps that cross-page id. (2) sent-analysis-text was written by both this module and an ACTIVE legacy function (index.html `_generateSentimentAnalysis`, deferred via setTimeout from js/aio-data.js:16811/16819/16825 — materially richer capitulation/decoupling/cluster analysis) — removed the native write per the RM-01 default action, so narrativeOwner is now honestly 'legacy', not 'native'. fg-score-big/pc-score-big are a legitimate exception: legacy's function only READS them (to build its analysis) and this module remains the sole writer (route-owners.json domWriterIntersectionAllowlist). P833 moves sentiment data ownership to the data-layer runtime reader; narrative remains legacy until the analysis text writer is cut over."
     },
     "briefing": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=briefing)",
@@ -132,11 +140,11 @@
       "legacyWriterEvidence": [],
       "notes": "P770: native news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, and reveal control from canonical news state. Legacy AI digest and model/translation producers remain compatibility/narrative boundaries; no legacy primary-feed DOM writer remains."
     },
-    "technical": {
+  "technical": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
-      "chartOwner": "legacy",
+      "dataOwner": "native",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=technical)",
       "nativePrimarySurface": [
@@ -163,13 +171,14 @@
       ],
       "p785Boundary": "analysis.js owns the market-health score/grade/regime, three health bars, three indicator strips, status pill, and interpretation from the canonical market-health.v1 model. Candlestick chart, RSI/MACD, Weinstein/MTF, and technical narrative remain legacy secondary boundaries.",
       "p822Boundary": "analysis.js owns the technical candle title/meta text from normalized analysis input with a fail-closed waiting state; the legacy chart keeps canvas lifecycle and indicator math but no longer writes these two text sinks.",
+      "p833Boundary": "analysis.js owns the technical OHLCV and volume canvas lifecycles from normalized analysis. The legacy loadTechCandleChart action is fenced while the native technical chart marker is mounted; missing history remains visibly unavailable.",
       "notes": "The technical primary health surface and candle title/meta are native; compatibility writers remain only for legacy fallback and are explicitly fenced or deleted. Candlestick canvas remains legacy-owned and analysis.js does not manage any chart instance. Shares analysis.js with home/signal."
     },
-    "macro": {
+  "macro": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
-      "chartOwner": "legacy",
+      "dataOwner": "native",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=macro)",
       "nativePrimarySurface": [
@@ -191,6 +200,7 @@
       "p808Boundary": "market.js owns the bounded macro 2Y value/source readout from explicit DGS2 evidence; missing DGS2 remains visibly pending.",
       "p811Boundary": "market.js owns the bounded curve status/meaning labels from explicit 2Y/10Y evidence with a fail-closed state; the legacy yield-curve status prose is deleted while the legacy chart remains.",
       "p816Boundary": "market.js owns the bounded Fed/FOMC context line from the Fed rate snapshot and event registry; the legacy event-freshness writer is fenced from the native sink.",
+      "p833Boundary": "market.js owns the yieldCurveChart lifecycle from current Treasury evidence with a blocked fallback; initYieldCurveChart is fenced while the native macro chart marker is mounted.",
       "contestedIds": [],
       "legacyWriterEvidence": [
         "js/aio-core.js: _aioApplyEventFreshnessGate retains compatibility metadata but skips macro-fed-meaning when the native marker is active",
@@ -201,7 +211,7 @@
     "fxbond": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=fxbond)",
@@ -307,8 +317,8 @@
     "ticker": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
-      "chartOwner": "legacy",
+      "dataOwner": "native",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=ticker)",
       "nativePrimarySurface": [
@@ -327,15 +337,17 @@
       "contestedIds": [],
       "legacyWriterEvidence": [
         "js/aio-core.js:showTicker retains compatibility action/overview writers; P829 fences its P&L writes behind aioTickerPnlRenderer",
-        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer"
+        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer",
+        "index.html:loadTickerChart is fenced while #page-ticker[data-aio-ticker-chart-renderer=\"native\"] is mounted"
       ],
       "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
-      "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing."
+      "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing.",
+      "p834Boundary": "entity.js owns the ticker price-chart canvas lifecycle from normalized entity history with a blocked fallback; legacy Stooq/Chart.js loading is fenced while the native marker is mounted."
     },
     "fundamental": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=fundamental)",
@@ -361,7 +373,7 @@
     "options": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=options)",
@@ -382,8 +394,8 @@
     "portfolio": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
-      "chartOwner": "legacy",
+      "dataOwner": "native",
+      "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/portfolio.js (createPortfolioPage)",
       "nativePrimarySurface": [
@@ -409,17 +421,19 @@
         "index.html:12742 (inline script writer for #pf-positions-tbody)",
         "index.html:12939-12963 (updatePortfolioSummary summary/cash/exposure writers deleted for P831 cutover)",
         "index.html:19592-19741 (legacy sector breakdown writers deleted for P831 cutover)",
-        "js/aio-ui.js:1153 (aria-live only for pf-total-value/pf-total-pnl)"
+        "js/aio-ui.js:1153 (aria-live only for pf-total-value/pf-total-pnl)",
+        "index.html:drawPositionDonut is fenced while #page-portfolio[data-aio-portfolio-chart-renderer=\"native\"] is mounted"
       ],
       "p780Boundary": "portfolio.js owns the independent pf-analysis-status readiness text from the native portfolio slice. P830 additionally transfers the encrypted Vault-backed holdings table while prices, risk metrics, AI workbench, and charts remain legacy-owned.",
       "p810Boundary": "portfolio.js owns only the bounded total-value and total-P/L hero projection from normalized portfolio totals/holdings with a fail-closed pending display; the legacy summary writer remains active for the other portfolio cards and its two competing hero writes were deleted for cutover.",
       "p831Boundary": "portfolio.js owns the deterministic holding count, P/L and daily change, cash, VIX exposure rule/current exposure, and sector allocation projection from portfolio-state plus live quote evidence. Missing values remain unavailable; legacy summary/sector writers are fenced. Risk cards, benchmark/holding charts, AI workbench, and narrative remain legacy-owned.",
-      "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table, and the deterministic summary/allocation/exposure surface. Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics, AI workbench, charts, and narrative remain separately legacy-owned."
+      "p835Boundary": "portfolio.js owns the pf-position-donut chart lifecycle from normalized holding value evidence with an unavailable fallback; legacy drawPositionDonut is fenced while the native portfolio chart marker is mounted.",
+      "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table, the deterministic summary/allocation/exposure surface, and the position allocation chart. Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics, benchmark/holding charts, AI workbench, and narrative remain separately legacy-owned."
     },
     "market-news": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=market-news)",
@@ -441,13 +455,13 @@
     "guide": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
-      "dataOwner": "legacy",
+      "dataOwner": "native",
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/guide.js (createGuidePage)",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "No competing legacy _aioGuideSearchTrigger/_aioGuideJump function definitions found anywhere in js/*.js — genuinely uncontested. dataOwner/chartOwner/narrativeOwner marked legacy as not-applicable-but-not-native (static reference content, no fetch/chart/narrative generation exists for this route at all)."
+      "notes": "No competing legacy _aioGuideSearchTrigger/_aioGuideJump function definitions found anywhere in js/*.js — genuinely uncontested. dataOwner is native because the route is served by the canonical runtime state boundary; chartOwner/narrativeOwner remain legacy only as not-applicable (static reference content, with no chart or generated narrative surface)."
     }
   },
   "counts": {
@@ -474,19 +488,36 @@
       "guide"
     ],
     "rendererLegacyRoutes": [],
-    "dataNative": 4,
+    "dataNative": 17,
     "dataNativeRoutes": [
+      "home",
+      "signal",
       "breadth",
+      "sentiment",
+      "briefing",
+      "technical",
+      "macro",
+      "fxbond",
       "themes",
       "theme-detail",
-      "screener"
+      "ticker",
+      "fundamental",
+      "options",
+      "portfolio",
+      "market-news",
+      "screener",
+      "guide"
     ],
-    "chartNative": 4,
+    "chartNative": 8,
     "chartNativeRoutes": [
       "breadth",
       "sentiment",
+      "technical",
+      "macro",
       "fxbond",
-      "themes"
+      "themes",
+      "ticker",
+      "portfolio"
     ],
     "narrativeNative": 1,
     "narrativeNativeRoutes": ["theme-detail"],
@@ -591,6 +622,8 @@
     "RESOLVED (P820): home-fg-score is native from the normalized sentiment slice with reference-only lineage; the legacy score writer is fenced while home-fg-label remains legacy-owned.",
     "RESOLVED (P821): home quality meter/score/label are native fail-closed surfaces; the legacy block that displayed tradingScore as Quality is fenced until a canonical five-input quality model is available.",
     "RESOLVED (P822): technical candle title/meta are native from normalized analysis input with a fail-closed waiting state; the legacy chart retains canvas/indicator lifecycle only.",
+    "RESOLVED (P834): ticker price-chart lifecycle is native from normalized entity history with an explicit unavailable state; legacy Stooq loading is fenced while the native ticker chart marker is mounted.",
+    "RESOLVED (P835): portfolio position-allocation chart lifecycle is native from normalized holding value evidence with an explicit unavailable state; legacy drawPositionDonut is fenced while the native marker is mounted.",
   "OPEN (ARX scope): mixed-source fundamental report sections, portfolio risk/history/AI surfaces, and native-route secondary chart/data/narrative boundaries remain intentionally separate; each future packet must delete or fence the legacy writer before expanding native ownership."
   ]
 }

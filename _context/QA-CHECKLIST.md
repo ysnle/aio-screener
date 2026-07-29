@@ -5,8 +5,11 @@ confidence: high
 
 ## Current architecture checkpoint (2026-07-29, v53.62)
 
-Native lifecycle ownership is wired for 17/17 routes; native renderer ownership is
-  home/signal/guide/sentiment/screener/market-news/briefing/technical/macro/fxbond/breadth/themes/ticker/fundamental/options/portfolio (17/17), and native data ownership is breadth/themes/theme-detail/screener (4/17).
+Native lifecycle and renderer ownership are wired for 17/17 routes.  P833 moves the
+route data provider boundary to `src/data/runtime-readers.js` (17/17 data-native),
+and P834/P835 transfer ticker price and portfolio allocation chart lifecycles to
+native modules (8/17 chart-native); narrative ownership remains intentionally
+bounded at 1/17.
 RM-03 P755~P763 extracted/retired the documented toy domains, replaced the signal
 toy with the Trading Score envelope, and made factor weights pure. ARX-10 gives
 screener sole native DOM/state ownership; ARX-16 migrates non-route consumers through
@@ -16,6 +19,18 @@ version: v4.2
 checklist_version: v53.62
 latest_P_covered: P858
 current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846/P847/P848/P849/P850/P851/P852/P853/P854/P855/P856/P857/P858 contracts are locally verified after the full local suite, with provider/live Worker/model/edge verification still separate
+
+## P833-P835 Native runtime data boundary and chart lifecycle (v53.63)
+
+- [x] All route orchestrators receive data-layer runtime readers instead of `legacy.read*` projections; the compatibility facade remains limited to actions/navigation.
+- [x] The native runtime reader preserves typed quote observation/source lineage, entity/options values, portfolio fallback, and score evidence inputs without inventing missing values.
+- [x] Technical OHLCV and volume charts are owned by `analysis.js` with registry disposal, blocked fallback states, and a legacy `loadTechCandleChart` fence.
+- [x] Macro Treasury curve chart is owned by `market.js`; the legacy `initYieldCurveChart` path is fenced while native state is mounted.
+- [x] Ticker price chart is owned by `entity.js` from normalized entity history; Stooq/legacy chart loading is fenced while the native marker is mounted.
+- [x] Portfolio position allocation chart is owned by `portfolio.js` from normalized holding value evidence; the legacy canvas writer is fenced while the native marker is mounted.
+- [x] Reconciliation categories now carry observed/required evidence, rights, gate, source revision, and closure arrays; CI rejects drift or false completion.
+- [x] Operations status publishes native data/chart/narrative dimension arrays and an explicit operator/live certification boundary gate.
+- [ ] Full narrative cutover, remaining route chart surfaces, licensed providers, fast-plane credentials/7-day soak, and live edge headers remain separate gates.
 
 ## P852 Web Research, session, provenance, concurrency, and accessibility closure (v53.58)
 

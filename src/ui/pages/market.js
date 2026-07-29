@@ -231,8 +231,8 @@ function renderNativeHistoryChart(root, page, charts, { id, field, label, render
   setCanvasState(canvas, { rendererKey, sourceKind: rows[rows.length - 1].sourceKind, sourceLabel: rows[rows.length - 1].source, operationalUse: 'reference-only', title: `${label} · source: ${rows[rows.length - 1].source}` });
 }
 
-function renderNativeCurveChart(root, page, charts) {
-  const canvas = page.querySelector('#koreaCurveChart');
+function renderNativeCurveChart(root, page, charts, canvasId = 'koreaCurveChart', rendererKey = 'aioFxbondChartRenderer') {
+  const canvas = page.querySelector(`#${canvasId}`);
   if (!canvas) return;
   const values = [
     ['3M', quoteValue(root, '^IRX')?.price],
@@ -242,14 +242,14 @@ function renderNativeCurveChart(root, page, charts) {
     ['30Y', quoteValue(root, '^TYX')?.price]
   ];
   if (!values.every(([, value]) => Number.isFinite(value)) || typeof root?.Chart !== 'function') {
-    destroyNativeChart(charts, 'koreaCurveChart');
-    setCanvasState(canvas, { rendererKey: 'aioFxbondChartRenderer', sourceKind: 'unavailable', sourceLabel: 'yield-curve:current-evidence-unavailable', operationalUse: 'blocked', title: '수익률 곡선 현재 관측값 미수신' });
+    destroyNativeChart(charts, canvasId);
+    setCanvasState(canvas, { rendererKey, sourceKind: 'unavailable', sourceLabel: 'yield-curve:current-evidence-unavailable', operationalUse: 'blocked', title: '수익률 곡선 현재 관측값 미수신' });
     canvas.__rendered = 'native';
     return;
   }
   const signature = values.map(([, value]) => value).join('|');
-  if (charts.get('koreaCurveChart')?.signature === signature) return;
-  destroyNativeChart(charts, 'koreaCurveChart');
+  if (charts.get(canvasId)?.signature === signature) return;
+  destroyNativeChart(charts, canvasId);
   let chart;
   try {
     chart = new root.Chart(canvas, {
@@ -266,16 +266,16 @@ function renderNativeCurveChart(root, page, charts) {
       }
     });
   } catch (_) {
-    setCanvasState(canvas, { rendererKey: 'aioFxbondChartRenderer', sourceKind: 'unavailable', sourceLabel: 'yield-curve:chart-runtime-failed', operationalUse: 'blocked', title: '수익률 곡선 차트 런타임 보류' });
+    setCanvasState(canvas, { rendererKey, sourceKind: 'unavailable', sourceLabel: 'yield-curve:chart-runtime-failed', operationalUse: 'blocked', title: '수익률 곡선 차트 런타임 보류' });
     canvas.__rendered = 'native';
     return;
   }
-  charts.set('koreaCurveChart', { chart, signature });
+  charts.set(canvasId, { chart, signature });
   canvas.__rendered = 'chartjs';
-  setCanvasState(canvas, { rendererKey: 'aioFxbondChartRenderer', sourceKind: 'live', sourceLabel: 'live:^IRX+DGS2+^FVX+^TNX+^TYX', operationalUse: 'reference-only', title: 'US Treasury yield curve · current observed evidence' });
+  setCanvasState(canvas, { rendererKey, sourceKind: 'live', sourceLabel: 'live:^IRX+DGS2+^FVX+^TNX+^TYX', operationalUse: 'reference-only', title: 'US Treasury yield curve · current observed evidence' });
 }
 
-function renderMacro(root, page) {
+function renderMacro(root, page, charts) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
   const twoYear = finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value);
@@ -337,6 +337,7 @@ function renderMacro(root, page) {
     fedMeaningNode.dataset.aioMacroFedMeaningRenderer = 'native';
     writeLineage(fedMeaningNode, fedMetric ? 'fred' : 'unavailable', fedMetric?.source || 'FEDFUNDS unavailable');
   }
+  renderNativeCurveChart(root, page, charts, 'yieldCurveChart', 'aioMacroChartRenderer');
 }
 
 function renderFxbond(root, page, charts) {
@@ -652,6 +653,8 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       if (route === 'macro') {
         page.dataset.aioArchitectureRenderer = 'native';
         page.dataset.aioMacroRenderer = 'native';
+        page.dataset.aioMacroChartRenderer = 'native';
+        page.querySelectorAll('#yieldCurveChart').forEach((canvas) => { canvas.dataset.aioMacroChartRenderer = 'native'; });
         ['#macro-2y-value', '#macro-2y-source'].forEach((selector) => {
           const node = page.querySelector(selector);
           if (node) node.dataset.aioMacroTwoYearRenderer = 'native';
@@ -706,7 +709,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         });
       }
       const renderNow = () => {
-        if (route === 'macro') renderMacro(root, page);
+        if (route === 'macro') renderMacro(root, page, charts);
         if (route === 'fxbond') renderFxbond(root, page, charts);
         if (route === 'breadth') renderBreadth(root, page);
       };
@@ -723,6 +726,11 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         if (page.dataset.aioArchitectureSlice === 'market') delete page.dataset.aioArchitectureSlice;
         if (route === 'macro' && page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (route === 'macro' && page.dataset.aioMacroRenderer === 'native') delete page.dataset.aioMacroRenderer;
+        if (route === 'macro' && page.dataset.aioMacroChartRenderer === 'native') delete page.dataset.aioMacroChartRenderer;
+        if (route === 'macro') page.querySelectorAll('#yieldCurveChart').forEach((canvas) => {
+          if (canvas.dataset.aioMacroChartRenderer === 'native') delete canvas.dataset.aioMacroChartRenderer;
+          if (canvas.__rendered === 'native' || canvas.__rendered === 'chartjs') delete canvas.__rendered;
+        });
         if (route === 'macro') {
           ['#macro-2y-value', '#macro-2y-source'].forEach((selector) => {
             const node = page.querySelector(selector);

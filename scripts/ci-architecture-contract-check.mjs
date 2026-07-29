@@ -118,6 +118,7 @@ const themesPageSource = read('src/ui/pages/themes.js');
 const marketHealthSource = read('src/domain/market/health.js');
 if (!bootstrapSource.includes('const ingestSentiment') || !bootstrapSource.includes('ingestSentiment,')) fail('sentiment canonical ingest gateway missing');
 if (!dataSource.includes('AIO_ARCH.ingestSentiment')) fail('legacy sentiment producer gateway notification missing');
+if (!bootstrapSource.includes('createRuntimeReaders') || /create[A-Za-z]+Provider\(\{\s*read:\s*legacy\.read/.test(bootstrapSource)) fail('native route providers must use data-layer runtime readers rather than legacy.read projections');
 if (burnDown.retiredDataShowPageMonkeyPatch && (/const originalShowPage\s*=\s*window\.showPage/.test(dataSource) || /window\.showPage\s*=\s*function\s*\(pageId/.test(dataSource))) {
   fail('retired aio-data showPage monkey patch returned');
 }
@@ -301,6 +302,9 @@ for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pn
   if (!entityPageSource.includes(marker)) fail(`native ticker activity marker missing: ${marker}`);
 }
 if (!coreSource.includes('aioTickerPnlRenderer') || !dataSource.includes('aioTickerExtensionRenderer')) fail('legacy ticker activity writer fence missing');
+// P834: ticker price chart lifecycle is native from normalized entity history and the
+// Stooq compatibility loader must not run while the native route marker is mounted.
+if (routeOwners.routes?.ticker?.chartOwner !== 'native' || !entityPageSource.includes('renderTickerChart') || !entityPageSource.includes('aioTickerChartRenderer') || !indexHtmlSource.includes('aio-ticker-chart-renderer="native"')) fail('native ticker chart ownership/fence missing');
 // P832: entity.js owns a bounded SEC annual-fact report from one pure model. The broader
 // multi-source report/charts/AI narrative remain legacy boundaries until independently cut over.
 for (const marker of ['deriveSecReport', 'renderFundamentalReport', 'fund-native-sec-report', 'fund-native-sec-grid', 'aioSecReportRenderer']) {
@@ -322,6 +326,9 @@ for (const marker of ['derivePortfolioSurface', 'renderPortfolioSurface', 'pf-ho
 if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_SURFACE_MODEL_VERSION')) fail('portfolio surface model missing');
 if (indexHtmlSource.includes("document.getElementById('pf-holding-count')") || indexHtmlSource.includes("document.getElementById('pf-sector-breakdown')") || !indexHtmlSource.includes('P831: sector allocation is owned by src/ui/pages/portfolio.js.')) fail('legacy portfolio surface writer retirement missing');
 if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !coreSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !read('index.html').includes('_aioIsNativeMacroElement(el)')) fail('legacy options native-element writer fence missing');
+// P835: portfolio position allocation chart lifecycle is native from normalized holding
+// values and drawPositionDonut remains a compatibility fallback behind the route marker.
+if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !indexHtmlSource.includes('aio-portfolio-chart-renderer="native"')) fail('native portfolio chart ownership/fence missing');
 // P785: technical owns only the market-health primary surface. The pure model is the single
 // formula owner; both legacy compatibility entry points must consult the native technical fence.
 for (const marker of ['MARKET_HEALTH_MODEL_VERSION', 'export function computeMarketHealth', 'bars:', 'details:']) {

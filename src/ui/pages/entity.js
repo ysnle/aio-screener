@@ -1,4 +1,4 @@
-import { createResourceBag } from '../../app/lifecycle.js';
+import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
@@ -85,6 +85,47 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
     extensionNode.setAttribute('data-source-kind', visible ? 'live' : 'unavailable');
     extensionNode.setAttribute('data-source-label', visible ? 'live:extended-session' : 'extended-session unavailable');
     extensionNode.setAttribute('data-operational-use', 'reference-only');
+  }
+}
+
+function renderTickerChart({ root, page, state, charts }) {
+  const canvas = page?.querySelector?.('#ticker-price-chart');
+  if (!canvas) return;
+  const rows = (Array.isArray(state?.history) ? state.history : [])
+    .filter((row) => row?.time && finite(row.close) != null)
+    .slice(-365);
+  const ChartConstructor = root?.Chart;
+  const unavailable = rows.length < 2 || typeof ChartConstructor !== 'function';
+  const signature = rows.map((row) => `${row.time}:${row.close}`).join('|');
+  canvas.dataset.aioTickerChartRenderer = 'native';
+  canvas.dataset.sourceKind = unavailable ? 'unavailable' : 'native-runtime';
+  canvas.dataset.sourceLabel = unavailable ? 'entity-history-unavailable' : 'native:entity-history';
+  canvas.dataset.operationalUse = 'reference-only';
+  const loading = page.querySelector('#ticker-chart-loading');
+  if (unavailable) {
+    charts.destroy('ticker-price-chart');
+    if (loading) {
+      loading.style.display = 'flex';
+      loading.textContent = `${state?.id || '종목'} 관측 가격 이력 미수신 · 차트 보류`;
+    }
+    return;
+  }
+  if (charts.get('ticker-price-chart')?.signature === signature) return;
+  charts.destroy('ticker-price-chart');
+  try {
+    const labels = rows.map((row) => String(row.time).slice(5));
+    const prices = rows.map((row) => finite(row.close));
+    const isUp = prices.at(-1) >= prices[0];
+    const chart = new ChartConstructor(canvas, {
+      type: 'line',
+      data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#22754c' : '#b13a30', backgroundColor: isUp ? 'rgba(34,117,76,0.14)' : 'rgba(177,58,48,0.14)', borderWidth: 1.6, pointRadius: 0, tension: 0.2, fill: true }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 8, maxRotation: 0 }, grid: { display: false } }, y: { ticks: { maxTicksLimit: 4 } } } }
+    });
+    charts.set('ticker-price-chart', { chart, signature });
+    if (loading) loading.style.display = 'none';
+  } catch (_) {
+    charts.destroy('ticker-price-chart');
+    if (loading) { loading.style.display = 'flex'; loading.textContent = `${state?.id || '종목'} 차트 런타임 실패 · 차트 보류`; }
   }
 }
 
@@ -249,7 +290,7 @@ function renderFundamentalReport(documentRef, page, state) {
 // SEC annual-data availability/source badge on fundamental. P815 transfers only the bounded
 // SEC-derived summary line; options-chain, report sections, charts, and AI narrative remain
 // legacy-owned.
-function render({ root, documentRef, store, route }) {
+function render({ root, documentRef, store, route, charts }) {
   const state = selectEntityState(store.getState());
   const portfolioState = selectPortfolioState(store.getState());
   const routeNode = documentRef?.getElementById(`page-${route}`);
@@ -263,6 +304,7 @@ function render({ root, documentRef, store, route }) {
     renderTickerHero(documentRef, state);
     renderTickerSecondarySymbols(documentRef, state);
     renderTickerActivity(documentRef, root, state, portfolioState);
+    renderTickerChart({ root, page: routeNode, state, charts });
   }
   if (route === 'options') renderOptions(documentRef, state);
   if (route === 'fundamental') {
@@ -277,7 +319,9 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
     route,
     mount() {
       const bag = createResourceBag();
-      const renderNow = () => render({ root, documentRef, store, route });
+      const charts = createChartRegistry({ maxCanvasHeight: 520 });
+      bag.add(charts.dispose);
+      const renderNow = () => render({ root, documentRef, store, route, charts });
       renderNow();
       bag.add(store.subscribe(renderNow));
       const eventTarget = documentRef || globalThis;
@@ -306,6 +350,8 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         });
       }
       if (route === 'ticker') {
+        const page = documentRef?.getElementById('page-ticker');
+        if (page) page.dataset.aioTickerChartRenderer = 'native';
         ['ticker-candle-symbol', 'ticker-entry-symbol', 'ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value'].forEach((id) => {
           const element = documentRef?.getElementById(id);
           if (!element) return;
@@ -317,6 +363,16 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
             if (element?.dataset.aioTickerExtensionRenderer === 'native') delete element.dataset.aioTickerExtensionRenderer;
             if (element?.dataset.aioTickerPnlRenderer === 'native') delete element.dataset.aioTickerPnlRenderer;
           });
+        });
+        bag.add(() => {
+          if (page?.dataset.aioTickerChartRenderer === 'native') delete page.dataset.aioTickerChartRenderer;
+          const canvas = documentRef?.getElementById('ticker-price-chart');
+          if (canvas?.dataset.aioTickerChartRenderer === 'native') {
+            delete canvas.dataset.aioTickerChartRenderer;
+            delete canvas.dataset.sourceKind;
+            delete canvas.dataset.sourceLabel;
+            delete canvas.dataset.operationalUse;
+          }
         });
       }
       const routeNode = documentRef?.getElementById(`page-${route}`);

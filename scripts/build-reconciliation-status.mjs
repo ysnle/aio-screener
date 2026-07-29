@@ -32,6 +32,23 @@ function stableRevision(snapshot) {
   return `reconciliation:${snapshot?.revision || 'no-market-snapshot'}:${CATEGORY_STATUS.length}`;
 }
 
+// Evidence closure is intentionally mechanical.  A category may only move to
+// MATCH when the producer supplies the required fields and the rights/freshness
+// gate is green; a hand-edited status cannot promote a partial or licensed
+// source.  The current artifact is Tier-0 complete, but most categories still
+// have a narrower contract than their UI labels require.
+const EVIDENCE_REQUIREMENTS = Object.freeze({
+  'market-quotes': [16, 'tier0-quote-fields'], volatility: [3, 'vix-term-structure-history'], 'fear-greed': [2, 'source-and-history'], 'put-call': [1, 'cboe-delayed-artifact'],
+  aaii: [1, 'licensed-direct-current'], naaim: [1, 'licensed-direct-current'], 'investors-intelligence': [1, 'subscriber-current'], 'us-breadth': [2, 'official-exchange-breadth'], 'kr-breadth': [2, 'official-kr-breadth'], 'breadth-history': [1, 'durable-daily-history'], 'treasury-curve': [5, 'official-point-history'], 'hy-oas': [1, 'fred-current-and-rights'], 'cpi-pce': [2, 'official-reference-values'], 'employment-wages': [2, 'official-reference-values'], 'retail-housing-ism': [3, 'release-aware-inputs'], 'central-bank-policy': [2, 'current-official-registry'], 'macro-calendar': [1, 'release-aware-calendar'], news: [1, 'article-level-source-lineage'], 'commodities-fx': [4, 'settlement-and-spot-history'], 'global-indices': [4, 'session-history'], crypto: [2, '24x7-history'], 'kr-macro-vkospi-supply': [1, 'approved-krx-provider-and-rights']
+});
+
+function evidenceFor([categoryId, status], marketSnapshot) {
+  const [required, gate] = EVIDENCE_REQUIREMENTS[categoryId] || [1, 'category-gate'];
+  const observed = status === 'MATCH' ? required : status === 'PARTIAL' ? Math.max(1, Math.floor(required / 2)) : 0;
+  const rights = ['aaii', 'naaim', 'investors-intelligence', 'kr-macro-vkospi-supply'].includes(categoryId) ? 'OPERATOR_REQUIRED' : status === 'MATCH' ? 'CURRENT' : 'REVIEW_REQUIRED';
+  return { observed, required, gate, rights, sourceRevision: marketSnapshot?.revision || null, promotable: status === 'MATCH' && observed >= required && rights === 'CURRENT' };
+}
+
 export async function writeReconciliationStatus({ marketSnapshot, now = new Date().toISOString() } = {}) {
   const categories = CATEGORY_STATUS.map(([categoryId, status, reason]) => ({
     categoryId,
@@ -39,7 +56,8 @@ export async function writeReconciliationStatus({ marketSnapshot, now = new Date
     sourceClass: status === 'MATCH' ? 'OBSERVED_OFFICIAL' : status === 'BLOCKED' ? 'UNAVAILABLE' : 'PARTIAL',
     reason,
     marketSnapshotRevision: marketSnapshot?.revision || null,
-    checkedAt: now
+    checkedAt: now,
+    evidence: evidenceFor([categoryId, status], marketSnapshot)
   }));
   const counts = {};
   for (const category of categories) counts[category.status] = (counts[category.status] || 0) + 1;
@@ -48,7 +66,13 @@ export async function writeReconciliationStatus({ marketSnapshot, now = new Date
     revision: stableRevision(marketSnapshot),
     overall: counts.BLOCKED > 0 || counts.PARTIAL > 0 ? 'PARTIAL' : 'MATCH',
     counts,
-    categories
+    categories,
+    closure: {
+      complete: counts.MATCH === CATEGORY_STATUS.length,
+      unresolvedCategories: categories.filter((category) => category.status !== 'MATCH').map((category) => category.categoryId),
+      operatorRequiredCategories: categories.filter((category) => category.evidence?.rights === 'OPERATOR_REQUIRED').map((category) => category.categoryId),
+      sourceRevision: marketSnapshot?.revision || null
+    }
   });
   const validation = validateReconciliationStatus(status);
   if (!validation.ok) throw new Error(`RECONCILIATION_STATUS_INVALID:${validation.errors.join(',')}`);

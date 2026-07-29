@@ -1,12 +1,39 @@
 ---
-verified_by: agent (Claude Sonnet 5) + Codex P761-P844 static implementation record
+verified_by: agent (Claude Sonnet 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-29
 confidence: high
-latest_version: v53.62
-latest_P_number: P858
-next_P_number: P859
+latest_version: v53.63
+latest_P_number: P835
+next_P_number: P836
 current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P858 boot critical-path ownership and measured SLO closure on top of P857 readiness parity; native ownership migration and live/provider/edge certification remain separate operator/runtime checks
+current_checkpoint: P833-P835 native runtime data boundary plus ticker/portfolio chart lifecycle; narrative cutover and live/provider/edge certification remain separate operator/runtime checks
+
+## P833 - v53.63 - native runtime data boundary and chart ownership drift
+
+- **motivation**: the route-owner ledger claimed native lifecycle/renderer coverage, but most data providers still received `legacy.read*` callbacks and technical/macro charts could be repainted by deferred compatibility functions.
+- **root_cause**: the ESM bootstrap had no shared data-layer runtime reader boundary; provider ownership was inferred from route declarations rather than the callback graph. Chart fences existed for fxbond/breadth but not for the technical and macro canvas entry points.
+- **fix**: added `src/data/runtime-readers.js` and rewired sentiment/news/market/entity/portfolio/analysis providers to it; added evidence-preserving score inputs; transferred technical OHLCV/volume and macro yield-curve lifecycle to native chart registries with fail-closed unavailable states; fenced `loadTechCandleChart` and `initYieldCurveChart` while native markers are mounted; added reconciliation evidence/closure and operator-readiness CI contracts.
+- **violated_rule**: R352/R361 — ownership must be derived from the actual producer/provider graph, and a legacy writer must be fenced before a native dimension is recorded.
+- **prevention**: `ci-architecture-contract.mjs` now checks the native/legacy DOM intersection allowlist for the new chart IDs; reconciliation CI rejects false `MATCH`/closure; operations status publishes data/chart/narrative owner arrays; future packets must add a reader/provider and a legacy fence in the same change.
+- **verification**: module syntax, architecture contract, reconciliation contract, operator-readiness boundary, and static source gates pass locally. Full Chromium route/viewport/accessibility and live edge/provider certification are deferred to the final batch and operator boundary respectively.
+
+## P834 - v53.63 - ticker chart still bypassed native entity state
+
+- **motivation**: the ticker route had native identity/P&L ownership, but its visible price chart still launched a legacy Stooq fetch and global Chart.js instance outside the route scope.
+- **root_cause**: entity normalization discarded history and the chart entrypoint had no native marker or disposable registry boundary, so a deferred legacy request could repaint the route after transition.
+- **fix**: preserved normalized entity history, added `renderTickerChart()` with a route-local chart registry and explicit unavailable state, and fenced `loadTickerChart()` while the native ticker marker is mounted.
+- **violated_rule**: R413; chart ownership requires one scoped registry, source-labelled evidence, and a legacy fence.
+- **prevention**: architecture/browser gates assert ticker chart marker/source state and route resource stability; no synthetic chart data is allowed.
+- **verification**: syntax and architecture contract pass; full browser/viewport/accessibility batch remains scheduled after all packets.
+
+## P835 - v53.63 - portfolio allocation chart still bypassed native holdings state
+
+- **motivation**: portfolio summary/table ownership had moved native, but the visible position-allocation donut remained a legacy canvas writer using mutable storage globals.
+- **root_cause**: the native portfolio page did not own the chart instance or the legacy `drawPositionDonut()` entrypoint, leaving chart lifecycle and holding-value evidence outside the route scope.
+- **fix**: added a native doughnut chart from normalized holding values with fail-closed unavailable output, registered disposal with the route scope, and fenced `drawPositionDonut()` behind the native marker.
+- **violated_rule**: R413; chart promotion must use normalized evidence and a single fenced writer.
+- **prevention**: architecture/browser gates require native portfolio chart markers, allowed source kinds, and stable canvas counts across route laps.
+- **verification**: syntax and architecture contract pass; final full suite and live/operator certification remain scheduled/separate.
 
 ## P858 - v53.62 - boot critical-path ownership and measured SLO closure
 

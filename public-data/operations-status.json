@@ -1,7 +1,7 @@
 {
   "schemaVersion": "operations-status-v1",
-  "generatedAt": "2026-07-29T11:26:53.360Z",
-  "appRevision": "v53.62",
+  "generatedAt": "2026-07-29T12:18:38.439Z",
+  "appRevision": "v53.63",
   "dataRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -46,7 +46,7 @@
     "browser": {
       "status": "CURRENT",
       "source": "static-pages+service-worker",
-      "revision": "v53.62"
+      "revision": "v53.63"
     }
   },
   "ai": {
@@ -96,6 +96,37 @@
       "MATCH": 3,
       "BLOCKED": 5
     },
+    "closure": {
+      "complete": false,
+      "unresolvedCategories": [
+        "market-quotes",
+        "volatility",
+        "fear-greed",
+        "aaii",
+        "naaim",
+        "investors-intelligence",
+        "us-breadth",
+        "kr-breadth",
+        "breadth-history",
+        "treasury-curve",
+        "hy-oas",
+        "retail-housing-ism",
+        "central-bank-policy",
+        "macro-calendar",
+        "news",
+        "commodities-fx",
+        "global-indices",
+        "crypto",
+        "kr-macro-vkospi-supply"
+      ],
+      "operatorRequiredCategories": [
+        "aaii",
+        "naaim",
+        "investors-intelligence",
+        "kr-macro-vkospi-supply"
+      ],
+      "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5"
+    },
     "routeCount": 17,
     "rawProducerClaimGate": "not_applicable_for_quote_plane"
   },
@@ -140,6 +171,38 @@
       "market-news",
       "screener",
       "guide"
+    ],
+    "nativeDataOwner": [
+      "home",
+      "signal",
+      "breadth",
+      "sentiment",
+      "briefing",
+      "technical",
+      "macro",
+      "fxbond",
+      "themes",
+      "theme-detail",
+      "ticker",
+      "fundamental",
+      "options",
+      "portfolio",
+      "market-news",
+      "screener",
+      "guide"
+    ],
+    "nativeChartOwner": [
+      "breadth",
+      "sentiment",
+      "technical",
+      "macro",
+      "fxbond",
+      "themes",
+      "ticker",
+      "portfolio"
+    ],
+    "nativeNarrativeOwner": [
+      "theme-detail"
     ],
     "observerOwner": 0,
     "cutoverStatus": "MIGRATION_IN_PROGRESS",

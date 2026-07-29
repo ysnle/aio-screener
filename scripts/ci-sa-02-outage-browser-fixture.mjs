@@ -34,6 +34,10 @@ async function runOnce(browser, run) {
   // after the initial retry window so the fixture compares stable fallback
   // state rather than racing the first fail-count increment.
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 2600));
+  // Chromium scheduling can delay the rejected fetch callback beyond the
+  // nominal retry window. Wait for the deterministic failure counter when it
+  // is available, while keeping a bounded timeout for a fully blocked boot.
+  await page.waitForFunction(() => Number(window.fetchLiveQuotes?._failCount || 0) >= 1, { timeout: 10000 }).catch(() => {});
   const early = await page.evaluate(() => {
     const sources = Object.values(window._dataSource || {});
     return {

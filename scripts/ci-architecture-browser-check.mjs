@@ -269,10 +269,13 @@ try {
     extensionRenderer: document.getElementById('ticker-hero-ext')?.dataset.aioTickerExtensionRenderer || null,
     extensionDisplay: document.getElementById('ticker-hero-ext')?.style.display || '',
     extensionText: document.getElementById('ticker-hero-ext')?.textContent || '',
+    chartRenderer: document.getElementById('ticker-price-chart')?.dataset.aioTickerChartRenderer || null,
+    chartSourceKind: document.getElementById('ticker-price-chart')?.dataset.sourceKind || null,
     symbolRenderer: document.getElementById('ticker-candle-symbol')?.dataset.aioTickerSymbolRenderer || null,
     candleSymbol: document.getElementById('ticker-candle-symbol')?.textContent || '',
     entrySymbol: document.getElementById('ticker-entry-symbol')?.textContent || ''
   }));
+  if (tickerRoute.chartRenderer !== 'native' || !['unavailable', 'native-runtime'].includes(tickerRoute.chartSourceKind)) throw new Error(`ticker native chart surface failed: ${JSON.stringify(tickerRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('options'));
   await page.waitForFunction(() => document.getElementById('page-options')?.dataset.aioArchitectureRoute === 'options');
   const optionsRoute = await page.evaluate(() => ({
@@ -316,13 +319,15 @@ try {
     holdingCountRenderer: document.getElementById('pf-holding-count')?.dataset.aioPortfolioSurfaceRenderer || null,
     sectorRenderer: document.getElementById('pf-sector-breakdown')?.dataset.aioPortfolioSurfaceRenderer || null,
     exposureRenderer: document.getElementById('pf-exposure-current')?.dataset.aioPortfolioSurfaceRenderer || null,
+    chartRenderer: document.getElementById('pf-position-donut')?.dataset.aioPortfolioChartRenderer || null,
+    chartSourceKind: document.getElementById('pf-position-donut')?.dataset.sourceKind || null,
     tableRowCount: document.querySelectorAll('#pf-positions-tbody tr').length,
     rawPrimarySinkCount: document.querySelectorAll('#page-portfolio #pf-analysis-status').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-portfolio[data-aio-architecture-renderer="native"] #pf-analysis-status').length,
     statusValue: document.getElementById('pf-analysis-status')?.textContent || null,
     sourceKind: document.getElementById('pf-analysis-status')?.getAttribute('data-source-kind') || null
   }));
-  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== 'portfolio-surface.v1' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.sectorRenderer !== 'native' || portfolioRoute.exposureRenderer !== 'native') throw new Error(`portfolio hero/table/summary native surface failed: ${JSON.stringify(portfolioRoute)}`);
+  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== 'portfolio-surface.v1' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.sectorRenderer !== 'native' || portfolioRoute.exposureRenderer !== 'native' || portfolioRoute.chartRenderer !== 'native' || !['unavailable', 'portfolio-state'].includes(portfolioRoute.chartSourceKind)) throw new Error(`portfolio hero/table/summary/chart native surface failed: ${JSON.stringify(portfolioRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
   await page.waitForFunction(() => document.getElementById('page-technical')?.dataset.aioArchitectureRoute === 'technical');
   const technicalRoute = await page.evaluate(() => {

@@ -15,11 +15,17 @@ export function deriveRouteOwnership(routeOwners) {
   const columns = Object.keys(routeOwners?.columnDefinitions || {});
   const nativeLifecycleOwner = routeIds.filter((route) => routes[route].lifecycleOwner === 'native');
   const nativeRendererOwner = routeIds.filter((route) => routes[route].rendererOwner === 'native');
+  const nativeDataOwner = routeIds.filter((route) => routes[route].dataOwner === 'native');
+  const nativeChartOwner = routeIds.filter((route) => routes[route].chartOwner === 'native');
+  const nativeNarrativeOwner = routeIds.filter((route) => routes[route].narrativeOwner === 'native');
   const nativeOwner = routeIds.filter((route) => columns.every((column) => routes[route][column] === 'native'));
   return {
     supported: routeIds.length,
     nativeLifecycleOwner,
     nativeRendererOwner,
+    nativeDataOwner,
+    nativeChartOwner,
+    nativeNarrativeOwner,
     nativeOwner,
     legacyOwner: routeIds.length - nativeRendererOwner.length
   };
@@ -83,6 +89,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       categoryCount: reconciliation?.categories?.length || 0,
       overall: reconciliation?.overall || 'BLOCKED',
       counts: reconciliation?.counts || {},
+      closure: reconciliation?.closure || null,
       routeCount: ownership.supported,
       rawProducerClaimGate: 'not_applicable_for_quote_plane'
     },
@@ -92,6 +99,9 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       legacyOwner: ownership.legacyOwner,
       nativeLifecycleOwner: ownership.nativeLifecycleOwner,
       nativeRendererOwner: ownership.nativeRendererOwner,
+      nativeDataOwner: ownership.nativeDataOwner,
+      nativeChartOwner: ownership.nativeChartOwner,
+      nativeNarrativeOwner: ownership.nativeNarrativeOwner,
       // Verified 2026-07-19 (RM-00): bootstrap.js registers a dedicated module for all 17 ROUTE_IDS,
       // so createLegacyObserverPage/defaultPage() is never reached. Re-derive if that ever changes.
       observerOwner: 0,

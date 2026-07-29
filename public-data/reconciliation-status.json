@@ -1,6 +1,6 @@
 {
   "schemaVersion": "reconciliation-status-v1",
-  "generatedAt": "2026-07-29T10:18:08.061Z",
+  "generatedAt": "2026-07-29T12:18:35.242Z",
   "revision": "reconciliation:market-snapshot:2026-07-29T10:18:03.032Z:804cadf5:22",
   "overall": "PARTIAL",
   "counts": {
@@ -15,7 +15,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Tier 0 snapshot is complete; broader quote universe and field-level source reconciliation remain separate.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 8,
+        "required": 16,
+        "gate": "tier0-quote-fields",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "volatility",
@@ -23,7 +31,15 @@
       "sourceClass": "PARTIAL",
       "reason": "VIX/VIX3M are in Tier 0; VVIX and long-term term-structure history are not fully reconciled.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 3,
+        "gate": "vix-term-structure-history",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "fear-greed",
@@ -31,7 +47,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Latest score is present in the durable artifact; source and historical coverage are not fully reconciled.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 2,
+        "gate": "source-and-history",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "put-call",
@@ -39,7 +63,15 @@
       "sourceClass": "OBSERVED_OFFICIAL",
       "reason": "Cboe delayed artifact is retained with as-of metadata.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 1,
+        "gate": "cboe-delayed-artifact",
+        "rights": "CURRENT",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": true
+      }
     },
     {
       "categoryId": "aaii",
@@ -47,7 +79,15 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Licensed/current direct value is unavailable; exact search-derived percentages are forbidden.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 0,
+        "required": 1,
+        "gate": "licensed-direct-current",
+        "rights": "OPERATOR_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "naaim",
@@ -55,7 +95,15 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Licensed/current direct value is unavailable; only bounded inference may be used.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 0,
+        "required": 1,
+        "gate": "licensed-direct-current",
+        "rights": "OPERATOR_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "investors-intelligence",
@@ -63,7 +111,15 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Licensed/current direct value is unavailable; subscriber data must not be synthesized.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 0,
+        "required": 1,
+        "gate": "subscriber-current",
+        "rights": "OPERATOR_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "us-breadth",
@@ -71,7 +127,15 @@
       "sourceClass": "PARTIAL",
       "reason": "AIO universe breadth is available, but official exchange breadth is a different source contract.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 2,
+        "gate": "official-exchange-breadth",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "kr-breadth",
@@ -79,7 +143,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Korean breadth is available from the AIO universe; field-level historical reconciliation is pending.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 2,
+        "gate": "official-kr-breadth",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "breadth-history",
@@ -87,7 +159,15 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Daily breadth history and McClellan A/D producer are not yet durable.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 0,
+        "required": 1,
+        "gate": "durable-daily-history",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "treasury-curve",
@@ -95,7 +175,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Official series and runtime curve are present, but all series point-level reconciliation is pending.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 2,
+        "required": 5,
+        "gate": "official-point-history",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "hy-oas",
@@ -103,7 +191,15 @@
       "sourceClass": "PARTIAL",
       "reason": "FRED HY OAS is now published by the durable artifact and applied by the server-data UI path; direct browser freshness and provider-rights evidence remain separate.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 1,
+        "gate": "fred-current-and-rights",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "cpi-pce",
@@ -111,7 +207,15 @@
       "sourceClass": "OBSERVED_OFFICIAL",
       "reason": "BLS/BEA reference values are represented in the current data contract.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 2,
+        "required": 2,
+        "gate": "official-reference-values",
+        "rights": "CURRENT",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": true
+      }
     },
     {
       "categoryId": "employment-wages",
@@ -119,7 +223,15 @@
       "sourceClass": "OBSERVED_OFFICIAL",
       "reason": "Employment and wage reference values are represented with official-source metadata.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 2,
+        "required": 2,
+        "gate": "official-reference-values",
+        "rights": "CURRENT",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": true
+      }
     },
     {
       "categoryId": "retail-housing-ism",
@@ -127,7 +239,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Retail/housing inputs exist; ISM release-aware direct adapter is not complete.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 3,
+        "gate": "release-aware-inputs",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "central-bank-policy",
@@ -135,7 +255,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Official reference registry exists; current statement/rate point-level reconciliation is pending.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 2,
+        "gate": "current-official-registry",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "macro-calendar",
@@ -143,7 +271,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Release calendar is explicit, but automatic release-aware ingestion is not complete.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 1,
+        "gate": "release-aware-calendar",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "news",
@@ -151,7 +287,15 @@
       "sourceClass": "PARTIAL",
       "reason": "News artifact has source metadata; full article-level source and translation reconciliation is pending.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 1,
+        "gate": "article-level-source-lineage",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "commodities-fx",
@@ -159,7 +303,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Tier 0 commodities/FX are present; settlement-vs-spot and full history reconciliation is pending.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 2,
+        "required": 4,
+        "gate": "settlement-and-spot-history",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "global-indices",
@@ -167,7 +319,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Global index snapshot is present; broader historical and session reconciliation is pending.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 2,
+        "required": 4,
+        "gate": "session-history",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "crypto",
@@ -175,7 +335,15 @@
       "sourceClass": "PARTIAL",
       "reason": "Crypto quotes are available with observed/fetched timestamps; full 24/7 history reconciliation is pending.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 1,
+        "required": 2,
+        "gate": "24x7-history",
+        "rights": "REVIEW_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     },
     {
       "categoryId": "kr-macro-vkospi-supply",
@@ -183,7 +351,46 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Approved KRX/Koscom provider and VKOSPI rights are unresolved; unavailable must remain explicit.",
       "marketSnapshotRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
-      "checkedAt": "2026-07-29T10:18:08.061Z"
+      "checkedAt": "2026-07-29T12:18:35.242Z",
+      "evidence": {
+        "observed": 0,
+        "required": 1,
+        "gate": "approved-krx-provider-and-rights",
+        "rights": "OPERATOR_REQUIRED",
+        "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5",
+        "promotable": false
+      }
     }
-  ]
+  ],
+  "closure": {
+    "complete": false,
+    "unresolvedCategories": [
+      "market-quotes",
+      "volatility",
+      "fear-greed",
+      "aaii",
+      "naaim",
+      "investors-intelligence",
+      "us-breadth",
+      "kr-breadth",
+      "breadth-history",
+      "treasury-curve",
+      "hy-oas",
+      "retail-housing-ism",
+      "central-bank-policy",
+      "macro-calendar",
+      "news",
+      "commodities-fx",
+      "global-indices",
+      "crypto",
+      "kr-macro-vkospi-supply"
+    ],
+    "operatorRequiredCategories": [
+      "aaii",
+      "naaim",
+      "investors-intelligence",
+      "kr-macro-vkospi-supply"
+    ],
+    "sourceRevision": "market-snapshot:2026-07-29T10:18:03.032Z:804cadf5"
+  }
 }

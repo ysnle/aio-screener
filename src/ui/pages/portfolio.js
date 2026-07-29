@@ -1,4 +1,4 @@
-import { createResourceBag } from '../../app/lifecycle.js';
+import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
 
@@ -263,7 +263,46 @@ function renderPortfolioTable(documentRef, page, state) {
   });
 }
 
-function render({ root, documentRef, store }) {
+function renderPortfolioChart({ root, page, state, charts }) {
+  const canvas = page?.querySelector?.('#pf-position-donut');
+  if (!canvas) return;
+  const holdings = (Array.isArray(state?.holdings) ? state.holdings : []).map((holding) => {
+    const shares = finite(holding?.shares);
+    const price = finite(holding?.price);
+    return { symbol: String(holding?.symbol || '').toUpperCase(), value: shares != null && price != null && price > 0 ? shares * price : null };
+  }).filter((item) => item.symbol && item.value != null && item.value > 0);
+  const total = holdings.reduce((sum, item) => sum + item.value, 0);
+  const ChartConstructor = root?.Chart;
+  const unavailable = !holdings.length || !(total > 0) || typeof ChartConstructor !== 'function';
+  const signature = holdings.map((item) => `${item.symbol}:${item.value}`).join('|');
+  canvas.dataset.aioPortfolioChartRenderer = 'native';
+  canvas.dataset.sourceKind = unavailable ? 'unavailable' : 'portfolio-state';
+  canvas.dataset.sourceLabel = unavailable ? 'portfolio-chart-input-unavailable' : 'native:portfolio-state';
+  canvas.dataset.operationalUse = 'reference-only';
+  const loading = page.querySelector('#pf-donut-legend');
+  if (unavailable) {
+    charts.destroy('pf-position-donut');
+    if (loading) loading.textContent = '포트폴리오 시세 수신 대기 · 차트 보류';
+    return;
+  }
+  if (charts.get('pf-position-donut')?.signature === signature) return;
+  charts.destroy('pf-position-donut');
+  try {
+    const colors = ['#211d16', '#57513f', '#8a8271', '#6f695e', '#a29a89', '#3d3830', '#b8b0a0'];
+    const chart = new ChartConstructor(canvas, {
+      type: 'doughnut',
+      data: { labels: holdings.map((item) => item.symbol), datasets: [{ data: holdings.map((item) => item.value), backgroundColor: holdings.map((_, index) => colors[index % colors.length]), borderColor: '#fbf9f5', borderWidth: 1 }] },
+      options: { responsive: false, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => ` ${context.label}: ${(context.parsed / total * 100).toFixed(1)}%` } } } }
+    });
+    charts.set('pf-position-donut', { chart, signature });
+    if (loading) loading.textContent = holdings.slice(0, 8).map((item) => `${item.symbol} ${(item.value / total * 100).toFixed(1)}%`).join(' · ');
+  } catch (_) {
+    charts.destroy('pf-position-donut');
+    if (loading) loading.textContent = '포트폴리오 차트 런타임 실패 · 차트 보류';
+  }
+}
+
+function render({ root, documentRef, store, charts }) {
   const state = selectPortfolioState(store.getState());
   const page = documentRef?.getElementById('page-portfolio');
   if (page) {
@@ -276,6 +315,7 @@ function render({ root, documentRef, store }) {
   renderPortfolioHero(documentRef, state);
   renderPortfolioStatus(documentRef, state);
   renderPortfolioTable(documentRef, page, state);
+  renderPortfolioChart({ root, page, state, charts });
 }
 
 export function createPortfolioPage({ root = globalThis, documentRef, store } = {}) {
@@ -283,7 +323,9 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
     route: 'portfolio',
     mount() {
       const bag = createResourceBag();
-      const renderNow = () => render({ root, documentRef, store });
+      const charts = createChartRegistry({ maxCanvasHeight: 260 });
+      bag.add(charts.dispose);
+      const renderNow = () => render({ root, documentRef, store, charts });
       renderNow();
       bag.add(store.subscribe(renderNow));
       const eventTarget = documentRef || globalThis;
@@ -292,6 +334,7 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       const page = documentRef?.getElementById('page-portfolio');
       const table = page?.querySelector?.('#pf-positions-tbody');
       if (page) page.dataset.aioPortfolioSurface = 'native';
+      if (page) page.dataset.aioPortfolioChartRenderer = 'native';
       if (table) table.dataset.aioPortfolioTableRenderer = 'native';
       ['pf-total-value', 'pf-total-pnl'].forEach((id) => {
         const element = documentRef?.getElementById(id);
@@ -299,6 +342,13 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       });
       bag.add(() => {
         if (table?.dataset.aioPortfolioTableRenderer === 'native') delete table.dataset.aioPortfolioTableRenderer;
+        const chartCanvas = documentRef?.getElementById('pf-position-donut');
+        if (chartCanvas?.dataset.aioPortfolioChartRenderer === 'native') {
+          delete chartCanvas.dataset.aioPortfolioChartRenderer;
+          delete chartCanvas.dataset.sourceKind;
+          delete chartCanvas.dataset.sourceLabel;
+          delete chartCanvas.dataset.operationalUse;
+        }
         ['pf-total-value', 'pf-total-pnl'].forEach((id) => {
           const element = documentRef?.getElementById(id);
           if (element?.dataset.aioPortfolioHeroRenderer === 'native') delete element.dataset.aioPortfolioHeroRenderer;
@@ -306,6 +356,7 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
         if (page?.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
         if (page?.dataset.aioArchitectureSlice === 'portfolio') delete page.dataset.aioArchitectureSlice;
         if (page?.dataset.aioPortfolioSurface === 'native') delete page.dataset.aioPortfolioSurface;
+        if (page?.dataset.aioPortfolioChartRenderer === 'native') delete page.dataset.aioPortfolioChartRenderer;
         if (page?.dataset.aioPortfolioSurfaceModel) delete page.dataset.aioPortfolioSurfaceModel;
         page?.querySelectorAll?.('[data-aio-portfolio-surface-renderer="native"], [data-aioPortfolioSurfaceRenderer="native"]')?.forEach((element) => {
           delete element.dataset.aioPortfolioSurfaceRenderer;

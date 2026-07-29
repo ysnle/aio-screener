@@ -1700,3 +1700,25 @@ When `architecture/operations-slo.json.latestMeasuredBoot.status` is not `TARGET
 **Rule**: Translation, news enrichment, compatibility diagrams, market-state narrative synthesis, pixel-level fallbacks, and other non-critical producers must not execute synchronously inside the first 2s interactive boot or native route transition. They must render a local/unavailable state first and release work through the central phase scheduler or an explicit post-boot queue. Native route ownership must fence duplicate legacy writers before deferred work is scheduled.
 
 **Validation**: `ci-boot-interaction-check.mjs` measures the explicit 2s observation window and enforces request/long-task budgets; `ci-operations-contract-check.mjs` rejects a release unless the recorded boot is `TARGET_COMPLIANT`; architecture/browser and route-soak gates verify the deferred surfaces still settle after navigation.
+
+## R412. Native data readers are the only route-provider boundary (v53.63, P833)
+
+**Rule**: Route providers must read through `src/data/runtime-readers.js` or an explicit
+native provider, never through `legacy.read*` projections. Runtime readers preserve
+observation/source metadata and fail closed for missing values; compatibility facades
+remain limited to navigation/actions and legacy fallback writers.
+
+**Validation**: `ci-architecture-contract-check.mjs`, `ci-architecture-browser-check.mjs`,
+and `ci-operator-readiness-check.mjs` must report 17/17 native data owners and no
+provider wiring that directly invokes `legacy.read*`.
+
+## R413. Native chart ownership requires a registry, marker, and legacy fence (v53.63, P834-P835)
+
+**Rule**: A route chart can be promoted only when the native module owns its Chart.js
+instance through a disposable registry, renders an explicit unavailable state when
+history/evidence is absent, marks the canvas and route, and fences every legacy chart
+entrypoint that can reach the same canvas. Synthetic history is forbidden.
+
+**Validation**: architecture contracts and Chromium route checks cover native ticker and
+portfolio chart markers, bounded canvas resources, and the fenced legacy loaders; route
+ownership counts must be recomputed from the manifest rather than edited independently.

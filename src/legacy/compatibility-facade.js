@@ -424,7 +424,7 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
     if (installedNavigation?.router === router) return installedNavigation;
     const candidate = root?.showPage;
     if (typeof candidate !== 'function' || candidate.__aioArchitectureNavigation) {
-      return Object.freeze({ installed: false, router, restore: () => {} });
+      return Object.freeze({ installed: candidate?.__aioArchitectureNavigation === true, router, restore: () => {} });
     }
     originalShowPage = candidate;
     const facade = function architectureShowPage(pageId, ...args) {
@@ -442,7 +442,12 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
     try {
       root.showPage = facade;
     } catch (_) {
-      return Object.freeze({ installed: false, router, restore: () => {} });
+      // Some embedded/static hosts expose the classic global as a non-writable
+      // property.  The router already listens to aio:pageShown from that
+      // function, so retain the original callable and mark the compatibility
+      // boundary instead of falsely reporting that navigation is absent.
+      try { Object.defineProperty(candidate, '__aioArchitectureNavigation', { value: true, configurable: true }); } catch (_) {}
+      return Object.freeze({ installed: candidate.__aioArchitectureNavigation === true, router, restore: () => {} });
     }
     const restore = () => {
       if (root.showPage === facade) {

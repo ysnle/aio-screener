@@ -26,6 +26,7 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
         id,
         name: value.name || id,
         quote: value.quote || null,
+        history: Array.isArray(value.history) ? value.history : [],
         fundamentals: fetchedFundamentals || value.fundamentals || null,
         options: value.options || null,
         updatedAt: value.updatedAt || new Date().toISOString()

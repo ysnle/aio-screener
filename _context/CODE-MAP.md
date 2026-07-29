@@ -1,21 +1,21 @@
 > **v53.55 (P761~P849 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, P826 derived-route compatibility canonicalization, P827~P830 secondary surface closure, P831 portfolio summary, P832 SEC report, P833 KV-only fast quote deployment, P834 AI infrastructure reference integration, P835 chart/behavior/communication protocols, P836 data refresh pipeline correction, P837 fast-plane smoke bootstrap handling, P838~P841 evidence/lifecycle/freshness/slice contracts, P842 capability claim boundary, P843 operations/soak/readiness boundary, P846 credential compatibility, P847 typed data evidence, P848 AI QuestionPlan/ClaimLedger/causal boundaries, P849 domain/evaluation/operations contracts까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
 
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P850 update
-current_override: P856 atomic quote/release parity/security-header gate on top of P849 AI intelligence and P843 operations/route-soak/public-readiness; live edge enforcement, provider rights, model benchmark, and SA-04 remain explicit operator gates
+verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
+current_override: P833-P835 native runtime data boundary and ticker/portfolio chart lifecycle on top of P856 release/security gates; live edge enforcement, provider rights, model benchmark, fast-plane soak, and SA-04 remain explicit operator gates
   last_verified: 2026-07-29
 confidence: high
-  target_version: v53.62
+  target_version: v53.63
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P843 gate
-  current_checkpoint: P849 AIQ-0~4 contracts plus AIQ-5/6 benchmark/operations scaffolds pass locally; native lifecycle/renderer routes are 17/17, while live model/Worker certification remains operator-required
+  current_checkpoint: P833-P835 native data ownership is 17/17 and chart ownership is 8/17 with route-scoped registries/fences; narrative remains 1/17 and live model/Worker/provider certification remains operator-required
 ---
 
-## Current machine-verified file-size table (v53.62, 2026-07-29)
+## Current machine-verified file-size table (v53.63, 2026-07-29)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 27,514 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 27,522 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-core.js` | 26,594 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-data.js` | 16,012 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,305 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
@@ -27,9 +27,12 @@ target_lines: refreshed after P843 gate
 | `src/data/normalize/screener.js` | 63 | screener row/metadata normalization |
 | `src/data/orchestrators/screener.js` | 58 | screener state orchestration + factor-rank wiring |
 | `src/ui/pages/news.js` | 285 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
-| `src/ui/pages/market.js` | 794 | native macro/fxbond/breadth primary metric renderers; native screener-metadata breadth fallback |
-| `src/ui/pages/themes.js` | 861 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark; chart/status and theme-insights secondary boundaries |
-| `src/ui/pages/entity.js` | 331 | native ticker hero/activity, options metrics, fundamental SEC status/summary, and `sec-report.v2` core report renderer with freshness state; mixed-source report remains legacy |
+| `src/ui/pages/market.js` | 801 | native macro/fxbond/breadth primary metric renderers, curve/chart lifecycles, and native screener-metadata breadth fallback |
+| `src/ui/pages/themes.js` | 861 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark/insights and RRG chart lifecycle; deeper legacy-only surfaces remain bounded |
+| `src/ui/pages/analysis.js` | 369 | native home/signal/technical decision surfaces and technical OHLCV/volume chart lifecycles with fail-closed input states |
+| `src/ui/pages/entity.js` | 387 | native ticker hero/activity, options metrics, fundamental SEC status/summary, `sec-report.v2` core report renderer, and native ticker chart lifecycle with explicit unavailable history state |
+| `src/ui/pages/portfolio.js` | 372 | native portfolio state, holdings/summary/allocation surfaces, and position-allocation chart lifecycle with explicit unavailable state |
+| `src/data/runtime-readers.js` | 155 | canonical read-only runtime boundary for native route data providers |
 | `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
 
 | `src/ai/intent/taxonomy.js` | 83 | AIQ-1 typed intent taxonomy/routing |

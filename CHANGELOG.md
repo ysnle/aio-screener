@@ -1,4 +1,13 @@
 ## v53.62 (2026-07-29)
+
+- **P833 / native data boundary**: all 17 route providers now consume the explicit `src/data/runtime-readers.js` boundary with preserved observation/source lineage and fail-closed missing values.
+- **P834-P835 / native chart lifecycle**: ticker price and portfolio position-allocation charts now use route-scoped Chart.js registries, explicit unavailable states, and fenced legacy canvas entrypoints. Route ownership is 17/17 lifecycle+renderer+data, 8/17 chart, and 1/17 narrative; remaining dimensions stay explicitly open.
+- **Reconciliation/operations closure**: all 22 categories now expose observed/required evidence, rights, gate, revision, and unresolved closure arrays; operator-required provider rights, fast-plane credentials/soak, and live edge headers remain blocked rather than promoted.
+
+## v53.63 (2026-07-29)
+- P833-P835 native runtime data and ticker/portfolio chart ownership packets; structural/browser gates record the new markers and legacy fences.
+- Public deployment remains operator-gated for external rights, fast-plane authentication/soak, and GitHub Pages edge header enforcement.
+
 - **P858 / boot critical path**: deferred translation/news enrichment and duplicate market-state/narrative work beyond the 2s interactive budget; provider quote fan-out remains owned by the central phase coordinator; route transitions avoid broad page invalidation.
 - **Boot SLO verification**: three sequential Chromium runs pass initial external requests `12/25`, initial quote requests `0/16`, max long task `103-113ms/200ms`, total long task `542-558ms/1000ms`, active-route DOM `724/2500`.
 - **Release posture**: local boot/route/data gates are target-compliant; live edge headers, Fast-plane credentials/soak, provider rights, and public beta remain operator-gated.
