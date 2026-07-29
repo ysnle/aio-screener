@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-29T21:38:29.127Z",
-  "attemptedAt": "2026-07-29T21:38:29.127Z",
-  "lastSuccessfulAt": "2026-07-29T21:38:29.127Z",
+  "generatedAt": "2026-07-29T22:39:57.966Z",
+  "attemptedAt": "2026-07-29T22:39:57.966Z",
+  "lastSuccessfulAt": "2026-07-29T22:39:57.966Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-15T21:38:24.184Z",
-  "until": "2026-07-29T21:38:24.184Z",
+  "since": "2026-07-15T22:39:53.818Z",
+  "until": "2026-07-29T22:39:53.818Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -13,7 +13,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 472,
+      "count": 471,
       "freshCount": 20,
       "eligibleTextCount": 19,
       "selectedCount": 124,
@@ -25,29 +25,67 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1115,
+      "count": 1116,
       "freshCount": 38,
       "eligibleTextCount": 37,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 59702
+      "lastPostId": 59704
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 274,
+      "count": 275,
       "freshCount": 39,
       "eligibleTextCount": 38,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19407
+      "lastPostId": 19408
     }
   ],
-  "count": 1861,
-  "retainedItemCount": 401,
+  "count": 1862,
+  "retainedItemCount": 400,
   "observedItems": [
+    {
+      "id": "insidertracking/59704",
+      "channel": "insidertracking",
+      "datetime": "2026-07-29T22:30:31.000Z",
+      "localDateKst": "2026-07-30",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59703",
+      "channel": "insidertracking",
+      "datetime": "2026-07-29T22:14:36.000Z",
+      "localDateKst": "2026-07-30",
+      "score": 57,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19408",
+      "channel": "bornlupin",
+      "datetime": "2026-07-29T22:13:17.000Z",
+      "localDateKst": "2026-07-30",
+      "score": 55,
+      "tags": [
+        "power"
+      ],
+      "tickers": [
+        "MSFT"
+      ],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19407",
       "channel": "bornlupin",
@@ -859,7 +897,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59661",
@@ -875,7 +913,7 @@
       "tickers": [
         "BE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59660",
@@ -3501,7 +3539,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59545",
@@ -26736,72 +26774,34 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23603",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-15T22:15:29.000Z",
-      "localDateKst": "2026-07-16",
-      "score": 96,
-      "tags": [
-        "credit",
-        "geo",
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "MU",
-        "005930.KS",
-        "000660.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58451",
-      "channel": "insidertracking",
-      "datetime": "2026-07-15T21:48:30.000Z",
-      "localDateKst": "2026-07-16",
-      "score": 96,
-      "tags": [
-        "credit",
-        "geo",
-        "semi",
-        "equity"
-      ],
-      "tickers": [
-        "MU",
-        "005930.KS",
-        "000660.KS"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 415,
     "lineageCompleteAfter": "2026-07-30T03:38:06.534Z",
-    "observedCount": 1861,
+    "observedCount": 1862,
     "eligibleTextCount": 94,
-    "mediaOnlyCount": 1767,
-    "highSignalCount": 535,
+    "mediaOnlyCount": 1768,
+    "highSignalCount": 533,
     "broadSignalCount": 935,
     "selectedRawCount": 365,
     "selectedRawCoveragePct": 388.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 599,
-    "semi": 695,
+    "market-note": 464,
+    "macro": 600,
+    "power": 332,
+    "semi": 693,
     "earnings": 454,
     "flows": 155,
-    "market-note": 463,
     "kr-market": 264,
     "media-only": 44,
-    "geo": 361,
+    "geo": 359,
     "japan": 136,
-    "equity": 164,
-    "power": 331,
-    "credit": 46,
+    "equity": 162,
+    "credit": 44,
     "healthcare": 111,
     "ai-policy": 199,
     "crypto": 8,
@@ -26809,7 +26809,8 @@
     "optical": 19
   },
   "tickerCounts": {
-    "000660.KS": 126,
+    "MSFT": 45,
+    "000660.KS": 124,
     "ARM": 3,
     "LRCX": 7,
     "META": 49,
@@ -26829,11 +26830,10 @@
     "QQQ": 9,
     "SMH": 1,
     "XLV": 1,
-    "MSFT": 44,
     "SBUX": 3,
     "QCOM": 11,
     "AMZN": 51,
-    "005930.KS": 75,
+    "005930.KS": 73,
     "V": 4,
     "ABBV": 3,
     "KO": 5,
@@ -26858,7 +26858,7 @@
     "CTSH": 1,
     "PSX": 6,
     "RACE": 1,
-    "MU": 49,
+    "MU": 47,
     "LITE": 14,
     "267260.KS": 2,
     "BE": 29,
@@ -27027,19 +27027,19 @@
     "6702.T": 1
   },
   "themes": [
-    "Semiconductors/Memory (695 posts in current window): 2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES...",
-    "Macro/Rates (599 posts in current window): 2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES...",
-    "Market Notes (463 posts in current window): 52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·...",
+    "Semiconductors/Memory (693 posts in current window): 2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES...",
+    "Macro/Rates (600 posts in current window): 2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES...",
+    "Market Notes (464 posts in current window): 52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·...",
     "Earnings/Corporate (454 posts in current window): 2026년 7월 30일 미국 증시 브리핑 연방준비제도는 시장 예상대로 기준금리를 3.50~3.75%로 동결했지만 9대 3의 표결 결과와 함께 세 명의 위원이 25bp 인상을 주장하며 내부 매파 성향이 예상보다 강하게 확인. 케빈 워시 연준 의장은 이번 결정을 '일시적 중단(Pause)'으로 해석해서는 안 된다고...",
-    "Geopolitics (361 posts in current window): 2026년 7월 30일 미국 증시 브리핑 연방준비제도는 시장 예상대로 기준금리를 3.50~3.75%로 동결했지만 9대 3의 표결 결과와 함께 세 명의 위원이 25bp 인상을 주장하며 내부 매파 성향이 예상보다 강하게 확인. 케빈 워시 연준 의장은 이번 결정을 '일시적 중단(Pause)'으로 해석해서는 안 된다고...",
-    "AI Power/Grid (331 posts in current window): 2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES...",
+    "Geopolitics (359 posts in current window): 2026년 7월 30일 미국 증시 브리핑 연방준비제도는 시장 예상대로 기준금리를 3.50~3.75%로 동결했지만 9대 3의 표결 결과와 함께 세 명의 위원이 25bp 인상을 주장하며 내부 매파 성향이 예상보다 강하게 확인. 케빈 워시 연준 의장은 이번 결정을 '일시적 중단(Pause)'으로 해석해서는 안 된다고...",
+    "AI Power/Grid (332 posts in current window): 2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES...",
     "Korea Market (264 posts in current window): 2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES...",
     "AI Policy/Export Controls (199 posts in current window): 2026년 7월 30일 미국 증시 브리핑 연방준비제도는 시장 예상대로 기준금리를 3.50~3.75%로 동결했지만 9대 3의 표결 결과와 함께 세 명의 위원이 25bp 인상을 주장하며 내부 매파 성향이 예상보다 강하게 확인. 케빈 워시 연준 의장은 이번 결정을 '일시적 중단(Pause)'으로 해석해서는 안 된다고..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 126,
+      "count": 124,
       "text": "2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES..."
     },
     {
@@ -27064,7 +27064,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 75,
+      "count": 73,
       "text": "미국 레딧 게시물 분석 (2026년 7월 30일 00:00~05:00 기준) > 💾 AI 메모리 / 삼성전자 / SK하이닉스 · 한국 증시 폭락이 WSB 메인 화제 · \"외국인 던지고 기관이 다 받았다\" · 삼성·하이닉스가 매도 타깃이라는 해석 · 골드만 관련 매도 스토리 확산 · AI 메모리 장기 강세론은 아직..."
     },
     {
@@ -27084,12 +27084,12 @@
     },
     {
       "key": "MU",
-      "count": 49,
+      "count": 47,
       "text": "BofA가 정리한 AI 및 반도체 전반의 가장 큰 지속적 우려 사항: 1. 포지셔닝이 여전히 깨끗하지 않음 하드웨어는 뜨내기 투자자(tourist trade)들의 거래 대상이 되었으며, 심지어 헬스케어 버스 투어에서도 SNDK가 논의되었다는 이야기가 있음. 뒤늦게 MU를 매수한 투자자들은 여전히 씻겨 나가야 할 수..."
     },
     {
       "key": "MSFT",
-      "count": 44,
+      "count": 45,
       "text": "2026년 7월 30일 미국 증시 브리핑 연방준비제도는 시장 예상대로 기준금리를 3.50~3.75%로 동결했지만 9대 3의 표결 결과와 함께 세 명의 위원이 25bp 인상을 주장하며 내부 매파 성향이 예상보다 강하게 확인. 케빈 워시 연준 의장은 이번 결정을 '일시적 중단(Pause)'으로 해석해서는 안 된다고..."
     },
     {
@@ -27105,7 +27105,7 @@
       "topics": [
         "macro"
       ],
-      "count": 599,
+      "count": 600,
       "focus": "2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES..."
     },
     {
@@ -27114,7 +27114,7 @@
       "topics": [
         "geo"
       ],
-      "count": 361,
+      "count": 359,
       "focus": "2026년 7월 30일 미국 증시 브리핑 연방준비제도는 시장 예상대로 기준금리를 3.50~3.75%로 동결했지만 9대 3의 표결 결과와 함께 세 명의 위원이 25bp 인상을 주장하며 내부 매파 성향이 예상보다 강하게 확인. 케빈 워시 연준 의장은 이번 결정을 '일시적 중단(Pause)'으로 해석해서는 안 된다고..."
     },
     {
@@ -27123,7 +27123,7 @@
       "topics": [
         "credit"
       ],
-      "count": 46,
+      "count": 44,
       "focus": "2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES..."
     },
     {
@@ -27132,7 +27132,7 @@
       "topics": [
         "semi"
       ],
-      "count": 695,
+      "count": 693,
       "focus": "2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES..."
     },
     {
@@ -27150,7 +27150,7 @@
       "topics": [
         "power"
       ],
-      "count": 331,
+      "count": 332,
       "focus": "2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES ULTRAPRO QQQ ETF (6.06%) 3위: DIREXION DAILY TSLA BULL 2X SHARES..."
     },
     {
@@ -27177,7 +27177,7 @@
       "topics": [
         "equity"
       ],
-      "count": 164,
+      "count": 162,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 30일 00:00~05:00 기준) > 💾 AI 메모리 / 삼성전자 / SK하이닉스 · 한국 증시 폭락이 WSB 메인 화제 · \"외국인 던지고 기관이 다 받았다\" · 삼성·하이닉스가 매도 타깃이라는 해석 · 골드만 관련 매도 스토리 확산 · AI 메모리 장기 강세론은 아직..."
     },
     {
@@ -27240,7 +27240,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 463,
+      "count": 464,
       "focus": "52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·..."
     }
   ],
@@ -28605,6 +28605,36 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/59703",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59703",
+      "datetime": "2026-07-29T22:14:36.000Z",
+      "localDateKst": "2026-07-30",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "미국 연방대법원이 출생시민권(Birthright Citizenship)과 관세(Tariffs)에 대해 내린 부정적인 판결로 인해, 미국이 얼마나 많은 돈과 국격을 잃었는지 아는 사람이 있는가? 정답은 수조..."
+    },
+    {
+      "id": "bornlupin/19408",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19408",
+      "datetime": "2026-07-29T22:13:17.000Z",
+      "localDateKst": "2026-07-30",
+      "tags": [
+        "power"
+      ],
+      "tickers": [
+        "MSFT"
+      ],
+      "score": 55,
+      "hasText": true,
+      "summary": "마이크로소프트( &#036;MSFT ) 2027 회계연도(FY27) 설비투자(CapEx), 전년 대비 증가 예상 ​마이크로소프트 CEO: ​\" 이번 분기에 1기가와트(GW)의 용량을 추가했으며, 2년 내 전체..."
+    },
     {
       "id": "bornlupin/19407",
       "channel": "bornlupin",
@@ -33510,22 +33540,6 @@
       "summary": "골드만삭스는 국제유가의 상방 위험이 하방 위험보다 크다고 분석. 브렌트유 선물은 최근 홍해 해상 운송 리스크 확대와 후티 반군의 유조선 공격, 중동 산유국 감산 이행 등의 영향으로 배럴당 100달러에 근접하며..."
     },
     {
-      "id": "insidertracking/59347",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59347",
-      "datetime": "2026-07-26T23:51:53.000Z",
-      "localDateKst": "2026-07-27",
-      "tags": [
-        "macro",
-        "semi",
-        "equity"
-      ],
-      "tickers": [],
-      "score": 64,
-      "hasText": true,
-      "summary": "창신메모리테크놀로지(CXMT)가 27일 중국 과학혁신판(커촹반)에 공식 상장. 예측 플랫폼 폴리마켓에 따르면 상장 첫날 종가 기준 시가총액이 1조 위안을 돌파할 확률은 100%로 집계됨. 1조5천억 위안,..."
-    },
-    {
       "id": "bornlupin/19335",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19335",
@@ -35204,24 +35218,6 @@
       "score": 53,
       "hasText": true,
       "summary": "Evercore ISI, 알파벳 (Alphabet , &#036;GOOGL ) 실적 코멘트 알파벳의 2분기 실적은 대부분의 주요 부문에서 시장 예상치를 상회했습니다. 총매출 : &#036;119.8B (전년..."
-    },
-    {
-      "id": "bornlupin/19253",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19253",
-      "datetime": "2026-07-22T20:35:46.000Z",
-      "localDateKst": "2026-07-23",
-      "tags": [
-        "macro",
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [
-        "GOOG"
-      ],
-      "score": 66,
-      "hasText": true,
-      "summary": "구글 클라우드 2분기 실적: &#036;24.77B (전망치: &#036;22.46B) 매출 247.68억 달러로 전년 대비 82% 성장했는데, 전년 동기 성장률이 +32%였던 점을 감안하면 극적인 가 속..."
     }
   ]
 }
