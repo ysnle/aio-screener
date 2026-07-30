@@ -19,6 +19,12 @@ target_version: v53.64
 
 **Validation**: Headless T759 checks valid non-past NFP/CPI/FOMC/PCE dates, and the calendar registry's official schedule arrays provide the rollover source.
 
+## R421. 데이터 refresh 이후 릴리스 SSOT를 같은 revision tuple로 승격한다 (v53.64, P866)
+
+**Rule**: A public-data refresh that changes `market-snapshot.revision` must also update the asset/release manifest `dataRevision` before the next deploy. App, data, evidence, and worker revisions are one tuple; a mixed tuple is not releasable.
+
+**Validation**: `ci-operations-contract-check.mjs` must pass against the current `public-data/market-snapshot.json`, operations status, asset manifest, and release manifest.
+
 ## R356. Yahoo chart proxy는 공통 health registry를 통해서만 실행해야 한다 (v53.19, P784)
 
 **Rule**: Yahoo chart proxy attempts must use `_PROXY_REGISTRY` through `fetchViaProxy`; direct proxy arrays in chart-specific callers are prohibited. Invalid chart payloads count as proxy failures, three consecutive failures open cooldown, and a later valid response clears the proxy health state. This packet does not change price-validation bands or add a new public proxy.

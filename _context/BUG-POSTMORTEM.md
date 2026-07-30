@@ -3,10 +3,19 @@ verified_by: agent (Claude Sonnet 5) + Codex P761-P845 static implementation rec
 last_verified: 2026-07-29
 confidence: high
 latest_version: v53.64
-latest_P_number: P865
-next_P_number: P866
-current_total_entries: 605 (P1~P865, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P859-P865 themes performance bars, decision-evidence, news freshness, partial-portfolio aggregates, Worker endpoint evidence, release-manifest synchronization, and official FOMC calendar rollover; remaining route secondary surfaces, soak, rights, AI proxy redeploy, and edge certification remain separate operator/runtime checks
+latest_P_number: P866
+next_P_number: P867
+current_total_entries: 606 (P1~P866, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P859-P866 themes performance bars, decision-evidence, news freshness, partial-portfolio aggregates, Worker endpoint evidence, release-manifest synchronization, official FOMC calendar rollover, and post-refresh data-revision coherence; remaining route secondary surfaces, soak, rights, AI proxy redeploy, and edge certification remain separate operator/runtime checks
+
+## P866 - v53.64 - data refresh advanced the snapshot without release-manifest promotion
+
+- **motivation**: after the scheduled refresh published a newer market snapshot, the operations contract rejected the release because the asset/release manifests still pinned the prior snapshot revision.
+- **root_cause**: the data bot updates public-data artifacts independently of the application release SSOT; no merge-time check promoted the newest snapshot revision into the release manifests.
+- **fix**: synchronized both `architecture/asset-manifest.json` and `architecture/release-manifest.json` to `market-snapshot:2026-07-30T01:02:42.801Z:46ed9ff3` and updated the release generation timestamp.
+- **violated_rule**: R418/R419 — runtime operations and release manifests must share one data/app/worker revision tuple.
+- **prevention**: `ci-operations-contract-check.mjs` remains a blocking gate after every data refresh merge; release manifest promotion is now part of the same packet.
+- **verification**: local Native ESM/operations contracts pass; the remote CI run that exposed the drift is superseded by the follow-up commit.
 
 ## P865 - v53.64 - FOMC calendar remained on a completed meeting
 

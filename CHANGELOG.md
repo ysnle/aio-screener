@@ -5,6 +5,7 @@
 - R1 7곳 v53.64
 - **P864 / release manifest synchronization**: architecture release/operations/readiness manifests now match v53.64 and `sw:v53.64`, closing the post-bump contract drift.
 - **P865 / official FOMC rollover**: completed 2026-07-29 FOMC data is now retained as last release and the official 2026-09-16 decision is surfaced as next release.
+- **P866 / post-refresh revision coherence**: asset/release manifests now promote the newest durable market-snapshot revision so refresh commits cannot leave a mixed release tuple.
 
 ## v53.62 (2026-07-29)
 

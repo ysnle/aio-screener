@@ -17,8 +17,8 @@ the canonical read boundary and removes the duplicate runtime fetch/factor proje
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
 checklist_version: v53.64
-latest_P_covered: P865
-current_P839_checkpoint: P859-P865 themes performance bars, decision evidence, news freshness, partial-portfolio fail-closed boundaries, deployed Worker endpoint evidence, release-manifest synchronization, and official FOMC calendar rollover are locally verified; remaining route secondary ownership, seven-day soak, provider/live Worker/model/edge verification stay separate
+latest_P_covered: P866
+current_P839_checkpoint: P859-P866 themes performance bars, decision evidence, news freshness, partial-portfolio fail-closed boundaries, deployed Worker endpoint evidence, release-manifest synchronization, official FOMC calendar rollover, and post-refresh data-revision coherence are locally verified; remaining route secondary ownership, seven-day soak, provider/live Worker/model/edge verification stay separate
 
 ## P864 Release manifest synchronization (v53.64)
 
@@ -32,6 +32,12 @@ current_P839_checkpoint: P859-P865 themes performance bars, decision evidence, n
 - [x] Completed 2026-07-29 FOMC decision is recorded as `lastRelease`.
 - [x] Next decision is the official 2026-09-16 release date.
 - [x] Headless T759 rejects past calendar values and passes after rollover.
+
+## P866 Post-refresh release/data revision coherence (v53.64)
+
+- [x] Asset and release manifests match the latest published market-snapshot revision.
+- [x] Operations contract rejects stale manifest data revisions after a refresh merge.
+- [x] Follow-up local contract verification passes after promotion.
 
 ## P833-P835 Native runtime data boundary and chart lifecycle (v53.63)
 

@@ -2,7 +2,7 @@
 
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
-current_override: P859-P865 themes evidence, decision/news/portfolio fail-closed boundaries, Worker endpoint evidence, release-manifest synchronization, and official FOMC rollover on top of P856-P858 release/security/boot gates; live edge enforcement, provider rights, model benchmark, fast-plane soak, and AI proxy health remain explicit operator gates
+current_override: P859-P866 themes evidence, decision/news/portfolio fail-closed boundaries, Worker endpoint evidence, release-manifest synchronization, official FOMC rollover, and post-refresh revision coherence on top of P856-P858 release/security/boot gates; live edge enforcement, provider rights, model benchmark, fast-plane soak, and AI proxy health remain explicit operator gates
   last_verified: 2026-07-29
 confidence: high
   target_version: v53.64
