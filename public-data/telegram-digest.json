@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-30T21:35:01.320Z",
-  "attemptedAt": "2026-07-30T21:35:01.320Z",
-  "lastSuccessfulAt": "2026-07-30T21:35:01.320Z",
+  "generatedAt": "2026-07-30T22:47:16.044Z",
+  "attemptedAt": "2026-07-30T22:47:16.044Z",
+  "lastSuccessfulAt": "2026-07-30T22:47:16.044Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-16T21:34:55.718Z",
-  "until": "2026-07-30T21:34:55.718Z",
+  "since": "2026-07-16T22:47:11.711Z",
+  "until": "2026-07-30T22:47:11.711Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -22,32 +22,144 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1099,
-      "freshCount": 58,
-      "eligibleTextCount": 58,
+      "count": 1105,
+      "freshCount": 38,
+      "eligibleTextCount": 38,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 59796
+      "lastPostId": 59804
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 284,
-      "freshCount": 40,
-      "eligibleTextCount": 40,
+      "count": 286,
+      "freshCount": 39,
+      "eligibleTextCount": 39,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 19438
+      "lastPostId": 19440
     }
   ],
-  "count": 1882,
-  "retainedItemCount": 434,
+  "count": 1890,
+  "retainedItemCount": 403,
   "observedItems": [
+    {
+      "id": "bornlupin/19440",
+      "channel": "bornlupin",
+      "datetime": "2026-07-30T22:37:09.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 50,
+      "tags": [
+        "geo",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59804",
+      "channel": "insidertracking",
+      "datetime": "2026-07-30T22:36:13.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59803",
+      "channel": "insidertracking",
+      "datetime": "2026-07-30T22:26:21.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 50,
+      "tags": [
+        "geo",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59802",
+      "channel": "insidertracking",
+      "datetime": "2026-07-30T22:21:22.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19439",
+      "channel": "bornlupin",
+      "datetime": "2026-07-30T22:09:07.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "AAPL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59801",
+      "channel": "insidertracking",
+      "datetime": "2026-07-30T22:05:27.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59800",
+      "channel": "insidertracking",
+      "datetime": "2026-07-30T22:01:22.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 50,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59798",
+      "channel": "insidertracking",
+      "datetime": "2026-07-30T21:59:21.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59797",
+      "channel": "insidertracking",
+      "datetime": "2026-07-30T21:55:40.000Z",
+      "localDateKst": "2026-07-31",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19438",
       "channel": "bornlupin",
@@ -609,7 +721,7 @@
         "FDX",
         "RACE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24186",
@@ -820,7 +932,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59761",
@@ -833,7 +945,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59760",
@@ -849,7 +961,7 @@
         "MSFT",
         "META"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24172",
@@ -894,7 +1006,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24170",
@@ -938,7 +1050,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59757",
@@ -950,7 +1062,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19433",
@@ -997,7 +1109,7 @@
       "tickers": [
         "BE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59755",
@@ -1012,7 +1124,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59754",
@@ -1024,7 +1136,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19432",
@@ -1062,7 +1174,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19430",
@@ -1088,7 +1200,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24164",
@@ -1152,7 +1264,7 @@
         "TSM",
         "BE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24162",
@@ -1176,7 +1288,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59749",
@@ -1188,7 +1300,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59748",
@@ -1200,7 +1312,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24161",
@@ -1246,7 +1358,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59746",
@@ -1258,7 +1370,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24159",
@@ -1304,7 +1416,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59744",
@@ -1317,7 +1429,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59743",
@@ -1331,7 +1443,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59741",
@@ -1343,7 +1455,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59740",
@@ -1356,7 +1468,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59739",
@@ -1368,7 +1480,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24157",
@@ -1418,7 +1530,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59737",
@@ -1431,7 +1543,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59736",
@@ -1443,7 +1555,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59733",
@@ -3436,7 +3548,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24114",
@@ -3476,7 +3588,7 @@
       "tickers": [
         "APH"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24112",
@@ -3565,7 +3677,7 @@
       "tickers": [
         "MS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24109",
@@ -27087,48 +27199,34 @@
         "035420.KS"
       ],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/58573",
-      "channel": "insidertracking",
-      "datetime": "2026-07-16T21:35:12.000Z",
-      "localDateKst": "2026-07-17",
-      "score": 65,
-      "tags": [
-        "macro",
-        "geo",
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 1882,
-    "eligibleTextCount": 116,
-    "mediaOnlyCount": 1766,
-    "highSignalCount": 549,
-    "broadSignalCount": 951,
+    "observedCount": 1890,
+    "eligibleTextCount": 95,
+    "mediaOnlyCount": 1795,
+    "highSignalCount": 548,
+    "broadSignalCount": 954,
     "selectedRawCount": 364,
-    "selectedRawCoveragePct": 313.8,
+    "selectedRawCoveragePct": 383.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 611,
-    "semi": 691,
-    "geo": 361,
-    "market-note": 465,
+    "geo": 363,
+    "japan": 141,
+    "market-note": 470,
+    "semi": 692,
+    "macro": 610,
     "earnings": 476,
-    "japan": 139,
     "optical": 22,
     "power": 343,
     "equity": 160,
     "crypto": 9,
     "ai-policy": 203,
-    "kr-market": 278,
+    "kr-market": 277,
     "flows": 159,
     "healthcare": 116,
     "credit": 45,
@@ -27136,8 +27234,8 @@
     "media-only": 41
   },
   "tickerCounts": {
+    "AAPL": 42,
     "AMZN": 54,
-    "AAPL": 41,
     "MSFT": 57,
     "META": 56,
     "MU": 41,
@@ -27354,13 +27452,13 @@
     "298040.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (691 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음 여전 · HBM 장기 스토리 유지 · 콜옵션 YOLO 계속 유입 · AI 반등 대표 종목 취급 ⚡️ IREN...",
-    "Macro/Rates (611 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음 여전 · HBM 장기 스토리 유지 · 콜옵션 YOLO 계속 유입 · AI 반등 대표 종목 취급 ⚡️ IREN...",
+    "Semiconductors/Memory (692 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음 여전 · HBM 장기 스토리 유지 · 콜옵션 YOLO 계속 유입 · AI 반등 대표 종목 취급 ⚡️ IREN...",
+    "Macro/Rates (610 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음 여전 · HBM 장기 스토리 유지 · 콜옵션 YOLO 계속 유입 · AI 반등 대표 종목 취급 ⚡️ IREN...",
     "Earnings/Corporate (476 posts in current window): 2026년 7월 31일 미국 증시 브리핑 미국 증시는 예상보다 완만한 6월 Core PCE와 소비지출 및 기업투자 중심의 견조한 GDP 구성, 케빈 워시 연준 의장 체제에서 금리 인상 우려가 완화된 점을 반영하며 기술주 중심의 강한 위험선호 흐름 전개. 나스닥이 시장 상승을 주도한 가운데 마이크로소프트의 사상급...",
-    "Market Notes (465 posts in current window): 52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·...",
-    "Geopolitics (361 posts in current window): 2026년 7월 31일 미국 증시 브리핑 미국 증시는 예상보다 완만한 6월 Core PCE와 소비지출 및 기업투자 중심의 견조한 GDP 구성, 케빈 워시 연준 의장 체제에서 금리 인상 우려가 완화된 점을 반영하며 기술주 중심의 강한 위험선호 흐름 전개. 나스닥이 시장 상승을 주도한 가운데 마이크로소프트의 사상급...",
+    "Market Notes (470 posts in current window): 52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·...",
+    "Geopolitics (363 posts in current window): 2026년 7월 31일 미국 증시 브리핑 미국 증시는 예상보다 완만한 6월 Core PCE와 소비지출 및 기업투자 중심의 견조한 GDP 구성, 케빈 워시 연준 의장 체제에서 금리 인상 우려가 완화된 점을 반영하며 기술주 중심의 강한 위험선호 흐름 전개. 나스닥이 시장 상승을 주도한 가운데 마이크로소프트의 사상급...",
     "AI Power/Grid (343 posts in current window): 미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음 여전 · HBM 장기 스토리 유지 · 콜옵션 YOLO 계속 유입 · AI 반등 대표 종목 취급 ⚡️ IREN...",
-    "Korea Market (278 posts in current window): 2026년 7월 30일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (73.99%) 2위: PROSHARES ULTRAPRO QQQ ETF (4.12%) 3위: DIREXION SHARES ETF TRUST DAILY MSCI...",
+    "Korea Market (277 posts in current window): 2026년 7월 30일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (73.99%) 2위: PROSHARES ULTRAPRO QQQ ETF (4.12%) 3위: DIREXION SHARES ETF TRUST DAILY MSCI...",
     "AI Policy/Export Controls (203 posts in current window): 2026년 7월 31일 미국 증시 브리핑 미국 증시는 예상보다 완만한 6월 Core PCE와 소비지출 및 기업투자 중심의 견조한 GDP 구성, 케빈 워시 연준 의장 체제에서 금리 인상 우려가 완화된 점을 반영하며 기술주 중심의 강한 위험선호 흐름 전개. 나스닥이 시장 상승을 주도한 가운데 마이크로소프트의 사상급..."
   ],
   "catalysts": [
@@ -27421,8 +27519,8 @@
     },
     {
       "key": "AAPL",
-      "count": 41,
-      "text": "Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 재향군인을 트럭 운송업에 투입하는 'Freedom Haulers' 프로그램 발표. · 트럼프 대통령, 일부 인사 지명 철회 가능성 시사. · 일론 머스크, 공화당 지원을 위해 중간선거에..."
+      "count": 42,
+      "text": "Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 재향군인을 트럭 운송업에 투입하는 'Freedom Haulers' 프로그램 발표. · 트럼프..."
     }
   ],
   "categories": [
@@ -27432,7 +27530,7 @@
       "topics": [
         "macro"
       ],
-      "count": 611,
+      "count": 610,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음 여전 · HBM 장기 스토리 유지 · 콜옵션 YOLO 계속 유입 · AI 반등 대표 종목 취급 ⚡️ IREN..."
     },
     {
@@ -27441,7 +27539,7 @@
       "topics": [
         "geo"
       ],
-      "count": 361,
+      "count": 363,
       "focus": "2026년 7월 31일 미국 증시 브리핑 미국 증시는 예상보다 완만한 6월 Core PCE와 소비지출 및 기업투자 중심의 견조한 GDP 구성, 케빈 워시 연준 의장 체제에서 금리 인상 우려가 완화된 점을 반영하며 기술주 중심의 강한 위험선호 흐름 전개. 나스닥이 시장 상승을 주도한 가운데 마이크로소프트의 사상급..."
     },
     {
@@ -27451,7 +27549,7 @@
         "credit"
       ],
       "count": 45,
-      "focus": "Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 재향군인을 트럭 운송업에 투입하는 'Freedom Haulers' 프로그램 발표. · 트럼프 대통령, 일부 인사 지명 철회 가능성 시사. · 일론 머스크, 공화당 지원을 위해 중간선거에..."
+      "focus": "Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 재향군인을 트럭 운송업에 투입하는 'Freedom Haulers' 프로그램 발표. · 트럼프..."
     },
     {
       "id": "semi",
@@ -27459,7 +27557,7 @@
       "topics": [
         "semi"
       ],
-      "count": 691,
+      "count": 692,
       "focus": "미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음 여전 · HBM 장기 스토리 유지 · 콜옵션 YOLO 계속 유입 · AI 반등 대표 종목 취급 ⚡️ IREN..."
     },
     {
@@ -27495,7 +27593,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 278,
+      "count": 277,
       "focus": "2026년 7월 30일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (73.99%) 2위: PROSHARES ULTRAPRO QQQ ETF (4.12%) 3위: DIREXION SHARES ETF TRUST DAILY MSCI..."
     },
     {
@@ -27540,8 +27638,8 @@
       "topics": [
         "japan"
       ],
-      "count": 139,
-      "focus": "Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 재향군인을 트럭 운송업에 투입하는 'Freedom Haulers' 프로그램 발표. · 트럼프 대통령, 일부 인사 지명 철회 가능성 시사. · 일론 머스크, 공화당 지원을 위해 중간선거에..."
+      "count": 141,
+      "focus": "Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 재향군인을 트럭 운송업에 투입하는 'Freedom Haulers' 프로그램 발표. · 트럼프..."
     },
     {
       "id": "flows",
@@ -27567,7 +27665,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 465,
+      "count": 470,
       "focus": "52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·..."
     }
   ],
@@ -28933,6 +29031,66 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19440",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19440",
+      "datetime": "2026-07-30T22:37:09.000Z",
+      "localDateKst": "2026-07-31",
+      "tags": [
+        "geo",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": "도널드 J. 트럼프 (Donald J. Trump) 오늘, 평화위원회(Board of Peace)는 하마스와 가자지구 내 모든 무장 단체의 완전한 무장 해제를 위한 역사적인 합의에 도달했습니다. 이는 지속..."
+    },
+    {
+      "id": "insidertracking/59803",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59803",
+      "datetime": "2026-07-30T22:26:21.000Z",
+      "localDateKst": "2026-07-31",
+      "tags": [
+        "geo",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 미국 평화위원회는 오늘 하마스와 가자지구 내 모든 무장단체의 완전한 무장해제에..."
+    },
+    {
+      "id": "bornlupin/19439",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19439",
+      "datetime": "2026-07-30T22:09:07.000Z",
+      "localDateKst": "2026-07-31",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "AAPL"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "애플( &#036;AAPL ) 메모리 비용 관련 ​\"3월 분기에는 12월 분기보다 더 많은 메모리 비용을 지불했습니다. 6월 분기에는 3월 분기보다 훨씬 더 많은 비용이 들 것으로 예상했는데, 실제로 그렇게..."
+    },
+    {
+      "id": "insidertracking/59800",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59800",
+      "datetime": "2026-07-30T22:01:22.000Z",
+      "localDateKst": "2026-07-31",
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 이스라엘군(IDF)은 남부 레바논 보포트 능선 아래에 있는 헤즈볼라의 핵심 지하 터널 여러 곳을 제거했다고 밝혔습니다. 이스라엘군에 따르면 이번 작전은 보안구역 내에서..."
+    },
     {
       "id": "bornlupin/19438",
       "channel": "bornlupin",
@@ -34406,20 +34564,6 @@
       "summary": "Rambus ( &#036;RMBS ) 의 2026회계연도 2분기(Q2 2026 ) 어닝콜 Q&A 세션 중 1. 서버 시장 성장세 및 하반기 전망 (Gary Mobley) 질문: 하반기..."
     },
     {
-      "id": "insidertracking/59454",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59454",
-      "datetime": "2026-07-27T23:40:05.000Z",
-      "localDateKst": "2026-07-28",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "미국 무역대표부(USTR) 대표 제이미슨 그리어는 새롭게 시행되는 301조 관세 조치가 현재 수준을 넘어서는 추가적인 경제적 영향을 초래하지는 않을 것이라고 밝힘. 그리어 대표는 트럼프 대통령이 약 60개..."
-    },
-    {
       "id": "bornlupin/19352",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19352",
@@ -34494,20 +34638,6 @@
       "score": 83,
       "hasText": true,
       "summary": "KB - 반도체: 과도한 우려는 빠르게 해소될 전망 1. CXMT 증설에도 공급과잉 우려는 시기상조 최근 한 달간 삼성전자 (-25%)와 SK하이닉스 (-33%)의 주가는 큰 폭으로 하락했습니다. AI 투자..."
-    },
-    {
-      "id": "insidertracking/59453",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59453",
-      "datetime": "2026-07-27T22:53:00.000Z",
-      "localDateKst": "2026-07-28",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "존슨앤드존슨이 난소암 관련 활석(탈크) 소송을 포괄적으로 종결하기 위한 합의안을 제안. 이번 합의안은 자격을 갖춘 원고의 최소 95%가 참여하는 것을 조건으로 하며, 총 55억 달러를 지급하는 내용이 포함됨...."
     },
     {
       "id": "aetherjapanresearch/23995",
@@ -35540,47 +35670,6 @@
       "score": 63,
       "hasText": true,
       "summary": "AMD의 리사 수 CEO: 2030년까지의 서버 CPU 총 유효 시장(TAM) 전망치 를 작년 11월의 600억 달러, 지난 5월에 제시했던 1,200억 달러에서 2,000억 달러(약 276조 원) 이상으로..."
-    },
-    {
-      "id": "bornlupin/19285",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19285",
-      "datetime": "2026-07-23T23:32:46.000Z",
-      "localDateKst": "2026-07-24",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "INTC",
-        "005930.KS",
-        "000660.KS"
-      ],
-      "score": 59,
-      "hasText": true,
-      "summary": "립부 탄 Intel CEO: 메모리는 현재 AI 인프라 전체에서 가장 심각한 병목(Bottleneck) 요소입니다. 인텔은 메모리 3사(삼성전자, SK하이닉스, 마이크론)와 긴밀히 협력하고 있습니다."
-    },
-    {
-      "id": "bornlupin/19284",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19284",
-      "datetime": "2026-07-23T23:30:21.000Z",
-      "localDateKst": "2026-07-24",
-      "tags": [
-        "semi",
-        "power",
-        "earnings",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [
-        "AMD",
-        "INTC",
-        "005930.KS",
-        "000660.KS"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "인텔(Intel, &#036;INTC ) Q2 2026 어닝콜 Q&A 세션 1. CapEx 증액 및 파운드리 수주 현황 Q. 올해 설비투자(CapEx)를 &#036;200억 이상으로 대폭 올리는 이유는..."
     }
   ]
 }
