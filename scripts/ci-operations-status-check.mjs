@@ -11,6 +11,7 @@ const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const validation = validateOperationsStatus(status);
 if (!validation.ok) throw new Error(`[operations-status] ${validation.errors.join(',')}`);
 if (status.planes.fast.status !== 'OPERATOR_REQUIRED' && status.planes.fast.status !== 'CURRENT') throw new Error('[operations-status] fast plane status is not explicit');
+if (!/^https:\/\/aio-screener-data-plane\.[^/]+\.workers\.dev$/.test(String(status.planes.fast.endpoint || ''))) throw new Error('[operations-status] fast plane endpoint is missing or includes a path suffix');
 
 // RM-00/F-07 ratchet: route ownership published here must reconcile with the code-derived
 // route-owners.json ledger. A hardcoded "required native routes" list (the pre-remediation

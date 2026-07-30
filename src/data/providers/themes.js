@@ -25,6 +25,7 @@ export function createThemesProvider({
   read = null,
   readLiveData = () => ({}),
   readHistory = () => ({}),
+  readWeeklyPerf = () => ({}),
   readDefinitions = () => ({}),
   readSelectedId = () => null,
   now = () => new Date().toISOString()
@@ -42,6 +43,7 @@ export function createThemesProvider({
       }
       const live = readLiveData() || {};
       const historyBySymbol = readHistory() || {};
+      const weeklyPerf = readWeeklyPerf() || {};
       const definitions = asDefinitions(readDefinitions());
       const sources = [
         ...definitions.sectors.map((item) => ({ ...item, view: 'sectors' })),
@@ -72,6 +74,7 @@ export function createThemesProvider({
           symbol,
           label: item?.name || item?.label || symbol,
           pct: finite(dailyPct),
+          weeklyPct: finite(weeklyPerf[symbol]),
           rsRatio: finite(rotation?.rsRatio ?? item?.rsRatio),
           rsMomentum: finite(rotation?.rsMom ?? item?.rsMomentum),
           quadrant: rotation?.quadrant || item?.quadrant || 'neutral',

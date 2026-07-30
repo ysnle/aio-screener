@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-29
 confidence: high
 
-## Current architecture checkpoint (2026-07-29, v53.62)
+## Current architecture checkpoint (2026-07-30, v53.64)
 
 Native lifecycle and renderer ownership are wired for 17/17 routes.  P833 moves the
 route data provider boundary to `src/data/runtime-readers.js` (17/17 data-native),
@@ -16,9 +16,22 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.62
-latest_P_covered: P858
-current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext IndexedDB key-backup retirement are implemented; P846/P847/P848/P849/P850/P851/P852/P853/P854/P855/P856/P857/P858 contracts are locally verified after the full local suite, with provider/live Worker/model/edge verification still separate
+checklist_version: v53.64
+latest_P_covered: P865
+current_P839_checkpoint: P859-P865 themes performance bars, decision evidence, news freshness, partial-portfolio fail-closed boundaries, deployed Worker endpoint evidence, release-manifest synchronization, and official FOMC calendar rollover are locally verified; remaining route secondary ownership, seven-day soak, provider/live Worker/model/edge verification stay separate
+
+## P864 Release manifest synchronization (v53.64)
+
+- [x] Architecture asset/release/visual-state/operations-SLO/public-readiness manifests match the R1 application revision.
+- [x] Service-worker revision in release manifests matches `sw.js`.
+- [x] Architecture, operations, and release-manifest CI contracts are included in the final validation batch.
+- [ ] Provider freshness, seven-day fast-plane soak, AI proxy deployment/health, and GitHub Pages edge headers remain external operator gates.
+
+## P865 Official FOMC calendar rollover (v53.64)
+
+- [x] Completed 2026-07-29 FOMC decision is recorded as `lastRelease`.
+- [x] Next decision is the official 2026-09-16 release date.
+- [x] Headless T759 rejects past calendar values and passes after rollover.
 
 ## P833-P835 Native runtime data boundary and chart lifecycle (v53.63)
 
@@ -60,6 +73,17 @@ current_P839_checkpoint: W2 route/entity scope, chart lifecycle, and plaintext I
 - [x] `aio:serverDataLoaded` and initial market-state narrative work are staged after the 2s interactive observation window.
 - [x] Boot interaction gate records the 2s window, request counts, active-route DOM, and long-task totals; three sequential runs satisfy all local targets.
 - [ ] Live edge enforcement, Fast-plane credentials/7-day soak, provider rights, Worker route, and 30-day certification remain operator/runtime checks.
+
+## P859-P862 Native secondary evidence boundaries (v53.64)
+
+- [x] Themes sector performance bars use the native normalized themes slice, preserve daily/weekly evidence, and show a pending state when weekly data is absent.
+- [x] The legacy `renderSectorPerfBars()` writer is fenced by the native marker; mode/view/cache changes dispatch a route-scoped invalidation event.
+- [x] Trading Score inputs require verified-current decision evidence; snapshot/reference/stale rows cannot produce a current score.
+- [x] News freshness scoring excludes undated, invalid, and future publication timestamps; no-date fixtures return `데이터 부족` with zero eligible items.
+- [x] Partial portfolio holdings do not reduce unknown values to zero; aggregate value/cost/daily/sector outputs remain unavailable unless canonical totals are explicit.
+- [x] The deployed fast data-plane endpoint is recorded separately from credentials/rights/soak; live `/health` and `/quotes` prove 16/16 coverage while the seven-day soak remains open.
+- [x] The AI proxy endpoint is recorded separately and remains `OPERATOR_REQUIRED` when its deployed `/health` does not expose the current health contract.
+- [ ] Full native narrative/chart/data cutover, paid provider rights, Worker URL/credentials/soak, and live edge header enforcement remain external/operator gates.
 
 ## P850 Web Research, source evidence, and market-session closure (2026-07-28, v53.56)
 

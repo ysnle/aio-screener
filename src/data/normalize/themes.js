@@ -60,6 +60,7 @@ export function normalizeThemes(raw = {}) {
     symbol: String(item?.symbol || item?.id || ''),
     label: String(item?.label || item?.name || item?.symbol || 'Theme'),
     pct: finite(item?.pct),
+    weeklyPct: finite(item?.weeklyPct),
     rsRatio: finite(item?.rsRatio),
     rsMomentum: finite(item?.rsMomentum),
     quadrant: String(item?.quadrant || 'neutral'),

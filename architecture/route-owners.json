@@ -20,7 +20,8 @@
     "tech-candle-chart",
     "tech-candle-volume",
     "ticker-price-chart",
-    "pf-position-donut"
+    "pf-position-donut",
+    "sector-perf-bars"
   ],
   "domWriterIntersectionAllowlistNotes": {
     "fg-score-big": "js/aio-data.js's dormant-until-deferred _generateSentimentAnalysis (called via setTimeout from js/aio-data.js:16811/16819/16825) only READS this via getElementById+textContent to build its analysis text; sentiment.js is the sole WRITER. Legitimate read dependency, not a write race.",
@@ -31,6 +32,7 @@
     "tech-candle-volume": "P833: analysis.js owns the native technical volume chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker."
     ,"ticker-price-chart": "P834: entity.js owns the native ticker price chart; index.html loadTickerChart is fenced by the mounted native ticker chart marker."
     ,"pf-position-donut": "P835: portfolio.js owns the native holding-allocation chart; index.html drawPositionDonut is fenced by the mounted native portfolio chart marker."
+    ,"sector-perf-bars": "P859: themes.js owns the normalized sector-performance bars; index.html renderSectorPerfBars is fenced by the mounted native bars marker and remains only a compatibility fallback."
   },
   "routes": {
     "home": {
@@ -260,21 +262,24 @@
       "nativeModule": "src/ui/pages/themes.js (createThemesPage route=themes)",
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "index.html:drawRRG and js/aio-core.js chart cleanup retain only compatibility paths; both fence rrg-canvas when the native marker is active"
+        "index.html:drawRRG and js/aio-core.js chart cleanup retain only compatibility paths; both fence rrg-canvas when the native marker is active",
+        "index.html:renderSectorPerfBars fences sector-perf-bars when the native performance-bars marker is active"
       ],
       "p798Boundary": "themes.js owns rrg-chart-status from normalized RRG quadrant evidence; drawRRG retains only the legacy rrg-canvas chart writer.",
       "p799Boundary": "themes.js owns the rrg-canvas drawing lifecycle from normalized ratio/momentum evidence; drawRRG is a fenced compatibility fallback and no longer writes the native canvas.",
       "p800Boundary": "the themes provider/orchestrator now reads explicit runtime definitions, quote data, and history inputs directly; legacy.readThemes is no longer the route data source.",
       "p801Boundary": "themes.js owns the RRG-derived theme-cycle-pill status; legacy sector prose is fenced from this bounded status while deeper sector analysis remains legacy narrative.",
       "p802Boundary": "themes.js owns the sector-perf-analysis bounded leaders/laggards narrative from normalized sector items; the legacy HTML generator is fenced while other secondary sector narratives remain legacy.",
-      "notes": "P775 transfers the RRG quadrant cards and rotation read to native themes.js. P798 transfers the chart status text, P799 transfers the canvas drawing, P800 transfers the themes data provider, P801 transfers the cycle status pill, and P802 transfers the bounded sector performance narrative to the native projection; other secondary sector narratives remain legacy.",
+      "p859Boundary": "themes.js owns the sector-perf-bars bounded daily/weekly bar projection from normalized current and weekly evidence; missing weekly evidence remains a visible pending state and the legacy renderer is fenced.",
+      "notes": "P775 transfers the RRG quadrant cards and rotation read to native themes.js. P798 transfers the chart status text, P799 transfers the canvas drawing, P800 transfers the themes data provider, P801 transfers the cycle status pill, P802 transfers the bounded sector performance narrative, and P859 transfers the sector performance bars to the native projection; other secondary sector narratives and 20-day history loading remain legacy.",
       "nativePrimarySurface": [
         "#page-themes #rrg-quadrant-cards",
         "#page-themes #rrg-rotation-read",
         "#page-themes #rrg-chart-status",
         "#page-themes #rrg-canvas",
         "#page-themes #theme-cycle-pill",
-        "#page-themes #sector-perf-analysis"
+        "#page-themes #sector-perf-analysis",
+        "#page-themes #sector-perf-bars"
       ]
     },
     "theme-detail": {

@@ -186,14 +186,11 @@ jobs:
 
       - name: Check independent fast quote plane (AR-07 QG-08)
         env:
-          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL }}
+          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
         run: |
           node --input-type=module - <<'NODE'
           const base = String(process.env.FAST_QUOTES_URL || '').replace(/\/$/, '');
-          if (!base) {
-            console.error('operator_required: repository variable AIO_FAST_QUOTES_URL is not configured; independent Cloudflare fast plane is not verified');
-            process.exit(1);
-          }
+          if (!base) { console.error('operator_required: fast-plane endpoint is not configured'); process.exit(1); }
           const response = await fetch(`${base}/health`, { headers: { 'cache-control': 'no-cache' } });
           if (!response.ok) { console.error(`FAST /health HTTP ${response.status}`); process.exit(1); }
           const health = await response.json();
@@ -208,9 +205,9 @@ jobs:
       # silently regressed a fixed contract (cachebuster/version mismatch, a cross-file
       # function shadow re-introduced only in what's served, not in the repo) surfaces
       # without waiting for the next commit/PR to trigger ci.yml.
-      # 2026-07-21/P754: this step must not depend on the fast-plane step's outcome — that step
-      # deliberately fails until an operator configures AIO_FAST_QUOTES_URL (still unconfigured,
-      # tracked as a known blocker), which was silently skipping this entirely unrelated live-
+      # 2026-07-21/P754: this step must not depend on the fast-plane step's outcome — the fast
+      # plane can use the recorded public endpoint while credentials/rights/soak remain explicit,
+      # which must not silently skip this entirely unrelated live-
       # invariant check on every scheduled run since default GHA step ordering skips subsequent
       # steps after any failure. if: !cancelled() restores this step's own documented intent
       # (independent of any other check's status) without weakening what it actually asserts.

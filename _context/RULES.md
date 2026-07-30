@@ -2,10 +2,22 @@
 verified_by: agent (Fable 5) + Codex P761-P788 verification
 last_verified: 2026-07-29
 confidence: high
-target_version: v53.62
+target_version: v53.64
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R419. 릴리스 아키텍처 매니페스트는 R1 버전과 함께 동기화해야 한다 (v53.64, P864)
+
+**Rule**: `version.json`, `sw.js`, `architecture/asset-manifest.json`, `architecture/release-manifest.json`, `architecture/visual-state-matrix.json`, `architecture/operations-slo.json`, and `architecture/public-readiness.json` must advertise one application revision; worker revision fields must match `sw.js`. A version bump is not stageable while any release SSOT still points to the prior revision.
+
+**Validation**: `ci-architecture-contract.mjs`, `ci-operations-contract-check.mjs`, and `ci-release-manifest-contract.mjs` must all pass after every bump.
+
+## R420. 공식 일정의 완료 이벤트는 nextRelease로 남기지 않는다 (v53.64, P865)
+
+**Rule**: A calendar registry must promote the next official future release after an event boundary, retaining the completed date only as `lastRelease`. Fixed dates may be used only when backed by the official schedule; no inferred cadence may replace a missing official date.
+
+**Validation**: Headless T759 checks valid non-past NFP/CPI/FOMC/PCE dates, and the calendar registry's official schedule arrays provide the rollover source.
 
 ## R356. Yahoo chart proxy는 공통 health registry를 통해서만 실행해야 한다 (v53.19, P784)
 
@@ -1722,3 +1734,55 @@ entrypoint that can reach the same canvas. Synthetic history is forbidden.
 **Validation**: architecture contracts and Chromium route checks cover native ticker and
 portfolio chart markers, bounded canvas resources, and the fenced legacy loaders; route
 ownership counts must be recomputed from the manifest rather than edited independently.
+
+## R414. Current decision scores require a typed decision-use grant (v53.64, P860)
+
+**Rule**: A numeric value is not decision evidence merely because it is finite. Native
+Trading Score inputs must carry `allowedUse: decision` and a current status; snapshot,
+reference, stale, or unavailable rows must remain blocked and must not be replaced by raw
+fallback values when a typed evidence row exists.
+
+**Validation**: `src/data/runtime-readers.js`, `src/domain/signal/trading-score.js`, and
+`scripts/ci-native-decision-evidence-check.mjs` prove reference/snapshot blocking and
+verified-current score production.
+
+## R415. Freshness-scoped news models require observable event time (v53.64, P861)
+
+**Rule**: News sentiment and cycle-risk models may include an item only when its publication
+timestamp is finite, not in the future, and inside the requested freshness window. Missing
+dates are insufficient evidence, never an implicit current timestamp.
+
+**Validation**: `src/domain/news/scoring.js` and the domain golden fixtures reject undated,
+invalid, and future-dated items from current scores.
+
+## R416. Partial portfolio aggregates must remain partial (v53.64, P862)
+
+**Rule**: When any holding lacks the value/cost/current-change evidence required by an
+aggregate, the derived total remains unavailable unless an explicit canonical total exists.
+Unknown holdings must not be reduced as zero and must not silently enter sector allocation.
+
+**Validation**: `src/domain/portfolio/surface.js` and `scripts/ci-esm-core-unit-check.mjs`
+cover partial holdings with null aggregate outputs and no fabricated sector percentages.
+
+## R417. Native secondary theme performance surfaces need one scoped writer (v53.64, P859)
+
+**Rule**: A native themes performance surface must read normalized current/weekly evidence,
+render an explicit pending state when the selected period is unavailable, and fence the
+legacy writer before a native marker is mounted. Period/view/cache invalidation must use a
+route-scoped event rather than mutating the DOM from a second producer.
+
+**Validation**: `src/data/providers/themes.js`, `src/ui/pages/themes.js`, the native marker
+fence in `index.html`, and architecture/Chromium contracts cover daily/weekly mode changes
+and bounded legacy compatibility.
+
+## R418. Worker reachability, capability, and soak are separate operations states (v53.64, P863)
+
+**Rule**: A deployed Worker URL and one successful health response prove reachability only.
+They do not prove GitHub secret/variable wiring, provider rights, AI route readiness, or the
+seven-day scheduled soak. Public operations status must expose endpoint, observed health,
+capability, and soak independently, and must never promote a proxy or fast plane to CURRENT
+solely because Cloudflare shows a deployed script.
+
+**Validation**: `architecture/worker-endpoints.json`, `scripts/ci-fast-plane-live-check.mjs`,
+`scripts/build-operations-status.mjs`, and the data-plane workflow/watchdog preserve the
+endpoint identity while retaining explicit operator blockers.

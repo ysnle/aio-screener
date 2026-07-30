@@ -1,7 +1,7 @@
 {
   "schemaVersion": "operations-status-v1",
   "generatedAt": "2026-07-30T01:02:48.074Z",
-  "appRevision": "v53.63",
+  "appRevision": "v53.64",
   "dataRevision": "market-snapshot:2026-07-30T01:02:42.801Z:46ed9ff3",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -29,7 +29,15 @@
     "fast": {
       "status": "OPERATOR_REQUIRED",
       "scheduler": "cloudflare-cron",
-      "endpoint": "not-configured",
+      "endpoint": "https://aio-screener-data-plane.zmfhd007.workers.dev",
+      "health": {
+        "status": "CURRENT",
+        "statusCode": 200,
+        "coverage": "16/16",
+        "revision": "fast-quotes:2026-07-30T01:45:48.508Z:1c4c64c3",
+        "observedAt": "2026-07-30T01:40:48.507Z",
+        "source": "operator-provided-runtime-evidence"
+      },
       "soak": {
         "requiredDays": 7,
         "observedDays": 0,
@@ -37,16 +45,16 @@
       },
       "readiness": {
         "secretConfigured": "OPERATOR_REQUIRED",
-        "workflowWired": "OPERATOR_REQUIRED",
-        "lastCallSucceeded": "UNKNOWN",
-        "dataCurrent": "UNKNOWN",
+        "workflowWired": "CURRENT",
+        "lastCallSucceeded": "CURRENT",
+        "dataCurrent": "CURRENT",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
     "browser": {
       "status": "CURRENT",
       "source": "static-pages+service-worker",
-      "revision": "v53.63"
+      "revision": "v53.64"
     }
   },
   "ai": {
@@ -58,7 +66,13 @@
     "publicChat": {
       "status": "NO_ROUTE",
       "personalKey": "EXPLICIT_USER_CONFIG",
-      "sharedWorker": "NOT_CONFIGURED",
+      "sharedWorker": "OPERATOR_REQUIRED",
+      "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
+      "health": {
+        "status": "OPERATOR_REQUIRED",
+        "statusCode": 400,
+        "note": "The deployed proxy answered the legacy GET ?url= route; /health returned url-parameter-required, so AI readiness is not promoted."
+      },
       "scheduledAnalysisDoesNotImplyChat": true
     }
   },

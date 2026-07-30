@@ -2,11 +2,29 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-29
 confidence: high
-latest_version: v53.63
-latest_P_number: P835
-next_P_number: P836
-current_total_entries: 598 (P1~P837, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P833-P835 native runtime data boundary plus ticker/portfolio chart lifecycle; narrative cutover and live/provider/edge certification remain separate operator/runtime checks
+latest_version: v53.64
+latest_P_number: P865
+next_P_number: P866
+current_total_entries: 605 (P1~P865, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P859-P865 themes performance bars, decision-evidence, news freshness, partial-portfolio aggregates, Worker endpoint evidence, release-manifest synchronization, and official FOMC calendar rollover; remaining route secondary surfaces, soak, rights, AI proxy redeploy, and edge certification remain separate operator/runtime checks
+
+## P865 - v53.64 - FOMC calendar remained on a completed meeting
+
+- **motivation**: the deterministic browser suite correctly rejected the official calendar because `us-fomc` and `us-fed-rate` still pointed at the completed 2026-07-29 decision on 2026-07-30.
+- **root_cause**: the calendar registry had a finite official schedule but no rollover step for the just-completed meeting, so the visible next-release state became stale at the event boundary.
+- **fix**: advanced the FOMC decision/meeting registry to the official 2026-09-16 decision date, updated last-release metadata, and extended the official schedule arrays.
+- **violated_rule**: R279/R77 — official release calendars must not surface a completed event as the next release.
+- **prevention**: T759 validates validity and non-past dates structurally; the official schedule remains the single source for future rollover.
+- **verification**: headless calendar contract passes after the rollover; the authoritative schedule is the Federal Reserve 2026 FOMC calendar.
+
+## P864 - v53.64 - release architecture manifests lagged the R1 bump
+
+- **motivation**: the R1 bump advanced the application and service-worker revisions, but five architecture release/operations manifests still advertised v53.63, blocking the architecture, operations, and release-manifest contracts.
+- **root_cause**: `scripts/bump-version.mjs` intentionally owns the seven runtime/version locations only; the architecture manifests are separate release SSOTs and had no post-bump synchronization gate.
+- **fix**: synchronized `architecture/asset-manifest.json`, `release-manifest.json`, `visual-state-matrix.json`, `operations-slo.json`, and `public-readiness.json` to v53.64 and `sw:v53.64` where applicable.
+- **violated_rule**: R1/R414 — every release SSOT must identify the same application and worker revision before deployment.
+- **prevention**: architecture and operations contracts now run in the final validation batch; future version bumps must include the architecture-manifest synchronization check before staging.
+- **verification**: architecture, operations, release-manifest, runtime, browser, and syntax contracts are rerun after this packet; external freshness/header failures remain explicit operator gates.
 
 ## P833 - v53.63 - native runtime data boundary and chart ownership drift
 
@@ -34,6 +52,51 @@ current_checkpoint: P833-P835 native runtime data boundary plus ticker/portfolio
 - **violated_rule**: R413; chart promotion must use normalized evidence and a single fenced writer.
 - **prevention**: architecture/browser gates require native portfolio chart markers, allowed source kinds, and stable canvas counts across route laps.
 - **verification**: syntax and architecture contract pass; final full suite and live/operator certification remain scheduled/separate.
+
+## P859 - v53.64 - themes performance bars still had a deferred legacy writer
+
+- **motivation**: the themes route had native RRG, cycle, and performance narrative ownership, but the visible sector performance bars could still be repainted by `renderSectorPerfBars()` after a native route transition.
+- **root_cause**: normalized themes state exposed daily sector evidence, while the bars consumed mutable legacy globals and a separate weekly cache with no route-scoped renderer marker or invalidation event.
+- **fix**: added `weeklyPct` to the native themes provider/normalizer, added a DOM-safe native bars renderer with explicit pending states, fenced the legacy writer, and routed mode/view/weekly-cache changes through `aio:sectorPerfChanged`.
+- **violated_rule**: R413 — a visible chart/performance surface must have one scoped writer and an explicit missing-evidence state.
+- **prevention**: route ownership now records `sector-perf-bars` and architecture/Chromium gates assert the native marker, non-empty fail-closed output, and legacy fence.
+- **verification**: module syntax, architecture contract, and architecture Chromium route check pass; the 20-day history loader remains a separately bounded legacy data boundary.
+
+## P860 - v53.64 - reference/snapshot values could reach native Trading Score inputs
+
+- **motivation**: native route readers could copy fallback snapshot/live fields even when the typed decision-evidence registry explicitly marked those rows as reference, stale, or unavailable.
+- **root_cause**: the input adapter treated raw numeric presence as sufficient evidence and did not preserve a decision-use grant for each score component.
+- **fix**: Trading Score now accepts only `allowedUse: decision` rows with `verified_current`/legacy `live`/`fresh` status; the native reader emits per-component evidence, refuses snapshot fallback when registry rows exist, and time-bounds SPX moving averages.
+- **violated_rule**: decision surfaces must never promote reference or snapshot evidence to current trading inputs.
+- **prevention**: `ci-native-decision-evidence-check.mjs` proves snapshot/reference inputs block the score while verified-current inputs produce a score and preserve evidence keys.
+- **verification**: native decision evidence gate, domain parity, ESM unit, and syntax checks pass.
+
+## P861 - v53.64 - undated/future news could satisfy freshness windows
+
+- **motivation**: a news item with no usable publication time was previously eligible for the 24-hour sentiment score, allowing backfilled or malformed content to influence a current label.
+- **root_cause**: freshness filtering checked only the lower cutoff and treated missing dates as implicitly recent.
+- **fix**: native news scoring now requires a finite publication timestamp within `[cutoff, now]`, excluding undated, invalid, and future items; the golden fixture was updated to the fail-closed `데이터 부족` result.
+- **violated_rule**: current narrative scores require observable event time.
+- **prevention**: domain parity and native decision-evidence checks include an undated-news fixture with zero eligible items.
+- **verification**: domain parity, ESM unit, and syntax checks pass.
+
+## P862 - v53.64 - partial portfolio holdings were summed as known zeroes
+
+- **motivation**: a portfolio containing one quoted holding and one unquoted holding could report totals and daily change as if the unknown holding had zero value.
+- **root_cause**: aggregate derivation used `some`-row availability and reduced missing values into numeric totals.
+- **fix**: portfolio surface totals now derive from rows only when every required row is valued/costed/current; otherwise the aggregate remains unavailable unless an explicit canonical total exists, and sector allocation skips unknown rows.
+- **violated_rule**: unknown portfolio evidence must remain unknown rather than becoming zero.
+- **prevention**: ESM core unit coverage includes a partial-holdings fixture asserting null totals, daily change, and sector breakdown.
+- **verification**: ESM unit, domain parity, and syntax checks pass.
+
+## P863 - v53.64 - deployed Worker endpoints were treated as unconfigured
+
+- **motivation**: the repository operations artifact reported the independent fast plane as `not-configured` even though the deployed `aio-screener-data-plane` Worker and its two KV namespaces were present.
+- **root_cause**: the endpoint lived only in Cloudflare/GitHub operator state; the build contract had no public endpoint record or read-only live health/quotes probe, so “URL absent” and “credentials/soak absent” were conflated.
+- **fix**: recorded the two Worker roles in `architecture/worker-endpoints.json`, exposed the fast endpoint and observed 16/16 health evidence in operations status, added `ci-fast-plane-live-check.mjs`, and made deploy/watchdog smoke checks use the recorded data-plane URL unless an explicit repository variable overrides it. The AI proxy remains separately `OPERATOR_REQUIRED` because its deployed `/health` returned 400 while the legacy `?url=` route still worked.
+- **violated_rule**: R400/R408-style operations claims must distinguish a reachable endpoint from authenticated, rights-cleared, soaked, or AI-capable service readiness.
+- **prevention**: endpoint identity, health evidence, and seven-day soak are separate fields and contracts; no secret or KV resource ID is committed.
+- **verification**: live fast-plane `/health` and `/quotes` check passed with 16/16 coverage; data-plane contract, operations status, and operator-readiness gates pass. Cloudflare secret binding, rights, seven-day soak, AI proxy redeploy, and edge headers remain open.
 
 ## P858 - v53.62 - boot critical-path ownership and measured SLO closure
 

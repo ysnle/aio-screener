@@ -2,20 +2,20 @@
 
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
-current_override: P833-P835 native runtime data boundary and ticker/portfolio chart lifecycle on top of P856 release/security gates; live edge enforcement, provider rights, model benchmark, fast-plane soak, and SA-04 remain explicit operator gates
+current_override: P859-P865 themes evidence, decision/news/portfolio fail-closed boundaries, Worker endpoint evidence, release-manifest synchronization, and official FOMC rollover on top of P856-P858 release/security/boot gates; live edge enforcement, provider rights, model benchmark, fast-plane soak, and AI proxy health remain explicit operator gates
   last_verified: 2026-07-29
 confidence: high
-  target_version: v53.63
+  target_version: v53.64
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P843 gate
   current_checkpoint: P833-P835 native data ownership is 17/17 and chart ownership is 8/17 with route-scoped registries/fences; narrative remains 1/17 and live model/Worker/provider certification remains operator-required
 ---
 
-## Current machine-verified file-size table (v53.63, 2026-07-29)
+## Current machine-verified file-size table (v53.64, 2026-07-30)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 27,522 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 27,528 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-core.js` | 26,594 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-data.js` | 16,012 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,305 | `ReadAllLines` + `ci-doc-currency-check.mjs` |

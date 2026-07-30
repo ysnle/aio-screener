@@ -4,6 +4,7 @@ import { createOperationsStatus, validateOperationsStatus } from '../src/data/co
 export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.json', import.meta.url);
 const ROUTE_OWNERS_PATH = new URL('../architecture/route-owners.json', import.meta.url);
 const SEC_FUNDAMENTALS_PATH = new URL('../public-data/sec-fundamentals.json', import.meta.url);
+const WORKER_ENDPOINTS_PATH = new URL('../architecture/worker-endpoints.json', import.meta.url);
 
 export async function readRouteOwners() {
   return JSON.parse(await readFile(ROUTE_OWNERS_PATH, 'utf8'));
@@ -43,12 +44,17 @@ export function deriveSecCoverage(secFundamentals, fallbackPct = 0) {
 export async function writeOperationsStatus({ data, marketSnapshot, reconciliation, secFundamentals, now = new Date().toISOString() } = {}) {
   const version = JSON.parse(await readFile(new URL('../version.json', import.meta.url), 'utf8'));
   const routeOwners = await readRouteOwners();
+  let workerEndpoints = {};
+  try { workerEndpoints = JSON.parse(await readFile(WORKER_ENDPOINTS_PATH, 'utf8')); } catch (_) {}
   let sec = secFundamentals;
   if (!sec) {
     try { sec = JSON.parse(await readFile(SEC_FUNDAMENTALS_PATH, 'utf8')); } catch (_) { sec = null; }
   }
   const secCoverage = deriveSecCoverage(sec, data?.meta?.fundamentalCoveragePct);
   const ownership = deriveRouteOwnership(routeOwners);
+  const fastConfig = workerEndpoints.fastQuotes || {};
+  const fastEvidence = workerEndpoints.evidence || {};
+  const fastEndpoint = String(process.env.AIO_FAST_QUOTES_URL || fastConfig.baseUrl || '').trim() || 'not-configured';
   const snapshot = marketSnapshot || {};
   const coverage = snapshot.coverage || { tier0Required: 0, tier0Observed: 0 };
   const durableOk = snapshot.status === 'published' && coverage.tier0Observed === coverage.tier0Required && coverage.tier0Required > 0;
@@ -69,14 +75,30 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: 'CURRENT', lastCallSucceeded: durableOk ? 'CURRENT' : 'BLOCKED', dataCurrent: durableOk ? 'CURRENT' : 'BLOCKED', licensedForUse: 'REVIEW_REQUIRED' }
       },
       fast: {
-        status: 'OPERATOR_REQUIRED', scheduler: 'cloudflare-cron', endpoint: 'not-configured', soak: { requiredDays: 7, observedDays: 0, targetSuccessRate: 0.99 },
-        readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: 'OPERATOR_REQUIRED', lastCallSucceeded: 'UNKNOWN', dataCurrent: 'UNKNOWN', licensedForUse: 'REVIEW_REQUIRED' }
+        status: 'OPERATOR_REQUIRED', scheduler: 'cloudflare-cron', endpoint: fastEndpoint,
+        health: {
+          status: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'OPERATOR_REQUIRED',
+          statusCode: Number.isFinite(Number(fastEvidence.fastHealthStatus)) ? Number(fastEvidence.fastHealthStatus) : null,
+          coverage: fastEvidence.fastCoverage || null,
+          revision: fastEvidence.fastRevision || null,
+          observedAt: fastEvidence.fastHealthObserved || null,
+          source: 'operator-provided-runtime-evidence'
+        },
+        soak: { requiredDays: 7, observedDays: 0, targetSuccessRate: 0.99 },
+        readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: fastEndpoint === 'not-configured' ? 'OPERATOR_REQUIRED' : 'CURRENT', lastCallSucceeded: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', dataCurrent: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', licensedForUse: 'REVIEW_REQUIRED' }
       },
       browser: { status: 'CURRENT', source: 'static-pages+service-worker', revision: version.version }
     },
     ai: {
       scheduledAnalysis: { status: durableOk ? 'CURRENT' : 'BLOCKED', source: 'github-actions', lastCallSucceeded: durableOk ? 'CURRENT' : 'BLOCKED' },
-      publicChat: { status: 'NO_ROUTE', personalKey: 'EXPLICIT_USER_CONFIG', sharedWorker: 'NOT_CONFIGURED', scheduledAnalysisDoesNotImplyChat: true }
+      publicChat: {
+        status: 'NO_ROUTE',
+        personalKey: 'EXPLICIT_USER_CONFIG',
+        sharedWorker: workerEndpoints.proxy?.baseUrl ? 'OPERATOR_REQUIRED' : 'NOT_CONFIGURED',
+        workerEndpoint: workerEndpoints.proxy?.baseUrl || null,
+        health: { status: 'OPERATOR_REQUIRED', statusCode: Number(fastEvidence.proxyHealthPathObserved) || null, note: fastEvidence.proxyHealthNote || null },
+        scheduledAnalysisDoesNotImplyChat: true
+      }
     },
     providers: {
       yahoo: { rights: 'REVIEW_REQUIRED', use: 'reference', lastFetchAt: data?.meta?.generatedAt || null },

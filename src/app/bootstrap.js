@@ -194,6 +194,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     provider: createThemesProvider({
       readLiveData: () => root?._liveData || {},
       readHistory: () => root?._priceHistory || {},
+      readWeeklyPerf: () => root?._sectorWeeklyCache || {},
       readDefinitions: () => ({
         sectors: root?.RRG_SECTORS,
         subsectors: root?.RRG_SUBSECTORS,

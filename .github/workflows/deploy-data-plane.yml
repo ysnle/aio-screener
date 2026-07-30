@@ -49,10 +49,10 @@ jobs:
 
       - name: Smoke check fast plane
         env:
-          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL }}
+          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
         run: |
           set -euo pipefail
-          if [ -z "$FAST_QUOTES_URL" ]; then echo "::error::operator_required: repository variable AIO_FAST_QUOTES_URL is missing"; exit 1; fi
+          if [ -z "$FAST_QUOTES_URL" ]; then echo "::error::operator_required: fast-plane endpoint is missing"; exit 1; fi
           health_status=""
           for attempt in $(seq 1 10); do
             health_status="$(curl --silent --show-error --output /tmp/aio-fast-health.json --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"

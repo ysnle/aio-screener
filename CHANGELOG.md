@@ -1,3 +1,11 @@
+## v53.64 (2026-07-30)
+- **P859 / themes performance bars**: native themes now owns the daily/weekly sector-performance bars from normalized evidence, with explicit pending states, route-scoped invalidation, and a fenced legacy writer.
+- **P860-P862 / fail-closed decision surfaces**: snapshot/reference values cannot enter current Trading Score inputs; undated/future news cannot satisfy freshness windows; partial portfolio holdings no longer collapse unknown values into zero totals.
+- **P863 / Worker endpoint evidence**: recorded the existing `aio-screener-data-plane` and `aio-proxy` roles, verified fast-plane `/health` + `/quotes` at 16/16 coverage, and connected the endpoint to operations/watchdog smoke contracts. Secret binding, provider rights, seven-day soak, AI proxy health/deploy, and edge headers remain explicit operator gates.
+- R1 7곳 v53.64
+- **P864 / release manifest synchronization**: architecture release/operations/readiness manifests now match v53.64 and `sw:v53.64`, closing the post-bump contract drift.
+- **P865 / official FOMC rollover**: completed 2026-07-29 FOMC data is now retained as last release and the official 2026-09-16 decision is surfaced as next release.
+
 ## v53.62 (2026-07-29)
 
 - **P833 / native data boundary**: all 17 route providers now consume the explicit `src/data/runtime-readers.js` boundary with preserved observation/source lineage and fail-closed missing values.

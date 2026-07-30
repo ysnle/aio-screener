@@ -87,6 +87,7 @@ jobs:
           set -e
           find src -name '*.js' -print0 | xargs -0 -n1 node --check
           node scripts/ci-architecture-contract-check.mjs
+          node scripts/ci-native-decision-evidence-check.mjs
           node scripts/ci-vertical-slice-contract-check.mjs
           node scripts/ci-capability-claim-contract-check.mjs
           node scripts/ci-operations-contract-check.mjs

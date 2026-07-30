@@ -23,9 +23,11 @@ function filterByAgeHours(items, maxHours, now) {
   if (!maxHours || !items) return items || [];
   const cutoff = now - maxHours * 3600000;
   return items.filter((item) => {
-    if (!item.pubDate) return true;
+    // An undated/invalid article has no freshness evidence.  Treating it as
+    // current silently promotes stale or backfilled content into the score.
+    if (!item?.pubDate) return false;
     const t = new Date(item.pubDate).getTime();
-    return Number.isNaN(t) ? true : t >= cutoff;
+    return Number.isFinite(t) && t >= cutoff && t <= now;
   });
 }
 

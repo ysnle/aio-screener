@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.63';
+const APP_VERSION = 'v53.64';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12482,9 +12482,9 @@ window.AIO_MACRO_CALENDAR = {
     'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-07-16', nextRelease: '2026-08-14', dataField: 'retailSales', source: 'U.S. Census official schedule' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
-    // 유지, 확인됨) lastRelease로 승격하고 다음 회의(7/28-29, 결정은 둘째날 7/29)를 nextRelease로 갱신.
-    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-06-17', nextRelease: '2026-07-29', dataField: 'fomc', sepMeeting: true },
-    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-06-17', nextRelease: '2026-07-29', dataField: 'fedRate', source: 'FOMC 결정' },
+    // 유지, 확인됨) lastRelease로 승격. 7/28-29 회의도 종료되어 다음 결정일(9/16)로 이동.
+    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-07-29', nextRelease: '2026-09-16', dataField: 'fomc', sepMeeting: true },
+    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-07-29', nextRelease: '2026-09-16', dataField: 'fedRate', source: 'FOMC 결정' },
     // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/16)
     // v52.42 (P657/EF-03, WebSearch 재확인): 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
     'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-07-16', nextRelease: '2026-08-27', dataField: 'bokRate', source: '한국은행 금통위' } // P713: BOK 공식 2026 일정(2/26·4/10·5/28·7/16·8/27·10/22·11/26) — auto-advance 주기 추정(8/30)이 아닌 공식일 고정
@@ -12497,8 +12497,8 @@ window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01'],
   'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03'],
   'us-retail': ['2026-07-16', '2026-08-14'],
-  'us-fomc': ['2026-06-17', '2026-07-29'],
-  'us-fed-rate': ['2026-06-17', '2026-07-29'],
+  'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16'],
+  'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16'],
   'kr-bok': ['2026-07-16', '2026-08-27']
 };
 

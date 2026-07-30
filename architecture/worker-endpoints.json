@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "worker-endpoints-v1",
+  "fastQuotes": {
+    "name": "aio-screener-data-plane",
+    "baseUrl": "https://aio-screener-data-plane.zmfhd007.workers.dev",
+    "healthPath": "/health",
+    "quotesPath": "/quotes",
+    "kvBinding": "AIO_QUOTES_KV",
+    "namespaceName": "aio-quotes-prod",
+    "role": "durable-fast-quote-plane"
+  },
+  "proxy": {
+    "name": "aio-proxy",
+    "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
+    "healthPath": "/health",
+    "role": "cors-proxy-and-optional-anthropic-route",
+    "readiness": "operator-required"
+  },
+  "security": {
+    "secretsStayOutOfRepo": true,
+    "fastPlaneRequires": [
+      "CLOUDFLARE_API_TOKEN",
+      "CLOUDFLARE_ACCOUNT_ID",
+      "AIO_QUOTES_KV_ID",
+      "AIO_CRON_SECRET"
+    ],
+    "proxyRequires": [
+      "ANTHROPIC_API_KEY",
+      "AIO_QUOTA"
+    ]
+  },
+  "evidence": {
+    "fastHealthObserved": "2026-07-30T01:40:48.507Z",
+    "fastHealthStatus": 200,
+    "fastCoverage": "16/16",
+    "fastRevision": "fast-quotes:2026-07-30T01:45:48.508Z:1c4c64c3",
+    "fastSoak": "0/7-days",
+    "proxyHealthPathObserved": 400,
+    "proxyHealthNote": "The deployed proxy answered the legacy GET ?url= route; /health returned url-parameter-required, so AI readiness is not promoted."
+  }
+}

@@ -195,6 +195,9 @@ try {
     cycleText: document.getElementById('theme-cycle-pill')?.textContent || '',
     performanceNarrativeRenderer: document.getElementById('sector-perf-analysis')?.dataset.aioThemePerformanceRenderer || null,
     performanceNarrativeText: document.getElementById('sector-perf-analysis')?.textContent || '',
+    performanceBarsRenderer: document.getElementById('sector-perf-bars')?.dataset.aioThemePerformanceBarsRenderer || null,
+    performanceBarsRowCount: document.querySelectorAll('#sector-perf-bars [data-theme-performance-row]').length,
+    performanceBarsText: document.getElementById('sector-perf-bars')?.textContent || '',
     rawPrimarySinkCount: document.querySelectorAll('#page-themes #rrg-quadrant-cards, #page-themes #rrg-rotation-read').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-themes[data-aio-architecture-renderer="native"] #rrg-quadrant-cards[data-aio-themes-renderer="native"], #page-themes[data-aio-architecture-renderer="native"] #rrg-rotation-read').length,
     quadrantCount: document.querySelectorAll('#page-themes #rrg-quadrant-cards [data-theme-quadrant]').length
@@ -209,7 +212,7 @@ try {
     stateSelectedId: window.AIO_ARCH?.getState?.()?.themes?.selectedId || null,
     stateDetail: window.AIO_ARCH?.getState?.()?.themes?.selectedDetail || null
   }));
-  if (themesRoute.renderer !== 'native' || themesRoute.themesRenderer !== 'native' || themesRoute.rrgStatusRenderer !== 'native' || !themesRoute.rrgStatusText.trim() || themesRoute.rrgChartRenderer !== 'native' || themesRoute.rrgCanvasSize[0] < 300 || themesRoute.rrgCanvasSize[1] < 180 || themesRoute.cycleRenderer !== 'native' || !themesRoute.cycleText.trim() || themesRoute.performanceNarrativeRenderer !== 'native' || !themesRoute.performanceNarrativeText.trim() || themesRoute.nativePrimarySinkCount !== themesRoute.rawPrimarySinkCount) throw new Error(`themes native primary/chart/status/cycle/narrative boundary failed: ${JSON.stringify(themesRoute)}`);
+  if (themesRoute.renderer !== 'native' || themesRoute.themesRenderer !== 'native' || themesRoute.rrgStatusRenderer !== 'native' || !themesRoute.rrgStatusText.trim() || themesRoute.rrgChartRenderer !== 'native' || themesRoute.rrgCanvasSize[0] < 300 || themesRoute.rrgCanvasSize[1] < 180 || themesRoute.cycleRenderer !== 'native' || !themesRoute.cycleText.trim() || themesRoute.performanceNarrativeRenderer !== 'native' || !themesRoute.performanceNarrativeText.trim() || themesRoute.performanceBarsRenderer !== 'native' || !themesRoute.performanceBarsText.trim() || themesRoute.nativePrimarySinkCount !== themesRoute.rawPrimarySinkCount) throw new Error(`themes native primary/chart/status/cycle/narrative/bars boundary failed: ${JSON.stringify(themesRoute)}`);
   if (themeDetailInvocation.showThemeDetailType !== 'function') throw new Error(`theme-detail invocation unavailable: ${JSON.stringify(themeDetailInvocation)}`);
   if (themeDetailInvocation.panelDisplay !== 'block' || themeDetailInvocation.panelRenderer !== 'native') throw new Error(`theme-detail native panel state did not open: ${JSON.stringify(themeDetailInvocation)}`);
   if (themeDetailInvocation.hostHidden !== false) throw new Error(`theme-detail native summary did not open: ${JSON.stringify(themeDetailInvocation)}`);

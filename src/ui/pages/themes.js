@@ -170,6 +170,72 @@ function renderThemePerformanceNarrative({ documentRef, root, store, route }) {
   host.style.color = 'var(--text-secondary)';
 }
 
+function renderThemePerformanceBars({ documentRef, root, store, route }) {
+  if (route !== 'themes') return;
+  const host = documentRef?.getElementById('sector-perf-bars');
+  if (!host) return;
+  host.dataset.aioThemePerformanceBarsRenderer = 'native';
+  const view = root?._sectorPerfView === 'all' ? 'all' : 'sectors';
+  const mode = root?._sectorPerfMode === '1w' ? '1w' : '1d';
+  const rows = viewItems(selectThemesItems(store?.getState?.() || {}), view)
+    .map((item) => ({
+      symbol: String(item?.symbol || item?.id || ''),
+      label: String(item?.label || item?.symbol || item?.id || ''),
+      pct: finite(mode === '1w' ? item?.weeklyPct : item?.pct),
+      quadrant: String(item?.quadrant || 'neutral')
+    }))
+    .filter((row) => row.symbol)
+    .sort((a, b) => {
+      if (a.pct == null && b.pct == null) return a.symbol.localeCompare(b.symbol);
+      if (a.pct == null) return 1;
+      if (b.pct == null) return -1;
+      return b.pct - a.pct;
+    });
+  host.replaceChildren();
+  if (!rows.length) {
+    const empty = documentRef.createElement('div');
+    empty.textContent = '섹터 성과 데이터 수신 대기';
+    empty.style.cssText = 'padding:12px;text-align:center;color:var(--text-muted);font-size:12px;';
+    host.appendChild(empty);
+    return;
+  }
+  const maxAbs = Math.max(0.5, ...rows.map((row) => Math.abs(row.pct ?? 0)));
+  const colors = { Leading: 'var(--data-green)', Improving: 'var(--data-cyan)', Weakening: 'var(--data-amber)', Lagging: 'var(--data-red)' };
+  rows.forEach((row) => {
+    const line = documentRef.createElement('div');
+    line.dataset.themePerformanceRow = row.symbol;
+    line.style.cssText = 'display:flex;align-items:center;gap:3px;min-height:20px;';
+    const symbol = documentRef.createElement('span');
+    symbol.textContent = row.symbol;
+    symbol.style.cssText = 'width:35px;font-size:11px;font-weight:700;color:var(--text-secondary);text-align:right;';
+    const label = documentRef.createElement('span');
+    label.textContent = row.label;
+    label.style.cssText = 'width:70px;font-size:10px;color:var(--text-muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    const track = documentRef.createElement('span');
+    track.style.cssText = 'flex:1;display:flex;align-items:center;position:relative;min-width:40px;height:12px;';
+    const zero = documentRef.createElement('span');
+    zero.style.cssText = 'position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(33,29,22,0.1);';
+    track.appendChild(zero);
+    if (row.pct != null) {
+      const bar = documentRef.createElement('span');
+      const width = `${Math.abs(row.pct) / maxAbs * 45}%`;
+      const color = row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
+      bar.style.cssText = row.pct >= 0
+        ? `margin-left:50%;height:12px;width:${width};background:${color};border-radius:0 3px 3px 0;min-width:2px;`
+        : `margin-left:calc(50% - ${width});height:12px;width:${width};background:${color};border-radius:3px 0 0 3px;min-width:2px;`;
+      track.appendChild(bar);
+    }
+    const value = documentRef.createElement('span');
+    value.textContent = row.pct == null ? '—' : `${row.pct >= 0 ? '+' : ''}${row.pct.toFixed(2)}%`;
+    value.style.cssText = `width:62px;text-align:right;font-size:12px;font-weight:700;font-family:var(--font-mono);color:${row.pct == null ? 'var(--text-muted)' : row.pct >= 0 ? 'var(--data-green)' : 'var(--data-red)'};flex-shrink:0;`;
+    const badge = documentRef.createElement('span');
+    badge.textContent = row.pct == null ? '대기' : ({ Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행' }[row.quadrant] || '중립');
+    badge.style.cssText = `width:36px;text-align:center;flex-shrink:0;font-size:10px;color:${row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)'};`;
+    line.append(symbol, label, track, value, badge);
+    host.appendChild(line);
+  });
+}
+
 function createChip(documentRef, item) {
   const chip = documentRef.createElement('span');
   const pct = finite(item?.pct);
@@ -658,6 +724,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const rrgCanvasHost = documentRef.getElementById('rrg-canvas');
         const cyclePillHost = documentRef.getElementById('theme-cycle-pill');
          const performanceNarrativeHost = documentRef.getElementById('sector-perf-analysis');
+         const performanceBarsHost = documentRef.getElementById('sector-perf-bars');
          const detailPanel = documentRef.getElementById('theme-detail-panel');
          const detailHost = documentRef.getElementById('theme-detail-native-summary');
         const compositionHost = documentRef.getElementById('theme-detail-native-composition');
@@ -674,13 +741,15 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         if (rrgCanvasHost) rrgCanvasHost.dataset.aioRrgChartRenderer = 'native';
         if (cyclePillHost) cyclePillHost.dataset.aioThemeCycleRenderer = 'native';
          if (performanceNarrativeHost) performanceNarrativeHost.dataset.aioThemePerformanceRenderer = 'native';
+         if (performanceBarsHost) performanceBarsHost.dataset.aioThemePerformanceBarsRenderer = 'native';
          if (detailPanel) detailPanel.dataset.aioThemeDetailPanelRenderer = 'native';
         const renderNow = () => {
           renderThemes({ documentRef, root, store, route });
           renderRRGStatus({ documentRef, root, store, route });
           renderRRGCanvas({ documentRef, root, store, route });
           renderThemeCyclePill({ documentRef, root, store, route });
-          renderThemePerformanceNarrative({ documentRef, root, store, route });
+           renderThemePerformanceNarrative({ documentRef, root, store, route });
+           renderThemePerformanceBars({ documentRef, root, store, route });
           renderThemeDetailSummary({ documentRef, root, store, detailOverride: activeThemeDetail });
           renderThemeDetailComposition({ documentRef, root, store, detailOverride: activeThemeDetail });
           renderThemeDetailLeaders({ documentRef, root, store, detailOverride: activeThemeDetail });
@@ -695,7 +764,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const unsubscribe = store?.subscribe?.(renderNow);
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;
-        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes'].forEach((eventName) => {
+        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged'].forEach((eventName) => {
           eventTarget?.addEventListener?.(eventName, renderNow);
           bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
         });
@@ -819,7 +888,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           if (rrgStatusHost?.dataset.aioRrgStatusRenderer === 'native') delete rrgStatusHost.dataset.aioRrgStatusRenderer;
           if (rrgCanvasHost?.dataset.aioRrgChartRenderer === 'native') delete rrgCanvasHost.dataset.aioRrgChartRenderer;
           if (cyclePillHost?.dataset.aioThemeCycleRenderer === 'native') delete cyclePillHost.dataset.aioThemeCycleRenderer;
-           if (performanceNarrativeHost?.dataset.aioThemePerformanceRenderer === 'native') delete performanceNarrativeHost.dataset.aioThemePerformanceRenderer;
+            if (performanceNarrativeHost?.dataset.aioThemePerformanceRenderer === 'native') delete performanceNarrativeHost.dataset.aioThemePerformanceRenderer;
+            if (performanceBarsHost?.dataset.aioThemePerformanceBarsRenderer === 'native') delete performanceBarsHost.dataset.aioThemePerformanceBarsRenderer;
            if (detailPanel?.dataset.aioThemeDetailPanelRenderer === 'native') {
              detailPanel.style.display = 'none';
              delete detailPanel.dataset.aioThemeDetailPanelRenderer;

@@ -41,7 +41,11 @@ export function computeTradingScoreModel(input = {}) {
   const decisionValue = (key, fallback) => {
     if (!hasDecisionEvidence) return finiteNumber(fallback);
     const evidence = input.decisionEvidence[key];
-    if (!evidence || evidence.allowedUse !== 'decision' || !['live', 'fresh'].includes(evidence.status)) return null;
+    // Runtime evidence uses `verified_current`; older callers may still use
+    // `live`/`fresh`.  Accept only those explicitly current statuses and an
+    // explicit decision-use grant.  Reference/snapshot/stale values must not
+    // silently fall back into the score.
+    if (!evidence || evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status)) return null;
     return finiteNumber(evidence.value);
   };
   const vix = decisionValue('vix', input.vix);

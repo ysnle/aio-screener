@@ -21,26 +21,58 @@ function clone(value) {
   try { return JSON.parse(JSON.stringify(value)); } catch (_) { return value; }
 }
 
-function decisionInputs(root, live, snapshot) {
+function decisionInputs(root, nowMs = Date.now()) {
   let rows = [];
   try { rows = root?.AIO?.getTradingDecisionInputEvidence?.()?.rows || []; } catch (_) {}
   const byId = new Map(rows.map((row) => [row.id, row]));
-  const value = (id, fallback = null) => finite(byId.get(id)?.value) ?? finite(fallback);
-  const quote = (symbol, key) => finite(live[symbol]?.price) ?? finite(snapshot[key]);
-  const input = {
-    vix: value('vix-price', quote('^VIX', 'vix')),
-    vvix: value('vvix-price', quote('^VVIX', 'vvix')),
-    dxy: value('dxy-dollar', quote('DX-Y.NYB', 'dxy')),
-    tnx: value('tnx-yield', quote('^TNX', 'tnx')),
-    oilPrice: value('oil-price', quote('CL=F', 'wti')),
-    fg: value('fg-sentiment', null),
-    spxPrice: value('spx-price', quote('^GSPC', 'spx')),
-    spx50ma: value('spx-50ma', root?._spxMA?.[50]),
-    spx200ma: value('spx-200ma', root?._spxMA?.[200]),
-    breadth200: value('breadth200-participation', null),
-    pcr: value('pcr-putcall', root?._putCallRatio),
-    hyBp: value('hy-spread-bp', root?._hySpreadBp)
+  const currentRow = (id) => {
+    const row = byId.get(id);
+    return row && row.status === 'verified_current' && row.decisionUse === 'trading' ? row : null;
   };
+  const value = (id) => finite(currentRow(id)?.value);
+  const input = {
+    vix: value('vix-price'),
+    vvix: value('vvix-price'),
+    dxy: value('dxy-dollar'),
+    tnx: value('tnx-yield'),
+    oilPrice: value('oil-price'),
+    fg: value('fg-sentiment'),
+    spxPrice: value('spx-price'),
+    spx50ma: null,
+    spx200ma: null,
+    breadth200: value('breadth200-participation'),
+    pcr: value('pcr-putcall'),
+    hyBp: value('hy-spread-bp')
+  };
+  // MA values are not part of the generic critical-input registry, but the
+  // legacy fetcher stamps them with a freshness timestamp and source.  Only
+  // promote them when that timestamp is inside the same four-day decision SLA.
+  const maTs = Number(root?._spxMATs);
+  const maCurrent = Number.isFinite(maTs) && nowMs - maTs >= 0 && nowMs - maTs <= 4 * 24 * 60 * 60 * 1000;
+  const maEvidence = {};
+  if (maCurrent) {
+    for (const [key, period] of [['spx50ma', 50], ['spx200ma', 200]]) {
+      const value = finite(root?._spxMA?.[period]);
+      if (value != null) {
+        input[key] = value;
+        maEvidence[key] = { value, source: root?._spxMASource || 'native-runtime-ma', status: 'verified_current', allowedUse: 'decision', observedAt: new Date(maTs).toISOString() };
+      }
+    }
+  }
+  const evidenceKeys = {
+    vix: 'vix-price', vvix: 'vvix-price', dxy: 'dxy-dollar', tnx: 'tnx-yield',
+    oilPrice: 'oil-price', fg: 'fg-sentiment', spxPrice: 'spx-price',
+    breadth200: 'breadth200-participation', pcr: 'pcr-putcall', hyBp: 'hy-spread-bp'
+  };
+  const decisionEvidence = {};
+  Object.entries(evidenceKeys).forEach(([key, id]) => {
+    const row = byId.get(id);
+    decisionEvidence[key] = row
+      ? { value: finite(row.value), source: row.source || 'unknown', status: row.status || 'unavailable', allowedUse: row.status === 'verified_current' && row.decisionUse === 'trading' ? 'decision' : 'reference', observedAt: row.observedAt || null }
+      : { value: null, source: 'unavailable', status: 'unavailable', allowedUse: 'blocked', observedAt: null };
+  });
+  Object.assign(decisionEvidence, maEvidence);
+  input.decisionEvidence = decisionEvidence;
   try { input.newsSentimentScore = finite(root?.computeNewsSentimentScore?.()?.score); } catch (_) { input.newsSentimentScore = null; }
   try { input.newsRiskSignals = root?.computeNewsRiskSignals?.() || []; } catch (_) { input.newsRiskSignals = []; }
   return input;
@@ -146,7 +178,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
     const market = readMarket();
     const health = typeof root?.AIO?.getMarketHealth === 'function' ? root.AIO.getMarketHealth() : null;
     const technicalHealth = health || (typeof root?.computeMarketHealth === 'function' ? root.computeMarketHealth({ quotes: live, spxMA: root?._spxMA || {}, spxATH: root?._spxATH }) : null);
-    return Object.freeze({ inputVersion: readSnapshot()._updated || readSnapshot()._snapshotDate || 'native-runtime', technical: { symbol: id, ohlcv: clone(history), health: technicalHealth }, sentiment: { fearGreed: sentiment.fearGreed, vix: sentiment.vix }, market: market.metrics, tradingScoreInputs: decisionInputs(root, live, readSnapshot()), newsCount: readNews().length, updatedAt: isoNow() });
+    return Object.freeze({ inputVersion: readSnapshot()._updated || readSnapshot()._snapshotDate || 'native-runtime', technical: { symbol: id, ohlcv: clone(history), health: technicalHealth }, sentiment: { fearGreed: sentiment.fearGreed, vix: sentiment.vix }, market: market.metrics, tradingScoreInputs: decisionInputs(root, now()), newsCount: readNews().length, updatedAt: isoNow() });
   };
 
   const readScreener = () => ({ rows: Array.isArray(root?._aioScreenerRows) ? clone(root._aioScreenerRows) : [], revision: root?._aioScreenerLoadState?.revision || null, updatedAt: root?._aioScreenerLoadState?.asOf || isoNow() });

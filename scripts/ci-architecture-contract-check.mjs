@@ -394,6 +394,10 @@ for (const marker of ['renderThemePerformanceNarrative', 'sector-perf-analysis',
   if (!themesPageSource.includes(marker)) fail(`native theme performance marker missing: ${marker}`);
 }
 if (!htmlSource.includes('P802: normalized themes owns the bounded sector-performance narrative.') || !htmlSource.includes("el.dataset.aioThemePerformanceRenderer === 'native'")) fail('theme performance legacy writer fence missing');
+for (const marker of ['renderThemePerformanceBars', 'sector-perf-bars', 'aioThemePerformanceBarsRenderer', 'weeklyPct']) {
+  if (!themesPageSource.includes(marker) && marker !== 'sector-perf-bars' && marker !== 'weeklyPct') fail(`native theme performance-bars marker missing: ${marker}`);
+}
+if (!htmlSource.includes('P859: native themes owns the bounded sector-performance bars') || !htmlSource.includes("container.dataset.aioThemePerformanceBarsRenderer === 'native'")) fail('theme performance-bars legacy writer fence missing');
 
 // AG-DOM-WRITER (RM-01): src/ui/pages/* may only write ids/helpers that no legacy file also
 // writes. This is deliberately id-based (getElementById + the setText/text(documentRef, id, …)
@@ -496,7 +500,7 @@ if (selectMarketQuote(marketStore.getState(), '^TNX')?.value !== 4.2) fail('mark
 const themesStore = createStore({ initialState: { themes: createInitialThemesState() }, reducer: (state, action) => ({ ...state, themes: themesReducer(state.themes, action) }) });
 const themesCommands = createThemesCommands({ store: themesStore });
 const themesWriter = createThemesOrchestrator({ provider: createThemesProvider({ read: () => ({
-  items: [{ id: 'fixture-theme', symbol: 'ETF', pct: 1.2, quadrant: 'leading' }],
+  items: [{ id: 'fixture-theme', symbol: 'ETF', pct: 1.2, weeklyPct: 2.4, quadrant: 'leading' }],
   selectedId: 'fixture-detail',
   selectedDetail: {
     id: 'fixture-detail',
@@ -510,7 +514,7 @@ const themesWriter = createThemesOrchestrator({ provider: createThemesProvider({
   }
 }) }), commands: themesCommands });
 themesWriter.sync();
-if (selectThemesItems(themesStore.getState()).length !== 1 || selectThemesItems(themesStore.getState())[0].symbol !== 'ETF' || selectSelectedThemeDetail(themesStore.getState())?.id !== 'fixture-detail' || selectSelectedThemeDetail(themesStore.getState())?.breadth !== 50 || selectSelectedThemeDetail(themesStore.getState())?.quotes?.AAA?.pct !== 1 || selectSelectedThemeDetail(themesStore.getState())?.subThemes?.[0]?.weights?.AAA !== 1) fail('themes provider/normalize/orchestrator writer contract failed');
+if (selectThemesItems(themesStore.getState()).length !== 1 || selectThemesItems(themesStore.getState())[0].symbol !== 'ETF' || selectThemesItems(themesStore.getState())[0].weeklyPct !== 2.4 || selectSelectedThemeDetail(themesStore.getState())?.id !== 'fixture-detail' || selectSelectedThemeDetail(themesStore.getState())?.breadth !== 50 || selectSelectedThemeDetail(themesStore.getState())?.quotes?.AAA?.pct !== 1 || selectSelectedThemeDetail(themesStore.getState())?.subThemes?.[0]?.weights?.AAA !== 1) fail('themes provider/normalize/orchestrator writer contract failed');
 const revision = createRevisionManifest(release);
 if (!validateRevisionManifest(revision).ok) fail('release revision contract failed');
 const lineage = createLineageRecord({ metricId: 'market.sentiment.fg', evidenceId: evidence.evidenceId, source: 'fixture', sourceKind: 'fixture', observedAt: evidence.observedAt, fetchedAt: evidence.fetchedAt, unit: evidence.unit, state: 'MATCH' });
