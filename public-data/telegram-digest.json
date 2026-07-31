@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-07-31T18:45:56.004Z",
-  "attemptedAt": "2026-07-31T18:45:56.004Z",
-  "lastSuccessfulAt": "2026-07-31T18:45:56.004Z",
-  "collectionStatus": "partial",
-  "successfulChannelCount": 2,
-  "since": "2026-07-17T18:45:28.998Z",
-  "until": "2026-07-31T18:45:28.998Z",
+  "generatedAt": "2026-07-31T20:11:17.807Z",
+  "attemptedAt": "2026-07-31T20:11:17.807Z",
+  "lastSuccessfulAt": "2026-07-31T20:11:17.807Z",
+  "collectionStatus": "ok",
+  "successfulChannelCount": 3,
+  "since": "2026-07-17T20:11:15.858Z",
+  "until": "2026-07-31T20:11:15.858Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 0,
+      "pages": 1,
       "reachedOlder": false,
-      "reachedKnown": false,
+      "reachedKnown": true,
       "count": 533,
-      "freshCount": 0,
-      "eligibleTextCount": 0,
+      "freshCount": 17,
+      "eligibleTextCount": 17,
       "selectedCount": 125,
-      "error": "This operation was aborted",
+      "error": null,
       "lastPostId": 24249
     },
     {
@@ -46,7 +46,7 @@
     }
   ],
   "count": 1990,
-  "retainedItemCount": 382,
+  "retainedItemCount": 388,
   "observedItems": [
     {
       "id": "aetherjapanresearch/24249",
@@ -58,7 +58,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24248",
@@ -73,7 +73,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24247",
@@ -85,7 +85,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24246",
@@ -97,7 +97,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24245",
@@ -109,7 +109,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24244",
@@ -121,7 +121,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24243",
@@ -137,7 +137,7 @@
         "NVDA",
         "AMD"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24242",
@@ -152,7 +152,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24241",
@@ -164,7 +164,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24239",
@@ -181,7 +181,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19457",
@@ -212,7 +212,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24237",
@@ -225,7 +225,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24235",
@@ -250,7 +250,7 @@
         "CIEN",
         "APH"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59870",
@@ -289,7 +289,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59868",
@@ -324,7 +324,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24231",
@@ -342,7 +342,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59867",
@@ -387,7 +387,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/59865",
@@ -28582,12 +28582,12 @@
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
     "observedCount": 1990,
-    "eligibleTextCount": 38,
-    "mediaOnlyCount": 1952,
+    "eligibleTextCount": 55,
+    "mediaOnlyCount": 1935,
     "highSignalCount": 572,
     "broadSignalCount": 995,
     "selectedRawCount": 367,
-    "selectedRawCoveragePct": 965.8,
+    "selectedRawCoveragePct": 667.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
@@ -28831,14 +28831,14 @@
     "DDOG": 1
   },
   "themes": [
-    "Semiconductors/Memory (720 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비...",
-    "Macro/Rates (634 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비...",
-    "Earnings/Corporate (509 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비...",
+    "Semiconductors/Memory (720 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜...",
+    "Macro/Rates (634 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜...",
+    "Earnings/Corporate (509 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜...",
     "Market Notes (496 posts in current window): 52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·...",
     "Geopolitics (372 posts in current window): Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제...",
     "AI Power/Grid (352 posts in current window): 아마존( &#036;AMZN ) 2026년 2분기 어닝콜 Q&A 세션 Q) 많은 사람들이 단기적으로 AI 워크로드의 마진이 낮을 것으로 예상했습니다. 2분기 AWS가 달성한 39%의 높은 영업이익률 동인은 무엇이며, 이 이익률의 지속 가능성에 대해 어떻게 생각하십니까? 고객이 전 분기 대비 더 많은 금액을 지출하는...",
     "Korea Market (312 posts in current window): Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제...",
-    "AI Policy/Export Controls (206 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
+    "AI Policy/Export Controls (206 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
   ],
   "catalysts": [
     {
@@ -28874,7 +28874,7 @@
     {
       "key": "AMZN",
       "count": 63,
-      "text": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
+      "text": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
       "key": "035420.KS",
@@ -28894,7 +28894,7 @@
     {
       "key": "AVGO",
       "count": 44,
-      "text": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
+      "text": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
       "key": "AAPL",
@@ -28910,7 +28910,7 @@
         "macro"
       ],
       "count": 634,
-      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
+      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
       "id": "geo",
@@ -28937,7 +28937,7 @@
         "semi"
       ],
       "count": 720,
-      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
+      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
       "id": "optical",
@@ -28946,7 +28946,7 @@
         "optical"
       ],
       "count": 23,
-      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
+      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
       "id": "power",
@@ -28964,7 +28964,7 @@
         "ai-policy"
       ],
       "count": 206,
-      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
+      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
       "id": "kr-market",
@@ -29000,7 +29000,7 @@
         "earnings"
       ],
       "count": 509,
-      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
+      "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
       "id": "healthcare",
