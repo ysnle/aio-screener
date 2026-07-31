@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-31T20:11:17.807Z",
-  "attemptedAt": "2026-07-31T20:11:17.807Z",
-  "lastSuccessfulAt": "2026-07-31T20:11:17.807Z",
+  "generatedAt": "2026-07-31T21:28:27.352Z",
+  "attemptedAt": "2026-07-31T21:28:27.352Z",
+  "lastSuccessfulAt": "2026-07-31T21:28:27.352Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
-  "since": "2026-07-17T20:11:15.858Z",
-  "until": "2026-07-31T20:11:15.858Z",
+  "since": "2026-07-17T21:28:24.959Z",
+  "until": "2026-07-31T21:28:24.959Z",
   "source": "telegram-public-mirror",
   "channels": [
     {
@@ -25,7 +25,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1158,
+      "count": 1155,
       "freshCount": 19,
       "eligibleTextCount": 18,
       "selectedCount": 122,
@@ -45,7 +45,7 @@
       "lastPostId": 19457
     }
   ],
-  "count": 1990,
+  "count": 1987,
   "retainedItemCount": 388,
   "observedItems": [
     {
@@ -28514,104 +28514,43 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/58583",
-      "channel": "insidertracking",
-      "datetime": "2026-07-17T21:24:06.000Z",
-      "localDateKst": "2026-07-18",
-      "score": 83,
-      "tags": [
-        "macro",
-        "semi",
-        "ai-policy"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58582",
-      "channel": "insidertracking",
-      "datetime": "2026-07-17T21:22:32.000Z",
-      "localDateKst": "2026-07-18",
-      "score": 100,
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/58581",
-      "channel": "insidertracking",
-      "datetime": "2026-07-17T21:20:28.000Z",
-      "localDateKst": "2026-07-18",
-      "score": 100,
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "crypto",
-        "japan"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "AAPL",
-        "META",
-        "TSM",
-        "BA",
-        "000660.KS"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 1990,
+    "observedCount": 1987,
     "eligibleTextCount": 55,
-    "mediaOnlyCount": 1935,
-    "highSignalCount": 572,
-    "broadSignalCount": 995,
+    "mediaOnlyCount": 1932,
+    "highSignalCount": 569,
+    "broadSignalCount": 992,
     "selectedRawCount": 367,
     "selectedRawCoveragePct": 667.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
     "market-note": 496,
-    "semi": 720,
-    "power": 352,
+    "semi": 717,
+    "power": 350,
     "insider": 52,
     "earnings": 509,
     "flows": 173,
     "kr-market": 312,
     "credit": 47,
-    "macro": 634,
-    "japan": 153,
-    "ai-policy": 206,
+    "macro": 631,
+    "japan": 152,
+    "ai-policy": 203,
     "optical": 23,
     "media-only": 46,
-    "geo": 372,
+    "geo": 370,
     "healthcare": 122,
-    "equity": 160,
-    "crypto": 10
+    "equity": 159,
+    "crypto": 9
   },
   "tickerCounts": {
-    "NVDA": 83,
-    "AMD": 89,
+    "NVDA": 82,
+    "AMD": 88,
     "BABA": 3,
     "AMZN": 63,
     "AVGO": 44,
@@ -28625,20 +28564,20 @@
     "MRNA": 2,
     "GOOG": 97,
     "CVX": 2,
-    "TSM": 86,
-    "000660.KS": 136,
+    "TSM": 83,
+    "000660.KS": 135,
     "035420.KS": 58,
     "MU": 43,
     "6600.T": 6,
     "005930.KS": 93,
-    "AAPL": 44,
+    "AAPL": 43,
     "MSFT": 57,
     "402340.KS": 1,
     "COIN": 3,
     "HOOD": 1,
     "WFC": 5,
     "CRM": 2,
-    "META": 55,
+    "META": 54,
     "RKLB": 17,
     "GOOGL": 25,
     "TSLA": 16,
@@ -28733,7 +28672,7 @@
     "PM": 5,
     "WELL": 5,
     "MO": 1,
-    "BA": 4,
+    "BA": 3,
     "RCL": 1,
     "MRVL": 10,
     "ADBE": 1,
@@ -28831,19 +28770,19 @@
     "DDOG": 1
   },
   "themes": [
-    "Semiconductors/Memory (720 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜...",
-    "Macro/Rates (634 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜...",
+    "Semiconductors/Memory (717 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜...",
+    "Macro/Rates (631 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜...",
     "Earnings/Corporate (509 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜...",
     "Market Notes (496 posts in current window): 52주 신고가 · 3M · AbbVie · Aflac · Airbnb · Allstate · Altria Group · Amgen · Aon · Apple · Bristol Myers Squibb ·...",
-    "Geopolitics (372 posts in current window): Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제...",
-    "AI Power/Grid (352 posts in current window): 아마존( &#036;AMZN ) 2026년 2분기 어닝콜 Q&A 세션 Q) 많은 사람들이 단기적으로 AI 워크로드의 마진이 낮을 것으로 예상했습니다. 2분기 AWS가 달성한 39%의 높은 영업이익률 동인은 무엇이며, 이 이익률의 지속 가능성에 대해 어떻게 생각하십니까? 고객이 전 분기 대비 더 많은 금액을 지출하는...",
+    "Geopolitics (370 posts in current window): Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제...",
+    "AI Power/Grid (350 posts in current window): 아마존( &#036;AMZN ) 2026년 2분기 어닝콜 Q&A 세션 Q) 많은 사람들이 단기적으로 AI 워크로드의 마진이 낮을 것으로 예상했습니다. 2분기 AWS가 달성한 39%의 높은 영업이익률 동인은 무엇이며, 이 이익률의 지속 가능성에 대해 어떻게 생각하십니까? 고객이 전 분기 대비 더 많은 금액을 지출하는...",
     "Korea Market (312 posts in current window): Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제...",
-    "AI Policy/Export Controls (206 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
+    "AI Policy/Export Controls (203 posts in current window): JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 136,
+      "count": 135,
       "text": "2026년 7월 30일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (73.99%) 2위: PROSHARES ULTRAPRO..."
     },
     {
@@ -28858,17 +28797,17 @@
     },
     {
       "key": "AMD",
-      "count": 89,
+      "count": 88,
       "text": "2026년 7월 31일 미국 증시 브리핑 미국 증시는 예상보다 완만한 6월 Core PCE와 소비지출 및 기업투자 중심의 견조한 GDP 구성, 케빈 워시 연준 의장 체제에서 금리 인상 우려가 완화된 점을..."
     },
     {
       "key": "TSM",
-      "count": 86,
+      "count": 83,
       "text": "JP모건 APAC 주식 코멘트 (1) 반도체 급반등… SOX +8%, 아마존 시간외 +8%(AWS 어닝 비트 및 capex 상향). 간밤에 기술주(나스닥 +3.3%, SOX +8%)와 모멘텀(JPMPURE..."
     },
     {
       "key": "NVDA",
-      "count": 83,
+      "count": 82,
       "text": "2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES..."
     },
     {
@@ -28888,7 +28827,7 @@
     },
     {
       "key": "META",
-      "count": 55,
+      "count": 54,
       "text": "미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음..."
     },
     {
@@ -28897,9 +28836,9 @@
       "text": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
-      "key": "AAPL",
-      "count": 44,
-      "text": "Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제..."
+      "key": "MU",
+      "count": 43,
+      "text": "미국 레딧 게시물 분석 (2026년 7월 31일 00:00~05:30 기준) > 💾 MU(마이크론) - AI 메모리/HBM · \"Full port MU calls\" 인증글 등장 · AI 조정에도 MU 믿음..."
     }
   ],
   "categories": [
@@ -28909,7 +28848,7 @@
       "topics": [
         "macro"
       ],
-      "count": 634,
+      "count": 631,
       "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
@@ -28918,7 +28857,7 @@
       "topics": [
         "geo"
       ],
-      "count": 372,
+      "count": 370,
       "focus": "Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제..."
     },
     {
@@ -28936,7 +28875,7 @@
       "topics": [
         "semi"
       ],
-      "count": 720,
+      "count": 717,
       "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
@@ -28954,7 +28893,7 @@
       "topics": [
         "power"
       ],
-      "count": 352,
+      "count": 350,
       "focus": "아마존( &#036;AMZN ) 2026년 2분기 어닝콜 Q&A 세션 Q) 많은 사람들이 단기적으로 AI 워크로드의 마진이 낮을 것으로 예상했습니다. 2분기 AWS가 달성한 39%의 높은 영업이익률 동인은 무엇이며, 이 이익률의 지속 가능성에 대해 어떻게 생각하십니까? 고객이 전 분기 대비 더 많은 금액을 지출하는..."
     },
     {
@@ -28963,7 +28902,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 206,
+      "count": 203,
       "focus": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     },
     {
@@ -28981,7 +28920,7 @@
       "topics": [
         "equity"
       ],
-      "count": 160,
+      "count": 159,
       "focus": "Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제..."
     },
     {
@@ -28990,7 +28929,7 @@
       "topics": [
         "crypto"
       ],
-      "count": 10,
+      "count": 9,
       "focus": "Pre-Market Summary - 2026년 7월 30일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 중국이 이란에 무기를 공급할 경우 실망할 것이라고 발언. · 트럼프 대통령, 관세..."
     },
     {
@@ -29017,7 +28956,7 @@
       "topics": [
         "japan"
       ],
-      "count": 153,
+      "count": 152,
       "focus": "Pre-Market Summary - 2026년 7월 31일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 가자지구 내 하마스와 모든 무장세력의 단계적 완전 무장해제 합의 발표. · 무장해제..."
     },
     {
