@@ -439,7 +439,18 @@ check('13 comp routes hide advanced legacy blocks by default and expose them in 
 check('portfolio comp order and CTA-gated entry form are wired', /id="pf-holdings-table-section"/.test(html) && /id="pf-risk-section"/.test(html) && /id="pf-entry-section"/.test(html) && /_aioTogglePortfolioEntry/.test(html));
 check('screener comp default exposes 1M/3M/6M/RSI/vs50MA/trend confidence/VCP fields', /data-scr-sort="ret1m"/.test(html) && /data-scr-sort="ret3m"/.test(html) && /data-scr-sort="ret6m"/.test(html) && /data-scr-sort="pctSma50"/.test(html) && /ret1m/.test(screenerPage) && /ret6m/.test(screenerPage) && /vcpScore/.test(screenerPage));
 check('runtime-injected decision headers and related-news strips stay out of the 13-route default surface', /body:not\(\.aio-dev-mode\) \.page > \.aio-decision-header[\s\S]{0,160}display:none !important/.test(html) && /#page-signal > \.aio-page-news-strip[\s\S]{0,1200}display:none !important/.test(html));
-check('home details and duplicate operational feeds are absent from the default surface', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && /#tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html));
+check('home operational details stay collapsed while completed-24h Telegram feeds remain user-visible', /#page-home > details\.aio-card[\s\S]{0,1200}display:none !important/.test(html) && !/body:not\(\.aio-dev-mode\) #tg-feed-signal[\s\S]{0,1600}display:none !important/.test(html) && /body:not\(\.aio-dev-mode\) \.tg-live-feed/.test(html));
+check('macro route uses one native yield-curve owner and replays both official calendars after the shared cut', (() => {
+  const start = core.indexOf("_lazyInitChartPage('macro', 'yieldCurveChart'");
+  const macroInit = start >= 0 ? core.slice(start, start + 1200) : '';
+  return /renderYieldCurve\(\)/.test(macroInit)
+    && /aioMacroChartRenderer/.test(macroInit)
+    && !/initYieldCurveChart\s*\(/.test(macroInit)
+    && /renderOfficialFutureCalendar\(\)/.test(core)
+    && /aio:sharedMarketCut/.test(core);
+})());
+check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', /AIO_MACRO_CALENDAR[\s\S]{0,900}Object\.keys\(registry\)/.test(html) && /item\.nextRelease/.test(html) && /renderMacroNextRelease/.test(core));
+check('yield-curve renderer has a native-owner fence and destroys legacy/Chart.js canvas owners before fallback recreation', /nativeMacroPage\.dataset\.aioMacroChartRenderer === 'native'/.test(html) && /destroyYieldCurveOwner/.test(html) && /Chart\.getChart\(canvasEl\)/.test(html) && /_ycCharts\.yieldCurveChart/.test(core));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /_scrVisibleLimit\s*=\s*12/.test(data) && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 check('briefing news wall is capped and can be explicitly expanded', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && /_aioCapBriefingNews/.test(core) && /_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
@@ -780,6 +791,19 @@ check('P782: service-worker controller changes re-query the active version inste
   /window\._aioSWVersion\s*=\s*''/.test(data) &&
   /updateViaCache:\s*'none'/.test(html) &&
   /reg\.update\(\)/.test(html));
+check('P875: service-worker rotation is fail-safe and reloads once after controller takeover',
+  /function _aioRequestSWControllerReload\(\)/.test(data) &&
+  /aio_sw_controller_reload_v1/.test(data) &&
+  /window\.location\.reload\(\)/.test(data) &&
+  /sessionStorage\.removeItem\('aio_sw_controller_reload_v1'\)/.test(data));
+check('P875: quote change/value basis survives snapshot bridge, PriceStore, legacy live data, and native UI annotations',
+  read('scripts/build-market-snapshot.mjs').includes('changeBasis') &&
+  read('src/legacy/market-snapshot-bridge.js').includes('changeBasis') &&
+  read('src/data/contracts/market-snapshot.js').includes('derivedBasis') &&
+  core.includes('changeBasis: opts.changeBasis') &&
+  core.includes('changeBasis: provenanceOpts.changeBasis') &&
+  read('src/ui/pages/market.js').includes('data-change-basis') &&
+  read('src/ui/pages/market.js').includes('valueBasis'));
 check('P783: reference snapshot metadata drives an explicit non-live topbar state',
   /latestObservedAt/.test(read('src/legacy/market-snapshot-bridge.js')) &&
   /sourceKind:\s*'REFERENCE'/.test(read('src/legacy/market-snapshot-bridge.js')) &&

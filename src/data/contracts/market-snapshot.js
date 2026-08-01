@@ -58,12 +58,14 @@ function normalizeQuote(quote = {}) {
   const instrument = INSTRUMENT_BY_ID.get(String(quote.instrumentId || quote.symbol || ''));
   const value = Number(quote.value ?? quote.price ?? quote.regularMarketPrice);
   const changePct = quote.changePct ?? quote.pct ?? quote.regularMarketChangePercent;
+  const previousValue = quote.previousValue ?? quote.previousClose ?? quote.regularMarketPreviousClose ?? null;
+  const derivedBasis = Number.isFinite(Number(previousValue)) ? 'provider-previous-value' : 'unknown';
   const normalized = {
     evidenceId: String(quote.evidenceId || ''),
     metricId: String(quote.metricId || instrument?.metricId || ''),
     instrumentId: String(quote.instrumentId || quote.symbol || ''),
     value,
-    previousValue: quote.previousValue ?? quote.previousClose ?? quote.regularMarketPreviousClose ?? null,
+    previousValue,
     changePct: changePct == null ? null : Number(changePct),
     unit: String(quote.unit || instrument?.unit || 'unitless'),
     source: String(quote.source || 'unknown'),
@@ -73,6 +75,8 @@ function normalizeQuote(quote = {}) {
     lastSuccessfulAt: asIso(quote.lastSuccessfulAt || quote.observedAt || quote.fetchedAt),
     session: String(quote.session || quote.marketSession || 'UNKNOWN'),
     quality: MARKET_QUALITY_STATUS.includes(quote.quality) ? quote.quality : 'UNAVAILABLE',
+    changeBasis: String(quote.changeBasis || quote.valueBasis || derivedBasis),
+    valueBasis: String(quote.valueBasis || quote.changeBasis || derivedBasis),
     allowedUse: String(quote.allowedUse || 'reference'),
     delayedByMs: Number.isFinite(Number(quote.delayedByMs)) ? Number(quote.delayedByMs) : null,
     venue: quote.venue || quote.fullExchangeName || null

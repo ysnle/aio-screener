@@ -29,7 +29,15 @@ function quoteValue(root, symbol) {
   if (!quote) return null;
   const price = finite(quote.price ?? quote.regularMarketPrice);
   const pct = finite(quote.pct ?? quote.regularMarketChangePercent);
-  return { quote, price, pct };
+  const changeBasis = quote.changeBasis || quote.valueBasis || 'unknown';
+  return { quote, price, pct, changeBasis };
+}
+
+function annotateChangeBasis(node, value) {
+  if (!node || !value) return;
+  const basis = String(value.changeBasis || 'unknown');
+  node.setAttribute('data-change-basis', basis);
+  node.setAttribute('title', `변화율 기준: ${basis}`);
 }
 
 function formatPrice(root, symbol, value) {
@@ -47,6 +55,7 @@ function renderLiveQuotes(root, page) {
     if (!value || value.price == null) return;
     writeText(node, formatPrice(root, symbol, value.price));
     writeLineage(node, 'live', value.quote.source || value.quote.provider || 'live:quote');
+    annotateChangeBasis(node, value);
   });
   page.querySelectorAll('[data-live-chg],[data-live-pct]').forEach((node) => {
     const symbol = node.getAttribute('data-live-chg') || node.getAttribute('data-live-pct');
@@ -56,6 +65,7 @@ function renderLiveQuotes(root, page) {
     node.classList?.toggle('pos', value.pct >= 0);
     node.classList?.toggle('neg', value.pct < 0);
     writeLineage(node, 'live', value.quote.source || value.quote.provider || 'live:quote');
+    annotateChangeBasis(node, value);
   });
 }
 
@@ -181,7 +191,8 @@ function historyRows(root, field) {
         date: String(row?.date || row?.time || '').slice(0, 10),
         value: finite(row?.value ?? row?.close),
         sourceKind: row?.sourceKind || 'server-history',
-        source: row?.source || `public-data/history.json:${field}`
+        source: row?.source || `public-data/history.json:${field}`,
+        valueBasis: row?.valueBasis || row?.changeBasis || row?.fieldMeta?.valueBasis || 'completed-market-series'
       })).filter((row) => row.date && row.value != null)
       : [];
   } catch (_) {
@@ -216,7 +227,7 @@ function renderNativeHistoryChart(root, page, charts, { id, field, label, render
     canvas.__rendered = 'native';
     return;
   }
-  const signature = rows.map((row) => `${row.date}:${row.value}`).join('|');
+  const signature = rows.map((row) => `${row.date}:${row.value}:${row.valueBasis}`).join('|');
   if (charts.get(id)?.signature === signature) return;
   destroyNativeChart(charts, id);
   let chart;
@@ -244,7 +255,9 @@ function renderNativeHistoryChart(root, page, charts, { id, field, label, render
   }
   charts.set(id, { chart, signature });
   canvas.__rendered = 'chartjs';
-  setCanvasState(canvas, { rendererKey, sourceKind: rows[rows.length - 1].sourceKind, sourceLabel: rows[rows.length - 1].source, operationalUse: 'reference-only', title: `${label} · source: ${rows[rows.length - 1].source}` });
+  const latestRow = rows[rows.length - 1];
+  setCanvasState(canvas, { rendererKey, sourceKind: latestRow.sourceKind, sourceLabel: latestRow.source, operationalUse: 'reference-only', title: `${label} · source: ${latestRow.source} · basis: ${latestRow.valueBasis}` });
+  canvas.setAttribute('data-change-basis', latestRow.valueBasis);
 }
 
 function renderNativeCurveChart(root, page, charts, canvasId = 'koreaCurveChart', rendererKey = 'aioFxbondChartRenderer') {

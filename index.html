@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.68 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.69 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -4900,16 +4900,6 @@ body:not(.aio-dev-mode) #snapshot-stale-warning,
 body:not(.aio-dev-mode) #home-conclusion-bar,
 body:not(.aio-dev-mode) #home-trading-grid,
 body:not(.aio-dev-mode) #chat-home,
-body:not(.aio-dev-mode) #tg-feed-signal,
-body:not(.aio-dev-mode) #tg-feed-breadth,
-body:not(.aio-dev-mode) #tg-feed-sentiment,
-body:not(.aio-dev-mode) #tg-feed-technical,
-body:not(.aio-dev-mode) #tg-feed-macro,
-body:not(.aio-dev-mode) #tg-feed-fxbond,
-body:not(.aio-dev-mode) #tg-feed-fundamental,
-body:not(.aio-dev-mode) #tg-feed-themes,
-body:not(.aio-dev-mode) #tg-feed-briefing,
-body:not(.aio-dev-mode) #tg-feed-market-news,
 body:not(.aio-dev-mode) #news-korean-rewrite-brief,
 body:not(.aio-dev-mode) #news-stale-banner,
 body:not(.aio-dev-mode) #page-sentiment > .stale-badge,
@@ -4946,6 +4936,18 @@ body:not(.aio-dev-mode) #page-market-news > .aio-page-news-strip,
 body:not(.aio-dev-mode) #page-screener > .aio-page-news-strip { display:none !important; }
 body:not(.aio-dev-mode) .page.has-aio-decision-header { padding-top:0 !important; }
 
+/* v53.69/P875: the completed 24-hour Telegram lane is a user-facing evidence
+   surface, not an operator duplicate.  Keep the public feed compact while
+   preserving the full developer-mode diagnostics and the market-news wall. */
+body:not(.aio-dev-mode) .tg-live-feed {
+  margin: 14px 0 22px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+}
+body:not(.aio-dev-mode) .tg-live-feed .tg-card-body { display: none; }
+body:not(.aio-dev-mode) .tg-live-feed .tg-card { margin-bottom: 5px; }
+body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
+
 /* 홈 뉴스는 운영 카드가 아니라 시안의 마지막 헤어라인 섹션으로 재사용한다. */
 #home-market-summary-banner {
   border:0 !important; border-top:1px solid var(--border-strong) !important;
@@ -4960,8 +4962,7 @@ body:not(.aio-dev-mode) .page.has-aio-decision-header { padding-top:0 !important
 }
 #home-market-summary-banner #home-summary-text,
 #home-market-summary-banner #home-summary-time,
-#home-market-summary-banner > div:first-child > div:last-child > div:first-child,
-#home-market-summary-banner #tg-feed-home { display:none !important; }
+#home-market-summary-banner > div:first-child > div:last-child > div:first-child { display:none !important; }
 #home-news-highlights { border-top:0 !important; padding-top:0 !important; margin-top:0 !important; }
 
 /* 4a 시안: 총손익·현금·노출규칙의 3열 요약. */
@@ -5651,7 +5652,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.68</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.69</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12252,9 +12253,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.68" defer></script>
-  <script src="./js/aio-data.js?v=53.68" defer></script>
-  <script src="./js/aio-ui.js?v=53.68" defer></script>
+  <script src="./js/aio-core.js?v=53.69" defer></script>
+  <script src="./js/aio-data.js?v=53.69" defer></script>
+  <script src="./js/aio-ui.js?v=53.69" defer></script>
 
 
   <script>
@@ -14739,7 +14740,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.68" defer></script>
+<script src="./js/aio-chat.js?v=53.69" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -14764,6 +14765,25 @@ function renderOfficialFutureCalendar() {
   add(snap.pceNext, 'BEA PCE', 'BEA', '헤드라인·근원 PCE와 소비 확인');
   add(snap.nfpNext, 'BLS 고용보고서', 'BLS', 'NFP·실업률·임금 확인');
   add(snap.cpiNext, 'BLS CPI', 'BLS', '헤드라인·근원 CPI 확인');
+  // P875: the registry is the shared official-calendar owner. Snapshot fields
+  // cover the highest-priority releases; registry rows add ISM/retail and any
+  // future releases without inventing a browser-local cadence.
+  var registry = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
+  if (registry && typeof registry === 'object') {
+    Object.keys(registry).forEach(function(key) {
+      var item = registry[key] || {};
+      add(item.nextRelease, item.name || key, item.source || '공식 일정 원천', item.detail || '공식 발표 원문과 실제 관측값 대조');
+    });
+  }
+  // Avoid duplicate rows when a snapshot field and the registry describe the
+  // same release; preserve the first (snapshot-backed) provenance.
+  var seen = {};
+  rows = rows.filter(function(row) {
+    var k = row.date + '|' + row.label;
+    if (seen[k]) return false;
+    seen[k] = true;
+    return true;
+  });
   rows.sort(function(a, b) { return a.date.localeCompare(b.date); });
   if (!rows.length) { root.innerHTML = '<div class="cal-row"><span style="color:var(--text-muted);">등록된 미래 공식 일정 없음 · 원천 캘린더 확인</span></div>'; return; }
   root.innerHTML = rows.map(function(row) {
@@ -15326,7 +15346,7 @@ function renderEconCalendar() {
   var events = releases ? Object.keys(releases).map(function(key) {
     var item = releases[key] || {};
     var date = /^\d{4}-\d{2}-\d{2}$/.test(item.nextRelease || '')
-      ? new Date(item.nextRelease + 'T00:00:00') : null;
+      ? new Date(item.nextRelease + 'T00:00:00+09:00') : null;
     return date && date >= today ? { key:key, item:item, date:date } : null;
   }).filter(Boolean).sort(function(a, b) { return a.date - b.date; }).slice(0, 8) : [];
 
@@ -15425,6 +15445,11 @@ function generateMacroStoryline() {
 
 // ── Render Yield Curve Chart ──
 function renderYieldCurve() {
+  // P875: the AR-01 native market slice owns the macro canvas whenever its
+  // renderer marker is mounted. Legacy live-quote callbacks must not repaint
+  // that canvas or Chart.js will report a reuse error on route transitions.
+  var nativeMacroPage = document.getElementById('page-macro');
+  if (nativeMacroPage && nativeMacroPage.dataset.aioMacroChartRenderer === 'native') return;
   let ld = window._liveData || {};
   var curve = window.AIO && typeof window.AIO.getUsTreasuryCurveEvidence === 'function'
     ? window.AIO.getUsTreasuryCurveEvidence() : {};
@@ -15437,6 +15462,28 @@ function renderYieldCurve() {
   var canvasEl = document.getElementById('yieldCurveChart');
   if (!canvasEl) return;
 
+  // P875: one canvas may have been touched by a legacy route before the
+  // native owner takes over. Destroy every known registry handle (including
+  // Chart.js' own lookup) before creating the replacement instance.
+  function destroyYieldCurveOwner() {
+    try {
+      if (window._yieldCurveChart) { window._yieldCurveChart.destroy(); delete window._yieldCurveChart; }
+    } catch(_) { delete window._yieldCurveChart; }
+    try {
+      if (typeof _ycCharts !== 'undefined' && _ycCharts.yieldCurveChart) {
+        _ycCharts.yieldCurveChart.destroy();
+        _ycCharts.yieldCurveChart = null;
+      }
+    } catch(_) {}
+    try {
+      if (typeof Chart !== 'undefined' && typeof Chart.getChart === 'function') {
+        var existing = Chart.getChart(canvasEl);
+        if (existing) existing.destroy();
+      }
+    } catch(_) {}
+  }
+
+  destroyYieldCurveOwner();
   if (!curve.complete) {
     var missing = [];
     [['3M',irx],['2Y',y2],['5Y',fvx],['10Y',tnx],['30Y',tyx]].forEach(function(pair) { if (pair[1] == null) missing.push(pair[0]); });
@@ -15459,11 +15506,6 @@ function renderYieldCurve() {
   var gateData = yields.map(function(y) { return parseFloat(y.rate); });
   var gated = chartDataGate('yieldCurveChart', gateLabels, [gateData], { minPoints: 3, chartName: '수익률 곡선', fillMode: 'prev' });
   if (!gated) return;
-
-  // Destroy previous chart if exists
-  if (window._yieldCurveChart) {
-    window._yieldCurveChart.destroy();
-  }
 
   // Create new chart
   window._yieldCurveChart = new Chart(ctx, {
@@ -23611,7 +23653,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.68" defer></script>
+<script src="./js/aio-glossary.js?v=53.69" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

@@ -1414,6 +1414,10 @@ function _aioRenderTelegramFeedHtml(pageId) {
 
     // 헤더
     var latestDate = (filtered[0].localDateKst || '').slice(5, 10);
+    var currentWindow = window.AIO_TELEGRAM_WEEKLY_DIGEST && window.AIO_TELEGRAM_WEEKLY_DIGEST.current24hWindow;
+    var windowLabel = currentWindow && currentWindow.label
+      ? currentWindow.label
+      : (window.AIO_TELEGRAM_WEEKLY_DIGEST && window.AIO_TELEGRAM_WEEKLY_DIGEST.window) || '완료된 24시간';
     var feedCls = 'tg-live-feed' + (compact ? ' tg-compact' : '');
     var feedState = filtered.length < maxItems ? 'partial' : 'success';
     var html = '<div class="' + feedCls + '">' + statusMarkup(feedState, filtered.length, maxItems);
@@ -1427,7 +1431,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
           + '<span class="tg-live-dot"></span>'
           + '<span class="tg-live-hd-label">' + feedLabel + '</span>'
           + (sentBar ? '<span class="tg-sent-bar">' + sentBar + '</span>' : '')
-          + '<span class="tg-live-hd-ts">' + latestDate + ' · ' + filtered.length + '건</span>'
+          + '<span class="tg-live-hd-ts" title="' + escHtml(windowLabel) + '">' + latestDate + ' · ' + filtered.length + '건 · 최근 24시간</span>'
           + '</div>';
 
     // 카드 렌더
@@ -4657,16 +4661,36 @@ function _querySWVersion() {
       if (e.data && e.data.version) {
         window._aioSWVersion = e.data.version;
         window._aioSWCheckedAt = Date.now();
+        var appVer = (typeof APP_VERSION === 'string' ? APP_VERSION : (window.AIO && window.AIO.version) || '');
+        if (appVer && e.data.version === appVer) {
+          try { sessionStorage.removeItem('aio_sw_controller_reload_v1'); } catch (_) {}
+        } else if (appVer && e.data.version !== appVer) {
+          try {
+            navigator.serviceWorker.getRegistration().then(function(reg) {
+              if (reg && typeof reg.update === 'function') reg.update().catch(function() {});
+            }).catch(function() {});
+          } catch (_) {}
+        }
         updateDataStatus();
       }
     };
     navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' }, [mc.port2]);
   } catch(e) {}
 }
+function _aioRequestSWControllerReload() {
+  try {
+    if (sessionStorage.getItem('aio_sw_controller_reload_v1') === '1') return;
+    sessionStorage.setItem('aio_sw_controller_reload_v1', '1');
+    setTimeout(function() {
+      try { if (window.location && typeof window.location.reload === 'function') window.location.reload(); } catch (_) {}
+    }, 80);
+  } catch (_) {}
+}
 if (navigator.serviceWorker && navigator.serviceWorker.addEventListener) {
   navigator.serviceWorker.addEventListener('controllerchange', function() {
     window._aioSWVersion = '';
     window._aioSWMismatchLogged = '';
+    _aioRequestSWControllerReload();
     _querySWVersion();
   });
 }

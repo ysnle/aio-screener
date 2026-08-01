@@ -832,3 +832,11 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - **P532**: operator note 첫 화면 우선 배치 + Signal 접힘(fold) 회귀 게이트 (R228).
 - **P534**: visual hierarchy refresh 계층 게이트 (R231).
 - **P535**: 스크리너 Kalman log-scale 생성·버전 병합 + 매매 문구 완화 게이트 (R232).
+## P875 structural freshness/lifecycle checks (2026-08-01)
+
+- [ ] Public default routes visibly expose the completed Telegram `current24hWindow`; operational diagnostics remain collapsed without hiding the evidence lane.
+- [ ] Cold-load and `aio:sharedMarketCut` replay populate both the next-release label and the full official future calendar (including registry releases beyond snapshot fields).
+- [ ] Macro route has one native yield-curve renderer; legacy fallback is fenced and route transitions destroy every Chart.js owner before reuse.
+- [ ] `changeBasis`/`valueBasis` remains present from snapshot builder/schema through bridge, `PriceStore`, `_liveData`, and native chart/title sinks; UI labels the basis.
+- [ ] Service-worker controller takeover performs at most one guarded reload, then confirms SW version equals `APP_VERSION`.
+- [ ] Run runtime/data-plane/lineage/reconciliation/refresh/architecture/headless gates and a 17-route browser soak; browser errors must remain zero.

@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.68';
+const APP_VERSION = 'v53.69';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12562,7 +12562,13 @@ window.AIO_MACRO_OFFICIAL_SCHEDULES = {
 window.AIO.renderMacroNextRelease = function() {
   var el = document.getElementById('macro-next-release');
   var releases = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
-  if (!el || !releases) return null;
+  if (!el) return null;
+  if (!releases) {
+    el.textContent = '공식 일정 원천 수신 대기';
+    el.setAttribute('data-runtime-state', 'unavailable');
+    el.setAttribute('data-operational-use', 'blocked');
+    return null;
+  }
   var todayKst = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
   }).format(new Date());
@@ -12575,9 +12581,13 @@ window.AIO.renderMacroNextRelease = function() {
   });
   if (!upcoming.length) {
     el.textContent = '다음 주요 발표 일정 확인 필요';
+    el.setAttribute('data-runtime-state', 'unavailable');
+    el.setAttribute('data-operational-use', 'calendar-only');
     return null;
   }
   el.textContent = '다음 주요 발표: ' + upcoming[0].name + ' · ' + upcoming[0].date + ' KST 기준';
+  el.setAttribute('data-runtime-state', 'official-reference');
+  el.setAttribute('data-operational-use', 'calendar-only');
   return upcoming[0];
 };
 
@@ -18046,7 +18056,9 @@ const PriceStore = {
       fetchedAt: opts.fetchedAt || null,
       marketState: opts.marketState || null,
       venue: opts.venue || null,
-      regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null
+      regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null,
+      changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
+      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown'
     };
     this._prev[sym] = price;
     this._stats.accepted++;
@@ -18064,7 +18076,9 @@ const PriceStore = {
       fetchedAt: opts.fetchedAt || null,
       marketState: opts.marketState || null,
       venue: opts.venue || null,
-      regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null
+      regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null,
+      changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
+      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown'
     });
     window._quoteTimestamps = window._quoteTimestamps || {};
     window._quoteTimestamps[sym] = ts;
@@ -18072,7 +18086,9 @@ const PriceStore = {
     window._dataSource[sym] = {
       source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing, policyKey: 'quote', metric: metric,
       observedAt: opts.observedAt || null, fetchedAt: opts.fetchedAt || null,
-      marketState: opts.marketState || null, venue: opts.venue || null
+      marketState: opts.marketState || null, venue: opts.venue || null,
+      changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
+      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown'
     };
     if (!opts.deferDomAnnotation && window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
       window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });
@@ -18432,7 +18448,9 @@ window._aioSetLiveData = function(sym, data, meta) {
     marketState: data.marketState || data.marketSession || meta.marketState || null,
     venue: data.venue || meta.venue || null,
     regularMarketPreviousClose: data.regularMarketPreviousClose || data.chartPreviousClose || data.previousClose || meta.previousClose || null,
-    previousClose: data.previousClose || meta.previousClose || null
+    previousClose: data.previousClose || meta.previousClose || null,
+    changeBasis: data.changeBasis || data.valueBasis || meta.changeBasis || meta.valueBasis || 'unknown',
+    valueBasis: data.valueBasis || data.changeBasis || meta.valueBasis || meta.changeBasis || 'unknown'
   };
   if (source.indexOf('live:') === 0 && !meta.bypassPriceStore && window.PriceStore && typeof window.PriceStore.set === 'function') {
     return window.PriceStore.set(sym, price, pct, source, provenanceOpts);
@@ -18457,13 +18475,16 @@ window._aioSetLiveData = function(sym, data, meta) {
     fetchedAt: fetchedAt,
     marketState: provenanceOpts.marketState,
     venue: provenanceOpts.venue,
-    regularMarketPreviousClose: provenanceOpts.regularMarketPreviousClose
+    regularMarketPreviousClose: provenanceOpts.regularMarketPreviousClose,
+    changeBasis: provenanceOpts.changeBasis,
+    valueBasis: provenanceOpts.valueBasis
   });
   window._dataSource = window._dataSource || {};
   window._dataSource[sym] = {
     source: source, ts: metric ? metric.ts : ts, pctMissing: pct == null || !isFinite(Number(pct)), policyKey: policyKey, metric: metric,
     reason: meta.reason || null, observedAt: observedAt, fetchedAt: fetchedAt,
-    marketState: provenanceOpts.marketState, venue: provenanceOpts.venue
+    marketState: provenanceOpts.marketState, venue: provenanceOpts.venue,
+    changeBasis: provenanceOpts.changeBasis, valueBasis: provenanceOpts.valueBasis
   };
   if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
     window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });
@@ -25195,6 +25216,25 @@ function destroyPageCharts(pageId) {
     }
     // v48.27 (P1): macro 페이지 이탈 시 _sector20dChart 정리 (Chart.js 메모리 누수)
     if (pageId === 'macro') {
+      // P875: macro yieldCurveChart has a native owner. Clean both the native
+      // handle and any legacy per-canvas registry left by an earlier route.
+      if (window._yieldCurveChart) {
+        try { window._yieldCurveChart.destroy(); } catch(e) {}
+        delete window._yieldCurveChart;
+      }
+      try {
+        if (typeof _ycCharts !== 'undefined' && _ycCharts.yieldCurveChart) {
+          _ycCharts.yieldCurveChart.destroy();
+          _ycCharts.yieldCurveChart = null;
+        }
+      } catch(e) {}
+      try {
+        var _macroCanvas = document.getElementById('yieldCurveChart');
+        if (typeof Chart !== 'undefined' && typeof Chart.getChart === 'function' && _macroCanvas) {
+          var _macroExisting = Chart.getChart(_macroCanvas);
+          if (_macroExisting) _macroExisting.destroy();
+        }
+      } catch(e) {}
       if (typeof _sector20dChart !== 'undefined' && _sector20dChart) {
         try { _sector20dChart.destroy(); } catch(e){}
         _sector20dChart = null;
@@ -25525,16 +25565,37 @@ var _initTechnicalPage = function() {
   }
 }
 
+var _aioMacroCalendarSyncBound = false;
 var _initMacroPage = function() {
   // storyline/달력은 즉시 (텍스트 — 초기 로드 가벼움)
   if (typeof generateMacroStoryline === 'function') { try { generateMacroStoryline(); } catch(e) {} }
   if (typeof renderEconCalendar === 'function') { try { renderEconCalendar(); } catch(e) {} }
+  // P875: the release registry and the server snapshot are loaded on separate
+  // lanes. Re-render both calendar surfaces on entry and when the shared cut
+  // arrives so a cold direct route cannot remain stuck on "계산 중".
+  if (window.AIO && typeof window.AIO.renderMacroNextRelease === 'function') {
+    try { window.AIO.renderMacroNextRelease(); } catch(e) {}
+  }
+  if (typeof renderOfficialFutureCalendar === 'function') { try { renderOfficialFutureCalendar(); } catch(e) {} }
+  if (!_aioMacroCalendarSyncBound) {
+    _aioMacroCalendarSyncBound = true;
+    document.addEventListener('aio:sharedMarketCut', function() {
+      if (!document.getElementById('page-macro')?.classList.contains('active')) return;
+      try { if (typeof renderEconCalendar === 'function') renderEconCalendar(); } catch(e) {}
+      try { if (typeof renderOfficialFutureCalendar === 'function') renderOfficialFutureCalendar(); } catch(e) {}
+      try { if (window.AIO && typeof window.AIO.renderMacroNextRelease === 'function') window.AIO.renderMacroNextRelease(); } catch(e) {}
+    });
+  }
   // v53.7 (P725): 한국 매크로 통합 섹션 — 구 PAGES['kr-macro'].init에서 이관
   if (typeof _aioRenderKrMacroFreshnessBadges === 'function') { try { _aioRenderKrMacroFreshnessBadges(); } catch(e) {} }
   // v48.15 (P2-C): Chart.js 무거운 작업은 IntersectionObserver 기반 lazy
   // yield curve 차트는 macro 페이지 중상단, FRED 12개월 시계열은 하단 — 각각 분리
   _lazyInitChartPage('macro', 'yieldCurveChart', function() {
-    if (typeof initYieldCurveChart === 'function') { try { initYieldCurveChart('yieldCurveChart'); } catch(e) {} }  // v50.16: 캔버스 명시
+    // P875: native macro renderer is the sole owner of yieldCurveChart. The
+    // legacy initYieldCurveChart path remains available for FX/bond only.
+    var nativeMacro = document.getElementById('page-macro');
+    if (nativeMacro && nativeMacro.dataset.aioMacroChartRenderer === 'native') return;
+    if (typeof renderYieldCurve === 'function') { try { renderYieldCurve(); } catch(e) {} }
   });
   _lazyInitChartPage('macro', 'fred-unrate-chart', function() {
     if (typeof _renderFredCharts === 'function') {

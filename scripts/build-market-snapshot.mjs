@@ -143,13 +143,15 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
     const fetchedAt = iso(raw.fetchedAt) || iso(attemptedAt);
     const session = deriveMarketSession({ instrumentId: instrument.instrumentId, observedAt, providerSession: raw.marketSession || raw.marketState, now });
     const quality = quoteQuality(raw, now, session);
+    const providerPreviousValue = Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
+    const hasProviderPreviousValue = Number.isFinite(providerPreviousValue);
     return {
       evidenceId: `${instrument.metricId}:${stableHash({ value, observedAt, source })}`,
       metricId: instrument.metricId,
       instrumentId: instrument.instrumentId,
       value,
-      previousValue: Number.isFinite(Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue))
-        ? Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue)
+      previousValue: hasProviderPreviousValue
+        ? providerPreviousValue
         : null,
       changePct: Number.isFinite(Number(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct))
         ? Number(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct)
@@ -162,6 +164,11 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       lastSuccessfulAt: observedAt || fetchedAt,
       session,
       quality,
+      // Explicitly distinguish an intraday/provider previous-value change from
+      // the completed daily close used by history.json. Consumers can now
+      // compare chart deltas without silently treating unlike bases as equal.
+      changeBasis: String(raw.changeBasis || (hasProviderPreviousValue ? 'provider-previous-value' : 'completed-daily-close')),
+      valueBasis: String(raw.valueBasis || (hasProviderPreviousValue ? 'provider-previous-value' : 'completed-daily-close')),
       allowedUse: ['CURRENT_SESSION', 'DELAYED_IN_SESSION'].includes(session) ? 'current-with-session-and-delay-gate' : 'reference-only',
       delayedByMs: Number.isFinite(Number(raw.delayedByMs)) ? Number(raw.delayedByMs) : null,
       venue: raw.venue || raw.fullExchangeName || null

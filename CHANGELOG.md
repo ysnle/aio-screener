@@ -1,3 +1,8 @@
+## v53.69 (2026-08-01)
+- **P875 / unified 24-hour evidence and lifecycle ownership**: public Telegram feeds now show the completed 24-hour lane while diagnostics stay collapsed; macro calendar replay merges the full official registry after the shared cut; the native yield-curve renderer is the sole owner with legacy Chart.js fencing/cleanup; quote `changeBasis`/`valueBasis` survives snapshot → bridge → PriceStore → native chart sinks; service-worker controller rotation is guarded and one-shot.
+- **Verification**: runtime/data-plane/lineage/reconciliation/refresh/architecture/headless gates are run as one final batch; live deployment checks Telegram visibility, calendar population, chart reuse errors, SW/app version parity, and basis labels.
+- R1 7곳 v53.69
+
 ## v53.68 (2026-08-01)
 - **P872 / schedule-aware completed-close classification**: provider `REGULAR` hints now reconcile with venue calendars, keeping weekend/after-close Tier-0 rows typed as `MARKET_CLOSED` or `PREVIOUS_CLOSE_EXPECTED`.
 - **P873 / atomic data-release promotion**: each refresh promotes market snapshot revision, cycle ID, and data timestamp into both release manifests; silent FRED or quote-coverage degradation is rejected.

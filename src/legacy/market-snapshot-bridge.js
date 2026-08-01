@@ -12,6 +12,8 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot) {
       price: quote.value,
       pct: quote.changePct,
       regularMarketPreviousClose: quote.previousValue,
+      changeBasis: quote.changeBasis || quote.valueBasis || 'unknown',
+      valueBasis: quote.valueBasis || quote.changeBasis || 'unknown',
       observedAt: quote.observedAt,
       fetchedAt: quote.fetchedAt,
       marketState: quote.session,
