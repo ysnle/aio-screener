@@ -1024,13 +1024,13 @@ function _aioBuildTelegramRuntimeNarrative(raw) {
   var rankedTopics = Object.keys(topicCounts).filter(function(tag) { return tag !== 'media-only' && Number(topicCounts[tag]) > 0; })
     .sort(function(a, b) { return Number(topicCounts[b]) - Number(topicCounts[a]); });
   var themes = rankedTopics.slice(0, 8).map(function(tag) {
-    return (labels[tag] || tag) + ' (' + Number(topicCounts[tag]) + ' posts in current window): ' + (sampleFor(tag) || 'No retained full-text sample; see coverage metadata.');
+    return (labels[tag] || tag) + ' (' + Number(topicCounts[tag]) + ' posts in 14-day research window): ' + (sampleFor(tag) || 'No retained full-text sample; see coverage metadata.');
   });
   var catalysts = Object.keys(tickerCounts).sort(function(a, b) { return Number(tickerCounts[b]) - Number(tickerCounts[a]); }).slice(0, 12).map(function(ticker) {
-    return { key:ticker, count:Number(tickerCounts[ticker]), text:sampleFor(null, ticker) || (Number(tickerCounts[ticker]) + ' observed mentions in the current Telegram window.') };
+    return { key:ticker, count:Number(tickerCounts[ticker]), text:sampleFor(null, ticker) || (Number(tickerCounts[ticker]) + ' observed mentions in the 14-day research window.') };
   });
   var categories = Object.keys(labels).map(function(id) {
-    return { id:id, label:labels[id], topics:[id], count:Number(topicCounts[id] || 0), focus:sampleFor(id) || ('No retained full-text sample; ' + Number(topicCounts[id] || 0) + ' observed posts in the current window.') };
+    return { id:id, label:labels[id], topics:[id], count:Number(topicCounts[id] || 0), focus:sampleFor(id) || ('No retained full-text sample; ' + Number(topicCounts[id] || 0) + ' observed posts in the 14-day research window.') };
   });
   var pageMap = {};
   Object.keys(_TG_PAGE_TAGS || {}).forEach(function(pageId) { pageMap[pageId] = (_TG_PAGE_TAGS[pageId] || []).slice(); });
@@ -1064,6 +1064,9 @@ function _aioNormalizeTelegramDigestPayload(raw) {
     pageMap: raw.pageMap && typeof raw.pageMap === 'object' ? Object.assign({}, raw.pageMap) : generatedNarrative.pageMap,
     rawTopItems: Array.isArray(raw.topItems) ? raw.topItems.slice(0, 45) : [],
     rawBroadItems: Array.isArray(raw.broadItems) ? raw.broadItems.slice(0, 400) : [],
+    rawCurrent24hItems: Array.isArray(raw.current24hItems) ? raw.current24hItems.slice(0, 500) : [],
+    current24hWindow: raw.current24hWindow && typeof raw.current24hWindow === 'object' ? Object.assign({}, raw.current24hWindow) : null,
+    current24hCoverage: raw.current24hCoverage && typeof raw.current24hCoverage === 'object' ? Object.assign({}, raw.current24hCoverage) : null,
     rawBroadItemCount: Array.isArray(raw.broadItems) ? raw.broadItems.length : 0,
     rawItemCount: Number(raw.count || 0) || 0,
     retainedItemCount: Number(raw.retainedItemCount || 0) || 0,
@@ -1099,7 +1102,8 @@ function _aioBuildTelegramMemoOverlay(raw, merged) {
   // 여기 raw.items(서버가 보내던 미압축 전체 배열, ~1.04MB) 폴백이 3번째로 있었으나, 서버가 더 이상
   // items를 보내지 않음(topItems/broadItems만 전송, 페이로드 46% 절감) — topItems/broadItems가 둘 다
   // 비어야만 타던 경로라 실질적으로 거의 트리거되지 않았고, 이제 그 데이터 자체가 없다.
-  if (raw && Array.isArray(raw.broadItems) && raw.broadItems.length) items = raw.broadItems;
+  if (raw && Array.isArray(raw.current24hItems) && raw.current24hItems.length) items = raw.current24hItems;
+  else if (raw && Array.isArray(raw.broadItems) && raw.broadItems.length) items = raw.broadItems;
   else if (raw && Array.isArray(raw.topItems) && raw.topItems.length) items = raw.topItems;
   var date = _aioTelegramDigestMemoDate(raw, merged);
   var byTicker = {};
@@ -1168,6 +1172,7 @@ function _aioApplyTelegramDigestPayload(raw) {
     window.AIO_TELEGRAM_CATEGORY_REGISTRY = AIO_TELEGRAM_CATEGORY_REGISTRY;
     window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP = AIO_TELEGRAM_PAGE_INTEGRATION_MAP;
     window.AIO_TELEGRAM_BROAD_ITEMS = merged.rawBroadItems || merged.rawTopItems || [];
+    window.AIO_TELEGRAM_CURRENT_ITEMS = merged.rawCurrent24hItems || [];
     var _collectionStatus = raw && raw.collectionStatus || 'unknown';
     window._aioTelegramDigestMeta = {
       status: _collectionStatus === 'failed' ? 'cached_after_collection_failure' : 'ready',
@@ -1180,6 +1185,8 @@ function _aioApplyTelegramDigestPayload(raw) {
       count: merged.counts && merged.counts.total,
       retainedItemCount: merged.retainedItemCount || 0,
       coverage: merged.coverage || null,
+      current24hWindow: merged.current24hWindow || null,
+      current24hCoverage: merged.current24hCoverage || null,
       source: merged.dynamicDigestSource,
       memoOverlay: memoOverlay
     };
@@ -1357,7 +1364,10 @@ function _aioProcessTelegramItem(it) {
 
 function _aioRenderTelegramFeedHtml(pageId) {
   try {
-    var items = window.AIO_TELEGRAM_BROAD_ITEMS || [];
+    // User-facing Telegram feeds consume only the completed 24-hour lane. The
+    // rolling research digest remains available to chat/memo consumers, but it
+    // must not silently become a current-market feed when the 24-hour lane is empty.
+    var items = Array.isArray(window.AIO_TELEGRAM_CURRENT_ITEMS) ? window.AIO_TELEGRAM_CURRENT_ITEMS : [];
     var tags = _TG_PAGE_TAGS[pageId] || [];
     var cfg = _TG_PAGE_CFG[pageId] || ['최신 소식', 5, false, 'date', false];
     var feedLabel = cfg[0], maxItems = cfg[1], showBody = cfg[2], sortBy = cfg[3], compact = cfg[4];
@@ -2669,6 +2679,9 @@ async function fetchFredSeries(seriesId, limit = 30) {
     try {
       const r = await fetchWithTimeout(cfWorker + '?url=' + encodeURIComponent(url), {}, 8000);
       if (r.ok) { return _extractObs(await r.json()); }
+      if ((r.status === 400 || r.status === 403) && window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
+        window.AIO.updateProviderStatus('aio_fred_key', { authentication:'FAILED', connection:'REACHABLE', lastError:'FRED_HTTP_' + r.status });
+      }
     } catch(e) { /* CF Worker failed — try direct */ }
   }
   // 2차: 직접 호출 시도
@@ -2676,7 +2689,13 @@ async function fetchFredSeries(seriesId, limit = 30) {
     const r = await fetchWithTimeout(url, {}, 6000);
     if (r.ok) { return _extractObs(await r.json()); }
     if (r.status === 429) { _aioLog('warn', 'fetch', 'FRED rate limit hit — 60s 대기'); await new Promise(ok => setTimeout(ok, T.COOLDOWN)); return null; }
-    if (r.status === 403 || r.status === 400) { showDataError('FRED', 'API 키가 유효하지 않거나 한도 초과', 'error'); return null; }
+    if (r.status === 403 || r.status === 400) {
+      if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
+        window.AIO.updateProviderStatus('aio_fred_key', { authentication:'FAILED', connection:'REACHABLE', lastError:'FRED_HTTP_' + r.status });
+      }
+      showDataError('FRED', 'API 키가 유효하지 않거나 한도 초과', 'error');
+      return null;
+    }
   } catch(e) { /* CORS blocked — fallback to proxy */ }
   // v51.85 P573/R264: 3차 서드파티 CORS 프록시 폴백 제거 (키 유출 차단).
   //   이 url 은 `?api_key=<사용자 개인 FRED 키>` 를 포함한다. corsproxy.io/allorigins/
@@ -2688,6 +2707,12 @@ async function fetchFredSeries(seriesId, limit = 30) {
   //   정적 폴백 사용. 실질 기능 손실 없이 개인 키 유출 경로를 완전히 제거.
   if (typeof _aioLog === 'function') {
     _aioLog('warn', 'fetch', 'FRED live 갱신 스킵 (' + seriesId + '): CORS 차단 + CF Worker 미설정. 개인 키 유출 방지로 제3자 프록시 미사용 — 서버 data.json/정적 폴백 사용. CF Worker URL 설정 시 라이브 갱신 가능.');
+  }
+  if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
+    var _fredStatus = window.AIO.getProviderStatus ? window.AIO.getProviderStatus('aio_fred_key') : null;
+    if (!_fredStatus || _fredStatus.authentication !== 'FAILED') {
+      window.AIO.updateProviderStatus('aio_fred_key', { authentication:'NOT_CHECKED', connection:'BLOCKED', lastError:'FRED_CORS_OR_WORKER_UNAVAILABLE' });
+    }
   }
   return null;
 }
@@ -2868,6 +2893,17 @@ async function fetchAllFredData() {
   try { applyFredToUI(results); } catch(e) { _aioLog('warn', 'render', 'applyFredToUI error: ' + e.message); }
   console.log('[AIO v20] FRED data loaded:', Object.keys(results).length, 'series (MacroStore 검증)');
   if (!Object.keys(results).length) return null;
+  if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
+    window.AIO.updateProviderStatus('aio_fred_key', { authentication:'VERIFIED', connection:'HEALTHY', lastSuccessAt:new Date().toISOString(), lastError:null });
+  }
+  if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
+    window.DATA_SNAPSHOT._fieldTs.macro_fred = new Date().toISOString();
+  }
+  try {
+    var _macroDetail = { provider:'fred', count:Object.keys(results).length };
+    window.dispatchEvent(new CustomEvent('aio:macroUpdated', { detail:_macroDetail }));
+    if (document && typeof document.dispatchEvent === 'function') document.dispatchEvent(new CustomEvent('aio:macroUpdated', { detail:_macroDetail }));
+  } catch(_) {}
   return results;
 }
 
@@ -4873,19 +4909,49 @@ try {
 let _aioServerMacroReady = false;
 let _aioServerHyReady = false;
 async function _aioLoadServerData() {
-  window._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
+  globalThis._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
   try {
     var url = './public-data/data.json?t=' + Math.floor(Date.now() / 60000); // 분 단위 캐시버스터
     var r = await fetch(url, { cache: 'no-cache' });
     if (!r.ok) {
-      window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'data.json HTTP ' + r.status };
+      globalThis._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'data.json HTTP ' + r.status };
       return false;
     }
     var d = await r.json();
     if (!d || !d.meta) {
-      window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'invalid data.json payload' };
+      globalThis._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'invalid data.json payload' };
       return false;
     }
+    // P867: data.json can resolve before aio-core exposes DATA_SNAPSHOT on a
+    // cold origin. Previously the macro block was then skipped permanently
+    // even though cycle/news metadata loaded, producing saved-key + blank-card
+    // behavior that disappeared only on warm-cache reloads.
+    var _snapshotBridgeWait = 0;
+    while (!window.DATA_SNAPSHOT && _snapshotBridgeWait < 60) {
+      await new Promise(function(resolve) { setTimeout(resolve, 50); });
+      _snapshotBridgeWait++;
+    }
+    if (!window.DATA_SNAPSHOT) {
+      // The first parse of the large single-page bundle can legitimately take
+      // longer than the bridge window on a cold device. Re-run the complete
+      // idempotent loader instead of publishing metadata while permanently
+      // skipping macro projection. Bound the retries so a genuinely broken
+      // core does not create an endless fetch loop.
+      globalThis._aioServerDataBridgeAttempts = (window._aioServerDataBridgeAttempts || 0) + 1;
+      globalThis._aioScreenerLoadState = {
+        status: 'waiting-for-snapshot',
+        checkedAt: Date.now(),
+        detail: 'DATA_SNAPSHOT bridge attempt ' + window._aioServerDataBridgeAttempts
+      };
+      if (window._aioServerDataBridgeAttempts <= 5 && !window._aioServerDataBridgeRetryTimer) {
+        globalThis._aioServerDataBridgeRetryTimer = setTimeout(function() {
+          globalThis._aioServerDataBridgeRetryTimer = null;
+          _aioLoadServerData();
+        }, 1000);
+      }
+      return false;
+    }
+    globalThis._aioServerDataBridgeAttempts = 0;
 
     var ageMin = d.meta.generatedAt ? Math.round((Date.now() - new Date(d.meta.generatedAt).getTime()) / 60000) : null;
     window._serverDataMeta = {
@@ -4898,9 +4964,22 @@ async function _aioLoadServerData() {
       fredHasKey: !!d.meta.fredHasKey,
       fredFetchOk: !!d.meta.fredFetchOk,
       fredOk: !!d.meta.fredOk,
+      fredFetchedKeyCount: d.meta.fredFetchedKeyCount || 0,
+      fredLastSuccessfulAt: d.meta.fredLastSuccessfulAt || null,
       macroKeyCount: d.meta.macroKeyCount || 0,
       newsOk: !!d.meta.newsOk,
       newsCount: d.meta.newsCount || (Array.isArray(d.news) ? d.news.length : 0),
+      newsCyclePolicy: d.meta.newsCyclePolicy || null,
+      newsCycleStart: d.meta.newsCycleStart || null,
+      newsCycleEnd: d.meta.newsCycleEnd || null,
+      newsCycleLabel: d.meta.newsCycleLabel || null,
+      newsNextRefresh: d.meta.newsNextRefresh || null,
+      marketSnapshotRevision: d.meta.marketSnapshotRevision || null,
+      cycleId: d.meta.cycleId || null,
+      cycleStatus: d.meta.cycleStatus || 'unknown',
+      marketCycleFreshnessSlaHours: Number(d.meta.marketCycleFreshnessSlaHours || 12),
+      cycleManifestRevision: d.meta.cycleManifestRevision || null,
+      cycleComponents: d.meta.cycleComponents || null,
       putCallOk: !!d.meta.putCallOk,
       putCallAsOf: d.meta.putCallAsOf || (d.putCall && d.putCall.asOf) || null,
       // v52.75/WP-AI0: generation success is not semantic verification.
@@ -4920,6 +4999,11 @@ async function _aioLoadServerData() {
       blsFailedSeries: d.meta.blsFailedSeries || [],
       blsAttemptedAt: d.meta.blsAttemptedAt || (d.macro && d.macro._bls && d.macro._bls.attemptedAt) || null,
       blsLastSuccessfulAt: d.meta.blsLastSuccessfulAt || (d.macro && d.macro._bls && d.macro._bls.lastSuccessfulAt) || null,
+      beaStatus: d.meta.beaStatus || (d.macro && d.macro._bea && d.macro._bea.status) || 'unavailable',
+      beaAttemptedAt: d.meta.beaAttemptedAt || (d.macro && d.macro._bea && d.macro._bea.attemptedAt) || null,
+      beaLastSuccessfulAt: d.meta.beaLastSuccessfulAt || (d.macro && d.macro._bea && d.macro._bea.lastSuccessfulAt) || null,
+      beaReleaseAt: d.meta.beaReleaseAt || (d.macro && d.macro._bea && d.macro._bea.releasedAt) || null,
+      beaNextReleaseAt: d.meta.beaNextReleaseAt || (d.macro && d.macro._bea && d.macro._bea.nextReleaseAt) || null,
       loadedAt: Date.now(),
       artifacts: { dataJson: 'ready', telegramDigest: 'pending', screenerJson: 'pending' }
     };
@@ -4940,6 +5024,9 @@ async function _aioLoadServerData() {
     }
     // 2) 매크로 → DATA_SNAPSHOT (FRED 서버값, 채팅/macro 페이지가 소비)
     var _serverMacroApplied = 0;
+    var _serverFredApplied = 0;
+    var _serverBeaApplied = 0;
+    globalThis._serverMacroEvidence = window._serverMacroEvidence || {};
     if (d.macro && window.DATA_SNAPSHOT) {
       // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 서버 FRED 자동화 편입.
       // consConf(Conf. Board)는 제외 유지 — FRED엔 해당 시리즈가 없고, UMCSENT(미시간대)는
@@ -4947,7 +5034,24 @@ async function _aioLoadServerData() {
       ['cpi','coreCpi','pce','corePce','fedRate','unemployment','nfp','housingStarts','retailSales','usWageGrowth'].forEach(function(k){
         if (typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
           window.DATA_SNAPSHOT[k] = d.macro[k];
-          window.DATA_SNAPSHOT['_' + k + '_src'] = 'fred-gh';
+          var _macroSource = d.macro['_' + 'source_' + k]
+            || ((k === 'pce' || k === 'corePce') && d.macro._bea && d.macro._bea.status === 'ok' ? 'bea-official-primary' : null)
+            || (d.meta.fredFetchOk ? 'fred-official-primary' : 'last-known-good');
+          window.DATA_SNAPSHOT['_' + k + '_src'] = _macroSource;
+          window._serverMacroEvidence[k] = {
+            observedAt: d.macro['_asOf_' + k] || null,
+            fetchedAt: _macroSource === 'bea-official-primary'
+              ? (d.macro._bea && d.macro._bea.lastSuccessfulAt || null)
+              : (d.meta.fredFetchOk ? d.meta.fredLastSuccessfulAt || d.meta.generatedAt || null : null),
+            releasedAt: _macroSource === 'bea-official-primary' && d.macro._bea ? d.macro._bea.releasedAt || null : null,
+            source: _macroSource,
+            allowedUse: _macroSource === 'last-known-good' ? 'reference-only' : 'macro-evidence-with-observation-date'
+          };
+          if (_macroSource === 'fred-official-primary') _serverFredApplied++;
+          if (_macroSource === 'bea-official-primary') _serverBeaApplied++;
+          if (window.DATA_SNAPSHOT._fieldTs && d.macro['_asOf_' + k]) {
+            window.DATA_SNAPSHOT._fieldTs['macro_' + k] = d.macro['_asOf_' + k];
+          }
           _serverMacroApplied++;
         }
         // v51.67: FRED MoM delta 필드 소비
@@ -4997,7 +5101,9 @@ async function _aioLoadServerData() {
       // namespaced snapshot fields and never silently replaces the FRED values
       // above; the typed series retains observation/release/fetch semantics.
       var _blsEvidence = d.macro._bls || null;
+      var _beaEvidence = d.macro._bea || null;
       window._serverBlsMacro = _blsEvidence;
+      globalThis._serverBeaMacro = _beaEvidence;
       if (window._serverDataMeta) {
         window._serverDataMeta.bls = _blsEvidence ? {
           status: _blsEvidence.status || 'unavailable',
@@ -5008,6 +5114,18 @@ async function _aioLoadServerData() {
           releaseAt: _blsEvidence.releaseAt || null,
           failures: Array.isArray(_blsEvidence.failures) ? _blsEvidence.failures.slice() : [],
           series: _blsEvidence.series || {}
+        } : null;
+        window._serverDataMeta.bea = _beaEvidence ? {
+          status: _beaEvidence.status || 'unavailable',
+          sourceKind: _beaEvidence.sourceKind || 'official-primary',
+          attemptedAt: _beaEvidence.attemptedAt || null,
+          fetchedAt: _beaEvidence.fetchedAt || null,
+          lastSuccessfulAt: _beaEvidence.lastSuccessfulAt || null,
+          releasedAt: _beaEvidence.releasedAt || null,
+          nextReleaseAt: _beaEvidence.nextReleaseAt || null,
+          observedAt: _beaEvidence.observedAt || null,
+          releaseUrl: _beaEvidence.releaseUrl || null,
+          values: _beaEvidence.values || {}
         } : null;
       }
       if (_blsEvidence && _blsEvidence.values) {
@@ -5021,6 +5139,9 @@ async function _aioLoadServerData() {
           window.DATA_SNAPSHOT._fieldTs.macro_bls = _blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt;
         }
       }
+      if (_beaEvidence && _beaEvidence.status === 'ok' && window.DATA_SNAPSHOT._fieldTs && (_beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt)) {
+        window.DATA_SNAPSHOT._fieldTs.macro_bea = _beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt;
+      }
     }
     // v51.67: F&G previousScore → _fearGreedDelta 계산
     if (d.fearGreed && typeof d.fearGreed.score === 'number') {
@@ -5033,14 +5154,14 @@ async function _aioLoadServerData() {
       }
     }
     // v51.66: _fieldTs.macro_fred — FRED 매크로 마지막 적용 시각 기록
-    if (_serverMacroApplied > 0 && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
-      window.DATA_SNAPSHOT._fieldTs.macro_fred = d.meta.generatedAt || new Date().toISOString();
+    if (d.meta.fredFetchOk && _serverFredApplied > 0 && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
+      window.DATA_SNAPSHOT._fieldTs.macro_fred = d.meta.fredLastSuccessfulAt || d.meta.generatedAt || new Date().toISOString();
     }
-    _aioServerMacroReady = !!(d.meta.fredFetchOk && _serverMacroApplied > 0);
+    _aioServerMacroReady = !!(d.meta.fredFetchOk && _serverFredApplied > 0);
     _aioServerHyReady = !!(window._serverDataMeta && window._serverDataMeta.hyOAS);
     // v50.78: 서버 FRED 공백(fredHasKey=false 또는 fredFetchOk=false) + 클라이언트 키 있으면 자동 브릿지.
     // GitHub Actions Secret에 FRED_API_KEY 미등록이어도 사용자 브라우저 키(aio_fred_key)로 매크로 갱신.
-    if (_serverMacroApplied === 0 && !d.meta.fredFetchOk) {
+    if (!d.meta.fredFetchOk) {
       var _clientFredKey = (typeof DATA_APIS !== 'undefined' && DATA_APIS.fred) ? DATA_APIS.fred.key() : '';
       if (_clientFredKey && typeof fetchAllFredData === 'function') {
         setTimeout(function() {
@@ -5048,6 +5169,12 @@ async function _aioLoadServerData() {
         }, 1500);
       }
     }
+    setTimeout(function() {
+      try {
+        if (typeof window._aioRenderAllPageDecisionHeaders === 'function') window._aioRenderAllPageDecisionHeaders();
+        window.dispatchEvent(new CustomEvent('aio:sharedMarketCut', { detail: window._serverDataMeta }));
+      } catch (_) {}
+    }, 0);
     // 3) Fear & Greed
     if (d.fearGreed && typeof d.fearGreed.score === 'number' && isFinite(d.fearGreed.score)) {
       if (typeof _applyFearGreedScore === 'function') {
@@ -5158,7 +5285,10 @@ async function _aioLoadServerData() {
     try { _aioRenderDeltas(); } catch(_) {} // v51.67: 변화율 표시 (FRED MoM + F&G 전일 + 스코어)
     // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
     try { if (window.AIO && typeof window.AIO.refreshActivePageNarratives === 'function') window.AIO.refreshActivePageNarratives(); } catch(_) {}
-    try { window.dispatchEvent(new CustomEvent('aio:serverDataLoaded', { detail: window._serverDataMeta })); } catch(_) {}
+    try {
+      window.dispatchEvent(new CustomEvent('aio:serverDataLoaded', { detail: window._serverDataMeta }));
+      if (document && typeof document.dispatchEvent === 'function') document.dispatchEvent(new CustomEvent('aio:serverDataLoaded', { detail: window._serverDataMeta }));
+    } catch(_) {}
     return true;
   } catch (e) {
     window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'server data unavailable' };
@@ -10229,8 +10359,11 @@ function _aioNewsCycleWindowForContract(contract, opts) {
   if (contract && contract.newsCyclePolicy === 'kst-0800-completed-24h' && meta.newsCycleStart && meta.newsCycleEnd) {
     var smStart = new Date(meta.newsCycleStart).getTime();
     var smEnd = new Date(meta.newsCycleEnd).getTime();
-    var smAgeH = meta.generatedAt ? (Date.now() - new Date(meta.generatedAt).getTime()) / 3600000 : 0;
-    if (isFinite(smStart) && isFinite(smEnd) && smEnd > smStart && smAgeH <= 36) {
+    var smAgeH = meta.generatedAt ? (Date.now() - new Date(meta.generatedAt).getTime()) / 3600000 : Infinity;
+    var sharedCut = null;
+    try { sharedCut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function' ? window.AIO.getSharedMarketCut() : null; } catch(_) {}
+    var serverCutFresh = sharedCut ? sharedCut.usable === true : smAgeH <= Number(meta.marketCycleFreshnessSlaHours || 12);
+    if (isFinite(smStart) && isFinite(smEnd) && smEnd > smStart && serverCutFresh) {
       return { start: smStart, end: smEnd, anchorDate: meta.newsCycleLabel || '' };
     }
   }
@@ -10271,6 +10404,8 @@ function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow) {
     row.inNewsCycle = inNewsCycle;
   }
   row.serverCycleTrusted = serverCycleTrusted;
+  row.marketCutStatus = (window.AIO && typeof window.AIO.getSharedMarketCut === 'function')
+    ? (window.AIO.getSharedMarketCut().status || 'unknown') : 'unknown';
   row.score = Number(row.score || 0);
   row.topic = row.topic || 'general';
   row.tickers = Array.isArray(tickers) ? tickers : [];
@@ -10811,8 +10946,12 @@ window.AIO.getNewsSurfaceControls = function() {
 window.AIO.getTelegramPageCoverageAudit = function() {
   var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
   var pageMap = digest.pageMap || {};
-  var items = Array.isArray(digest.rawBroadItems) ? digest.rawBroadItems : (Array.isArray(digest.rawTopItems) ? digest.rawTopItems : []);
-  var required = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','guide']; // v53.7 (P725): KR 라우트 퇴역
+  var items = Array.isArray(digest.rawCurrent24hItems) ? digest.rawCurrent24hItems : [];
+  var digestAgeHours = digest.asOf ? (Date.now() - new Date(digest.asOf).getTime()) / 3600000 : Infinity;
+  var currentWindow = digest.current24hWindow || null;
+  var required = Array.isArray(window.AIO_ALL_ROUTE_PAGE_IDS) && window.AIO_ALL_ROUTE_PAGE_IDS.length
+    ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
+    : ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','guide'];
   var routes = {};
   required.forEach(function(pageId) {
     var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];
@@ -10830,7 +10969,9 @@ window.AIO.getTelegramPageCoverageAudit = function() {
   });
   var missing = required.filter(function(pageId) { return !Array.isArray(pageMap[pageId]); });
   var narrativeCurrent = !!(digest.dynamicDigestLoaded && Array.isArray(digest.themes) && digest.themes.length && Object.keys(pageMap).length >= required.length);
-  return { status:missing.length || !narrativeCurrent ? 'DEGRADED' : 'OK', requiredPageCount:required.length, mappedPageCount:required.length - missing.length, missingPages:missing, dynamicNarrative:narrativeCurrent, routes:routes };
+  var sourceCycleFresh = isFinite(digestAgeHours) && digestAgeHours <= 12;
+  var currentLaneReady = !!(currentWindow && currentWindow.start && currentWindow.end && sourceCycleFresh);
+  return { status:missing.length || !narrativeCurrent || !currentLaneReady ? 'DEGRADED' : 'OK', requiredPageCount:required.length, mappedPageCount:required.length - missing.length, missingPages:missing, dynamicNarrative:narrativeCurrent, currentLaneReady:currentLaneReady, current24hCount:items.length, digestAgeHours:isFinite(digestAgeHours) ? Math.round(digestAgeHours * 10) / 10 : null, routes:routes };
 };
 window.AIO.getTelegramPipelineAudit = function() {
   var sources = (window.AIO_NEWS_SOURCES || AIO_NEWS_SOURCES || []).filter(function(s) { return s && s.type === 'telegram'; });
@@ -10842,7 +10983,7 @@ window.AIO.getTelegramPipelineAudit = function() {
   var memoOverlay = window._aioTelegramMemoOverlayAudit || (digestMeta && digestMeta.memoOverlay) || null;
   var pageCoverage = window.AIO.getTelegramPageCoverageAudit();
   return {
-    status: aetherSource ? 'OK' : 'MISSING_AETHER_SOURCE',
+    status: sources.length === 3 && pageCoverage.status === 'OK' ? 'OK' : (aetherSource ? 'DEGRADED' : 'MISSING_AETHER_SOURCE'),
     telegramSourceCount: sources.length,
     sources: sources.map(function(s) {
       return { name: s.name, slug: s.tgSlug || null, tier: s.tier, topics: s.topics || [], publicMirror: s.publicMirror || ('https://t.me/s/' + (s.tgSlug || '')), pipelineRole: s.pipelineRole || 'telegram-fast-secondary' };
@@ -10859,6 +11000,9 @@ window.AIO.getTelegramPipelineAudit = function() {
       retainedItemCount: digest.retainedItemCount || 0,
       coverage: digest.coverage || null,
       dynamicNarrative: pageCoverage.dynamicNarrative,
+      current24hWindow: digest.current24hWindow || null,
+      current24hCoverage: digest.current24hCoverage || null,
+      currentLaneReady: pageCoverage.currentLaneReady,
       memoOverlay: memoOverlay ? {
         status: memoOverlay.status || null,
         date: memoOverlay.date || null,

@@ -16,7 +16,7 @@ import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runBacktest as runTradingScoreBacktest } from './backtest-trading-score.mjs';
-import { publishMarketSnapshot } from './build-market-snapshot.mjs';
+import { deriveMarketSession, publishMarketSnapshot } from './build-market-snapshot.mjs';
 import { writeOperationsStatus } from './build-operations-status.mjs';
 import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 
@@ -154,7 +154,11 @@ async function fetchQuote(symbol) {
 
       // OHLCV 배열에서 실제 전일 종가 추출 (주말 수집 시에도 정확한 trading-day 기준)
       const rawCloses = res?.indicators?.quote?.[0]?.close || [];
-      const closes = rawCloses.filter(c => c != null && isFinite(c) && c > 0);
+      const rawTimestamps = res?.timestamp || [];
+      const closeBars = rawCloses
+        .map((close, index) => ({ close, timestamp: rawTimestamps[index] }))
+        .filter((bar) => bar.close != null && isFinite(bar.close) && bar.close > 0);
+      const closes = closeBars.map((bar) => bar.close);
       let prev, pct, pctSource;
       if (closes.length >= 2) {
         prev = closes[closes.length - 2];       // 실제 전일 거래일 종가
@@ -174,6 +178,14 @@ async function fetchQuote(symbol) {
         regularMarketChangePercent: pct,
         regularMarketPreviousClose: prev,
         chartPreviousClose: prev,
+        // Yahoo daily timestamps mark the bar OPEN, not its close. For an
+        // in-session quote the previous completed bar closes at the boundary
+        // represented by the current bar's timestamp. Using the previous
+        // bar's own timestamp made otherwise-correct previous-close values
+        // appear one market day older on WTI/gold/BTC/KR series.
+        regularMarketPreviousCloseObservedAt: closeBars.length >= 2 && Number.isFinite(closeBars[closeBars.length - 1].timestamp)
+          ? new Date(closeBars[closeBars.length - 1].timestamp * 1000).toISOString()
+          : null,
         _pctSource: pctSource,
         _source: 'live:yahoo-gh',
         // Observation lineage: generatedAt is fetch time, not necessarily market observation time.
@@ -336,6 +348,92 @@ export function mergeMacroLastKnownGood(current, previous) {
   merged._failedSeries = [...failed];
   merged._lastKnownGoodAt = previous._lastKnownGoodAt || previous._asOf_hyOAS || null;
   return merged;
+}
+
+function _decodeOfficialHtml(value) {
+  return String(value || '')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;|&#34;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function _signedPercent(direction, value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return null;
+  return /^decreas/i.test(String(direction || '')) ? -parsed : parsed;
+}
+
+// P869: FRED publication lag must not leave a newly released PCE print blank or
+// stale. BEA's release page is the primary source for the current headline/core
+// PCE rates; observation period, release time and next release remain separate.
+export function parseBeaPceHtml(html, releaseUrl = null, fetchedAt = new Date().toISOString()) {
+  const text = _decodeOfficialHtml(html);
+  const title = text.match(/Personal Income and Outlays,\s+([A-Za-z]+)\s+(\d{4})/i);
+  const yoy = text.match(/same month one year ago,\s+the PCE price index for [A-Za-z]+ (increased|decreased)\s+([0-9.]+)\s+percent[\s\S]{0,260}?Excluding food and energy,\s+the PCE price index (increased|decreased)\s+([0-9.]+)\s+percent/i);
+  const mom = text.match(/preceding month,\s+the PCE price index for [A-Za-z]+ (increased|decreased)\s+([0-9.]+)\s+percent[\s\S]{0,260}?Excluding food and energy,\s+the PCE price index (increased|decreased)\s+([0-9.]+)\s+percent/i);
+  const release = text.match(/RELEASE AT[\s\S]{0,100}?,\s+(?:Monday|Tuesday|Wednesday|Thursday|Friday),?\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})/i);
+  const next = text.match(/Next release:\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})/i);
+  if (!title || !yoy) throw new Error('BEA_PCE_PARSE_REQUIRED_FIELDS_MISSING');
+  const observationDate = new Date(`${title[1]} 1, ${title[2]} 00:00:00 UTC`);
+  const releaseDate = release ? new Date(`${release[1]} 12:30:00 UTC`) : null;
+  const nextReleaseDate = next ? new Date(`${next[1]} 12:30:00 UTC`) : null;
+  const pce = _signedPercent(yoy[1], yoy[2]);
+  const corePce = _signedPercent(yoy[3], yoy[4]);
+  if (!Number.isFinite(pce) || !Number.isFinite(corePce) || Number.isNaN(observationDate.getTime())) {
+    throw new Error('BEA_PCE_PARSE_INVALID_VALUES');
+  }
+  return {
+    status: 'ok',
+    source: 'U.S. Bureau of Economic Analysis',
+    sourceKind: 'official-primary',
+    allowedUse: 'macro-evidence-with-observation-release-and-fetch-time',
+    releaseUrl,
+    observationPeriod: `${title[1]} ${title[2]}`,
+    observedAt: observationDate.toISOString().slice(0, 10),
+    releasedAt: releaseDate && !Number.isNaN(releaseDate.getTime()) ? releaseDate.toISOString() : null,
+    nextReleaseAt: nextReleaseDate && !Number.isNaN(nextReleaseDate.getTime()) ? nextReleaseDate.toISOString() : null,
+    fetchedAt,
+    lastSuccessfulAt: fetchedAt,
+    values: {
+      pce,
+      corePce,
+      pceMoM: mom ? _signedPercent(mom[1], mom[2]) : null,
+      corePceMoM: mom ? _signedPercent(mom[3], mom[4]) : null,
+    },
+  };
+}
+
+async function fetchBeaPce(previous = null) {
+  const attemptedAt = new Date().toISOString();
+  try {
+    const indexUrl = 'https://www.bea.gov/news/current-releases';
+    const indexHtml = await _fetchRss(indexUrl, 12000);
+    const match = indexHtml.match(/href=["']([^"']*personal-income-and-outlays[^"']*)["']/i);
+    if (!match) throw new Error('BEA_PCE_RELEASE_LINK_MISSING');
+    const releaseUrl = new URL(match[1], indexUrl).toString();
+    const releaseHtml = await _fetchRss(releaseUrl, 12000);
+    return { ...parseBeaPceHtml(releaseHtml, releaseUrl, attemptedAt), attemptedAt };
+  } catch (error) {
+    console.warn(`[fetch-data] BEA PCE 실패: ${error && error.message || error}`);
+    return {
+      status: previous && previous.status === 'ok' ? 'last-known-good' : 'unavailable',
+      source: 'U.S. Bureau of Economic Analysis',
+      sourceKind: 'official-primary',
+      allowedUse: 'reference-only',
+      attemptedAt,
+      fetchedAt: null,
+      lastSuccessfulAt: previous && previous.lastSuccessfulAt || null,
+      failureReason: String(error && error.message || error),
+      ...(previous && typeof previous === 'object' ? previous : {}),
+      attemptedAt,
+    };
+  }
 }
 
 // ── CNN Fear & Greed (봇차단 우회용 브라우저 유사 헤더) ──
@@ -971,10 +1069,32 @@ function carryForwardHistoryEvidence(hist) {
 //     차트가 하드코딩 시드 배열에 의존하는 근본 원인. 하루 1건(같은 날은 최신값으로 upsert =
 //     마지막 실행이 종가에 가까움)씩 핵심 지표를 append → 시간이 지나면 사이트가 자체 실데이터 사용.
 // 핵심 심볼(SPX/VIX) 없으면 스킵(널 레코드 오염 방지). ~420일(14개월) cap.
-async function updateHistory(data) {
+async function updateHistory(data, marketSnapshot = null) {
   try {
+    const snapshotBySym = new Map((marketSnapshot?.quotes || []).map((row) => [row.instrumentId, row]));
+    const bySymQuote = {};
     const bySym = {};
-    for (const q of data.quotes) bySym[q.symbol] = q.regularMarketPrice;
+    for (const q of data.quotes || []) {
+      const session = snapshotBySym.get(q.symbol)?.session || deriveMarketSession({
+        instrumentId: q.symbol,
+        observedAt: q.observedAt,
+        providerSession: q.marketSession || q.marketState,
+        now: Date.parse(data.meta?.generatedAt || '') || Date.now(),
+      });
+      const isOpenPoint = session === 'CURRENT_SESSION' || session === 'DELAYED_IN_SESSION';
+      const previousClose = Number(q.regularMarketPreviousClose ?? q.chartPreviousClose);
+      const previousObservedAt = q.regularMarketPreviousCloseObservedAt || null;
+      const usePreviousClose = isOpenPoint && Number.isFinite(previousClose) && previousClose > 0;
+      bySym[q.symbol] = usePreviousClose ? previousClose : q.regularMarketPrice;
+      bySymQuote[q.symbol] = {
+        ...q,
+        observedAt: usePreviousClose ? (previousObservedAt || q.observedAt) : q.observedAt,
+        marketSession: 'COMPLETED',
+        observedMarketSession: session,
+        valueBasis: usePreviousClose ? 'previous-completed-close' : 'latest-completed-close',
+        allowedUse: 'completed-market-series',
+      };
+    }
     const pick = (s) => (typeof bySym[s] === 'number' && isFinite(bySym[s])) ? round(bySym[s], 2) : null;
     if (pick('^GSPC') === null && pick('^VIX') === null) {
       console.warn('[fetch-data] history: 핵심 심볼(SPX/VIX) 없음 — 히스토리 갱신 스킵');
@@ -990,9 +1110,9 @@ async function updateHistory(data) {
       sourceKind: quote?.sourceTier || fallback.sourceKind || 'public-information-service',
       allowedUse: quote?.allowedUse || fallback.allowedUse || 'reference',
       marketSession: quote?.marketSession || quote?.marketState || fallback.marketSession || null,
+      observedMarketSession: quote?.observedMarketSession || fallback.observedMarketSession || null,
+      valueBasis: quote?.valueBasis || fallback.valueBasis || null,
     });
-    const bySymQuote = {};
-    for (const q of data.quotes || []) bySymQuote[q.symbol] = q;
     for (const [sym, field] of Object.entries(HIST_SYMBOLS)) {
       const q = bySymQuote[sym];
       if (pick(sym) !== null) fieldMeta[field] = historyMeta(field, q);
@@ -1010,6 +1130,9 @@ async function updateHistory(data) {
     const today = new Date(fetchedAt).toISOString().slice(0, 10); // UTC 일자 bucket; fieldMeta is authoritative
     const rec = {
       date: today,
+      seriesMode: 'completed-market-cut',
+      cycleEnd: data.meta?.newsCycleEnd || fetchedAt,
+      marketSnapshotRevision: data.meta?.marketSnapshotRevision || marketSnapshot?.revision || null,
       spx: pick('^GSPC'), nasdaq: pick('^IXIC'), dow: pick('^DJI'), rut: pick('^RUT'),
       vix: pick('^VIX'), vvix: pick('^VVIX'), tnx: pick('^TNX'),
       dxy: pick('DX-Y.NYB'), wti: pick('CL=F'), gold: pick('GC=F'),
@@ -1903,24 +2026,43 @@ async function main() {
   console.log(`[fetch-data] ${SYMBOLS.length} 심볼 + FRED + F&G 수집 시작`);
 
   let previousBls = null;
+  let previousBea = null;
   let previousMacro = null;
   try {
     const previous = JSON.parse(await readFile(OUT, 'utf8'));
     previousBls = previous && previous.macro && previous.macro._bls || null;
+    previousBea = previous && previous.macro && previous.macro._bea || null;
     previousMacro = previous && previous.macro || null;
   } catch (_) {}
 
-  const [quotesRaw, macroRaw, fearGreed, news, putCall, bls] = await Promise.all([
+  const [quotesRaw, macroRaw, fearGreed, news, putCall, bls, bea] = await Promise.all([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
     fetchFearGreed(),
     fetchNews(),
     fetchCboePutCall(),
     fetchBlsSeries(previousBls),
+    fetchBeaPce(previousBea),
   ]);
   const macro = mergeMacroLastKnownGood(macroRaw, previousMacro);
+  for (const field of Object.keys(FRED_SERIES)) {
+    if (Number.isFinite(Number(macroRaw?.[field]))) macro[`_source_${field}`] = 'fred-official-primary';
+  }
   Object.assign(macro, bls.values || {});
   macro._bls = bls;
+  macro._bea = bea;
+  if (bea.status === 'ok' && bea.values) {
+    if (Number.isFinite(bea.values.pce)) {
+      macro.pce = bea.values.pce;
+      macro._asOf_pce = bea.observedAt;
+      macro._source_pce = 'bea-official-primary';
+    }
+    if (Number.isFinite(bea.values.corePce)) {
+      macro.corePce = bea.values.corePce;
+      macro._asOf_corePce = bea.observedAt;
+      macro._source_corePce = 'bea-official-primary';
+    }
+  }
 
   // v50.99: 검증 패스 — 의심 항목 재시도 후 최종 확정
   const pass1 = quotesRaw.filter(q => _quoteOk(q));
@@ -1954,9 +2096,10 @@ async function main() {
   // v50.78: fredHasKey(Secret 등록 여부) / fredFetchOk(실제 데이터 수신 여부) 세분화.
   //   fredHasKey=false → GitHub Secrets 미등록. fredHasKey=true && fredFetchOk=false → 키 있으나 API 실패.
   const macroKeys = Object.keys(macro).filter(k => k[0] !== '_');
+  const fredFetchedKeys = Object.keys(macroRaw || {}).filter(k => k[0] !== '_' && Number.isFinite(Number(macroRaw[k])));
   const fearGreedOk = typeof fearGreed.score === 'number' && isFinite(fearGreed.score);
   const fredHasKey = !!process.env.FRED_API_KEY;
-  const fredFetchOk = fredHasKey && macroKeys.length > 0;
+  const fredFetchOk = fredHasKey && fredFetchedKeys.length > 0;
   // P565/R256: per-series failures, now tracked instead of silently swallowed (see fetchFred).
   const fredFailedSeries = Array.isArray(macro._failedSeries) ? macro._failedSeries : [];
   const newsScores = Array.isArray(news) ? news.map(n => Number(n.score)).filter(n => isFinite(n)) : [];
@@ -1981,12 +2124,19 @@ async function main() {
       fredLkgUsed: !fredHasKey && !!previousMacro,
       fredLkgSource: !fredHasKey && previousMacro ? 'previous-public-data-macro' : null,
       macroKeyCount: macroKeys.length,
+      fredFetchedKeyCount: fredFetchedKeys.length,
+      fredLastSuccessfulAt: fredFetchOk ? new Date().toISOString() : null,
        fredFailedSeries,
       blsStatus: bls.status,
       blsSeriesCount: Object.keys(bls.values || {}).length,
       blsFailedSeries: (bls.failures || []).map(row => row.metricId),
       blsAttemptedAt: bls.attemptedAt || null,
       blsLastSuccessfulAt: bls.lastSuccessfulAt || null,
+      beaStatus: bea.status,
+      beaAttemptedAt: bea.attemptedAt || null,
+      beaLastSuccessfulAt: bea.lastSuccessfulAt || null,
+      beaReleaseAt: bea.releasedAt || null,
+      beaNextReleaseAt: bea.nextReleaseAt || null,
       newsOk: Array.isArray(news) && news.length > 0,
       newsCount: Array.isArray(news) ? news.length : 0,
       newsSourceCount: NEWS_FEEDS.length,
@@ -2050,6 +2200,18 @@ async function main() {
   data.meta.marketSnapshotPublished = !!marketSnapshotInfo.published;
   data.meta.marketSnapshotCoverage = marketSnapshotInfo.coverage;
   data.meta.marketSnapshotRevision = marketSnapshotInfo.snapshot.revision;
+  const cycleId = `kst-0800-${data.meta.newsCycleEnd}`;
+  const cyclePublished = !!marketSnapshotInfo.published && quotes.length >= SYMBOLS.length;
+  data.meta.cycleId = cycleId;
+  data.meta.cycleStatus = cyclePublished ? 'PUBLISHED' : 'DEGRADED';
+  data.meta.marketCycleFreshnessSlaHours = 12;
+  data.meta.cycleComponents = {
+    marketSnapshotRevision:marketSnapshotInfo.snapshot.revision,
+    newsGeneratedAt:data.meta.generatedAt,
+    historyCycleEnd:data.meta.newsCycleEnd,
+    telegramDigestExpected:true,
+  };
+  data.meta.cycleManifestRevision = `${cycleId}:${marketSnapshotInfo.snapshot.revision}`;
 
   await mkdir(dirname(OUT), { recursive: true });
   // P715 (사용자 결정 "클라이언트 직접 fetch 전환"): 공개 data.json에서 종목별 시세 재배포를
@@ -2065,7 +2227,7 @@ async function main() {
   });
   await writeFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
-  const histInfo = await updateHistory(data);
+  const histInfo = await updateHistory(data, marketSnapshotInfo.snapshot);
   // Phase 3 [C3] P599: computeTradingScore 재구성 검증 하네스 — history.json이 방금 갱신됐으니
   // 그 최신 상태로 재실행(순수 함수, 네트워크 호출 없음, history.json만 읽고 자체 산출물에만 씀).
   let scoreBacktestInfo = null;

@@ -98,7 +98,16 @@ function readSnapshotMetric(root, key) {
   }
   const snapshot = root?.DATA_SNAPSHOT || {};
   for (const alias of SNAPSHOT_ALIASES[key] || []) {
-    if (snapshot[alias] != null && !isPlaceholder(snapshot[alias])) return { value: snapshot[alias], source: 'DATA_SNAPSHOT' };
+    if (snapshot[alias] != null && !isPlaceholder(snapshot[alias])) {
+      const evidence = root?._serverMacroEvidence?.[alias] || {};
+      return {
+        value: snapshot[alias],
+        source: evidence.source || snapshot[`_${alias}_src`] || 'DATA_SNAPSHOT',
+        observedAt: evidence.observedAt || null,
+        releasedAt: evidence.releasedAt || null,
+        allowedUse: evidence.allowedUse || 'reference-only'
+      };
+    }
   }
   const series = root?._fredData?.[FRED_SERIES[key]];
   if (series && typeof series === 'object') {
@@ -153,7 +162,14 @@ function renderSnapshotMetrics(root, page) {
     if (value == null) return;
     writeText(node, value);
     const source = String(metric?.source || '');
-    writeLineage(node, source.startsWith('FRED') ? 'fred' : source.startsWith('live') ? 'live' : 'snapshot', metric?.source);
+    const sourceKind = source.startsWith('FRED') || source === 'fred-official-primary'
+      ? 'official-primary'
+      : source === 'bea-official-primary' ? 'official-primary'
+        : source.startsWith('live') ? 'live' : source === 'last-known-good' ? 'reference' : 'snapshot';
+    writeLineage(node, sourceKind, metric?.source);
+    if (metric?.observedAt) node.setAttribute('data-as-of', metric.observedAt);
+    if (metric?.releasedAt) node.setAttribute('data-release-at', metric.releasedAt);
+    if (metric?.allowedUse) node.setAttribute('data-operational-use', metric.allowedUse);
   });
 }
 
@@ -717,7 +733,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       const unsubscribe = store?.subscribe?.(renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
-      ['aio:liveQuotes', 'aio:liveDataReceived', 'aio:refresh:done', 'aio:serverDataLoaded'].forEach((eventName) => {
+      ['aio:liveQuotes', 'aio:liveDataReceived', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:macroUpdated'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });

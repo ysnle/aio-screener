@@ -2,7 +2,7 @@
 verified_by: agent (Fable 5) + Codex P761-P788 verification
 last_verified: 2026-07-29
 confidence: high
-target_version: v53.64
+target_version: v53.65
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -24,6 +24,24 @@ target_version: v53.64
 **Rule**: A public-data refresh that changes `market-snapshot.revision` must also update the asset/release manifest `dataRevision` before the next deploy. App, data, evidence, and worker revisions are one tuple; a mixed tuple is not releasable.
 
 **Validation**: `ci-operations-contract-check.mjs` must pass against the current `public-data/market-snapshot.json`, operations status, asset manifest, and release manifest.
+
+## R422. LKG 값은 개인 공급자 재시도나 최신 성공시각으로 간주하지 않는다 (v53.65, P867)
+
+**Rule**: 서버 아티팩트의 last-known-good 매크로 값은 원 관측일과 원 출처를 유지해야 하며, 현재 FRED 수신 성공으로 카운트하거나 `macro_fred`의 현재시각을 찍어서는 안 된다. 서버 FRED가 실패했고 브라우저에 개인 키가 저장돼 있으면 LKG 값의 존재와 무관하게 개인 경로를 시도한다. 저장 상태, 인증 상태, 연결 상태는 서로 다른 필드로 표시한다.
+
+**Validation**: `ci-data-pipeline-contract-check.mjs`는 서버 공통컷 메타데이터 보존, `!fredFetchOk` 개인 브리지, FRED 인증/연결 상태와 콜드 로딩의 제한 재적용 경로를 검사한다. 매크로 UI는 관측일과 수집시각을 별도로 유지한다.
+
+## R423. 일별 시계열에는 완료된 시장 세션 값만 저장한다 (v53.65, P868)
+
+**Rule**: 같은 날짜 행에 미국 전일 종가와 한국/원자재/가상자산 장중값을 섞어 일별 종가처럼 저장하지 않는다. `CURRENT_SESSION` 또는 `DELAYED_IN_SESSION` 값은 라이브 스냅샷에서만 사용하고, 일별 차트 행에는 해당 시장의 직전 완료 종가와 원 관측일, 원 세션, 값 기준을 기록한다.
+
+**Validation**: `ci-history-field-time-contract-check.mjs`는 381일 전 구간의 날짜 단조성·값 범위·필드 증거를 검사하고, 최신 13개 시계열 필드를 시장 스냅샷의 완료값과 직접 대조한다. Yahoo 일봉 timestamp는 봉 시작시각이므로 직전 완료 종가의 관측 경계는 현재 봉 시작시각으로 기록한다.
+
+## R424. 모든 라우트의 현재시장 문맥은 하나의 서버 24시간 컷을 사용한다 (v53.65, P869)
+
+**Rule**: 페이지별 브라우저 시계로 독립적인 “오늘/최근” 구간을 만들지 않는다. 17개 라우트는 `_serverDataMeta.newsCycleStart/newsCycleEnd/marketSnapshotRevision`을 공통 시장 문맥으로 사용하고, 라이브 오버레이는 세션·지연 라벨을 유지한다. 공식 발표가 완료되면 일정만 넘기지 말고 공식 1차 소스의 최신 관측값도 별도 어댑터로 갱신한다.
+
+**Validation**: 모든 decision header가 동일한 `data-market-cut-*`을 노출하고, 페이지 계약은 `independent-page-cycle`과 `in-session-value-as-daily-close`를 금지한다. BEA PCE 파서 fixture와 22개 데이터 감사가 최신 발표·관측·다음 일정을 확인한다.
 
 ## R356. Yahoo chart proxy는 공통 health registry를 통해서만 실행해야 한다 (v53.19, P784)
 
@@ -1792,3 +1810,15 @@ solely because Cloudflare shows a deployed script.
 **Validation**: `architecture/worker-endpoints.json`, `scripts/ci-fast-plane-live-check.mjs`,
 `scripts/build-operations-status.mjs`, and the data-plane workflow/watchdog preserve the
 endpoint identity while retaining explicit operator blockers.
+
+## R425. Current news and research lanes are separate (v53.66, P870)
+
+**Rule**: Telegram/news artifacts must publish a rolling `research-14d` window and a separate `kst-0800-completed-24h` lane. Current-facing pages, headers, and summary counters may consume only the completed 24-hour lane and a shared cycle manifest that passes the 12-hour freshness SLA; the rolling window is limited to research memo/chat context. Page requirements must derive from `architecture/route-owners.json`.
+
+**Validation**: `ci-data-pipeline-contract-check.mjs` checks `current24hItems/current24hWindow`, `windowKind`, route SSOT, native news summary, and cycle-manifest fields; the runtime Telegram feed must render only `AIO_TELEGRAM_CURRENT_ITEMS`.
+
+## R426. Decision headers must be explicit mounted route elements (v53.67, P871)
+
+**Rule**: `_aioRenderPageDecisionHeader()` must emit a balanced, discoverable `.aio-decision-header` wrapper for every route, carrying `data-aio-decision-page`, `data-source-kind`, `data-as-of`, and shared market-cut boundaries. Initial route headers must mount immediately when the document is already ready; delayed refresh may reconcile later data but cannot be the only mount path.
+
+**Validation**: headless T915, critical-10 human-surface, architecture-browser, and route-soak checks must pass with zero missing decision headers and zero browser errors.

@@ -322,6 +322,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopNews = legacy.on('aio:newsUpdated', syncNews.sync);
     const stopMarketRefresh = legacy.on('aio:refresh:done', syncMarket.sync);
     const stopMarketSnapshot = legacy.on('aio:marketSnapshot', syncMarket.sync);
+    const stopServerMarketData = legacy.on('aio:serverDataLoaded', syncMarket.sync);
+    const stopMacroUpdated = legacy.on('aio:macroUpdated', syncMarket.sync);
     const stopThemesRefresh = legacy.on('aio:refresh:done', syncThemes.sync);
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
@@ -339,6 +341,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
       if (route) store.dispatch({ type: 'route/changed', payload: route });
     });
+    if (root?._serverDataMeta) queueMicrotask(() => syncMarket.sync());
     router.start();
     let navigation = legacy.installNavigation(router);
     let disposed = false;
@@ -368,6 +371,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopNews();
       stopMarketRefresh();
       stopMarketSnapshot();
+      stopServerMarketData();
+      stopMacroUpdated();
       stopThemesRefresh();
       stopThemesHistory();
       stopThemeDetail();

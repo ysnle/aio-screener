@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-29
 confidence: high
 
-## Current architecture checkpoint (2026-07-30, v53.64)
+## Current architecture checkpoint (2026-08-01, v53.67)
 
 Native lifecycle and renderer ownership are wired for 17/17 routes.  P833 moves the
 route data provider boundary to `src/data/runtime-readers.js` (17/17 data-native),
@@ -16,9 +16,38 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.64
-latest_P_covered: P866
-current_P839_checkpoint: P859-P866 themes performance bars, decision evidence, news freshness, partial-portfolio fail-closed boundaries, deployed Worker endpoint evidence, release-manifest synchronization, official FOMC calendar rollover, and post-refresh data-revision coherence are locally verified; remaining route secondary ownership, seven-day soak, provider/live Worker/model/edge verification stay separate
+checklist_version: v53.67
+latest_P_covered: P871
+current_P839_checkpoint: P867-P871 FRED LKG/personal-key bridge, completed-close history, shared 24-hour page cut, strict current Telegram lane, explicit decision-header mounting, and official BEA PCE reconciliation are locally verified; remaining route secondary ownership, seven-day soak, provider/live Worker/model/edge verification stay separate
+
+## P871 Explicit decision-header mounting and first-view contract (v53.67)
+
+- [x] Every route decision header emits a balanced `.aio-decision-header` wrapper with page/source/as-of metadata.
+- [x] Shared market-cut start/end attributes are visible on the header evidence badge.
+- [x] Startup mounts all route headers immediately when the document is already ready, then reconciles after data load.
+- [x] Headless T915, critical-10 human-surface, architecture-browser, route-soak, viewport, and accessibility checks pass after the fix.
+
+## P870 Current Telegram lane and cycle-manifest coherence (v53.66)
+
+- [x] Telegram digest publishes a separate KST 08:00 completed 24-hour lane with observed/text coverage for all three channels.
+- [x] Rolling 14-day Telegram research fields are explicitly labeled and are not used by the current-facing feed.
+- [x] Digest route requirements derive from `architecture/route-owners.json`; retired KR route IDs are not treated as required current pages.
+- [x] `data.json` and client metadata expose one cycle ID, status, freshness SLA, component revisions, and manifest revision.
+- [x] Market-news/briefing counters and fetch status project from the same native normalized model as their visible cards.
+- [x] Full static contracts, data refresh audits, history time contract, and browser/UI matrix are included in the final release batch.
+
+## P867-P869 FRED·공통컷·시계열 정합성 (v53.65)
+
+- [x] 서버 FRED 실패 시 LKG 값 존재 여부와 무관하게 저장된 개인 FRED 키 경로를 재시도한다.
+- [x] 콜드 로딩에서 `data.json`이 `DATA_SNAPSHOT`보다 먼저 도착하면 제한 횟수 내 전체 로더를 재실행해 거시 투영 누락을 복구한다.
+- [x] FRED 저장/인증/연결 상태와 관측일/수집시각을 분리하며 LKG를 오늘 FRED 성공으로 표시하지 않는다.
+- [x] BEA 공식 PCE 릴리스를 키 없이 수집해 headline 3.7%, core 3.3%, 관측월 2026-06, 발표일 2026-07-30, 다음 발표 2026-08-26을 분리 저장한다.
+- [x] 최신 history 행의 13개 시세 필드가 모두 `COMPLETED`이며, 장중 시장은 직전 완료 종가를 사용한다.
+- [x] 전체 381일 시계열의 날짜 단조성·값 범위·필드별 관측/수집/출처 증거를 검사한다.
+- [ ] Yahoo 일봉 시작시각→직전 완료 종가 경계 보정 후 history 아티팩트를 재생성하고 13개 최신 관측시각을 다시 대조한다.
+- [x] 17개 라우트 decision header와 페이지 계약이 서버의 동일한 KST 08:00 완료 24시간 컷을 사용한다.
+- [x] 22개 데이터 감사에서 PCE/FOMC/Put-Call/HY OAS의 실제 관측 상태를 하드코딩 문구 없이 판정한다.
+- [ ] 개인 FRED 인증 성공은 실제 사용자의 배포 origin + 신뢰 가능한 CF Worker 또는 브라우저 직접 연결 환경에서 최종 확인한다.
 
 ## P864 Release manifest synchronization (v53.64)
 

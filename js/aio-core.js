@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.64';
+const APP_VERSION = 'v53.67';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -6148,6 +6148,46 @@ window._aioRenderMarketHeatmap = function(containerId) {
     + '</div>';
 };
 
+// P867/R419: every route consumes one server-authored completed 24-hour cut.
+// Live/delayed quote overlays may update inside that frame, but a page must not
+// invent its own "today" window from the browser clock.
+window.AIO = window.AIO || {};
+window.AIO.getSharedMarketCut = function() {
+  var meta = window._serverDataMeta || {};
+  var start = meta.newsCycleStart || null;
+  var end = meta.newsCycleEnd || null;
+  var generatedAt = meta.generatedAt || null;
+  var startMs = new Date(start).getTime();
+  var endMs = new Date(end).getTime();
+  var generatedMs = new Date(generatedAt).getTime();
+  var maxAgeHours = Number(meta.marketCycleFreshnessSlaHours || 12);
+  var ageHours = isFinite(generatedMs) ? Math.max(0, (Date.now() - generatedMs) / 3600000) : Infinity;
+  var complete = isFinite(startMs) && isFinite(endMs) && endMs > startMs && endMs <= Date.now();
+  var status = !complete ? 'missing-or-open' : ageHours <= maxAgeHours ? 'fresh' : 'stale';
+  if (!start || !end || !isFinite(startMs) || !isFinite(endMs)) {
+    return { policy:'kst-0800-completed-24h', start:null, end:null, generatedAt:generatedAt, endLabel:'대기', label:'서버 공통컷 대기', revision:meta.marketSnapshotRevision || null, status:'missing', ageHours:null, maxAgeHours:maxAgeHours, usable:false };
+  }
+  var endLabel = '';
+  try {
+    endLabel = new Intl.DateTimeFormat('ko-KR', {
+      timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false
+    }).format(new Date(end)).replace(/\.\s*/g, '/').replace(/\/$/, '') + ' KST';
+  } catch (_) { endLabel = String(end); }
+  return {
+    policy: meta.newsCyclePolicy || 'kst-0800-completed-24h',
+    start: new Date(start).toISOString(),
+    end: new Date(end).toISOString(),
+    generatedAt: isFinite(generatedMs) ? new Date(generatedMs).toISOString() : null,
+    endLabel: endLabel,
+    label: meta.newsCycleLabel || (start + ' ~ ' + end),
+    revision: meta.marketSnapshotRevision || null,
+    status: status,
+    ageHours: isFinite(ageHours) ? Math.round(ageHours * 10) / 10 : null,
+    maxAgeHours: maxAgeHours,
+    usable: status === 'fresh'
+  };
+};
+
 window._aioRenderPageDecisionHeader = function(pageId) {
   var page = document.getElementById('page-' + pageId);
   if (!page) return null;
@@ -6181,13 +6221,25 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   };
   var sourceKind = String(d.sourceKind || 'SNAPSHOT').toUpperCase();
   var sourceLabel = sourceLabelMap[sourceKind] || '데이터: 확인 필요';
+  var sharedCut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function'
+    ? window.AIO.getSharedMarketCut()
+    : null;
+  var sharedCutHtml = sharedCut && sharedCut.end
+    ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '공통컷 ' : '공통컷 지연 · ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
+    : '<span class="aio-confidence-badge" title="서버 24시간 컷 메타데이터 대기">공통컷 대기</span>';
   // v51.57: 3카드 그리드(왜/오늘행동/데이터기준시각) 제거 — 상단 판단 strip + AI 버튼만 유지
+  if (sharedCutHtml && sharedCut && sharedCut.end) {
+    sharedCutHtml = sharedCutHtml.replace(
+      'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '"',
+      'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" data-market-cut-start="' + _aioDecisionEsc(sharedCut.start || '') + '" data-market-cut-end="' + _aioDecisionEsc(sharedCut.end || '') + '"'
+    );
+  }
   var caveatHtml = d.caveat ? '<span class="aio-decision-caveat">' + _aioDecisionEsc(d.caveat) + '</span>' : '';
   var html = ''
-    + '<section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(d.sourceKind) + '" data-evidence-id="' + _aioDecisionEsc(d.evidenceId || '') + '" data-operational-use="' + _aioDecisionEsc(d.provenance && d.provenance.operationalUse || 'reference-only') + '">'
+    + '  <section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(sourceKind) + '" data-as-of="' + _aioDecisionEsc(d.asOf || '') + '">'
     + '  <div class="aio-decision-top">'
     + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
-    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span><span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
+    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span>' + sharedCutHtml + '<span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
     + '  </div>'
     + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : caveatHtml) + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
     + (_fomcFootNote && caveatHtml ? '<div class="aio-decision-foot aio-decision-evidence-foot">' + caveatHtml + '</div>' : '')
@@ -6460,9 +6512,14 @@ if (window._aioPageBus && typeof window._aioPageBus.register === 'function') {
 
 if (document && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', function() {
+    try { window._aioRenderAllPageDecisionHeaders(); window._aioApplyEventFreshnessGate(); } catch(_) {}
     setTimeout(function() { try { window._aioRenderAllPageDecisionHeaders(); window._aioApplyEventFreshnessGate(); } catch(_) {} }, 450);
     setTimeout(function() { try { window._aioApplyEventFreshnessGate(); } catch(_) {} }, 1400);
   });
+}
+
+if (document && document.readyState !== 'loading') {
+  try { window._aioRenderAllPageDecisionHeaders(); window._aioApplyEventFreshnessGate(); } catch(_) {}
 }
 
 window._aioSimplifyExplainLabels = function() {
@@ -12476,7 +12533,7 @@ window.AIO_MACRO_CALENDAR = {
   releases: {
     'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-07-02', nextRelease: '2026-08-07', dataField: 'usUnemploy', source: 'BLS official schedule' },
     'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-07-14', nextRelease: '2026-08-12', dataField: 'cpi', source: 'BLS official schedule' },
-    'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-06-25', nextRelease: '2026-07-30', dataField: 'pce', source: 'BEA official schedule' },
+    'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-07-30', nextRelease: '2026-08-26', dataField: 'pce', source: 'BEA official schedule' },
     'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-07-01', nextRelease: '2026-08-03', dataField: 'ismPmi', source: 'ISM official calendar' },
     'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-07-06', nextRelease: '2026-08-05', dataField: 'ismSvc', source: 'ISM official calendar' },
     'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-07-16', nextRelease: '2026-08-14', dataField: 'retailSales', source: 'U.S. Census official schedule' },
@@ -12493,7 +12550,7 @@ window.AIO_MACRO_CALENDAR = {
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04'],
   'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11'],
-  'us-pce': ['2026-06-25', '2026-07-30', '2026-08-26'],
+  'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30'],
   'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01'],
   'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03'],
   'us-retail': ['2026-07-16', '2026-08-14'],
@@ -16081,7 +16138,18 @@ function _aioRefreshProviderStatuses() {
   if (summary) {
     var values = Object.keys(snapshot).map(function(id) { return snapshot[id]; });
     var configured = values.filter(function(s) { return s.storage && s.storage.indexOf('READY') === 0; }).length;
-    summary.textContent = '저장 확인 ' + configured + '개 · 인증/연결은 별도 확인 · 데이터 최신성/사용 권한과 분리됨';
+    var fred = snapshot.fred || {};
+    var statusKo = {
+      NOT_CHECKED:'미확인', VERIFIED:'성공', FAILED:'실패',
+      HEALTHY:'정상', REACHABLE:'도달', BLOCKED:'차단',
+      MISSING:'미저장', READY_PLAINTEXT:'저장됨', READY_SESSION:'탭 저장',
+      READY_ENCRYPTED:'암호화 저장', LOCKED:'Vault 잠김'
+    };
+    summary.textContent = '저장 확인 ' + configured + '개 · FRED 저장: '
+      + (statusKo[fred.storage] || fred.storage || '미확인') + ' / 인증: '
+      + (statusKo[fred.authentication] || fred.authentication || '미확인') + ' / 연결: '
+      + (statusKo[fred.connection] || fred.connection || '미확인')
+      + ' · 최신성/사용 권한과 분리';
   }
   return snapshot;
 }
@@ -18273,7 +18341,12 @@ window.AIO.annotateLiveDataSinks = function(root, opts) {
       var operationalUse = (kind === 'live' && truthOk) ? 'decision' : 'reference-only';
       if (opts.force || !el.getAttribute('data-source-kind')) el.setAttribute('data-source-kind', kind);
       if (opts.force || !el.getAttribute('data-operational-use')) el.setAttribute('data-operational-use', operationalUse);
-      if (opts.force || !el.getAttribute('data-source-label')) el.setAttribute('data-source-label', source === 'unavailable' ? ('quote unavailable:' + sym) : (source + ':' + sym));
+      if (opts.force || !el.getAttribute('data-source-label')) {
+        var nextSourceLabel = source === 'unavailable'
+          ? ('quote unavailable:' + sym)
+          : (hasExistingUsableLineage && existingLabel ? existingLabel : (source + ':' + sym));
+        el.setAttribute('data-source-label', nextSourceLabel);
+      }
       if (!el.getAttribute('data-source-ts') && (ds.ts || ld.ts)) el.setAttribute('data-source-ts', new Date(ds.ts || ld.ts).toISOString());
       if (truth) {
         el.setAttribute('data-truth-status', truth.status);
@@ -20921,7 +20994,7 @@ if (typeof window !== 'undefined') {
 // this schema; missing or stale producers must render unavailable.
 const AIO_MANUAL_REFERENCE = Object.freeze({
   fedPolicy: Object.freeze({
-    value: '3.50-3.75', status: '동결', asOf: '2026-06-17', next: '2026-07-28~29',
+    value: '3.50-3.75', status: '동결', asOf: '2026-07-29', next: '2026-09-15~16',
     source: 'Federal Reserve', sourceKind: 'official-primary',
     sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
     operationalUse: 'reference-only'
@@ -23593,6 +23666,12 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       maxAge: Object.assign({}, completeness.maxAge),
       failureState: completeness.failureState,
       forbiddenClaims: completeness.forbiddenClaims.slice(),
+      marketContext: {
+        policy: 'kst-0800-completed-24h',
+        authoritativeMeta: ['_serverDataMeta.newsCycleStart','_serverDataMeta.newsCycleEnd','_serverDataMeta.marketSnapshotRevision'],
+        liveOverlayPolicy: 'explicit-session-and-delay-label-required',
+        forbidden: ['independent-page-cycle','fetch-time-as-observation-time','in-session-value-as-daily-close']
+      },
       dataSinks: {
         live: '[data-live-price],[data-live-chg],[data-live-pct],[data-live-field]',
         snapshot: '[data-snap],[data-snap-date]',

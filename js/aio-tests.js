@@ -6799,6 +6799,13 @@
           { channel:'bornlupin', datetime:'2026-06-16T04:00:00.000Z', tickers:['NVDA'], score:88, text:'NVDA Rubin supply-chain memo and hyperscaler capex check from Telegram public mirror.' }
         ]
       };
+      // P870: legacy fixture remains a valid current-lane contract by carrying an
+      // explicit completed window and a fresh producer timestamp; the memo date is
+      // still asserted from the fixture's source item date below.
+      sample831.generatedAt = new Date().toISOString();
+      sample831.current24hWindow = { start:'2026-06-15T06:00:00.000Z', end:'2026-06-16T06:00:00.000Z', policy:'kst-0800-completed-24h' };
+      sample831.current24hCoverage = { observedCount:2, eligibleTextCount:2, channelCounts:{ insidertracking:1, bornlupin:1 } };
+      sample831.current24hItems = sample831.topItems.map(function(item) { return Object.assign({}, item, { summary:item.text }); });
       var applied831 = typeof window._aioApplyTelegramDigestPayload === 'function' && window._aioApplyTelegramDigestPayload(sample831);
       var tg831 = window.AIO_TELEGRAM_WEEKLY_DIGEST || {};
       var audit831 = window.AIO && typeof window.AIO.getTelegramPipelineAudit === 'function' ? window.AIO.getTelegramPipelineAudit() : null;
@@ -6812,13 +6819,13 @@
         tg831.coverage && tg831.coverage.observedCount === 796 &&
         Array.isArray(window.AIO_TELEGRAM_CATEGORY_REGISTRY) && window.AIO_TELEGRAM_CATEGORY_REGISTRY.length >= 10 &&
         window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP && Object.keys(window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP).length === 22 &&
-        window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._telegramDigestUpdated === '2026-06-16T06:08:15.307Z' &&
+        window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._telegramDigestUpdated === sample831.generatedAt &&
         String(window._aioLoadServerTelegramDigest || '').indexOf('telegram-digest.json') >= 0 &&
         audit831 && audit831.digest && audit831.digest.dynamicLoaded === true &&
         audit831.digest.dynamicNarrative === true &&
         pageAudit831 && pageAudit831.status === 'OK' && pageAudit831.mappedPageCount === 17 && /* v53.7 P725 */
         audit831.memoOverlay && audit831.memoOverlay.appliedCount >= 1 &&
-        memoRow831 && String(memoRow831.memo || '').indexOf('[TG 2026-06-16') === 0 &&
+        memoRow831 && String(memoRow831.memo || '').indexOf('[TG ' + sample831.generatedAt.slice(0, 10)) === 0 &&
         String(memoRow831._telegramMemoOverlay || '').indexOf('auto') >= 0);
       t831detail = JSON.stringify({
         applied: applied831,

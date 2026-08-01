@@ -12,7 +12,18 @@ const UA = {
   'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
 };
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const REQUIRED_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+const FALLBACK_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','guide'];
+function loadRequiredPageIds() {
+  try {
+    const owners = JSON.parse(readFileSync(join(ROOT, 'architecture/route-owners.json'), 'utf8'));
+    const ids = Object.keys(owners.routes || {});
+    if (ids.length) return ids;
+  } catch (e) {
+    console.warn(`[fetch-telegram-digest] route SSOT read failed (using fallback): ${e.message}`);
+  }
+  return FALLBACK_PAGE_IDS;
+}
+const REQUIRED_PAGE_IDS = loadRequiredPageIds();
 const PAGE_TOPIC_MAP = {
   home:['kr-market','macro','credit','semi','ai-policy','equity','geo','earnings','flows','insider'],
   signal:['kr-market','equity','semi','macro','geo','credit','earnings','flows','insider'],
@@ -57,6 +68,17 @@ const outPath = argValue('out');
 const forceFullScan = argValue('full', 'false') === 'true';
 const now = new Date(argValue('now', new Date().toISOString()));
 const since = sinceArg ? new Date(sinceArg) : new Date(now.getTime() - days * 86400000);
+function getCompletedKst0800Cycle(date) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone:'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false
+  }).formatToParts(date);
+  const pick = type => parts.find(part => part.type === type)?.value;
+  const localDate = `${pick('year')}-${pick('month')}-${pick('day')}`;
+  let end = new Date(`${localDate}T08:00:00+09:00`);
+  if (date < end) end = new Date(end.getTime() - 86400000);
+  return { start:new Date(end.getTime() - 86400000), end, policy:'kst-0800-completed-24h' };
+}
+const marketCycle = getCompletedKst0800Cycle(now);
 
 // P571/R262: this used to re-walk the full PAGE_LIMIT횞3-channel횞14-day window from scratch on
 // every run (every 30 min via refresh-data.yml ??48x/day), with no cursor/state persisted
@@ -345,6 +367,14 @@ for (const it of [...previousObservedPool, ...freshItems]) {
   });
 }
 const observedItems = [...observedById.values()].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+const current24hItems = items.filter(it => {
+  const d = new Date(it.datetime);
+  return d >= marketCycle.start && d < marketCycle.end;
+});
+const current24hObservedItems = observedItems.filter(it => {
+  const d = new Date(it.datetime);
+  return d >= marketCycle.start && d < marketCycle.end;
+});
 const successfulChannelCount = channels.filter(c => !c.error).length;
 const collectionStatus = successfulChannelCount === CHANNELS.length ? 'ok' : successfulChannelCount > 0 ? 'partial' : 'failed';
 const attemptedAt = new Date().toISOString();
@@ -385,16 +415,16 @@ function buildDynamicNarrative() {
     .sort((a, b) => b[1] - a[1]);
   const themes = rankedTopics.slice(0, 8).map(([tag, count]) => {
     const sample = bestTextForTag(tag);
-    return `${CATEGORY_LABELS[tag] || tag} (${count} posts in current window): ${sample || 'No retained full-text sample; see coverage metadata.'}`;
+    return `${CATEGORY_LABELS[tag] || tag} (${count} posts in 14-day research window): ${sample || 'No retained full-text sample; see coverage metadata.'}`;
   });
   const catalysts = Object.entries(tickerCounts).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([ticker, count]) => {
     const hit = items.filter(it => Array.isArray(it.tickers) && it.tickers.includes(ticker) && it.text)
       .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))[0];
-    return { key:ticker, count, text:hit ? previewText(hit.text) : `${count} observed mentions in the current Telegram window.` };
+    return { key:ticker, count, text:hit ? previewText(hit.text) : `${count} observed mentions in the 14-day research window.` };
   });
   const categories = Object.entries(CATEGORY_LABELS).map(([id, label]) => ({
     id, label, topics:[id], count:Number(topicCounts[id] || 0),
-    focus:bestTextForTag(id) || `No retained full-text sample; ${Number(topicCounts[id] || 0)} observed posts in the current window.`
+    focus:bestTextForTag(id) || `No retained full-text sample; ${Number(topicCounts[id] || 0)} observed posts in the 14-day research window.`
   }));
   return { themes, catalysts, categories, pageMap:PAGE_TOPIC_MAP };
 }
@@ -426,14 +456,28 @@ const broadItems = (function() {
 })();
 const selectedRawIds = new Set([...topItems, ...broadItems].map(it => it.id));
 const eligibleTextCount = observedItems.filter(it => it.hasText).length;
+const current24hChannelCounts = {};
+for (const it of current24hObservedItems) current24hChannelCounts[it.channel] = (current24hChannelCounts[it.channel] || 0) + 1;
 const digest = {
   generatedAt,
   attemptedAt,
   lastSuccessfulAt,
   collectionStatus,
   successfulChannelCount,
+  windowKind:'research-14d',
   since: since.toISOString(),
   until: now.toISOString(),
+  current24hWindow: {
+    start:marketCycle.start.toISOString(),
+    end:marketCycle.end.toISOString(),
+    policy:marketCycle.policy,
+  },
+  current24hCoverage: {
+    observedCount:current24hObservedItems.length,
+    eligibleTextCount:current24hObservedItems.filter(it => it.hasText).length,
+    channelCounts:current24hChannelCounts,
+    lastPostIds:current24hObservedItems.slice(0, 20).map(it => it.id),
+  },
   source: 'telegram-public-mirror',
   channels: channels.map(c => {
     const observed = observedItems.filter(it => it.channel === c.channel);
@@ -469,6 +513,7 @@ const digest = {
   topItems: topItems.map(toSummaryItem), // P715: summary-only
   // broadItems: score>=50, 梨꾨꼸??理쒕? 120媛? ?꾩껜 理쒕? 400媛? datetime ?대┝李⑥닚 (?댁뒪?쇰뱶)
   broadItems: broadItems.map(toSummaryItem), // P715: summary-only
+  current24hItems: current24hItems.map(toSummaryItem),
   // Phase 3 [A1/B3] P598: `items` (the full merged/deduped set, ~1.04MB / 46% of this file's
   // pre-fix size) used to be included here too, even though the "previousMergePool" logic just
   // above (P571/R262) already documents "the digest we write never persists the full raw item

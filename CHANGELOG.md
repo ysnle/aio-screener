@@ -1,3 +1,22 @@
+## v53.66 (2026-08-01)
+## v53.67 (2026-08-01)
+
+- **P871 / explicit decision-header mounting**: every route now emits a balanced, discoverable `.aio-decision-header` wrapper with page/source/as-of metadata and visible shared-cut boundaries; startup mounts headers immediately when the document is already ready.
+- **Verification**: headless `1107/1107`, critical-10 human-surface pass, architecture-browser pass, vertical slices, route soak, viewport `68/68`, accessibility `17/17`, and boot interaction pass.
+
+## v53.66 (2026-08-01)
+
+- **P870 / Telegram lane separation**: the digest now publishes a completed KST 08:00 24-hour lane with per-channel/text coverage alongside an explicitly labeled 14-day research window. Current-facing feed rendering refuses the rolling payload and stale cycles.
+- **Shared cycle manifest**: server data now exposes cycle ID/status, 12-hour freshness SLA, component revisions, and a manifest revision; all route headers and news summary counters consume the same normalized freshness boundary.
+- **Route SSOT and visible summary projection**: Telegram page requirements derive from `architecture/route-owners.json`, and the market-news/briefing header counters, source count, risk count, sentiment score, and fetch state project from the native model.
+- **Refresh verification**: all three Telegram channels collected successfully (`163` completed-window posts, `157` text-eligible); market refresh completed with `78/78` quotes and a published cycle manifest.
+
+## v53.65 (2026-07-31)
+- **P867 / FRED saved-key blank state**: last-known-good macro values no longer suppress the personal FRED bridge or receive a false current FRED timestamp; storage, authentication, and connection states are separated, and cold-start macro projection is retried with a bounded full-loader replay.
+- **P868 / completed-close time series**: daily history now retains completed closes only, with original session, value basis, observation time, shared cycle, and market-snapshot revision; Yahoo daily bar-open timestamps are converted to the prior-close boundary. The pre-boundary 381-day/3,691-field value audit passed; post-boundary artifact regeneration is pending.
+- **P869 / one shared 24-hour market cut**: all 17 routes preserve and display the server KST 08:00 completed cycle; BEA official PCE 3.7%/core 3.3% and FOMC/PCE schedules are current.
+- Refreshed market, macro, news, history, Telegram, reconciliation, operations, and score-backtest artifacts. No commit or deployment.
+
 ## v53.64 (2026-07-30)
 - **P859 / themes performance bars**: native themes now owns the daily/weekly sector-performance bars from normalized evidence, with explicit pending states, route-scoped invalidation, and a fenced legacy writer.
 - **P860-P862 / fail-closed decision surfaces**: snapshot/reference values cannot enter current Trading Score inputs; undated/future news cannot satisfy freshness windows; partial portfolio holdings no longer collapse unknown values into zero totals.

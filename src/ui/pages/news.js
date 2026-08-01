@@ -11,6 +11,35 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+function renderNewsSummary(documentRef, root, model, status) {
+  const rows = Array.isArray(model?.items) ? model.items : [];
+  const distinctSources = new Set(rows.map((item) => item?._tgChannel || item?.source || item?.feed).filter(Boolean));
+  const configuredSources = Array.isArray(root?.AIO_NEWS_SOURCES) ? root.AIO_NEWS_SOURCES.length : null;
+  const tones = rows.map((item) => sentimentTone(root, item).label);
+  const bull = tones.filter((label) => label === '긍정').length;
+  const bear = tones.filter((label) => label === '부정').length;
+  const risk = rows.filter((item, index) => item?.verificationStatus === 'unverified' || tones[index] === '주의').length;
+  const score = rows.length ? Math.max(0, Math.min(100, Math.round(50 + ((bull - bear) / rows.length) * 50))) : null;
+  const set = (id, value, fallback = '—') => {
+    const node = documentRef?.getElementById(id);
+    if (node) node.textContent = value == null || value === '' ? fallback : String(value);
+  };
+  documentRef?.querySelectorAll?.('[data-news-source-count]').forEach((node) => {
+    node.textContent = configuredSources == null ? String(distinctSources.size || '—') : String(configuredSources);
+  });
+  set('news-24h-count', model?.eligibleCount ?? rows.length, '0');
+  set('news-24h-sources', distinctSources.size ? `${distinctSources.size}개 소스` : '소스 확인 중');
+  set('news-risk-count', risk, '0');
+  set('news-risk-label', risk ? '주의 필요' : '리스크 없음');
+  set('news-sent-score', score);
+  set('news-sent-label', score == null ? '데이터 대기' : score >= 60 ? '긍정' : score <= 40 ? '주의' : '중립');
+  let cut = null;
+  try { cut = root?.AIO?.getSharedMarketCut?.() || null; } catch (_) {}
+  const generatedAt = root?._serverDataMeta?.generatedAt || null;
+  const generatedLabel = generatedAt ? new Date(generatedAt).toLocaleString('ko-KR', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+  set('last-fetch-time', cut?.status === 'stale' ? `공통컷 지연 · ${cut.endLabel || '최신 완료컷 확인 필요'}` : generatedLabel || (status === 'current' ? '정상 수신' : '수신 대기'));
+}
+
 function safeUrl(value) {
   try {
     const url = new URL(String(value || ''), 'https://invalid.local');
@@ -225,6 +254,7 @@ function render({ documentRef, root, store, route }) {
     const container = documentRef?.getElementById('briefing-live-news-list');
     if (container) {
       container.dataset.aioBriefingRenderer = 'native';
+      renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
       appendBriefingNews(documentRef, root, container, model, selectNewsStatus(state), windowInfo, documentRef.getElementById('briefing-news-more'));
     }
     return;
@@ -237,6 +267,7 @@ function render({ documentRef, root, store, route }) {
   if (!container) return;
   const configuredLimit = Number(root?._aioNewsVisibleLimit);
   const visibleLimit = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 12;
+  renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
   appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls);
   container.dataset.aioNewsRenderer = 'native';
 }

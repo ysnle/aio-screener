@@ -1,12 +1,57 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex P761-P845 static implementation record
-last_verified: 2026-07-29
+last_verified: 2026-07-31
 confidence: high
-latest_version: v53.64
-latest_P_number: P866
-next_P_number: P867
-current_total_entries: 606 (P1~P866, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P859-P866 themes performance bars, decision-evidence, news freshness, partial-portfolio aggregates, Worker endpoint evidence, release-manifest synchronization, official FOMC calendar rollover, and post-refresh data-revision coherence; remaining route secondary surfaces, soak, rights, AI proxy redeploy, and edge certification remain separate operator/runtime checks
+latest_version: v53.66
+latest_P_number: P870
+next_P_number: P871
+current_total_entries: 609 (P1~P869, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P867-P870 FRED LKG/personal-key bridge, completed-close time series, one shared 24-hour page cut, strict current Telegram lane, and official BEA PCE reconciliation; remaining route secondary surfaces, soak, rights, AI proxy redeploy, and edge certification remain separate operator/runtime checks
+
+## P871 - v53.67 - decision headers were not structurally mounted for every route
+
+- **motivation**: the shared-cut contract existed in the decision-header renderer, but the generated markup omitted the opening route header element, so human-surface audits could see inner decision text without a discoverable header.
+- **root_cause**: the renderer appended `</section>` without emitting the matching `<section class="aio-decision-header" ...>` wrapper; startup rendering was also deferred to a timer that could race the test/runtime loader.
+- **fix**: emit the explicit header wrapper with `data-aio-decision-page`, `data-source-kind`, `data-as-of`, and shared-cut start/end attributes; invoke the all-route header renderer immediately when the document is already ready, then retain the delayed refresh for post-data reconciliation; derive Telegram page-audit requirements from the route SSOT.
+- **violated_rule**: R425 and H3-H — every visible route decision surface must have a discoverable, evidence-labelled header before detail content.
+- **prevention**: headless T915, critical-10 human-surface, architecture-browser, and route-soak checks are blocking release gates for header presence and route re-entry.
+- **verification**: syntax, runtime/architecture contracts, headless `1107/1107`, critical-10 `status=pass`, architecture-browser `ok=true`, vertical slices, route soak, viewport `68/68`, accessibility `17/17`, and boot interaction all pass.
+
+## P870 - v53.66 - rolling Telegram research payload was eligible to masquerade as current news
+
+- **motivation**: the three Telegram channels had a fresh 14-day research digest, but current-facing pages could still consume a broad rolling payload or stale server artifact; route coverage also drifted from the retired KR route list.
+- **root_cause**: the digest did not expose a first-class completed 24-hour lane, client freshness accepted a wider fallback window, and the news header summary was not projected from the same normalized model as the feed.
+- **fix**: added a KST 08:00 completed-24-hour Telegram lane with coverage metadata, kept the 14-day research window explicitly separate, derived digest page requirements from `architecture/route-owners.json`, gated shared market cuts at a 12-hour SLA, projected all news summary counters from the native model, and published cycle-manifest metadata alongside refreshed market/history artifacts.
+- **violated_rule**: R424; current-sensitive surfaces must share one fresh completed market cut and must not promote rolling research data as current.
+- **prevention**: `ci-data-pipeline-contract.mjs` asserts the separate lanes, route SSOT, cycle manifest, and native summary projection; the runtime feed uses only `AIO_TELEGRAM_CURRENT_ITEMS` and fails closed when the completed lane is stale or empty.
+- **verification**: Telegram collection completed for all three channels (`current24hCoverage.observedCount=163`, `eligibleTextCount=157`); market data refreshed with 78/78 quotes, `cycleStatus=PUBLISHED`, and a new `cycleManifestRevision`.
+
+## P869 - v53.65 - pages and official macro releases used different current-market cuts
+
+- **motivation**: news surfaces already used the completed KST 08:00 24-hour cycle, but page headers recomputed currentness independently and PCE/FOMC references lagged completed official releases.
+- **root_cause**: `loadServerData()` dropped the server cycle/revision fields, route contracts had no shared market-context policy, and PCE depended only on a lagged/missing FRED projection.
+- **fix**: preserved the server cycle and market revision, added one shared cut to all route contracts/decision headers, added a keyless BEA official PCE adapter, and advanced FOMC/PCE official references and next dates.
+- **violated_rule**: R424/R279 — current-market pages must share one authoritative cut and completed releases must reconcile both schedule and observation.
+- **prevention**: runtime/data-pipeline contracts require shared-cut attributes and BEA evidence; the 22-category audit reports observation, release, fetch, and next-release state separately.
+- **verification**: data-pipeline/runtime/data-refresh gates pass; BEA reports PCE 3.7%, core PCE 3.3%, June observation, July 30 release, and August 26 next release.
+
+## P868 - v53.65 - daily history mixed completed US closes with live Korea and continuous-market points
+
+- **motivation**: the latest history row matched the live snapshot numerically but represented incompatible market states, so charts treated KOSPI, commodities, and BTC intraday values as daily closes.
+- **root_cause**: `updateHistory()` upserted `regularMarketPrice` for every symbol and discarded market-session semantics; the old CI checked timestamp presence only. The first completed-close patch also treated Yahoo daily bar-open timestamps as close timestamps, making the correct prior-close value appear one market day older.
+- **fix**: retained previous-close observation evidence, classified each symbol through the market-session contract, stored previous completed closes for open sessions, attached series mode/cycle revision/original session/value basis, and moved the previous-close observation boundary to the current daily bar's opening timestamp.
+- **violated_rule**: R423 — a daily series row cannot promote an in-session point as a completed close.
+- **prevention**: the history contract now scans 381 days and directly reconciles the latest 13 fields against either snapshot value or previousValue according to session.
+- **verification**: before the bar-boundary correction, 381 rows, 3,691 numeric fields, 3,691 evidence records, and all 13 latest completed-close values passed. Regenerating the artifact and rerunning the gate after the boundary correction remains pending because local command execution became unavailable.
+
+## P867 - v53.65 - FRED LKG values suppressed the saved personal-key bridge and appeared freshly fetched
+
+- **motivation**: the settings UI showed a saved FRED key while macro charts remained blank and stale fallback values carried a current FRED timestamp.
+- **root_cause**: `_serverMacroApplied` counted LKG values as live FRED success; the client bridge ran only when zero macro values existed, provider status exposed storage without authentication/connection results, and a cold `data.json` response could arrive before `DATA_SNAPSHOT` existed and permanently skip macro projection.
+- **fix**: separated total/FRED/BEA applications, stamped FRED freshness only after a successful FRED fetch, retried the personal key whenever server FRED failed, emitted distinct VERIFIED/FAILED/BLOCKED/HEALTHY provider states, and added a bounded full-loader replay when the cold-start snapshot bridge is not ready.
+- **violated_rule**: R422 — LKG presence cannot suppress a configured primary provider or masquerade as a current success.
+- **prevention**: the data-pipeline contract asserts `!fredFetchOk` bridging and provider status transitions; PCE also has an independent official BEA path so FRED absence does not create a blank current release.
+- **verification**: local server artifact correctly remains `fredFetchOk=false`, BEA current data renders independently, and browser-origin personal authentication remains an explicit environment-dependent check.
 
 ## P866 - v53.64 - data refresh advanced the snapshot without release-manifest promotion
 

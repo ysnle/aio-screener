@@ -102,7 +102,13 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     },
     providers: {
       yahoo: { rights: 'REVIEW_REQUIRED', use: 'reference', lastFetchAt: data?.meta?.generatedAt || null },
-      fred: { rights: process.env.FRED_API_KEY ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', use: 'official-series', lastFetchAt: data?.meta?.generatedAt || null },
+      fred: {
+        rights: process.env.FRED_API_KEY ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED',
+        use: 'official-series',
+        status: data?.meta?.fredFetchOk ? 'CURRENT' : 'UNAVAILABLE',
+        lastAttemptAt: data?.meta?.generatedAt || null,
+        lastFetchAt: data?.meta?.fredFetchOk ? (data?.meta?.fredLastSuccessfulAt || data?.meta?.generatedAt || null) : null
+      },
       sec: { rights: 'REVIEW_REQUIRED', use: 'filing-evidence', coveragePct: secCoverage.coveragePct, stored: secCoverage.stored, eligible: secCoverage.eligible }
     },
     reconciliation: {
