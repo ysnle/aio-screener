@@ -161,6 +161,12 @@ jobs:
       - name: Data pipeline contract checks
         run: node scripts/ci-data-pipeline-contract-check.mjs
 
+      - name: Refresh artifact integrity and data-release revision guard
+        run: |
+          node scripts/ci-refresh-artifact-integrity-check.mjs
+          node scripts/sync-data-release-manifests.mjs
+          git diff --exit-code -- architecture/asset-manifest.json architecture/release-manifest.json
+
       - name: Semantic review checks
         run: node scripts/ci-semantic-review-check.mjs
 

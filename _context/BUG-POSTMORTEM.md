@@ -2,11 +2,38 @@
 verified_by: agent (Claude Sonnet 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-31
 confidence: high
-latest_version: v53.66
-latest_P_number: P870
-next_P_number: P871
+latest_version: v53.68
+latest_P_number: P874
+next_P_number: P875
 current_total_entries: 609 (P1~P869, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P867-P870 FRED LKG/personal-key bridge, completed-close time series, one shared 24-hour page cut, strict current Telegram lane, and official BEA PCE reconciliation; remaining route secondary surfaces, soak, rights, AI proxy redeploy, and edge certification remain separate operator/runtime checks
+current_checkpoint: P872-P874 schedule-aware completed-close classification, atomic data-release promotion, and operations truth parity; remaining route secondary surfaces, soak, rights, AI proxy redeploy, and edge certification remain separate operator/runtime checks
+
+## P874 - v53.68 - operations status promoted durable snapshot success to scheduled AI success
+
+- **motivation**: the operations artifact reported scheduled analysis as `CURRENT` whenever the market snapshot was published, even when the semantic LLM analysis gate had failed.
+- **root_cause**: `build-operations-status.mjs` used `durableOk` for both the durable data plane and the independent `data.meta.marketAnalysisOk` capability.
+- **fix**: scheduled analysis status, last-call status, and evidence now derive from `data.meta.marketAnalysisOk`; FRED attempt/success timestamps are carried separately; the operations contract compares all provider evidence to the data artifact.
+- **violated_rule**: R429; operational readiness must reflect the producer capability actually being claimed.
+- **prevention**: `ci-operations-status-check.mjs` fails when scheduled analysis status or FRED timestamps diverge from the data artifact; `fetch-data.mjs` emits the explicit attempt timestamp on every cycle.
+- **verification**: local operations artifact regenerated with `scheduledAnalysis=BLOCKED` when the semantic gate is false; contract coverage added.
+
+## P873 - v53.68 - refresh commits could publish a newer snapshot with an older release manifest
+
+- **motivation**: scheduled data refreshes advanced `market-snapshot.revision`, but the release/asset manifests remained pinned to the previous revision and blocked Pages deployment.
+- **root_cause**: the refresh workflow staged public-data files without a deterministic manifest-promotion step; local no-key refreshes could also overwrite a credential-backed artifact without a binary degradation guard.
+- **fix**: added `sync-data-release-manifests.mjs` to promote snapshot/cycle evidence in the same refresh packet, staged both manifests, and added `ci-refresh-artifact-integrity-check.mjs` to reject silent FRED or quote-coverage regression.
+- **violated_rule**: R421/R428; data and release revisions form one atomic publish tuple.
+- **prevention**: refresh-data and CI both run the promotion/integrity gates before commit/deploy.
+- **verification**: manifest sync and integrity scripts pass against the current repository; future scheduled runs remain an external CI observation.
+
+## P872 - v53.68 - Yahoo REGULAR provider hints misclassified completed closes across the weekend
+
+- **motivation**: after-close and weekend rows were marked `STALE_UNEXPECTED`, causing pages to lose the latest completed market cut despite valid previous closes.
+- **root_cause**: `deriveMarketSession()` trusted provider `REGULAR` without resolving the symbol against the US/Korea venue schedule and continuous-market weekend boundary.
+- **fix**: added schedule-aware classification for Tier-0 indexes/rates, Korea, futures/FX, and crypto; provider hints are reconciled before quality/allowed-use assignment.
+- **violated_rule**: R423/R427; completed daily values must retain a typed session and never be promoted or discarded based on a stale provider hint alone.
+- **prevention**: the market snapshot contract includes a weekend `providerSession=REGULAR` fixture and keeps crypto 24/7.
+- **verification**: `ci-market-snapshot-contract-check.mjs` passes with 16/16 coverage and weekend/regular fixtures.
 
 ## P871 - v53.67 - decision headers were not structurally mounted for every route
 

@@ -33,6 +33,36 @@ function minuteOfDay(parts) { return parts ? parts.hour * 60 + parts.minute : nu
 
 function isWeekday(weekday) { return !['Sat', 'Sun'].includes(weekday); }
 
+function isContinuousInstrument(symbol) {
+  return /(?:=X$|(?:CL|BZ|GC|SI)=F$|DX-Y\.NYB$)/i.test(symbol);
+}
+
+function scheduledSession(symbol, observedMs, nowMs) {
+  const isKorea = /^\^(KS11|KQ11)$/.test(symbol);
+  const isUsSession = /^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)$/.test(symbol);
+  if (isContinuousInstrument(symbol)) {
+    const nowUtc = zoneParts(nowMs, 'UTC');
+    if (nowUtc && !isWeekday(nowUtc.weekday)) return 'MARKET_CLOSED';
+    return null;
+  }
+  if (!isKorea && !isUsSession) return null;
+  const zone = isKorea ? 'Asia/Seoul' : 'America/New_York';
+  const observedLocal = zoneParts(observedMs, zone);
+  const nowLocal = zoneParts(nowMs, zone);
+  const openMinutes = isKorea ? 9 * 60 : 9 * 60 + 30;
+  const closeMinutes = isKorea ? 15 * 60 + 30 : 16 * 60;
+  const nowMinute = minuteOfDay(nowLocal);
+  const observedMinute = minuteOfDay(observedLocal);
+  if (!nowLocal || !isWeekday(nowLocal.weekday)) return 'MARKET_CLOSED';
+  if (nowMinute != null && nowMinute >= openMinutes && nowMinute < closeMinutes) {
+    if (observedLocal && isWeekday(observedLocal.weekday) && observedMinute != null && observedMinute >= openMinutes && observedMinute < closeMinutes) {
+      return 'IN_SESSION';
+    }
+    return 'PREVIOUS_CLOSE_EXPECTED';
+  }
+  return 'MARKET_CLOSED';
+}
+
 /**
  * Convert provider-specific marketState values and the observed timestamp
  * into a user-facing session contract. A fresh fetch is not automatically a
@@ -47,8 +77,25 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   const provider = String(providerSession || '').toUpperCase();
   if (provider === 'PRE') return 'PREMARKET';
   if (provider === 'POST' || provider === 'POSTPOST') return 'AFTER_HOURS';
-  if (provider === 'REGULAR') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : 'DELAYED_IN_SESSION';
+  if (provider === 'REGULAR') {
+    // Yahoo can retain REGULAR after the venue has closed (especially across
+    // weekends). Resolve the provider hint against the instrument schedule
+    // before allowing it to promote an old completed close to a live value.
+    const scheduled = scheduledSession(symbol, observedMs, Number(now));
+    if (scheduled === 'MARKET_CLOSED') return ageMs <= 24 * 60 * 60 * 1000 ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+    if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+    if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
+    return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
+  }
   if (provider === 'CLOSED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+
+  // Even when a provider omits marketState, the venue schedule still defines
+  // whether a recent observation is a valid completed close or an unexpected
+  // stale point. This keeps the fallback path consistent with provider hints.
+  const scheduled = scheduledSession(symbol, observedMs, Number(now));
+  if (scheduled === 'MARKET_CLOSED') return ageMs <= 24 * 60 * 60 * 1000 ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+  if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+  if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
 
   if (/-USD$/i.test(symbol)) return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
   const isKorea = /^\^(KS11|KQ11)$/.test(symbol);
@@ -101,10 +148,12 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       metricId: instrument.metricId,
       instrumentId: instrument.instrumentId,
       value,
-      previousValue: Number.isFinite(Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose))
-        ? Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose)
+      previousValue: Number.isFinite(Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue))
+        ? Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue)
         : null,
-      changePct: Number.isFinite(Number(raw.regularMarketChangePercent)) ? Number(raw.regularMarketChangePercent) : null,
+      changePct: Number.isFinite(Number(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct))
+        ? Number(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct)
+        : null,
       unit: instrument.unit,
       source: String(raw.source || raw._source || source),
       sourceKind: 'public-information-service',

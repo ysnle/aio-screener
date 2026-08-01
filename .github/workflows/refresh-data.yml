@@ -40,6 +40,12 @@ jobs:
           TG_PAGE_LIMIT: 50
         run: node scripts/fetch-telegram-digest.mjs --days=14 --out=public-data/telegram-digest.json
 
+      - name: Promote one data release revision
+        run: node scripts/sync-data-release-manifests.mjs
+
+      - name: Reject silent artifact degradation
+        run: node scripts/ci-refresh-artifact-integrity-check.mjs
+
       - name: Pipeline status summary
         run: |
           node --input-type=module - <<'NODE'
@@ -93,6 +99,7 @@ jobs:
           [ -f public-data/telegram-digest.json ] && git add public-data/telegram-digest.json || true
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           [ -f public-data/score-backtest-history.json ] && git add public-data/score-backtest-history.json || true
+          git add architecture/asset-manifest.json architecture/release-manifest.json
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"
             exit 0

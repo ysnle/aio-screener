@@ -7,6 +7,7 @@ import { deriveRouteOwnership } from './build-operations-status.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const status = JSON.parse(read('public-data/operations-status.json'));
+const data = JSON.parse(read('public-data/data.json'));
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const validation = validateOperationsStatus(status);
 if (!validation.ok) throw new Error(`[operations-status] ${validation.errors.join(',')}`);
@@ -35,4 +36,10 @@ if (status.routes.legacyOwner + nativeOwner.length > status.routes.supported) th
 if (nativeOwner.some((route) => !nativeRendererOwner.includes(route))) throw new Error('[operations-status] complete native owner must also own the renderer');
 if (nativeRendererOwner.some((route) => typeof route !== 'string' || route.length === 0)) throw new Error('[operations-status] native renderer owner entry is invalid');
 if (status.overall === 'VERIFIED_LIVE') throw new Error('[operations-status] invalid unsupported overall status');
+const scheduledAnalysisOk = data.meta?.marketAnalysisOk === true;
+if ((status.ai?.scheduledAnalysis?.status === 'CURRENT') !== scheduledAnalysisOk) throw new Error('[operations-status] scheduledAnalysis status does not match data.meta.marketAnalysisOk');
+if ((status.ai?.scheduledAnalysis?.lastCallSucceeded === 'CURRENT') !== scheduledAnalysisOk) throw new Error('[operations-status] scheduledAnalysis lastCallSucceeded does not match data.meta.marketAnalysisOk');
+const expectedFredAttempt = data.meta?.fredAttemptedAt || data.meta?.generatedAt || null;
+if (status.providers?.fred?.lastAttemptAt !== expectedFredAttempt) throw new Error('[operations-status] FRED lastAttemptAt must use explicit provider attempt evidence');
+if (data.meta?.fredFetchOk === true && status.providers?.fred?.lastFetchAt !== (data.meta?.fredLastSuccessfulAt || data.meta?.generatedAt || null)) throw new Error('[operations-status] FRED lastFetchAt must use explicit successful-fetch evidence');
 console.log(JSON.stringify({ ok: true, overall: status.overall, durable: status.planes.durable.status, fast: status.planes.fast.status, blockers: status.blockers }));

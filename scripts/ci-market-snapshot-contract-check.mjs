@@ -20,12 +20,14 @@ if (published.quotes.some((quote) => !quote.session || quote.session === 'UNKNOW
 
 const sessionFixtures = [
   ['^GSPC', '2026-07-28T22:00:00.000Z', '2026-07-28T22:05:00.000Z', 'MARKET_CLOSED'],
+  ['^GSPC', '2026-07-31T20:00:00.000Z', '2026-08-01T05:53:00.000Z', 'MARKET_CLOSED'],
+  ['^GSPC', '2026-07-31T20:00:00.000Z', '2026-08-01T05:53:00.000Z', 'MARKET_CLOSED', 'REGULAR'],
   ['^KS11', '2026-07-28T01:55:00.000Z', '2026-07-28T02:00:00.000Z', 'CURRENT_SESSION'],
   ['KRW=X', '2026-07-28T01:59:00.000Z', '2026-07-28T02:00:00.000Z', 'CURRENT_SESSION'],
   ['BTC-USD', '2026-07-28T01:00:00.000Z', '2026-07-28T03:00:00.000Z', 'DELAYED_IN_SESSION']
 ];
-for (const [instrumentId, observedAt, now, expected] of sessionFixtures) {
-  const actual = deriveMarketSession({ instrumentId, observedAt, now: Date.parse(now) });
+for (const [instrumentId, observedAt, now, expected, providerSession] of sessionFixtures) {
+  const actual = deriveMarketSession({ instrumentId, observedAt, providerSession, now: Date.parse(now) });
   if (actual !== expected) fail(`${instrumentId} session fixture expected ${expected}, got ${actual}`);
 }
 

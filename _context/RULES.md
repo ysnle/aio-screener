@@ -2,7 +2,7 @@
 verified_by: agent (Fable 5) + Codex P761-P788 verification
 last_verified: 2026-07-29
 confidence: high
-target_version: v53.65
+target_version: v53.68
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -1822,3 +1822,21 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: `_aioRenderPageDecisionHeader()` must emit a balanced, discoverable `.aio-decision-header` wrapper for every route, carrying `data-aio-decision-page`, `data-source-kind`, `data-as-of`, and shared market-cut boundaries. Initial route headers must mount immediately when the document is already ready; delayed refresh may reconcile later data but cannot be the only mount path.
 
 **Validation**: headless T915, critical-10 human-surface, architecture-browser, and route-soak checks must pass with zero missing decision headers and zero browser errors.
+
+## R427. Provider session hints must be reconciled with venue schedules (v53.68, P872)
+
+**Rule**: A provider `REGULAR`/`CLOSED` hint cannot override the instrument venue calendar. US/Korea indexes and rates must classify after-close/weekend observations as `MARKET_CLOSED` or `PREVIOUS_CLOSE_EXPECTED` within the completed-close SLA; crypto remains 24/7 and continuous markets retain their own weekend boundary. A completed close may be reference-only, but it must not be discarded as unexpected stale solely because a provider retained `REGULAR`.
+
+**Validation**: `ci-market-snapshot-contract-check.mjs` includes after-close, weekend, provider-regular, Korea, FX, and crypto fixtures; published Tier-0 rows must contain a typed session and quality.
+
+## R428. Data refresh and release manifests must publish one atomic revision tuple (v53.68, P873)
+
+**Rule**: Any refresh that changes `public-data/market-snapshot.json.revision` must promote that revision, cycle ID, and data timestamp into both `architecture/asset-manifest.json` and `architecture/release-manifest.json` before commit. A refresh that silently degrades a previously successful FRED or quote-coverage artifact is not commit-eligible without an explicit LKG marker.
+
+**Validation**: `scripts/sync-data-release-manifests.mjs` and `scripts/ci-refresh-artifact-integrity-check.mjs` run in `refresh-data.yml` and `ci.yml`; `ci-operations-contract-check.mjs` remains the final tuple gate.
+
+## R429. Operations status must derive from the capability it claims (v53.68, P874)
+
+**Rule**: Scheduled AI readiness and last-call status must be derived from `data.meta.marketAnalysisOk`, not from durable market-snapshot publication. Durable data success, semantic analysis success, public chat readiness, and provider rights remain separate dimensions.
+
+**Validation**: `ci-operations-status-check.mjs` compares both scheduled-analysis fields with the current data artifact and fails on false `CURRENT` claims.

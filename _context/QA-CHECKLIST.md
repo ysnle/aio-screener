@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
 last_verified: 2026-07-29
 confidence: high
 
-## Current architecture checkpoint (2026-08-01, v53.67)
+## Current architecture checkpoint (2026-08-01, v53.68)
 
 Native lifecycle and renderer ownership are wired for 17/17 routes.  P833 moves the
 route data provider boundary to `src/data/runtime-readers.js` (17/17 data-native),
@@ -16,9 +16,17 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.67
-latest_P_covered: P871
-current_P839_checkpoint: P867-P871 FRED LKG/personal-key bridge, completed-close history, shared 24-hour page cut, strict current Telegram lane, explicit decision-header mounting, and official BEA PCE reconciliation are locally verified; remaining route secondary ownership, seven-day soak, provider/live Worker/model/edge verification stay separate
+checklist_version: v53.68
+latest_P_covered: P874
+current_P839_checkpoint: P872-P874 schedule-aware completed-close classification, atomic data-release promotion, operations truth parity, and P867-P871 shared-cut/FRED/Telegram/header contracts; remaining route secondary ownership, seven-day soak, provider/live Worker/model/edge verification stay separate
+
+## P872-P874 Data session, publish tuple, and operations truth gates (v53.68)
+
+- [x] Market snapshot provider `REGULAR` hints are resolved through US/Korea/continuous/crypto schedules; weekend after-close fixtures pass.
+- [x] Tier-0 snapshot rows preserve typed session/quality and remain 16/16 covered after reclassification.
+- [x] Refresh workflow promotes snapshot revision/cycle metadata into both release manifests before staging.
+- [x] Refresh/CI reject silent FRED-success or quote-coverage degradation without an explicit LKG marker.
+- [x] Scheduled AI operations status matches `data.meta.marketAnalysisOk`; durable snapshot publication cannot masquerade as semantic analysis success.
 
 ## P871 Explicit decision-header mounting and first-view contract (v53.67)
 

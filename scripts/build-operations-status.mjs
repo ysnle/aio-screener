@@ -58,6 +58,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const snapshot = marketSnapshot || {};
   const coverage = snapshot.coverage || { tier0Required: 0, tier0Observed: 0 };
   const durableOk = snapshot.status === 'published' && coverage.tier0Observed === coverage.tier0Required && coverage.tier0Required > 0;
+  const scheduledAnalysisOk = data?.meta?.marketAnalysisOk === true;
   const blockers = [];
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
   blockers.push('fast_plane_cloudflare_credentials_and_soak_required');
@@ -90,7 +91,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       browser: { status: 'CURRENT', source: 'static-pages+service-worker', revision: version.version }
     },
     ai: {
-      scheduledAnalysis: { status: durableOk ? 'CURRENT' : 'BLOCKED', source: 'github-actions', lastCallSucceeded: durableOk ? 'CURRENT' : 'BLOCKED' },
+      scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, generatedAt: data?.meta?.generatedAt || null } },
       publicChat: {
         status: 'NO_ROUTE',
         personalKey: 'EXPLICIT_USER_CONFIG',
@@ -106,7 +107,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         rights: process.env.FRED_API_KEY ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED',
         use: 'official-series',
         status: data?.meta?.fredFetchOk ? 'CURRENT' : 'UNAVAILABLE',
-        lastAttemptAt: data?.meta?.generatedAt || null,
+        lastAttemptAt: data?.meta?.fredAttemptedAt || data?.meta?.generatedAt || null,
         lastFetchAt: data?.meta?.fredFetchOk ? (data?.meta?.fredLastSuccessfulAt || data?.meta?.generatedAt || null) : null
       },
       sec: { rights: 'REVIEW_REQUIRED', use: 'filing-evidence', coveragePct: secCoverage.coveragePct, stored: secCoverage.stored, eligible: secCoverage.eligible }

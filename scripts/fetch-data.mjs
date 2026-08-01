@@ -2105,10 +2105,11 @@ async function main() {
   const newsScores = Array.isArray(news) ? news.map(n => Number(n.score)).filter(n => isFinite(n)) : [];
   const newsCycle = getKst0800NewsCycle();
   const fredOk = fredFetchOk; // 하위 호환 유지
+  const generatedAt = new Date().toISOString();
 
   const data = {
     meta: {
-      generatedAt: new Date().toISOString(),
+      generatedAt,
       source: 'github-actions',
       symbolsOk: quotes.length,
       symbolsFail: failed.length,
@@ -2125,7 +2126,8 @@ async function main() {
       fredLkgSource: !fredHasKey && previousMacro ? 'previous-public-data-macro' : null,
       macroKeyCount: macroKeys.length,
       fredFetchedKeyCount: fredFetchedKeys.length,
-      fredLastSuccessfulAt: fredFetchOk ? new Date().toISOString() : null,
+      fredAttemptedAt: generatedAt,
+      fredLastSuccessfulAt: fredFetchOk ? generatedAt : null,
        fredFailedSeries,
       blsStatus: bls.status,
       blsSeriesCount: Object.keys(bls.values || {}).length,

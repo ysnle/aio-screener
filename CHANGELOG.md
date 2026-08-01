@@ -1,3 +1,11 @@
+## v53.68 (2026-08-01)
+- **P872 / schedule-aware completed-close classification**: provider `REGULAR` hints now reconcile with venue calendars, keeping weekend/after-close Tier-0 rows typed as `MARKET_CLOSED` or `PREVIOUS_CLOSE_EXPECTED`.
+- **P873 / atomic data-release promotion**: each refresh promotes market snapshot revision, cycle ID, and data timestamp into both release manifests; silent FRED or quote-coverage degradation is rejected.
+- **P874 / operations truth parity**: scheduled AI readiness derives from `data.meta.marketAnalysisOk`, FRED attempt/success timestamps remain explicit, and durable snapshot publication cannot masquerade as semantic analysis success.
+- **Verification**: market snapshot, manifest, integrity, and operations contracts are included in the final validation batch.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.68
+
 ## v53.66 (2026-08-01)
 ## v53.67 (2026-08-01)
 
