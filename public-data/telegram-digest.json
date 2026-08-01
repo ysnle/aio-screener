@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-01T16:37:56.045Z",
-  "attemptedAt": "2026-08-01T16:37:56.045Z",
-  "lastSuccessfulAt": "2026-08-01T16:37:56.045Z",
+  "generatedAt": "2026-08-01T17:43:51.136Z",
+  "attemptedAt": "2026-08-01T17:43:51.136Z",
+  "lastSuccessfulAt": "2026-08-01T17:43:51.136Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-07-18T16:37:51.640Z",
-  "until": "2026-08-01T16:37:51.640Z",
+  "since": "2026-07-18T17:43:46.879Z",
+  "until": "2026-08-01T17:43:46.879Z",
   "current24hWindow": {
     "start": "2026-07-30T23:00:00.000Z",
     "end": "2026-07-31T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 163,
-    "eligibleTextCount": 32,
+    "eligibleTextCount": 16,
     "channelCounts": {
       "insidertracking": 91,
       "aetherjapanresearch": 57,
@@ -47,12 +47,12 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 525,
-      "freshCount": 35,
-      "eligibleTextCount": 35,
+      "freshCount": 19,
+      "eligibleTextCount": 19,
       "selectedCount": 127,
       "error": null,
       "lastPostId": 24263
@@ -83,7 +83,7 @@
     }
   ],
   "count": 1870,
-  "retainedItemCount": 393,
+  "retainedItemCount": 387,
   "observedItems": [
     {
       "id": "aetherjapanresearch/24263",
@@ -1441,7 +1441,7 @@
         "NVDA",
         "AMD"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24242",
@@ -1456,7 +1456,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24241",
@@ -1468,7 +1468,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24239",
@@ -1485,7 +1485,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19457",
@@ -1516,7 +1516,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24237",
@@ -1529,7 +1529,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24235",
@@ -1554,7 +1554,7 @@
         "CIEN",
         "APH"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59870",
@@ -1593,7 +1593,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59868",
@@ -1628,7 +1628,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24231",
@@ -1646,7 +1646,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59867",
@@ -1691,7 +1691,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59865",
@@ -1885,7 +1885,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24227",
@@ -1897,7 +1897,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24224",
@@ -1913,7 +1913,7 @@
         "000660.KS",
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24225",
@@ -1930,7 +1930,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24226",
@@ -1943,7 +1943,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59850",
@@ -26959,12 +26959,12 @@
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
     "observedCount": 1870,
-    "eligibleTextCount": 68,
-    "mediaOnlyCount": 1802,
+    "eligibleTextCount": 52,
+    "mediaOnlyCount": 1818,
     "highSignalCount": 546,
     "broadSignalCount": 943,
     "selectedRawCount": 367,
-    "selectedRawCoveragePct": 539.7,
+    "selectedRawCoveragePct": 705.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
@@ -27275,7 +27275,7 @@
     {
       "key": "AVGO",
       "count": 42,
-      "text": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
+      "text": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비..."
     }
   ],
   "categories": [
@@ -35923,20 +35923,6 @@
       "summary": "Citi) 키옥시아; 1분기 소폭 부정적 - 1분기 실적 소폭 미스, 2분기 가이던스 예상 부합, 자사주 매입 발표. TP 14만엔(유지) 시티의 견해 1분기 non-GAAP 영업이익은 1조..."
     },
     {
-      "id": "aetherjapanresearch/24241",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24241",
-      "datetime": "2026-07-31T13:23:00.000Z",
-      "localDateKst": "2026-07-31",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "무료 끝?…애플, AI 많이 쓰면 돈 더 받는다 '상위 요금제' 시사 딥시크보다 못한 애플Ai를 더 쓰면 돈 더 받는다?"
-    },
-    {
       "id": "aetherjapanresearch/24239",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/24239",
@@ -36243,34 +36229,6 @@
       "summary": "TSMC가 타이중 신공장 건설을 예정보다 앞당겨 진행하면서 2028년부터 1.4나노 공정 양산을 시작할 가능성이 제기. 삼성전자는 현재 2029년 양산을 목표로 하고 있어, 차세대 반도체 생산에서 TSMC가..."
     },
     {
-      "id": "aetherjapanresearch/24229",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24229",
-      "datetime": "2026-07-31T10:10:22.000Z",
-      "localDateKst": "2026-07-31",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "약 6-7조엔 규모라고 합니다."
-    },
-    {
-      "id": "aetherjapanresearch/24227",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24227",
-      "datetime": "2026-07-31T10:08:55.000Z",
-      "localDateKst": "2026-07-31",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "...????"
-    },
-    {
       "id": "aetherjapanresearch/24224",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/24224",
@@ -36306,21 +36264,6 @@
       "score": 76,
       "hasText": true,
       "summary": "제가 볼땐 굉장히 상징적 의미를 둡니다. 7709(SK하이닉스 2배 ETF)는 올해 한국 반도체에 대한 해외 자금을 끌어들이며 엄청난 상승과, 이후 일일 레버리지 리밸런싱에 따른 매도 압력으로 급락 국면에서도..."
-    },
-    {
-      "id": "aetherjapanresearch/24226",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24226",
-      "datetime": "2026-07-31T10:08:44.000Z",
-      "localDateKst": "2026-07-31",
-      "tags": [
-        "kr-market",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 48,
-      "hasText": true,
-      "summary": "일개 시장참여자, 또는 시장관찰자지만, 정부 및 한국거래소가 한국파생상품(선물, 옵션) 시장의 인프라 체력과 규제상황들을 미리 점검하기를 제언합니다. 7709는 매일 Leveraged Rebalancing 을..."
     },
     {
       "id": "insidertracking/59849",
