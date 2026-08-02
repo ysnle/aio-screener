@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-02T09:01:47.274Z",
-  "attemptedAt": "2026-08-02T09:01:47.274Z",
-  "lastSuccessfulAt": "2026-08-02T09:01:47.274Z",
+  "generatedAt": "2026-08-02T10:50:29.483Z",
+  "attemptedAt": "2026-08-02T10:50:29.483Z",
+  "lastSuccessfulAt": "2026-08-02T10:50:29.483Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-07-19T09:01:37.212Z",
-  "until": "2026-08-02T09:01:37.212Z",
+  "since": "2026-07-19T10:50:25.881Z",
+  "until": "2026-08-02T10:50:25.881Z",
   "current24hWindow": {
     "start": "2026-07-31T23:00:00.000Z",
     "end": "2026-08-01T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 77,
-    "eligibleTextCount": 32,
+    "eligibleTextCount": 30,
     "channelCounts": {
       "insidertracking": 58,
       "aetherjapanresearch": 13,
@@ -50,24 +50,24 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 523,
-      "freshCount": 36,
+      "count": 521,
+      "freshCount": 37,
       "eligibleTextCount": 36,
       "selectedCount": 127,
       "error": null,
-      "lastPostId": 24272
+      "lastPostId": 24273
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1093,
+      "count": 1095,
       "freshCount": 38,
       "eligibleTextCount": 38,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 60006
+      "lastPostId": 60008
     },
     {
       "channel": "bornlupin",
@@ -83,8 +83,44 @@
     }
   ],
   "count": 1917,
-  "retainedItemCount": 417,
+  "retainedItemCount": 409,
   "observedItems": [
+    {
+      "id": "insidertracking/60008",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T10:46:49.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/60007",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T09:58:47.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24273",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-02T09:26:28.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
     {
       "id": "insidertracking/60006",
       "channel": "insidertracking",
@@ -761,7 +797,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59965",
@@ -773,7 +809,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59964",
@@ -27513,44 +27549,6 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23701",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-19T09:33:20.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23700",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-19T09:31:00.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23699",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-19T09:30:03.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 49,
-      "tags": [
-        "ai-policy"
-      ],
-      "tickers": [
-        "BABA"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
@@ -27567,19 +27565,19 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "geo": 352,
+    "market-note": 497,
+    "media-only": 40,
     "macro": 610,
-    "geo": 351,
     "semi": 682,
     "power": 335,
     "equity": 157,
     "earnings": 489,
     "japan": 151,
     "kr-market": 304,
-    "market-note": 498,
     "optical": 22,
     "flows": 172,
-    "ai-policy": 185,
-    "media-only": 39,
+    "ai-policy": 184,
     "healthcare": 115,
     "credit": 47,
     "insider": 49,
@@ -27653,7 +27651,7 @@
     "DXCM": 1,
     "BBVA": 2,
     "MFC": 2,
-    "BABA": 2,
+    "BABA": 1,
     "LITE": 14,
     "CLS": 1,
     "FN": 1,
@@ -27810,12 +27808,12 @@
   "themes": [
     "Semiconductors/Memory (682 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
     "Macro/Rates (610 posts in 14-day research window): Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만...",
-    "Market Notes (498 posts in 14-day research window): 52주 신고가 · Aegon ADR · Ametek · Anheuser-Busch ADR · Arxis · BBVA ADR · Brinker · Bristol-Myers Squibb · Bruker ·...",
+    "Market Notes (497 posts in 14-day research window): 52주 신고가 · Aegon ADR · Ametek · Anheuser-Busch ADR · Arxis · BBVA ADR · Brinker · Bristol-Myers Squibb · Bruker ·...",
     "Earnings/Corporate (489 posts in 14-day research window): Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만...",
-    "Geopolitics (351 posts in 14-day research window): 미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익...",
+    "Geopolitics (352 posts in 14-day research window): 미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익...",
     "AI Power/Grid (335 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
     "Korea Market (304 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-    "AI Policy/Export Controls (185 posts in 14-day research window): Market Summary - 2026년 8월 1일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령은 이란에 대한 군사 작전이 성공적으로 진행되고 있으며 미국이 계속 우위를 점하고 있다고 발언...."
+    "AI Policy/Export Controls (184 posts in 14-day research window): Market Summary - 2026년 8월 1일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령은 이란에 대한 군사 작전이 성공적으로 진행되고 있으며 미국이 계속 우위를 점하고 있다고 발언...."
   ],
   "catalysts": [
     {
@@ -27895,7 +27893,7 @@
       "topics": [
         "geo"
       ],
-      "count": 351,
+      "count": 352,
       "focus": "미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익..."
     },
     {
@@ -27940,7 +27938,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 185,
+      "count": 184,
       "focus": "Market Summary - 2026년 8월 1일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령은 이란에 대한 군사 작전이 성공적으로 진행되고 있으며 미국이 계속 우위를 점하고 있다고 발언...."
     },
     {
@@ -28021,7 +28019,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 498,
+      "count": 497,
       "focus": "52주 신고가 · Aegon ADR · Ametek · Anheuser-Busch ADR · Arxis · BBVA ADR · Brinker · Bristol-Myers Squibb · Bruker ·..."
     }
   ],
@@ -36250,34 +36248,6 @@
       "score": 45,
       "hasText": true,
       "summary": "I24뉴스에 따르면 이스라엘이 최고 수준의 경계 태세에 돌입. 이스라엘방위군(IDF)은 최고 수준의 경계 태세를 유지하고 있으며, 트럼프 대통령의 이란에 대한 군사작전 재개 여부 결정을 기다리는 중. 결정은..."
-    },
-    {
-      "id": "insidertracking/59966",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59966",
-      "datetime": "2026-08-01T20:46:18.000Z",
-      "localDateKst": "2026-08-02",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "보도에 따르면 트럼프 대통령이 이란에 대한 임박한 군사 공격 여부를 최종 결정하는 단계에 근접. 이스라엘 당국자는 \"현재는 매우 중대한 시간이며, 곧 움직임이 있을 것으로 예상합니다\"라고 밝힘."
-    },
-    {
-      "id": "insidertracking/59965",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59965",
-      "datetime": "2026-08-01T20:44:57.000Z",
-      "localDateKst": "2026-08-02",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 미국 국무부가 외교 공관 직원들에게 이란과의 긴장이 가까운 시일 내 크게 고조될 가능성이 있다는 내용의 보안 경보를 발령. 이번 경보는 중동 지역 내 미국 공관과 외교 인력을..."
     },
     {
       "id": "insidertracking/59956",
