@@ -12,7 +12,7 @@ const version = JSON.parse(read('version.json'));
 const executionPlan = read('_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md');
 const publicManifest = JSON.parse(read('public-artifact-manifest.json'));
 const serviceWorkerSource = read('sw.js');
-if (!Array.isArray(golden.routes) || golden.routes.length !== 17) fail('golden route count must be 17');
+if (!Array.isArray(golden.routes) || golden.routes.length !== 20) fail('golden route count must be 20');
 for (const marker of ['## 2. 계층별 현재 상태와 목표', '## 5. 17 route 세부 전환 원장', '## 7. 세션 작업 카드', 'DELETE-LEDGER', 'nativeRendererOwner', '## 9. 전체 재구축 최종 인수 기준']) {
   if (!executionPlan.includes(marker)) fail(`architecture execution plan missing marker: ${marker}`);
 }

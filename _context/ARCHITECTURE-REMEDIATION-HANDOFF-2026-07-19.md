@@ -14,9 +14,9 @@ auto_refresh: false
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `015a191`
+- git_head: `d5f0a87`
 - working_tree: `dirty / uncommitted local changes`
-- application_version: `v53.64`
+- application_version: `v53.87`
 - deployment: `not deployed; live invariant fetch unavailable in current environment`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
 

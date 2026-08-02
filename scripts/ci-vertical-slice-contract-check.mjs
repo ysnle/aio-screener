@@ -9,7 +9,7 @@ const read = (file) => readFileSync(join(root, file), 'utf8');
 const fail = (message) => { throw new Error(message); };
 
 const audit = auditVerticalSliceContracts(ROUTE_IDS);
-if (!audit.ok || audit.sliceCount !== 10 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical slice registry drifted: ${JSON.stringify(audit)}`);
+if (!audit.ok || audit.sliceCount !== 13 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical slice registry drifted: ${JSON.stringify(audit)}`);
 if (VERTICAL_SLICE_CONTRACTS.some((slice) => slice.routes.length < 1 || slice.acceptance.length < 13)) fail('vertical slice acceptance contract is incomplete');
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 for (const route of ROUTE_IDS) {

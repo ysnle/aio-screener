@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.69 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.87 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -5266,6 +5266,263 @@ button[data-filter-active="true"] {
 /* ═══ 페이지 최대 너비 오버플로 방지 ═══ */
 .page, .aio-widget, .data-widget { max-width: 100%; box-sizing: border-box; }
 .aio-guide-group-header { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding: 8px 0 6px; border-bottom: 1px solid var(--border); margin: 6px 0 10px; }
+
+/* MP-03/KG-05: market principles Tree / Graph / Path surface */
+#page-principles .principles-hero { margin-bottom: 16px; }
+#page-principles .principles-kicker { color: var(--data-cyan); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+#page-principles .principles-lede { max-width: 720px; color: var(--text-secondary); line-height: 1.65; margin: 8px 0 0; }
+.principles-contract { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:12px; color:var(--text-muted); font-size:11px; }
+.principles-contract span { padding:3px 7px; border:1px solid var(--border); border-radius:999px; background:var(--surface-2); }
+.principles-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:14px 0 12px; }
+.principles-mode-tabs, .principles-depth-toggle { display:flex; gap:4px; flex-wrap:wrap; }
+.principles-mode-tab, .principles-depth-button, .principles-path-button, .principles-path-step, .principles-route-button { border:1px solid var(--border); border-radius:4px; background:var(--surface-2); color:var(--text-secondary); cursor:pointer; }
+.principles-mode-tab, .principles-depth-button { padding:7px 10px; font-size:11px; }
+.principles-mode-tab:hover, .principles-mode-tab.is-active, .principles-depth-button.is-active, .principles-path-button.is-active, .principles-path-step.is-active { background:var(--accent-faint, rgba(33,29,22,.10)); border-color:var(--accent); color:var(--text-primary); font-weight:700; }
+.principles-search { margin-left:auto; min-width:220px; }
+.principles-search-input { width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:4px; background:var(--surface-1); color:var(--text-primary); }
+.principles-workspace { display:grid; grid-template-columns:minmax(250px, .85fr) minmax(0, 1.15fr); gap:12px; align-items:start; }
+.principles-tree-list, .principles-graph-mobile-list { display:grid; gap:7px; max-height:620px; overflow:auto; padding-right:3px; }
+.principles-node-card { display:flex; flex-direction:column; gap:4px; text-align:left; padding:10px 11px; border:1px solid var(--border); border-radius:5px; background:var(--surface-1); color:var(--text-primary); cursor:pointer; }
+.principles-node-card:hover, .principles-node-card.is-selected { border-color:var(--accent); box-shadow:0 0 0 1px rgba(33,29,22,.10); }
+.principles-node-title { font-size:13px; }
+.principles-node-meta, .principles-reviewed { color:var(--text-muted); font-size:10px; }
+.principles-node-summary { color:var(--text-secondary); font-size:11px; line-height:1.45; }
+.principles-detail-card, .principles-path-card { min-height:250px; padding:16px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.principles-eyebrow { color:var(--data-cyan); font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.principles-detail-title { margin:7px 0; font-size:20px; color:var(--text-primary); }
+.principles-lesson-title { margin:14px 0 6px; font-size:14px; }
+.principles-detail-summary, .principles-path-body { color:var(--text-secondary); line-height:1.65; }
+.principles-learning-tracks { margin:0 0 12px; padding:13px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.principles-chapter-curriculum { margin:0 0 12px; padding:13px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.principles-chapter-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.principles-chapter-card { padding:11px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); }
+.principles-chapter-question { margin:0 0 5px; color:var(--data-cyan); font-size:11px; line-height:1.5; }
+.principles-chapter-copy { margin:4px 0 0; color:var(--text-secondary); font-size:11px; line-height:1.5; }
+.principles-chapter-counter { color:var(--data-amber); }
+.principles-learning-title { margin:5px 0 10px; color:var(--text-primary); font-size:16px; }
+.principles-learning-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+.principles-learning-card { padding:10px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); }
+.principles-learning-card-title { margin:0 0 5px; color:var(--text-primary); font-size:13px; }
+.principles-learning-card-copy { margin:0; color:var(--text-secondary); font-size:11px; line-height:1.5; }
+.principles-learning-steps { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+.principles-learning-step { padding:3px 5px; border:1px solid var(--border); border-radius:3px; color:var(--text-muted); font-size:10px; }
+.principles-lesson-library { margin:0 0 12px; padding:13px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.principles-lesson-library-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; max-height:980px; overflow:auto; padding-right:3px; }
+.principles-authored-lesson-card { padding:11px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); }
+.principles-authored-lesson-card .principles-evidence-links { margin-top:9px; }
+.principles-explainer { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:14px; padding-top:11px; border-top:1px solid var(--border); }
+.principles-explainer-title, .principles-explainer-asof { grid-column:1/-1; }
+.principles-explainer-title { margin:0; color:var(--text-primary); font-size:14px; }
+.principles-explainer-item { padding:9px; border:1px solid var(--border); border-radius:4px; background:var(--surface-2); }
+.principles-explainer-label { display:block; color:var(--data-cyan); font-size:11px; }
+.principles-explainer-body { margin:4px 0 0; color:var(--text-secondary); font-size:11px; line-height:1.55; }
+.principles-explainer-asof { margin:2px 0 0; color:var(--text-muted); font-size:10px; }
+.principles-source { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin-top:14px; font-size:10px; }
+.principles-status { padding:3px 6px; border-radius:3px; border:1px solid var(--border); font-weight:800; letter-spacing:.03em; }
+.principles-status-reviewed_candidate { color:var(--data-green); background:rgba(34,117,76,.08); border-color:rgba(34,117,76,.3); }
+.principles-status-partial { color:var(--data-amber); background:rgba(150,104,18,.08); border-color:rgba(150,104,18,.3); }
+.principles-source-link { color:var(--data-cyan); text-decoration:underline; }
+.principles-node-evidence { color:var(--data-cyan); font-size:10px; font-family:var(--font-mono, monospace); }
+.principles-evidence { margin-top:14px; padding-top:10px; border-top:1px solid var(--border); }
+.principles-evidence-title { color:var(--text-muted); font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
+.principles-evidence-links { display:flex; flex-wrap:wrap; gap:6px; margin-top:7px; }
+.principles-evidence-link, .principles-evidence-empty { color:var(--data-cyan); font-size:11px; }
+.principles-evidence-link { display:inline-flex; align-items:center; min-width:24px; min-height:24px; padding:4px 8px; border:1px solid var(--border); border-radius:3px; text-decoration:none; }
+.principles-evidence-link:hover { border-color:var(--accent); text-decoration:underline; }
+.principles-evidence-link:focus-visible, .masters-source-link:focus-visible, .masters-detail-tab:focus-visible, .masters-action-filter:focus-visible, .masters-page-button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.principles-evidence-empty { color:var(--text-muted); }
+.principles-analysis-claim-sources { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.principles-analysis-source-link { display:inline-flex; align-items:center; min-width:24px; min-height:24px; padding:4px 8px; border:1px solid var(--border); border-radius:3px; color:var(--data-cyan); font-size:11px; text-decoration:none; }
+.principles-analysis-source-link:hover, .principles-analysis-source-link:focus-visible { border-color:var(--accent); text-decoration:underline; outline:2px solid var(--accent); outline-offset:2px; }
+.principles-related { display:flex; flex-wrap:wrap; gap:5px; margin-top:12px; }
+.principles-related-chip { padding:4px 7px; border:1px solid var(--border); border-radius:999px; color:var(--text-muted); font-size:10px; }
+.principles-route-button { display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:6px 10px; color:var(--text-primary); font-weight:700; }
+.principles-route-button:hover { border-color:var(--accent); }
+.principles-route-button.is-secondary { color:var(--text-secondary); font-weight:500; }
+.principles-graph-workspace { grid-template-columns:minmax(0, 1.7fr) minmax(240px, .8fr); }
+.principles-graph-canvas { position:relative; min-height:590px; overflow:hidden; border:1px solid var(--border); border-radius:6px; background:radial-gradient(circle at 50% 15%, rgba(33,29,22,.08), transparent 43%), var(--surface-1); }
+.principles-graph-canvas svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.principles-edge { stroke:var(--text-muted); stroke-opacity:.72; stroke-width:.55; vector-effect:non-scaling-stroke; }
+.principles-edge.is-active { stroke:var(--accent); stroke-opacity:1; stroke-width:1.1; }
+.principles-graph-node { position:absolute; transform:translate(-50%,-50%); width:116px; z-index:1; }
+.principles-graph-node-button { width:100%; min-height:34px; padding:6px 7px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); color:var(--text-primary); font-size:10px; line-height:1.25; cursor:pointer; }
+.principles-graph-node.is-selected .principles-graph-node-button { border-color:var(--accent); background:var(--accent-faint, rgba(33,29,22,.10)); font-weight:800; }
+.principles-graph-mobile-list { display:none; }
+.principles-path-layout { display:grid; grid-template-columns:minmax(190px,.7fr) minmax(180px,.65fr) minmax(0,1.2fr); gap:12px; align-items:start; }
+.principles-path-picker { display:grid; gap:7px; }
+.principles-path-button { display:flex; flex-direction:column; gap:4px; padding:10px; text-align:left; }
+.principles-path-description { color:var(--text-muted); font-weight:400; line-height:1.45; }
+.principles-path-rail { display:grid; gap:6px; list-style:none; padding:0; margin:0; }
+.principles-path-rail li { margin:0; }
+.principles-path-step { width:100%; padding:9px 10px; text-align:left; font-size:11px; }
+.principles-path-actions { display:flex; justify-content:space-between; gap:7px; margin-top:18px; }
+.principles-empty { padding:18px; border:1px dashed var(--border); border-radius:5px; color:var(--text-muted); }
+.principles-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* MF-05: masters / SEC 13F reference shell */
+#page-masters .masters-hero { margin-bottom:16px; }
+.masters-kicker, .masters-eyebrow { color:var(--data-cyan); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.masters-lede { max-width:760px; color:var(--text-secondary); line-height:1.65; margin:8px 0 0; }
+.masters-contract { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:12px; color:var(--text-muted); font-size:11px; }
+.masters-contract span { padding:3px 7px; border:1px solid var(--border); border-radius:999px; background:var(--surface-2); }
+.masters-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:14px 0 12px; }
+.masters-filter-tabs { display:flex; gap:4px; flex-wrap:wrap; }
+.masters-filter-tab, .masters-detail-tab, .masters-route-button, .masters-manager-card { border:1px solid var(--border); border-radius:4px; background:var(--surface-2); color:var(--text-secondary); cursor:pointer; }
+.masters-filter-tab, .masters-detail-tab { padding:7px 10px; font-size:11px; }
+.masters-filter-tab:hover, .masters-filter-tab.is-active, .masters-detail-tab:hover, .masters-manager-card.is-selected { background:var(--accent-faint, rgba(33,29,22,.10)); border-color:var(--accent); color:var(--text-primary); font-weight:700; }
+.masters-search { margin-left:auto; min-width:240px; }
+.masters-search-input { width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:4px; background:var(--surface-1); color:var(--text-primary); }
+.masters-layout { display:grid; grid-template-columns:minmax(240px,.75fr) minmax(0,1.25fr); gap:12px; align-items:start; }
+.masters-manager-list { display:grid; gap:7px; max-height:680px; overflow:auto; padding-right:3px; }
+.masters-manager-card { display:flex; flex-direction:column; gap:4px; text-align:left; padding:11px 12px; }
+.masters-manager-name { font-size:14px; color:var(--text-primary); }
+.masters-manager-filer, .masters-manager-style, .masters-reviewed, .masters-detail-filer { color:var(--text-muted); font-size:10px; line-height:1.4; }
+.masters-source { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin-top:7px; font-size:10px; }
+.masters-status { padding:3px 6px; border-radius:3px; border:1px solid var(--border); font-weight:800; letter-spacing:.03em; }
+.masters-status-pending { color:var(--data-amber); background:rgba(150,104,18,.08); border-color:rgba(150,104,18,.3); }
+.masters-status-method_only { color:var(--data-purple); background:rgba(121,82,153,.08); border-color:rgba(121,82,153,.3); }
+.masters-source-link { color:var(--data-cyan); text-decoration:underline; }
+.masters-detail-card { min-height:360px; padding:16px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.masters-detail-title { margin:7px 0 3px; font-size:22px; color:var(--text-primary); }
+.masters-metric-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin:16px 0; }
+.masters-metric { padding:10px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); }
+.masters-metric-label { display:block; color:var(--text-muted); font-size:10px; margin-bottom:5px; }
+.masters-metric-value { display:block; color:var(--text-primary); font-size:13px; }
+.masters-coverage-warning { padding:10px 11px; border-left:3px solid var(--data-amber); background:rgba(150,104,18,.08); color:var(--text-secondary); line-height:1.55; font-size:11px; }
+.masters-filing-artifact { margin-top:12px; padding:11px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); color:var(--text-secondary); font-size:11px; line-height:1.55; }
+.masters-filing-artifact p { margin:5px 0 0; color:var(--text-muted); }
+.masters-filing-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+.masters-holdings-section { margin-top:14px; padding:12px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); overflow:auto; }
+.masters-holdings-heading { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.masters-holdings-title { margin:0; color:var(--text-primary); font-size:14px; }
+.masters-holdings-meta { margin:0; color:var(--text-muted); font-size:10px; }
+.masters-holdings-table { width:100%; min-width:720px; border-collapse:collapse; margin-top:10px; font-size:11px; }
+.masters-holdings-table th { padding:7px 6px; color:var(--text-muted); border-bottom:1px solid var(--border); text-align:left; font-size:10px; font-weight:800; text-transform:uppercase; }
+.masters-holdings-table td { padding:7px 6px; color:var(--text-secondary); border-bottom:1px solid var(--border); white-space:nowrap; }
+.masters-holdings-table td:nth-child(2) { color:var(--text-primary); font-weight:700; white-space:normal; }
+.masters-holdings-table tr:last-child td { border-bottom:0; }
+.masters-detail-tabs { display:flex; flex-wrap:wrap; gap:5px; margin:14px 0 10px; }
+.masters-action-filters, .masters-holdings-controls { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0; }
+.masters-action-filter, .masters-page-button { min-height:28px; padding:5px 8px; border:1px solid var(--border); border-radius:4px; background:var(--surface-1); color:var(--text-secondary); cursor:pointer; font-size:11px; }
+.masters-action-filter.is-active, .masters-action-filter:hover, .masters-page-button:hover:not(:disabled) { border-color:var(--accent); background:var(--accent-faint, rgba(33,29,22,.10)); color:var(--text-primary); font-weight:700; }
+.masters-action-filter:disabled, .masters-page-button:disabled { cursor:not-allowed; opacity:.45; }
+.masters-holdings-search { min-width:240px; box-sizing:border-box; padding:7px 9px; border:1px solid var(--border); border-radius:4px; background:var(--surface-1); color:var(--text-primary); }
+.masters-pagination { display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:10px; }
+.masters-page-status { color:var(--text-muted); font-size:10px; }
+.masters-freshness-stale_reference { color:var(--data-amber); }
+.masters-sector-unavailable { margin-top:14px; }
+.masters-reference-sector-view { border-color:var(--border); }
+.masters-empty-state { padding:18px; border:1px dashed var(--border); border-radius:5px; color:var(--text-secondary); line-height:1.6; }
+.masters-empty-state p { margin:7px 0 0; color:var(--text-muted); }
+.masters-route-button { display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:6px 10px; margin-top:12px; color:var(--text-primary); font-weight:700; }
+.masters-route-button.is-secondary { color:var(--text-secondary); font-weight:500; }
+.masters-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* Atlas / taxonomy / foundations design-only reference shell */
+#page-atlas .atlas-hero { margin-bottom:16px; }
+.atlas-kicker { color:var(--data-cyan); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.atlas-lede { max-width:780px; color:var(--text-secondary); line-height:1.65; margin:8px 0 0; }
+.atlas-contract { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:12px; color:var(--text-muted); font-size:11px; }
+.atlas-contract span { padding:3px 7px; border:1px solid var(--border); border-radius:999px; background:var(--surface-2); }
+.atlas-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:14px 0 12px; }
+.atlas-tabs { display:flex; gap:4px; flex-wrap:wrap; }
+.atlas-tab, .atlas-route-button { border:1px solid var(--border); border-radius:4px; background:var(--surface-2); color:var(--text-secondary); cursor:pointer; }
+.atlas-tab { padding:7px 10px; font-size:11px; }
+.atlas-tab:hover, .atlas-tab.is-active { background:var(--accent-faint, rgba(33,29,22,.10)); border-color:var(--accent); color:var(--text-primary); font-weight:700; }
+.atlas-search { margin-left:auto; min-width:240px; }
+.atlas-search-input { width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:4px; background:var(--surface-1); color:var(--text-primary); }
+.atlas-metric-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-bottom:12px; }
+.atlas-metric { padding:11px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); }
+.atlas-metric-label, .atlas-level-id, .atlas-card-id, .atlas-node-class { display:block; color:var(--text-muted); font-size:10px; letter-spacing:.04em; text-transform:uppercase; }
+.atlas-metric-value { display:block; color:var(--text-primary); font-size:14px; margin-top:5px; }
+.atlas-packet-grid, .atlas-track-grid, .atlas-node-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.atlas-packet-card, .atlas-track-card, .atlas-node-card { padding:13px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.atlas-claim-grid, .atlas-source-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.atlas-claim-card, .atlas-source-card { padding:13px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.atlas-packet-count { display:block; margin-top:10px; color:var(--data-cyan); font-size:10px; font-weight:700; }
+.atlas-source-link { display:block; margin-top:8px; color:var(--text-primary); font-size:13px; font-weight:700; line-height:1.4; }
+.atlas-observation-list { margin:10px 0 0; padding-left:18px; color:var(--text-secondary); font-size:11px; line-height:1.55; }
+.atlas-observation-list li + li { margin-top:5px; }
+.atlas-research-view { margin-top:18px; }
+.atlas-domain-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.atlas-curriculum-layer-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.atlas-curriculum-module-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:10px; }
+.atlas-curriculum-layer-card, .atlas-curriculum-module-card { padding:12px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.atlas-curriculum-module-card { background:var(--surface-2); }
+.atlas-domain-card { padding:13px; border:1px solid var(--border); border-radius:6px; background:var(--surface-1); }
+.atlas-domain-guide { margin-top:8px; padding:8px; border:1px dashed var(--border); border-radius:4px; background:var(--surface-2); }
+.atlas-domain-guide .atlas-card-copy { margin-top:4px; font-size:10px; line-height:1.45; }
+.atlas-domain-guide-bottleneck { color:var(--warning); }
+.atlas-domain-guide-links { margin-top:6px; }
+.atlas-domain-packet-questions { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+.atlas-domain-packet-links { margin-top:7px; }
+.atlas-domain-claim-ledger { margin-top:9px; padding-top:8px; border-top:1px solid var(--border); }
+.atlas-domain-claim-ledger .atlas-card-copy { margin:5px 0 0; }
+.atlas-coverage-card { padding:8px; border:1px dashed var(--border); border-radius:4px; background:var(--surface-1); }
+.atlas-telegram-reference { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); }
+.atlas-telegram-channel-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; }
+.atlas-telegram-channel-card { padding:8px; border:1px solid var(--border); border-radius:4px; background:var(--surface-2); }
+.atlas-domain-node-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; margin-top:10px; }
+.atlas-domain-node { display:flex; flex-direction:column; gap:4px; padding:8px; border:1px solid var(--border); border-radius:4px; background:var(--surface-2); color:var(--text-primary); font-size:11px; }
+.atlas-player-product-map { margin-top:8px; padding-top:7px; border-top:1px dashed var(--border); }
+.atlas-player-product-title { margin:0 0 5px; color:var(--text-primary); font-size:11px; }
+.atlas-player-product-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+.atlas-player-card, .atlas-product-card { min-width:0; padding:7px; border:1px solid var(--border); border-radius:4px; background:var(--surface-1); }
+.atlas-player-name, .atlas-product-name { display:block; color:var(--text-primary); font-size:11px; line-height:1.35; overflow-wrap:anywhere; }
+.atlas-player-product-boundary { color:var(--text-muted); }
+.atlas-reference-source-links { display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
+.atlas-reference-source-link, .atlas-reference-source-unresolved { display:inline-flex; align-items:center; min-height:24px; padding:2px 5px; border:1px solid var(--border); border-radius:3px; color:var(--data-cyan); font-size:10px; line-height:1.2; }
+.atlas-reference-source-unresolved { color:var(--text-muted); }
+.atlas-node-guide { margin-top:4px; padding-top:6px; border-top:1px solid var(--border); }
+.atlas-module-authored { color:var(--data-cyan); font-weight:700; }
+.atlas-module-related, .atlas-module-sources { margin-top:6px; }
+.atlas-node-guide .atlas-card-copy { margin-top:4px; font-size:10px; line-height:1.45; }
+.atlas-node-guide-boundary { color:var(--text-muted) !important; }
+.atlas-card-meta { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+.atlas-status { padding:3px 6px; border:1px solid rgba(150,104,18,.3); border-radius:3px; color:var(--data-amber); background:rgba(150,104,18,.08); font-size:10px; font-weight:800; }
+.atlas-card-title { margin:8px 0 5px; color:var(--text-primary); font-size:14px; line-height:1.35; }
+.atlas-card-copy { margin:0; color:var(--text-secondary); font-size:11px; line-height:1.55; }
+.atlas-track-duration { color:var(--data-cyan); font-size:10px; font-weight:700; }
+.atlas-chip-row { display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; }
+.atlas-chip { padding:3px 6px; border:1px solid var(--border); border-radius:999px; color:var(--text-muted); font-size:10px; }
+.atlas-governance-note { margin-top:12px; padding:12px; border-left:3px solid var(--data-amber); background:rgba(150,104,18,.08); color:var(--text-secondary); font-size:11px; line-height:1.6; }
+.atlas-governance-note p { margin:5px 0 0; }
+.atlas-route-links { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+.atlas-route-button { display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:6px 10px; color:var(--text-primary); font-weight:700; }
+.atlas-route-button.is-secondary { color:var(--text-secondary); font-weight:500; }
+.atlas-subsection-intro { margin-bottom:12px; }
+.atlas-section-title { margin:0 0 6px; color:var(--text-primary); font-size:16px; }
+.atlas-section-title-spaced { margin-top:18px; }
+.atlas-level-rail { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }
+.atlas-level-card { min-height:105px; padding:9px; border:1px solid var(--border); border-top:2px solid var(--data-cyan); border-radius:5px; background:var(--surface-1); }
+.atlas-level-card.is-terminal { border-top-color:var(--data-amber); }
+.atlas-level-label { display:block; margin:7px 0 5px; color:var(--text-primary); font-size:12px; }
+.atlas-level-example { display:block; color:var(--text-muted); font-size:10px; line-height:1.4; }
+.atlas-node-card .atlas-status { display:inline-block; margin-top:10px; }
+.atlas-empty { grid-column:1/-1; padding:18px; border:1px dashed var(--border); border-radius:5px; color:var(--text-muted); }
+.atlas-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+@media (max-width:760px) {
+  .masters-search { order:3; flex-basis:100%; margin-left:0; min-width:0; }
+  .masters-layout { grid-template-columns:1fr; }
+  .masters-manager-list { max-height:none; }
+  .masters-metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .atlas-search { order:3; flex-basis:100%; margin-left:0; min-width:0; }
+  .atlas-metric-grid, .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .atlas-level-rail { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 760px) {
+  .principles-search { order:3; flex-basis:100%; margin-left:0; min-width:0; }
+  .principles-workspace, .principles-graph-workspace, .principles-path-layout { grid-template-columns:1fr; }
+  .principles-graph-canvas { min-height:420px; }
+  .principles-graph-canvas .principles-graph-node { display:none; }
+  .principles-graph-mobile-list { display:grid; max-height:none; }
+  .principles-tree-list { max-height:none; overflow:visible; padding-right:0; }
+  .principles-learning-grid, .principles-explainer { grid-template-columns:1fr; }
+  .principles-detail-card, .principles-path-card { min-height:0; }
+}
+@media (max-width: 480px) {
+  .atlas-metric-grid, .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -5361,6 +5618,9 @@ button[data-filter-active="true"] {
       <!-- 학습 -->
       <div class="nav-section">
         <div class="nav-label">학습</div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="principles" data-pass-el="1"><span class="nav-icon"></span><span class="label">시장 원리</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="masters" data-pass-el="1"><span class="nav-icon"></span><span class="label">대가의 포트폴리오</span></div>
+        <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="atlas" data-pass-el="1"><span class="nav-icon"></span><span class="label">AI Era Atlas</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="showPage" data-arg="guide" data-pass-el="1"><span class="nav-icon"></span><span class="label">사용 설명서</span></div>
         <div class="nav-item" role="button" tabindex="0" data-action="openGlossary"><span class="nav-icon"></span><span class="label">용어 사전</span></div>
       </div>
@@ -5652,7 +5912,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.69</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.87</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -11445,7 +11705,53 @@ button[data-filter-active="true"] {
 
 
 
+  <!-- ═══════════════ PAGE: MARKET PRINCIPLES (MP-03/KG-05) ═══════════════ -->
+  <div class="page" id="page-principles" aria-labelledby="principles-page-title">
+    <section class="aio-section principles-hero">
+      <div class="principles-kicker">자본의 지도 · MARKET PRINCIPLES</div>
+      <h1 class="page-title" id="principles-page-title" tabindex="-1">시장 원리</h1>
+      <p class="principles-lede">금리·채권·기업·AI 인프라를 하나의 정답으로 묶지 않고, 원인과 병목과 검증 질문을 연결해 읽는 학습 화면입니다. 현재 숫자나 매매 신호가 아니라 구조적 이해를 위한 참고 콘텐츠입니다.</p>
+      <div class="principles-contract" aria-label="콘텐츠 경계">
+        <span>REFERENCE ONLY</span><span>출처·검토일 표시</span><span>텔레그램은 발견용</span>
+        <span data-principles-result-count>노드 12개 · 레슨 7개 · 출처 검토일 2026-08-01</span>
+      </div>
+    </section>
+    <section class="aio-section" aria-label="시장 원리 탐색">
+      <div data-principles-content></div>
+    </section>
+  </div>
+
   <!-- ═══════════════ PAGE: GUIDE (입문 가이드) ═══════════════ -->
+  <div class="page" id="page-masters" aria-labelledby="masters-page-title">
+    <section class="aio-section masters-hero">
+      <div class="masters-kicker">공개 포트폴리오 · SEC 13F</div>
+      <h1 class="page-title" id="masters-page-title" tabindex="-1">대가의 포트폴리오</h1>
+      <p class="masters-lede">무엇을 보유했는가보다 무엇이 달라졌는가를 비교하는 화면입니다. SEC 13F 원본과 신고주체·CIK가 검증되기 전에는 숫자와 보유 종목을 만들지 않습니다.</p>
+      <div class="masters-contract" aria-label="13F 데이터 경계">
+        <span>REFERENCE ONLY</span><span>분기 말 기준·최대 지연 가능</span><span>13F는 전체 포트폴리오가 아님</span><span>SEC 원본 우선</span>
+      </div>
+    </section>
+    <section class="aio-section" aria-label="대가의 공개 포트폴리오 탐색">
+      <div data-masters-content></div>
+    </section>
+  </div>
+
+  <!-- ═══════════════ PAGE: AI ERA ATLAS (DESIGN-ONLY REFERENCE SHELL) ═══════════════ -->
+  <div class="page" id="page-atlas" aria-labelledby="atlas-page-title">
+    <section class="aio-section atlas-hero">
+      <div class="atlas-kicker">AI ERA · ATLAS / TAXONOMY / FOUNDATIONS</div>
+      <h1 class="page-title" id="atlas-page-title" tabindex="-1">AI Era Atlas</h1>
+      <p class="atlas-lede">산업·기술·경제·정책을 하나의 종목 목록으로 축약하지 않고, ontology → source packet → evidence ledger → 검증 → 출판 순서로 연결하는 참고 화면입니다.</p>
+      <div class="atlas-contract" aria-label="콘텐츠 경계">
+        <span>DESIGN ONLY</span><span>REFERENCE ONLY</span><span>Telegram = discovery</span>
+        <span data-atlas-result-count>packet 11 · candidate node 12 · current claim 0</span>
+      </div>
+    </section>
+    <section class="aio-section" aria-label="AI Era Atlas 탐색">
+      <div data-atlas-content></div>
+    </section>
+  </div>
+
   <div class="page" id="page-guide">
   <div class="insight-box box-collapsed">
     <strong>AIO 사용 설명서 — 각 페이지 활용법 + 용어 사전 + 투자 기초</strong>
@@ -12253,9 +12559,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.69" defer></script>
-  <script src="./js/aio-data.js?v=53.69" defer></script>
-  <script src="./js/aio-ui.js?v=53.69" defer></script>
+  <script src="./js/aio-core.js?v=53.87" defer></script>
+  <script src="./js/aio-data.js?v=53.87" defer></script>
+  <script src="./js/aio-ui.js?v=53.87" defer></script>
 
 
   <script>
@@ -14740,7 +15046,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.69" defer></script>
+<script src="./js/aio-chat.js?v=53.87" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23653,7 +23959,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.69" defer></script>
+<script src="./js/aio-glossary.js?v=53.87" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

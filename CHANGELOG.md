@@ -1,6 +1,157 @@
+## v53.87 (2026-08-02)
+- **Scion filing availability evidence**: Connected the official SEC submissions JSON check and exposed the explicit “no later 13F-HR reported” state in the Masters page instead of leaving the stale reference unexplained.
+- **Release boundary**: Kept the security-master/sector and live-provider gates fail-closed; no unverified ticker, sector, current quote, or production claim was fabricated.
+- R1 7곳 v53.87
+
+## v53.86 (2026-08-02)
+- **Freshness/session gate**: Added a narrow weekend market-closed grace for complete `QG-01_PASS` Tier-0 snapshots; weekday/provider-failure/incomplete states remain fail-closed. The official refresh attempt preserved the last-known-good artifact after 78/78 quote retries failed.
+- **Learning-route regression closure**: Updated the 20-route headless contracts, added Principles/Masters/Atlas brief registry entries, and connected all three routes to the Telegram page-map.
+- **Lineage/document closure**: Added the Telegram reference-window generated timestamp and synchronized P889/R436/QA-DATA1 documentation to v53.86.
+- R1 7곳 v53.86
+
+## v53.85 (2026-08-02)
+- **13F multi-quarter row history**: SEC EDGAR 7개 신고주체의 84개 기간을 연결하고, 과거 70개 분기 12,525개 정보표 원문 행·보고가치·shares 합계를 `history-holdings.json`에 저장했습니다. Masters 분기 추이 화면은 메타데이터가 아닌 실제 SEC 행 대사 상태를 표시합니다.
+- **Reference-layer UI closure**: Atlas/Foundation/Principles 내부 상태 enum과 Masters 역사 상태를 의미 중심 한국어 라벨로 렌더링하고, raw artifact·기준일·출처 경계는 유지했습니다.
+- **Fail-closed boundaries**: 1,102 CUSIP·1,122 issuer 문자열의 verified security master, corporate action, ticker/sector 확정과 Atlas current numeric/production claims는 공식 검증 전 공개하지 않습니다.
+- **Data freshness gate**: 공식 refresh가 provider 접근 실패로 새 값을 확인하지 못한 경우 기존 정상 artifact를 보존하고, 완전한 Tier-0·QG-01 snapshot이 있는 주말 휴장일에만 좁은 freshness grace를 적용합니다. 평일·오류·불완전 snapshot은 계속 fail-closed입니다.
+- **Route/Telegram regression**: 20개 사용자 라우트 기준 headless 회귀를 갱신하고 Principles·Masters·Atlas를 Telegram page-map과 brief registry에 연결했습니다.
+- **Documentation/QA**: 6문서 coverage audit, BUG-POSTMORTEM, QA-CHECKLIST, RULES, KNOWLEDGE-BASE, CODE-MAP을 v53.85와 84-period/12,525-row 범위에 맞췄습니다.
+- R1 7곳 v53.85
+
+## v53.84 (2026-08-02)
+- **Market Principles A~O lesson library**: 설계 문서의 A~O 111개 세부 질문을 정의·메커니즘·분석 예시·반례·검증 질문·도식·출처를 갖는 `lesson-library.json`으로 연결하고, 검색 가능한 원고 카드로 렌더링했습니다.
+- **Atlas domain evidence layer**: 19개 domain source packet, 57개 구조적 claim ledger, 95개 taxonomy node coverage map을 연결했습니다. 현재 수치·출하·수율·생산·매출 claim은 0건으로 유지합니다.
+- **Atlas currentness/reference layer**: 20개 player·20개 product에 공식 페이지 확인 기준일과 교육용 상태 분류를 overlay하고, Telegram 5개 채널의 5일 discovery window를 별도 reference index로 화면에 표시했습니다.
+- **Masters 13F depth**: 7개 신고주체의 최근 12개 filing(84개 기간)을 SEC 정보표 원문으로 연결하고, 과거 70개 분기 12,525행의 보고가치·shares 합계를 `history-holdings.json`에 보존했습니다. 상위 표시행 53개 참고 issuer/ticker/sector cross-reference는 검증 master와 분리하며 CUSIP 정규화·corporate action·sector 확정은 fail-closed로 유지합니다.
+- **User-facing status copy**: 내부 제작 enum을 한국어 의미 중심 상태로 바꾸고, 모든 추가 자료를 교육용 reference 경계 안에서 렌더링했습니다.
+- R1 7곳 v53.84
+
+## v53.83 (2026-08-02)
+- **Foundations authored lesson layer**: 48개 모듈에 정의·작동 원리·예시·한계·검증 질문·Atlas 연결·출처 경계를 갖는 short-form 참고 원고를 연결했습니다. 독립 장문 저술은 별도 대기 상태입니다.
+- **Atlas domain guides**: 19개 산업 도메인에 정의·작동 경로·분석 단위·핵심 병목·검증 질문과 공식 출처 링크를 연결했습니다. 기업별 현재 수치나 생산·수율·밸류에이션 주장은 승격하지 않았습니다.
+- **Market Principles curriculum**: A~O 15개 챕터를 연결하고 39개 lesson으로 60개 노드 전체를 최소 하나의 lesson에 연결했습니다.
+- **Masters normalization boundary**: 1,102개 CUSIP·1,122개 발행사명에 대해 검증 가능한 security master 매핑이 없을 때 ticker·섹터·포트폴리오 비중을 비공개로 유지하는 fail-closed artifact를 연결했습니다.
+- **Verification**: Atlas/Principles/Masters contract와 Chromium route checks, six-document coverage, version/release/architecture/operations checks를 재실행합니다.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.83
+
+## v53.82 (2026-08-02)
+- **Market Principles graph expansion**: added 19 canonical nodes, 20 evidence-linked edges, and 8 lesson frames for physical AI, defense autonomy, space systems, enterprise workflow, critical materials, HBM/package economics, quantum/photonic boundaries, and data-center financing. The catalog is now 60 nodes, 71 edges, 37 lessons, and 8 paths.
+- **Atlas P1/P2 evidence packet expansion**: added eight official first-party sources, six candidate claims, and two candidate graph edges covering physical AI, defense autonomy, space systems, enterprise AI, critical materials, HBM, and quantum platforms. The Atlas/Principles evidence registry now exposes 23 sources and 14 claims while `currentClaims` remains zero.
+- **Evidence-to-UI connection**: the new packet IDs are connected to ATLAS-06~08 and to the Principles evidence resolver; player/product cards expose the corresponding official source links. Claims remain educational/candidate and do not create production, shipment, yield, valuation, or trading assertions.
+- Release metadata synchronized across architecture and operations manifests to v53.82; Atlas/Principles contracts, Chromium routes, and documentation checks are re-verified.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.82
+
+## v53.81 (2026-08-02)
+- **Atlas player/product reference registry expansion**: added eight official first-party source records and eight educational reference player/product mappings across physical AI, defense autonomy, space systems, enterprise AI, critical materials, HBM, quantum, and industrial software. Each mapping remains `ROLE_REFERENCE_ONLY` with `asOf` and `productionStatus` unset; no shipment, yield, valuation, or live claim is promoted.
+- **Reference integrity gate**: `ci-atlas-contract-check.mjs` now validates every player/product source ID, taxonomy node ID, player edge, and currentness boundary in addition to the 20/20/20 registry counts.
+- Release metadata synchronized across architecture and operations manifests to v53.81; version, static Atlas contract, source-linked browser route, and documentation checkpoints are re-verified.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.81
+
+## v53.80 (2026-08-02)
+- Release metadata synchronized across architecture and operations manifests to v53.80; architecture, operations, and release-manifest contracts re-verified.
+- Full regression re-run: 20-route architecture browser, 20-route x 3-lap soak, 20-route accessibility, six-document/Atlas/Principles/Masters contracts, and 22-category data-refresh structural audit. The `data.json` 12-hour freshness SLA remains pending external data refresh.
+- **라우트 소유권 동기화**: 새 학습 라우트 Principles/Masters/Atlas를 retirement manifest의 native lifecycle/renderer 목록에 반영해 route-owners·operations·retirement 계약을 일치시켰다.
+- **학습 경로 보강**: Market Principles에 `AI 시스템과 경제성`, `자본·리스크·검증` 경로를 추가해 41개 노드·29개 레슨·8개 경로·51개 edge를 계약에 반영했다.
+- **Market Principles K~O 확장**: 전력·발전·계통·저장·데이터센터 수요·산업 병목·로보틱스·방산/우주·바이오·금융 서비스·미국/한국 시장·원화/달러·정책·현금흐름을 추가해 41개 node·29개 lesson·6개 path·51개 edge로 확장했다.
+- **Atlas A~S inventory 확장**: P1/P2 8개 domain과 40개 구조 node를 추가해 19개 domain·95개 node로 연결했다. 모든 node에 정의·chain·role·KPI·실패/검증 경계를 두고 현재 기업·양산·수율 claim은 승격하지 않았다.
+- **Foundations 학습 프레임**: 48개 모듈 카드에 layer별 학습 질문과 개념 시각화 프레임을 추가하고, 독립 장문 원고·도해는 `PENDING_INDEPENDENT_AUTHORING`으로 명시했다.
+- **Masters 정규화 경계**: 1,102개 고유 CUSIP·1,122개 issuer 문자열·0개 verified mapping을 artifact와 섹터 화면에 표시했다. security master 전에는 sector/weight를 계산하지 않는다.
+- **데이터 최신성 감사**: 22-category `/data-refresh` audit artifact와 24시간 이벤트 검색 결과를 기록했다. 공식 현재값을 확보하지 못한 지표는 `SKIPPED/STALE`로 유지했다.
+- **검증**: Atlas/Principles/Masters 계약 및 Chromium, 22-category data-refresh structural gate 통과.
+- R1 7곳 v53.80
+
+## v53.79 (2026-08-02)
+- **6개 기반 문서 커버리지 감사**: `_artifacts/SIX-DOC-COVERAGE-AUDIT-2026-08-02.md`와 `ci-six-doc-coverage-check.mjs`를 추가해 설계 반영·콘텐츠 완성·검증 상태를 분리했다.
+- **Atlas 콘텐츠 확장**: 55개 taxonomy node 전체에 정의·연결 논리·player 역할 관점·KPI·실패 조건을 연결하고, Foundations 48개 모듈에 정의·작동 원리·예시·한계를 연결했다. 기업·제품의 현재 claim은 여전히 출처 게이트 뒤에 둔다.
+- **시장 원리 확장**: 희소성·생산성·돈·물가·신용·금리·채권·재정·기업·가격발견·사이클·리스크·산업 가치사슬을 추가해 26개 node·21개 lesson·4개 learning path로 확장했다.
+- **검증**: Atlas/Principles 계약 및 Chromium 검증, 전 taxonomy node·전 foundations module 설명 커버리지 검사를 통과했다.
+- R1 7곳 v53.79
+
+## v53.78 (2026-08-02)
+- **13F 최신성 게이트**: Berkshire를 SEC 2026-03-31 보고분기·2026-05-15 제출분기 accession `0001193125-26-226661`로 교체하고 전체 1,248행·비교 1,377행을 재생성했다. Scion의 2025-09-30 최신성 지연은 `STALE_REFERENCE`로 명시했다.
+- **대가 포트폴리오 기능**: noop 탭을 핵심 변화·전체 보유·섹터 준비 상태·분기 추이·원본 공시 뷰로 교체하고, 전체 행/비교 원장 페이지네이션과 Exited 필터를 연결했다.
+- **시장 원리 학습**: 선택 노드 기준 1-hop/2-hop 실제 서브그래프, 12개 노드의 정의·작동·KPI·산업 연결·실패 조건, 15·30·45분 학습 코스를 연결했다.
+- **Atlas 사용자화·접근성**: 내부 상태 문구를 사용자용 라벨로 바꾸고 taxonomy 노드의 개념·역할·KPI·연결 논리를 추가했다. Principles 출처 링크의 모바일 최소 24px 타깃과 포커스 스타일을 보완했다.
+- **검증**: Masters/Principles/Atlas 계약·Chromium 및 20-route 접근성 매트릭스가 통과했다.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.78
+
+## v53.77 (2026-08-02)
+
+- **Market Principles claim analysis**: the selected node detail now renders connected claim IDs, claim summaries, source observations, official primary-source links, and node-specific reading questions from `public-data/atlas/source-packets.json`.
+- **Research boundary**: the page keeps `REFERENCE_CONNECTED` semantics and explicitly separates observed evidence from interpretation; no live price, target, or trading signal is generated. Nodes without connected claims remain structural-only with an explicit empty state.
+- **Desktop verification**: Principles contract and Chromium gates now require visible claim-level analysis and pass at 1440x900 with 12 nodes, 15 sources, 8 claims, and no browser errors or overflow.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.77
+
+## v53.76 (2026-08-02)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.76
+
+## v53.76 (2026-08-02)
+- **MF-04 prior-period comparison**: connected verified prior 13F-HR filings for all 7 managers and produced 1,375 normalized-CUSIP comparison rows; Masters now renders reported share/value deltas and five non-recommendation change labels.
+- **Display aggregation**: duplicate CUSIP + put/call + share-type entries are aggregated for the compact top-10 view so visible deltas reconcile to the comparison key.
+- **Verification**: updated Masters contract/browser gates for prior-period reconciliation, current/prior SEC links, 68 comparison rows, and desktop Chromium rendering at 1440x900.
+- R1 7곳·v53.76
+
+## v53.75 (2026-08-02)
+- **SEC 13F reference rows**: connected the SEC XML collector and `public-data/masters/holdings.json` for all 7 LIVE_13F profiles. Seven filing cover pages reconcile to 1,268 full rows; the page displays 68 top reported-value rows (up to 10 per manager).
+- **MF-04 prior-period comparison**: connected verified prior 13F-HR filings for all 7 managers (1,375 normalized-CUSIP comparison rows). The page now shows reported share/value deltas and New/Increased/Reduced/Unchanged/Exited labels; duplicate CUSIP entries are aggregated for display.
+- **Masters status accuracy**: the page now shows verified row status, reported-period scope, and an explicit non-trading disclosure; Scion uses the latest SEC filing currently connected in the artifact (2025-09-30) and keeps the period visible.
+- **Publication boundary**: no current price, target, portfolio weight, or trading signal is published. Change labels are strictly reported-period comparisons and are not recommendations; Minervini remains method-only.
+- **Desktop QA**: Masters contract and Chromium checks pass at 1440x900 with 8 profiles, 10-row default/selected tables, no overflow, and no browser errors.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.75
+
+## v53.74 (2026-08-01)
+- **Foundations curriculum connection**: added `public-data/atlas/foundations.json` with 7 curriculum layers and 48 unique modules derived from the AI foundations document; Atlas now renders the source map and module index.
+- **Market Principles evidence connection**: node cards, detail cards, and learning paths now resolve candidate nodes to the shared 15-source registry and expose `PS-xx` official links without promoting current claims.
+- **Binary gates**: added desktop Chromium checks for Principles evidence loading and expanded Atlas checks to 7 curriculum layers/48 modules; CI now runs Atlas/Principles/Masters reference contracts.
+- **Publication boundary**: all new curriculum and graph surfaces remain `REFERENCE_CONNECTED`/educational-only; current claims, live quotes, signals, valuation targets, and holdings remain blocked.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.74
+
+## v53.73 (2026-08-01)
+- **ATLAS-01 P0 source packet connection**: added 15 official source records, 8 Telegram-discovered claim packets, 12 candidate nodes, and 5 candidate edges under `public-data/atlas/source-packets.json`. The Atlas page now loads the artifact and exposes claim status, evidence IDs, observations, and source links.
+- **P0 taxonomy inventory**: connected 11 design-only industry domains and 55 structural nodes spanning cloud, neocloud, compute, memory, foundry, packaging, network, AIDC, power, physical AI, and AI finance.
+- **MF-01 SEC metadata connection**: added `public-data/masters/filings.json` with 8 manager records, 4 verified SEC filing artifacts, CIK/accession/period/date/source-document links, and an explicit zero-holding-row gate. The Masters page now renders the selected manager's verified filing metadata.
+- **Publication boundary preserved**: `REFERENCE_CONNECTED` remains separate from `PUBLISHED/LIVE`; current claims, Trading Score, BUY/SELL, valuation targets, and 13F holdings remain at zero.
+- **Desktop QA**: Atlas browser contract now runs at 1440×900 and verifies 11 packets, 8 claims, 15 primary sources, foundations/taxonomy tabs, search, and route CTA.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.73
+
+## v53.72 (2026-08-01)
+- AI Era Atlas reference shell: ontology packet tracking, AI foundations tracks, and L0-L6 taxonomy view.
+- DESIGN_ONLY publication boundary: Telegram discovery remains non-promotional; reviewed current claims remain 0.
+- Added `vs13-atlas`, route contracts, service-worker asset, architecture manifests, and Atlas contract gate.
+- 20-route synchronization across navigation, lifecycle, renderer/data ownership, browser soak, and accessibility matrix.
+- R1 7곳 v53.72
+
+## v53.71 (2026-08-01)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.71
+
+## v53.71 (2026-08-01)
+- **MF-05 / 대가의 포트폴리오 코드화**: `#masters` 네이티브 라우트, 투자자 검색·필터·상세 shell, SEC 13F coverage disclosure, `PENDING`/`METHOD_ONLY` 상태를 구현했다. 검증된 SEC filer/CIK/accession/XML artifact가 없으면 holdings·비중·분기 action을 생성하지 않는다.
+- **19-route 계약 동기화**: routes, vertical slices, bootstrap, PAGES/route registry, service worker, architecture owner/golden/visual/operations manifests와 신규 `ci-masters-contract-check.mjs`를 연결했다.
+- **검증**: principles/masters custom contracts, architecture contract, structural check, route soak 19-route × 3 laps 통과. 버전·SEC 원본 파이프라인과 실제 holdings는 별도 운영 gate로 남겼다.
+- R1 7곳·v53.71
+
+## v53.70 (2026-08-01)
+- **MP-03 / KG-05 시장 원리 MVP 구현**: `#principles` 네이티브 라우트를 추가하고 Tree 계층·수동 SVG Graph·Path 학습 경로·검색·모바일 텍스트 대체 표면을 연결했다. 12개 노드와 7개 레슨은 출처 URL, `REVIEWED_CANDIDATE`/`PARTIAL`, `reviewedAt`을 보존하는 참고 콘텐츠로만 제공한다.
+- **라우트 계약 동기화**: 18-route golden/owner/vertical-slice/bootstrap/service-worker 계약과 정적 `ci-principles-contract-check.mjs`를 추가했다. 가격·목표가·BUY/SELL·13F 데이터는 구현 범위에 넣지 않았다.
+- **검증**: architecture, structural, runtime, knowledge-lint, principles contract 및 JS syntax gates 통과.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.70
+
 ## v53.69 (2026-08-01)
 - **P875 / unified 24-hour evidence and lifecycle ownership**: public Telegram feeds now show the completed 24-hour lane while diagnostics stay collapsed; macro calendar replay merges the full official registry after the shared cut; the native yield-curve renderer is the sole owner with legacy Chart.js fencing/cleanup; quote `changeBasis`/`valueBasis` survives snapshot → bridge → PriceStore → native chart sinks; service-worker controller rotation is guarded and one-shot.
 - **Verification**: runtime/data-plane/lineage/reconciliation/refresh/architecture/headless gates are run as one final batch; live deployment checks Telegram visibility, calendar population, chart reuse errors, SW/app version parity, and basis labels.
+- **Design-only research packet (2026-08-01)**: added `_artifacts/telegram-5d-research-packet-2026-08-01.md` for a 2026-07-28~08-01 five-day discovery window. Existing 3-channel lineage is reused; `survival_DoPB` is sparse and `Onionfarmer` is stale for the window. Candidate frameworks remain `REFERENCE/DISCOVERY` and were not promoted to LIVE, signals, or 13F data. No code, version, commit, or deployment change.
+- **Primary-source reconciliation + low-fi boundary (2026-08-01)**: added `_artifacts/telegram-primary-source-reconciliation-2026-08-01.md` and `_artifacts/market-principles-low-fi-validation-2026-08-01.md`. Official IR/SEC/Fed/BLS/EIA/METI sources support only narrowed candidate claims; unsupported flow, concentration, price, yield, and industry-wide supply claims remain blocked. Low-fi is document-level PASS only; browser implementation verification remains gated by `MP-00/KG-00`. No code, version, commit, or deployment change.
 - R1 7곳 v53.69
 
 ## v53.68 (2026-08-01)

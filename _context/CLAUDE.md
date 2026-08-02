@@ -4,10 +4,10 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v53.69
+- **현재 버전**: v53.87
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (41개 활성, 2026-07-27 갱신)
+## _context/ 문서 (47개 활성, 2026-08-01 갱신)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -54,6 +54,12 @@
 | API-AI-CHAT-RELIABILITY-REMEDIATION-HANDOFF-2026-07-27.md | v53.51 라이브·Actions·공개 Worker·부팅 실측 기반 API/AI/자동화/성능 집중 진단. 공개 채팅 경로, 키 저장 신뢰성, provider wiring, Chat/Research readiness 분리, 초기 요청·DOM·long task·저사양 gate와 Wave별 실행 계약 포함. DESIGN_ONLY | API 키·Worker·AI/Web Research gateway·공급자 health·부팅 성능·캐시·요청 예산·답변 정확도 또는 공개 운영 판정 변경 시 |
 | AI-SCREENER-INTELLIGENCE-REBUILD-HANDOFF-2026-07-27.md | v53.52 저장소/v53.51 라이브 기준 실제 사용자 질문 routing·공개 데이터·서버 Claude 생성문 실증 기반 AI 전체 재구축 설계. legacy giant prompt와 policy 우회, 연구 랭킹 추천 승격을 제거하고 QuestionPlan·Tool/Research Plane·Evidence Graph·ClaimLedger·도메인 분석·4,440 fixture benchmark로 전환. DESIGN_ONLY | AI 질문 해석, 원인·전망·추천·섹터·기업·차트·매크로·FX 로직, Web Research, structured output/tool use, 품질·다양성·최신성·확장성 또는 live model benchmark 변경 시 |
 | WEB-RESEARCH-CRITICAL-DATA-REMEDIATION-HANDOFF-2026-07-27.md | v53.52 코드·공개 artifact 재감사 기반 Web Research·핵심 데이터 전용 구조 개편안. 검색 key/route와 ResearchDecision 분리, fail-closed·1차 출처·claim citation, mixed screener observedAt·필드별 펀더멘털·session·뉴스 tier·Answerability 계약 포함. DESIGN_ONLY | Web Research routing/provider/tool/source/citation, 핵심 데이터 coverage/freshness/session/PIT/rights, 서버 분석 semantic gate 또는 질문별 Answerability 변경 시 |
+| MARKET-PRINCIPLES-PAGE-DESIGN-HANDOFF-2026-08-01.md | `시장 원리/자본의 지도` 신규 페이지 DESIGN_ONLY SSOT. 기존 전문 페이지와의 개념/현재값 경계, 전체 개념 그래프, 돈·금리·채권·주식·자본주의·산업 프레임, 반도체·AI·전력 심화, UI/UX·콘텐츠 schema·MP-00~08 구현 계약 | 사용자 결정, MVP chapter, route/콘텐츠 ownership, lesson schema, 산업 가치사슬 또는 구현 상태 변경 시 |
+| MARKET-PRINCIPLES-KNOWLEDGE-GRAPH-UX-SPEC-2026-08-01.md | `시장 원리` TREE/GRAPH/PATH 3모드 탐색 UX SSOT. root tree·node/edge ontology·인과/자금/물리 flow·과밀 방지·검색/deep link·모바일 text alternative·KG-00~07 계약. DESIGN_ONLY | ontology, graph/path content, 검색·deep link·모바일·접근성 또는 구현 상태 변경 시 |
+| AI-ERA-FOUNDATIONS-CURRICULUM-2026-08-01.md | `시장 원리` AI 시대 대분류 상세 curriculum SSOT. 물리·수학·컴퓨터과학·반도체 화학·경제학→AI 학습/추론→Transformer/World Model/Agent→GPU/ASIC/HBM→칩 제조/AIDC/전력→산업·노동·위험 연결, 시각화·AI-0~6 계약. DESIGN_ONLY | AI 분류·원고 깊이·source, 모델/칩/AIDC lesson, 시각화 또는 구현 상태 변경 시 |
+| AI-ERA-INDUSTRY-ATLAS-RESEARCH-SPEC-2026-08-01.md | AI 시대 산업 Atlas DESIGN_ONLY SSOT. 빅테크 Cloud·neocloud·AI CAPEX/ROIC·메모리·파운드리·패키징/유리기판·photonics/CPO·AIDC/전력·on-device/physical AI·드론/방산·우주/항공/Artemis와 source packet→evidence ledger→검수→승격 계약 | 산업 inventory·ontology·source·metric·ATLAS-00~10 상태 변경 시 |
+| AI-ERA-DEEP-TAXONOMY-PLAYER-PRODUCT-SPEC-2026-08-01.md | AI 산업을 L0~L6으로 재귀 분해하는 DESIGN_ONLY 깊이 SSOT. foundry 3nm/2nm/18A·yield, DUV/EUV/중국 장비, 전공정/후공정, photonics/CPO, open model·중국 전략·open alliance, player/product schema, Telegram 5채널 discovery 계약·DT1~DT10 gate | taxonomy 깊이·기업 역할·제품 portfolio·Telegram source/coverage·DEEP/TG-ATLAS packet 변경 시 |
+| MASTERS-PORTFOLIO-13F-PAGE-DESIGN-HANDOFF-2026-08-01.md | `대가의 포트폴리오` 신규 페이지 DESIGN_ONLY SSOT. 인물↔SEC 신고주체/CIK, LIVE_13F/HISTORICAL/METHOD_ONLY, 화면·데이터·수정공시·CUSIP/ticker·분기 자동화·MF-00~09 구현 계약 | 투자자 목록, 13F pipeline/정규화/비교/자동화, profile type 또는 구현 상태 변경 시 |
 | WO7-GLOBAL-INVENTORY-2026-07-10.md | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7 Packet 1 — 전역 read/write baseline 실측 + timer/chart/page-lifecycle 어댑터 기존재 확인 + 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 
 > 루트 밖 `EVIDENCE-DEBT.md`(repo root)가 evidence 게이트의 SSOT로 별도 존재.

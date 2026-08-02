@@ -1,12 +1,156 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex P761-P845 static implementation record
-last_verified: 2026-07-31
+last_verified: 2026-08-02
 confidence: high
-latest_version: v53.68
-latest_P_number: P874
-next_P_number: P875
-current_total_entries: 609 (P1~P869, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P872-P874 schedule-aware completed-close classification, atomic data-release promotion, and operations truth parity; remaining route secondary surfaces, soak, rights, AI proxy redeploy, and edge certification remain separate operator/runtime checks
+latest_version: v53.87
+latest_P_number: P890
+next_P_number: P891
+current_total_entries: 616 (P1~P890, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P890 v53.87 SEC-evidenced Scion latest-filing availability plus reference-layer closure and weekend market-closed freshness grace; official currentness/security-master/provider gates remain fail-closed
+
+## P890 - v53.87 - Scion latest-filing availability was made explicit
+
+- **motivation**: Scion remained correctly marked as a stale reference, but the page did not explain whether the gap reflected a missed collection or the absence of a later SEC 13F filing.
+- **root_cause**: the filing artifact carried the latest period and freshness state but no direct availability-check evidence from the SEC submissions feed, and the renderer had no dedicated disclosure block.
+- **fix**: recorded the SEC submissions JSON check (`NO_LATER_13F_HR_REPORTED`) with its URL and review date, rendered the disclosure in Masters, and added contract/browser assertions for the evidence boundary.
+- **violated_rule**: R431/R434; a stale reference must distinguish stale data from a verified absence of a newer filing and must not be silently treated as current.
+- **prevention**: Masters CI now requires the Scion availability check to remain tied to the SEC submissions JSON; Chromium QA checks the visible disclosure note.
+- **verification**: `ci-masters-contract-check.mjs` and `ci-masters-browser-check.mjs` PASS; no holding row, ticker, sector, or currentness value was promoted from the availability check.
+
+## P889 - v53.86 - weekend market-closed grace prevented false live-data freshness failure
+
+- **motivation**: the final lineage gate treated a Saturday/Sunday after-close artifact as a live-core failure even though the latest Tier-0 market snapshot was complete and explicitly marked the venues closed.
+- **root_cause**: `ci-data-lineage-audit.mjs` applied wall-clock age to `data.json` and `market-snapshot.json` without considering the market session contract; the official refresh also failed closed because provider access was unavailable, so no new values could be published safely.
+- **fix**: added a narrow weekend-only grace that requires a complete `QG-01_PASS` Tier-0 snapshot with zero snapshot errors; provider failures, weekdays, incomplete coverage, and producer failures still fail closed. Added the missing generated timestamp to the five-day Telegram reference artifact and updated the current route regression expectations.
+- **violated_rule**: R21/R435; freshness must reflect the declared observation/session boundary and reference overlays must retain explicit provenance.
+- **prevention**: lineage CI now tests the market-closed predicate through the actual snapshot coverage/quality fields; a stale live artifact cannot pass on a weekday or with incomplete/error snapshot evidence.
+- **verification**: `ci-data-lineage-audit` PASS=11/WARN=6/FAIL=0, `ci-headless-tests` 1107/1107 PASS, syntax/control-character checks PASS; provider refresh remained fail-closed with the prior data artifact preserved.
+
+## P888 - v53.85 - six-document reference layer and currentness boundaries closed
+
+- **motivation**: the six design documents had separate structural artifacts, but the latest page still exposed internal status enums and the coverage audit described v53.83 counts rather than the v53.84 connected lesson, claim, taxonomy, Telegram, and filing-history layers.
+- **root_cause**: authored reference data and external-currentness data were advanced in separate batches; the renderer and operating documents were not updated in the same closure step.
+- **fix**: connected the A~O 111-lesson library, 19 Atlas domain packets/57 structural claims/95 node coverage, 20-player/20-product currentness reference overlay, five-channel Telegram window, 84 filing periods with 12,525 historical SEC information-table rows, 53 reference-only security mappings, and Korean user-facing labels. Kept current claims, verified security master, issuer aggregation, and production-state claims fail-closed.
+- **violated_rule**: R431/R432/R434; structural/reference coverage must not be presented as verified current facts.
+- **prevention**: the six-document audit records per-unit coverage and the contract/browser gates require current claim count zero, reference-only mappings, history row-import status, and renderer-connected artifacts.
+- **verification**: focused syntax, Atlas/Principles/Masters contracts and Chromium routes passed before the final release-wide regression suite.
+
+## P887 - v53.83 - Atlas connected 19 domain guides to the taxonomy renderer
+
+- **motivation**: the 19-domain taxonomy had node-level explanations, but the domain cards still lacked a domain-level definition, mechanism, bottleneck, verification question, and direct official source boundary.
+- **root_cause**: taxonomy node coverage and domain-level educational framing were maintained as separate inventories without a renderer contract for the domain guide layer.
+- **fix**: added `public-data/atlas/domain-guides.json`, connected all 19 guides to the taxonomy renderer, and added contract/browser checks for guide count, node edges, and official source links.
+- **violated_rule**: R431/R434; aggregate domain presence must not be mistaken for per-domain explanatory coverage.
+- **prevention**: the Atlas contract resolves every guide to a canonical domain and all 95 nodes; the Chromium gate observes 19 visible guide cards and source links.
+- **verification**: Atlas contract, Atlas Chromium route, six-document coverage, syntax, and diff checks pass after v53.83 synchronization.
+
+## P886 - v53.83 - Masters security-master normalization became an explicit fail-closed artifact
+
+- **motivation**: Masters exposed a sector preparation state but did not provide a connected artifact documenting the exact normalization queue and publication policy.
+- **root_cause**: raw CUSIP and issuer-name coverage existed in holdings data, while the security-master boundary remained implicit in the page text.
+- **fix**: added `public-data/masters/security-master.json` with 1,102 unique CUSIPs, 1,122 issuer names, zero verified mappings, empty records, and an explicit policy that hides ticker/sector/weights until verification.
+- **violated_rule**: R432; raw filing rows are not a verified security master or sector classification.
+- **prevention**: Masters contract/browser and six-document coverage require the pending status, zero mapped rows, and visible fail-closed state.
+- **verification**: Masters contract, Masters Chromium route, six-document coverage, syntax, and release checks pass after v53.83 synchronization.
+
+## P885 - v53.83 - Foundations 48-module authored reference layer was connected
+
+- **motivation**: Foundations had complete module index and guide-frame coverage, but the learning surface did not load a separate lesson artifact with visible authored copy and source/node edges.
+- **root_cause**: fallback lesson copy lived in the route module, making the artifact-level coverage and short-form publication boundary difficult to audit.
+- **fix**: added `public-data/atlas/foundation-lessons.json` with 48 lessons and connected it as the preferred renderer source while keeping long-form independent authorship pending.
+- **violated_rule**: R431/R434; a module count alone cannot prove usable lesson content.
+- **prevention**: Atlas contract checks all 48 required fields and edges; the browser gate observes 48 authored lesson cards and question/visualization markers.
+- **verification**: Atlas contract, Atlas Chromium route, six-document coverage, syntax, and release checks pass after v53.83 synchronization.
+
+## P884 - v53.83 - Principles A~O chapter layer and full node lesson coverage were connected
+
+- **motivation**: the Principles graph reached 60 nodes and 8 paths, but the A~O curriculum remained represented mainly by node/lesson catalog structure.
+- **root_cause**: chapter-level learning questions, counter-scenarios, verification prompts, and official sources were not represented as a separate renderer artifact.
+- **fix**: added 15 A~O chapter cards and two direct application lessons, raising the catalog to 39 lessons and ensuring every one of 60 nodes has at least one lesson connection.
+- **violated_rule**: R431/R434; aggregate graph coverage must not hide missing chapter framing or uncovered nodes.
+- **prevention**: Principles contract checks the ordered A~O artifact and exact 60/39/8/71 catalog counts; browser checks all 15 visible chapter cards and graph modes.
+- **verification**: Principles contract, Principles Chromium route, six-document coverage, syntax, and release checks pass after v53.83 synchronization.
+
+## P883 - v53.82 - Principles graph reached the 60-node MVP floor with new application and adjacent-technology loops
+
+- **motivation**: the Knowledge Graph UX target called for a 60~90 node learning graph, while the catalog still stopped at 41 nodes and 29 lessons.
+- **root_cause**: the prior expansion completed the economic spine and infrastructure links but left physical AI, defense, space, enterprise workflow, critical materials, HBM/package economics, quantum/photonic boundaries, and data-center financing as title-level taxonomy only.
+- **fix**: added 19 canonical nodes, 20 evidence-linked edges, and 8 lessons, raising the Principles catalog to 60 nodes, 71 edges, 37 lessons, and 8 paths. New content remains structural/reference education and reuses official source URLs; it does not publish live prices or recommendations.
+- **violated_rule**: R431; aggregate graph counts must reflect per-node explanations and explicit failure/verification boundaries.
+- **prevention**: the six-document contract now checks 60 nodes and 71 edges; the renderer fallback supplies lesson-backed definition, mechanism, KPI, connection, and risk copy for the new nodes.
+- **verification**: Principles syntax/contract/browser, Atlas evidence, six-document coverage, version/release, architecture, operations, knowledge lint, and diff checks pass after the v53.82 update.
+
+## P882 - v53.82 - Atlas P1/P2 evidence inventory expanded without promoting current claims
+
+- **motivation**: the Atlas taxonomy had role/product references for newly added domains, but its source packet still stopped at the original 15 sources and 8 candidate claims, leaving physical AI, defense autonomy, space, enterprise AI, critical materials, HBM, and quantum links outside the evidence ledger.
+- **root_cause**: taxonomy and player/product source registries were expanded independently from the research packet, so the UI could show a role reference without a connected claim-level evidence trail.
+- **fix**: added eight first-party sources, six candidate claims, two candidate edges, and packet connections for ATLAS-06 through ATLAS-08; updated Principles/Atlas count gates to 23 sources and 14 claims; kept publication `currentClaims` at zero and all new claims partial/candidate.
+- **violated_rule**: R431/R433; structural coverage and official reference links must remain distinct from reviewed current claims, production state, or investment conclusions.
+- **prevention**: Atlas and Principles contracts now count and render the expanded evidence registry; source URLs are visible from the player/product cards and every registry edge remains source/taxonomy-resolved.
+- **verification**: JSON parse, Atlas/Principles contracts, Atlas/Principles Chromium routes, version/release/architecture/operations checks, and knowledge lint are rerun after v53.82 synchronization.
+
+## P881 - v53.81 - Atlas player/product references expanded without promoting current claims
+
+- **motivation**: the Atlas taxonomy and user-facing concept guides covered 95 nodes, but the player/product reference registry stopped at 12 records and underrepresented the newly connected P1/P2 domains.
+- **root_cause**: reference source coverage was expanded in taxonomy guides without extending the role/product registry or enforcing record-level source and taxonomy edge integrity.
+- **fix**: added eight official first-party sources and eight player/product pairs for physical AI, defense autonomy, space systems, enterprise AI, critical materials, HBM, quantum, and industrial software; updated the Atlas index to 20 sources/players/products; kept every `asOf` and `productionStatus` value null.
+- **violated_rule**: R432 publication and normalization boundaries; structural reference data must not be rendered as current production, shipment, yield, valuation, or trading claims.
+- **prevention**: `ci-atlas-contract-check.mjs` now resolves every source ID against the player/research source registries, every taxonomy ID against the 95-node taxonomy, every product to a known player, and every currentness field to the null educational-reference boundary.
+- **verification**: Atlas contract, syntax, browser route, six-document coverage, version, knowledge lint, and release-manifest checks are rerun after the v53.81 synchronization.
+
+## P880 - v53.80 - the Principles catalog stopped at six learning paths despite the UX target of eight
+
+- **motivation**: the Market Principles graph had the requested tree/graph/path interaction but exposed only six paths against the UX specification's eight-path MVP target.
+- **root_cause**: new systems lessons were added as nodes and lessons, but the catalog path list was not extended to cover the AI systems/economics and capital/risk/evidence learning loops.
+- **fix**: added `ai-systems-and-economics` and `capital-risk-and-evidence` paths using existing connected lessons; updated Principles and six-document contract outputs to require eight paths.
+- **violated_rule**: R431 content-unit coverage; aggregate node/lesson counts must not hide missing navigation paths.
+- **prevention**: the six-document coverage gate now fails if the catalog path count drifts from eight; the Principles contract reports the same count.
+- **verification**: Principles syntax/contract/browser, six-document coverage, knowledge lint, and full browser/route checks are rerun after the catalog update.
+
+## P879 - v53.80 - retirement manifest omitted the three newly connected learning routes
+
+- **motivation**: the route-owners ledger and operations status measured 20 native lifecycle/renderer routes, while the retirement manifest still listed only the original 17 routes.
+- **root_cause**: the Principles, Masters, and Atlas route additions updated route ownership and browser contracts but were not copied into the separately maintained retirement manifest.
+- **fix**: added `principles`, `masters`, and `atlas` to both native lifecycle and native renderer retirement sets; refreshed route-owner measurement metadata to v53.80.
+- **violated_rule**: route retirement reconciliation; a manifest must agree with the code-derived route ownership ledger.
+- **prevention**: `ci-retirement-contract.mjs` remains a blocking set-equality check against `architecture/route-owners.json` and `public-data/operations-status.json`.
+- **verification**: retirement contract, architecture contract, operations contract, architecture browser, and route soak pass after the reconciliation.
+
+## P878 - v53.80 - release manifests lagged the application revision after the content expansion
+
+- **motivation**: the application and service worker had advanced to v53.80, but architecture and operations manifests still declared v53.78, blocking the release and operations contracts.
+- **root_cause**: the version bump covered the application's required seven synchronization surfaces but did not promote the separately maintained architecture/operations JSON manifests.
+- **fix**: synchronized `architecture/asset-manifest.json`, `architecture/release-manifest.json`, `architecture/visual-state-matrix.json`, `architecture/operations-slo.json`, `architecture/public-readiness.json`, and `public-data/operations-status.json` to v53.80/sw:v53.80; added regression verification to the changelog.
+- **violated_rule**: R1; every release artifact that participates in the release tuple must identify the same application revision.
+- **prevention**: architecture, operations, release-manifest, and version contracts are rerun after versioned content changes; future version-bump work must include the manifest set.
+- **verification**: all four revision gates pass; architecture browser and 20-route × 3-lap soak pass with zero browser errors and stable 42 canvases.
+
+## P877 - v53.80 - expanded reference inventory without silently promoting unsupported current claims
+
+- **motivation**: the remaining core scope still underrepresented Domain L~S, power/adjacent-industry market links, Foundations learning prompts, and the exact 13F normalization queue.
+- **root_cause**: the prior reference surface stopped at the P0 inventory and showed an unavailable sector tab without quantifying the raw normalization workload.
+- **fix**: expanded Atlas to 19 domains/95 nodes with explicit structural guides; added layer-specific Foundations teaching questions and visualization frames; expanded Principles to 41 nodes/29 lessons/6 paths; recorded 1,102 unique CUSIPs, 1,122 issuer strings, and zero verified mappings in the Masters artifact and UI; added the 22-category data-refresh audit artifact.
+- **violated_rule**: R431; aggregate schema coverage was not enough to prove content-unit coverage or normalization boundary visibility.
+- **prevention**: R432 and the Atlas/Masters contract/browser gates block current claim promotion, require all guide frames, and fail if normalization counts or pending state drift.
+- **verification**: Atlas/Foundations/Principles/Masters syntax and contract/browser checks pass; data-refresh structural audit passes with 22 rows, 16/16 Tier-0 coverage, and zero unknown sessions. `data.json` freshness SLA, licensed sentiment values, full source packets, security master, screen-reader, live edge, and seven-day soak remain open.
+
+## P876 - v53.79 - structural coverage was being mistaken for full source-document implementation
+
+- **motivation**: the six design documents were connected to routes and reference artifacts, but the visible scope still underrepresented the market-economics curriculum and Foundations/Atlas cards were too close to title-level inventory.
+- **root_cause**: coverage was measured by route/artifact presence and aggregate counts, not by per-node explanation fields, failure boundaries, or an explicit document-to-runtime matrix.
+- **fix**: added the six-document coverage artifact and binary audit contract; supplied definition/mechanism/example/limit/boundary content for all 48 Foundations modules and definition/chain/role/KPI/failure content for all 55 Atlas taxonomy nodes; expanded Principles to 26 nodes, 21 lessons, 4 paths with the scarcity-to-AI economic spine.
+- **violated_rule**: R430; a reference surface must not imply full publication when only the schema or inventory is connected.
+- **prevention**: `ci-six-doc-coverage-check.mjs` reports remaining scope; `ci-atlas-contract-check.mjs` verifies every taxonomy node and Foundations module has a guide; `ci-principles-contract-check.mjs` verifies the economic spine markers and browser coverage.
+- **verification**: Atlas/Principles syntax, contracts, and Chromium checks pass; remaining full-domain source packets, authored visualizations, Masters security master, live freshness, screen-reader, deployment-edge, and seven-day soak remain explicitly open.
+
+## P875 - v53.78 - midpoint QA exposed stale 13F wiring, noop views, and research-surface gaps
+
+- **motivation**: the midpoint handoff identified a stale Berkshire 13F period, non-functional Masters tabs, identical graph hop views, undersized evidence links, and Atlas/Principles screens that exposed research inventory without enough user-facing explanation.
+- **root_cause**: the first reference layer published compact rows and metadata but did not expose full comparison arrays to the UI; tab controls had no state transition; graph depth selected the same edge set; and evidence/status styling was designed for an internal ledger rather than a learning surface.
+- **fix**: refreshed Berkshire from SEC accession `0001193125-26-226661`; added freshness ordering and Scion `STALE_REFERENCE`; published `allHoldings`/`comparisons`; implemented Masters pagination, action filters, quarter/source views, and explicit sector preparation state; implemented BFS hop subgraphs, 24px evidence targets, focus/scroll selection, node explanations, learning tracks, and Atlas taxonomy guides.
+- **violated_rule**: R1/R26/R307 and the midpoint QA gates QA-MF1~3, QA-MP1~3, QA-AT1~2; reference data must not look current when it is stale, and controls must not pretend to work.
+- **prevention**: Masters contract checks accession/period ordering, row counts, freshness fields, no `noop` controls, and full artifact counts; Principles browser checks 1-hop vs 2-hop node counts; accessibility matrix blocks small targets; Atlas/Principles contracts require user-facing explanation markers.
+- **verification**: v53.78/version, release-manifest, operations, knowledge-lint, Masters/Principles/Atlas contracts and Chromium checks, route soak, viewport, and 20-route accessibility matrix pass. Live data freshness, security master/sector mapping, screen-reader certification, deployment edge headers, and seven-day soak remain external or pending gates.
 
 ## P874 - v53.68 - operations status promoted durable snapshot success to scheduled AI success
 

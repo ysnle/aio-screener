@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "masters-security-master.v1",
+  "reviewedAt": "2026-08-02",
+  "status": "REFERENCE_NORMALIZATION_PENDING",
+  "sourceKind": "DERIVED_SEC_13F_REFERENCE",
+  "sourceArtifact": "public-data/masters/holdings.json",
+  "coverage": {
+    "rawUniqueCusips": 1102,
+    "rawUniqueIssuerNames": 1122,
+    "mappedRows": 0,
+    "recordsPublished": 0,
+    "sectorWeightsPublished": false
+  },
+  "fields": [
+    "cusipNormalized",
+    "issuerCanonical",
+    "tickerVerified",
+    "shareClassVerified",
+    "corporateActionReviewed",
+    "sectorVerified",
+    "sourceUrl",
+    "asOf"
+  ],
+  "normalizationPolicy": [
+    "CUSIP is the raw filing key; it is not a ticker and is not sufficient to infer an issuer security master.",
+    "Ticker and share class require a verified security-master source and must not be inferred from issuer text.",
+    "Sector is a separate classification layer; portfolio weights stay hidden until every displayed row has a verified mapping.",
+    "Corporate actions, mergers, share-class changes and put/call rows must be reviewed before cross-quarter aggregation.",
+    "An empty records array is an explicit fail-closed state, not evidence that the filing contains no securities."
+  ],
+  "records": [],
+  "boundary": "SEC information-table rows and CUSIPs are connected. Verified ticker, issuer, share-class, corporate-action and sector mappings are not yet published; no sector weight or portfolio recommendation may be derived."
+}

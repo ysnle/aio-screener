@@ -1,0 +1,2392 @@
+{
+  "schemaVersion": "ai-era-atlas-taxonomy-node-coverage.v1",
+  "revision": "2026-08-02-v53.85",
+  "status": "STRUCTURAL_COVERAGE_CONNECTED",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "sourceDocument": "_context/AI-ERA-DEEP-TAXONOMY-PLAYER-PRODUCT-SPEC-2026-08-01.md",
+  "boundary": "모든 95개 taxonomy node가 산업 역할·제품군·상하류·대표 edge·검증 질문을 갖도록 연결한 구조적 coverage다. 실제 기업·제품 현재값은 공식 primary source와 기준일을 별도로 붙여야 한다.",
+  "coverage": {
+    "domains": 19,
+    "nodes": 95,
+    "nodesWithSourceSeeds": 95,
+    "nodesWithRepresentativePlayers": 47,
+    "nodesWithRepresentativeProducts": 41,
+    "currentClaims": 0
+  },
+  "nodes": [
+    {
+      "nodeId": "cloud-hyperscaler",
+      "domainId": "domain-cloud-platform",
+      "priority": "P0",
+      "title": "Hyperscaler cloud",
+      "kind": "business-model",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Hyperscaler cloud product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "google-cloud",
+        "aws"
+      ],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ],
+      "verificationQuestion": "Hyperscaler cloud의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "cloud-ai-service",
+      "domainId": "domain-cloud-platform",
+      "priority": "P0",
+      "title": "Managed AI service",
+      "kind": "service",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Managed AI service product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "google-cloud",
+        "aws"
+      ],
+      "representativeProductIds": [
+        "cloud-tpu-family",
+        "aws-trainium-family"
+      ],
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ],
+      "verificationQuestion": "Managed AI service의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "cloud-utilization",
+      "domainId": "domain-cloud-platform",
+      "priority": "P0",
+      "title": "Utilization / workload mix",
+      "kind": "economics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Utilization / workload mix product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ],
+      "verificationQuestion": "Utilization / workload mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "cloud-commitments",
+      "domainId": "domain-cloud-platform",
+      "priority": "P0",
+      "title": "Cloud commitments",
+      "kind": "contract",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Cloud commitments product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ],
+      "verificationQuestion": "Cloud commitments의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "cloud-depreciation",
+      "domainId": "domain-cloud-platform",
+      "priority": "P0",
+      "title": "Depreciation cycle",
+      "kind": "finance",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Depreciation cycle product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ],
+      "verificationQuestion": "Depreciation cycle의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "neocloud-gpu-rental",
+      "domainId": "domain-neocloud-finance",
+      "priority": "P0",
+      "title": "GPU rental",
+      "kind": "business-model",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "GPU rental product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ],
+      "verificationQuestion": "GPU rental의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "neocloud-capacity-reservation",
+      "domainId": "domain-neocloud-finance",
+      "priority": "P0",
+      "title": "Capacity reservation",
+      "kind": "contract",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Capacity reservation product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ],
+      "verificationQuestion": "Capacity reservation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "neocloud-lease-burden",
+      "domainId": "domain-neocloud-finance",
+      "priority": "P0",
+      "title": "Lease burden",
+      "kind": "finance",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Lease burden product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ],
+      "verificationQuestion": "Lease burden의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "neocloud-customer-concentration",
+      "domainId": "domain-neocloud-finance",
+      "priority": "P0",
+      "title": "Customer concentration",
+      "kind": "risk",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Customer concentration product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ],
+      "verificationQuestion": "Customer concentration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "neocloud-rental-yield",
+      "domainId": "domain-neocloud-finance",
+      "priority": "P0",
+      "title": "Rental yield minus funding cost",
+      "kind": "economics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Rental yield minus funding cost product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ],
+      "verificationQuestion": "Rental yield minus funding cost의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "compute-gpu",
+      "domainId": "domain-compute-silicon",
+      "priority": "P0",
+      "title": "GPU",
+      "kind": "accelerator",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "GPU product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "nvidia",
+        "amd"
+      ],
+      "representativeProductIds": [
+        "nvidia-gpu-accelerator-platform",
+        "amd-instinct-accelerator-family"
+      ],
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ],
+      "verificationQuestion": "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "compute-asic",
+      "domainId": "domain-compute-silicon",
+      "priority": "P0",
+      "title": "ASIC / custom accelerator",
+      "kind": "accelerator",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "ASIC / custom accelerator product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "amd",
+        "google-cloud",
+        "aws",
+        "synopsys",
+        "broadcom"
+      ],
+      "representativeProductIds": [
+        "cloud-tpu-family",
+        "aws-trainium-family"
+      ],
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ],
+      "verificationQuestion": "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "compute-npu",
+      "domainId": "domain-compute-silicon",
+      "priority": "P0",
+      "title": "NPU / edge accelerator",
+      "kind": "accelerator",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "NPU / edge accelerator product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ],
+      "verificationQuestion": "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "compute-precision",
+      "domainId": "domain-compute-silicon",
+      "priority": "P0",
+      "title": "FP/BF/INT precision",
+      "kind": "technical",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "FP/BF/INT precision product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ],
+      "verificationQuestion": "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "compute-interconnect",
+      "domainId": "domain-compute-silicon",
+      "priority": "P0",
+      "title": "Accelerator interconnect",
+      "kind": "technical",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Accelerator interconnect product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "nvidia"
+      ],
+      "representativeProductIds": [
+        "nvidia-gpu-accelerator-platform"
+      ],
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ],
+      "verificationQuestion": "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "memory-sram",
+      "domainId": "domain-memory-storage",
+      "priority": "P0",
+      "title": "SRAM / cache",
+      "kind": "memory",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "SRAM / cache product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ],
+      "verificationQuestion": "SRAM / cache의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "memory-dram-hbm",
+      "domainId": "domain-memory-storage",
+      "priority": "P0",
+      "title": "DRAM / HBM",
+      "kind": "memory",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "DRAM / HBM product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "micron",
+        "samsung-electronics"
+      ],
+      "representativeProductIds": [
+        "micron-hbm-family",
+        "samsung-hbm-family"
+      ],
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ],
+      "verificationQuestion": "DRAM / HBM의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "memory-nand",
+      "domainId": "domain-memory-storage",
+      "priority": "P0",
+      "title": "NAND flash",
+      "kind": "memory",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "NAND flash product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "micron",
+        "kioxia"
+      ],
+      "representativeProductIds": [
+        "kioxia-enterprise-ssd-family"
+      ],
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ],
+      "verificationQuestion": "NAND flash의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "memory-enterprise-ssd",
+      "domainId": "domain-memory-storage",
+      "priority": "P0",
+      "title": "Enterprise / data-center SSD",
+      "kind": "storage",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Enterprise / data-center SSD product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "micron",
+        "kioxia"
+      ],
+      "representativeProductIds": [
+        "kioxia-enterprise-ssd-family"
+      ],
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ],
+      "verificationQuestion": "Enterprise / data-center SSD의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "memory-cxl",
+      "domainId": "domain-memory-storage",
+      "priority": "P0",
+      "title": "CXL / pooled memory",
+      "kind": "interface",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "CXL / pooled memory product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "kioxia"
+      ],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ],
+      "verificationQuestion": "CXL / pooled memory의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "foundry-design-ecosystem",
+      "domainId": "domain-foundry-equipment",
+      "priority": "P0",
+      "title": "Design ecosystem",
+      "kind": "value-chain",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Design ecosystem product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "synopsys"
+      ],
+      "representativeProductIds": [
+        "synopsys-eda-flow"
+      ],
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ],
+      "verificationQuestion": "Design ecosystem의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "foundry-process-node",
+      "domainId": "domain-foundry-equipment",
+      "priority": "P0",
+      "title": "Process node",
+      "kind": "manufacturing",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Process node product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "tsmc",
+        "asml",
+        "samsung-electronics"
+      ],
+      "representativeProductIds": [
+        "asml-euv-lithography-family",
+        "samsung-hbm-family"
+      ],
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ],
+      "verificationQuestion": "Process node의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "foundry-equipment",
+      "domainId": "domain-foundry-equipment",
+      "priority": "P0",
+      "title": "Process equipment",
+      "kind": "equipment",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Process equipment product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "asml"
+      ],
+      "representativeProductIds": [
+        "asml-euv-lithography-family"
+      ],
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ],
+      "verificationQuestion": "Process equipment의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "foundry-materials",
+      "domainId": "domain-foundry-equipment",
+      "priority": "P0",
+      "title": "Materials / chemicals",
+      "kind": "materials",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Materials / chemicals product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ],
+      "verificationQuestion": "Materials / chemicals의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "foundry-capacity-yield",
+      "domainId": "domain-foundry-equipment",
+      "priority": "P0",
+      "title": "Capacity / yield / utilization",
+      "kind": "economics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Capacity / yield / utilization product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "tsmc"
+      ],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ],
+      "verificationQuestion": "Capacity / yield / utilization의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "package-2-5d",
+      "domainId": "domain-packaging-substrate",
+      "priority": "P0",
+      "title": "2.5D integration",
+      "kind": "packaging",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "2.5D integration product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "tsmc"
+      ],
+      "representativeProductIds": [
+        "tsmc-3dfabric-family"
+      ],
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ],
+      "verificationQuestion": "2.5D integration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "package-3d-stacking",
+      "domainId": "domain-packaging-substrate",
+      "priority": "P0",
+      "title": "3D stacking",
+      "kind": "packaging",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "3D stacking product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "tsmc"
+      ],
+      "representativeProductIds": [
+        "tsmc-3dfabric-family"
+      ],
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ],
+      "verificationQuestion": "3D stacking의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "package-interposer",
+      "domainId": "domain-packaging-substrate",
+      "priority": "P0",
+      "title": "Interposer / bridge",
+      "kind": "packaging",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Interposer / bridge product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ],
+      "verificationQuestion": "Interposer / bridge의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "package-substrate",
+      "domainId": "domain-packaging-substrate",
+      "priority": "P0",
+      "title": "ABF / FC-BGA substrate",
+      "kind": "materials",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "ABF / FC-BGA substrate product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ],
+      "verificationQuestion": "ABF / FC-BGA substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "package-glass",
+      "domainId": "domain-packaging-substrate",
+      "priority": "P0",
+      "title": "Glass substrate",
+      "kind": "emerging-technology",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Glass substrate product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ],
+      "verificationQuestion": "Glass substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "network-switch",
+      "domainId": "domain-network-photonics",
+      "priority": "P0",
+      "title": "Switch silicon",
+      "kind": "network",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Switch silicon product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "broadcom"
+      ],
+      "representativeProductIds": [
+        "broadcom-ethernet-switch-family"
+      ],
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ],
+      "verificationQuestion": "Switch silicon의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "network-optical-module",
+      "domainId": "domain-network-photonics",
+      "priority": "P0",
+      "title": "Optical module",
+      "kind": "photonics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Optical module product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "coherent"
+      ],
+      "representativeProductIds": [
+        "coherent-optical-module-family"
+      ],
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ],
+      "verificationQuestion": "Optical module의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "network-silicon-photonics",
+      "domainId": "domain-network-photonics",
+      "priority": "P0",
+      "title": "Silicon photonics",
+      "kind": "photonics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Silicon photonics product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "coherent"
+      ],
+      "representativeProductIds": [
+        "coherent-optical-module-family"
+      ],
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ],
+      "verificationQuestion": "Silicon photonics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "network-cpo",
+      "domainId": "domain-network-photonics",
+      "priority": "P0",
+      "title": "Co-packaged optics",
+      "kind": "photonics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Co-packaged optics product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "coherent"
+      ],
+      "representativeProductIds": [
+        "coherent-optical-module-family"
+      ],
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ],
+      "verificationQuestion": "Co-packaged optics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "network-fabric",
+      "domainId": "domain-network-photonics",
+      "priority": "P0",
+      "title": "AI cluster fabric",
+      "kind": "system",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "AI cluster fabric product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "nvidia",
+        "broadcom"
+      ],
+      "representativeProductIds": [
+        "broadcom-ethernet-switch-family"
+      ],
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ],
+      "verificationQuestion": "AI cluster fabric의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "aidc-rack-density",
+      "domainId": "domain-aidc-cooling",
+      "priority": "P0",
+      "title": "Rack density",
+      "kind": "facility",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Rack density product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "vertiv"
+      ],
+      "representativeProductIds": [
+        "vertiv-thermal-power-solutions"
+      ],
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ],
+      "verificationQuestion": "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "aidc-liquid-cooling",
+      "domainId": "domain-aidc-cooling",
+      "priority": "P0",
+      "title": "Liquid cooling",
+      "kind": "thermal",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Liquid cooling product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "vertiv"
+      ],
+      "representativeProductIds": [
+        "vertiv-thermal-power-solutions"
+      ],
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ],
+      "verificationQuestion": "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "aidc-thermal-design",
+      "domainId": "domain-aidc-cooling",
+      "priority": "P0",
+      "title": "Thermal design",
+      "kind": "engineering",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Thermal design product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ],
+      "verificationQuestion": "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "aidc-server-platform",
+      "domainId": "domain-aidc-cooling",
+      "priority": "P0",
+      "title": "Server platform",
+      "kind": "system",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Server platform product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ],
+      "verificationQuestion": "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "aidc-pue",
+      "domainId": "domain-aidc-cooling",
+      "priority": "P0",
+      "title": "PUE / facility efficiency",
+      "kind": "metric",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "PUE / facility efficiency product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ],
+      "verificationQuestion": "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "power-it-load",
+      "domainId": "domain-power-grid",
+      "priority": "P0",
+      "title": "Accelerator IT load",
+      "kind": "demand",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Accelerator IT load product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ],
+      "verificationQuestion": "Accelerator IT load의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "power-generation",
+      "domainId": "domain-power-grid",
+      "priority": "P0",
+      "title": "Generation mix",
+      "kind": "energy",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Generation mix product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ],
+      "verificationQuestion": "Generation mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "power-transmission",
+      "domainId": "domain-power-grid",
+      "priority": "P0",
+      "title": "Transmission / substation",
+      "kind": "grid",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Transmission / substation product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ],
+      "verificationQuestion": "Transmission / substation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "power-interconnection",
+      "domainId": "domain-power-grid",
+      "priority": "P0",
+      "title": "Interconnection queue",
+      "kind": "regulation",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Interconnection queue product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ],
+      "verificationQuestion": "Interconnection queue의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "power-transformer",
+      "domainId": "domain-power-grid",
+      "priority": "P0",
+      "title": "Transformer / switchgear",
+      "kind": "equipment",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Transformer / switchgear product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "vertiv"
+      ],
+      "representativeProductIds": [
+        "vertiv-thermal-power-solutions"
+      ],
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ],
+      "verificationQuestion": "Transformer / switchgear의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "edge-soc-npu",
+      "domainId": "domain-on-device-physical-ai",
+      "priority": "P0",
+      "title": "Edge SoC / NPU",
+      "kind": "hardware",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Edge SoC / NPU product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "amd",
+        "tesla"
+      ],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ],
+      "verificationQuestion": "Edge SoC / NPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "edge-memory-power",
+      "domainId": "domain-on-device-physical-ai",
+      "priority": "P0",
+      "title": "Memory / power envelope",
+      "kind": "constraint",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Memory / power envelope product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ],
+      "verificationQuestion": "Memory / power envelope의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "physical-ai-sensing",
+      "domainId": "domain-on-device-physical-ai",
+      "priority": "P0",
+      "title": "Sensors / perception",
+      "kind": "robotics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Sensors / perception product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ],
+      "verificationQuestion": "Sensors / perception의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "physical-ai-control",
+      "domainId": "domain-on-device-physical-ai",
+      "priority": "P0",
+      "title": "Control / actuation",
+      "kind": "robotics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Control / actuation product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "tesla",
+        "shield-ai"
+      ],
+      "representativeProductIds": [
+        "tesla-optimus-and-autonomy-stack",
+        "shield-ai-hivemind-autonomy"
+      ],
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ],
+      "verificationQuestion": "Control / actuation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "physical-ai-digital-twin",
+      "domainId": "domain-on-device-physical-ai",
+      "priority": "P0",
+      "title": "Simulation / digital twin",
+      "kind": "software",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Simulation / digital twin product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "siemens"
+      ],
+      "representativeProductIds": [
+        "siemens-industrial-copilot"
+      ],
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ],
+      "verificationQuestion": "Simulation / digital twin의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "economics-revenue-model",
+      "domainId": "domain-ai-economics",
+      "priority": "P0",
+      "title": "Revenue model",
+      "kind": "finance",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Revenue model product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ],
+      "verificationQuestion": "Revenue model의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "economics-capex",
+      "domainId": "domain-ai-economics",
+      "priority": "P0",
+      "title": "CAPEX / lease",
+      "kind": "finance",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "CAPEX / lease product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ],
+      "verificationQuestion": "CAPEX / lease의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "economics-depreciation",
+      "domainId": "domain-ai-economics",
+      "priority": "P0",
+      "title": "Depreciation / useful life",
+      "kind": "accounting",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Depreciation / useful life product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ],
+      "verificationQuestion": "Depreciation / useful life의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "economics-fcf",
+      "domainId": "domain-ai-economics",
+      "priority": "P0",
+      "title": "FCF / funding",
+      "kind": "finance",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "FCF / funding product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ],
+      "verificationQuestion": "FCF / funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "economics-roic",
+      "domainId": "domain-ai-economics",
+      "priority": "P0",
+      "title": "ROIC / counter-scenario",
+      "kind": "investment-framework",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "ROIC / counter-scenario product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ],
+      "verificationQuestion": "ROIC / counter-scenario의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "physical-ai-perception",
+      "domainId": "domain-physical-ai-robotics",
+      "priority": "P1",
+      "title": "Perception and sensor fusion",
+      "kind": "robotics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Perception and sensor fusion product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "tesla"
+      ],
+      "representativeProductIds": [
+        "tesla-optimus-and-autonomy-stack"
+      ],
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ],
+      "verificationQuestion": "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "physical-ai-world-model",
+      "domainId": "domain-physical-ai-robotics",
+      "priority": "P1",
+      "title": "World model and simulation",
+      "kind": "software",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "World model and simulation product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ],
+      "verificationQuestion": "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "physical-ai-planning",
+      "domainId": "domain-physical-ai-robotics",
+      "priority": "P1",
+      "title": "Planning and control",
+      "kind": "robotics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Planning and control product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "tesla",
+        "shield-ai"
+      ],
+      "representativeProductIds": [
+        "tesla-optimus-and-autonomy-stack",
+        "shield-ai-hivemind-autonomy"
+      ],
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ],
+      "verificationQuestion": "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "physical-ai-actuation",
+      "domainId": "domain-physical-ai-robotics",
+      "priority": "P1",
+      "title": "Actuation and safety",
+      "kind": "hardware",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Actuation and safety product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ],
+      "verificationQuestion": "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "physical-ai-unit-economics",
+      "domainId": "domain-physical-ai-robotics",
+      "priority": "P1",
+      "title": "Robot unit economics",
+      "kind": "economics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Robot unit economics product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ],
+      "verificationQuestion": "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "defense-kill-chain",
+      "domainId": "domain-drone-defense",
+      "priority": "P1",
+      "title": "Detection-to-decision chain",
+      "kind": "defense",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Detection-to-decision chain product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ],
+      "verificationQuestion": "Detection-to-decision chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "defense-c2-isr-ew",
+      "domainId": "domain-drone-defense",
+      "priority": "P1",
+      "title": "C2 / ISR / electronic warfare",
+      "kind": "defense",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "C2 / ISR / electronic warfare product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "shield-ai"
+      ],
+      "representativeProductIds": [
+        "shield-ai-hivemind-autonomy"
+      ],
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ],
+      "verificationQuestion": "C2 / ISR / electronic warfare의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "defense-autonomy",
+      "domainId": "domain-drone-defense",
+      "priority": "P1",
+      "title": "Autonomy and human control",
+      "kind": "policy",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Autonomy and human control product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "shield-ai"
+      ],
+      "representativeProductIds": [
+        "shield-ai-hivemind-autonomy"
+      ],
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ],
+      "verificationQuestion": "Autonomy and human control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "defense-drone-production",
+      "domainId": "domain-drone-defense",
+      "priority": "P1",
+      "title": "Drone production and attrition",
+      "kind": "manufacturing",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Drone production and attrition product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ],
+      "verificationQuestion": "Drone production and attrition의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "defense-procurement-economics",
+      "domainId": "domain-drone-defense",
+      "priority": "P1",
+      "title": "Procurement economics",
+      "kind": "economics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Procurement economics product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ],
+      "verificationQuestion": "Procurement economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "space-rocket-physics",
+      "domainId": "domain-space-aerospace",
+      "priority": "P1",
+      "title": "Rocket physics and launch energy",
+      "kind": "physics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Rocket physics and launch energy product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "rocket-lab"
+      ],
+      "representativeProductIds": [
+        "rocket-lab-electron-neutron-space-systems"
+      ],
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ],
+      "verificationQuestion": "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "space-reusability",
+      "domainId": "domain-space-aerospace",
+      "priority": "P1",
+      "title": "Reusability and turnaround",
+      "kind": "engineering",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Reusability and turnaround product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "rocket-lab"
+      ],
+      "representativeProductIds": [
+        "rocket-lab-electron-neutron-space-systems"
+      ],
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ],
+      "verificationQuestion": "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "space-satellite-economics",
+      "domainId": "domain-space-aerospace",
+      "priority": "P1",
+      "title": "Satellite data economics",
+      "kind": "economics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Satellite data economics product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "rocket-lab"
+      ],
+      "representativeProductIds": [
+        "rocket-lab-electron-neutron-space-systems"
+      ],
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ],
+      "verificationQuestion": "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "space-artemis-architecture",
+      "domainId": "domain-space-aerospace",
+      "priority": "P1",
+      "title": "Artemis architecture",
+      "kind": "program",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Artemis architecture product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ],
+      "verificationQuestion": "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "space-aircraft-supply-chain",
+      "domainId": "domain-space-aerospace",
+      "priority": "P1",
+      "title": "Aircraft and space supply chain",
+      "kind": "manufacturing",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Aircraft and space supply chain product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "rocket-lab"
+      ],
+      "representativeProductIds": [
+        "rocket-lab-electron-neutron-space-systems"
+      ],
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ],
+      "verificationQuestion": "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "application-healthcare",
+      "domainId": "domain-ai-applications",
+      "priority": "P1",
+      "title": "Healthcare workflow",
+      "kind": "application",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Healthcare workflow product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ],
+      "verificationQuestion": "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "application-manufacturing",
+      "domainId": "domain-ai-applications",
+      "priority": "P1",
+      "title": "Manufacturing workflow",
+      "kind": "application",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Manufacturing workflow product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "palantir",
+        "siemens"
+      ],
+      "representativeProductIds": [
+        "palantir-aip",
+        "siemens-industrial-copilot"
+      ],
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ],
+      "verificationQuestion": "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "application-automotive",
+      "domainId": "domain-ai-applications",
+      "priority": "P1",
+      "title": "Automotive autonomy",
+      "kind": "application",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Automotive autonomy product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "tesla"
+      ],
+      "representativeProductIds": [
+        "tesla-optimus-and-autonomy-stack"
+      ],
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ],
+      "verificationQuestion": "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "application-finance",
+      "domainId": "domain-ai-applications",
+      "priority": "P1",
+      "title": "Financial decision workflow",
+      "kind": "application",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Financial decision workflow product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "palantir",
+        "ibm"
+      ],
+      "representativeProductIds": [
+        "palantir-aip"
+      ],
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ],
+      "verificationQuestion": "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "application-roi-payer",
+      "domainId": "domain-ai-applications",
+      "priority": "P1",
+      "title": "Payer, ROI and adoption",
+      "kind": "economics",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Payer, ROI and adoption product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "palantir"
+      ],
+      "representativeProductIds": [
+        "palantir-aip"
+      ],
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ],
+      "verificationQuestion": "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "resources-copper",
+      "domainId": "domain-resources-materials",
+      "priority": "P1",
+      "title": "Copper and conductors",
+      "kind": "materials",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Copper and conductors product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ],
+      "verificationQuestion": "Copper and conductors의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "resources-lithium",
+      "domainId": "domain-resources-materials",
+      "priority": "P1",
+      "title": "Lithium and storage materials",
+      "kind": "materials",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Lithium and storage materials product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ],
+      "verificationQuestion": "Lithium and storage materials의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "resources-rare-earths",
+      "domainId": "domain-resources-materials",
+      "priority": "P1",
+      "title": "Rare earths and magnets",
+      "kind": "materials",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Rare earths and magnets product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "mp-materials"
+      ],
+      "representativeProductIds": [
+        "mp-materials-rare-earth-magnetics"
+      ],
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ],
+      "verificationQuestion": "Rare earths and magnets의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "resources-refining",
+      "domainId": "domain-resources-materials",
+      "priority": "P1",
+      "title": "Mining, refining and recycling",
+      "kind": "process",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Mining, refining and recycling product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "mp-materials"
+      ],
+      "representativeProductIds": [
+        "mp-materials-rare-earth-magnetics"
+      ],
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ],
+      "verificationQuestion": "Mining, refining and recycling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "resources-industrial-equipment",
+      "domainId": "domain-resources-materials",
+      "priority": "P1",
+      "title": "Industrial equipment bottlenecks",
+      "kind": "equipment",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Industrial equipment bottlenecks product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "mp-materials"
+      ],
+      "representativeProductIds": [
+        "mp-materials-rare-earth-magnetics"
+      ],
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ],
+      "verificationQuestion": "Industrial equipment bottlenecks의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "policy-export-controls",
+      "domainId": "domain-geopolitics-policy-security",
+      "priority": "P1",
+      "title": "Export controls",
+      "kind": "policy",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Export controls product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ],
+      "verificationQuestion": "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "policy-supply-chain-resilience",
+      "domainId": "domain-geopolitics-policy-security",
+      "priority": "P1",
+      "title": "Supply-chain resilience",
+      "kind": "policy",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Supply-chain resilience product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "mp-materials"
+      ],
+      "representativeProductIds": [
+        "mp-materials-rare-earth-magnetics"
+      ],
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ],
+      "verificationQuestion": "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "policy-semiconductor-incentives",
+      "domainId": "domain-geopolitics-policy-security",
+      "priority": "P1",
+      "title": "Semiconductor incentives",
+      "kind": "policy",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Semiconductor incentives product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "samsung-electronics"
+      ],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ],
+      "verificationQuestion": "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "policy-cybersecurity",
+      "domainId": "domain-geopolitics-policy-security",
+      "priority": "P1",
+      "title": "Cybersecurity and sovereign AI",
+      "kind": "security",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Cybersecurity and sovereign AI product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ],
+      "verificationQuestion": "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "policy-national-security-risk",
+      "domainId": "domain-geopolitics-policy-security",
+      "priority": "P1",
+      "title": "National-security risk",
+      "kind": "risk",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "National-security risk product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ],
+      "verificationQuestion": "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "capital-company-role",
+      "domainId": "domain-capital-markets-company-map",
+      "priority": "P1",
+      "title": "Company role and value capture",
+      "kind": "company",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Company role and value capture product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "palantir",
+        "siemens"
+      ],
+      "representativeProductIds": [
+        "palantir-aip",
+        "siemens-industrial-copilot"
+      ],
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ],
+      "verificationQuestion": "Company role and value capture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "capital-revenue-quality",
+      "domainId": "domain-capital-markets-company-map",
+      "priority": "P1",
+      "title": "Revenue quality and visibility",
+      "kind": "finance",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Revenue quality and visibility product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "palantir"
+      ],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ],
+      "verificationQuestion": "Revenue quality and visibility의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "capital-margin-structure",
+      "domainId": "domain-capital-markets-company-map",
+      "priority": "P1",
+      "title": "Margin and cost structure",
+      "kind": "finance",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Margin and cost structure product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ],
+      "verificationQuestion": "Margin and cost structure의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "capital-balance-sheet",
+      "domainId": "domain-capital-markets-company-map",
+      "priority": "P1",
+      "title": "Balance sheet and funding",
+      "kind": "finance",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Balance sheet and funding product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ],
+      "verificationQuestion": "Balance sheet and funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "capital-market-expectation",
+      "domainId": "domain-capital-markets-company-map",
+      "priority": "P1",
+      "title": "Expectation and price",
+      "kind": "market",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Expectation and price product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ],
+      "verificationQuestion": "Expectation and price의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "future-quantum",
+      "domainId": "domain-adjacent-future-tech",
+      "priority": "P2",
+      "title": "Quantum computing",
+      "kind": "emerging-technology",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Quantum computing product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "ibm"
+      ],
+      "representativeProductIds": [
+        "ibm-quantum-platform"
+      ],
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ],
+      "verificationQuestion": "Quantum computing의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "future-photonic-compute",
+      "domainId": "domain-adjacent-future-tech",
+      "priority": "P2",
+      "title": "Photonic compute",
+      "kind": "emerging-technology",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Photonic compute product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [
+        "ibm"
+      ],
+      "representativeProductIds": [
+        "ibm-quantum-platform"
+      ],
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ],
+      "verificationQuestion": "Photonic compute의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "future-neuromorphic",
+      "domainId": "domain-adjacent-future-tech",
+      "priority": "P2",
+      "title": "Neuromorphic systems",
+      "kind": "emerging-technology",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Neuromorphic systems product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ],
+      "verificationQuestion": "Neuromorphic systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "future-new-energy",
+      "domainId": "domain-adjacent-future-tech",
+      "priority": "P2",
+      "title": "New energy systems",
+      "kind": "energy",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "New energy systems product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ],
+      "verificationQuestion": "New energy systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    },
+    {
+      "nodeId": "future-uncertainty-gate",
+      "domainId": "domain-adjacent-future-tech",
+      "priority": "P2",
+      "title": "Technology uncertainty gate",
+      "kind": "method",
+      "roleReference": "industry value-chain role",
+      "productFamilyReference": "Technology uncertainty gate product/service family",
+      "upstream": [],
+      "downstream": [],
+      "representativePlayerIds": [],
+      "representativeProductIds": [],
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ],
+      "verificationQuestion": "Technology uncertainty gate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "currentClaims": 0,
+      "asOf": null,
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+    }
+  ]
+}

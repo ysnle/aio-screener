@@ -1,8 +1,8 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P788 verification
-last_verified: 2026-07-29
+verified_by: agent (Fable 5) + Codex P761-P888 verification
+last_verified: 2026-08-02
 confidence: high
-target_version: v53.68
+target_version: v53.87
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -1840,3 +1840,51 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: Scheduled AI readiness and last-call status must be derived from `data.meta.marketAnalysisOk`, not from durable market-snapshot publication. Durable data success, semantic analysis success, public chat readiness, and provider rights remain separate dimensions.
 
 **Validation**: `ci-operations-status-check.mjs` compares both scheduled-analysis fields with the current data artifact and fails on false `CURRENT` claims.
+
+## R430. Reference learning surfaces must expose real state and freshness (v53.78, P875)
+
+**Rule**: A reference page must not render a control as functional unless it changes the selected view or explicitly explains why the view is unavailable. Latest/prior filing periods, collection time, and stale-reference status must remain visible in the artifact boundary. Research IDs/statuses may remain in data attributes and evidence ledgers, but the default UI must translate them into user-facing language. Graph depth, evidence links, and learning detail must be measurable in browser/accessibility gates.
+
+**Validation**: `ci-masters-contract-check.mjs`, `ci-masters-browser-check.mjs`, `ci-principles-browser-check.mjs`, `ci-atlas-browser-check.mjs`, and `ci-accessibility-matrix-check.mjs` cover full-row counts, freshness ordering, non-noop views, hop counts, user-facing explanation markers, and zero small targets.
+
+## R431. Source-document coverage must be measured per content unit (v53.79, P876)
+
+**Rule**: Connecting a route, schema, or aggregate artifact is not equivalent to completing the source document. Every published reference node/module must expose its definition, mechanism or chain, user-facing role, observable KPI, limitation/failure condition, and source/review boundary. Remaining domains, player/product records, authored visualizations, or normalization gaps must be listed as open scope rather than hidden behind a generic card.
+
+**Validation**: `scripts/ci-six-doc-coverage-check.mjs` reports document-to-runtime coverage and remaining scope; `ci-atlas-contract-check.mjs` checks all 95 taxonomy nodes and 48 Foundations modules for guide coverage; `ci-principles-contract-check.mjs` and `ci-principles-browser-check.mjs` check the economic spine, 41 nodes, 29 lessons, and 8 paths.
+
+## R432. Domain expansion must preserve publication and normalization boundaries (v53.80, P877)
+
+**Rule**: Adding P1/P2 taxonomy domains or research lessons must extend the user-facing explanation contract and browser count gate without silently promoting current company, production, yield, revenue, or trading claims. SEC 13F sector/weight views must remain unavailable until a verified security master resolves CUSIP, share class, corporate actions, issuer, ticker, and sector; raw row counts alone are not a sector mapping.
+
+**Validation**: `ci-atlas-contract-check.mjs`/`ci-atlas-browser-check.mjs` require 19 domains/95 nodes and 48 module question/visualization frames; `ci-masters-contract-check.mjs` requires `PENDING_VERIFIED_SECURITY_MASTER`, 1,102 raw unique CUSIPs, 1,122 issuer strings, and zero mapped rows until the mapping artifact is verified.
+
+## R433. Educational player/product references require resolved evidence edges (v53.81, P881)
+
+**Rule**: An Atlas player or product record is educational reference data, not a current company claim. Every record must resolve its source IDs to a first-party player/research source, its taxonomy IDs to the canonical node set, and every product to a known player. `asOf` and `productionStatus` must remain null until independently verified publication data exists; shipment, yield, valuation, and live trading language must not be inferred from a role/product record.
+
+**Validation**: `ci-atlas-contract-check.mjs` enforces the registry count, source and taxonomy edge resolution, player/product referential integrity, `EDUCATIONAL_REFERENCE_ONLY` publication status, and null currentness fields; `ci-atlas-browser-check.mjs` verifies the source-linked route renders without browser errors.
+
+## R434. Authored reference artifacts require renderer and coverage gates (v53.83, P884-P887)
+
+**Rule**: Adding explanatory content is complete only when the artifact is connected to the route renderer, every required content unit resolves its related node/source IDs, and the browser gate observes the published count. Short-form educational reference copy must remain distinct from independent long-form authorship, verified current company data, and investment recommendations.
+
+**Validation**: The Atlas, Principles, Masters, and six-document contracts require 48 authored Foundation lessons, 19 Atlas domain guides, 15 Principles chapters/39 lessons covering 60 nodes, and a fail-closed Masters security-master artifact; their Chromium checks verify visible rendering and route behavior.
+
+## R435. Reference currentness overlays must remain educational and status-labeled (v53.84, P888)
+
+**Rule**: A source page check or structural player/product mapping cannot be rendered as verified production state, shipment, yield, revenue, or current investment fact. Any reference overlay must expose its review date and educational basis in user-facing language; unknown values remain unknown.
+
+**Validation**: Atlas contract/browser checks validate currentness status and `statusBasis`; the renderer must not expose raw internal enums as the only user-facing explanation. Masters reference mappings remain separate from the fail-closed verified security master.
+
+## R436. 시장 휴장일 freshness 유예는 완전한 Tier-0 snapshot에만 허용한다 (v53.86, P889)
+
+**Rule**: `data.json`/`market-snapshot.json`의 live-core freshness SLA는 평일과 provider failure에서 반드시 fail-closed로 동작해야 한다. 토·일 유예는 `market-snapshot.json`의 `QG-01_PASS`, Tier-0 required/observed 일치, `errors=[]`가 동시에 확인될 때만 허용하며, 유예는 새 값을 생성하거나 timestamp를 갱신하는 근거가 아니다.
+
+**Validation**: `ci-data-lineage-audit.mjs`의 market-closed predicate와 `ci-refresh-artifact-integrity-check.mjs`를 함께 실행한다.
+
+## R437. 최신 13F 없음과 지연 상태를 구분하는 SEC availability evidence를 기록한다 (v53.87, P890)
+
+**Rule**: `STALE_REFERENCE` 13F는 공시 원문이 오래된 것인지 SEC에 더 최신 분기가 없는 것인지 독립적으로 확인해야 한다. SEC submissions feed의 최신 제출 시점·검증일·source URL·결과를 연결하고, 그 결과를 최신 보유 데이터로 승격하지 않는다. 확인 결과는 사용자에게 표시해 `current`로 오인되지 않게 한다.
+
+**Validation**: `ci-masters-contract-check.mjs`가 Scion의 `NO_LATER_13F_HR_REPORTED` 결과와 SEC submissions JSON URL을 검증하고, `ci-masters-browser-check.mjs`가 Masters 상세 availability note를 검증한다.

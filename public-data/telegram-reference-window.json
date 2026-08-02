@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "telegram-reference-window.v1",
+  "revision": "2026-08-02-v53.85",
+  "status": "REFERENCE_ONLY",
+  "publication": "DISCOVERY_NOT_CURRENT_DATA",
+  "generatedAt": "2026-08-02T10:42:00Z",
+  "window": {
+    "start": "2026-07-28T00:00:00+09:00",
+    "end": "2026-08-01T09:00:00+09:00",
+    "daysObserved": 5,
+    "timezone": "Asia/Seoul"
+  },
+  "sourceArtifact": "_artifacts/telegram-5d-research-packet-2026-08-01.md",
+  "boundary": "Telegram 게시물은 keyword·framework·source-link discovery에만 사용한다. 숫자·전망·속보·기업 사실·매매 신호로 승격하지 않는다.",
+  "channels": [
+    {
+      "channel": "aetherjapanresearch",
+      "url": "https://web.telegram.org/k/#@aetherjapanresearch",
+      "observedCount": 235,
+      "status": "REFERENCE_READY",
+      "focus": [
+        "일본·미국 sell-side",
+        "장비·메모리",
+        "AI 인프라"
+      ]
+    },
+    {
+      "channel": "insidertracking",
+      "url": "https://web.telegram.org/k/#@insidertracking",
+      "observedCount": 465,
+      "status": "REFERENCE_READY",
+      "focus": [
+        "macro",
+        "지정학",
+        "flows",
+        "기업·실적",
+        "AI 전력"
+      ]
+    },
+    {
+      "channel": "bornlupin",
+      "url": "https://web.telegram.org/k/#@bornlupin",
+      "observedCount": 113,
+      "status": "REFERENCE_READY",
+      "focus": [
+        "한국·미국 메모리",
+        "실적·수출",
+        "NAND·SSD"
+      ]
+    },
+    {
+      "channel": "survival_DoPB",
+      "url": "https://web.telegram.org/k/#@survival_DoPB",
+      "observedCount": 2,
+      "status": "SPARSE_REFERENCE",
+      "focus": [
+        "Kioxia·SK하이닉스 소재"
+      ]
+    },
+    {
+      "channel": "Onionfarmer",
+      "url": "https://web.telegram.org/k/#@Onionfarmer",
+      "observedCount": 0,
+      "status": "STALE_FOR_WINDOW",
+      "focus": [
+        "이번 창 신규 표본 없음",
+        "과거 discovery only"
+      ]
+    }
+  ],
+  "observedLineageCount": 813,
+  "promotedClaims": 0,
+  "runtimePolicy": "현재 runtime source digest는 3개 채널이며, 5개 채널 window는 reference index로 보존한다."
+}

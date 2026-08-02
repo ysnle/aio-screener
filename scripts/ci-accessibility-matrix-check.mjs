@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_A11Y_PORT || 8901);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
-const routes = ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','guide']; // v53.7 (P725): KR 5 routes retired
+const routes = ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options','principles','masters','atlas','guide']; // v53.72: atlas reference route added
 const outPath = process.env.CI_A11Y_OUT
   ? resolve(root, process.env.CI_A11Y_OUT)
   : resolve(root, '_artifacts', 'accessibility-matrix-audit.json');

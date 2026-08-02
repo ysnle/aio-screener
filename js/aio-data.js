@@ -1247,6 +1247,9 @@ var _TG_PAGE_TAGS = {
   'market-news': ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','optical','power','crypto','earnings','healthcare','japan','flows','insider'],
   'options':     ['macro','equity','flows','earnings','crypto','geo'],
   'screener':    ['equity','earnings','insider','semi','power','optical','healthcare','kr-market'],
+  'principles':  ['macro','credit','semi','power','ai-policy','geo','japan'],
+  'masters':     ['equity','earnings','flows','insider','macro','credit'],
+  'atlas':       ['semi','optical','power','ai-policy','credit','equity','japan'],
   // v53.7 (P725): kr-home/kr-supply/kr-themes 컨테이너 퇴역 — kr-macro/kr-technical 피드는 통합 섹션에 이관돼 유지
   'kr-macro':    ['kr-market','macro','credit','semi','ai-policy','geo','japan'],
   'kr-technical':['kr-market','semi','equity','macro','geo','flows'],
@@ -10975,7 +10978,7 @@ window.AIO.getTelegramPageCoverageAudit = function() {
   var currentWindow = digest.current24hWindow || null;
   var required = Array.isArray(window.AIO_ALL_ROUTE_PAGE_IDS) && window.AIO_ALL_ROUTE_PAGE_IDS.length
     ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','guide'];
+    : ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','principles','masters','atlas','guide'];
   var routes = {};
   required.forEach(function(pageId) {
     var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];

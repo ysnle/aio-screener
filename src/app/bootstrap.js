@@ -51,6 +51,9 @@ import { createAIAnswerOrchestrator } from '../ai/orchestrator/answer-orchestrat
 import { createRouteRegistry } from './router.js';
 import { createLifecycleRouter } from './router.js';
 import { createGuidePage } from '../ui/pages/guide.js';
+import { createPrinciplesPage } from '../ui/pages/principles.js';
+import { createMastersPage } from '../ui/pages/masters.js';
+import { createAtlasPage } from '../ui/pages/atlas.js';
 import { createNewsPage } from '../ui/pages/news.js';
 import { createMarketSlicePage } from '../ui/pages/market.js';
 import { createThemesPage } from '../ui/pages/themes.js';
@@ -234,6 +237,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const syncAnalysis = createAnalysisOrchestrator({ provider: createAnalysisProvider({ read: runtimeReaders.readAnalysis }), commands: analysisCommands });
 
   const modules = {};
+  modules.principles = createPrinciplesPage({ root, documentRef });
+  modules.masters = createMastersPage({ root, documentRef });
+  modules.atlas = createAtlasPage({ root, documentRef });
   modules.guide = createGuidePage({ documentRef });
   modules['market-news'] = createNewsPage({ root, documentRef, store, route: 'market-news' });
   modules.briefing = createNewsPage({ root, documentRef, store, route: 'briefing' });
@@ -341,6 +347,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
       if (route) store.dispatch({ type: 'route/changed', payload: route });
     });
+    // MP-02/KG-07: a direct hash entry can fire the legacy pageShown event
+    // before this ESM listener is attached. Replay the canonical initial route
+    // once so deep links mount the same native surface as sidebar navigation.
+    const initialHashRoute = String(root?.location?.hash || '').replace(/^#/, '').trim();
+    const initialRoute = ROUTE_IDS.includes(initialHashRoute) ? initialHashRoute : 'home';
+    if (!router.active()) router.transition(initialRoute, { source: 'initial-load', directEntry: true });
     if (root?._serverDataMeta) queueMicrotask(() => syncMarket.sync());
     router.start();
     let navigation = legacy.installNavigation(router);

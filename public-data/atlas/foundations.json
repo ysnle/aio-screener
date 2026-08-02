@@ -1,0 +1,116 @@
+{
+  "schema": "ai-era-foundations-curriculum.v1",
+  "revision": "2026-08-01",
+  "status": "REFERENCE_CONNECTED",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "lessonContract": {
+    "requiredFields": ["definition", "mechanism", "example", "limit", "teachingQuestion", "visualization"],
+    "renderer": "src/ui/pages/atlas.js:FOUNDATIONS_LESSONS_URL",
+    "visualizationStatus": "CONCEPT_FRAME_CONNECTED",
+    "shortFormStatus": "AUTHORED_REFERENCE_CONNECTED",
+    "shortFormArtifact": "public-data/atlas/foundation-lessons.json",
+    "longFormStatus": "AUTHORED_REFERENCE_CONNECTED",
+    "boundary": "No current performance, production, revenue, valuation or trading claim is implied."
+  },
+  "sourceDocuments": [
+    {
+      "id": "DOC-AI-FOUNDATIONS",
+      "path": "_context/AI-ERA-FOUNDATIONS-CURRICULUM-2026-08-01.md",
+      "scope": "physics, mathematics, computer science, materials, economics, AI systems, transformers, agents, world models, multimodal systems and AI infrastructure"
+    }
+  ],
+  "layers": [
+    {
+      "id": "F0",
+      "title": "Problem, learning and system layers",
+      "summary": "Keep problem/ability, learning method, model architecture, objective, finished system and execution hardware separate.",
+      "modules": ["problem-and-ability", "learning-method", "model-architecture", "learning-objective", "finished-system", "execution-hardware"]
+    },
+    {
+      "id": "F1",
+      "title": "Foundational sciences",
+      "summary": "Use physics, mathematics, computer science, materials science and economics to explain AI infrastructure constraints.",
+      "modules": ["energy-and-power", "vectors-and-matrices", "probability-and-statistics", "parallel-processing", "silicon-and-doping", "bottlenecks-and-scarcity", "capex-and-depreciation"]
+    },
+    {
+      "id": "F2",
+      "title": "AI and neural network fundamentals",
+      "summary": "Move from rules and data to models, parameters, training, inference, generalization and hallucination controls.",
+      "modules": ["rules-vs-learning", "model-parameters-training", "data-quality", "learning-types", "neural-networks", "forward-backpropagation", "generalization-and-memory", "hallucination-and-verification"]
+    },
+    {
+      "id": "F3",
+      "title": "Transformer and LLM lifecycle",
+      "summary": "Trace tokenization, embeddings, attention, context, KV cache, pretraining, post-training, evaluation and deployment.",
+      "modules": ["tokenization", "embedding-and-position", "self-attention", "multi-head-attention", "context-window", "kv-cache", "pretraining", "post-training", "evaluation", "deployment"]
+    },
+    {
+      "id": "F4",
+      "title": "RAG, tools, agents and world models",
+      "summary": "Separate parameter memory from external memory and connect retrieval, tools, planning, state/action and human review.",
+      "modules": ["parameter-vs-external-memory", "retrieval-augmented-generation", "tool-use", "agent-loop", "state-action-dynamics", "planning-and-control", "world-model-limitations"]
+    },
+    {
+      "id": "F5",
+      "title": "Compute, memory, packaging and data centers",
+      "summary": "Relate workload shape to CPU/GPU/ASIC/NPU, precision, memory wall, HBM, interconnect, packaging, power and cooling.",
+      "modules": ["workload-shape", "cpu-gpu-asic-npu", "precision-and-tensor-core", "memory-wall", "hbm", "interconnect", "advanced-packaging", "rack-density-and-cooling", "power-and-grid"]
+    },
+    {
+      "id": "F6",
+      "title": "Industry economics and evidence practice",
+      "summary": "Read utilization, bottlenecks, CAPEX, depreciation, FCF, ROIC and counter-scenarios with explicit source and claim validation.",
+      "modules": ["unit-economics", "utilization", "capacity-and-yield", "capex-depreciation", "fcf-and-funding", "roic-and-counter-scenario", "claim-source-as-of", "human-review"]
+    }
+  ],
+  "moduleIndex": [
+    { "id": "energy-and-power", "title": "Energy and power", "layer": "F1", "sourceSection": "P1", "evidence": ["PS-09", "PS-10", "PS-15"] },
+    { "id": "vectors-and-matrices", "title": "Vectors and matrices", "layer": "F1", "sourceSection": "M1", "evidence": [] },
+    { "id": "probability-and-statistics", "title": "Probability and statistics", "layer": "F1", "sourceSection": "M2", "evidence": ["PS-12"] },
+    { "id": "parallel-processing", "title": "Parallel processing", "layer": "F1", "sourceSection": "C3", "evidence": ["PS-01", "PS-02"] },
+    { "id": "silicon-and-doping", "title": "Silicon and doping", "layer": "F1", "sourceSection": "H1", "evidence": ["PS-01", "PS-14"] },
+    { "id": "bottlenecks-and-scarcity", "title": "Bottlenecks and scarcity", "layer": "F1", "sourceSection": "E4", "evidence": ["PS-01", "PS-02", "PS-14"] },
+    { "id": "capex-and-depreciation", "title": "CAPEX and depreciation", "layer": "F1", "sourceSection": "E6", "evidence": ["PS-06", "PS-07", "PS-08"] },
+    { "id": "rules-vs-learning", "title": "Rules-based programs vs learning systems", "layer": "F2", "sourceSection": "A1", "evidence": [] },
+    { "id": "model-parameters-training", "title": "Models, parameters and training", "layer": "F2", "sourceSection": "A2", "evidence": [] },
+    { "id": "data-quality", "title": "Data and data quality", "layer": "F2", "sourceSection": "A3", "evidence": ["PS-12"] },
+    { "id": "learning-types", "title": "Supervised, unsupervised and reinforcement learning", "layer": "F2", "sourceSection": "A4", "evidence": [] },
+    { "id": "neural-networks", "title": "Neural networks", "layer": "F2", "sourceSection": "A5", "evidence": [] },
+    { "id": "forward-backpropagation", "title": "Forward pass and backpropagation", "layer": "F2", "sourceSection": "A6", "evidence": [] },
+    { "id": "generalization-and-memory", "title": "Generalization and memorization", "layer": "F2", "sourceSection": "A7", "evidence": ["PS-12"] },
+    { "id": "hallucination-and-verification", "title": "Hallucination and verification", "layer": "F2", "sourceSection": "A9", "evidence": ["PS-12", "PS-13"] },
+    { "id": "tokenization", "title": "Tokenization", "layer": "F3", "sourceSection": "T2", "evidence": [] },
+    { "id": "embedding-and-position", "title": "Embedding and position", "layer": "F3", "sourceSection": "T3-T4", "evidence": [] },
+    { "id": "self-attention", "title": "Self-attention", "layer": "F3", "sourceSection": "T5", "evidence": [] },
+    { "id": "multi-head-attention", "title": "Multi-head attention", "layer": "F3", "sourceSection": "T6", "evidence": [] },
+    { "id": "context-window", "title": "Context window", "layer": "F3", "sourceSection": "T10", "evidence": [] },
+    { "id": "kv-cache", "title": "KV cache", "layer": "F3", "sourceSection": "T11", "evidence": ["PS-03", "PS-04"] },
+    { "id": "pretraining", "title": "Pretraining", "layer": "F3", "sourceSection": "L2", "evidence": [] },
+    { "id": "post-training", "title": "Post-training", "layer": "F3", "sourceSection": "L4", "evidence": [] },
+    { "id": "evaluation", "title": "Evaluation", "layer": "F3", "sourceSection": "L5", "evidence": ["PS-12", "PS-13"] },
+    { "id": "deployment", "title": "Deployment", "layer": "F3", "sourceSection": "L6", "evidence": [] },
+    { "id": "parameter-vs-external-memory", "title": "Parameter memory vs external memory", "layer": "F4", "sourceSection": "R1", "evidence": ["PS-03", "PS-04"] },
+    { "id": "retrieval-augmented-generation", "title": "Retrieval-augmented generation", "layer": "F4", "sourceSection": "R2", "evidence": ["PS-04"] },
+    { "id": "tool-use", "title": "Tool use", "layer": "F4", "sourceSection": "R3", "evidence": [] },
+    { "id": "agent-loop", "title": "Agent loop", "layer": "F4", "sourceSection": "R4", "evidence": ["PS-13"] },
+    { "id": "state-action-dynamics", "title": "State, action and dynamics", "layer": "F4", "sourceSection": "W2", "evidence": [] },
+    { "id": "planning-and-control", "title": "Planning and control", "layer": "F4", "sourceSection": "W3", "evidence": [] },
+    { "id": "world-model-limitations", "title": "World model limitations", "layer": "F4", "sourceSection": "W8", "evidence": [] },
+    { "id": "workload-shape", "title": "AI workload shape", "layer": "F5", "sourceSection": "CH1", "evidence": ["PS-01", "PS-02"] },
+    { "id": "cpu-gpu-asic-npu", "title": "CPU, GPU, ASIC and NPU", "layer": "F5", "sourceSection": "CH2-CH8", "evidence": ["PS-01", "PS-02"] },
+    { "id": "precision-and-tensor-core", "title": "Precision and tensor core", "layer": "F5", "sourceSection": "CH9", "evidence": ["PS-02"] },
+    { "id": "memory-wall", "title": "Memory wall", "layer": "F5", "sourceSection": "CH10", "evidence": ["PS-01", "PS-02"] },
+    { "id": "hbm", "title": "HBM", "layer": "F5", "sourceSection": "CH11", "evidence": ["PS-02"] },
+    { "id": "interconnect", "title": "Interconnect", "layer": "F5", "sourceSection": "CH12", "evidence": ["PS-01", "PS-02"] },
+    { "id": "advanced-packaging", "title": "Advanced packaging", "layer": "F5", "sourceSection": "FAB packaging", "evidence": ["PS-01"] },
+    { "id": "rack-density-and-cooling", "title": "Rack density and cooling", "layer": "F5", "sourceSection": "AIDC", "evidence": ["PS-08", "PS-09"] },
+    { "id": "power-and-grid", "title": "Power and grid", "layer": "F5", "sourceSection": "AIDC / energy", "evidence": ["PS-09", "PS-15"] },
+    { "id": "unit-economics", "title": "Unit economics", "layer": "F6", "sourceSection": "E1", "evidence": ["PS-06", "PS-07", "PS-08"] },
+    { "id": "utilization", "title": "Utilization", "layer": "F6", "sourceSection": "E2", "evidence": ["PS-06", "PS-07"] },
+    { "id": "capacity-and-yield", "title": "Capacity and yield", "layer": "F6", "sourceSection": "E4 / manufacturing", "evidence": ["PS-01", "PS-14"] },
+    { "id": "fcf-and-funding", "title": "FCF and funding", "layer": "F6", "sourceSection": "E6", "evidence": ["PS-06", "PS-07", "PS-08"] },
+    { "id": "roic-and-counter-scenario", "title": "ROIC and counter-scenario", "layer": "F6", "sourceSection": "investment framework", "evidence": ["PS-06", "PS-07", "PS-08"] },
+    { "id": "claim-source-as-of", "title": "Claim, source and as-of discipline", "layer": "F6", "sourceSection": "verification loop", "evidence": ["PS-12", "PS-13"] },
+    { "id": "human-review", "title": "Human review", "layer": "F6", "sourceSection": "verification loop", "evidence": ["PS-12", "PS-13"] }
+  ]
+}

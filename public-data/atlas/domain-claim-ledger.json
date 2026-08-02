@@ -1,0 +1,928 @@
+{
+  "schemaVersion": "ai-era-atlas-domain-claim-ledger.v1",
+  "revision": "2026-08-02-v53.85",
+  "status": "REFERENCE_CONNECTED",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "sourceDocument": "_context/AI-ERA-INDUSTRY-ATLAS-RESEARCH-SPEC-2026-08-01.md",
+  "boundary": "19개 domain의 구조적 주장과 공식 source packet 연결 원장이다. current claim은 0건이며, 수치·제품 세대·수율·매출 주장으로 승격하려면 별도 as-of primary evidence가 필요하다.",
+  "counts": {
+    "domains": 19,
+    "claims": 57,
+    "currentClaims": 0,
+    "partialClaims": 57
+  },
+  "claims": [
+    {
+      "id": "domain-cloud-platform-claim-1",
+      "domainId": "domain-cloud-platform",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "클라우드의 경제성은 workload를 compute·storage·network 자산과 사용량·계약·감가상각으로 번역하는 문제다.",
+      "sourceIds": [
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-cloud-platform-claim-2",
+      "domainId": "domain-cloud-platform",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "예약 용량과 실제 사용량, 인프라 투자와 매출 인식은 같은 지표가 아니다.",
+      "sourceIds": [
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-cloud-platform-claim-3",
+      "domainId": "domain-cloud-platform",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "전력·가동률·고객 집중도가 서비스 단위경제의 실패 조건이 될 수 있다.",
+      "sourceIds": [
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-neocloud-finance-claim-1",
+      "domainId": "domain-neocloud-finance",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "GPU 보유량만으로 네오클라우드의 수익성을 판단할 수 없다.",
+      "sourceIds": [
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-neocloud-finance-claim-2",
+      "domainId": "domain-neocloud-finance",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "가동률·임대·부채·고객 집중이 자산 회수기간과 현금흐름을 함께 결정한다.",
+      "sourceIds": [
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-neocloud-finance-claim-3",
+      "domainId": "domain-neocloud-finance",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "금융 조건이 바뀌면 같은 workload도 투자 가능한 capacity와 가치가 달라진다.",
+      "sourceIds": [
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-compute-silicon-claim-1",
+      "domainId": "domain-compute-silicon",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "AI compute는 가속기·메모리·인터커넥트·컴파일러가 함께 만드는 시스템 성능이다.",
+      "sourceIds": [
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-compute-silicon-claim-2",
+      "domainId": "domain-compute-silicon",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "peak 연산량은 실제 workload 처리량·지연·전력당 성능과 다르다.",
+      "sourceIds": [
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-compute-silicon-claim-3",
+      "domainId": "domain-compute-silicon",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "모델 평가에서는 단일 benchmark보다 workload 조건과 실패 분포를 함께 기록해야 한다.",
+      "sourceIds": [
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-memory-storage-claim-1",
+      "domainId": "domain-memory-storage",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "메모리 계층은 계산기와 데이터 사이의 이동량·대역폭·지연·용량을 결정한다.",
+      "sourceIds": [
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-memory-storage-claim-2",
+      "domainId": "domain-memory-storage",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "HBM·SSD 제품 발표는 전체 메모리 가격·수급 전망과 동일하지 않다.",
+      "sourceIds": [
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-memory-storage-claim-3",
+      "domainId": "domain-memory-storage",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "추론·RAG·데이터 파이프라인은 저장장치의 latency·endurance·용량 요구를 바꿀 수 있다.",
+      "sourceIds": [
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-foundry-equipment-claim-1",
+      "domainId": "domain-foundry-equipment",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "공정 노드 명칭은 density·power·yield·설계 규칙 전체를 단독으로 설명하지 않는다.",
+      "sourceIds": [
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-foundry-equipment-claim-2",
+      "domainId": "domain-foundry-equipment",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "노광·증착·식각·검사와 고객 qualification이 usable output을 결정한다.",
+      "sourceIds": [
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-foundry-equipment-claim-3",
+      "domainId": "domain-foundry-equipment",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "명목 capacity와 양품 출하·고객 승인 사이에는 시간과 수율의 게이트가 있다.",
+      "sourceIds": [
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-packaging-substrate-claim-1",
+      "domainId": "domain-packaging-substrate",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "첨단 패키징은 logic die·HBM·기판·열·전력·검사를 하나의 시스템으로 묶는다.",
+      "sourceIds": [
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-packaging-substrate-claim-2",
+      "domainId": "domain-packaging-substrate",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "대역폭 개선은 패키지 비용·열·수율·검사 난도와 trade-off를 가진다.",
+      "sourceIds": [
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-packaging-substrate-claim-3",
+      "domainId": "domain-packaging-substrate",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "패키지 capacity와 고객 qualification은 wafer capacity와 별도의 병목이다.",
+      "sourceIds": [
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-network-photonics-claim-1",
+      "domainId": "domain-network-photonics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "AI 클러스터 확장은 스위치·광모듈·링크·프로토콜의 scale-out 효율에 의존한다.",
+      "sourceIds": [
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-network-photonics-claim-2",
+      "domainId": "domain-network-photonics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "bandwidth만으로 network economics를 설명할 수 없고 latency·power per bit·error rate를 함께 봐야 한다.",
+      "sourceIds": [
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-network-photonics-claim-3",
+      "domainId": "domain-network-photonics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "CPO·LPO 기술 시연은 제품 양산·수율·고객 qualification의 증거와 분리한다.",
+      "sourceIds": [
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-aidc-cooling-claim-1",
+      "domainId": "domain-aidc-cooling",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "AIDC 처리능력은 서버 수가 아니라 IT load·전력변환·냉각·시설 가동률의 결합이다.",
+      "sourceIds": [
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-aidc-cooling-claim-2",
+      "domainId": "domain-aidc-cooling",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "랙 밀도가 올라가면 냉각·배전·서비스 설계가 확장 조건이 된다.",
+      "sourceIds": [
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-aidc-cooling-claim-3",
+      "domainId": "domain-aidc-cooling",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "PUE는 시설 오버헤드 지표이지 데이터센터 수익성이나 탄소효율의 완전한 대리변수가 아니다.",
+      "sourceIds": [
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-power-grid-claim-1",
+      "domainId": "domain-power-grid",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "AI 전력 수요는 발전·송전·변전·접속·저장·냉각이 연결된 계통 문제다.",
+      "sourceIds": [
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-power-grid-claim-2",
+      "domainId": "domain-power-grid",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "설치 서버와 grid-connected usable load는 허가·접속·품질·시간대 조건에서 다르다.",
+      "sourceIds": [
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-power-grid-claim-3",
+      "domainId": "domain-power-grid",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "전력 가격·접속 대기·증설 lead time은 데이터센터 투자 회수의 시차를 만든다.",
+      "sourceIds": [
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-on-device-physical-ai-claim-1",
+      "domainId": "domain-on-device-physical-ai",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "on-device AI는 latency·privacy·connectivity·전력 예산을 제품 단위에서 함께 최적화한다.",
+      "sourceIds": [
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-on-device-physical-ai-claim-2",
+      "domainId": "domain-on-device-physical-ai",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "edge inference와 cloud inference는 workload·업데이트·지원 비용의 경계가 다르다.",
+      "sourceIds": [
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-on-device-physical-ai-claim-3",
+      "domainId": "domain-on-device-physical-ai",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "센서·NPU·배터리·소프트웨어 업데이트는 단위경제와 서비스성을 함께 결정한다.",
+      "sourceIds": [
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-ai-economics-claim-1",
+      "domainId": "domain-ai-economics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "AI CAPEX는 매출 성장뿐 아니라 감가상각·FCF·리스·계약·가동률의 문제다.",
+      "sourceIds": [
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-ai-economics-claim-2",
+      "domainId": "domain-ai-economics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "기업의 투자 계획과 이미 인식된 고객 수요·매출은 구분해 읽어야 한다.",
+      "sourceIds": [
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-ai-economics-claim-3",
+      "domainId": "domain-ai-economics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "가격·활용률·자본비용이 바뀌면 같은 AI capacity의 ROIC와 회수기간이 달라진다.",
+      "sourceIds": [
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-physical-ai-robotics-claim-1",
+      "domainId": "domain-physical-ai-robotics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "physical AI는 perception·planning·control과 안전·서비스·human override가 함께 작동해야 한다.",
+      "sourceIds": [
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-physical-ai-robotics-claim-2",
+      "domainId": "domain-physical-ai-robotics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "시뮬레이션·benchmark·파일럿은 반복 가능한 현장 task success와 다르다.",
+      "sourceIds": [
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-physical-ai-robotics-claim-3",
+      "domainId": "domain-physical-ai-robotics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "하드웨어·통합·유지보수 비용이 workflow 개선액보다 크면 기술 시연은 사업으로 전환되지 않는다.",
+      "sourceIds": [
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-drone-defense-claim-1",
+      "domainId": "domain-drone-defense",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "방산 수요는 threat·requirement·budget·procurement·production·sustainment의 순서로 전달된다.",
+      "sourceIds": [
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-drone-defense-claim-2",
+      "domainId": "domain-drone-defense",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "자율성 demo와 임무 성공·통신 회복력·운용자 승인 조건은 다른 증거다.",
+      "sourceIds": [
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-drone-defense-claim-3",
+      "domainId": "domain-drone-defense",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "개발계약·생산계약·IDIQ·backlog는 현금흐름과 매출 인식 시점이 다르다.",
+      "sourceIds": [
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-space-aerospace-claim-1",
+      "domainId": "domain-space-aerospace",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "우주 시스템의 경제성은 질량·추력·궤도·성공률과 제조·조달·운영 주기를 함께 봐야 한다.",
+      "sourceIds": [
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-space-aerospace-claim-2",
+      "domainId": "domain-space-aerospace",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "발사 cadence와 payload 성능은 launch price나 반복 매출과 동일하지 않다.",
+      "sourceIds": [
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-space-aerospace-claim-3",
+      "domainId": "domain-space-aerospace",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "재사용·위성·서비스는 개발비·인증·생산·운영의 현금흐름 시차를 가진다.",
+      "sourceIds": [
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-ai-applications-claim-1",
+      "domainId": "domain-ai-applications",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "AI 애플리케이션의 가치는 모델 성능보다 workflow·권한·감사·사용자 지불에 의해 결정된다.",
+      "sourceIds": [
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-ai-applications-claim-2",
+      "domainId": "domain-ai-applications",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "도입 전 baseline과 human review 범위를 고정해야 생산성 주장을 검증할 수 있다.",
+      "sourceIds": [
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-ai-applications-claim-3",
+      "domainId": "domain-ai-applications",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "반복매출은 초기 파일럿보다 실제 사용·갱신·단위 원가의 증거가 필요하다.",
+      "sourceIds": [
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-resources-materials-claim-1",
+      "domainId": "domain-resources-materials",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "자원 공급은 매장량이 아니라 채굴·분리·정제·규격 인증·물류의 usable output 문제다.",
+      "sourceIds": [
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-resources-materials-claim-2",
+      "domainId": "domain-resources-materials",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "증설 lead time과 대체재·재활용이 가격결정력과 공급 안정성에 영향을 준다.",
+      "sourceIds": [
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-resources-materials-claim-3",
+      "domainId": "domain-resources-materials",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "광물 가격이나 정책 발표만으로 특정 기업의 수익·공급 우위를 결론낼 수 없다.",
+      "sourceIds": [
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-geopolitics-policy-security-claim-1",
+      "domainId": "domain-geopolitics-policy-security",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "정책·수출통제·사이버보안은 기술 접근·납기·비용·고객·자본배분의 경로로 전달된다.",
+      "sourceIds": [
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-geopolitics-policy-security-claim-2",
+      "domainId": "domain-geopolitics-policy-security",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "정책 문서의 범위와 기업별 실제 노출·대체 기간은 분리해 검증해야 한다.",
+      "sourceIds": [
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-geopolitics-policy-security-claim-3",
+      "domainId": "domain-geopolitics-policy-security",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "보안·규제 준수 비용은 수요를 만들 수도 있지만 승인·통합·운영 부담도 만든다.",
+      "sourceIds": [
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-capital-markets-company-map-claim-1",
+      "domainId": "domain-capital-markets-company-map",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "기업 지도는 종목 목록이 아니라 역할·제품·현금흐름·자본비용·시장 기대의 연결이다.",
+      "sourceIds": [
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-capital-markets-company-map-claim-2",
+      "domainId": "domain-capital-markets-company-map",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "공시된 매출·백로그·FCF와 시장의 기대·밸류에이션은 서로 다른 관찰층이다.",
+      "sourceIds": [
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-capital-markets-company-map-claim-3",
+      "domainId": "domain-capital-markets-company-map",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "가격결정력은 기술 설명이 아니라 고객·대체재·공급능력·자본회수 자료로 확인한다.",
+      "sourceIds": [
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-adjacent-future-tech-claim-1",
+      "domainId": "domain-adjacent-future-tech",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "미래 기술의 연구 가능성과 제품·양산·고객 workflow 통합은 서로 다른 단계다.",
+      "sourceIds": [
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-adjacent-future-tech-claim-2",
+      "domainId": "domain-adjacent-future-tech",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "시연·논문·benchmark는 반복성·제조·오류·인증·지원의 증거와 구분한다.",
+      "sourceIds": [
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    },
+    {
+      "id": "domain-adjacent-future-tech-claim-3",
+      "domainId": "domain-adjacent-future-tech",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "status": "PARTIAL",
+      "statement": "상용화 판단은 기술 지표뿐 아니라 고객의 지불 단위와 실패 비용을 포함해야 한다.",
+      "sourceIds": [
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "evidenceBoundary": "공식 자료가 지지하는 구조적 범위만 요약하며, 현재 수치·출하·수율·매출·가격으로 일반화하지 않는다.",
+      "conflictStatus": "NOT_PUBLISHED_AS_CURRENT"
+    }
+  ]
+}

@@ -465,7 +465,7 @@ try {
   // lap 1 starts makes both snapshots observe a stable post-boot state, which is what this
   // assertion was always supposed to compare.
   await page.waitForFunction(() => window._aioTimerRegistry && 'dataStatus' in window._aioTimerRegistry, { timeout: 20000 });
-  const ROUTE_IDS_FOR_ROUNDTRIP = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'];
+  const ROUTE_IDS_FOR_ROUNDTRIP = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'principles', 'masters', 'atlas', 'guide'];
   async function traverseAllRoutes() {
     for (const route of ROUTE_IDS_FOR_ROUNDTRIP) {
       await page.evaluate((r) => window.AIO_ARCH.navigate(r), route);
@@ -480,7 +480,7 @@ try {
         const contract = window.AIO_ARCH.getVerticalSliceContract?.(r);
         return { marker: page?.dataset.aioVerticalSlice || null, expected: contract?.id || null, required: page?.dataset.aioVerticalSliceRequired || null, state: page?.dataset.aioVerticalSliceState || null };
       }, canonicalRoute);
-      if (!verticalMarker.marker || verticalMarker.marker !== verticalMarker.expected || !verticalMarker.required && canonicalRoute !== 'guide' || !['loaded', 'partial', 'blocked', 'empty', 'stale-reference'].includes(verticalMarker.state)) throw new Error(`vertical slice marker failed for ${route}: ${JSON.stringify(verticalMarker)}`);
+      if (!verticalMarker.marker || verticalMarker.marker !== verticalMarker.expected || !verticalMarker.required && canonicalRoute !== 'guide' && canonicalRoute !== 'principles' && canonicalRoute !== 'masters' && canonicalRoute !== 'atlas' || !['loaded', 'partial', 'blocked', 'empty', 'stale-reference'].includes(verticalMarker.state)) throw new Error(`vertical slice marker failed for ${route}: ${JSON.stringify(verticalMarker)}`);
       if (route === 'theme-detail') {
         await page.waitForFunction(() => {
           const panel = document.getElementById('theme-detail-panel');
@@ -499,7 +499,7 @@ try {
   const afterLap1 = await snapshot();
   await traverseAllRoutes();
   const afterLap2 = await snapshot();
-  if (errors.length) throw new Error(`browser errors during 17-route round trip: ${errors.join(' | ')}`);
+  if (errors.length) throw new Error(`browser errors during 20-route round trip: ${errors.join(' | ')}`);
   if (afterLap2.canvases !== afterLap1.canvases) throw new Error(`canvas count changed between lap 1 and lap 2 of the full route round trip: ${afterLap1.canvases} -> ${afterLap2.canvases}`);
   if (afterLap1.timers != null && afterLap2.timers != null && afterLap2.timers > afterLap1.timers) throw new Error(`legacy timer registry grew between lap 1 and lap 2 of the full route round trip: ${afterLap1.timers} -> ${afterLap2.timers}`);
   const roundTripEvidence = { routes: ROUTE_IDS_FOR_ROUNDTRIP.length, afterLap1, afterLap2 };

@@ -1,9 +1,9 @@
 ---
 verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
-last_verified: 2026-07-29
+last_verified: 2026-08-02
 confidence: high
 
-## Current architecture checkpoint (2026-08-01, v53.68)
+## Current architecture checkpoint (2026-08-02, v53.87)
 
 Native lifecycle and renderer ownership are wired for 17/17 routes.  P833 moves the
 route data provider boundary to `src/data/runtime-readers.js` (17/17 data-native),
@@ -16,9 +16,38 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.68
-latest_P_covered: P874
-current_P839_checkpoint: P872-P874 schedule-aware completed-close classification, atomic data-release promotion, operations truth parity, and P867-P871 shared-cut/FRED/Telegram/header contracts; remaining route secondary ownership, seven-day soak, provider/live Worker/model/edge verification stay separate
+checklist_version: v53.87
+latest_P_covered: P890
+current_P839_checkpoint: P890 authored reference-layer closure plus SEC-evidenced Scion latest-filing availability and weekend market-closed freshness grace; official currentness/security-master and live provider/Worker/model/edge verification stay separate
+
+## Coverage expansion checkpoint: six source documents (v53.87)
+
+- [x] QA-MP4: Market Principles expanded to 60 canonical nodes/71 edges/8 paths with the economic spine from scarcity through power, adjacent industries, Korea market links, AI infrastructure, physical AI, defense, space, enterprise AI, materials, adjacent compute, and capital/risk verification.
+- [x] QA-AT3: All 95 Atlas taxonomy nodes now have user-facing definition, chain, role, KPI, and failure/boundary copy; no taxonomy node falls back to title-only display.
+- [x] QA-AT4: Atlas now has 20 official-source-linked educational player/product references; source IDs, taxonomy node IDs, player edges, and null currentness boundaries are contract-validated.
+- [x] QA-AT5: Atlas evidence registry expanded to 23 first-party sources, 14 candidate claims, and 7 candidate edges for P1/P2 physical AI, defense, space, enterprise AI, materials, HBM, and quantum topics; current claims remain zero.
+- [x] QA-AI1: All 48 Foundations modules now have independent definition, mechanism, example, limit, evidence-boundary copy, and layer-specific teaching-question/visualization frames; current metrics remain gated.
+- [x] QA-AI2: A separate authored reference artifact connects all 48 Foundations modules with lesson copy, Atlas node IDs, source IDs, visualization frames, and explicit reference status.
+- [x] QA-AT6: All 19 Atlas domains now render a domain guide with definition, mechanism, unit, bottleneck, verification question, and official source link.
+- [x] QA-MP5: Market Principles A~O chapters are connected as 15 authored reference cards and the 111-lesson library is visible/searchable; the 39-lesson canonical compatibility catalog covers all 60 nodes.
+- [x] QA-DOC1: Six-document coverage artifact and binary coverage contract exist; the contract reports remaining scope instead of allowing structural connection to be mistaken for full publication.
+- [x] QA-DOC2: Domain packets/claims/node coverage, A~O lesson library, Telegram reference window, currentness overlay, and 13F 84-period/12,525-row SEC history are connected. Verified current numeric claims, full player/product enrichment, and Masters security-master/corporate-action/issuer-level aggregation remain explicitly gated.
+- [x] QA-MF4: 1,102 unique CUSIP and 1,122 issuer-name normalization queue is recorded in a connected fail-closed security-master artifact; verified issuer/ticker/share-class/sector mapping is still absent and sector weights remain intentionally undisclosed.
+- [x] QA-DATA1: Weekend freshness grace is fail-closed: it requires complete Tier-0 coverage, `QG-01_PASS`, and no snapshot errors; the official refresh failure preserves the last-known-good artifact.
+- [x] QA-MF5: Scion's `STALE_REFERENCE` state is explained by a dated SEC submissions JSON availability check (`NO_LATER_13F_HR_REPORTED`) and is visible in the Masters detail view; it is not promoted to current.
+
+## Midpoint QA handoff closure: Market Principles / Masters / Atlas (v53.78)
+
+- [x] QA-MF1: Berkshire latest filing is SEC accession `0001193125-26-226661`, report period `2026-03-31`, filed `2026-05-15`; latest/prior accession and period ordering are gated.
+- [x] QA-MF2: 1,248 full SEC rows and 1,377 prior-period comparison rows are published as separate `allHoldings`/`comparisons` artifacts; 68 compact rows remain the default display.
+- [x] QA-MF3: Masters tabs are functional: top changes, paginated full holdings, explicit sector-master preparation state, two-period trend, and original SEC filing links. Exited comparison filtering is browser-tested.
+- [x] QA-MP1: Principles 1-hop/2-hop render different selected subgraphs; the Chromium gate observed 3 vs 7 nodes.
+- [x] QA-MP2: Principles evidence and analysis links meet the 24px mobile target, focus-visible styling, and 20-route accessibility matrix with zero small targets.
+- [x] QA-MP3: Core Principles nodes expose definition, intuition, mechanism, KPI, industry connection, failure condition, and 15/30/45-minute learning tracks; the v53.80 expansion adds power, adjacent-industry, Korea-market, and cash-flow paths.
+- [x] QA-AT1: Atlas default UI uses user-facing status labels while preserving raw status/source IDs in data attributes and research artifacts.
+- [x] QA-AT2: Taxonomy nodes expose concept, value-chain connection, role, KPI, and educational boundary copy; 55 structural nodes and 48 curriculum modules remain connected to reference artifacts.
+- [ ] QA-MF4: Issuer/ticker/security-master and sector mapping are not yet connected; sector weights remain intentionally undisclosed.
+- [ ] External: `data.json` freshness SLA, live SEC/provider health, NVDA/Firefox/Safari screen-reader behavior, live deployment edge headers, and seven-day soak remain separate operator gates.
 
 ## P872-P874 Data session, publish tuple, and operations truth gates (v53.68)
 

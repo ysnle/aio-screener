@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.69';
+const APP_VERSION = 'v53.87';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -4519,6 +4519,27 @@ var AIO_PAGE_BRIEFS = {
     steps: ['퀀트 랭크(0~100) 상위부터 확인', '섹터/시총 필터로 좁히기', '헤더 클릭으로 모멘텀·추세·저변동 정렬'],
     focus: '랭크는 객관 멀티팩터, 시그널/메모는 애널리스트 의견 — 둘을 구분해 보세요.',
     links: [['signal','시그널'], ['technical','기술 분석'], ['fundamental','기업 분석']]
+  },
+  principles: {
+    title: '시장 원리를 연결해서 읽습니다',
+    use: '개념 정의를 읽고, 메커니즘과 반례를 확인한 뒤 그래프의 다음 연결로 이동합니다.',
+    steps: ['Tree에서 개념의 위치 확인', 'Graph에서 1-hop·2-hop 연결 비교', 'Path에서 원인→결과 흐름 복습'],
+    focus: '이 페이지는 현재 매매 신호가 아니라 시장·산업·AI의 구조를 학습하는 참고 레이어입니다.',
+    links: [['atlas','AI 산업 Atlas'], ['guide','사용 가이드']]
+  },
+  masters: {
+    title: '공시된 보유와 데이터 한계를 함께 봅니다',
+    use: '신고 주체와 원본 공시를 확인한 뒤 분기 변화와 전체 보유 행을 비교합니다.',
+    steps: ['기관과 신고 주체 구분', '최신 공시·분기 추이 확인', '보유 행·섹터 매핑의 검증 상태 확인'],
+    focus: '13F는 분기 말 미국 상장 주식 공시의 참고 자료이며 전체 자산·실시간 매매·미검증 섹터를 뜻하지 않습니다.',
+    links: [['principles','시장 원리'], ['guide','사용 가이드']]
+  },
+  atlas: {
+    title: 'AI 산업을 공급망과 학습 경로로 탐색합니다',
+    use: '산업 도메인, 기초 학습, 플레이어·제품을 출처 상태와 함께 단계적으로 확인합니다.',
+    steps: ['산업 도메인 packet으로 범위 확인', 'Foundations 원리와 KPI 학습', 'Deep taxonomy에서 역할·제품·출처 경계 확인'],
+    focus: 'Atlas의 구조·학습 원고와 공식 페이지 연결은 참고 레이어이며, 현재 수치·생산량·투자 판단으로 자동 승격하지 않습니다.',
+    links: [['principles','시장 원리'], ['masters','대가 포트폴리오']]
   }
 };
 window.AIO_PAGE_BRIEFS = AIO_PAGE_BRIEFS;
@@ -5180,6 +5201,12 @@ window.AIO_PAGE_ACTION_HUBS = {
     cards:[['핵심 지표','VIX/VVIX와 심리 페이지 사용'],['운용 포인트','실시간 옵션체인 없는 결론은 사용하지 않음'],['이동','투자 심리에서 변동성 확인']],
     links:[['투자 심리','sentiment'],['시그널','signal']]
   },
+  principles: {
+    title:'시장 원리 학습',
+    subtitle:'구조적 참고 콘텐츠를 Tree·Graph·Path로 탐색합니다.',
+    cards:[['핵심 축','금리 · AI workload · 메모리 · 전력'],['운용 포인트','출처와 검토일을 먼저 확인'],['주의','현재 가격·목표가·매매 신호를 제공하지 않음']],
+    links:[['환율·채권','fxbond'],['테마·트렌드','themes'],['사용 설명서','guide']]
+  },
   // v53.7 (P725): KR 전용 5페이지 액션 허브 제거 — 통합 섹션은 themes/macro/technical 허브를 따름
   guide: {
     title:'설정/레퍼런스',
@@ -5187,6 +5214,22 @@ window.AIO_PAGE_ACTION_HUBS = {
     cards:[['핵심 지표','설정 · API · 사용법'],['운용 포인트','막힌 기능만 검색해서 확인'],['주의','투자 판단 화면과 분리']],
     links:[['홈','home'],['AI 분석','ai']]
   }
+};
+
+// MF-05: masters is a reference-only route until verified SEC artifacts exist.
+window.AIO_PAGE_ACTION_HUBS.masters = {
+  title:'대가의 공개 포트폴리오',
+  subtitle:'SEC 13F 신고주체·원본·분기 비교를 먼저 확인하고, 검증 전에는 holdings를 비워 둡니다.',
+  cards:[['핵심 범위','분기 말 보고 보유 · 신고주체 · 원본 filing'],['데이터 경계','13F는 전체 자산·현재 보유·공매도·현금을 뜻하지 않음'],['검증 순서','SEC 원본 → CIK → XML → shares 비교 → action 분류']],
+  links:[['시장 원리','principles'],['사용 설명서','guide']]
+};
+// AI Era Atlas is a design-only reference shell until source packets and
+// evidence ledgers promote nodes to REVIEWED/PUBLISHED.
+window.AIO_PAGE_ACTION_HUBS.atlas = {
+  title:'AI Era Atlas',
+  subtitle:'ontology·curriculum·taxonomy를 source packet 순서로 탐색합니다.',
+  cards:[['현재 범위','DESIGN_ONLY reference shell'],['Telegram','keyword·framework·source-link discovery only'],['출판 조건','primary source + evidence ledger + review gate']],
+  links:[['시장 원리','principles'],['13F 경계','masters']]
 };
 
 function _aioRenderPageActionHub(pageId) {
@@ -14818,7 +14861,7 @@ window.AIO.getCritical10PageFreshnessAudit = function(opts) {
     var controls = el ? el.querySelectorAll('button,input,select,[data-action]').length : 0;
     var issue = [];
     if (!el) issue.push('missing page DOM');
-    if (!profile.tasks.length && id !== 'guide') issue.push('no required tasks');
+    if (!profile.tasks.length && id !== 'guide' && id !== 'principles') issue.push('no required tasks');
     if (profile.symbols.length < 3 && ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'].indexOf(id) >= 0) issue.push('thin symbol coverage');
     if (staleTokenRe.test(text)) issue.push('stale live-like token in page text');
     return {
@@ -15095,7 +15138,7 @@ window.AIO.runPageDeepAudit = function(pageId, opts) {
   var auditNames = (window.AIO.PAGE_DEEP_AUDIT_SYSTEMS && window.AIO.PAGE_DEEP_AUDIT_SYSTEMS[id]) || ['getFullSurfaceAudit'];
   var audits = auditNames.map(function(name) { return _aioRunNamedAuditForPage(name, id); });
   var blocking = [];
-  if (!profile.tasks.length && id !== 'guide' && id !== 'glossary') blocking.push('no data tasks mapped');
+  if (!profile.tasks.length && id !== 'guide' && id !== 'principles' && id !== 'glossary') blocking.push('no data tasks mapped');
   if (rawKrCodes.length) blocking.push('raw KR codes not normalized: ' + rawKrCodes.slice(0, 8).join(','));
   audits.forEach(function(a) {
     if (a.status === 'error' || a.status === 'missing' || a.status === 'fail') blocking.push(a.name + ':' + a.status);
@@ -15649,12 +15692,12 @@ window._apiHealth = {
 // user scenario.  The audit reports observed section density for later visual
 // review; it does not pretend a section count alone proves usability.
 window.AIO_PAGE_DECLUTTER_POLICY = {
-  priorityRoutes: ['signal','macro','technical','fxbond','guide','themes','portfolio','screener'],
+  priorityRoutes: ['signal','macro','technical','fxbond','guide','principles','masters','atlas','themes','portfolio','screener'],
   intents: {
-    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', options:'변동성·헤지 비용 참고', guide:'사용 루틴과 정책 참고'
+    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', options:'변동성·헤지 비용 참고', guide:'사용 루틴과 정책 참고', principles:'금리·산업·병목의 연결 구조 학습', masters:'공개 보유와 데이터 한계 확인', atlas:'AI 산업 지도·커리큘럼·taxonomy 경계 확인'
   },
   scenarios: {
-    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동'
+    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동', principles:'Tree→Graph→Path로 한 개념씩 연결', masters:'신고주체→원본→분기 비교 순서로 확인', atlas:'Atlas packet→Foundations→Deep taxonomy 순서로 확인'
   }
 };
 window.AIO.getPageDeclutterAudit = function(opts) {
@@ -23563,13 +23606,13 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     'home','signal','breadth','sentiment','briefing',
     'technical','macro','fxbond','fundamental','themes',
     'theme-detail','portfolio','ticker','market-news','options',
-    'guide','screener'
+    'principles','masters','atlas','guide','screener'
   ];
   var CRITICAL_5 = ['home','signal','breadth','sentiment','briefing'];
   var ANALYSIS_5 = ['technical','macro','fxbond','fundamental','themes'];
   var WORKFLOW_5 = ['theme-detail','portfolio','ticker','market-news','options'];
   var KR_5 = [];
-  var EDUCATION = ['guide','glossary'];
+  var EDUCATION = ['guide','principles','masters','atlas','glossary'];
 
   var BASELINE_SURFACE = {};
 
@@ -23591,6 +23634,9 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       'market-news':{tasks:['news','quotes','sentiment'],symbols:['SPY','QQQ','^VIX','^TNX','DX-Y.NYB','CL=F','GC=F']},
       options:{tasks:['quotes','sentiment','vixHistory','optionsSnapshot'],symbols:['SPY','QQQ','^VIX','^VVIX','VXX','UVXY','ES=F','NQ=F','YM=F','RTY=F','PCR']},
       guide:{tasks:[],symbols:[]},
+      principles:{tasks:[],symbols:[]},
+      masters:{tasks:[],symbols:[]},
+      atlas:{tasks:[],symbols:[]},
       glossary:{tasks:[],symbols:[]},
       screener:{tasks:['quotes'],symbols:['SPY','QQQ','^VIX']}  // v50.53 2A: 퀀트 스크리너(전 유니버스는 screener.json 팩터로 랭킹)
     };
@@ -23618,6 +23664,9 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
       'market-news': { requiredProducers:['news'], optionalProducers:['quotes','sentiment'], minCoverage:{ news:50 }, maxAge:{ news:10800000 }, failureState:'partial', forbiddenClaims:['translation-failure-as-success'] },
       options: { requiredProducers:['quotes','sentiment','vixHistory'], optionalProducers:['delayedPcr','chain','greeks'], minCoverage:{ quotes:80, sentiment:50, vixHistory:50 }, maxAge:{ quotes:1200000, sentiment:14400000, vixHistory:86400000 }, failureState:'blocked', forbiddenClaims:['live-chain-or-greeks-without-evidence'] },
       guide: { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'loaded', forbiddenClaims:[] },
+      principles: { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'loaded', forbiddenClaims:['live-price-claim','target-price-claim','buy-sell-claim'] },
+      masters: { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'loaded', forbiddenClaims:['current-holding-claim','full-portfolio-claim','buy-sell-claim'] },
+      atlas: { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'loaded', forbiddenClaims:['current-company-claim','shipment-or-yield-claim','valuation-claim','buy-sell-claim'] },
       screener: { requiredProducers:['screenerArtifact'], optionalProducers:['fundamentals'], minCoverage:{ screenerArtifact:80 }, maxAge:{ screenerArtifact:345600000 }, failureState:'partial', forbiddenClaims:['complete-universe-claim-when-covered-subset'] }
     };
     return p[id] || { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'partial', forbiddenClaims:[] };
@@ -23987,7 +24036,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
     return {
       status: status,
       routePageCount: contracts.routePageIds.length,
-      expectedRoutePageCount: 17,  // v53.7 (P725): KR 전용 5라우트 퇴역(22→17)
+      expectedRoutePageCount: 20,  // v53.72 (AI-ERA): Atlas reference route 추가
       missingDom: missingDom,
       missingProfile: missingProfile,
       missingRefreshMap: missingRefresh,
@@ -24081,8 +24130,8 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
         pageId: id,
         textKinds: ['heading','subtitle','metric-label','analysis-copy','status-copy','tooltip'],
         currentClaimsRequire: ['evidenceId','asOf','sourcePolicy'],
-        developerMarkersAllowed: id === 'guide' ? 'reference-only' : 'none',
-        maxVisibleLongCopy: id === 'guide' ? 999 : 220
+        developerMarkersAllowed: id === 'guide' || id === 'principles' || id === 'masters' || id === 'atlas' ? 'reference-only' : 'none',
+        maxVisibleLongCopy: id === 'guide' || id === 'principles' || id === 'masters' || id === 'atlas' ? 999 : 220
       };
       return acc;
     }, {})
@@ -24133,7 +24182,7 @@ window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
   function _aioClassifySurfaceText(text, pageId, node, attrName) {
     text = _aioTextNorm(text);
     var lower = text.toLowerCase();
-    var isGuide = pageId === 'guide' || pageId === 'glossary';
+    var isGuide = pageId === 'guide' || pageId === 'principles' || pageId === 'masters' || pageId === 'atlas' || pageId === 'glossary';
     var archive = _aioTextIsArchiveNode(node);
     var hasEvidence = _aioTextHasEvidenceNode(node);
     var developer = /(\[PRIMARY\]|\[SECONDARY\]|PAGE_PURPOSE_REGISTRY|ACTION_RULES|sectionOrder\[\d+\]|AIO_SCORE_SCALES|DATA_SNAPSHOT|EvidenceStore|CHAT_CONTEXTS|APP_VERSION|SW_VERSION|\bv4[0-9]\.\d{1,3}\/R\d+|\bR\d{2,3}\b|(^|[^A-Z&])P\d{2,3}\b|\b(?:debug|console|audit|gate)\b)/i.test(text);
@@ -25109,7 +25158,7 @@ var breadcrumbMap = {
   briefing: ['AIO','데일리 브리핑'], sectors: ['AIO','섹터 로테이션'],
   options: ['AIO','옵션 대시보드'],
   'market-news': ['AIO','시장 소식'], signal: ['AIO','매매 시그널'], breadth: ['AIO','시장 흐름'], sentiment: ['AIO','투자 심리'],
-  guide: ['AIO','입문 가이드'],
+  guide: ['AIO','입문 가이드'], principles: ['AIO','시장 원리'], masters: ['AIO','대가의 포트폴리오'], atlas: ['AIO','AI Era Atlas'],
   screener: ['AIO','퀀트 스크리너'],
   'theme-detail': ['AIO','테마','—'],
   ticker: ['AIO','—','—'],
@@ -25434,6 +25483,9 @@ window.PAGES = {
   // 콘텐츠는 themes/macro/technical의 "한국 시장" 통합 섹션으로 이관(요소 id 보존),
   // 구 해시는 showPage의 _hashAlias가 리다이렉트. KR 매크로 배지는 macro init에서 호출.
   'guide':          { label: '사용 설명서',      init: null, chatCtx: null },
+  'principles':     { label: '시장 원리',        init: null, chatCtx: null },
+  'masters':        { label: '대가의 포트폴리오', init: null, chatCtx: null },
+  'atlas':          { label: 'AI Era Atlas',     init: null, chatCtx: null },
   'screener':       { label: '퀀트 스크리너',    init: null, chatCtx: 'screener' }
 };
 
@@ -25444,7 +25496,7 @@ window.PAGES = {
 window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
   version: 'v52.59',
   classes: {
-    NAV_ROUTE: ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','macro','fxbond','fundamental','themes','portfolio','guide'],
+    NAV_ROUTE: ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','macro','fxbond','fundamental','themes','portfolio','principles','masters','atlas','guide'],
     DERIVED_VIEW: ['ticker','theme-detail'],
     REFERENCE: ['options'],
     // v53.7 (P725): KR 전용 5라우트 퇴역 — themes/macro/technical 통합 섹션으로 이관, _hashAlias 리다이렉트
@@ -25984,7 +26036,7 @@ function showPage(id, navEl) {
   if (window.AIO && window.AIO.state) window.AIO.state.prevPage = id; // v49.1 P184
   // v42.1: 마켓 펄스 바 — home에서는 숨기고 나머지 페이지에서 표시
   var _mpBar = document.getElementById('market-pulse-bar');
-  if (_mpBar) _mpBar.style.display = (id === 'home' || id === 'guide' || id === 'glossary') ? 'none' : 'flex';
+  if (_mpBar) _mpBar.style.display = (id === 'home' || id === 'guide' || id === 'principles' || id === 'masters' || id === 'atlas' || id === 'glossary') ? 'none' : 'flex';
   var _contentEl = document.querySelector('.content');
   if (_contentEl) _contentEl.scrollTop = 0;
   // v41: 페이지 전환 시 focus를 새 페이지 타이틀로 이동 (스크린리더 지원)

@@ -1,0 +1,694 @@
+{
+  "schemaVersion": "ai-era-atlas-domain-source-packets.v1",
+  "revision": "2026-08-02-v53.85",
+  "status": "REFERENCE_CONNECTED",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "sourceDocument": "_context/AI-ERA-INDUSTRY-ATLAS-RESEARCH-SPEC-2026-08-01.md",
+  "boundary": "도메인별 source packet은 개념·검증 질문·공식 출처를 연결하는 연구 참고층이다. Telegram 발견 자료와 결합해도 현재 매출·수율·출하·가격·투자 신호로 승격하지 않는다.",
+  "packets": [
+    {
+      "id": "ATLAS-DOMAIN-01",
+      "domainId": "domain-cloud-platform",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "클라우드 workload가 서비스 매출·가동률·감가상각으로 번역되는 경로",
+      "evidenceQuestions": [
+        "workload·예약·실사용량을 어떻게 구분하는가",
+        "CAPEX와 매출 인식을 어떤 공시로 대조하는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-CL-01",
+          "publisher": "U.S. DOE",
+          "title": "Data centers and energy economics",
+          "url": "https://www.energy.gov/articles/energy-department-releases-new-report-economics-data-centers",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-CL-02",
+          "publisher": "Microsoft / SEC EDGAR",
+          "title": "2026 Q3 Form 10-Q",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-CL-03",
+          "publisher": "Amazon Web Services",
+          "title": "Cloud computing overview",
+          "url": "https://aws.amazon.com/what-is-cloud-computing/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-02",
+      "domainId": "domain-neocloud-finance",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "GPU 보유·가동률·자금조달을 분리해 네오클라우드 경제성을 읽기",
+      "evidenceQuestions": [
+        "예약 용량과 실제 utilization의 차이는 무엇인가",
+        "리스·부채·고객 집중이 회수기간을 어떻게 바꾸는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-NC-01",
+          "publisher": "SEC EDGAR",
+          "title": "Company filings search",
+          "url": "https://www.sec.gov/edgar/search-and-access",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-NC-02",
+          "publisher": "Oracle / SEC EDGAR",
+          "title": "2026 Q3 Form 10-Q",
+          "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-NC-03",
+          "publisher": "Federal Reserve",
+          "title": "Financial conditions and monetary policy",
+          "url": "https://www.federalreserve.gov/monetarypolicy.htm",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-03",
+      "domainId": "domain-compute-silicon",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "AI workload를 가속기·정밀도·메모리·소프트웨어의 시스템 단위로 읽기",
+      "evidenceQuestions": [
+        "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
+        "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
+      ],
+      "sources": [
+        {
+          "id": "AT-CS-01",
+          "publisher": "U.S. DOE ASCR",
+          "title": "Advanced scientific computing research",
+          "url": "https://science.osti.gov/ascr",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-CS-02",
+          "publisher": "NVIDIA",
+          "title": "Deep learning technical resources",
+          "url": "https://developer.nvidia.com/deep-learning",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-CS-03",
+          "publisher": "NIST",
+          "title": "AI evaluation",
+          "url": "https://www.nist.gov/ai",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-04",
+      "domainId": "domain-memory-storage",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "메모리 계층과 저장장치가 데이터 이동·지연·용량·비용을 만드는 구조",
+      "evidenceQuestions": [
+        "HBM 대역폭과 용량·열·수율의 trade-off는 무엇인가",
+        "SSD 수요를 추론 workload와 전체 NAND 수급으로 어떻게 분리하는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-MS-01",
+          "publisher": "JEDEC",
+          "title": "Standards documents",
+          "url": "https://www.jedec.org/standards-documents",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-MS-02",
+          "publisher": "Micron",
+          "title": "High bandwidth memory",
+          "url": "https://www.micron.com/products/memory/hbm",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-MS-03",
+          "publisher": "KIOXIA",
+          "title": "Enterprise and data-center SSD technology",
+          "url": "https://www.kioxia-holdings.com/en-jp/technology/topics/ssd.html",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-05",
+      "domainId": "domain-foundry-equipment",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "설계·공정·노광·수율·capacity가 파운드리 경제성으로 연결되는 과정",
+      "evidenceQuestions": [
+        "공정 노드 명칭과 실제 density·power·yield를 어떻게 분리하는가",
+        "장비 설치 capacity와 양품 output의 차이는 무엇인가"
+      ],
+      "sources": [
+        {
+          "id": "AT-FE-01",
+          "publisher": "TSMC",
+          "title": "Technology platform",
+          "url": "https://www.tsmc.com/english/dedicatedFoundry/technology",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-FE-02",
+          "publisher": "ASML",
+          "title": "EUV lithography technology",
+          "url": "https://www.asml.com/en/technology/all-about-euv",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-FE-03",
+          "publisher": "Intel",
+          "title": "Process technology roadmap",
+          "url": "https://www.intel.com/content/www/us/en/newsroom/resources/intel-process-technology.html",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-06",
+      "domainId": "domain-packaging-substrate",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "칩렛·HBM·기판·열·검사가 하나의 패키지 수율과 capacity를 만드는 구조",
+      "evidenceQuestions": [
+        "2.5D·3D 패키지의 대역폭과 열·검사 trade-off는 무엇인가",
+        "패키지 capacity와 고객 qualification이 출하를 어떻게 제한하는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-PA-01",
+          "publisher": "TSMC",
+          "title": "3DFabric advanced packaging",
+          "url": "https://www.tsmc.com/english/dedicatedFoundry/technology/3dfabric",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-PA-02",
+          "publisher": "Intel",
+          "title": "Advanced packaging technologies",
+          "url": "https://www.intel.com/content/www/us/en/foundry/advanced-packaging.html",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-PA-03",
+          "publisher": "JEDEC",
+          "title": "HBM standards",
+          "url": "https://www.jedec.org/standards-documents",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-07",
+      "domainId": "domain-network-photonics",
+      "priority": "P1",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "전기·광 변환과 링크·스위치·패키징이 클러스터 scale-out을 결정하는 구조",
+      "evidenceQuestions": [
+        "대역폭과 latency뿐 아니라 power per bit·error rate를 왜 보는가",
+        "CPO/LPO 기술 발표와 양산·고객 qualification을 어떻게 분리하는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-NP-01",
+          "publisher": "OFC",
+          "title": "Optical communications conference and ecosystem",
+          "url": "https://www.ofcconference.org/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-NP-02",
+          "publisher": "Broadcom",
+          "title": "Ethernet switching portfolio",
+          "url": "https://www.broadcom.com/products/ethernet-connectivity/switching",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-NP-03",
+          "publisher": "Coherent",
+          "title": "Networking and optical communications",
+          "url": "https://www.coherent.com/networking",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-08",
+      "domainId": "domain-aidc-cooling",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "서버·랙·전력변환·냉각이 실제 데이터센터 가동능력을 만드는 구조",
+      "evidenceQuestions": [
+        "IT load와 시설 overhead를 어떤 지표로 분리하는가",
+        "랙 밀도·냉각·납기·서비스가 매출로 번역되는 조건은 무엇인가"
+      ],
+      "sources": [
+        {
+          "id": "AT-AC-01",
+          "publisher": "U.S. DOE",
+          "title": "Data centers and energy economics",
+          "url": "https://www.energy.gov/articles/energy-department-releases-new-report-economics-data-centers",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-AC-02",
+          "publisher": "Vertiv",
+          "title": "AI data-center solutions",
+          "url": "https://www.vertiv.com/en-us/solutions/ai/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-AC-03",
+          "publisher": "ASHRAE",
+          "title": "Data center resources",
+          "url": "https://www.ashrae.org/technical-resources/bookstore/datacom-series",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-09",
+      "domainId": "domain-power-grid",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "발전·송전·접속·저장·전력품질이 AI 부하의 물리적 상한을 만드는 구조",
+      "evidenceQuestions": [
+        "설치 서버와 grid-connected usable load의 차이는 무엇인가",
+        "전력 가격·허가·접속 대기가 산업 투자 회수에 어떤 시차를 만드는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-PG-01",
+          "publisher": "IEA",
+          "title": "Electricity 2025",
+          "url": "https://www.iea.org/reports/electricity-2025",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-PG-02",
+          "publisher": "U.S. DOE",
+          "title": "Grid modernization and smart grid",
+          "url": "https://www.energy.gov/oe/activities/technology-development/grid-modernization-and-smart-grid",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-PG-03",
+          "publisher": "FERC",
+          "title": "Electric transmission and markets",
+          "url": "https://www.ferc.gov/electric-transmission-markets",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-10",
+      "domainId": "domain-on-device-physical-ai",
+      "priority": "P1",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "edge workload가 latency·전력·privacy·device economics로 번역되는 구조",
+      "evidenceQuestions": [
+        "cloud inference와 on-device inference의 비용·지연 경계는 무엇인가",
+        "센서·NPU·배터리·업데이트가 제품 단위경제에 미치는 영향은 무엇인가"
+      ],
+      "sources": [
+        {
+          "id": "AT-OD-01",
+          "publisher": "NIST",
+          "title": "AI and robotics",
+          "url": "https://www.nist.gov/topics/robotics",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-OD-02",
+          "publisher": "Qualcomm",
+          "title": "On-device AI",
+          "url": "https://www.qualcomm.com/artificial-intelligence",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-OD-03",
+          "publisher": "Arm",
+          "title": "Edge AI",
+          "url": "https://www.arm.com/markets/edge-ai",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-11",
+      "domainId": "domain-ai-economics",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "AI CAPEX가 감가상각·가동률·FCF·고객 지불로 전환되는 구조",
+      "evidenceQuestions": [
+        "CAPEX 계획·실행·감가상각·FCF를 어떤 공시에서 구분하는가",
+        "AI 서비스의 단위경제성과 고객 retention을 어떻게 검증하는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-AE-01",
+          "publisher": "Microsoft / SEC EDGAR",
+          "title": "2026 Q3 Form 10-Q",
+          "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-AE-02",
+          "publisher": "Meta / SEC EDGAR",
+          "title": "2026 Q1 Form 10-Q",
+          "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028526/meta-20260331.htm",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-AE-03",
+          "publisher": "Oracle / SEC EDGAR",
+          "title": "2026 Q3 Form 10-Q",
+          "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-12",
+      "domainId": "domain-physical-ai-robotics",
+      "priority": "P1",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "인식·계획·제어·안전·서비스가 물리 AI의 반복 가능한 workflow를 만드는 구조",
+      "evidenceQuestions": [
+        "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
+        "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가"
+      ],
+      "sources": [
+        {
+          "id": "AT-RB-01",
+          "publisher": "NIST",
+          "title": "Robotics research and measurement",
+          "url": "https://www.nist.gov/topics/robotics",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-RB-02",
+          "publisher": "Tesla",
+          "title": "AI and robotics overview",
+          "url": "https://www.tesla.com/AI",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-RB-03",
+          "publisher": "Siemens",
+          "title": "Industrial Copilot",
+          "url": "https://www.siemens.com/en-us/company/insights/generative-ai-industrial-copilot/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-13",
+      "domainId": "domain-drone-defense",
+      "priority": "P1",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "위협·요구·조달·생산·자율성·지속보수가 방산 시스템 경제성을 만드는 구조",
+      "evidenceQuestions": [
+        "mission success와 demo를 어떤 시험·조달 자료로 구분하는가",
+        "개발계약·생산계약·sustainment가 매출 인식에 어떻게 이어지는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-DD-01",
+          "publisher": "U.S. Department of Defense",
+          "title": "Technology topics",
+          "url": "https://www.defense.gov/Topics/Technology/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-DD-02",
+          "publisher": "Shield AI",
+          "title": "Hivemind autonomy platform",
+          "url": "https://shield.ai/hivemind/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-DD-03",
+          "publisher": "U.S. Government Accountability Office",
+          "title": "Defense acquisition",
+          "url": "https://www.gao.gov/defense-acquisition",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-14",
+      "domainId": "domain-space-aerospace",
+      "priority": "P1",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "발사·위성·우주 시스템의 물리 제약과 조달·제조·서비스 수익의 연결",
+      "evidenceQuestions": [
+        "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
+        "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가"
+      ],
+      "sources": [
+        {
+          "id": "AT-SA-01",
+          "publisher": "NASA",
+          "title": "Artemis program",
+          "url": "https://www.nasa.gov/humans-in-space/artemis/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-SA-02",
+          "publisher": "Rocket Lab",
+          "title": "Space systems and spacecraft",
+          "url": "https://rocketlabcorp.com/space-systems/spacecraft/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-SA-03",
+          "publisher": "FAA",
+          "title": "Commercial space transportation",
+          "url": "https://www.faa.gov/space/space_transportation",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-15",
+      "domainId": "domain-ai-applications",
+      "priority": "P1",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "모델 능력이 산업 workflow·권한·감사·구매자·반복매출로 전환되는 구조",
+      "evidenceQuestions": [
+        "AI 도입의 baseline과 human review 범위는 무엇인가",
+        "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-AA-01",
+          "publisher": "NIST",
+          "title": "Artificial intelligence",
+          "url": "https://www.nist.gov/ai",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-AA-02",
+          "publisher": "Palantir",
+          "title": "Artificial Intelligence Platform",
+          "url": "https://www.palantir.com/platforms/aip/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-AA-03",
+          "publisher": "OECD",
+          "title": "AI policy and productivity",
+          "url": "https://oecd.ai/en/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-16",
+      "domainId": "domain-resources-materials",
+      "priority": "P1",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "광물·정제·소재·장비·재활용이 실제 공급가능 물량과 가격으로 연결되는 구조",
+      "evidenceQuestions": [
+        "매장량·정제능력·규격 인증·지역 집중을 어떻게 분리하는가",
+        "증설 lead time과 대체재가 가격결정력에 미치는 영향은 무엇인가"
+      ],
+      "sources": [
+        {
+          "id": "AT-RM-01",
+          "publisher": "IEA",
+          "title": "Critical minerals",
+          "url": "https://www.iea.org/topics/critical-minerals",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-RM-02",
+          "publisher": "USGS",
+          "title": "Mineral commodity summaries",
+          "url": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-RM-03",
+          "publisher": "MP Materials",
+          "title": "Rare-earth materials and magnetics",
+          "url": "https://www.mpmaterials.com/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-17",
+      "domainId": "domain-geopolitics-policy-security",
+      "priority": "P1",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "수출통제·보안·산업정책·공급망 회복력이 기술 접근과 자본배분에 전달되는 구조",
+      "evidenceQuestions": [
+        "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
+        "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-GP-01",
+          "publisher": "U.S. BIS",
+          "title": "Export administration regulations",
+          "url": "https://www.bis.gov/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-GP-02",
+          "publisher": "Japan METI",
+          "title": "Manufacturing and supply-chain policy",
+          "url": "https://www.meti.go.jp/english/press/2026/0415_001.html",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-GP-03",
+          "publisher": "CISA",
+          "title": "Cybersecurity performance goals",
+          "url": "https://www.cisa.gov/cybersecurity-performance-goals",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-18",
+      "domainId": "domain-capital-markets-company-map",
+      "priority": "P0",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "기업 역할·사업모델·현금흐름·시장 기대를 분리해 자본시장 지도로 읽는 구조",
+      "evidenceQuestions": [
+        "보고된 매출·백로그·현금흐름과 시장 기대를 어떻게 분리하는가",
+        "기업의 위치가 가치사슬 병목·가격결정력과 어떻게 연결되는가"
+      ],
+      "sources": [
+        {
+          "id": "AT-CM-01",
+          "publisher": "SEC Investor.gov",
+          "title": "Investing basics and disclosures",
+          "url": "https://www.investor.gov/introduction-investing/investing-basics",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-CM-02",
+          "publisher": "U.S. Treasury",
+          "title": "Interest rates and financing",
+          "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-CM-03",
+          "publisher": "Federal Reserve",
+          "title": "Financial accounts and monetary policy",
+          "url": "https://www.federalreserve.gov/monetarypolicy.htm",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    },
+    {
+      "id": "ATLAS-DOMAIN-19",
+      "domainId": "domain-adjacent-future-tech",
+      "priority": "P2",
+      "status": "REFERENCE_CONNECTED",
+      "scope": "양자·포토닉·뉴로모픽·신에너지의 연구 가능성과 제품·양산·고객가치를 분리",
+      "evidenceQuestions": [
+        "시연과 반복 가능한 제품의 증거는 무엇인가",
+        "오류·제조·인증·금융·workflow 통합이 상용화의 어느 단계에서 병목인가"
+      ],
+      "sources": [
+        {
+          "id": "AT-FT-01",
+          "publisher": "IBM",
+          "title": "Quantum platform",
+          "url": "https://www.ibm.com/quantum/products",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-FT-02",
+          "publisher": "NIST",
+          "title": "Post-quantum and emerging technology",
+          "url": "https://www.nist.gov/quantum-information-science",
+          "sourceRole": "PRIMARY_REFERENCE"
+        },
+        {
+          "id": "AT-FT-03",
+          "publisher": "U.S. DOE",
+          "title": "Office of Science emerging technologies",
+          "url": "https://science.osti.gov/",
+          "sourceRole": "PRIMARY_REFERENCE"
+        }
+      ],
+      "reviewedAt": "2026-08-02",
+      "promotionRule": "claim-level direct support and as-of are required before any CURRENT publication"
+    }
+  ]
+}

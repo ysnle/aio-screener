@@ -5,22 +5,22 @@ verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P7
 current_override: P859-P866 themes evidence, decision/news/portfolio fail-closed boundaries, Worker endpoint evidence, release-manifest synchronization, official FOMC rollover, and post-refresh revision coherence on top of P856-P858 release/security/boot gates; live edge enforcement, provider rights, model benchmark, fast-plane soak, and AI proxy health remain explicit operator gates
   last_verified: 2026-07-29
 confidence: high
-  target_version: v53.64
+target_version: v53.87
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
-target_lines: refreshed after P843 gate
-  current_checkpoint: P833-P835 native data ownership is 17/17 and chart ownership is 8/17 with route-scoped registries/fences; narrative remains 1/17 and live model/Worker/provider certification remains operator-required
+target_lines: refreshed after P888 gate
+  current_checkpoint: P890 connects the six-document authored/reference layer to Principles, Atlas, Foundations, Telegram, and Masters renderers; Scion latest-filing availability is SEC-evidenced; weekend market-closed freshness grace is gated; official currentness/security-master and live model/Worker/provider certification remain operator-required
 ---
 
 ## Current machine-verified file-size table (v53.64, 2026-07-30)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 27,528 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 26,594 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 16,012 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 27,876 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 26,786 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 16,183 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,305 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-chat.js` | 6,571 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 8,932 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 8,939 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 130 | native guide search/jump/capability lifecycle module |
 | `src/ui/pages/screener.js` | 517 | native screener table/filter/profile/watchlist/position renderer |
 | `src/data/providers/screener.js` | 143 | screener artifact + identity-universe provider |

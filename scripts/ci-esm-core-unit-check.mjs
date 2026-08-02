@@ -186,7 +186,7 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
 // ── vertical-slices.js ───────────────────────────────────────────────────────────────────────
 {
   const audit = auditVerticalSliceContracts(ROUTE_IDS);
-  if (!audit.ok || audit.sliceCount !== 10 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical-slices: registry coverage drifted: ${JSON.stringify(audit)}`);
+  if (!audit.ok || audit.sliceCount !== 13 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical-slices: registry coverage drifted: ${JSON.stringify(audit)}`);
   if (getVerticalSliceContract('page-theme-detail')?.id !== 'vs04-themes-detail' || getVerticalSliceContract('missing')) fail('vertical-slices: route lookup did not normalize page ids or reject unknown routes');
 }
 

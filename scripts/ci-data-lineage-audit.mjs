@@ -16,6 +16,24 @@ const DATA_DIR = join(ROOT, 'public-data');
 const NOW = process.env.AIO_LINEAGE_AS_OF ? new Date(process.env.AIO_LINEAGE_AS_OF) : new Date();
 const FUTURE_TOLERANCE_MINUTES = 15;
 
+function readJsonIfPresent(file) {
+  try { return JSON.parse(readFileSync(join(DATA_DIR, file), 'utf8')); } catch { return null; }
+}
+
+const MARKET_SNAPSHOT_CONTEXT = readJsonIfPresent('market-snapshot.json');
+
+function marketClosedGraceEligible(name) {
+  if (name !== 'data.json' && name !== 'market-snapshot.json') return false;
+  const day = NOW.getUTCDay();
+  if (day !== 0 && day !== 6) return false;
+  const snapshot = MARKET_SNAPSHOT_CONTEXT;
+  const coverage = snapshot?.coverage;
+  const quality = snapshot?.quality;
+  if (!coverage || coverage.tier0Observed !== coverage.tier0Required || quality?.gate !== 'QG-01_PASS') return false;
+  if (Array.isArray(snapshot.errors) && snapshot.errors.length) return false;
+  return true;
+}
+
 const fail = (message, detail = '') => ({ status: 'FAIL', message, detail });
 const warn = (message, detail = '') => ({ status: 'WARN', message, detail });
 const info = (message, detail = '') => ({ status: 'INFO', message, detail });
@@ -95,6 +113,7 @@ const POLICIES = {
   'screener.json': { kind: 'research-screener', timestamp: ['asOf', 'meta.asOf'], maxAgeHours: 48 },
   'sec-fundamentals.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
   'telegram-digest.json': { kind: 'reference-digest', timestamp: ['generatedAt', 'lastSuccessfulAt', 'meta.generatedAt'], maxAgeHours: 12 },
+  'telegram-reference-window.json': { kind: 'research-reference', timestamp: ['reviewedAt', 'generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'user-research-digest.json': { kind: 'research-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 }
 };
 
@@ -111,7 +130,7 @@ function extractTimestamp(data, policy) {
 
 function evaluateArtifact(name, data) {
   const policy = POLICIES[name];
-  if (!policy) return { artifact: name, policy: 'unregistered', results: [fail('tracked artifact has no lineage policy')] };
+  if (!policy) return { artifact: name, policy: 'unregistered', status: 'FAIL', checks: [fail('tracked artifact has no lineage policy')] };
 
   const timestamp = extractTimestamp(data, policy);
   const date = parseDate(timestamp.value);
@@ -123,7 +142,9 @@ function evaluateArtifact(name, data) {
   if (!timestamp.value) results.push(fail('required lineage timestamp is missing', policy.custom ?? policy.timestamp?.join(', ')));
   else if (!date) results.push(fail('lineage timestamp is not parseable', `${timestamp.path}=${timestamp.value}`));
   else if (age.future) results.push(fail('lineage timestamp is unexpectedly in the future', `${timestamp.path}=${timestamp.value}`));
-  else if (policy.maxAgeHours != null && age.ageHours > policy.maxAgeHours) {
+  else if (policy.maxAgeHours != null && age.ageHours > policy.maxAgeHours && marketClosedGraceEligible(name)) {
+    results.push(info('artifact freshness evaluated under market-closed grace', `${age.ageHours}h old; Tier-0 snapshot coverage is complete`));
+  } else if (policy.maxAgeHours != null && age.ageHours > policy.maxAgeHours) {
     const severity = policy.kind === 'live-core' ? 'FAIL' : 'WARN';
     results.push(severity === 'FAIL'
       ? fail('artifact exceeded freshness SLA', `${age.ageHours}h > ${policy.maxAgeHours}h`)

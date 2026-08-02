@@ -73,7 +73,7 @@ const requiredTargets = {
 };
 for (const [key, value] of Object.entries(requiredTargets)) check(`SLO target ${key}`, slo.targets?.[key] === value, `${slo.targets?.[key]} != ${value}`);
 check('route soak declaration', ['pending', 'pass'].includes(slo.localBoundary?.routeSoak?.status));
-check('route soak topology', slo.localBoundary?.routeSoak?.laps === 3 && slo.localBoundary?.routeSoak?.routes === 17);
+check('route soak topology', slo.localBoundary?.routeSoak?.laps === 3 && slo.localBoundary?.routeSoak?.routes === 20);
 check('security header gate is explicit', slo.localBoundary?.securityHeaders?.status === 'edge-required' && slo.localBoundary?.securityHeaders?.manifest === '_headers');
 check('public readiness decision is conservative', readiness.publicBetaDecision === 'BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE');
 check('public readiness route soak mirror', readiness.criteria?.find((criterion) => criterion.id === 'route-soak')?.status === (slo.localBoundary?.routeSoak?.status === 'pass' ? 'PASS' : 'PENDING_LOCAL_GATE'));
@@ -100,7 +100,7 @@ if (slo.localBoundary?.routeSoak?.status === 'pass') {
   if (existsSync(routeSoakReportPath)) {
     const report = JSON.parse(readFileSync(routeSoakReportPath, 'utf8'));
     check('route soak report passed', report.ok === true && Array.isArray(report.errors) && report.errors.length === 0);
-    check('route soak report topology', report.routes === 17 && report.laps === 3);
+    check('route soak report topology', report.routes === 20 && report.laps === 3);
   }
 }
 

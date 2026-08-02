@@ -1,7 +1,7 @@
 {
   "schemaVersion": "operations-status-v1",
-  "generatedAt": "2026-08-01T08:44:04.569Z",
-  "appRevision": "v53.69",
+  "generatedAt": "2026-08-02T02:52:50.506Z",
+  "appRevision": "v53.87",
   "dataRevision": "market-snapshot:2026-08-01T07:15:39.658Z:9e23b1b7",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -54,7 +54,7 @@
     "browser": {
       "status": "CURRENT",
       "source": "static-pages+service-worker",
-      "revision": "v53.69"
+      "revision": "v53.87"
     }
   },
   "ai": {
@@ -147,11 +147,11 @@
       ],
       "sourceRevision": "market-snapshot:2026-08-01T07:15:39.658Z:9e23b1b7"
     },
-    "routeCount": 17,
+    "routeCount": 20,
     "rawProducerClaimGate": "not_applicable_for_quote_plane"
   },
   "routes": {
-    "supported": 17,
+    "supported": 20,
     "nativeOwner": [],
     "legacyOwner": 0,
     "nativeLifecycleOwner": [
@@ -171,7 +171,10 @@
       "portfolio",
       "market-news",
       "screener",
-      "guide"
+      "guide",
+      "principles",
+      "masters",
+      "atlas"
     ],
     "nativeRendererOwner": [
       "home",
@@ -190,7 +193,10 @@
       "portfolio",
       "market-news",
       "screener",
-      "guide"
+      "guide",
+      "principles",
+      "masters",
+      "atlas"
     ],
     "nativeDataOwner": [
       "home",
@@ -209,7 +215,10 @@
       "portfolio",
       "market-news",
       "screener",
-      "guide"
+      "guide",
+      "principles",
+      "masters",
+      "atlas"
     ],
     "nativeChartOwner": [
       "breadth",

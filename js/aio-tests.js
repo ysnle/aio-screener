@@ -5227,8 +5227,8 @@
 
   function _testV500EvidenceFoundation() {
     var contracts = window.AIO && window.AIO.getPageContracts ? window.AIO.getPageContracts() : null;
-    _assert('T737 v500_page_contracts: 17 route pages have a single contract source (v53.7 P725: KR 5 routes retired)',
-      contracts && Array.isArray(contracts.routePageIds) && contracts.routePageIds.length === 17 &&
+    _assert('T737 v500_page_contracts: 20 route pages have a single contract source',
+      contracts && Array.isArray(contracts.routePageIds) && contracts.routePageIds.length === 20 &&
         contracts.pages && contracts.pages.home && contracts.pages['market-news'] && contracts.pages.themes && contracts.pages.guide, /* v53.7 P725 */
       JSON.stringify(contracts && contracts.routePageIds));
 
@@ -5248,7 +5248,7 @@
 
     var evidence = window.AIO && window.AIO.getAllPageContentEvidenceMatrix ? window.AIO.getAllPageContentEvidenceMatrix({ includeItems: false }) : null;
     _assert('T740 v500_evidence_store: all route page surface items receive evidence ids and no needs_evidence residue',
-      evidence && evidence.pagesChecked === 17 && evidence.totals && evidence.totals.total >= 17 /* v53.7 P725 */ &&
+      evidence && evidence.pagesChecked === (contracts && contracts.routePageIds ? contracts.routePageIds.length : 20) && evidence.totals && evidence.totals.total >= 20 &&
         evidence.unclassifiedCount === 0 && evidence.totals.needs_evidence === 0,
       JSON.stringify(evidence && evidence.totals));
 
@@ -5264,7 +5264,7 @@
 
     var gate = window.AIO && window.AIO.runEvidenceDeploymentGate ? window.AIO.runEvidenceDeploymentGate({ strict: false, includeItems: false }) : null;
     _assert('T743 v500_evidence_deployment_gate: new gate returns deployable contract evidence summary',
-      gate && typeof gate.deployable === 'boolean' && gate.evidence && gate.evidence.pagesChecked === 17 && /* v53.7 P725 */
+      gate && typeof gate.deployable === 'boolean' && gate.evidence && gate.evidence.pagesChecked === (contracts && contracts.routePageIds ? contracts.routePageIds.length : 20) &&
         gate.pageContracts && gate.pageContracts.routePageCount === gate.pageContracts.expectedRoutePageCount &&
         !(gate.blocking || []).some(function(msg) { return /route-page contract/.test(msg); }) && gate.sourceAdapters,
       JSON.stringify(gate && { status: gate.status, blocking: gate.blocking && gate.blocking.length, warnings: gate.warnings && gate.warnings.length }));
@@ -6072,7 +6072,7 @@
       var boardDrawer805 = !!document.getElementById('board-drawer');
       var optShell805 = !!document.getElementById('page-options'); // 셸은 21페이지 정합 위해 유지
       var pageCount805 = document.querySelectorAll('.page[id^="page-"]').length;
-      t805ok = !optNav805 && !fbBtn805 && !boardBtn805 && !fbModal805 && !boardDrawer805 && optShell805 && pageCount805 === 17; /* v53.7 P725 */
+      t805ok = !optNav805 && !fbBtn805 && !boardBtn805 && !fbModal805 && !boardDrawer805 && optShell805 && pageCount805 === 20;
       t805detail = 'optNavGone=' + !optNav805 + ' fbGone=' + (!fbBtn805 && !fbModal805) + ' boardGone=' + (!boardBtn805 && !boardDrawer805) + ' optShell=' + optShell805 + ' pages=' + pageCount805;
     } catch(e) { t805detail = 'ERR:' + e.message; }
     _assert('T805 v5035_remove_feedback_board_options: 피드백/게시판 버튼·DOM 제거 + 옵션 내비 제거(셸 유지·22 route 정합)', t805ok, t805detail);
@@ -6792,7 +6792,7 @@
         themes: ['CURRENT_DYNAMIC_THEME_2026-06-16: HBM allocation, AI server demand, optical capacity, and macro funding risk are regenerated from this artifact.'],
         catalysts: [{ key:'NVDA', count:66, text:'Current-window NVDA supply-chain catalyst.' }],
         categories: ['macro','geo','credit','semi','optical','power','ai-policy','kr-market','equity','crypto','earnings','healthcare','japan','flows','insider'].map(function(id) { return { id:id, label:id, topics:[id], count:1, focus:'current artifact focus for ' + id }; }),
-        pageMap: ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'].reduce(function(out, id) { out[id] = id === 'guide' ? [] : ['macro','semi']; return out; }, {}),
+        pageMap: ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','principles','masters','atlas','screener','guide','kr-home','kr-supply','kr-themes','kr-macro','kr-technical'].reduce(function(out, id) { out[id] = id === 'guide' ? [] : ['macro','semi']; return out; }, {}),
         pipelineNote: 'CURRENT_DYNAMIC_PIPELINE_NOTE_2026-06-16',
         topItems: [
           { channel:'insidertracking', datetime:'2026-06-16T05:00:00.000Z', tickers:['NVDA','MU'], score:94, text:'NVDA and MU memory supply update: HBM allocation, AI server demand, and optical capacity pressure.' },
@@ -6818,12 +6818,12 @@
         tg831.pipelineNote === 'CURRENT_DYNAMIC_PIPELINE_NOTE_2026-06-16' &&
         tg831.coverage && tg831.coverage.observedCount === 796 &&
         Array.isArray(window.AIO_TELEGRAM_CATEGORY_REGISTRY) && window.AIO_TELEGRAM_CATEGORY_REGISTRY.length >= 10 &&
-        window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP && Object.keys(window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP).length === 22 &&
+        window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP && Object.keys(window.AIO_TELEGRAM_PAGE_INTEGRATION_MAP).length >= (window.AIO_ALL_ROUTE_PAGE_IDS || []).length &&
         window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._telegramDigestUpdated === sample831.generatedAt &&
         String(window._aioLoadServerTelegramDigest || '').indexOf('telegram-digest.json') >= 0 &&
         audit831 && audit831.digest && audit831.digest.dynamicLoaded === true &&
         audit831.digest.dynamicNarrative === true &&
-        pageAudit831 && pageAudit831.status === 'OK' && pageAudit831.mappedPageCount === 17 && /* v53.7 P725 */
+        pageAudit831 && pageAudit831.status === 'OK' && pageAudit831.mappedPageCount === pageAudit831.requiredPageCount &&
         audit831.memoOverlay && audit831.memoOverlay.appliedCount >= 1 &&
         memoRow831 && String(memoRow831.memo || '').indexOf('[TG ' + sample831.generatedAt.slice(0, 10)) === 0 &&
         String(memoRow831._telegramMemoOverlay || '').indexOf('auto') >= 0);
@@ -7250,7 +7250,7 @@
       var pfHero = document.getElementById('pf-hero-stats');
       if (!pfHero || getComputedStyle(pfHero).gridTemplateColumns.split(' ').length !== 3) failures869.push('portfolio-hero-columns');
       var ia = window.AIO_ROUTE_REGISTRY && window.AIO_ROUTE_REGISTRY.classes;
-      if (!ia || ia.NAV_ROUTE.length !== 14 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 1 || ia.OVERLAY.length !== 1 || (ia.REMOVED || []).length !== 5) failures869.push('surface-count-contract'); /* v53.7 P725 */
+      if (!ia || ia.NAV_ROUTE.length !== 17 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 1 || ia.OVERLAY.length !== 1 || (ia.REMOVED || []).length !== 5) failures869.push('surface-count-contract');
       var guideChapters = document.querySelectorAll('#page-guide > .aio-guide-chapter');
       if (guideChapters.length < 8) failures869.push('guide-chapters=' + guideChapters.length);
       if (Array.prototype.filter.call(guideChapters, function(el){ return el.open; }).length) failures869.push('guide-chapter-default-open');
@@ -7882,7 +7882,7 @@
     _assert('T912 external_cdn_does_not_block_local_boot_queue (H3-F)', bootCdn912.length === 3 && bootCdn912.every(function(el) { return el.async === true && el.defer === false; }), bootCdn912.map(function(el) { return { src: el.src, async: el.async, defer: el.defer }; }));
     var contract913 = window.AIO.getPageContractAudit && window.AIO.getPageContractAudit();
     var lineage913 = window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
-      _assert('T913 route_contract_and_lineage_no_orphan_sink (H3-G)', !!contract913 && contract913.status === 'ok' && contract913.routePageCount === 17 && /* v53.7 P725 */ !!lineage913 && lineage913.broken === 0 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans === 0, JSON.stringify({ contracts:contract913 && contract913.status, routes:contract913 && contract913.routePageCount, broken:lineage913 && lineage913.broken, orphans:lineage913 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans }));
+      _assert('T913 route_contract_and_lineage_no_orphan_sink (H3-G)', !!contract913 && contract913.status === 'ok' && contract913.routePageCount === 20 && !!lineage913 && lineage913.broken === 0 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans === 0, JSON.stringify({ contracts:contract913 && contract913.status, routes:contract913 && contract913.routePageCount, broken:lineage913 && lineage913.broken, orphans:lineage913 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans }));
   }
 
   // Group91: v52.58 H3-G element lineage + H3-H/I human surface contracts.
@@ -7963,10 +7963,10 @@
     _assert('T922 content_truth_retired_feedback_and_policy_path (H2-07): guide has one public inquiry path and no retired board instruction', !!truth922 && truth922.fakeFeedbackInstructionCount === 0 && truth922.oldPrivateContactCount === 0 && truth922.publicContactPath === true && truth922.guideBeginnerRoute === true, JSON.stringify(truth922));
     _assert('T923 content_truth_kr_snapshot_context (H2-07): KR snapshot dates carry stale/reference context and reference action sinks are surfaced', !!truth922 && truth922.unlabeledKrSnapshotDateCount === 0 && typeof truth922.referenceActionCount === 'number', JSON.stringify(truth922));
     var route924 = window.AIO && typeof window.AIO.getRouteIAAudit === 'function' ? window.AIO.getRouteIAAudit() : null;
-    _assert('T924 route_ia_single_registry (H2-08): 22 DOM routes classify exactly once and map to contracts/PAGES', !!route924 && route924.status === 'pass' && route924.routeCount === 22 && route924.classCounts.NAV_ROUTE === 14 && route924.classCounts.REMOVED === 5 && route924.classCounts.DERIVED_VIEW === 2 && route924.classCounts.REFERENCE === 1 /* v53.7 P725 */, JSON.stringify(route924));
+    _assert('T924 route_ia_single_registry (H2-08): current DOM routes classify exactly once and map to contracts/PAGES', !!route924 && route924.status === 'pass' && route924.routeCount === 25 && route924.classCounts.NAV_ROUTE === 17 && route924.classCounts.REMOVED === 5 && route924.classCounts.DERIVED_VIEW === 2 && route924.classCounts.REFERENCE === 1 && route924.classCounts.OVERLAY === 1, JSON.stringify(route924));
     _assert('T925 route_ia_history_and_theme_canonical (H2-08): theme-detail canonical redirect and history/hash contracts are present', !!route924 && route924.themeDetailCanonical === true && route924.historyPushState === true && route924.hashNavigation === true, JSON.stringify(route924));
     var declutter926 = window.AIO && typeof window.AIO.getPageDeclutterAudit === 'function' ? window.AIO.getPageDeclutterAudit() : null;
-    _assert('T926 page_declutter_intent_registry (H2-09): every route has a first-screen intent and primary scenario', !!declutter926 && declutter926.status === 'pass' && declutter926.routeCount === 17 && declutter926.missingIntent.length === 0 /* v53.7 P725 */, JSON.stringify(declutter926));
+    _assert('T926 page_declutter_intent_registry (H2-09): every route has a first-screen intent and primary scenario', !!declutter926 && declutter926.status === 'pass' && declutter926.routeCount === 20 && declutter926.missingIntent.length === 0, JSON.stringify(declutter926));
     _assert('T927 page_declutter_priority_routes (H2-09): high-risk routes are explicitly included in the visual review set', !!declutter926 && ['signal','macro','technical','fxbond','guide','themes','portfolio','screener'].every(function(id){ return declutter926.priorityRoutes.indexOf(id) >= 0; }), JSON.stringify(declutter926 && declutter926.priorityRoutes));
     var provenance930 = window.AIO && typeof window.AIO.getTypedProvenanceAudit === 'function' ? window.AIO.getTypedProvenanceAudit() : null;
     _assert('T930 typed_provenance_action_strength (H2-12): runtime-derived bundle ID is shared by score/UI/AI and covers all critical inputs', !!provenance930 && provenance930.status === 'pass' && provenance930.checks.sameEvidenceIdAcrossUiScoreAi && provenance930.checks.realRuntimeBundle && provenance930.checks.criticalInputsCovered && provenance930.checks.missingAndNeutralDistinct && provenance930.checks.futureAsOfBlocked && provenance930.checks.staleManualActionWeak && provenance930.checks.lineageExportable, JSON.stringify(provenance930));
@@ -8325,8 +8325,8 @@
       var c = contracts.pages[id];
       return c && Array.isArray(c.requiredProducers) && Array.isArray(c.optionalProducers) && c.minCoverage && c.maxAge && c.failureState && Array.isArray(c.forbiddenClaims);
     });
-    _assert('T1021 page_completeness_contract_fields (WP-10): all 22 routes carry producer, coverage, age, failure, and forbidden-claim contracts',
-      routeIds.length === 17 && contractFields /* v53.7 P725 */, JSON.stringify({ routeCount:routeIds.length, contractFields:contractFields }));
+    _assert('T1021 page_completeness_contract_fields (WP-10): all current routes carry producer, coverage, age, failure, and forbidden-claim contracts',
+      routeIds.length === 20 && contractFields, JSON.stringify({ routeCount:routeIds.length, contractFields:contractFields }));
 
     var beforeScreener = window._aioScreenerLoadState;
     window._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'fixture producer disconnected' };
@@ -8338,8 +8338,8 @@
       JSON.stringify({ screener:screener, guide:guide }));
 
     var audit = window.AIO.auditPageDataCompleteness({ allRoutes:true });
-    _assert('T1023 page_completeness_audit_22_routes (WP-10): all route completeness states are returned by one executable audit',
-      audit && audit.routeCount === 17 && Array.isArray(audit.pages) && audit.pages.length === 17 /* v53.7 P725 */ && audit.pages.every(function(row) { return row && row.version === 'wp10.page-completeness.v1' && ['loaded','partial','empty','blocked','stale-reference'].indexOf(row.status) >= 0; }),
+    _assert('T1023 page_completeness_audit_current_routes (WP-10): all route completeness states are returned by one executable audit',
+      audit && audit.routeCount === 20 && Array.isArray(audit.pages) && audit.pages.length === 20 && audit.pages.every(function(row) { return row && row.version === 'wp10.page-completeness.v1' && ['loaded','partial','empty','blocked','stale-reference'].indexOf(row.status) >= 0; }),
       JSON.stringify(audit && { status:audit.status, routeCount:audit.routeCount, loaded:audit.loadedCount, partial:audit.partialCount, empty:audit.emptyCount, staleReference:audit.staleReferenceCount, blocked:audit.blockedCount }));
   }
 

@@ -73,4 +73,4 @@ try {
   server.kill();
 }
 console.log(JSON.stringify(report, null, 2));
-if (!report.ok || report.errors.length || report.slices.length !== 10) process.exitCode = 1;
+if (!report.ok || report.errors.length || report.slices.length !== 13) process.exitCode = 1;

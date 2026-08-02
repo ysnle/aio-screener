@@ -95,6 +95,13 @@ jobs:
       - name: ESM core unit contracts (RM-05 — store/router/lifecycle/evidence-store/facade in isolation)
         run: node scripts/ci-esm-core-unit-check.mjs
 
+      - name: Research reference packet contracts (Atlas/Principles/Masters)
+        run: |
+          node scripts/ci-six-doc-coverage-check.mjs
+          node scripts/ci-atlas-contract-check.mjs
+          node scripts/ci-principles-contract-check.mjs
+          node scripts/ci-masters-contract-check.mjs
+
       - name: AI Screener intelligence contract (AIQ-0/AIQ-1)
         run: node scripts/ci-ai-intelligence-contract-check.mjs
 
@@ -231,6 +238,15 @@ jobs:
 
       - name: Wave 3 vertical slice browser contract
         run: node scripts/ci-vertical-slice-browser-check.mjs
+
+      - name: AI Era Atlas reference shell browser contract
+        run: node scripts/ci-atlas-browser-check.mjs
+
+      - name: Market Principles evidence registry browser contract
+        run: node scripts/ci-principles-browser-check.mjs
+
+      - name: Masters SEC metadata browser contract
+        run: node scripts/ci-masters-browser-check.mjs
 
       - name: Wave 5 route soak and lifecycle leak contract
         run: node scripts/ci-route-soak-check.mjs

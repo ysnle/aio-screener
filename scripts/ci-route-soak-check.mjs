@@ -10,7 +10,7 @@ import { dirname, resolve } from 'node:path';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_ROUTE_SOAK_PORT || 8903);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
-const ROUTES = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'guide'];
+const ROUTES = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'principles', 'masters', 'atlas', 'guide'];
 const canonical = (route) => route === 'theme-detail' ? 'themes' : route;
 const isExpectedOfflineConsole = (message) => /net::ERR_FAILED/.test(message)
   || /^\[AIO:api\]\s+[\w-]+:\s+warn\s+.*error/.test(message);

@@ -1,0 +1,237 @@
+{
+  "schema": "ai-era-atlas-research.v1",
+  "revision": "2026-08-02-v53.82",
+  "status": "REFERENCE_CONNECTED",
+  "sourceKind": "PRIMARY_RECONCILED",
+  "researchRole": "DISCOVERY_RECONCILIATION",
+  "telegramWindow": {
+    "from": "2026-07-28T00:00:00+09:00",
+    "to": "2026-08-01T23:59:59+09:00",
+    "role": "DISCOVERY",
+    "channels": ["bornlupin", "aetherjapanresearch", "Onionfarmer", "survival_DoPB", "insidertracking"]
+  },
+  "publication": {
+    "currentClaims": 0,
+    "publishedNodes": 0,
+    "allowedSurfaces": ["atlas", "principles"],
+    "prohibitedSurfaces": ["live quote", "Trading Score", "BUY/SELL", "13F holdings", "valuation target"],
+    "gate": "REVIEWED_CANDIDATE is reference content, not PUBLISHED or LIVE"
+  },
+  "packets": [
+    { "id": "ATLAS-00", "status": "DESIGN_ONLY", "sourceIds": [], "claimIds": [] },
+    { "id": "ATLAS-01", "status": "REVIEWED_CANDIDATE", "sourceIds": ["PS-01", "PS-02", "PS-03", "PS-04", "PS-05", "PS-06", "PS-07", "PS-08", "PS-09", "PS-10", "PS-11", "PS-12", "PS-13", "PS-14", "PS-15"], "claimIds": ["TG-C01", "TG-C02", "TG-C03", "TG-C04", "TG-C05", "TG-C06", "TG-C07", "TG-C08"] },
+    { "id": "ATLAS-02", "status": "REVIEWED_CANDIDATE", "sourceIds": ["PS-06", "PS-07", "PS-08"], "claimIds": ["TG-C03"] },
+    { "id": "ATLAS-03", "status": "REVIEWED_CANDIDATE", "sourceIds": ["PS-01", "PS-02", "PS-03", "PS-05"], "claimIds": ["TG-C01", "TG-C02", "TG-C08"] },
+    { "id": "ATLAS-04", "status": "DESIGN_ONLY", "sourceIds": [], "claimIds": [] },
+    { "id": "ATLAS-05", "status": "PARTIAL", "sourceIds": ["PS-08", "PS-09", "PS-10", "PS-11"], "claimIds": ["TG-C03", "TG-C05"] },
+    { "id": "ATLAS-06", "status": "PARTIAL", "sourceIds": ["PS-12", "PS-13", "PS-16", "PS-17"], "claimIds": ["TG-C06", "TG-C09"] },
+    { "id": "ATLAS-07", "status": "PARTIAL", "sourceIds": ["PS-18"], "claimIds": ["TG-C11"] },
+    { "id": "ATLAS-08", "status": "PARTIAL", "sourceIds": ["PS-19", "PS-20", "PS-21", "PS-22", "PS-23"], "claimIds": ["TG-C10", "TG-C12", "TG-C13", "TG-C14"] },
+    { "id": "ATLAS-09", "status": "REVIEWED_CANDIDATE", "sourceIds": ["PS-01", "PS-02", "PS-03", "PS-06", "PS-07", "PS-08", "PS-09", "PS-10", "PS-12"], "claimIds": ["TG-C01", "TG-C03", "TG-C05", "TG-C06"] },
+    { "id": "ATLAS-10", "status": "DESIGN_ONLY", "sourceIds": [], "claimIds": [] }
+  ],
+  "taxonomyDomains": [
+    { "id": "domain-cloud-platform", "title": "Cloud / AI platform", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["hyperscaler annual report", "SEC 10-K/10-Q"], "nodes": [
+      { "id": "cloud-hyperscaler", "title": "Hyperscaler cloud", "kind": "business-model", "layer": "L1" },
+      { "id": "cloud-ai-service", "title": "Managed AI service", "kind": "service", "layer": "L2" },
+      { "id": "cloud-utilization", "title": "Utilization / workload mix", "kind": "economics", "layer": "L4" },
+      { "id": "cloud-commitments", "title": "Cloud commitments", "kind": "contract", "layer": "L5" },
+      { "id": "cloud-depreciation", "title": "Depreciation cycle", "kind": "finance", "layer": "L5" }
+    ] },
+    { "id": "domain-neocloud-finance", "title": "Neocloud / GPU cloud / finance", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["SEC 10-K/S-1", "debt and lease notes"], "nodes": [
+      { "id": "neocloud-gpu-rental", "title": "GPU rental", "kind": "business-model", "layer": "L2" },
+      { "id": "neocloud-capacity-reservation", "title": "Capacity reservation", "kind": "contract", "layer": "L4" },
+      { "id": "neocloud-lease-burden", "title": "Lease burden", "kind": "finance", "layer": "L5" },
+      { "id": "neocloud-customer-concentration", "title": "Customer concentration", "kind": "risk", "layer": "L5" },
+      { "id": "neocloud-rental-yield", "title": "Rental yield minus funding cost", "kind": "economics", "layer": "L6" }
+    ] },
+    { "id": "domain-compute-silicon", "title": "AI compute / custom silicon", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["architecture documents", "IEEE / ISSCC / IEDM"], "nodes": [
+      { "id": "compute-gpu", "title": "GPU", "kind": "accelerator", "layer": "L3" },
+      { "id": "compute-asic", "title": "ASIC / custom accelerator", "kind": "accelerator", "layer": "L3" },
+      { "id": "compute-npu", "title": "NPU / edge accelerator", "kind": "accelerator", "layer": "L3" },
+      { "id": "compute-precision", "title": "FP/BF/INT precision", "kind": "technical", "layer": "L4" },
+      { "id": "compute-interconnect", "title": "Accelerator interconnect", "kind": "technical", "layer": "L4" }
+    ] },
+    { "id": "domain-memory-storage", "title": "Memory / storage / data movement", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["JEDEC", "company IR", "SNIA"], "nodes": [
+      { "id": "memory-sram", "title": "SRAM / cache", "kind": "memory", "layer": "L3" },
+      { "id": "memory-dram-hbm", "title": "DRAM / HBM", "kind": "memory", "layer": "L3" },
+      { "id": "memory-nand", "title": "NAND flash", "kind": "memory", "layer": "L3" },
+      { "id": "memory-enterprise-ssd", "title": "Enterprise / data-center SSD", "kind": "storage", "layer": "L4" },
+      { "id": "memory-cxl", "title": "CXL / pooled memory", "kind": "interface", "layer": "L4" }
+    ] },
+    { "id": "domain-foundry-equipment", "title": "Foundry / equipment / materials", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["company IR", "SEMI", "IEEE / IEDM"], "nodes": [
+      { "id": "foundry-design-ecosystem", "title": "Design ecosystem", "kind": "value-chain", "layer": "L2" },
+      { "id": "foundry-process-node", "title": "Process node", "kind": "manufacturing", "layer": "L3" },
+      { "id": "foundry-equipment", "title": "Process equipment", "kind": "equipment", "layer": "L3" },
+      { "id": "foundry-materials", "title": "Materials / chemicals", "kind": "materials", "layer": "L3" },
+      { "id": "foundry-capacity-yield", "title": "Capacity / yield / utilization", "kind": "economics", "layer": "L5" }
+    ] },
+    { "id": "domain-packaging-substrate", "title": "Advanced packaging / substrate", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["TSMC technology", "UCIe", "substrate vendor IR"], "nodes": [
+      { "id": "package-2-5d", "title": "2.5D integration", "kind": "packaging", "layer": "L3" },
+      { "id": "package-3d-stacking", "title": "3D stacking", "kind": "packaging", "layer": "L3" },
+      { "id": "package-interposer", "title": "Interposer / bridge", "kind": "packaging", "layer": "L4" },
+      { "id": "package-substrate", "title": "ABF / FC-BGA substrate", "kind": "materials", "layer": "L4" },
+      { "id": "package-glass", "title": "Glass substrate", "kind": "emerging-technology", "layer": "L4" }
+    ] },
+    { "id": "domain-network-photonics", "title": "Network / photonics / CPO", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["OFC", "IEEE", "switch and optics vendors"], "nodes": [
+      { "id": "network-switch", "title": "Switch silicon", "kind": "network", "layer": "L3" },
+      { "id": "network-optical-module", "title": "Optical module", "kind": "photonics", "layer": "L3" },
+      { "id": "network-silicon-photonics", "title": "Silicon photonics", "kind": "photonics", "layer": "L4" },
+      { "id": "network-cpo", "title": "Co-packaged optics", "kind": "photonics", "layer": "L4" },
+      { "id": "network-fabric", "title": "AI cluster fabric", "kind": "system", "layer": "L5" }
+    ] },
+    { "id": "domain-aidc-cooling", "title": "AIDC / servers / cooling", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["DOE/LBNL", "data-center operators", "server OEM IR"], "nodes": [
+      { "id": "aidc-rack-density", "title": "Rack density", "kind": "facility", "layer": "L3" },
+      { "id": "aidc-liquid-cooling", "title": "Liquid cooling", "kind": "thermal", "layer": "L3" },
+      { "id": "aidc-thermal-design", "title": "Thermal design", "kind": "engineering", "layer": "L4" },
+      { "id": "aidc-server-platform", "title": "Server platform", "kind": "system", "layer": "L4" },
+      { "id": "aidc-pue", "title": "PUE / facility efficiency", "kind": "metric", "layer": "L5" }
+    ] },
+    { "id": "domain-power-grid", "title": "Power / energy / grid", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["IEA Energy and AI", "DOE/LBNL", "grid operator"], "nodes": [
+      { "id": "power-it-load", "title": "Accelerator IT load", "kind": "demand", "layer": "L3" },
+      { "id": "power-generation", "title": "Generation mix", "kind": "energy", "layer": "L3" },
+      { "id": "power-transmission", "title": "Transmission / substation", "kind": "grid", "layer": "L4" },
+      { "id": "power-interconnection", "title": "Interconnection queue", "kind": "regulation", "layer": "L5" },
+      { "id": "power-transformer", "title": "Transformer / switchgear", "kind": "equipment", "layer": "L4" }
+    ] },
+    { "id": "domain-on-device-physical-ai", "title": "On-device / physical AI / robotics", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["SoC/NPU documentation", "robotics papers", "simulation frameworks"], "nodes": [
+      { "id": "edge-soc-npu", "title": "Edge SoC / NPU", "kind": "hardware", "layer": "L3" },
+      { "id": "edge-memory-power", "title": "Memory / power envelope", "kind": "constraint", "layer": "L4" },
+      { "id": "physical-ai-sensing", "title": "Sensors / perception", "kind": "robotics", "layer": "L3" },
+      { "id": "physical-ai-control", "title": "Control / actuation", "kind": "robotics", "layer": "L4" },
+      { "id": "physical-ai-digital-twin", "title": "Simulation / digital twin", "kind": "software", "layer": "L5" }
+    ] },
+    { "id": "domain-ai-economics", "title": "AI CAPEX / ROIC / company finance", "priority": "P0", "status": "DESIGN_ONLY", "sourceSeeds": ["SEC filings", "annual reports", "credit disclosures"], "nodes": [
+      { "id": "economics-revenue-model", "title": "Revenue model", "kind": "finance", "layer": "L4" },
+      { "id": "economics-capex", "title": "CAPEX / lease", "kind": "finance", "layer": "L5" },
+      { "id": "economics-depreciation", "title": "Depreciation / useful life", "kind": "accounting", "layer": "L5" },
+      { "id": "economics-fcf", "title": "FCF / funding", "kind": "finance", "layer": "L5" },
+      { "id": "economics-roic", "title": "ROIC / counter-scenario", "kind": "investment-framework", "layer": "L6" }
+    ] },
+    { "id": "domain-physical-ai-robotics", "title": "Physical AI / robotics / autonomy", "priority": "P1", "status": "DESIGN_ONLY", "sourceSeeds": ["NIST robotics", "ISO safety standards", "robotics company filings"], "nodes": [
+      { "id": "physical-ai-perception", "title": "Perception and sensor fusion", "kind": "robotics", "layer": "L3" },
+      { "id": "physical-ai-world-model", "title": "World model and simulation", "kind": "software", "layer": "L4" },
+      { "id": "physical-ai-planning", "title": "Planning and control", "kind": "robotics", "layer": "L4" },
+      { "id": "physical-ai-actuation", "title": "Actuation and safety", "kind": "hardware", "layer": "L5" },
+      { "id": "physical-ai-unit-economics", "title": "Robot unit economics", "kind": "economics", "layer": "L6" }
+    ] },
+    { "id": "domain-drone-defense", "title": "Drone / defense / autonomous systems", "priority": "P1", "status": "DESIGN_ONLY", "sourceSeeds": ["U.S. DoD budget", "Congressional Research Service", "defense procurement disclosures"], "nodes": [
+      { "id": "defense-kill-chain", "title": "Detection-to-decision chain", "kind": "defense", "layer": "L2" },
+      { "id": "defense-c2-isr-ew", "title": "C2 / ISR / electronic warfare", "kind": "defense", "layer": "L3" },
+      { "id": "defense-autonomy", "title": "Autonomy and human control", "kind": "policy", "layer": "L4" },
+      { "id": "defense-drone-production", "title": "Drone production and attrition", "kind": "manufacturing", "layer": "L5" },
+      { "id": "defense-procurement-economics", "title": "Procurement economics", "kind": "economics", "layer": "L6" }
+    ] },
+    { "id": "domain-space-aerospace", "title": "Space / aerospace / reusable systems", "priority": "P1", "status": "DESIGN_ONLY", "sourceSeeds": ["NASA Artemis", "FAA commercial space", "company launch disclosures"], "nodes": [
+      { "id": "space-rocket-physics", "title": "Rocket physics and launch energy", "kind": "physics", "layer": "L2" },
+      { "id": "space-reusability", "title": "Reusability and turnaround", "kind": "engineering", "layer": "L4" },
+      { "id": "space-satellite-economics", "title": "Satellite data economics", "kind": "economics", "layer": "L5" },
+      { "id": "space-artemis-architecture", "title": "Artemis architecture", "kind": "program", "layer": "L5" },
+      { "id": "space-aircraft-supply-chain", "title": "Aircraft and space supply chain", "kind": "manufacturing", "layer": "L6" }
+    ] },
+    { "id": "domain-ai-applications", "title": "AI application industries", "priority": "P1", "status": "DESIGN_ONLY", "sourceSeeds": ["FDA digital health", "DOE manufacturing", "company product filings"], "nodes": [
+      { "id": "application-healthcare", "title": "Healthcare workflow", "kind": "application", "layer": "L2" },
+      { "id": "application-manufacturing", "title": "Manufacturing workflow", "kind": "application", "layer": "L2" },
+      { "id": "application-automotive", "title": "Automotive autonomy", "kind": "application", "layer": "L3" },
+      { "id": "application-finance", "title": "Financial decision workflow", "kind": "application", "layer": "L3" },
+      { "id": "application-roi-payer", "title": "Payer, ROI and adoption", "kind": "economics", "layer": "L6" }
+    ] },
+    { "id": "domain-resources-materials", "title": "Resources / materials / industrials", "priority": "P1", "status": "DESIGN_ONLY", "sourceSeeds": ["IEA critical minerals", "USGS minerals", "industrial company filings"], "nodes": [
+      { "id": "resources-copper", "title": "Copper and conductors", "kind": "materials", "layer": "L3" },
+      { "id": "resources-lithium", "title": "Lithium and storage materials", "kind": "materials", "layer": "L3" },
+      { "id": "resources-rare-earths", "title": "Rare earths and magnets", "kind": "materials", "layer": "L3" },
+      { "id": "resources-refining", "title": "Mining, refining and recycling", "kind": "process", "layer": "L4" },
+      { "id": "resources-industrial-equipment", "title": "Industrial equipment bottlenecks", "kind": "equipment", "layer": "L5" }
+    ] },
+    { "id": "domain-geopolitics-policy-security", "title": "Geopolitics / industrial policy / security", "priority": "P1", "status": "DESIGN_ONLY", "sourceSeeds": ["BIS export controls", "U.S. Treasury sanctions", "national industrial policy documents"], "nodes": [
+      { "id": "policy-export-controls", "title": "Export controls", "kind": "policy", "layer": "L2" },
+      { "id": "policy-supply-chain-resilience", "title": "Supply-chain resilience", "kind": "policy", "layer": "L3" },
+      { "id": "policy-semiconductor-incentives", "title": "Semiconductor incentives", "kind": "policy", "layer": "L4" },
+      { "id": "policy-cybersecurity", "title": "Cybersecurity and sovereign AI", "kind": "security", "layer": "L4" },
+      { "id": "policy-national-security-risk", "title": "National-security risk", "kind": "risk", "layer": "L6" }
+    ] },
+    { "id": "domain-capital-markets-company-map", "title": "Capital markets / company map", "priority": "P1", "status": "DESIGN_ONLY", "sourceSeeds": ["SEC EDGAR", "company annual reports", "exchange rulebooks"], "nodes": [
+      { "id": "capital-company-role", "title": "Company role and value capture", "kind": "company", "layer": "L4" },
+      { "id": "capital-revenue-quality", "title": "Revenue quality and visibility", "kind": "finance", "layer": "L5" },
+      { "id": "capital-margin-structure", "title": "Margin and cost structure", "kind": "finance", "layer": "L5" },
+      { "id": "capital-balance-sheet", "title": "Balance sheet and funding", "kind": "finance", "layer": "L5" },
+      { "id": "capital-market-expectation", "title": "Expectation and price", "kind": "market", "layer": "L6" }
+    ] },
+    { "id": "domain-adjacent-future-tech", "title": "Adjacent future technologies", "priority": "P2", "status": "DESIGN_ONLY", "sourceSeeds": ["peer-reviewed research", "standards bodies", "company R&D disclosures"], "nodes": [
+      { "id": "future-quantum", "title": "Quantum computing", "kind": "emerging-technology", "layer": "L3" },
+      { "id": "future-photonic-compute", "title": "Photonic compute", "kind": "emerging-technology", "layer": "L3" },
+      { "id": "future-neuromorphic", "title": "Neuromorphic systems", "kind": "emerging-technology", "layer": "L4" },
+      { "id": "future-new-energy", "title": "New energy systems", "kind": "energy", "layer": "L4" },
+      { "id": "future-uncertainty-gate", "title": "Technology uncertainty gate", "kind": "method", "layer": "L6" }
+    ] }
+  ],
+  "sources": [
+    { "id": "PS-01", "title": "2026 TSMC AGM minutes / business report", "publisher": "TSMC", "publishedAt": "2026-06-04", "url": "https://investor.tsmc.com/sites/ir/shareholders-meeting/2026-06-04/2026AGM_Minutes_wmn.pdf", "scope": "AI demand, leading-edge process, advanced packaging, capacity", "verification": "opened_primary_source" },
+    { "id": "PS-02", "title": "HBM4, PCIe Gen6 SSD and SOCAMM2 high-volume production", "publisher": "Micron", "publishedAt": "2026-03-16", "url": "https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin", "scope": "memory and storage as coordinated AI infrastructure layers", "verification": "opened_primary_source" },
+    { "id": "PS-03", "title": "Investor Day 2026", "publisher": "KIOXIA", "publishedAt": "2026-06-02", "url": "https://www.kioxia-holdings.com/content/dam/kioxia-hd/en-jp/ir/library/event/asset/Kioxia-Investor-Day-2026-en.pdf", "scope": "inference storage, SSD portfolio, LTA and capital allocation", "verification": "opened_primary_source" },
+    { "id": "PS-04", "title": "Growth strategy for the AI inference era", "publisher": "KIOXIA", "publishedAt": "2026-06-02", "url": "https://www.kioxia-holdings.com/en-jp/news/2026/20260602-1.html", "scope": "KV cache, RAG, SSD as extended memory, multi-year LTA", "verification": "opened_primary_source" },
+    { "id": "PS-05", "title": "10th-generation BiCS FLASH sample shipments", "publisher": "KIOXIA", "publishedAt": "2026-07-03", "url": "https://apac.kioxia.com/en-apac/about/news/2026/20260703-1.html", "scope": "enterprise/data-center SSD, capacity, interface and power efficiency", "verification": "opened_primary_source" },
+    { "id": "PS-06", "title": "2026 Q3 Form 10-Q", "publisher": "Microsoft / SEC EDGAR", "publishedAt": "2026-03-31", "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm", "scope": "AI infrastructure investment, cloud cost and commitments", "verification": "artifact_reconciled_primary_source" },
+    { "id": "PS-07", "title": "2026 Q1 Form 10-Q", "publisher": "Meta / SEC EDGAR", "publishedAt": "2026-03-31", "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028526/meta-20260331.htm", "scope": "AI CAPEX, data centers, network, energy and commitments", "verification": "opened_primary_source" },
+    { "id": "PS-08", "title": "2026 Q3 Form 10-Q", "publisher": "Oracle / SEC EDGAR", "publishedAt": "2026-02-28", "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm", "scope": "data-center CAPEX, leases, power obligations and financing", "verification": "opened_primary_source" },
+    { "id": "PS-09", "title": "Monetary Policy Report summary", "publisher": "Federal Reserve", "publishedAt": "2026-07-10", "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-summary.htm", "scope": "energy supply shock, inflation and financial conditions", "verification": "opened_primary_source" },
+    { "id": "PS-10", "title": "Consumer Price Index, June 2026", "publisher": "U.S. Bureau of Labor Statistics", "publishedAt": "2026-07-14", "url": "https://www.bls.gov/news.release/cpi.htm?lv=true", "scope": "energy and inflation observation", "verification": "opened_primary_source" },
+    { "id": "PS-11", "title": "Short-Term Energy Outlook", "publisher": "U.S. Energy Information Administration", "publishedAt": "2026-06-09", "url": "https://www.eia.gov/outlooks/steo/report/petro_prod.php", "scope": "oil supply, products and price transmission questions", "verification": "opened_primary_source" },
+    { "id": "PS-12", "title": "Expanding the AI Evaluation Toolbox with Statistical Models", "publisher": "NIST", "publishedAt": "2026-02-19", "url": "https://www.nist.gov/news-events/news/2026/02/new-report-expanding-ai-evaluation-toolbox-statistical-models", "scope": "statistical validity and robustness of AI evaluations", "verification": "opened_primary_source" },
+    { "id": "PS-13", "title": "LLM and agentic AI critical-infrastructure testbed", "publisher": "U.S. Department of Energy", "publishedAt": "2026-07-16", "url": "https://www.energy.gov/ceser/articles/ceser-releases-new-testbed-advance-llm-and-agentic-ai-evaluation-critical", "scope": "evaluation in operational critical-infrastructure environments", "verification": "artifact_reconciled_primary_source" },
+    { "id": "PS-14", "title": "Manufacturing-base report", "publisher": "Japan METI", "publishedAt": "2026-04-15", "url": "https://www.meti.go.jp/english/press/2026/0415_001.html", "scope": "manufacturing resilience, equipment and materials", "verification": "artifact_reconciled_primary_source" },
+    { "id": "PS-15", "title": "Japan-US strategic investment projects", "publisher": "Japan METI", "publishedAt": "2026-02-18", "url": "https://www.meti.go.jp/english/press/2026/0218_002.html", "scope": "AI data-center power and semiconductor supply-chain policy", "verification": "artifact_reconciled_primary_source" },
+    { "id": "PS-16", "title": "Tesla AI and robotics overview", "publisher": "Tesla", "publishedAt": null, "url": "https://www.tesla.com/AI", "scope": "physical AI perception, autonomy algorithms and evaluation infrastructure", "verification": "opened_primary_source_2026-08-02" },
+    { "id": "PS-17", "title": "Hivemind autonomy platform", "publisher": "Shield AI", "publishedAt": null, "url": "https://shield.ai/hivemind/", "scope": "defense autonomy, multi-agent coordination and operator control", "verification": "opened_primary_source_2026-08-02" },
+    { "id": "PS-18", "title": "Space systems and spacecraft portfolio", "publisher": "Rocket Lab", "publishedAt": null, "url": "https://rocketlabcorp.com/space-systems/spacecraft/", "scope": "launch, spacecraft platforms and space-system supply chain roles", "verification": "opened_primary_source_2026-08-02" },
+    { "id": "PS-19", "title": "Artificial Intelligence Platform (AIP)", "publisher": "Palantir", "publishedAt": null, "url": "https://www.palantir.com/platforms/aip/", "scope": "governed data, ontology, models and operational workflow integration", "verification": "opened_primary_source_2026-08-02" },
+    { "id": "PS-20", "title": "Industrial Copilot overview", "publisher": "Siemens", "publishedAt": null, "url": "https://www.siemens.com/en-us/company/insights/generative-ai-industrial-copilot/", "scope": "industrial engineering, manufacturing workflow and domain-context assistance", "verification": "opened_primary_source_2026-08-02" },
+    { "id": "PS-21", "title": "Rare-earth materials and magnetics overview", "publisher": "MP Materials", "publishedAt": null, "url": "https://www.mpmaterials.com/", "scope": "rare-earth materials, refining and downstream magnetics supply-chain roles", "verification": "opened_primary_source_2026-08-02" },
+    { "id": "PS-22", "title": "High Bandwidth Memory overview", "publisher": "Samsung Semiconductor", "publishedAt": null, "url": "https://semiconductor.samsung.com/dram/hbm/", "scope": "HBM architecture, stacked memory and AI-system bandwidth constraints", "verification": "opened_primary_source_2026-08-02" },
+    { "id": "PS-23", "title": "IBM Quantum platform", "publisher": "IBM", "publishedAt": null, "url": "https://www.ibm.com/quantum/products", "scope": "programmable quantum hardware, cloud access and measurement workflow", "verification": "opened_primary_source_2026-08-02" }
+  ],
+  "claims": [
+    { "id": "TG-C01", "discovery": "TG-F1", "title": "AI infrastructure constraints are multi-layered", "summary": "Compute demand connects to memory, packaging, storage and power constraints; the evidence does not justify a universal claim that the bottleneck has moved from GPU to one specific supplier.", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-01", "PS-02"], "observations": ["TSMC describes leading-edge process and advanced packaging as capacity investments for AI/HPC demand.", "Micron presents HBM4, Gen6 SSD and SOCAMM2 as coordinated products for AI/HPC systems."] },
+    { "id": "TG-C02", "discovery": "TG-F2", "title": "Multi-year LTA can improve revenue visibility", "summary": "KIOXIA links multi-year LTAs with revenue visibility and quality of profits; customer concentration and downside protection remain separate questions.", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-03", "PS-04"], "observations": ["KIOXIA states that it is securing multi-year LTAs as part of a strategy for more stable growth."] },
+    { "id": "TG-C03", "discovery": "TG-F3", "title": "AI CAPEX must be read with cash flow and commitments", "summary": "Company filings expose the financing, lease, power and contractual-commitment side of AI infrastructure investment; demand alone is not an ROIC conclusion.", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-06", "PS-07", "PS-08"], "observations": ["Meta reported $19.84B of Q1 2026 capital expenditures and $125B-$145B of expected 2026 CAPEX.", "Oracle reported data-center expansion as the primary driver of higher CAPEX and disclosed additional data-center lease commitments."] },
+    { "id": "TG-C04", "discovery": "TG-F4", "title": "Earnings direction and positioning are separate evidence layers", "summary": "No independent primary-source packet was completed for forced-flow or positioning claims; keep this as a research question.", "status": "NEEDS_REVIEW", "evidence": [], "observations": [] },
+    { "id": "TG-C05", "discovery": "TG-F5", "title": "Energy shocks can transmit to inflation and rates", "summary": "Official macro releases support an energy-to-inflation transmission pathway, but do not establish a specific valuation or market-flow outcome.", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-09", "PS-10", "PS-11"], "observations": ["The Federal Reserve attributed part of higher measured prices to an energy-price surge following oil-supply constraints.", "BLS reported June 2026 CPI and energy-index changes as a dated observation, not a forecast."] },
+    { "id": "TG-C06", "discovery": "TG-F6", "title": "AI economics requires task-level evaluation", "summary": "AI evaluation should include statistical validity and operational context; token price alone is not a complete workload-economics measure.", "status": "PARTIAL", "evidence": ["PS-12", "PS-13"], "observations": ["NIST describes improving the validity and robustness of AI benchmark evaluations as an ongoing measurement goal."] },
+    { "id": "TG-C07", "discovery": "TG-F7", "title": "Supply-chain resilience is a policy and infrastructure question", "summary": "Japan manufacturing and strategic-investment sources are retained as a candidate policy branch; company-level supply, margin and share claims need additional IR evidence.", "status": "PARTIAL", "evidence": ["PS-14", "PS-15"], "observations": [] },
+    { "id": "TG-C08", "discovery": "TG-F8", "title": "Inference workloads change storage requirements", "summary": "KIOXIA and Micron materials directly connect inference, KV cache, SSD and memory products; total NAND demand and price forecasts remain blocked.", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-02", "PS-03", "PS-04", "PS-05"], "observations": ["KIOXIA describes SSDs as extended memory for GPUs and identifies KV-cache, RAG and high-capacity AI-storage use cases.", "KIOXIA's 10th-generation BiCS FLASH samples are positioned for enterprise and data-center SSDs serving AI storage demand."] },
+    { "id": "TG-C09", "discovery": "TG-F9", "title": "Physical AI is a perception-to-action system", "summary": "Physical AI is best analyzed as a loop from sensing and world representation to planning, control and human oversight; a product page does not establish field reliability or production scale.", "status": "PARTIAL", "evidence": ["PS-16", "PS-17"], "observations": ["Tesla presents autonomy and robotics as an integrated AI, sensing, compute and evaluation problem.", "Shield AI presents Hivemind as an autonomy platform for coordinated systems and operator-supervised missions."] },
+    { "id": "TG-C10", "discovery": "TG-F10", "title": "Enterprise AI value depends on governed workflow integration", "summary": "Enterprise AI value is mediated by domain data, permissions, workflow adoption and human review; model availability alone is not an ROI conclusion.", "status": "PARTIAL", "evidence": ["PS-19", "PS-20"], "observations": ["Palantir describes AIP around governed data, operational context and actions within workflows.", "Siemens positions Industrial Copilot around engineering and manufacturing context rather than a standalone model benchmark."] },
+    { "id": "TG-C11", "discovery": "TG-F11", "title": "Space economics spans launch and spacecraft systems", "summary": "Space-system analysis must separate launch services, spacecraft platforms, components and mission operations; a launch announcement alone does not prove recurring economics.", "status": "PARTIAL", "evidence": ["PS-18"], "observations": ["Rocket Lab presents launch and spacecraft/space-system capabilities as distinct but connected parts of the mission stack."] },
+    { "id": "TG-C12", "discovery": "TG-F12", "title": "Critical-materials value is created across refining and qualification", "summary": "Rare-earth supply-chain analysis must distinguish mineral input, separation, refining, magnetics and customer qualification; resource ownership alone is not downstream capacity.", "status": "PARTIAL", "evidence": ["PS-21"], "observations": ["MP Materials presents rare-earth materials and downstream magnetics as linked supply-chain stages."] },
+    { "id": "TG-C13", "discovery": "TG-F13", "title": "HBM links memory architecture to system bandwidth", "summary": "HBM is a system-level memory and packaging topic: bandwidth, capacity, power and stack qualification should be analyzed together without inferring market share or shipment volume.", "status": "PARTIAL", "evidence": ["PS-22"], "observations": ["Samsung's HBM material describes stacked high-bandwidth memory as an accelerator-adjacent system component."] },
+    { "id": "TG-C14", "discovery": "TG-F14", "title": "Quantum platforms require hardware-software-measurement co-design", "summary": "Quantum computing evaluation must keep hardware access, circuit execution, error behavior and measurement workflow together; a platform listing is not evidence of commercial advantage.", "status": "PARTIAL", "evidence": ["PS-23"], "observations": ["IBM presents quantum hardware and cloud/software access as one programmable experimentation workflow."] }
+  ],
+  "nodes": [
+    { "id": "candidate.ai-era", "title": "AI era", "layer": "L0", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-01", "PS-02", "PS-12"] },
+    { "id": "candidate.ai-workload", "title": "AI workload", "layer": "L1", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-01", "PS-02", "PS-12", "PS-16", "PS-17", "PS-19", "PS-20", "PS-23"] },
+    { "id": "candidate.compute", "title": "Compute", "layer": "L2", "status": "PARTIAL", "evidence": ["PS-01", "PS-02", "PS-16", "PS-22"] },
+    { "id": "candidate.memory-hbm", "title": "Memory / HBM", "layer": "L2", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-01", "PS-02"] },
+    { "id": "candidate.advanced-packaging", "title": "Advanced packaging", "layer": "L3", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-01", "PS-02"] },
+    { "id": "candidate.storage-ssd", "title": "Storage / SSD", "layer": "L3", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-02", "PS-03", "PS-04", "PS-05"] },
+    { "id": "candidate.power-cooling", "title": "Power / cooling", "layer": "L3", "status": "CANDIDATE", "evidence": ["PS-01", "PS-08", "PS-09"] },
+    { "id": "candidate.ai-capex", "title": "AI CAPEX", "layer": "L4", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-06", "PS-07", "PS-08"] },
+    { "id": "candidate.revenue-visibility-lta", "title": "Revenue visibility / LTA", "layer": "L5", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-03", "PS-04"] },
+    { "id": "candidate.financing-credit", "title": "Financing / credit", "layer": "L5", "status": "CANDIDATE", "evidence": ["PS-06", "PS-07", "PS-08", "PS-09"] },
+    { "id": "candidate.geo-oil-rates", "title": "Geo / oil / rates", "layer": "L5", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-09", "PS-10", "PS-11"] },
+    { "id": "candidate.evaluation-dimensions", "title": "Evaluation dimensions", "layer": "L6", "status": "REVIEWED_CANDIDATE", "evidence": ["PS-12", "PS-13", "PS-16", "PS-17", "PS-19", "PS-20", "PS-23"] }
+  ],
+  "edges": [
+    { "from": "candidate.ai-capex", "to": "candidate.advanced-packaging", "type": "DEMAND_OR_CONSTRAINT", "status": "CANDIDATE", "evidence": ["TG-C01", "TG-C03"] },
+    { "from": "candidate.revenue-visibility-lta", "to": "candidate.financing-credit", "type": "VISIBILITY", "status": "REVIEWED_CANDIDATE", "evidence": ["TG-C02", "TG-C03"] },
+    { "from": "candidate.ai-capex", "to": "candidate.financing-credit", "type": "FINANCING_TRADEOFF", "status": "REVIEWED_CANDIDATE", "evidence": ["TG-C03"] },
+    { "from": "candidate.geo-oil-rates", "to": "candidate.financing-credit", "type": "TRANSMISSION", "status": "REVIEWED_CANDIDATE", "evidence": ["TG-C05"] },
+    { "from": "candidate.ai-workload", "to": "candidate.storage-ssd", "type": "WORKLOAD_REQUIREMENT", "status": "REVIEWED_CANDIDATE", "evidence": ["TG-C08"] },
+    { "from": "candidate.ai-workload", "to": "candidate.evaluation-dimensions", "type": "PHYSICAL_SYSTEM_EVALUATION", "status": "PARTIAL", "evidence": ["TG-C09", "TG-C10", "TG-C14"] },
+    { "from": "candidate.compute", "to": "candidate.memory-hbm", "type": "MEMORY_BANDWIDTH", "status": "PARTIAL", "evidence": ["TG-C13"] }
+  ],
+  "blockedClaims": [
+    "Telegram numeric claims, price targets, shipment/yield claims and forced-flow claims",
+    "Universal NAND/HBM supply, price, TAM or valuation conclusions from company product announcements",
+    "13F holdings or current portfolio data from Telegram or Atlas source packets"
+  ]
+}

@@ -1,8 +1,85 @@
 ﻿---
 verified_by: human
-last_verified: 2026-05-31
+last_verified: 2026-08-02
 confidence: high
 ---
+
+## 2026-08-02 코드 구현 환류: v53.87 reference layer + freshness closure
+
+- Market Principles는 `public-data/principles/lesson-library.json`의 A~O 111개 authored reference lesson을 실제 검색 가능한 학습 카드로 연결했다. 60개 canonical node/71개 edge/8개 path와 별도 library를 구분해 유지한다.
+- Foundations 48개 module은 `foundation-lessons.json`의 authored reference copy, source IDs, Atlas node IDs, visualization frame을 연결한다. 독립 interactive visualization이나 현재 성능 수치를 임의로 만들지 않는다.
+- Atlas는 19개 domain packet, 57개 structural claim, 95개 taxonomy coverage, 20개 player/20개 product currentness overlay를 연결한다. current claim은 0건이며 production/출하/수율/매출 주장은 공식 기준일 검증 전 승격하지 않는다.
+- Telegram은 2026-07-28~2026-08-01 5개 채널 window와 813개 observed lineage를 `telegram-reference-window.json`으로 연결한다. promoted claim은 0건이다.
+- Masters는 7개 신고주체 × 12개 filing period(84개)와 과거 70개 분기의 SEC 정보표 원문 12,525행을 연결한다. 53개 issuer/ticker/sector reference mapping은 verified security master와 분리한다.
+- 사용자 화면에서는 `MATURE/RAMP/RESEARCH`와 `metadata only` 같은 내부 enum을 의미 중심 한국어 라벨로 변환하지만, 원본 상태·기준일·출처 경계는 artifact와 data attribute에 보존한다.
+
+## 2026-08-02 코드 구현 환류: 6개 기반 문서 커버리지와 콘텐츠 확장
+
+### v53.83 현재 연결 상태
+
+- Foundations: 48개 short-form authored reference lesson이 `public-data/atlas/foundation-lessons.json`으로 연결되며, 각 lesson은 정의·작동 원리·예시·한계·검증 질문·Atlas node/source edge를 가진다. 독립 장문 원고와 독립 시각화는 여전히 대기 상태다.
+- Atlas: 19개 domain guide가 95개 taxonomy node 화면에 연결되어 정의·작동 경로·분석 단위·핵심 병목·검증 질문·공식 출처를 제공한다. 현재 기업 수치·생산·수율·밸류에이션 주장은 승격하지 않는다.
+- Principles: A~O 15개 chapter artifact와 39개 lesson이 연결되어 60개 node 전체가 최소 하나의 lesson을 가진다. 구조적 교육 콘텐츠와 현재 시장 해석은 분리된다.
+- Masters: `security-master.json`이 1,102개 CUSIP·1,122개 issuer-name 정규화 대기를 fail-closed로 기록한다. 검증 매핑 0건이므로 ticker·sector·sector weight는 계속 비공개다.
+
+- `_artifacts/SIX-DOC-COVERAGE-AUDIT-2026-08-02.md`가 6개 SSOT 문서의 설계 범위·현재 코드/data 연결·미완료 콘텐츠를 분리한다. 구조 artifact가 있다고 해서 전체 문서 원고가 완료된 것으로 집계하지 않는다.
+- Atlas의 95개 taxonomy node(19개 domain)는 이제 모두 정의·가치사슬 연결·역할·KPI·실패/반대 조건을 갖춘 사용자용 설명을 렌더링한다. 20개 role-reference player와 20개 product-family도 공식 URL과 함께 연결했지만, 생산상태·기준일은 검증 전 null이며 현재 claim으로 승격하지 않는다.
+- v53.81의 Atlas 참조 레지스트리는 physical AI·방산 자율화·우주 시스템·기업 AI·핵심 소재·HBM·양자·산업 소프트웨어 영역까지 확장되었고, `ci-atlas-contract-check.mjs`가 출처 ID·taxonomy ID·player edge·현재성 경계를 모두 검증한다.
+- Foundations의 48개 module은 모두 정의·작동 원리·예시·한계·출처 경계와 layer별 학습 질문·개념 시각화 프레임을 갖는다. 장문 원고·수식/도해·독립 visualization은 다음 단계다.
+- Principles는 희소성·생산성·돈·물가·신용·금리·채권·재정·기업·가격발견·사이클·리스크·산업 가치사슬·전력·인접 산업·한국 시장·물리 AI·방산·우주·기업 AI·핵심 소재·HBM·양자·포토닉·데이터센터 금융을 60개 node·37개 lesson·8개 path로 확장했다. 전체 A~O·약 99개 lesson 완료와 혼동하지 않는다.
+- `scripts/ci-six-doc-coverage-check.mjs`는 현재 확인된 16개 binary check와 남은 범위를 함께 출력한다. `--strict`는 전체 source-document completion 전까지 의도적으로 실패한다.
+
+## 2026-08-02 코드 구현 환류: Market Principles claim-level analysis
+
+- `src/ui/pages/principles.js` now renders a source-grounded analysis block in each selected node detail. It resolves the node's evidence IDs to connected claim packets and shows claim ID/status/title/summary, observation bullets, and official primary-source links.
+- The same block adds node-specific reading questions so the page distinguishes observation from interpretation and keeps structural, educational, and market-current claims separate.
+- The shared artifact remains `REFERENCE_CONNECTED`: 12 candidate nodes, 8 candidate claims, and 15 primary sources are available; current values, valuation targets, BUY/SELL signals, and live recommendations remain blocked. Nodes without claim overlap show an explicit structural-only state.
+- `scripts/ci-principles-contract-check.mjs` and `scripts/ci-principles-browser-check.mjs` now require visible claim-level analysis, `TG-C08` plus observation rendering on the storage node, and desktop 1440x900 no-overflow/no-error behavior.
+
+## 2026-08-02 코드 구현 환류: midpoint QA release hardening
+
+- Berkshire의 최신 연결 filing은 SEC accession `0001193125-26-226661`, 보고분기 `2026-03-31`, 제출일 `2026-05-15`다. `public-data/masters/filings.json`과 holdings artifact가 같은 latest/prior 순서를 유지하도록 게이트를 추가했다.
+- 현재 SEC 정보표 전체 행은 Berkshire 90, Duquesne 70, Fisher 1,016, Pershing 11, Appaloosa 31, Baupost 22, Scion 8로 총 1,248행이다. 비교 원장은 1,377행이며 compact 화면은 68개 top rows다.
+- `holdings.json`은 `allHoldings`와 `comparisons`를 별도 공개해 Masters의 전체 보유·변화 원장·Exited 필터·페이지네이션이 실제 행 데이터를 사용한다. 섹터 master가 아직 없으므로 섹터 비중은 추정하지 않고 준비 상태로 표시한다.
+- Scion의 SEC submissions 기준 최신 연결 보고분기는 `2025-09-30`이며 `STALE_REFERENCE`로 명시한다. 이는 누락을 숨기지 않는 freshness boundary다.
+- Principles는 선택 노드의 실제 1-hop/2-hop subgraph, 12개 핵심 개념의 정의·작동·KPI·산업 연결·실패 조건, 15·30·45분 학습 순서를 제공한다. 출처 링크는 모바일 최소 24px 타깃과 focus-visible을 만족한다.
+- Atlas는 `DESIGN_ONLY` 등 내부 상태를 기본 화면의 사용자용 라벨로 바꾸고, 95개 taxonomy node에 개념·연결 논리·기업 역할·KPI·검증 경계를 추가했다. current metric·수율·출하·목표가·매매 신호는 여전히 공개하지 않는다.
+
+## 2026-08-02 코드 구현 환류: SEC 13F row connection
+
+- `scripts/collect-13f-reference.mjs` fetches the canonical SEC EDGAR filing index, primary document XML, and information-table XML for all 7 LIVE_13F managers. Cover-page entry counts reconcile to 90 Berkshire, 70 Duquesne, 1,016 Fisher, 11 Pershing, 31 Appaloosa, 22 Baupost, and 8 Scion rows: 1,248 full rows total.
+- `public-data/masters/holdings.json` publishes compact top-10 rows (68), plus `allHoldings` for the 1,248 full rows. Each row retains report period, CUSIP, reported value, shares, put/call, voting/discretion fields, evidence ID, and SEC source URL. This is a reference-period artifact, not a current portfolio or trading feed.
+- `scripts/collect-13f-reference.mjs` also fetches and reconciles the verified prior 13F-HR for every manager. The comparison layer contains 1,377 normalized-CUSIP + put/call + share-type rows; 68 current display rows carry prior shares/value, deltas, and reported-period change labels.
+- `src/ui/pages/masters.js` now loads the holdings artifact, exposes full holdings, change filters, quarter totals, original SEC links, and an explicit sector-master preparation state. Change labels are reported-period comparisons rather than current portfolio or trading claims.
+- Scion's SEC CIK `0001649339` and its latest connected filing period `2025-09-30` are explicit; the period is older than the other six Q1 2026 records and is not silently presented as current. Issuer/ticker normalization and sector mapping remain MF-05 work.
+- `scripts/ci-masters-contract-check.mjs` and `scripts/ci-masters-browser-check.mjs` are the binary gates: 8 profiles, 7 verified metadata records, 7 reconciled managers and prior periods, 1,248 full rows, 1,377 comparison rows, 68 displayed rows, freshness ordering, and desktop 1440x900 rendering must pass.
+
+## 2026-08-01 코드 구현 환류: SEC 13F reference shell
+
+- `src/ui/pages/masters.js`와 `public-data/masters/index.json`은 8개 프로필을 등록하되 7개 LIVE_13F를 `PENDING`, Mark Minervini를 `METHOD_ONLY`로 유지한다.
+- SEC filer/CIK/accession/XML/summary reconcile 전에는 holdings·reported weight·분기 action을 생성하지 않는다. 인물과 법적 신고주체를 분리하고 SEC EDGAR를 canonical source로 둔다.
+- `vs12-masters`와 `scripts/ci-masters-contract-check.mjs`가 lifecycle·DOM·출처·상태·가짜 holding row 금지 경계를 검사한다. SEC 수집기와 amendment/corporate-action 정규화는 MF-01~MF-04 운영 packet으로 남긴다.
+
+## 2026-08-01 코드 구현 환류: AI Era Atlas reference shell
+
+- `src/ui/pages/atlas.js`와 `public-data/atlas/index.json`이 Industry Atlas·Foundations·Deep Taxonomy 세 문서를 하나의 DESIGN_ONLY reference surface로 연결한다. 현재 packet 11개, reviewed node 0개다.
+- UI에는 L0~L6 taxonomy, AI-0~AI-6 curriculum track, ATLAS-00~10 source packet 상태만 표시하며 current company·shipment·yield·valuation·매매 claim은 생성하지 않는다.
+- Telegram은 keyword·framework·source-link discovery로만 사용하고, official primary source + evidence ledger + review gate 전에는 CURRENT/PUBLISHED로 승격하지 않는다. `vs13-atlas`와 `scripts/ci-atlas-contract-check.mjs`가 이 경계를 실행한다.
+
+## 2026-08-01 코드 구현 환류: Atlas P0 source packet 연결
+
+- `public-data/atlas/source-packets.json`이 Telegram 5일 discovery packet을 23개 공식 source, 14개 claim-level evidence ledger, 12개 candidate node, 7개 candidate edge로 구조화한다. v53.81 추가분은 physical AI·방산 자율화·우주·기업 AI·핵심 소재·HBM·양자에 한정하며, current production/valuation claim으로 승격하지 않는다.
+- 같은 artifact의 `taxonomyDomains`는 문서의 P0 chain을 11개 domain/55개 structural node로 연결한다. 이 레이어는 조사 inventory이며 company/current metric을 의미하지 않는다.
+- 출처에서 확인한 관측값은 reference observation으로 표시하고, `REVIEWED_CANDIDATE`를 `PUBLISHED/LIVE`로 승격하지 않는다. 현재 claim·매매 신호·13F holdings·가격/수율/출하 예측은 계속 차단한다.
+- `src/ui/pages/atlas.js`는 공개 research artifact를 fetch하여 source packet 상태, claim별 evidence ID와 observations, primary source 링크를 실제 페이지에 렌더링한다. `scripts/ci-atlas-contract-check.mjs`와 데스크톱 `scripts/ci-atlas-browser-check.mjs`가 11 packet/8 claim/15 source를 검증한다.
+- `public-data/masters/filings.json`은 MF-01의 SEC metadata layer다. 8개 manager 중 4개는 CIK/accession/period/filedAt/information-table URL까지 확인됐고, holdings는 `holdingRowsPublished: 0`으로 유지한다. `src/ui/pages/masters.js`와 `scripts/ci-masters-browser-check.mjs`가 이 artifact를 실제 화면에서 검증한다.
+
+## 2026-08-01 코드 구현 환류: curriculum/evidence page connection
+
+- `public-data/atlas/foundations.json`은 `AI-ERA-FOUNDATIONS-CURRICULUM-2026-08-01.md`의 7개 레이어와 48개 고유 모듈 인덱스를 `REFERENCE_CONNECTED` 교육 데이터로 고정한다. 레이어 선언의 모듈 참조 수 55와 고유 모듈 수 48은 다른 집계이므로 계약에서 분리한다.
+- `src/ui/pages/atlas.js`는 source packet과 curriculum artifact를 함께 로드하며 AI foundations 탭에서 요약 track 7개, curriculum layer 7개, module 48개를 표시한다. 자료의 교육 구조와 시장의 current claim을 같은 상태로 취급하지 않는다.
+- `src/ui/pages/principles.js`는 동일한 `source-packets.json`의 candidate node → `PS-xx` source registry를 노드 카드·상세·학습 path에 연결한다. 근거가 없는 노드는 `Evidence pending`로 남기고, source link가 있을 때만 공식 문서 URL을 노출한다.
+- `ci-atlas-contract-check.mjs`, `ci-principles-contract-check.mjs`, `ci-atlas-browser-check.mjs`, `ci-principles-browser-check.mjs`가 데이터 개수·publication boundary·데스크톱 Chromium 연결을 이진 계약으로 검사한다.
 
 # AIO Screener -- 기술 지식 베이스 (Knowledge Base)
 
@@ -36,6 +113,30 @@ confidence: high
 - 모든 라우트의 “최근/현재” 뉴스 문맥은 서버 `kst-0800-completed-24h` 컷을 공유한다. 라이브 시세는 공통컷 위의 세션 라벨 오버레이이며, 페이지별 독립 날짜창을 만들지 않는다.
 - FRED 서버 실패/LKG, BEA 현재 발표, BLS 관측은 서로 다른 evidence family다. LKG 존재는 개인 FRED 재시도를 막지 않으며, fetch time을 observation time으로 표시하지 않는다.
 - Telegram 빈도는 관심도/내러티브 밀도이지 확률이나 사실 신뢰도의 대용물이 아니다. 중복 메시지와 독립 출처 수를 분리하고, 기업 실적·정책 결과·거시 수치는 1차 소스와 맞을 때만 현재 데이터로 승격한다.
+
+## 2026-07-28~08-01 Telegram 5일 설계 연구 패킷 (2026-08-01)
+
+### 2026-08-01 1차 출처 대조와 저충실도 경계
+
+> 상세 원장: `_artifacts/telegram-primary-source-reconciliation-2026-08-01.md` 및 `_artifacts/market-principles-low-fi-validation-2026-08-01.md`
+
+- Kioxia의 다년 LTA·매출 가시성, Kioxia/Micron의 추론·SSD·메모리 제품 연결, Microsoft/Meta/Oracle의 AI 인프라 비용·CAPEX, Fed의 유가→물가·금융여건 경로, METI의 일본 공급망 resilience는 **좁은 명제** 수준에서 `REVIEWED_CANDIDATE` 또는 `PARTIAL`로 대조했다.
+- 고객집중 리스크, earnings surprise→positioning/forced flow, 전체 NAND/HBM 수급·가격·yield, 특정 기업 수혜는 공식 1차 출처가 부족해 `NEEDS_REVIEW` 또는 차단 상태다. 기업 발표를 산업 전체 사실로 일반화하지 않는다.
+- 저충실도 MVP 입력은 12개 node로 제한하고 Tree=계층, Graph=인과, Path=학습 순서를 분리한다. 실제 브라우저의 3-click·모바일 overflow·deep-link 검증은 `LF-6`로 남겨 두며, `MP-00/KG-00` 승인 전 구현하지 않는다.
+- 전체 결과는 `REFERENCE/DISCOVERY`이며 `PUBLISHED/LIVE/Trading Score/13F`로 승격하지 않는다. 13F는 SEC EDGAR pipeline을 계속 별도 유지한다.
+
+> `_artifacts/telegram-5d-research-packet-2026-08-01.md`에 상세 기록. 기존 정식 rolling lineage는 3채널(`aetherjapanresearch`, `insidertracking`, `bornlupin`)만 포함하며, 조사 창 경량 관측은 235/465/113건이다. `survival_DoPB`는 2건으로 희소하고 `Onionfarmer`는 최신 관측이 2026-07-21이라 이번 창에서 stale이다. 5개 채널 전수 완료로 가장하지 않는다.
+
+- 반복 framework 후보: 병목 이동, LTA·선급금·customer concentration, AI CAPEX·FCF·credit, 실적과 기대치·positioning 분리, 지정학·유가→금리 경로, correct-task 기준 AI 원가, 일본 장비/부품 공급망, inference→storage 수요.
+- 이 결과는 `REFERENCE/DISCOVERY`이며 시장 원리·AI Atlas의 candidate node/edge/question 생성에만 사용한다. 수율·출하·CAPEX·가격·목표가·속보는 공식 IR/공시/정부/학술 원문으로 재검증 전 승격하지 않는다.
+- 재사용 방지 규칙: Telegram 출처를 13F 보유내역, Trading Score, LIVE signal, current company fact로 사용하지 않는다. 13F는 SEC EDGAR 별도 pipeline이다.
+
+### 2026-08-01 구현 환류: `#principles` 시장 원리 MVP
+
+- `src/ui/pages/principles.js`에 12개 노드·17개 엣지·7개 레슨·2개 Path를 구조화했다. Tree는 계층, Graph는 관계, Path는 초보자 순서를 담당하며 같은 콘텐츠를 세 화면에서 재사용한다.
+- 각 노드/레슨은 `sourceUrl`, `status`, `reviewedAt`을 갖고, `REFERENCE` 성격을 유지한다. Telegram 후보 주장은 원문 1차 출처 확인 전 현재 수치·매매 신호·13F로 승격하지 않는다.
+- 브라우저 구현의 데이터 경계는 `data-live-price`, 목표가, BUY/SELL, SEC 13F를 포함하지 않는 것으로 고정했다. 13F는 향후 SEC EDGAR 전용 라우트/파이프라인에서 별도 검토한다.
+- 네이티브 라우트 추가 시 `routes.js` → `vertical-slices.js` → `bootstrap.js` → `aio-core.js` → `golden/owner` → `sw.js` → 정적 계약 검사 순으로 동기화한다. `node scripts/ci-principles-contract-check.mjs`를 구현 회귀 게이트로 유지한다.
 
 ---
 
