@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-01T23:11:46.145Z",
-  "attemptedAt": "2026-08-01T23:11:46.145Z",
-  "lastSuccessfulAt": "2026-08-01T23:11:46.145Z",
+  "generatedAt": "2026-08-02T00:12:55.593Z",
+  "attemptedAt": "2026-08-02T00:12:55.593Z",
+  "lastSuccessfulAt": "2026-08-02T00:12:55.593Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-07-18T23:11:41.618Z",
-  "until": "2026-08-01T23:11:41.618Z",
+  "since": "2026-07-19T00:12:51.981Z",
+  "until": "2026-08-02T00:12:51.981Z",
   "current24hWindow": {
     "start": "2026-07-31T23:00:00.000Z",
     "end": "2026-08-01T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 77,
-    "eligibleTextCount": 56,
+    "eligibleTextCount": 54,
     "channelCounts": {
       "insidertracking": 58,
       "aetherjapanresearch": 13,
@@ -62,12 +62,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1068,
+      "count": 1070,
       "freshCount": 38,
       "eligibleTextCount": 37,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 59979
+      "lastPostId": 59982
     },
     {
       "channel": "bornlupin",
@@ -82,9 +82,33 @@
       "lastPostId": 19467
     }
   ],
-  "count": 1893,
-  "retainedItemCount": 405,
+  "count": 1895,
+  "retainedItemCount": 407,
   "observedItems": [
+    {
+      "id": "insidertracking/59982",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T00:12:40.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59981",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T00:09:38.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 55,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/59979",
       "channel": "insidertracking",
@@ -721,7 +745,7 @@
       "tickers": [
         "V"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24254",
@@ -799,7 +823,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59938",
@@ -27241,22 +27265,22 @@
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 1893,
+    "observedCount": 1895,
     "eligibleTextCount": 72,
-    "mediaOnlyCount": 1821,
+    "mediaOnlyCount": 1823,
     "highSignalCount": 548,
-    "broadSignalCount": 949,
+    "broadSignalCount": 950,
     "selectedRawCount": 369,
     "selectedRawCoveragePct": 512.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "geo": 343,
+    "macro": 606,
     "market-note": 493,
-    "geo": 342,
     "power": 332,
     "kr-market": 300,
     "flows": 171,
-    "macro": 605,
     "media-only": 39,
     "japan": 148,
     "semi": 680,
@@ -27491,10 +27515,10 @@
   },
   "themes": [
     "Semiconductors/Memory (680 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (42.85%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (9.55%) 3위:...",
-    "Macro/Rates (605 posts in 14-day research window): Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만...",
+    "Macro/Rates (606 posts in 14-day research window): Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만...",
     "Market Notes (493 posts in 14-day research window): 52주 신고가 · Aegon ADR · Ametek · Anheuser-Busch ADR · Arxis · BBVA ADR · Brinker · Bristol-Myers Squibb · Bruker ·...",
     "Earnings/Corporate (490 posts in 14-day research window): Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만...",
-    "Geopolitics (342 posts in 14-day research window): 미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익...",
+    "Geopolitics (343 posts in 14-day research window): 미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익...",
     "AI Power/Grid (332 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (42.85%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (9.55%) 3위:...",
     "Korea Market (300 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (42.85%) 2위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (9.55%) 3위:...",
     "AI Policy/Export Controls (188 posts in 14-day research window): Market Summary - 2026년 8월 1일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령은 이란에 대한 군사 작전이 성공적으로 진행되고 있으며 미국이 계속 우위를 점하고 있다고 발언...."
@@ -27568,7 +27592,7 @@
       "topics": [
         "macro"
       ],
-      "count": 605,
+      "count": 606,
       "focus": "Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만..."
     },
     {
@@ -27577,7 +27601,7 @@
       "topics": [
         "geo"
       ],
-      "count": 342,
+      "count": 343,
       "focus": "미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익..."
     },
     {
@@ -29094,6 +29118,20 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/59981",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59981",
+      "datetime": "2026-08-02T00:09:38.000Z",
+      "localDateKst": "2026-08-02",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 55,
+      "hasText": true,
+      "summary": "골드만삭스에 따르면 AI 하이퍼스케일러들이 2분기 동안 1,820억 달러 규모의 설비투자(CAPEX)를 집행했으며, 50억 달러의 잉여현금흐름(FCF)과 1,010억 달러 규모의 부채 및 자본 조달을 기록...."
+    },
     {
       "id": "insidertracking/59976",
       "channel": "insidertracking",
@@ -34265,22 +34303,6 @@
       "score": 63,
       "hasText": true,
       "summary": "영란은행, SK하닉·TSMC 쏠림 점검…\"AI 반도체 폭락 전염 위험\" 영란은행은 특히 프라임브로커들의 익스포저(위험노출액)가 소수의 AI 관련 종목에 지나치게 집중되고 있다는 점을 우려한다고 FT는 전했다...."
-    },
-    {
-      "id": "insidertracking/59633",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59633",
-      "datetime": "2026-07-29T06:14:06.000Z",
-      "localDateKst": "2026-07-29",
-      "tags": [
-        "semi",
-        "kr-market",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 60,
-      "hasText": true,
-      "summary": "한국 기획재정부 장관 구윤철이 단일 종목 레버리지 ETF를 충분한 검토 없이 도입한 데 대해 사과. 한국 증시가 이틀 연속 서킷브레이커를 발동한 가운데, 국회의원의 사과 요구에 대해 구 장관은 단일 종목..."
     },
     {
       "id": "aetherjapanresearch/24093",
