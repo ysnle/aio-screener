@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-02T03:54:14.165Z",
-  "attemptedAt": "2026-08-02T03:54:14.165Z",
-  "lastSuccessfulAt": "2026-08-02T03:54:14.165Z",
+  "generatedAt": "2026-08-02T06:46:41.718Z",
+  "attemptedAt": "2026-08-02T06:46:41.718Z",
+  "lastSuccessfulAt": "2026-08-02T06:46:41.718Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-07-19T03:54:07.394Z",
-  "until": "2026-08-02T03:54:07.394Z",
+  "since": "2026-07-19T06:46:36.694Z",
+  "until": "2026-08-02T06:46:36.694Z",
   "current24hWindow": {
     "start": "2026-07-31T23:00:00.000Z",
     "end": "2026-08-01T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 77,
-    "eligibleTextCount": 44,
+    "eligibleTextCount": 40,
     "channelCounts": {
       "insidertracking": 58,
       "aetherjapanresearch": 13,
@@ -50,41 +50,147 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 522,
-      "freshCount": 35,
-      "eligibleTextCount": 35,
+      "count": 520,
+      "freshCount": 36,
+      "eligibleTextCount": 36,
       "selectedCount": 127,
       "error": null,
-      "lastPostId": 24266
+      "lastPostId": 24269
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1080,
-      "freshCount": 38,
-      "eligibleTextCount": 37,
+      "count": 1085,
+      "freshCount": 39,
+      "eligibleTextCount": 38,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 59993
+      "lastPostId": 59998
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 304,
-      "freshCount": 36,
-      "eligibleTextCount": 36,
+      "count": 303,
+      "freshCount": 16,
+      "eligibleTextCount": 16,
       "selectedCount": 120,
       "error": null,
       "lastPostId": 19471
     }
   ],
-  "count": 1906,
-  "retainedItemCount": 424,
+  "count": 1908,
+  "retainedItemCount": 418,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/24269",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-02T06:18:00.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 60,
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24268",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-02T06:14:15.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 81,
+      "tags": [
+        "macro",
+        "semi",
+        "kr-market",
+        "equity",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "AMZN"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59998",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T06:13:40.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59997",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T06:05:16.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 50,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59996",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T05:15:43.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59995",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T05:14:55.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/59994",
+      "channel": "insidertracking",
+      "datetime": "2026-08-02T05:14:01.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 57,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24267",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-02T04:33:01.000Z",
+      "localDateKst": "2026-08-02",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/24266",
       "channel": "aetherjapanresearch",
@@ -599,7 +705,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24263",
@@ -668,7 +774,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59953",
@@ -680,7 +786,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24259",
@@ -704,7 +810,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59951",
@@ -2401,7 +2507,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24227",
@@ -2413,7 +2519,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24224",
@@ -2739,7 +2845,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24215",
@@ -2763,7 +2869,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24214",
@@ -3056,7 +3162,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24204",
@@ -3105,7 +3211,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24202",
@@ -3143,7 +3249,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19446",
@@ -3155,7 +3261,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59829",
@@ -3534,7 +3640,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59813",
@@ -3678,7 +3784,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19443",
@@ -3698,7 +3804,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59807",
@@ -3751,7 +3857,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19441",
@@ -3772,7 +3878,7 @@
         "AMZN",
         "CRM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19440",
@@ -3785,7 +3891,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59804",
@@ -3836,7 +3942,7 @@
       "tickers": [
         "AAPL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59801",
@@ -3899,7 +4005,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59796",
@@ -3986,7 +4092,7 @@
       "tickers": [
         "AAPL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59789",
@@ -4013,7 +4119,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59788",
@@ -4167,7 +4273,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59777",
@@ -4335,7 +4441,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/59768",
@@ -4808,7 +4914,7 @@
         "AMD",
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24165",
@@ -4874,7 +4980,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19431",
@@ -27285,159 +27391,54 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23698",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-19T06:28:18.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 100,
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "ai-policy",
-        "equity",
-        "healthcare"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "META",
-        "AVGO",
-        "AMZN"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19149",
-      "channel": "bornlupin",
-      "datetime": "2026-07-19T06:06:18.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 100,
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "ai-policy",
-        "equity",
-        "healthcare"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "META",
-        "AVGO",
-        "AMZN"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23697",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-19T04:55:23.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 71,
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23696",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-19T04:11:27.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 83,
-      "tags": [
-        "geo",
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "000660.KS",
-        "035420.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23695",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-19T04:07:47.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 45,
-      "tags": [
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23694",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-19T04:03:24.000Z",
-      "localDateKst": "2026-07-19",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 1906,
-    "eligibleTextCount": 108,
-    "mediaOnlyCount": 1798,
-    "highSignalCount": 548,
+    "observedCount": 1908,
+    "eligibleTextCount": 90,
+    "mediaOnlyCount": 1818,
+    "highSignalCount": 545,
     "broadSignalCount": 952,
     "selectedRawCount": 369,
-    "selectedRawCoveragePct": 341.7,
+    "selectedRawCoveragePct": 410,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 607,
-    "japan": 150,
-    "geo": 349,
-    "market-note": 496,
-    "kr-market": 300,
-    "flows": 170,
-    "power": 333,
-    "ai-policy": 189,
-    "semi": 680,
-    "media-only": 39,
-    "equity": 150,
+    "macro": 608,
+    "kr-market": 301,
+    "flows": 172,
+    "semi": 677,
+    "equity": 149,
     "earnings": 490,
-    "healthcare": 117,
+    "market-note": 497,
+    "geo": 351,
+    "japan": 150,
+    "power": 333,
+    "ai-policy": 186,
+    "media-only": 39,
+    "healthcare": 115,
     "credit": 47,
     "insider": 49,
-    "optical": 23,
+    "optical": 21,
     "crypto": 10
   },
   "tickerCounts": {
-    "AMZN": 62,
-    "NVDA": 77,
-    "AMD": 85,
+    "AMZN": 61,
+    "NVDA": 75,
+    "AMD": 83,
     "AAPL": 42,
     "MSFT": 57,
-    "GOOG": 91,
-    "META": 51,
-    "AVGO": 42,
+    "GOOG": 89,
+    "META": 49,
+    "AVGO": 40,
     "MU": 39,
-    "TSM": 77,
+    "TSM": 76,
     "MRVL": 11,
     "RKLB": 13,
-    "000660.KS": 128,
+    "000660.KS": 127,
     "GOOGL": 25,
     "TSLA": 16,
     "BRK.B": 1,
@@ -27459,7 +27460,7 @@
     "6600.T": 7,
     "ALAB": 2,
     "AAOI": 3,
-    "035420.KS": 53,
+    "035420.KS": 52,
     "BE": 29,
     "PGR": 2,
     "MAR": 3,
@@ -27645,24 +27646,24 @@
     "086280.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (680 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-    "Macro/Rates (607 posts in 14-day research window): Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만...",
-    "Market Notes (496 posts in 14-day research window): 52주 신고가 · Aegon ADR · Ametek · Anheuser-Busch ADR · Arxis · BBVA ADR · Brinker · Bristol-Myers Squibb · Bruker ·...",
+    "Semiconductors/Memory (677 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+    "Macro/Rates (608 posts in 14-day research window): Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만...",
+    "Market Notes (497 posts in 14-day research window): 52주 신고가 · Aegon ADR · Ametek · Anheuser-Busch ADR · Arxis · BBVA ADR · Brinker · Bristol-Myers Squibb · Bruker ·...",
     "Earnings/Corporate (490 posts in 14-day research window): Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만...",
-    "Geopolitics (349 posts in 14-day research window): 미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익...",
+    "Geopolitics (351 posts in 14-day research window): 미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익...",
     "AI Power/Grid (333 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-    "Korea Market (300 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-    "AI Policy/Export Controls (189 posts in 14-day research window): Market Summary - 2026년 8월 1일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령은 이란에 대한 군사 작전이 성공적으로 진행되고 있으며 미국이 계속 우위를 점하고 있다고 발언...."
+    "Korea Market (301 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
+    "AI Policy/Export Controls (186 posts in 14-day research window): Market Summary - 2026년 8월 1일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령은 이란에 대한 군사 작전이 성공적으로 진행되고 있으며 미국이 계속 우위를 점하고 있다고 발언...."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 128,
+      "count": 127,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "key": "GOOG",
-      "count": 91,
+      "count": 89,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -27672,22 +27673,22 @@
     },
     {
       "key": "AMD",
-      "count": 85,
+      "count": 83,
+      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+    },
+    {
+      "key": "TSM",
+      "count": 76,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "key": "NVDA",
-      "count": 77,
+      "count": 75,
       "text": "2026년 7월 29일 서학개미 순매수 미국 주식 TOP 50 (정정) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (47.26%) 2위: PROSHARES..."
     },
     {
-      "key": "TSM",
-      "count": 77,
-      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
-    },
-    {
       "key": "AMZN",
-      "count": 62,
+      "count": 61,
       "text": "Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만..."
     },
     {
@@ -27697,12 +27698,12 @@
     },
     {
       "key": "035420.KS",
-      "count": 53,
+      "count": 52,
       "text": "[데이터센터 코멘트, 하나증권 AI/디지털자산/인터넷/게임 이준호] '국내 AI 데이터센터, 출발합니다' 리포트: ✅ 샌프란시스코 AI 서밋, 국내 데이터센터 구축 가시화 - 하나증권은 7월 16일 인뎁스..."
     },
     {
       "key": "META",
-      "count": 51,
+      "count": 49,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -27712,7 +27713,7 @@
     },
     {
       "key": "AVGO",
-      "count": 42,
+      "count": 40,
       "text": "JP모건)클라우드 CAPEX 총정리: 2026년 하이퍼스케일러 합산 설비투자, 7,500억 달러로 상향 미국 4대 하이퍼스케일러는 6월 분기에 강한 설비투자 트렌드를 보여주었으며, 합산 설비투자는 전년 대비 +79% 증가한 1,700억 달러로 확대되었습니다. 중요한 점은 이번 실적이 설비투자의 지속성을 재확인시켜..."
     }
   ],
@@ -27723,7 +27724,7 @@
       "topics": [
         "macro"
       ],
-      "count": 607,
+      "count": 608,
       "focus": "Global Memory Tech: LTA 확대와 AI 투자 확대로 메모리 슈퍼사이클 장기화 전망 (Bofa) 1. 삼성전자의 LTA 확대는 메모리 사이클을 구조적으로 변화시키는 핵심 요인 • 삼성전자는 메모리 매출의 약 60~70%를 LTA로 운영하고 있다고 설명 • 과거 LTA는 단순 물량 확보 목적이었지만..."
     },
     {
@@ -27732,7 +27733,7 @@
       "topics": [
         "geo"
       ],
-      "count": 349,
+      "count": 351,
       "focus": "미국 레딧 게시물 분석 (2026년 8월 1일 00:00~07:30 기준) > 📦 AMZN - 실적 콜옵션 YOLO · AMZN Calls 인증글 다수 · Apple과 함께 실적 승자 취급 · 옵션 수익..."
     },
     {
@@ -27750,7 +27751,7 @@
       "topics": [
         "semi"
       ],
-      "count": 680,
+      "count": 677,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -27759,7 +27760,7 @@
       "topics": [
         "optical"
       ],
-      "count": 23,
+      "count": 21,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/27 ~ 2026/07/31 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (63.17%) 2위:..."
     },
     {
@@ -27777,7 +27778,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 189,
+      "count": 186,
       "focus": "Market Summary - 2026년 8월 1일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령은 이란에 대한 군사 작전이 성공적으로 진행되고 있으며 미국이 계속 우위를 점하고 있다고 발언...."
     },
     {
@@ -27786,7 +27787,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 300,
+      "count": 301,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -27795,7 +27796,7 @@
       "topics": [
         "equity"
       ],
-      "count": 150,
+      "count": 149,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -27822,7 +27823,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 117,
+      "count": 115,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/27 ~ 2026/07/31 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (63.17%) 2위:..."
     },
     {
@@ -27840,7 +27841,7 @@
       "topics": [
         "flows"
       ],
-      "count": 170,
+      "count": 172,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/07/01 ~ 2026/07/31 (7월 전체) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -27858,7 +27859,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 496,
+      "count": 497,
       "focus": "52주 신고가 · Aegon ADR · Ametek · Anheuser-Busch ADR · Arxis · BBVA ADR · Brinker · Bristol-Myers Squibb · Bruker ·..."
     }
   ],
@@ -29249,6 +29250,72 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/24269",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24269",
+      "datetime": "2026-08-02T06:18:00.000Z",
+      "localDateKst": "2026-08-02",
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 60,
+      "hasText": true,
+      "summary": "“테슬라 너마저”...국장 피해 미장 갔다 50조원 날린 서학개미 국내 투자자가 미국 주식 투자를 확대했다. 그러나 최근 두 달간 50조원에 가까운 손실을 봤다. 특히 레버리지 상품에 많은 금액을 투자하며..."
+    },
+    {
+      "id": "aetherjapanresearch/24268",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24268",
+      "datetime": "2026-08-02T06:14:15.000Z",
+      "localDateKst": "2026-08-02",
+      "tags": [
+        "macro",
+        "semi",
+        "kr-market",
+        "equity",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "AMZN"
+      ],
+      "score": 81,
+      "hasText": true,
+      "summary": "골드만삭스) 아마존 Q2'26 리뷰: AWS 매출 성장과 영업마진이 AI 투자 뒤의 RoIC를 뒷받침, 전사 이익률의 다년간 테마가 모멘텀 형성 중 투자의견 매수(BUY) 유지, 12개월 목표주가..."
+    },
+    {
+      "id": "insidertracking/59997",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59997",
+      "datetime": "2026-08-02T06:05:16.000Z",
+      "localDateKst": "2026-08-02",
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": "금일 이란 테헤란증권거래소 종합지수가 장 초반 10만9,000포인트 이상 급등하며 516만4,000포인트를 기록. 동일가중지수도 2만7,000포인트 상승. 실질 투자자 자금 4,570억 토만이 주식,..."
+    },
+    {
+      "id": "insidertracking/59994",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/59994",
+      "datetime": "2026-08-02T05:14:01.000Z",
+      "localDateKst": "2026-08-02",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "스페이스X 주가가 6월 공모가 대비 20% 하락. 상장 직후 스페이스X 주가는 공모가 135달러를 크게 웃도는 225달러까지 상승했지만, 현재는 주당 108달러 아래로 하락하며 공모가 대비 약 20% 낮은..."
+    },
     {
       "id": "insidertracking/59989",
       "channel": "insidertracking",
@@ -34297,38 +34364,6 @@
       "summary": "한국 증권사 BNK투자증권이 SK하이닉스의 목표주가를 기존 185만 원에서 148만 원으로 하향 조정. BNK투자증권은 지난 7월 8일 코스피가 7,700선에 있었던 당시에도 SK하이닉스 목표주가를 185만..."
     },
     {
-      "id": "insidertracking/59646",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59646",
-      "datetime": "2026-07-29T09:59:13.000Z",
-      "localDateKst": "2026-07-29",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [
-        "VRT"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ Vertiv Holdings 2026년 2분기 실적 요약 📍 실적 · 매출 32억 7,000만 달러(시장 예상 33억 8,000만 달러, 컨센서스 대비 -3.09%) · 조정..."
-    },
-    {
-      "id": "insidertracking/59644",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59644",
-      "datetime": "2026-07-29T09:52:20.000Z",
-      "localDateKst": "2026-07-29",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 62,
-      "hasText": true,
-      "summary": "로이터에 따르면 이란이 수주 내 중국산 휴대용 지대공미사일(MANPADS) 300~400기를 처음으로 인도받을 것으로 예상됨. 이는 미국과 이스라엘과의 전쟁이 시작된 이후 이란이 단거리 방공망을 재건하기 위한..."
-    },
-    {
       "id": "aetherjapanresearch/24099",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/24099",
@@ -35196,39 +35231,6 @@
       "score": 91,
       "hasText": true,
       "summary": "Citi 아시아 트레이딩 전략) 한국 개인투자자, 레버리지 ETF와 신용융자에서 얼마나 잃었나 (기관투자자 전용 마켓 코멘터리) 한국 당국이 레버리지 ETF에 대한 규제를 한층 강화하고 있습니다. 7월..."
-    },
-    {
-      "id": "aetherjapanresearch/24050",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24050",
-      "datetime": "2026-07-28T14:38:57.000Z",
-      "localDateKst": "2026-07-28",
-      "tags": [
-        "semi",
-        "japan"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "구마모토 대지진으로 TSMC JASM 운영 차질... 회사 측 최신 공식 입장 발표 28일 오후 발생한 구마모토 지진으로 TSMC(종목코드: 2330) JASM 운영에 영향이 발생한 가운데, TSMC는 28일..."
-    },
-    {
-      "id": "aetherjapanresearch/24048",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24048",
-      "datetime": "2026-07-28T13:29:06.000Z",
-      "localDateKst": "2026-07-28",
-      "tags": [
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 73,
-      "hasText": true,
-      "summary": "앰코 Q&A 시스템 인 패키지(SiP) 한국 SiP 생산 라인으로 베트남으로 이관 중. 이 과정에서 시차 발생해 특정 애플리케이션의 품질 인증(퀄)이 4Q 및 1H27까지 지연될 수 있음 메모리 물량 메모리..."
     },
     {
       "id": "bornlupin/19366",
@@ -36296,20 +36298,6 @@
       "summary": "도이체방크) 아마존(AMZN) — 투자 수익을 입증하다 (Buy, 목표가 325달러로 상향) 도이체방크는 아마존에 대해 매수 의견을 유지하고 목표주가를 315달러에서 325달러로 3% 상향했습니다. 목표가는..."
     },
     {
-      "id": "insidertracking/59954",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59954",
-      "datetime": "2026-08-01T13:18:37.000Z",
-      "localDateKst": "2026-08-01",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "받) 이란 아바단 시내에서 전차가 이동하는 모습이 확인됨."
-    },
-    {
       "id": "insidertracking/59953",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/59953",
@@ -36336,20 +36324,6 @@
       "score": 52,
       "hasText": true,
       "summary": "최근 마이크론 파업 이슈에 대한 이야기 마이크론 타이완 공장의 파업 이슈는 수요일에 나온 이야기입니다. 마이크론은 치킨게임에서 회사들을 인수하면서 규모가 커진 만큼, 공장마다 노조가 따로 존재합니다...."
-    },
-    {
-      "id": "insidertracking/59952",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/59952",
-      "datetime": "2026-08-01T13:13:14.000Z",
-      "localDateKst": "2026-08-01",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 미국 국무부는 각 대사관에 개별 경고를 발령한 후, 이제 중동 전체에 대한 경고를 발표"
     },
     {
       "id": "insidertracking/59951",
