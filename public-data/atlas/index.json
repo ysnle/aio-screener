@@ -1,7 +1,7 @@
 {
   "schema": "ai-era-atlas-reference.v1",
   "status": "REFERENCE_CONNECTED",
-  "reviewedAt": "2026-08-02",
+  "reviewedAt": "2026-08-03",
   "allowedUse": ["ontology preview", "curriculum navigation", "research packet tracking"],
   "prohibitedUse": ["current company claim", "shipment or yield fact", "valuation claim", "live trading signal"],
   "sourceDocuments": [
@@ -27,6 +27,10 @@
   "domainCurrentClaims": 0,
   "taxonomyNodeCoverageArtifact": "public-data/atlas/taxonomy-node-coverage.json",
   "taxonomyNodeCoverage": 95,
+  "deepTaxonomyArtifact": "public-data/atlas/deep-taxonomy.json",
+  "deepTaxonomyTopics": 10,
+  "deepTaxonomyBranches": 50,
+  "deepTaxonomyAnchors": 56,
   "telegramReferenceArtifact": "public-data/telegram-reference-window.json",
   "telegramReferenceChannels": 5,
   "telegramObservedLineage": 813,

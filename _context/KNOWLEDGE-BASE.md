@@ -1,8 +1,24 @@
 ﻿---
-verified_by: human
-last_verified: 2026-08-02
+verified_by: human + Codex P892 implementation verification
+last_verified: 2026-08-03
 confidence: high
 ---
+
+## 2026-08-03 코드 구현 환류: v53.89 hierarchical learning and 13F adjacency closure
+
+- Atlas의 기본 학습 경로는 `6개 기초 층 → 선택 개념 → 단일 상세`, 산업 경로는 `19개 도메인 → 95개 노드 → 기업·제품`으로 한 단계씩 좁혀진다. `deep-taxonomy.json`은 10개 AI 시대 주제·50개 고유 가지·56개 canonical anchor를 점진 공개한다.
+- 심층 분류는 파운드리 세대·수율, DUV/EUV/High-NA, 전·후공정, 첨단 패키징·유리기판, 광/Photonics, Open Source/Open Weights, HBM/CXL, AIDC 전력, Cloud/Neocloud CAPEX·ROIC, World Model/Physical AI, 방산·드론·우주·Artemis를 인과 관계와 관찰 지표·오해 방지 조건으로 연결한다.
+- Principles의 선택 상세는 node별 guide/lesson/path를 사용하고 관계 동사를 노출한다. 출처·연구 상태는 기본 학습 수량에서 제거하고, 필요한 경우에만 접힌 보충 근거로 읽는다.
+- Masters table builder는 row index를 전달해야 하며 manager 선택 button 안에 anchor를 중첩하지 않는다. 검색 rerender 후 focus/caret를 복원한다.
+- 13F 비교분기는 latest보다 과거라는 조건만으로 충분하지 않다. history index에서 실제 인접 기간을 재계산해야 하며 resolver는 stdout 출력이 아니라 canonical `filings.json`을 갱신한다. Berkshire 2026-Q1은 2025-Q4 110행과 비교되어 45개 key, 전체 1,375개 comparison row로 대사된다.
+
+## 2026-08-02 코드 구현 환류: v53.88 learner-first content-flow closure
+
+- Market Principles 기본 화면은 전체 원고를 먼저 나열하지 않고 `세상과 희소성`부터 `전력·후속 산업·한국`까지 7개 대분류와 하위 학습 그룹을 펼치는 Tree를 먼저 보여준다. 선택한 노드는 `public-data/principles/node-guides.json`의 60개 개별 원고에서 정의·직관·작동 원리·KPI·앞뒤 연결·실패 조건을 읽는다.
+- 기존 `lesson-library.json`은 111개 레슨을 유지하되 각 레슨의 정의·메커니즘·사례·반례·검증 질문·도식을 제목별로 다시 작성했다. `scripts/build-principles-lessons.mjs`와 contract가 6개 핵심 필드의 111개 고유성을 검사한다.
+- 전체 A~O 챕터/레슨은 자료실 탭으로 분리하고, source/status/evidence ID는 기본 학습 흐름에서 접힌 근거 영역으로 이동했다. Graph는 관계 라벨과 실제 hop 깊이를 렌더링하고, 데스크톱 상세 패널과 모바일 1열 흐름을 browser gate로 검사한다.
+- AI Era Atlas의 기본 진입은 내부 packet/evidence 현황판이 아니라 48개 Foundations 모듈 학습 지도가 되었다. `산업·가치사슬`과 `근거 자료실`은 별도 탭이며, 모듈 source ID는 근거 details 안에 둔다.
+- 검증: `ci-principles-contract-check.mjs`, `ci-principles-browser-check.mjs`, `ci-atlas-contract-check.mjs`, `ci-atlas-browser-check.mjs`, `ci-six-doc-coverage-check.mjs` PASS. 현재 수치·매매 신호·검증되지 않은 기업/생산 상태는 여전히 공개하지 않는다.
 
 ## 2026-08-02 코드 구현 환류: v53.87 reference layer + freshness closure
 

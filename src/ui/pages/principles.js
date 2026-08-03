@@ -4,6 +4,7 @@ const REVIEWED_AT = '2026-08-02';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
 const CHAPTERS_URL = './public-data/principles/chapters.json';
 const LESSON_LIBRARY_URL = './public-data/principles/lesson-library.json';
+const NODE_GUIDES_URL = './public-data/principles/node-guides.json';
 
 const RESEARCH_NODE_IDS = Object.freeze({
   'ai-era': 'candidate.ai-era',
@@ -93,7 +94,7 @@ const MARKET_EXPANSION = Object.freeze({
     Object.freeze({ id: 'industry-value-chain', type: 'principle', title: '산업 가치사슬', summary: '수요에서 원재료·공정·제품·서비스·현금흐름으로 이어지는 이익 풀과 병목의 지도.', layer: 'L5', sourceName: 'SEC Investor.gov', sourceUrl: 'https://www.investor.gov/introduction-investing/investing-basics', x: 80, y: 60 })
   ]),
   edges: Object.freeze([
-    Object.freeze({ from: 'ai-era', to: 'scarcity-choice', relation: '출발점' }),
+    Object.freeze({ from: 'scarcity-choice', to: 'ai-era', relation: '바탕이 된다' }),
     Object.freeze({ from: 'scarcity-choice', to: 'productivity-wealth', relation: '선택과 산출' }),
     Object.freeze({ from: 'productivity-wealth', to: 'capitalism-engine', relation: '제도와 투자' }),
     Object.freeze({ from: 'capitalism-engine', to: 'money-purchasing-power', relation: '교환과 계산' }),
@@ -260,6 +261,25 @@ const CATALOG = Object.freeze({
 const NODE_BY_ID = new Map(CATALOG.nodes.map((node) => [node.id, node]));
 const LESSON_BY_ID = new Map(CATALOG.lessons.map((lesson) => [lesson.id, lesson]));
 
+// MP-06: the learning surface is a seven-branch map. The catalog/edge set remains
+// the single source for node identity and relations; this sectioning only controls
+// first-view disclosure so learners can expand one conceptual neighborhood at a time.
+const TREE_SECTIONS = Object.freeze([
+  { id: 'scarcity', title: '세상과 희소성', description: '제한된 자원, 생산성, 소유와 교환에서 경제를 시작합니다.', nodeIds: ['scarcity-choice', 'productivity-wealth', 'capitalism-engine'], groups: [{ id: 'scarcity-choice-path', title: '선택에서 생산성·부로', description: '무엇을 포기하고, 같은 투입으로 무엇을 더 만들며, 그 결과를 어떻게 축적하는가.', nodeIds: ['scarcity-choice', 'productivity-wealth', 'capitalism-engine'] }] },
+  { id: 'money', title: '돈·신용·금리', description: '구매력, 신용, 금리가 시간과 위험의 가격이 되는 과정을 봅니다.', nodeIds: ['money-purchasing-power', 'inflation-deflation', 'credit-banks-debt', 'interest-central-bank'], groups: [{ id: 'money-purchasing-power-path', title: '돈과 구매력', description: '교환 수단이 가격 수준과 실질 구매력으로 이어지는 경로.', nodeIds: ['money-purchasing-power', 'inflation-deflation'] }, { id: 'credit-interest-path', title: '신용과 자금 가격', description: '미래 소득을 현재화하는 신용과 금리의 전달.', nodeIds: ['credit-banks-debt', 'interest-central-bank'] }] },
+  { id: 'finance', title: '채권·환율·재정', description: '국가의 자금조달과 통화·채권의 자본 이동을 연결합니다.', nodeIds: ['bonds-dollar-currency', 'government-fiscal', 'geo-rates', 'financing'], groups: [{ id: 'bonds-dollar-path', title: '채권과 달러', description: '현금흐름·금리·환율이 글로벌 자본 이동으로 번역되는 경로.', nodeIds: ['bonds-dollar-currency', 'geo-rates'] }, { id: 'fiscal-financing-path', title: '재정과 금융조건', description: '국가의 지출과 차입이 기업·프로젝트의 자본비용에 미치는 영향.', nodeIds: ['government-fiscal', 'financing'] }] },
+  { id: 'market', title: '기업·시장·투자', description: '기업의 현금흐름이 기대·가격·리스크로 번역되는 경로입니다.', nodeIds: ['company-stock-valuation', 'market-price-discovery', 'cycles-allocation', 'investment-risk', 'visibility', 'evaluation'], groups: [{ id: 'company-value-path', title: '기업에서 가치로', description: '고객·매출·현금흐름과 주식의 기대가 연결되는 방식.', nodeIds: ['company-stock-valuation', 'visibility'] }, { id: 'price-cycle-path', title: '기대·가격·사이클', description: '정보와 유동성이 가격발견·사이클로 움직이는 과정.', nodeIds: ['market-price-discovery', 'cycles-allocation'] }, { id: 'risk-validation-path', title: '투자와 검증', description: '가설을 포지션과 반대 시나리오로 검증하는 방법.', nodeIds: ['investment-risk', 'evaluation'] }] },
+  { id: 'industry', title: '산업·가치사슬', description: '최종 고객에서 병목·이익 풀·자본회수까지 산업을 분해합니다.', nodeIds: ['industry-value-chain', 'critical-minerals', 'robotics-automation', 'defense-space', 'biotech-healthcare', 'finance-software-consumer'], groups: [{ id: 'value-chain-path', title: '고객에서 병목으로', description: '최종 고객의 문제와 공급 단계의 병목·교섭력.', nodeIds: ['industry-value-chain', 'critical-minerals'] }, { id: 'physical-industry-path', title: '물리 시스템과 조달', description: '로봇·방산·우주가 기술을 운영·조달로 전환하는 조건.', nodeIds: ['robotics-automation', 'defense-space'] }, { id: 'service-industry-path', title: '바이오와 디지털 서비스', description: '허가·신뢰·반복 사용이 매출로 바뀌는 경로.', nodeIds: ['biotech-healthcare', 'finance-software-consumer'] }] },
+  { id: 'ai', title: 'AI 시대·반도체 시스템', description: 'workload가 계산·메모리·패키징·스토리지·매출로 전달되는 흐름입니다.', nodeIds: ['ai-era', 'ai-workload', 'compute', 'memory-hbm', 'advanced-packaging', 'storage', 'ai-capex', 'hbm-system-bottleneck', 'chiplet-economics', 'photonic-link-economics'], groups: [{ id: 'ai-workload-path', title: 'AI workload와 계산', description: '사용자 문제와 모델 작업이 계산 자원으로 바뀌는 흐름.', nodeIds: ['ai-era', 'ai-workload', 'compute'] }, { id: 'ai-memory-package-path', title: '메모리·패키징·통신', description: '데이터 이동과 시스템 연결이 만드는 병목.', nodeIds: ['memory-hbm', 'advanced-packaging', 'hbm-system-bottleneck', 'chiplet-economics', 'photonic-link-economics'] }, { id: 'ai-economics-path', title: '스토리지에서 자본회수로', description: '인프라가 가동률·매출·현금흐름으로 전환되는 조건.', nodeIds: ['storage', 'ai-capex'] }] },
+  { id: 'power-and-applications', title: '전력·후속 산업·한국', description: '전력망과 물리 AI, 방산·우주·한국 시장의 실제 전환 조건을 봅니다.', nodeIds: ['power-electricity-system', 'power-generation-market', 'grid-transmission-distribution', 'energy-storage', 'data-center-power-demand', 'industrial-energy-efficiency', 'power-cooling', 'physical-ai-perception', 'physical-ai-planning', 'physical-ai-control', 'robot-unit-economics', 'defense-autonomy', 'defense-procurement', 'space-launch-economics', 'space-systems-economics', 'enterprise-ai-workflow', 'ai-workflow-adoption', 'application-roi-evidence', 'rare-earths-supply-chain', 'refining-qualification', 'materials-policy', 'quantum-platform', 'data-center-lease-burden', 'us-korea-market', 'krw-dollar-foreign-flow', 'korea-semiconductor-policy', 'tax-accounting-cashflow'], groups: [{ id: 'power-grid-path', title: '전력망과 데이터센터', description: '발전·송전·접속·냉각이 사용 가능한 compute를 제한하는 경로.', nodeIds: ['power-electricity-system', 'power-generation-market', 'grid-transmission-distribution', 'energy-storage', 'data-center-power-demand', 'industrial-energy-efficiency', 'power-cooling'] }, { id: 'physical-ai-path', title: '물리 AI와 응용 단위경제', description: '인지·계획·제어가 현장 작업·고객 지불로 바뀌는 조건.', nodeIds: ['physical-ai-perception', 'physical-ai-planning', 'physical-ai-control', 'robot-unit-economics', 'enterprise-ai-workflow', 'ai-workflow-adoption', 'application-roi-evidence'] }, { id: 'supply-policy-path', title: '소재·정책·인접 연산', description: '공급망·정책·대체 기술이 병목을 재배치하는 방식.', nodeIds: ['rare-earths-supply-chain', 'refining-qualification', 'materials-policy', 'quantum-platform'] }, { id: 'korea-bridge-path', title: '한국 투자자 연결', description: '환율·정책·세후 현금흐름이 국내 기업으로 전달되는 경로.', nodeIds: ['data-center-lease-burden', 'us-korea-market', 'krw-dollar-foreign-flow', 'korea-semiconductor-policy', 'tax-accounting-cashflow'] }] }
+]);
+
+const GRAPH_OVERVIEW_IDS = Object.freeze([
+  'scarcity-choice', 'productivity-wealth', 'money-purchasing-power', 'credit-banks-debt',
+  'interest-central-bank', 'company-stock-valuation', 'industry-value-chain', 'ai-era',
+  'ai-workload', 'compute', 'memory-hbm', 'power-cooling', 'ai-capex', 'evaluation'
+]);
+
 function nodesWithinHops(startId, depth) {
   const distances = new Map([[startId, 0]]);
   const queue = [startId];
@@ -294,17 +314,17 @@ function button(documentRef, className, text, action, value) {
 }
 
 function sourceBadge(documentRef, item) {
-  const wrap = element(documentRef, 'div', 'principles-source');
-  const statusLabels = { REVIEWED_CANDIDATE: '1차 출처 확인 후보', PARTIAL: '일부 확인', REFERENCE_CONNECTED: '학습 원고 연결', AUTHORED_REFERENCE: '학습 원고 작성 완료', NEEDS_REVIEW: '추가 검토 필요' };
-  const displayStatus = statusLabels[item.status] || item.status || 'NEEDS_REVIEW';
-  const badge = element(documentRef, 'span', `principles-status principles-status-${String(item.status || '').toLowerCase()}`, displayStatus);
-  badge.title = '수치·현재 판단이 아닌 콘텐츠 검토 상태';
+  const wrap = element(documentRef, 'details', 'principles-source');
+  wrap.dataset.principlesSourceStatus = item.status || 'NEEDS_REVIEW';
+  const summary = element(documentRef, 'summary', 'principles-source-summary', '근거 및 더 읽기');
+  const body = element(documentRef, 'div', 'principles-source-body');
   const reviewed = element(documentRef, 'span', 'principles-reviewed', `검토 ${item.reviewedAt || REVIEWED_AT}`);
   const link = element(documentRef, 'a', 'principles-source-link', item.sourceName || '원문 출처');
   link.href = item.sourceUrl || '#';
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
-  wrap.append(badge, reviewed, link);
+  body.append(reviewed, link);
+  wrap.append(summary, body);
   return wrap;
 }
 
@@ -315,6 +335,10 @@ function researchStatusLabel(status) {
 function relatedNodes(item) {
   const ids = item.nodeIds || [];
   return ids.map((id) => NODE_BY_ID.get(id)).filter(Boolean);
+}
+
+function lessonForNode(nodeId) {
+  return CATALOG.lessons.find((lesson) => (lesson.nodeIds || []).includes(nodeId)) || null;
 }
 
 function nodeMatches(node, query) {
@@ -339,17 +363,17 @@ function researchEvidenceForNodes(research, nodeIds) {
 }
 
 function createEvidenceBlock(documentRef, sourceIds, research) {
-  const block = element(documentRef, 'div', 'principles-evidence');
+  const block = element(documentRef, 'details', 'principles-evidence');
   /*
   const sources = new Map((research?.sources || []).map((source) => [source.id, source]));
   const title = element(documentRef, 'div', 'principles-evidence-title', `Evidence registry ${sourceIds?.length || 0}개`);
   */
-  const title = element(documentRef, 'div', 'principles-evidence-title', `Evidence registry ${sourceIds?.length || 0} sources`);
+  const title = element(documentRef, 'summary', 'principles-evidence-title', `근거 및 더 읽기 · ${sourceIds?.length || 0}개 출처`);
   const sources = new Map((research?.sources || []).map((source) => [source.id, source]));
   const links = element(documentRef, 'div', 'principles-evidence-links');
   (sourceIds || []).forEach((sourceId) => {
     const source = sources.get(sourceId);
-    const link = element(documentRef, 'a', 'principles-evidence-link', sourceId);
+    const link = element(documentRef, 'a', 'principles-evidence-link', source?.title || source?.publisher || '공식 자료');
     link.href = source?.url || '#';
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
@@ -397,8 +421,8 @@ const LEARNING_TRACKS = Object.freeze([
   { id: 'deep-45', title: '45분 · 시장으로 전달되는 과정', description: '지정학·가시성·검증까지 포함해 기술 주장이 기업과 시장에 전달되는 경로를 확인합니다.', nodes: ['geo-rates', 'visibility', 'evaluation'] }
 ]);
 
-function createNodeExplanation(documentRef, node) {
-  const explanation = NODE_EXPLANATIONS[node?.id] || (() => {
+function createNodeExplanation(documentRef, node, authoredGuide) {
+  const explanation = authoredGuide || NODE_EXPLANATIONS[node?.id] || (() => {
     const lesson = [...MARKET_EXPANSION.lessons, ...SYSTEMS_EXPANSION.lessons, ...APPLICATIONS_EXPANSION.lessons].find((item) => item.nodeIds?.includes(node?.id));
     return node ? {
       definition: node.summary,
@@ -411,8 +435,8 @@ function createNodeExplanation(documentRef, node) {
   })();
   if (!explanation) return null;
   const block = element(documentRef, 'section', 'principles-explainer');
-  block.append(element(documentRef, 'h4', 'principles-explainer-title', '이 원리를 읽는 법'));
-  [['정의', explanation.definition], ['직관', explanation.intuition], ['작동 방식', explanation.mechanism], ['핵심 KPI', explanation.kpi], ['산업 연결', explanation.connection], ['실패 조건', explanation.risk]].forEach(([label, body]) => {
+  block.append(element(documentRef, 'h4', 'principles-explainer-title', '이 개념을 이해하는 핵심'));
+  [['한 문장 정의', explanation.definition], ['왜 중요한가', explanation.intuition], ['어떻게 작동하는가', explanation.mechanism], ['투자에서 확인할 것', explanation.kpi], ['앞·뒤 개념', explanation.connection], ['실패 조건', explanation.risk]].forEach(([label, body]) => {
     const item = element(documentRef, 'div', 'principles-explainer-item');
     item.append(element(documentRef, 'strong', 'principles-explainer-label', label), element(documentRef, 'p', 'principles-explainer-body', body));
     block.appendChild(item);
@@ -452,7 +476,7 @@ function createLessonLibrary(documentRef, artifact, query) {
     const card = element(documentRef, 'article', 'principles-authored-lesson-card');
     card.dataset.principlesLessonId = lesson.id;
     card.append(
-      element(documentRef, 'div', 'principles-eyebrow', `Chapter ${lesson.chapterId} · ${lesson.level} · 학습 원고 작성 완료`),
+      element(documentRef, 'div', 'principles-eyebrow', `${lesson.chapterId} · ${lesson.level} · 참고 원고`),
       element(documentRef, 'h4', 'principles-learning-card-title', `${lesson.id} · ${lesson.title}`),
       element(documentRef, 'p', 'principles-chapter-copy', `정의: ${lesson.definition}`),
       element(documentRef, 'p', 'principles-chapter-copy', `작동 원리: ${lesson.mechanism}`),
@@ -464,7 +488,7 @@ function createLessonLibrary(documentRef, artifact, query) {
     const sources = element(documentRef, 'div', 'principles-evidence-links');
     (lesson.sourceIds || []).forEach((sourceId) => {
       const source = sourceById.get(sourceId);
-      const link = element(documentRef, 'a', 'principles-evidence-link', source ? `${sourceId} · ${source.publisher}` : sourceId);
+      const link = element(documentRef, 'a', 'principles-evidence-link', source ? `${source.title} · ${source.publisher}` : '공식 자료');
       link.href = source?.url || '#';
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
@@ -491,7 +515,7 @@ function createChapterCurriculum(documentRef, chapterArtifact, query) {
   chapters.forEach((chapter) => {
     const card = element(documentRef, 'article', 'principles-chapter-card');
     card.dataset.principlesChapter = chapter.id;
-    const meta = element(documentRef, 'div', 'principles-eyebrow', `Chapter ${chapter.id} · 학습 원고 작성 완료`);
+    const meta = element(documentRef, 'div', 'principles-eyebrow', `${chapter.id} · 챕터 원고`);
     card.append(
       meta,
       element(documentRef, 'h4', 'principles-learning-card-title', chapter.title),
@@ -518,13 +542,15 @@ function researchClaimsForNode(research, nodeId) {
 }
 
 function createResearchAnalysis(documentRef, node, research) {
-  const block = element(documentRef, 'section', 'principles-analysis-block');
+  const block = element(documentRef, 'details', 'principles-analysis-block');
   const sourceIds = researchNode(research, node?.id)?.evidence || [];
   const claims = researchClaimsForNode(research, node?.id);
-  block.append(
+  const summary = element(documentRef, 'summary', 'principles-analysis-summary', '근거가 필요할 때 펼치기');
+  const body = element(documentRef, 'div', 'principles-analysis-body');
+  body.append(
     element(documentRef, 'div', 'principles-eyebrow', '자료 기반 분석'),
     element(documentRef, 'h4', 'principles-analysis-title', '출처에서 관찰과 해석 분리하기'),
-    element(documentRef, 'p', 'principles-analysis-intro', `${claims.length}개 연결 주장 · ${sourceIds.length}개 1차 출처 · 상태 ${researchStatusLabel(research?.status)}`)
+    element(documentRef, 'p', 'principles-analysis-intro', `${claims.length}개 관찰 기록 · ${sourceIds.length}개 공식 자료`)
   );
   if (claims.length) {
     const claimList = element(documentRef, 'div', 'principles-analysis-claims');
@@ -532,7 +558,7 @@ function createResearchAnalysis(documentRef, node, research) {
     claims.forEach((claim) => {
       const card = element(documentRef, 'article', 'principles-analysis-claim');
       card.append(
-        element(documentRef, 'div', 'principles-analysis-claim-meta', `${claim.id} · ${researchStatusLabel(claim.status)}`),
+        element(documentRef, 'div', 'principles-analysis-claim-meta', '출처 기반 관찰'),
         element(documentRef, 'h5', 'principles-analysis-claim-title', claim.title),
         element(documentRef, 'p', 'principles-analysis-claim-summary', claim.summary)
       );
@@ -544,7 +570,7 @@ function createResearchAnalysis(documentRef, node, research) {
       const evidence = element(documentRef, 'div', 'principles-analysis-claim-sources');
       (claim.evidence || []).forEach((sourceId) => {
         const source = sources.get(sourceId);
-        const link = element(documentRef, 'a', 'principles-analysis-source-link', sourceId);
+        const link = element(documentRef, 'a', 'principles-analysis-source-link', source?.title || source?.publisher || '공식 자료');
         link.href = source?.url || '#';
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
@@ -554,17 +580,18 @@ function createResearchAnalysis(documentRef, node, research) {
       card.appendChild(evidence);
       claimList.appendChild(card);
     });
-    block.appendChild(claimList);
+    body.appendChild(claimList);
   } else {
-    block.appendChild(element(documentRef, 'p', 'principles-analysis-empty', '이 노드에는 아직 claim-level primary-source 분석이 연결되지 않았습니다. 구조적 설명만 제공하며 현재 수치나 판단을 생성하지 않습니다.'));
+    body.appendChild(element(documentRef, 'p', 'principles-analysis-empty', '이 노드에는 아직 개별 수치 검증이 연결되지 않았습니다. 아래 설명은 구조적 학습 자료이며 현재 수치나 판단을 생성하지 않습니다.'));
   }
   const frame = element(documentRef, 'div', 'principles-reading-frame');
   frame.appendChild(element(documentRef, 'strong', 'principles-reading-frame-title', '이 노드를 읽을 때 확인할 질문'));
   const questions = element(documentRef, 'ul', 'principles-reading-frame-list');
   (NODE_READING_FRAMES[node?.id] || ['무엇이 관찰값이고 무엇이 추론인가?', '관찰시점·단위·대체 설명을 함께 확인했는가?']).forEach((question) => questions.appendChild(element(documentRef, 'li', '', question)));
   frame.appendChild(questions);
-  frame.appendChild(element(documentRef, 'p', 'principles-analysis-boundary', '경계: 이 요약은 Telegram 발견 자료와 공식 primary source를 연결한 연구 참고층이며, 현재 가격·목표가·매매 신호가 아닙니다.'));
-  block.appendChild(frame);
+  frame.appendChild(element(documentRef, 'p', 'principles-analysis-boundary', '관찰 사실과 해석을 구분하기 위한 보충 자료입니다. 현재 가격·목표가·매매 신호는 제공하지 않습니다.'));
+  body.appendChild(frame);
+  block.append(summary, body);
   return block;
 }
 
@@ -574,8 +601,7 @@ function createNodeCard(documentRef, node, selected, onSelect, research) {
   const title = element(documentRef, 'strong', 'principles-node-title', node.title);
   const meta = element(documentRef, 'span', 'principles-node-meta', `${node.layer} · ${node.type}`);
   const summary = element(documentRef, 'span', 'principles-node-summary', node.summary);
-  const evidence = researchNode(research, node.id)?.evidence || [];
-  card.append(title, meta, summary, element(documentRef, 'span', 'principles-node-evidence', evidence.length ? `Evidence ${evidence.join(' · ')}` : 'Evidence pending'));
+  card.append(title, meta, summary);
   card.addEventListener('click', onSelect);
   return card;
 }
@@ -585,7 +611,7 @@ function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges) {
   const svg = documentRef.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 100 100');
   svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', 'AI 산업 가치사슬 관계 그래프. 노드 상세는 아래 텍스트 목록에서 확인할 수 있습니다.');
+  svg.setAttribute('aria-label', '시장 원리 관계 그래프. 노드 상세는 아래 텍스트 목록에서 확인할 수 있습니다.');
   const visible = new Set(visibleNodes.map((node) => node.id));
   visibleEdges.filter((edge) => visible.has(edge.from) && visible.has(edge.to)).forEach((edge) => {
     const from = NODE_BY_ID.get(edge.from);
@@ -598,6 +624,12 @@ function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges) {
     line.setAttribute('class', `principles-edge${edge.from === selectedId || edge.to === selectedId ? ' is-active' : ''}`);
     line.setAttribute('aria-label', `${from.title}에서 ${to.title}: ${edge.relation}`);
     svg.appendChild(line);
+    const relation = documentRef.createElementNS('http://www.w3.org/2000/svg', 'text');
+    relation.setAttribute('x', String((Number(from.x) + Number(to.x)) / 2));
+    relation.setAttribute('y', String((Number(from.y) + Number(to.y)) / 2));
+    relation.setAttribute('class', 'principles-edge-label');
+    relation.textContent = edge.relation;
+    svg.appendChild(relation);
   });
   graph.appendChild(svg);
   visibleNodes.forEach((node) => {
@@ -613,14 +645,32 @@ function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges) {
   return graph;
 }
 
-function createNodeDetail(documentRef, node, lesson, onRoute, research) {
+function createNodeDetail(documentRef, node, lesson, onRoute, research, authoredGuide) {
   const detail = element(documentRef, 'article', 'principles-detail-card');
   if (node) {
+    const section = TREE_SECTIONS.find((item) => item.nodeIds.includes(node.id));
+    const relations = CATALOG.edges.filter((edge) => edge.from === node.id || edge.to === node.id);
     detail.append(
-      element(documentRef, 'div', 'principles-eyebrow', `${node.layer} · ${node.type}`),
+      element(documentRef, 'div', 'principles-breadcrumb', `${section?.title || '시장 원리'}  /  ${node.title}`),
       element(documentRef, 'h3', 'principles-detail-title', node.title),
-      element(documentRef, 'p', 'principles-detail-summary', node.summary),
-      createNodeExplanation(documentRef, node),
+      element(documentRef, 'p', 'principles-detail-summary', authoredGuide?.definition || node.summary),
+      createNodeExplanation(documentRef, node, authoredGuide),
+      (() => {
+        const block = element(documentRef, 'section', 'principles-connections');
+        block.appendChild(element(documentRef, 'h4', 'principles-connections-title', '다음에 탐색할 개념'));
+        const links = element(documentRef, 'div', 'principles-connection-list');
+        relations.forEach((edge) => {
+          const nextId = edge.from === node.id ? edge.to : edge.from;
+          const next = NODE_BY_ID.get(nextId);
+          if (!next) return;
+          const link = button(documentRef, 'principles-connection-button', `${edge.from === node.id ? '→' : '←'} ${next.title} · ${edge.relation}`, 'select-node', next.id);
+          link.title = edge.relation;
+          links.appendChild(link);
+        });
+        if (!relations.length) links.appendChild(element(documentRef, 'span', 'principles-evidence-empty', '연결된 개념을 준비 중입니다.'));
+        block.appendChild(links);
+        return block;
+      })(),
       sourceBadge(documentRef, { ...node, reviewedAt: REVIEWED_AT }),
       createEvidenceBlock(documentRef, researchNode(research, node.id)?.evidence || [], research),
       createResearchAnalysis(documentRef, node, research)
@@ -656,7 +706,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
       if (!page) return () => bag.dispose();
       const content = page.querySelector('[data-principles-content]');
       if (!content) return () => bag.dispose();
-       const state = { mode: 'tree', query: '', selectedId: 'ai-era', selectedLessonId: 'money-rates', pathId: 'beginner', step: 0, depth: 1, research: null, chapters: null, lessonLibrary: null, researchError: false, chaptersError: false, lessonLibraryError: false };
+       const state = { mode: 'tree', view: 'map', query: '', selectedId: 'scarcity-choice', pathId: 'beginner', step: 0, depth: 1, expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), research: null, chapters: null, lessonLibrary: null, nodeGuides: null, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false };
       page.dataset.aioArchitectureRoute = 'principles';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -680,10 +730,12 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
       };
 
       function visibleGraphNodes() {
-        // KG-05: keep the first graph view within the 9–15 node density
-        // contract; depth changes edge emphasis/navigation, not discoverability.
+        // KG-05: show a readable overview plus the selected node's real hop
+        // neighborhood. Depth changes the neighborhood, not the underlying graph.
         const distances = nodesWithinHops(state.selectedId, state.depth);
-        const scoped = CATALOG.nodes.filter((node) => distances.has(node.id));
+        const overview = new Set(GRAPH_OVERVIEW_IDS);
+        distances.forEach((_distance, id) => overview.add(id));
+        const scoped = CATALOG.nodes.filter((node) => overview.has(node.id));
         if (!state.query) return scoped;
         return scoped.filter((node) => nodeMatches(node, state.query) || node.id === state.selectedId);
       }
@@ -691,11 +743,12 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
       function renderToolbar() {
         const toolbar = element(documentRef, 'div', 'principles-toolbar');
         const modes = element(documentRef, 'div', 'principles-mode-tabs');
-        [['tree', 'Tree 계층'], ['graph', 'Graph 관계'], ['path', 'Path 학습']].forEach(([mode, label]) => {
-          const tab = button(documentRef, `principles-mode-tab${state.mode === mode ? ' is-active' : ''}`, label, 'mode', mode);
-          tab.setAttribute('aria-pressed', state.mode === mode ? 'true' : 'false');
-          modes.appendChild(tab);
-        });
+         [['tree', '지도 Tree', 'tree'], ['graph', '관계 Graph', 'graph'], ['path', '학습 Path', 'path'], ['library', '자료실', 'library']].forEach(([mode, label, value]) => {
+           const active = mode === 'library' ? state.view === 'library' : state.view !== 'library' && state.mode === mode;
+           const tab = button(documentRef, `principles-mode-tab${active ? ' is-active' : ''}`, label, mode === 'library' ? 'view' : 'mode', value);
+           tab.setAttribute('aria-pressed', active ? 'true' : 'false');
+           modes.appendChild(tab);
+         });
         const search = element(documentRef, 'label', 'principles-search');
         const searchLabel = element(documentRef, 'span', 'principles-sr-only', '시장 원리 검색');
         const input = element(documentRef, 'input', 'principles-search-input');
@@ -706,7 +759,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         input.addEventListener('input', (event) => { state.query = String(event.target.value || '').trim().toLowerCase(); render(); });
         search.append(searchLabel, input);
         toolbar.append(modes, search);
-        if (state.mode === 'graph') {
+         if (state.view !== 'library' && state.mode === 'graph') {
           const depth = element(documentRef, 'div', 'principles-depth-toggle');
           [1, 2].forEach((value) => {
             const toggle = button(documentRef, `principles-depth-button${state.depth === value ? ' is-active' : ''}`, `${value}-hop`, 'depth', String(value));
@@ -714,22 +767,66 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           });
           toolbar.appendChild(depth);
         }
-        return toolbar;
-      }
+         return toolbar;
+       }
+
+       function createTreeGroup(group, query) {
+         const wrapper = element(documentRef, 'section', 'principles-tree-group');
+         const nodes = group.nodeIds.map((nodeId) => NODE_BY_ID.get(nodeId)).filter(Boolean).filter((node) => nodeMatches(node, query));
+         const expanded = state.expandedGroups.has(group.id) || Boolean(query && nodes.length);
+         const header = button(documentRef, `principles-tree-group-header${expanded ? ' is-expanded' : ''}`, '', 'toggle-group', group.id);
+         header.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+         header.append(
+           element(documentRef, 'span', 'principles-tree-group-marker', expanded ? '−' : '+'),
+           element(documentRef, 'span', 'principles-tree-group-title', group.title),
+           element(documentRef, 'span', 'principles-tree-group-count', `${nodes.length}개`)
+         );
+         wrapper.append(header, element(documentRef, 'p', 'principles-tree-group-copy', group.description));
+         if (expanded) {
+           const childList = element(documentRef, 'div', 'principles-tree-group-children');
+           nodes.forEach((node) => childList.appendChild(createNodeCard(documentRef, node, state.selectedId === node.id, () => selectNode(node.id), state.research)));
+           if (!nodes.length) childList.appendChild(element(documentRef, 'div', 'principles-empty', '이 묶음에서 검색 결과가 없습니다.'));
+           wrapper.appendChild(childList);
+         }
+         return wrapper;
+       }
+
+       function createTreeSection(section, query) {
+         const wrapper = element(documentRef, 'section', 'principles-tree-section');
+         const nodes = section.nodeIds.map((nodeId) => NODE_BY_ID.get(nodeId)).filter(Boolean).filter((node) => nodeMatches(node, query));
+         const expanded = state.expandedSections.has(section.id) || Boolean(query && nodes.length);
+         const header = button(documentRef, `principles-tree-section-header${expanded ? ' is-expanded' : ''}`, '', 'toggle-section', section.id);
+         header.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+         header.append(
+           element(documentRef, 'span', 'principles-tree-section-index', String(TREE_SECTIONS.indexOf(section) + 1).padStart(2, '0')),
+           element(documentRef, 'span', 'principles-tree-section-title', section.title),
+           element(documentRef, 'span', 'principles-tree-section-count', `${nodes.length}개 개념`),
+           element(documentRef, 'span', 'principles-tree-section-toggle', expanded ? '접기' : '펼치기')
+         );
+         wrapper.append(header, element(documentRef, 'p', 'principles-tree-section-copy', section.description));
+         if (expanded) {
+            const groupList = element(documentRef, 'div', 'principles-tree-children');
+            section.groups.forEach((group) => groupList.appendChild(createTreeGroup(group, query)));
+            if (!nodes.length) groupList.appendChild(element(documentRef, 'div', 'principles-empty', '이 분류에서 검색 결과가 없습니다.'));
+            wrapper.appendChild(groupList);
+         }
+         return wrapper;
+       }
 
       function renderTree() {
         const layout = element(documentRef, 'div', 'principles-workspace');
         const list = element(documentRef, 'div', 'principles-tree-list');
-        const matchingNodes = CATALOG.nodes.filter((node) => nodeMatches(node, state.query));
-         matchingNodes.forEach((node) => list.appendChild(createNodeCard(documentRef, node, state.selectedId === node.id, () => selectNode(node.id), state.research)));
-        if (!matchingNodes.length) list.appendChild(element(documentRef, 'div', 'principles-empty', `"${state.query}"와 일치하는 노드가 없습니다.`));
+        const selectedLesson = lessonForNode(state.selectedId);
+        TREE_SECTIONS.forEach((section) => list.appendChild(createTreeSection(section, state.query)));
+        if (state.query && !TREE_SECTIONS.some((section) => section.nodeIds.some((nodeId) => nodeMatches(NODE_BY_ID.get(nodeId), state.query)))) list.appendChild(element(documentRef, 'div', 'principles-empty', `"${state.query}"와 일치하는 개념이 없습니다.`));
         layout.appendChild(list);
-         layout.appendChild(createNodeDetail(documentRef, NODE_BY_ID.get(state.selectedId), LESSON_BY_ID.get(state.selectedLessonId), () => route(LESSON_BY_ID.get(state.selectedLessonId)?.route), state.research));
+         layout.appendChild(createNodeDetail(documentRef, NODE_BY_ID.get(state.selectedId), selectedLesson, () => route(selectedLesson?.route), state.research, state.nodeGuides?.nodes?.find((guide) => guide.id === state.selectedId)));
         return layout;
       }
 
       function renderGraph() {
         const layout = element(documentRef, 'div', 'principles-workspace principles-graph-workspace');
+        const selectedLesson = lessonForNode(state.selectedId);
         const nodes = visibleGraphNodes();
         const visibleIds = new Set(nodes.map((node) => node.id));
         const edges = CATALOG.edges.filter((edge) => visibleIds.has(edge.from) && visibleIds.has(edge.to));
@@ -740,7 +837,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         list.setAttribute('aria-label', '그래프 노드 텍스트 목록');
          nodes.forEach((node) => list.appendChild(createNodeCard(documentRef, node, state.selectedId === node.id, () => selectNode(node.id), state.research)));
         layout.appendChild(list);
-         layout.appendChild(createNodeDetail(documentRef, NODE_BY_ID.get(state.selectedId), LESSON_BY_ID.get(state.selectedLessonId), () => route(LESSON_BY_ID.get(state.selectedLessonId)?.route), state.research));
+         layout.appendChild(createNodeDetail(documentRef, NODE_BY_ID.get(state.selectedId), selectedLesson, () => route(selectedLesson?.route), state.research, state.nodeGuides?.nodes?.find((guide) => guide.id === state.selectedId)));
         return layout;
       }
 
@@ -784,24 +881,49 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         return layout;
       }
 
+      function renderLibrary() {
+        const library = element(documentRef, 'section', 'principles-library-view');
+        library.append(
+          element(documentRef, 'div', 'principles-eyebrow', '참고 원고 자료실'),
+          element(documentRef, 'h2', 'principles-library-title', 'A~O 챕터와 세부 레슨'),
+          element(documentRef, 'p', 'principles-library-copy', '지도에서 개념을 먼저 선택한 뒤, 전체 원고와 검증 질문을 펼쳐 읽습니다. 출처와 검토 상태는 각 원고 안의 근거 영역에 접혀 있습니다.')
+        );
+        const chapterPanel = element(documentRef, 'details', 'principles-library-panel');
+        chapterPanel.append(element(documentRef, 'summary', 'principles-library-panel-summary', `15개 챕터 원고 보기${state.query ? ` · 검색어 “${state.query}”` : ''}`), createChapterCurriculum(documentRef, state.chapters, state.query));
+        const lessonPanel = element(documentRef, 'details', 'principles-library-panel');
+        lessonPanel.append(element(documentRef, 'summary', 'principles-library-panel-summary', `111개 세부 레슨 보기${state.query ? ` · 검색어 “${state.query}”` : ''}`), createLessonLibrary(documentRef, state.lessonLibrary, state.query));
+        library.append(chapterPanel, lessonPanel, createLearningTracks(documentRef));
+        return library;
+      }
+
       function render() {
-        content.replaceChildren(renderToolbar(), createChapterCurriculum(documentRef, state.chapters, state.query), createLessonLibrary(documentRef, state.lessonLibrary, state.query), createLearningTracks(documentRef), state.mode === 'tree' ? renderTree() : state.mode === 'graph' ? renderGraph() : renderPath());
+        const primary = state.view === 'library' ? renderLibrary() : state.mode === 'tree' ? renderTree() : state.mode === 'graph' ? renderGraph() : renderPath();
+        content.replaceChildren(renderToolbar(), primary);
          const count = page.querySelector('[data-principles-result-count]');
          /*
          if (count) count.textContent = `nodes ${CATALOG.nodes.length} · authored lessons ${state.lessonLibrary?.lessons?.length || 0} · evidence ${state.research?.sources?.length || 0} sources · ${state.research ? 'connected' : 'loading'}`;
         if (count) count.textContent = `노드 ${CATALOG.nodes.length}개 · 레슨 ${CATALOG.lessons.length}개 · 출처 검토일 ${REVIEWED_AT}`;
       */
-      if (count) count.textContent = `nodes ${CATALOG.nodes.length} · authored lessons ${state.lessonLibrary?.lessons?.length || 0} · evidence ${state.research?.sources?.length || 0} sources · ${state.research ? 'connected' : 'loading'}`;
+      if (count) count.textContent = `개념 ${CATALOG.nodes.length}개 · 학습 경로 ${CATALOG.paths.length}개 · 심화 레슨 ${state.lessonLibrary?.lessons?.length || 0}개`;
       }
 
       const onClick = (event) => {
         const target = event.target.closest?.('[data-principles-action]');
         if (!target || !page.contains(target)) return;
-        const action = target.dataset.principlesAction;
-        const value = target.dataset.principlesValue;
-        if (action === 'mode') state.mode = value;
+         const action = target.dataset.principlesAction;
+         const value = target.dataset.principlesValue;
+        if (action === 'mode') { state.mode = value; state.view = 'map'; }
+        if (action === 'view') state.view = value === 'library' ? 'library' : 'map';
         if (action === 'depth') state.depth = Number(value) || 1;
         if (action === 'select-node') state.selectedId = value;
+         if (action === 'toggle-section') {
+          if (state.expandedSections.has(value)) state.expandedSections.delete(value);
+          else state.expandedSections.add(value);
+         }
+         if (action === 'toggle-group') {
+           if (state.expandedGroups.has(value)) state.expandedGroups.delete(value);
+           else state.expandedGroups.add(value);
+         }
         if (action === 'path-select') { state.pathId = value; state.step = 0; }
         if (action === 'step') state.step = Math.max(0, Number(value) || 0);
         if (action !== 'route') {
@@ -817,22 +939,23 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         if (page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
          delete page.dataset.aioContentKind;
          delete page.dataset.aioReviewedAt;
-         delete page.dataset.aioPrinciplesResearch;
-         delete page.dataset.aioPrinciplesChapters;
-         delete page.dataset.aioPrinciplesLessonLibrary;
-         content.replaceChildren();
-       });
-       render();
-       const fetchFn = root?.fetch || globalThis.fetch;
-       if (typeof fetchFn === 'function') {
-         const loadJson = (url) => fetchFn(url).then((response) => { if (!response.ok) throw new Error(`Principles artifact ${response.status}`); return response.json(); });
-          Promise.all([loadJson(RESEARCH_URL), loadJson(CHAPTERS_URL), loadJson(LESSON_LIBRARY_URL)])
-            .then(([research, chapters, lessonLibrary]) => { state.research = research; state.chapters = chapters; state.lessonLibrary = lessonLibrary; page.dataset.aioPrinciplesResearch = 'connected'; page.dataset.aioPrinciplesChapters = 'connected'; page.dataset.aioPrinciplesLessonLibrary = 'connected'; render(); })
-            .catch(() => { state.researchError = true; state.chaptersError = true; state.lessonLibraryError = true; page.dataset.aioPrinciplesResearch = 'fallback'; page.dataset.aioPrinciplesChapters = 'fallback'; page.dataset.aioPrinciplesLessonLibrary = 'fallback'; render(); });
+          delete page.dataset.aioPrinciplesResearch;
+          delete page.dataset.aioPrinciplesChapters;
+          delete page.dataset.aioPrinciplesLessonLibrary;
+          delete page.dataset.aioPrinciplesNodeGuides;
+          content.replaceChildren();
+        });
+        render();
+        const fetchFn = root?.fetch || globalThis.fetch;
+        if (typeof fetchFn === 'function') {
+          const loadJson = (url) => fetchFn(url).then((response) => { if (!response.ok) throw new Error(`Principles artifact ${response.status}`); return response.json(); });
+           Promise.all([loadJson(RESEARCH_URL), loadJson(CHAPTERS_URL), loadJson(LESSON_LIBRARY_URL), loadJson(NODE_GUIDES_URL)])
+             .then(([research, chapters, lessonLibrary, nodeGuides]) => { state.research = research; state.chapters = chapters; state.lessonLibrary = lessonLibrary; state.nodeGuides = nodeGuides; page.dataset.aioPrinciplesResearch = 'connected'; page.dataset.aioPrinciplesChapters = 'connected'; page.dataset.aioPrinciplesLessonLibrary = 'connected'; page.dataset.aioPrinciplesNodeGuides = 'connected'; render(); })
+             .catch(() => { state.researchError = true; state.chaptersError = true; state.lessonLibraryError = true; state.nodeGuidesError = true; page.dataset.aioPrinciplesResearch = 'fallback'; page.dataset.aioPrinciplesChapters = 'fallback'; page.dataset.aioPrinciplesLessonLibrary = 'fallback'; page.dataset.aioPrinciplesNodeGuides = 'fallback'; render(); });
        }
        return () => bag.dispose();
     }
   };
 }
 
-export { CATALOG as MARKET_PRINCIPLES_CATALOG, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL };
+export { CATALOG as MARKET_PRINCIPLES_CATALOG, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL };

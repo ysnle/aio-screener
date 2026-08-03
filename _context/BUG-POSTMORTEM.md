@@ -1,12 +1,30 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex P761-P845 static implementation record
-last_verified: 2026-08-02
+last_verified: 2026-08-03
 confidence: high
-latest_version: v53.87
-latest_P_number: P890
-next_P_number: P891
-current_total_entries: 616 (P1~P890, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P890 v53.87 SEC-evidenced Scion latest-filing availability plus reference-layer closure and weekend market-closed freshness grace; official currentness/security-master/provider gates remain fail-closed
+latest_version: v53.89
+latest_P_number: P892
+next_P_number: P893
+current_total_entries: 618 (P1~P892, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P892 v53.89 hierarchical Atlas/Principles UX and Masters adjacent-quarter/runtime closure; official currentness/security-master/provider/edge gates remain fail-closed
+
+## P892 - v53.89 - Structural reference gates missed learner hierarchy and visible Masters runtime failures
+
+- **motivation**: 실제 1440×900 사용자 화면에서 Atlas가 많은 카드를 한꺼번에 노출했고, Masters 변화 원장은 행 번호를 `NaN`으로 표시했으며 Berkshire 비교가 2025년 4분기를 건너뛰고 3분기를 사용했다. 투자자 카드의 버튼 안에는 SEC 링크가 중첩되고 검색은 한 글자 입력 후 포커스를 잃었다.
+- **root_cause**: `createTable()`이 row builder에 index를 전달하지 않았고, `resolve-13f-prior-filings.mjs`는 찾은 직전 분기를 stdout으로만 출력해 artifact에 저장하지 않았다. 기존 CI는 행 수와 최신/이전의 단순 대소관계만 검사해 인접 분기 여부, 유한 표시값, 중첩 인터랙티브 요소, 검색 포커스 유지와 첫 화면의 학습 위계를 보지 못했다.
+- **fix**: table index 전달, 검색 포커스 복원, manager card의 비인터랙티브 상태 요약, 데스크톱 가독성 개선을 적용했다. Berkshire를 저장된 SEC history의 2025-12-31 110행과 재계산해 45개 비교 key로 교정했고 resolver를 실제 `filings.json` writer로 전환했다. Atlas는 6개 학습 층과 19개 산업 도메인의 master-detail 탐색으로 바꾸고 10개 심층 주제·50개 가지를 연결했다.
+- **violated_rule**: R307/R352/R438; UI의 숫자는 유한해야 하고 하나의 파이프라인이 실제 artifact를 소유해야 하며 학습 표면은 큰 개념에서 작은 개념으로 점진 공개되어야 한다.
+- **prevention**: Masters 계약은 history index에서 실제 인접 분기를 독립 계산하고 index/holdings count parity를 검사한다. Chromium gate는 `NaN=0`, manager button 내부 link=0, 2025-12-31 비교, 다문자 검색 포커스 유지를 검사한다. Atlas 계약/브라우저 gate는 10개 심층 주제·50개 가지·56개 anchor와 한 번에 하나의 상세/열린 가지를 검사한다.
+- **verification**: Masters/Atlas/Principles contract와 Chromium route gate, six-document coverage gate가 PASS했다. 외부 SEC 재조회는 실행 환경 네트워크 승인 한도로 차단되어 저장된 공식 SEC 원문 artifact로 재대사했으며, 배포 후 live 검증은 최종 release gate에서 별도로 수행한다.
+
+## P891 - v53.88 - Market Principles and AI Atlas were exposed as learner surfaces instead of research inventories
+
+- **motivation**: Midpoint QA found that the Principles default view placed 15 chapters and 111 cards before the graph, rendered a flat node list, repeated chapter-level prose across unrelated lessons, exposed research-state language, and left the Atlas default closer to an internal packet board than a beginner learning map.
+- **root_cause**: Structural count contracts verified that artifacts existed and were connected, but did not test semantic field uniqueness, first-view information architecture, nested disclosure, or whether research IDs/statuses were visible in the default learner path.
+- **fix**: Added `node-guides.json` with one complete guide for all 60 catalog nodes; rewrote `lesson-library.json` through `build-principles-lessons.mjs` with 111 title-specific fields; made the Principles Tree the default with seven nested groups and a separate 자료실; added relation labels and real hop depth; moved evidence/status/source IDs into details; made Atlas default to the authored 48-module learning map with a separate research tab; added desktop/mobile browser assertions.
+- **violated_rule**: R430/R431/R434; functional learning surfaces must expose measurable user-facing explanations and source boundaries, and structural artifact counts cannot stand in for per-unit authored content.
+- **prevention**: Principles contract checks 60 complete node guides, 111 lesson records, and six unique authored fields per lesson; the browser gate checks the first view, nested groups, library isolation, detail fields, hidden internal statuses, relation labels, 1/2-hop difference, desktop/mobile flow, and Atlas learner-first default.
+- **verification**: `ci-principles-contract-check.mjs`, `ci-principles-browser-check.mjs`, `ci-atlas-contract-check.mjs`, `ci-atlas-browser-check.mjs`, and `ci-six-doc-coverage-check.mjs` PASS; current numeric claims, target prices, BUY/SELL signals, and unverified company/production states remain blocked.
 
 ## P890 - v53.87 - Scion latest-filing availability was made explicit
 

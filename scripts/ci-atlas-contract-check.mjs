@@ -17,6 +17,7 @@ const domainGuides = JSON.parse(read('public-data/atlas/domain-guides.json'));
 const domainPackets = JSON.parse(read('public-data/atlas/domain-source-packets.json'));
 const domainClaims = JSON.parse(read('public-data/atlas/domain-claim-ledger.json'));
 const taxonomyCoverage = JSON.parse(read('public-data/atlas/taxonomy-node-coverage.json'));
+const deepTaxonomy = JSON.parse(read('public-data/atlas/deep-taxonomy.json'));
 const telegramReference = JSON.parse(read('public-data/telegram-reference-window.json'));
 const playerProduct = JSON.parse(read('public-data/atlas/player-product-registry.json'));
 const currentness = JSON.parse(read('public-data/atlas/player-product-currentness.json'));
@@ -37,6 +38,7 @@ const required = [
   ['domain source packets', atlas.includes('DOMAIN_PACKETS_URL') && atlas.includes('domainPackets') && data.domainSourcePacketArtifact === 'public-data/atlas/domain-source-packets.json'],
   ['domain claim ledger', atlas.includes('DOMAIN_CLAIMS_URL') && atlas.includes('claimLedger') && data.domainClaimLedgerArtifact === 'public-data/atlas/domain-claim-ledger.json'],
   ['taxonomy node coverage', atlas.includes('TAXONOMY_COVERAGE_URL') && atlas.includes('nodeCoverage') && data.taxonomyNodeCoverageArtifact === 'public-data/atlas/taxonomy-node-coverage.json'],
+  ['deep taxonomy', atlas.includes('DEEP_TAXONOMY_URL') && atlas.includes('createDeepTaxonomyView') && data.deepTaxonomyArtifact === 'public-data/atlas/deep-taxonomy.json'],
   ['telegram reference window', atlas.includes('TELEGRAM_REFERENCE_URL') && atlas.includes('createTelegramReferenceView') && data.telegramReferenceArtifact === 'public-data/telegram-reference-window.json'],
   ['player/product currentness overlay', atlas.includes('PLAYER_PRODUCT_CURRENTNESS_URL') && atlas.includes('mergePlayerProductCurrentness') && data.playerProductCurrentnessArtifact === 'public-data/atlas/player-product-currentness.json'],
   ['safe dom', atlas.includes('replaceChildren') && !atlas.includes('innerHTML')]
@@ -51,6 +53,11 @@ if (data.domainGuideArtifact !== 'public-data/atlas/domain-guides.json' || data.
 if (data.domainSourcePacketArtifact !== 'public-data/atlas/domain-source-packets.json' || data.domainSourcePackets !== 19 || domainPackets.status !== 'REFERENCE_CONNECTED' || domainPackets.packets.length !== 19 || domainPackets.packets.some((packet) => packet.sources?.length !== 3 || !packet.reviewedAt)) errors.push('domain source packet coverage');
 if (data.domainClaimLedgerArtifact !== 'public-data/atlas/domain-claim-ledger.json' || data.domainStructuralClaims !== 57 || data.domainCurrentClaims !== 0 || domainClaims.status !== 'REFERENCE_CONNECTED' || domainClaims.claims.length !== 57 || domainClaims.counts?.currentClaims !== 0 || domainClaims.claims.some((claim) => claim.status !== 'PARTIAL' || claim.asOf !== null || claim.sourceIds?.length !== 3)) errors.push('domain claim ledger coverage');
 if (data.taxonomyNodeCoverageArtifact !== 'public-data/atlas/taxonomy-node-coverage.json' || data.taxonomyNodeCoverage !== 95 || taxonomyCoverage.status !== 'STRUCTURAL_COVERAGE_CONNECTED' || taxonomyCoverage.coverage?.nodes !== 95 || taxonomyCoverage.nodes.length !== 95 || taxonomyCoverage.coverage?.currentClaims !== 0 || taxonomyCoverage.nodes.some((node) => !node.roleReference || !node.productFamilyReference || !node.verificationQuestion || node.currentClaims !== 0)) errors.push('taxonomy node coverage');
+const deepBranchCount = deepTaxonomy.topics.reduce((sum, topic) => sum + (topic.branches?.length || 0), 0);
+const deepAnchorIds = new Set(deepTaxonomy.topics.flatMap((topic) => topic.anchorNodeIds || []));
+const deepCorpus = JSON.stringify(deepTaxonomy);
+const requiredDeepConcepts = ['3nm', '2nm', '18A', 'DUV', 'EUV', 'High-NA', '유리기판', 'Photonics', 'Open Weights', 'HBM', 'CXL', 'AIDC', 'World Model', 'Artemis'];
+if (data.deepTaxonomyTopics !== 10 || data.deepTaxonomyBranches !== 50 || data.deepTaxonomyAnchors !== 56 || deepTaxonomy.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || deepTaxonomy.topics.length !== 10 || deepBranchCount !== 50 || deepAnchorIds.size !== 56 || deepTaxonomy.topics.some((topic) => !topic.title || !topic.relation || !topic.why || !topic.anchorNodeIds?.length || !topic.branches?.length || topic.branches.some((branch) => !branch.title || !branch.summary || !branch.mechanism || !branch.observe || !branch.caution || !branch.children?.length)) || requiredDeepConcepts.some((concept) => !deepCorpus.includes(concept))) errors.push('deep taxonomy coverage');
 if (data.telegramReferenceArtifact !== 'public-data/telegram-reference-window.json' || data.telegramReferenceChannels !== 5 || data.telegramObservedLineage !== 813 || telegramReference.status !== 'REFERENCE_ONLY' || telegramReference.channels.length !== 5 || telegramReference.promotedClaims !== 0 || telegramReference.channels.some((channel) => !channel.url || !channel.status)) errors.push('telegram reference coverage');
 if (data.referencePlayers !== 20 || data.referenceProducts !== 20 || data.referenceSources !== 20 || playerProduct.players.length !== 20 || playerProduct.products.length !== 20 || playerProduct.sources.length !== 20 || playerProduct.publication !== 'EDUCATIONAL_REFERENCE_ONLY') errors.push('player/product registry counts or publication boundary');
 if (data.playerProductCurrentnessArtifact !== 'public-data/atlas/player-product-currentness.json' || data.currentnessPlayers !== 20 || data.currentnessProducts !== 20 || currentness.status !== 'REFERENCE_CURRENTNESS_CONNECTED' || currentness.players.length !== 20 || currentness.products.length !== 20 || currentness.products.some((product) => !product.productionStatus || !product.asOf || !product.statusBasis)) errors.push('player/product currentness coverage');
@@ -80,6 +87,7 @@ const playerProductSourceIds = new Set(playerProduct.sources.map((source) => sou
 const researchSourceIds = new Set((research.sources || []).map((source) => source.id));
 const validSourceIds = new Set([...playerProductSourceIds, ...researchSourceIds]);
 const taxonomyNodeIdSet = new Set(taxonomyNodeIds);
+for (const nodeId of deepAnchorIds) if (!taxonomyNodeIdSet.has(nodeId)) errors.push(`deep taxonomy anchor missing: ${nodeId}`);
 const foundationModuleIdSet = new Set(foundations.moduleIndex.map((module) => module.id));
 const foundationLessonIdSet = new Set(foundationLessons.lessons.map((lesson) => lesson.id));
 const invalidFoundationLessons = [];
@@ -117,4 +125,4 @@ if (errors.length) {
   console.error(JSON.stringify({ ok: false, errors }));
   process.exit(1);
 }
-console.log(JSON.stringify({ ok: true, route: 'atlas', packets: data.packets, candidateNodes: data.candidateNodes, taxonomyDomains: data.taxonomyDomains, taxonomyNodes: data.taxonomyNodes, evidenceClaims: data.evidenceClaims, primarySources: data.primarySources, status: data.status, reviewedAt: data.reviewedAt }));
+console.log(JSON.stringify({ ok: true, route: 'atlas', packets: data.packets, candidateNodes: data.candidateNodes, taxonomyDomains: data.taxonomyDomains, taxonomyNodes: data.taxonomyNodes, deepTopics: data.deepTaxonomyTopics, deepBranches: data.deepTaxonomyBranches, deepAnchors: data.deepTaxonomyAnchors, evidenceClaims: data.evidenceClaims, primarySources: data.primarySources, status: data.status, reviewedAt: data.reviewedAt }));

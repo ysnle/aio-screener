@@ -2,20 +2,20 @@
 
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
-current_override: P859-P866 themes evidence, decision/news/portfolio fail-closed boundaries, Worker endpoint evidence, release-manifest synchronization, official FOMC rollover, and post-refresh revision coherence on top of P856-P858 release/security/boot gates; live edge enforcement, provider rights, model benchmark, fast-plane soak, and AI proxy health remain explicit operator gates
-  last_verified: 2026-07-29
+current_override: P892 hierarchical Principles/Atlas learning UX and Masters adjacent-quarter/runtime closure on top of P891 learner-first content flow and P890 Scion availability evidence; live edge enforcement, provider rights, model benchmark, fast-plane soak, and AI proxy health remain explicit operator gates
+  last_verified: 2026-08-03
 confidence: high
-target_version: v53.87
+target_version: v53.89
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
-target_lines: refreshed after P888 gate
-  current_checkpoint: P890 connects the six-document authored/reference layer to Principles, Atlas, Foundations, Telegram, and Masters renderers; Scion latest-filing availability is SEC-evidenced; weekend market-closed freshness grace is gated; official currentness/security-master and live model/Worker/provider certification remain operator-required
+target_lines: refreshed after P892 gate
+  current_checkpoint: P892 adds broad-to-narrow Atlas workspaces, deep AI taxonomy, Principles relation/detail fixes, and Masters finite/adjacent-quarter contracts; official currentness/security-master and live model/Worker/provider certification remain operator-required
 ---
 
 ## Current machine-verified file-size table (v53.64, 2026-07-30)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 27,876 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 27,987 | `Get-Content.Count` + `ci-doc-currency-check.mjs` |
 | `js/aio-core.js` | 26,786 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-data.js` | 16,183 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,305 | `ReadAllLines` + `ci-doc-currency-check.mjs` |

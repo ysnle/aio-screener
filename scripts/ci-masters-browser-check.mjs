@@ -46,9 +46,20 @@ try {
     fullRows: document.getElementById('page-masters')?.dataset.aioMastersFullRows,
     changeSummary: document.querySelector('#page-masters .masters-change-summary')?.textContent || '',
     text: document.querySelector('#page-masters .masters-filing-artifact')?.textContent || '',
+    nestedManagerLinks: document.querySelectorAll('#page-masters .masters-manager-card a').length,
+    nanCells: [...document.querySelectorAll('#page-masters td')].filter((cell) => cell.textContent.trim() === 'NaN').length,
     overflow: document.documentElement.scrollWidth > window.innerWidth + 2
   }));
-  if (!overview.active || overview.profiles !== 8 || overview.filingArtifacts !== 1 || overview.topRows !== 10 || overview.comparisonRows !== 25 || overview.fullRows !== '90' || !overview.changeSummary.includes('2025-09-30') || !overview.text.includes('0001067983') || overview.overflow) throw new Error(`overview contract failed: ${JSON.stringify(overview)}`);
+  if (!overview.active || overview.profiles !== 8 || overview.filingArtifacts !== 1 || overview.topRows !== 10 || overview.comparisonRows !== 25 || overview.fullRows !== '90' || !overview.changeSummary.includes('2025-12-31') || !overview.text.includes('0001067983') || overview.nestedManagerLinks !== 0 || overview.nanCells !== 0 || overview.overflow) throw new Error(`overview contract failed: ${JSON.stringify(overview)}`);
+
+  const managerSearch = page.locator('#page-masters .masters-search-input');
+  await managerSearch.focus();
+  await page.keyboard.type('buffett');
+  await page.waitForFunction(() => document.querySelector('#page-masters .masters-search-input')?.value === 'buffett');
+  if (await page.locator('#page-masters .masters-manager-card').count() !== 1 || !await page.evaluate(() => document.activeElement?.classList.contains('masters-search-input'))) throw new Error('manager search lost focus during rerender');
+  await page.keyboard.press('Control+A');
+  await page.keyboard.press('Backspace');
+  await page.waitForFunction(() => document.querySelectorAll('#page-masters .masters-manager-card').length === 8);
 
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="holdings"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersView === 'holdings');
@@ -57,6 +68,7 @@ try {
   await page.locator('#page-masters [data-masters-action="change-filter"][data-masters-value="EXITED"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersActionFilter === 'EXITED');
   if (!await page.locator('#page-masters .masters-change-ledger tbody tr').count()) throw new Error('exited comparison rows are not visible');
+  if (await page.locator('#page-masters .masters-change-ledger td', { hasText: 'NaN' }).count()) throw new Error('change ledger contains NaN');
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="sectors"]').click();
   if (await page.locator('#page-masters [data-masters-sector-state="unavailable"]').count() !== 1 || await page.locator('#page-masters [data-masters-security-master="REFERENCE_NORMALIZATION_PENDING"]').count() !== 1) throw new Error('sector/security-master preparation state missing');
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="quarters"]').click();

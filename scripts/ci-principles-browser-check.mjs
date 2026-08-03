@@ -36,43 +36,79 @@ try {
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesResearch === 'connected');
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesChapters === 'connected');
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesLessonLibrary === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesNodeGuides === 'connected');
+
   const initial = await page.evaluate(() => ({
     active: document.getElementById('page-principles')?.classList.contains('active'),
+    treeSections: document.querySelectorAll('#page-principles .principles-tree-section').length,
+    treeGroups: document.querySelectorAll('#page-principles .principles-tree-group').length,
     nodes: document.querySelectorAll('#page-principles .principles-node-card').length,
     evidenceBadges: document.querySelectorAll('#page-principles .principles-node-evidence').length,
-    evidenceLinks: document.querySelectorAll('#page-principles .principles-evidence-link').length,
-    analysisBlocks: document.querySelectorAll('#page-principles .principles-analysis-block').length,
-    analysisClaims: document.querySelectorAll('#page-principles .principles-analysis-claim').length,
-    chapterCards: document.querySelectorAll('#page-principles .principles-chapter-card').length,
-    authoredChapterCards: document.querySelectorAll('#page-principles [data-principles-chapter]').length,
-    authoredLessonCards: document.querySelectorAll('#page-principles [data-principles-lesson-id]').length,
+    detail: document.querySelector('#page-principles .principles-detail-card')?.textContent || '',
+    libraryTab: document.querySelector('#page-principles [data-principles-action="view"][data-principles-value="library"]')?.textContent || '',
+    defaultLibraryCards: document.querySelectorAll('#page-principles [data-principles-lesson-id]').length,
+    hiddenSources: [...document.querySelectorAll('#page-principles .principles-source')].filter((node) => !node.open).length,
+    internalStatusVisible: [...document.querySelectorAll('#page-principles .principles-status')].some((node) => node.closest('details')?.open === true),
     count: document.querySelector('[data-principles-result-count]')?.textContent || '',
     overflow: document.documentElement.scrollWidth > window.innerWidth + 2
   }));
-  if (!initial.active || initial.nodes < 41 || initial.evidenceBadges !== initial.nodes || initial.evidenceLinks < 1 || initial.analysisBlocks !== 1 || initial.analysisClaims < 1 || initial.chapterCards !== 15 || initial.authoredChapterCards !== 15 || initial.authoredLessonCards !== 111 || !initial.count.includes('23 sources') || initial.overflow) throw new Error(`initial contract failed: ${JSON.stringify(initial)}`);
+  if (!initial.active || initial.treeSections !== 7 || initial.treeGroups !== 1 || initial.nodes !== 3 || initial.evidenceBadges !== 0 || !initial.detail.includes('한 문장 정의') || initial.defaultLibraryCards !== 0 || !initial.libraryTab || initial.hiddenSources < 1 || initial.internalStatusVisible || initial.overflow) throw new Error(`learner-first initial contract failed: ${JSON.stringify(initial)}`);
 
+  await page.locator('#page-principles [data-principles-action="toggle-section"][data-principles-value="ai"]').click();
+  await page.locator('#page-principles [data-principles-action="toggle-group"][data-principles-value="ai-economics-path"]').click();
   await page.locator('#page-principles [data-principles-action="select-node"][data-principles-value="storage"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-principles .principles-detail-title')?.textContent?.length > 0);
+  await page.waitForFunction(() => document.querySelector('#page-principles .principles-detail-title')?.textContent === '스토리지');
   const selected = await page.evaluate(() => ({
     title: document.querySelector('#page-principles .principles-detail-title')?.textContent || '',
-    links: [...document.querySelectorAll('#page-principles .principles-detail-card .principles-evidence-link')].map((node) => node.textContent),
-    analysisText: document.querySelector('#page-principles .principles-analysis-block')?.textContent || '',
-    observations: document.querySelectorAll('#page-principles .principles-analysis-observations li').length
+    guideFields: [...document.querySelectorAll('#page-principles .principles-explainer-label')].map((node) => node.textContent),
+    connections: document.querySelectorAll('#page-principles .principles-connection-button').length,
+    rawInternalText: /REVIEWED_CANDIDATE|REFERENCE_CONNECTED|PS-\d+|TG-C\d+/.test(document.querySelector('#page-principles .principles-detail-card')?.textContent || '')
   }));
-  if (!selected.title || !selected.links.includes('PS-02') || !selected.links.includes('PS-03') || !selected.analysisText.includes('TG-C08') || selected.observations < 1) throw new Error(`selected node analysis failed: ${JSON.stringify(selected)}`);
+  if (!selected.title || selected.guideFields.length < 6 || selected.connections < 1 || selected.rawInternalText) throw new Error(`authored node detail failed: ${JSON.stringify(selected)}`);
+
+  await page.locator('#page-principles .principles-evidence > summary').click();
+  await page.locator('#page-principles .principles-analysis-block > summary').click();
+  const evidenceOpen = await page.evaluate(() => ({
+    links: document.querySelectorAll('#page-principles .principles-detail-card .principles-evidence-link').length,
+    claims: document.querySelectorAll('#page-principles .principles-detail-card .principles-analysis-claim').length,
+    visibleResearchIds: [...document.querySelectorAll('#page-principles .principles-detail-card')].some((node) => /PS-\d+|TG-C\d+/.test(node.textContent || ''))
+  }));
+  if (evidenceOpen.links < 1 || evidenceOpen.claims < 1 || evidenceOpen.visibleResearchIds) throw new Error(`collapsed evidence contract failed: ${JSON.stringify(evidenceOpen)}`);
 
   await page.locator('#page-principles [data-principles-action="mode"][data-principles-value="graph"]').click();
   await page.waitForFunction(() => document.querySelector('#page-principles [data-principles-graph-node-count]')?.dataset.principlesGraphNodeCount);
   const graphOneHop = await page.locator('#page-principles [data-principles-graph-node-count]').getAttribute('data-principles-graph-node-count');
+  const edgeLabels = await page.locator('#page-principles .principles-edge-label').count();
   await page.locator('#page-principles [data-principles-action="depth"][data-principles-value="2"]').click();
   await page.waitForFunction((previous) => document.querySelector('#page-principles [data-principles-graph-node-count]')?.dataset.principlesGraphNodeCount !== previous, graphOneHop);
   const graphTwoHop = await page.locator('#page-principles [data-principles-graph-node-count]').getAttribute('data-principles-graph-node-count');
-  if (graphOneHop === graphTwoHop) throw new Error(`graph hop contract failed: ${graphOneHop} === ${graphTwoHop}`);
+  if (graphOneHop === graphTwoHop || edgeLabels < 1) throw new Error(`graph relation contract failed: ${graphOneHop} === ${graphTwoHop}, labels=${edgeLabels}`);
 
   await page.locator('#page-principles [data-principles-action="mode"][data-principles-value="path"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-principles .principles-path-card .principles-evidence-link').length > 0);
+  await page.waitForFunction(() => document.querySelectorAll('#page-principles .principles-path-card').length === 1);
+  await page.locator('#page-principles [data-principles-action="view"][data-principles-value="library"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('#page-principles [data-principles-lesson-id]').length === 111);
+  const library = await page.evaluate(() => ({
+    chapters: document.querySelectorAll('#page-principles [data-principles-chapter]').length,
+    lessons: document.querySelectorAll('#page-principles [data-principles-lesson-id]').length,
+    chapterColumns: getComputedStyle(document.querySelector('#page-principles .principles-chapter-grid')).gridTemplateColumns,
+    lessonColumns: getComputedStyle(document.querySelector('#page-principles .principles-lesson-library-grid')).gridTemplateColumns
+  }));
+  if (library.chapters !== 15 || library.lessons !== 111) throw new Error(`library contract failed: ${JSON.stringify(library)}`);
+
+  await page.setViewportSize({ width: 480, height: 800 });
+  await page.locator('#page-principles [data-principles-action="mode"][data-principles-value="tree"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('#page-principles .principles-tree-section').length === 7);
+  const mobile = await page.evaluate(() => ({
+    sectionColumns: getComputedStyle(document.querySelector('#page-principles .principles-tree-list')).gridTemplateColumns,
+    sectionColumnCount: getComputedStyle(document.querySelector('#page-principles .principles-tree-list')).gridTemplateColumns.trim().split(/\s+/).length,
+    detailPosition: getComputedStyle(document.querySelector('#page-principles .principles-detail-card')).position,
+    overflow: document.documentElement.scrollWidth > window.innerWidth + 2
+  }));
+  if (mobile.overflow || mobile.sectionColumnCount !== 1 || mobile.detailPosition === 'sticky') throw new Error(`mobile learner flow failed: ${JSON.stringify(mobile)}`);
+
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, route: 'principles', nodes: initial.nodes, evidenceBadges: initial.evidenceBadges, initialEvidenceLinks: initial.evidenceLinks, analysisBlocks: initial.analysisBlocks, analysisClaims: initial.analysisClaims, authoredChapters: initial.authoredChapterCards, authoredLessonCards: initial.authoredLessonCards, selectedNode: selected.title, selectedEvidence: selected.links, selectedAnalysisClaim: 'TG-C08', selectedObservations: selected.observations, graphOneHop: Number(graphOneHop), graphTwoHop: Number(graphTwoHop), pathEvidenceConnected: true, errors }));
+  console.log(JSON.stringify({ ok: true, route: 'principles', initial, selected, evidenceOpen, graphOneHop: Number(graphOneHop), graphTwoHop: Number(graphTwoHop), edgeLabels, library, mobile, errors }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

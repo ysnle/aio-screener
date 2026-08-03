@@ -1,3 +1,18 @@
+## v53.89 (2026-08-03)
+- **Atlas 계층 학습 UX**: 48개 기초 모듈을 6개 학습 층→선택 개념→단일 상세의 3열 데스크톱 흐름으로, 19개 산업 도메인·95개 노드를 도메인→세부 노드→기업·제품의 능동 탐색 흐름으로 재구성했습니다.
+- **AI 시대 심층 분류**: 파운드리·수율·DUV/EUV/High-NA·첨단 패키징·유리기판·광/포토닉스·오픈 생태계·HBM/CXL·AIDC 전력·클라우드 CAPEX/ROIC·World Model·Physical AI·방산/드론·Artemis/재사용 로켓을 10개 주제·50개 하위 가지로 연결했습니다.
+- **Market Principles 연결 정확성**: 선택 노드가 실제 해당 레슨과 학습 경로를 열도록 교정하고, 연결 관계 동사를 노출하며 잘못된 AI 시대/희소성 edge 방향을 바로잡았습니다.
+- **Masters 실사용 결함 수정**: 분기 변화 원장의 `NaN` 행 번호, 투자자 검색 포커스 손실, 버튼 내부 SEC 링크 중첩을 제거하고 데스크톱 글자 크기와 정보 위계를 개선했습니다.
+- **13F 직전 분기 정합성**: Berkshire 2026-03-31 비교 기준을 누락된 2025-12-31로 교정해 110개 원문 행과 다시 대사했습니다. resolver가 결과를 파일에 저장하도록 고치고, 7개 신고주체 모두 실제 인접 분기를 비교하는 계약을 추가했습니다.
+- R1 7곳 v53.89
+
+## v53.88 (2026-08-02)
+- **Learner-first Market Principles**: 기본 화면을 7개 대분류 → 하위 학습 묶음 → 개념 상세 Tree로 재배치하고, 전체 A~O 챕터·111개 레슨은 자료실로 격리했습니다. 60개 노드에 정의·직관·작동 원리·확인 지표·연결·실패 조건을 개별 지식 원고로 연결했습니다.
+- **Lesson authorship gate**: 기존 반복 템플릿 원고를 제목별 정의·작동·사례·반례·검증 질문·도식으로 다시 작성하고, 필드별 111개 고유성 계약을 추가했습니다. 근거·상태·source ID는 기본 지도에서 접힌 영역으로 이동했습니다.
+- **Graph and responsive QA**: 관계 라벨, 실제 1-hop/2-hop 차이, 데스크톱 상세 sticky 흐름과 모바일 1열 흐름을 브라우저 검증에 포함했습니다.
+- **Atlas learner surface**: AI Era Atlas의 기본 진입을 48개 기초 모듈 학습 지도로 변경하고, 산업 분류와 연구 근거 자료실을 별도 탭으로 분리했습니다.
+- R1 7곳 v53.88
+
 ## v53.87 (2026-08-02)
 - **Scion filing availability evidence**: Connected the official SEC submissions JSON check and exposed the explicit “no later 13F-HR reported” state in the Masters page instead of leaving the stale reference unexplained.
 - **Release boundary**: Kept the security-master/sector and live-provider gates fail-closed; no unverified ticker, sector, current quote, or production claim was fabricated.

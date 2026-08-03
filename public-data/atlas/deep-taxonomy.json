@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "ai-era-atlas-deep-taxonomy.v1",
+  "reviewedAt": "2026-08-03",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "boundary": "구조·원리·검증 질문을 설명하는 학습 자료다. 기업별 현재 수치, 비공개 수율, 출하량, 점유율, 목표가 또는 매매 신호가 아니다.",
+  "topics": [
+    {
+      "id": "deep-foundry-generations",
+      "title": "파운드리 공정 세대와 수율",
+      "anchorNodeIds": ["foundry-process-node", "foundry-capacity-yield"],
+      "relation": "공정 이름 → 트랜지스터·배선·설계 규칙 → 양품 Die → 원가·공급능력",
+      "why": "3nm·2nm·18A 같은 이름을 단순한 길이 숫자나 승패표로 읽지 않고, 구조·설계 생태계·수율·양산 시점을 함께 읽기 위한 분기입니다.",
+      "branches": [
+        {"id":"foundry-mature","title":"성숙·특화 공정","summary":"180~28nm 계열은 MCU·Analog·전력·자동차처럼 긴 인증과 안정적인 공정이 중요한 제품을 담당합니다.","mechanism":"감가상각이 진행된 Fab와 성숙한 설계 규칙은 낮은 원가·높은 신뢰성을 만들 수 있지만, 공급 과잉과 지역 자립 투자가 가격을 흔듭니다.","observe":"가동률·Wafer ASP·제품 Mix·자동차 인증·증설 속도","caution":"선단 공정이 아니라는 이유만으로 기술 가치와 전환비용이 낮다고 단정하지 않습니다.","children":["180/130/90nm","65/40/28nm","BCD·RF SOI","Automotive·Power"]},
+        {"id":"foundry-7-5-4","title":"7·5·4nm 계열","summary":"FinFET이 성숙하고 EUV 적용 범위가 늘어난 세대로 Smartphone AP·GPU·CPU·Network ASIC의 핵심 기반입니다.","mechanism":"더 복잡한 Mask·설계·공정 비용과 PPA 개선을 교환하며, 같은 Family 안에서도 Library와 Migration 경로가 다릅니다.","observe":"EUV Layer·Mask 수·설계비·Wafer 가격·HPC/Mobile Mix","caution":"N7·N5·N4 같은 이름은 Foundry 사이에서 직접 등가가 아닙니다.","children":["FinFET","EUV 도입","Family migration","HPC·Mobile library"]},
+        {"id":"foundry-3nm","title":"3nm 계열","summary":"Foundry별로 FinFET 또는 GAA 채택 시점이 다르고, 같은 3nm Family 안에도 성능·전력·원가 목적의 Variant가 존재합니다.","mechanism":"Gate 구조뿐 아니라 Logic Density·SRAM·Interconnect·Library·Yield Learning이 실제 Die 원가와 제품 성능을 결정합니다.","observe":"Base/Enhanced Variant·HVM 시점·Wafer Revenue Mix·Yield Ramp","caution":"공개되지 않은 정확한 수율을 기사나 공급망 추정만으로 확정하지 않습니다.","children":["FinFET/GAA 차이","SRAM Scaling","Mobile ramp","HPC ramp"]},
+        {"id":"foundry-2nm","title":"2nm·GAA 계열","summary":"Nanosheet/GAA는 Gate가 Channel을 더 넓게 감싸 누설과 전압 제어를 개선하려는 구조입니다.","mechanism":"Sheet 폭·Threshold Option·Backside Power·PDK·IP·EDA 인증이 함께 준비돼야 고객 Tape-out과 양산으로 이어집니다.","observe":"N2/N2P/A16·SF2 Family·PDK/IP 준비도·고객 Tape-out","caution":"공정명 숫자 하나만으로 PPA·원가·수율을 비교하지 않습니다.","children":["Nanosheet/GAA","Backside power","PDK·IP","Customer qualification"]},
+        {"id":"foundry-18a","title":"Intel 18A 계열","summary":"RibbonFET GAA와 PowerVia Backside Power를 결합하는 공정 Family로, 내부 제품 Ramp와 외부 Foundry 고객을 분리해 봐야 합니다.","mechanism":"Signal과 Power Routing을 분리해 IR Drop과 배선 제약을 줄이려 하지만 설계·공정·고객 인증이 함께 성숙해야 합니다.","observe":"18A/18A-P/18A-PT·내부 제품·외부 Tape-out·HVM","caution":"18A를 문자 그대로 다른 회사의 1.8nm Gate 길이와 같다고 해석하지 않습니다.","children":["RibbonFET","PowerVia","Internal product","External foundry"]},
+        {"id":"foundry-yield","title":"수율은 하나의 숫자가 아니다","summary":"Defect·Parametric·Functional·Package Yield는 서로 다른 실패 원인을 측정합니다.","mechanism":"Die 면적과 Defect Density, 공정 Window, Speed Binning, Redundancy, Package 조립 수율이 Good Die와 판매 가능한 System 수를 차례로 결정합니다.","observe":"Defect Density·Good Die/Wafer·Parametric Bin·Package Yield·Learning Rate","caution":"Wafer Yield와 최종 Package·System Yield를 섞거나, 출처 없는 정확한 퍼센트를 사용하지 않습니다.","children":["Defect-limited","Parametric","Functional","Redundancy·Repair","Package·System"]}
+      ],
+      "sources":[{"label":"TSMC Technology","url":"https://www.tsmc.com/english/dedicatedFoundry/technology"},{"label":"Intel Foundry Process Technology","url":"https://www.intel.com/content/www/us/en/foundry/process.html"}]
+    },
+    {
+      "id": "deep-lithography-process",
+      "title": "DUV·EUV·High-NA와 반도체 전공정",
+      "anchorNodeIds": ["foundry-equipment", "foundry-process-node", "foundry-materials"],
+      "relation": "빛·Mask·Resist → Pattern → 식각·증착·세정 → 측정·수율",
+      "why": "Scanner 한 대가 칩을 만드는 것이 아니라 광학·재료·Stage·Mask·Etch·Metrology가 결합해 한 Layer를 완성합니다.",
+      "branches": [
+        {"id":"lithography-optics","title":"광학의 출발점","summary":"파장과 Numerical Aperture가 해상도와 초점 심도에 영향을 주며 Resist의 Dose·Focus·확률적 결함이 실제 Pattern을 제한합니다.","mechanism":"더 짧은 파장과 높은 NA는 작은 Pattern에 유리하지만 초점·광학·Mask·공정 Window의 난도를 높입니다.","observe":"Wavelength·NA·Resolution·Depth of Focus·Overlay·CDU","caution":"이론 해상도가 곧 양산 수율이나 처리량은 아닙니다.","children":["Rayleigh 관계","Resist·Dose","Overlay","Critical dimension"]},
+        {"id":"lithography-duv","title":"DUV·Immersion·Multi-patterning","summary":"KrF 248nm, ArF Dry 193nm, ArF Immersion은 서로 다른 Layer와 공정 세대에서 사용됩니다.","mechanism":"Immersion은 Lens와 Wafer 사이 매질로 유효 NA를 높이고, 더 작은 Pattern은 LELE·SADP·SAQP 같은 반복 노광·식각으로 분해합니다.","observe":"Overlay·Mask 수·Cycle Time·Throughput·Cost·Yield","caution":"EUV가 등장해도 DUV는 성숙 공정과 선단 칩의 여러 Layer에서 계속 사용됩니다.","children":["KrF","ArF Dry","ArF Immersion","LELE","SADP·SAQP"]},
+        {"id":"lithography-euv","title":"EUV 13.5nm","summary":"EUV는 공기에 흡수되기 때문에 Vacuum과 Mirror 광학, 반사형 Mask가 필요합니다.","mechanism":"Laser-produced Plasma 광원에서 나온 빛이 여러 Mirror를 지나며 손실되고, 광원 출력·Mask Defect·Pellicle·Resist Stochastic이 처리량과 수율을 함께 제한합니다.","observe":"Source Power·Mirror Loss·Throughput·Availability·Stochastic Defect","caution":"Mask 수를 줄일 가능성과 장비·공정 난도가 동시에 존재합니다.","children":["Plasma source","Collector·Mirror","Vacuum","Reflective mask","Pellicle·Resist"]},
+        {"id":"lithography-high-na","title":"High-NA EUV","summary":"더 높은 NA로 해상도를 개선하지만 Field Size, Anamorphic Optics, 새 Mask·Resist·설계 규칙이 필요합니다.","mechanism":"광학 해상도의 이점이 Scanner 처리량·Stitching·설계 생태계·공정 비용과 교환됩니다.","observe":"NA·Field Size·Throughput·Process Window·Customer Qualification","caution":"장비 설치나 Demo를 특정 공정의 대량 양산과 동일시하지 않습니다.","children":["Anamorphic optics","Half field","New mask","Process integration"]},
+        {"id":"lithography-china","title":"중국 DUV 검증 프레임","summary":"중국 Immersion DUV 관련 주장은 개발·시제품·고객 평가·출하·HVM을 분리해 확인해야 합니다.","mechanism":"Scanner뿐 아니라 Light Source·Lens·Stage·Control·Track·Metrology·Service 공급망이 반복 생산성과 Uptime을 만듭니다.","observe":"Model·Wavelength·NA·Overlay·Resolution·Throughput·Uptime·Shipment","caution":"Telegram·언론의 단일 보도만으로 양산 성공과 지속 가능한 공급을 확정하지 않습니다.","children":["Prototype","Customer evaluation","Shipment","HVM","Service·Spare parts"]},
+        {"id":"wafer-process-flow","title":"전공정 전체 흐름","summary":"Wafer 준비부터 Lithography·Deposition·Etch·Implant·Clean·CMP·FEOL·MOL·BEOL이 반복됩니다.","mechanism":"각 Layer에서 막을 만들고 Pattern을 전사·식각한 뒤 측정과 세정을 반복해 Transistor와 배선을 쌓습니다.","observe":"Throughput·Selectivity·Uniformity·Defect·Tool Matching·Cycle Time","caution":"장비 시장을 노광 하나로만 설명하지 않고 공정 단계와 역할을 분리합니다.","children":["CVD·PVD·ALD","Conductor·Dielectric Etch","Implant·Anneal","Clean·CMP","Inspection·Metrology"]}
+      ],
+      "sources":[{"label":"ASML EUV Technology","url":"https://www.asml.com/en/technology/all-about-euv"},{"label":"ASML Lithography Principles","url":"https://www.asml.com/en/technology/lithography-principles"}]
+    },
+    {
+      "id": "deep-packaging-test",
+      "title": "첨단 패키징·기판·후공정",
+      "anchorNodeIds": ["package-2-5d", "package-3d-stacking", "package-interposer", "package-substrate", "package-glass"],
+      "relation": "Known-good Die → 연결·적층·기판 → 열 제거·검사 → System Yield",
+      "why": "AI 칩의 성능은 개별 Die뿐 아니라 HBM과 Chiplet을 얼마나 짧고 넓게 연결하고, 열과 조립 수율을 관리하는지에 달려 있습니다.",
+      "branches": [
+        {"id":"package-flow","title":"조립·검사 흐름","summary":"Wafer Sort, Grinding, Dicing, Die Attach, Bonding, Encapsulation, Package Test, System-level Test가 이어집니다.","mechanism":"불량 Die를 걸러 조립하고 전기·기계·열 경로를 만든 뒤 Burn-in과 System Test로 신뢰성을 확인합니다.","observe":"Known-good Die·Assembly Yield·Burn-in·Test Escape·Cycle Time","caution":"Wafer 수율만으로 최종 System 출하량을 계산하지 않습니다.","children":["Wafer sort","Dicing","Die attach","Bonding","Burn-in·SLT"]},
+        {"id":"package-2-5d-branch","title":"2.5D·Interposer·Bridge","summary":"Logic Die와 HBM을 Interposer 또는 Bridge 위에서 고밀도로 연결합니다.","mechanism":"짧은 배선과 넓은 Interface는 대역폭을 높이지만 대형 Package·조립·기판·열·검사 복잡도를 키웁니다.","observe":"Bandwidth·Interposer Size·Package Yield·Capacity·Thermal","caution":"Package Capacity와 Foundry Wafer Capacity를 같은 병목으로 보지 않습니다.","children":["Silicon interposer","Bridge","RDL","HBM integration"]},
+        {"id":"package-3d-branch","title":"3D 적층·Hybrid Bonding","summary":"Die를 수직 적층해 연결 거리를 줄이고 집적도를 높이는 방식입니다.","mechanism":"TSV·Micro-bump 또는 Hybrid Bonding이 수직 신호를 만들며, 열·Warp·검사·Repair가 수율을 제한합니다.","observe":"Bond Pitch·Alignment·Thermal Resistance·Stack Yield·Repairability","caution":"Demo 적층 수와 대량 양산 수율을 구분합니다.","children":["TSV","Micro-bump","Hybrid bonding","Thermal path"]},
+        {"id":"package-substrate-branch","title":"Organic·ABF·FC-BGA 기판","summary":"Package와 Board 사이에서 전력·신호·기계적 지지를 담당합니다.","mechanism":"Build-up Layer와 Via·배선 밀도가 Package 크기와 I/O를 수용하며, Warpage·수율·Lead Time이 공급을 제약합니다.","observe":"Layer Count·Line/Space·Warpage·Yield·Lead Time","caution":"기판 면적 증가가 공급자 매출과 동일한 비율로 이어진다고 단정하지 않습니다.","children":["BT","ABF build-up","FC-BGA","Socket·Board"]},
+        {"id":"package-glass-branch","title":"유리기판","summary":"유리는 평탄성·치수 안정성·절연 특성을 활용해 대형·미세 배선 Package를 지원하려는 후보 기술입니다.","mechanism":"Material 장점이 Through-glass Via·Panel Handling·Laser·Metallization·Assembly 생태계와 결합돼야 양산이 가능합니다.","observe":"CTE·Flatness·Via Yield·Panel Size·Equipment Compatibility","caution":"R&D 발표·Sample·Pilot·Volume Production을 명확히 구분합니다.","children":["Glass core","TGV","Panel process","Qualification"]}
+      ],
+      "sources":[{"label":"UCIe Consortium","url":"https://www.uciexpress.org/"},{"label":"TSMC 3DFabric","url":"https://www.tsmc.com/english/dedicatedFoundry/technology/3DFabric"}]
+    },
+    {
+      "id": "deep-photonics",
+      "title": "광통신·Photonics·CPO",
+      "anchorNodeIds": ["network-optical-module", "network-silicon-photonics", "network-cpo", "network-fabric"],
+      "relation": "전기 신호 → Laser·Modulator·광섬유 → Detector·DSP → Switch·AI Cluster",
+      "why": "AI Cluster가 커질수록 계산보다 데이터 이동의 지연·전력·거리 제약이 커져 광학 연결의 역할이 확대됩니다.",
+      "branches": [
+        {"id":"photonics-physics","title":"빛의 물리","summary":"Photon의 파장·주파수, 반사·굴절·전반사·간섭, 손실·분산이 광 Link의 바닥을 만듭니다.","mechanism":"Waveguide와 Fiber는 전반사로 빛을 가두고, Material·Geometry·Wavelength가 Loss와 Dispersion을 바꿉니다.","observe":"Wavelength·Insertion Loss·Dispersion·Signal-to-noise","caution":"광 연결도 전기 변환·열·정렬·패키징 비용을 피할 수 없습니다.","children":["Reflection·Refraction","Total internal reflection","Interference","Loss·Dispersion"]},
+        {"id":"photonics-components","title":"광원·광소자","summary":"VCSEL·DFB·EML·CW Laser가 빛을 만들고 Modulator·Photodetector·Waveguide·Mux가 신호를 처리합니다.","mechanism":"Driver가 전기 데이터를 광 세기·위상으로 변조하고 Fiber를 지난 신호를 Detector와 TIA·DSP가 복원합니다.","observe":"Output Power·Modulation Speed·Responsivity·BER·Temperature","caution":"단일 Component의 성능이 Module Yield와 System 비용을 보장하지 않습니다.","children":["VCSEL·DFB·EML","Modulator","Photodetector","Mux/Demux","Driver·TIA"]},
+        {"id":"photonics-platform","title":"재료·Platform","summary":"Silicon Photonics, InP, Silicon Nitride, Lithium Niobate는 서로 다른 광원·변조·저손실·집적 요구를 해결합니다.","mechanism":"각 Material의 광학·전자 특성과 Foundry Process·Packaging·Test 생태계가 제품성을 결정합니다.","observe":"Loss·Modulation Efficiency·Laser Integration·Wafer Yield·Packaging Cost","caution":"연구 성능과 Foundry 양산 Platform을 분리합니다.","children":["Silicon photonics","Indium phosphide","Silicon nitride","Lithium niobate"]},
+        {"id":"photonics-module","title":"Module과 공급망","summary":"PIC·Laser·DSP·Driver/TIA·Connector·Fiber가 Optical Engine과 Transceiver를 구성합니다.","mechanism":"Lane 속도와 Form Factor가 400G·800G·1.6T Port로 묶이며 Test·열·정렬·Repairability가 원가와 수율을 좌우합니다.","observe":"Lane Rate·Port Speed·Power/bit·Module ASP·Yield·Qualification","caution":"Bandwidth 증가율을 공급자 매출 증가율과 동일시하지 않습니다.","children":["PIC","DSP·SerDes","Optical engine","Transceiver","Connector·Fiber"]},
+        {"id":"photonics-architecture","title":"Pluggable·LPO·CPO·Optical I/O","summary":"광학을 Switch에서 얼마나 가깝게 배치하고 DSP를 어디까지 줄이는지에 따라 전력·Serviceability·열·Yield Trade-off가 달라집니다.","mechanism":"Copper Reach와 Energy/bit 한계가 광학을 Chip 쪽으로 끌어당기지만, 교체·냉각·Laser 공급·검사 문제가 커집니다.","observe":"Reach·Power/bit·Repairability·Thermal·Customer Qualification·Volume Status","caution":"CPO가 모든 Pluggable을 대체한다고 단정하지 않고 Demo·Sampling·Qualification·Volume을 구분합니다.","children":["Pluggable","LPO","CPO","Optical I/O"]}
+      ],
+      "sources":[{"label":"OFC Conference","url":"https://www.ofcconference.org/"},{"label":"IEEE Photonics Society","url":"https://www.photonicssociety.org/"}]
+    },
+    {
+      "id": "deep-open-ai",
+      "title": "Open Source AI·Open Weights·Open 생태계",
+      "anchorNodeIds": ["cloud-ai-service", "policy-cybersecurity", "policy-national-security-risk"],
+      "relation": "공개 범위·License → 배포·수정·검증 가능성 → Cloud·Hardware·Security 경제성",
+      "why": "Weight를 내려받을 수 있다는 사실과 완전한 Open Source AI를 구분하고, 모델·Runtime·Tooling·Hardware Alliance의 목적을 따로 읽습니다.",
+      "branches": [
+        {"id":"open-definition","title":"Open의 층을 분리한다","summary":"Open Source Software, Architecture, Weights, Training Code, Dataset, Evaluation, Runtime, Agent Harness는 서로 다른 공개 층입니다.","mechanism":"License가 사용·연구·수정·재배포·파생모델을 허용하는 범위와 실제 제공되는 Data·Code·Recipe를 함께 봅니다.","observe":"License·Weight Availability·Training Data Information·Code·Redistribution","caution":"Open Weights를 자동으로 OSI 의미의 Open Source AI라고 부르지 않습니다.","children":["Open source software","Open architecture","Open weights","Open data·code","Open runtime·tooling"]},
+        {"id":"open-model-family","title":"Model Family와 Release를 분리한다","summary":"Qwen·DeepSeek·GLM·Kimi·Llama·Gemma·OLMo·Mistral 등 Family 안에서 Base·Instruct·Reasoning·Coding·Multimodal Release가 계속 바뀝니다.","mechanism":"Dense/MoE, Parameter, Context, Tool Use, License, Hardware Compatibility와 Self-hosting TCO를 같은 표에서 비교합니다.","observe":"Active Parameter·Context·License·Reproducibility·API Price·TCO","caution":"Benchmark 한 개와 최신 Release 이름을 Family 전체의 우열로 일반화하지 않습니다.","children":["Base·Instruct","Reasoning·Coding","Dense·MoE","Multimodal·Agent","Release·License"]},
+        {"id":"open-china-strategy","title":"중국 Open Model 전략은 여러 인과가 겹친다","summary":"개발자 배포, Cloud·단말·로봇 보완재, Sovereign 배포, 제한된 Compute 최적화, 다국어 시장, Hardware 공동 최적화가 동시에 작동할 수 있습니다.","mechanism":"Model Weight 공개가 개발자와 Application을 끌어들이고, 그 사용이 Cloud·Accelerator·Memory·Storage·On-prem 수요로 번질 수 있습니다.","observe":"Developer Adoption·License·Local Deployment·Cloud Usage·Hardware Support","caution":"정부 정책·기업 전략·기술 효율을 하나의 이유로 단정하지 않고 각각 공식 문서로 검증합니다.","children":["Distribution","Sovereign deployment","Efficiency·Distillation","Complement demand","Standard influence"]},
+        {"id":"open-economics","title":"Open Model의 경제성","summary":"모델 API 매출이 줄어도 Cloud Compute·Security·Orchestration·Application Margin이 늘 수 있어 가치 포착 위치를 따로 봐야 합니다.","mechanism":"Intelligence per Dollar와 Task 완료 비용, Self-hosting 가동률·운영 인력·보안 비용이 API와 On-prem 선택을 바꿉니다.","observe":"Task Cost·Utilization·Ops Cost·Fine-tuning·RAG·Security·Distribution","caution":"Token 단가만으로 전체 Workflow 비용과 ROIC를 결론내리지 않습니다.","children":["API vs self-host","Commoditize complement","Cloud consumption","Data flywheel","Security·SLA"]},
+        {"id":"open-alliances","title":"Open Alliance의 목적을 구분한다","summary":"AI Alliance는 Open Innovation 전반, Open Secure AI Alliance는 Agent Security Tooling, OCP·UALink·UCIe 등은 Hardware·Interconnect 표준을 다룹니다.","mechanism":"Model·Data·Evaluation·Agent Harness·Identity·Permission·Logging·Chiplet·Network 표준은 서로 다른 층에서 상호운용성과 검증 비용을 낮춥니다.","observe":"Mission·Member Role·Published Project·Governance·License·Release","caution":"여러 Alliance를 하나의 ‘Open Model 연합’으로 합치거나 모든 Frontier 기업이 참여한다고 쓰지 않습니다.","children":["AI Alliance","Open Secure AI Alliance","Linux Foundation","Open Compute Project","UALink·UCIe"]}
+      ],
+      "sources":[{"label":"Open Source AI Definition 1.0","url":"https://opensource.org/ai/open-source-ai-definition"},{"label":"AI Alliance","url":"https://thealliance.ai/"},{"label":"NVIDIA Open Secure AI Alliance · 2026-07-27","url":"https://blogs.nvidia.com/blog/open-secure-ai-alliance/"}]
+    },
+    {
+      "id": "deep-memory-storage",
+      "title": "메모리·HBM·NAND·SSD·CXL",
+      "anchorNodeIds": ["memory-sram", "memory-dram-hbm", "memory-nand", "memory-enterprise-ssd", "memory-cxl"],
+      "relation": "연산기 가까운 Cache → HBM·DRAM → SSD·NAND → 외부 Storage",
+      "why": "AI의 병목은 계산량뿐 아니라 어떤 데이터를 어느 계층에 얼마나 빠르고 싸게 보관·이동하는지에서 발생합니다.",
+      "branches": [
+        {"id":"memory-hierarchy","title":"메모리 계층","summary":"SRAM·Cache는 빠르고 작으며, DRAM·HBM은 Working Data, NAND·SSD는 대용량 지속 저장을 담당합니다.","mechanism":"용량·지연·대역폭·전력·가격의 Trade-off에 따라 데이터가 계층 사이를 이동합니다.","observe":"Latency·Bandwidth·Capacity·Energy/bit·Cost/GB","caution":"모든 AI Workload가 같은 메모리 구성을 요구하지 않습니다.","children":["SRAM·Cache","DDR·LPDDR·GDDR","HBM","NAND·SSD","CXL"]},
+        {"id":"memory-hbm-branch","title":"HBM Stack","summary":"여러 DRAM Die를 TSV로 적층해 Accelerator 가까이에서 넓은 Interface와 높은 대역폭을 제공합니다.","mechanism":"Stack 높이·I/O 폭·Base Die·Package 통합이 Bandwidth와 Capacity를 높이지만 Wafer Productivity·열·조립 수율을 제약합니다.","observe":"Bandwidth·Capacity·Stack Height·Yield·Qualification·Package Capacity","caution":"HBM 세대 발표를 실제 출하량·점유율·고객 인증과 동일시하지 않습니다.","children":["DRAM Die","TSV","Base Die","Stack test","Package integration"]},
+        {"id":"memory-nand-ssd","title":"NAND와 기업용 SSD","summary":"NAND Cell Array·Controller·Firmware·Interface가 Dataset·Checkpoint·RAG Index·KV Cache 저장을 서비스합니다.","mechanism":"병렬 Channel·FTL·Wear Leveling·Error Correction이 Raw NAND를 안정적인 SSD 성능과 내구성으로 바꿉니다.","observe":"IOPS·Latency·Endurance·Capacity·Power·Controller·Qualification","caution":"Inference 증가가 NAND 총수요와 가격을 얼마나 바꾸는지는 Workload와 계층 설계로 재검증합니다.","children":["NAND layer","Controller·FTL","Enterprise SSD","RAG·KV cache","Endurance"]},
+        {"id":"memory-cxl-branch","title":"CXL·Memory Pooling","summary":"CPU·Accelerator와 Memory Device 사이의 Coherent Interface로 용량 확장과 Pooling을 지원합니다.","mechanism":"로컬 Memory보다 느리지만 자원 분리·공유로 가동률과 Capacity 활용을 개선할 수 있습니다.","observe":"Latency·Bandwidth·Coherency·Pool Utilization·Software Support","caution":"표준 지원과 실제 Application 성능·운영 채택을 구분합니다.","children":["CXL.io","CXL.cache","CXL.mem","Memory expander","Pooling"]},
+        {"id":"memory-economics","title":"Memory Cycle과 계약","summary":"Bit Growth·ASP·Inventory·Wafer Input·Node Migration·Yield·CAPEX·LTA가 공급과 가격 주기를 만듭니다.","mechanism":"수요 전망과 긴 Fab Lead Time이 투자·재고·가격 변동을 만들며 HBM Mix는 Wafer Productivity와 Capacity Allocation을 바꿉니다.","observe":"Contract/Spot·Inventory Days·Utilization·CAPEX·LTA·Prepayment","caution":"LTA가 Volume만인지 Price Floor·Prepayment·기술협력까지 포함하는지 계약 구조를 확인합니다.","children":["Bit growth","ASP·Inventory","Wafer input","Capacity allocation","LTA·Prepayment"]}
+      ],
+      "sources":[{"label":"JEDEC","url":"https://www.jedec.org/"},{"label":"SNIA","url":"https://www.snia.org/"}]
+    },
+    {
+      "id": "deep-aidc-power",
+      "title": "AIDC·냉각·전력망·계약",
+      "anchorNodeIds": ["aidc-rack-density", "aidc-liquid-cooling", "aidc-thermal-design", "aidc-pue", "power-it-load", "power-generation", "power-transmission", "power-interconnection", "power-transformer"],
+      "relation": "Workload → IT 부하·열 → 시설·냉각 → 송전·접속·발전 → 가동 가능한 Capacity",
+      "why": "서버 주문량이 아니라 실제 전력·냉각·허가·계통 접속이 AI 데이터센터의 가동 시점과 경제성을 결정합니다.",
+      "branches": [
+        {"id":"aidc-demand","title":"IT 부하와 열","summary":"Accelerator Utilization과 Rack Density가 전력 수요와 열 발생, Cooling Load를 만듭니다.","mechanism":"칩 전력은 계산과 Data Movement 뒤 열이 되고, Cold Plate·Loop·Heat Exchanger를 거쳐 시설 밖으로 배출됩니다.","observe":"kW/Rack·Peak/Average Load·Cooling Capacity·Junction Temperature","caution":"Installed Server 수와 Service 가능한 IT Capacity를 구분합니다.","children":["Accelerator load","Rack density","Liquid cooling","Load profile"]},
+        {"id":"aidc-grid","title":"전력망 접속","summary":"Interconnection Study, 송전선·변전소, Transformer·Switchgear가 발전 전력을 데이터센터까지 전달합니다.","mechanism":"계약 전력이 있어도 접속선·변전·보호 설비·허가가 준비되지 않으면 IT Load를 가동할 수 없습니다.","observe":"MW·Queue·Study·Substation·Transformer Lead Time·Reliability","caution":"발전 용량과 실제 접속 가능한 전력을 같은 숫자로 사용하지 않습니다.","children":["Interconnection study","Transmission","Substation","Transformer·Switchgear"]},
+        {"id":"aidc-supply","title":"발전원과 On-site 공급","summary":"Grid Mix, Gas Turbine, Nuclear·SMR, Renewable·Storage, Geothermal, Fuel Cell, Microgrid는 서로 다른 시간·신뢰도·허가 특성을 가집니다.","mechanism":"부하 특성과 지역 계통이 Base·Peak·Backup 전원의 조합과 계약 구조를 결정합니다.","observe":"Capacity Factor·Dispatchability·LCOE·Construction Time·Fuel·Emissions","caution":"발표된 발전 프로젝트를 데이터센터의 확정 가동전력으로 간주하지 않습니다.","children":["Gas·Turbine","Nuclear·SMR","Renewable·Storage","Geothermal·Fuel cell","Microgrid"]},
+        {"id":"aidc-contract","title":"전력 계약과 요금","summary":"PPA·Utility Service Agreement·Behind-the-meter·Demand Response가 가격·기간·공급 책임을 나눕니다.","mechanism":"장기 계약은 가격과 공급 가시성을 높일 수 있지만 Capacity Charge·Curtailment·Credit·Grid 비용이 남습니다.","observe":"Term·MW·Tariff·Capacity Charge·Credit Support·Curtailment","caution":"계약 체결과 전력 인도·시설 가동 시점을 분리합니다.","children":["PPA","Utility agreement","Behind-the-meter","Demand response"]},
+        {"id":"aidc-constraints","title":"허가·물·배출·지역사회·금융","summary":"Permit, Water, Emissions, Gas Pipeline, Community, Equipment Lead Time과 Financing이 실제 건설 속도를 제한합니다.","mechanism":"물리적 프로젝트는 부지·인허가·조달·건설·자금조달을 동시에 통과해야 합니다.","observe":"Permit Status·Water·Pipeline·Community·CAPEX·Lease·Cost of Capital","caution":"수요 전망만으로 완공·가동·ROIC를 결론내리지 않습니다.","children":["Permit","Water·Emissions","Gas pipeline","Community","Financing"]}
+      ],
+      "sources":[{"label":"U.S. DOE Data Centers","url":"https://www.energy.gov/articles/energy-department-releases-new-report-economics-data-centers"},{"label":"IEA Electricity","url":"https://www.iea.org/reports/electricity-2025"}]
+    },
+    {
+      "id": "deep-cloud-neocloud",
+      "title": "Big Tech Cloud·Neocloud·AI CAPEX",
+      "anchorNodeIds": ["cloud-hyperscaler", "cloud-ai-service", "cloud-utilization", "cloud-commitments", "neocloud-gpu-rental", "neocloud-capacity-reservation", "neocloud-lease-burden", "neocloud-rental-yield"],
+      "relation": "서비스 수요 → Workload → GPU·AIDC 자산 → 계약·가동률 → 매출·FCF·ROIC",
+      "why": "Cloud 매출과 AI 인프라 투자를 연결하되, 주문·예약·사용량·감가상각·리스·현금 회수를 서로 다른 층으로 봅니다.",
+      "branches": [
+        {"id":"cloud-stack","title":"Cloud Service Stack","summary":"IaaS·PaaS·Managed AI·Model API·Data·Security가 고객 Workflow를 공용 인프라 위에 올립니다.","mechanism":"공유 Compute·Storage·Network와 Software Control Plane이 사용량·예약·Subscription으로 과금됩니다.","observe":"Workload Mix·Usage·RPO·Gross Margin·Retention·Service Attachment","caution":"Cloud 성장률 전체를 AI 매출로 해석하지 않습니다.","children":["IaaS","Managed AI","Model API","Data·Security","Application"]},
+        {"id":"cloud-capex","title":"AI CAPEX와 감가상각","summary":"Server·Network·Data Center·Power 투자와 내용연수가 비용·현금흐름에 서로 다른 시차로 반영됩니다.","mechanism":"CAPEX가 먼저 현금 유출되고 자산이 가동되며, 감가상각은 기간에 나뉘어 이익을 줄이고 교체 주기가 재투자를 만듭니다.","observe":"CAPEX·CIP·Depreciation·Useful Life·Asset Turnover·FCF","caution":"감가상각이 비현금 비용이라는 이유로 경제적 교체 비용을 무시하지 않습니다.","children":["Server","Network","Facility","Power commitment","Useful life"]},
+        {"id":"neocloud-economics","title":"Neocloud 자산 경제성","summary":"GPU를 소유·리스해 시간 또는 예약 단위로 제공하므로 가동률과 금융비용이 핵심입니다.","mechanism":"GPU 임대 단가와 Utilization이 자산 수익을 만들고 Lease·Debt·Power·Hosting·Residual Value가 비용을 만듭니다.","observe":"GPU-hour Price·Utilization·Customer Concentration·Lease·Debt·Payback","caution":"예약 계약을 확정 매출·실사용·현금 회수와 구분합니다.","children":["GPU rental","Capacity reservation","Hosting","Lease·Debt","Residual value"]},
+        {"id":"cloud-roic","title":"ROIC와 반대 시나리오","summary":"수요·가격·가동률·마진·내용연수·자본비용을 연결해 투자 회수가 성립하는지 봅니다.","mechanism":"강한 수요가 있어도 가격 하락, 유휴 Capacity, 빠른 세대 교체, 높은 자금비용이 Return을 낮출 수 있습니다.","observe":"NOPAT·Invested Capital·FCF·Utilization·Price·WACC","caution":"매출 성장과 자본수익률을 같은 것으로 보지 않습니다.","children":["Demand","Price","Utilization","Depreciation","Cost of capital"]}
+      ],
+      "sources":[{"label":"SEC EDGAR","url":"https://www.sec.gov/edgar/search-and-access"}]
+    },
+    {
+      "id": "deep-physical-ai",
+      "title": "On-device AI·Physical AI·World Model",
+      "anchorNodeIds": ["edge-soc-npu", "physical-ai-sensing", "physical-ai-control", "physical-ai-digital-twin", "physical-ai-perception", "physical-ai-world-model", "physical-ai-planning", "physical-ai-actuation", "physical-ai-unit-economics"],
+      "relation": "환경 → Sensor·상태 추정 → World Model·계획 → Actuator → Feedback·사람 검토",
+      "why": "텍스트 모델과 달리 Physical AI는 현실의 시간·공간·마찰·안전·고장 비용 속에서 행동하고 다시 관찰해야 합니다.",
+      "branches": [
+        {"id":"physical-loop","title":"인지→계획→행동 Loop","summary":"Sensor Fusion이 상태를 추정하고, Model이 미래를 예측하며, Planner와 Controller가 행동을 만들어 Feedback으로 보정합니다.","mechanism":"관측의 불확실성과 지연이 계획으로 전파되고 Actuator의 물리 한계와 Safety Gate가 가능한 행동을 제한합니다.","observe":"Perception Error·Latency·Task Success·Intervention·Safety Stop","caution":"인상적인 Demo를 열린 환경의 장기 신뢰성과 동일시하지 않습니다.","children":["Sensor fusion","State estimation","Planning","Control","Feedback"]},
+        {"id":"world-model","title":"World Model","summary":"State, Action, Dynamics를 학습해 행동에 따른 환경 변화를 예측하고 실제 시행착오 전에 Rollout을 시험합니다.","mechanism":"관측에서 압축된 상태를 만들고 Action 조건부 미래를 예측해 Planning과 Control의 후보를 평가합니다.","observe":"Prediction Error·Horizon·Sim-to-real Gap·Uncertainty·Rollout Cost","caution":"언어모델의 다음 Token 예측과 물리적 World Model을 같은 것으로 단순화하지 않습니다.","children":["State","Action","Dynamics","Rollout","Planning"]},
+        {"id":"edge-ai","title":"온디바이스 AI","summary":"NPU·Memory·Battery·Thermal Envelope 안에서 낮은 지연·Privacy·Offline 동작을 제공합니다.","mechanism":"Quantization·Pruning·Compiler·Memory Planning이 Model을 기기 자원에 맞추며 Cloud와 Hybrid Routing할 수 있습니다.","observe":"Latency·Power·Memory·Accuracy·Update·Privacy","caution":"TOPS 하나로 실제 Model 처리량과 제품 경험을 판단하지 않습니다.","children":["NPU","Quantization","Memory bandwidth","Battery·Thermal","Hybrid cloud"]},
+        {"id":"physical-economics","title":"배포·안전·단위경제성","summary":"한 대의 장비가 만드는 작업 가치와 Hardware·Service·Downtime·현장 통합·책임 비용을 비교합니다.","mechanism":"가동률과 작업 성공률이 시간당 가치를 만들고 고장·개입·정비·보험이 실제 회수기간을 늘립니다.","observe":"Task/Hour·Uptime·Intervention·MTBF·Service Cost·Payback","caution":"Prototype 가격과 반복 가능한 생산·서비스 Margin을 구분합니다.","children":["Deployment","Safety case","Maintenance","Human review","Payback"]}
+      ],
+      "sources":[{"label":"NIST Robotics","url":"https://www.nist.gov/topics/robotics"}]
+    },
+    {
+      "id": "deep-defense-space",
+      "title": "드론·방산·우주·재사용 시스템",
+      "anchorNodeIds": ["defense-kill-chain", "defense-c2-isr-ew", "defense-autonomy", "defense-drone-production", "defense-procurement-economics", "space-rocket-physics", "space-reusability", "space-satellite-economics", "space-artemis-architecture", "space-aircraft-supply-chain"],
+      "relation": "임무 → Platform·Payload → 통신·자율성 → 생산·조달·지속운영 → 고객 가치",
+      "why": "개별 Drone·Rocket의 성능보다 전체 임무 체계, 반복 생산, 정비, 계약과 운용 주기를 함께 읽습니다.",
+      "branches": [
+        {"id":"defense-mission","title":"방산 임무 사슬","summary":"탐지·식별·결정·행동·평가를 Sensor·C2·ISR·EW·Datalink가 연결합니다.","mechanism":"정보 지연·재밍·통신 단절과 사람의 승인 규칙이 개별 Platform의 성능을 실제 임무 효과로 변환하거나 제한합니다.","observe":"Detection Latency·Identification·Datalink·EW Resilience·Decision Time","caution":"Platform 제원만으로 전체 Kill Chain의 임무 성공을 결론내리지 않습니다.","children":["Mission","Sensor·Payload","C2·ISR","EW·Datalink","Effector"]},
+        {"id":"defense-production","title":"생산·소모·조달 경제성","summary":"월 생산량·부품 공통화·수리·재보급·예산·시험·계약이 지속 가능한 전력을 만듭니다.","mechanism":"소모율과 고장률이 재보급 수요를 만들고 Qualification·Budget·Contract가 수주를 반복 매출로 전환합니다.","observe":"Production Rate·Unit Cost·Attrition·Backlog·Contract·Sustainment","caution":"시연·수주 발표·Backlog·매출 인식 시점을 분리합니다.","children":["Production capacity","Attrition","Maintenance","Procurement","Sustainment"]},
+        {"id":"space-stack","title":"우주 임무 Stack","summary":"Mission·Orbit·Launch Vehicle·Propulsion·Payload·Satellite·Ground Segment·Customer가 하나의 서비스 사슬을 만듭니다.","mechanism":"Rocket Equation과 Stage 설계가 Payload를 궤도에 올리고, 위성 수명·지상국·데이터 계약이 발사 이후의 경제성을 만듭니다.","observe":"Payload·Orbit·Launch Success·Satellite Life·Ground Capacity·Contract","caution":"발사 성공과 위성 서비스의 반복 매출을 구분합니다.","children":["Mission·Orbit","Launch vehicle","Propulsion·Stage","Satellite·Payload","Ground segment"]},
+        {"id":"space-reuse","title":"로켓 재사용","summary":"Booster·Stage를 회수·점검·재비행해 Hardware 비용과 생산 병목을 줄이려는 운영 모델입니다.","mechanism":"회수 성공보다 Refurbishment·Inspection·Turnaround·재비행 신뢰성·Launch Cadence가 실제 비용 절감을 결정합니다.","observe":"Recovery·Turnaround·Flights/Booster·Refurbishment·Cadence·Insurance","caution":"재사용 가능 여부와 비행당 원가·가격·Margin을 동일시하지 않습니다.","children":["Recovery","Inspection","Refurbishment","Turnaround","Flight cadence"]},
+        {"id":"artemis","title":"Artemis 프로그램 구조","summary":"NASA·국제 파트너·발사체·Orion·Gateway·Lander·Surface System이 여러 계약과 Mission으로 연결됩니다.","mechanism":"정부 Program의 예산·Milestone·안전 인증·계약 역할이 Hardware 개발과 Mission 일정을 조정합니다.","observe":"Program Budget·Milestone·Contract Type·Launch Window·Partner Role","caution":"Program 목표, 계약 수주, 실제 Mission 완료와 기업 매출 인식을 분리합니다.","children":["SLS·Orion","Gateway","Human landing system","Surface systems","International partners"]}
+      ],
+      "sources":[{"label":"U.S. DoD Technology","url":"https://www.defense.gov/Topics/Technology/"},{"label":"NASA Artemis","url":"https://www.nasa.gov/humans-in-space/artemis/"}]
+    }
+  ]
+}

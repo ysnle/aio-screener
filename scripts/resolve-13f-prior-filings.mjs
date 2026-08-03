@@ -3,7 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const filings = JSON.parse(await fs.readFile(path.join(root, 'public-data', 'masters', 'filings.json'), 'utf8'));
+const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
+const filings = JSON.parse(await fs.readFile(filingsPath, 'utf8'));
 const userAgent = 'AIO Screener research contact research@example.com';
 
 async function fetchJson(url) {
@@ -25,7 +26,7 @@ function selectPrior(recent, current) {
     filedAt: recent.filingDate[index],
     periodOfReport: recent.reportDate[index],
     primaryDocument: recent.primaryDocument[index]
-  })).filter((row) => row.form === '13F-HR' && row.periodOfReport && row.accession !== current.accession);
+  })).filter((row) => /^13F-HR(?:\/A)?$/.test(row.form) && row.periodOfReport && row.accession !== current.accession);
   const priorPeriod = rows.map((row) => row.periodOfReport).filter((period) => period < current.periodOfReport).sort().at(-1);
   return rows.find((row) => row.periodOfReport === priorPeriod) || null;
 }
@@ -73,4 +74,19 @@ for (const manager of filings.managers.filter((item) => item.latestFiling?.cik |
     } : null
   });
 }
-process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
+
+const resolvedById = new Map(output.map((row) => [row.id, row.priorFiling]));
+const result = {
+  ...filings,
+  reviewedAt: new Date().toISOString().slice(0, 10),
+  managers: filings.managers.map((manager) => resolvedById.has(manager.id)
+    ? { ...manager, priorFiling: resolvedById.get(manager.id) }
+    : manager)
+};
+await fs.writeFile(filingsPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+console.log(JSON.stringify({
+  ok: true,
+  output: 'public-data/masters/filings.json',
+  resolvedManagers: output.filter((row) => row.priorFiling).length,
+  periods: Object.fromEntries(output.map((row) => [row.id, row.priorFiling?.periodOfReport || null]))
+}));

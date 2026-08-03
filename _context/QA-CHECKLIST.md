@@ -1,9 +1,9 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P845 static implementation record
-last_verified: 2026-08-02
+verified_by: agent (Fable 5) + Codex P761-P892 verification
+last_verified: 2026-08-03
 confidence: high
 
-## Current architecture checkpoint (2026-08-02, v53.87)
+## Current architecture checkpoint (2026-08-03, v53.89)
 
 Native lifecycle and renderer ownership are wired for 17/17 routes.  P833 moves the
 route data provider boundary to `src/data/runtime-readers.js` (17/17 data-native),
@@ -16,11 +16,11 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.87
-latest_P_covered: P890
-current_P839_checkpoint: P890 authored reference-layer closure plus SEC-evidenced Scion latest-filing availability and weekend market-closed freshness grace; official currentness/security-master and live provider/Worker/model/edge verification stay separate
+checklist_version: v53.89
+latest_P_covered: P892
+current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjacent-quarter/runtime closure plus P890 SEC-evidenced Scion latest-filing availability; official currentness/security-master and live provider/Worker/model/edge verification stay separate
 
-## Coverage expansion checkpoint: six source documents (v53.87)
+## Coverage expansion checkpoint: six source documents (v53.89)
 
 - [x] QA-MP4: Market Principles expanded to 60 canonical nodes/71 edges/8 paths with the economic spine from scarcity through power, adjacent industries, Korea market links, AI infrastructure, physical AI, defense, space, enterprise AI, materials, adjacent compute, and capital/risk verification.
 - [x] QA-AT3: All 95 Atlas taxonomy nodes now have user-facing definition, chain, role, KPI, and failure/boundary copy; no taxonomy node falls back to title-only display.
@@ -35,11 +35,15 @@ current_P839_checkpoint: P890 authored reference-layer closure plus SEC-evidence
 - [x] QA-MF4: 1,102 unique CUSIP and 1,122 issuer-name normalization queue is recorded in a connected fail-closed security-master artifact; verified issuer/ticker/share-class/sector mapping is still absent and sector weights remain intentionally undisclosed.
 - [x] QA-DATA1: Weekend freshness grace is fail-closed: it requires complete Tier-0 coverage, `QG-01_PASS`, and no snapshot errors; the official refresh failure preserves the last-known-good artifact.
 - [x] QA-MF5: Scion's `STALE_REFERENCE` state is explained by a dated SEC submissions JSON availability check (`NO_LATER_13F_HR_REPORTED`) and is visible in the Masters detail view; it is not promoted to current.
+- [x] QA-MP6: Market Principles now defaults to a seven-branch Tree with nested learning groups; 60 node guides and 111 A~O lessons are individually authored, the full library is isolated in 자료실, research IDs/statuses are collapsed, and browser QA verifies 1-hop/2-hop 16→18, relation labels, 1440px and 480px flows.
+- [x] QA-AT7: AI Atlas now defaults to a user-facing 48-module 학습 지도; taxonomy and 근거 자료실 remain separate tabs, and Foundations source IDs/status details are collapsed behind 근거 및 더 읽기.
+- [x] QA-AT8: Atlas foundations and industry taxonomy use a broad→narrow master-detail flow; 10 deep AI-era topics, 50 nested branches, and 56 canonical node anchors are contract-validated while only one detail/branch is open by default.
+- [x] QA-MF6: Masters renders finite row numbers, has no link nested inside manager buttons, preserves focus during multi-character search, and compares every connected 13F manager with the actual adjacent history period.
 
 ## Midpoint QA handoff closure: Market Principles / Masters / Atlas (v53.78)
 
 - [x] QA-MF1: Berkshire latest filing is SEC accession `0001193125-26-226661`, report period `2026-03-31`, filed `2026-05-15`; latest/prior accession and period ordering are gated.
-- [x] QA-MF2: 1,248 full SEC rows and 1,377 prior-period comparison rows are published as separate `allHoldings`/`comparisons` artifacts; 68 compact rows remain the default display.
+- [x] QA-MF2: 1,248 full SEC rows and 1,375 adjacent-prior-period comparison rows are published as separate `allHoldings`/`comparisons` artifacts; 68 compact rows remain the default display.
 - [x] QA-MF3: Masters tabs are functional: top changes, paginated full holdings, explicit sector-master preparation state, two-period trend, and original SEC filing links. Exited comparison filtering is browser-tested.
 - [x] QA-MP1: Principles 1-hop/2-hop render different selected subgraphs; the Chromium gate observed 3 vs 7 nodes.
 - [x] QA-MP2: Principles evidence and analysis links meet the 24px mobile target, focus-visible styling, and 20-route accessibility matrix with zero small targets.

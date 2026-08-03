@@ -1,6 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 
-const REVIEWED_AT = '2026-08-02';
+const REVIEWED_AT = '2026-08-03';
 const FILINGS_URL = './public-data/masters/filings.json';
 const HOLDINGS_URL = './public-data/masters/holdings.json';
 const SECURITY_MASTER_URL = './public-data/masters/security-master.json';
@@ -83,14 +83,18 @@ function matches(manager, query) {
   return [manager.name, manager.filer, manager.style, manager.type, manager.status].join(' ').toLowerCase().includes(query);
 }
 
-function createManagerCard(documentRef, manager, selected, statusOverride = manager.status, freshnessStatus = null) {
+function createManagerCard(documentRef, manager, selected, statusOverride = manager.status, freshnessStatus = null, reportPeriod = null) {
   const card = button(documentRef, `masters-manager-card${selected ? ' is-selected' : ''}`, '', 'select-manager', manager.id);
   card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  card.setAttribute('aria-label', `${manager.name} ${reportPeriod ? `${reportPeriod} 13F` : statusLabel(statusOverride)} 보기`);
+  const stateText = manager.type === 'METHOD_ONLY'
+    ? '투자 방법론'
+    : `${reportPeriod || '공시 연결 중'}${freshnessStatus === 'STALE_REFERENCE' ? ' · 최신 제출 공백' : ' · 13F'}`;
   card.append(
     element(documentRef, 'strong', 'masters-manager-name', manager.name),
     element(documentRef, 'span', 'masters-manager-filer', manager.filer),
     element(documentRef, 'span', 'masters-manager-style', manager.style),
-    sourceBadge(documentRef, manager, statusOverride, freshnessStatus)
+    element(documentRef, 'span', `masters-manager-state${freshnessStatus === 'STALE_REFERENCE' ? ' is-stale' : ''}`, stateText)
   );
   return card;
 }
@@ -146,7 +150,7 @@ function createTable(documentRef, headers, rows, rowBuilder, className = 'master
   headers.forEach((label) => headerRow.appendChild(element(documentRef, 'th', '', label)));
   head.appendChild(headerRow);
   const body = element(documentRef, 'tbody', '');
-  rows.forEach((row) => body.appendChild(rowBuilder(row)));
+  rows.forEach((row, index) => body.appendChild(rowBuilder(row, index)));
   table.append(head, body);
   return table;
 }
@@ -456,7 +460,15 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         input.placeholder = '이름·신고주체·스타일 검색';
         input.value = state.query;
         input.setAttribute('aria-label', '투자자 검색');
-        input.addEventListener('input', (event) => { state.query = String(event.target.value || '').trim().toLowerCase(); render(); });
+        input.addEventListener('input', (event) => {
+          state.query = String(event.target.value || '').trim().toLowerCase();
+          render();
+          queueMicrotask(() => {
+            const nextInput = page.querySelector('.masters-search-input');
+            nextInput?.focus({ preventScroll: true });
+            nextInput?.setSelectionRange(nextInput.value.length, nextInput.value.length);
+          });
+        });
         searchLabel.appendChild(input);
         toolbar.append(filters, searchLabel);
         const matchesList = MASTER_REGISTRY.filter((manager) => (state.filter === 'ALL' || manager.type === state.filter) && matches(manager, state.query));
@@ -465,7 +477,14 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         matchesList.forEach((manager) => {
           const filingMeta = state.filings?.managers?.find((item) => item.id === manager.id);
           const holdingMeta = state.holdings?.managers?.find((item) => item.id === manager.id);
-          list.appendChild(createManagerCard(documentRef, manager, manager.id === state.selectedId, holdingMeta?.status || filingMeta?.status || manager.status, holdingMeta?.freshnessStatus || filingMeta?.freshnessStatus));
+          list.appendChild(createManagerCard(
+            documentRef,
+            manager,
+            manager.id === state.selectedId,
+            holdingMeta?.status || filingMeta?.status || manager.status,
+            holdingMeta?.freshnessStatus || filingMeta?.freshnessStatus,
+            holdingMeta?.verification?.reportPeriod || filingMeta?.latestFiling?.periodOfReport || null
+          ));
         });
         if (!matchesList.length) list.appendChild(element(documentRef, 'div', 'masters-empty-state', '조건에 맞는 프로필이 없습니다.'));
         const selected = MASTER_REGISTRY.find((manager) => manager.id === state.selectedId) || matchesList[0] || MASTER_REGISTRY[0];
@@ -512,6 +531,11 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         state.holdingsQuery = String(target.value || '').trim().toLowerCase();
         state.page = 1;
         render();
+        queueMicrotask(() => {
+          const nextInput = page.querySelector('.masters-holdings-search');
+          nextInput?.focus({ preventScroll: true });
+          nextInput?.setSelectionRange(nextInput.value.length, nextInput.value.length);
+        });
       };
       page.addEventListener('click', onClick);
       page.addEventListener('input', onInput);

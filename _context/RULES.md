@@ -1,8 +1,8 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P888 verification
-last_verified: 2026-08-02
+verified_by: agent (Fable 5) + Codex P761-P892 verification
+last_verified: 2026-08-03
 confidence: high
-target_version: v53.87
+target_version: v53.89
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -1888,3 +1888,15 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: `STALE_REFERENCE` 13F는 공시 원문이 오래된 것인지 SEC에 더 최신 분기가 없는 것인지 독립적으로 확인해야 한다. SEC submissions feed의 최신 제출 시점·검증일·source URL·결과를 연결하고, 그 결과를 최신 보유 데이터로 승격하지 않는다. 확인 결과는 사용자에게 표시해 `current`로 오인되지 않게 한다.
 
 **Validation**: `ci-masters-contract-check.mjs`가 Scion의 `NO_LATER_13F_HR_REPORTED` 결과와 SEC submissions JSON URL을 검증하고, `ci-masters-browser-check.mjs`가 Masters 상세 availability note를 검증한다.
+
+## R438. 학습 지도는 의미 단위별 원고와 기본 공개 흐름을 함께 검증한다 (v53.88, P891)
+
+**Rule**: 교육용 지식 그래프는 카드 수나 구조 계약만으로 완료된 것으로 간주하지 않는다. 기본 화면은 대분류→하위 묶음→개념의 학습 순서를 먼저 보여야 하며, 선택한 개념에는 정의·중요성·작동 원리·확인할 지표·앞뒤 연결·실패 조건의 개별 원고가 있어야 한다. 전체 원고·source ID·검토 상태는 기본 지도와 분리된 자료실 또는 접힌 근거 영역에 둔다. 레슨 라이브러리의 정의·작동·사례·반례·검증 질문·도식은 제목별로 고유해야 한다.
+
+**Validation**: `ci-principles-contract-check.mjs`는 60개 node guide와 111개 레슨의 필수 필드·필드별 고유성을 검사하고, `ci-principles-browser-check.mjs`는 기본 7개 Tree 분류·하위 그룹·자료실 분리·개념 상세·관계 라벨·실제 1/2-hop·데스크톱/모바일 흐름을 검사한다. `ci-atlas-browser-check.mjs`는 AI Atlas의 기본 학습 지도와 접힌 근거 영역을 검사한다.
+
+## R439. 분기 비교는 실제 인접 공시와 유한한 사용자 표면을 함께 검증한다 (v53.89, P892)
+
+**Rule**: 13F의 이전 보고분기는 단순히 최신 분기보다 과거이기만 해서는 안 되며, 연결된 filing history에서 확인되는 실제 직전 보고분기여야 한다. resolver는 결과를 stdout에만 남기지 않고 canonical filing artifact에 원자적으로 반영해야 한다. 표 renderer는 row index를 포함한 builder 계약을 보존하고, 버튼 안에 링크를 중첩하거나 입력 rerender로 검색 포커스를 잃게 해서는 안 된다.
+
+**Validation**: `ci-masters-contract-check.mjs`가 7개 신고주체의 인접 분기를 history index에서 재계산하고 index/holdings 비교 건수를 대사한다. `ci-masters-browser-check.mjs`는 변화 원장 `NaN=0`, manager button 내부 link=0, Berkshire 2025-12-31 비교, 다문자 검색 포커스 유지와 데스크톱 overflow 0을 검사한다.
