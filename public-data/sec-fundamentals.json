@@ -1,139 +1,134 @@
 {
  "schemaVersion": "1.0",
- "generatedAt": "2026-08-09T13:28:25.292Z",
+ "generatedAt": "2026-08-09T19:09:07.896Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v1",
  "eligible": 657,
- "stored": 539,
+ "stored": 540,
  "attempted": 24,
- "updated": 0,
+ "updated": 1,
  "failures": [
   {
-   "symbol": "AMP",
+   "symbol": "CM",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "AMX",
+   "symbol": "CMI",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "ARE",
+   "symbol": "CNI",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "ARGX",
+   "symbol": "CNQ",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "ASML",
+   "symbol": "CP",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "ASX",
+   "symbol": "CPAY",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "AU",
+   "symbol": "CRWD",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "AZN",
+   "symbol": "DB",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "B",
+   "symbol": "DEO",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BBVA",
-   "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "symbol": "DIA",
+   "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001041130.json HTTP 404",
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BCS",
+   "symbol": "DOW",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BHP",
+   "symbol": "DUK",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BIRD",
+   "symbol": "E",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BKNG",
+   "symbol": "EA",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BMO",
+   "symbol": "ENB",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BN",
+   "symbol": "EQNR",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BNS",
+   "symbol": "FCX",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BP",
+   "symbol": "FER",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BSX",
+   "symbol": "FITB",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BTI",
+   "symbol": "FNV",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "BUD",
+   "symbol": "GFI",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "CCEP",
+   "symbol": "GFS",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   },
   {
-   "symbol": "CCJ",
+   "symbol": "GLD",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
-  },
-  {
-   "symbol": "CINF",
-   "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-09T13:28:10.313Z"
+   "attemptedAt": "2026-08-09T19:08:59.601Z"
   }
  ],
  "batchLimit": 24,
- "nextRefreshCandidates": 118,
+ "nextRefreshCandidates": 117,
  "data": {
   "A": {
    "symbol": "A",
@@ -15388,6 +15383,34 @@
    "revGrowth": 2.3,
    "margin": 28.2,
    "roe": 80.2
+  },
+  "DINO": {
+   "symbol": "DINO",
+   "cik": "0001915657",
+   "entityName": "HF SINCLAIR CORPORATION",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "official-regulator",
+   "model": "sec-fy-normalized-v1",
+   "periodType": "FY",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-27",
+   "fetchedAt": "2026-08-09T19:09:03.884Z",
+   "form": "10-K",
+   "accession": "0001915657-26-000016",
+   "revenue": 26869000000,
+   "netIncome": 579000000,
+   "equity": 9249000000,
+   "sharesOutstanding": 180273187,
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "revGrowth": -6,
+   "margin": 2.2,
+   "roe": 6.3
   }
  }
 }
