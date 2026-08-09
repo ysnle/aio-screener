@@ -1,15 +1,15 @@
 {
   "schemaVersion": "operations-status-v1",
-  "generatedAt": "2026-08-09T15:46:59.364Z",
+  "generatedAt": "2026-08-09T16:15:25.710Z",
   "appRevision": "v53.95",
-  "dataRevision": "market-snapshot:2026-08-09T15:46:53.763Z:779f08b4",
+  "dataRevision": "market-snapshot:2026-08-09T16:15:21.415Z:a26f071e",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
     "durable": {
       "status": "CURRENT",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-09T15:46:53.763Z",
+      "lastSuccessfulAt": "2026-08-09T16:15:21.415Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -64,7 +64,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-09T15:46:53.763Z"
+        "generatedAt": "2026-08-09T16:15:21.415Z"
       }
     },
     "publicChat": {
@@ -84,14 +84,14 @@
     "yahoo": {
       "rights": "REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-09T15:46:53.763Z"
+      "lastFetchAt": "2026-08-09T16:15:21.415Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-08-09T15:46:53.763Z",
-      "lastFetchAt": "2026-08-09T15:46:53.763Z"
+      "lastAttemptAt": "2026-08-09T16:15:21.415Z",
+      "lastFetchAt": "2026-08-09T16:15:21.415Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -104,7 +104,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-09T15:46:53.763Z:779f08b4",
+      "artifact": "market-snapshot:2026-08-09T16:15:21.415Z:a26f071e",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -145,7 +145,7 @@
         "investors-intelligence",
         "kr-macro-vkospi-supply"
       ],
-      "sourceRevision": "market-snapshot:2026-08-09T15:46:53.763Z:779f08b4"
+      "sourceRevision": "market-snapshot:2026-08-09T16:15:21.415Z:a26f071e"
     },
     "routeCount": 20,
     "rawProducerClaimGate": "not_applicable_for_quote_plane"
