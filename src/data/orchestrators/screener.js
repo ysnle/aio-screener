@@ -1,4 +1,5 @@
 import { normalizeScreener } from '../normalize/screener.js';
+import { deriveScreenerSetupProfile } from '../../domain/screener/setup-profile.js';
 
 export function createScreenerOrchestrator({ provider, commands, ranker = null, rankingContext = () => ({}) } = {}) {
   if (!provider?.readCurrent || !commands?.setData) throw new Error('SCREENER_ORCHESTRATOR_DEPENDENCY_INVALID');
@@ -31,7 +32,8 @@ export function createScreenerOrchestrator({ provider, commands, ranker = null, 
     const bySymbol = new Map((ranking?.rows || []).map((row) => [row.sym || row.symbol, row]));
     const rows = normalized.rows.map((row) => {
       const result = bySymbol.get(row.sym || row.symbol);
-      return result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : row;
+      const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : row;
+      return { ...merged, setupProfile: deriveScreenerSetupProfile(merged) };
     });
     const result = {
       ...normalized,

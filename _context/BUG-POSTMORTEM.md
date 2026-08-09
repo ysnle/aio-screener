@@ -1,12 +1,21 @@
 ---
-verified_by: agent (Claude Sonnet 5) + Codex P761-P845 static implementation record
-last_verified: 2026-08-03
+verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
+last_verified: 2026-08-09
 confidence: high
-latest_version: v53.89
-latest_P_number: P892
-next_P_number: P893
+latest_version: v53.95
+latest_P_number: P893
+next_P_number: P894
 current_total_entries: 618 (P1~P892, 결번 존재 — 상세 + 압축 원장)
 current_checkpoint: P892 v53.89 hierarchical Atlas/Principles UX and Masters adjacent-quarter/runtime closure; official currentness/security-master/provider/edge gates remain fail-closed
+
+## P893 - v53.95 - Full-route audit closed runtime contract, provenance, and visual grouping gaps
+
+- **motivation**: The full-page audit covered all 20 active routes, native vertical slices, data lineage, source boundaries, accessibility/viewport contracts, browser navigation, and route soak. Four defects were found: the Telegram audit computed `requiredSourcesReady` but did not expose it, the official NFP calendar still pointed to a completed release, the new screener setup module was omitted from the service-worker shell, and the memo provenance gate rejected valid `TG-REFERENCE` records. Release architecture manifests also lagged the application revision.
+- **root_cause**: Runtime and data contracts were individually present but not closed over their public return shape, event-session boundary, shell asset inventory, provenance vocabulary, and release manifest synchronization. The visual audit also found that theme-detail native hosts had no shared spacing/grouping contract.
+- **fix**: Returned the required Telegram readiness field; rolled the NFP schedule forward; added `src/domain/screener/setup-profile.js` to `SHELL_ASSETS`; accepted both `REFERENCE` and `TG-REFERENCE` provenance prefixes; synchronized release architecture manifests; and added an explicit hidden-safe spacing class to the nine native theme-detail section hosts.
+- **violated_rule**: R1/R21/R26/R27; public data readiness, source provenance, shell assets, and release metadata must be structurally connected rather than inferred from adjacent fields.
+- **prevention**: Keep headless, architecture, release, route-browser, accessibility, viewport, lineage, and knowledge gates in the final loop. Any new source label, runtime return field, shell module, route host, or release revision must be represented in its contract and browser assertion.
+- **verification**: `ci-headless-tests` 1108/1108 PASS; architecture contract, release-manifest, release-revision, version, vertical-slice, browser, route-soak, AI/decision evidence, accessibility, viewport, structural, and knowledge gates pass. Provider-refresh artifacts remain explicitly stale/reference-only where external collection is unavailable.
 
 ## P892 - v53.89 - Structural reference gates missed learner hierarchy and visible Masters runtime failures
 

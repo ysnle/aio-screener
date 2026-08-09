@@ -1,7 +1,49 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P892 verification
-last_verified: 2026-08-03
+verified_by: agent (Fable 5) + Codex full-route audit verification
+last_verified: 2026-08-09
 confidence: high
+
+## v53.95 full-route audit closure (2026-08-09)
+
+- [x] QA-AUDIT1: All 20 active routes were exercised through native route navigation; vertical-slice, browser, route-soak, accessibility, viewport, and default-path contracts pass without browser console errors.
+- [x] QA-AUDIT2: `ci-headless-tests.mjs` passes 1108/1108; Telegram readiness is exposed as `requiredSourcesReady`, and the four required channels remain explicit in the audit return shape.
+- [x] QA-AUDIT3: The official NFP calendar rolls from the completed 2026-08-07 release to 2026-09-04; no past event is presented as the next release.
+- [x] QA-AUDIT4: `src/domain/screener/setup-profile.js` is included in the service-worker shell asset contract; release architecture manifests and revision checks are synchronized.
+- [x] QA-AUDIT5: Provenance coverage accepts both `[date REFERENCE]` and `[date TG-REFERENCE]` records; Telegram collection failures remain `REFERENCE`/stale and are never promoted to current market claims.
+- [x] QA-AUDIT6: Theme-detail native sections share spacing/grouping and preserve the `hidden` contract; content, source, currentness, and unavailable states remain visually separable.
+- [x] QA-AUDIT7: External provider artifacts that could not refresh remain visibly stale/reference-only or blocked; no quote, target, fundamental, power-quality, or Telegram value was fabricated.
+- [x] QA-AUDIT8: Live Chrome audit directly exercised the public home, Market Principles, AI Era Atlas, Screener, and four public Telegram pages. The deployed site was recorded separately from local v53.95; no live-parity claim was made, and Telegram observations remained transformed `REFERENCE` material with source-window metadata.
+
+## v53.93 구조 보완 closure (2026-08-09)
+
+- [x] QA-STRUCT1: Atlas foundations 48/48 lessons have effective source linkage; 18 previously empty lessons resolve through `sourceCoverage` to five official reference documents, and the selected Self-Attention lesson renders its source link.
+- [x] QA-STRUCT2: Atlas taxonomy relationship model covers all 19 domains and 95 nodes with 76 intra-domain chain edges plus 18 cross-domain edges; current claims remain zero.
+- [x] QA-STRUCT3: Telegram UI reads `public-data/telegram-digest.json` as the four-channel SSOT, shows `collectionStatus=failed` and channel error boundaries, and does not present failed fetches as fresh current data.
+- [x] QA-STRUCT4: Principles Path no longer exposes the generic SEC search URL; each path lesson uses exact lesson/node source IDs when available and an explicit unlinked state otherwise.
+- [x] QA-STRUCT5: 2-hop Principles graph suppresses non-selected relation labels, graph canvas scrolls instead of clipping, and Principles/Atlas reserve bottom space for the fixed disclosure bar.
+- [x] QA-STRUCT6: `ci-atlas-contract-check.mjs`, `ci-atlas-browser-check.mjs`, `ci-principles-contract-check.mjs`, `ci-principles-browser-check.mjs`, and `ci-six-doc-coverage-check.mjs` pass after the structural/content/UI patch.
+
+## v53.92 Telegram 4채널 integration closure (2026-08-09)
+
+- [x] QA-TG1: `CHANNEL_CATALOG` and `sourceCatalog` register Aether, Insider Tracking, BornLupin, and HANA China with role, region, evidence tier, and public mirror.
+- [x] QA-TG2: Telegram page-topic coverage includes the current route SSOT additions (`principles`, `masters`, `atlas`) and the required-channel audit exposes missing channels rather than silently passing with the old three-channel set.
+- [x] QA-TG3: Failed public-mirror collection preserves last-known-good digest timestamps/items, marks `collectionStatus=failed`, and emits a failure row for every required channel including HANA; failed fetches are not treated as fresh.
+- [x] QA-TG4: Browser audit ledger records channel-specific observation windows, role, source lineage, stale boundary, Q1-Q5 promotion/invalidation gates, and does not promote Telegram numbers/targets/rumors into current data.
+- [x] QA-TG5: HANA China is connected to discovery keywords/memos and source registry, while names outside the current universe/provider remain discovery-only and no current security row is fabricated.
+- [x] QA-TG6: `public-data/user-research-digest.json` stores the four-channel audit as `REFERENCE`; `js/aio-chat.js` exposes channel roles/quality/promotion gates; CI checks source catalog, runtime audit and fail-closed state.
+
+## v53.91 integration closure (2026-08-09)
+
+- [x] QA-INT6: The EOD screener producer calculates nullable TradingView winner-screen fields (`adrPct`, `pctFrom52wLow`, dollar liquidity, latest dollar volume, `ema8/21/60`) and the domain profile returns candidate/not-confirmed/unavailable without treating missing evidence as a pass.
+- [x] QA-INT7: The screener UI exposes winner, RS-pullback, 200SMA, climax-watch and missing-evidence filters; reset and change handlers include the new control.
+- [x] QA-INT8: Source-by-source audit covers all nine images and all pasted/link materials, including evidence tiers, limitations, current-provider boundaries and invalidation conditions.
+- [x] QA-INT9: Power-quality output names measurable PCC/grid metrics and preserves correlation-versus-causation caveats; SQQQ is hedge context and cyber/steel/refiner observations remain separate branches.
+
+- [x] QA-INT1: `scripts/ci-esm-core-unit-check.mjs` proves `setup-profile.v1` returns a relative-strength pullback candidate only from rank/trend/support inputs, labels 200SMA stretch/climax as research-only, and keeps empty input unavailable.
+- [x] QA-INT2: Native screener provider/normalizer/orchestrator preserves memo, `rvol20`, benchmark-relative fields, and setup tags; missing RVOL/benchmark evidence renders `추가 셋업 근거 필요` rather than a trade signal.
+- [x] QA-INT3: `AIO_AI_INFRA_CYCLE_REFERENCE` exposes power-quality framing, demand falsifiers, memory-LTA questions, source links, and the facility-specific/home-appliance caveat; no unverified current metric is promoted.
+- [x] QA-INT4: O’Neil climax observations (200SMA 70%+, record move/volume, 8/10-day run, railroad track, channel breakout) remain auxiliary risk checks and fail closed when OHLCV/weekly evidence is absent.
+- [x] QA-INT5: User-supplied X/article/chart material remains `REFERENCE`; independent-source gaps and the `power2026.ai` corroboration boundary are visible in changelog/knowledge-base, and no live quote/fundamental/power-quality value was hardcoded.
 
 ## Current architecture checkpoint (2026-08-03, v53.89)
 
@@ -16,7 +58,7 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.89
+checklist_version: v53.91
 latest_P_covered: P892
 current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjacent-quarter/runtime closure plus P890 SEC-evidenced Scion latest-filing availability; official currentness/security-master and live provider/Worker/model/edge verification stay separate
 

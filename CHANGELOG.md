@@ -1,3 +1,45 @@
+## v53.95 (2026-08-09)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- **Full-route audit**: audited all 20 active routes, native vertical slices, data lineage, source boundaries, accessibility/viewport contracts, browser navigation, and route soak. Provider refresh failures remain explicitly stale/reference-only.
+- **Runtime/data contract fixes**: exposed Telegram `requiredSourcesReady`, rolled the official NFP calendar forward, accepted `TG-REFERENCE` provenance, and added the screener setup module to the service-worker shell inventory.
+- **Live-browser truth audit**: directly read the public home, Market Principles, AI Era Atlas, Screener, and four public Telegram pages. The audit records the public deployment separately from local v53.95; no live-parity or deployment claim is made.
+- **Telegram lineage correction**: stored the live visible windows (Aether 2026-08-07, Insider Tracking 2026-08-03, BornLupin 2026-08-05, HANA China 2026-08-09 / Today) as transformed `REFERENCE` observations. HANA current visibility does not promote forwarded claims, targets, rumors, or copied messages to current data.
+- **Release/UI integrity**: synchronized architecture manifests to v53.95 and added hidden-safe shared spacing/grouping for the nine native theme-detail sections.
+- R1 7곳 v53.95
+
+## v53.94 (2026-08-09)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.94
+
+## v53.93 (2026-08-09)
+- **Atlas/Principles 구조 보완**: 48개 기초 레슨의 source coverage를 48/48로 닫고, 5개 공식 문헌 링크를 추가했다. 95개 taxonomy node에는 19개 도메인 체인·18개 교차 도메인 edge를 연결해 상류/하류 표시가 빈 상태로 남지 않도록 했다.
+- **Telegram SSOT 정리**: Atlas 근거 자료실이 오래된 5일 window가 아니라 `public-data/telegram-digest.json`의 4채널 원장을 읽는다. 수집 실패·보존 원장·신규 관측을 분리 표시하고, 실패 결과는 current claim으로 승격하지 않는다.
+- **Market Principles 출처 정확성**: Path의 generic SEC 검색 링크를 제거하고 레슨/노드에 매핑된 실제 source ID만 표시한다. 2-hop 그래프 비선택 edge label을 숨기고 그래프 overflow·하단 고지 겹침을 완화했다.
+- **검증 게이트**: Atlas/Principles contract·browser 및 six-document coverage 검사에 source coverage, relationship model, Telegram failure boundary, Path provenance 검사를 추가했다.
+- R1 7곳 v53.93
+
+## v53.92 (2026-08-09)
+- **Telegram 4채널 구조 통합**: Aether Japan Research, Insider Tracking, BornLupin, HANA China를 역할·지역·증거 tier가 있는 source catalog로 등록하고, 공개 브라우저 감사 원장과 `user-research-digest.json` reference item을 추가했다.
+- **공급망/전력/수급 프레임 보강**: AI capex·OCF·GPU/메모리/LTA·전력/물/interconnection, 한국 반도체·ESS, 중국/대만 AI·배터리·광학을 Q1~Q5 독립확인·촉매반응·무효화 구조로 연결했다. HANA의 오래된 공개 corpus는 `STALE_REFERENCE`로 제한했다.
+- **자동수집 fail-closed 보강**: Telegram fetch 실패 시 기존 성공 artifact/시각을 보존하면서 4채널 sourceCatalog와 채널별 오류 row를 기록하고 실패 결과를 최신 데이터로 승격하지 않도록 수정했다.
+- **검증 계약 추가**: required-channel audit, HANA source registry, page-map coverage, reference-only 경계, CI/QA 및 브라우저 테스트를 연결했다.
+- R1 7곳 v53.92
+
+## v53.91 (2026-08-09)
+- **자료 통합 2차 보완**: `_context/RESEARCH-INTEGRATION-2026-08-09.md`에 텍스트·링크·이미지 1~9의 관찰, 근거 계층, 통합 위치, 한계, 무효화 조건을 기록하고 `user-research-digest.json`/AI 컨텍스트에 source audit를 연결했다.
+- **TradingView 승자 필터 실체화**: EOD screener artifact가 ADR, 52주 저점 거리, 30D/당일 달러거래대금, EMA8/21/60을 nullable로 산출한다. `setupProfile.winnerFilter`는 `candidate/not-confirmed/unavailable`로 결측을 fail-closed 처리하며 UI에 구조 필터를 추가했다.
+- **다각도 프레임 보강**: 전력품질 측정 지표(PCC THD, sag/swell/flicker, frequency, transformer loading/temp), supply-side short 조건, SQQQ hedge context, cyber/steel/refiner ticker memos, 경제·실적 이벤트 관찰창을 연결했다.
+- **검증 경계**: X 원문은 독립 추출 불가 상태로 REFERENCE 유지. 현재값·공시·계측이 필요한 수치/주장은 라이브/공식 증거 없이는 승격하지 않는다.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.91
+
+## v53.90 (2026-08-09)
+- **자료 통합 프레임워크 확장**: 사용자 제공 X/기사/차트 자료를 `REFERENCE` 레이어로 분리해 AI 인프라 수요의 반증 조건(하이퍼스케일러 OCF, GPU 임대·중고 가격, 프론티어 랩 성장, 메모리 LTA/가격, 크레딧·전력 제약)과 전력 품질 프레임(부하 램프율, peak-to-average, 변압기 열부하, 전압 flicker, 고조파, interconnection/behind-the-meter)을 `CHAT_CONTEXTS`와 관련 티커 메모에 연결했다. 전력 품질 피해·LTA 협상력·현재 수치는 독립 검증 전 미승격 상태다.
+- **네이티브 Screener 셋업 오버레이**: 상대강도 눌림, 200일선 부근, 200일선 70%+ 확장, 클라이막스 관찰, O’Neil railroad-track/거래량·상승폭 체크를 `setup-profile.v1`과 기존 기술 체크리스트에 연결했다. RVOL·benchmark-relative-strength가 없으면 `관찰`/`추가 셋업 근거 필요`로 fail-closed하며 매매 신호가 아니다.
+- **스캐너·키워드·티커 메모**: AI 전력/그리드·메모리 LTA·GPU 재가격·상대강도/클라이막스 키워드를 MACRO/TECH 사전에 추가하고, NVDA·AVGO·AMD·CEG·MSFT·AMZN·PLTR·MU·MRVL·CRWV·IREN·BE·VST·ETN·PWR·VRT·DELL·HPE·RBRK·DINO 등 관련 행에 검증 질문과 반증 조건을 보강했다.
+- **검증 경계**: X 페이지는 현재 독립 추출이 불가해 사용자가 제공한 본문/이미지는 참고 근거로만 보존하고, `power2026.ai`의 전력 제약·그리드 균형 설명은 외부 참고 링크로 연결했다. setup-profile 단위 테스트와 기존 구조/런타임/버전 게이트를 실행한다.
+- R1 7곳 v53.90
+
 ## v53.89 (2026-08-03)
 - **Atlas 계층 학습 UX**: 48개 기초 모듈을 6개 학습 층→선택 개념→단일 상세의 3열 데스크톱 흐름으로, 19개 산업 도메인·95개 노드를 도메인→세부 노드→기업·제품의 능동 탐색 흐름으로 재구성했습니다.
 - **AI 시대 심층 분류**: 파운드리·수율·DUV/EUV/High-NA·첨단 패키징·유리기판·광/포토닉스·오픈 생태계·HBM/CXL·AIDC 전력·클라우드 CAPEX/ROIC·World Model·Physical AI·방산/드론·Artemis/재사용 로켓을 10개 주제·50개 하위 가지로 연결했습니다.

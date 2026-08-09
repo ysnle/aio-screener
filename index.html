@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v53.89 — 올인원 투자 터미널</title>
+  <title>AIO Screener v53.95 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -3027,10 +3027,13 @@ body { background: #fbf9f5 !important; }
 .aio-vis-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px;}
 .aio-vis-panel.is-single{grid-template-columns:1fr;max-width:560px;}
 .aio-vis-panel.is-wide{grid-template-columns:1fr;}
-.aio-vis-card{background:var(--surface-2);border:1px solid var(--border);border-left:2px solid rgba(33,29,22,0.35);border-radius:var(--radius);padding:10px 12px;overflow:hidden;}
-.aio-vis-card-title{font-size:10px;font-weight:700;color:var(--text-secondary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:4px;}
-.aio-vis-card-title::before{content:'';}
-/* v51.48: page section open rhythm — 박스 대신 구분선+제목으로 섹션 흐름 */
+  .aio-vis-card{background:var(--surface-2);border:1px solid var(--border);border-left:2px solid rgba(33,29,22,0.35);border-radius:var(--radius);padding:10px 12px;overflow:hidden;}
+  .aio-vis-card-title{font-size:10px;font-weight:700;color:var(--text-secondary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:4px;}
+  .aio-vis-card-title::before{content:'';}
+  .theme-detail-native-section{display:grid;gap:8px;margin:0 0 12px;}
+  .theme-detail-native-section[hidden]{display:none;}
+  .theme-detail-native-section:last-of-type{margin-bottom:0;}
+  /* v51.48: page section open rhythm — 박스 대신 구분선+제목으로 섹션 흐름 */
 .aio-section{margin-bottom:22px;}
 .aio-section+.aio-section{padding-top:18px;border-top:1px solid var(--border-subtle);}
 .aio-section-hd{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
@@ -5327,6 +5330,7 @@ button[data-filter-active="true"] {
 .principles-status-reviewed_candidate { color:var(--data-green); background:rgba(34,117,76,.08); border-color:rgba(34,117,76,.3); }
 .principles-status-partial { color:var(--data-amber); background:rgba(150,104,18,.08); border-color:rgba(150,104,18,.3); }
 .principles-source-link { color:var(--data-cyan); text-decoration:underline; }
+.principles-source-unlinked { color:var(--text-muted); }
 .principles-node-evidence { color:var(--data-cyan); font-size:11px; }
 .principles-evidence { margin-top:18px; padding-top:12px; border-top:1px solid var(--border); }
 .principles-evidence-title { color:var(--text-muted); font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
@@ -5368,7 +5372,7 @@ button[data-filter-active="true"] {
 .principles-route-button:hover { border-color:var(--accent); }
 .principles-route-button.is-secondary { color:var(--text-secondary); font-weight:500; }
 .principles-graph-workspace { grid-template-columns:minmax(0, 1.7fr) minmax(240px, .8fr); }
-.principles-graph-canvas { position:relative; min-height:590px; overflow:hidden; border:1px solid var(--border); border-radius:6px; background:radial-gradient(circle at 50% 15%, rgba(33,29,22,.08), transparent 43%), var(--surface-1); }
+.principles-graph-canvas { position:relative; min-height:620px; overflow:auto; padding-bottom:28px; border:1px solid var(--border); border-radius:6px; background:radial-gradient(circle at 50% 15%, rgba(33,29,22,.08), transparent 43%), var(--surface-1); }
 .principles-graph-canvas svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
 .principles-edge { stroke:var(--text-muted); stroke-opacity:.72; stroke-width:.55; vector-effect:non-scaling-stroke; }
 .principles-edge.is-active { stroke:var(--accent); stroke-opacity:1; stroke-width:1.1; }
@@ -5490,7 +5494,7 @@ button[data-filter-active="true"] {
 .atlas-domain-claim-ledger .atlas-card-copy { margin:5px 0 0; }
 .atlas-coverage-card { padding:8px; border:1px dashed var(--border); border-radius:4px; background:var(--surface-1); }
 .atlas-telegram-reference { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); }
-.atlas-telegram-channel-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; }
+.atlas-telegram-channel-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
 .atlas-telegram-channel-card { padding:8px; border:1px solid var(--border); border-radius:4px; background:var(--surface-2); }
 .atlas-domain-node-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; margin-top:10px; }
 .atlas-domain-node { display:flex; flex-direction:column; gap:4px; padding:8px; border:1px solid var(--border); border-radius:4px; background:var(--surface-2); color:var(--text-primary); font-size:14px; }
@@ -5503,9 +5507,13 @@ button[data-filter-active="true"] {
 .atlas-reference-source-links { display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
 .atlas-reference-source-link, .atlas-reference-source-unresolved { display:inline-flex; align-items:center; min-height:24px; padding:2px 5px; border:1px solid var(--border); border-radius:3px; color:var(--data-cyan); font-size:10px; line-height:1.2; }
 .atlas-reference-source-unresolved { color:var(--text-muted); }
+.atlas-source-scope { display:block; margin:3px 0 5px; color:var(--text-muted); font-size:11px; line-height:1.45; }
+.atlas-source-unlinked { color:var(--text-muted); }
+.atlas-taxonomy-relations { color:var(--text-secondary); }
+.atlas-telegram-status { color:var(--data-amber); font-size:11px; }
 .atlas-node-guide { margin-top:8px; padding-top:10px; border-top:1px solid var(--border); }
 .atlas-module-authored { color:var(--data-cyan); font-weight:700; }
-.atlas-module-related, .atlas-module-sources { margin-top:6px; }
+.atlas-module-related, .atlas-module-sources { display:flex; flex-wrap:wrap; gap:6px; align-items:flex-start; margin-top:6px; }
 .atlas-module-source-details { margin-top:8px; padding-top:7px; border-top:1px solid var(--border); }
 .atlas-module-source-summary { color:var(--text-secondary); font-size:12px; font-weight:700; cursor:pointer; }
 .atlas-node-guide .atlas-card-copy { margin-top:7px; font-size:14px; line-height:1.65; }
@@ -5533,6 +5541,7 @@ button[data-filter-active="true"] {
 .atlas-node-card .atlas-status { display:inline-block; margin-top:10px; }
 .atlas-empty { grid-column:1/-1; padding:18px; border:1px dashed var(--border); border-radius:5px; color:var(--text-muted); }
 .atlas-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+#page-principles, #page-atlas { padding-bottom:88px; }
 
 /* Atlas learner-first workspaces: broad concept → selected branch → one readable detail. */
 .atlas-learning-paths { margin:0 0 16px; border:1px solid var(--border); border-radius:7px; background:var(--surface-2); }
@@ -5614,6 +5623,7 @@ button[data-filter-active="true"] {
   .masters-metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .atlas-search { order:3; flex-basis:100%; margin-left:0; min-width:0; }
   .atlas-metric-grid, .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .atlas-telegram-channel-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .atlas-level-rail { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 760px) {
@@ -5632,7 +5642,7 @@ button[data-filter-active="true"] {
   .principles-tree-section-copy { padding-left:46px; }
 }
 @media (max-width: 480px) {
-  .atlas-metric-grid, .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid { grid-template-columns:1fr; }
+  .atlas-metric-grid, .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid, .atlas-telegram-channel-grid { grid-template-columns:1fr; }
 }
 </style>
 </head>
@@ -6023,7 +6033,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.89</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v53.95</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -10439,15 +10449,15 @@ button[data-filter-active="true"] {
       <!-- 테마 상세 패널 -->
       <div id="theme-detail-panel" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:16px;margin-top:12px;position:relative;">
         <button data-action="closeThemeDetail" class="btn-close" aria-label="닫기"></button>
-        <div id="theme-detail-native-summary" data-aio-theme-detail-surface="native" aria-live="polite" hidden></div>
-        <div id="theme-detail-native-composition" data-aio-theme-detail-surface="native-composition" hidden></div>
-        <div id="theme-detail-native-leaders" data-aio-theme-detail-surface="native-leaders" hidden></div>
-        <div id="theme-detail-native-temperature" data-aio-theme-detail-surface="native-temperature" hidden></div>
-        <div id="theme-detail-native-spread" data-aio-theme-detail-surface="native-spread" hidden></div>
-        <div id="theme-detail-native-breadth-health" data-aio-theme-detail-surface="native-breadth-health" hidden></div>
-        <div id="theme-detail-native-subtheme-gap" data-aio-theme-detail-surface="native-subtheme-gap" hidden></div>
-        <div id="theme-detail-native-benchmark" data-aio-theme-detail-surface="native-benchmark" hidden></div>
-        <div id="theme-detail-native-insights" data-aio-theme-detail-surface="native-insights" hidden></div>
+        <div id="theme-detail-native-summary" class="theme-detail-native-section" data-aio-theme-detail-surface="native" aria-live="polite" hidden></div>
+        <div id="theme-detail-native-composition" class="theme-detail-native-section" data-aio-theme-detail-surface="native-composition" hidden></div>
+        <div id="theme-detail-native-leaders" class="theme-detail-native-section" data-aio-theme-detail-surface="native-leaders" hidden></div>
+        <div id="theme-detail-native-temperature" class="theme-detail-native-section" data-aio-theme-detail-surface="native-temperature" hidden></div>
+        <div id="theme-detail-native-spread" class="theme-detail-native-section" data-aio-theme-detail-surface="native-spread" hidden></div>
+        <div id="theme-detail-native-breadth-health" class="theme-detail-native-section" data-aio-theme-detail-surface="native-breadth-health" hidden></div>
+        <div id="theme-detail-native-subtheme-gap" class="theme-detail-native-section" data-aio-theme-detail-surface="native-subtheme-gap" hidden></div>
+        <div id="theme-detail-native-benchmark" class="theme-detail-native-section" data-aio-theme-detail-surface="native-benchmark" hidden></div>
+        <div id="theme-detail-native-insights" class="theme-detail-native-section" data-aio-theme-detail-surface="native-insights" hidden></div>
         <div id="theme-detail-legacy-content"></div>
       </div>
     </div>
@@ -11712,6 +11722,11 @@ button[data-filter-active="true"] {
     <!-- v51.39: 고급 필터 (버튼으로 토글) -->
     <div id="scr-adv-filter-row">
       <span style="font-size:10px;color:var(--data-cyan);font-weight:700;letter-spacing:.03em;text-transform:uppercase;flex-shrink:0;">고급 필터</span>
+      <select id="scr-setup" aria-label="구조·근거 필터" class="aio-btn-table" style="font-size:11px;padding:3px 7px;">
+        <option value="">전체 구조·근거</option><option value="WINNER">TradingView 승자 필터 통과</option>
+        <option value="RSPULLBACK">상대강도 풀백 후보</option><option value="SUPPORT200">200일선 부근</option>
+        <option value="CLIMAX">클라이맥스 탑 주의</option><option value="MISSING">근거 미수신/결측</option>
+      </select>
       <label style="font-size:11px;color:var(--text-muted);">랭크 ≥</label>
       <select id="scr-min-rank" aria-label="최소 랭크 필터" class="aio-btn-table" style="font-size:11px;padding:3px 7px;">
         <option value="0">제한 없음</option><option value="40">40 (C등급)</option><option value="50">50 (C+)</option>
@@ -12670,9 +12685,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=53.89" defer></script>
-  <script src="./js/aio-data.js?v=53.89" defer></script>
-  <script src="./js/aio-ui.js?v=53.89" defer></script>
+  <script src="./js/aio-core.js?v=53.95" defer></script>
+  <script src="./js/aio-data.js?v=53.95" defer></script>
+  <script src="./js/aio-ui.js?v=53.95" defer></script>
 
 
   <script>
@@ -15157,7 +15172,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=53.89" defer></script>
+<script src="./js/aio-chat.js?v=53.95" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24070,7 +24085,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=53.89" defer></script>
+<script src="./js/aio-glossary.js?v=53.95" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

@@ -1197,6 +1197,8 @@
     var audit = window.AIO && typeof window.AIO.getTelegramPipelineAudit === 'function' ? window.AIO.getTelegramPipelineAudit() : null;
     var aetherOk = audit && audit.aether && audit.aether.publicMirror === 'https://t.me/s/aetherjapanresearch' && audit.verificationPolicy;
     _assert('T145 telegram_pipeline: Aether source audited as secondary pipeline', !!aetherOk, audit && JSON.stringify(audit.aether));
+    var requiredChannelsOk = audit && Array.isArray(audit.requiredChannelSlugs) && audit.requiredChannelSlugs.length === 4 && audit.requiredChannelSlugs.indexOf('HANAchina') >= 0 && Array.isArray(audit.missingRequiredChannels) && audit.requiredSourcesReady === true;
+    _assert('T145b telegram_pipeline: four required channels and HANA source readiness audit', !!requiredChannelsOk, audit && JSON.stringify({ required: audit.requiredChannelSlugs, missing: audit.missingRequiredChannels, ready: audit.requiredSourcesReady }));
   }
 
   function _testAutoOpsGovernance() {
@@ -2812,7 +2814,7 @@
     var memoProvenanceSafe = (window.SCREENER_DB || []).every(function(row) {
       if (!row || !row.memo) return true;
       if (row._telegramMemoOverlay && row.memo.indexOf(row._telegramMemoOverlay) === 0) return true;
-      return /^\[\d{4}-\d{2}-\d{2} REFERENCE\]/.test(row.memo);
+      return /^\[\d{4}-\d{2}-\d{2} (?:REFERENCE|TG-REFERENCE)\]/.test(row.memo);
     });
     // v53.7 (P722 클래스): `memoCoveragePct < 10` 상한은 봇 digest가 runtime memo를 10%+ 적용한 날
     // 경계에서 오탐 — 불변식은 "정적 memo 0 = 모든 memo가 runtime overlay 유래"이며 커버리지 %가 아님.

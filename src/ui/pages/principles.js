@@ -319,11 +319,15 @@ function sourceBadge(documentRef, item) {
   const summary = element(documentRef, 'summary', 'principles-source-summary', '근거 및 더 읽기');
   const body = element(documentRef, 'div', 'principles-source-body');
   const reviewed = element(documentRef, 'span', 'principles-reviewed', `검토 ${item.reviewedAt || REVIEWED_AT}`);
-  const link = element(documentRef, 'a', 'principles-source-link', item.sourceName || '원문 출처');
-  link.href = item.sourceUrl || '#';
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  body.append(reviewed, link);
+  if (item.sourceUrl) {
+    const link = element(documentRef, 'a', 'principles-source-link', item.sourceName || '원문 출처');
+    link.href = item.sourceUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    body.append(reviewed, link);
+  } else {
+    body.append(reviewed, element(documentRef, 'span', 'principles-source-unlinked', item.sourceName || '직접 연결된 원문 출처 없음'));
+  }
   wrap.append(summary, body);
   return wrap;
 }
@@ -349,6 +353,49 @@ function nodeMatches(node, query) {
 function lessonMatches(lesson, query) {
   if (!query) return true;
   return [lesson.title, lesson.summary, lesson.body, lesson.level].join(' ').toLowerCase().includes(query);
+}
+
+const PATH_SOURCE_IDS_BY_NODE = Object.freeze({
+  financing: ['MP-FED-MP', 'MP-TREASURY'],
+  'geo-rates': ['MP-IMF', 'MP-BOK'],
+  visibility: ['MP-SEC'],
+  evaluation: ['MP-SEC', 'MP-NIST'],
+  'ai-workload': ['PS-01', 'PS-02'],
+  compute: ['PS-01', 'PS-02'],
+  'memory-hbm': ['PS-02'],
+  'advanced-packaging': ['PS-01', 'PS-02'],
+  'power-cooling': ['MP-DOE', 'MP-IEA'],
+  'ai-capex': ['MP-SEC'],
+  storage: ['PS-02']
+});
+
+function pathSourceIds(lesson) {
+  return [...new Set((lesson?.sourceIds || []).concat((lesson?.nodeIds || []).flatMap((nodeId) => PATH_SOURCE_IDS_BY_NODE[nodeId] || [])))];
+}
+
+function createPathSourceBadge(documentRef, lesson, lessonLibrary) {
+  const sourceMap = new Map((lessonLibrary?.sources || []).map((source) => [source.id, source]));
+  const ids = pathSourceIds(lesson);
+  const wrap = element(documentRef, 'details', 'principles-source');
+  wrap.dataset.principlesSourceStatus = ids.length ? 'REFERENCE_CONNECTED' : 'NEEDS_REVIEW';
+  wrap.appendChild(element(documentRef, 'summary', 'principles-source-summary', ids.length ? `학습 레슨 출처 · ${ids.length}개` : '학습 레슨 출처 · 직접 연결 없음'));
+  const body = element(documentRef, 'div', 'principles-source-body');
+  body.appendChild(element(documentRef, 'span', 'principles-reviewed', `검토 ${REVIEWED_AT}`));
+  if (!ids.length) body.appendChild(element(documentRef, 'span', 'principles-source-unlinked', '구조 학습 원고이며 직접 연결된 원문은 아직 지정되지 않았습니다.'));
+  ids.forEach((sourceId) => {
+    const source = sourceMap.get(sourceId);
+    if (source?.url) {
+      const link = element(documentRef, 'a', 'principles-source-link', `${source.publisher} · ${source.title}`);
+      link.href = source.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.dataset.principlesPathSource = sourceId;
+      body.appendChild(link);
+    } else {
+      body.appendChild(element(documentRef, 'span', 'principles-source-unlinked', `미해결 source ID · ${sourceId}`));
+    }
+  });
+  return wrap;
 }
 
 function researchNode(research, nodeId) {
@@ -606,7 +653,7 @@ function createNodeCard(documentRef, node, selected, onSelect, research) {
   return card;
 }
 
-function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges) {
+function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges, depth = 1) {
   const graph = element(documentRef, 'div', 'principles-graph-canvas');
   const svg = documentRef.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 100 100');
@@ -624,12 +671,14 @@ function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges) {
     line.setAttribute('class', `principles-edge${edge.from === selectedId || edge.to === selectedId ? ' is-active' : ''}`);
     line.setAttribute('aria-label', `${from.title}에서 ${to.title}: ${edge.relation}`);
     svg.appendChild(line);
-    const relation = documentRef.createElementNS('http://www.w3.org/2000/svg', 'text');
-    relation.setAttribute('x', String((Number(from.x) + Number(to.x)) / 2));
-    relation.setAttribute('y', String((Number(from.y) + Number(to.y)) / 2));
-    relation.setAttribute('class', 'principles-edge-label');
-    relation.textContent = edge.relation;
-    svg.appendChild(relation);
+    if (depth === 1 || edge.from === selectedId || edge.to === selectedId) {
+      const relation = documentRef.createElementNS('http://www.w3.org/2000/svg', 'text');
+      relation.setAttribute('x', String((Number(from.x) + Number(to.x)) / 2));
+      relation.setAttribute('y', String((Number(from.y) + Number(to.y)) / 2));
+      relation.setAttribute('class', 'principles-edge-label');
+      relation.textContent = edge.relation;
+      svg.appendChild(relation);
+    }
   });
   graph.appendChild(svg);
   visibleNodes.forEach((node) => {
@@ -832,7 +881,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         const edges = CATALOG.edges.filter((edge) => visibleIds.has(edge.from) && visibleIds.has(edge.to));
         layout.dataset.principlesGraphNodeCount = String(nodes.length);
         layout.dataset.principlesGraphEdgeCount = String(edges.length);
-        layout.appendChild(createSvgGraph(documentRef, state.selectedId, nodes, edges));
+        layout.appendChild(createSvgGraph(documentRef, state.selectedId, nodes, edges, state.depth));
         const list = element(documentRef, 'div', 'principles-graph-mobile-list');
         list.setAttribute('aria-label', '그래프 노드 텍스트 목록');
          nodes.forEach((node) => list.appendChild(createNodeCard(documentRef, node, state.selectedId === node.id, () => selectNode(node.id), state.research)));
@@ -862,7 +911,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         });
         const card = element(documentRef, 'article', 'principles-path-card');
         if (lesson && (!state.query || lessonMatches(lesson, state.query))) {
-          card.append(element(documentRef, 'div', 'principles-eyebrow', `${lesson.level} · ${state.step + 1}/${path.lessonIds.length}`), element(documentRef, 'h3', 'principles-detail-title', lesson.title), element(documentRef, 'p', 'principles-detail-summary', lesson.summary), element(documentRef, 'p', 'principles-path-body', lesson.body), sourceBadge(documentRef, { status: 'REVIEWED_CANDIDATE', sourceName: '학습 콘텐츠 검토 기록', sourceUrl: 'https://www.sec.gov/edgar/search-and-access', reviewedAt: REVIEWED_AT }));
+          card.append(element(documentRef, 'div', 'principles-eyebrow', `${lesson.level} · ${state.step + 1}/${path.lessonIds.length}`), element(documentRef, 'h3', 'principles-detail-title', lesson.title), element(documentRef, 'p', 'principles-detail-summary', lesson.summary), element(documentRef, 'p', 'principles-path-body', lesson.body), createPathSourceBadge(documentRef, lesson, state.lessonLibrary));
           const actions = element(documentRef, 'div', 'principles-path-actions');
           const previous = button(documentRef, 'principles-route-button is-secondary', '이전', 'step', String(Math.max(0, state.step - 1)));
           const next = button(documentRef, 'principles-route-button', state.step >= path.lessonIds.length - 1 ? '경로 처음으로' : '다음 단계', 'step', String(state.step >= path.lessonIds.length - 1 ? 0 : state.step + 1));

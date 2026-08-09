@@ -1900,3 +1900,15 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: 13F의 이전 보고분기는 단순히 최신 분기보다 과거이기만 해서는 안 되며, 연결된 filing history에서 확인되는 실제 직전 보고분기여야 한다. resolver는 결과를 stdout에만 남기지 않고 canonical filing artifact에 원자적으로 반영해야 한다. 표 renderer는 row index를 포함한 builder 계약을 보존하고, 버튼 안에 링크를 중첩하거나 입력 rerender로 검색 포커스를 잃게 해서는 안 된다.
 
 **Validation**: `ci-masters-contract-check.mjs`가 7개 신고주체의 인접 분기를 history index에서 재계산하고 index/holdings 비교 건수를 대사한다. `ci-masters-browser-check.mjs`는 변화 원장 `NaN=0`, manager button 내부 link=0, Berkshire 2025-12-31 비교, 다문자 검색 포커스 유지와 데스크톱 overflow 0을 검사한다.
+
+## R440. 참고 자료의 셋업·전력·자료품질 프레임은 관찰용으로만 승격한다 (v53.91)
+
+**Rule**: 사용자 제공 자료에서 추출한 상대강도 눌림, 클라이막스 탑, AI 데이터센터 전력 품질, GPU 재가격, 메모리 LTA 주장은 `REFERENCE` 관찰·검증 질문으로만 연결한다. RVOL·benchmark-relative-strength·충분한 OHLCV·시설별 계측·공식 계약/공시가 없으면 `unavailable` 또는 `추가 셋업 근거 필요`로 fail-closed하며, 현재 수치·확정 신호·매매 권고·가정용 피해를 합성하지 않는다. SCREENER_DB memo와 CHAT_CONTEXTS는 반드시 출처/기준일/검증 경계를 보존한다.
+
+**Validation**: `scripts/ci-esm-core-unit-check.mjs`가 setup-profile 후보·클라이막스·빈 데이터 경계를 검사하고, `scripts/fetch-data.mjs`의 TradingView winner evidence는 ADR·52주·달러 유동성·EMA nullable 필드와 `winnerFilter`로 결측을 fail-closed한다. native screener provider/normalizer/orchestrator와 `AIO_AI_INFRA_CYCLE_REFERENCE`는 source audit·evidence hierarchy·전력품질 측정지표·반증 조건을 reference-only로 연결한다. `ci-version-check.mjs`, `ci-runtime-contract-check.mjs`, `ci-structural-check.mjs`와 `git diff --check`를 함께 통과해야 한다.
+
+## R441. Telegram 다채널 discovery는 source catalog·신선도·실패 상태를 함께 보존한다 (v53.92)
+
+**Rule**: Telegram 채널은 뉴스/자료의 원문이 아닌 secondary discovery 계층이다. required channel catalog에는 채널별 역할·지역·public mirror·evidence tier가 있어야 하며, source가 추가되면 page-topic map·runtime audit·reference ledger·SCREENER_DB/keyword 연결을 함께 갱신한다. 자동 수집 실패 시 기존 성공 artifact와 성공 시각은 보존하되 `collectionStatus=failed`, 시도 시각, 네 채널별 오류 row를 노출해야 하며 실패 결과를 최신 데이터로 승격하지 않는다. 오래된 공개 corpus는 `STALE_REFERENCE`로 표시하고 구독자 수·전달량·동일 내용의 재전달·목표가를 독립 확인으로 세지 않는다.
+
+**Validation**: `scripts/fetch-telegram-digest.mjs`의 `CHANNEL_CATALOG`/`sourceCatalog`/failure-cache, `js/aio-data.js`의 required-channel audit, `_context/RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md`의 Q1~Q5와 `public-data/user-research-digest.json` reference item을 확인한다. `ci-data-pipeline-contract-check.mjs`, `ci-runtime-contract-check.mjs`, JSON parse, `ci-knowledge-lint-check.mjs`, `ci-version-check.mjs`, `git diff --check`를 함께 통과해야 한다.

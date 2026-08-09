@@ -3,9 +3,9 @@
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
 current_override: P892 hierarchical Principles/Atlas learning UX and Masters adjacent-quarter/runtime closure on top of P891 learner-first content flow and P890 Scion availability evidence; live edge enforcement, provider rights, model benchmark, fast-plane soak, and AI proxy health remain explicit operator gates
-  last_verified: 2026-08-03
+  last_verified: 2026-08-09
 confidence: high
-target_version: v53.89
+target_version: v53.91
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P892 gate
   current_checkpoint: P892 adds broad-to-narrow Atlas workspaces, deep AI taxonomy, Principles relation/detail fixes, and Masters finite/adjacent-quarter contracts; official currentness/security-master and live model/Worker/provider certification remain operator-required
@@ -22,10 +22,11 @@ target_lines: refreshed after P892 gate
 | `js/aio-chat.js` | 6,571 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-tests.js` | 8,939 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 130 | native guide search/jump/capability lifecycle module |
-| `src/ui/pages/screener.js` | 517 | native screener table/filter/profile/watchlist/position renderer |
-| `src/data/providers/screener.js` | 143 | screener artifact + identity-universe provider |
-| `src/data/normalize/screener.js` | 63 | screener row/metadata normalization |
-| `src/data/orchestrators/screener.js` | 58 | screener state orchestration + factor-rank wiring |
+| `src/ui/pages/screener.js` | 525 | native screener table/filter/profile/watchlist/position renderer + research setup labels |
+| `src/data/providers/screener.js` | 146 | screener artifact + identity-universe provider + reference memo/RVOL fields |
+| `src/data/normalize/screener.js` | 67 | screener row/metadata/setup-profile normalization |
+| `src/data/orchestrators/screener.js` | 60 | screener state orchestration + factor-rank/setup-profile wiring |
+| `src/domain/screener/setup-profile.js` | 81 | reference-only relative-strength pullback, support/200SMA stretch, volume-evidence, and climax setup labels |
 | `src/ui/pages/news.js` | 285 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
 | `src/ui/pages/market.js` | 801 | native macro/fxbond/breadth primary metric renderers, curve/chart lifecycles, and native screener-metadata breadth fallback |
 | `src/ui/pages/themes.js` | 861 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark/insights and RRG chart lifecycle; deeper legacy-only surfaces remain bounded |
@@ -90,6 +91,20 @@ storage/projection boundaries for non-cut-over consumers. Route ownership is
 now lifecycle/renderer/data native for screener; chart/narrative remain legacy
 or not applicable. Use `rg -n` before further edits because ARX-10 retired
 legacy screener helpers and shifted all downstream anchors.
+
+### v53.91 reference setup and evidence overlay (2026-08-09)
+
+`src/domain/screener/setup-profile.js` is a pure, fail-closed research overlay.
+It does not replace `computeFactorRanks` or create a trading decision: it consumes
+native screener row evidence and labels relative-strength pullbacks, 200SMA
+support proximity, 200SMA extension/climax risk, and volume-data availability.
+It also exposes the TradingView winner-screen evidence contract (ADR, 52-week-low
+distance, dollar liquidity, and EMA relationships) as nullable fields; missing
+fields yield `winnerFilter: unavailable` rather than a pass.
+`src/data/providers/screener.js` preserves memo/RVOL/benchmark fields, the
+orchestrator attaches the profile, and `src/ui/pages/screener.js` renders the
+labels/search terms with an explicit research-only tooltip. Missing RVOL or
+benchmark-relative-strength remains visible as missing evidence.
 
 ### P761-P780 continuation (2026-07-22)
 

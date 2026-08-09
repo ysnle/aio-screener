@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.89';
+const APP_VERSION = 'v53.95';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12574,7 +12574,7 @@ window.AIO.getNamedEntityAudit = function() {
 window.AIO_MACRO_CALENDAR = {
   version: 'v53.4',
   releases: {
-    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-07-02', nextRelease: '2026-08-07', dataField: 'usUnemploy', source: 'BLS official schedule' },
+    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-08-07', nextRelease: '2026-09-04', dataField: 'usUnemploy', source: 'BLS official schedule' },
     'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-07-14', nextRelease: '2026-08-12', dataField: 'cpi', source: 'BLS official schedule' },
     'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-07-30', nextRelease: '2026-08-26', dataField: 'pce', source: 'BEA official schedule' },
     'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-07-01', nextRelease: '2026-08-03', dataField: 'ismPmi', source: 'ISM official calendar' },
@@ -19495,6 +19495,7 @@ function calcTechnicalSnapshot(ohlcv) {
     dist10ATR: dist10Atr, dist20ATR: dist20Atr, dist21ATR: dist21Atr, dist50ATR: dist50Atr,
     dist20Pct: dist20Pct, dist20Adr: dist20Adr, dist20ADR: dist20Adr,
     dist50Pct: sma50 ? ((last.close - sma50) / sma50) * 100 : null,
+    dist200Pct: sma200 ? ((last.close - sma200) / sma200) * 100 : null,
     dist21Pct: ema21 ? ((last.close - ema21) / ema21) * 100 : null,
     above10EMA: ema10 ? last.close >= ema10 : null, above21EMA: ema21 ? last.close >= ema21 : null,
     above50SMA: sma50 ? last.close >= sma50 : null, above200SMA: sma200 ? last.close >= sma200 : null,
@@ -19656,11 +19657,11 @@ var AIO_EVENT_RISK_CONTEXT = {
 };
 
 var AIO_TACTICAL_TRADER_FRAMEWORK = {
-  id: 'trader-20260630-support-reclaim-semi-rotation',
-  version: 'v51.77',
+  id: 'trader-20260809-relative-strength-climax-power-quality',
+  version: 'v53.91',
   sourceKind: 'REFERENCE',
-  asOf: '2026-06-30T02:36:00+09:00',
-  sourceLabel: 'User-supplied trader Telegram screenshot',
+  asOf: '2026-08-09T00:00:00+09:00',
+  sourceLabel: 'User-supplied X posts and TradingView/market-calendar screenshots',
   handling: 'Use as a reusable decision framework only. Do not treat the SPX/QQQ levels in the screenshot as current live levels unless current market data independently confirms them.',
   rules: [
     {
@@ -19692,6 +19693,30 @@ var AIO_TACTICAL_TRADER_FRAMEWORK = {
       label: 'Failed breakdown / bear trap check',
       meaning: 'Lower-channel break followed by reclaim plus semi leadership is a trap-risk setup for shorts, not automatic bearish confirmation.',
       requiredEvidence: ['lower-channel reclaim', 'volume profile base', 'leadership recovery']
+    },
+    {
+      id: 'relative-strength-pullback',
+      label: 'Relative-strength pullback before continuation',
+      meaning: 'A high-relative-strength name pulling back toward a major moving average can be a continuation candidate, but only after support/reclaim and participation are independently confirmed.',
+      requiredEvidence: ['relative-strength rank', '200SMA/50SMA location', 'support or reclaim', 'volume/RVOL', 'benchmark comparison']
+    },
+    {
+      id: 'supply-side-short-branch',
+      label: 'Two-way tape: demand and supply branches',
+      meaning: 'Strong names can offer continuation pullbacks while weak relative-strength names near overhead supply can offer a separate research branch; do not infer a short from weakness alone.',
+      requiredEvidence: ['relative-strength divergence', 'overhead supply', 'failed retest', 'borrow/short-flow data']
+    },
+    {
+      id: 'climax-top-checklist',
+      label: 'Climax-top checklist',
+      meaning: 'Record one-day gain/volume, exhaustion gaps, rapid multi-day runs, railroad-track distribution, repeated high volume without progress, rising failure days, channel break, and 200SMA extension as a cluster of risk observations—not a single sell trigger.',
+      requiredEvidence: ['daily/weekly OHLCV history', 'volume comparison', 'close position', '200SMA distance', 'failed follow-through']
+    },
+    {
+      id: 'ai-power-quality',
+      label: 'AI power is a ramp-rate and quality problem',
+      meaning: 'AI infrastructure analysis must separate total energy demand from rapid load changes, transformer stress, voltage/frequency behavior, harmonics, interconnection queues, and behind-the-meter economics.',
+      requiredEvidence: ['measured load profile', 'power-quality study', 'transformer/interconnection evidence', 'PPA or onsite-power contract']
     }
   ],
   referenceExamples: [
@@ -19724,6 +19749,11 @@ var AIO_TACTICAL_TRADER_FRAMEWORK = {
       id: 'theme-rotation',
       reason: '전술 프레임: 소프트웨어 IGV에서 반도체 SMH로 수급이 넘어가는지 추적',
       action: '테마 강도는 하루 등락보다 IGV/SMH/QQQ/SPY 상대강도 변화로 판단한다.'
+    },
+    screener: {
+      id: 'screener-setup-tags',
+      reason: '스크리너 프레임: 상대강도 눌림·200일선 위치·클라이맥스 관찰 태그를 분리하고 거래량/RVOL 미수신은 보류',
+      action: '후보 태그는 연구용 정렬·추가 확인 목록이며 자동 매수·매도 신호가 아니다.'
     },
     'theme-detail': {
       id: 'theme-detail-rotation',
@@ -19792,14 +19822,50 @@ function calcBlowoffTopChecklist(snapshot, context) {
   function fin(v) { if (v == null || v === '') return null; var n = Number(v); return isFinite(n) ? n : null; }
   var dist20Pct = fin(snapshot.dist20Pct);
   var dist20Atr = fin(snapshot.dist20Atr);
+  var dist200Pct = fin(snapshot.dist200Pct);
   var rsi14 = fin(snapshot.rsi14);
   var rvol20 = fin(snapshot.rvol20);
   var closePosition = fin(snapshot.closePosition);
   var price20Ratio = dist20Pct !== null ? 100 + dist20Pct : null;
+  var raw = Array.isArray(snapshot.raw) ? snapshot.raw.filter(function(b) { return b && isFinite(Number(b.close)); }) : [];
+  var lastBar = raw.length ? raw[raw.length - 1] : null;
+  var priorBars = raw.length > 1 ? raw.slice(0, -1) : [];
+  var maxPriorGain = raw.length >= 20 && priorBars.length > 1 ? Math.max.apply(null, priorBars.slice(1).map(function(b, i) {
+    var prev = priorBars[i]; return prev && Number(prev.close) > 0 ? (Number(b.close) - Number(prev.close)) / Number(prev.close) * 100 : -Infinity;
+  })) : null;
+  var lastGain = lastBar && priorBars.length && Number(priorBars[priorBars.length - 1].close) > 0
+    ? (Number(lastBar.close) - Number(priorBars[priorBars.length - 1].close)) / Number(priorBars[priorBars.length - 1].close) * 100 : null;
+  var maxPriorVolume = raw.length >= 20 && priorBars.length ? Math.max.apply(null, priorBars.map(function(b) { return Number(b.volume) || 0; })) : null;
+  var lastVolume = lastBar ? Number(lastBar.volume) || 0 : null;
+  var last10 = raw.slice(-10);
+  var up8 = last10.length >= 8 ? last10.slice(-8).filter(function(b, i, arr) { return i > 0 && Number(b.close) > Number(arr[i - 1].close); }).length : null;
+  var up10 = last10.length >= 10 ? last10.slice(1).filter(function(b, i) { return Number(b.close) > Number(last10[i].close); }).length : null;
+  var weeklyRaw = Array.isArray(context.weeklyOhlcv) ? context.weeklyOhlcv.filter(function(b) { return b && isFinite(Number(b.close)); }) : [];
+  var weekA = weeklyRaw.length >= 2 ? [weeklyRaw[weeklyRaw.length - 2]] : [];
+  var weekB = weeklyRaw.length >= 2 ? [weeklyRaw[weeklyRaw.length - 1]] : [];
+  var rangePct = function(bars) {
+    if (!bars.length || !(Number(bars[0].close) > 0)) return null;
+    var hi = Math.max.apply(null, bars.map(function(b) { return Number(b.high) || Number(b.close); }));
+    var lo = Math.min.apply(null, bars.map(function(b) { return Number(b.low) || Number(b.close); }));
+    return (hi - lo) / Number(bars[0].close) * 100;
+  };
+  var railroadA = rangePct(weekA), railroadB = rangePct(weekB);
+  var railroadVolA = weekA.length ? weekA.reduce(function(s, b) { return s + (Number(b.volume) || 0); }, 0) / weekA.length : null;
+  var railroadVolB = weekB.length ? weekB.reduce(function(s, b) { return s + (Number(b.volume) || 0); }, 0) / weekB.length : null;
+  var railroadTrack = railroadA !== null && railroadB !== null && railroadA > 0
+    && Math.abs(railroadB - railroadA) / railroadA <= 0.15
+    && railroadVolA > 0 && railroadVolB >= railroadVolA * 1.2
+    && Number(weekB[weekB.length - 1].close) >= Number(weekA[weekA.length - 1].close);
   push(checks, price20Ratio !== null && price20Ratio >= 117, '20MA distance near heat band', price20Ratio === null ? '20MA ratio unavailable' : ('price/20MA ' + price20Ratio.toFixed(1) + ' / heat 120'), price20Ratio >= 120 ? 'risk' : 'warn');
   push(checks, dist20Atr !== null && dist20Atr >= 4, 'ATR extension trim zone', dist20Atr === null ? 'ATR extension unavailable' : ('20MA +' + dist20Atr.toFixed(1) + ' ATR'), dist20Atr !== null && dist20Atr >= 6 ? 'risk' : 'warn');
   push(checks, rsi14 !== null && rsi14 >= 80, 'RSI overheat', rsi14 === null ? 'RSI unavailable' : ('RSI ' + rsi14.toFixed(1) + ' - not automatic sell'), rsi14 !== null && rsi14 >= 85 ? 'risk' : 'warn');
   push(checks, rvol20 !== null && rvol20 >= 2.5 && closePosition !== null && closePosition < 0.55, 'Climax supply candle', 'RVOL ' + (rvol20 === null ? '--' : rvol20.toFixed(1)) + 'x / close position ' + (closePosition === null ? '--' : Math.round(closePosition * 100) + '%'), 'risk');
+  push(checks, dist200Pct !== null && dist200Pct >= 70, '200SMA 70%+ extension', dist200Pct === null ? '200SMA distance unavailable' : 'price/200SMA +' + dist200Pct.toFixed(1) + '% · O’Neil-style stretch watch', 'warn');
+  push(checks, lastGain !== null && maxPriorGain !== null && lastGain >= maxPriorGain && lastGain > 0, 'Record one-day gain watch', lastGain === null ? 'daily history unavailable' : 'latest day +' + lastGain.toFixed(1) + '% vs prior max ' + (maxPriorGain === null ? '--' : maxPriorGain.toFixed(1) + '%'), 'warn');
+  push(checks, lastVolume !== null && maxPriorVolume !== null && lastVolume >= maxPriorVolume && lastVolume > 0, 'Record volume watch', lastVolume === null ? 'volume history unavailable' : 'latest volume vs prior maximum', 'warn');
+  push(checks, (up8 !== null && up8 >= 7) || (up10 !== null && up10 >= 8), 'Rapid multi-day run', up8 === null ? '8/10-day history unavailable' : 'up days: last 8=' + up8 + ', last 10=' + (up10 === null ? '--' : up10), 'warn');
+  push(checks, railroadTrack, 'Railroad-track distribution watch', railroadA === null ? 'two-week OHLCV history unavailable' : 'weekly range similarity + rising volume/close condition', 'risk');
+  push(checks, context.upperChannelBreakout === true, 'Upper channel breakout watch', context.upperChannelBreakout === true ? 'user/runtime channel input supplied' : 'channel geometry not supplied', 'warn');
   push(checks, !!snapshot.bbReentry, 'Upper Bollinger re-entry', snapshot.bbReentry ? 'outside upper band then closed back inside' : 'no exhaustion re-entry yet', 'warn');
   push(checks, context.opexGammaRisk && context.opexGammaRisk.regime !== 'GAMMA_SUPPORT', 'OPEX/gamma decay watch', context.opexGammaRisk ? context.opexGammaRisk.regime : 'option context unavailable', 'warn');
   push(checks, eventCtx && eventCtx.cpi && eventCtx.cpi.coreMoM >= 0.4, 'Hot CPI macro trigger', eventCtx.cpi ? ('core CPI +' + window._aioSafeFixed(eventCtx.cpi.coreMoM, 1, '—') + '% MoM / headline ' + window._aioSafeFixed(eventCtx.cpi.headlineYoY, 1, '—') + '% YoY') : 'CPI context unavailable', 'risk');

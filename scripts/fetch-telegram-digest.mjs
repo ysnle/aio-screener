@@ -3,7 +3,13 @@ import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const CHANNELS = ['aetherjapanresearch', 'insidertracking', 'bornlupin'];
+const CHANNEL_CATALOG = [
+  { slug:'aetherjapanresearch', role:'asia-semi-flow', region:'jp-us', evidence:'secondary-public-mirror' },
+  { slug:'insidertracking', role:'us-fast-breaking', region:'us-global', evidence:'secondary-public-mirror' },
+  { slug:'bornlupin', role:'kr-semi-broker-notes', region:'kr-global', evidence:'secondary-public-mirror' },
+  { slug:'HANAchina', role:'china-em-supply-chain', region:'cn-tw-em', evidence:'secondary-public-mirror' },
+];
+const CHANNELS = CHANNEL_CATALOG.map(x => x.slug);
 const DEFAULT_DAYS = 14;
 const PAGE_LIMIT = Number(process.env.TG_PAGE_LIMIT || 50);
 const UA = {
@@ -46,6 +52,9 @@ const PAGE_TOPIC_MAP = {
   'kr-themes':['kr-market','semi','power','optical','equity','healthcare'],
   'kr-macro':['kr-market','macro','credit','semi','ai-policy','geo','japan'],
   'kr-technical':['kr-market','semi','equity','macro','geo','flows'],
+  principles:['macro','equity','semi','credit','power'],
+  masters:['semi','equity','macro','geo','power'],
+  atlas:['semi','power','optical','ai-policy','equity','macro','geo','kr-market'],
   guide:[],
 };
 const CATEGORY_LABELS = {
@@ -200,6 +209,7 @@ function extractTickers(text) {
   const raw = String(text || '');
   const map = [
     ['NVDA', /\bNVDA\b|nvidia/i], ['AMD', /\bAMD\b|Advanced Micro|MI450/i],
+    ['TSLA', /\bTSLA\b|Tesla/i], ['CAT', /\bCAT\b|Caterpillar/i], ['AMAT', /\bAMAT\b|Applied Materials/i],
     ['AAPL', /\bAAPL\b|\bApple\b/i], ['MSFT', /\bMSFT\b|\bMicrosoft\b|Azure|Copilot/i],
     ['GOOG', /\bGOOG\b|\bGOOGL\b|Google|Alphabet|Gemini/i], ['META', /\bMETA\b|Meta Platforms/i],
     ['AVGO', /\bAVGO\b|Broadcom|TPU/i], ['AMZN', /\bAMZN\b|Amazon|AWS|Trainium/i],
@@ -208,9 +218,14 @@ function extractTickers(text) {
     ['LITE', /\bLITE\b|Lumentum/i], ['COHR', /\bCOHR\b|Coherent/i],
     ['AAOI', /\bAAOI\b|Applied Optoelectronics/i], ['MTSI', /\bMTSI\b|MACOM/i],
     ['ORCL', /\bORCL\b|Oracle/i], ['BE', /\bBE\b|Bloom Energy|SOFC/i],
+    ['PLTR', /\bPLTR\b|Palantir/i], ['BMY', /\bBMY\b|Bristol[- ]Myers/i],
+    ['SNDK', /\bSNDK\b|SanDisk/i], ['WDC', /\bWDC\b|Western Digital/i], ['STX', /\bSTX\b|Seagate/i],
+    ['MTK', /\bMTK\b|MediaTek/i], ['PWR', /\bPWR\b|Quanta Services/i],
     ['ADBE', /\bADBE\b|Adobe/i], ['SMCI', /\bSMCI\b|Super Micro/i], ['RKLB', /\bRKLB\b|Rocket Lab/i],
     ['6600.T', /Kioxia/i], ['6981.T', /Murata/i],
-    ['005930.KS', /Samsung Electronics/i], ['009150.KS', /Samsung Electro/i], ['000660.KS', /SK\s*Hynix/i],
+    ['005930.KS', /Samsung Electronics|삼성전자/i], ['009150.KS', /Samsung Electro|삼성전기/i], ['000660.KS', /SK\s*Hynix|SK하이닉스/i],
+    ['042660.KS', /Hanwha Ocean|한화오션/i], ['039030.KQ', /EO Technics|이오테크닉스/i],
+    ['247540.KQ', /EcoPro BM|에코프로비엠/i], ['003670.KQ', /POSCO Future M|포스코퓨처엠/i],
   ];
   const out = [];
   for (const [ticker, re] of map) if (re.test(raw) && !out.includes(ticker)) out.push(ticker);
@@ -479,6 +494,7 @@ const digest = {
     lastPostIds:current24hObservedItems.slice(0, 20).map(it => it.id),
   },
   source: 'telegram-public-mirror',
+  sourceCatalog: CHANNEL_CATALOG.map(x => ({ channel:x.slug, role:x.role, region:x.region, evidence:x.evidence, publicMirror:`https://t.me/s/${x.slug}` })),
   channels: channels.map(c => {
     const observed = observedItems.filter(it => it.channel === c.channel);
     return { channel:c.channel, pages:c.pages, reachedOlder:c.reachedOlder, reachedKnown:!!c.reachedKnown,
@@ -533,9 +549,11 @@ const outputDigest = collectionStatus === 'failed' && previousDigest && Number(p
       attemptedAt,
       collectionStatus:'failed',
       successfulChannelCount:0,
-      channels:(previousDigest.channels || []).map(ch => {
-        const failed = channels.find(row => row.channel === ch.channel);
-        return Object.assign({}, ch, { error:failed && failed.error || 'collection failed', freshCount:0 });
+      sourceCatalog: CHANNEL_CATALOG.map(x => ({ channel:x.slug, role:x.role, region:x.region, evidence:x.evidence, publicMirror:`https://t.me/s/${x.slug}` })),
+      channels: CHANNELS.map(slug => {
+        const prior = (previousDigest.channels || []).find(ch => ch && ch.channel === slug) || { channel:slug, pages:0, reachedOlder:false, reachedKnown:false, count:0, eligibleTextCount:0, selectedCount:0, lastPostId:null };
+        const failed = channels.find(row => row.channel === slug);
+        return Object.assign({}, prior, { error:failed && failed.error || 'collection failed', freshCount:0 });
       })
     })
   : digest;

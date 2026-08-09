@@ -100,6 +100,7 @@ check('Telegram page coverage audit spans all 17 routes (v53.7 P725)', /getTeleg
 check('tests cover Telegram digest memo injection', /T831[\s\S]{0,2200}SCREENER_DB memo/.test(tests) && /_telegramMemoOverlay/.test(tests));
 check('Telegram page feeds cover fundamental/themes/KR technical pages', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && /id="tg-feed-theme-detail"/.test(html) && /id="tg-feed-kr-technical"/.test(html));
 check('Telegram page routing includes credit and AI infrastructure tags by page', /'fundamental':\s*\[[^\]]*'semi'[^\]]*'credit'/.test(data) && /'themes':\s*\[[^\]]*'power'[^\]]*'credit'/.test(data) && /'fxbond':\s*\[[^\]]*'credit'/.test(data) && /'kr-technical':\s*\[[^\]]*'semi'/.test(data) && /'credit':\s*\{\s*label:/.test(data));
+check('Telegram runtime audits four required channels including HANA China', /tgSlug:'HANAchina'/.test(data) && /requiredChannelSlugs/.test(data) && /missingRequiredChannels/.test(data) && /requiredSourcesReady/.test(data));
 check('Telegram market-note digest tag is consumed by briefing and market-news pages', /'briefing':\s*\[[^\]]*'market-note'/.test(data) && /'market-news':\s*\[[^\]]*'market-note'/.test(data));
 if (exists('public-data/telegram-digest.json')) {
   try {
@@ -371,6 +372,11 @@ check(
   'fetch-data emits VCP screener fields',
   /vcpScore/.test(fetchScript) && /vcpStage/.test(fetchScript) && /vcpPivot/.test(fetchScript),
   'scripts/fetch-data.mjs must keep server-side VCP fields wired into screener.json'
+);
+check(
+  'fetch-data emits TradingView winner-screen evidence fields',
+  /_calcSetupScreenFields/.test(fetchScript) && /pctFrom52wLow/.test(fetchScript) && /dollarVolume30d/.test(fetchScript) && /ema8/.test(fetchScript) && /ema21/.test(fetchScript) && /ema60/.test(fetchScript),
+  'scripts/fetch-data.mjs must keep nullable ADR/52-week/liquidity/EMA evidence wired into screener.json'
 );
 
 try {

@@ -499,11 +499,55 @@ if (typeof window !== 'undefined') window._aioTacticalTraderFrameworkContext = _
 // turning an essay, screenshot, or X link into current market data.
 var AIO_AI_INFRA_CYCLE_REFERENCE = {
   id: 'ai-infrastructure-cycle-20260720',
-  version: 'v53.43',
+  version: 'v53.91',
   sourceKind: 'REFERENCE',
-  asOf: '2026-07-20',
-  sourceLabel: 'User-supplied market analysis, essay, X links, and chart images',
+  asOf: '2026-08-09',
+  sourceLabel: 'User-supplied market analysis, interview summary, X links, chart/calendar images, and Telegram channel observations',
+  sourceLinks: [
+    'https://x.com/BlogJulianKomar/status/2085704780010152132',
+    'https://x.com/tmmrwseoul/status/2085041662037004412',
+    'https://x.com/JhonbermanS4/status/2084622538995573200',
+    'https://power2026.ai/',
+    'https://x.com/gmpnavi/status/2084468746102669519',
+    'https://x.com/JhonbermanS4/status/2084255353559208430',
+    'https://theshortbear.substack.com/',
+    'https://x.com/JhonbermanS4/status/2084111979984417223',
+    'https://x.com/JhonbermanS4/status/2080099564707840078',
+    'https://x.com/JhonbermanS4/status/2079770897259327990',
+    'https://x.com/laylaperfume/status/2083388948051906788',
+    'https://x.com/Alisvolatprop12/status/2082068032042758194',
+    'https://t.me/s/aetherjapanresearch',
+    'https://t.me/s/insidertracking',
+    'https://t.me/s/bornlupin',
+    'https://t.me/s/HANAchina'
+  ],
   handling: 'Use as a reusable debate and monitoring framework only. Exact historical figures, chart levels, and external-link claims require current/official evidence before they can affect a decision.',
+  evidenceHierarchy: [
+    'Tier 1: current provider data, filings, utility/ISO measurements, and reproducible calculations.',
+    'Tier 2: primary research, official company/utility releases, and dated interviews with attributable methodology.',
+    'Tier 3: analyst commentary, social posts, screenshots, and summaries; useful for hypotheses, never sufficient alone.'
+  ],
+  sourceAudit: [
+    { id: 'power-quality-text', material: 'Bloomberg-style AI data-center load-ramp summary', observation: 'Fast workload changes may stress transformers and power quality through ramp-rate, voltage behavior, and harmonics.', integration: 'powerQualityFrame; monitor load ramp, peak-to-average, transformer temperature/loading, flicker, THD, interconnection, BTM/PPA.', limitation: 'Correlation and facility-specific engineering; no automatic claim that household devices are damaged.' },
+    { id: 'gavin-baker-summary', material: 'Gavin Baker interview summary', observation: 'GPU availability/rental repricing, OCF, frontier-lab growth, memory LTA, credit, and power are linked demand variables.', integration: 'questions Q1-Q5, demandFalsifiers, memoryLtaFrame, AI infrastructure identity memos.', limitation: 'Interview estimates are reference hypotheses; verify prices, contracts, filings, and cash flow.' },
+    { id: 'oneil-climax', material: "O'Neil climax-top checklist", observation: 'Record gain/volume, exhaustion gap, rapid run, railroad track, high-volume no-progress, increasing down days, upper-channel extension, and 200SMA stretch can cluster near exhaustion.', integration: 'calcBlowoffTopChecklist, setupProfile.climaxRisk, screener entry timing.', limitation: 'Pattern checklist is probabilistic; weekly rules require weekly bars and every item is fail-closed when history is missing.' },
+    { id: 'image-01-tradingview', material: 'TradingView Best winners screenshot', observation: 'Price, ADR, 52-week-low distance, dollar liquidity, EMA8/21, and price-vs-EMA60 are used as a candidate screen.', integration: 'setupProfile.winnerFilter and screener structure filter; pipeline now materializes each field from delayed EOD history.', limitation: 'Screenshot thresholds are a research template, not a live recommendation; no field silently passes when unavailable.' },
+    { id: 'image-02-relative-strength', material: 'Ariel relative-strength pullback screenshot', observation: 'Pullbacks near 200SMA can be long candidates; failed reclaim/supply can support short research.', integration: 'relativeStrengthPullback, support200, supply-side short language, DELL/HPE/NBIS/BE/CVNA memos.', limitation: 'Ticker examples are dated observations; current support and borrow/flow require fresh data.' },
+    { id: 'image-03-kospi', material: 'KOSPI long-horizon chart', observation: '200MA undershoot/reclaim, gap retracement, divergence, and volume frame Korean index regime analysis.', integration: 'chartReadingProtocol, KOSPI/EWY breadth and macro prompts.', limitation: 'Displayed levels are not hardcoded into current signals.' },
+    { id: 'image-04-indices', material: 'S&P 500/Nasdaq chart', observation: 'MACD divergence, stochastic reversal, and 50/200MA recovery need breadth and retest confirmation.', integration: 'chartReadingProtocol and index breadth checks.', limitation: 'Chart levels are historical image context, not live levels.' },
+    { id: 'image-05-macro', material: 'WTI, US 10Y, DXY, KRW chart set', observation: 'Rates, dollar, oil, and FX are transmission channels for equity and semiconductor risk.', integration: 'macro/oil/FX/real-yield cross-checks and protect playbook.', limitation: 'Direction from a screenshot does not replace current series or policy interpretation.' },
+    { id: 'image-06-daily-recap', material: 'Ariel daily recap screenshot', observation: 'Cybersecurity, mega-cap software, steel, refiners, semis, dollar, and SQQQ/QQQ are separate leadership/hedge branches.', integration: 'PANW/CRWD/DDOG/RBRK/NUE/RS/STLD/PSX/VLO/MPC memos; SQQQ as hedge-demand context.', limitation: 'Peer leadership is not fundamental proof; inverse ETF strength is not equity quality.' },
+    { id: 'image-07-economic-calendar', material: 'Economic calendar screenshot', observation: 'Event timing and impact tier define observation windows around macro releases.', integration: 'eventCalendarFrame and calendar-aware answer prompts.', limitation: 'Calendar values/times must come from current provider.' },
+    { id: 'image-08-earnings-calendar', material: 'Weekly earnings calendar screenshot', observation: 'Before/after-market earnings create gap, liquidity, and invalidation risk.', integration: 'eventCalendarFrame and ticker-level catalyst checks.', limitation: 'Displayed tickers/dates are not current until provider/filings reconcile.' },
+    { id: 'image-09-tmmrwseoul', material: 'Support/resistance and difficult-zone chart', observation: 'Returning to an uptrend does not remove pullback, time, and two-sided resistance risk.', integration: 'retest-first protocol, support/resistance, wait/probe behavior.', limitation: 'Trend labels are scenario hypotheses, not automatic entries.' },
+    { id: 'telegram-four-channel-browser-audit', material: 'Aether, Insider Tracking, BornLupin, and HANA China public Telegram browser observations', observation: 'The channels are distinct discovery lenses: Asia/Japan and sell-side research, US breaking/pre-market, Korean industrial/semiconductor notes, and China/Taiwan/EM supply-chain themes.', integration: 'four-channel source catalog, dynamic digest, HANA source registry, ticker aliases, SCREENER_DB research memos, and source-aware chat context.', limitation: 'Telegram is secondary/forwarded content; views, subscriber counts, repetition, target prices, rumors, and model summaries are not independent confirmation or current market data.' }
+  ],
+  screenFrame: {
+    fields: ['price > 1', 'ADR >= 4.5%', '52-week-low distance >= 70%', '30D dollar volume > $10M', 'latest dollar volume > $7M', 'EMA8 > EMA21', 'price > EMA60'],
+    status: 'candidate only; unavailable when any required field is missing',
+    interpretation: 'The screen identifies liquid, volatile, extended continuation candidates. It does not confirm earnings quality, support, or a climax-free entry.'
+  },
+  supplySideShortFrame: 'Short research requires a supply/overhead level, failed reclaim or retest, price-volume confirmation, borrow/flow context, catalyst, and explicit invalidation. Relative weakness alone is insufficient.',
   questions: [
     { id: 'Q1', label: 'Capex lag or structural trap?', meaning: 'Is current AI capex cash outflow mainly a timing gap before contracted revenue, or does depreciation and recurring reinvestment prevent a durable harvest period?' },
     { id: 'Q2', label: 'What changed in the market model?', meaning: 'Memory behaves as a P/ASP-and-multiple cycle, while neocloud behaves as a Q/utilization, spread, depreciation, and capital-access cycle.' },
@@ -516,6 +560,31 @@ var AIO_AI_INFRA_CYCLE_REFERENCE = {
     { id: 'neocloud-q-capital-game', label: 'Neocloud = Q·capital game', meaning: 'Quantity/utilization must outrun falling rental prices while funding cost, GPU depreciation, lease obligations, and runway remain survivable.' },
     { id: 'breadth-confirmation', label: 'Narrow index stability is not broad stabilization', meaning: 'Separate mega-cap support from market-wide participation using advance ratio, equal-weight/benchmark relative strength, moving-average breadth, volume, VIX term structure, and credit spreads.' }
   ],
+  powerQualityFrame: {
+    paradigm: 'AI 전력 리스크는 총 MWh 부족만이 아니라 GPU workload의 급격한 ramp-rate·peak-to-average·전력품질이 계통 자산에 전달되는 문제다.',
+    causalChain: 'GPU workload burst → 부하 급변 → 변압기 열·수명 스트레스 / 전압·주파수 변동 / 고조파 왜곡 → interconnection 심사·설비 보강·주변 산업 부하 리스크',
+    monitor: ['load ramp-rate', 'peak-to-average load', 'transformer loading/temperature', 'voltage flicker', 'harmonic distortion', 'interconnection queue', 'behind-the-meter/onsite power', 'PPA duration and counterparty'],
+    metrics: ['PCC THD/current harmonics', 'voltage sag/swell/flicker', 'frequency response', 'transformer temperature/load factor', 'validated interconnection load model'],
+    evidenceStatus: 'mixed-correlation-and-engineering-risk; measure before promotion',
+    sourceLinks: ['https://www.bloomberg.com/graphics/2024-ai-power-home-appliances/', 'https://arxiv.org/abs/2606.25095', 'https://power2026.ai/'],
+    caveat: '전력품질 영향은 시설·설계·필터·운영조건별로 달라지며, 관측 상관관계는 단일 원인·인과를 입증하지 않는다. 가정용 기기가 즉시 파손된다는 주장은 확인된 현재 사실로 승격하지 않는다.'
+  },
+  demandFalsifiers: [
+    'hyperscaler operating-cash-flow acceleration stops',
+    'GPU rental and used-GPU prices continue to fall rather than reprice at renewal',
+    'frontier labs aggregate growth stalls',
+    'memory spot/contract pricing and LTA allocation weaken together',
+    'credit spreads, lease funding, or power/interconnection constraints block capacity even while headline demand remains high'
+  ],
+  memoryLtaFrame: '메모리 LTA는 단순 판매계약이 아니라 부족 국면의 물량 배분·선지급·고객 락인 구조다. 구매자가 Apple 단독에서 NVIDIA·Google·Amazon·AMD 등 복수 대형 수요자로 늘면 공급자의 협상력과 공급 우선순위가 바뀐다. 실제 계약·가격·선지급은 공식 공시/공급사 확인 전까지 REFERENCE로 둔다.',
+  eventCalendarFrame: '경제·실적 캘린더는 촉매와 관찰 창을 정하는 참고 레이어일 뿐이다. 이벤트 날짜·예상치·실제치·서프라이즈·유동성·가격/거래량 반응은 최신 provider/공시가 모두 들어오기 전 현재 신호로 확정하지 않는다.',
+  telegramFrame: {
+    channelRoles: 'Aether=JP/US research and Asia semi-flow; Insider=US fast-breaking and pre-market; BornLupin=KR industrial, sell-side and semiconductor notes; HANAchina=China/Taiwan/EM supply-chain, battery and policy context.',
+    extraction: 'Extract source date, original link, named issuer, ticker, claim type, estimate/actual distinction, and independent confirmation target. Separate forwarded/quoted items from channel-authored analysis.',
+    quality: 'Subscriber/view counts measure distribution, not truth. Repeated cross-channel copies are one lineage until primary evidence or independent reporting confirms them.',
+    promotionGate: 'Keep Telegram observations REFERENCE/UNTRUSTED. Promote only after official filings, company IR, regulator/utility/ISO data, or reproducible live-provider evidence reconciles the claim.',
+    invalidation: 'Mark stale or contradicted when the original source retracts/updates, the issuer denies it, the expected filing/event fails, or price/volume/fundamental evidence diverges.'
+  },
   chartReadingProtocol: [
     'Context: compare cap-weighted leadership with equal-weight, small-cap, sector, and cross-market participation before reading a single pattern.',
     'Trend: classify higher-high/higher-low, lower-high/lower-low, moving-average slope, and location inside the larger time-series structure.',
@@ -540,7 +609,8 @@ var AIO_AI_INFRA_CYCLE_REFERENCE = {
     'Capex growth stays above revenue growth while backlog conversion fails to accelerate.',
     'Depreciation and financing costs rise faster than revenue or rental spread.',
     'Broad participation deteriorates together with VIX, HY OAS, real yields, or oil-inflation pressure.',
-    'Neocloud contracts, funding access, or utilization fail before Q can offset price deflation.'
+    'Neocloud contracts, funding access, or utilization fail before Q can offset price deflation.',
+    'Power-quality evidence does not reproduce under measured load conditions, leaving only a headline narrative rather than an investable constraint.'
   ]
 };
 
@@ -553,20 +623,30 @@ function _aioAIInfraCycleContext(ctxId, q) {
       'kr-home':1, 'kr-supply':1, 'kr-themes':1, 'kr-macro':1, 'kr-tech':1, 'kr-technical':1
     };
     var ask = String(q || '').toLowerCase();
-    var hit = /capex|depreciation|neocloud|coreweave|nebius|iren|memory|dram|hbm|gpu|tpu|breadth|kospi|ewy|soxx|smh|oil|real yield|credit|backlog|utilization|funding|multiple/.test(ask);
+    var hit = /capex|depreciation|neocloud|coreweave|nebius|iren|memory|dram|hbm|gpu|tpu|breadth|kospi|ewy|soxx|smh|oil|real yield|credit|backlog|utilization|funding|multiple|earnings|calendar|telegram|hana|china|taiwan|ess|battery|kioxia|qwen|hormuz|water|power quality|실적|경제 일정|고용/.test(ask);
     if (!relevant[ctxId] && !hit) return '';
     var f = AIO_AI_INFRA_CYCLE_REFERENCE;
     var lines = [
       '\n\n[User-supplied AI infrastructure cycle framework | sourceKind=' + f.sourceKind + ' | asOf=' + f.asOf + ']',
       'This is a durable REFERENCE framework, not a live quote/fundamental block. Do not promote its figures, chart levels, scenario dates, or external-link claims to current facts.',
-      'Source handling: the supplied essay, X links, and eight chart images were read as reference material; current claims must be reconciled with injected LIVE/SNAPSHOT/official evidence.'
+      'Source handling: the supplied essay, X links, and nine chart/calendar images were read as reference material; current claims must be reconciled with injected LIVE/SNAPSHOT/official evidence.'
     ];
+    lines.push('Evidence hierarchy: ' + f.evidenceHierarchy.join(' | '));
+    lines.push('Source audit: ' + f.sourceAudit.map(function(item) { return item.id + '=' + item.observation + ' | integration=' + item.integration + ' | limitation=' + item.limitation; }).join(' || '));
+    lines.push('TradingView winner screen frame: ' + f.screenFrame.fields.join(' / ') + ' · ' + f.screenFrame.status + ' · ' + f.screenFrame.interpretation);
+    lines.push('Supply-side short frame: ' + f.supplySideShortFrame);
     f.questions.forEach(function(item) { lines.push('- ' + item.id + ' ' + item.label + ': ' + item.meaning); });
     f.lenses.forEach(function(item) { lines.push('- Lens ' + item.label + ': ' + item.meaning); });
     lines.push('Chart-reading protocol: ' + f.chartReadingProtocol.join(' → '));
     lines.push('Behavior playbook: ' + f.behaviorPlaybook.map(function(item) { return item.id + '=' + item.trigger + ' => ' + item.response; }).join(' | '));
     lines.push('Communication contract: ' + f.communicationContract.join(' | '));
-    lines.push('Required cross-check: compare the 2026-07-20 reference window with the latest available time series, then state what changed, what did not change, and which evidence is still missing.');
+    lines.push('Power-quality frame: ' + f.powerQualityFrame.paradigm + ' Chain=' + f.powerQualityFrame.causalChain);
+    lines.push('Power-quality monitoring: ' + f.powerQualityFrame.monitor.join(' / ') + ' · Metrics=' + f.powerQualityFrame.metrics.join(' / ') + ' · Caveat=' + f.powerQualityFrame.caveat);
+    lines.push('AI-demand falsifiers: ' + f.demandFalsifiers.join(' | '));
+    lines.push('Memory LTA frame: ' + f.memoryLtaFrame);
+    lines.push('Event/earnings calendar frame: ' + f.eventCalendarFrame);
+    lines.push('Telegram reference frame: ' + f.telegramFrame.channelRoles + ' Extraction=' + f.telegramFrame.extraction + ' Quality=' + f.telegramFrame.quality + ' Promotion gate=' + f.telegramFrame.promotionGate + ' Invalidation=' + f.telegramFrame.invalidation);
+    lines.push('Required cross-check: compare the 2026-08-09 supplied reference packet with the latest available time series, then state what changed, what did not change, and which evidence is still missing.');
     lines.push('Required answer split: (1) memory P/ASP/multiple, (2) neocloud Q/spread/capital, (3) capex/backlog/depreciation, (4) breadth/rates/credit/oil, (5) confirmation and invalidation conditions.');
     lines.push('Do not infer a bottom from one-day rebound, a low P/E, a backlog headline, or a chart pattern alone.');
 

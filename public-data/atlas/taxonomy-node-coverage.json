@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-era-atlas-taxonomy-node-coverage.v1",
-  "revision": "2026-08-02-v53.85",
+  "revision": "2026-08-09-v53.93",
   "status": "STRUCTURAL_COVERAGE_CONNECTED",
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "sourceDocument": "_context/AI-ERA-DEEP-TAXONOMY-PLAYER-PRODUCT-SPEC-2026-08-01.md",
@@ -12,6 +12,50 @@
     "nodesWithRepresentativePlayers": 47,
     "nodesWithRepresentativeProducts": 41,
     "currentClaims": 0
+  },
+  "relationshipModel": {
+    "status": "STRUCTURAL_RELATIONSHIPS_CONNECTED",
+    "domainChains": [
+      {"domainId":"domain-cloud-platform","nodeIds":["cloud-hyperscaler","cloud-ai-service","cloud-utilization","cloud-commitments","cloud-depreciation"]},
+      {"domainId":"domain-neocloud-finance","nodeIds":["neocloud-gpu-rental","neocloud-capacity-reservation","neocloud-lease-burden","neocloud-customer-concentration","neocloud-rental-yield"]},
+      {"domainId":"domain-compute-silicon","nodeIds":["compute-gpu","compute-asic","compute-npu","compute-precision","compute-interconnect"]},
+      {"domainId":"domain-memory-storage","nodeIds":["memory-sram","memory-dram-hbm","memory-nand","memory-enterprise-ssd","memory-cxl"]},
+      {"domainId":"domain-foundry-equipment","nodeIds":["foundry-design-ecosystem","foundry-process-node","foundry-equipment","foundry-materials","foundry-capacity-yield"]},
+      {"domainId":"domain-packaging-substrate","nodeIds":["package-2-5d","package-3d-stacking","package-interposer","package-substrate","package-glass"]},
+      {"domainId":"domain-network-photonics","nodeIds":["network-switch","network-optical-module","network-silicon-photonics","network-cpo","network-fabric"]},
+      {"domainId":"domain-aidc-cooling","nodeIds":["aidc-rack-density","aidc-liquid-cooling","aidc-thermal-design","aidc-server-platform","aidc-pue"]},
+      {"domainId":"domain-power-grid","nodeIds":["power-it-load","power-generation","power-transmission","power-interconnection","power-transformer"]},
+      {"domainId":"domain-on-device-physical-ai","nodeIds":["edge-soc-npu","edge-memory-power","physical-ai-sensing","physical-ai-control","physical-ai-digital-twin"]},
+      {"domainId":"domain-ai-economics","nodeIds":["economics-revenue-model","economics-capex","economics-depreciation","economics-fcf","economics-roic"]},
+      {"domainId":"domain-physical-ai-robotics","nodeIds":["physical-ai-perception","physical-ai-world-model","physical-ai-planning","physical-ai-actuation","physical-ai-unit-economics"]},
+      {"domainId":"domain-drone-defense","nodeIds":["defense-kill-chain","defense-c2-isr-ew","defense-autonomy","defense-drone-production","defense-procurement-economics"]},
+      {"domainId":"domain-space-aerospace","nodeIds":["space-rocket-physics","space-reusability","space-satellite-economics","space-artemis-architecture","space-aircraft-supply-chain"]},
+      {"domainId":"domain-ai-applications","nodeIds":["application-healthcare","application-manufacturing","application-automotive","application-finance","application-roi-payer"]},
+      {"domainId":"domain-resources-materials","nodeIds":["resources-copper","resources-lithium","resources-rare-earths","resources-refining","resources-industrial-equipment"]},
+      {"domainId":"domain-geopolitics-policy-security","nodeIds":["policy-export-controls","policy-supply-chain-resilience","policy-semiconductor-incentives","policy-cybersecurity","policy-national-security-risk"]},
+      {"domainId":"domain-capital-markets-company-map","nodeIds":["capital-company-role","capital-revenue-quality","capital-margin-structure","capital-balance-sheet","capital-market-expectation"]},
+      {"domainId":"domain-adjacent-future-tech","nodeIds":["future-quantum","future-photonic-compute","future-neuromorphic","future-new-energy","future-uncertainty-gate"]}
+    ],
+    "crossDomainEdges": [
+      {"from":"cloud-hyperscaler","to":"compute-gpu","relation":"AI compute demand"},
+      {"from":"compute-gpu","to":"memory-dram-hbm","relation":"workload bandwidth"},
+      {"from":"memory-dram-hbm","to":"package-2-5d","relation":"system integration"},
+      {"from":"package-2-5d","to":"network-fabric","relation":"cluster scale"},
+      {"from":"network-fabric","to":"aidc-server-platform","relation":"facility deployment"},
+      {"from":"aidc-server-platform","to":"power-it-load","relation":"IT load"},
+      {"from":"power-it-load","to":"power-interconnection","relation":"grid access"},
+      {"from":"power-interconnection","to":"power-transformer","relation":"substation equipment"},
+      {"from":"power-it-load","to":"economics-capex","relation":"capital requirement"},
+      {"from":"economics-roic","to":"capital-company-role","relation":"value capture"},
+      {"from":"compute-gpu","to":"edge-soc-npu","relation":"deployment split"},
+      {"from":"edge-soc-npu","to":"physical-ai-perception","relation":"on-device sensing"},
+      {"from":"compute-gpu","to":"physical-ai-world-model","relation":"simulation compute"},
+      {"from":"power-it-load","to":"defense-drone-production","relation":"production capacity"},
+      {"from":"power-it-load","to":"space-satellite-economics","relation":"space systems infrastructure"},
+      {"from":"policy-export-controls","to":"compute-gpu","relation":"access constraint"},
+      {"from":"capital-revenue-quality","to":"economics-roic","relation":"cashflow verification"},
+      {"from":"future-uncertainty-gate","to":"capital-market-expectation","relation":"evidence gate"}
+    ]
   },
   "nodes": [
     {

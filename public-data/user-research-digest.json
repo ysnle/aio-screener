@@ -199,6 +199,139 @@
         "worker": "Worker root/health was not independently verified from this environment; URL is retained as an operator endpoint reference only.",
         "chartNumbers": "OCR from the screenshots was not promoted; exact values come only from the supplied text block and remain reference-only."
       }
+    },
+    {
+      "id": "ai-infrastructure-power-quality-setup-20260809",
+      "title": "AI 인프라 전력 품질·수요 반증·상대강도 눌림·클라이막스 탑·이벤트 캘린더",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-09",
+      "sourceFiles": ["user-pasted-ai-power-quality-and-gavin-baker-summary", "user-supplied-clipboard-images-1-9"],
+      "urls": [
+        "https://x.com/BlogJulianKomar/status/2085704780010152132",
+        "https://x.com/tmmrwseoul/status/2085041662037004412",
+        "https://x.com/JhonbermanS4/status/2084622538995573200",
+        "https://power2026.ai/",
+        "https://x.com/gmpnavi/status/2084468746102669519",
+        "https://x.com/JhonbermanS4/status/2084255353559208430",
+        "https://theshortbear.substack.com/",
+        "https://x.com/JhonbermanS4/status/2084111979984417223",
+        "https://x.com/JhonbermanS4/status/2080099564707840078",
+        "https://x.com/JhonbermanS4/status/2079770897259327990",
+        "https://x.com/laylaperfume/status/2083388948051906788",
+        "https://x.com/Alisvolatprop12/status/2082068032042758194"
+      ],
+      "categories": ["macro", "technical", "breadth", "fundamental", "themes", "screener", "ticker", "fxbond", "kr-market"],
+      "pageTargets": ["home", "briefing", "macro", "fxbond", "technical", "signal", "breadth", "sentiment", "themes", "theme-detail", "fundamental", "screener", "ticker", "portfolio", "options", "kr-home", "kr-supply", "kr-themes", "kr-macro", "kr-tech", "kr-technical"],
+      "extraction": {
+        "thesis": "AI 인프라의 병목은 총 MWh뿐 아니라 GPU workload의 급격한 부하 변화와 전력품질이며, 수요 강세는 현금흐름·GPU 가격·프론티어 랩 성장·메모리 LTA·크레딧·전력 확보를 동시에 통과해야 한다.",
+        "powerQualityChain": "GPU workload burst → load ramp/peak-to-average → transformer thermal stress, voltage/frequency fluctuation and harmonics → interconnection, onsite-power and adjacent-facility risk. Facility measurements are required.",
+        "demandFalsifiers": ["hyperscaler operating-cash-flow acceleration stops", "GPU rental/used prices keep falling", "frontier-lab aggregate growth stalls", "memory price/LTA allocation weakens", "credit, lease funding or power delivery blocks capacity"],
+        "setupFrame": ["high-relative-strength pullback toward support/200SMA", "two-way tape: continuation versus supply-side short research branch", "TradingView winner evidence: price, ADR, 52-week-low distance, dollar liquidity and EMA8/21/60", "200SMA 70%+ stretch", "record one-day gain/volume, 8/10-day run, railroad-track distribution and channel breakout"],
+        "eventFrame": "Economic and earnings calendars are catalysts/context only; event date, estimate, actual, surprise, liquidity and price/volume reaction must come from the live provider before a screen decision.",
+        "signals": ["load ramp-rate", "transformer loading/temperature", "voltage flicker", "harmonic distortion", "GPU rental repricing", "OCF acceleration", "frontier-lab growth", "memory LTA allocation", "relative-strength pullback", "200SMA stretch", "railroad track", "support/reclaim", "event reaction"],
+        "risks": ["power-quality narrative without measured evidence", "GPU/DRAM/LTA claims from interview or X only", "low-volume rebound mistaken for continuation", "short inferred from weakness without supply/borrow evidence", "calendar headline mistaken for earnings surprise or current signal"],
+        "automationHint": "Keep all extracted observations as REFERENCE. Use native live/snapshot/official evidence for current values; list confirmation, invalidation, missing fields, and next observation window. Never convert a setup label into an order."
+      },
+      "framework": {
+        "Q1": "Is AI demand accelerating in measured utilization/cash flow, or only in narrative/capex?",
+        "Q2": "Is the stock a high-relative-strength pullback candidate, an overhead-supply short research branch, or an extended/climax-risk observation?",
+        "Q3": "Do power quality, GPU price, OCF, frontier-lab growth, memory LTA and credit evidence confirm the same direction?",
+        "Q4": "Does the catalyst produce accepted price/volume and breadth participation, or only a transient gap/rebound?",
+        "Q5": "What evidence invalidates the thesis: measured power-quality non-reproduction, demand falsifier, failed support/reclaim, or supply-side failure?",
+        "chartReadingProtocol": ["separate trend/location from forecast", "prioritize support/reclaim or failed retest", "compare benchmark-relative strength and participation", "require daily/weekly OHLCV for climax checks", "treat calendar/earnings events as catalysts until live actual/estimate evidence arrives"],
+        "behaviorPlaybook": [{"mode": "wait", "when": "RVOL, benchmark, OHLCV, measured power or official contract evidence is missing", "response": "show unavailable/missing evidence and do not chase"}, {"mode": "probe", "when": "two independent confirmations align", "response": "research-only staged hypothesis; execution remains user-controlled"}, {"mode": "protect", "when": "support fails with breadth/credit/power constraints", "response": "state invalidation and reassess risk"}]
+      },
+      "evidenceHierarchy": ["current provider/filings/utility or ISO measurements", "primary research and attributable dated interviews", "analyst commentary/social posts/screenshots as hypothesis inputs"],
+      "sourceAudit": [
+        {"id": "power-quality-text", "observation": "Fast AI workload changes may stress transformer loading and power quality through ramp-rate, voltage behavior and harmonics.", "integration": "powerQualityFrame plus measurable THD, flicker, sag/swell, transformer temperature and interconnection fields.", "limitation": "Facility-specific engineering risk; correlation is not causation and household damage is not promoted."},
+        {"id": "gavin-baker-summary", "observation": "GPU availability/rental repricing, OCF, frontier-lab growth, memory LTA, credit and power are linked demand variables.", "integration": "Q1-Q5, demand falsifiers, memory LTA frame and ticker research memos.", "limitation": "Interview figures remain reference hypotheses until filings, contracts, prices and cash flow reconcile."},
+        {"id": "oneil-climax", "observation": "Record gain/volume, exhaustion gap, rapid run, railroad track, high-volume no-progress, increasing down days, channel extension and 200SMA stretch form an exhaustion checklist.", "integration": "Daily/weekly OHLCV climax checklist and entry timing.", "limitation": "Probabilistic pattern; weekly claims require weekly bars and missing data fails closed."},
+        {"id": "image-1-tradingview", "observation": "Price, ADR, 52-week-low distance, dollar liquidity, EMA8/21 and price-vs-EMA60 define the illustrated winner screen.", "integration": "winnerFilter evidence fields and screener structure filter.", "limitation": "Template thresholds are not recommendations; no missing field silently passes."},
+        {"id": "images-2-9", "observation": "Relative-strength pullback, index/macro divergence, quality leadership, event windows and support/retest framing are separate research branches.", "integration": "setup profile, chart protocol, event frame, macro cross-checks and ticker memos.", "limitation": "Screenshot levels/dates/tickers are historical context and are not current signal inputs."}
+      ],
+      "referenceTimeSeries": {"valueStatus": "user-supplied-reference-only; not a DATA_SNAPSHOT decision input", "monitoringWindows": ["next measured load/power-quality disclosure", "next earnings and estimate reaction", "next GPU rental/used-price observation", "next memory contract/spot and allocation update", "next support/reclaim with volume"]},
+      "visualEvidence": [
+        {"id": "image-1", "observation": "TradingView screener layout illustrates relative-strength winners, moving-average relations, 52-week proximity, liquidity and volume filters; UI pattern only, not a current AIO result."},
+        {"id": "image-2", "observation": "Relative-strength pullback example around 200SMA support, alongside a separate supply-side short branch; requires reclaim, volume, benchmark and borrow/flow evidence."},
+        {"id": "image-3", "observation": "KOSPI long-horizon chart marks 200MA, support cluster and oscillator divergence; exact levels are historical screenshot annotations, not current targets."},
+        {"id": "image-4", "observation": "US index charts combine MACD/oscillator divergence with 50/200MA recovery and retest zones; divergence is context, not a standalone reversal signal."},
+        {"id": "image-5", "observation": "Rates/FX weekly panels frame policy-risk, trend and divergence context; current rates/FX must come from live macro data."},
+        {"id": "image-6", "observation": "Daily recap favors quality leaders and volume-backed action, notes overhead supply in semiconductors and warns against rushing beaten-down names."},
+        {"id": "image-7", "observation": "Economic calendar sample shows event day, timing and impact tiers; event metadata must be current-provider sourced."},
+        {"id": "image-8", "observation": "Weekly earnings calendar sample shows before/after-market grouping and estimate context; earnings reaction requires actual/estimate and price/volume confirmation."},
+        {"id": "image-9", "observation": "Trend-return chart distinguishes support/resistance, moving-average reclaim and potential reversal; one rebound is not a confirmed trend change."}
+      ],
+      "accessNotes": {
+        "xLinks": "X pages were not independently readable in the execution environment; user-provided text/images were used as the reference extraction.",
+        "power2026": "power2026.ai was independently read for the power-constraint/grid-balance corroboration; it does not verify facility-specific harmonics or current company metrics.",
+        "chartNumbers": "OCR/exact screenshot levels were not promoted; current values come only from live/official artifacts.",
+        "sourceBoundary": "No reference item may populate DATA_SNAPSHOT, live quote, current fundamental, or automatic trade decision fields."
+      }
+    },
+    {
+      "id": "telegram-four-channel-audit-20260809",
+      "title": "Telegram 4채널 공개 감사: AI 인프라·반도체·한국/중국 공급망·매크로 이벤트",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-09",
+      "sourceFiles": ["browser-public-telegram-snapshots-20260809", "_context/RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md"],
+      "urls": [
+        "https://web.telegram.org/k/#@aetherjapanresearch",
+        "https://web.telegram.org/k/#@insidertracking",
+        "https://web.telegram.org/k/#@bornlupin",
+        "https://web.telegram.org/k/#@HANAchina",
+        "https://t.me/s/aetherjapanresearch",
+        "https://t.me/s/insidertracking",
+        "https://t.me/s/bornlupin",
+        "https://t.me/s/HANAchina"
+      ],
+      "categories": ["telegram", "macro", "semi", "power", "supply-chain", "screener", "ai-context"],
+      "pageTargets": ["home", "briefing", "macro", "technical", "themes", "fundamental", "screener", "ticker", "market-news", "kr-home", "kr-supply", "kr-themes", "kr-macro", "kr-technical", "atlas"],
+      "extraction": {
+        "thesis": "네 채널은 AI 인프라 수익화·전력/물 병목, 메모리/첨단 패키징, 한국 수급·브로커 노트, 중국/대만 공급망과 빠른 미국 기업 뉴스를 서로 다른 역할로 제공한다. 채널 관찰은 현재 데이터가 아니라 검증할 질문과 후보 노출의 원천이다.",
+        "channelRoles": {
+          "aetherjapanresearch": "asia-semi-flow; 일본/미국 반도체·AI 인프라·포지셔닝",
+          "insidertracking": "us-fast-breaking; 미국 속보·기업·매크로·이벤트",
+          "bornlupin": "kr-semi-broker-notes; 한국 반도체·소재·ESS·증권사 전달 노트",
+          "HANAchina": "china-em-supply-chain; 중국·대만·신흥국 AI/배터리/공급망"
+        },
+        "themes": ["AI capex monetization and OCF", "data-center power/water/interconnection", "HBM/NAND/LTA/advanced packaging", "KOSPI positioning and deleveraging", "China/Taiwan AI, EV, sodium-ion and ESS", "fast corporate/geopolitical catalysts"],
+        "tickers": ["NVDA", "AMD", "TSM", "AVGO", "MU", "WDC", "STX", "6600.T", "MTK", "005930.KS", "000660.KS", "042660.KS", "039030.KQ", "247540.KQ", "003670.KQ", "BMY", "ORCL", "GEV", "PWR", "ALB", "TSLA"],
+        "risk": ["forwarded/secondary lineage", "live channel contents can change between audits and a visible window is not a complete archive", "analyst targets and rumor headlines are not current fundamentals", "same source copied across channels is not independent confirmation", "universe/provider gaps for some China names"],
+        "automationHint": "Use channel observations to populate research memos, keywords and Q1-Q5 prompts. Promote to CURRENT only after independent primary confirmation; keep missing fields unavailable and never create an order signal."
+      },
+      "framework": {
+        "Q1": "What was directly observed, at what source date and with what definition?",
+        "Q2": "Which canonical screener ticker or theme is exposed, and is it in the current universe?",
+        "Q3": "Do two independent primary or raw-data lineages confirm it, rather than two forwarded posts?",
+        "Q4": "Did the catalyst produce accepted price/volume, breadth and credit/flow response?",
+        "Q5": "What official disclosure, metric reversal, failed retest or freshness expiry invalidates the thesis?"
+      },
+      "sourceAudit": [
+        {"id": "tg-aether-20260809", "channel": "aetherjapanresearch", "observation": "AI build-to-monetize, GPU/memory/interconnect, Texas power/water, Korea/Japan positioning and SK Hynix supply-chain observations were visible.", "integration": "AI infrastructure frame, power/credit/memory keywords, semiconductor and infrastructure memos.", "limitation": "Secondary public mirror; cited report and company/utility data require independent confirmation."},
+        {"id": "tg-insider-20260809", "channel": "insidertracking", "observation": "Fast US pre-market, rates/oil/geopolitics, BMY M&A discussion, NAND roadmap, TSMC/TPU/data-center and China AI headlines were visible.", "integration": "Macro/event context, corporate discovery and ticker research branches.", "limitation": "Forwarded summaries are not filings, earnings data or insider evidence; chronology and original source must be checked."},
+        {"id": "tg-bornlupin-20260809", "channel": "bornlupin", "observation": "Korean foldables, semiconductor power/water, HBM4 equipment, LTA, ESS/materials and broker-note themes were visible.", "integration": "Korea supply/theme keywords and research-only memos for canonical Korean rows.", "limitation": "Channel itself warns that posts are opinions/records and may be inaccurate; sell-side and forwarded claims stay reference-only."},
+        {"id": "tg-hana-20260809", "channel": "HANAchina", "observation": "Live browser reading on 2026-08-09 exposed current-visible China/EM posts spanning R&D, AI storage, Qwen/Apple, China CPI/PPI, inference economics, power/permits, Unitree, CXMT and EUV themes.", "integration": "China/EM supply-chain source registry, discovery aliases and live-browser reference ledger.", "limitation": "The channel is secondary/forwarded public commentary; current visibility does not verify prices, targets, production, policy, or company facts."}
+      ],
+      "liveBrowserAudit": {
+        "auditedAt": "2026-08-09",
+        "surface": "Chrome public Telegram Web pages",
+        "loginOrPosting": "none",
+        "channelWindows": {
+          "aetherjapanresearch": {"visibleWindow": "2026-08-07", "status": "REFERENCE"},
+          "insidertracking": {"visibleWindow": "2026-08-03", "status": "REFERENCE"},
+          "bornlupin": {"visibleWindow": "2026-08-05", "status": "REFERENCE"},
+          "HANAchina": {"visibleWindow": "2026-08-09 / Today", "status": "REFERENCE"}
+        },
+        "observedBranches": ["memory/HBM/LTA/SSD/TPU/advanced packaging", "data-center power/interconnection/onsite power/ESS", "macro/geopolitics/FX/China CPI and AI/robotics/EV supply chain", "corporate disclosures and attributed links"],
+        "promotionBoundary": "Live reading confirms observation availability only; forwarded numbers, targets, rumors, and copied messages remain REFERENCE until independent primary confirmation."
+      },
+      "evidenceHierarchy": ["official filing/IR/exchange/government/ISO or utility/raw provider", "dated attributable primary research or interview", "Telegram secondary summary/forward/screenshot"],
+      "accessNotes": {
+        "browser": "All four requested public pages were readable in the browser without login or message sending.",
+        "observedWindows": "Chrome live audit showed Aether 2026-08-07, Insider Tracking 2026-08-03, BornLupin 2026-08-05, and HANA China 2026-08-09 / Today in the visible active panes; these are observation windows, not complete archives.",
+        "automation": "The local public-mirror fetch attempt failed at the network layer. Existing digest data was preserved and marked collectionStatus=failed; no failed fetch was promoted as fresh.",
+        "copyrightAndQuality": "Only paraphrased structural observations are retained; channel reach, repost count and target prices are not used as evidence."
+      }
     }
   ]
 }

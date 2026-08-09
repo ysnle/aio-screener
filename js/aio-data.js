@@ -18,15 +18,15 @@ var SCREENER_DB = [
   // S&P 500 — 메가캡 & 대형주 식별자
   // lifecycle 메타는 SCREENER_DB_META를 참조한다.
   // ══════════════════════════════════════════════════════════════
-  { sym:'NVDA', name:'NVIDIA', sector:'Technology', index:'SP500' },
+  { sym:'NVDA', name:'NVIDIA', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI infrastructure demand monitor: GPU availability/rental repricing, hyperscaler operating-cash-flow acceleration, frontier-lab growth, memory allocation and power/interconnection capacity must be read together. Any one bullish input is insufficient; persistent GPU price decline, OCF deceleration or lab-growth stagnation is a thesis-break candidate.' },
   { sym:'AAPL', name:'Apple', sector:'Technology', index:'SP500' },
-  { sym:'GOOGL', name:'Alphabet', sector:'Technology', index:'SP500', memo:'[2026-07-20 REFERENCE] Google AI capex debate: backlog/recognition lag versus D&A/reinvestment trap; verify cloud backlog, capex/revenue crossover, FCF and debt capacity with filings.' },
-  { sym:'MSFT', name:'Microsoft', sector:'Technology', index:'SP500' },
-  { sym:'AMZN', name:'Amazon', sector:'Technology', index:'SP500' },
+  { sym:'GOOGL', name:'Alphabet', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI capex must be separated into contracted cloud/backlog conversion, utilization, depreciation and power delivery. Verify current filings, FCF, debt capacity and customer economics; capex alone is not demand proof.' },
+  { sym:'MSFT', name:'Microsoft', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI demand monitor: distinguish contracted cloud/backlog conversion and operating-cash-flow acceleration from depreciation, financing and power-delivery constraints. Evidence must include current filings/earnings, not interview estimates alone.' },
+  { sym:'AMZN', name:'Amazon', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AWS/AI infrastructure thesis depends on utilization, custom silicon, memory allocation and power/site execution. Monitor CapEx-to-revenue conversion, cash flow, GPU/ASIC economics and interconnection rather than headline token growth.' },
   { sym:'META', name:'Meta Platforms', sector:'Technology', index:'SP500' },
-  { sym:'TSM', name:'TSMC', sector:'Technology', index:'SP500' },
-  { sym:'AVGO', name:'Broadcom', sector:'Technology', index:'SP500' },
-  { sym:'TSLA', name:'Tesla', sector:'Consumer', index:'SP500' },
+  { sym:'TSM', name:'TSMC', sector:'Technology', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] Insider/BornLupin/HANA observations point to N3 capacity, advanced packaging and TPU/ASIC allocation as a supply-chain branch. Verify wafer starts, customer allocation, pricing and utilization from company/industry primary evidence; channel recirculation is not independent confirmation.' },
+  { sym:'AVGO', name:'Broadcom', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] Custom ASIC/TPU demand is a system-economics thesis: networking, interconnect and software integration can determine deployment value. Verify customer commitments, LTA structure, margin/cash-flow conversion and power availability rather than treating AI CapEx alone as demand proof.' },
+  { sym:'TSLA', name:'Tesla', sector:'Consumer', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] HANA relayed higher Optimus production ambitions and Chinese humanoid-robot scaling claims. Treat shipment/production numbers as hypotheses until filings, customer deployments and unit economics confirm; data collection and industrial validation remain the key bottlenecks.' },
   { sym:'BRK.B', name:'Berkshire Hathaway', sector:'Financials', index:'SP500' },
   { sym:'LLY', name:'Eli Lilly', sector:'Healthcare', index:'SP500' },
   { sym:'WMT', name:'Walmart', sector:'Consumer Defensive', index:'SP500' },
@@ -43,20 +43,20 @@ var SCREENER_DB = [
   { sym:'MRK', name:'Merck', sector:'Healthcare', index:'DOW30' },
   { sym:'CRM', name:'Salesforce', sector:'Technology', index:'DOW30' },
   { sym:'CVX', name:'Chevron', sector:'Energy', index:'DOW30' },
-  { sym:'AMD', name:'Advanced Micro Devices', sector:'Technology', index:'SP500', memo:'[2026-07-20 REFERENCE] Semi stabilization requires earnings and estimate confirmation; separate a low-volume rebound from durable demand, margin and breadth recovery.' },
+  { sym:'AMD', name:'Advanced Micro Devices', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] The bull case does not require displacing NVIDIA outright: sufficient performance, cost, software compatibility and committed deployments can win allocation. Verify accelerator demand, memory/packaging access, customer ramp and sector-relative strength; a low-volume rebound is not durable demand.' },
   { sym:'NFLX', name:'Netflix', sector:'Communication Services', index:'SP500' },
   { sym:'PEP', name:'PepsiCo', sector:'Consumer Defensive', index:'SP500' },
   { sym:'KO', name:'Coca-Cola', sector:'Consumer Defensive', index:'DOW30' },
   { sym:'MCD', name:'McDonald\'s', sector:'Consumer', index:'DOW30' },
   { sym:'TMO', name:'Thermo Fisher', sector:'Healthcare', index:'SP500' },
   { sym:'ADBE', name:'Adobe', sector:'Technology', index:'SP500' },
-  { sym:'ORCL', name:'Oracle', sector:'Technology', index:'SP500' },
+  { sym:'ORCL', name:'Oracle', sector:'Technology', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] Insider channel highlighted a reported CDS/liability stress signal alongside AI-capacity narratives. Credit risk requires current CDS, debt maturity, lease/funding and cash-flow evidence; a forwarded headline is not a solvency conclusion.' },
   { sym:'BAC', name:'Bank of America', sector:'Financials', index:'SP500' },
   { sym:'CSCO', name:'Cisco Systems', sector:'Technology', index:'DOW30' },
   { sym:'DIS', name:'Walt Disney', sector:'Communication Services', index:'DOW30' },
-  { sym:'PLTR', name:'Palantir', sector:'Technology', index:'SP500' },
-  { sym:'MU', name:'Micron Technology', sector:'Technology', index:'SP500', memo:'[2026-07-20 REFERENCE] Memory is a P game: ASP acceleration and earnings multiple matter; low P/E can precede cycle rollover. Verify price momentum, estimates and DRAM/HBM supply.' },
-  { sym:'CAT', name:'Caterpillar', sector:'Industrials', index:'DOW30' },
+  { sym:'PLTR', name:'Palantir', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI adoption should be tested through repeatable workflow/token usage and customer economics, not user-count narratives alone. Separate software demand from the physical compute, memory and power bottlenecks that support it.' },
+  { sym:'MU', name:'Micron Technology', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] Memory is a P/ASP-and-multiple cycle, while LTA/prepayment changes supply allocation and bargaining power. Verify DRAM/HBM spot and contract pricing, inventory, customer commitments and the risk that low P/E precedes a cycle rollover.' },
+  { sym:'CAT', name:'Caterpillar', sector:'Industrials', index:'DOW30', memo:'[2026-08-09 TG-REFERENCE] HANA relayed a reported Michael Burry short position. This is positioning/context only, not a fundamental short signal; verify filing/position date, valuation, orders, end-market cycle and price/volume confirmation.' },
   { sym:'RTX', name:'Raytheon Tech', sector:'Industrials', index:'SP500' },
   { sym:'GS', name:'Goldman Sachs', sector:'Financials', index:'DOW30' },
   { sym:'GE', name:'GE Aerospace', sector:'Industrials', index:'DOW30' },
@@ -64,11 +64,12 @@ var SCREENER_DB = [
   { sym:'LMT', name:'Lockheed Martin', sector:'Industrials', index:'SP500' },
   { sym:'ARM', name:'ARM Holdings', sector:'Technology', index:'SP500' },
   { sym:'QCOM', name:'Qualcomm', sector:'Technology', index:'SP500' },
-  { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', index:'SP500' },
+  { sym:'PANW', name:'Palo Alto Networks', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] Cybersecurity leadership is a distinct software-demand branch. Verify recurring revenue, retention, margin/cash-flow conversion and valuation; peer strength or a high-volume move is not a standalone quality signal.' },
+  { sym:'RBRK', name:'Rubrik', sector:'Technology', index:'NYSE', memo:'[2026-08-09 REFERENCE] Cybersecurity leadership is a separate software-demand branch from AI infrastructure. Verify recurring revenue, retention, margin/cash-flow conversion and valuation; a high-volume bounce or peer strength does not remove execution risk.' },
   { sym:'NOW', name:'ServiceNow', sector:'Technology', index:'SP500' },
-  { sym:'CRWD', name:'CrowdStrike', sector:'Technology', index:'SP500' },
-  { sym:'CEG', name:'Constellation Energy', sector:'Utilities', index:'SP500' },
-  { sym:'BE', name:'Bloom Energy', sector:'Utilities', index:'NYSE' },
+  { sym:'CRWD', name:'CrowdStrike', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] Cybersecurity leadership needs confirmation through recurring revenue, retention, margin/cash-flow conversion and relative strength versus failed retests. Do not equate thematic leadership with an automatic entry.' },
+  { sym:'CEG', name:'Constellation Energy', sector:'Utilities', index:'SP500', memo:'[2026-08-09 REFERENCE] AI power exposure is not only MWh: interconnection timing, PPA tenor/counterparty, ramp profile, transformer/grid constraints and local power pricing determine monetization. Treat power-quality claims as facility-specific until measured evidence is available.' },
+  { sym:'BE', name:'Bloom Energy', sector:'Utilities', index:'NYSE', memo:'[2026-08-09 REFERENCE] Onsite/behind-the-meter power can shorten AI capacity timelines, but the thesis depends on measured load profile, fuel/electricity economics, contract quality, maintenance and power-quality controls. Do not infer grid damage or broad ratepayer impact from a single report.' },
   { sym:'HON', name:'Honeywell', sector:'Industrials', index:'DOW30' },
   { sym:'AMGN', name:'Amgen', sector:'Healthcare', index:'DOW30' },
   { sym:'IBM', name:'IBM', sector:'Technology', index:'DOW30' },
@@ -102,7 +103,7 @@ var SCREENER_DB = [
   { sym:'WFC', name:'Wells Fargo', sector:'Financials', index:'SP500' },
   { sym:'MS', name:'Morgan Stanley', sector:'Financials', index:'SP500' },
   { sym:'COIN', name:'Coinbase', sector:'Financials', index:'SP500' },
-  { sym:'VST', name:'Vistra', sector:'Utilities', index:'SP500' },
+  { sym:'VST', name:'Vistra', sector:'Utilities', index:'SP500', memo:'[2026-08-09 REFERENCE] AI power monetization requires separating contracted generation economics from interconnection, ramp-rate, transmission and local congestion constraints. Verify PPA/anchor-tenant evidence, capacity availability and financing.' },
   { sym:'MRNA', name:'Moderna', sector:'Healthcare', index:'SP500' },
   { sym:'SQ', name:'Block Inc', sector:'Financials', index:'SP500' },
   { sym:'COP', name:'ConocoPhillips', sector:'Energy', index:'SP500' },
@@ -112,7 +113,7 @@ var SCREENER_DB = [
   // ══════════════════════════════════════════════════════════════
   // NASDAQ-100 전용 (S&P500 미포함 또는 나스닥 특성 강조)
   // ══════════════════════════════════════════════════════════════
-  { sym:'MRVL', name:'Marvell Technology', sector:'Technology', index:'NASDAQ100' },
+  { sym:'MRVL', name:'Marvell Technology', sector:'Technology', index:'NASDAQ100', memo:'[2026-08-09 REFERENCE] AI heterogeneity and custom silicon increase the importance of interconnect, networking and integration layers. Verify design wins, customer concentration, delivery timing, margin/cash-flow conversion and relative strength; partnership headlines alone are not proof of structural necessity.' },
   { sym:'SNPS', name:'Synopsys', sector:'Technology', index:'NASDAQ100' },
   { sym:'CDNS', name:'Cadence Design', sector:'Technology', index:'NASDAQ100' },
   { sym:'LRCX', name:'Lam Research', sector:'Technology', index:'NASDAQ100' },
@@ -121,7 +122,7 @@ var SCREENER_DB = [
   { sym:'VRTX', name:'Vertex Pharma', sector:'Healthcare', index:'NASDAQ100' },
   { sym:'FTNT', name:'Fortinet', sector:'Technology', index:'NASDAQ100' },
   { sym:'MELI', name:'MercadoLibre', sector:'Technology', index:'NASDAQ100' },
-  { sym:'DDOG', name:'Datadog', sector:'Technology', index:'NASDAQ100' },
+  { sym:'DDOG', name:'Datadog', sector:'Technology', index:'NASDAQ100', memo:'[2026-08-09 REFERENCE] Software leadership is confirmed by durable usage, retention, margin and cash-flow conversion. Treat peer strength and cyber/observability rotation as a research lead, then verify valuation and earnings reaction.' },
   { sym:'SNOW', name:'Snowflake', sector:'Technology', index:'NASDAQ100' },
   { sym:'ZS', name:'Zscaler', sector:'Technology', index:'NASDAQ100' },
   { sym:'TTD', name:'The Trade Desk', sector:'Technology', index:'NASDAQ100' },
@@ -153,9 +154,9 @@ var SCREENER_DB = [
   { sym:'QUBT', name:'Quantum Computing', sector:'Technology', index:'RUSSELL2000' },
   { sym:'CAVA', name:'CAVA Group', sector:'Consumer', index:'RUSSELL2000' },
   { sym:'SOUN', name:'SoundHound AI', sector:'Technology', index:'RUSSELL2000' },
-  { sym:'CRWV', name:'CoreWeave', sector:'Technology', index:'NASDAQ100', memo:'[2026-07-20 REFERENCE] Neocloud is a Q·capital game: utilization/backlog versus rental yield, funding cost, GPU depreciation and leases; verify spread, runway and debt.' },
-  { sym:'NBIS', name:'Nebius Group', sector:'Technology', index:'NASDAQ100', memo:'[2026-07-20 REFERENCE] Neocloud comparison lens: profitability/balance-sheet quality versus utilization execution. Verify current Q, pricing spread, cash runway and contract evidence.' },
-  { sym:'IREN', name:'IREN Limited', sector:'Technology', index:'RUSSELL2000', memo:'[2026-07-20 REFERENCE] Neocloud comparison lens: power-cost advantage and contract funding can create optionality, but early revenue and financing execution remain the kill switches.' },
+  { sym:'CRWV', name:'CoreWeave', sector:'Technology', index:'NASDAQ100', memo:'[2026-08-09 REFERENCE] Neocloud is a Q·capital game: utilization/backlog must outrun rental-price deflation while GPU depreciation, leases, funding cost, power access and counterparty concentration remain survivable. Verify current spread, runway, renewal pricing and contract quality.' },
+  { sym:'NBIS', name:'Nebius Group', sector:'Technology', index:'NASDAQ100', memo:'[2026-08-09 REFERENCE] Neocloud setup requires both utilization economics and price/volume structure. For a supply-side short, require overhead supply, failed reclaim/retest and borrow/flow evidence; never infer a short from relative weakness alone.' },
+  { sym:'IREN', name:'IREN Limited', sector:'Technology', index:'RUSSELL2000', memo:'[2026-08-09 REFERENCE] Power-cost/site optionality can matter for neocloud economics, but utilization, customer contract funding, GPU depreciation, grid/interconnection and execution remain the kill switches.' },
   { sym:'CORZ', name:'Core Scientific', sector:'Technology', index:'NASDAQ' },
   { sym:'BIRD', name:'Allbirds', sector:'Consumer', index:'RUSSELL2000' },
   { sym:'DM', name:'Desktop Metal', sector:'Technology', index:'RUSSELL2000' },
@@ -170,9 +171,9 @@ var SCREENER_DB = [
   { sym:'POET', name:'POET Technologies', sector:'Technology', index:'OTC' },
   { sym:'CIEN', name:'Ciena', sector:'Technology', index:'SP500' },
   { sym:'GLW', name:'Corning', sector:'Technology', index:'SP500' },
-  { sym:'VRT', name:'Vertiv Holdings', sector:'Industrials', index:'SP500' },
-  { sym:'DELL', name:'Dell Technologies', sector:'Technology', index:'SP500' },
-  { sym:'HPE', name:'Hewlett Packard Enterprise', sector:'Technology', index:'SP500' },
+  { sym:'VRT', name:'Vertiv Holdings', sector:'Industrials', index:'SP500', memo:'[2026-08-09 REFERENCE] AI data-center bottleneck lens: cooling, power distribution and rack-level delivery benefit from rising compute density, but validate backlog, margin, project timing and customer power availability. Total demand is not the same as executable site capacity.' },
+  { sym:'DELL', name:'Dell Technologies', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI server demand should be decomposed into backlog conversion, GPU/memory availability, delivery margin, working capital and customer power readiness. Shipment headlines are weaker evidence than cash conversion and renewal economics.' },
+  { sym:'HPE', name:'Hewlett Packard Enterprise', sector:'Technology', index:'SP500', memo:'[2026-08-09 REFERENCE] AI systems thesis requires server/cluster demand plus financing, networking, cooling and power-delivery execution. Verify backlog quality, margin/cash-flow conversion and deployment timing; a capacity announcement is not utilization proof.' },
   // ── 헬스케어 / 비만치료 / 텔레헬스 ──
   { sym:'HIMS', name:'Hims & Hers Health', sector:'Healthcare', index:'RUSSELL2000' },
   { sym:'AEHR', name:'Aehr Test Systems', sector:'Technology', index:'RUSSELL2000' },
@@ -240,7 +241,8 @@ var SCREENER_DB = [
   // ── 산업재 / 건설 / 광업 ──
   { sym:'URI', name:'United Rentals', sector:'Industrials', index:'SP500' },
   { sym:'FCX', name:'Freeport-McMoRan', sector:'Materials', index:'SP500' },
-  { sym:'NUE', name:'Nucor', sector:'Materials', index:'SP500' },
+  { sym:'NUE', name:'Nucor', sector:'Materials', index:'SP500', memo:'[2026-08-09 REFERENCE] Steel strength is a sector-relative leadership observation, not an AI inference. Verify order book, shipments, realized pricing, input costs, margins and volume-backed continuation.' },
+  { sym:'RS', name:'Reliance, Inc.', sector:'Materials', index:'SP500', memo:'[2026-08-09 REFERENCE] Steel/metal distribution strength is a relative-strength lead. Confirm with operating data, margin/cycle exposure, support/retest behavior and volume; do not promote a chart observation to a fundamental thesis without filings.' },
   // ── 기타 주목 종목 ──
   { sym:'SHOP', name:'Shopify', sector:'Technology', index:'SP500' },
   { sym:'ABNB', name:'Airbnb', sector:'Consumer', index:'SP500' },
@@ -271,7 +273,7 @@ var SCREENER_DB = [
   { sym:'C', name:'Citigroup', sector:'Financials', index:'SP500' },
   { sym:'SCHW', name:'Charles Schwab', sector:'Financials', index:'SP500' },
   { sym:'ADP', name:'Automatic Data Processing', sector:'Technology', index:'SP500' },
-  { sym:'BMY', name:'Bristol Myers Squibb', sector:'Healthcare', index:'SP500' },
+  { sym:'BMY', name:'Bristol Myers Squibb', sector:'Healthcare', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] Insider relayed an FT-reported M&A discussion involving AstraZeneca/BMS. Treat as unconfirmed corporate-action context until company filings or authoritative reports confirm parties, terms, probability and regulatory path.' },
   { sym:'PLD', name:'Prologis', sector:'Real Estate', index:'SP500' },
   { sym:'BSX', name:'Boston Scientific', sector:'Healthcare', index:'SP500' },
   { sym:'ADI', name:'Analog Devices', sector:'Technology', index:'SP500' },
@@ -348,12 +350,12 @@ var SCREENER_DB = [
 
   // ═══ v33.1: 시총 $10B+ 전종목 + 핵심 ETF + 유명 소형주 (368개) ═══
   { sym:'GOOG', name:'Alphabet Class C', sector:'Technology', index:'SP500' },
-  { sym:'GEV', name:'GE Vernova', sector:'Utilities', index:'SP500' },
+  { sym:'GEV', name:'GE Vernova', sector:'Utilities', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] Aether/BornLupin/HANA themes point to data-center power, grid, transmission and ESS constraints. Verify equipment backlog, utility orders, project timing, margin and permitted interconnection; announced demand is not recognized revenue.' },
   { sym:'TMUS', name:'T-Mobile US', sector:'Communication Services', index:'SP500' },
   { sym:'TXN', name:'Texas Instruments', sector:'Technology', index:'SP500' },
   { sym:'ANET', name:'Arista Networks', sector:'Technology', index:'SP500' },
-  { sym:'ETN', name:'Eaton Corp', sector:'Industrials', index:'SP500' },
-  { sym:'NVT', name:'nVent Electric', sector:'Industrials', index:'SP500' },
+  { sym:'ETN', name:'Eaton Corp', sector:'Industrials', index:'SP500', memo:'[2026-08-09 REFERENCE] Grid/AI data-center exposure is a power-quality and equipment-cycle thesis: switchgear, transformers and distribution must handle density and load volatility. Verify orders, lead times, margin and actual interconnection demand.' },
+  { sym:'NVT', name:'nVent Electric', sector:'Industrials', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] Power-quality and high-density data-center equipment are a downstream beneficiary hypothesis. Verify enclosure/distribution backlog, pricing, lead times, thermal requirements and customer/site readiness.' },
   { sym:'CB', name:'Chubb Ltd', sector:'Financials', index:'SP500' },
   { sym:'ACN', name:'Accenture', sector:'Technology', index:'SP500' },
   { sym:'PH', name:'Parker-Hannifin', sector:'Industrials', index:'SP500' },
@@ -363,18 +365,18 @@ var SCREENER_DB = [
   { sym:'SO', name:'Southern Company', sector:'Utilities', index:'SP500' },
   { sym:'CMCSA', name:'Comcast', sector:'Communication Services', index:'SP500' },
   { sym:'SNDK', name:'SanDisk', sector:'Technology', index:'SP500', memo:'[2026-07-20 REFERENCE] AI memory/storage belongs to the P-game lens: pricing momentum, mix and multiple compression must be checked against inference demand and supply.' },
-  { sym:'WDC', name:'Western Digital', sector:'Technology', index:'SP500' },
+  { sym:'WDC', name:'Western Digital', sector:'Technology', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] HANA/Insider memory posts emphasize LTA, NAND pricing and AI-storage demand. Verify contract coverage, spot/contract spread, inventory, customer concentration and cycle rollover; target-price recirculation is not evidence.' },
   { sym:'HWM', name:'Howmet Aerospace', sector:'Industrials', index:'SP500' },
   { sym:'EQIX', name:'Equinix', sector:'Real Estate', index:'SP500' },
   { sym:'TT', name:'Trane Technologies', sector:'Industrials', index:'SP500' },
   { sym:'CVS', name:'CVS Health', sector:'Healthcare', index:'SP500' },
-  { sym:'STX', name:'Seagate Tech', sector:'Technology', index:'SP500' },
+  { sym:'STX', name:'Seagate Tech', sector:'Technology', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] AI inference/storage demand should be tested through exabyte shipments, pricing, mix, cloud customers and cash conversion. Telegram storage commentary is a discovery lead, not a current demand estimate.' },
   { sym:'SIMO', name:'Silicon Motion', sector:'Technology', index:'NASDAQ' },
-  { sym:'6600.T', name:'Kioxia Holdings', sector:'Technology', index:'TSE' },
+  { sym:'6600.T', name:'Kioxia Holdings', sector:'Technology', index:'TSE', memo:'[2026-08-09 TG-REFERENCE] Insider highlighted PCIe 6.0/UFS 5.0 NAND roadmap claims. Verify mass-production timing, qualification, customer design wins, yield and NAND pricing from company/industry evidence.' },
   { sym:'8035.T', name:'Tokyo Electron', sector:'Technology', index:'TSE' },
   { sym:'6702.T', name:'Fujitsu', sector:'Technology', index:'TSE' },
   { sym:'FDX', name:'FedEx', sector:'Industrials', index:'SP500' },
-  { sym:'PWR', name:'Quanta Services', sector:'Industrials', index:'SP500' },
+  { sym:'PWR', name:'Quanta Services', sector:'Industrials', index:'SP500', memo:'[2026-08-09 REFERENCE] AI capacity bottlenecks can migrate from chips to transmission, substations and interconnection queues. Track backlog conversion, permitting, utility capex and project execution; headline queue size is not revenue.' },
   { sym:'POWL', name:'Powell Industries', sector:'Industrials', index:'NASDAQ' },
   { sym:'MTZ', name:'MasTec', sector:'Industrials', index:'SP500' },
   { sym:'MRSH', name:'Marsh McLennan', sector:'Financials', index:'SP500' },
@@ -391,12 +393,13 @@ var SCREENER_DB = [
   { sym:'RCL', name:'Royal Caribbean', sector:'Consumer', index:'SP500' },
   { sym:'EMR', name:'Emerson Electric', sector:'Industrials', index:'SP500' },
   { sym:'CSX', name:'CSX Corp', sector:'Industrials', index:'SP500' },
-  { sym:'PSX', name:'Phillips 66', sector:'Energy', index:'SP500' },
-  { sym:'VLO', name:'Valero Energy', sector:'Energy', index:'SP500' },
+  { sym:'PSX', name:'Phillips 66', sector:'Energy', index:'SP500', memo:'[2026-08-09 REFERENCE] Refinery strength must be decomposed into crack spread, inventory, utilization, turnaround and regional basis. Lower crude is only one input and does not by itself prove durable earnings.' },
+  { sym:'DINO', name:'HF Sinclair', sector:'Energy', index:'NYSE', memo:'[2026-08-09 REFERENCE] Refiners can benefit from lower crude input costs only through the full crack-spread, inventory, utilization and turnaround chain. Separate crude-price beta from product demand, regional basis and maintenance risk.' },
+  { sym:'VLO', name:'Valero Energy', sector:'Energy', index:'SP500', memo:'[2026-08-09 REFERENCE] Refiner relative strength can persist without crude confirmation, but the operating bridge is crack spreads, product demand, inventory, utilization and maintenance. Use price action as a lead, not a conclusion.' },
   { sym:'CRH', name:'CRH plc', sector:'Materials', index:'SP500' },
   { sym:'HLT', name:'Hilton', sector:'Consumer', index:'SP500' },
   { sym:'ROST', name:'Ross Stores', sector:'Consumer', index:'SP500' },
-  { sym:'MPC', name:'Marathon Petroleum', sector:'Energy', index:'SP500' },
+  { sym:'MPC', name:'Marathon Petroleum', sector:'Energy', index:'SP500', memo:'[2026-08-09 REFERENCE] Refinery leadership requires a full crack-spread and operating check: product demand, inventory, utilization, turnaround and regional basis. Separate a lower-crude tailwind from durable cash-flow evidence.' },
   { sym:'WBD', name:'Warner Bros Discovery', sector:'Communication Services', index:'SP500' },
   { sym:'RSG', name:'Republic Services', sector:'Industrials', index:'SP500' },
   { sym:'LHX', name:'L3Harris Tech', sector:'Industrials', index:'SP500' },
@@ -426,14 +429,14 @@ var SCREENER_DB = [
   { sym:'CAH', name:'Cardinal Health', sector:'Healthcare', index:'SP500' },
   { sym:'XEL', name:'Xcel Energy', sector:'Utilities', index:'SP500' },
   { sym:'TER', name:'Teradyne', sector:'Technology', index:'NASDAQ100' },
-  { sym:'MTK', name:'MediaTek', sector:'Technology', index:'TWSE' },
+  { sym:'MTK', name:'MediaTek', sector:'Technology', index:'TWSE', memo:'[2026-08-09 TG-REFERENCE] Insider/HANA relayed Google TPU supply-chain participation and future-node demand. Verify design-win status, tape-out/production timing, fee economics and customer concentration; forecast unit counts remain reference-only.' },
   { sym:'EW', name:'Edwards Lifesciences', sector:'Healthcare', index:'SP500' },
   { sym:'ETR', name:'Entergy', sector:'Utilities', index:'SP500' },
   { sym:'GRMN', name:'Garmin', sector:'Technology', index:'SP500' },
   { sym:'BDX', name:'BD (Becton Dickinson)', sector:'Healthcare', index:'SP500' },
   { sym:'KR', name:'Kroger', sector:'Consumer Defensive', index:'SP500' },
   { sym:'HSY', name:'Hershey', sector:'Consumer Defensive', index:'SP500' },
-  { sym:'CVNA', name:'Carvana', sector:'Consumer', index:'SP500' },
+  { sym:'CVNA', name:'Carvana', sector:'Consumer', index:'SP500', memo:'[2026-08-09 REFERENCE] Supply-side short research needs overhead supply, failed reclaim/retest, volume/borrow/flow evidence and a defined invalidation. Relative weakness alone is not a short trigger.' },
   { sym:'DAL', name:'Delta Air Lines', sector:'Industrials', index:'SP500' },
   { sym:'WAB', name:'Wabtec', sector:'Industrials', index:'SP500' },
   { sym:'FITB', name:'Fifth Third Bancorp', sector:'Financials', index:'SP500' },
@@ -494,7 +497,7 @@ var SCREENER_DB = [
   { sym:'TYL', name:'Tyler Technologies', sector:'Technology', index:'SP500' },
   { sym:'CBOE', name:'Cboe Global Markets', sector:'Financials', index:'SP500' },
   { sym:'BR', name:'Broadridge Financial', sector:'Technology', index:'SP500' },
-  { sym:'STLD', name:'Steel Dynamics', sector:'Materials', index:'SP500' },
+  { sym:'STLD', name:'Steel Dynamics', sector:'Materials', index:'SP500', memo:'[2026-08-09 REFERENCE] Steel leadership is a relative-strength observation. Verify shipments, price/mix, input costs, margins, capital allocation and volume-backed continuation before treating it as a durable cycle signal.' },
   { sym:'FE', name:'FirstEnergy', sector:'Utilities', index:'SP500' },
   { sym:'J', name:'Jacobs Solutions', sector:'Industrials', index:'SP500' },
   { sym:'LUV', name:'Southwest Airlines', sector:'Industrials', index:'SP500' },
@@ -546,7 +549,7 @@ var SCREENER_DB = [
   { sym:'TFX', name:'Teleflex', sector:'Healthcare', index:'SP500' },
   { sym:'ILMN', name:'Illumina', sector:'Healthcare', index:'SP500' },
   { sym:'PTC', name:'PTC Inc', sector:'Technology', index:'SP500' },
-  { sym:'ALB', name:'Albemarle', sector:'Materials', index:'SP500' },
+  { sym:'ALB', name:'Albemarle', sector:'Materials', index:'SP500', memo:'[2026-08-09 TG-REFERENCE] HANA battery posts describe lithium inventory/tightness and a potential second-half demand recovery. Verify lithium spot/contract prices, inventory days, brine/conversion volumes, capex and EV/ESS demand; channel estimates are not current commodity data.' },
   { sym:'ALGN', name:'Align Technology', sector:'Healthcare', index:'SP500' },
   { sym:'NCLH', name:'Norwegian Cruise', sector:'Consumer', index:'SP500' },
   { sym:'BBWI', name:'Bath & Body Works', sector:'Consumer', index:'SP500' },
@@ -780,8 +783,8 @@ var SCREENER_DB = [
 
   // ═══ v35.6: 한국 KOSPI/KOSDAQ 종합 종목 데이터베이스 (150+종목) ═══
   // 시총 상위 대형주 (KOSPI 시총 TOP)
-  { sym:'005930.KS', name:'삼성전자', sector:'Technology', index:'KOSPI' },
-  { sym:'000660.KS', name:'SK하이닉스', sector:'Technology', index:'KOSPI' },
+  { sym:'005930.KS', name:'삼성전자', sector:'Technology', index:'KOSPI', memo:'[2026-08-09 TG-REFERENCE] BornLupin/Aether posts link Samsung to foldable demand, Korea semiconductor cluster execution, power/water availability and possible capital-return discussion. Verify preorders, plant approvals, 6.3GW/650kt-day infrastructure claims and shareholder-return terms from company/government filings.' },
+  { sym:'000660.KS', name:'SK하이닉스', sector:'Technology', index:'KOSPI', memo:'[2026-08-09 TG-REFERENCE] Aether/HANA posts flag Chongqing post-processing restructuring, HBM4 test-equipment procurement, LTA/memory allocation and possible capital-return/labor developments. Each is a separate confirmation branch: verify company disclosure, equipment orders, contract terms, capex and operating metrics before current use.' },
   { sym:'373220.KS', name:'LG에너지솔루션', sector:'Technology', index:'KOSPI' },
   { sym:'207940.KS', name:'삼성바이오로직스', sector:'Healthcare', index:'KOSPI' },
   { sym:'005380.KS', name:'현대차', sector:'Consumer', index:'KOSPI' },
@@ -797,13 +800,13 @@ var SCREENER_DB = [
   { sym:'035720.KS', name:'카카오', sector:'Communication Services', index:'KOSPI' },
   { sym:'138040.KS', name:'메리츠금융지주', sector:'Financials', index:'KOSPI' },
   { sym:'015760.KS', name:'한국전력', sector:'Utilities', index:'KOSPI' },
-  { sym:'042660.KS', name:'한화오션', sector:'Industrials', index:'KOSPI' },
+  { sym:'042660.KS', name:'한화오션', sector:'Industrials', index:'KOSPI', memo:'[2026-08-09 TG-REFERENCE] BornLupin relayed inclusion in Korea materials/equipment "super-乙" R&D support. Verify formal program notice, eligible project, funding schedule, commercial customer and margin impact; policy selection is not backlog.' },
 
   //  반도체 (semi) — 소재·장비 포함
   { sym:'042700.KQ', name:'한미반도체', sector:'Technology', index:'KOSDAQ' },
   { sym:'009150.KS', name:'삼성전기', sector:'Technology', index:'KOSPI' },
   { sym:'402340.KS', name:'SK스퀘어', sector:'Technology', index:'KOSPI' },
-  { sym:'039030.KQ', name:'이오테크닉스', sector:'Technology', index:'KOSDAQ' },
+  { sym:'039030.KQ', name:'이오테크닉스', sector:'Technology', index:'KOSDAQ', memo:'[2026-08-09 TG-REFERENCE] BornLupin relayed a government-supported super-乙 project for high-speed laser heat-treatment equipment. Verify official award, scope, timing, customer qualification and revenue recognition.' },
   { sym:'403870.KQ', name:'HPSP', sector:'Technology', index:'KOSDAQ' },
   { sym:'058470.KQ', name:'리노공업', sector:'Technology', index:'KOSDAQ' },
   { sym:'240810.KQ', name:'원익IPS', sector:'Technology', index:'KOSDAQ' },
@@ -851,9 +854,9 @@ var SCREENER_DB = [
   //  2차전지 (battery)
   { sym:'005490.KS', name:'POSCO홀딩스', sector:'Materials', index:'KOSPI' },
   { sym:'096770.KS', name:'SK이노베이션', sector:'Energy', index:'KOSPI' },
-  { sym:'247540.KQ', name:'에코프로비엠', sector:'Materials', index:'KOSDAQ' },
+  { sym:'247540.KQ', name:'에코프로비엠', sector:'Materials', index:'KOSDAQ', memo:'[2026-08-09 TG-REFERENCE] BornLupin/HANA battery posts frame ESS, North America non-China supply and lithium/VC tightness as separate hypotheses. Verify order disclosure, eligible-origin rules, raw-material cost pass-through, inventory and customer qualification.' },
   { sym:'086520.KQ', name:'에코프로', sector:'Materials', index:'KOSDAQ' },
-  { sym:'003670.KQ', name:'포스코퓨처엠', sector:'Materials', index:'KOSDAQ' },
+  { sym:'003670.KQ', name:'포스코퓨처엠', sector:'Materials', index:'KOSDAQ', memo:'[2026-08-09 TG-REFERENCE] HANA/BornLupin relay North American ESS order-cycle and non-China material sourcing themes. Verify signed contract, volume, timing, subsidy/origin eligibility and margin; sector narrative alone is not an order.' },
   { sym:'066970.KQ', name:'엘앤에프', sector:'Materials', index:'KOSDAQ' },
 
   //  바이오 (bio)
@@ -872,7 +875,7 @@ var SCREENER_DB = [
   { sym:'044820.KQ', name:'코스맥스BTI', sector:'Consumer', index:'KOSDAQ' },
   { sym:'192820.KQ', name:'코스맥스', sector:'Consumer', index:'KOSDAQ' },
   { sym:'161890.KS', name:'한국콜마', sector:'Consumer', index:'KOSPI' },
-  { sym:'278470.KQ', name:'에이피알(APR)', sector:'Consumer', index:'KOSDAQ' },
+  { sym:'278470.KQ', name:'에이피알(APR)', sector:'Consumer', index:'KOSDAQ', memo:'[2026-08-09 TG-REFERENCE] BornLupin relayed sell-side commentary on North America/Europe growth and a reported target price. Verify DART revenue by region, channel mix, promotion/FX/tariff effects, margin normalization and valuation; target-price recirculation is not current evidence.' },
   { sym:'257720.KQ', name:'실리콘투', sector:'Consumer', index:'KOSDAQ' },
   { sym:'237880.KQ', name:'클리오', sector:'Consumer', index:'KOSDAQ' },
   { sym:'950130.KQ', name:'엑시큐어', sector:'Healthcare', index:'KOSDAQ' },
@@ -1294,6 +1297,7 @@ var _TG_CH_SRC = {
   aetherjapanresearch: 'Aether·JP',
   insidertracking:     'Insider·US',
   bornlupin:           'BornLupin·KR',
+  HANAchina:           'HANA·China/EM',
 };
 var _TG_KR_NAME = {
   '005930.KS':'삼성전자','000660.KS':'SK하이닉스','009150.KS':'삼성전기',
@@ -6372,6 +6376,7 @@ const AIO_NEWS_SOURCES = [
   // ═══ TIER 1: 텔레그램 큐레이션 채널 ═══
   {name:'TG Insider Tracking',       url:'https://rsshub.app/telegram/channel/insidertracking',       country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings','geo'], type:'telegram', tgSlug:'insidertracking', publicMirror:'https://t.me/s/insidertracking', pipelineRole:'us-fast-breaking'},  // v50.15: publicMirror 폴백(rsshub.app 불안정 시 t.me/s 공개프리뷰) + pipelineRole 명시
   {name:'TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin', publicMirror:'https://t.me/s/bornlupin', pipelineRole:'kr-semi-broker-notes'},  // v50.15: publicMirror 폴백 + pipelineRole(한국 반도체 sell-side 노트 집중)
+  {name:'TG HANA China',             url:'https://rsshub.app/telegram/channel/HANAchina',            country:'cn', tier:1, flag:'TG', topics:['macro','equity','semi','power','optical','geo','japan','kr-market'], type:'telegram', tgSlug:'HANAchina', publicMirror:'https://t.me/s/HANAchina', pipelineRole:'china-em-supply-chain'},
   {name:'TG WalterBloomberg',       url:'https://rsshub.app/telegram/channel/walterbloomberg',       country:'us', tier:1, flag:'TG', topics:['macro','equity','earnings'],        type:'telegram', tgSlug:'walterbloomberg'},
   {name:'TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'TG', topics:['macro','equity','semi','geo','japan'], type:'telegram', tgSlug:'aetherjapanresearch', publicMirror:'https://t.me/s/aetherjapanresearch', pipelineRole:'asia-semi-flow'},
   // v37.2: 속보·지정학·매크로 텔레그램 채널 추가 (v39.0: FirstSquawk/FinancialJuice 공개 미리보기 비활성 — 코드에서 자동 스킵)
@@ -6501,6 +6506,13 @@ const MACRO_KW = [
   'funding runway','AI infrastructure cycle','oil inflation pass-through','forced deleveraging',
   'margin debt','energy inflation impulse','hyperscaler debt capacity','cloud backlog conversion',
   'multiple compression','supply bottleneck narrative','overbuild risk',
+  // v53.90 (integrate 2026-08-09): AI power-quality, demand falsifier, and breadth-risk vocabulary.
+  'AI load ramp','peak-to-average load','electricity price volatility','transformer stress',
+  'voltage flicker','harmonic distortion','load-following','GPU resale price',
+  'GPU rental repricing','frontier lab growth','OCF acceleration','interconnection queue risk',
+  'power-quality study','behind-the-meter economics','memory LTA allocation',
+  'climax top','railroad track','200SMA stretch','relative-strength pullback',
+  'inverse ETF','hedge proxy','short-demand proxy','event-driven risk window',
 
   'CPI','PCE','GDP','GDPNow','inflation','deflation','recession','stagflation',
   'tariff','trade war','sanction','export ban','supply chain',
@@ -6905,6 +6917,10 @@ const MACRO_KW = [
   'yuan undervalued G7','위안화 저평가 G7','G7 imbalance','라가르드 위안화',
   'reverse repo surge','역레포 급증','Fed reverse repo','역환매조건부채권 급증',
   'Greenspan death','앨런 그린스펀 별세','Greenspan passed away',
+  // v53.92 Telegram channel cross-checks: narrative discovery only; current values require primary evidence.
+  'AI infrastructure broadening','market broadening','KOSPI positioning','KOSPI deleveraging',
+  'Texas data center queue','Texas water stress','interconnection queue 474GW','temporary Hormuz safe route',
+  'US-Japan FX intervention','DXY long unwind','credit deleveraging','single-name leverage unwind',
 ];
 // TECH_KW: 기술/AI 주요 이벤트 → 섹터 관련 (+15점)
 const TECH_KW = [
@@ -6983,6 +6999,12 @@ const TECH_KW = [
   'token deflation','memory price momentum','neocloud funding','GPU depreciation',
   'rental yield spread','capital runway','capex intensity','frontier model capex',
   'long-term agreement','floor price','prepayment','memory supercycle',
+  // v53.90 (integrate 2026-08-09): power-quality and technical setup vocabulary.
+  'AI data-center power','GPU load ramp','transformer thermal stress','harmonic distortion',
+  'voltage flicker','rack load volatility','power-quality monitoring','GPU resale price',
+  'frontier lab growth','memory LTA allocation','relative-strength pullback','climax top',
+  'railroad track','200SMA stretch','support-zone reclaim','benchmark relative strength',
+  'ADR threshold','52-week low position','dollar volume','EMA8 EMA21','supply-side short',
   'GPU 렌탈','GPU 부족','컴퓨트 렌탈','네오클라우드',
   '고정가','렌탈 가격','선지급','최소가격','메모리 슈퍼사이클',
   // AI 신패러다임
@@ -7613,6 +7635,11 @@ const MED_KW = [
   'Palantir AIP','Rule of 40','Rule of 120',            // PLTR 지표
   'HAWK','HawkEye 360','RF geospatial',                 // HawkEye360 신규
   'scale-across','scale-up scale-out',                  // AI 컴퓨팅 아키텍처
+  // v53.92 HANA/Insider/BornLupin supply-chain observations.
+  'VC electrolyte additive','vinylene carbonate','ESS attach rate','AI copper foil','CCL price increase',
+  'PCIe 6.0 NAND','UFS 5.0 NAND','Qwen3.8-Max','TPU v9','HBM4 test equipment',
+  'Korea semiconductor power 6.3GW','industrial water 650kt/day','foldable smartphone demand',
+  'AI inference token intensity','memory LTA 3-5 year','CoPoS panel packaging',
 ];
 // ANALYST_KW: 개별 종목 analyst rating → 홈 노출 페널티 (-20점)
 const ANALYST_KW = [
@@ -7682,11 +7709,11 @@ const KNOWN_TICKERS = new Set([
   'PSKY','PATH','PAYC','PAYX','PBR','PCAR','PDD','PEG','PEP','PFE','PFG','PG',
   'PGR','PH','PHM','PINS','PKG','PL','PLBY','PLD','PLTR','PM','PNC','PODD',
   'POET','POOL','POWL','PPG','PPL','PRU','PSA','PSX','PTC','PWR','PYPL','QBTS','QCOM',
-  'QQQ','QUBT','RACE','RBLX','RCL','RDDT','RDW','REG','REGN','RELX','RF','RGTI',
+  'QQQ','QUBT','RACE','RBLX','RCL','RDDT','RBRK','RDW','REG','REGN','RELX','RF','RGTI',
   'RHI','RIO','RIOT','RIVN','RKLB','RKT','RL','RMD','ROK','ROKU','ROP','ROST',
-  'RSG','RSP','RTX','RUT','RVTY','RY','SAN','SAP','SBAC','SBUX','SCCO','SCHW',
+  'RSG','RSP','RS','RTX','RUT','RVTY','RY','SAN','SAP','SBAC','SBUX','SCCO','SCHW',
   'SE','SEI','SGEN','SHEL','SHOP','SHW','SHY','SI=F','SLB','SLV','SMCI','SMFG','SMH',
-  'SMMT','SMR','SNA','SNAP','SNDK','SNOW','SNPS','SNY','SO','SOFI','SOL','SOLV',
+  'SMMT','SMR','SNA','SNAP','SNDK','SNOW','SNPS','SNY','SO','SOFI','SOL','SOLV','SQQQ',
   'SONY','SOUN','SOXX','SPG','SPGI','SPOT','SPX','SPY','SQ','SRE','STE',
   'STLD','STT','STX','STZ','SU','SWK','SWKS','SYK','SYY','T','TAK','TCOM',
   'TD','TDG','TEAM','TECH','TECK','TEL','TEM','TER','TFC','TFX','TGT','TIP',
@@ -11009,9 +11036,16 @@ window.AIO.getTelegramPipelineAudit = function() {
   var digestMeta = window._aioTelegramDigestMeta || null;
   var memoOverlay = window._aioTelegramMemoOverlayAudit || (digestMeta && digestMeta.memoOverlay) || null;
   var pageCoverage = window.AIO.getTelegramPageCoverageAudit();
+  var requiredChannelSlugs = ['aetherjapanresearch', 'insidertracking', 'bornlupin', 'HANAchina'];
+  var sourceSlugs = sources.map(function(s) { return s && s.tgSlug; }).filter(Boolean);
+  var missingRequiredChannels = requiredChannelSlugs.filter(function(slug) { return sourceSlugs.indexOf(slug) < 0; });
+  var requiredSourcesReady = missingRequiredChannels.length === 0;
   return {
-    status: sources.length === 3 && pageCoverage.status === 'OK' ? 'OK' : (aetherSource ? 'DEGRADED' : 'MISSING_AETHER_SOURCE'),
+    status: requiredSourcesReady && pageCoverage.status === 'OK' ? 'OK' : (aetherSource ? 'DEGRADED' : 'MISSING_AETHER_SOURCE'),
     telegramSourceCount: sources.length,
+    requiredChannelSlugs: requiredChannelSlugs,
+    missingRequiredChannels: missingRequiredChannels,
+    requiredSourcesReady: requiredSourcesReady,
     sources: sources.map(function(s) {
       return { name: s.name, slug: s.tgSlug || null, tier: s.tier, topics: s.topics || [], publicMirror: s.publicMirror || ('https://t.me/s/' + (s.tgSlug || '')), pipelineRole: s.pipelineRole || 'telegram-fast-secondary' };
     }),

@@ -1,8 +1,49 @@
 ﻿---
-verified_by: human + Codex P892 implementation verification
-last_verified: 2026-08-03
+verified_by: human + Codex full-route audit verification
+last_verified: 2026-08-09
 confidence: high
 ---
+
+## 2026-08-09 full-route audit closure: contracts are part of the evidence
+
+- A page is trustworthy only when its content, source/provenance, currentness, unavailable state, and interaction path agree. The audit therefore treats route ownership, renderer output, data lineage, source vocabulary, shell assets, and release manifests as one contract.
+- `REFERENCE` and `TG-REFERENCE` are valid editorial provenance labels, but neither is a current market fact. Telegram collection failure preserves the last-known-good digest and exposes the failure boundary; it does not create freshness.
+- Calendar events are session-aware data. A completed event must roll forward to the next official release, while actuals, estimates, revisions, and price reaction remain separate evidence fields.
+- Missing provider data is a state, not a zero. Native setup profiles, signals, currentness labels, and AI context remain candidate/blocked/unavailable until the required inputs are present.
+- Visual grouping is part of analytical quality: native theme-detail sections now share spacing and hidden-safe host behavior so summary, composition, leadership, temperature, breadth, benchmark, and insight blocks are not perceived as one concatenated claim.
+
+## 2026-08-09 구조 보완: 전력품질·AI 사이클·분배 신호·학습 출처의 검증 경계
+
+- AI 데이터센터 전력은 총 사용량만으로 설명하지 않는다. `IT load ramp`, peak-to-average, PCC 전압 변동, sag/swell, flicker, 주파수, 고조파, 변압기 loading·temperature, interconnection·behind-the-meter를 별도 관찰축으로 둔다. “가정용 기기가 곧바로 망가진다” 같은 피해 확정 문장은 계측·유틸리티 자료·장비 기준이 없으면 `REFERENCE`에 머문다.
+- AI 인프라 수요 논쟁은 매출·주가 서사 대신 `hyperscaler OCF 가속`, GPU 임대·중고 가격, frontier lab 합산 성장, DRAM/HBM 가격·LTA 배분, credit spread·refinancing, 전력·물·부지 제약을 서로 독립된 확인 창으로 나눈다. 반증은 영업현금흐름 가속 중단, GPU 가격의 지속 하락, frontier lab 성장 정체, 실제 interconnection 지연으로 정의한다.
+- 오닐식 클라이막스 탑, railroad track, 고거래량·가격 정체, 연속 상승일, 200일선 대비 과도한 확장은 매도 지시가 아니라 distribution/exhaustion 위험 플래그다. 상대강도 눌림과 200일선 지지 역시 supply-side short와 support-side pullback을 분리하고, OHLCV·RVOL·benchmark-relative-strength가 없으면 `관찰` 또는 `unavailable`로 표시한다.
+- 거시·실적 캘린더는 이벤트 전후의 catalyst/risk overlay로 연결한다. 일정이 있다는 사실만으로 방향을 만들지 않고, 이벤트명·발표시각·예상/실제·revision·가격 반응·breadth/credit 확인을 함께 기록한다.
+- 자료 품질은 `primary source → official company/filing → structured reference → Telegram/X discovery → inference` 순서로 표시한다. 원문이 열리지 않는 링크, 현재값 없는 제품/기업 정보, Telegram 수집 실패 결과는 자동으로 CURRENT·매매 신호·목표가로 승격하지 않는다.
+- 구현 반영: `public-data/atlas/foundation-lessons.json`의 18개 누락 레슨에 공식 source coverage map을 추가했고, `src/ui/pages/atlas.js`는 이를 실제 링크로 렌더링한다. `taxonomy-node-coverage.json#relationshipModel`은 19개 도메인·95개 노드·94개 구조 edge를 제공하며, `telegram-digest.json`은 4채널 SSOT로 실패 상태와 보존 원장을 함께 표시한다. `src/ui/pages/principles.js`의 Path는 generic SEC 검색 링크 대신 레슨·노드에 매핑된 원문만 노출한다.
+- 사용자 관점의 표시 원칙: 기본 화면은 학습·구조를 먼저 보여주고, 출처·원장·currentness는 접힌 details로 제공한다. 2-hop 그래프의 비선택 edge label은 숨겨 겹침을 줄이고, 하단 고정 고지와 콘텐츠가 겹치지 않도록 페이지 하단 여백과 그래프 스크롤을 확보한다.
+
+## 2026-08-09 코드 구현 환류: Telegram 4채널 감사·공급망/전력/수급 프레임 보강
+
+- 네 채널을 역할별로 분리했다. Aether는 일본·미국 반도체/AI 인프라·수급, Insider Tracking은 미국 속보·기업·매크로, BornLupin은 한국 반도체·브로커 노트·ESS, HANA China는 중국·대만·신흥국 공급망 discovery 계층이다. 같은 뉴스의 재전달은 독립 확인으로 세지 않는다.
+- 브라우저 공개 페이지는 실제 게시물 창을 직접 읽을 수 있었지만 Telegram 자체는 `REFERENCE / secondary`다. 라이브 재감사에서 Aether는 2026-08-07, Insider Tracking은 2026-08-03, BornLupin은 2026-08-05, HANA China는 2026-08-09 / Today가 보였다. HANA는 이번 라이브 관측에서는 `REFERENCE`로 보정하되, 게시물의 최신성이 현재 펀더멘털·신호·사실성을 보증하지 않는다. 자동 digest는 여전히 `collectionStatus=failed`인 보존 원장이다.
+- 공통 프레임은 `관찰 원문/시각 → canonical ticker/theme → 독립 primary 확인 → 촉매의 가격·거래량·breadth 수용 → 무효화/신선도 만료` Q1~Q5다. 구독자 수·전달량·목표가·forwarded 숫자는 신뢰도 또는 현재값이 아니다.
+- AI 인프라 논지는 총 capex만 보지 않고 `GPU workload → load ramp/peak-to-average → 전력·물·interconnection → 가동률/임대료 → OCF → 감가상각·리스·조달비용`으로 분해했다. HBM/NAND/LTA/첨단 패키징, 한국 전력·용수, 중국/대만 AI·EV·ESS도 같은 방식으로 직접 관찰과 검증 대상을 분리한다.
+- 현재 유니버스에 없는 중국 기업·한국 비등록 후보는 discovery/alias 후보로만 남긴다. SCREENER_DB에 들어간 memo는 투자추천이 아니라 `무엇이 보였나 / 왜 중요한가 / 무엇으로 확인하나 / 무엇이 틀리면 무효인가 / 다음 창` 구조다.
+- 자동 Telegram fetch는 이 실행환경의 외부 네트워크 단계에서 실패했다. `public-data/telegram-digest.json`은 기존 성공 시각을 보존한 `collectionStatus=failed` 상태이며, 실패한 시도를 최신 데이터처럼 표시하지 않는다. 이후 재시도에서도 4채널 source catalog와 채널별 오류 row를 유지한다.
+- 상세 원장: `_context/RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md`. 연결 표면은 `scripts/fetch-telegram-digest.mjs`, `js/aio-data.js`, `js/aio-chat.js`, `public-data/user-research-digest.json` 및 관련 CI 계약이다.
+
+## 2026-08-09 코드 구현 환류: v53.91 AI 인프라 전력 품질·셋업·자료품질 2차 통합
+
+- 사용자 제공 자료는 `REFERENCE` 입력으로 분류했다. X 원문은 독립 추출이 되지 않아 링크/본문/이미지의 관찰을 현재 사실로 승격하지 않으며, `power2026.ai`의 전력 제약·그리드 균형 설명만 외부 참고 링크로 별도 연결한다.
+- AI 인프라 수요의 공통 분석축은 총 전력량만이 아니라 `부하 램프율 → peak-to-average → 변압기 열부하/수명 → 전압 flicker·주파수·고조파 → 주변 설비·interconnection`이다. 전력 품질 피해 규모와 가정용 기기 손상 주장은 계측·시설별 자료가 없으면 미확인으로 남긴다.
+- 수요 강세 논지를 깨는 관찰값은 하이퍼스케일러 영업현금흐름 가속 중단, GPU 임대/중고 가격의 지속 하락, 프론티어 랩 합산 성장 정체, 메모리 가격·LTA 배분 약화, 크레딧/리스/전력 확보가 실제 용량 증설을 막는 상태다. 이들은 `AIO_AI_INFRA_CYCLE_REFERENCE`의 invalidation과 티커 memo에 동일하게 연결한다.
+- 메모리 LTA는 공급량·선급금·배분·구매자 집중도 질문으로만 사용한다. NVIDIA/Google/Amazon/AMD 구매 경쟁, LTA 위반 비용, 가격·재고·고객 커밋먼트는 독립 공시/계약 검증 전 가설이다.
+- 네이티브 Screener의 `setup-profile.v1`은 rank/수익률/50·200일선 거리/RSI/RVOL/benchmark 상대강도를 이용해 `상대강도 눌림`, `200일선 부근`, `클라이막스 관찰`을 연구용 라벨로 산출한다. RVOL·benchmark 데이터가 없으면 `추가 셋업 근거 필요`로 표시하고, 절대 매매 신호·확정 패턴으로 사용하지 않는다.
+- O’Neil 자료의 클라이막스 체크는 200일선 70% 이상 확장, 기록적 하루 상승폭·거래량, 8/10일 급등, 주봉 railroad-track, 상방 채널 돌파를 보조 위험 체크로만 연결한다. 충분한 일봉/주봉 OHLCV가 없으면 해당 체크는 `unavailable`이다.
+- 반영 표면: `js/aio-chat.js`(Q1~Q5·전력 품질·반증 조건), `js/aio-core.js`(기술 snapshot/클라이막스 보조 체크), `src/domain/screener/setup-profile.js` 및 native screener provider/normalizer/orchestrator/UI, `js/aio-data.js`(SCREENER_DB/MACRO_KW/TECH_KW/KNOWN_TICKERS). 단위 테스트는 후보/클라이막스/빈 데이터 fail-closed를 검증한다.
+- TradingView 이미지의 조건은 UI 장식이 아니라 `scripts/fetch-data.mjs`의 nullable EOD 산출(`adrPct`, `pctFrom52wLow`, `dollarVolume30d`, `dollarVolume`, `ema8/21/60`)과 `winnerFilter`에 연결했다. 일곱 조건 중 하나라도 미수신이면 `unavailable`이며, 승자 필터 통과는 매수 신호가 아니다.
+- 이미지 1~9와 텍스트/링크별 관찰·통합·한계는 `_context/RESEARCH-INTEGRATION-2026-08-09.md`와 `public-data/user-research-digest.json.sourceAudit`에 보존했다. X 독립 추출 실패, 스크린샷 시점, 인터뷰 추정치는 현재 데이터와 분리했다.
+- 자료의 전달력은 `evidenceHierarchy → verdict → observed/reference/inference → confirmation/invalidation/missing/next window` 순서로 AI 응답 계약에 반영했다. 전력품질은 PCC THD·sag/swell/flicker·frequency·transformer temperature/load·interconnection model을 측정값으로 요구한다.
 
 ## 2026-08-03 코드 구현 환류: v53.89 hierarchical learning and 13F adjacency closure
 

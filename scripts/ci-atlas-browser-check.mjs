@@ -59,7 +59,7 @@ try {
   await page.locator('#page-atlas [data-atlas-action="layer"][data-atlas-value="F3"]').click();
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-learning-concept').length === 10 && document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === '토큰화' && document.querySelectorAll('#page-atlas .atlas-module-lesson').length === 1 && document.querySelectorAll('#page-atlas .atlas-module-question').length === 1 && document.querySelectorAll('#page-atlas .atlas-module-visualization').length === 1);
   await page.locator('#page-atlas [data-atlas-action="module"][data-atlas-value="self-attention"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === 'Self-Attention' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'self-attention');
+  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === 'Self-Attention' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'self-attention' && document.querySelector('#page-atlas a[data-atlas-foundation-source="FND-GOOGLE-TRANSFORMER"]'));
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="taxonomy"]').click();
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-level-card').length === 7);
   await page.waitForFunction(() => Number(document.querySelector('#page-atlas [data-atlas-taxonomy-domain-total]')?.dataset.atlasTaxonomyDomainTotal) === 19 && Number(document.querySelector('#page-atlas [data-atlas-taxonomy-node-total]')?.dataset.atlasTaxonomyNodeTotal) === 95 && document.querySelectorAll('#page-atlas [data-atlas-action="domain"]').length === 19 && document.querySelectorAll('#page-atlas .atlas-domain-guide').length === 1 && document.querySelectorAll('#page-atlas [data-atlas-action="domain-node"]').length === 5 && document.querySelectorAll('#page-atlas .atlas-node-guide').length === 1);
@@ -82,6 +82,7 @@ try {
   await page.waitForFunction(() => document.querySelector('#page-atlas .atlas-deep-topic-title')?.textContent === 'DUV·EUV·High-NA와 반도체 전공정' && document.querySelectorAll('#page-atlas .atlas-deep-branch').length === 6);
 
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="overview"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-telegram-channel-card').length === 4 && document.querySelector('#page-atlas .atlas-telegram-status'));
   const search = page.locator('#page-atlas .atlas-search-input');
   await search.fill('CPO');
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-packet-card').length === 1 && document.querySelector('#page-atlas [data-atlas-packet-id]')?.dataset.atlasPacketId === 'ATLAS-04');
@@ -89,7 +90,7 @@ try {
   await page.locator('#page-atlas [data-atlas-action="route"][data-atlas-value="principles"]').click();
   await page.waitForFunction(() => document.getElementById('page-principles')?.classList.contains('active'));
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, route: 'atlas', learnerTracks: overview.trackCards, visibleAuthoredLessons: overview.modules, authoredLessonTotal: overview.totalModules, curriculumLayers: 6, taxonomyLevels: 7, taxonomyDomains: 19, visibleDomainGuides: taxonomyDisclosure.domainGuides, taxonomyNodes: 95, visibleNodeGuides: taxonomyDisclosure.nodeGuides, deepTopics: 10, deepBranches: 50, researchPackets: 11, evidenceClaims: 14, primarySources: 23, telegramChannels: 5, searchedPacket: 'ATLAS-04', routeCta: 'principles', errors }));
+  console.log(JSON.stringify({ ok: true, route: 'atlas', learnerTracks: overview.trackCards, visibleAuthoredLessons: overview.modules, authoredLessonTotal: overview.totalModules, curriculumLayers: 6, taxonomyLevels: 7, taxonomyDomains: 19, visibleDomainGuides: taxonomyDisclosure.domainGuides, taxonomyNodes: 95, visibleNodeGuides: taxonomyDisclosure.nodeGuides, deepTopics: 10, deepBranches: 50, researchPackets: 11, evidenceClaims: 14, primarySources: 23, telegramChannels: 4, searchedPacket: 'ATLAS-04', routeCta: 'principles', errors }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

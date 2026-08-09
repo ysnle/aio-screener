@@ -1,13 +1,13 @@
 {
   "schema": "ai-era-foundations-authored-lessons.v1",
-  "revision": "2026-08-02-v53.85",
+  "revision": "2026-08-09-v53.93",
   "status": "REFERENCE_CONNECTED",
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "shortFormStatus": "AUTHORED_REFERENCE_CONNECTED",
   "longFormStatus": "AUTHORED_REFERENCE_CONNECTED",
   "authoringContract": {
     "requiredFields": ["definition", "mechanism", "example", "limit", "teachingQuestion", "visualization", "relatedAtlasNodeIds", "sourceIds"],
-    "coverage": "48/48 modules have an authored definition, mechanism, example, failure boundary, question, visualization and source linkage where a primary reference is available",
+    "coverage": "48/48 modules have an authored definition, mechanism, example, failure boundary, question, visualization and source linkage; 18 previously unlinked modules now use the source coverage map below",
     "independentVisualizationStatus": "REFERENCE_DIAGRAM_CONNECTED",
     "fullProductionNarrative": "NOT_PUBLISHED; current performance, product, revenue and investment claims remain separately gated"
   },
@@ -24,6 +24,63 @@
       "scope": "taxonomy nodes, industry relationships and evidence boundary"
     }
   ],
+  "sourceCatalog": [
+    {
+      "id": "FND-NVIDIA-TENSOR",
+      "title": "Deep Learning Technical Overview",
+      "publisher": "NVIDIA Developer",
+      "url": "https://developer.nvidia.com/deep-learning",
+      "scope": "tensor computation, parallel processing and accelerator architecture"
+    },
+    {
+      "id": "FND-PYTORCH-AUTOGRAD",
+      "title": "Automatic Differentiation with torch.autograd",
+      "publisher": "PyTorch",
+      "url": "https://pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html",
+      "scope": "parameters, gradients, forward pass and backpropagation"
+    },
+    {
+      "id": "FND-HF-TOKENIZERS",
+      "title": "Tokenizer Summary",
+      "publisher": "Hugging Face",
+      "url": "https://huggingface.co/docs/transformers/main/en/tokenizer_summary",
+      "scope": "tokenization, token IDs and model input representation"
+    },
+    {
+      "id": "FND-GOOGLE-TRANSFORMER",
+      "title": "Attention Is All You Need",
+      "publisher": "Google Research / arXiv",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "scope": "self-attention, multi-head attention, positional representation and Transformer architecture"
+    },
+    {
+      "id": "FND-NIST-AI-RMF",
+      "title": "AI Risk Management Framework",
+      "publisher": "NIST",
+      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "scope": "evaluation, limitations, deployment, human oversight and risk controls"
+    }
+  ],
+  "sourceCoverage": {
+    "vectors-and-matrices": ["FND-NVIDIA-TENSOR"],
+    "rules-vs-learning": ["FND-NIST-AI-RMF"],
+    "model-parameters-training": ["FND-PYTORCH-AUTOGRAD", "FND-NVIDIA-TENSOR"],
+    "learning-types": ["FND-NIST-AI-RMF"],
+    "neural-networks": ["FND-NVIDIA-TENSOR", "FND-PYTORCH-AUTOGRAD"],
+    "forward-backpropagation": ["FND-PYTORCH-AUTOGRAD"],
+    "tokenization": ["FND-HF-TOKENIZERS"],
+    "embedding-and-position": ["FND-GOOGLE-TRANSFORMER", "FND-HF-TOKENIZERS"],
+    "self-attention": ["FND-GOOGLE-TRANSFORMER"],
+    "multi-head-attention": ["FND-GOOGLE-TRANSFORMER"],
+    "context-window": ["FND-GOOGLE-TRANSFORMER", "FND-HF-TOKENIZERS"],
+    "pretraining": ["FND-GOOGLE-TRANSFORMER"],
+    "post-training": ["FND-NIST-AI-RMF"],
+    "deployment": ["FND-NIST-AI-RMF"],
+    "tool-use": ["FND-NIST-AI-RMF"],
+    "state-action-dynamics": ["FND-NIST-AI-RMF"],
+    "planning-and-control": ["FND-NIST-AI-RMF"],
+    "world-model-limitations": ["FND-NIST-AI-RMF"]
+  },
   "lessons": [
     {"id":"energy-and-power","authoringStatus":"AUTHORED_REFERENCE","definition":"에너지는 일을 할 수 있는 능력이고 전력은 에너지가 시간당 전달되는 속도다.","mechanism":"AI 장비의 전력은 계산과 메모리 이동 뒤 열로 바뀌며 냉각과 계통 용량이 운영 상한을 만든다.","example":"같은 처리량에서 전력당 성능이 높으면 랙·냉각·시설 비용 부담이 낮아진다.","limit":"전력 사용량 하나만으로 사회적 효율이나 기업 수익을 결론낼 수 없다.","teachingQuestion":"전력 병목이 계산 칩이 아니라 시설·계통에서 발생할 수 있는 이유는 무엇인가?","visualization":"전기 → 계산·메모리 이동 → 열 → 냉각·계통 병목","relatedAtlasNodeIds":["power-generation","power-it-load"],"sourceIds":["PS-09","PS-10","PS-15"]},
     {"id":"vectors-and-matrices","authoringStatus":"AUTHORED_REFERENCE","definition":"벡터는 수치 묶음이고 행렬은 벡터를 변환하는 배열이다.","mechanism":"신경망의 선형 변환은 행렬곱과 덧셈으로 입력 표현을 다음 층으로 옮긴다.","example":"큰 행렬곱을 병렬 계산하기 때문에 GPU와 tensor core가 중요해진다.","limit":"이론 FLOPS가 실제 서비스 처리량이나 지연시간과 같지는 않다.","teachingQuestion":"왜 행렬곱의 크기만 보고 실제 추론 속도를 단정할 수 없는가?","visualization":"입력 벡터 → 행렬곱 → 활성화 → 다음 표현","relatedAtlasNodeIds":["compute-gpu","compute-asic"],"sourceIds":[]},

@@ -68,6 +68,8 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `BUG-POSTMORTEM.md` | Bug history and P-number recurrence tracking | Bug fix |
 | `QA-CHECKLIST.md` | Manual/automated QA checklist | QA finding or new risky surface |
 | `KNOWLEDGE-BASE.md` | Research, market frameworks, integration memory | `/integrate` or insight capture |
+| `RESEARCH-INTEGRATION-2026-08-09.md` | User packet source-by-source audit: claims, observations, evidence tiers, image interpretation, Q1-Q5, screener/data/UI integration and unresolved access limits | New user research packet or material source-quality change |
+| `RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md` | Four-channel public Telegram audit: channel roles, observation windows, AI infrastructure/power, semiconductor, Korea/China supply-chain themes, Q1-Q5 promotion gates, stale/failure boundaries | Telegram channel catalog, source lineage, discovery memo, or reference-quality change |
 | `CODE-MAP.md` | Current `index.html` and `js/*.js` line map | Large edit or module movement |
 | `WORKTREE-AUDIT.md` | GitHub/live/worktree routing and unpublished work inventory | Worktree merge, deploy, or audit |
 | `DEEP-QA-2026-05-05.md` | Three-area deep QA: UI/rendering, API pipeline, page-level logic | Deep QA run or live/local parity change |

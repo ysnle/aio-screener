@@ -42,6 +42,9 @@ if (!/principles-analysis-claim/.test(page) || !/principles-reading-frame/.test(
 if (!/createNodeExplanation/.test(page) || !/NODE_EXPLANATIONS/.test(page) || !/LEARNING_TRACKS/.test(page) || !/15·30·45분/.test(page)) fail('principles page must render user-facing concept explanations and learning tracks');
 if (!/MARKET_EXPANSION/.test(page) || !/SYSTEMS_EXPANSION/.test(page) || !/scarcity-choice/.test(page) || !/power-electricity-system/.test(page) || !/market-foundations/.test(page) || !/industry-and-korea/.test(page)) fail('market principles economic and systems spine is missing');
 if (!/nodesWithinHops/.test(page) || !/principlesGraphNodeCount/.test(page)) fail('principles graph depth must be a real selected subgraph');
+if (!/PATH_SOURCE_IDS_BY_NODE/.test(page)) fail('principles path source map missing');
+if (!/createPathSourceBadge/.test(page)) fail('principles path source badge missing');
+if (page.includes("sourceName: '학습 콘텐츠 검토 기록'") || page.includes("sourceName: '학습 콘텐츠 검토 기록', sourceUrl: 'https://www.sec.gov/edgar/search-and-access'")) fail('principles path must not expose a generic SEC search link');
 if (!/principles-edge-label/.test(page) || !/toggle-group/.test(page) || !/자료실/.test(page)) fail('principles learner map must expose relation labels, nested groups, and a separate library view');
 if (research.status !== 'REFERENCE_CONNECTED' || research.sources.length !== 23 || research.claims.length !== 14 || research.nodes.length !== 12) fail('principles evidence artifact counts or status drifted');
 if (research.publication?.currentClaims !== 0 || research.publication?.allowedSurfaces?.includes('principles') !== true) fail('principles publication boundary drifted');

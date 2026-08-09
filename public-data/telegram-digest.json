@@ -1,9 +1,9 @@
 {
   "generatedAt": "2026-08-02T10:50:29.483Z",
-  "attemptedAt": "2026-08-02T10:50:29.483Z",
+  "attemptedAt": "2026-08-09T05:10:21.579Z",
   "lastSuccessfulAt": "2026-08-02T10:50:29.483Z",
-  "collectionStatus": "ok",
-  "successfulChannelCount": 3,
+  "collectionStatus": "failed",
+  "successfulChannelCount": 0,
   "windowKind": "research-14d",
   "since": "2026-07-19T10:50:25.881Z",
   "until": "2026-08-02T10:50:25.881Z",
@@ -51,10 +51,10 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 521,
-      "freshCount": 37,
+      "freshCount": 0,
       "eligibleTextCount": 36,
       "selectedCount": 127,
-      "error": null,
+      "error": "fetch failed",
       "lastPostId": 24273
     },
     {
@@ -63,10 +63,10 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1095,
-      "freshCount": 38,
+      "freshCount": 0,
       "eligibleTextCount": 38,
       "selectedCount": 122,
-      "error": null,
+      "error": "fetch failed",
       "lastPostId": 60008
     },
     {
@@ -75,11 +75,23 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 301,
-      "freshCount": 16,
+      "freshCount": 0,
       "eligibleTextCount": 16,
       "selectedCount": 120,
-      "error": null,
+      "error": "fetch failed",
       "lastPostId": 19471
+    },
+    {
+      "channel": "HANAchina",
+      "pages": 0,
+      "reachedOlder": false,
+      "reachedKnown": false,
+      "count": 0,
+      "eligibleTextCount": 0,
+      "selectedCount": 0,
+      "lastPostId": null,
+      "error": "fetch failed",
+      "freshCount": 0
     }
   ],
   "count": 1917,
@@ -36902,6 +36914,36 @@
       "score": 68,
       "hasText": true,
       "summary": "레버리지 ETF 자산이 2020년 6월 470억 달러에서 현재 2,180억 달러로 약 4.6배 증가. 이 가운데 반도체에 660억 달러, 기타 기술주에 810억 달러가 집중되며 전체 레버리지 자금의 약 3분의..."
+    }
+  ],
+  "sourceCatalog": [
+    {
+      "channel": "aetherjapanresearch",
+      "role": "asia-semi-flow",
+      "region": "jp-us",
+      "evidence": "secondary-public-mirror",
+      "publicMirror": "https://t.me/s/aetherjapanresearch"
+    },
+    {
+      "channel": "insidertracking",
+      "role": "us-fast-breaking",
+      "region": "us-global",
+      "evidence": "secondary-public-mirror",
+      "publicMirror": "https://t.me/s/insidertracking"
+    },
+    {
+      "channel": "bornlupin",
+      "role": "kr-semi-broker-notes",
+      "region": "kr-global",
+      "evidence": "secondary-public-mirror",
+      "publicMirror": "https://t.me/s/bornlupin"
+    },
+    {
+      "channel": "HANAchina",
+      "role": "china-em-supply-chain",
+      "region": "cn-tw-em",
+      "evidence": "secondary-public-mirror",
+      "publicMirror": "https://t.me/s/HANAchina"
     }
   ]
 }

@@ -8,7 +8,7 @@ const DOMAIN_GUIDES_URL = './public-data/atlas/domain-guides.json';
 const DOMAIN_PACKETS_URL = './public-data/atlas/domain-source-packets.json';
 const DOMAIN_CLAIMS_URL = './public-data/atlas/domain-claim-ledger.json';
 const TAXONOMY_COVERAGE_URL = './public-data/atlas/taxonomy-node-coverage.json';
-const TELEGRAM_REFERENCE_URL = './public-data/telegram-reference-window.json';
+const TELEGRAM_REFERENCE_URL = './public-data/telegram-digest.json';
 const PLAYER_PRODUCT_URL = './public-data/atlas/player-product-registry.json';
 const PLAYER_PRODUCT_CURRENTNESS_URL = './public-data/atlas/player-product-currentness.json';
 const DEEP_TAXONOMY_URL = './public-data/atlas/deep-taxonomy.json';
@@ -402,22 +402,39 @@ function createResearchView(documentRef, research, query) {
 function createTelegramReferenceView(documentRef, telegram, query) {
   if (!telegram) return null;
   const view = element(documentRef, 'section', 'atlas-telegram-reference');
-  const channels = (telegram.channels || []).filter((channel) => !query || [channel.channel, channel.status, channel.focus.join(' ')].join(' ').toLowerCase().includes(query));
+  const catalog = new Map((telegram.sourceCatalog || []).map((source) => [source.channel || source.id, source]));
+  const channels = (telegram.channels || []).map((channel) => ({ ...channel, ...(catalog.get(channel.channel) || {}) })).filter((channel) => {
+    const searchable = [channel.channel, channel.status, channel.role, channel.region, channel.focus, channel.error].filter(Boolean).join(' ').toLowerCase();
+    return !query || searchable.includes(query);
+  });
+  const windowStart = telegram.current24hWindow?.start || telegram.since || telegram.window?.start || '—';
+  const windowEnd = telegram.current24hWindow?.end || telegram.until || telegram.window?.end || '—';
+  const observed = telegram.retainedItemCount ?? telegram.observedItems?.length ?? telegram.count ?? 0;
+  const successful = telegram.successfulChannelCount ?? channels.filter((channel) => !channel.error).length;
+  const status = telegram.collectionStatus || 'reference_only';
+  const statusLabel = status === 'success' ? '수집 완료' : status === 'partial' ? '일부 수집' : '수집 실패·기존 원장 유지';
   view.append(
-    element(documentRef, 'h2', 'atlas-section-title atlas-section-title-spaced', 'Telegram 5일 discovery window'),
-    element(documentRef, 'p', 'atlas-card-copy', `${telegram.window?.start || '—'} ~ ${telegram.window?.end || '—'} · 관측 lineage ${telegram.observedLineageCount || 0}건 · 승격된 current claim ${telegram.promotedClaims || 0}건`),
-    element(documentRef, 'p', 'atlas-governance-note', telegram.boundary)
+    element(documentRef, 'h2', 'atlas-section-title atlas-section-title-spaced', 'Telegram 발견 자료 · 최신 원장과 수집 경계'),
+    element(documentRef, 'p', 'atlas-card-copy', `${windowStart} ~ ${windowEnd} · 보존 항목 ${observed}건 · 성공 채널 ${successful}/${channels.length} · ${statusLabel}`),
+    element(documentRef, 'p', 'atlas-governance-note', telegram.pipelineNote || 'Telegram은 키워드·프레임워크·출처 후보를 찾는 discovery layer입니다. 공개 미러 수집 실패 시 기존 성공 원장을 보존하며, 숫자·가격·출하·수율·현재 주장으로 자동 승격하지 않습니다.')
   );
   const grid = element(documentRef, 'div', 'atlas-telegram-channel-grid');
   channels.forEach((channel) => {
     const card = element(documentRef, 'article', 'atlas-telegram-channel-card');
     const link = element(documentRef, 'a', 'atlas-reference-source-link', `@${channel.channel}`);
-    link.href = channel.url;
+    link.href = channel.url || channel.publicMirror || `https://web.telegram.org/k/#@${channel.channel}`;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     link.dataset.atlasTelegramChannel = channel.channel;
-    const channelLabel = { REFERENCE_READY: '관측 완료', SPARSE_REFERENCE: '관측 희소', STALE_FOR_WINDOW: '기간 내 신규 없음' }[channel.status] || '확인 필요';
-    card.append(element(documentRef, 'div', 'atlas-card-meta', `${channelLabel} · 관측 ${channel.observedCount}건`), link, element(documentRef, 'p', 'atlas-card-copy', channel.focus.join(' · ')));
+    const observedCount = channel.selectedCount ?? channel.count ?? channel.observedCount ?? 0;
+    const freshCount = channel.freshCount ?? 0;
+    const channelLabel = channel.error ? '수집 실패·기존 원장 참고' : freshCount > 0 ? '신규 관측' : observedCount > 0 ? '기존 원장' : '신규 표본 없음';
+    card.append(
+      element(documentRef, 'div', 'atlas-card-meta', `${channelLabel} · 관측 ${observedCount}건${freshCount ? ` · 신규 ${freshCount}건` : ''}`),
+      link,
+      element(documentRef, 'p', 'atlas-card-copy', [channel.role, channel.region, channel.focus].filter(Boolean).join(' · ') || '역할·지역 메타데이터 확인 필요')
+    );
+    if (channel.error) card.appendChild(element(documentRef, 'p', 'atlas-card-copy atlas-telegram-status', `수집 경계: ${channel.error}`));
     grid.appendChild(card);
   });
   if (!channels.length) grid.appendChild(element(documentRef, 'div', 'atlas-empty', '검색 결과가 없습니다.'));
@@ -531,8 +548,22 @@ function createModuleLesson(documentRef, module, authoredLessons) {
   if (authored?.sourceIds?.length || module.evidence?.length) {
     const sourceDetails = element(documentRef, 'details', 'atlas-module-source-details');
     sourceDetails.appendChild(element(documentRef, 'summary', 'atlas-module-source-summary', '근거 및 더 읽기'));
-    const sources = element(documentRef, 'div', 'atlas-chip-row atlas-module-sources');
-    [...new Set([...(module.evidence || []), ...(authored?.sourceIds || [])])].forEach((sourceId) => sources.appendChild(element(documentRef, 'span', 'atlas-chip', `공식 자료 · ${sourceId}`)));
+    const sourceCatalog = new Map((authoredLessons?.sourceCatalog || []).map((source) => [source.id, source]));
+    const sources = element(documentRef, 'div', 'atlas-module-sources');
+    [...new Set([...(module.evidence || []), ...(authored?.sourceIds || [])])].forEach((sourceId) => {
+      const source = sourceCatalog.get(sourceId);
+      if (source?.url) {
+        const link = element(documentRef, 'a', 'atlas-reference-source-link', source.title || source.publisher || sourceId);
+        link.href = source.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.dataset.atlasFoundationSource = sourceId;
+        sources.appendChild(link);
+        sources.appendChild(element(documentRef, 'span', 'atlas-card-copy atlas-source-scope', `${source.publisher || ''} · ${source.scope || ''}`));
+      } else {
+        sources.appendChild(element(documentRef, 'span', 'atlas-chip atlas-source-unlinked', `source ${sourceId}`));
+      }
+    });
     sourceDetails.appendChild(sources);
     body.appendChild(sourceDetails);
   }
@@ -825,6 +856,28 @@ function createDeepTaxonomyView(documentRef, node, deepTaxonomy, selectedTopicId
   return block;
 }
 
+function mergeTaxonomyRelationships(taxonomyCoverage) {
+  const nodes = taxonomyCoverage?.nodes || [];
+  const byId = new Map(nodes.map((node) => [node.nodeId, node]));
+  const upstream = new Map(nodes.map((node) => [node.nodeId, new Set(node.upstream || [])]));
+  const downstream = new Map(nodes.map((node) => [node.nodeId, new Set(node.downstream || [])]));
+  const addEdge = (from, to) => {
+    if (!byId.has(from) || !byId.has(to) || from === to) return;
+    downstream.get(from).add(to);
+    upstream.get(to).add(from);
+  };
+  (taxonomyCoverage?.relationshipModel?.domainChains || []).forEach((chain) => {
+    (chain.nodeIds || []).forEach((nodeId, index, nodeIds) => { if (index < nodeIds.length - 1) addEdge(nodeId, nodeIds[index + 1]); });
+  });
+  (taxonomyCoverage?.relationshipModel?.crossDomainEdges || []).forEach((edge) => addEdge(edge.from, edge.to));
+  const title = (nodeId) => TAXONOMY_NODE_LABELS[nodeId] || byId.get(nodeId)?.nodeId || nodeId;
+  return nodes.map((node) => {
+    const upstreamIds = [...upstream.get(node.nodeId)].sort();
+    const downstreamIds = [...downstream.get(node.nodeId)].sort();
+    return { ...node, upstream: upstreamIds, downstream: downstreamIds, upstreamTitles: upstreamIds.map(title), downstreamTitles: downstreamIds.map(title) };
+  });
+}
+
 function createPlayerProductView(documentRef, node, registry) {
   if (!registry) return null;
   const players = (registry.players || []).filter((player) => player.taxonomyNodeIds?.includes(node.id));
@@ -862,7 +915,7 @@ function createPlayerProductView(documentRef, node, registry) {
       element(documentRef, 'strong', 'atlas-player-name', '전체 taxonomy coverage'),
       element(documentRef, 'p', 'atlas-card-copy', `역할: ${coverage.roleReference} · 분류: ${coverage.kind}`),
       element(documentRef, 'p', 'atlas-card-copy', `제품·서비스군: ${coverage.productFamilyReference}`),
-      element(documentRef, 'p', 'atlas-card-copy', `상류 → 하류: ${(coverage.upstream || []).join(' · ') || '확장 필요'} → ${(coverage.downstream || []).join(' · ') || '확장 필요'}`),
+      element(documentRef, 'p', 'atlas-card-copy atlas-taxonomy-relations', `상류: ${(coverage.upstreamTitles || coverage.upstream || []).join(' · ') || '도메인 시작점'} · 하류: ${(coverage.downstreamTitles || coverage.downstream || []).join(' · ') || '도메인 종점'}`),
       element(documentRef, 'p', 'atlas-card-copy atlas-player-product-boundary', `대표 연결: ${(coverage.representativePlayerIds || []).join(' · ') || '대표 player 추가 조사 필요'} · 현재 claim ${coverage.currentClaims} · 기준일 ${coverage.asOf || '현재값 없음'}`),
       element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-boundary', `검증 질문: ${coverage.verificationQuestion}`)
     );
@@ -1142,7 +1195,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
        if (typeof fetchFn === 'function') {
          const loadJson = (url) => fetchFn(url).then((response) => { if (!response.ok) throw new Error(`Atlas artifact ${response.status}`); return response.json(); });
           Promise.all([loadJson(RESEARCH_URL), loadJson(FOUNDATIONS_URL), loadJson(FOUNDATIONS_LESSONS_URL), loadJson(DOMAIN_GUIDES_URL), loadJson(DOMAIN_PACKETS_URL), loadJson(DOMAIN_CLAIMS_URL), loadJson(TAXONOMY_COVERAGE_URL), loadJson(DEEP_TAXONOMY_URL), loadJson(TELEGRAM_REFERENCE_URL), loadJson(PLAYER_PRODUCT_URL), loadJson(PLAYER_PRODUCT_CURRENTNESS_URL)])
-            .then(([research, foundations, foundationLessons, domainGuides, domainPackets, claimLedger, taxonomyCoverage, deepTaxonomy, telegram, registry, currentness]) => { state.research = research; state.foundations = foundations; state.foundationLessons = { ...foundationLessons, byId: Object.fromEntries((foundationLessons.lessons || []).map((lesson) => [lesson.id, lesson])) }; state.domainGuides = domainGuides; state.domainPackets = domainPackets; state.claimLedger = claimLedger; state.deepTaxonomy = deepTaxonomy; state.telegram = telegram; state.registry = { ...mergePlayerProductCurrentness(registry, currentness), nodeCoverage: taxonomyCoverage.nodes || [] }; page.dataset.aioAtlasResearch = 'connected'; page.dataset.aioAtlasFoundations = 'connected'; page.dataset.aioAtlasFoundationLessons = 'connected'; page.dataset.aioAtlasDomainGuides = 'connected'; page.dataset.aioAtlasDomainPackets = 'connected'; page.dataset.aioAtlasClaims = 'connected'; page.dataset.aioAtlasTaxonomyCoverage = 'connected'; page.dataset.aioAtlasDeepTaxonomy = 'connected'; page.dataset.aioAtlasTelegram = 'connected'; page.dataset.aioAtlasCurrentness = 'connected'; page.dataset.aioAtlasRegistry = 'connected'; render(); })
+            .then(([research, foundations, foundationLessons, domainGuides, domainPackets, claimLedger, taxonomyCoverage, deepTaxonomy, telegram, registry, currentness]) => { state.research = research; state.foundations = foundations; const sourceCoverage = foundationLessons.sourceCoverage || {}; state.foundationLessons = { ...foundationLessons, byId: Object.fromEntries((foundationLessons.lessons || []).map((lesson) => [lesson.id, { ...lesson, sourceIds: [...new Set([...(lesson.sourceIds || []), ...(sourceCoverage[lesson.id] || [])])] }])) }; state.domainGuides = domainGuides; state.domainPackets = domainPackets; state.claimLedger = claimLedger; state.deepTaxonomy = deepTaxonomy; state.telegram = telegram; state.registry = { ...mergePlayerProductCurrentness(registry, currentness), nodeCoverage: mergeTaxonomyRelationships(taxonomyCoverage) }; page.dataset.aioAtlasResearch = 'connected'; page.dataset.aioAtlasFoundations = 'connected'; page.dataset.aioAtlasFoundationLessons = 'connected'; page.dataset.aioAtlasDomainGuides = 'connected'; page.dataset.aioAtlasDomainPackets = 'connected'; page.dataset.aioAtlasClaims = 'connected'; page.dataset.aioAtlasTaxonomyCoverage = 'connected'; page.dataset.aioAtlasDeepTaxonomy = 'connected'; page.dataset.aioAtlasTelegram = 'connected'; page.dataset.aioAtlasCurrentness = 'connected'; page.dataset.aioAtlasRegistry = 'connected'; render(); })
             .catch(() => { state.researchError = true; state.foundationsError = true; state.foundationLessonsError = true; state.domainGuidesError = true; state.domainPacketsError = true; state.claimLedgerError = true; state.deepTaxonomyError = true; state.telegramError = true; state.registryError = true; page.dataset.aioAtlasResearch = 'fallback'; page.dataset.aioAtlasFoundations = 'fallback'; page.dataset.aioAtlasFoundationLessons = 'fallback'; page.dataset.aioAtlasDomainGuides = 'fallback'; page.dataset.aioAtlasDomainPackets = 'fallback'; page.dataset.aioAtlasClaims = 'fallback'; page.dataset.aioAtlasTaxonomyCoverage = 'fallback'; page.dataset.aioAtlasDeepTaxonomy = 'fallback'; page.dataset.aioAtlasTelegram = 'fallback'; page.dataset.aioAtlasRegistry = 'fallback'; render(); });
        }
       return () => bag.dispose();

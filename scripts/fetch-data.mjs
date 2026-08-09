@@ -1611,6 +1611,55 @@ function _calcVCPServer(closes, highs, lows, volumes) {
 }
 
 // Phase 1: 심볼 배열 → 1y 가격 이력 fetch + 팩터 계산. results 배열은 backtest에 재사용.
+// v53.91: materialize the observable pieces of the TradingView "best winners"
+// screen. These are evidence fields, not a buy score: missing source series
+// stays null and the setup layer fails closed.
+function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) {
+  const n = Math.min(closes.length, adjCloses.length, highs.length, lows.length, volumes.length);
+  if (n < 1) return null;
+  const tail = (arr, p) => arr.slice(Math.max(0, arr.length - p));
+  const avg = (arr) => {
+    const vals = arr.filter(v => typeof v === 'number' && Number.isFinite(v) && v > 0);
+    return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+  };
+  const ema = (arr, period) => {
+    if (arr.length < period) return null;
+    let value = avg(arr.slice(0, period));
+    if (value == null) return null;
+    const alpha = 2 / (period + 1);
+    for (let i = period; i < arr.length; i++) value = arr[i] * alpha + value * (1 - alpha);
+    return value;
+  };
+  const price = closes[n - 1];
+  const lowWindow = tail(lows, Math.min(252, n)).filter(v => v > 0);
+  const highWindow = tail(highs, Math.min(252, n)).filter(v => v > 0);
+  const low52 = lowWindow.length ? Math.min(...lowWindow) : null;
+  const high52 = highWindow.length ? Math.max(...highWindow) : null;
+  const adrWindow = Math.min(20, n);
+  const adrPct = price > 0 ? avg(tail(highs, adrWindow).map((h, i) => {
+    const idx = n - adrWindow + i;
+    const lo = lows[idx];
+    const base = closes[idx];
+    return h > 0 && lo >= 0 && base > 0 ? (h - lo) / base * 100 : null;
+  }).filter(v => v != null)) : null;
+  const avgVolume30d = avg(tail(volumes, Math.min(30, n)));
+  const latestVolume = typeof volumes[n - 1] === 'number' && Number.isFinite(volumes[n - 1]) && volumes[n - 1] > 0
+    ? volumes[n - 1] : null;
+  return {
+    price: typeof price === 'number' && Number.isFinite(price) ? round(price, 4) : null,
+    pctFrom52wLow: low52 > 0 ? round((price - low52) / low52 * 100, 1) : null,
+    pctFrom52wHigh: high52 > 0 ? round((price - high52) / high52 * 100, 1) : null,
+    adrPct: adrPct == null ? null : round(adrPct, 2),
+    avgVolume30d: avgVolume30d == null ? null : Math.round(avgVolume30d),
+    dollarVolume30d: price > 0 && avgVolume30d != null ? Math.round(price * avgVolume30d) : null,
+    lastVolume: latestVolume == null ? null : Math.round(latestVolume),
+    dollarVolume: price > 0 && latestVolume != null ? Math.round(price * latestVolume) : null,
+    ema8: ema(adjCloses, 8),
+    ema21: ema(adjCloses, 21),
+    ema60: ema(adjCloses, 60)
+  };
+}
+
 async function _enrichPriceFactors(syms) {
   const results = await mapLimit(syms, 5, async (sym) => {
     const rows = await fetchHistory(_yhSym(sym), '1y');
@@ -1640,6 +1689,12 @@ async function _enrichPriceFactors(syms) {
         const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
         if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; }
       }
+      const setupFields = _calcSetupScreenFields(
+        r.closes,
+        r.adjCloses && r.adjCloses.length === r.closes.length ? r.adjCloses : r.closes,
+        r.highs || [], r.lows || [], r.volumes || []
+      );
+      if (setupFields) Object.assign(f, setupFields);
       f.observedAt = r.observedAt;
       f.source = 'Yahoo chart 1y adjusted-close history';
       f.sourceKind = 'delayed-eod';

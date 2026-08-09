@@ -451,6 +451,51 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
 // P831/P832: deterministic native secondary projections must preserve null/unavailable inputs,
 // finite quote derivation, and official-SEC provenance rather than converting missing facts to 0.
 {
+// ── domain/screener/setup-profile.js: reference-only setup labels fail closed ────────────────
+// v53.91: setup observations and TradingView evidence are research overlays only;
+// missing volume/benchmark evidence must stay visible instead of becoming a trade signal.
+{
+  const { deriveScreenerSetupProfile } = await load('src/domain/screener/setup-profile.js');
+  const pullback = deriveScreenerSetupProfile({
+    observedAt: '2026-08-09', rank: 80, ret1m: -2, ret3m: 15, ret6m: 30,
+    pctSma50: -1, pctSma200: 1, rsi: 55,
+  });
+  if (pullback.status !== 'partial' || pullback.relativeStrengthPullback !== 'candidate' || pullback.support200 !== 'near') {
+    fail(`setup-profile: relative-strength pullback candidate drifted, got ${JSON.stringify(pullback)}`);
+  }
+  if (pullback.volumeEvidence !== 'unavailable' || pullback.allowedUse !== 'research-relative-ranking-only' || !pullback.missingEvidence.includes('RVOL')) {
+    fail(`setup-profile: missing evidence must fail closed, got ${JSON.stringify(pullback)}`);
+  }
+
+  const winner = deriveScreenerSetupProfile({
+    observedAt: '2026-08-09', rank: 80, ret1m: 2, ret3m: 15, ret6m: 30,
+    pctSma50: 8, pctSma200: 25, rsi: 62, rvol20: 1.8,
+    price: 100, adrPct: 5.2, pctFrom52wLow: 85, dollarVolume30d: 20_000_000,
+    dollarVolume: 8_000_000, ema8: 102, ema21: 98, ema60: 90,
+    benchmarkRet: 1
+  });
+  if (winner.winnerFilter !== 'candidate' || winner.winnerChecks.ema8Above21 !== true) {
+    fail(`setup-profile: TradingView winner evidence should pass complete fixture, got ${JSON.stringify(winner)}`);
+  }
+  const winnerMissing = deriveScreenerSetupProfile({ observedAt: '2026-08-09', price: 100 });
+  if (winnerMissing.winnerFilter !== 'unavailable' || !winnerMissing.missingEvidence.includes('winner-filter:adrAtLeast4_5')) {
+    fail(`setup-profile: TradingView winner evidence must fail closed on missing fields, got ${JSON.stringify(winnerMissing)}`);
+  }
+
+  const climax = deriveScreenerSetupProfile({
+    observedAt: '2026-08-09', rank: 90, ret1m: 10, ret3m: 20,
+    pctSma50: 20, pctSma200: 72, rsi: 76,
+  });
+  if (climax.climaxRisk !== 'watch' || climax.stretch200 !== true || climax.label !== '클라이맥스 관찰') {
+    fail(`setup-profile: 200SMA stretch/climax label drifted, got ${JSON.stringify(climax)}`);
+  }
+
+  const empty = deriveScreenerSetupProfile({});
+  if (empty.status !== 'unavailable' || empty.label !== '관찰' || empty.relativeStrengthPullback !== 'unavailable') {
+    fail(`setup-profile: empty row must remain unavailable, got ${JSON.stringify(empty)}`);
+  }
+}
+
   const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
   const empty = derivePortfolioSurface({ state: { status: 'unavailable', holdings: [], cash: null }, liveData: {}, vix: null });
   if (empty.status !== 'unavailable' || empty.dailyChange !== null || empty.exposureCap !== null || empty.sectorBreakdown.length !== 0) fail(`portfolio-surface: empty input must remain unavailable, got ${JSON.stringify(empty)}`);
@@ -471,4 +516,4 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (old.freshness.state !== 'historical' || old.freshness.ageDays == null || old.decisionEligible !== false) fail(`sec-report: historical filing must fail closed, got ${JSON.stringify(old)}`);
 }
 
-console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/portfolio/surface', 'domain/fundamental/sec-report'] }));
+console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report'] }));

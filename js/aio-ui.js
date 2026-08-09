@@ -1799,6 +1799,7 @@ async function runInstitutionalTechnicalBrief(arg) {
       semiHeat: semiHeat,
       opexGammaRisk: opexGammaRisk,
       breadthRotation: breadthRotation,
+      weeklyOhlcv: data[1] || [],
       referenceDate: window.AIO_EVENT_RISK_CONTEXT && window.AIO_EVENT_RISK_CONTEXT.asOf
     }) : null;
     var sellPressure = window.calcSellPressure ? window.calcSellPressure(snapshot, { semiHeat: semiHeat, lockoutAction: lockoutAction, blowoffTop: blowoffTop }) : null;

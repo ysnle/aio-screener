@@ -57,10 +57,14 @@ function entryTiming(row) {
   const rank = finite(row.rank);
   const rsi = finite(row.rsi);
   const momentum = finite(row.ret1m) ?? (finite(row.ret3m) == null ? null : row.ret3m / 3);
+  const setup = row.setupProfile || {};
   if (rank == null) return ['—', 'entry-wait'];
+  if (setup.climaxRisk === 'watch') return [setup.label || '클라이맥스 관찰', 'entry-wait'];
   if (rank < 30) return ['하위권', 'entry-avoid'];
   if (rsi != null && rsi > 78) return ['RSI 과열', 'entry-wait'];
   if (rsi != null && rsi < 22) return ['RSI 침체', 'entry-wait'];
+  if (setup.relativeStrengthPullback === 'candidate') return ['상대강도 눌림', 'entry-watch'];
+  if (setup.support200 === 'near') return ['200일선 부근', 'entry-watch'];
   if (rank >= 65 && (rsi == null || (rsi >= 38 && rsi <= 68)) && (momentum == null || momentum > 0)) return ['상위권·추세 양호', 'entry-ready'];
   if (rank >= 48 && (rsi == null || (rsi >= 30 && rsi <= 74))) return ['중상위권', 'entry-watch'];
   return ['중립권', 'entry-wait'];
@@ -87,6 +91,7 @@ function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
   const rsiMin = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-min'));
   const rsiMax = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-max'));
   const minMomentum = Number.parseFloat(selectedValue(documentRef, 'scr-min-mom'));
+  const setupFilter = selectedValue(documentRef, 'scr-setup');
   const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
   const watchlist = watchlistOnly ? new Set(readWatchlist?.() || []) : null;
   const aliases = readAliases?.() || {};
@@ -111,10 +116,16 @@ function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
     if (Number.isFinite(rsiMin) && rsiMin > 0 && !(finite(row.rsi) != null && row.rsi >= rsiMin)) return false;
     if (Number.isFinite(rsiMax) && rsiMax < 100 && !(finite(row.rsi) != null && row.rsi <= rsiMax)) return false;
     if (Number.isFinite(minMomentum) && !(finite(row.ret3m) != null && row.ret3m >= minMomentum)) return false;
+    if (setupFilter === 'WINNER' && row.setupProfile?.winnerFilter !== 'candidate') return false;
+    if (setupFilter === 'RSPULLBACK' && row.setupProfile?.relativeStrengthPullback !== 'candidate') return false;
+    if (setupFilter === 'SUPPORT200' && row.setupProfile?.support200 !== 'near') return false;
+    if (setupFilter === 'CLIMAX' && row.setupProfile?.climaxRisk !== 'watch') return false;
+    if (setupFilter === 'MISSING' && !(row.setupProfile?.winnerFilter === 'unavailable' || (row.setupProfile?.missingEvidence || []).length)) return false;
     if (watchlist && !watchlist.has(row.sym)) return false;
     if (!query) return true;
     if (signalFromText && row.signal !== signalFromText) return false;
-    const haystack = `${row.sym} ${row.name} ${row.memo || ''} ${row.newsMemo || ''} ${row.sector || ''}`.toLowerCase();
+    const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
+    const haystack = `${row.sym} ${row.name} ${row.memo || ''} ${row.newsMemo || ''} ${row.sector || ''} ${setupText}`.toLowerCase();
     const direct = haystack.includes(query);
     const allWords = words.filter((word) => !aliases[word]).every((word) => haystack.includes(word));
     return direct || allWords || matchedSymbols.has(row.sym);
@@ -225,6 +236,14 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
   const entryNode = documentRef.createElement('span');
   entryNode.className = `scr-entry-chip ${entry[1]}`;
   entryNode.textContent = entry[0];
+  if (row.setupProfile?.explanation) {
+    entryNode.title = `${row.setupProfile.explanation} 거래량/RVOL: ${row.setupProfile.volumeEvidence === 'unavailable' ? '미수신' : row.setupProfile.volumeEvidence}`;
+  }
+  if (row.setupProfile) {
+    const winnerText = row.setupProfile.winnerFilter === 'candidate' ? '통과'
+      : row.setupProfile.winnerFilter === 'unavailable' ? '근거 미수신' : '미확정';
+    entryNode.title = `${entryNode.title ? `${entryNode.title} · ` : ''}TradingView 승자 필터: ${winnerText}`;
+  }
   tr.appendChild(cell(documentRef, entryNode, 'scr-adv-col', 'text-align:center;padding:4px 8px;border-left:1px solid var(--border);'));
   const signalNode = documentRef.createElement('span');
   signalNode.textContent = signalLabel(row.signal);
@@ -452,6 +471,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
           renderNow();
         } else if (action === 'reset-filters') {
           ['scr-min-rank', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom'].forEach((id) => { const field = documentRef.getElementById(id); if (field) field.value = id === 'scr-min-rank' ? '0' : ''; });
+          const setup = documentRef.getElementById('scr-setup');
+          if (setup) setup.value = '';
           const watchlist = documentRef.getElementById('scr-watchlist-only');
           if (watchlist) watchlist.checked = false;
           visibleLimit.value = 12;
@@ -461,7 +482,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
       };
       const handleInput = (event) => {
         if (!event.target.closest?.('#page-screener')) return;
-        if (event.target.matches?.('#scr-market, #scr-sector, #scr-signal, #scr-cap, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only')) {
+        if (event.target.matches?.('#scr-market, #scr-sector, #scr-signal, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only')) {
           event.stopPropagation();
           visibleLimit.value = 12;
           renderNow();

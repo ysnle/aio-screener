@@ -4,10 +4,10 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v53.89
+- **현재 버전**: v53.95
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (47개 활성, 2026-08-01 갱신)
+## _context/ 문서 (48개 활성, 2026-08-09 갱신)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
@@ -18,6 +18,8 @@
 | QA-CHECKLIST.md | QA 체크리스트 v4.0 — 게이트 실행 절차·QC1~10·열린 백로그·버전 원장 압축 (2026-07-18 통합) | /qa 발견 시 |
 | KNOWLEDGE-BASE.md | 기술 인사이트 축적 (R26) | 인사이트 발견 시 |
 | CODE-MAP.md | index.html + js 모듈 line 범위 맵 | 리팩토링 ±500줄 |
+| RESEARCH-INTEGRATION-2026-08-09.md | 사용자 자료별 주장·근거계층·이미지·스크리너 반영 원장 | 새 자료 통합 또는 출처 품질 변경 시 |
+| RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md | Telegram 4채널 공개 감사·역할·관찰창·Q1~Q5·stale/failure 경계 원장 | Telegram source catalog 또는 reference 품질 변경 시 |
 | INDEX.md | 지식 베이스 인덱스 + 배포 baseline (R24) | /knowledge-lint L6, _context 문서 추가/제거 시 |
 | WORKTREE-AUDIT.md | GitHub/live/worktree 라우팅 + 미배포 작업 인벤토리 | 워크트리 병합/배포/감사 시 |
 | DEEP-QA-2026-05-05.md | UI/API/페이지 로직 심층 QA 결과 | 심층 QA 또는 live/local parity 변경 시 |
