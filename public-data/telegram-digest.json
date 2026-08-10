@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-10T19:17:26.234Z",
-  "attemptedAt": "2026-08-10T19:17:26.234Z",
-  "lastSuccessfulAt": "2026-08-10T19:17:26.234Z",
+  "generatedAt": "2026-08-10T20:23:42.194Z",
+  "attemptedAt": "2026-08-10T20:23:42.194Z",
+  "lastSuccessfulAt": "2026-08-10T20:23:42.194Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-07-27T19:17:23.088Z",
-  "until": "2026-08-10T19:17:23.088Z",
+  "since": "2026-07-27T20:23:36.939Z",
+  "until": "2026-08-10T20:23:36.939Z",
   "current24hWindow": {
     "start": "2026-08-08T23:00:00.000Z",
     "end": "2026-08-09T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 142,
-    "eligibleTextCount": 3,
+    "eligibleTextCount": 12,
     "channelCounts": {
       "bornlupin": 12,
       "HANAchina": 46,
@@ -84,7 +84,7 @@
       "count": 442,
       "freshCount": 20,
       "eligibleTextCount": 19,
-      "selectedCount": 90,
+      "selectedCount": 88,
       "error": null,
       "lastPostId": 24494
     },
@@ -93,7 +93,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1247,
+      "count": 1237,
       "freshCount": 20,
       "eligibleTextCount": 19,
       "selectedCount": 123,
@@ -102,15 +102,15 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 274,
-      "freshCount": 20,
-      "eligibleTextCount": 19,
-      "selectedCount": 79,
+      "count": 275,
+      "freshCount": 38,
+      "eligibleTextCount": 37,
+      "selectedCount": 80,
       "error": null,
-      "lastPostId": 19632
+      "lastPostId": 19633
     },
     {
       "channel": "HANAchina",
@@ -125,9 +125,31 @@
       "lastPostId": 66922
     }
   ],
-  "count": 2714,
-  "retainedItemCount": 448,
+  "count": 2705,
+  "retainedItemCount": 451,
   "observedItems": [
+    {
+      "id": "bornlupin/19633",
+      "channel": "bornlupin",
+      "datetime": "2026-08-10T20:23:08.000Z",
+      "localDateKst": "2026-08-11",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "GS",
+        "BLK",
+        "BX"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/24494",
       "channel": "aetherjapanresearch",
@@ -2954,7 +2976,7 @@
         "005930.KS",
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66851",
@@ -3157,7 +3179,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19610",
@@ -3169,7 +3191,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66848",
@@ -3204,7 +3226,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66846",
@@ -3250,7 +3272,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19605",
@@ -3272,7 +3294,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66845",
@@ -3301,7 +3323,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24459",
@@ -3378,7 +3400,7 @@
       "tickers": [
         "SNDK"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19602",
@@ -3392,7 +3414,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60695",
@@ -4468,7 +4490,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60639",
@@ -4561,7 +4583,7 @@
         "NVDA",
         "BX"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66820",
@@ -4637,7 +4659,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24441",
@@ -4910,7 +4932,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60623",
@@ -5131,7 +5153,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66797",
@@ -5184,7 +5206,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66795",
@@ -5225,7 +5247,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66791",
@@ -5341,7 +5363,7 @@
         "TSM",
         "COHR"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60617",
@@ -38357,244 +38379,68 @@
         "QQQ"
       ],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/59418",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:22:33.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 62,
-      "tags": [
-        "geo",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59417",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:17:52.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 82,
-      "tags": [
-        "macro",
-        "equity",
-        "healthcare"
-      ],
-      "tickers": [
-        "AAPL",
-        "JPM",
-        "ABBV",
-        "MRK",
-        "BAC",
-        "TRV",
-        "GD",
-        "BMY",
-        "AFL",
-        "MET",
-        "PRU",
-        "HWM",
-        "ROST",
-        "ALL",
-        "CPAY",
-        "VTR",
-        "EG",
-        "KIM",
-        "FRT",
-        "INCY"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59416",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:16:27.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 48,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59415",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:14:06.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59414",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:13:07.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59413",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:10:25.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [
-        "AMD"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59412",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:08:10.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 40,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59410",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:05:27.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 96,
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59411",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:05:27.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 62,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59409",
-      "channel": "insidertracking",
-      "datetime": "2026-07-27T20:05:26.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "crypto",
-        "insider",
-        "earnings",
-        "healthcare",
-        "japan"
-      ],
-      "tickers": [
-        "NVDA",
-        "AAPL",
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "RKLB",
-        "TSLA"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2714,
-    "eligibleTextCount": 77,
-    "mediaOnlyCount": 2637,
-    "highSignalCount": 685,
-    "broadSignalCount": 1374,
-    "selectedRawCount": 412,
-    "selectedRawCoveragePct": 535.1,
+    "observedCount": 2705,
+    "eligibleTextCount": 95,
+    "mediaOnlyCount": 2610,
+    "highSignalCount": 682,
+    "broadSignalCount": 1369,
+    "selectedRawCount": 411,
+    "selectedRawCoveragePct": 432.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 906,
-    "semi": 869,
-    "power": 394,
-    "earnings": 726,
-    "healthcare": 144,
-    "japan": 239,
-    "market-note": 652,
-    "media-only": 41,
-    "geo": 435,
-    "ai-policy": 189,
-    "flows": 279,
-    "credit": 76,
-    "insider": 94,
+    "macro": 902,
+    "semi": 866,
+    "power": 393,
     "kr-market": 445,
-    "equity": 230,
+    "earnings": 724,
+    "flows": 280,
+    "healthcare": 142,
+    "japan": 237,
+    "market-note": 649,
+    "media-only": 41,
+    "geo": 430,
+    "ai-policy": 187,
+    "credit": 73,
+    "insider": 93,
+    "equity": 228,
     "optical": 56,
-    "crypto": 19
+    "crypto": 18
   },
   "tickerCounts": {
+    "NVDA": 75,
+    "GS": 11,
+    "BLK": 7,
+    "BX": 4,
     "000660.KS": 232,
-    "MSFT": 68,
-    "GOOG": 85,
-    "AMZN": 96,
+    "MSFT": 67,
+    "GOOG": 84,
+    "AMZN": 95,
     "PLTR": 24,
     "SNDK": 35,
     "TSM": 113,
-    "GS": 10,
     "MS": 9,
     "AMAT": 12,
     "WDC": 12,
     "329180.KS": 1,
-    "AAPL": 55,
+    "AAPL": 53,
     "005930.KS": 155,
-    "AMD": 81,
+    "AMD": 80,
     "BCS": 3,
     "BABA": 7,
     "MU": 39,
     "035420.KS": 63,
-    "NVDA": 75,
     "META": 61,
     "BRK.B": 6,
     "PSX": 2,
     "AVGO": 31,
     "MTK": 8,
-    "BX": 3,
     "6600.T": 19,
     "BE": 31,
     "NFLX": 1,
@@ -38606,26 +38452,25 @@
     "6981.T": 1,
     "009150.KS": 7,
     "SMCI": 7,
-    "RKLB": 11,
+    "RKLB": 10,
     "INTC": 12,
     "GOOGL": 23,
     "ORCL": 18,
     "AAOI": 14,
     "GLW": 3,
     "BIDU": 1,
-    "BLK": 6,
-    "TSLA": 15,
+    "TSLA": 14,
     "CAT": 12,
     "MRVL": 16,
     "STX": 6,
     "V": 11,
     "ALAB": 7,
     "LLY": 6,
-    "ABBV": 7,
+    "ABBV": 6,
     "DDOG": 8,
     "SNOW": 8,
     "IONQ": 12,
-    "BAC": 6,
+    "BAC": 5,
     "NET": 11,
     "URI": 1,
     "ABNB": 4,
@@ -38652,9 +38497,9 @@
     "BRK-B": 2,
     "SCHW": 2,
     "MSI": 1,
-    "MET": 4,
+    "MET": 3,
     "PH": 1,
-    "HWM": 2,
+    "HWM": 1,
     "PNC": 1,
     "CAH": 1,
     "AMP": 4,
@@ -38679,22 +38524,22 @@
     "FTNT": 2,
     "EA": 4,
     "NUE": 3,
-    "PRU": 2,
+    "PRU": 1,
     "ANET": 7,
     "JCI": 2,
     "AME": 3,
-    "CPAY": 4,
+    "CPAY": 3,
     "MA": 2,
     "DIS": 1,
     "DASH": 1,
     "BKNG": 3,
     "000990.KS": 2,
     "NVO": 2,
-    "MRK": 6,
+    "MRK": 5,
     "PFE": 3,
     "LRCX": 8,
     "CPNG": 1,
-    "JPM": 3,
+    "JPM": 2,
     "NTAP": 1,
     "DXCM": 3,
     "BBVA": 5,
@@ -38704,9 +38549,9 @@
     "PINS": 1,
     "SPOT": 1,
     "RIOT": 1,
-    "BMY": 7,
+    "BMY": 6,
     "GSAT": 2,
-    "ROST": 4,
+    "ROST": 3,
     "DVA": 1,
     "ILMN": 4,
     "NWG": 1,
@@ -38756,7 +38601,7 @@
     "141080.KQ": 1,
     "JNJ": 3,
     "LMT": 1,
-    "GD": 4,
+    "GD": 3,
     "RBLX": 1,
     "373220.KS": 1,
     "006400.KS": 1,
@@ -38766,9 +38611,9 @@
     "KO": 5,
     "GM": 2,
     "SPG": 2,
-    "AFL": 3,
+    "AFL": 2,
     "IQV": 1,
-    "ALL": 2,
+    "ALL": 1,
     "CTVA": 1,
     "EXR": 1,
     "CTSH": 1,
@@ -38783,29 +38628,24 @@
     "PEP": 1,
     "NEE": 1,
     "SMR": 1,
-    "TRV": 2,
+    "TRV": 1,
     "PM": 1,
     "WELL": 1,
     "MO": 1,
     "CORZ": 1,
     "ADBE": 1,
     "CMI": 1,
-    "GEV": 1,
-    "VTR": 1,
-    "EG": 1,
-    "KIM": 1,
-    "FRT": 1,
-    "INCY": 1
+    "GEV": 1
   },
   "themes": [
-    "Macro/Rates (906 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "Semiconductors/Memory (869 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "Earnings/Corporate (726 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "Market Notes (652 posts in 14-day research window): >>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서...",
-    "Korea Market (445 posts in 14-day research window): Pre-Market Summary - 2026년 8월 10일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 9월 1일부터 윌 샤프를 대통령 보좌관 겸 백악관 법률고문으로 임명. · 미국 국방부...",
-    "Geopolitics (435 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "AI Power/Grid (394 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "Positioning/Flows (279 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
+    "Macro/Rates (902 posts in 14-day research window): 엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),...",
+    "Semiconductors/Memory (866 posts in 14-day research window): 엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),...",
+    "Earnings/Corporate (724 posts in 14-day research window): 엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),...",
+    "Market Notes (649 posts in 14-day research window): >>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서...",
+    "Korea Market (445 posts in 14-day research window): 엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),...",
+    "Geopolitics (430 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
+    "AI Power/Grid (393 posts in 14-day research window): 엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),...",
+    "Positioning/Flows (280 posts in 14-day research window): 엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),..."
   ],
   "catalysts": [
     {
@@ -38825,27 +38665,27 @@
     },
     {
       "key": "AMZN",
-      "count": 96,
+      "count": 95,
       "text": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
       "key": "GOOG",
-      "count": 85,
+      "count": 84,
       "text": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
       "key": "AMD",
-      "count": 81,
+      "count": 80,
       "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를..."
     },
     {
       "key": "NVDA",
       "count": 75,
-      "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를..."
+      "text": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),..."
     },
     {
       "key": "MSFT",
-      "count": 68,
+      "count": 67,
       "text": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -38860,7 +38700,7 @@
     },
     {
       "key": "AAPL",
-      "count": 55,
+      "count": 53,
       "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를..."
     },
     {
@@ -38876,8 +38716,8 @@
       "topics": [
         "macro"
       ],
-      "count": 906,
-      "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
+      "count": 902,
+      "focus": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),..."
     },
     {
       "id": "geo",
@@ -38885,7 +38725,7 @@
       "topics": [
         "geo"
       ],
-      "count": 435,
+      "count": 430,
       "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -38894,7 +38734,7 @@
       "topics": [
         "credit"
       ],
-      "count": 76,
+      "count": 73,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 10일 (새벽 6시 30분~오후 3시 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 중부사령부(CENTCOM)는 8월 9일 기준 이란에 대한 미국의..."
     },
     {
@@ -38903,8 +38743,8 @@
       "topics": [
         "semi"
       ],
-      "count": 869,
-      "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
+      "count": 866,
+      "focus": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),..."
     },
     {
       "id": "optical",
@@ -38921,8 +38761,8 @@
       "topics": [
         "power"
       ],
-      "count": 394,
-      "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
+      "count": 393,
+      "focus": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),..."
     },
     {
       "id": "ai-policy",
@@ -38930,7 +38770,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 189,
+      "count": 187,
       "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -38940,7 +38780,7 @@
         "kr-market"
       ],
       "count": 445,
-      "focus": "Pre-Market Summary - 2026년 8월 10일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 9월 1일부터 윌 샤프를 대통령 보좌관 겸 백악관 법률고문으로 임명. · 미국 국방부..."
+      "focus": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),..."
     },
     {
       "id": "equity",
@@ -38948,7 +38788,7 @@
       "topics": [
         "equity"
       ],
-      "count": 230,
+      "count": 228,
       "focus": "Pre-Market Summary - 2026년 8월 10일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 9월 1일부터 윌 샤프를 대통령 보좌관 겸 백악관 법률고문으로 임명. · 미국 국방부..."
     },
     {
@@ -38957,7 +38797,7 @@
       "topics": [
         "crypto"
       ],
-      "count": 19,
+      "count": 18,
       "focus": "Market Summary - 2026년 8월 8일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 대법원 판단 이후에도 연준 리사 쿡 이사 해임 추진 지속. · 트럼프 대통령, 백악관 안보시설..."
     },
     {
@@ -38966,8 +38806,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 726,
-      "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
+      "count": 724,
+      "focus": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),..."
     },
     {
       "id": "healthcare",
@@ -38975,7 +38815,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 144,
+      "count": 142,
       "focus": "Citi) FMS 2026 리캡 콜 – 씨게이트·샌디스크 경영진 미팅 및 마이크론 목표주가 하향 (아시야 머천트 / 아티프 말릭, 8월 7일) 지난주 산타클라라에서 열린 FMS(Future of Memory and Storage) 서밋 참관과 씨게이트·샌디스크 경영진 미팅을 리캡하고, 이날 발표된 마이크론..."
     },
     {
@@ -38984,7 +38824,7 @@
       "topics": [
         "japan"
       ],
-      "count": 239,
+      "count": 237,
       "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -38993,8 +38833,8 @@
       "topics": [
         "flows"
       ],
-      "count": 279,
-      "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
+      "count": 280,
+      "focus": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가 아폴로(Apollo), 블랙록(BlackRock), 블랙스톤(Blackstone), 브룩필드(Brookfield),..."
     },
     {
       "id": "insider",
@@ -39002,7 +38842,7 @@
       "topics": [
         "insider"
       ],
-      "count": 94,
+      "count": 93,
       "focus": "Citi) FMS 2026 리캡 콜 – 씨게이트·샌디스크 경영진 미팅 및 마이크론 목표주가 하향 (아시야 머천트 / 아티프 말릭, 8월 7일) 지난주 산타클라라에서 열린 FMS(Future of Memory and Storage) 서밋 참관과 씨게이트·샌디스크 경영진 미팅을 리캡하고, 이날 발표된 마이크론..."
     },
     {
@@ -39011,7 +38851,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 652,
+      "count": 649,
       "focus": ">>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서..."
     }
   ],
@@ -39263,6 +39103,30 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "bornlupin/19633",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19633",
+      "datetime": "2026-08-10T20:23:08.000Z",
+      "localDateKst": "2026-08-11",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [
+        "NVDA",
+        "GS",
+        "BLK",
+        "BX"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가..."
+    },
     {
       "id": "aetherjapanresearch/24491",
       "channel": "aetherjapanresearch",
@@ -40437,34 +40301,33 @@
       "score": 100,
       "hasText": true,
       "summary": "JP모건) APAC테마; 하이퍼스케일러: 프라이스 액션이 아직 반영되지 않은 것이 무엇인지 말해줍니다. 이외 4개 (1) 하이퍼스케일러 강세… 프라이스 액션은 수익화 가속이 (아직) 반영되지 않았음을..."
-    },
+    }
+  ],
+  "broadItems": [
     {
-      "id": "aetherjapanresearch/24286",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24286",
-      "datetime": "2026-08-03T01:40:18.000Z",
-      "localDateKst": "2026-08-03",
+      "id": "bornlupin/19633",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19633",
+      "datetime": "2026-08-10T20:23:08.000Z",
+      "localDateKst": "2026-08-11",
       "tags": [
-        "credit",
         "macro",
         "semi",
         "power",
-        "ai-policy",
         "kr-market",
         "earnings",
         "flows"
       ],
       "tickers": [
-        "MSFT",
-        "GOOG",
-        "AMZN"
+        "NVDA",
+        "GS",
+        "BLK",
+        "BX"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "Citi 인공지능보고서 – Pricing, Financing, Routing, and Securing(7월 31일) Citi의 핵심 견해 AI 랩들의 전략이 벤치마크 점수 극대화에서 벗어나, 가격·기능·속도..."
-    }
-  ],
-  "broadItems": [
+      "summary": "엔비디아, 아폴로·블랙록·블랙스톤·브룩필드·골드만삭스 및 KKR과 파트너십 체결… 5,000억 달러 이상의 외부 자본 조달을 위한 AI 컴퓨팅 인프라 금융 플랫폼 구축 엔비디아(NVIDIA)가..."
+    },
     {
       "id": "aetherjapanresearch/24494",
       "channel": "aetherjapanresearch",
@@ -47659,31 +47522,6 @@
       "score": 100,
       "hasText": true,
       "summary": "JP모건 아시아 테크 전략; AI 업사이클은 끝나지 않았습니다 — 다음 상승 국면을 위한 판 재편.(8월 5일) 전체 시각 이번 조정은 2022년 말 시작된 AI 주도 업사이클에서 아시아 테크 주식과 SOX..."
-    },
-    {
-      "id": "aetherjapanresearch/24357",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24357",
-      "datetime": "2026-08-05T01:55:38.000Z",
-      "localDateKst": "2026-08-05",
-      "tags": [
-        "semi",
-        "optical",
-        "earnings",
-        "healthcare",
-        "japan"
-      ],
-      "tickers": [
-        "NVDA",
-        "MU",
-        "TSM",
-        "LITE",
-        "COHR",
-        "000660.KS"
-      ],
-      "score": 95,
-      "hasText": true,
-      "summary": "JP모건 APAC 코멘트 이비덴(Ibiden): F1Q 영업이익 269억 엔으로 바이사이드 기대치 250억 엔을 상회했으며, 경영진은 F2Q 및 FY3/27 영업이익 가이던스를 JPM(카네모토) 추정치 및..."
     }
   ],
   "current24hItems": [
@@ -48228,6 +48066,20 @@
       "summary": "블룸버그)레버리지 거래 해소로 한국 증시 변동성 완화 강제 청산으로 레버리지 포지션이 줄어들고 강화된 규제로 고위험 상품 거래가 억제되면서, 한국 주식 시장 혼란의 가장 심각한 고비는 지났을 수 있다고..."
     },
     {
+      "id": "bornlupin/19610",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19610",
+      "datetime": "2026-08-09T06:25:47.000Z",
+      "localDateKst": "2026-08-09",
+      "tags": [
+        "flows"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "버크셔 해서웨이의 막대한 현금 보유액이 4년 만에 처음으로 감소 이는 마침내 주식 순매수자로 돌아섰음을 의미합니다."
+    },
+    {
       "id": "HANAchina/66848",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/66848",
@@ -48443,6 +48295,22 @@
       "score": 100,
       "hasText": true,
       "summary": "BofA, 샌디스크(SanDisk, &#036;SNDK ), 목표 주가 2,500달러, '매수' 의견 실적 발표 및 월가의 오해 4분기 폭발적 실적 : 매출 89억 7,000만 달러(전년 대비 175% 급증,..."
+    },
+    {
+      "id": "bornlupin/19602",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19602",
+      "datetime": "2026-08-09T05:04:55.000Z",
+      "localDateKst": "2026-08-09",
+      "tags": [
+        "semi",
+        "earnings",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "[메리츠증권 전기전자/IT부품 양승수] ▶ 대만 메모리 업체(Nanya, Winbond, ADATA, Phison) 합산 매출액 추이 - 시장의 우려와 달리 강한 가격 상승 효과가 지속되며 7월 매출 성장률은..."
     },
     {
       "id": "insidertracking/60695",

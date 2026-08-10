@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-10T19:17:23.026Z",
+  "generatedAt": "2026-08-10T20:23:36.798Z",
   "appRevision": "v54.3",
-  "dataRevision": "market-snapshot:2026-08-10T19:17:17.625Z:da8b0aca",
+  "dataRevision": "market-snapshot:2026-08-10T20:23:30.623Z:a4172f92",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-10T19:17:17.625Z",
+      "lastSuccessfulAt": "2026-08-10T20:23:30.623Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -75,7 +75,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-10T19:17:17.625Z"
+        "generatedAt": "2026-08-10T20:23:30.623Z"
       }
     },
     "publicChat": {
@@ -102,15 +102,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-10T19:17:17.625Z"
+      "lastFetchAt": "2026-08-10T20:23:30.623Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-08-10T19:17:17.625Z",
-      "lastFetchAt": "2026-08-10T19:17:17.625Z"
+      "lastAttemptAt": "2026-08-10T20:23:30.623Z",
+      "lastFetchAt": "2026-08-10T20:23:30.623Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -124,7 +124,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-10T19:17:17.625Z:da8b0aca",
+      "artifact": "market-snapshot:2026-08-10T20:23:30.623Z:a4172f92",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -165,7 +165,7 @@
         "investors-intelligence",
         "kr-macro-vkospi-supply"
       ],
-      "sourceRevision": "market-snapshot:2026-08-10T19:17:17.625Z:da8b0aca"
+      "sourceRevision": "market-snapshot:2026-08-10T20:23:30.623Z:a4172f92"
     },
     "routeCount": 20,
     "rawProducerClaimGate": "not_applicable_for_quote_plane"
