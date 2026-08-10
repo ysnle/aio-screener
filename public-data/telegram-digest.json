@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-10T16:11:35.761Z",
-  "attemptedAt": "2026-08-10T16:11:35.761Z",
-  "lastSuccessfulAt": "2026-08-10T16:11:35.761Z",
+  "generatedAt": "2026-08-10T17:09:20.347Z",
+  "attemptedAt": "2026-08-10T17:09:20.347Z",
+  "lastSuccessfulAt": "2026-08-10T17:09:20.347Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-07-27T16:11:29.385Z",
-  "until": "2026-08-10T16:11:29.385Z",
+  "since": "2026-07-27T17:09:16.470Z",
+  "until": "2026-08-10T17:09:16.470Z",
   "current24hWindow": {
     "start": "2026-08-08T23:00:00.000Z",
     "end": "2026-08-09T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 142,
-    "eligibleTextCount": 13,
+    "eligibleTextCount": 3,
     "channelCounts": {
       "bornlupin": 12,
       "HANAchina": 46,
@@ -78,12 +78,12 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 442,
-      "freshCount": 35,
-      "eligibleTextCount": 34,
+      "freshCount": 20,
+      "eligibleTextCount": 19,
       "selectedCount": 90,
       "error": null,
       "lastPostId": 24494
@@ -117,7 +117,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 752,
+      "count": 751,
       "freshCount": 20,
       "eligibleTextCount": 20,
       "selectedCount": 120,
@@ -125,8 +125,8 @@
       "lastPostId": 66922
     }
   ],
-  "count": 2715,
-  "retainedItemCount": 452,
+  "count": 2714,
+  "retainedItemCount": 448,
   "observedItems": [
     {
       "id": "aetherjapanresearch/24494",
@@ -1156,7 +1156,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60767",
@@ -1409,7 +1409,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66902",
@@ -1448,7 +1448,7 @@
         "TSM",
         "MTK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60761",
@@ -1609,7 +1609,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66896",
@@ -1654,7 +1654,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60758",
@@ -2535,7 +2535,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60721",
@@ -2727,7 +2727,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66856",
@@ -2782,7 +2782,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66854",
@@ -2899,7 +2899,7 @@
         "005930.KS",
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60708",
@@ -3031,7 +3031,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60702",
@@ -3057,7 +3057,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60701",
@@ -3234,7 +3234,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19608",
@@ -3317,7 +3317,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24456",
@@ -3339,7 +3339,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24455",
@@ -3359,7 +3359,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19603",
@@ -38534,31 +38534,19 @@
         "TSLA"
       ],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/66099",
-      "channel": "HANAchina",
-      "datetime": "2026-07-27T16:17:46.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 40,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2715,
-    "eligibleTextCount": 92,
-    "mediaOnlyCount": 2623,
+    "observedCount": 2714,
+    "eligibleTextCount": 77,
+    "mediaOnlyCount": 2637,
     "highSignalCount": 685,
     "broadSignalCount": 1374,
     "selectedRawCount": 412,
-    "selectedRawCoveragePct": 447.8,
+    "selectedRawCoveragePct": 535.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
@@ -38568,7 +38556,7 @@
     "earnings": 726,
     "healthcare": 144,
     "japan": 239,
-    "market-note": 653,
+    "market-note": 652,
     "media-only": 41,
     "geo": 435,
     "ai-policy": 189,
@@ -38813,7 +38801,7 @@
     "Macro/Rates (906 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
     "Semiconductors/Memory (869 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
     "Earnings/Corporate (726 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "Market Notes (653 posts in 14-day research window): >>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서...",
+    "Market Notes (652 posts in 14-day research window): >>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서...",
     "Korea Market (445 posts in 14-day research window): Pre-Market Summary - 2026년 8월 10일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 9월 1일부터 윌 샤프를 대통령 보좌관 겸 백악관 법률고문으로 임명. · 미국 국방부...",
     "Geopolitics (435 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
     "AI Power/Grid (394 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
@@ -38848,12 +38836,12 @@
     {
       "key": "AMD",
       "count": 81,
-      "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를 19.49달러에서 21.27달러로, F28E EPS를 25.88달러에서 30.65달러로 상향했습니다...."
+      "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를..."
     },
     {
       "key": "NVDA",
       "count": 75,
-      "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를 19.49달러에서 21.27달러로, F28E EPS를 25.88달러에서 30.65달러로 상향했습니다...."
+      "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를..."
     },
     {
       "key": "MSFT",
@@ -38873,7 +38861,7 @@
     {
       "key": "AAPL",
       "count": 55,
-      "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를 19.49달러에서 21.27달러로, F28E EPS를 25.88달러에서 30.65달러로 상향했습니다...."
+      "text": "미즈호) 브로드컴; CoPoS/EMIB 기반 대규모 TPU 스케일링 - OAI, META, ARM 업사이드 (2026.8.9) 투자의견 Outperform 유지, 목표주가 530달러 유지. F27E EPS를..."
     },
     {
       "key": "MU",
@@ -39023,7 +39011,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 653,
+      "count": 652,
       "focus": ">>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서..."
     }
   ],
@@ -47923,20 +47911,6 @@
       "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 10일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 이란 문제와 관련해 미국이 현재 긴장을 확대하지 않는 ‘로우키’ 전략을 취하고 있으며..."
     },
     {
-      "id": "aetherjapanresearch/24469",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24469",
-      "datetime": "2026-08-09T14:50:34.000Z",
-      "localDateKst": "2026-08-09",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": "스페이스x의 팰컨9 로켓 4t규모의 잔해가 18개월동안 우주에 떠돌다 달에 8700km/h속도로 충돌. 한국 달 탐사선 다누리가 해당 충돌 부분의 사진을 촬영 스페이스X 팰컨 9 로켓 상단부가 달에 추락하며..."
-    },
-    {
       "id": "HANAchina/66861",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/66861",
@@ -48180,36 +48154,6 @@
       "score": 59,
       "hasText": true,
       "summary": ">>반도체주가 ‘벽에 부딪혔지만’, 시장은 그렇지 않았음 (중국언론) •반도체주가 큰 폭으로 하락했지만 시장을 겁먹게 하지는 못했으며, 오히려 자금이 저점 매수에 나서는 신호 가 됐음. 반도체 ETF와..."
-    },
-    {
-      "id": "aetherjapanresearch/24462",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24462",
-      "datetime": "2026-08-09T08:42:04.000Z",
-      "localDateKst": "2026-08-09",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "이란: 미국이 우리의 모든 조건을 수용할 때까지 호르무즈 해협은 재개방되지 않을 것이다. 이란의 아라크치 외무장관: 미국이 잠정 합의 위반을 계속하는 한 협상은 이루어지지 않을 것 - 메흐르"
-    },
-    {
-      "id": "aetherjapanresearch/24461",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24461",
-      "datetime": "2026-08-09T08:26:32.000Z",
-      "localDateKst": "2026-08-09",
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [
-        "035420.KS"
-      ],
-      "score": 47,
-      "hasText": true,
-      "summary": "'ISA·주가누르기' 개편안 질타…전면 재검토"
     },
     {
       "id": "insidertracking/60701",
