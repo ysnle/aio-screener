@@ -2,8 +2,17 @@
   "schema": "ai-era-atlas-reference.v1",
   "status": "REFERENCE_CONNECTED",
   "reviewedAt": "2026-08-09",
-  "allowedUse": ["ontology preview", "curriculum navigation", "research packet tracking"],
-  "prohibitedUse": ["current company claim", "shipment or yield fact", "valuation claim", "live trading signal"],
+  "allowedUse": [
+    "ontology preview",
+    "curriculum navigation",
+    "research packet tracking"
+  ],
+  "prohibitedUse": [
+    "current company claim",
+    "shipment or yield fact",
+    "valuation claim",
+    "live trading signal"
+  ],
   "sourceDocuments": [
     "AI-ERA-INDUSTRY-ATLAS-RESEARCH-SPEC-2026-08-01.md",
     "AI-ERA-DEEP-TAXONOMY-PLAYER-PRODUCT-SPEC-2026-08-01.md",
@@ -33,7 +42,7 @@
   "deepTaxonomyAnchors": 56,
   "telegramReferenceArtifact": "public-data/telegram-digest.json",
   "telegramReferenceChannels": 4,
-  "telegramObservedLineage": 470,
+  "telegramObservedLineage": 468,
   "telegramCollectionStatus": "ok",
   "taxonomyRelationshipModel": "public-data/atlas/taxonomy-node-coverage.json#relationshipModel",
   "taxonomyRelationshipDomains": 19,
@@ -54,7 +63,15 @@
   "publishedPlayerProductClaims": 0,
   "telegram": {
     "role": "DISCOVERY",
-    "allowed": ["keyword discovery", "framework discovery", "source-link discovery"],
-    "prohibited": ["unverified numeric claim", "yield or shipment promotion", "live trading signal"]
+    "allowed": [
+      "keyword discovery",
+      "framework discovery",
+      "source-link discovery"
+    ],
+    "prohibited": [
+      "unverified numeric claim",
+      "yield or shipment promotion",
+      "live trading signal"
+    ]
   }
 }
