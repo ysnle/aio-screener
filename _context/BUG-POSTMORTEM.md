@@ -2,11 +2,21 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-10
 confidence: high
-latest_version: v54.1
-latest_P_number: P900
-next_P_number: P901
-current_total_entries: 625 (P1~P900, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P900 v54.1 deployment gates accept explicit news unavailability and keep Atlas/Telegram lineage synchronized
+latest_version: v54.2
+latest_P_number: P901
+next_P_number: P902
+current_total_entries: 626 (P1~P901, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P901 v54.2 AI chat uses one QuestionPlan/AnswerPlan contract, query-scoped evidence, and separated conduct/safety classification
+
+## P901 - v54.2 - AI chat composed incompatible classifiers, evidence contracts, and UI fallbacks
+
+- **motivation**: `광테마 전망` 같은 정상적 시장 질문이 법률·세무 안전 모드로 바뀐고, `NVDA 현재 어때?`는 Research 대기·빈 답변·대량의 무관 데이터 주입으로 종료되는 현상을 구조적으로 종료해야 했다.
+- **symptom/reproduction**: 답변의 일반적인 `규제 변화를 확인하세요`가 질의와 합쳐져 관할권+실행 지시로 판정됐고, prompt는 `AI_CLAIMS_JSON`을 생산하라고 하면서 consumer는 `AI_ANSWER_PLAN`만 읽었다. 또한 두 UI 표면의 후속 질문·재시도·히스토리·출처 배지가 다른 규칙을 사용했고, Telegram 범용 항목은 관련도 0인 기록까지 25개를 주입했다.
+- **root_cause**: 질의 분류·Research 의사결정·소스 선택·답변 렌더링·공개 안전 검사가 유산 정규식과 UI별 분기로 독립 진화했다. 질의 의도와 모델 답변 표현을 하나의 문자열로 검사해 안전 분류기가 자신이 생성한 일반적 위험 문구를 사용자 의도로 오인했다.
+- **fix**: ESM `QuestionPlan`을 분류·현재성·필수 근거·소스 선택의 SSOT로 연결하고 30개 라우팅 계약을 추가했다. 모델 출력을 `AI_ANSWER_PLAN` 하나로 맞추고 claim→evidence binding, 미추적 현재 수치 차단, citation·후속 질문 렌더링을 공통 경계로 연결했다. 금융 행위 검사는 query 지시와 response 결과를 분리했고, 소스 fan-out·뉴스·Telegram·후속 질문·배지를 QuestionPlan 기반으로 축소·일치시켰다.
+- **violated_rule**: R219/R453 및 P898 — producer/consumer·UI·safety가 같은 실행 계약을 사용해야 하며, 현재성 주장은 질의에 선택된 근거와 직접 결합되어야 한다.
+- **prevention**: R456은 단일 QuestionPlan/AnswerPlan, 질의·답변 분리 안전 검사, intent-scoped source fan-out, claim-evidence binding, 중복 히스토리 금지, 출처 배지의 실제 데이터 대응을 실행형 CI로 고정한다.
+- **verification**: AI 의도 30/30, AnswerPlan parse/render, 현재 수치 negative control, 액션 지시 4종·설명적 비중 통과·일반 규제 위험 문구 통과, 두 UI Research 신뢰성 계약, 헤드리스 1118/1118을 실행한다.
 
 ## P900 - v54.1 - Deployment gates rejected an explicit news-unavailable snapshot
 

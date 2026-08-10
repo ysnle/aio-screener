@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createQuestionPlan } from '../src/ai/orchestrator/question-planner.js';
-import { createAnswerPlan, validateAnswerPlan } from '../src/ai/response/claim-ledger.js';
+import { createAnswerPlan, validateAnswerPlan, parseAnswerPlanText } from '../src/ai/response/claim-ledger.js';
+import { renderAnswerPlan } from '../src/ai/response/renderer.js';
 import { createMarketSessionEvidence, validateMarketSessionEvidence } from '../src/ai/time/market-session.js';
 import { buildCausalAttribution } from '../src/ai/analysis/causal.js';
 import { buildSectorDecomposition } from '../src/ai/analysis/sector.js';
@@ -22,16 +23,39 @@ const failures = [];
 const check = (label, condition) => { if (!condition) failures.push(label); };
 
 const cases = [
-  ['지금 반도체 하락 중', 'MARKET_STATUS'],
-  ['SW 섹터 분석', 'SECTOR_ANALYSIS'],
-  ['환율 왜 이래?', 'FX_ANALYSIS'],
-  ['반등할까?', 'OUTLOOK'],
-  ['어느 종목이 좋아?', 'SCREENING'],
-  ['이 기업 어때?', 'ENTITY_ANALYSIS'],
-  ['RSI가 뭐야?', 'TECHNICAL_ANALYSIS']
+  { query: '지금 반도체 하락 중', expected: 'SECTOR_ANALYSIS' },
+  { query: 'SW 섹터 분석', expected: 'SECTOR_ANALYSIS' },
+  { query: '환율 왜 이래?', expected: 'MARKET_CAUSAL' },
+  { query: '반등할까?', expected: 'OUTLOOK' },
+  { query: '어느 종목이 좋아?', expected: 'SCREENING' },
+  { query: '이 기업 어때?', expected: 'ENTITY_ANALYSIS' },
+  { query: 'RSI가 뭐야?', expected: 'EDUCATION' },
+  { query: '광테마 전망', route: 'theme-detail', expected: 'SECTOR_ANALYSIS' },
+  { query: 'NVDA 현재 어때?', expected: 'ENTITY_ANALYSIS' },
+  { query: 'NVDA 주가', expected: 'ENTITY_FACT' },
+  { query: '왜 오늘 반도체가 빠졌어?', expected: 'MARKET_CAUSAL' },
+  { query: '채권 금리가 뭐야?', expected: 'EDUCATION' },
+  { query: '지난 FOMC 요약', expected: 'NEWS_SUMMARY' },
+  { query: '현재 FOMC 영향', expected: 'MARKET_CAUSAL' },
+  { query: '애플과 MSFT 비교', expected: 'COMPARISON' },
+  { query: '금리 인하가 성장주에 왜 좋아?', expected: 'MARKET_CAUSAL' },
+  { query: '저평가 배당주 5개 골라줘', expected: 'SCREENING' },
+  { query: '원달러 환율 얼마야?', expected: 'FX_ANALYSIS' },
+  { query: 'VIX 얼마야?', expected: 'MACRO_ANALYSIS' },
+  { query: '오늘 VIX 얼마야?', expected: 'MACRO_ANALYSIS' },
+  { query: 'SPY 옵션 IV와 GEX 분석', expected: 'OPTIONS_ANALYSIS' },
+  { query: '삼성전자 PER', expected: 'ENTITY_FACT' },
+  { query: 'AAPL과 MSFT 실적 마진 차트 비교', expected: 'COMPARISON' },
+  { query: '오늘 시장 왜 하락했어?', expected: 'MARKET_CAUSAL' },
+  { query: '반도체 전망', expected: 'SECTOR_ANALYSIS' },
+  { query: 'What is a bond yield?', expected: 'EDUCATION' },
+  { query: 'Compare Apple and Microsoft valuation', expected: 'COMPARISON' },
+  { query: 'Summarize the latest Fed decision', expected: 'NEWS_SUMMARY' },
+  { query: '내 포트폴리오 위험을 분석해줘', route: 'portfolio', expected: 'PORTFOLIO_ACTION' },
+  { query: 'NVDA RSI MACD 기술적 분석', expected: 'TECHNICAL_ANALYSIS' }
 ];
-for (const [query, expected] of cases) {
-  const plan = createQuestionPlan({ query, route: 'home', now: '2026-07-28T12:00:00Z' });
+for (const { query, expected, route = 'home' } of cases) {
+  const plan = createQuestionPlan({ query, route, now: '2026-07-28T12:00:00Z' });
   check(`routing:${query}`, plan.intent.primary === expected);
   check(`plan-schema:${query}`, plan.schemaVersion === 'question-plan.v1' && Array.isArray(plan.requiredEvidence));
 }
@@ -50,6 +74,15 @@ const invalidProbabilityPlan = createAnswerPlan({
 });
 const probabilityAudit = validateAnswerPlan(invalidProbabilityPlan, { currentSensitive: true });
 check('uncalibrated-probability-blocked', probabilityAudit.ok === false && probabilityAudit.errors.some((error) => error.includes('uncalibrated_probability')));
+const validPlanText = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion:'answer-plan.v1', summary:'광테마는 수요와 공급 병목을 함께 확인해야 합니다.', claims:[], sections:[{ title:'확인 조건', body:'수주, 증설, 마진의 연결을 검증합니다.' }], citations:[], followUps:['수요와 실적의 연결을 설명해줘'] }) + '[/AI_ANSWER_PLAN]';
+const parsedPlan = parseAnswerPlanText(validPlanText, { currentSensitive:false });
+check('answer-plan-single-contract-parses-and-renders', parsedPlan.status === 'valid' && !renderAnswerPlan(parsedPlan.plan).includes('AI_ANSWER_PLAN'));
+const untrackedNumeric = parseAnswerPlanText('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"현재 VIX는 15.2입니다","claims":[],"sections":[],"citations":[],"followUps":[]}[/AI_ANSWER_PLAN]', { currentSensitive:true });
+check('answer-plan-untracked-current-number-fails', untrackedNumeric.status === 'invalid' && untrackedNumeric.audit.errors.includes('untracked_numeric_content'));
+const harmlessOrdinal = parseAnswerPlanText('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"확인할 3가지 조건을 정리합니다","claims":[],"sections":[],"citations":[],"followUps":[]}[/AI_ANSWER_PLAN]', { currentSensitive:true });
+check('answer-plan-ordinal-is-not-a-market-number', harmlessOrdinal.status === 'valid');
+const renderedClaim = createAnswerPlan({ summary:'현재 관측', claims:[{ type:'metric', text:'VIX', value:15.2, unit:'index', asOf:'2026-08-10T12:00:00Z', source:'verified snapshot', evidenceIds:['vix:1'], status:'verified' }] });
+check('answer-plan-renderer-surfaces-verified-claims', renderAnswerPlan(renderedClaim).includes('VIX: 15.2index'));
 
 const causal = buildCausalAttribution({
   target: { metricId: 'SPX', direction: 'BEARISH', observedAt: '2026-07-28T12:00:00Z' },
@@ -72,7 +105,7 @@ const macroFx = buildMacroFxTransmission({ macro: { rates: 4.2 }, fx: { dxy: 104
 check('macro-fx-transmission', macroFx.status === 'supported' && macroFx.evidenceIds.length === 1);
 const evalManifest = createBenchmarkManifest({ snapshotRevision: 'snapshot:test', modelVersion: 'model:test', promptVersion: 'prompt:test', retrieverVersion: 'retriever:test', validatorVersion: 'validator:test', costLimitUsd: 1 });
 check('benchmark-manifest', assertBenchmarkReady(evalManifest).ok && evalManifest.reproducible);
-const corpus = evaluateRoutingCorpus({ cases: cases.map(([query, expectedIntent], index) => ({ id: `case-${index + 1}`, query, expectedIntent })), planner: (query) => createQuestionPlan({ query, route: 'home', now: '2026-07-28T12:00:00Z' }) });
+const corpus = evaluateRoutingCorpus({ cases: cases.map(({ query, expected }, index) => ({ id: `case-${index + 1}`, query, expectedIntent: expected })), planner: (query) => createQuestionPlan({ query, route: cases.find((row) => row.query === query)?.route || 'home', now: '2026-07-28T12:00:00Z' }) });
 check('routing-corpus-evaluation', corpus.accuracy === 1 && corpus.total === cases.length);
 const controlPlane = createAIControlPlane({ now: () => '2026-07-28T12:00:00Z' });
 controlPlane.recordCanary({ release: 'v53.55' });
@@ -84,6 +117,13 @@ check('research-concept-contract', validateResearchDecision(conceptPlan.research
 const causalPlan = createQuestionPlan({ query: 'Why did semiconductor stocks fall today?', route: 'home', now: '2026-07-28T12:00:00Z' });
 check('research-causal-is-required', causalPlan.researchDecision?.requirement === 'REQUIRED' && causalPlan.researchDecision.causalSensitive === true && causalPlan.researchPlan.subQueries.length >= 2);
 check('research-causal-tool-is-required', causalPlan.requiredTools.includes('web-research'));
+const quotePlan = createQuestionPlan({ query: 'NVDA 주가', route: 'fundamental', now: '2026-07-28T12:00:00Z', sessionSchedule: { status:'open', session:'regular', source:'test' } });
+check('current-quote-uses-verified-snapshot-with-optional-web-enrichment', quotePlan.currentSensitive === true && quotePlan.researchDecision.requirement === 'OPTIONAL' && quotePlan.requiredEvidence.includes('entity-quote'));
+const themeOutlookPlan = createQuestionPlan({ query:'광테마 전망', route:'theme-detail', now:'2026-07-28T12:00:00Z', sessionSchedule:{ status:'open', session:'regular', source:'test' } });
+check('theme-outlook-is-current-but-does-not-depend-on-web-only', themeOutlookPlan.currentSensitive === true && themeOutlookPlan.researchDecision.requirement === 'OPTIONAL' && themeOutlookPlan.requiredEvidence.includes('sector-constituents'));
+const compositePlan = createQuestionPlan({ query: 'AAPL과 MSFT 실적 마진 차트 비교', route: 'home', now: '2026-07-28T12:00:00Z' });
+check('composite-question-retains-every-evidence-axis', ['entity-quote','fundamentals','technical'].every((item) => compositePlan.requiredEvidence.includes(item)));
+check('finance-acronyms-are-not-tickers', createQuestionPlan({ query:'삼성전자 PER와 지난 FOMC 비교', route:'home', now:'2026-07-28T12:00:00Z' }).entities.entities.every((entity) => !['PER','FOMC'].includes(entity.symbol)));
 const outOfScopePlan = createQuestionPlan({ query: 'What is the latest weather in Seoul today?', route: 'home', now: '2026-07-28T12:00:00Z' });
 check('research-out-of-scope-is-explicit', outOfScopePlan.researchDecision?.outOfScope === true && outOfScopePlan.researchDecision.questionClass === 'OUT_OF_SCOPE_RESEARCH');
 const disabledDecision = createResearchDecision({ questionPlan: causalPlan, userOptOut: true, now: '2026-07-28T12:00:00Z' });

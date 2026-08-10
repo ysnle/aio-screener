@@ -21,11 +21,11 @@ export function createClaimLedger(claims = []) {
   return Object.freeze({ schemaVersion: AI_CLAIM_LEDGER_VERSION, claims: Object.freeze(normalized) });
 }
 
-export function validateClaimLedger(ledger, { currentSensitive = false } = {}) {
+export function validateClaimLedger(ledger, { currentSensitive = false, requireClaims = false } = {}) {
   const errors = [];
   if (!ledger || ledger.schemaVersion !== AI_CLAIM_LEDGER_VERSION) errors.push('schema_version_invalid');
   const claims = Array.isArray(ledger?.claims) ? ledger.claims : [];
-  if (!claims.length) errors.push('claims_missing');
+  if (requireClaims && !claims.length) errors.push('claims_missing');
   claims.forEach((claim, index) => {
     const prefix = `claim_${index + 1}`;
     if (!claim?.claimId || !claim?.text) errors.push(`${prefix}:identity_missing`);
@@ -60,8 +60,11 @@ export function createAnswerPlan({ questionPlan = null, summary = '', claims = [
 export function validateAnswerPlan(plan, options = {}) {
   const errors = [];
   if (plan?.schemaVersion !== 'answer-plan.v1') errors.push('schema_version_invalid');
-  const ledger = validateClaimLedger(plan?.claims, options);
+  const prose = [plan?.summary, ...(Array.isArray(plan?.sections) ? plan.sections.map((section) => typeof section === 'string' ? section : `${section?.title || ''} ${section?.body || ''}`) : [])].join(' ');
+  const hasUntrackedNumericContent = options.currentSensitive === true && /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i.test(prose) && !(plan?.claims?.claims || []).length;
+  const ledger = validateClaimLedger(plan?.claims, { ...options, requireClaims: hasUntrackedNumericContent });
   if (!ledger.ok) errors.push(...ledger.errors);
+  if (hasUntrackedNumericContent) errors.push('untracked_numeric_content');
   if (plan?.scenario?.probabilities && !plan.scenario.calibration?.modelId) errors.push('uncalibrated_scenario_probabilities');
   return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)], claimAudit: ledger });
 }
@@ -72,7 +75,12 @@ export function parseAnswerPlanText(text, { questionPlan = null, currentSensitiv
   if (!match) return Object.freeze({ status: 'not-structured', plan: null, audit: { ok: false, errors: ['answer_plan_missing'] } });
   try {
     const payload = JSON.parse(match[1]);
-    const plan = Object.freeze({ ...payload, schemaVersion: 'answer-plan.v1', queryId: payload.queryId || questionPlan?.queryId || null });
+    const claims = Array.isArray(payload.claims)
+      ? createClaimLedger(payload.claims)
+      : payload.claims?.schemaVersion === AI_CLAIM_LEDGER_VERSION
+        ? createClaimLedger(payload.claims.claims)
+        : createClaimLedger([]);
+    const plan = Object.freeze({ ...payload, claims, schemaVersion: 'answer-plan.v1', queryId: payload.queryId || questionPlan?.queryId || null });
     const audit = validateAnswerPlan(plan, { currentSensitive });
     return Object.freeze({ status: audit.ok ? 'valid' : 'invalid', plan: audit.ok ? plan : null, audit });
   } catch (error) {

@@ -1,4 +1,4 @@
-export const AI_INTENT_TAXONOMY_VERSION = 'ai-intent-taxonomy.v1';
+export const AI_INTENT_TAXONOMY_VERSION = 'ai-intent-taxonomy.v2';
 
 export const AI_INTENTS = Object.freeze([
   'MARKET_STATUS',
@@ -7,7 +7,9 @@ export const AI_INTENTS = Object.freeze([
   'SECTOR_ANALYSIS',
   'ENTITY_ANALYSIS',
   'ENTITY_FACT',
+  'COMPARISON',
   'TECHNICAL_ANALYSIS',
+  'OPTIONS_ANALYSIS',
   'MACRO_ANALYSIS',
   'FX_ANALYSIS',
   'SCREENING',
@@ -17,48 +19,73 @@ export const AI_INTENTS = Object.freeze([
   'UNKNOWN'
 ]);
 
-const DEFINITIONS = Object.freeze({
-  MARKET_STATUS: [/(지금|현재|오늘|장중|장전|장후|시장|증시|하락|상승|조정|반등)/i],
-  MARKET_CAUSAL: [/(왜|원인|이유|무슨 이유|what.*caused|why)/i],
-  OUTLOOK: [/(반등할까|오를까|내릴까|전망|예상|앞으로|회복|반등 가능|outlook|will .* rebound|forecast)/i],
-  SECTOR_ANALYSIS: [/(섹터|업종|산업|반도체|소프트웨어|software|semiconductor|sector|industry|IGV|SMH|SOXX)/i],
-  ENTITY_ANALYSIS: [/(기업 분석|종목 분석|기업 어때|어때|분석해|투자 포인트|사업|재무|밸류에이션|company|stock analysis)/i],
-  ENTITY_FACT: [/(시총|주가|가격|per|pbr|매출|영업이익|배당|실적|티커|market cap|price|revenue)/i],
-  TECHNICAL_ANALYSIS: [/(차트|기술적|rsi|macd|이동평균|이평|지지|저항|추세|ohlcv|technical|chart)/i],
-  MACRO_ANALYSIS: [/(금리|인플레이션|cpi|pce|고용|nfp|fed|연준|국채|vix|fear.?greed|macro|macro)/i],
-  FX_ANALYSIS: [/(환율|원달러|달러.?원|usd.?krw|달러|dxy|엔화|위안|fx|exchange rate)/i],
-  SCREENING: [/(추천|종목|후보|찾아|골라|뽑아|랭킹|스크리너|저평가|성장주|배당주|recommend|top pick|best stock|screen)/i],
-  NEWS_SUMMARY: [/(뉴스|이벤트|헤드라인|속보|기사|news|headline|what happened)/i],
-  PORTFOLIO_ACTION: [/(내 포트폴리오|보유 종목|계좌|리밸런싱|비중|포지션|매수|매도|진입|손절|portfolio|rebalance|buy|sell)/i],
-  EDUCATION: [/(무엇|뭐야|뜻|개념|설명해|배우|초보|how does|what is|explain|교육)/i]
+const PATTERNS = Object.freeze({
+  MARKET_STATUS: [/(시장|증시|코스피|코스닥|나스닥|s&p|spx).*(어때|상황|흐름|상승|하락|조정|반등)|장중|장전|장후/i],
+  MARKET_CAUSAL: [/(왜|원인|이유|때문|무슨\s*일|영향|what.*caused|why|driven\s*by|because|impact)/i],
+  OUTLOOK: [/(전망|앞으로|향후|반등할까|오를까|내릴까|예상|outlook|forecast|prospect|will\s+.*(?:rise|fall|rebound))/i],
+  SECTOR_ANALYSIS: [/(테마|섹터|업종|산업|밸류체인|반도체|소프트웨어|광통신|광테마|전력|원전|방산|바이오|sector|industry|theme|semiconductor|software|SMH|SOXX|IGV)/i],
+  ENTITY_ANALYSIS: [/(기업\s*분석|종목\s*분석|회사\s*분석|사업\s*모델|투자\s*포인트|분석해|어때|company\s*analysis|stock\s*analysis)/i],
+  ENTITY_FACT: [/(주가|시세|가격|시가총액|PER|PBR|PSR|PEG|ROE|매출|영업이익|순이익|배당|실적|목표가|price|market\s*cap|revenue|earnings|dividend)/i],
+  COMPARISON: [/(비교|대비|차이|어느\s*(?:쪽|것)|vs\.?|versus|compare|comparison|better)/i],
+  TECHNICAL_ANALYSIS: [/(차트|기술적|기술\s*분석|RSI|MACD|이동평균|이평|지지|저항|돌파|추세|OHLCV|technical|chart|support|resistance|breakout)/i],
+  OPTIONS_ANALYSIS: [/(옵션|내재변동성|변동성\s*스큐|감마|델타|세타|IV|GEX|0DTE|콜옵션|풋옵션|options?|implied\s*volatility|gamma|delta|theta)/i],
+  MACRO_ANALYSIS: [/(금리|채권|국채|인플레이션|CPI|PCE|고용|NFP|GDP|연준|FOMC|유동성|VIX|공포.?탐욕|macro|fed|yield|treasury|inflation)/i],
+  FX_ANALYSIS: [/(환율|원달러|달러원|USD.?KRW|달러\s*인덱스|DXY|엔화|위안|외환|fx|exchange\s*rate)/i],
+  SCREENING: [/(스크리닝|스크리너|후보|골라|뽑아|찾아|어느\s*종목|뭐가\s*좋|저평가|고배당|퀀트|랭킹|screen|top\s*pick|best\s*stock)/i],
+  NEWS_SUMMARY: [/(뉴스|헤드라인|속보|기사|공시\s*요약|발표\s*요약|요약|news|headline|what\s*happened|summarize)/i],
+  PORTFOLIO_ACTION: [/(내\s*(?:포트폴리오|계좌)|보유\s*종목|리밸런싱|비중|매수|매도|진입|손절|익절|portfolio|my\s*holdings|rebalance|buy|sell|allocation)/i],
+  EDUCATION: [/(무엇|뭐야|뜻|개념|설명해|알려줘|배우|초보|원리|어떻게\s*작동|what\s+is|how\s+does|explain|education)/i]
 });
 
-const ACTION_PATTERN = /(추천|매수|매도|진입|청산|손절|익절|비중|포지션|리밸런싱|사야|팔아|recommend|buy|sell|entry|exit|stop.?loss|allocation|position)/i;
-const CURRENT_PATTERN = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|as.?of|now|today|current|live|latest)/i;
+const CURRENT_PATTERN = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|최신|이번\s*주|as\s*of|now|today|current|live|latest|recent)/i;
+const HISTORICAL_PATTERN = /(과거|당시|지난\s*\d+|\b(?:19|20)\d{2}\b|historical|back\s+in)/i;
+const ACTION_PATTERN = /(추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|사야|팔아|recommend|buy|sell|entry|exit|stop.?loss|allocation|position)/i;
+const TICKER_PATTERN = /(?:^|\s|\()(\$?[A-Z]{1,6}(?:\.(?:KS|KQ))?)(?=$|\s|[),?!])/;
+const NON_TICKER_TERMS = new Set(['AI', 'SEC', 'FOMC', 'FED', 'PER', 'PBR', 'ROE', 'RSI', 'MACD', 'CPI', 'PCE', 'NFP', 'GDP', 'VIX', 'ETF', 'FX', 'USD', 'KRW', 'IV', 'GEX']);
+const QUOTE_NOW_PATTERN = /(주가|시세|가격|환율|원달러|달러원|USD.?KRW|VIX).{0,12}(얼마|어때|수준|알려|확인)|(?:얼마|현재가|시세).{0,12}(주가|환율|VIX)/i;
 
 function normalize(value) {
   return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
 }
 
+function matches(intent, text) {
+  return (PATTERNS[intent] || []).some((pattern) => pattern.test(text));
+}
+
 export function classifyQuestionIntent(query, context = {}) {
   const text = normalize(query);
   const scores = Object.fromEntries(AI_INTENTS.map((intent) => [intent, 0]));
-  Object.entries(DEFINITIONS).forEach(([intent, patterns]) => {
-    patterns.forEach((pattern) => { if (pattern.test(text)) scores[intent] += 1; });
-  });
-  // Domain-specific routes outrank generic status/causal words. This keeps
-  // "환율 왜 이래?" in FX_ANALYSIS and "반등할까?" in OUTLOOK instead of
-  // letting the broad MARKET_STATUS pattern win a tie.
-  if (DEFINITIONS.FX_ANALYSIS.some((pattern) => pattern.test(text))) scores.FX_ANALYSIS += 3;
-  if (DEFINITIONS.SECTOR_ANALYSIS.some((pattern) => pattern.test(text))) scores.SECTOR_ANALYSIS += 2;
-  if (DEFINITIONS.OUTLOOK.some((pattern) => pattern.test(text))) scores.OUTLOOK += 2;
-  if (DEFINITIONS.PORTFOLIO_ACTION.some((pattern) => pattern.test(text))) scores.PORTFOLIO_ACTION += 2;
-  if (/(지금|현재|오늘|장중|실시간).*(하락|상승|조정|반등)|(?:하락|상승|조정|반등)\s*중/i.test(text)) scores.MARKET_STATUS += 3;
-  if (context.route === 'portfolio' || /portfolio|포트폴리오/i.test(String(context.route || ''))) scores.PORTFOLIO_ACTION += 2;
-  if (context.route === 'screener') scores.SCREENING += 2;
-  if (context.route === 'technical') scores.TECHNICAL_ANALYSIS += 2;
-  if (context.route === 'macro' || context.route === 'fxbond') scores.MACRO_ANALYSIS += 2;
-  if (context.route === 'themes' || context.route === 'theme-detail') scores.SECTOR_ANALYSIS += 2;
+  const hit = Object.fromEntries(AI_INTENTS.map((intent) => [intent, matches(intent, text)]));
+  Object.keys(PATTERNS).forEach((intent) => { if (hit[intent]) scores[intent] += 2; });
+
+  const route = String(context.route || '').toLowerCase();
+  const tickerMatch = text.match(TICKER_PATTERN);
+  const tickerToken = tickerMatch ? tickerMatch[1].replace(/^\$/, '').toUpperCase() : '';
+  const hasTicker = Boolean(tickerToken && !NON_TICKER_TERMS.has(tickerToken));
+  if (/^(themes|theme-detail|kr-themes)$/.test(route)) scores.SECTOR_ANALYSIS += 5;
+  if (/^(ticker|fundamental|company)$/.test(route)) scores.ENTITY_ANALYSIS += 4;
+  if (/^(technical|signal|kr-tech|kr-technical)$/.test(route)) scores.TECHNICAL_ANALYSIS += 5;
+  if (/^(macro|kr-macro)$/.test(route)) scores.MACRO_ANALYSIS += 4;
+  if (route === 'fxbond') scores.FX_ANALYSIS += 4;
+  if (route === 'options') scores.OPTIONS_ANALYSIS += 5;
+  if (route === 'portfolio') scores.PORTFOLIO_ACTION += 5;
+  if (route === 'screener') scores.SCREENING += 5;
+  if (hasTicker && !hit.ENTITY_FACT) scores.ENTITY_ANALYSIS += 4;
+  if (hasTicker && hit.ENTITY_FACT) scores.ENTITY_FACT += 5;
+
+  // Explicit user operations outrank broad page context. Causal/comparison are
+  // composite intents and keep their domain intent as a secondary signal.
+  if (hit.MARKET_CAUSAL) scores.MARKET_CAUSAL += 7;
+  if (hit.COMPARISON) scores.COMPARISON += 7;
+  if (hit.OPTIONS_ANALYSIS) scores.OPTIONS_ANALYSIS += 9;
+  if (hit.SCREENING) scores.SCREENING += 5;
+  if (hit.NEWS_SUMMARY) scores.NEWS_SUMMARY += 4;
+  if (hit.OUTLOOK) scores.OUTLOOK += 3;
+  if (hit.EDUCATION && !hit.OUTLOOK && !hit.MARKET_CAUSAL && !hit.COMPARISON && !hit.SCREENING) scores.EDUCATION += 8;
+  if (hit.SECTOR_ANALYSIS && hit.OUTLOOK) scores.SECTOR_ANALYSIS += 4;
+  if (hasTicker && !hit.ENTITY_FACT && !hit.COMPARISON) scores.ENTITY_ANALYSIS += 3;
+  if ((hit.OPTIONS_ANALYSIS || hit.TECHNICAL_ANALYSIS || hit.SECTOR_ANALYSIS) && !/(기업|종목|회사|사업|투자\s*포인트|어때|company|stock\s*analysis)/i.test(text)) scores.ENTITY_ANALYSIS = 0;
+
   if (!text) scores.UNKNOWN = 1;
   const ranked = AI_INTENTS
     .filter((intent) => intent !== 'UNKNOWN')
@@ -66,22 +93,26 @@ export function classifyQuestionIntent(query, context = {}) {
     .filter((row) => row.score > 0)
     .sort((a, b) => b.score - a.score || AI_INTENTS.indexOf(a.intent) - AI_INTENTS.indexOf(b.intent));
   if (!ranked.length) ranked.push({ intent: 'UNKNOWN', score: 0 });
+
   const primary = ranked[0].intent;
-  const actionRequested = ACTION_PATTERN.test(text);
-  // Domain intent alone is not proof that a question asks for a current fact.
-  // For example, "채권 금리가 뭐야?" is a static concept explanation even
-  // though it routes through MACRO_ANALYSIS. Currentness comes from explicit
-  // time language or a market-status/causal intent.
-  const currentSensitive = CURRENT_PATTERN.test(text) || ['MARKET_STATUS', 'MARKET_CAUSAL'].includes(primary);
-  const requestedDepth = /깊이|심층|자세히|deep|detailed/i.test(text) ? 'deep' : /간단|짧게|요약|brief/i.test(text) ? 'brief' : 'standard';
+  const explicitCurrent = CURRENT_PATTERN.test(text) && !HISTORICAL_PATTERN.test(text);
+  const inherentlyCurrent = QUOTE_NOW_PATTERN.test(text) ||
+    (hasTicker && /(?:주가|시세|가격|현재가|price|quote)/i.test(text)) ||
+    (!HISTORICAL_PATTERN.test(text) && ranked.some((row) => row.intent === 'OUTLOOK'));
+  const currentSensitive = explicitCurrent || inherentlyCurrent || (primary === 'MARKET_STATUS' && !HISTORICAL_PATTERN.test(text));
+  const requestedDepth = /(깊이|심층|자세히|종합|deep|detailed|comprehensive)/i.test(text)
+    ? 'deep' : /(간단|짧게|요약|한줄|brief|short)/i.test(text) ? 'brief' : 'standard';
+
   return Object.freeze({
     taxonomyVersion: AI_INTENT_TAXONOMY_VERSION,
     primary,
-    intents: Object.freeze(ranked.slice(0, 4).map((row) => row.intent)),
+    intents: Object.freeze(ranked.slice(0, 6).map((row) => row.intent)),
     scores: Object.freeze({ ...scores }),
-    confidence: ranked[0].score >= 2 ? 'high' : ranked[0].score === 1 ? 'medium' : 'low',
-    actionRequested,
+    confidence: ranked[0].score >= 7 ? 'high' : ranked[0].score >= 3 ? 'medium' : 'low',
+    actionRequested: ACTION_PATTERN.test(text),
     currentSensitive,
+    explicitCurrent,
+    inherentlyCurrent,
     requestedDepth
   });
 }

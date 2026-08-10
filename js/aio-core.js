@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.1';
+const APP_VERSION = 'v54.2';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -5483,12 +5483,15 @@ function _aioAIResearchStore(ctxId) {
 function _aioAIClassifyIntent(query, ctxId) {
   var q = String(query || '').toLowerCase();
   var intent = 'education';
-  if (/매수|매도|매매|투자|비중|포트폴리오|진입|손절|buy|sell|trade|allocat/.test(q)) intent = 'action';
+  var plan = null;
+  try { plan = window.AIO_ARCH && typeof window.AIO_ARCH.planAIQuestion === 'function' ? window.AIO_ARCH.planAIQuestion({ query:String(query || ''), route:ctxId }) : null; } catch(_) { plan = null; }
+  var canonical = (plan && plan.intent && plan.intent.intents) || [];
+  if (plan && plan.intent && plan.intent.actionRequested) intent = 'action';
   else if (/출처|근거|검증|불일치|상충|source|evidence|conflict|mismatch|verify/.test(q)) intent = 'evidence';
-  else if (/비교|차이|대비|versus|\bvs\b|compare|peer/.test(q)) intent = 'comparison';
-  else if (/현재|지금|오늘|최근|실시간|시세|가격|current|latest|price|quote/.test(q)) intent = 'current';
+  else if (canonical.indexOf('COMPARISON') >= 0) intent = 'comparison';
+  else if (plan && plan.currentSensitive) intent = 'current';
   else if (/없|모르|미수집|누락|확인 불가|missing|unknown|unavailable/.test(q)) intent = 'missing';
-  else if (/왜|어떻게|원리|작동|구조|why|how|mechanism/.test(q)) intent = 'mechanism';
+  else if (canonical.indexOf('MARKET_CAUSAL') >= 0 || canonical.indexOf('EDUCATION') >= 0) intent = 'mechanism';
   var required = {
     action: ['currentEvidence', 'conditions', 'risks', 'asOf'],
     evidence: ['source', 'asOf', 'evidenceId', 'conflicts'],
@@ -5501,7 +5504,7 @@ function _aioAIClassifyIntent(query, ctxId) {
   return {
     intent: intent,
     route: _AIO_AI_RESEARCH_PAGE_ALIASES[String(ctxId || 'home').replace(/^page-/, '')] || String(ctxId || 'home'),
-    requiredEvidence: (required[intent] || required.education).slice(),
+    requiredEvidence: Array.from(new Set((required[intent] || required.education).concat(plan && Array.isArray(plan.requiredEvidence) ? plan.requiredEvidence : []))),
     queryTerms: _aioAIWords(query)
   };
 }
@@ -6031,13 +6034,20 @@ window.AIO.getFinancialConductPolicy = function() {
 };
 window.AIO.classifyFinancialConduct = function(value, options) {
   options = options || {};
-  var text = String(value || '') + '\n' + String(options.query || '') + '\n' + String(options.text || '');
-  var categories = _AIO_AI_CONDUCT_POLICY_ROWS.filter(function(row) { return row.pattern.test(text); }).map(function(row) { return row.id; });
-  var actionLike = _aioAIIsActionLike(text);
-  var execution = /(?:방법|단계|먼저|활용|퍼뜨|조작|실행|하라|하세요|추천|권고|해야|어떻게|how\s+to|steps?|execute|use\s+it|should\s+i|which\s+stock)/i.test(text) || _aioAIIsDirectAction(text);
+  var hasSeparateInputs = Object.prototype.hasOwnProperty.call(options, 'query') || Object.prototype.hasOwnProperty.call(options, 'text');
+  var queryText = String(hasSeparateInputs ? (options.query || '') : (value || ''));
+  var responseText = String(hasSeparateInputs ? (options.text || '') : '');
+  // Conduct intent belongs to the user's request. Treating ordinary response
+  // prose such as "regulatory risk — verify it" as a legal-advice request was
+  // the root cause of false legal/tax safe-mode blocks across theme/company chat.
+  var categories = _AIO_AI_CONDUCT_POLICY_ROWS.filter(function(row) { return row.pattern.test(queryText); }).map(function(row) { return row.id; });
+  var actionLike = _aioAIIsActionLike(queryText);
+  var execution = /(?:방법|단계|먼저|활용|퍼뜨|조작|실행|하라|하세요|추천|권고|해야|어떻게|how\s+to|steps?|execute|use\s+it|should\s+i|which\s+stock)/i.test(queryText) || _aioAIIsDirectAction(queryText);
   var prohibited = _AIO_AI_CONDUCT_POLICY_ROWS.filter(function(row) { return row.mode === 'prohibited' && categories.indexOf(row.id) >= 0; });
   var jurisdictional = categories.indexOf('jurisdictional-advice') >= 0;
-  var legalReviewRequired = jurisdictional && (actionLike || execution || /(?:법률\s*자문|legal\s+advice|세금\s*신고|신고해야|규제\s*준수)/i.test(text));
+  var explicitLegalRequest = /(?:법률\s*자문|legal\s+advice|세금\s*신고|신고해야|규제\s*준수|세법상\s*어떻게|법적으로\s*(?:해야|가능|문제))/i.test(queryText);
+  var responseLegalDirective = /(?:세금\s*(?:신고|납부)|법률상\s*(?:의무|허용)|규제\s*준수).{0,40}(?:하세요|해야\s*합니다|의무입니다|가능합니다)/i.test(responseText);
+  var legalReviewRequired = (jurisdictional && (actionLike || execution || explicitLegalRequest)) || responseLegalDirective;
   if (prohibited.length && execution) {
     return { version: _AIO_AI_CONDUCT_POLICY_VERSION, status: 'BLOCKED_P0', severity: 'P0', categories: categories, execution: true, legalReviewRequired: false, reasons: prohibited.map(function(row) { return 'prohibited-conduct:' + row.id; }) };
   }

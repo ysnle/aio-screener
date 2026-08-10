@@ -16,6 +16,12 @@ export function renderAnswerPlan(plan, { format = 'text' } = {}) {
     if (typeof section === 'string' && line(section)) parts.push(line(section));
     else if (section?.title && section?.body) parts.push(`${line(section.title)}\n${line(section.body)}`);
   });
+  if (Array.isArray(plan.citations) && plan.citations.length) {
+    parts.push(`출처\n${plan.citations.slice(0, 8).map((citation) => {
+      if (typeof citation === 'string') return `- ${line(citation)}`;
+      return `- ${line(citation?.label || citation?.source || '원문')}${citation?.url ? `: ${line(citation.url)}` : ''}`;
+    }).join('\n')}`);
+  }
   if (plan.scenario?.probabilities == null && plan.scenario) parts.push('시나리오 확률은 보정된 모델 근거가 없어 제시하지 않습니다. 조건과 재검증 신호를 확인하세요.');
   return format === 'text' ? parts.join('\n\n') : { status: 'ok', text: parts.join('\n\n'), viewModel: plan };
 }

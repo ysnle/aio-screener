@@ -10,6 +10,12 @@ const ALIASES = Object.freeze({
   코스피: '^KS11', 코스닥: '^KQ11', krx: '^KS11'
 });
 
+const NON_TICKER_SYMBOLS = new Set([
+  'AI', 'API', 'SEC', 'FOMC', 'FED', 'PER', 'PBR', 'PSR', 'PEG', 'ROE', 'ROA',
+  'RSI', 'MACD', 'CPI', 'PCE', 'NFP', 'GDP', 'VIX', 'ETF', 'FX', 'USD', 'KRW',
+  'DCF', 'TAM', 'CAGR', 'FCF', 'EPS', 'EBIT', 'EBITDA', 'IV', 'GEX', 'ATM', 'OTM'
+]);
+
 function text(value) { return String(value == null ? '' : value).trim(); }
 
 function registrySymbols(root) {
@@ -24,7 +30,7 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
   const found = new Map();
   const add = (symbol, alias = null, kind = 'ticker') => {
     const normalized = text(symbol).toUpperCase();
-    if (!normalized || found.has(normalized)) return;
+    if (!normalized || NON_TICKER_SYMBOLS.has(normalized) || found.has(normalized)) return;
     const isKr = /\.KS$|\.KQ$/.test(normalized) || /^\^(?:KS11|KQ11)$/i.test(normalized);
     found.set(normalized, { symbol: normalized, alias: alias || normalized, kind, market: isKr ? 'KR' : normalized.startsWith('^') ? 'INDEX' : 'US' });
   };

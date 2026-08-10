@@ -10,12 +10,14 @@ export const AI_QUESTION_PLAN_VERSION = 'question-plan.v1';
 
 const REQUIRED_BY_INTENT = Object.freeze({
   MARKET_STATUS: ['market-session', 'market-snapshot'],
-  MARKET_CAUSAL: ['market-session', 'market-snapshot', 'news'],
+  MARKET_CAUSAL: ['market-snapshot', 'news'],
   OUTLOOK: ['market-snapshot', 'technical', 'news'],
   SECTOR_ANALYSIS: ['market-snapshot', 'sector-constituents', 'breadth'],
   ENTITY_ANALYSIS: ['entity-quote', 'fundamentals', 'filing', 'news'],
   ENTITY_FACT: ['entity-quote'],
+  COMPARISON: ['entity-quote', 'fundamentals'],
   TECHNICAL_ANALYSIS: ['technical'],
+  OPTIONS_ANALYSIS: ['options', 'entity-quote'],
   MACRO_ANALYSIS: ['macro'],
   FX_ANALYSIS: ['fx-quote', 'rates', 'cross-asset'],
   SCREENING: ['screener'],
@@ -44,7 +46,9 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
   const entities = resolveEntities(normalized, { root, route });
   const time = resolveQuestionTime(normalized, now);
   const currentSensitive = intent.currentSensitive || time.currentSensitive;
-  const requiredEvidence = [...(REQUIRED_BY_INTENT[intent.primary] || [])];
+  // Composite questions must retain every matched analytical axis. The old
+  // primary-only lookup silently dropped technical/news/macro requirements.
+  const requiredEvidence = [...new Set((intent.intents || [intent.primary]).flatMap((name) => REQUIRED_BY_INTENT[name] || []))];
   const market = entities.entities.some((entity) => entity.market === 'KR') ? 'KR' : 'US';
   const sessionScheduleResolved = currentSensitive
     ? resolveMarketSessionSchedule({ market, now, root, supplied: sessionSchedule })
@@ -67,7 +71,7 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     premise: premise(normalized, currentSensitive),
     currentSensitive,
     requiredEvidence: Object.freeze([...new Set(requiredEvidence)]),
-    optionalEvidence: Object.freeze(intent.primary === 'FX_ANALYSIS' ? ['news', 'flows', 'policy-comments'] : ['news', 'research-reference']),
+    optionalEvidence: Object.freeze(intent.intents.includes('FX_ANALYSIS') ? ['news', 'flows', 'policy-comments'] : ['news', 'research-reference']),
     requiredTools: Object.freeze([...new Set(requiredEvidence.filter((item) => item !== 'market-session'))]),
     suitabilityRequired: intent.actionRequested || intent.primary === 'PORTFOLIO_ACTION',
     actionPermission: evaluateQuestionActionPermission({ questionPlan: intent, suitabilityProfile: null, evidenceComplete: false }),

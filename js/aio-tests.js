@@ -7990,6 +7990,10 @@
     _assert('T932 public_ai_action_gate_blocks_concrete_instruction (WP-AI0): concrete price/action output is replaced', !!blocked933 && blocked933.blocked === true && /안전 모드/.test(blocked933.text), JSON.stringify(blocked933));
     _assert('T933 public_ai_action_gate_allows_education (WP-AI0): neutral concept explanation is not overblocked', !!education933 && education933.blocked === false, JSON.stringify(education933));
     _assert('T934 public_ai_action_gate_blocks_strong_wording (WP-AI0): directional recommendation wording is replaced', !!strong934 && strong934.blocked === true, JSON.stringify(strong934));
+    var numericActions934 = ['AAPL 10% 매수', 'MSFT 비중 20% 확대', '손절가 150달러', 'NVDA $100 매수 추천'].map(function(text){ return gate933 ? gate933(text) : null; });
+    _assert('T934a public_ai_numeric_action_gate_is_symbol_independent: every numeric trade instruction is blocked', numericActions934.every(function(row){ return row && row.blocked === true; }), JSON.stringify(numericActions934));
+    var descriptiveWeight934 = gate933 ? gate933('현재 포트폴리오에서 기술주 비중은 20%로 관측됩니다.') : null;
+    _assert('T934b public_ai_action_gate_allows_descriptive_weight: observed allocation without a directive is not overblocked', !!descriptiveWeight934 && descriptiveWeight934.blocked === false, JSON.stringify(descriptiveWeight934));
     var disclosure934 = window._aioBuildAIResponseDisclosure ? window._aioBuildAIResponseDisclosure({
       freshness: { status: 'pass', after: { quoteRows: [{ hasLivePrice: true, truthStatus: 'verified', source: 'Yahoo', asOf: '2026-07-13T12:00:00Z' }] } }
     }) : null;
@@ -8025,6 +8029,9 @@
       result937.validatorVersion === req937.validatorVersion && result937.blockPolicyVersion === req937.blockPolicyVersion &&
       req937.attempt === 2,
       JSON.stringify({ result: result937, attempt: req937 && req937.attempt }));
+    var planText937 = '[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"광테마는 수요와 공급 병목을 함께 확인해야 합니다.","claims":[],"sections":[{"title":"확인 조건","body":"수주와 마진의 연결을 검증합니다."}],"citations":[],"followUps":["수요와 실적의 연결을 설명해줘"]}[/AI_ANSWER_PLAN]';
+    var planResult937 = run937 ? run937(planText937, { request:create937('answer-plan-test', { ctxId:'theme-detail', query:'광테마 전망' }), ctxId:'theme-detail', query:'광테마 전망', record:false }) : null;
+    _assert('T937a answer_plan_is_rendered_once: control JSON is hidden and follow-ups survive the shared pipeline', !!planResult937 && planResult937.blocked === false && planResult937.answerPlanAudit.status === 'valid' && planResult937.text.indexOf('AI_ANSWER_PLAN') < 0 && planResult937.followUps.length === 1, JSON.stringify(planResult937));
 
     var audit937 = window.AIO && typeof window.AIO.getAIResponsePipelineAudit === 'function'
       ? window.AIO.getAIResponsePipelineAudit() : [];
@@ -8500,6 +8507,12 @@
     _assert('T990 shared_pipeline_legal_review_gate (WP-AI14): legal-review status is enforced by the common response pipeline',
       pipeline.blocked === true && pipeline.conductAudit && pipeline.conductAudit.reasons.indexOf('LEGAL_REVIEW_REQUIRED') >= 0 && pipeline.reasons.indexOf('LEGAL_REVIEW_REQUIRED') >= 0,
       JSON.stringify(pipeline));
+    var themeConduct = window.AIO.classifyFinancialConduct('광테마 전망', { query:'광테마 전망', text:'핵심 위험은 공급 병목과 규제 변화입니다. 공식 원문을 확인하세요.' });
+    var themePipeline = window._aioRunAIResponsePipeline('광테마는 수요와 공급 병목을 함께 봐야 합니다. 규제 변화도 확인하세요.', {
+      request: window._aioCreateAIRequestObject('theme-conduct-test', { ctxId:'theme-detail', query:'광테마 전망' }),
+      ctxId:'theme-detail', query:'광테마 전망', record:false
+    });
+    _assert('T990a generic_regulatory_risk_is_not_legal_advice: theme/company risk prose remains educational', themeConduct.status === 'EDUCATIONAL_ALLOWED' && themePipeline.blocked === false, JSON.stringify({ conduct:themeConduct, pipeline:themePipeline }));
   }
 
   function _testV5284ModelRiskIsolation() {

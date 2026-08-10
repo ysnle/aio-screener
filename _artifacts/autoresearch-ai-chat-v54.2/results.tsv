@@ -1,0 +1,6 @@
+experiment	variable	binary_pass	total	score	decision	evidence
+baseline	pre-change canonical routing	17	30	0.5667	baseline	observed expanded routing fixture before taxonomy-v2
+exp-01	intent taxonomy v2 only	30	30	1.0000	keep	ci-ai-intelligence 30 routing cases
+exp-02	AnswerPlan producer-consumer contract only	4	4	1.0000	keep	parse/render, citation, follow-up, untracked-current-number fixtures
+exp-03	query/response conduct separation only	6	6	1.0000	keep	four actionable controls + descriptive allocation + generic regulation negative control
+exp-04	intent-scoped evidence fan-out only	5	5	1.0000	keep	quote/research/composite/acronym/news relevance contracts

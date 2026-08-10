@@ -1,0 +1,13 @@
+{
+  "target": "AIO AI chat question-to-answer contract",
+  "version": "v54.2",
+  "date": "2026-08-10",
+  "baseline": { "passed": 17, "total": 30, "score": 0.5667 },
+  "experiments": [
+    { "id": "exp-01", "variable": "intent taxonomy v2", "passed": 30, "total": 30, "score": 1, "decision": "keep" },
+    { "id": "exp-02", "variable": "single AnswerPlan producer-consumer contract", "passed": 4, "total": 4, "score": 1, "decision": "keep" },
+    { "id": "exp-03", "variable": "query/response conduct separation", "passed": 6, "total": 6, "score": 1, "decision": "keep" },
+    { "id": "exp-04", "variable": "intent-scoped evidence fan-out", "passed": 5, "total": 5, "score": 1, "decision": "keep" }
+  ],
+  "stopReason": "All defined binary contract sets reached 100%; full browser/release QA remains a separate gate."
+}

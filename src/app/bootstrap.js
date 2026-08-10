@@ -456,6 +456,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       ,normalizeAIResearchExecutionResult: (result = {}) => normalizeResearchExecutionResult(result)
       ,evaluateAIResearchEvidenceFloor: (input = {}) => evaluateResearchEvidenceFloor(input)
       ,parseAIAnswerPlan: (text, options = {}) => aiOrchestrator.parseAnswerPlanText(text, options)
+      ,renderAIAnswerPlan: (plan, options = {}) => aiOrchestrator.renderAnswerPlan(plan, options)
     ,navigate: (route, ...args) => legacy.navigate(route, ...args)
     // RM-03: single-implementation trading-score model. js/aio-core.js's computeTradingScore
     // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy

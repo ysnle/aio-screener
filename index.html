@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v54.1 — 올인원 투자 터미널</title>
+  <title>AIO Screener v54.2 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -6033,7 +6033,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.1</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.2</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12685,9 +12685,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=54.1" defer></script>
-  <script src="./js/aio-data.js?v=54.1" defer></script>
-  <script src="./js/aio-ui.js?v=54.1" defer></script>
+  <script src="./js/aio-core.js?v=54.2" defer></script>
+  <script src="./js/aio-data.js?v=54.2" defer></script>
+  <script src="./js/aio-ui.js?v=54.2" defer></script>
 
 
   <script>
@@ -15172,7 +15172,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=54.1" defer></script>
+<script src="./js/aio-chat.js?v=54.2" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24085,7 +24085,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=54.1" defer></script>
+<script src="./js/aio-glossary.js?v=54.2" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -27516,8 +27516,12 @@ async function chatSendUnified(_aioDispatchOptions) {
     }
     if (detectedTickers.length > 0 && typeof _fetchTickerDataForChat === 'function') {
       try {
-        var tickerDataStr = await _withTimeout(_fetchTickerDataForChat(detectedTickers, { forceFresh: true, reason: 'chat-answer', preflight: _uniFreshPreflight }), 8000, 'ticker');
-        if (tickerDataStr) { sysPrompt += tickerDataStr; _uniTickerData = true; }
+        var tickerDataStr = await _withTimeout(_fetchTickerDataForChat(detectedTickers, { forceFresh: true, reason: 'chat-answer', preflight: _uniFreshPreflight, query: q, ctxId: ctxId, questionPlan: _uniQuestionPlan }), 8000, 'ticker');
+        if (tickerDataStr) {
+          sysPrompt += (window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function')
+            ? window.AIO.buildAIUntrustedBlock('TICKER_ENRICHMENT', tickerDataStr, { maxChars: 12000 }) : tickerDataStr;
+          _uniTickerData = true;
+        }
       } catch(te) { _aioLog('warn', 'fetch', '티커 데이터 실패/타임아웃: ' + te.message); }
     }
 
@@ -27878,7 +27882,6 @@ async function chatSendUnified(_aioDispatchOptions) {
       // AIQ-P0-04: blocked model text cannot be followed by an actionable card or
       // visualization generated from the original question.
       if (_publicGate && _publicGate.blocked === true) {
-        state.messages.push({ role: 'assistant', content: visible });
         if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
         if (typeof chatRenderChips === 'function') chatRenderChips(ctxId, extractChips(visible));
         return;
@@ -27888,7 +27891,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       var _srcBadge = document.createElement('div');
       _srcBadge.style.cssText = 'font-size:11px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
       var _bItems = [];
-      _bItems.push(_uniTickerData ? '<span style="color:var(--data-green);">재무</span>' : '<span style="color:var(--text-muted);">재무</span>');
+      var _uniHasFundamentals = /PER:|FCF Yield|Balance Sheet|EV\/EBITDA|Segments|income statement|재무제표/i.test(tickerDataStr || '');
+      _bItems.push(_uniTickerData ? '<span style="color:var(--data-green);">종목 데이터</span>' : '<span style="color:var(--text-muted);">종목 데이터</span>');
+      _bItems.push(_uniHasFundamentals ? '<span style="color:var(--data-green);">재무</span>' : '<span style="color:var(--text-muted);">재무</span>');
       if (_uniTechnicalData) _bItems.push('<span style="color:var(--data-cyan);">기술</span>');
       if (_uniScreenerStr) _bItems.push('<span style="color:var(--data-amber);">스크리너</span>');
       if (_uniDomainData) _bItems.push('<span style="color:var(--data-green);">페이지 데이터</span>');
@@ -27921,7 +27926,12 @@ async function chatSendUnified(_aioDispatchOptions) {
     // v46.10: 대화 기록 저장
     if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
 
-    var newChips = extractChips(visible);
+    var newChips = (_uniDoneResult.followUps && _uniDoneResult.followUps.length)
+      ? _uniDoneResult.followUps.slice(0, 3)
+      : extractChips(visible);
+    if (!newChips.length && typeof _suggestFollowUpQuestions === 'function') {
+      newChips = _suggestFollowUpQuestions(ctxId, q, visible, detectedTickers, _uniQuestionPlan) || [];
+    }
     if (newChips.length > 0) {
       var chipsEl = document.getElementById('ai-panel-chips');
       if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + escHtml(c) + '</div>'; }).join('');
@@ -27949,7 +27959,7 @@ async function chatSendUnified(_aioDispatchOptions) {
           if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, nextModel);
           callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone,
             _uniOnError,
-            { modelKey: nextModel }
+            Object.assign({}, modelOpts, { modelKey: nextModel })
           );
         } catch(rtEx) {
           // v47.8: 재시도 callClaude 동기 throw 방어

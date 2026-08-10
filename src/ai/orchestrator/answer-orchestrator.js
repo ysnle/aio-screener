@@ -1,6 +1,7 @@
 import { createQuestionPlan } from './question-planner.js';
 import { createCapabilityPlan } from './capability-planner.js';
 import { createAnswerPlan, validateAnswerPlan, parseAnswerPlanText } from '../response/claim-ledger.js';
+import { renderAnswerPlan } from '../response/renderer.js';
 import { createDomainAnalysisRegistry } from '../analysis/registry.js';
 import { validateResearchDecision } from '../research/decision.js';
 import { validateResearchPlan } from '../research/plan.js';
@@ -48,6 +49,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     createAnswerPlan,
     validateAnswerPlan,
     parseAnswerPlanText,
+    renderAnswerPlan,
     createCapabilityPlan
   });
 }

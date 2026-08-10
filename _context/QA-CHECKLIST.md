@@ -3,6 +3,19 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-09
 confidence: high
 
+## v54.2 AI 채팅 구조 일원화·오분류 종료 (2026-08-10)
+
+- [x] QA-AICHAT1: 질의 분류·엔티티·현재성·소스 선택은 ESM `QuestionPlan`을 SSOT로 사용하고 30개 한국어/영어/복합 질의 fixture가 통과한다.
+- [x] QA-AICHAT2: prompt producer와 UI consumer는 `AI_ANSWER_PLAN` 하나를 사용하며, current claim은 실제 evidence ID binding 없이 노출되지 않는다.
+- [x] QA-AICHAT3: `광테마 전망` 답변의 일반적 규제 위험 문구는 법률·세무 안전 모드를 발동하지 않고, 실제 법률 행위 지시와 구체적 매매 지시는 차단된다.
+- [x] QA-AICHAT4: 현재 시세와 단순 종목 질문은 로컬 스냅샷을 우선하고, 이벤트·원인·뉴스 질문만 필수 Research로 올린다.
+- [x] QA-AICHAT5: ticker 소스 fan-out, 일반 뉴스, Telegram digest/item은 QuestionPlan에서 선택된 도메인과 관련도가 있을 때만 주입된다.
+- [x] QA-AICHAT6: 라이브·스냅샷 혼합 블록은 조립시각과 관측시각을 구분하고, 기준일 없는 수치를 현재 사실로 승격하지 않는다.
+- [x] QA-AICHAT7: 재시도는 모델·webSearch·token option을 유지하고, unified history는 차단 답변을 한 번만 저장한다.
+- [x] QA-AICHAT8: 두 UI 표면의 후속 질문은 AnswerPlan을 우선하고, fallback은 의도 맞춤형 교육·검증 질문 3개로 제한한다.
+- [x] QA-AICHAT9: 출처 배지는 시세/종목 데이터와 재무 데이터를 분리하여 실제 수신 내용과 일치한다.
+- [x] QA-AICHAT10: syntax, AI intelligence/reliability/runtime, headless 전수 시험, post-edit route/browser/release 게이트를 통과한 후에만 배포한다.
+
 ## v54.1 배포 데이터 계약 보강 (2026-08-10)
 
 - [x] QA-DATA1: Telegram digest의 retained item count·collection status와 Atlas index가 같은 스냅샷(482, ok)을 가리키며 Atlas·6문서·지식 시맨틱 게이트가 통과한다.

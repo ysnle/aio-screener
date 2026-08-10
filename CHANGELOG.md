@@ -1,3 +1,12 @@
+## v54.2 (2026-08-10)
+- **AI 질의 계획 SSOT**: 한국어·영어·복합 질의를 ESM `QuestionPlan`에서 한 번만 분류하고, 의도·현재성·엔티티·필수 근거·소스 fan-out을 두 AI UI에 공통 적용했다.
+- **답변 계약 단일화**: 생산자/소비자가 엇갈리던 `AI_CLAIMS_JSON`·`AI_ANSWER_PLAN`을 하나의 `AI_ANSWER_PLAN`으로 맞추고 claim-evidence binding, 미추적 현재 수치 차단, citation·후속 질문 렌더링을 연결했다.
+- **안전 오분류 수정**: query의 실제 법률·세무/매매 지시와 response의 일반적 규제·위험 설명을 분리했다. `광테마 전망`이 규제 단어 때문에 법률·세무 안전 모드로 바뀐 회귀를 고정했다.
+- **소스·UI 정합성**: 의도별 ticker 소스를 선별하고 관련도 0 Telegram 항목을 제거했으며, 스냅샷 관측시각·재시도 option·중복 history·후속 질문·소스 배지를 두 표면에서 일치시켰다.
+- **정량 검증**: 의도 라우팅 17/30(56.7%) baseline을 30/30(100%)로 개선했고, 실행형 AnswerPlan·Research·안전 negative control·헤드리스 1118/1118을 통과시켰다.
+- **사후분석**: P901, R456, QA-AICHAT1~10.
+- R1 7곳 v54.2
+
 ## v54.1 (2026-08-10)
 - **뉴스 fail-closed 계약 교정**: 수집 실패가 `newsOk:false`, `newsCount:0`, 빈 배열로 명시된 경우 정적 데이터 CI가 이를 정상적인 unavailable 상태로 인정한다. 실패를 가짜 뉴스나 과거 기사로 채우지 않는다.
 - **교차 산출물 동기화**: 자동 갱신된 Telegram retained lineage와 Atlas 인덱스의 관측 건수·수집 상태를 동일 스냅샷으로 맞춰 Research reference packet 계약을 복구했다.

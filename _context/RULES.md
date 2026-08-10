@@ -1995,3 +1995,9 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: 뉴스처럼 외부 공급자 실패가 정상적으로 발생할 수 있는 카테고리는 비어 있다는 사실만으로 통과시키지 않는다. 실제 관측 배열이 존재하거나, producer가 정의한 성공 플래그·건수·배열이 모두 명시적 unavailable 튜플로 일치할 때만 통과한다. 서로 참조하는 요약 인덱스와 원본 artifact는 동일 retained count와 collection status를 가져야 하며, 불일치 시 최신 원본을 기준으로 재생성한다. 실패를 과거 데이터·placeholder·합성 항목으로 덮지 않는다.
 
 **Validation**: `scripts/ci-static-data-contract-check.mjs`, `scripts/ci-atlas-contract-check.mjs`, `scripts/ci-six-doc-coverage-check.mjs`, `scripts/ci-knowledge-core-semantic-check.mjs`.
+
+## R456. AI 채팅은 단일 QuestionPlan→Evidence→AnswerPlan 계약으로 종단간 검증한다 (v54.2, P901)
+
+**Rule**: 모든 AI 표면은 같은 `QuestionPlan`의 의도·엔티티·현재성·필수 근거로 소스 fan-out과 Research를 결정하고, 모델은 하나의 `AI_ANSWER_PLAN` 계약을 생산하며, consumer는 각 current claim의 evidence ID가 실제 주입 근거에 존재할 때만 표시한다. 안전 분류는 사용자 query의 행위 요청과 모델 response의 실제 지시를 분리하여 검사하고, 일반적 위험·규제 설명을 법률·세무 자문으로 오인하지 않는다. 무관한 뉴스·Telegram·펼더멘털 fan-out, 히스토리 중복, 재시도 옵션 소실, 실제 수신과 다른 출처 배지, 보정 없는 확률·구체적 매매 지시를 금지한다.
+
+**Validation**: `scripts/ci-ai-intelligence-contract-check.mjs` 30-case routing/AnswerPlan fixtures, `scripts/ci-ai-chat-reliability-contract-check.mjs`, `js/aio-tests.js` T934a/T934b/T937a/T990a, `scripts/ci-headless-tests.mjs`, and both chat surfaces' source/follow-up/history assertions.

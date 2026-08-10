@@ -60,14 +60,21 @@ export function createResearchDecision({ questionPlan = {}, userOptOut = false, 
   const causalSensitive = primary === 'MARKET_CAUSAL' || CAUSAL_RE.test(query);
   const concept = CONCEPT_RE.test(query);
   const requestedByUser = EXPLICIT_SEARCH_RE.test(query);
-  const hasDomain = DOMAIN_RE.test(query) || Boolean(questionPlan.entities?.entities?.length);
+  const intentNames = Array.isArray(questionPlan.intent?.intents) ? questionPlan.intent.intents : [primary];
+  const hasFinanceDomainIntent = intentNames.some((name) => ['SECTOR_ANALYSIS', 'ENTITY_ANALYSIS', 'ENTITY_FACT', 'COMPARISON', 'TECHNICAL_ANALYSIS', 'OPTIONS_ANALYSIS', 'MACRO_ANALYSIS', 'FX_ANALYSIS', 'SCREENING', 'PORTFOLIO_ACTION'].includes(name));
+  const hasDomain = DOMAIN_RE.test(query) || Boolean(questionPlan.entities?.entities?.length) || hasFinanceDomainIntent;
   const outOfScope = currentSensitive && !hasDomain && !TICKER_RE.test(query);
+  const snapshotEligible = currentSensitive && !causalSensitive && !eventCurrent && !requestedByUser &&
+    intentNames.some((name) => ['MARKET_STATUS', 'OUTLOOK', 'SECTOR_ANALYSIS', 'ENTITY_ANALYSIS', 'ENTITY_FACT', 'TECHNICAL_ANALYSIS', 'OPTIONS_ANALYSIS', 'MACRO_ANALYSIS', 'FX_ANALYSIS'].includes(name));
   const reasons = [];
 
   let requirement = 'NOT_NEEDED';
   if (outOfScope) {
     requirement = 'REQUIRED';
     reasons.push('current question is outside the screener evidence domain');
+  } else if (snapshotEligible) {
+    requirement = 'OPTIONAL';
+    reasons.push('verified in-app snapshot can answer the current state; web research is enrichment');
   } else if (currentSensitive || causalSensitive) {
     requirement = 'REQUIRED';
     if (currentSensitive) reasons.push('question contains current-sensitive language');
@@ -75,7 +82,7 @@ export function createResearchDecision({ questionPlan = {}, userOptOut = false, 
   } else if (concept && !requestedByUser) {
     requirement = 'NOT_NEEDED';
     reasons.push('concept explanation can use validated internal knowledge');
-  } else if (['ENTITY_ANALYSIS', 'ENTITY_FACT', 'SECTOR_ANALYSIS', 'NEWS_SUMMARY'].includes(primary) || requestedByUser) {
+  } else if (['ENTITY_ANALYSIS', 'ENTITY_FACT', 'COMPARISON', 'OPTIONS_ANALYSIS', 'SECTOR_ANALYSIS', 'NEWS_SUMMARY'].includes(primary) || requestedByUser) {
     requirement = 'OPTIONAL';
     reasons.push('research can improve a non-current reference answer');
   } else {
