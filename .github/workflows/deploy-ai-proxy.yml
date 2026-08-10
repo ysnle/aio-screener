@@ -66,3 +66,6 @@ jobs:
           node -e "const fs=require('fs');const h=fs.readFileSync('/tmp/aio-ai-cors.txt','utf8').toLowerCase();if(!/^access-control-allow-origin:\s*https:\/\/ysnle\.github\.io\s*$/m.test(h))process.exit(1)"
           blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' -H 'Content-Type: application/json' -d '{"model":"claude-haiku-4-5","max_tokens":1,"messages":[]}' "$AI_PROXY_URL/anthropic")"
           if [ "$blocked" != "403" ]; then echo "::error::ai_proxy_origin_gate_failed: HTTP $blocked"; exit 1; fi
+          upstream_status="$(curl --silent --show-error --output /tmp/aio-ai-upstream.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' -H 'Content-Type: application/json' -H "X-AIO-Idempotency-Key: deploy-${GITHUB_SHA}-${GITHUB_RUN_ATTEMPT}" -d '{"model":"claude-haiku-4-5","max_tokens":8,"messages":[{"role":"user","content":"Reply exactly OK"}]}' "$AI_PROXY_URL/anthropic")"
+          if [ "$upstream_status" != "200" ]; then cat /tmp/aio-ai-upstream.json || true; echo "::error::ai_proxy_upstream_failed: HTTP $upstream_status"; exit 1; fi
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('/tmp/aio-ai-upstream.json'));if(!Array.isArray(r.content)||!r.content.some(x=>x?.type==='text'&&typeof x.text==='string'))process.exit(1)"

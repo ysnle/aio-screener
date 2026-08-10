@@ -2010,6 +2010,6 @@ endpoint identity while retaining explicit operator blockers.
 
 ## R458. AI edge Worker는 소스·배포·readiness를 하나의 릴리스 계약으로 닫는다 (v54.3, P903)
 
-**Rule**: `cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI 채팅을 완료로 판정하지 않는다. production Worker는 단 하나의 `/anthropic` 핸들러와 원자적 Durable Object quota authority를 사용하고, pinned Wrangler workflow가 Cloudflare/Anthropic 시크릿을 요구하여 같은 canonical source를 배포해야 한다. 배포 후 `/health`가 configured·quotaConfigured·ready를 모두 true로 보고하고, production CORS preflight와 비허용 Origin 403을 통과해야 public chat을 `CURRENT`로 승격한다.
+**Rule**: `cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI 채팅을 완료로 판정하지 않는다. production Worker는 단 하나의 `/anthropic` 핸들러와 원자적 Durable Object quota authority를 사용하고, pinned Wrangler workflow가 Cloudflare/Anthropic 시크릿을 요구하여 같은 canonical source를 배포해야 한다. Anthropic이 차단하는 Cloudflare 엣지 지역 편차를 피하도록 허용 지역 placement를 source-controlled config에 고정한다. 배포 후 `/health`가 configured·quotaConfigured·ready를 모두 true로 보고하고, production CORS preflight·비허용 Origin 403·최소 upstream 200을 통과해야 public chat을 `CURRENT`로 승격한다.
 
 **Validation**: `worker/wrangler.proxy.toml`, `.github/workflows/deploy-ai-proxy.yml`, `scripts/ci-worker-anthropic-check.mjs`, `scripts/ci-operations-contract-check.mjs`, live Worker smoke, `public-data/operations-status.json`.
