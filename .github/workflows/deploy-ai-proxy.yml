@@ -51,13 +51,16 @@ jobs:
           AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
         run: |
           set -euo pipefail
+          ready="0"
           for attempt in $(seq 1 12); do
             status="$(curl --silent --show-error --output /tmp/aio-ai-health.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
-            if [ "$status" = "200" ]; then break; fi
+            if [ "$status" = "200" ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync('/tmp/aio-ai-health.json'));if(h.schemaVersion!=='aio-worker-health.v1'||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.ready!==true)process.exit(1)"; then
+              ready="1"
+              break
+            fi
             sleep 5
           done
-          if [ "$status" != "200" ]; then echo "::error::ai_proxy_unreachable: HTTP $status"; exit 1; fi
-          node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync('/tmp/aio-ai-health.json'));if(h.schemaVersion!=='aio-worker-health.v1'||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.ready!==true)process.exit(1)"
+          if [ "$ready" != "1" ]; then cat /tmp/aio-ai-health.json || true; echo "::error::ai_proxy_not_ready: HTTP $status"; exit 1; fi
           cors_status="$(curl --silent --show-error --dump-header /tmp/aio-ai-cors.txt --output /dev/null --write-out '%{http_code}' -X OPTIONS -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/anthropic")"
           if [ "$cors_status" != "204" ]; then echo "::error::ai_proxy_cors_failed: HTTP $cors_status"; exit 1; fi
           node -e "const fs=require('fs');const h=fs.readFileSync('/tmp/aio-ai-cors.txt','utf8').toLowerCase();if(!/^access-control-allow-origin:\s*https:\/\/ysnle\.github\.io\s*$/m.test(h))process.exit(1)"
