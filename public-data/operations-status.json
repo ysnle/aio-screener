@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-10T11:13:23.185Z",
+  "generatedAt": "2026-08-10T11:26:52.875Z",
   "appRevision": "v54.1",
-  "dataRevision": "market-snapshot:2026-08-10T09:53:59.049Z:500850da",
+  "dataRevision": "market-snapshot:2026-08-10T11:26:47.790Z:16392a8e",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-10T09:53:59.049Z",
+      "lastSuccessfulAt": "2026-08-10T11:26:47.790Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -69,13 +69,13 @@
   },
   "ai": {
     "scheduledAnalysis": {
-      "status": "BLOCKED",
-      "statusCode": "CONFIGURED_BROKEN",
+      "status": "CURRENT",
+      "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastCallSucceeded": "BLOCKED",
+      "lastCallSucceeded": "CURRENT",
       "evidence": {
-        "marketAnalysisOk": false,
-        "generatedAt": "2026-08-10T09:53:59.049Z"
+        "marketAnalysisOk": true,
+        "generatedAt": "2026-08-10T11:26:47.790Z"
       }
     },
     "publicChat": {
@@ -97,15 +97,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-10T09:53:59.049Z"
+      "lastFetchAt": "2026-08-10T11:26:47.790Z"
     },
     "fred": {
-      "rights": "OPERATOR_REQUIRED",
-      "statusCode": "NOT_CONFIGURED",
+      "rights": "REVIEW_REQUIRED",
+      "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-08-10T09:53:59.049Z",
-      "lastFetchAt": "2026-08-10T09:53:59.049Z"
+      "lastAttemptAt": "2026-08-10T11:26:47.790Z",
+      "lastFetchAt": "2026-08-10T11:26:47.790Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -119,7 +119,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-10T09:53:59.049Z:500850da",
+      "artifact": "market-snapshot:2026-08-10T11:26:47.790Z:16392a8e",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -160,7 +160,7 @@
         "investors-intelligence",
         "kr-macro-vkospi-supply"
       ],
-      "sourceRevision": "market-snapshot:2026-08-10T09:53:59.049Z:500850da"
+      "sourceRevision": "market-snapshot:2026-08-10T11:26:47.790Z:16392a8e"
     },
     "routeCount": 20,
     "rawProducerClaimGate": "not_applicable_for_quote_plane"
