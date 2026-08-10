@@ -2,6 +2,11 @@ export const AI_RESEARCH_EVIDENCE_VERSION = 'research-evidence.v1';
 
 const CONTENT_DEPTH = Object.freeze(['FULL_TEXT', 'EXCERPT', 'SNIPPET', 'SUMMARY']);
 const RIGHTS = Object.freeze(['REVIEW_REQUIRED', 'PUBLIC_REFERENCE', 'LICENSED', 'BLOCKED']);
+const PRIMARY_OFFICIAL_SUFFIXES = Object.freeze([
+  'sec.gov', 'federalreserve.gov', 'bls.gov', 'bea.gov', 'fred.stlouisfed.org',
+  'cboe.com', 'nasdaq.com', 'nyse.com', 'bok.or.kr', 'kosis.kr', 'krx.co.kr'
+]);
+const TIER_1_SUFFIXES = Object.freeze(['reuters.com', 'apnews.com', 'bbc.com']);
 
 function text(value) { return String(value == null ? '' : value).trim(); }
 
@@ -15,13 +20,18 @@ function canonicalUrl(value) {
 }
 
 function publisherFromUrl(url) {
-  try { return new URL(url).hostname.replace(/^www\./, '').split('.')[0]; } catch (_) { return ''; }
+  try { return new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch (_) { return ''; }
+}
+
+function hostMatches(host, suffixes) {
+  const normalized = String(host || '').replace(/^www\./, '').toLowerCase();
+  return suffixes.some((suffix) => normalized === suffix || normalized.endsWith(`.${suffix}`));
 }
 
 function sourceTier(url, source = '') {
   const host = (() => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (_) { return ''; } })();
-  if (/sec\.gov|federalreserve\.gov|bls\.gov|bea\.gov|fred\.stlouisfed\.org|cboe\.com|bok\.or\.kr|kosis\.kr|krx\.co\.kr/.test(host)) return 'PRIMARY_OFFICIAL';
-  if (/reuters\.com|apnews\.com|bbc\.com/.test(host) || /reuters|associated press|ap news/i.test(source)) return 'TIER_1_WIRE';
+  if (hostMatches(host, PRIMARY_OFFICIAL_SUFFIXES)) return 'PRIMARY_OFFICIAL';
+  if (hostMatches(host, TIER_1_SUFFIXES) || /reuters|associated press|ap news/i.test(source)) return 'TIER_1_WIRE';
   if (host) return 'SECONDARY';
   return 'UNKNOWN';
 }
@@ -30,19 +40,21 @@ export function createEvidenceDocument(input = {}) {
   const canonical = canonicalUrl(input.canonicalUrl || input.url);
   const contentDepth = CONTENT_DEPTH.includes(input.contentDepth) ? input.contentDepth : 'SNIPPET';
   const rights = RIGHTS.includes(input.rights) ? input.rights : 'REVIEW_REQUIRED';
+  const derivedTier = sourceTier(canonical, input.source);
   const document = {
     schemaVersion: AI_RESEARCH_EVIDENCE_VERSION,
     documentId: text(input.documentId) || `doc:${canonical || text(input.title)}`,
     canonicalUrl: canonical || null,
     title: text(input.title),
-    publisher: text(input.publisher) || publisherFromUrl(canonical),
+    publisher: publisherFromUrl(canonical) || text(input.publisher),
     author: text(input.author) || null,
     publishedAt: input.publishedAt || null,
     updatedAt: input.updatedAt || null,
     fetchedAt: input.fetchedAt || new Date().toISOString(),
-    sourceTier: input.sourceTier || sourceTier(canonical, input.source),
+    sourceTier: canonical ? derivedTier : input.sourceTier || derivedTier,
     sourceType: text(input.sourceType) || 'web-search',
-    primaryOrSecondary: input.primaryOrSecondary || (sourceTier(canonical, input.source) === 'PRIMARY_OFFICIAL' ? 'PRIMARY' : 'SECONDARY'),
+    primaryOrSecondary: canonical ? (derivedTier === 'PRIMARY_OFFICIAL' ? 'PRIMARY' : 'SECONDARY') :
+      input.primaryOrSecondary || (derivedTier === 'PRIMARY_OFFICIAL' ? 'PRIMARY' : 'SECONDARY'),
     rights,
     contentDepth,
     locale: text(input.locale) || null,
@@ -109,4 +121,131 @@ export function validateClaimEvidenceBinding(claim, evidence, { currentSensitive
   if (independent < minimumIndependentSources) errors.push('independent_source_floor_missing');
   if (primary < minimumPrimarySources) errors.push('primary_source_floor_missing');
   return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)], documentCount: documents.length, independentSourceCount: independent, primarySourceCount: primary });
+}
+
+function uniqueCitations(citations = []) {
+  const seen = new Set();
+  return (Array.isArray(citations) ? citations : []).filter((item) => {
+    const url = typeof item === 'string' ? item : item?.url;
+    if (!url || seen.has(url)) return false;
+    seen.add(url);
+    return true;
+  });
+}
+
+function normalizeDocuments(documents = []) {
+  const seen = new Set();
+  return (Array.isArray(documents) ? documents : []).map((document) => createEvidenceDocument({
+    ...document,
+    canonicalUrl: document?.canonicalUrl,
+    source: document?.publisher || document?.source || '',
+    contentDepth: document?.contentDepth,
+    rights: document?.rights || 'PUBLIC_REFERENCE'
+  })).filter((document) => {
+    const key = document.documentId || document.canonicalUrl;
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * Canonical result boundary shared by the legacy provider adapter and the ESM
+ * response gate. `researchEvidence.evidenceDocuments` is the single source of
+ * truth; the top-level field is accepted only as an input compatibility shape.
+ */
+export function normalizeResearchExecutionResult(result = {}) {
+  const nested = result && typeof result.researchEvidence === 'object' ? result.researchEvidence : {};
+  const { evidenceDocuments: legacyEvidenceDocuments, researchEvidence: legacyResearchEvidence, ...rest } = result || {};
+  const documents = normalizeDocuments(
+    Array.isArray(nested.evidenceDocuments) ? nested.evidenceDocuments : legacyEvidenceDocuments
+  );
+  const citations = uniqueCitations(result.citations);
+  const independentSourceCount = new Set(
+    documents.map((document) => document?.publisher || document?.canonicalUrl).filter(Boolean)
+  ).size;
+  const primarySourceCount = documents.filter((document) =>
+    document?.primaryOrSecondary === 'PRIMARY' || document?.sourceTier === 'PRIMARY_OFFICIAL'
+  ).length;
+  return Object.freeze({
+    ...rest,
+    citations: Object.freeze(citations),
+    researchEvidence: Object.freeze({
+      ...nested,
+      evidenceDocuments: Object.freeze(documents),
+      independentSourceCount,
+      primarySourceCount,
+      currentClaimsAllowed: nested.currentClaimsAllowed === true
+    })
+  });
+}
+
+export function normalizeNativeResearchCitations(citations = []) {
+  return Object.freeze(uniqueCitations(citations).map((item, index) => {
+    const url = typeof item === 'string' ? item : item.url;
+    return createEvidenceDocument({
+      documentId: `native-web:${index}:${publisherFromUrl(url)}`,
+      canonicalUrl: url,
+      title: typeof item === 'string' ? '' : item.title,
+      publisher: publisherFromUrl(url),
+      contentDepth: 'EXCERPT',
+      rights: 'PUBLIC_REFERENCE',
+      sourceType: 'claude-native-web-search'
+    });
+  }));
+}
+
+function evidenceFloor(documents, citations, stop, { requireCurrentClaims = false, currentClaimsAllowed = false } = {}) {
+  const independent = new Set(documents.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
+  const primary = documents.filter((document) =>
+    document.primaryOrSecondary === 'PRIMARY' || document.sourceTier === 'PRIMARY_OFFICIAL'
+  ).length;
+  const snippetFree = documents.length > 0 && documents.every((document) =>
+    document.contentDepth !== 'SNIPPET' && document.contentDepth !== 'SUMMARY'
+  );
+  return citations.length > 0 && documents.length > 0 && snippetFree &&
+    independent >= Number(stop.minimumIndependentSources || 0) &&
+    primary >= Number(stop.minimumPrimarySources || 0) &&
+    (!requireCurrentClaims || currentClaimsAllowed === true);
+}
+
+/** Execute the actual producer -> consumer contract instead of checking names. */
+export function evaluateResearchEvidenceFloor(input = {}) {
+  const questionPlan = input.questionPlan || {};
+  const decision = questionPlan.researchDecision || {};
+  const required = input.required === true || decision.requirement === 'REQUIRED';
+  if (!required) return Object.freeze({ required: false, ready: true, reason: 'research-not-required', evidenceDocuments: Object.freeze([]) });
+
+  const stop = questionPlan.researchPlan?.stopConditions || {};
+  const external = normalizeResearchExecutionResult(input.externalResult || {});
+  const externalDocuments = external.researchEvidence.evidenceDocuments;
+  const externalCitations = external.citations;
+  const nativeCitations = uniqueCitations(input.nativeCitations);
+  const nativeDocuments = normalizeNativeResearchCitations(nativeCitations);
+  const externalReady = evidenceFloor(externalDocuments, externalCitations, stop, {
+    requireCurrentClaims: true,
+    currentClaimsAllowed: external.researchEvidence.currentClaimsAllowed
+  });
+  const nativeReady = evidenceFloor(nativeDocuments, nativeCitations, stop);
+  const ready = externalReady || nativeReady;
+  const documents = externalReady ? externalDocuments : nativeReady ? nativeDocuments :
+    (externalDocuments.length ? externalDocuments : nativeDocuments);
+  const citations = externalReady ? externalCitations : nativeReady ? nativeCitations :
+    (externalCitations.length ? externalCitations : nativeCitations);
+  const independentSourceCount = new Set(documents.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
+  const primarySourceCount = documents.filter((document) =>
+    document.primaryOrSecondary === 'PRIMARY' || document.sourceTier === 'PRIMARY_OFFICIAL'
+  ).length;
+
+  return Object.freeze({
+    required: true,
+    ready,
+    reason: ready ? 'research-evidence-floor-met' : input.error ? 'research-provider-error' : 'research-evidence-floor-not-met',
+    evidenceDocuments: Object.freeze([...documents]),
+    citationCount: citations.length,
+    independentSourceCount,
+    primarySourceCount,
+    currentClaimsAllowed: externalReady || nativeReady,
+    source: externalReady ? 'external-research' : nativeReady ? 'claude-native' : 'none'
+  });
 }

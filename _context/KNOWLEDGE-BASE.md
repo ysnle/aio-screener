@@ -1,8 +1,24 @@
 ﻿---
 verified_by: human + Codex full-route audit verification
-last_verified: 2026-08-09
+last_verified: 2026-08-10
 confidence: high
 ---
+
+## 2026-08-10 지식 그래프 운영 원칙: 개수보다 해석 경로가 정본이다
+
+- graph는 node/edge 수가 맞아도 endpoint가 다른 ontology를 가리키거나 component가 분리되면 실패다. 실제 export를 읽어 endpoint·component·orphan을 계산해야 한다.
+- typed edge는 필드 자동 채움으로 완료되지 않는다. type·direction·condition·source가 사람이 검토한 의미와 일치해야 하며 default 추론은 migration 상태로 남긴다.
+- source ID는 CI 목록에 존재하는 것만으로 충분하지 않다. renderer가 쓰는 동일 resolver에서 URL까지 해석되고 namespace conflict가 없어야 한다.
+- 회사의 capability와 특정 product의 역할을 분리한다. 회사가 foundry를 운영해도 HBM 제품 자체를 foundry process node에 연결하지 않고, 회사가 여러 연구 영역을 가져도 quantum product를 photonic product로 확장하지 않는다.
+- 다중 artifact는 한 개 실패가 전체 지식 페이지를 지우지 않도록 capability별 상태를 가진다. 이 구조적 성공은 심층 원고·직접 근거·학습 효과의 성공과 별도다.
+
+## 2026-08-10 지식 백과 원칙: 필드 존재는 설명 깊이가 아니다
+
+- `AI Era Atlas`의 사용자 노출 명칭은 `AI 시대 지식 지도`다. 내부 route ID `atlas`는 호환용 구현 식별자일 뿐 사용자 개념명이 아니다.
+- 시장 원리와 AI 시대 지식 지도는 지식 백과사전이자 실제 시장 분석으로 이어지는 학습 시스템이다. 현재 시장 원리 111개 핵심 설명 필드 합계 중앙값은 325자, AI 기초 48개는 275자이며 159/159가 1,200자 core 하한 미달이다. 이들은 유용한 요약 scaffold이지 완성된 장문 원고가 아니다.
+- 심층 본문은 `정의·선수 개념 → 직관 → mechanism/형식 모델 → worked example → 반례·대체 설명 → typed 관계 → 실물경제 → 산업·기업 → 재무제표 → 밸류에이션 → 시장가격/금융시장 → 트레이딩 관찰·무효화 → claim 출처·용어·회상 질문`으로 닫는다. 모든 개념에 수식을 억지로 넣지 않고 해당 없으면 이유를 기록한다.
+- 30초 요약과 5분/심층 본문을 분리해 점진 공개한다. 글자 수만 늘린 반복 문장, 포괄 출처 하나의 다수 주장 재사용, 교육 원고에서 직접 BUY/SELL 생성은 깊이 통과가 아니다.
+- 초보자·중급 투자자·능동 트레이더·전문가·한국 투자자·재방문·모바일/접근성·위험 회피·시간 부족 사용자의 과업을 별도 검증한다. 자동화된 persona 시나리오는 휴리스틱이며 실제 참여자 연구 전에는 `USER_VALIDATED`를 선언하지 않는다.
 
 ## 2026-08-09 full-route audit closure: contracts are part of the evidence
 

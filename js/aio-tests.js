@@ -8788,6 +8788,60 @@
       'legacyFn=' + typeof window.updateDynamicScenarios + ' policy=' + scenarioPolicy1040 + ' blocked=' + !!scenarioBlocked1040);
   }
 
+  function _testV5399AIResearchRuntimeContract() {
+    var arch = window.AIO_ARCH || {};
+    var requiredPlan = {
+      researchDecision: { requirement: 'REQUIRED' },
+      researchPlan: { stopConditions: { minimumIndependentSources: 1, minimumPrimarySources: 1 } }
+    };
+    var officialDocument = typeof arch.createAIResearchEvidenceDocument === 'function' ? arch.createAIResearchEvidenceDocument({
+      canonicalUrl: 'https://www.sec.gov/Archives/edgar/data/1045810/filing.htm',
+      title: 'NVIDIA filing',
+      contentDepth: 'EXCERPT',
+      rights: 'PUBLIC_REFERENCE'
+    }) : null;
+    var legacyResult = officialDocument ? {
+      citations: [officialDocument.canonicalUrl],
+      evidenceDocuments: [officialDocument],
+      researchEvidence: { currentClaimsAllowed: true }
+    } : {};
+    var normalized = typeof arch.normalizeAIResearchExecutionResult === 'function' ? arch.normalizeAIResearchExecutionResult(legacyResult) : null;
+    _assert('T1042 research_result_boundary_is_canonical_v5399: legacy producer shapes normalize to the nested SSOT',
+      !!normalized && !Object.prototype.hasOwnProperty.call(normalized, 'evidenceDocuments') && normalized.researchEvidence.evidenceDocuments.length === 1,
+      JSON.stringify(normalized));
+
+    var externalGate = typeof arch.evaluateAIResearchEvidenceFloor === 'function' ? arch.evaluateAIResearchEvidenceFloor({
+      questionPlan: requiredPlan, required: true, externalResult: legacyResult
+    }) : null;
+    _assert('T1043 external_research_contract_executes_v5399: verified official evidence opens the shared gate',
+      !!externalGate && externalGate.ready === true && externalGate.source === 'external-research',
+      JSON.stringify(externalGate));
+
+    var nativeGate = typeof arch.evaluateAIResearchEvidenceFloor === 'function' ? arch.evaluateAIResearchEvidenceFloor({
+      questionPlan: requiredPlan, required: true, nativeCitations: ['https://www.sec.gov/Archives/edgar/data/1045810/filing.htm']
+    }) : null;
+    _assert('T1044 native_research_contract_executes_v5399: native citations use the same evidence floor',
+      !!nativeGate && nativeGate.ready === true && nativeGate.source === 'claude-native',
+      JSON.stringify(nativeGate));
+
+    var spoofDocument = typeof arch.createAIResearchEvidenceDocument === 'function' ? arch.createAIResearchEvidenceDocument({
+      canonicalUrl: 'https://evilsec.gov.example.com/fake', publisher: 'sec.gov', sourceTier: 'PRIMARY_OFFICIAL', primaryOrSecondary: 'PRIMARY', contentDepth: 'EXCERPT', rights: 'PUBLIC_REFERENCE'
+    }) : null;
+    _assert('T1045 official_source_classification_is_spoof_safe_v5399: suffix-like attacker hosts remain secondary',
+      !!spoofDocument && spoofDocument.primaryOrSecondary === 'SECONDARY' && spoofDocument.sourceTier !== 'PRIMARY_OFFICIAL',
+      JSON.stringify(spoofDocument));
+
+    var audit = window.AIO && typeof window.AIO.getWebSearchAudit === 'function' ? window.AIO.getWebSearchAudit() : null;
+    _assert('T1046 research_capability_does_not_overclaim_worker_route_v5399: an unverified Worker route is not tool READY',
+      !!audit && audit.contractReady === true && audit.researchReadiness !== 'NATIVE_TOOL_ROUTE_READY' &&
+        !(audit.researchCapability.provider === 'claude-native' && audit.nativeCitationCount === 0 && audit.researchCapability.toolReady === 'READY'),
+      JSON.stringify(audit));
+
+    _assert('T1047 both_chat_surfaces_share_research_preparation_v5399: one preparation boundary drives dispatch',
+      typeof window._aioPrepareAIResearch === 'function' && typeof window._aioEvaluateAIResearchGate === 'function',
+      'prepare=' + typeof window._aioPrepareAIResearch + ' gate=' + typeof window._aioEvaluateAIResearchGate);
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -8902,7 +8956,8 @@
     { id:'G105', name:'_testV5285CoverageAndHumanCertification', run:_testV5285CoverageAndHumanCertification },
     { id:'G106', name:'_testV5286ToolBoundaryAndRights', run:_testV5286ToolBoundaryAndRights },
     { id:'G107', name:'_testV5290HumanUXStateContracts', run:_testV5290HumanUXStateContracts },
-    { id:'G108', name:'_testV5298SemanticMarketIntegrity', run:_testV5298SemanticMarketIntegrity }
+    { id:'G108', name:'_testV5298SemanticMarketIntegrity', run:_testV5298SemanticMarketIntegrity },
+    { id:'G109', name:'_testV5399AIResearchRuntimeContract', run:_testV5399AIResearchRuntimeContract }
   ]);
 
   function _runGroupRegistry(groups, options) {

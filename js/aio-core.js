@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v53.97';
+const APP_VERSION = 'v54.0';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -4525,7 +4525,7 @@ var AIO_PAGE_BRIEFS = {
     use: '개념 정의를 읽고, 메커니즘과 반례를 확인한 뒤 그래프의 다음 연결로 이동합니다.',
     steps: ['Tree에서 개념의 위치 확인', 'Graph에서 1-hop·2-hop 연결 비교', 'Path에서 원인→결과 흐름 복습'],
     focus: '이 페이지는 현재 매매 신호가 아니라 시장·산업·AI의 구조를 학습하는 참고 레이어입니다.',
-    links: [['atlas','AI 산업 Atlas'], ['guide','사용 가이드']]
+    links: [['atlas','AI 시대 지식 지도'], ['guide','사용 가이드']]
   },
   masters: {
     title: '공시된 보유와 데이터 한계를 함께 봅니다',
@@ -4535,10 +4535,10 @@ var AIO_PAGE_BRIEFS = {
     links: [['principles','시장 원리'], ['guide','사용 가이드']]
   },
   atlas: {
-    title: 'AI 산업을 공급망과 학습 경로로 탐색합니다',
+    title: 'AI 시대 지식을 원리와 가치사슬로 탐색합니다',
     use: '산업 도메인, 기초 학습, 플레이어·제품을 출처 상태와 함께 단계적으로 확인합니다.',
     steps: ['산업 도메인 packet으로 범위 확인', 'Foundations 원리와 KPI 학습', 'Deep taxonomy에서 역할·제품·출처 경계 확인'],
-    focus: 'Atlas의 구조·학습 원고와 공식 페이지 연결은 참고 레이어이며, 현재 수치·생산량·투자 판단으로 자동 승격하지 않습니다.',
+    focus: '지식 지도의 구조·학습 원고와 공식 페이지 연결은 참고 레이어이며, 현재 수치·생산량·투자 판단으로 자동 승격하지 않습니다.',
     links: [['principles','시장 원리'], ['masters','대가 포트폴리오']]
   }
 };
@@ -5223,12 +5223,12 @@ window.AIO_PAGE_ACTION_HUBS.masters = {
   cards:[['핵심 범위','분기 말 보고 보유 · 신고주체 · 원본 filing'],['데이터 경계','13F는 전체 자산·현재 보유·공매도·현금을 뜻하지 않음'],['검증 순서','SEC 원본 → CIK → XML → shares 비교 → action 분류']],
   links:[['시장 원리','principles'],['사용 설명서','guide']]
 };
-// AI Era Atlas is a design-only reference shell until source packets and
-// evidence ledgers promote nodes to REVIEWED/PUBLISHED.
+// AI 시대 지식 지도는 교육용 reference-connected 화면이다. 내부 research
+// packet의 DESIGN_ONLY 상태는 evidence review 전 current claim 승격을 막는다.
 window.AIO_PAGE_ACTION_HUBS.atlas = {
-  title:'AI Era Atlas',
-  subtitle:'ontology·curriculum·taxonomy를 source packet 순서로 탐색합니다.',
-  cards:[['현재 범위','DESIGN_ONLY reference shell'],['Telegram','keyword·framework·source-link discovery only'],['출판 조건','primary source + evidence ledger + review gate']],
+  title:'AI 시대 지식 지도',
+  subtitle:'기초 원리·산업 가치사슬·근거 자료를 순서대로 탐색합니다.',
+  cards:[['현재 범위','교육용 reference-connected 지식 지도'],['Telegram','키워드·프레임워크·출처 발견용'],['현재 주장 승격','1차 출처 + evidence ledger + review gate 필요']],
   links:[['시장 원리','principles'],['13F 경계','masters']]
 };
 
@@ -8220,6 +8220,13 @@ window.AIO.getWebSearchAudit = function() {
   var hasGoogleKey = false;
   var hasGoogleCx = false;
   var routeState = window._aioLastClaudeRouteState || null;
+  var nativeCitations = Array.isArray(window._aioLastClaudeCitations) ? window._aioLastClaudeCitations : [];
+  var nativeToolError = window._aioLastClaudeResearchError || null;
+  var nativeToolReady = nativeCitations.length > 0 && !nativeToolError;
+  var contractReady = !!(window.AIO_ARCH &&
+    typeof window.AIO_ARCH.createAIResearchEvidenceDocument === 'function' &&
+    typeof window.AIO_ARCH.normalizeAIResearchExecutionResult === 'function' &&
+    typeof window.AIO_ARCH.evaluateAIResearchEvidenceFloor === 'function');
   try {
     if (typeof _getApiKey === 'function') {
       hasPerplexity = !!_getApiKey('aio_perplexity_key');
@@ -8228,7 +8235,7 @@ window.AIO.getWebSearchAudit = function() {
     }
   } catch(e) {}
   return {
-    status: 'ok',
+    status: contractReady ? 'ok' : 'warn',
     enabled: !optOut,
     optOut: optOut,
     calls: stats.calls,
@@ -8244,15 +8251,20 @@ window.AIO.getWebSearchAudit = function() {
     // Chat route and Research route are separate capabilities. A configured
     // personal Chat key does not certify external/native Web Research.
     chatReadiness: routeState ? (routeState.ok ? 'READY' : routeState.reason || 'NOT_READY') : 'NOT_CHECKED',
-    researchReadiness: (hasPerplexity || (hasGoogleKey && hasGoogleCx)) ? 'EXTERNAL_PROVIDER_READY' : routeState && routeState.reason === 'SHARED_WORKER' ? 'NATIVE_TOOL_ROUTE_READY' : 'NOT_READY',
+    researchReadiness: (hasPerplexity || (hasGoogleKey && hasGoogleCx)) ? 'EXTERNAL_PROVIDER_READY' : nativeToolReady ? 'NATIVE_TOOL_VERIFIED' : routeState && routeState.reason === 'SHARED_WORKER' ? 'NATIVE_TOOL_UNVERIFIED' : 'NOT_READY',
+    contractReady: contractReady,
+    lastPreparation: window._aioLastResearchPreparation || null,
+    lastExecution: window._aioLastResearchAudit || null,
+    nativeCitationCount: nativeCitations.length,
+    nativeToolErrorCode: nativeToolError ? 'NATIVE_TOOL_ERROR' : null,
     researchCapability: {
       provider: hasPerplexity ? 'perplexity' : hasGoogleKey && hasGoogleCx ? 'google-cse' : routeState && routeState.reason === 'SHARED_WORKER' ? 'claude-native' : 'none',
       routeReady: routeState ? (routeState.ok ? 'READY' : 'NOT_READY') : 'UNKNOWN',
       authReady: hasPerplexity || (hasGoogleKey && hasGoogleCx) || !!(routeState && routeState.ok) ? 'READY' : 'UNKNOWN',
-      toolReady: routeState && routeState.reason === 'SHARED_WORKER' ? 'READY' : hasPerplexity || (hasGoogleKey && hasGoogleCx) ? 'READY' : 'UNKNOWN',
+      toolReady: hasPerplexity || (hasGoogleKey && hasGoogleCx) || nativeToolReady ? 'READY' : nativeToolError ? 'NOT_READY' : 'UNKNOWN',
       quotaReady: 'UNKNOWN',
-      supportsCitations: !!(hasPerplexity || (hasGoogleKey && hasGoogleCx) || (routeState && routeState.reason === 'SHARED_WORKER')),
-      supportsFullContent: !!(hasPerplexity || (routeState && routeState.reason === 'SHARED_WORKER')),
+      supportsCitations: !!(hasPerplexity || (hasGoogleKey && hasGoogleCx) || nativeToolReady),
+      supportsFullContent: !!hasPerplexity,
       supportsDomainControl: !!(hasPerplexity || (hasGoogleKey && hasGoogleCx)),
       checkedAt: new Date().toISOString()
     },
@@ -15694,10 +15706,10 @@ window._apiHealth = {
 window.AIO_PAGE_DECLUTTER_POLICY = {
   priorityRoutes: ['signal','macro','technical','fxbond','guide','principles','masters','atlas','themes','portfolio','screener'],
   intents: {
-    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', options:'변동성·헤지 비용 참고', guide:'사용 루틴과 정책 참고', principles:'금리·산업·병목의 연결 구조 학습', masters:'공개 보유와 데이터 한계 확인', atlas:'AI 산업 지도·커리큘럼·taxonomy 경계 확인'
+    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', options:'변동성·헤지 비용 참고', guide:'사용 루틴과 정책 참고', principles:'금리·산업·병목의 연결 구조 학습', masters:'공개 보유와 데이터 한계 확인', atlas:'AI 원리·산업·시장 연결 구조 학습'
   },
   scenarios: {
-    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동', principles:'Tree→Graph→Path로 한 개념씩 연결', masters:'신고주체→원본→분기 비교 순서로 확인', atlas:'Atlas packet→Foundations→Deep taxonomy 순서로 확인'
+    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동', principles:'Tree→Graph→Path로 한 개념씩 연결', masters:'신고주체→원본→분기 비교 순서로 확인', atlas:'기초 원리→산업·가치사슬→근거 자료 순서로 확인'
   }
 };
 window.AIO.getPageDeclutterAudit = function(opts) {
@@ -25224,7 +25236,7 @@ var breadcrumbMap = {
   briefing: ['AIO','데일리 브리핑'], sectors: ['AIO','섹터 로테이션'],
   options: ['AIO','옵션 대시보드'],
   'market-news': ['AIO','시장 소식'], signal: ['AIO','매매 시그널'], breadth: ['AIO','시장 흐름'], sentiment: ['AIO','투자 심리'],
-  guide: ['AIO','입문 가이드'], principles: ['AIO','시장 원리'], masters: ['AIO','대가의 포트폴리오'], atlas: ['AIO','AI Era Atlas'],
+  guide: ['AIO','입문 가이드'], principles: ['AIO','시장 원리'], masters: ['AIO','대가의 포트폴리오'], atlas: ['AIO','AI 시대 지식 지도'],
   screener: ['AIO','퀀트 스크리너'],
   'theme-detail': ['AIO','테마','—'],
   ticker: ['AIO','—','—'],
@@ -25551,7 +25563,7 @@ window.PAGES = {
   'guide':          { label: '사용 설명서',      init: null, chatCtx: null },
   'principles':     { label: '시장 원리',        init: null, chatCtx: null },
   'masters':        { label: '대가의 포트폴리오', init: null, chatCtx: null },
-  'atlas':          { label: 'AI Era Atlas',     init: null, chatCtx: null },
+  'atlas':          { label: 'AI 시대 지식 지도', init: null, chatCtx: null },
   'screener':       { label: '퀀트 스크리너',    init: null, chatCtx: 'screener' }
 };
 

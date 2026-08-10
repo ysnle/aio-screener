@@ -1,0 +1,262 @@
+{
+  "schemaVersion": "knowledge-encyclopedia-depth-audit.v1",
+  "auditedAt": "2026-08-10",
+  "status": "ENCYCLOPEDIA_DEPTH_BLOCKED",
+  "interpretation": "현재 required-field 존재 여부와 백과사전급 설명 깊이는 다른 계약이다. 문자 수는 하한선일 뿐이며 semantic field 충족과 구조화된 worked example을 함께 통과해야 한다.",
+  "naming": {
+    "routeId": "atlas",
+    "publicName": "AI 시대 지식 지도",
+    "pageKicker": "AI 시대 지식 백과"
+  },
+  "corpora": [
+    {
+      "id": "market-principles",
+      "lessonCount": 111,
+      "currentFieldSet": [
+        "definition",
+        "mechanism",
+        "example",
+        "counterScenario",
+        "verificationQuestion",
+        "diagram"
+      ],
+      "currentCoreTextCharacters": {
+        "minimum": 284,
+        "median": 325,
+        "p90": 351,
+        "maximum": 375,
+        "mean": 326
+      },
+      "targetMinimumChars": 1200,
+      "meetsLengthFloor": 0,
+      "belowLengthFloor": 111,
+      "digitBearingExampleCount": 7,
+      "structuredWorkedExamples": 0,
+      "targetSemanticFieldCoverage": {
+        "intuition": 0,
+        "formalModel": 0,
+        "workedExample": 0,
+        "realEconomyChannel": 0,
+        "companyChannel": 0,
+        "financialStatementChannel": 0,
+        "valuationChannel": 0,
+        "marketChannel": 0,
+        "tradingApplication": 0,
+        "invalidation": 0,
+        "glossary": 0,
+        "retrievalChecks": 0,
+        "claimIds": 0
+      },
+      "semanticComplete": 0,
+      "sourceConcentration": [
+        {
+          "sourceId": "MP-SEC",
+          "lessonCount": 35
+        },
+        {
+          "sourceId": "MP-NIST",
+          "lessonCount": 31
+        },
+        {
+          "sourceId": "MP-IMF",
+          "lessonCount": 16
+        },
+        {
+          "sourceId": "PS-01",
+          "lessonCount": 16
+        },
+        {
+          "sourceId": "PS-02",
+          "lessonCount": 16
+        },
+        {
+          "sourceId": "PS-16",
+          "lessonCount": 15
+        },
+        {
+          "sourceId": "PS-18",
+          "lessonCount": 15
+        },
+        {
+          "sourceId": "MP-FED-ED",
+          "lessonCount": 12
+        }
+      ],
+      "certification": "FAIL"
+    },
+    {
+      "id": "ai-knowledge-map-foundations",
+      "lessonCount": 48,
+      "currentFieldSet": [
+        "definition",
+        "mechanism",
+        "example",
+        "limit",
+        "teachingQuestion",
+        "visualization"
+      ],
+      "currentCoreTextCharacters": {
+        "minimum": 208,
+        "median": 275,
+        "p90": 297,
+        "maximum": 320,
+        "mean": 272
+      },
+      "targetMinimumChars": 1200,
+      "meetsLengthFloor": 0,
+      "belowLengthFloor": 48,
+      "digitBearingExampleCount": 1,
+      "structuredWorkedExamples": 0,
+      "targetSemanticFieldCoverage": {
+        "intuition": 0,
+        "formalModel": 0,
+        "workedExample": 0,
+        "realEconomyChannel": 0,
+        "companyChannel": 0,
+        "financialStatementChannel": 0,
+        "valuationChannel": 0,
+        "marketChannel": 0,
+        "tradingApplication": 0,
+        "invalidation": 0,
+        "glossary": 0,
+        "retrievalChecks": 0,
+        "claimIds": 0
+      },
+      "semanticComplete": 0,
+      "sourceConcentration": [
+        {
+          "sourceId": "PS-01",
+          "lessonCount": 9
+        },
+        {
+          "sourceId": "PS-02",
+          "lessonCount": 8
+        },
+        {
+          "sourceId": "PS-12",
+          "lessonCount": 7
+        },
+        {
+          "sourceId": "PS-06",
+          "lessonCount": 5
+        },
+        {
+          "sourceId": "PS-07",
+          "lessonCount": 5
+        },
+        {
+          "sourceId": "PS-08",
+          "lessonCount": 5
+        },
+        {
+          "sourceId": "PS-13",
+          "lessonCount": 5
+        },
+        {
+          "sourceId": "PS-09",
+          "lessonCount": 3
+        }
+      ],
+      "certification": "FAIL"
+    }
+  ],
+  "uiCapabilities": {
+    "shareableLessonState": false,
+    "progressPersistence": false,
+    "bookmarks": false,
+    "learnerNotes": false,
+    "retrievalQuizState": false,
+    "professionalRouteBridge": true
+  },
+  "personaAuditBoundary": "실제 참여자 연구가 아니라 저장소와 브라우저 시나리오에 근거한 다중 사용자 관점 휴리스틱 감사다.",
+  "personas": [
+    {
+      "id": "novice",
+      "need": "선수 개념·용어·직관·순차 학습",
+      "currentSupport": "PARTIAL"
+    },
+    {
+      "id": "intermediate-investor",
+      "need": "산업 KPI·기업 실적·재무제표·밸류에이션",
+      "currentSupport": "PARTIAL"
+    },
+    {
+      "id": "active-trader",
+      "need": "관찰 지표·시점·레짐·무효화·차트 이동",
+      "currentSupport": "WEAK"
+    },
+    {
+      "id": "domain-expert",
+      "need": "정식 모델·가정·논쟁·주장별 직접 근거",
+      "currentSupport": "WEAK"
+    },
+    {
+      "id": "korean-investor",
+      "need": "미국·글로벌 충격의 환율·한국 산업·종목 전달",
+      "currentSupport": "PARTIAL"
+    },
+    {
+      "id": "returning-learner",
+      "need": "진도·북마크·노트·회상 퀴즈·재개",
+      "currentSupport": "MISSING"
+    },
+    {
+      "id": "mobile-keyboard-screenreader",
+      "need": "점진 공개·논리 순서·키보드·텍스트 대안",
+      "currentSupport": "PARTIAL"
+    },
+    {
+      "id": "skeptical-risk-aware",
+      "need": "반례·불확실성·대체 설명·근거 최신성",
+      "currentSupport": "PARTIAL"
+    },
+    {
+      "id": "time-poor",
+      "need": "요약에서 심층 본문으로 내려가는 단계적 공개",
+      "currentSupport": "PARTIAL"
+    }
+  ],
+  "blockers": [
+    "KB-S0-01: 159/159 core lessons are below the 1,200-character encyclopedia floor.",
+    "KB-S0-02: 0/159 lessons implement the complete semantic depth contract.",
+    "KB-S0-03: 0/159 lessons contain a structured workedExample object with inputs, process, result and interpretation.",
+    "KB-S0-04: progress, bookmarks, notes and retrieval-practice state are not implemented.",
+    "KB-S0-05: actual recruited-user validation has not been conducted."
+  ],
+  "targetContract": {
+    "compactSummary": "한 화면에서 빠르게 훑는 요약은 유지하되, 요약 아래에 1,200자 이상 심층 본문과 의미 필드를 점진 공개한다.",
+    "requiredSemanticFields": [
+      "intuition",
+      "formalModel",
+      "workedExample",
+      "realEconomyChannel",
+      "companyChannel",
+      "financialStatementChannel",
+      "valuationChannel",
+      "marketChannel",
+      "tradingApplication",
+      "invalidation",
+      "glossary",
+      "retrievalChecks",
+      "claimIds"
+    ],
+    "workedExampleShape": [
+      "inputs",
+      "assumptions",
+      "steps",
+      "result",
+      "interpretation",
+      "failureBoundary"
+    ],
+    "applicationClosure": [
+      "realEconomyChannel",
+      "companyChannel",
+      "financialStatementChannel",
+      "valuationChannel",
+      "marketChannel",
+      "tradingApplication",
+      "invalidation"
+    ],
+    "rule": "길이만 늘린 반복 문장, 포괄 출처 하나의 다수 주장 재사용, 학습 원고에서 직접 BUY/SELL 생성은 실패다."
+  }
+}

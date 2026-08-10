@@ -3,6 +3,41 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-09
 confidence: high
 
+## v54.0 AI Research reliability closure (2026-08-10)
+
+- [x] QA-AIRC1: Unified and per-page chat call the same `_aioPrepareAIResearch` boundary and the same ESM evidence evaluator for required-current questions.
+- [x] QA-AIRC2: External Research results use `researchEvidence.evidenceDocuments` as the canonical SSOT; legacy top-level documents normalize at the boundary and are not re-emitted.
+- [x] QA-AIRC3: Official-source classification uses exact/subdomain hostname suffix matching; spoofed suffix-like domains remain secondary.
+- [x] QA-AIRC4: Snippet/summary-only evidence, insufficient independent/primary sources, empty citations, and provider errors fail closed before current claims are shown.
+- [x] QA-AIRC5: Shared Worker route readiness does not imply Claude Web Research tool readiness; actual citations are required before `NATIVE_TOOL_VERIFIED`/`READY`.
+- [x] QA-AIRC6: Per-provider and per-subquery failures are retained in bounded runtime diagnostics while raw provider errors are not rendered to users.
+- [x] QA-AIRC7: Pending Web Research badges state that citation verification is pending and never claim live-search success before evidence arrives.
+- [x] QA-AIRC8: Syntax, AI intelligence/reliability, runtime, architecture, baseline, vertical-slice, and headless G109/T1042~T1047 gates pass; external provider/Worker entitlement remains a separate live certification.
+- [x] QA-REL1: SA-03 persists the fake controller across the expected one-time reload and passes twice with current version, one navigation increment, cleared mismatch/reload guard, and no reload loop.
+
+## v53.99 지식 코어 S0 기준 구현 (2026-08-10)
+
+- [x] QA-KC1: semantic gate가 실제 `MARKET_PRINCIPLES_CATALOG`를 읽어 60 nodes/71 valid edges/1 component/isolated 0을 검사하고 Atlas-only endpoint 재유입을 차단한다.
+- [x] QA-KC2: Atlas 19개 domain chain과 22개 typed cross-domain edge는 95 nodes/98 edges/1 component를 만들며 endpoint·metadata·condition·source ID 누락이 0이다.
+- [x] QA-KC3: PS/PP/FND/AT source catalog는 하나의 evidence registry에서 현재 참조 64개 ID 모두 URL로 해석되고 conflict/unresolved가 0이다.
+- [x] QA-KC4: Samsung HBM은 memory+3D stacking, IBM Quantum은 quantum-only로 연결되며 두 기준선 오연결은 negative assertion으로 차단한다.
+- [x] QA-KC5: Principles 4개와 Atlas 11개 artifact는 capability-level loader를 사용하고 성공 artifact와 실패 fallback을 동시에 보존한다.
+- [x] QA-KC6: service-worker shell에 새 graph/evidence/capability 모듈이 포함된다.
+- [x] QA-KC7: Atlas/Principles browser, headless 1108/1108, accessibility 20 routes, route soak 20×3, viewport 17×4=68 조합이 오류·overflow 없이 통과한다.
+- [x] QA-KC8: P898에서 중복 AI Research explicit `window` write 2개를 제거해 architecture ratchet가 baseline 1090에서 다시 통과한다.
+- [ ] QA-KC9: Principles 기존 edge의 추론/default metadata를 수작업 direct source로 이관하고 claim directness를 전수 인증한다.
+- [ ] QA-KC10: 159개 심층 article, learning graph/state, 전문 route bridge, thin renderer, 실제 사용자 연구와 live parity는 완료 전이다.
+
+## v53.98 지식 백과 심층도·명칭 감사 (2026-08-10)
+
+- [x] QA-KB1: 사용자 노출 명칭은 내비게이션·페이지 제목·breadcrumb·route registry·CTA·검색 접근성 이름에서 `AI 시대 지식 지도`로 통일하고 내부 route ID `atlas`는 유지한다.
+- [x] QA-KB2: 정적 Atlas contract와 Chromium gate가 `AI 시대 지식 백과` kicker, `AI 시대 지식 지도` 제목, 한국어 검색 접근성 이름을 검증한다.
+- [x] QA-KB3: 111개 시장 원리와 48개 AI 기초 원고의 핵심 필드 분량을 전수 계산한다. 현재 중앙값 325자/275자, 1,200자 하한 통과 0/159, structured worked example 0/159를 완료로 승격하지 않는다.
+- [x] QA-KB4: 심층 원고 계약은 직관·형식 모델 또는 rationale·worked example·반례·실물경제→기업→재무제표→밸류에이션→시장→트레이딩 적용·무효화·claim ID·용어·회상 질문을 요구하고 글자 수만으로 통과시키지 않는다.
+- [x] QA-KB5: 초보자·중급 투자자·트레이더·전문가·한국 투자자·재방문·모바일/접근성·위험 회피·시간 부족 사용자 시나리오를 handoff와 machine contract에 연결한다.
+- [x] QA-KB6: 다중 persona 감사는 휴리스틱으로 표시하고 실제 참여자 연구·장기 학습효과를 인증하지 않는다.
+- [ ] QA-KB7: 159개 심층 article 재집필, canonical manifest/alias 동결, edge/claim directness, 진도·bookmark·note·quiz, 전문 route deep link, 실제 사용자 연구는 차단 상태다. v53.99의 typed graph/evidence/capability 모듈은 부분 기준 구현이다.
+
 ## v53.96 current-code remediation closure (2026-08-10)
 
 - [x] QA-CR1: `AIO.runTests()` executes a single registry of 108 groups; duplicate IDs, group exceptions, and planned/completed count drift are release-blocking, with a synthetic throw sentinel.

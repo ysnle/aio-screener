@@ -1,4 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { createEvidenceRegistry } from '../../domain/knowledge/evidence.js';
+import { loadKnowledgeCapabilities } from '../../data/knowledge/load-capabilities.js';
 
 const REVIEWED_AT = '2026-08-02';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
@@ -249,7 +251,7 @@ function element(documentRef, tag, className, text) {
 
 function createReferenceSourceLinks(documentRef, sourceIds, registry) {
   const links = element(documentRef, 'div', 'atlas-reference-source-links');
-  const sourceById = new Map((registry?.sources || []).map((source) => [source.id, source]));
+  const sourceById = registry?.evidenceById || new Map((registry?.sources || []).map((source) => [source.id, source]));
   (sourceIds || []).forEach((sourceId) => {
     const source = sourceById.get(sourceId);
     if (!source?.url) {
@@ -1078,7 +1080,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       const page = documentRef?.getElementById('page-atlas');
       const content = page?.querySelector('[data-atlas-content]');
       if (!page || !content) return () => bag.dispose();
-       const state = { tab: 'foundations', query: '', selectedLayerId: 'F1', selectedModuleId: 'energy-and-power', selectedDomainId: 'domain-cloud-platform', selectedDomainNodeId: 'cloud-hyperscaler', selectedDeepTopicId: '', research: null, foundations: null, foundationLessons: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, deepTaxonomy: null, telegram: null, researchError: false, foundationsError: false, foundationLessonsError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, deepTaxonomyError: false, telegramError: false };
+       const state = { tab: 'foundations', query: '', selectedLayerId: 'F1', selectedModuleId: 'energy-and-power', selectedDomainId: 'domain-cloud-platform', selectedDomainNodeId: 'cloud-hyperscaler', selectedDeepTopicId: '', research: null, foundations: null, foundationLessons: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, researchError: false, foundationsError: false, foundationLessonsError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false };
       page.dataset.aioArchitectureRoute = 'atlas';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -1090,12 +1092,12 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         const tabs = element(documentRef, 'div', 'atlas-tabs');
         [['foundations', '학습 지도'], ['taxonomy', '산업·가치사슬'], ['overview', '근거 자료실']].forEach(([value, label]) => tabs.appendChild(actionButton(documentRef, `atlas-tab${state.tab === value ? ' is-active' : ''}`, label, 'tab', value)));
         const searchLabel = element(documentRef, 'label', 'atlas-search');
-        searchLabel.appendChild(element(documentRef, 'span', 'atlas-sr-only', 'Atlas 검색'));
+        searchLabel.appendChild(element(documentRef, 'span', 'atlas-sr-only', 'AI 시대 지식 지도 검색'));
         const input = element(documentRef, 'input', 'atlas-search-input');
         input.type = 'search';
         input.placeholder = 'packet·lesson·node 검색';
         input.value = state.query;
-        input.setAttribute('aria-label', 'Atlas 검색');
+        input.setAttribute('aria-label', 'AI 시대 지식 지도 검색');
         input.addEventListener('input', (event) => {
           state.query = String(event.target.value || '').trim().toLowerCase();
           render();
@@ -1196,10 +1198,44 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       render();
       const fetchFn = root?.fetch || globalThis.fetch;
        if (typeof fetchFn === 'function') {
-         const loadJson = (url) => fetchFn(url).then((response) => { if (!response.ok) throw new Error(`Atlas artifact ${response.status}`); return response.json(); });
-          Promise.all([loadJson(RESEARCH_URL), loadJson(FOUNDATIONS_URL), loadJson(FOUNDATIONS_LESSONS_URL), loadJson(DOMAIN_GUIDES_URL), loadJson(DOMAIN_PACKETS_URL), loadJson(DOMAIN_CLAIMS_URL), loadJson(TAXONOMY_COVERAGE_URL), loadJson(DEEP_TAXONOMY_URL), loadJson(TELEGRAM_REFERENCE_URL), loadJson(PLAYER_PRODUCT_URL), loadJson(PLAYER_PRODUCT_CURRENTNESS_URL)])
-            .then(([research, foundations, foundationLessons, domainGuides, domainPackets, claimLedger, taxonomyCoverage, deepTaxonomy, telegram, registry, currentness]) => { state.research = research; state.foundations = foundations; const sourceCoverage = foundationLessons.sourceCoverage || {}; state.foundationLessons = { ...foundationLessons, byId: Object.fromEntries((foundationLessons.lessons || []).map((lesson) => [lesson.id, { ...lesson, sourceIds: [...new Set([...(lesson.sourceIds || []), ...(sourceCoverage[lesson.id] || [])])] }])) }; state.domainGuides = domainGuides; state.domainPackets = domainPackets; state.claimLedger = claimLedger; state.deepTaxonomy = deepTaxonomy; state.telegram = telegram; state.registry = { ...mergePlayerProductCurrentness(registry, currentness), nodeCoverage: mergeTaxonomyRelationships(taxonomyCoverage) }; page.dataset.aioAtlasResearch = 'connected'; page.dataset.aioAtlasFoundations = 'connected'; page.dataset.aioAtlasFoundationLessons = 'connected'; page.dataset.aioAtlasDomainGuides = 'connected'; page.dataset.aioAtlasDomainPackets = 'connected'; page.dataset.aioAtlasClaims = 'connected'; page.dataset.aioAtlasTaxonomyCoverage = 'connected'; page.dataset.aioAtlasDeepTaxonomy = 'connected'; page.dataset.aioAtlasTelegram = 'connected'; page.dataset.aioAtlasCurrentness = 'connected'; page.dataset.aioAtlasRegistry = 'connected'; render(); })
-            .catch(() => { state.researchError = true; state.foundationsError = true; state.foundationLessonsError = true; state.domainGuidesError = true; state.domainPacketsError = true; state.claimLedgerError = true; state.deepTaxonomyError = true; state.telegramError = true; state.registryError = true; page.dataset.aioAtlasResearch = 'fallback'; page.dataset.aioAtlasFoundations = 'fallback'; page.dataset.aioAtlasFoundationLessons = 'fallback'; page.dataset.aioAtlasDomainGuides = 'fallback'; page.dataset.aioAtlasDomainPackets = 'fallback'; page.dataset.aioAtlasClaims = 'fallback'; page.dataset.aioAtlasTaxonomyCoverage = 'fallback'; page.dataset.aioAtlasDeepTaxonomy = 'fallback'; page.dataset.aioAtlasTelegram = 'fallback'; page.dataset.aioAtlasRegistry = 'fallback'; render(); });
+          loadKnowledgeCapabilities(fetchFn, [
+            { key: 'research', url: RESEARCH_URL },
+            { key: 'foundations', url: FOUNDATIONS_URL },
+            { key: 'foundationLessons', url: FOUNDATIONS_LESSONS_URL },
+            { key: 'domainGuides', url: DOMAIN_GUIDES_URL },
+            { key: 'domainPackets', url: DOMAIN_PACKETS_URL },
+            { key: 'claimLedger', url: DOMAIN_CLAIMS_URL },
+            { key: 'taxonomyCoverage', url: TAXONOMY_COVERAGE_URL },
+            { key: 'deepTaxonomy', url: DEEP_TAXONOMY_URL },
+            { key: 'telegram', url: TELEGRAM_REFERENCE_URL },
+            { key: 'registry', url: PLAYER_PRODUCT_URL },
+            { key: 'currentness', url: PLAYER_PRODUCT_CURRENTNESS_URL }
+          ]).then((capabilities) => {
+            for (const [key, result] of Object.entries(capabilities)) {
+              state[key] = result.value;
+              state[`${key}Error`] = result.status !== 'connected';
+            }
+            const sourceCoverage = state.foundationLessons?.sourceCoverage || {};
+            if (state.foundationLessons) {
+              state.foundationLessons = { ...state.foundationLessons, byId: Object.fromEntries((state.foundationLessons.lessons || []).map((lesson) => [lesson.id, { ...lesson, sourceIds: [...new Set([...(lesson.sourceIds || []), ...(sourceCoverage[lesson.id] || [])])] }])) };
+            }
+            const evidence = createEvidenceRegistry(state.research, state.registry, state.foundationLessons, state.domainPackets);
+            state.registry = {
+              ...(mergePlayerProductCurrentness(state.registry, state.currentness) || { players: [], products: [], sources: [] }),
+              sources: evidence.sources,
+              evidenceById: evidence.byId,
+              evidenceConflicts: evidence.conflicts,
+              nodeCoverage: mergeTaxonomyRelationships(state.taxonomyCoverage)
+            };
+            const datasetMap = {
+              research: 'aioAtlasResearch', foundations: 'aioAtlasFoundations', foundationLessons: 'aioAtlasFoundationLessons',
+              domainGuides: 'aioAtlasDomainGuides', domainPackets: 'aioAtlasDomainPackets', claimLedger: 'aioAtlasClaims',
+              taxonomyCoverage: 'aioAtlasTaxonomyCoverage', deepTaxonomy: 'aioAtlasDeepTaxonomy', telegram: 'aioAtlasTelegram',
+              registry: 'aioAtlasRegistry', currentness: 'aioAtlasCurrentness'
+            };
+            for (const [key, datasetKey] of Object.entries(datasetMap)) page.dataset[datasetKey] = capabilities[key].status;
+            render();
+          });
        }
       return () => bag.dispose();
     }

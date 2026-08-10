@@ -7,8 +7,8 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-10T09:54:03.242Z",
-  "appRevision": "v53.97",
+  "generatedAt": "2026-08-10T11:05:02.770Z",
+  "appRevision": "v54.0",
   "dataRevision": "market-snapshot:2026-08-10T09:53:59.049Z:500850da",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -64,7 +64,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "static-pages+service-worker",
-      "revision": "v53.97"
+      "revision": "v54.0"
     }
   },
   "ai": {
@@ -100,8 +100,8 @@
       "lastFetchAt": "2026-08-10T09:53:59.049Z"
     },
     "fred": {
-      "rights": "REVIEW_REQUIRED",
-      "statusCode": "RIGHTS_REVIEW_REQUIRED",
+      "rights": "OPERATOR_REQUIRED",
+      "statusCode": "NOT_CONFIGURED",
       "use": "official-series",
       "status": "CURRENT",
       "lastAttemptAt": "2026-08-10T09:53:59.049Z",

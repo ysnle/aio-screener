@@ -1,0 +1,112 @@
+const EDGE_TYPES = new Set(['CAUSES', 'REQUIRES', 'ENABLES', 'CONSTRAINS', 'FUNDS', 'PRICES', 'MEASURES', 'EVIDENCES', 'EXPOSES_TO']);
+const DIRECTIONS = new Set(['DIRECTED', 'BIDIRECTIONAL']);
+
+function slug(value) {
+  return String(value || '').trim().toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function inferEdgeType(relation) {
+  const text = String(relation || '').toLowerCase();
+  if (/검증|근거|증거|확인|evidence/.test(text)) return 'EVIDENCES';
+  if (/측정|지표|kpi|회수|value capture/.test(text)) return 'MEASURES';
+  if (/자금|조달|투자|fund|capital/.test(text)) return 'FUNDS';
+  if (/가격|할인|valuation|price/.test(text)) return 'PRICES';
+  if (/제약|병목|통제|규제|위험|constraint/.test(text)) return 'CONSTRAINS';
+  if (/요구|필요|전제|수요|require/.test(text)) return 'REQUIRES';
+  if (/구현|연결|적용|통합|공급|enable/.test(text)) return 'ENABLES';
+  return 'CAUSES';
+}
+
+export function normalizeKnowledgeEdge(edge, defaults = {}) {
+  const from = String(edge?.from || '').trim();
+  const to = String(edge?.to || '').trim();
+  const relation = String(edge?.relation || '').trim();
+  const type = EDGE_TYPES.has(edge?.type) ? edge.type : inferEdgeType(relation);
+  const direction = DIRECTIONS.has(edge?.direction) ? edge.direction : 'DIRECTED';
+  return Object.freeze({
+    id: edge?.id || `edge-${slug(from)}-${slug(to)}`,
+    from,
+    to,
+    relation,
+    type,
+    direction,
+    kind: edge?.kind || defaults.kind || 'STRUCTURAL',
+    strength: edge?.strength || defaults.strength || 'CORE',
+    polarity: edge?.polarity || defaults.polarity || 'CONDITIONAL',
+    conditions: Object.freeze([...(edge?.conditions || defaults.conditions || [])]),
+    sourceIds: Object.freeze([...(edge?.sourceIds || defaults.sourceIds || [])]),
+    reviewedAt: edge?.reviewedAt || defaults.reviewedAt || null
+  });
+}
+
+export function normalizeKnowledgeEdges(edges, defaults = {}) {
+  return Object.freeze((edges || []).map((edge) => normalizeKnowledgeEdge(edge, defaults)));
+}
+
+export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
+  const ids = new Set(nodeIds);
+  const invalidEndpoints = [];
+  const duplicateEdges = [];
+  const metadataErrors = [];
+  const seen = new Set();
+  const adjacency = new Map([...ids].map((id) => [id, new Set()]));
+  const inDegree = new Map([...ids].map((id) => [id, 0]));
+  const outDegree = new Map([...ids].map((id) => [id, 0]));
+
+  for (const rawEdge of edges) {
+    const edge = normalizeKnowledgeEdge(rawEdge);
+    if (!ids.has(edge.from)) invalidEndpoints.push({ edgeId: edge.id, endpoint: 'from', nodeId: edge.from });
+    if (!ids.has(edge.to)) invalidEndpoints.push({ edgeId: edge.id, endpoint: 'to', nodeId: edge.to });
+    const key = `${edge.from}\u0000${edge.to}\u0000${edge.type}`;
+    if (seen.has(key)) duplicateEdges.push(edge.id);
+    seen.add(key);
+    for (const field of ['id', 'from', 'to', 'relation', 'type', 'direction', 'kind', 'strength', 'polarity', 'reviewedAt']) {
+      if (!edge[field]) metadataErrors.push({ edgeId: edge.id, field });
+    }
+    if (!Array.isArray(edge.conditions)) metadataErrors.push({ edgeId: edge.id, field: 'conditions' });
+    if (!Array.isArray(edge.sourceIds)) metadataErrors.push({ edgeId: edge.id, field: 'sourceIds' });
+    if (!ids.has(edge.from) || !ids.has(edge.to)) continue;
+    adjacency.get(edge.from).add(edge.to);
+    adjacency.get(edge.to).add(edge.from);
+    outDegree.set(edge.from, outDegree.get(edge.from) + 1);
+    inDegree.set(edge.to, inDegree.get(edge.to) + 1);
+    if (edge.direction === 'BIDIRECTIONAL') {
+      outDegree.set(edge.to, outDegree.get(edge.to) + 1);
+      inDegree.set(edge.from, inDegree.get(edge.from) + 1);
+    }
+  }
+
+  const visited = new Set();
+  const components = [];
+  for (const start of ids) {
+    if (visited.has(start)) continue;
+    const queue = [start];
+    const component = [];
+    visited.add(start);
+    while (queue.length) {
+      const current = queue.shift();
+      component.push(current);
+      for (const next of adjacency.get(current) || []) {
+        if (visited.has(next)) continue;
+        visited.add(next);
+        queue.push(next);
+      }
+    }
+    components.push(component.sort());
+  }
+  components.sort((left, right) => right.length - left.length || left[0].localeCompare(right[0]));
+
+  return Object.freeze({
+    nodeCount: ids.size,
+    edgeCount: edges.length,
+    invalidEndpoints: Object.freeze(invalidEndpoints),
+    duplicateEdges: Object.freeze(duplicateEdges),
+    metadataErrors: Object.freeze(metadataErrors),
+    components: Object.freeze(components.map((component) => Object.freeze(component))),
+    isolatedNodes: Object.freeze([...ids].filter((id) => (adjacency.get(id)?.size || 0) === 0).sort()),
+    sourceNodes: Object.freeze([...ids].filter((id) => inDegree.get(id) === 0).sort()),
+    sinkNodes: Object.freeze([...ids].filter((id) => outDegree.get(id) === 0).sort())
+  });
+}
+
+export { EDGE_TYPES };

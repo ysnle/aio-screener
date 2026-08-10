@@ -48,6 +48,7 @@ import { createRuntimeReaders } from '../data/runtime-readers.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
 import { createAIAnswerOrchestrator } from '../ai/orchestrator/answer-orchestrator.js';
+import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult } from '../ai/research/evidence.js';
 import { createRouteRegistry } from './router.js';
 import { createLifecycleRouter } from './router.js';
 import { createGuidePage } from '../ui/pages/guide.js';
@@ -451,6 +452,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       ,validateAIResearch: (questionPlan = null) => aiOrchestrator.validateResearch(questionPlan || aiOrchestrator.getLastPlan())
       ,getAIResearchCapability: (input = {}) => aiOrchestrator.getResearchCapability(input)
       ,validateAIResearchCapability: (capability = null) => aiOrchestrator.validateResearchCapability(capability)
+      ,createAIResearchEvidenceDocument: (input = {}) => createEvidenceDocument(input)
+      ,normalizeAIResearchExecutionResult: (result = {}) => normalizeResearchExecutionResult(result)
+      ,evaluateAIResearchEvidenceFloor: (input = {}) => evaluateResearchEvidenceFloor(input)
       ,parseAIAnswerPlan: (text, options = {}) => aiOrchestrator.parseAnswerPlanText(text, options)
     ,navigate: (route, ...args) => legacy.navigate(route, ...args)
     // RM-03: single-implementation trading-score model. js/aio-core.js's computeTradingScore

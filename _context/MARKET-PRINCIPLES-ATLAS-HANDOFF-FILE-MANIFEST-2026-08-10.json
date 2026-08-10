@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "knowledge-handoff-file-manifest.v1",
+  "packageName": "AIO-Knowledge-System-Structural-Handoff-v53.99",
+  "applicationVersion": "v53.99",
+  "status": "AUDIT_VERIFIED_REFERENCE_CORE_PARTIAL",
+  "generatedAt": "2026-08-10T19:28:00+09:00",
+  "entryPoint": "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
+  "machineContract": "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
+  "packageArtifact": "_artifacts/AIO-Knowledge-System-Structural-Handoff-v53.99.zip",
+  "files": [
+    {"path":"_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md","role":"master audit, target architecture, work packets, acceptance and code ownership","classification":"HANDOFF_SSOT"},
+    {"path":"_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json","role":"baseline/current state, blockers, work-package status and depth contract","classification":"MACHINE_CONTRACT"},
+    {"path":"_artifacts/knowledge-encyclopedia-depth-audit.json","role":"reproducible 159-lesson depth baseline","classification":"AUDIT_EVIDENCE"},
+    {"path":"scripts/audit-knowledge-encyclopedia-depth.mjs","role":"depth baseline producer","classification":"AUDIT_TOOL"},
+    {"path":"scripts/ci-knowledge-core-semantic-check.mjs","role":"graph, evidence, entity mapping and partial-failure release gate","classification":"REFERENCE_GATE"},
+    {"path":"src/domain/knowledge/graph.js","role":"typed edge normalization and topology inspection reference core","classification":"REFERENCE_IMPLEMENTATION"},
+    {"path":"src/domain/knowledge/evidence.js","role":"global PS/PP/FND/AT evidence registry reference core","classification":"REFERENCE_IMPLEMENTATION"},
+    {"path":"src/data/knowledge/load-capabilities.js","role":"per-artifact loading and failure isolation reference core","classification":"REFERENCE_IMPLEMENTATION"},
+    {"path":"public-data/atlas/taxonomy-node-coverage.json","role":"95-node, 98-edge connected Atlas structural graph","classification":"CURRENT_DATA_CONTRACT"},
+    {"path":"public-data/atlas/player-product-registry.json","role":"representative company/product mapping with corrected negative controls","classification":"CURRENT_DATA_CONTRACT"},
+    {"path":"src/ui/pages/principles.js","role":"current Principles consumer integration point","classification":"CURRENT_CONSUMER"},
+    {"path":"src/ui/pages/atlas.js","role":"current Atlas consumer integration point","classification":"CURRENT_CONSUMER"},
+    {"path":"scripts/ci-principles-contract-check.mjs","role":"Principles structural consumer contract","classification":"CURRENT_GATE"},
+    {"path":"scripts/ci-atlas-contract-check.mjs","role":"Atlas structural/source/loading contract","classification":"CURRENT_GATE"},
+    {"path":"scripts/ci-atlas-browser-check.mjs","role":"live DOM source-resolution and learner-flow contract","classification":"CURRENT_BROWSER_GATE"}
+  ],
+  "startSequence": [
+    "read entryPoint sections 0, 6, 7, 10, 13",
+    "read machineContract blocker and workPackage status",
+    "run node scripts/ci-knowledge-core-semantic-check.mjs",
+    "complete KA-01 manifest/alias freeze before parallel article authoring",
+    "keep the 159-lesson depth audit failing until every article genuinely meets the semantic contract"
+  ],
+  "forbiddenCompletionClaims": [
+    "159 deep articles complete",
+    "all claims independently fact-checked",
+    "active learning complete",
+    "recruited-user validated",
+    "live deployment verified"
+  ]
+}

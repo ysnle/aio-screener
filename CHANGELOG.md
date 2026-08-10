@@ -1,3 +1,29 @@
+## v54.0 (2026-08-10)
+- **Research 계약 단일화**: 외부 검색 결과의 SSOT를 `researchEvidence.evidenceDocuments`로 고정하고 legacy top-level shape는 경계에서 정규화한다. 두 AI 채팅 표면은 동일한 준비 함수와 실행형 evidence floor를 사용한다.
+- **Capability 과대 표시 방지**: Worker 대화 경로가 열려 있다는 이유만으로 Claude Web Research 도구를 `READY`로 표시하지 않는다. 실제 인용 성공 전에는 `NATIVE_TOOL_UNVERIFIED`, 도구 오류 후에는 `NOT_READY`로 유지한다.
+- **실패 원인 보존**: Perplexity·Google CSE·Claude native 검색 실패를 공급자/하위 쿼리별 코드로 보존하고, 사용자에게는 키·quota·Origin·tool capability 점검이 가능한 안전한 메시지를 표시한다.
+- **출처 검증 보강**: 공식 출처 판정을 중앙 ESM으로 이동하고 정확한 hostname suffix 규칙을 적용해 `evilsec.gov.example.com` 같은 위장 도메인을 차단한다. snippet-only 결과는 현재성 주장 게이트를 통과하지 못한다.
+- **회귀 방지**: 실행형 producer→normalizer→gate 테스트, AI 채팅 reliability 계약, 브라우저 런타임 G109/T1042~T1047을 추가했다. 헤드리스 1114/1114와 AI/architecture/runtime 계약이 통과한다.
+- **배포 게이트 교정**: SA-03 fixture가 현재의 1회 guarded reload 계약을 실행하고 controller 버전·누적 query·reload guard 정리를 재탐색 뒤 검증하도록 수정했다.
+- **사후분석**: P898~P899, R453~R454, QA-AIRC1~8·QA-REL1.
+- R1 7곳 v54.0
+
+## v53.99 (2026-08-10)
+- **핸드오프 실행 기준 구현**: 시장 원리·AI 시대 지식 지도의 구조 개편 설계를 실제 graph/evidence/capability 모듈과 parser 기반 semantic gate로 검증 가능하게 만들었다.
+- **그래프 의미 무결성**: Principles를 60 nodes/71 valid edges/1 component로 교정하고, Atlas에 조건·방향·source ID가 있는 domain bridge를 추가해 95 nodes/98 edges/1 component로 연결했다.
+- **출처·제품 의미 교정**: PS/PP/FND/AT source namespace를 전역 resolver로 통합해 현재 참조 unresolved/conflict를 0으로 만들고 Samsung HBM·IBM Quantum의 잘못된 product-taxonomy 연결을 수정했다.
+- **장애 격리와 회귀 방지**: Principles 4개/Atlas 11개 artifact를 capability별로 로드하며, semantic gate와 Chromium gate가 partial failure·파운드리 PS-01 링크·unresolved badge 0을 검사한다.
+- **전달 패키지**: master handoff, machine contract, depth evidence, 기준 모듈과 gate 등 15개 payload를 manifest와 함께 `_artifacts/AIO-Knowledge-System-Structural-Handoff-v53.99.zip`으로 생성했다.
+- **완료 경계**: 159개 심층 article, canonical manifest/alias, edge/claim directness, 능동 학습, 전문 route deep link, thin renderer, 실제 사용자 연구와 live 배포는 미완료다.
+- R1 7곳 v53.99
+
+## v53.98 (2026-08-10)
+- **사용자 명칭 정정**: 사용자 노출 `AI Era Atlas`를 `AI 시대 지식 지도`로 통일하고 페이지 목적을 `AI 시대 지식 백과`로 명시했다. 내부 route ID `atlas`는 호환성을 위해 유지한다.
+- **백과사전 심층도 전수 감사**: 시장 원리 111개와 AI 기초 48개를 재계산해 중앙값 325자/275자, 1,200자 하한 통과 0/159, structured worked example·완전 semantic profile 0/159를 기록했다. 현재 원고를 완성 본문이 아니라 요약 scaffold로 재분류했다.
+- **근본 개편 계약**: handoff와 machine contract에 159개 article 재구축, typed graph/evidence resolver, 실물경제→기업→재무제표→밸류에이션→시장→트레이딩 적용, 9개 persona, 능동 학습, 실제 사용자 연구 경계를 추가했다.
+- **회귀 방지**: 반복 가능한 depth audit artifact, 한국어 명칭 static/browser assertion, P896·R451·QA-KB 원장을 연결했다. 지식 코어 재구축과 실제 사용자 연구는 아직 차단 상태다.
+- R1 7곳 v53.98
+
 ## v53.97 (2026-08-10)
 - <!-- 변경 내용을 이곳에 기록하세요 -->
 - R1 7곳 v53.97

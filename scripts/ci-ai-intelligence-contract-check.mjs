@@ -13,7 +13,7 @@ import { createBenchmarkManifest, evaluateRoutingCorpus, assertBenchmarkReady } 
 import { createAIControlPlane } from '../src/ai/operations/control-plane.js';
 import { createResearchDecision, validateResearchDecision } from '../src/ai/research/decision.js';
 import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
-import { createEvidenceDocument, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
+import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
 import { createResearchCapability, validateResearchCapability } from '../src/ai/research/capability.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -91,6 +91,21 @@ check('research-optout-fails-closed', disabledDecision.requirement === 'REQUIRED
 const evidenceDocument = createEvidenceDocument({ canonicalUrl: 'https://sec.gov/Archives/edgar/data/1/filing.htm', title: 'Official filing', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE' });
 const evidence = normalizeSearchResults([{ url: evidenceDocument.canonicalUrl, title: evidenceDocument.title, content: 'filing evidence', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE', sourceTier: 'PRIMARY_OFFICIAL', primaryOrSecondary: 'PRIMARY' }]);
 check('research-evidence-claim-binding', validateClaimEvidenceBinding({ evidenceIds: [evidence.documents[0].documentId] }, evidence, { currentSensitive: true, minimumIndependentSources: 1, minimumPrimarySources: 1 }).ok);
+const currentPlan = createQuestionPlan({ query: 'NVDA current status today', route: 'fundamental', now: '2026-07-28T12:00:00Z', sessionSchedule: { status: 'open', session: 'regular', source: 'test' } });
+const officialDoc = createEvidenceDocument({ canonicalUrl: 'https://www.sec.gov/Archives/edgar/data/1045810/filing.htm', title: 'NVIDIA filing', contentDepth: 'EXCERPT', rights: 'PUBLIC_REFERENCE' });
+const legacyProducerShape = {
+  citations: [officialDoc.canonicalUrl],
+  evidenceDocuments: [officialDoc],
+  researchEvidence: { currentClaimsAllowed: true }
+};
+const normalizedProducer = normalizeResearchExecutionResult(legacyProducerShape);
+check('research-result-normalizes-legacy-producer-shape', normalizedProducer.researchEvidence.evidenceDocuments.length === 1 && !Object.hasOwn(normalizedProducer, 'evidenceDocuments') && !Object.hasOwn(normalizedProducer.researchEvidence, 'documents'));
+check('research-external-result-passes-executable-floor', evaluateResearchEvidenceFloor({ questionPlan: currentPlan, required: true, externalResult: legacyProducerShape }).ready === true);
+check('research-native-citations-pass-executable-floor', evaluateResearchEvidenceFloor({ questionPlan: currentPlan, required: true, nativeCitations: [officialDoc.canonicalUrl] }).ready === true);
+const snippetDoc = createEvidenceDocument({ canonicalUrl: officialDoc.canonicalUrl, title: 'snippet only', contentDepth: 'SNIPPET', rights: 'PUBLIC_REFERENCE' });
+check('research-snippet-only-fails-executable-floor', evaluateResearchEvidenceFloor({ questionPlan: currentPlan, required: true, externalResult: { citations: [snippetDoc.canonicalUrl], researchEvidence: { evidenceDocuments: [snippetDoc], currentClaimsAllowed: true } } }).ready === false);
+const spoofedOfficial = createEvidenceDocument({ canonicalUrl: 'https://evilsec.gov.example.com/fake', title: 'spoof', publisher: 'sec.gov', sourceTier: 'PRIMARY_OFFICIAL', primaryOrSecondary: 'PRIMARY', contentDepth: 'EXCERPT', rights: 'PUBLIC_REFERENCE' });
+check('research-official-domain-suffix-is-spoof-safe', spoofedOfficial.primaryOrSecondary === 'SECONDARY' && spoofedOfficial.sourceTier !== 'PRIMARY_OFFICIAL');
 const capability = createResearchCapability({ provider: 'claude-native', routeReady: 'READY', authReady: 'READY', toolReady: 'READY', quotaReady: 'READY', originReady: 'READY', supportsCitations: true, supportsFullContent: true, supportsDomainControl: false, checkedAt: '2026-07-28T12:00:00Z' });
 check('research-capability-separates-chat', capability.status === 'READY' && capability.chatReadiness === 'SEPARATE_CAPABILITY' && validateResearchCapability(capability).ok);
 
@@ -107,12 +122,16 @@ check('probability-policy-is-strict', /calibrated !== true/.test(core) && /ë³´ì 
 check('research-decision-is-key-independent', /createResearchDecision/.test(read('src/ai/research/decision.js')) && /provider keys,[\s\S]*deliberately not read/i.test(read('src/ai/research/decision.js')));
 check('research-plan-is-wired-to-chat', /_aiResearchPlanSearch/.test(chat) && /researchPlan/.test(chat) && /RESEARCH_RESULTS_EMPTY/.test(chat));
 check('research-capability-is-separate', /getAIResearchCapability/.test(bootstrap) && /validateAIResearchCapability/.test(bootstrap) && /chatReadiness/.test(read('src/ai/research/capability.js')));
+check('research-capability-drives-shared-preparation', /_aioPrepareAIResearch/.test(chat) && /externalSearchReady/.test(chat) && /externalEvidenceReady/.test(chat) && /nativeFallbackRequired/.test(chat) && /_aioPrepareAIResearch/.test(read('index.html')));
+check('research-document-classification-is-centralized', /createAIResearchEvidenceDocument/.test(chat) && /createAIResearchEvidenceDocument/.test(bootstrap) && /createAIResearchEvidenceDocument/.test(read('src/legacy/compatibility-facade.js')));
 check('research-native-tool-errors-are-promoted', /web_search_tool_result_error/.test(chat) && /_aioLastClaudeResearchError/.test(chat));
 check('deep-search-has-no-fixed-year', !/(latest news earnings|policy outlook|geopolitical risk latest|investment trend latest) 2026/.test(chat));
-check('research-gate-shared-by-both-surfaces', /_aioEvaluateAIResearchGate/.test(chat) && /_aioEvaluateAIResearchGate/.test(read('index.html')) && /_aiResearchPlanSearch/.test(read('index.html')));
+check('research-gate-shared-by-both-surfaces', /evaluateAIResearchEvidenceFloor/.test(chat) && /_aioEvaluateAIResearchGate/.test(read('index.html')) && /_aioPrepareAIResearch/.test(read('index.html')));
+check('research-result-canonical-nesting', /researchEvidence:\s*\{[\s\S]*evidenceDocuments:\s*evidenceDocuments/.test(chat) && !/\n\s*evidenceDocuments:\s*evidenceDocuments,\n\s*researchPlanId/.test(chat));
+check('research-failures-retain-subquery-reasons', /subFailures/.test(chat) && /noResults\.failures\s*=\s*subFailures/.test(chat) && /_aioLastResearchAudit/.test(chat));
 check('request-plan-is-explicit-not-global', !chat.includes('_aioActiveQuestionPlan') && !read('index.html').includes('_aioActiveQuestionPlan') && chat.includes('questionPlan: questionPlan') && read('index.html').includes('questionPlan: _uniQuestionPlan'));
 check('research-partial-results-preserve-query-index', /settled\.map\(function\(row, index\)/.test(chat) && /specs\[item\.index\]\.queryId/.test(chat));
-check('fred-official-host-is-correct', chat.includes('fred\\.stlouisfed\\.org'));
+check('fred-official-host-is-correct', read('src/ai/research/evidence.js').includes("'fred.stlouisfed.org'"));
 check('quote-provenance-is-persisted', core.includes('observedAt: observedAt') && core.includes('fetchedAt: fetchedAt') && core.includes('marketState: provenanceOpts.marketState'));
 check('sentiment-does-not-stamp-missing-observation-now', !/raw\[field\.observedAt\]\s*\|\|\s*raw\.now/.test(read('src/data/orchestrators/sentiment.js')));
 

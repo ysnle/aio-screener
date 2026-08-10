@@ -43,6 +43,9 @@ try {
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasTelegram === 'connected');
   const overview = await page.evaluate(() => ({
     active: document.getElementById('page-atlas')?.classList.contains('active'),
+    pageTitle: document.getElementById('atlas-page-title')?.textContent?.trim(),
+    pageKicker: document.querySelector('#page-atlas .atlas-kicker')?.textContent?.trim(),
+    searchLabel: document.querySelector('#page-atlas .atlas-search-input')?.getAttribute('aria-label'),
     trackCards: document.querySelectorAll('#page-atlas .atlas-track-card').length,
     modules: document.querySelectorAll('#page-atlas .atlas-module-lesson').length,
     totalModules: Number(document.querySelector('#page-atlas [data-atlas-authored-lesson-total]')?.dataset.atlasAuthoredLessonTotal || 0),
@@ -53,7 +56,7 @@ try {
     rawInternalVisible: [...document.querySelectorAll('#page-atlas .atlas-module-source-details')].some((node) => node.open),
     overflow: document.documentElement.scrollWidth > window.innerWidth + 2
   }));
-  if (!overview.active || overview.trackCards !== 7 || overview.modules !== 1 || overview.totalModules !== 48 || overview.layerButtons !== 6 || overview.conceptButtons !== 7 || !overview.pathClosed || !overview.sourceDetailsClosed || overview.rawInternalVisible || overview.overflow) throw new Error(`learner-first atlas contract failed: ${JSON.stringify(overview)}`);
+  if (!overview.active || overview.pageTitle !== 'AI 시대 지식 지도' || overview.pageKicker !== 'AI 시대 지식 백과' || overview.searchLabel !== 'AI 시대 지식 지도 검색' || overview.trackCards !== 7 || overview.modules !== 1 || overview.totalModules !== 48 || overview.layerButtons !== 6 || overview.conceptButtons !== 7 || !overview.pathClosed || !overview.sourceDetailsClosed || overview.rawInternalVisible || overview.overflow) throw new Error(`learner-first atlas contract failed: ${JSON.stringify(overview)}`);
 
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="foundations"]').click();
   await page.locator('#page-atlas [data-atlas-action="layer"][data-atlas-value="F3"]').click();
@@ -77,7 +80,7 @@ try {
 
   await page.locator('#page-atlas [data-atlas-action="domain"][data-atlas-value="domain-foundry-equipment"]').click();
   await page.locator('#page-atlas [data-atlas-action="domain-node"][data-atlas-value="foundry-process-node"]').click();
-  await page.waitForFunction(() => Number(document.querySelector('#page-atlas [data-atlas-deep-topic-total]')?.dataset.atlasDeepTopicTotal) === 10 && Number(document.querySelector('#page-atlas [data-atlas-deep-branch-total]')?.dataset.atlasDeepBranchTotal) === 50 && document.querySelectorAll('#page-atlas .atlas-deep-topic-button').length === 2 && document.querySelectorAll('#page-atlas .atlas-deep-branch').length === 6 && document.querySelectorAll('#page-atlas .atlas-deep-branch[open]').length === 1 && [...document.querySelectorAll('#page-atlas .atlas-deep-sources')].every((node) => !node.open));
+  await page.waitForFunction(() => Number(document.querySelector('#page-atlas [data-atlas-deep-topic-total]')?.dataset.atlasDeepTopicTotal) === 10 && Number(document.querySelector('#page-atlas [data-atlas-deep-branch-total]')?.dataset.atlasDeepBranchTotal) === 50 && document.querySelectorAll('#page-atlas .atlas-deep-topic-button').length === 2 && document.querySelectorAll('#page-atlas .atlas-deep-branch').length === 6 && document.querySelectorAll('#page-atlas .atlas-deep-branch[open]').length === 1 && [...document.querySelectorAll('#page-atlas .atlas-deep-sources')].every((node) => !node.open) && document.querySelector('#page-atlas a[data-atlas-source-id="PS-01"]') && document.querySelectorAll('#page-atlas .atlas-reference-source-unresolved').length === 0);
   await page.locator('#page-atlas [data-atlas-action="deep-topic"][data-atlas-value="deep-lithography-process"]').click();
   await page.waitForFunction(() => document.querySelector('#page-atlas .atlas-deep-topic-title')?.textContent === 'DUV·EUV·High-NA와 반도체 전공정' && document.querySelectorAll('#page-atlas .atlas-deep-branch').length === 6);
 

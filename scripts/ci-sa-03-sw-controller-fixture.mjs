@@ -28,13 +28,17 @@ const browser = await chromium.launch();
 try {
   const page = await browser.newPage();
   await page.addInitScript(({ oldVersion, appVersion }) => {
-    let controllerVersion = oldVersion;
+    const versionKey = '__aio_sa03_controller_version';
+    const stateKey = '__aio_sa03_state';
+    let controllerVersion = localStorage.getItem(versionKey) || oldVersion;
     const listeners = {};
-    const state = { version: controllerVersion, queries: 0, changes: 0, registrations: 0 };
+    const state = JSON.parse(localStorage.getItem(stateKey) || 'null') || { version: controllerVersion, queries: 0, changes: 0, registrations: 0 };
+    const persist = () => localStorage.setItem(stateKey, JSON.stringify(state));
     const controller = {
       postMessage(_message, transfer) {
         state.queries += 1;
         state.version = controllerVersion;
+        persist();
         const port = transfer?.[0];
         if (port) setTimeout(() => port.postMessage({ version: controllerVersion }), 0);
       }
@@ -44,6 +48,7 @@ try {
       addEventListener(type, listener) { (listeners[type] ||= []).push(listener); },
       register() {
         state.registrations += 1;
+        persist();
         return Promise.resolve({
           scope: location.origin + '/',
           update() {},
@@ -52,8 +57,10 @@ try {
       },
       __triggerControllerChange() {
         controllerVersion = appVersion;
+        localStorage.setItem(versionKey, controllerVersion);
         state.changes += 1;
         state.version = controllerVersion;
+        persist();
         (listeners.controllerchange || []).forEach((listener) => listener());
       }
     };
@@ -68,12 +75,31 @@ try {
   await page.waitForFunction((oldVersion) => window._aioSWVersion === oldVersion, oldVersion, { timeout: 30000 });
   const before = await page.evaluate(() => ({ version: window._aioSWVersion, state: window.__aioSa03 }));
   const navigationsBeforeControllerChange = navigations;
+  const controllerReload = new Promise((resolveReload, rejectReload) => {
+    const timer = setTimeout(() => rejectReload(new Error('controller takeover did not trigger the guarded reload')), 30000);
+    const onNavigation = (frame) => {
+      if (frame !== page.mainFrame()) return;
+      clearTimeout(timer);
+      page.off('framenavigated', onNavigation);
+      resolveReload();
+    };
+    page.on('framenavigated', onNavigation);
+  });
   await page.evaluate(() => window.__aioSa03Trigger());
-  await page.waitForFunction((appVersion) => window._aioSWVersion === appVersion && window._aioSWMismatchLogged === '', appVersion, { timeout: 30000 });
-  const after = await page.evaluate(() => ({ version: window._aioSWVersion, mismatch: window._aioSWMismatchLogged, state: window.__aioSa03 }));
+  await controllerReload;
+  await page.waitForFunction((appVersion) =>
+    window._aioSWVersion === appVersion && !window._aioSWMismatchLogged,
+    appVersion, { timeout: 30000 });
+  const after = await page.evaluate(() => ({
+    version: window._aioSWVersion,
+    mismatch: window._aioSWMismatchLogged || '',
+    state: window.__aioSa03,
+    reloadGuard: sessionStorage.getItem('aio_sw_controller_reload_v1')
+  }));
   const ok = before.version === oldVersion && before.state.queries === 1
     && after.version === appVersion && after.mismatch === ''
-    && after.state.changes === 1 && after.state.queries === 2 && navigations === navigationsBeforeControllerChange;
+    && after.state.changes === 1 && after.state.queries >= 2
+    && after.reloadGuard === null && navigations === navigationsBeforeControllerChange + 1;
   console.log(JSON.stringify({ ok, fixture: 'SA-03 SW-controller-fixture', appVersion, oldVersion, before, after, navigations, navigationsBeforeControllerChange }, null, 2));
   if (!ok) process.exitCode = 1;
 } finally {

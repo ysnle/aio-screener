@@ -1965,3 +1965,27 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: dynamic sink baseline은 ratchet-only로 관리하고 `_headers` 파일 존재만으로 edge 적용을 주장하지 않는다. hotspot score/owner/code-map rescan과 7/30-day failure/recovery/dedupe SLO artifact를 machine-check하며 local fixture는 live/rights/CSP/SLO를 promote하지 않는다.
 
 **Validation**: `architecture/security-sink-baseline.json`, `architecture/decomposition-hotspots.json`, `public-data/operations-slo-window.json`, corresponding CI scripts and operator readiness gate.
+
+## R451. 학습 필드 존재와 백과사전급 깊이를 분리해 인증한다 (v53.98, P896)
+
+**Rule**: 짧은 definition/mechanism/example 필드가 모두 존재한다는 이유만으로 long-form 또는 백과사전 원고로 판정하지 않는다. 요약과 심층 article을 분리하고, core article은 분량 하한과 함께 직관·형식 모델 또는 해당 없음 근거·구조화된 worked example 또는 비정량 근거·반례·claim 직접성·실물경제→기업→재무제표→밸류에이션→시장→트레이딩 적용·무효화·용어·회상 질문을 통과해야 한다. persona 시나리오 QA는 실제 참여자 연구와 별도 상태로 기록한다.
+
+**Validation**: `scripts/audit-knowledge-encyclopedia-depth.mjs`, `_artifacts/knowledge-encyclopedia-depth-audit.json`, `scripts/ci-atlas-contract-check.mjs`, `scripts/ci-atlas-browser-check.mjs`, `_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json`.
+
+## R452. 지식 그래프·출처·artifact 상태는 실제 consumer와 같은 해석기로 인증한다 (v53.99, P897)
+
+**Rule**: node/edge/source 개수와 필드 존재만으로 지식 페이지의 구조 연결을 인증하지 않는다. 실제 export와 JSON을 읽어 endpoint·duplicate·component·orphan·typed metadata를 계산하고, renderer가 사용하는 전역 evidence resolver에서 모든 참조 ID와 URL을 확인한다. entity capability와 개별 product의 taxonomy 연결을 분리하며 대표 오연결은 negative control로 고정한다. 다중 artifact는 capability별 성공/실패 상태를 보존하고 한 실패를 전체 fallback으로 확대하지 않는다. 기준 구현이 생겨도 심층 본문·claim directness·학습 상태·실사용자 연구 완료로 승격하지 않는다.
+
+**Validation**: `src/domain/knowledge/graph.js`, `src/domain/knowledge/evidence.js`, `src/data/knowledge/load-capabilities.js`, `scripts/ci-knowledge-core-semantic-check.mjs`, `scripts/ci-principles-contract-check.mjs`, `scripts/ci-atlas-contract-check.mjs`, `scripts/ci-atlas-browser-check.mjs`, `_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json`.
+
+## R453. AI Research는 하나의 실행 결과 계약과 관측된 capability 증거로만 공개한다 (v54.0, P898)
+
+**Rule**: 외부 검색 adapter, Claude native search, unified chat, per-page chat이 서로 다른 evidence shape·준비 경로·판정 로직을 가져서는 안 된다. canonical 결과는 `researchEvidence.evidenceDocuments`를 SSOT로 사용하고 모든 공개 표면은 동일한 실행형 evidence floor를 통과해야 한다. 대화 route나 Worker health만으로 검색 도구·인용·quota 준비를 `READY`로 표시하지 않으며 실제 인용 성공 전에는 미검증 상태를 유지한다. 공급자/하위 쿼리 실패 원인은 진단용으로 보존하되 사용자에게 raw 오류를 노출하지 않는다. 공식 출처는 정확한 hostname 경계로 판정하고 snippet-only·위장 도메인·출처 수 미달은 현재성 주장을 차단한다.
+
+**Validation**: `src/ai/research/evidence.js`, `js/aio-chat.js`, `js/aio-core.js`, `scripts/ci-ai-intelligence-contract-check.mjs`, `scripts/ci-ai-chat-reliability-contract-check.mjs`, `js/aio-tests.js` G109/T1042~T1047, `scripts/ci-headless-tests.mjs`.
+
+## R454. Service-worker takeover fixture는 1회 reload 전후 상태를 보존해 검증한다 (v54.0, P899)
+
+**Rule**: `controllerchange` fixture는 현재 runtime이 요구하는 guarded reload를 navigation failure로 취급하거나 navigation마다 가짜 controller를 구버전으로 초기화해서는 안 된다. controller version·query/change counters를 reload 경계에 보존하고, main-frame navigation이 정확히 한 번 증가하며 재탐색된 SW가 현재 앱 버전과 일치하고 mismatch/reload guard가 정리되는지 검증한다.
+
+**Validation**: `scripts/ci-sa-03-sw-controller-fixture.mjs`를 연속 두 번 실행한다.

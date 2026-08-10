@@ -5,7 +5,9 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const atlas = read('src/ui/pages/atlas.js');
+const principles = read('src/ui/pages/principles.js');
 const index = read('index.html');
+const core = read('js/aio-core.js');
 const routes = read('src/app/routes.js');
 const slices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
@@ -29,11 +31,13 @@ const required = [
   ['bootstrap mount', bootstrap.includes("modules.atlas")],
   ['index page', index.includes('id="page-atlas"')],
   ['index content sink', index.includes('data-atlas-content')],
+  ['Korean knowledge-map name', index.includes('>AI 시대 지식 지도</') && index.includes('AI 시대 지식 백과') && core.includes("label: 'AI 시대 지식 지도'") && principles.includes("routeLabel: 'AI 시대 지식 지도 열기'") && atlas.includes("'AI 시대 지식 지도 검색'") && !index.includes('>AI Era Atlas</') && !core.includes("label: 'AI Era Atlas'")],
   ['factory', atlas.includes('export function createAtlasPage')],
   ['reference-connected state', atlas.includes("DESIGN_ONLY") && data.status === 'REFERENCE_CONNECTED' && data.researchArtifact === 'public-data/atlas/source-packets.json'],
   ['telegram discovery boundary', atlas.includes('discovery only') && data.telegram.role === 'DISCOVERY'],
   ['player/product reference registry', atlas.includes('PLAYER_PRODUCT_URL') && atlas.includes('createPlayerProductView') && data.playerProductArtifact === 'public-data/atlas/player-product-registry.json' && playerProduct.status === 'ROLE_REFERENCE_ONLY'],
-  ['source-linked player/product references', atlas.includes('createReferenceSourceLinks') && atlas.includes('atlas-reference-source-link')],
+  ['unified source-linked player/product references', atlas.includes('createReferenceSourceLinks') && atlas.includes('createEvidenceRegistry') && atlas.includes('evidenceById') && atlas.includes('atlas-reference-source-link')],
+  ['capability-level artifact loading', atlas.includes('loadKnowledgeCapabilities') && !atlas.includes('Promise.all([')],
   ['no current promotion', atlas.includes('publishedCurrentClaims') || data.publishedCurrentClaims === 0],
   ['domain source packets', atlas.includes('DOMAIN_PACKETS_URL') && atlas.includes('domainPackets') && data.domainSourcePacketArtifact === 'public-data/atlas/domain-source-packets.json'],
   ['domain claim ledger', atlas.includes('DOMAIN_CLAIMS_URL') && atlas.includes('claimLedger') && data.domainClaimLedgerArtifact === 'public-data/atlas/domain-claim-ledger.json'],
@@ -52,7 +56,7 @@ if (data.foundationLessonArtifact !== 'public-data/atlas/foundation-lessons.json
 if (data.domainGuideArtifact !== 'public-data/atlas/domain-guides.json' || data.domainGuides !== 19 || domainGuides.status !== 'REFERENCE_CONNECTED' || domainGuides.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || domainGuides.guides.length !== 19) errors.push('domain guide artifact counts or publication boundary');
 if (data.domainSourcePacketArtifact !== 'public-data/atlas/domain-source-packets.json' || data.domainSourcePackets !== 19 || domainPackets.status !== 'REFERENCE_CONNECTED' || domainPackets.packets.length !== 19 || domainPackets.packets.some((packet) => packet.sources?.length !== 3 || !packet.reviewedAt)) errors.push('domain source packet coverage');
 if (data.domainClaimLedgerArtifact !== 'public-data/atlas/domain-claim-ledger.json' || data.domainStructuralClaims !== 57 || data.domainCurrentClaims !== 0 || domainClaims.status !== 'REFERENCE_CONNECTED' || domainClaims.claims.length !== 57 || domainClaims.counts?.currentClaims !== 0 || domainClaims.claims.some((claim) => claim.status !== 'PARTIAL' || claim.asOf !== null || claim.sourceIds?.length !== 3)) errors.push('domain claim ledger coverage');
-if (data.taxonomyNodeCoverageArtifact !== 'public-data/atlas/taxonomy-node-coverage.json' || data.taxonomyNodeCoverage !== 95 || taxonomyCoverage.status !== 'STRUCTURAL_COVERAGE_CONNECTED' || taxonomyCoverage.coverage?.nodes !== 95 || taxonomyCoverage.nodes.length !== 95 || taxonomyCoverage.coverage?.currentClaims !== 0 || taxonomyCoverage.nodes.some((node) => !node.roleReference || !node.productFamilyReference || !node.verificationQuestion || node.currentClaims !== 0) || taxonomyCoverage.relationshipModel?.status !== 'STRUCTURAL_RELATIONSHIPS_CONNECTED' || taxonomyCoverage.relationshipModel?.domainChains?.length !== 19 || taxonomyCoverage.relationshipModel?.domainChains?.reduce((sum, chain) => sum + (chain.nodeIds?.length || 0), 0) !== 95 || taxonomyCoverage.relationshipModel?.crossDomainEdges?.length !== 18 || data.taxonomyRelationshipEdges !== 94) errors.push('taxonomy node coverage or relationship model');
+if (data.taxonomyNodeCoverageArtifact !== 'public-data/atlas/taxonomy-node-coverage.json' || data.taxonomyNodeCoverage !== 95 || taxonomyCoverage.status !== 'STRUCTURAL_COVERAGE_CONNECTED' || taxonomyCoverage.coverage?.nodes !== 95 || taxonomyCoverage.nodes.length !== 95 || taxonomyCoverage.coverage?.currentClaims !== 0 || taxonomyCoverage.nodes.some((node) => !node.roleReference || !node.productFamilyReference || !node.verificationQuestion || node.currentClaims !== 0) || taxonomyCoverage.relationshipModel?.status !== 'STRUCTURAL_RELATIONSHIPS_CONNECTED' || taxonomyCoverage.relationshipModel?.domainChains?.length !== 19 || taxonomyCoverage.relationshipModel?.domainChains?.reduce((sum, chain) => sum + (chain.nodeIds?.length || 0), 0) !== 95 || taxonomyCoverage.relationshipModel?.crossDomainEdges?.length !== 22 || taxonomyCoverage.relationshipModel.crossDomainEdges.some((edge) => !edge.id || !edge.type || !edge.direction || !edge.kind || !edge.strength || !edge.polarity || !edge.reviewedAt || !edge.conditions?.length || !edge.sourceIds?.length) || data.taxonomyRelationshipEdges !== 98) errors.push('taxonomy node coverage or relationship model');
 const deepBranchCount = deepTaxonomy.topics.reduce((sum, topic) => sum + (topic.branches?.length || 0), 0);
 const deepAnchorIds = new Set(deepTaxonomy.topics.flatMap((topic) => topic.anchorNodeIds || []));
 const deepCorpus = JSON.stringify(deepTaxonomy);

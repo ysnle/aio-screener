@@ -1,0 +1,214 @@
+{
+  "schemaVersion": "1.2.0",
+  "status": "AUDIT_VERIFIED_REMEDIATION_PARTIALLY_IMPLEMENTED",
+  "boundedChangesImplemented": ["public naming", "depth audit", "name regression gates", "handoff and knowledge contracts", "semantic graph gate", "typed edge normalization", "unified evidence resolver", "capability-level artifact loading", "S0 topology and product mapping corrections"],
+  "knowledgeRebuildStatus": "FOUNDATIONAL_CORE_PARTIAL",
+  "auditedAt": "2026-08-10",
+  "targetVersion": "v53.99",
+  "surfaces": ["principles", "atlas"],
+  "naming": {
+    "routeId": "atlas",
+    "publicName": "AI 시대 지식 지도",
+    "pageKicker": "AI 시대 지식 백과",
+    "compatibilityRule": "internal route and data namespaces remain atlas"
+  },
+  "baseline": {
+    "principles": {
+      "nodes": 60,
+      "declaredEdges": 71,
+      "validEdges": 70,
+      "components": [59, 1],
+      "treeSections": 7,
+      "paths": 8,
+      "authoredLessons": 111,
+      "coreTextMedianCharacters": 325,
+      "lessonsMeeting1200CharacterFloor": 0,
+      "structuredWorkedExamples": 0,
+      "semanticCompleteLessons": 0,
+      "nodeGuides": 60,
+      "compatibilityLessons": 39
+    },
+    "atlas": {
+      "foundationLayers": 6,
+      "foundationLessons": 48,
+      "coreTextMedianCharacters": 275,
+      "lessonsMeeting1200CharacterFloor": 0,
+      "structuredWorkedExamples": 0,
+      "semanticCompleteLessons": 0,
+      "domains": 19,
+      "domainGuides": 19,
+      "structuralClaims": 57,
+      "taxonomyNodes": 95,
+      "taxonomyEdges": 94,
+      "components": [75, 5, 5, 5, 5],
+      "deepTopics": 10,
+      "deepBranches": 50,
+      "uniqueDeepAnchors": 56,
+      "players": 20,
+      "products": 20
+    }
+  },
+  "currentAfterBoundedRemediation": {
+    "principles": {
+      "nodes": 60,
+      "edges": 71,
+      "validEdges": 71,
+      "components": [60],
+      "isolatedNodes": 0,
+      "typedAtRuntime": true
+    },
+    "atlas": {
+      "nodes": 95,
+      "edges": 98,
+      "components": [95],
+      "isolatedNodes": 0,
+      "crossDomainEdges": 22,
+      "crossDomainEdgesWithSemanticMetadata": 22
+    },
+    "evidence": {
+      "registeredSources": 105,
+      "referencedSourcesInSemanticGate": 64,
+      "unresolvedSources": 0,
+      "conflicts": 0
+    },
+    "resilience": {
+      "principlesCapabilities": 4,
+      "atlasCapabilities": 11,
+      "loadingModel": "PROMISE_ALL_SETTLED_PER_CAPABILITY"
+    },
+    "certificationBoundary": "LOCAL_REFERENCE_IMPLEMENTATION_ONLY; 159 deep articles, active-learning state, professional route state and recruited-user validation remain open"
+  },
+  "certificationBlockers": [
+    {
+      "id": "KB-S0-01",
+      "surface": "shared",
+      "kind": "ENCYCLOPEDIA_DEPTH",
+      "evidence": "159/159 core lessons are below the 1,200-character floor and 0/159 implement the complete semantic depth contract",
+      "requiredGate": "encyclopedia-depth",
+      "status": "OPEN"
+    },
+    {
+      "id": "KB-S0-02",
+      "surface": "shared",
+      "kind": "ACTIVE_LEARNING_STATE",
+      "evidence": "progress, bookmark, learner note and retrieval-practice state are absent",
+      "requiredGate": "persona-journey",
+      "status": "OPEN"
+    },
+    {
+      "id": "KB-S0-03",
+      "surface": "shared",
+      "kind": "USER_RESEARCH_BOUNDARY",
+      "evidence": "multi-persona findings are heuristic scenarios; no recruited-user study has been conducted",
+      "requiredGate": "user-validation-boundary",
+      "status": "OPEN_EXTERNAL"
+    },
+    {
+      "id": "MP-S0-01",
+      "surface": "principles",
+      "kind": "GRAPH_ENDPOINT_AND_GATE_BLIND_SPOT",
+      "evidence": "network-fabric -> photonic-link-economics references a non-CATALOG node; live graph leaves photonic-link-economics isolated",
+      "requiredGate": "graph-endpoints",
+      "status": "RESOLVED_LOCAL",
+      "resolution": "compute -> photonic-link-economics plus parser-based topology gate"
+    },
+    {
+      "id": "AT-S0-01",
+      "surface": "atlas",
+      "kind": "GRAPH_CONNECTIVITY",
+      "evidence": "95 nodes form five components; neocloud, foundry, AI applications and resources/materials are disconnected domains",
+      "requiredGate": "graph-connectivity",
+      "status": "RESOLVED_LOCAL",
+      "resolution": "four evidence-tagged domain bridges and two semantically corrected defense/space bridges produce one 95-node component"
+    },
+    {
+      "id": "AT-S0-02",
+      "surface": "atlas",
+      "kind": "SOURCE_RESOLVER_MISMATCH",
+      "evidence": "contract accepts PP and PS source unions while runtime player/product resolver reads registry.sources only",
+      "requiredGate": "source-resolver",
+      "status": "RESOLVED_LOCAL",
+      "resolution": "global evidence registry merges PS, PP, FND and AT catalogs; renderer resolves through evidenceById"
+    }
+  ],
+  "priorityFindings": [
+    "MP-P1-01",
+    "MP-P1-02",
+    "MP-P1-03",
+    "MP-P1-04",
+    "MP-P1-05",
+    "AT-P1-01",
+    "AT-P1-02",
+    "AT-P1-03",
+    "AT-P1-04",
+    "AT-P1-05",
+    "AT-P1-06",
+    "AT-P1-07"
+  ],
+  "workPackages": [
+    {"id": "KA-00", "wave": 0, "title": "Semantic gate baseline", "dependsOn": [], "status": "VERIFIED_LOCAL"},
+    {"id": "KA-01", "wave": 0, "title": "Ontology and ID freeze", "dependsOn": ["KA-00"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-02", "wave": 1, "title": "Typed graph migration", "dependsOn": ["KA-01"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-03", "wave": 1, "title": "Evidence registry and resolver unification", "dependsOn": ["KA-01"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-04", "wave": 2, "title": "159-lesson encyclopedia article rebuild, worked examples and academic depth", "dependsOn": ["KA-02", "KA-03"], "status": "DESIGNED"},
+    {"id": "KA-05", "wave": 2, "title": "Lesson and path continuity", "dependsOn": ["KA-02", "KA-03"], "status": "DESIGNED"},
+    {"id": "KA-06", "wave": 3, "title": "Shareable state and active learning", "dependsOn": ["KA-05"], "status": "DESIGNED"},
+    {"id": "KA-07", "wave": 3, "title": "Professional route bridge", "dependsOn": ["KA-04", "KA-05"], "status": "DESIGNED"},
+    {"id": "KA-08", "wave": 4, "title": "Repository, state and selector extraction", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-09", "wave": 4, "title": "Thin renderer migration and legacy deletion", "dependsOn": ["KA-06", "KA-07", "KA-08"], "status": "DESIGNED"},
+    {"id": "KA-10", "wave": 5, "title": "Semantic and live certification", "dependsOn": ["KA-09"], "status": "DESIGNED"}
+  ],
+  "referenceImplementationFiles": [
+    "src/domain/knowledge/graph.js",
+    "src/domain/knowledge/evidence.js",
+    "src/data/knowledge/load-capabilities.js",
+    "scripts/ci-knowledge-core-semantic-check.mjs"
+  ],
+  "localVerification": {
+    "semanticCore": "PASS",
+    "principlesBrowser": "PASS",
+    "atlasBrowser": "PASS",
+    "headless": "1108/1108 PASS",
+    "accessibilityRoutes": "20/20 PASS",
+    "routeSoak": "20 routes x 3 laps PASS",
+    "viewportMatrix": "17 routes x 4 viewports PASS; overflow 0",
+    "architectureRatchet": "FAIL_OUT_OF_PACKET: explicitWindowWrites 1092 > baseline 1090 from two existing AI research window assignments"
+  },
+  "requiredGates": [
+    "knowledge-schema",
+    "graph-endpoints",
+    "graph-connectivity",
+    "edge-semantics",
+    "source-resolver",
+    "claim-directness",
+    "entity-product-fit",
+    "lesson-depth",
+    "encyclopedia-depth",
+    "learning-continuity",
+    "persona-journey",
+    "user-validation-boundary",
+    "route-state",
+    "partial-failure",
+    "browser-semantic"
+  ],
+  "depthContract": {
+    "coreLessonMinimumCharacters": 1200,
+    "overviewMinimumCharacters": 700,
+    "deepBranchMinimumCharacters": 1500,
+    "requiredSemanticFields": ["intuition", "formalModelOrRationale", "workedExampleOrRationale", "realEconomyChannel", "companyChannel", "financialStatementChannel", "valuationChannel", "marketChannel", "tradingApplication", "invalidation", "glossary", "retrievalChecks", "claimIds"],
+    "workedExampleFields": ["inputs", "assumptions", "steps", "result", "interpretation", "failureBoundary"],
+    "lengthOnlyPassAllowed": false
+  },
+  "personaScenarios": [
+    "novice",
+    "intermediate-investor",
+    "active-trader",
+    "domain-expert",
+    "korean-investor",
+    "returning-learner",
+    "mobile-keyboard-screenreader",
+    "skeptical-risk-aware",
+    "time-poor"
+  ],
+  "personaAuditType": "HEURISTIC_NOT_RECRUITED_USER_STUDY"
+}

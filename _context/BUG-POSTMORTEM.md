@@ -2,11 +2,49 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-10
 confidence: high
-latest_version: v53.97
-latest_P_number: P895
-next_P_number: P896
-current_total_entries: 620 (P1~P895, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P895 v53.97 remediation handoff Wave 0/1/2/3 contracts, atomic quota, structured evidence, and fail-closed operations; full local release gates completed with live/operator boundaries retained
+latest_version: v54.0
+latest_P_number: P899
+next_P_number: P900
+current_total_entries: 624 (P1~P899, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P899 v54.0 release fixture aligned with one guarded service-worker reload; live provider/operator certification remains external
+
+## P899 - v54.0 - Service-worker takeover fixture contradicted the guarded reload contract
+
+- **motivation**: Full pre-deployment CI must distinguish an application regression from a stale test harness. The SA-03 fixture repeatedly failed during the required release audit.
+- **symptom/reproduction**: The first run lost its execution context during `controllerchange`; later runs timed out waiting for the new version. The fixture required zero navigations even though runtime contract P875 explicitly schedules one guarded reload after controller takeover.
+- **root_cause**: The fixture retained the pre-P875 no-reload expectation and recreated its fake controller at `v53.17` on every navigation, so a correct reload could never converge to the current version.
+- **fix**: Persisted the fake controller version and counters across reload, waited for the main-frame navigation, then verified current SW version, cleared mismatch state, one navigation increment, accumulated queries, one controller change, and cleared reload guard.
+- **violated_rule**: R443/P875 — release fixtures must exercise the current runtime contract and must not turn an expected navigation into a false failure.
+- **prevention**: R454 requires navigation-aware, state-preserving SW takeover fixtures with repeated-run proof.
+- **verification**: `ci-sa-03-sw-controller-fixture.mjs` passes twice consecutively with `v53.17→v54.0`, queries `1→3`, changes `0→1`, exactly one navigation increment, and `reloadGuard:null`.
+
+## P898 - v54.0 - AI Research producer and consumer used incompatible evidence contracts
+
+- **motivation**: Both AI chat surfaces stalled or ended in safe mode for a current NVDA question even when an external search could return results. The UI also labeled Claude live search as active before any verified citation arrived, making route availability look like tool success.
+- **symptom/reproduction**: `_aiResearchPlanSearch()` returned evidence documents at the top level while `_aioEvaluateAIResearchGate()` read `researchEvidence.evidenceDocuments`; required-current questions therefore failed the evidence floor. Unified chat invoked external research without checking provider readiness, all rejected subqueries collapsed to `RESEARCH_RESULTS_EMPTY`, and `getWebSearchAudit()` promoted a shared Worker route to native-tool `READY` without an observed tool result.
+- **root_cause**: Research decision, dispatch, provider adaptation, evidence classification, capability reporting, and response gating evolved in separate legacy/ESM paths. CI checked identifier presence and regular expressions but never executed the producer result through the consumer gate.
+- **fix**: Added a canonical ESM result normalizer and executable evidence floor; centralized spoof-safe source classification; routed unified and per-page chat through `_aioPrepareAIResearch`; preserved provider/subquery failures; separated route/auth/tool/citation readiness; removed premature success badges and duplicate global assignments; and exposed bounded last-preparation/execution diagnostics.
+- **violated_rule**: R219/R444 plus R3 — producer/consumer interoperability and capability claims require executable proof, and required-current answers must fail closed without verified evidence.
+- **prevention**: R453 requires one canonical Research result shape, one evidence evaluator for every chat surface, observed citations before tool readiness, provider-level error retention, and executable positive/negative contract fixtures including snippet-only and spoof-domain cases.
+- **verification**: `ci-ai-intelligence-contract-check.mjs`, `ci-ai-chat-reliability-contract-check.mjs`, runtime/architecture/baseline/vertical-slice contracts, syntax checks, and headless G109/T1042~T1047 pass; `ci-headless-tests.mjs` reports 1114/1114 PASS with only the expected blocked-network allowlist. Live provider quota, Worker secret/origin, and Anthropic web-search entitlement remain external operator evidence and are not promoted by local tests.
+
+## P897 - v53.99 - Count-based knowledge contracts certified disconnected graphs and unresolved evidence
+
+- **motivation**: The structural handoff must be executable against the real Principles/Atlas producers and renderers, not remain a prose recommendation. The S0 audit found a dangling Principles endpoint, five Atlas components, source IDs accepted by CI but unresolved in the UI, two product-taxonomy mismatches, and all-or-nothing artifact loading.
+- **root_cause**: Existing checks counted nodes, edges, fields, and source IDs without parsing the exported graph, computing components, using the renderer's resolver, or injecting partial fetch failures. Edge semantics, evidence namespaces, and capability status were separately owned by page files and artifacts.
+- **fix**: Added shared graph normalization/topology inspection, a PS/PP/FND/AT evidence registry, and an `allSettled` capability loader; repaired the invalid Principles photonic endpoint; added four evidence-tagged Atlas domain bridges and corrected weak defense/space bridges; fixed Samsung HBM and IBM Quantum product mappings; connected the shared modules to both pages and the offline shell; and added a parser-based semantic gate plus browser source-resolution assertion.
+- **violated_rule**: R219/R431/R451 — counts and field presence cannot certify semantic topology, runtime resolvability, or graceful degradation.
+- **prevention**: R452 requires producer→normalizer→resolver→renderer parity, typed graph metadata, component/orphan checks, global evidence resolution, negative entity-product controls, and per-capability failure isolation before a knowledge surface is called structurally connected.
+- **verification**: `ci-knowledge-core-semantic-check.mjs` passes Principles 60/71/one component, Atlas 95/98/one component, evidence 105 registered/64 referenced/0 unresolved/0 conflicts, and connected+fallback capability fixtures. Atlas/Principles contracts and browser gates, headless 1108/1108, accessibility 20 routes, route soak 20×3, and viewport 68/68 pass. The broader architecture ratchet remains red because the inherited worktree contains two unrelated `_aioPrepareAIResearch`/`_aioResearchFailureForUser` explicit `window` assignments (1092 vs baseline 1090); this packet does not hide them by raising the baseline. This is a local reference-core closure only; 159 deep articles, directness review, active learning, route-state, thin renderers, recruited-user validation, and live deployment remain separate gates.
+
+## P896 - v53.98 - Required-field coverage was mistaken for encyclopedia-grade depth
+
+- **motivation**: The user clarified that Market Principles and the AI learning surface are knowledge encyclopedias whose concepts must connect through real-economy, company, financial-statement, valuation, market-price, and trading application paths. A few short sentences per concept are not acceptable.
+- **root_cause**: Existing contracts counted non-empty definition/mechanism/example/counter/question/visualization fields but did not measure article depth, structured worked examples, semantic application closure, learning-state support, or persona task completion. The English-facing `AI Era Atlas` label also described an internal taxonomy metaphor rather than the Korean learner purpose.
+- **fix**: Renamed the user surface to `AI 시대 지식 지도` while preserving route ID `atlas`; added static and real-browser name assertions; added a repeatable 159-lesson depth audit; classified all current lessons as summary scaffolds; and expanded the structural handoff/machine contract with semantic article profiles, 9 persona scenarios, active-learning requirements, and explicit actual-user-study boundaries.
+- **violated_rule**: R431/R434/R438; required-field presence and artifact counts cannot stand in for semantic depth or user comprehension.
+- **prevention**: R451 requires separate summary/article contracts, a character floor plus semantic fields, structured worked examples or a rationale, application-chain closure, and honest separation of heuristic persona QA from recruited-user validation.
+- **verification**: `audit-knowledge-encyclopedia-depth.mjs` records Principles median 325 characters and AI foundations median 275 characters, 0/159 at the 1,200-character core floor, 0/159 structured worked examples, and 0/159 complete semantic profiles. The failure is intentionally retained as a rebuild blocker; name/route/browser/version/knowledge gates verify the bounded v53.98 change.
 
 ## P895 - v53.96 - Current-code remediation handoff contracts were implemented as fail-closed gates
 
