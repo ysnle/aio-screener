@@ -1,0 +1,20 @@
+name = "aio-proxy"
+main = "../cloudflare-worker-proxy.js"
+compatibility_date = "2026-08-10"
+workers_dev = true
+
+[vars]
+ANTHROPIC_DAILY_CAP = "300"
+ANTHROPIC_MAX_TOKENS = "1500"
+AIO_APP_REVISION = "v54.3"
+
+[[durable_objects.bindings]]
+name = "AIO_QUOTA_DO"
+class_name = "AIOQuotaDurableObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["AIOQuotaDurableObject"]
+
+# ANTHROPIC_API_KEY is injected with `wrangler secret put` by deploy-ai-proxy.yml.
+# AIO_APP_TOKEN and AIO_DEV_ORIGINS remain optional operator-managed settings.

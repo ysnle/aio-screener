@@ -1,3 +1,11 @@
+## v54.3 (2026-08-10)
+- **공유 AI edge 폐쇄**: 저장소의 최신 Worker가 실제 `aio-proxy`에 도달하지 않던 배포 공백을 제거했다. Durable Object quota binding/migration과 Cloudflare·Anthropic 시크릿 주입을 가진 전용 배포 workflow를 추가했다.
+- **덧붙이기 제거**: 사용되지 않는 구형 KV Anthropic handler 약 100줄을 삭제하고 `/anthropic`을 단일 원자적 handler로 축약했다.
+- **실제 readiness 게이트**: 배포 성공만 보지 않고 `/health`의 configured·quotaConfigured·ready, production CORS, 비허용 Origin 403을 통과해야 완료되도록 고정했다.
+- **운영 상태 정직성**: `operations-status`가 shared chat을 항상 `NO_ROUTE`로 쓰지 않고 실제 Worker 관측 evidence로 `CURRENT`/broken을 계산한다.
+- **사후분석**: P903, R458, QA-AIPROXY1~5.
+- R1 7곳 v54.3
+
 ## v54.2 (2026-08-10)
 - **AI 질의 계획 SSOT**: 한국어·영어·복합 질의를 ESM `QuestionPlan`에서 한 번만 분류하고, 의도·현재성·엔티티·필수 근거·소스 fan-out을 두 AI UI에 공통 적용했다.
 - **답변 계약 단일화**: 생산자/소비자가 엇갈리던 `AI_CLAIMS_JSON`·`AI_ANSWER_PLAN`을 하나의 `AI_ANSWER_PLAN`으로 맞추고 claim-evidence binding, 미추적 현재 수치 차단, citation·후속 질문 렌더링을 연결했다.

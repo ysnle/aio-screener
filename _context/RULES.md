@@ -2007,3 +2007,9 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: 자동 갱신 producer가 retained count·revision·collection status를 바꾸면 그 값을 참조하는 요약·인덱스 artifact를 같은 실행에서 재생성하고 같은 커밋에 stage해야 한다. 배포 직전 수동 숫자 수정은 producer 수정을 대신하지 못한다. CI는 현재 값 일치뿐 아니라 producer assignment·workflow staging 배선을 함께 검증한다.
 
 **Validation**: `scripts/fetch-telegram-digest.mjs`, `.github/workflows/refresh-data.yml`, `scripts/ci-data-pipeline-contract-check.mjs`, `scripts/ci-atlas-contract-check.mjs`.
+
+## R458. AI edge Worker는 소스·배포·readiness를 하나의 릴리스 계약으로 닫는다 (v54.3, P903)
+
+**Rule**: `cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI 채팅을 완료로 판정하지 않는다. production Worker는 단 하나의 `/anthropic` 핸들러와 원자적 Durable Object quota authority를 사용하고, pinned Wrangler workflow가 Cloudflare/Anthropic 시크릿을 요구하여 같은 canonical source를 배포해야 한다. 배포 후 `/health`가 configured·quotaConfigured·ready를 모두 true로 보고하고, production CORS preflight와 비허용 Origin 403을 통과해야 public chat을 `CURRENT`로 승격한다.
+
+**Validation**: `worker/wrangler.proxy.toml`, `.github/workflows/deploy-ai-proxy.yml`, `scripts/ci-worker-anthropic-check.mjs`, `scripts/ci-operations-contract-check.mjs`, live Worker smoke, `public-data/operations-status.json`.

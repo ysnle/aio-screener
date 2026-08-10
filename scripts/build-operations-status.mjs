@@ -68,10 +68,14 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const scheduledAnalysisOk = data?.meta?.marketAnalysisOk === true;
   const fastConfigured = fastEndpoint !== 'not-configured';
   const fastHealthy = Number(fastEvidence.fastHealthStatus) === 200 && Number(fastEvidence.fastSoakObservedDays || 0) >= 7;
+  const proxyConfigured = !!workerEndpoints.proxy?.baseUrl;
+  const proxyHealthy = Number(fastEvidence.proxyHealthStatus) === 200 && fastEvidence.proxyAiReady === true;
+  const fredObserved = data?.meta?.fredFetchOk === true;
   const blockers = [];
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
   blockers.push('fast_plane_cloudflare_credentials_and_soak_required');
   blockers.push('provider_rights_review_required');
+  if (!proxyHealthy) blockers.push('ai_proxy_deploy_or_readiness_required');
   if (secCoverage.coveragePct < 80) blockers.push('sec_fundamentals_coverage_below_80_percent');
   const status = createOperationsStatus({
     generatedAt: now,
@@ -102,18 +106,27 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     ai: {
       scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', statusCode: deriveOperationalState({ configured: true, healthy: scheduledAnalysisOk }), source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, generatedAt: data?.meta?.generatedAt || null } },
       publicChat: {
-        status: 'NO_ROUTE', statusCode: deriveOperationalState({ configured: !!workerEndpoints.proxy?.baseUrl, healthy: false }),
+        status: proxyHealthy ? 'CURRENT' : 'NO_ROUTE', statusCode: deriveOperationalState({ configured: proxyConfigured, healthy: proxyHealthy }),
         personalKey: 'EXPLICIT_USER_CONFIG',
-        sharedWorker: workerEndpoints.proxy?.baseUrl ? 'OPERATOR_REQUIRED' : 'NOT_CONFIGURED',
+        sharedWorker: proxyHealthy ? 'CURRENT' : (proxyConfigured ? 'OPERATOR_REQUIRED' : 'NOT_CONFIGURED'),
         workerEndpoint: workerEndpoints.proxy?.baseUrl || null,
-        health: { status: 'OPERATOR_REQUIRED', statusCode: Number(fastEvidence.proxyHealthPathObserved) || null, note: fastEvidence.proxyHealthNote || null },
+        health: {
+          status: proxyHealthy ? 'CURRENT' : 'OPERATOR_REQUIRED',
+          statusCode: Number(fastEvidence.proxyHealthStatus ?? fastEvidence.proxyHealthPathObserved) || null,
+          observedAt: fastEvidence.proxyHealthObserved || null,
+          revision: fastEvidence.proxyHealthRevision || null,
+          configured: fastEvidence.proxyAiConfigured === true,
+          quotaConfigured: fastEvidence.proxyQuotaConfigured === true,
+          ready: fastEvidence.proxyAiReady === true,
+          note: fastEvidence.proxyHealthNote || null
+        },
         scheduledAnalysisDoesNotImplyChat: true
       }
     },
     providers: {
       yahoo: { rights: 'REVIEW_REQUIRED', statusCode: 'RIGHTS_REVIEW_REQUIRED', use: 'reference', lastFetchAt: data?.meta?.generatedAt || null },
       fred: {
-        rights: process.env.FRED_API_KEY ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', statusCode: process.env.FRED_API_KEY ? 'RIGHTS_REVIEW_REQUIRED' : 'NOT_CONFIGURED',
+        rights: (process.env.FRED_API_KEY || fredObserved) ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', statusCode: (process.env.FRED_API_KEY || fredObserved) ? 'RIGHTS_REVIEW_REQUIRED' : 'NOT_CONFIGURED',
         use: 'official-series',
         status: data?.meta?.fredFetchOk ? 'CURRENT' : 'UNAVAILABLE',
         lastAttemptAt: data?.meta?.fredAttemptedAt || data?.meta?.generatedAt || null,

@@ -3,6 +3,14 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-09
 confidence: high
 
+## v54.3 AI 공유 Worker 배포 폐쇄 (2026-08-10)
+
+- [x] QA-AIPROXY1: `cloudflare-worker-proxy.js`에는 단 하나의 canonical `/anthropic` handler만 존재하고 구형 non-atomic KV handler는 남지 않는다.
+- [x] QA-AIPROXY2: Wrangler config가 production `aio-proxy`, canonical source, `AIO_QUOTA_DO`, `AIOQuotaDurableObject` migration을 함께 선언한다.
+- [x] QA-AIPROXY3: 수동 배포 workflow가 Cloudflare·Anthropic 시크릿을 fail-fast로 요구하고 pinned Wrangler로 배포·secret publish를 수행한다.
+- [x] QA-AIPROXY4: 배포 후 health schema와 configured/quotaConfigured/ready, production CORS, 비허용 Origin 403을 실행 검증한다.
+- [x] QA-AIPROXY5: operations status는 정적 `NO_ROUTE`가 아니라 관측된 Worker evidence로 shared public chat 상태를 계산한다.
+
 ## v54.2 AI 채팅 구조 일원화·오분류 종료 (2026-08-10)
 
 - [x] QA-AICHAT1: 질의 분류·엔티티·현재성·소스 선택은 ESM `QuestionPlan`을 SSOT로 사용하고 30개 한국어/영어/복합 질의 fixture가 통과한다.

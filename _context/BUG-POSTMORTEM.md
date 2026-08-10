@@ -2,11 +2,21 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-10
 confidence: high
-latest_version: v54.2
-latest_P_number: P902
-next_P_number: P903
-current_total_entries: 627 (P1~P902, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P902 v54.2 Telegram refresh publishes its Atlas lineage dependency atomically
+latest_version: v54.3
+latest_P_number: P903
+next_P_number: P904
+current_total_entries: 628 (P1~P903, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P903 v54.3 canonical AI proxy is deployed through a gated Durable Object workflow
+
+## P903 - v54.3 - Repository AI Worker and deployed public proxy had no release path
+
+- **motivation**: v54.2 앱·CI·Pages가 모두 성공한 뒤에도 공개 `operations-status`는 shared AI chat을 `NO_ROUTE/CONFIGURED_BROKEN`으로 보고했고, 실제 `/health`는 구형 `?url=` 프록시 오류를 반환했다.
+- **symptom/reproduction**: `https://aio-proxy.zmfhd007.workers.dev/health`가 최신 `aio-worker-health.v1` 대신 HTTP 400 `url parameter required`를 반환했다. 저장소에는 원자적 Durable Object `/anthropic` 구현이 있었지만 해당 파일을 `aio-proxy`에 배포하는 Wrangler config·workflow가 없었고, 사용되지 않는 구형 KV 핸들러도 100줄가량 중복 잔존했다.
+- **root_cause**: Worker 소스 검증과 Pages 배포만 존재하고 edge runtime 배포·secret 주입·readiness/CORS/origin 스모크가 릴리스 그래프에서 빠져 있었다. 따라서 코드 보강이 실제 사용자 경로에 도달하지 않았다.
+- **fix**: 구형 KV 핸들러를 제거해 단일 원자적 핸들러로 축약하고, Durable Object migration/binding을 가진 `worker/wrangler.proxy.toml`과 시크릿 요구·배포·health/readiness·CORS·거부 origin 스모크를 포함한 `deploy-ai-proxy.yml`을 추가한다. operations producer는 관측된 proxy evidence로 publicChat 상태를 계산한다.
+- **violated_rule**: R456 — 실행 계약은 consumer까지 연결되어야 하며, 저장소에 존재하지만 배포되지 않은 Worker는 AI 채팅 경로로 인증할 수 없다.
+- **prevention**: R458은 AI Worker 변경이 canonical config·배포 workflow·live readiness gate 없이 완료/배포로 판정되는 것을 금지한다.
+- **verification**: `ci-worker-anthropic-check.mjs`, `ci-operations-contract-check.mjs`, GitHub `Deploy AI proxy`, live `/health`, allowed-origin preflight, disallowed-origin 403, 최소 Anthropic upstream smoke.
 
 ## P902 - v54.2 - Scheduled Telegram refresh repeatedly invalidated the Atlas release contract
 

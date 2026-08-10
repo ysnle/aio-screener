@@ -1,0 +1,65 @@
+name: Deploy AI proxy
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Require AI proxy operating configuration
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLAUDE_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set -euo pipefail
+          for pair in "CLOUDFLARE_API_TOKEN=$CF_TOKEN" "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT" "ANTHROPIC_API_KEY=$CLAUDE_KEY"; do
+            name="${pair%%=*}"; value="${pair#*=}"
+            if [ -z "$value" ]; then echo "::error::operator_required: $name is not configured"; exit 1; fi
+          done
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '20'
+
+      - name: Install Wrangler
+        run: npm install --global wrangler@4.44.0
+
+      - name: Deploy canonical Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: wrangler deploy --config worker/wrangler.proxy.toml
+
+      - name: Publish Anthropic secret
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: printf '%s' "$ANTHROPIC_API_KEY" | wrangler secret put ANTHROPIC_API_KEY --config worker/wrangler.proxy.toml
+
+      - name: Verify health, readiness, CORS, and fail-closed origin
+        env:
+          AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            status="$(curl --silent --show-error --output /tmp/aio-ai-health.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
+            if [ "$status" = "200" ]; then break; fi
+            sleep 5
+          done
+          if [ "$status" != "200" ]; then echo "::error::ai_proxy_unreachable: HTTP $status"; exit 1; fi
+          node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync('/tmp/aio-ai-health.json'));if(h.schemaVersion!=='aio-worker-health.v1'||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.ready!==true)process.exit(1)"
+          cors_status="$(curl --silent --show-error --dump-header /tmp/aio-ai-cors.txt --output /dev/null --write-out '%{http_code}' -X OPTIONS -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/anthropic")"
+          if [ "$cors_status" != "204" ]; then echo "::error::ai_proxy_cors_failed: HTTP $cors_status"; exit 1; fi
+          node -e "const fs=require('fs');const h=fs.readFileSync('/tmp/aio-ai-cors.txt','utf8').toLowerCase();if(!/^access-control-allow-origin:\s*https:\/\/ysnle\.github\.io\s*$/m.test(h))process.exit(1)"
+          blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' -H 'Content-Type: application/json' -d '{"model":"claude-haiku-4-5","max_tokens":1,"messages":[]}' "$AI_PROXY_URL/anthropic")"
+          if [ "$blocked" != "403" ]; then echo "::error::ai_proxy_origin_gate_failed: HTTP $blocked"; exit 1; fi

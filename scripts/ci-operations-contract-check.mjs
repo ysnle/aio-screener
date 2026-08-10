@@ -27,6 +27,8 @@ const operations = json('public-data/operations-status.json');
 const snapshot = json('public-data/market-snapshot.json');
 const allowlist = json('public-artifact-manifest.json');
 const ci = read('.github/workflows/ci.yml');
+const aiProxyWorkflow = read('.github/workflows/deploy-ai-proxy.yml');
+const aiProxyWrangler = read('worker/wrangler.proxy.toml');
 const headers = read('_headers');
 const workflowDir = join(root, '.github', 'workflows');
 const workflowFiles = readdirSync(workflowDir)
@@ -92,6 +94,9 @@ check('live invariant watchdog is wired', read('.github/workflows/data-watchdog.
 const uses = [...workflowText.matchAll(/^\s*uses:\s*([^\s#]+)/gm)].map((match) => match[1]);
 check('all GitHub Actions refs are SHA pinned', uses.length > 0 && uses.every((ref) => /@[0-9a-f]{40}$/i.test(ref)), uses.join(', '));
 check('Wrangler install is exact-versioned', /npm install --global wrangler@\d+\.\d+\.\d+/.test(read('.github/workflows/deploy-data-plane.yml')));
+check('AI proxy Wrangler install is exact-versioned', /npm install --global wrangler@\d+\.\d+\.\d+/.test(aiProxyWorkflow));
+check('AI proxy deploy owns canonical source and atomic quota binding', aiProxyWrangler.includes('main = "../cloudflare-worker-proxy.js"') && aiProxyWrangler.includes('name = "AIO_QUOTA_DO"') && aiProxyWrangler.includes('class_name = "AIOQuotaDurableObject"'));
+check('AI proxy deploy requires secrets and blocks on live readiness', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'ANTHROPIC_API_KEY', 'aio-worker-health.v1', 'quotaConfigured', 'ai_proxy_origin_gate_failed'].every((token) => aiProxyWorkflow.includes(token)));
 check('lockfile exists', existsSync(join(root, 'package-lock.json')));
 
 const routeSoakReportPath = join(root, '_artifacts', 'route-soak-report.json');

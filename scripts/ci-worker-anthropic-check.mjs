@@ -1,5 +1,6 @@
 // Atomic Worker /anthropic contract and concurrent quota fixture.
 import worker from '../cloudflare-worker-proxy.js';
+import { readFileSync } from 'node:fs';
 
 const errors = [];
 const check = (label, condition, detail) => { if (!condition) errors.push(label + (detail === undefined ? '' : ': ' + JSON.stringify(detail))); };
@@ -34,6 +35,9 @@ function atomicQuota(initial = 0) {
 }
 
 async function main() {
+  const workerSource = readFileSync(new URL('../cloudflare-worker-proxy.js', import.meta.url), 'utf8');
+  check('single canonical Anthropic handler', (workerSource.match(/async function handleAnthropic\(/g) || []).length === 1);
+  check('legacy non-atomic KV handler removed', !workerSource.includes('env.AIO_QUOTA.get(') && !workerSource.includes('env.AIO_QUOTA.put('));
   const realFetch = globalThis.fetch;
   globalThis.fetch = async (url) => String(url).includes('api.anthropic.com')
     ? new Response(JSON.stringify({ id: 'fixture', type: 'message', content: [{ type: 'text', text: 'ok' }] }), { status: 200, headers: { 'content-type': 'application/json' } })

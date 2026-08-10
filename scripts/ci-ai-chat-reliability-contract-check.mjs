@@ -40,7 +40,7 @@ check('research diagnostic audit exposes contract and last execution', core.incl
 check('public config is personal-key default', config.schemaVersion === 'ai-public-config.v1' && config.ai?.workerUrl === null && config.ai?.serverMode === 'explicit-opt-in');
 check('server market prose requires typed evidence before client publish', data.includes('_serverMarketMetricEvidenceValid') && data.includes('metric-evidence-required') && data.includes('_serverMarketSemanticContract'));
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
-check('Worker rolls back failed quota reservations', worker.includes('releaseAnthropicQuota') && worker.includes('quotaReserved'));
+check('Worker rolls back owned failed quota reservations', worker.includes('releaseAnthropicQuota') && worker.includes('ownedReservation'));
 check('Worker exposes effective token cap', worker.includes("'X-AIO-Max-Tokens'"));
 check('operations status separates scheduled analysis and public chat', operations.ai?.scheduledAnalysis && operations.ai?.publicChat?.scheduledAnalysisDoesNotImplyChat === true);
 check('operations status separates five readiness fields', ['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent', 'licensedForUse'].every(field => read('public-data/operations-status.json').includes(`"${field}"`)));
