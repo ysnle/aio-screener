@@ -80,6 +80,21 @@ async function main() {
   const healthBody = await health.json();
   check('health reports atomic quota configured', healthBody.ai?.quotaConfigured === true, healthBody);
 
+  let observedLocationHint = null;
+  const namespaceEnv = {
+    ANTHROPIC_API_KEY: 'sk-test',
+    AIO_QUOTA_DO: {
+      idFromName: (name) => name,
+      get: (_id, options) => {
+        observedLocationHint = options?.locationHint || null;
+        return { fetch: async () => new Response(JSON.stringify({ content: [{ type: 'text', text: 'ok' }] }), { status: 200, headers: { 'content-type': 'application/json', 'X-AIO-Upstream-Authority': 'durable-object-enam' } }) };
+      },
+    },
+  };
+  const durableProxy = await worker.fetch(makeReq({ body: { model: 'claude-haiku-4-5', max_tokens: 8, messages: [] } }), namespaceEnv);
+  check('production namespace routes upstream through Durable Object', durableProxy.status === 200 && durableProxy.headers.get('X-AIO-Upstream-Authority') === 'durable-object-enam', durableProxy.status);
+  check('Durable Object creation uses eastern North America hint', observedLocationHint === 'enam', observedLocationHint);
+
   if (errors.length) {
     console.error('Worker atomic quota check failed:');
     errors.forEach(error => console.error(' - ' + error));

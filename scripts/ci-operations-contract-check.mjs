@@ -29,6 +29,7 @@ const allowlist = json('public-artifact-manifest.json');
 const ci = read('.github/workflows/ci.yml');
 const aiProxyWorkflow = read('.github/workflows/deploy-ai-proxy.yml');
 const aiProxyWrangler = read('worker/wrangler.proxy.toml');
+const worker = read('cloudflare-worker-proxy.js');
 const headers = read('_headers');
 const workflowDir = join(root, '.github', 'workflows');
 const workflowFiles = readdirSync(workflowDir)
@@ -96,6 +97,7 @@ check('all GitHub Actions refs are SHA pinned', uses.length > 0 && uses.every((r
 check('Wrangler install is exact-versioned', /npm install --global wrangler@\d+\.\d+\.\d+/.test(read('.github/workflows/deploy-data-plane.yml')));
 check('AI proxy Wrangler install is exact-versioned', /npm install --global wrangler@\d+\.\d+\.\d+/.test(aiProxyWorkflow));
 check('AI proxy deploy owns canonical source, US placement, and atomic quota binding', aiProxyWrangler.includes('main = "../cloudflare-worker-proxy.js"') && aiProxyWrangler.includes('region = "aws:us-east-1"') && aiProxyWrangler.includes('name = "AIO_QUOTA_DO"') && aiProxyWrangler.includes('class_name = "AIOQuotaDurableObject"'));
+check('AI provider outbound is executed by the ENAM Durable Object authority', worker.includes("locationHint: 'enam'") && worker.includes("'X-AIO-Upstream-Authority': 'durable-object-enam'") && worker.includes('fetchAnthropicThroughDurableObject'));
 check('AI proxy deploy requires secrets and blocks on live readiness/upstream', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'ANTHROPIC_API_KEY', 'aio-worker-health.v1', 'quotaConfigured', 'ai_proxy_origin_gate_failed', 'ai_proxy_upstream_failed'].every((token) => aiProxyWorkflow.includes(token)));
 check('lockfile exists', existsSync(join(root, 'package-lock.json')));
 

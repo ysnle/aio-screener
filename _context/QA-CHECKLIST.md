@@ -10,6 +10,7 @@ confidence: high
 - [x] QA-AIPROXY3: 수동 배포 workflow가 Cloudflare·Anthropic 시크릿을 fail-fast로 요구하고 pinned Wrangler로 배포·secret publish를 수행한다.
 - [x] QA-AIPROXY4: 배포 후 health schema와 configured/quotaConfigured/ready, production CORS, 비허용 Origin 403, 최소 Anthropic upstream 200을 실행 검증한다.
 - [x] QA-AIPROXY5: operations status는 정적 `NO_ROUTE`가 아니라 관측된 Worker evidence로 shared public chat 상태를 계산한다.
+- [x] QA-AIPROXY6: 한국 ingress가 HKG로 수렴해도 provider outbound는 `locationHint:'enam'` Durable Object에서 실행되며 응답 헤더로 해당 authority를 검증한다.
 
 ## v54.2 AI 채팅 구조 일원화·오분류 종료 (2026-08-10)
 

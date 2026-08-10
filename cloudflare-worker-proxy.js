@@ -278,12 +278,23 @@ function hasAtomicQuotaBinding(env) {
   );
 }
 
+function hasDurableObjectNamespace(env) {
+  const binding = env && env.AIO_QUOTA_DO;
+  return !!binding && typeof binding.idFromName === 'function' && typeof binding.get === 'function';
+}
+
+function quotaDurableObjectStub(env) {
+  const binding = env && env.AIO_QUOTA_DO;
+  if (!hasDurableObjectNamespace(env)) throw new Error('durable object namespace unavailable');
+  const id = binding.idFromName('global');
+  return binding.get(id, { locationHint: 'enam' });
+}
+
 async function quotaRpc(env, operation, payload) {
   const binding = env && env.AIO_QUOTA_DO;
   if (!hasAtomicQuotaBinding(env)) throw new Error('atomic quota binding unavailable');
   if (typeof binding[operation] === 'function') return binding[operation](payload);
-  const id = binding.idFromName('global');
-  const stub = binding.get(id);
+  const stub = quotaDurableObjectStub(env);
   const response = await stub.fetch('https://aio-quota.internal/' + operation, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -306,9 +317,10 @@ async function deriveRequestId(request, bodyText) {
  * atomic across concurrent Worker requests; request IDs make retries idempotent.
  */
 export class AIOQuotaDurableObject {
-  constructor(state) {
+  constructor(state, env) {
     this.state = state;
     this.storage = state.storage;
+    this.env = env;
     this.counts = { days: {}, reservations: {} };
   }
 
@@ -321,9 +333,7 @@ export class AIOQuotaDurableObject {
 
   async save() { await this.storage.put('quota-state', this.counts); }
 
-  async fetch(request) {
-    const operation = new URL(request.url).pathname.split('/').pop();
-    const body = await request.json();
+  async mutateQuota(operation, body) {
     let result;
     await this.state.blockConcurrencyWhile(async () => {
       await this.load();
@@ -361,8 +371,47 @@ export class AIOQuotaDurableObject {
       }
       throw new Error('unsupported quota operation');
     });
+    return result || { ok: false };
+  }
+
+  async fetch(request) {
+    const operation = new URL(request.url).pathname.split('/').pop();
+    const body = await request.json();
+    if (operation === 'proxy') {
+      const reservation = await this.mutateQuota('reserve', body);
+      if (!reservation?.ok || !reservation.reserved) return Response.json({ error: { type: 'rate_limit_error', message: 'daily AI quota exceeded' } }, { status: 429 });
+      const ownedReservation = !reservation.duplicate;
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 60000);
+        const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-api-key': this.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+          body: JSON.stringify(body.claudeBody || {}), signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        if (upstream.status >= 400 && ownedReservation) await this.mutateQuota('release', body);
+        return new Response(upstream.body, { status: upstream.status, headers: {
+          'Content-Type': upstream.headers.get('content-type') || 'application/json',
+          'X-AIO-Upstream-Authority': 'durable-object-enam',
+        }});
+      } catch (error) {
+        if (ownedReservation) await this.mutateQuota('release', body);
+        return Response.json({ error: { type: error.name === 'AbortError' ? 'timeout' : 'upstream_error', message: 'Claude upstream unavailable' } }, { status: 502 });
+      }
+    }
+    const result = await this.mutateQuota(operation, body);
     return Response.json(result || { ok: false }, { status: 200 });
   }
+}
+
+async function fetchAnthropicThroughDurableObject(env, payload) {
+  const stub = quotaDurableObjectStub(env);
+  return stub.fetch('https://aio-quota.internal/proxy', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 }
 
 async function releaseAnthropicQuota(env, dayKey, requestId) {
@@ -397,15 +446,26 @@ async function handleAnthropic(request, env, origin) {
   const cap = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
   const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
   const requestId = await deriveRequestId(request, bodyText);
+  if (!/^claude-(haiku|sonnet)/.test(String(body.model || ''))) body.model = 'claude-haiku-4-5';
+  const maxTokens = parseInt(env.ANTHROPIC_MAX_TOKENS || '1500', 10);
+  if (!body.max_tokens || body.max_tokens > maxTokens) body.max_tokens = maxTokens;
+  if (hasDurableObjectNamespace(env)) {
+    try {
+      const upstream = await fetchAnthropicThroughDurableObject(env, { dayKey, cap, requestId, claudeBody: body });
+      return new Response(upstream.body, { status: upstream.status, headers: {
+        'Content-Type': upstream.headers.get('content-type') || 'application/json',
+        ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
+        'X-AIO-Proxy': 'cloudflare-worker-anthropic', 'X-AIO-Max-Tokens': String(maxTokens),
+        'X-AIO-Upstream-Authority': upstream.headers.get('X-AIO-Upstream-Authority') || 'durable-object',
+      }});
+    } catch { return errorResponse('AI durable authority unavailable', 503, origin, aiError, env); }
+  }
   let ownedReservation = false;
   try {
     const reservation = await quotaRpc(env, 'reserve', { dayKey, cap, requestId });
     if (!reservation?.ok || !reservation.reserved) return errorResponse('daily AI quota exceeded', 429, origin, aiError, env);
     ownedReservation = !reservation.duplicate;
   } catch { return errorResponse('AI quota unavailable', 503, origin, aiError, env); }
-  if (!/^claude-(haiku|sonnet)/.test(String(body.model || ''))) body.model = 'claude-haiku-4-5';
-  const maxTokens = parseInt(env.ANTHROPIC_MAX_TOKENS || '1500', 10);
-  if (!body.max_tokens || body.max_tokens > maxTokens) body.max_tokens = maxTokens;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 60000);
