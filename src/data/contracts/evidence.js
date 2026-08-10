@@ -74,6 +74,8 @@ export function createEvidence(input = {}) {
     sourceKind: String(input.sourceKind || 'unknown'),
     source: String(input.source || input.sourceKind || 'unknown'),
     observedAt: input.observedAt || null,
+    collectedAt: input.collectedAt || input.fetchedAt || null,
+    publishedAt: input.publishedAt || null,
     fetchedAt: input.fetchedAt || null,
     lastSuccessfulAt: input.lastSuccessfulAt || null,
     status,
@@ -97,7 +99,7 @@ export function validateEvidence(evidence) {
   if (!EVIDENCE_STATUS.includes(evidence?.status)) errors.push('status_invalid');
   if (!EVIDENCE_ALLOWED_USE.includes(evidence?.allowedUse)) errors.push('allowed_use_invalid');
   if (evidence?.status !== 'missing' && evidence?.status !== 'failed' && evidence?.value == null) errors.push('value_missing');
-  for (const field of ['observedAt', 'fetchedAt']) {
+  for (const field of ['observedAt', 'collectedAt', 'publishedAt', 'fetchedAt']) {
     if (evidence?.[field] != null && Number.isNaN(Date.parse(evidence[field]))) errors.push(`${field}_invalid`);
   }
   return Object.freeze({ ok: errors.length === 0, errors });

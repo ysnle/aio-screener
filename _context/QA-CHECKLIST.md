@@ -3,6 +3,18 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-09
 confidence: high
 
+## v53.96 current-code remediation closure (2026-08-10)
+
+- [x] QA-CR1: `AIO.runTests()` executes a single registry of 108 groups; duplicate IDs, group exceptions, and planned/completed count drift are release-blocking, with a synthetic throw sentinel.
+- [x] QA-CR2: Headless CI separates expected blocked external requests from page/runtime errors; unexpected page errors, local request failures, and unused allowlist entries fail the gate.
+- [x] QA-CR3: Scheduled market analysis has a typed `market-analysis.v2` schema, independent news-cluster evidence, claim evidence IDs, and a blocked same-schema fallback; `marketAnalysisOk:false` remains explicit when no provider output exists.
+- [x] QA-CR4: Worker AI quota uses an atomic reserve/release binding with idempotency and exact production/dev origin rules; legacy KV-only configuration fails closed; concurrent cap and duplicate-request fixtures pass.
+- [x] QA-CR5: Route owner metadata now distinguishes `native`, `legacy`, and `not-applicable`; baseline/dependency graphs keep local, release, and live revisions separate.
+- [x] QA-CR6: NYSE/KRX time adapters expose event/observed/collected/published timestamps and pass DST-adjacent, holiday, half-day, weekend, and missing-calendar fixtures; SEC anomalies quarantine rather than promote.
+- [x] QA-CR7: Research model, CSP sink, decomposition hotspot, and operations 7/30-day SLO contracts are machine-checked; local fixtures cannot certify PIT model validity, rights, live headers, or long-run SLOs.
+- [x] QA-CR8: The official refresh records 78/78 quote success and current Tier-0 evidence; FRED without a secret remains explicit `fredFetchOk:false`/source-labelled LKG and does not promote to success.
+- [ ] External: live Worker binding/health, provider rights, GitHub Pages edge header observation, and 7/30-day production SLO artifacts remain operator gates.
+
 ## v53.95 full-route audit closure (2026-08-09)
 
 - [x] QA-AUDIT1: All 20 active routes were exercised through native route navigation; vertical-slice, browser, route-soak, accessibility, viewport, and default-path contracts pass without browser console errors.
@@ -58,8 +70,8 @@ screener sole native DOM/state ownership; ARX-16 migrates non-route consumers th
 the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
 identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
 version: v4.2
-checklist_version: v53.91
-latest_P_covered: P892
+checklist_version: v53.97
+latest_P_covered: P895
 current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjacent-quarter/runtime closure plus P890 SEC-evidenced Scion latest-filing availability; official currentness/security-master and live provider/Worker/model/edge verification stay separate
 
 ## Coverage expansion checkpoint: six source documents (v53.89)
@@ -901,6 +913,7 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 
 - **P513-Q1**: audit/게이트 그린만으로 완료 선언 금지 — `ci-semantic-review-check.mjs`가 의미 검토(semantic review)를 별도 강제. shape/coverage audit은 의미 검증의 대체물이 아니다 (R219).
 - **P514-Q1**: workflow/skill 문서 append-only 비대화 방지 — `ci-workflow-compaction-check.mjs`가 governed ledger(RULES/QA-CHECKLIST/BUG-POSTMORTEM) 외 대형 컨텍스트 파일을 경고 (R220).
+- **P894-Q1**: `.claude/skills` canonical ↔ ignored `.agents/skills` local mirror byte parity, direct reference existence, command routing, non-versioned shared contract, eval-guide UTF-8 sentinel을 `ci-skill-contract-check.mjs`와 `sync-agent-skills.mjs --check`로 검증 (R236/R237).
 - **P517**: 데이터 파이프라인 source→consumer 전체 계약 — `ci-data-pipeline-contract-check.mjs` (R222).
 - **P529**: 기본 경로 UX 노이즈/빈 트랙 차단 — `ci-ux-default-path-check.mjs` (R228).
 - **P531**: 뉴스 셀프-주입 소스 품질·신선도 게이트 (R230).

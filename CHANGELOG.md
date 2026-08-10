@@ -1,3 +1,21 @@
+## v53.97 (2026-08-10)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v53.97
+
+## v53.97 (2026-08-10)
+- **Current-code remediation closure**: sequentially implemented CR-QA-01/02, CR-BASE-01, CR-WORKER-01, CR-DATA-01, CR-TIME-01, CR-FUND-01, CR-MODEL-01, CR-CSP-01, CR-DECOMP-01, CR-OPS-01, and CR-ARCH-01 contracts.
+- **Fail-closed QA/runtime**: group registry exceptions now fail tests, unexpected headless runtime errors fail CI, and browser network aborts are scoped to an explicit expiring allowlist.
+- **Evidence and boundary fixes**: market analysis uses validated metric/news evidence, worker Anthropic quota is atomic/idempotent with exact origin rules, time/fundamental/model/operations states preserve unknown or blocked conditions, and route ownership accepts `not-applicable` explicitly.
+- **Release boundary**: local verification is recorded separately from live/operator certification; secrets, provider rights, 7/30-day soak, live CSP, and external Worker evidence remain blocked until independently observed.
+- R1 7곳 v53.97
+
+## v53.96 (2026-08-09)
+- **스킬 시스템 SSOT 전환**: Git-tracked `.claude/skills`를 canonical router-plus-reference 트리로 고정하고, ignored `.agents/skills`는 `sync-agent-skills.mjs`가 생성·검증하는 로컬 Codex mirror로 전환했다.
+- **6개 핵심 스킬 구조 보강**: 공통 scope/evidence 계약을 강화하고, autoresearch의 정적/행동 평가 경계, bug-fix의 실패 분류·negative control, data-refresh의 source promotion 정책, integrate의 Q1~Q5·invalidation, knowledge-lint의 mirror drift, post-edit-qa의 risk/route scope matrix를 직접 참조로 연결했다.
+- **드리프트 방지 게이트**: `ci-skill-contract-check.mjs`가 router 크기, 직접 참조, command wrapper, 고정 계약 버전, UTF-8 sentinel, materialized mirror의 파일 inventory·byte parity를 검사한다.
+- **Autoresearch**: 6개 deterministic eval 기준 baseline 1/6(16.7%)에서 6/6(100%)으로 개선했고, 동점·복잡성 증가 실험 2건은 폐기했다. 행동 프롬프트 품질은 별도 미검증으로 유지한다.
+- R1 7곳 v53.96
+
 ## v53.95 (2026-08-09)
 - <!-- 변경 내용을 이곳에 기록하세요 -->
 - **Full-route audit**: audited all 20 active routes, native vertical slices, data lineage, source boundaries, accessibility/viewport contracts, browser navigation, and route soak. Provider refresh failures remain explicitly stale/reference-only.

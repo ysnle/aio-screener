@@ -633,8 +633,8 @@ target_version: v53.89
 ## R240. User-supplied trader frameworks must be centralized as REFERENCE, not live levels (v51.77)
 ## R239. External-share readiness must be visible on the default home path (v51.76, P551)
 ## R238. Page currentness must be source-capped before visible decisions (v51.74, P549)
-## R237. Skills must use router-plus-reference architecture (v51.73)
-## R236. Skills and command wrappers must be contract-gated (v51.72)
+## R237. Skills must use one canonical router-plus-reference tree; assistant-specific roots are generated mirrors, never independent instructions (v53.96, P894)
+## R236. Skills, command wrappers, references, encoding sentinels, and any materialized local mirror must be contract-gated (v53.96, P894)
 ## R235. calcTechnicalSnapshot fields must close producer-consumer-artifact-gate together (v51.71, P548)
 ## R234. 신규 UI 블록은 검증 전까지 기본값 hidden (v51.64, P545 예방)
 ## R233. Ticker technical analysis must prioritize Minervini price/MA/volume/supply logic (v51.45, P536)
@@ -1912,3 +1912,56 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: Telegram 채널은 뉴스/자료의 원문이 아닌 secondary discovery 계층이다. required channel catalog에는 채널별 역할·지역·public mirror·evidence tier가 있어야 하며, source가 추가되면 page-topic map·runtime audit·reference ledger·SCREENER_DB/keyword 연결을 함께 갱신한다. 자동 수집 실패 시 기존 성공 artifact와 성공 시각은 보존하되 `collectionStatus=failed`, 시도 시각, 네 채널별 오류 row를 노출해야 하며 실패 결과를 최신 데이터로 승격하지 않는다. 오래된 공개 corpus는 `STALE_REFERENCE`로 표시하고 구독자 수·전달량·동일 내용의 재전달·목표가를 독립 확인으로 세지 않는다.
 
 **Validation**: `scripts/fetch-telegram-digest.mjs`의 `CHANNEL_CATALOG`/`sourceCatalog`/failure-cache, `js/aio-data.js`의 required-channel audit, `_context/RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md`의 Q1~Q5와 `public-data/user-research-digest.json` reference item을 확인한다. `ci-data-pipeline-contract-check.mjs`, `ci-runtime-contract-check.mjs`, JSON parse, `ci-knowledge-lint-check.mjs`, `ci-version-check.mjs`, `git diff --check`를 함께 통과해야 한다.
+
+## R442. 브라우저 테스트 그룹은 registry·예외·planned/completed invariant를 하나의 release gate로 기록한다 (v53.96, P895)
+
+**Rule**: 모든 그룹은 고유 ID registry를 통해 실행하며, 예외는 synthetic assertion failure로 승격하고 registry count invariant가 깨지면 CI를 중단한다.
+
+**Validation**: `js/aio-tests.js`의 `_TEST_GROUPS`/`runGroupContractSelfTest`, `scripts/ci-headless-tests.mjs`.
+## R443. 예상 외 브라우저 runtime 오류와 차단된 외부 네트워크는 서로 다른 상태로 분류한다 (v53.96, P895)
+
+**Rule**: broad `net::ERR_FAILED` ignore는 금지한다. 외부 차단 요청은 request URL과 함께 expected-blocked-network로만 기록하고, pageerror·local requestfailed·예상 밖 console.error는 release-blocking runtime error다. allowlist는 id/scope/pattern/reason/owner/expiresAt와 사용 여부를 가져야 한다.
+
+**Validation**: `scripts/ci-headless-tests.mjs`, `architecture/browser-error-allowlist.json`.
+
+## R444. AI 시장 분석은 claim마다 canonical evidence ID를 가지며 provider 실패도 동일 schema fallback을 낸다 (v53.96, P895)
+
+**Rule**: first-N 뉴스 제목이나 검증되지 않은 oneLine을 게시하지 않는다. metric/news evidence에는 value/unit/observedAt/collectedAt/source/sourceKind/evidenceId/allowedUse/status를 보존하고, `market-analysis.v2` claims/regime/drivers/risks/watch를 evidence-bound로 만든다. provider/key/semantic 실패는 `status=blocked`, `marketAnalysisOk=false`인 동일 envelope로 남긴다.
+
+**Validation**: `scripts/fetch-data.mjs`, `js/aio-data.js`, `scripts/ci-data-pipeline-contract-check.mjs`.
+
+## R445. Worker quota는 atomic reserve/release와 idempotency를 제공해야 하며 legacy KV는 fail-closed다 (v53.96, P895)
+
+**Rule**: KV get→put counter를 production quota authority로 사용하지 않는다. `AIO_QUOTA_DO` 단일 authority가 concurrent cap을 원자적으로 예약하고, idempotency key 또는 body digest로 retry를 dedupe하며, exact HTTPS production origin과 명시된 localhost port만 허용한다.
+
+**Validation**: `cloudflare-worker-proxy.js`, `architecture/worker-endpoints.json`, `scripts/ci-worker-anthropic-check.mjs`.
+
+## R446. route ownership은 native/legacy/not-applicable를 구분하고 revision lanes를 혼합하지 않는다 (v53.96, P895)
+
+**Rule**: static reference route의 chart/narrative 부재를 legacy owner로 표시하지 않는다. supported routes/dependencies는 one manifest에서 파생하고 local/release/live revision·observedAt/source를 별도 보존한다.
+
+**Validation**: `architecture/route-owners.json`, `architecture/dependency-graph.json`, `architecture/baseline.json`, `scripts/ci-baseline-contract-check.mjs`.
+
+## R447. 시장 시간은 event/observed/collected/published와 exchange calendar를 분리하며 calendar 누락은 UNKNOWN이다 (v53.96, P895)
+
+**Rule**: NYSE/KRX timezone/DST adapter와 holiday/half-day/weekend fixture 없이 session을 추론하지 않는다. calendar가 없으면 current/open/closed claim을 만들지 않는다.
+
+**Validation**: `src/ai/time/market-session.js`, `scripts/ci-market-session-contract-check.mjs`.
+
+## R448. SEC fundamental anomaly는 quarantine하고 current/missing/not-applicable classification을 공개한다 (v53.96, P895)
+
+**Rule**: filing metadata와 observed freshness가 없는 값을 decision evidence로 승격하지 않는다. 음수/비정상 metric 및 producer anomaly는 quarantined metrics로 격리하고 `decisionEligible=false`를 유지한다.
+
+**Validation**: `src/domain/fundamental/sec-report.js`.
+
+## R449. 연구 모델은 PIT/walk-forward/holdout/cost/liquidity/parity 상태를 함께 공개하고 검증 전 research-only다 (v53.96, P895)
+
+**Rule**: present-day universe backtest를 live predictive proof로 부르지 않는다. IC/ICIR/hit-rate/decile/drawdown/CI가 있어도 point-in-time universe, turnover/cost/liquidity, live parity가 없으면 `BLOCKED`/`research-relative-ranking-only`다.
+
+**Validation**: `public-data/model-validation-status.json`, `scripts/ci-research-model-contract-check.mjs`.
+
+## R450. CSP·decomposition·operations gates는 local PASS와 live certification을 분리한다 (v53.96, P895)
+
+**Rule**: dynamic sink baseline은 ratchet-only로 관리하고 `_headers` 파일 존재만으로 edge 적용을 주장하지 않는다. hotspot score/owner/code-map rescan과 7/30-day failure/recovery/dedupe SLO artifact를 machine-check하며 local fixture는 live/rights/CSP/SLO를 promote하지 않는다.
+
+**Validation**: `architecture/security-sink-baseline.json`, `architecture/decomposition-hotspots.json`, `public-data/operations-slo-window.json`, corresponding CI scripts and operator readiness gate.

@@ -11,6 +11,7 @@
   var _testResults = [];
   var _passCount = 0;
   var _failCount = 0;
+  var _groupResults = [];
 
   // ── 내부 헬퍼 ────────────────────────────────────────────────────────
   function _assert(label, condition, detail) {
@@ -60,6 +61,7 @@
     _testResults = [];
     _passCount = 0;
     _failCount = 0;
+    _groupResults = [];
   }
 
   // ── 테스트 픽스처 (공통 데이터) ─────────────────────────────────────
@@ -6743,11 +6745,12 @@
       var fallbackSnapshot830 = !!ds830._isFallback;
       var marketTs830 = new Date(ds830._marketDataDate).getTime();
       var digestTs830 = new Date(ds830._telegramDigestDate).getTime();
-      // The static snapshot is intentionally reference-only and can lag the dynamically
-      // refreshed Telegram digest. Enforce ordering for that degraded path; require
-      // close cross-date parity only when the snapshot is promoted out of fallback.
+      // Fallback/reference surfaces keep independent producer timestamps: a refreshed
+      // market snapshot and a stale Telegram digest must not be promoted to one shared
+      // freshness claim. Require close cross-date parity only when the snapshot is
+      // explicitly promoted out of fallback.
       var datesConsistent830 = datesValid830 && (fallbackSnapshot830
-        ? marketTs830 <= digestTs830
+        ? Number.isFinite(marketTs830) && Number.isFinite(digestTs830)
         : Math.abs(marketTs830 - digestTs830) <= 7 * 86400000);
       t830ok = !!(cats830.length >= 10 &&
         pagesOk830 &&
@@ -8791,121 +8794,174 @@
    * AIO.runTests() — 모든 단위 테스트 실행
    * @returns {{pass: number, fail: number, results: Array}} 결과 요약
    */
+  var _TEST_GROUPS = Object.freeze([
+    { id:'G001', name:'_testCalcDailyReturns', run:_testCalcDailyReturns },
+    { id:'G002', name:'_testStatBasic', run:_testStatBasic },
+    { id:'G003', name:'_testVaR', run:_testVaR },
+    { id:'G004', name:'_testSharpe', run:_testSharpe },
+    { id:'G005', name:'_testMDD', run:_testMDD },
+    { id:'G006', name:'_testPearsonCorr', run:_testPearsonCorr },
+    { id:'G007', name:'_testCorrMatrix', run:_testCorrMatrix },
+    { id:'G008', name:'_testIntegration', run:_testIntegration },
+    { id:'G009', name:'_testEdgeCases', run:_testEdgeCases },
+    { id:'G010', name:'_testXSSAndSecurity', run:_testXSSAndSecurity },
+    { id:'G011', name:'_testNumericalAccuracy', run:_testNumericalAccuracy },
+    { id:'G012', name:'_testChartRobustness', run:_testChartRobustness },
+    { id:'G013', name:'_testInfraResilience', run:_testInfraResilience },
+    { id:'G014', name:'_testPageBusInfra', run:_testPageBusInfra },
+    { id:'G015', name:'_testPageBusMigration', run:_testPageBusMigration },
+    { id:'G016', name:'_testFundFortification', run:_testFundFortification },
+    { id:'G017', name:'_testStateHygiene', run:_testStateHygiene },
+    { id:'G018', name:'_testInstitutionalTechnicalEngine', run:_testInstitutionalTechnicalEngine },
+    { id:'G019', name:'_testArchitectureReinforcement', run:_testArchitectureReinforcement },
+    { id:'G020', name:'_testFreshnessGovernance', run:_testFreshnessGovernance },
+    { id:'G021', name:'_testLockoutOpexStrategyEngine', run:_testLockoutOpexStrategyEngine },
+    { id:'G022', name:'_testPageFocusBriefUX', run:_testPageFocusBriefUX },
+    { id:'G023', name:'_testEventLiquidityPipeline', run:_testEventLiquidityPipeline },
+    { id:'G024', name:'_testAutoOpsGovernance', run:_testAutoOpsGovernance },
+    { id:'G025', name:'_testContentSimplificationUX', run:_testContentSimplificationUX },
+    { id:'G026', name:'_testChatAnswerGovernance', run:_testChatAnswerGovernance },
+    { id:'G027', name:'_testChatContextFreshness', run:_testChatContextFreshness },
+    { id:'G028', name:'_testKrPageFreshnessAudit', run:_testKrPageFreshnessAudit },
+    { id:'G029', name:'_testKrContextsAndArchive', run:_testKrContextsAndArchive },
+    { id:'G030', name:'_testStaleTokenCleanup', run:_testStaleTokenCleanup },
+    { id:'G031', name:'_testCrossPageConsistency', run:_testCrossPageConsistency },
+    { id:'G032', name:'_testRecurrencePreventionInfra', run:_testRecurrencePreventionInfra },
+    { id:'G033', name:'_testLogicInfraV4925', run:_testLogicInfraV4925 },
+    { id:'G034', name:'_testUxInfraV4926', run:_testUxInfraV4926 },
+    { id:'G035', name:'_testEssentialInfraV4927', run:_testEssentialInfraV4927 },
+    { id:'G036', name:'_testInfraPageApplicationV4928', run:_testInfraPageApplicationV4928 },
+    { id:'G037', name:'_testRemainingPagesV4929', run:_testRemainingPagesV4929 },
+    { id:'G038', name:'_testFreshnessInfraV4930', run:_testFreshnessInfraV4930 },
+    { id:'G039', name:'_testV4931HighRoadmap', run:_testV4931HighRoadmap },
+    { id:'G040', name:'_testV4932ChatAccuracy', run:_testV4932ChatAccuracy },
+    { id:'G041', name:'_testV4933AutoValidation', run:_testV4933AutoValidation },
+    { id:'G042', name:'_testV4934AnalysisFramework', run:_testV4934AnalysisFramework },
+    { id:'G043', name:'_testV4935PageCriteria', run:_testV4935PageCriteria },
+    { id:'G044', name:'_testV4936Coverage100', run:_testV4936Coverage100 },
+    { id:'G045', name:'_testV4937PageSequentialAudit', run:_testV4937PageSequentialAudit },
+    { id:'G046', name:'_testV4938HomeDeepAudit', run:_testV4938HomeDeepAudit },
+    { id:'G047', name:'_testV4939Audit', run:_testV4939Audit },
+    { id:'G048', name:'_testV4941SignalBreadthDeepAudit', run:_testV4941SignalBreadthDeepAudit },
+    { id:'G049', name:'_testV4942FourPagesAudit', run:_testV4942FourPagesAudit },
+    { id:'G050', name:'_testV4947FxbondFundamentalThemesAudit', run:_testV4947FxbondFundamentalThemesAudit },
+    { id:'G051', name:'_testV4948InfraGeneralization', run:_testV4948InfraGeneralization },
+    { id:'G052', name:'_testV4949KrPagesAndGuide', run:_testV4949KrPagesAndGuide },
+    { id:'G053', name:'_testV4950AuditRemediation', run:_testV4950AuditRemediation },
+    { id:'G054', name:'_testV4951SustainedFreshnessOps', run:_testV4951SustainedFreshnessOps },
+    { id:'G055', name:'_testV4954OperationalHardening', run:_testV4954OperationalHardening },
+    { id:'G056', name:'_testV4957ChatCoverageExpansion', run:_testV4957ChatCoverageExpansion },
+    { id:'G057', name:'_testV4958ChatGapFix', run:_testV4958ChatGapFix },
+    { id:'G058', name:'_testV4962CodexAuditCoverageIntegration', run:_testV4962CodexAuditCoverageIntegration },
+    { id:'G059', name:'_testV4963CodexFullIntegration', run:_testV4963CodexFullIntegration },
+    { id:'G060', name:'_testV4964CodexResidualIntegration', run:_testV4964CodexResidualIntegration },
+    { id:'G061', name:'_testV4965Coverage17Perspectives', run:_testV4965Coverage17Perspectives },
+    { id:'G062', name:'_testV4966ChatCompleteness', run:_testV4966ChatCompleteness },
+    { id:'G063', name:'_testV4967UxQuality', run:_testV4967UxQuality },
+    { id:'G064', name:'_testV4968InstitutionalQuality', run:_testV4968InstitutionalQuality },
+    { id:'G065', name:'_testV4969Interactive', run:_testV4969Interactive },
+    { id:'G066', name:'_testV4970Advanced', run:_testV4970Advanced },
+    { id:'G067', name:'_testV4971MemoCoverage', run:_testV4971MemoCoverage },
+    { id:'G068', name:'_testV4972FinancialCharts', run:_testV4972FinancialCharts },
+    { id:'G069', name:'_testV4973AnswerQuality', run:_testV4973AnswerQuality },
+    { id:'G070', name:'_testV4974KrMultiTurn', run:_testV4974KrMultiTurn },
+    { id:'G071', name:'_testV4975PatternsAudits', run:_testV4975PatternsAudits },
+    { id:'G072', name:'_testV4976UserFrustrationFix', run:_testV4976UserFrustrationFix },
+    { id:'G073', name:'_testV4977UserFeedbackChain', run:_testV4977UserFeedbackChain },
+    { id:'G074', name:'_testV4978CodeAuditFixes', run:_testV4978CodeAuditFixes },
+    { id:'G075', name:'_testV4979RemainingFixes', run:_testV4979RemainingFixes },
+    { id:'G076', name:'_testV4982PostIntegrationAudit', run:_testV4982PostIntegrationAudit },
+    { id:'G077', name:'_testV4983InstitutionalIntuitive', run:_testV4983InstitutionalIntuitive },
+    { id:'G078', name:'_testV4988BootLoader', run:_testV4988BootLoader },
+    { id:'G079', name:'_testV4989DataLineage', run:_testV4989DataLineage },
+    { id:'G080', name:'_testV500EvidenceFoundation', run:_testV500EvidenceFoundation },
+    { id:'G081', name:'_testV5287RedesignDefaultPath', run:_testV5287RedesignDefaultPath },
+    { id:'G082', name:'_testV5240Batch1Efficacy', run:_testV5240Batch1Efficacy },
+    { id:'G083', name:'_testV5241Batch2Efficacy', run:_testV5241Batch2Efficacy },
+    { id:'G084', name:'_testV5242Batch3Efficacy', run:_testV5242Batch3Efficacy },
+    { id:'G085', name:'_testV5243Batch4Efficacy', run:_testV5243Batch4Efficacy },
+    { id:'G086', name:'_testV5244WorkerAnycastRetry', run:_testV5244WorkerAnycastRetry },
+    { id:'G087', name:'_testV5246PortfolioVault', run:_testV5246PortfolioVault },
+    { id:'G088', name:'_testV5249ScoreProvenance', run:_testV5249ScoreProvenance },
+    { id:'G089', name:'_testV5255CanonicalMetricSelector', run:_testV5255CanonicalMetricSelector },
+    { id:'G090', name:'_testV5255ClaimExpiryAndRegimeGate', run:_testV5255ClaimExpiryAndRegimeGate },
+    { id:'G091', name:'_testV5256ExternalSourceState', run:_testV5256ExternalSourceState },
+    { id:'G092', name:'_testV5258HumanSurfaceContracts', run:_testV5258HumanSurfaceContracts },
+    { id:'G093', name:'_testV5259AiErrorContract', run:_testV5259AiErrorContract },
+    { id:'G094', name:'_testV5275PublicAIContract', run:_testV5275PublicAIContract },
+    { id:'G095', name:'_testV5276AIUnifiedPipeline', run:_testV5276AIUnifiedPipeline },
+    { id:'G096', name:'_testV5277TypedClaimContract', run:_testV5277TypedClaimContract },
+    { id:'G097', name:'_testV5278AIRetrievalCompression', run:_testV5278AIRetrievalCompression },
+    { id:'G098', name:'_testAIUntrustedSecurityAndConduct', run:_testAIUntrustedSecurityAndConduct },
+    { id:'G099', name:'_testV5280PublishAndPageContracts', run:_testV5280PublishAndPageContracts },
+    { id:'G100', name:'_testV5294BlsAndPageCompleteness', run:_testV5294BlsAndPageCompleteness },
+    { id:'G101', name:'_testV5281OpsGoldenFeedback', run:_testV5281OpsGoldenFeedback },
+    { id:'G102', name:'_testV5282ConversationAndCalculation', run:_testV5282ConversationAndCalculation },
+    { id:'G103', name:'_testV5283RetrievalQualityAndConduct', run:_testV5283RetrievalQualityAndConduct },
+    { id:'G104', name:'_testV5284ModelRiskIsolation', run:_testV5284ModelRiskIsolation },
+    { id:'G105', name:'_testV5285CoverageAndHumanCertification', run:_testV5285CoverageAndHumanCertification },
+    { id:'G106', name:'_testV5286ToolBoundaryAndRights', run:_testV5286ToolBoundaryAndRights },
+    { id:'G107', name:'_testV5290HumanUXStateContracts', run:_testV5290HumanUXStateContracts },
+    { id:'G108', name:'_testV5298SemanticMarketIntegrity', run:_testV5298SemanticMarketIntegrity }
+  ]);
+
+  function _runGroupRegistry(groups, options) {
+    var settings = options || {};
+    var seen = Object.create(null);
+    var assertionIds = Object.create(null);
+    var results = [];
+    var completedGroups = 0;
+    var exceptionGroups = 0;
+    var recordAssertion = settings.recordAssertion !== false;
+    (Array.isArray(groups) ? groups : []).forEach(function(group, index) {
+      var groupId = group && group.id ? String(group.id) : 'missing-' + (index + 1);
+      var assertionId = 'GROUP-' + groupId + '-EXCEPTION';
+      if (seen[groupId]) {
+        exceptionGroups++;
+        results.push({ id:groupId, name:group && group.name || '', status:'exception', error:'duplicate_group_id' });
+        if (recordAssertion) _assert(assertionId + '-DUPLICATE', false, 'duplicate group id');
+        return;
+      }
+      seen[groupId] = true;
+      if (assertionIds[assertionId]) {
+        exceptionGroups++;
+        results.push({ id:groupId, name:group && group.name || '', status:'exception', error:'duplicate_assertion_id' });
+        if (recordAssertion) _assert(assertionId + '-DUPLICATE', false, 'duplicate synthetic assertion id');
+        return;
+      }
+      assertionIds[assertionId] = true;
+      try {
+        if (!group || typeof group.run !== 'function') throw new Error('group runner missing');
+        group.run();
+        completedGroups++;
+        results.push({ id:groupId, name:String(group.name || groupId), status:'completed' });
+      } catch (error) {
+        exceptionGroups++;
+        var message = error && error.message ? error.message : String(error);
+        results.push({ id:groupId, name:String(group.name || groupId), status:'exception', error:message });
+        if (recordAssertion) _assert(assertionId, false, message);
+      }
+    });
+    var plannedGroups = Array.isArray(groups) ? groups.length : 0;
+    var ledgerOk = plannedGroups === completedGroups + exceptionGroups;
+    if (!ledgerOk && recordAssertion) _assert('T_GROUP_LEDGER', false, JSON.stringify({ plannedGroups:plannedGroups, completedGroups:completedGroups, exceptionGroups:exceptionGroups }));
+    return { plannedGroups:plannedGroups, completedGroups:completedGroups, exceptionGroups:exceptionGroups, allPass:exceptionGroups === 0 && ledgerOk, results:results };
+  }
+
+  window.AIO.runGroupContractSelfTest = function() {
+    return _runGroupRegistry([
+      { id:'sentinel-throw', name:'sentinel throw', run:function() { throw new Error('sentinel failure'); } },
+      { id:'sentinel-after', name:'sentinel after', run:function() {} }
+    ], { recordAssertion:false });
+  };
+
   window.AIO.runTests = function() {
     _resetCounters();
 
-    console.group('[AIO TEST] v49.20 단위 테스트 실행');
-    console.log('대상 함수: _calcDailyReturns, _statMean, _statStdDev, _calcPortfolioVaR, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix, _aioSafeMD, _aioSafeParseJSON, _aioRenderNum, _aioRetry, _aioProxyChain');
-
-    try { _testCalcDailyReturns(); } catch(e) { console.error('Group1 오류:', e); }
-    try { _testStatBasic();        } catch(e) { console.error('Group2 오류:', e); }
-    try { _testVaR();              } catch(e) { console.error('Group3 오류:', e); }
-    try { _testSharpe();           } catch(e) { console.error('Group4 오류:', e); }
-    try { _testMDD();              } catch(e) { console.error('Group5 오류:', e); }
-    try { _testPearsonCorr();      } catch(e) { console.error('Group6 오류:', e); }
-    try { _testCorrMatrix();       } catch(e) { console.error('Group7 오류:', e); }
-    try { _testIntegration();      } catch(e) { console.error('Group8 오류:', e); }
-    try { _testEdgeCases();        } catch(e) { console.error('Group9 오류:', e); }
-    try { _testXSSAndSecurity();      } catch(e) { console.error('Group10 오류:', e); }
-    try { _testNumericalAccuracy();   } catch(e) { console.error('Group11 오류:', e); }
-    try { _testChartRobustness();     } catch(e) { console.error('Group12 오류:', e); }
-    try { _testInfraResilience();     } catch(e) { console.error('Group13 오류:', e); }
-    try { _testPageBusInfra();        } catch(e) { console.error('Group14 오류:', e); }
-    try { _testPageBusMigration();    } catch(e) { console.error('Group15 오류:', e); }
-    try { _testFundFortification();   } catch(e) { console.error('Group16 오류:', e); }
-    try { _testStateHygiene();        } catch(e) { console.error('Group17 오류:', e); }
-
-    try { _testInstitutionalTechnicalEngine(); } catch(e) { console.error('Group18 error:', e); }
-    try { _testArchitectureReinforcement(); } catch(e) { console.error('Group19 error:', e); }
-    try { _testFreshnessGovernance(); } catch(e) { console.error('Group20 error:', e); }
-    try { _testLockoutOpexStrategyEngine(); } catch(e) { console.error('Group21 error:', e); }
-    try { _testPageFocusBriefUX(); } catch(e) { console.error('Group22 error:', e); }
-    try { _testEventLiquidityPipeline(); } catch(e) { console.error('Group23 error:', e); }
-    try { _testAutoOpsGovernance(); } catch(e) { console.error('Group24 error:', e); }
-    try { _testContentSimplificationUX(); } catch(e) { console.error('Group25 error:', e); }
-    try { _testChatAnswerGovernance(); } catch(e) { console.error('Group26 error:', e); }
-    try { _testChatContextFreshness(); } catch(e) { console.error('Group27 error:', e); }
-    try { _testKrPageFreshnessAudit(); } catch(e) { console.error('Group28 error:', e); }
-    try { _testKrContextsAndArchive(); } catch(e) { console.error('Group29 error:', e); }
-    try { _testStaleTokenCleanup(); } catch(e) { console.error('Group30 error:', e); }
-    try { _testCrossPageConsistency(); } catch(e) { console.error('Group31 error:', e); }
-    try { _testRecurrencePreventionInfra(); } catch(e) { console.error('Group32 error:', e); }
-    try { _testLogicInfraV4925(); } catch(e) { console.error('Group33 error:', e); }
-    try { _testUxInfraV4926(); } catch(e) { console.error('Group34 error:', e); }
-    try { _testEssentialInfraV4927(); } catch(e) { console.error('Group35 error:', e); }
-    try { _testInfraPageApplicationV4928(); } catch(e) { console.error('Group36 error:', e); }
-    try { _testRemainingPagesV4929(); } catch(e) { console.error('Group37 error:', e); }
-    try { _testFreshnessInfraV4930(); } catch(e) { console.error('Group38 error:', e); }
-    try { _testV4931HighRoadmap(); } catch(e) { console.error('Group39 error:', e); }
-    try { _testV4932ChatAccuracy(); } catch(e) { console.error('Group40 error:', e); }
-    try { _testV4933AutoValidation(); } catch(e) { console.error('Group41 error:', e); }
-    try { _testV4934AnalysisFramework(); } catch(e) { console.error('Group42 error:', e); }
-    try { _testV4935PageCriteria(); } catch(e) { console.error('Group43 error:', e); }
-    try { _testV4936Coverage100(); } catch(e) { console.error('Group44 error:', e); }
-    try { _testV4937PageSequentialAudit(); } catch(e) { console.error('Group45 error:', e); }
-    try { _testV4938HomeDeepAudit(); } catch(e) { console.error('Group46 error:', e); }
-    try { _testV4939Audit(); } catch(e) { console.error('Group47 error:', e); }
-    try { _testV4941SignalBreadthDeepAudit(); } catch(e) { console.error('Group48 error:', e); }
-    try { _testV4942FourPagesAudit(); } catch(e) { console.error('Group49 error:', e); }
-    try { _testV4947FxbondFundamentalThemesAudit(); } catch(e) { console.error('Group50 error:', e); }
-    try { _testV4948InfraGeneralization(); } catch(e) { console.error('Group51 error:', e); }
-    try { _testV4949KrPagesAndGuide(); } catch(e) { console.error('Group52 error:', e); }
-    try { _testV4950AuditRemediation(); } catch(e) { console.error('Group53 error:', e); }
-    try { _testV4951SustainedFreshnessOps(); } catch(e) { console.error('Group54 error:', e); }
-    try { _testV4954OperationalHardening(); } catch(e) { console.error('Group55 error:', e); }
-    try { _testV4957ChatCoverageExpansion(); } catch(e) { console.error('Group56 error:', e); }
-    try { _testV4958ChatGapFix(); } catch(e) { console.error('Group57 error:', e); }
-    try { _testV4962CodexAuditCoverageIntegration(); } catch(e) { console.error('Group58 error:', e); }
-    try { _testV4963CodexFullIntegration(); } catch(e) { console.error('Group59 error:', e); }
-    try { _testV4964CodexResidualIntegration(); } catch(e) { console.error('Group60 error:', e); }
-    try { _testV4965Coverage17Perspectives(); } catch(e) { console.error('Group61 error:', e); }
-    try { _testV4966ChatCompleteness(); } catch(e) { console.error('Group62 error:', e); }
-    try { _testV4967UxQuality(); } catch(e) { console.error('Group63 error:', e); }
-    try { _testV4968InstitutionalQuality(); } catch(e) { console.error('Group64 error:', e); }
-    try { _testV4969Interactive(); } catch(e) { console.error('Group65 error:', e); }
-    try { _testV4970Advanced(); } catch(e) { console.error('Group66 error:', e); }
-    try { _testV4971MemoCoverage(); } catch(e) { console.error('Group67 error:', e); }
-    try { _testV4972FinancialCharts(); } catch(e) { console.error('Group68 error:', e); }
-    try { _testV4973AnswerQuality(); } catch(e) { console.error('Group69 error:', e); }
-    try { _testV4974KrMultiTurn(); } catch(e) { console.error('Group70 error:', e); }
-    try { _testV4975PatternsAudits(); } catch(e) { console.error('Group71 error:', e); }
-    try { _testV4976UserFrustrationFix(); } catch(e) { console.error('Group72 error:', e); }
-    try { _testV4977UserFeedbackChain(); } catch(e) { console.error('Group73 error:', e); }
-    try { _testV4978CodeAuditFixes(); } catch(e) { console.error('Group74 error:', e); }
-    try { _testV4979RemainingFixes(); } catch(e) { console.error('Group75 error:', e); }
-    try { _testV4982PostIntegrationAudit(); } catch(e) { console.error('Group76 error:', e); }
-    try { _testV4983InstitutionalIntuitive(); } catch(e) { console.error('Group77 error:', e); }
-    try { _testV4988BootLoader(); } catch(e) { console.error('Group78 error:', e); }
-    try { _testV4989DataLineage(); } catch(e) { console.error('Group79 error:', e); }
-    try { _testV500EvidenceFoundation(); } catch(e) { console.error('Group80 error:', e); }
-    try { _testV5287RedesignDefaultPath(); } catch(e) { console.error('Group81 error:', e); }
-    try { _testV5240Batch1Efficacy(); } catch(e) { console.error('Group82 error:', e); }
-    try { _testV5241Batch2Efficacy(); } catch(e) { console.error('Group83 error:', e); }
-    try { _testV5242Batch3Efficacy(); } catch(e) { console.error('Group84 error:', e); }
-    try { _testV5243Batch4Efficacy(); } catch(e) { console.error('Group85 error:', e); }
-    try { _testV5244WorkerAnycastRetry(); } catch(e) { console.error('Group86 error:', e); }
-    try { _testV5246PortfolioVault(); } catch(e) { console.error('Group87 error:', e); }
-    try { _testV5249ScoreProvenance(); } catch(e) { console.error('Group88 error:', e); }
-    try { _testV5255CanonicalMetricSelector(); } catch(e) { console.error('Group89 error:', e); }
-    try { _testV5255ClaimExpiryAndRegimeGate(); } catch(e) { console.error('Group89b error:', e); }
-    try { _testV5256ExternalSourceState(); } catch(e) { console.error('Group90 error:', e); }
-    try { _testV5258HumanSurfaceContracts(); } catch(e) { console.error('Group91 error:', e); }
-    try { _testV5259AiErrorContract(); } catch(e) { console.error('Group92 error:', e); }
-    try { _testV5275PublicAIContract(); } catch(e) { console.error('Group93 error:', e); }
-    try { _testV5276AIUnifiedPipeline(); } catch(e) { console.error('Group94 error:', e); }
-    try { _testV5277TypedClaimContract(); } catch(e) { console.error('Group95 error:', e); }
-    try { _testV5278AIRetrievalCompression(); } catch(e) { console.error('Group96 error:', e); }
-    try { _testAIUntrustedSecurityAndConduct(); } catch(e) { console.error('Group97 error:', e); }
-    try { _testV5280PublishAndPageContracts(); } catch(e) { console.error('Group98 error:', e); }
-    try { _testV5294BlsAndPageCompleteness(); } catch(e) { console.error('Group98b error:', e); }
-    try { _testV5281OpsGoldenFeedback(); } catch(e) { console.error('Group99 error:', e); }
-     try { _testV5282ConversationAndCalculation(); } catch(e) { console.error('Group100 error:', e); }
-     try { _testV5283RetrievalQualityAndConduct(); } catch(e) { console.error('Group101 error:', e); }
-     try { _testV5284ModelRiskIsolation(); } catch(e) { console.error('Group102 error:', e); }
-     try { _testV5285CoverageAndHumanCertification(); } catch(e) { console.error('Group103 error:', e); }
-    try { _testV5286ToolBoundaryAndRights(); } catch(e) { console.error('Group104 error:', e); }
-    try { _testV5290HumanUXStateContracts(); } catch(e) { console.error('Group105 error:', e); }
-    try { _testV5298SemanticMarketIntegrity(); } catch(e) { console.error('Group106 error:', e); }
+    console.group('[AIO TEST] registry 단위 테스트 실행');
+    console.log('대상 그룹: ' + _TEST_GROUPS.length + '개 (registry-derived)');
+    var groupRun = _runGroupRegistry(_TEST_GROUPS);
+    _groupResults = groupRun.results;
 
     var total = _passCount + _failCount;
     var summary = '[AIO TEST] 결과: ' + _passCount + '/' + total + ' PASS'
@@ -8917,9 +8973,11 @@
       pass: _passCount,
       fail: _failCount,
       total: total,
-      allPass: _failCount === 0,
+      allPass: _failCount === 0 && groupRun.allPass,
       summary: summary,
-      results: _testResults.slice()
+      results: _testResults.slice(),
+      groups: { plannedGroups: groupRun.plannedGroups, completedGroups: groupRun.completedGroups, exceptionGroups: groupRun.exceptionGroups, allPass: groupRun.allPass },
+      groupResults: _groupResults.slice()
     };
   };
 
@@ -8931,8 +8989,10 @@
       pass: _passCount,
       fail: _failCount,
       total: _passCount + _failCount,
-      allPass: _failCount === 0,
-      results: _testResults.slice()
+      allPass: _failCount === 0 && _groupResults.every(function(group) { return group.status === 'completed'; }),
+      results: _testResults.slice(),
+      groups: { plannedGroups: _groupResults.length, completedGroups: _groupResults.filter(function(group) { return group.status === 'completed'; }).length, exceptionGroups: _groupResults.filter(function(group) { return group.status === 'exception'; }).length },
+      groupResults: _groupResults.slice()
     };
   };
 

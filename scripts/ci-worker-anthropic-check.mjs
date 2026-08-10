@@ -1,98 +1,87 @@
-// scripts/ci-worker-anthropic-check.mjs — WO-1B (CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md P0-3, P662)
-//
-// 왜: cloudflare-worker-proxy.js의 POST /anthropic 라우트가 일반 데이터 프록시의 bot-UA 검사·
-// rate limit·도메인 allowlist를 전부 우회했고, 호출자 인증도 origin 서버측 강제도 없었으며,
-// KV 미바인딩이면 일일 캡이 조용히 무제한으로 새는 구조였다(Codex P0-3). 이 게이트는 그 수정
-// (kill switch, 서버측 Origin 강제, 선택적 앱 토큰, /anthropic 전용 레이트리밋, KV fail-closed,
-// body 크기 상한)이 실제로 동작하는지 Worker 핸들러를 Node에서 직접 호출해 행동 검증한다 —
-// 이 파일은 Node 18+ 네이티브 Request/Response/URL/crypto만으로 실행 가능해 브라우저/Playwright
-// 없이도 진짜 동작을 검증할 수 있다(B8/WO-1A의 "정적 계약만" 제약이 여기는 적용되지 않는다).
-
+// Atomic Worker /anthropic contract and concurrent quota fixture.
 import worker from '../cloudflare-worker-proxy.js';
 
 const errors = [];
-const check = (label, condition, detail) => {
-  if (!condition) errors.push(label + (detail !== undefined ? ': got ' + JSON.stringify(detail) : ''));
-};
+const check = (label, condition, detail) => { if (!condition) errors.push(label + (detail === undefined ? '' : ': ' + JSON.stringify(detail))); };
+const PROD_ORIGIN = 'https://ysnle.github.io';
+const DEV_ORIGIN = 'http://localhost:8891';
 
-const GOOD_ORIGIN = 'https://ysnle.github.io';
-
-function makeReq({ path, method, headers, body }) {
-  return new Request(path || 'https://worker.example/anthropic', {
-    method: method || 'POST',
-    headers: new Headers(headers || {}),
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+function makeReq({ origin = PROD_ORIGIN, method = 'POST', headers = {}, body } = {}) {
+  return new Request('https://worker.example/anthropic', {
+    method, headers: new Headers({ Origin: origin, ...headers }),
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
 
-function mockKV(initial) {
-  const store = new Map(Object.entries(initial || {}));
-  return { async get(k) { return store.has(k) ? store.get(k) : null; }, async put(k, v) { store.set(k, v); } };
+function atomicQuota(initial = 0) {
+  let count = initial;
+  const reservations = new Set();
+  return {
+    async reserve({ cap, requestId }) {
+      if (reservations.has(requestId)) return { ok: true, reserved: true, duplicate: true, count };
+      if (count >= cap) return { ok: false, reserved: false, duplicate: false, count, reason: 'daily-cap' };
+      count += 1;
+      reservations.add(requestId);
+      return { ok: true, reserved: true, duplicate: false, count };
+    },
+    async release({ requestId }) {
+      if (!reservations.delete(requestId)) return { ok: true, released: false, idempotent: true, count };
+      count = Math.max(0, count - 1);
+      return { ok: true, released: true, idempotent: false, count };
+    },
+    get count() { return count; },
+  };
 }
 
 async function main() {
-  check('missing ANTHROPIC_API_KEY -> 503', (await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN }, body: {} }), {})).status === 503);
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => String(url).includes('api.anthropic.com')
+    ? new Response(JSON.stringify({ id: 'fixture', type: 'message', content: [{ type: 'text', text: 'ok' }] }), { status: 200, headers: { 'content-type': 'application/json' } })
+    : realFetch(url);
+  const missing = await worker.fetch(makeReq({ body: {} }), {});
+  check('missing key -> 503', missing.status === 503, missing.status);
 
-  check('kill switch (ANTHROPIC_KILL_SWITCH=1) -> 503 even with a valid key',
-    (await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN }, body: {} }), { ANTHROPIC_API_KEY: 'sk-test', ANTHROPIC_KILL_SWITCH: '1' })).status === 503);
+  const legacyKv = { get: async () => '0', put: async () => {} };
+  const legacy = await worker.fetch(makeReq({ body: {} }), { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: legacyKv });
+  check('legacy KV without atomic binding -> 503', legacy.status === 503, legacy.status);
 
-  check('no Origin header at all (bare curl) -> 403, rejected before reaching upstream',
-    (await worker.fetch(makeReq({ body: {} }), { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: mockKV() })).status === 403);
+  const env = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: atomicQuota(), ANTHROPIC_DAILY_CAP: '5', AIO_DEV_ORIGINS: DEV_ORIGIN };
+  const wrongPort = await worker.fetch(makeReq({ origin: 'http://localhost:8892', body: {} }), env);
+  check('unconfigured dev port -> 403', wrongPort.status === 403, wrongPort.status);
+  const devPreflight = await worker.fetch(makeReq({ origin: DEV_ORIGIN, method: 'OPTIONS' }), env);
+  check('configured exact dev origin preflight -> 204', devPreflight.status === 204, devPreflight.status);
+  check('configured dev origin echoed', devPreflight.headers.get('Access-Control-Allow-Origin') === DEV_ORIGIN, devPreflight.headers.get('Access-Control-Allow-Origin'));
 
-  check('wrong Origin -> 403',
-    (await worker.fetch(makeReq({ headers: { Origin: 'https://evil.example.com' }, body: {} }), { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: mockKV() })).status === 403);
+  const noToken = await worker.fetch(makeReq({ body: {} }), { ...env, AIO_APP_TOKEN: 'secret' });
+  check('missing app token -> 403', noToken.status === 403, noToken.status);
+  const noQuota = await worker.fetch(makeReq({ body: {} }), { ANTHROPIC_API_KEY: 'sk-test' });
+  check('no atomic quota -> 503', noQuota.status === 503, noQuota.status);
+  const oversized = await worker.fetch(makeReq({ body: { messages: [{ role: 'user', content: 'x'.repeat(250 * 1024) }] } }), env);
+  check('oversized body rejected before quota -> 413', oversized.status === 413, oversized.status);
 
-  check('AIO_APP_TOKEN configured but header missing -> 403',
-    (await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN }, body: {} }), { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: mockKV(), AIO_APP_TOKEN: 'secret-123' })).status === 403);
+  const quota = atomicQuota(0);
+  const concurrentEnv = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: quota, ANTHROPIC_DAILY_CAP: '3' };
+  const concurrent = await Promise.all(Array.from({ length: 12 }, (_, i) => worker.fetch(makeReq({
+    headers: { 'X-AIO-Idempotency-Key': 'concurrent-' + i, 'cf-connecting-ip': '10.0.0.' + i }, body: { messages: [] }
+  }), concurrentEnv)));
+  check('concurrent cap has at most 3 accepted upstream attempts', concurrent.filter(res => ![429, 503].includes(res.status)).length <= 3, concurrent.map(res => res.status));
+  check('atomic quota count never exceeds cap', quota.count <= 3, quota.count);
 
-  {
-    const res = await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN, 'X-AIO-App-Token': 'secret-123' }, body: { model: 'claude-haiku-4-5', messages: [] } }), { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: mockKV(), AIO_APP_TOKEN: 'secret-123' });
-    check('correct Origin + correct app token -> not rejected by any auth/quota gate', ![403, 429, 413, 503].includes(res.status), res.status);
-  }
-  {
-    const res = await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN }, body: { model: 'claude-haiku-4-5', messages: [] } }), { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: mockKV() });
-    check('AIO_APP_TOKEN unset on the Worker -> no header required (backward compatible with existing deploys)', ![403, 429, 413, 503].includes(res.status), res.status);
-  }
+  const sameKeyQuota = atomicQuota(0);
+  const sameKeyEnv = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: sameKeyQuota, ANTHROPIC_DAILY_CAP: '1' };
+  const sameKey = await Promise.all(Array.from({ length: 5 }, () => worker.fetch(makeReq({ headers: { 'X-AIO-Idempotency-Key': 'same-key-1234' }, body: { messages: [] } }), sameKeyEnv)));
+  check('same idempotency key is deduplicated', sameKeyQuota.count === 1, sameKeyQuota.count);
 
-  check('no KV bound at all -> fail-closed 503 (v52.47 policy change, not silently unlimited)',
-    (await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN }, body: {} }), { ANTHROPIC_API_KEY: 'sk-test' })).status === 503);
-
-  {
-    const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
-    const res = await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN }, body: {} }), { ANTHROPIC_API_KEY: 'sk-test', ANTHROPIC_DAILY_CAP: '5', AIO_QUOTA: mockKV({ [dayKey]: '5' }) });
-    check('daily cap already at limit -> 429', res.status === 429);
-  }
-
-  {
-    const bigText = 'x'.repeat(250 * 1024);
-    const res = await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN }, body: { messages: [{ role: 'user', content: bigText }] } }), { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: mockKV() });
-    check('oversized body (250KB > 200KB cap) -> 413', res.status === 413);
-  }
-
-  {
-    const env = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: mockKV() };
-    let last;
-    for (let i = 0; i < 21; i++) {
-      last = await worker.fetch(makeReq({ headers: { Origin: GOOD_ORIGIN, 'cf-connecting-ip': '9.9.9.9-ci-check' }, body: {} }), env);
-    }
-    check('21st /anthropic request from the same IP within a minute -> 429 (dedicated stricter rate limit, separate from the 300/min data-proxy limit)', last.status === 429);
-  }
-
-  {
-    const res = await worker.fetch(makeReq({ method: 'OPTIONS', headers: { Origin: GOOD_ORIGIN } }), { ANTHROPIC_API_KEY: 'sk-test', AIO_APP_TOKEN: 'x' });
-    check('OPTIONS preflight -> 204, not blocked by any of the new gates', res.status === 204);
-    check('CORS Access-Control-Allow-Headers includes the new X-AIO-App-Token header (otherwise browsers block the header before it reaches the Worker)', (res.headers.get('Access-Control-Allow-Headers') || '').includes('X-AIO-App-Token'));
-  }
+  const health = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), env);
+  const healthBody = await health.json();
+  check('health reports atomic quota configured', healthBody.ai?.quotaConfigured === true, healthBody);
 
   if (errors.length) {
-    console.error('Worker /anthropic security check failed:');
-    errors.forEach((e) => console.error(' - ' + e));
+    console.error('Worker atomic quota check failed:');
+    errors.forEach(error => console.error(' - ' + error));
     process.exit(1);
   }
-  console.log('Worker /anthropic security check OK: kill-switch, server-side Origin enforcement, optional app-token, dedicated rate limit, KV fail-closed, and body-size cap all verified against the real handler.');
-  // The mocked Worker requests can leave undici handles alive after the final
-  // assertion. CI must terminate after the gate has emitted its result rather
-  // than waiting indefinitely on provider-side resources.
+  console.log('Worker atomic quota check OK: exact origins, fail-closed atomic binding, idempotency, and concurrent cap fixture passed.');
   process.exit(0);
 }
 

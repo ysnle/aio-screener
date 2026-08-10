@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "model-validation.v1",
+  "status": "BLOCKED",
+  "allowedUse": "research-relative-ranking-only",
+  "predictiveValidation": "not-established",
+  "pointInTimeUniverse": false,
+  "walkForward": true,
+  "holdout": true,
+  "turnoverModeled": false,
+  "transactionCostsModeled": false,
+  "liquidityCapacityModeled": false,
+  "metrics": ["IC", "ICIR", "hitRate", "decileSpread", "drawdown", "confidenceInterval"],
+  "liveBacktestParity": false,
+  "reason": "Current long-run artifacts use a present-day universe and do not establish point-in-time survivorship-free predictive validity.",
+  "evidenceArtifact": "scripts/backtest-factors-longrun.mjs",
+  "observedAt": "2026-08-10T00:00:00+09:00"
+}

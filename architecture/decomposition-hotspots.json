@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "decomposition-hotspots.v1",
+  "owner": "src/ui/pages + js compatibility boundary",
+  "measurement": "line count, unsafe sink count, and duplicate writer intersections",
+  "maxScores": { "index.html": 35000, "js/aio-core.js": 28000, "js/aio-data.js": 18000 },
+  "facadePolicy": "bounded compatibility facade only; no permanent duplicate primary writer",
+  "codeMapRescan": "required after any change greater than 500 lines"
+}

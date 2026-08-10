@@ -1923,10 +1923,14 @@ export function buildMarketAnalysisEvidence(data) {
       label: def.label,
       value,
       unit: def.unit,
+      observedAt: asOf,
+      collectedAt: data?.meta?.generatedAt || null,
       asOf,
       source: row.source,
       sourceTier: row.sourceTier || 'unknown',
+      sourceKind: row.sourceKind || 'market-quote',
       allowedUse: row.allowedUse || 'reference-only',
+      status: 'observed',
     });
   }
   const macro = data?.macro || {};
@@ -1943,10 +1947,14 @@ export function buildMarketAnalysisEvidence(data) {
       label: def.label,
       value,
       unit: def.unit,
+      observedAt: asOf,
+      collectedAt: data?.meta?.generatedAt || null,
       asOf,
       source,
       sourceTier: blsMatchesValue ? (bls.sourceKind || 'official-primary') : 'official-primary',
+      sourceKind: blsMatchesValue ? (bls.sourceKind || 'official-primary') : 'official-primary',
       allowedUse: blsMatchesValue ? (bls.allowedUse || 'macro-evidence-with-observation-date') : 'macro-evidence-with-observation-date',
+      status: 'observed',
     });
   }
   const fgValue = Number(data?.fearGreed?.score);
@@ -1958,10 +1966,14 @@ export function buildMarketAnalysisEvidence(data) {
       label: 'Fear&Greed',
       value: fgValue,
       unit: 'score',
+      observedAt: fgAsOf,
+      collectedAt: data?.meta?.generatedAt || null,
       asOf: fgAsOf,
       source: data.fearGreed._source,
       sourceTier: 'public-api',
+      sourceKind: 'public-api',
       allowedUse: 'reference-only',
+      status: 'observed',
     });
   }
   return evidence;
@@ -2018,7 +2030,7 @@ export function validateMarketAnalysisText(text, data) {
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
 //   raw fetch 사용 — Action에 anthropic SDK 의존성 미추가. best-effort: 실패해도 data.json은 정상(클라가 템플릿 합성으로 폴백).
 //   Haiku 4.5(최저가). 수집한 시세/매크로/F&G/뉴스 헤드라인으로 간결 프롬프트 → 4~5줄 한국어 분석.
-async function genMarketAnalysis(data) {
+async function genMarketAnalysisLegacy(data) {
   const key = process.env.ANTHROPIC_API_KEY;
   try {
     const metricEvidence = buildMarketAnalysisEvidence(data);
@@ -2074,6 +2086,125 @@ async function genMarketAnalysis(data) {
     console.log(`[fetch-data] LLM 분석 생성: ${model}${escalate ? ' (승격: VIX/위기뉴스)' : ' (기본)'}`);
     return { full: text, oneLine, generatedAt: new Date().toISOString(), model, semanticStatus: 'verified', semanticIssues: [], metricEvidence: semantic.metricEvidence, causalEvidenceCount: semantic.causalEvidenceCount };
   } catch (e) { console.warn('[fetch-data] LLM 분석 생성 예외(템플릿 폴백):', e && e.message); return null; }
+}
+
+export function buildMarketAnalysisNewsEvidence(data) {
+  const rows = Array.isArray(data?.news) ? data.news : [];
+  const clusters = new Set();
+  return rows
+    .filter(row => row && row.title && row.source && row.link && _validIsoDate(row.eventTime || row.pubDate))
+    .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
+    .map(row => {
+      const observedAt = _validIsoDate(row.eventTime || row.pubDate);
+      const clusterId = String(row.independenceKey || row.source || row.topic || 'unknown').toLowerCase();
+      if (clusters.has(clusterId)) return null;
+      clusters.add(clusterId);
+      return {
+        evidenceId: `news:${row.link}:${observedAt}`,
+        clusterId,
+        title: String(row.title).slice(0, 240),
+        source: row.source,
+        sourceKind: row.sourceKind || 'news-feed',
+        observedAt,
+        collectedAt: data?.meta?.generatedAt || null,
+        link: row.link,
+        allowedUse: 'causal-reference',
+        status: 'observed',
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+function _marketAnalysisSummary(text) {
+  return String(text || '').trim().split(/\n+/).map(line => line.trim()).filter(Boolean).join('\n').slice(0, 2400);
+}
+
+function _marketAnalysisOneLine(summary) {
+  return String(summary || '').split(/\n+/).map(line => line.trim()).filter(Boolean)[0] || '';
+}
+
+function buildStructuredMarketAnalysis({ data, text, model, status, reason, metricEvidence, newsEvidence, semantic }) {
+  const evidenceIds = [...metricEvidence, ...newsEvidence].map(row => row.evidenceId);
+  const summary = _marketAnalysisSummary(text);
+  const oneLine = _marketAnalysisOneLine(summary);
+  const claims = summary ? [{
+    id: 'market-summary-1',
+    text: summary,
+    claimType: 'summary',
+    evidenceIds,
+    status: status === 'verified' ? 'validated' : 'blocked',
+  }] : [];
+  return {
+    schemaVersion: 'market-analysis.v2',
+    status,
+    summary,
+    full: summary,
+    oneLine,
+    regime: { label: status === 'verified' ? 'MODEL_SUMMARY' : 'UNKNOWN', status, evidenceIds: metricEvidence.map(row => row.evidenceId) },
+    drivers: status === 'verified' ? [{ label: 'validated summary drivers', evidenceIds }] : [],
+    risks: status === 'verified' ? [{ label: 'validated summary risks', evidenceIds }] : [],
+    watch: [{ label: status === 'verified' ? 'monitor cited evidence' : 'await validated market analysis', evidenceIds }],
+    claims,
+    evidenceIds,
+    generatedAt: new Date().toISOString(),
+    model: model || 'none',
+    validatorVersion: 'market-analysis-validator.v2',
+    semanticStatus: semantic?.ok && status === 'verified' ? 'verified' : 'blocked',
+    semanticIssues: semantic?.issues || [reason || 'analysis-unavailable'],
+    metricEvidence,
+    newsEvidence,
+    causalEvidenceCount: semantic?.causalEvidenceCount || 0,
+    reason: reason || null,
+  };
+}
+
+function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketAnalysisEvidence(data), newsEvidence = buildMarketAnalysisNewsEvidence(data)) {
+  const observed = metricEvidence.slice(0, 4).map(row => `${row.label}=${row.value} ${row.unit} (${row.observedAt})`).join(' · ');
+  const summary = observed
+    ? `시장 분석 대기: 검증된 관측치만 표시합니다 — ${observed}. 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.`
+    : '시장 분석 대기: 유효한 관측 증거가 부족해 방향성·인과 해석을 보류합니다.';
+  return buildStructuredMarketAnalysis({ data, text: summary, model: 'none', status: 'blocked', reason, metricEvidence, newsEvidence, semantic: { ok: false, issues: [reason], causalEvidenceCount: 0 } });
+}
+
+export async function genMarketAnalysis(data) {
+  const metricEvidence = buildMarketAnalysisEvidence(data);
+  const newsEvidence = buildMarketAnalysisNewsEvidence(data);
+  if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence);
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return buildMarketAnalysisFallback(data, 'anthropic-key-not-configured', metricEvidence, newsEvidence);
+  try {
+    const q = {};
+    (data.quotes || []).forEach(row => { if (row?.symbol) q[row.symbol] = row.regularMarketPrice ?? row.price; });
+    const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit} observedAt=${row.observedAt} source=${row.source}`).join('\n');
+    const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
+    const vix = Number(q['^VIX']);
+    const model = vix >= 25 ? 'claude-sonnet-4-6' : 'claude-haiku-4-5';
+    const prompt = [
+      'Produce a concise Korean market analysis from the typed evidence below.',
+      'Every numeric, causal, driver, risk, regime, or watch claim must be supported by one or more supplied evidence IDs.',
+      'Do not merge VIX with Fear&Greed. Do not invent missing values. Return 4-5 concise lines.',
+      'METRIC_EVIDENCE:\n' + evidenceLines,
+      'NEWS_CLUSTERS:\n' + (newsLines || 'none'),
+    ].join('\n\n');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model, max_tokens: 500, messages: [{ role: 'user', content: prompt }] }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!response.ok) return buildMarketAnalysisFallback(data, `provider-http-${response.status}`, metricEvidence, newsEvidence);
+    const payload = await response.json();
+    const text = (payload.content || []).filter(block => block.type === 'text').map(block => block.text).join('\n').trim();
+    const semantic = validateMarketAnalysisText(text, data);
+    if (!text || !semantic.ok) return buildMarketAnalysisFallback(data, semantic.issues.join(','), metricEvidence, newsEvidence);
+    return buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic });
+  } catch (error) {
+    return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence);
+  }
 }
 
 async function main() {
@@ -2221,8 +2352,8 @@ async function main() {
   const marketAnalysis = await genMarketAnalysis(data);
   if (marketAnalysis) {
     data.marketAnalysis = marketAnalysis;
-    data.meta.marketAnalysisOk = true;
-    data.meta.marketAnalysisSemanticOk = marketAnalysis.semanticStatus === 'verified' && Array.isArray(marketAnalysis.metricEvidence) && marketAnalysis.metricEvidence.length >= 2 && (!marketAnalysis.semanticIssues || marketAnalysis.semanticIssues.length === 0);
+    data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
+    data.meta.marketAnalysisSemanticOk = marketAnalysis.status === 'verified' && marketAnalysis.semanticStatus === 'verified' && Array.isArray(marketAnalysis.metricEvidence) && marketAnalysis.metricEvidence.length >= 2 && (!marketAnalysis.semanticIssues || marketAnalysis.semanticIssues.length === 0);
     data.meta.marketAnalysisEvidenceCount = Array.isArray(marketAnalysis.metricEvidence) ? marketAnalysis.metricEvidence.length : 0;
   } else {
     data.meta.marketAnalysisOk = false;

@@ -26,8 +26,18 @@
     ],
     "proxyRequires": [
       "ANTHROPIC_API_KEY",
-      "AIO_QUOTA"
-    ]
+      "AIO_QUOTA_DO",
+      "AIO_DEV_ORIGINS"
+    ],
+    "proxyQuotaContract": {
+      "binding": "AIO_QUOTA_DO",
+      "authority": "single durable object",
+      "operations": ["reserve", "release"],
+      "idempotency": "X-AIO-Idempotency-Key or SHA-256 request-body digest",
+      "legacyKv": "unsupported-fail-closed",
+      "productionOrigins": ["https://ysnle.github.io"],
+      "developmentOrigins": "explicit exact http://localhost:<port> or http://127.0.0.1:<port> values in AIO_DEV_ORIGINS"
+    }
   },
   "evidence": {
     "fastHealthObserved": "2026-07-30T01:40:48.507Z",

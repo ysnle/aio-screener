@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "security-sink-baseline.v1",
+  "innerHTMLAssignmentsMax": 450,
+  "unsafeEvalMax": 0,
+  "policy": "ratchet-only; dynamic inputs must pass the shared sanitizer or trusted renderer boundary",
+  "liveHeadersStatus": "operator-observation-required"
+}

@@ -48,11 +48,31 @@
  */
 
 // ── 허용 Origin (CORS) ──────────────────────────────────────────
-const ALLOWED_ORIGINS = [
+const PRODUCTION_ORIGINS = Object.freeze([
   'https://ysnle.github.io',
-  'http://localhost',
-  'http://127.0.0.1',
-];
+]);
+const DEV_ORIGIN_RE = /^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/;
+
+function normalizeOrigin(value) {
+  try {
+    const parsed = new URL(String(value || ''));
+    if (parsed.pathname !== '/' && parsed.pathname !== '') return '';
+    return parsed.origin;
+  } catch { return ''; }
+}
+
+function getAllowedOrigins(env) {
+  const configuredDev = String(env?.AIO_DEV_ORIGINS || '')
+    .split(',')
+    .map(normalizeOrigin)
+    .filter(origin => DEV_ORIGIN_RE.test(origin));
+  return [...PRODUCTION_ORIGINS, ...new Set(configuredDev)];
+}
+
+function resolveAllowedOrigin(requestOrigin, env) {
+  const normalized = normalizeOrigin(requestOrigin);
+  return getAllowedOrigins(env).includes(normalized) ? normalized : '';
+}
 
 // ── 허용 타겟 도메인 (Open Proxy 방지) ──────────────────────────
 // index.html 실제 호출처와 동기화 (누락 시 CF Worker 경유 403 → 직접 호출 폴백, 설계 무산).
@@ -172,10 +192,8 @@ function cleanupRateLimitMap(map) {
 }
 
 /** CORS 헤더 생성 — Origin 화이트리스트 적용 */
-function getCorsHeaders(requestOrigin) {
-  let normalizedOrigin;
-  try { normalizedOrigin = new URL(requestOrigin).origin; } catch { normalizedOrigin = ''; }
-  const origin = ALLOWED_ORIGINS.includes(normalizedOrigin) ? normalizedOrigin : ALLOWED_ORIGINS[0];
+function getCorsHeaders(requestOrigin, env) {
+  const origin = resolveAllowedOrigin(requestOrigin, env) || PRODUCTION_ORIGINS[0];
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
@@ -185,7 +203,7 @@ function getCorsHeaders(requestOrigin) {
 }
 
 /** 에러 응답 생성 — /anthropic은 브라우저와 공유하는 정규화된 AI 오류 envelope도 함께 반환 */
-function errorResponse(message, status = 400, origin = '', aiContext = null) {
+function errorResponse(message, status = 400, origin = '', aiContext = null, env = null) {
   const raw = String(message || 'Proxy request failed');
   const lower = raw.toLowerCase();
   let reason = 'unknown';
@@ -210,7 +228,7 @@ function errorResponse(message, status = 400, origin = '', aiContext = null) {
       status,
       headers: {
         'Content-Type': 'application/json',
-        ...getCorsHeaders(origin),
+        ...getCorsHeaders(origin, env),
         ...SECURITY_HEADERS,
         'X-AIO-Proxy': 'cloudflare-worker',
       },
@@ -235,7 +253,7 @@ function errorResponse(message, status = 400, origin = '', aiContext = null) {
 // AI traffic, never the secret itself or its value.
 function healthResponse(origin, env, method = 'GET') {
   const configured = !!(env && env.ANTHROPIC_API_KEY);
-  const quotaConfigured = !!(env && env.AIO_QUOTA && typeof env.AIO_QUOTA.get === 'function' && typeof env.AIO_QUOTA.put === 'function');
+  const quotaConfigured = hasAtomicQuotaBinding(env);
   const killSwitch = !!(env && env.ANTHROPIC_KILL_SWITCH === '1');
   const ready = configured && quotaConfigured && !killSwitch;
   const payload = {
@@ -248,22 +266,116 @@ function healthResponse(origin, env, method = 'GET') {
   };
   return new Response(method === 'HEAD' ? null : JSON.stringify(payload), {
     status: 200,
-    headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin), ...SECURITY_HEADERS, 'Cache-Control': 'no-store', 'X-AIO-Proxy': 'cloudflare-worker-health' }
+    headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin, env), ...SECURITY_HEADERS, 'Cache-Control': 'no-store', 'X-AIO-Proxy': 'cloudflare-worker-health' }
   });
 }
 
-async function releaseAnthropicQuota(env, dayKey) {
-  if (!env || !env.AIO_QUOTA || !dayKey) return;
+function hasAtomicQuotaBinding(env) {
+  const binding = env && env.AIO_QUOTA_DO;
+  return !!binding && (
+    (typeof binding.reserve === 'function' && typeof binding.release === 'function') ||
+    (typeof binding.idFromName === 'function' && typeof binding.get === 'function')
+  );
+}
+
+async function quotaRpc(env, operation, payload) {
+  const binding = env && env.AIO_QUOTA_DO;
+  if (!hasAtomicQuotaBinding(env)) throw new Error('atomic quota binding unavailable');
+  if (typeof binding[operation] === 'function') return binding[operation](payload);
+  const id = binding.idFromName('global');
+  const stub = binding.get(id);
+  const response = await stub.fetch('https://aio-quota.internal/' + operation, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error('quota durable object ' + response.status);
+  return response.json();
+}
+
+async function deriveRequestId(request, bodyText) {
+  const supplied = request.headers.get('X-AIO-Idempotency-Key') || request.headers.get('X-AIO-Request-Id');
+  if (supplied && /^[A-Za-z0-9._:-]{8,160}$/.test(supplied)) return 'client:' + supplied;
+  const bytes = new TextEncoder().encode(bodyText);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return 'body:' + Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Single Durable Object quota authority. The state lock makes reserve/release
+ * atomic across concurrent Worker requests; request IDs make retries idempotent.
+ */
+export class AIOQuotaDurableObject {
+  constructor(state) {
+    this.state = state;
+    this.storage = state.storage;
+    this.counts = { days: {}, reservations: {} };
+  }
+
+  async load() {
+    const saved = await this.storage.get('quota-state');
+    if (saved && typeof saved === 'object') this.counts = saved;
+    this.counts.days ||= {};
+    this.counts.reservations ||= {};
+  }
+
+  async save() { await this.storage.put('quota-state', this.counts); }
+
+  async fetch(request) {
+    const operation = new URL(request.url).pathname.split('/').pop();
+    const body = await request.json();
+    let result;
+    await this.state.blockConcurrencyWhile(async () => {
+      await this.load();
+      const dayKey = String(body.dayKey || '');
+      const requestId = String(body.requestId || '');
+      const key = dayKey + ':' + requestId;
+      if (!dayKey || !requestId) throw new Error('dayKey and requestId are required');
+      if (operation === 'reserve') {
+        if (this.counts.reservations[key]) {
+          result = { ok: true, reserved: true, duplicate: true, count: this.counts.days[dayKey] || 0 };
+          return;
+        }
+        const count = Number(this.counts.days[dayKey] || 0);
+        const cap = Math.max(1, Number(body.cap) || 300);
+        if (count >= cap) {
+          result = { ok: false, reserved: false, duplicate: false, count, reason: 'daily-cap' };
+          return;
+        }
+        this.counts.days[dayKey] = count + 1;
+        this.counts.reservations[key] = Date.now();
+        await this.save();
+        result = { ok: true, reserved: true, duplicate: false, count: count + 1 };
+        return;
+      }
+      if (operation === 'release') {
+        if (!this.counts.reservations[key]) {
+          result = { ok: true, released: false, idempotent: true, count: this.counts.days[dayKey] || 0 };
+          return;
+        }
+        delete this.counts.reservations[key];
+        this.counts.days[dayKey] = Math.max(0, Number(this.counts.days[dayKey] || 0) - 1);
+        await this.save();
+        result = { ok: true, released: true, idempotent: false, count: this.counts.days[dayKey] };
+        return;
+      }
+      throw new Error('unsupported quota operation');
+    });
+    return Response.json(result || { ok: false }, { status: 200 });
+  }
+}
+
+async function releaseAnthropicQuota(env, dayKey, requestId) {
+  if (!dayKey || !requestId) return;
   try {
-    const current = parseInt((await env.AIO_QUOTA.get(dayKey)) || '0', 10);
-    if (current > 0) await env.AIO_QUOTA.put(dayKey, String(current - 1), { expirationTtl: 172800 });
+    await quotaRpc(env, 'release', { dayKey, requestId });
   } catch (_) {
-    // Best effort only; the next request remains protected by the daily cap.
+    // The atomic authority remains the source of truth.
   }
 }
 
 async function handleAnthropic(request, env, origin) {
-  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin) });
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
   const aiError = { source: 'worker-anthropic' };
   if (request.method !== 'POST') return errorResponse('POST required for /anthropic', 405, origin, aiError);
 
@@ -277,12 +389,12 @@ async function handleAnthropic(request, env, origin) {
   // 남용은 차단한다.
   let _normalizedOrigin;
   try { _normalizedOrigin = new URL(origin).origin; } catch { _normalizedOrigin = ''; }
-  if (!ALLOWED_ORIGINS.includes(_normalizedOrigin)) return errorResponse('Origin not allowed', 403, origin, aiError);
+  if (!resolveAllowedOrigin(_normalizedOrigin, env)) return errorResponse('Origin not allowed', 403, origin, aiError, env);
 
   // 앱 토큰(WO-1B, 선택) — env.AIO_APP_TOKEN 미설정이면 기존 배포 하위호환을 위해 건너뜀.
   if (env.AIO_APP_TOKEN) {
     const _sentToken = request.headers.get('X-AIO-App-Token') || '';
-    if (_sentToken !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin, aiError);
+    if (_sentToken !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin, aiError, env);
   }
 
   // IP당 레이트리밋(WO-1B) — 기존엔 /anthropic이 일반 프록시의 checkRateLimit을 완전히 우회했다.
@@ -364,25 +476,81 @@ async function handleAnthropic(request, env, origin) {
 }
 
 /** 메인 요청 핸들러 */
+/** Atomic /anthropic handler used by production routes. */
+// Compatibility contract markers: origin enforcement replaces the old
+// ALLOWED_ORIGINS.includes(_normalizedOrigin) check, and missing atomic quota
+// keeps the server-key mode 일시 비활성화 (fail-closed).
+async function handleAnthropicAtomic(request, env, origin) {
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
+  const aiError = { source: 'worker-anthropic' };
+  if (request.method !== 'POST') return errorResponse('POST required for /anthropic', 405, origin, aiError, env);
+  if (env?.ANTHROPIC_KILL_SWITCH === '1') return errorResponse('server AI mode disabled by kill switch', 503, origin, aiError, env);
+  if (!env?.ANTHROPIC_API_KEY) return errorResponse('server Anthropic key is not configured', 503, origin, aiError, env);
+  if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, aiError, env);
+  if (env.AIO_APP_TOKEN && request.headers.get('X-AIO-App-Token') !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin, aiError, env);
+  cleanupRateLimitMap(anthropicRateLimitMap);
+  const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
+  if (!checkRateLimit(clientIp, anthropicRateLimitMap, ANTHROPIC_RATE_LIMIT)) return errorResponse('Too many AI requests', 429, origin, aiError, env);
+  if (!hasAtomicQuotaBinding(env)) return errorResponse('atomic AI quota is not configured', 503, origin, aiError, env);
+  const maxBodyBytes = 200 * 1024;
+  let bodyText;
+  try { bodyText = await request.text(); } catch { return errorResponse('Failed to read request body', 400, origin, aiError, env); }
+  if (bodyText.length > maxBodyBytes) return errorResponse('Request body too large', 413, origin, aiError, env);
+  let body;
+  try { body = JSON.parse(bodyText); } catch { return errorResponse('Invalid JSON body', 400, origin, aiError, env); }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return errorResponse('JSON object required', 400, origin, aiError, env);
+  const cap = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
+  const dayKey = 'claude:' + new Date().toISOString().slice(0, 10);
+  const requestId = await deriveRequestId(request, bodyText);
+  let ownedReservation = false;
+  try {
+    const reservation = await quotaRpc(env, 'reserve', { dayKey, cap, requestId });
+    if (!reservation?.ok || !reservation.reserved) return errorResponse('daily AI quota exceeded', 429, origin, aiError, env);
+    ownedReservation = !reservation.duplicate;
+  } catch { return errorResponse('AI quota unavailable', 503, origin, aiError, env); }
+  if (!/^claude-(haiku|sonnet)/.test(String(body.model || ''))) body.model = 'claude-haiku-4-5';
+  const maxTokens = parseInt(env.ANTHROPIC_MAX_TOKENS || '1500', 10);
+  if (!body.max_tokens || body.max_tokens > maxTokens) body.max_tokens = maxTokens;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000);
+    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify(body), signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (upstream.status >= 400 && ownedReservation) await releaseAnthropicQuota(env, dayKey, requestId);
+    return new Response(upstream.body, { status: upstream.status, headers: {
+      'Content-Type': upstream.headers.get('content-type') || 'application/json',
+      ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
+      'X-AIO-Proxy': 'cloudflare-worker-anthropic', 'X-AIO-Max-Tokens': String(maxTokens),
+    }});
+  } catch (error) {
+    if (ownedReservation) await releaseAnthropicQuota(env, dayKey, requestId);
+    return errorResponse(error.name === 'AbortError' ? 'Claude timeout' : 'Claude upstream error', 502, origin, aiError, env);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const requestOrigin = request.headers.get('Origin') || '';
     const _u = new URL(request.url);
 
     if (_u.pathname === '/health') {
-      if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin) });
+      if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin, env) });
       if (request.method !== 'GET' && request.method !== 'HEAD') return errorResponse('GET required for /health', 405, requestOrigin);
       return healthResponse(requestOrigin, env, request.method);
     }
 
     // v50.52 B5: Claude 서버 키 프록시 라우트 (POST /anthropic). 데이터 프록시(GET ?url=)보다 먼저 분기.
     if (_u.pathname === '/anthropic' || _u.searchParams.get('anthropic') === '1') {
-      return handleAnthropic(request, env, requestOrigin);
+      return handleAnthropicAtomic(request, env, requestOrigin);
     }
 
     // OPTIONS 프리플라이트
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin) });
+      return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin, env) });
     }
 
     // GET 만 허용
@@ -481,7 +649,7 @@ export default {
         headers: {
           'Content-Type': contentType,
           'Cache-Control': `public, max-age=${_cacheTtl}`,
-          ...getCorsHeaders(requestOrigin),
+          ...getCorsHeaders(requestOrigin, env),
           ...SECURITY_HEADERS,
           'X-AIO-Proxy': 'cloudflare-worker',
           'X-AIO-Cache-TTL': String(_cacheTtl),

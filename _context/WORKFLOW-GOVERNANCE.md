@@ -117,14 +117,15 @@ Keep list 2 small. Add to it only when a local gate structurally cannot see the 
 
 When improving a skill:
 
-0. Treat `.claude/skills/*/SKILL.md` and `.claude/commands/*.md` as the active skill and command-wrapper surfaces.
+0. Treat `.claude/skills/*/SKILL.md` and `.claude/commands/*.md` as the tracked canonical surfaces. Treat ignored local `.agents/skills` as a generated Codex mirror, never an independent source.
 1. Keep `SKILL.md` concise and task-facing: contract, purpose, reference loading map, core workflow, binary self-eval.
 2. Move long examples, category lists, QA tiers, report templates, and domain detail into directly linked `references/`.
 3. Keep shared obligations in `.claude/skills/_shared/operating-contract.md`.
 4. Add a binary self-eval section with yes/no checks.
 5. Link the skill to this workflow document.
-6. Validate frontmatter, router size, command-wrapper sync, shared contract links, and referenced files with `node scripts/ci-skill-contract-check.mjs`.
-7. Update `_context/INDEX.md` when adding or removing context docs.
+6. Materialize or refresh the Codex mirror with `node scripts/sync-agent-skills.mjs`, then validate frontmatter, router size, references, wrappers, encoding sentinels, and mirror parity with `node scripts/ci-skill-contract-check.mjs`.
+7. Run `node scripts/sync-agent-skills.mjs --check` when `.agents/skills` exists.
+8. Update `_context/INDEX.md` when adding or removing context docs.
 
 Do not create a new skill when an existing skill can be hardened. New skills require command-wrapper synchronization under R27.
 
@@ -148,7 +149,7 @@ Minimum self-eval for any skill change:
 | SG3 | The change avoids adding a parallel stale path |
 | SG4 | Final answer must distinguish verified, blocked, and unverified surfaces |
 | SG5 | `_context/INDEX.md` is updated when context docs change |
-| SG6 | Command wrapper and shared contract links still point to the active skill |
+| SG6 | Command wrapper and shared contract links still point to the canonical skill, and any local Codex mirror is synchronized |
 
 ## Loop Vocabulary
 

@@ -5254,9 +5254,17 @@ async function _aioLoadServerData() {
         return row && row.metricId && row.unit && row.source && row.asOf && isFinite(Number(row.value)) && !isNaN(new Date(row.asOf).getTime());
       });
       var _serverMarketSemanticIssues = Array.isArray(d.marketAnalysis.semanticIssues) ? d.marketAnalysis.semanticIssues : [];
+      var _serverMarketEvidenceIds = _serverMarketMetricEvidence.map(function(row) { return row.evidenceId; }).filter(Boolean);
+      var _serverMarketClaimsValid = d.marketAnalysis.schemaVersion === 'market-analysis.v2'
+        && Array.isArray(d.marketAnalysis.claims)
+        && d.marketAnalysis.claims.every(function(claim) {
+          return claim && claim.text && Array.isArray(claim.evidenceIds) && claim.evidenceIds.length > 0
+            && claim.evidenceIds.every(function(id) { return _serverMarketEvidenceIds.indexOf(id) >= 0 || (Array.isArray(d.marketAnalysis.newsEvidence) && d.marketAnalysis.newsEvidence.some(function(row) { return row.evidenceId === id; })); });
+        });
       var _serverMarketSemanticContract = d.marketAnalysis.semanticStatus === 'verified'
         && _serverMarketSemanticIssues.length === 0
-        && _serverMarketMetricEvidenceValid;
+        && _serverMarketMetricEvidenceValid
+        && _serverMarketClaimsValid;
       var _serverMarketPublishAudit = window.AIO && typeof window.AIO.validateAIAutomatedPublish === 'function'
         ? window.AIO.validateAIAutomatedPublish({ entrypoint: 'market-analysis', text: d.marketAnalysis.full || d.marketAnalysis.oneLine, currentSensitive: true, requiresStructuredClaims: false, evidence: _serverMarketMetricEvidence })
         : { blocked: false, sourceLabel: 'AI_GENERATED' };

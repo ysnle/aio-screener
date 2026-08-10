@@ -20,6 +20,7 @@ const root = resolve(scriptDir, '..');
 const PORT = Number(process.env.CI_TEST_PORT || 8891);
 const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const SKIP_LIST_PATH = resolve(root, '_context/gate-baseline-skip-list.json');
+const RUNTIME_ALLOWLIST_PATH = resolve(root, 'architecture/browser-error-allowlist.json');
 
 function loadSkipList() {
   try {
@@ -29,6 +30,31 @@ function loadSkipList() {
     console.error(`[ci-headless-tests] skip-list 로드 실패 (${SKIP_LIST_PATH}): ${e.message}`);
     return new Set();
   }
+}
+
+function loadRuntimeAllowlist() {
+  let raw;
+  try { raw = JSON.parse(readFileSync(RUNTIME_ALLOWLIST_PATH, 'utf8')); }
+  catch (e) { throw new Error(`browser runtime allowlist load failed (${RUNTIME_ALLOWLIST_PATH}): ${e.message}`); }
+  const entries = Array.isArray(raw?.entries) ? raw.entries : [];
+  const now = Date.now();
+  return entries.map((entry) => {
+    const required = ['id', 'scope', 'pattern', 'reason', 'owner', 'expiresAt'];
+    if (required.some((key) => typeof entry?.[key] !== 'string' || !entry[key].trim())) {
+      throw new Error(`invalid browser runtime allowlist entry: ${JSON.stringify(entry)}`);
+    }
+    const expiresAt = Date.parse(entry.expiresAt);
+    if (!Number.isFinite(expiresAt) || expiresAt <= now) throw new Error(`expired browser runtime allowlist entry: ${entry.id}`);
+    let pattern;
+    try { pattern = new RegExp(entry.pattern, 'i'); }
+    catch (e) { throw new Error(`invalid browser runtime allowlist pattern ${entry.id}: ${e.message}`); }
+    return { ...entry, pattern };
+  });
+}
+
+function matchesAllowlist(error, entry) {
+  const scopeMatches = entry.scope === 'all' || entry.scope === error.kind || (entry.scope === 'console' && error.kind === 'console.error');
+  return scopeMatches && entry.pattern.test(`${error.text} ${error.source || ''}`);
 }
 
 function startServer() {
@@ -49,18 +75,31 @@ function startServer() {
 
 async function main() {
   const skipList = loadSkipList();
+  const runtimeAllowlist = loadRuntimeAllowlist();
   const server = await startServer();
   const browser = await chromium.launch();
   let exitCode = 0;
 
   try {
     const page = await browser.newPage();
-    const consoleErrors = [];
-    page.on('pageerror', (err) => consoleErrors.push(`[pageerror] ${err.message}`));
+    const runtimeErrors = [];
+    const expectedBlockedNetwork = [];
+    const abortedExternalUrls = new Set();
+    page.on('pageerror', (err) => runtimeErrors.push({ kind: 'pageerror', text: err.message, source: 'page' }));
     page.on('console', (msg) => {
-      // net::ERR_FAILED noise is the expected side-effect of the route.abort() below
-      // (blocked external fetches) — not a real regression, so don't report it.
-      if (msg.type() === 'error' && !/net::ERR_FAILED/.test(msg.text())) consoleErrors.push(`[console.error] ${msg.text()}`);
+      if (msg.type() !== 'error') return;
+      const location = msg.location?.() || {};
+      const locationUrl = location.url || '';
+      const embeddedUrl = (msg.text().match(/https?:\/\/[^\s'"\)]+/g) || []).find((url) => abortedExternalUrls.has(url));
+      const expectedAbort = /net::ERR_FAILED|failed to load resource/i.test(msg.text())
+        && (abortedExternalUrls.has(locationUrl) || !!embeddedUrl);
+      if (!expectedAbort) runtimeErrors.push({ kind: 'console.error', text: msg.text(), source: locationUrl || 'console' });
+    });
+    page.on('requestfailed', (request) => {
+      const url = request.url();
+      const failure = request.failure()?.errorText || 'requestfailed';
+      if (!url.startsWith(`http://127.0.0.1:${PORT}/`)) expectedBlockedNetwork.push({ url, failure });
+      else runtimeErrors.push({ kind: 'requestfailed', text: `${failure} ${url}`, source: url });
     });
 
     // 외부 fetch 전부 차단 — 앱을 offline/seed-fallback 경로로 강제해 결정론적으로 측정.
@@ -68,6 +107,7 @@ async function main() {
     await page.route('**/*', (route) => {
       const url = route.request().url();
       if (url.startsWith(`http://127.0.0.1:${PORT}/`)) return route.continue();
+      abortedExternalUrls.add(url);
       return route.abort();
     });
 
@@ -82,6 +122,8 @@ async function main() {
       return window.AIO.runTests();
     });
 
+    const sentinel = await page.evaluate(() => window.AIO.runGroupContractSelfTest?.() || null);
+
     console.log(`\n[ci-headless-tests] ${result.summary}`);
 
     const unexpected = [];
@@ -94,14 +136,39 @@ async function main() {
       else unexpected.push(entry);
     }
 
+    if (!result.groups || result.groups.exceptionGroups !== 0 || result.groups.plannedGroups !== result.groups.completedGroups) {
+      unexpected.push({ label: 'GROUP_REGISTRY', detail: JSON.stringify(result.groups || null) });
+    }
+    if (!sentinel || sentinel.plannedGroups !== 2 || sentinel.completedGroups !== 1 || sentinel.exceptionGroups !== 1 || sentinel.allPass !== false) {
+      unexpected.push({ label: 'GROUP_SENTINEL', detail: JSON.stringify(sentinel) });
+    }
+
+    const allowlistedRuntime = runtimeErrors.filter((error) => runtimeAllowlist.some((entry) => matchesAllowlist(error, entry)));
+    const unexpectedRuntime = runtimeErrors.filter((error) => !runtimeAllowlist.some((entry) => matchesAllowlist(error, entry)));
+    const unusedRuntimeAllowlist = runtimeAllowlist.filter((entry) => !runtimeErrors.some((error) => matchesAllowlist(error, entry)));
+
     if (expectedSkipped.length) {
       console.log(`\n[ci-headless-tests] 환경 의존 실패 ${expectedSkipped.length}건 (skip-list, 비차단):`);
       for (const e of expectedSkipped) console.log(`  - ${e.label} | ${e.detail}`);
     }
 
-    if (consoleErrors.length) {
-      console.log(`\n[ci-headless-tests] 브라우저 콘솔 에러 ${consoleErrors.length}건:`);
-      for (const e of consoleErrors.slice(0, 20)) console.log(`  - ${e}`);
+    if (expectedBlockedNetwork.length) {
+      console.log(`\n[ci-headless-tests] expected-blocked-network ${expectedBlockedNetwork.length}건:`);
+      for (const entry of expectedBlockedNetwork.slice(0, 20)) console.log(`  - ${entry.failure} | ${entry.url}`);
+    }
+    if (allowlistedRuntime.length) {
+      console.log(`\n[ci-headless-tests] allowlisted runtime errors ${allowlistedRuntime.length}건:`);
+      for (const entry of allowlistedRuntime.slice(0, 20)) console.log(`  - ${entry.kind} | ${entry.text}`);
+    }
+    if (unusedRuntimeAllowlist.length) {
+      console.error(`\n[ci-headless-tests] ❌ 미사용 runtime allowlist ${unusedRuntimeAllowlist.length}건:`);
+      for (const entry of unusedRuntimeAllowlist) console.error(`  - ${entry.id}`);
+      exitCode = 1;
+    }
+    if (unexpectedRuntime.length) {
+      console.error(`\n[ci-headless-tests] ❌ unexpected browser runtime errors ${unexpectedRuntime.length}건:`);
+      for (const e of unexpectedRuntime.slice(0, 20)) console.error(`  - ${e.kind} | ${e.text} | ${e.source}`);
+      exitCode = 1;
     }
 
     if (unexpected.length) {

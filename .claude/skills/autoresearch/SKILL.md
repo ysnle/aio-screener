@@ -3,9 +3,9 @@ name: autoresearch
 description: AIO Screener skill optimization loop. Use when improving skill quality, benchmarking prompts, defining binary evals, running one-variable experiments, or producing results.tsv/changelog.md for autonomous skill refinement.
 ---
 
-## AIO Skill Operating Contract v51.73
+## AIO Skill Operating Contract
 
-Read `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` and `.claude/commands` as the active skill system.
+Read `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` as canonical and `.agents/skills` as a generated local mirror.
 
 Close every code/data/doc/skill change with evidence. For skill-facing edits run `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`. Keep R1 7 surfaces synchronized with `node scripts/bump-version.mjs <version>` when a version bump is required.
 

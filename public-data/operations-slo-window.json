@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "operations-slo-window.v1",
+  "status": "RIGHTS_REVIEW_REQUIRED",
+  "observedAt": "2026-08-10T00:00:00+09:00",
+  "windows": {
+    "7d": { "requiredDays": 7, "observedDays": 0, "successRate": null, "status": "STALE", "source": "operator-runtime-artifact-required" },
+    "30d": { "requiredDays": 30, "observedDays": 0, "successRate": null, "status": "STALE", "source": "operator-runtime-artifact-required" }
+  },
+  "failureRecovery": { "failureCount": null, "recoveryCount": null, "dedupedAlerts": null, "status": "NOT_CONFIGURED" },
+  "revisionLanes": { "liveRevision": null, "dataRevision": null, "localFixturePromotesLive": false },
+  "reason": "Local route soak is evidence for local behavior only; 7/30-day automation and live revision require operator artifacts."
+}

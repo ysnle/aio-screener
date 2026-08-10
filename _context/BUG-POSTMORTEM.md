@@ -1,12 +1,31 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
-last_verified: 2026-08-09
+last_verified: 2026-08-10
 confidence: high
-latest_version: v53.95
-latest_P_number: P893
-next_P_number: P894
-current_total_entries: 618 (P1~P892, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P892 v53.89 hierarchical Atlas/Principles UX and Masters adjacent-quarter/runtime closure; official currentness/security-master/provider/edge gates remain fail-closed
+latest_version: v53.97
+latest_P_number: P895
+next_P_number: P896
+current_total_entries: 620 (P1~P895, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P895 v53.97 remediation handoff Wave 0/1/2/3 contracts, atomic quota, structured evidence, and fail-closed operations; full local release gates completed with live/operator boundaries retained
+
+## P895 - v53.96 - Current-code remediation handoff contracts were implemented as fail-closed gates
+
+- **motivation**: The 2026-08-09 handoff identified nine remaining defects across QA exception handling, browser error classification, data/AI evidence, Worker quota/origins, route ownership, time calendars, model validation, CSP, decomposition, and operations certification. The user authorized implementation of the handoff rather than leaving it design-only.
+- **root_cause**: Existing contracts validated many individual artifacts but several gates were advisory, quota reservation was a non-atomic KV read/write pair, scheduled market analysis had no common structured fallback, route metadata encoded not-applicable surfaces as legacy, and local/live certification boundaries were not represented in one machine-checkable vocabulary.
+- **fix**: Added a registry-driven AIO test runner with synthetic exception self-test; split browser runtime errors from expected blocked external requests with a typed allowlist; added structured `market-analysis.v2` evidence/claims/fallback output; added `AIOQuotaDurableObject` reserve/release/idempotency and exact origin configuration; added explicit route owner enums and dependency/revision graphs; added NYSE/KRX time adapters and DST/holiday/half-day/weekend fixtures; added SEC anomaly quarantine; added blocked model-validation and CSP/decomposition/operations SLO artifacts and CI gates.
+- **data_refresh_boundary**: The official refresh produced 78/78 quotes and a current Tier-0 snapshot while FRED remained explicitly unavailable; `ci-refresh-artifact-integrity-check.mjs` now permits only a source-labelled, no-key LKG boundary and never promotes it to a successful FRED fetch.
+- **violated_rule**: R1/R3/R26/R27 plus the handoff CR-QA/BASE/DATA/AI/WORKER/ARCH/TIME/FUND/MODEL/CSP/DECOMP/OPS acceptance contracts.
+- **prevention**: Every new producer/transformer/consumer contract must expose evidence IDs, status, observed/collected timestamps, and a fail-closed state. Runtime exceptions are release-blocking unless an expiring scoped allowlist entry matches. Local fixtures cannot promote live/rights/CSP/SLO certification. Version and release artifacts must be synchronized only through `bump-version.mjs`.
+- **verification**: v53.97 static contracts, refreshed Tier-0 data, lineage audit (19 artifacts; 0 FAIL), Worker/time/model/CSP/decomposition/operations gates, headless 1108/1108, 20-route browser/soak, viewport, accessibility, outage, service-worker, network-budget, human-surface, portfolio-vault, and release checks pass. Live/operator evidence remains separately blocked for Worker secrets, provider rights, 7/30-day soak, live CSP enforcement, and model PIT/cost/liquidity/parity.
+
+## P894 - v53.96 - Codex loaded stale monolithic skills outside the canonical contract gate
+
+- **motivation**: The tracked `.claude/skills` tree had concise router-plus-reference skills, but the actual Codex session discovered ignored `.agents/skills` copies that were 169~644-line historical monoliths. The canonical autoresearch eval guide was also mojibake-corrupted, while `ci-skill-contract-check.mjs` checked only `.claude` and treated any `.agents` reference as legacy.
+- **root_cause**: Claude and Codex skill roots evolved as independent manual copies. Because `.agents/` is intentionally git-ignored, CI could neither require nor compare the local surface, and there was no deterministic materialization command. Frozen `v51.73` contract labels and hardcoded historical route/version examples added further drift points.
+- **fix**: Made `.claude/skills` the tracked canonical tree; added `scripts/sync-agent-skills.mjs` to materialize and byte-check the ignored `.agents/skills` mirror; extended the skill contract gate to validate reference topology, wrapper routing, non-versioned contract headings, UTF-8 sentinel text, and mirror inventory/content when materialized. Restored the eval guide and added directly linked source-promotion, Q1~Q5 framework-extraction, and risk-based QA scope contracts.
+- **violated_rule**: R236/R237; assistant-specific skill roots must not become independent instruction sources, and the gate must validate the surface the active agent actually loads.
+- **prevention**: Change canonical skills only, run `sync-agent-skills.mjs`, then require `sync-agent-skills.mjs --check`, `ci-skill-contract-check.mjs`, `ci-workflow-compaction-check.mjs`, and the skill-creator validator when its YAML dependency is available.
+- **verification**: Local mirror synchronization reports 19/19 files byte-identical. `ci-skill-contract`, `ci-workflow-compaction`, `ci-version`, `ci-control-char`, `ci-structural`, `ci-runtime-contract`, `ci-semantic-review`, `ci-knowledge-lint`, both changed-script syntax checks, and `git diff --check` pass. The upstream Python `quick_validate.py` remains environment-blocked because the bundled Python lacks PyYAML, so the repository's stricter Node contract gate is the verified validator in this session.
 
 ## P893 - v53.95 - Full-route audit closed runtime contract, provenance, and visual grouping gaps
 

@@ -3,9 +3,9 @@ name: data-refresh
 description: AIO Screener hardcoded and generated data refresh workflow. Use when checking or updating DATA_SNAPSHOT, sentiment, breadth, macro, news, ticker registries, public-data artifacts, and other stale data categories.
 ---
 
-## AIO Skill Operating Contract v51.73
+## AIO Skill Operating Contract
 
-Read `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` and `.claude/commands` as the active skill system.
+Read `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` as canonical and `.agents/skills` as a generated local mirror.
 
 Close every code/data/doc/skill change with evidence. For skill-facing edits run `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`. Keep R1 7 surfaces synchronized with `node scripts/bump-version.mjs <version>` when a version bump is required.
 
@@ -17,6 +17,7 @@ Find stale AIO data structurally, refresh the correct producer/artifact/consumer
 
 - Read `references/inventory.md` to classify the 22 data categories and build the staleness table.
 - Read `references/workflow.md` for refresh order, non-negotiables, and verification commands.
+- Read `references/source-policy.md` before collecting or promoting external values.
 - Read `_context/RULES.md` for R1, R14, R16, R17, R21, R22, R57, and any newer data rules relevant to the touched surface.
 - Read `_context/QA-CHECKLIST.md` when adding or changing a data gate.
 

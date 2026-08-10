@@ -3,9 +3,9 @@ name: knowledge-lint
 description: AIO Screener knowledge-base consistency lint. Use when checking _context docs, rules, postmortems, QA, commands, and skills for contradictions, stale paths, missing gates, INDEX drift, or repeated failure patterns.
 ---
 
-## AIO Skill Operating Contract v51.73
+## AIO Skill Operating Contract
 
-Read `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` and `.claude/commands` as the active skill system.
+Read `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` as canonical and `.agents/skills` as a generated local mirror.
 
 Close every code/data/doc/skill change with evidence. For skill-facing edits run `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`. Keep R1 7 surfaces synchronized with `node scripts/bump-version.mjs <version>` when a version bump is required.
 
@@ -22,7 +22,7 @@ Detect and repair contradictions between `_context`, skills, commands, rules, po
 ## Core Workflow
 
 1. Select full or targeted lint scope.
-2. Run the seven lint passes.
+2. Run the eight lint passes.
 3. Auto-fix clear stale paths and index drift.
 4. Escalate contradictory rules or ambiguous ownership.
 5. Add or update gates when repeated failures are found.
@@ -39,3 +39,4 @@ Detect and repair contradictions between `_context`, skills, commands, rules, po
 | KL5 | Were executable gates run for doc/skill changes? |
 | KL6 | Did the matching command wrapper remain synced? |
 | KL7 | Was Pass 8 (prescriptive drift: reasoning-echo requests, instruction-without-eval) run over `.claude/skills` and `.claude/commands`? |
+| KL8 | Is any local `.agents/skills` mirror byte-synchronized with the canonical skill tree? |

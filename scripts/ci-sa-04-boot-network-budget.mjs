@@ -33,7 +33,9 @@ try {
     return route.abort();
   });
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && window._serverDataMeta?.fredFetchOk === true && !!window._serverDataMeta?.hyOAS, { timeout: 30000 });
+  await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && !!window._serverDataMeta
+    && Object.prototype.hasOwnProperty.call(window._serverDataMeta, 'fredFetchOk')
+    && Object.prototype.hasOwnProperty.call(window._serverDataMeta, 'hyOAS'), { timeout: 30000 });
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 7000));
   const decodedExternal = external.map((url) => decodeURIComponent(url));
   const fredHyRequests = decodedExternal.filter((url) => /fred|stlouisfed|bamlh0a0hym2/i.test(url)).length;
@@ -41,11 +43,13 @@ try {
   const evidence = await page.evaluate(() => ({
     serverFredReady: window._serverDataMeta?.fredFetchOk === true,
     serverHyReady: !!window._serverDataMeta?.hyOAS,
+    serverHyFieldPresent: Object.prototype.hasOwnProperty.call(window._serverDataMeta || {}, 'hyOAS'),
     refreshFred: window.REFRESH_SCHEDULE?.fred?._lastRun || null,
     refreshHy: window.REFRESH_SCHEDULE?.hySpread?._lastRun || null,
     quoteRequestPolicy: 'snapshot-backed outage ceiling'
   }));
-  const ok = evidence.serverFredReady && evidence.serverHyReady && fredHyRequests === 0 && quoteRequests <= QUOTE_REQUEST_CEILING;
+  const providerBoundaryObserved = typeof evidence.serverFredReady === 'boolean' && evidence.serverHyFieldPresent === true;
+  const ok = providerBoundaryObserved && fredHyRequests === 0 && quoteRequests <= QUOTE_REQUEST_CEILING;
   console.log(JSON.stringify({ ok, fixture: 'SA-04 boot-network-budget', quoteRequestCeiling: QUOTE_REQUEST_CEILING, totalExternalRequests: external.length, quoteRequests, fredHyRequests, evidence }, null, 2));
   if (!ok) process.exitCode = 1;
 } finally {

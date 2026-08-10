@@ -1,4 +1,42 @@
 export const AI_MARKET_SESSION_VERSION = 'market-session-evidence.v1';
+export const AI_MARKET_TIME_VERSION = 'market-time-evidence.v1';
+
+export const MARKET_CALENDAR_ADAPTERS = Object.freeze({
+  NYSE: Object.freeze({ market: 'US', timezone: 'America/New_York', regularOpen: '09:30', regularClose: '16:00', dstAware: true }),
+  KRX: Object.freeze({ market: 'KR', timezone: 'Asia/Seoul', regularOpen: '09:00', regularClose: '15:30', dstAware: false }),
+});
+
+function dateOnly(value) {
+  const text = String(value || '').slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : null;
+}
+
+export function createTemporalEvidence({ eventAt = null, observedAt = null, collectedAt = null, publishedAt = null, source = 'temporal-provider', sourceKind = 'official-primary', allowedUse = 'reference' } = {}) {
+  return Object.freeze({
+    schemaVersion: AI_MARKET_TIME_VERSION,
+    eventAt: iso(eventAt),
+    observedAt: iso(observedAt),
+    collectedAt: iso(collectedAt),
+    publishedAt: iso(publishedAt),
+    source,
+    sourceKind,
+    allowedUse,
+    status: eventAt && observedAt ? 'observed' : 'unknown',
+  });
+}
+
+export function resolveMarketCalendarSession({ market = 'US', date, calendar = null, holidays = [], halfDays = {} } = {}) {
+  const adapter = MARKET_CALENDAR_ADAPTERS[String(market).toUpperCase() === 'KR' ? 'KRX' : 'NYSE'];
+  const day = dateOnly(date);
+  if (!day || !calendar || typeof calendar !== 'object') {
+    return { schemaVersion: AI_MARKET_TIME_VERSION, market: adapter.market, date: day, status: 'unknown', reason: 'calendar-unavailable', timezone: adapter.timezone, dstAware: adapter.dstAware };
+  }
+  const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
+  if (weekday === 0 || weekday === 6) return { schemaVersion: AI_MARKET_TIME_VERSION, market: adapter.market, date: day, status: 'closed', reason: 'weekend', timezone: adapter.timezone, dstAware: adapter.dstAware };
+  if (holidays.map(dateOnly).includes(day)) return { schemaVersion: AI_MARKET_TIME_VERSION, market: adapter.market, date: day, status: 'closed', reason: 'holiday', timezone: adapter.timezone, dstAware: adapter.dstAware };
+  const close = halfDays[day] || adapter.regularClose;
+  return { schemaVersion: AI_MARKET_TIME_VERSION, market: adapter.market, date: day, status: 'open', session: 'regular', open: adapter.regularOpen, close, halfDay: close !== adapter.regularClose, timezone: adapter.timezone, dstAware: adapter.dstAware };
+}
 
 function iso(value) {
   if (!value) return null;

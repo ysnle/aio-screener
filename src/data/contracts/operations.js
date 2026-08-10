@@ -1,9 +1,11 @@
 export const OPERATIONS_STATUS = Object.freeze(['CURRENT', 'DEGRADED', 'BLOCKED', 'OPERATOR_REQUIRED', 'UNKNOWN']);
 export const RIGHTS_STATUS = Object.freeze(['VERIFIED', 'REVIEW_REQUIRED', 'OPERATOR_REQUIRED', 'UNAVAILABLE', 'UNKNOWN']);
+export const OPERATIONAL_STATE_CODES = Object.freeze(['NOT_CONFIGURED', 'CONFIGURED_HEALTHY', 'CONFIGURED_BROKEN', 'STALE', 'RIGHTS_REVIEW_REQUIRED']);
 
 export function createOperationsStatus(input = {}) {
   return Object.freeze({
     schemaVersion: String(input.schemaVersion || 'operations-status-v1'),
+    statusVocabulary: OPERATIONAL_STATE_CODES,
     generatedAt: input.generatedAt || null,
     appRevision: String(input.appRevision || 'unknown'),
     dataRevision: String(input.dataRevision || 'unknown'),
@@ -28,5 +30,6 @@ export function validateOperationsStatus(status) {
   if (!status?.planes?.fast?.status) errors.push('fast_plane_missing');
   if (!status?.providers || Object.keys(status.providers).length === 0) errors.push('providers_missing');
   if (status?.reconciliation?.categoryCount !== 22) errors.push('reconciliation_category_count_invalid');
+  if (!Array.isArray(status?.statusVocabulary) || !OPERATIONAL_STATE_CODES.every(code => status.statusVocabulary.includes(code))) errors.push('status_vocabulary_missing');
   return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
 }

@@ -1,6 +1,6 @@
 ---
 verified_by: Codex (repository/gates/Chrome live/GitHub Actions 실측)
-last_verified: 2026-07-27
+last_verified: 2026-08-09
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -54,6 +54,8 @@ target_version: version.json
 
 > **Current correction (2026-07-27 v53.46 independent audit/design)**: `AIO-STRUCTURAL-REMEDIATION-MASTERPLAN-2026-07-27.md` is the current planning SSOT for the next structural remediation. It consolidates a fresh 17-route live-browser/code/data/Actions audit, user-persona requirements, P0~P3 issue ledger, target Evidence→Selector→Domain→ViewModel→Renderer architecture, all-route required data/chart/text contracts, orphan-element prevention, security and soak/SLO gates, and expert/sub-agent work boundaries. It is `DESIGN_ONLY`; no implementation, version bump, commit, or deployment is claimed. The two 2026-07-19 architecture handoff documents contain thousands of U+FFFD replacement characters and must be treated as damaged historical material until restored.
 
+> **Current correction (2026-08-09 v53.96 local, external 15-file packet reconciliation)**: `AIO-CURRENT-CODE-REMEDIATION-HANDOFF-2026-08-09.md` is the current delta execution design for `AIO_Codex_Architecture_Handoff.zip`. It rejects the stale v53.21/17-route baseline, undeclared `BASE-001` dependency, retired secret backup, already-complete 20-route primary ownership, and greenfield fast-plane assumptions. It retains and re-scopes the real remaining work into CR-QA/BASE/DATA/AI/WORKER/ARCH/TIME/FUND/MODEL/CSP/DECOMP/OPS/REL packets, with code/local/live/operator states separated. `DESIGN_ONLY`; first packet is CR-QA-01.
+
 # _context Index
 
 This folder is the active project knowledge base for AIO. It should describe the current GitHub-deployed structure first, then local Claude worktree exceptions only when they affect routing.
@@ -84,6 +86,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md` | 다른 세션용 전체 재구축 실행 원장: 14계층·17 route·ARX-00~16·DELETE-LEDGER·owner/burn-down/최종 인수 기준 | 계층/route owner, 실행 wave, 삭제 대상, gate 또는 재구축 상태 변경 시 |
 | `ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md` | v53.16 배치의 진척 회계 훼손 실측(F-01~F-09: 소유권 하드코딩·게이트 역전·이중 DOM writer·항진 parity) + RM-00~06 복구 패킷 — 신규 ARX 착수 전 필수 선행 원장 | RM 패킷 상태, route-owners.json, 게이트 로직, 소유권 실측 변경 시 |
 | `AIO-STRUCTURAL-REMEDIATION-MASTERPLAN-2026-07-27.md` | v53.46 독립 진단 기반 구조 개편 기획 SSOT: 설계 의도·사용자 관점·P0~P3 전체 이슈·목표 아키텍처·17 route 필수 데이터/차트/텍스트·고아 방지·보안·운영 SLO·작업 Wave/게이트 | 구조 개편 우선순위, page contract, route owner, evidence/selector, 보안·운영 gate 또는 공개 판정 변경 시 |
+| `AIO-CURRENT-CODE-REMEDIATION-HANDOFF-2026-08-09.md` | 외부 15파일 아키텍처 패킷을 v53.96/20-route 현재 코드와 재대사한 실행 설계 SSOT. stale/완료/유효 항목 분류, CR-QA~REL 코드 패킷, 결정·운영자 경계, 의존성·인수 기준 포함. DESIGN_ONLY | 각 CR 패킷 상태, route/evidence/AI/Worker/QA/SLO 기준선, 사용자 결정 또는 live/operator 증거 변경 시 |
 | `API-AI-CHAT-RELIABILITY-REMEDIATION-HANDOFF-2026-07-27.md` | v53.51 라이브·Actions·공개 Worker·부팅 실측 기반 API/AI/자동화/성능 집중 진단과 P0~P2 실행 설계. 키 저장 거짓 양성, 공개 채팅 경로 부재, 공급자 wiring, 209개 초기 요청·장기 작업·저사양 성능 gate와 Chat/Research readiness 분리를 포함 | API 키 저장/암호화/삭제, Worker 공개 경로, AI·Web Research gateway, 공급자 health, 부팅 성능·캐시·요청 예산, 답변 정확도 gate 또는 공개 운영 정책 변경 시 |
 | `AI-SCREENER-INTELLIGENCE-REBUILD-HANDOFF-2026-07-27.md` | v53.52 저장소/v53.51 라이브 기준 실제 질문 routing·공개 데이터·서버 Claude 생성문 재감사 기반 AI 스크리너 전체 재구축 설계. QuestionPlan→Tool/Research Plane→Evidence Graph→ClaimLedger→검증 renderer, 원인·전망·섹터·기업·차트·매크로·FX 분석 계약, 370문항/4,440 fixture benchmark 포함 | AI intent/entity/time/premise, causal analysis, Web Research, screener recommendation, structured output/tool use, 답변 품질·다양성·최신성·확장성 또는 live model benchmark 변경 시 |
 | `WEB-RESEARCH-CRITICAL-DATA-REMEDIATION-HANDOFF-2026-07-27.md` | v53.52 코드·공개 artifact 재감사 기반 Web Research와 핵심 데이터 전용 구조 개편안. 검색 key/route와 ResearchDecision 분리, 미연결 Deep Search·fail-open·출처 결속 문제, mixed screener observedAt·필드별 펀더멘털·session UNKNOWN·뉴스 tier·서버 AI metric 혼동을 P0~P2와 인수 조건으로 정리 | 검색 routing/provider/tool/citation/source policy, 데이터 coverage/freshness/session/PIT/rights, Answerability, market/sector/company causal Evidence 또는 관련 운영 gate 변경 시 |
@@ -115,7 +118,7 @@ This folder is the active project knowledge base for AIO. It should describe the
 | `WO7-GLOBAL-INVENTORY-2026-07-10.md` | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7("점진적 구조 격리") Packet 1 — 전역 read/write baseline 실측(innerHTML 395·전역쓰기 1,318·localStorage direct 146 vs safeLS 8) + timer/chart/page-lifecycle 어댑터 기존재 확인(진짜 갭은 채택률) + snapshot/storage adapter 전면화 등 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 | `INDEX.md` | This index | Any `_context` document add/remove |
 
-> 47개 versioned/new `_context/*.md` 활성(2026-08-01 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
+> 53개 versioned/new `_context/*.md` 활성(2026-08-09 갱신). 추가로 루트에 `EVIDENCE-DEBT.md`(v50.x evidence-first 부채 대장)가 있으며 `_context` 밖이지만 evidence 게이트의 SSOT다. `_context/archive-reports/`, `working-rules.md`, `voice-and-style.md`는 `.gitignore` 대상(로컬 전용 레거시).
 
 ## Current Deployment Baseline
 
@@ -138,11 +141,12 @@ AIO/
 ├── public-data/          ← data.json · history.json · screener.json · telegram-digest.json · operator-note.json
 ├── CHANGELOG.md · CLAUDE.md · api_setup_guide.html · cloudflare-worker-proxy.js
 ├── _context/             ← Git-tracked 위키 (위 표 참조, 21개)
-└── .claude/               ← 전부 Git-tracked (2026-05-18~)
+├── .claude/               ← 전부 Git-tracked (2026-05-18~)
     ├── agents/            ← 4개 서브에이전트 (accessibility-auditor · code-reviewer · performance-analyzer · qa-auditor)
     ├── commands/           ← 9개 wrapper
     ├── hooks/              ← 6개 (PreToolUse/PostToolUse/Stop)
     └── skills/             ← 7개: _shared · autoresearch · bug-fix · data-refresh · integrate · knowledge-lint · post-edit-qa
+└── .agents/               ← Git-ignored local Codex surface; `scripts/sync-agent-skills.mjs`가 `.claude/skills`에서 생성
 ```
 
 > 상세 hooks/commands 매핑은 `_context/CLAUDE.md` 참조(2026-07-02 인코딩 파손 복구 + 실측 재작성됨).
@@ -170,4 +174,4 @@ When a new `_context` document is added or removed, update this file and `_conte
 - Run `node scripts/ci-semantic-review-check.mjs` when audit/readiness/page/AI/data/trading gates change.
 - Run `node scripts/ci-workflow-compaction-check.mjs` when `_context`, `CLAUDE.md`, QA, postmortem, or skill guidance changes.
 - Treat `BUG-POSTMORTEM.md`, `RULES.md`, and `QA-CHECKLIST.md` as archives plus active gates. Do not expand them without checking whether older guidance can be removed, merged, compressed, or moved into a reference.
-- Root `.claude/skills/*/SKILL.md` files are router files. Keep recurring obligations in `.claude/skills/_shared/operating-contract.md`, move long skill detail into directly linked `references/`, and let `scripts/ci-skill-contract-check.mjs` enforce router size/reference existence.
+- Root `.claude/skills/*/SKILL.md` files are canonical router files. Keep recurring obligations in `.claude/skills/_shared/operating-contract.md`, move long skill detail into directly linked `references/`, generate the ignored `.agents/skills` mirror with `scripts/sync-agent-skills.mjs`, and let `scripts/ci-skill-contract-check.mjs` enforce router/reference/wrapper/mirror parity.

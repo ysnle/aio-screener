@@ -66,6 +66,9 @@ jobs:
       - name: Cloudflare Worker /anthropic security checks (WO-1B/P662)
         run: node scripts/ci-worker-anthropic-check.mjs
 
+      - name: Market session/time evidence contract (CR-TIME-01)
+        run: node scripts/ci-market-session-contract-check.mjs
+
       - name: JS 구문 검사 (전 클라이언트 스크립트 — P311 재발 방지)
         run: |
           set -e
@@ -92,6 +95,12 @@ jobs:
           node scripts/ci-capability-claim-contract-check.mjs
           node scripts/ci-operations-contract-check.mjs
 
+      - name: Measured decomposition hotspot contract (CR-DECOMP-01)
+        run: node scripts/ci-decomp-hotspot-check.mjs
+
+      - name: Baseline and dependency graph contract (CR-BASE-01)
+        run: node scripts/ci-baseline-contract-check.mjs
+
       - name: ESM core unit contracts (RM-05 — store/router/lifecycle/evidence-store/facade in isolation)
         run: node scripts/ci-esm-core-unit-check.mjs
 
@@ -107,6 +116,9 @@ jobs:
 
       - name: Domain live/backtest parity contract (ARX-12 — trading-score real, others smoke pending RM-03 item 2)
         run: node scripts/ci-domain-parity-check.mjs
+
+      - name: Research model validation contract (CR-MODEL-01)
+        run: node scripts/ci-research-model-contract-check.mjs
 
       - name: Storage migration and privacy vault contract (ARX-14)
         run: node scripts/ci-storage-migration-check.mjs
@@ -129,6 +141,9 @@ jobs:
       - name: Operations status and reconciliation contract (AR-07/08)
         run: node scripts/ci-operations-status-check.mjs
 
+      - name: Operations 7/30-day SLO window contract (CR-OPS-01)
+        run: node scripts/ci-operations-slo-window-check.mjs
+
       - name: 22-category source reconciliation contract (AR-07 Batch 4)
         run: node scripts/ci-reconciliation-contract-check.mjs
 
@@ -149,6 +164,9 @@ jobs:
 
       - name: Static and hardcoded data contract (22 categories)
         run: node scripts/ci-static-data-contract-check.mjs
+
+      - name: CSP trusted-rendering sink ratchet (CR-CSP-01)
+        run: node scripts/ci-csp-ratchet-check.mjs
 
       - name: Data refresh 22-category freshness and session audit
         run: node scripts/ci-data-refresh-audit.mjs

@@ -1,6 +1,20 @@
 {
   "generatedAt": "2026-07-27",
-  "version": "v53.46",
+  "version": "v53.97",
+  "observedRevision": "v53.97",
+  "observedAt": "2026-08-10T00:00:00+09:00",
+  "observationSource": "local-working-tree",
+  "revisionLanes": {
+    "local": { "revision": "v53.97", "status": "observed", "source": "version.json" },
+    "release": { "revision": "v53.97", "status": "observed-local", "source": "architecture/release-manifest.json" },
+    "live": { "revision": null, "status": "unverified", "source": "external-observation-required" }
+  },
+  "routeGraph": {
+    "ownerManifest": "architecture/route-owners.json",
+    "supportedRoutesCount": 20,
+    "supportedRoutesSource": "architecture/route-owners.json.routes",
+    "dependencyRule": "dependencies must reference route IDs or explicit external gates; local/release/live observations remain separate"
+  },
   "scope": [
     "index.html",
     "js/aio-core.js",

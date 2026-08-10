@@ -1,10 +1,5 @@
-/*
-  GitHub Pages does not guarantee custom edge headers. This file is included
-  for compatible static hosts/edge proxies; operator verification remains a
-  public-readiness criterion until response headers are observed live.
-*/
-# Compatible static-host edge policy. GitHub Pages requires operator-side
-# confirmation because it does not promise custom _headers enforcement.
+# Compatible static-host edge policy. GitHub Pages does not guarantee custom
+# edge headers; confirm response headers live before promoting CSP as observed.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

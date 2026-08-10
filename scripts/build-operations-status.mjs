@@ -6,6 +6,13 @@ const ROUTE_OWNERS_PATH = new URL('../architecture/route-owners.json', import.me
 const SEC_FUNDAMENTALS_PATH = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 const WORKER_ENDPOINTS_PATH = new URL('../architecture/worker-endpoints.json', import.meta.url);
 
+export function deriveOperationalState({ configured = false, healthy = false, stale = false, rightsReview = false } = {}) {
+  if (rightsReview) return 'RIGHTS_REVIEW_REQUIRED';
+  if (!configured) return 'NOT_CONFIGURED';
+  if (stale) return 'STALE';
+  return healthy ? 'CONFIGURED_HEALTHY' : 'CONFIGURED_BROKEN';
+}
+
 export async function readRouteOwners() {
   return JSON.parse(await readFile(ROUTE_OWNERS_PATH, 'utf8'));
 }
@@ -59,6 +66,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const coverage = snapshot.coverage || { tier0Required: 0, tier0Observed: 0 };
   const durableOk = snapshot.status === 'published' && coverage.tier0Observed === coverage.tier0Required && coverage.tier0Required > 0;
   const scheduledAnalysisOk = data?.meta?.marketAnalysisOk === true;
+  const fastConfigured = fastEndpoint !== 'not-configured';
+  const fastHealthy = Number(fastEvidence.fastHealthStatus) === 200 && Number(fastEvidence.fastSoakObservedDays || 0) >= 7;
   const blockers = [];
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
   blockers.push('fast_plane_cloudflare_credentials_and_soak_required');
@@ -72,11 +81,11 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     overall: durableOk ? 'OPERATOR_REQUIRED' : 'BLOCKED',
     planes: {
       durable: {
-        status: durableOk ? 'CURRENT' : 'BLOCKED', source: 'github-actions', lastSuccessfulAt: snapshot.lastSuccessfulAt || null, coverage,
+        status: durableOk ? 'CURRENT' : 'BLOCKED', statusCode: deriveOperationalState({ configured: true, healthy: durableOk }), source: 'github-actions', lastSuccessfulAt: snapshot.lastSuccessfulAt || null, coverage,
         readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: 'CURRENT', lastCallSucceeded: durableOk ? 'CURRENT' : 'BLOCKED', dataCurrent: durableOk ? 'CURRENT' : 'BLOCKED', licensedForUse: 'REVIEW_REQUIRED' }
       },
       fast: {
-        status: 'OPERATOR_REQUIRED', scheduler: 'cloudflare-cron', endpoint: fastEndpoint,
+        status: 'OPERATOR_REQUIRED', statusCode: deriveOperationalState({ configured: fastConfigured, healthy: fastHealthy }), scheduler: 'cloudflare-cron', endpoint: fastEndpoint,
         health: {
           status: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'OPERATOR_REQUIRED',
           statusCode: Number.isFinite(Number(fastEvidence.fastHealthStatus)) ? Number(fastEvidence.fastHealthStatus) : null,
@@ -85,15 +94,15 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
           observedAt: fastEvidence.fastHealthObserved || null,
           source: 'operator-provided-runtime-evidence'
         },
-        soak: { requiredDays: 7, observedDays: 0, targetSuccessRate: 0.99 },
+        soak: { requiredDays: 7, observedDays: Number(fastEvidence.fastSoakObservedDays || 0), targetSuccessRate: 0.99 },
         readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: fastEndpoint === 'not-configured' ? 'OPERATOR_REQUIRED' : 'CURRENT', lastCallSucceeded: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', dataCurrent: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', licensedForUse: 'REVIEW_REQUIRED' }
       },
-      browser: { status: 'CURRENT', source: 'static-pages+service-worker', revision: version.version }
+      browser: { status: 'CURRENT', statusCode: deriveOperationalState({ configured: true, healthy: true }), source: 'static-pages+service-worker', revision: version.version }
     },
     ai: {
-      scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, generatedAt: data?.meta?.generatedAt || null } },
+      scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', statusCode: deriveOperationalState({ configured: true, healthy: scheduledAnalysisOk }), source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, generatedAt: data?.meta?.generatedAt || null } },
       publicChat: {
-        status: 'NO_ROUTE',
+        status: 'NO_ROUTE', statusCode: deriveOperationalState({ configured: !!workerEndpoints.proxy?.baseUrl, healthy: false }),
         personalKey: 'EXPLICIT_USER_CONFIG',
         sharedWorker: workerEndpoints.proxy?.baseUrl ? 'OPERATOR_REQUIRED' : 'NOT_CONFIGURED',
         workerEndpoint: workerEndpoints.proxy?.baseUrl || null,
@@ -102,15 +111,15 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       }
     },
     providers: {
-      yahoo: { rights: 'REVIEW_REQUIRED', use: 'reference', lastFetchAt: data?.meta?.generatedAt || null },
+      yahoo: { rights: 'REVIEW_REQUIRED', statusCode: 'RIGHTS_REVIEW_REQUIRED', use: 'reference', lastFetchAt: data?.meta?.generatedAt || null },
       fred: {
-        rights: process.env.FRED_API_KEY ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED',
+        rights: process.env.FRED_API_KEY ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', statusCode: process.env.FRED_API_KEY ? 'RIGHTS_REVIEW_REQUIRED' : 'NOT_CONFIGURED',
         use: 'official-series',
         status: data?.meta?.fredFetchOk ? 'CURRENT' : 'UNAVAILABLE',
         lastAttemptAt: data?.meta?.fredAttemptedAt || data?.meta?.generatedAt || null,
         lastFetchAt: data?.meta?.fredFetchOk ? (data?.meta?.fredLastSuccessfulAt || data?.meta?.generatedAt || null) : null
       },
-      sec: { rights: 'REVIEW_REQUIRED', use: 'filing-evidence', coveragePct: secCoverage.coveragePct, stored: secCoverage.stored, eligible: secCoverage.eligible }
+      sec: { rights: 'REVIEW_REQUIRED', statusCode: 'RIGHTS_REVIEW_REQUIRED', use: 'filing-evidence', coveragePct: secCoverage.coveragePct, stored: secCoverage.stored, eligible: secCoverage.eligible }
     },
     reconciliation: {
       tier0: { status: durableOk ? 'MATCH' : 'BLOCKED', artifact: snapshot.revision || null, uiEvidence: durableOk ? 'same-revision-contract' : null, observedAtComplete: durableOk },

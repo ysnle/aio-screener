@@ -29,6 +29,11 @@ Use `references/eval-guide.md` when writing or revising evals.
 4. Score every output against every eval.
 5. Record experiment `0` in `results.tsv` and `results.json`.
 
+Choose the evaluation mode before scoring:
+
+- Use deterministic static evaluation for skill topology, references, wrappers, encoding, and mirror parity.
+- Use behavioral runs for output quality. If independent task runs are unavailable, record behavioral quality as unverified rather than inferring it from static checks.
+
 ## Experiment Loop
 
 For each experiment:
@@ -40,6 +45,8 @@ For each experiment:
 5. Keep the change only if the score improves.
 6. Revert if the score is equal or worse.
 7. Record the score, decision, and reason in `results.tsv` and `changelog.md`.
+
+One variable means one causal hypothesis. A change may touch multiple files when those files form one contract boundary, such as canonical skill plus generated-mirror gate.
 
 Stop when the user interrupts, the budget is reached, or the skill passes at least 95% for three consecutive experiments.
 

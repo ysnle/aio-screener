@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "dependency-graph.v1",
+  "supportedRoutesSource": "architecture/route-owners.json",
+  "dependencies": {
+    "route-owner-manifest": { "kind": "artifact", "source": "architecture/route-owners.json", "required": true },
+    "market-snapshot": { "kind": "artifact", "source": "public-data/market-snapshot.json", "required": true },
+    "operations-status": { "kind": "artifact", "source": "public-data/operations-status.json", "required": true },
+    "live-edge": { "kind": "external-gate", "source": "operator/live observation", "required": false }
+  },
+  "revisionLanes": ["local", "release", "live"],
+  "unknownDependencyPolicy": "fail-closed"
+}
