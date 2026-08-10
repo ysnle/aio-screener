@@ -13,6 +13,7 @@ confidence: high
 - [x] QA-CR6: NYSE/KRX time adapters expose event/observed/collected/published timestamps and pass DST-adjacent, holiday, half-day, weekend, and missing-calendar fixtures; SEC anomalies quarantine rather than promote.
 - [x] QA-CR7: Research model, CSP sink, decomposition hotspot, and operations 7/30-day SLO contracts are machine-checked; local fixtures cannot certify PIT model validity, rights, live headers, or long-run SLOs.
 - [x] QA-CR8: The official refresh records 78/78 quote success and current Tier-0 evidence; FRED without a secret remains explicit `fredFetchOk:false`/source-labelled LKG and does not promote to success.
+- [x] QA-CR9: Atlas/Telegram contracts derive lineage from the current digest, accept current 4/4 or failed/reference-only collection states, and render an explicit collection-status boundary in both states.
 - [ ] External: live Worker binding/health, provider rights, GitHub Pages edge header observation, and 7/30-day production SLO artifacts remain operator gates.
 
 ## v53.95 full-route audit closure (2026-08-09)

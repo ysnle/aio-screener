@@ -408,6 +408,9 @@ function createTelegramReferenceView(documentRef, telegram, query) {
     return !query || searchable.includes(query);
   });
   const windowStart = telegram.current24hWindow?.start || telegram.since || telegram.window?.start || '—';
+  const collectionStatus = element(documentRef, 'div', 'atlas-card-meta atlas-telegram-status', telegram.collectionStatus === 'ok'
+    ? `수집 상태: ${telegram.successfulChannelCount || channels.length}개 채널 관측 완료 · 기준 ${windowStart}`
+    : `수집 상태: 실패·기존 원장 참고 · 기준 ${windowStart}`);
   const windowEnd = telegram.current24hWindow?.end || telegram.until || telegram.window?.end || '—';
   const observed = telegram.retainedItemCount ?? telegram.observedItems?.length ?? telegram.count ?? 0;
   const successful = telegram.successfulChannelCount ?? channels.filter((channel) => !channel.error).length;
@@ -438,7 +441,7 @@ function createTelegramReferenceView(documentRef, telegram, query) {
     grid.appendChild(card);
   });
   if (!channels.length) grid.appendChild(element(documentRef, 'div', 'atlas-empty', '검색 결과가 없습니다.'));
-  view.appendChild(grid);
+  view.append(collectionStatus, grid);
   return view;
 }
 
