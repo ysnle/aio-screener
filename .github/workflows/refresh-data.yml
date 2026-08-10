@@ -97,6 +97,7 @@ jobs:
            [ -f public-data/reconciliation-status.json ] && git add public-data/reconciliation-status.json || true
           [ -f public-data/screener.json ] && git add public-data/screener.json || true
           [ -f public-data/telegram-digest.json ] && git add public-data/telegram-digest.json || true
+          [ -f public-data/atlas/index.json ] && git add public-data/atlas/index.json || true
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           [ -f public-data/score-backtest-history.json ] && git add public-data/score-backtest-history.json || true
           git add architecture/asset-manifest.json architecture/release-manifest.json

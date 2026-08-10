@@ -2001,3 +2001,9 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: 모든 AI 표면은 같은 `QuestionPlan`의 의도·엔티티·현재성·필수 근거로 소스 fan-out과 Research를 결정하고, 모델은 하나의 `AI_ANSWER_PLAN` 계약을 생산하며, consumer는 각 current claim의 evidence ID가 실제 주입 근거에 존재할 때만 표시한다. 안전 분류는 사용자 query의 행위 요청과 모델 response의 실제 지시를 분리하여 검사하고, 일반적 위험·규제 설명을 법률·세무 자문으로 오인하지 않는다. 무관한 뉴스·Telegram·펼더멘털 fan-out, 히스토리 중복, 재시도 옵션 소실, 실제 수신과 다른 출처 배지, 보정 없는 확률·구체적 매매 지시를 금지한다.
 
 **Validation**: `scripts/ci-ai-intelligence-contract-check.mjs` 30-case routing/AnswerPlan fixtures, `scripts/ci-ai-chat-reliability-contract-check.mjs`, `js/aio-tests.js` T934a/T934b/T937a/T990a, `scripts/ci-headless-tests.mjs`, and both chat surfaces' source/follow-up/history assertions.
+
+## R457. 변동 원본 artifact와 파생 인덱스는 producer가 원자적으로 발행한다 (v54.2, P902)
+
+**Rule**: 자동 갱신 producer가 retained count·revision·collection status를 바꾸면 그 값을 참조하는 요약·인덱스 artifact를 같은 실행에서 재생성하고 같은 커밋에 stage해야 한다. 배포 직전 수동 숫자 수정은 producer 수정을 대신하지 못한다. CI는 현재 값 일치뿐 아니라 producer assignment·workflow staging 배선을 함께 검증한다.
+
+**Validation**: `scripts/fetch-telegram-digest.mjs`, `.github/workflows/refresh-data.yml`, `scripts/ci-data-pipeline-contract-check.mjs`, `scripts/ci-atlas-contract-check.mjs`.

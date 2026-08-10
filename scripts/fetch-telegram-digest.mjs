@@ -558,5 +558,19 @@ const outputDigest = collectionStatus === 'failed' && previousDigest && Number(p
     })
   : digest;
 const json = JSON.stringify(outputDigest, null, 2);
-if (outPath) writeFileSync(outPath, json + '\n', 'utf8');
+if (outPath) {
+  writeFileSync(outPath, json + '\n', 'utf8');
+  // Telegram digest and Atlas discovery index are one publication unit. Keep
+  // the derived lineage count synchronized in the producer so a scheduled
+  // refresh cannot commit a digest that the Atlas contract immediately rejects.
+  const atlasIndexPath = join(ROOT, 'public-data', 'atlas', 'index.json');
+  if (existsSync(atlasIndexPath)) {
+    const atlasIndex = JSON.parse(readFileSync(atlasIndexPath, 'utf8'));
+    const lineageCount = outputDigest.retainedItemCount ?? outputDigest.observedItems?.length ?? null;
+    if (lineageCount != null && atlasIndex.telegramObservedLineage !== lineageCount) {
+      atlasIndex.telegramObservedLineage = lineageCount;
+      writeFileSync(atlasIndexPath, JSON.stringify(atlasIndex, null, 2) + '\n', 'utf8');
+    }
+  }
+}
 console.log(json);

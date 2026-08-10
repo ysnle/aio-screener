@@ -3,10 +3,20 @@ verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-10
 confidence: high
 latest_version: v54.2
-latest_P_number: P901
-next_P_number: P902
-current_total_entries: 626 (P1~P901, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P901 v54.2 AI chat uses one QuestionPlan/AnswerPlan contract, query-scoped evidence, and separated conduct/safety classification
+latest_P_number: P902
+next_P_number: P903
+current_total_entries: 627 (P1~P902, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P902 v54.2 Telegram refresh publishes its Atlas lineage dependency atomically
+
+## P902 - v54.2 - Scheduled Telegram refresh repeatedly invalidated the Atlas release contract
+
+- **motivation**: v54.2 배포 중 자동 데이터 갱신이 두 번 연속으로 새 digest를 커밋하면서 Atlas 인덱스는 이전 retained count를 유지해 CI와 Pages 배포를 차단했다.
+- **symptom/reproduction**: 첫 리베이스 후 digest 463 vs Atlas 482, 수동 동기화 직후 다음 자동 갱신에서 digest 470 vs Atlas 463이 재발했고 `ci-atlas-contract-check.mjs`의 `telegram discovery coverage`가 실패했다.
+- **root_cause**: `fetch-telegram-digest.mjs`는 canonical digest만 쓰고 그 건수를 참조하는 `public-data/atlas/index.json`을 재생성하지 않았으며, refresh workflow 역시 Atlas 인덱스를 stage하지 않았다. P900의 수동 동기화는 산출물을 고쳤지만 producer 경계를 고치지 않았다.
+- **fix**: Telegram producer가 최종 `outputDigest.retainedItemCount`로 Atlas 인덱스를 같은 실행에서 원자적으로 갱신하고, workflow가 두 파일을 함께 stage하도록 바꿘다. data-pipeline CI가 producer assignment과 workflow staging을 모두 정적 계약으로 검증한다.
+- **violated_rule**: R455 — 서로 참조하는 요약 인덱스와 원본 artifact는 같은 retained count·collection status를 가져야 한다.
+- **prevention**: R457은 변동 artifact producer가 자신에서 파생된 인덱스를 같은 실행·같은 커밋으로 갱신하고 CI가 배선과 값 일치를 둘 다 검증하게 한다.
+- **verification**: `ci-data-pipeline-contract-check.mjs`, `ci-atlas-contract-check.mjs`, `ci-six-doc-coverage-check.mjs`, `ci-knowledge-core-semantic-check.mjs`, 최신 digest/Atlas 470 일치, GitHub CI/Pages 배포.
 
 ## P901 - v54.2 - AI chat composed incompatible classifiers, evidence contracts, and UI fallbacks
 
