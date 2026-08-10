@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-10T15:16:40.390Z",
-  "attemptedAt": "2026-08-10T15:16:40.390Z",
-  "lastSuccessfulAt": "2026-08-10T15:16:40.390Z",
+  "generatedAt": "2026-08-10T16:11:35.761Z",
+  "attemptedAt": "2026-08-10T16:11:35.761Z",
+  "lastSuccessfulAt": "2026-08-10T16:11:35.761Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-07-27T15:16:34.669Z",
-  "until": "2026-08-10T15:16:34.669Z",
+  "since": "2026-07-27T16:11:29.385Z",
+  "until": "2026-08-10T16:11:29.385Z",
   "current24hWindow": {
     "start": "2026-08-08T23:00:00.000Z",
     "end": "2026-08-09T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 142,
-    "eligibleTextCount": 14,
+    "eligibleTextCount": 13,
     "channelCounts": {
       "bornlupin": 12,
       "HANAchina": 46,
@@ -81,12 +81,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 443,
+      "count": 442,
       "freshCount": 35,
       "eligibleTextCount": 34,
-      "selectedCount": 89,
+      "selectedCount": 90,
       "error": null,
-      "lastPostId": 24493
+      "lastPostId": 24494
     },
     {
       "channel": "insidertracking",
@@ -108,7 +108,7 @@
       "count": 274,
       "freshCount": 20,
       "eligibleTextCount": 19,
-      "selectedCount": 80,
+      "selectedCount": 79,
       "error": null,
       "lastPostId": 19632
     },
@@ -117,7 +117,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 753,
+      "count": 752,
       "freshCount": 20,
       "eligibleTextCount": 20,
       "selectedCount": 120,
@@ -125,9 +125,28 @@
       "lastPostId": 66922
     }
   ],
-  "count": 2717,
-  "retainedItemCount": 456,
+  "count": 2715,
+  "retainedItemCount": 452,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/24494",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-10T15:56:52.000Z",
+      "localDateKst": "2026-08-11",
+      "score": 81,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/24493",
       "channel": "aetherjapanresearch",
@@ -3429,7 +3448,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24453",
@@ -38527,78 +38546,42 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23997",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-27T15:58:38.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/23996",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-27T15:49:04.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66098",
-      "channel": "HANAchina",
-      "datetime": "2026-07-27T15:19:49.000Z",
-      "localDateKst": "2026-07-28",
-      "score": 57,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2717,
+    "observedCount": 2715,
     "eligibleTextCount": 92,
-    "mediaOnlyCount": 2625,
-    "highSignalCount": 684,
+    "mediaOnlyCount": 2623,
+    "highSignalCount": 685,
     "broadSignalCount": 1374,
     "selectedRawCount": 412,
     "selectedRawCoveragePct": 447.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 654,
-    "media-only": 41,
     "macro": 906,
-    "geo": 437,
-    "semi": 868,
-    "power": 393,
+    "semi": 869,
+    "power": 394,
+    "earnings": 726,
+    "healthcare": 144,
+    "japan": 239,
+    "market-note": 653,
+    "media-only": 41,
+    "geo": 435,
     "ai-policy": 189,
-    "earnings": 725,
     "flows": 279,
-    "japan": 238,
     "credit": 76,
     "insider": 94,
-    "healthcare": 143,
     "kr-market": 445,
     "equity": 230,
     "optical": 56,
     "crypto": 19
   },
   "tickerCounts": {
+    "000660.KS": 232,
     "MSFT": 68,
     "GOOG": 85,
     "AMZN": 96,
@@ -38609,7 +38592,6 @@
     "MS": 9,
     "AMAT": 12,
     "WDC": 12,
-    "000660.KS": 231,
     "329180.KS": 1,
     "AAPL": 55,
     "005930.KS": 155,
@@ -38829,18 +38811,18 @@
   },
   "themes": [
     "Macro/Rates (906 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "Semiconductors/Memory (868 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "Earnings/Corporate (725 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "Market Notes (654 posts in 14-day research window): >>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서...",
+    "Semiconductors/Memory (869 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
+    "Earnings/Corporate (726 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
+    "Market Notes (653 posts in 14-day research window): >>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서...",
     "Korea Market (445 posts in 14-day research window): Pre-Market Summary - 2026년 8월 10일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 9월 1일부터 윌 샤프를 대통령 보좌관 겸 백악관 법률고문으로 임명. · 미국 국방부...",
-    "Geopolitics (437 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
-    "AI Power/Grid (393 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
+    "Geopolitics (435 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
+    "AI Power/Grid (394 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히...",
     "Positioning/Flows (279 posts in 14-day research window): JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 231,
+      "count": 232,
       "text": "Citi) FMS 2026 리캡 콜 – 씨게이트·샌디스크 경영진 미팅 및 마이크론 목표주가 하향 (아시야 머천트 / 아티프 말릭, 8월 7일) 지난주 산타클라라에서 열린 FMS(Future of Memory and Storage) 서밋 참관과 씨게이트·샌디스크 경영진 미팅을 리캡하고, 이날 발표된 마이크론..."
     },
     {
@@ -38915,7 +38897,7 @@
       "topics": [
         "geo"
       ],
-      "count": 437,
+      "count": 435,
       "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -38933,7 +38915,7 @@
       "topics": [
         "semi"
       ],
-      "count": 868,
+      "count": 869,
       "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -38951,7 +38933,7 @@
       "topics": [
         "power"
       ],
-      "count": 393,
+      "count": 394,
       "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -38996,7 +38978,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 725,
+      "count": 726,
       "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -39005,7 +38987,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 143,
+      "count": 144,
       "focus": "Citi) FMS 2026 리캡 콜 – 씨게이트·샌디스크 경영진 미팅 및 마이크론 목표주가 하향 (아시야 머천트 / 아티프 말릭, 8월 7일) 지난주 산타클라라에서 열린 FMS(Future of Memory and Storage) 서밋 참관과 씨게이트·샌디스크 경영진 미팅을 리캡하고, 이날 발표된 마이크론..."
     },
     {
@@ -39014,7 +38996,7 @@
       "topics": [
         "japan"
       ],
-      "count": 238,
+      "count": 239,
       "focus": "JP모건 미국 주식 전략; 시장 업데이트, 실적 추정, AI Capex&수익화 (8월 10일) 1. 총론 S&P 500 기업의 87%가 실적을 발표한 가운데 이익 흐름은 여러 섹터에 걸쳐 견조하고 광범위하게 나타나고 있습니다. 이번 시즌의 핵심 테마는 하이퍼스케일러 capex 가이던스였으며, 특히..."
     },
     {
@@ -39041,7 +39023,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 654,
+      "count": 653,
       "focus": ">>골드만 삭스·JPMorgan, 중지쉬촹(이노라이트) 지분 대폭 확대 •홍콩거래소 공시에 따르면 골드만 삭스 는 2026년 8월 3일 기준 중지쉬촹 H주 롱포지션 보유 비중을 기존 11.65%에서..."
     }
   ],
@@ -40495,6 +40477,27 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/24494",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24494",
+      "datetime": "2026-08-10T15:56:52.000Z",
+      "localDateKst": "2026-08-11",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "score": 81,
+      "hasText": true,
+      "summary": "마이크론; KeyBanc Technology Leadership Forum 대담 요약 (8/10, 현지) 연사: 수밋 사다나 EVP 겸 최고사업책임자(CBO) 마이크론은 실적 발표 이후 고객들의 총수요 신호가..."
+    },
     {
       "id": "aetherjapanresearch/24491",
       "channel": "aetherjapanresearch",
@@ -47693,24 +47696,6 @@
       "score": 95,
       "hasText": true,
       "summary": "JP모건 APAC 코멘트 이비덴(Ibiden): F1Q 영업이익 269억 엔으로 바이사이드 기대치 250억 엔을 상회했으며, 경영진은 F2Q 및 FY3/27 영업이익 가이던스를 JPM(카네모토) 추정치 및..."
-    },
-    {
-      "id": "bornlupin/19529",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19529",
-      "datetime": "2026-08-05T01:11:54.000Z",
-      "localDateKst": "2026-08-05",
-      "tags": [
-        "macro",
-        "semi",
-        "flows"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "score": 73,
-      "hasText": true,
-      "summary": "SK하이닉스 ADR 상장, MSCI 지수 반영 하면...1조원대 자금 유입 기대 SK하이닉스의 미국주식예탁증서(ADR) 상장을 위한 유상증자가 모건스탠리캐피털인터내셔널(MSCI) 지수에 반영될 경우..."
     }
   ],
   "current24hItems": [
@@ -48564,20 +48549,6 @@
       "score": 57,
       "hasText": true,
       "summary": "신약 성과가 바이오주 랠리에 새 동력…머크·노바티스·모더나 주목 바이오테크 업종이 오랜 부진을 끝내고 다시 투자자들의 관심을 받고 있음. 암·심혈관 질환을 겨냥한 신약 임상에서 긍정적인 결과가 잇따르면서 추가..."
-    },
-    {
-      "id": "aetherjapanresearch/24454",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24454",
-      "datetime": "2026-08-09T04:34:32.000Z",
-      "localDateKst": "2026-08-09",
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 48,
-      "hasText": true,
-      "summary": "“주식 녹아서 집 포기” 코스피 급락에 계약금 연체·미납 속출 [부동산360] [헤럴드경제=홍승희 기자] 최근 증시가 급락하고 변동성이 커지면서 분양시장에서 계약금을 내지 못하는 사례도 속출하고 있다. 올..."
     },
     {
       "id": "aetherjapanresearch/24453",
