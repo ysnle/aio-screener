@@ -1,3 +1,10 @@
+## v54.1 (2026-08-10)
+- **뉴스 fail-closed 계약 교정**: 수집 실패가 `newsOk:false`, `newsCount:0`, 빈 배열로 명시된 경우 정적 데이터 CI가 이를 정상적인 unavailable 상태로 인정한다. 실패를 가짜 뉴스나 과거 기사로 채우지 않는다.
+- **교차 산출물 동기화**: 자동 갱신된 Telegram retained lineage와 Atlas 인덱스의 관측 건수·수집 상태를 동일 스냅샷으로 맞춰 Research reference packet 계약을 복구했다.
+- **배포 게이트 검증**: Atlas·6문서·지식 시맨틱·22개 정적 데이터 카테고리 계약을 재실행하고 GitHub Pages 차단 게이트를 통과시킨다.
+- **사후분석**: P900, R455, QA-DATA1~2.
+- R1 7곳 v54.1
+
 ## v54.0 (2026-08-10)
 - **Research 계약 단일화**: 외부 검색 결과의 SSOT를 `researchEvidence.evidenceDocuments`로 고정하고 legacy top-level shape는 경계에서 정규화한다. 두 AI 채팅 표면은 동일한 준비 함수와 실행형 evidence floor를 사용한다.
 - **Capability 과대 표시 방지**: Worker 대화 경로가 열려 있다는 이유만으로 Claude Web Research 도구를 `READY`로 표시하지 않는다. 실제 인용 성공 전에는 `NATIVE_TOOL_UNVERIFIED`, 도구 오류 후에는 `NOT_READY`로 유지한다.

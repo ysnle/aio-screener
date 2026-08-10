@@ -3,6 +3,11 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-09
 confidence: high
 
+## v54.1 배포 데이터 계약 보강 (2026-08-10)
+
+- [x] QA-DATA1: Telegram digest의 retained item count·collection status와 Atlas index가 같은 스냅샷(482, ok)을 가리키며 Atlas·6문서·지식 시맨틱 게이트가 통과한다.
+- [x] QA-DATA2: 뉴스 데이터는 실제 항목이 있거나 `newsOk:false` + `newsCount:0` + 빈 배열의 완전한 unavailable 튜플일 때만 22-category 정적 데이터 계약을 통과한다.
+
 ## v54.0 AI Research reliability closure (2026-08-10)
 
 - [x] QA-AIRC1: Unified and per-page chat call the same `_aioPrepareAIResearch` boundary and the same ESM evidence evaluator for required-current questions.

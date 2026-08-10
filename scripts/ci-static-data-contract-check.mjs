@@ -95,7 +95,9 @@ const categories = [
   ['retail-housing-ism', hasNumber(macro.retailSales) && hasNumber(macro.housingStarts) && /ism-mfg/.test(core), 'artifact + official calendar'],
   ['central-bank-policy', /fedPolicy:[\s\S]*?sourceUrl:/.test(core) && /bokPolicy:[\s\S]*?sourceUrl:/.test(core), 'official manual reference'],
   ['macro-calendar', /AIO_MACRO_CALENDAR/.test(core) && /2026-08-12/.test(core) && /2026-08-27/.test(core), 'official release calendar'],
-  ['news', Array.isArray(data.news) && data.news.length > 0, 'server news artifact'],
+  ['news', (Array.isArray(data.news) && data.news.length > 0)
+    || (data.meta?.newsOk === false && data.meta?.newsCount === 0 && Array.isArray(data.news) && data.news.length === 0),
+  'server news artifact or explicit unavailable'],
   ['commodities-fx', historyHas('wti','gold','dxy'), 'history/live artifact'],
   ['global-indices', historyHas('spx','kospi','kosdaq'), 'history/live artifact'],
   ['crypto', historyHas('btc'), 'history/live artifact'],

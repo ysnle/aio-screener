@@ -2,11 +2,21 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-10
 confidence: high
-latest_version: v54.0
-latest_P_number: P899
-next_P_number: P900
-current_total_entries: 624 (P1~P899, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P899 v54.0 release fixture aligned with one guarded service-worker reload; live provider/operator certification remains external
+latest_version: v54.1
+latest_P_number: P900
+next_P_number: P901
+current_total_entries: 625 (P1~P900, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P900 v54.1 deployment gates accept explicit news unavailability and keep Atlas/Telegram lineage synchronized
+
+## P900 - v54.1 - Deployment gates rejected an explicit news-unavailable snapshot
+
+- **motivation**: A valid fail-closed data refresh must remain deployable when all news providers fail, while never substituting stale or fabricated news.
+- **symptom/reproduction**: After rebasing the v54.0 release over automated data refresh commits, CI first found Atlas lineage 488 versus Telegram retained lineage 482. After synchronizing that index, `ci-static-data-contract-check.mjs` still failed the news category although `public-data/data.json` explicitly recorded `newsOk:false`, `newsCount:0`, and `news:[]`.
+- **root_cause**: The Atlas summary was not regenerated with the newest Telegram artifact, and the static-data news gate implemented only the positive-data branch despite its error contract claiming to accept explicit unavailability.
+- **fix**: Synchronized Atlas lineage and collection status to the current Telegram digest, then allowed the news category only when it has real items or the complete explicit-unavailable tuple is present.
+- **violated_rule**: R239/R391 — refresh failures must remain explicit and deploy gates must distinguish unavailable evidence from missing contracts.
+- **prevention**: R455 requires paired artifact currentness and executable positive/unavailable branches for volatile category gates.
+- **verification**: Atlas, six-document coverage, knowledge semantic, and 22-category static-data contracts pass with Telegram retained lineage 482 and news explicitly unavailable.
 
 ## P899 - v54.0 - Service-worker takeover fixture contradicted the guarded reload contract
 

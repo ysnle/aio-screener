@@ -1989,3 +1989,9 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: `controllerchange` fixture는 현재 runtime이 요구하는 guarded reload를 navigation failure로 취급하거나 navigation마다 가짜 controller를 구버전으로 초기화해서는 안 된다. controller version·query/change counters를 reload 경계에 보존하고, main-frame navigation이 정확히 한 번 증가하며 재탐색된 SW가 현재 앱 버전과 일치하고 mismatch/reload guard가 정리되는지 검증한다.
 
 **Validation**: `scripts/ci-sa-03-sw-controller-fixture.mjs`를 연속 두 번 실행한다.
+
+## R455. 변동 데이터 게이트는 실제 관측과 완전한 unavailable 튜플을 모두 실행 검증한다 (v54.1, P900)
+
+**Rule**: 뉴스처럼 외부 공급자 실패가 정상적으로 발생할 수 있는 카테고리는 비어 있다는 사실만으로 통과시키지 않는다. 실제 관측 배열이 존재하거나, producer가 정의한 성공 플래그·건수·배열이 모두 명시적 unavailable 튜플로 일치할 때만 통과한다. 서로 참조하는 요약 인덱스와 원본 artifact는 동일 retained count와 collection status를 가져야 하며, 불일치 시 최신 원본을 기준으로 재생성한다. 실패를 과거 데이터·placeholder·합성 항목으로 덮지 않는다.
+
+**Validation**: `scripts/ci-static-data-contract-check.mjs`, `scripts/ci-atlas-contract-check.mjs`, `scripts/ci-six-doc-coverage-check.mjs`, `scripts/ci-knowledge-core-semantic-check.mjs`.
