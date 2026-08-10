@@ -458,7 +458,11 @@ async function handleAnthropic(request, env, origin) {
         'X-AIO-Proxy': 'cloudflare-worker-anthropic', 'X-AIO-Max-Tokens': String(maxTokens),
         'X-AIO-Upstream-Authority': upstream.headers.get('X-AIO-Upstream-Authority') || 'durable-object',
       }});
-    } catch { return errorResponse('AI durable authority unavailable', 503, origin, aiError, env); }
+    } catch (error) {
+      const detail = String(error && error.message || error && error.name || 'unknown').slice(0, 180);
+      console.error('AI durable authority unavailable', detail);
+      return errorResponse('AI durable authority unavailable: ' + detail, 503, origin, aiError, env);
+    }
   }
   let ownedReservation = false;
   try {

@@ -1,5 +1,5 @@
 // Atomic Worker /anthropic contract and concurrent quota fixture.
-import worker from '../cloudflare-worker-proxy.js';
+import worker, { AIOQuotaDurableObject } from '../cloudflare-worker-proxy.js';
 import { readFileSync } from 'node:fs';
 
 const errors = [];
@@ -94,6 +94,21 @@ async function main() {
   const durableProxy = await worker.fetch(makeReq({ body: { model: 'claude-haiku-4-5', max_tokens: 8, messages: [] } }), namespaceEnv);
   check('production namespace routes upstream through Durable Object', durableProxy.status === 200 && durableProxy.headers.get('X-AIO-Upstream-Authority') === 'durable-object-enam', durableProxy.status);
   check('Durable Object creation uses eastern North America hint', observedLocationHint === 'enam', observedLocationHint);
+
+  const durableStorage = new Map();
+  const durableState = {
+    storage: {
+      get: async (key) => durableStorage.get(key),
+      put: async (key, value) => { durableStorage.set(key, value); },
+    },
+    blockConcurrencyWhile: async (fn) => fn(),
+  };
+  const durable = new AIOQuotaDurableObject(durableState, { ANTHROPIC_API_KEY: 'sk-test' });
+  const durableResponse = await durable.fetch(new Request('https://aio-quota.internal/proxy', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ dayKey: 'claude:fixture', cap: 2, requestId: 'fixture-do-request', claudeBody: { model: 'claude-haiku-4-5', max_tokens: 8, messages: [] } }),
+  }));
+  check('Durable Object executes quota and provider in one authority', durableResponse.status === 200 && durableResponse.headers.get('X-AIO-Upstream-Authority') === 'durable-object-enam', durableResponse.status);
 
   if (errors.length) {
     console.error('Worker atomic quota check failed:');
