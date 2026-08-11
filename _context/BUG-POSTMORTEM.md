@@ -16,7 +16,7 @@ current_checkpoint: P904~P908 v54.4~v54.5 AI authority, claim-scoped degradation
 - **fix**: `_aioClaudeTarget()`이 선택한 target의 `serverKey`를 readiness의 첫 분기로 사용하고 UI도 같은 resolver를 소비한다. Worker health는 7초 예산, URL별 단일 in-flight, 성공 60초/실패 5초 캐시로 변경했다. 공개 설정은 기존 explicit-opt-in을 유지해 Worker URL을 전 방문자에게 게시하지 않는다.
 - **violated_rule**: R390 — chat readiness는 실제 선택 endpoint의 인증·연결 상태를 명시적으로 검증해야 하며 다른 credential의 존재로 대체할 수 없다.
 - **prevention**: R463과 AI reliability 계약이 selected-target 분기 순서, UI resolver 공유, health in-flight, 비대칭 TTL, revision-bound explicit public config를 검사한다.
-- **verification**: `node scripts/ci-ai-chat-reliability-contract-check.mjs`, runtime/headless/browser route 검증, Worker deep health와 최소 provider smoke.
+- **verification**: `node scripts/ci-ai-chat-reliability-contract-check.mjs`, runtime/headless/browser route 검증, CI run 31495797849, Worker deploy run 31495812010, v54.5 deep health와 최소 Anthropic 200/OK·`durable-object-us` smoke.
 
 ## P907 - v54.4 - Partial Telegram collection was rejected while total failure was accepted
 

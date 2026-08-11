@@ -3,6 +3,7 @@
 - **Worker health 안정화**: deep health 예산을 2.5초에서 7초로 조정하고 동시 확인을 단일 in-flight 요청으로 합쳤다. 성공은 60초, 일시 실패는 5초만 캐시해 순간 지연이 장시간 장애처럼 남지 않는다.
 - **비공개 공유 방식 보존**: 공개 Pages 설정은 Worker URL을 게시하지 않는 explicit-opt-in을 유지한다. 지인은 개인 키 또는 명시적으로 전달받은 Worker URL을 선택하며, 실제 provider 키는 Worker에만 둘 수 있다.
 - **배포 게이트 단일화**: six-doc와 Atlas 검사가 모두 Telegram ok/partial/failed의 동일한 4채널 topology·성공 수·오류 lineage 계약을 적용한다.
+- **라이브 폐쇄**: CI run 31495797849와 Worker deploy run 31495812010이 성공했고, 공개 v54.5 화면·deep health·US authority·실제 Anthropic 200/OK를 재검증했다.
 - **사후분석**: P907~P908, R462~R463, QA-AIROUTE1~4.
 - R1 7곳 v54.5
 
