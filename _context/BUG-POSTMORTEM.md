@@ -1,12 +1,22 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
-last_verified: 2026-08-10
+last_verified: 2026-08-11
 confidence: high
-latest_version: v54.4
-latest_P_number: P907
-next_P_number: P908
-current_total_entries: 632 (P1~P907, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P904~P907 v54.4 AI authority, claim-scoped degradation, and partial-source release semantics
+latest_version: v54.5
+latest_P_number: P908
+next_P_number: P909
+current_total_entries: 633 (P1~P908, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P904~P908 v54.4~v54.5 AI authority, claim-scoped degradation, route readiness, and partial-source release semantics
+
+## P908 - v54.5 - Worker requests could be certified by an unrelated personal key and transient health latency was over-cached
+
+- **motivation**: 소수 지인이 API 키와 Worker URL을 함께 설정하는 실제 사용 방식에서, 화면의 준비 상태와 요청이 향하는 endpoint가 반드시 같아야 한다.
+- **symptom/reproduction**: `aio_claude_server_mode=1`과 Worker URL, 개인 키가 함께 있으면 target은 Worker였지만 `_aioEnsureClaudeRoute()`는 개인 키 존재만 보고 `PERSONAL_KEY/ok:true`를 반환해 Worker deep health를 건너뛰었다. UI도 개인 키를 무조건 우선 표시했다. deep health는 2.5초에 중단되고 실패가 30초 캐시되어 순간 지연이 반복 장애처럼 보일 수 있었다.
+- **root_cause**: endpoint 선택, readiness 판정, UI 표시가 동일 route target을 소비하지 않았다. 성공과 실패가 같은 TTL을 사용했고 동시 진입점의 health 호출도 합쳐지지 않았다.
+- **fix**: `_aioClaudeTarget()`이 선택한 target의 `serverKey`를 readiness의 첫 분기로 사용하고 UI도 같은 resolver를 소비한다. Worker health는 7초 예산, URL별 단일 in-flight, 성공 60초/실패 5초 캐시로 변경했다. 공개 설정은 기존 explicit-opt-in을 유지해 Worker URL을 전 방문자에게 게시하지 않는다.
+- **violated_rule**: R390 — chat readiness는 실제 선택 endpoint의 인증·연결 상태를 명시적으로 검증해야 하며 다른 credential의 존재로 대체할 수 없다.
+- **prevention**: R463과 AI reliability 계약이 selected-target 분기 순서, UI resolver 공유, health in-flight, 비대칭 TTL, revision-bound explicit public config를 검사한다.
+- **verification**: `node scripts/ci-ai-chat-reliability-contract-check.mjs`, runtime/headless/browser route 검증, Worker deep health와 최소 provider smoke.
 
 ## P907 - v54.4 - Partial Telegram collection was rejected while total failure was accepted
 
@@ -15,8 +25,8 @@ current_checkpoint: P904~P907 v54.4 AI authority, claim-scoped degradation, and 
 - **root_cause**: 계약이 채널 topology와 수집 성공률을 하나의 boolean으로 결합했고 중간 상태를 누락했다. 완전 실패 fallback은 허용하면서 더 많은 실제 관측이 있는 부분 성공은 거부하는 비단조 조건이었다.
 - **fix**: 4개 catalog↔channel 행 일치, 성공 수 1~3, 실패 행 수와 `4-successfulChannelCount` 일치를 요구하는 명시적 partial 분기를 추가했다. 실패 채널 error lineage가 없으면 계속 차단한다.
 - **violated_rule**: R455 — 정상 unavailable/partial 상태는 명시적으로 모델링하고 과거 값이나 허위 완전 성공으로 승격하지 않아야 한다.
-- **prevention**: R462와 six-doc coverage 계약이 ok/partial/failed 세 상태의 단조 관계와 실패 lineage를 검증한다.
-- **verification**: `node scripts/ci-six-doc-coverage-check.mjs`, 전체 CI validate 재실행.
+- **prevention**: R462와 six-doc·Atlas coverage 계약이 ok/partial/failed 세 상태의 단조 관계와 실패 lineage를 동일하게 검증한다.
+- **verification**: `node scripts/ci-six-doc-coverage-check.mjs`, `node scripts/ci-atlas-contract-check.mjs`, 전체 CI validate 재실행.
 
 ## P906 - v54.4 - Research outage erased otherwise answerable analysis across both chat surfaces
 

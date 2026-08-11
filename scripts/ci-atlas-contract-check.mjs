@@ -63,9 +63,17 @@ const deepCorpus = JSON.stringify(deepTaxonomy);
 const requiredDeepConcepts = ['3nm', '2nm', '18A', 'DUV', 'EUV', 'High-NA', '유리기판', 'Photonics', 'Open Weights', 'HBM', 'CXL', 'AIDC', 'World Model', 'Artemis'];
 if (data.deepTaxonomyTopics !== 10 || data.deepTaxonomyBranches !== 50 || data.deepTaxonomyAnchors !== 56 || deepTaxonomy.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || deepTaxonomy.topics.length !== 10 || deepBranchCount !== 50 || deepAnchorIds.size !== 56 || deepTaxonomy.topics.some((topic) => !topic.title || !topic.relation || !topic.why || !topic.anchorNodeIds?.length || !topic.branches?.length || topic.branches.some((branch) => !branch.title || !branch.summary || !branch.mechanism || !branch.observe || !branch.caution || !branch.children?.length)) || requiredDeepConcepts.some((concept) => !deepCorpus.includes(concept))) errors.push('deep taxonomy coverage');
 const telegramLineageCount = telegramReference.retainedItemCount ?? telegramReference.observedItems?.length ?? null;
+const telegramChannelCount = telegramReference.channels?.length ?? 0;
+const telegramErrorCount = telegramReference.channels?.filter((channel) => channel.error).length ?? 0;
+const telegramCatalogMatchesChannels = telegramReference.sourceCatalog?.length === 4
+  && telegramReference.sourceCatalog.every((source) => telegramReference.channels?.some((channel) => channel.channel === source.channel));
 const telegramCollectionBoundary = telegramReference.collectionStatus === 'failed'
-  || (telegramReference.collectionStatus === 'ok' && telegramReference.successfulChannelCount === 4);
-if (data.telegramReferenceArtifact !== 'public-data/telegram-digest.json' || data.telegramReferenceChannels !== 4 || data.telegramObservedLineage !== telegramLineageCount || !telegramCollectionBoundary || telegramReference.channels.length !== 4 || telegramReference.sourceCatalog?.length !== 4 || telegramReference.channels.some((channel) => !channel.channel || channel.error === undefined)) errors.push('telegram discovery coverage');
+  || (telegramReference.collectionStatus === 'ok' && telegramReference.successfulChannelCount === 4 && telegramErrorCount === 0)
+  || (telegramReference.collectionStatus === 'partial'
+    && telegramReference.successfulChannelCount > 0
+    && telegramReference.successfulChannelCount < 4
+    && telegramErrorCount === 4 - telegramReference.successfulChannelCount);
+if (data.telegramReferenceArtifact !== 'public-data/telegram-digest.json' || data.telegramReferenceChannels !== 4 || data.telegramObservedLineage !== telegramLineageCount || !telegramCollectionBoundary || telegramChannelCount !== 4 || !telegramCatalogMatchesChannels || telegramReference.channels.some((channel) => !channel.channel || channel.error === undefined)) errors.push('telegram discovery coverage');
 if (data.referencePlayers !== 20 || data.referenceProducts !== 20 || data.referenceSources !== 20 || playerProduct.players.length !== 20 || playerProduct.products.length !== 20 || playerProduct.sources.length !== 20 || playerProduct.publication !== 'EDUCATIONAL_REFERENCE_ONLY') errors.push('player/product registry counts or publication boundary');
 if (data.playerProductCurrentnessArtifact !== 'public-data/atlas/player-product-currentness.json' || data.currentnessPlayers !== 20 || data.currentnessProducts !== 20 || currentness.status !== 'REFERENCE_CURRENTNESS_CONNECTED' || currentness.players.length !== 20 || currentness.products.length !== 20 || currentness.products.some((product) => !product.productionStatus || !product.asOf || !product.statusBasis)) errors.push('player/product currentness coverage');
 const hasGuide = (id) => atlas.includes(`'${id}': { definition`) || atlas.includes(`  ${id}: { definition`);

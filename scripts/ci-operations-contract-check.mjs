@@ -24,6 +24,7 @@ const visual = json('architecture/visual-state-matrix.json');
 const slo = json('architecture/operations-slo.json');
 const readiness = json('architecture/public-readiness.json');
 const operations = json('public-data/operations-status.json');
+const publicConfig = json('public-config.json');
 const snapshot = json('public-data/market-snapshot.json');
 const allowlist = json('public-artifact-manifest.json');
 const ci = read('.github/workflows/ci.yml');
@@ -100,6 +101,10 @@ check('AI proxy deploy owns canonical source and atomic quota binding', aiProxyW
 check('AI provider outbound is executed by the guaranteed US Durable Object authority', worker.includes("jurisdiction('us')") && worker.includes("getByName('anthropic-authority-v1')") && worker.includes("'X-AIO-Upstream-Authority': 'durable-object-us'") && worker.includes('fetchAnthropicThroughDurableObject') && !worker.includes("locationHint: 'enam'"));
 check('AI proxy deploy requires secrets and blocks on executed US readiness/upstream', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'ANTHROPIC_API_KEY', 'aio-worker-health.v1', 'quotaConfigured', 'authorityReady', 'authorityJurisdiction', 'durable-object-us', 'ai_proxy_origin_gate_failed', 'ai_proxy_upstream_failed'].every((token) => aiProxyWorkflow.includes(token)));
 check('operations producer combines periodic deep health with revision-matched provider smoke', ['AIO_OBSERVE_PROXY_HEALTH', 'proxyAuthorityReady', 'proxyAuthorityJurisdiction', 'proxyProviderSmokeStatus', 'proxyProviderSmokeRevision', 'providerSmokeCurrent'].every((token) => read('scripts/build-operations-status.mjs').includes(token)) && read('.github/workflows/refresh-data.yml').includes("AIO_OBSERVE_PROXY_HEALTH: '1'"));
+check('public AI route policy is revision-bound and any published route matches operations evidence', publicConfig.appRevision === version
+  && (!publicConfig.ai?.workerUrl
+    || (operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY'
+      && publicConfig.ai.workerUrl === operations.ai.publicChat.workerEndpoint)));
 check('lockfile exists', existsSync(join(root, 'package-lock.json')));
 
 const routeSoakReportPath = join(root, '_artifacts', 'route-soak-report.json');

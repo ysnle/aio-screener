@@ -497,12 +497,9 @@ function getLLMState() {
 function getLLMRouteReadiness() {
   var personalKey = '';
   try { personalKey = typeof _getApiKey === 'function' ? String(_getApiKey('aio_claude_api_key') || '').trim() : ''; } catch (_) {}
-  if (personalKey) return { ready: true, reason: 'PERSONAL_KEY', label: '개인 키 준비' };
-  var cfg = window.AIO && typeof window.AIO.getPublicConfig === 'function' ? window.AIO.getPublicConfig() : (window.AIO_PUBLIC_CONFIG || null);
-  var publicWorker = cfg && cfg.ai && typeof cfg.ai.workerUrl === 'string' ? cfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
-  var localWorker = '';
-  try { localWorker = typeof _getApiKey === 'function' ? String(_getApiKey('aio_cf_worker_url') || '').trim().replace(/\/+$/, '') : ''; } catch (_) {}
-  var workerUrl = localWorker || publicWorker;
+  var target = typeof _aioClaudeTarget === 'function' ? _aioClaudeTarget(personalKey) : null;
+  if ((!target || !target.serverKey) && personalKey) return { ready: true, reason: 'PERSONAL_KEY', label: '개인 키 준비' };
+  var workerUrl = target && target.serverKey ? target.workerUrl : '';
   if (!workerUrl) return { ready: false, reason: 'NO_ROUTE', label: '라우트 없음' };
   var health = window._aioLastClaudeRouteState;
   if (health && health.target && health.target.workerUrl === workerUrl && health.ok === true) {

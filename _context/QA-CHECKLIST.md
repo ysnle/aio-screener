@@ -1,7 +1,14 @@
 ---
 verified_by: agent (Fable 5) + Codex full-route audit verification
-last_verified: 2026-08-09
+last_verified: 2026-08-11
 confidence: high
+
+## v54.5 AI 선택 라우트·배포 게이트 일치 (2026-08-11)
+
+- [x] QA-AIROUTE1: 개인 키와 Worker URL이 함께 있어도 실제 target이 Worker면 deep health를 통과하기 전 `ok:true`가 되지 않는다.
+- [x] QA-AIROUTE2: UI readiness와 호출 경로가 동일 `_aioClaudeTarget` 결과를 사용한다.
+- [x] QA-AIROUTE3: Worker deep health는 URL별 단일 in-flight이며 성공 60초·실패 5초의 비대칭 TTL과 7초 네트워크 예산을 사용한다.
+- [x] QA-AIROUTE4: `public-config.json`은 현재 앱 revision과 동기화하되 Worker URL을 공개하지 않는 explicit-opt-in을 보존한다.
 
 ## v54.4 AI 안전 분류·US authority 구조 교정 (2026-08-11)
 
@@ -11,7 +18,7 @@ confidence: high
 - [x] QA-AIDEGRADE1: Web Research·시장세션·비구조화 현재 수치 근거가 없을 때 답변 원문은 유지되고 영향받는 주장만 limitation으로 표시된다.
 - [x] QA-AIDEGRADE2: per-page와 unified chat 모두 Research 실패 후행 덮어쓰기를 하지 않으며 `RESEARCH_REQUIRED_BUT_UNAVAILABLE` 차단 경로가 없다.
 - [x] QA-AIDEGRADE3: Typed claim 불일치, 불법 실행 절차, mutation tool negative control은 저하 모드 변경 뒤에도 차단된다.
-- [x] QA-TGPARTIAL1: Telegram 4개 요청 채널은 ok/partial/failed 모두 catalog↔행 topology를 보존하고 partial의 성공 수와 error 행 수가 합산 4인지 검사한다.
+- [x] QA-TGPARTIAL1: Telegram 4개 요청 채널은 ok/partial/failed 모두 catalog↔행 topology를 보존하고 six-doc·Atlas 양쪽 게이트에서 partial의 성공 수와 error 행 수가 합산 4인지 검사한다.
 - [x] QA-AIAUTH1: Worker는 placement/location hint 없이 US jurisdiction의 versioned Durable Object만 quota+provider 권한으로 사용한다.
 - [x] QA-AIAUTH2: DO가 보고한 jurisdiction이 us가 아니면 provider fetch 전에 503으로 닫고 negative control이 이를 실행 검증한다.
 - [x] QA-AIAUTH3: `/health`는 authority를 실제 호출해 authorityReady:true·authorityJurisdiction:us를 확인하고 deploy smoke는 provider 200과 durable-object-us 헤더를 요구한다.

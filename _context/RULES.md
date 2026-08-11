@@ -2036,4 +2036,10 @@ endpoint identity while retaining explicit operator blockers.
 
 **Rule**: 요청된 공급자/채널 topology와 이번 실행의 성공률을 분리한다. 모든 요청 행과 source catalog가 존재하고 실패 행에 원인이 있으면 `partial`을 구조적으로 유효한 저하 상태로 인정하되 `ok`로 승격하지 않는다. `successfulCount`와 오류 행 수가 전체 수에 합산되지 않거나 요청 행이 사라지면 차단한다. 전체 실패 fallback을 허용하면서 부분 성공을 거부하는 비단조 계약을 만들지 않는다.
 
-**Validation**: `scripts/ci-six-doc-coverage-check.mjs`, `public-data/telegram-digest.json`, `scripts/fetch-telegram-digest.mjs`.
+**Validation**: `scripts/ci-six-doc-coverage-check.mjs`, `scripts/ci-atlas-contract-check.mjs`, `public-data/telegram-digest.json`, `scripts/fetch-telegram-digest.mjs`.
+
+## R463. AI readiness는 저장된 credential이 아니라 실제 선택된 endpoint를 검증한다 (v54.5, P908)
+
+**Rule**: 개인 키와 Worker URL이 동시에 존재해도 route resolver가 선택한 endpoint의 인증·health만 readiness 근거로 사용한다. Worker target을 개인 키 존재로 통과시키거나 UI가 다른 route를 표시하면 안 된다. Deep health의 동시 호출은 URL별로 합치고, 일시 실패 TTL은 성공 TTL보다 짧아야 한다. 비공개 지인 공유의 explicit Worker URL을 공개 설정에 자동 게시하지 않는다.
+
+**Validation**: `scripts/ci-ai-chat-reliability-contract-check.mjs`, `_aioClaudeTarget`, `_aioEnsureClaudeRoute`, `getLLMRouteReadiness`, `public-config.json`.

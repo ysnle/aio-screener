@@ -1,3 +1,11 @@
+## v54.5 (2026-08-11)
+- **선택 라우트 기준 readiness 통합**: API 키와 Worker URL이 함께 저장된 경우에도 실제 선택 대상이 Worker면 개인 키 존재만으로 health 검사를 건너뛰지 않는다. UI 상태도 같은 target resolver를 사용한다.
+- **Worker health 안정화**: deep health 예산을 2.5초에서 7초로 조정하고 동시 확인을 단일 in-flight 요청으로 합쳤다. 성공은 60초, 일시 실패는 5초만 캐시해 순간 지연이 장시간 장애처럼 남지 않는다.
+- **비공개 공유 방식 보존**: 공개 Pages 설정은 Worker URL을 게시하지 않는 explicit-opt-in을 유지한다. 지인은 개인 키 또는 명시적으로 전달받은 Worker URL을 선택하며, 실제 provider 키는 Worker에만 둘 수 있다.
+- **배포 게이트 단일화**: six-doc와 Atlas 검사가 모두 Telegram ok/partial/failed의 동일한 4채널 topology·성공 수·오류 lineage 계약을 적용한다.
+- **사후분석**: P907~P908, R462~R463, QA-AIROUTE1~4.
+- R1 7곳 v54.5
+
 ## v54.4 (2026-08-11)
 - **검색 장애의 답변 전체 차단 제거**: Web Research·시장세션 근거가 없을 때 최신 주장만 limitation으로 낮추고, 기존 근거·일반 원리·조건부 분석은 두 채팅 UI 모두 계속 표시한다.
 - **고정 답변 형식 해제**: 모든 질문에 Bull/Base/Bear·확률·기관 프레임·시장환경을 강제하던 유산 프롬프트를 질문별 선택 형식으로 축소했다.

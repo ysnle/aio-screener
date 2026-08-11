@@ -30,6 +30,8 @@ check('sidebar save waits for result', html.includes('const result = await setAp
 check('legacy getApiKey overload preserves Claude no-arg route', core.includes("var keyName = (name == null || name === '') ? 'aio_claude_api_key' : name") && core.includes("_AioVault._claudeKeyRuntime"));
 check('legacy setApiKey overload returns credential result', core.includes("if (arguments.length < 2)") && core.includes("_aioSaveCredential('aio_claude_api_key'") && core.includes("Promise.resolve({ ok: false, state: 'KEYSTORE_UNAVAILABLE' })"));
 check('route readiness is explicit', chat.includes("reason: 'NO_ROUTE'") && chat.includes('WORKER_NOT_READY'));
+check('route readiness follows the selected target and never bypasses Worker health because a personal key also exists', chat.indexOf('if (!target || !target.serverKey)') < chat.indexOf('var cacheTtl = cached && cached.ok') && uiRouteReadinessUsesTarget());
+check('Worker health is deduplicated and transient failures have a short cache', chat.includes('_aioWorkerHealthInFlight[target.workerUrl]') && chat.includes('cached && cached.ok ? 60000 : 5000') && chat.includes('ctrl.abort(); }, 7000'));
 check('research preparation is shared by both chat surfaces', chat.includes('async function _aioPrepareAIResearch') && html.includes('_aioPrepareAIResearch(_uniQuestionPlan)'));
 check('insufficient external evidence forces native fallback', chat.includes('externalEvidenceReady') && chat.includes('prepared.nativeFallbackRequired = !prepared.externalEvidenceReady'));
 check('research evidence gate is executable ESM SSOT', chat.includes('evaluateAIResearchEvidenceFloor') && !chat.includes('function _aioBuildResearchEvidenceDocuments'));
@@ -37,13 +39,22 @@ check('research producer uses canonical nested evidence', /researchEvidence:\s*\
 check('research failures retain per-provider detail', chat.includes('_aioNormalizeResearchProviderFailure') && chat.includes('noResults.failures = subFailures'));
 check('Worker route does not certify native search tool', core.includes("'NATIVE_TOOL_UNVERIFIED'") && !core.includes("'NATIVE_TOOL_ROUTE_READY'") && core.includes('nativeCitationCount'));
 check('research diagnostic audit exposes contract and last execution', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes('lastExecution:'));
-check('public config is personal-key default', config.schemaVersion === 'ai-public-config.v1' && config.ai?.workerUrl === null && config.ai?.serverMode === 'explicit-opt-in');
+check('public config is revision-bound and keeps the private shared route explicit', config.schemaVersion === 'ai-public-config.v1'
+  && config.appRevision === operations.appRevision
+  && config.ai?.workerUrl === null
+  && config.ai?.serverMode === 'explicit-opt-in'
+  && config.ai?.chatPolicy === 'personal-or-explicit-worker');
 check('server market prose requires typed evidence before client publish', data.includes('_serverMarketMetricEvidenceValid') && data.includes('metric-evidence-required') && data.includes('_serverMarketSemanticContract'));
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
 check('Worker rolls back owned failed quota reservations', worker.includes('releaseAnthropicQuota') && worker.includes('ownedReservation'));
 check('Worker exposes effective token cap', worker.includes("'X-AIO-Max-Tokens'"));
 check('operations status separates scheduled analysis and public chat', operations.ai?.scheduledAnalysis && operations.ai?.publicChat?.scheduledAnalysisDoesNotImplyChat === true);
 check('operations status separates five readiness fields', ['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent', 'licensedForUse'].every(field => read('public-data/operations-status.json').includes(`"${field}"`)));
+
+function uiRouteReadinessUsesTarget() {
+  const ui = read('js/aio-ui.js');
+  return ui.includes("_aioClaudeTarget(personalKey)") && ui.includes("target && target.serverKey ? target.workerUrl : ''");
+}
 
 if (errors.length) {
   console.error(`AI chat reliability contract failed (${errors.length})`);

@@ -958,8 +958,8 @@ function chatShowLoading(ctxId) {
 // ── Claude API streaming ───────────────────────────────────────────────
 // v31.3: opts = { modelKey: 'haiku'|'sonnet'|'sonnet-thinking' }
 // v50.52 B5: Claude 호출 엔드포인트 결정 — 서버 키 모드(CF Worker /anthropic) vs 직접 호출.
-//   운영자가 Worker URL + 서버 키 토글(aio_claude_server_mode) 설정 시 개인 키 없이 Worker 경유
-//   (키는 Cloudflare 시크릿). 개인 키가 있으면 개인 키 직접 호출 우선(존중). 기본=직접(무회귀).
+//   운영자가 Worker URL + 서버 키 토글(aio_claude_server_mode) 설정 시 Worker 경유.
+//   토글이 없으면 개인 키 직접 호출을 우선하고, 개인 키가 없을 때만 저장된 Worker를 사용한다.
 function _aioClaudeTarget(apiKey) {
   try {
     var localWorker = (typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '').trim().replace(/\/+$/, '');
@@ -989,6 +989,7 @@ function _aioHasClaudeRoute(apiKey) {
 window._aioHasClaudeRoute = _aioHasClaudeRoute;
 
 var _aioWorkerHealthCache = window._aioWorkerHealthCache || {};
+var _aioWorkerHealthInFlight = {};
 function _aioSetChatRuntimeState(name, value) {
   try { window[name] = value; } catch (_) {}
   return value;
@@ -996,41 +997,49 @@ function _aioSetChatRuntimeState(name, value) {
 async function _aioEnsureClaudeRoute(apiKey) {
   if (window.AIO && typeof window.AIO.loadPublicConfig === 'function') await window.AIO.loadPublicConfig();
   var target = _aioClaudeTarget(apiKey);
-  if (apiKey) {
+  if (!target || !target.serverKey) {
+    if (!apiKey) {
+      var locked = typeof _aioProviderStatusForKey === 'function' && _aioProviderStatusForKey('aio_claude_api_key').storage === 'LOCKED';
+      _aioSetChatRuntimeState('_aioLastClaudeRouteState', { ok: false, reason: locked ? 'VAULT_LOCKED' : 'NO_ROUTE', target: target, checkedAt: Date.now() });
+      return window._aioLastClaudeRouteState;
+    }
     if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_claude_api_key', { authentication: 'CONFIGURED', connection: 'NOT_CHECKED' });
     _aioSetChatRuntimeState('_aioLastClaudeRouteState', { ok: true, target: target, reason: 'PERSONAL_KEY', checkedAt: Date.now() });
     return window._aioLastClaudeRouteState;
   }
-  if (!target || !target.serverKey) {
-    var locked = typeof _aioProviderStatusForKey === 'function' && _aioProviderStatusForKey('aio_claude_api_key').storage === 'LOCKED';
-    _aioSetChatRuntimeState('_aioLastClaudeRouteState', { ok: false, reason: locked ? 'VAULT_LOCKED' : 'NO_ROUTE', target: target, checkedAt: Date.now() });
-    return window._aioLastClaudeRouteState;
-  }
   var now = Date.now();
   var cached = _aioWorkerHealthCache[target.workerUrl];
-  if (cached && now - cached.checkedAt < 30000) {
+  var cacheTtl = cached && cached.ok ? 60000 : 5000;
+  if (cached && now - cached.checkedAt < cacheTtl) {
     _aioSetChatRuntimeState('_aioLastClaudeRouteState', cached);
     return cached;
   }
-  try {
-    var ctrl = new AbortController();
-    var timer = setTimeout(function() { ctrl.abort(); }, 2500);
-    var response = await fetch(target.healthUrl, { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal });
-    clearTimeout(timer);
-    var payload = await response.json().catch(function() { return null; });
-    var ready = response.ok && !!(payload && payload.ai && payload.ai.ready === true);
-    var result = { ok: ready, reason: ready ? 'SHARED_WORKER' : 'WORKER_NOT_READY', target: target, checkedAt: now, health: payload };
-    _aioWorkerHealthCache[target.workerUrl] = result;
-    _aioSetChatRuntimeState('_aioLastClaudeRouteState', result);
-    if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_cf_worker_url', { connection: ready ? 'READY' : 'NOT_READY', lastError: ready ? null : result.reason });
-    return result;
-  } catch (e) {
-    var failed = { ok: false, reason: 'WORKER_NOT_READY', target: target, checkedAt: now, error: e && e.message || 'health_failed' };
-    _aioWorkerHealthCache[target.workerUrl] = failed;
-    _aioSetChatRuntimeState('_aioLastClaudeRouteState', failed);
-    if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_cf_worker_url', { connection: 'NOT_READY', lastError: failed.error });
-    return failed;
+  if (!_aioWorkerHealthInFlight[target.workerUrl]) {
+    _aioWorkerHealthInFlight[target.workerUrl] = (async function() {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function() { ctrl.abort(); }, 7000);
+      try {
+        var response = await fetch(target.healthUrl, { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal });
+        var payload = await response.json().catch(function() { return null; });
+        var ready = response.ok && !!(payload && payload.ai && payload.ai.ready === true);
+        var result = { ok: ready, reason: ready ? 'SHARED_WORKER' : 'WORKER_NOT_READY', target: target, checkedAt: Date.now(), health: payload };
+        _aioWorkerHealthCache[target.workerUrl] = result;
+        if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_cf_worker_url', { connection: ready ? 'READY' : 'NOT_READY', lastError: ready ? null : result.reason });
+        return result;
+      } catch (e) {
+        var failed = { ok: false, reason: 'WORKER_NOT_READY', target: target, checkedAt: Date.now(), error: e && e.message || 'health_failed' };
+        _aioWorkerHealthCache[target.workerUrl] = failed;
+        if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') window.AIO.updateProviderStatus('aio_cf_worker_url', { connection: 'NOT_READY', lastError: failed.error });
+        return failed;
+      } finally {
+        clearTimeout(timer);
+        delete _aioWorkerHealthInFlight[target.workerUrl];
+      }
+    })();
   }
+  var checked = await _aioWorkerHealthInFlight[target.workerUrl];
+  _aioSetChatRuntimeState('_aioLastClaudeRouteState', checked);
+  return checked;
 }
 // The top-level function declaration already provides the legacy window export.
 Object.defineProperty(window, '_aioRouteNotice', {

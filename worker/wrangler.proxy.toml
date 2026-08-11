@@ -6,7 +6,7 @@ workers_dev = true
 [vars]
 ANTHROPIC_DAILY_CAP = "300"
 ANTHROPIC_MAX_TOKENS = "1500"
-AIO_APP_REVISION = "v54.4"
+AIO_APP_REVISION = "v54.5"
 
 [[durable_objects.bindings]]
 name = "AIO_QUOTA_DO"
