@@ -14,7 +14,7 @@
     "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
     "healthPath": "/health",
     "role": "cors-proxy-and-optional-anthropic-route",
-    "readiness": "operator-required"
+    "readiness": "configured-healthy"
   },
   "security": {
     "secretsStayOutOfRepo": true,
@@ -45,7 +45,17 @@
     "fastCoverage": "16/16",
     "fastRevision": "fast-quotes:2026-07-30T01:45:48.508Z:1c4c64c3",
     "fastSoak": "0/7-days",
-    "proxyHealthPathObserved": 400,
-    "proxyHealthNote": "The deployed proxy answered the legacy GET ?url= route; /health returned url-parameter-required, so AI readiness is not promoted."
+    "proxyHealthPathObserved": 200,
+    "proxyHealthObserved": "2026-08-11T13:04:13.587Z",
+    "proxyHealthRevision": "v54.4",
+    "proxyAiConfigured": true,
+    "proxyQuotaConfigured": true,
+    "proxyAuthorityReady": true,
+    "proxyAuthorityJurisdiction": "us",
+    "proxyAiReady": true,
+    "proxyProviderSmokeStatus": 200,
+    "proxyProviderSmokeObserved": "2026-08-11T13:04:13.587Z",
+    "proxyProviderSmokeRevision": "v54.4",
+    "proxyHealthNote": "Deploy run 31494173864 passed deep health, CORS/origin checks, and provider smoke. A Korean-origin follow-up returned health 200, authorityJurisdiction us, Anthropic 200, and X-AIO-Upstream-Authority durable-object-us."
   }
 }

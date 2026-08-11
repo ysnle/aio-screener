@@ -46,7 +46,7 @@ current_checkpoint: P904~P907 v54.4 AI authority, claim-scoped degradation, and 
 - **fix**: placement와 ENAM hint를 삭제하고 AIO_QUOTA_DO.jurisdiction('us').getByName('anthropic-authority-v1')를 quota+provider 단일 권한으로 고정했다. DO 내부에서도 state.id.jurisdiction이 us가 아니면 upstream 전에 503으로 닫는다. /health는 versioned authority를 실제 호출해 authorityReady와 authorityJurisdiction:us를 확인하며, 배포 smoke는 X-AIO-Upstream-Authority: durable-object-us까지 검증한다.
 - **violated_rule**: R458 — readiness는 binding/config 존재가 아니라 실제 consumer 경계 실행으로 증명해야 한다.
 - **prevention**: R459는 best-effort location hint를 지역 보장으로 인정하지 않고 jurisdiction·versioned identity·deep health·provider response header를 함께 요구한다.
-- **verification**: 비-US DO negative control 503, US authority health/identity/provider fixture, pinned deploy workflow, live Korean-origin minimal upstream 200.
+- **verification**: 비-US DO negative control 503, US authority health/identity/provider fixture, deploy run 31494173864 성공, 한국 로컬(HKG ingress) `/health` v54.4·authorityJurisdiction `us` 및 최소 Anthropic 200·`durable-object-us` 응답 헤더 확인.
 
 ## P903 - v54.3 - Repository AI Worker and deployed public proxy had no release path
 
