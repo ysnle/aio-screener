@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-11T21:29:20.856Z",
-  "attemptedAt": "2026-08-11T21:29:20.856Z",
-  "lastSuccessfulAt": "2026-08-11T21:29:20.856Z",
+  "generatedAt": "2026-08-11T22:24:21.689Z",
+  "attemptedAt": "2026-08-11T22:24:21.689Z",
+  "lastSuccessfulAt": "2026-08-11T22:24:21.689Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-07-28T21:29:14.776Z",
-  "until": "2026-08-11T21:29:14.776Z",
+  "since": "2026-07-28T22:24:16.699Z",
+  "until": "2026-08-11T22:24:16.699Z",
   "current24hWindow": {
     "start": "2026-08-09T23:00:00.000Z",
     "end": "2026-08-10T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 185,
-    "eligibleTextCount": 6,
+    "eligibleTextCount": 0,
     "channelCounts": {
       "bornlupin": 20,
       "HANAchina": 50,
@@ -90,24 +90,24 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
-      "reachedOlder": false,
-      "reachedKnown": true,
-      "count": 1211,
-      "freshCount": 58,
-      "eligibleTextCount": 56,
-      "selectedCount": 120,
-      "error": null,
-      "lastPostId": 60919
-    },
-    {
-      "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 282,
-      "freshCount": 35,
-      "eligibleTextCount": 35,
+      "count": 1208,
+      "freshCount": 38,
+      "eligibleTextCount": 37,
+      "selectedCount": 120,
+      "error": null,
+      "lastPostId": 60920
+    },
+    {
+      "channel": "bornlupin",
+      "pages": 1,
+      "reachedOlder": false,
+      "reachedKnown": true,
+      "count": 281,
+      "freshCount": 19,
+      "eligibleTextCount": 19,
       "selectedCount": 84,
       "error": null,
       "lastPostId": 19669
@@ -117,7 +117,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 757,
+      "count": 752,
       "freshCount": 20,
       "eligibleTextCount": 20,
       "selectedCount": 120,
@@ -125,9 +125,21 @@
       "lastPostId": 66991
     }
   ],
-  "count": 2670,
-  "retainedItemCount": 474,
+  "count": 2661,
+  "retainedItemCount": 449,
   "observedItems": [
+    {
+      "id": "insidertracking/60920",
+      "channel": "insidertracking",
+      "datetime": "2026-08-11T21:44:50.000Z",
+      "localDateKst": "2026-08-12",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/60919",
       "channel": "insidertracking",
@@ -997,7 +1009,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60879",
@@ -1012,7 +1024,7 @@
       "tickers": [
         "RKLB"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24520",
@@ -1127,7 +1139,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24516",
@@ -1194,7 +1206,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66981",
@@ -1228,7 +1240,7 @@
         "TSM",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60875",
@@ -1240,7 +1252,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60874",
@@ -1252,7 +1264,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60873",
@@ -1264,7 +1276,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60872",
@@ -1276,7 +1288,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60871",
@@ -1289,7 +1301,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60870",
@@ -1302,7 +1314,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60869",
@@ -1314,7 +1326,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60868",
@@ -1326,7 +1338,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24515",
@@ -1502,7 +1514,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60865",
@@ -1514,7 +1526,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24508",
@@ -1544,7 +1556,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60863",
@@ -1559,7 +1571,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60862",
@@ -1571,7 +1583,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60861",
@@ -1583,7 +1595,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66975",
@@ -1621,7 +1633,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19659",
@@ -2432,7 +2444,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60840",
@@ -2456,7 +2468,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19647",
@@ -2468,7 +2480,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66944",
@@ -2492,7 +2504,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24503",
@@ -2658,7 +2670,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19640",
@@ -2670,7 +2682,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60836",
@@ -2714,7 +2726,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66938",
@@ -2870,7 +2882,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60834",
@@ -2894,7 +2906,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19636",
@@ -2915,7 +2927,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19635",
@@ -2931,7 +2943,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19634",
@@ -2953,7 +2965,7 @@
         "BLK",
         "BX"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66932",
@@ -3572,7 +3584,7 @@
         "BLK",
         "BX"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24494",
@@ -4400,7 +4412,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66911",
@@ -4429,7 +4441,7 @@
         "005930.KS",
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19630",
@@ -4443,7 +4455,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66910",
@@ -37860,163 +37872,34 @@
         "000660.KS"
       ],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/66171",
-      "channel": "HANAchina",
-      "datetime": "2026-07-28T22:22:08.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 65,
-      "tags": [
-        "macro",
-        "geo",
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59581",
-      "channel": "insidertracking",
-      "datetime": "2026-07-28T22:20:03.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19372",
-      "channel": "bornlupin",
-      "datetime": "2026-07-28T22:13:57.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 87,
-      "tags": [
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [
-        "ORCL",
-        "BE"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66170",
-      "channel": "HANAchina",
-      "datetime": "2026-07-28T22:11:45.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66169",
-      "channel": "HANAchina",
-      "datetime": "2026-07-28T22:10:36.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59580",
-      "channel": "insidertracking",
-      "datetime": "2026-07-28T22:03:39.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66168",
-      "channel": "HANAchina",
-      "datetime": "2026-07-28T22:00:47.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59578",
-      "channel": "insidertracking",
-      "datetime": "2026-07-28T22:00:10.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59574",
-      "channel": "insidertracking",
-      "datetime": "2026-07-28T21:58:11.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66167",
-      "channel": "HANAchina",
-      "datetime": "2026-07-28T21:57:08.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2670,
-    "eligibleTextCount": 128,
-    "mediaOnlyCount": 2542,
-    "highSignalCount": 681,
-    "broadSignalCount": 1354,
+    "observedCount": 2661,
+    "eligibleTextCount": 93,
+    "mediaOnlyCount": 2568,
+    "highSignalCount": 679,
+    "broadSignalCount": 1352,
     "selectedRawCount": 406,
-    "selectedRawCoveragePct": 317.2,
+    "selectedRawCoveragePct": 436.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "kr-market": 459,
-    "flows": 289,
+    "market-note": 635,
+    "kr-market": 457,
+    "flows": 288,
     "japan": 228,
-    "market-note": 639,
-    "geo": 425,
-    "macro": 912,
-    "earnings": 714,
+    "geo": 421,
+    "macro": 911,
+    "earnings": 713,
     "ai-policy": 190,
     "credit": 69,
     "semi": 837,
-    "power": 377,
-    "equity": 225,
+    "power": 376,
+    "equity": 224,
     "optical": 58,
     "healthcare": 148,
     "crypto": 18,
@@ -38068,7 +37951,7 @@
     "DXCM": 5,
     "BBVA": 6,
     "ET": 1,
-    "ORCL": 19,
+    "ORCL": 18,
     "BA": 2,
     "BLK": 13,
     "MS": 10,
@@ -38094,7 +37977,7 @@
     "MTK": 9,
     "ALAB": 7,
     "AAOI": 14,
-    "BE": 27,
+    "BE": 26,
     "IONQ": 11,
     "RGTI": 1,
     "BRK.B": 7,
@@ -38252,14 +38135,14 @@
     "003230.KS": 1
   },
   "themes": [
-    "Macro/Rates (912 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF...",
+    "Macro/Rates (911 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF...",
     "Semiconductors/Memory (837 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF...",
-    "Earnings/Corporate (714 posts in 14-day research window): 2026년 8월 12일 미국 증시 브리핑 미국 증시는 S&P 500 -0.32%, 다우 -0.34%, 나스닥 -0.60%로 약세 마감한 반면 러셀2000은 +0.37% 상승하며 대형 성장주에서 중소형주·경기민감주로의 순환매 지속. 나스닥이 상대적으로 부진했지만 VIX는 15선에 머물렀고 주요 섹터의 낙폭도...",
-    "Market Notes (639 posts in 14-day research window): 뉴욕시의 피에드아테르 세금은 뉴욕시와 뉴욕주에 막대한 손실을 안기고 있다. 결국 걷게 될 세금은 뉴욕시를 떠나 다시는 돌아오지 않을 수만 명이 납부하던 세금에 비하면 극히 적기 때문이다. 플로리다, 텍사스 그리고 수많은 다른 주들은 엄청난 돈을 벌고 있다&#33; 뉴욕에서 벌어지고 있는 이 위험한 정치적 ‘실험’은...",
-    "Korea Market (459 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF...",
-    "Geopolitics (425 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF...",
-    "AI Power/Grid (377 posts in 14-day research window): 2026년 8월 12일 미국 증시 브리핑 미국 증시는 S&P 500 -0.32%, 다우 -0.34%, 나스닥 -0.60%로 약세 마감한 반면 러셀2000은 +0.37% 상승하며 대형 성장주에서 중소형주·경기민감주로의 순환매 지속. 나스닥이 상대적으로 부진했지만 VIX는 15선에 머물렀고 주요 섹터의 낙폭도...",
-    "Positioning/Flows (289 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF..."
+    "Earnings/Corporate (713 posts in 14-day research window): 2026년 8월 12일 미국 증시 브리핑 미국 증시는 S&P 500 -0.32%, 다우 -0.34%, 나스닥 -0.60%로 약세 마감한 반면 러셀2000은 +0.37% 상승하며 대형 성장주에서 중소형주·경기민감주로의 순환매 지속. 나스닥이 상대적으로 부진했지만 VIX는 15선에 머물렀고 주요 섹터의 낙폭도...",
+    "Market Notes (635 posts in 14-day research window): 뉴욕시의 피에드아테르 세금은 뉴욕시와 뉴욕주에 막대한 손실을 안기고 있다. 결국 걷게 될 세금은 뉴욕시를 떠나 다시는 돌아오지 않을 수만 명이 납부하던 세금에 비하면 극히 적기 때문이다. 플로리다, 텍사스 그리고 수많은 다른 주들은 엄청난 돈을 벌고 있다&#33; 뉴욕에서 벌어지고 있는 이 위험한 정치적 ‘실험’은...",
+    "Korea Market (457 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF...",
+    "Geopolitics (421 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF...",
+    "AI Power/Grid (376 posts in 14-day research window): 2026년 8월 12일 미국 증시 브리핑 미국 증시는 S&P 500 -0.32%, 다우 -0.34%, 나스닥 -0.60%로 약세 마감한 반면 러셀2000은 +0.37% 상승하며 대형 성장주에서 중소형주·경기민감주로의 순환매 지속. 나스닥이 상대적으로 부진했지만 VIX는 15선에 머물렀고 주요 섹터의 낙폭도...",
+    "Positioning/Flows (288 posts in 14-day research window): 2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF..."
   ],
   "catalysts": [
     {
@@ -38330,7 +38213,7 @@
       "topics": [
         "macro"
       ],
-      "count": 912,
+      "count": 911,
       "focus": "2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF..."
     },
     {
@@ -38339,7 +38222,7 @@
       "topics": [
         "geo"
       ],
-      "count": 425,
+      "count": 421,
       "focus": "2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF..."
     },
     {
@@ -38375,7 +38258,7 @@
       "topics": [
         "power"
       ],
-      "count": 377,
+      "count": 376,
       "focus": "2026년 8월 12일 미국 증시 브리핑 미국 증시는 S&P 500 -0.32%, 다우 -0.34%, 나스닥 -0.60%로 약세 마감한 반면 러셀2000은 +0.37% 상승하며 대형 성장주에서 중소형주·경기민감주로의 순환매 지속. 나스닥이 상대적으로 부진했지만 VIX는 15선에 머물렀고 주요 섹터의 낙폭도..."
     },
     {
@@ -38393,7 +38276,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 459,
+      "count": 457,
       "focus": "2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF..."
     },
     {
@@ -38402,7 +38285,7 @@
       "topics": [
         "equity"
       ],
-      "count": 225,
+      "count": 224,
       "focus": "2026년 8월 12일 미국 증시 브리핑 미국 증시는 S&P 500 -0.32%, 다우 -0.34%, 나스닥 -0.60%로 약세 마감한 반면 러셀2000은 +0.37% 상승하며 대형 성장주에서 중소형주·경기민감주로의 순환매 지속. 나스닥이 상대적으로 부진했지만 VIX는 15선에 머물렀고 주요 섹터의 낙폭도..."
     },
     {
@@ -38420,7 +38303,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 714,
+      "count": 713,
       "focus": "2026년 8월 12일 미국 증시 브리핑 미국 증시는 S&P 500 -0.32%, 다우 -0.34%, 나스닥 -0.60%로 약세 마감한 반면 러셀2000은 +0.37% 상승하며 대형 성장주에서 중소형주·경기민감주로의 순환매 지속. 나스닥이 상대적으로 부진했지만 VIX는 15선에 머물렀고 주요 섹터의 낙폭도..."
     },
     {
@@ -38439,7 +38322,7 @@
         "japan"
       ],
       "count": 228,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 11일 (오후 2시~오후 8시 30분 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정보당국이 이란 연계 세력의 트럼프 대통령 전용기 대상 미사일 공격 계획을 포착한 가운데, 트럼프 대통령은 튀르키예 출국 과정에서 보안을 위해 비밀리에 다른 미 정부..."
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 11일 (오후 2시~오후 8시 30분 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정보당국이 이란 연계 세력의 트럼프 대통령 전용기 대상 미사일..."
     },
     {
       "id": "flows",
@@ -38447,7 +38330,7 @@
       "topics": [
         "flows"
       ],
-      "count": 289,
+      "count": 288,
       "focus": "2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI TECHNOLOGIES INC (9.48%) 3위: ISHARES 0-3 MONTH TREASURY BOND ETF..."
     },
     {
@@ -38465,7 +38348,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 639,
+      "count": 635,
       "focus": "뉴욕시의 피에드아테르 세금은 뉴욕시와 뉴욕주에 막대한 손실을 안기고 있다. 결국 걷게 될 세금은 뉴욕시를 떠나 다시는 돌아오지 않을 수만 명이 납부하던 세금에 비하면 극히 적기 때문이다. 플로리다, 텍사스 그리고 수많은 다른 주들은 엄청난 돈을 벌고 있다&#33; 뉴욕에서 벌어지고 있는 이 위험한 정치적 ‘실험’은..."
     }
   ],
