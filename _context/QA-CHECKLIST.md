@@ -3,6 +3,19 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-11
 confidence: high
 
+## v54.6 Knowledge Atlas structural implementation (2026-08-11)
+
+- [x] QA-KA1: canonical ontology artifacts contain 155 concepts, 461 aliases, four explicit overlap equivalence groups, and no registry errors.
+- [x] QA-KA2: Principles keeps 71 explicit edge semantics with zero inferred runtime edges; Atlas remains 95 nodes/98 connected edges.
+- [x] QA-KA3: the unified registry contains 119 sources and 270 claims with zero unresolved references or duplicate claim IDs; non-DIRECT claims cannot be promoted implicitly.
+- [x] QA-KA4: 159 article files plus the combined article index and 159-node/16-path learning graph pass structural contracts while remaining marked `STRUCTURED_REFERENCE_DRAFT`.
+- [x] QA-KA5: route serialization, local persistence, route bridge, repository fallback, selector, and five shared renderer fixtures pass their local contracts.
+- [ ] QA-KA6: semantic source review, primary-source fact-checking, recruited-user validation, and live browser certification remain open and must not be represented as complete.
+- [x] QA-KA7: handoff와 machine contract가 제품을 주식·경제·금융·기술 백과사전으로 정의하고 기존 KA-00~10 뒤 KA-11~16 추가 순서를 고정한다.
+- [ ] QA-KA8: 111/48/60/95/50/19 전체 corpus와 모든 sector/domain/category coverage matrix가 누락·thin orphan 0으로 완성되어야 한다.
+- [ ] QA-KA9: 모든 content unit의 Web Research dossier, profile별 source mix, factual/current/quantitative/product claim 직접 근거 100%, 반대 근거·기준일·currentness 경계가 검증되어야 한다.
+- [ ] QA-KA10: 159 human-reviewed deep article, sector/domain dossier, 정량 lab, market transmission, active-learning browser flow와 live/user boundary가 KA-16에서 최종 인증되어야 한다.
+
 ## v54.5 AI 선택 라우트·배포 게이트 일치 (2026-08-11)
 
 - [x] QA-AIROUTE1: 개인 키와 Worker URL이 함께 있어도 실제 target이 Worker면 deep health를 통과하기 전 `ok:true`가 되지 않는다.

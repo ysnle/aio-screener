@@ -1,6 +1,9 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { createEvidenceRegistry } from '../../domain/knowledge/evidence.js';
 import { loadKnowledgeCapabilities } from '../../data/knowledge/load-capabilities.js';
+import { parseKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
+import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
+import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 
 const REVIEWED_AT = '2026-08-02';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
@@ -14,6 +17,9 @@ const TELEGRAM_REFERENCE_URL = './public-data/telegram-digest.json';
 const PLAYER_PRODUCT_URL = './public-data/atlas/player-product-registry.json';
 const PLAYER_PRODUCT_CURRENTNESS_URL = './public-data/atlas/player-product-currentness.json';
 const DEEP_TAXONOMY_URL = './public-data/atlas/deep-taxonomy.json';
+const KNOWLEDGE_SOURCES_URL = './public-data/knowledge/sources.json';
+const KNOWLEDGE_CLAIMS_URL = './public-data/knowledge/claims.json';
+const KNOWLEDGE_ARTICLES_URL = './public-data/knowledge/articles.json';
 const TELEGRAM_DISCOVERY_BOUNDARY = 'discovery only';
 
 // The three design specs deliberately stop before source-packet completion.
@@ -523,7 +529,7 @@ const FOUNDATION_TEACHING_FRAME = Object.freeze({
   F6: { question: '기술 능력이 사용량·마진·현금흐름·자본수익률로 전달되는 증거는 무엇인가?', visualization: '수요 → CAPEX → 가동률 → FCF → ROIC 검증 원장' }
 });
 
-function createModuleLesson(documentRef, module, authoredLessons) {
+function createModuleLesson(documentRef, module, authoredLessons, deepArticle = null) {
   const authored = authoredLessons?.byId?.[module.id] || authoredLessons?.lessons?.find((lesson) => lesson.id === module.id);
   const guide = authored || FOUNDATION_LESSON_GUIDES[module.id] || {
     definition: `${module.title}은(는) AI 시스템을 이해하기 위한 기초 개념입니다.`,
@@ -572,10 +578,11 @@ function createModuleLesson(documentRef, module, authoredLessons) {
     sourceDetails.appendChild(sources);
     body.appendChild(sourceDetails);
   }
+  if (deepArticle) body.appendChild(renderKnowledgeLesson(documentRef, deepArticle, { className: 'atlas-deep-lesson' }));
   return body;
 }
 
-function createCurriculumView(documentRef, curriculum, query, authoredLessons, selection = {}) {
+function createCurriculumView(documentRef, curriculum, query, authoredLessons, knowledgeArticles, selection = {}) {
   const view = element(documentRef, 'div', 'atlas-curriculum-view');
   const allModules = curriculum?.moduleIndex || [];
   const moduleById = new Map(allModules.map((module) => [module.id, module]));
@@ -647,7 +654,8 @@ function createCurriculumView(documentRef, curriculum, query, authoredLessons, s
     const title = element(documentRef, 'h3', 'atlas-learning-detail-title', FOUNDATION_MODULE_LABELS[selectedModule.id] || selectedModule.title);
     title.tabIndex = -1;
     title.dataset.atlasLearningDetailTitle = selectedModule.id;
-    detail.append(breadcrumb, title, createModuleLesson(documentRef, selectedModule, authoredLessons));
+    const deepArticle = knowledgeArticles?.articles?.find((article) => article.articleId === `atlas-foundations:${selectedModule.id}`) || null;
+    detail.append(breadcrumb, title, createModuleLesson(documentRef, selectedModule, authoredLessons, deepArticle));
     const position = allModules.findIndex((module) => module.id === selectedModule.id);
     const navigation = element(documentRef, 'div', 'atlas-learning-navigation');
     if (position > 0) navigation.appendChild(actionButton(documentRef, 'atlas-learning-nav-button', `← ${FOUNDATION_MODULE_LABELS[allModules[position - 1].id] || allModules[position - 1].title}`, 'module', allModules[position - 1].id));
@@ -1080,13 +1088,18 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       const page = documentRef?.getElementById('page-atlas');
       const content = page?.querySelector('[data-atlas-content]');
       if (!page || !content) return () => bag.dispose();
-       const state = { tab: 'foundations', query: '', selectedLayerId: 'F1', selectedModuleId: 'energy-and-power', selectedDomainId: 'domain-cloud-platform', selectedDomainNodeId: 'cloud-hyperscaler', selectedDeepTopicId: '', research: null, foundations: null, foundationLessons: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, researchError: false, foundationsError: false, foundationLessonsError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false };
+       const sharedRoute = parseKnowledgeRouteState(root?.location);
+       const initialTab = ['foundations', 'taxonomy', 'overview'].includes(sharedRoute.mode) ? sharedRoute.mode : 'foundations';
+       const learning = createAppKnowledgeLearningState(root);
+       const state = { tab: initialTab, query: '', selectedLayerId: sharedRoute.chapter || 'F1', selectedModuleId: sharedRoute.lesson || 'energy-and-power', selectedDomainId: 'domain-cloud-platform', selectedDomainNodeId: sharedRoute.node || 'cloud-hyperscaler', selectedDeepTopicId: '', research: null, foundations: null, foundationLessons: null, knowledgeArticles: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, knowledgeSources: null, knowledgeClaims: null, researchError: false, foundationsError: false, foundationLessonsError: false, knowledgeArticlesError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false, knowledgeSourcesError: false, knowledgeClaimsError: false };
       page.dataset.aioArchitectureRoute = 'atlas';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
       page.dataset.aioReviewedAt = REVIEWED_AT;
+      page.dataset.aioKnowledgeLearningState = 'local-persistent';
 
       const route = (routeId) => { if (typeof root?.showPage === 'function') root.showPage(routeId); };
+      const syncSharedState = () => replaceKnowledgeRouteState({ root, state: { mode: state.tab, node: state.selectedDomainNodeId, chapter: state.selectedLayerId, lesson: state.selectedModuleId } });
       const render = () => {
         const toolbar = element(documentRef, 'div', 'atlas-toolbar');
         const tabs = element(documentRef, 'div', 'atlas-tabs');
@@ -1122,7 +1135,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             pathDetails.appendChild(grid);
             body.appendChild(pathDetails);
           }
-          if (state.foundations) body.appendChild(createCurriculumView(documentRef, state.foundations, state.query, state.foundationLessons, { layerId: state.selectedLayerId, moduleId: state.selectedModuleId }));
+          if (state.foundations) body.appendChild(createCurriculumView(documentRef, state.foundations, state.query, state.foundationLessons, state.knowledgeArticles, { layerId: state.selectedLayerId, moduleId: state.selectedModuleId }));
           if (state.foundationsError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Curriculum artifact could not be loaded; summary tracks remain available.'));
           if (state.foundationLessonsError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Authored lesson artifact could not be loaded; the reference frame remains available.'));
         } else {
@@ -1188,20 +1201,24 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         if (action === 'deep-topic') state.selectedDeepTopicId = value;
         if (action !== 'route') {
           event.preventDefault();
+          if (action === 'module') learning.markViewed(`atlas-foundations:${value}`);
+          if (action === 'domain-node') learning.markViewed(`atlas-node:${value}`);
+          syncSharedState();
           render();
           if (action === 'module') content.querySelector('[data-atlas-learning-detail-title]')?.focus({ preventScroll: true });
         }
       };
       page.addEventListener('click', onClick);
       bag.add(() => page.removeEventListener('click', onClick));
-         bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; content.replaceChildren(); });
+         bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioKnowledgeLearningState; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasKnowledgeArticles; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; delete page.dataset.aioAtlasKnowledgeSources; delete page.dataset.aioAtlasKnowledgeClaims; content.replaceChildren(); });
       render();
       const fetchFn = root?.fetch || globalThis.fetch;
        if (typeof fetchFn === 'function') {
           loadKnowledgeCapabilities(fetchFn, [
             { key: 'research', url: RESEARCH_URL },
             { key: 'foundations', url: FOUNDATIONS_URL },
-            { key: 'foundationLessons', url: FOUNDATIONS_LESSONS_URL },
+             { key: 'foundationLessons', url: FOUNDATIONS_LESSONS_URL },
+             { key: 'knowledgeArticles', url: KNOWLEDGE_ARTICLES_URL },
             { key: 'domainGuides', url: DOMAIN_GUIDES_URL },
             { key: 'domainPackets', url: DOMAIN_PACKETS_URL },
             { key: 'claimLedger', url: DOMAIN_CLAIMS_URL },
@@ -1209,7 +1226,9 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             { key: 'deepTaxonomy', url: DEEP_TAXONOMY_URL },
             { key: 'telegram', url: TELEGRAM_REFERENCE_URL },
             { key: 'registry', url: PLAYER_PRODUCT_URL },
-            { key: 'currentness', url: PLAYER_PRODUCT_CURRENTNESS_URL }
+            { key: 'currentness', url: PLAYER_PRODUCT_CURRENTNESS_URL },
+            { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL },
+            { key: 'knowledgeClaims', url: KNOWLEDGE_CLAIMS_URL }
           ]).then((capabilities) => {
             for (const [key, result] of Object.entries(capabilities)) {
               state[key] = result.value;
@@ -1219,7 +1238,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             if (state.foundationLessons) {
               state.foundationLessons = { ...state.foundationLessons, byId: Object.fromEntries((state.foundationLessons.lessons || []).map((lesson) => [lesson.id, { ...lesson, sourceIds: [...new Set([...(lesson.sourceIds || []), ...(sourceCoverage[lesson.id] || [])])] }])) };
             }
-            const evidence = createEvidenceRegistry(state.research, state.registry, state.foundationLessons, state.domainPackets);
+            const evidence = createEvidenceRegistry(state.knowledgeSources, state.research, state.registry, state.foundationLessons, state.domainPackets);
             state.registry = {
               ...(mergePlayerProductCurrentness(state.registry, state.currentness) || { players: [], products: [], sources: [] }),
               sources: evidence.sources,
@@ -1228,10 +1247,11 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
               nodeCoverage: mergeTaxonomyRelationships(state.taxonomyCoverage)
             };
             const datasetMap = {
-              research: 'aioAtlasResearch', foundations: 'aioAtlasFoundations', foundationLessons: 'aioAtlasFoundationLessons',
+              research: 'aioAtlasResearch', foundations: 'aioAtlasFoundations', foundationLessons: 'aioAtlasFoundationLessons', knowledgeArticles: 'aioAtlasKnowledgeArticles',
               domainGuides: 'aioAtlasDomainGuides', domainPackets: 'aioAtlasDomainPackets', claimLedger: 'aioAtlasClaims',
               taxonomyCoverage: 'aioAtlasTaxonomyCoverage', deepTaxonomy: 'aioAtlasDeepTaxonomy', telegram: 'aioAtlasTelegram',
               registry: 'aioAtlasRegistry', currentness: 'aioAtlasCurrentness'
+              , knowledgeSources: 'aioAtlasKnowledgeSources', knowledgeClaims: 'aioAtlasKnowledgeClaims'
             };
             for (const [key, datasetKey] of Object.entries(datasetMap)) page.dataset[datasetKey] = capabilities[key].status;
             render();
@@ -1242,4 +1262,4 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
   };
 }
 
-export { ATLAS_PACKETS, FOUNDATION_TRACKS, TAXONOMY_LEVELS, REPRESENTATIVE_NODES, RESEARCH_URL, FOUNDATIONS_URL, FOUNDATIONS_LESSONS_URL, DOMAIN_GUIDES_URL, DOMAIN_PACKETS_URL, DOMAIN_CLAIMS_URL, TAXONOMY_COVERAGE_URL, DEEP_TAXONOMY_URL, TELEGRAM_REFERENCE_URL, PLAYER_PRODUCT_URL, PLAYER_PRODUCT_CURRENTNESS_URL };
+export { ATLAS_PACKETS, FOUNDATION_TRACKS, TAXONOMY_LEVELS, REPRESENTATIVE_NODES, RESEARCH_URL, FOUNDATIONS_URL, FOUNDATIONS_LESSONS_URL, DOMAIN_GUIDES_URL, DOMAIN_PACKETS_URL, DOMAIN_CLAIMS_URL, TAXONOMY_COVERAGE_URL, DEEP_TAXONOMY_URL, TELEGRAM_REFERENCE_URL, PLAYER_PRODUCT_URL, PLAYER_PRODUCT_CURRENTNESS_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL, KNOWLEDGE_ARTICLES_URL };

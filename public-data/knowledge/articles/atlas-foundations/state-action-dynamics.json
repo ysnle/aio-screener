@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "knowledge-article.v1",
+  "articleId": "atlas-foundations:state-action-dynamics",
+  "lessonId": "state-action-dynamics",
+  "surface": "atlas-foundations",
+  "title": "state-action-dynamics",
+  "authoringStatus": "STRUCTURED_REFERENCE_DRAFT",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "reviewedAt": "2026-08-11",
+  "summary": {
+    "definition": "상태는 현재 조건, action은 가능한 행동, dynamics는 행동 뒤 상태가 바뀌는 규칙이다.",
+    "mechanism": "관찰과 행동 결과의 연결을 학습해야 planning과 control이 현실 시간 흐름에서 작동한다.",
+    "example": "로봇의 위치·속도·장애물은 상태이고 모터 명령은 action이며 움직임 규칙은 dynamics다.",
+    "counterScenario": "상태가 완전히 관측되지 않거나 dynamics가 변하면 계획 오차가 커진다.",
+    "verificationQuestion": "상태를 충분히 관찰하지 못할 때 안전한 행동을 어떻게 선택할 것인가?",
+    "visualization": "상태 관찰 → action → 환경 변화 → 새 상태"
+  },
+  "article": {
+    "intuition": "상태는 현재 조건, action은 가능한 행동, dynamics는 행동 뒤 상태가 바뀌는 규칙이다. 관찰과 행동 결과의 연결을 학습해야 planning과 control이 현실 시간 흐름에서 작동한다. 이 문서는 state-action-dynamics을 단일 지표나 종목 서사가 아니라 조건과 전달 경로를 확인하는 교육용 개념으로 다룬다.",
+    "formalModelOrRationale": {
+      "kind": "QUALITATIVE_RATIONALE",
+      "text": "현재 데이터나 가격을 예측하는 공식으로 승격하지 않고, state-action-dynamics을 관찰할 때 어떤 입력·제약·결과를 분리해야 하는지 설명한다. 상태가 완전히 관측되지 않거나 dynamics가 변하면 계획 오차가 커진다.",
+      "assumptions": [
+        "교육용 reference 범위",
+        "현재 수치·생산량·가격을 확정하지 않음",
+        "source ID와 기준일을 다시 확인해야 함"
+      ]
+    },
+    "workedExampleOrRationale": {
+      "kind": "REFERENCE_SCENARIO",
+      "inputs": [
+        "로봇의 위치·속도·장애물은 상태이고 모터 명령은 action이며 움직임 규칙은 dynamics다.",
+        "개념: state-action-dynamics",
+        "원고 sourceIds: 없음"
+      ],
+      "assumptions": [
+        "입력은 설명을 위한 가상/정성 시나리오다.",
+        "관찰기간·단위·대체 설명을 별도 기록한다.",
+        "현재 시장 의사결정 또는 매매 주문으로 사용하지 않는다."
+      ],
+      "steps": [
+        "1. state-action-dynamics과 연결된 핵심 제약을 관찰과 행동 결과의 연결을 학습해야 planning과 control이 현실 시간 흐름에서 작동한다.으로 분해한다.",
+        "2. 로봇의 위치·속도·장애물은 상태이고 모터 명령은 action이며 움직임 규칙은 dynamics다.을 실물경제·기업·재무·시장 층으로 나누어 어떤 층의 관찰인지 표시한다.",
+        "3. 상태를 충분히 관찰하지 못할 때 안전한 행동을 어떻게 선택할 것인가?에 답할 직접 자료와 반대 시나리오를 정리한다."
+      ],
+      "result": "이 시나리오에서 확인 가능한 결과는 state-action-dynamics의 작동 경로와 보류 조건이며, 특정 가격 방향이나 투자 결론이 아니다.",
+      "interpretation": "개념의 설명과 실제 관측 사실을 분리하고, source·기준일·단위를 채운 뒤에만 더 강한 주장을 검토한다.",
+      "failureBoundary": "상태가 완전히 관측되지 않거나 dynamics가 변하면 계획 오차가 커진다."
+    },
+    "realEconomyChannel": "실물경제 층: state-action-dynamics이 자원·수요·생산·병목의 어떤 변수를 바꾸는지 확인한다. 관찰과 행동 결과의 연결을 학습해야 planning과 control이 현실 시간 흐름에서 작동한다.",
+    "companyChannel": "기업 층: 고객 문제, 운영 KPI, 경쟁우위와 공급 조건이 state-action-dynamics과 어떻게 연결되는지 구분한다.",
+    "financialStatementChannel": "재무제표 층: 매출·비용·CAPEX·감가상각·운전자본·현금흐름 중 어떤 항목에 흔적이 남는지 확인하되 공시 line item을 직접 대조한다.",
+    "valuationChannel": "밸류에이션 층: 기대 성장·마진·자본비용·기간·잔존가치를 분리하고, state-action-dynamics만으로 적정가치를 산출하지 않는다.",
+    "marketChannel": "시장 층: 관찰시점·기대 대비 서프라이즈·유동성·반대 설명을 기록하며 현재 가격 방향으로 번역하지 않는다.",
+    "tradingApplication": "관찰 적용: 상태를 충분히 관찰하지 못할 때 안전한 행동을 어떻게 선택할 것인가?을 체크리스트로 사용하고, 확인되지 않은 수치·매매 지시는 생성하지 않는다.",
+    "invalidation": "상태가 완전히 관측되지 않거나 dynamics가 변하면 계획 오차가 커진다.",
+    "glossary": [
+      {
+        "term": "state-action-dynamics",
+        "definition": "상태는 현재 조건, action은 가능한 행동, dynamics는 행동 뒤 상태가 바뀌는 규칙이다."
+      },
+      {
+        "term": "직접성",
+        "definition": "출처가 해당 주장을 직접 지지하는 정도이며, 배경 출처의 존재만으로 높아지지 않는다."
+      },
+      {
+        "term": "기준일",
+        "definition": "관찰·공시·발행 시점을 구분하는 필드다."
+      }
+    ],
+    "retrievalChecks": [
+      "상태를 충분히 관찰하지 못할 때 안전한 행동을 어떻게 선택할 것인가?",
+      "이 설명에서 관찰 사실과 해석을 분리하면 각각 무엇이며, 어떤 조건에서 결론을 무효화할 것인가?"
+    ],
+    "claimIds": [
+      "atlas-foundation-state-action-dynamics"
+    ],
+    "sourceIds": []
+  },
+  "quality": {
+    "coreTextCharacters": 1962,
+    "lengthFloor": 1200,
+    "semanticReview": "REQUIRED",
+    "sourceDirectnessReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  },
+  "authoringNote": "자동 구조화된 141번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
+}

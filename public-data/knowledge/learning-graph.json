@@ -1,0 +1,3491 @@
+{
+  "schemaVersion": "knowledge-learning-graph.v1",
+  "generatedAt": "2026-08-11",
+  "status": "STRUCTURED_REFERENCE_DRAFT",
+  "boundary": "graph continuity is local reference structure; it does not certify learning outcomes or recruited-user validation",
+  "counts": {
+    "nodes": 159,
+    "paths": 16,
+    "principlesLessons": 111,
+    "atlasLessons": 48
+  },
+  "nodes": [
+    {
+      "id": "principles:A1",
+      "surface": "principles",
+      "lessonId": "A1",
+      "articleId": "principles:A1",
+      "prerequisiteIds": [],
+      "nextIds": [
+        "principles:A2"
+      ],
+      "expertRouteIds": [
+        "principles:A1"
+      ],
+      "pathIds": [
+        "principles-chapter-A"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:A2",
+      "surface": "principles",
+      "lessonId": "A2",
+      "articleId": "principles:A2",
+      "prerequisiteIds": [
+        "principles:A1"
+      ],
+      "nextIds": [
+        "principles:A3"
+      ],
+      "expertRouteIds": [
+        "principles:A2"
+      ],
+      "pathIds": [
+        "principles-chapter-A"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:A3",
+      "surface": "principles",
+      "lessonId": "A3",
+      "articleId": "principles:A3",
+      "prerequisiteIds": [
+        "principles:A2"
+      ],
+      "nextIds": [
+        "principles:A4"
+      ],
+      "expertRouteIds": [
+        "principles:A3"
+      ],
+      "pathIds": [
+        "principles-chapter-A"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:A4",
+      "surface": "principles",
+      "lessonId": "A4",
+      "articleId": "principles:A4",
+      "prerequisiteIds": [
+        "principles:A3"
+      ],
+      "nextIds": [
+        "principles:B1"
+      ],
+      "expertRouteIds": [
+        "principles:A4"
+      ],
+      "pathIds": [
+        "principles-chapter-A"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:B1",
+      "surface": "principles",
+      "lessonId": "B1",
+      "articleId": "principles:B1",
+      "prerequisiteIds": [
+        "principles:A4"
+      ],
+      "nextIds": [
+        "principles:B2"
+      ],
+      "expertRouteIds": [
+        "principles:B1"
+      ],
+      "pathIds": [
+        "principles-chapter-B"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:B2",
+      "surface": "principles",
+      "lessonId": "B2",
+      "articleId": "principles:B2",
+      "prerequisiteIds": [
+        "principles:B1"
+      ],
+      "nextIds": [
+        "principles:B3"
+      ],
+      "expertRouteIds": [
+        "principles:B2"
+      ],
+      "pathIds": [
+        "principles-chapter-B"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:B3",
+      "surface": "principles",
+      "lessonId": "B3",
+      "articleId": "principles:B3",
+      "prerequisiteIds": [
+        "principles:B2"
+      ],
+      "nextIds": [
+        "principles:B4"
+      ],
+      "expertRouteIds": [
+        "principles:B3"
+      ],
+      "pathIds": [
+        "principles-chapter-B"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:B4",
+      "surface": "principles",
+      "lessonId": "B4",
+      "articleId": "principles:B4",
+      "prerequisiteIds": [
+        "principles:B3"
+      ],
+      "nextIds": [
+        "principles:C1"
+      ],
+      "expertRouteIds": [
+        "principles:B4"
+      ],
+      "pathIds": [
+        "principles-chapter-B"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:C1",
+      "surface": "principles",
+      "lessonId": "C1",
+      "articleId": "principles:C1",
+      "prerequisiteIds": [
+        "principles:B4"
+      ],
+      "nextIds": [
+        "principles:C2"
+      ],
+      "expertRouteIds": [
+        "principles:C1"
+      ],
+      "pathIds": [
+        "principles-chapter-C"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:C2",
+      "surface": "principles",
+      "lessonId": "C2",
+      "articleId": "principles:C2",
+      "prerequisiteIds": [
+        "principles:C1"
+      ],
+      "nextIds": [
+        "principles:C3"
+      ],
+      "expertRouteIds": [
+        "principles:C2"
+      ],
+      "pathIds": [
+        "principles-chapter-C"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:C3",
+      "surface": "principles",
+      "lessonId": "C3",
+      "articleId": "principles:C3",
+      "prerequisiteIds": [
+        "principles:C2"
+      ],
+      "nextIds": [
+        "principles:C4"
+      ],
+      "expertRouteIds": [
+        "principles:C3"
+      ],
+      "pathIds": [
+        "principles-chapter-C"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:C4",
+      "surface": "principles",
+      "lessonId": "C4",
+      "articleId": "principles:C4",
+      "prerequisiteIds": [
+        "principles:C3"
+      ],
+      "nextIds": [
+        "principles:D1"
+      ],
+      "expertRouteIds": [
+        "principles:C4"
+      ],
+      "pathIds": [
+        "principles-chapter-C"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:D1",
+      "surface": "principles",
+      "lessonId": "D1",
+      "articleId": "principles:D1",
+      "prerequisiteIds": [
+        "principles:C4"
+      ],
+      "nextIds": [
+        "principles:D2"
+      ],
+      "expertRouteIds": [
+        "principles:D1"
+      ],
+      "pathIds": [
+        "principles-chapter-D"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:D2",
+      "surface": "principles",
+      "lessonId": "D2",
+      "articleId": "principles:D2",
+      "prerequisiteIds": [
+        "principles:D1"
+      ],
+      "nextIds": [
+        "principles:D3"
+      ],
+      "expertRouteIds": [
+        "principles:D2"
+      ],
+      "pathIds": [
+        "principles-chapter-D"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:D3",
+      "surface": "principles",
+      "lessonId": "D3",
+      "articleId": "principles:D3",
+      "prerequisiteIds": [
+        "principles:D2"
+      ],
+      "nextIds": [
+        "principles:D4"
+      ],
+      "expertRouteIds": [
+        "principles:D3"
+      ],
+      "pathIds": [
+        "principles-chapter-D"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:D4",
+      "surface": "principles",
+      "lessonId": "D4",
+      "articleId": "principles:D4",
+      "prerequisiteIds": [
+        "principles:D3"
+      ],
+      "nextIds": [
+        "principles:D5"
+      ],
+      "expertRouteIds": [
+        "principles:D4"
+      ],
+      "pathIds": [
+        "principles-chapter-D"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:D5",
+      "surface": "principles",
+      "lessonId": "D5",
+      "articleId": "principles:D5",
+      "prerequisiteIds": [
+        "principles:D4"
+      ],
+      "nextIds": [
+        "principles:E1"
+      ],
+      "expertRouteIds": [
+        "principles:D5"
+      ],
+      "pathIds": [
+        "principles-chapter-D"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:E1",
+      "surface": "principles",
+      "lessonId": "E1",
+      "articleId": "principles:E1",
+      "prerequisiteIds": [
+        "principles:D5"
+      ],
+      "nextIds": [
+        "principles:E2"
+      ],
+      "expertRouteIds": [
+        "principles:E1"
+      ],
+      "pathIds": [
+        "principles-chapter-E"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:E2",
+      "surface": "principles",
+      "lessonId": "E2",
+      "articleId": "principles:E2",
+      "prerequisiteIds": [
+        "principles:E1"
+      ],
+      "nextIds": [
+        "principles:E3"
+      ],
+      "expertRouteIds": [
+        "principles:E2"
+      ],
+      "pathIds": [
+        "principles-chapter-E"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:E3",
+      "surface": "principles",
+      "lessonId": "E3",
+      "articleId": "principles:E3",
+      "prerequisiteIds": [
+        "principles:E2"
+      ],
+      "nextIds": [
+        "principles:E4"
+      ],
+      "expertRouteIds": [
+        "principles:E3"
+      ],
+      "pathIds": [
+        "principles-chapter-E"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:E4",
+      "surface": "principles",
+      "lessonId": "E4",
+      "articleId": "principles:E4",
+      "prerequisiteIds": [
+        "principles:E3"
+      ],
+      "nextIds": [
+        "principles:E5"
+      ],
+      "expertRouteIds": [
+        "principles:E4"
+      ],
+      "pathIds": [
+        "principles-chapter-E"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:E5",
+      "surface": "principles",
+      "lessonId": "E5",
+      "articleId": "principles:E5",
+      "prerequisiteIds": [
+        "principles:E4"
+      ],
+      "nextIds": [
+        "principles:E6"
+      ],
+      "expertRouteIds": [
+        "principles:E5"
+      ],
+      "pathIds": [
+        "principles-chapter-E"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:E6",
+      "surface": "principles",
+      "lessonId": "E6",
+      "articleId": "principles:E6",
+      "prerequisiteIds": [
+        "principles:E5"
+      ],
+      "nextIds": [
+        "principles:E7"
+      ],
+      "expertRouteIds": [
+        "principles:E6"
+      ],
+      "pathIds": [
+        "principles-chapter-E"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:E7",
+      "surface": "principles",
+      "lessonId": "E7",
+      "articleId": "principles:E7",
+      "prerequisiteIds": [
+        "principles:E6"
+      ],
+      "nextIds": [
+        "principles:F1"
+      ],
+      "expertRouteIds": [
+        "principles:E7"
+      ],
+      "pathIds": [
+        "principles-chapter-E"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:F1",
+      "surface": "principles",
+      "lessonId": "F1",
+      "articleId": "principles:F1",
+      "prerequisiteIds": [
+        "principles:E7"
+      ],
+      "nextIds": [
+        "principles:F2"
+      ],
+      "expertRouteIds": [
+        "principles:F1"
+      ],
+      "pathIds": [
+        "principles-chapter-F"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:F2",
+      "surface": "principles",
+      "lessonId": "F2",
+      "articleId": "principles:F2",
+      "prerequisiteIds": [
+        "principles:F1"
+      ],
+      "nextIds": [
+        "principles:F3"
+      ],
+      "expertRouteIds": [
+        "principles:F2"
+      ],
+      "pathIds": [
+        "principles-chapter-F"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:F3",
+      "surface": "principles",
+      "lessonId": "F3",
+      "articleId": "principles:F3",
+      "prerequisiteIds": [
+        "principles:F2"
+      ],
+      "nextIds": [
+        "principles:F4"
+      ],
+      "expertRouteIds": [
+        "principles:F3"
+      ],
+      "pathIds": [
+        "principles-chapter-F"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:F4",
+      "surface": "principles",
+      "lessonId": "F4",
+      "articleId": "principles:F4",
+      "prerequisiteIds": [
+        "principles:F3"
+      ],
+      "nextIds": [
+        "principles:G1"
+      ],
+      "expertRouteIds": [
+        "principles:F4"
+      ],
+      "pathIds": [
+        "principles-chapter-F"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:G1",
+      "surface": "principles",
+      "lessonId": "G1",
+      "articleId": "principles:G1",
+      "prerequisiteIds": [
+        "principles:F4"
+      ],
+      "nextIds": [
+        "principles:G2"
+      ],
+      "expertRouteIds": [
+        "principles:G1"
+      ],
+      "pathIds": [
+        "principles-chapter-G"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:G2",
+      "surface": "principles",
+      "lessonId": "G2",
+      "articleId": "principles:G2",
+      "prerequisiteIds": [
+        "principles:G1"
+      ],
+      "nextIds": [
+        "principles:G3"
+      ],
+      "expertRouteIds": [
+        "principles:G2"
+      ],
+      "pathIds": [
+        "principles-chapter-G"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:G3",
+      "surface": "principles",
+      "lessonId": "G3",
+      "articleId": "principles:G3",
+      "prerequisiteIds": [
+        "principles:G2"
+      ],
+      "nextIds": [
+        "principles:G4"
+      ],
+      "expertRouteIds": [
+        "principles:G3"
+      ],
+      "pathIds": [
+        "principles-chapter-G"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:G4",
+      "surface": "principles",
+      "lessonId": "G4",
+      "articleId": "principles:G4",
+      "prerequisiteIds": [
+        "principles:G3"
+      ],
+      "nextIds": [
+        "principles:G5"
+      ],
+      "expertRouteIds": [
+        "principles:G4"
+      ],
+      "pathIds": [
+        "principles-chapter-G"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:G5",
+      "surface": "principles",
+      "lessonId": "G5",
+      "articleId": "principles:G5",
+      "prerequisiteIds": [
+        "principles:G4"
+      ],
+      "nextIds": [
+        "principles:G6"
+      ],
+      "expertRouteIds": [
+        "principles:G5"
+      ],
+      "pathIds": [
+        "principles-chapter-G"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:G6",
+      "surface": "principles",
+      "lessonId": "G6",
+      "articleId": "principles:G6",
+      "prerequisiteIds": [
+        "principles:G5"
+      ],
+      "nextIds": [
+        "principles:G7"
+      ],
+      "expertRouteIds": [
+        "principles:G6"
+      ],
+      "pathIds": [
+        "principles-chapter-G"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:G7",
+      "surface": "principles",
+      "lessonId": "G7",
+      "articleId": "principles:G7",
+      "prerequisiteIds": [
+        "principles:G6"
+      ],
+      "nextIds": [
+        "principles:G8"
+      ],
+      "expertRouteIds": [
+        "principles:G7"
+      ],
+      "pathIds": [
+        "principles-chapter-G"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:G8",
+      "surface": "principles",
+      "lessonId": "G8",
+      "articleId": "principles:G8",
+      "prerequisiteIds": [
+        "principles:G7"
+      ],
+      "nextIds": [
+        "principles:H1"
+      ],
+      "expertRouteIds": [
+        "principles:G8"
+      ],
+      "pathIds": [
+        "principles-chapter-G"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:H1",
+      "surface": "principles",
+      "lessonId": "H1",
+      "articleId": "principles:H1",
+      "prerequisiteIds": [
+        "principles:G8"
+      ],
+      "nextIds": [
+        "principles:H2"
+      ],
+      "expertRouteIds": [
+        "principles:H1"
+      ],
+      "pathIds": [
+        "principles-chapter-H"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:H2",
+      "surface": "principles",
+      "lessonId": "H2",
+      "articleId": "principles:H2",
+      "prerequisiteIds": [
+        "principles:H1"
+      ],
+      "nextIds": [
+        "principles:H3"
+      ],
+      "expertRouteIds": [
+        "principles:H2"
+      ],
+      "pathIds": [
+        "principles-chapter-H"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:H3",
+      "surface": "principles",
+      "lessonId": "H3",
+      "articleId": "principles:H3",
+      "prerequisiteIds": [
+        "principles:H2"
+      ],
+      "nextIds": [
+        "principles:H4"
+      ],
+      "expertRouteIds": [
+        "principles:H3"
+      ],
+      "pathIds": [
+        "principles-chapter-H"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:H4",
+      "surface": "principles",
+      "lessonId": "H4",
+      "articleId": "principles:H4",
+      "prerequisiteIds": [
+        "principles:H3"
+      ],
+      "nextIds": [
+        "principles:H5"
+      ],
+      "expertRouteIds": [
+        "principles:H4"
+      ],
+      "pathIds": [
+        "principles-chapter-H"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:H5",
+      "surface": "principles",
+      "lessonId": "H5",
+      "articleId": "principles:H5",
+      "prerequisiteIds": [
+        "principles:H4"
+      ],
+      "nextIds": [
+        "principles:I1"
+      ],
+      "expertRouteIds": [
+        "principles:H5"
+      ],
+      "pathIds": [
+        "principles-chapter-H"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:I1",
+      "surface": "principles",
+      "lessonId": "I1",
+      "articleId": "principles:I1",
+      "prerequisiteIds": [
+        "principles:H5"
+      ],
+      "nextIds": [
+        "principles:I2"
+      ],
+      "expertRouteIds": [
+        "principles:I1"
+      ],
+      "pathIds": [
+        "principles-chapter-I"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:I2",
+      "surface": "principles",
+      "lessonId": "I2",
+      "articleId": "principles:I2",
+      "prerequisiteIds": [
+        "principles:I1"
+      ],
+      "nextIds": [
+        "principles:I3"
+      ],
+      "expertRouteIds": [
+        "principles:I2"
+      ],
+      "pathIds": [
+        "principles-chapter-I"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:I3",
+      "surface": "principles",
+      "lessonId": "I3",
+      "articleId": "principles:I3",
+      "prerequisiteIds": [
+        "principles:I2"
+      ],
+      "nextIds": [
+        "principles:I4"
+      ],
+      "expertRouteIds": [
+        "principles:I3"
+      ],
+      "pathIds": [
+        "principles-chapter-I"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:I4",
+      "surface": "principles",
+      "lessonId": "I4",
+      "articleId": "principles:I4",
+      "prerequisiteIds": [
+        "principles:I3"
+      ],
+      "nextIds": [
+        "principles:I5"
+      ],
+      "expertRouteIds": [
+        "principles:I4"
+      ],
+      "pathIds": [
+        "principles-chapter-I"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:I5",
+      "surface": "principles",
+      "lessonId": "I5",
+      "articleId": "principles:I5",
+      "prerequisiteIds": [
+        "principles:I4"
+      ],
+      "nextIds": [
+        "principles:J1"
+      ],
+      "expertRouteIds": [
+        "principles:I5"
+      ],
+      "pathIds": [
+        "principles-chapter-I"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:J1",
+      "surface": "principles",
+      "lessonId": "J1",
+      "articleId": "principles:J1",
+      "prerequisiteIds": [
+        "principles:I5"
+      ],
+      "nextIds": [
+        "principles:J2"
+      ],
+      "expertRouteIds": [
+        "principles:J1"
+      ],
+      "pathIds": [
+        "principles-chapter-J"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:J2",
+      "surface": "principles",
+      "lessonId": "J2",
+      "articleId": "principles:J2",
+      "prerequisiteIds": [
+        "principles:J1"
+      ],
+      "nextIds": [
+        "principles:J3"
+      ],
+      "expertRouteIds": [
+        "principles:J2"
+      ],
+      "pathIds": [
+        "principles-chapter-J"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:J3",
+      "surface": "principles",
+      "lessonId": "J3",
+      "articleId": "principles:J3",
+      "prerequisiteIds": [
+        "principles:J2"
+      ],
+      "nextIds": [
+        "principles:J4"
+      ],
+      "expertRouteIds": [
+        "principles:J3"
+      ],
+      "pathIds": [
+        "principles-chapter-J"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:J4",
+      "surface": "principles",
+      "lessonId": "J4",
+      "articleId": "principles:J4",
+      "prerequisiteIds": [
+        "principles:J3"
+      ],
+      "nextIds": [
+        "principles:J5"
+      ],
+      "expertRouteIds": [
+        "principles:J4"
+      ],
+      "pathIds": [
+        "principles-chapter-J"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:J5",
+      "surface": "principles",
+      "lessonId": "J5",
+      "articleId": "principles:J5",
+      "prerequisiteIds": [
+        "principles:J4"
+      ],
+      "nextIds": [
+        "principles:K1"
+      ],
+      "expertRouteIds": [
+        "principles:J5"
+      ],
+      "pathIds": [
+        "principles-chapter-J"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K1",
+      "surface": "principles",
+      "lessonId": "K1",
+      "articleId": "principles:K1",
+      "prerequisiteIds": [
+        "principles:J5"
+      ],
+      "nextIds": [
+        "principles:K2"
+      ],
+      "expertRouteIds": [
+        "principles:K1"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K2",
+      "surface": "principles",
+      "lessonId": "K2",
+      "articleId": "principles:K2",
+      "prerequisiteIds": [
+        "principles:K1"
+      ],
+      "nextIds": [
+        "principles:K3"
+      ],
+      "expertRouteIds": [
+        "principles:K2"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K3",
+      "surface": "principles",
+      "lessonId": "K3",
+      "articleId": "principles:K3",
+      "prerequisiteIds": [
+        "principles:K2"
+      ],
+      "nextIds": [
+        "principles:K4"
+      ],
+      "expertRouteIds": [
+        "principles:K3"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K4",
+      "surface": "principles",
+      "lessonId": "K4",
+      "articleId": "principles:K4",
+      "prerequisiteIds": [
+        "principles:K3"
+      ],
+      "nextIds": [
+        "principles:K5"
+      ],
+      "expertRouteIds": [
+        "principles:K4"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K5",
+      "surface": "principles",
+      "lessonId": "K5",
+      "articleId": "principles:K5",
+      "prerequisiteIds": [
+        "principles:K4"
+      ],
+      "nextIds": [
+        "principles:K6"
+      ],
+      "expertRouteIds": [
+        "principles:K5"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K6",
+      "surface": "principles",
+      "lessonId": "K6",
+      "articleId": "principles:K6",
+      "prerequisiteIds": [
+        "principles:K5"
+      ],
+      "nextIds": [
+        "principles:K7"
+      ],
+      "expertRouteIds": [
+        "principles:K6"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K7",
+      "surface": "principles",
+      "lessonId": "K7",
+      "articleId": "principles:K7",
+      "prerequisiteIds": [
+        "principles:K6"
+      ],
+      "nextIds": [
+        "principles:K8"
+      ],
+      "expertRouteIds": [
+        "principles:K7"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K8",
+      "surface": "principles",
+      "lessonId": "K8",
+      "articleId": "principles:K8",
+      "prerequisiteIds": [
+        "principles:K7"
+      ],
+      "nextIds": [
+        "principles:K9"
+      ],
+      "expertRouteIds": [
+        "principles:K8"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K9",
+      "surface": "principles",
+      "lessonId": "K9",
+      "articleId": "principles:K9",
+      "prerequisiteIds": [
+        "principles:K8"
+      ],
+      "nextIds": [
+        "principles:K10"
+      ],
+      "expertRouteIds": [
+        "principles:K9"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K10",
+      "surface": "principles",
+      "lessonId": "K10",
+      "articleId": "principles:K10",
+      "prerequisiteIds": [
+        "principles:K9"
+      ],
+      "nextIds": [
+        "principles:K11"
+      ],
+      "expertRouteIds": [
+        "principles:K10"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K11",
+      "surface": "principles",
+      "lessonId": "K11",
+      "articleId": "principles:K11",
+      "prerequisiteIds": [
+        "principles:K10"
+      ],
+      "nextIds": [
+        "principles:K12"
+      ],
+      "expertRouteIds": [
+        "principles:K11"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:K12",
+      "surface": "principles",
+      "lessonId": "K12",
+      "articleId": "principles:K12",
+      "prerequisiteIds": [
+        "principles:K11"
+      ],
+      "nextIds": [
+        "principles:L1"
+      ],
+      "expertRouteIds": [
+        "principles:K12"
+      ],
+      "pathIds": [
+        "principles-chapter-K"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L1",
+      "surface": "principles",
+      "lessonId": "L1",
+      "articleId": "principles:L1",
+      "prerequisiteIds": [
+        "principles:K12"
+      ],
+      "nextIds": [
+        "principles:L2"
+      ],
+      "expertRouteIds": [
+        "principles:L1"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L2",
+      "surface": "principles",
+      "lessonId": "L2",
+      "articleId": "principles:L2",
+      "prerequisiteIds": [
+        "principles:L1"
+      ],
+      "nextIds": [
+        "principles:L3"
+      ],
+      "expertRouteIds": [
+        "principles:L2"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L3",
+      "surface": "principles",
+      "lessonId": "L3",
+      "articleId": "principles:L3",
+      "prerequisiteIds": [
+        "principles:L2"
+      ],
+      "nextIds": [
+        "principles:L4"
+      ],
+      "expertRouteIds": [
+        "principles:L3"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L4",
+      "surface": "principles",
+      "lessonId": "L4",
+      "articleId": "principles:L4",
+      "prerequisiteIds": [
+        "principles:L3"
+      ],
+      "nextIds": [
+        "principles:L5"
+      ],
+      "expertRouteIds": [
+        "principles:L4"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L5",
+      "surface": "principles",
+      "lessonId": "L5",
+      "articleId": "principles:L5",
+      "prerequisiteIds": [
+        "principles:L4"
+      ],
+      "nextIds": [
+        "principles:L6"
+      ],
+      "expertRouteIds": [
+        "principles:L5"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L6",
+      "surface": "principles",
+      "lessonId": "L6",
+      "articleId": "principles:L6",
+      "prerequisiteIds": [
+        "principles:L5"
+      ],
+      "nextIds": [
+        "principles:L7"
+      ],
+      "expertRouteIds": [
+        "principles:L6"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L7",
+      "surface": "principles",
+      "lessonId": "L7",
+      "articleId": "principles:L7",
+      "prerequisiteIds": [
+        "principles:L6"
+      ],
+      "nextIds": [
+        "principles:L8"
+      ],
+      "expertRouteIds": [
+        "principles:L7"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L8",
+      "surface": "principles",
+      "lessonId": "L8",
+      "articleId": "principles:L8",
+      "prerequisiteIds": [
+        "principles:L7"
+      ],
+      "nextIds": [
+        "principles:L9"
+      ],
+      "expertRouteIds": [
+        "principles:L8"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L9",
+      "surface": "principles",
+      "lessonId": "L9",
+      "articleId": "principles:L9",
+      "prerequisiteIds": [
+        "principles:L8"
+      ],
+      "nextIds": [
+        "principles:L10"
+      ],
+      "expertRouteIds": [
+        "principles:L9"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L10",
+      "surface": "principles",
+      "lessonId": "L10",
+      "articleId": "principles:L10",
+      "prerequisiteIds": [
+        "principles:L9"
+      ],
+      "nextIds": [
+        "principles:L11"
+      ],
+      "expertRouteIds": [
+        "principles:L10"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L11",
+      "surface": "principles",
+      "lessonId": "L11",
+      "articleId": "principles:L11",
+      "prerequisiteIds": [
+        "principles:L10"
+      ],
+      "nextIds": [
+        "principles:L12"
+      ],
+      "expertRouteIds": [
+        "principles:L11"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L12",
+      "surface": "principles",
+      "lessonId": "L12",
+      "articleId": "principles:L12",
+      "prerequisiteIds": [
+        "principles:L11"
+      ],
+      "nextIds": [
+        "principles:L13"
+      ],
+      "expertRouteIds": [
+        "principles:L12"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L13",
+      "surface": "principles",
+      "lessonId": "L13",
+      "articleId": "principles:L13",
+      "prerequisiteIds": [
+        "principles:L12"
+      ],
+      "nextIds": [
+        "principles:L14"
+      ],
+      "expertRouteIds": [
+        "principles:L13"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L14",
+      "surface": "principles",
+      "lessonId": "L14",
+      "articleId": "principles:L14",
+      "prerequisiteIds": [
+        "principles:L13"
+      ],
+      "nextIds": [
+        "principles:L15"
+      ],
+      "expertRouteIds": [
+        "principles:L14"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L15",
+      "surface": "principles",
+      "lessonId": "L15",
+      "articleId": "principles:L15",
+      "prerequisiteIds": [
+        "principles:L14"
+      ],
+      "nextIds": [
+        "principles:L16"
+      ],
+      "expertRouteIds": [
+        "principles:L15"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:L16",
+      "surface": "principles",
+      "lessonId": "L16",
+      "articleId": "principles:L16",
+      "prerequisiteIds": [
+        "principles:L15"
+      ],
+      "nextIds": [
+        "principles:M1"
+      ],
+      "expertRouteIds": [
+        "principles:L16"
+      ],
+      "pathIds": [
+        "principles-chapter-L"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M1",
+      "surface": "principles",
+      "lessonId": "M1",
+      "articleId": "principles:M1",
+      "prerequisiteIds": [
+        "principles:L16"
+      ],
+      "nextIds": [
+        "principles:M2"
+      ],
+      "expertRouteIds": [
+        "principles:M1"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M2",
+      "surface": "principles",
+      "lessonId": "M2",
+      "articleId": "principles:M2",
+      "prerequisiteIds": [
+        "principles:M1"
+      ],
+      "nextIds": [
+        "principles:M3"
+      ],
+      "expertRouteIds": [
+        "principles:M2"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M3",
+      "surface": "principles",
+      "lessonId": "M3",
+      "articleId": "principles:M3",
+      "prerequisiteIds": [
+        "principles:M2"
+      ],
+      "nextIds": [
+        "principles:M4"
+      ],
+      "expertRouteIds": [
+        "principles:M3"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M4",
+      "surface": "principles",
+      "lessonId": "M4",
+      "articleId": "principles:M4",
+      "prerequisiteIds": [
+        "principles:M3"
+      ],
+      "nextIds": [
+        "principles:M5"
+      ],
+      "expertRouteIds": [
+        "principles:M4"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M5",
+      "surface": "principles",
+      "lessonId": "M5",
+      "articleId": "principles:M5",
+      "prerequisiteIds": [
+        "principles:M4"
+      ],
+      "nextIds": [
+        "principles:M6"
+      ],
+      "expertRouteIds": [
+        "principles:M5"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M6",
+      "surface": "principles",
+      "lessonId": "M6",
+      "articleId": "principles:M6",
+      "prerequisiteIds": [
+        "principles:M5"
+      ],
+      "nextIds": [
+        "principles:M7"
+      ],
+      "expertRouteIds": [
+        "principles:M6"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M7",
+      "surface": "principles",
+      "lessonId": "M7",
+      "articleId": "principles:M7",
+      "prerequisiteIds": [
+        "principles:M6"
+      ],
+      "nextIds": [
+        "principles:M8"
+      ],
+      "expertRouteIds": [
+        "principles:M7"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M8",
+      "surface": "principles",
+      "lessonId": "M8",
+      "articleId": "principles:M8",
+      "prerequisiteIds": [
+        "principles:M7"
+      ],
+      "nextIds": [
+        "principles:M9"
+      ],
+      "expertRouteIds": [
+        "principles:M8"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M9",
+      "surface": "principles",
+      "lessonId": "M9",
+      "articleId": "principles:M9",
+      "prerequisiteIds": [
+        "principles:M8"
+      ],
+      "nextIds": [
+        "principles:M10"
+      ],
+      "expertRouteIds": [
+        "principles:M9"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M10",
+      "surface": "principles",
+      "lessonId": "M10",
+      "articleId": "principles:M10",
+      "prerequisiteIds": [
+        "principles:M9"
+      ],
+      "nextIds": [
+        "principles:M11"
+      ],
+      "expertRouteIds": [
+        "principles:M10"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M11",
+      "surface": "principles",
+      "lessonId": "M11",
+      "articleId": "principles:M11",
+      "prerequisiteIds": [
+        "principles:M10"
+      ],
+      "nextIds": [
+        "principles:M12"
+      ],
+      "expertRouteIds": [
+        "principles:M11"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:M12",
+      "surface": "principles",
+      "lessonId": "M12",
+      "articleId": "principles:M12",
+      "prerequisiteIds": [
+        "principles:M11"
+      ],
+      "nextIds": [
+        "principles:N1"
+      ],
+      "expertRouteIds": [
+        "principles:M12"
+      ],
+      "pathIds": [
+        "principles-chapter-M"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N1",
+      "surface": "principles",
+      "lessonId": "N1",
+      "articleId": "principles:N1",
+      "prerequisiteIds": [
+        "principles:M12"
+      ],
+      "nextIds": [
+        "principles:N2"
+      ],
+      "expertRouteIds": [
+        "principles:N1"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N2",
+      "surface": "principles",
+      "lessonId": "N2",
+      "articleId": "principles:N2",
+      "prerequisiteIds": [
+        "principles:N1"
+      ],
+      "nextIds": [
+        "principles:N3"
+      ],
+      "expertRouteIds": [
+        "principles:N2"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N3",
+      "surface": "principles",
+      "lessonId": "N3",
+      "articleId": "principles:N3",
+      "prerequisiteIds": [
+        "principles:N2"
+      ],
+      "nextIds": [
+        "principles:N4"
+      ],
+      "expertRouteIds": [
+        "principles:N3"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N4",
+      "surface": "principles",
+      "lessonId": "N4",
+      "articleId": "principles:N4",
+      "prerequisiteIds": [
+        "principles:N3"
+      ],
+      "nextIds": [
+        "principles:N5"
+      ],
+      "expertRouteIds": [
+        "principles:N4"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N5",
+      "surface": "principles",
+      "lessonId": "N5",
+      "articleId": "principles:N5",
+      "prerequisiteIds": [
+        "principles:N4"
+      ],
+      "nextIds": [
+        "principles:N6"
+      ],
+      "expertRouteIds": [
+        "principles:N5"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N6",
+      "surface": "principles",
+      "lessonId": "N6",
+      "articleId": "principles:N6",
+      "prerequisiteIds": [
+        "principles:N5"
+      ],
+      "nextIds": [
+        "principles:N7"
+      ],
+      "expertRouteIds": [
+        "principles:N6"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N7",
+      "surface": "principles",
+      "lessonId": "N7",
+      "articleId": "principles:N7",
+      "prerequisiteIds": [
+        "principles:N6"
+      ],
+      "nextIds": [
+        "principles:N8"
+      ],
+      "expertRouteIds": [
+        "principles:N7"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N8",
+      "surface": "principles",
+      "lessonId": "N8",
+      "articleId": "principles:N8",
+      "prerequisiteIds": [
+        "principles:N7"
+      ],
+      "nextIds": [
+        "principles:N9"
+      ],
+      "expertRouteIds": [
+        "principles:N8"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N9",
+      "surface": "principles",
+      "lessonId": "N9",
+      "articleId": "principles:N9",
+      "prerequisiteIds": [
+        "principles:N8"
+      ],
+      "nextIds": [
+        "principles:N10"
+      ],
+      "expertRouteIds": [
+        "principles:N9"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N10",
+      "surface": "principles",
+      "lessonId": "N10",
+      "articleId": "principles:N10",
+      "prerequisiteIds": [
+        "principles:N9"
+      ],
+      "nextIds": [
+        "principles:N11"
+      ],
+      "expertRouteIds": [
+        "principles:N10"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N11",
+      "surface": "principles",
+      "lessonId": "N11",
+      "articleId": "principles:N11",
+      "prerequisiteIds": [
+        "principles:N10"
+      ],
+      "nextIds": [
+        "principles:N12"
+      ],
+      "expertRouteIds": [
+        "principles:N11"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N12",
+      "surface": "principles",
+      "lessonId": "N12",
+      "articleId": "principles:N12",
+      "prerequisiteIds": [
+        "principles:N11"
+      ],
+      "nextIds": [
+        "principles:N13"
+      ],
+      "expertRouteIds": [
+        "principles:N12"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N13",
+      "surface": "principles",
+      "lessonId": "N13",
+      "articleId": "principles:N13",
+      "prerequisiteIds": [
+        "principles:N12"
+      ],
+      "nextIds": [
+        "principles:N14"
+      ],
+      "expertRouteIds": [
+        "principles:N13"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N14",
+      "surface": "principles",
+      "lessonId": "N14",
+      "articleId": "principles:N14",
+      "prerequisiteIds": [
+        "principles:N13"
+      ],
+      "nextIds": [
+        "principles:N15"
+      ],
+      "expertRouteIds": [
+        "principles:N14"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:N15",
+      "surface": "principles",
+      "lessonId": "N15",
+      "articleId": "principles:N15",
+      "prerequisiteIds": [
+        "principles:N14"
+      ],
+      "nextIds": [
+        "principles:O1"
+      ],
+      "expertRouteIds": [
+        "principles:N15"
+      ],
+      "pathIds": [
+        "principles-chapter-N"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:O1",
+      "surface": "principles",
+      "lessonId": "O1",
+      "articleId": "principles:O1",
+      "prerequisiteIds": [
+        "principles:N15"
+      ],
+      "nextIds": [
+        "principles:O2"
+      ],
+      "expertRouteIds": [
+        "principles:O1"
+      ],
+      "pathIds": [
+        "principles-chapter-O"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:O2",
+      "surface": "principles",
+      "lessonId": "O2",
+      "articleId": "principles:O2",
+      "prerequisiteIds": [
+        "principles:O1"
+      ],
+      "nextIds": [
+        "principles:O3"
+      ],
+      "expertRouteIds": [
+        "principles:O2"
+      ],
+      "pathIds": [
+        "principles-chapter-O"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:O3",
+      "surface": "principles",
+      "lessonId": "O3",
+      "articleId": "principles:O3",
+      "prerequisiteIds": [
+        "principles:O2"
+      ],
+      "nextIds": [
+        "principles:O4"
+      ],
+      "expertRouteIds": [
+        "principles:O3"
+      ],
+      "pathIds": [
+        "principles-chapter-O"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:O4",
+      "surface": "principles",
+      "lessonId": "O4",
+      "articleId": "principles:O4",
+      "prerequisiteIds": [
+        "principles:O3"
+      ],
+      "nextIds": [
+        "principles:O5"
+      ],
+      "expertRouteIds": [
+        "principles:O4"
+      ],
+      "pathIds": [
+        "principles-chapter-O"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:O5",
+      "surface": "principles",
+      "lessonId": "O5",
+      "articleId": "principles:O5",
+      "prerequisiteIds": [
+        "principles:O4"
+      ],
+      "nextIds": [],
+      "expertRouteIds": [
+        "principles:O5"
+      ],
+      "pathIds": [
+        "principles-chapter-O"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:energy-and-power",
+      "surface": "atlas-foundations",
+      "lessonId": "energy-and-power",
+      "articleId": "atlas-foundations:energy-and-power",
+      "prerequisiteIds": [],
+      "nextIds": [
+        "atlas-foundations:vectors-and-matrices"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:energy-and-power"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:vectors-and-matrices",
+      "surface": "atlas-foundations",
+      "lessonId": "vectors-and-matrices",
+      "articleId": "atlas-foundations:vectors-and-matrices",
+      "prerequisiteIds": [
+        "atlas-foundations:energy-and-power"
+      ],
+      "nextIds": [
+        "atlas-foundations:probability-and-statistics"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:vectors-and-matrices"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:probability-and-statistics",
+      "surface": "atlas-foundations",
+      "lessonId": "probability-and-statistics",
+      "articleId": "atlas-foundations:probability-and-statistics",
+      "prerequisiteIds": [
+        "atlas-foundations:vectors-and-matrices"
+      ],
+      "nextIds": [
+        "atlas-foundations:parallel-processing"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:probability-and-statistics"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:parallel-processing",
+      "surface": "atlas-foundations",
+      "lessonId": "parallel-processing",
+      "articleId": "atlas-foundations:parallel-processing",
+      "prerequisiteIds": [
+        "atlas-foundations:probability-and-statistics"
+      ],
+      "nextIds": [
+        "atlas-foundations:silicon-and-doping"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:parallel-processing"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:silicon-and-doping",
+      "surface": "atlas-foundations",
+      "lessonId": "silicon-and-doping",
+      "articleId": "atlas-foundations:silicon-and-doping",
+      "prerequisiteIds": [
+        "atlas-foundations:parallel-processing"
+      ],
+      "nextIds": [
+        "atlas-foundations:bottlenecks-and-scarcity"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:silicon-and-doping"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:bottlenecks-and-scarcity",
+      "surface": "atlas-foundations",
+      "lessonId": "bottlenecks-and-scarcity",
+      "articleId": "atlas-foundations:bottlenecks-and-scarcity",
+      "prerequisiteIds": [
+        "atlas-foundations:silicon-and-doping"
+      ],
+      "nextIds": [
+        "atlas-foundations:capex-and-depreciation"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:bottlenecks-and-scarcity"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:capex-and-depreciation",
+      "surface": "atlas-foundations",
+      "lessonId": "capex-and-depreciation",
+      "articleId": "atlas-foundations:capex-and-depreciation",
+      "prerequisiteIds": [
+        "atlas-foundations:bottlenecks-and-scarcity"
+      ],
+      "nextIds": [
+        "atlas-foundations:rules-vs-learning"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:capex-and-depreciation"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:rules-vs-learning",
+      "surface": "atlas-foundations",
+      "lessonId": "rules-vs-learning",
+      "articleId": "atlas-foundations:rules-vs-learning",
+      "prerequisiteIds": [
+        "atlas-foundations:capex-and-depreciation"
+      ],
+      "nextIds": [
+        "atlas-foundations:model-parameters-training"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:rules-vs-learning"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:model-parameters-training",
+      "surface": "atlas-foundations",
+      "lessonId": "model-parameters-training",
+      "articleId": "atlas-foundations:model-parameters-training",
+      "prerequisiteIds": [
+        "atlas-foundations:rules-vs-learning"
+      ],
+      "nextIds": [
+        "atlas-foundations:data-quality"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:model-parameters-training"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:data-quality",
+      "surface": "atlas-foundations",
+      "lessonId": "data-quality",
+      "articleId": "atlas-foundations:data-quality",
+      "prerequisiteIds": [
+        "atlas-foundations:model-parameters-training"
+      ],
+      "nextIds": [
+        "atlas-foundations:learning-types"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:data-quality"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:learning-types",
+      "surface": "atlas-foundations",
+      "lessonId": "learning-types",
+      "articleId": "atlas-foundations:learning-types",
+      "prerequisiteIds": [
+        "atlas-foundations:data-quality"
+      ],
+      "nextIds": [
+        "atlas-foundations:neural-networks"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:learning-types"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:neural-networks",
+      "surface": "atlas-foundations",
+      "lessonId": "neural-networks",
+      "articleId": "atlas-foundations:neural-networks",
+      "prerequisiteIds": [
+        "atlas-foundations:learning-types"
+      ],
+      "nextIds": [
+        "atlas-foundations:forward-backpropagation"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:neural-networks"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:forward-backpropagation",
+      "surface": "atlas-foundations",
+      "lessonId": "forward-backpropagation",
+      "articleId": "atlas-foundations:forward-backpropagation",
+      "prerequisiteIds": [
+        "atlas-foundations:neural-networks"
+      ],
+      "nextIds": [
+        "atlas-foundations:generalization-and-memory"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:forward-backpropagation"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:generalization-and-memory",
+      "surface": "atlas-foundations",
+      "lessonId": "generalization-and-memory",
+      "articleId": "atlas-foundations:generalization-and-memory",
+      "prerequisiteIds": [
+        "atlas-foundations:forward-backpropagation"
+      ],
+      "nextIds": [
+        "atlas-foundations:hallucination-and-verification"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:generalization-and-memory"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:hallucination-and-verification",
+      "surface": "atlas-foundations",
+      "lessonId": "hallucination-and-verification",
+      "articleId": "atlas-foundations:hallucination-and-verification",
+      "prerequisiteIds": [
+        "atlas-foundations:generalization-and-memory"
+      ],
+      "nextIds": [
+        "atlas-foundations:tokenization"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:hallucination-and-verification"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:tokenization",
+      "surface": "atlas-foundations",
+      "lessonId": "tokenization",
+      "articleId": "atlas-foundations:tokenization",
+      "prerequisiteIds": [
+        "atlas-foundations:hallucination-and-verification"
+      ],
+      "nextIds": [
+        "atlas-foundations:embedding-and-position"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:tokenization"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:embedding-and-position",
+      "surface": "atlas-foundations",
+      "lessonId": "embedding-and-position",
+      "articleId": "atlas-foundations:embedding-and-position",
+      "prerequisiteIds": [
+        "atlas-foundations:tokenization"
+      ],
+      "nextIds": [
+        "atlas-foundations:self-attention"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:embedding-and-position"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:self-attention",
+      "surface": "atlas-foundations",
+      "lessonId": "self-attention",
+      "articleId": "atlas-foundations:self-attention",
+      "prerequisiteIds": [
+        "atlas-foundations:embedding-and-position"
+      ],
+      "nextIds": [
+        "atlas-foundations:multi-head-attention"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:self-attention"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:multi-head-attention",
+      "surface": "atlas-foundations",
+      "lessonId": "multi-head-attention",
+      "articleId": "atlas-foundations:multi-head-attention",
+      "prerequisiteIds": [
+        "atlas-foundations:self-attention"
+      ],
+      "nextIds": [
+        "atlas-foundations:context-window"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:multi-head-attention"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:context-window",
+      "surface": "atlas-foundations",
+      "lessonId": "context-window",
+      "articleId": "atlas-foundations:context-window",
+      "prerequisiteIds": [
+        "atlas-foundations:multi-head-attention"
+      ],
+      "nextIds": [
+        "atlas-foundations:kv-cache"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:context-window"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:kv-cache",
+      "surface": "atlas-foundations",
+      "lessonId": "kv-cache",
+      "articleId": "atlas-foundations:kv-cache",
+      "prerequisiteIds": [
+        "atlas-foundations:context-window"
+      ],
+      "nextIds": [
+        "atlas-foundations:pretraining"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:kv-cache"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:pretraining",
+      "surface": "atlas-foundations",
+      "lessonId": "pretraining",
+      "articleId": "atlas-foundations:pretraining",
+      "prerequisiteIds": [
+        "atlas-foundations:kv-cache"
+      ],
+      "nextIds": [
+        "atlas-foundations:post-training"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:pretraining"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:post-training",
+      "surface": "atlas-foundations",
+      "lessonId": "post-training",
+      "articleId": "atlas-foundations:post-training",
+      "prerequisiteIds": [
+        "atlas-foundations:pretraining"
+      ],
+      "nextIds": [
+        "atlas-foundations:evaluation"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:post-training"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:evaluation",
+      "surface": "atlas-foundations",
+      "lessonId": "evaluation",
+      "articleId": "atlas-foundations:evaluation",
+      "prerequisiteIds": [
+        "atlas-foundations:post-training"
+      ],
+      "nextIds": [
+        "atlas-foundations:deployment"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:evaluation"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:deployment",
+      "surface": "atlas-foundations",
+      "lessonId": "deployment",
+      "articleId": "atlas-foundations:deployment",
+      "prerequisiteIds": [
+        "atlas-foundations:evaluation"
+      ],
+      "nextIds": [
+        "atlas-foundations:parameter-vs-external-memory"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:deployment"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:parameter-vs-external-memory",
+      "surface": "atlas-foundations",
+      "lessonId": "parameter-vs-external-memory",
+      "articleId": "atlas-foundations:parameter-vs-external-memory",
+      "prerequisiteIds": [
+        "atlas-foundations:deployment"
+      ],
+      "nextIds": [
+        "atlas-foundations:retrieval-augmented-generation"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:parameter-vs-external-memory"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:retrieval-augmented-generation",
+      "surface": "atlas-foundations",
+      "lessonId": "retrieval-augmented-generation",
+      "articleId": "atlas-foundations:retrieval-augmented-generation",
+      "prerequisiteIds": [
+        "atlas-foundations:parameter-vs-external-memory"
+      ],
+      "nextIds": [
+        "atlas-foundations:tool-use"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:retrieval-augmented-generation"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:tool-use",
+      "surface": "atlas-foundations",
+      "lessonId": "tool-use",
+      "articleId": "atlas-foundations:tool-use",
+      "prerequisiteIds": [
+        "atlas-foundations:retrieval-augmented-generation"
+      ],
+      "nextIds": [
+        "atlas-foundations:agent-loop"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:tool-use"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:agent-loop",
+      "surface": "atlas-foundations",
+      "lessonId": "agent-loop",
+      "articleId": "atlas-foundations:agent-loop",
+      "prerequisiteIds": [
+        "atlas-foundations:tool-use"
+      ],
+      "nextIds": [
+        "atlas-foundations:state-action-dynamics"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:agent-loop"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:state-action-dynamics",
+      "surface": "atlas-foundations",
+      "lessonId": "state-action-dynamics",
+      "articleId": "atlas-foundations:state-action-dynamics",
+      "prerequisiteIds": [
+        "atlas-foundations:agent-loop"
+      ],
+      "nextIds": [
+        "atlas-foundations:planning-and-control"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:state-action-dynamics"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:planning-and-control",
+      "surface": "atlas-foundations",
+      "lessonId": "planning-and-control",
+      "articleId": "atlas-foundations:planning-and-control",
+      "prerequisiteIds": [
+        "atlas-foundations:state-action-dynamics"
+      ],
+      "nextIds": [
+        "atlas-foundations:world-model-limitations"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:planning-and-control"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:world-model-limitations",
+      "surface": "atlas-foundations",
+      "lessonId": "world-model-limitations",
+      "articleId": "atlas-foundations:world-model-limitations",
+      "prerequisiteIds": [
+        "atlas-foundations:planning-and-control"
+      ],
+      "nextIds": [
+        "atlas-foundations:workload-shape"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:world-model-limitations"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:workload-shape",
+      "surface": "atlas-foundations",
+      "lessonId": "workload-shape",
+      "articleId": "atlas-foundations:workload-shape",
+      "prerequisiteIds": [
+        "atlas-foundations:world-model-limitations"
+      ],
+      "nextIds": [
+        "atlas-foundations:cpu-gpu-asic-npu"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:workload-shape"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:cpu-gpu-asic-npu",
+      "surface": "atlas-foundations",
+      "lessonId": "cpu-gpu-asic-npu",
+      "articleId": "atlas-foundations:cpu-gpu-asic-npu",
+      "prerequisiteIds": [
+        "atlas-foundations:workload-shape"
+      ],
+      "nextIds": [
+        "atlas-foundations:precision-and-tensor-core"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:cpu-gpu-asic-npu"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:precision-and-tensor-core",
+      "surface": "atlas-foundations",
+      "lessonId": "precision-and-tensor-core",
+      "articleId": "atlas-foundations:precision-and-tensor-core",
+      "prerequisiteIds": [
+        "atlas-foundations:cpu-gpu-asic-npu"
+      ],
+      "nextIds": [
+        "atlas-foundations:memory-wall"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:precision-and-tensor-core"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:memory-wall",
+      "surface": "atlas-foundations",
+      "lessonId": "memory-wall",
+      "articleId": "atlas-foundations:memory-wall",
+      "prerequisiteIds": [
+        "atlas-foundations:precision-and-tensor-core"
+      ],
+      "nextIds": [
+        "atlas-foundations:hbm"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:memory-wall"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:hbm",
+      "surface": "atlas-foundations",
+      "lessonId": "hbm",
+      "articleId": "atlas-foundations:hbm",
+      "prerequisiteIds": [
+        "atlas-foundations:memory-wall"
+      ],
+      "nextIds": [
+        "atlas-foundations:interconnect"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:hbm"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:interconnect",
+      "surface": "atlas-foundations",
+      "lessonId": "interconnect",
+      "articleId": "atlas-foundations:interconnect",
+      "prerequisiteIds": [
+        "atlas-foundations:hbm"
+      ],
+      "nextIds": [
+        "atlas-foundations:advanced-packaging"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:interconnect"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:advanced-packaging",
+      "surface": "atlas-foundations",
+      "lessonId": "advanced-packaging",
+      "articleId": "atlas-foundations:advanced-packaging",
+      "prerequisiteIds": [
+        "atlas-foundations:interconnect"
+      ],
+      "nextIds": [
+        "atlas-foundations:rack-density-and-cooling"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:advanced-packaging"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:rack-density-and-cooling",
+      "surface": "atlas-foundations",
+      "lessonId": "rack-density-and-cooling",
+      "articleId": "atlas-foundations:rack-density-and-cooling",
+      "prerequisiteIds": [
+        "atlas-foundations:advanced-packaging"
+      ],
+      "nextIds": [
+        "atlas-foundations:power-and-grid"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:rack-density-and-cooling"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:power-and-grid",
+      "surface": "atlas-foundations",
+      "lessonId": "power-and-grid",
+      "articleId": "atlas-foundations:power-and-grid",
+      "prerequisiteIds": [
+        "atlas-foundations:rack-density-and-cooling"
+      ],
+      "nextIds": [
+        "atlas-foundations:unit-economics"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:power-and-grid"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:unit-economics",
+      "surface": "atlas-foundations",
+      "lessonId": "unit-economics",
+      "articleId": "atlas-foundations:unit-economics",
+      "prerequisiteIds": [
+        "atlas-foundations:power-and-grid"
+      ],
+      "nextIds": [
+        "atlas-foundations:utilization"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:unit-economics"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:utilization",
+      "surface": "atlas-foundations",
+      "lessonId": "utilization",
+      "articleId": "atlas-foundations:utilization",
+      "prerequisiteIds": [
+        "atlas-foundations:unit-economics"
+      ],
+      "nextIds": [
+        "atlas-foundations:capacity-and-yield"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:utilization"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:capacity-and-yield",
+      "surface": "atlas-foundations",
+      "lessonId": "capacity-and-yield",
+      "articleId": "atlas-foundations:capacity-and-yield",
+      "prerequisiteIds": [
+        "atlas-foundations:utilization"
+      ],
+      "nextIds": [
+        "atlas-foundations:fcf-and-funding"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:capacity-and-yield"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:fcf-and-funding",
+      "surface": "atlas-foundations",
+      "lessonId": "fcf-and-funding",
+      "articleId": "atlas-foundations:fcf-and-funding",
+      "prerequisiteIds": [
+        "atlas-foundations:capacity-and-yield"
+      ],
+      "nextIds": [
+        "atlas-foundations:roic-and-counter-scenario"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:fcf-and-funding"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:roic-and-counter-scenario",
+      "surface": "atlas-foundations",
+      "lessonId": "roic-and-counter-scenario",
+      "articleId": "atlas-foundations:roic-and-counter-scenario",
+      "prerequisiteIds": [
+        "atlas-foundations:fcf-and-funding"
+      ],
+      "nextIds": [
+        "atlas-foundations:claim-source-as-of"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:roic-and-counter-scenario"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:claim-source-as-of",
+      "surface": "atlas-foundations",
+      "lessonId": "claim-source-as-of",
+      "articleId": "atlas-foundations:claim-source-as-of",
+      "prerequisiteIds": [
+        "atlas-foundations:roic-and-counter-scenario"
+      ],
+      "nextIds": [
+        "atlas-foundations:human-review"
+      ],
+      "expertRouteIds": [
+        "atlas-foundations:claim-source-as-of"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations:human-review",
+      "surface": "atlas-foundations",
+      "lessonId": "human-review",
+      "articleId": "atlas-foundations:human-review",
+      "prerequisiteIds": [
+        "atlas-foundations:claim-source-as-of"
+      ],
+      "nextIds": [],
+      "expertRouteIds": [
+        "atlas-foundations:human-review"
+      ],
+      "pathIds": [
+        "atlas-foundations-complete"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    }
+  ],
+  "paths": [
+    {
+      "id": "principles-chapter-A",
+      "title": "세상을 보는 출발점",
+      "description": "희소성은 선택을 만들고 생산성·소유·계약은 선택의 결과를 축적 가능한 부로 바꾼다.",
+      "nodeIds": [
+        "principles:A1",
+        "principles:A2",
+        "principles:A3",
+        "principles:A4"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-B",
+      "title": "돈과 구매력",
+      "description": "돈은 교환·계산·저장의 기능을 하지만 물가와 기대가 구매력을 바꾼다.",
+      "nodeIds": [
+        "principles:B1",
+        "principles:B2",
+        "principles:B3",
+        "principles:B4"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-C",
+      "title": "신용·은행·부채",
+      "description": "신용은 시간축을 연결해 투자를 가능하게 하지만 담보·만기·상환 위험을 함께 만든다.",
+      "nodeIds": [
+        "principles:C1",
+        "principles:C2",
+        "principles:C3",
+        "principles:C4"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-D",
+      "title": "금리와 중앙은행",
+      "description": "정책금리와 시장금리는 할인율·차입비용·환율·자산가격·수요를 서로 다른 경로로 움직인다.",
+      "nodeIds": [
+        "principles:D1",
+        "principles:D2",
+        "principles:D3",
+        "principles:D4",
+        "principles:D5"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-E",
+      "title": "채권·달러·글로벌 금융",
+      "description": "채권의 현금흐름·금리·통화의 상대가격이 글로벌 자금 조달과 위험 선호를 연결한다.",
+      "nodeIds": [
+        "principles:E1",
+        "principles:E2",
+        "principles:E3",
+        "principles:E4",
+        "principles:E5",
+        "principles:E6",
+        "principles:E7"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-F",
+      "title": "정부·재정·국가",
+      "description": "세입·지출·차입·정책 우선순위는 수요와 공급능력뿐 아니라 산업·인프라·분배를 바꾼다.",
+      "nodeIds": [
+        "principles:F1",
+        "principles:F2",
+        "principles:F3",
+        "principles:F4"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-G",
+      "title": "기업과 주식시장",
+      "description": "기업은 제품·서비스·현금흐름을 만들고 주식 가격은 그 현금흐름의 기대·위험·자본비용을 반영한다.",
+      "nodeIds": [
+        "principles:G1",
+        "principles:G2",
+        "principles:G3",
+        "principles:G4",
+        "principles:G5",
+        "principles:G6",
+        "principles:G7",
+        "principles:G8"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-H",
+      "title": "시장은 어떻게 가격을 만드는가",
+      "description": "가격은 가치의 단순 복사본이 아니라 서로 다른 정보·시간축·위험선호가 만나는 거래 결과다.",
+      "nodeIds": [
+        "principles:H1",
+        "principles:H2",
+        "principles:H3",
+        "principles:H4",
+        "principles:H5"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-I",
+      "title": "경기순환과 자산배분",
+      "description": "사이클은 하나의 시계가 아니라 재고·고용·이익·신용·유동성이 다른 속도로 움직이는 과정이다.",
+      "nodeIds": [
+        "principles:I1",
+        "principles:I2",
+        "principles:I3",
+        "principles:I4",
+        "principles:I5"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-J",
+      "title": "투자와 리스크",
+      "description": "투자는 기대수익의 선택이 아니라 손실·불확실성·포지션 크기·검증 절차를 함께 설계하는 일이다.",
+      "nodeIds": [
+        "principles:J1",
+        "principles:J2",
+        "principles:J3",
+        "principles:J4",
+        "principles:J5"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-K",
+      "title": "산업을 읽는 공통 프레임",
+      "description": "산업은 기업 목록이 아니라 수요·공급·병목·이익 풀·재투자의 연결망이다.",
+      "nodeIds": [
+        "principles:K1",
+        "principles:K2",
+        "principles:K3",
+        "principles:K4",
+        "principles:K5",
+        "principles:K6",
+        "principles:K7",
+        "principles:K8",
+        "principles:K9",
+        "principles:K10",
+        "principles:K11",
+        "principles:K12"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-L",
+      "title": "AI·반도체·데이터센터",
+      "description": "모델 능력은 소프트웨어만의 결과가 아니라 workload와 물리 인프라·가동률·자본비용의 결합이다.",
+      "nodeIds": [
+        "principles:L1",
+        "principles:L2",
+        "principles:L3",
+        "principles:L4",
+        "principles:L5",
+        "principles:L6",
+        "principles:L7",
+        "principles:L8",
+        "principles:L9",
+        "principles:L10",
+        "principles:L11",
+        "principles:L12",
+        "principles:L13",
+        "principles:L14",
+        "principles:L15",
+        "principles:L16"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-M",
+      "title": "전력시장과 전력망",
+      "description": "설치된 서버 수보다 계통 접속·전력 품질·냉각·수요 시간대가 사용 가능한 compute를 결정한다.",
+      "nodeIds": [
+        "principles:M1",
+        "principles:M2",
+        "principles:M3",
+        "principles:M4",
+        "principles:M5",
+        "principles:M6",
+        "principles:M7",
+        "principles:M8",
+        "principles:M9",
+        "principles:M10",
+        "principles:M11",
+        "principles:M12"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-N",
+      "title": "후속 산업 지도",
+      "description": "후속 산업은 기술 시연이 아니라 단위경제·인증·조달·현장 통합·상환·반복 생산으로 평가한다.",
+      "nodeIds": [
+        "principles:N1",
+        "principles:N2",
+        "principles:N3",
+        "principles:N4",
+        "principles:N5",
+        "principles:N6",
+        "principles:N7",
+        "principles:N8",
+        "principles:N9",
+        "principles:N10",
+        "principles:N11",
+        "principles:N12",
+        "principles:N13",
+        "principles:N14",
+        "principles:N15"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles-chapter-O",
+      "title": "한국 투자자를 위한 연결",
+      "description": "한국 투자자는 글로벌 원리와 국내 기업·환율·정책·자본구조의 전달 경로를 분리해 읽어야 한다.",
+      "nodeIds": [
+        "principles:O1",
+        "principles:O2",
+        "principles:O3",
+        "principles:O4",
+        "principles:O5"
+      ],
+      "surface": "principles",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "atlas-foundations-complete",
+      "title": "AI 시대 지식 지도 기초 경로",
+      "description": "AI 기초 48개 lesson을 물리·모델·시스템·경제성 순서로 연결한다.",
+      "nodeIds": [
+        "atlas-foundations:energy-and-power",
+        "atlas-foundations:vectors-and-matrices",
+        "atlas-foundations:probability-and-statistics",
+        "atlas-foundations:parallel-processing",
+        "atlas-foundations:silicon-and-doping",
+        "atlas-foundations:bottlenecks-and-scarcity",
+        "atlas-foundations:capex-and-depreciation",
+        "atlas-foundations:rules-vs-learning",
+        "atlas-foundations:model-parameters-training",
+        "atlas-foundations:data-quality",
+        "atlas-foundations:learning-types",
+        "atlas-foundations:neural-networks",
+        "atlas-foundations:forward-backpropagation",
+        "atlas-foundations:generalization-and-memory",
+        "atlas-foundations:hallucination-and-verification",
+        "atlas-foundations:tokenization",
+        "atlas-foundations:embedding-and-position",
+        "atlas-foundations:self-attention",
+        "atlas-foundations:multi-head-attention",
+        "atlas-foundations:context-window",
+        "atlas-foundations:kv-cache",
+        "atlas-foundations:pretraining",
+        "atlas-foundations:post-training",
+        "atlas-foundations:evaluation",
+        "atlas-foundations:deployment",
+        "atlas-foundations:parameter-vs-external-memory",
+        "atlas-foundations:retrieval-augmented-generation",
+        "atlas-foundations:tool-use",
+        "atlas-foundations:agent-loop",
+        "atlas-foundations:state-action-dynamics",
+        "atlas-foundations:planning-and-control",
+        "atlas-foundations:world-model-limitations",
+        "atlas-foundations:workload-shape",
+        "atlas-foundations:cpu-gpu-asic-npu",
+        "atlas-foundations:precision-and-tensor-core",
+        "atlas-foundations:memory-wall",
+        "atlas-foundations:hbm",
+        "atlas-foundations:interconnect",
+        "atlas-foundations:advanced-packaging",
+        "atlas-foundations:rack-density-and-cooling",
+        "atlas-foundations:power-and-grid",
+        "atlas-foundations:unit-economics",
+        "atlas-foundations:utilization",
+        "atlas-foundations:capacity-and-yield",
+        "atlas-foundations:fcf-and-funding",
+        "atlas-foundations:roic-and-counter-scenario",
+        "atlas-foundations:claim-source-as-of",
+        "atlas-foundations:human-review"
+      ],
+      "surface": "atlas-foundations",
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    }
+  ]
+}

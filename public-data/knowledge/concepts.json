@@ -1,0 +1,3014 @@
+{
+  "schemaVersion": "knowledge-concepts.v1",
+  "generatedAt": "2026-08-11",
+  "status": "CANONICAL_REFERENCE_MANIFEST",
+  "compatibility": "legacy page IDs remain valid only through aliases.json",
+  "counts": {
+    "concepts": 155,
+    "principles": 60,
+    "atlas": 95,
+    "equivalenceGroups": 4
+  },
+  "concepts": [
+    {
+      "canonicalId": "principles:ai-era",
+      "legacyId": "ai-era",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "AI 시대",
+      "kind": "root",
+      "layer": "L0",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:ai-workload",
+      "legacyId": "ai-workload",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "AI workload",
+      "kind": "concept",
+      "layer": "L1",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:compute",
+      "legacyId": "compute",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "계산",
+      "kind": "infrastructure",
+      "layer": "L2",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:memory-hbm",
+      "legacyId": "memory-hbm",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "메모리·HBM",
+      "kind": "infrastructure",
+      "layer": "L2",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:advanced-packaging",
+      "legacyId": "advanced-packaging",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "첨단 패키징",
+      "kind": "infrastructure",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:storage",
+      "legacyId": "storage",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "스토리지",
+      "kind": "infrastructure",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:power-cooling",
+      "legacyId": "power-cooling",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "전력·냉각",
+      "kind": "infrastructure",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:ai-capex",
+      "legacyId": "ai-capex",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "AI CAPEX",
+      "kind": "economics",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:visibility",
+      "legacyId": "visibility",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "매출 가시성",
+      "kind": "economics",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:financing",
+      "legacyId": "financing",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "금융·신용",
+      "kind": "economics",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:geo-rates",
+      "legacyId": "geo-rates",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "지정학·원자재·금리",
+      "kind": "macro",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:evaluation",
+      "legacyId": "evaluation",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "검증 프레임",
+      "kind": "method",
+      "layer": "L6",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:scarcity-choice",
+      "legacyId": "scarcity-choice",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "희소성과 선택",
+      "kind": "principle",
+      "layer": "L0",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:productivity-wealth",
+      "legacyId": "productivity-wealth",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "생산성과 부",
+      "kind": "principle",
+      "layer": "L0",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:capitalism-engine",
+      "legacyId": "capitalism-engine",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "자본주의의 엔진",
+      "kind": "principle",
+      "layer": "L1",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:money-purchasing-power",
+      "legacyId": "money-purchasing-power",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "돈과 구매력",
+      "kind": "principle",
+      "layer": "L1",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:inflation-deflation",
+      "legacyId": "inflation-deflation",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "인플레이션과 디플레이션",
+      "kind": "principle",
+      "layer": "L1",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:credit-banks-debt",
+      "legacyId": "credit-banks-debt",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "신용·은행·부채",
+      "kind": "principle",
+      "layer": "L2",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:interest-central-bank",
+      "legacyId": "interest-central-bank",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "금리와 중앙은행",
+      "kind": "principle",
+      "layer": "L2",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:bonds-dollar-currency",
+      "legacyId": "bonds-dollar-currency",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "채권·달러·환율",
+      "kind": "principle",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:government-fiscal",
+      "legacyId": "government-fiscal",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "정부·재정·국가",
+      "kind": "principle",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:company-stock-valuation",
+      "legacyId": "company-stock-valuation",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "기업·주식·밸류에이션",
+      "kind": "principle",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:market-price-discovery",
+      "legacyId": "market-price-discovery",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "시장과 가격발견",
+      "kind": "principle",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:cycles-allocation",
+      "legacyId": "cycles-allocation",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "경기순환과 자산배분",
+      "kind": "principle",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:investment-risk",
+      "legacyId": "investment-risk",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "투자와 리스크",
+      "kind": "principle",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:industry-value-chain",
+      "legacyId": "industry-value-chain",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "산업 가치사슬",
+      "kind": "principle",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:power-electricity-system",
+      "legacyId": "power-electricity-system",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "전력 시스템",
+      "kind": "infrastructure",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:power-generation-market",
+      "legacyId": "power-generation-market",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "발전 시장",
+      "kind": "infrastructure",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:grid-transmission-distribution",
+      "legacyId": "grid-transmission-distribution",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "전력망과 접속",
+      "kind": "infrastructure",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:energy-storage",
+      "legacyId": "energy-storage",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "저장과 수요반응",
+      "kind": "infrastructure",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:data-center-power-demand",
+      "legacyId": "data-center-power-demand",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "데이터센터 전력 수요",
+      "kind": "infrastructure",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:industrial-energy-efficiency",
+      "legacyId": "industrial-energy-efficiency",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "산업 효율과 냉각",
+      "kind": "industry",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:critical-minerals",
+      "legacyId": "critical-minerals",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "핵심 광물과 소재",
+      "kind": "industry",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:robotics-automation",
+      "legacyId": "robotics-automation",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "로보틱스와 자동화",
+      "kind": "industry",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:defense-space",
+      "legacyId": "defense-space",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "방산과 우주",
+      "kind": "industry",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:biotech-healthcare",
+      "legacyId": "biotech-healthcare",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "바이오와 헬스케어",
+      "kind": "industry",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:finance-software-consumer",
+      "legacyId": "finance-software-consumer",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "금융·소프트웨어·소비자 서비스",
+      "kind": "industry",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:us-korea-market",
+      "legacyId": "us-korea-market",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "미국·한국 시장 연결",
+      "kind": "market",
+      "layer": "L6",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:krw-dollar-foreign-flow",
+      "legacyId": "krw-dollar-foreign-flow",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "원화·달러·외국인 자금",
+      "kind": "macro",
+      "layer": "L6",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:korea-semiconductor-policy",
+      "legacyId": "korea-semiconductor-policy",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "한국 반도체 정책과 공급망",
+      "kind": "policy",
+      "layer": "L6",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:tax-accounting-cashflow",
+      "legacyId": "tax-accounting-cashflow",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "세금·회계·현금흐름",
+      "kind": "method",
+      "layer": "L6",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:physical-ai-perception",
+      "legacyId": "physical-ai-perception",
+      "surface": "principles",
+      "equivalenceGroup": "equivalence:physical-ai-perception",
+      "title": "Physical AI 인지·센서 융합",
+      "kind": "industry",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:physical-ai-planning",
+      "legacyId": "physical-ai-planning",
+      "surface": "principles",
+      "equivalenceGroup": "equivalence:physical-ai-planning",
+      "title": "Physical AI 계획·경로 생성",
+      "kind": "industry",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:physical-ai-control",
+      "legacyId": "physical-ai-control",
+      "surface": "principles",
+      "equivalenceGroup": "equivalence:physical-ai-control",
+      "title": "Physical AI 제어·작동",
+      "kind": "industry",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:robot-unit-economics",
+      "legacyId": "robot-unit-economics",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "로봇 단위경제",
+      "kind": "economics",
+      "layer": "L6",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:defense-autonomy",
+      "legacyId": "defense-autonomy",
+      "surface": "principles",
+      "equivalenceGroup": "equivalence:defense-autonomy",
+      "title": "방산 자율화와 인간 통제",
+      "kind": "industry",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:defense-procurement",
+      "legacyId": "defense-procurement",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "방산 조달과 생산 지속성",
+      "kind": "economics",
+      "layer": "L6",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:space-launch-economics",
+      "legacyId": "space-launch-economics",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "우주 발사 서비스",
+      "kind": "industry",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:space-systems-economics",
+      "legacyId": "space-systems-economics",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "우주 시스템 가치사슬",
+      "kind": "economics",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:enterprise-ai-workflow",
+      "legacyId": "enterprise-ai-workflow",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "기업 AI 워크플로 통합",
+      "kind": "industry",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:ai-workflow-adoption",
+      "legacyId": "ai-workflow-adoption",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "AI 업무 도입과 전환비용",
+      "kind": "economics",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:application-roi-evidence",
+      "legacyId": "application-roi-evidence",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "AI 애플리케이션 ROI 검증",
+      "kind": "method",
+      "layer": "L6",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:rare-earths-supply-chain",
+      "legacyId": "rare-earths-supply-chain",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "희토류·자석 공급망",
+      "kind": "industry",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:refining-qualification",
+      "legacyId": "refining-qualification",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "정제·재활용·고객 인증",
+      "kind": "process",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:materials-policy",
+      "legacyId": "materials-policy",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "핵심소재 산업정책",
+      "kind": "policy",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:hbm-system-bottleneck",
+      "legacyId": "hbm-system-bottleneck",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "HBM 시스템 병목",
+      "kind": "infrastructure",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:chiplet-economics",
+      "legacyId": "chiplet-economics",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "칩렛·패키지 경제성",
+      "kind": "economics",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:quantum-platform",
+      "legacyId": "quantum-platform",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "양자 플랫폼과 측정",
+      "kind": "future",
+      "layer": "L3",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:photonic-link-economics",
+      "legacyId": "photonic-link-economics",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "포토닉 링크와 전력/비트",
+      "kind": "future",
+      "layer": "L4",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "principles:data-center-lease-burden",
+      "legacyId": "data-center-lease-burden",
+      "surface": "principles",
+      "equivalenceGroup": null,
+      "title": "데이터센터 임차·자금 부담",
+      "kind": "finance",
+      "layer": "L5",
+      "domainId": null,
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/ui/pages/principles.js",
+        "locator": "MARKET_PRINCIPLES_CATALOG.nodes",
+        "field": "nodes[].id"
+      },
+      "sourceIds": []
+    },
+    {
+      "canonicalId": "atlas:cloud-hyperscaler",
+      "legacyId": "cloud-hyperscaler",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Hyperscaler cloud",
+      "kind": "business-model",
+      "layer": null,
+      "domainId": "domain-cloud-platform",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ]
+    },
+    {
+      "canonicalId": "atlas:cloud-ai-service",
+      "legacyId": "cloud-ai-service",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Managed AI service",
+      "kind": "service",
+      "layer": null,
+      "domainId": "domain-cloud-platform",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ]
+    },
+    {
+      "canonicalId": "atlas:cloud-utilization",
+      "legacyId": "cloud-utilization",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Utilization / workload mix",
+      "kind": "economics",
+      "layer": null,
+      "domainId": "domain-cloud-platform",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ]
+    },
+    {
+      "canonicalId": "atlas:cloud-commitments",
+      "legacyId": "cloud-commitments",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Cloud commitments",
+      "kind": "contract",
+      "layer": null,
+      "domainId": "domain-cloud-platform",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ]
+    },
+    {
+      "canonicalId": "atlas:cloud-depreciation",
+      "legacyId": "cloud-depreciation",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Depreciation cycle",
+      "kind": "finance",
+      "layer": null,
+      "domainId": "domain-cloud-platform",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "hyperscaler annual report",
+        "SEC 10-K/10-Q"
+      ]
+    },
+    {
+      "canonicalId": "atlas:neocloud-gpu-rental",
+      "legacyId": "neocloud-gpu-rental",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "GPU rental",
+      "kind": "business-model",
+      "layer": null,
+      "domainId": "domain-neocloud-finance",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ]
+    },
+    {
+      "canonicalId": "atlas:neocloud-capacity-reservation",
+      "legacyId": "neocloud-capacity-reservation",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Capacity reservation",
+      "kind": "contract",
+      "layer": null,
+      "domainId": "domain-neocloud-finance",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ]
+    },
+    {
+      "canonicalId": "atlas:neocloud-lease-burden",
+      "legacyId": "neocloud-lease-burden",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Lease burden",
+      "kind": "finance",
+      "layer": null,
+      "domainId": "domain-neocloud-finance",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ]
+    },
+    {
+      "canonicalId": "atlas:neocloud-customer-concentration",
+      "legacyId": "neocloud-customer-concentration",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Customer concentration",
+      "kind": "risk",
+      "layer": null,
+      "domainId": "domain-neocloud-finance",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ]
+    },
+    {
+      "canonicalId": "atlas:neocloud-rental-yield",
+      "legacyId": "neocloud-rental-yield",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Rental yield minus funding cost",
+      "kind": "economics",
+      "layer": null,
+      "domainId": "domain-neocloud-finance",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC 10-K/S-1",
+        "debt and lease notes"
+      ]
+    },
+    {
+      "canonicalId": "atlas:compute-gpu",
+      "legacyId": "compute-gpu",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "GPU",
+      "kind": "accelerator",
+      "layer": null,
+      "domainId": "domain-compute-silicon",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:compute-asic",
+      "legacyId": "compute-asic",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "ASIC / custom accelerator",
+      "kind": "accelerator",
+      "layer": null,
+      "domainId": "domain-compute-silicon",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:compute-npu",
+      "legacyId": "compute-npu",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "NPU / edge accelerator",
+      "kind": "accelerator",
+      "layer": null,
+      "domainId": "domain-compute-silicon",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:compute-precision",
+      "legacyId": "compute-precision",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "FP/BF/INT precision",
+      "kind": "technical",
+      "layer": null,
+      "domainId": "domain-compute-silicon",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:compute-interconnect",
+      "legacyId": "compute-interconnect",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Accelerator interconnect",
+      "kind": "technical",
+      "layer": null,
+      "domainId": "domain-compute-silicon",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "architecture documents",
+        "IEEE / ISSCC / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:memory-sram",
+      "legacyId": "memory-sram",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "SRAM / cache",
+      "kind": "memory",
+      "layer": null,
+      "domainId": "domain-memory-storage",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ]
+    },
+    {
+      "canonicalId": "atlas:memory-dram-hbm",
+      "legacyId": "memory-dram-hbm",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "DRAM / HBM",
+      "kind": "memory",
+      "layer": null,
+      "domainId": "domain-memory-storage",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ]
+    },
+    {
+      "canonicalId": "atlas:memory-nand",
+      "legacyId": "memory-nand",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "NAND flash",
+      "kind": "memory",
+      "layer": null,
+      "domainId": "domain-memory-storage",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ]
+    },
+    {
+      "canonicalId": "atlas:memory-enterprise-ssd",
+      "legacyId": "memory-enterprise-ssd",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Enterprise / data-center SSD",
+      "kind": "storage",
+      "layer": null,
+      "domainId": "domain-memory-storage",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ]
+    },
+    {
+      "canonicalId": "atlas:memory-cxl",
+      "legacyId": "memory-cxl",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "CXL / pooled memory",
+      "kind": "interface",
+      "layer": null,
+      "domainId": "domain-memory-storage",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "JEDEC",
+        "company IR",
+        "SNIA"
+      ]
+    },
+    {
+      "canonicalId": "atlas:foundry-design-ecosystem",
+      "legacyId": "foundry-design-ecosystem",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Design ecosystem",
+      "kind": "value-chain",
+      "layer": null,
+      "domainId": "domain-foundry-equipment",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:foundry-process-node",
+      "legacyId": "foundry-process-node",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Process node",
+      "kind": "manufacturing",
+      "layer": null,
+      "domainId": "domain-foundry-equipment",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:foundry-equipment",
+      "legacyId": "foundry-equipment",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Process equipment",
+      "kind": "equipment",
+      "layer": null,
+      "domainId": "domain-foundry-equipment",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:foundry-materials",
+      "legacyId": "foundry-materials",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Materials / chemicals",
+      "kind": "materials",
+      "layer": null,
+      "domainId": "domain-foundry-equipment",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:foundry-capacity-yield",
+      "legacyId": "foundry-capacity-yield",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Capacity / yield / utilization",
+      "kind": "economics",
+      "layer": null,
+      "domainId": "domain-foundry-equipment",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "company IR",
+        "SEMI",
+        "IEEE / IEDM"
+      ]
+    },
+    {
+      "canonicalId": "atlas:package-2-5d",
+      "legacyId": "package-2-5d",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "2.5D integration",
+      "kind": "packaging",
+      "layer": null,
+      "domainId": "domain-packaging-substrate",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:package-3d-stacking",
+      "legacyId": "package-3d-stacking",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "3D stacking",
+      "kind": "packaging",
+      "layer": null,
+      "domainId": "domain-packaging-substrate",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:package-interposer",
+      "legacyId": "package-interposer",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Interposer / bridge",
+      "kind": "packaging",
+      "layer": null,
+      "domainId": "domain-packaging-substrate",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:package-substrate",
+      "legacyId": "package-substrate",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "ABF / FC-BGA substrate",
+      "kind": "materials",
+      "layer": null,
+      "domainId": "domain-packaging-substrate",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:package-glass",
+      "legacyId": "package-glass",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Glass substrate",
+      "kind": "emerging-technology",
+      "layer": null,
+      "domainId": "domain-packaging-substrate",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "TSMC technology",
+        "UCIe",
+        "substrate vendor IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:network-switch",
+      "legacyId": "network-switch",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Switch silicon",
+      "kind": "network",
+      "layer": null,
+      "domainId": "domain-network-photonics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ]
+    },
+    {
+      "canonicalId": "atlas:network-optical-module",
+      "legacyId": "network-optical-module",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Optical module",
+      "kind": "photonics",
+      "layer": null,
+      "domainId": "domain-network-photonics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ]
+    },
+    {
+      "canonicalId": "atlas:network-silicon-photonics",
+      "legacyId": "network-silicon-photonics",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Silicon photonics",
+      "kind": "photonics",
+      "layer": null,
+      "domainId": "domain-network-photonics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ]
+    },
+    {
+      "canonicalId": "atlas:network-cpo",
+      "legacyId": "network-cpo",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Co-packaged optics",
+      "kind": "photonics",
+      "layer": null,
+      "domainId": "domain-network-photonics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ]
+    },
+    {
+      "canonicalId": "atlas:network-fabric",
+      "legacyId": "network-fabric",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "AI cluster fabric",
+      "kind": "system",
+      "layer": null,
+      "domainId": "domain-network-photonics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "OFC",
+        "IEEE",
+        "switch and optics vendors"
+      ]
+    },
+    {
+      "canonicalId": "atlas:aidc-rack-density",
+      "legacyId": "aidc-rack-density",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Rack density",
+      "kind": "facility",
+      "layer": null,
+      "domainId": "domain-aidc-cooling",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:aidc-liquid-cooling",
+      "legacyId": "aidc-liquid-cooling",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Liquid cooling",
+      "kind": "thermal",
+      "layer": null,
+      "domainId": "domain-aidc-cooling",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:aidc-thermal-design",
+      "legacyId": "aidc-thermal-design",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Thermal design",
+      "kind": "engineering",
+      "layer": null,
+      "domainId": "domain-aidc-cooling",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:aidc-server-platform",
+      "legacyId": "aidc-server-platform",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Server platform",
+      "kind": "system",
+      "layer": null,
+      "domainId": "domain-aidc-cooling",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:aidc-pue",
+      "legacyId": "aidc-pue",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "PUE / facility efficiency",
+      "kind": "metric",
+      "layer": null,
+      "domainId": "domain-aidc-cooling",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "DOE/LBNL",
+        "data-center operators",
+        "server OEM IR"
+      ]
+    },
+    {
+      "canonicalId": "atlas:power-it-load",
+      "legacyId": "power-it-load",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Accelerator IT load",
+      "kind": "demand",
+      "layer": null,
+      "domainId": "domain-power-grid",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ]
+    },
+    {
+      "canonicalId": "atlas:power-generation",
+      "legacyId": "power-generation",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Generation mix",
+      "kind": "energy",
+      "layer": null,
+      "domainId": "domain-power-grid",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ]
+    },
+    {
+      "canonicalId": "atlas:power-transmission",
+      "legacyId": "power-transmission",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Transmission / substation",
+      "kind": "grid",
+      "layer": null,
+      "domainId": "domain-power-grid",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ]
+    },
+    {
+      "canonicalId": "atlas:power-interconnection",
+      "legacyId": "power-interconnection",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Interconnection queue",
+      "kind": "regulation",
+      "layer": null,
+      "domainId": "domain-power-grid",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ]
+    },
+    {
+      "canonicalId": "atlas:power-transformer",
+      "legacyId": "power-transformer",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Transformer / switchgear",
+      "kind": "equipment",
+      "layer": null,
+      "domainId": "domain-power-grid",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA Energy and AI",
+        "DOE/LBNL",
+        "grid operator"
+      ]
+    },
+    {
+      "canonicalId": "atlas:edge-soc-npu",
+      "legacyId": "edge-soc-npu",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Edge SoC / NPU",
+      "kind": "hardware",
+      "layer": null,
+      "domainId": "domain-on-device-physical-ai",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:edge-memory-power",
+      "legacyId": "edge-memory-power",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Memory / power envelope",
+      "kind": "constraint",
+      "layer": null,
+      "domainId": "domain-on-device-physical-ai",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:physical-ai-sensing",
+      "legacyId": "physical-ai-sensing",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Sensors / perception",
+      "kind": "robotics",
+      "layer": null,
+      "domainId": "domain-on-device-physical-ai",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:physical-ai-control",
+      "legacyId": "physical-ai-control",
+      "surface": "atlas",
+      "equivalenceGroup": "equivalence:physical-ai-control",
+      "title": "Control / actuation",
+      "kind": "robotics",
+      "layer": null,
+      "domainId": "domain-on-device-physical-ai",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:physical-ai-digital-twin",
+      "legacyId": "physical-ai-digital-twin",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Simulation / digital twin",
+      "kind": "software",
+      "layer": null,
+      "domainId": "domain-on-device-physical-ai",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SoC/NPU documentation",
+        "robotics papers",
+        "simulation frameworks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:economics-revenue-model",
+      "legacyId": "economics-revenue-model",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Revenue model",
+      "kind": "finance",
+      "layer": null,
+      "domainId": "domain-ai-economics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:economics-capex",
+      "legacyId": "economics-capex",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "CAPEX / lease",
+      "kind": "finance",
+      "layer": null,
+      "domainId": "domain-ai-economics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:economics-depreciation",
+      "legacyId": "economics-depreciation",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Depreciation / useful life",
+      "kind": "accounting",
+      "layer": null,
+      "domainId": "domain-ai-economics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:economics-fcf",
+      "legacyId": "economics-fcf",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "FCF / funding",
+      "kind": "finance",
+      "layer": null,
+      "domainId": "domain-ai-economics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:economics-roic",
+      "legacyId": "economics-roic",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "ROIC / counter-scenario",
+      "kind": "investment-framework",
+      "layer": null,
+      "domainId": "domain-ai-economics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC filings",
+        "annual reports",
+        "credit disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:physical-ai-perception",
+      "legacyId": "physical-ai-perception",
+      "surface": "atlas",
+      "equivalenceGroup": "equivalence:physical-ai-perception",
+      "title": "Perception and sensor fusion",
+      "kind": "robotics",
+      "layer": null,
+      "domainId": "domain-physical-ai-robotics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:physical-ai-world-model",
+      "legacyId": "physical-ai-world-model",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "World model and simulation",
+      "kind": "software",
+      "layer": null,
+      "domainId": "domain-physical-ai-robotics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:physical-ai-planning",
+      "legacyId": "physical-ai-planning",
+      "surface": "atlas",
+      "equivalenceGroup": "equivalence:physical-ai-planning",
+      "title": "Planning and control",
+      "kind": "robotics",
+      "layer": null,
+      "domainId": "domain-physical-ai-robotics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:physical-ai-actuation",
+      "legacyId": "physical-ai-actuation",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Actuation and safety",
+      "kind": "hardware",
+      "layer": null,
+      "domainId": "domain-physical-ai-robotics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:physical-ai-unit-economics",
+      "legacyId": "physical-ai-unit-economics",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Robot unit economics",
+      "kind": "economics",
+      "layer": null,
+      "domainId": "domain-physical-ai-robotics",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NIST robotics",
+        "ISO safety standards",
+        "robotics company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:defense-kill-chain",
+      "legacyId": "defense-kill-chain",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Detection-to-decision chain",
+      "kind": "defense",
+      "layer": null,
+      "domainId": "domain-drone-defense",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:defense-c2-isr-ew",
+      "legacyId": "defense-c2-isr-ew",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "C2 / ISR / electronic warfare",
+      "kind": "defense",
+      "layer": null,
+      "domainId": "domain-drone-defense",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:defense-autonomy",
+      "legacyId": "defense-autonomy",
+      "surface": "atlas",
+      "equivalenceGroup": "equivalence:defense-autonomy",
+      "title": "Autonomy and human control",
+      "kind": "policy",
+      "layer": null,
+      "domainId": "domain-drone-defense",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:defense-drone-production",
+      "legacyId": "defense-drone-production",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Drone production and attrition",
+      "kind": "manufacturing",
+      "layer": null,
+      "domainId": "domain-drone-defense",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:defense-procurement-economics",
+      "legacyId": "defense-procurement-economics",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Procurement economics",
+      "kind": "economics",
+      "layer": null,
+      "domainId": "domain-drone-defense",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "U.S. DoD budget",
+        "Congressional Research Service",
+        "defense procurement disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:space-rocket-physics",
+      "legacyId": "space-rocket-physics",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Rocket physics and launch energy",
+      "kind": "physics",
+      "layer": null,
+      "domainId": "domain-space-aerospace",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:space-reusability",
+      "legacyId": "space-reusability",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Reusability and turnaround",
+      "kind": "engineering",
+      "layer": null,
+      "domainId": "domain-space-aerospace",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:space-satellite-economics",
+      "legacyId": "space-satellite-economics",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Satellite data economics",
+      "kind": "economics",
+      "layer": null,
+      "domainId": "domain-space-aerospace",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:space-artemis-architecture",
+      "legacyId": "space-artemis-architecture",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Artemis architecture",
+      "kind": "program",
+      "layer": null,
+      "domainId": "domain-space-aerospace",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:space-aircraft-supply-chain",
+      "legacyId": "space-aircraft-supply-chain",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Aircraft and space supply chain",
+      "kind": "manufacturing",
+      "layer": null,
+      "domainId": "domain-space-aerospace",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "NASA Artemis",
+        "FAA commercial space",
+        "company launch disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:application-healthcare",
+      "legacyId": "application-healthcare",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Healthcare workflow",
+      "kind": "application",
+      "layer": null,
+      "domainId": "domain-ai-applications",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:application-manufacturing",
+      "legacyId": "application-manufacturing",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Manufacturing workflow",
+      "kind": "application",
+      "layer": null,
+      "domainId": "domain-ai-applications",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:application-automotive",
+      "legacyId": "application-automotive",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Automotive autonomy",
+      "kind": "application",
+      "layer": null,
+      "domainId": "domain-ai-applications",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:application-finance",
+      "legacyId": "application-finance",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Financial decision workflow",
+      "kind": "application",
+      "layer": null,
+      "domainId": "domain-ai-applications",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:application-roi-payer",
+      "legacyId": "application-roi-payer",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Payer, ROI and adoption",
+      "kind": "economics",
+      "layer": null,
+      "domainId": "domain-ai-applications",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "FDA digital health",
+        "DOE manufacturing",
+        "company product filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:resources-copper",
+      "legacyId": "resources-copper",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Copper and conductors",
+      "kind": "materials",
+      "layer": null,
+      "domainId": "domain-resources-materials",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:resources-lithium",
+      "legacyId": "resources-lithium",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Lithium and storage materials",
+      "kind": "materials",
+      "layer": null,
+      "domainId": "domain-resources-materials",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:resources-rare-earths",
+      "legacyId": "resources-rare-earths",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Rare earths and magnets",
+      "kind": "materials",
+      "layer": null,
+      "domainId": "domain-resources-materials",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:resources-refining",
+      "legacyId": "resources-refining",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Mining, refining and recycling",
+      "kind": "process",
+      "layer": null,
+      "domainId": "domain-resources-materials",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:resources-industrial-equipment",
+      "legacyId": "resources-industrial-equipment",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Industrial equipment bottlenecks",
+      "kind": "equipment",
+      "layer": null,
+      "domainId": "domain-resources-materials",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "IEA critical minerals",
+        "USGS minerals",
+        "industrial company filings"
+      ]
+    },
+    {
+      "canonicalId": "atlas:policy-export-controls",
+      "legacyId": "policy-export-controls",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Export controls",
+      "kind": "policy",
+      "layer": null,
+      "domainId": "domain-geopolitics-policy-security",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ]
+    },
+    {
+      "canonicalId": "atlas:policy-supply-chain-resilience",
+      "legacyId": "policy-supply-chain-resilience",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Supply-chain resilience",
+      "kind": "policy",
+      "layer": null,
+      "domainId": "domain-geopolitics-policy-security",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ]
+    },
+    {
+      "canonicalId": "atlas:policy-semiconductor-incentives",
+      "legacyId": "policy-semiconductor-incentives",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Semiconductor incentives",
+      "kind": "policy",
+      "layer": null,
+      "domainId": "domain-geopolitics-policy-security",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ]
+    },
+    {
+      "canonicalId": "atlas:policy-cybersecurity",
+      "legacyId": "policy-cybersecurity",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Cybersecurity and sovereign AI",
+      "kind": "security",
+      "layer": null,
+      "domainId": "domain-geopolitics-policy-security",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ]
+    },
+    {
+      "canonicalId": "atlas:policy-national-security-risk",
+      "legacyId": "policy-national-security-risk",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "National-security risk",
+      "kind": "risk",
+      "layer": null,
+      "domainId": "domain-geopolitics-policy-security",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "BIS export controls",
+        "U.S. Treasury sanctions",
+        "national industrial policy documents"
+      ]
+    },
+    {
+      "canonicalId": "atlas:capital-company-role",
+      "legacyId": "capital-company-role",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Company role and value capture",
+      "kind": "company",
+      "layer": null,
+      "domainId": "domain-capital-markets-company-map",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:capital-revenue-quality",
+      "legacyId": "capital-revenue-quality",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Revenue quality and visibility",
+      "kind": "finance",
+      "layer": null,
+      "domainId": "domain-capital-markets-company-map",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:capital-margin-structure",
+      "legacyId": "capital-margin-structure",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Margin and cost structure",
+      "kind": "finance",
+      "layer": null,
+      "domainId": "domain-capital-markets-company-map",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:capital-balance-sheet",
+      "legacyId": "capital-balance-sheet",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Balance sheet and funding",
+      "kind": "finance",
+      "layer": null,
+      "domainId": "domain-capital-markets-company-map",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:capital-market-expectation",
+      "legacyId": "capital-market-expectation",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Expectation and price",
+      "kind": "market",
+      "layer": null,
+      "domainId": "domain-capital-markets-company-map",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "SEC EDGAR",
+        "company annual reports",
+        "exchange rulebooks"
+      ]
+    },
+    {
+      "canonicalId": "atlas:future-quantum",
+      "legacyId": "future-quantum",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Quantum computing",
+      "kind": "emerging-technology",
+      "layer": null,
+      "domainId": "domain-adjacent-future-tech",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:future-photonic-compute",
+      "legacyId": "future-photonic-compute",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Photonic compute",
+      "kind": "emerging-technology",
+      "layer": null,
+      "domainId": "domain-adjacent-future-tech",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:future-neuromorphic",
+      "legacyId": "future-neuromorphic",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Neuromorphic systems",
+      "kind": "emerging-technology",
+      "layer": null,
+      "domainId": "domain-adjacent-future-tech",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:future-new-energy",
+      "legacyId": "future-new-energy",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "New energy systems",
+      "kind": "energy",
+      "layer": null,
+      "domainId": "domain-adjacent-future-tech",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ]
+    },
+    {
+      "canonicalId": "atlas:future-uncertainty-gate",
+      "legacyId": "future-uncertainty-gate",
+      "surface": "atlas",
+      "equivalenceGroup": null,
+      "title": "Technology uncertainty gate",
+      "kind": "method",
+      "layer": null,
+      "domainId": "domain-adjacent-future-tech",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "public-data/atlas/taxonomy-node-coverage.json",
+        "locator": "nodes",
+        "field": "nodes[].nodeId"
+      },
+      "sourceIds": [
+        "peer-reviewed research",
+        "standards bodies",
+        "company R&D disclosures"
+      ]
+    }
+  ]
+}

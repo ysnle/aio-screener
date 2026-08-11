@@ -1,0 +1,4579 @@
+{
+  "schemaVersion": "knowledge-claims.v1",
+  "generatedAt": "2026-08-11",
+  "status": "CANONICAL_REFERENCE_CLAIM_LEDGER",
+  "directnessPolicy": "DIRECT is reserved for claim-specific primary support; CONTEXT/DISCOVERY/STRUCTURAL/REVIEW_REQUIRED cannot be promoted to DIRECT.",
+  "counts": {
+    "claims": 270,
+    "unresolvedSourceReferences": 0
+  },
+  "claims": [
+    {
+      "claimId": "principles-lesson-A1",
+      "surface": "principles",
+      "entityId": "A1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "희소성은 원하는 것보다 시간·노동·자본·자원이 적기 때문에 선택과 포기가 동시에 생기는 조건이다. 선택한 대안의 편익과 포기한 대안의 기회비용을 비교하면 같은 예산이 어떤 결과를 만드는지 설명할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD",
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-A2",
+      "surface": "principles",
+      "entityId": "A2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "생산성은 같은 투입으로 더 많은 산출이나 더 높은 품질을 만드는 능력이며, 장기적인 생활 수준의 핵심 경로다. 기술·숙련·조직·자본이 한 시간의 산출을 높이면 임금·이익·소비 여력이 늘고, 그 여력이 다시 투자로 이어질 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD",
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-A3",
+      "surface": "principles",
+      "entityId": "A3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "자본주의의 핵심은 소유·계약·가격 신호를 통해 자원을 여러 생산 프로젝트에 배분하고 결과를 다시 투자하는 제도적 과정이다. 이익은 수요가 있는 곳에 자본을 끌어오고, 손실은 자본을 다른 용도로 이동시키는 신호가 된다. 경쟁과 법적 계약이 이 이동을 뒷받침한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD",
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-A4",
+      "surface": "principles",
+      "entityId": "A4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "가계·기업·정부·금융기관은 소득·지출·저축·세금·대출을 주고받으며 하나의 경제 순환을 만든다. 가계의 소비는 기업의 매출이 되고 기업의 임금·투자는 가계 소득이 된다. 금융과 정부는 이 흐름을 시간과 위험의 축에서 조정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD",
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-B1",
+      "surface": "principles",
+      "entityId": "B1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "돈은 교환의 매개, 가치의 계산 단위, 구매력을 보관하는 수단이라는 세 가지 기능을 수행하는 사회적 장치다. 사람들이 공통 단위를 받아들이면 물물교환의 탐색 비용이 줄고, 가격표와 계약을 통해 서로 다른 재화의 가치를 비교할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BLS",
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-B2",
+      "surface": "principles",
+      "entityId": "B2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "인플레이션은 경제 전반의 가격 수준이 지속적으로 오르는 현상이고, 디플레이션은 반대로 가격 수준이 지속 하락하는 현상이다. 수요·공급·임금·기대·통화와 신용이 함께 움직이며 가격 수준을 바꾼다. 한 품목의 상대가격 변화와 전체 물가 변화는 분리해야 한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BLS",
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-B3",
+      "surface": "principles",
+      "entityId": "B3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "구매력은 같은 돈으로 살 수 있는 재화와 서비스의 양이며, 명목 소득보다 물가와 세금·주거비를 함께 봐야 한다. 명목 임금과 자산 가격이 올라가도 소비 바구니가 더 빠르게 비싸지면 실질 구매력은 줄어든다. 가구마다 바구니가 달라 체감도 다르다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BLS",
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-B4",
+      "surface": "principles",
+      "entityId": "B4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "복리는 원금뿐 아니라 이전 기간의 이익에도 다시 수익이 붙는 구조이며, 시간·수익률·재투자율이 함께 결과를 만든다. 작은 차이의 수익률이 긴 기간 동안 누적되지만, 손실·수수료·세금·중단은 같은 방식으로 복리 효과를 깎는다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BLS",
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-C1",
+      "surface": "principles",
+      "entityId": "C1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "신용은 미래의 상환 능력을 담보·금리·계약으로 현재의 지출이나 투자를 가능하게 하는 시간 연결 장치다. 대출자는 현재 자금을 제공하고 차입자는 미래 현금흐름으로 원금·이자를 갚는다. 신뢰가 낮아지면 금리·담보·만기가 바뀐다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-C2",
+      "surface": "principles",
+      "entityId": "C2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "은행은 단기 예금과 결제망을 바탕으로 다양한 만기·위험의 대출을 중개하는 동시에 유동성과 신용 위험을 관리한다. 예금자는 언제든 인출할 수 있지만 대출은 장기인 경우가 많다. 은행은 자본·유동성·신용심사로 이 만기 변환의 위험을 흡수한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-C3",
+      "surface": "principles",
+      "entityId": "C3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "레버리지는 자기자본보다 큰 자산이나 사업을 운용하기 위해 부채를 사용하는 구조로 수익과 손실을 함께 확대한다. 고정된 이자·원금 상환이 매출 변동 위에 놓이기 때문에 영업이익률이 조금만 바뀌어도 자기자본 수익률과 파산 위험이 크게 변한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-C4",
+      "surface": "principles",
+      "entityId": "C4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "금융위기는 자산가격·신용·유동성의 선순환이 반전되어 담보·대출·현금화가 동시에 약해지는 과정이다. 가격 하락은 담보가치를 낮추고 마진콜과 대출 회수를 부르며, 매도 물량과 신용 경색이 다시 가격을 낮춘다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-ED"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-D1",
+      "surface": "principles",
+      "entityId": "D1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "금리는 현재 자금과 미래 상환을 교환할 때 적용되는 시간·위험·유동성의 가격이다. 금리가 높을수록 미래 현금흐름의 현재가치는 낮아지고 차입 수요는 줄어든다. 위험과 만기가 다른 금리는 서로 다른 가격이다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-MP",
+        "MP-TREASURY"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-D2",
+      "surface": "principles",
+      "entityId": "D2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "명목금리는 계약에 표시된 금리이고, 실질금리는 물가 변화를 고려해 실제 구매력 기준으로 남는 수익 또는 비용이다. 대략적인 실질금리는 명목금리에서 기대 인플레이션을 뺀 값이며, 사후 실질금리와 사전 기대는 구분해야 한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-MP",
+        "MP-TREASURY"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-D3",
+      "surface": "principles",
+      "entityId": "D3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "기준금리는 중앙은행의 정책 신호이고, 시장금리는 성장·물가·재정·수급·위험 프리미엄을 반영해 거래에서 정해진다. 정책금리 변화는 단기 자금시장에 빠르게 전달되지만 장기금리는 미래 정책 기대와 채권 공급·수요에 따라 다르게 움직인다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-MP",
+        "MP-TREASURY"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-D4",
+      "surface": "principles",
+      "entityId": "D4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "중앙은행 대차대조표는 통화 발행과 지급결제, 국채·대출 등 자산을 통해 금융시스템 유동성이 어떻게 공급되는지 보여준다. 자산 매입·대출·상환·보유자산의 만기 변화는 은행 준비금과 금융조건에 영향을 준다. 규모보다 구성과 운영체계가 중요하다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-MP",
+        "MP-TREASURY"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-D5",
+      "surface": "principles",
+      "entityId": "D5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "중앙은행의 딜레마는 물가 안정·고용·금융 안정처럼 서로 다른 목표가 한 정책 수단에 동시에 걸리는 상황이다. 수요를 식히는 금리 인상은 물가 기대를 안정시킬 수 있지만 취약 차주의 상환과 금융기관 건전성을 압박한다. 반대로 완화는 경기와 자산가격을 돕지만 물가를 자극할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-FED-MP",
+        "MP-TREASURY"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-E1",
+      "surface": "principles",
+      "entityId": "E1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "채권은 발행자가 정해진 시점에 이자와 원금을 지급하겠다는 계약이며, 가격과 수익률은 서로 반대 방향으로 움직인다. 투자자는 현금흐름의 크기·시점·지급 가능성을 현재 가격과 비교한다. 금리·신용·유동성 변화가 가격을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-TREASURY",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-E2",
+      "surface": "principles",
+      "entityId": "E2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "수익률 곡선은 같은 신용등급의 채권을 만기별로 배열해 시간에 따른 금리 기대와 기간 프리미엄을 보여준다. 단기 구간은 정책 기대에, 장기 구간은 성장·물가·재정·채권 수급과 위험 프리미엄에 더 크게 반응한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-TREASURY",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-E3",
+      "surface": "principles",
+      "entityId": "E3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "미국채는 달러 금융시장의 기준 현금흐름이자 글로벌 담보·할인율·유동성의 기준으로 널리 사용된다. 미국채 금리와 달러는 각국 자산의 상대 매력·차입 비용·환율·위험 선호에 연결된다. 다만 미국채도 재정·수급·정책 위험을 가진다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-TREASURY",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-E4",
+      "surface": "principles",
+      "entityId": "E4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "신용스프레드는 국채 등 기준금리 대비 회사채·대출이 추가로 요구하는 위험 보상이다. 부도 가능성·회수율·유동성·위험 회피가 스프레드에 반영된다. 기준금리가 그대로여도 스프레드 확대만으로 기업 자금비용이 오를 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-TREASURY",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-E5",
+      "surface": "principles",
+      "entityId": "E5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "달러 시스템은 무역 결제·은행 대차대조표·채권 발행·준비자산이 달러를 국제 금융의 공통 단위로 사용하는 구조다. 달러 수요는 미국 금리와 글로벌 무역·부채·담보 수요를 통해 움직인다. 달러 강세는 달러 부채 보유자의 상환 부담을 높인다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-TREASURY",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-E6",
+      "surface": "principles",
+      "entityId": "E6",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "환율은 두 통화의 상대가격이며 금리·물가·무역·자본 흐름·위험 선호가 함께 결정한다. 환율은 수출입 가격과 외화 부채·자산의 원화 가치를 바꾼다. 같은 환율 변동도 기업의 통화별 매출·비용·헤지에 따라 효과가 다르다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-TREASURY",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-E7",
+      "surface": "principles",
+      "entityId": "E7",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "엔캐리는 낮은 금리의 엔화로 자금을 조달해 더 높은 수익률의 자산에 투자하는 레버리지된 자금 흐름이다. 환율이 안정되고 금리 차가 유지될 때 수익이 나지만, 엔화 강세나 변동성 상승은 포지션 청산과 자산 매도를 촉발할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-TREASURY",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-F1",
+      "surface": "principles",
+      "entityId": "F1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "정부 재정은 세금·사회보험·국유자산 수입과 이전·공공서비스·투자·이자 지출의 흐름이다. 세입은 경기와 제도에 따라 변하고 지출은 의무·재량·경기 대응으로 나뉜다. 차이는 국채 발행이나 현금 잔고로 메운다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-CBO",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-F2",
+      "surface": "principles",
+      "entityId": "F2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "재정승수는 정부 지출이나 세금 변화가 총소득에 미치는 누적 효과로, 경제 여유·통화정책·수입·집행 속도에 따라 달라진다. 지출이 한 주체의 소득이 되어 다음 지출을 만들지만, 저축·수입·세금·금리 상승은 반복 효과를 줄인다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-CBO",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-F3",
+      "surface": "principles",
+      "entityId": "F3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "국가부채의 지속 가능성은 부채 규모 자체보다 성장률·이자율·기초재정수지·통화·만기 구조가 함께 결정한다. 명목 성장률이 이자율보다 높고 기초수지가 관리되면 부채비율 안정이 쉬워지지만, 재융자 비용과 신뢰 충격은 빠르게 조건을 바꿀 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-CBO",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-F4",
+      "surface": "principles",
+      "entityId": "F4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "지정학은 무역 경로·기술 접근·에너지·안보 지출과 자본의 위험 프리미엄을 바꾸는 제도적 충격이다. 제재·수출통제·동맹·분쟁은 공급망의 비용과 재고를 바꾸고, 투자자는 자산·통화·국가별 요구수익률을 다시 계산한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-CBO",
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-G1",
+      "surface": "principles",
+      "entityId": "G1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "기업은 사람·자본·기술·계약을 조직해 고객에게 제품이나 서비스를 제공하고 현금흐름을 남기는 경제 단위다. 매출은 고객의 지불에서, 이익은 매출에서 투입비용·세금·자본비용을 뺀 뒤 남는다. 조직 형태와 지배구조가 자본배분을 좌우한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-G2",
+      "surface": "principles",
+      "entityId": "G2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "주식은 기업의 잔여 자산·이익·의결권에 대한 소유권이며, 가격은 미래 현금흐름과 위험에 대한 시장의 기대다. 주주는 채권자보다 후순위로 잔여 가치를 받는 대신 상승 가능성과 의결권을 가진다. 발행·희석·배당·자사주가 권리를 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-G3",
+      "surface": "principles",
+      "entityId": "G3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "기업은 내부 현금, 은행대출, 회사채, 보통주·전환증권 발행으로 성장과 운영 자금을 조달한다. 각 수단은 비용·만기·담보·희석·통제권의 조합이 다르다. 현금흐름의 안정성과 투자 기회의 불확실성이 선택을 좌우한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-G4",
+      "surface": "principles",
+      "entityId": "G4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "1차시장은 기업이나 기존 주주가 증권을 새로 발행해 자금을 조달하는 곳이고, 2차시장은 투자자끼리 이미 발행된 증권을 거래하는 곳이다. 1차 발행은 회사 현금과 주식 수를 바꾸며, 2차 거래는 가격 신호와 유동성을 제공하지만 회사에 현금이 직접 들어오지는 않는다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-G5",
+      "surface": "principles",
+      "entityId": "G5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "주가는 기업의 이익·현금흐름, 시장이 부여하는 배수, 자본비용과 유동성이라는 세 엔진의 결합으로 움직인다. 이익 기대가 바뀌거나 할인율이 변하거나 투자자 포지션이 조정되면 같은 기업도 다른 가격을 가질 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-G6",
+      "surface": "principles",
+      "entityId": "G6",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "밸류에이션은 기업의 미래 현금흐름·성장·위험을 현재 가격과 비교하는 방법이지, 하나의 정답 숫자가 아니다. DCF·PER·EV/EBITDA·매출 배수는 서로 다른 현금흐름 단계와 가정을 사용한다. 핵심은 숫자보다 가정의 민감도다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-G7",
+      "surface": "principles",
+      "entityId": "G7",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "지수는 일정한 규칙으로 시장을 측정하는 바구니이고, 패시브 투자는 그 규칙을 따라 편입·비중을 복제한다. 지수 편입과 비중 변화는 자동 자금 흐름을 만들지만, 지수는 기업의 질이나 미래 수익을 보증하지 않는다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-G8",
+      "surface": "principles",
+      "entityId": "G8",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "파생상품은 기초자산의 가격·변동성·금리·신용에 대한 노출을 계약으로 분리해 이전하는 도구다. 공매도는 하락 노출과 차입 비용을, 옵션은 방향·시간·변동성의 조합을, 선물은 증거금과 롤 비용을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-H1",
+      "surface": "principles",
+      "entityId": "H1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "수요·공급은 사고팔려는 의사의 분포이고 주문장은 특정 가격에 쌓인 실제 매수·매도 주문의 순간적인 모습이다. 새 주문이 유동성 공급자와 만나 체결되면서 가격이 이동한다. 주문의 크기·취소·호가 간격이 단기 가격발견을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-H2",
+      "surface": "principles",
+      "entityId": "H2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "시장 반응은 발표된 숫자 자체보다 사전에 형성된 기대와 실제 결과의 차이인 서프라이즈에 더 민감하다. 같은 이익도 기대를 크게 웃돌면 가격이 오르고, 절대적으로 좋아도 기대보다 낮으면 하락할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-H3",
+      "surface": "principles",
+      "entityId": "H3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "시장 효율성은 정보가 가격에 반영되는 속도와 비용에 대한 가설이지, 모든 가격이 언제나 정확하다는 뜻이 아니다. 공개 정보가 빠르게 반영돼도 측정하기 어려운 질적 정보·유동성 제약·행동 편향으로 일시적인 비효율이 생길 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-H4",
+      "surface": "principles",
+      "entityId": "H4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "군중심리는 개인이 다른 사람의 행동과 서사를 관찰하며 자신의 판단과 포지션을 강화하는 집단적 피드백이다. 상승 가격이 성공 사례와 관심을 만들고 신규 수요를 부르지만, 반대 뉴스와 강제 청산이 같은 속도로 하락 피드백을 만들 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-H5",
+      "surface": "principles",
+      "entityId": "H5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "유동성은 큰 거래를 가격 충격을 적게 처리할 수 있는 능력이고, 포지셔닝은 투자자들이 이미 어느 방향에 얼마나 노출됐는지다. 유동성이 얇고 한쪽 포지션이 crowded하면 작은 뉴스도 손절·마진콜을 통해 큰 가격 이동으로 확대된다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-I1",
+      "surface": "principles",
+      "entityId": "I1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "경기 사이클은 생산·고용·소비·재고가 같은 속도로 움직이지 않으며 확장과 둔화가 반복되는 과정이다. 수요 변화가 재고와 주문에 먼저 나타나고 생산·고용·소득을 거쳐 다시 소비에 전달된다. 정책과 외부 충격이 진폭을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-I2",
+      "surface": "principles",
+      "entityId": "I2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "이익 사이클은 매출·가격·원가·영업레버리지가 기업 이익을 통해 순환하는 과정이다. 매출 성장과 비용의 고정·변동 구조가 결합해 이익 변동을 매출보다 크게 만들 수 있다. 재고와 원재료 가격의 시차도 중요하다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-I3",
+      "surface": "principles",
+      "entityId": "I3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "유동성 사이클은 금융기관의 대출 의지·시장 자금·담보 가치·정책 운영이 자산과 실물에 전달되는 변동이다. 대출 기준이 완화되면 지출과 자산가격이 지지될 수 있지만, 담보 하락과 손실은 다시 대출 축소를 부른다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-I4",
+      "surface": "principles",
+      "entityId": "I4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "섹터 로테이션은 경기·금리·이익·재고의 국면에 따라 산업별 상대 성장과 밸류에이션이 이동하는 현상이다. 자본집약도·가격 결정력·재고 민감도·규제·현금흐름 시점이 달라 같은 거시 충격도 섹터별로 다르게 전달된다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-I5",
+      "surface": "principles",
+      "entityId": "I5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "자산 간 관계는 금리·성장·물가·달러·위험 선호라는 공통 요인이 서로 다른 자산의 수익률을 연결하는 방식이다. 상관관계는 시간과 국면에 따라 바뀐다. 채권이 주식의 완충재가 되다가 인플레이션 충격에서는 함께 하락할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-IMF"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-J1",
+      "surface": "principles",
+      "entityId": "J1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "저축은 미래 소비를 위해 구매력을 보존하는 행위이고, 투자는 생산적 현금흐름에 자본을 배치하는 행위이며, 투기는 가격 변화 자체에 노출되는 행위다. 세 활동은 겹칠 수 있지만 목적·기간·위험·검증 기준이 다르다. 구분해야 적합한 자산과 포지션 크기를 정할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-J2",
+      "surface": "principles",
+      "entityId": "J2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "패시브는 정해진 지수·규칙을 추종하고 액티브는 지수와 다른 선택으로 초과성과 위험을 추구한다. 패시브의 장점은 낮은 비용과 일관성이고 액티브의 핵심 비용은 조사·거래·판단 오류다. 어느 쪽도 위험을 제거하지 않는다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-J3",
+      "surface": "principles",
+      "entityId": "J3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "포지션 사이징은 가설의 불확실성과 손실 가능성을 감당 가능한 자본 위험으로 바꾸는 과정이다. 같은 기대수익도 변동성·상관·손실 한도·유동성에 따라 보유 규모가 달라진다. 크기는 의견의 강도가 아니라 생존 조건으로 정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-J4",
+      "surface": "principles",
+      "entityId": "J4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "투자에서 생존은 손실을 0으로 만드는 것이 아니라 큰 손실이 복구·판단·현금흐름을 망가뜨리지 않게 관리하는 것이다. 손실률이 커질수록 원금 회복에 필요한 수익률은 비선형적으로 커진다. 레버리지·유동성·상관 집중은 손실을 확대한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-J5",
+      "surface": "principles",
+      "entityId": "J5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "투자 프로세스는 질문·증거·가설·포지션·반대 시나리오·사후 기록을 반복하는 의사결정 시스템이다. 프로세스를 먼저 정하면 결과가 좋았던 우연과 재현 가능한 판단을 구분할 수 있고, 데이터가 바뀔 때 가설을 업데이트할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K1",
+      "surface": "principles",
+      "entityId": "K1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "최종 고객은 가치사슬의 마지막 단계에서 실제로 제품·서비스에 돈을 지불하고 사용 결과를 평가하는 주체다. 고객의 예산·승인권·사용 빈도·대체재가 공급자의 매출 규모와 가격 결정력을 제한한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K2",
+      "surface": "principles",
+      "entityId": "K2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "고객 문제는 제품 기능이 아니라 시간·비용·위험·수익성·규제 부담을 줄이거나 결과를 개선해야 하는 실제 업무다. 문제의 비용이 명확할수록 고객은 솔루션에 지불할 이유가 생긴다. 도입 장벽과 기존 방식의 전환 비용은 지불 의사를 제한한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K3",
+      "surface": "principles",
+      "entityId": "K3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "가치사슬 분석은 고객의 예산이 어떤 계약·중간재·서비스를 거쳐 각 기업의 매출과 현금흐름으로 이동하는지 추적하는 일이다. 매출이 발생한 시점과 현금이 회수되는 시점, 최종 고객 지불과 공급자 인식 매출은 다를 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K4",
+      "surface": "principles",
+      "entityId": "K4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "생산 단계는 원재료·설계·제조·조립·소프트웨어·유통처럼 산출물이 다음 단계의 입력이 되는 순서다. 각 단계의 수율·처리량·대기시간·재작업·데이터 형식이 다음 단계의 비용과 납기를 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K5",
+      "surface": "principles",
+      "entityId": "K5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "핵심 투입요소는 생산량·품질·원가를 결정하며 단기간에 대체하기 어려운 재료·장비·전력·인력·데이터다. 투입요소의 공급 집중·인증 기간·물류 경로·가격 계약이 최종 제품의 마진과 증설 속도를 제한한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K6",
+      "surface": "principles",
+      "entityId": "K6",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "가격 결정권은 고객이 대체하기 어렵고 공급자가 차별화된 결과를 제공할 때 가격·계약·인상분을 방어할 수 있는 능력이다. 브랜드·성능·인증·전환비용·공급 집중이 교섭력을 만들지만, 경쟁·과잉설비·고객 집중은 이를 약화한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K7",
+      "surface": "principles",
+      "entityId": "K7",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "공급 증설 시간은 수요 증가에 대응해 공장·장비·인력·인증·전력·물류를 준비하는 데 필요한 기간이다. 짧은 증설은 경쟁자의 진입과 가격 하락을 빠르게 부르고, 긴 증설은 가격 급등과 초과이익을 만들지만 과잉투자 위험도 키운다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K8",
+      "surface": "principles",
+      "entityId": "K8",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "병목은 전체 흐름의 처리량을 제한하는 단계이고 single point of failure는 한 구성요소의 고장이 전체 시스템을 멈출 수 있는 집중 위험이다. 병목의 처리량과 대체 가능성이 가격·납기·협상력을 결정한다. 생산량을 늘리려면 병목을 찾아야 한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K9",
+      "surface": "principles",
+      "entityId": "K9",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "반복매출은 계약·구독·소모품·유지보수로 일정 주기에 재발생하는 매출이고, 일회성 매출은 프로젝트·장비 판매처럼 거래 때마다 새 수주가 필요한 매출이다. 반복성은 예측 가능성과 고객 잔존율을 높일 수 있지만, 갱신률·가격 인상·서비스 원가를 함께 봐야 한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K10",
+      "surface": "principles",
+      "entityId": "K10",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "CAPEX는 장기 생산능력에 쓰는 투자이고 운전자본은 재고·매출채권·매입채무처럼 운영 과정에서 묶이는 자금이다. 설비투자는 감가상각과 가동률을 만들고 운전자본은 매출 성장과 회수 기간을 연결한다. 둘 다 회계 이익과 현금흐름 사이의 차이를 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K11",
+      "surface": "principles",
+      "entityId": "K11",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "대체재·경쟁·규제는 기술이나 제품이 고객 예산에서 차지하는 몫과 허용되는 사업 방식을 바꾸는 외부 제약이다. 대체재는 가격 상한을 만들고 경쟁은 초과마진을 깎으며 규제는 인증·책임·시장 진입의 비용과 시간을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-K12",
+      "surface": "principles",
+      "entityId": "K12",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "산업 분석에서 AIO 데이터는 뉴스나 시세 한 줄이 아니라 수요·가격·공급·재무·자금 흐름을 같은 기준일에 연결하는 관찰 도구다. 지표의 방향보다 출처·시차·단위·기준효과를 기록하고, 관찰과 해석을 분리해야 가설을 검증할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-OECD-IND",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L1",
+      "surface": "principles",
+      "entityId": "L1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "AI 경제의 수요는 모델 학습·추론·데이터 처리·업무 자동화에 지불하는 고객 예산에서 시작하며, 모델 성능만으로 결정되지 않는다. 사용량·정확도·지연시간·보안·인건비 절감이 고객의 지불 의사를 만들고, 그 수요가 컴퓨팅·메모리·네트워크·전력 투자로 번진다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L2",
+      "surface": "principles",
+      "entityId": "L2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "컴퓨팅 시스템은 연산기·메모리·인터커넥트·소프트웨어가 데이터를 이동시키며 작업을 완료하는 전체 구조다. 성능은 연산량뿐 아니라 메모리 대역폭·데이터 이동·병렬성·지연시간·전력의 제약을 함께 받는다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L3",
+      "surface": "principles",
+      "entityId": "L3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "반도체는 전기적 특성을 제어해 논리·기억·센싱·전력 변환 기능을 수행하는 재료와 소자의 산업이다. 트랜지스터·배선·셀·패키지가 전류를 스위칭하거나 저장·변환하며, 공정 미세화와 설계·수율이 제품 성능과 원가를 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L4",
+      "surface": "principles",
+      "entityId": "L4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "반도체 비즈니스 모델은 설계자산·제조능력·장비·패키징·제품 브랜드 중 어디에서 가치와 위험을 보유하는지에 따라 나뉜다. 팹리스는 설계와 고객을, 파운드리는 제조와 공정 생태계를, IDM은 설계·제조·제품을 통합한다. 각 모델의 자본집약도와 고정비가 다르다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L5",
+      "surface": "principles",
+      "entityId": "L5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "설계 생태계는 아키텍처·EDA 도구·IP·설계서비스·검증·소프트웨어가 함께 칩을 제품으로 만드는 네트워크다. 재사용 가능한 IP와 검증 도구는 개발 시간을 줄이지만 라이선스·호환성·버그·특정 툴 체인 의존성을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L6",
+      "surface": "principles",
+      "entityId": "L6",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "전공정은 웨이퍼 위에 트랜지스터와 배선을 반복 형성해 회로 구조를 만드는 제조 단계다. 증착·노광·식각·이온주입·세정·CMP가 수백 단계로 반복되며 미세한 공정 편차가 결함과 수율을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L7",
+      "surface": "principles",
+      "entityId": "L7",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "반도체 소재는 웨이퍼·포토레지스트·가스·금속·화학액처럼 공정의 정밀도와 반복 가능성을 좌우하는 입력이다. 순도·입자·화학적 선택성·공급 안정성이 결함률과 장비 가동을 결정한다. 사용량이 작아도 대체·인증 시간이 길면 전략적 중요성이 커진다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L8",
+      "surface": "principles",
+      "entityId": "L8",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "파운드리는 다른 회사의 설계를 위탁받아 웨이퍼를 제조하고 공정·용량·수율·고객 생태계로 경쟁하는 사업이다. 고객 설계가 특정 공정 규칙에 맞아야 하며, 웨이퍼 가격은 공정 복잡도·장비 감가·가동률·수율의 영향을 받는다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L9",
+      "surface": "principles",
+      "entityId": "L9",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "메모리는 데이터를 저장하고 필요한 속도로 공급하는 장치이며, 용량·대역폭·지연·전력·비트당 비용의 조합으로 평가한다. DRAM·HBM·NAND는 셀 구조와 사용 목적이 다르고, AI 시스템에서는 연산기보다 데이터를 공급하는 대역폭과 패키지 연결이 병목이 될 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L10",
+      "surface": "principles",
+      "entityId": "L10",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "첨단 패키징은 여러 다이와 메모리·기판을 짧고 넓은 연결로 묶어 하나의 시스템처럼 동작시키는 후공정이다. 인터포저·브리지·칩렛·3D 적층은 데이터 이동을 줄이지만 열·정렬·검사·조립 수율과 기판 공급을 어렵게 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L11",
+      "surface": "principles",
+      "entityId": "L11",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "테스트는 제조된 다이가 사양을 만족하는지 검사하는 과정이고, 수율은 투입된 다이 중 판매 가능한 비율이다. 결함 위치·검사 커버리지·테스트 시간·재작업이 판매 가능 수량과 원가를 결정한다. 첨단 패키지는 다이 간 결함을 조합 전에 잡는 문제가 추가된다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L12",
+      "surface": "principles",
+      "entityId": "L12",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "AI 서버 시스템은 가속기만이 아니라 CPU·메모리·스위치·광모듈·케이블이 데이터를 정해진 지연과 전력으로 이동시키는 구조다. 가속기 수가 늘수록 노드 간 통신 대역폭과 지연이 중요해지고, 구리·광 연결의 거리·전력·열·신뢰성이 클러스터 처리량을 제한한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L13",
+      "surface": "principles",
+      "entityId": "L13",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "스토리지는 학습·추론에 필요한 데이터를 보관하고 전달하며, 용량·대역폭·지연·내구성·비용의 균형을 제공한다. 데이터가 여러 저장 계층을 오갈 때 읽기·쓰기 패턴과 중복 제거·캐시·보안이 시스템 비용과 학습 시간을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L14",
+      "surface": "principles",
+      "entityId": "L14",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "냉각은 서버가 발생한 열을 안전한 온도와 전력 효율로 제거해 장비의 성능·수명·가동률을 유지하는 시스템이다. 공기·액체·직접 칩 냉각은 열밀도·누수 위험·개조 비용·PUE·물 사용량이 다르며 랙·건물·전력 설계와 함께 결정된다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L15",
+      "surface": "principles",
+      "entityId": "L15",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "반도체 이익 풀은 최종 시스템 고객이 지불한 돈이 설계·IP·웨이퍼·메모리·패키징·장비·서비스로 분배되는 구조다. 병목·차별화·가격 주기·CAPEX 회수와 고객 협상력이 각 단계의 마진과 현금 전환을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-L16",
+      "surface": "principles",
+      "entityId": "L16",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "반도체 투자의 핵심은 수요 서사보다 출하·가격·재고·가동률·수율·CAPEX·고객 집중을 한 주기로 검증하는 것이다. 기업 가이던스와 실제 데이터의 차이를 기록하고, 매출이 늘어도 ASP·믹스·감가상각·운전자본 때문에 현금이 줄 수 있음을 확인한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M1",
+      "surface": "principles",
+      "entityId": "M1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "전기는 생산과 소비가 실시간으로 맞아야 하는 상품이면서 발전·송전·변전·저장·수요가 연결된 물리적 시스템이다. 전력망의 주파수·전압·혼잡·예비력 조건이 공급 가능 용량과 가격을 결정한다. 같은 발전량도 시간과 지역에 따라 가치가 다르다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M2",
+      "surface": "principles",
+      "entityId": "M2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "발전은 연료·자원·설비를 전기로 바꾸는 과정이며, 기술마다 연료비·고정비·가동률·탄소·입지 조건이 다르다. 기저·중간·피크 부하에 맞춰 발전원이 배치되고, 연료 가격·정비·기상·규제가 한계비용과 이용률을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M3",
+      "surface": "principles",
+      "entityId": "M3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "전력시장 가격은 특정 시간·지역에서 수요를 충족시키는 마지막 발전기의 비용과 계통 제약을 반영한다. 수요 피크·연료 가격·송전 혼잡·예비력·날씨가 가격을 바꾸며, 평균 가격과 피크 가격의 차이가 투자 수익성을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M4",
+      "surface": "principles",
+      "entityId": "M4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "송전은 대규모 발전과 수요 지역을 연결하는 고전압 네트워크이며, 용량·거리·안정도가 전력 이동을 제한한다. 선로 혼잡과 접속 대기는 발전소가 있어도 전기를 팔지 못하게 만들 수 있고, 신규 선로는 인허가와 건설에 긴 시간이 걸린다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M5",
+      "surface": "principles",
+      "entityId": "M5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "변전·배전은 송전 전압을 지역 수요에 맞춰 낮추고 각 시설·가정·데이터센터로 전력을 나누는 마지막 계층이다. 변압기·차단기·배전선의 용량과 고장 복원력이 신규 부하 접속과 전력 품질을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M6",
+      "surface": "principles",
+      "entityId": "M6",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "전력 품질은 전압·주파수·고조파·순간 정전이 장비의 안정적 동작을 만족하는 정도이고, 전력전자는 이를 변환·제어한다. 서버·모터·인버터 같은 부하는 전력의 변동에 민감하며 UPS·컨버터·필터·무효전력 보상이 신뢰도와 효율을 높인다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M7",
+      "surface": "principles",
+      "entityId": "M7",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "전력 저장은 생산 시점과 소비 시점을 분리해 계통의 피크·주파수·예비력을 조정하는 장치다. 저장장치의 에너지 용량·출력·충방전 효율·수명·열관리·재료비가 수익 모델과 교체 주기를 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M8",
+      "surface": "principles",
+      "entityId": "M8",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "데이터센터 전력은 IT 장비가 사용하는 전력과 냉각·전력변환·네트워크 등 시설 부하를 합친 수요다. 서버의 peak 전력보다 실제 가동률·PUE·랙 밀도·전력 품질·접속 용량이 서비스 가능한 compute와 비용을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M9",
+      "surface": "principles",
+      "entityId": "M9",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "원자력은 높은 이용률의 저탄소 전력을 제공할 수 있지만 건설·안전·연료·폐기·규제의 긴 시간축을 가진 발전 방식이다. 대규모 초기 자본과 긴 인허가가 비용을 결정하고, 운전 중 연료비가 낮은 대신 공사 지연과 금융비용이 프로젝트 경제성을 좌우한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M10",
+      "surface": "principles",
+      "entityId": "M10",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "재생에너지는 햇빛·바람 같은 변동 자원을 전기로 바꾸며 연료비는 낮지만 출력 시간·입지·계통·저장 조건이 중요하다. 발전량은 기상과 시간에 따라 바뀌고, 송전·저장·수요반응이 부족하면 출력 제한과 가격 하락이 발생할 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M11",
+      "surface": "principles",
+      "entityId": "M11",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "전력망 이익 풀은 발전·송전·변전·배전·저장·전력전자·운영서비스에 대한 지불이 어떻게 분배되는지 보여준다. 규제 자산 수익률·시장 정산·접속 수수료·장비 마진·서비스 계약이 서로 다른 현금흐름과 위험을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-M12",
+      "surface": "principles",
+      "entityId": "M12",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "전력 투자는 연결 가능 용량·이용률·가격·CAPEX·허가·공급망·현금 회수 기간을 함께 보는 분석이다. 서버·발전·망 설비의 명목 용량은 실제 가동률과 다르며, 프로젝트 일정·자본비용·계약 구조가 수익을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-DOE",
+        "MP-IEA"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N1",
+      "surface": "principles",
+      "entityId": "N1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "에너지는 산업·운송·건물의 일을 가능하게 하는 입력이며 연료·전력·열의 형태와 변환 손실을 함께 봐야 한다. 수요의 시간·지역·온도와 공급의 저장·운송·정제 능력이 가격과 마진을 만든다. 기술 전환은 수요를 없애기보다 형태를 바꿀 수 있다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N2",
+      "surface": "principles",
+      "entityId": "N2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "핵심광물은 배터리·전력망·반도체·방산 등 전략 산업에 필요하고 공급 집중·정제 능력·대체 가능성이 위험을 만든다. 광산 생산보다 정제·가공·품질 인증·물류가 병목이 될 수 있다. 가격은 수요 증가뿐 아니라 신규 공급과 재활용에 반응한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N3",
+      "surface": "principles",
+      "entityId": "N3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "로봇·자동화는 센서·제어·소프트웨어·기계가 반복 작업의 비용·품질·안전·처리량을 바꾸는 시스템이다. 도입 가치는 장비 가격보다 기존 공정과의 통합·유지보수·다운타임·작업자 전환·반복 사용량으로 결정된다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N4",
+      "surface": "principles",
+      "entityId": "N4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "자율주행은 센서·지도·추론·제어·안전 운영이 결합되어 사람의 개입 없이 이동 작업을 수행하는 시스템이다. 실제 경제성은 평균 성능보다 희귀한 실패·원격 개입·보험·규제·차량 유지·운영 범위에서 결정된다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N5",
+      "surface": "principles",
+      "entityId": "N5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "방산은 국가 안보 수요를 바탕으로 장기 조달·인증·유지보수 계약이 형성되는 산업이며 성능과 신뢰성이 가격만큼 중요하다. 예산·작전 요구·동맹·조달 절차가 수요를 정하고, 생산 능력과 부품 공급이 납품 속도와 이익을 제한한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N6",
+      "surface": "principles",
+      "entityId": "N6",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "우주 산업은 발사·위성·지상국·데이터 서비스가 긴 개발 주기와 높은 실패 비용을 가진 가치사슬이다. 발사 성공률·보험·위성 수명·궤도·지상 인프라와 고객 계약이 매출 반복성과 자본 회수 시점을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N7",
+      "surface": "principles",
+      "entityId": "N7",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "바이오·제약은 생물학적 가설을 임상·허가·생산·보험 지불로 전환하는 고위험 장기 개발 산업이다. 후보물질의 성공 확률·임상 단계·특허 기간·제조·규제와 환자 접근성이 기대 현금흐름을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N8",
+      "surface": "principles",
+      "entityId": "N8",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "의료기기·헬스케어는 임상 효용과 안전성을 병원 workflow·보험 지불·유지보수·환자 접근성으로 연결하는 산업이다. 제품 성능만으로 채택되지 않고 의사 교육·코드·수가·조달 예산·재시술률·책임이 반복매출을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N9",
+      "surface": "principles",
+      "entityId": "N9",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "금융 산업은 결제·대출·보험·자산관리로 자금과 위험을 중개하고, 신뢰·규제·대차대조표가 수익성을 결정한다. 수익은 이자·수수료·스프레드에서 나오지만 신용손실·자본·유동성·사이버 위험이 함께 발생한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N10",
+      "surface": "principles",
+      "entityId": "N10",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "인터넷·소프트웨어는 코드·데이터·네트워크를 반복 배포해 사용자의 업무와 거래를 처리하는 디지털 가치사슬이다. 한계 배포비가 낮아도 서버·영업·지원·보안·개발비, 경쟁과 고객 이탈이 반복매출과 현금 전환을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N11",
+      "surface": "principles",
+      "entityId": "N11",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "소비재 산업은 가계의 빈도·브랜드·가격·유통 선택이 생산·재고·마진과 연결되는 시장이다. 가격 인상과 판촉은 매출을 바꾸지만 물량·믹스·유통 재고·원재료 비용이 이익을 함께 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N12",
+      "surface": "principles",
+      "entityId": "N12",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "운송·물류는 화물·사람·정보를 정해진 시간과 비용으로 이동시키며 자산 이용률과 네트워크 밀도가 경제성을 만든다. 연료·인건비·차량·창고·노선·공차율과 배송 SLA가 단위당 원가와 고객 가격을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N13",
+      "surface": "principles",
+      "entityId": "N13",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "건설·부동산은 토지·자본·허가·자재·노동을 장기 자산과 공간 서비스로 바꾸는 프로젝트 산업이다. 분양·임대 수요, 공사비, 금리, 허가, 공사 기간과 차입 만기가 동시에 현금흐름을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N14",
+      "surface": "principles",
+      "entityId": "N14",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "통신은 주파수·망·데이터센터·고객 계약으로 연결성을 제공하며 가입자·사용량·요금·CAPEX가 경제성을 만든다. 망 구축은 고정비가 크고 추가 트래픽의 한계비용은 낮을 수 있지만, 가격 경쟁·규제·장비 교체가 현금흐름을 압박한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-N15",
+      "surface": "principles",
+      "entityId": "N15",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "농업·식량 산업은 토지·물·종자·비료·기계·물류를 기후와 계절 아래에서 식품으로 바꾸는 가치사슬이다. 수확량·작황·재고·운송·환율과 소비자의 가격 민감도가 원재료 가격과 식품 기업의 마진을 움직인다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-NIST",
+        "PS-16",
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-O1",
+      "surface": "principles",
+      "entityId": "O1",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "미국과 한국 시장은 통화·금리·산업 구성·회계·투자자 기반이 달라 같은 글로벌 충격도 다른 기업 현금흐름으로 번역된다. 미국의 달러 유동성과 한국의 수출·외국인 흐름·원화 환율이 서로 연결되지만, 시장 규모와 공급망 위치가 반응을 다르게 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BOK",
+        "MP-KRX",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-O2",
+      "surface": "principles",
+      "entityId": "O2",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "원/달러 환율은 한국 자산의 달러 기준 가치와 외국인 투자자의 환산 수익을 바꾸는 상대가격이다. 외국인은 한국 주식 수익률과 원화 변동을 함께 부담하며, 금리차·위험회피·수출입·헤지 비용이 자금 유입·유출을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BOK",
+        "MP-KRX",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-O3",
+      "surface": "principles",
+      "entityId": "O3",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "한국 반도체는 메모리·부품·장비·소재·패키징이 글로벌 고객과 연결된 수출 중심 가치사슬이다. 메모리 가격·비트 출하·고객 재고·환율·CAPEX·공정 수율이 기업별 매출과 이익을 서로 다르게 움직인다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BOK",
+        "MP-KRX",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-O4",
+      "surface": "principles",
+      "entityId": "O4",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "한국 전력·산업정책은 전력 가격·망 투자·세제·보조금·규제로 제조와 데이터센터의 입지·원가·증설 속도를 바꾼다. 정책은 수요를 만들 수 있지만 요금·재정·계통·허가·민간 투자와 함께 집행되어야 실제 생산능력으로 이어진다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BOK",
+        "MP-KRX",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "principles-lesson-O5",
+      "surface": "principles",
+      "entityId": "O5",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "세금·계좌·환율 비용은 투자 수익률에서 보이지 않게 차감되는 거래·보유·환전·배당·이자·양도 비용이다. 같은 명목 수익도 계좌 유형·거래 빈도·환전 스프레드·원천징수·환헤지에 따라 세후 실현 수익이 달라진다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "MP-BOK",
+        "MP-KRX",
+        "MP-SEC"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-energy-and-power",
+      "surface": "atlas",
+      "entityId": "energy-and-power",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "에너지는 일을 할 수 있는 능력이고 전력은 에너지가 시간당 전달되는 속도다. AI 장비의 전력은 계산과 메모리 이동 뒤 열로 바뀌며 냉각과 계통 용량이 운영 상한을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-09",
+        "PS-10",
+        "PS-15"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-vectors-and-matrices",
+      "surface": "atlas",
+      "entityId": "vectors-and-matrices",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "벡터는 수치 묶음이고 행렬은 벡터를 변환하는 배열이다. 신경망의 선형 변환은 행렬곱과 덧셈으로 입력 표현을 다음 층으로 옮긴다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-probability-and-statistics",
+      "surface": "atlas",
+      "entityId": "probability-and-statistics",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "확률은 불확실성을 표현하고 통계는 관측 자료에서 패턴과 오차를 추정한다. 모델 출력은 가능한 token·class의 분포이며 평가는 표본·측정오차·분산을 함께 본다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-12"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-parallel-processing",
+      "surface": "atlas",
+      "entityId": "parallel-processing",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "병렬처리는 독립적인 계산을 여러 연산 유닛이 동시에 수행하는 방식이다. 행렬과 tensor를 block으로 나누고 메모리·동기화 비용을 지불하면서 처리량을 높인다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-silicon-and-doping",
+      "surface": "atlas",
+      "entityId": "silicon-and-doping",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "실리콘은 반도체 재료이고 도핑은 전하 운반 특성을 조절하는 공정이다. 불순물 농도와 접합 구조가 transistor의 전류 흐름·문턱전압·누설을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01",
+        "PS-14"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-bottlenecks-and-scarcity",
+      "surface": "atlas",
+      "entityId": "bottlenecks-and-scarcity",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "병목은 전체 시스템의 처리량을 제한하는 가장 좁은 제약이고 희소성은 선택 가능한 자원이 제한된 상태다. 한 병목을 완화하면 수요와 흐름이 다음 병목으로 이동한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01",
+        "PS-02",
+        "PS-14"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-capex-and-depreciation",
+      "surface": "atlas",
+      "entityId": "capex-and-depreciation",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "CAPEX는 장기간 사용할 자산에 대한 투자이고 감가상각은 그 원가를 사용 기간에 배분하는 회계 처리다. 투자는 초기 현금 유출을 만들고 자산 사용·수명·잔존가치 가정이 이후 비용 인식과 재투자 필요를 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-06",
+        "PS-07",
+        "PS-08"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-rules-vs-learning",
+      "surface": "atlas",
+      "entityId": "rules-vs-learning",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "규칙 기반 프로그램은 사람이 조건을 작성하고 학습 시스템은 데이터에서 parameter를 조정한다. 규칙은 예외를 명시적으로 관리하고 학습은 데이터 분포와 목표 함수에 맞는 일반화를 찾는다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-model-parameters-training",
+      "surface": "atlas",
+      "entityId": "model-parameters-training",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "모델은 입력을 출력으로 바꾸는 구조이고 parameter는 학습 과정에서 조정되는 수치다. 손실을 계산하고 gradient로 parameter를 조금씩 갱신해 목표 분포에 맞춘다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-data-quality",
+      "surface": "atlas",
+      "entityId": "data-quality",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "데이터 품질은 정확성뿐 아니라 대표성·중복·누락·시간 일관성·권리·라벨 품질을 포함한다. 데이터 오류는 학습·평가·검색의 각 단계로 전파되어 출력 분포와 실패율을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-12"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-learning-types",
+      "surface": "atlas",
+      "entityId": "learning-types",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "지도·비지도·강화학습은 supervision 신호와 최적화 목표가 서로 다르다. label, 구조 발견, reward와 환경 피드백이 목표 함수와 필요한 데이터 흐름을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-neural-networks",
+      "surface": "atlas",
+      "entityId": "neural-networks",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "신경망은 층별 함수의 조합으로 입력 표현을 변환하는 parameterized model이다. 선형변환과 비선형 활성화를 반복해 복잡한 관계를 표현하고 loss에 따라 parameter를 조정한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-forward-backpropagation",
+      "surface": "atlas",
+      "entityId": "forward-backpropagation",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "forward pass는 출력을 계산하고 backpropagation은 손실의 영향을 각 층으로 전달한다. chain rule로 parameter별 gradient를 계산하고 optimizer가 업데이트 크기와 방향을 정한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-generalization-and-memory",
+      "surface": "atlas",
+      "entityId": "generalization-and-memory",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "일반화는 보지 못한 입력에도 규칙을 적용하는 능력이고 memorization은 학습 표본을 그대로 기억하는 현상이다. 모델 용량·데이터·정규화·분포 차이가 일반화와 암기의 균형을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-12"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-hallucination-and-verification",
+      "surface": "atlas",
+      "entityId": "hallucination-and-verification",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "환각은 모델이 충분한 근거 없이 그럴듯한 출력을 생성하는 오류다. token 예측은 진실 판정과 동일하지 않으므로 검색·계산·출처 대조·사람 검토가 별도 검증 루프를 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-12",
+        "PS-13"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-tokenization",
+      "surface": "atlas",
+      "entityId": "tokenization",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "토큰화는 문장을 모델이 처리할 작은 기호 단위로 나누는 과정이다. 문자열이 token ID로 바뀌고 token 수가 문맥·메모리·처리 비용의 단위가 된다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-embedding-and-position",
+      "surface": "atlas",
+      "entityId": "embedding-and-position",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "embedding은 token을 벡터로 바꾸고 position 정보는 순서를 표현한다. 벡터 공간에서 표현 관계를 계산하고 위치 신호를 결합해 같은 token의 문맥별 역할을 구분한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-self-attention",
+      "surface": "atlas",
+      "entityId": "self-attention",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "self-attention은 각 token이 다른 token의 정보를 가중합으로 참고하는 연산이다. Q·K 유사도로 attention weight를 만들고 V를 합쳐 문맥에 맞는 표현을 업데이트한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-multi-head-attention",
+      "surface": "atlas",
+      "entityId": "multi-head-attention",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "multi-head attention은 여러 projection 공간에서 관계를 병렬 계산한 뒤 결과를 합치는 구조다. 각 head가 다른 관계 패턴을 포착하고 출력 projection이 여러 표현을 결합한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-context-window",
+      "surface": "atlas",
+      "entityId": "context-window",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "context window는 모델이 한 번의 계산에서 직접 참고할 수 있는 token 범위다. 범위가 길어질수록 정보 접근 가능성은 커지지만 attention·메모리·지연 비용과 선택 문제가 커진다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-kv-cache",
+      "surface": "atlas",
+      "entityId": "kv-cache",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "KV cache는 autoregressive 생성에서 이미 계산한 key·value를 저장해 반복 계산을 줄이는 메모리 구조다. 새 token만 추가 계산하고 이전 문맥의 K/V를 재사용해 생성 지연을 줄인다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-03",
+        "PS-04"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-pretraining",
+      "surface": "atlas",
+      "entityId": "pretraining",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "사전학습은 대규모 데이터에서 다음 token 등 일반 목적의 예측 목표를 최적화하는 단계다. dataset·분산 계산·optimizer가 반복되며 모델의 기본 표현과 패턴을 만든다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-post-training",
+      "surface": "atlas",
+      "entityId": "post-training",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "후속학습은 기본 모델의 출력을 사람의 지시·선호·도구 정책에 맞게 조정하는 단계다. instruction data·preference·reinforcement·fine-tuning이 응답 형식과 행동 경향을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-evaluation",
+      "surface": "atlas",
+      "entityId": "evaluation",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "평가는 모델이 정한 업무 목표를 얼마나 안정적·공정·안전하게 수행하는지 측정하는 과정이다. task metric·human judgment·robustness·cost·safety를 목적과 기준에 맞춰 비교한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-12",
+        "PS-13"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-deployment",
+      "surface": "atlas",
+      "entityId": "deployment",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "배포는 모델을 실제 사용자·권한·하드웨어·운영 환경에서 서비스하는 단계다. serving·batching·monitoring·rollback·access control이 모델 계산을 운영 가능한 시스템으로 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-parameter-vs-external-memory",
+      "surface": "atlas",
+      "entityId": "parameter-vs-external-memory",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "parameter memory는 학습된 내부 표현이고 external memory는 문서·DB·검색 인덱스 같은 외부 정보다. 모델의 일반 패턴과 최신·정확한 근거를 서로 다른 저장·검증 경로로 관리한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-03",
+        "PS-04"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-retrieval-augmented-generation",
+      "surface": "atlas",
+      "entityId": "retrieval-augmented-generation",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "RAG는 질문에 관련된 문서를 검색해 생성 모델 입력에 근거로 추가하는 pipeline이다. chunk·embedding·retriever·reranker·prompt·citation이 검색과 생성을 연결한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-04"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-tool-use",
+      "surface": "atlas",
+      "entityId": "tool-use",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "tool use는 모델이 API·계산기·검색·파일 같은 외부 기능을 호출하는 패턴이다. 모델이 도구를 선택하고 인자를 제안하며 실행 결과를 받아 다음 행동을 정한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-agent-loop",
+      "surface": "atlas",
+      "entityId": "agent-loop",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "agent loop는 목표·관찰·계획·도구 실행·검증을 반복하는 시스템 구조다. 상태를 갱신하고 도구를 여러 번 호출하며 종료 조건과 사람 검토를 적용한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-13"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-state-action-dynamics",
+      "surface": "atlas",
+      "entityId": "state-action-dynamics",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "상태는 현재 조건, action은 가능한 행동, dynamics는 행동 뒤 상태가 바뀌는 규칙이다. 관찰과 행동 결과의 연결을 학습해야 planning과 control이 현실 시간 흐름에서 작동한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-planning-and-control",
+      "surface": "atlas",
+      "entityId": "planning-and-control",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "계획은 목표까지의 행동 순서를 만들고 제어는 feedback으로 실제 행동을 조정한다. 예측·목표·제약·관측을 반복해 계획과 actuator 명령 사이의 오차를 줄인다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-world-model-limitations",
+      "surface": "atlas",
+      "entityId": "world-model-limitations",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "world model은 상태와 행동 결과를 예측하려는 내부 모델이지만 현실을 완전히 복제하지는 못한다. 데이터·시뮬레이션·행동 경험으로 dynamics를 근사하고 계획에 사용한다.",
+      "status": "REFERENCE",
+      "directness": "UNSUPPORTED",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-workload-shape",
+      "surface": "atlas",
+      "entityId": "workload-shape",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "AI workload shape는 학습·추론·batch·실시간·sequence 길이·동시성의 조합이다. 연산량·메모리 이동·통신·지연 요구가 하드웨어와 시설 설계를 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-cpu-gpu-asic-npu",
+      "surface": "atlas",
+      "entityId": "cpu-gpu-asic-npu",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "CPU·GPU·ASIC·NPU는 범용성·병렬성·전용 최적화가 다른 계산 자원이다. workload의 연산 패턴·전력·지연·프로그래밍 요구가 어떤 가속기를 선택할지 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-precision-and-tensor-core",
+      "surface": "atlas",
+      "entityId": "precision-and-tensor-core",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "수치 정밀도는 계산에 쓰는 bit 폭이고 tensor core는 행렬·tensor 연산을 전용으로 가속하는 유닛이다. 낮은 정밀도는 메모리와 연산량을 줄일 수 있지만 정확도·범위·누적 오차를 검증해야 한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-memory-wall",
+      "surface": "atlas",
+      "entityId": "memory-wall",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "memory wall은 계산 유닛보다 데이터를 가져오고 옮기는 속도가 시스템 성능을 제한하는 현상이다. 계산량이 늘어도 대역폭·지연·cache 재사용·통신 비용이 실제 처리량을 제한한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-hbm",
+      "surface": "atlas",
+      "entityId": "hbm",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "HBM은 여러 DRAM die를 수직 적층하고 넓은 인터페이스로 가속기 가까이 연결하는 메모리다. 넓은 대역폭으로 tensor 데이터를 공급하지만 적층·패키징·열·수율·공급망 제약을 가진다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-interconnect",
+      "surface": "atlas",
+      "entityId": "interconnect",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "인터커넥트는 칩·메모리·서버·랙 사이에서 데이터를 이동시키는 연결 구조다. 대역폭·지연·프로토콜·거리·신호 무결성이 분산 계산의 scaling efficiency를 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-advanced-packaging",
+      "surface": "atlas",
+      "entityId": "advanced-packaging",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "첨단 패키징은 여러 die와 메모리를 하나의 시스템처럼 연결하는 조립·배선 기술이다. 2.5D interposer·3D stacking·substrate가 거리와 대역폭을 개선하지만 열·수율·검사·공급 제약을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-rack-density-and-cooling",
+      "surface": "atlas",
+      "entityId": "rack-density-and-cooling",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "랙 밀도는 한 랙에 배치하는 IT 전력·연산량이고 냉각은 발생한 열을 제거하는 시스템이다. 전력 밀도가 올라가면 공기·액체·열교환·공간 설계가 서버 배치와 가동률을 제한한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-08",
+        "PS-09"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-power-and-grid",
+      "surface": "atlas",
+      "entityId": "power-and-grid",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "AI 인프라의 전력 문제는 장비 소비전력과 전력망의 발전·송전·접속·변압기 용량을 함께 보는 문제다. 수요 위치·시간·전력 품질·접속 대기와 냉각 부하가 실제 가동 가능한 compute를 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-09",
+        "PS-15"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-unit-economics",
+      "surface": "atlas",
+      "entityId": "unit-economics",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "단위경제성은 한 고객·요청·GPU시간·제품 단위가 만드는 수익과 변동비를 비교하는 틀이다. 가격·사용량·원가·지원·인프라 부담이 단위당 contribution과 확장 가능성을 만든다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-06",
+        "PS-07",
+        "PS-08"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-utilization",
+      "surface": "atlas",
+      "entityId": "utilization",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "가동률은 보유한 설비·용량이 실제 workload를 처리한 정도다. 예약·batching·유휴·장애·수요 변동이 같은 설비의 매출과 비용 흡수율을 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-06",
+        "PS-07"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-capacity-and-yield",
+      "surface": "atlas",
+      "entityId": "capacity-and-yield",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "capacity는 투입 가능한 생산·서비스 물량이고 yield는 투입 중 사양을 만족하는 양품 비율이다. 장비·공정·검사·수율·lead time이 nominal capacity를 실제 출하·사용 가능 capacity로 바꾼다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-01",
+        "PS-14"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-fcf-and-funding",
+      "surface": "atlas",
+      "entityId": "fcf-and-funding",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "FCF는 영업활동에서 번 현금에서 필요한 투자를 뺀 현금 흐름이고 funding은 부족한 자금을 조달하는 구조다. 마진·운전자본·CAPEX·리스·차입·증자가 성장 속도와 재무 위험을 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-06",
+        "PS-07",
+        "PS-08"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-roic-and-counter-scenario",
+      "surface": "atlas",
+      "entityId": "roic-and-counter-scenario",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "ROIC는 투자 자본이 영업 수익을 얼마나 만드는지 보는 틀이고 counter-scenario는 반대 경로를 먼저 시험하는 방법이다. 수요·가격·가동률·마진·CAPEX·자본비용 가정을 연결해 투자 성과와 실패 조건을 계산한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-06",
+        "PS-07",
+        "PS-08"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-claim-source-as-of",
+      "surface": "atlas",
+      "entityId": "claim-source-as-of",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "claim-source-as-of 규칙은 주장마다 무엇을 언제 어떤 출처에서 확인했는지 기록하는 방식이다. 관찰·해석·전망을 분리하고 기준일과 출처 범위를 연결해 최신성·적용 범위를 점검한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-12",
+        "PS-13"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "atlas-foundation-human-review",
+      "surface": "atlas",
+      "entityId": "human-review",
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "human review는 모델·자동화 결과를 기술·출처·위험·맥락 기준으로 사람이 승인하거나 수정하는 단계다. 검토자는 불확실성·반례·권한·표현·안전 조건을 확인하고 공개 상태와 다음 조치를 결정한다.",
+      "status": "REFERENCE",
+      "directness": "CONTEXT",
+      "sourceIds": [
+        "PS-12",
+        "PS-13"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C01",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Compute demand connects to memory, packaging, storage and power constraints; the evidence does not justify a universal claim that the bottleneck has moved from GPU to one specific supplier.",
+      "status": "REVIEWED_CANDIDATE",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-01",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C02",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "KIOXIA links multi-year LTAs with revenue visibility and quality of profits; customer concentration and downside protection remain separate questions.",
+      "status": "REVIEWED_CANDIDATE",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-03",
+        "PS-04"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C03",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Company filings expose the financing, lease, power and contractual-commitment side of AI infrastructure investment; demand alone is not an ROIC conclusion.",
+      "status": "REVIEWED_CANDIDATE",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-06",
+        "PS-07",
+        "PS-08"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C04",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "No independent primary-source packet was completed for forced-flow or positioning claims; keep this as a research question.",
+      "status": "NEEDS_REVIEW",
+      "directness": "DISCOVERY",
+      "sourceIds": [],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C05",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Official macro releases support an energy-to-inflation transmission pathway, but do not establish a specific valuation or market-flow outcome.",
+      "status": "REVIEWED_CANDIDATE",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-09",
+        "PS-10",
+        "PS-11"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C06",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "AI evaluation should include statistical validity and operational context; token price alone is not a complete workload-economics measure.",
+      "status": "PARTIAL",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-12",
+        "PS-13"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C07",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Japan manufacturing and strategic-investment sources are retained as a candidate policy branch; company-level supply, margin and share claims need additional IR evidence.",
+      "status": "PARTIAL",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-14",
+        "PS-15"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C08",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "KIOXIA and Micron materials directly connect inference, KV cache, SSD and memory products; total NAND demand and price forecasts remain blocked.",
+      "status": "REVIEWED_CANDIDATE",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-02",
+        "PS-03",
+        "PS-04",
+        "PS-05"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C09",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Physical AI is best analyzed as a loop from sensing and world representation to planning, control and human oversight; a product page does not establish field reliability or production scale.",
+      "status": "PARTIAL",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-16",
+        "PS-17"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C10",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Enterprise AI value is mediated by domain data, permissions, workflow adoption and human review; model availability alone is not an ROI conclusion.",
+      "status": "PARTIAL",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-19",
+        "PS-20"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C11",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Space-system analysis must separate launch services, spacecraft platforms, components and mission operations; a launch announcement alone does not prove recurring economics.",
+      "status": "PARTIAL",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C12",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Rare-earth supply-chain analysis must distinguish mineral input, separation, refining, magnetics and customer qualification; resource ownership alone is not downstream capacity.",
+      "status": "PARTIAL",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-21"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C13",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "HBM is a system-level memory and packaging topic: bandwidth, capacity, power and stack qualification should be analyzed together without inferring market share or shipment volume.",
+      "status": "PARTIAL",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-22"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "TG-C14",
+      "surface": "atlas",
+      "entityId": null,
+      "claimType": "EDUCATIONAL_REFERENCE",
+      "statement": "Quantum computing evaluation must keep hardware access, circuit execution, error behavior and measurement workflow together; a platform listing is not evidence of commercial advantage.",
+      "status": "PARTIAL",
+      "directness": "DISCOVERY",
+      "sourceIds": [
+        "PS-23"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-cloud-platform-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-cloud-platform",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "클라우드의 경제성은 workload를 compute·storage·network 자산과 사용량·계약·감가상각으로 번역하는 문제다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-cloud-platform-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-cloud-platform",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "예약 용량과 실제 사용량, 인프라 투자와 매출 인식은 같은 지표가 아니다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-cloud-platform-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-cloud-platform",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "전력·가동률·고객 집중도가 서비스 단위경제의 실패 조건이 될 수 있다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-neocloud-finance-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-neocloud-finance",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "GPU 보유량만으로 네오클라우드의 수익성을 판단할 수 없다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-neocloud-finance-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-neocloud-finance",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "가동률·임대·부채·고객 집중이 자산 회수기간과 현금흐름을 함께 결정한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-neocloud-finance-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-neocloud-finance",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "금융 조건이 바뀌면 같은 workload도 투자 가능한 capacity와 가치가 달라진다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-compute-silicon-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-compute-silicon",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "AI compute는 가속기·메모리·인터커넥트·컴파일러가 함께 만드는 시스템 성능이다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-compute-silicon-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-compute-silicon",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "peak 연산량은 실제 workload 처리량·지연·전력당 성능과 다르다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-compute-silicon-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-compute-silicon",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "모델 평가에서는 단일 benchmark보다 workload 조건과 실패 분포를 함께 기록해야 한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-memory-storage-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-memory-storage",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "메모리 계층은 계산기와 데이터 사이의 이동량·대역폭·지연·용량을 결정한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-memory-storage-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-memory-storage",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "HBM·SSD 제품 발표는 전체 메모리 가격·수급 전망과 동일하지 않다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-memory-storage-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-memory-storage",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "추론·RAG·데이터 파이프라인은 저장장치의 latency·endurance·용량 요구를 바꿀 수 있다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-foundry-equipment-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-foundry-equipment",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "공정 노드 명칭은 density·power·yield·설계 규칙 전체를 단독으로 설명하지 않는다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-foundry-equipment-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-foundry-equipment",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "노광·증착·식각·검사와 고객 qualification이 usable output을 결정한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-foundry-equipment-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-foundry-equipment",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "명목 capacity와 양품 출하·고객 승인 사이에는 시간과 수율의 게이트가 있다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-packaging-substrate-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-packaging-substrate",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "첨단 패키징은 logic die·HBM·기판·열·전력·검사를 하나의 시스템으로 묶는다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-packaging-substrate-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-packaging-substrate",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "대역폭 개선은 패키지 비용·열·수율·검사 난도와 trade-off를 가진다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-packaging-substrate-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-packaging-substrate",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "패키지 capacity와 고객 qualification은 wafer capacity와 별도의 병목이다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-network-photonics-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-network-photonics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "AI 클러스터 확장은 스위치·광모듈·링크·프로토콜의 scale-out 효율에 의존한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-network-photonics-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-network-photonics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "bandwidth만으로 network economics를 설명할 수 없고 latency·power per bit·error rate를 함께 봐야 한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-network-photonics-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-network-photonics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "CPO·LPO 기술 시연은 제품 양산·수율·고객 qualification의 증거와 분리한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-aidc-cooling-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-aidc-cooling",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "AIDC 처리능력은 서버 수가 아니라 IT load·전력변환·냉각·시설 가동률의 결합이다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-aidc-cooling-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-aidc-cooling",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "랙 밀도가 올라가면 냉각·배전·서비스 설계가 확장 조건이 된다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-aidc-cooling-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-aidc-cooling",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "PUE는 시설 오버헤드 지표이지 데이터센터 수익성이나 탄소효율의 완전한 대리변수가 아니다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-power-grid-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-power-grid",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "AI 전력 수요는 발전·송전·변전·접속·저장·냉각이 연결된 계통 문제다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-power-grid-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-power-grid",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "설치 서버와 grid-connected usable load는 허가·접속·품질·시간대 조건에서 다르다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-power-grid-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-power-grid",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "전력 가격·접속 대기·증설 lead time은 데이터센터 투자 회수의 시차를 만든다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-on-device-physical-ai-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-on-device-physical-ai",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "on-device AI는 latency·privacy·connectivity·전력 예산을 제품 단위에서 함께 최적화한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-on-device-physical-ai-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-on-device-physical-ai",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "edge inference와 cloud inference는 workload·업데이트·지원 비용의 경계가 다르다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-on-device-physical-ai-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-on-device-physical-ai",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "센서·NPU·배터리·소프트웨어 업데이트는 단위경제와 서비스성을 함께 결정한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-ai-economics-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-ai-economics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "AI CAPEX는 매출 성장뿐 아니라 감가상각·FCF·리스·계약·가동률의 문제다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-ai-economics-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-ai-economics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "기업의 투자 계획과 이미 인식된 고객 수요·매출은 구분해 읽어야 한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-ai-economics-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-ai-economics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "가격·활용률·자본비용이 바뀌면 같은 AI capacity의 ROIC와 회수기간이 달라진다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-physical-ai-robotics-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-physical-ai-robotics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "physical AI는 perception·planning·control과 안전·서비스·human override가 함께 작동해야 한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-physical-ai-robotics-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-physical-ai-robotics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "시뮬레이션·benchmark·파일럿은 반복 가능한 현장 task success와 다르다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-physical-ai-robotics-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-physical-ai-robotics",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "하드웨어·통합·유지보수 비용이 workflow 개선액보다 크면 기술 시연은 사업으로 전환되지 않는다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-drone-defense-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-drone-defense",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "방산 수요는 threat·requirement·budget·procurement·production·sustainment의 순서로 전달된다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-drone-defense-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-drone-defense",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "자율성 demo와 임무 성공·통신 회복력·운용자 승인 조건은 다른 증거다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-drone-defense-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-drone-defense",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "개발계약·생산계약·IDIQ·backlog는 현금흐름과 매출 인식 시점이 다르다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-space-aerospace-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-space-aerospace",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "우주 시스템의 경제성은 질량·추력·궤도·성공률과 제조·조달·운영 주기를 함께 봐야 한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-space-aerospace-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-space-aerospace",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "발사 cadence와 payload 성능은 launch price나 반복 매출과 동일하지 않다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-space-aerospace-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-space-aerospace",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "재사용·위성·서비스는 개발비·인증·생산·운영의 현금흐름 시차를 가진다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-ai-applications-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-ai-applications",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "AI 애플리케이션의 가치는 모델 성능보다 workflow·권한·감사·사용자 지불에 의해 결정된다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-ai-applications-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-ai-applications",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "도입 전 baseline과 human review 범위를 고정해야 생산성 주장을 검증할 수 있다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-ai-applications-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-ai-applications",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "반복매출은 초기 파일럿보다 실제 사용·갱신·단위 원가의 증거가 필요하다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-resources-materials-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-resources-materials",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "자원 공급은 매장량이 아니라 채굴·분리·정제·규격 인증·물류의 usable output 문제다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-resources-materials-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-resources-materials",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "증설 lead time과 대체재·재활용이 가격결정력과 공급 안정성에 영향을 준다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-resources-materials-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-resources-materials",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "광물 가격이나 정책 발표만으로 특정 기업의 수익·공급 우위를 결론낼 수 없다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-geopolitics-policy-security-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-geopolitics-policy-security",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "정책·수출통제·사이버보안은 기술 접근·납기·비용·고객·자본배분의 경로로 전달된다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-geopolitics-policy-security-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-geopolitics-policy-security",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "정책 문서의 범위와 기업별 실제 노출·대체 기간은 분리해 검증해야 한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-geopolitics-policy-security-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-geopolitics-policy-security",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "보안·규제 준수 비용은 수요를 만들 수도 있지만 승인·통합·운영 부담도 만든다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-capital-markets-company-map-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-capital-markets-company-map",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "기업 지도는 종목 목록이 아니라 역할·제품·현금흐름·자본비용·시장 기대의 연결이다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-capital-markets-company-map-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-capital-markets-company-map",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "공시된 매출·백로그·FCF와 시장의 기대·밸류에이션은 서로 다른 관찰층이다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-capital-markets-company-map-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-capital-markets-company-map",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "가격결정력은 기술 설명이 아니라 고객·대체재·공급능력·자본회수 자료로 확인한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-adjacent-future-tech-claim-1",
+      "surface": "atlas",
+      "entityId": "domain-adjacent-future-tech",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "미래 기술의 연구 가능성과 제품·양산·고객 workflow 통합은 서로 다른 단계다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-adjacent-future-tech-claim-2",
+      "surface": "atlas",
+      "entityId": "domain-adjacent-future-tech",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "시연·논문·benchmark는 반복성·제조·오류·인증·지원의 증거와 구분한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "domain-adjacent-future-tech-claim-3",
+      "surface": "atlas",
+      "entityId": "domain-adjacent-future-tech",
+      "claimType": "STRUCTURAL_REFERENCE",
+      "statement": "상용화 판단은 기술 지표뿐 아니라 고객의 지불 단위와 실패 비용을 포함해야 한다.",
+      "status": "PARTIAL",
+      "directness": "REVIEW_REQUIRED",
+      "sourceIds": [
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-02",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-nvidia",
+      "surface": "atlas",
+      "entityId": "nvidia",
+      "claimType": "ENTITY_RELATION",
+      "statement": "NVIDIA is represented as accelerator-designer, software-platform.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-01"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-amd",
+      "surface": "atlas",
+      "entityId": "amd",
+      "claimType": "ENTITY_RELATION",
+      "statement": "AMD is represented as accelerator-designer, cpu-designer.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-google-cloud",
+      "surface": "atlas",
+      "entityId": "google-cloud",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Google Cloud is represented as cloud-provider, custom-silicon-designer.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-aws",
+      "surface": "atlas",
+      "entityId": "aws",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Amazon Web Services is represented as cloud-provider, custom-silicon-designer.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-04"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-tsmc",
+      "surface": "atlas",
+      "entityId": "tsmc",
+      "claimType": "ENTITY_RELATION",
+      "statement": "TSMC is represented as foundry, advanced-packaging-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-05",
+        "PS-01"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-asml",
+      "surface": "atlas",
+      "entityId": "asml",
+      "claimType": "ENTITY_RELATION",
+      "statement": "ASML is represented as lithography-equipment.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-06"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-micron",
+      "surface": "atlas",
+      "entityId": "micron",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Micron is represented as memory-manufacturer, storage-manufacturer.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-07",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-kioxia",
+      "surface": "atlas",
+      "entityId": "kioxia",
+      "claimType": "ENTITY_RELATION",
+      "statement": "KIOXIA is represented as nand-manufacturer, ssd-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-08",
+        "PS-03",
+        "PS-04",
+        "PS-05"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-synopsys",
+      "surface": "atlas",
+      "entityId": "synopsys",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Synopsys is represented as eda-provider, ip-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-09"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-broadcom",
+      "surface": "atlas",
+      "entityId": "broadcom",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Broadcom is represented as network-silicon-designer, custom-asic-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-10"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-coherent",
+      "surface": "atlas",
+      "entityId": "coherent",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Coherent is represented as optical-component-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-11"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-vertiv",
+      "surface": "atlas",
+      "entityId": "vertiv",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Vertiv is represented as data-center-power-cooling.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-12"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-tesla",
+      "surface": "atlas",
+      "entityId": "tesla",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Tesla is represented as physical-ai-platform, automotive-system-integrator.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-13"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-shield-ai",
+      "surface": "atlas",
+      "entityId": "shield-ai",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Shield AI is represented as defense-autonomy-provider, autonomy-software-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-14"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-rocket-lab",
+      "surface": "atlas",
+      "entityId": "rocket-lab",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Rocket Lab is represented as launch-provider, space-systems-integrator.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-15"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-palantir",
+      "surface": "atlas",
+      "entityId": "palantir",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Palantir is represented as enterprise-ai-platform, workflow-software-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-16"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-mp-materials",
+      "surface": "atlas",
+      "entityId": "mp-materials",
+      "claimType": "ENTITY_RELATION",
+      "statement": "MP Materials is represented as rare-earths-producer, critical-materials-integrator.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-17"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-samsung-electronics",
+      "surface": "atlas",
+      "entityId": "samsung-electronics",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Samsung Electronics is represented as memory-manufacturer, foundry-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-ibm",
+      "surface": "atlas",
+      "entityId": "ibm",
+      "claimType": "ENTITY_RELATION",
+      "statement": "IBM is represented as quantum-platform-provider, enterprise-compute-provider.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-19"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "player-role-siemens",
+      "surface": "atlas",
+      "entityId": "siemens",
+      "claimType": "ENTITY_RELATION",
+      "statement": "Siemens is represented as industrial-software-provider, automation-system-integrator.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-20"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-nvidia-gpu-accelerator-platform",
+      "surface": "atlas",
+      "entityId": "nvidia-gpu-accelerator-platform",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "nvidia-gpu-accelerator-platform is structurally mapped to compute-gpu, compute-interconnect.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-01"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-amd-instinct-accelerator-family",
+      "surface": "atlas",
+      "entityId": "amd-instinct-accelerator-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "amd-instinct-accelerator-family is structurally mapped to compute-gpu.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-cloud-tpu-family",
+      "surface": "atlas",
+      "entityId": "cloud-tpu-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "cloud-tpu-family is structurally mapped to compute-asic, cloud-ai-service.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-03"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-aws-trainium-family",
+      "surface": "atlas",
+      "entityId": "aws-trainium-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "aws-trainium-family is structurally mapped to compute-asic, cloud-ai-service.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-04"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-tsmc-3dfabric-family",
+      "surface": "atlas",
+      "entityId": "tsmc-3dfabric-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "tsmc-3dfabric-family is structurally mapped to package-2-5d, package-3d-stacking.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-05",
+        "PS-01"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-asml-euv-lithography-family",
+      "surface": "atlas",
+      "entityId": "asml-euv-lithography-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "asml-euv-lithography-family is structurally mapped to foundry-equipment, foundry-process-node.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-06"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-micron-hbm-family",
+      "surface": "atlas",
+      "entityId": "micron-hbm-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "micron-hbm-family is structurally mapped to memory-dram-hbm.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-07",
+        "PS-02"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-kioxia-enterprise-ssd-family",
+      "surface": "atlas",
+      "entityId": "kioxia-enterprise-ssd-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "kioxia-enterprise-ssd-family is structurally mapped to memory-enterprise-ssd, memory-nand.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-08",
+        "PS-03",
+        "PS-04",
+        "PS-05"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-synopsys-eda-flow",
+      "surface": "atlas",
+      "entityId": "synopsys-eda-flow",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "synopsys-eda-flow is structurally mapped to foundry-design-ecosystem.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-09"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-broadcom-ethernet-switch-family",
+      "surface": "atlas",
+      "entityId": "broadcom-ethernet-switch-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "broadcom-ethernet-switch-family is structurally mapped to network-switch, network-fabric.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-10"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-coherent-optical-module-family",
+      "surface": "atlas",
+      "entityId": "coherent-optical-module-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "coherent-optical-module-family is structurally mapped to network-optical-module, network-silicon-photonics, network-cpo.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-11"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-vertiv-thermal-power-solutions",
+      "surface": "atlas",
+      "entityId": "vertiv-thermal-power-solutions",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "vertiv-thermal-power-solutions is structurally mapped to aidc-liquid-cooling, aidc-rack-density, power-transformer.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-12"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-tesla-optimus-and-autonomy-stack",
+      "surface": "atlas",
+      "entityId": "tesla-optimus-and-autonomy-stack",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "tesla-optimus-and-autonomy-stack is structurally mapped to physical-ai-perception, physical-ai-planning, physical-ai-control, application-automotive.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-13"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-shield-ai-hivemind-autonomy",
+      "surface": "atlas",
+      "entityId": "shield-ai-hivemind-autonomy",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "shield-ai-hivemind-autonomy is structurally mapped to defense-autonomy, defense-c2-isr-ew, physical-ai-planning, physical-ai-control.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-14"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-rocket-lab-electron-neutron-space-systems",
+      "surface": "atlas",
+      "entityId": "rocket-lab-electron-neutron-space-systems",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "rocket-lab-electron-neutron-space-systems is structurally mapped to space-rocket-physics, space-reusability, space-satellite-economics, space-aircraft-supply-chain.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-15"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-palantir-aip",
+      "surface": "atlas",
+      "entityId": "palantir-aip",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "palantir-aip is structurally mapped to application-finance, application-manufacturing, application-roi-payer, capital-company-role.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-16"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-mp-materials-rare-earth-magnetics",
+      "surface": "atlas",
+      "entityId": "mp-materials-rare-earth-magnetics",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "mp-materials-rare-earth-magnetics is structurally mapped to resources-rare-earths, resources-refining, resources-industrial-equipment, policy-supply-chain-resilience.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-17"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-samsung-hbm-family",
+      "surface": "atlas",
+      "entityId": "samsung-hbm-family",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "samsung-hbm-family is structurally mapped to memory-dram-hbm, package-3d-stacking.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-18"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-ibm-quantum-platform",
+      "surface": "atlas",
+      "entityId": "ibm-quantum-platform",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "ibm-quantum-platform is structurally mapped to future-quantum.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-19"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    },
+    {
+      "claimId": "product-taxonomy-siemens-industrial-copilot",
+      "surface": "atlas",
+      "entityId": "siemens-industrial-copilot",
+      "claimType": "ENTITY_TAXONOMY_RELATION",
+      "statement": "siemens-industrial-copilot is structurally mapped to application-manufacturing, physical-ai-digital-twin, capital-company-role.",
+      "status": "STRUCTURAL_REFERENCE_ONLY",
+      "directness": "STRUCTURAL",
+      "sourceIds": [
+        "PP-20"
+      ],
+      "asOf": null,
+      "reviewedAt": "2026-08-11",
+      "publication": "EDUCATIONAL_REFERENCE_ONLY",
+      "invalidation": "직접 출처·기준일·반대 근거를 다시 확인하기 전 현재 사실로 승격하지 않는다."
+    }
+  ]
+}

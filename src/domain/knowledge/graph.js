@@ -17,25 +17,47 @@ function inferEdgeType(relation) {
   return 'CAUSES';
 }
 
+function edgeKey(from, to) {
+  return `${from}->${to}`;
+}
+
 export function normalizeKnowledgeEdge(edge, defaults = {}) {
   const from = String(edge?.from || '').trim();
   const to = String(edge?.to || '').trim();
   const relation = String(edge?.relation || '').trim();
-  const type = EDGE_TYPES.has(edge?.type) ? edge.type : inferEdgeType(relation);
-  const direction = DIRECTIONS.has(edge?.direction) ? edge.direction : 'DIRECTED';
+  const explicit = defaults.edgeSemantics?.[edgeKey(from, to)] || null;
+  const input = explicit ? { ...edge, ...explicit } : edge;
+  const inferredFields = [];
+  const choose = (field, fallback) => {
+    if (input?.[field] != null && input[field] !== '') return input[field];
+    inferredFields.push(field);
+    return fallback;
+  };
+  const type = EDGE_TYPES.has(input?.type) ? input.type : choose('type', inferEdgeType(relation));
+  const direction = DIRECTIONS.has(input?.direction) ? input.direction : choose('direction', 'DIRECTED');
+  const kind = choose('kind', defaults.kind || 'STRUCTURAL');
+  const strength = choose('strength', defaults.strength || 'CORE');
+  const polarity = choose('polarity', defaults.polarity || 'CONDITIONAL');
+  const conditions = Array.isArray(input?.conditions) ? input.conditions : choose('conditions', defaults.conditions || []);
+  const sourceIds = Array.isArray(input?.sourceIds) ? input.sourceIds : choose('sourceIds', defaults.sourceIds || []);
+  const reviewedAt = input?.reviewedAt || choose('reviewedAt', defaults.reviewedAt || null);
   return Object.freeze({
-    id: edge?.id || `edge-${slug(from)}-${slug(to)}`,
+    id: input?.id || `edge-${slug(from)}-${slug(to)}`,
     from,
     to,
     relation,
     type,
     direction,
-    kind: edge?.kind || defaults.kind || 'STRUCTURAL',
-    strength: edge?.strength || defaults.strength || 'CORE',
-    polarity: edge?.polarity || defaults.polarity || 'CONDITIONAL',
-    conditions: Object.freeze([...(edge?.conditions || defaults.conditions || [])]),
-    sourceIds: Object.freeze([...(edge?.sourceIds || defaults.sourceIds || [])]),
-    reviewedAt: edge?.reviewedAt || defaults.reviewedAt || null
+    kind,
+    strength,
+    polarity,
+    conditions: Object.freeze([...conditions]),
+    sourceIds: Object.freeze([...sourceIds]),
+    reviewedAt,
+    reviewStatus: input?.reviewStatus || defaults.reviewStatus || null,
+    sourceStatus: input?.sourceStatus || defaults.sourceStatus || null,
+    metadataOrigin: explicit || input?.metadataOrigin === 'EXPLICIT_REVIEW' ? 'EXPLICIT_REVIEW' : (input?.metadataOrigin || (inferredFields.length ? 'INFERRED' : 'EXPLICIT')),
+    inferredFields: Object.freeze([...new Set(inferredFields)])
   });
 }
 
@@ -48,6 +70,7 @@ export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
   const invalidEndpoints = [];
   const duplicateEdges = [];
   const metadataErrors = [];
+  const inferredEdges = [];
   const seen = new Set();
   const adjacency = new Map([...ids].map((id) => [id, new Set()]));
   const inDegree = new Map([...ids].map((id) => [id, 0]));
@@ -55,6 +78,7 @@ export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
 
   for (const rawEdge of edges) {
     const edge = normalizeKnowledgeEdge(rawEdge);
+    if (edge.inferredFields.length) inferredEdges.push({ edgeId: edge.id, fields: edge.inferredFields });
     if (!ids.has(edge.from)) invalidEndpoints.push({ edgeId: edge.id, endpoint: 'from', nodeId: edge.from });
     if (!ids.has(edge.to)) invalidEndpoints.push({ edgeId: edge.id, endpoint: 'to', nodeId: edge.to });
     const key = `${edge.from}\u0000${edge.to}\u0000${edge.type}`;
@@ -102,6 +126,7 @@ export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
     invalidEndpoints: Object.freeze(invalidEndpoints),
     duplicateEdges: Object.freeze(duplicateEdges),
     metadataErrors: Object.freeze(metadataErrors),
+    inferredEdges: Object.freeze(inferredEdges),
     components: Object.freeze(components.map((component) => Object.freeze(component))),
     isolatedNodes: Object.freeze([...ids].filter((id) => (adjacency.get(id)?.size || 0) === 0).sort()),
     sourceNodes: Object.freeze([...ids].filter((id) => inDegree.get(id) === 0).sort()),

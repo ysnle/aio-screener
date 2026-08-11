@@ -10,7 +10,11 @@ const readJson = (relativePath) => JSON.parse(read(relativePath));
 const principles = readJson('public-data/principles/lesson-library.json');
 const atlas = readJson('public-data/atlas/foundation-lessons.json');
 const principlesUi = read('src/ui/pages/principles.js');
-const atlasUi = read('src/ui/pages/atlas.js');
+const routeState = read('src/app/knowledge-route-state.js');
+const learningState = read('src/domain/knowledge/learning-state.js');
+const routeBridge = read('src/domain/knowledge/route-bridge.js');
+const structuredArticles = readJson('public-data/knowledge/articles.json');
+const learningGraph = readJson('public-data/knowledge/learning-graph.json');
 
 const TARGET_SEMANTIC_FIELDS = [
   'intuition',
@@ -111,17 +115,26 @@ const corpora = [
 ];
 
 const uiCapabilities = {
-  shareableLessonState: /URLSearchParams|location\.search|history\.replaceState/.test(`${principlesUi}\n${atlasUi}`),
-  progressPersistence: /lessonProgress|learningProgress|completedLessons/.test(`${principlesUi}\n${atlasUi}`),
-  bookmarks: /bookmark/i.test(`${principlesUi}\n${atlasUi}`),
-  learnerNotes: /learnerNote|lessonNote|knowledgeNote/.test(`${principlesUi}\n${atlasUi}`),
-  retrievalQuizState: /quizState|retrievalCheck|spacedRepetition/.test(`${principlesUi}\n${atlasUi}`),
-  professionalRouteBridge: /routeLabel/.test(principlesUi)
+  shareableLessonState: /serializeKnowledgeRouteState|replaceKnowledgeRouteState/.test(routeState),
+  progressPersistence: /createLearningState|markViewed|setProgress/.test(learningState),
+  bookmarks: /toggleBookmark/.test(learningState),
+  learnerNotes: /setNote/.test(learningState),
+  retrievalQuizState: /recordRetrieval/.test(learningState),
+  professionalRouteBridge: /createKnowledgeRouteBridge|routeLabel/.test(`${principlesUi}\n${routeBridge}`)
+};
+const structuredReferenceArtifacts = {
+  articleCount: structuredArticles.counts?.total || 0,
+  principlesArticleCount: structuredArticles.counts?.principles || 0,
+  atlasArticleCount: structuredArticles.counts?.atlasFoundations || 0,
+  learningNodeCount: learningGraph.counts?.nodes || learningGraph.nodes?.length || 0,
+  pathCount: learningGraph.counts?.paths || learningGraph.paths?.length || 0,
+  status: structuredArticles.status || 'UNKNOWN',
+  publicationBoundary: structuredArticles.boundary || 'UNSPECIFIED'
 };
 
 const result = {
   schemaVersion: 'knowledge-encyclopedia-depth-audit.v1',
-  auditedAt: '2026-08-10',
+  auditedAt: process.env.KNOWLEDGE_MANIFEST_DATE || '2026-08-11',
   status: corpora.every((corpus) => corpus.certification === 'PASS') ? 'ENCYCLOPEDIA_DEPTH_CERTIFIED' : 'ENCYCLOPEDIA_DEPTH_BLOCKED',
   interpretation: '현재 required-field 존재 여부와 백과사전급 설명 깊이는 다른 계약이다. 문자 수는 하한선일 뿐이며 semantic field 충족과 구조화된 worked example을 함께 통과해야 한다.',
   naming: {
@@ -131,13 +144,14 @@ const result = {
   },
   corpora,
   uiCapabilities,
+  structuredReferenceArtifacts,
   personaAuditBoundary: '실제 참여자 연구가 아니라 저장소와 브라우저 시나리오에 근거한 다중 사용자 관점 휴리스틱 감사다.',
   personas: PERSONAS,
   blockers: [
     'KB-S0-01: 159/159 core lessons are below the 1,200-character encyclopedia floor.',
     'KB-S0-02: 0/159 lessons implement the complete semantic depth contract.',
-    'KB-S0-03: 0/159 lessons contain a structured workedExample object with inputs, process, result and interpretation.',
-    'KB-S0-04: progress, bookmarks, notes and retrieval-practice state are not implemented.',
+    'KB-S0-03: 0/159 source lesson summaries contain a structured workedExample object; generated drafts are separate and remain review-required.',
+    'KB-S0-04: route/local learning-state contracts exist, but learner controls, retrieval UX, and user validation remain open.',
     'KB-S0-05: actual recruited-user validation has not been conducted.'
   ],
   targetContract: {

@@ -1,12 +1,19 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { normalizeKnowledgeEdges } from '../../domain/knowledge/graph.js';
 import { loadKnowledgeCapabilities } from '../../data/knowledge/load-capabilities.js';
+import { PRINCIPLE_EDGE_SEMANTICS } from '../../domain/knowledge/principles-edge-semantics.js';
+import { parseKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
+import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 
 const REVIEWED_AT = '2026-08-02';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
 const CHAPTERS_URL = './public-data/principles/chapters.json';
 const LESSON_LIBRARY_URL = './public-data/principles/lesson-library.json';
 const NODE_GUIDES_URL = './public-data/principles/node-guides.json';
+const KNOWLEDGE_CONCEPTS_URL = './public-data/knowledge/concepts.json';
+const KNOWLEDGE_ALIASES_URL = './public-data/knowledge/aliases.json';
+const KNOWLEDGE_SOURCES_URL = './public-data/knowledge/sources.json';
+const KNOWLEDGE_CLAIMS_URL = './public-data/knowledge/claims.json';
 
 const RESEARCH_NODE_IDS = Object.freeze({
   'ai-era': 'candidate.ai-era',
@@ -255,7 +262,7 @@ const APPLICATIONS_EXPANSION = Object.freeze({
 
 const CATALOG = Object.freeze({
   nodes: Object.freeze([...RAW_CATALOG.nodes, ...MARKET_EXPANSION.nodes, ...SYSTEMS_EXPANSION.nodes, ...APPLICATIONS_EXPANSION.nodes].map((node) => Object.freeze({ ...node, reviewedAt: REVIEWED_AT }))),
-  edges: normalizeKnowledgeEdges([...RAW_CATALOG.edges, ...MARKET_EXPANSION.edges, ...SYSTEMS_EXPANSION.edges, ...APPLICATIONS_EXPANSION.edges], { kind: 'PRINCIPLE', reviewedAt: REVIEWED_AT }),
+  edges: normalizeKnowledgeEdges([...RAW_CATALOG.edges, ...MARKET_EXPANSION.edges, ...SYSTEMS_EXPANSION.edges, ...APPLICATIONS_EXPANSION.edges], { kind: 'PRINCIPLE', reviewedAt: REVIEWED_AT, edgeSemantics: PRINCIPLE_EDGE_SEMANTICS }),
   lessons: Object.freeze([...RAW_CATALOG.lessons, ...MARKET_EXPANSION.lessons, ...SYSTEMS_EXPANSION.lessons, ...APPLICATIONS_EXPANSION.lessons].map((lesson) => Object.freeze({ ...lesson, reviewedAt: REVIEWED_AT }))),
   paths: Object.freeze([...RAW_CATALOG.paths, ...MARKET_EXPANSION.paths, ...SYSTEMS_EXPANSION.paths, ...APPLICATIONS_EXPANSION.paths])
 });
@@ -757,15 +764,23 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
       if (!page) return () => bag.dispose();
       const content = page.querySelector('[data-principles-content]');
       if (!content) return () => bag.dispose();
-       const state = { mode: 'tree', view: 'map', query: '', selectedId: 'scarcity-choice', pathId: 'beginner', step: 0, depth: 1, expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), research: null, chapters: null, lessonLibrary: null, nodeGuides: null, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false };
+       const sharedRoute = parseKnowledgeRouteState(root?.location);
+       const initialMode = ['tree', 'graph', 'path'].includes(sharedRoute.mode) ? sharedRoute.mode : 'tree';
+       const initialNode = NODE_BY_ID.has(sharedRoute.node) ? sharedRoute.node : 'scarcity-choice';
+       const initialPath = CATALOG.paths.some((item) => item.id === sharedRoute.path) ? sharedRoute.path : 'beginner';
+       const learning = createAppKnowledgeLearningState(root);
+       const state = { mode: initialMode, view: 'map', query: '', selectedId: initialNode, pathId: initialPath, step: sharedRoute.step ?? 0, depth: 1, expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), research: null, chapters: null, lessonLibrary: null, nodeGuides: null, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false };
       page.dataset.aioArchitectureRoute = 'principles';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
       page.dataset.aioReviewedAt = REVIEWED_AT;
+      page.dataset.aioKnowledgeLearningState = 'local-persistent';
 
       const route = (routeId) => {
         if (typeof root?.showPage === 'function') root.showPage(routeId);
       };
+
+      const syncSharedState = () => replaceKnowledgeRouteState({ root, state: { mode: state.mode, node: state.selectedId, path: state.pathId, step: state.step } });
 
       const focusDetail = () => {
         const heading = page.querySelector('.principles-detail-title');
@@ -776,6 +791,9 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
 
       const selectNode = (nodeId) => {
         state.selectedId = nodeId;
+        const lesson = lessonForNode(nodeId);
+        learning.markViewed(lesson ? `principles:${lesson.id}` : `principles-node:${nodeId}`);
+        syncSharedState();
         render();
         queueMicrotask(focusDetail);
       };
@@ -979,6 +997,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         if (action === 'step') state.step = Math.max(0, Number(value) || 0);
         if (action !== 'route') {
           event.preventDefault();
+          syncSharedState();
           render();
           if (action === 'select-node') queueMicrotask(focusDetail);
         }
@@ -994,6 +1013,11 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           delete page.dataset.aioPrinciplesChapters;
           delete page.dataset.aioPrinciplesLessonLibrary;
           delete page.dataset.aioPrinciplesNodeGuides;
+          delete page.dataset.aioPrinciplesKnowledgeConcepts;
+          delete page.dataset.aioPrinciplesKnowledgeAliases;
+          delete page.dataset.aioPrinciplesKnowledgeSources;
+          delete page.dataset.aioPrinciplesKnowledgeClaims;
+          delete page.dataset.aioKnowledgeLearningState;
           content.replaceChildren();
         });
         render();
@@ -1003,7 +1027,11 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             { key: 'research', url: RESEARCH_URL },
             { key: 'chapters', url: CHAPTERS_URL },
             { key: 'lessonLibrary', url: LESSON_LIBRARY_URL },
-            { key: 'nodeGuides', url: NODE_GUIDES_URL }
+            { key: 'nodeGuides', url: NODE_GUIDES_URL },
+            { key: 'knowledgeConcepts', url: KNOWLEDGE_CONCEPTS_URL },
+            { key: 'knowledgeAliases', url: KNOWLEDGE_ALIASES_URL },
+            { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL },
+            { key: 'knowledgeClaims', url: KNOWLEDGE_CLAIMS_URL }
           ]).then((capabilities) => {
             for (const [key, result] of Object.entries(capabilities)) {
               state[key] = result.value;
@@ -1013,6 +1041,10 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             page.dataset.aioPrinciplesChapters = capabilities.chapters.status;
             page.dataset.aioPrinciplesLessonLibrary = capabilities.lessonLibrary.status;
             page.dataset.aioPrinciplesNodeGuides = capabilities.nodeGuides.status;
+            page.dataset.aioPrinciplesKnowledgeConcepts = capabilities.knowledgeConcepts.status;
+            page.dataset.aioPrinciplesKnowledgeAliases = capabilities.knowledgeAliases.status;
+            page.dataset.aioPrinciplesKnowledgeSources = capabilities.knowledgeSources.status;
+            page.dataset.aioPrinciplesKnowledgeClaims = capabilities.knowledgeClaims.status;
             render();
           });
        }
@@ -1021,4 +1053,4 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
   };
 }
 
-export { CATALOG as MARKET_PRINCIPLES_CATALOG, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL };
+export { CATALOG as MARKET_PRINCIPLES_CATALOG, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL, KNOWLEDGE_CONCEPTS_URL, KNOWLEDGE_ALIASES_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL };

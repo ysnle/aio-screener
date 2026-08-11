@@ -4,7 +4,7 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v54.5
+- **현재 버전**: v54.6
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
 ## _context/ 문서 (55개 versioned/new 활성, 2026-08-10 갱신)
@@ -62,9 +62,9 @@
 | AI-ERA-FOUNDATIONS-CURRICULUM-2026-08-01.md | AI 시대 기초 curriculum 원 설계 SSOT. 물리·수학→학습/Transformer→Agent→GPU/HBM/AIDC/전력→경제성을 정의했으며 v53.97에 6단계·48 lesson으로 부분 구현됨 | AI 분류·원고 깊이·source, 모델/칩/AIDC lesson, 시각화 또는 구현 상태 변경 시 |
 | AI-ERA-INDUSTRY-ATLAS-RESEARCH-SPEC-2026-08-01.md | AI 시대 산업 Atlas 원 연구 SSOT. 19 domains와 source packet→evidence ledger→승격을 정의했으며 v53.97에 부분 구현됨. 현재 graph/source gap은 2026-08-10 handoff 참조 | 산업 inventory·ontology·source·metric·ATLAS-00~10 상태 변경 시 |
 | AI-ERA-DEEP-TAXONOMY-PLAYER-PRODUCT-SPEC-2026-08-01.md | AI 산업 L0~L6 재귀 분해 원 명세. v53.97에 10 topics·50 branches·20 players/products로 부분 구현됐으며 전체 95-node 연결·제품 의미·source resolver는 구조 개편 대상으로 남음 | taxonomy 깊이·기업 역할·제품 portfolio·Telegram source/coverage·DEEP/TG-ATLAS packet 변경 시 |
-| MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md | v53.99 repository·artifact·live/local UI 전수 대조 SSOT. `AI 시대 지식 지도` 명칭, 기준선 dangling/5-component/source mismatch와 v53.99 graph/evidence/capability 기준 구현, 159개 depth 실패, 9개 persona, KA-00~10 근본 개편 계약. 진단 VERIFIED, reference core PARTIAL, deep article/learning/live는 OPEN | KA 상태, knowledge schema/ontology, graph/source/article/persona/state/renderer 또는 live 판정 변경 시 |
-| MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json | 구조 개편 handoff의 machine-readable baseline/current/depth/persona blocker·KA dependency/status·reference implementation·required semantic gate 계약 | baseline/current, blocker, depth/persona, dependency/status, gate 또는 handoff 상태 변경 시 |
-| MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json | 지식 구조 개편 handoff 15파일의 전달 manifest. entry point·파일 역할·착수 순서·금지 완료 주장 포함 | 패키지 파일·역할·start sequence·completion boundary 변경 시 |
+| MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md | v54.6 진행형 SSOT. 기존 KA-00~10을 보존하고 주식·경제·금융·기술 백과사전 사명, 전수 corpus·모든 sector/domain/category, Web Research·심층 article·정량 lab·시장 적용·KA-11~16을 추가 고정 | KA 상태, schema/ontology, graph/source/article, coverage/research, sector/domain, market transmission, persona/state/renderer 또는 live 판정 변경 시 |
+| MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json | handoff의 machine-readable baseline/current/blocker, KA-00~16 dependency/status, fullCorpusCoverage·webResearchContract·contentProfiles·required gates 계약 | baseline/current, blocker, coverage/research/depth/persona, dependency/status 또는 gate 변경 시 |
+| MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json | 현재 Knowledge Core와 KA-11~16 planned artifacts, start sequence, stale package 경계와 금지 완료 주장을 가진 전달 manifest | current/planned files, package status, start sequence 또는 completion boundary 변경 시 |
 | MASTERS-PORTFOLIO-13F-PAGE-DESIGN-HANDOFF-2026-08-01.md | `대가의 포트폴리오` 신규 페이지 DESIGN_ONLY SSOT. 인물↔SEC 신고주체/CIK, LIVE_13F/HISTORICAL/METHOD_ONLY, 화면·데이터·수정공시·CUSIP/ticker·분기 자동화·MF-00~09 구현 계약 | 투자자 목록, 13F pipeline/정규화/비교/자동화, profile type 또는 구현 상태 변경 시 |
 | WO7-GLOBAL-INVENTORY-2026-07-10.md | CODEX-COMPREHENSIVE-DIAGNOSIS WO-7 Packet 1 — 전역 read/write baseline 실측 + timer/chart/page-lifecycle 어댑터 기존재 확인 + 다음 패킷 우선순위 | 다음 WO-7 패킷 착수 시 |
 

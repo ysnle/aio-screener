@@ -1151,3 +1151,11 @@ signal(2a)에 이어 briefing(2b) 재검증. 이 페이지는 v52.63에서 이�
 - **Runtime contract link**: Extended `scripts/ci-runtime-contract-check.mjs` so runtime/share-readiness work must keep the semantic review gate documented and runnable.
 - **Workflow compaction direction**: Captured the next structural requirement: helper files and skills must be compressed, retired, or split into references instead of continuously appending long SKILL.md/checklist blocks.
 - **QA loop**: Added P513-Q1..Q6 to require function -> consumer -> visible output checks for trading, AI, data/source, UX, and page redesign work.
+## v54.6 (2026-08-11)
+- **Knowledge ontology and aliases**: added a deterministic 155-concept manifest, 461 aliases, and explicit cross-surface equivalence groups for Principles/Atlas IDs.
+- **Typed graph and evidence boundaries**: generated explicit Principles edge semantics and a unified 119-source/270-claim registry with claim-level directness and unresolved/conflict gates.
+- **Structured learning artifacts**: generated 159 reference-only article drafts, a combined article index, a 159-node/16-path learning graph, route targets, shareable route state, local persistence, repository/selectors, and five shared renderers.
+- **Encyclopedia completion scope**: preserved KA-00~10 and added KA-11~16 for full 111/48/60/95/50/19 corpus coverage, every sector/domain/category, concept-level Web Research dossiers, human-reviewed deep articles, quantitative labs, stock/market transmission, and final semantic/browser/live/user certification.
+- **Release boundary**: all generated article drafts remain `STRUCTURED_REFERENCE_DRAFT`; semantic source review, primary-source fact-checking, user validation, and live browser certification remain open.
+- **Follow-up**: P909~P910, R464~R469, QA-KA1~QA-KA10.
+- R1 7 surfaces: v54.6

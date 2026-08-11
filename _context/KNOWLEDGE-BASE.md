@@ -4,6 +4,15 @@ last_verified: 2026-08-10
 confidence: high
 ---
 
+## 2026-08-11 백과사전 제품 사명: 구조는 기반이고 전체 콘텐츠가 제품이다
+
+- 시장 원리와 AI 시대 지식 지도는 `주식·경제·금융·기술 백과사전`이다. 목표는 짧은 개념 설명이 아니라 `실물경제 → 산업·기술 가치사슬 → 기업·제품 → 재무제표·현금흐름 → 밸류에이션 → 금융시장·주가 → 트레이딩 관찰·무효화`의 학습·적용 폐쇄 경로다.
+- 기존 KA-00~10 ontology/graph/evidence/draft/state/renderer 작업은 순차적으로 모두 완료한다. 이를 되돌리거나 다른 지식 체계를 병렬로 만들지 않는다.
+- 그 뒤 KA-11~16에서 111 Principles lessons, 48 Atlas foundations, 60 concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains와 모든 세부 sector/domain/category를 전수 보강한다. 대표 카테고리 몇 개의 상세화로 전체 완료를 선언하지 않는다.
+- Web Search는 링크 수집이 아니라 concept별 research dossier다. 질의·검색일·후보·채택/기각·source tier/directness·claim coverage·consensus/disagreement·invalidation·currentness와 Q1~Q5 causal framework를 남긴다.
+- 159 `STRUCTURED_REFERENCE_DRAFT`는 authoring scaffold다. 사람이 검토한 고유 설명·형식 모델/rationale·worked example·case study·시장 전달·직접 출처가 없으면 완성 article이 아니다.
+- 1,200자는 탈락 하한일 뿐 품질 기준이 아니다. template 반복, broad source 재사용, 검색 snippet, vendor/discovery 단독 주장, 가상 최신값, 직접 매매 지시는 실패다.
+
 ## 2026-08-10 지식 그래프 운영 원칙: 개수보다 해석 경로가 정본이다
 
 - graph는 node/edge 수가 맞아도 endpoint가 다른 ontology를 가리키거나 component가 분리되면 실패다. 실제 export를 읽어 endpoint·component·orphan을 계산해야 한다.

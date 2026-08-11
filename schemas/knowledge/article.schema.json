@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aio-screener.local/schemas/knowledge/article.schema.json",
+  "title": "Knowledge deep article",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "articleId", "lessonId", "surface", "title", "authoringStatus", "publication", "summary", "article", "quality"],
+  "properties": {
+    "schemaVersion": { "const": "knowledge-article.v1" },
+    "articleId": { "type": "string", "minLength": 1 },
+    "lessonId": { "type": "string", "minLength": 1 },
+    "surface": { "enum": ["principles", "atlas-foundations"] },
+    "title": { "type": "string", "minLength": 1 },
+    "authoringStatus": { "enum": ["STRUCTURED_REFERENCE_DRAFT", "AUTHOR_REVIEWED", "PUBLISHED_REFERENCE"] },
+    "publication": { "const": "EDUCATIONAL_REFERENCE_ONLY" },
+    "summary": { "type": "object", "required": ["definition", "mechanism", "example", "counterScenario", "verificationQuestion", "visualization"] },
+    "article": {
+      "type": "object",
+      "required": ["intuition", "formalModelOrRationale", "workedExampleOrRationale", "realEconomyChannel", "companyChannel", "financialStatementChannel", "valuationChannel", "marketChannel", "tradingApplication", "invalidation", "glossary", "retrievalChecks", "claimIds", "sourceIds"]
+    },
+    "quality": { "type": "object", "required": ["coreTextCharacters", "lengthFloor", "semanticReview", "sourceDirectnessReview", "userValidation"] }
+  }
+}

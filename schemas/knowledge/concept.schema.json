@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aio-screener.local/schemas/knowledge/concept.schema.json",
+  "title": "Knowledge canonical concept",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["canonicalId", "legacyId", "surface", "equivalenceGroup", "title", "kind", "status", "source", "sourceIds"],
+  "properties": {
+    "canonicalId": { "type": "string", "pattern": "^(principles|atlas):.+" },
+    "legacyId": { "type": "string", "minLength": 1 },
+    "surface": { "enum": ["principles", "atlas"] },
+    "equivalenceGroup": { "type": ["string", "null"] },
+    "title": { "type": "string", "minLength": 1 },
+    "kind": { "type": "string", "minLength": 1 },
+    "layer": { "type": ["string", "null"] },
+    "domainId": { "type": ["string", "null"] },
+    "status": { "const": "CANONICAL_REFERENCE" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact", "locator", "field"],
+      "properties": {
+        "artifact": { "type": "string", "minLength": 1 },
+        "locator": { "type": "string", "minLength": 1 },
+        "field": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sourceIds": { "type": "array", "items": { "type": "string" } }
+  }
+}

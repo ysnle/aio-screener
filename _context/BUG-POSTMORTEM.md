@@ -2,11 +2,31 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-11
 confidence: high
-latest_version: v54.5
-latest_P_number: P908
-next_P_number: P909
-current_total_entries: 633 (P1~P908, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P904~P908 v54.4~v54.5 AI authority, claim-scoped degradation, route readiness, and partial-source release semantics
+latest_version: v54.6
+latest_P_number: P910
+next_P_number: P911
+current_total_entries: 634 (P1~P910, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P910 v54.6 encyclopedia mission, full corpus coverage, Web Research and post-KA content completion contract
+
+## P910 - v54.6 - Structural knowledge drafts were still too easy to mistake for the requested stock/economics/technology encyclopedia
+
+- **motivation**: The user requires Market Principles and AI 시대 지식 지도를 a detailed stock, economics, finance and technology encyclopedia, including every fine-grained sector, domain and category and a path into real market use.
+- **symptom/reproduction**: KA-00~10 described ontology, graph, evidence, 159 drafts, state and renderers, but the handoff did not make independent Web Research and the 60 Principles guides, 95 Atlas nodes, 50 deep branches and 19 domain dossiers an explicit post-structural completion track. Another session could finish structural contracts while leaving the visible content thin.
+- **root_cause**: The plan treated the 159 core lesson drafts as the main content scope and left source research, category-wide depth, quantitative labs and stock-market transmission mostly inside broad acceptance prose rather than separate ordered work packages and machine gates.
+- **fix**: Preserved the existing KA-00~10 sequence and added KA-11~16 for full-corpus inventory, concept-level Web Research dossiers, human-reviewed deep articles, sector/domain/category enrichment, quantitative market labs, and final encyclopedia certification. Added explicit coverage matrices, source profiles, article uniqueness, market-transmission and currentness boundaries to the handoff and machine contract.
+- **violated_rule**: R467 — a structured draft boundary is necessary but insufficient when the product mission and full content corpus are not separately gated.
+- **prevention**: R469 requires every detailed concept/category to have a researched and reviewed article/dossier or an explicit lossless canonical composition path. Structural/schema PASS cannot certify encyclopedia content.
+- **verification**: handoff JSON parse, work-package dependency/status review, targeted knowledge lint, workflow compaction, and index parity. No claim is made that Web Research or content authoring itself has been completed in this documentation-only packet.
+
+## P909 - v54.6 - Knowledge artifacts could drift from runtime shape and overstate draft completeness
+
+- **motivation**: the structural handoff required a canonical ontology, evidence directness boundary, 159-lesson learning artifacts, and route/repository contracts without turning generated scaffolds into fact-checked educational content.
+- **symptom/reproduction**: legacy concept IDs had no canonical manifest, source catalogs were surface-specific, generated article data had no combined repository index, and a selector assumed an array where the artifact contract uses an object wrapper.
+- **root_cause**: producer, transformer, consumer, and release gates were not connected by one knowledge contract; draft status and source directness were not represented as first-class fields.
+- **fix**: added canonical concepts/aliases, explicit principle edge semantics, a 119-source/270-claim registry, 159 structured draft articles plus learning graph, route state/persistence/bridge, repository/selectors, shared renderers, deterministic builders, and local CI contracts. Corrected the conflicting Micron source URL before registry generation.
+- **violated_rule**: R464~R468.
+- **prevention**: keep draft/review states fail-closed, require claim-level source resolution, run all knowledge builders before the release gates, and prohibit claims of completed deep articles, independent fact-checking, user validation, or live certification until separately evidenced.
+- **verification**: ontology, semantic core, article, learning-state, route-bridge, repository, renderer, existing static/headless, and release gates in the v54.6 verification batch.
 
 ## P908 - v54.5 - Worker requests could be certified by an unrelated personal key and transient health latency was over-cached
 

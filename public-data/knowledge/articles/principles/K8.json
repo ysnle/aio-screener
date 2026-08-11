@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "knowledge-article.v1",
+  "articleId": "principles:K8",
+  "lessonId": "K8",
+  "surface": "principles",
+  "title": "병목과 single point of failure",
+  "authoringStatus": "STRUCTURED_REFERENCE_DRAFT",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "reviewedAt": "2026-08-11",
+  "summary": {
+    "definition": "병목은 전체 흐름의 처리량을 제한하는 단계이고 single point of failure는 한 구성요소의 고장이 전체 시스템을 멈출 수 있는 집중 위험이다.",
+    "mechanism": "병목의 처리량과 대체 가능성이 가격·납기·협상력을 결정한다. 생산량을 늘리려면 병목을 찾아야 한다.",
+    "example": "서버가 충분해도 전력 접속 변압기나 특정 패키징 공정이 부족하면 데이터센터의 실제 서비스 용량은 늘지 않는다.",
+    "counterScenario": "가장 비싼 부품이나 가장 눈에 띄는 기업을 병목으로 착각하면 실제 제한 단계에 대한 투자와 재고를 놓친다.",
+    "verificationQuestion": "전체 리드타임에서 가장 긴 대기 단계는 무엇이며, 고장·지연 시 대체 공급·우회 경로가 있는가?",
+    "visualization": "흐름 → 제한 단계 → 전체 처리량"
+  },
+  "article": {
+    "intuition": "병목은 전체 흐름의 처리량을 제한하는 단계이고 single point of failure는 한 구성요소의 고장이 전체 시스템을 멈출 수 있는 집중 위험이다. 병목의 처리량과 대체 가능성이 가격·납기·협상력을 결정한다. 생산량을 늘리려면 병목을 찾아야 한다. 이 문서는 병목과 single point of failure을 단일 지표나 종목 서사가 아니라 조건과 전달 경로를 확인하는 교육용 개념으로 다룬다.",
+    "formalModelOrRationale": {
+      "kind": "QUALITATIVE_RATIONALE",
+      "text": "현재 데이터나 가격을 예측하는 공식으로 승격하지 않고, 병목과 single point of failure을 관찰할 때 어떤 입력·제약·결과를 분리해야 하는지 설명한다. 가장 비싼 부품이나 가장 눈에 띄는 기업을 병목으로 착각하면 실제 제한 단계에 대한 투자와 재고를 놓친다.",
+      "assumptions": [
+        "교육용 reference 범위",
+        "현재 수치·생산량·가격을 확정하지 않음",
+        "source ID와 기준일을 다시 확인해야 함"
+      ]
+    },
+    "workedExampleOrRationale": {
+      "kind": "REFERENCE_SCENARIO",
+      "inputs": [
+        "서버가 충분해도 전력 접속 변압기나 특정 패키징 공정이 부족하면 데이터센터의 실제 서비스 용량은 늘지 않는다.",
+        "개념: 병목과 single point of failure",
+        "원고 sourceIds: MP-OECD-IND, MP-SEC"
+      ],
+      "assumptions": [
+        "입력은 설명을 위한 가상/정성 시나리오다.",
+        "관찰기간·단위·대체 설명을 별도 기록한다.",
+        "현재 시장 의사결정 또는 매매 주문으로 사용하지 않는다."
+      ],
+      "steps": [
+        "1. 병목과 single point of failure과 연결된 핵심 제약을 병목의 처리량과 대체 가능성이 가격·납기·협상력을 결정한다. 생산량을 늘리려면 병목을 찾아야 한다.으로 분해한다.",
+        "2. 서버가 충분해도 전력 접속 변압기나 특정 패키징 공정이 부족하면 데이터센터의 실제 서비스 용량은 늘지 않는다.을 실물경제·기업·재무·시장 층으로 나누어 어떤 층의 관찰인지 표시한다.",
+        "3. 전체 리드타임에서 가장 긴 대기 단계는 무엇이며, 고장·지연 시 대체 공급·우회 경로가 있는가?에 답할 직접 자료와 반대 시나리오를 정리한다."
+      ],
+      "result": "이 시나리오에서 확인 가능한 결과는 병목과 single point of failure의 작동 경로와 보류 조건이며, 특정 가격 방향이나 투자 결론이 아니다.",
+      "interpretation": "개념의 설명과 실제 관측 사실을 분리하고, source·기준일·단위를 채운 뒤에만 더 강한 주장을 검토한다.",
+      "failureBoundary": "가장 비싼 부품이나 가장 눈에 띄는 기업을 병목으로 착각하면 실제 제한 단계에 대한 투자와 재고를 놓친다."
+    },
+    "realEconomyChannel": "실물경제 층: 병목과 single point of failure이 자원·수요·생산·병목의 어떤 변수를 바꾸는지 확인한다. 병목의 처리량과 대체 가능성이 가격·납기·협상력을 결정한다. 생산량을 늘리려면 병목을 찾아야 한다.",
+    "companyChannel": "기업 층: 고객 문제, 운영 KPI, 경쟁우위와 공급 조건이 병목과 single point of failure과 어떻게 연결되는지 구분한다.",
+    "financialStatementChannel": "재무제표 층: 매출·비용·CAPEX·감가상각·운전자본·현금흐름 중 어떤 항목에 흔적이 남는지 확인하되 공시 line item을 직접 대조한다.",
+    "valuationChannel": "밸류에이션 층: 기대 성장·마진·자본비용·기간·잔존가치를 분리하고, 병목과 single point of failure만으로 적정가치를 산출하지 않는다.",
+    "marketChannel": "시장 층: 관찰시점·기대 대비 서프라이즈·유동성·반대 설명을 기록하며 현재 가격 방향으로 번역하지 않는다.",
+    "tradingApplication": "관찰 적용: 전체 리드타임에서 가장 긴 대기 단계는 무엇이며, 고장·지연 시 대체 공급·우회 경로가 있는가?을 체크리스트로 사용하고, 확인되지 않은 수치·매매 지시는 생성하지 않는다.",
+    "invalidation": "가장 비싼 부품이나 가장 눈에 띄는 기업을 병목으로 착각하면 실제 제한 단계에 대한 투자와 재고를 놓친다.",
+    "glossary": [
+      {
+        "term": "병목과 single point of failure",
+        "definition": "병목은 전체 흐름의 처리량을 제한하는 단계이고 single point of failure는 한 구성요소의 고장이 전체 시스템을 멈출 수 있는 집중 위험이다."
+      },
+      {
+        "term": "직접성",
+        "definition": "출처가 해당 주장을 직접 지지하는 정도이며, 배경 출처의 존재만으로 높아지지 않는다."
+      },
+      {
+        "term": "기준일",
+        "definition": "관찰·공시·발행 시점을 구분하는 필드다."
+      }
+    ],
+    "retrievalChecks": [
+      "전체 리드타임에서 가장 긴 대기 단계는 무엇이며, 고장·지연 시 대체 공급·우회 경로가 있는가?",
+      "이 설명에서 관찰 사실과 해석을 분리하면 각각 무엇이며, 어떤 조건에서 결론을 무효화할 것인가?"
+    ],
+    "claimIds": [
+      "principles-lesson-K8"
+    ],
+    "sourceIds": [
+      "MP-OECD-IND",
+      "MP-SEC"
+    ]
+  },
+  "quality": {
+    "coreTextCharacters": 2207,
+    "lengthFloor": 1200,
+    "semanticReview": "REQUIRED",
+    "sourceDirectnessReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  },
+  "authoringNote": "자동 구조화된 59번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
+}

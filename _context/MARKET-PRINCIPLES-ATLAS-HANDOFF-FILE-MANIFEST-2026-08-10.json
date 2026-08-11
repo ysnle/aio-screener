@@ -1,12 +1,14 @@
 {
-  "schemaVersion": "knowledge-handoff-file-manifest.v1",
-  "packageName": "AIO-Knowledge-System-Structural-Handoff-v53.99",
-  "applicationVersion": "v53.99",
-  "status": "AUDIT_VERIFIED_REFERENCE_CORE_PARTIAL",
-  "generatedAt": "2026-08-10T19:28:00+09:00",
+  "schemaVersion": "knowledge-handoff-file-manifest.v2",
+  "packageName": "AIO-Knowledge-System-Structural-Handoff-v54.6",
+  "applicationVersion": "v54.6",
+  "status": "IMPLEMENTATION_IN_PROGRESS_CONTENT_RESEARCH_OPEN",
+  "generatedAt": "2026-08-11T23:59:00+09:00",
   "entryPoint": "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
   "machineContract": "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
-  "packageArtifact": "_artifacts/AIO-Knowledge-System-Structural-Handoff-v53.99.zip",
+  "packageArtifact": null,
+  "stalePackageArtifact": "_artifacts/AIO-Knowledge-System-Structural-Handoff-v53.99.zip",
+  "packageArtifactStatus": "REBUILD_REQUIRED_AFTER_KA_11_TO_KA_16_CONTRACT_INTEGRATION",
   "files": [
     {"path":"_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md","role":"master audit, target architecture, work packets, acceptance and code ownership","classification":"HANDOFF_SSOT"},
     {"path":"_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json","role":"baseline/current state, blockers, work-package status and depth contract","classification":"MACHINE_CONTRACT"},
@@ -24,16 +26,46 @@
     {"path":"scripts/ci-atlas-contract-check.mjs","role":"Atlas structural/source/loading contract","classification":"CURRENT_GATE"},
     {"path":"scripts/ci-atlas-browser-check.mjs","role":"live DOM source-resolution and learner-flow contract","classification":"CURRENT_BROWSER_GATE"}
   ],
+  "currentKnowledgeCore": [
+    "public-data/knowledge/concepts.json",
+    "public-data/knowledge/aliases.json",
+    "public-data/knowledge/sources.json",
+    "public-data/knowledge/claims.json",
+    "public-data/knowledge/articles.json",
+    "public-data/knowledge/articles/principles/*.json",
+    "public-data/knowledge/articles/atlas-foundations/*.json",
+    "public-data/knowledge/learning-graph.json",
+    "public-data/knowledge/route-targets.json",
+    "schemas/knowledge/concept.schema.json",
+    "schemas/knowledge/article.schema.json"
+  ],
+  "plannedContentCompletionArtifacts": [
+    "public-data/knowledge/coverage-matrix.json",
+    "public-data/knowledge/research-dossiers/*.json",
+    "public-data/knowledge/domain-dossiers/*.json",
+    "public-data/knowledge/quantitative-labs/*.json",
+    "scripts/ci-knowledge-full-corpus-coverage.mjs",
+    "scripts/ci-knowledge-web-research-dossier.mjs",
+    "scripts/ci-knowledge-article-uniqueness.mjs",
+    "scripts/ci-knowledge-market-transmission.mjs"
+  ],
   "startSequence": [
-    "read entryPoint sections 0, 6, 7, 10, 13",
+    "read entryPoint implementation update and sections 0, 6, 7, 10, 13, 14, 15 and 16",
     "read machineContract blocker and workPackage status",
     "run node scripts/ci-knowledge-core-semantic-check.mjs",
-    "complete KA-01 manifest/alias freeze before parallel article authoring",
-    "keep the 159-lesson depth audit failing until every article genuinely meets the semantic contract"
+    "continue existing KA-00 through KA-10 sequentially without reverting the current v54.6 knowledge core",
+    "after KA-10, run KA-11 full corpus coverage and KA-12 Web Research dossiers before content completion",
+    "run KA-13 through KA-15 in gated chapter, foundation-layer and domain batches",
+    "keep structured drafts distinct from human-reviewed encyclopedia articles",
+    "run KA-16 only after every sector, domain and category passes semantic and browser coverage"
   ],
   "forbiddenCompletionClaims": [
     "159 deep articles complete",
     "all claims independently fact-checked",
+    "structured reference drafts equal completed encyclopedia content",
+    "Web Research complete without per-content-unit research dossiers",
+    "all sectors and domains complete when only representative categories were enriched",
+    "stock and market application complete without financial statement, valuation, catalyst and invalidation closure",
     "active learning complete",
     "recruited-user validated",
     "live deployment verified"

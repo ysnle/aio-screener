@@ -1,11 +1,47 @@
 ---
 verified_by: agent (Fable 5) + Codex P761-P892 verification
-last_verified: 2026-08-03
+last_verified: 2026-08-11
 confidence: high
-target_version: v53.89
+target_version: v54.6
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R464. Knowledge concepts require one canonical namespace and explicit overlap equivalence (v54.6)
+
+**Rule**: Principles and Atlas concepts must be published through the canonical knowledge manifest. Legacy IDs may resolve only through explicit aliases; cross-surface overlap is an equivalence group, never an accidental duplicate.
+
+**Validation**: `ci-knowledge-ontology-contract.mjs` must pass with the generated manifest and zero registry errors.
+
+## R465. Knowledge graph edge metadata must be explicit before runtime consumption (v54.6)
+
+**Rule**: A knowledge edge may not silently acquire type, direction, condition, or source metadata from a generic default. Runtime graph inspection must report zero inferred edges for the release surface.
+
+**Validation**: `ci-knowledge-core-semantic-check.mjs` and the generated edge-semantics contract must pass.
+
+## R466. Evidence directness is a claim-level boundary (v54.6)
+
+**Rule**: CONTEXT, DISCOVERY, STRUCTURAL, and REVIEW_REQUIRED evidence cannot be treated as DIRECT support. Every claim source reference must resolve, and source conflicts must fail the registry build.
+
+**Validation**: `build-knowledge-evidence-registry.mjs` plus `ci-knowledge-core-semantic-check.mjs` must report zero unresolved references and conflicts.
+
+## R467. Structured article drafts cannot be published as completed learning content (v54.6)
+
+**Rule**: Generated article scaffolds must remain `STRUCTURED_REFERENCE_DRAFT` and `EDUCATIONAL_REFERENCE_ONLY` until semantic review, primary-source directness review, retrieval testing, and user validation are recorded.
+
+**Validation**: `ci-knowledge-article-contract.mjs` enforces the draft boundary and required semantic fields.
+
+## R468. Knowledge route state and partial capability loading must fail soft (v54.6)
+
+**Rule**: Shareable route state must round-trip without destructive navigation, local learning state must be namespaced and recoverable, and a missing knowledge capability must degrade to fallback without erasing connected capabilities.
+
+**Validation**: route-state, learning-state, route-bridge, repository, and renderer contract scripts must pass together.
+
+## R469. 주식·경제·금융·기술 백과사전은 전체 corpus와 Web Research를 별도 인증한다 (v54.6, P910)
+
+**Rule**: ontology·schema·structured draft·renderer가 존재해도 백과사전 콘텐츠 완료로 판정하지 않는다. 기존 KA-00~10을 순차 완료한 뒤 KA-11~16에서 111 Principles lessons, 48 Atlas foundations, 60 concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains와 모든 세부 sector/domain/category를 전수 coverage한다. 각 content unit은 독립 Web Research dossier와 profile별 공식·학술·표준·공시 근거, 고유한 설명·예제·반례, 실물경제→산업/기술→기업/제품→재무→밸류에이션→시장/주가→트레이딩 관찰·무효화 경로를 가지거나, 그 정보를 잃지 않는 명시적 canonical 합성 경로를 가져야 한다. 검색 snippet·discovery-only·broad source 반복·template 문장·글자 수만으로 통과시키지 않는다.
+
+**Validation**: `_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md` §14~16, `_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json`의 KA-11~16·fullCorpusCoverage·webResearchContract, 후속 `full-corpus-coverage`, `web-research-dossier`, `source-profile`, `article-uniqueness`, `quantitative-example`, `market-transmission`, `sector-domain-depth`, `currentness-separation` gates.
 
 ## R419. 릴리스 아키텍처 매니페스트는 R1 버전과 함께 동기화해야 한다 (v53.64, P864)
 

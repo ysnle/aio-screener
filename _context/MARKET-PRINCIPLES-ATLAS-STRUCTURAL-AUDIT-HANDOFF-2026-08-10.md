@@ -1,22 +1,32 @@
 ---
 verified_by: Codex
-last_verified: 2026-08-10
+last_verified: 2026-08-11
 confidence: high for repository, artifact topology, renderer behavior, content-volume measurement, and reproduced live UI findings; medium for academic/source directness because every external source original was not independently re-read
-target_version: v53.99
-status: AUDIT_VERIFIED_REMEDIATION_PARTIALLY_IMPLEMENTED
-bounded_changes_implemented: naming_audit_contracts_and_s0_reference_core
-knowledge_rebuild_status: FOUNDATIONAL_CORE_PARTIAL
-live_revision: v53.97
-local_revision: v53.99
+target_version: v54.6
+status: IMPLEMENTATION_IN_PROGRESS
+bounded_changes_implemented: naming_audit_contracts_s0_reference_core_ontology_claim_registry_article_drafts_learning_state_route_bridge_repository_renderers_encyclopedia_mission_full_coverage_web_research_post_ka_track
+knowledge_rebuild_status: STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN
+live_revision: v54.5
+local_revision: v54.6
 machine_contract: _context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json
 file_manifest: _context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json
 ---
+
+## 2026-08-11 implementation update
+
+The KA sequence now has local contract coverage for the canonical concept manifest (155 concepts), explicit principle edge semantics (71 edges), a 119-source/270-claim registry with directness labels, 159 structured article drafts, a 159-node/16-path learning graph, shareable route state, persistent local learning state, 198 route targets, a repository/selector layer, and five shared renderers.
+
+This update does not promote the 159 drafts to completed deep articles. Each draft remains `STRUCTURED_REFERENCE_DRAFT` and `EDUCATIONAL_REFERENCE_ONLY`; semantic review, primary-source directness review, retrieval testing, and user validation remain required. Live browser certification is also still open because no in-app browser connector was available for this run.
+
+**제품 사명 고정**: 시장 원리와 AI 시대 지식 지도는 각각 따로 노는 요약 페이지가 아니라 하나의 **주식·경제·금융·기술 백과사전**이다. 사용자는 세부 개념을 학습하고 관계를 축적한 뒤 `실물경제 → 산업·기술 가치사슬 → 기업·제품 → 재무제표·현금흐름 → 밸류에이션 → 금융시장·주가 → 관찰 지표·트레이딩 시나리오·무효화`까지 추적할 수 있어야 한다. 현재 구조 구현과 159개 draft 생성은 이 사명의 기반일 뿐 콘텐츠 완성이 아니다.
 
 # 시장 원리·AI 시대 지식 지도 구조 개편 핸드오프
 
 ## 0. 결론
 
 두 페이지는 분류 체계와 요약 원고가 갖춰진 **백과사전의 골격**이다. 그러나 현재 원고는 시장 원리 111개 중앙값 325자, AI 기초 48개 중앙값 275자에 불과하며 159개 모두 500자 미만이다. 필드가 존재한다는 사실을 “충분한 설명”으로 오인하면 안 된다. 지금 상태는 **완성된 지식 백과사전도, 완성된 지식 그래프·능동 학습 시스템도 아니다.**
+
+최종 제품 범위는 좁은 “경제 입문”이나 “AI 산업 지도”가 아니다. 시장 원리는 경제학·통화·금리·채권·외환·신용·회계·기업재무·밸류에이션·주식시장 구조·섹터·포트폴리오·위험·트레이딩을 포괄하고, AI 시대 지식 지도는 수학·물리·데이터·AI 모델·반도체·메모리·파운드리·패키징·네트워크·데이터센터·전력·클라우드·로봇·응용산업·방산·우주·자원·정책·자본시장을 포괄한다. 각 세부 sector/domain/category는 얇은 카드가 아니라 독립적으로 학습 가능한 설명과 상위·하위·인접 연결을 가져야 한다.
 
 감사 기준선(v53.98)의 핵심 이유는 다음 다섯 구조에 있었다.
 
@@ -26,9 +36,9 @@ file_manifest: _context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10
 4. **원고가 요약 카드 깊이에 머문다.** formal model, 단계형 worked example, 실물경제→기업→재무제표→밸류에이션→시장가격→트레이딩 적용의 폐쇄 경로가 lesson schema에 없다.
 5. **페이지 파일이 데이터·도메인·상태·렌더링을 함께 소유한다.** 일부 artifact 하나의 실패가 `Promise.all` 전체 실패로 번지고, 계약 검사는 의미·연결성보다 개수와 문자열 존재를 인증한다.
 
-v53.99 로컬 기준 구현은 1번 그래프 무결성, 2번 출처 해석 범위, 5번 artifact 장애 격리의 S0 경로를 먼저 해소했다. 그러나 159개 심층 본문, claim directness, 학습 상태, 전문 화면 deep link, thin renderer는 여전히 미구현이다. 따라서 후속 작업은 원고를 더 덧붙이는 방식이 아니라 **공통 Knowledge Core → typed graph/evidence 완전 이관 → deep article → learning state → thin renderer → semantic certification** 순으로 진행해야 한다.
+v54.6 로컬 구현은 KA-01~09의 ontology·graph·evidence·draft·learning state·route bridge·repository·shared renderer 기반을 부분 구축했다. 그러나 159개 draft는 생성형 scaffold이며, 모든 세부 sector/domain/category의 독립 Web Research·학술 검토·정량 예제·기업/시장 적용을 통과하지 않았다. 따라서 기존 KA-00~10을 순차 완료한 뒤 **KA-11 전수 coverage → KA-12 Web Research dossier → KA-13 심층 원고 → KA-14 sector/domain 보강 → KA-15 시장 적용 lab → KA-16 최종 인증**을 추가 실행한다.
 
-이 문서는 진단·실행 설계와 S0 기준 구현의 핸드오프다. 사용자 노출 명칭은 `AI 시대 지식 지도`로 정정했고 route ID `atlas`와 데이터 namespace는 호환성을 위해 유지한다. v53.99의 graph/evidence/capability 모듈은 목표 아키텍처의 검증 가능한 기준 구현이지, 지식 코어 전체 재구축·159개 심층 원고 집필·실사용자 연구·배포 완료를 뜻하지 않는다.
+이 문서는 진단·실행 설계와 진행 중 구현의 핸드오프다. 사용자 노출 명칭은 `AI 시대 지식 지도`로 유지하고 route ID `atlas`와 데이터 namespace는 호환성을 위해 유지한다. 현재 v54.6 artifact와 모듈은 목표 아키텍처의 검증 가능한 scaffold이지, 백과사전 전체 콘텐츠·외부 원문 fact-check·실사용자 연구·라이브 인증 완료를 뜻하지 않는다.
 
 ---
 
@@ -276,6 +286,8 @@ flowchart LR
 - authored source와 generated bundle을 분리한다.
 - renderer는 데이터를 소유하지 않고 selector 결과만 표현한다.
 - 모든 관계는 방향·종류·조건·근거를 가진다.
+- 모든 세부 concept·principle·sector·domain·category는 canonical coverage matrix에 등록하고 누락을 허용하지 않는다.
+- Web Search는 단순 링크 수집이 아니라 claim 단위 직접 근거·반대 근거·기준일·채택/기각 이유를 남기는 research dossier를 생산한다.
 - current market data는 교육 원고에 복제하지 않고 전문 route selector/deep link로 연결한다.
 - 부분 artifact 실패는 해당 capability만 degrade한다.
 
@@ -418,7 +430,7 @@ CTA는 단순 페이지 이동이 아니라 “배운 원리→현재 관찰값�
 
 ## 7. 실행 패킷
 
-패킷 상태는 machine contract가 정본이다. v53.99 기준 `KA-00=VERIFIED_LOCAL`, `KA-01/02/03/08=PARTIAL_REFERENCE_IMPLEMENTATION`, 나머지는 `DESIGNED`다. 선행 패킷의 acceptance를 통과하기 전 다음 wave를 대량 병렬 착수하지 않는다.
+패킷 상태는 machine contract가 정본이다. v54.6 기준 `KA-00/01=VERIFIED_LOCAL`, `KA-02~09=PARTIAL_REFERENCE_IMPLEMENTATION`, `KA-10~16=DESIGNED`다. 기존 KA-00~10의 구조 작업을 순차 완료한 뒤 KA-11~16의 전수 콘텐츠 보강 작업으로 이어간다. 선행 패킷의 acceptance를 통과하기 전 다음 wave를 대량 병렬 착수하지 않는다.
 
 ### Wave 0 — 거짓 인증을 먼저 차단
 
@@ -552,6 +564,14 @@ Acceptance: 같은 원고/edge/source의 이중 소유 0, 페이지 renderer 내
 | `route-state` | reload/back/forward/copy URL에서 선택 상태 유실 |
 | `partial-failure` | 한 artifact 실패가 무관한 capability까지 fallback |
 | `browser-semantic` | 단순 존재/개수는 통과하지만 관계·출처·CTA 의미가 다름 |
+| `full-corpus-coverage` | 111 lessons·48 foundations·60 concept guides·95 taxonomy nodes·50 deep branches·19 domains 중 article/dossier 또는 명시적 canonical 합성 경로가 없는 항목 존재 |
+| `web-research-dossier` | concept/article별 검색 질의·검색일·후보 source·채택/기각·source tier·반대 근거·claim coverage 누락 |
+| `source-profile` | 공식/학술/표준/기업 직접 근거가 필요한 profile에서 broad·vendor·secondary source만 사용 |
+| `article-uniqueness` | 무관한 concept 사이 template 문장·예제·시장 연결의 과도한 반복 또는 placeholder 존재 |
+| `quantitative-example` | 계산 가능한 개념에 변수·단위·가정·단계·결과·해석·실패 경계가 있는 예제가 없음 |
+| `market-transmission` | 실물경제→산업/기술→기업/제품→재무→밸류에이션→시장/주가→트레이딩 관찰·무효화 경로가 닫히지 않거나 해당 없음 근거가 없음 |
+| `sector-domain-depth` | 세분화된 sector/domain/category가 상위 overview 한 장으로 대체되거나 독립 KPI·병목·기업·제품·근거·시장 연결이 없음 |
+| `currentness-separation` | 변동 수치가 정적 교육 본문에 고정되거나 asOf/freshness/data-refresh 경계 없이 현재 사실로 노출 |
 
 현재 contract gate는 보존하되 위 semantic gate의 하위 기반으로 재정의한다. 개수 통과가 의미 통과를 대신하지 못한다.
 
@@ -568,6 +588,11 @@ Acceptance: 같은 원고/edge/source의 이중 소유 0, 페이지 renderer 내
 6. current market 수치를 정적 교육 JSON에 복제하지 않는다.
 7. 기존 fallback과 새 canonical bundle을 장기 이중 운영하지 않는다.
 8. browser gate에서 locator 존재만 검사하고 선택 후 의미 문장을 검증하지 않는 패턴을 반복하지 않는다.
+9. `STRUCTURED_REFERENCE_DRAFT` 159개 생성 또는 schema PASS를 백과사전 콘텐츠 완료로 부르지 않는다.
+10. Web Search 결과의 제목·요약·URL만 복사하거나 검색 결과 페이지를 직접 근거로 사용하지 않는다.
+11. SEC·NIST·기업 홈페이지 같은 broad source 하나를 여러 무관한 산업·원리의 직접 근거로 반복하지 않는다.
+12. sector/domain/category 일부만 대표 예시로 작성하고 나머지를 동일 template·상위 overview·빈 링크로 대체하지 않는다.
+13. 글자 수를 채우기 위한 중복 문장, 근거 없는 수식, 가상의 최신 수치·회사 사례·매매 신호를 만들지 않는다.
 
 ---
 
@@ -581,7 +606,13 @@ KA-00 gate baseline
   → KA-06 learning state + KA-07 market bridge
   → KA-08 repository/state extraction
   → KA-09 thin renderer + legacy deletion
-  → KA-10 live certification
+  → KA-10 structural/local certification
+  → KA-11 full corpus coverage
+  → KA-12 Web Research dossiers
+  → KA-13 deep article reconstruction
+  → KA-14 sector/domain/category enrichment
+  → KA-15 market application labs
+  → KA-16 encyclopedia browser/live/user certification
 ```
 
 최종 완료는 다음을 모두 만족할 때만 선언한다.
@@ -589,6 +620,10 @@ KA-00 gate baseline
 - Principles와 Atlas의 모든 edge endpoint가 유효하고 의도치 않은 component·dead-end가 없다.
 - 모든 화면 source ID가 실제 링크와 근거 역할로 해석된다.
 - 159개 core lesson은 요약과 별도의 심층 본문, worked example/non-quantitative rationale, 반례, 검증 질문, claim 근거, 전문 화면 적용 chain을 가진다.
+- 60 Principles concept guides, 95 Atlas taxonomy nodes, 50 deep branches, 19 domain overviews도 각각 독립 dossier 또는 중복 없는 canonical 합성 경로를 가진다.
+- 모든 세부 sector/domain/category가 coverage matrix에서 `RESEARCHED`, `AUTHORED`, `SEMANTIC_REVIEWED`, `BROWSER_VERIFIED` 상태를 가진다. 대표 분야만 통과하고 전체 완료를 선언할 수 없다.
+- 각 concept/article에는 Web Research dossier가 있고, 현재·정량·기업·제품 claim은 직접 primary/official 근거와 기준일을 가진다.
+- 계산 가능한 원리는 재현 가능한 정량 예제를, 비정량 원리는 명시적 rationale·사례·반증 조건을 가진다.
 - Tree/Graph/Path/Lesson이 같은 canonical concept와 학습 상태를 공유한다.
 - Atlas 19 domains가 기술→산업→기업/제품→경제성→자본시장 경로로 탐색 가능하다.
 - 공유 URL, reload, back/forward, mobile text alternative, keyboard가 동등하게 작동한다.
@@ -601,17 +636,17 @@ KA-00 gate baseline
 
 ## 11. 즉시 착수 우선순위
 
-1. **KA-01 완료**: 155개 concept의 canonical manifest·alias·cross-page equivalence를 동결한다. 현재는 normalizer만 있고 manifest 정본이 없다.
-2. **KA-02 완료**: Principles 기존 70개 edge의 type/condition/source를 사람이 심사해 default 추론을 제거하고, edge 설명 UI가 방향·조건·근거를 소비하게 한다.
-3. **KA-03 완료**: 통합 resolver 위에 claim directness·source role·broken/review 상태를 추가하고 broad source를 DIRECT 근거로 승격하지 못하게 한다.
-4. **KA-04/05**: 159개 원고를 semantic profile로 재집필하되 chapter/domain 단위 batch와 gate로 진행하고 lesson/node/path dead-end를 동시에 제거한다.
-5. **KA-06/07**: active learning과 market deep link를 붙인 뒤, KA-08/09의 page 내부 상태·renderer 제거를 완료한다.
+1. 다른 세션은 machine contract의 현재 상태를 기준으로 기존 **KA-00~10을 순차적으로 모두 완료**한다. 이미 생성된 artifact를 되돌리거나 별도 병렬 체계를 만들지 않는다.
+2. KA-10 구조 인증 뒤 **KA-11**에서 전체 corpus·sector·domain·category coverage matrix를 확정한다.
+3. **KA-12**에서 concept별 Web Research dossier와 claim-source directness를 완성한다.
+4. **KA-13/14**에서 159개 core article과 모든 세부 sector/domain/category dossier를 batch 단위로 심층 재집필한다.
+5. **KA-15/16**에서 정량 lab·주식/시장 적용·능동학습·브라우저·라이브·실사용자 인증을 닫는다.
 
 이 순서가 “겉핥기식 덧붙이기”를 피하는 핵심이다. 먼저 잘못된 구조를 정상으로 인증하는 시스템을 고치고, 그 위에서 콘텐츠와 UX를 확장한다.
 
 ---
 
-## 12. v53.99 반영·검증 상태
+## 12. v54.6 현재 상태와 추가 작업 경계
 
 완료:
 
@@ -625,35 +660,43 @@ KA-00 gate baseline
 - `scripts/ci-knowledge-core-semantic-check.mjs`를 핸드오프 기준 gate로 추가했다.
 - 로컬 Chromium browser gate는 새 제목·6단계·19개 산업·파운드리 `PS-01` 실제 링크·unresolved badge 0을 검사하도록 강화했다.
 - Atlas/Principles browser, headless 1108/1108, accessibility 20 routes, route soak 20×3, viewport 17 routes×4 viewports=68 조합은 모두 통과했다.
-- 15개 payload와 manifest를 `_artifacts/AIO-Knowledge-System-Structural-Handoff-v53.99.zip`으로 묶었다.
+- 과거 v53.99 시점의 15개 payload 묶음 `_artifacts/AIO-Knowledge-System-Structural-Handoff-v53.99.zip`은 이력 증거로만 보존한다. 현재 v54.6+KA-11~16 계약을 반영한 최신 패키지가 아니므로 배포·인수인계 정본으로 사용하지 않는다.
+- v54.6에서 155 concepts/461 aliases, 71 explicit Principles edges, 119 sources/270 claims, 159 structured drafts, 159-node/16-path learning graph, route state/learning state, 198 route targets, repository/selectors, five shared renderer 기반을 추가했다.
 
 여전히 차단:
 
-- 159개 백과사전 article 재집필, canonical concept manifest/alias freeze, 기존 edge의 직접 조건·source 수작업 심사, claim directness, 능동 학습 상태, 전문 route deep link, thin renderer는 미완료다.
-- 현재 graph/evidence/capability 모듈은 기준 구현이며, 기존 페이지 내부 상수와 renderer를 모두 제거한 최종 Knowledge Core는 아니다.
+- 159개 article은 `STRUCTURED_REFERENCE_DRAFT`이며, Web Research·학술/공식 원문 검토·고유한 worked example·full market transmission을 통과하지 않았다.
+- 60 concept guides·95 taxonomy nodes·50 deep branches·19 domain overviews의 독립적인 깊이와 모든 세부 sector/domain/category coverage는 아직 완료 인증되지 않았다.
+- current graph/evidence/article/learning/renderer artifact는 기준 구현이며, 구조 PASS를 콘텐츠 품질 PASS로 승격하지 않는다.
 - 전체 architecture ratchet은 이 패킷 밖의 기존 AI research 변경에 포함된 explicit `window` write 2개 때문에 1092/1090으로 실패한다. baseline을 올려 녹색으로 위장하지 않았으며 해당 AI 소유 작업에서 제거해야 한다.
-- 공개 사이트는 배포하지 않았으므로 v53.97이며 새 이름의 live parity를 주장하지 않는다.
+- 이 문서의 최신 확인 기준에서 공개 사이트는 v54.5, 로컬은 v54.6이다. v54.6의 live revision parity와 KA-11~16 결과는 아직 인증하지 않았다.
 - 실제 참여자를 모집한 user study와 모든 외부 원문의 문장별 fact-check는 완료하지 않았다.
 
 ---
 
 ## 13. 코드 단위 인수인계 맵
 
-아래 경로 중 `현재`는 v53.99 기준 구현, `신규 계획`은 후속 작업자가 생성할 정본 경로다. 신규 계획 경로는 승인 없이 임의로 다른 위치에 만들지 않는다.
+아래 경로 중 `현재`는 v54.6 로컬 기준 구현, `현재→확장`은 구조 기반은 있으나 acceptance가 남은 경로, `신규 계획`은 KA-11~16에서 생성할 정본 경로다. 신규 계획 경로는 승인 없이 임의로 다른 위치에 만들지 않는다.
 
 | 패킷 | 소유 경로 | 책임 | 병합 전 gate |
 |---|---|---|---|
 | KA-00 현재 | `scripts/ci-knowledge-core-semantic-check.mjs` | 실제 export/JSON 기반 endpoint·component·source·entity mapping·partial failure 검사 | semantic check PASS |
-| KA-01 신규 계획 | `public-data/knowledge/concepts.json`, `public-data/knowledge/aliases.json`, `schemas/knowledge/concept.schema.json` | Principles 60 + Atlas 95 ID, alias, cross-page equivalence의 유일 정본 | duplicate/unknown/orphan 0 |
+| KA-01 현재 | `public-data/knowledge/concepts.json`, `public-data/knowledge/aliases.json`, `schemas/knowledge/concept.schema.json` | 155 canonical concepts와 461 aliases의 유일 정본 | duplicate/unknown/orphan 0 |
 | KA-02 현재→확장 | `src/domain/knowledge/graph.js`, `public-data/atlas/taxonomy-node-coverage.json`, `src/ui/pages/principles.js` | edge normalize/validate와 수작업 의미 이관 | inferred/default edge 0, unexplained component 0 |
-| KA-03 현재→확장 | `src/domain/knowledge/evidence.js`, 신규 `public-data/knowledge/sources.json`, `public-data/knowledge/claims.json` | source ID·claim·directness·review/currentness의 단일 해석 | unresolved/conflict 0, DIRECT 오표시 0 |
-| KA-04 신규 계획 | `public-data/knowledge/articles/principles/*.json`, `public-data/knowledge/articles/atlas-foundations/*.json`, `schemas/knowledge/article.schema.json` | 현행 요약과 분리된 159개 심층 article | depth/directness/example gate 159/159 |
-| KA-05 신규 계획 | `public-data/knowledge/learning-graph.json` | prerequisite/next/path/expert route와 overview-only rationale | dead-end 0 |
-| KA-06 신규 계획 | `src/domain/knowledge/learning-state.js`, `src/app/knowledge-route-state.js` | 공유 URL 상태와 로컬 진도·bookmark·note·retrieval 상태 분리 | reload/back/copy URL/persona gate |
-| KA-07 신규 계획 | `public-data/knowledge/route-targets.json`, `src/domain/knowledge/route-bridge.js` | concept→전문 화면·metric·timeframe·return context 전달 | 핵심 E2E 20/20 |
-| KA-08 현재→확장 | `src/data/knowledge/load-capabilities.js`, 신규 `src/data/knowledge/repository.js`, `src/domain/knowledge/selectors.js` | fetch/normalize/merge/state selector를 page 밖으로 이동 | capability failure isolation |
-| KA-09 신규 계획 | `src/ui/knowledge/tree.js`, `graph.js`, `path.js`, `lesson.js`, `evidence.js` | 공통 renderer와 접근 가능한 text alternative | page 내부 domain dataset 0 |
+| KA-03 현재→확장 | `src/domain/knowledge/evidence.js`, `public-data/knowledge/sources.json`, `public-data/knowledge/claims.json` | source ID·claim·directness·review/currentness의 단일 해석 | unresolved/conflict 0, DIRECT 오표시 0 |
+| KA-04 현재→확장 | `public-data/knowledge/articles/principles/*.json`, `public-data/knowledge/articles/atlas-foundations/*.json`, `schemas/knowledge/article.schema.json` | 159개 structured draft를 Web Research 기반 심층 article로 승격 | depth/directness/example gate 159/159 |
+| KA-05 현재→확장 | `public-data/knowledge/learning-graph.json` | prerequisite/next/path/expert route와 overview-only rationale | dead-end 0 |
+| KA-06 현재→확장 | `src/domain/knowledge/learning-state.js`, `src/app/knowledge-route-state.js` | 공유 URL 상태와 로컬 진도·bookmark·note·retrieval 상태 분리 | reload/back/copy URL/persona gate |
+| KA-07 현재→확장 | `public-data/knowledge/route-targets.json`, `src/domain/knowledge/route-bridge.js` | concept→전문 화면·metric·timeframe·return context 전달 | 핵심 E2E 20/20 |
+| KA-08 현재→확장 | `src/data/knowledge/load-capabilities.js`, `src/data/knowledge/repository.js`, `src/domain/knowledge/selectors.js` | fetch/normalize/merge/state selector를 page 밖으로 이동 | capability failure isolation |
+| KA-09 현재→확장 | `src/ui/knowledge/tree.js`, `graph.js`, `path.js`, `lesson.js`, `evidence.js` | 공통 renderer와 접근 가능한 text alternative | page 내부 domain dataset 0 |
 | KA-10 확장 | `scripts/ci-knowledge-*.mjs`, viewport/accessibility/browser gates | local/live 상태를 분리한 최종 인증 | 모든 gate PASS + live revision parity |
+| KA-11 신규 계획 | `public-data/knowledge/coverage-matrix.json` | 111+48 core, 60 guides, 95 nodes, 50 branches, 19 domains와 모든 세부 category의 coverage 상태 정본 | 누락·대표 샘플 대체 0 |
+| KA-12 신규 계획 | `public-data/knowledge/research-dossiers/*.json` | content unit별 검색 질문·후보/채택/기각 출처·claim directness·합의/반론·현재성 기록 | dossier/source-profile gate 전수 PASS |
+| KA-13 현재→재집필 | `public-data/knowledge/articles/principles/*.json`, `public-data/knowledge/articles/atlas-foundations/*.json` | 159개 draft를 고유 정량 예제와 완결된 시장 transmission을 가진 human-reviewed article로 승격 | article uniqueness/depth 159/159 |
+| KA-14 신규 계획 | `public-data/knowledge/domain-dossiers/*.json` | 경제·금융·주식·산업·AI 기술 전 세부 sector/domain/category의 KPI·병목·기업·제품·재무·시장 연결 | sector-domain-depth 전수 PASS |
+| KA-15 신규 계획 | `public-data/knowledge/quantitative-labs/*.json` | 재현 가능한 계산·시나리오·관찰 지표·촉매·확인·무효화와 능동학습 연결 | quantitative/market-transmission/persona gate PASS |
+| KA-16 확장 | semantic/browser/viewport/accessibility/live/user gates | 전체 corpus의 의미·표현·실사용·배포 상태 최종 인증 | coverage state `LIVE_VERIFIED` + 사용자 검증 경계 명시 |
 
 ### 13.1 병렬 작업 경계
 
@@ -679,3 +722,157 @@ KA-00 gate baseline
 - 로컬 정적·브라우저·접근성·partial failure를 통과해야 `VERIFIED_LOCAL`이다.
 - 배포 revision과 공개 브라우저를 같은 commit에서 재검증해야 `VERIFIED_LIVE`다.
 - 실제 참여자 연구가 없으면 persona 자동화가 통과해도 `HEURISTIC_VERIFIED`를 넘지 않는다.
+
+---
+
+## 14. 전체 백과사전 coverage 계약
+
+### 14.1 시장 원리·주식·경제·금융 범위
+
+다음 범주는 canonical concept/lesson/article/route와 연결되어야 하며, 상위 overview 하나로 하위 범주를 대체할 수 없다.
+
+| 대분류 | 필수 세부 범위 | 주식·시장 연결 최소 단위 |
+|---|---|---|
+| 경제 기초 | 희소성, 선택, 기회비용, 생산성, 성장, 경기순환, 수요·공급, 가격, 경쟁·독점, 외부효과 | 수요·가격·마진·산업구조·이익 민감도 |
+| 화폐·신용·정책 | 화폐, 은행, 신용창조, 중앙은행, 재정, 통화정책, 인플레이션, 고용 | 유동성·대출·금리·실질소득·리스크 프리미엄 |
+| 금리·채권·외환 | 실질/명목금리, 수익률곡선, duration/convexity, term/credit premium, 달러·환율, carry | 할인율·자금조달·채권 가격·환산손익·외국인 flow |
+| 기업·회계·재무 | 매출 인식, 원가, 마진, 운전자본, 감가상각, CAPEX, 부채, 희석, 현금흐름, ROIC | 재무제표 line item·quality of earnings·자본배분 |
+| 밸류에이션 | DCF, multiples, terminal value, risk premium, scenario/sensitivity, cyclicality | 기대치·estimate revision·multiple expansion/compression |
+| 주식시장 구조 | 발행/유통시장, index/ETF, liquidity, market maker, order flow, short/derivatives, positioning | 가격발견·수급·변동성·event reaction |
+| 포트폴리오·위험·행동 | diversification, correlation, beta/factor, drawdown, sizing, behavioral bias | exposure·risk budget·hedge·invalidation |
+| 섹터·산업 | 기술, 커뮤니케이션, 소비재, 금융, 헬스케어, 산업재, 에너지, 소재, 유틸리티, 부동산 | 산업 KPI·value chain·대표 business model·cycle·valuation |
+| 글로벌·한국 전달 | 미국/중국/유럽, 달러, 원화, 수출, 원자재, 글로벌 supply chain | 글로벌 충격→환율/금리→한국 산업→기업 실적·주가 |
+| 트레이딩 적용 | trend, momentum, breadth, volatility, catalyst, regime, confirmation, failure | metric·timeframe·시나리오·확인·무효화; 직접 주문 지시 금지 |
+
+### 14.2 AI·기술·산업 범위
+
+| 대분류 | 필수 세부 범위 | 산업·자본시장 연결 최소 단위 |
+|---|---|---|
+| 기초 과학·수학 | 전력·에너지, 반도체 물리, 선형대수, 확률·통계, 최적화, 정보 표현 | 물리 한계·단위·성능/비용 trade-off |
+| 데이터·모델 | 데이터 파이프라인, ML/DL, Transformer/attention, training/inference, agent, world model | compute·memory·latency·정확도·데이터 비용 |
+| 컴퓨트 반도체 | GPU, ASIC, NPU, precision, interconnect | 설계→제조→출하→ASP·mix·capacity·고객 채택 |
+| 메모리·스토리지 | SRAM, DRAM/HBM, NAND/SSD, CXL | bandwidth·capacity·yield·가격·재고·qualification |
+| 파운드리·장비·소재 | design ecosystem, process node, lithography/장비, 소재, yield/capacity | wafer·die·수율·cycle time·CAPEX·value capture |
+| 패키징·기판 | 2.5D/3D, interposer, substrate, glass | system integration·병목·원가·양산 인증 |
+| 네트워크·포토닉스 | switch, optics, silicon photonics, CPO, fabric | bandwidth/latency·전력/bit·cluster scale·공급망 |
+| AIDC·냉각·전력 | rack/server, liquid cooling, thermal, PUE, 발전·송전·연계·변압기 | MW·CAPEX·전력계약·감가상각·가동률·ROIC |
+| Cloud·Neocloud 경제성 | cloud AI service, rental, reservation, lease, utilization, customer concentration | GPU-hour·가격·가동률·lease burden·FCF·funding spread |
+| Edge·Physical AI·로봇 | edge NPU, sensing, perception, planning, control, actuation, digital twin | unit economics·deployment·service/maintenance·adoption |
+| 응용 산업 | healthcare, manufacturing, automotive, finance, enterprise workflow | payer·ROI·규제·workflow 전환·revenue model |
+| 방산·드론·우주 | kill chain, C2/ISR/EW, autonomy, production, procurement, launch/reuse/satellite | procurement·backlog·생산능력·mission economics |
+| 자원·정책·안보 | copper, lithium, rare earth, refining, export control, incentive, cyber, supply resilience | 원재료·정책 제약·지역 집중·대체·CAPEX |
+| 미래 기술 | quantum, photonic compute, neuromorphic, new energy | 실험→재현성→통합→생산성→지불 가능한 use case |
+| 기업·제품·자본시장 | player role, product family, revenue quality, margin, balance sheet, market expectation | company capability와 product evidence 분리·comparable·valuation·expectation gap |
+
+### 14.3 coverage 상태 규칙
+
+- 각 항목은 `INVENTORIED → RESEARCHED → AUTHORED → SEMANTIC_REVIEWED → BROWSER_VERIFIED → LIVE_VERIFIED`로만 승격한다.
+- 111 Principles lessons와 48 Atlas foundations는 모두 심층 article을 가진다.
+- 60 Principles node guides, 95 Atlas taxonomy nodes, 50 deep branches, 19 domain guides는 독립 dossier를 갖거나 어떤 canonical article section을 합성하는지 명시한다. 합성 결과가 해당 항목의 고유 KPI·병목·기업·제품·근거·시장 연결을 잃으면 실패다.
+- player/product는 회사 전체 capability와 개별 제품 evidence를 분리한다. 최신 수치·생산 상태·채택률은 static article이 아니라 asOf가 있는 claim/data surface를 사용한다.
+- coverage report는 미작성·research 미완료·근거 부족·browser 미노출을 각각 별도 count로 공개한다.
+
+---
+
+## 15. Web Research·심층 원고 제작 계약
+
+### 15.1 concept별 research dossier
+
+모든 article/dossier는 원고 작성 전에 다음 research artifact를 가진다.
+
+- concept/article ID, research question, 검색 query와 검색일
+- 후보 source URL·publisher·title·publication/accessed date
+- source tier: `PRIMARY_OFFICIAL`, `ACADEMIC_TEXTBOOK_STANDARD`, `COMPANY_FILING_IR`, `INDEPENDENT_CONTEXT`, `DISCOVERY`
+- 채택·기각 이유, 지원 claim ID, 직접성 `DIRECT/CONTEXT/DISCOVERY`
+- consensus와 disagreement, 반대 근거, 적용 범위, 현재성 만료 조건
+- Q1 thesis, Q2 paradigm shift, Q3 disconfirming variable, Q4 structural mechanism, Q5 adjacent impact
+
+검색 결과 snippet·검색 결과 페이지·Telegram/X·vendor marketing만으로 factual claim을 확정하지 않는다. 원문을 열고 해당 claim을 실제로 지지하는지 확인한다. 공식·학술 근거가 없는 경우 `UNVERIFIED`를 유지하고 설명을 축소한다.
+
+### 15.2 source profile
+
+| article profile | 최소 source 구성 |
+|---|---|
+| FORMAL/기초과학 | 교과서·학술논문·공식 표준 중 2개 이상, 변수·단위·가정 직접 근거 |
+| MACRO/INSTITUTIONAL | 중앙은행·통계기관·법령/규정·공식 데이터 2개 이상 + 이론/역사 context |
+| ACCOUNTING/VALUATION | 회계기준·규제기관·공시 + 교과서/실무 reference + 재현 가능한 계산 |
+| INDUSTRY/TECHNOLOGY | 공식 표준/논문/정부·연구기관 + 기업 기술문서/filing + 독립 context |
+| COMPANY/PRODUCT | filing/IR/공식 product document를 DIRECT로 사용하고 secondary는 context만 제공 |
+| MARKET/TRADING | 거래소·규제기관·공식 시장 데이터 + empirical research/reference; 현재값은 data-refresh 경로 |
+| EMERGING_TECH | peer-reviewed/공식 research + 구현 문서; vendor claim 단독으로 scale·상용화 확정 금지 |
+
+현재·정량·생산·제품·기업 claim은 100% claim ID와 직접 출처·asOf를 가져야 한다. 일반 설명도 article profile의 최소 source mix를 충족해야 하며, 무관한 broad source 반복은 실패다.
+
+### 15.3 원고 구조와 깊이
+
+각 원고는 `30초 summary → 5분 core article → deep dive/evidence`의 점진 공개를 제공한다. 최소 구성은 다음과 같다.
+
+1. 정의, 선수 개념, 핵심 질문, 용어와 단위.
+2. 초보자 직관·비유와 비유가 깨지는 경계.
+3. 단계별 mechanism, causal chain, typed relationships.
+4. 형식 모델·수식·가정 또는 명시적 non-quantitative rationale.
+5. inputs·assumptions·steps·result·interpretation·failure boundary가 있는 worked example.
+6. 실제 역사/기업/산업 case study와 당시 조건; 현재 사실과 분리.
+7. 반례·대체 설명·논쟁·bull/base/bear 또는 성립/불성립 조건.
+8. 실물경제→산업/기술→기업/제품→재무제표→밸류에이션→금융시장/주가 전달.
+9. metric·timeframe·regime·catalyst·confirmation·invalidation을 포함한 트레이딩 관찰 프레임.
+10. 한국 투자자에게 관련될 경우 환율·수출입·국내 value chain·KOSPI/KOSDAQ 전달.
+11. claim별 citation, 기준일, glossary, retrieval checks, 다음 개념, 전문 route.
+
+1,200자는 core article의 탈락 하한일 뿐 목표 분량이나 합격 근거가 아니다. 관련 없는 concept와 동일한 mechanism/example/marketTransmission 문장, placeholder, 필드명만 바꾼 template, 가상의 수치·기업 사례는 실패다.
+
+### 15.4 stock·market application closure
+
+각 concept가 주식시장과 연결될 때 다음 질문에 답한다.
+
+- 무엇이 매출량·가격·mix·원가·마진·운전자본·CAPEX·감가상각·부채·FCF·ROIC를 바꾸는가?
+- 어떤 산업 KPI와 기업 공시 line item이 원리를 관찰 가능하게 만드는가?
+- 시장 consensus와 실제 관측의 차이가 estimate·multiple·risk premium을 어떻게 바꾸는가?
+- 금리·환율·신용·원자재·유동성·positioning과 어떤 조건에서 결합하는가?
+- 어떤 catalyst·timeframe·confirmation이 필요하고 무엇이 가설을 무효화하는가?
+- 현재 데이터가 없거나 stale할 때 무엇을 말하지 않아야 하는가?
+
+이 closure는 종목 추천·목표가·자동 매매 명령이 아니다. 사용자가 학습한 원리를 현재 전문 화면과 근거에 적용하는 관찰·검증 체계다.
+
+---
+
+## 16. 기존 KA 이후 추가 실행 패킷
+
+기존 KA-00~10은 다른 세션에서 machine contract 순서대로 계속 진행한다. 아래는 이를 대체하거나 초기화하지 않고 **추가로 이어서 수행하는 콘텐츠 완성 트랙**이다.
+
+### KA-11. Full corpus·category coverage inventory
+
+- 111 lessons, 48 foundations, 60 concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains, player/product 관계를 canonical coverage matrix로 생성한다.
+- 모든 sector/domain/category에 article/dossier 합성 경로와 현재 상태를 부여한다.
+- Acceptance: 누락·thin orphan·근거 없는 overview-only 0. 의도적 overview-only는 rationale과 다음 심층 경로 필수.
+
+### KA-12. Web Research dossier·source audit
+
+- KA-11의 모든 content unit에 §15.1 research dossier와 §15.2 source profile을 적용한다.
+- 검색 결과를 primary/official/academic/company 원문으로 대조하고 disagreement·invalidation·currentness를 기록한다.
+- Acceptance: factual/current/quantitative/product claim direct-source coverage 100%, unresolved URL 0, discovery-only promotion 0, source-profile 미달 0.
+
+### KA-13. 159 core deep article reconstruction
+
+- 현재 159 `STRUCTURED_REFERENCE_DRAFT`를 summary scaffold로 보존하고 사람이 검토한 고유 article로 재집필한다.
+- 개념 유형별 worked example·case study·market transmission·retrieval question을 작성한다.
+- Principles는 15 chapter, Atlas는 6 foundation layer 단위 batch로 진행한다. 각 batch가 gate를 통과하기 전 다음 batch를 완료 처리하지 않는다.
+- Acceptance: 159/159 semantic profile, source profile, uniqueness, example/rationale, application closure PASS.
+
+### KA-14. Sector·domain·category dossier enrichment
+
+- 60/95/50/19 세부 guide·taxonomy·deep branch·domain의 고유 KPI·병목·value chain·대표 business model·company/product evidence·재무/시장 연결을 보강한다.
+- 14.1/14.2의 모든 범주를 coverage matrix와 browser navigation에서 접근 가능하게 한다.
+- Acceptance: 모든 분류 coverage 100%, 대표 분야만 상세하고 나머지가 얇은 불균형 0, company capability/product evidence 오연결 0.
+
+### KA-15. Quantitative lab·market application·active learning
+
+- DCF, duration, real rate, yield curve, ROIC, unit economics, dilution, PUE, utilization, bandwidth, KV cache, yield/capacity, GPU-hour, CAPEX/depreciation/FCF 등의 재현 가능한 lab을 연결한다.
+- concept→현재 전문 route→근거→시나리오→무효화→학습 복귀를 구현하고 quiz/note/bookmark/progress와 결합한다.
+- Acceptance: 계산 가능한 핵심 lab 전수 PASS, 핵심 end-to-end scenario 20개 이상, stale/current fail-closed, 주문 지시 생성 0.
+
+### KA-16. Encyclopedia semantic·browser·live·user certification
+
+- full-corpus, Web Research, source profile, article uniqueness, quantitative example, sector depth, market transmission, persona, accessibility, mobile, performance, partial failure를 함께 검증한다.
+- 실제 참여자 연구 전에는 `HEURISTIC_VERIFIED`, 로컬/공개 revision이 모두 통과해도 user study 없이는 `USER_VALIDATED` 금지.
+- Acceptance: machine contract의 open content blocker 0, 모든 category `BROWSER_VERIFIED`, 배포 revision parity와 live semantic scenario PASS. 실제 사용자 연구는 별도 상태로 정직하게 기록.

@@ -1,11 +1,16 @@
 {
-  "schemaVersion": "1.2.0",
-  "status": "AUDIT_VERIFIED_REMEDIATION_PARTIALLY_IMPLEMENTED",
-  "boundedChangesImplemented": ["public naming", "depth audit", "name regression gates", "handoff and knowledge contracts", "semantic graph gate", "typed edge normalization", "unified evidence resolver", "capability-level artifact loading", "S0 topology and product mapping corrections"],
-  "knowledgeRebuildStatus": "FOUNDATIONAL_CORE_PARTIAL",
-  "auditedAt": "2026-08-10",
-  "targetVersion": "v53.99",
+  "schemaVersion": "1.3.0",
+  "status": "IMPLEMENTATION_IN_PROGRESS",
+  "boundedChangesImplemented": ["public naming", "depth audit", "name regression gates", "handoff and knowledge contracts", "semantic graph gate", "typed edge normalization", "unified evidence resolver", "capability-level artifact loading", "S0 topology and product mapping corrections", "canonical ontology manifest", "claim directness registry", "structured article drafts", "learning graph", "shareable learning state", "route bridge", "knowledge repository and selectors", "shared knowledge renderers", "encyclopedia product mission", "full sector-domain-category coverage contract", "web research dossier contract", "post-KA content completion track"],
+  "knowledgeRebuildStatus": "STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN",
+  "auditedAt": "2026-08-11",
+  "targetVersion": "v54.6",
   "surfaces": ["principles", "atlas"],
+  "encyclopediaMission": {
+    "productDefinition": "A connected stock, economics, finance and technology encyclopedia that leads from concept learning to evidence-backed market application",
+    "requiredClosure": ["realEconomy", "industryAndTechnologyValueChain", "companyAndProduct", "financialStatementsAndCashFlow", "valuation", "financialMarketsAndStockPrice", "tradingObservationScenarioAndInvalidation"],
+    "prohibitedSubstitutes": ["short summary cards", "schema-only structured drafts", "representative-sector-only coverage", "broad source repetition", "uncited current values", "direct trade commands"]
+  },
   "naming": {
     "routeId": "atlas",
     "publicName": "AI 시대 지식 지도",
@@ -76,14 +81,14 @@
       "atlasCapabilities": 11,
       "loadingModel": "PROMISE_ALL_SETTLED_PER_CAPABILITY"
     },
-    "certificationBoundary": "LOCAL_REFERENCE_IMPLEMENTATION_ONLY; 159 deep articles, active-learning state, professional route state and recruited-user validation remain open"
+    "certificationBoundary": "LOCAL_REFERENCE_IMPLEMENTATION_ONLY; 159 human-reviewed deep articles, full sector-domain-category dossiers, independent Web Research, semantic source review, active-learning UX, live parity and recruited-user validation remain open"
   },
   "certificationBlockers": [
     {
       "id": "KB-S0-01",
       "surface": "shared",
       "kind": "ENCYCLOPEDIA_DEPTH",
-      "evidence": "159/159 core lessons are below the 1,200-character floor and 0/159 implement the complete semantic depth contract",
+      "evidence": "159 structured drafts exist, but the source lesson summaries remain below the 1,200-character floor and 0/159 have passed the complete semantic depth contract",
       "requiredGate": "encyclopedia-depth",
       "status": "OPEN"
     },
@@ -91,7 +96,7 @@
       "id": "KB-S0-02",
       "surface": "shared",
       "kind": "ACTIVE_LEARNING_STATE",
-      "evidence": "progress, bookmark, learner note and retrieval-practice state are absent",
+      "evidence": "URL state and local persistence contracts exist; learner controls, retrieval UX, and user validation remain open",
       "requiredGate": "persona-journey",
       "status": "OPEN"
     },
@@ -102,6 +107,22 @@
       "evidence": "multi-persona findings are heuristic scenarios; no recruited-user study has been conducted",
       "requiredGate": "user-validation-boundary",
       "status": "OPEN_EXTERNAL"
+    },
+    {
+      "id": "KB-S0-04",
+      "surface": "shared",
+      "kind": "WEB_RESEARCH_AND_SOURCE_PROFILE",
+      "evidence": "159 structured drafts and related guides do not yet have concept-level search dossiers, complete primary/academic source profiles, disagreement records, or independent claim-by-claim fact-checking",
+      "requiredGate": "web-research-dossier",
+      "status": "OPEN"
+    },
+    {
+      "id": "KB-S0-05",
+      "surface": "shared",
+      "kind": "FULL_SECTOR_DOMAIN_CATEGORY_DEPTH",
+      "evidence": "60 Principles guides, 95 Atlas taxonomy nodes, 50 deep branches and 19 domain overviews have not all passed independent depth, KPI, bottleneck, company/product, finance and market-transmission review",
+      "requiredGate": "full-corpus-coverage",
+      "status": "OPEN"
     },
     {
       "id": "MP-S0-01",
@@ -147,16 +168,22 @@
   ],
   "workPackages": [
     {"id": "KA-00", "wave": 0, "title": "Semantic gate baseline", "dependsOn": [], "status": "VERIFIED_LOCAL"},
-    {"id": "KA-01", "wave": 0, "title": "Ontology and ID freeze", "dependsOn": ["KA-00"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-01", "wave": 0, "title": "Ontology and ID freeze", "dependsOn": ["KA-00"], "status": "VERIFIED_LOCAL"},
     {"id": "KA-02", "wave": 1, "title": "Typed graph migration", "dependsOn": ["KA-01"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-03", "wave": 1, "title": "Evidence registry and resolver unification", "dependsOn": ["KA-01"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
-    {"id": "KA-04", "wave": 2, "title": "159-lesson encyclopedia article rebuild, worked examples and academic depth", "dependsOn": ["KA-02", "KA-03"], "status": "DESIGNED"},
-    {"id": "KA-05", "wave": 2, "title": "Lesson and path continuity", "dependsOn": ["KA-02", "KA-03"], "status": "DESIGNED"},
-    {"id": "KA-06", "wave": 3, "title": "Shareable state and active learning", "dependsOn": ["KA-05"], "status": "DESIGNED"},
-    {"id": "KA-07", "wave": 3, "title": "Professional route bridge", "dependsOn": ["KA-04", "KA-05"], "status": "DESIGNED"},
+    {"id": "KA-04", "wave": 2, "title": "159-lesson encyclopedia article rebuild, worked examples and academic depth", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-05", "wave": 2, "title": "Lesson and path continuity", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-06", "wave": 3, "title": "Shareable state and active learning", "dependsOn": ["KA-05"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-07", "wave": 3, "title": "Professional route bridge", "dependsOn": ["KA-04", "KA-05"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-08", "wave": 4, "title": "Repository, state and selector extraction", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
-    {"id": "KA-09", "wave": 4, "title": "Thin renderer migration and legacy deletion", "dependsOn": ["KA-06", "KA-07", "KA-08"], "status": "DESIGNED"},
-    {"id": "KA-10", "wave": 5, "title": "Semantic and live certification", "dependsOn": ["KA-09"], "status": "DESIGNED"}
+    {"id": "KA-09", "wave": 4, "title": "Thin renderer migration and legacy deletion", "dependsOn": ["KA-06", "KA-07", "KA-08"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-10", "wave": 5, "title": "Structural semantic and local certification checkpoint", "dependsOn": ["KA-09"], "status": "DESIGNED"},
+    {"id": "KA-11", "wave": 6, "title": "Full corpus and sector-domain-category coverage inventory", "dependsOn": ["KA-10"], "status": "DESIGNED"},
+    {"id": "KA-12", "wave": 6, "title": "Concept-level Web Research dossiers and source audit", "dependsOn": ["KA-11"], "status": "DESIGNED"},
+    {"id": "KA-13", "wave": 7, "title": "159 human-reviewed core deep article reconstruction", "dependsOn": ["KA-12"], "status": "DESIGNED"},
+    {"id": "KA-14", "wave": 7, "title": "Principles and Atlas sector-domain-category dossier enrichment", "dependsOn": ["KA-12", "KA-13"], "status": "DESIGNED"},
+    {"id": "KA-15", "wave": 8, "title": "Quantitative labs, market application and active learning closure", "dependsOn": ["KA-13", "KA-14"], "status": "DESIGNED"},
+    {"id": "KA-16", "wave": 9, "title": "Encyclopedia semantic, browser, live and user certification", "dependsOn": ["KA-15"], "status": "DESIGNED"}
   ],
   "referenceImplementationFiles": [
     "src/domain/knowledge/graph.js",
@@ -166,6 +193,13 @@
   ],
   "localVerification": {
     "semanticCore": "PASS",
+    "ontology": "PASS: 155 concepts / 461 aliases",
+    "claimRegistry": "PASS: 119 sources / 270 claims / 0 unresolved",
+    "articleContract": "PASS: 159 structured drafts / 16 paths",
+    "learningState": "PASS: URL serialization and local persistence",
+    "routeBridge": "PASS: 198 targets / 20 scenarios",
+    "repository": "PASS: 6 connected / 1 fallback fixture",
+    "sharedRenderers": "PASS: 5 renderer contract fixtures",
     "principlesBrowser": "PASS",
     "atlasBrowser": "PASS",
     "headless": "1108/1108 PASS",
@@ -189,7 +223,15 @@
     "user-validation-boundary",
     "route-state",
     "partial-failure",
-    "browser-semantic"
+    "browser-semantic",
+    "full-corpus-coverage",
+    "web-research-dossier",
+    "source-profile",
+    "article-uniqueness",
+    "quantitative-example",
+    "market-transmission",
+    "sector-domain-depth",
+    "currentness-separation"
   ],
   "depthContract": {
     "coreLessonMinimumCharacters": 1200,
@@ -197,7 +239,40 @@
     "deepBranchMinimumCharacters": 1500,
     "requiredSemanticFields": ["intuition", "formalModelOrRationale", "workedExampleOrRationale", "realEconomyChannel", "companyChannel", "financialStatementChannel", "valuationChannel", "marketChannel", "tradingApplication", "invalidation", "glossary", "retrievalChecks", "claimIds"],
     "workedExampleFields": ["inputs", "assumptions", "steps", "result", "interpretation", "failureBoundary"],
+    "progressiveDisclosure": ["30-second-summary", "5-minute-core-article", "deep-dive-model-evidence"],
+    "requiredCaseStudyFields": ["context", "timeBoundary", "mechanismObserved", "evidenceIds", "alternativeExplanation", "lesson"],
+    "requiredTradingObservationFields": ["metric", "timeframe", "regime", "catalyst", "confirmation", "invalidation", "missingOrStaleBoundary"],
+    "structuredDraftMayPassAsCompletedArticle": false,
     "lengthOnlyPassAllowed": false
+  },
+  "fullCorpusCoverage": {
+    "principlesCoreLessons": 111,
+    "atlasFoundationLessons": 48,
+    "principlesConceptGuides": 60,
+    "atlasTaxonomyNodes": 95,
+    "atlasDeepBranches": 50,
+    "atlasDomainOverviews": 19,
+    "coverageStates": ["INVENTORIED", "RESEARCHED", "AUTHORED", "SEMANTIC_REVIEWED", "BROWSER_VERIFIED", "LIVE_VERIFIED"],
+    "completionRule": "Every unit requires an independent dossier or an explicit canonical composition retaining unique KPI, bottleneck, entity/product, evidence and market-transmission fields"
+  },
+  "webResearchContract": {
+    "requiredDossierFields": ["contentUnitId", "researchQuestions", "queries", "searchedAt", "candidateSources", "selectedSources", "rejectedSources", "sourceTiers", "claimCoverage", "consensus", "disagreement", "invalidation", "currentnessBoundary", "q1Thesis", "q2ParadigmShift", "q3DisconfirmingVariable", "q4StructuralMechanism", "q5AdjacentImpact"],
+    "sourceTiers": ["PRIMARY_OFFICIAL", "ACADEMIC_TEXTBOOK_STANDARD", "COMPANY_FILING_IR", "INDEPENDENT_CONTEXT", "DISCOVERY"],
+    "directness": ["DIRECT", "CONTEXT", "DISCOVERY"],
+    "currentQuantitativeCompanyProductClaimDirectCoverage": 1,
+    "searchSnippetAllowedAsEvidence": false,
+    "discoveryOnlyPromotionAllowed": false,
+    "broadSourceReuseMaySatisfyUnrelatedDirectClaims": false,
+    "timeVaryingValuesRoute": "data-refresh or an asOf/freshness-aware current evidence artifact"
+  },
+  "contentProfiles": {
+    "FORMAL_FOUNDATIONAL": ["two or more textbook, academic paper or official standard sources", "variables, units and assumptions", "reproducible example"],
+    "MACRO_INSTITUTIONAL": ["two or more central bank, statistics agency, law, regulation or official data sources", "theory or historical context"],
+    "ACCOUNTING_VALUATION": ["accounting standard or regulator or filing", "textbook or professional reference", "reproducible calculation"],
+    "INDUSTRY_TECHNOLOGY": ["official standard, paper, government or research institute", "company technical document or filing", "independent context"],
+    "COMPANY_PRODUCT": ["filing, IR or official product document as DIRECT", "secondary material only as CONTEXT"],
+    "MARKET_TRADING": ["exchange, regulator or official market data", "empirical research or reference", "current values through current evidence"],
+    "EMERGING_TECH": ["peer-reviewed or official research", "implementation documentation", "no vendor-only scale or commercialization conclusion"]
   },
   "personaScenarios": [
     "novice",
