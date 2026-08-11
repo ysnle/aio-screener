@@ -1,6 +1,7 @@
 ## v54.4 (2026-08-11)
 - **검색 장애의 답변 전체 차단 제거**: Web Research·시장세션 근거가 없을 때 최신 주장만 limitation으로 낮추고, 기존 근거·일반 원리·조건부 분석은 두 채팅 UI 모두 계속 표시한다.
 - **고정 답변 형식 해제**: 모든 질문에 Bull/Base/Bear·확률·기관 프레임·시장환경을 강제하던 유산 프롬프트를 질문별 선택 형식으로 축소했다.
+- **부분 수집 배포 계약 교정**: Telegram 4개 채널 중 일부 timeout이 발생해도 성공·실패 lineage가 완전하면 유효한 partial 상태로 배포하고 완전 성공으로는 승격하지 않는다.
 - **안전 분류 SSOT 완성**: 금융 conduct policy를 ESM으로 이동해 QuestionPlan과 두 채팅 UI의 최종 gate가 교육·조건부 투자·개인화 법률/세무 분석·불법 실행을 같은 구조로 분류한다.
 - **소수 사용자 경계 최적화**: 옵션·ETF 세법·규제 영향·가격/비중/손절 시나리오·개인화 법률/세무 질문은 회피하지 않고 전제·관할·근거·불확실성을 붙여 답한다. 차단은 불법 실행법·외부 상태변경·동의 없는 개인정보 사용으로 축소했다.
 - **공유 provider 권한 재설계**: 실패한 placement/ENAM hint를 제거하고 미국 jurisdiction의 versioned Durable Object가 quota와 Anthropic outbound를 함께 소유한다.

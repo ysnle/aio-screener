@@ -2031,3 +2031,9 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: Web Research, 시장 세션, current claim 구조화가 실패해도 불법 실행·mutation·typed claim 불일치가 아니라면 모델의 일반 원리, 기존 검증 근거, 정성 및 조건부 분석을 삭제하지 않는다. 공통 response pipeline이 `blocked:false`, `degraded:true`, 명시적 limitation을 만들고 모든 UI는 이를 그대로 렌더한다. UI별 후행 오류 문구로 모델 답변을 다시 덮어쓰지 않는다. 최신 사실·수치·원인 단정만 확인 보류하며, 검증된 claim 불일치나 출처 권리 위반은 기존 claim/evidence gate가 별도로 차단한다.
 
 **Validation**: `js/aio-chat.js`, `index.html`, `js/aio-tests.js` T990c/T990d, `scripts/ci-ai-intelligence-contract-check.mjs`, `scripts/ci-runtime-contract-check.mjs`.
+
+## R462. 다중 공급자 coverage 계약은 partial 상태를 성공·실패 lineage와 함께 보존한다 (v54.4, P907)
+
+**Rule**: 요청된 공급자/채널 topology와 이번 실행의 성공률을 분리한다. 모든 요청 행과 source catalog가 존재하고 실패 행에 원인이 있으면 `partial`을 구조적으로 유효한 저하 상태로 인정하되 `ok`로 승격하지 않는다. `successfulCount`와 오류 행 수가 전체 수에 합산되지 않거나 요청 행이 사라지면 차단한다. 전체 실패 fallback을 허용하면서 부분 성공을 거부하는 비단조 계약을 만들지 않는다.
+
+**Validation**: `scripts/ci-six-doc-coverage-check.mjs`, `public-data/telegram-digest.json`, `scripts/fetch-telegram-digest.mjs`.

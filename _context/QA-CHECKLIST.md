@@ -11,6 +11,7 @@ confidence: high
 - [x] QA-AIDEGRADE1: Web Research·시장세션·비구조화 현재 수치 근거가 없을 때 답변 원문은 유지되고 영향받는 주장만 limitation으로 표시된다.
 - [x] QA-AIDEGRADE2: per-page와 unified chat 모두 Research 실패 후행 덮어쓰기를 하지 않으며 `RESEARCH_REQUIRED_BUT_UNAVAILABLE` 차단 경로가 없다.
 - [x] QA-AIDEGRADE3: Typed claim 불일치, 불법 실행 절차, mutation tool negative control은 저하 모드 변경 뒤에도 차단된다.
+- [x] QA-TGPARTIAL1: Telegram 4개 요청 채널은 ok/partial/failed 모두 catalog↔행 topology를 보존하고 partial의 성공 수와 error 행 수가 합산 4인지 검사한다.
 - [x] QA-AIAUTH1: Worker는 placement/location hint 없이 US jurisdiction의 versioned Durable Object만 quota+provider 권한으로 사용한다.
 - [x] QA-AIAUTH2: DO가 보고한 jurisdiction이 us가 아니면 provider fetch 전에 503으로 닫고 negative control이 이를 실행 검증한다.
 - [x] QA-AIAUTH3: `/health`는 authority를 실제 호출해 authorityReady:true·authorityJurisdiction:us를 확인하고 deploy smoke는 provider 200과 durable-object-us 헤더를 요구한다.

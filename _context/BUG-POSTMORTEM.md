@@ -3,10 +3,20 @@ verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-10
 confidence: high
 latest_version: v54.4
-latest_P_number: P906
-next_P_number: P907
-current_total_entries: 631 (P1~P906, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P904~P906 v54.4 US-jurisdiction authority and claim-scoped AI degradation
+latest_P_number: P907
+next_P_number: P908
+current_total_entries: 632 (P1~P907, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P904~P907 v54.4 AI authority, claim-scoped degradation, and partial-source release semantics
+
+## P907 - v54.4 - Partial Telegram collection was rejected while total failure was accepted
+
+- **motivation**: Pages CI가 실제 산출물의 명시적 부분 실패를 전체 구조 실패로 오판해 검증된 AI 개선 배포를 차단했다.
+- **symptom/reproduction**: digest는 4개 채널 행과 source catalog를 모두 보존하고 3개 성공·1개 timeout을 `collectionStatus:partial`로 기록했지만 six-doc coverage gate는 `ok(4/4)` 또는 `failed(0/4)`만 허용했다.
+- **root_cause**: 계약이 채널 topology와 수집 성공률을 하나의 boolean으로 결합했고 중간 상태를 누락했다. 완전 실패 fallback은 허용하면서 더 많은 실제 관측이 있는 부분 성공은 거부하는 비단조 조건이었다.
+- **fix**: 4개 catalog↔channel 행 일치, 성공 수 1~3, 실패 행 수와 `4-successfulChannelCount` 일치를 요구하는 명시적 partial 분기를 추가했다. 실패 채널 error lineage가 없으면 계속 차단한다.
+- **violated_rule**: R455 — 정상 unavailable/partial 상태는 명시적으로 모델링하고 과거 값이나 허위 완전 성공으로 승격하지 않아야 한다.
+- **prevention**: R462와 six-doc coverage 계약이 ok/partial/failed 세 상태의 단조 관계와 실패 lineage를 검증한다.
+- **verification**: `node scripts/ci-six-doc-coverage-check.mjs`, 전체 CI validate 재실행.
 
 ## P906 - v54.4 - Research outage erased otherwise answerable analysis across both chat surfaces
 
