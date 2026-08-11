@@ -2010,6 +2010,24 @@ endpoint identity while retaining explicit operator blockers.
 
 ## R458. AI edge Worker는 소스·배포·readiness를 하나의 릴리스 계약으로 닫는다 (v54.3, P903)
 
-**Rule**: `cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI 채팅을 완료로 판정하지 않는다. production Worker는 단 하나의 `/anthropic` 핸들러와 원자적 Durable Object quota authority를 사용하고, pinned Wrangler workflow가 Cloudflare/Anthropic 시크릿을 요구하여 같은 canonical source를 배포해야 한다. Anthropic이 차단하는 Cloudflare 엣지 지역 편차를 피하도록 config placement와 ENAM Durable Object location hint를 고정하고 실제 provider outbound를 그 단일 권한 객체 안에서 실행한다. 배포 후 `/health`가 configured·quotaConfigured·ready를 모두 true로 보고하고, production CORS preflight·비허용 Origin 403·한국 경로를 포함한 최소 upstream 200을 통과해야 public chat을 `CURRENT`로 승격한다.
+**Rule**: `cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI 채팅을 완료로 판정하지 않는다. production Worker는 단 하나의 `/anthropic` 핸들러와 원자적 Durable Object quota authority를 사용하고, pinned Wrangler workflow가 Cloudflare/Anthropic 시크릿을 요구하여 같은 canonical source를 배포해야 한다. 배포 후 `/health`가 configured·quotaConfigured와 실제 authority readiness를 보고하고, production CORS preflight·비허용 Origin 403·한국 경로를 포함한 최소 upstream 200을 통과해야 public chat을 `CURRENT`로 승격한다.
 
 **Validation**: `worker/wrangler.proxy.toml`, `.github/workflows/deploy-ai-proxy.yml`, `scripts/ci-worker-anthropic-check.mjs`, `scripts/ci-operations-contract-check.mjs`, live Worker smoke, `public-data/operations-status.json`.
+
+## R459. Provider 허용 지역은 location hint가 아니라 관할권 실행 증거로 고정한다 (v54.4, P904)
+
+**Rule**: Durable Object locationHint나 Worker placement는 best-effort/ingress 설정이므로 provider outbound 지역 보장으로 인증하지 않는다. 지역 제한 provider의 공유 경로는 jurisdiction-restricted subnamespace와 versioned object identity를 사용하고, 객체 내부에서 자신의 jurisdiction을 검증해 불일치 시 upstream 전에 fail-closed해야 한다. public health는 binding 존재가 아니라 해당 authority를 실제 호출해 jurisdiction·secret readiness를 확인하고, 배포 smoke는 provider 200과 authority 응답 헤더를 함께 검사한다.
+
+**Validation**: `cloudflare-worker-proxy.js`, `scripts/ci-worker-anthropic-check.mjs` US positive/non-US negative controls, `scripts/ci-operations-contract-check.mjs`, `.github/workflows/deploy-ai-proxy.yml`, live `/health`와 한국-origin `/anthropic`.
+
+## R460. 소수 사용자용 금융 안전 경계는 답변 범위와 실제 실행 위험을 분리한다 (v54.4, P905)
+
+**Rule**: 옵션, 세법, 규제, 개인화, 어떻게 같은 단일 키워드나 그 조합으로 금융 질문 전체를 차단하지 않는다. 단일 ESM conduct policy가 request mode를 QuestionPlan과 최종 response gate에 함께 제공한다. 일반 개념·상품 구조·시장 영향·조건부 투자·개인화 법률/세무 분석은 전제·관할·기준일·근거·계산·불확실성을 표시해 답변한다. 차단 범위는 불법 행위의 구체적 실행법, 주문·계정 변경 같은 외부 상태변경, 동의 없는 포트폴리오 데이터 사용으로 제한한다. 적합성 맥락·현재 근거·확률 보정이 부족하면 답변 전체를 안전 모드로 교체하지 말고 limitation으로 전달하며 typed claim/evidence gate가 해당 주장만 통제한다.
+
+**Validation**: `src/ai/policy/conduct.js`, `src/ai/orchestrator/question-planner.js`, `scripts/ci-ai-intelligence-contract-check.mjs` conduct corpus, `js/aio-tests.js` T988~T990b, 두 UI 공통 response pipeline.
+
+## R461. 공급자·근거 장애는 답변 전체가 아니라 영향받는 주장 범위만 저하시킨다 (v54.4, P906)
+
+**Rule**: Web Research, 시장 세션, current claim 구조화가 실패해도 불법 실행·mutation·typed claim 불일치가 아니라면 모델의 일반 원리, 기존 검증 근거, 정성 및 조건부 분석을 삭제하지 않는다. 공통 response pipeline이 `blocked:false`, `degraded:true`, 명시적 limitation을 만들고 모든 UI는 이를 그대로 렌더한다. UI별 후행 오류 문구로 모델 답변을 다시 덮어쓰지 않는다. 최신 사실·수치·원인 단정만 확인 보류하며, 검증된 claim 불일치나 출처 권리 위반은 기존 claim/evidence gate가 별도로 차단한다.
+
+**Validation**: `js/aio-chat.js`, `index.html`, `js/aio-tests.js` T990c/T990d, `scripts/ci-ai-intelligence-contract-check.mjs`, `scripts/ci-runtime-contract-check.mjs`.

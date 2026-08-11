@@ -74,6 +74,7 @@ import { applyMarketSnapshotToLegacy } from '../legacy/market-snapshot-bridge.js
 import { ROUTE_IDS } from './routes.js';
 import { VERTICAL_SLICE_CONTRACTS, auditVerticalSliceContracts, getVerticalSliceContract } from './vertical-slices.js';
 import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, auditCapabilityClaims } from '../domain/content/capability-manifest.js';
+import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } from '../ai/policy/conduct.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
@@ -456,7 +457,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       ,normalizeAIResearchExecutionResult: (result = {}) => normalizeResearchExecutionResult(result)
       ,evaluateAIResearchEvidenceFloor: (input = {}) => evaluateResearchEvidenceFloor(input)
       ,parseAIAnswerPlan: (text, options = {}) => aiOrchestrator.parseAnswerPlanText(text, options)
-      ,renderAIAnswerPlan: (plan, options = {}) => aiOrchestrator.renderAnswerPlan(plan, options)
+       ,renderAIAnswerPlan: (plan, options = {}) => aiOrchestrator.renderAnswerPlan(plan, options)
+      ,classifyAIConduct
+      ,buildScopedConductFallback
+      ,getAIConductPolicy
     ,navigate: (route, ...args) => legacy.navigate(route, ...args)
     // RM-03: single-implementation trading-score model. js/aio-core.js's computeTradingScore
     // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy

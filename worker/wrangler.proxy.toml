@@ -3,13 +3,10 @@ main = "../cloudflare-worker-proxy.js"
 compatibility_date = "2026-08-10"
 workers_dev = true
 
-[placement]
-region = "aws:us-east-1"
-
 [vars]
 ANTHROPIC_DAILY_CAP = "300"
 ANTHROPIC_MAX_TOKENS = "1500"
-AIO_APP_REVISION = "v54.3"
+AIO_APP_REVISION = "v54.4"
 
 [[durable_objects.bindings]]
 name = "AIO_QUOTA_DO"

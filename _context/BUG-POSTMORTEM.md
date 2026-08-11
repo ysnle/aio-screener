@@ -2,21 +2,51 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-10
 confidence: high
-latest_version: v54.3
-latest_P_number: P903
-next_P_number: P904
-current_total_entries: 628 (P1~P903, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P903 v54.3 canonical AI proxy is deployed through a gated Durable Object workflow
+latest_version: v54.4
+latest_P_number: P906
+next_P_number: P907
+current_total_entries: 631 (P1~P906, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P904~P906 v54.4 US-jurisdiction authority and claim-scoped AI degradation
+
+## P906 - v54.4 - Research outage erased otherwise answerable analysis across both chat surfaces
+
+- **motivation**: 검색 공급자·quota·Worker Research capability 중 하나가 실패할 때도 기존 근거와 일반 원리에 기반한 정성·조건부 분석은 제공할 수 있어야 한다.
+- **symptom/reproduction**: `RESEARCH_RESULTS_EMPTY` 또는 native web-search 무결과 뒤 공통 response pipeline이 모델 답변을 안전 모드 문구로 교체했고, per-page/unified UI가 같은 답변을 다시 오류 안내로 덮어썼다. 검색 실패 하나가 전체 답변 실패로 확대됐다.
+- **root_cause**: 근거의 상태와 답변 전체의 게시 상태를 같은 boolean `blocked`로 표현했다. claim 단위 현재성 제약, Research capability 장애, 불법·상태변경 경계를 분리하지 않아 세 계층이 중복 차단했다.
+- **fix**: 공통 pipeline에 claim-scoped limitation/degraded 상태를 추가했다. Research·시장세션·비구조화 현재 수치 근거가 없으면 최신 사실·수치 단정만 확인 보류하고 모델의 일반 원리·기존 근거·조건부 분석은 보존한다. 두 UI의 후행 덮어쓰기를 제거했다. Typed claim 불일치, 불법 실행 절차, mutation tool은 계속 차단한다.
+- **violated_rule**: R460 — 근거 부족은 답변 전체 안전 모드가 아니라 해당 주장 limitation으로 전달해야 한다.
+- **prevention**: R461과 T990c/T990d가 Research·세션 장애 시 원문 보존, `blocked:false`, 명시적 limitation을 함께 검증한다. CI는 두 UI에서 `RESEARCH_REQUIRED_BUT_UNAVAILABLE` 후행 차단의 재등장을 금지한다.
+- **verification**: `scripts/ci-ai-intelligence-contract-check.mjs`, `scripts/ci-runtime-contract-check.mjs`, `js/aio-tests.js` T990c/T990d, headless 전수 검사.
+
+## P905 - v54.4 - Residual keyword safety rules still blocked answerable finance education
+
+- **motivation**: v54.2에서 query와 response를 분리했지만 옵션 작동 원리나 ETF 과세 구조처럼 답변 가능한 교육 질문이 상품/세법 단어와 범용 방법 정규식의 조합으로 다시 LEGAL_REVIEW_REQUIRED가 될 수 있었다.
+- **symptom/reproduction**: legacy classifyFinancialConduct는 상품 위험, 관할권 단어, 설명형 “어떻게”, 실제 거래 실행을 한 단계의 execution boolean으로 합쳤다. 두 UI는 같은 최종 pipeline을 사용하므로 오분류 시 모델의 유용한 답변 전체가 AI 안전 모드 문구로 교체됐다.
+- **root_cause**: QuestionPlan은 의도·근거·Research를 소유했지만 금융 행위 정책만 classic-script 정규식 배열에 남아 있었다. 즉 요청 계획 SSOT 바깥에 두 번째 질의 분류기가 존속했다.
+- **fix**: src/ai/policy/conduct.js를 단일 정책 소유자로 만들고 EDUCATIONAL, CONDITIONAL_ANALYSIS, LEGAL_TAX_ANALYSIS, PROHIBITED_INSTRUCTION을 분리해 QuestionPlan.conductPlan과 최종 response gate가 같은 분류기를 사용하게 했다. 소수 사용자용 읽기 전용 리서치 도구의 실제 위험에 맞춰 옵션·레버리지·개인화 투자·법률·세무 분석은 전제·관할·근거·불확실성을 표시해 답변하고, 불법 행위의 구체적 실행법·외부 상태변경·동의 없는 포트폴리오 전송만 차단한다.
+- **violated_rule**: R456 — QuestionPlan 밖의 병렬 안전 분류기는 같은 질문을 다른 의미로 해석할 수 있다.
+- **prevention**: R460은 금융 교육·조건부·개인화 법률/세무 분석 positive corpus와 불법 실행 negative controls를 하나의 ESM 정책에서 실행 검증한다.
+- **verification**: ci-ai-intelligence-contract-check.mjs의 conduct 9-case+response-directive fixtures, js/aio-tests.js T988~T990b, 두 UI 공통 response pipeline, headless 전수 시험.
+
+## P904 - v54.4 - Durable Object location hint was treated as a provider-region guarantee
+
+- **motivation**: v54.3 Worker가 배포되고 health/CORS/origin은 통과했지만 실제 Anthropic smoke는 GitHub westus runner와 한국 요청 모두 Request not allowed 403으로 실패했다.
+- **symptom/reproduction**: GitHub run 31392286134에서 canonical Worker/secret 배포 성공 직후 최소 /anthropic 호출이 Anthropic 403을 반환했다. ENAM location hint를 사용했지만 응답은 provider 차단 그대로였고 v54.3 health는 Durable Object를 실제 실행하지 않은 채 binding 존재만으로 ready:true를 보고했다.
+- **root_cause**: Cloudflare location hint는 최초 생성 때만 반영되는 best-effort 제안이며 위치 보장이 아니다. 기존 global 객체는 이동하지 않고, health는 authority의 실제 관할·secret 접근·실행 가능성을 검사하지 않았다. config placement 역시 ingress 배치와 provider outbound 권한을 혼동했다.
+- **fix**: placement와 ENAM hint를 삭제하고 AIO_QUOTA_DO.jurisdiction('us').getByName('anthropic-authority-v1')를 quota+provider 단일 권한으로 고정했다. DO 내부에서도 state.id.jurisdiction이 us가 아니면 upstream 전에 503으로 닫는다. /health는 versioned authority를 실제 호출해 authorityReady와 authorityJurisdiction:us를 확인하며, 배포 smoke는 X-AIO-Upstream-Authority: durable-object-us까지 검증한다.
+- **violated_rule**: R458 — readiness는 binding/config 존재가 아니라 실제 consumer 경계 실행으로 증명해야 한다.
+- **prevention**: R459는 best-effort location hint를 지역 보장으로 인정하지 않고 jurisdiction·versioned identity·deep health·provider response header를 함께 요구한다.
+- **verification**: 비-US DO negative control 503, US authority health/identity/provider fixture, pinned deploy workflow, live Korean-origin minimal upstream 200.
 
 ## P903 - v54.3 - Repository AI Worker and deployed public proxy had no release path
 
 - **motivation**: v54.2 앱·CI·Pages가 모두 성공한 뒤에도 공개 `operations-status`는 shared AI chat을 `NO_ROUTE/CONFIGURED_BROKEN`으로 보고했고, 실제 `/health`는 구형 `?url=` 프록시 오류를 반환했다.
 - **symptom/reproduction**: `https://aio-proxy.zmfhd007.workers.dev/health`가 최신 `aio-worker-health.v1` 대신 HTTP 400 `url parameter required`를 반환했다. 저장소에는 원자적 Durable Object `/anthropic` 구현이 있었지만 해당 파일을 `aio-proxy`에 배포하는 Wrangler config·workflow가 없었고, 사용되지 않는 구형 KV 핸들러도 100줄가량 중복 잔존했다.
 - **root_cause**: Worker 소스 검증과 Pages 배포만 존재하고 edge runtime 배포·secret 주입·readiness/CORS/origin 스모크가 릴리스 그래프에서 빠져 있었다. 따라서 코드 보강이 실제 사용자 경로에 도달하지 않았다.
-- **fix**: 구형 KV 핸들러를 제거해 단일 원자적 핸들러로 축약하고, Durable Object migration/binding 및 `aws:us-east-1` placement를 가진 `worker/wrangler.proxy.toml`을 추가한다. 한국 ingress의 일반 Worker 실행 위치가 HKG에 남는 경우도 제거하도록 quota Durable Object 자체를 `locationHint:'enam'`의 단일 upstream authority로 승격해 Anthropic fetch를 그 안에서 실행한다. `deploy-ai-proxy.yml`은 시크릿 요구·배포·health/readiness·CORS·거부 origin뿐 아니라 실제 최소 Anthropic upstream 응답까지 검사한다. operations producer는 관측된 proxy evidence로 publicChat 상태를 계산한다.
+- **fix**: 구형 KV 핸들러를 제거해 단일 원자적 핸들러로 축약하고 Durable Object migration/binding 및 배포 workflow를 추가했다. 당시 적용한 placement/ENAM hint는 실제 지역 보장이 아니어서 P904에서 US jurisdiction authority로 교체됐다.
 - **violated_rule**: R456 — 실행 계약은 consumer까지 연결되어야 하며, 저장소에 존재하지만 배포되지 않은 Worker는 AI 채팅 경로로 인증할 수 없다.
 - **prevention**: R458은 AI Worker 변경이 canonical config·배포 workflow·live readiness gate 없이 완료/배포로 판정되는 것을 금지한다.
-- **verification**: `ci-worker-anthropic-check.mjs`, `ci-operations-contract-check.mjs`, GitHub `Deploy AI proxy`, live `/health`, allowed-origin preflight, disallowed-origin 403, US placement을 경유한 최소 Anthropic upstream 200 smoke.
+- **verification**: 로컬 Worker/operations 계약과 live health/CORS/origin은 통과했으나 GitHub run 31392286134의 실제 upstream smoke는 403으로 실패했다. 따라서 v54.3의 공유 provider 경로는 완료되지 않았으며 P904가 이를 후속 교정한다.
 
 ## P902 - v54.2 - Scheduled Telegram refresh repeatedly invalidated the Atlas release contract
 

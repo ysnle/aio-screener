@@ -5,6 +5,7 @@ import { evaluateQuestionActionPermission } from '../policy/suitability.js';
 import { createCapabilityPlan } from './capability-planner.js';
 import { createResearchDecision } from '../research/decision.js';
 import { createResearchPlan } from '../research/plan.js';
+import { classifyAIConduct } from '../policy/conduct.js';
 
 export const AI_QUESTION_PLAN_VERSION = 'question-plan.v1';
 
@@ -74,6 +75,7 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     optionalEvidence: Object.freeze(intent.intents.includes('FX_ANALYSIS') ? ['news', 'flows', 'policy-comments'] : ['news', 'research-reference']),
     requiredTools: Object.freeze([...new Set(requiredEvidence.filter((item) => item !== 'market-session'))]),
     suitabilityRequired: intent.actionRequested || intent.primary === 'PORTFOLIO_ACTION',
+    conductPlan: classifyAIConduct({ query: normalized }),
     actionPermission: evaluateQuestionActionPermission({ questionPlan: intent, suitabilityProfile: null, evidenceComplete: false }),
     clarificationQuestions: Object.freeze(entities.ambiguous ? ['어느 시장의 어떤 종목/ETF를 말하는지 티커 또는 거래소를 알려주세요.'] : []),
     sessionEvidence,

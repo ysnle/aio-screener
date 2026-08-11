@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v54.3';
-const SW_BUILD = '2026-08-10T21:53:00+09:00';
+const SW_VERSION = 'v54.4';
+const SW_BUILD = '2026-08-11T21:23:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -56,6 +56,7 @@ const SHELL_ASSETS = [
   './src/ai/research/evidence.js',
   './src/ai/research/plan.js',
   './src/ai/policy.js',
+  './src/ai/policy/conduct.js',
   './src/ai/policy/suitability.js',
   './src/ai/context/manifest.js',
   './src/ai/provider/adapter.js',

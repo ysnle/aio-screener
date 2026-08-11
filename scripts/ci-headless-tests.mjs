@@ -116,6 +116,10 @@ async function main() {
       () => typeof window.AIO === 'object' && typeof window.AIO.loadTests === 'function',
       { timeout: 30000 }
     );
+    await page.waitForFunction(
+      () => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.classifyAIConduct === 'function',
+      { timeout: 30000 }
+    );
 
     const result = await page.evaluate(async () => {
       await window.AIO.loadTests();

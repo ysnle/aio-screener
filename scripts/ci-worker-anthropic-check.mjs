@@ -80,23 +80,35 @@ async function main() {
   const healthBody = await health.json();
   check('health reports atomic quota configured', healthBody.ai?.quotaConfigured === true, healthBody);
 
-  let observedLocationHint = null;
+  let observedJurisdiction = null;
+  let observedAuthorityName = null;
   const namespaceEnv = {
     ANTHROPIC_API_KEY: 'sk-test',
     AIO_QUOTA_DO: {
-      idFromName: (name) => name,
-      get: (_id, options) => {
-        observedLocationHint = options?.locationHint || null;
-        return { fetch: async () => new Response(JSON.stringify({ content: [{ type: 'text', text: 'ok' }] }), { status: 200, headers: { 'content-type': 'application/json', 'X-AIO-Upstream-Authority': 'durable-object-enam' } }) };
+      jurisdiction: (value) => {
+        observedJurisdiction = value;
+        return {
+          getByName: (name) => {
+            observedAuthorityName = name;
+            return { fetch: async (url) => String(url).endsWith('/health')
+              ? Response.json({ schemaVersion:'aio-ai-authority-health.v1', ready:true, jurisdiction:'us', configured:true })
+              : new Response(JSON.stringify({ content: [{ type: 'text', text: 'ok' }] }), { status: 200, headers: { 'content-type': 'application/json', 'X-AIO-Upstream-Authority': 'durable-object-us' } }) };
+          },
+        };
       },
     },
   };
   const durableProxy = await worker.fetch(makeReq({ body: { model: 'claude-haiku-4-5', max_tokens: 8, messages: [] } }), namespaceEnv);
-  check('production namespace routes upstream through Durable Object', durableProxy.status === 200 && durableProxy.headers.get('X-AIO-Upstream-Authority') === 'durable-object-enam', durableProxy.status);
-  check('Durable Object creation uses eastern North America hint', observedLocationHint === 'enam', observedLocationHint);
+  check('production namespace routes upstream through Durable Object', durableProxy.status === 200 && durableProxy.headers.get('X-AIO-Upstream-Authority') === 'durable-object-us', durableProxy.status);
+  check('Durable Object uses guaranteed US jurisdiction', observedJurisdiction === 'us', observedJurisdiction);
+  check('Durable Object uses versioned authority identity', observedAuthorityName === 'anthropic-authority-v1', observedAuthorityName);
+  const authorityHealth = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), namespaceEnv);
+  const authorityHealthBody = await authorityHealth.json();
+  check('health executes the authority and requires US jurisdiction', authorityHealthBody.ai?.authorityReady === true && authorityHealthBody.ai?.authorityJurisdiction === 'us' && authorityHealthBody.ai?.ready === true, authorityHealthBody);
 
   const durableStorage = new Map();
   const durableState = {
+    id: { jurisdiction: 'us' },
     storage: {
       get: async (key) => durableStorage.get(key),
       put: async (key, value) => { durableStorage.set(key, value); },
@@ -108,14 +120,21 @@ async function main() {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ dayKey: 'claude:fixture', cap: 2, requestId: 'fixture-do-request', claudeBody: { model: 'claude-haiku-4-5', max_tokens: 8, messages: [] } }),
   }));
-  check('Durable Object executes quota and provider in one authority', durableResponse.status === 200 && durableResponse.headers.get('X-AIO-Upstream-Authority') === 'durable-object-enam', durableResponse.status);
+  check('Durable Object executes quota and provider in one authority', durableResponse.status === 200 && durableResponse.headers.get('X-AIO-Upstream-Authority') === 'durable-object-us', durableResponse.status);
+
+  const wrongJurisdiction = new AIOQuotaDurableObject({ ...durableState, id: { jurisdiction: undefined } }, { ANTHROPIC_API_KEY: 'sk-test' });
+  const wrongJurisdictionResponse = await wrongJurisdiction.fetch(new Request('https://aio-quota.internal/proxy', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ dayKey: 'claude:fixture', cap: 2, requestId: 'fixture-wrong-jurisdiction', claudeBody: { model: 'claude-haiku-4-5', max_tokens: 8, messages: [] } }),
+  }));
+  check('non-US Durable Object fails closed before provider fetch', wrongJurisdictionResponse.status === 503, wrongJurisdictionResponse.status);
 
   if (errors.length) {
     console.error('Worker atomic quota check failed:');
     errors.forEach(error => console.error(' - ' + error));
     process.exit(1);
   }
-  console.log('Worker atomic quota check OK: exact origins, fail-closed atomic binding, idempotency, and concurrent cap fixture passed.');
+  console.log('Worker atomic quota check OK: exact origins, US jurisdiction authority, fail-closed binding, idempotency, and concurrent cap fixture passed.');
   process.exit(0);
 }
 

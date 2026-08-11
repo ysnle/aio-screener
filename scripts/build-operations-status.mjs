@@ -48,6 +48,32 @@ export function deriveSecCoverage(secFundamentals, fallbackPct = 0) {
   return { stored: null, eligible: null, coveragePct: Number(fallbackPct) || 0 };
 }
 
+async function observeProxyHealth(baseUrl, fallback = {}) {
+  if (process.env.AIO_OBSERVE_PROXY_HEALTH !== '1' || !baseUrl) return fallback;
+  const observedAt = new Date().toISOString();
+  try {
+    const response = await fetch(`${String(baseUrl).replace(/\/$/, '')}/health`, {
+      headers: { Origin: 'https://ysnle.github.io' },
+      signal: AbortSignal.timeout(8000)
+    });
+    const body = await response.json();
+    return {
+      ...fallback,
+      proxyHealthStatus: response.status,
+      proxyHealthObserved: observedAt,
+      proxyHealthRevision: body?.revision || null,
+      proxyAiConfigured: body?.ai?.configured === true,
+      proxyQuotaConfigured: body?.ai?.quotaConfigured === true,
+      proxyAuthorityReady: body?.ai?.authorityReady === true,
+      proxyAuthorityJurisdiction: body?.ai?.authorityJurisdiction || null,
+      proxyAiReady: body?.ai?.ready === true,
+      proxyHealthNote: response.ok ? 'Live deep health observed; provider smoke is certified separately by the pinned deploy workflow.' : `Live health HTTP ${response.status}`
+    };
+  } catch (error) {
+    return { ...fallback, proxyHealthObserved: observedAt, proxyHealthNote: `Live health unavailable: ${String(error?.name || 'network-error')}` };
+  }
+}
+
 export async function writeOperationsStatus({ data, marketSnapshot, reconciliation, secFundamentals, now = new Date().toISOString() } = {}) {
   const version = JSON.parse(await readFile(new URL('../version.json', import.meta.url), 'utf8'));
   const routeOwners = await readRouteOwners();
@@ -60,7 +86,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const secCoverage = deriveSecCoverage(sec, data?.meta?.fundamentalCoveragePct);
   const ownership = deriveRouteOwnership(routeOwners);
   const fastConfig = workerEndpoints.fastQuotes || {};
-  const fastEvidence = workerEndpoints.evidence || {};
+  const fastEvidence = await observeProxyHealth(workerEndpoints.proxy?.baseUrl, workerEndpoints.evidence || {});
   const fastEndpoint = String(process.env.AIO_FAST_QUOTES_URL || fastConfig.baseUrl || '').trim() || 'not-configured';
   const snapshot = marketSnapshot || {};
   const coverage = snapshot.coverage || { tier0Required: 0, tier0Observed: 0 };
@@ -69,7 +95,13 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const fastConfigured = fastEndpoint !== 'not-configured';
   const fastHealthy = Number(fastEvidence.fastHealthStatus) === 200 && Number(fastEvidence.fastSoakObservedDays || 0) >= 7;
   const proxyConfigured = !!workerEndpoints.proxy?.baseUrl;
-  const proxyHealthy = Number(fastEvidence.proxyHealthStatus) === 200 && fastEvidence.proxyAiReady === true;
+  const providerSmokeCurrent = Number(fastEvidence.proxyProviderSmokeStatus) === 200
+    && fastEvidence.proxyProviderSmokeRevision === fastEvidence.proxyHealthRevision;
+  const proxyHealthy = Number(fastEvidence.proxyHealthStatus) === 200
+    && fastEvidence.proxyAiReady === true
+    && fastEvidence.proxyAuthorityReady === true
+    && fastEvidence.proxyAuthorityJurisdiction === 'us'
+    && providerSmokeCurrent;
   const fredObserved = data?.meta?.fredFetchOk === true;
   const blockers = [];
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
@@ -117,6 +149,11 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
           revision: fastEvidence.proxyHealthRevision || null,
           configured: fastEvidence.proxyAiConfigured === true,
           quotaConfigured: fastEvidence.proxyQuotaConfigured === true,
+          authorityReady: fastEvidence.proxyAuthorityReady === true,
+          authorityJurisdiction: fastEvidence.proxyAuthorityJurisdiction || null,
+          providerSmokeStatus: Number(fastEvidence.proxyProviderSmokeStatus) || null,
+          providerSmokeObservedAt: fastEvidence.proxyProviderSmokeObserved || null,
+          providerSmokeRevision: fastEvidence.proxyProviderSmokeRevision || null,
           ready: fastEvidence.proxyAiReady === true,
           note: fastEvidence.proxyHealthNote || null
         },

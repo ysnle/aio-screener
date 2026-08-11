@@ -251,17 +251,25 @@ function errorResponse(message, status = 400, origin = '', aiContext = null, env
 // 포맷일 때만 즉시 재시도해 다른(정상) 엣지로 재라우팅되길 기대하는 완화책을 이미 구현 중(v52.44).
 // Public readiness is metadata-only: it reveals whether the Worker can serve
 // AI traffic, never the secret itself or its value.
-function healthResponse(origin, env, method = 'GET') {
+async function healthResponse(origin, env, method = 'GET') {
   const configured = !!(env && env.ANTHROPIC_API_KEY);
   const quotaConfigured = hasAtomicQuotaBinding(env);
   const killSwitch = !!(env && env.ANTHROPIC_KILL_SWITCH === '1');
-  const ready = configured && quotaConfigured && !killSwitch;
+  let authority = { ready: false, jurisdiction: null, reason: 'us-authority-unavailable' };
+  if (hasDurableObjectNamespace(env)) {
+    try {
+      const response = await aiAuthorityDurableObjectStub(env).fetch('https://aio-authority.internal/health');
+      if (response.ok) authority = await response.json();
+    } catch (_) {}
+  }
+  const authorityReady = authority?.ready === true && authority?.jurisdiction === 'us';
+  const ready = configured && quotaConfigured && authorityReady && !killSwitch;
   const payload = {
     schemaVersion: 'aio-worker-health.v1',
     ok: true,
     service: 'aio-screener-worker',
     revision: env && env.AIO_APP_REVISION ? String(env.AIO_APP_REVISION) : null,
-    ai: { configured, quotaConfigured, killSwitch, ready, maxTokens: parseInt((env && env.ANTHROPIC_MAX_TOKENS) || '1500', 10) },
+    ai: { configured, quotaConfigured, authorityReady, authorityJurisdiction: authority?.jurisdiction || null, killSwitch, ready, maxTokens: parseInt((env && env.ANTHROPIC_MAX_TOKENS) || '1500', 10) },
     dataProxy: { ready: true }
   };
   return new Response(method === 'HEAD' ? null : JSON.stringify(payload), {
@@ -274,27 +282,32 @@ function hasAtomicQuotaBinding(env) {
   const binding = env && env.AIO_QUOTA_DO;
   return !!binding && (
     (typeof binding.reserve === 'function' && typeof binding.release === 'function') ||
-    (typeof binding.idFromName === 'function' && typeof binding.get === 'function')
+    typeof binding.jurisdiction === 'function'
   );
 }
 
 function hasDurableObjectNamespace(env) {
   const binding = env && env.AIO_QUOTA_DO;
-  return !!binding && typeof binding.idFromName === 'function' && typeof binding.get === 'function';
+  return !!binding && typeof binding.jurisdiction === 'function';
 }
 
-function quotaDurableObjectStub(env) {
+function aiAuthorityDurableObjectStub(env) {
   const binding = env && env.AIO_QUOTA_DO;
   if (!hasDurableObjectNamespace(env)) throw new Error('durable object namespace unavailable');
-  const id = binding.idFromName('global');
-  return binding.get(id, { locationHint: 'enam' });
+  const usNamespace = binding.jurisdiction('us');
+  if (!usNamespace) throw new Error('US durable object jurisdiction unavailable');
+  if (typeof usNamespace.getByName === 'function') return usNamespace.getByName('anthropic-authority-v1');
+  if (typeof usNamespace.idFromName === 'function' && typeof usNamespace.get === 'function') {
+    return usNamespace.get(usNamespace.idFromName('anthropic-authority-v1'));
+  }
+  throw new Error('US durable object namespace methods unavailable');
 }
 
 async function quotaRpc(env, operation, payload) {
   const binding = env && env.AIO_QUOTA_DO;
   if (!hasAtomicQuotaBinding(env)) throw new Error('atomic quota binding unavailable');
   if (typeof binding[operation] === 'function') return binding[operation](payload);
-  const stub = quotaDurableObjectStub(env);
+  const stub = aiAuthorityDurableObjectStub(env);
   const response = await stub.fetch('https://aio-quota.internal/' + operation, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -376,8 +389,20 @@ export class AIOQuotaDurableObject {
 
   async fetch(request) {
     const operation = new URL(request.url).pathname.split('/').pop();
+    const jurisdiction = this.state?.id?.jurisdiction || null;
+    if (operation === 'health') {
+      return Response.json({
+        schemaVersion: 'aio-ai-authority-health.v1',
+        ready: jurisdiction === 'us' && !!this.env?.ANTHROPIC_API_KEY,
+        jurisdiction,
+        configured: !!this.env?.ANTHROPIC_API_KEY,
+      }, { status: 200 });
+    }
     const body = await request.json();
     if (operation === 'proxy') {
+      if (jurisdiction !== 'us') {
+        return Response.json({ error: { type: 'authority_location_error', message: 'US AI authority required' } }, { status: 503 });
+      }
       const reservation = await this.mutateQuota('reserve', body);
       if (!reservation?.ok || !reservation.reserved) return Response.json({ error: { type: 'rate_limit_error', message: 'daily AI quota exceeded' } }, { status: 429 });
       const ownedReservation = !reservation.duplicate;
@@ -393,7 +418,7 @@ export class AIOQuotaDurableObject {
         if (upstream.status >= 400 && ownedReservation) await this.mutateQuota('release', body);
         return new Response(upstream.body, { status: upstream.status, headers: {
           'Content-Type': upstream.headers.get('content-type') || 'application/json',
-          'X-AIO-Upstream-Authority': 'durable-object-enam',
+          'X-AIO-Upstream-Authority': 'durable-object-us',
         }});
       } catch (error) {
         if (ownedReservation) await this.mutateQuota('release', body);
@@ -406,7 +431,7 @@ export class AIOQuotaDurableObject {
 }
 
 async function fetchAnthropicThroughDurableObject(env, payload) {
-  const stub = quotaDurableObjectStub(env);
+  const stub = aiAuthorityDurableObjectStub(env);
   return stub.fetch('https://aio-quota.internal/proxy', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -461,7 +486,7 @@ async function handleAnthropic(request, env, origin) {
     } catch (error) {
       const detail = String(error && error.message || error && error.name || 'unknown').slice(0, 180);
       console.error('AI durable authority unavailable', detail);
-      return errorResponse('AI durable authority unavailable: ' + detail, 503, origin, aiError, env);
+      return errorResponse('AI durable authority unavailable', 503, origin, aiError, env);
     }
   }
   let ownedReservation = false;

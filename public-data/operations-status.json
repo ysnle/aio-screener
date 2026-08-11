@@ -7,8 +7,8 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-11T11:57:18.637Z",
-  "appRevision": "v54.3",
+  "generatedAt": "2026-08-11T12:55:23.640Z",
+  "appRevision": "v54.4",
   "dataRevision": "market-snapshot:2026-08-11T11:57:13.905Z:7b54f49b",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -64,7 +64,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "static-pages+service-worker",
-      "revision": "v54.3"
+      "revision": "v54.4"
     }
   },
   "ai": {
@@ -91,6 +91,11 @@
         "revision": null,
         "configured": false,
         "quotaConfigured": false,
+        "authorityReady": false,
+        "authorityJurisdiction": null,
+        "providerSmokeStatus": null,
+        "providerSmokeObservedAt": null,
+        "providerSmokeRevision": null,
         "ready": false,
         "note": "The deployed proxy answered the legacy GET ?url= route; /health returned url-parameter-required, so AI readiness is not promoted."
       },

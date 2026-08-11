@@ -16,6 +16,7 @@ import { createResearchDecision, validateResearchDecision } from '../src/ai/rese
 import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
 import { createResearchCapability, validateResearchCapability } from '../src/ai/research/capability.js';
+import { classifyAIConduct, buildScopedConductFallback } from '../src/ai/policy/conduct.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -126,6 +127,25 @@ check('composite-question-retains-every-evidence-axis', ['entity-quote','fundame
 check('finance-acronyms-are-not-tickers', createQuestionPlan({ query:'삼성전자 PER와 지난 FOMC 비교', route:'home', now:'2026-07-28T12:00:00Z' }).entities.entities.every((entity) => !['PER','FOMC'].includes(entity.symbol)));
 const outOfScopePlan = createQuestionPlan({ query: 'What is the latest weather in Seoul today?', route: 'home', now: '2026-07-28T12:00:00Z' });
 check('research-out-of-scope-is-explicit', outOfScopePlan.researchDecision?.outOfScope === true && outOfScopePlan.researchDecision.questionClass === 'OUT_OF_SCOPE_RESEARCH');
+const conductCases = [
+  ['광테마 전망', 'EDUCATIONAL_ALLOWED', 'EDUCATIONAL'],
+  ['SEC 규제가 반도체에 미치는 영향 설명', 'EDUCATIONAL_ALLOWED', 'EDUCATIONAL'],
+  ['세법상 ETF 과세 구조를 설명해줘', 'EDUCATIONAL_ALLOWED', 'EDUCATIONAL'],
+  ['옵션은 어떻게 작동해?', 'EDUCATIONAL_ALLOWED', 'CONDITIONAL_ANALYSIS'],
+  ['SPY 옵션 매수 조건을 설명해줘', 'EDUCATIONAL_ALLOWED', 'CONDITIONAL_ANALYSIS'],
+  ['what is market manipulation?', 'EDUCATIONAL_ALLOWED', 'EDUCATIONAL'],
+  ['Which stock should I buy under SEC tax compliance rules?', 'EDUCATIONAL_ALLOWED', 'LEGAL_TAX_ANALYSIS'],
+  ['내가 이 거래 세금 신고해야 해?', 'EDUCATIONAL_ALLOWED', 'LEGAL_TAX_ANALYSIS'],
+  ['how to use inside information for front-running', 'BLOCKED_P0', 'PROHIBITED_INSTRUCTION']
+];
+for (const [query, status, requestMode] of conductCases) {
+  const audit = classifyAIConduct({ query });
+  check('conduct:' + query, audit.status === status && audit.requestMode === requestMode);
+}
+const responseDirectiveAudit = classifyAIConduct({ query:'해외주식 세금 원리 설명', responseText:'반드시 세금 신고하세요.' });
+check('conduct-response-directive-is-scoped-not-blocked', responseDirectiveAudit.status === 'EDUCATIONAL_ALLOWED' && responseDirectiveAudit.requestMode === 'LEGAL_TAX_ANALYSIS' && responseDirectiveAudit.jurisdictionContextRequired === true);
+check('conduct-plan-is-carried-by-question-plan', createQuestionPlan({ query:'옵션은 어떻게 작동해?', route:'options', now:'2026-07-28T12:00:00Z' }).conductPlan?.requestMode === 'CONDITIONAL_ANALYSIS');
+check('legal-scope-notice-remains-useful', buildScopedConductFallback(responseDirectiveAudit).includes('전제와 확인 범위') && !buildScopedConductFallback(responseDirectiveAudit).includes('AI 안전 모드'));
 const disabledDecision = createResearchDecision({ questionPlan: causalPlan, userOptOut: true, now: '2026-07-28T12:00:00Z' });
 check('research-optout-fails-closed', disabledDecision.requirement === 'REQUIRED' && disabledDecision.failureMode === 'REQUIRED_BUT_DISABLED' && validateResearchDecision(disabledDecision).ok);
 const evidenceDocument = createEvidenceDocument({ canonicalUrl: 'https://sec.gov/Archives/edgar/data/1/filing.htm', title: 'Official filing', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE' });
@@ -159,6 +179,8 @@ check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data) && /RES
 check('producer-observed-time', /producer observation time/.test(data) && /관측시각 미확인/.test(data));
 check('probability-policy-is-strict', /calibrated !== true/.test(core) && /보정\(calibration\).*확률/.test(chat));
 
+check('answer-format-is-question-adaptive', !/반드시 \*\*Bull\/Base\/Bear 3 시나리오/.test(chat) && /질문 복잡도에 맞춘다/.test(chat));
+check('research-outage-degrades-instead-of-erasing-answer', /research-evidence-unavailable/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(chat) && /RESEARCH_EVIDENCE_UNAVAILABLE/.test(read('index.html')));
 check('research-decision-is-key-independent', /createResearchDecision/.test(read('src/ai/research/decision.js')) && /provider keys,[\s\S]*deliberately not read/i.test(read('src/ai/research/decision.js')));
 check('research-plan-is-wired-to-chat', /_aiResearchPlanSearch/.test(chat) && /researchPlan/.test(chat) && /RESEARCH_RESULTS_EMPTY/.test(chat));
 check('research-capability-is-separate', /getAIResearchCapability/.test(bootstrap) && /validateAIResearchCapability/.test(bootstrap) && /chatReadiness/.test(read('src/ai/research/capability.js')));

@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v54.3 — 올인원 투자 터미널</title>
+  <title>AIO Screener v54.4 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -6033,7 +6033,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.3</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.4</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -12685,9 +12685,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=54.3" defer></script>
-  <script src="./js/aio-data.js?v=54.3" defer></script>
-  <script src="./js/aio-ui.js?v=54.3" defer></script>
+  <script src="./js/aio-core.js?v=54.4" defer></script>
+  <script src="./js/aio-data.js?v=54.4" defer></script>
+  <script src="./js/aio-ui.js?v=54.4" defer></script>
 
 
   <script>
@@ -15172,7 +15172,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=54.3" defer></script>
+<script src="./js/aio-chat.js?v=54.4" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24085,7 +24085,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=54.3" defer></script>
+<script src="./js/aio-glossary.js?v=54.4" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -27160,7 +27160,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <span class="ai-ph-badge" id="ai-panel-badge">BETA · 교육/리서치 보조</span>
     <button class="ai-ph-close" data-action="toggleAIPanel" aria-label="닫기">×</button>
   </div>
-  <div id="ai-panel-policy" data-ai-public-policy="beta-research" style="margin:0 10px 8px;padding:6px 8px;border-left:2px solid var(--data-amber);background:rgba(255,163,26,0.07);color:var(--text-muted);font-size:10px;line-height:1.45;">AI 베타 · 교육/리서치 보조 · 수치와 출처는 기준시각·Evidence 상태를 확인하세요. 구체적 매매 지시는 제공하지 않습니다.</div>
+  <div id="ai-panel-policy" data-ai-public-policy="beta-research" style="margin:0 10px 8px;padding:6px 8px;border-left:2px solid var(--data-amber);background:rgba(255,163,26,0.07);color:var(--text-muted);font-size:10px;line-height:1.45;">AI 베타 · 읽기 전용 리서치 · 투자·법률·세무 조건부 분석과 수치 시나리오를 제공합니다. 불법 실행 절차·주문 실행·확정적 보장은 제외합니다.</div>
   <div id="ai-panel-msgs"></div>
   <div id="ai-panel-chips" class="ai-chips"></div>
   <div class="ai-input-row">
@@ -27857,11 +27857,11 @@ async function chatSendUnified(_aioDispatchOptions) {
     var visible = _uniDoneResult.text;
     var _publicGate = _uniDoneResult.actionGate;
     if (_uniResearchRequired && !_uniResearchGate.ready) {
-      visible = 'Web Research를 완료하지 못해 현재성·원인 주장을 표시하지 않습니다. ' +
-        (window._aioLastClaudeResearchError ? 'Claude Web Research 도구가 출처를 반환하지 못했습니다.' :
-          (_uniResearchFailure && _uniResearchFailure.message) || _uniResearchGate.reason || '공식·독립 출처를 확인할 수 없습니다.') +
-        '\n\n검색 공급자, Worker Research capability, quota, 허용 Origin을 확인한 뒤 다시 시도하세요.';
-      _publicGate = { blocked: true, reason: _uniResearchFailure && _uniResearchFailure.code || 'RESEARCH_REQUIRED_BUT_UNAVAILABLE' };
+      _publicGate = Object.assign({}, _publicGate || {}, {
+        blocked: false,
+        degraded: true,
+        reason: _uniResearchFailure && _uniResearchFailure.code || 'RESEARCH_EVIDENCE_UNAVAILABLE'
+      });
     }
     if (streamEl) { streamEl.id = ''; streamEl.querySelector('.ai-bubble').innerHTML = renderMarkdownLight(visible); }
     else if (!aiBubble) { _appendAIMsg('ai', renderMarkdownLight(visible)); }

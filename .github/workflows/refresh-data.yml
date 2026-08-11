@@ -33,6 +33,7 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
+          AIO_OBSERVE_PROXY_HEALTH: '1'
         run: node scripts/fetch-data.mjs
 
       - name: Fetch Telegram digest

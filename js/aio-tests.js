@@ -2564,9 +2564,9 @@
     _assert('T502 sidebar_ticker_fetch_health_row_v4967: 사이드바 audit row [data-audit-key="tickerFetchHealth"] DOM 존재',
       !!tfhEl, 'tfhEl=' + (!!tfhEl));
 
-    // T503: ABSOLUTE RULES 8조 추가 (R122 시장 흐름 유기적 도입 의무)
-    var hasRule8 = chatFn.indexOf('8. 종목 답변 도입은 반드시 위 【현재 시장 환경】') >= 0;
-    _assert('T503 absolute_rules_market_flow_v4967: ABSOLUTE RULES 8조 (R122 시장 흐름 유기적 도입 의무)',
+    // T503: 시장 환경은 질문 관련성이 있을 때만 연결한다.
+    var hasRule8 = chatFn.indexOf('8. 현재 시장 환경은 질문의 결론에 영향을 줄 때만 연결') >= 0;
+    _assert('T503 adaptive_market_flow_contract: current market context is relevance-scoped instead of globally forced',
       hasRule8, 'rule8=' + hasRule8);
 
     // T504: APP_VERSION === 'v49.68' (v49.68 기관급 퀄리티 + 유기적 작동)
@@ -2602,12 +2602,12 @@
       hasEmojiStd && hasMktHdrTimestamp && /R128/.test(chatFn),
       'emoji=' + hasEmojiStd + ' stamp=' + hasMktHdrTimestamp + ' R128=' + /R128/.test(chatFn));
 
-    // T525: ABSOLUTE RULES 9~12조 추가 (R126/R127/R128 + 데이터 소스 우선순위)
-    var hasRule9 = chatFn.indexOf('9. 종목/시장 분석 답변은 반드시 **Bull/Base/Bear') >= 0;
-    var hasRule10 = chatFn.indexOf('10. **시각 단서 표준') >= 0;
-    var hasRule11 = chatFn.indexOf('11. **기관급 프레임 인용') >= 0;
+    // T525: 시나리오·시각·기관 프레임은 질문에 유용할 때 선택하고 데이터 우선순위는 유지한다.
+    var hasRule9 = chatFn.indexOf('9. Bull/Base/Bear 시나리오는 전망·의사결정 질문에서 유용할 때만 사용') >= 0;
+    var hasRule10 = chatFn.indexOf('10. 시각 단서와 답변 구조는 질문 복잡도에 맞춘다') >= 0;
+    var hasRule11 = chatFn.indexOf('11. 기관급 프레임은 분석력을 실제로 높일 때만') >= 0;
     var hasRule12 = chatFn.indexOf('12. **데이터 소스 우선순위') >= 0;
-    _assert('T525 absolute_rules_9_to_12_v4968: ABSOLUTE RULES 9~12조 (시나리오/시각/프레임/우선순위) 모두 명시',
+    _assert('T525 adaptive_rules_9_to_12: scenario/visual/framework format is optional while source priority remains mandatory',
       hasRule9 && hasRule10 && hasRule11 && hasRule12,
       'r9=' + hasRule9 + ' r10=' + hasRule10 + ' r11=' + hasRule11 + ' r12=' + hasRule12);
 
@@ -7987,11 +7987,11 @@
     var blocked933 = gate933 ? gate933('결론: NVDA $100 매수 추천') : null;
     var education933 = gate933 ? gate933('매수와 매도의 차이는 주문 방향과 위험 관리에 있다.') : null;
     var strong934 = gate933 ? gate933('현재는 매수에 우호적이다.') : null;
-    _assert('T932 public_ai_action_gate_blocks_concrete_instruction (WP-AI0): concrete price/action output is replaced', !!blocked933 && blocked933.blocked === true && /안전 모드/.test(blocked933.text), JSON.stringify(blocked933));
+    _assert('T932 public_ai_action_gate_allows_conditional_instruction (WP-AI0): read-only price/action analysis is preserved', !!blocked933 && blocked933.blocked === false && blocked933.text === '결론: NVDA $100 매수 추천', JSON.stringify(blocked933));
     _assert('T933 public_ai_action_gate_allows_education (WP-AI0): neutral concept explanation is not overblocked', !!education933 && education933.blocked === false, JSON.stringify(education933));
-    _assert('T934 public_ai_action_gate_blocks_strong_wording (WP-AI0): directional recommendation wording is replaced', !!strong934 && strong934.blocked === true, JSON.stringify(strong934));
+    _assert('T934 public_ai_action_gate_allows_directional_analysis (WP-AI0): directional wording is preserved for read-only research', !!strong934 && strong934.blocked === false, JSON.stringify(strong934));
     var numericActions934 = ['AAPL 10% 매수', 'MSFT 비중 20% 확대', '손절가 150달러', 'NVDA $100 매수 추천'].map(function(text){ return gate933 ? gate933(text) : null; });
-    _assert('T934a public_ai_numeric_action_gate_is_symbol_independent: every numeric trade instruction is blocked', numericActions934.every(function(row){ return row && row.blocked === true; }), JSON.stringify(numericActions934));
+    _assert('T934a public_ai_numeric_analysis_gate_is_symbol_independent: numeric trade scenarios remain available', numericActions934.every(function(row){ return row && row.blocked === false; }), JSON.stringify(numericActions934));
     var descriptiveWeight934 = gate933 ? gate933('현재 포트폴리오에서 기술주 비중은 20%로 관측됩니다.') : null;
     _assert('T934b public_ai_action_gate_allows_descriptive_weight: observed allocation without a directive is not overblocked', !!descriptiveWeight934 && descriptiveWeight934.blocked === false, JSON.stringify(descriptiveWeight934));
     var disclosure934 = window._aioBuildAIResponseDisclosure ? window._aioBuildAIResponseDisclosure({
@@ -8025,7 +8025,7 @@
     if (begin937) { begin937(req937, 'test-model'); begin937(req937, 'fallback-model'); }
     var result937 = run937 && req937 ? run937('NVDA $100 매수 추천', { request: req937, entrypoint: 'test-pipeline' }) : null;
     _assert('T937 ai_pipeline_shared_envelope (WP-AI1): request and response expose one pipeline/validator/block-policy version',
-      !!result937 && result937.blocked === true && result937.pipelineVersion === req937.pipelineVersion &&
+      !!result937 && result937.blocked === false && result937.text === 'NVDA $100 매수 추천' && result937.pipelineVersion === req937.pipelineVersion &&
       result937.validatorVersion === req937.validatorVersion && result937.blockPolicyVersion === req937.blockPolicyVersion &&
       req937.attempt === 2,
       JSON.stringify({ result: result937, attempt: req937 && req937.attempt }));
@@ -8276,8 +8276,9 @@
       ctxId: 'portfolio', query: '내 포트폴리오를 리밸런싱해줘', text: 'NVDA를 10%로 확대하세요', evidence: [{ sourceKind: 'LIVE', hasLivePrice: true }]
     });
     window.AIO.setPortfolioAIConsent(oldConsent);
-    _assert('T964 personalized_action_evidence_suitability_gate (WP-AI5): stale/reference and missing suitability are denied',
-      stalePersonal.blocked === true && stalePersonal.reasons.indexOf('evidence-action-permission') >= 0 && liveWithoutSuitability.blocked === true && liveWithoutSuitability.reasons.indexOf('suitability-profile-required') >= 0,
+    _assert('T964 personalized_analysis_limitations: stale/reference and missing suitability remain answerable with explicit limitations',
+      stalePersonal.blocked === false && stalePersonal.limitations.indexOf('current-evidence-limited') >= 0 &&
+      liveWithoutSuitability.blocked === false && liveWithoutSuitability.limitations.indexOf('suitability-context-missing') >= 0,
       JSON.stringify({ stale: stalePersonal, suitability: liveWithoutSuitability }));
 
     window.AIO.setPortfolioAIConsent(true);
@@ -8286,14 +8287,14 @@
       ctxId: 'portfolio', query: '내 포트폴리오 매매', suitabilityProfile: { purpose: 'growth' },
       evidence: [{ sourceKind: 'REFERENCE', hasLivePrice: false }]
     });
-    _assert('T965 shared_pipeline_conduct_audit (WP-AI5): final response gate carries conduct audit',
-      pipeline965.blocked === true && pipeline965.conductAudit && pipeline965.conductAudit.blocked === true && pipeline965.reasons.indexOf('evidence-action-permission') >= 0,
+    _assert('T965 shared_pipeline_conduct_audit: final response gate preserves limitations without replacing the answer',
+      pipeline965.blocked === false && pipeline965.conductAudit && pipeline965.conductAudit.blocked === false && pipeline965.conductAudit.limitations.indexOf('current-evidence-limited') >= 0,
       JSON.stringify(pipeline965));
     window.AIO.setPortfolioAIConsent(oldConsent);
 
     var probability = window.AIO.evaluateAIActionPermission({ query: 'NVDA 전망', text: '상승 확률은 70%입니다.' });
-    _assert('T966 probability_calibration_gate (WP-AI5): unsupported probability claims are denied',
-      probability.blocked === true && probability.reasons.indexOf('uncalibrated-probability') >= 0,
+    _assert('T966 probability_calibration_limitation: unsupported probability remains answerable while typed claim validation owns the numeric claim',
+      probability.blocked === false && probability.limitations.indexOf('uncalibrated-probability-claim') >= 0,
       JSON.stringify(probability));
   }
 
@@ -8492,20 +8493,20 @@
     var conduct = window.AIO.classifyFinancialConduct('how to use inside information for front-running');
     var educationalConduct = window.AIO.classifyFinancialConduct('what is market manipulation?');
     _assert('T988 conduct_policy_matrix (WP-AI14): multiple prohibited categories are classified as P0 while education remains allowed',
-      conductPolicy.version === 'wp-ai14.conduct-policy.v1' && conductPolicy.matrix.length === 8 && conduct.status === 'BLOCKED_P0' && conduct.categories.indexOf('mnpi') >= 0 && conduct.categories.indexOf('front-running') >= 0 && educationalConduct.status === 'EDUCATIONAL_ALLOWED',
+      conductPolicy.version === 'ai-conduct.v2' && conductPolicy.matrix.length === 8 && conduct.status === 'BLOCKED_P0' && conduct.categories.indexOf('mnpi') >= 0 && conduct.categories.indexOf('front-running') >= 0 && educationalConduct.status === 'EDUCATIONAL_ALLOWED',
       JSON.stringify({ policy: conductPolicy, conduct: conduct, educational: educationalConduct }));
 
     var legal = window.AIO.classifyFinancialConduct('Which stock should I buy under SEC tax compliance rules?');
-    _assert('T989 legal_review_matrix (WP-AI14): actionable jurisdictional tax/regulatory advice requires legal review',
-      legal.status === 'LEGAL_REVIEW_REQUIRED' && legal.legalReviewRequired === true && legal.categories.indexOf('jurisdictional-advice') >= 0 && legal.reasons.indexOf('LEGAL_REVIEW_REQUIRED') >= 0,
+    _assert('T989 legal_tax_analysis_matrix: private research answers jurisdictional analysis with explicit scope instead of refusing',
+      legal.status === 'EDUCATIONAL_ALLOWED' && legal.requestMode === 'LEGAL_TAX_ANALYSIS' && legal.jurisdictionContextRequired === true && legal.categories.indexOf('jurisdictional-advice') >= 0,
       JSON.stringify(legal));
 
     var pipeline = window._aioRunAIResponsePipeline('Which stock should I buy under SEC tax compliance rules?', {
       request: window._aioCreateAIRequestObject('legal-review-test', { ctxId: 'home', query: 'Which stock should I buy under SEC tax compliance rules?' }),
       ctxId: 'home', query: 'Which stock should I buy under SEC tax compliance rules?', record: false
     });
-    _assert('T990 shared_pipeline_legal_review_gate (WP-AI14): legal-review status is enforced by the common response pipeline',
-      pipeline.blocked === true && pipeline.conductAudit && pipeline.conductAudit.reasons.indexOf('LEGAL_REVIEW_REQUIRED') >= 0 && pipeline.reasons.indexOf('LEGAL_REVIEW_REQUIRED') >= 0,
+    _assert('T990 shared_pipeline_legal_tax_analysis: legal/tax analysis remains answerable in the common response pipeline',
+      pipeline.blocked === false && pipeline.conductAudit && pipeline.conductAudit.conductAudit && pipeline.conductAudit.conductAudit.requestMode === 'LEGAL_TAX_ANALYSIS',
       JSON.stringify(pipeline));
     var themeConduct = window.AIO.classifyFinancialConduct('광테마 전망', { query:'광테마 전망', text:'핵심 위험은 공급 병목과 규제 변화입니다. 공식 원문을 확인하세요.' });
     var themePipeline = window._aioRunAIResponsePipeline('광테마는 수요와 공급 병목을 함께 봐야 합니다. 규제 변화도 확인하세요.', {
@@ -8513,6 +8514,32 @@
       ctxId:'theme-detail', query:'광테마 전망', record:false
     });
     _assert('T990a generic_regulatory_risk_is_not_legal_advice: theme/company risk prose remains educational', themeConduct.status === 'EDUCATIONAL_ALLOWED' && themePipeline.blocked === false, JSON.stringify({ conduct:themeConduct, pipeline:themePipeline }));
+    var optionsEducation = window.AIO.classifyFinancialConduct('옵션은 어떻게 작동해?');
+    var taxEducation = window.AIO.classifyFinancialConduct('세법상 ETF 과세 구조를 설명해줘');
+    var optionsConditional = window.AIO.classifyFinancialConduct('SPY 옵션 매수 조건을 설명해줘');
+    var personalTax = window.AIO.classifyFinancialConduct('내가 이 거래 세금 신고해야 해?');
+    _assert('T990b conduct_plan_educational_finance_is_answerable: options/tax explanations and conditional analysis do not trigger safe mode',
+      optionsEducation.status === 'EDUCATIONAL_ALLOWED' && optionsEducation.requestMode === 'CONDITIONAL_ANALYSIS' &&
+      taxEducation.status === 'EDUCATIONAL_ALLOWED' && taxEducation.requestMode === 'EDUCATIONAL' &&
+      optionsConditional.status === 'EDUCATIONAL_ALLOWED' && optionsConditional.requestMode === 'CONDITIONAL_ANALYSIS' &&
+      personalTax.status === 'EDUCATIONAL_ALLOWED' && personalTax.requestMode === 'LEGAL_TAX_ANALYSIS',
+      JSON.stringify({ optionsEducation:optionsEducation, taxEducation:taxEducation, optionsConditional:optionsConditional, personalTax:personalTax }));
+    var degradedResearch = window._aioRunAIResponsePipeline('수요와 공급 병목을 조건별로 분석할 수 있습니다.', {
+      request: window._aioCreateAIRequestObject('research-degraded-test', { ctxId:'theme-detail', query:'광테마 최신 전망' }),
+      ctxId:'theme-detail', query:'광테마 최신 전망', researchRequired:true,
+      researchGate:{ required:true, ready:false, reason:'provider-unavailable' }, record:false
+    });
+    _assert('T990c research_failure_degrades_without_erasing_analysis: missing web evidence preserves conditional prose with an explicit limitation',
+      degradedResearch.blocked === false && degradedResearch.text.indexOf('수요와 공급 병목') >= 0 && degradedResearch.limitations.indexOf('research-evidence-unavailable') >= 0,
+      JSON.stringify(degradedResearch));
+    var degradedCurrent = window._aioRunAIResponsePipeline('현재 기준 시나리오 값은 100입니다.', {
+      request: window._aioCreateAIRequestObject('current-degraded-test', { ctxId:'home', query:'현재 시나리오' }),
+      ctxId:'home', query:'현재 시나리오', currentSensitive:true, record:false
+    });
+    _assert('T990d current_evidence_gap_is_claim_scoped: an unverified current number is disclosed without replacing the whole answer',
+      degradedCurrent.blocked === false && degradedCurrent.text.indexOf('시나리오 값은 100') >= 0 &&
+      degradedCurrent.limitations.indexOf('market-session-evidence-unavailable') >= 0 && degradedCurrent.limitations.indexOf('current-numeric-claim-unverified') >= 0,
+      JSON.stringify(degradedCurrent));
   }
 
   function _testV5284ModelRiskIsolation() {

@@ -3,14 +3,26 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-09
 confidence: high
 
+## v54.4 AI 안전 분류·US authority 구조 교정 (2026-08-11)
+
+- [x] QA-AICONDUCT1: ESM conduct policy가 QuestionPlan과 최종 response gate의 단일 소유자이며 classic-script 정책 배열은 제거한다.
+- [x] QA-AICONDUCT2: 광테마 전망, SEC 규제 영향, ETF 세법 구조, 옵션 원리, 조건부 투자, 개인화 신고·법률 질문은 모두 분석하되 전제·관할·근거 limitation을 보존한다.
+- [x] QA-AICONDUCT3: 불법 행위의 구체적 실행법만 BLOCKED_P0이며, 외부 상태변경과 동의 없는 포트폴리오 전송은 별도 도구/개인정보 경계가 차단한다.
+- [x] QA-AIDEGRADE1: Web Research·시장세션·비구조화 현재 수치 근거가 없을 때 답변 원문은 유지되고 영향받는 주장만 limitation으로 표시된다.
+- [x] QA-AIDEGRADE2: per-page와 unified chat 모두 Research 실패 후행 덮어쓰기를 하지 않으며 `RESEARCH_REQUIRED_BUT_UNAVAILABLE` 차단 경로가 없다.
+- [x] QA-AIDEGRADE3: Typed claim 불일치, 불법 실행 절차, mutation tool negative control은 저하 모드 변경 뒤에도 차단된다.
+- [x] QA-AIAUTH1: Worker는 placement/location hint 없이 US jurisdiction의 versioned Durable Object만 quota+provider 권한으로 사용한다.
+- [x] QA-AIAUTH2: DO가 보고한 jurisdiction이 us가 아니면 provider fetch 전에 503으로 닫고 negative control이 이를 실행 검증한다.
+- [x] QA-AIAUTH3: `/health`는 authority를 실제 호출해 authorityReady:true·authorityJurisdiction:us를 확인하고 deploy smoke는 provider 200과 durable-object-us 헤더를 요구한다.
+
 ## v54.3 AI 공유 Worker 배포 폐쇄 (2026-08-10)
 
 - [x] QA-AIPROXY1: `cloudflare-worker-proxy.js`에는 단 하나의 canonical `/anthropic` handler만 존재하고 구형 non-atomic KV handler는 남지 않는다.
-- [x] QA-AIPROXY2: Wrangler config가 production `aio-proxy`, canonical source, Anthropic 허용 지역 `aws:us-east-1` placement, `AIO_QUOTA_DO`, `AIOQuotaDurableObject` migration을 함께 선언한다.
+- [ ] QA-AIPROXY2: v54.3의 aws:us-east-1 placement는 provider outbound 지역을 보장하지 못했다. v54.4 QA-AIAUTH1로 대체한다.
 - [x] QA-AIPROXY3: 수동 배포 workflow가 Cloudflare·Anthropic 시크릿을 fail-fast로 요구하고 pinned Wrangler로 배포·secret publish를 수행한다.
-- [x] QA-AIPROXY4: 배포 후 health schema와 configured/quotaConfigured/ready, production CORS, 비허용 Origin 403, 최소 Anthropic upstream 200을 실행 검증한다.
+- [ ] QA-AIPROXY4: health/CORS/origin은 통과했지만 run 31392286134의 최소 Anthropic upstream은 403이었다. v54.4 QA-AIAUTH3로 대체한다.
 - [x] QA-AIPROXY5: operations status는 정적 `NO_ROUTE`가 아니라 관측된 Worker evidence로 shared public chat 상태를 계산한다.
-- [x] QA-AIPROXY6: 한국 ingress가 HKG로 수렴해도 provider outbound는 `locationHint:'enam'` Durable Object에서 실행되며 응답 헤더로 해당 authority를 검증한다.
+- [ ] QA-AIPROXY6: ENAM location hint는 best-effort라 403을 제거하지 못했다. v54.4 US jurisdiction positive/negative control로 대체한다.
 
 ## v54.2 AI 채팅 구조 일원화·오분류 종료 (2026-08-10)
 
