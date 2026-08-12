@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-12T14:06:51.504Z",
-  "attemptedAt": "2026-08-12T14:06:51.504Z",
-  "lastSuccessfulAt": "2026-08-12T14:06:51.504Z",
+  "generatedAt": "2026-08-12T15:14:30.465Z",
+  "attemptedAt": "2026-08-12T15:14:30.465Z",
+  "lastSuccessfulAt": "2026-08-12T15:14:30.465Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-07-29T14:06:40.217Z",
-  "until": "2026-08-12T14:06:40.217Z",
+  "since": "2026-07-29T15:14:25.503Z",
+  "until": "2026-08-12T15:14:25.503Z",
   "current24hWindow": {
     "start": "2026-08-10T23:00:00.000Z",
     "end": "2026-08-11T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 211,
-    "eligibleTextCount": 42,
+    "eligibleTextCount": 21,
     "channelCounts": {
       "bornlupin": 31,
       "HANAchina": 65,
@@ -81,53 +81,73 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 381,
-      "freshCount": 38,
-      "eligibleTextCount": 38,
-      "selectedCount": 77,
+      "count": 379,
+      "freshCount": 37,
+      "eligibleTextCount": 37,
+      "selectedCount": 76,
       "error": null,
-      "lastPostId": 24545
+      "lastPostId": 24546
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1181,
-      "freshCount": 40,
-      "eligibleTextCount": 36,
+      "freshCount": 20,
+      "eligibleTextCount": 18,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 60969
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 273,
-      "freshCount": 39,
-      "eligibleTextCount": 39,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
       "selectedCount": 86,
       "error": null,
       "lastPostId": 19690
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 762,
-      "freshCount": 39,
-      "eligibleTextCount": 39,
+      "count": 761,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 67057
     }
   ],
-  "count": 2597,
-  "retainedItemCount": 473,
+  "count": 2594,
+  "retainedItemCount": 443,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/24546",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-12T14:27:04.000Z",
+      "localDateKst": "2026-08-12",
+      "score": 100,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "CAT"
+      ],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/24545",
       "channel": "aetherjapanresearch",
@@ -846,7 +866,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60948",
@@ -858,7 +878,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24537",
@@ -922,7 +942,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67038",
@@ -955,7 +975,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67037",
@@ -980,7 +1000,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67035",
@@ -992,7 +1012,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67034",
@@ -1005,7 +1025,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67033",
@@ -1017,7 +1037,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67032",
@@ -1030,7 +1050,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67031",
@@ -1045,7 +1065,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24536",
@@ -1102,7 +1122,7 @@
         "SMCI",
         "CRWV"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60944",
@@ -1119,7 +1139,7 @@
       "tickers": [
         "020560.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19681",
@@ -1177,7 +1197,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60941",
@@ -1189,7 +1209,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60940",
@@ -1228,7 +1248,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67030",
@@ -1241,7 +1261,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19678",
@@ -1274,7 +1294,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60937",
@@ -1291,7 +1311,7 @@
       "tickers": [
         "LITE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19677",
@@ -1318,7 +1338,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60936",
@@ -1330,7 +1350,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67027",
@@ -1342,7 +1362,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67026",
@@ -1358,7 +1378,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67025",
@@ -1375,7 +1395,7 @@
         "BLK",
         "BX"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67024",
@@ -1390,7 +1410,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60935",
@@ -1402,7 +1422,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60934",
@@ -1414,7 +1434,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67023",
@@ -1430,7 +1450,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60933",
@@ -1442,7 +1462,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60932",
@@ -1454,7 +1474,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60931",
@@ -1466,7 +1486,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19676",
@@ -1500,7 +1520,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67021",
@@ -1512,7 +1532,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67019",
@@ -1526,7 +1546,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67018",
@@ -1538,7 +1558,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67017",
@@ -1550,7 +1570,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67016",
@@ -1563,7 +1583,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60930",
@@ -1576,7 +1596,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60929",
@@ -2112,7 +2132,7 @@
         "LITE",
         "BCS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66998",
@@ -2455,7 +2475,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60899",
@@ -2480,7 +2500,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60898",
@@ -2598,7 +2618,7 @@
         "CAT",
         "CRWV"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60892",
@@ -2719,7 +2739,7 @@
       "tickers": [
         "LITE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60886",
@@ -2997,7 +3017,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19664",
@@ -3014,7 +3034,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19663",
@@ -3033,7 +3053,7 @@
         "WFC",
         "BX"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19662",
@@ -3051,7 +3071,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60881",
@@ -3174,7 +3194,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24517",
@@ -3716,7 +3736,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19658",
@@ -3733,7 +3753,7 @@
       "tickers": [
         "SNDK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66973",
@@ -3838,7 +3858,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24505",
@@ -3850,7 +3870,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66967",
@@ -3993,7 +4013,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66959",
@@ -4079,7 +4099,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60854",
@@ -4136,7 +4156,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60852",
@@ -4251,7 +4271,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60845",
@@ -4277,7 +4297,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66953",
@@ -4347,7 +4367,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/66950",
@@ -4396,7 +4416,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19650",
@@ -36932,95 +36952,44 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24118",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-29T14:50:33.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24117",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-29T14:45:36.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24116",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-29T14:42:28.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 77,
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66230",
-      "channel": "HANAchina",
-      "datetime": "2026-07-29T14:30:22.000Z",
-      "localDateKst": "2026-07-29",
-      "score": 40,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2597,
-    "eligibleTextCount": 152,
-    "mediaOnlyCount": 2445,
+    "observedCount": 2594,
+    "eligibleTextCount": 95,
+    "mediaOnlyCount": 2499,
     "highSignalCount": 679,
     "broadSignalCount": 1315,
-    "selectedRawCount": 407,
-    "selectedRawCoveragePct": 267.8,
+    "selectedRawCount": 406,
+    "selectedRawCoveragePct": 427.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
     "macro": 915,
     "semi": 781,
-    "optical": 63,
+    "power": 381,
+    "ai-policy": 196,
+    "equity": 225,
     "earnings": 692,
-    "healthcare": 141,
+    "healthcare": 142,
+    "optical": 63,
     "japan": 221,
-    "power": 380,
-    "ai-policy": 195,
     "geo": 409,
     "media-only": 41,
-    "market-note": 616,
-    "kr-market": 441,
-    "equity": 224,
+    "market-note": 613,
+    "kr-market": 440,
     "flows": 279,
     "credit": 70,
     "insider": 85,
     "crypto": 18
   },
   "tickerCounts": {
+    "CAT": 17,
     "LITE": 28,
     "SMCI": 11,
-    "CAT": 16,
     "GOOG": 86,
     "GE": 3,
     "HOOD": 2,
@@ -37245,13 +37214,13 @@
     "CTSH": 1
   },
   "themes": [
-    "Macro/Rates (915 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,...",
-    "Semiconductors/Memory (781 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,...",
-    "Earnings/Corporate (692 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,...",
-    "Market Notes (616 posts in 14-day research window): >>신에너지차 월간 신차 판매 비중 사상 처음 60% 돌파 (중국자동차공업협회) • 2026년 7월 중국 신에너지차(NEV) 신차 판매 비중이 처음으로 60%를 넘어섰으며, 1~7월 누적 비중도 사상 처음 50%를 돌파 •7월 신에너지차 생산·판매량은 각각 157.6만 대·156.1만 대 로 YoY+26.8%,...",
-    "Korea Market (441 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,...",
+    "Macro/Rates (915 posts in 14-day research window): Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐...",
+    "Semiconductors/Memory (781 posts in 14-day research window): Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐...",
+    "Earnings/Corporate (692 posts in 14-day research window): Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐...",
+    "Market Notes (613 posts in 14-day research window): 유럽, '주권형' 스타링크 경쟁자 계획 확정(8월 7일) 유럽위원회가 EU의 주권형 위성 광대역 서비스 IRIS²의 이행 계획을 확정하면서 프로젝트가 기획 단계를 지나 본격 배치 단계로 진입했습니다. 위원회는 1월부터 이어진 협상 끝에 유럽 제조업체, 유럽우주국(ESA), 기타 파트너들과 협정을 체결했고, 이...",
+    "Korea Market (440 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,...",
     "Geopolitics (409 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,...",
-    "AI Power/Grid (380 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,...",
+    "AI Power/Grid (381 posts in 14-day research window): Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐...",
     "Positioning/Flows (279 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
   ],
   "catalysts": [
@@ -37273,12 +37242,12 @@
     {
       "key": "AMZN",
       "count": 92,
-      "text": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의 성전환 수술 및 호르몬 치료에 Medicaid 자금을 지원하지 않겠다고 발표. · 트럼프 대통령은..."
+      "text": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의..."
     },
     {
       "key": "NVDA",
       "count": 89,
-      "text": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의 성전환 수술 및 호르몬 치료에 Medicaid 자금을 지원하지 않겠다고 발표. · 트럼프 대통령은..."
+      "text": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의..."
     },
     {
       "key": "GOOG",
@@ -37293,7 +37262,7 @@
     {
       "key": "MSFT",
       "count": 67,
-      "text": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의 성전환 수술 및 호르몬 치료에 Medicaid 자금을 지원하지 않겠다고 발표. · 트럼프 대통령은..."
+      "text": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의..."
     },
     {
       "key": "035420.KS",
@@ -37303,7 +37272,7 @@
     {
       "key": "META",
       "count": 57,
-      "text": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의 성전환 수술 및 호르몬 치료에 Medicaid 자금을 지원하지 않겠다고 발표. · 트럼프 대통령은..."
+      "text": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의..."
     },
     {
       "key": "AAPL",
@@ -37324,7 +37293,7 @@
         "macro"
       ],
       "count": 915,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
+      "focus": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐..."
     },
     {
       "id": "geo",
@@ -37342,7 +37311,7 @@
         "credit"
       ],
       "count": 70,
-      "focus": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의 성전환 수술 및 호르몬 치료에 Medicaid 자금을 지원하지 않겠다고 발표. · 트럼프 대통령은..."
+      "focus": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의..."
     },
     {
       "id": "semi",
@@ -37351,7 +37320,7 @@
         "semi"
       ],
       "count": 781,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
+      "focus": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐..."
     },
     {
       "id": "optical",
@@ -37360,7 +37329,7 @@
         "optical"
       ],
       "count": 63,
-      "focus": "루멘텀(Lumentum, &#036;LITE ) FY2026 4분기 어닝콜 Q&A 세션 Q1. [J.P. Morgan] 장기 재무 목표 상향 & NPO(근접 패키징 광학) 전망 질문: &#036;1.25B 매출 조기 달성 및 마진 상단 초과 달성 후, 다음 단계의 장기 재무 목표와 NPO/ELS 기회 수준은? 답변..."
+      "focus": "루멘텀(Lumentum, &#036;LITE ) FY2026 4분기 어닝콜 Q&A 세션 Q1. [J.P. Morgan] 장기 재무 목표 상향 & NPO(근접 패키징 광학) 전망 질문: &#036;1.25B..."
     },
     {
       "id": "power",
@@ -37368,8 +37337,8 @@
       "topics": [
         "power"
       ],
-      "count": 380,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
+      "count": 381,
+      "focus": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐..."
     },
     {
       "id": "ai-policy",
@@ -37377,8 +37346,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 195,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
+      "count": 196,
+      "focus": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐..."
     },
     {
       "id": "kr-market",
@@ -37386,7 +37355,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 441,
+      "count": 440,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
     },
     {
@@ -37395,8 +37364,8 @@
       "topics": [
         "equity"
       ],
-      "count": 224,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
+      "count": 225,
+      "focus": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐..."
     },
     {
       "id": "crypto",
@@ -37414,7 +37383,7 @@
         "earnings"
       ],
       "count": 692,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
+      "focus": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐..."
     },
     {
       "id": "healthcare",
@@ -37422,8 +37391,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 141,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 6시~오후 9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 라이언에어와 5년간 클라우드·AI 계약을 체결. 라이언에어는 3만5,000명의 직원에게 Google Cloud, Workspace,..."
+      "count": 142,
+      "focus": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는 메시지를 전달했습니다. AI 수요가 여전히 견고하다는 점, 가격 결정력이 강화되고 있다는 점(전 SKU에 걸쳐..."
     },
     {
       "id": "japan",
@@ -37432,7 +37401,7 @@
         "japan"
       ],
       "count": 221,
-      "focus": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의 성전환 수술 및 호르몬 치료에 Medicaid 자금을 지원하지 않겠다고 발표. · 트럼프 대통령은..."
+      "focus": "Pre-Market Summary - 2026년 8월 12일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 미 법원이 트럼프 대통령 행정명령에 따른 우편투표 제한 조치를 중단. · 트럼프 대통령은 미성년자의..."
     },
     {
       "id": "flows",
@@ -37458,8 +37427,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 616,
-      "focus": ">>신에너지차 월간 신차 판매 비중 사상 처음 60% 돌파 (중국자동차공업협회) • 2026년 7월 중국 신에너지차(NEV) 신차 판매 비중이 처음으로 60%를 넘어섰으며, 1~7월 누적 비중도 사상 처음 50%를 돌파 •7월 신에너지차 생산·판매량은 각각 157.6만 대·156.1만 대 로 YoY+26.8%,..."
+      "count": 613,
+      "focus": "유럽, '주권형' 스타링크 경쟁자 계획 확정(8월 7일) 유럽위원회가 EU의 주권형 위성 광대역 서비스 IRIS²의 이행 계획을 확정하면서 프로젝트가 기획 단계를 지나 본격 배치 단계로 진입했습니다. 위원회는 1월부터 이어진 협상 끝에 유럽 제조업체, 유럽우주국(ESA), 기타 파트너들과 협정을 체결했고, 이..."
     }
   ],
   "pageMap": {
@@ -37710,6 +37679,28 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "aetherjapanresearch/24546",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24546",
+      "datetime": "2026-08-12T14:27:04.000Z",
+      "localDateKst": "2026-08-12",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "CAT"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는..."
+    },
     {
       "id": "insidertracking/60965",
       "channel": "insidertracking",
@@ -38870,31 +38861,31 @@
       "score": 100,
       "hasText": true,
       "summary": "JP모건) PC 및 서버; AMD 2026년 2분기 실적 시사점 읽어내기 AMD 2026년 2분기 실적 발표(AMD US, Neutral, 담당 Harlan Sur)에서 아시아 PC/서버 공급망에 대한 핵심..."
-    },
+    }
+  ],
+  "broadItems": [
     {
-      "id": "aetherjapanresearch/24381",
+      "id": "aetherjapanresearch/24546",
       "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24381",
-      "datetime": "2026-08-05T10:45:19.000Z",
-      "localDateKst": "2026-08-05",
+      "url": "https://t.me/aetherjapanresearch/24546",
+      "datetime": "2026-08-12T14:27:04.000Z",
+      "localDateKst": "2026-08-12",
       "tags": [
         "macro",
         "semi",
         "power",
         "ai-policy",
         "equity",
-        "earnings"
+        "earnings",
+        "healthcare"
       ],
       "tickers": [
-        "AMD",
-        "META"
+        "CAT"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "JP모건) AMD; 데이터센터 성장은 긍정적. 중립/TP &#036;550(기존 &#036;385) AMD는 2분기에 다시 한번 컨센서스 대비 비트 앤 레이즈를 기록했습니다. 6월 분기 매출은 115억..."
-    }
-  ],
-  "broadItems": [
+      "summary": "Citi) 코어위브(CRWV.O); AI 구축과 마진이 함께 전진한 강한 2분기. TP &#036;142 ■ Citi의 시각 네오클라우드 업종에 대한 불안이 높은 상황에서 코어위브는 2분기에 자신감 있는..."
+    },
     {
       "id": "aetherjapanresearch/24545",
       "channel": "aetherjapanresearch",
@@ -46044,23 +46035,6 @@
       "score": 63,
       "hasText": true,
       "summary": "리튬배터리 전해액 핵심 첨가제인 VC(비닐렌 카보네이트) 가격이 수요 급증과 공급 병목 현상으로 1년 만에 4배 폭등 가격 동향 및 수익성 가격 폭등 : 2026년 8월 6일 기준 중국 내 VC 평균 가격은..."
-    },
-    {
-      "id": "aetherjapanresearch/24425",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24425",
-      "datetime": "2026-08-06T23:22:46.000Z",
-      "localDateKst": "2026-08-07",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [
-        "DDOG"
-      ],
-      "score": 71,
-      "hasText": true,
-      "summary": "JP모건) 데이터독(Datadog); 2분기 리뷰: 사용량이 견인하는 가속 지속; 최대 고객사가 주시 포인트가 되겠으나 전반적 성장 동인은 상당히 견조; 비중확대(OW) 의견 유지. TP..."
     }
   ],
   "current24hItems": [
@@ -46724,20 +46698,6 @@
       "summary": "(상세) >>Sony·TSMC, 일본에 합작사 설립…2029년 차세대 이미지센서 양산 (대만경제일보) •Sony 반도체 솔루션과 TSMC는 11일 일본 구마모토현 고시시에 Advanced Vision..."
     },
     {
-      "id": "bornlupin/19665",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19665",
-      "datetime": "2026-08-11T12:42:54.000Z",
-      "localDateKst": "2026-08-11",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "뭔가 기다렸다는듯이 엔비디아 관련 계약이 줄줄이 나오네요&#33;"
-    },
-    {
       "id": "bornlupin/19664",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19664",
@@ -47374,20 +47334,6 @@
       "summary": "CXMT의 1x DDR5 수율 90% 돌파. PC 대기업중 델은 사용안함, HP는 중국내에서만 제한적 사용. ASUS/ACER는 사용.(8월 10일) 콰이커지 8월 10일 소식, 보도에 따르면 최근..."
     },
     {
-      "id": "aetherjapanresearch/24505",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24505",
-      "datetime": "2026-08-11T06:40:56.000Z",
-      "localDateKst": "2026-08-11",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "인텔, 주식 공모 규모를 200억 달러로 확대, 주당 가격 95달러로 결정 인텔은 보통주 210,526,315주의 인수 공모 가격을 주당 95달러로 책정했습니다. 인텔은 인수자에게 공모가에 최대..."
-    },
-    {
       "id": "HANAchina/66966",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/66966",
@@ -47628,20 +47574,6 @@
       "score": 70,
       "hasText": true,
       "summary": "월스트리트저널에 따르면 앤트로픽이 가을 기업공개(IPO)를 앞두고 잠재적 투자자들과 만나 시장 우려 해소에 나서는 중. 기업가치 9,650억 달러 규모의 앤트로픽은 저가형 AI 시스템 확산과 트럼프 행정부와의..."
-    },
-    {
-      "id": "bornlupin/19654",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19654",
-      "datetime": "2026-08-11T02:19:52.000Z",
-      "localDateKst": "2026-08-11",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "* 8월 1~10일 DRAM 수출 단가: 선형적/구조적 상승세 지속"
     },
     {
       "id": "bornlupin/19653",
