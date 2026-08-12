@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "변전·배전은 송전 전압을 지역 수요에 맞춰 낮추고 각 시설·가정·데이터센터로 전력을 나누는 마지막 계층이다.",
+      "mechanism": "변압기·차단기·배전선의 용량과 고장 복원력이 신규 부하 접속과 전력 품질을 결정한다.",
+      "example": "대규모 데이터센터가 계통에 연결되려면 발전량뿐 아니라 전용 변전소와 다중 전원, 보호 계전 설계가 필요하다.",
+      "counterScenario": "지역 전력망 투자액만 보면 어떤 설비가 접속 지연과 신뢰도 문제를 해결하는지 구분하지 못한다.",
+      "verificationQuestion": "신규 부하가 필요한 변압기·배전선·예비 전원은 무엇이며 설치·승인·교체 리드타임은 얼마인가?",
+      "visualization": "송전 전압 → 변전 → 배전·고객 접속"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 84번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

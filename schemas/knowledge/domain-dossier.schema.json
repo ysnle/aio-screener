@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aio-screener.local/schemas/knowledge/domain-dossier.schema.json",
+  "title": "Knowledge domain dossier",
+  "type": "object",
+  "required": ["schemaVersion", "dossierId", "domainId", "taxonomyNodeIds", "deepBranchIds", "playerIds", "productIds", "uniqueKpis", "bottlenecks", "valueChain", "sourceIds", "status"],
+  "properties": {
+    "schemaVersion": { "const": "knowledge-domain-dossier.v1" },
+    "dossierId": { "type": "string" },
+    "domainId": { "type": "string" },
+    "taxonomyNodeIds": { "type": "array" },
+    "deepBranchIds": { "type": "array" },
+    "playerIds": { "type": "array" },
+    "productIds": { "type": "array" },
+    "uniqueKpis": { "type": "array", "minItems": 1 },
+    "bottlenecks": { "type": "array", "minItems": 1 },
+    "valueChain": { "type": "array", "minItems": 1 },
+    "status": { "enum": ["STRUCTURAL_REFERENCE_DRAFT", "RESEARCH_REQUIRED", "RESEARCHED", "SEMANTIC_REVIEWED"] }
+  }
+}

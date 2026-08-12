@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:taxonomy:policy-supply-chain-resilience",
+  "contentUnitId": "taxonomy:policy-supply-chain-resilience",
+  "unitKind": "TAXONOMY_NODE",
+  "title": "Supply-chain resilience",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for Supply-chain resilience?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Supply-chain resilience?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "Supply-chain resilience mechanism primary source",
+    "Supply-chain resilience official data standard filing evidence",
+    "Supply-chain resilience disconfirming evidence limitations"
+  ],
+  "searchedAt": "2026-08-12",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "BIS export controls",
+      "unresolved": true
+    },
+    {
+      "sourceId": "U.S. Treasury sanctions",
+      "unresolved": true
+    },
+    {
+      "sourceId": "national industrial policy documents",
+      "unresolved": true
+    },
+    {
+      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-2023",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
+      "publisher": "NIST",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-2023",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
+      "publisher": "NIST",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
+  "rejectedSources": [
+    {
+      "sourceId": "BIS export controls",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "U.S. Treasury sanctions",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "national industrial policy documents",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    }
+  ],
+  "sourceTiers": [
+    "ACADEMIC_TEXTBOOK_STANDARD",
+    "PRIMARY_OFFICIAL"
+  ],
+  "claimCoverage": [],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about Supply-chain resilience must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace Supply-chain resilience through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_IN_PROGRESS",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

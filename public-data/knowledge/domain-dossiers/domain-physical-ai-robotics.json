@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-physical-ai-robotics",
+  "domainId": "domain-physical-ai-robotics",
+  "title": "domain-physical-ai-robotics",
+  "definition": "Physical AI·robotics는 인지·world model·계획·작동이 현실 환경과 반복 상호작용하는 계층이다.",
+  "mechanism": "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토",
+  "unit": "작업 성공률·지연·다운타임·개입·유지비",
+  "bottlenecks": [
+    "분포 이동·희귀 사건·actuator·안전·현장 통합"
+  ],
+  "uniqueKpis": [
+    "작업 성공률·지연·다운타임·개입·유지비",
+    "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토",
+    "Perception and sensor fusion",
+    "World model and simulation",
+    "Planning and control",
+    "Actuation and safety",
+    "Robot unit economics"
+  ],
+  "taxonomyNodeIds": [
+    "physical-ai-perception",
+    "physical-ai-world-model",
+    "physical-ai-planning",
+    "physical-ai-actuation",
+    "physical-ai-unit-economics"
+  ],
+  "deepBranchIds": [
+    "physical-loop",
+    "world-model",
+    "edge-ai",
+    "physical-economics"
+  ],
+  "playerIds": [
+    "tesla",
+    "shield-ai"
+  ],
+  "productIds": [
+    "tesla-optimus-and-autonomy-stack",
+    "shield-ai-hivemind-autonomy"
+  ],
+  "sourceIds": [
+    "AT-RB-01",
+    "AT-RB-02",
+    "AT-RB-03"
+  ],
+  "researchQuestions": [
+    "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
+    "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

@@ -18,6 +18,22 @@ export function selectClaim(bundle, claimId) {
   return (bundle?.claims?.claims || bundle?.claims || []).find((claim) => (claim.claimId || claim.id) === claimId) || null;
 }
 
+export function selectCoverageUnit(bundle, unitId) {
+  return (bundle?.coverageMatrix?.units || []).find((unit) => unit.unitId === unitId) || null;
+}
+
+export function selectResearchDossier(bundle, contentUnitId) {
+  return (bundle?.researchDossiers?.dossiers || []).find((dossier) => dossier.contentUnitId === contentUnitId) || null;
+}
+
+export function selectDomainDossier(bundle, domainId) {
+  return (bundle?.domainDossiers?.dossiers || []).find((dossier) => dossier.domainId === domainId) || null;
+}
+
+export function selectQuantitativeLab(bundle, labId) {
+  return (bundle?.quantitativeLabs?.labs || []).find((lab) => lab.labId === labId) || null;
+}
+
 export function selectKnowledgeSummary(bundle, articleId) {
   const article = selectArticle(bundle, articleId);
   const learningNode = selectLearningNode(bundle, articleId);

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-geopolitics-policy-security",
+  "domainId": "domain-geopolitics-policy-security",
+  "title": "domain-geopolitics-policy-security",
+  "definition": "산업정책·수출통제·공급망 회복력·사이버 보안은 기술과 자본의 이동 경계를 바꾼다.",
+  "mechanism": "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안",
+  "unit": "허가·수출 대상·보조금·조달·incident·lead time",
+  "bottlenecks": [
+    "정책 변경·규정 준수·대체 공급·보안 사고·동맹 관계"
+  ],
+  "uniqueKpis": [
+    "허가·수출 대상·보조금·조달·incident·lead time",
+    "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안",
+    "Export controls",
+    "Supply-chain resilience",
+    "Semiconductor incentives",
+    "Cybersecurity and sovereign AI",
+    "National-security risk"
+  ],
+  "taxonomyNodeIds": [
+    "policy-export-controls",
+    "policy-supply-chain-resilience",
+    "policy-semiconductor-incentives",
+    "policy-cybersecurity",
+    "policy-national-security-risk"
+  ],
+  "deepBranchIds": [
+    "open-definition",
+    "open-model-family",
+    "open-china-strategy",
+    "open-economics",
+    "open-alliances"
+  ],
+  "playerIds": [
+    "mp-materials",
+    "samsung-electronics"
+  ],
+  "productIds": [
+    "mp-materials-rare-earth-magnetics"
+  ],
+  "sourceIds": [
+    "AT-GP-01",
+    "AT-GP-02",
+    "AT-GP-03"
+  ],
+  "researchQuestions": [
+    "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
+    "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

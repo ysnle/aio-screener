@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:E1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "채권은 발행자가 정해진 시점에 이자와 원금을 지급하겠다는 계약이며, 가격과 수익률은 서로 반대 방향으로 움직인다.",
+      "mechanism": "투자자는 현금흐름의 크기·시점·지급 가능성을 현재 가격과 비교한다. 금리·신용·유동성 변화가 가격을 바꾼다.",
+      "example": "같은 쿠폰을 주는 채권이라도 만기가 길거나 발행자의 신용이 나빠지면 투자자는 더 낮은 가격을 요구할 수 있다.",
+      "counterScenario": "쿠폰이 높다는 사실을 수익률과 동일시하거나 만기까지 보유할 때의 현금흐름과 중간 매매 가격을 구분하지 않으면 위험을 놓친다.",
+      "verificationQuestion": "이 채권의 수익률은 쿠폰·가격·만기·상환 가능성 중 무엇에서 나오며 금리 변화에 얼마나 민감한가?",
+      "visualization": "쿠폰·원금 → 가격 ↔ 수익률"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 18번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

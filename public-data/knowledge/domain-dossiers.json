@@ -1,0 +1,1496 @@
+{
+  "schemaVersion": "knowledge-domain-dossiers.v1",
+  "generatedAt": "2026-08-12",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "boundary": "Domain dossiers preserve complete structural coverage and unique KPI/bottleneck/value-chain fields; independent research and semantic review remain required.",
+  "counts": {
+    "domains": 19,
+    "taxonomyNodes": 95,
+    "deepBranches": 73
+  },
+  "dossiers": [
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-cloud-platform",
+      "domainId": "domain-cloud-platform",
+      "title": "domain-cloud-platform",
+      "definition": "클라우드는 AI 계산·저장·네트워크를 사용자 요청과 서비스 단위로 묶는 운영 계층이다.",
+      "mechanism": "workload → 예약·가동률 → compute·storage·network → 사용량·계약·감가상각",
+      "unit": "요청·GPU시간·저장량·서비스 계약",
+      "bottlenecks": [
+        "가동률·전력·네트워크·고객 집중도·가격 경쟁"
+      ],
+      "uniqueKpis": [
+        "요청·GPU시간·저장량·서비스 계약",
+        "Hyperscaler cloud의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Managed AI service의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Utilization / workload mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Cloud commitments의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Depreciation cycle의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "workload → 예약·가동률 → compute·storage·network → 사용량·계약·감가상각",
+        "Hyperscaler cloud",
+        "Managed AI service",
+        "Utilization / workload mix",
+        "Cloud commitments",
+        "Depreciation cycle"
+      ],
+      "taxonomyNodeIds": [
+        "cloud-hyperscaler",
+        "cloud-ai-service",
+        "cloud-utilization",
+        "cloud-commitments",
+        "cloud-depreciation"
+      ],
+      "deepBranchIds": [
+        "cloud-stack",
+        "cloud-capex",
+        "neocloud-economics",
+        "cloud-roic",
+        "open-definition",
+        "open-model-family",
+        "open-china-strategy",
+        "open-economics",
+        "open-alliances"
+      ],
+      "playerIds": [
+        "google-cloud",
+        "aws"
+      ],
+      "productIds": [
+        "cloud-tpu-family",
+        "aws-trainium-family"
+      ],
+      "sourceIds": [
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
+      ],
+      "researchQuestions": [
+        "workload·예약·실사용량을 어떻게 구분하는가",
+        "CAPEX와 매출 인식을 어떤 공시로 대조하는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-neocloud-finance",
+      "domainId": "domain-neocloud-finance",
+      "title": "domain-neocloud-finance",
+      "definition": "Neocloud는 가속기와 데이터센터를 임차·예약·금융 구조와 함께 제공하는 용량 사업이다.",
+      "mechanism": "장비 CAPEX·리스 → 고객 예약·사용 → 임대료·가동률 → 부채·잔존가치 위험",
+      "unit": "GPU시간·예약기간·임대료·리스 의무",
+      "bottlenecks": [
+        "고객 집중·계약 해지·전력·감가상각·자금비용"
+      ],
+      "uniqueKpis": [
+        "GPU시간·예약기간·임대료·리스 의무",
+        "GPU rental의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Capacity reservation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Lease burden의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Customer concentration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Rental yield minus funding cost의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "장비 CAPEX·리스 → 고객 예약·사용 → 임대료·가동률 → 부채·잔존가치 위험",
+        "GPU rental",
+        "Capacity reservation",
+        "Lease burden",
+        "Customer concentration",
+        "Rental yield minus funding cost"
+      ],
+      "taxonomyNodeIds": [
+        "neocloud-gpu-rental",
+        "neocloud-capacity-reservation",
+        "neocloud-lease-burden",
+        "neocloud-customer-concentration",
+        "neocloud-rental-yield"
+      ],
+      "deepBranchIds": [
+        "cloud-stack",
+        "cloud-capex",
+        "neocloud-economics",
+        "cloud-roic"
+      ],
+      "playerIds": [],
+      "productIds": [],
+      "sourceIds": [
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
+      ],
+      "researchQuestions": [
+        "예약 용량과 실제 utilization의 차이는 무엇인가",
+        "리스·부채·고객 집중이 회수기간을 어떻게 바꾸는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-compute-silicon",
+      "domainId": "domain-compute-silicon",
+      "title": "domain-compute-silicon",
+      "definition": "AI compute는 workload에 맞는 범용·전용 실리콘과 소프트웨어 스택의 조합이다.",
+      "mechanism": "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연",
+      "unit": "작업당 연산·지연·전력·달러",
+      "bottlenecks": [
+        "메모리 대역폭·생태계 전환비용·패키지·공급·검증"
+      ],
+      "uniqueKpis": [
+        "작업당 연산·지연·전력·달러",
+        "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연",
+        "GPU",
+        "ASIC / custom accelerator",
+        "NPU / edge accelerator",
+        "FP/BF/INT precision",
+        "Accelerator interconnect"
+      ],
+      "taxonomyNodeIds": [
+        "compute-gpu",
+        "compute-asic",
+        "compute-npu",
+        "compute-precision",
+        "compute-interconnect"
+      ],
+      "deepBranchIds": [],
+      "playerIds": [
+        "nvidia",
+        "amd",
+        "google-cloud",
+        "aws",
+        "synopsys",
+        "broadcom"
+      ],
+      "productIds": [
+        "nvidia-gpu-accelerator-platform",
+        "amd-instinct-accelerator-family",
+        "cloud-tpu-family",
+        "aws-trainium-family"
+      ],
+      "sourceIds": [
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
+      ],
+      "researchQuestions": [
+        "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
+        "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-memory-storage",
+      "domainId": "domain-memory-storage",
+      "title": "domain-memory-storage",
+      "definition": "메모리·스토리지는 계산에 필요한 데이터를 보관하고 이동시키는 계층이다.",
+      "mechanism": "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용",
+      "unit": "byte·대역폭·IOPS·지연·전력",
+      "bottlenecks": [
+        "메모리 wall·HBM 공급·쓰기 내구성·데이터 이동·용량 수요"
+      ],
+      "uniqueKpis": [
+        "byte·대역폭·IOPS·지연·전력",
+        "SRAM / cache의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "DRAM / HBM의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "NAND flash의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Enterprise / data-center SSD의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "CXL / pooled memory의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용",
+        "SRAM / cache",
+        "DRAM / HBM",
+        "NAND flash",
+        "Enterprise / data-center SSD",
+        "CXL / pooled memory"
+      ],
+      "taxonomyNodeIds": [
+        "memory-sram",
+        "memory-dram-hbm",
+        "memory-nand",
+        "memory-enterprise-ssd",
+        "memory-cxl"
+      ],
+      "deepBranchIds": [
+        "memory-hierarchy",
+        "memory-hbm-branch",
+        "memory-nand-ssd",
+        "memory-cxl-branch",
+        "memory-economics"
+      ],
+      "playerIds": [
+        "micron",
+        "kioxia",
+        "samsung-electronics"
+      ],
+      "productIds": [
+        "micron-hbm-family",
+        "kioxia-enterprise-ssd-family",
+        "samsung-hbm-family"
+      ],
+      "sourceIds": [
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
+      ],
+      "researchQuestions": [
+        "HBM 대역폭과 용량·열·수율의 trade-off는 무엇인가",
+        "SSD 수요를 추론 workload와 전체 NAND 수급으로 어떻게 분리하는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-foundry-equipment",
+      "domainId": "domain-foundry-equipment",
+      "title": "domain-foundry-equipment",
+      "definition": "Foundry와 장비·소재는 설계가 양산 가능한 transistor와 wafer output으로 바뀌는 제조 계층이다.",
+      "mechanism": "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification",
+      "unit": "wafer·die·공정 단계·yield·lead time",
+      "bottlenecks": [
+        "공정 복잡성·장비 설치·소재 순도·수율·고객 인증"
+      ],
+      "uniqueKpis": [
+        "wafer·die·공정 단계·yield·lead time",
+        "Design ecosystem의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Process node의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Process equipment의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Materials / chemicals의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Capacity / yield / utilization의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification",
+        "Design ecosystem",
+        "Process node",
+        "Process equipment",
+        "Materials / chemicals",
+        "Capacity / yield / utilization"
+      ],
+      "taxonomyNodeIds": [
+        "foundry-design-ecosystem",
+        "foundry-process-node",
+        "foundry-equipment",
+        "foundry-materials",
+        "foundry-capacity-yield"
+      ],
+      "deepBranchIds": [
+        "foundry-mature",
+        "foundry-7-5-4",
+        "foundry-3nm",
+        "foundry-2nm",
+        "foundry-18a",
+        "foundry-yield",
+        "lithography-optics",
+        "lithography-duv",
+        "lithography-euv",
+        "lithography-high-na",
+        "lithography-china",
+        "wafer-process-flow"
+      ],
+      "playerIds": [
+        "tsmc",
+        "asml",
+        "synopsys",
+        "samsung-electronics"
+      ],
+      "productIds": [
+        "asml-euv-lithography-family",
+        "synopsys-eda-flow"
+      ],
+      "sourceIds": [
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
+      ],
+      "researchQuestions": [
+        "공정 노드 명칭과 실제 density·power·yield를 어떻게 분리하는가",
+        "장비 설치 capacity와 양품 output의 차이는 무엇인가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-packaging-substrate",
+      "domainId": "domain-packaging-substrate",
+      "title": "domain-packaging-substrate",
+      "definition": "첨단 패키징은 여러 die·HBM·substrate를 전기·열·기계적으로 하나의 시스템으로 연결한다.",
+      "mechanism": "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가",
+      "unit": "package·die·연결 수·열·양품률",
+      "bottlenecks": [
+        "interposer·substrate·조립 수율·열 설계·검사 capacity"
+      ],
+      "uniqueKpis": [
+        "package·die·연결 수·열·양품률",
+        "2.5D integration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "3D stacking의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Interposer / bridge의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "ABF / FC-BGA substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Glass substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가",
+        "2.5D integration",
+        "3D stacking",
+        "Interposer / bridge",
+        "ABF / FC-BGA substrate",
+        "Glass substrate"
+      ],
+      "taxonomyNodeIds": [
+        "package-2-5d",
+        "package-3d-stacking",
+        "package-interposer",
+        "package-substrate",
+        "package-glass"
+      ],
+      "deepBranchIds": [
+        "package-flow",
+        "package-2-5d-branch",
+        "package-3d-branch",
+        "package-substrate-branch",
+        "package-glass-branch"
+      ],
+      "playerIds": [
+        "tsmc"
+      ],
+      "productIds": [
+        "tsmc-3dfabric-family",
+        "samsung-hbm-family"
+      ],
+      "sourceIds": [
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
+      ],
+      "researchQuestions": [
+        "2.5D·3D 패키지의 대역폭과 열·검사 trade-off는 무엇인가",
+        "패키지 capacity와 고객 qualification이 출하를 어떻게 제한하는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-network-photonics",
+      "domainId": "domain-network-photonics",
+      "title": "domain-network-photonics",
+      "definition": "네트워크·포토닉스는 분산 compute와 데이터센터 사이의 데이터 이동을 담당한다.",
+      "mechanism": "가속기·메모리 traffic → switch·optical module·fabric → 지연·대역폭·전력/bit",
+      "unit": "link bandwidth·latency·port·power/bit",
+      "bottlenecks": [
+        "신호 무결성·광 모듈 수율·스위치 capacity·통신 동기화"
+      ],
+      "uniqueKpis": [
+        "link bandwidth·latency·port·power/bit",
+        "Switch silicon의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Optical module의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Silicon photonics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Co-packaged optics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "AI cluster fabric의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "가속기·메모리 traffic → switch·optical module·fabric → 지연·대역폭·전력/bit",
+        "Switch silicon",
+        "Optical module",
+        "Silicon photonics",
+        "Co-packaged optics",
+        "AI cluster fabric"
+      ],
+      "taxonomyNodeIds": [
+        "network-switch",
+        "network-optical-module",
+        "network-silicon-photonics",
+        "network-cpo",
+        "network-fabric"
+      ],
+      "deepBranchIds": [
+        "photonics-physics",
+        "photonics-components",
+        "photonics-platform",
+        "photonics-module",
+        "photonics-architecture"
+      ],
+      "playerIds": [
+        "nvidia",
+        "broadcom",
+        "coherent"
+      ],
+      "productIds": [
+        "broadcom-ethernet-switch-family",
+        "coherent-optical-module-family"
+      ],
+      "sourceIds": [
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
+      ],
+      "researchQuestions": [
+        "대역폭과 latency뿐 아니라 power per bit·error rate를 왜 보는가",
+        "CPO/LPO 기술 발표와 양산·고객 qualification을 어떻게 분리하는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-aidc-cooling",
+      "domainId": "domain-aidc-cooling",
+      "title": "domain-aidc-cooling",
+      "definition": "AIDC는 서버·랙·전력·냉각·건물 설비를 함께 운영하는 물리적 서비스 계층이다.",
+      "mechanism": "IT load → rack density → 전력·열 → air/liquid cooling → usable capacity·PUE",
+      "unit": "rack·kW·PUE·냉각 capacity·가동률",
+      "bottlenecks": [
+        "변압기·냉각 retrofit·공간·접속·열 밀도"
+      ],
+      "uniqueKpis": [
+        "rack·kW·PUE·냉각 capacity·가동률",
+        "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "IT load → rack density → 전력·열 → air/liquid cooling → usable capacity·PUE",
+        "Rack density",
+        "Liquid cooling",
+        "Thermal design",
+        "Server platform",
+        "PUE / facility efficiency"
+      ],
+      "taxonomyNodeIds": [
+        "aidc-rack-density",
+        "aidc-liquid-cooling",
+        "aidc-thermal-design",
+        "aidc-server-platform",
+        "aidc-pue"
+      ],
+      "deepBranchIds": [
+        "aidc-demand",
+        "aidc-grid",
+        "aidc-supply",
+        "aidc-contract",
+        "aidc-constraints"
+      ],
+      "playerIds": [
+        "vertiv"
+      ],
+      "productIds": [
+        "vertiv-thermal-power-solutions"
+      ],
+      "sourceIds": [
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
+      ],
+      "researchQuestions": [
+        "IT load와 시설 overhead를 어떤 지표로 분리하는가",
+        "랙 밀도·냉각·납기·서비스가 매출로 번역되는 조건은 무엇인가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-power-grid",
+      "domainId": "domain-power-grid",
+      "title": "domain-power-grid",
+      "definition": "전력·에너지·grid는 AI 인프라가 언제 어디서 실제로 가동될 수 있는지를 결정한다.",
+      "mechanism": "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약",
+      "unit": "MW·MWh·접속기간·PUE·전력 품질",
+      "bottlenecks": [
+        "발전 mix·송전·변압기·허가·접속 대기·지역 수급"
+      ],
+      "uniqueKpis": [
+        "MW·MWh·접속기간·PUE·전력 품질",
+        "Accelerator IT load의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Generation mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Transmission / substation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Interconnection queue의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Transformer / switchgear의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약",
+        "Accelerator IT load",
+        "Generation mix",
+        "Transmission / substation",
+        "Interconnection queue",
+        "Transformer / switchgear"
+      ],
+      "taxonomyNodeIds": [
+        "power-it-load",
+        "power-generation",
+        "power-transmission",
+        "power-interconnection",
+        "power-transformer"
+      ],
+      "deepBranchIds": [
+        "aidc-demand",
+        "aidc-grid",
+        "aidc-supply",
+        "aidc-contract",
+        "aidc-constraints"
+      ],
+      "playerIds": [
+        "vertiv"
+      ],
+      "productIds": [
+        "vertiv-thermal-power-solutions"
+      ],
+      "sourceIds": [
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
+      ],
+      "researchQuestions": [
+        "설치 서버와 grid-connected usable load의 차이는 무엇인가",
+        "전력 가격·허가·접속 대기가 산업 투자 회수에 어떤 시차를 만드는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-on-device-physical-ai",
+      "domainId": "domain-on-device-physical-ai",
+      "title": "domain-on-device-physical-ai",
+      "definition": "온디바이스·physical AI는 제한된 전력과 지연 안에서 센서·모델·제어를 실행하는 계층이다.",
+      "mechanism": "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전",
+      "unit": "지연·전력·메모리·작업 성공률",
+      "bottlenecks": [
+        "배터리·열·메모리·현장 분포·안전 검증"
+      ],
+      "uniqueKpis": [
+        "지연·전력·메모리·작업 성공률",
+        "Edge SoC / NPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Memory / power envelope의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Sensors / perception의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Control / actuation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Simulation / digital twin의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전",
+        "Edge SoC / NPU",
+        "Memory / power envelope",
+        "Sensors / perception",
+        "Control / actuation",
+        "Simulation / digital twin"
+      ],
+      "taxonomyNodeIds": [
+        "edge-soc-npu",
+        "edge-memory-power",
+        "physical-ai-sensing",
+        "physical-ai-control",
+        "physical-ai-digital-twin"
+      ],
+      "deepBranchIds": [
+        "physical-loop",
+        "world-model",
+        "edge-ai",
+        "physical-economics"
+      ],
+      "playerIds": [
+        "amd",
+        "tesla",
+        "shield-ai",
+        "siemens"
+      ],
+      "productIds": [
+        "tesla-optimus-and-autonomy-stack",
+        "shield-ai-hivemind-autonomy",
+        "siemens-industrial-copilot"
+      ],
+      "sourceIds": [
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
+      ],
+      "researchQuestions": [
+        "cloud inference와 on-device inference의 비용·지연 경계는 무엇인가",
+        "센서·NPU·배터리·업데이트가 제품 단위경제에 미치는 영향은 무엇인가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-ai-economics",
+      "domainId": "domain-ai-economics",
+      "title": "domain-ai-economics",
+      "definition": "AI economics는 기능과 인프라 투자가 매출·마진·감가상각·FCF·ROIC로 번역되는 경로다.",
+      "mechanism": "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례",
+      "unit": "요청·GPU시간·매출·마진·CAPEX·FCF",
+      "bottlenecks": [
+        "가격 하락·고정비·과잉 capacity·자금비용·수요 질"
+      ],
+      "uniqueKpis": [
+        "요청·GPU시간·매출·마진·CAPEX·FCF",
+        "Revenue model의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "CAPEX / lease의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Depreciation / useful life의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "FCF / funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "ROIC / counter-scenario의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례",
+        "Revenue model",
+        "CAPEX / lease",
+        "Depreciation / useful life",
+        "FCF / funding",
+        "ROIC / counter-scenario"
+      ],
+      "taxonomyNodeIds": [
+        "economics-revenue-model",
+        "economics-capex",
+        "economics-depreciation",
+        "economics-fcf",
+        "economics-roic"
+      ],
+      "deepBranchIds": [],
+      "playerIds": [],
+      "productIds": [],
+      "sourceIds": [
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
+      ],
+      "researchQuestions": [
+        "CAPEX 계획·실행·감가상각·FCF를 어떤 공시에서 구분하는가",
+        "AI 서비스의 단위경제성과 고객 retention을 어떻게 검증하는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-physical-ai-robotics",
+      "domainId": "domain-physical-ai-robotics",
+      "title": "domain-physical-ai-robotics",
+      "definition": "Physical AI·robotics는 인지·world model·계획·작동이 현실 환경과 반복 상호작용하는 계층이다.",
+      "mechanism": "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토",
+      "unit": "작업 성공률·지연·다운타임·개입·유지비",
+      "bottlenecks": [
+        "분포 이동·희귀 사건·actuator·안전·현장 통합"
+      ],
+      "uniqueKpis": [
+        "작업 성공률·지연·다운타임·개입·유지비",
+        "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토",
+        "Perception and sensor fusion",
+        "World model and simulation",
+        "Planning and control",
+        "Actuation and safety",
+        "Robot unit economics"
+      ],
+      "taxonomyNodeIds": [
+        "physical-ai-perception",
+        "physical-ai-world-model",
+        "physical-ai-planning",
+        "physical-ai-actuation",
+        "physical-ai-unit-economics"
+      ],
+      "deepBranchIds": [
+        "physical-loop",
+        "world-model",
+        "edge-ai",
+        "physical-economics"
+      ],
+      "playerIds": [
+        "tesla",
+        "shield-ai"
+      ],
+      "productIds": [
+        "tesla-optimus-and-autonomy-stack",
+        "shield-ai-hivemind-autonomy"
+      ],
+      "sourceIds": [
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
+      ],
+      "researchQuestions": [
+        "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
+        "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-drone-defense",
+      "domainId": "domain-drone-defense",
+      "title": "domain-drone-defense",
+      "definition": "방산 자율 시스템은 탐지·판단·통신·행동을 조달·보안·인간 통제와 함께 평가한다.",
+      "mechanism": "센서·ISR → C2·전자전 → 자율 판단·human control → 생산·정비·조달",
+      "unit": "임무 성공·통신 회복·생산률·정비·계약",
+      "bottlenecks": [
+        "오판·통신 단절·규칙·반복 생산·조달 주기"
+      ],
+      "uniqueKpis": [
+        "임무 성공·통신 회복·생산률·정비·계약",
+        "Detection-to-decision chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "C2 / ISR / electronic warfare의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Autonomy and human control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Drone production and attrition의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Procurement economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "센서·ISR → C2·전자전 → 자율 판단·human control → 생산·정비·조달",
+        "Detection-to-decision chain",
+        "C2 / ISR / electronic warfare",
+        "Autonomy and human control",
+        "Drone production and attrition",
+        "Procurement economics"
+      ],
+      "taxonomyNodeIds": [
+        "defense-kill-chain",
+        "defense-c2-isr-ew",
+        "defense-autonomy",
+        "defense-drone-production",
+        "defense-procurement-economics"
+      ],
+      "deepBranchIds": [
+        "defense-mission",
+        "defense-production",
+        "space-stack",
+        "space-reuse",
+        "artemis"
+      ],
+      "playerIds": [
+        "shield-ai"
+      ],
+      "productIds": [
+        "shield-ai-hivemind-autonomy"
+      ],
+      "sourceIds": [
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
+      ],
+      "researchQuestions": [
+        "mission success와 demo를 어떤 시험·조달 자료로 구분하는가",
+        "개발계약·생산계약·sustainment가 매출 인식에 어떻게 이어지는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-space-aerospace",
+      "domainId": "domain-space-aerospace",
+      "title": "domain-space-aerospace",
+      "definition": "우주·항공은 발사 물리, 재사용, 위성 시스템, 공급망과 조달 일정을 연결하는 산업이다.",
+      "mechanism": "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용",
+      "unit": "발사 성공·회전율·위성 수명·서비스 매출·보험",
+      "bottlenecks": [
+        "발사 일정·부품·규제·재사용 turnaround·고객 인증"
+      ],
+      "uniqueKpis": [
+        "발사 성공·회전율·위성 수명·서비스 매출·보험",
+        "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용",
+        "Rocket physics and launch energy",
+        "Reusability and turnaround",
+        "Satellite data economics",
+        "Artemis architecture",
+        "Aircraft and space supply chain"
+      ],
+      "taxonomyNodeIds": [
+        "space-rocket-physics",
+        "space-reusability",
+        "space-satellite-economics",
+        "space-artemis-architecture",
+        "space-aircraft-supply-chain"
+      ],
+      "deepBranchIds": [
+        "defense-mission",
+        "defense-production",
+        "space-stack",
+        "space-reuse",
+        "artemis"
+      ],
+      "playerIds": [
+        "rocket-lab"
+      ],
+      "productIds": [
+        "rocket-lab-electron-neutron-space-systems"
+      ],
+      "sourceIds": [
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
+      ],
+      "researchQuestions": [
+        "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
+        "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-ai-applications",
+      "domainId": "domain-ai-applications",
+      "title": "domain-ai-applications",
+      "definition": "AI 애플리케이션은 모델 능력이 의료·제조·자동차·금융 업무의 결과와 지불 구조로 번역되는 계층이다.",
+      "mechanism": "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI",
+      "unit": "작업 시간·오류율·성공률·전환비용·상환",
+      "bottlenecks": [
+        "규제·책임·데이터 권한·현장 통합·지불자"
+      ],
+      "uniqueKpis": [
+        "작업 시간·오류율·성공률·전환비용·상환",
+        "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI",
+        "Healthcare workflow",
+        "Manufacturing workflow",
+        "Automotive autonomy",
+        "Financial decision workflow",
+        "Payer, ROI and adoption"
+      ],
+      "taxonomyNodeIds": [
+        "application-healthcare",
+        "application-manufacturing",
+        "application-automotive",
+        "application-finance",
+        "application-roi-payer"
+      ],
+      "deepBranchIds": [],
+      "playerIds": [
+        "tesla",
+        "palantir",
+        "ibm",
+        "siemens"
+      ],
+      "productIds": [
+        "tesla-optimus-and-autonomy-stack",
+        "palantir-aip",
+        "siemens-industrial-copilot"
+      ],
+      "sourceIds": [
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
+      ],
+      "researchQuestions": [
+        "AI 도입의 baseline과 human review 범위는 무엇인가",
+        "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-resources-materials",
+      "domainId": "domain-resources-materials",
+      "title": "domain-resources-materials",
+      "definition": "자원·소재·산업재는 채굴·정제·가공·장비·인증을 거쳐 AI와 전력 인프라에 투입된다.",
+      "mechanism": "광석·원재료 → 정제·가공 → 장비·부품·인증 → 공급 capacity·가격·마진",
+      "unit": "톤·순도·회수율·yield·lead time·인증",
+      "bottlenecks": [
+        "정제 capacity·환경 허가·고객 qualification·장비·지역 집중"
+      ],
+      "uniqueKpis": [
+        "톤·순도·회수율·yield·lead time·인증",
+        "Copper and conductors의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Lithium and storage materials의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Rare earths and magnets의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Mining, refining and recycling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Industrial equipment bottlenecks의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "광석·원재료 → 정제·가공 → 장비·부품·인증 → 공급 capacity·가격·마진",
+        "Copper and conductors",
+        "Lithium and storage materials",
+        "Rare earths and magnets",
+        "Mining, refining and recycling",
+        "Industrial equipment bottlenecks"
+      ],
+      "taxonomyNodeIds": [
+        "resources-copper",
+        "resources-lithium",
+        "resources-rare-earths",
+        "resources-refining",
+        "resources-industrial-equipment"
+      ],
+      "deepBranchIds": [],
+      "playerIds": [
+        "mp-materials"
+      ],
+      "productIds": [
+        "mp-materials-rare-earth-magnetics"
+      ],
+      "sourceIds": [
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
+      ],
+      "researchQuestions": [
+        "매장량·정제능력·규격 인증·지역 집중을 어떻게 분리하는가",
+        "증설 lead time과 대체재가 가격결정력에 미치는 영향은 무엇인가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-geopolitics-policy-security",
+      "domainId": "domain-geopolitics-policy-security",
+      "title": "domain-geopolitics-policy-security",
+      "definition": "산업정책·수출통제·공급망 회복력·사이버 보안은 기술과 자본의 이동 경계를 바꾼다.",
+      "mechanism": "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안",
+      "unit": "허가·수출 대상·보조금·조달·incident·lead time",
+      "bottlenecks": [
+        "정책 변경·규정 준수·대체 공급·보안 사고·동맹 관계"
+      ],
+      "uniqueKpis": [
+        "허가·수출 대상·보조금·조달·incident·lead time",
+        "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안",
+        "Export controls",
+        "Supply-chain resilience",
+        "Semiconductor incentives",
+        "Cybersecurity and sovereign AI",
+        "National-security risk"
+      ],
+      "taxonomyNodeIds": [
+        "policy-export-controls",
+        "policy-supply-chain-resilience",
+        "policy-semiconductor-incentives",
+        "policy-cybersecurity",
+        "policy-national-security-risk"
+      ],
+      "deepBranchIds": [
+        "open-definition",
+        "open-model-family",
+        "open-china-strategy",
+        "open-economics",
+        "open-alliances"
+      ],
+      "playerIds": [
+        "mp-materials",
+        "samsung-electronics"
+      ],
+      "productIds": [
+        "mp-materials-rare-earth-magnetics"
+      ],
+      "sourceIds": [
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
+      ],
+      "researchQuestions": [
+        "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
+        "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-capital-markets-company-map",
+      "domainId": "domain-capital-markets-company-map",
+      "title": "domain-capital-markets-company-map",
+      "definition": "자본시장·기업 지도는 기업 역할을 매출 질·마진·대차대조표·기대가치로 분해한다.",
+      "mechanism": "산업 위치 → 수익 모델·마진 → 자산·부채·자본배분 → 시장 기대·가격",
+      "unit": "매출 질·마진·부채·FCF·ROIC·valuation",
+      "bottlenecks": [
+        "고객 집중·희석·부채·회계 분류·기대와 실적의 차이"
+      ],
+      "uniqueKpis": [
+        "매출 질·마진·부채·FCF·ROIC·valuation",
+        "Company role and value capture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Revenue quality and visibility의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Margin and cost structure의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Balance sheet and funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Expectation and price의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "산업 위치 → 수익 모델·마진 → 자산·부채·자본배분 → 시장 기대·가격",
+        "Company role and value capture",
+        "Revenue quality and visibility",
+        "Margin and cost structure",
+        "Balance sheet and funding",
+        "Expectation and price"
+      ],
+      "taxonomyNodeIds": [
+        "capital-company-role",
+        "capital-revenue-quality",
+        "capital-margin-structure",
+        "capital-balance-sheet",
+        "capital-market-expectation"
+      ],
+      "deepBranchIds": [],
+      "playerIds": [
+        "palantir",
+        "siemens"
+      ],
+      "productIds": [
+        "palantir-aip",
+        "siemens-industrial-copilot"
+      ],
+      "sourceIds": [
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
+      ],
+      "researchQuestions": [
+        "보고된 매출·백로그·현금흐름과 시장 기대를 어떻게 분리하는가",
+        "기업의 위치가 가치사슬 병목·가격결정력과 어떻게 연결되는가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-domain-dossier.v1",
+      "generatedAt": "2026-08-12",
+      "dossierId": "domain-dossier:domain-adjacent-future-tech",
+      "domainId": "domain-adjacent-future-tech",
+      "title": "domain-adjacent-future-tech",
+      "definition": "인접 미래 기술은 현재 시스템을 곧바로 대체한다고 가정하지 않고 측정 가능한 실험과 통합 경계로 평가한다.",
+      "mechanism": "새 하드웨어·소자 → 실험·오류·측정 → 소프트웨어·전력·제조 통합 → 제한된 use case",
+      "unit": "오류·정확도·전력/bit·수율·통합비용·접근성",
+      "bottlenecks": [
+        "실험 재현성·제조 수율·소프트웨어 생태계·측정·고객 전환"
+      ],
+      "uniqueKpis": [
+        "오류·정확도·전력/bit·수율·통합비용·접근성",
+        "Quantum computing의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Photonic compute의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Neuromorphic systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "New energy systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+        "Technology uncertainty gate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+      ],
+      "valueChain": [
+        "새 하드웨어·소자 → 실험·오류·측정 → 소프트웨어·전력·제조 통합 → 제한된 use case",
+        "Quantum computing",
+        "Photonic compute",
+        "Neuromorphic systems",
+        "New energy systems",
+        "Technology uncertainty gate"
+      ],
+      "taxonomyNodeIds": [
+        "future-quantum",
+        "future-photonic-compute",
+        "future-neuromorphic",
+        "future-new-energy",
+        "future-uncertainty-gate"
+      ],
+      "deepBranchIds": [],
+      "playerIds": [
+        "ibm"
+      ],
+      "productIds": [
+        "ibm-quantum-platform"
+      ],
+      "sourceIds": [
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
+      ],
+      "researchQuestions": [
+        "시연과 반복 가능한 제품의 증거는 무엇인가",
+        "오류·제조·인증·금융·workflow 통합이 상용화의 어느 단계에서 병목인가"
+      ],
+      "marketTransmission": {
+        "status": "RESEARCH_REQUIRED",
+        "path": [
+          "physical/economic input",
+          "industry bottleneck",
+          "company/product evidence",
+          "financial statement",
+          "valuation/market observation",
+          "invalidation"
+        ]
+      },
+      "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+      "status": "STRUCTURAL_REFERENCE_DRAFT",
+      "completion": {
+        "coverage": "INVENTORIED",
+        "research": "REQUIRED",
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN"
+      }
+    }
+  ]
+}

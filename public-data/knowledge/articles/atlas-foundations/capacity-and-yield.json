@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:capacity-and-yield",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "capacity는 투입 가능한 생산·서비스 물량이고 yield는 투입 중 사양을 만족하는 양품 비율이다.",
+      "mechanism": "장비·공정·검사·수율·lead time이 nominal capacity를 실제 출하·사용 가능 capacity로 바꾼다.",
+      "example": "라인 capacity가 늘어도 yield가 낮으면 고객이 받는 정상 제품 수는 기대보다 적다.",
+      "counterScenario": "공개 수율 숫자는 제품·공정·시점별 정의가 달라 직접 비교하기 어렵다.",
+      "verificationQuestion": "명목 capacity와 usable output을 분리해 봐야 하는 이유는 무엇인가?",
+      "visualization": "투입 capacity → 공정·검사 → yield → usable output·lead time"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 155번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

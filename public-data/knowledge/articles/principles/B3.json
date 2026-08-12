@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:B3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "구매력은 같은 돈으로 살 수 있는 재화와 서비스의 양이며, 명목 소득보다 물가와 세금·주거비를 함께 봐야 한다.",
+      "mechanism": "명목 임금과 자산 가격이 올라가도 소비 바구니가 더 빠르게 비싸지면 실질 구매력은 줄어든다. 가구마다 바구니가 달라 체감도 다르다.",
+      "example": "연봉이 5% 올랐지만 주거·식료품·교통비가 8% 상승했다면 평균 CPI와 개인 지출 구조를 함께 확인해야 생활 여력이 줄었는지 알 수 있다.",
+      "counterScenario": "평균 물가 지수 하나를 모든 가구의 체감 물가로 사용하면 소득계층·지역·지출구조 차이를 놓친다.",
+      "verificationQuestion": "명목 소득 변화에서 실제로 살 수 있는 양의 변화를 계산할 때 어떤 지출 바구니와 세후 소득을 사용할 것인가?",
+      "visualization": "명목소득 − 물가·세금 → 실질 구매력"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 7번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

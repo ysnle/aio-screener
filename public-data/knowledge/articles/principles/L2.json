@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "컴퓨팅 시스템은 연산기·메모리·인터커넥트·소프트웨어가 데이터를 이동시키며 작업을 완료하는 전체 구조다.",
+      "mechanism": "성능은 연산량뿐 아니라 메모리 대역폭·데이터 이동·병렬성·지연시간·전력의 제약을 함께 받는다.",
+      "example": "행렬 연산이 많은 학습은 가속기 수가 중요하지만, 모델 파라미터를 불러오는 시간이 길면 계산기가 놀아 실제 처리량이 떨어질 수 있다.",
+      "counterScenario": "칩의 이론적 FLOPS를 시스템 처리량과 동일시하면 메모리·네트워크·소프트웨어 병목을 놓친다.",
+      "verificationQuestion": "이 workload의 지연과 비용을 제한하는 자원은 연산·메모리·통신·전력 중 무엇이며 실제 이용률은 얼마인가?",
+      "visualization": "데이터 → 메모리 → 연산 → 통신 → 결과"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 65번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

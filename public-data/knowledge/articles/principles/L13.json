@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L13",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "스토리지는 학습·추론에 필요한 데이터를 보관하고 전달하며, 용량·대역폭·지연·내구성·비용의 균형을 제공한다.",
+      "mechanism": "데이터가 여러 저장 계층을 오갈 때 읽기·쓰기 패턴과 중복 제거·캐시·보안이 시스템 비용과 학습 시간을 결정한다.",
+      "example": "대규모 학습에서는 모델 파라미터뿐 아니라 데이터셋과 체크포인트를 빠르게 읽어야 하므로, 저장 용량만 늘려도 학습 시간이 줄지 않을 수 있다.",
+      "counterScenario": "스토리지 비트 수요를 곧바로 AI 수익으로 보면 데이터 보존 정책·클라우드 가격·고성능 계층의 차이를 놓친다.",
+      "verificationQuestion": "이 workload의 병목은 용량·순차 대역폭·랜덤 지연·데이터 이동 중 무엇이며 저장비용이 고객 단가에서 차지하는 비중은 얼마인가?",
+      "visualization": "데이터 생성 → 저장 계층 → 읽기·쓰기 → 학습·서비스"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 76번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "고객 문제는 제품 기능이 아니라 시간·비용·위험·수익성·규제 부담을 줄이거나 결과를 개선해야 하는 실제 업무다.",
+      "mechanism": "문제의 비용이 명확할수록 고객은 솔루션에 지불할 이유가 생긴다. 도입 장벽과 기존 방식의 전환 비용은 지불 의사를 제한한다.",
+      "example": "AI 요약 기능의 가치는 모델 정확도만이 아니라 담당자의 처리 시간, 오류 비용, 보안 승인과 기존 시스템 연동을 함께 줄이는 데서 나온다.",
+      "counterScenario": "기술 시연의 신기함을 고객의 지속적 지불 문제로 착각하면 파일럿 이후 매출 전환이 멈춘다.",
+      "verificationQuestion": "고객이 지금 문제를 해결하는 비용은 얼마이며, 새 솔루션이 그 비용을 어느 업무 단위에서 줄이는가?",
+      "visualization": "업무 문제 → 비용·위험 → 지불 의사"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 53번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

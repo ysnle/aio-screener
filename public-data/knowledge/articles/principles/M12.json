@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M12",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "전력 투자는 연결 가능 용량·이용률·가격·CAPEX·허가·공급망·현금 회수 기간을 함께 보는 분석이다.",
+      "mechanism": "서버·발전·망 설비의 명목 용량은 실제 가동률과 다르며, 프로젝트 일정·자본비용·계약 구조가 수익을 결정한다.",
+      "example": "변전기 주문이 늘어도 납품·현장 설치·접속 승인·규제 자산 인정이 늦으면 공급자의 매출과 투자자의 현금흐름은 시차를 가진다.",
+      "counterScenario": "수주잔고나 설치 용량만으로 이익을 추정하면 취소·지연·원가 초과·운전자본을 놓친다.",
+      "verificationQuestion": "수주가 상업 운전과 현금 회수로 바뀌는 단계별 일정·마진·자본 묶임은 어떻게 검증할 것인가?",
+      "visualization": "수주 → 설치·접속 → 이용률 → FCF"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 91번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

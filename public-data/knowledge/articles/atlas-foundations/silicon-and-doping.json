@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:silicon-and-doping",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "실리콘은 반도체 재료이고 도핑은 전하 운반 특성을 조절하는 공정이다.",
+      "mechanism": "불순물 농도와 접합 구조가 transistor의 전류 흐름·문턱전압·누설을 바꾼다.",
+      "example": "칩의 논리 기능은 설계도만이 아니라 웨이퍼 공정과 도핑·배선의 물리적 결과로 구현된다.",
+      "counterScenario": "공정 노드 숫자만으로 transistor·배선·전력·수율의 모든 차이를 설명할 수 없다.",
+      "verificationQuestion": "재료와 공정의 작은 변화가 전력·속도·수율의 trade-off로 이어지는 이유는 무엇인가?",
+      "visualization": "웨이퍼 재료 → 도핑·식각·배선 → transistor 특성 → 칩 동작"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 116번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

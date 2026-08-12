@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L11",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "테스트는 제조된 다이가 사양을 만족하는지 검사하는 과정이고, 수율은 투입된 다이 중 판매 가능한 비율이다.",
+      "mechanism": "결함 위치·검사 커버리지·테스트 시간·재작업이 판매 가능 수량과 원가를 결정한다. 첨단 패키지는 다이 간 결함을 조합 전에 잡는 문제가 추가된다.",
+      "example": "웨이퍼 수율이 높아도 패키지 조립 후 열·신호 테스트에서 탈락하면 최종 출하 수율과 마진은 낮아질 수 있다.",
+      "counterScenario": "수율 개선을 단순한 공정 효율로 보거나 평균 수율만 보면 제품별 결함 분포와 테스트 병목을 놓친다.",
+      "verificationQuestion": "수율의 분모는 웨이퍼·다이·패키지 중 무엇이며, 테스트 시간과 불량 원인이 원가·납기에 어떤 영향을 주는가?",
+      "visualization": "공정 → 검사 → 양품률 → 판매 가능 수량"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 74번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

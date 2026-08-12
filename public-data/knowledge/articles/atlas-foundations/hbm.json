@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:hbm",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "HBM은 여러 DRAM die를 수직 적층하고 넓은 인터페이스로 가속기 가까이 연결하는 메모리다.",
+      "mechanism": "넓은 대역폭으로 tensor 데이터를 공급하지만 적층·패키징·열·수율·공급망 제약을 가진다.",
+      "example": "가속기 성능이 늘어도 HBM 공급과 패키지 조립이 따라오지 않으면 시스템 출하가 제한된다.",
+      "counterScenario": "HBM의 대역폭 수치만으로 비용·지연·용량·실제 workload 성능을 판단할 수 없다.",
+      "verificationQuestion": "HBM을 칩 단품이 아니라 패키지와 공급망 문제로도 봐야 하는 이유는 무엇인가?",
+      "visualization": "DRAM 적층 → 넓은 인터페이스 → 가속기 공급 → 패키지·열·수율"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 148번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

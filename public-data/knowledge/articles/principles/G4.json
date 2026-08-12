@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:G4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "1차시장은 기업이나 기존 주주가 증권을 새로 발행해 자금을 조달하는 곳이고, 2차시장은 투자자끼리 이미 발행된 증권을 거래하는 곳이다.",
+      "mechanism": "1차 발행은 회사 현금과 주식 수를 바꾸며, 2차 거래는 가격 신호와 유동성을 제공하지만 회사에 현금이 직접 들어오지는 않는다.",
+      "example": "유상증자로 조달한 현금은 공장 투자에 쓰일 수 있지만, 장중 주가 거래량 증가는 회사의 자금 조달이 아니라 소유권 이동일 수 있다.",
+      "counterScenario": "거래대금과 기업으로 유입된 자금을 같은 것으로 보면 자금조달 효과를 잘못 계산한다.",
+      "verificationQuestion": "이번 자금이 회사의 재무상태표에 들어왔는지 기존 주주 간 거래였는지 발행 공시와 주식 수로 확인했는가?",
+      "visualization": "발행 → 회사 자금 / 거래 → 소유권 이동"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 32번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

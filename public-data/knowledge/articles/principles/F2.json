@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:F2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "재정승수는 정부 지출이나 세금 변화가 총소득에 미치는 누적 효과로, 경제 여유·통화정책·수입·집행 속도에 따라 달라진다.",
+      "mechanism": "지출이 한 주체의 소득이 되어 다음 지출을 만들지만, 저축·수입·세금·금리 상승은 반복 효과를 줄인다.",
+      "example": "유휴 인력이 많은 지역의 전력망 투자는 고용과 공급능력을 동시에 늘릴 수 있지만, 완전고용 상태의 지출은 가격과 금리를 더 자극할 수 있다.",
+      "counterScenario": "승수를 고정 숫자로 적용하면 국면·지출 종류·재원·공급 제약의 차이를 무시하게 된다.",
+      "verificationQuestion": "정책 지출이 추가 수요를 만든 부분과 생산능력을 늘린 부분을 어떤 시차와 지표로 구분할 것인가?",
+      "visualization": "정부지출 → 소득 → 재지출 − 누수"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 26번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

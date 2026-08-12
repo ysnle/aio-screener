@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aio-screener.local/schemas/knowledge/coverage-matrix.schema.json",
+  "title": "Knowledge corpus coverage matrix",
+  "type": "object",
+  "required": ["schemaVersion", "status", "counts", "units"],
+  "properties": {
+    "schemaVersion": { "const": "knowledge-coverage-matrix.v1" },
+    "status": { "enum": ["INVENTORIED", "RESEARCH_IN_PROGRESS", "CONTENT_IN_PROGRESS", "CERTIFICATION_OPEN"] },
+    "counts": { "type": "object", "required": ["units", "coreLessons", "foundationLessons", "conceptGuides", "taxonomyNodes", "deepBranches", "domains", "players", "products"] },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["unitId", "kind", "title", "coverageState", "researchStatus", "articleStatus"],
+        "properties": {
+          "unitId": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["CORE_LESSON", "FOUNDATION_LESSON", "CONCEPT_GUIDE", "TAXONOMY_NODE", "DEEP_BRANCH", "DOMAIN", "PLAYER", "PRODUCT"] },
+          "title": { "type": "string", "minLength": 1 },
+          "coverageState": { "enum": ["INVENTORIED", "RESEARCHED", "AUTHORED", "SEMANTIC_REVIEWED", "BROWSER_VERIFIED", "LIVE_VERIFIED"] },
+          "researchStatus": { "enum": ["RESEARCH_REQUIRED", "RESEARCH_IN_PROGRESS", "RESEARCHED"] },
+          "articleStatus": { "enum": ["MISSING", "STRUCTURED_REFERENCE_DRAFT", "AUTHOR_REVIEWED", "PUBLISHED_REFERENCE"] },
+          "sourceIds": { "type": "array", "items": { "type": "string" } },
+          "missing": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:taxonomy:space-rocket-physics",
+  "contentUnitId": "taxonomy:space-rocket-physics",
+  "unitKind": "TAXONOMY_NODE",
+  "title": "Rocket physics and launch energy",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for Rocket physics and launch energy?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Rocket physics and launch energy?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "Rocket physics and launch energy mechanism primary source",
+    "Rocket physics and launch energy official data standard filing evidence",
+    "Rocket physics and launch energy disconfirming evidence limitations"
+  ],
+  "searchedAt": "2026-08-12",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "NASA Artemis",
+      "unresolved": true
+    },
+    {
+      "sourceId": "FAA commercial space",
+      "unresolved": true
+    },
+    {
+      "sourceId": "company launch disclosures",
+      "unresolved": true
+    },
+    {
+      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
+      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
+      "publisher": "U.S. Department of Energy",
+      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
+      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
+      "publisher": "U.S. Department of Energy",
+      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
+  "rejectedSources": [
+    {
+      "sourceId": "NASA Artemis",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "FAA commercial space",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "company launch disclosures",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    }
+  ],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
+  "claimCoverage": [],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about Rocket physics and launch energy must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace Rocket physics and launch energy through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_IN_PROGRESS",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

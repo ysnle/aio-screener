@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K6",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "가격 결정권은 고객이 대체하기 어렵고 공급자가 차별화된 결과를 제공할 때 가격·계약·인상분을 방어할 수 있는 능력이다.",
+      "mechanism": "브랜드·성능·인증·전환비용·공급 집중이 교섭력을 만들지만, 경쟁·과잉설비·고객 집중은 이를 약화한다.",
+      "example": "고객 공정에 인증된 장비 부품은 교체 검증 비용이 높아 가격을 방어할 수 있지만, 단일 고객 의존은 구매자의 협상력을 키운다.",
+      "counterScenario": "시장 점유율이나 독점적 기술 이름만으로 가격 결정력을 가정하면 실제 계약 조건과 총마진을 놓친다.",
+      "verificationQuestion": "가격 인상분이 물량·믹스·원가를 제외하고 총마진과 현금흐름에 남았는지 공시로 확인했는가?",
+      "visualization": "차별화·전환비용 → 교섭력 → 가격·마진"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 57번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-drone-defense",
+  "domainId": "domain-drone-defense",
+  "title": "domain-drone-defense",
+  "definition": "방산 자율 시스템은 탐지·판단·통신·행동을 조달·보안·인간 통제와 함께 평가한다.",
+  "mechanism": "센서·ISR → C2·전자전 → 자율 판단·human control → 생산·정비·조달",
+  "unit": "임무 성공·통신 회복·생산률·정비·계약",
+  "bottlenecks": [
+    "오판·통신 단절·규칙·반복 생산·조달 주기"
+  ],
+  "uniqueKpis": [
+    "임무 성공·통신 회복·생산률·정비·계약",
+    "Detection-to-decision chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "C2 / ISR / electronic warfare의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Autonomy and human control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Drone production and attrition의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Procurement economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "센서·ISR → C2·전자전 → 자율 판단·human control → 생산·정비·조달",
+    "Detection-to-decision chain",
+    "C2 / ISR / electronic warfare",
+    "Autonomy and human control",
+    "Drone production and attrition",
+    "Procurement economics"
+  ],
+  "taxonomyNodeIds": [
+    "defense-kill-chain",
+    "defense-c2-isr-ew",
+    "defense-autonomy",
+    "defense-drone-production",
+    "defense-procurement-economics"
+  ],
+  "deepBranchIds": [
+    "defense-mission",
+    "defense-production",
+    "space-stack",
+    "space-reuse",
+    "artemis"
+  ],
+  "playerIds": [
+    "shield-ai"
+  ],
+  "productIds": [
+    "shield-ai-hivemind-autonomy"
+  ],
+  "sourceIds": [
+    "AT-DD-01",
+    "AT-DD-02",
+    "AT-DD-03"
+  ],
+  "researchQuestions": [
+    "mission success와 demo를 어떤 시험·조달 자료로 구분하는가",
+    "개발계약·생산계약·sustainment가 매출 인식에 어떻게 이어지는가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

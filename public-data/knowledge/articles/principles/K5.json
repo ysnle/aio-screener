@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "핵심 투입요소는 생산량·품질·원가를 결정하며 단기간에 대체하기 어려운 재료·장비·전력·인력·데이터다.",
+      "mechanism": "투입요소의 공급 집중·인증 기간·물류 경로·가격 계약이 최종 제품의 마진과 증설 속도를 제한한다.",
+      "example": "특수 가스가 전체 원가에서 작아도 공급 중단 시 웨이퍼 라인이 멈춘다면 매출보다 큰 경제적 중요성을 가진다.",
+      "counterScenario": "원가 비중이 높은 재료만 핵심이라고 보면 낮은 비용이지만 대체 불가능한 투입요소를 놓친다.",
+      "verificationQuestion": "공급 중단 시 대체까지 걸리는 시간과 재고 버퍼는 얼마이며, 비용·품질·인증을 함께 만족하는가?",
+      "visualization": "투입요소 → 공급 제약 → 생산·원가"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 56번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

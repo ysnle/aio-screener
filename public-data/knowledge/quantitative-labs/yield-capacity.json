@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "knowledge-quantitative-lab.v1",
+  "generatedAt": "2026-08-12",
+  "labId": "lab:yield-capacity",
+  "title": "수율과 양품 생산량",
+  "formula": "goodOutput = inputUnits * yieldRate",
+  "variables": [
+    {
+      "id": "inputUnits",
+      "label": "투입 수량",
+      "unit": "units"
+    },
+    {
+      "id": "yieldRate",
+      "label": "수율",
+      "unit": "ratio"
+    },
+    {
+      "id": "goodOutput",
+      "label": "양품 생산량",
+      "unit": "units"
+    }
+  ],
+  "assumptions": [
+    "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+    "단위와 기간이 일치한다고 가정한다.",
+    "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+  ],
+  "workedExample": {
+    "inputs": {
+      "inputUnits": 1000,
+      "yieldRate": 0.9
+    },
+    "steps": [
+      "투입 1,000개와 수율 90%를 둔다.",
+      "1,000 × 0.90 = 900개로 계산한다."
+    ],
+    "result": 900,
+    "resultType": "number",
+    "interpretation": "수율 변화가 출하 가능한 양품 수량에 미치는 기계적 효과를 보여준다.",
+    "failureBoundary": "공정 단계별 수율·검사 기준·제품 믹스가 다르면 단일 수율로 확대 해석하지 않는다."
+  },
+  "observation": {
+    "metric": "수율과 양품 생산량",
+    "timeframe": "사례 계산 1회",
+    "regime": "합성 교육 시나리오",
+    "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+    "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+    "invalidation": "공정 단계별 수율·검사 기준·제품 믹스가 다르면 단일 수율로 확대 해석하지 않는다.",
+    "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+  },
+  "conceptIds": [
+    "concept:yield"
+  ],
+  "articleIds": [],
+  "sourceIds": [
+    "WEB-DOE-DATACENTER-PUE-2019"
+  ],
+  "status": "EDUCATIONAL_LAB_DRAFT",
+  "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+  "completion": {
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

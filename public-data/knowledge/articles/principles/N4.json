@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "자율주행은 센서·지도·추론·제어·안전 운영이 결합되어 사람의 개입 없이 이동 작업을 수행하는 시스템이다.",
+      "mechanism": "실제 경제성은 평균 성능보다 희귀한 실패·원격 개입·보험·규제·차량 유지·운영 범위에서 결정된다.",
+      "example": "고속도로의 제한된 경로에서 높은 자동화를 보여도 도심·악천후·공사 구간의 예외 처리가 서비스 비용과 책임을 좌우한다.",
+      "counterScenario": "모델 정확도나 누적 주행거리만으로 상용화를 판단하면 운영자 개입률·안전 책임·승인 지역을 놓친다.",
+      "verificationQuestion": "운영 설계영역에서 사람 개입률·사고 비용·보험·승인 요건과 고객의 운송비 절감을 어떻게 비교할 것인가?",
+      "visualization": "센서·모델 → 판단·제어 → 운송 서비스"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 95번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

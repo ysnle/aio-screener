@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M7",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "전력 저장은 생산 시점과 소비 시점을 분리해 계통의 피크·주파수·예비력을 조정하는 장치다.",
+      "mechanism": "저장장치의 에너지 용량·출력·충방전 효율·수명·열관리·재료비가 수익 모델과 교체 주기를 결정한다.",
+      "example": "배터리가 낮 시간의 잉여 전력을 저녁 피크에 방전하면 가격 차익을 얻을 수 있지만, 사이클 열화와 네트워크 제약이 순수익을 깎는다.",
+      "counterScenario": "설치된 MWh만 보고 저장의 가치를 평가하면 실제 출력 지속시간·효율·보조서비스·열화 비용을 놓친다.",
+      "verificationQuestion": "저장장치가 벌어들이는 돈은 에너지 차익·용량·보조서비스 중 무엇이며 왕복 효율과 열화 후 성능은 얼마인가?",
+      "visualization": "잉여전력 → 충전 → 저장 → 피크·보조서비스"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 86번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

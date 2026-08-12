@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N8",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "의료기기·헬스케어는 임상 효용과 안전성을 병원 workflow·보험 지불·유지보수·환자 접근성으로 연결하는 산업이다.",
+      "mechanism": "제품 성능만으로 채택되지 않고 의사 교육·코드·수가·조달 예산·재시술률·책임이 반복매출을 결정한다.",
+      "example": "수술 로봇의 설치 매출과 소모품·서비스 매출은 고객의 사용량과 병원 수익성에 따라 서로 다른 성장 경로를 가진다.",
+      "counterScenario": "허가 획득을 곧바로 광범위한 상업 매출로 보면 보험 급여·병원 예산·임상 데이터와 도입 시간을 놓친다.",
+      "verificationQuestion": "누가 환자 결과를 개선하고 누가 비용을 지불하며, 제품이 기존 workflow에서 반복 사용되는 이유는 무엇인가?",
+      "visualization": "임상효용 → 허가·수가 → 병원 사용 → 반복매출"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 99번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:advanced-packaging",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "첨단 패키징은 여러 die와 메모리를 하나의 시스템처럼 연결하는 조립·배선 기술이다.",
+      "mechanism": "2.5D interposer·3D stacking·substrate가 거리와 대역폭을 개선하지만 열·수율·검사·공급 제약을 만든다.",
+      "example": "계산 die와 HBM을 가까이 배치하면 데이터 이동을 줄일 수 있지만 패키지 검증 난도가 커진다.",
+      "counterScenario": "패키징 방식만으로 칩의 전체 성능·원가·양산성을 보장할 수 없다.",
+      "verificationQuestion": "die를 나누고 가깝게 연결하는 설계가 어떤 비용과 검증 문제를 추가하는가?",
+      "visualization": "die·HBM → interposer·substrate → 열·신호·검사 → 시스템"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 150번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

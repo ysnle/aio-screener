@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "AI 경제의 수요는 모델 학습·추론·데이터 처리·업무 자동화에 지불하는 고객 예산에서 시작하며, 모델 성능만으로 결정되지 않는다.",
+      "mechanism": "사용량·정확도·지연시간·보안·인건비 절감이 고객의 지불 의사를 만들고, 그 수요가 컴퓨팅·메모리·네트워크·전력 투자로 번진다.",
+      "example": "검색·추천 서비스는 추론 요청 수와 응답 비용이 매출로 연결되어야 하며, 모델 사용량이 늘어도 고객 단가가 낮으면 인프라 이익은 제한될 수 있다.",
+      "counterScenario": "AI 사용량 전망을 곧바로 모든 공급자의 매출로 바꾸면 가격 하락·효율 개선·내부화·가동률을 놓친다.",
+      "verificationQuestion": "누가 어떤 업무 결과에 얼마를 지불하며, 요청량 증가가 공급자의 단위당 매출과 비용을 동시에 어떻게 바꾸는가?",
+      "visualization": "고객 업무 → AI 사용량 → 인프라 수요 → 현금흐름"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 64번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

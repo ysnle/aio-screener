@@ -1,11 +1,17 @@
 ---
 verified_by: agent (Fable 5) + Codex P761-P892 verification
-last_verified: 2026-08-11
+last_verified: 2026-08-12
 confidence: high
-target_version: v54.6
+target_version: v54.7
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R470. Knowledge research artifacts must preserve completion and currentness boundaries (v54.7)
+
+**Rule**: Coverage inventories, research dossiers, structural domain dossiers and quantitative labs may expose structure and educational calculation only. They must retain per-unit research status, source directness, `REFERENCE_ONLY`/`asOf` boundaries, confirmation/invalidation fields and user-validation state. Seed sources or generated drafts must not be promoted to researched articles, current market facts, live certification or recruited-user evidence.
+
+**Validation**: `ci-knowledge-full-corpus-coverage.mjs`, `ci-knowledge-web-research-dossier.mjs`, `ci-knowledge-article-uniqueness.mjs`, `ci-knowledge-sector-domain-depth.mjs`, `ci-knowledge-quantitative-example.mjs`, `ci-knowledge-market-transmission.mjs`, and `ci-knowledge-currentness-separation.mjs` must pass with `completionReady: false` until the human/source/browser/live gates are actually closed.
 
 ## R464. Knowledge concepts require one canonical namespace and explicit overlap equivalence (v54.6)
 

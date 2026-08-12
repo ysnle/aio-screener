@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:D5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "중앙은행의 딜레마는 물가 안정·고용·금융 안정처럼 서로 다른 목표가 한 정책 수단에 동시에 걸리는 상황이다.",
+      "mechanism": "수요를 식히는 금리 인상은 물가 기대를 안정시킬 수 있지만 취약 차주의 상환과 금융기관 건전성을 압박한다. 반대로 완화는 경기와 자산가격을 돕지만 물가를 자극할 수 있다.",
+      "example": "공급 충격으로 물가가 오를 때 금리만 크게 올리면 공급은 바로 회복되지 않으면서 신용 취약성이 먼저 드러날 수 있다.",
+      "counterScenario": "정책 결정의 결과를 즉시 효과로 평가하거나 목표 간 시차를 무시하면 중앙은행 행동의 이유와 부작용을 잘못 읽는다.",
+      "verificationQuestion": "현재 충격은 수요·공급·기대 중 어디에 있으며, 정책이 해결할 수 있는 부분과 감수해야 할 비용은 무엇인가?",
+      "visualization": "물가·고용·금융안정 → 정책 선택"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 17번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

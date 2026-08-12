@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:energy-and-power",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "에너지는 일을 할 수 있는 능력이고 전력은 에너지가 시간당 전달되는 속도다.",
+      "mechanism": "AI 장비의 전력은 계산과 메모리 이동 뒤 열로 바뀌며 냉각과 계통 용량이 운영 상한을 만든다.",
+      "example": "같은 처리량에서 전력당 성능이 높으면 랙·냉각·시설 비용 부담이 낮아진다.",
+      "counterScenario": "전력 사용량 하나만으로 사회적 효율이나 기업 수익을 결론낼 수 없다.",
+      "verificationQuestion": "전력 병목이 계산 칩이 아니라 시설·계통에서 발생할 수 있는 이유는 무엇인가?",
+      "visualization": "전기 → 계산·메모리 이동 → 열 → 냉각·계통 병목"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 112번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

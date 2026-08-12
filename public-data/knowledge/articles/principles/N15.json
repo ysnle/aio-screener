@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N15",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "농업·식량 산업은 토지·물·종자·비료·기계·물류를 기후와 계절 아래에서 식품으로 바꾸는 가치사슬이다.",
+      "mechanism": "수확량·작황·재고·운송·환율과 소비자의 가격 민감도가 원재료 가격과 식품 기업의 마진을 움직인다.",
+      "example": "곡물 가격이 오르면 농가는 수혜를 볼 수 있지만 사료·가공·외식 기업은 원가 상승을 가격에 전가할 수 있는지에 따라 결과가 갈린다.",
+      "counterScenario": "농산물 가격의 방향 하나로 업종 전체를 판단하면 작황·재고·헤지·가공 믹스·환율을 놓친다.",
+      "verificationQuestion": "가격 충격이 생산자·가공업체·유통·소비자 중 누구에게 얼마나 전가되고 재고·계약은 이를 얼마나 완충하는가?",
+      "visualization": "기후·투입재 → 수확·재고 → 가공·유통·소비"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 106번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

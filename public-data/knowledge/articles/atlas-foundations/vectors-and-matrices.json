@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:vectors-and-matrices",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "벡터는 수치 묶음이고 행렬은 벡터를 변환하는 배열이다.",
+      "mechanism": "신경망의 선형 변환은 행렬곱과 덧셈으로 입력 표현을 다음 층으로 옮긴다.",
+      "example": "큰 행렬곱을 병렬 계산하기 때문에 GPU와 tensor core가 중요해진다.",
+      "counterScenario": "이론 FLOPS가 실제 서비스 처리량이나 지연시간과 같지는 않다.",
+      "verificationQuestion": "왜 행렬곱의 크기만 보고 실제 추론 속도를 단정할 수 없는가?",
+      "visualization": "입력 벡터 → 행렬곱 → 활성화 → 다음 표현"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 113번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

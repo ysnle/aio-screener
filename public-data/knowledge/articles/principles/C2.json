@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:C2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "은행은 단기 예금과 결제망을 바탕으로 다양한 만기·위험의 대출을 중개하는 동시에 유동성과 신용 위험을 관리한다.",
+      "mechanism": "예금자는 언제든 인출할 수 있지만 대출은 장기인 경우가 많다. 은행은 자본·유동성·신용심사로 이 만기 변환의 위험을 흡수한다.",
+      "example": "은행이 기업 운전자금 대출을 제공하면 급여와 원재료 구매가 이어지지만, 연체가 늘면 충당금·자본비율·대출 기준이 동시에 압박받는다.",
+      "counterScenario": "은행 대출 증가를 모두 생산적 신용으로 보면 부동산 담보·기존 부채 차환·취약 차주의 위험을 놓친다.",
+      "verificationQuestion": "대출 증가가 새 생산능력과 현금흐름을 만들었는지, 담보 가격과 연체율이 위험을 가리고 있는지 무엇을 확인할 것인가?",
+      "visualization": "예금·결제 → 심사·대출 → 이자·상환 → 자본"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 10번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

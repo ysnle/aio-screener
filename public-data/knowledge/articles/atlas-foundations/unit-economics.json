@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:unit-economics",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "단위경제성은 한 고객·요청·GPU시간·제품 단위가 만드는 수익과 변동비를 비교하는 틀이다.",
+      "mechanism": "가격·사용량·원가·지원·인프라 부담이 단위당 contribution과 확장 가능성을 만든다.",
+      "example": "요청당 매출이 늘어도 추론 원가와 지원 비용이 더 빠르게 늘면 단위경제성은 약해진다.",
+      "counterScenario": "단위 계산은 고정비·현금흐름·고객 유지·회계 분류를 대체하지 않는다.",
+      "verificationQuestion": "매출 성장과 단위당 현금 기여가 엇갈릴 수 있는 이유는 무엇인가?",
+      "visualization": "단위 가격·사용량 → 변동비 → contribution → 확장 판단"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 153번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

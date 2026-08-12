@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:pretraining",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "사전학습은 대규모 데이터에서 다음 token 등 일반 목적의 예측 목표를 최적화하는 단계다.",
+      "mechanism": "dataset·분산 계산·optimizer가 반복되며 모델의 기본 표현과 패턴을 만든다.",
+      "example": "데이터 정제·compute 규모·분산 통신이 비용과 학습 안정성에 함께 영향을 준다.",
+      "counterScenario": "pretraining loss가 낮아도 특정 업무의 안전·정확성·수익성을 직접 보장하지 않는다.",
+      "verificationQuestion": "대규모 사전학습이 실제 서비스 가치로 이어지려면 어떤 후속 검증이 필요한가?",
+      "visualization": "대규모 데이터 → 분산 학습 → 기본 표현 → 후속 조정·평가"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 133번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

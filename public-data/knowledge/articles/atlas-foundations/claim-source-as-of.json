@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:claim-source-as-of",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "claim-source-as-of 규칙은 주장마다 무엇을 언제 어떤 출처에서 확인했는지 기록하는 방식이다.",
+      "mechanism": "관찰·해석·전망을 분리하고 기준일과 출처 범위를 연결해 최신성·적용 범위를 점검한다.",
+      "example": "공식 보고서의 발표일과 보고 기간을 함께 기록하면 오래된 수치를 최신 사실처럼 쓰는 오류를 줄일 수 있다.",
+      "counterScenario": "출처가 존재해도 그 출처가 해당 주장을 직접 지지하는지는 별도 확인해야 한다.",
+      "verificationQuestion": "주장·출처·기준일 중 하나가 빠지면 어떤 종류의 오해가 생기는가?",
+      "visualization": "주장 → 출처·보고기간 → as-of → 관찰·해석·전망 분리"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 158번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

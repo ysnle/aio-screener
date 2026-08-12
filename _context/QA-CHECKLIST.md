@@ -1,7 +1,16 @@
 ---
 verified_by: agent (Fable 5) + Codex full-route audit verification
-last_verified: 2026-08-11
+last_verified: 2026-08-12
 confidence: high
+
+## v54.7 KA-11~16 execution gates (2026-08-12)
+
+- [x] QA-KA11: `coverage-matrix.json` inventories 423 units with exact 111/48/60/95/50/19/20/20 counts; inventory remains distinct from content completion.
+- [x] QA-KA12: 423 research dossier contracts resolve to the canonical source registry; five official/academic seed sources are recorded; research completion remains 0 researched / 172 in progress / 251 required.
+- [x] QA-KA13: 159 article reconstruction seeds are unique and progressive disclosure is present; all remain reconstruction-required pending human semantic review.
+- [x] QA-KA14: 19 domain dossiers cover 95 taxonomy nodes and 50 unique deep branches with KPI, bottleneck, value-chain and market-transmission fields.
+- [x] QA-KA15: 15 deterministic educational labs pass formula/unit/assumption/example/observation/invalidation checks and contain no current market value.
+- [x] QA-KA16: currentness separation and repository contracts pass locally; browser/live/recruited-user certification remains open and must not be represented as complete.
 
 ## v54.6 Knowledge Atlas structural implementation (2026-08-11)
 

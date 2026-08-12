@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:B1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "돈은 교환의 매개, 가치의 계산 단위, 구매력을 보관하는 수단이라는 세 가지 기능을 수행하는 사회적 장치다.",
+      "mechanism": "사람들이 공통 단위를 받아들이면 물물교환의 탐색 비용이 줄고, 가격표와 계약을 통해 서로 다른 재화의 가치를 비교할 수 있다.",
+      "example": "상점은 재고를 원화로 표시하고 공급업체와 결제일을 정한다. 현금·예금·전자결제는 같은 기능을 서로 다른 형태로 제공한다.",
+      "counterScenario": "돈의 액면이 같다고 구매력과 신뢰가 항상 같다고 보면 인플레이션·유동성·결제 위험을 놓치게 된다.",
+      "verificationQuestion": "이 자산이 돈처럼 쓰이는 근거는 결제 수용성·가치 안정성·단위 표준 중 무엇이며, 그 기능이 흔들릴 조건은 무엇인가?",
+      "visualization": "교환 → 계산 → 저장 → 신뢰"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 5번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

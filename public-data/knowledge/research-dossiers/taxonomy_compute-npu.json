@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:taxonomy:compute-npu",
+  "contentUnitId": "taxonomy:compute-npu",
+  "unitKind": "TAXONOMY_NODE",
+  "title": "NPU / edge accelerator",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for NPU / edge accelerator?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of NPU / edge accelerator?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "NPU / edge accelerator mechanism primary source",
+    "NPU / edge accelerator official data standard filing evidence",
+    "NPU / edge accelerator disconfirming evidence limitations"
+  ],
+  "searchedAt": null,
+  "method": "NOT_STARTED",
+  "candidateSources": [
+    {
+      "sourceId": "architecture documents",
+      "unresolved": true
+    },
+    {
+      "sourceId": "IEEE / ISSCC / IEDM",
+      "unresolved": true
+    }
+  ],
+  "selectedSources": [],
+  "rejectedSources": [
+    {
+      "sourceId": "architecture documents",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "IEEE / ISSCC / IEDM",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    }
+  ],
+  "sourceTiers": [],
+  "claimCoverage": [],
+  "consensus": "Not assessed.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about NPU / edge accelerator must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace NPU / edge accelerator through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_REQUIRED",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

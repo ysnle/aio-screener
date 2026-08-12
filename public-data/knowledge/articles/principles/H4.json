@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:H4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "군중심리는 개인이 다른 사람의 행동과 서사를 관찰하며 자신의 판단과 포지션을 강화하는 집단적 피드백이다.",
+      "mechanism": "상승 가격이 성공 사례와 관심을 만들고 신규 수요를 부르지만, 반대 뉴스와 강제 청산이 같은 속도로 하락 피드백을 만들 수 있다.",
+      "example": "특정 테마의 주가 상승이 커뮤니티·미디어 노출을 늘리고 다시 매수자를 유입시키면 펀더멘털 변화보다 내러티브가 먼저 가격을 움직일 수 있다.",
+      "counterScenario": "군중의 방향만 반대로 베팅하면 과매수·과매도 판단은 맞아도 지속 시간과 레버리지 위험을 견디지 못할 수 있다.",
+      "verificationQuestion": "가격·거래량·검색·포지션·실적 중 어떤 자료가 자기강화 루프를 지지하며, 끊길 촉매는 무엇인가?",
+      "visualization": "가격 → 관심·서사 → 포지션 → 가격"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 40번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

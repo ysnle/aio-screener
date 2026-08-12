@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "knowledge-quantitative-lab.v1",
+  "generatedAt": "2026-08-12",
+  "labId": "lab:duration",
+  "title": "채권 듀레이션과 금리 민감도",
+  "formula": "approxPriceChange = -modifiedDuration * yieldChange",
+  "variables": [
+    {
+      "id": "modifiedDuration",
+      "label": "수정 듀레이션",
+      "unit": "years"
+    },
+    {
+      "id": "yieldChange",
+      "label": "수익률 변화",
+      "unit": "decimal"
+    },
+    {
+      "id": "approxPriceChange",
+      "label": "가격 변화율",
+      "unit": "decimal"
+    }
+  ],
+  "assumptions": [
+    "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+    "단위와 기간이 일치한다고 가정한다.",
+    "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+  ],
+  "workedExample": {
+    "inputs": {
+      "modifiedDuration": 5,
+      "yieldChange": 0.01
+    },
+    "steps": [
+      "수정 듀레이션을 5년으로 둔다.",
+      "수익률이 1%p 상승한다고 둔다.",
+      "-5 × 0.01 = -0.05, 약 -5%로 계산한다."
+    ],
+    "result": -0.05,
+    "resultType": "number",
+    "interpretation": "작은 금리 변화에서 채권 가격 민감도의 1차 근사를 보여준다.",
+    "failureBoundary": "큰 금리 변화·볼록성·스프레드·옵션 내재성이 있으면 1차 근사만으로 판단하지 않는다."
+  },
+  "observation": {
+    "metric": "채권 듀레이션과 금리 민감도",
+    "timeframe": "사례 계산 1회",
+    "regime": "합성 교육 시나리오",
+    "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+    "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+    "invalidation": "큰 금리 변화·볼록성·스프레드·옵션 내재성이 있으면 1차 근사만으로 판단하지 않는다.",
+    "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+  },
+  "conceptIds": [
+    "concept:duration"
+  ],
+  "articleIds": [],
+  "sourceIds": [
+    "WEB-FRED-INFLATION-EXPECTATIONS"
+  ],
+  "status": "EDUCATIONAL_LAB_DRAFT",
+  "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+  "completion": {
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

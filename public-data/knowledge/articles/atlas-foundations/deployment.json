@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:deployment",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "배포는 모델을 실제 사용자·권한·하드웨어·운영 환경에서 서비스하는 단계다.",
+      "mechanism": "serving·batching·monitoring·rollback·access control이 모델 계산을 운영 가능한 시스템으로 바꾼다.",
+      "example": "같은 모델도 latency·availability·비용·보안 요구에 따라 제품 구성이 달라진다.",
+      "counterScenario": "배포 성공은 모델 능력 보존뿐 아니라 수요·가동률·지원·안전 운영을 포함한다.",
+      "verificationQuestion": "실험실 성능과 실제 서비스 성능 사이에 어떤 시스템 비용이 추가되는가?",
+      "visualization": "모델 → serving·권한 → 모니터링·rollback → 사용자 결과"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 136번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

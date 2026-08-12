@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:tokenization",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "토큰화는 문장을 모델이 처리할 작은 기호 단위로 나누는 과정이다.",
+      "mechanism": "문자열이 token ID로 바뀌고 token 수가 문맥·메모리·처리 비용의 단위가 된다.",
+      "example": "같은 의미의 한국어·영어·코드도 tokenizer에 따라 필요한 token 수가 다를 수 있다.",
+      "counterScenario": "token 수는 의미의 복잡성이나 답변 품질의 완전한 대리변수가 아니다.",
+      "verificationQuestion": "문자열 길이가 같아도 언어와 표기 방식에 따라 비용이 달라지는 이유는 무엇인가?",
+      "visualization": "문자열 → token 분할 → ID 배열 → 임베딩 입력"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 127번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

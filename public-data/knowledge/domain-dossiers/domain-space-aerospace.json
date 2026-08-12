@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-space-aerospace",
+  "domainId": "domain-space-aerospace",
+  "title": "domain-space-aerospace",
+  "definition": "우주·항공은 발사 물리, 재사용, 위성 시스템, 공급망과 조달 일정을 연결하는 산업이다.",
+  "mechanism": "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용",
+  "unit": "발사 성공·회전율·위성 수명·서비스 매출·보험",
+  "bottlenecks": [
+    "발사 일정·부품·규제·재사용 turnaround·고객 인증"
+  ],
+  "uniqueKpis": [
+    "발사 성공·회전율·위성 수명·서비스 매출·보험",
+    "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용",
+    "Rocket physics and launch energy",
+    "Reusability and turnaround",
+    "Satellite data economics",
+    "Artemis architecture",
+    "Aircraft and space supply chain"
+  ],
+  "taxonomyNodeIds": [
+    "space-rocket-physics",
+    "space-reusability",
+    "space-satellite-economics",
+    "space-artemis-architecture",
+    "space-aircraft-supply-chain"
+  ],
+  "deepBranchIds": [
+    "defense-mission",
+    "defense-production",
+    "space-stack",
+    "space-reuse",
+    "artemis"
+  ],
+  "playerIds": [
+    "rocket-lab"
+  ],
+  "productIds": [
+    "rocket-lab-electron-neutron-space-systems"
+  ],
+  "sourceIds": [
+    "AT-SA-01",
+    "AT-SA-02",
+    "AT-SA-03"
+  ],
+  "researchQuestions": [
+    "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
+    "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

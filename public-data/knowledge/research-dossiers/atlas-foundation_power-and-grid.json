@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:atlas-foundation:power-and-grid",
+  "contentUnitId": "atlas-foundation:power-and-grid",
+  "unitKind": "FOUNDATION_LESSON",
+  "title": "power-and-grid",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for power-and-grid?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of power-and-grid?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "power-and-grid mechanism primary source",
+    "power-and-grid official data standard filing evidence",
+    "power-and-grid disconfirming evidence limitations"
+  ],
+  "searchedAt": "2026-08-12",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "PS-09",
+      "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-summary.htm",
+      "publisher": "Federal Reserve",
+      "title": "Monetary Policy Report summary",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "PS-15",
+      "url": "https://www.meti.go.jp/english/press/2026/0218_002.html",
+      "publisher": "Japan METI",
+      "title": "Japan-US strategic investment projects",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
+      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
+      "publisher": "U.S. Department of Energy",
+      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
+      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
+      "publisher": "U.S. Department of Energy",
+      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
+  "rejectedSources": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
+  "claimCoverage": [
+    {
+      "claimId": "atlas-foundation-power-and-grid",
+      "currentDirectness": "CONTEXT",
+      "requiredAction": "independent direct source required"
+    }
+  ],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about power-and-grid must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace power-and-grid through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_IN_PROGRESS",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

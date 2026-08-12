@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:taxonomy:capital-margin-structure",
+  "contentUnitId": "taxonomy:capital-margin-structure",
+  "unitKind": "TAXONOMY_NODE",
+  "title": "Margin and cost structure",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for Margin and cost structure?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Margin and cost structure?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "Margin and cost structure mechanism primary source",
+    "Margin and cost structure official data standard filing evidence",
+    "Margin and cost structure disconfirming evidence limitations"
+  ],
+  "searchedAt": "2026-08-12",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "SEC EDGAR",
+      "unresolved": true
+    },
+    {
+      "sourceId": "company annual reports",
+      "unresolved": true
+    },
+    {
+      "sourceId": "exchange rulebooks",
+      "unresolved": true
+    },
+    {
+      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
+      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "title": "SEC educational resources about income statements and balance sheets",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
+      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "title": "SEC educational resources about income statements and balance sheets",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
+  "rejectedSources": [
+    {
+      "sourceId": "SEC EDGAR",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "company annual reports",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "exchange rulebooks",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    }
+  ],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
+  "claimCoverage": [],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about Margin and cost structure must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace Margin and cost structure through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_IN_PROGRESS",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

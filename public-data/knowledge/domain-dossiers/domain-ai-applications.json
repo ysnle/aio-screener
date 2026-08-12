@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-ai-applications",
+  "domainId": "domain-ai-applications",
+  "title": "domain-ai-applications",
+  "definition": "AI 애플리케이션은 모델 능력이 의료·제조·자동차·금융 업무의 결과와 지불 구조로 번역되는 계층이다.",
+  "mechanism": "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI",
+  "unit": "작업 시간·오류율·성공률·전환비용·상환",
+  "bottlenecks": [
+    "규제·책임·데이터 권한·현장 통합·지불자"
+  ],
+  "uniqueKpis": [
+    "작업 시간·오류율·성공률·전환비용·상환",
+    "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI",
+    "Healthcare workflow",
+    "Manufacturing workflow",
+    "Automotive autonomy",
+    "Financial decision workflow",
+    "Payer, ROI and adoption"
+  ],
+  "taxonomyNodeIds": [
+    "application-healthcare",
+    "application-manufacturing",
+    "application-automotive",
+    "application-finance",
+    "application-roi-payer"
+  ],
+  "deepBranchIds": [],
+  "playerIds": [
+    "tesla",
+    "palantir",
+    "ibm",
+    "siemens"
+  ],
+  "productIds": [
+    "tesla-optimus-and-autonomy-stack",
+    "palantir-aip",
+    "siemens-industrial-copilot"
+  ],
+  "sourceIds": [
+    "AT-AA-01",
+    "AT-AA-02",
+    "AT-AA-03"
+  ],
+  "researchQuestions": [
+    "AI 도입의 baseline과 human review 범위는 무엇인가",
+    "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

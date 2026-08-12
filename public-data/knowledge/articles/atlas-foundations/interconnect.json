@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:interconnect",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "인터커넥트는 칩·메모리·서버·랙 사이에서 데이터를 이동시키는 연결 구조다.",
+      "mechanism": "대역폭·지연·프로토콜·거리·신호 무결성이 분산 계산의 scaling efficiency를 결정한다.",
+      "example": "GPU 수가 늘어도 통신이 느리면 각 장치의 peak 계산 성능을 함께 쓰기 어렵다.",
+      "counterScenario": "링크 속도만으로 전체 네트워크 처리량과 애플리케이션 지연을 설명할 수 없다.",
+      "verificationQuestion": "분산 학습에서 통신 시간이 계산 시간보다 커지는 조건은 무엇인가?",
+      "visualization": "가속기·메모리·서버 → 링크·스위치 → 동기화·처리량"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 149번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

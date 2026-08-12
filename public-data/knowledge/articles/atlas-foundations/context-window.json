@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:context-window",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "context window는 모델이 한 번의 계산에서 직접 참고할 수 있는 token 범위다.",
+      "mechanism": "범위가 길어질수록 정보 접근 가능성은 커지지만 attention·메모리·지연 비용과 선택 문제가 커진다.",
+      "example": "긴 문서를 넣어도 중요한 근거가 중간에 묻히거나 예산 초과로 잘릴 수 있다.",
+      "counterScenario": "window가 크다고 기억·정확한 검색·일관된 추론이 자동 해결되지는 않는다.",
+      "verificationQuestion": "긴 문서 전체를 넣는 것과 관련 구간을 잘 골라 넣는 것의 trade-off는 무엇인가?",
+      "visualization": "입력 token 범위 → attention·메모리 비용 → 근거 선택"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 131번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

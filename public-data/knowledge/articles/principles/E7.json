@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:E7",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "엔캐리는 낮은 금리의 엔화로 자금을 조달해 더 높은 수익률의 자산에 투자하는 레버리지된 자금 흐름이다.",
+      "mechanism": "환율이 안정되고 금리 차가 유지될 때 수익이 나지만, 엔화 강세나 변동성 상승은 포지션 청산과 자산 매도를 촉발할 수 있다.",
+      "example": "엔화가 급격히 강세로 바뀌면 투자자는 해외 자산을 팔아 엔화 대출을 갚으려 할 수 있어, 기초자산의 뉴스보다 포지션 청산이 가격을 움직인다.",
+      "counterScenario": "엔화 금리 차만 보고 캐리 수익을 계산하면 환율 변동·마진·유동성 비용을 과소평가한다.",
+      "verificationQuestion": "금리 차로 얻는 수익과 환율·레버리지·마진콜로 잃을 수 있는 금액을 같은 기간에 계산했는가?",
+      "visualization": "저금리 조달 → 고수익 자산 → 환율·청산 위험"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 24번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

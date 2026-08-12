@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:taxonomy:package-substrate",
+  "contentUnitId": "taxonomy:package-substrate",
+  "unitKind": "TAXONOMY_NODE",
+  "title": "ABF / FC-BGA substrate",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for ABF / FC-BGA substrate?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of ABF / FC-BGA substrate?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "ABF / FC-BGA substrate mechanism primary source",
+    "ABF / FC-BGA substrate official data standard filing evidence",
+    "ABF / FC-BGA substrate disconfirming evidence limitations"
+  ],
+  "searchedAt": null,
+  "method": "NOT_STARTED",
+  "candidateSources": [
+    {
+      "sourceId": "TSMC technology",
+      "unresolved": true
+    },
+    {
+      "sourceId": "UCIe",
+      "unresolved": true
+    },
+    {
+      "sourceId": "substrate vendor IR",
+      "unresolved": true
+    }
+  ],
+  "selectedSources": [],
+  "rejectedSources": [
+    {
+      "sourceId": "TSMC technology",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "UCIe",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "substrate vendor IR",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    }
+  ],
+  "sourceTiers": [],
+  "claimCoverage": [],
+  "consensus": "Not assessed.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about ABF / FC-BGA substrate must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace ABF / FC-BGA substrate through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_REQUIRED",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

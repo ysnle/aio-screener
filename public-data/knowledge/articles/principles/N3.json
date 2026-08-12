@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "로봇·자동화는 센서·제어·소프트웨어·기계가 반복 작업의 비용·품질·안전·처리량을 바꾸는 시스템이다.",
+      "mechanism": "도입 가치는 장비 가격보다 기존 공정과의 통합·유지보수·다운타임·작업자 전환·반복 사용량으로 결정된다.",
+      "example": "창고 로봇의 경제성은 이동 속도보다 시간당 처리량, 통합 기간, 피크 수요 대응, 사람을 대체하거나 보완하는 비용에서 나온다.",
+      "counterScenario": "시연 영상의 자율성만 보고 대량 도입을 가정하면 예외 처리·안전 인증·현장 데이터와 서비스 네트워크를 놓친다.",
+      "verificationQuestion": "고객의 기준선 대비 처리량·오류·인건비·가동률이 얼마 개선되고 투자 회수 기간은 몇 년인가?",
+      "visualization": "인지·계획·제어 → 작업 → 단위경제"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 94번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

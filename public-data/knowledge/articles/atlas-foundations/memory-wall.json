@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:memory-wall",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "memory wall은 계산 유닛보다 데이터를 가져오고 옮기는 속도가 시스템 성능을 제한하는 현상이다.",
+      "mechanism": "계산량이 늘어도 대역폭·지연·cache 재사용·통신 비용이 실제 처리량을 제한한다.",
+      "example": "연산 유닛이 놀고 있는 동안 HBM에서 데이터를 기다리면 peak FLOPS를 사용할 수 없다.",
+      "counterScenario": "메모리 병목 여부는 workload와 데이터 재사용에 따라 달라진다.",
+      "verificationQuestion": "계산기를 더 추가하기 전에 데이터 이동 경로를 측정해야 하는 이유는 무엇인가?",
+      "visualization": "연산 유닛 ↔ cache·HBM·인터커넥트 → 대역폭 병목"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 147번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

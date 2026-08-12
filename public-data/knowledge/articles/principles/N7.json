@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N7",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "바이오·제약은 생물학적 가설을 임상·허가·생산·보험 지불로 전환하는 고위험 장기 개발 산업이다.",
+      "mechanism": "후보물질의 성공 확률·임상 단계·특허 기간·제조·규제와 환자 접근성이 기대 현금흐름을 만든다.",
+      "example": "임상 2상 결과가 좋아도 3상 설계·허가 라벨·생산 능력·보험 급여가 매출 시점과 규모를 다시 결정한다.",
+      "counterScenario": "파이프라인 개수나 초기 데이터만으로 기업 가치를 계산하면 실패 확률·희석·특허 만료·상업화 비용을 놓친다.",
+      "verificationQuestion": "각 후보의 임상 단계·성공확률·시장 규모·허가·제조·현금 runway를 어떤 순서로 검증할 것인가?",
+      "visualization": "가설 → 임상 → 허가 → 생산·급여 → 매출"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 98번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

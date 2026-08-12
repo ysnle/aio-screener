@@ -1,12 +1,22 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
-last_verified: 2026-08-11
+last_verified: 2026-08-12
 confidence: high
-latest_version: v54.6
-latest_P_number: P910
-next_P_number: P911
-current_total_entries: 634 (P1~P910, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P910 v54.6 encyclopedia mission, full corpus coverage, Web Research and post-KA content completion contract
+latest_version: v54.7
+latest_P_number: P911
+next_P_number: P912
+current_total_entries: 635 (P1~P911, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P911 v54.7 KA-11~15 coverage, research boundary, quantitative lab and currentness gates
+
+## P911 - v54.7 - Generated knowledge reference artifacts initially lacked explicit currentness metadata
+
+- **motivation**: KA-11~15 added coverage, research, domain and quantitative artifacts that must never be mistaken for current market evidence.
+- **symptom/reproduction**: the first `ci-knowledge-currentness-separation.mjs` run found that coverage units and domain dossiers had status boundaries but no explicit `REFERENCE_ONLY` currentness field.
+- **root_cause**: the builder contracts recorded research/browser/live states separately, while currentness was implicit in prose for two artifact families.
+- **fix**: added explicit `currentnessBoundary` fields to the coverage and domain builders, regenerated artifacts, and added the gate to the CI knowledge contract sequence.
+- **violated_rule**: R470; currentness must be first-class and machine-checkable.
+- **prevention**: every new knowledge artifact family must include status, currentness boundary, invalidation/missing-data boundary and user-validation state before it is connected to the repository.
+- **verification**: `ci-knowledge-currentness-separation.mjs`, `ci-knowledge-market-transmission.mjs`, domain depth, quantitative example and repository contract all pass locally with completion remaining explicitly false.
 
 ## P910 - v54.6 - Structural knowledge drafts were still too easy to mistake for the requested stock/economics/technology encyclopedia
 

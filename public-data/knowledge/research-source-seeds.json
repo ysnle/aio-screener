@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "knowledge-research-source-seeds.v1",
+  "searchedAt": "2026-08-12",
+  "method": "Web Search followed by direct primary/academic page inspection",
+  "boundary": "These seeds are auditable research leads and do not promote unrelated claims to DIRECT evidence.",
+  "sources": [
+    {
+      "id": "WEB-NIST-AI-RMF-2023",
+      "namespace": "WEB",
+      "publisher": "NIST",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
+      "publishedAt": "2023-01-26",
+      "sourceRole": "ACADEMIC_STANDARD_REFERENCE",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "observedUse": ["AI risk management", "evaluation", "trustworthiness"],
+      "directness": "DIRECT",
+      "accessedAt": "2026-08-12"
+    },
+    {
+      "id": "WEB-ARXIV-TRANSFORMER-2017",
+      "namespace": "WEB",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publishedAt": "2017-06-12",
+      "sourceRole": "ACADEMIC_PAPER",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "observedUse": ["attention", "transformer", "parallel sequence modeling"],
+      "directness": "DIRECT",
+      "accessedAt": "2026-08-12"
+    },
+    {
+      "id": "WEB-FRED-INFLATION-EXPECTATIONS",
+      "namespace": "WEB",
+      "publisher": "Federal Reserve Bank of St. Louis",
+      "title": "Inflation Expectations release",
+      "url": "https://fred.stlouisfed.org/release?rid=500",
+      "publishedAt": null,
+      "sourceRole": "OFFICIAL_DATA_REFERENCE",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "observedUse": ["real interest rate", "expected inflation", "risk premium"],
+      "directness": "DIRECT",
+      "accessedAt": "2026-08-12"
+    },
+    {
+      "id": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
+      "namespace": "WEB",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "title": "SEC educational resources about income statements and balance sheets",
+      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
+      "publishedAt": "2024-06-27",
+      "sourceRole": "REGULATORY_EDUCATION",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "observedUse": ["financial statements", "income statement", "balance sheet"],
+      "directness": "DIRECT",
+      "accessedAt": "2026-08-12"
+    },
+    {
+      "id": "WEB-DOE-DATACENTER-PUE-2019",
+      "namespace": "WEB",
+      "publisher": "U.S. Department of Energy",
+      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
+      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
+      "publishedAt": "2019-01-09",
+      "sourceRole": "OFFICIAL_TECHNICAL_GUIDE",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "observedUse": ["PUE", "data center cooling", "facility energy"],
+      "directness": "DIRECT",
+      "accessedAt": "2026-08-12"
+    }
+  ]
+}

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:workload-shape",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "AI workload shape는 학습·추론·batch·실시간·sequence 길이·동시성의 조합이다.",
+      "mechanism": "연산량·메모리 이동·통신·지연 요구가 하드웨어와 시설 설계를 결정한다.",
+      "example": "학습은 큰 batch 처리량을, 실시간 생성은 tail latency와 memory bandwidth를 더 중시할 수 있다.",
+      "counterScenario": "한 benchmark를 모든 workload의 대표값으로 사용하면 장비 선택이 왜곡된다.",
+      "verificationQuestion": "같은 모델이라도 학습과 serving에서 최적 하드웨어가 달라지는 이유는 무엇인가?",
+      "visualization": "workload 형태 → 계산·메모리·통신 요구 → 하드웨어 선택"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 144번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N9",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "금융 산업은 결제·대출·보험·자산관리로 자금과 위험을 중개하고, 신뢰·규제·대차대조표가 수익성을 결정한다.",
+      "mechanism": "수익은 이자·수수료·스프레드에서 나오지만 신용손실·자본·유동성·사이버 위험이 함께 발생한다.",
+      "example": "결제 플랫폼의 거래액이 늘어도 사기 손실·고객 유치비·규제 준비금이 커지면 순수익과 현금흐름은 다르게 움직일 수 있다.",
+      "counterScenario": "거래액이나 예금 증가를 그대로 이익 성장으로 보면 자산 건전성·자본비율·조달 비용을 놓친다.",
+      "verificationQuestion": "고객 자금이 어떤 대차대조표를 거치며, 단위당 수익과 손실·자본 요구량이 어떻게 변하는가?",
+      "visualization": "자금·위험 중개 → 수수료·스프레드 − 손실·자본"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 100번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

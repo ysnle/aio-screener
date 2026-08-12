@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:E6",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "환율은 두 통화의 상대가격이며 금리·물가·무역·자본 흐름·위험 선호가 함께 결정한다.",
+      "mechanism": "환율은 수출입 가격과 외화 부채·자산의 원화 가치를 바꾼다. 같은 환율 변동도 기업의 통화별 매출·비용·헤지에 따라 효과가 다르다.",
+      "example": "원/달러 상승이 달러 매출 기업에는 매출 환산 효과를 줄 수 있지만, 달러 원재료와 차입이 더 크면 이익에는 반대일 수 있다.",
+      "counterScenario": "환율 상승을 수출주 전체의 호재로 단정하거나 무역수지만으로 설명하면 자본 흐름과 비용 통화를 놓친다.",
+      "verificationQuestion": "환율 변동의 승자·패자를 판단할 때 매출·비용·부채·헤지의 통화 구성을 어떻게 대조할 것인가?",
+      "visualization": "금리·무역·자본 흐름 → 상대 통화가격"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 23번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

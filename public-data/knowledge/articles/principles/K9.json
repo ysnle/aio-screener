@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K9",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "반복매출은 계약·구독·소모품·유지보수로 일정 주기에 재발생하는 매출이고, 일회성 매출은 프로젝트·장비 판매처럼 거래 때마다 새 수주가 필요한 매출이다.",
+      "mechanism": "반복성은 예측 가능성과 고객 잔존율을 높일 수 있지만, 갱신률·가격 인상·서비스 원가를 함께 봐야 한다.",
+      "example": "장비를 한 번 판매한 뒤 소프트웨어와 유지보수 계약이 붙으면 매출의 시간 구조와 마진 구조가 바뀐다.",
+      "counterScenario": "반복매출 비중만 보고 질을 판단하면 할인 판매·단기 계약·높은 지원비용으로 현금이 남지 않는 경우를 놓친다.",
+      "verificationQuestion": "계약 갱신률·순매출 유지율·고객 획득비용·서비스 원가가 반복매출의 실제 경제성을 지지하는가?",
+      "visualization": "신규 판매 → 설치·사용 → 갱신·소모품 → 현금"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 60번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:A3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "자본주의의 핵심은 소유·계약·가격 신호를 통해 자원을 여러 생산 프로젝트에 배분하고 결과를 다시 투자하는 제도적 과정이다.",
+      "mechanism": "이익은 수요가 있는 곳에 자본을 끌어오고, 손실은 자본을 다른 용도로 이동시키는 신호가 된다. 경쟁과 법적 계약이 이 이동을 뒷받침한다.",
+      "example": "데이터센터 수요가 커지면 서버·전력·냉각 투자에 자본이 몰리지만, 가격 하락이나 과잉설비가 생기면 다음 투자가 줄어든다.",
+      "counterScenario": "가격 신호가 규제·독점·보조금으로 왜곡되면 수요가 없는 곳에도 자본이 쌓이거나, 수익성이 있어도 자금이 접근하지 못할 수 있다.",
+      "verificationQuestion": "이 산업의 이익은 실제 고객 지불과 경쟁에서 나온 것인가, 일시적 보조금·독점·자산가격 상승에 의존하는가?",
+      "visualization": "소유·계약 → 가격 신호 → 자본 배분 → 재투자"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 3번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

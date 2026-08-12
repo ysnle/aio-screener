@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N11",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "소비재 산업은 가계의 빈도·브랜드·가격·유통 선택이 생산·재고·마진과 연결되는 시장이다.",
+      "mechanism": "가격 인상과 판촉은 매출을 바꾸지만 물량·믹스·유통 재고·원재료 비용이 이익을 함께 결정한다.",
+      "example": "생활필수품 기업이 가격을 올렸을 때 매출은 증가해도 소비자가 저가 제품으로 이동하면 물량과 브랜드 충성도가 약해질 수 있다.",
+      "counterScenario": "브랜드 인지도나 매출 성장만으로 가격 결정력을 가정하면 판촉 의존·유통업체 협상력·재고를 놓친다.",
+      "verificationQuestion": "가격·물량·믹스·판촉·유통 재고를 분해했을 때 소비자의 실제 지불 의사와 마진은 유지되는가?",
+      "visualization": "소비자 수요 → 유통·재고 → 브랜드·가격 → 현금"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 102번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L10",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "첨단 패키징은 여러 다이와 메모리·기판을 짧고 넓은 연결로 묶어 하나의 시스템처럼 동작시키는 후공정이다.",
+      "mechanism": "인터포저·브리지·칩렛·3D 적층은 데이터 이동을 줄이지만 열·정렬·검사·조립 수율과 기판 공급을 어렵게 만든다.",
+      "example": "가속기와 HBM을 한 패키지에 넣으면 메모리 대역폭은 늘지만 패키지 면적·열 설계·불량 다이 격리가 원가와 출하량을 결정한다.",
+      "counterScenario": "패키징을 단순 조립으로 보면 시스템 성능과 공급 병목이 전공정 밖에서 생기는 이유를 놓친다.",
+      "verificationQuestion": "패키지 구조가 대역폭·열·수율·검사 비용을 어떻게 바꾸며, 생산 능력은 어느 장비·기판·인증에서 제한되는가?",
+      "visualization": "다이·메모리 → 패키지 연결 → 열·검사 → 시스템"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 73번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

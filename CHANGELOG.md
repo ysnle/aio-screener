@@ -1,3 +1,10 @@
+## v54.7 (2026-08-12)
+- Knowledge corpus coverage matrix now inventories 423 units: 111 core lessons, 48 foundations, 60 Principles concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains, 20 players and 20 products.
+- Added per-unit Web Research dossiers and five directly inspected official/academic source seeds. Research remains explicitly open: 0 fully researched, 172 in progress, 251 required.
+- Added 19 structural domain dossiers, 15 deterministic educational quantitative labs, market-transmission checks, currentness separation, and repository capability wiring.
+- Preserved the certification boundary: 159 articles remain reconstruction-required drafts; semantic/browser/live/user validation is not claimed complete.
+- R1 7곳 v54.7
+
 ## v54.5 (2026-08-11)
 - **선택 라우트 기준 readiness 통합**: API 키와 Worker URL이 함께 저장된 경우에도 실제 선택 대상이 Worker면 개인 키 존재만으로 health 검사를 건너뛰지 않는다. UI 상태도 같은 target resolver를 사용한다.
 - **Worker health 안정화**: deep health 예산을 2.5초에서 7초로 조정하고 동시 확인을 단일 in-flight 요청으로 합쳤다. 성공은 60초, 일시 실패는 5초만 캐시해 순간 지연이 장시간 장애처럼 남지 않는다.

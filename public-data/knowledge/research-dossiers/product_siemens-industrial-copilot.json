@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:product:siemens-industrial-copilot",
+  "contentUnitId": "product:siemens-industrial-copilot",
+  "unitKind": "PRODUCT",
+  "title": "siemens-industrial-copilot",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for siemens-industrial-copilot?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of siemens-industrial-copilot?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "siemens-industrial-copilot mechanism primary source",
+    "siemens-industrial-copilot official data standard filing evidence",
+    "siemens-industrial-copilot disconfirming evidence limitations"
+  ],
+  "searchedAt": null,
+  "method": "NOT_STARTED",
+  "candidateSources": [
+    {
+      "sourceId": "PP-20",
+      "url": "https://www.siemens.com/en-us/company/insights/generative-ai-industrial-copilot/",
+      "publisher": "Siemens",
+      "title": "Industrial Copilot",
+      "sourceTier": null
+    }
+  ],
+  "selectedSources": [],
+  "rejectedSources": [],
+  "sourceTiers": [],
+  "claimCoverage": [
+    {
+      "claimId": "product-taxonomy-siemens-industrial-copilot",
+      "currentDirectness": "STRUCTURAL",
+      "requiredAction": "independent direct source required"
+    }
+  ],
+  "consensus": "Not assessed.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about siemens-industrial-copilot must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace siemens-industrial-copilot through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_REQUIRED",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

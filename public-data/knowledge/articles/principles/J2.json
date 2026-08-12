@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:J2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "패시브는 정해진 지수·규칙을 추종하고 액티브는 지수와 다른 선택으로 초과성과 위험을 추구한다.",
+      "mechanism": "패시브의 장점은 낮은 비용과 일관성이고 액티브의 핵심 비용은 조사·거래·판단 오류다. 어느 쪽도 위험을 제거하지 않는다.",
+      "example": "대형 지수의 구성주를 그대로 보유하면 기업 선택 비용은 줄지만 특정 국가·섹터·시가총액에 대한 집중은 남는다.",
+      "counterScenario": "액티브 운용의 과거 초과수익을 그대로 미래 능력으로 보거나 패시브를 분산과 동일시하면 비용·집중·추적오차를 놓친다.",
+      "verificationQuestion": "전략의 목표·비용·추적오차·의사결정 규칙을 실제 수익률과 함께 기록했는가?",
+      "visualization": "지수 규칙 ↔ 능동적 편차 → 비용·성과"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 48번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

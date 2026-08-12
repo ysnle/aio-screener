@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:kv-cache",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "KV cache는 autoregressive 생성에서 이미 계산한 key·value를 저장해 반복 계산을 줄이는 메모리 구조다.",
+      "mechanism": "새 token만 추가 계산하고 이전 문맥의 K/V를 재사용해 생성 지연을 줄인다.",
+      "example": "동시 사용자·긴 문맥·batch가 커지면 cache 용량과 메모리 대역폭이 새로운 병목이 된다.",
+      "counterScenario": "cache는 반복 계산만 줄이며 모델 지식·근거·출처 품질을 개선하지 않는다.",
+      "verificationQuestion": "사용자 수와 문맥 길이가 함께 늘 때 cache가 왜 메모리 비용을 키우는가?",
+      "visualization": "문맥 K/V 저장 → 새 token 계산 → cache 재사용 → 출력"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 132번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

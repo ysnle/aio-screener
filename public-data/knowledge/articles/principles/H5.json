@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:H5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "유동성은 큰 거래를 가격 충격을 적게 처리할 수 있는 능력이고, 포지셔닝은 투자자들이 이미 어느 방향에 얼마나 노출됐는지다.",
+      "mechanism": "유동성이 얇고 한쪽 포지션이 crowded하면 작은 뉴스도 손절·마진콜을 통해 큰 가격 이동으로 확대된다.",
+      "example": "같은 규모의 매도라도 평소 거래량이 적고 선물 롱 포지션이 몰린 날에는 호가가 빠르게 비어 가격 충격이 커질 수 있다.",
+      "counterScenario": "거래량이 많다는 이유만으로 유동성이 깊다고 보면 스프레드·호가 깊이·시장 충격과 레버리지를 놓친다.",
+      "verificationQuestion": "현재 가격 변화에서 새 정보의 몫과 기존 포지션 청산의 몫을 어떤 유동성·파생 자료로 구분할 것인가?",
+      "visualization": "포지션 집중 → 유동성 충격 → 가격 이동"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 41번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

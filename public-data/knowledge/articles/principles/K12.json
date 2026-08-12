@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K12",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "산업 분석에서 AIO 데이터는 뉴스나 시세 한 줄이 아니라 수요·가격·공급·재무·자금 흐름을 같은 기준일에 연결하는 관찰 도구다.",
+      "mechanism": "지표의 방향보다 출처·시차·단위·기준효과를 기록하고, 관찰과 해석을 분리해야 가설을 검증할 수 있다.",
+      "example": "반도체 업황을 볼 때 가격·재고·가동률·CAPEX·수출·기업 가이던스를 함께 놓고 어느 데이터가 선행이고 어느 것이 결과인지 표시한다.",
+      "counterScenario": "대시보드 숫자를 현재 원인으로 단정하거나 서로 다른 기간·정의를 합치면 상관관계를 인과관계로 오인한다.",
+      "verificationQuestion": "이 관찰은 어떤 원자료에서 왔고 기준일·단위·시차가 무엇이며, 반대 증거가 나타나면 어떤 가설을 폐기할 것인가?",
+      "visualization": "원자료 → 정규화 → 관찰 → 가설 검증"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 63번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

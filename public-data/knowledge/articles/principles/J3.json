@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:J3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "포지션 사이징은 가설의 불확실성과 손실 가능성을 감당 가능한 자본 위험으로 바꾸는 과정이다.",
+      "mechanism": "같은 기대수익도 변동성·상관·손실 한도·유동성에 따라 보유 규모가 달라진다. 크기는 의견의 강도가 아니라 생존 조건으로 정한다.",
+      "example": "한 종목의 실적 가설이 맞아도 예측 불가능한 갭 하락이 가능하면, 최대 손실이 전체 자산에 미치는 영향을 먼저 제한해야 한다.",
+      "counterScenario": "확신이 크다는 이유로 한 자산에 과도하게 집중하면 틀렸을 때 다음 기회를 잃는 복구 불가능한 손실이 된다.",
+      "verificationQuestion": "예상 손실·최대 손실·상관·청산 가능 시간을 포함해 이 포지션이 전체 자산에서 차지할 위험은 얼마인가?",
+      "visualization": "가설 → 손실 한도 → 포지션 크기"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 49번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

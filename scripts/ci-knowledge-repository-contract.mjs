@@ -11,7 +11,11 @@ const fixtures = {
   '/public-data/knowledge/claims.json': { claims: [] },
   '/public-data/knowledge/articles.json': { articles: [{ articleId: 'principles:A1', authoringStatus: 'STRUCTURED_REFERENCE_DRAFT' }] },
   '/public-data/knowledge/learning-graph.json': { nodes: [{ id: 'principles:A1', articleId: 'principles:A1' }] },
-  '/public-data/knowledge/route-targets.json': { targets: [{ articleId: 'principles:A1', routeId: null }] }
+  '/public-data/knowledge/route-targets.json': { targets: [{ articleId: 'principles:A1', routeId: null }] },
+  '/public-data/knowledge/coverage-matrix.json': { units: [{ unitId: 'principles:A1' }] },
+  '/public-data/knowledge/research-dossiers.json': { dossiers: [{ contentUnitId: 'principles:A1' }] },
+  '/public-data/knowledge/domain-dossiers.json': { dossiers: [] },
+  '/public-data/knowledge/quantitative-labs.json': { labs: [] }
 };
 const repository = await createKnowledgeRepository(async (url) => ({
   ok: url !== './public-data/knowledge/claims.json',
@@ -25,4 +29,8 @@ const summary = selectKnowledgeSummary(repository.values, 'principles:A1');
 assert.equal(summary.status, 'STRUCTURED_REFERENCE_DRAFT');
 assert.equal(summary.learningNode.id, 'principles:A1');
 assert.equal(summary.routeTarget.articleId, 'principles:A1');
+assert.equal(repository.status('coverageMatrix'), 'connected');
+assert.equal(repository.status('researchDossiers'), 'connected');
+assert.equal(repository.status('domainDossiers'), 'connected');
+assert.equal(repository.status('quantitativeLabs'), 'connected');
 console.log(JSON.stringify({ status: 'PASS', connected: Object.values(repository.capabilities).filter((item) => item.status === 'connected').length, fallback: Object.values(repository.capabilities).filter((item) => item.status === 'fallback').length }, null, 2));

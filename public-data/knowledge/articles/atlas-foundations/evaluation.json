@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:evaluation",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "평가는 모델이 정한 업무 목표를 얼마나 안정적·공정·안전하게 수행하는지 측정하는 과정이다.",
+      "mechanism": "task metric·human judgment·robustness·cost·safety를 목적과 기준에 맞춰 비교한다.",
+      "example": "정확도뿐 아니라 거부율·근거성·지연·비용·실제 workflow 결과를 함께 기록한다.",
+      "counterScenario": "단일 benchmark는 배포 환경의 분포·사용자·실패 비용을 대표하지 못할 수 있다.",
+      "verificationQuestion": "좋은 평가 세트가 업무 분포와 실패 비용을 어떻게 반영해야 하는가?",
+      "visualization": "업무 목표 → 평가 설계 → 지표·사례 → 배포 의사결정"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 135번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

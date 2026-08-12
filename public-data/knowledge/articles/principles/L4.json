@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "반도체 비즈니스 모델은 설계자산·제조능력·장비·패키징·제품 브랜드 중 어디에서 가치와 위험을 보유하는지에 따라 나뉜다.",
+      "mechanism": "팹리스는 설계와 고객을, 파운드리는 제조와 공정 생태계를, IDM은 설계·제조·제품을 통합한다. 각 모델의 자본집약도와 고정비가 다르다.",
+      "example": "팹리스가 주문을 확보해도 파운드리 웨이퍼와 첨단 패키징 슬롯이 부족하면 제품 출하와 현금 회수가 지연된다.",
+      "counterScenario": "매출 성장률만 비교하면 사업 모델별 CAPEX·재고·수율·고객 집중의 차이를 놓친다.",
+      "verificationQuestion": "이 기업이 가치사슬에서 통제하는 단계와 외부에 의존하는 단계는 무엇이며, 병목이 생길 때 누가 협상력을 갖는가?",
+      "visualization": "설계·IP / 제조 / 패키지 / 제품 → 이익 풀"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 67번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

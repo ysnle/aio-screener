@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K8",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "병목은 전체 흐름의 처리량을 제한하는 단계이고 single point of failure는 한 구성요소의 고장이 전체 시스템을 멈출 수 있는 집중 위험이다.",
+      "mechanism": "병목의 처리량과 대체 가능성이 가격·납기·협상력을 결정한다. 생산량을 늘리려면 병목을 찾아야 한다.",
+      "example": "서버가 충분해도 전력 접속 변압기나 특정 패키징 공정이 부족하면 데이터센터의 실제 서비스 용량은 늘지 않는다.",
+      "counterScenario": "가장 비싼 부품이나 가장 눈에 띄는 기업을 병목으로 착각하면 실제 제한 단계에 대한 투자와 재고를 놓친다.",
+      "verificationQuestion": "전체 리드타임에서 가장 긴 대기 단계는 무엇이며, 고장·지연 시 대체 공급·우회 경로가 있는가?",
+      "visualization": "흐름 → 제한 단계 → 전체 처리량"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 59번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

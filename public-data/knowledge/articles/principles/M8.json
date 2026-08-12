@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M8",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "데이터센터 전력은 IT 장비가 사용하는 전력과 냉각·전력변환·네트워크 등 시설 부하를 합친 수요다.",
+      "mechanism": "서버의 peak 전력보다 실제 가동률·PUE·랙 밀도·전력 품질·접속 용량이 서비스 가능한 compute와 비용을 결정한다.",
+      "example": "가속기 랙을 추가해도 변전소와 냉각이 따라오지 못하면 서버를 설치한 뒤에도 사용 가능한 처리량이 늘지 않는다.",
+      "counterScenario": "MW 규모 발표를 곧바로 매출·가동 가능한 AI 용량으로 바꾸면 접속 시기·PUE·임대료·가동률을 놓친다.",
+      "verificationQuestion": "계약 전력·실제 IT 부하·PUE·가동률·전력 단가가 매출 단위와 어떻게 연결되는가?",
+      "visualization": "계통 접속 → IT 부하 + 시설 부하 → compute·매출"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 87번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

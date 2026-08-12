@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M10",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "재생에너지는 햇빛·바람 같은 변동 자원을 전기로 바꾸며 연료비는 낮지만 출력 시간·입지·계통·저장 조건이 중요하다.",
+      "mechanism": "발전량은 기상과 시간에 따라 바뀌고, 송전·저장·수요반응이 부족하면 출력 제한과 가격 하락이 발생할 수 있다.",
+      "example": "태양광 설비가 낮에 많은 전력을 생산해도 저녁 수요를 공급하려면 저장·다른 발전원·계통 유연성이 필요하다.",
+      "counterScenario": "설치 용량과 연간 발전량을 동일시하거나 단가 하락만 보면 이용률·보강 비용·음의 가격을 놓친다.",
+      "verificationQuestion": "실제 수익은 발전량·정산가격·보조금·출력 제한·계통비용을 포함해도 자본비용을 넘는가?",
+      "visualization": "자원 변동 → 발전 프로파일 → 계통·저장"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 89번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:state-action-dynamics",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "상태는 현재 조건, action은 가능한 행동, dynamics는 행동 뒤 상태가 바뀌는 규칙이다.",
+      "mechanism": "관찰과 행동 결과의 연결을 학습해야 planning과 control이 현실 시간 흐름에서 작동한다.",
+      "example": "로봇의 위치·속도·장애물은 상태이고 모터 명령은 action이며 움직임 규칙은 dynamics다.",
+      "counterScenario": "상태가 완전히 관측되지 않거나 dynamics가 변하면 계획 오차가 커진다.",
+      "verificationQuestion": "상태를 충분히 관찰하지 못할 때 안전한 행동을 어떻게 선택할 것인가?",
+      "visualization": "상태 관찰 → action → 환경 변화 → 새 상태"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 141번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

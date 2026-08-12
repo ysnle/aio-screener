@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:E4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "신용스프레드는 국채 등 기준금리 대비 회사채·대출이 추가로 요구하는 위험 보상이다.",
+      "mechanism": "부도 가능성·회수율·유동성·위험 회피가 스프레드에 반영된다. 기준금리가 그대로여도 스프레드 확대만으로 기업 자금비용이 오를 수 있다.",
+      "example": "같은 만기의 국채금리가 안정적인데도 고수익채 스프레드가 확대되면 투자자는 성장 둔화나 재융자 위험을 가격에 반영하고 있을 수 있다.",
+      "counterScenario": "스프레드 축소를 무조건 기업 펀더멘털 개선으로 보면 중앙은행 유동성이나 추적 수요가 만든 기술적 효과를 놓친다.",
+      "verificationQuestion": "스프레드 변화가 부도 기대·유동성·기술적 수급 중 어디에서 왔으며 발행자의 만기벽은 언제인가?",
+      "visualization": "기준금리 + 신용 프리미엄 → 차입비용"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 21번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

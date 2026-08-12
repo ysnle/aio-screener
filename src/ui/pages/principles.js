@@ -14,6 +14,8 @@ const KNOWLEDGE_CONCEPTS_URL = './public-data/knowledge/concepts.json';
 const KNOWLEDGE_ALIASES_URL = './public-data/knowledge/aliases.json';
 const KNOWLEDGE_SOURCES_URL = './public-data/knowledge/sources.json';
 const KNOWLEDGE_CLAIMS_URL = './public-data/knowledge/claims.json';
+const KNOWLEDGE_COVERAGE_URL = './public-data/knowledge/coverage-matrix.json';
+const KNOWLEDGE_RESEARCH_DOSSIERS_URL = './public-data/knowledge/research-dossiers.json';
 
 const RESEARCH_NODE_IDS = Object.freeze({
   'ai-era': 'candidate.ai-era',
@@ -769,7 +771,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
        const initialNode = NODE_BY_ID.has(sharedRoute.node) ? sharedRoute.node : 'scarcity-choice';
        const initialPath = CATALOG.paths.some((item) => item.id === sharedRoute.path) ? sharedRoute.path : 'beginner';
        const learning = createAppKnowledgeLearningState(root);
-       const state = { mode: initialMode, view: 'map', query: '', selectedId: initialNode, pathId: initialPath, step: sharedRoute.step ?? 0, depth: 1, expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), research: null, chapters: null, lessonLibrary: null, nodeGuides: null, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false };
+       const state = { mode: initialMode, view: 'map', query: '', selectedId: initialNode, pathId: initialPath, step: sharedRoute.step ?? 0, depth: 1, expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), research: null, chapters: null, lessonLibrary: null, nodeGuides: null, knowledgeCoverage: null, knowledgeResearchDossiers: null, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false, knowledgeCoverageError: false, knowledgeResearchDossiersError: false };
       page.dataset.aioArchitectureRoute = 'principles';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -1016,7 +1018,9 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           delete page.dataset.aioPrinciplesKnowledgeConcepts;
           delete page.dataset.aioPrinciplesKnowledgeAliases;
           delete page.dataset.aioPrinciplesKnowledgeSources;
-          delete page.dataset.aioPrinciplesKnowledgeClaims;
+           delete page.dataset.aioPrinciplesKnowledgeClaims;
+           delete page.dataset.aioPrinciplesKnowledgeCoverage;
+           delete page.dataset.aioPrinciplesKnowledgeResearchDossiers;
           delete page.dataset.aioKnowledgeLearningState;
           content.replaceChildren();
         });
@@ -1031,7 +1035,9 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             { key: 'knowledgeConcepts', url: KNOWLEDGE_CONCEPTS_URL },
             { key: 'knowledgeAliases', url: KNOWLEDGE_ALIASES_URL },
             { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL },
-            { key: 'knowledgeClaims', url: KNOWLEDGE_CLAIMS_URL }
+             { key: 'knowledgeClaims', url: KNOWLEDGE_CLAIMS_URL },
+             { key: 'knowledgeCoverage', url: KNOWLEDGE_COVERAGE_URL },
+             { key: 'knowledgeResearchDossiers', url: KNOWLEDGE_RESEARCH_DOSSIERS_URL }
           ]).then((capabilities) => {
             for (const [key, result] of Object.entries(capabilities)) {
               state[key] = result.value;
@@ -1044,7 +1050,9 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             page.dataset.aioPrinciplesKnowledgeConcepts = capabilities.knowledgeConcepts.status;
             page.dataset.aioPrinciplesKnowledgeAliases = capabilities.knowledgeAliases.status;
             page.dataset.aioPrinciplesKnowledgeSources = capabilities.knowledgeSources.status;
-            page.dataset.aioPrinciplesKnowledgeClaims = capabilities.knowledgeClaims.status;
+             page.dataset.aioPrinciplesKnowledgeClaims = capabilities.knowledgeClaims.status;
+             page.dataset.aioPrinciplesKnowledgeCoverage = capabilities.knowledgeCoverage.status;
+             page.dataset.aioPrinciplesKnowledgeResearchDossiers = capabilities.knowledgeResearchDossiers.status;
             render();
           });
        }
@@ -1053,4 +1061,4 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
   };
 }
 
-export { CATALOG as MARKET_PRINCIPLES_CATALOG, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL, KNOWLEDGE_CONCEPTS_URL, KNOWLEDGE_ALIASES_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL };
+export { CATALOG as MARKET_PRINCIPLES_CATALOG, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL, KNOWLEDGE_CONCEPTS_URL, KNOWLEDGE_ALIASES_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL, KNOWLEDGE_COVERAGE_URL, KNOWLEDGE_RESEARCH_DOSSIERS_URL };

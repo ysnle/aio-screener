@@ -123,6 +123,17 @@ jobs:
             node scripts/ci-knowledge-route-bridge-contract.mjs
             node scripts/ci-knowledge-repository-contract.mjs
             node scripts/ci-knowledge-renderer-contract.mjs
+            node scripts/build-knowledge-coverage-matrix.mjs
+            node scripts/ci-knowledge-full-corpus-coverage.mjs
+            node scripts/build-knowledge-research-dossiers.mjs
+            node scripts/ci-knowledge-web-research-dossier.mjs
+            node scripts/build-knowledge-domain-dossiers.mjs
+            node scripts/ci-knowledge-sector-domain-depth.mjs
+            node scripts/build-knowledge-quantitative-labs.mjs
+            node scripts/ci-knowledge-quantitative-example.mjs
+            node scripts/ci-knowledge-article-uniqueness.mjs
+            node scripts/ci-knowledge-market-transmission.mjs
+            node scripts/ci-knowledge-currentness-separation.mjs
             node scripts/ci-six-doc-coverage-check.mjs
             node scripts/ci-atlas-contract-check.mjs
             node scripts/ci-principles-contract-check.mjs

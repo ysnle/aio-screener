@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:agent-loop",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "agent loop는 목표·관찰·계획·도구 실행·검증을 반복하는 시스템 구조다.",
+      "mechanism": "상태를 갱신하고 도구를 여러 번 호출하며 종료 조건과 사람 검토를 적용한다.",
+      "example": "자료 수집→출처 확인→초안 작성→검토 요청을 각각 기록된 단계로 나눌 수 있다.",
+      "counterScenario": "반복 횟수와 권한이 통제되지 않으면 비용·오류·부작용이 누적된다.",
+      "verificationQuestion": "반복을 멈추게 하는 종료 조건과 사람 승인 지점은 어디에 있어야 하는가?",
+      "visualization": "목표 → 관찰 → 계획 → 도구 실행 → 결과 검증 → 종료·반복"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 140번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

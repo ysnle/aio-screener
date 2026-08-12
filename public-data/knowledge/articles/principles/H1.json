@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:H1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "수요·공급은 사고팔려는 의사의 분포이고 주문장은 특정 가격에 쌓인 실제 매수·매도 주문의 순간적인 모습이다.",
+      "mechanism": "새 주문이 유동성 공급자와 만나 체결되면서 가격이 이동한다. 주문의 크기·취소·호가 간격이 단기 가격발견을 바꾼다.",
+      "example": "실적 발표 직후 매수 주문이 호가를 여러 단계 소진하면 거래량이 크지 않아도 가격이 급히 이동할 수 있다.",
+      "counterScenario": "주문장에 보이는 수량을 확정 수요로 보면 취소 주문·숨은 유동성·시장가 주문의 영향을 과대평가한다.",
+      "verificationQuestion": "가격 이동 전후에 호가 스프레드·체결 방향·거래량·취소율이 어떻게 변했는가?",
+      "visualization": "정보 → 주문 → 호가 소진 → 체결가격"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 37번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

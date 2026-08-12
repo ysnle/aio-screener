@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:G6",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "밸류에이션은 기업의 미래 현금흐름·성장·위험을 현재 가격과 비교하는 방법이지, 하나의 정답 숫자가 아니다.",
+      "mechanism": "DCF·PER·EV/EBITDA·매출 배수는 서로 다른 현금흐름 단계와 가정을 사용한다. 핵심은 숫자보다 가정의 민감도다.",
+      "example": "고성장 기업의 매출 배수가 높아도 성장률·총마진·희석·현금 전환이 내려가면 적정 배수의 기반이 흔들린다.",
+      "counterScenario": "동종기업의 배수만 보고 저평가라고 결론 내리면 사업의 질·자본비용·회계 차이를 놓친다.",
+      "verificationQuestion": "현재 가격이 암시하는 성장률·마진·재투자율을 역산하고, 어떤 가정이 한 단계만 틀려도 결론이 바뀌는가?",
+      "visualization": "현금흐름 가정 → 할인 → 현재가치 ↔ 시장가격"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 34번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

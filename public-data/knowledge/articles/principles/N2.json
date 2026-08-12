@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "핵심광물은 배터리·전력망·반도체·방산 등 전략 산업에 필요하고 공급 집중·정제 능력·대체 가능성이 위험을 만든다.",
+      "mechanism": "광산 생산보다 정제·가공·품질 인증·물류가 병목이 될 수 있다. 가격은 수요 증가뿐 아니라 신규 공급과 재활용에 반응한다.",
+      "example": "광석 매장량이 충분해도 특정 국가의 정제 시설에 의존하면 수출 통제나 운송 충격이 실제 공급을 제한할 수 있다.",
+      "counterScenario": "광물 가격 상승만으로 채굴 기업의 이익을 확정하면 품위·CAPEX·환경 허가·정제 수수료와 장기 계약을 놓친다.",
+      "verificationQuestion": "병목은 매장량·채굴·정제·운송 중 어디이며, 대체·재활용·고객 인증이 공급 탄력성을 얼마나 높이는가?",
+      "visualization": "광산 → 정제·가공 → 부품·제품"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 93번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

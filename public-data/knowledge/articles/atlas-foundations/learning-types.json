@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:learning-types",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "지도·비지도·강화학습은 supervision 신호와 최적화 목표가 서로 다르다.",
+      "mechanism": "label, 구조 발견, reward와 환경 피드백이 목표 함수와 필요한 데이터 흐름을 결정한다.",
+      "example": "분류는 label을 쓰고 군집화는 구조를 찾으며 제어는 행동 결과의 보상을 학습한다.",
+      "counterScenario": "현업 시스템은 여러 학습 방식과 사람이 만든 규칙을 함께 사용하는 경우가 많다.",
+      "verificationQuestion": "문제의 정답 label이 없을 때 어떤 신호를 학습 목표로 삼을 수 있는가?",
+      "visualization": "관측·label·reward → 학습 목표 → 모델 업데이트 → 행동·평가"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 122번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

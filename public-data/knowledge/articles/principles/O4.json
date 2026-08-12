@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:O4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "한국 전력·산업정책은 전력 가격·망 투자·세제·보조금·규제로 제조와 데이터센터의 입지·원가·증설 속도를 바꾼다.",
+      "mechanism": "정책은 수요를 만들 수 있지만 요금·재정·계통·허가·민간 투자와 함께 집행되어야 실제 생산능력으로 이어진다.",
+      "example": "산업단지의 전력 접속 지원이 발표되어도 변전소·선로·환경 허가·요금 계약이 늦으면 기업 CAPEX와 가동 시점은 달라진다.",
+      "counterScenario": "정책 발표액이나 목표 용량을 기업 매출로 바로 환산하면 집행률·수익자·비용 부담과 규제 변경을 놓친다.",
+      "verificationQuestion": "정책의 승인·예산·집행·상업 운전 단계가 어디이며, 비용과 이익은 정부·유틸리티·기업 중 누가 부담·회수하는가?",
+      "visualization": "정책·예산 → 전력·산업 인프라 → 기업 CAPEX·가동"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 110번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L7",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "반도체 소재는 웨이퍼·포토레지스트·가스·금속·화학액처럼 공정의 정밀도와 반복 가능성을 좌우하는 입력이다.",
+      "mechanism": "순도·입자·화학적 선택성·공급 안정성이 결함률과 장비 가동을 결정한다. 사용량이 작아도 대체·인증 시간이 길면 전략적 중요성이 커진다.",
+      "example": "고순도 가스의 미세 오염은 특정 공정의 결함을 늘릴 수 있어, 소재 업체의 경쟁력은 단가보다 품질 데이터와 공동 인증에 있을 수 있다.",
+      "counterScenario": "소재 매출의 절대 규모만 보고 중요도를 낮추면 한 공급 중단이 라인 전체에 미치는 비선형 위험을 놓친다.",
+      "verificationQuestion": "해당 소재의 순도·검사·대체 공급·고객 인증 기간과 가격 전가 능력은 어떻게 확인할 것인가?",
+      "visualization": "소재 품질 → 공정 안정성 → 수율·납기"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 70번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L12",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "AI 서버 시스템은 가속기만이 아니라 CPU·메모리·스위치·광모듈·케이블이 데이터를 정해진 지연과 전력으로 이동시키는 구조다.",
+      "mechanism": "가속기 수가 늘수록 노드 간 통신 대역폭과 지연이 중요해지고, 구리·광 연결의 거리·전력·열·신뢰성이 클러스터 처리량을 제한한다.",
+      "example": "GPU 사용률이 낮은 이유가 계산 부족이 아니라 네트워크 통신 대기라면 스위치·광모듈 업그레이드가 서버 추가보다 효과적일 수 있다.",
+      "counterScenario": "서버 출하량을 AI 인프라 처리량과 동일시하면 네트워크·광모듈·랙 전력·소프트웨어 스케줄링을 놓친다.",
+      "verificationQuestion": "클러스터의 병목이 계산·메모리·네트워크 중 어디인지, 광 연결의 대역폭·거리·전력·고장률을 어떻게 측정하는가?",
+      "visualization": "가속기 ↔ 스위치·광통신 ↔ 클러스터 처리량"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 75번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aio-screener.local/schemas/knowledge/research-dossier.schema.json",
+  "title": "Knowledge Web Research dossier",
+  "type": "object",
+  "required": ["schemaVersion", "dossierId", "contentUnitId", "researchQuestions", "queries", "searchedAt", "candidateSources", "selectedSources", "rejectedSources", "sourceTiers", "claimCoverage", "consensus", "disagreement", "invalidation", "currentnessBoundary", "q1Thesis", "q2ParadigmShift", "q3DisconfirmingVariable", "q4StructuralMechanism", "q5AdjacentImpact", "status"],
+  "properties": {
+    "schemaVersion": { "const": "knowledge-research-dossier.v1" },
+    "dossierId": { "type": "string", "minLength": 1 },
+    "contentUnitId": { "type": "string", "minLength": 1 },
+    "searchedAt": { "type": ["string", "null"] },
+    "status": { "enum": ["RESEARCH_REQUIRED", "RESEARCH_IN_PROGRESS", "RESEARCHED", "SEMANTIC_REVIEW_REQUIRED"] },
+    "candidateSources": { "type": "array" },
+    "selectedSources": { "type": "array" },
+    "rejectedSources": { "type": "array" },
+    "claimCoverage": { "type": "array" },
+    "sourceTiers": { "type": "array" }
+  }
+}

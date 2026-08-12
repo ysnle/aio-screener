@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:G7",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "지수는 일정한 규칙으로 시장을 측정하는 바구니이고, 패시브 투자는 그 규칙을 따라 편입·비중을 복제한다.",
+      "mechanism": "지수 편입과 비중 변화는 자동 자금 흐름을 만들지만, 지수는 기업의 질이나 미래 수익을 보증하지 않는다.",
+      "example": "시가총액 가중 지수에서는 주가가 오른 종목의 비중이 커져 추세를 따라가는 흐름이 생길 수 있다. 리밸런싱 날짜의 거래도 관찰해야 한다.",
+      "counterScenario": "지수 수익률을 개별 기업의 실적 성과로 동일시하거나 패시브 자금이 항상 가격을 효율적으로 만든다고 가정하면 편입 규칙을 놓친다.",
+      "verificationQuestion": "지수 편입·비중·리밸런싱이 실제 주식 수요에 미치는 규모와 기간은 무엇인가?",
+      "visualization": "규칙 → 편입·비중 → 자동 자금 흐름"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 35번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

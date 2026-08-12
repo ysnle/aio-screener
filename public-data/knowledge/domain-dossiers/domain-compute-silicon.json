@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-compute-silicon",
+  "domainId": "domain-compute-silicon",
+  "title": "domain-compute-silicon",
+  "definition": "AI compute는 workload에 맞는 범용·전용 실리콘과 소프트웨어 스택의 조합이다.",
+  "mechanism": "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연",
+  "unit": "작업당 연산·지연·전력·달러",
+  "bottlenecks": [
+    "메모리 대역폭·생태계 전환비용·패키지·공급·검증"
+  ],
+  "uniqueKpis": [
+    "작업당 연산·지연·전력·달러",
+    "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연",
+    "GPU",
+    "ASIC / custom accelerator",
+    "NPU / edge accelerator",
+    "FP/BF/INT precision",
+    "Accelerator interconnect"
+  ],
+  "taxonomyNodeIds": [
+    "compute-gpu",
+    "compute-asic",
+    "compute-npu",
+    "compute-precision",
+    "compute-interconnect"
+  ],
+  "deepBranchIds": [],
+  "playerIds": [
+    "nvidia",
+    "amd",
+    "google-cloud",
+    "aws",
+    "synopsys",
+    "broadcom"
+  ],
+  "productIds": [
+    "nvidia-gpu-accelerator-platform",
+    "amd-instinct-accelerator-family",
+    "cloud-tpu-family",
+    "aws-trainium-family"
+  ],
+  "sourceIds": [
+    "AT-CS-01",
+    "AT-CS-02",
+    "AT-CS-03"
+  ],
+  "researchQuestions": [
+    "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
+    "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

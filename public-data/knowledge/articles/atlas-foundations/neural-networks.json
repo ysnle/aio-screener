@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:neural-networks",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "신경망은 층별 함수의 조합으로 입력 표현을 변환하는 parameterized model이다.",
+      "mechanism": "선형변환과 비선형 활성화를 반복해 복잡한 관계를 표현하고 loss에 따라 parameter를 조정한다.",
+      "example": "깊이·폭·정규화·데이터 분포가 표현력과 학습 안정성에 함께 영향을 준다.",
+      "counterScenario": "구조를 크게 만드는 것만으로 데이터 부족·목표 오류·배포 제약이 사라지지 않는다.",
+      "verificationQuestion": "비선형 층이 없다면 여러 선형 층을 쌓아도 무엇을 표현할 수 없는가?",
+      "visualization": "입력 표현 → 선형변환·활성화 반복 → 출력 표현"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 123번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

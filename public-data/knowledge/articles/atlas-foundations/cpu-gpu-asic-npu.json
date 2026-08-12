@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:cpu-gpu-asic-npu",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "CPU·GPU·ASIC·NPU는 범용성·병렬성·전용 최적화가 다른 계산 자원이다.",
+      "mechanism": "workload의 연산 패턴·전력·지연·프로그래밍 요구가 어떤 가속기를 선택할지 결정한다.",
+      "example": "범용 orchestration은 CPU, 대규모 tensor는 GPU, 고정된 추론 경로는 ASIC·NPU가 맞을 수 있다.",
+      "counterScenario": "칩 종류만으로 실제 성능과 총비용을 비교할 수 없고 소프트웨어·메모리·공급망을 함께 봐야 한다.",
+      "verificationQuestion": "전용 칩의 효율과 범용 칩의 유연성 사이에서 어떤 수요 안정성이 필요한가?",
+      "visualization": "workload → 범용성·병렬성·전력 trade-off → 가속기 구성"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 145번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

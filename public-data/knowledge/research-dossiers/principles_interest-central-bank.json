@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:principles:interest-central-bank",
+  "contentUnitId": "principles:interest-central-bank",
+  "unitKind": "CONCEPT_GUIDE",
+  "title": "금리와 중앙은행",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for 금리와 중앙은행?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of 금리와 중앙은행?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "금리와 중앙은행 mechanism primary source",
+    "금리와 중앙은행 official data standard filing evidence",
+    "금리와 중앙은행 disconfirming evidence limitations"
+  ],
+  "searchedAt": "2026-08-12",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
+      "url": "https://fred.stlouisfed.org/release?rid=500",
+      "publisher": "Federal Reserve Bank of St. Louis",
+      "title": "Inflation Expectations release",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
+      "url": "https://fred.stlouisfed.org/release?rid=500",
+      "publisher": "Federal Reserve Bank of St. Louis",
+      "title": "Inflation Expectations release",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
+  "rejectedSources": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
+  "claimCoverage": [],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about 금리와 중앙은행 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace 금리와 중앙은행 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_IN_PROGRESS",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

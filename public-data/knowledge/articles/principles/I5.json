@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:I5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "자산 간 관계는 금리·성장·물가·달러·위험 선호라는 공통 요인이 서로 다른 자산의 수익률을 연결하는 방식이다.",
+      "mechanism": "상관관계는 시간과 국면에 따라 바뀐다. 채권이 주식의 완충재가 되다가 인플레이션 충격에서는 함께 하락할 수 있다.",
+      "example": "달러 강세가 원자재 가격·신흥국 주식·외화부채 기업에 서로 다른 방향으로 영향을 주는지 노출을 분해해야 한다.",
+      "counterScenario": "과거 10년의 상관계수를 영구적인 헤지 관계로 사용하면 국면 전환과 꼬리위험을 놓친다.",
+      "verificationQuestion": "두 자산의 관계를 움직이는 공통 요인은 무엇이고, 그 요인이 반대로 움직일 때 상관관계는 어떻게 바뀌는가?",
+      "visualization": "공통요인 → 자산별 민감도 → 상관 변화"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 46번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

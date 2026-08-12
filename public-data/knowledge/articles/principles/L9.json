@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L9",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "메모리는 데이터를 저장하고 필요한 속도로 공급하는 장치이며, 용량·대역폭·지연·전력·비트당 비용의 조합으로 평가한다.",
+      "mechanism": "DRAM·HBM·NAND는 셀 구조와 사용 목적이 다르고, AI 시스템에서는 연산기보다 데이터를 공급하는 대역폭과 패키지 연결이 병목이 될 수 있다.",
+      "example": "HBM은 여러 DRAM 다이를 쌓고 인터포저·패키지로 가속기와 가깝게 연결해 대역폭을 높이지만, 적층·열·테스트·수율 난도가 커진다.",
+      "counterScenario": "메모리 가격 상승이나 용량 증가만으로 AI 수요의 지속성을 판단하면 제품 믹스·대역폭·재고·공급 증설을 놓친다.",
+      "verificationQuestion": "메모리 수요의 핵심은 용량·대역폭·지연·전력 중 무엇이며, 공급 증설과 제품 믹스가 가격과 마진을 어떻게 바꾸는가?",
+      "visualization": "데이터 → 셀·대역폭 → 패키지 → 시스템 처리량"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 72번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "송전은 대규모 발전과 수요 지역을 연결하는 고전압 네트워크이며, 용량·거리·안정도가 전력 이동을 제한한다.",
+      "mechanism": "선로 혼잡과 접속 대기는 발전소가 있어도 전기를 팔지 못하게 만들 수 있고, 신규 선로는 인허가와 건설에 긴 시간이 걸린다.",
+      "example": "재생 발전이 풍부한 지역과 데이터센터가 있는 지역 사이에 선로가 부족하면 지역별 가격 차이와 출력 제한이 발생한다.",
+      "counterScenario": "발전 설비 용량을 곧바로 고객에게 전달 가능한 전력으로 계산하면 송전 병목과 손실을 놓친다.",
+      "verificationQuestion": "접속 신청에서 실제 상업 운전까지 선로·변전·인허가의 어떤 단계가 남아 있으며 혼잡 비용을 누가 부담하는가?",
+      "visualization": "발전지역 → 고압선로 → 수요지역"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 83번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

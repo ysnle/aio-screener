@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-cloud-platform",
+  "domainId": "domain-cloud-platform",
+  "title": "domain-cloud-platform",
+  "definition": "클라우드는 AI 계산·저장·네트워크를 사용자 요청과 서비스 단위로 묶는 운영 계층이다.",
+  "mechanism": "workload → 예약·가동률 → compute·storage·network → 사용량·계약·감가상각",
+  "unit": "요청·GPU시간·저장량·서비스 계약",
+  "bottlenecks": [
+    "가동률·전력·네트워크·고객 집중도·가격 경쟁"
+  ],
+  "uniqueKpis": [
+    "요청·GPU시간·저장량·서비스 계약",
+    "Hyperscaler cloud의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Managed AI service의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Utilization / workload mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Cloud commitments의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Depreciation cycle의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "workload → 예약·가동률 → compute·storage·network → 사용량·계약·감가상각",
+    "Hyperscaler cloud",
+    "Managed AI service",
+    "Utilization / workload mix",
+    "Cloud commitments",
+    "Depreciation cycle"
+  ],
+  "taxonomyNodeIds": [
+    "cloud-hyperscaler",
+    "cloud-ai-service",
+    "cloud-utilization",
+    "cloud-commitments",
+    "cloud-depreciation"
+  ],
+  "deepBranchIds": [
+    "cloud-stack",
+    "cloud-capex",
+    "neocloud-economics",
+    "cloud-roic",
+    "open-definition",
+    "open-model-family",
+    "open-china-strategy",
+    "open-economics",
+    "open-alliances"
+  ],
+  "playerIds": [
+    "google-cloud",
+    "aws"
+  ],
+  "productIds": [
+    "cloud-tpu-family",
+    "aws-trainium-family"
+  ],
+  "sourceIds": [
+    "AT-CL-01",
+    "AT-CL-02",
+    "AT-CL-03"
+  ],
+  "researchQuestions": [
+    "workload·예약·실사용량을 어떻게 구분하는가",
+    "CAPEX와 매출 인식을 어떤 공시로 대조하는가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

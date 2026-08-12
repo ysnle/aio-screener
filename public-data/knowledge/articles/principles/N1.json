@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "에너지는 산업·운송·건물의 일을 가능하게 하는 입력이며 연료·전력·열의 형태와 변환 손실을 함께 봐야 한다.",
+      "mechanism": "수요의 시간·지역·온도와 공급의 저장·운송·정제 능력이 가격과 마진을 만든다. 기술 전환은 수요를 없애기보다 형태를 바꿀 수 있다.",
+      "example": "전기차는 석유 수요를 줄일 수 있지만 전력·배터리 소재·충전망 수요를 늘려 가치사슬의 이익 풀을 이동시킨다.",
+      "counterScenario": "발전량이나 원유 생산량 하나를 전체 에너지 경제로 확장하면 변환 효율·저장·수송·정책을 놓친다.",
+      "verificationQuestion": "최종 고객이 소비하는 유효 에너지 1단위를 만들기 위해 어떤 연료·전력·설비와 손실이 필요한가?",
+      "visualization": "연료·전력 → 변환·운송 → 최종 서비스"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 92번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:multi-head-attention",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "multi-head attention은 여러 projection 공간에서 관계를 병렬 계산한 뒤 결과를 합치는 구조다.",
+      "mechanism": "각 head가 다른 관계 패턴을 포착하고 출력 projection이 여러 표현을 결합한다.",
+      "example": "문법·장거리 의존성·위치 관계가 서로 다른 head에 분산될 수 있다.",
+      "counterScenario": "head 수가 늘어도 자동으로 해석 가능성이나 품질이 증가하지 않는다.",
+      "verificationQuestion": "여러 관점의 attention을 결합하는 것이 단일 관점보다 유리한 상황은 무엇인가?",
+      "visualization": "입력 → 여러 QKV projection → head별 관계 → 결합 출력"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 130번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

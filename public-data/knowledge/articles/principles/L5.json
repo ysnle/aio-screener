@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "설계 생태계는 아키텍처·EDA 도구·IP·설계서비스·검증·소프트웨어가 함께 칩을 제품으로 만드는 네트워크다.",
+      "mechanism": "재사용 가능한 IP와 검증 도구는 개발 시간을 줄이지만 라이선스·호환성·버그·특정 툴 체인 의존성을 만든다.",
+      "example": "고성능 가속기는 연산 블록보다 메모리 컨트롤러·인터커넥트·컴파일러까지 함께 검증되어야 고객 시스템에서 성능을 낸다.",
+      "counterScenario": "설계도면이나 EDA 매출만으로 최종 칩 성공을 보장한다고 보면 제조 수율·소프트웨어 채택을 놓친다.",
+      "verificationQuestion": "설계 생태계의 어느 부분이 개발 기간과 실패 비용을 가장 많이 줄이며, 고객이 다른 도구로 전환하기 어려운 이유는 무엇인가?",
+      "visualization": "아키텍처·EDA·IP → 검증 → 테이프아웃"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 68번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

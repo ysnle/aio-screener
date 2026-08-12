@@ -3,8 +3,8 @@
   "status": "IMPLEMENTATION_IN_PROGRESS",
   "boundedChangesImplemented": ["public naming", "depth audit", "name regression gates", "handoff and knowledge contracts", "semantic graph gate", "typed edge normalization", "unified evidence resolver", "capability-level artifact loading", "S0 topology and product mapping corrections", "canonical ontology manifest", "claim directness registry", "structured article drafts", "learning graph", "shareable learning state", "route bridge", "knowledge repository and selectors", "shared knowledge renderers", "encyclopedia product mission", "full sector-domain-category coverage contract", "web research dossier contract", "post-KA content completion track"],
   "knowledgeRebuildStatus": "STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN",
-  "auditedAt": "2026-08-11",
-  "targetVersion": "v54.6",
+  "auditedAt": "2026-08-12",
+  "targetVersion": "v54.7",
   "surfaces": ["principles", "atlas"],
   "encyclopediaMission": {
     "productDefinition": "A connected stock, economics, finance and technology encyclopedia that leads from concept learning to evidence-backed market application",
@@ -71,7 +71,7 @@
       "crossDomainEdgesWithSemanticMetadata": 22
     },
     "evidence": {
-      "registeredSources": 105,
+      "registeredSources": 124,
       "referencedSourcesInSemanticGate": 64,
       "unresolvedSources": 0,
       "conflicts": 0
@@ -81,7 +81,7 @@
       "atlasCapabilities": 11,
       "loadingModel": "PROMISE_ALL_SETTLED_PER_CAPABILITY"
     },
-    "certificationBoundary": "LOCAL_REFERENCE_IMPLEMENTATION_ONLY; 159 human-reviewed deep articles, full sector-domain-category dossiers, independent Web Research, semantic source review, active-learning UX, live parity and recruited-user validation remain open"
+      "certificationBoundary": "LOCAL_REFERENCE_IMPLEMENTATION_ONLY; 159 human-reviewed deep articles, full independent Web Research, semantic source review, active-learning UX, live parity and recruited-user validation remain open; 423-unit inventory, 19 structural domain dossiers and 15 educational labs are reference scaffolds only"
   },
   "certificationBlockers": [
     {
@@ -112,7 +112,7 @@
       "id": "KB-S0-04",
       "surface": "shared",
       "kind": "WEB_RESEARCH_AND_SOURCE_PROFILE",
-      "evidence": "159 structured drafts and related guides do not yet have concept-level search dossiers, complete primary/academic source profiles, disagreement records, or independent claim-by-claim fact-checking",
+      "evidence": "423 per-unit dossier contracts now exist, with 0 fully researched, 172 research-in-progress and 251 research-required units; complete primary/academic source profiles, disagreement records, and independent claim-by-claim fact-checking remain open",
       "requiredGate": "web-research-dossier",
       "status": "OPEN"
     },
@@ -178,11 +178,11 @@
     {"id": "KA-08", "wave": 4, "title": "Repository, state and selector extraction", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-09", "wave": 4, "title": "Thin renderer migration and legacy deletion", "dependsOn": ["KA-06", "KA-07", "KA-08"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-10", "wave": 5, "title": "Structural semantic and local certification checkpoint", "dependsOn": ["KA-09"], "status": "DESIGNED"},
-    {"id": "KA-11", "wave": 6, "title": "Full corpus and sector-domain-category coverage inventory", "dependsOn": ["KA-10"], "status": "DESIGNED"},
-    {"id": "KA-12", "wave": 6, "title": "Concept-level Web Research dossiers and source audit", "dependsOn": ["KA-11"], "status": "DESIGNED"},
-    {"id": "KA-13", "wave": 7, "title": "159 human-reviewed core deep article reconstruction", "dependsOn": ["KA-12"], "status": "DESIGNED"},
-    {"id": "KA-14", "wave": 7, "title": "Principles and Atlas sector-domain-category dossier enrichment", "dependsOn": ["KA-12", "KA-13"], "status": "DESIGNED"},
-    {"id": "KA-15", "wave": 8, "title": "Quantitative labs, market application and active learning closure", "dependsOn": ["KA-13", "KA-14"], "status": "DESIGNED"},
+    {"id": "KA-11", "wave": 6, "title": "Full corpus and sector-domain-category coverage inventory", "dependsOn": ["KA-10"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-12", "wave": 6, "title": "Concept-level Web Research dossiers and source audit", "dependsOn": ["KA-11"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-13", "wave": 7, "title": "159 human-reviewed core deep article reconstruction", "dependsOn": ["KA-12"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-14", "wave": 7, "title": "Principles and Atlas sector-domain-category dossier enrichment", "dependsOn": ["KA-12", "KA-13"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-15", "wave": 8, "title": "Quantitative labs, market application and active learning closure", "dependsOn": ["KA-13", "KA-14"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-16", "wave": 9, "title": "Encyclopedia semantic, browser, live and user certification", "dependsOn": ["KA-15"], "status": "DESIGNED"}
   ],
   "referenceImplementationFiles": [
@@ -198,7 +198,7 @@
     "articleContract": "PASS: 159 structured drafts / 16 paths",
     "learningState": "PASS: URL serialization and local persistence",
     "routeBridge": "PASS: 198 targets / 20 scenarios",
-    "repository": "PASS: 6 connected / 1 fallback fixture",
+    "repository": "PASS: 10 connected / 1 fallback fixture",
     "sharedRenderers": "PASS: 5 renderer contract fixtures",
     "principlesBrowser": "PASS",
     "atlasBrowser": "PASS",
@@ -206,7 +206,13 @@
     "accessibilityRoutes": "20/20 PASS",
     "routeSoak": "20 routes x 3 laps PASS",
     "viewportMatrix": "17 routes x 4 viewports PASS; overflow 0",
-    "architectureRatchet": "FAIL_OUT_OF_PACKET: explicitWindowWrites 1092 > baseline 1090 from two existing AI research window assignments"
+    "architectureRatchet": "FAIL_OUT_OF_PACKET: explicitWindowWrites 1092 > baseline 1090 from two existing AI research window assignments",
+    "ka11Coverage": "PASS_WITH_BOUNDARY: 423 units inventoried; completionReady false",
+    "ka12Research": "PASS_WITH_BOUNDARY: 0 researched / 172 in progress / 251 required",
+    "ka13ArticleUniqueness": "PASS_WITH_BOUNDARY: 159 unique reconstruction seeds; completionReady false",
+    "ka14DomainDepth": "PASS_WITH_BOUNDARY: 19 domains / 95 taxonomy nodes / 50 unique deep branches",
+    "ka15Quantitative": "PASS_WITH_BOUNDARY: 15 educational labs; completionReady false",
+    "ka16Currentness": "PASS_WITH_BOUNDARY: reference-only separation gate; browser/live/user certification pending"
   },
   "requiredGates": [
     "knowledge-schema",

@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-on-device-physical-ai",
+  "domainId": "domain-on-device-physical-ai",
+  "title": "domain-on-device-physical-ai",
+  "definition": "온디바이스·physical AI는 제한된 전력과 지연 안에서 센서·모델·제어를 실행하는 계층이다.",
+  "mechanism": "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전",
+  "unit": "지연·전력·메모리·작업 성공률",
+  "bottlenecks": [
+    "배터리·열·메모리·현장 분포·안전 검증"
+  ],
+  "uniqueKpis": [
+    "지연·전력·메모리·작업 성공률",
+    "Edge SoC / NPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Memory / power envelope의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Sensors / perception의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Control / actuation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Simulation / digital twin의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전",
+    "Edge SoC / NPU",
+    "Memory / power envelope",
+    "Sensors / perception",
+    "Control / actuation",
+    "Simulation / digital twin"
+  ],
+  "taxonomyNodeIds": [
+    "edge-soc-npu",
+    "edge-memory-power",
+    "physical-ai-sensing",
+    "physical-ai-control",
+    "physical-ai-digital-twin"
+  ],
+  "deepBranchIds": [
+    "physical-loop",
+    "world-model",
+    "edge-ai",
+    "physical-economics"
+  ],
+  "playerIds": [
+    "amd",
+    "tesla",
+    "shield-ai",
+    "siemens"
+  ],
+  "productIds": [
+    "tesla-optimus-and-autonomy-stack",
+    "shield-ai-hivemind-autonomy",
+    "siemens-industrial-copilot"
+  ],
+  "sourceIds": [
+    "AT-OD-01",
+    "AT-OD-02",
+    "AT-OD-03"
+  ],
+  "researchQuestions": [
+    "cloud inference와 on-device inference의 비용·지연 경계는 무엇인가",
+    "센서·NPU·배터리·업데이트가 제품 단위경제에 미치는 영향은 무엇인가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

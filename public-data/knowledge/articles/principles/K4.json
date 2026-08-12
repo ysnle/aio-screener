@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "생산 단계는 원재료·설계·제조·조립·소프트웨어·유통처럼 산출물이 다음 단계의 입력이 되는 순서다.",
+      "mechanism": "각 단계의 수율·처리량·대기시간·재작업·데이터 형식이 다음 단계의 비용과 납기를 결정한다.",
+      "example": "반도체 설계 파일은 웨이퍼 공정과 패키징을 거쳐 테스트된 칩이 되어야 서버에 장착되므로, 설계 성능만으로 완제품 공급을 설명할 수 없다.",
+      "counterScenario": "가치사슬을 기업 로고의 나열로 보면 공정 간 호환·검증·재고·병목을 놓친다.",
+      "verificationQuestion": "제품이 고객에게 도착하기 전 단계별 입력·출력·수율·리드타임은 무엇이며 어느 단계가 생산량을 제한하는가?",
+      "visualization": "입력 → 공정·검증 → 출력 → 다음 단계"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 55번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

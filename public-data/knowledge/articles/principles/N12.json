@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N12",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "운송·물류는 화물·사람·정보를 정해진 시간과 비용으로 이동시키며 자산 이용률과 네트워크 밀도가 경제성을 만든다.",
+      "mechanism": "연료·인건비·차량·창고·노선·공차율과 배송 SLA가 단위당 원가와 고객 가격을 결정한다.",
+      "example": "물동량이 증가해도 복귀 화물이 없거나 피크 시간에 차량과 창고가 부족하면 매출 성장보다 운영비가 빠르게 늘 수 있다.",
+      "counterScenario": "운송량과 매출만 보면 공차율·정시율·연료 헤지·정비·자산 감가를 놓친다.",
+      "verificationQuestion": "한 단위 화물이 이동하는 거리·시간·자산 이용률·연료·인건비와 고객이 지불하는 운임의 차이는 얼마인가?",
+      "visualization": "화물·수요 → 노선·자산 이용 → 운임·마진"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 103번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

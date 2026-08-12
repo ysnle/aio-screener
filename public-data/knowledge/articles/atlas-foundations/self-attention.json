@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:self-attention",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "self-attention은 각 token이 다른 token의 정보를 가중합으로 참고하는 연산이다.",
+      "mechanism": "Q·K 유사도로 attention weight를 만들고 V를 합쳐 문맥에 맞는 표현을 업데이트한다.",
+      "example": "문장 안에서 멀리 떨어진 주어와 동사의 관계를 한 층의 연산으로 연결할 수 있다.",
+      "counterScenario": "attention weight가 곧 설명·인과·사실 근거를 뜻하지 않는다.",
+      "verificationQuestion": "어떤 token 쌍의 관계를 강하게 참고할지는 무엇에 의해 결정되는가?",
+      "visualization": "Q·K 점수 → attention weight → V 가중합 → 새 표현"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 129번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

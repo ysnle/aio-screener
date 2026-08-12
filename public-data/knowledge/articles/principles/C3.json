@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:C3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "레버리지는 자기자본보다 큰 자산이나 사업을 운용하기 위해 부채를 사용하는 구조로 수익과 손실을 함께 확대한다.",
+      "mechanism": "고정된 이자·원금 상환이 매출 변동 위에 놓이기 때문에 영업이익률이 조금만 바뀌어도 자기자본 수익률과 파산 위험이 크게 변한다.",
+      "example": "매출이 안정적인 인프라 사업은 적정 부채로 자본비용을 낮출 수 있지만, 수요가 순환적인 기업의 같은 부채비율은 훨씬 위험하다.",
+      "counterScenario": "ROE가 높다는 이유만으로 경영 효율을 판단하면 부채가 만든 분모 축소 효과를 놓칠 수 있다.",
+      "verificationQuestion": "이익이 줄거나 금리가 오를 때 이자보상배율·순부채/EBITDA·만기 구조는 얼마나 버틸 수 있는가?",
+      "visualization": "영업현금흐름 ↔ 고정상환 → 자기자본 변동"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 11번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

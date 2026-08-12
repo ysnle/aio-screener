@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:G3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "기업은 내부 현금, 은행대출, 회사채, 보통주·전환증권 발행으로 성장과 운영 자금을 조달한다.",
+      "mechanism": "각 수단은 비용·만기·담보·희석·통제권의 조합이 다르다. 현금흐름의 안정성과 투자 기회의 불확실성이 선택을 좌우한다.",
+      "example": "반복 매출이 안정적인 기업은 채권을 사용할 여지가 있지만, 기술 개발 전 단계 기업은 희석을 감수하고 자기자본을 택할 수 있다.",
+      "counterScenario": "조달 규모만으로 재무 개선을 판단하면 고금리 차환·과도한 희석·운전자금 부족을 놓친다.",
+      "verificationQuestion": "조달된 자금의 만기와 비용은 투자 회수 기간에 맞는가, 신주 발행이 주당 가치에 미친 영향은 무엇인가?",
+      "visualization": "내부현금·부채·주식 → 투자·희석·상환"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 31번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

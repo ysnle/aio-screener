@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:atlas-foundation:roic-and-counter-scenario",
+  "contentUnitId": "atlas-foundation:roic-and-counter-scenario",
+  "unitKind": "FOUNDATION_LESSON",
+  "title": "roic-and-counter-scenario",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for roic-and-counter-scenario?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of roic-and-counter-scenario?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "roic-and-counter-scenario mechanism primary source",
+    "roic-and-counter-scenario official data standard filing evidence",
+    "roic-and-counter-scenario disconfirming evidence limitations"
+  ],
+  "searchedAt": "2026-08-12",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "PS-06",
+      "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+      "publisher": "Microsoft / SEC EDGAR",
+      "title": "2026 Q3 Form 10-Q",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "PS-07",
+      "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028526/meta-20260331.htm",
+      "publisher": "Meta / SEC EDGAR",
+      "title": "2026 Q1 Form 10-Q",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "PS-08",
+      "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm",
+      "publisher": "Oracle / SEC EDGAR",
+      "title": "2026 Q3 Form 10-Q",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
+      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "title": "SEC educational resources about income statements and balance sheets",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
+      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "title": "SEC educational resources about income statements and balance sheets",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
+  "rejectedSources": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
+  "claimCoverage": [
+    {
+      "claimId": "atlas-foundation-roic-and-counter-scenario",
+      "currentDirectness": "CONTEXT",
+      "requiredAction": "independent direct source required"
+    }
+  ],
+  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about roic-and-counter-scenario must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace roic-and-counter-scenario through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_IN_PROGRESS",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

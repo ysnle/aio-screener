@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:human-review",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "human review는 모델·자동화 결과를 기술·출처·위험·맥락 기준으로 사람이 승인하거나 수정하는 단계다.",
+      "mechanism": "검토자는 불확실성·반례·권한·표현·안전 조건을 확인하고 공개 상태와 다음 조치를 결정한다.",
+      "example": "현재 가격이나 목표가처럼 영향이 큰 주장은 자동 생성하지 않고 1차 자료와 사람 검토를 거친다.",
+      "counterScenario": "사람 검토도 전문성·시간·주의력·이해상충에 영향을 받으므로 기록과 체크리스트가 필요하다.",
+      "verificationQuestion": "어떤 출력은 자동 공개하지 않고 사람 승인으로 남겨야 하는가?",
+      "visualization": "자동 결과 → 근거·위험 검토 → 승인·수정·보류 → 기록"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 159번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

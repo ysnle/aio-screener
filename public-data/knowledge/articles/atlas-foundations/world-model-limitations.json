@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:world-model-limitations",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "world model은 상태와 행동 결과를 예측하려는 내부 모델이지만 현실을 완전히 복제하지는 못한다.",
+      "mechanism": "데이터·시뮬레이션·행동 경험으로 dynamics를 근사하고 계획에 사용한다.",
+      "example": "통제된 창고에서 잘 작동한 정책이 조명·마찰·사람 행동이 다른 현장에서 실패할 수 있다.",
+      "counterScenario": "분포 이동·긴 시간 지평·희귀 사건·안전 검증은 별도 관리가 필요하다.",
+      "verificationQuestion": "시뮬레이션 성공을 현실 배포 근거로 쓰려면 어떤 차이를 측정해야 하는가?",
+      "visualization": "관측·시뮬레이션 → dynamics 근사 → 계획 → 현실 feedback·오차"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 143번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -20,6 +20,10 @@ const DEEP_TAXONOMY_URL = './public-data/atlas/deep-taxonomy.json';
 const KNOWLEDGE_SOURCES_URL = './public-data/knowledge/sources.json';
 const KNOWLEDGE_CLAIMS_URL = './public-data/knowledge/claims.json';
 const KNOWLEDGE_ARTICLES_URL = './public-data/knowledge/articles.json';
+const KNOWLEDGE_COVERAGE_URL = './public-data/knowledge/coverage-matrix.json';
+const KNOWLEDGE_RESEARCH_DOSSIERS_URL = './public-data/knowledge/research-dossiers.json';
+const KNOWLEDGE_DOMAIN_DOSSIERS_URL = './public-data/knowledge/domain-dossiers.json';
+const KNOWLEDGE_QUANTITATIVE_LABS_URL = './public-data/knowledge/quantitative-labs.json';
 const TELEGRAM_DISCOVERY_BOUNDARY = 'discovery only';
 
 // The three design specs deliberately stop before source-packet completion.
@@ -1091,7 +1095,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
        const sharedRoute = parseKnowledgeRouteState(root?.location);
        const initialTab = ['foundations', 'taxonomy', 'overview'].includes(sharedRoute.mode) ? sharedRoute.mode : 'foundations';
        const learning = createAppKnowledgeLearningState(root);
-       const state = { tab: initialTab, query: '', selectedLayerId: sharedRoute.chapter || 'F1', selectedModuleId: sharedRoute.lesson || 'energy-and-power', selectedDomainId: 'domain-cloud-platform', selectedDomainNodeId: sharedRoute.node || 'cloud-hyperscaler', selectedDeepTopicId: '', research: null, foundations: null, foundationLessons: null, knowledgeArticles: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, knowledgeSources: null, knowledgeClaims: null, researchError: false, foundationsError: false, foundationLessonsError: false, knowledgeArticlesError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false, knowledgeSourcesError: false, knowledgeClaimsError: false };
+       const state = { tab: initialTab, query: '', selectedLayerId: sharedRoute.chapter || 'F1', selectedModuleId: sharedRoute.lesson || 'energy-and-power', selectedDomainId: 'domain-cloud-platform', selectedDomainNodeId: sharedRoute.node || 'cloud-hyperscaler', selectedDeepTopicId: '', research: null, foundations: null, foundationLessons: null, knowledgeArticles: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, knowledgeSources: null, knowledgeClaims: null, knowledgeCoverage: null, knowledgeResearchDossiers: null, knowledgeDomainDossiers: null, knowledgeQuantitativeLabs: null, researchError: false, foundationsError: false, foundationLessonsError: false, knowledgeArticlesError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false, knowledgeSourcesError: false, knowledgeClaimsError: false, knowledgeCoverageError: false, knowledgeResearchDossiersError: false, knowledgeDomainDossiersError: false, knowledgeQuantitativeLabsError: false };
       page.dataset.aioArchitectureRoute = 'atlas';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -1144,7 +1148,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           const metrics = element(documentRef, 'div', 'atlas-metric-grid');
           metrics.replaceChildren();
           const research = state.research;
-          [['공식 1차 출처', String(research?.sources?.length || 0)], ['검토 후보 노드', String(research?.nodes?.length || 0)], ['Telegram 역할', '발견 보조'], ['현재 주장', String(research?.publication?.currentClaims || 0)]].forEach(([label, value]) => { const card = element(documentRef, 'div', 'atlas-metric'); card.append(element(documentRef, 'span', 'atlas-metric-label', label), element(documentRef, 'strong', 'atlas-metric-value', value)); metrics.appendChild(card); });
+          [['공식 1차 출처', String(research?.sources?.length || 0)], ['검토 후보 노드', String(research?.nodes?.length || 0)], ['Telegram 역할', '발견 보조'], ['현재 주장', String(research?.publication?.currentClaims || 0)], ['Knowledge coverage inventory', String(state.knowledgeCoverage?.counts?.units || 0)], ['Research dossiers', `${state.knowledgeResearchDossiers?.counts?.researched || 0}/${state.knowledgeResearchDossiers?.counts?.total || 0}`], ['Domain dossiers', String(state.knowledgeDomainDossiers?.counts?.domains || 0)], ['Quantitative labs', String(state.knowledgeQuantitativeLabs?.counts?.labs || 0)]].forEach(([label, value]) => { const card = element(documentRef, 'div', 'atlas-metric'); card.append(element(documentRef, 'span', 'atlas-metric-label', label), element(documentRef, 'strong', 'atlas-metric-value', value)); metrics.appendChild(card); });
           const grid = element(documentRef, 'div', 'atlas-packet-grid');
           packets.forEach((packet) => grid.appendChild(createPacketCard(documentRef, packet)));
           if (!packets.length) grid.appendChild(element(documentRef, 'div', 'atlas-empty', '검색 결과가 없습니다.'));
@@ -1161,6 +1165,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
            const telegramView = createTelegramReferenceView(documentRef, state.telegram, state.query);
            if (telegramView) body.appendChild(telegramView);
           if (state.researchError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Research artifact could not be loaded; structural packet view remains available.'));
+          if (state.knowledgeCoverageError || state.knowledgeResearchDossiersError || state.knowledgeDomainDossiersError || state.knowledgeQuantitativeLabsError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Knowledge completion artifacts are unavailable; this page keeps the structural reference boundary and does not infer current claims.'));
         }
         content.replaceChildren(toolbar, body);
         const resultCount = page.querySelector('[data-atlas-result-count]');
@@ -1210,7 +1215,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       };
       page.addEventListener('click', onClick);
       bag.add(() => page.removeEventListener('click', onClick));
-         bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioKnowledgeLearningState; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasKnowledgeArticles; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; delete page.dataset.aioAtlasKnowledgeSources; delete page.dataset.aioAtlasKnowledgeClaims; content.replaceChildren(); });
+         bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioKnowledgeLearningState; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasKnowledgeArticles; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; delete page.dataset.aioAtlasKnowledgeSources; delete page.dataset.aioAtlasKnowledgeClaims; delete page.dataset.aioAtlasKnowledgeCoverage; delete page.dataset.aioAtlasKnowledgeResearchDossiers; delete page.dataset.aioAtlasKnowledgeDomainDossiers; delete page.dataset.aioAtlasKnowledgeQuantitativeLabs; content.replaceChildren(); });
       render();
       const fetchFn = root?.fetch || globalThis.fetch;
        if (typeof fetchFn === 'function') {
@@ -1228,7 +1233,11 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             { key: 'registry', url: PLAYER_PRODUCT_URL },
             { key: 'currentness', url: PLAYER_PRODUCT_CURRENTNESS_URL },
             { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL },
-            { key: 'knowledgeClaims', url: KNOWLEDGE_CLAIMS_URL }
+            { key: 'knowledgeClaims', url: KNOWLEDGE_CLAIMS_URL },
+            { key: 'knowledgeCoverage', url: KNOWLEDGE_COVERAGE_URL },
+            { key: 'knowledgeResearchDossiers', url: KNOWLEDGE_RESEARCH_DOSSIERS_URL },
+            { key: 'knowledgeDomainDossiers', url: KNOWLEDGE_DOMAIN_DOSSIERS_URL },
+            { key: 'knowledgeQuantitativeLabs', url: KNOWLEDGE_QUANTITATIVE_LABS_URL }
           ]).then((capabilities) => {
             for (const [key, result] of Object.entries(capabilities)) {
               state[key] = result.value;
@@ -1251,7 +1260,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
               domainGuides: 'aioAtlasDomainGuides', domainPackets: 'aioAtlasDomainPackets', claimLedger: 'aioAtlasClaims',
               taxonomyCoverage: 'aioAtlasTaxonomyCoverage', deepTaxonomy: 'aioAtlasDeepTaxonomy', telegram: 'aioAtlasTelegram',
               registry: 'aioAtlasRegistry', currentness: 'aioAtlasCurrentness'
-              , knowledgeSources: 'aioAtlasKnowledgeSources', knowledgeClaims: 'aioAtlasKnowledgeClaims'
+              , knowledgeSources: 'aioAtlasKnowledgeSources', knowledgeClaims: 'aioAtlasKnowledgeClaims', knowledgeCoverage: 'aioAtlasKnowledgeCoverage', knowledgeResearchDossiers: 'aioAtlasKnowledgeResearchDossiers', knowledgeDomainDossiers: 'aioAtlasKnowledgeDomainDossiers', knowledgeQuantitativeLabs: 'aioAtlasKnowledgeQuantitativeLabs'
             };
             for (const [key, datasetKey] of Object.entries(datasetMap)) page.dataset[datasetKey] = capabilities[key].status;
             render();
@@ -1262,4 +1271,4 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
   };
 }
 
-export { ATLAS_PACKETS, FOUNDATION_TRACKS, TAXONOMY_LEVELS, REPRESENTATIVE_NODES, RESEARCH_URL, FOUNDATIONS_URL, FOUNDATIONS_LESSONS_URL, DOMAIN_GUIDES_URL, DOMAIN_PACKETS_URL, DOMAIN_CLAIMS_URL, TAXONOMY_COVERAGE_URL, DEEP_TAXONOMY_URL, TELEGRAM_REFERENCE_URL, PLAYER_PRODUCT_URL, PLAYER_PRODUCT_CURRENTNESS_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL, KNOWLEDGE_ARTICLES_URL };
+export { ATLAS_PACKETS, FOUNDATION_TRACKS, TAXONOMY_LEVELS, REPRESENTATIVE_NODES, RESEARCH_URL, FOUNDATIONS_URL, FOUNDATIONS_LESSONS_URL, DOMAIN_GUIDES_URL, DOMAIN_PACKETS_URL, DOMAIN_CLAIMS_URL, TAXONOMY_COVERAGE_URL, DEEP_TAXONOMY_URL, TELEGRAM_REFERENCE_URL, PLAYER_PRODUCT_URL, PLAYER_PRODUCT_CURRENTNESS_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL, KNOWLEDGE_ARTICLES_URL, KNOWLEDGE_COVERAGE_URL, KNOWLEDGE_RESEARCH_DOSSIERS_URL, KNOWLEDGE_DOMAIN_DOSSIERS_URL, KNOWLEDGE_QUANTITATIVE_LABS_URL };

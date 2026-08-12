@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:F3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "국가부채의 지속 가능성은 부채 규모 자체보다 성장률·이자율·기초재정수지·통화·만기 구조가 함께 결정한다.",
+      "mechanism": "명목 성장률이 이자율보다 높고 기초수지가 관리되면 부채비율 안정이 쉬워지지만, 재융자 비용과 신뢰 충격은 빠르게 조건을 바꿀 수 있다.",
+      "example": "장기 고정금리 국채 비중이 높은 국가는 금리 상승이 즉시 이자비용에 반영되지 않지만 신규 발행과 만기 도래 때 부담이 커진다.",
+      "counterScenario": "부채비율 한 숫자를 절대 기준으로 사용하거나 중앙은행이 항상 국채를 흡수한다고 가정하면 만기·통화·정책 신뢰 위험을 놓친다.",
+      "verificationQuestion": "부채의 평균 만기·통화·이자비용과 명목 성장률·기초수지를 함께 보면 어떤 경로에서 위험이 커지는가?",
+      "visualization": "부채비율 ↔ 성장·이자·기초수지"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 27번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

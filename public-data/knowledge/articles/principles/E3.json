@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:E3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "미국채는 달러 금융시장의 기준 현금흐름이자 글로벌 담보·할인율·유동성의 기준으로 널리 사용된다.",
+      "mechanism": "미국채 금리와 달러는 각국 자산의 상대 매력·차입 비용·환율·위험 선호에 연결된다. 다만 미국채도 재정·수급·정책 위험을 가진다.",
+      "example": "미국 장기금리가 오르면 달러 차입 기업의 비용과 신흥국 자금 흐름이 바뀔 수 있지만, 국가별 외화 수입·헤지 구조에 따라 영향은 다르다.",
+      "counterScenario": "미국채 금리 상승을 모든 위험자산의 동일한 할인율 충격으로 보면 성장 전망·달러 수급·국가별 위험을 놓친다.",
+      "verificationQuestion": "미국채 움직임이 세계 시장에 전달되는 경로는 할인율·담보·달러 자금·환율 중 무엇인가?",
+      "visualization": "미국채 → 달러·담보·할인율 → 글로벌 자산"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 20번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

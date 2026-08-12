@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:retrieval-augmented-generation",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "RAG는 질문에 관련된 문서를 검색해 생성 모델 입력에 근거로 추가하는 pipeline이다.",
+      "mechanism": "chunk·embedding·retriever·reranker·prompt·citation이 검색과 생성을 연결한다.",
+      "example": "기업 문서의 최신 조항을 찾아 답변과 문서 위치를 함께 보여줄 수 있다.",
+      "counterScenario": "검색된 문서가 질문에 맞고 생성 답변이 그 내용을 정확히 반영하는지는 별도 검증해야 한다.",
+      "verificationQuestion": "검색 품질과 생성 품질을 각각 측정해야 하는 이유는 무엇인가?",
+      "visualization": "질문 → 검색·재순위화 → 근거 prompt → 생성·인용 검사"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 138번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

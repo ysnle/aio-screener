@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:parallel-processing",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "병렬처리는 독립적인 계산을 여러 연산 유닛이 동시에 수행하는 방식이다.",
+      "mechanism": "행렬과 tensor를 block으로 나누고 메모리·동기화 비용을 지불하면서 처리량을 높인다.",
+      "example": "학습의 큰 batch 계산은 병렬화에 잘 맞지만 순차적인 token 생성은 지연 제약이 크다.",
+      "counterScenario": "연산 유닛을 늘려도 통신·메모리·직렬 구간이 성능 향상을 제한한다.",
+      "verificationQuestion": "학습과 실시간 추론이 같은 가속기에서도 다른 병목을 갖는 이유는 무엇인가?",
+      "visualization": "작업 분할 → 동시 계산 → 통신·동기화 → 결과 결합"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 115번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

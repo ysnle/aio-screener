@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "knowledge-quantitative-lab.v1",
+  "generatedAt": "2026-08-12",
+  "labId": "lab:scenario-invalidation",
+  "title": "시나리오 민감도와 무효화 임계값",
+  "formula": "downside = baseMetric * (1 - shock)",
+  "variables": [
+    {
+      "id": "baseMetric",
+      "label": "기준 지표",
+      "unit": "units"
+    },
+    {
+      "id": "shock",
+      "label": "충격률",
+      "unit": "ratio"
+    },
+    {
+      "id": "downside",
+      "label": "충격 후 지표",
+      "unit": "units"
+    }
+  ],
+  "assumptions": [
+    "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+    "단위와 기간이 일치한다고 가정한다.",
+    "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+  ],
+  "workedExample": {
+    "inputs": {
+      "baseMetric": 100,
+      "shock": 0.2
+    },
+    "steps": [
+      "기준 지표 100과 20% 하락 충격을 둔다.",
+      "100 × (1 - 0.20) = 80으로 계산한다."
+    ],
+    "result": 80,
+    "resultType": "number",
+    "interpretation": "가정 하나를 바꿨을 때 결과가 얼마나 움직이는지 확인하는 첫 단계다.",
+    "failureBoundary": "충격의 방향·기간·상관관계·2차 효과가 정의되지 않으면 확률이나 예측으로 해석하지 않는다."
+  },
+  "observation": {
+    "metric": "시나리오 민감도와 무효화 임계값",
+    "timeframe": "사례 계산 1회",
+    "regime": "합성 교육 시나리오",
+    "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+    "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+    "invalidation": "충격의 방향·기간·상관관계·2차 효과가 정의되지 않으면 확률이나 예측으로 해석하지 않는다.",
+    "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+  },
+  "conceptIds": [
+    "concept:scenario-analysis"
+  ],
+  "articleIds": [],
+  "sourceIds": [
+    "WEB-FRED-INFLATION-EXPECTATIONS",
+    "WEB-SEC-FINANCIAL-STATEMENTS-2024"
+  ],
+  "status": "EDUCATIONAL_LAB_DRAFT",
+  "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+  "completion": {
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

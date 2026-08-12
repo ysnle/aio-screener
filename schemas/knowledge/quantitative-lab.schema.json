@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aio-screener.local/schemas/knowledge/quantitative-lab.schema.json",
+  "title": "Knowledge quantitative market transmission lab",
+  "type": "object",
+  "required": ["schemaVersion", "labId", "title", "formula", "variables", "assumptions", "workedExample", "observation", "status", "currentnessBoundary"],
+  "properties": {
+    "schemaVersion": { "const": "knowledge-quantitative-lab.v1" },
+    "labId": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "formula": { "type": "string", "minLength": 1 },
+    "variables": { "type": "array", "minItems": 2 },
+    "assumptions": { "type": "array", "minItems": 1 },
+    "workedExample": { "type": "object", "required": ["inputs", "steps", "result", "interpretation", "failureBoundary"] },
+    "observation": { "type": "object", "required": ["metric", "timeframe", "regime", "catalyst", "confirmation", "invalidation", "missingOrStaleBoundary"] },
+    "status": { "enum": ["EDUCATIONAL_LAB_DRAFT", "SEMANTIC_REVIEW_REQUIRED", "BROWSER_VERIFIED"] },
+    "currentnessBoundary": { "type": "string", "minLength": 1 }
+  }
+}

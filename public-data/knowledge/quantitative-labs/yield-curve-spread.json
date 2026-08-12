@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "knowledge-quantitative-lab.v1",
+  "generatedAt": "2026-08-12",
+  "labId": "lab:yield-curve-spread",
+  "title": "수익률곡선 스프레드",
+  "formula": "spread = longYield - shortYield",
+  "variables": [
+    {
+      "id": "longYield",
+      "label": "장기 금리",
+      "unit": "%"
+    },
+    {
+      "id": "shortYield",
+      "label": "단기 금리",
+      "unit": "%"
+    },
+    {
+      "id": "spread",
+      "label": "스프레드",
+      "unit": "%p"
+    }
+  ],
+  "assumptions": [
+    "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+    "단위와 기간이 일치한다고 가정한다.",
+    "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+  ],
+  "workedExample": {
+    "inputs": {
+      "longYield": 0.04,
+      "shortYield": 0.05
+    },
+    "steps": [
+      "장기 금리 4.00%에서 단기 금리 5.00%를 뺀다.",
+      "0.04 - 0.05 = -0.01이다."
+    ],
+    "result": -0.01,
+    "resultType": "number",
+    "interpretation": "기간별 금리 차이를 측정하는 기본값이며, 단독으로 경기 결론을 확정하지 않는다.",
+    "failureBoundary": "만기·유동성·국가·통화가 다르면 스프레드 비교가 성립하지 않는다."
+  },
+  "observation": {
+    "metric": "수익률곡선 스프레드",
+    "timeframe": "사례 계산 1회",
+    "regime": "합성 교육 시나리오",
+    "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+    "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+    "invalidation": "만기·유동성·국가·통화가 다르면 스프레드 비교가 성립하지 않는다.",
+    "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+  },
+  "conceptIds": [
+    "concept:yield-curve"
+  ],
+  "articleIds": [],
+  "sourceIds": [
+    "WEB-FRED-INFLATION-EXPECTATIONS"
+  ],
+  "status": "EDUCATIONAL_LAB_DRAFT",
+  "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+  "completion": {
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

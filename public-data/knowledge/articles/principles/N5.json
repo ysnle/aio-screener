@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "방산은 국가 안보 수요를 바탕으로 장기 조달·인증·유지보수 계약이 형성되는 산업이며 성능과 신뢰성이 가격만큼 중요하다.",
+      "mechanism": "예산·작전 요구·동맹·조달 절차가 수요를 정하고, 생산 능력과 부품 공급이 납품 속도와 이익을 제한한다.",
+      "example": "무인체계의 계약 수주가 커져도 양산 승인·전자전 대응·현장 유지보수·정부 지급 시기가 매출과 현금흐름을 결정한다.",
+      "counterScenario": "전쟁 뉴스나 수주 발표만으로 반복 매출을 확정하면 예산 승인·시험·취소·원가 초과를 놓친다.",
+      "verificationQuestion": "수주가 예산·초도 생산·양산·유지보수 중 어느 단계이며, 마진과 현금 회수 조건은 무엇인가?",
+      "visualization": "위협 요구 → 시험·조달 → 양산·유지보수"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 96번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

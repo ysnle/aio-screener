@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-ai-economics",
+  "domainId": "domain-ai-economics",
+  "title": "domain-ai-economics",
+  "definition": "AI economics는 기능과 인프라 투자가 매출·마진·감가상각·FCF·ROIC로 번역되는 경로다.",
+  "mechanism": "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례",
+  "unit": "요청·GPU시간·매출·마진·CAPEX·FCF",
+  "bottlenecks": [
+    "가격 하락·고정비·과잉 capacity·자금비용·수요 질"
+  ],
+  "uniqueKpis": [
+    "요청·GPU시간·매출·마진·CAPEX·FCF",
+    "Revenue model의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "CAPEX / lease의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Depreciation / useful life의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "FCF / funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "ROIC / counter-scenario의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례",
+    "Revenue model",
+    "CAPEX / lease",
+    "Depreciation / useful life",
+    "FCF / funding",
+    "ROIC / counter-scenario"
+  ],
+  "taxonomyNodeIds": [
+    "economics-revenue-model",
+    "economics-capex",
+    "economics-depreciation",
+    "economics-fcf",
+    "economics-roic"
+  ],
+  "deepBranchIds": [],
+  "playerIds": [],
+  "productIds": [],
+  "sourceIds": [
+    "AT-AE-01",
+    "AT-AE-02",
+    "AT-AE-03"
+  ],
+  "researchQuestions": [
+    "CAPEX 계획·실행·감가상각·FCF를 어떤 공시에서 구분하는가",
+    "AI 서비스의 단위경제성과 고객 retention을 어떻게 검증하는가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

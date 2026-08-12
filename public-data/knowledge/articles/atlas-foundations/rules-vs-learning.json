@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:rules-vs-learning",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "규칙 기반 프로그램은 사람이 조건을 작성하고 학습 시스템은 데이터에서 parameter를 조정한다.",
+      "mechanism": "규칙은 예외를 명시적으로 관리하고 학습은 데이터 분포와 목표 함수에 맞는 일반화를 찾는다.",
+      "example": "세금 계산 규칙과 이미지 분류 모델은 오류가 드러나고 수정되는 경로가 다르다.",
+      "counterScenario": "학습 시스템도 데이터·목표·안전 정책이라는 설계 규칙을 포함하므로 완전히 규칙이 없는 것은 아니다.",
+      "verificationQuestion": "새로운 예외가 생겼을 때 규칙 수정과 재학습 중 어느 경로가 더 검증 가능한가?",
+      "visualization": "규칙·데이터 → 변환 과정 → 출력 → 오류 수정 루프"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 119번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

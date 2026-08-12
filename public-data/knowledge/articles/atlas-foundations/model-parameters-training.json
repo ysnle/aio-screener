@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:model-parameters-training",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "모델은 입력을 출력으로 바꾸는 구조이고 parameter는 학습 과정에서 조정되는 수치다.",
+      "mechanism": "손실을 계산하고 gradient로 parameter를 조금씩 갱신해 목표 분포에 맞춘다.",
+      "example": "parameter 수가 많아도 데이터·최적화·배포 비용과 함께 검증해야 실제 유용성을 판단할 수 있다.",
+      "counterScenario": "parameter 수만으로 지식량·추론 품질·운영비를 직접 비교할 수 없다.",
+      "verificationQuestion": "모델 크기와 성능 사이의 관계를 평가할 때 어떤 추가 변수를 확인해야 하는가?",
+      "visualization": "데이터 → 예측·손실 → gradient → parameter 업데이트"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 120번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

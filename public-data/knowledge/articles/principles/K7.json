@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K7",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "공급 증설 시간은 수요 증가에 대응해 공장·장비·인력·인증·전력·물류를 준비하는 데 필요한 기간이다.",
+      "mechanism": "짧은 증설은 경쟁자의 진입과 가격 하락을 빠르게 부르고, 긴 증설은 가격 급등과 초과이익을 만들지만 과잉투자 위험도 키운다.",
+      "example": "첨단 패키징 라인은 장비뿐 아니라 고객별 공정 인증과 수율 안정화가 필요해, 발표된 CAPEX가 즉시 출하로 바뀌지 않는다.",
+      "counterScenario": "수요 전망에 증설 시간을 곱하지 않고 매출을 선형으로 외삽하면 공급 과잉이나 병목 지속을 잘못 예측한다.",
+      "verificationQuestion": "수요가 늘어난 뒤 실제 생산 가능한 용량까지 어떤 승인·납기·수율 단계가 남아 있는가?",
+      "visualization": "수요 신호 → CAPEX·인증 → 가동 가능한 공급"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 58번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

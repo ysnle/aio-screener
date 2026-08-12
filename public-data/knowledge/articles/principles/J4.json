@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:J4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "투자에서 생존은 손실을 0으로 만드는 것이 아니라 큰 손실이 복구·판단·현금흐름을 망가뜨리지 않게 관리하는 것이다.",
+      "mechanism": "손실률이 커질수록 원금 회복에 필요한 수익률은 비선형적으로 커진다. 레버리지·유동성·상관 집중은 손실을 확대한다.",
+      "example": "50% 하락한 자산은 원금 회복에 100% 상승이 필요하다. 손절·분산·현금 버퍼의 목적은 예측보다 복구 가능성을 지키는 데 있다.",
+      "counterScenario": "평균 수익률만 비교하고 최대 낙폭·회복 기간·강제 청산을 보지 않으면 전략의 실제 생존성을 과대평가한다.",
+      "verificationQuestion": "최악의 기간에 현금과 포지션이 어떤 행동을 강제하며, 회복에 필요한 수익률과 시간이 감당 가능한가?",
+      "visualization": "손실 → 회복 필요수익률 → 생존"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 50번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

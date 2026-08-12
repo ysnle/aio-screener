@@ -1,8 +1,8 @@
 ---
 verified_by: Codex
-last_verified: 2026-08-11
+last_verified: 2026-08-12
 confidence: high for repository, artifact topology, renderer behavior, content-volume measurement, and reproduced live UI findings; medium for academic/source directness because every external source original was not independently re-read
-target_version: v54.6
+target_version: v54.7
 status: IMPLEMENTATION_IN_PROGRESS
 bounded_changes_implemented: naming_audit_contracts_s0_reference_core_ontology_claim_registry_article_drafts_learning_state_route_bridge_repository_renderers_encyclopedia_mission_full_coverage_web_research_post_ka_track
 knowledge_rebuild_status: STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN
@@ -11,6 +11,14 @@ local_revision: v54.6
 machine_contract: _context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json
 file_manifest: _context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json
 ---
+
+## 2026-08-12 KA-11~15 implementation update
+
+The local implementation now carries the planned coverage and research-boundary artifacts. `public-data/knowledge/coverage-matrix.json` inventories 423 units: 111 core lessons, 48 foundations, 60 Principles concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains, 20 players and 20 products. This is an inventory gate, not a completion claim.
+
+Per-unit Web Research dossiers are generated for all 423 units. Web Search directly inspected five official/academic seed pages and registered them as leads; 0 dossiers are fully researched, 172 are `RESEARCH_IN_PROGRESS`, and 251 are `RESEARCH_REQUIRED`. Source reuse, discovery-only promotion and current-value claims remain blocked by the dossier boundary.
+
+KA-13 retains 159 unique reconstruction seeds but all articles remain `RECONSTRUCTION_REQUIRED`. KA-14 adds 19 structural domain dossiers covering 95 taxonomy nodes and 50 unique deep branches. KA-15 adds 15 deterministic educational quantitative labs with formulas, units, assumptions, synthetic examples, observation metrics, confirmation/invalidation and stale-data boundaries. None are live values, user-validated learning outcomes or investment recommendations. KA-16 semantic/browser/live/user certification remains open.
 
 ## 2026-08-11 implementation update
 

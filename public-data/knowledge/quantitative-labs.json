@@ -1,0 +1,1031 @@
+{
+  "schemaVersion": "knowledge-quantitative-labs.v1",
+  "generatedAt": "2026-08-12",
+  "status": "EDUCATIONAL_LAB_DRAFT",
+  "boundary": "Labs are deterministic educational examples; no current market or company value is asserted.",
+  "counts": {
+    "labs": 15
+  },
+  "labs": [
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:real-rate",
+      "title": "실질금리와 기대 인플레이션",
+      "formula": "realRate = nominalRate - expectedInflation",
+      "variables": [
+        {
+          "id": "nominalRate",
+          "label": "명목금리",
+          "unit": "%"
+        },
+        {
+          "id": "expectedInflation",
+          "label": "기대 인플레이션",
+          "unit": "%"
+        },
+        {
+          "id": "realRate",
+          "label": "실질금리",
+          "unit": "%"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "nominalRate": 0.05,
+          "expectedInflation": 0.02
+        },
+        "steps": [
+          "명목금리 5.00%를 소수 0.05로 둔다.",
+          "기대 인플레이션 2.00%를 소수 0.02로 둔다.",
+          "0.05 - 0.02 = 0.03, 즉 3.00%로 계산한다."
+        ],
+        "result": 0.03,
+        "resultType": "number",
+        "interpretation": "다른 조건이 같다면 현재 구매력 기준의 금리 부담을 해석하는 출발점이다.",
+        "failureBoundary": "기대 인플레이션의 정의·기간·측정 방식이 다르면 단순 차이를 직접 비교하지 않는다."
+      },
+      "observation": {
+        "metric": "실질금리와 기대 인플레이션",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "기대 인플레이션의 정의·기간·측정 방식이 다르면 단순 차이를 직접 비교하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:real-interest-rate"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-FRED-INFLATION-EXPECTATIONS"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:duration",
+      "title": "채권 듀레이션과 금리 민감도",
+      "formula": "approxPriceChange = -modifiedDuration * yieldChange",
+      "variables": [
+        {
+          "id": "modifiedDuration",
+          "label": "수정 듀레이션",
+          "unit": "years"
+        },
+        {
+          "id": "yieldChange",
+          "label": "수익률 변화",
+          "unit": "decimal"
+        },
+        {
+          "id": "approxPriceChange",
+          "label": "가격 변화율",
+          "unit": "decimal"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "modifiedDuration": 5,
+          "yieldChange": 0.01
+        },
+        "steps": [
+          "수정 듀레이션을 5년으로 둔다.",
+          "수익률이 1%p 상승한다고 둔다.",
+          "-5 × 0.01 = -0.05, 약 -5%로 계산한다."
+        ],
+        "result": -0.05,
+        "resultType": "number",
+        "interpretation": "작은 금리 변화에서 채권 가격 민감도의 1차 근사를 보여준다.",
+        "failureBoundary": "큰 금리 변화·볼록성·스프레드·옵션 내재성이 있으면 1차 근사만으로 판단하지 않는다."
+      },
+      "observation": {
+        "metric": "채권 듀레이션과 금리 민감도",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "큰 금리 변화·볼록성·스프레드·옵션 내재성이 있으면 1차 근사만으로 판단하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:duration"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-FRED-INFLATION-EXPECTATIONS"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:yield-curve-spread",
+      "title": "수익률곡선 스프레드",
+      "formula": "spread = longYield - shortYield",
+      "variables": [
+        {
+          "id": "longYield",
+          "label": "장기 금리",
+          "unit": "%"
+        },
+        {
+          "id": "shortYield",
+          "label": "단기 금리",
+          "unit": "%"
+        },
+        {
+          "id": "spread",
+          "label": "스프레드",
+          "unit": "%p"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "longYield": 0.04,
+          "shortYield": 0.05
+        },
+        "steps": [
+          "장기 금리 4.00%에서 단기 금리 5.00%를 뺀다.",
+          "0.04 - 0.05 = -0.01이다."
+        ],
+        "result": -0.01,
+        "resultType": "number",
+        "interpretation": "기간별 금리 차이를 측정하는 기본값이며, 단독으로 경기 결론을 확정하지 않는다.",
+        "failureBoundary": "만기·유동성·국가·통화가 다르면 스프레드 비교가 성립하지 않는다."
+      },
+      "observation": {
+        "metric": "수익률곡선 스프레드",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "만기·유동성·국가·통화가 다르면 스프레드 비교가 성립하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:yield-curve"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-FRED-INFLATION-EXPECTATIONS"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:dcf",
+      "title": "할인현금흐름의 현재가치",
+      "formula": "pv = cashFlow / (1 + discountRate)^period",
+      "variables": [
+        {
+          "id": "cashFlow",
+          "label": "미래 현금흐름",
+          "unit": "currency"
+        },
+        {
+          "id": "discountRate",
+          "label": "할인율",
+          "unit": "decimal"
+        },
+        {
+          "id": "period",
+          "label": "기간",
+          "unit": "years"
+        },
+        {
+          "id": "pv",
+          "label": "현재가치",
+          "unit": "currency"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "cashFlow": 110,
+          "discountRate": 0.1,
+          "period": 1
+        },
+        "steps": [
+          "미래 현금흐름 110, 할인율 10%, 기간 1년을 둔다.",
+          "110 / (1.10^1) = 100으로 계산한다."
+        ],
+        "result": 100,
+        "resultType": "number",
+        "interpretation": "미래 현금흐름을 현재 기준으로 환산하는 구조를 설명한다.",
+        "failureBoundary": "현금흐름·할인율·말단가치 가정이 검증되지 않으면 가치 결론으로 승격하지 않는다."
+      },
+      "observation": {
+        "metric": "할인현금흐름의 현재가치",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "현금흐름·할인율·말단가치 가정이 검증되지 않으면 가치 결론으로 승격하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:discounted-cash-flow"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-SEC-FINANCIAL-STATEMENTS-2024"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:dilution",
+      "title": "주식 희석 후 보유비율",
+      "formula": "ownershipAfter = existingShares / (existingShares + newShares)",
+      "variables": [
+        {
+          "id": "existingShares",
+          "label": "기존 주식수",
+          "unit": "shares"
+        },
+        {
+          "id": "newShares",
+          "label": "신규 발행 주식수",
+          "unit": "shares"
+        },
+        {
+          "id": "ownershipAfter",
+          "label": "희석 후 비율",
+          "unit": "ratio"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "existingShares": 100,
+          "newShares": 25
+        },
+        "steps": [
+          "기존 주식 100주와 신규 발행 25주를 둔다.",
+          "100 / (100 + 25) = 0.8로 계산한다."
+        ],
+        "result": 0.8,
+        "resultType": "number",
+        "interpretation": "신규 발행이 기존 주주의 비율에 미치는 산술 효과를 보여준다.",
+        "failureBoundary": "전환조건·우선권·자사주·의결권 차이가 있으면 단순 주식수 비율만 사용하지 않는다."
+      },
+      "observation": {
+        "metric": "주식 희석 후 보유비율",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "전환조건·우선권·자사주·의결권 차이가 있으면 단순 주식수 비율만 사용하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:dilution"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-SEC-FINANCIAL-STATEMENTS-2024"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:roic",
+      "title": "투하자본수익률",
+      "formula": "roic = nopat / investedCapital",
+      "variables": [
+        {
+          "id": "nopat",
+          "label": "세후영업이익",
+          "unit": "currency"
+        },
+        {
+          "id": "investedCapital",
+          "label": "투하자본",
+          "unit": "currency"
+        },
+        {
+          "id": "roic",
+          "label": "투하자본수익률",
+          "unit": "ratio"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "nopat": 12,
+          "investedCapital": 100
+        },
+        "steps": [
+          "세후영업이익 12와 투하자본 100을 둔다.",
+          "12 / 100 = 0.12, 즉 12%다."
+        ],
+        "result": 0.12,
+        "resultType": "number",
+        "interpretation": "영업이익이 투하자본에 비해 얼마나 발생했는지 보는 기본 비율이다.",
+        "failureBoundary": "NOPAT 조정·자본화·기간 정합성이 맞지 않으면 기업 간 직접 비교를 중단한다."
+      },
+      "observation": {
+        "metric": "투하자본수익률",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "NOPAT 조정·자본화·기간 정합성이 맞지 않으면 기업 간 직접 비교를 중단한다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:roic"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-SEC-FINANCIAL-STATEMENTS-2024"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:unit-economics",
+      "title": "단위경제와 공헌이익",
+      "formula": "contributionMargin = price - variableCost",
+      "variables": [
+        {
+          "id": "price",
+          "label": "단위 가격",
+          "unit": "currency"
+        },
+        {
+          "id": "variableCost",
+          "label": "단위 변동비",
+          "unit": "currency"
+        },
+        {
+          "id": "contributionMargin",
+          "label": "단위 공헌이익",
+          "unit": "currency"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "price": 100,
+          "variableCost": 60
+        },
+        "steps": [
+          "단위 가격 100, 변동비 60을 둔다.",
+          "100 - 60 = 40으로 계산한다."
+        ],
+        "result": 40,
+        "resultType": "number",
+        "interpretation": "고정비를 회수하기 전 단위당 경제성을 분리해 본다.",
+        "failureBoundary": "변동비 분류와 기간별 가격·믹스가 바뀌면 동일 단위로 비교하지 않는다."
+      },
+      "observation": {
+        "metric": "단위경제와 공헌이익",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "변동비 분류와 기간별 가격·믹스가 바뀌면 동일 단위로 비교하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:unit-economics"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-SEC-FINANCIAL-STATEMENTS-2024"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:pue",
+      "title": "데이터센터 전력사용효율 PUE",
+      "formula": "pue = totalFacilityEnergy / ITEquipmentEnergy",
+      "variables": [
+        {
+          "id": "totalFacilityEnergy",
+          "label": "시설 전체 에너지",
+          "unit": "kWh"
+        },
+        {
+          "id": "ITEquipmentEnergy",
+          "label": "IT 장비 에너지",
+          "unit": "kWh"
+        },
+        {
+          "id": "pue",
+          "label": "전력사용효율",
+          "unit": "ratio"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "totalFacilityEnergy": 1200,
+          "ITEquipmentEnergy": 1000
+        },
+        "steps": [
+          "시설 전체 에너지 1,200kWh와 IT 장비 에너지 1,000kWh를 둔다.",
+          "1,200 / 1,000 = 1.2로 계산한다."
+        ],
+        "result": 1.2,
+        "resultType": "number",
+        "interpretation": "IT 장비 외 냉각·전력변환 등 시설 오버헤드의 비율을 설명한다.",
+        "failureBoundary": "측정 경계·기간·부하가 다르면 시설 간 PUE를 직접 비교하지 않는다."
+      },
+      "observation": {
+        "metric": "데이터센터 전력사용효율 PUE",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "측정 경계·기간·부하가 다르면 시설 간 PUE를 직접 비교하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:pue"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-DOE-DATACENTER-PUE-2019"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:utilization",
+      "title": "용량 이용률과 유휴 용량",
+      "formula": "utilization = usedCapacity / availableCapacity",
+      "variables": [
+        {
+          "id": "usedCapacity",
+          "label": "사용 용량",
+          "unit": "units"
+        },
+        {
+          "id": "availableCapacity",
+          "label": "가용 용량",
+          "unit": "units"
+        },
+        {
+          "id": "utilization",
+          "label": "이용률",
+          "unit": "ratio"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "usedCapacity": 70,
+          "availableCapacity": 100
+        },
+        "steps": [
+          "사용 용량 70과 가용 용량 100을 둔다.",
+          "70 / 100 = 0.70, 즉 70%다."
+        ],
+        "result": 0.7,
+        "resultType": "number",
+        "interpretation": "총 설치량이 아니라 실제 사용량과 병목 여유를 구분하는 기초 지표다.",
+        "failureBoundary": "가용 용량 정의·기간·피크와 평균이 섞이면 이용률 해석을 보류한다."
+      },
+      "observation": {
+        "metric": "용량 이용률과 유휴 용량",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "가용 용량 정의·기간·피크와 평균이 섞이면 이용률 해석을 보류한다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:capacity-utilization"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-DOE-DATACENTER-PUE-2019"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:bandwidth-latency",
+      "title": "대역폭과 전송시간",
+      "formula": "transferTime = dataSize / bandwidth",
+      "variables": [
+        {
+          "id": "dataSize",
+          "label": "데이터 크기",
+          "unit": "GB"
+        },
+        {
+          "id": "bandwidth",
+          "label": "대역폭",
+          "unit": "GB/s"
+        },
+        {
+          "id": "transferTime",
+          "label": "전송시간",
+          "unit": "s"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "dataSize": 100,
+          "bandwidth": 20
+        },
+        "steps": [
+          "데이터 100GB와 대역폭 20GB/s를 둔다.",
+          "100 / 20 = 5초로 계산한다."
+        ],
+        "result": 5,
+        "resultType": "number",
+        "interpretation": "이상적인 조건에서 데이터 이동 병목의 규모를 직관화한다.",
+        "failureBoundary": "프로토콜 오버헤드·공유망·큐잉·실효대역폭을 무시한 교육용 근사다."
+      },
+      "observation": {
+        "metric": "대역폭과 전송시간",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "프로토콜 오버헤드·공유망·큐잉·실효대역폭을 무시한 교육용 근사다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:bandwidth"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-ARXIV-TRANSFORMER-2017"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:kv-cache-memory",
+      "title": "KV cache 메모리 규모",
+      "formula": "memory = tokens * bytesPerToken",
+      "variables": [
+        {
+          "id": "tokens",
+          "label": "토큰 수",
+          "unit": "tokens"
+        },
+        {
+          "id": "bytesPerToken",
+          "label": "토큰당 메모리",
+          "unit": "bytes/token"
+        },
+        {
+          "id": "memory",
+          "label": "메모리",
+          "unit": "bytes"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "tokens": 1000,
+          "bytesPerToken": 2
+        },
+        "steps": [
+          "토큰 1,000개와 토큰당 2바이트라는 단순 가정을 둔다.",
+          "1,000 × 2 = 2,000바이트로 계산한다."
+        ],
+        "result": 2000,
+        "resultType": "number",
+        "interpretation": "컨텍스트 길이와 메모리 사용량이 함께 커질 수 있음을 설명하는 축약 모델이다.",
+        "failureBoundary": "실제 KV cache는 레이어·헤드·정밀도·배치·런타임 구조를 포함하므로 용량 산정에 직접 사용하지 않는다."
+      },
+      "observation": {
+        "metric": "KV cache 메모리 규모",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "실제 KV cache는 레이어·헤드·정밀도·배치·런타임 구조를 포함하므로 용량 산정에 직접 사용하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:kv-cache"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-ARXIV-TRANSFORMER-2017"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:yield-capacity",
+      "title": "수율과 양품 생산량",
+      "formula": "goodOutput = inputUnits * yieldRate",
+      "variables": [
+        {
+          "id": "inputUnits",
+          "label": "투입 수량",
+          "unit": "units"
+        },
+        {
+          "id": "yieldRate",
+          "label": "수율",
+          "unit": "ratio"
+        },
+        {
+          "id": "goodOutput",
+          "label": "양품 생산량",
+          "unit": "units"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "inputUnits": 1000,
+          "yieldRate": 0.9
+        },
+        "steps": [
+          "투입 1,000개와 수율 90%를 둔다.",
+          "1,000 × 0.90 = 900개로 계산한다."
+        ],
+        "result": 900,
+        "resultType": "number",
+        "interpretation": "수율 변화가 출하 가능한 양품 수량에 미치는 기계적 효과를 보여준다.",
+        "failureBoundary": "공정 단계별 수율·검사 기준·제품 믹스가 다르면 단일 수율로 확대 해석하지 않는다."
+      },
+      "observation": {
+        "metric": "수율과 양품 생산량",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "공정 단계별 수율·검사 기준·제품 믹스가 다르면 단일 수율로 확대 해석하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:yield"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-DOE-DATACENTER-PUE-2019"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:gpu-hour-cost",
+      "title": "가속기 시간당 비용",
+      "formula": "costPerHour = hourlyFixedCost + hourlyEnergyCost",
+      "variables": [
+        {
+          "id": "hourlyFixedCost",
+          "label": "시간당 고정비",
+          "unit": "currency/hour"
+        },
+        {
+          "id": "hourlyEnergyCost",
+          "label": "시간당 에너지비",
+          "unit": "currency/hour"
+        },
+        {
+          "id": "costPerHour",
+          "label": "시간당 비용",
+          "unit": "currency/hour"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "hourlyFixedCost": 3,
+          "hourlyEnergyCost": 2
+        },
+        "steps": [
+          "시간당 고정비 3과 에너지비 2를 둔다.",
+          "3 + 2 = 5로 계산한다."
+        ],
+        "result": 5,
+        "resultType": "number",
+        "interpretation": "가속기 사용량을 비용 구조와 연결하는 교육용 분해다.",
+        "failureBoundary": "감가상각·가동률·전력요금·냉각·장애·공유비용이 빠진 단순 모델이다."
+      },
+      "observation": {
+        "metric": "가속기 시간당 비용",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "감가상각·가동률·전력요금·냉각·장애·공유비용이 빠진 단순 모델이다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:gpu-economics"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-DOE-DATACENTER-PUE-2019"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:capex-depreciation-fcf",
+      "title": "CAPEX와 감가상각의 현금흐름 구분",
+      "formula": "fcf = nopat + depreciation - capex",
+      "variables": [
+        {
+          "id": "nopat",
+          "label": "세후영업이익",
+          "unit": "currency"
+        },
+        {
+          "id": "depreciation",
+          "label": "감가상각",
+          "unit": "currency"
+        },
+        {
+          "id": "capex",
+          "label": "자본적지출",
+          "unit": "currency"
+        },
+        {
+          "id": "fcf",
+          "label": "단순 자유현금흐름",
+          "unit": "currency"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "nopat": 20,
+          "depreciation": 10,
+          "capex": 25
+        },
+        "steps": [
+          "세후영업이익 20, 감가상각 10, CAPEX 25를 둔다.",
+          "20 + 10 - 25 = 5로 계산한다."
+        ],
+        "result": 5,
+        "resultType": "number",
+        "interpretation": "비현금 비용과 실제 자본지출을 구분하는 간단한 현금흐름 bridge다.",
+        "failureBoundary": "운전자본·세금·인수·리스·유지보수/성장 CAPEX 구분이 없으므로 공시 분석을 대체하지 않는다."
+      },
+      "observation": {
+        "metric": "CAPEX와 감가상각의 현금흐름 구분",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "운전자본·세금·인수·리스·유지보수/성장 CAPEX 구분이 없으므로 공시 분석을 대체하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:free-cash-flow"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-SEC-FINANCIAL-STATEMENTS-2024"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    },
+    {
+      "schemaVersion": "knowledge-quantitative-lab.v1",
+      "generatedAt": "2026-08-12",
+      "labId": "lab:scenario-invalidation",
+      "title": "시나리오 민감도와 무효화 임계값",
+      "formula": "downside = baseMetric * (1 - shock)",
+      "variables": [
+        {
+          "id": "baseMetric",
+          "label": "기준 지표",
+          "unit": "units"
+        },
+        {
+          "id": "shock",
+          "label": "충격률",
+          "unit": "ratio"
+        },
+        {
+          "id": "downside",
+          "label": "충격 후 지표",
+          "unit": "units"
+        }
+      ],
+      "assumptions": [
+        "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+        "단위와 기간이 일치한다고 가정한다.",
+        "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+      ],
+      "workedExample": {
+        "inputs": {
+          "baseMetric": 100,
+          "shock": 0.2
+        },
+        "steps": [
+          "기준 지표 100과 20% 하락 충격을 둔다.",
+          "100 × (1 - 0.20) = 80으로 계산한다."
+        ],
+        "result": 80,
+        "resultType": "number",
+        "interpretation": "가정 하나를 바꿨을 때 결과가 얼마나 움직이는지 확인하는 첫 단계다.",
+        "failureBoundary": "충격의 방향·기간·상관관계·2차 효과가 정의되지 않으면 확률이나 예측으로 해석하지 않는다."
+      },
+      "observation": {
+        "metric": "시나리오 민감도와 무효화 임계값",
+        "timeframe": "사례 계산 1회",
+        "regime": "합성 교육 시나리오",
+        "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+        "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+        "invalidation": "충격의 방향·기간·상관관계·2차 효과가 정의되지 않으면 확률이나 예측으로 해석하지 않는다.",
+        "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+      },
+      "conceptIds": [
+        "concept:scenario-analysis"
+      ],
+      "articleIds": [],
+      "sourceIds": [
+        "WEB-FRED-INFLATION-EXPECTATIONS",
+        "WEB-SEC-FINANCIAL-STATEMENTS-2024"
+      ],
+      "status": "EDUCATIONAL_LAB_DRAFT",
+      "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+      "completion": {
+        "semanticReview": "REQUIRED",
+        "browser": "NOT_RUN",
+        "live": "NOT_RUN",
+        "userValidation": "NOT_CONDUCTED"
+      }
+    }
+  ]
+}

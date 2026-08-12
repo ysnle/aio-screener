@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:A2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "생산성은 같은 투입으로 더 많은 산출이나 더 높은 품질을 만드는 능력이며, 장기적인 생활 수준의 핵심 경로다.",
+      "mechanism": "기술·숙련·조직·자본이 한 시간의 산출을 높이면 임금·이익·소비 여력이 늘고, 그 여력이 다시 투자로 이어질 수 있다.",
+      "example": "같은 인력으로 불량률을 낮춘 제조 라인이 판매 가능한 제품을 더 많이 만들면 매출 증가가 단순한 가격 인상이 아니라 생산성 개선에서 왔는지 확인할 수 있다.",
+      "counterScenario": "근로시간과 설비만 늘고 단위당 산출이 개선되지 않으면 외형 성장은 커져도 생산성 부는 축적되지 않는다.",
+      "verificationQuestion": "산출 증가가 가격·근무시간·인력 증가인지, 단위 투입당 산출과 품질이 실제로 개선된 것인지 어떻게 분리할 것인가?",
+      "visualization": "투입 → 단위 산출 → 품질·마진 → 재투자"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 2번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

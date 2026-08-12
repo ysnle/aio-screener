@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:data-quality",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "데이터 품질은 정확성뿐 아니라 대표성·중복·누락·시간 일관성·권리·라벨 품질을 포함한다.",
+      "mechanism": "데이터 오류는 학습·평가·검색의 각 단계로 전파되어 출력 분포와 실패율을 바꾼다.",
+      "example": "중복 문서가 많은 benchmark는 높아 보여도 실제 업무 일반화가 약할 수 있다.",
+      "counterScenario": "깨끗한 데이터만으로 편향·목표 설정·운영 실패가 해결되지는 않는다.",
+      "verificationQuestion": "데이터를 더 많이 모으는 것보다 먼저 품질을 점검해야 하는 신호는 무엇인가?",
+      "visualization": "수집 → 정제·권리 확인 → 학습·평가 → 오류 전파"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 121번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

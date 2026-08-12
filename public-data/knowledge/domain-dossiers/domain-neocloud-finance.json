@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-neocloud-finance",
+  "domainId": "domain-neocloud-finance",
+  "title": "domain-neocloud-finance",
+  "definition": "Neocloud는 가속기와 데이터센터를 임차·예약·금융 구조와 함께 제공하는 용량 사업이다.",
+  "mechanism": "장비 CAPEX·리스 → 고객 예약·사용 → 임대료·가동률 → 부채·잔존가치 위험",
+  "unit": "GPU시간·예약기간·임대료·리스 의무",
+  "bottlenecks": [
+    "고객 집중·계약 해지·전력·감가상각·자금비용"
+  ],
+  "uniqueKpis": [
+    "GPU시간·예약기간·임대료·리스 의무",
+    "GPU rental의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Capacity reservation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Lease burden의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Customer concentration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Rental yield minus funding cost의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "장비 CAPEX·리스 → 고객 예약·사용 → 임대료·가동률 → 부채·잔존가치 위험",
+    "GPU rental",
+    "Capacity reservation",
+    "Lease burden",
+    "Customer concentration",
+    "Rental yield minus funding cost"
+  ],
+  "taxonomyNodeIds": [
+    "neocloud-gpu-rental",
+    "neocloud-capacity-reservation",
+    "neocloud-lease-burden",
+    "neocloud-customer-concentration",
+    "neocloud-rental-yield"
+  ],
+  "deepBranchIds": [
+    "cloud-stack",
+    "cloud-capex",
+    "neocloud-economics",
+    "cloud-roic"
+  ],
+  "playerIds": [],
+  "productIds": [],
+  "sourceIds": [
+    "AT-NC-01",
+    "AT-NC-02",
+    "AT-NC-03"
+  ],
+  "researchQuestions": [
+    "예약 용량과 실제 utilization의 차이는 무엇인가",
+    "리스·부채·고객 집중이 회수기간을 어떻게 바꾸는가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:D1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "금리는 현재 자금과 미래 상환을 교환할 때 적용되는 시간·위험·유동성의 가격이다.",
+      "mechanism": "금리가 높을수록 미래 현금흐름의 현재가치는 낮아지고 차입 수요는 줄어든다. 위험과 만기가 다른 금리는 서로 다른 가격이다.",
+      "example": "장기 프로젝트의 할인율이 7%에서 9%로 오르면 같은 현금흐름의 현재가치와 투자 채택 가능성이 동시에 낮아진다.",
+      "counterScenario": "정책금리 하나가 모든 자금의 가격이라고 보면 신용스프레드·기간 프리미엄·담보 조건을 놓친다.",
+      "verificationQuestion": "이 금리는 무위험 시간가치와 신용·유동성·기간 위험 중 무엇을 얼마나 포함하는가?",
+      "visualization": "현재 자금 ↔ 미래 상환 → 할인율"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 13번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

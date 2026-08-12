@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:G1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "기업은 사람·자본·기술·계약을 조직해 고객에게 제품이나 서비스를 제공하고 현금흐름을 남기는 경제 단위다.",
+      "mechanism": "매출은 고객의 지불에서, 이익은 매출에서 투입비용·세금·자본비용을 뺀 뒤 남는다. 조직 형태와 지배구조가 자본배분을 좌우한다.",
+      "example": "소프트웨어 기업은 추가 고객의 한계비용이 낮을 수 있지만 서버·영업·지원 비용과 유지율이 낮아지면 현금흐름은 달라진다.",
+      "counterScenario": "기업을 단순히 매출이나 시가총액으로 보면 비용 구조·재투자·현금 회수 능력을 놓친다.",
+      "verificationQuestion": "고객이 왜 지불하는지부터 현금 회수까지의 단위경제와 자본배분을 어떤 공시로 연결할 것인가?",
+      "visualization": "고객 지불 → 비용·투자 → 현금흐름"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 29번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

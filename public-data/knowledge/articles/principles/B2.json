@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:B2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "인플레이션은 경제 전반의 가격 수준이 지속적으로 오르는 현상이고, 디플레이션은 반대로 가격 수준이 지속 하락하는 현상이다.",
+      "mechanism": "수요·공급·임금·기대·통화와 신용이 함께 움직이며 가격 수준을 바꾼다. 한 품목의 상대가격 변화와 전체 물가 변화는 분리해야 한다.",
+      "example": "유가 급등은 운송비와 생산비를 올리는 공급 충격이 될 수 있고, 이후 임금·기대·수요가 따라오면 더 넓은 물가 상승으로 번질 수 있다.",
+      "counterScenario": "한 상품 가격 하락을 곧바로 디플레이션으로 부르거나, 모든 물가 상승을 통화량 하나로 설명하면 원인과 정책 반응을 잘못 판단한다.",
+      "verificationQuestion": "변화한 가격이 상대가격인지 전체 물가인지, 수요·공급·환율·기대 중 어떤 자료가 원인을 지지하는가?",
+      "visualization": "수요·공급·기대 → 가격 수준 → 실질 구매력"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 6번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

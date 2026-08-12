@@ -84,5 +84,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:embedding-and-position",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "embedding은 token을 벡터로 바꾸고 position 정보는 순서를 표현한다.",
+      "mechanism": "벡터 공간에서 표현 관계를 계산하고 위치 신호를 결합해 같은 token의 문맥별 역할을 구분한다.",
+      "example": "같은 단어도 앞뒤 token과 위치에 따라 다른 표현으로 변환될 수 있다.",
+      "counterScenario": "embedding 공간의 거리가 의미·인과·사실성을 직접 보장하지 않는다.",
+      "verificationQuestion": "순서 정보가 없다면 같은 단어 묶음에서 무엇을 구분하기 어려운가?",
+      "visualization": "token ID → embedding 벡터 + position → 문맥 표현"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 128번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M6",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "전력 품질은 전압·주파수·고조파·순간 정전이 장비의 안정적 동작을 만족하는 정도이고, 전력전자는 이를 변환·제어한다.",
+      "mechanism": "서버·모터·인버터 같은 부하는 전력의 변동에 민감하며 UPS·컨버터·필터·무효전력 보상이 신뢰도와 효율을 높인다.",
+      "example": "데이터센터가 평균 전력을 충분히 확보해도 짧은 전압 강하가 서버 재부팅을 일으키면 UPS와 이중화가 실제 서비스 가동률을 결정한다.",
+      "counterScenario": "전력 사용량과 용량만 확인하면 품질·보호·전력변환 손실과 장애 비용을 놓친다.",
+      "verificationQuestion": "고객이 요구하는 전력 품질 등급과 장애 허용 시간은 무엇이며 변환·이중화 비용이 수익성에 남는가?",
+      "visualization": "계통 전력 → 변환·보호 → 안정적 부하"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 85번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

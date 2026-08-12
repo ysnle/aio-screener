@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-packaging-substrate",
+  "domainId": "domain-packaging-substrate",
+  "title": "domain-packaging-substrate",
+  "definition": "첨단 패키징은 여러 die·HBM·substrate를 전기·열·기계적으로 하나의 시스템으로 연결한다.",
+  "mechanism": "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가",
+  "unit": "package·die·연결 수·열·양품률",
+  "bottlenecks": [
+    "interposer·substrate·조립 수율·열 설계·검사 capacity"
+  ],
+  "uniqueKpis": [
+    "package·die·연결 수·열·양품률",
+    "2.5D integration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "3D stacking의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Interposer / bridge의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "ABF / FC-BGA substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Glass substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가",
+    "2.5D integration",
+    "3D stacking",
+    "Interposer / bridge",
+    "ABF / FC-BGA substrate",
+    "Glass substrate"
+  ],
+  "taxonomyNodeIds": [
+    "package-2-5d",
+    "package-3d-stacking",
+    "package-interposer",
+    "package-substrate",
+    "package-glass"
+  ],
+  "deepBranchIds": [
+    "package-flow",
+    "package-2-5d-branch",
+    "package-3d-branch",
+    "package-substrate-branch",
+    "package-glass-branch"
+  ],
+  "playerIds": [
+    "tsmc"
+  ],
+  "productIds": [
+    "tsmc-3dfabric-family",
+    "samsung-hbm-family"
+  ],
+  "sourceIds": [
+    "AT-PA-01",
+    "AT-PA-02",
+    "AT-PA-03"
+  ],
+  "researchQuestions": [
+    "2.5D·3D 패키지의 대역폭과 열·검사 trade-off는 무엇인가",
+    "패키지 capacity와 고객 qualification이 출하를 어떻게 제한하는가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

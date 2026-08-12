@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:D2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "명목금리는 계약에 표시된 금리이고, 실질금리는 물가 변화를 고려해 실제 구매력 기준으로 남는 수익 또는 비용이다.",
+      "mechanism": "대략적인 실질금리는 명목금리에서 기대 인플레이션을 뺀 값이며, 사후 실질금리와 사전 기대는 구분해야 한다.",
+      "example": "예금금리가 4%여도 기대 물가가 5%라면 구매력 기준 기대 수익은 음수일 수 있다. 차입자에게는 반대 방향의 부담이 나타난다.",
+      "counterScenario": "현재 물가와 미래 기대 물가를 혼동하면 계약 시점의 실질 금융조건을 잘못 계산한다.",
+      "verificationQuestion": "계약 당시 기대 물가와 실제 물가 중 어떤 기준으로 실질 금리를 계산하며 세금·수수료는 포함했는가?",
+      "visualization": "명목금리 − 기대물가 → 실질금리"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 14번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

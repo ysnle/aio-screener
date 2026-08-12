@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:O1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "미국과 한국 시장은 통화·금리·산업 구성·회계·투자자 기반이 달라 같은 글로벌 충격도 다른 기업 현금흐름으로 번역된다.",
+      "mechanism": "미국의 달러 유동성과 한국의 수출·외국인 흐름·원화 환율이 서로 연결되지만, 시장 규모와 공급망 위치가 반응을 다르게 만든다.",
+      "example": "미국 AI 인프라 CAPEX 증가는 한국 부품 수요를 늘릴 수 있지만 고객 집중·가격·환율·국내 CAPEX 위치가 국내 기업의 실제 이익을 결정한다.",
+      "counterScenario": "미국 기업의 주가 상승을 한국 공급업체의 이익 증가로 바로 옮기면 계약 구조·재고·환율·지분 희석을 놓친다.",
+      "verificationQuestion": "글로벌 수요가 한국 기업의 매출·마진·환산이익·외국인 수급으로 전달되는 각 단계를 어떤 공시로 확인할 것인가?",
+      "visualization": "글로벌 수요 → 공급망·환율 → 국내 기업·시장"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 107번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

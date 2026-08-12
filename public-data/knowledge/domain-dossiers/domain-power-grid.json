@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "knowledge-domain-dossier.v1",
+  "generatedAt": "2026-08-12",
+  "dossierId": "domain-dossier:domain-power-grid",
+  "domainId": "domain-power-grid",
+  "title": "domain-power-grid",
+  "definition": "전력·에너지·grid는 AI 인프라가 언제 어디서 실제로 가동될 수 있는지를 결정한다.",
+  "mechanism": "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약",
+  "unit": "MW·MWh·접속기간·PUE·전력 품질",
+  "bottlenecks": [
+    "발전 mix·송전·변압기·허가·접속 대기·지역 수급"
+  ],
+  "uniqueKpis": [
+    "MW·MWh·접속기간·PUE·전력 품질",
+    "Accelerator IT load의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Generation mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Transmission / substation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Interconnection queue의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+    "Transformer / switchgear의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+  ],
+  "valueChain": [
+    "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약",
+    "Accelerator IT load",
+    "Generation mix",
+    "Transmission / substation",
+    "Interconnection queue",
+    "Transformer / switchgear"
+  ],
+  "taxonomyNodeIds": [
+    "power-it-load",
+    "power-generation",
+    "power-transmission",
+    "power-interconnection",
+    "power-transformer"
+  ],
+  "deepBranchIds": [
+    "aidc-demand",
+    "aidc-grid",
+    "aidc-supply",
+    "aidc-contract",
+    "aidc-constraints"
+  ],
+  "playerIds": [
+    "vertiv"
+  ],
+  "productIds": [
+    "vertiv-thermal-power-solutions"
+  ],
+  "sourceIds": [
+    "AT-PG-01",
+    "AT-PG-02",
+    "AT-PG-03"
+  ],
+  "researchQuestions": [
+    "설치 서버와 grid-connected usable load의 차이는 무엇인가",
+    "전력 가격·허가·접속 대기가 산업 투자 회수에 어떤 시차를 만드는가"
+  ],
+  "marketTransmission": {
+    "status": "RESEARCH_REQUIRED",
+    "path": [
+      "physical/economic input",
+      "industry bottleneck",
+      "company/product evidence",
+      "financial statement",
+      "valuation/market observation",
+      "invalidation"
+    ]
+  },
+  "currentnessBoundary": "REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.",
+  "status": "STRUCTURAL_REFERENCE_DRAFT",
+  "completion": {
+    "coverage": "INVENTORIED",
+    "research": "REQUIRED",
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN"
+  }
+}

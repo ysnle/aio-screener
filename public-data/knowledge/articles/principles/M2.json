@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "발전은 연료·자원·설비를 전기로 바꾸는 과정이며, 기술마다 연료비·고정비·가동률·탄소·입지 조건이 다르다.",
+      "mechanism": "기저·중간·피크 부하에 맞춰 발전원이 배치되고, 연료 가격·정비·기상·규제가 한계비용과 이용률을 바꾼다.",
+      "example": "가스 발전은 수요 피크에 유연하게 대응할 수 있지만 연료 가격에 민감하고, 원전은 높은 이용률과 긴 건설 기간을 가진다.",
+      "counterScenario": "발전원별 설치비나 명목 단가 하나만 비교하면 계통 보강·예비력·폐기·연료 변동 비용을 놓친다.",
+      "verificationQuestion": "이 발전원의 비용과 가치가 고정비·한계비용·이용률·유연성 중 어떤 조합에서 나오는가?",
+      "visualization": "연료·설비 → 발전량·한계비용 → 계통"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 81번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

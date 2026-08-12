@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:B4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "복리는 원금뿐 아니라 이전 기간의 이익에도 다시 수익이 붙는 구조이며, 시간·수익률·재투자율이 함께 결과를 만든다.",
+      "mechanism": "작은 차이의 수익률이 긴 기간 동안 누적되지만, 손실·수수료·세금·중단은 같은 방식으로 복리 효과를 깎는다.",
+      "example": "매년 현금흐름을 사업의 생산성 향상에 재투자하는 기업은 단기 이익을 배당한 기업과 다른 장기 가치를 만들 수 있다.",
+      "counterScenario": "높은 과거 수익률을 고정된 미래 수익률로 가정하거나 변동성과 손실 구간을 제외하면 복리 계산이 과장된다.",
+      "verificationQuestion": "재투자 가능한 현금흐름과 순수익률은 얼마이며, 수수료·세금·최대 손실을 포함해 기간별 결과가 어떻게 달라지는가?",
+      "visualization": "원금 → 수익 → 재투자 → 누적"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 8번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

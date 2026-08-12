@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:O5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "세금·계좌·환율 비용은 투자 수익률에서 보이지 않게 차감되는 거래·보유·환전·배당·이자·양도 비용이다.",
+      "mechanism": "같은 명목 수익도 계좌 유형·거래 빈도·환전 스프레드·원천징수·환헤지에 따라 세후 실현 수익이 달라진다.",
+      "example": "달러 자산의 가격이 올라도 매수·매도 환전 스프레드와 배당 원천징수, 국내 신고·계좌 비용을 빼면 목표 수익률을 달성하지 못할 수 있다.",
+      "counterScenario": "세전 수익률과 앱에 표시된 가격만 비교하면 장기 복리에서 작은 비용이 만드는 누적 차이를 놓친다.",
+      "verificationQuestion": "투자 기간 전체에 발생하는 세금·수수료·환전·환헤지·계좌 비용을 순현금흐름으로 계산했는가?",
+      "visualization": "명목수익 → 세금·수수료·환율 → 세후 현금"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 111번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

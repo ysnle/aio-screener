@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:atlas-foundation:hbm",
+  "contentUnitId": "atlas-foundation:hbm",
+  "unitKind": "FOUNDATION_LESSON",
+  "title": "hbm",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for hbm?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of hbm?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "hbm mechanism primary source",
+    "hbm official data standard filing evidence",
+    "hbm disconfirming evidence limitations"
+  ],
+  "searchedAt": null,
+  "method": "NOT_STARTED",
+  "candidateSources": [
+    {
+      "sourceId": "PS-02",
+      "url": "https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin",
+      "publisher": "Micron",
+      "title": "HBM4 and data-center memory/storage announcement",
+      "sourceTier": null
+    }
+  ],
+  "selectedSources": [],
+  "rejectedSources": [],
+  "sourceTiers": [],
+  "claimCoverage": [
+    {
+      "claimId": "atlas-foundation-hbm",
+      "currentDirectness": "CONTEXT",
+      "requiredAction": "independent direct source required"
+    }
+  ],
+  "consensus": "Not assessed.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about hbm must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace hbm through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_REQUIRED",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

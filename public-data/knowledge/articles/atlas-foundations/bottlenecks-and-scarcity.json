@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:bottlenecks-and-scarcity",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "병목은 전체 시스템의 처리량을 제한하는 가장 좁은 제약이고 희소성은 선택 가능한 자원이 제한된 상태다.",
+      "mechanism": "한 병목을 완화하면 수요와 흐름이 다음 병목으로 이동한다.",
+      "example": "가속기 공급이 늘어도 HBM·패키징·전력·네트워크가 부족하면 시스템 확장은 멈춘다.",
+      "counterScenario": "병목이 이동한다는 주장은 기간·지역·workload를 확인하지 않으면 검증할 수 없다.",
+      "verificationQuestion": "공급량 증가가 곧바로 사용자 처리량 증가가 되지 않는 조건은 무엇인가?",
+      "visualization": "수요 → 공정·메모리·패키지·전력 제약 → 처리량 상한"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 117번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

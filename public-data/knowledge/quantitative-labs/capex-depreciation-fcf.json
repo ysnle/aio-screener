@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "knowledge-quantitative-lab.v1",
+  "generatedAt": "2026-08-12",
+  "labId": "lab:capex-depreciation-fcf",
+  "title": "CAPEX와 감가상각의 현금흐름 구분",
+  "formula": "fcf = nopat + depreciation - capex",
+  "variables": [
+    {
+      "id": "nopat",
+      "label": "세후영업이익",
+      "unit": "currency"
+    },
+    {
+      "id": "depreciation",
+      "label": "감가상각",
+      "unit": "currency"
+    },
+    {
+      "id": "capex",
+      "label": "자본적지출",
+      "unit": "currency"
+    },
+    {
+      "id": "fcf",
+      "label": "단순 자유현금흐름",
+      "unit": "currency"
+    }
+  ],
+  "assumptions": [
+    "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+    "단위와 기간이 일치한다고 가정한다.",
+    "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+  ],
+  "workedExample": {
+    "inputs": {
+      "nopat": 20,
+      "depreciation": 10,
+      "capex": 25
+    },
+    "steps": [
+      "세후영업이익 20, 감가상각 10, CAPEX 25를 둔다.",
+      "20 + 10 - 25 = 5로 계산한다."
+    ],
+    "result": 5,
+    "resultType": "number",
+    "interpretation": "비현금 비용과 실제 자본지출을 구분하는 간단한 현금흐름 bridge다.",
+    "failureBoundary": "운전자본·세금·인수·리스·유지보수/성장 CAPEX 구분이 없으므로 공시 분석을 대체하지 않는다."
+  },
+  "observation": {
+    "metric": "CAPEX와 감가상각의 현금흐름 구분",
+    "timeframe": "사례 계산 1회",
+    "regime": "합성 교육 시나리오",
+    "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+    "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+    "invalidation": "운전자본·세금·인수·리스·유지보수/성장 CAPEX 구분이 없으므로 공시 분석을 대체하지 않는다.",
+    "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+  },
+  "conceptIds": [
+    "concept:free-cash-flow"
+  ],
+  "articleIds": [],
+  "sourceIds": [
+    "WEB-SEC-FINANCIAL-STATEMENTS-2024"
+  ],
+  "status": "EDUCATIONAL_LAB_DRAFT",
+  "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+  "completion": {
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

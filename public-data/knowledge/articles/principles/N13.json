@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N13",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "건설·부동산은 토지·자본·허가·자재·노동을 장기 자산과 공간 서비스로 바꾸는 프로젝트 산업이다.",
+      "mechanism": "분양·임대 수요, 공사비, 금리, 허가, 공사 기간과 차입 만기가 동시에 현금흐름을 결정한다.",
+      "example": "공사 원가가 확정되지 않은 상태에서 분양이 늦어지면 이자와 재고가 누적되어 프로젝트 이익이 빠르게 줄어들 수 있다.",
+      "counterScenario": "부동산 가격 상승을 개발사의 현금흐름 성장으로 보면 공실·임대료·재융자·공사비와 보유 구조를 놓친다.",
+      "verificationQuestion": "프로젝트의 토지·공사·금융비용, 분양·임대 현금 유입, 만기·허가 리스크를 같은 일정표에 놓았는가?",
+      "visualization": "토지·허가·차입 → 건설 → 분양·임대 현금"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 104번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:utilization",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "가동률은 보유한 설비·용량이 실제 workload를 처리한 정도다.",
+      "mechanism": "예약·batching·유휴·장애·수요 변동이 같은 설비의 매출과 비용 흡수율을 바꾼다.",
+      "example": "GPU를 많이 보유해도 고객 수요가 시간대별로 비어 있으면 감가상각과 전력비 부담이 남는다.",
+      "counterScenario": "평균 가동률은 peak·tail latency·고객별 수익성·서비스 품질을 숨길 수 있다.",
+      "verificationQuestion": "가동률을 높이는 것과 높은 가격의 낮은 지연 서비스를 제공하는 것의 trade-off는 무엇인가?",
+      "visualization": "예약·수요 → 실제 사용 → 유휴·장애 → 매출·원가 흡수"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 154번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

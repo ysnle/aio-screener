@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:rack-density-and-cooling",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "랙 밀도는 한 랙에 배치하는 IT 전력·연산량이고 냉각은 발생한 열을 제거하는 시스템이다.",
+      "mechanism": "전력 밀도가 올라가면 공기·액체·열교환·공간 설계가 서버 배치와 가동률을 제한한다.",
+      "example": "같은 서버 수라도 액체 냉각 준비가 없으면 고밀도 가속기 랙을 충분히 운영하지 못할 수 있다.",
+      "counterScenario": "랙 전력이나 냉각 방식 하나만으로 데이터센터 효율과 수익성을 판단할 수 없다.",
+      "verificationQuestion": "IT 부하 증가가 왜 건물·냉각·전력 인프라 투자로 전파되는가?",
+      "visualization": "IT 전력 → 랙 열밀도 → 냉각·배전 → 가동 한계"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 151번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

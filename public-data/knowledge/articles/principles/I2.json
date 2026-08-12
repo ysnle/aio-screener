@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:I2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "이익 사이클은 매출·가격·원가·영업레버리지가 기업 이익을 통해 순환하는 과정이다.",
+      "mechanism": "매출 성장과 비용의 고정·변동 구조가 결합해 이익 변동을 매출보다 크게 만들 수 있다. 재고와 원재료 가격의 시차도 중요하다.",
+      "example": "반도체 가격이 회복돼도 재고 평가손실과 낮은 가동률이 남아 있으면 매출보다 영업이익 회복이 늦을 수 있다.",
+      "counterScenario": "매출 증가율만 보고 이익 회복을 가정하면 가격·믹스·고정비·감가상각의 시차를 놓친다.",
+      "verificationQuestion": "이익 변동을 매출·가격·믹스·원가·가동률 중 어떤 항목으로 분해할 것인가?",
+      "visualization": "매출·가격·원가 → 영업이익 → 현금흐름"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 43번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

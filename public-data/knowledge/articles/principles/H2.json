@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:H2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "시장 반응은 발표된 숫자 자체보다 사전에 형성된 기대와 실제 결과의 차이인 서프라이즈에 더 민감하다.",
+      "mechanism": "같은 이익도 기대를 크게 웃돌면 가격이 오르고, 절대적으로 좋아도 기대보다 낮으면 하락할 수 있다.",
+      "example": "매출이 증가했지만 다음 분기 가이던스가 컨센서스를 밑돌면 현재 실적보다 미래 기대의 하향 조정이 더 큰 주가 반응을 만들 수 있다.",
+      "counterScenario": "헤드라인 숫자만 읽고 컨센서스·가이던스·기준효과를 확인하지 않으면 가격 변화의 방향을 설명하지 못한다.",
+      "verificationQuestion": "발표 전 기대는 무엇이었고, 실제 수치·가이던스·질의응답이 그 기대를 어느 방향으로 바꿨는가?",
+      "visualization": "기대 → 발표 → 서프라이즈 → 재가격"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 38번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

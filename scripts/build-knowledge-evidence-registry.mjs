@@ -18,6 +18,7 @@ const registry = readJson('public-data/atlas/player-product-registry.json');
 const foundations = readJson('public-data/atlas/foundation-lessons.json');
 const domainPackets = readJson('public-data/atlas/domain-source-packets.json');
 const domainClaims = readJson('public-data/atlas/domain-claim-ledger.json');
+const researchSeeds = readJson('public-data/knowledge/research-source-seeds.json');
 
 const sourcesById = new Map();
 const conflicts = [];
@@ -33,6 +34,10 @@ function addSource(source, namespace, defaultRole) {
     publishedAt: source.publishedAt || null,
     scope: source.scope || null,
     sourceRole: source.sourceRole || source.role || defaultRole,
+    sourceTier: source.sourceTier || null,
+    directness: source.directness || null,
+    observedUse: source.observedUse || [],
+    accessedAt: source.accessedAt || null,
     allowedUse: 'REFERENCE_ONLY',
     reviewedAt: source.reviewedAt || reviewedAt
   };
@@ -49,6 +54,7 @@ for (const source of research.sources || []) addSource(source, 'PS', 'PRIMARY_RE
 for (const source of registry.sources || []) addSource(source, 'PP', 'ENTITY_REFERENCE');
 for (const source of foundations.sourceCatalog || []) addSource(source, 'FND', 'FOUNDATION_REFERENCE');
 for (const packet of domainPackets.packets || []) for (const source of packet.sources || []) addSource(source, 'AT', 'PRIMARY_REFERENCE');
+for (const source of researchSeeds.sources || []) addSource(source, 'WEB', source.sourceRole || 'RESEARCH_REFERENCE');
 
 const sourceIds = new Set(sourcesById.keys());
 const claims = [];

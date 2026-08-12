@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:roic-and-counter-scenario",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "ROIC는 투자 자본이 영업 수익을 얼마나 만드는지 보는 틀이고 counter-scenario는 반대 경로를 먼저 시험하는 방법이다.",
+      "mechanism": "수요·가격·가동률·마진·CAPEX·자본비용 가정을 연결해 투자 성과와 실패 조건을 계산한다.",
+      "example": "AI 수요가 늘어도 가격 하락과 과잉 CAPEX가 동반되면 ROIC 회복이 늦어질 수 있다.",
+      "counterScenario": "ROIC는 미래를 예언하지 않으며 자산 수명·무형자산·주기 변동 가정에 민감하다.",
+      "verificationQuestion": "기본 시나리오가 맞지 않을 때 가장 먼저 무너지는 가정은 무엇인가?",
+      "visualization": "수요·가격·가동률 → 영업이익·자본 → ROIC ↔ 반대 시나리오"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 157번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

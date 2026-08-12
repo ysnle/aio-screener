@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:E5",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "달러 시스템은 무역 결제·은행 대차대조표·채권 발행·준비자산이 달러를 국제 금융의 공통 단위로 사용하는 구조다.",
+      "mechanism": "달러 수요는 미국 금리와 글로벌 무역·부채·담보 수요를 통해 움직인다. 달러 강세는 달러 부채 보유자의 상환 부담을 높인다.",
+      "example": "신흥국 기업이 달러 매출 없이 달러 채권을 발행하면 자국 통화 약세 때 이자와 원금의 현지통화 부담이 커진다.",
+      "counterScenario": "달러의 기축적 지위를 모든 시기의 달러 강세로 해석하면 금리차·위험회피·무역수지의 단기 경로를 놓친다.",
+      "verificationQuestion": "이 시장의 달러 수요는 결제·부채 상환·안전자산 선호 중 어느 수요이며 환헤지 비용은 어떻게 변했는가?",
+      "visualization": "달러 결제·부채·담보 → 달러 수요"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 22번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:F1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "정부 재정은 세금·사회보험·국유자산 수입과 이전·공공서비스·투자·이자 지출의 흐름이다.",
+      "mechanism": "세입은 경기와 제도에 따라 변하고 지출은 의무·재량·경기 대응으로 나뉜다. 차이는 국채 발행이나 현금 잔고로 메운다.",
+      "example": "세수가 경기 호황으로 늘어도 복지·이자·인프라 지출이 더 빠르게 증가하면 재정수지는 악화될 수 있다.",
+      "counterScenario": "예산 규모나 발표액만으로 정책 효과를 판단하면 실제 집행률·현금 지출·기존 의무지출을 놓친다.",
+      "verificationQuestion": "세입·지출 변화 중 경기 자동변동과 새로운 정책 결정을 어떻게 분리하며, 실제 현금 집행은 언제 일어났는가?",
+      "visualization": "세입 + 차입 → 이전·서비스·투자"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 25번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:D4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "중앙은행 대차대조표는 통화 발행과 지급결제, 국채·대출 등 자산을 통해 금융시스템 유동성이 어떻게 공급되는지 보여준다.",
+      "mechanism": "자산 매입·대출·상환·보유자산의 만기 변화는 은행 준비금과 금융조건에 영향을 준다. 규모보다 구성과 운영체계가 중요하다.",
+      "example": "국채를 매입해 준비금이 늘어도 은행이 대출 수요를 보수적으로 평가하면 실물 신용이 같은 폭으로 늘지 않을 수 있다.",
+      "counterScenario": "대차대조표가 커졌다는 사실만으로 경제에 돈이 모두 풀렸다고 보면 준비금·신용·지출의 경로를 혼동한다.",
+      "verificationQuestion": "중앙은행 자산 변화가 준비금·시장 유동성·은행 대출·명목 지출 중 어디까지 전달됐는가?",
+      "visualization": "중앙은행 자산 ↔ 준비금 → 금융조건"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 16번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

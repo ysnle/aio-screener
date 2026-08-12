@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:generalization-and-memory",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "일반화는 보지 못한 입력에도 규칙을 적용하는 능력이고 memorization은 학습 표본을 그대로 기억하는 현상이다.",
+      "mechanism": "모델 용량·데이터·정규화·분포 차이가 일반화와 암기의 균형을 바꾼다.",
+      "example": "훈련 정확도는 높지만 새로운 업무 데이터에서 급락하면 암기나 분포 이동을 의심한다.",
+      "counterScenario": "암기와 일반화의 경계는 평가 데이터·권리·프라이버시 조건까지 확인해야 한다.",
+      "verificationQuestion": "훈련 성능과 실제 성능의 차이를 줄이려면 어떤 평가 분할이 필요한가?",
+      "visualization": "훈련 분포 → parameter 학습 → 보지 못한 분포 → 성능 차이"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 125번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

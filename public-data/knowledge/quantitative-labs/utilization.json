@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "knowledge-quantitative-lab.v1",
+  "generatedAt": "2026-08-12",
+  "labId": "lab:utilization",
+  "title": "용량 이용률과 유휴 용량",
+  "formula": "utilization = usedCapacity / availableCapacity",
+  "variables": [
+    {
+      "id": "usedCapacity",
+      "label": "사용 용량",
+      "unit": "units"
+    },
+    {
+      "id": "availableCapacity",
+      "label": "가용 용량",
+      "unit": "units"
+    },
+    {
+      "id": "utilization",
+      "label": "이용률",
+      "unit": "ratio"
+    }
+  ],
+  "assumptions": [
+    "입력값은 설명을 위한 합성값이며 현재 시장·기업·제품의 관측값이 아니다.",
+    "단위와 기간이 일치한다고 가정한다.",
+    "계산 결과는 메커니즘 학습용이며 투자 판단·예측·권고가 아니다."
+  ],
+  "workedExample": {
+    "inputs": {
+      "usedCapacity": 70,
+      "availableCapacity": 100
+    },
+    "steps": [
+      "사용 용량 70과 가용 용량 100을 둔다.",
+      "70 / 100 = 0.70, 즉 70%다."
+    ],
+    "result": 0.7,
+    "resultType": "number",
+    "interpretation": "총 설치량이 아니라 실제 사용량과 병목 여유를 구분하는 기초 지표다.",
+    "failureBoundary": "가용 용량 정의·기간·피크와 평균이 섞이면 이용률 해석을 보류한다."
+  },
+  "observation": {
+    "metric": "용량 이용률과 유휴 용량",
+    "timeframe": "사례 계산 1회",
+    "regime": "합성 교육 시나리오",
+    "catalyst": "관측된 입력값의 정의·기간·단위가 변경되는 사건",
+    "confirmation": "동일 정의의 독립 데이터와 계산 재현",
+    "invalidation": "가용 용량 정의·기간·피크와 평균이 섞이면 이용률 해석을 보류한다.",
+    "missingOrStaleBoundary": "현재값·예측값·실시간 데이터는 포함하지 않으며 별도 data-refresh/asOf 자료가 필요하다."
+  },
+  "conceptIds": [
+    "concept:capacity-utilization"
+  ],
+  "articleIds": [],
+  "sourceIds": [
+    "WEB-DOE-DATACENTER-PUE-2019"
+  ],
+  "status": "EDUCATIONAL_LAB_DRAFT",
+  "currentnessBoundary": "REFERENCE_ONLY: 합성 입력값과 구조 설명만 제공하며 현재성·정확성·투자적 유효성을 주장하지 않는다.",
+  "completion": {
+    "semanticReview": "REQUIRED",
+    "browser": "NOT_RUN",
+    "live": "NOT_RUN",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:C4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "금융위기는 자산가격·신용·유동성의 선순환이 반전되어 담보·대출·현금화가 동시에 약해지는 과정이다.",
+      "mechanism": "가격 하락은 담보가치를 낮추고 마진콜과 대출 회수를 부르며, 매도 물량과 신용 경색이 다시 가격을 낮춘다.",
+      "example": "단기 차입으로 장기 자산을 보유한 기관이 시장이 닫힌 며칠을 견디지 못하면, 자산이 장기적으로 건전해도 유동성 위기가 지급불능처럼 보일 수 있다.",
+      "counterScenario": "시장 가격 하락 하나만으로 위기를 선언하거나 유동성 문제와 부실 자산 문제를 구분하지 않으면 처방의 순서가 뒤바뀐다.",
+      "verificationQuestion": "충격의 첫 고리는 자산가치·현금조달·담보·만기 중 어디였으며, 손실이 금융기관 자본으로 전이되는 경로는 무엇인가?",
+      "visualization": "가격 하락 → 담보 축소 → 강제매도 → 신용경색"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 12번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

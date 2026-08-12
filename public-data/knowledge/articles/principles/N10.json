@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N10",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "인터넷·소프트웨어는 코드·데이터·네트워크를 반복 배포해 사용자의 업무와 거래를 처리하는 디지털 가치사슬이다.",
+      "mechanism": "한계 배포비가 낮아도 서버·영업·지원·보안·개발비, 경쟁과 고객 이탈이 반복매출과 현금 전환을 결정한다.",
+      "example": "협업 소프트웨어는 좌석 수가 늘어도 할인·고객 확보비·사용량 기반 클라우드 비용이 커지면 순매출 유지율이 이익으로 이어지지 않는다.",
+      "counterScenario": "사용자 수나 방문량을 곧바로 수익성으로 보면 활성도·지불 전환·클라우드 원가·규제 위험을 놓친다.",
+      "verificationQuestion": "고객이 어떤 workflow에서 반복 사용하고 얼마를 지불하며, 추가 사용의 서버·지원 비용과 해지율은 어떻게 움직이는가?",
+      "visualization": "코드·데이터 → 사용자 workflow → 구독·광고·거래수수료"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 101번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:capex-and-depreciation",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "CAPEX는 장기간 사용할 자산에 대한 투자이고 감가상각은 그 원가를 사용 기간에 배분하는 회계 처리다.",
+      "mechanism": "투자는 초기 현금 유출을 만들고 자산 사용·수명·잔존가치 가정이 이후 비용 인식과 재투자 필요를 바꾼다.",
+      "example": "서버를 먼저 설치해도 수요와 가동률이 낮으면 감가상각 부담이 커질 수 있다.",
+      "counterScenario": "감가상각비는 현금 유출 시점과 다르므로 단독으로 자금 사정을 설명하지 못한다.",
+      "verificationQuestion": "CAPEX가 증가할 때 매출·가동률·현금흐름을 함께 봐야 하는 이유는 무엇인가?",
+      "visualization": "CAPEX 현금 유출 → 자산 사용 → 감가상각 → 재투자·현금흐름"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 118번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "반도체는 전기적 특성을 제어해 논리·기억·센싱·전력 변환 기능을 수행하는 재료와 소자의 산업이다.",
+      "mechanism": "트랜지스터·배선·셀·패키지가 전류를 스위칭하거나 저장·변환하며, 공정 미세화와 설계·수율이 제품 성능과 원가를 결정한다.",
+      "example": "같은 실리콘 웨이퍼라도 설계 규칙과 공정 노드, 메모리 셀 구조, 패키징 방식에 따라 전혀 다른 제품과 경제성을 가진다.",
+      "counterScenario": "반도체를 단일 산업으로 보면 로직·메모리·전력반도체·센서의 수요와 제조 제약을 구분하지 못한다.",
+      "verificationQuestion": "이 제품은 무엇을 계산·저장·감지·변환하며, 성능·전력·면적·수율 중 고객이 가장 중요하게 보는 것은 무엇인가?",
+      "visualization": "재료·트랜지스터 → 회로·칩 → 시스템"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 66번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

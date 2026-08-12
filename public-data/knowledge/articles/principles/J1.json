@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:J1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "저축은 미래 소비를 위해 구매력을 보존하는 행위이고, 투자는 생산적 현금흐름에 자본을 배치하는 행위이며, 투기는 가격 변화 자체에 노출되는 행위다.",
+      "mechanism": "세 활동은 겹칠 수 있지만 목적·기간·위험·검증 기준이 다르다. 구분해야 적합한 자산과 포지션 크기를 정할 수 있다.",
+      "example": "현금성 자산을 비상자금으로 보유하는 것과 변동성 큰 성장주를 장기 투자한다고 말하는 것은 같은 “돈을 묻어두기”가 아니다.",
+      "counterScenario": "자신의 활동을 투자라고 부르면서 실제로는 가격 추세만 추적하면 손실 조건과 보유 기간을 설계하지 못한다.",
+      "verificationQuestion": "내가 기대하는 결과는 현금흐름·구매력 보존·가격 변동 중 무엇이며, 그 목표에 맞는 검증 자료는 무엇인가?",
+      "visualization": "현재 소비 → 저축 → 투자·투기"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 47번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

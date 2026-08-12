@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M9",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "원자력은 높은 이용률의 저탄소 전력을 제공할 수 있지만 건설·안전·연료·폐기·규제의 긴 시간축을 가진 발전 방식이다.",
+      "mechanism": "대규모 초기 자본과 긴 인허가가 비용을 결정하고, 운전 중 연료비가 낮은 대신 공사 지연과 금융비용이 프로젝트 경제성을 좌우한다.",
+      "example": "기존 원전의 수명 연장과 신규 원전은 같은 “원자력”이지만 승인·투자·가동 시점과 위험이 크게 다르다.",
+      "counterScenario": "정책 발표나 장기 수요만으로 신규 원전의 수익을 확정하면 공사비·금리·규제·계통 연결을 놓친다.",
+      "verificationQuestion": "프로젝트의 남은 인허가·건설·연료·금융 단계와 계약상 비용 초과 위험은 누구에게 있는가?",
+      "visualization": "장기 기저전력 → 대규모 CAPEX → 운전·규제"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 88번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

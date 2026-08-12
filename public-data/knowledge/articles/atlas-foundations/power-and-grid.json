@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:atlas-foundation:power-and-grid",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "AI 인프라의 전력 문제는 장비 소비전력과 전력망의 발전·송전·접속·변압기 용량을 함께 보는 문제다.",
+      "mechanism": "수요 위치·시간·전력 품질·접속 대기와 냉각 부하가 실제 가동 가능한 compute를 결정한다.",
+      "example": "서버를 확보해도 신규 부하 접속과 변압기 증설이 늦으면 서비스 용량을 바로 늘릴 수 없다.",
+      "counterScenario": "전력 수요 전망은 지역·기간·가동률·효율 가정에 민감하다.",
+      "verificationQuestion": "전력망 접속이 확보된 compute와 설치된 서버를 어떻게 구분하게 만드는가?",
+      "visualization": "서버 수요 → 발전·송전·변압기 → 접속·냉각 → 가동 용량"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 152번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

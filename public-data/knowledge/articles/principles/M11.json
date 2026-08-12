@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:M11",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "전력망 이익 풀은 발전·송전·변전·배전·저장·전력전자·운영서비스에 대한 지불이 어떻게 분배되는지 보여준다.",
+      "mechanism": "규제 자산 수익률·시장 정산·접속 수수료·장비 마진·서비스 계약이 서로 다른 현금흐름과 위험을 만든다.",
+      "example": "변압기 공급자는 장비 매출을 얻고 유틸리티는 규제 자산 기반을 늘리며, 저장 운영자는 가격·보조서비스에서 수익을 얻는다.",
+      "counterScenario": "전력 투자 총액을 모든 장비 기업의 매출로 합산하거나 설치액을 영구 이익으로 보면 교체·규제·경쟁을 놓친다.",
+      "verificationQuestion": "고객의 지불이 어느 계약에서 발생하며, 규제·경쟁·가동률 중 어떤 변수가 각 단계의 마진을 결정하는가?",
+      "visualization": "전력 지출 → 장비·자산·서비스 → 현금흐름"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 90번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

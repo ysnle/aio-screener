@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:F4",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "지정학은 무역 경로·기술 접근·에너지·안보 지출과 자본의 위험 프리미엄을 바꾸는 제도적 충격이다.",
+      "mechanism": "제재·수출통제·동맹·분쟁은 공급망의 비용과 재고를 바꾸고, 투자자는 자산·통화·국가별 요구수익률을 다시 계산한다.",
+      "example": "특정 장비의 수출 제한은 최종 제품 수요가 그대로여도 대체 공급원과 재설계 비용을 늘려 가치사슬의 이익 풀을 이동시킬 수 있다.",
+      "counterScenario": "지정학적 뉴스의 방향만으로 기업 수혜를 판단하면 발효 시점·우회 경로·보복·재고 조정의 경제적 효과를 놓친다.",
+      "verificationQuestion": "정책 발표가 실제 공급량·가격·자본비용·고객 선택을 바꾸는 첫 연결 고리는 무엇이며 언제 확인할 수 있는가?",
+      "visualization": "정책·무역 제한 → 공급망·위험 프리미엄"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 28번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

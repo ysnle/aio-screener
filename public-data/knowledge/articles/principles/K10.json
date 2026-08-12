@@ -87,5 +87,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:K10",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "CAPEX는 장기 생산능력에 쓰는 투자이고 운전자본은 재고·매출채권·매입채무처럼 운영 과정에서 묶이는 자금이다.",
+      "mechanism": "설비투자는 감가상각과 가동률을 만들고 운전자본은 매출 성장과 회수 기간을 연결한다. 둘 다 회계 이익과 현금흐름 사이의 차이를 만든다.",
+      "example": "수주가 늘어 재고와 매출채권을 먼저 쌓으면 매출은 증가해도 현금은 감소할 수 있고, 이후 설비투자까지 겹치면 외부 조달이 필요하다.",
+      "counterScenario": "CAPEX 증가를 곧바로 성장 투자로 보거나 감가상각을 현금 비용으로만 보면 회수 기간과 가동률 위험을 놓친다.",
+      "verificationQuestion": "투자 1원이 언제 매출·마진·현금으로 돌아오며, 재고·채권이 성장보다 빠르게 늘고 있지는 않은가?",
+      "visualization": "CAPEX·운전자본 → 가동률·마진 → FCF"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 61번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

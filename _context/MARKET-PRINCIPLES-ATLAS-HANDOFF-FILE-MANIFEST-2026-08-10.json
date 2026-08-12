@@ -1,9 +1,9 @@
 {
   "schemaVersion": "knowledge-handoff-file-manifest.v2",
-  "packageName": "AIO-Knowledge-System-Structural-Handoff-v54.6",
-  "applicationVersion": "v54.6",
+  "packageName": "AIO-Knowledge-System-Structural-Handoff-v54.7",
+  "applicationVersion": "v54.7",
   "status": "IMPLEMENTATION_IN_PROGRESS_CONTENT_RESEARCH_OPEN",
-  "generatedAt": "2026-08-11T23:59:00+09:00",
+  "generatedAt": "2026-08-12T10:37:00+09:00",
   "entryPoint": "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
   "machineContract": "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
   "packageArtifact": null,
@@ -44,10 +44,18 @@
     "public-data/knowledge/research-dossiers/*.json",
     "public-data/knowledge/domain-dossiers/*.json",
     "public-data/knowledge/quantitative-labs/*.json",
+    "public-data/knowledge/research-source-seeds.json",
+    "schemas/knowledge/coverage-matrix.schema.json",
+    "schemas/knowledge/research-dossier.schema.json",
+    "schemas/knowledge/domain-dossier.schema.json",
+    "schemas/knowledge/quantitative-lab.schema.json",
     "scripts/ci-knowledge-full-corpus-coverage.mjs",
     "scripts/ci-knowledge-web-research-dossier.mjs",
     "scripts/ci-knowledge-article-uniqueness.mjs",
-    "scripts/ci-knowledge-market-transmission.mjs"
+    "scripts/ci-knowledge-market-transmission.mjs",
+    "scripts/ci-knowledge-sector-domain-depth.mjs",
+    "scripts/ci-knowledge-quantitative-example.mjs",
+    "scripts/ci-knowledge-currentness-separation.mjs"
   ],
   "startSequence": [
     "read entryPoint implementation update and sections 0, 6, 7, 10, 13, 14, 15 and 16",

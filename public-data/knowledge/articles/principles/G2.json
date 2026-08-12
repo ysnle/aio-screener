@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:G2",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "주식은 기업의 잔여 자산·이익·의결권에 대한 소유권이며, 가격은 미래 현금흐름과 위험에 대한 시장의 기대다.",
+      "mechanism": "주주는 채권자보다 후순위로 잔여 가치를 받는 대신 상승 가능성과 의결권을 가진다. 발행·희석·배당·자사주가 권리를 바꾼다.",
+      "example": "회사가 성장을 위해 신주를 발행하면 현금은 늘지만 기존 주주의 지분율과 주당 가치가 어떻게 변하는지 따로 계산해야 한다.",
+      "counterScenario": "주가 상승을 기업의 현금 유입으로 보거나 시가총액을 회사가 보유한 현금과 동일시하면 1차·2차 시장을 혼동한다.",
+      "verificationQuestion": "주가 변화가 기업의 신규 자금 조달인지 기존 주식 간 거래인지, 주당 현금흐름과 지분 수가 어떻게 바뀌었는가?",
+      "visualization": "기업 잔여권리 → 기대 현금흐름·위험 → 주가"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 30번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

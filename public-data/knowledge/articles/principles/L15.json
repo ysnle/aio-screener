@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:L15",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "반도체 이익 풀은 최종 시스템 고객이 지불한 돈이 설계·IP·웨이퍼·메모리·패키징·장비·서비스로 분배되는 구조다.",
+      "mechanism": "병목·차별화·가격 주기·CAPEX 회수와 고객 협상력이 각 단계의 마진과 현금 전환을 바꾼다.",
+      "example": "AI 수요가 커져도 공급이 빠르게 늘어나는 부품은 가격이 정상화될 수 있고, 인증과 증설이 긴 공정은 일시적으로 높은 이익을 유지할 수 있다.",
+      "counterScenario": "최종 시장 성장률을 모든 공급자의 이익 성장률로 곱하면 이중계산·가격 하락·이익의 단계별 이동을 놓친다.",
+      "verificationQuestion": "가치사슬의 어느 단계가 현재 병목이며, 공급 증설과 고객의 대체가 그 단계의 가격과 이익을 언제 압박할 것인가?",
+      "visualization": "최종 고객 지불 → 단계별 교섭력 → 이익 풀"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 78번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

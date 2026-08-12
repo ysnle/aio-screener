@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:H3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "시장 효율성은 정보가 가격에 반영되는 속도와 비용에 대한 가설이지, 모든 가격이 언제나 정확하다는 뜻이 아니다.",
+      "mechanism": "공개 정보가 빠르게 반영돼도 측정하기 어려운 질적 정보·유동성 제약·행동 편향으로 일시적인 비효율이 생길 수 있다.",
+      "example": "작은 기업의 공시가 빠르게 읽히지 않거나 거래 비용이 높으면 정보와 가격 사이에 시간이 생기지만, 그 기회를 실제로 거래하기는 어렵다.",
+      "counterScenario": "관측된 가격 차이를 곧바로 초과수익 기회로 부르면 거래비용·위험·재현성 문제를 놓친다.",
+      "verificationQuestion": "이 비효율 가설은 어떤 정보와 기간에서 반복되며, 수수료·슬리피지·위험을 빼고도 남는가?",
+      "visualization": "정보 확산 + 거래비용 ↔ 가격"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 39번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

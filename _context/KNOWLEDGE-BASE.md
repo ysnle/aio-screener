@@ -1,8 +1,16 @@
 ﻿---
 verified_by: human + Codex full-route audit verification
-last_verified: 2026-08-10
+last_verified: 2026-08-12
 confidence: high
 ---
+
+## 2026-08-12 KA-11~15 implementation boundary
+
+- `v54.7` now contains a canonical `coverage-matrix.json` with 423 inventoried units: 111 Principles lessons, 48 Atlas foundations, 60 Principles concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains, 20 players and 20 products. Inventory is not content completion.
+- Every unit has a research dossier contract. Web Search was used for five directly inspected official/academic seed pages, but this does not promote unrelated claims: 0 dossiers are fully researched, 172 are `RESEARCH_IN_PROGRESS`, and 251 remain `RESEARCH_REQUIRED`.
+- KA-13 remains bounded: all 159 articles have unique reconstruction seeds and progressive-disclosure fields, but remain `RECONSTRUCTION_REQUIRED`; no human-reviewed encyclopedia completion is claimed.
+- KA-14 has 19 structural domain dossiers covering 95 taxonomy nodes and 50 unique deep branches. KA-15 has 15 deterministic educational labs with formulas, units, assumptions, synthetic worked examples, observation/confirmation/invalidation and stale-data boundaries. These are reference-only, not live market values or investment recommendations.
+- Repository capabilities now load coverage, research dossiers, domain dossiers and quantitative labs with per-capability fallback. CI gates cover full corpus, research dossier shape, article uniqueness, sector/domain depth, quantitative examples, market transmission, and currentness separation. KA-16 browser/live/user certification remains open until those gates and external validation are actually completed.
 
 ## 2026-08-11 백과사전 제품 사명: 구조는 기반이고 전체 콘텐츠가 제품이다
 

@@ -86,5 +86,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:I1",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "경기 사이클은 생산·고용·소비·재고가 같은 속도로 움직이지 않으며 확장과 둔화가 반복되는 과정이다.",
+      "mechanism": "수요 변화가 재고와 주문에 먼저 나타나고 생산·고용·소득을 거쳐 다시 소비에 전달된다. 정책과 외부 충격이 진폭을 바꾼다.",
+      "example": "소매 판매 둔화가 바로 고용 감소로 이어지지 않고, 재고 조정과 주문 감소를 거친 뒤 제조업에 늦게 반영될 수 있다.",
+      "counterScenario": "GDP 한 분기나 주가 한 달을 경기 전체의 국면으로 부르면 선행·동행·후행 지표의 시차를 놓친다.",
+      "verificationQuestion": "현재 변화는 수준의 하락인가 성장률의 둔화인가, 주문·재고·고용 중 어디에서 먼저 확인되는가?",
+      "visualization": "수요 → 재고 → 생산·고용 → 소득"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 42번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

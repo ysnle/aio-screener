@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:taxonomy:defense-autonomy",
+  "contentUnitId": "taxonomy:defense-autonomy",
+  "unitKind": "TAXONOMY_NODE",
+  "title": "Autonomy and human control",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for Autonomy and human control?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Autonomy and human control?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "Autonomy and human control mechanism primary source",
+    "Autonomy and human control official data standard filing evidence",
+    "Autonomy and human control disconfirming evidence limitations"
+  ],
+  "searchedAt": null,
+  "method": "NOT_STARTED",
+  "candidateSources": [
+    {
+      "sourceId": "U.S. DoD budget",
+      "unresolved": true
+    },
+    {
+      "sourceId": "Congressional Research Service",
+      "unresolved": true
+    },
+    {
+      "sourceId": "defense procurement disclosures",
+      "unresolved": true
+    }
+  ],
+  "selectedSources": [],
+  "rejectedSources": [
+    {
+      "sourceId": "U.S. DoD budget",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "Congressional Research Service",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "defense procurement disclosures",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    }
+  ],
+  "sourceTiers": [],
+  "claimCoverage": [],
+  "consensus": "Not assessed.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about Autonomy and human control must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace Autonomy and human control through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_REQUIRED",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

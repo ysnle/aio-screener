@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:N6",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "우주 산업은 발사·위성·지상국·데이터 서비스가 긴 개발 주기와 높은 실패 비용을 가진 가치사슬이다.",
+      "mechanism": "발사 성공률·보험·위성 수명·궤도·지상 인프라와 고객 계약이 매출 반복성과 자본 회수 시점을 결정한다.",
+      "example": "발사체를 한 번 판매하는 것과 위성 데이터 서비스를 반복 판매하는 것은 동일한 우주 매출이지만 위험과 마진 구조가 다르다.",
+      "counterScenario": "발사 횟수나 계약 잔고만으로 현금흐름을 추정하면 지연·실패·궤도 운영·고객 집중을 놓친다.",
+      "verificationQuestion": "기업이 통제하는 단계가 발사 하드웨어·우주 시스템·지상 서비스 중 어디이며, 실패 비용과 보험은 누가 부담하는가?",
+      "visualization": "발사·궤도 → 지상 처리 → 데이터·서비스"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 97번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

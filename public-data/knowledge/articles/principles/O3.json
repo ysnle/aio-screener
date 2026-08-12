@@ -88,5 +88,29 @@
     "sourceDirectnessReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   },
+  "deepArticle": {
+    "status": "RECONSTRUCTION_REQUIRED",
+    "dossierId": "research:principles-lesson:O3",
+    "progressiveDisclosure": [
+      "30-second-summary",
+      "5-minute-core-article",
+      "deep-dive-model-evidence"
+    ],
+    "uniqueDraftSeed": {
+      "definition": "한국 반도체는 메모리·부품·장비·소재·패키징이 글로벌 고객과 연결된 수출 중심 가치사슬이다.",
+      "mechanism": "메모리 가격·비트 출하·고객 재고·환율·CAPEX·공정 수율이 기업별 매출과 이익을 서로 다르게 움직인다.",
+      "example": "HBM 수요가 증가해도 특정 고객 인증·패키징 슬롯·수율이 부족하면 출하와 현금 회수가 지연되고 기존 메모리 가격 주기가 동시에 악화될 수 있다.",
+      "counterScenario": "글로벌 AI 수요와 한국 반도체 기업 주가를 같은 것으로 보면 제품 믹스·고객 집중·환율·재고를 놓친다.",
+      "verificationQuestion": "기업별로 어떤 제품이 가격·수율·고객 인증의 병목에 있고, 다음 분기 출하·ASP·CAPEX가 가설과 맞는가?",
+      "visualization": "글로벌 workload → 메모리·장비 → 수출·원화 현금흐름"
+    },
+    "requiredBeforePromotion": [
+      "independent research dossier",
+      "source profile",
+      "unique worked example or explicit non-quantitative rationale",
+      "market transmission review",
+      "semantic review"
+    ]
+  },
   "authoringNote": "자동 구조화된 109번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다."
 }

@@ -86,6 +86,20 @@ function createArticle(lesson, surface, index) {
       sourceDirectnessReview: 'REQUIRED',
       userValidation: 'NOT_CONDUCTED'
     },
+    deepArticle: {
+      status: 'RECONSTRUCTION_REQUIRED',
+      dossierId: `research:${surface === 'principles' ? 'principles-lesson' : 'atlas-foundation'}:${lesson.id}`,
+      progressiveDisclosure: ['30-second-summary', '5-minute-core-article', 'deep-dive-model-evidence'],
+      uniqueDraftSeed: {
+        definition: summary.definition,
+        mechanism: summary.mechanism,
+        example: summary.example,
+        counterScenario: summary.counterScenario,
+        verificationQuestion: summary.verificationQuestion,
+        visualization: summary.visualization
+      },
+      requiredBeforePromotion: ['independent research dossier', 'source profile', 'unique worked example or explicit non-quantitative rationale', 'market transmission review', 'semantic review']
+    },
     authoringNote: `자동 구조화된 ${index + 1}번째 reference draft. 반복 문장·외부 원문 사실성·계산 예시는 사람이 source audit 후 승격해야 한다.`
   };
   article.quality.coreTextCharacters = [article.article.intuition, rationale.text, JSON.stringify(workedExample), article.article.realEconomyChannel, article.article.companyChannel, article.article.financialStatementChannel, article.article.valuationChannel, article.article.marketChannel, article.article.tradingApplication, article.article.invalidation, JSON.stringify(article.article.glossary), JSON.stringify(article.article.retrievalChecks)].join(' ').length;
