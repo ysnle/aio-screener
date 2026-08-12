@@ -3,7 +3,7 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-12
 confidence: high
 
-## v54.12 SCR-OS-00~11 Screener Workbench implementation (2026-08-12)
+## v54.13 SCR-OS-00~13 Screener Workbench and lineage regression closure (2026-08-12)
 
 - [x] QA-SCR1: field registry, InstrumentRef, ObservationEnvelope, US/KR readiness statuses and four timestamps pass the screener workbench contract gate.
 - [x] QA-SCR2: AST/DSL supports AND/OR/NOT/range/enum/exists, null policy and hard gates without `eval`/`new Function`; six saved presets round-trip with deterministic hashes.
@@ -17,6 +17,7 @@ confidence: high
 - [x] QA-SCR10: legacy screener writer remains available for rollback while the Workbench adapter renders definition/readiness/explanation controls.
 - [x] QA-SCR11: full structural/data/runtime/accessibility/performance/knowledge gates pass once after implementation; live in-app browser and GitHub Pages parity are separately marked pass or skipped with evidence.
 - [x] QA-SCR12: architecture-browser route-lifecycle soak waits for all known boot-delayed named timers before comparing lap 1 and lap 2; timer growth remains a failure.
+- [x] QA-SCR13: `public-data/screener-validation-gate.json` is registered in `ci-data-lineage-audit.mjs` with its own `observedAt`/`generatedAt` selector and remains fail-closed.
 
 ## v54.11 Daily briefing reference-bridge integration (2026-08-12)
 

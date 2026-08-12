@@ -1,3 +1,8 @@
+## v54.13 (2026-08-12)
+- Registered `public-data/screener-validation-gate.json` in the central data-lineage/freshness policy map after CI exposed the missing policy boundary.
+- Added P914/R473/QA-SCR13 so new persistent Workbench validation artifacts cannot bypass lineage registration.
+- R1 7곳 v54.13
+
 ## v54.12 (2026-08-12)
 - Implemented the SCR-OS-00~11 Screener Workbench boundary: versioned field registry/observation readiness, deterministic AST/DSL screens, saved-screen import/export, rank explanations, ScreenRun hashes, refresh planning, provider capability reconciliation, regime replay, outcome horizons, and a blocked PIT/cost/liquidity/parity promotion gate.
 - Added a credential-free Workbench adapter with readiness, WhyRanked/WhyRejected, run history, outcome-lab and operations-status surfaces while retaining the legacy screener table as the rollback writer.

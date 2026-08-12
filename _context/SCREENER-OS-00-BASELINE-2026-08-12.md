@@ -3,7 +3,7 @@ status: IMPLEMENTED_LOCAL
 verified_by: pending final local verification batch
 last_verified: 2026-08-12
 confidence: medium
-target_version: v54.12
+target_version: v54.13
 ---
 
 # SCR-OS-00 Baseline and Dependency Ledger

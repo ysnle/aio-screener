@@ -2,11 +2,21 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-12
 confidence: high
-latest_version: v54.12
-latest_P_number: P913
-next_P_number: P914
+latest_version: v54.13
+latest_P_number: P914
+next_P_number: P915
 current_total_entries: 635 (P1~P911, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P913 v54.12 architecture browser timer stabilization after screener workbench QA
+current_checkpoint: P914 v54.13 screener validation gate lineage policy registration
+
+## P914 - v54.13 - New screener validation artifact was absent from lineage policy registry
+
+- **motivation**: Every tracked `public-data/*.json` artifact must have an explicit freshness/lineage policy before it can enter the release tree.
+- **symptom/reproduction**: GitHub Actions `validate` failed at `ci-data-lineage-audit.mjs` because the newly added `public-data/screener-validation-gate.json` was reported as `policy: unregistered`, while local Workbench and browser gates passed.
+- **root_cause**: The Workbench implementation added the persistent fail-closed validation artifact but did not add its `observedAt` timestamp and research-validation freshness policy to the central lineage registry.
+- **fix**: Registered `screener-validation-gate.json` as a 90-day `research-validation-gate` using its own `observedAt`/`generatedAt`; no timestamp was inferred from another artifact.
+- **violated_rule**: R338; tracked public-data artifacts require explicit policy, timestamp selector and commit/source evidence.
+- **prevention**: The lineage audit continues enumerating every tracked JSON artifact and fails on any unregistered artifact; QA-SCR13 records the Workbench-specific registry check.
+- **verification**: Local reproduction changed from `PASS=15 WARN=4 FAIL=1` to no failure after the policy registration; CI validation rerun is required on the follow-up push.
 
 ## P913 - v54.12 - Architecture browser timer gate raced a boot-delayed alert timer
 
@@ -26,7 +36,7 @@ current_checkpoint: P913 v54.12 architecture browser timer stabilization after s
 - **fix**: Added the versioned screener contracts, field registry/readiness, provider capability reconciliation, AST screen engine, saved-screen share schema, refresh planner, regime replay, outcome ledger, PIT promotion gate, Workbench UI adapter, baseline ledger, contract CI gate and synthetic scale benchmark. Legacy table ownership remains as rollback surface.
 - **violated_rule**: R471; research-relative ranking and currentness/rights boundaries must be explicit at the screener lifecycle boundary.
 - **prevention**: Every screener provider/normalizer/orchestrator/UI change must preserve the contract version, field observations, ScreenRun hash, fail-closed status vocabulary and validation gate. `public-data/screener-validation-gate.json` remains BLOCKED until evidence closes the listed blockers.
-- **verification**: Pending the final single verification batch. Local browser/live Pages/provider/PIT certification must not be inferred from static or unit gates.
+- **verification**: Local final batch passed: contract, scale benchmark, structural/data/runtime, headless 1121/1121, critical10, accessibility, viewport 68/68 and architecture-browser 20-route soak. Live in-app browser, Pages/provider parity and PIT/cost/liquidity certification remain separately unverified or blocked.
 
 ## P911 - v54.7 - Generated knowledge reference artifacts initially lacked explicit currentness metadata
 

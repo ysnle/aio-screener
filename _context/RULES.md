@@ -2,7 +2,7 @@
 verified_by: agent (Fable 5) + Codex P761-P892 verification
 last_verified: 2026-08-12
 confidence: high
-target_version: v54.12
+target_version: v54.13
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -12,6 +12,12 @@ target_version: v54.12
 **Rule**: A route resource-leak gate must wait for every known boot-delayed named timer that can register during its measurement window before taking the first lap snapshot. It must still fail on growth between two post-stabilization laps.
 
 **Validation**: `ci-architecture-browser-check.mjs` must pass the two-lap route traversal with browser errors 0, stable canvas count and no timer registry growth.
+
+## R473. New public-data artifacts require same-change lineage policy registration (v54.13)
+
+**Rule**: Adding a tracked `public-data/*.json` artifact requires adding its explicit policy and timestamp selector to `ci-data-lineage-audit.mjs` in the same change. The artifact must retain source/producer/observed-time boundaries and must not borrow freshness from a sibling artifact.
+
+**Validation**: `node scripts/ci-data-lineage-audit.mjs --json` must enumerate the artifact without `policy: unregistered`; missing registry entries remain a blocking failure.
 
 ## R471. Screener Workbench contracts must be the single lifecycle boundary (v54.12)
 
