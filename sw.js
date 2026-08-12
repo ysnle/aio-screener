@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v54.7';
-const SW_BUILD = '2026-08-12T10:37:00+09:00';
+const SW_VERSION = 'v54.12';
+const SW_BUILD = '2026-08-12T23:17:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -85,6 +85,7 @@ const SHELL_ASSETS = [
   './src/data/contracts/operations.js',
   './src/data/contracts/reconciliation.js',
   './src/data/contracts/revision.js',
+  './src/data/contracts/screener.js',
   './src/data/evidence-store.js',
   './src/data/market-snapshot-loader.js',
   './src/data/providers/sentiment.js',
@@ -127,6 +128,13 @@ const SHELL_ASSETS = [
   './src/domain/screener/factor-ranks.js',
   './src/domain/screener/factor-weights.js',
   './src/domain/screener/setup-profile.js',
+  './src/domain/screener/screen-engine.js',
+  './src/domain/screener/saved-screens.js',
+  './src/domain/screener/refresh-planner.js',
+  './src/domain/screener/provider-capability.js',
+  './src/domain/screener/regime.js',
+  './src/domain/screener/pit-validation.js',
+  './src/domain/screener/outcome-ledger.js',
   './src/domain/signal/trading-score.js',
   './src/domain/technical/stage.js',
   './src/domain/themes/rrg.js',

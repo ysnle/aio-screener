@@ -1,3 +1,40 @@
+## v54.12 (2026-08-12)
+- Implemented the SCR-OS-00~11 Screener Workbench boundary: versioned field registry/observation readiness, deterministic AST/DSL screens, saved-screen import/export, rank explanations, ScreenRun hashes, refresh planning, provider capability reconciliation, regime replay, outcome horizons, and a blocked PIT/cost/liquidity/parity promotion gate.
+- Added a credential-free Workbench adapter with readiness, WhyRanked/WhyRejected, run history, outcome-lab and operations-status surfaces while retaining the legacy screener table as the rollback writer.
+- Added `ci-screener-workbench-contract.mjs`, the 873/5k/20k synthetic scale benchmark, baseline/golden artifacts, and refresh/CI wiring. Predictive validity, provider rights, live browser/Pages parity and external provider availability remain explicitly unverified or blocked.
+- Added `_context/SCREENER-OS-00-BASELINE-2026-08-12.md` and P912/R471/QA-SCR gates to keep the implementation and failure boundaries durable.
+- R1 7곳 v54.12
+
+## v54.11 (2026-08-12)
+- Daily briefing now compares the canonical current cut with four dated user-supplied reference reports/screenshots without promoting their figures into live data.
+- Added current/reference/interpretation/next-check narrative structure, US-close -> KST publication -> KRX-close -> CPI time-series handling, and source-status labels.
+- Routed the same framework into user-research page modules, AI retrieval context, and dated macro/technology keywords; no quiz or practice surface was added.
+- Added `_context/RESEARCH-INTEGRATION-2026-08-12-DAILY-BRIEFING.md` as the durable source-boundary and comparison ledger.
+- R1 7곳 v54.11
+
+## v54.10 (2026-08-12)
+- 159개 core article 전체에 직접 확인한 공식·학술 근거 후보를 연결하고 AI 학습·RAG·에이전트·반도체·가속기·HBM·패키징·CAPEX 원리를 주제별로 보강했다.
+- 423개 dossier를 145개 canonical source, 280 `RESEARCH_IN_PROGRESS`, 143 `RESEARCH_REQUIRED`로 갱신했다. 완전 연구·저자 검토 완료는 선언하지 않는다.
+- 퀴즈·연습문제·교육용 정량 랩은 사용자 범위에서 제외했다. 기존 랩 JSON은 보존하되 UI·원고·학습 상태·repository·CI에서 로드하지 않는다.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v54.10
+
+## v54.9 (2026-08-12)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v54.9
+
+## v54.9 scope update (2026-08-12)
+- 159개 core article에 직접 확인한 공식·학술 근거 후보를 연결하고 AI 학습·RAG·에이전트·반도체·가속기·HBM·패키징·CAPEX 원리를 주제별로 보강했다.
+- 423개 dossier를 145개 canonical source, 280 `RESEARCH_IN_PROGRESS`, 143 `RESEARCH_REQUIRED`로 갱신했다. 완전 연구·저자 검토 완료는 선언하지 않는다.
+- 퀴즈·연습문제·교육용 정량 랩은 사용자 범위에서 제외했다. 기존 랩 JSON은 보존하되 UI·원고·학습 상태·repository·CI에서 로드하지 않는다.
+
+## v54.8 (2026-08-12)
+- **실제 근거 원장 보강**: NIST AI RMF, Transformer 학술 논문, FRED, SEC/Investor.gov, FINRA, DOE, ASML, OECD, BLS, Federal Reserve, KRX의 원문을 직접 확인해 `research-facts.json`에 scope·asOf·invalidation과 함께 기록하고 159개 핵심 원고에 claim-scoped evidence를 연결했다.
+- **전수 dossier 라우팅 보강**: 423개 unit의 dossier가 회계·시장 실행·EUV·AI governance·데이터센터·거시 주제별 공식 출처를 선택하도록 seed rule을 확장했다. 미확인 claim은 여전히 `RESEARCH_IN_PROGRESS/RESEARCH_REQUIRED`다.
+- **제품 범위 교정**: 사용자 요청에 따라 퀴즈·연습문제·정량 교육 랩을 제품 기능으로 만들지 않는다. 기존 생성 랩은 Atlas·repository·CI에서 로드/노출하지 않는다.
+- **백과사전 본문 경계 유지**: 원고는 설명·원리·근거·시장 전달·무효화 중심이며, 직접 확인하지 않은 내용을 완료로 표시하지 않는다.
+- R1 7곳 v54.8
+
 ## v54.7 (2026-08-12)
 - Knowledge corpus coverage matrix now inventories 423 units: 111 core lessons, 48 foundations, 60 Principles concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains, 20 players and 20 products.
 - Added per-unit Web Research dossiers and five directly inspected official/academic source seeds. Research remains explicitly open: 0 fully researched, 172 in progress, 251 required.

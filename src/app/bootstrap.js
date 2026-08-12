@@ -29,6 +29,8 @@ import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
 import { deriveFactorWeights } from '../domain/screener/factor-weights.js';
+import { createDefaultScreenDefinitions, runScreen } from '../domain/screener/screen-engine.js';
+import { createSavedScreenCollection } from '../domain/screener/saved-screens.js';
 import { createMarketSnapshotLoader } from '../data/market-snapshot-loader.js';
 import { createSentimentProvider } from '../data/providers/sentiment.js';
 import { createSentimentOrchestrator } from '../data/orchestrators/sentiment.js';
@@ -125,7 +127,8 @@ function reducer(state, action) {
 export function createAIOArchitecture({ root = globalThis, documentRef = root.document, now = () => Date.now(), fetchImpl = root.fetch } = {}) {
   const clock = createClock(now);
   const evidenceStore = createEvidenceStore();
-  const store = createStore({ initialState: { sentiment: createInitialSentimentState(), news: createInitialNewsState(), market: createInitialMarketState(), themes: createInitialThemesState(), entity: createInitialEntityState(), portfolio: createInitialPortfolioState(), screener: createInitialScreenerState(), analysis: createInitialAnalysisState(), route: null, marketSnapshot: null }, reducer });
+  const defaultSavedScreens = createSavedScreenCollection(createDefaultScreenDefinitions().map((definition) => ({ definition })));
+  const store = createStore({ initialState: { sentiment: createInitialSentimentState(), news: createInitialNewsState(), market: createInitialMarketState(), themes: createInitialThemesState(), entity: createInitialEntityState(), portfolio: createInitialPortfolioState(), screener: { ...createInitialScreenerState(), savedScreens: defaultSavedScreens }, analysis: createInitialAnalysisState(), route: null, marketSnapshot: null }, reducer });
   const eventTarget = documentRef || root;
   const legacy = createLegacyFacade(root, eventTarget);
   const httpClient = createHttpClient({ fetchImpl, clock });
@@ -227,6 +230,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const syncScreener = createScreenerOrchestrator({
     provider: createScreenerProvider({ httpClient, readLiveData: () => root?._liveData || {} }),
     commands: screenerCommands,
+    getState: () => store.getState(),
     ranker: computeFactorRanks,
     rankingContext: () => {
       const profileKey = typeof root?._aioGetActiveProfile === 'function' ? root._aioGetActiveProfile() : 'balanced';
@@ -418,6 +422,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     router,
     getState: () => store.getState(),
     getScreenerState: () => store.getState()?.screener || null,
+    getScreenerWorkbench: () => {
+      const state = store.getState()?.screener || {};
+      return { snapshotId: state.snapshotId, definition: state.screenDefinition, run: state.lastRun, runHistory: state.runHistory || [], readiness: state.readiness, savedScreens: state.savedScreens || [], outcomes: state.outcomes || [], refreshPlan: state.refreshPlan || null, hash: state.workbenchHash || null };
+    },
+    getDefaultScreenerScreens: () => defaultSavedScreens,
+    runScreenerDefinition: (definition) => runScreen({ definition, rows: store.getState()?.screener?.rows || [], snapshotId: store.getState()?.screener?.snapshotId || 'unknown', providerSet: store.getState()?.screener?.metadata?.source ? [store.getState().screener.metadata.source] : [] }),
     // ARX-16 compatibility read boundary: non-route consumers may read the
     // canonical native screener rows without reaching into the store shape.
     // Legacy rows only fill fields the native artifact does not publish yet.

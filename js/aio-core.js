@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.7';
+const APP_VERSION = 'v54.12';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -5356,7 +5356,19 @@ function _aioNormalizeUserResearchDigest(raw) {
         risks: Array.isArray(ex.risks) ? ex.risks.slice(0, 3) : [],
         automationHint: ex.automationHint || '',
         categories: Array.isArray(item.categories) ? item.categories : [],
-        url: item.url || ''
+        url: item.url || (Array.isArray(item.urls) ? item.urls[0] : ''),
+        urls: Array.isArray(item.urls) ? item.urls.slice(0, 4) : [],
+        sourceKind: 'REFERENCE',
+        asOf: item.asOf || raw.generatedAt || null,
+        publishedAt: item.publishedAt || item.asOf || raw.generatedAt || null,
+        sourceTimeZone: item.sourceTimeZone || null,
+        marketSession: item.marketSession || null,
+        framework: item.framework && typeof item.framework === 'object' ? item.framework : null,
+        observations: Array.isArray(item.observations) ? item.observations.slice(0, 12) : [],
+        referenceTimeSeries: item.referenceTimeSeries && typeof item.referenceTimeSeries === 'object' ? item.referenceTimeSeries : null,
+        tickerMap: item.tickerMap && typeof item.tickerMap === 'object' ? item.tickerMap : null,
+        evidenceHierarchy: Array.isArray(item.evidenceHierarchy) ? item.evidenceHierarchy.slice(0, 4) : [],
+        sourceAudit: Array.isArray(item.sourceAudit) ? item.sourceAudit.slice(0, 3) : []
       });
       pageModules[pageId].itemIds.push(item.id || '');
     });
@@ -5371,7 +5383,7 @@ function _aioNormalizeUserResearchDigest(raw) {
   };
 }
 
-window.AIO.applyUserResearchDigestPayload = function(raw) {
+  window.AIO.applyUserResearchDigestPayload = function(raw) {
   var normalized = _aioNormalizeUserResearchDigest(raw);
   if (!normalized) return false;
   window.AIO_USER_RESEARCH_DIGEST = normalized;
@@ -5384,7 +5396,107 @@ window.AIO.applyUserResearchDigestPayload = function(raw) {
     itemCount: normalized.items.length,
     pageModuleCount: Object.keys(normalized.pageModules || {}).length
   };
+  try {
+    if (typeof document !== 'undefined') document.dispatchEvent(new CustomEvent('aio:userResearchDigestReady', { detail: { itemCount: normalized.items.length } }));
+    if (typeof window._aioRenderBriefingMarketAnalysis === 'function') window._aioRenderBriefingMarketAnalysis();
+  } catch (_) {}
   return true;
+};
+
+// v54.11: the daily briefing is the first consumer of dated user-supplied reports.
+// It receives a narrative bridge only; current values remain owned by the canonical
+// market snapshot/live producers and are never overwritten by this reference layer.
+window.AIO.getBriefingResearchModel = function() {
+  var digest = window.AIO_USER_RESEARCH_DIGEST || {};
+  var items = Array.isArray(digest.items) ? digest.items : [];
+  var reports = items.filter(function(item) {
+    return item && Array.isArray(item.pageTargets) && item.pageTargets.indexOf('briefing') >= 0 && /^daily-market-report-/.test(String(item.id || ''));
+  }).map(function(item) {
+    var ex = item.extraction || {};
+    var ts = item.referenceTimeSeries || {};
+    var observations = Array.isArray(item.observations) ? item.observations : [];
+    var checks = Array.isArray(ts.nextCheck) ? ts.nextCheck : [];
+    return {
+      id: String(item.id || ''),
+      title: String(item.title || item.id || 'Reference report'),
+      asOf: item.asOf || null,
+      publishedAt: item.publishedAt || item.asOf || null,
+      sourceTimeZone: item.sourceTimeZone || null,
+      marketSession: item.marketSession || null,
+      thesis: String(ex.thesis || ''),
+      signals: Array.isArray(ex.signals) ? ex.signals.slice(0, 8) : [],
+      risks: Array.isArray(ex.risks) ? ex.risks.slice(0, 5) : [],
+      framework: item.framework && typeof item.framework === 'object' ? item.framework : {},
+      observations: observations.slice(0, 8),
+      checks: checks.slice(0, 8),
+      valueStatus: String(ts.valueStatus || 'reference-only'),
+      url: item.url || (Array.isArray(item.urls) ? item.urls[0] : '') || '',
+      sourceLabel: item.sourceKind === 'REFERENCE' ? 'REFERENCE' : String(item.sourceKind || 'REFERENCE')
+    };
+  }).sort(function(a, b) {
+    return String(b.publishedAt || b.asOf || '').localeCompare(String(a.publishedAt || a.asOf || ''));
+  });
+  var checks = [];
+  reports.forEach(function(report) { report.checks.forEach(function(check) { if (checks.indexOf(check) < 0) checks.push(check); }); });
+  return {
+    version: 'briefing-research-bridge.v1',
+    sourceKind: 'REFERENCE',
+    reports: reports,
+    checks: checks.slice(0, 10),
+    narrativeArc: [
+      { id: 'macro-flow', label: '금리·유가·환율 → duration·외국인 수급', text: 'CPI와 에너지 가격이 할인율과 환율을 움직이면 성장주·한국 수급의 해석이 달라집니다.' },
+      { id: 'ai-supply', label: 'AI 수요 → 메모리·컴퓨트·전력', text: '수요가 공급 부족과 자본 조달을 거쳐 메모리·반도체·네트워크·전력 테마로 퍼집니다.' },
+      { id: 'reaction', label: '실적 반응 → breadth·relative strength', text: '헤드라인보다 실제 가이던스와 가격·거래량·시장 폭의 수용 여부가 다음 단계의 근거입니다.' }
+    ],
+    timeline: reports.map(function(report) { return { id: report.id, asOf: report.asOf, publishedAt: report.publishedAt, marketSession: report.marketSession, title: report.title }; })
+  };
+};
+
+// v54.11: expose the current observation layer separately from the reference bridge.
+// A report can explain a mechanism, but it cannot promote its quoted number into
+// the decision layer. This model makes that boundary inspectable by the briefing,
+// tests, and any later page consumer.
+window.AIO.getBriefingCanonicalObservationModel = function() {
+  function metric(id, label, symbol, changeProp, unit) {
+    var live = window._liveData && window._liveData[symbol] || null;
+    var liveValue = live && live.price != null ? Number(live.price) : null;
+    var value = typeof _ldSafe === 'function' ? _ldSafe(symbol, 'price') : liveValue;
+    var change = changeProp && typeof _ldSafe === 'function' ? _ldSafe(symbol, changeProp) : null;
+    var snapshot = window.DATA_SNAPSHOT || {};
+    var snapshotGuard = window.AIO && typeof window.AIO.getSnapshotFallbackGuard === 'function' ? window.AIO.getSnapshotFallbackGuard() : { usable: false };
+    var hasSnapshotFallback = false;
+    try {
+      hasSnapshotFallback = !!(typeof _SNAP_FALLBACK !== 'undefined' && _SNAP_FALLBACK[symbol] && _SNAP_FALLBACK[symbol].price && snapshotGuard.usable && value != null && liveValue == null);
+    } catch (_) {}
+    var sourceKind = liveValue != null ? 'LIVE' : hasSnapshotFallback ? 'SNAPSHOT' : value != null ? 'UNKNOWN' : 'MISSING';
+    var asOf = live && (live.asOf || live.ts || live.updated || live.timestamp) || (sourceKind === 'SNAPSHOT' ? (snapshot._updated || snapshot._snapshotDate || null) : null);
+    return { id: id, label: label, symbol: symbol, value: value != null && isFinite(Number(value)) ? Number(value) : null, change: change != null && isFinite(Number(change)) ? Number(change) : null, unit: unit || 'value', sourceKind: sourceKind, asOf: asOf || null };
+  }
+  var metrics = {
+    spx: metric('spx', 'S&P 500', '^GSPC', 'pct', 'index'),
+    spy: metric('spy', 'SPY', 'SPY', 'pct', 'price'),
+    qqq: metric('qqq', '나스닥100', 'QQQ', 'pct', 'price'),
+    vix: metric('vix', 'VIX', '^VIX', 'pct', 'price'),
+    tnx: metric('tnx', '미 10년물', '^TNX', 'chg', 'yield'),
+    dxy: metric('dxy', 'DXY', 'DX-Y.NYB', 'pct', 'price'),
+    wti: metric('wti', 'WTI', 'CL=F', 'pct', 'commodity'),
+    krw: metric('krw', 'USD/KRW', 'KRW=X', 'pct', 'fx'),
+    kospi: metric('kospi', 'KOSPI', '^KS11', 'pct', 'index'),
+    soxx: metric('soxx', 'SOXX', 'SOXX', 'pct', 'price'),
+    smh: metric('smh', 'SMH', 'SMH', 'pct', 'price')
+  };
+  var sourceKinds = Object.keys(metrics).map(function(k) { return metrics[k].sourceKind; }).filter(function(k) { return k !== 'MISSING'; });
+  var sourceKind = sourceKinds.length && sourceKinds.every(function(k) { return k === sourceKinds[0]; }) ? sourceKinds[0] : sourceKinds.length ? 'MIXED' : 'MISSING';
+  var cut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function' ? window.AIO.getSharedMarketCut() : null;
+  var snapshot = window.DATA_SNAPSHOT || {};
+  return {
+    version: 'briefing-canonical-observation.v1',
+    sourceKind: sourceKind,
+    asOf: (cut && (cut.generatedAt || cut.end)) || snapshot._updated || snapshot._snapshotDate || null,
+    cut: cut,
+    metrics: metrics,
+    policy: 'current live/server snapshot only; user research remains reference-only'
+  };
 };
 
 window.AIO.loadUserResearchDigest = async function() {
@@ -5480,6 +5592,19 @@ function _aioAIResearchStore(ctxId) {
   return { key: key, module: module || null, digest: digest || {} };
 }
 
+function _aioAIResearchStructuredText(card) {
+  var framework = card && card.framework && typeof card.framework === 'object' ? card.framework : {};
+  var q = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'].map(function(key) { return framework[key] ? key + ': ' + framework[key] : ''; }).filter(Boolean);
+  var observations = Array.isArray(card && card.observations) ? card.observations : [];
+  var observationText = observations.slice(0, 6).map(function(row) {
+    return [row.seriesKey, row.eventDate, row.reportedValue, row.unit, row.observationStatus].filter(function(value) { return value != null && value !== ''; }).join(' ');
+  }).join(' | ');
+  var timeSeries = card && card.referenceTimeSeries && typeof card.referenceTimeSeries === 'object' ? card.referenceTimeSeries : {};
+  var checks = Array.isArray(timeSeries.nextCheck) ? timeSeries.nextCheck.join(' | ') : '';
+  var tickerMap = card && card.tickerMap && typeof card.tickerMap === 'object' ? Object.keys(card.tickerMap).map(function(key) { return key + ':' + (Array.isArray(card.tickerMap[key]) ? card.tickerMap[key].join(',') : card.tickerMap[key]); }).join(' | ') : '';
+  return { framework: q.join(' | '), observations: observationText, checks: checks, tickerMap: tickerMap };
+}
+
 function _aioAIClassifyIntent(query, ctxId) {
   var q = String(query || '').toLowerCase();
   var intent = 'education';
@@ -5555,7 +5680,7 @@ function _aioAINormalizeResearchCard(card, index, digest) {
       title: _aioAIClip(card[0] || 'Reference', 120),
       thesis: _aioAIClip(card[1] || '', 320),
       signals: [], risks: [], automationHint: '', categories: [], url: '', index: index,
-      sourceKind: 'REFERENCE', asOf: (digest && (digest.generatedAt || digest.asOf)) || null,
+      sourceKind: 'REFERENCE', asOf: (digest && (digest.generatedAt || digest.asOf)) || null, publishedAt: (digest && (digest.generatedAt || digest.asOf)) || null,
       documentId: safety.documentId, chunkId: safety.chunkId, documentVersion: safety.documentVersion,
       publishedAt: safety.publishedAt, sourceTier: safety.sourceTier, text: safety.text,
       safetyFlags: safety.flags, poisoned: safety.poisoned, retracted: safety.retracted,
@@ -5563,6 +5688,7 @@ function _aioAINormalizeResearchCard(card, index, digest) {
     };
   }
   card = card || {};
+  var structured = _aioAIResearchStructuredText(card);
   return {
     id: _aioAIClip(card.id || 'reference-' + index, 80),
     title: _aioAIClip(card.title || card.id || 'Reference', 120),
@@ -5572,7 +5698,14 @@ function _aioAINormalizeResearchCard(card, index, digest) {
     automationHint: _aioAIClip(card.automationHint || '', 220),
     categories: Array.isArray(card.categories) ? card.categories.slice(0, 5).map(function(v){ return _aioAIClip(v, 60); }) : [],
     url: _aioAIClip(card.url || '', 180), index: index,
-    sourceKind: 'REFERENCE', asOf: (digest && (digest.generatedAt || digest.asOf)) || card.asOf || null,
+    sourceKind: 'REFERENCE', asOf: card.asOf || (digest && (digest.generatedAt || digest.asOf)) || null,
+    publishedAt: card.publishedAt || card.asOf || null,
+    sourceTimeZone: card.sourceTimeZone || null,
+    marketSession: card.marketSession || null,
+    framework: structured.framework,
+    observationText: structured.observations,
+    nextChecks: structured.checks,
+    tickerMapText: structured.tickerMap,
     documentId: safety.documentId, chunkId: safety.chunkId, documentVersion: safety.documentVersion,
     publishedAt: safety.publishedAt, sourceTier: safety.sourceTier, text: safety.text,
     safetyFlags: safety.flags, poisoned: safety.poisoned, retracted: safety.retracted,
@@ -5596,7 +5729,8 @@ window.AIO.retrieveImportedResearch = function(query, ctxId, options) {
       { text: row.title + ' ' + row.id, weight: 8 },
       { text: row.thesis, weight: 4 },
       { text: row.automationHint, weight: 3 },
-      { text: row.signals.concat(row.risks, row.categories).join(' '), weight: 2 }
+      { text: row.signals.concat(row.risks, row.categories).join(' '), weight: 2 },
+      { text: [row.framework, row.observationText, row.nextChecks, row.tickerMapText, row.marketSession].join(' '), weight: 3 }
     ];
     var score = 0;
     terms.forEach(function(term) {
@@ -5785,9 +5919,14 @@ window.AIO.buildAIRetrievalContext = function(query, ctxId, options) {
   ];
   retrieval.items.forEach(function(item) {
     lines.push('- refId=' + item.id + ' | title=' + item.title + ' | sourceKind=REFERENCE | asOf=' + item.asOf + ' | score=' + item.score);
+    if (item.publishedAt || item.marketSession) lines.push('  time=' + (item.publishedAt || item.asOf || 'unknown') + ' | timezone=' + (item.sourceTimeZone || 'unknown') + ' | session=' + (item.marketSession || 'unknown'));
     if (item.thesis) lines.push('  thesis=' + item.thesis);
     if (item.signals.length) lines.push('  signals=' + item.signals.join(' | '));
     if (item.risks.length) lines.push('  risks=' + item.risks.join(' | '));
+    if (item.framework) lines.push('  framework=' + item.framework);
+    if (item.observationText) lines.push('  reportedObservations=' + item.observationText);
+    if (item.nextChecks) lines.push('  nextChecks=' + item.nextChecks);
+    if (item.tickerMapText) lines.push('  tickerMap=' + item.tickerMapText);
     if (item.automationHint) lines.push('  automationHint=' + item.automationHint);
   });
   lines.push('Rule: use this as a decision framework and UI pattern only. For current prices, fundamentals, macro numbers, or trade decisions, cite only LIVE/SNAPSHOT/verified data blocks injected separately.');
@@ -25846,6 +25985,197 @@ function _aioRenderBriefingMarketAnalysis() {
   function pct(v) { var n = Number(v); return (n >= 0 ? '+' : '') + fx(n, 2) + '%'; }
   function tone(v) { return Number(v) >= 0 ? 'var(--data-green)' : 'var(--data-red)'; }
   function b(txt, color) { return '<b style="color:' + (color || 'var(--text-primary)') + ';">' + txt + '</b>'; }
+  function safe(v) {
+    var value = String(v == null ? '' : v);
+    return typeof escHtml === 'function' ? escHtml(value) : value.replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; });
+  }
+  function stamp(value) {
+    if (!value) return '시점 미상';
+    var d = new Date(value);
+    if (!isFinite(d.getTime())) return safe(value);
+    return d.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' KST';
+  }
+
+  // v54.11: reference reports are rendered as a narrative/timeline bridge.
+  // They never replace the live/snapshot values rendered below.
+  try {
+    var bridge = document.getElementById('briefing-research-bridge');
+    var bridgeModel = window.AIO && typeof window.AIO.getBriefingResearchModel === 'function' ? window.AIO.getBriefingResearchModel() : null;
+    var currentModel = window.AIO && typeof window.AIO.getBriefingCanonicalObservationModel === 'function' ? window.AIO.getBriefingCanonicalObservationModel() : null;
+    function currentMetricText(m) {
+      if (!m || m.value == null) return safe(m && m.label || '지표') + ' 현재 원천 미수집';
+      var valueText = m.unit === 'yield' ? fx(m.value, 2) + '%' : m.unit === 'fx' ? fx(m.value, 2) + '원' : m.unit === 'commodity' ? '$' + fx(m.value, 2) : fx(m.value, 2);
+      var changeText = m.change != null ? ' ' + b((m.unit === 'yield' ? (m.change >= 0 ? '+' : '') + fx(m.change, 1) + 'bp' : pct(m.change)), tone(m.change)) : '';
+      return safe(m.label) + ' ' + b(valueText) + changeText;
+    }
+    function reportLabel(id) {
+      id = String(id || '');
+      if (id.indexOf('deepdive-kr') >= 0) return 'DeepDive 한국장';
+      if (id.indexOf('deepdive-us') >= 0) return 'DeepDive 미국장';
+      if (id.indexOf('amit') >= 0) return 'Amit recap';
+      if (id.indexOf('ariel') >= 0) return 'Ariel screenshot';
+      return '사용자 자료';
+    }
+    function reportTitle(id, fallback) {
+      id = String(id || '');
+      if (id.indexOf('deepdive-kr') >= 0) return '한국장 마감: AI 메모리 공급·CPI·금리';
+      if (id.indexOf('deepdive-us') >= 0) return '미국장 마감: 유가·호르무즈·금리·자금조달';
+      if (id.indexOf('amit') >= 0) return '시장 리캡: AI 자금·실적·옵션·한국 디레버리징';
+      if (id.indexOf('ariel') >= 0) return '일일 리캡: CPI 전 정체·메모리 양방향·오일 리더십';
+      return fallback || '사용자 자료';
+    }
+    function sessionTitle(session) {
+      return ({
+        'US_CLOSE_RECAP_POSTED_IN_KST':'미국장 마감 보고',
+        'KRX_CLOSE':'KRX 한국장 마감',
+        'US_NEWS_AND_EARNINGS_RECAP':'미국 뉴스·실적 리캡',
+        'NYSE_CLOSE_REPORTED_IN_KST':'미국장 마감 KST 보고'
+      })[String(session || '')] || session;
+    }
+    function nextCheckText(check) {
+      return ({
+        'actual CPI versus consensus and core services':'미국 CPI 실제치·컨센서스·근원 서비스 물가',
+        '10Y/oil/FX response':'미 10년물·유가·환율의 동시 반응',
+        'sector and equal-weight breadth':'섹터 및 동일가중 시장 폭',
+        'ticker earnings actual/estimate/guidance':'종목 실적 실제치·예상치·가이던스',
+        '200SMA acceptance with volume':'200일선 회복과 거래량 수용',
+        'memory and software relative strength':'메모리·소프트웨어 상대강도',
+        'US CPI actual versus consensus':'미국 CPI 실제치와 컨센서스',
+        'US 10Y and USD/KRW response':'미 10년물과 USD/KRW 반응',
+        'foreign flow after CPI':'CPI 이후 외국인 수급',
+        'SOX/KOSPI relative breadth':'SOX·KOSPI 상대강도와 시장 폭',
+        'official evidence of memory allocation or policy action':'메모리 할당·정책 대응의 공식 근거',
+        'official Intel filing and offering terms':'Intel 공식 공시와 증자 조건',
+        'NVIDIA/financing primary release':'NVIDIA·자금조달 1차 발표',
+        'Hormuz/Oil settlement and curve':'호르무즈·유가 결제와 선물곡선',
+        'BLS July payroll details and revisions':'BLS 7월 고용 세부치와 수정치',
+        'BOJ 2026-09-17/18 scheduled MPM':'BOJ 2026-09-17~18 회의 일정',
+        'company earnings releases and SEC filings':'기업 실적발표와 SEC 공시',
+        'capital deployment versus financing target':'자금조달 목표 대비 실제 집행',
+        'backlog and gross-margin conversion':'수주잔고와 매출총이익 전환',
+        'options volume versus open interest/flow':'옵션 거래량·미결제약정·자금흐름',
+        'KRX margin and forced-liquidation data':'KRX 신용잔고와 강제청산 데이터'
+      })[String(check || '')] || String(check || '공식 발표·실적·가격 반응 확인');
+    }
+    function driverBridge(topic) {
+      topic = String(topic || '').toLowerCase();
+      if (topic === 'geo') return '유가 → 물가·금리 → duration';
+      if (topic === 'semi') return 'AI 수요 → 메모리·반도체·전력';
+      if (topic === 'credit' || topic === 'fxbond') return '자금조달 → 신용·밸류에이션';
+      if (topic === 'analyst' || topic === 'earnings') return '실적·가이던스 → breadth';
+      return '이벤트 → 가격·거래량·시장 폭';
+    }
+    function referenceLabel(key) {
+      return ({
+        'kospi.close':'KOSPI', 'spx.close':'S&P 500', 'nasdaq.close':'나스닥', 'sox.close':'SOX',
+        'us10y.close':'미 10년물', 'usdkrw.close':'USD/KRW', 'wti.front-month':'WTI',
+        'krx.foreign-net-flow':'외국인 순매도', 'krx.retail-net-flow':'개인 순매수',
+        'intel.equity-offering':'Intel 유상증자', 'intel.stock-reaction':'Intel 주가 반응',
+        'nvidia.ai-infrastructure-financing':'NVIDIA AI 인프라 자금', 'nvidia.ai-financing':'NVIDIA AI 자금',
+        'daily-recap.event-risk':'CPI 전 이벤트 리스크', 'memory.relative-strength':'메모리 상대강도',
+        'asset-manager.200sma':'자산운용사 200SMA', 'oil-gas.relative-strength':'유가·가스 상대강도'
+      })[key] || key;
+    }
+    function referenceValue(obs) {
+      var v = obs && obs.reportedValue;
+      if (v == null || v === '') return safe(obs && obs.direction || '질적 관찰');
+      var n = Number(v), unit = String(obs.unit || '');
+      if (!isFinite(n)) return safe(String(v));
+      if (unit === 'USD') return '$' + (Math.abs(n) >= 1000000000 ? (n / 1000000000).toFixed(1) + 'B' : n.toLocaleString('en-US'));
+      if (unit === 'USD_third_party_capital_target') return '$' + (n / 1000000000).toFixed(0) + 'B 목표';
+      if (unit === 'USD_per_barrel') return '$' + n.toFixed(2);
+      if (unit === 'KRW_per_USD') return n.toFixed(2) + '원';
+      if (unit === '100m_KRW') return n.toLocaleString('ko-KR') + '억원';
+      if (unit === 'percent') return n.toFixed(2) + '%';
+      if (unit === 'percent_of_reporters') return n.toFixed(0) + '%';
+      if (unit === 'percent_change' || unit === 'percent_yoy_excluding_one_time_items' || unit === 'percent_change_from_pre-rule-volume') return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+      if (unit === 'jobs' || unit === 'units') return n.toLocaleString('ko-KR') + (unit === 'jobs' ? '명' : '대');
+      if (unit === 'index') return n.toFixed(2);
+      return n.toLocaleString('ko-KR');
+    }
+    function referenceStatus(status) {
+      return ({ SECONDARY_REPORTED:'2차 보고', ATTRIBUTED_PENDING_PRIMARY:'귀속 보도·원문 대기', SCREENSHOT_REFERENCE:'스크린샷 관찰' })[status] || '참고 관찰';
+    }
+    if (bridge && bridgeModel && bridgeModel.reports && bridgeModel.reports.length) {
+      bridge.style.display = '';
+      var currentEl = document.getElementById('briefing-current-observation');
+      if (currentEl) {
+        var cm = currentModel && currentModel.metrics || {};
+        var currentLines = [
+          '<div style="margin-bottom:5px;color:var(--text-muted);">' + safe(currentModel && currentModel.sourceKind || 'MISSING') + ' · ' + safe(stamp(currentModel && currentModel.asOf)) + '</div>',
+          '<div>· ' + currentMetricText(cm.spx) + ' · ' + currentMetricText(cm.qqq) + '</div>',
+          '<div>· ' + currentMetricText(cm.tnx) + ' · ' + currentMetricText(cm.wti) + ' · ' + currentMetricText(cm.krw) + '</div>',
+          '<div>· ' + currentMetricText(cm.soxx) + ' · ' + currentMetricText(cm.smh) + ' · ' + currentMetricText(cm.kospi) + '</div>',
+          '<div>· ' + currentMetricText(cm.vix) + '</div>'
+        ];
+        currentEl.innerHTML = currentLines.join('');
+      }
+      var referenceEl = document.getElementById('briefing-reference-observation');
+      if (referenceEl) {
+        var seenReference = {};
+        var referenceObs = [];
+        bridgeModel.reports.forEach(function(report) {
+          (report.observations || []).forEach(function(obs) {
+            var key = String(obs.seriesKey || '') + '|' + String(obs.eventDate || '');
+            if (!key || seenReference[key]) return;
+            seenReference[key] = true;
+            referenceObs.push({ report: report, observation: obs });
+          });
+        });
+        var referencePriority = { 'daily-recap.event-risk':1, 'us10y.close':2, 'wti.front-month':3, 'usdkrw.close':4, 'sox.close':5, 'kospi.close':6, 'nvidia.ai-infrastructure-financing':7, 'nvidia.ai-financing':8, 'intel.equity-offering':9, 'memory.relative-strength':10, 'oil-gas.relative-strength':11 };
+        referenceObs.sort(function(a, b) {
+          var ap = referencePriority[a.observation.seriesKey] || 50, bp = referencePriority[b.observation.seriesKey] || 50;
+          return ap - bp || String(b.observation.observedAt || '').localeCompare(String(a.observation.observedAt || ''));
+        });
+        referenceEl.innerHTML = '<div style="margin-bottom:5px;color:var(--text-muted);">' + bridgeModel.reports.length + '개 자료 · 모두 REFERENCE · 정본 입력 아님</div>' + referenceObs.slice(0, 8).map(function(row) {
+          var obs = row.observation;
+          var reportedChange = obs.reportedChangeBp != null ? ' (' + (Number(obs.reportedChangeBp) >= 0 ? '+' : '') + fx(obs.reportedChangeBp, 1) + 'bp)' : obs.reportedChangePct != null ? ' (' + (Number(obs.reportedChangePct) >= 0 ? '+' : '') + fx(obs.reportedChangePct, 2) + '%)' : '';
+          return '<div>· ' + safe(referenceLabel(obs.seriesKey)) + ' ' + referenceValue(obs) + reportedChange + ' <span style="color:var(--text-muted);">· ' + safe(reportLabel(row.report.id)) + ' · ' + safe(obs.eventDate || '시점 미상') + ' · ' + safe(referenceStatus(obs.observationStatus)) + '</span></div>';
+        }).join('') || '<div>자료 관찰 대기 중</div>';
+      }
+      var interpretationEl = document.getElementById('briefing-research-interpretation');
+      if (interpretationEl) {
+        var cm2 = currentModel && currentModel.metrics || {};
+        function latestReference(key) {
+          var found = null;
+          bridgeModel.reports.forEach(function(report) { (report.observations || []).forEach(function(obs) { if (String(obs.seriesKey || '') === key && (!found || String(obs.observedAt || '') > String(found.observedAt || ''))) found = obs; }); });
+          return found;
+        }
+        var interpretation = [];
+        var refRate = latestReference('us10y.close'), refWti = latestReference('wti.front-month'), refSox = latestReference('sox.close');
+        if (refRate && cm2.tnx && cm2.tnx.value != null) interpretation.push('금리: 자료의 ' + safe(refRate.eventDate || '당시') + ' 미 10년물 ' + referenceValue(refRate) + '는 과거 참고값이고, 현재 정본은 ' + currentMetricText(cm2.tnx) + '입니다. 시점이 다르므로 수치 자체를 당일 변화로 비교하지 않고 duration 전파 여부를 확인합니다.');
+        if (refWti && cm2.wti && cm2.wti.value != null) interpretation.push('유가: 자료는 당시 WTI ' + referenceValue(refWti) + '를 기록했고, 현재 정본은 ' + currentMetricText(cm2.wti) + '입니다. 유가가 유지되면서 금리까지 오르는지가 CPI 이후 핵심 분기입니다.');
+        if (refSox && (!cm2.soxx || cm2.soxx.value == null) && (!cm2.smh || cm2.smh.value == null)) interpretation.push('반도체: 자료의 SOX 약세는 참고 관측으로 남아 있고 SOXX·SMH 현재 원천이 없어 약세 지속 여부는 판정 보류입니다. 메모리 공급 부족 서사는 가격·거래량·시장 폭으로 재확인해야 합니다.');
+        if (cm2.tnx && cm2.tnx.change != null && cm2.tnx.change > 0 && cm2.wti && cm2.wti.change != null && cm2.wti.change > 0) interpretation.push('전파: 현재 정본에서도 금리와 유가가 함께 오르면 성장주 할인율과 인플레이션 경로를 동시에 점검합니다.');
+        else if (cm2.tnx && cm2.tnx.change != null && cm2.tnx.change > 0) interpretation.push('전파: 현재 정본 금리 상승은 AI·소프트웨어처럼 미래 현금흐름의 duration이 긴 영역에 먼저 전파되는지 확인합니다.');
+        if (cm2.krw && cm2.krw.change != null) interpretation.push('한국: ' + currentMetricText(cm2.krw) + '와 ' + currentMetricText(cm2.kospi) + '를 함께 읽고, 국내 지수 강세를 외국인 수급 강세로 대체하지 않습니다.');
+        if (cm2.soxx && cm2.soxx.change != null && cm2.soxx.change < 0 || cm2.smh && cm2.smh.change != null && cm2.smh.change < 0) interpretation.push('내부순환: 반도체 정본 반응이 약하면 메모리 부족 서사는 수요 확인과 공급·밸류에이션 피로를 분리해 검증합니다.');
+        if (cm2.kospi && cm2.kospi.change != null && cm2.kospi.change > 0 && (!cm2.krw || cm2.krw.change == null)) interpretation.push('한국: KOSPI 가격은 확인되지만 USD/KRW 변화가 없어 환율 전파는 판정 보류입니다.');
+        if (!cm2.soxx || cm2.soxx.value == null || !cm2.smh || cm2.smh.value == null) interpretation.push('누락: 반도체 현재값 또는 시장 폭 원천이 비어 있어 자료의 내부 순환 서사를 현재 신호로 승격하지 않습니다.');
+        var hasForeignFlow = bridgeModel.reports.some(function(report) { return (report.observations || []).some(function(obs) { return String(obs.seriesKey || '').indexOf('foreign-net-flow') >= 0; }); });
+        if (hasForeignFlow) interpretation.push('자료의 외국인 순매도는 당시 보고값으로 남겨두며, 현재 정본 수급 원천과 일치하기 전까지 현재 수급 판정에 사용하지 않습니다.');
+        if (!interpretation.length) interpretation.push('현재 정본에서 방향을 판정할 핵심 변화가 충분히 수집되지 않았습니다. 자료의 서술은 가설과 확인 목록으로만 사용합니다.');
+        interpretationEl.innerHTML = interpretation.slice(0, 6).map(function(line) { return '<div>· ' + line + '</div>'; }).join('');
+      }
+      var arcEl = document.getElementById('briefing-research-arc');
+      if (arcEl) arcEl.innerHTML = (bridgeModel.narrativeArc || []).map(function(arc) {
+        return '<div style="background:rgba(15,23,42,0.32);border:1px solid var(--border);border-radius:6px;padding:10px;">' +
+          '<div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:4px;">' + safe(arc.label) + '</div>' +
+          '<div style="font-size:11px;color:var(--text-secondary);line-height:1.55;">' + safe(arc.text) + '</div></div>';
+      }).join('');
+      var checkEl = document.getElementById('briefing-research-checks');
+      if (checkEl) checkEl.innerHTML = (bridgeModel.checks || []).slice(0, 6).map(function(check) { return '<div>· ' + safe(nextCheckText(check)) + '</div>'; }).join('') || '<div>공식 발표·실적·가격 반응 확인 대기</div>';
+      var timelineEl = document.getElementById('briefing-research-timeline');
+      if (timelineEl) timelineEl.innerHTML = bridgeModel.timeline.slice(0, 4).map(function(row) {
+        var session = row.marketSession ? ' · ' + safe(sessionTitle(row.marketSession)) : '';
+        return '<div style="margin-bottom:4px;"><span style="font-family:var(--font-mono);color:var(--data-cyan);">' + safe(stamp(row.publishedAt || row.asOf)) + '</span>' + session + '<br><span style="color:var(--text-secondary);">' + safe(reportTitle(row.id, row.title)) + '</span></div>';
+      }).join('');
+      var sourceLabelEl = document.getElementById('briefing-research-source-label');
+      if (sourceLabelEl) sourceLabelEl.textContent = 'REFERENCE · ' + bridgeModel.reports.length + '개 보고서 · 정본 시세와 분리';
+    } else if (bridge) {
+      bridge.style.display = 'none';
+    }
+  } catch (_) {}
 
   var spx = _ldSafe('^GSPC', 'price'), spxChg = _ldSafe('^GSPC', 'pct');
   var spy = _ldSafe('SPY', 'price'), spyChg = _ldSafe('SPY', 'pct');
@@ -25853,7 +26183,11 @@ function _aioRenderBriefingMarketAnalysis() {
   var vix = _ldSafe('^VIX', 'price'), vixChg = _ldSafe('^VIX', 'pct');
   var tnx = _ldSafe('^TNX', 'price'), tnxChg = _ldSafe('^TNX', 'chg');
   var dxy = _ldSafe('DX-Y.NYB', 'price'), dxyChg = _ldSafe('DX-Y.NYB', 'pct');
+  var wti = _ldSafe('CL=F', 'price'), wtiChg = _ldSafe('CL=F', 'pct');
+  var krw = _ldSafe('KRW=X', 'price'), krwChg = _ldSafe('KRW=X', 'pct');
   var kospi = _ldSafe('^KS11', 'price'), kospiChg = _ldSafe('^KS11', 'pct');
+  var soxx = _ldSafe('SOXX', 'price'), soxxChg = _ldSafe('SOXX', 'pct');
+  var smh = _ldSafe('SMH', 'price'), smhChg = _ldSafe('SMH', 'pct');
   var rsp = _ldSafe('RSP', 'price');
   var S = window.DATA_SNAPSHOT || {};
   var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
@@ -25868,11 +26202,25 @@ function _aioRenderBriefingMarketAnalysis() {
   // 리드 문단
   var leadEl = document.getElementById('briefing-analysis-lead');
   if (leadEl && spx != null) {
-    var lead = extended
-      ? 'S&amp;P 500 지수 ' + b(fx(spx, 2)) + ' ' + b(pct(spxChg), tone(spxChg)) +
-        (breadth50 == null ? ', 현재 50일선 breadth 원천이 없어 상승 확산 여부는 판정 보류입니다.' : (wideBreadth ? ', 시장 참여 폭도 함께 넓어지는 중입니다.' : ', 50일선 상회 종목 비율은 ' + b(fx(breadth50, 0) + '%') + '로 상승이 대형주에 쏠려 있습니다.'))
-      : 'S&amp;P 500 지수 ' + b(fx(spx, 2)) + ' ' + b(pct(spxChg), tone(spxChg)) + ', VIX ' + b(fx(vix, 2)) + ' ' + b(pct(vixChg), tone(-vixChg)) +
-        '로 시장은 관망 우위의 하루입니다. 방향성 판단은 다음 확인 지표(시장 폭·금리 반응)를 기다리는 편이 합리적입니다.';
+    var leadMarket = ['S&amp;P 500 지수 ' + b(fx(spx, 2)) + ' ' + b(pct(spxChg), tone(spxChg))];
+    if (vix != null) leadMarket.push('VIX ' + b(fx(vix, 2)) + ' ' + b(pct(vixChg), tone(-vixChg)));
+    if (wti != null) leadMarket.push('WTI ' + b('$' + fx(wti, 2)) + (wtiChg != null ? ' ' + b(pct(wtiChg), tone(wtiChg)) : ''));
+    if (tnx != null) leadMarket.push('미 10년물 ' + b(fx(tnx, 2) + '%') + (tnxChg != null ? ' ' + b((tnxChg >= 0 ? '+' : '') + fx(tnxChg, 1) + 'bp', tone(tnxChg)) : ''));
+    if (krw != null) leadMarket.push('USD/KRW ' + b(fx(krw, 2) + '원') + (krwChg != null ? ' ' + b(pct(krwChg), tone(krwChg)) : ''));
+    if (kospi != null) leadMarket.push('KOSPI ' + b(fx(kospi, 2)) + ' ' + b(pct(kospiChg), tone(kospiChg)));
+    var leadTransmission = [];
+    if (wtiChg != null && wtiChg > 0) leadTransmission.push('유가 상승은 물가 경로를 통해 금리와 duration에 부담');
+    if (tnxChg != null && tnxChg > 0) leadTransmission.push('금리 상승은 AI·소프트웨어의 미래 현금흐름 할인율을 점검');
+    else if (tnx != null) leadTransmission.push('10년물 수준은 할인율 입력이나 일중 변화는 현재 원천 미수집');
+    if (krwChg != null && krwChg > 0) leadTransmission.push('USD/KRW 상승이면 원화 약세와 외국인 수급을 분리');
+    if (soxxChg != null && soxxChg < 0 || smhChg != null && smhChg < 0) leadTransmission.push('반도체 약세는 메모리 부족 서사의 가격 수용 여부를 재검증');
+    if (breadth50 == null) leadTransmission.push('시장 폭 원천 미수집으로 지수 상승의 확산 여부는 판정 보류');
+    if (!leadTransmission.length) leadTransmission.push('금리·유가·환율과 시장 폭의 다음 반응을 확인');
+    var leadCut = currentModel && currentModel.asOf ? stamp(currentModel.asOf) : '현재 시점 미상';
+    var leadSource = currentModel && currentModel.sourceKind ? currentModel.sourceKind : 'CURRENT';
+    var lead = '<b>현재 정본 관측</b> (' + safe(leadSource) + ' · ' + safe(leadCut) + '): ' + leadMarket.join(' · ') + '. ' +
+      '<b>전파:</b> ' + safe(leadTransmission.join(' · ')) + '. ' +
+      '<b>자료 대조:</b> ' + (bridgeModel && bridgeModel.reports && bridgeModel.reports.length ? '사용자 자료는 8/10~11 당시의 유가·금리·SOX·한국 수급과 내부 순환을 설명하는 참고 레이어입니다. 현재 정본과 시점이 다르므로 현재 판정은 위 관측값과 다음 확인 포인트로 닫습니다.' : '참고 자료가 없어 현재 정본 관측만으로 요약합니다.');
     leadEl.innerHTML = lead;
   }
   var tsEl = document.getElementById('briefing-analysis-ts');
@@ -25892,10 +26240,11 @@ function _aioRenderBriefingMarketAnalysis() {
         // 사용자용 요약문이 아니다 — 폴백 체인에 섞여 헤드라인 뒤에 그대로 노출되고 있었다(개발자 마커 노출 금지).
         var visibleTitle = (typeof getDisplayTitle === 'function' ? getDisplayTitle(it) : it.title) || '';
         var reason = (typeof getDisplayDesc === 'function' ? getDisplayDesc(it) : (it.desc || it.summary)) || '';
+        var bridgeReason = driverBridge(cat);
         return '<div style="display:flex;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid var(--border-subtle);">' +
           '<span style="font-size:11px;font-weight:600;color:var(--text-secondary);border:1px solid var(--border-strong);border-radius:4px;padding:2px 8px;flex-shrink:0;">' + escHtml(cat) + '</span>' +
           '<div class="briefing-news-title" style="flex:1;font-size:13px;line-height:1.65;color:var(--text-secondary);">' + b(escHtml(visibleTitle)) +
-          (reason ? ' — ' + escHtml(reason.slice(0, 80)) : '') + '</div>' +
+          (reason ? ' — ' + escHtml(reason.slice(0, 80)) : '') + '<div style="font-size:11px;color:var(--data-cyan);margin-top:3px;">연결: ' + escHtml(bridgeReason) + '</div></div>' +
           '<span style="font-size:11px;font-weight:600;color:' + sentColor + ';flex-shrink:0;">' + (it.sentiment === 'positive' ? '호재' : it.sentiment === 'negative' ? '부담' : '중립') + '</span>' +
         '</div>';
       }).join('');
@@ -25906,11 +26255,17 @@ function _aioRenderBriefingMarketAnalysis() {
 
   // 2x2 서브섹션
   var idxEl = document.getElementById('briefing-sub-index');
-  if (idxEl && spy != null) idxEl.innerHTML = 'S&amp;P 500 ' + b(fx(spy, 2)) + ' ' + b(pct(spyChg), tone(spyChg)) + ' · 나스닥100 ' + b(fx(qqq, 2)) + ' ' + b(pct(qqqChg), tone(qqqChg)) +
-    '. ' + (extended ? '지수는 상승 흐름을 유지하고 있습니다.' : '단기 방향은 혼조 — 다음 확인 지표를 기다리는 구간입니다.');
+  if (idxEl) {
+    var idxParts = [];
+    if (spy != null) idxParts.push('SPY ' + b(fx(spy, 2)) + ' ' + b(pct(spyChg), tone(spyChg)));
+    else if (spx != null) idxParts.push('S&amp;P 500 ' + b(fx(spx, 2)) + ' ' + b(pct(spxChg), tone(spxChg)));
+    if (qqq != null) idxParts.push('나스닥100 ' + b(fx(qqq, 2)) + ' ' + b(pct(qqqChg), tone(qqqChg)));
+    else idxParts.push('나스닥100 현재 원천 미수집');
+    idxEl.innerHTML = idxParts.join(' · ') + '. ' + (extended ? '지수는 상승 흐름을 유지하고 있습니다.' : '단기 방향은 혼조 — 금리·유가·시장 폭의 다음 반응을 기다리는 구간입니다.');
+  }
   var ratesEl = document.getElementById('briefing-sub-rates');
   if (ratesEl && tnx != null) ratesEl.innerHTML = '10년물 ' + b(fx(tnx, 2) + '%') + (tnxChg != null ? ' (' + b((tnxChg >= 0 ? '+' : '') + fx(tnxChg, 1) + 'bp', tone(tnxChg)) + ')' : '') +
-    ', DXY ' + b(fx(dxy, 2)) + '. 금리 수준은 할인율 민감도를 비교하는 입력이며, 업종·종목 방향을 단독으로 뜻하지 않습니다.';
+    ', DXY ' + b(fx(dxy, 2)) + (wti != null ? ', WTI ' + b('$' + fx(wti, 2)) + (wtiChg != null ? ' ' + b(pct(wtiChg), tone(wtiChg)) : '') : '') + '. 금리 수준은 할인율 민감도를 비교하는 입력이며, 유가와 함께 볼 때 물가·duration 경로를 점검합니다.';
   var volEl = document.getElementById('briefing-sub-vol');
   if (volEl && vix != null) volEl.innerHTML = 'VIX ' + b(fx(vix, 2)) + ' ' + b(pct(vixChg), tone(-vixChg)) + ', F&amp;G ' + b(fg != null ? fx(fg, 0) : '—') +
     (skew != null ? '. SKEW ' + b(fx(skew, 1)) + (Number(skew) > 130 ? '로 꼬리위험 헤지 수요가 높은 편입니다.' : '로 안정적입니다.') : '.');

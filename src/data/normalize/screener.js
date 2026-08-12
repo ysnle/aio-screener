@@ -61,6 +61,14 @@ export function normalizeScreener(raw = {}) {
     _fundamentalFetchedAt: row?._fundamentalFetchedAt || null,
     _fundamentalAccession: row?._fundamentalAccession || null,
     observedAt: row?.observedAt || null,
+    fetchedAt: row?.fetchedAt || null,
+    instrumentRef: row?.instrumentRef && typeof row.instrumentRef === 'object' ? { ...row.instrumentRef } : null,
+    fieldReadiness: row?.fieldReadiness && typeof row.fieldReadiness === 'object' ? {
+      instrumentRef: row.fieldReadiness.instrumentRef ? { ...row.fieldReadiness.instrumentRef } : null,
+      fields: row.fieldReadiness.fields && typeof row.fieldReadiness.fields === 'object' ? Object.fromEntries(Object.entries(row.fieldReadiness.fields).map(([key, value]) => [key, { ...value }])) : {},
+      coverage: row.fieldReadiness.coverage && typeof row.fieldReadiness.coverage === 'object' ? { ...row.fieldReadiness.coverage, counts: { ...(row.fieldReadiness.coverage.counts || {}) } } : null
+    } : null,
+    fieldObservations: Array.isArray(row?.fieldObservations) ? row.fieldObservations.map((observation) => ({ ...observation })) : [],
     setupProfile: row?.setupProfile && typeof row.setupProfile === 'object' ? { ...row.setupProfile } : null,
     factorScores: row?.factorScores && typeof row.factorScores === 'object' ? { ...row.factorScores } : {},
     quantSignal: row?.quantSignal || null,
@@ -71,6 +79,7 @@ export function normalizeScreener(raw = {}) {
     filters: raw.filters && typeof raw.filters === 'object' ? { ...raw.filters } : {},
     metadata: raw.metadata && typeof raw.metadata === 'object' ? { ...raw.metadata } : {},
     revision: raw.revision || null,
+    snapshotId: raw.snapshotId || raw.metadata?.snapshotId || null,
     status: raw.status || (rows.length ? 'current' : 'unavailable'),
     updatedAt: raw.updatedAt || new Date().toISOString()
   });

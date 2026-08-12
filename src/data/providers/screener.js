@@ -1,4 +1,6 @@
-// ARX-10/ARX-16: the native screener reads the published artifact and generated identity
+import { buildFieldReadiness, createInstrumentRef, SCREENER_FIELD_REGISTRY, stableHash } from '../contracts/screener.js';
+
+// ARX-10/ARX-16 + SCR-OS-01: the native screener reads the published artifact and generated identity
 // universe through the platform HTTP gateway. Legacy SCREENER_DB remains only as a
 // compatibility enrichment/fallback for non-route consumers that have not yet migrated.
 function finite(value) {
@@ -69,7 +71,18 @@ export function createScreenerProvider({
         const identity = universeBySymbol.get(symbol) || {};
         const factor = artifact.data[symbol] || {};
         const live = liveEnrichment(symbol, readLiveData);
-        return {
+        const market = /\.K[QS]$/i.test(symbol) || ['KOSPI', 'KOSDAQ'].includes(String(identity.index || '').toUpperCase()) ? 'KR' : 'US';
+        const instrumentRef = createInstrumentRef({
+          instrumentId: `${market}:${symbol}`,
+          symbol,
+          market,
+          mic: market === 'KR' ? 'XKRX' : (String(identity.index || '').toUpperCase() === 'NYSE' ? 'XNYS' : 'XNAS'),
+          currency: market === 'KR' ? 'KRW' : 'USD',
+          assetType: 'EQUITY',
+          validFrom: identity.validFrom,
+          validTo: identity.validTo
+        });
+        const baseRow = {
           symbol,
           sym: symbol,
           name: identity.name || '',
@@ -126,9 +139,21 @@ export function createScreenerProvider({
           _fundamentalFiledAt: factor.fundamentalFiledAt || null,
           _fundamentalFetchedAt: factor.fundamentalFetchedAt || null,
           _fundamentalAccession: factor.fundamentalAccession || null,
-          observedAt: factor.observedAt || artifact.factorObservedAt || artifact.asOf || null
+          observedAt: factor.observedAt || artifact.factorObservedAt || artifact.asOf || null,
+          fetchedAt: factor.fetchedAt || artifact.asOf || null,
+          instrumentRef
         };
+        const readiness = buildFieldReadiness(baseRow, {
+          registry: SCREENER_FIELD_REGISTRY,
+          now,
+          revisionId: artifact.asOf || 'unpublished',
+          sourceId: factor.source || artifact.source || 'screener-artifact',
+          sourceKind: factor.sourceKind === 'official-filing' ? 'T1_OFFICIAL' : 'T3_PUBLIC_DELAYED'
+        });
+        return { ...baseRow, fieldReadiness: readiness, fieldObservations: readiness.observations };
       });
+
+      const snapshotId = `screener-snapshot-${stableHash({ revision: artifact.asOf, source: artifact.source, universe: symbols })}`;
 
       return Object.freeze({
         rows,
@@ -145,9 +170,14 @@ export function createScreenerProvider({
           rankingContract: artifact.rankingContract || null,
           backtest: artifact.backtest || null,
           breadth: artifact.breadth || null,
-          source: artifact.source || 'public-data/screener.json'
+          source: artifact.source || 'public-data/screener.json',
+          contractVersion: 'screener-workbench.v1',
+          fieldRegistryVersion: SCREENER_FIELD_REGISTRY.version,
+          snapshotId,
+          snapshotStatus: 'immutable-local-snapshot'
         },
         revision: artifact.asOf || null,
+        snapshotId,
         status: rows.some((row) => typeof row.ret3m === 'number') ? 'current' : 'partial',
         updatedAt: artifact.asOf || clock.iso()
       });

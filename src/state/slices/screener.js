@@ -2,7 +2,7 @@ export const SCREENER_DATA_SET = 'data/screener';
 export const SCREENER_DATA_CLEAR = 'data/screener/clear';
 
 export function createInitialScreenerState() {
-  return Object.freeze({ status: 'unavailable', rows: [], filters: {}, metadata: {}, revision: null, updatedAt: null });
+  return Object.freeze({ status: 'unavailable', rows: [], filters: {}, metadata: {}, revision: null, snapshotId: null, screenDefinition: null, lastRun: null, runHistory: [], readiness: null, workbenchHash: null, savedScreens: [], outcomes: [], refreshPlan: null, updatedAt: null });
 }
 
 export function createScreenerDataAction(payload = {}, meta = {}) {
@@ -12,12 +12,22 @@ export function createScreenerDataAction(payload = {}, meta = {}) {
 export function screenerReducer(state = createInitialScreenerState(), action = {}) {
   if (action.type === SCREENER_DATA_SET) {
     const payload = action.payload && typeof action.payload === 'object' ? action.payload : {};
+    const has = (key) => Object.prototype.hasOwnProperty.call(payload, key);
     return {
-      status: payload.status || (Array.isArray(payload.rows) ? 'current' : 'unavailable'),
-      rows: Array.isArray(payload.rows) ? payload.rows.map((row) => ({ ...row })) : [],
-      filters: payload.filters && typeof payload.filters === 'object' ? { ...payload.filters } : {},
-      metadata: payload.metadata && typeof payload.metadata === 'object' ? { ...payload.metadata } : {},
-      revision: payload.revision || null,
+      status: has('status') ? payload.status || 'unavailable' : (Array.isArray(payload.rows) ? 'current' : state.status),
+      rows: has('rows') && Array.isArray(payload.rows) ? payload.rows.map((row) => ({ ...row })) : state.rows,
+      filters: has('filters') && payload.filters && typeof payload.filters === 'object' ? { ...payload.filters } : state.filters,
+      metadata: has('metadata') && payload.metadata && typeof payload.metadata === 'object' ? { ...payload.metadata } : state.metadata,
+      revision: has('revision') ? payload.revision || null : state.revision,
+      snapshotId: has('snapshotId') ? payload.snapshotId || payload.metadata?.snapshotId || null : state.snapshotId,
+      screenDefinition: has('screenDefinition') ? (payload.screenDefinition ? { ...payload.screenDefinition } : null) : state.screenDefinition,
+      lastRun: has('lastRun') ? (payload.lastRun ? { ...payload.lastRun } : null) : state.lastRun,
+      runHistory: has('runHistory') && Array.isArray(payload.runHistory) ? payload.runHistory.map((run) => ({ ...run })) : state.runHistory || [],
+      readiness: has('readiness') ? (payload.readiness ? { ...payload.readiness, records: Array.isArray(payload.readiness.records) ? payload.readiness.records.map((record) => ({ ...record })) : [] } : null) : state.readiness,
+      workbenchHash: has('workbenchHash') ? payload.workbenchHash || null : state.workbenchHash,
+      savedScreens: has('savedScreens') && Array.isArray(payload.savedScreens) ? payload.savedScreens.map((screen) => ({ ...screen })) : state.savedScreens || [],
+      outcomes: has('outcomes') && Array.isArray(payload.outcomes) ? payload.outcomes.map((outcome) => ({ ...outcome })) : state.outcomes || [],
+      refreshPlan: has('refreshPlan') ? (payload.refreshPlan ? { ...payload.refreshPlan } : null) : state.refreshPlan || null,
       updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null
     };
   }

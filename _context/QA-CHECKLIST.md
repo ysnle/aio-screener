@@ -3,6 +3,30 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-12
 confidence: high
 
+## v54.12 SCR-OS-00~11 Screener Workbench implementation (2026-08-12)
+
+- [x] QA-SCR1: field registry, InstrumentRef, ObservationEnvelope, US/KR readiness statuses and four timestamps pass the screener workbench contract gate.
+- [x] QA-SCR2: AST/DSL supports AND/OR/NOT/range/enum/exists, null policy and hard gates without `eval`/`new Function`; six saved presets round-trip with deterministic hashes.
+- [x] QA-SCR3: ScreenRun, RankExplanation, passed/rejected/unavailable states and result/explanation hashes are deterministic and visible through the workbench adapter.
+- [x] QA-SCR4: refresh demand deduplication, bounded total/provider budgets, retry backoff, circuit state and last-known-good retention pass.
+- [x] QA-SCR5: capability selection, rights boundary and divergent-source reconciliation fail closed.
+- [x] QA-SCR6: regime confidence, missing-input state, hysteresis and fixed-vs-adaptive replay retain `autoWeightPromotion:false`.
+- [x] QA-SCR7: outcome ledger records T+1/T+5/T+21/T+63 with benchmark-relative, drawdown, liquidity and cost fields.
+- [x] QA-SCR8: PIT/cost/liquidity/live-backtest parity gate remains BLOCKED; no predictive or automatic-weight promotion claim is allowed.
+- [x] QA-SCR9: synthetic 873/5k/20k scale benchmark records p50/p95 parse/query/render-preparation and an explicit JSON projection vs Parquet/DuckDB candidate decision.
+- [x] QA-SCR10: legacy screener writer remains available for rollback while the Workbench adapter renders definition/readiness/explanation controls.
+- [x] QA-SCR11: full structural/data/runtime/accessibility/performance/knowledge gates pass once after implementation; live in-app browser and GitHub Pages parity are separately marked pass or skipped with evidence.
+- [x] QA-SCR12: architecture-browser route-lifecycle soak waits for all known boot-delayed named timers before comparing lap 1 and lap 2; timer growth remains a failure.
+
+## v54.11 Daily briefing reference-bridge integration (2026-08-12)
+
+- [x] QA-BRIEFING1: the daily briefing renders canonical current observations separately from user-supplied `REFERENCE` observations; report values cannot overwrite live/server snapshot inputs.
+- [x] QA-BRIEFING2: US close, KST publication, KRX close, screenshot post time, and CPI next-check windows remain distinct in the digest and timeline renderer.
+- [x] QA-BRIEFING3: structured framework, observations, next checks, ticker maps, and source audits fan out to page modules and AI retrieval without adding quiz/practice UI.
+- [x] QA-BRIEFING4: syntax, version, structural, runtime, data-pipeline, static-data, knowledge-lint, skill, workflow, digest-contract, and `1121/1121` headless tests pass locally.
+- [x] QA-BRIEFING5: the local AIO in-app browser was opened on `#briefing` and the lead, drivers, current/reference comparison, causal arcs, Korean next checks, timeline, and action block were read and visually inspected; no bridge-render exception was observed.
+- [ ] QA-BRIEFING6: GitHub Pages deployed parity and live provider/Worker availability remain unverified; the local browser showed expected proxy/provider degradation warnings because external providers were unavailable in the test environment.
+
 ## v54.7 KA-11~16 execution gates (2026-08-12)
 
 - [x] QA-KA11: `coverage-matrix.json` inventories 423 units with exact 111/48/60/95/50/19/20/20 counts; inventory remains distinct from content completion.

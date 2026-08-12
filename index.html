@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v54.7 — 올인원 투자 터미널</title>
+  <title>AIO Screener v54.12 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -6033,7 +6033,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.7</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.12</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7575,6 +7575,42 @@ button[data-filter-active="true"] {
         </div>
       </div>
     </div><!-- /aio-section 시장분석 -->
+
+    <!-- v54.11: user-supplied daily reports become a dated comparison bridge, not a live-data substitute. -->
+    <div class="aio-section" id="briefing-research-bridge" style="display:none;">
+      <div style="background:linear-gradient(135deg,rgba(0,188,212,0.07),rgba(168,85,247,0.045));border:1px solid rgba(0,188,212,0.22);border-radius:8px;padding:18px 22px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:5px;">
+          <div style="font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--text-primary);">현재 정본과 자료를 대조하는 시장 서사</div>
+          <span id="briefing-research-source-label" style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">REFERENCE · 날짜별 관찰</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;">지수의 표면 움직임과 내부 순환을 분리해 읽습니다. 현재 정본은 라이브·서버 스냅샷, 아래 자료는 게시 시각·관측 시점·근거 상태를 가진 참고 레이어이며 서로의 값을 덮어쓰지 않습니다.</div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:14px;">
+          <div style="background:rgba(15,23,42,0.26);border:1px solid var(--border);border-radius:6px;padding:12px;">
+            <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:7px;">현재 정본 관측</div>
+            <div id="briefing-current-observation" style="font-size:12px;color:var(--text-secondary);line-height:1.75;"></div>
+          </div>
+          <div style="background:rgba(15,23,42,0.26);border:1px solid var(--border);border-radius:6px;padding:12px;">
+            <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:7px;">자료에서 관찰한 것</div>
+            <div id="briefing-reference-observation" style="font-size:12px;color:var(--text-secondary);line-height:1.75;"></div>
+          </div>
+        </div>
+        <div style="border:1px solid rgba(0,188,212,0.18);border-radius:6px;padding:12px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:7px;">비교 해석</div>
+          <div id="briefing-research-interpretation" style="font-size:12px;color:var(--text-secondary);line-height:1.8;"></div>
+        </div>
+        <div id="briefing-research-arc" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:14px;"></div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;border-top:1px solid rgba(0,188,212,0.16);padding-top:13px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">다음 확인 포인트</div>
+            <div id="briefing-research-checks" style="font-size:12px;color:var(--text-secondary);line-height:1.75;"></div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">자료의 시간축</div>
+            <div id="briefing-research-timeline" style="font-size:12px;color:var(--text-secondary);line-height:1.75;"></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /aio-section 브리핑 리서치 연결고리 -->
 
     <!-- v52.63: 행동 -->
     <div class="aio-section">
@@ -11644,6 +11680,34 @@ button[data-filter-active="true"] {
     <div id="screener-readiness-note" role="status" style="margin:-10px 0 18px;padding:9px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:11px;line-height:1.6;color:var(--text-muted);">
       팩터 산출물과 검증 상태 확인 중…
     </div>
+    <!-- SCR-OS-02~04/11: native Workbench adapter. The JSON editor is a
+         credential-free ScreenDefinition surface; the legacy table remains
+         available as the rollback writer until parity is certified. -->
+    <div id="screener-workbench" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div>
+          <div class="aio-subhd">Screener Workbench</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">필드 시점·출처·결측 상태를 보존한 저장 가능한 ScreenDefinition · 연구용 상대 랭킹</div>
+        </div>
+        <span id="scr-workbench-status" role="status" style="font-size:10px;color:var(--text-secondary);">실행 대기</span>
+      </div>
+      <div id="scr-workbench-presets" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;" aria-label="저장된 스크리너 프리셋"></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:9px;align-items:start;">
+        <textarea id="scr-definition-editor" aria-label="ScreenDefinition JSON 편집기" spellcheck="false" rows="3" style="width:100%;box-sizing:border-box;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);border-radius:4px;padding:7px;font:10px/1.45 var(--font-mono);resize:vertical;" placeholder="ScreenDefinition JSON"></textarea>
+        <div style="display:flex;flex-direction:column;gap:5px;min-width:92px;">
+          <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="screen-run">정의 실행</button>
+          <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="screen-import">가져오기</button>
+          <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="screen-export">내보내기</button>
+        </div>
+      </div>
+      <div id="scr-readiness-preview" style="margin-top:8px;font-size:10px;color:var(--text-muted);line-height:1.6;">준비도 미리보기 대기</div>
+      <div id="scr-why-preview" style="margin-top:6px;font-size:10px;color:var(--text-secondary);line-height:1.6;">결과 행을 선택하면 WhyRanked/WhyRejected와 필드 provenance가 여기에 표시됩니다.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px;">
+        <div id="scr-run-history" style="padding:7px;border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--text-muted);">Run history 대기</div>
+        <div id="scr-outcome-lab" style="padding:7px;border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--text-muted);">Outcome ledger 대기</div>
+        <div id="scr-ops-state" style="padding:7px;border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--text-muted);">Operations 상태 대기</div>
+      </div>
+    </div>
     <!-- 프리셋(트레이더 프로파일) + 통계 압축 한 줄 — v52.72 아이보리 4c: 시안 구조(pill행 + 우측 요약) -->
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
       <span style="font-size:12px;color:var(--text-dim);">프리셋</span>
@@ -12685,9 +12749,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=54.7" defer></script>
-  <script src="./js/aio-data.js?v=54.7" defer></script>
-  <script src="./js/aio-ui.js?v=54.7" defer></script>
+  <script src="./js/aio-core.js?v=54.12" defer></script>
+  <script src="./js/aio-data.js?v=54.12" defer></script>
+  <script src="./js/aio-ui.js?v=54.12" defer></script>
 
 
   <script>
@@ -15172,7 +15236,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=54.7" defer></script>
+<script src="./js/aio-chat.js?v=54.12" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24085,7 +24149,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=54.7" defer></script>
+<script src="./js/aio-glossary.js?v=54.12" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "screener-validation-gate.v1",
+  "gateId": "G-SCR-09",
+  "status": "BLOCKED",
+  "allowedUse": "research-relative-ranking-only",
+  "pointInTimeUniverse": false,
+  "delistingAndCorporateAction": false,
+  "filingAvailableDate": false,
+  "turnoverModeled": false,
+  "transactionCostsModeled": false,
+  "liquidityCapacityModeled": false,
+  "liveBacktestParity": false,
+  "blockers": [
+    "pointInTimeUniverse",
+    "delistingAndCorporateAction",
+    "filingAvailableDate",
+    "turnoverModeled",
+    "transactionCostsModeled",
+    "liquidityCapacityModeled",
+    "liveBacktestParity"
+  ],
+  "reason": "Current screener artifacts are present-day relative-ranking inputs; PIT universe, delisting/corporate-action handling, filing availability, turnover, cost, liquidity capacity, and live/backtest definition parity evidence are not established.",
+  "evidenceArtifact": "scripts/ci-screener-workbench-contract.mjs",
+  "observedAt": "2026-08-12T00:00:00+09:00"
+}

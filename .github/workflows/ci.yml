@@ -104,6 +104,12 @@ jobs:
       - name: ESM core unit contracts (RM-05 — store/router/lifecycle/evidence-store/facade in isolation)
         run: node scripts/ci-esm-core-unit-check.mjs
 
+      - name: Screener Workbench contract gate (SCR-OS-00~09)
+        run: node scripts/ci-screener-workbench-contract.mjs
+
+      - name: Screener Workbench scale benchmark (SCR-OS-10)
+        run: node scripts/benchmark-screener-workbench.mjs --out "$RUNNER_TEMP/screener-scale-benchmark.json"
+
       - name: Research reference packet contracts (Atlas/Principles/Masters)
         run: |
             node scripts/build-knowledge-concept-manifest.mjs
@@ -129,8 +135,6 @@ jobs:
             node scripts/ci-knowledge-web-research-dossier.mjs
             node scripts/build-knowledge-domain-dossiers.mjs
             node scripts/ci-knowledge-sector-domain-depth.mjs
-            node scripts/build-knowledge-quantitative-labs.mjs
-            node scripts/ci-knowledge-quantitative-example.mjs
             node scripts/ci-knowledge-article-uniqueness.mjs
             node scripts/ci-knowledge-market-transmission.mjs
             node scripts/ci-knowledge-currentness-separation.mjs

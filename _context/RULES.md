@@ -2,10 +2,22 @@
 verified_by: agent (Fable 5) + Codex P761-P892 verification
 last_verified: 2026-08-12
 confidence: high
-target_version: v54.7
+target_version: v54.12
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R472. Browser lifecycle gates must stabilize known boot-delayed timers before leak comparison (v54.12)
+
+**Rule**: A route resource-leak gate must wait for every known boot-delayed named timer that can register during its measurement window before taking the first lap snapshot. It must still fail on growth between two post-stabilization laps.
+
+**Validation**: `ci-architecture-browser-check.mjs` must pass the two-lap route traversal with browser errors 0, stable canvas count and no timer registry growth.
+
+## R471. Screener Workbench contracts must be the single lifecycle boundary (v54.12)
+
+**Rule**: Screener identity, observations, field readiness, AST definitions, ScreenRun explanations, refresh demands, provider capabilities, regime states and outcomes must cross one versioned contract boundary. Unknown, stale, conflicting, unsupported or rights-blocked values remain non-promotable; research-relative ranking must not silently become predictive validity or automatic weight promotion.
+
+**Validation**: `ci-screener-workbench-contract.mjs`, `validate-screener-artifact.mjs`, `ci-data-pipeline-contract-check.mjs`, `ci-runtime-contract-check.mjs` and the final live/browser gates must pass. `public-data/model-validation-status.json` and `public-data/screener-validation-gate.json` remain `BLOCKED` until PIT, turnover, cost, liquidity and live/backtest parity evidence exists.
 
 ## R470. Knowledge research artifacts must preserve completion and currentness boundaries (v54.7)
 

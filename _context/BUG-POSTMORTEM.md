@@ -2,11 +2,31 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-12
 confidence: high
-latest_version: v54.7
-latest_P_number: P911
-next_P_number: P912
+latest_version: v54.12
+latest_P_number: P913
+next_P_number: P914
 current_total_entries: 635 (P1~P911, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P911 v54.7 KA-11~15 coverage, research boundary, quantitative lab and currentness gates
+current_checkpoint: P913 v54.12 architecture browser timer stabilization after screener workbench QA
+
+## P913 - v54.12 - Architecture browser timer gate raced a boot-delayed alert timer
+
+- **motivation**: The final post-edit browser gate must distinguish route lifecycle leaks from timers that are intentionally registered after boot.
+- **symptom/reproduction**: `ci-architecture-browser-check.mjs` waited for the 15-second `dataStatus` timer, then ran two route laps. When the 30-second `alerts-check` timer registered between laps, the gate reported a false `11 -> 12` legacy timer leak even though route navigation did not create it.
+- **root_cause**: The pre-lap stabilization wait covered one boot-delayed timer but not the second named timer created by the same static startup path.
+- **fix**: The gate now waits for both `dataStatus` and `alerts-check` before lap 1, preserving the actual second-lap growth assertion.
+- **violated_rule**: Browser lifecycle evidence must be stable against known boot-delayed timers before classifying route resource growth.
+- **prevention**: Any named timer intentionally registered after boot must be included in the gate's stabilization barrier or explicitly bounded with evidence; route-owned timers remain subject to the growth assertion.
+- **verification**: Focused architecture-browser rerun passed with 20 routes, browser errors 0, stable canvas count and timer registry 12 -> 12; other final SCR/contract/headless/accessibility/viewport gates also pass.
+
+## P912 - v54.12 - Screener rebuild design had no executable contract boundary
+
+- **motivation**: The open-source screener benchmark defined a Workbench target but the existing native screener still exposed artifact rows and factor ranking without one versioned identity/observation/definition/run/outcome lifecycle.
+- **symptom/reproduction**: A field could be present in a row without a field-level status, provider capability or rights decision; saved definitions, explanations, refresh requests, regime replay and PIT promotion had no common machine gate.
+- **root_cause**: The design handoff and the existing provider/orchestrator/page path were not connected by a contract module, deterministic AST engine, persistent validation gate or scale benchmark.
+- **fix**: Added the versioned screener contracts, field registry/readiness, provider capability reconciliation, AST screen engine, saved-screen share schema, refresh planner, regime replay, outcome ledger, PIT promotion gate, Workbench UI adapter, baseline ledger, contract CI gate and synthetic scale benchmark. Legacy table ownership remains as rollback surface.
+- **violated_rule**: R471; research-relative ranking and currentness/rights boundaries must be explicit at the screener lifecycle boundary.
+- **prevention**: Every screener provider/normalizer/orchestrator/UI change must preserve the contract version, field observations, ScreenRun hash, fail-closed status vocabulary and validation gate. `public-data/screener-validation-gate.json` remains BLOCKED until evidence closes the listed blockers.
+- **verification**: Pending the final single verification batch. Local browser/live Pages/provider/PIT certification must not be inferred from static or unit gates.
 
 ## P911 - v54.7 - Generated knowledge reference artifacts initially lacked explicit currentness metadata
 

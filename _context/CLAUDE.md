@@ -4,22 +4,25 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v54.7
+- **현재 버전**: v54.12
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
-## _context/ 문서 (55개 versioned/new 활성, 2026-08-10 갱신)
+## _context/ 문서 (57개 versioned/new 활성, 2026-08-12 갱신)
 
 | 문서 | 역할 | 갱신 트리거 |
 |------|------|-----------|
 | CLAUDE.md | 이 파일: 구조, hooks, skills, 복리 루프 | 구조 또는 워크플로 변경 시 |
 | WORKFLOW-GOVERNANCE.md | Agent preflight, postmortem-to-gate, skill/self-operation closure contract | Workflow/skill/CI 게이트 변경 시 |
-| RULES.md | 마스터 룰 R1~R451 | 새 규칙/패턴 발견 시 |
+| RULES.md | 마스터 룰 R1~R471 | 새 규칙/패턴 발견 시 |
 | BUG-POSTMORTEM.md | 버그 사후 분석 P1~P724 — 상세 19건(P704+) + 압축 원장·반복 클래스 표 (R25 재발 추적, 2026-07-18 통합) | 버그 수정 시 |
 | QA-CHECKLIST.md | QA 체크리스트 v4.0 — 게이트 실행 절차·QC1~10·열린 백로그·버전 원장 압축 (2026-07-18 통합) | /qa 발견 시 |
 | KNOWLEDGE-BASE.md | 기술 인사이트 축적 (R26) | 인사이트 발견 시 |
 | CODE-MAP.md | index.html + js 모듈 line 범위 맵 | 리팩토링 ±500줄 |
 | RESEARCH-INTEGRATION-2026-08-09.md | 사용자 자료별 주장·근거계층·이미지·스크리너 반영 원장 | 새 자료 통합 또는 출처 품질 변경 시 |
 | RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md | Telegram 4채널 공개 감사·역할·관찰창·Q1~Q5·stale/failure 경계 원장 | Telegram source catalog 또는 reference 품질 변경 시 |
+| RESEARCH-INTEGRATION-2026-08-12-DAILY-BRIEFING.md | 데일리 브리핑 현재 정본/참고 자료 비교·대조, 인과 서사, 시계열, 근거 경계 원장 | 데일리 리포트 자료 또는 브리핑 소비 구조 변경 시 |
+| SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md | 전문·브라우저·개인 공개 스크리너 20개 비교와 AIO Screener Workbench 목표 구조, 자동 개별 갱신·공급자 capability·시장 레짐·PIT 검증·SCR-OS-00~11 실행 계약. IMPLEMENTED_LOCAL; live/PIT 승격 경계 유지 | 비교군, 라이선스, screener 기준선, 목표 계약, SCR-OS 상태 또는 rebuild trigger 변경 시 |
+| SCREENER-OS-00-BASELINE-2026-08-12.md | SCR-OS-00 기준선 873/848/74.2, producer→contract→consumer dependency ledger, packet 상태와 명시적 non-claims | screener artifact baseline, packet status, validation/live boundary 변경 시 |
 | INDEX.md | 지식 베이스 인덱스 + 배포 baseline (R24) | /knowledge-lint L6, _context 문서 추가/제거 시 |
 | WORKTREE-AUDIT.md | GitHub/live/worktree 라우팅 + 미배포 작업 인벤토리 | 워크트리 병합/배포/감사 시 |
 | DEEP-QA-2026-05-05.md | UI/API/페이지 로직 심층 QA 결과 | 심층 QA 또는 live/local parity 변경 시 |

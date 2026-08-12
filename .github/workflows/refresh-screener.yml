@@ -39,11 +39,14 @@ jobs:
       - name: Validate semantic artifact contract
         run: node scripts/validate-screener-artifact.mjs public-data/screener.json
 
+      - name: Validate screener workbench contract and blocked promotion boundary
+        run: node scripts/ci-screener-workbench-contract.mjs
+
       - name: Commit only validated screener artifacts
         run: |
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
-          git add public-data/screener.json public-data/sec-fundamentals.json
+          git add public-data/screener.json public-data/sec-fundamentals.json public-data/screener-validation-gate.json
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           if git diff --staged --quiet; then
             echo "No screener changes to commit"

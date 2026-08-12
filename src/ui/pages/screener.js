@@ -1,5 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
+import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
 
 const PROFILE_DESCRIPTIONS = {
   balanced: '레짐 기반 자동 가중',
@@ -180,16 +181,19 @@ function createRankCell(documentRef, row) {
   return cell(documentRef, wrap, 'scr-adv-col', 'text-align:center;padding:5px 8px;');
 }
 
-function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onTicker } = {}) {
+function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onTicker, onExplain } = {}) {
   const live = liveRow(row, readLiveData);
   const tr = documentRef.createElement('tr');
   tr.className = 'aio-hover-row';
   tr.tabIndex = 0;
   tr.dataset.aioScreenerTicker = row.sym;
+  tr.dataset.aioScreenerWhy = row.screenStatus || 'unavailable';
+  tr.setAttribute('aria-label', `${row.sym} ${row.screenStatus === 'passed' ? '선정' : row.screenStatus === 'rejected' ? '탈락' : '데이터 부족'} 행`);
   tr.style.cssText = 'border-bottom:1px solid var(--surface-4);cursor:pointer;';
   const stop = (event) => { event.preventDefault(); event.stopPropagation(); };
   tr.addEventListener('click', (event) => {
     if (event.target.closest('[data-aio-screener-watchlist]')) return;
+    onExplain?.(row);
     event.stopPropagation();
     onTicker?.(row.sym);
   });
@@ -249,7 +253,20 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
   signalNode.textContent = signalLabel(row.signal);
   signalNode.style.cssText = `background:${row.signal === 'BUY' ? 'var(--data-green-soft)' : row.signal === 'SELL' ? 'var(--data-red-soft)' : row.signal === 'WATCH' ? 'var(--data-amber-soft)' : 'var(--data-muted-soft)'};color:${signalColor(row.signal)};padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;`;
   tr.appendChild(cell(documentRef, signalNode, 'scr-adv-col', 'text-align:center;padding:6px 8px;border-left:1px solid var(--border);'));
-  tr.appendChild(cell(documentRef, row.newsMemo ? row.newsMemo.slice(0, 70) : '—', 'scr-adv-col', 'padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-left:1px solid var(--border);'));
+  const provenance = documentRef.createElement('div');
+  provenance.style.cssText = 'display:flex;align-items:center;gap:5px;min-width:0;';
+  const memo = documentRef.createElement('span');
+  memo.textContent = row.newsMemo ? row.newsMemo.slice(0, 70) : '—';
+  memo.style.cssText = 'min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+  const why = documentRef.createElement('button');
+  why.type = 'button';
+  why.textContent = 'Why';
+  why.title = 'WhyRanked / WhyRejected와 필드 provenance 보기';
+  why.setAttribute('aria-label', `${row.sym} 순위·탈락 근거 보기`);
+  why.style.cssText = 'flex:none;padding:2px 5px;border:1px solid var(--border);border-radius:3px;background:var(--surface-2);color:var(--accent);font-size:9px;cursor:pointer;';
+  why.addEventListener('click', (event) => { stop(event); onExplain?.(row); });
+  provenance.append(memo, why);
+  tr.appendChild(cell(documentRef, provenance, 'scr-adv-col', 'padding:6px 8px;font-size:10px;color:var(--text-secondary);max-width:160px;border-left:1px solid var(--border);'));
   return tr;
 }
 
@@ -343,11 +360,11 @@ function calculatePosition(documentRef, readLiveData) {
   output.textContent = `최대 손실 $${maxLoss.toLocaleString('en-US', { maximumFractionDigits: 0 })} · 투자 금액 $${actual.toLocaleString('en-US', { maximumFractionDigits: 0 })} (${(actual / capital * 100).toFixed(1)}% of 자본)${shares ? ` · 추천 주수 ${shares.toLocaleString()}주 @ $${price.toFixed(2)}` : ''} · 참고용 계산 결과입니다.`;
 }
 
-function render({ documentRef, store, readLiveData, readWatchlist, readAliases, sortState, setSortState, visibleLimit, setVisibleLimit, onTicker, onWatchlistToggle, onProfileChange }) {
+function render({ documentRef, store, readLiveData, readWatchlist, readAliases, sortState, setSortState, visibleLimit, setVisibleLimit, onTicker, onWatchlistToggle, onExplain, rowsOverride = null, workbenchResult = null }) {
   const state = selectScreenerState(store?.getState?.() || {});
   const page = documentRef?.getElementById('page-screener');
   if (!page) return;
-  const rows = state?.rows || [];
+  const rows = rowsOverride || state?.rows || [];
   const filtered = sortRows(filterRows(rows, documentRef, { readWatchlist, readAliases }), sortState.column, sortState.ascending, readLiveData);
   const body = documentRef.getElementById('screener-results-body');
   if (body) {
@@ -358,7 +375,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
       empty.appendChild(cell(documentRef, state?.status === 'unavailable' ? '스크리너 산출물 미수신' : '조건에 맞는 종목이 없습니다', '', 'text-align:center;padding:20px;color:var(--text-muted);'));
       empty.firstChild.colSpan = 22;
       body.appendChild(empty);
-    } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onTicker })));
+    } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onTicker, onExplain })));
   }
   const count = documentRef.getElementById('screener-result-count');
   if (count) count.textContent = String(filtered.length);
@@ -376,9 +393,9 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   if (buy) buy.textContent = String(allRows.filter((row) => row.signal === 'BUY').length);
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
-  if (asOf) asOf.textContent = state?.metadata?.asOf ? `팩터 기준 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
+  if (asOf) asOf.textContent = workbenchResult?.run?.snapshotId ? `스크린 스냅샷 ${String(workbenchResult.run.snapshotId).slice(0, 18)}` : state?.metadata?.asOf ? `팩터 기준 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
   const readiness = documentRef.getElementById('screener-readiness-note');
-  if (readiness) readiness.textContent = state?.status === 'unavailable' ? '팩터 산출물 미수신 — 현재형 랭킹을 표시하지 않습니다.' : `${allRows.length}개 유니버스 · ${state.metadata?.ranking?.ranked || 0}개 팩터 랭크 · 상대 순위는 연구용입니다.`;
+  if (readiness) readiness.textContent = state?.status === 'unavailable' ? '팩터 산출물 미수신 — 현재형 랭킹을 표시하지 않습니다.' : `${allRows.length}개 유니버스 · ${workbenchResult?.run?.passed ?? state.metadata?.ranking?.ranked ?? 0}개 통과 · 상대 순위는 연구용입니다.`;
   const coverage = documentRef.getElementById('screener-factor-coverage');
   if (coverage) {
     const ranking = state?.metadata?.ranking || {};
@@ -406,6 +423,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
   const visibleLimit = { value: 12 };
   let mounted = false;
   let renderNow = () => {};
+  let activeRows = null;
+  let activeResult = null;
+  let activeDefinition = null;
   return {
     route: 'screener',
     mount() {
@@ -416,6 +436,72 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
       const watchlistReader = readWatchlist || (() => root?._aioWatchlistGet?.() || []);
       const aliasReader = readAliases || (() => root?.SCR_KEYWORD_ALIASES || {});
       const profileReader = () => root?._aioGetActiveProfile?.() || 'balanced';
+      const workbenchStatus = documentRef.getElementById('scr-workbench-status');
+      const definitionEditor = documentRef.getElementById('scr-definition-editor');
+      const workbenchPresets = documentRef.getElementById('scr-workbench-presets');
+      const readinessPreview = documentRef.getElementById('scr-readiness-preview');
+      const whyPreview = documentRef.getElementById('scr-why-preview');
+      const runHistory = documentRef.getElementById('scr-run-history');
+      const outcomeLab = documentRef.getElementById('scr-outcome-lab');
+      const operationsState = documentRef.getElementById('scr-ops-state');
+      const defaultScreens = () => root?.AIO_ARCH?.getDefaultScreenerScreens?.() || [];
+      const syncDefinitionEditor = () => {
+        if (definitionEditor && activeDefinition) definitionEditor.value = exportSavedScreen({ definition: activeDefinition });
+      };
+      const explainRow = (row) => {
+        if (!whyPreview) return;
+        const explanation = row.rankExplanation || {};
+        const readiness = row.fieldReadiness?.coverage;
+        const missing = explanation.missingEvidence?.length ? `결측: ${explanation.missingEvidence.join(', ')}` : '필수 필드 결측 없음';
+        const contrary = explanation.contraryEvidence?.length ? `반대 근거: ${explanation.contraryEvidence.join(', ')}` : '조건 반대 근거 없음';
+        const fields = readiness ? `필드 커버리지 ${readiness.coveragePct}%` : '필드 provenance 미수신';
+        whyPreview.textContent = `${row.sym || row.symbol} · ${row.screenStatus === 'passed' ? 'WhyRanked' : row.screenStatus === 'rejected' ? 'WhyRejected' : '계산 불가'} · ${missing} · ${contrary} · ${fields}`;
+      };
+      const runDefinition = (definition) => {
+        try {
+          const saved = createSavedScreen({ definition });
+          activeDefinition = saved.definition;
+          const result = root?.AIO_ARCH?.runScreenerDefinition?.(activeDefinition);
+          if (result?.rows) {
+            activeResult = result;
+            activeRows = result.rows;
+            visibleLimit.value = 12;
+            if (workbenchStatus) workbenchStatus.textContent = `실행 완료 · ${result.run?.passed || 0} 통과 / ${result.run?.unavailable || 0} 데이터 부족 · hash ${result.resultHash}`;
+            syncDefinitionEditor();
+            renderNow();
+          }
+        } catch (error) {
+          if (workbenchStatus) workbenchStatus.textContent = `정의 차단 · ${error?.message || 'invalid_definition'}`;
+        }
+      };
+      const renderWorkbench = () => {
+        const state = selectScreenerState(store.getState()) || {};
+        if (activeResult?.run?.snapshotId && state.snapshotId && activeResult.run.snapshotId !== state.snapshotId) {
+          activeResult = null;
+          activeRows = null;
+        }
+        if (workbenchPresets) {
+          workbenchPresets.replaceChildren();
+          defaultScreens().forEach((screen) => {
+            const button = documentRef.createElement('button');
+            button.type = 'button';
+            button.className = 'aio-btn-table';
+            button.style.fontSize = '10px';
+            button.dataset.aioScreenerAction = 'screen-preset';
+            button.dataset.aioScreenerArg = screen.definition.screenId;
+            button.textContent = screen.label;
+            workbenchPresets.appendChild(button);
+          });
+        }
+        if (!activeDefinition && defaultScreens()[0]?.definition) activeDefinition = defaultScreens()[0].definition;
+        syncDefinitionEditor();
+        const readiness = activeResult?.readiness || state.readiness;
+        if (readinessPreview) readinessPreview.textContent = readiness ? `Readiness · ${readiness.eligibleCount}/${readiness.rowCount} eligible · ${readiness.coveragePct}% · required: ${(readiness.requiredFields || []).join(' · ')}` : '준비도 미리보기 대기';
+        if (workbenchStatus && !activeResult) workbenchStatus.textContent = state.lastRun ? `기본 실행 · ${state.lastRun.passed} 통과 · ${state.lastRun.resultHash}` : '실행 대기';
+        if (runHistory) runHistory.textContent = state.lastRun ? `Run history · ${state.runHistory?.length || 1}회 · ${state.lastRun.status} · ${state.lastRun.passed}/${state.lastRun.eligibleCount}` : 'Run history · 아직 실행되지 않음';
+        if (outcomeLab) outcomeLab.textContent = state.outcomes?.length ? `Outcome lab · ${state.outcomes.length}개 관측 · 비용/벤치마크 상대수익 포함` : 'Outcome lab · T+1/T+5/T+21/T+63 대기';
+        if (operationsState) operationsState.textContent = state.refreshPlan ? `Operations · refresh ${state.refreshPlan.queued?.length || 0}건 · quota/circuit 기록` : `Operations · snapshot ${state.snapshotId ? String(state.snapshotId).slice(0, 18) : '미수신'} · rights/readiness fail-closed`;
+      };
       const setProfileButtons = () => {
         const active = profileReader();
         page.querySelectorAll('[data-aio-screener-action="profile"]').forEach((button) => {
@@ -430,7 +516,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
         if (positionSymbol) positionSymbol.textContent = symbol;
         return (onTicker || ((value) => root?.showTicker?.(value)))?.(symbol);
       };
-      renderNow = () => render({ documentRef, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, setVisibleLimit: (value) => { visibleLimit.value = value; }, onTicker: tickerHandler, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, onProfileChange });
+      renderNow = () => render({ documentRef, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, setVisibleLimit: (value) => { visibleLimit.value = value; }, onTicker: tickerHandler, onExplain: explainRow, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows, workbenchResult: activeResult, onProfileChange });
       const handleClick = (event) => {
         const actionNode = event.target.closest?.('[data-aio-screener-action]');
         const header = event.target.closest?.('[data-scr-sort]');
@@ -447,7 +533,22 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
         }
         const action = actionNode.dataset.aioScreenerAction;
         const argument = actionNode.dataset.aioScreenerArg;
-        if (action === 'profile') {
+        if (action === 'screen-preset') {
+          const screen = defaultScreens().find((item) => item.definition.screenId === argument);
+          if (screen) runDefinition(screen.definition);
+        } else if (action === 'screen-run' || action === 'screen-import') {
+          try {
+            const parsed = JSON.parse(definitionEditor?.value || '');
+            const saved = parsed.definition ? importSavedScreen(JSON.stringify(parsed)) : createSavedScreen({ definition: parsed });
+            runDefinition(saved.definition);
+          } catch (error) {
+            if (workbenchStatus) workbenchStatus.textContent = `가져오기 차단 · ${error?.message || 'invalid_json'}`;
+          }
+        } else if (action === 'screen-export') {
+          if (!activeDefinition) activeDefinition = defaultScreens()[0]?.definition || null;
+          syncDefinitionEditor();
+          if (workbenchStatus) workbenchStatus.textContent = 'credential 없는 ScreenDefinition을 편집기에 내보냈습니다.';
+        } else if (action === 'profile') {
           root?._aioSetProfile?.(argument);
           Promise.resolve(onProfileChange?.(argument)).finally(rerender);
         } else if (action === 'toggle-filters') {
@@ -510,7 +611,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
         select.dataset.aioValues = signature;
       };
       const fillControls = () => { fillSelect('scr-market', 'index', '전체 지수'); fillSelect('scr-sector', 'sector', '전체 섹터'); };
-      const renderWithControls = () => { fillControls(); rerender(); };
+      const renderWithControls = () => { fillControls(); renderWorkbench(); rerender(); };
       page.addEventListener('click', handleClick);
       page.addEventListener('input', handleInput);
       page.addEventListener('change', handleInput);

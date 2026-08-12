@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "screener-scale-benchmark.v1",
+  "generatedAt": "2026-08-12T14:27:41.697Z",
+  "environment": {
+    "node": "v24.18.0",
+    "platform": "win32",
+    "samples": 9,
+    "synthetic": true
+  },
+  "sizes": [
+    873,
+    5000,
+    20000
+  ],
+  "results": [
+    {
+      "size": 873,
+      "serializedBytes": 176273,
+      "memoryDeltaBytes": 91552,
+      "operations": {
+        "parse": {
+          "label": "json-parse",
+          "p50Ms": 0.565,
+          "p95Ms": 1.661,
+          "resultCount": 873
+        },
+        "projection": {
+          "label": "column-projection",
+          "p50Ms": 0.06,
+          "p95Ms": 0.374,
+          "resultCount": 873
+        },
+        "query": {
+          "label": "rank-query",
+          "p50Ms": 0.047,
+          "p95Ms": 0.191,
+          "resultCount": 100
+        },
+        "renderPrep": {
+          "label": "render-preparation",
+          "p50Ms": 0.038,
+          "p95Ms": 0.636,
+          "resultCount": 250
+        }
+      }
+    },
+    {
+      "size": 5000,
+      "serializedBytes": 1015497,
+      "memoryDeltaBytes": 1009792,
+      "operations": {
+        "parse": {
+          "label": "json-parse",
+          "p50Ms": 3.462,
+          "p95Ms": 4.355,
+          "resultCount": 5000
+        },
+        "projection": {
+          "label": "column-projection",
+          "p50Ms": 0.145,
+          "p95Ms": 0.264,
+          "resultCount": 5000
+        },
+        "query": {
+          "label": "rank-query",
+          "p50Ms": 0.321,
+          "p95Ms": 0.343,
+          "resultCount": 100
+        },
+        "renderPrep": {
+          "label": "render-preparation",
+          "p50Ms": 0.011,
+          "p95Ms": 0.435,
+          "resultCount": 250
+        }
+      }
+    },
+    {
+      "size": 20000,
+      "serializedBytes": 4076246,
+      "memoryDeltaBytes": 33162272,
+      "operations": {
+        "parse": {
+          "label": "json-parse",
+          "p50Ms": 14.535,
+          "p95Ms": 23.109,
+          "resultCount": 20000
+        },
+        "projection": {
+          "label": "column-projection",
+          "p50Ms": 0.815,
+          "p95Ms": 1.405,
+          "resultCount": 20000
+        },
+        "query": {
+          "label": "rank-query",
+          "p50Ms": 1.43,
+          "p95Ms": 2.029,
+          "resultCount": 100
+        },
+        "renderPrep": {
+          "label": "render-preparation",
+          "p50Ms": 0.041,
+          "p95Ms": 0.048,
+          "resultCount": 250
+        }
+      }
+    }
+  ],
+  "decision": "json-column-projection",
+  "decisionReason": "Synthetic query and render preparation remain within the local p95 budget; keep JSON and add projection/virtualization first.",
+  "rightsBoundary": "Benchmark is synthetic and does not establish provider rights, PIT validity, or predictive model validity."
+}

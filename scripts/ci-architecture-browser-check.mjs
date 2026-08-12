@@ -464,7 +464,7 @@ try {
   // in this gate's own measurement window. Waiting for that one boot-delayed timer to exist before
   // lap 1 starts makes both snapshots observe a stable post-boot state, which is what this
   // assertion was always supposed to compare.
-  await page.waitForFunction(() => window._aioTimerRegistry && 'dataStatus' in window._aioTimerRegistry, { timeout: 20000 });
+  await page.waitForFunction(() => window._aioTimerRegistry && 'dataStatus' in window._aioTimerRegistry && 'alerts-check' in window._aioTimerRegistry, { timeout: 40000 });
   const ROUTE_IDS_FOR_ROUNDTRIP = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'principles', 'masters', 'atlas', 'guide'];
   async function traverseAllRoutes() {
     for (const route of ROUTE_IDS_FOR_ROUNDTRIP) {

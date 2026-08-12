@@ -1,7 +1,9 @@
 import { normalizeScreener } from '../normalize/screener.js';
 import { deriveScreenerSetupProfile } from '../../domain/screener/setup-profile.js';
+import { createScreenDefinition, stableHash } from '../contracts/screener.js';
+import { runScreen, summarizeScreenReadiness, SCREEN_ENGINE_VERSION } from '../../domain/screener/screen-engine.js';
 
-export function createScreenerOrchestrator({ provider, commands, ranker = null, rankingContext = () => ({}) } = {}) {
+export function createScreenerOrchestrator({ provider, commands, getState = () => ({}), ranker = null, rankingContext = () => ({}) } = {}) {
   if (!provider?.readCurrent || !commands?.setData) throw new Error('SCREENER_ORCHESTRATOR_DEPENDENCY_INVALID');
   // ARX-04: provider.readCurrent() now performs a real fetch (src/data/providers/screener.js),
   // so this orchestrator awaits it instead of treating it as a synchronous legacy projection.
@@ -30,14 +32,46 @@ export function createScreenerOrchestrator({ provider, commands, ranker = null, 
       inputVersion: normalized.revision || 'unknown'
     }) : null;
     const bySymbol = new Map((ranking?.rows || []).map((row) => [row.sym || row.symbol, row]));
-    const rows = normalized.rows.map((row) => {
+    const rankedRows = normalized.rows.map((row) => {
       const result = bySymbol.get(row.sym || row.symbol);
       const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : row;
       return { ...merged, setupProfile: deriveScreenerSetupProfile(merged) };
     });
+    const screenDefinition = createScreenDefinition({
+      screenId: 'native-screener-workbench',
+      version: 1,
+      name: 'Native Screener Workbench 기본 결과',
+      objective: 'research-relative-ranking',
+      filtersAST: { type: 'and', children: [] },
+      requiredFields: ['price.ret3m', 'price.pctSma200', 'price.rsi14'],
+      ranking: { field: 'rank', direction: 'desc' },
+      columns: ['identity.symbol', 'identity.name', 'rank', 'price.ret3m', 'price.rsi14'],
+      minCoverage: 0.8,
+      regimePolicy: { mode: 'reference-only', autoPromote: false }
+    });
+    const screenResult = runScreen({
+      definition: screenDefinition,
+      rows: rankedRows,
+      snapshotId: normalized.snapshotId || normalized.revision || 'unknown',
+      providerSet: [normalized.metadata?.source || 'screener-artifact'],
+      engineVersion: SCREEN_ENGINE_VERSION
+    });
+    const runBySymbol = new Map(screenResult.rows.map((row) => [row.sym || row.symbol, row]));
+    const rows = rankedRows.map((row) => {
+      const result = runBySymbol.get(row.sym || row.symbol);
+      return result ? { ...row, screenStatus: result.screenStatus, screenRank: result.screenRank, rankExplanation: result.rankExplanation } : row;
+    });
+    const readiness = summarizeScreenReadiness(rows, screenDefinition.requiredFields);
+    const priorRuns = getState?.()?.screener?.runHistory || [];
+    const runHistory = [...priorRuns, screenResult.run].slice(-20);
     const result = {
       ...normalized,
       rows,
+      screenDefinition,
+      lastRun: screenResult.run,
+      runHistory,
+      readiness,
+      workbenchHash: stableHash({ screenDefinition: screenDefinition.definitionHash, run: screenResult.run.resultHash }),
       metadata: {
         ...normalized.metadata,
         ranking: ranking ? {
@@ -49,7 +83,15 @@ export function createScreenerOrchestrator({ provider, commands, ranker = null, 
           activeFactorRegime: ranking.activeFactorRegime,
           activeFactorWeights: ranking.activeFactorWeights,
           inactiveFactorReasons: ranking.inactiveFactorReasons
-        } : null
+          } : null,
+        workbench: {
+          contractVersion: 'screener-workbench.v1',
+          engineVersion: SCREEN_ENGINE_VERSION,
+          definitionHash: screenDefinition.definitionHash,
+          runId: screenResult.run.runId,
+          resultHash: screenResult.resultHash,
+          readiness
+        }
       }
     };
     commands.setData(result, { updatedAt: result.updatedAt });
