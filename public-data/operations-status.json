@@ -7,8 +7,8 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-12T14:06:39.828Z",
-  "appRevision": "v54.13",
+  "generatedAt": "2026-08-13T01:12:08.928Z",
+  "appRevision": "v54.15",
   "dataRevision": "market-snapshot:2026-08-12T14:06:33.541Z:a3e6441b",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -64,7 +64,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "static-pages+service-worker",
-      "revision": "v54.13"
+      "revision": "v54.15"
     }
   },
   "ai": {
@@ -79,15 +79,15 @@
       }
     },
     "publicChat": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "NO_ROUTE",
+      "statusCode": "CONFIGURED_BROKEN",
       "personalKey": "EXPLICIT_USER_CONFIG",
-      "sharedWorker": "CURRENT",
+      "sharedWorker": "OPERATOR_REQUIRED",
       "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
       "health": {
-        "status": "CURRENT",
+        "status": "OPERATOR_REQUIRED",
         "statusCode": 200,
-        "observedAt": "2026-08-12T14:06:39.832Z",
+        "observedAt": "2026-08-11T13:27:34.150Z",
         "revision": "v54.5",
         "configured": true,
         "quotaConfigured": true,
@@ -97,7 +97,7 @@
         "providerSmokeObservedAt": "2026-08-11T13:25:15.000Z",
         "providerSmokeRevision": "v54.5",
         "ready": true,
-        "note": "Live deep health observed; provider smoke is certified separately by the pinned deploy workflow."
+        "note": "Deploy run 31495812010 passed deep health, CORS/origin checks, and provider smoke. A Korean-origin follow-up returned v54.5 health 200, authorityJurisdiction us, Anthropic 200/OK, and X-AIO-Upstream-Authority durable-object-us."
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -264,6 +264,7 @@
   },
   "blockers": [
     "fast_plane_cloudflare_credentials_and_soak_required",
-    "provider_rights_review_required"
+    "provider_rights_review_required",
+    "ai_proxy_deploy_or_readiness_required"
   ]
 }

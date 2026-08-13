@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.13';
+const APP_VERSION = 'v54.15';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12698,7 +12698,7 @@ window.AIO_MACRO_CALENDAR = {
   version: 'v53.4',
   releases: {
     'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-08-07', nextRelease: '2026-09-04', dataField: 'usUnemploy', source: 'BLS official schedule' },
-    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-07-14', nextRelease: '2026-08-12', dataField: 'cpi', source: 'BLS official schedule' },
+    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-08-12', nextRelease: '2026-09-11', dataField: 'cpi', source: 'BLS official schedule' },
     'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-07-30', nextRelease: '2026-08-26', dataField: 'pce', source: 'BEA official schedule' },
     'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-07-01', nextRelease: '2026-08-03', dataField: 'ismPmi', source: 'ISM official calendar' },
     'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-07-06', nextRelease: '2026-08-05', dataField: 'ismSvc', source: 'ISM official calendar' },
@@ -21266,7 +21266,7 @@ const AIO_MANUAL_REFERENCE = Object.freeze({
     operationalUse: 'reference-only'
   }),
   usCpiCalendar: Object.freeze({
-    next: '2026-08-12T08:30:00-04:00', asOf: '2026-07-14',
+    next: '2026-09-11T08:30:00-04:00', asOf: '2026-08-12',
     source: 'U.S. Bureau of Labor Statistics', sourceKind: 'official-primary',
     sourceUrl: 'https://www.bls.gov/cpi/', operationalUse: 'calendar-only'
   })

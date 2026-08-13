@@ -1,3 +1,19 @@
+## v54.15 (2026-08-13)
+- Completed SCR-UX-00~05 for the native screener: a single column registry now drives headers/cells/sort/presets, with rank-desc discovery defaults and sticky identity preservation.
+- Replaced JSON-first Workbench presentation with a visual condition builder, saved-screen selection/save flow, active filter chips, funnel counts, explicit run snapshot status, and a developer-only JSON drawer.
+- Added row selection with WhyRanked/WhyRejected factor contributions, contrary/missing evidence, provenance, explicit ticker navigation, compare tray (up to five), column presets/chooser, focus mode, accessible tab semantics, theme-safe empty backtest state, and light/dark token fixes.
+- Raised screener sort, Why, compare, and watchlist action hit areas to the accessible 44px target; the mobile accessibility matrix is green.
+- Rolled the official BLS CPI calendar from the completed 2026-08-12 release to the next 2026-09-11 release and synchronized the calendar consumer.
+- Verified syntax, ESM/runtime/structural/version/release contracts, 20-route accessibility matrix, 17-route × 4 viewport matrix, light/dark screener smoke interactions, header/cell parity, keyboard-sort target, reset, Why, compare, builder, and backtest empty-state behavior.
+- R1 7곳 v54.15
+
+## v54.14 (2026-08-13)
+- Completed SCR-UX-00~05 for the native screener: a single column registry now drives headers/cells/sort/presets, with rank-desc discovery defaults and sticky identity preservation.
+- Replaced JSON-first Workbench presentation with a visual condition builder, saved-screen selection/save flow, active filter chips, funnel counts, explicit run snapshot status, and a developer-only JSON drawer.
+- Added row selection with WhyRanked/WhyRejected factor contributions, contrary/missing evidence, provenance, explicit ticker navigation, compare tray (up to five), column presets/chooser, focus mode, accessible tab semantics, theme-safe empty backtest state, and light/dark token fixes.
+- Verified syntax, ESM/runtime/structural contracts, 17-route desktop viewport matrix, light/dark screener smoke interactions, header/cell parity, keyboard-sort target, reset, Why, compare, builder, and backtest empty-state behavior.
+- R1 7곳 v54.14
+
 ## v54.13 (2026-08-12)
 - Registered `public-data/screener-validation-gate.json` in the central data-lineage/freshness policy map after CI exposed the missing policy boundary.
 - Added P914/R473/QA-SCR13 so new persistent Workbench validation artifacts cannot bypass lineage registration.

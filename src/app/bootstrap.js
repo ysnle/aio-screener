@@ -223,6 +223,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const portfolioVault = createPrivacyVault({ storage: portfolioStorage, key: 'portfolio', consent: () => root?._portfolioVaultConsent === true });
   const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: runtimeReaders.readPortfolio, repository: portfolioVault }), commands: portfolioCommands });
   const screenerCommands = createScreenerCommands({ store });
+  const screenerSessionStorage = createStorageGateway({ storage: root?.sessionStorage, prefix: 'aio-session' });
   // ARX-10: the native provider/orchestrator feeds the native screener renderer from the
   // published artifact + identity universe. Legacy SCREENER_DB/profile/watchlist helpers remain
   // compatibility boundaries for non-cut-over consumers; the native route does not read legacy
@@ -271,6 +272,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       return root?.showTicker?.(symbol);
     },
     onWatchlistToggle: (symbol) => root?._aioWLToggle?.(symbol),
+    writeReturnContext: (context) => screenerSessionStorage.set('screener:return-context', JSON.stringify(context)),
     onProfileChange: (profile) => profile ? syncScreenerData() : null
   });
   modules.home = createAnalysisPage({ root, documentRef, store, route: 'home' });
@@ -427,6 +429,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       return { snapshotId: state.snapshotId, definition: state.screenDefinition, run: state.lastRun, runHistory: state.runHistory || [], readiness: state.readiness, savedScreens: state.savedScreens || [], outcomes: state.outcomes || [], refreshPlan: state.refreshPlan || null, hash: state.workbenchHash || null };
     },
     getDefaultScreenerScreens: () => defaultSavedScreens,
+    setScreenerSavedScreens: (savedScreens) => screenerCommands.setSavedScreens(Array.isArray(savedScreens) ? savedScreens : []),
     runScreenerDefinition: (definition) => runScreen({ definition, rows: store.getState()?.screener?.rows || [], snapshotId: store.getState()?.screener?.snapshotId || 'unknown', providerSet: store.getState()?.screener?.metadata?.source ? [store.getState().screener.metadata.source] : [] }),
     // ARX-16 compatibility read boundary: non-route consumers may read the
     // canonical native screener rows without reaching into the store shape.

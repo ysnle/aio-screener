@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v54.13 — 올인원 투자 터미널</title>
+  <title>AIO Screener v54.15 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -3722,11 +3722,71 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
 .scr-profile-btn { background:none; border:1px solid var(--border); border-radius:14px; padding:3px 10px; font-size:11px; cursor:pointer; color:var(--text-secondary); transition:all .15s; white-space:nowrap; }
 .scr-profile-btn.active { background:var(--accent); border-color:var(--accent); color:#f7f4ee; font-weight:700; }
 .scr-profile-btn:hover:not(.active) { border-color:var(--accent); color:var(--accent); }
+.scr-screen-chip.active { border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+.scr-workflow-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,.8fr); gap:12px; align-items:start; }
+.scr-workflow-controls, .scr-builder-panel { display:flex; flex-direction:column; gap:8px; }
+.scr-builder-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.scr-builder-row select, .scr-builder-row input, .scr-column-select { min-height:32px; padding:6px 9px; border:1px solid var(--border); border-radius:4px; background:var(--surface-1); color:var(--text-primary); font-size:12px; }
+.scr-builder-row input { flex:1; min-width:150px; }
+.scr-filter-chip { min-height:28px; padding:4px 9px; border:1px solid var(--accent-border); border-radius:999px; background:var(--accent-soft); color:var(--accent-text); font-size:11px; cursor:pointer; }
+.scr-filter-chip:hover, .scr-filter-chip:focus-visible { border-color:var(--accent); background:var(--accent-faint); }
+.scr-chip-empty, .scr-builder-empty { color:var(--text-muted); font-size:12px; }
+.scr-active-filter-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; min-height:30px; }
+.scr-funnel { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; margin-top:10px; }
+.scr-funnel-step { padding:8px 9px; border:1px solid var(--border); border-radius:5px; background:var(--surface-1); }
+.scr-funnel-label { display:block; color:var(--text-muted); font-size:11px; line-height:1.4; }
+.scr-funnel-value { display:block; color:var(--text-primary); font:700 17px/1.2 var(--font-mono); font-variant-numeric:tabular-nums; margin-top:3px; }
+.scr-column-chooser { margin-top:8px; padding:9px; border:1px solid var(--border); border-radius:5px; background:var(--surface-1); }
+.scr-column-chooser-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:6px 10px; }
+.scr-column-choice { display:flex; align-items:center; gap:6px; min-height:28px; color:var(--text-secondary); font-size:11px; }
+.scr-column-choice input { accent-color:var(--accent); }
+.scr-registry-header th { background:var(--surface-2); color:var(--text-secondary); font-size:11px; font-weight:700; white-space:nowrap; border-bottom:2px solid var(--border-strong); }
+.scr-sort-btn { display:inline-flex; align-items:center; justify-content:center; gap:3px; border:0; background:transparent; color:inherit; font:inherit; cursor:pointer; min-width:44px; min-height:44px; padding:8px 6px; }
+.scr-sort-btn:focus-visible, .scr-why-btn:focus-visible, .scr-compare-btn:focus-visible, .scr-star:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.scr-arrow { color:var(--accent); font-family:var(--font-mono); }
+.scr-research-mark { color:var(--text-muted); font-size:10px; font-weight:500; }
+.scr-column-sticky { position:sticky; left:0; z-index:2; background:var(--surface-1); box-shadow:2px 0 0 var(--border); }
+.scr-registry-header .scr-column-sticky { z-index:3; background:var(--surface-2); }
+.scr-column-cell { white-space:nowrap; }
+.scr-row-actions { display:flex; align-items:center; justify-content:center; gap:3px; }
+.scr-compare-btn, .scr-why-btn { min-width:44px; min-height:44px; padding:2px 5px; border:1px solid var(--border); border-radius:4px; background:var(--surface-2); color:var(--accent); cursor:pointer; font-size:11px; }
+.scr-compare-btn.active { color:var(--data-green); border-color:var(--data-green); }
+.scr-why-btn { min-width:44px; }
+.scr-evidence-cell { display:flex; align-items:center; gap:6px; min-width:0; }
+.scr-evidence-cell > span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-secondary); }
+.aio-hover-row.is-selected td { background:var(--accent-soft); }
+.scr-compare-tray { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; padding:9px 11px; border:1px solid var(--accent-border); border-radius:5px; background:var(--accent-soft); }
+.scr-compare-list { display:flex; gap:5px; flex-wrap:wrap; }
+.scr-compare-chip { display:inline-flex; align-items:center; min-height:26px; padding:3px 8px; border-radius:999px; background:var(--surface-1); border:1px solid var(--accent-border); color:var(--text-primary); font:700 11px var(--font-mono); }
+.scr-why-drawer { margin-top:10px; padding:12px; border:1px solid var(--accent-border); border-left:3px solid var(--accent); border-radius:5px; background:var(--surface-1); }
+.scr-why-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.scr-why-title { color:var(--text-primary); font-size:16px; font-weight:800; }
+.scr-why-subtitle, .scr-why-status { color:var(--text-muted); font-size:12px; line-height:1.5; }
+.scr-why-grid { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:10px; margin-top:10px; }
+.scr-why-block { padding:9px; border:1px solid var(--border); border-radius:4px; background:var(--surface-2); }
+.scr-why-block h4 { margin:0 0 6px; color:var(--text-secondary); font-size:12px; }
+.scr-why-block p { margin:0; color:var(--text-muted); font-size:12px; line-height:1.55; overflow-wrap:anywhere; }
+.scr-why-factor { display:grid; grid-template-columns:56px 1fr 30px; align-items:center; gap:6px; min-height:25px; color:var(--text-secondary); font-size:11px; }
+.scr-why-track { height:7px; overflow:hidden; border-radius:999px; background:var(--surface-4); }
+.scr-why-fill { display:block; height:100%; border-radius:inherit; }
+.scr-empty-state { padding:12px; border:1px dashed var(--border-strong); border-radius:5px; color:var(--data-amber); font-size:12px; font-weight:700; }
+.scr-empty-detail { margin-top:4px; color:var(--text-muted); font-size:12px; font-weight:400; line-height:1.5; }
+.scr-definition-error { margin-top:6px; padding:6px 8px; border-radius:4px; background:var(--data-red-soft); color:var(--data-red); font:11px/1.5 var(--font-mono); overflow-wrap:anywhere; }
+.scr-focus-toggle { margin-left:auto; }
+body.aio-screener-focus .sidebar { width:0; min-width:0; overflow:hidden; padding:0; border:0; }
+body.aio-screener-focus { --sidebar-w:0px; }
+body.dark-theme .scr-profile-btn.active { color:var(--bg-base) !important; }
+body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
+@media (max-width:900px) {
+  .scr-workflow-grid, .scr-why-grid { grid-template-columns:1fr; }
+  .scr-funnel { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #screener-workbench > div[style*="repeat(3"] { grid-template-columns:1fr !important; }
+}
 /* v52.72 아이보리 4c: 시안은 9열 핵심 컬럼만 노출 — 나머지(순위/등급/섹터/모멘텀/추세/저변동/밸류/퀄리티/
    시총/진입?/시그널/최신뉴스/그룹헤더)는 기본 숨김, "전체 컬럼 보기" 토글로만 노출(삭제 아님). */
 #screener-results-table .scr-adv-col { display: none; }
 #screener-results-table.scr-show-adv .scr-adv-col { display: table-cell; }
-.scr-star { cursor:pointer; font-size:13px; line-height:1; padding:1px 3px; color:var(--surface-5); transition:color .12s; display:inline-block; user-select:none; }
+.scr-star { cursor:pointer; font-size:13px; line-height:1; min-width:44px; min-height:44px; padding:1px 3px; color:var(--surface-5); transition:color .12s; display:inline-flex; align-items:center; justify-content:center; user-select:none; }
 .scr-star.active { color:#57513f; }
 .scr-star:hover { color:#57513f; }
 .scr-entry-chip { display:inline-block; padding:1px 5px; border-radius:3px; font-size:10px; font-weight:700; white-space:nowrap; }
@@ -6033,7 +6093,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.13</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.15</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -11680,34 +11740,93 @@ button[data-filter-active="true"] {
     <div id="screener-readiness-note" role="status" style="margin:-10px 0 18px;padding:9px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);font-size:11px;line-height:1.6;color:var(--text-muted);">
       팩터 산출물과 검증 상태 확인 중…
     </div>
-    <!-- SCR-OS-02~04/11: native Workbench adapter. The JSON editor is a
-         credential-free ScreenDefinition surface; the legacy table remains
-         available as the rollback writer until parity is certified. -->
+    <!-- SCR-UX-00~05: workflow-first Workbench. JSON remains a developer
+         surface; the visual builder, explicit run, and result explanation are
+         the primary user path. -->
     <div id="screener-workbench" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:18px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <div>
-          <div class="aio-subhd">Screener Workbench</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.5;">필드 시점·출처·결측 상태를 보존한 저장 가능한 ScreenDefinition · 연구용 상대 랭킹</div>
+          <div class="aio-subhd">스크리너 작업공간</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">조건을 만들고 실행 snapshot을 고정한 뒤, 결과의 순위·근거·데이터 상태를 함께 확인합니다.</div>
         </div>
-        <span id="scr-workbench-status" role="status" style="font-size:10px;color:var(--text-secondary);">실행 대기</span>
-      </div>
-      <div id="scr-workbench-presets" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;" aria-label="저장된 스크리너 프리셋"></div>
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:9px;align-items:start;">
-        <textarea id="scr-definition-editor" aria-label="ScreenDefinition JSON 편집기" spellcheck="false" rows="3" style="width:100%;box-sizing:border-box;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);border-radius:4px;padding:7px;font:10px/1.45 var(--font-mono);resize:vertical;" placeholder="ScreenDefinition JSON"></textarea>
-        <div style="display:flex;flex-direction:column;gap:5px;min-width:92px;">
-          <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="screen-run">정의 실행</button>
-          <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="screen-import">가져오기</button>
-          <button class="aio-btn-table" style="font-size:10px;" data-aio-screener-action="screen-export">내보내기</button>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span id="scr-workbench-status" role="status" style="font-size:12px;color:var(--text-secondary);">실행 전 미리보기</span>
+          <button class="aio-btn-table scr-focus-toggle" data-aio-screener-action="focus-mode" aria-pressed="false">집중 모드</button>
         </div>
       </div>
-      <div id="scr-readiness-preview" style="margin-top:8px;font-size:10px;color:var(--text-muted);line-height:1.6;">준비도 미리보기 대기</div>
-      <div id="scr-why-preview" style="margin-top:6px;font-size:10px;color:var(--text-secondary);line-height:1.6;">결과 행을 선택하면 WhyRanked/WhyRejected와 필드 provenance가 여기에 표시됩니다.</div>
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px;">
-        <div id="scr-run-history" style="padding:7px;border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--text-muted);">Run history 대기</div>
-        <div id="scr-outcome-lab" style="padding:7px;border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--text-muted);">Outcome ledger 대기</div>
-        <div id="scr-ops-state" style="padding:7px;border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--text-muted);">Operations 상태 대기</div>
+      <div class="scr-workflow-grid" style="margin-top:12px;">
+        <div class="scr-workflow-controls">
+          <div class="scr-builder-row">
+            <label for="scr-screen-select" style="font-size:12px;color:var(--text-secondary);font-weight:700;">저장 화면</label>
+            <select id="scr-screen-select" class="scr-column-select" aria-label="저장된 스크리너 화면 선택"></select>
+            <button class="aio-btn-table" data-aio-screener-action="screen-new">새 화면</button>
+            <button class="aio-btn-table" data-aio-screener-action="screen-save">저장</button>
+            <button class="aio-btn-table primary" data-aio-screener-action="screen-run-visual">조건 실행</button>
+          </div>
+          <div id="scr-workbench-presets" style="display:flex;gap:6px;flex-wrap:wrap;" aria-label="저장된 스크리너 프리셋"></div>
+          <div class="scr-builder-panel" aria-labelledby="scr-builder-title">
+            <div id="scr-builder-title" style="font-size:12px;color:var(--text-primary);font-weight:800;">시각 조건 빌더 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">AND 조건 · 변경은 미리보기</span></div>
+            <div class="scr-builder-row">
+              <select id="scr-builder-field" aria-label="추가할 조건 필드"><option value="sector">섹터</option><option value="signal">구조 분류</option><option value="setup">구조·근거</option><option value="rank">최소 rank</option><option value="rsi">RSI 하한</option><option value="momentum">3M 수익률 하한</option><option value="query">티커·이름 검색</option></select>
+              <input id="scr-builder-value" type="text" aria-label="조건 값" placeholder="예: Technology, 70, 40">
+              <button class="aio-btn-table" data-aio-screener-action="add-builder-condition">조건 추가</button>
+            </div>
+            <div id="scr-builder-condition-list" class="scr-active-filter-row" aria-live="polite"></div>
+          </div>
+          <div class="scr-active-filter-row" aria-label="활성 필터">
+            <strong style="font-size:12px;color:var(--text-secondary);">활성 필터 <span id="scr-active-filter-count">0</span></strong>
+            <div id="scr-active-filter-chips" class="scr-active-filter-row" style="flex:1;"></div>
+            <button class="aio-btn-table" data-aio-screener-action="reset-all-filters">전체 초기화</button>
+          </div>
+        </div>
+        <div class="scr-builder-panel" aria-label="결과 요약">
+          <div style="font-size:12px;color:var(--text-primary);font-weight:800;">결과 funnel</div>
+          <div class="scr-funnel" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:0;">
+            <div class="scr-funnel-step"><span class="scr-funnel-label">유니버스</span><span id="scr-funnel-universe" class="scr-funnel-value">0</span></div>
+            <div class="scr-funnel-step"><span class="scr-funnel-label">필드 준비</span><span id="scr-funnel-ready" class="scr-funnel-value">0</span></div>
+            <div class="scr-funnel-step"><span class="scr-funnel-label">조건 통과</span><span id="scr-funnel-passed" class="scr-funnel-value">0</span></div>
+            <div class="scr-funnel-step"><span class="scr-funnel-label">데이터 부족</span><span id="scr-funnel-unavailable" class="scr-funnel-value">0</span></div>
+            <div class="scr-funnel-step" style="grid-column:1/-1;"><span class="scr-funnel-label">현재 필터 결과</span><span id="scr-funnel-filtered" class="scr-funnel-value">0</span></div>
+          </div>
+          <div id="scr-readiness-preview" style="font-size:12px;color:var(--text-muted);line-height:1.6;">필드 준비도 미리보기 대기</div>
+        </div>
+      </div>
+      <details id="scr-developer-drawer" style="margin-top:10px;">
+        <summary style="cursor:pointer;color:var(--text-secondary);font-size:12px;min-height:32px;display:flex;align-items:center;">개발자 정의 · JSON 가져오기/내보내기</summary>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:8px;align-items:start;">
+          <div>
+            <textarea id="scr-definition-editor" aria-label="ScreenDefinition JSON 편집기" spellcheck="false" rows="5" style="width:100%;box-sizing:border-box;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);border-radius:4px;padding:8px;font:11px/1.45 var(--font-mono);resize:vertical;" placeholder="ScreenDefinition JSON"></textarea>
+            <div id="scr-definition-error-detail" class="scr-definition-error" hidden></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;min-width:104px;">
+            <button class="aio-btn-table" data-aio-screener-action="screen-run">정의 실행</button>
+            <button class="aio-btn-table" data-aio-screener-action="screen-import">정의 불러오기</button>
+            <button class="aio-btn-table" data-aio-screener-action="screen-export">현재 정의 내보내기</button>
+          </div>
+        </div>
+      </details>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px;">
+        <div id="scr-run-history" style="padding:9px;border:1px solid var(--border);border-radius:4px;font-size:12px;color:var(--text-muted);">사용자 실행 이력 없음</div>
+        <div id="scr-outcome-lab" style="padding:9px;border:1px solid var(--border);border-radius:4px;font-size:12px;color:var(--text-muted);">Outcome · 실행 후 관측 대기</div>
+        <div id="scr-ops-state" style="padding:9px;border:1px solid var(--border);border-radius:4px;font-size:12px;color:var(--text-muted);">Operations · 데이터 sync와 사용자 실행 분리</div>
       </div>
     </div>
+    <aside id="scr-why-drawer" class="scr-why-drawer" hidden aria-labelledby="scr-why-title" aria-live="polite">
+      <div class="scr-why-head">
+        <div>
+          <div id="scr-why-title" class="scr-why-title">WhyRanked / WhyRejected</div>
+          <div id="scr-why-subtitle" class="scr-why-subtitle">결과 행을 선택하면 설명이 표시됩니다.</div>
+          <div id="scr-why-status" class="scr-why-status">선택 전</div>
+        </div>
+        <button class="aio-btn-table" data-aio-screener-action="close-why" aria-label="Why drawer 닫기">닫기</button>
+      </div>
+      <div class="scr-why-grid">
+        <section class="scr-why-block"><h4>팩터 기여도</h4><div id="scr-why-factor-list" aria-label="팩터 기여도 막대와 점수"></div></section>
+        <section class="scr-why-block"><h4>반대 근거</h4><p id="scr-why-contrary">—</p><h4 style="margin-top:10px;">결측·미지원</h4><p id="scr-why-missing">—</p></section>
+        <section class="scr-why-block"><h4>Provenance</h4><p id="scr-why-provenance">—</p><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;"><button class="aio-btn-table primary" data-aio-screener-action="open-ticker">기업 보기</button><button class="aio-btn-table" data-aio-screener-action="why-compare">비교 추가</button></div></section>
+      </div>
+      <div id="scr-why-preview" style="margin-top:9px;font-size:12px;color:var(--text-secondary);line-height:1.6;">Why 설명 텍스트 요약</div>
+    </aside>
     <!-- 프리셋(트레이더 프로파일) + 통계 압축 한 줄 — v52.72 아이보리 4c: 시안 구조(pill행 + 우측 요약) -->
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
       <span style="font-size:12px;color:var(--text-dim);">프리셋</span>
@@ -11726,14 +11845,14 @@ button[data-filter-active="true"] {
       </span>
     </div>
     <!-- v51.32: 서브-탭 내비게이션 -->
-    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;">
-      <button data-aio-screener-action="tab" data-aio-screener-arg="ranking" style="background:none;border:none;border-bottom:2px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;letter-spacing:.03em;">랭킹</button>
-      <button data-aio-screener-action="tab" data-aio-screener-arg="factors" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:7px 14px;cursor:pointer;letter-spacing:.03em;">팩터·레짐</button>
-      <button data-aio-screener-action="tab" data-aio-screener-arg="backtest" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:7px 14px;cursor:pointer;letter-spacing:.03em;">백테스트 IC</button>
+    <div role="tablist" aria-label="스크리너 보조 분석" style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;">
+      <button id="scr-tab-button-ranking" role="tab" aria-selected="true" aria-controls="scr-tab-ranking" data-aio-screener-action="tab" data-aio-screener-arg="ranking" style="background:none;border:none;border-bottom:2px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">랭킹</button>
+      <button id="scr-tab-button-factors" role="tab" aria-selected="false" aria-controls="scr-tab-factors" data-aio-screener-action="tab" data-aio-screener-arg="factors" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">팩터·레짐</button>
+      <button id="scr-tab-button-backtest" role="tab" aria-selected="false" aria-controls="scr-tab-backtest" data-aio-screener-action="tab" data-aio-screener-arg="backtest" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;letter-spacing:.03em;">백테스트 IC</button>
     </div>
 
     <!-- 탭: 팩터·레짐 -->
-    <div id="scr-tab-factors" style="display:none;">
+    <div id="scr-tab-factors" role="tabpanel" aria-labelledby="scr-tab-button-factors" style="display:none;">
       <!-- 2-column Ops Console layout -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
         <!-- Left: 팩터 가중 현황 -->
@@ -11763,7 +11882,7 @@ button[data-filter-active="true"] {
     </div>
 
     <!-- 탭: 백테스트 IC -->
-    <div id="scr-tab-backtest" style="display:none;">
+    <div id="scr-tab-backtest" role="tabpanel" aria-labelledby="scr-tab-button-backtest" style="display:none;">
       <div class="aio-vis-card" style="margin-bottom:12px;">
         <div class="aio-vis-card-title">팩터 검증 · 백테스트 IC</div>
         <div id="screener-backtest-panel"><div style="font-size:11px;color:var(--text-muted);">팩터 검증 파일 확인 중...</div></div>
@@ -11772,7 +11891,7 @@ button[data-filter-active="true"] {
     </div>
 
     <!-- 탭: 랭킹 (기본 표시) -->
-    <div id="scr-tab-ranking">
+    <div id="scr-tab-ranking" role="tabpanel" aria-labelledby="scr-tab-button-ranking">
     <!-- 기본 필터 바 -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
       <select id="scr-market" aria-label="시장 지수 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 지수</option></select>
@@ -11780,8 +11899,16 @@ button[data-filter-active="true"] {
       <select id="scr-signal" aria-label="구조 분류 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 분류</option><option value="BUY">강세 구조</option><option value="HOLD">중립</option><option value="WATCH">관찰</option><option value="SELL">약세 구조</option></select>
       <select id="scr-cap" aria-label="시가총액 필터" class="aio-btn-table" style="font-size:11px;padding:4px 8px;"><option value="">전체 시총</option><option value="MEGA">메가캡 (≥$1T... )</option><option value="LARGE">대형 ($10B~1T)</option><option value="MID">중형 ($2~10B)</option><option value="SMALL">소형 (&lt;$2B)</option></select>
       <input id="scr-text-search" type="text" placeholder="티커·이름·메모 검색" aria-label="스크리너 티커 이름 메모 검색" class="aio-btn-table" style="font-size:11px;padding:4px 8px;min-width:160px;">
-      <button class="aio-btn-table" style="font-size:11px;" data-aio-screener-action="toggle-columns" id="scr-col-toggle-btn">전체 컬럼 보기</button>
+      <label for="scr-column-preset" style="font-size:12px;color:var(--text-muted);margin-left:auto;">컬럼</label>
+      <select id="scr-column-preset" class="scr-column-select" aria-label="스크리너 컬럼 프리셋">
+        <option value="discovery">발견</option><option value="fundamentals">펀더멘털</option><option value="trend">추세·셋업</option><option value="risk">리스크</option><option value="events">이벤트</option><option value="all">전체</option>
+      </select>
+      <button class="aio-btn-table" style="font-size:11px;" data-aio-screener-action="column-chooser" id="scr-col-toggle-btn">컬럼 선택</button>
       <span style="font-size:11px;color:var(--text-muted);margin-left:auto;"><span id="screener-result-count">0</span>종목</span>
+    </div>
+    <div id="scr-column-chooser" class="scr-column-chooser" hidden>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;"><strong style="font-size:12px;color:var(--text-secondary);">표시할 컬럼</strong><span style="font-size:11px;color:var(--text-muted);">종목 identity는 항상 유지</span></div>
+      <div id="scr-column-chooser-list" class="scr-column-chooser-list"></div>
     </div>
     <!-- v51.39: 고급 필터 (버튼으로 토글) -->
     <div id="scr-adv-filter-row">
@@ -11865,6 +11992,11 @@ button[data-filter-active="true"] {
         </thead>
         <tbody id="screener-results-body"><tr><td colspan="22" style="text-align:center;padding:20px;color:var(--text-muted);">조건을 선택하면 스크리닝 결과를 표시합니다.</td></tr></tbody>
       </table>
+    </div>
+    <div id="scr-compare-tray" class="scr-compare-tray" hidden aria-live="polite">
+      <strong style="font-size:12px;color:var(--text-secondary);">비교 tray <span id="scr-compare-count">0</span>/5</strong>
+      <div id="scr-compare-list" class="scr-compare-list"></div>
+      <button class="aio-btn-table" data-aio-screener-action="clear-compare">비교 비우기</button>
     </div>
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.7;">★ = 개인 워치리스트 · <b>상대 상태</b> = RSI·랭크·모멘텀의 설명형 분류이며 매매 신호가 아닙니다. 서버 팩터 파일 미수신 시 랭크·백테스트 비활성화. 밸류·퀄리티 ‘—‘는 FMP 미수신.</div>
     <div id="scr-load-more-wrap" hidden>
@@ -12749,9 +12881,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=54.13" defer></script>
-  <script src="./js/aio-data.js?v=54.13" defer></script>
-  <script src="./js/aio-ui.js?v=54.13" defer></script>
+  <script src="./js/aio-core.js?v=54.15" defer></script>
+  <script src="./js/aio-data.js?v=54.15" defer></script>
+  <script src="./js/aio-ui.js?v=54.15" defer></script>
 
 
   <script>
@@ -15236,7 +15368,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=54.13" defer></script>
+<script src="./js/aio-chat.js?v=54.15" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24149,7 +24281,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=54.13" defer></script>
+<script src="./js/aio-glossary.js?v=54.15" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

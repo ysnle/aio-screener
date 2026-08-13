@@ -1,7 +1,7 @@
 ---
 verified_by: Codex
-last_verified: 2026-08-12
-repository_version: v54.12
+last_verified: 2026-08-13
+repository_version: v54.15
 status: IMPLEMENTED_LOCAL
 implementation_authorized: true
 confidence: high_for_repository_artifacts_and_linked_project_documentation_medium_for_unverified_live_provider_behavior
@@ -273,10 +273,10 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 ### 5.1 감사 경계
 
-- 2026-08-12 공개 Pages에서 직접 확인한 화면은 `v54.7`이었다. 저장소 기준 `v54.11`과 같다고 간주하지 않는다.
-- 공개 화면은 desktop 기본 viewport에서 스크리너 route를 확인했다. 모바일은 실제 사용자 범위에서 제외하므로 설계·구현·검증 대상에 포함하지 않는다.
-- 저장소 `v54.11`에는 공개 화면에 없는 `Screener Workbench` scaffold와 ScreenDefinition JSON editor가 존재한다. 이는 local 설계/구현 표면이며 live 완료로 판정하지 않는다.
-- 외부 프로젝트 UI는 저장소 README·공식 learning/documentation과 공개 스크린샷을 기준으로 비교했다. 로그인/유료 기능의 실제 상호작용은 인증하지 않았다.
+- 2026-08-12 공개 Pages에서 직접 확인한 화면은 `v54.7`이었다. 현재 저장소 `v54.13`와 같다고 간주하지 않는다.
+- `v54.13`는 `http://127.0.0.1:8765/`로 서빙해 1280×900, 1440×1000, 1920×1080 desktop에서 직접 확인했다. 모바일은 실제 사용자 범위에서 제외하므로 설계·구현·검증 대상에 포함하지 않는다.
+- 확인 흐름은 랭킹·팩터/레짐·백테스트 IC, 고급 필터, 검색 no-match, 전체 컬럼, light/dark theme, 행 선택→ticker→스크리너 복귀, 잘못된 JSON 실행까지 포함한다.
+- 외부 프로젝트는 저장소 README·공식 learning/documentation·공개 스크린샷과 `xang1234/stock-screener` static Scan 화면을 비교했다. 로그인/유료 기능, 모집 사용자 테스트, NVDA 등 보조기술 실사는 인증하지 않았다.
 
 ### 5.2 현재 화면의 강점
 
@@ -291,31 +291,52 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 | 폼 aria-label, 표 region label, focus style | 접근성 기반이 이미 있음 |
 | 차분한 아이보리 테마와 숫자 중심 표 | 장시간 보는 연구 도구 성격에 적합함 |
 
-### 5.3 실측된 UI/UX 문제
+### 5.3 desktop 실측 기준선
 
-#### Desktop
+| 항목 | 1280×900 | 1440×1000 | 1920×1080 | 판정 |
+|---|---:|---:|---:|---|
+| screener 본문 폭 | 1005px | 1165px | 1480px | sidebar 220px가 항상 점유 |
+| Workbench 높이 | 294px | 294px | 274px | 첫 결과 접근 전 화면의 약 27~33% 점유 |
+| 결과 table 시작 y | 672px | 672px | 652px | 900px 높이에서는 소수 행만 첫 화면에 보임 |
+| core visible header/cell | 9 / 8 | 9 / 8 | 9 / 8 | 의미 정렬 결함 재현 |
+| full column table/scroller | — | 1366 / 1163px | — | 내부 가로 스크롤 203px 필요 |
+| Workbench textarea | colspan | 1039×59.5px, 10px 글자 | colspan | 개발자 표면이 핵심 공간 점유 |
+| 조작 요소 | colspan | button 43, select 6, input 8, textarea 1 | colspan | hidden control 포함, 기본 행동 위계 약함 |
 
-1. **프리셋·설명·KPI·탭·필터가 서로 다른 가로줄에 밀집**해 사용자의 현재 조건과 다음 행동이 한눈에 잡히지 않는다.
-2. 활성 조건을 removable chip으로 보여주지 않아 여러 필터를 바꾼 뒤 현재 screen을 재현하기 어렵다.
-3. 필터 변경이 즉시 결과를 바꾸지만 `결과 갱신`, `snapshot 고정`, `실행 완료`의 시각적 경계가 약하다.
-4. `전체 컬럼 보기`가 13개 이상의 컬럼을 한 번에 여는 all-or-nothing 방식이다. 분석 목적별 column preset이 없다.
-5. 현재가가 전부 `—`인 상태에서도 현재가 열이 핵심 폭을 점유한다. 컬럼 단위 readiness를 헤더에서 알려주지 않는다.
-6. 공개 DOM에서 기본 헤더는 9개인데 결과 row는 8개 cell로 관찰되어 `추세신뢰도(연구)`와 `VCP 구조`의 의미/정렬이 어긋날 가능성이 있다. 구현 착수 전 semantic table fixture로 재검증해야 한다.
-7. 결과 행 클릭의 주 행동이 명확하지 않다. ticker 이동, WhyRanked, watchlist, 비교가 서로 다른 발견 경로에 흩어져 있다.
-8. 좌측 전체 앱 navigation이 desktop 폭을 계속 차지해 screener의 비교표 밀도를 낮춘다. workbench에서는 compact/collapse 상태가 필요하다.
+### 5.4 확인된 문제 원장
 
-### 5.4 local Workbench scaffold의 UX 경계
+| ID | 심각도 | 확인 결과 | 사용자 영향 | 요구 조치 |
+|---|---|---|---|---|
+| UX-SCR-01 | P0 | core header 9개, visible row cell 8개. `70 · near_pivot`가 `추세신뢰도` 아래 표시되고 `VCP 구조`는 비어 보임 | 지표 의미를 잘못 읽을 수 있음 | header/cell key registry 단일화 + 9/9 fixture |
+| UX-SCR-02 | P0 | `랭킹` 기본 화면에서 rank·grade를 숨기면서 초기 sort는 code상 `mcap desc`; 정렬 열과 rank가 모두 보이지 않음 | 랭킹 화면을 시총/원본 순서로 오해 | 발견 preset에 rank 고정, 기본 sort `rank desc`, 현재 sort 항상 표시 |
+| UX-SCR-03 | P0 | 같은 화면에 `848개 통과`, `기본 실행 873 통과`, `Readiness 0/873 eligible·0%`가 동시에 존재 | 결과를 쓸 수 있는지 판단 불가 | universe/ranked/eligible/passed/unavailable 정의와 숫자 SSOT 통합 |
+| UX-SCR-04 | P0 | light theme의 백테스트 SVG가 `#dce6f0`·`rgba(255,255,255,.35)`를 ivory 위에 사용. `n=0`, IC 0.000을 unavailable 대신 실측값처럼 그림 | 검증 결과가 거의 안 보이고 0과 미수신을 혼동 | theme token 기반 재렌더 + `NO_BACKTEST_DATA` empty state |
+| UX-SCR-05 | P0 | 안내는 행 선택 시 WhyRanked 표시라고 하지만 row click은 `onExplain` 직후 ticker로 이동. ticker breadcrumb/돌아가기는 `포트폴리오/NVDA`·`← 포트폴리오` | 선정 이유를 볼 수 없고 screen/filter 문맥을 잃음 | single-click=selection/Why, 명시적 `기업 보기`; returnContext에 screen/run/filter/scroll 저장 |
+| UX-SCR-06 | P1 | Workbench preset 영역과 textarea가 비어 있음. `정의 실행`과 `가져오기`는 동일 JSON parse/run, `내보내기`는 다운로드/복사가 아니라 textarea 채움 | 저장·가져오기·내보내기 mental model과 실제 동작 불일치 | 사용자용 saved-screen picker와 import/export 행동 재정의, JSON은 developer drawer로 이동 |
+| UX-SCR-07 | P1 | screener 재진입 때 Run history가 2→4→6으로 증가. orchestrator가 pageShown sync마다 동일 성격 run을 append | 사용자가 실행하지 않은 refresh가 실행 이력으로 보임 | data sync와 user ScreenRun 분리, idempotency key/dedupe |
+| UX-SCR-08 | P1 | full mode 22열에서 1366px 표를 1163px 영역에 표시하고 좁은 열이 한 글자씩 세로로 줄바꿈 | 비교 속도 급락, 그룹 헤더도 과도한 높이 차지 | column preset·최소폭·nowrap·sticky identity·column chooser |
+| UX-SCR-09 | P1 | `초기화`는 고급 필터만 지우고 Technology·검색어는 유지; 실제 확인 결과 0종목 그대로 | 전체 초기화로 오해 | `전체 초기화`와 `고급 조건 초기화`를 분리하거나 전자를 모든 filter에 적용 |
+| UX-SCR-10 | P1 | 현재가가 전 행 `—`인데 핵심 열을 유지하고, missing/stale/unsupported/blocked를 같은 문자로 표시 | 열 공간 낭비와 데이터 상태 오독 | column readiness banner + 상태별 token/text |
+| UX-SCR-11 | P1 | Technology 적용 시 결과는 187개로 바뀌지만 Workbench 873/848/0 숫자는 그대로이고 활성 chip이 없음 | 어떤 조건이 어떤 숫자를 만들었는지 추적 불가 | active filter chips, filtered count, funnel을 같은 실행 scope로 연결 |
+| UX-SCR-12 | P1 | dark theme active `균형` preset은 `#f7f4ee` 글자/`#f0f0ed` 배경으로 거의 보이지 않음. factor track도 white alpha hard-code | 테마별 정보 소실 | semantic design token과 two-theme screenshot/contrast gate |
+| UX-SCR-13 | P1 | invalid empty JSON 실행 시 `가져오기 차단 · Unexpected end of JSON input`을 12px 일반 status로 노출 | 행동명 불일치, 개발자 오류가 사용자에게 그대로 노출 | 행동별 오류 copy, 위치 연결, 복구 CTA, 원문은 detail |
+| UX-SCR-14 | P2 | Workbench·상태 card·Why preview에 10px text, preset은 24px, 주요 action은 26px | 장시간 분석 시 가독성과 클릭 안정성 저하 | 핵심 helper 12px+, primary control 32~36px |
+| UX-SCR-15 | P2 | 좌측 전역 navigation/API 설정이 220px를 계속 사용하고 화면 자체 scrollbar를 가짐 | 표 비교 폭 감소와 주의 분산 | screener focus mode에서 sidebar compact/collapse |
+| UX-SCR-16 | P2 | `Screener Workbench`, `Readiness`, `Run history`, field id와 snake_case stage가 한글 UI에 혼재 | 전문 용어와 내부 식별자의 구분 불가 | 사용자 라벨/내부 ID 이원화, 원문은 provenance/detail에만 노출 |
 
-저장소 `v54.11`의 JSON textarea, `정의 실행/가져오기/내보내기`, 3개의 10px 상태 card는 계약 검증과 개발자 debugging에는 유효하다. 그러나 기본 사용자 표면으로는 다음 문제가 있다.
+### 5.5 local Workbench scaffold의 UX 경계
+
+저장소 `v54.13`의 JSON textarea, `정의 실행/가져오기/내보내기`, 3개의 10px 상태 card는 계약 검증과 개발자 debugging에는 유효하다. 그러나 기본 사용자 표면으로는 다음 문제가 있다.
 
 - JSON AST를 알아야 screen을 편집할 수 있음
-- 기존 프리셋과 Workbench 프리셋이 이중으로 보일 가능성
+- saved-screen 영역이 빈 div이고 textarea도 빈 상태라 기본 정의를 확인·선택할 수 없음
+- 기존 전략 profile과 Workbench screen preset의 개념·효과·저장 범위가 구분되지 않음
 - readiness/run/outcome/operations가 모두 같은 시각 무게를 가져 우선순위가 없음
 - WhyRanked가 한 줄 text preview이면 기여도·반대 근거·결측을 비교하기 어려움
 
 따라서 JSON editor는 `개발자/가져오기` drawer로 내리고, 사용자는 visual filter builder를 기본으로 사용한다. ScreenDefinition은 UI 뒤의 canonical contract로 남긴다.
 
-### 5.5 권고 정보 구조
+### 5.6 권고 정보 구조
 
 ```text
 [Screener header]
@@ -340,7 +361,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 핵심은 `조건을 만드는 영역`, `결과를 비교하는 영역`, `왜 뽑혔는지 확인하는 영역`을 한 화면 안에서 구별하는 것이다.
 
-### 5.6 결과 표 개편
+### 5.7 결과 표 개편
 
 #### column preset
 
@@ -360,7 +381,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 - 행을 누르면 ticker page로 즉시 이동하지 않고 selection을 먼저 만든다. 별도 `기업 보기` 행동을 제공한다.
 - 비교 선택은 최대 3~5개로 제한하고 상단 sticky compare tray에 모은다.
 
-### 5.7 설명·시각화 요소
+### 5.8 설명·시각화 요소
 
 다른 스크리너에서 가져올 시각화는 많을 필요가 없다.
 
@@ -373,7 +394,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 15개 차트 모드를 그대로 가져오지 않는다. heatmap, treemap, scatter는 질문이 명확할 때만 2차 분석 tab에 둔다. rank 설명을 장식용 radar chart로 대체하지 않는다.
 
-### 5.8 시각 언어
+### 5.9 시각 언어
 
 - `score/rank`, `confidence`, `data readiness`를 서로 다른 모양과 라벨로 구분한다.
 - 상승/하락은 색뿐 아니라 `+/-`, arrow, text를 함께 쓴다.
@@ -382,7 +403,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 - 작은 10px 설명을 핵심 조작 표면에 사용하지 않는다. helper text는 최소 12px, 주요 control은 최소 36px 목표로 한다.
 - title 속성만으로 지표 의미를 전달하지 않고 keyboard로 접근 가능한 info popover를 둔다.
 
-### 5.9 접근성·상호작용 계약
+### 5.10 접근성·상호작용 계약
 
 - `랭킹/팩터·레짐/백테스트`는 `tablist/tab/tabpanel`, `aria-selected`, 방향키 이동을 구현한다.
 - sortable `th role=button` 대신 header 내부 실제 button 또는 동등한 keyboard contract를 사용한다.
@@ -391,16 +412,21 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 - WhyRanked chart에는 동일 정보의 text/table 대안을 항상 제공한다.
 - loading, empty, no-match, data-unavailable, provider-blocked를 서로 다른 empty state로 설계한다.
 
-### 5.10 프런트엔드 실행 패킷
+### 5.11 프런트엔드 실행 패킷
+
+#### v54.15 구현 상태
+
+- `SCR-UX-00~05` are implemented locally in the native screener route.
+- Live certification is not promoted here: local Chromium viewport/smoke gates pass, while the in-app Browser connector could not reach the local server and GitHub Pages parity was not deployed in this turn.
 
 | 패킷 | 내용 | 선행조건 | 완료 gate |
 |---|---|---|---|
-| SCR-UX-00 | live/local semantic·visual baseline, 헤더/행 cell parity | SCR-OS-00 | 9 core columns fixture와 1280/1440/1920 desktop screenshot baseline |
-| SCR-UX-01 | header/workflow/filter chip/summary IA 개편 | SCR-OS-02~03 | 저장 screen 재현, active filter 전수 표시 |
+| SCR-UX-00 | P0 truth recovery: header/cell, visible rank/sort, 숫자 SSOT, backtest state/theme, Why navigation | SCR-OS-00 | UX-SCR-01~05 light/dark·3 viewport fixture 전부 통과 |
+| SCR-UX-01 | header/workflow/filter chip/summary IA와 visual builder | SCR-OS-02~03 | 저장 screen round-trip, active filter 전수 표시, 전체 초기화 |
 | SCR-UX-02 | sticky/column preset/row selection/compare tray | SCR-OS-01/04 | keyboard sort, desktop 0 body overflow, 가로 스크롤 중 종목 identity 유지 |
-| SCR-UX-03 | Why drawer·provenance·funnel·regime diff | SCR-OS-04/08 | chart/text parity, contrary/missing evidence 노출 |
-| SCR-UX-04 | Run history·Outcome·Operations progressive disclosure | SCR-OS-05~07 | main task 방해 없이 2차 tab 접근 가능 |
-| SCR-UX-05 | 사용성·접근성·성능 검증 | 전 패킷 | 5개 대표 task, WCAG AA, 저사양 p95 gate |
+| SCR-UX-03 | Why drawer·provenance·funnel·regime diff | SCR-OS-04/08 | chart/text parity, contrary/missing evidence, exact ticker return |
+| SCR-UX-04 | Run history·Outcome·Operations progressive disclosure | SCR-OS-05~07 | sync/run 분리, main task 방해 없이 2차 tab 접근 가능 |
+| SCR-UX-05 | 사용성·접근성·테마·성능 검증 | 전 패킷 | 5개 대표 task, WCAG AA, 200% zoom, 저사양 p95 gate |
 
 대표 task는 다음으로 고정한다.
 
@@ -410,9 +436,119 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 4. 두 종목을 비교하고 기업 분석으로 이동
 5. 과거 run의 T+21 benchmark 상대성과 확인
 
+### 5.12 상태별 화면 계약
+
+현재 `architecture/visual-state-matrix.json`은 route 공통 `loaded/reference/blocked/stale-reference/empty`만 정의한다. Screener Workbench에는 실행 상태가 더 필요하다.
+
+| 상태 | 현재 관찰 | 목표 표현 | 필수 행동 |
+|---|---|---|---|
+| initial/loading | 이전 숫자·`—`·대기 문구가 혼재 | skeleton + snapshot loading label | 취소 불필요, 마지막 승인 snapshot 보기 |
+| ready | 873/848/0 세 숫자 충돌 | universe→field-ready→eligible→passed funnel | 실행, 저장 |
+| running | 별도 progress 없음 | 실행 id, 시작시각, 단계, 취소 가능 여부 | 취소 또는 background 전환 |
+| completed | filter 즉시 반영과 ScreenRun 완료가 구분되지 않음 | 고정 snapshot/run hash, 결과 수, 소요시간 | 비교, 저장, 후보 선택 |
+| partial | `—` 하나로 표현 | partial banner와 제외 필드/종목 수 | 부족 데이터 제외 실행/재수집 선택 |
+| blocked | raw JSON 오류만 status text로 표시 | blocking reason, 위치, 수정 예시 | 편집기로 이동/기본 정의 복원 |
+| no-match | `조건에 맞는 종목이 없습니다` | 활성 조건·단계별 탈락 수·가장 제한적인 조건 | 해당 조건 완화/전체 초기화 |
+| unavailable | 백테스트 `n=0`, IC 0.000 | `검증 데이터 없음`과 0 실측값 분리 | 필요한 artifact/기간 설명 |
+| stale/last-good | 현재 전용 표면 없음 | last-good 시각과 현재 수집 실패 병렬 표시 | last-good 사용/재시도 |
+| empty-saved | 빈 preset div | 첫 screen 만들기·기본 preset 불러오기 | 생성/가져오기 |
+
+모든 상태는 `statusCode`, 사용자 문구, 보조 설명, 허용 행동, telemetry event를 한 계약에서 파생한다. 화면마다 독립 문자열을 만들지 않는다.
+
+### 5.13 외부 UI 패턴 비교·채택 판정
+
+| 비교군 | 확인한 패턴 | AIO 채택 | 그대로 복제하지 않을 것 |
+|---|---|---|---|
+| OpenTerminalUI | query builder, saved view가 route/filter/ticker/tab/column/chart layout까지 복원, Why Ranked에서 chart/backtest로 이동 | visual builder, saved workspace, explain→검증 연결 | 15+ 시각화 모드를 기본 화면에 동시 노출 |
+| xang1234 static Scan | 전략 preset별 결과 수, Fundamental/Technical/Rating accordion, active filter chip, Logic Builder, 종목별 unavailable field badge, sparkline | preset count, category accordion, active chip, field-quality badge | 40개 이상 열을 한 표에 기본 노출하는 초고밀도 구조 |
+| Stocknear | 저장 screen dropdown, 3~6개 조건 권장, zero-result 완화 안내, watchlist `% since added`, screen/논지 note | 저장·복원, 후보→관찰→성과 흐름, zero-result recovery | 계정·유료 기능을 전제로 한 UX |
+| tickflow-stock-panel | 전략 카드→scan→backtest→monitor→review의 개인 투자자 폐루프, 데이터 상태 페이지 | AIO의 screen→watchlist/alert→outcome 순서 | 중국 A주 전용 메뉴·실시간 알림 복제 |
+| Fincept/OpenBB 계열 | command/search 중심 탐색과 provider 상태 표면 | field/source 검색, operation status 분리 | 터미널 전체를 새 shell로 재구축 |
+
+원칙은 외부 프로젝트의 색·컴포넌트를 모사하는 것이 아니라, `조건 재현`, `결과 설명`, `다음 조사 행동`, `후속 성과`의 연결 구조만 가져오는 것이다.
+
+### 5.14 프런트엔드 컴포넌트·상태 구조
+
+권고 컴포넌트 경계:
+
+```text
+ScreenerPage
+├─ ScreenerHeader(snapshot/readiness/research boundary)
+├─ ScreenWorkflowBar(saved screen/run/compare)
+├─ VisualScreenBuilder
+│  ├─ UniverseSelector
+│  ├─ ConditionGroup(AND/OR)
+│  ├─ FactorWeightEditor
+│  └─ ActiveFilterChips
+├─ ResultSummaryFunnel
+├─ ScreenerDataGrid
+│  ├─ ColumnPreset/ColumnChooser
+│  ├─ SortHeader
+│  ├─ ResultRow
+│  └─ CompareTray
+├─ WhyDrawer(contribution/contrary/missing/provenance/actions)
+└─ SecondaryTabs(Regime/Validation/History/Operations)
+```
+
+구조 규칙:
+
+- `ColumnRegistry` 하나가 label, field id, formatter, width, unit, sortable, readiness, provenance, default preset을 소유한다. header와 cell을 따로 하드코딩하지 않는다.
+- `ScreenerViewState`는 `activeScreenId`, draft definition, committed run, filter chips, sort, selected rows, column preset, drawer 상태, return context를 보존한다.
+- filter 변경은 draft preview만 갱신하고, 재현 가능한 결과는 명시적 실행으로 snapshot에 고정한다.
+- JSON import/export는 `Advanced/Developer` drawer의 보조 행동이며 visual builder와 동일 ScreenDefinition을 round-trip해야 한다.
+- theme-dependent SVG/Canvas 색은 hard-coded hex/white alpha를 금지하고 `ChartThemeAdapter`에서 CSS semantic token을 읽는다.
+- ticker route는 `from=screener`, screenId, runId, selected symbol, filter/sort/scroll을 받아 정확한 breadcrumb와 복귀를 제공한다.
+
+### 5.15 정보·시각 위계 판정
+
+| 계층 | 화면에 남길 정보 | 줄이거나 이동할 정보 |
+|---|---|---|
+| L1 결정 | screen 이름, snapshot, ready/passed, 활성 조건, rank, 데이터 질 | disclaimer 반복, 내부 hash 원문 |
+| L2 비교 | 핵심 6~9열, sort, selection, compare, Why 요약 | 뉴스 전문, 모든 팩터 열 |
+| L3 설명 | 기여도, 반대 근거, 결측, source/asOf, event risk | raw JSON, provider debug |
+| L4 검증 | regime diff, IC/outcome, run diff, costs/liquidity | 기본 랭킹 탭을 밀어내는 대형 상태 카드 |
+| L5 운영 | refresh queue, quota/circuit, rights | 일반 사용자의 첫 화면 |
+
+첫 화면에서 내부 구현어 `price.ret3m`, hash 전체, rights fail-closed를 보여주지 않는다. 필요하면 label 옆 `세부 정보`에서 원문을 제공한다.
+
+### 5.16 접근성·키보드·테마 세부 gate
+
+| 영역 | 현재 | 완료 gate |
+|---|---|---|
+| tab | 일반 button, `aria-selected/controls` 없음 | tablist/tab/tabpanel, 좌우키·Home/End, focus 유지 |
+| sort | `th role=button tabindex=0`, `aria-sort` 없음 | 실제 button 또는 동등 계약, 현재 sort를 시각/음성 동시 표시 |
+| row | `tr tabindex=0`; mouse는 explain 후 이동, keyboard는 바로 이동 | Enter=selection/Why, 별도 기업 보기 action; `aria-selected` |
+| table identity | core/full 모두 첫 data cell static | sticky symbol/rank, 가로 scroll 중 row identity 유지 |
+| theme | light backtest·dark active preset 대비 결함 | light/dark 전 상태 screenshot + WCAG AA contrast gate |
+| chart | light theme와 맞지 않는 SVG fill | CSS token, text/table 대안, `n=0` 의미 분리 |
+| live feedback | status 수치 충돌 가능 | draft/filter/run/status별 bounded live region |
+| focus return | ticker 복귀가 portfolio 문맥 | screener row/scroll/filter로 focus 복원 |
+
+### 5.17 성능·관측성·사용성 검증
+
+- 현재 12행 점진 노출은 유지한다. 873행 전부 DOM 렌더보다 안전하다.
+- filter 입력마다 tbody 전체를 다시 만드는 현재 방식은 12행에서는 허용하되, 검색은 120~180ms debounce하고 동일 ViewModel hash면 DOM 교체를 생략한다.
+- hidden factor/backtest panel을 모든 store update에서 다시 그리지 말고 활성 tab 또는 데이터 revision 변경 시만 갱신한다.
+- pageShown/data refresh가 user Run history를 늘리지 않도록 `syncEvent`와 `screenRun` telemetry를 분리한다.
+- 측정 이벤트는 `screen_open`, `filter_add/remove`, `preview_update`, `run_start/complete/blocked`, `row_select`, `why_open`, `compare_add`, `ticker_open`, `return_to_screen`, `screen_save/load`, `zero_result_recovery`로 제한한다. 티커·조건의 민감한 원문은 저장하지 않는다.
+
+Desktop 검증 매트릭스:
+
+| 축 | 값 |
+|---|---|
+| viewport | 1280×900, 1440×1000, 1920×1080 |
+| theme | light, dark |
+| data | ready, partial, all-price-missing, backtest-missing, stale-last-good |
+| result | many, one, zero, unavailable |
+| builder | preset, visual AND/OR, imported JSON, invalid JSON |
+| navigation | row select, Why, compare, ticker, exact return |
+| input | mouse, keyboard-only, 200% zoom |
+
+P0 완료 조건은 `header/cell parity`, `rank 화면의 visible rank + disclosed sort`, `숫자 SSOT`, `Why 흐름`, `light/dark 검증 panel 가독성` 5개가 모두 통과하는 것이다. 이 전에는 시각화 추가나 전체 컬럼 확장을 진행하지 않는다.
+
 ## 6. 목표 제품: Screener Workbench
 
-### 5.1 사용자 흐름
+### 6.1 사용자 흐름
 
 ```text
 [프리셋 선택 또는 조건 작성]
@@ -425,7 +561,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
   -> [스크린 버전 비교]
 ```
 
-### 5.2 화면 구성
+### 6.2 화면 구성
 
 1. **Screen Builder**: 초급 preset 카드, 고급 조건식, 필드 검색, 단위·시점 표시
 2. **Readiness Preview**: 예상 eligible 수, field coverage, stale/unsupported, 예상 provider 비용
@@ -435,7 +571,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 6. **Outcome Lab**: T+1/5/21/63, benchmark-relative, drawdown, hit rate, turnover
 7. **Operations**: source health, field freshness, queue, last good snapshot, rights review
 
-### 5.3 상태 어휘
+### 6.3 상태 어휘
 
 값 없음 하나로 합치지 않는다.
 
@@ -451,7 +587,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 ## 7. 목표 데이터·API·파이프라인 구조
 
-### 6.1 control plane
+### 7.1 control plane
 
 - `ProviderRegistry`: provider와 credential 상태
 - `CapabilityCatalog`: 시장/자산/필드/cadence/revision/rights/rate limit
@@ -460,7 +596,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 - `SourceHealth`: 최근 성공·지연·오류 유형·divergence·LKG age
 - `PromotionRegistry`: 연구 필드/팩터/레짐 정의의 승인 상태
 
-### 6.2 data plane
+### 7.2 data plane
 
 ```text
 공식/승인 provider adapters
@@ -474,7 +610,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
   -> browser projection / AI evidence / alerts / outcome ledger
 ```
 
-### 6.3 핵심 계약
+### 7.3 핵심 계약
 
 ```text
 InstrumentRef
@@ -514,7 +650,7 @@ OutcomeObservation
   costsApplied, observedAt
 ```
 
-### 6.4 공급자 다각화 원칙
+### 7.4 공급자 다각화 원칙
 
 | tier | 용도 | 예 | 규칙 |
 |---|---|---|---|
@@ -525,7 +661,7 @@ OutcomeObservation
 
 다각화는 provider 개수가 아니라 독립 원천 수로 계산한다. 두 provider가 같은 거래소 feed나 같은 filing을 재판매하면 하나의 독립 관측으로 본다. 전체 row의 source를 하나로 고르지 말고 필드별로 reconcile한다.
 
-### 6.5 자동 갱신 cadence
+### 7.5 자동 갱신 cadence
 
 | 데이터 | trigger/cadence | 성공 후 소비자 | 실패 정책 |
 |---|---|---|---|
@@ -540,7 +676,7 @@ OutcomeObservation
 | screen run | snapshot commit 후 | result/history/alerts | snapshot 미완료면 실행 차단/partial |
 | outcome | T+1/5/21/63 | outcome lab | 기준 가격 누락 시 unavailable |
 
-### 6.6 종목·필드 단위 dirty refresh
+### 7.6 종목·필드 단위 dirty refresh
 
 1. 사용자가 결과 row를 열거나 screen이 필드를 요구한다.
 2. `FieldReadiness`가 stale/missing이면서 capability가 존재하면 `RefreshDemand` 생성.
@@ -553,7 +689,7 @@ OutcomeObservation
 
 ## 8. 자동 시장 상황 반영 설계
 
-### 7.1 입력 축
+### 8.1 입력 축
 
 - 추세: 지수 20/50/200일, ATH gap, 시장별 추세 분산
 - breadth: advance/decline, 20/50/200일 상회율, new high/low
@@ -563,11 +699,11 @@ OutcomeObservation
 - event: CPI/FOMC/고용/실적 집중도와 시간 거리
 - source health: 핵심 입력의 coverage·freshness·conflict
 
-### 7.2 상태 결정
+### 8.2 상태 결정
 
 `RegimeState`는 deterministic feature 계산과 명시적 threshold로 만들고 `confidence`와 `missingInputs`를 함께 출력한다. 상태 전환에는 hysteresis와 최소 유지기간을 둔다. 예: 진입 threshold와 이탈 threshold를 다르게 하고, 중요 입력이 stale이면 기존 상태를 유지하되 `LOW_CONFIDENCE`로 강등한다.
 
-### 7.3 랭킹 연결 안전장치
+### 8.3 랭킹 연결 안전장치
 
 - 레짐은 스크린 preset 추천, 위험 경고, position-size 참고에는 즉시 사용할 수 있다.
 - factor weight 자동 변경은 별도 replay/walk-forward에서 개선이 재현된 뒤에만 승격한다.
@@ -583,7 +719,7 @@ OutcomeObservation
 | B. Hybrid Workbench | 계약·engine·artifact를 ESM로 추출, 기존 UI가 소비 | 회귀 통제, 점진 migration | 일시적 adapter 필요 | **권고** |
 | C. 별도 앱 재구축 | React/Svelte + API/DB 전면 구축 | 대규모 확장 | 기능 parity·배포·운영 비용 | trigger 충족 시만 |
 
-### 8.1 C로 전환하는 객관적 trigger
+### 9.1 C로 전환하는 객관적 trigger
 
 - 목표 universe가 5,000종목 또는 projection 100필드를 지속 초과
 - 압축 screener payload가 정한 예산을 넘고 column projection으로도 회복 불가
