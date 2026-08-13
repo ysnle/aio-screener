@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-13T19:23:30.868Z",
-  "attemptedAt": "2026-08-13T19:23:30.868Z",
-  "lastSuccessfulAt": "2026-08-13T19:23:30.868Z",
+  "generatedAt": "2026-08-13T20:21:08.345Z",
+  "attemptedAt": "2026-08-13T20:21:08.345Z",
+  "lastSuccessfulAt": "2026-08-13T20:21:08.345Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-07-30T19:23:25.978Z",
-  "until": "2026-08-13T19:23:25.978Z",
+  "since": "2026-07-30T20:21:03.075Z",
+  "until": "2026-08-13T20:21:03.075Z",
   "current24hWindow": {
     "start": "2026-08-11T23:00:00.000Z",
     "end": "2026-08-12T23:00:00.000Z",
@@ -90,22 +90,22 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1171,
-      "freshCount": 16,
-      "eligibleTextCount": 15,
+      "freshCount": 35,
+      "eligibleTextCount": 33,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 61064
+      "lastPostId": 61075
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 256,
+      "count": 255,
       "freshCount": 20,
       "eligibleTextCount": 20,
       "selectedCount": 76,
@@ -125,9 +125,210 @@
       "lastPostId": 67109
     }
   ],
-  "count": 2523,
-  "retainedItemCount": 433,
+  "count": 2522,
+  "retainedItemCount": 449,
   "observedItems": [
+    {
+      "id": "insidertracking/61075",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:17:42.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 69,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG",
+        "SNDK",
+        "SHOP"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61074",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:14:36.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 61,
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "AMAT"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61073",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:13:02.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 100,
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "TSLA",
+        "AAPL",
+        "GOOG",
+        "META",
+        "SNDK",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61072",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:11:08.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "insidertracking/61071",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:07:31.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 70,
+      "tags": [
+        "healthcare"
+      ],
+      "tickers": [
+        "JPM",
+        "BAC",
+        "PANW",
+        "RBRK",
+        "SBUX",
+        "DELL",
+        "NET",
+        "MDB",
+        "ROKU",
+        "SCHW",
+        "GPN",
+        "PSX",
+        "VLO",
+        "MPC",
+        "AME",
+        "MTB",
+        "CPAY",
+        "NTAP",
+        "ZBRA",
+        "LYV"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61070",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:06:24.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61069",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:05:30.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 48,
+      "tags": [
+        "kr-market"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61068",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:04:50.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61067",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:02:46.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 75,
+      "tags": [
+        "macro",
+        "geo",
+        "power",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61066",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:01:31.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 83,
+      "tags": [
+        "macro",
+        "geo",
+        "power",
+        "kr-market",
+        "equity",
+        "flows",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61065",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T20:00:07.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 100,
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "kr-market",
+        "equity",
+        "flows",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "TSLA",
+        "MU",
+        "SNDK",
+        "WDAY"
+      ],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19703",
       "channel": "bornlupin",
@@ -719,7 +920,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61041",
@@ -731,7 +932,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61040",
@@ -743,7 +944,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67098",
@@ -772,7 +973,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24557",
@@ -802,7 +1003,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61037",
@@ -816,7 +1017,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61036",
@@ -828,7 +1029,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67097",
@@ -857,7 +1058,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61033",
@@ -35694,283 +35895,99 @@
         "TEAM"
       ],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/59773",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:18:50.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 66,
-      "tags": [
-        "macro",
-        "ai-policy",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [
-        "AMZN"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59772",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:16:58.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59771",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:14:25.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59770",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:11:33.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 100,
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AVGO",
-        "TSM",
-        "ORCL"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59769",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:09:42.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 35,
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19434",
-      "channel": "bornlupin",
-      "datetime": "2026-07-30T20:08:25.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 71,
-      "tags": [
-        "macro",
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [
-        "AMZN"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59768",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:08:09.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 60,
-      "tags": [
-        "healthcare"
-      ],
-      "tickers": [
-        "SNOW",
-        "EA",
-        "BMY",
-        "PSA",
-        "ILMN",
-        "HSBC",
-        "BBVA",
-        "BUD",
-        "ING"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59767",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:05:27.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 43,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59766",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:04:27.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 40,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59765",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:02:57.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 62,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59764",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:01:23.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 100,
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [
-        "GOOG",
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59763",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T20:00:24.000Z",
-      "localDateKst": "2026-07-31",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "japan"
-      ],
-      "tickers": [
-        "AAPL",
-        "MSFT",
-        "GOOG",
-        "META",
-        "AVGO",
-        "MU",
-        "TSM",
-        "ORCL",
-        "SBUX",
-        "LRCX",
-        "FTNT",
-        "FDX",
-        "RACE"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2523,
-    "eligibleTextCount": 72,
-    "mediaOnlyCount": 2451,
-    "highSignalCount": 656,
+    "observedCount": 2522,
+    "eligibleTextCount": 90,
+    "mediaOnlyCount": 2432,
+    "highSignalCount": 657,
     "broadSignalCount": 1278,
     "selectedRawCount": 405,
-    "selectedRawCoveragePct": 562.5,
+    "selectedRawCoveragePct": 450,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "macro": 897,
+    "earnings": 651,
     "semi": 748,
-    "power": 364,
-    "earnings": 653,
-    "japan": 217,
-    "market-note": 601,
-    "macro": 898,
-    "ai-policy": 195,
-    "equity": 212,
-    "media-only": 42,
-    "geo": 398,
+    "credit": 70,
+    "power": 365,
+    "ai-policy": 191,
+    "equity": 213,
+    "healthcare": 143,
+    "japan": 220,
+    "media-only": 43,
+    "market-note": 600,
+    "kr-market": 412,
+    "geo": 397,
+    "flows": 270,
     "insider": 84,
-    "kr-market": 410,
-    "credit": 69,
-    "flows": 268,
-    "healthcare": 140,
     "crypto": 19,
     "optical": 71
   },
   "tickerCounts": {
-    "SNDK": 39,
-    "NVDA": 92,
+    "GOOG": 86,
+    "SNDK": 42,
+    "SHOP": 3,
+    "AMAT": 14,
     "AMD": 78,
-    "AMZN": 96,
-    "MSFT": 52,
+    "TSLA": 19,
+    "AAPL": 52,
+    "META": 47,
+    "000660.KS": 200,
+    "JPM": 4,
+    "BAC": 10,
+    "PANW": 9,
+    "RBRK": 2,
+    "SBUX": 1,
+    "DELL": 4,
+    "NET": 13,
+    "MDB": 1,
+    "ROKU": 3,
+    "SCHW": 5,
+    "GPN": 1,
+    "PSX": 4,
+    "VLO": 3,
+    "MPC": 3,
+    "AME": 5,
+    "MTB": 1,
+    "CPAY": 5,
+    "NTAP": 4,
+    "ZBRA": 6,
+    "LYV": 1,
+    "MU": 44,
+    "WDAY": 2,
+    "NVDA": 92,
+    "AMZN": 94,
+    "MSFT": 50,
     "COHR": 17,
     "RKLB": 19,
     "IRDM": 2,
-    "000660.KS": 199,
-    "GOOG": 87,
-    "META": 47,
-    "ORCL": 20,
+    "ORCL": 18,
     "MRVL": 19,
     "GLD": 2,
     "005930.KS": 138,
-    "AAPL": 52,
     "NKE": 3,
-    "FDX": 2,
+    "FDX": 1,
     "009150.KS": 4,
     "207940.KS": 1,
     "006400.KS": 1,
     "032830.KS": 1,
     "028260.KS": 1,
     "CRWV": 13,
-    "TSM": 91,
-    "AMAT": 13,
-    "MU": 44,
-    "LRCX": 6,
+    "TSM": 88,
+    "LRCX": 5,
     "BE": 17,
     "NBIS": 2,
     "035420.KS": 60,
     "LITE": 29,
-    "AVGO": 34,
-    "TSLA": 17,
+    "AVGO": 32,
     "SMCI": 12,
     "GOOGL": 22,
-    "PANW": 8,
     "CRWD": 4,
     "COIN": 4,
     "IONQ": 11,
@@ -35979,27 +35996,16 @@
     "MSTR": 3,
     "PL": 1,
     "DUOL": 1,
-    "JPM": 3,
-    "BAC": 9,
-    "SNOW": 10,
+    "SNOW": 9,
     "AEHR": 1,
-    "SCHW": 4,
     "FI": 5,
     "EMR": 1,
-    "PSX": 3,
-    "VLO": 2,
-    "MPC": 2,
     "FAST": 5,
-    "AME": 4,
-    "CPAY": 4,
-    "NTAP": 3,
-    "ZBRA": 5,
     "DXCM": 6,
     "ET": 2,
     "HD": 1,
     "GS": 15,
     "MS": 8,
-    "NET": 12,
     "011210.KS": 1,
     "CAT": 16,
     "GE": 3,
@@ -36028,7 +36034,7 @@
     "CAH": 2,
     "AMP": 5,
     "SWK": 3,
-    "BBVA": 6,
+    "BBVA": 5,
     "BA": 2,
     "STX": 7,
     "EQIX": 2,
@@ -36041,7 +36047,6 @@
     "AAOI": 14,
     "RGTI": 1,
     "BRK.B": 7,
-    "RBRK": 1,
     "BRK-B": 3,
     "GRMN": 5,
     "TPR": 1,
@@ -36059,7 +36064,6 @@
     "ABBV": 4,
     "DDOG": 8,
     "URI": 1,
-    "ROKU": 2,
     "RHI": 1,
     "MP": 1,
     "CVX": 4,
@@ -36081,18 +36085,16 @@
     "VTRS": 1,
     "APP": 2,
     "VRT": 2,
-    "DELL": 3,
     "HON": 2,
     "MRNA": 4,
     "EBAY": 2,
     "042660.KS": 1,
     "039030.KQ": 1,
     "247540.KQ": 1,
-    "SHOP": 2,
     "AMKR": 1,
     "SPGI": 3,
-    "FTNT": 2,
-    "EA": 4,
+    "FTNT": 1,
+    "EA": 3,
     "NUE": 3,
     "PRU": 1,
     "ANET": 7,
@@ -36110,11 +36112,11 @@
     "PINS": 1,
     "SPOT": 1,
     "RIOT": 1,
-    "BMY": 5,
+    "BMY": 4,
     "GSAT": 1,
     "ROST": 1,
     "DVA": 1,
-    "ILMN": 3,
+    "ILMN": 2,
     "NWG": 1,
     "VSAT": 1,
     "016360.KS": 1,
@@ -36134,7 +36136,7 @@
     "PYPL": 2,
     "RCL": 1,
     "XLV": 1,
-    "PSA": 2,
+    "PSA": 1,
     "MFC": 1,
     "CLS": 1,
     "FN": 1,
@@ -36144,30 +36146,24 @@
     "ZTS": 1,
     "402340.KS": 1,
     "CRM": 1,
-    "WDAY": 1,
     "HLT": 1,
-    "STLD": 1,
-    "HSBC": 1,
-    "BUD": 1,
-    "ING": 1,
-    "SBUX": 1,
-    "RACE": 1
+    "STLD": 1
   },
   "themes": [
-    "Macro/Rates (898 posts in 14-day research window): JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를...",
-    "Semiconductors/Memory (748 posts in 14-day research window): JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를...",
-    "Earnings/Corporate (653 posts in 14-day research window): JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를...",
-    "Market Notes (601 posts in 14-day research window): 국민연금공단 Q2 13F 신규 매수 종목보면... 스페이스X, 허니웰에어로스페이스, 아이온큐, 세라브레스, 아이렌 같은 종목들을 담았네요&#33; > 전체 포트폴리오 비중에서 크게 차지하는 종목은 없습니다. 그나마 제일 큰게 스페이스X 0.4%",
-    "Korea Market (410 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단...",
-    "Geopolitics (398 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
-    "AI Power/Grid (364 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
-    "Positioning/Flows (268 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단..."
+    "Macro/Rates (897 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •...",
+    "Semiconductors/Memory (748 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •...",
+    "Earnings/Corporate (651 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •...",
+    "Market Notes (600 posts in 14-day research window): 2026년 8월 14일 미장 마감 📈 S&P 500 - 7,798.31 +0.64% 📈 다우 30 - 53,842.70 +0.13% 📈 나스닥 - 26,803.03 +0.81% 📈 러셀 2000 - 3,053.74 +0.27% 📈 VIX - 14.63 +0.55% 📉 금 - 4,404.70 -1.41%...",
+    "Korea Market (412 posts in 14-day research window): Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를 중단할 대통령 권한을 인정했다며 무역정책상 승리로 평가. · 트럼프 대통령, 해당 면제가 2024년 미국의...",
+    "Geopolitics (397 posts in 14-day research window): Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를 중단할 대통령 권한을 인정했다며 무역정책상 승리로 평가. · 트럼프 대통령, 해당 면제가 2024년 미국의...",
+    "AI Power/Grid (365 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •...",
+    "Positioning/Flows (270 posts in 14-day research window): Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를 중단할 대통령 권한을 인정했다며 무역정책상 승리로 평가. · 트럼프 대통령, 해당 면제가 2024년 미국의..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 199,
-      "text": "[단독]싱가포르 테마섹, 삼전닉스 담는다…'K증시 첫 투자 ' 아시아 최대 국부펀드 중 하나인 싱가포르 테마섹이 삼성전자와 SK하이닉스에 신규 투자를 단행한다. 테마섹이 한국 증시 투자에 나서는 건 이번이..."
+      "count": 200,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "key": "005930.KS",
@@ -36176,7 +36172,7 @@
     },
     {
       "key": "AMZN",
-      "count": 96,
+      "count": 94,
       "text": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
     },
     {
@@ -36186,18 +36182,18 @@
     },
     {
       "key": "TSM",
-      "count": 91,
+      "count": 88,
       "text": "[단독]싱가포르 테마섹, 삼전닉스 담는다…'K증시 첫 투자 ' 아시아 최대 국부펀드 중 하나인 싱가포르 테마섹이 삼성전자와 SK하이닉스에 신규 투자를 단행한다. 테마섹이 한국 증시 투자에 나서는 건 이번이..."
     },
     {
       "key": "GOOG",
-      "count": 87,
-      "text": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "count": 86,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "key": "AMD",
       "count": 78,
-      "text": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "key": "035420.KS",
@@ -36205,24 +36201,24 @@
       "text": "'본격 출하' 엔비디아 베라 루빈, 원가의 62%는 메모리… \"HBM4보다 비중 큰 소캠2\" 메모리 비용, 전작보다 2.5배 늘어… 증가분 대부분 CPU용 D램 베라 루빈 한 랙에 스마트폰 4500대 분량..."
     },
     {
-      "key": "MSFT",
-      "count": 52,
-      "text": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
-    },
-    {
       "key": "AAPL",
       "count": 52,
-      "text": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
+    },
+    {
+      "key": "MSFT",
+      "count": 50,
+      "text": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
     },
     {
       "key": "META",
       "count": 47,
-      "text": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "key": "MU",
       "count": 44,
-      "text": "Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국이 호르무즈 해협을 “완전히 통제”하고 있으며 이를 계속 유지할 수 있다고 발언. ·..."
+      "text": "Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를 중단할 대통령 권한을 인정했다며 무역정책상 승리로 평가. · 트럼프 대통령, 해당 면제가 2024년 미국의..."
     }
   ],
   "categories": [
@@ -36232,8 +36228,8 @@
       "topics": [
         "macro"
       ],
-      "count": 898,
-      "focus": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "count": 897,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "geo",
@@ -36241,8 +36237,8 @@
       "topics": [
         "geo"
       ],
-      "count": 398,
-      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
+      "count": 397,
+      "focus": "Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를 중단할 대통령 권한을 인정했다며 무역정책상 승리로 평가. · 트럼프 대통령, 해당 면제가 2024년 미국의..."
     },
     {
       "id": "credit",
@@ -36250,8 +36246,8 @@
       "topics": [
         "credit"
       ],
-      "count": 69,
-      "focus": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "count": 70,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "semi",
@@ -36260,7 +36256,7 @@
         "semi"
       ],
       "count": 748,
-      "focus": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "optical",
@@ -36277,8 +36273,8 @@
       "topics": [
         "power"
       ],
-      "count": 364,
-      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
+      "count": 365,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "ai-policy",
@@ -36286,8 +36282,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 195,
-      "focus": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "count": 191,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "kr-market",
@@ -36295,8 +36291,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 410,
-      "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단..."
+      "count": 412,
+      "focus": "Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를 중단할 대통령 권한을 인정했다며 무역정책상 승리로 평가. · 트럼프 대통령, 해당 면제가 2024년 미국의..."
     },
     {
       "id": "equity",
@@ -36304,8 +36300,8 @@
       "topics": [
         "equity"
       ],
-      "count": 212,
-      "focus": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "count": 213,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "crypto",
@@ -36322,8 +36318,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 653,
-      "focus": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
+      "count": 651,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "healthcare",
@@ -36331,8 +36327,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 140,
-      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
+      "count": 143,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "japan",
@@ -36340,8 +36336,8 @@
       "topics": [
         "japan"
       ],
-      "count": 217,
-      "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단..."
+      "count": 220,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를 중소기업(SMB)까지 확대. 기업 규모와 관계없이 프런티어 AI 관련 위험 보호 기능을 제공하는 방향으로 서비스 확장. •..."
     },
     {
       "id": "flows",
@@ -36349,8 +36345,8 @@
       "topics": [
         "flows"
       ],
-      "count": 268,
-      "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단..."
+      "count": 270,
+      "focus": "Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를 중단할 대통령 권한을 인정했다며 무역정책상 승리로 평가. · 트럼프 대통령, 해당 면제가 2024년 미국의..."
     },
     {
       "id": "insider",
@@ -36367,8 +36363,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 601,
-      "focus": "국민연금공단 Q2 13F 신규 매수 종목보면... 스페이스X, 허니웰에어로스페이스, 아이온큐, 세라브레스, 아이렌 같은 종목들을 담았네요&#33; > 전체 포트폴리오 비중에서 크게 차지하는 종목은 없습니다. 그나마 제일 큰게 스페이스X 0.4%"
+      "count": 600,
+      "focus": "2026년 8월 14일 미장 마감 📈 S&P 500 - 7,798.31 +0.64% 📈 다우 30 - 53,842.70 +0.13% 📈 나스닥 - 26,803.03 +0.81% 📈 러셀 2000 - 3,053.74 +0.27% 📈 VIX - 14.63 +0.55% 📉 금 - 4,404.70 -1.41%..."
     }
   ],
   "pageMap": {
@@ -36619,6 +36615,64 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/61073",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61073",
+      "datetime": "2026-08-13T20:13:02.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "TSLA",
+        "AAPL",
+        "GOOG",
+        "META",
+        "SNDK",
+        "000660.KS"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를..."
+    },
+    {
+      "id": "insidertracking/61065",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61065",
+      "datetime": "2026-08-13T20:00:07.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "kr-market",
+        "equity",
+        "flows",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "TSLA",
+        "MU",
+        "SNDK",
+        "WDAY"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를..."
+    },
     {
       "id": "aetherjapanresearch/24563",
       "channel": "aetherjapanresearch",
@@ -37532,49 +37586,6 @@
       "summary": "Citi) FMS 2026 리캡 콜 – 씨게이트·샌디스크 경영진 미팅 및 마이크론 목표주가 하향 (아시야 머천트 / 아티프 말릭, 8월 7일) 지난주 산타클라라에서 열린 FMS(Future of Memory..."
     },
     {
-      "id": "insidertracking/60798",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60798",
-      "datetime": "2026-08-10T12:14:34.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "japan"
-      ],
-      "tickers": [
-        "GOOG",
-        "TSM"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 10일 (오후 3시~오후 9시 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 백악관 선임고문 케빈 해싯은 현재 연준 위원이라면 기준금리를 동결하거나..."
-    },
-    {
-      "id": "insidertracking/60766",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60766",
-      "datetime": "2026-08-10T05:43:14.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "japan"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 10일 (새벽 6시 30분~오후 3시 기준) ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 중부사령부(CENTCOM)는 8월 9일 기준 이란에 대한 미국의..."
-    },
-    {
       "id": "aetherjapanresearch/24472",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/24472",
@@ -37796,6 +37807,173 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/61075",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61075",
+      "datetime": "2026-08-13T20:17:42.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [
+        "GOOG",
+        "SNDK",
+        "SHOP"
+      ],
+      "score": 69,
+      "hasText": true,
+      "summary": "미국 레딧 게시물 분석 (2026년 8월 14일 00:00~05:30 기준) > 🚗 HTZ - 숏스퀴즈 1순위 · 장문의 DD로 숏스퀴즈 서사 강화 · 숏 비중 30% 언급하며 \"Wall Street..."
+    },
+    {
+      "id": "insidertracking/61074",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61074",
+      "datetime": "2026-08-13T20:14:36.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "AMAT"
+      ],
+      "score": 61,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ Applied Materials 2026 회계연도 3분기 실적 요약 ━━━━━━━━━━━━━━ 📍 실적 • 매출 &#036;9.12B, +25% YoY, 컨센서스..."
+    },
+    {
+      "id": "insidertracking/61073",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61073",
+      "datetime": "2026-08-13T20:13:02.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "power",
+        "ai-policy",
+        "equity",
+        "earnings",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "AMD",
+        "TSLA",
+        "AAPL",
+        "GOOG",
+        "META",
+        "SNDK",
+        "000660.KS"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 크라우드스트라이크 (CRWD) — Project QuiltWorks 적용 범위를..."
+    },
+    {
+      "id": "insidertracking/61071",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61071",
+      "datetime": "2026-08-13T20:07:31.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "healthcare"
+      ],
+      "tickers": [
+        "JPM",
+        "BAC",
+        "PANW",
+        "RBRK",
+        "SBUX",
+        "DELL",
+        "NET",
+        "MDB",
+        "ROKU",
+        "SCHW",
+        "GPN",
+        "PSX",
+        "VLO",
+        "MPC",
+        "AME",
+        "MTB",
+        "CPAY",
+        "NTAP",
+        "ZBRA",
+        "LYV"
+      ],
+      "score": 70,
+      "hasText": true,
+      "summary": "52주 신고가 · Ametek · Applied Industrial Technologies · Aramark · Associated Banc-Corp · Bank of America · Bank of..."
+    },
+    {
+      "id": "insidertracking/61067",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61067",
+      "datetime": "2026-08-13T20:02:46.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "macro",
+        "geo",
+        "power",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 75,
+      "hasText": true,
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 8월 14일 📍 트럼프·소액 수입 관세 면제 · 트럼프, 미국 국제무역법원의 ‘de minimis’ 면제 관련 판결을 “큰 승리”라고 평가 · 트럼프,..."
+    },
+    {
+      "id": "insidertracking/61066",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61066",
+      "datetime": "2026-08-13T20:01:31.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "macro",
+        "geo",
+        "power",
+        "kr-market",
+        "equity",
+        "flows",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 83,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 14일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 클리블랜드 연은 해맥 총재는 인플레이션이 광범위하게 지속되고 있으며 현 통화정책이 충분히 제약적이지 않다며..."
+    },
+    {
+      "id": "insidertracking/61065",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61065",
+      "datetime": "2026-08-13T20:00:07.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "kr-market",
+        "equity",
+        "flows",
+        "healthcare",
+        "japan"
+      ],
+      "tickers": [
+        "TSLA",
+        "MU",
+        "SNDK",
+        "WDAY"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "Market Summary - 2026년 8월 14일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국 국제무역법원이 &#036;800 이하 저가 수입품의 ‘de minimis’ 관세 면제를..."
+    },
     {
       "id": "bornlupin/19703",
       "channel": "bornlupin",
@@ -44236,21 +44414,6 @@
       "summary": ">>모건스탠리, Zhipu 목표가 72% 가까이 상향…연산력 확보와 신규 자금조달이 강한 성장 뒷받침 •모건스탠리는 Zhipu의 연산력 확보 능력이 계속 높아지고 신규 자금조달까지 더해지면서 더욱 강한 성장을..."
     },
     {
-      "id": "insidertracking/60754",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60754",
-      "datetime": "2026-08-10T01:02:15.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "tickers": [],
-      "score": 53,
-      "hasText": true,
-      "summary": "영국 해군 K3 스카우트 감시 드론에 탑재된 카메라의 중국산 부품이 중국 내 IP 주소로 데이터를 전송한 것으로 확인됐다고 텔레그래프가 보도. 영국 해병대가 지난 3월부터 운용해온 1,200만 파운드 규모의..."
-    },
-    {
       "id": "bornlupin/19619",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19619",
@@ -44299,29 +44462,6 @@
       "score": 91,
       "hasText": true,
       "summary": "**중국 베스트 이코노미스트가 본 AI 장세 >> 중국 하반기 기술·AI 장세는 계속 ‘옥석 가리기’, 금 투자 논리는 유지…소비는 정책이 관건 (중국 화창증권) •화촹증권은 최근 인터뷰에서 하반기..."
-    },
-    {
-      "id": "insidertracking/60744",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60744",
-      "datetime": "2026-08-09T23:13:35.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "equity",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [
-        "NVDA",
-        "MU",
-        "PLTR"
-      ],
-      "score": 86,
-      "hasText": true,
-      "summary": "미국 레딧 게시물 분석 (2026년 8월 10일 00:00~08:00 기준) > 🚗 HTZ - 숏스퀴즈 재점화 · HTZ 다시 메인 밈으로 복귀 · “Q3 beat thesis” 등장 · 월드컵 수요 +..."
     },
     {
       "id": "HANAchina/66877",
@@ -44395,81 +44535,6 @@
       "score": 95,
       "hasText": true,
       "summary": "\"삼성전자, 확신의 매수 구간\"…주주환원 '최대 200조' 전망 KB증권, 삼성전자 목표주가 60만원 유지 KB증권은 10일 삼성전자에 대해 \"연간 주주환원 규모가 최대 200조원에 달할 것\"이라며 \"확신의..."
-    },
-    {
-      "id": "insidertracking/60737",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60737",
-      "datetime": "2026-08-09T21:49:08.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "macro",
-        "kr-market",
-        "japan"
-      ],
-      "tickers": [],
-      "score": 55,
-      "hasText": true,
-      "summary": "미국과 일본의 외환시장 개입 이후 헤지펀드들이 엔화 약세 베팅을 빠르게 축소 중. 미국 상품선물거래위원회(CFTC) 자료에 따르면 레버리지 펀드의 엔화 순매도 포지션은 8월 4일까지 5주 동안..."
-    },
-    {
-      "id": "insidertracking/60732",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60732",
-      "datetime": "2026-08-09T21:43:05.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "geo",
-        "power"
-      ],
-      "tickers": [],
-      "score": 53,
-      "hasText": true,
-      "summary": "이란 프레스TV에 따르면 이란 육군 사령관 알리 자한샤히가 모든 병력이 ‘완전 전투준비’ 상태에 있으며 국가에 대한 어떠한 위협에도 단호하게 대응할 것이라고 밝힘. 자한샤히는 이란 남동부와 마크란 해안을 따라..."
-    },
-    {
-      "id": "insidertracking/60730",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60730",
-      "datetime": "2026-08-09T21:41:21.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "💬 💬 💬 💬 💬 💬 금주 한국시간 (KST) 기준 경제지표 및 주요 일정 ━━━━━━━━━━━━━━ 2026년 8월 11일 화요일 23:00 – 기존주택판매 (7월) ━━━━━━━━━━━━━━..."
-    },
-    {
-      "id": "insidertracking/60726",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60726",
-      "datetime": "2026-08-09T21:34:03.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 67,
-      "hasText": true,
-      "summary": "미국의 새로운 태양광 관세 정책으로 퍼스트솔라가 주요 수혜 기업으로 부상. • UBS는 이번 관세 결정을 태양광 시장의 잠재적인 ‘구조 재편 계기’로 평가하며 퍼스트솔라에 대한 매수 의견과 목표주가..."
-    },
-    {
-      "id": "insidertracking/60725",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60725",
-      "datetime": "2026-08-09T21:32:41.000Z",
-      "localDateKst": "2026-08-10",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "트럼프 대통령이 이란에 대해 ‘로우키’ 전략으로 전환하며, 당분간 추가 군사 행동보다 경제적 압박을 우선하겠다는 입장. 트럼프 대통령은 미국의 해상 봉쇄로 이란 경제가 악화되고 있으며, 유가가 배럴당 75달러..."
     },
     {
       "id": "bornlupin/19613",
