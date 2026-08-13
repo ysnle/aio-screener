@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-13T06:45:54.096Z",
-  "attemptedAt": "2026-08-13T06:45:54.096Z",
-  "lastSuccessfulAt": "2026-08-13T06:45:54.096Z",
+  "generatedAt": "2026-08-13T08:06:55.250Z",
+  "attemptedAt": "2026-08-13T08:06:55.250Z",
+  "lastSuccessfulAt": "2026-08-13T08:06:55.250Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-07-30T06:45:48.280Z",
-  "until": "2026-08-13T06:45:48.280Z",
+  "since": "2026-07-30T08:06:49.155Z",
+  "until": "2026-08-13T08:06:49.155Z",
   "current24hWindow": {
     "start": "2026-08-11T23:00:00.000Z",
     "end": "2026-08-12T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 184,
-    "eligibleTextCount": 50,
+    "eligibleTextCount": 37,
     "channelCounts": {
       "insidertracking": 77,
       "HANAchina": 64,
@@ -81,24 +81,24 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 359,
+      "count": 354,
       "freshCount": 36,
       "eligibleTextCount": 35,
-      "selectedCount": 81,
+      "selectedCount": 80,
       "error": null,
-      "lastPostId": 24556
+      "lastPostId": 24557
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1176,
-      "freshCount": 34,
-      "eligibleTextCount": 32,
+      "count": 1171,
+      "freshCount": 35,
+      "eligibleTextCount": 33,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 61036
+      "lastPostId": 61039
     },
     {
       "channel": "bornlupin",
@@ -114,20 +114,76 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 765,
-      "freshCount": 40,
-      "eligibleTextCount": 40,
+      "count": 762,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
       "selectedCount": 124,
       "error": null,
       "lastPostId": 67097
     }
   ],
-  "count": 2560,
-  "retainedItemCount": 455,
+  "count": 2547,
+  "retainedItemCount": 443,
   "observedItems": [
+    {
+      "id": "insidertracking/61039",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T08:02:47.000Z",
+      "localDateKst": "2026-08-13",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24557",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-13T07:52:52.000Z",
+      "localDateKst": "2026-08-13",
+      "score": 100,
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61038",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T06:49:53.000Z",
+      "localDateKst": "2026-08-13",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61037",
+      "channel": "insidertracking",
+      "datetime": "2026-08-13T06:48:31.000Z",
+      "localDateKst": "2026-08-13",
+      "score": 67,
+      "tags": [
+        "macro",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/61036",
       "channel": "insidertracking",
@@ -782,7 +838,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67076",
@@ -794,7 +850,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67075",
@@ -806,7 +862,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67074",
@@ -818,7 +874,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24553",
@@ -864,7 +920,7 @@
         "AMAT",
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24551",
@@ -898,7 +954,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24550",
@@ -1029,7 +1085,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67070",
@@ -1043,7 +1099,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61006",
@@ -1114,7 +1170,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61005",
@@ -1138,7 +1194,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19695",
@@ -1167,7 +1223,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67066",
@@ -1179,7 +1235,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67065",
@@ -1193,7 +1249,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67064",
@@ -1208,7 +1264,7 @@
       "tickers": [
         "LITE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67063",
@@ -1221,7 +1277,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67062",
@@ -1233,7 +1289,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61004",
@@ -1341,7 +1397,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60992",
@@ -1353,7 +1409,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60991",
@@ -1757,7 +1813,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67060",
@@ -1769,7 +1825,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67059",
@@ -1782,7 +1838,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67058",
@@ -1893,7 +1949,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19689",
@@ -4910,7 +4966,7 @@
         "TSM",
         "LITE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60878",
@@ -36189,263 +36245,44 @@
         "005930.KS"
       ],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/59743",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T08:00:18.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 47,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [
-        "035420.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66272",
-      "channel": "HANAchina",
-      "datetime": "2026-07-30T07:52:01.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59741",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T07:40:55.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59740",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T07:39:38.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 47,
-      "tags": [
-        "macro",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59739",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T07:39:06.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24157",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-30T07:31:18.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 47,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [
-        "035420.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24156",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-30T07:21:45.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24155",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-30T07:21:38.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 47,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59738",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T07:19:14.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59737",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T07:16:55.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 57,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66271",
-      "channel": "HANAchina",
-      "datetime": "2026-07-30T07:08:16.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 52,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59736",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T07:05:02.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 50,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59733",
-      "channel": "insidertracking",
-      "datetime": "2026-07-30T07:03:57.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66269",
-      "channel": "HANAchina",
-      "datetime": "2026-07-30T07:03:17.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24154",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-30T06:54:28.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 47,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24150",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-30T06:53:05.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 39,
-      "tags": [
-        "healthcare"
-      ],
-      "tickers": [
-        "141080.KQ"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24149",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-07-30T06:47:33.000Z",
-      "localDateKst": "2026-07-30",
-      "score": 95,
-      "tags": [
-        "macro",
-        "power",
-        "kr-market",
-        "equity",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "META"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2560,
-    "eligibleTextCount": 127,
-    "mediaOnlyCount": 2433,
-    "highSignalCount": 662,
-    "broadSignalCount": 1289,
-    "selectedRawCount": 406,
-    "selectedRawCoveragePct": 319.7,
+    "observedCount": 2547,
+    "eligibleTextCount": 108,
+    "mediaOnlyCount": 2439,
+    "highSignalCount": 663,
+    "broadSignalCount": 1287,
+    "selectedRawCount": 405,
+    "selectedRawCoveragePct": 375,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 617,
-    "macro": 901,
-    "earnings": 657,
-    "semi": 752,
-    "kr-market": 429,
+    "market-note": 614,
+    "credit": 67,
+    "macro": 899,
+    "geo": 402,
+    "semi": 751,
+    "power": 365,
+    "earnings": 658,
+    "healthcare": 141,
+    "ai-policy": 193,
+    "kr-market": 426,
     "flows": 274,
     "media-only": 41,
-    "geo": 405,
-    "power": 365,
-    "healthcare": 142,
-    "japan": 215,
-    "ai-policy": 192,
-    "equity": 217,
+    "japan": 214,
+    "equity": 216,
     "crypto": 19,
     "optical": 71,
-    "insider": 85,
-    "credit": 66
+    "insider": 85
   },
   "tickerCounts": {
     "005930.KS": 143,
     "AAPL": 53,
-    "META": 51,
+    "META": 50,
     "SNDK": 38,
     "NKE": 3,
     "FDX": 2,
@@ -36466,7 +36303,7 @@
     "LRCX": 7,
     "BE": 19,
     "NBIS": 2,
-    "035420.KS": 66,
+    "035420.KS": 64,
     "LITE": 29,
     "AVGO": 35,
     "TSLA": 17,
@@ -36660,17 +36497,16 @@
     "BUD": 1,
     "ING": 1,
     "SBUX": 1,
-    "RACE": 1,
-    "141080.KQ": 1
+    "RACE": 1
   },
   "themes": [
-    "Macro/Rates (901 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가...",
-    "Semiconductors/Memory (752 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가...",
-    "Earnings/Corporate (657 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가...",
-    "Market Notes (617 posts in 14-day research window): 미국 S&P500 ETF랑 미국 제외 선진국 주식시장 ETF는 각각 20%씩 팔았네요. 금 ETF는 새로운 포지션",
-    "Korea Market (429 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가...",
-    "Geopolitics (405 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가...",
-    "AI Power/Grid (365 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가...",
+    "Macro/Rates (899 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
+    "Semiconductors/Memory (751 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
+    "Earnings/Corporate (658 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
+    "Market Notes (614 posts in 14-day research window): 미국 S&P500 ETF랑 미국 제외 선진국 주식시장 ETF는 각각 20%씩 팔았네요. 금 ETF는 새로운 포지션",
+    "Korea Market (426 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가...",
+    "Geopolitics (402 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
+    "AI Power/Grid (365 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
     "Positioning/Flows (274 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
   ],
   "catalysts": [
@@ -36711,7 +36547,7 @@
     },
     {
       "key": "035420.KS",
-      "count": 66,
+      "count": 64,
       "text": "'본격 출하' 엔비디아 베라 루빈, 원가의 62%는 메모리… \"HBM4보다 비중 큰 소캠2\" 메모리 비용, 전작보다 2.5배 늘어… 증가분 대부분 CPU용 D램 베라 루빈 한 랙에 스마트폰 4500대 분량..."
     },
     {
@@ -36726,7 +36562,7 @@
     },
     {
       "key": "META",
-      "count": 51,
+      "count": 50,
       "text": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
     },
     {
@@ -36742,8 +36578,8 @@
       "topics": [
         "macro"
       ],
-      "count": 901,
-      "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
+      "count": 899,
+      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
     },
     {
       "id": "geo",
@@ -36751,8 +36587,8 @@
       "topics": [
         "geo"
       ],
-      "count": 405,
-      "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
+      "count": 402,
+      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
     },
     {
       "id": "credit",
@@ -36760,8 +36596,8 @@
       "topics": [
         "credit"
       ],
-      "count": 66,
-      "focus": "네비우스 그룹(NBIS) Q2 2026 어닝콜 요약 🟢 긍정 요인: • 폭발적인 매출 성장과 AI 사업 확대. 2분기 그룹 매출은 5억8,200만달러로 전년 대비 454% 증가. 연간 환산 매출(ARR)은 30억달러를 기록했으며, Nebius AI가 5억7,500만달러로 전체 매출의 약 98%를 차지하며 GPU..."
+      "count": 67,
+      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
     },
     {
       "id": "semi",
@@ -36769,8 +36605,8 @@
       "topics": [
         "semi"
       ],
-      "count": 752,
-      "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
+      "count": 751,
+      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
     },
     {
       "id": "optical",
@@ -36788,7 +36624,7 @@
         "power"
       ],
       "count": 365,
-      "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
+      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
     },
     {
       "id": "ai-policy",
@@ -36796,7 +36632,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 192,
+      "count": 193,
       "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
     },
     {
@@ -36805,7 +36641,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 429,
+      "count": 426,
       "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
     },
     {
@@ -36814,7 +36650,7 @@
       "topics": [
         "equity"
       ],
-      "count": 217,
+      "count": 216,
       "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
     },
     {
@@ -36832,8 +36668,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 657,
-      "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
+      "count": 658,
+      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
     },
     {
       "id": "healthcare",
@@ -36841,8 +36677,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 142,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 네비우스 그룹 (NBIS) — 뉴저지 바인랜드 AI 데이터센터의 전력원을 블룸에너지 연료전지로..."
+      "count": 141,
+      "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
     },
     {
       "id": "japan",
@@ -36850,7 +36686,7 @@
       "topics": [
         "japan"
       ],
-      "count": 215,
+      "count": 214,
       "focus": "Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단 사용 권한을 확대하는 메모에 서명. · 트럼프 행정부, 관세 정책으로 Ford의 미국 내 생산과 일자리가..."
     },
     {
@@ -36877,7 +36713,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 617,
+      "count": 614,
       "focus": "미국 S&P500 ETF랑 미국 제외 선진국 주식시장 ETF는 각각 20%씩 팔았네요. 금 ETF는 새로운 포지션"
     }
   ],
@@ -37129,6 +36965,26 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "aetherjapanresearch/24557",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24557",
+      "datetime": "2026-08-13T07:52:52.000Z",
+      "localDateKst": "2026-08-13",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [],
+      "score": 100,
+      "hasText": true,
+      "summary": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가..."
+    },
     {
       "id": "insidertracking/61029",
       "channel": "insidertracking",
@@ -38278,36 +38134,45 @@
       "score": 100,
       "hasText": true,
       "summary": "BofA) 팔란티어(PLTR); Das Karpital: 토큰 이코노미에 대한 비판 투자의견 매수 유지 | 목표주가 255달러 | 현재주가 125.65달러 2026년 8월 4일 / 애널리스트 Mariana..."
-    },
-    {
-      "id": "aetherjapanresearch/24390",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24390",
-      "datetime": "2026-08-05T12:57:25.000Z",
-      "localDateKst": "2026-08-05",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "AMD",
-        "MSFT",
-        "META",
-        "MU",
-        "TSM",
-        "ORCL"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "JP모건) PC 및 서버; AMD 2026년 2분기 실적 시사점 읽어내기 AMD 2026년 2분기 실적 발표(AMD US, Neutral, 담당 Harlan Sur)에서 아시아 PC/서버 공급망에 대한 핵심..."
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/24557",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24557",
+      "datetime": "2026-08-13T07:52:52.000Z",
+      "localDateKst": "2026-08-13",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [],
+      "score": 100,
+      "hasText": true,
+      "summary": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가..."
+    },
+    {
+      "id": "insidertracking/61037",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61037",
+      "datetime": "2026-08-13T06:48:31.000Z",
+      "localDateKst": "2026-08-13",
+      "tags": [
+        "macro",
+        "ai-policy",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 67,
+      "hasText": true,
+      "summary": "앤트로픽 투자자들이 회사가 오는 10월 상장에 나서며 기업가치가 2조 달러 이상에 이를 것으로 전망. 해당 가치로 상장할 경우 스페이스X를 넘어 역사상 최대 규모의 기업공개 기록을 세울 것으로 예상. 앤트로픽..."
+    },
     {
       "id": "HANAchina/67097",
       "channel": "HANAchina",
@@ -45091,24 +44956,6 @@
       "summary": "BofA, 샌디스크(SanDisk, &#036;SNDK ), 목표 주가 2,500달러, '매수' 의견 실적 발표 및 월가의 오해 4분기 폭발적 실적 : 매출 89억 7,000만 달러(전년 대비 175% 급증,..."
     },
     {
-      "id": "insidertracking/60695",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60695",
-      "datetime": "2026-08-09T05:03:59.000Z",
-      "localDateKst": "2026-08-09",
-      "tags": [
-        "macro",
-        "earnings",
-        "japan"
-      ],
-      "tickers": [
-        "T"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "스페이스X가 통신사를 파괴하진 않는다…대신 산업 구조를 바꿀 전망 스페이스X의 스타링크가 미국 이동통신 시장 진출을 확대하면서 AT&T, 버라이즌, T모바일 주가가 압박받고 있음. 스페이스X가 2027년 자체..."
-    },
-    {
       "id": "aetherjapanresearch/24453",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/24453",
@@ -45519,27 +45366,6 @@
       "score": 60,
       "hasText": true,
       "summary": ">>모건스탠리 Shawn Kim “매도에서 매수로 전환”: 메모리 업황 조정 “막바지에 가까워졌음”, SK하이닉스 EPS 13% 상향 •보고서에서 메모리 반도체 업종의 가장 극심한 조정이 막바지에..."
-    },
-    {
-      "id": "aetherjapanresearch/24436",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24436",
-      "datetime": "2026-08-07T11:15:08.000Z",
-      "localDateKst": "2026-08-07",
-      "tags": [
-        "macro",
-        "ai-policy",
-        "kr-market",
-        "equity",
-        "flows"
-      ],
-      "tickers": [
-        "GOOG",
-        "META"
-      ],
-      "score": 73,
-      "hasText": true,
-      "summary": ">>Gemini 붕괴, Meta가 추월해 ‘AI 3위’가 됐나? 구글은 1년 전의 Meta가 될 것인가? (중국언론) • 하루 만에 시가총액이 1,800억 달러 넘게 증발. Gemini 출시 연기가 구글 AI..."
     }
   ],
   "current24hItems": [
@@ -45556,20 +45382,6 @@
       "score": 52,
       "hasText": true,
       "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 수년 동안 압도적 다수의 미국인들은 서머타임을 영구적으로 시행해 달라고 요구해 왔지만, 지금까지 어느 행정부도 이를 제대로 해내지 못했다. 이제 하원이 법안을 통과시켰고, 최종..."
-    },
-    {
-      "id": "HANAchina/67068",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67068",
-      "datetime": "2026-08-12T22:48:10.000Z",
-      "localDateKst": "2026-08-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
     },
     {
       "id": "bornlupin/19695",
@@ -45605,36 +45417,6 @@
       "summary": ">>AI 거래, 더 이상 일제히 오르내리지 않음: 광학 네트워크와 데이터센터 우위, 메모리와 전력 테마 상대 열위 •AI 부문의 내재변동성은 다른 부문에 비해 여전히 3년 고점 수준에 있으며, 이는 고객들이..."
     },
     {
-      "id": "HANAchina/67066",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67066",
-      "datetime": "2026-08-12T22:35:31.000Z",
-      "localDateKst": "2026-08-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "~\"亞~유럽 40일 항해를 20일로\"… 中, 북극해 통과 '빙하 실크로드' 구축 착수 ▶ 기사 원문 보기: [글로벌이코노믹]"
-    },
-    {
-      "id": "HANAchina/67065",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67065",
-      "datetime": "2026-08-12T22:27:40.000Z",
-      "localDateKst": "2026-08-13",
-      "tags": [
-        "kr-market",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 43,
-      "hasText": true,
-      "summary": ">>월가의 Tencent 실적 평가 : AI 가치가 이미 광고 사업에서 나타나고 있으며, 높은 자본지출은 장기적인 AI 인프라 진입권을 확보하기 위한 것 •Tencent 산하 자동화 광고 관리 솔루션 AIM+..."
-    },
-    {
       "id": "HANAchina/67064",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/67064",
@@ -45665,20 +45447,6 @@
       "score": 74,
       "hasText": true,
       "summary": ">>미국 10년물 국채 발행 수익률, 2007년 금융위기 이후 최고 •미국 10년물 국채 경매 낙찰 수익률이 4.683%에 달해 2007년 이후 최고치를 기록. 목요일 30년물 국채 경매에서는 25년 만에..."
-    },
-    {
-      "id": "HANAchina/67062",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67062",
-      "datetime": "2026-08-12T22:13:51.000Z",
-      "localDateKst": "2026-08-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ">>고체전지 산업화 난관 돌입, 핵심 온간등방압 장비 내년 돌파구 마련 가능성 •현재 고체전지는 아직 대규모 양산되지 못하고 있으며, ‘고체-고체 계면 접촉 문제’ 등 장기간 이어져 온 핵심 난제가 여전히..."
     },
     {
       "id": "insidertracking/61004",
@@ -45789,34 +45557,6 @@
       "score": 51,
       "hasText": true,
       "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 트럼프 대통령이 트루스소셜 게시물에 대한 유료 조기 접근 프로그램과 관련해 소송에 직면. 트럼프 대통령의 소셜미디어 기업은 지난 8월부터 시장에 영향을 미칠 수 있는 대통령..."
-    },
-    {
-      "id": "insidertracking/60994",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60994",
-      "datetime": "2026-08-12T20:44:41.000Z",
-      "localDateKst": "2026-08-13",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 이스라엘군이 레바논 남부 전역에서 공격을 강화. 마샤 알만수리 지역에 여러 차례 공습을 실시했으며, 만수리 일대에는 포격과 총격이 이어져 주택 1채에서 화재 발생. 알리..."
-    },
-    {
-      "id": "insidertracking/60992",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60992",
-      "datetime": "2026-08-12T20:43:30.000Z",
-      "localDateKst": "2026-08-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "우크라이나가 밤사이 드론과 넵튠 미사일, 해상 드론을 동원해 러시아 흑해 거점 노보로시스크를 공격, 해군기지와 항만 인프라를 타격. 주요 곡물 터미널 2곳이 피해를 입어 운영을 중단. 러시아 당국은..."
     },
     {
       "id": "insidertracking/60988",
