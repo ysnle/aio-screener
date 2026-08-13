@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-13T17:13:22.233Z",
-  "attemptedAt": "2026-08-13T17:13:22.233Z",
-  "lastSuccessfulAt": "2026-08-13T17:13:22.233Z",
+  "generatedAt": "2026-08-13T18:08:16.086Z",
+  "attemptedAt": "2026-08-13T18:08:16.086Z",
+  "lastSuccessfulAt": "2026-08-13T18:08:16.086Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-07-30T17:13:17.083Z",
-  "until": "2026-08-13T17:13:17.083Z",
+  "since": "2026-07-30T18:08:11.377Z",
+  "until": "2026-08-13T18:08:11.377Z",
   "current24hWindow": {
     "start": "2026-08-11T23:00:00.000Z",
     "end": "2026-08-12T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 184,
-    "eligibleTextCount": 29,
+    "eligibleTextCount": 24,
     "channelCounts": {
       "insidertracking": 77,
       "HANAchina": 64,
@@ -78,12 +78,12 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 342,
-      "freshCount": 38,
-      "eligibleTextCount": 37,
+      "freshCount": 18,
+      "eligibleTextCount": 17,
       "selectedCount": 85,
       "error": null,
       "lastPostId": 24572
@@ -102,15 +102,15 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 255,
-      "freshCount": 20,
-      "eligibleTextCount": 20,
+      "count": 256,
+      "freshCount": 40,
+      "eligibleTextCount": 40,
       "selectedCount": 76,
       "error": null,
-      "lastPostId": 19702
+      "lastPostId": 19703
     },
     {
       "channel": "HANAchina",
@@ -125,9 +125,23 @@
       "lastPostId": 67109
     }
   ],
-  "count": 2523,
-  "retainedItemCount": 434,
+  "count": 2524,
+  "retainedItemCount": 438,
   "observedItems": [
+    {
+      "id": "bornlupin/19703",
+      "channel": "bornlupin",
+      "datetime": "2026-08-13T17:38:20.000Z",
+      "localDateKst": "2026-08-14",
+      "score": 65,
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/24572",
       "channel": "aetherjapanresearch",
@@ -1523,7 +1537,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67073",
@@ -1562,7 +1576,7 @@
         "NVDA",
         "AMD"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67072",
@@ -1591,7 +1605,7 @@
       "tickers": [
         "LRCX"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61010",
@@ -1678,7 +1692,7 @@
         "NBIS",
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61007",
@@ -2484,7 +2498,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24547",
@@ -2501,7 +2515,7 @@
         "035420.KS",
         "011210.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24546",
@@ -2521,7 +2535,7 @@
       "tickers": [
         "CAT"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24545",
@@ -2540,7 +2554,7 @@
       "tickers": [
         "LITE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19690",
@@ -2618,7 +2632,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24543",
@@ -2630,7 +2644,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60967",
@@ -2658,7 +2672,7 @@
       "tickers": [
         "LITE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24541",
@@ -2674,7 +2688,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19688",
@@ -3067,7 +3081,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67045",
@@ -3143,7 +3157,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60951",
@@ -3229,7 +3243,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60949",
@@ -3269,7 +3283,7 @@
       "tickers": [
         "267260.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19682",
@@ -3281,7 +3295,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67040",
@@ -3457,7 +3471,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60945",
@@ -3530,7 +3544,7 @@
         "005930.KS",
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19680",
@@ -3546,7 +3560,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24535",
@@ -3560,7 +3574,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/60942",
@@ -3609,7 +3623,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60939",
@@ -3656,7 +3670,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60938",
@@ -3701,7 +3715,7 @@
       "tickers": [
         "SNDK"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67029",
@@ -3882,7 +3896,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67022",
@@ -4141,7 +4155,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67007",
@@ -4168,7 +4182,7 @@
       "tickers": [
         "RKLB"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24532",
@@ -4265,7 +4279,7 @@
         "035420.KS",
         "161890.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19674",
@@ -4277,7 +4291,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60925",
@@ -4312,7 +4326,7 @@
       "tickers": [
         "103590.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19672",
@@ -4326,7 +4340,7 @@
       "tickers": [
         "192820.KQ"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67004",
@@ -4427,7 +4441,7 @@
         "BCS",
         "DB"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67001",
@@ -4507,7 +4521,7 @@
         "LITE",
         "BCS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/66998",
@@ -4850,7 +4864,7 @@
       "tickers": [
         "SMCI"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60899",
@@ -4875,7 +4889,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60898",
@@ -4993,7 +5007,7 @@
         "CAT",
         "CRWV"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60892",
@@ -5114,7 +5128,7 @@
       "tickers": [
         "LITE"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/60886",
@@ -5392,7 +5406,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19664",
@@ -5409,7 +5423,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19663",
@@ -35905,24 +35919,24 @@
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2523,
+    "observedCount": 2524,
     "eligibleTextCount": 92,
-    "mediaOnlyCount": 2431,
-    "highSignalCount": 656,
-    "broadSignalCount": 1278,
+    "mediaOnlyCount": 2432,
+    "highSignalCount": 657,
+    "broadSignalCount": 1279,
     "selectedRawCount": 405,
     "selectedRawCoveragePct": 440.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "semi": 748,
+    "power": 365,
+    "earnings": 653,
     "japan": 217,
-    "earnings": 652,
-    "semi": 747,
     "market-note": 601,
     "macro": 899,
     "ai-policy": 196,
     "equity": 212,
-    "power": 364,
     "media-only": 42,
     "geo": 398,
     "insider": 84,
@@ -36155,19 +36169,19 @@
   },
   "themes": [
     "Macro/Rates (899 posts in 14-day research window): JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를...",
-    "Semiconductors/Memory (747 posts in 14-day research window): JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를...",
-    "Earnings/Corporate (652 posts in 14-day research window): JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를...",
+    "Semiconductors/Memory (748 posts in 14-day research window): JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를...",
+    "Earnings/Corporate (653 posts in 14-day research window): JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를...",
     "Market Notes (601 posts in 14-day research window): 국민연금공단 Q2 13F 신규 매수 종목보면... 스페이스X, 허니웰에어로스페이스, 아이온큐, 세라브레스, 아이렌 같은 종목들을 담았네요&#33; > 전체 포트폴리오 비중에서 크게 차지하는 종목은 없습니다. 그나마 제일 큰게 스페이스X 0.4%",
     "Korea Market (410 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단...",
     "Geopolitics (398 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
-    "AI Power/Grid (364 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
+    "AI Power/Grid (365 posts in 14-day research window): Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다....",
     "Positioning/Flows (268 posts in 14-day research window): Pre-Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 해외 관할권에서 활동하는 초국가적 범죄조직을 상대로 미국 법집행기관의 사이버 수단..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
       "count": 199,
-      "text": "[단독]싱가포르 테마섹, 삼전닉스 담는다…'K증시 첫 투자 ' 아시아 최대 국부펀드 중 하나인 싱가포르 테마섹이 삼성전자와 SK하이닉스에 신규 투자를 단행한다. 테마섹이 한국 증시 투자에 나서는 건 이번이..."
+      "text": "[단독]싱가포르 테마섹, 삼전닉스 담는다…'K증시 첫 투자 ' 아시아 최대 국부펀드 중 하나인 싱가포르 테마섹이 삼성전자와 SK하이닉스에 신규 투자를 단행한다. 테마섹이 한국 증시 투자에 나서는 건 이번이 처음이다. 투자 방식은 외부 자산운용사를 통한 위탁운용이 아닌 내부 인력을 통한 직접 투자 방식을 택한 것으로..."
     },
     {
       "key": "005930.KS",
@@ -36187,7 +36201,7 @@
     {
       "key": "TSM",
       "count": 91,
-      "text": "[단독]싱가포르 테마섹, 삼전닉스 담는다…'K증시 첫 투자 ' 아시아 최대 국부펀드 중 하나인 싱가포르 테마섹이 삼성전자와 SK하이닉스에 신규 투자를 단행한다. 테마섹이 한국 증시 투자에 나서는 건 이번이..."
+      "text": "[단독]싱가포르 테마섹, 삼전닉스 담는다…'K증시 첫 투자 ' 아시아 최대 국부펀드 중 하나인 싱가포르 테마섹이 삼성전자와 SK하이닉스에 신규 투자를 단행한다. 테마섹이 한국 증시 투자에 나서는 건 이번이 처음이다. 투자 방식은 외부 자산운용사를 통한 위탁운용이 아닌 내부 인력을 통한 직접 투자 방식을 택한 것으로..."
     },
     {
       "key": "GOOG",
@@ -36259,7 +36273,7 @@
       "topics": [
         "semi"
       ],
-      "count": 747,
+      "count": 748,
       "focus": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
     },
     {
@@ -36277,7 +36291,7 @@
       "topics": [
         "power"
       ],
-      "count": 364,
+      "count": 365,
       "focus": "Citi) 네비우스 (NBIS.O): 상업적 모멘텀이 데이터센터 구축 우려를 앞지르다. TP &#036;278 (8월 12일) 투자의견은 매수(고위험)이며 목표주가는 278달러입니다. 8월 11일 종가 193.23달러 대비 43.9%의 상승 여력을 의미하며, 시가총액은 약 490억 6,100만 달러입니다...."
     },
     {
@@ -36322,7 +36336,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 652,
+      "count": 653,
       "focus": "JP모건) 오라클(ORCL); 상당한 자본 소요에도 불구하고 밸류에이션 리레이팅과 빠른 스케일업이 상승 여력을 이끌 것으로 판단, 비중확대(OW) 의견 및 2027년 12월 목표주가 200달러(기존 26년 목표가 &#036;210) JP모건은 오라클에 대해 Overweight 투자의견을 유지하면서 목표주가를..."
     },
     {
@@ -37796,6 +37810,22 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19703",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19703",
+      "datetime": "2026-08-13T17:38:20.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 65,
+      "hasText": true,
+      "summary": "샌디스크, AI 기반 NAND 성장 전략 및 FY2028–FY2030 재무 모델 발표 * 샌디스크, FY2030까지 10% 중후반대의 매출 성장률 목표 설정 * Non-GAAP 기준 매출총이익률(Gross..."
+    },
     {
       "id": "HANAchina/67109",
       "channel": "HANAchina",
@@ -44999,21 +45029,6 @@
       "score": 79,
       "hasText": true,
       "summary": "대만 7월 수출 전년 대비 30% 급증, 33개월 연속 상승세… 금액 753억 달러 돌파 대만의 7월 수출이 글로벌 AI 수요 폭발에 힘입어 역대 단월 3위 규모인 753억 달러를 기록하며 33개월 연속..."
-    },
-    {
-      "id": "bornlupin/19596",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19596",
-      "datetime": "2026-08-08T00:49:40.000Z",
-      "localDateKst": "2026-08-08",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "score": 69,
-      "hasText": true,
-      "summary": "BofA, 엔비디아 플래그십 GPU 대여 가격, 2026년 8월 기준 모두 역대 최고치 근접 블랙웰(B200) 주도: B200은 지난 봄 가파른 가격 재평가 이후 시간당 5.66달러에 꾸준히 거래되며 지수 내..."
     }
   ],
   "current24hItems": [
@@ -46154,6 +46169,20 @@
       "summary": "JP모건) HD현대일렉트릭; 마진 전망, 캐파, 가격, 신규 수주에 관한 2분기 NDR 콜의 주요 내용 당사는 오늘 현대일렉트릭과 그룹 NDR 콜을 진행했습니다. 2분기 실적 발표 이후 현대일렉트릭의 향후..."
     },
     {
+      "id": "bornlupin/19682",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19682",
+      "datetime": "2026-08-12T08:10:15.000Z",
+      "localDateKst": "2026-08-12",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "폭스콘: 4분기에 엔비디아 베라 루빈(Vera Rubin) 플랫폼 출하를 시작할 예정"
+    },
+    {
       "id": "HANAchina/67038",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/67038",
@@ -46685,20 +46714,6 @@
       "summary": ">>Lumentum 컨콜: CEO “초고출력 레이저 수요가 생산능력을 크게 웃돌아”…NPO 기회는 완전한 추가 수요 •Lumentum CEO는 회사가 AI가 주도하는 광인터커넥트 혁명의 핵심에 있다 고 강조..."
     },
     {
-      "id": "aetherjapanresearch/24534",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24534",
-      "datetime": "2026-08-12T00:31:51.000Z",
-      "localDateKst": "2026-08-12",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "이제 은행=카지노 돈 빌려주는곳 증권사=카지노"
-    },
-    {
       "id": "aetherjapanresearch/24533",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/24533",
@@ -46810,6 +46825,20 @@
       "summary": "2026.08.12 09:15:17 기업명: 한국콜마(시가총액: 2조 6,745억) A161890 보고서명: 연결재무제표기준영업(잠정)실적(공정공시) 매출액 : 8,613억(예상치 : 8,312억+/ 4%)..."
     },
     {
+      "id": "bornlupin/19674",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19674",
+      "datetime": "2026-08-12T00:07:54.000Z",
+      "localDateKst": "2026-08-12",
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "2026.08.12 07:35:22 기업명: 피델릭스(시가총액: 1,782억) A032580 보고서명: 반기보고서 (2026.06) 잠정실적 : N 매출액 : 334억(예상치 : -) 영업익 : 96억(예상치..."
+    },
+    {
       "id": "insidertracking/60925",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/60925",
@@ -46847,6 +46876,22 @@
       "score": 69,
       "hasText": true,
       "summary": "안녕하세요. 일진전기 2Q26 Review 자료 공유드립니다. 2Q26은 중전기 매출 확대와 수익성 개선이 동시에 나타나며 시장 기대치를 크게 상회한 분기였습니다. 변압기 OPM은 25% 이상에서 안정화되고..."
+    },
+    {
+      "id": "bornlupin/19672",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19672",
+      "datetime": "2026-08-11T23:40:53.000Z",
+      "localDateKst": "2026-08-12",
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [
+        "192820.KQ"
+      ],
+      "score": 44,
+      "hasText": true,
+      "summary": "[교보증권 음식료/화장품 권우정] 안녕하세요, 금일 코스맥스 2Q26 리뷰 발간했습니다. 전 법인이 예상 상회하는 실적 호조 기록했습니다 코스맥스(192820) - 2분기 매출 7,949억원(YoY 28%),..."
     },
     {
       "id": "HANAchina/67004",
