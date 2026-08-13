@@ -25,8 +25,10 @@ export function createOutcomeLedger(initial = []) {
   return Object.freeze({ record, recordForRun, list, snapshot });
 }
 
-export function calculateOutcome({ runId, instrumentId, entry, exit, benchmarkEntry = null, benchmarkExit = null, horizon = 'T+21', costBps = 0, liquidityFlags = [] } = {}) {
+export function calculateOutcome({ runId, instrumentId, entry, exit, benchmarkEntry = null, benchmarkExit = null, horizon = 'T+21', costBps = null, liquidityFlags = [] } = {}) {
   if (!OUTCOME_HORIZONS.includes(horizon)) return createOutcomeObservation({ runId, instrumentId, horizon, status: 'unavailable', liquidityFlags: ['invalid_horizon'] });
+  const modeledCostBps = typeof costBps === 'number' ? costBps : NaN;
+  if (!Number.isFinite(modeledCostBps) || modeledCostBps < 0) return createOutcomeObservation({ runId, instrumentId, horizon, status: 'unavailable', liquidityFlags: [...liquidityFlags, 'transaction_cost_missing'], costsApplied: false });
   const entryValue = Number(entry?.value);
   const exitValue = Number(exit?.value);
   const benchmarkStart = Number(benchmarkEntry?.value);
@@ -34,8 +36,8 @@ export function calculateOutcome({ runId, instrumentId, entry, exit, benchmarkEn
   if (![entryValue, exitValue].every(Number.isFinite) || entryValue <= 0 || exitValue <= 0) return createOutcomeObservation({ runId, instrumentId, horizon, entryObservedAt: entry?.observedAt, exitObservedAt: exit?.observedAt, status: 'unavailable', liquidityFlags: [...liquidityFlags, 'price_missing'], costsApplied: false });
   const rawReturn = (exitValue / entryValue - 1) * 100;
   const benchmarkReturn = [benchmarkStart, benchmarkEnd].every(Number.isFinite) && benchmarkStart > 0 ? (benchmarkEnd / benchmarkStart - 1) * 100 : null;
-  const netReturn = rawReturn - Number(costBps || 0) / 100;
-  return createOutcomeObservation({ runId, instrumentId, horizon, entryConvention: 'next-completed-close', entryObservedAt: entry?.observedAt, exitObservedAt: exit?.observedAt, rawReturn: netReturn, benchmarkReturn, maxDrawdown: finiteDrawdown(entry, exit), liquidityFlags, costsApplied: Number(costBps || 0) > 0, costBps, status: 'observed', observedAt: exit?.observedAt });
+  const netReturn = rawReturn - modeledCostBps / 100;
+  return createOutcomeObservation({ runId, instrumentId, horizon, entryConvention: 'next-completed-close', entryObservedAt: entry?.observedAt, exitObservedAt: exit?.observedAt, rawReturn: netReturn, benchmarkReturn, maxDrawdown: finiteDrawdown(entry, exit), liquidityFlags, costsApplied: true, costBps: modeledCostBps, status: 'observed', observedAt: exit?.observedAt });
 }
 
 function finiteDrawdown(entry, exit) {
@@ -48,4 +50,3 @@ export function expectedExitDate(entryObservedAt, horizon = 'T+21') {
   const start = Date.parse(entryObservedAt || '');
   return Number.isFinite(start) && horizonDays[horizon] ? new Date(start + horizonDays[horizon] * 86_400_000).toISOString() : null;
 }
-

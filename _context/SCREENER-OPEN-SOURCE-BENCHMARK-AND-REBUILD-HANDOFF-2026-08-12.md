@@ -3,6 +3,7 @@ verified_by: Codex
 last_verified: 2026-08-13
 repository_version: v54.15
 status: IMPLEMENTED_LOCAL
+local_code_status: VERIFIED_LOCAL
 implementation_authorized: true
 confidence: high_for_repository_artifacts_and_linked_project_documentation_medium_for_unverified_live_provider_behavior
 research_as_of: 2026-08-12
@@ -417,7 +418,13 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 #### v54.15 구현 상태
 
 - `SCR-UX-00~05` are implemented locally in the native screener route.
-- Live certification is not promoted here: local Chromium viewport/smoke gates pass, while the in-app Browser connector could not reach the local server and GitHub Pages parity was not deployed in this turn.
+- Local Chromium, CI, and GitHub Pages parity for v54.15 passed. The in-app Browser connector could not reach the local server, so Browser Tier 13 remains blocked and is not promoted to `VERIFIED_LIVE`.
+
+#### v54.16 로컬 코드 계약 검증 상태
+
+- `SCR-OS-00~11` local implementation and contract gates are now `VERIFIED_LOCAL`: FieldRegistry 37 fields, 6 saved presets, deterministic 873/5k/20k scale benchmark, Outcome T+1/5/21/63, refresh/provider/regime contracts, and Workbench UI wiring all pass.
+- PIT validation has both fail-closed and complete-evidence fixtures. Missing PIT universe, filing availability, turnover, cost, liquidity, or live/backtest parity remains blocked; complete evidence is review-ready but never auto-promotes regime weights.
+- `model-validation-status.json` and `screener-validation-gate.json` intentionally remain `BLOCKED` for real-world predictive validity. Provider rights/keys, point-in-time production artifacts, live provider parity, operations soak, and in-app Browser certification require external evidence.
 
 | 패킷 | 내용 | 선행조건 | 완료 gate |
 |---|---|---|---|
@@ -907,9 +914,9 @@ AIO의 격차는 데이터 종류 부족보다 **선별 정의와 관측 시점,
 
 - 외부 코드 또는 라이선스 데이터 도입
 - 새 API key/provider 계약
-- runtime field registry/DSL/outcome ledger 구현은 로컬 코드와 계약 gate로 추가되었으나, 최종 검증 전까지 `IMPLEMENTED_LOCAL`로만 표시한다.
+- runtime field registry/DSL/outcome ledger, PIT/cost validation, and promotion boundaries are implemented and contract-tested locally as `VERIFIED_LOCAL`; this does not claim real-data predictive validity.
 - PIT universe와 거래비용 검증
 - 자동 레짐 가중치의 predictive 승격
-- local/live 성능·접근성·운영 soak 및 in-app browser/Pages parity
+- real-data PIT universe/trading-cost evidence, provider rights/keys, predictive promotion, operations soak, and in-app Browser Tier 13 live certification. GitHub Pages parity is verified for the deployed revision, but these external gates remain blocked.
 
 이 문서의 다음 상태 변경은 최종 로컬 gate/benchmark 결과 또는 별도 live/provider/PIT 증거가 생성될 때만 수행한다.

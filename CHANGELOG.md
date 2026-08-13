@@ -1,3 +1,12 @@
+## v54.16 (2026-08-13)
+- Closed the local SCR-OS contract gaps: PIT validation now checks point-in-time dates, observation shape, turnover, liquidity, costs, benchmark identity, and live/backtest definition parity.
+- Added positive and fail-closed PIT fixtures; complete evidence is review-ready only, with `promoted:false` and `autoWeightPromotion:false` preserved for regime weights.
+- Outcome Ledger now requires an explicit non-negative modeled transaction cost; zero cost is valid and missing/invalid cost is unavailable rather than silently free.
+- Updated handoff, QA, model-validation, and screener-validation artifacts to distinguish `VERIFIED_LOCAL` from blocked real-data/provider/live certification.
+- Verified syntax and screener/research contract gates after the changes; full release gates and Pages deployment are run for v54.16 below.
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v54.16
+
 ## v54.15 (2026-08-13)
 - Completed SCR-UX-00~05 for the native screener: a single column registry now drives headers/cells/sort/presets, with rank-desc discovery defaults and sticky identity preservation.
 - Replaced JSON-first Workbench presentation with a visual condition builder, saved-screen selection/save flow, active filter chips, funnel counts, explicit run snapshot status, and a developer-only JSON drawer.

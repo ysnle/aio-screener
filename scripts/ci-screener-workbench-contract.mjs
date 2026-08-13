@@ -151,8 +151,43 @@ function run() {
   const gate = createValidationGate({ observedAt: '2026-08-12T00:00:00.000Z' });
   assert(!pit.ok && gate.status === 'BLOCKED' && gate.blockers.length >= 5, 'G-SCR-PIT: missing PIT/cost/liquidity evidence remains blocked');
   assert(promotionDecision({ gate, regime: on, result }).promoted === false, 'G-SCR-PROMOTION: blocked validation cannot promote weights');
+  const pitReady = validatePITRun({
+    universe: [{
+      asOf: '2026-08-12T00:00:00.000Z',
+      effectiveAt: '2026-08-11T00:00:00.000Z',
+      filedAt: '2026-08-01T00:00:00.000Z',
+      availableAt: '2026-08-02T00:00:00.000Z',
+      validFrom: '2020-01-01T00:00:00.000Z',
+      turnover: 0.12,
+      liquidity: { dollarVolume30d: 4_000_000 },
+      costBps: 15
+    }],
+    observations: [{ instrumentId: 'US:AAA', observedAt: '2026-08-11T00:00:00.000Z' }],
+    asOf: '2026-08-12T00:00:00.000Z',
+    benchmark: { symbol: 'SPY' },
+    costs: { roundTripBps: 15 },
+    liquidity: { dollarVolume30d: 4_000_000 },
+    liveDefinitionHash: definition.definitionHash,
+    backtestDefinitionHash: definition.definitionHash
+  });
+  const readyGate = createValidationGate({
+    pointInTimeUniverse: true,
+    delistingAndCorporateAction: true,
+    filingAvailableDate: true,
+    turnoverModeled: true,
+    transactionCostsModeled: true,
+    liquidityCapacityModeled: true,
+    liveBacktestParity: true,
+    observedAt: '2026-08-12T00:00:00.000Z'
+  });
+  const reviewDecision = promotionDecision({ gate: readyGate, regime: { allowedUse: 'reference-only', liveBacktestParity: true }, result });
+  assert(pitReady.ok && readyGate.status === 'READY_FOR_RESEARCH_PROMOTION_REVIEW', 'G-SCR-PIT: complete evidence path validates without promoting live status');
+  assert(reviewDecision.promotionReviewReady && reviewDecision.promoted === false && reviewDecision.autoWeightPromotion === false, 'G-SCR-PROMOTION: ready evidence still requires human review and keeps auto promotion disabled');
   const outcomes = OUTCOME_HORIZONS.map((horizon) => calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon, entry: { value: 100, observedAt: '2026-08-12T00:00:00.000Z' }, exit: { value: 105, low: 98, observedAt: '2026-08-20T00:00:00.000Z' }, benchmarkEntry: { value: 100 }, benchmarkExit: { value: 102 }, costBps: 15 }));
   assert(outcomes.length === 4 && outcomes.every((outcome) => outcome.status === 'observed' && outcome.costsApplied), 'G-SCR-OUTCOME: T+1/5/21/63 outcomes carry cost flags');
+  const zeroCostOutcome = calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100, observedAt: '2026-08-12T00:00:00.000Z' }, exit: { value: 105, observedAt: '2026-08-13T00:00:00.000Z' }, costBps: 0 });
+  const missingCostOutcome = calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100 }, exit: { value: 105 } });
+  assert(zeroCostOutcome.status === 'observed' && zeroCostOutcome.costsApplied && missingCostOutcome.status === 'unavailable' && missingCostOutcome.liquidityFlags.includes('transaction_cost_missing'), 'G-SCR-COST: explicit zero cost is modeled while missing cost is unavailable');
 
   const artifact = readJson('public-data/screener.json');
   const model = readJson('public-data/model-validation-status.json');

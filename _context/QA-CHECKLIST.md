@@ -3,13 +3,21 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-13
 confidence: high
 
+## v54.16 SCR-OS local contract closure and promotion safety (2026-08-13)
+
+- [x] QA-SCR-OS14: PIT validation rejects missing/invalid point-in-time dates, present-day universes, missing filing availability, turnover, liquidity, costs, malformed observations, and live/backtest definition mismatch.
+- [x] QA-SCR-OS15: a complete PIT evidence fixture validates successfully, while the promotion decision remains `promoted:false`, `autoWeightPromotion:false`, and review-only.
+- [x] QA-SCR-OS16: Outcome Ledger requires an explicit finite non-negative transaction cost; modeled zero cost remains observable, while missing/invalid cost is `unavailable` with `transaction_cost_missing`.
+- [x] QA-SCR-OS17: the screener workbench contract gate covers both blocked and positive PIT paths, 37 registered fields, 6 presets, deterministic scale fixtures, refresh/provider/regime contracts, and T+1/5/21/63 outcomes.
+- [ ] QA-SCR-OS18: real provider rights/keys, point-in-time production universe, live/backtest parity, operations soak, and in-app Browser Tier 13 remain external certification gates; no local contract result promotes them to live.
+
 ## v54.15 SCR-UX-00~05 native screener UI/UX and visual workflow (2026-08-13)
 
 - [x] QA-SCR-UX1: one `SCREENER_COLUMN_REGISTRY` owns visible labels, row cells, sortable headers, widths, identity stickiness, and discovery/full column presets; default sort is visible `rank desc` and rendered header/cell counts match at 9/9 and 22/22.
 - [x] QA-SCR-UX2: saved-screen selection/save, visual condition builder, active filter chips, explicit full reset, funnel counts, and developer-only JSON import/export are wired without exposing raw parser errors as the primary user status.
 - [x] QA-SCR-UX3: row click selects and opens WhyRanked/WhyRejected; factor contribution, contrary evidence, missing evidence, provenance, explicit ticker action, return context, and five-item compare tray are present.
 - [x] QA-SCR-UX4: secondary tabs expose `tablist/tab/tabpanel` semantics; backtest `NO_BACKTEST_DATA` is distinct from zero-valued observed IC; dark-theme active controls and factor tracks use semantic tokens.
-- [x] QA-SCR-UX5: syntax, ESM/runtime/structural contracts, 17-route desktop viewport matrix, light/dark screener smoke, keyboard sort target, builder/reset/Why/compare interactions, and body-overflow checks pass locally. Live in-app Browser Tier 13 was attempted but blocked by the Browser connector from reaching the local server; GitHub Pages parity remains unverified until deployment.
+- [x] QA-SCR-UX5: syntax, ESM/runtime/structural contracts, 17-route desktop viewport matrix, light/dark screener smoke, keyboard sort target, builder/reset/Why/compare interactions, and body-overflow checks pass locally. Live in-app Browser Tier 13 was attempted but blocked by the Browser connector from reaching the local server; GitHub Pages v54.15 parity was subsequently deployed and verified separately.
 - [x] QA-SCR-UX6: screener sort, Why, compare, and watchlist controls meet the 44px mobile touch target; the 20-route accessibility matrix passes with zero console errors.
 - [x] QA-DATA-01: official CPI calendar rolls `lastRelease` to 2026-08-12 and `nextRelease` to 2026-09-11, matching the BLS release schedule and passing T759.
 

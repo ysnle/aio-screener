@@ -1,12 +1,22 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
-last_verified: 2026-08-12
+last_verified: 2026-08-13
 confidence: high
-latest_version: v54.13
-latest_P_number: P914
-next_P_number: P915
+latest_version: v54.16
+latest_P_number: P915
+next_P_number: P916
 current_total_entries: 635 (P1~P911, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P914 v54.13 screener validation gate lineage policy registration
+current_checkpoint: P915 v54.16 screener PIT/cost fail-closed contract closure
+
+## P915 - v54.16 - Missing transaction cost was silently treated as zero in the Outcome Ledger
+
+- **motivation**: Outcome validation must distinguish an explicitly modeled zero transaction cost from missing cost evidence; otherwise research results can appear net-of-cost when no cost model exists.
+- **symptom/reproduction**: `calculateOutcome()` converted an omitted `costBps` value with `Number(null)`, producing `0`, `costsApplied: true`, and an observed outcome instead of an unavailable record.
+- **root_cause**: Numeric coercion occurred before the presence/type boundary, so JavaScript nullish input was indistinguishable from an explicit numeric zero.
+- **fix**: Accept only an explicit finite non-negative numeric `costBps`; preserve explicit zero as modeled and return `unavailable` with `transaction_cost_missing` for omitted/invalid values. Added positive and negative contract fixtures.
+- **violated_rule**: R471; screener research outcomes must be evidence-bound and fail closed when costs/liquidity are not modeled.
+- **prevention**: Keep missing-vs-zero tests in `ci-screener-workbench-contract.mjs`; never use numeric coercion to infer a research input from nullish data.
+- **verification**: `ci-screener-workbench-contract.mjs` PASS with 37 fields, 6 presets, PIT blocked/ready fixtures, T+1/5/21/63 outcomes, and auto-promotion disabled.
 
 ## P914 - v54.13 - New screener validation artifact was absent from lineage policy registry
 
